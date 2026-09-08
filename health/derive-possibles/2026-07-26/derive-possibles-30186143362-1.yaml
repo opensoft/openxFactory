@@ -1,0 +1,66 @@
+schema_version: 1
+kind: derive_possibles_run
+status: record
+run_id: derive-possibles-30186143362-1
+source_revision: 41e005ffa78a78c75c2a6a7d2a84f231b6e89643
+generated_at: '2026-07-26T00:00:00Z'
+prompt_contract_version: derive-possibles-prompt-v1
+worker_profile: derive-possibles
+generator_version: possibles-derivation-0.1.0
+register_fingerprint_read: d08c9e81c747e1c370f00fe7a713f3400b3903079979d4fadc541813ea74a60b
+register_fingerprint_written: 00ba7099ece280af97a5fce0ceacb54603932f762dd0320a59a34cdf0bd2e4ef
+envelopes:
+- cluster_id: cl-doc-workflow
+  job_id: DPOSS-86c3db6420f9
+- cluster_id: cl-doc-management
+  job_id: DPOSS-c64e1d872bc5
+- cluster_id: cl-client-hermes
+  job_id: DPOSS-73a058da7bc9
+- cluster_id: cl-ideation-dashboard
+  job_id: DPOSS-d2c7992349e0
+- cluster_id: cl-domain-hermes
+  job_id: DPOSS-ec59a2bfb6be
+- cluster_id: cl-layer-content-seeding
+  job_id: DPOSS-fba5d4afbf1f
+- cluster_id: cl-memory-gateway
+  job_id: DPOSS-aed3fa544a43
+- cluster_id: cl-codexfactory
+  job_id: DPOSS-73dd222cbed8
+- cluster_id: cl-plane-1
+  job_id: DPOSS-d347d926a111
+- cluster_id: cl-practice-catalog
+  job_id: DPOSS-bf373408d04c
+proposed:
+- id: pos-derived-mobile-verdict-terminal-client-for-any-installed
+- id: pos-derived-stage-the-lens-enhancements-topic-consolidating
+- id: pos-derived-shared-passage-discovery-engine-feeding-both-the
+- id: pos-derived-unified-passage-evidence-citation-kernel
+- id: pos-derived-reusable-bounded-worker-evidence-contract-templa
+- id: pos-derived-custody-tier-gate-on-domain-to-neutral-promotion
+- id: pos-derived-governed-client-knowledge-base-ingestion-pipelin
+- id: pos-derived-risk-assurance-launch-review-council
+- id: pos-derived-cross-layer-spend-ledger-and-efficiency-audit-lo
+- id: pos-derived-lens-enhancements-staged-topic
+- id: pos-derived-topic-compilation-tree-as-shared-passage-discove
+- id: pos-derived-keycloak-as-unified-identity-backbone-across-das
+- id: pos-derived-domain-onboarding-playbook-dtn-kit
+- id: pos-derived-cross-layer-spend-ledger-efficiency-audit-servic
+- id: pos-derived-shared-persona-certification-battery
+- id: pos-derived-project-layer-cost-accountant-three-layer-cost-l
+- id: pos-derived-cross-domain-onboarding-playbook-domain-hermes-c
+- id: pos-derived-efficiency-audit-to-auto-clear-envelope-feedback
+- id: pos-derived-practice-catalog-as-the-increment-2-seeding-payl
+- id: pos-derived-consent-instrument-as-the-root-binding-for-subje
+- id: pos-derived-unified-evidence-gathering-to-decision-pipeline
+- id: pos-derived-seed-time-escalation-target-consistency-check
+- id: pos-derived-credential-required-not-held-stop-condition-wire
+- id: pos-derived-shared-mechanical-executor-pattern-for-merge-mas
+- id: pos-derived-cross-domain-persona-framework-package
+- id: pos-derived-roster-promotion-conformance-checklist
+- id: pos-derived-cross-layer-cost-accountability-pipeline
+- id: pos-derived-practice-catalog-domain-onboarding-kit
+- id: pos-derived-cross-domain-practice-suggestion-engine-validati
+- id: pos-derived-efficiency-audit-to-practice-catalog-feedback-pi
+merge_skipped: []
+skipped_clusters: []
+voided: []

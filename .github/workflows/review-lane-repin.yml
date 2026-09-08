@@ -1,0 +1,485 @@
+# review-lane-repin — the automated advance of this repository's pinned
+# decision core, PROPOSED and never disposed.
+#
+# REALIZES `mirror-floor-regeneration-automation` (ratified 2026-09-06 by Brett
+# Heap, verbatim "ratify both when green, then land them"; record
+# `openspec/changes/mirror-floor-regeneration-automation/review/ratification-2026-09-06.md`).
+# Its parent is codexFactory `add-floor-regeneration-automation`, which
+# automates the OTHER half of the same repair.
+#
+# WHAT IT REPLACES. Twice on 2026-09-05 a human advanced this pin by hand —
+# PR #689 (18:17Z → 18:39Z) and PR #702 (22:08Z → 22:50Z) — and both times the
+# act was the same: copy one codexFactory commit id into FOUR places, re-copy
+# one document, and recompute two numbers from its bytes. That is a
+# transcription, and the pin file says so about itself: its `refresh:` field
+# instructs "Re-copy the file ... recompute `sha256`, and update
+# `entry_count`. Never hand-edit the copy: it is a witness, and an edited
+# witness proves nothing" (`contracts/review-lane-pin.yaml`). THIS LANE IS
+# THAT SENTENCE, EXECUTED — and the JUDGMENT it does not perform (is this the
+# core commit we mean to be judged by?) stays with the human who merges.
+#
+# WHERE THE DECISIONS LIVE, AND WHY NOT HERE. Every refusal is in
+# `scripts/review_lane_repin.py`, in pure functions the tests drive with
+# fixtures. A refusal written in shell can only ever be asserted by grepping
+# the shell; a refusal written in Python is MEASURED by
+# `tests/review_lane_pin/test_repin_lane.py`. What stays here is what only a
+# workflow can do: the triggers, the identity, the two API reads, and the pull
+# request.
+#
+# THE TRIGGER IS A SWEEP, AND THE DISPATCH IS ONLY AN ACCELERATOR (decision
+# M-1, ratified as recommended). The ratified requirement is explicit that the
+# lane "SHALL NOT depend on being notified by the source repository's own
+# automation: a pin advance is owed whenever the floor document has moved,
+# INCLUDING when it moved by a hand act". A hand-authored codexFactory
+# regeneration — the only path a REMOVAL can ever take — sends no dispatch, so
+# a dispatch-only lane would silently not re-pin. The `schedule:` below is
+# therefore the mechanism and `repository_dispatch` is a nudge that makes the
+# common case timely.
+#
+# AND THE NUDGE IS ONLY A NUDGE. Nothing in this file reads
+# `github.event.client_payload`. The candidate commit is resolved from
+# codexFactory's default branch at run time, by this lane, on every firing —
+# the ratified requirement's second scenario says it in those words: "it
+# ignores any commit, branch or reference named by its trigger". A payload
+# naming a commit would be an unauthenticated caller choosing which tree judges
+# this repository, which is the one decision this whole family exists to keep
+# out of a caller's hands.
+#
+# WHERE THE SCHEDULE LIVES (tasks.md 3.6, which asked for the choice to be made
+# and recorded rather than assumed). **It lives HERE, and this is the first
+# `schedule:` in this repository** — the nightly doc-health run is scheduled by
+# a thin caller in the xFactory aggregation repository and reaches this
+# repository through `workflow_call`. The alternative was to schedule it there
+# too. Both consequences, stated:
+#
+#   * HERE (chosen): a first for this repository, so the cron is unprecedented
+#     and must be watched. But the credential stays in the two repositories
+#     that already hold it, and the lane's correctness does not depend on a
+#     third repository this packet has no authority over.
+#   * IN THE AGGREGATION: no new cron here, but the App key would have to reach
+#     a THIRD repository to open a pull request in this one — a widening of a
+#     privileged identity's blast radius, paid for a cadence. Refused on the
+#     same ground the packet refuses a `|| github.token` fallback.
+#
+# THE CADENCE IS DECLARED AGAINST THE RULED TOLERANCE. codexFactory's floor
+# declares `pending_floor_extension_tolerance: 3` (ruled 2026-09-05, cxF PR
+# #231). The busiest measured day, 2026-09-04, added FIVE floored paths across
+# four repairs in eleven and a half hours — roughly one every 2.3 hours. HOURLY
+# clears a landed regeneration well inside that, so the covered-pending set
+# cannot sit at the tolerance waiting on this half of the repair. Nightly was
+# refused by that same measurement.
+#
+# WHAT THIS LANE MAY NOT DO, and every one of these is a ratified requirement:
+# it never merges, never approves, never enables auto-merge, and never writes
+# to `main`; it moves all five pinned sites or it opens nothing; it recomputes
+# the vendored snapshot's witnesses from the bytes it wrote; it asks for no
+# exemption from the freshness checks that judge it; and it REFUSES when its
+# declared credential binding does not resolve rather than degrading to an
+# identity that would find nothing and exit green.
+#
+# THE CREDENTIAL IS DECLARED, NOT INVENTED:
+# `contracts/review-lane-repin-binding.template.yaml` — a template carrying no
+# live value, naming the consuming system, the identity and the least privilege
+# this lane needs. Secrets are referenced BY NAME here and nowhere by value.
+name: review-lane-repin
+
+on:
+  # THE MECHANISM. See the header: the sweep is what makes the lane correct
+  # when the nudge is dropped, revoked, or never sent because a human did the
+  # regeneration.
+  schedule:
+    - cron: "17 * * * *"
+
+  # THE ACCELERATOR. codexFactory may nudge this lane when its floor document
+  # moves. THE PAYLOAD IS NEVER READ — see the header, and
+  # `test_repin_lane.py::test_the_lane_reads_no_trigger_payload`.
+  repository_dispatch:
+    types: [floor-regenerated]
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: >-
+          Measure, write into the runner's checkout, and re-read every site —
+          but push nothing and open nothing. Default true, so a hand firing is
+          an inspection unless it says otherwise.
+        type: boolean
+        default: true
+
+# The workflow-level grant is READ. The one job that needs to push a branch and
+# open a pull request widens itself, and nothing else in this file can.
+permissions:
+  contents: read
+
+# One firing at a time. Two concurrent sweeps would both measure the same
+# disagreement and race to the same branch; the second would be a no-op at
+# best. `cancel-in-progress: false` because a firing that has already opened a
+# pull request must be allowed to finish reporting it.
+concurrency:
+  group: review-lane-repin
+  cancel-in-progress: false
+
+jobs:
+  review-lane-repin:
+    runs-on: ubuntu-latest
+
+    # LEAST PRIVILEGE, and the two entries are exactly what the binding
+    # template declares (tasks.md 3.9). `contents: write` pushes the lane's own
+    # branch; `pull-requests: write` opens and updates the one pull request.
+    # NOTHING here grants any privilege over codexFactory — the App's read
+    # access to that repository comes from its installation there, and this
+    # block cannot widen it.
+    permissions:
+      contents: write
+      pull-requests: write
+
+    env:
+      SOURCE_REPOSITORY: opensoft/codexFactory
+      FLOOR_IN_SOURCE: scripts/merge_master/openxfactory-review-authority-floor.yaml
+      BOT_BRANCH: bot/review-lane-repin
+      BINDING: contracts/review-lane-repin-binding.template.yaml
+      # A hand firing defaults to an inspection; a scheduled or dispatched
+      # firing is the real thing. `inputs.dry_run` is unset on every event but
+      # `workflow_dispatch`, so the guard is the event name.
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+
+    steps:
+      # ---- 1. The binding, or nothing ---------------------------------------
+      # REQUIREMENT: "An automated pin advance lane ... MUST refuse to run when
+      # that binding does not resolve ... An unresolvable binding SHALL be a
+      # loud failure."
+      #
+      # WHY THIS IS A STEP AND NOT A FALLBACK. `pytest-suite.yml:400` writes
+      # `${{ steps.app-token.outputs.token || github.token }}`, and that is
+      # right THERE: the step it guards is `continue-on-error`, the fallback
+      # degrades to a narrower identity, and the degradation is caught by a
+      # named-testcase watch. HERE the same pattern would degrade to an
+      # identity that cannot read codexFactory at all — so the lane would
+      # compare the pin against nothing, find no disagreement, and exit GREEN.
+      # A missing credential must not be able to look like a clean run.
+      - name: Refuse unless the declared credential binding resolves
+        env:
+          APP_ID: ${{ secrets.OPENXFACTORY_APP_ID }}
+          APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          missing=""
+          [ -n "${APP_ID}" ]  || missing="${missing} OPENXFACTORY_APP_ID"
+          [ -n "${APP_KEY}" ] || missing="${missing} OPENXFACTORY_APP_PRIVATE_KEY"
+          if [ -n "${missing}" ]; then
+            echo "::error title=review-lane-repin::the credential binding declared in ${BINDING} does not resolve — unset:${missing}. The lane REFUSES. It does not fall back to another identity, because an identity that cannot read ${SOURCE_REPOSITORY} would find no disagreement and report a clean no-op, turning a missing credential into a silent pass." >&2
+            exit 1
+          fi
+          echo "credential binding ${BINDING} resolves; both references are set."
+
+      # TWO TOKENS, ONE PER REPOSITORY THE BINDING NAMES — the shape the
+      # codexFactory regeneration lane already uses. `pytest-suite.yml:318-324`
+      # mints this App with `owner:` alone, a token good for EVERY repository
+      # the App is installed on; too wide here, because one of these tokens
+      # can PUSH and OPEN PULL REQUESTS. A single two-repository token was too
+      # wide in the other direction too: its permissions applied to BOTH
+      # repositories, so `contents: write` would have been minted over
+      # codexFactory, which the binding forbids (`never_grants`). Each token
+      # below is scoped to ONE repository and requests EXACTLY that
+      # repository's `grants:` in the binding — held equal by
+      # `test_each_mint_requests_exactly_its_repository_grants`.
+      - name: Mint the codexFactory READ token
+        id: source-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codexFactory
+          permission-contents: read
+
+      # `permission-workflows: write` IS REQUIRED, and run 34033398015
+      # (2026-09-06 12:32Z) is the measurement: the lane advanced all five
+      # sites and the judge passed, then GitHub refused the push — "refusing to
+      # allow a GitHub App to create or update workflow
+      # `.github/workflows/merge-master-approval.yml` without `workflows`
+      # permission". Two of the five pinned sites ARE workflow files (the core
+      # checkout `ref:` in merge-master-approval.yml and pytest-suite.yml).
+      # FAIL-LOUD: `create-github-app-token` refuses to mint a permission the
+      # installation does not carry, so until the `openxfactory` App is granted
+      # Workflows: Read and write (App settings → Permissions → Repository
+      # permissions → Workflows) and the grant is accepted on the org
+      # installation, this step fails with a named error — never a silent
+      # degradation. The lane writes workflow files on ITS OWN BRANCH only; main
+      # stays behind the repository rulesets (the binding's
+      # `workflows:write-to-default-branch` refusal).
+      - name: Mint the lane's App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: openxFactory
+          permission-contents: write
+          permission-pull-requests: write
+          permission-workflows: write
+
+      - name: Check out this repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # THE HASHED LOCKFILE, NOT AN AD-HOC PIP LIST (Copilot round 1).
+      # `pip install pyyaml` resolves whatever PyPI serves at run time: no
+      # version, no hash, and a lane that advances THE PIN THAT CHOOSES THIS
+      # REPOSITORY'S JUDGE is the last place to take an unpinned dependency.
+      # This is the repository's existing pattern, copied from
+      # `pytest-suite.yml`, whose own comment gives the reason: the `.in`/
+      # `.lock` pair is tracked and `--require-hashes` makes the install
+      # reproducible and supply-chain pinned.
+      #
+      # ONE INSTALL, NOT TWO. The lock carries `pyyaml==6.0.3` (the decision
+      # module's only import) AND `pytest==9.1.1` (the freshness run below), so
+      # the second, separately unpinned `pip install pytest` this step used to
+      # need is gone. `test_the_lane_installs_only_from_the_hashed_lockfile`
+      # asserts no unpinned install can come back.
+      - name: Install the pinned dependency set
+        run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+
+      # ---- 2. Resolve the source default branch AT RUN TIME ------------------
+      # REQUIREMENT: "The verification SHALL be made against the source
+      # repository itself at run time and SHALL NOT be inferred from an event
+      # payload, a pull-request head, a tag, or any reference supplied by a
+      # caller."
+      #
+      # Two API reads, both quoted into the pull-request body so a reviewer can
+      # repeat them. Note what is NOT here: any expression naming
+      # `github.event.client_payload`, on any event.
+      - name: Resolve codexFactory's default branch and head, at run time
+        id: source
+        env:
+          GH_TOKEN: ${{ steps.source-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          BRANCH="$(gh api "repos/${SOURCE_REPOSITORY}" --jq .default_branch)"
+          if [ -z "${BRANCH}" ] || [ "${BRANCH}" = "null" ]; then
+            echo "::error title=review-lane-repin::${SOURCE_REPOSITORY}'s default branch could not be resolved on this run. The lane refuses and pins at no other reference." >&2
+            exit 1
+          fi
+          SHA="$(gh api "repos/${SOURCE_REPOSITORY}/commits/${BRANCH}" --jq .sha)"
+          # REACHABILITY, MEASURED RATHER THAN ASSUMED. The candidate IS the
+          # branch tip, so `compare` must answer `identical`; asking anyway
+          # means the evidence in the pull-request body is an API answer a
+          # reviewer can re-fetch, not this lane's word for it.
+          STATUS="$(gh api "repos/${SOURCE_REPOSITORY}/compare/${BRANCH}...${SHA}" --jq .status)"
+          case "${STATUS}" in
+            identical|behind) REACHABLE=true ;;
+            *)                REACHABLE=false ;;
+          esac
+          {
+            echo "branch=${BRANCH}"
+            echo "sha=${SHA}"
+            echo "reachable=${REACHABLE}"
+            echo "evidence=Reachability: \`GET /repos/${SOURCE_REPOSITORY}/compare/${BRANCH}...${SHA}\` answered \`status: ${STATUS}\`, so \`${SHA}\` is carried by \`${BRANCH}\`."
+          } >> "$GITHUB_OUTPUT"
+          echo "resolved ${SOURCE_REPOSITORY}@${BRANCH} = ${SHA} (compare status ${STATUS})"
+
+      # ---- 3. Obtain the authoritative document AT that commit ---------------
+      # REQUIREMENT: "MUST obtain the vendored floor snapshot by COPYING the
+      # authoritative document from the source repository at the new core
+      # commit". Raw bytes, so what lands on disk is what codexFactory has —
+      # not a re-serialization.
+      - name: Fetch the authoritative floor document at that commit
+        id: floor
+        env:
+          GH_TOKEN: ${{ steps.source-token.outputs.token }}
+          BRANCH_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          OUT="${RUNNER_TEMP}/floor-at-source.yaml"
+          if gh api "repos/${SOURCE_REPOSITORY}/contents/${FLOOR_IN_SOURCE}?ref=${BRANCH_SHA}" \
+               -H "Accept: application/vnd.github.raw" > "${OUT}"; then
+            echo "path=${OUT}" >> "$GITHUB_OUTPUT"
+            echo "fetched ${FLOOR_IN_SOURCE} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes)"
+          else
+            # The decision module turns an absent document into a refusal that
+            # names itself; leaving `path` empty is how it is told.
+            echo "path=" >> "$GITHUB_OUTPUT"
+            echo "::warning title=review-lane-repin::could not fetch ${FLOOR_IN_SOURCE} at ${BRANCH_SHA}; the lane will refuse."
+          fi
+
+      # ---- 4. Measure, decide, write, and RE-READ ----------------------------
+      # The whole of requirements 2, 3, 4 and 7's no-op, in one call. `--write`
+      # writes into the runner's checkout and then re-reads all five sites from
+      # disk; a site that did not move turns the whole run into a refusal and
+      # this step exits non-zero, so no branch is pushed and no pull request is
+      # opened.
+      #
+      # `--write` is passed on every firing INCLUDING a dry run: the dry run's
+      # value is that it exercises the write and the re-read for real, and it
+      # is the PUSH that `DRY_RUN` suppresses, two steps below. A dry run that
+      # skipped the write would prove nothing about the write.
+      - name: Measure the disagreement, advance the five sites, re-read them
+        id: repin
+        env:
+          BRANCH: ${{ steps.source.outputs.branch }}
+          BRANCH_SHA: ${{ steps.source.outputs.sha }}
+          REACHABLE: ${{ steps.source.outputs.reachable }}
+          EVIDENCE: ${{ steps.source.outputs.evidence }}
+          FLOOR_PATH: ${{ steps.floor.outputs.path }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 scripts/review_lane_repin.py \
+            --repo . \
+            --source-default-branch "${BRANCH}" \
+            --candidate-commit "${BRANCH_SHA}" \
+            --candidate-reachable "${REACHABLE}" \
+            --reachability-evidence "${EVIDENCE}" \
+            --floor-document "${FLOOR_PATH}" \
+            --run-url "${RUN_URL}" \
+            --plan-out "${RUNNER_TEMP}/plan.json" \
+            --body-out "${RUNNER_TEMP}/pr-body.md" \
+            --write
+          ACTION="$(python3 -c 'import json,os,sys; print(json.load(open(os.environ["RUNNER_TEMP"]+"/plan.json"))["action"])')"
+          echo "action=${ACTION}" >> "$GITHUB_OUTPUT"
+
+      # ---- 5. A clean, NAMED no-op ------------------------------------------
+      # REQUIREMENT: "Nothing to advance is a clean named no-op ... it reports
+      # that nothing is owed and exits successfully AND it opens no pull
+      # request." Named, so a green run is readable as "measured, nothing
+      # owed" rather than as "ran, said nothing".
+      - name: Report a clean no-op
+        if: steps.repin.outputs.action == 'noop'
+        run: |
+          set -euo pipefail
+          python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"]+"/plan.json"))["reason"])' \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # ---- 5b. RUN THE JUDGE BEFORE PROPOSING -------------------------------
+      # THE LANE DOES NOT GET AN EXEMPTION AND DOES NOT WANT ONE (requirement 5,
+      # decision M-4). What it does instead is submit to the judge BEFORE it
+      # opens anything, so an advance that would be red arrives as a failed run
+      # rather than as a red pull request somebody has to triage.
+      #
+      # NOTE WHAT IS AND IS NOT HAPPENING HERE. This runs the EXISTING
+      # `tests/review_lane_pin/` suite, unmodified, against the tree the lane
+      # just wrote — the same assertions, at the same strictness, that will run
+      # again on the pull request. It adds no assertion, relaxes none, and
+      # skips none. If these two things ever disagree, the pull request's run
+      # is the authority and this one is the early warning.
+      #
+      # THE CORE CHECKOUT IS AT THE CANDIDATE COMMIT, WHICH IS THE POINT. The
+      # byte-identity verifier compares the snapshot the lane just wrote
+      # against the authoritative document in a real checkout; checking out the
+      # OLD pinned core would compare the new snapshot against the old document
+      # and fail every honest advance. `tasks.md` 4.7 asks for exactly this
+      # second run "with a codexFactory checkout on disk".
+      #
+      # `.merge-master-core` is never staged: step 6 stages four named paths.
+      - name: Check out the candidate core so the freshness verifier can run
+        if: steps.repin.outputs.action == 'advance'
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/codexFactory
+          ref: ${{ steps.source.outputs.sha }}
+          path: .merge-master-core
+          persist-credentials: false
+          token: ${{ steps.source-token.outputs.token }}
+
+      - name: Submit the advance to the checks that will judge it
+        if: steps.repin.outputs.action == 'advance'
+        env:
+          PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
+        run: |
+          set -euo pipefail
+          python3 -m pytest tests/review_lane_pin -q
+
+      # ---- 6. Propose, and stop ---------------------------------------------
+      # REQUIREMENT 1: "it opens a pull request carrying that advance and takes
+      # no further action on it AND it neither merges nor approves that pull
+      # request". There is no `gh pr merge`, no `--auto`, no `--admin` and no
+      # `gh pr review` anywhere in this file, and a test asserts their absence
+      # rather than trusting this comment.
+      #
+      # REQUIREMENT 7: "at most one automated pin advance pull request is open
+      # at any time". The branch name is FIXED, and the delivery follows the
+      # doc-health nightly's rolling-PR idiom exactly: when a pull request is
+      # already open, the branch is advanced by a two-parent `commit-tree`
+      # whose FIRST parent is the current remote tip, so the push is a
+      # fast-forward and NO FORCE IS EVER USED; when none is open, the branch
+      # is recreated from `main` and a single pull request is opened.
+      #
+      # `git add --` names the four writable paths explicitly. A bare `git add
+      # -A` would sweep anything else the runner happened to leave in the tree,
+      # and requirement 1's third scenario is that every changed file is one of
+      # the pinned sites.
+      - name: Open or update the single automated advance
+        if: steps.repin.outputs.action == 'advance' && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BOT_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          BRANCH_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          BOT_ID="$(gh api "/users/${BOT_SLUG}%5Bbot%5D" --jq .id)"
+          git config user.name  "${BOT_SLUG}[bot]"
+          git config user.email "${BOT_ID}+${BOT_SLUG}[bot]@users.noreply.github.com"
+
+          MAIN_TIP="$(git rev-parse HEAD)"
+          git add -- \
+            contracts/review-lane-pin.yaml \
+            contracts/review-lane-floor-snapshot.yaml \
+            .github/workflows/merge-master-approval.yml \
+            .github/workflows/pytest-suite.yml
+          if git diff --cached --quiet; then
+            echo "::error title=review-lane-repin::the decision module reported an advance but staged no change. Refusing rather than opening an empty pull request." >&2
+            exit 1
+          fi
+          # Nothing outside the five sites may be carried. Measured against the
+          # staged set rather than asserted.
+          STRAY="$(git diff --cached --name-only | grep -vE '^(contracts/review-lane-pin\.yaml|contracts/review-lane-floor-snapshot\.yaml|\.github/workflows/(merge-master-approval|pytest-suite)\.yml)$' || true)"
+          if [ -n "${STRAY}" ]; then
+            echo "::error title=review-lane-repin::the advance would carry a file that is not a pinned site: ${STRAY}. Refusing." >&2
+            exit 1
+          fi
+          TREE="$(git write-tree)"
+          MSG="$(printf 'Advance the pinned decision core to %s\n\nAll five sites move in this one commit. Opened by the review-lane-repin\nlane; a human word merges it.\n\nLane: review-lane-repin-bot\n' "${BRANCH_SHA}")"
+
+          OPEN_PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "${BOT_BRANCH}" --base main --state open --json number -q '.[0].number')"
+          if [ -n "${OPEN_PR}" ]; then
+            git fetch origin "${BOT_BRANCH}"
+            REMOTE_TIP="$(git rev-parse FETCH_HEAD)"
+            NEW_TIP="$(git commit-tree "${TREE}" -p "${REMOTE_TIP}" -p "${MAIN_TIP}" -m "${MSG}")"
+            git update-ref "refs/heads/${BOT_BRANCH}" "${NEW_TIP}"
+            git push origin "${BOT_BRANCH}"
+            gh pr edit "${OPEN_PR}" --repo "$GITHUB_REPOSITORY" \
+              --title "Advance the pinned decision core to ${BRANCH_SHA}" \
+              --body-file "${RUNNER_TEMP}/pr-body.md"
+            echo "updated the open automated advance #${OPEN_PR}; no second pull request opened."
+          else
+            if git ls-remote --exit-code --heads origin "${BOT_BRANCH}" >/dev/null 2>&1; then
+              git push origin --delete "${BOT_BRANCH}"
+            fi
+            NEW_TIP="$(git commit-tree "${TREE}" -p "${MAIN_TIP}" -m "${MSG}")"
+            git update-ref "refs/heads/${BOT_BRANCH}" "${NEW_TIP}"
+            git push origin "${BOT_BRANCH}"
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "${BOT_BRANCH}" \
+              --title "Advance the pinned decision core to ${BRANCH_SHA}" \
+              --body-file "${RUNNER_TEMP}/pr-body.md"
+          fi
+
+      - name: Say what a dry run would have opened
+        if: steps.repin.outputs.action == 'advance' && env.DRY_RUN == 'true'
+        run: |
+          set -euo pipefail
+          {
+            echo "### review-lane-repin — DRY RUN"
+            echo
+            echo "An advance is owed. The five sites were written and re-read in"
+            echo "this runner's checkout; nothing was pushed and no pull request"
+            echo "was opened. The body it would have carried:"
+            echo
+            cat "${RUNNER_TEMP}/pr-body.md"
+          } | tee -a "$GITHUB_STEP_SUMMARY"

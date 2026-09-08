@@ -1,0 +1,139 @@
+# LIVE INSTANCE — not packaged corpus, not a teaching fixture.
+#
+# The first wallet in the stack: codexFactory's merge_readiness_council as a
+# body, minted under tasks 4.1–4.2 of the ratified change
+# add-wallet-carried-review-authority. openxFactory ships no instance records
+# EXCEPT this declared narrow exception: repo_scan builds its context from the
+# scanned repository's own records, and a cross-repository audience wallet has
+# no resolution path today (clarifications N7). S4's register joins this
+# directory tree; this file must stay OUTSIDE any examples/ path or the
+# scanner will silently stop treating it as live.
+#
+# Custody holder_readable is the registry's designed tier for a consumer with
+# no key infrastructure: it reaches authority tier `act`, its signatures
+# evidence the ENVIRONMENT, and approval-before-apply is the compensating
+# control already in force by the constitutional floor (N13).
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-mrc-0001
+holder:
+  holder_id: agent:merge-readiness-council
+  holder_class: agent
+  display_label: codexFactory merge readiness council (body)
+key_reference:
+  # OPERATOR-MINTED identity (task 4.1 [OPERATOR]): private half retained in
+  # the operator's vault, never entering git/CI/agent sessions; only the
+  # public half appears here. Minted and supplied by Brett Heap 2026-08-24.
+  did: "did:key:z6Mko2FefScUQg9opCriwQmjfcb3Qjnb5bN49hQsEVMo6gee"
+  key_id: key-mrc-0001
+  public_key_multibase: z6Mko2FefScUQg9opCriwQmjfcb3Qjnb5bN49hQsEVMo6gee
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-08-24T23:23:54Z"
+  # Strict identifier grammar (no '@'): the email-form anchor token
+  # Brett.Heap@opensoft.one is scoped to grant issued_by by S2's authorized
+  # widening and is deliberately NOT generalized to wallet fields.
+  declared_by: Brett.Heap
+keys:
+  # THE FOUR COUNCIL SEAT SIGNING KEYS, wallet-declared (openXwallet
+  # `add-multi-key-wallets`, ratified 2026-08-28 by Brett Heap's in-session
+  # ruling "rule option 1 and build it"; realized at `wallet-v1.3`).
+  #
+  # WHY THEY BELONG HERE AND NOT ONLY IN THE REGISTER. hermes-install writes the
+  # REGISTER-RECORDED `key_id` into an exercise record's `presenting_key_ref` —
+  # deliberately, over the per-convening ephemeral one, "because the contract
+  # requires this ref to resolve to a wallet key present in the corpus, and an
+  # ephemeral key never is". The pinned validator's rule (r) refuses a
+  # presenting key no wallet DECLARES, so before this block the first exercise
+  # record naming a seat key would have been refused on arrival. The register
+  # knowing a key is not the wallet declaring it.
+  #
+  # ONE AUTHORITY, SEVERAL PRESENTERS. These keys do not multiply what this
+  # wallet may hold: grant-mrc-0001 is addressed to the WALLET, row-mrc-0001
+  # commissions ONE holder, and each key's custody caps only what THAT key's
+  # signature evidences. The pinned reader refuses a declared key whose ceiling
+  # outranks this wallet's own, so the arrangement is checked and not merely
+  # intended.
+  #
+  # CUSTODY IS `holder_readable` FOR ALL FOUR, and the determination is not a
+  # convenience. Each private half is a 32-byte Ed25519 seed held as an
+  # encrypted GitHub Actions secret in codexFactory's `worker-credentials`
+  # environment and read by `root_key_from_env()` out of the `deliberate` job's
+  # own process environment. That job IS the holder's execution context, so the
+  # key is readable by it and each use requires no authorization outside it —
+  # `holder_readable` exactly, evidencing the ENVIRONMENT, ceiling `act`. The
+  # registry member's own words ("an environment variable or a mounted secret")
+  # describe the artifact without stretching. The still-open Q10
+  # `isolated_per_use_authorized` authorizer question is NOT implicated: no key
+  # declared here reaches for that member or for a ceiling above `act`.
+  #
+  # THE ROOT KEY'S DECLARATION ABOVE IS BYTE-UNTOUCHED. `key-mrc-0001`'s private
+  # half is still retained in the operator's vault and still never enters git,
+  # CI or an agent session. That is the exit the mint record took, and nothing
+  # here revisits it.
+  #
+  # PROVENANCE OF THESE VALUES. `key_fingerprint` is VERBATIM from codexFactory
+  # `hermes/domain/review-councils/records/2026-08-28-seat-signing-keys-minted.md`
+  # (merged `78b8fa2`) and byte-identical to the same key's entry in
+  # `../register.yaml`. `public_key_multibase` and `did` are DERIVED from that
+  # record's published public half by `did:key`'s own encoding — `z` plus
+  # base58btc of the two-byte ed25519 multicodec prefix and the 32 raw bytes —
+  # the same encoding `key-mrc-0001` above already uses, where the `did` and the
+  # multibase are one string. Nothing is invented: the pinned reader RECOMPUTES
+  # each fingerprint from the multibase beside it, and the register reader
+  # recomputes the same value from that key's base64url half, so a transcription
+  # slip in either place fails the REQUIRED `wallet-validation` check.
+  #
+  # These are the three UNCONDITIONAL seats plus the CONDITIONAL tenant seat,
+  # declared together on purpose: a candidate whose class seats
+  # `company-policy-lead` must not be the convening that discovers a missing
+  # declaration.
+  - did: "did:key:z6Mkmu8RHx3Htj6Wh2DmnwiPi7vTe3UuEnE7W4V1h8sUV28R"
+    key_id: key-seat-lead-quality-0001
+    key_fingerprint: sha256:a78d5d8fc075a0c771db521f6e4dd5ebec1ae9c76c5209a3bd54983fccb5e781
+    public_key_multibase: z6Mkmu8RHx3Htj6Wh2DmnwiPi7vTe3UuEnE7W4V1h8sUV28R
+    signature_algorithm: ed25519
+    display_label: merge readiness council — lead-quality seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-08-28T00:00:00Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6MkqXo53nom4E8GAhdXb174o7km3qJW3toBgMNj3EJZa6Yc"
+    key_id: key-seat-lead-security-0001
+    key_fingerprint: sha256:39f3088f6072d111cd64147cdd171c7efd75423e225c1d4b8c00445af21f878e
+    public_key_multibase: z6MkqXo53nom4E8GAhdXb174o7km3qJW3toBgMNj3EJZa6Yc
+    signature_algorithm: ed25519
+    display_label: merge readiness council — lead-security seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-08-28T00:00:00Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6MkkP4dN8aNv1a4ACCWNe453AyREtBQZiLEdxTvXLzst6Mg"
+    key_id: key-seat-lead-integration-0001
+    key_fingerprint: sha256:4d40ee511f5ede92c3843d530eb9d46efa42dbdd22bce07961688ab14004d1f4
+    public_key_multibase: z6MkkP4dN8aNv1a4ACCWNe453AyREtBQZiLEdxTvXLzst6Mg
+    signature_algorithm: ed25519
+    display_label: merge readiness council — lead-integration seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-08-28T00:00:00Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6MktPLjheXt9cbVF1ZbZs7fAVKyMAWFNsfy1EbdccodToph"
+    key_id: key-seat-company-policy-lead-0001
+    key_fingerprint: sha256:0b6ad4ab29f2371cc635e392635c796f103a589dab7f5a3dd22b5ca44a504bbb
+    public_key_multibase: z6MktPLjheXt9cbVF1ZbZs7fAVKyMAWFNsfy1EbdccodToph
+    signature_algorithm: ed25519
+    display_label: merge readiness council — company-policy-lead seat (conditional)
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-08-28T00:00:00Z"
+      declared_by: Brett.Heap
+state: active
+created_at: "2026-08-24T23:23:54Z"
+policy_version: 1

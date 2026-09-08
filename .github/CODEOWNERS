@@ -1,0 +1,35 @@
+# Review routing for assembly-class gate surfaces (convener ruling 2026-08-23). Routing only - enforcement remains the review plane.
+.github/workflows/ @brettheap
+# The openxWallet family is CONSUMED at a pin since contract-v2.0
+# (split-openxwallet-repo P3): the two departing validator lines are replaced by
+# the surfaces that now determine WHICH READER RUNS. A pull request that changes
+# the pin, the verifier, the gitlink or the submodule URL changes the code the
+# REQUIRED wallet-validation check executes, which is exactly the class the
+# 2026-08-23 ruling routes to an owner.
+/contracts/openxwallet-pin.yaml @brettheap
+/scripts/verify-openxwallet-pin.py @brettheap
+/openXwallet @brettheap
+/.gitmodules @brettheap
+# The pinned decision core (feature 025-openxfactory-review-lane-caller). Same
+# ground as the wallet pin above and the same 2026-08-23 ruling: a pull request
+# that changes this file changes WHICH codexFactory commit's Merge Master
+# decision core judges this repository's pull requests. openxFactory carries no
+# codexFactory gitlink, so this file is the only recorded referent for that
+# answer, and `tests/review_lane_pin/` is the only thing that stops it drifting
+# away from the caller's `ref:`.
+/contracts/review-lane-pin.yaml @brettheap
+# The vendored floor snapshot (2026-09-01, the (b′) activation). Routed on
+# stronger ground than the pin itself: these bytes are what a REQUIRED check
+# (`pytest-suite`) asserts the repository's promoted OpenSpec canon against, so
+# an unnoticed edit here does not merely change which core judges — it changes
+# what the required assertion is asserting. The digest in the pin and the
+# freshness verifier both refuse a drifted copy; this routes the human.
+/contracts/review-lane-floor-snapshot.yaml @brettheap
+# The merge-approval envelope (act A4, openxFactory #656, 2026-09-06). The one
+# file that decides WHICH pull requests this repository may approve without a
+# human, enrolled on Brett Heap's word for a single candidate class. Same ground
+# as the pin above: `.github/workflows/` is already owned, but that entry does
+# not cover a file sitting beside the workflows directory, and widening the
+# grant must be a reviewed human act rather than a one-line edit nobody is
+# obliged to see.
+/.github/merge-approval-envelope.yml @brettheap

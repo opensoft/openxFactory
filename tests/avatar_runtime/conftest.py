@@ -19,6 +19,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
+    claim_conftest_slot,
     hermetic_binary_path,
     hermetic_external_runners,
 )
@@ -100,3 +101,18 @@ def pytest_report_header(config):
     if seed is not None:
         return f"avatar-runtime randomly-seed: {seed}"
     return None
+
+
+# `claim_conftest_slot` re-installs THIS module as the ambient `conftest` for
+# nodes under this directory only, so a multi-directory invocation
+# (`pytest tests/doc-health tests/ideation-dashboard`) no longer depends on
+# argument order — see its docstring in `tests/hermeticity.py` for the
+# mechanism, and never add the call to `tests/conftest.py` (issue #305).
+#
+# No test in this directory imports from `conftest` today. It claims anyway,
+# for two reasons: an unclaiming directory still POISONS its siblings when it
+# is the last argument (it was `tests/avatar_runtime/conftest.py` occupying the
+# slot that broke 27 doc-health modules in the measurement on issue #305), and
+# the first test here that does import through `conftest` should not have to
+# rediscover any of this.
+claim_conftest_slot(globals())

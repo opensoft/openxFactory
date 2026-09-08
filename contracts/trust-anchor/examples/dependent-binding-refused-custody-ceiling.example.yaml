@@ -1,0 +1,46 @@
+# VALID dependent binding recorded as REFUSED because the assurance it requires
+# exceeds what the certificate's declared custody supplies. This is the ratified
+# scenario recorded correctly: the refusal NAMES THE CUSTODY CEILING, and it says
+# nothing about the certificate's contents — the certificate is perfectly
+# well-formed and that was never the question.
+#
+# Raising this to admitted requires changing CUSTODY (a key with a per-use
+# authorization the host cannot supply), not re-asserting the claim.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:managed-device-05-attested-signing
+certificate_ref: cert:managed-device-05
+holding_system:
+  system_ref: system:core-attested-signing-service
+  inside_family: true
+  statement: >-
+    A signing service that treats a presented certificate as evidence the named
+    device authorized the request.
+binds:
+  binding_kind: signature_verification
+  what_statement: >-
+    Attributing a signing request to the named device rather than to the host it
+    ran on.
+bound_key_reference:
+  key_generation_ref: keygen:managed-device-05-g1
+required_assurance: holder_attributed_act
+required_obligations: [TA-R3]
+admission:
+  state: refused
+  decided_at: "2026-07-16T09:00:00Z"
+  refusal:
+    code: custody_ceiling_exceeded
+    ceiling_named: host_attributed_act
+    statement: >-
+      The certificate's declared custody is a non-exportable platform key with
+      no per-use gate, which evidences the USING HOST and caps at
+      host_attributed_act. This binding needs evidence that the named holder
+      acted. Refused on custody; the certificate is unremarkable.
+rebind_status:
+  state: current
+  as_of: "2026-07-16T09:00:00Z"
+discovery:
+  discovered_by: planned_review
+  discovered_at: "2026-07-16T00:00:00Z"
+  recorded_before_first_renewal: true
+record_version: 1

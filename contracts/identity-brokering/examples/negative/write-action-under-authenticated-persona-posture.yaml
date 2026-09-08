@@ -1,0 +1,34 @@
+# expected_failure: write-action-without-resolved-authorization
+# expected_failure_detail: while its declared posture is 'authenticated_persona'
+# requirement: IDB-R9
+# VIOLATES R9: a governed write action under authentication alone.
+#
+# THE QUIET FAILURE, written down. The surface adopted persona login as a
+# read-only dashboard and its posture said so honestly. Then it gained a write
+# action — publishing a document, here — and the login is now doing work it was
+# never designed to do: any persona the broker will authenticate can write,
+# because authentication was the whole gate.
+#
+# Nobody decided this. It arrives as an ordinary commit that adds a button, and
+# the posture declaration is what turns that commit into a VISIBLE CHANGE OF
+# POSTURE — which is the entire point of requiring the declaration while OQ-2
+# (login-only versus per-action authorization at v1) stays carried rather than
+# resolved.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-silent-write-9020
+surface_ref: opendox-workbench-with-publish
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: true
+  actions:
+    - publish_document
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-22T11:10:00Z"

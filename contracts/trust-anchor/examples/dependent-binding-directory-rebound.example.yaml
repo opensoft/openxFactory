@@ -1,0 +1,52 @@
+# VALID dependent binding: the canary's directory binding, AFTER the rebind. It
+# is the binding that bound authority to the previous key generation and kept
+# pointing at it through an automatic renewal, so authentication that was
+# configured correctly stopped working.
+#
+# Two things make this record honest rather than decorative. It names the key
+# GENERATION it is bound to, so "still pointing at superseded material" is a
+# comparison rather than an intuition. And its discovery is recorded as
+# `authentication_failure`, which obliges a defect entry on the certificate
+# record — the omission is a defect of the RECORD, not merely an incident.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:managed-broker-01-directory
+certificate_ref: cert:managed-broker-01
+holding_system:
+  system_ref: system:tenant-directory
+  inside_family: false
+  statement: >-
+    A directory the family administers but does not own the software of. The
+    obligation reaches here anyway: a binding outside the family is still a
+    rebind obligation, and recording it is how the issuing workflow learns it
+    exists.
+  counterparty_ref: counterparty:tenant-directory-operator
+binds:
+  binding_kind: authority_grant
+  what_statement: >-
+    The broker's authority to act for the fleet is bound to this certificate's
+    key in the directory; the directory accepts the key, not the certificate.
+  authority_ref: authority:fleet-broker-directory-grant
+bound_key_reference:
+  key_generation_ref: keygen:managed-broker-01-g2
+  bound_at: "2026-08-02T11:00:00Z"
+required_assurance: holder_attributed_act
+required_obligations: [TA-R4]
+admission:
+  state: admitted
+  decided_at: "2026-08-02T11:00:00Z"
+rebind_status:
+  state: rebound
+  as_of: "2026-08-02T11:05:00Z"
+  rebind_evidence_ref: evidence:managed-broker-01-rebind-2026-08
+  statement: >-
+    Re-bound to the new generation and verified by reading the binding back
+    against the new material — not inferred from the absence of an error.
+discovery:
+  discovered_by: authentication_failure
+  discovered_at: "2026-07-20T14:10:00Z"
+  recorded_before_first_renewal: false
+  statement: >-
+    Discovered when it broke, which is why the certificate record carries a
+    defect for it.
+record_version: 2

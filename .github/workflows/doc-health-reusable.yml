@@ -151,16 +151,221 @@ jobs:
         env:
           TOKEN: ${{ steps.app-token.outputs.token || secrets.SUBMODULE_TOKEN || github.token }}
       - uses: actions/checkout@v4
+      # WHY A SECOND TOKEN, AND WHY IT IS DERIVED. An App INSTALLATION token is
+      # scoped to exactly ONE installation, and the mint above asks for
+      # `owner: ${{ github.repository_owner }}` — the caller's organization.
+      # Since aggregation commit 0c6ea39 ("Repoint the Medx submodules at
+      # MedxSoft, where they now live", 2026-08-26) the governed submodule set
+      # SPANS ORGANIZATIONS, so that one token cannot clone all of it: the
+      # nightly died at "Init governed submodules only" with `fatal: repository
+      # 'https://github.com/MedxSoft/MedxEHR.git/' not found` (opensoft/xFactory
+      # runs 33038056012 on 2026-08-27 and 33143248243 on 2026-08-28; the
+      # 2026-08-26 15:43 run, before the repoint, passed). The message reads
+      # like a deleted repository and is really a token minted for the wrong
+      # installation — the App IS installed on the other organization
+      # (installation 157085693, all repositories, contents: write); it only
+      # ever lacked a token of its own.
+      #
+      # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
+      # the only authority on where a submodule lives, so a hardcoded
+      # organization would rot at the next repoint and would stay silent when a
+      # THIRD organization appeared. More than one foreign owner therefore FAILS
+      # the run instead of guessing, because `create-github-app-token` takes one
+      # `owner` per step and a second pair has to be written by hand.
+      - name: Detect foreign submodule owners
+        id: foreign-owner
+        env:
+          SELF_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          # The SAME governed filter the init step below applies, so the two can
+          # never disagree about which submodules a token has to reach.
+          GOVERNED='^(openxFactory|xFactories/)'
+          MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
+          FOREIGN=""
+          while read -r key path; do
+            [ -n "${path:-}" ] || continue
+            printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
+            name=${key#submodule.}
+            name=${name%.path}
+            url=$(git config --file .gitmodules --get "submodule.${name}.url" || true)
+            owner=$(printf '%s\n' "$url" | sed -nE \
+              -e 's#^git@github\.com:([^/]+)/.+$#\1#p' \
+              -e 's#^https://github\.com/([^/]+)/.+$#\1#p')
+            if [ -z "$owner" ]; then
+              echo "::warning::no GitHub owner could be read from submodule '${path}' url '${url}'; leaving it to the org-wide rewrite"
+              continue
+            fi
+            echo "governed submodule ${path} -> owner ${owner}"
+            if [ "$owner" != "$SELF_OWNER" ]; then
+              FOREIGN="${FOREIGN}${owner}"$'\n'
+            fi
+          done <<< "$MODULES"
+          UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
+          COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+            exit 1
+          fi
+          if [ "$COUNT" -eq 1 ]; then
+            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
+            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
+          else
+            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+            echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
+          fi
+      - name: Mint app token for the foreign submodule owner
+        id: foreign-app-token
+        # NO `|| github.token` FALLBACK, deliberately: if the App is not
+        # installed on that organization this step fails loudly, which is a far
+        # better diagnosis than the "Repository not found" the init printed for
+        # two nights.
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+      # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
+      # `insteadOf` by the LONGEST matching left-hand side, and
+      # `git@github.com:<owner>/` is longer than `git@github.com:` — this
+      # narrows the earlier rewrite for exactly that owner's submodules and
+      # leaves every other governed submodule on the caller-org token. Removing
+      # the broad rewrite would strand every same-org submodule instead.
+      - name: Rewrite foreign-owner submodule URLs
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        env:
+          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
+          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
                  | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
           git submodule update --init $SUBS
+          # The NESTED neutral-product gitlink, one level down and scoped by
+          # name. `openxFactory/openXwallet` is a submodule OF a submodule, so
+          # the filter above cannot reach it — it reads the aggregation's own
+          # `.gitmodules`, which declares `openxFactory` and nothing below it.
+          # NOT `--recursive`, which would additionally pull
+          # `installs/omnigent-install` and every domain's nested submodules
+          # into every aggregation doc-health run.
+          #
+          # GUARDED on the nested `.gitmodules` actually declaring it, because
+          # the aggregation's openxFactory pin and openxFactory's own gitlink
+          # land in different pull requests (P4 after P3): before that bump the
+          # init has nothing to do and an unguarded invocation would fail the
+          # nightly for the ordering rather than for a defect.
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            git -C openxFactory submodule update --init openXwallet
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
+          fi
+          # MedxEHR's own TWO nested legs, `spec` and `code` — the SAME shape
+          # of problem as the openXwallet nested gitlink above, one level
+          # further down. MedxEHR is itself a governed submodule (matched by
+          # the `xFactories/` filter and inited above); its OWN `.gitmodules`
+          # declares `spec` (MedxSoft/MedxEHR-spec) and `code`
+          # (MedxSoft/MedxEHR-code), which the top-level filter cannot reach
+          # for the same reason it cannot reach openXwallet — a submodule of a
+          # submodule needs its own `-C` init.
+          #
+          # THIS IS WHAT `make validate` NEEDS: MedxEHR's lockstep pin
+          # validator (`scripts/validate-pins.py`) recomputes each leg's
+          # pinned digest from the leg's own object store, and correctly
+          # refuses `pin-submodule-uninitialized` — fail-closed — when a leg
+          # is present only as an empty gitlink. Presence is not identity.
+          #
+          # NOT `--recursive` here either, for the identical reason the
+          # openXwallet init above rejects it: naming the two declared legs
+          # keeps the same promise that comment makes — nothing wider joins
+          # the nightly by accident should a leg ever grow submodules of its
+          # own.
+          #
+          # GUARDED on each leg's `.gitmodules` declaration, same as
+          # openXwallet. MedxEHR is not the only governed repo that pins a
+          # neutral product one level down (MedxChart/openChart,
+          # MedxPractice/openPractice, LedgerxFactory's two legs, and
+          # MedxFactory/MedxAvatar all do too), but none of those currently
+          # run a pin-digest recompute through preflight the way MedxEHR's
+          # `make validate` does — only MedxEHR fails today — so only
+          # MedxEHR's legs are inited here: the narrowest mechanism for the
+          # failure actually observed.
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.spec.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init spec
+          else
+            echo "MedxEHR declares no spec gitlink at this pin; skipping the nested init"
+          fi
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.code.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init code
+          else
+            echo "MedxEHR declares no code gitlink at this pin; skipping the nested init"
+          fi
+      - name: Verify openXwallet root-gitlink parity
+        # split-openxwallet-repo task 9.4 / design D11. THIS IS THE ONLY CI THAT
+        # INITIALIZES BOTH GITLINKS, which is why the check is invoked here and
+        # not from openxFactory's own consumer gate: the invariant is
+        # root-gitlink-equals-nested-gitlink, and openxFactory alone cannot see
+        # the aggregation's root gitlink at all.
+        #
+        # ONE IMPLEMENTATION, ONE REFUSAL VOCABULARY: this is a MODE of
+        # openxFactory's own verifier (`--aggregation-root`), not a second
+        # script in xFactory, which has no validator convention of its own and
+        # would drift a duplicate refusal set. `verify()` runs first inside the
+        # tool and pins the nested gitlink, the nested checkout and the eight
+        # digests to the pin's commit; `verify_aggregation` then requires the
+        # aggregation's OWN gitlink to record that same commit. Every failure
+        # exits 2 and fails this job, which fails the whole reusable call.
+        #
+        # IN `prepare` AND NOT IN `finalize`, once: prepare runs first and its
+        # failure fails the call, so a second invocation would only cost a
+        # second place for the guard to drift.
+        #
+        # NO EXTRA SUBMODULE INIT IS NEEDED and that is a property of the check,
+        # not an omission: `verify_aggregation` reads the RECORDED gitlink
+        # through `git ls-tree HEAD` / `git ls-files -s`, which answer from the
+        # commit and the index without any checkout. The root `openXwallet/`
+        # working tree is never read here, so the governed-submodule init above
+        # is deliberately left alone rather than widened — widening it would add
+        # `openAvatar`'s Flutter monorepo to every nightly for no check that
+        # reads it. That becomes false the day a CI auth strategy for `nlm`
+        # lands and `notebook-projection-drift` stops being skipped, because
+        # that family DOES sweep a root product's documents; the sweep prints a
+        # named WARN for a pinned-but-empty root product rather than reporting
+        # it as document-free, so the day it matters it says so out loud.
+        #
+        # GUARDED ON THE NESTED DECLARATION, exactly as the init above is, and
+        # for the same ordering reason: the aggregation's openxFactory pin bump
+        # and its own root gitlink land in ONE pull request (P4), so before that
+        # bump there is nothing to compare and an unguarded invocation would
+        # fail the nightly for a deploy ordering rather than for a defect.
+        # AFTER the bump the guard is satisfied and the check is fail-closed:
+        # an aggregation whose openxFactory consumes openXwallet but which
+        # records no root gitlink refuses as `pin-member-missing`, because a
+        # consumer that stops carrying the pin is not passing, it is not
+        # participating.
+        run: |
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            python3 openxFactory/scripts/verify-openxwallet-pin.py \
+              --aggregation-root .
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the root-gitlink parity check"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install suite dependencies
-        run: pip install pyyaml
+        # run_suite() below runs preflight too (--family is not passed, so
+        # only_family is None): same OpsxFactory `make validate` dependency
+        # as the finalize job's install step, kept in sync with it.
+        run: pip install pyyaml "cryptography>=41,<46"
       - name: Build semantic sweep bundle
         if: inputs.readiness-only != true
         env:
@@ -354,10 +559,40 @@ jobs:
             --output readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION (adversarial review 2026-07-26, informational
+          # finding 5a -- the same class as the aggregation approval workflow's
+          # `reason=$REASON`). `$GITHUB_OUTPUT` is a newline-delimited key=value file and
+          # the LAST write of a key WINS, so any value carrying a newline can append its
+          # own `ready=true` line AFTER the verdict below and flip this gate open --
+          # `ready` is written FIRST, so the injected line is the one that counts.
+          # Neither `reason` nor `dispatch_label` is produced by this workflow:
+          # `dispatch_label` is echoed out of the REMOTE Hermes heartbeat, through an
+          # evaluator this repository does not own (the caller's
+          # scripts/check-worker-readiness.py). They are therefore not trusted to be
+          # single-line here. A value that cannot be rendered on one line is REFUSED,
+          # never escaped or truncated: the step emits ready=false with a naming reason
+          # and nothing else, so a malformed or hostile evaluator result can only ever
+          # WITHHOLD the dispatch, never authorise one. `ready` must be a real JSON
+          # boolean for the same reason -- a string "true" is not a verdict.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=semantic-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only analysis child
@@ -529,10 +764,29 @@ jobs:
             --output catalog-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("catalog-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("catalog-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=catalog-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only cataloger child
@@ -746,10 +1000,29 @@ jobs:
             --output organizer-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("organizer-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("organizer-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=organizer-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only organizer child
@@ -812,16 +1085,149 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token || github.token }}
+      # WHY A SECOND TOKEN, AND WHY IT IS DERIVED. An App INSTALLATION token is
+      # scoped to exactly ONE installation, and the mint above asks for
+      # `owner: ${{ github.repository_owner }}` — the caller's organization.
+      # Since aggregation commit 0c6ea39 ("Repoint the Medx submodules at
+      # MedxSoft, where they now live", 2026-08-26) the governed submodule set
+      # SPANS ORGANIZATIONS, so that one token cannot clone all of it: the
+      # nightly died at "Init governed submodules only" with `fatal: repository
+      # 'https://github.com/MedxSoft/MedxEHR.git/' not found` (opensoft/xFactory
+      # runs 33038056012 on 2026-08-27 and 33143248243 on 2026-08-28; the
+      # 2026-08-26 15:43 run, before the repoint, passed). The message reads
+      # like a deleted repository and is really a token minted for the wrong
+      # installation — the App IS installed on the other organization
+      # (installation 157085693, all repositories, contents: write); it only
+      # ever lacked a token of its own.
+      #
+      # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
+      # the only authority on where a submodule lives, so a hardcoded
+      # organization would rot at the next repoint and would stay silent when a
+      # THIRD organization appeared. More than one foreign owner therefore FAILS
+      # the run instead of guessing, because `create-github-app-token` takes one
+      # `owner` per step and a second pair has to be written by hand.
+      - name: Detect foreign submodule owners
+        id: foreign-owner
+        env:
+          SELF_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          # The SAME governed filter the init step below applies, so the two can
+          # never disagree about which submodules a token has to reach.
+          GOVERNED='^(openxFactory|xFactories/)'
+          MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
+          FOREIGN=""
+          while read -r key path; do
+            [ -n "${path:-}" ] || continue
+            printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
+            name=${key#submodule.}
+            name=${name%.path}
+            url=$(git config --file .gitmodules --get "submodule.${name}.url" || true)
+            owner=$(printf '%s\n' "$url" | sed -nE \
+              -e 's#^git@github\.com:([^/]+)/.+$#\1#p' \
+              -e 's#^https://github\.com/([^/]+)/.+$#\1#p')
+            if [ -z "$owner" ]; then
+              echo "::warning::no GitHub owner could be read from submodule '${path}' url '${url}'; leaving it to the org-wide rewrite"
+              continue
+            fi
+            echo "governed submodule ${path} -> owner ${owner}"
+            if [ "$owner" != "$SELF_OWNER" ]; then
+              FOREIGN="${FOREIGN}${owner}"$'\n'
+            fi
+          done <<< "$MODULES"
+          UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
+          COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+            exit 1
+          fi
+          if [ "$COUNT" -eq 1 ]; then
+            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
+            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
+          else
+            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+            echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
+          fi
+      - name: Mint app token for the foreign submodule owner
+        id: foreign-app-token
+        # NO `|| github.token` FALLBACK, deliberately: if the App is not
+        # installed on that organization this step fails loudly, which is a far
+        # better diagnosis than the "Repository not found" the init printed for
+        # two nights.
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+      # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
+      # `insteadOf` by the LONGEST matching left-hand side, and
+      # `git@github.com:<owner>/` is longer than `git@github.com:` — this
+      # narrows the earlier rewrite for exactly that owner's submodules and
+      # leaves every other governed submodule on the caller-org token. Removing
+      # the broad rewrite would strand every same-org submodule instead.
+      - name: Rewrite foreign-owner submodule URLs
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        env:
+          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
+          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
                  | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
           git submodule update --init $SUBS
+          # The NESTED neutral-product gitlink, one level down and scoped by
+          # name. `openxFactory/openXwallet` is a submodule OF a submodule, so
+          # the filter above cannot reach it — it reads the aggregation's own
+          # `.gitmodules`, which declares `openxFactory` and nothing below it.
+          # NOT `--recursive`, which would additionally pull
+          # `installs/omnigent-install` and every domain's nested submodules
+          # into every aggregation doc-health run.
+          #
+          # GUARDED on the nested `.gitmodules` actually declaring it, because
+          # the aggregation's openxFactory pin and openxFactory's own gitlink
+          # land in different pull requests (P4 after P3): before that bump the
+          # init has nothing to do and an unguarded invocation would fail the
+          # nightly for the ordering rather than for a defect.
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            git -C openxFactory submodule update --init openXwallet
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
+          fi
+          # MedxEHR's own TWO nested legs, `spec` and `code` — mirrored from
+          # the `prepare` job's identical step. `finalize` runs on its own
+          # fresh checkout and re-runs the full suite (this job passes no
+          # `--family`, so `run_suite`'s preflight branch runs again here and
+          # its result is what "Run doc-health suite" below actually renders
+          # into the published report), so the same nested init has to be
+          # repeated rather than inherited from `prepare`. See the `prepare`
+          # job's copy of this block for the full rationale.
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.spec.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init spec
+          else
+            echo "MedxEHR declares no spec gitlink at this pin; skipping the nested init"
+          fi
+          if git -C xFactories/MedxEHR config --file .gitmodules \
+               --get submodule.code.path >/dev/null 2>&1; then
+            git -C xFactories/MedxEHR submodule update --init code
+          else
+            echo "MedxEHR declares no code gitlink at this pin; skipping the nested init"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install suite dependencies
-        run: pip install pyyaml jsonschema pytest rfc3339-validator
+        # cryptography backs OpsxFactory's own `make validate` (imported via
+        # scripts/cloudpc_worker_fleet.py), which the preflight step below
+        # runs as a subprocess in THIS environment; pinned to the same range
+        # as OpsxFactory's requirements-dev.txt so both stay compatible.
+        run: pip install pyyaml jsonschema pytest rfc3339-validator "cryptography>=41,<46"
       - name: Download prepared deterministic inventory
         if: needs.prepare.result == 'success'
         continue-on-error: true
@@ -1231,6 +1637,49 @@ jobs:
             fi
           fi
           printf '%s\n' "$REASON" > findings/organizer-unavailable-reason.txt
+      - name: Fetch each governed submodule's live origin/main
+        # RULED 2026-08-24 (add-promotion-fidelity-check task 4.1, PR #315):
+        # the promotion-fidelity family measures LIVE MAINS, and it alone.
+        # Measured against the aggregation's committed PINS that family's
+        # coverage collapsed — 0% in three repositories — and it could not
+        # see the #301 gap while the codexFactory pin lagged behind the
+        # repository that had it. A promotion gap is a fact about a
+        # repository's own main; read through a pin it reports the pin.
+        #
+        # THIS STEP MOVES NO FILE. `git fetch` updates
+        # `refs/remotes/origin/main` and the object store; HEAD, the index and
+        # the working tree are untouched, so every OTHER family still reads
+        # exactly the pinned tree the checkout above produced. The family
+        # reads the ref through `git ls-tree` / `git show`, never by checking
+        # anything out.
+        #
+        # Non-fatal by design. A submodule whose main cannot be fetched is
+        # reported by the family as having FALLEN BACK to the pinned
+        # checkout, by name, in the report's own promotion-fidelity section —
+        # a stale true positive rather than a silence.
+        if: always()
+        continue-on-error: true
+        run: |
+          # `|| true` on the whole pipeline: under this shell's default
+          # `-e -o pipefail`, a missing `.gitmodules` (git config exits
+          # non-zero) OR a `.gitmodules` with no governed submodule (grep
+          # matches nothing, also non-zero) would fail the `SUBS=$(...)`
+          # assignment and abort the script right there — turning "nothing
+          # to fetch" into a script failure for a step whose own comment
+          # above says non-fatal by design. An empty `$SUBS` still runs the
+          # loop below zero times and exits 0, which is the actual
+          # non-fatal contract this step keeps.
+          SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)' || true)
+          for sub in $SUBS; do
+            [ -e "$sub/.git" ] || continue
+            if git -C "$sub" fetch --no-tags --quiet origin \
+                 "+refs/heads/main:refs/remotes/origin/main"; then
+              echo "live main fetched: $sub $(git -C "$sub" rev-parse --short=12 origin/main)"
+            else
+              echo "no live main for $sub — the family reports the fall-back"
+            fi
+          done
       - name: Run doc-health suite
         id: run
         if: always()
@@ -1376,8 +1825,14 @@ jobs:
               NEUTRALITY+=(--neutrality-baseline "$NEUTRALITY_BASELINE_INPUT")
             fi
           fi
+          # --promotion-fidelity-basis: ONE family's measurement basis, ruled
+          # 2026-08-24 (task 4.1, PR #315). Deliberately absent from the
+          # prepare-phase invocations above, which build bundles and discard
+          # findings; the report this step writes is the only place the basis
+          # is read by anyone, and it names the basis in its own section.
           python3 openxFactory/scripts/doc-health.py \
             --repo-root . "${SKIPS[@]}" "${GATE[@]}" \
+            --promotion-fidelity-basis live-main \
             --report-out "$REPORT_OUT" \
             ${PREV:+--previous-report "$PREV"} \
             --emit-inventory "$INV_OUT" \
@@ -1604,10 +2059,29 @@ jobs:
             --output xref-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("xref-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("xref-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=readiness-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Build readiness bundle (per-cluster untrusted payloads)
@@ -1963,10 +2437,29 @@ jobs:
             --output dposs-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("dposs-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("dposs-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=derive-possibles-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Build derive-possibles bundle (per-cluster untrusted payloads)
@@ -2251,6 +2744,34 @@ jobs:
             --aggregate medx-clinical \
             --aggregate-members MedxFactory,openChart,MedxEHR,HealthLinc \
             --aggregate-display-name "Medx clinical"
+      - name: Ideation-dashboard image refresh — report previous outcome (one-run lag; Decision 6)
+        # The refresh STAGE runs AFTER report delivery (below), so the
+        # refresh-status.json present in the tree is the PREVIOUS run's. Decision
+        # 6's preferred resolution: name whose outcome it is and say so (the
+        # module's render_report_section does), and surface a bot/dox-dashboard-pin
+        # PR still open on Omnigent-Install as a STUCK CHAIN. Best-effort: it
+        # never fails the nightly, and only annotates a FRESH dated report
+        # (steps.run.outputs.commit == 'true') so the immutable dated record a
+        # same-day rerun leaves in the tree is never mutated. THIS run's own
+        # outcome is carried immediately by the stage's ::notice::/::warning::
+        # annotations below, which is why the one-run report lag is acceptable.
+        if: steps.run.outputs.commit == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+        run: |
+          REPORT="health/reports/${RUN_DATE}.md"
+          [ -f "$REPORT" ] || { echo "no dated report to annotate this run"; exit 0; }
+          # A stuck chain is the clearest parked-refresh signal (task 4.9). The
+          # lookup is fail-soft: an App token without Omnigent-Install scope
+          # simply yields no stuck PR, never an error.
+          STUCK="$(gh pr list --repo opensoft/Omnigent-Install \
+            --head bot/dox-dashboard-pin --base main --state open \
+            --json url -q '.[0].url' 2>/dev/null || true)"
+          ARGS=(--repo-root . --phase report --report-in "$REPORT")
+          [ -n "$STUCK" ] && ARGS+=(--stuck-pull-request "$STUCK")
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
       # Delivers living health/ artifacts. NOT gated on steps.run.outputs.commit:
       # a same-day rerun redirects only the DATED report/inventory to
       # RUNNER_TEMP (records are immutable — they never re-enter the tree, so
@@ -2399,6 +2920,577 @@ jobs:
           GH_TOKEN="$DISPATCH_TOKEN" gh workflow run merge-master-approval.yml \
             --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" \
             || echo "::warning::approval-workflow dispatch failed — PR parks for the human gate"
+      # ===================================================================
+      # Ideation-dashboard IMAGE REFRESH stage (add-nightly-dashboard-refresh
+      # §4). Ordered HERE — strictly AFTER "Commit report" delivery — so a
+      # refresh can never jeopardise the report it follows (design Decision 4).
+      # Worker-gated, dispatched artifact-only child on cpc-omni01, fail-closed
+      # SKIP when no ready worker, and NO inline hosted fallback: the build and
+      # the ACR push belong to the host that holds the registry binding
+      # (Decision 5 / spec "never falls back to a hosted runner"). The child
+      # `dashboard-image-worker.yml` lives in the AGGREGATION (the caller repo,
+      # $GITHUB_REPOSITORY), like every other worker child dispatched above;
+      # this stage dispatches it, collects its one result (the digest), renders
+      # the pin, and delivers the envelope-shaped PR to Omnigent-Install.
+      # ===================================================================
+      - name: Evaluate dashboard-refresh worker readiness
+        id: dfr-readiness
+        # Cloned verbatim from "Evaluate readiness-scorer worker readiness":
+        # same GROUP="xfactory-artifact-workers" runner-group resolution +
+        # authenticated Hermes heartbeat, handed to check-worker-readiness.py,
+        # ready=false ⇒ fail-closed skip (task 4.2). Only the required
+        # label/profile identify THIS lane's worker capability; those and the
+        # matching worker-profile registration are an AGGREGATION/host concern
+        # (see tasks §1.4, §2) — until they resolve, readiness is false and the
+        # stage skips fail-closed, which is the designed default.
+        env:
+          WORKER_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          QUERY_ERROR=""
+          : > dfr-runners-api.json
+          if [ "$WORKER_ENABLED" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > dfr-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("dfr-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > dfr-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("dfr-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("dfr-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$WORKER_ENABLED" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > dfr-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("dfr-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("dfr-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > dfr-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > dfr-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > dfr-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group dfr-runner-group.json \
+            --heartbeat dfr-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label dashboard-image \
+            --required-profile dashboard-image-refresh \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output dfr-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("dfr-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
+          print(f"correlation_id=dashboard-refresh-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Ideation-dashboard image refresh — record skip (worker unavailable)
+        # Fail-closed SKIP: an unready worker records the lane as skipped and the
+        # nightly continues (spec "skips when its worker is unavailable"). No
+        # hosted fallback — deliberately. The lane reads no input at all here.
+        if: steps.dfr-readiness.outputs.ready != 'true'
+        continue-on-error: true
+        env:
+          REASON: ${{ steps.dfr-readiness.outputs.reason }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --skip-reason "worker unavailable: ${REASON:-not_ready}"
+      - name: Ideation-dashboard image refresh — decide (no-change short-circuit, before any build)
+        id: dfr-decide
+        # The input-revision decision (design Decision 10), which precedes the
+        # checkout: it reads the corpus baked-input revision from the initialised
+        # openxFactory submodule at origin/main and the recipe revision + pinned
+        # provenance from Omnigent-Install via the App token. Both inputs are
+        # PATH-SCOPED to the baked inputs, never a branch tip. An input it cannot
+        # read (e.g. the App lacks Omnigent-Install scope) ⇒ undecidable ⇒
+        # fail-closed skip, build=false, nothing dispatched.
+        if: steps.dfr-readiness.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --corpus-checkout openxFactory \
+            --run-url "$RUN_URL" \
+            --decision-out dfr-decision.json
+          BUILD="$(python3 -c 'import json;print(str(json.load(open("dfr-decision.json"))["build"]).lower())' 2>/dev/null || echo false)"
+          echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+      - name: Ideation-dashboard image refresh — seal the bounded source artifact
+        id: dfr-seal
+        # THE PARENT SEALS, because the child may not read the repository at
+        # all: the re-ratified requirement prohibits a Git repository
+        # credential, deploy key, credential helper or repository network
+        # access on the worker, so the source has to cross as ONE bounded
+        # artifact this credentialed job produces. THIS JOB ALREADY HAS
+        # EVERYTHING IT NEEDS — the openxFactory submodule is initialised with
+        # full history for the decision above, and the App token already reads
+        # Omnigent-Install — so the seal is a `git archive` of a revision in
+        # hand plus one contents read of the single-file recipe. Nothing is
+        # materialized by a worker-side read anywhere in this stage.
+        #
+        # The SEAL path set is deliberately WIDER than the decision's baked set
+        # by exactly one file (the top-level snapshot validator the child's
+        # `--strict` has to be able to RUN), and the decision's set must NOT
+        # follow it or every recorded pin would read as a scope change and
+        # rebuild once for nothing. Both halves live in the module, beside the
+        # reason.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase seal \
+            --corpus-checkout openxFactory \
+            --decision-in dfr-decision.json \
+            --seal-out dfr-seal \
+            --seal-result-out dfr-seal-result.json \
+            --correlation-id "$CORRELATION_ID"
+          SEALED="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json"))["sealed"]).lower())' 2>/dev/null || echo false)"
+          echo "sealed=${SEALED}" >> "$GITHUB_OUTPUT"
+      - name: Upload the sealed dashboard-image source artifact
+        # The sibling pattern this lane copies rather than invents:
+        # `semantic-sweep-bundle` and `document-catalog-bundle` above are
+        # uploaded here and downloaded cross-run by the child with
+        # `github-token` + `repository` + `run-id`.
+        #
+        # `include-hidden-files: true` because v4 DROPS dotfiles by default and
+        # the manifest's `files` index — the authority on what the download must
+        # contain — would then promise paths the child cannot find.
+        # `if-no-files-found: error` because an empty upload would leave the
+        # child failing on an absent manifest instead of here, where the reason
+        # is legible. Retention is ONE DAY: the child consumes it inside this
+        # same nightly, and a private corpus should not sit in artifact storage
+        # for ninety.
+        id: dfr-upload
+        # `continue-on-error` so a storage hiccup records a skip instead of
+        # failing the nightly — which is why the DISPATCH is gated on this
+        # step's `outcome` and not merely on `sealed`: with continue-on-error
+        # the `conclusion` is always success, and a child dispatched against an
+        # artifact that never uploaded would fail on the download with nothing
+        # here saying why.
+        if: steps.dfr-seal.outputs.sealed == 'true'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-image-source-${{ steps.dfr-readiness.outputs.correlation_id }}
+          path: dfr-seal
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+      - name: Ideation-dashboard image refresh — record skip (source not sealed)
+        # A refused seal is a RECORDED outcome, not a failure: nothing is
+        # dispatched, the nightly continues, and the next run catches up in one
+        # hop — the same bounded cost the readiness skip carries.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && (steps.dfr-seal.outputs.sealed != 'true' || steps.dfr-upload.outcome != 'success')
+        continue-on-error: true
+        env:
+          SEALED: ${{ steps.dfr-seal.outputs.sealed }}
+        run: |
+          if [ "$SEALED" = "true" ]; then
+            REASON="the sealed source artifact could not be uploaded"
+          else
+            REASON="$(python3 -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --skip-reason "source not sealed: ${REASON}"
+      - name: Dispatch artifact-only dashboard-image child
+        id: dfr-dispatch
+        # Cloned from "Dispatch artifact-only readiness child". The child lives
+        # in the AGGREGATION (do not look for it in openxFactory), dispatched
+        # only when the worker is ready AND the inputs moved AND the parent
+        # sealed the source the child will consume. It holds no repository
+        # credential; its ONLY result is the digest. The artifact's name is
+        # `dashboard-image-source-<correlation_id>` and the child already
+        # receives that correlation id, so no new dispatch input is passed
+        # here — which is what lets this stage land before the child's own
+        # intake change without breaking the live dispatch.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && steps.dfr-seal.outputs.sealed == 'true' && steps.dfr-upload.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.dfr-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run dashboard-image-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::dashboard-image child dispatch failed — refresh skips this cycle, next run catches up in one hop"
+          fi
+      - name: Collect bounded dashboard-image result
+        # Cloned from "Collect bounded readiness result" verbatim — identical
+        # 120s discovery / 600s queue-timeout / 1800s run-timeout deadlines and
+        # cancel-on-timeout. The child uploads exactly one file, digest.json.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ steps.dfr-dispatch.outputs.dispatched }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        run: |
+          mkdir -p dfr-digest
+          REASON="child_dispatch_failed"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="dashboard-image-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow dashboard-image-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > dfr-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("dfr-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # The child uploads exactly one file, digest.json, so the
+                # download always lands at dfr-digest/digest.json.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "dashboard-image-digest-${CORRELATION_ID}" \
+                     --dir dfr-digest; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > dfr-digest/unavailable-reason.txt
+      - name: Ideation-dashboard image refresh — render pin proposal
+        id: dfr-pin
+        # The module RENDERS the pin (rewritten overlay + PR body) from the
+        # child's returned digest; it opens no PR and pushes no branch (that is
+        # the delivery step below). Re-reads the inputs so the pin is never
+        # rendered on inputs that moved out from under the build. Writes this
+        # run's RESULT_OK refresh-status.json — which rides the NEXT delivery
+        # (Decision 6 one-run lag), reported by the section step above.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ ! -f dfr-digest/digest.json ]; then
+            echo "::warning::no digest artifact from the dashboard-image child ($(cat dfr-digest/unavailable-reason.txt 2>/dev/null || echo unknown)) — nothing to pin this cycle"
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase pin \
+            --corpus-checkout openxFactory \
+            --digest-in dfr-digest/digest.json \
+            --pin-out dfr-pin \
+            --run-url "$RUN_URL"
+          if [ -f dfr-pin/kustomization.yaml ] && [ -f dfr-pin/pr-body.md ]; then
+            echo "pinned=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::pin was not rendered this cycle — refresh parks, next run retries"
+          fi
+      - name: Ideation-dashboard image refresh — deliver pin PR to Omnigent-Install (force-free, fail-soft)
+        # Envelope-shaped delivery of the ONE-file digest pin to the served
+        # plane's repository, on the FIXED head branch bot/dox-dashboard-pin,
+        # authored by the minted App token — mirroring the report step's
+        # force-free rolling-branch mechanics (org ruleset 8981805 forbids
+        # non-fast-forward on ~ALL branches, so deliver by branch CREATION or a
+        # fast-forward merge commit whose FIRST parent is the remote tip; never
+        # --force). RESILIENT / FAIL-SOFT: if the App token lacks
+        # Omnigent-Install scope (installation gate task 1.2 unsatisfied) the
+        # step logs and returns 0 — the nightly never hard-fails. The lane sets
+        # NO label, title prefix or commit-message convention that claims the
+        # diff shape: the receiving repository adjudicates the actual diff.
+        if: steps.dfr-pin.outputs.pinned == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        run: |
+          set -uo pipefail
+          RECIPE_REPO="opensoft/Omnigent-Install"
+          OVERLAY="deploy/kubernetes/overlays/aks-qa/kustomization.yaml"
+          BRANCH="bot/dox-dashboard-pin"
+          # Fail-soft scope probe: a read that 403s means the App installation
+          # does not yet include Omnigent-Install (task 1.2). Log and park.
+          if ! gh api "repos/${RECIPE_REPO}" >/dev/null 2>&1; then
+            echo "::warning::the minted App token cannot reach ${RECIPE_REPO} (installation gate 1.2 unsatisfied) — pin PR not opened; refresh parks for the human gate"
+            exit 0
+          fi
+          BOT_LOGIN="$(gh api /user -q .login 2>/dev/null || echo 'xfactory-app[bot]')"
+          WORK="$RUNNER_TEMP/omnigent-install-pin"
+          rm -rf "$WORK"
+          if ! git clone --depth 1 --branch main \
+              "https://x-access-token:${GH_TOKEN}@github.com/${RECIPE_REPO}.git" "$WORK" 2>/dev/null; then
+            echo "::warning::could not clone ${RECIPE_REPO} with the App token — pin PR not opened; refresh parks"
+            exit 0
+          fi
+          cp dfr-pin/kustomization.yaml "$WORK/$OVERLAY"
+          git -C "$WORK" config user.name "$BOT_LOGIN"
+          git -C "$WORK" config user.email "${BOT_LOGIN}@users.noreply.github.com"
+          git -C "$WORK" add "$OVERLAY"
+          # Envelope guard: the ONLY diff is the overlay. If nothing changed, the
+          # served plane already carries this pin — nothing to propose.
+          if git -C "$WORK" diff --cached --quiet; then
+            echo "the rendered overlay is byte-identical to ${RECIPE_REPO} main — nothing to propose"
+            exit 0
+          fi
+          MAIN_TIP="$(git -C "$WORK" rev-parse HEAD)"
+          git -C "$WORK" commit -q -m "dox: refresh ideation-dashboard image pin"
+          DELIVERY_TREE="$(git -C "$WORK" write-tree)"
+          OPEN_PR="$(gh pr list --repo "$RECIPE_REPO" --head "$BRANCH" --base main --state open --json number -q '.[0].number' 2>/dev/null || true)"
+          PR_URL=""
+          if [ -n "$OPEN_PR" ]; then
+            # Preserve the open PR + its thread. Fast-forward the branch: merge
+            # commit, first parent = current remote branch tip, second = main.
+            git -C "$WORK" fetch origin "$BRANCH" 2>/dev/null || true
+            REMOTE_TIP="$(git -C "$WORK" rev-parse FETCH_HEAD 2>/dev/null || echo "$MAIN_TIP")"
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not advance ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr view "$OPEN_PR" --repo "$RECIPE_REPO" --json url -q .url 2>/dev/null || echo "")"
+          else
+            # No open PR: (re)create the branch by CREATION (ref deletion is
+            # unrestricted), then a single fresh commit atop main — no --force.
+            if git -C "$WORK" ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+              git -C "$WORK" push origin --delete "$BRANCH" 2>/dev/null || true
+            fi
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not create ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — pin PR not opened; refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr create --repo "$RECIPE_REPO" \
+              --base main --head "$BRANCH" \
+              --title "dox: refresh ideation-dashboard image pin" \
+              --body-file dfr-pin/pr-body.md 2>/dev/null || echo "")"
+          fi
+          if [ -n "$PR_URL" ]; then
+            echo "::notice::ideation-dashboard-refresh: pin PR delivered — ${PR_URL}"
+            # Patch this run's status with the PR reference (task 4.7). Rides the
+            # next delivery, like the status itself. Best-effort.
+            python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+              --repo-root . --phase record-pr --pull-request "$PR_URL" || true
+          else
+            echo "::warning::pin branch delivered but the PR reference could not be resolved — refresh may need a manual PR open"
+          fi
+      # =================== end image refresh stage =======================
       - name: Open regression issue (one per run, contract regression rule)
         if: steps.run.outputs.new_count != '0'
         env:

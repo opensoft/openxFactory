@@ -57,6 +57,7 @@ from __future__ import annotations
 import re
 import subprocess
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +65,7 @@ import yaml
 
 from doc_health import TAXONOMY, corpus
 from doc_health.corpus import RealGit
+from doc_health.lines import split_keepends
 
 from . import GENERATOR_VERSION, completeness, fixtures
 from .register import CrossReferenceIndexAdapter, ProjectRegisterAdapter
@@ -84,6 +86,34 @@ _ARCHIVE_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})-(.+)")
 # The only revision shape `RealGitDates.commit_date` accepts: a (possibly
 # abbreviated) hex commit sha — the documented `source_revision` anchor form.
 _REVISION_RE = re.compile(r"[0-9a-fA-F]{4,64}")
+# The shape a SUPPLIED `generated_at` must have — the same containment as
+# `_REVISION_RE` above, for the other generation anchor, and the same shape the
+# snapshot schema declares for `generation.generated_at` (`format: date-time`,
+# `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`): a full date, an
+# explicit time, and an explicit offset. `datetime.fromisoformat` alone is not
+# the check — it admits date-only and offset-less spellings the schema's
+# delegated format checker rejects.
+_RFC3339_DATETIME_RE = re.compile(
+    r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])"
+    r"[Tt]([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d+)?"
+    r"([Zz]|[+-]([01]\d|2[0-3]):[0-5]\d)$")
+
+
+def is_rfc3339_datetime(value: object) -> bool:
+    """True when `value` is an RFC 3339 date-time.
+
+    Shape AND instant: the pattern admits `2026-02-30T00:00:00Z`, which is not a
+    day, so the parse is run too. Exposed (not private) because the anchor it
+    guards enters from OUTSIDE this module — `cli.py`'s `--generated-at` — and
+    the containment belongs beside the stamp it feeds, exactly as
+    `RealGitDates.commit_date` contains `--source-revision`."""
+    if not isinstance(value, str) or not _RFC3339_DATETIME_RE.match(value):
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
+    except ValueError:
+        return False
+    return True
 
 
 # --------------------------- injectable git abstraction ---------------------------
@@ -123,11 +153,14 @@ class RealGitDates:
 # --------------------------- header parsing ---------------------------
 
 def _header_value(text: str, name: str) -> str | None:
-    """First `Name: value` header value in the doc's header window, else None."""
+    """First `Name: value` header value in the doc's header window, else
+    None. Real lines (`doc_health.lines.split_keepends`), matching
+    `doc_health.corpus.parse_status`/`parse_kind`'s window exactly — see
+    this module's `HEADER_SCAN_LINES` comment."""
     prefix = name + ":"
-    for line in text.splitlines()[:HEADER_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line[len(prefix):].strip() or None
+    for body, _ending in split_keepends(text)[:HEADER_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body[len(prefix):].strip() or None
     return None
 
 
@@ -204,7 +237,7 @@ def _archived_change(arch: Path) -> tuple[str, str, Path, str | None]:
     return (arch.name, "archived", arch, None)
 
 
-def _iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
+def iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
     """(change_id, status, folder, archive_date) per change — active folders
     under openspec/changes/ and archived (date-prefixed) folders under
     openspec/changes/archive/."""
@@ -223,6 +256,10 @@ def _iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
     return out
 
 
+# Compatibility for callers that pre-date the public lifecycle-evidence reader.
+_iter_changes = iter_changes
+
+
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
@@ -239,7 +276,7 @@ def _task_progress(folder: Path) -> dict[str, int] | None:
     return {"completed": completed, "total": total}
 
 
-def _load_openspec_meta(folder: Path) -> dict:
+def load_openspec_meta(folder: Path) -> dict:
     """A change's `.openspec.yaml` metadata as a dict (empty when absent or
     malformed) — the governed per-change metadata file OpenSpec writes."""
     path = folder / ".openspec.yaml"
@@ -252,6 +289,89 @@ def _load_openspec_meta(folder: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
+def declared_origin_staging(folder: Path) -> str | None:
+    """The staging topic a change RECORDS as its own origin, or None.
+
+    Read from the change's `.openspec.yaml` `origin:` block — the artifact the
+    FORWARD transition writes (`proposal-support.write_origin_block`) at the
+    moment the topic becomes a change. That makes it the one origin statement
+    that survives the transition: a possibles-register pick edge points at the
+    staging FOLDER, and the forward transition removes that folder, so a
+    resolution reading only pick edges fails for exactly the changes that
+    actually reached proposal (measured: 12 of 12 active changes reported
+    `origin_staging_id: None`, and the corpus held ONE pick edge, carrying no
+    `change_id`).
+
+    Only `kind: staged` answers. An `ad_hoc` origin means the change did not come
+    from staging, so there is no topic to return to and the demote's refusal is
+    correct rather than something to paper over.
+
+    THE ID COMES FROM `origin.path`, not `origin.id`. The declared id is
+    namespaced (`<repo>:staging:<topic>`) while this field is compared against
+    `staged_topics[].staging_id`, which is the bare topic. Deriving it from the
+    path keeps one spelling of the id's shape rather than teaching a second place
+    how to take a namespaced id apart.
+
+    THE TOPIC IS THE FIRST SEGMENT AFTER `ideation/staging/`, not the path's
+    BASENAME. `proposal-support.py transition` accepts any directory below
+    `ideation/staging/` as its source, so a real declared origin can read
+    `ideation/staging/my-topic/openspec` — and a basename rule answers `openspec`,
+    a topic nobody named, into which the demote would then silently plan every
+    returning file. A path that is not below `ideation/staging/` answers NOTHING
+    rather than being guessed at: the origin contract puts staged sources there,
+    and a malformed declaration is a refusal case, not a parsing challenge."""
+    _state, staging_id = declared_origin_state(folder)
+    return staging_id
+
+
+def declared_origin_state(folder: Path) -> tuple[str, str | None]:
+    """Classify a change origin without collapsing invalid data into absence.
+
+    The possibles-register compatibility fallback is safe only for old changes
+    that truly have no origin declaration.  An ad-hoc or malformed declaration
+    is an affirmative statement that the fallback must not reinterpret.
+    """
+    metadata_path = folder / ".openspec.yaml"
+    if not metadata_path.is_file():
+        return "absent", None
+    try:
+        loaded = yaml.safe_load(_read(metadata_path))
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return "invalid", None
+    if not isinstance(loaded, dict):
+        return "invalid", None
+    if "origin" not in loaded:
+        return "absent", None
+    origin = loaded.get("origin")
+    if not isinstance(origin, dict):
+        return "invalid", None
+    if origin.get("kind") != "staged":
+        return "non-staged", None
+    path = origin.get("path")
+    if not isinstance(path, str):
+        return "invalid", None
+    # BACKSLASHES ARE TOLERATED ON THE WAY IN. The forward gate now records this
+    # path in POSIX form, but it used to record `str(Path.relative_to(...))`,
+    # which on a Windows checkout yields `ideation\staging\<topic>` — so a record
+    # written there resolved to nothing and the demote silently degraded to
+    # asking for `--staging-topic`. Records already on disk are not reachable by
+    # fixing the writer, so the reader normalizes rather than assuming its own
+    # spelling. (This does mean a POSIX directory whose name legally contains a
+    # backslash would be split; that is an absurd case traded for a real one, and
+    # the staged-origin id grammar does not admit it.)
+    normalized = path.strip().replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part not in ("", ".")]
+    if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
+        return "invalid", None
+    return "staged", parts[2]
+
+
+# Compatibility aliases. Cleanup now consumes the same declared origin reader
+# as snapshot generation and demotion planning.
+_load_openspec_meta = load_openspec_meta
+_declared_origin_staging = declared_origin_staging
+
+
 def _ratifier_of(folder: Path) -> str | None:
     """The recorded ratifying authority for a change, read from a GOVERNED
     artifact — the change's OpenSpec metadata (`.openspec.yaml`, `ratified_by`/
@@ -260,7 +380,7 @@ def _ratifier_of(folder: Path) -> str | None:
     itself), not who ratified the change. Returns None when no artifact records a
     ratifier — the current corpus reality — so ratification stays dormant rather
     than fabricating an authority."""
-    meta = _load_openspec_meta(folder)
+    meta = load_openspec_meta(folder)
     for key in ("ratified_by", "ratifier"):
         value = meta.get(key)
         if isinstance(value, str) and value.strip():
@@ -438,14 +558,24 @@ def _change_entry(
     change_id: str, status: str, folder: Path, archive_date: str | None,
     repo_root: Path, change_origin_staging: dict[str, str],
 ) -> dict[str, Any]:
-    """One `changes[]` entry, including the folder/files drill-down listing."""
+    """One `changes[]` entry, including the folder/files drill-down listing.
+
+    `origin_staging_id` follows a DECLARED PRECEDENCE ORDER rather than one
+    source: the change's own recorded staged origin first, then the
+    possibles-register pick edge. The order is stated as an order rather than a
+    replacement so a pick edge keeps working wherever one still exists; the
+    recorded origin leads because it is the source the forward transition writes
+    and does not destroy. (An explicitly supplied topic outranks both, and is
+    applied by `gate_console.plan_demotion`, which is where a human's argument
+    arrives.)"""
     code_surface, target_release = _release_frontmatter(folder)
     change: dict[str, Any] = {
         "id": change_id,
         "status": status,
         "code_surface": code_surface,
         "target_release": target_release,
-        "origin_staging_id": change_origin_staging.get(change_id),
+        "origin_staging_id": (declared_origin_staging(folder)
+                              or change_origin_staging.get(change_id)),
     }
     ratification = _ratification(folder, archive_date, status)
     if ratification:
@@ -466,7 +596,7 @@ def _project_changes(
     """Changes (funnel columns 5-6) plus the id->status map lineage needs."""
     changes: list[dict[str, Any]] = []
     change_status: dict[str, str] = {}
-    for change_id, status, folder, archive_date in _iter_changes(repo_root):
+    for change_id, status, folder, archive_date in iter_changes(repo_root):
         change_status[change_id] = status
         changes.append(_change_entry(change_id, status, folder, archive_date,
                                      repo_root, change_origin_staging))
@@ -625,8 +755,16 @@ def _generation_stamp(
     git: Any, repo_root: Path, source_revision: str | None,
     generated_at: str | None, generator_version: str,
 ) -> dict[str, Any]:
-    """The generation stamp (no wall clock): `generated_at`, when not passed,
-    derives from the revision's commit date and is omitted when unresolvable."""
+    """The generation stamp (no wall clock): a SUPPLIED `generated_at` is
+    recorded verbatim and overrides everything; when not passed it derives from
+    the revision's commit date and is omitted when unresolvable.
+
+    The supplied path is the one the sealed-artifact lane takes
+    (`add-nightly-dashboard-refresh` task 3.6, `cli.py --generated-at`): a
+    sealed source artifact is not a git checkout, so `git.commit_date` there
+    degrades to None and the derivation below can never fire. Verbatim is the
+    contract — the value is an anchor copied from a manifest, and normalising it
+    would make the snapshot disagree with the manifest it was pinned from."""
     if source_revision is None:
         source_revision = git.head_sha(repo_root) or "unknown"
     if generated_at is None and source_revision not in (None, "unknown"):

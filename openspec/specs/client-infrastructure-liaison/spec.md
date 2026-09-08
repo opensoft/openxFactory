@@ -1,7 +1,21 @@
 # client-infrastructure-liaison Specification
 
 ## Purpose
-TBD - created by archiving change add-client-infrastructure-liaison. Update Purpose after archive.
+
+Establish the Client Infrastructure Liaison — the neutral coordination
+profile every Client Hermes scaffold declares for a dependency someone else
+controls, with exactly one accountable owner composed from existing Client
+Hermes roles rather than a new always-running agent, and domain display
+aliases resolving to this same contract. Hold the boundary that makes such
+coordination safe: the liaison coordinates only, never holding
+tenant-administration authority, executing privileged change, carrying
+secret values, or bypassing client approval or an OpsxFactory gate, so
+coordination, execution and validation stay three parties and are never
+collapsed into one. Fix the three execution bindings a dependency may be
+coordinated under — client-managed, managed-host, and OpsxFactory-executed —
+the activation gate an instance must satisfy before it goes live, and the
+out-of-band recovery path required wherever a managed dependency hosts the
+very control plane used to coordinate it.
 ## Requirements
 ### Requirement: Liaison coordination profile
 Every Client Hermes scaffold SHALL declare a Client Infrastructure Liaison — a neutral coordination profile with exactly one accountable owner, composed from existing Client Hermes roles (profile steward, integration and credential steward, policy and approval gatekeeper, fulfillment coordinator, communication and handoff agent, quality and outcome monitor, memory steward) rather than a new always-running agent, and domain display aliases (Care/Firm/Marketing/Engineering/IT Infrastructure Liaison) SHALL resolve to this same neutral contract. An install MAY disable active routing, but MUST still declare the responsible operator and an escalation path.

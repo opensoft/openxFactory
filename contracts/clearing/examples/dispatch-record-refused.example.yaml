@@ -1,0 +1,78 @@
+# A REFUSAL, RECORDED IN THE SAME SHAPE — which is the requirement, not a
+# convenience: "a boundary that logs only successes cannot evidence what it
+# stopped".
+#
+# THE OPERATION IS RECORDED AS CLAIMED. `operation.claimed` is `coding` and
+# `operation.resolved` is null. A record that dropped the claim would leave the
+# ledger unable to answer what was ASKED FOR — the question an auditor actually
+# has after a refusal — and a record that put the claim in `resolved` would
+# present a refused claim as a cleared one.
+#
+# THE CLAIM WAS `deliberation` UNTIL 2026-09-04. That operation was admitted as
+# register entry number two (`admit-deliberation-clearing-operation`, PR #645,
+# merged `3cf917b7`), so this example would have documented a refusal that can no
+# longer happen. It moved to `coding` — still unregistered, still wanted, still
+# the honest name — in the same diff as the admission.
+#
+# THE GROUND COMES FROM THE CLOSED ENUMERATION. `unregistered_operation` is one
+# of exactly two members today, and the other is `unknown_lane_selector`. Those
+# two are what the current realization can actually emit. Nine further grounds
+# are named in the requirement text and none of them is here, because a closed
+# enumeration seeded with grounds no implementation can produce is closed in name
+# only. Each becomes a member as the operation that can produce it lands, by a
+# governed change to the schema and never as a new string in a workflow.
+#
+# DISPOSAL IS STILL RECORDED. The ratified scenario is explicit that disposal
+# evidence is written "INCLUDING on failure, refusal, and timeout" — and the
+# honest method here is that there was nothing to dispose of, said in those words
+# rather than by leaving the field empty and letting a reader assume it.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-33999123999-1
+dispatched_at: '2026-09-03T11:03:58Z'
+actor: brettheap
+actor_id: '1513478'
+clearing_repository: opensoft/xFactory
+clearing_workflow_ref: opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main
+run_id: '33999123999'
+run_attempt: 1
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123999
+cleared: false
+operation:
+  claimed: coding
+  resolved: null
+bundle_present: false
+verification:
+  provider_verified:
+  - field: origin_repository
+    claimed: opensoft/xFactory
+    resolved: opensoft/xFactory
+    agrees: true
+  - field: dispatching_identity
+    claimed: brettheap
+    resolved: brettheap
+    agrees: true
+  policy_checked:
+  - field: operation
+    claimed: coding
+    resolved_from_register: null
+    agrees: false
+  origin_signature:
+    performed: false
+    outcome: not_required
+    register_row_id: null
+    key_id: null
+lane_declarations: []
+declared_data_handling: public_log_only
+refusal:
+  ground: unregistered_operation
+  detail: the dispatch named operation 'coding', which has no entry in the closed permitted-operations
+    register; no lane job was reached
+workspace_disposal:
+  disposed: true
+  disposed_at: '2026-09-03T11:20:11Z'
+  method: 'nothing was staged: the gate refused before any lane job was reached, so no host
+    workspace existed to dispose of'
+  evidence_ref: https://github.com/opensoft/xFactory/actions/runs/33999123999
+chain_ref: null
+outcome: refused

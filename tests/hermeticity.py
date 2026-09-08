@@ -1,4 +1,4 @@
-"""Structural test hermeticity: the real `nlm` and `gh` are UNREACHABLE (FR-043).
+"""Structural test hermeticity: the real `nlm`, `gh` and `omp` are UNREACHABLE.
 
 Why this module exists. FR-043 — "Tests MUST NOT create real NotebookLM
 notebooks; the adapter MUST be stubbed" — was enforced only by PER-TEST
@@ -17,17 +17,30 @@ forgets again.
 So hermeticity is made structural, in two INDEPENDENT layers:
 
   1. **PATH** — a shim directory is prepended to `PATH` for the whole session.
-     Its `nlm` and `gh` are refusals: each prints the offending test's nodeid and
-     exits non-zero. This covers every route to the binary, including a child
-     process and `sync-notebooklm-books.nlm`, and it makes the suite behave the
-     SAME on a host with the real binaries installed and on one without — the
-     ambient-installation dependency was itself part of the defect.
+     Its `nlm`, `gh` and `omp` are refusals: each prints the offending test's
+     nodeid, the requirement that binary would break, and the seam to inject
+     instead, then exits non-zero. This covers every route to the binary,
+     including a child process and `sync-notebooklm-books.nlm`, and it makes the
+     suite behave the SAME on a host with the real binaries installed and on one
+     without — the ambient-installation dependency was itself part of the defect.
   2. **the in-process seams** — `workbench._default_runner` (the one place `nlm`
      is spoken) and `session_pr.SubprocessCommandRunner.run` (the one place `gh`
      and the branch `git push` are spoken) are replaced by a refusal that RAISES.
      Layer 1 alone would be absorbed: a non-zero exit is precisely the
      degradation signal the adapter exists to swallow, so the escape would still
      pass silently.
+
+`omp` HAS LAYER 1 ONLY, and that asymmetry is deliberate rather than an omission
+(add-doxbench-distilled-abstract task 2.3). The in-process seam would be
+`doxbench_bridge._spawn_child`, and poisoning it would also break the ONE thing
+the bridge's own live smoke exists to do — run a real harness against a keyless
+local provider, a module that skips cleanly everywhere else and that no gate may
+require (`test_doxbench_bridge_live.py`). Layer 2 exists because a non-zero exit
+is exactly the degradation signal the NOTEBOOK adapter swallows; the bridge
+swallows nothing of the kind — a child that will not start surfaces as an
+unavailable catalog and a raised dispatch — so layer 1 is not absorbed here the
+way it was there. A test that must exercise a turn injects `spawn=`, which every
+bridge test already does.
 
 `HermeticityViolation` derives from `BaseException` DELIBERATELY. `except
 Exception` is what `NotebookAdapter` and `branch_session.open_session_notebook`
@@ -49,14 +62,21 @@ which cut `tests/conftest.py` out of conftest collection. The repo-root
 `pytest.ini` anchors `rootdir` instead, which is why the answer is NOT "add a
 conftest.py to every directory" (see `CONFTEST_HOOKUPS`).
 
-THE THIRD ROUTE IS NOT PYTEST AT ALL. `scripts/validate-docs.sh` falls back to
-`python3 -m unittest discover` when pytest is unavailable, and a fixture cannot
-reach that (PR #49 review finding 17, residue 2 — measured reaching a real-binary
-stand-in twice with an empty ledger). So the two layers are installable WITHOUT
-pytest — `install_binary_shim` and `runner_seams`, used by the fixtures below and
-by `tests/hermetic_unittest.py`, which is the runner that gate now invokes — and
-`import pytest` is optional in this module BECAUSE the world it must also guard is
-by definition a world without pytest.
+THE THIRD ROUTE IS NOT PYTEST AT ALL. A `python3 -m unittest discover` run
+reaches no conftest at all, and a fixture cannot reach it. PR #49 review finding
+17, residue 2, measured this reaching a real-binary stand-in twice with an empty
+ledger, in codexFactory's `scripts/validate-docs.sh`, which ran the doc-health
+and notebooklm suites when they lived in codexFactory — before the fix
+(2026-07-27) replaced that bare fallback with codexFactory's own guarded
+runner (the original `tests/hermetic_unittest.py` was later copied from), and
+before the doc-health relocation (adopt-neutral-tooling-home, ratified
+2026-08-03; archived 2026-08-05) copied it here and moved the tests, after
+which codexFactory's script stopped running them at all. So the two layers are
+installable WITHOUT pytest — `install_binary_shim` and `runner_seams`, used by
+the fixtures below and by `tests/hermetic_unittest.py`, retained as the
+guarded runner for any pytest-less host. No gate in this repository currently
+takes that route. `import pytest` is optional in this module BECAUSE the world
+it must also guard is by definition a world without pytest.
 
 `tests/ideation-dashboard/test_hermeticity.py` proves the guard: it asserts an
 unguarded real-binary invocation is refused, pins the hookup set, and drives
@@ -74,9 +94,10 @@ from pathlib import Path
 try:
     import pytest
 except ModuleNotFoundError:            # pragma: no cover - the no-pytest fallback
-    # The `unittest discover` world (`scripts/validate-docs.sh`). Everything above
-    # the fixtures works there; the fixtures themselves are pytest's own API and
-    # are simply not defined, which no caller in that world asks for.
+    # The `unittest discover` world (the no-pytest route `tests/hermetic_unittest.py`
+    # guards). Everything above the fixtures works there; the fixtures themselves
+    # are pytest's own API and are simply not defined, which no caller in that
+    # world asks for.
     pytest = None
 
 TESTS_ROOT = Path(__file__).resolve().parent
@@ -88,22 +109,183 @@ if str(SCRIPTS) not in sys.path:
 # The binaries no test may reach. `nlm` is FR-043 itself; `gh` is the same class
 # of escape on the pull-request port (FR-029/FR-034 — the invoking engineer's own
 # ambient credential), and it is guarded now rather than after a test forgets.
-GUARDED_BINARIES = ("nlm", "gh")
+# `omp` is the doxBench model harness (add-doxbench-distilled-abstract task 2.3),
+# added when an entrypoint began DECLARING an `OmpHarnessBridge`: its child is a
+# real `omp --mode rpc` process started through
+# `doxbench_bridge._spawn_child`, and until now the only thing standing between
+# a test and a real harness was the per-test discipline of passing `spawn=` —
+# the same guarantee finding 17 proved worthless for `nlm`.
+GUARDED_BINARIES = ("nlm", "gh", "omp")
 
-# Every refusal names the requirement, so a failure is self-explaining wherever
-# it surfaces — a captured stderr, a raised message, a subprocess exit.
-MARKER = "FR-043"
+# THE STAMP, and it is deliberately BINARY-NEUTRAL. This used to be
+# `MARKER = "FR-043"` — the NotebookLM requirement — on every refusal, which was
+# already loose for `gh` and would have made an `omp` refusal cite a requirement
+# about NotebookLM notebooks. A refusal naming the WRONG requirement is worse
+# than one naming none: it sends the reader to the wrong document. So the marker
+# is now the guard's own identifier (still one fixed string every route can grep
+# for, which is all any caller ever used it as), and the requirement each binary
+# would actually break is named BESIDE it, per binary, by the table below.
+MARKER = "XF-HERMETIC"
+
+# What each guarded binary's refusal cites. Kept here rather than in the shim
+# template so the PATH layer, the in-process layer and the `unittest` route all
+# read one declaration.
+GUARDED_BINARY_REQUIREMENTS = {
+    "nlm": "FR-043 (tests MUST NOT create real NotebookLM notebooks)",
+    "gh": "FR-029/FR-034 (no test may spend the engineer's own gh credential)",
+    "omp": ("the doxBench provider boundary (no gate may require a real omp; "
+            "inject the bridge's own spawn seam)"),
+}
+
+# The seam to inject INSTEAD, per binary: the refusal's job is not only to stop
+# the escape but to say what the test should have done.
+GUARDED_BINARY_SEAMS = {
+    "nlm": "FakeNotebookAdapter, NotebookAdapter(runner=), cli._notebook_port, "
+           "or serve adapter_factory=",
+    "gh": "FakePullRequests, or GhPullRequests(runner=)",
+    "omp": "OmpHarnessBridge(spawn=...), or a monkeypatched "
+           "doxbench_bridge._spawn_child",
+}
+
+
+def requirement_for(binary: str) -> str:
+    """The requirement `binary`'s refusal cites. An unlisted binary gets the
+    guard's own general statement rather than somebody else's requirement id."""
+    return GUARDED_BINARY_REQUIREMENTS.get(
+        binary, "test hermeticity: no test may reach a real external binary")
+
+
+def seam_for(binary: str) -> str:
+    """What to inject instead of reaching `binary`."""
+    return GUARDED_BINARY_SEAMS.get(
+        binary, "the double at that port's own injection seam")
+
+
 REFUSAL_EXIT_CODE = 97
+
+
+# ---------------------------------------------------------------------------
+# THE AMBIENT `conftest` SLOT (issue #305). Repairs the hazard the block below
+# documents, without adding a module name or a pytest.ini option.
+# ---------------------------------------------------------------------------
+
+# The hook names `claim_conftest_slot` writes into a conftest's namespace, pinned
+# by test_hermeticity: no directory conftest may define one of its own, because a
+# plain assignment either way round silently drops one of the two.
+HOOKS_INSTALLED_BY_THE_CLAIM = ("pytest_collectstart", "pytest_runtest_setup")
+
+
+def claim_conftest_slot(namespace: dict) -> dict:
+    """Make the calling conftest.py the `sys.modules["conftest"]` occupant for
+    its OWN subtree, so multi-directory invocations stop being order-dependent.
+
+    Call it at the bottom of a ROOTLESS directory conftest — one whose directory
+    has no `__init__.py` — as `claim_conftest_slot(globals())`.
+
+    THE HAZARD. `conftest` is an ambient top-level module name with exactly one
+    `sys.modules` entry, and `_importconftest` DELETES that entry before
+    importing each rootless conftest.py (`_pytest/config/__init__.py:753`), so
+    whichever loaded last owns it. Ordinary collection hides this: directory
+    conftests load lazily as traversal reaches them, so each directory's test
+    modules are imported while their own conftest still holds the slot. Several
+    path ARGUMENTS break exactly that, because `_set_initial_conftests` loads
+    every argument's conftest BEFORE collection begins
+    (`_pytest/config/__init__.py:615`) — so the LAST argument's conftest is what
+    the first argument's `from conftest import AS_OF, FakeGit, ...` sites read.
+    Measured at f9457d6f, the base this repair was written against:
+    `pytest tests/doc-health tests/avatar_runtime --collect-only` collected 184
+    with 27 collection errors, while the same two arguments swapped collected 993
+    clean. The absolute counts move with every test added — the point they pin is
+    the DIFFERENCE between two argument orders, which is now zero; the behavioural
+    pin re-measures it on the live tree rather than trusting these numerals.
+
+    THE REPAIR, and why it is exactly these two hooks. Both are dispatched
+    through the node's `ihook` — an `FSHookProxy` that subtracts the conftest
+    plugins not in scope for that node's path (`_pytest/main.py:731`) — so the
+    copy installed here fires ONLY for nodes under this conftest's own directory
+    and can never reach a sibling's:
+
+      * `pytest_collectstart` runs immediately before a collector's `collect()`
+        (`_pytest/runner.py:588`), which for a `Module` is where the test module
+        is imported. That is the collection-time leg.
+      * `pytest_runtest_setup` runs before each test body
+        (`_pytest/runner.py:241`). That is the run-time leg, for the seven
+        sites that do `from conftest import ...` INSIDE a test function. Under a
+        plain `pytest tests/` those read whichever conftest was collected LAST —
+        `tests/ideation-dashboard/`'s, alphabetically — and they are harmless
+        today only by luck: the four in that directory happen to be asking for
+        the module that already holds the slot, and the three in
+        `tests/doc-health/` ask for `REPO_ROOT`, which both conftests define
+        identically. This hook stops it being luck.
+
+    THE ONE PLACE NOT TO CALL IT is `tests/conftest.py`. pluggy calls hook
+    implementations in LIFO registration order, and the suite-wide conftest
+    registers BEFORE every directory one, so its claim would run LAST and undo
+    theirs (measured on a scratch tree: the green two-directory run goes
+    straight back to two collection errors). A conftest whose directory has an
+    `__init__.py` needs nothing either — pytest imports it as
+    `<package>.conftest`, and it never touches the flat slot. That, and NOT the
+    module's `__name__`, is what the refusal below keys on: under
+    `--import-mode=importlib` (or `consider_namespace_packages=true`, both
+    reachable through `PYTEST_ADDOPTS`) pytest gives a ROOTLESS conftest a dotted
+    name like `tests.doc-health.conftest` too, and refusing on the name there
+    would raise inside conftest collection — aborting the whole run with rc=4 and
+    the FR-043 guard never registered, over a shape that merely wants the hooks
+    installed harmlessly.
+
+    IT RETURNS THE TWO HOOKS, and refuses if either name is already bound in the
+    namespace. The install is a plain assignment into `globals()`, so a conftest
+    that defines its OWN `pytest_collectstart` or `pytest_runtest_setup` — before
+    or after the call — silently defeats the claim, and pytest reports nothing.
+    A conftest that needs its own must call ours from inside it:
+
+        _slot = claim_conftest_slot(globals())
+
+        def pytest_collectstart(collector):
+            _slot["pytest_collectstart"](collector)
+            ...                     # whatever else this directory needs
+    """
+    directory = Path(namespace["__file__"]).resolve().parent
+    if (directory / "__init__.py").is_file():
+        raise RuntimeError(
+            "claim_conftest_slot is for a ROOTLESS conftest.py — one whose "
+            f"directory has no __init__.py. {directory} is a package, so pytest "
+            "imports its conftest as `<package>.conftest` and it never contends "
+            "for the flat `conftest` slot")
+    already = sorted(name for name in HOOKS_INSTALLED_BY_THE_CLAIM
+                     if name in namespace)
+    if already:
+        raise RuntimeError(
+            f"{directory.name}/conftest.py already defines {', '.join(already)}; "
+            "installing the slot claim over it would silently drop that hook, and "
+            "defining it after the call would silently drop the claim. Call the "
+            "returned function from inside your own implementation instead — see "
+            "claim_conftest_slot's docstring")
+    module = sys.modules[namespace["__name__"]]
+
+    def pytest_collectstart(collector) -> None:
+        sys.modules["conftest"] = module
+
+    def pytest_runtest_setup(item) -> None:
+        sys.modules["conftest"] = module
+
+    hooks = {"pytest_collectstart": pytest_collectstart,
+             "pytest_runtest_setup": pytest_runtest_setup}
+    namespace.update(hooks)
+    return hooks
+
 
 # The hookups this guard must be registered from (pinned by test_hermeticity):
 # EVERY conftest.py under tests/, so no directory is guarded only by luck.
 #
 # Not one per directory, deliberately. `conftest` is an ambient top-level module
-# name and pytest keeps exactly one of them in `sys.modules`, so ADDING a
-# conftest.py to a directory hijacks that name for its siblings: a
+# name and pytest keeps exactly one of them in `sys.modules`, so ADDING an
+# UNCLAIMING conftest.py to a directory hijacks that name for its siblings: a
 # `tests/notebooklm/conftest.py` sorted after `tests/doc-health/` broke all 18
-# doc-health modules' `from conftest import FakeGit` in `scripts/validate-docs.sh`
-# (measured). Directories without a conftest are therefore guarded through
+# doc-health modules' `from conftest import FakeGit` in codexFactory's
+# `scripts/validate-docs.sh` (measured), which ran these tests when they lived
+# in codexFactory before the doc-health relocation (adopt-neutral-tooling-home,
+# 2026-08-03). Directories without a conftest are therefore guarded through
 # `tests/conftest.py`, which covers every invocation whose CONFTEST CHAIN reaches
 # `tests/`.
 #
@@ -114,7 +296,21 @@ REFUSAL_EXIT_CODE = 97
 # real-binary stand-in, three invocations landed, ledger empty; measured in
 # `tests/notebooklm/` and `tests/merge-master/`). See `pytest.ini` for why an
 # inifile is the right instrument and a per-directory conftest is not.
-CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "conftest.py",
+#
+# THE HIJACK ITSELF NOW HAS A REPAIR (issue #305, 2026-08-26). Every DIRECTORY
+# conftest listed here calls `claim_conftest_slot(globals())` — defined above —
+# which re-claims `sys.modules["conftest"]` for its subtree from two path-scoped
+# hooks, so a directory's test modules import THEIR conftest whatever order the
+# arguments arrive in: at f9457d6f `pytest tests/doc-health tests/avatar_runtime`
+# went from 184 collected / 27 collection errors to 993 collected clean, matching
+# the order that already worked (absolute counts drift with the tree; the invariant
+# is that the two orders agree). That does not make adding a conftest.py free — a
+# new one still has to be listed here AND carry the claim, both pinned by
+# test_hermeticity — but a collision with the siblings is no longer its cost.
+# `tests/conftest.py` is the one entry that must NOT claim (LIFO hook order
+# would make its claim the last one to run); see the docstring above.
+CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "clearing/conftest.py",
+                    "conftest.py",
                     "doc-health/conftest.py",
                     "ideation-dashboard/conftest.py")
 
@@ -148,9 +344,9 @@ fi
 echo "{marker} test hermeticity: refusing to run the real '{name}' binary." >&2
 echo "  offending test: ${{PYTEST_CURRENT_TEST:-<unknown: not under pytest>}}" >&2
 echo "  refused argv:   {name} $*" >&2
+echo "  requirement:    {requirement}" >&2
 echo "  the suite is hermetic by construction (tests/hermeticity.py). Inject a" >&2
-echo "  double at the seam instead: FakeNotebookAdapter, NotebookAdapter(runner=)," >&2
-echo "  cli._notebook_port, serve adapter_factory=, or FakePullRequests." >&2
+echo "  double at the seam instead: {seam}." >&2
 exit {code}
 """
 
@@ -184,10 +380,9 @@ def refusal_message(binary: str, args) -> str:
     return (f"{MARKER} test hermeticity: refusing to run the real '{binary}' "
             f"binary.\n  offending test: {current_test()}\n"
             f"  refused argv:   {binary} {' '.join(str(a) for a in args)}\n"
+            f"  requirement:    {requirement_for(binary)}\n"
             "  the suite is hermetic by construction (tests/hermeticity.py). "
-            "Inject a double at the seam instead: FakeNotebookAdapter, "
-            "NotebookAdapter(runner=), cli._notebook_port, serve "
-            "adapter_factory=, or FakePullRequests.")
+            f"Inject a double at the seam instead: {seam_for(binary)}.")
 
 
 def refusal_log() -> Path | None:
@@ -217,7 +412,9 @@ def build_shim_dir(target: Path, names=GUARDED_BINARIES) -> Path:
         script = target / name
         script.write_text(
             _SHIM_TEMPLATE.format(marker=MARKER, name=name, code=REFUSAL_EXIT_CODE,
-                                  log_env=REFUSAL_LOG_ENV),
+                                  log_env=REFUSAL_LOG_ENV,
+                                  requirement=requirement_for(name),
+                                  seam=seam_for(name)),
             encoding="utf-8")
         script.chmod(0o755)
     return target

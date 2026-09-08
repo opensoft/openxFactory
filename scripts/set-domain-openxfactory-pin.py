@@ -47,21 +47,73 @@ def find_block(lines: list[str], key: str) -> tuple[int, int]:
 
 PRESERVED_KEYS = ("promoted_from", "specializes")
 SUB_KEY_RE = re.compile(r"^  [A-Za-z0-9_]+:")
+# A comment line or a blank one: everything that carries no key and no value,
+# and therefore everything whose meaning comes from what it is ATTACHED to.
+COMMENT_OR_BLANK_RE = re.compile(r"^\s*(#.*)?$")
 
 
 def preserved_subblocks(block: list[str]) -> list[str]:
-    """Carry optional provenance sub-blocks through a pin rewrite verbatim."""
+    """Carry optional provenance sub-blocks through a pin rewrite verbatim —
+    INCLUDING the comment lines attached to them.
+
+    THE BUG THIS FIXES (found by `split-openxwallet-repo` P5a.2). The previous
+    implementation kept a preserved key and its value lines and dropped every
+    other line in the block, so the comment immediately ABOVE a preserved
+    sub-block was regenerated away. In LedgerxFactory's `stack.yaml` those two
+    lines read:
+
+        # managed provenance (document-lifecycle promotion process) -- re-pin
+        # tooling must preserve this block; regenerating it away is a health finding
+
+    A tool that answers an instruction not to delete something by deleting the
+    instruction is the worst available outcome: the next reader has no reason to
+    think the block is protected, and the protection was never machine-readable
+    in the first place. The comment is now preserved BY THE SAME RULE as the key
+    it annotates.
+
+    ATTRIBUTION RULE: a run of comment/blank lines belongs to what FOLLOWS it,
+    which is the YAML convention and the one that makes the LedgerxFactory shape
+    come out right. So the run is BUFFERED, not emitted on sight, and it is
+    flushed only when a preserved key turns up next; a run followed by a
+    non-preserved key (or by the end of the block) annotates something this
+    rewrite is replacing and goes with it. That cuts both ways deliberately: the
+    comment above `contract_source:` would be dropped, and should be, because
+    the line it describes is regenerated from arguments on every run.
+
+    A trailing run INSIDE a preserved sub-block's value lines is likewise held
+    back rather than swallowed, so a comment sitting between the end of
+    `promoted_from:`'s list and the next key is attributed to that next key
+    instead of riding along with the list it merely follows.
+    """
     kept: list[str] = []
+    pending: list[str] = []
     index = 0
     while index < len(block):
         line = block[index]
+        if COMMENT_OR_BLANK_RE.match(line):
+            pending.append(line)
+            index += 1
+            continue
         if any(line.startswith(f"  {key}:") for key in PRESERVED_KEYS):
+            kept.extend(pending)
+            pending = []
             kept.append(line)
             index += 1
+            trailing: list[str] = []
             while index < len(block) and not SUB_KEY_RE.match(block[index]):
-                kept.append(block[index])
+                if COMMENT_OR_BLANK_RE.match(block[index]):
+                    trailing.append(block[index])
+                else:
+                    # a real value line: whatever comments preceded it inside
+                    # this sub-block belong to it, so they are no longer pending
+                    kept.extend(trailing)
+                    trailing = []
+                    kept.append(block[index])
                 index += 1
+            pending = trailing
         else:
+            # a regenerated key; its attached comments go with it
+            pending = []
             index += 1
     return kept
 

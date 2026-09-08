@@ -18,8 +18,11 @@ from conftest import AS_OF, FIXTURES, FakeGit  # noqa: F401 (sys.path side effec
 
 from doc_health import DEFAULT_THRESHOLDS, ERROR, INFO, WARNING, Skip
 from doc_health import catalog, catalog_baseline, corpus, inventory, runner
+from doc_health import document_catalog
 from doc_health.families import FAMILIES
 from doc_health.runner import Context
+
+from action_pins import assert_actions_pinned, harvest_static
 
 fam_document_catalog = FAMILIES["document-catalog"]
 
@@ -214,6 +217,14 @@ def test_coverage_gap_after_baseline_is_flagged(tmp_path):
     assert [(f.severity, f.repo, f.path) for f in got] == [
         (ERROR, "alpha", missing_path)]
     assert got[0].rule == "[coverage] document has no catalog entry"
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite. This
+    # family emits twelve finding classes, each with its own action text;
+    # `coverage`'s is pinned here as the family's representative one.
+    assert got[0].action == "run the mechanical catalog pass to add this document"
 
 
 # --- stale-entry (US3 acceptance 2) --------------------------------------------
@@ -1060,3 +1071,280 @@ def test_runner_family_document_catalog_clean_single_repo(tmp_path):
     text = report_out.read_text(encoding="utf-8")
     assert "### document-catalog" in text
     assert "No findings." in text
+
+
+def test_every_action_string_the_document_catalog_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_document_catalog` raises TWENTY-THREE distinct action strings
+    across its twelve finding classes (module docstring) plus the
+    defensive `catalog-integrity` class. `#448` (`cadc05ec`) pinned one
+    (`test_coverage_gap_after_baseline_is_flagged`, above, "coverage"'s —
+    picked as this family's representative one of twelve).  Steward
+    follow-up (Brett, 2026-08-28) widens that to the whole set,
+    table-driven.
+
+    ALL TWENTY-THREE are pinned BEHAVIOURALLY, reusing this suite's own
+    fixture helpers (`build_complete_baseline`, `write_incremental_snapshot`,
+    `assignment`, `valid_provenance`, `entries_for`, `ctx_for`) exactly as
+    the existing per-defect tests above use them. A `catalogued` entry's
+    "latest run" replaces the previous one per repository (module-
+    interfaces.md `load_snapshot`), so a chain of incremental snapshots over
+    ONE shared complete baseline is run and unioned scenario-by-scenario
+    (mirroring `test_ratified_citation_spellings.py`'s own pattern) rather
+    than accumulated into one snapshot; four scenarios need a baseline
+    shape none of the others may share (an incomplete baseline, a corrupt
+    persisted artifact, a baseline missing one document, an ambiguous
+    baseline row) and get their own root. No static fallback is needed.
+    """
+    behavioral = set()
+
+    # --- shared complete baseline, chained incremental snapshots ---------
+    root = tmp_path / "agg-main"
+    build_complete_baseline(root)
+    entries = entries_for("alpha")
+
+    # artifact-type
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["artifact_type"] = "widget_yaml"
+    write_incremental_snapshot(root, "alpha", corrupted, "s-artifact-type")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # taxonomy: dict-keyed shape
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = {
+        "factory_scope": {"state": "suggested", "values": ["domain"]}}
+    write_incremental_snapshot(root, "alpha", corrupted, "s-dict-shape")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # taxonomy: duplicate facet assignment
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = [
+        assignment("document_role", "suggested", values=["architecture"]),
+        assignment("document_role", "suggested", values=["process"])]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-dup-facet")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # taxonomy: invented facet name + invented state
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = [
+        assignment("domain", "suggested", values=["alpha.widgets"]),
+        assignment("factory_scope", "approved", values=["domain"])]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-facet-name")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # taxonomy: closed-vocabulary value + unregistered topic tag + cardinality
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = [
+        assignment("sensitivity_signal", "suggested", values=["public"]),
+        assignment("topic_tags", "suggested", values=["alpha.nonexistent-tag"]),
+        assignment("factory_scope", "suggested", values=["domain", "neutral"])]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-vocab-cardinality")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # taxonomy: malformed state_since + pending-aging warning/error
+    corrupted = [dict(e) for e in entries]
+    corrupted[0] = dict(corrupted[0], facet_assignments=[
+        assignment("factory_scope", "pending", since="2026-13-99")])
+    corrupted[1] = dict(corrupted[1], facet_assignments=[
+        assignment("factory_scope", "pending", since="2026-06-01")])  # warning
+    corrupted[2] = dict(corrupted[2], facet_assignments=[
+        assignment("factory_scope", "pending", since="2026-01-01")])  # error
+    write_incremental_snapshot(root, "alpha", corrupted, "s-pending-aging")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # resolution: bad shape + unresolved capability
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = [assignment(
+        "capability_refs", "suggested",
+        values=["ghost-capability",
+                {"repository": "alpha", "capability": "ghost-capability"}])]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-resolution")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # confidence + provenance shape defects
+    corrupted = [dict(e) for e in entries]
+    bad_provenance = dict(valid_provenance(), confidence=1.5,
+                          classifier_version="")
+    del bad_provenance["evidence_refs"]
+    corrupted[0]["facet_assignments"] = [assignment(
+        "factory_scope", "suggested", values=["domain"],
+        provenance=bad_provenance)]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-confidence")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # override-standing: unauthorized
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["facet_assignments"] = [assignment(
+        "factory_scope", "overridden", values=["domain"],
+        review={"authority": "beta authority (Domain Hermes)",
+               "decision": "overridden", "date": DAY_STR})]
+    write_incremental_snapshot(root, "alpha", corrupted, "s-override")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # recursion: a generated-catalog-path entry
+    corrupted = [dict(e) for e in entries]
+    corrupted[0]["path"] = (
+        "health/document-catalog/runs/2026-01-01/x/widget-overview.md")
+    write_incremental_snapshot(root, "alpha", corrupted, "s-recursion")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # stale-entry: an unrelated commit moved alpha's HEAD (same baseline).
+    moved = dict(HEADS, alpha="c" * 40)
+    behavioral |= {f.action for f in fam_document_catalog(
+        ctx_for(heads=moved, catalog_root=root))}
+
+    # duplicate-key in a hand-crafted RUN (test_duplicate_key_in_recorded_run
+    # precedent: two identical rows in one recorded run). Its OWN fresh
+    # baseline root, not `root`: `catalog.load_snapshot` picks the latest run
+    # by a GLOBAL `(as_of, sequence)` order across every run ever written
+    # under a catalog root (`catalog._iter_runs`), and this hand-rolled
+    # `run.yaml` fixes `sequence: 1` (the shape
+    # `test_duplicate_key_in_recorded_run_is_flagged` also hand-rolls,
+    # correct there because it is that scenario's ONLY run) — sharing `root`
+    # would bury it under every `write_incremental_snapshot` sequence number
+    # already claimed above, so it would silently stop being "latest" and
+    # this class would fall back to its static pin for no reason.
+    root_dup = tmp_path / "agg-duplicate-key"
+    build_complete_baseline(root_dup)
+    run_dup = (root_dup / "health" / "document-catalog" / "runs" / DAY_STR /
+              "s-duplicate-key")
+    run_dup.mkdir(parents=True)
+    doc = {
+        "schema_version": 1, "kind": "xfactory_document_catalog",
+        "status": "record",
+        "run": {"run_id": "s-duplicate-key", "repository": "alpha",
+                "repository_revision": HEADS["alpha"],
+                "inventory_snapshot_id": entries[0]["snapshot_id"]},
+        "taxonomy": TAXONOMY, "entries": [entries[0], dict(entries[0])]}
+    (run_dup / "alpha.yaml").write_text(catalog.render(doc), encoding="utf-8")
+    (run_dup / "run.yaml").write_text(catalog.render({
+        "schema_version": 1, "kind": "xfactory_document_catalog_run",
+        "status": "record", "run_id": "s-duplicate-key", "as_of": DAY_STR,
+        "sequence": 1}), encoding="utf-8")
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_dup))}
+
+    # taxonomy-digest mismatch in a hand-crafted RUN — its own fresh root for
+    # the identical "latest run" reason above.
+    root_tax = tmp_path / "agg-taxonomy-digest"
+    build_complete_baseline(root_tax)
+    run_tax = (root_tax / "health" / "document-catalog" / "runs" / DAY_STR /
+              "s-taxonomy-digest")
+    run_tax.mkdir(parents=True)
+    doc = {
+        "schema_version": 1, "kind": "xfactory_document_catalog",
+        "status": "record",
+        "run": {"run_id": "s-taxonomy-digest", "repository": "alpha",
+                "repository_revision": HEADS["alpha"],
+                "inventory_snapshot_id": entries[0]["snapshot_id"]},
+        "taxonomy": dict(TAXONOMY, digest="0" * 64), "entries": entries}
+    (run_tax / "alpha.yaml").write_text(catalog.render(doc), encoding="utf-8")
+    (run_tax / "run.yaml").write_text(catalog.render({
+        "schema_version": 1, "kind": "xfactory_document_catalog_run",
+        "status": "record", "run_id": "s-taxonomy-digest", "as_of": DAY_STR,
+        "sequence": 1}), encoding="utf-8")
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_tax))}
+
+    # immutable-path: a stray file directly under the date directory.
+    stray = (root / "health" / "document-catalog" / "runs" / DAY_STR /
+            "loose.yaml")
+    stray.write_text("bogus\n", encoding="utf-8")
+    behavioral |= {f.action for f in fam_document_catalog(ctx_for(catalog_root=root))}
+
+    # --- scenarios needing their own baseline shape -----------------------
+
+    # coverage: a complete baseline missing one live document.
+    root_cov = tmp_path / "agg-coverage"
+    missing_path = "docs/widget-overview.md"
+    for repo in REPOS:
+        repo_entries = entries_for(repo)
+        if repo == "alpha":
+            repo_entries = [e for e in repo_entries if e["path"] != missing_path]
+        catalog_baseline.run_shard(root_cov, repo, 1000, DAY, repo_entries)
+    assert catalog_baseline.merge_baseline(root_cov, DAY, REPOS) is not None
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_cov))}
+
+    # baseline-progress: a bounded, incomplete shard state.
+    root_prog = tmp_path / "agg-progress"
+    catalog_baseline.run_shard(root_prog, "alpha", 1, DAY, entries_for("alpha"))
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_prog))}
+
+    # ambiguous locator in the merged BASELINE (test_ambiguous_locator_row
+    # precedent: hand-corrupt one row to carry both a path and an opaque
+    # locator, with its live document also removed).
+    root_amb = tmp_path / "agg-ambiguous"
+    build_complete_baseline(root_amb)
+    baseline_dir = root_amb / "health" / "document-catalog" / "baseline"
+    merged_path = baseline_dir / catalog_baseline.MERGED_NAME
+    marker_path = baseline_dir / catalog_baseline.MARKER_NAME
+    doc = json.loads(merged_path.read_text(encoding="utf-8"))
+    victim = next(e for e in doc["entries"] if e["repo"] == "alpha"
+                 and e["path"] == "docs/widget-overview.md")
+    victim.update(catalog.opaque_locator("alpha", victim["path"]))
+    rendered = catalog.render(doc)
+    old_sha = hashlib.sha256(merged_path.read_bytes()).hexdigest()
+    new_sha = hashlib.sha256(rendered.encode()).hexdigest()
+    merged_path.write_text(rendered, encoding="utf-8")
+    marker_path.write_text(
+        marker_path.read_text(encoding="utf-8").replace(old_sha, new_sha),
+        encoding="utf-8")
+    ws = tmp_path / "workspace-ambiguous"
+    shutil.copytree(WORKSPACE, ws)
+    (ws / "alpha" / "docs" / "widget-overview.md").unlink()
+    behavioral |= {f.action for f in fam_document_catalog(
+        ctx_for(base=ws, catalog_root=root_amb))}
+
+    # catalog-integrity: a truncated merged baseline fold.
+    root_int = tmp_path / "agg-integrity"
+    build_complete_baseline(root_int)
+    merged_int = (root_int / "health" / "document-catalog" / "baseline" /
+                 catalog_baseline.MERGED_NAME)
+    merged_int.write_text("{ this is not json", encoding="utf-8")
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_int))}
+
+    behavioral = frozenset(behavioral)
+    static = harvest_static(document_catalog)
+    assert static - behavioral == frozenset(), (
+        "every one of this family's 23 actions is designed to be reachable "
+        "behaviourally; a non-empty difference here means a scenario above "
+        "stopped firing (e.g. a hand-rolled run's fixed `sequence:` losing "
+        "the 'latest run' race to an auto-claimed one), not that the table "
+        "is wrong — see assert_actions_pinned below for the pin itself")
+
+    EXPECTED_ACTIONS = {
+        "run the mechanical catalog pass to add this document",
+        "run the mechanical catalog pass to refresh the catalog",
+        "regenerate the snapshot from a clean mechanical pass",
+        "re-run the baseline merge from clean shard chains",
+        "correct artifact_type and regenerate the entry",
+        "regenerate the entry in the contract facet_assignments shape",
+        "collapse the duplicate assignments into one per facet",
+        "regenerate the assignment under a controlled facet",
+        "record one of the contract facet states",
+        "correct the facet to a contract vocabulary value",
+        "correct the tag to a registered controlled value or keep it in "
+        "proposed_values until the owning registry accepts it",
+        "record exactly one contract vocabulary value for this "
+        "single-valued facet",
+        "regenerate the entry with a valid state_since date",
+        "classify or escalate the pending facet",
+        "record the reference as a {repository, capability} pair",
+        "point the reference at an existing OpenSpec capability or leave "
+        "the facet unclassified",
+        "reject the recommendation artifact and re-classify",
+        "record the review under the owning authority",
+        "exclude health/document-catalog/ from corpus discovery and "
+        "regenerate the snapshot",
+        "regenerate the snapshot with a valid effective-taxonomy block",
+        "move or remove the misplaced catalog artifact",
+        "resume the sharded baseline build to enable complete-coverage "
+        "enforcement",
+        "repair or remove the corrupt catalog artifact and re-run the "
+        "mechanical catalog pass",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="document-catalog")

@@ -1,0 +1,93 @@
+# expected_failure: clearing-register-entry-incomplete
+# VIOLATES the entry-declaration list: "Each entry SHALL declare its operation
+# id, what the operation may do and what it may not, its class constraints ...,
+# ITS REQUIRED WORKER PROFILE, the lanes ... it may be dispatched to, its
+# declared output schema, and whether it returns repository-affecting output."
+#
+# An entry missing its worker profile is not merely incomplete: the profile is a
+# POLICY-CHECKED FIELD the register is supposed to RESOLVE, so an entry without
+# one leaves the bundle's own claim as the only value available — which is
+# precisely the producer-chooses-its-own-profile hole add-cpc-clearing-boundary
+# closed.
+schema_version: 1
+kind: xfactory_clearing_permitted_operations_registry
+registry_id: clearing-permitted-operations
+registry_version: 1
+composes_with:
+- registry_id: worker-enrollment-broker
+  registry_path: contracts/worker-enrollment/
+  statement: Runner group, dispatch label and trust tier are that capability's words. This
+    register names the lanes an operation may be dispatched TO; it does not define what a
+    runner group is, and its subject is what was CLEARED to a host rather than which hosts
+    may BE runners.
+- registry_id: document-cataloging
+  registry_path: contracts/schemas/
+  statement: '`data_handling` is a handling class from that capability''s vocabulary. This
+    register declares WHICH class an operation''s output carries, and defines no classification
+    of its own.'
+- registry_id: signed-execution-chain-digest-construction
+  registry_path: contracts/signed-execution-chain/digest-construction.schema.yaml
+  statement: Every digest a sealed request for one of these operations carries is computed
+    under `xfc-jcs-sha256-1`, over the `sealed_bundle_manifest` subject admitted to that construction's
+    enumeration at tranche three. No construction is declared here.
+operations:
+- operation_id: readiness-diagnostic
+  title: Strictly read-only host readiness probe (register entry number one)
+  permitted_semantics:
+    may:
+    - Report the runner's own identity and compare it against the identity expected for the
+      dispatched lane, failing the operation with the OBSERVED identity named when the two
+      differ, rather than proceeding against an unexpected host.
+    - Report the lane's DECLARED runner group and DECLARED dispatch label. The provider exposes
+      no runner-group context to a running job, so a probe cannot read the group it was in;
+      what it reports is what the dispatch DECLARED for the lane.
+    - Report the service account the runner executes as, and the host identity.
+    - Report a heartbeat and a clock reading.
+    - Echo the host environment BY NAME ALLOWLIST of known non-secret variables only.
+    - Perform a harmless fixed-input, fixed-expected-digest compute round trip, recording
+      BOTH the computed and the expected value when they disagree.
+    - Print back the presence and version of read-only operator tooling, bounded by a timeout
+      so a hung or interactive build cannot wedge the lane.
+    - Emit a STRUCTURED OPERATION REPORT — the probed facts as data — and compose one report
+      of record per dispatch across however many lanes were probed.
+    may_not:
+    - Check out any repository. A checkout writes the runner workspace and is refused by this
+      entry's class constraints.
+    - Write anything outside the runner's own temporary plumbing.
+    - Reference a secret, in any expression or environment block.
+    - Carry any token scope. The job token carries none at all.
+    - Dump the host environment wholesale. A credential that someday appears in the host's
+      process environment must not be printable into a run log by accident, which a name allowlist
+      prevents and a dump does not.
+    - Report OBSERVED runner-group membership. Observed membership is established by the periodic
+      single-door attestation reading the provider's API, never by a runner's report of itself
+      — a job reporting its own group would be the bundle-trust error moved onto the host.
+    - Carry an eligibility verdict, a readiness decision, or any go/no-go field. The report
+      is EVIDENCE produced BY passing through the boundary; it is not, and may not grow into,
+      the neutral infrastructure-readiness result that the promoted `document-cataloging`
+      and `ideation-routing` preflights await, which is a decision input consulted BEFORE
+      dispatch.
+    - Affect any repository. This entry declares no repository-affecting output, and a change
+      that gives it one is a change to this entry.
+  class_constraints:
+    checks_out_code: false
+    writes: false
+    may_reference_secrets: false
+    token_scopes: []
+    timeout_minutes: 5
+  lanes:
+  - lane_key: coding
+    runner_group: xfactory-execution-lane-workers
+    dispatch_label: host-coding-cpc-brett01
+    expected_runner: xfactory-coding-cpc-brett01
+  - lane_key: artifact
+    runner_group: xfactory-artifact-workers
+    dispatch_label: host-rider-cpc-brett01
+    expected_runner: xfactory-artifact-cpc-brett01
+  output_schema_ref: contracts/clearing/operation-report.schema.yaml
+  data_handling: public_log_only
+  repository_affecting_output: false
+  notes: The lane constants are the interface `add-clearing-dispatch-boundary` tasks.md 3
+    fixes and `opensoft/xFactory`'s clearing workflow already declares literally; a rename
+    here without a matching change there would make this register disagree with the door it
+    describes.

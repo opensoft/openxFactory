@@ -27,8 +27,8 @@ except ImportError:
     yaml = None
 
 from . import DEFAULT_THRESHOLDS, ERROR, CRITICAL, Finding, RunResult, Skip
-from . import corpus, report
-from .families import FAMILIES
+from . import corpus, promotion_fidelity, report
+from .families import FAMILIES, FAMILY_NOTES
 from .preflight import run_preflight
 
 SYNC_SCRIPT = "openxFactory/scripts/sync-notebooklm-books.py"
@@ -54,6 +54,24 @@ class Context:
     # (catalog.load_snapshot) both key off this one field — no other
     # context extension is needed.
     catalog_root: Path | None = field(default=None)
+    # govern-openspec-corpus-membership §2.2: the lifecycle scan set —
+    # `corpus.LIFECYCLE_SCAN` resolved per repo. Read by exactly four
+    # families through `families._lifecycle_scope`, and by NOTHING else:
+    # not `semantic.build_inventory`, not `inventory.build_inventory`, not
+    # the catalog, not `report.render`'s per-stage census or canon share.
+    # Every one of those reads `ctx.docs`, which this field deliberately
+    # does not join — the whole ruled option is that the scan set moves
+    # findings and moves no measurement. Defaults to empty so a Context
+    # built without one behaves exactly as it did before this change.
+    lifecycle_docs: list = field(default_factory=list)
+    # add-promotion-fidelity-check task 4.1 (ruled 2026-08-24, PR #315): the
+    # measurement basis for the promotion-fidelity family ALONE — "pinned"
+    # (the checked-out tree, the default, and what every other family reads)
+    # or "live-main" (each repository's own `origin/main`). No other family
+    # consults this field, which is the structural half of "do not change
+    # what any other family measures": there is nothing here for another
+    # family to read even by accident.
+    promotion_fidelity_basis: str = promotion_fidelity.BASIS_PINNED
 
 
 def _real_notebook_dryrun(agg_root: Path | None):
@@ -83,9 +101,14 @@ def build_context(args) -> Context:
         agg_root = Path(args.repo_root).resolve()
         repos = corpus.discover_repos(agg_root)
     repo_paths = dict(repos)
-    docs, capabilities, change_ids = [], {}, {}
+    docs, lifecycle_docs, capabilities, change_ids = [], [], {}, {}
     for name, path in repos:
         docs.extend(corpus.load_docs(name, path))
+        # Same loop, same repos in scope, separate list (§2.2). Kept apart
+        # from `docs` at the point of construction rather than filtered out
+        # downstream: every consumer that must not see the scan set reads
+        # `ctx.docs`, so the boundary holds by construction.
+        lifecycle_docs.extend(corpus.load_lifecycle_docs(name, path))
         capabilities[name] = corpus.spec_capabilities(path)
         change_ids[name] = corpus.change_ids(path)
 
@@ -110,6 +133,26 @@ def build_context(args) -> Context:
     if getattr(args, "routing_strict", False):
         deviations.append("ideation-routing strict organize/proposal mode "
                           "(referenced pinned repositories must materialize)")
+    pf_basis = getattr(args, "promotion_fidelity_basis",
+                       promotion_fidelity.BASIS_PINNED)
+    try:
+        # THE CHOKE POINT: the same `normalize_basis` that
+        # `promotion_fidelity.requested_basis` reads the stored value back
+        # through below. Deciding the headline from a value neither of them
+        # has agreed to recognize is exactly how the deviation line and the
+        # family's own measurement used to read one bad input two ways —
+        # see `normalize_basis`'s docstring. An unrecognized value aborts
+        # HERE, before either consumer has decided anything.
+        pf_basis = promotion_fidelity.normalize_basis(pf_basis)
+    except ValueError as exc:
+        sys.exit(str(exc))
+    if pf_basis != promotion_fidelity.BASIS_PINNED:
+        # In the headline, not only in the family's own section: a reader
+        # comparing two runs' finding counts must be told at the top that one
+        # family changed the tree it reads (task 4.1's ruling, PR #315).
+        deviations.append(
+            "promotion-fidelity measured against each repository's live "
+            "origin/main (every OTHER family measures the pinned checkout)")
 
     # Catalog root (T014): the aggregation checkout when one is in
     # scope; otherwise the one single-repo path, so a lone repo can
@@ -118,12 +161,14 @@ def build_context(args) -> Context:
         repos[0][1] if len(repos) == 1 else None)
 
     ctx = Context(repo_paths=repo_paths, docs=docs,
+                  lifecycle_docs=lifecycle_docs,
                   capabilities=capabilities, change_ids=change_ids,
                   git=corpus.RealGit(), thresholds=thresholds,
                   as_of=date.fromisoformat(args.as_of),
                   agg_root=agg_root,
                   notebook_dryrun=_real_notebook_dryrun(agg_root),
-                  catalog_root=catalog_root)
+                  catalog_root=catalog_root,
+                  promotion_fidelity_basis=pf_basis)
     ctx.deviations = deviations
     # add-cross-factory-ideation-routing task 4.3: nightly by default (an
     # unavailable external path is reported as skipped); strict organize/
@@ -189,6 +234,16 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
             result.skips.append(Skip(family, "skipped by run configuration"))
             continue
         out = fn(ctx)
+        # Notes describe the run a family ACTUALLY performed, so they are
+        # collected here — beside the call — rather than recomputed later
+        # from flags. That includes a family whose `fn(ctx)` returns a Skip
+        # instance: it still ran and inspected the corpus, so it still gets
+        # a note. Only a family skipped ABOVE by run configuration
+        # (--skip-family) never reaches this line — the `continue` on the
+        # branch above sends it straight to `result.skips` with no note at
+        # all, which is the one case that truly gets none.
+        if family in FAMILY_NOTES:
+            result.notes[family] = FAMILY_NOTES[family](ctx)
         if isinstance(out, Skip):
             result.skips.append(out)
         else:
@@ -214,6 +269,19 @@ def main(argv=None) -> int:
                          "referenced pinned repositories must be materialized "
                          "(default: nightly, unavailable external paths are "
                          "reported as skipped)")
+    ap.add_argument("--promotion-fidelity-basis",
+                    choices=[promotion_fidelity.BASIS_PINNED,
+                             promotion_fidelity.BASIS_LIVE_MAIN],
+                    default=promotion_fidelity.BASIS_PINNED,
+                    help="promotion-fidelity ONLY: which tree to compare "
+                         "archived deltas against — 'pinned' (the checkout, "
+                         "the default, and every other family's basis) or "
+                         "'live-main' (each repository's own origin/main, "
+                         "which the run must have fetched). Ruled for the "
+                         "nightly on 2026-08-24: a promotion gap is a fact "
+                         "about a repository's main, and measuring it "
+                         "through a lagging pin reports 0%% coverage as "
+                         "health. No other family reads this option.")
     ap.add_argument("--config", help="YAML threshold overrides")
     ap.add_argument("--report-out", help="write the report here")
     ap.add_argument("--previous-report",
@@ -579,10 +647,84 @@ def main(argv=None) -> int:
             unavailable_reason=args.neutrality_unavailable_reason,
             baseline_repo=args.neutrality_baseline or None)
 
+    # ISSUE #342: this run's own repo-slug identity, computed once, used both
+    # to REFUSE a foreign-identity `--previous-report` below and to STAMP the
+    # report this run writes (the `report.render` call further down).
+    current_repo_slugs = frozenset(ctx.repo_paths)
+
     previous_keys = previous_contested = None
+    unavailable_repos: set[str] = set()
     if args.previous_report and Path(args.previous_report).is_file():
+        previous_text = Path(args.previous_report).read_text(
+            encoding="utf-8")
+        previous_repo_slugs = report.parse_repo_identity(previous_text)
+        if previous_repo_slugs is None:
+            # BACKWARD COMPATIBILITY (issue #342 fix-shape item 3). Every
+            # report written before this change — including every dated
+            # report committed to health/reports/ as of 2026-08-31 — carries
+            # no stamp, and the nightly's own baseline is one of those for at
+            # least one more night. Refusing here would break the nightly
+            # outright, so an UNSTAMPED baseline degrades to exactly today's
+            # behaviour: accepted, unchecked, with one loud stderr line
+            # naming the gap so an operator can tell "identity matched" from
+            # "identity could not be checked" in the run's own output.
+            print("[repo-identity] WARNING: --previous-report "
+                  f"{args.previous_report} carries no "
+                  f"{report.REPO_IDENTITY_PREFIX.strip()} stamp (a report "
+                  "predating issue #342) — accepted without an identity "
+                  "check. A foreign-identity baseline (e.g. a worktree "
+                  "basename mismatch) cannot be detected until both sides "
+                  "of the comparison are stamped.", file=sys.stderr)
+        elif not current_repo_slugs <= previous_repo_slugs:
+            # ISSUE #342, THE FIX. Every repo this run covers must already be
+            # a member of the baseline's stamped identity — the single-repo
+            # case ("the slug must be IN the baseline's set") generalized to
+            # an aggregation run ("equality or subset"), reasoned from how
+            # the two comparison rules key: a repo THIS run has that the
+            # BASELINE never scanned makes every one of that repo's
+            # critical/error findings miss `previous_keys` by construction
+            # (`regressions()`, keyed by `(family, repo, path)`), which is
+            # the exact phantom-regression mechanism the issue reports — a
+            # foreign-basename baseline is simply the disjoint-sets instance
+            # of this same rule. The mirror case (the baseline knows a repo
+            # THIS run does not) is accepted, not refused here — see
+            # `unavailable_repos` below, `uncited_resolutions`'s own defense
+            # for exactly that gap.
+            missing = ", ".join(sorted(current_repo_slugs -
+                                       previous_repo_slugs))
+            baseline_stamp = (", ".join(sorted(previous_repo_slugs))
+                              or report.REPO_IDENTITY_NONE)
+            current_stamp = (", ".join(sorted(current_repo_slugs))
+                             or report.REPO_IDENTITY_NONE)
+            sys.exit(
+                "REFUSE previous-report-identity-mismatch: "
+                f"--previous-report {args.previous_report} was stamped "
+                f"{report.REPO_IDENTITY_PREFIX}{baseline_stamp}; this run's "
+                f"scope is {report.REPO_IDENTITY_PREFIX}{current_stamp}. "
+                f"Repo(s) not covered by the baseline: {missing}. Every "
+                "finding key for an uncovered repo misses by construction: "
+                "its current critical/error findings would read as new "
+                "regressions and its baseline contested findings would read "
+                "as resolved without citation (issue #342) — an operator "
+                "path/scope slip reported as a corpus catastrophe. Point "
+                "--previous-report at a report whose stamped identity "
+                "covers this run's full scope, or omit --previous-report to "
+                "run this as a fresh baseline.")
+        else:
+            # A baseline whose stamped identity is a proper SUPERSET of this
+            # run's (e.g. a --single-repo self-gate diffed against last
+            # night's full aggregation report) is accepted — but its
+            # contested findings for the repo(s) THIS run does not cover
+            # must still not be read as resolved (fix-shape item 3: this run
+            # never looked at them, so their absence from `result.findings`
+            # proves nothing). `unavailable_repos` carries exactly that
+            # residual set into `uncited_resolutions` below; it is empty
+            # whenever the identities match exactly, so the common case is
+            # unaffected.
+            unavailable_repos = set(
+                previous_repo_slugs - current_repo_slugs)
         previous_keys, previous_contested = report.parse_previous(
-            Path(args.previous_report).read_text(encoding="utf-8"))
+            previous_text)
     dispositions = set()
     dispo_path = (ctx.agg_root / "health" / "dispositions.yaml"
                   if ctx.agg_root else None)
@@ -593,6 +735,23 @@ def main(argv=None) -> int:
                 dispositions.add((d.get("family"), d.get("repo"),
                                   d.get("path")))
     unavailable_families = set()
+    # A family this run was CONFIGURED not to execute never gets a chance to
+    # re-confirm or refute its prior findings, so its absence from
+    # `result.findings` must never read as "resolved" — the same rule the
+    # readiness/neutrality exclusions below already encode for lanes that
+    # merge post-render. Two run shapes configure a family out: an explicit
+    # `--skip-family`, and a single `--family` run, which executes ONLY the
+    # named family (`run_suite`'s `only_family` branch) and silently never
+    # reaches every OTHER registered family at all. Found during review of
+    # PR #325 (add-promotion-fidelity-check task 4.2): the promotion-fidelity
+    # CONTESTED flip widened the exposure (a nightly `--skip-family
+    # promotion-fidelity` would have manufactured a spurious
+    # uncited-resolution for it), but the gap predates the flip and applied
+    # equally to every other CONTESTED family (record-immutability,
+    # location-conformance, etc.) any time a run skipped one of them.
+    unavailable_families.update(args.skip_family)
+    if args.family:
+        unavailable_families.update(set(FAMILIES) - {args.family})
     if semantic_meta is not None and semantic_meta.skipped_reason:
         unavailable_families.update(semantic.SEMANTIC_FAMILY_IDS)
     # The ideation-readiness lane's `contested` findings are folded into the
@@ -616,7 +775,8 @@ def main(argv=None) -> int:
     unavailable_families.add(_neutrality.LANE_ID)
     result.findings += report.uncited_resolutions(
         result.findings, previous_contested, dispositions,
-        unavailable_families=unavailable_families)
+        unavailable_families=unavailable_families,
+        unavailable_repos=unavailable_repos)
     new = report.regressions(result.findings, previous_keys)
 
     spec_words = 0
@@ -627,7 +787,10 @@ def main(argv=None) -> int:
     text = report.render(ctx.as_of, result.findings, result.skips,
                          result.preflight, ctx.docs, spec_words,
                          ctx.deviations, new, semantic_meta=semantic_meta,
-                         catalog_meta=catalog_meta, organizer_meta=organizer_meta)
+                         catalog_meta=catalog_meta,
+                         organizer_meta=organizer_meta,
+                         family_notes=result.notes,
+                         repo_slugs=current_repo_slugs)
     if neutrality_meta is not None:
         # Folded in post-render like the readiness/derive lanes: its own
         # section plus contested WARNING plan items, never a finding the

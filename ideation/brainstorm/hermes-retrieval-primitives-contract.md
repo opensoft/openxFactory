@@ -16,7 +16,7 @@ IDF + age decay) fused by reciprocal rank fusion. Primitives are exposed as
 governed MCP tools so orchestrators compose them. Parent:
 `hermes-knowledge-base-architecture.md`; ingestion side:
 `client-ingestion-adapter-contract.md`.
-Topics: retrieval, search-primitives, context-packet, planner-executor-synthesizer,
+Topics: memory-retrieval, hermes, retrieval, search-primitives, context-packet, planner-executor-synthesizer,
 hybrid-search, rrf, age-decay, source-authority, consent, tenant-isolation,
 who-knows, mcp, memory-gateway
 Repository context: openxFactory (neutral retrieval contract; gateway-adjacent, all layers)
@@ -77,7 +77,8 @@ synthesizer(evidence)           → advisory_answer{summary, citations[], author
   for a Hermes decider, never itself a governance decision.
 
 This pipeline *is* an MoA `panel_synthesis` over sources (see
-`codexfactory-domain-deliberation.md`): it advises; Hermes decides.
+`codexfactory-domain-deliberation.md`, moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`): it advises; Hermes decides.
 
 ## Ranking recipe (Cerebras)
 

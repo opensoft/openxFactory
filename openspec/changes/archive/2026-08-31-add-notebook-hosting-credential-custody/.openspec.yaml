@@ -1,0 +1,36 @@
+# REDACTED 2026-09-07: email addresses -> role placeholders per review/redaction-disposition-2026-09-07.md; original bytes at 543d47a9.
+schema: spec-driven
+created: 2026-08-23
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-23-add-notebook-hosting-credential-custody
+  reason: >-
+    Authored directly from Brett Heap's in-session direction on 2026-08-23,
+    extending the change he ratified the same day
+    (`add-notebook-projection-identity`, which made the projection's hosting
+    identity a declared two-case intake fact and named
+    `<service-account-identity>` as Opensoft's declared account). His direction,
+    verbatim: "this is a xFactor001 login. and we want to store the password
+    in a kv and have xFactory and openXdox login with its own authority."
+    Three question-prompt refinements followed, all his: (1) the vault is the
+    EXISTING QA-estate Azure Key Vault already serving the hermes/openXdox QA
+    lanes — the vault the openXdox dispatch-app-key binding names,
+    `kv-opensoft-xfactory-qa` — and it holds the account password and any
+    2FA/TOTP secret the account needs; (2) the authority shape is ONE Google
+    account whose secret each consuming system reaches through its OWN
+    governed binding, each with its own vault access identity, its own grant,
+    its own rotation visibility and its own audit trail, with no shared
+    ambient session and no system borrowing the other's authority; (3) the
+    migration proceeds NOW on Brett's interactive login, independently, while
+    this custody change lands in parallel as a follow-up. No staging folder is
+    claimed: the organized source is the ruling itself, quoted in proposal.md
+    and design.md, so ad_hoc is the correct kind and is not a substitute for
+    staging.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — his 2026-08-23 direction and
+    its three refinements authorized authoring this follow-up directly, the
+    same operator-authority pattern as `add-substantive-review-lane` and
+    `add-client-identity-roster`. This records authorization to AUTHOR the
+    proposal, not ratification of its content: that is a separate act, still
+    PENDING, and the proposal stands at `Status: draft` until it happens.
+  approved_on: 2026-08-23

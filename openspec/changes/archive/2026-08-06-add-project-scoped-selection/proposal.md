@@ -2,7 +2,7 @@
 code_surface: openxFactory (gate-intent / gate-action-record additive extension; dashboard runtime — kickoff.py create_project + shared commission index, gate_routes.py executing route, cli.py entrypoint, GateConsole delegate, selector project picker + scoped roster; tests)
 target_release: allocated at realization (next additive contract bundle, per docs/contract-versioning-policy.md)
 Status: ratified
-Ratified by: Brett's direction "ratify exit 1 and realize it" on 2026-08-06, with the topic's D1–D7 decision round (2026-08-06) carried as decided context
+Ratified: Brett's direction "ratify exit 1 and realize it" on 2026-08-06, with the topic's D1–D7 decision round (2026-08-06) carried as decided context
 ---
 
 # Proposal: add-project-scoped-selection

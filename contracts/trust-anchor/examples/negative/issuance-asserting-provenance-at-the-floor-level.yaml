@@ -1,0 +1,39 @@
+# expected_failure: provenance-asserted-unestablished
+# expected_failure_detail: worse than a declared gap
+# requirement: TA-R2
+# VIOLATES TA-R2: a record declaring the FLOOR establishment level — per-policy
+# attestation plus the authority's own log — while asserting the per-certificate
+# request provenance that level exists precisely because the authority does not
+# expose.
+#
+# This is the tempting middle position the ratification refused: keep the weaker
+# level, fill in the stronger fields, and let a reader assume both. An
+# asserted-but-unestablished record is worse than a declared gap, because a
+# declared gap can be consumed carefully and a false assertion cannot be
+# consumed at all. The schema forbids the recorded form; this rule names WHY.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-asserted-provenance
+certificate_ref: cert:managed-broker-01
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: established
+  requester_ref: role:fleet-operator
+  request_id: req:neg-asserted-2026-08
+  requested_at: "2026-08-01T00:00:00Z"
+  statement: >-
+    Reconstructed from a change ticket that happened to be open at the time,
+    which is not the authority establishing anything.
+authority_attestation:
+  policy_attestation_ref: attestation:managed-device-issuance-profile-2026-08
+  authority_log_ref: authoritylog:managed-issuing-2026-08-01
+issued_at: "2026-08-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: false
+  statement: A managed service.

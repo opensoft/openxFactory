@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (scripts/validate-client-infrastructure.py + the two contract schemas, packaged examples, and the client-layer scaffold template; domain-repo adoptions are successor changes per the impact map)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified: 2026-07-16 by Brett — record: this change's own tasks.md 4.1, under its "## 4. Ratification gate" heading — "[GATE] Product-owner sign-off on D1 ... and D5 ... recorded here before the specs are treated as settled. — SIGNED OFF by Brett, 2026-07-16, item-by-item", ticked, and closing with the decisive clause the same line records: "Governing doc flipped to `Status: ratified` + `Ratified by: add-client-infrastructure-liaison` at this gate" — `docs/client-infrastructure-liaison.md` carries exactly that header today, verified against the live file; the archive act followed on 2026-07-17 in `3a66fc5`, "Archive add-client-infrastructure-liaison (5.2); promote capabilities", which promoted `openspec/specs/client-infrastructure-liaison/spec.md` and `openspec/specs/client-infrastructure-request/spec.md` and updated `openspec/specs/roles-authority-model/spec.md`. The date recorded is the sign-off's, which is one day before the archive folder's. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 ---
 
 # Proposal: add-client-infrastructure-liaison

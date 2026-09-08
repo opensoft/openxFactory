@@ -1,0 +1,9 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-ratify-doxbench-landed-context-surfaces
+  reason: >-
+    Carved out of add-doxbench-distilled-abstract by Brett's ruling 0 of 2026-08-25 (SPLIT, recorded as a comment on opensoft/openxFactory#84), which all three council reviewers recommended independently. The doc-only half: three surfaces shipped into the doxBench context panes on 2026-08-03 with no requirement text (grep abstract/subtab over openspec/specs/ideation-dashboard/spec.md returns nothing), and one of them CONTRADICTS ratified text — the shipped three-subtab restructure makes bullseye and matrix mutually exclusive tabpanels (scripts/ideation_dashboard/web/views/staging-workbench.js:488) while spec.md:439 forbids the matrix becoming "a toggle-only alternate". Split so a cheap correction that removes a live falsified requirement does not wait on the model-derived abstract's seven remaining rulings
+  approved_by: Brett
+  approved_on: 2026-08-25

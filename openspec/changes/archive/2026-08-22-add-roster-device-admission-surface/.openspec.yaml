@@ -1,0 +1,22 @@
+schema: spec-driven
+created: 2026-08-19
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-19-add-roster-device-admission-surface
+  reason: >-
+    Authored on the node-inventory realization evidence, per the ratified
+    reader-grant clarify decision Q4 (OpsxFactory
+    add-tenant-reader-grant-pipeline), which named the openxFactory
+    client-identity-roster admission_surface vocabulary extension for the
+    device surface as a cross-repo dependency, to be proposed on evidence and
+    bundled with the surface's governing change (node-inventory). The ratified
+    microsoft_managed_node_inventory_reader credential requirement holds
+    Device.Read.All + DeviceManagementManagedDevices.Read.All + CloudPC.Read.All
+    with exact_effective_scopes and reject_write_or_destructive_scopes — the
+    roster design's own Decision-3 motivating example of provider-forced
+    breadth on one narrow read identity. To enroll it, its roster entry needs
+    an admission_surface member, and device is not yet in the closed
+    vocabulary. This change admits it through the capability's own extension
+    route. Realization (schema/bundle edit) waits for Brett's ratification.
+  approved_by: Brett
+  approved_on: 2026-08-19

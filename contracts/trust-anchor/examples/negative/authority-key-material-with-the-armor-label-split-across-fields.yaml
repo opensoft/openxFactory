@@ -1,0 +1,45 @@
+# expected_failure: key-material-embedded
+# expected_failure_detail: SPLIT ACROSS FIELDS
+# requirement: TA-R7
+# VIOLATES TA-R7 by tearing the armor label across a SEAM. Neither field contains
+# `-----BEGIN RSA PRIVATE KEY-----`: the subject name ends mid-token and the
+# display label carries the rest, and a reader concatenating the two gets the
+# armor back.
+#
+# Every per-field check passes, which is the whole point — the evasion is not in
+# any value, it is BETWEEN two of them. So the document's strings are joined in
+# document order and the armor match runs over the concatenation as well. The
+# joined pass runs only when the per-field pass found nothing, so an ordinary
+# single-field key is still reported once and for its own reason.
+#
+# The other half of the same evasion — the key BODY moved to a distant field so
+# the label and the payload never touch — is closed by the structural test
+# instead: a PEM body is base64 of a DER private key whatever field it sits in.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-split-armor-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Recovery Root Authority -----BEGIN RSA PRIVA"
+  display_label: "TE KEY----- (restore token continues in the runbook)"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:recovery-issuance-policy
+    authority_kind: policy
+    statement: Recovery certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-recovery-root-key
+  vault_binding_ref: vaultbinding:recovery/root-key
+notes: >-
+  Nothing in this record is a key on its own, which is exactly the claim the
+  fixture exists to refuse. The armor is assembled from two conformant fields,
+  and a scan that only ever looks at one value at a time cannot see it.

@@ -37,16 +37,52 @@ def test_seed_register_validates_clean_under_strict():
 
 @aggregation_scope
 def test_seed_register_lists_exactly_the_pinned_submodules():
-    # D10 worked example: one `xfactory` project whose repositories are the
-    # family repos as pinned in .gitmodules (ids = submodule path basenames).
-    pinned = sorted(
-        p.rsplit("/", 1)[-1] for p in
-        re.findall(r"^\s*path\s*=\s*(\S+)", GITMODULES.read_text(), re.M))
+    # POST-D7 worked example (Brett's 2026-08-06 ruling on the openxFactory
+    # staging topic `dashboard-project-scoping`, xFactory commits dd1179e +
+    # 380da26 landing it): the register is split BY ROLE — core / domains /
+    # medx-clinical / installs — plus the human-managed `openxfactory` and
+    # `xfactory` projects. D8 (same day) made membership multi-parent, so
+    # openxFactory lives in both `core` (primary — first declaring) and
+    # `openxfactory`, and MedxFactory lives in both `domains` (primary) and
+    # `medx-clinical`. The four untracked submodules were triaged 2026-08-22
+    # (aggregation b0ee23d): openAvatar -> core; keycloak-install,
+    # medx-roottruth-install, openxpki-install -> installs, with
+    # medx-roottruth-install also a medx-clinical satellite (D8);
+    # openAvatar joined medx-clinical too on 2026-08-22 (aggregation 95623ec).
+    # Pin the exact membership per role rather than diffing
+    # the flattened list against the full .gitmodules pin set: newer
+    # submodules (openAvatar 2026-08-03, medx-roottruth-install 2026-08-09,
+    # keycloak-install/openxpki-install 2026-08-21) are real pins awaiting
+    # human triage into a project via edit-project — the register's D5
+    # authority posture is development-plane-authoritative, not an
+    # auto-mirror of .gitmodules, so their absence here is legal.
     reg = yaml.safe_load(REGISTER.read_text(encoding="utf-8"))
     assert reg["kind"] == "project-register"
     assert reg["schema_version"] == 1
-    listed = sorted(r for p in reg["projects"] for r in p["repositories"])
-    assert listed == pinned
+    by_id = {p["id"]: sorted(p["repositories"]) for p in reg["projects"]}
+    assert by_id == {
+        "core": ["openAvatar", "openxFactory"],
+        "domains": ["AdxFactory", "LedgerxFactory", "MedxFactory",
+                     "OpsxFactory", "codexFactory"],
+        "medx-clinical": ["HealthLinc", "MedxEHR", "MedxFactory",
+                          "medx-roottruth-install", "openAvatar",
+                          "openChart"],
+        "installs": ["agenttower", "cloudpc-install", "hermes-install",
+                      "keycloak-install", "medx-roottruth-install",
+                      "omnigent-install", "openxpki-install",
+                      "xfactory-installer"],
+        "openxfactory": ["openxFactory"],
+        "xfactory": ["AdxFactory", "LedgerxFactory"],
+    }
+    # Every repository the register names must still be a REAL pinned
+    # submodule (catches a typo'd or renamed id); the converse — every
+    # pinned submodule triaged into a project — is deliberately not
+    # required (see the untriaged pins noted above).
+    pinned = set(
+        p.rsplit("/", 1)[-1] for p in
+        re.findall(r"^\s*path\s*=\s*(\S+)", GITMODULES.read_text(), re.M))
+    listed = set(r for repos in by_id.values() for r in repos)
+    assert listed <= pinned
 
 
 @aggregation_scope
@@ -59,8 +95,13 @@ def test_seed_register_leaves_grouping_to_the_human():
 
 @aggregation_scope
 def test_generator_adapter_resolves_openxfactory_through_the_seed():
+    # POST-D7: openxFactory's primary is `core` (it declares first, before
+    # the multi-parent `openxfactory` view — D8's first-wins rule); the
+    # `xfactory` project name was reused the same day for an unrelated
+    # empty-then-edited project (AdxFactory + LedgerxFactory) and no longer
+    # holds either repo below.
     adapter = ProjectRegisterAdapter(REGISTER)
-    assert adapter.resolve("openxFactory") == ("xfactory", None)
-    assert adapter.resolve("codexFactory") == ("xfactory", None)
+    assert adapter.resolve("openxFactory") == ("core", None)
+    assert adapter.resolve("codexFactory") == ("domains", None)
     # absent repositories stay ungrouped (implicit project), never an error
     assert adapter.resolve("not-a-family-repo") == (None, None)

@@ -1,0 +1,37 @@
+# expected_failure: key-material-reversibly-encoded
+# expected_failure_detail: base64-then-base64
+# requirement: TA-R7
+# VIOLATES TA-R7 by adding a second wrapper. One decode leaves base64 rather than
+# key material, so a single-layer scan sees a long meaningless string and moves
+# on — and `base64 -d | base64 -d` is not a harder recipe for a reader to follow
+# than `base64 -d`.
+#
+# "Any encoding a reader can reverse" does not become two encodings a reader can
+# reverse just because the wrapper was applied twice. The scan reverses a second
+# layer for the same reason it reverses the first.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-double-encoded-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Staging Root Authority"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:staging-issuance-policy
+    authority_kind: policy
+    statement: Staging certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-staging-root-key
+  vault_binding_ref: vaultbinding:staging/root-key
+notes: >-
+  Opaque restore token for staging, wrapped twice by the packaging step:
+  TUlGbEFnRUFNQTBHQ1NxR1NJYjNEUUVCQVFVQUJJRlFBQUVDQXdRRkJnY0lDUW9MREEwT0R4QVJFaE1VRlJZWEdCa2FHeHdkSGg4Z0lTSWpKQ1VtSnlncEtpc3NMUzR2TURFeU16UTFOamM0T1RvN1BEMCtQMEJCUWtORVJVWkhTRWxLUzB4TlRrOD0=

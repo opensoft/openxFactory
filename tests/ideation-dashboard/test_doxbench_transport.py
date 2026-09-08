@@ -160,17 +160,38 @@ def test_app_js_defines_a_module_scope_source_loader_factory():
 
 
 def test_app_js_carries_exactly_the_four_named_fetch_call_sites():
-    """PIN EVOLUTION (T023 wire clause): the cap rises from 2 to 4, one per
-    NAMED call site, and each is asserted individually -- the cap is a budget
-    on transports, so raising it without naming what filled it would make it
-    meaningless. The four: the pre-existing snapshot fetch, the source-loading
-    pass-through, and the two transports this wave adds (GET the released model
-    catalog, POST a chat turn)."""
+    """PIN EVOLUTION (T023 wire clause, then add-doxbench-editing-phase-b §9.5,
+    then add-doxbench-distilled-abstract §7.9): the cap rose from 2 to 4, to 5,
+    and now to 6, one per NAMED call site, each asserted individually -- the cap
+    is a budget on transports, so raising it without naming what filled it would
+    make it meaningless. The six: the pre-existing snapshot fetch, the
+    source-loading pass-through, the two transports the T023 wave added (GET the
+    released model catalog, POST a chat turn), the THREAD READ, and the
+    DOCUMENT-ABSTRACT route.
+
+    The thread seam is a GET and only a GET: a thread is written by a TURN,
+    through the Save gate, so a write call site here would be a second write
+    route to the record.
+
+    The abstract route is a NEW same-origin serve.py route rather than a scoped
+    chat turn, ruled 1(c)(i): the chat-turn assembler requires an outline
+    buffer, a non-blank human message and a transcript, and an abstract request
+    carries none of them, so smuggling one through that envelope would have
+    meant widening a released contract to carry a request it was not written
+    for. Its body is a CLOSED shape -- scope, subject path, model id -- and
+    carries no buffer, because the server reads the subject's SAVED bytes."""
     app = APP_JS.read_text(encoding="utf-8")
     fetches = re.findall(r"fetch\(([^)]*)", app)
-    assert len(fetches) == 4, (
-        f"app.js must carry exactly four fetch( call sites (snapshot, source "
-        f"pass-through, model-catalog GET, chat-turn POST), found: {fetches}"
+    assert len(fetches) == 6, (
+        f"app.js must carry exactly six fetch( call sites (snapshot, source "
+        f"pass-through, model-catalog GET, chat-turn POST, thread GET, "
+        f"document-abstract POST), found: {fetches}"
+    )
+    assert sum("DOCUMENT_ABSTRACT_ROUTE" in a for a in fetches) == 1, (
+        "exactly one call site may reach the document-abstract route"
+    )
+    assert sum("threadUrl" in a for a in fetches) == 1, (
+        "exactly one call site may GET a document's thread"
     )
     assert any("snapshotUrl" in a or "snapshot" in a.lower() for a in fetches), (
         "the pre-existing snapshot fetch must still be present"
@@ -218,9 +239,28 @@ def test_the_two_routes_are_module_constants_not_inline_literals():
     app = APP_JS.read_text(encoding="utf-8")
     assert f'const CATALOG_ROUTE = "{CATALOG_ROUTE}";' in app
     assert f'const CHAT_TURN_ROUTE = "{CHAT_TURN_ROUTE}";' in app
+    # add-doxbench-editing-phase-b §9.5: the thread READ route joins them under
+    # the same rule.
+    assert 'const THREAD_ROUTE = "/workbench/thread";' in app
     # Each route path appears exactly ONCE in the file: in its own constant.
     assert app.count(CATALOG_ROUTE) == 1
     assert app.count(CHAT_TURN_ROUTE) == 1
+    assert app.count("/workbench/thread") == 1
+
+
+def test_the_thread_transport_names_no_field_of_the_query_it_carries():
+    """A TRANSPORT MOVES BYTES, and this one is handed an already-built
+    parameter object for the same reason the turn submitter is handed an
+    already-built envelope: a transport that spelled the scope's own field names
+    would have grown into the thing that decides what a request says."""
+    app = APP_JS.read_text(encoding="utf-8")
+    body = app.split("export function createDoxBenchThreadLoader(", 1)[1] \
+              .split("\nexport function ", 1)[0]
+    for forbidden in ("tile_kind", "tile_id", "repository", "schema_version"):
+        assert forbidden not in body, forbidden
+    assert "method:" not in body, (
+        "the thread seam is a GET and only a GET: a thread is written by a "
+        "turn, through the Save gate")
 
 
 def test_the_transports_are_bundled_on_the_doxbench_seam_and_nothing_else():
@@ -647,15 +687,24 @@ const catalog7 = await loadCatalog();
 
 // 5: a turn POST returns status AND payload -- a refusal carries meaning, so
 // the transport never collapses it to null
-const REQUEST = { schema_version: 1, kind: 'workbench-chat-turn', opaque: 'passthrough' };
+//
+// The kinds below were the v1 family's until contract-v3.0
+// (retire-doxbench-chat-turn-v1) and are the surviving one's now. Nothing about
+// the probe changed with them, which is the point: `opaque: 'passthrough'` is a
+// key no released envelope declares and it survives the round trip, so this
+// transport is proven to carry a body it does not read. The kinds are still
+// re-expressed rather than left retired -- a fixture naming a shape the release
+// cannot produce reads as a claim about the wire, and this one has no business
+// making any.
+const REQUEST = { schema_version: 1, kind: 'workbench-chat-turn-v2', opaque: 'passthrough' };
 queue.push(fakeResponse({ ok: false, status: 403, payload: {
-  schema_version: 1, kind: 'workbench-chat-turn-failure',
+  schema_version: 1, kind: 'workbench-chat-turn-v2-failure',
   client_turn_id: 'turn-1', error: 'model_capability_unavailable', message: 'no' } }));
 const turn1 = await submitTurn(REQUEST);
 
 // 6: a success envelope passes through untouched and uninterpreted
 queue.push(fakeResponse({ ok: true, status: 200, payload: {
-  schema_version: 1, kind: 'workbench-chat-turn-success', client_turn_id: 'turn-2' } }));
+  schema_version: 1, kind: 'workbench-chat-turn-v2-success', client_turn_id: 'turn-2' } }));
 const turn2 = await submitTurn(REQUEST);
 
 // 7: an unparseable body is `payload: null`, never a throw and never invented
@@ -696,15 +745,15 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
     assert results["catalog7"] == {"failed": "unreadable"}
 
     assert results["turn1"] == {"ok": False, "status": 403, "payload": {
-        "schema_version": 1, "kind": "workbench-chat-turn-failure",
+        "schema_version": 1, "kind": "workbench-chat-turn-v2-failure",
         "client_turn_id": "turn-1", "error": "model_capability_unavailable",
         "message": "no"}}
     assert results["turn2"]["ok"] is True
-    assert results["turn2"]["payload"]["kind"] == "workbench-chat-turn-success"
+    assert results["turn2"]["payload"]["kind"] == "workbench-chat-turn-v2-success"
     assert results["turn3"] == {"ok": False, "status": 500, "payload": None}
     # The request object is passed through, never rewritten by the transport.
     assert results["requestUnmutated"] == {
-        "schema_version": 1, "kind": "workbench-chat-turn", "opaque": "passthrough"}
+        "schema_version": 1, "kind": "workbench-chat-turn-v2", "opaque": "passthrough"}
 
     calls = results["calls"]
     assert len(calls) == 10
@@ -730,7 +779,7 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
         assert set(call["opts"]["headers"]) == {"Content-Type", CONSOLE_TOKEN_HEADER}
         assert call["opts"]["headers"]["Content-Type"] == "application/json"
         assert json.loads(call["opts"]["body"]) == {
-            "schema_version": 1, "kind": "workbench-chat-turn",
+            "schema_version": 1, "kind": "workbench-chat-turn-v2",
             "opaque": "passthrough"}
 
 

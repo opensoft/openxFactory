@@ -1,0 +1,77 @@
+# expected_failure: record-id-duplicate
+# expected_failure_detail: obligation entry id(s)
+# requirement: TA-R8
+# VIOLATES TA-R8's addressability. Two obligation entries share one `entry_id`:
+# TA-R7, recorded `cannot`, and TA-R8, recorded `satisfied`.
+#
+# The `entry_id` is the address a shortfall citation resolves through — it exists
+# so a record can NAME the entry that declares its gap and a validator can check
+# that the entry really declares it. With the id duplicated, resolution is
+# last-write-wins over file order: a record citing `ob:neg-duplicate:shared` gets
+# whichever entry the index happened to keep, so a citation could be adjudicated
+# against an entry recording `satisfied` while a reader sees the one recording
+# `cannot` — or the reverse.
+#
+# Duplicates WERE being detected and filed under the declaration's kind, then
+# looked up by REALIZATION id, which cannot match. The check existed and could
+# never fire, which is the most expensive kind of check to have.
+schema_version: 1
+kind: xfactory_trust_anchor_conformance_declaration
+declaration_id: decl:neg-duplicate-entry-id
+capability: trust-anchor
+realization:
+  realization_id: realization:neg-duplicate-entry-id
+  statement: >-
+    A managed authority whose declaration was assembled by hand from another
+    realization's, with one entry id left behind.
+  authority_operated_by_family: false
+  authority_statement: Not operated by the family.
+  population_statement: Device certificates for a small fleet.
+declared_at: "2026-08-01T00:00:00Z"
+obligations:
+  - entry_id: ob:neg-duplicate:TA-R1
+    obligation: TA-R1
+    satisfaction: satisfied
+    reason: Anchors are held as records and trust decisions name them.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:TA-R2
+    obligation: TA-R2
+    satisfaction: partial
+    reason: The authority reports the profile, not the request.
+    declared_at: "2026-08-01T00:00:00Z"
+    achieved_establishment_level: per_policy_attestation_with_authority_log
+  - entry_id: ob:neg-duplicate:TA-R3
+    obligation: TA-R3
+    satisfaction: satisfied
+    reason: Custody is declared from the closed registry per certificate.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:TA-R4
+    obligation: TA-R4
+    satisfaction: satisfied
+    reason: The enrollment workflow re-binds and evidences each dependent.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:TA-R5
+    obligation: TA-R5
+    satisfaction: satisfied
+    reason: Bindings are recorded against the certificate before service.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:TA-R6
+    obligation: TA-R6
+    satisfaction: satisfied
+    reason: Propagation rides the ratified derivation rule inside a window.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:shared
+    obligation: TA-R7
+    satisfaction: cannot
+    reason: >-
+      The anchor key lives inside the managed service, so no credential record
+      can be produced for it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-duplicate:shared
+    obligation: TA-R8
+    satisfaction: satisfied
+    reason: >-
+      This declaration is the artifact — sharing an id with the entry above it,
+      which is how a citation ends up resolving to the wrong one.
+    declared_at: "2026-08-01T00:00:00Z"
+record_version: 1

@@ -8,7 +8,7 @@ overlays/personas, commission the formal accessibility audit, stand up the
 operations/telemetry plane, and run a staged live pilot with an operational
 rollback — closing the threat-model items the kernel deferred to pilot.
 Topics: avatar-client, hermes, delegation, domain-overlays, personas, accessibility, wcag-audit, operations, telemetry, sbom, license-review, pilot, rollback, kill-switch, threat-model-closure
-Repository context: openxFactory owns the neutral `avatar-pilot-hardening` capability, the domain-overlay contract, and the pilot-gate acceptance; real Hermes adapters land in `installs/hermes-install`; per-domain overlays/personas in the DomainxFactory repos (`xFactories/*`); the live client stays in the private `xfactory-avatar-client` repo
+Repository context: openxFactory owns the neutral `avatar-pilot-hardening` capability, the domain-overlay contract, and the pilot-gate acceptance; real Hermes adapters land in `installs/hermes-install`; per-domain overlays/personas in the DomainxFactory repos (`xFactories/*`); the live client stays in the private `openAvatar` repo
 Staging ID: openxFactory:staging:avatar-pilot-hardening
 Source: named the last successor in the avatar-client parallel-workstream plan ("Successors"); the deferred-to-pilot items in the avatar-client threat model (lines 89–90 real Hermes/domain consent, line 57 TM-03 client-integrity, lines 87–88 privacy review/pen test/production authorization); and the reference authority stub in `xfactory/avatar_runtime/` (`authority.py`/`consent.py`/`operations.py` behind `ports.py`)
 Target capabilities: avatar-pilot-hardening (ADDED)
@@ -165,7 +165,7 @@ IDs stay frozen; only the decisions behind the ports become real.
 ## Exit
 
 Create `avatar-pilot-hardening` (`code_surface: openxFactory,
-xfactory-avatar-client, installs/hermes-install, xFactories/*`;
+openAvatar, installs/hermes-install, xFactories/*`;
 `target_release: implemented`, or a named pilot release defined in the
 aggregation repository at proposal time). It **cannot propose** until
 `qualify-avatar-live-voice` publishes a

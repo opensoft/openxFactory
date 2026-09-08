@@ -11,9 +11,9 @@ must never override deterministic governance. This doc frames what persona
 structured-disposition-only to a trait-framework-plus-authored-prose model,
 with the load-bearing guardrail that character shapes *how* a persona decides
 and communicates, never *whether* a gate holds. Sibling of
-`codexfactory-domain-hermes-content.md`; grandchild of
-`hermes-layer-content-seeding.md`.
-Topics: hermes-persona, personality, character-model, authority-personas,
+`codexfactory-domain-hermes-content.md` (moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`); grandchild of `hermes-layer-content-seeding.md`.
+Topics: hermes, hermes-persona, personality, character-model, authority-personas,
 human-experience, trait-framework, persona-depth, behavioral-identity,
 agent-certification, memory-gateway, client-tunability, domain-hermes
 Repository context: openxFactory (applies to all Hermes-layer personas; piloted on codexFactory domain)
@@ -185,7 +185,8 @@ The quantified-identity idea made concrete — a certified persona version is
   reserved for the **client/policy layer** personas, where one operating
   organization's agents should feel like a single team.
 - **First build:** the codex domain roster is drafted in
-  `codexfactory-domain-roster-draft.md`; Lead Security remains the guardrail
+  `codexfactory-domain-roster-draft.md` (moved 2026-09-07 to
+  `opensoft/codexFactory@83c9c35a`); Lead Security remains the guardrail
   stress test (warm in *how*, fail-closed in *what*).
 
 ## Open questions

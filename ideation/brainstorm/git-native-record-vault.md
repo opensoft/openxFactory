@@ -18,7 +18,7 @@ grants are the sibling capability **openxWallet**
 vault's gate CONSUMES wallet grants — that boundary is the split between
 the two names.
 
-Topics: openxvault, custody, storage, phi, sops, kms, encryption-tiers,
+Topics: identity-custody, openxvault, custody, storage, phi, sops, kms, encryption-tiers,
 sanitizer, analysis-plane, vault-plane, de-identification, document-emr
 Repository context: openxFactory (neutral openxVault capability)
 Origin: 2026-07-15 session with Brett, growing out of the

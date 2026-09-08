@@ -1341,16 +1341,19 @@ def test_session_transport_uses_the_injected_fetcher_spelling():
             f"non-clearing innerHTML assignment: {m.group(0)!r}"
 
 
-def test_the_session_transport_addresses_exactly_the_three_live_routes(tmp_path):
-    """T077: four affordances, THREE routes. `refresh-notebook` resolves to NO
-    route at all (spec C10) — it is not a gate verb, so a route for it would be
-    an artifact no contract declares."""
+def test_the_session_transport_addresses_exactly_the_four_live_routes(tmp_path):
+    """T077, grown by add-doxbench-editing-phase-b §12: FIVE affordances, FOUR
+    routes. `refresh-notebook` still resolves to NO route at all (spec C10) — it
+    is not a gate verb, so a route for it would be an artifact no contract
+    declares — and `share` is the fourth that IS one."""
     out = _run_session(tmp_path)
-    assert out["affordances"] == ["edit", "save", "abandon", "refresh-notebook"]
-    assert out["live"] == ["edit", "save", "abandon"]
+    assert out["affordances"] == ["edit", "share", "save", "abandon",
+                                  "refresh-notebook"]
+    assert out["live"] == ["edit", "share", "save", "abandon"]
     assert out["descriptorOnly"] == ["refresh-notebook"]
     assert dict(out["routes"]) == {
         "edit": "/actions/gate/edit-document",
+        "share": "/actions/gate/share-session",
         "save": "/actions/gate/open-pr",
         "abandon": "/actions/gate/abandon-session",
         "refresh-notebook": None,
@@ -1957,8 +1960,12 @@ def _run_ending_replay(tmp_path):
     views = tmp_path / "views"
     views.mkdir()
     (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    # `intent-feed.js` rides along because dispose.js imports it
+    # (add-ideation-intent-plane task 4.4). This probe drives the session
+    # ending replay, which touches only dispose.js's refusal panel — the
+    # module is present purely to make the import resolve.
     for name in ("swb-session.js", "helpers.js", "dispose.js",
-                 "staging-workbench-model.js"):
+                 "staging-workbench-model.js", "intent-feed.js"):
         shutil.copy(WEB / "views" / name, views / name)
     harness = views / "ending-replay.js"
     harness.write_text(_ENDING_REPLAY_HARNESS, encoding="utf-8")
@@ -2444,6 +2451,162 @@ def test_the_shell_forwards_the_two_chat_transports_and_opens_no_route():
 def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
     source = SWB_JS.read_text(encoding="utf-8")
     assert 'aria-label", "doxBench chat rail"' in source
+
+
+def test_the_shell_hands_the_rail_the_tiles_own_title_as_the_subject_default():
+    """The promoted requirement "The working subject SHALL default from the
+    tile's title or summary" is realized by the SHELL resolving it and the rail
+    being told — the same shape as the scope key beside it.
+
+    `scope.title` IS the resolution: `workbenchScope` derives exactly one
+    display title per tile kind (a cluster's `name`, a possible's `title`, a
+    staged topic's `staging_id`), no tile in the snapshot family carries a
+    summary field for the requirement's other half to name, and the same value
+    already reaches the canvas mount and the header — so the surfaces cannot
+    disagree about which tile this conversation is about."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    mount = source.index("mountDoxBenchChatRail(rail")
+    window = source[mount:mount + 5000]
+    assert "subjectDefault: scope.title," in window
+
+
+# ---------------------------------------------------------------------------
+# add-doxbench-editing-phase-a: LEFT SELECTS. The context region chooses which
+# buffer the canvas presents, and therefore which buffer the chat works on.
+# Source-level doctrine pins — the shell adds no state authority, no second
+# guard, and no transport for any of it; the canvas primitives it calls are
+# driven live in test_doxbench_view.py.
+# ---------------------------------------------------------------------------
+
+def test_only_the_plane_postures_still_stand_as_an_inline_note():
+    """Brett's 2026-08-18 annotation round 2, on the `editor-only` posture line:
+    "add a model selector down next to the send button. make this text the hover
+    text for the send button if no model selected."
+
+    The posture ladder has two kinds of rung. Three are about CHAT — stale
+    console token, unreadable catalog, no approved model — and all three leave
+    the canvas offered, so their sentence belongs on the send button, where the
+    human is trying to act. The rest are about the PLANE: they explain a canvas
+    that is withheld or degraded, the rail is not mounted for most of them, and
+    there is no control to hang the sentence on, so they keep the inline note.
+    One rule, in one function, rather than a condition per caller."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    model = MODEL_JS.read_text(encoding="utf-8")
+    # the model MARKS the chat rungs; nothing infers them from their text
+    assert model.count("chat: true,") == 3
+    for chat_rung in ("console-token-stale", "catalog-unreadable", "editor-only"):
+        # the KIND declaration, not the prose that happens to name the rung
+        i = model.index('kind: "' + chat_rung + '"')
+        assert "chat: true," in model[i:i + 200], chat_rung
+    # …and the plane rungs are NOT marked
+    for plane_rung in ("hosted-hidden", "gate-off", "unkeyed",
+                       "source-unavailable"):
+        i = model.index('kind: "' + plane_rung + '"')
+        assert "chat: true," not in model[i:i + 200], plane_rung
+    # ONE rule decides whether the note stands, and both callers go through it
+    assert "function showPostureNote(plane)" in source
+    assert 'const stands = !!plane.note && plane.chat !== true;' in source
+    assert source.count("showPostureNote(") == 3   # 1 definition, 2 callers
+    assert "postureNote.textContent = plane.note" not in source
+
+
+def test_the_context_selection_drives_the_canvas_active_buffer():
+    source = SWB_JS.read_text(encoding="utf-8")
+    # the outline SELECTION tab makes the outline buffer active, through the
+    # canvas's own primitive — this file keeps no notion of "active buffer"
+    assert "function bindCanvasToSelectionTab(" in source
+    assert 'canvasController.setActiveBuffer("outline")' in source
+    # a scoped docs row routes through the canvas's existing selectDocument, so
+    # the dirty-Document guard and the scope refusal fire on this route exactly
+    # as they do on the canvas picker's
+    assert "function bindCanvasToDocument(" in source
+    assert "canvasController.selectDocument(path)" in source
+    assert "bindCanvasToDocument" in source.split("function drawTab()", 1)[1]
+    # both selection tab handlers bind, so keyboard and pointer agree
+    assert source.count("bindCanvasToSelectionTab(") == 3   # 1 definition, 2 callers
+    # …and none of it grew a route
+    assert "fetch(" not in source
+    assert "/actions/" not in source
+
+
+def test_every_selection_route_refreshes_the_stated_binding():
+    """PR #196 review F3: the rail's header states the buffer the chat is
+    working on. `bindCanvasToSelectionTab` refreshed it; `bindCanvasToDocument`
+    did not — so selecting the document the canvas ALREADY holds (the
+    `unchanged` route: a binding change with no switch and no identity move)
+    left the rail naming the outline beside a chat now bound to the document.
+    The refresh is unconditional now, before the outcome is even examined."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    binder = source.split("async function bindCanvasToDocument(", 1)[1].split(
+        "\n  }\n", 1)[0]
+    assert "refreshRailFromCanvas();" in binder
+    # …and it is NOT inside the outcome test below it: every route, every
+    # outcome
+    assert binder.index("refreshRailFromCanvas();") < binder.index("outcome.status")
+    # the mount-time half: the canvas has no buffers until its load settles, so
+    # the header rendered "(absent)" until something unrelated re-rendered it
+    assert "if (canvasController === mounted) syncContextFromCanvas();" in source
+
+
+def test_a_selection_that_does_not_land_reconciles_the_docs_wheel():
+    """PR #196 review F4: the canvas picker has always reverted itself when a
+    selection did not land (blocked by the unsaved-edit guard, refused as out
+    of scope, refused because the load failed). The docs wheel had no such
+    reconciliation, so the two controls and the canvas could sit on three
+    different documents — and `doc-wheel.js`'s `selectPath`, written for exactly
+    this, had zero callers."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    wheel = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+             / "doc-wheel.js").read_text(encoding="utf-8")
+    assert "selectPath(path)" in wheel
+    assert "wheel.selectPath(path)" in source          # the caller it lacked
+    assert "function syncContextSelection()" in source
+    binder = source.split("async function bindCanvasToDocument(", 1)[1].split(
+        "\n  }\n", 1)[0]
+    assert 'outcome.status !== "switched" && outcome.status !== "unchanged"' in binder
+    assert "syncContextSelection();" in binder
+    # a redraw adopts the new wheel's reconcile and starts it where the canvas is
+    assert "reconcileDocsSelection = renderDocsPanel(" in source
+    # …and the reconcile must not be mistaken for a human choosing
+    assert "if (reconciling) return;" in source
+
+
+def test_the_docs_wheels_own_mount_seed_does_not_bind_the_canvas():
+    """The wheel fires `onSelect` once as it lays out. A render is not a human
+    choosing a document, and forwarding it would pop the unsaved-edit guard on
+    a switch nobody asked for — every draw of the docs tab would do it."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    docs_panel = source.split("function renderDocsPanel(", 1)[1].split(
+        "\n}\n", 1)[0]
+    assert "let seeded = false;" in docs_panel
+    assert "if (!seeded) { seeded = true; return; }" in docs_panel
+    # RE-PINNED by `add-doxbench-editing-phase-b` (PR #207 review, F1's root
+    # cause). Phase A bound the canvas from a docs-row SELECTION; the ratified
+    # Phase B delta names exactly three selection routes -- the outline tab,
+    # LOADING a document, and the rail's loaded-document selector -- and a docs-row
+    # selection is not one of them. Keeping it made the ratified loaded set
+    # UNREACHABLE, measured: a tile click switched the single reserved slot to that
+    # path first, so the LOAD that followed always found the document "already
+    # loaded" and the set could never hold two.
+    #
+    # The claim this test makes is UNCHANGED and still asserted: the wheel's own
+    # mount-time seed must not act. What moved is what a human selection DOES --
+    # it renders the abstract above it, which is the other half of the annotation
+    # that asked for the wheel, and binding is the tile's LOAD verb's job.
+    assert "onBind(entry.path)" not in docs_panel
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8): the call
+    # gained a THIRD argument, the abstract region's controller — which is what
+    # lets a notch render the model-derived state a human already generated
+    # without the callback knowing anything about generation. The claim this
+    # line makes is unchanged: a selection renders the abstract above the wheel
+    # and does nothing else. The paired half of that claim, that a notch
+    # dispatches NO model call, is a behavioural pin in
+    # `test_doxbench_abstract_pane.py::test_spinning_the_wheel_dispatches_no_model_call`
+    # rather than a spelling, because a spelling could never have proved it.
+    assert ("renderAbstract(abstract, entry ? entry.row.doc : null, ctx);"
+            in docs_panel)
+    assert "a selection is not a binding route" in docs_panel
+    assert "and not a generation" in docs_panel
 
 
 # ---------------------------------------------------------------------------

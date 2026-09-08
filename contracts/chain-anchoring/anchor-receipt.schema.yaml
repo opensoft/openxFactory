@@ -1,0 +1,620 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_receipt
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchor-receipt.schema.yaml"
+contract_id: chain-anchoring-anchor-receipt
+contract_schema_version: 1
+title: Chain-agnostic multi-anchor receipt
+description: >-
+  THE ONE RECEIPT FORMAT THIS CAPABILITY EVER MINTS, AND IT IS CHAIN-AGNOSTIC
+  BEFORE IT IS ANYTHING ELSE (add-chain-anchoring, capability `chain-anchoring`,
+  requirement "The multi-anchor receipt format is defined FIRST and is
+  chain-agnostic", with the two-witness configuration of "Both ruled witnesses
+  anchor every anchored item, with no selectivity" carried as the CONFIGURED SET
+  the receipt was minted under). Anchor targets are added and dropped by changing
+  the per-chain LIST and never the FORMAT: adding one appends an entry to
+  receipts minted afterwards, dropping one stops new entries and invalidates no
+  receipt already captured. A receipt shaped around one chain's proof structure
+  is REFUSED as a one-way door (`receipt_single_chain_shape`), whatever
+  convenience proposes it.
+
+  FOUR ELEMENTS PER CHAIN, CAPTURED WHOLE AT ANCHOR TIME, NONE OF THEM DEFERRED.
+  A transaction reference plus a header is NOT a proof and this format refuses to
+  pretend it is: a header commits only to a transaction root, so a header beside
+  a bare transaction identifier proves nothing once the transaction itself is
+  unavailable — a certainty within days on a pruning chain and the ten-year
+  assumption on any chain. And a header is not canonicality either, which is why
+  the fourth element exists: transaction bytes plus an inclusion proof establish
+  that the transaction sits under the Merkle root of THE SUPPLIED HEADER and
+  nothing more, so a fabricated header satisfies the first three and proves
+  nothing about either witness.
+
+  AND THE LIMIT OF THAT IS STATED RATHER THAN OVERSOLD. A receipt cannot carry a
+  whole chain, so this capability does NOT claim a receipt is self-sufficient
+  against a forged history. What it claims is that a receipt is CHECKABLE against
+  a canonical header set THE VERIFIER OBTAINS FOR ITSELF — the trust root is a
+  public chain the verifier can independently reach, never a header this
+  capability handed it. A verification performed against a header source supplied
+  by the party that minted the receipt proves only self-consistency and is
+  REFUSED (`verification_header_source_is_minter_supplied`).
+
+  THE MINT-TIME CONFIGURATION BLOCK IS COMMITTED, NOT CARRIED BESIDE THE PROOF,
+  BECAUSE THE HOLDER OF AN INCOMPLETE RECEIPT IS EXACTLY WHO WOULD REWRITE IT. A
+  refusal addressed to the minter does not reach a third party: given a receipt
+  carrying two configured witnesses and one entry, a holder who wants it to read
+  complete strips nothing and edits the SET to name one witness — and every
+  per-chain proof still validates, because those proofs are about the transaction
+  and the digest and know nothing of a field sitting next to them. So the
+  ANCHORED DIGEST is taken over the two-member subject `{material_digest,
+  mint_time_configuration}`: a rewritten set OR AN EXTENDED HORIZON changes that
+  digest and breaks the aggregation path and every inclusion proof at once, and
+  the tamper is caught by the SAME verification that checks the anchor, against
+  the public chain rather than against the minter's word. The MATERIAL DIGEST
+  stays nameable in its own right beside it, so binding the configuration costs
+  the ability to say what was anchored nothing.
+
+  THE RECEIPT HOLDS PROOF MATERIAL AND NEVER STATE. It gains a per-chain entry
+  when that chain's four elements are captured whole, and carries no field
+  describing what has not happened yet — no aggregate `anchored`, no
+  `anchor_status`, no `pending`. A witness still in flight is recorded in the
+  ANCHOR-STATE record, which is where every surface reads per-witness status; a
+  member of the state vocabulary found here is refused by name
+  (`receipt_carries_anchor_state`) rather than reported as an unexpected
+  property. The CONFIGURED WITNESS SET is not an exception to that split: it
+  records what was DEMANDED at mint time and never what has happened since.
+
+  AND IT CARRIES NO MINTER-WRITTEN CLOCK OUTSIDE THE COMMITTED BLOCK. The timing
+  model admits three clocks and only three — the chain-accepted time derived from
+  a per-chain entry's own block header, the checkpoint anchor time the log
+  contributes, and the minter's DECLARED SUBMISSION TIME, which is an ASSERTION
+  and not a clock. A capture time, an observation time or a mint time sitting on
+  this record would be a fourth, uncheckable, and outside the commitment; the
+  format declines to offer the field.
+type: object
+required:
+  - schema_version
+  - kind
+  - receipt_id
+  - material_digest
+  - anchored_digest
+  - mint_time_configuration
+  - aggregation_merkle_path
+  - per_chain_anchors
+  - declared_header_source
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_receipt]
+  receipt_id: {$ref: '#/$defs/identifier'}
+  material_digest:
+    # WHAT WAS ANCHORED, NAMEABLE IN ITS OWN RIGHT. Its subject is
+    # `anchor_material`, and it is the value a holder cites when saying what this
+    # receipt is about. It is NOT the value the aggregation tree carries — that
+    # is the anchored digest below — and the two are never equated: the anchored
+    # digest is a strict function of this value together with the whole
+    # configuration block.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: anchor_material}}
+        required: [subject]
+  anchored_digest:
+    # THE VALUE THE AGGREGATION TREE CARRIES, and its subject is the two-member
+    # object `{material_digest, mint_time_configuration}` under the one
+    # construction in force — the material digest TOGETHER WITH the whole
+    # mint-time configuration block, in that block's own committed form. The
+    # canonical validator RECOMPUTES it from those two members and refuses a
+    # mismatch (`receipt_configuration_block_edited`), which is what makes a
+    # rewritten witness set or an extended horizon break the proofs rather than
+    # sit undetected beside them.
+    #
+    # A REPRESENTATION THAT CARRIES THE SET WITHOUT COMMITTING TO IT IS REFUSED
+    # (`receipt_configuration_not_committed`), whether the set is held in one
+    # blob or as a companion object, because a set a holder can edit without
+    # breaking a proof is a decoration and not a completeness signal.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: anchored_commitment}}
+        required: [subject]
+  mint_time_configuration:
+    # THE BLOCK IS CLOSED BY RULE, AND THE RULE IS THE FIELD LIST'S SUCCESSOR
+    # RATHER THAN ITS SUMMARY.
+    #
+    # EVERY VALUE THE RECEIPT-ONLY COMPUTATION READS LIVES IN THIS BLOCK AND IS
+    # THEREFORE COMMITTED BY THE ANCHORED DIGEST — the configured witness set,
+    # each witness's declared horizon, the declared submission time, the maximum
+    # submission-to-first-anchor delay, the checkpoint cadence, and per witness
+    # its chain-accepted-time rule, its ordering-only designation where it has
+    # one, and its declared skew band and tolerance. A REALIZATION CARRYING SUCH
+    # A VALUE ANYWHERE ELSE IS REFUSED
+    # (`receipt_only_input_outside_committed_block`), without waiting for that
+    # particular field to be enumerated anywhere.
+    #
+    # THE RULE IS STATED RATHER THAN THE FIELDS ENUMERATED ONE AT A TIME BECAUSE
+    # THREE SEPARATE ROUNDS ADDED A FIELD OUTSIDE THE BLOCK and each had to be
+    # swept in after a bot found it: the failure was never in any one field, but
+    # in adding them singly. A FUTURE TIMING INPUT JOINS THIS BLOCK BY THE RULE
+    # AND NOT BY AN ENUMERATION CHASE — `additionalProperties: false` here is the
+    # shape's half of that, and it forces the addition to be a deliberate edit to
+    # this contract rather than a value that quietly appears beside it.
+    #
+    # THE BLOCK IS CONFIGURATION AND NOT STATUS, which is why it can live in a
+    # stateless receipt: it records what was DEMANDED at mint time, never what
+    # has or has not happened since. It is FIXED at mint time and never
+    # re-derived from the entries present — a re-mint under a changed
+    # configuration is a different receipt over a different digest, and a
+    # captured receipt is never rewritten.
+    type: object
+    required:
+      - configured_witnesses
+      - submission_time
+      - max_submission_to_first_anchor_delay_seconds
+      - checkpoint_cadence_seconds
+    additionalProperties: false
+    properties:
+      configured_witnesses:
+        # THE WITNESSES THE CONFIGURATION DEMANDED OF THIS ITEM AT MINT TIME. A
+        # per-chain list SHORTER than this set is read as INCOMPLETE by any
+        # verifier from the receipt alone, with the missing witnesses named as
+        # the difference between the two — no consultation of the minter's
+        # anchor-state record and no service only the minter can run. Without
+        # this set a one-entry receipt is byte-indistinguishable from a receipt
+        # minted under a one-witness configuration, and a holder who cannot
+        # reach the minter cannot tell "one witness because the other was
+        # unreachable" from "one witness by design"; a receipt offered without
+        # it is REFUSED AT CAPTURE TIME on the same footing as a missing
+        # inclusion proof (`receipt_missing_configured_witness_set`).
+        #
+        # NO `maxItems: 2`, DELIBERATELY. The ruled configuration names exactly
+        # two anchor targets, and a third adopted by a realization, an operator
+        # or a later author acting alone is REFUSED BY NAME
+        # (`third_anchor_target`) with the ground stated — a refusal a negative
+        # example can provoke, which a shape that could not express three could
+        # not carry.
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/configured_witness'}
+      submission_time:
+        # `t_declared` — THE MINTER'S DECLARED SUBMISSION TIME, AND AN ASSERTION
+        # RATHER THAN A CLOCK. The anchored digest binds it against later edits,
+        # which makes it TAMPER-EVIDENT and does not make it TRUE.
+        #
+        # THE DIRECTION IS STATED, BECAUSE THREE CONSECUTIVE REVIEW ROUNDS FOUND
+        # DIRECTION ERRORS IN THIS MODEL. No inequality holds between a chain's
+        # accepted time and the true submission instant: consensus never
+        # compares a header time to any submission's wall clock, so a valid
+        # accepting block may carry a time EARLIER than the material was ever
+        # submitted. "Material cannot be anchored before it is submitted" is
+        # true of the ACT and FALSE OF THE TIMESTAMP. A HEADER TIME THEREFORE
+        # NEVER UPPER-BOUNDS THIS VALUE.
+        #
+        # WHAT IS REFUSED, AND WHAT IS ACCEPTED. A declared submission LATER
+        # than the earliest chain-accepted time by MORE than that chain's
+        # declared backward skew is provably false and the receipt is REFUSED
+        # (`receipt_submission_after_earliest_chain_time`). WITHIN the skew it is
+        # ACCEPTED — an honest receipt's declared submission may legitimately
+        # fall after its header time, and refusing it there would be
+        # `honest_receipt_refused_within_skew`. And a receipt whose earliest
+        # chain-accepted time exceeds this value by more than the declared
+        # maximum delay plus the declared tolerance documents its own breach and
+        # is REFUSED (`receipt_self_inconsistent_delay`), receipt-only and at
+        # capture time alike, so a minter cannot mint a clean receipt over a
+        # delay it already exceeded.
+        type: string
+        format: date-time
+      max_submission_to_first_anchor_delay_seconds:
+        # `D_max`. It exists because without it the horizon base can be
+        # postponed at will: a minter that sits on validated material moves
+        # every horizon later by however long it waits. Exceeding it is a
+        # HORIZON BREACH for that witness — one of the two named transitions —
+        # so delay cannot hold an item in `anchor_pending` on the stateful side
+        # either.
+        $ref: '#/$defs/duration_seconds'
+      checkpoint_cadence_seconds:
+        # `C`. The obligation to anchor a log checkpoint at least this often. It
+        # bounds the WIDTH of the bracket the log puts around the submission,
+        # turning a bracket of unknown width into a named one, and anchoring
+        # checkpoints less often is a breach in its own right
+        # (`checkpoint_cadence_not_met`) with its own leaf — so widening the
+        # bracket is VISIBLE as a second, independent finding rather than being
+        # the way out of the delay check.
+        $ref: '#/$defs/duration_seconds'
+  aggregation_merkle_path:
+    # THE PATH FROM THE ANCHORED DIGEST TO THE AGGREGATED ROOT the anchor
+    # transaction commits to.
+    #
+    # AN EMPTY PATH IS LAWFUL AND SAYS SO. A batch of one item has an anchored
+    # digest that IS the aggregated root, so there is no sibling to carry;
+    # requiring at least one element would make the honest one-item case
+    # unrepresentable and invite a fabricated sibling to satisfy the shape.
+    type: array
+    minItems: 0
+    items:
+      type: object
+      required: [position, sibling_digest]
+      additionalProperties: false
+      properties:
+        position:
+          # WHICH SIDE THE SIBLING SITS ON. Without it the path is a bag of
+          # values and the root is not recomputable, which makes the proof
+          # unfalsifiable rather than strong.
+          type: string
+          enum: [left, right]
+        sibling_digest:
+          # A digest under the ONE construction in force, because this tree is
+          # THIS capability's own. No `subject` const is pinned here: what the
+          # aggregation batches, and therefore what an interior node stands
+          # over, is the ANCHORED-ITEM UNIT the realization settles, which this
+          # contract deliberately does not fix. What it does fix is that every
+          # value in the path is algorithm-tagged and computed under
+          # `xfc-jcs-sha256-1`.
+          $ref: '#/$defs/digest'
+  per_chain_anchors:
+    # ONE ENTRY PER CHAIN THAT HAS LANDED, EACH WHOLE.
+    #
+    # AN EMPTY LIST IS REPRESENTABLE, AND IT IS NOT A LOOPHOLE. A receipt whose
+    # per-chain list is empty carries no chain-derived time at all, so its
+    # horizon base is MINTER-CLAIMED and NO pending-versus-breached determination
+    # is made from it — the verification result says so in its own horizon base
+    # rather than the receipt hiding the case by refusing to represent it. A
+    # claim the artifact cannot check is not a basis for a fail-closed answer.
+    type: array
+    minItems: 0
+    items: {$ref: '#/$defs/per_chain_anchor'}
+  declared_header_source:
+    # THE HEADER SET VERIFICATION RUNS AGAINST, NAMED BY THE REALIZATION.
+    #
+    # NEITHER MEMBER IS A `const`, ON PURPOSE. A record declaring
+    # `supplied_by_minter: true` or `obtainable_independently: false` is a
+    # record describing a verification that establishes SELF-CONSISTENCY and not
+    # CANONICALITY, and it earns the named refusal
+    # `verification_header_source_is_minter_supplied` — which says what was
+    # actually wrong — rather than a schema error reporting that a boolean did
+    # not match a constant. The wrong declaration must be WRITABLE for the
+    # negative example to exist at all.
+    type: object
+    required: [source_id, obtainable_independently, supplied_by_minter]
+    additionalProperties: false
+    properties:
+      source_id: {$ref: '#/$defs/identifier'}
+      obtainable_independently: {type: boolean}
+      supplied_by_minter: {type: boolean}
+      source_statement: {type: string, maxLength: 600}
+  daily_item:
+    # THIS RECEIPT'S ANCHORED MATERIAL IS A CLOSED DAILY MANIFEST, AND SAYING SO
+    # IS WHAT MAKES THE DAILY PROFILE'S EXTRA RULES APPLICABLE. Under the
+    # `daily_merkle` profile the aggregation path is the IDENTITY path, so
+    # `aggregation_root == anchored_digest`; a receipt that declares the profile
+    # and carries a non-empty path, or whose entries derive from any other root,
+    # is refused (`aggregation_root_not_identity_for_daily_item`).
+    #
+    # IT CARRIES A POINTER AND NO ACCOUNTING. The window boundaries, the event
+    # count, the batch root, the registry snapshots and the continuity link are
+    # the MANIFEST's `terms`, and they are already committed here through
+    # `material_digest` — restating any of them on this record would put a value
+    # a verifier reads outside the committed block, which the closure rule
+    # refuses.
+    type: object
+    required: [profile, manifest_ref]
+    additionalProperties: false
+    properties:
+      profile:
+        type: string
+        enum: [daily_merkle]
+      manifest_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes:
+    # OUTSIDE THE ANCHORED COMMITMENT, AND THEREFORE EDITABLE BY A HOLDER. The
+    # anchored digest is taken over the material digest and the mint-time
+    # configuration block and over nothing else, so anything here is unbound. It
+    # follows that NO VALUE A VERIFIER READS MAY LIVE HERE: a receipt-only input
+    # found in this member is refused by the closure rule
+    # (`receipt_only_input_outside_committed_block`), and that is the whole
+    # reason the rule is stated as a rule.
+    type: string
+    maxLength: 1400
+$defs:
+  # THE SHARED VOCABULARY IS TAKEN BY REFERENCE, NEVER RESTATED — tranche one's
+  # digest construction for every digest this capability computes, and this
+  # family's own definitions file for the anchoring vocabulary.
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  witness_role:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_role"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  duration_seconds:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"
+  chain_accepted_time_rule:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_accepted_time_rule"
+  chain_native_value:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_native_value"
+  base64url_bytes:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/base64url_bytes"
+  confirmation_profile_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/confirmation_profile_snapshot"
+  profile_as_of_token:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/profile_as_of_token"
+  configured_witness:
+    # ONE WITNESS AS THE CONFIGURATION DEMANDED IT, with everything a
+    # receipt-only verifier needs about it. Every member of this shape is a
+    # receipt-only input, which is why the whole shape sits inside the committed
+    # block.
+    type: object
+    required: [witness_id, role, chain_id, completion_horizon_seconds,
+               chain_accepted_time_rule, confirmation_profile]
+    additionalProperties: false
+    properties:
+      witness_id: {$ref: '#/$defs/identifier'}
+      role: {$ref: '#/$defs/witness_role'}
+      chain_id: {$ref: '#/$defs/chain_id'}
+      confirmation_profile:
+        # THE WINDOW-SNAPSHOTTED CONFIRMATION PROFILE, INSIDE THE COMMITTED
+        # BLOCK BECAUSE THE AMENDMENT PUTS IT THERE
+        # (`amend-chain-anchoring-readiness-and-durability`, requirement
+        # "Witness submission and confirmation remain distinct evidence
+        # states": *"Every configured witness SHALL reference its
+        # window-snapshotted confirmation-profile id, version, content digest,
+        # activation checkpoint, and standing evidence in the mint-time
+        # configuration block committed by `anchored_digest`."*).
+        #
+        # IT IS A RECEIPT-ONLY INPUT, WHICH IS THE WHOLE REASON IT SITS HERE.
+        # What separates submitted from confirmed is the profile's objective
+        # condition, so a verifier that reads the profile reference reads a
+        # value the anchored digest binds — and a snapshot a holder could edit
+        # while every inclusion proof still validated would let the confirmation
+        # RULE be swapped under a valid-looking proof. The closure rule already
+        # says it in general: every value the receipt-only computation reads
+        # lives in this block. This is that rule applied, not an exception to
+        # it.
+        #
+        # MINTING UNDER A RETIRED OR COMPROMISED VERSION IS REFUSED
+        # (`confirmation_profile_retired_or_compromised_mints_receipt`), and
+        # `standing` is carried here so that refusal is a comparison against the
+        # committed value rather than a lookup a holder could steer.
+        $ref: '#/$defs/confirmation_profile_snapshot'
+      completion_horizon_seconds:
+        # `H(w)` — THE DECLARED COMPLETION HORIZON THIS WITNESS WAS CONFIGURED
+        # UNDER. It exists because anchoring is a two-phase, deadline-bounded
+        # obligation rather than an instantaneous act: the durability witness's
+        # aggregation is deferred by hours even when everything is sound, and
+        # a rule demanding both witnesses instantly would refuse every item on
+        # the ordinary path.
+        #
+        # IT RUNS FROM `A_min`, THE EARLIEST CHAIN-ACCEPTED TIME IN THIS
+        # RECEIPT'S OWN PER-CHAIN LIST, AND NEVER FROM THE DECLARED SUBMISSION
+        # TIME. A breach is declared only where the elapsed time exceeds
+        # `A_min + H(w) + skew + tolerance`, the margin applied in ONE DIRECTION
+        # ONLY; a horizon exceeded by less than that margin is NOT a breach
+        # (`breach_declared_within_tolerance`).
+        $ref: '#/$defs/duration_seconds'
+      chain_accepted_time_rule: {$ref: '#/$defs/chain_accepted_time_rule'}
+  per_chain_anchor:
+    # ALL FOUR ELEMENTS ARE REQUIRED, SO A PARTIAL ENTRY IS UNREPRESENTABLE.
+    # A receipt is captured ONCE and the missing material cannot be recovered
+    # afterwards, so an entry that is short of any element is refused AT CAPTURE
+    # TIME — `receipt_missing_transaction_bytes`,
+    # `receipt_missing_inclusion_proof`, `receipt_missing_block_header`,
+    # `receipt_missing_chain_acceptance_evidence` — never accepted and flagged.
+    # A witness still in flight is recorded in the ANCHOR-STATE record as a
+    # pending proof (`receipt_entry_incomplete_for_pending_witness`), and the
+    # later upgrade APPENDS a whole entry against the same digest this receipt
+    # already commits to rather than re-anchoring the item
+    # (`durability_proof_reanchored_rather_than_upgraded`).
+    type: object
+    required:
+      - chain_id
+      - anchor_transaction_bytes
+      - inclusion_proof
+      - block_header
+      - chain_acceptance_evidence
+      - commitment_derivation
+      - confirmed_under_profile
+    additionalProperties: false
+    properties:
+      chain_id: {$ref: '#/$defs/chain_id'}
+      commitment_derivation:
+        # THE WITNESS-SPECIFIC COMMITMENT PATH, WHICH IS THE STEP THE FOUR
+        # ELEMENTS DO NOT COVER. The amendment's own scenario: an entry may
+        # carry transaction and chain inclusion evidence and still fail to prove
+        # that ITS transaction commitment derives from the SAME
+        # configuration-bound `aggregation_root` the receipt names — and such an
+        # entry is REFUSED even where the transaction itself is canonically
+        # accepted (`witness_commitment_path_absent`). Different witness
+        # commitment paths are MANDATORY where encoding differs; what is refused
+        # is two different SOURCES.
+        #
+        # `proof_over` CAN NAME THE REFUSED VALUE ON PURPOSE. A detached
+        # timestamp proof taken over the raw `daily_batch_root` rather than over
+        # the configuration-bound aggregation root is the specific substitution
+        # the amendment names twice, once for the durability witness and once
+        # for the profile as a whole
+        # (`durability_witness_proof_over_raw_batch_root`), and a shape that
+        # could not say it could not carry the fixture that proves the refusal
+        # fires.
+        type: object
+        required: [source_aggregation_root, path_present, proof_over]
+        additionalProperties: false
+        properties:
+          source_aggregation_root:
+            # THE ROOT THIS ENTRY'S COMMITMENT DERIVES FROM. Every configured
+            # witness's path begins at the SAME value; two entries naming
+            # different roots for one item are refused
+            # (`daily_item_witness_roots_differ`), because a split root is two
+            # anchored items presented as one.
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: anchored_commitment}}
+                required: [subject]
+          path_present: {type: boolean}
+          proof_over:
+            type: string
+            enum: [aggregation_root, raw_daily_batch_root]
+          path_ref: {$ref: '#/$defs/identifier'}
+          encoding_statement: {type: string, maxLength: 600}
+      confirmed_under_profile:
+        # THE PROFILE THIS ENTRY WAS EVALUATED UNDER, NAMED ON THE ENTRY ITSELF
+        # (*"every confirmed receipt entry and verification result SHALL name
+        # the profile under which it was evaluated"*). A per-chain entry EXISTS
+        # only once its proof material is captured whole, so an entry is by
+        # construction a confirmed one — which is why this is `required` here and
+        # why the anchor-state record, not the receipt, is where a submitted
+        # witness is reported.
+        #
+        # THE `as_of_token` IS IMMUTABLE EVIDENCE AND NOT A STATUS. It says
+        # `confirmed_under_v<version>_at_<checkpoint>` and it keeps saying that
+        # after the profile retires: current standing is reported by a CURRENT
+        # verification, beside this token and never over it
+        # (`confirmation_profile_standing_rewrites_historical_receipt`).
+        type: object
+        required: [profile_id, version, canonical_digest, as_of_token]
+        additionalProperties: false
+        properties:
+          profile_id: {$ref: '#/$defs/identifier'}
+          version: {type: integer, minimum: 1}
+          canonical_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: confirmation_profile_terms}}
+                required: [subject]
+          as_of_token: {$ref: '#/$defs/profile_as_of_token'}
+      witness_id:
+        # Which configured witness this entry discharges, where the realization
+        # configures more than one witness against one chain. The SHORTFALL is
+        # computed over the configured witness set, so an entry that names its
+        # witness makes the difference exact rather than inferred.
+        $ref: '#/$defs/identifier'
+      anchor_transaction_bytes:
+        # THE TRANSACTION ITSELF, CAPTURED WHOLE. A receipt that records only a
+        # transaction identifier and expects the transaction to be re-fetched at
+        # verification time is REFUSED
+        # (`receipt_transaction_deferred_to_verification`), because a chain that
+        # prunes will not have it to return — and the refusal holds even where
+        # the chain in question does not prune today, because the format is ONE
+        # format and a ten-year claim is made against all of them.
+        $ref: '#/$defs/base64url_bytes'
+      inclusion_proof:
+        # TRANSACTION-TO-BLOCK OR DAG INCLUSION, and what it does and does not
+        # establish: that the transaction sits under the Merkle root of THE
+        # SUPPLIED HEADER, and nothing about that header's canonicality. The
+        # fourth element is what closes that step.
+        type: object
+        required: [proof_kind, path]
+        additionalProperties: false
+        properties:
+          proof_kind:
+            type: string
+            enum: [merkle_transaction_root, dag_inclusion]
+          path:
+            # MAY BE EMPTY where the anchoring transaction is the only one under
+            # the root, on the same reasoning as the aggregation path above.
+            type: array
+            minItems: 0
+            items:
+              type: object
+              required: [position, sibling_value]
+              additionalProperties: false
+              properties:
+                position:
+                  type: string
+                  enum: [left, right]
+                sibling_value: {$ref: '#/$defs/chain_native_value'}
+      block_header:
+        type: object
+        required: [header_bytes, header_digest, time_field]
+        additionalProperties: false
+        properties:
+          header_bytes: {$ref: '#/$defs/base64url_bytes'}
+          header_digest:
+            # THE CHAIN'S OWN HASH OF ITS OWN HEADER, transcribed. It is not a
+            # digest of this family and does not take this family's digest
+            # shape: tagging a value another chain's consensus produced as
+            # `xfc-jcs-sha256-1` would assert a construction that did not
+            # produce it.
+            $ref: '#/$defs/chain_native_value'
+          time_field:
+            # THE SOURCE OF `A(c)`, READ FROM THIS HEADER AND FROM NOWHERE ELSE.
+            # A minter's local clock, a capture-time field, an observation time
+            # and any value the minter writes into the receipt are REFUSED as
+            # sources (`horizon_base_from_minter_clock`), because the point of
+            # this clock is that the artifact can be CHECKED against it rather
+            # than asserting it.
+            #
+            # `null` IS THE HONEST ANSWER FOR A CHAIN WHOSE HEADER CARRIES NO
+            # USABLE TIME FIELD, and it is admitted ONLY where that chain's
+            # configured rule declares `ordering_and_inclusion_only`. The
+            # canonical validator enforces the correspondence in BOTH directions
+            # — a null time under a time-bearing rule, and a time under an
+            # ordering-only rule, are the same defect pointing opposite ways —
+            # because the cross-reference runs from this entry to the configured
+            # witness set and no shape can express it. Such a witness still
+            # proves the anchor and still counts toward the configured set; it
+            # is simply NOT ELIGIBLE as a horizon base.
+            oneOf:
+              - {type: string, format: date-time}
+              - {type: "null"}
+      chain_acceptance_evidence:
+        # THE FOURTH ELEMENT, AND IT EXISTS BECAUSE THE FIRST THREE STOP ONE
+        # STEP SHORT. A fabricated or non-canonical header satisfies all three
+        # and proves nothing about either witness
+        # (`receipt_header_not_canonical`).
+        type: object
+        required: [evidence_kind, header_source_ref]
+        additionalProperties: false
+        properties:
+          evidence_kind:
+            type: string
+            enum: [linear_chain, dag]
+          header_source_ref:
+            # THE NAMED, INDEPENDENTLY OBTAINABLE HEADER SOURCE this entry's
+            # canonicality is checked against. Required on every entry: the
+            # receipt's whole claim is that its trust root is a public chain the
+            # verifier can reach for itself, and an entry that names no such
+            # source leaves the claim resting on the minter.
+            $ref: '#/$defs/identifier'
+          linear:
+            # THE BLOCK HEIGHT PLUS THE HEADER-CHAIN LINKAGE a verifier checks
+            # against an independently obtained canonical header set.
+            type: object
+            required: [block_height, header_chain_linkage]
+            additionalProperties: false
+            properties:
+              block_height: {type: integer, minimum: 0}
+              header_chain_linkage:
+                type: array
+                minItems: 1
+                items: {$ref: '#/$defs/chain_native_value'}
+          dag:
+            # THE DAG-ACCEPTANCE PROOF FOR THE ANCHORING BLOCK — the block whose
+            # header timestamp the accepted-time rule reads, which is the block
+            # this proof names.
+            type: object
+            required: [accepting_block_value, acceptance_path]
+            additionalProperties: false
+            properties:
+              accepting_block_value: {$ref: '#/$defs/chain_native_value'}
+              acceptance_path:
+                type: array
+                minItems: 1
+                items: {$ref: '#/$defs/chain_native_value'}
+        allOf:
+          # THE EVIDENCE KIND AND THE EVIDENCE AGREE, SHAPE-ENFORCED. An entry
+          # declaring a linear chain and carrying a DAG proof describes evidence
+          # nobody can check, and it is the kind of mismatch a reader would
+          # otherwise have to notice.
+          - if:
+              properties: {evidence_kind: {const: linear_chain}}
+              required: [evidence_kind]
+            then:
+              required: [linear]
+              not: {required: [dag]}
+          - if:
+              properties: {evidence_kind: {const: dag}}
+              required: [evidence_kind]
+            then:
+              required: [dag]
+              not: {required: [linear]}

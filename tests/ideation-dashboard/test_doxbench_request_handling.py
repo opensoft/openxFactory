@@ -500,9 +500,144 @@ _DISPATCH_OUTCOME_CODES = {
     "response_invalid",
 }
 
+# PIN EVOLUTION (add-doxbench-editing-phase-b §10, and the adversarial review
+# that required it). TWO packet-era spellings, each a recorded judgement call
+# for a condition that has no code in the planning contracts because the
+# planning contracts predate the bounded context packet:
+#
+#   * `context_packet_bound_exceeded` (409) replaces the misuse of
+#     `request_limit_exceeded` for a bound the SERVER's own selection blew.
+#     413 with "the request exceeds the allowed size for this route" was false
+#     twice over — the request was a few hundred bytes, and the oversize was
+#     server-selected evidence — and un-actionable, because it refused every
+#     turn on that tile forever. Evidence is now fitted by selecting less, so
+#     this code answers only the case the session's own THREADS exceed the
+#     bound alone, which a human can act on by compacting the thread.
+#   * `context_packet_invalid` (500) answers a packet that failed its own
+#     purpose/scope/expiry revalidation twice, which no request the caller
+#     could send would fix.
+#
+# The released failure envelope's `error` is a free-form pattern string, not an
+# enum, so neither needed a contract change. This set stays CLOSED for the same
+# reason the others do.
+_PACKET_CODES = {
+    "context_packet_invalid",
+    "context_packet_bound_exceeded",
+}
+
+# PIN EVOLUTION (add-doxbench-editing-phase-b §9.5, the thread route). ONE
+# spelling, the same class of recorded judgement call as the packet pair: a
+# thread is session working memory on an unmerged branch, so where no branch
+# session can be opened there is nothing for a thread to be. Reusing
+# `model_capability_unavailable` would name a different absence and reusing
+# `turn_scope_refused` would blame the scope for a capability verdict. The
+# DECLARED cause rides the body's `cause` field, and both causes are fixed
+# module-level strings owned by `doxbench_threads`.
+_THREAD_CODES = {
+    "thread_capability_unavailable",
+}
+
+# PIN EVOLUTION (add-doxbench-distilled-abstract §5, the distilled-abstract
+# route). TWO spellings, the same class of recorded judgement call as the packet
+# pair and the thread code above, and BOTH are deliberate widenings of this
+# closed set rather than accidents of a new route:
+#
+#   * `invalid_abstract_request` (400) is `invalid_turn_request`'s sibling for
+#     the route beside the chat one. Reusing the turn code was available and
+#     rejected: its fixed message says "the turn request is malformed", and an
+#     abstract request is not a turn — it carries no message, no transcript and
+#     no buffer set — so that sentence would point a reader at the wrong
+#     contract for a request that never claimed to be one.
+#   * `abstract_unavailable` (500) is `catalog_unavailable`'s sibling, and
+#     deliberately shares its phrasing ("could not be assembled safely"). It
+#     answers the case where this server composed an abstract request it could
+#     not then use — a packet handed to an assembler that takes none, or a
+#     declared digest disagreeing with the bytes the same route just read. No
+#     request the caller could send would fix either, so a 4xx would misdirect.
+#
+# NOTE what is NOT here. The abstract's STATED refusals — an ineligible subject,
+# a document with no declared base, an answer the verifier refused — are not
+# entries in this catalog at all. They carry a class, a rendered reason and a
+# caption state (`serve_mod.DOXBENCH_ABSTRACT_REFUSAL_STATUS` /
+# `doxbench_abstract_refusal_body`), because the region renders a stated reason
+# in place of a distillation, and a fixed catalog message composed from nothing
+# could not say which document or why. This catalog stays what it is: the closed
+# set of PLANE, TRANSPORT and PROVIDER verdicts.
+_ABSTRACT_CODES = {
+    "invalid_abstract_request",
+    "abstract_unavailable",
+}
+
+# PIN EVOLUTION (add-doxchat-model-intake §2/§3). THREE intake-era spellings,
+# each a recorded judgement call for a condition the planning contracts have no
+# code for, because the planning contracts predate the idea that a human could
+# add a model at all. The split is deliberate and each member earns its own
+# entry:
+#
+#   * `intake_refused` (409) — the flow REFUSING RATHER THAN DEGRADING: no
+#     broker is declared, the broker would not take custody, or this install's
+#     own declarations forbid the act. 409, like `model_unavailable`, because
+#     the request was well-formed and the SERVER's declared posture refused it.
+#     Its body carries a `reason` drawn from `doxbench_intake`'s own fixed
+#     sentences, exactly as the thread route's absence body carries a declared
+#     cause — because "the wizard did not work" and "there is nowhere governed
+#     to put a credential" are different facts with different remedies, and only
+#     one of them is something a human can act on;
+#   * `invalid_intake_request` (400) — the request's own shape: a missing
+#     declared fact, an unknown authentication kind, a body past the bound.
+#     Kept apart from `invalid_turn_request` rather than reused, because an
+#     enrolment is not a turn and a catalog message has to hold for every
+#     violation it answers;
+#   * `approval_refused` (409) — the SECOND act failing on its own terms:
+#     nothing pending under that name, something already approved, a record that
+#     would not validate. Kept apart from `intake_refused` because approving is
+#     a different decision from enrolling, which is the whole point of §3.
+#
+# NONE of them ever carries the broker's words, the provider's words, or the
+# value a human supplied.
+_INTAKE_CODES = {
+    "intake_refused",
+    "invalid_intake_request",
+    "approval_refused",
+}
+
+# PIN EVOLUTION (retire-doxbench-chat-turn-v1, contract-v3.0). ONE code, and it
+# is the answer to that packet's OQ-3, which deliberately left the token and the
+# status to the realization.
+#
+# WHAT GROUNDS IT. Until contract-v3.0 an unrecognized or absent chat-turn `kind`
+# was COERCED into the DEPRECATED v1 family and refused there, on the stated
+# reason that "a request that never named a family it could be answered in gets
+# the posture it would have got before this release". Removing the family removes
+# the reason, and the ruling on issue #522 was that the fallback be "redesigned,
+# not deleted". The redesign refuses in the SURVIVING family, which requires
+# naming the condition — so this code is not an invention looking for a use, it
+# is the removal's own requirement.
+#
+# 400, the class every other malformed-or-unservable-request refusal on this
+# surface carries: it is the caller's request that cannot be served, and a
+# different request WOULD be, which is what makes 4xx right.
+#
+# WHY `invalid_turn_request` IS NOT REUSED. Its fixed message says "the turn
+# request is malformed", which is a true sentence about a DIFFERENT failure: a
+# request naming a `kind` this release does not serve may be perfectly well
+# formed in the family it names. Reusing it would send a client hunting for a
+# shape error that is not there — the same distinction
+# `invalid_abstract_request` already records against that code, for the same
+# reason.
+#
+# It says nothing about the REMOVAL, deliberately. A retired v1 kind and a kind
+# that never existed reach it identically; the surviving contract has no
+# vocabulary for "removed at a major", and inventing one to soften a refusal
+# would put migration guidance on the wire instead of in the CHANGELOG.
+_REMOVAL_CODES = {
+    "unrecognized_turn_kind",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
-    | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES
+    | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
+    | _THREAD_CODES | _ABSTRACT_CODES | _INTAKE_CODES | _REMOVAL_CODES
 )
 
 
@@ -577,11 +712,21 @@ def test_limit_block_carries_only_a_fixed_dimension_and_two_integers():
     assert isinstance(body["limit"]["maximum"], int)
 
 
-def test_only_the_limit_code_ever_carries_a_limit_block():
+def test_only_the_limit_BEARING_codes_ever_carry_a_limit_block():
+    """RE-PINNED (add-doxbench-editing-phase-b §10). The rule was never "one
+    code"; it was "only a DIMENSION-BEARING refusal carries a dimension", and
+    for a long time exactly one refusal was dimension-bearing. The packet's
+    bound refusal is the second, and it names its measured dimension for the
+    same reason the first does. The set is asserted to be exactly those two, so
+    a third cannot appear unnoticed."""
+    assert serve_mod.DOXBENCH_LIMIT_BEARING_CODES == {
+        serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+        serve_mod.DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
+    }
     limit = {"dimension": "request_body_bytes", "measured": 1, "maximum": 1}
     for code in serve_mod.DOXBENCH_ERROR_CATALOG:
         body = serve_mod.doxbench_error_body(code, limit=limit)
-        if code == serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED:
+        if code in serve_mod.DOXBENCH_LIMIT_BEARING_CODES:
             assert "limit" in body
         else:
             assert "limit" not in body
@@ -714,18 +859,24 @@ def test_compute_capabilities_still_returns_its_exact_pre_existing_dict():
     field belongs with the catalog route (T050). Pinned with the SAME exact
     dict literal test_notebook_action.py already asserts, so a stray key
     anywhere fails here too."""
+    #
+    # The `actions` dict GREW by one key on 2026-09-06
+    # (add-ideation-intent-plane task 4.4): `intent`, the SERVED plane's
+    # write-REQUEST seam. Both cases here are loopback, where it is False —
+    # which is the point: the local plane's verdict is unchanged. The
+    # assertions stay EXACT dict equality; the pin is not relaxed.
     no_refresh = {"binding": None, "loopback_only": True}
     assert serve_mod.compute_capabilities(
         nlm_present=True, checkout_real=True, loopback=True) == {
         "actions": {"notebook": True, "gate": False, "refresh": False,
-                    "session": False, "edit": False},
+                    "session": False, "edit": False, "intent": False},
         "actor": None,
         "refresh": no_refresh,
     }
     assert serve_mod.compute_capabilities(
         nlm_present=True, checkout_real=True, loopback=True, actor="brett") == {
         "actions": {"notebook": True, "gate": True, "refresh": False,
-                    "session": True, "edit": True},
+                    "session": True, "edit": True, "intent": False},
         "actor": "brett",
         "refresh": no_refresh,
     }

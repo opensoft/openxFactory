@@ -1,0 +1,79 @@
+# expected_failure: missing or empty client.policy_namespace
+# The conditional requirement: `client.policy_namespace` is required WHEN AND
+# ONLY WHEN `policies` is present. JSON Schema in this family carries no
+# if/then, so the rule lives in the canonical validator.
+client:
+  display_name: Company Policy
+  integration_boundaries:
+    allowed_classes:
+    - version_control
+    - ci
+    credential_binding:
+      form: reference_only
+      standing_forbidden:
+      - production
+      - deploy
+      - package_publish
+    kind: client_integration_boundaries
+    schema_version: 1
+  memory_boundaries:
+    buckets:
+      client_private_memory:
+        scope: per_tenant
+      current_state_evidence:
+        scope: installation_discovery
+      customer_relationship_memory:
+        scope: per_customer
+      domain_learning_candidates:
+        scope: promotable
+    consent: gateway_consent_profile
+    invariant: tenant_isolated
+    kind: client_memory_boundaries
+    schema_version: 1
+  policies:
+    standing-policy:
+      conditions:
+      - blocking: false
+        id: placeholder-condition
+      policy_id: standing-policy
+      policy_namespace: opensoft.company-policy
+      summary: Placeholder tenant standing policy (content not in scope).
+  policy_overrides:
+    kind: client_policy_overrides
+    policy:
+      auto_clear_envelope:
+        conjunctive:
+        - practice_maturity: '>= standard'
+        - risk_class: low
+        - credential_surface: unchanged
+        - realization: pr_only
+        ratified_at: '2026-07-23'
+        ratified_by: brett-heap
+      budget_envelopes:
+        credits_per_project: 1000
+        runner_minutes_per_day: 240
+      credential_posture:
+        allowed_families:
+        - repo_read
+        - branch_write
+        - pr_write
+        never_standing:
+        - production
+        - deploy
+        - package_publish
+      realization:
+        mode: pr_only
+      repo_boundaries:
+        may_touch:
+        - opensoft/project-alfa/**
+        never_touch:
+        - '**/secrets/**'
+        - infra/**
+      tracking_granularity:
+        level: per_task
+        set_by: finance-accounting-officer
+    relation_to_domain: stricter_only
+    schema_version: 1
+  ref: opensoft
+kind: hermes_client_overlay
+schema_version: 1

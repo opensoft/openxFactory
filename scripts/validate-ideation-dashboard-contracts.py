@@ -124,6 +124,7 @@ SCHEMA_FILENAMES = [
     "xfactory-workbench-chat-turn.schema.yaml",
     "project-register.schema.yaml",
     "gate-action-record.schema.yaml",
+    "demotion-execution-receipt.schema.yaml",
     "gate-intent.schema.yaml",
 ]
 
@@ -134,14 +135,23 @@ KIND_TO_SCHEMA = {
     "ideation-workbench": "ideation-workbench.schema.yaml",
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
+    "demotion-execution-receipt": "demotion-execution-receipt.schema.yaml",
     "gate-intent": "gate-intent.schema.yaml",
     # doxBench wire family (add-workbench-integrated-editor-chat task 2.1):
     # instance kinds use the retained `workbench-*` identifier family; the
     # chat-turn file holds three envelopes discriminated by a oneOf.
     "workbench-model-catalog": "xfactory-workbench-model-catalog.schema.yaml",
-    "workbench-chat-turn": "xfactory-workbench-chat-turn.schema.yaml",
-    "workbench-chat-turn-success": "xfactory-workbench-chat-turn.schema.yaml",
-    "workbench-chat-turn-failure": "xfactory-workbench-chat-turn.schema.yaml",
+    # THE ONE SERVED TURN FAMILY (contract-v3.0,
+    # retire-doxbench-chat-turn-v1). Three v1 rows stood above these —
+    # `workbench-chat-turn`, `-success`, `-failure` — DEPRECATED at
+    # contract-v1.34 and still validated for thirteen minors and one major,
+    # because a deprecation that stopped validating would have broken the very
+    # clients it existed to keep working. The recorded removal target has been
+    # reached, so an instance declaring one of those kinds is now an UNKNOWN
+    # kind to this validator, exactly like any other kind it does not serve.
+    "workbench-chat-turn-v2": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-v2-success": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-v2-failure": "xfactory-workbench-chat-turn.schema.yaml",
 }
 
 # The snapshot's projection collections — the data an INDEX must never carry
@@ -295,6 +305,57 @@ def load_context(path: Path | None) -> tuple[set[str] | None, list[str]]:
     return ratified, notes
 
 
+# --------------------- deprecation warnings (read, never restated) ---------------------
+
+def deprecated_kinds(docs: dict[str, dict]) -> dict[str, dict]:
+    """Every instance kind a loaded schema declares DEPRECATED, keyed by kind.
+
+    Read from the schemas' own top-level `deprecated_envelopes` blocks. This
+    validator never carries its own list of what is deprecated: the release owns
+    that statement, and a second copy here would be a second authority that could
+    disagree with the bytes consumers actually pin.
+
+    KEPT AT contract-v3.0 WITH NOTHING TO REPORT (retire-doxbench-chat-turn-v1
+    task 4.2). The chat-turn v1 family was this mechanism's only subject in the
+    estate, and its `deprecated_envelopes` block left with the envelopes it
+    named — so this function now returns `{}` over the packaged schemas. It is
+    GENERAL machinery, not v1 machinery: it reads whatever ANY loaded schema
+    declares. Removing it because its only current subject went would delete the
+    estate's only machine-readable deprecation reader and leave the next
+    deprecation inert, which is the precise failure this whole retirement
+    exists to correct."""
+    declared: dict[str, dict] = {}
+    for doc in docs.values():
+        if not isinstance(doc, dict):
+            continue
+        for entry in doc.get("deprecated_envelopes") or []:
+            if isinstance(entry, dict) and isinstance(entry.get("kind"), str):
+                declared[entry["kind"]] = entry
+    return declared
+
+
+def warn_if_deprecated_kind(f: Findings, label: str, tag: str,
+                            docs: dict[str, dict]) -> None:
+    """WARN, and still accept — the deprecating-change class the versioning
+    policy defines ("the conformance validator emits warnings but still accepts
+    it"). Without this the deprecation was inert: a release could claim to start
+    the clock the breaking path requires while every conforming instance of the
+    deprecated shape validated in silence."""
+    entry = deprecated_kinds(docs).get(tag)
+    if entry is None:
+        return
+    # CONSEQUENCE, stated: under `--strict` (opt-in, "treat warnings as errors")
+    # a deprecated instance now FAILS. That is what strict mode means and what a
+    # consumer asking for it wants — a way to find the shapes that will not
+    # survive the removal target. The default invocation, which is what this
+    # repository's own gates run, still exits 0.
+    f.warnings.append(
+        f"{label}: kind {tag!r} is DEPRECATED as of "
+        f"{entry.get('deprecated_in', 'an unstated release')} — superseded by "
+        f"{entry.get('superseded_by', 'no stated replacement')}; removal target "
+        f"{entry.get('removal_target', 'unstated')}")
+
+
 # --------------------- per-instance validation (schema + rules) ---------------------
 
 def validate_instance(
@@ -322,6 +383,7 @@ def validate_instance(
     for e in iter_errors(doc_validator(schema_name, registry, docs), doc):
         loc = "/".join(str(p) for p in e.absolute_path) or "<root>"
         f.error("schema", f"{label}: {loc}: {e.message}")
+    warn_if_deprecated_kind(f, label, tag, docs)
 
     if tag == "ideation-dashboard-snapshot":
         check_snapshot_referential_integrity(f, label, doc)
@@ -333,13 +395,23 @@ def validate_instance(
         check_project_register_rules(f, label, doc)
     elif tag == "gate-action-record":
         check_gate_precondition(f, label, doc, ratified_changes)
+        check_cleanup_record(f, label, doc)
+    elif tag == "demotion-execution-receipt":
+        check_demotion_receipt(f, label, doc)
     elif tag == "workbench-model-catalog":
         check_model_catalog(f, label, doc)
-    elif tag == "workbench-chat-turn":
-        check_turn_request(f, label, doc, model_ctx)
-    elif tag == "workbench-chat-turn-success":
-        check_turn_success(f, label, doc)
-    elif tag == "workbench-chat-turn-failure":
+    elif tag == "workbench-chat-turn-v2":
+        check_turn_request_v2(f, label, doc, model_ctx)
+    elif tag == "workbench-chat-turn-v2-success":
+        check_turn_success_v2(f, label, doc)
+    elif tag == "workbench-chat-turn-v2-failure":
+        # `check_turn_failure` keeps its family-neutral name. It was written to
+        # judge BOTH released failure envelopes, on the released reason that "a
+        # v2 failure discloses exactly what a v1 failure does, so it is judged
+        # by exactly the same function"; one family survives contract-v3.0 and
+        # the rules it applies — the `limit`/`request_limit_exceeded` pairing
+        # and the public-string leak scan — are the FAMILY's, not this
+        # envelope's.
         check_turn_failure(f, label, doc)
     return tag
 
@@ -653,6 +725,90 @@ def check_project_register_rules(f: Findings, label: str, doc: dict) -> None:
                     f"{label}: project {member!r} belongs to multiple groups {parents} "
                     f"(single-parent D10; snapshot carries a singular project_group field)")
 
+    check_project_schema_election(f, label, projects)
+
+
+# THE FOUR RULES THE SHAPE CANNOT EXPRESS (`add-project-repo-schema`).
+#
+# The JSON-Schema half already constrains `role` to the three values and
+# requires both keys of an entry. What it cannot say is anything RELATING one
+# field to another, and all four rules here are relations:
+#
+#   1. a role names a repository the project does not list — `repositories`
+#      stays the SINGLE membership answer, and a role beside a membership that
+#      does not exist is a row two readers would answer differently;
+#   2. the same repository is given a role twice in one project — the second
+#      row is either a contradiction or a duplicate, and neither is a state a
+#      derivation from an assembly-root manifest could produce;
+#   3. more than one repository is given `role: assembly` — an electing project
+#      has exactly ONE per-project root, which is the whole content of Brett
+#      Heap's 2026-09-02 ruling "yes, assembly is per project";
+#   4. `reference` without `schema` — a record of which document an election
+#      followed, for an election nobody declared.
+#
+# NONE OF THEM IS AN AUTHORITY RULE, and the distinction is load-bearing. They
+# check that the row is INTERNALLY COHERENT. A consumer that reads `role: spec`
+# as "spec authority lives in that repository" is defective no matter how well
+# this function passes — the register is a map, not a governance boundary, and
+# the ratified doctrine of `add-wallet-carried-review-authority` is that
+# electing the schema "changes no gate, no floor, no grant, and no clearance
+# eligibility".
+def check_project_schema_election(f: Findings, label: str, projects: list) -> None:
+    """`schema` / `reference` / `repository_roles` coherence, per project."""
+    for p in projects:
+        if not isinstance(p, dict):
+            continue
+        pid = p.get("id")
+        members = {r for r in (p.get("repositories") or []) if isinstance(r, str)}
+
+        if p.get("reference") is not None and p.get("schema") is None:
+            f.error("project-reference-without-schema",
+                    f"{label}: project {pid!r} declares a `reference` and no "
+                    f"`schema` — a reference records which document an election "
+                    f"followed, and no election is declared")
+
+        roles = p.get("repository_roles")
+        if roles is None:
+            continue
+        if not isinstance(roles, list):
+            f.error("project-roles-not-a-list",
+                    f"{label}: project {pid!r} `repository_roles` is not a list "
+                    f"({roles!r})")
+            continue
+        seen: dict[str, int] = {}
+        assemblies: list[str] = []
+        for entry in roles:
+            if not isinstance(entry, dict):
+                f.error("project-role-malformed",
+                        f"{label}: project {pid!r} has a non-mapping "
+                        f"`repository_roles` entry ({entry!r})")
+                continue
+            repo = entry.get("repository")
+            role = entry.get("role")
+            if not isinstance(repo, str) or not repo:
+                f.error("project-role-malformed",
+                        f"{label}: project {pid!r} has a `repository_roles` "
+                        f"entry with no repository ({entry!r})")
+                continue
+            seen[repo] = seen.get(repo, 0) + 1
+            if repo not in members:
+                f.error("project-role-unknown-repository",
+                        f"{label}: project {pid!r} assigns role {role!r} to "
+                        f"{repo!r}, which is not among its `repositories`; "
+                        f"membership is declared once, in `repositories`")
+            if role == "assembly":
+                assemblies.append(repo)
+        for repo, n in seen.items():
+            if n > 1:
+                f.error("project-duplicate-repository-role",
+                        f"{label}: project {pid!r} assigns {repo!r} a role "
+                        f"{n} times")
+        if len(assemblies) > 1:
+            f.error("project-multiple-assembly-roles",
+                    f"{label}: project {pid!r} names {len(assemblies)} assembly "
+                    f"roots {assemblies} — an electing project has exactly one "
+                    f"per-project root repository")
+
 
 # --------------------------- gate-action precondition ---------------------------
 
@@ -671,6 +827,64 @@ def check_gate_precondition(f: Findings, label: str, doc: dict, ratified_changes
         f.error("kickoff-unratified",
                 f"{label}: kickoff targets change {change_id!r} which carries no recorded "
                 f"ratification in the supplied context (D17 refuses kickoff without ratification)")
+
+
+def check_cleanup_record(f: Findings, label: str, doc: dict) -> None:
+    """Cross-field cleanup identity and evidence requirements."""
+    if doc.get("action") != "cleanup-abandoned-branch":
+        return
+    target = doc.get("target") or {}
+    release = (doc.get("cleanup") or {}).get("retention_release") or {}
+    scope_fields = {
+        "staged-topic": "topic_id", "cluster": "cluster_id",
+        "possible": "possible_id",
+    }
+    scope_kind = release.get("scope_kind")
+    scope_field = scope_fields.get(scope_kind)
+    populated = [field for field in scope_fields.values() if target.get(field)]
+    if (scope_field is None or populated != [scope_field]
+            or target.get(scope_field) != release.get("scope_id")):
+        f.error(
+            "cleanup-scope-mismatch",
+            f"{label}: target tile scope must exactly match retention release")
+    if release.get("kind") == "explicit-human-release":
+        if doc.get("reason") != release.get("reason"):
+            f.error(
+                "cleanup-reason-mismatch",
+                f"{label}: explicit release reason must match the record reason")
+    else:
+        if not release.get("change_id"):
+            f.error("cleanup-machine-change",
+                    f"{label}: machine evidence requires change_id")
+        if not release.get("references"):
+            f.error("cleanup-machine-references",
+                    f"{label}: machine evidence requires nonempty references")
+        if not release.get("recorded_at"):
+            f.error("cleanup-machine-time",
+                    f"{label}: machine evidence requires recorded_at")
+
+
+def _safe_repo_reference(value: Any) -> bool:
+    if (not isinstance(value, str) or not value or "\\" in value
+            or Path(value).is_absolute()):
+        return False
+    return not ({".", ".."} & set(Path(value).parts))
+
+
+def check_demotion_receipt(f: Findings, label: str, doc: dict) -> None:
+    destination = doc.get("destination") or {}
+    if destination.get("path") != f"ideation/staging/{destination.get('id')}":
+        f.error("demotion-destination-mismatch",
+                f"{label}: destination.path must exactly match destination.id")
+    references = [doc.get("transition_manifest")]
+    references.extend(doc.get("returned_artifacts") or [])
+    for move in doc.get("returned_moves") or []:
+        if isinstance(move, dict):
+            references.extend((move.get("from"), move.get("to")))
+    for reference in references:
+        if not _safe_repo_reference(reference):
+            f.error("demotion-unsafe-path",
+                    f"{label}: unsafe repository path {reference!r}")
 
 
 # --------------------------- committed-manifest guard ---------------------------
@@ -714,7 +928,10 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 # Layered on schema conformance, mirroring each schema's own comments:
 #   Catalog   model_id uniqueness; a credential/endpoint SPELLING scan over
 #             every public string value (the schema already refuses extra
-#             fields structurally; this catches leakage THROUGH allowed ones).
+#             fields structurally; this catches leakage THROUGH allowed ones);
+#             and since contract-v1.38 the ROUTING-RULE resolution rules —
+#             dangling target, chained rule, available-rule-to-unavailable-
+#             model, and the badge covering (see check_routing_rules).
 #   Request   exactly one outline + one document buffer; segment-wise path
 #             confinement; EXACT content-hash parity (the validator recomputes
 #             SHA-256 over each buffer's content, so a mismatched identity is
@@ -722,7 +939,11 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 #             examples, or --context) unknown-model and per-model input-budget
 #             checks — without one those two are SKIPPED, never silently
 #             passed.
-#   Success   unique proposal targets.
+#   Success   unique proposal targets; and on the widened record, since
+#             contract-v1.40, the CONTEXT POSTURE's pairing (a reduced packet
+#             states its reason, a full one carries none) plus the same
+#             credential/endpoint spelling scan over that reason (see
+#             check_context_packet).
 #   Failure   the limit-pairing rule (`limit` appears IFF the error is the
 #             budget refusal) and the same spelling scan on the message.
 #   Sweep     duplicate client_turn_id with DIFFERENT request content across a
@@ -736,6 +957,80 @@ _CREDENTIAL_RE = _re.compile(
     r"(?i)(bearer\s+\S|api[-_]?key|authorization\s*:|sk-[A-Za-z0-9]{6,}|"
     r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
 _ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
+
+# THE FAMILY'S NON-BLANK RULE, RESTATED (issue #263). Canonical statement and
+# the measurement behind it live in
+# `scripts/ideation_dashboard/doxbench_packet.states_something`; this file is a
+# CONTRACT validator and is standalone by design — it validates artifacts and
+# must not import the runtime package whose output it checks, or it could pass
+# an instance simply because both sides share a bug. So the rule is restated,
+# and a test asserts the two implementations agree on every recorded class.
+#
+# The rule: a reason STATES SOMETHING iff it has at least one character in
+# `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol.
+#
+# STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES (issue #263 review, P2-1). The
+# first version excluded the blank categories, which is a rule over a set that
+# GROWS WITH THE UNICODE TABLE: a full sweep found 51 code points where this
+# validator's Python (15.0.0) and the browser's ICU (16) disagreed, all
+# unassigned in 15.0 and newly assigned combining marks in 16 — and the
+# disagreement ran the dangerous way, with the server side ACCEPTING what the
+# browser refused. `Cn` is never `L`/`N`/`P`/`S` in any table, so an admission
+# rule is stable by construction.
+#
+# `.strip()` is not it either: it catches space/tab/NBSP/newline and misses
+# ZWSP, BOM, bidi overrides, lone combining marks and controls, which are
+# zero-visible-width rather than whitespace.
+import unicodedata as _unicodedata
+
+_STATED_CATEGORIES = ("L", "N", "P", "S")
+
+
+def _states_something(text: Any) -> bool:
+    if not isinstance(text, str):
+        return False
+    return any(
+        _unicodedata.category(ch)[0] in _STATED_CATEGORIES for ch in text)
+
+# The routing badge's SEGMENT GRAMMAR (contract-v1.38; adversarial review round
+# 1 F1). RESTATED from `ideation_dashboard.doxbench_model` -- this validator is
+# standalone and imports nothing from that package (the same convention the
+# reserved-buffer-key note below records) -- and a companion test pins the two
+# spellings and the two normalizers equal, so the file gate and the type gate
+# cannot drift into two grammars.
+ROUTING_BADGE_SEPARATOR = " / "
+ROUTING_BADGE_TRAILING_PUNCTUATION = ".;,"
+
+
+def normalized_badge_segment(text: Any) -> str:
+    """One badge segment, in the form the covering rule compares: whitespace
+    collapsed, case folded, trailing `.;,` dropped. No normalization may
+    separate or merge two handling POSTURES — `on-tenant` and `non-tenant` must
+    stay different, which is the pair that broke the old substring predicate.
+
+    Note that `casefold` DOES rewrite interior characters for the
+    multi-character folds (German sharp s becomes `ss`, the `fi` ligature
+    expands), so "interior characters are never rewritten" would be false. The
+    property actually relied on is narrower and stronger: every fold casefold
+    performs maps case-or-orthography variants of one word onto one form, and
+    none of them adds, removes or negates a word. That is the test a future
+    normalization step must pass. Kept verbatim in step with
+    `ideation_dashboard.doxbench_model.normalized_badge_segment`, whose
+    docstring carries the same correction."""
+    collapsed = " ".join(str(text).split()).casefold()
+    return collapsed.rstrip(ROUTING_BADGE_TRAILING_PUNCTUATION).strip()
+
+
+def badge_segments(data_handling: Any) -> tuple[str, ...]:
+    """A rule's declared badge, split into normalized non-empty segments."""
+    return tuple(
+        segment
+        for segment in (
+            normalized_badge_segment(part)
+            for part in str(data_handling).split(ROUTING_BADGE_SEPARATOR)
+        )
+        if segment
+    )
 
 
 def _string_values(node):
@@ -771,6 +1066,22 @@ def _scan_public_strings(f: Findings, label: str, node: Any) -> None:
 
 
 def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
+    """Catalog rules beyond the shape. `model_id` uniqueness and the routing
+    declaration's seven cross-entry rules; the credential/endpoint scan over
+    every public string.
+
+    THE contract-v2.2 MODALITY RULES ARE NOT HERE, AND THAT IS THE POINT. All
+    three refusals the requirement states — a member outside the closed
+    vocabulary, an empty declared set, a declared set omitting `text` — are
+    EXPRESSIBLE IN THE SHAPE (`items.enum`, `minItems: 1`,
+    `contains: {const: text}`), so the released schema this validator already
+    applies to every instance refuses them, and delegating a fourth spelling
+    here would be a second gate to keep in step with no rule to enforce. The
+    three packaged negatives under `negative/` prove the refusal happens rather
+    than asserting that it would; nothing about a modality declaration needs a
+    SECOND entry or a comparison the shape has no operator for, which is the
+    test everything in this function meets."""
+    entries = [e for e in doc.get("models") or [] if isinstance(e, dict)]
     seen = set()
     for entry in doc.get("models") or []:
         mid = entry.get("model_id") if isinstance(entry, dict) else None
@@ -778,6 +1089,154 @@ def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
             f.error("catalog", f"{label}: duplicate model_id {mid!r}")
         seen.add(mid)
     _scan_public_strings(f, label, doc.get("models"))
+    check_routing_rules(f, label, entries)
+
+
+def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
+    """The contract-v1.38 routing declaration's rules that the released shape
+    cannot express (`$defs/model_entry` says so in its own comments, and
+    delegates them here). SEVEN of them, since adversarial review round 1.
+
+    The shape enforces what is expressible per entry: the three fields travel
+    together, `routes_to` is unique and non-empty, and a `routing_rule: false`
+    entry may carry neither routing field. Everything below needs either the
+    WHOLE catalog or a comparison the shape has no operator for — and the same
+    seven are enforced at catalog construction in
+    `scripts/ideation_dashboard/doxbench_model.py`
+    (`ModelCatalog._validate_routing_targets` plus the per-entry
+    `_validate_routing_declaration`, which is where rules 6 and 7 live on that
+    side because one entry is enough to see them). Neither place substitutes
+    for the other: an in-process catalog never becomes a file, and a file is
+    never constructed through that type. The claim that the two agree is
+    ASSERTED by a test over the packaged negatives, not merely stated here —
+    review round 1 found this docstring claiming parity that did not hold.
+
+    1. no dangling target;
+    2. no chained rule (`resolved_model_id` records the model that ANSWERED, so
+       it must name something that answers);
+    3. an available rule resolves to an available model;
+    4. THE BADGE COVERING — the ratified scenario's own THEN: a routing entry
+       MUST "carry the handling badge of every model it may route to", and the
+       entry's own `data_handling` is the one badge string the menu shows for
+       it, so each target's badge must be one SEGMENT of it (see
+       `normalized_badge_segment`; a target badge holding the separator is
+       ill-formed and refused);
+    5. a rule promises no more headroom than THE MODEL THAT ANSWERS — the
+       effective turn limit is computed from the SELECTED entry, which for a
+       routed turn is the RULE, so an AVAILABLE rule's declared limits must not
+       exceed those of `resolved_model_id`'s entry. RULED BY BRETT 2026-08-21
+       ("Swap to rule 5'"): this was first a MINIMUM over every member of
+       `routes_to`, which the adversarial review upheld only with reservation.
+       Under static resolution the promise that matters is the one the
+       ANSWERING model has to honour; the un-resolved destinations are not
+       load-bearing; and min-capping would bake in semantics that contradict
+       the sanctioned per-turn fit-aware router staged as
+       `ideation/staging/doxchat-auto-fit-routing/`. Unavailable rules are
+       exempt, as they are from rule 3;
+    6. `resolved_model_id` must be a MEMBER of `routes_to`;
+    7. a rule must not name ITSELF in `routes_to`.
+
+    RULES 6 AND 7 WERE ADDED AT ADVERSARIAL REVIEW ROUND 1 (F2), and the
+    docstring they replace claimed the opposite — that they were "the
+    schema's/type's per-entry business" and that "a structurally invalid
+    instance never reaches this function". That was FALSE in the direction that
+    matters: the schema cannot express either rule, so this file gate was
+    strictly WEAKER than the type gate, and the reviewer walked a catalog past
+    it whose rule was badged safe while resolving to a model badged "retained
+    and used for vendor model training". Rule 7 is checked EXPLICITLY rather
+    than left to fall out of rule 2, so a self-reference is reported as what it
+    is instead of as "routes to something that is itself a routing rule"."""
+    by_id = {str(entry.get("model_id")): entry for entry in entries}
+    for entry in entries:
+        if entry.get("routing_rule") is not True:
+            continue
+        rule_id = str(entry.get("model_id"))
+        declared_segments = badge_segments(entry.get("data_handling") or "")
+        targets = entry.get("routes_to")
+        target_ids = [str(t) for t in targets] if isinstance(targets, list) else []
+        for target_id in target_ids:
+            # ALSO A DIAGNOSTIC (F2b asked for it as one: "explicit check, not
+            # incidental via the chained-rule rule"). A rule that names itself
+            # names a routing rule, so the chained-rule arm below refuses the
+            # same catalog — reporting "routes to something that is itself a
+            # routing rule", which is true and useless. Guarded by a code test.
+            if target_id == rule_id:
+                f.error("routing-self-reference",
+                        f"{label}: routing rule {rule_id!r} names ITSELF in "
+                        f"routes_to — a rule resolves to a model that answers, "
+                        f"never back to the rule")
+                continue
+            target = by_id.get(target_id)
+            if target is None:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is not in this catalog")
+                continue
+            if target.get("routing_rule") is True:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is itself a routing rule — a "
+                        f"resolved model must be one that answers")
+                continue
+            target_badge = str(target.get("data_handling") or "")
+            # A DIAGNOSTIC, not an independent refusal — and revert-testing is
+            # what proved it. A badge holding the separator can never BE a
+            # segment, so the covering check below refuses the same catalog
+            # either way; it just refuses it with a message that sends the
+            # operator to add a badge which will still not match. This arm names
+            # the real cause. Its guard is therefore a test on the finding CODE,
+            # not on the mere fact of refusal.
+            #
+            # Against the NORMALIZED badge (review re-verify N3), and not merely
+            # for the message: a badge like `"read /\nwrite"` holds no raw
+            # " / " but collapses onto one, so it slipped this arm AND passed
+            # the covering check — a full ACCEPT of an ill-formed badge.
+            if ROUTING_BADGE_SEPARATOR in normalized_badge_segment(target_badge):
+                f.error("routing-badge",
+                        f"{label}: the data_handling badge of {target_id!r} "
+                        f"contains {ROUTING_BADGE_SEPARATOR!r}, the routing "
+                        f"badge's own segment separator, so it cannot be "
+                        f"carried as one")
+            elif normalized_badge_segment(target_badge) not in declared_segments:
+                f.error("routing-badge",
+                        f"{label}: routing rule {rule_id!r} does not carry the "
+                        f"data-handling badge of {target_id!r} as a SEGMENT of "
+                        f"its own badge — a routing entry reports the posture "
+                        f"of every model it may route to")
+        resolved_id = str(entry.get("resolved_model_id"))
+        resolved = by_id.get(resolved_id)
+        # RULE 5' (Brett's ruling 2026-08-21): the bound is the RESOLVED
+        # model's, not the minimum over `routes_to`, and it applies only while
+        # the rule is selectable — the same exemption rule 3 already carries.
+        if resolved is not None and entry.get("available") is True:
+            for field in ("input_limit_bytes", "output_limit_bytes"):
+                declared = entry.get(field)
+                answering = resolved.get(field)
+                if not (isinstance(declared, int) and isinstance(answering, int)):
+                    continue
+                if declared > answering:
+                    f.error("routing-limit",
+                            f"{label}: routing rule {rule_id!r} declares "
+                            f"{field} {declared}, above the {answering} of "
+                            f"{resolved_id!r}, the model it resolves to")
+        if resolved_id not in target_ids:
+            # F2: the SHAPE cannot express this, so without it a rule could be
+            # badged safe and resolve to a model whose posture it never states —
+            # every covering check above runs over `routes_to`, which such a
+            # resolved id is not in.
+            f.error("routing-resolution",
+                    f"{label}: routing rule {rule_id!r} resolves to "
+                    f"{resolved_id!r}, which it does not declare it may route "
+                    f"to (routes_to {sorted(target_ids)}) — so nothing checked "
+                    f"that its badge is carried")
+        if resolved is None:
+            f.error("routing-target",
+                    f"{label}: routing rule {rule_id!r} resolves to "
+                    f"{resolved_id!r}, which is not in this catalog")
+        elif entry.get("available") is True and resolved.get("available") is not True:
+            f.error("routing-availability",
+                    f"{label}: routing rule {rule_id!r} is available but "
+                    f"resolves to {resolved_id!r}, which is not")
 
 
 def _confined(f: Findings, label: str, where: str, path_value) -> None:
@@ -793,8 +1252,9 @@ def _confined(f: Findings, label: str, where: str, path_value) -> None:
 
 def check_turn_request(f: Findings, label: str, doc: dict,
                        model_ctx: dict[str, int] | None) -> None:
-    buffers = doc.get("buffers") or []
-    kinds = sorted(str(b.get("kind")) for b in buffers if isinstance(b, dict))
+    buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V1_RESERVED_DOCUMENT_PATHS)
+    kinds = sorted(str(b.get("kind")) for b in buffers)
     if kinds != ["document", "outline"]:
         f.error("buffers", f"{label}: exactly one outline and one document "
                            f"buffer required, got {kinds}")
@@ -826,11 +1286,352 @@ def check_turn_request(f: Findings, label: str, doc: dict,
                           f"over model {mid!r} input limit {limit}")
 
 
+# THE RESERVED KEYS A DOCUMENT'S OWN PATH MAY NOT CLAIM, per lane (Codex review
+# of PR #210, CODEX-3). Restated here rather than imported: this validator is
+# PUBLISHED BY EXACT COMMIT and run from a pinned checkout against an arbitrary
+# target repository, so it must not import the runtime package that happens to
+# sit beside it in the publisher. The pairing with
+# `ideation_dashboard.doxbench_turns.RESERVED_BUFFER_KEYS` /
+# `V1_RESERVED_BUFFER_KEYS` is asserted by a companion test instead, which is the
+# only way to make a restatement safe.
+#
+# The asymmetry is the runtime's own and is load-bearing. `outline` is refused on
+# BOTH lanes: a document keyed there is filtered out of every downstream
+# enumeration. `document` is refused on the WIDENED lane only, where the reserved
+# unbacked slot can ride beside a path-backed document; the v1 envelope carries
+# exactly one document whose key is `document` either way, and such a turn was
+# served before this release.
+V1_RESERVED_DOCUMENT_PATHS = frozenset({"outline"})
+V2_RESERVED_DOCUMENT_PATHS = frozenset({"outline", "document"})
+
+
+def check_reserved_document_paths(f: Findings, label: str, buffers: list,
+                                  refused: frozenset) -> None:
+    """Refuse a document buffer whose own PATH claims a reserved buffer key.
+
+    Without this the family's declared owner certified an envelope the route
+    always refuses — conformance for a shape that cannot be processed, which is
+    worse than no verdict."""
+    for buffer in buffers:
+        if str(buffer.get("kind")) != "document":
+            continue
+        if buffer.get("path") in refused:
+            f.error("reserved-key",
+                    f"{label}: a document buffer's path claims the reserved "
+                    f"buffer key {buffer.get('path')!r}; the route refuses this "
+                    f"before any provider call")
+
+
+def _buffer_key_of(buffer: dict) -> str:
+    """The KEY a buffer is held under (add-doxbench-editing-phase-b design D1),
+    derived exactly as the runtime derives it: the outline's key is reserved, a
+    document's key IS its own path, and a document with no path yet takes the one
+    reserved unbacked slot. Never invented, and never read off an adjacent field
+    that answers a different question."""
+    if str(buffer.get("kind")) == "outline":
+        return "outline"
+    path = buffer.get("path")
+    return "document" if path is None else str(path)
+
+
+def check_turn_request_v2(f: Findings, label: str, doc: dict,
+                          model_ctx: dict[str, int] | None) -> None:
+    """The widened request's rules the shape cannot express: one outline plus one
+    or more DISTINCTLY KEYED documents, and a DECLARED binding that names one of
+    the buffers this same request supplied. The hash, confinement, unknown-model
+    and budget rules are the v1 ones, applied per buffer over a set instead of a
+    pair."""
+    buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V2_RESERVED_DOCUMENT_PATHS)
+    outlines = [b for b in buffers if str(b.get("kind")) == "outline"]
+    documents = [b for b in buffers if str(b.get("kind")) == "document"]
+    if len(outlines) != 1 or not documents:
+        f.error("buffers", f"{label}: exactly one outline buffer and at least "
+                           f"one document buffer required, got "
+                           f"{len(outlines)} outline(s) and "
+                           f"{len(documents)} document(s)")
+    keys: list[str] = [_buffer_key_of(b) for b in buffers]
+    duplicates = sorted({key for key in keys if keys.count(key) > 1})
+    if duplicates:
+        f.error("buffers", f"{label}: two buffers claim the same key "
+                           f"{duplicates} — a document is loaded at most once, "
+                           f"and 'which text did the model see' must have one "
+                           f"answer")
+    bound = doc.get("bound_buffer")
+    if str(bound) not in keys:
+        f.error("bound-buffer",
+                f"{label}: bound_buffer {bound!r} names no supplied buffer "
+                f"(supplied {sorted(set(keys))})")
+    _confined(f, label, "bound_buffer", bound)
+    total_bytes = 0
+    for b in buffers:
+        key = _buffer_key_of(b)
+        _confined(f, label, f"buffers/{key}/path", b.get("path", ""))
+        content = str(b.get("content", ""))
+        total_bytes += len(content.encode("utf-8"))
+        declared = str(b.get("content_hash", ""))
+        actual = _hashlib.sha256(content.encode("utf-8")).hexdigest()
+        if declared != actual:
+            f.error("hash", f"{label}: buffers/{key}: content_hash "
+                            f"mismatch (declared {declared[:12]}…, actual {actual[:12]}…)")
+    if model_ctx is None:
+        f.warnings.append(f"{label}: model context unavailable — unknown-model "
+                          f"and budget checks SKIPPED (supply a catalog instance)")
+        return
+    mid = str(doc.get("model_id", ""))
+    if mid not in model_ctx:
+        f.error("unknown-model",
+                f"{label}: model_id {mid!r} is not in the approved catalog")
+        return
+    limit = model_ctx[mid]
+    if limit and total_bytes > limit:
+        f.error("budget", f"{label}: request buffers total {total_bytes} bytes "
+                          f"over model {mid!r} input limit {limit}")
+
+
 def check_turn_success(f: Findings, label: str, doc: dict) -> None:
     targets = [p.get("target") for p in doc.get("proposals") or []
                if isinstance(p, dict)]
     if len(targets) != len(set(targets)):
         f.error("proposal", f"{label}: proposal targets must be unique, got {targets}")
+
+
+def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
+    """The widened record's own consistency. It carries every buffer's observed
+    identity by KEY, so three rules the v1 record could not state become
+    checkable here: a proposal targets a buffer the turn actually held, the
+    proposal count is bounded by that buffer count rather than by a literal 2,
+    and the record's declared binding names one of those same buffers."""
+    observed = doc.get("observed_hashes")
+    observed = observed if isinstance(observed, dict) else {}
+    proposals = [p for p in doc.get("proposals") or [] if isinstance(p, dict)]
+    targets = [p.get("target") for p in proposals]
+    if len(targets) != len(set(targets)):
+        f.error("proposal", f"{label}: proposal targets must be unique, got {targets}")
+    if len(proposals) > len(observed):
+        f.error("proposal",
+                f"{label}: {len(proposals)} proposal(s) against "
+                f"{len(observed)} supplied buffer(s) — a response may never "
+                f"rewrite more buffers than it was shown")
+    for proposal in proposals:
+        target = str(proposal.get("target"))
+        if target not in observed:
+            f.error("proposal-target",
+                    f"{label}: proposal target {target!r} names no buffer this "
+                    f"turn observed — unroutable, never guessed at")
+            continue
+        if str(proposal.get("base_hash")) != str(observed[target]):
+            f.error("proposal",
+                    f"{label}: proposal {target!r} is based on an identity the "
+                    f"turn did not observe for that buffer")
+    bound = str(doc.get("bound_buffer"))
+    if bound not in observed:
+        f.error("bound-buffer",
+                f"{label}: bound_buffer {bound!r} names no buffer this turn "
+                f"observed (observed {sorted(observed)})")
+    selected = doc.get("selected_model")
+    selected = selected if isinstance(selected, dict) else {}
+    if (selected.get("routing_rule") is False
+            and str(selected.get("requested_model_id")) != str(doc.get("model_id"))):
+        f.error("selected-model",
+                f"{label}: a non-routing catalog entry cannot resolve to a "
+                f"different model (requested "
+                f"{selected.get('requested_model_id')!r}, answered "
+                f"{doc.get('model_id')!r})")
+    check_context_packet(f, label, doc)
+
+
+def check_context_packet(f: Findings, label: str, doc: dict) -> None:
+    """The contract-v1.40 posture statement's own rules (task 10.7).
+
+    THREE of them now, and they are different in kind. The first the SHAPE also
+    expresses, and it is restated here ON PURPOSE: it is this release's whole
+    truth-claim — the reason is present IFF the posture is reduced — and the
+    v1.38 review's F2 finding was precisely a file gate that had grown weaker
+    than the type gate beside it while its own docstring claimed parity. Three
+    gates now assert this pairing (the released shape's two conditionals,
+    `ContextPacket.__post_init__`, and this), a test asserts they AGREE on the
+    packaged corpus, and each of the two halves has its own packaged negative.
+    BE HONEST ABOUT WHAT IT IS, THOUGH: revert-testing this release found that
+    disabling BOTH arms below leaves this validator's own packaged self-test
+    GREEN, because the shape refuses the same two instances anyway. So they are
+    DEFENCE IN DEPTH and the diagnostic a reader of this output actually gets —
+    not an independent refusal — and their only guard is the test that pins
+    their finding CODE. Same class as the `contract-v1.38` arms whose own
+    revert-tests said the same thing.
+    The second and third rules the shape CANNOT express. The second lives ONLY
+    here. The third — the NON-BLANK rule (issue #263) — is a DELEGATED rule
+    with four homes, and this docstring used to say the pairing was the only
+    restated one, which stopped being true when that rule landed:
+
+      * `doxbench_packet.states_something` — the canonical statement, with the
+        measurement of which blank classes `.strip()` misses;
+      * `doxbench_packet.ContextPacket.__post_init__` and
+        `serve.doxbench_context_packet`, which IMPORT it;
+      * `_states_something` in this file, which RESTATES it because a contract
+        validator must not import the runtime package it validates artifacts
+        for — a shared bug would pass both;
+      * `NON_BLANK_REASON` in `web/views/doxbench-chat-model.js`, restated as a
+        Unicode-property regex.
+
+    A test asserts the Python restatement and the JS regex agree with the
+    canonical predicate across the WHOLE code-point space, not on a sample.
+
+    The four homes agree on the predicate and differ on the CONSEQUENCE: this
+    validator WARNS (contract-v1.40 accepted these records, and the versioning
+    policy makes a new validator warning additive and a new rejection breaking),
+    while the three runtime gates REFUSE, because a server may hold itself to
+    more than the wire requires and none of them is judging a third party. The released schema cannot
+    express any of this: `minLength: 1` counts CHARACTERS, and every blank class
+    is exactly one character. Tightening the shape itself is a `contract-v2.0`
+    question, not an additive one.
+
+    1. THE PAIRING. A `reduced` posture STATES its reason; a `full` posture
+       carries none. A reduction nobody can read is a silent degradation, and a
+       record declaring `full` beside a reduction states two contradictory facts
+       and lets the reader pick.
+    2. THE REASON IS PUBLIC PROSE, and is LINTED for credential and endpoint
+       spellings exactly as a failure's `message` is. It is the one free-prose
+       field this release adds, it describes an ASSEMBLY rather than content,
+       and the same leak-through-an-allowed-field class the failure lane
+       already watches applies to it unchanged.
+       CALL IT A LINT, NOT A GUARD (adversarial review N1). `_CREDENTIAL_RE` and
+       `_ENDPOINT_RE` are spelling heuristics over free prose: they FALSE-POSITIVE
+       on innocent text that happens to say `api_key` (the reviewer's example,
+       "the apikey rotation lane", is refused) and they FALSE-NEGATIVE on real
+       secrets that do not look like their patterns (a bare
+       `github_pat_…`-shaped token passes). So this arm raises the cost of a
+       careless paste and catches the obvious shapes; it does NOT establish that
+       a reason is secret-free, and nothing downstream may treat a clean scan as
+       if it did. The structural protection is elsewhere and is real: the reason
+       this producer emits is a MODULE CONSTANT, not a formatted provider error,
+       so there is no value flowing into it for a scan to have to catch.
+
+    3. THE REASON STATES SOMETHING — it contains at least one character in
+       `L* ∪ N* ∪ P* ∪ S*` (a letter, number, punctuation mark or symbol).
+       "A reduction nobody can read" was implemented as NON-EMPTY, and nine
+       blank classes passed every gate and rendered as a disclosure with
+       nothing in it (issue #263). Not reachable from this repository's
+       producer — the two shipped reasons are module constants — but real for
+       the third-party producers this contract is published for.
+
+       STATED AS WHAT IT ADMITS, and the difference is not cosmetic. The rule
+       was first written as an EXCLUSION ("outside White_Space ∪ Cc ∪ Cf ∪ Mn ∪
+       Mc ∪ Me"), which is a rule over a set that grows with the Unicode table:
+       a full code-point sweep found 51 points where this file's Python
+       (unicodedata 15.0.0) and the browser's ICU (Unicode 16) disagreed, all
+       unassigned here and newly assigned combining marks there — with the
+       server side ACCEPTING what the browser refused, which is the original
+       bug. `Cn` is never L/N/P/S in any table, so admission is stable by
+       construction.
+
+       THE ADMISSION RULE IS STRICTLY NARROWER, and the delta is named here
+       because a reader comparing the two spellings must not have to derive it
+       (PR #314, Codex P2). Beyond every blank class above it also refuses
+       `Co` (PRIVATE USE, e.g. U+E000), `Cn` (unassigned) and `Cs`
+       (surrogates). That is deliberate and rides the same fail-closed
+       rationale: a private-use code point has no meaning outside the font that
+       defines it, so a reason made only of them renders as tofu for every
+       reader who lacks that font — which is the disclosure-with-nothing-in-it
+       this rule exists to prevent, in a different disguise.
+
+       THIS GATE WARNS; THE RUNTIME GATES REFUSE — see the arm itself for why.
+       The rule is one rule and the four homes agree on the VERDICT of the
+       predicate; they differ only in what each surface does with it, because
+       only this one is a conformance verdict on somebody else's record.
+
+    A FOURTH RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
+    many words that nothing unbounded was substituted and no rail was bypassed
+    (which the two reasons this capability ships both do). It is prose-matching
+    a contract — it would refuse a conformant producer whose honest reason is
+    worded differently, and it would pass a dishonest one that quoted the
+    sentence. What the wire can check is that a reduction is STATED; whether the
+    statement is TRUE is the assembler's rail, which is where it is enforced."""
+    packet = doc.get("context_packet")
+    if packet is None:
+        # ABSENT IS LEGAL AND MEANS NOTHING ABOUT THE POSTURE: the key is
+        # optional, and a record from a producer older than contract-v1.40
+        # simply does not carry one. Absence is never read as `full`.
+        return
+    if not isinstance(packet, dict):
+        f.error("context-packet",
+                f"{label}: context_packet is the released posture object")
+        return
+    posture = packet.get("posture")
+    reason = packet.get("reduced_reason")
+    # NON-BLANK, AS A WARNING (issue #263, and PR #314's Codex P1). `not reason`
+    # is the released shape's `minLength: 1` restated, and that bound counts
+    # CHARACTERS — so a reason of one space, one ZWSP, one BOM, one bidi
+    # override, one combining mark or one control satisfied it and rendered as
+    # a disclosure with nothing in it.
+    #
+    # WHY A WARNING AND NOT AN ERROR, which is where this rule started. THIS
+    # FILE IS THE PUBLISHED CONFORMANCE VALIDATOR: its verdict on a third
+    # party's record IS the contract surface, so turning a previously-accepted
+    # record into a rejected one changes what the PUBLISHED
+    # `contract-v1.40` means — and the bundle version, the changelog entry and
+    # the tag all still say v1.40. Reproduced at the tag: the released
+    # validator answers `{posture: "reduced", reduced_reason: " "}` with zero
+    # errors and zero warnings.
+    #
+    # `docs/contract-versioning-policy.md` decides this, in as many words.
+    # ADDITIVE (minor) is "new optional fields, new contracts, NEW VALIDATOR
+    # WARNINGS", under which "domain repos on the same major version remain
+    # conformant without changes". Rejecting a shape that was accepted is the
+    # BREAKING (major) class, which requires a migration note, a full minor
+    # release of deprecation warnings first, and a validator that "rejects the
+    # old one ONLY AT THE NEW MAJOR VERSION".
+    #
+    # The pairing rule two arms down IS an error, and that is not a licence for
+    # this one: `check_context_packet` and all three of its error arms were
+    # introduced BY the v1.40 cut itself (671a6908, the tagged release commit),
+    # so their strictness was published WITH the contract rather than added to
+    # it afterwards. A warning here is the same mechanism the v1 chat-turn
+    # family already rides — deprecated, warned on, still accepted, with a
+    # removal target recorded — and it becomes an ERROR at contract-v2.0, where
+    # the shape's own `minLength: 1` is due to be tightened.
+    #
+    # THE RUNTIME GATES STILL REFUSE. A server may hold ITSELF to more than the
+    # wire requires: `ContextPacket.__post_init__` guards this repo's own
+    # injected assembler seam, `doxbench_context_packet` guards what this server
+    # writes into its own durable record, and the browser adopter guards what
+    # this repo's own surface renders. None of those is a conformance verdict on
+    # somebody else's record, and this producer cannot emit a blank anyway — its
+    # two reasons are module constants, pinned under the released ceiling.
+    # TWO ARMS, SPLIT ON EXACTLY WHAT contract-v1.40 ALREADY REFUSED. Caught by
+    # the packaged-negative suite when the first version of this fix collapsed
+    # them: one predicate served BOTH the pairing rule and the blank rule, so
+    # downgrading it to a warning silently downgraded the PAIRING too — and that
+    # one shipped as an error WITH v1.40 and must stay one.
+    #
+    # v1.40's predicate was `not reason`, which is true for a MISSING key, an
+    # explicit `null`, and `""`. Those stay ERRORS: refusing them changes
+    # nothing about what the published version accepted.
+    if posture == "reduced" and not reason:
+        f.error("context-packet",
+                f"{label}: a reduced context_packet STATES its reason — a "
+                f"reduction nobody can read is a silent degradation")
+    # A reason that is PRESENT and non-empty but says nothing is the new rule,
+    # and it is the one contract-v1.40 accepted — so it warns and is accepted.
+    elif posture == "reduced" and not _states_something(reason):
+        f.warn("context-packet-blank",
+               f"{label}: a reduced context_packet STATES its reason — a "
+               f"reduction nobody can read is a silent degradation. Accepted "
+               f"at contract-v1.40 (the released shape's `minLength: 1` counts "
+               f"CHARACTERS, and every blank class is one character); this "
+               f"becomes an ERROR at contract-v2.0")
+    # KEY PRESENCE, which is what the shape's `not: {required: [...]}` means.
+    # `reason is not None` was closer than truthiness but still not it: a
+    # `reduced_reason: null` is a key that is PRESENT, and `.get()` cannot tell
+    # it from an absent one — so this gate accepted an instance the shape
+    # refuses. Found while fixing the same class at the type and the route
+    # (Copilot review of PR #256, finding 1); the reviewer named two gates and
+    # there were four.
+    if posture == "full" and "reduced_reason" in packet:
+        f.error("context-packet",
+                f"{label}: a full context_packet carries no reduced_reason — a "
+                f"record cannot state both postures and let a reader pick")
+    _scan_public_strings(f, label, reason)
 
 
 def check_turn_failure(f: Findings, label: str, doc: dict) -> None:
@@ -850,16 +1651,22 @@ def check_turn_id_uniqueness(f: Findings, paths) -> None:
     seen: dict[str, tuple[str, str]] = {}
     for path in paths:
         doc = load_yaml(path)
-        if not (isinstance(doc, dict) and doc.get("kind") == "workbench-chat-turn"):
+        # One request kind since contract-v3.0; the v1 spelling left the tuple
+        # with its envelope (retire-doxbench-chat-turn-v1). A tuple rather than
+        # a bare comparison because the rule is about REQUEST kinds as a class,
+        # and the next co-resident family would join it here.
+        if not (isinstance(doc, dict) and doc.get("kind") in (
+                "workbench-chat-turn-v2",)):
             continue
         tid = str(doc.get("client_turn_id"))
-        # Canonicalize buffer order by kind before hashing: a retransmission
-        # that merely reorders [outline, document] is the SAME request, not an
-        # FR-019 conflict.
+        # Canonicalize buffer order before hashing: a retransmission that merely
+        # reorders the buffers is the SAME request, not an FR-019 conflict.
+        # Ordering is by buffer KEY rather than by kind, because the widened
+        # request holds N documents and every one of them declares `document`.
         canonical = dict(doc)
         canonical["buffers"] = sorted(
             (b for b in doc.get("buffers") or [] if isinstance(b, dict)),
-            key=lambda b: str(b.get("kind")))
+            key=_buffer_key_of)
         digest = _hashlib.sha256(
             _json.dumps(canonical, sort_keys=True).encode()).hexdigest()
         if tid in seen and seen[tid][0] != digest:

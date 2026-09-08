@@ -1,0 +1,43 @@
+# expected_failure: isolation-restriction-unrecorded
+# expected_failure_detail: co_residence_restriction 'none' is declared with nothing referenced
+# requirement: IDB-R8
+# VIOLATES R8: the co-residence question answered by default.
+#
+# A clinical patient population — the exact population the co-residence gate of
+# 2026-08-21 found and pre-declared the family's first dedicated instance for —
+# on the SHARED broker, declaring `co_residence_restriction: none` and
+# referencing nothing. Every check passed, because `none` was the one answer
+# that needed no evidence.
+#
+# That asymmetry is the failure. `population_restricted` had to name the
+# commitment it consulted; `none` is what the field says when nobody looked, and
+# a record that never looked is indistinguishable from a record that looked and
+# found nothing. The finding this fixture exists for is the OQ-5 finding's own
+# rule applied to its own output: an unrecorded negative is indistinguishable
+# from an unasked question.
+#
+# `restriction_ref` is now required for BOTH values — the commitment that
+# imposes a restriction, or the written finding that there is none. The negative
+# finding is also the one most worth being able to re-read later, because it is
+# the one that gets revisited when the population changes.
+#
+# Two mechanisms refuse this, on purpose: the schema requires the field, and the
+# validator reports it under its own code so the message names the rule rather
+# than a missing property. That means this code always fires alongside a schema
+# finding, which is why the detail pin is on the code's own wording.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-unrecorded-negative-9033
+surface_ref: healthlinc-patient-portal-unrecorded
+surface_display_name: HealthLinc patient portal (clinical population, shared instance)
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+declared_at: "2026-08-22T13:00:00Z"

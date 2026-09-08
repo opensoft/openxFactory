@@ -1,0 +1,42 @@
+# VALID widened success (contract-v1.34): the turn's durable RECORD. It names
+# the DECLARED bound buffer — carried on the wire, never derived from which
+# document happened to be supplied — states every buffer's observed identity BY
+# KEY, targets its one proposal at a buffer key, and carries the selected-model
+# metadata beside the model that answered. Here the human chose the `auto`
+# ROUTING RULE, so `selected_model.requested_model_id` and `model_id` differ and
+# `routing_rule` says why.
+#
+# AND IT CARRIES NO `context_packet`, DELIBERATELY, since contract-v1.40: this
+# instance is the pre-release record shape, unchanged byte for byte, and its
+# continued validity IS the additive claim. Absence here is NOT a `full`
+# posture — it is a producer that predates v1.40 and states no posture at all.
+# See `workbench-chat-turn-v2-full-context.example.yaml` for a producer that
+# does, and `workbench-chat-turn-v2-reduced-context.example.yaml` for the
+# degraded one.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0001",
+  "assistant_turn_id": "srv-v2-0001",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "auto",
+    "routing_rule": true,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+    "document": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "assistant_prose": "The note omits the boundary the outline states.",
+  "proposals": [
+    {
+      "target": "ideation/staging/demo-topic/note.md",
+      "base_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "summary": "Names the boundary the outline already claims.",
+      "content": "# Note\n\nBody.\n\nBoundary: explicit.\n"
+    }
+  ]
+}

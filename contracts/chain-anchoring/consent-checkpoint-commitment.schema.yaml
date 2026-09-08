@@ -1,0 +1,129 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_consent_checkpoint_commitment
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/consent-checkpoint-commitment.schema.yaml"
+contract_id: chain-anchoring-consent-checkpoint-commitment
+contract_schema_version: 1
+title: Consent-log checkpoint commitment
+description: >-
+  A COMMITMENT TO A CONSENT LOG'S CHECKPOINT — WHICH IS THE ONLY THING OF THAT
+  LOG A CHAIN EVER SEES (add-chain-anchoring, capability `chain-anchoring`,
+  requirement "Consent state lives in the permissioned plane and only checkpoints
+  are anchored"). Consent state, access-control lists, subject-to-record linkage
+  and the commitment salts stay in the GOVERNED PERMISSIONED PLANE; what is
+  anchored is that plane's STATE ROOTS and its consent-log CHECKPOINTS, through
+  the same configuration every other anchored item passes.
+
+  A PUBLIC CHAIN NEVER SEES A PER-SUBJECT CONSENT ROW. A row is publicly linkable
+  to a person and a checkpoint is not, and that distinction is the whole reason
+  consent is split from its own anchor. A record offering a per-subject row for
+  anchoring is refused (`consent_row_offered_for_anchoring`) — and the refusal is
+  structural: this shape names no subject member, `additionalProperties: false`
+  keeps one out, and the canonical validator names the refusal on a record that
+  carries one anyway rather than reporting an unexpected property.
+
+  A STATE ROOT IS AN ORDINARY ANCHORED ITEM. It passes through the ruled
+  configuration unchanged — both witnesses, one multi-anchor receipt — with no
+  consent-specific handling anywhere in the anchoring path, which is why this
+  record references a receipt rather than restating any part of one.
+
+  CONSENT AND EXECUTION LOGIC ARE NOT ON THE ANCHORING CHAIN, AND THAT IS A
+  POSTURE STATED POSITIVELY. Consent, enrollment and access policy are authority
+  questions; this capability places none of them on any anchoring chain and
+  deploys no contract code on one (`consent_enforcement_as_on_chain_contract_code`).
+  It writes NO permanent prohibition and NO condition under which a different
+  posture would become admissible, because a later change answers to its own
+  evidence rather than to a condition written here in advance.
+
+  AN UNEVALUABLE CONSENT REFUSES, ON THE FAMILY'S FAIL-CLOSED DOCTRINE. Where the
+  permissioned plane cannot be reached, a consent-dependent act is REFUSED rather
+  than proceeding: an unevaluable answer never reads as permission. That refusal
+  is DISTINCT from the anchoring semantics — a missing WITNESS degrades a CLAIM
+  about the past, while a missing CONSENT ANSWER refuses an ACT in the present —
+  and the two are never reported as one.
+
+  REVOCATION'S LIMIT IS STATED RATHER THAN LET TO IMPLY MORE THAN IT DELIVERS. A
+  revocation SUPERSEDES FORWARD from the moment it is recorded and anchored; it
+  does not reach a copy already disclosed, and nothing on a chain can be
+  un-published. A record claiming recall is refused
+  (`revocation_presented_as_recall`), and any surface presenting subject control
+  carries the same limit.
+
+  THIS RECORD CARRIES NO FREE-TEXT MEMBER, on the anchor-bound commitment's own
+  reasoning: the records whose values reach a chain do not offer a prose channel.
+type: object
+required:
+  - schema_version
+  - kind
+  - commitment_id
+  - checkpoint_commitment
+  - plane_root_ref
+  - receipt_ref
+  - enforcement_site
+  - revocation_semantics
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_consent_checkpoint_commitment]
+  commitment_id: {$ref: '#/$defs/identifier'}
+  checkpoint_commitment:
+    # THE CHECKPOINT COMMITMENT ITSELF, over the consent log's prefix. It stands
+    # over a LOG HEAD and never over a row: what a holder of this value learns
+    # is that the consent log said something at a time, which is exactly as much
+    # as a public chain is permitted to learn.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: consent_checkpoint}}
+        required: [subject]
+  plane_root_ref:
+    # THE PERMISSIONED PLANE'S STATE ROOT this checkpoint belongs to. WHICH
+    # permissioned plane instance a realization runs is a REALIZATION DECISION
+    # and is deliberately not fixed here; naming one in a neutral contract would
+    # bind every consumer to an operational choice that answers to its own
+    # evidence.
+    $ref: '#/$defs/identifier'
+  receipt_ref: {$ref: '#/$defs/identifier'}
+  enforcement_site:
+    # WHERE CONSENT IS ENFORCED, DECLARED. `anchoring_chain_contract_code` is a
+    # member of this enumeration ON PURPOSE: it is the posture this
+    # configuration refuses (`consent_enforcement_as_on_chain_contract_code`),
+    # and an enumeration holding only the permitted answer could carry no
+    # negative example. The refusal states no permanent bar and names no trigger
+    # condition.
+    type: string
+    enum: [permissioned_plane, anchoring_chain_contract_code]
+  revocation_semantics:
+    # A CONSTANT, BECAUSE THERE IS ONLY ONE HONEST VALUE. Forward supersession is
+    # what a revocation delivers; recall is what nothing on a chain can deliver.
+    type: string
+    const: supersedes_forward_only
+  recall_claimed:
+    # MUST BE ABSENT OR `false`, AND IS WRITABLE AS `true` so the refusal
+    # `revocation_presented_as_recall` has a negative example to fire on. A
+    # realization that presents revocation as recall is making a claim about
+    # already-disclosed copies that no mechanism here supports.
+    type: boolean
+  plane_unreachable_refuses:
+    # THE FAIL-CLOSED DOCTRINE, DECLARED PER REALIZATION. `false` is a
+    # realization saying a consent-dependent act proceeds when the plane cannot
+    # be reached, which is an unevaluable answer read as permission.
+    type: boolean
+  consent_log_tree_size:
+    # The size of the consent log this checkpoint completes. A size is not a
+    # row: it discloses how many decisions exist and nothing about any of them,
+    # which is the same line the checkpoint itself draws.
+    type: integer
+    minimum: 1
+  anchored_at_leaf_ref:
+    # The leaf recording this anchoring act. Leaf shapes belong to tranche one's
+    # grammar; this family references leaves and defines none.
+    $ref: '#/$defs/identifier'
+  record_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"

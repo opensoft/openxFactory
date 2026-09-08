@@ -1,7 +1,23 @@
 # avatar-lab-evidence Specification
 
 ## Purpose
-TBD - created by archiving change adopt-avatar-client-lab-candidates. Update Purpose after archive.
+
+Establish openxFactory's ownership of the neutral, content-addressed
+acceptance artifacts the avatar client lab is measured against, so that no
+consumer serves itself the evidence it is judged by. Define the avatar-state
+derivation table that maps the closed kernel `media.states` and the AVC-12
+`control_health` and `session_outcome` values onto the six avatar
+presentation states totally, with its fail-closed invariants embedded and
+every mapping either source-cited or explicitly ratified, and the
+capability-scenario register that addresses the lab's requirements and
+scenarios by stable ID with byte-verbatim titles machine-checked against the
+promoted spec. Adopt the deterministic fixture families that close the
+state-reachability denominator through kernel fields alone, each fixture's
+evidence ids resolving in an acceptance map. Fix how these artifacts reach
+the contract surface — only through an additive release cut carrying
+manifest digests, a changelog entry, and a tag, leaving every already
+released bundle byte-identical, with a released `deferred` entry discharged
+by a successor register rather than an in-place flip.
 ## Requirements
 ### Requirement: Neutral avatar-state derivation table
 openxFactory SHALL own a content-addressed avatar-state derivation table

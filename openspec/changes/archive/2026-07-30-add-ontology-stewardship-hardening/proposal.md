@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/apply-domain-starter.py` --ontology-only + structural placeholder recording + inventoried STARTER marker, `scripts/ontology-release.py` faithful manifest rewrite + evidence-path containment + superseded retained snapshots, `scripts/validate-domain-ontology.py` marker/retention/cadence rules + structural readiness, `scripts/validate-memory-gateway.py` executable conformance probes, `contracts/domain-ontology/ontology-stewardship-policy.schema.yaml` + `ontology-starter-provenance.schema.yaml`, `examples/memory-gateway/conformance-fixtures.yaml`, the fixture corpus and pilots, test suites); MedxFactory + codexFactory inventory the STARTER marker through small follow-on commits
 target_release: next additive contract bundle (contract-v1.24; two domain-ontology schema files change bytes — the cut also carries the recorded contract-v1.23 erratum correction to consumers)
 Status: ratified
-Ratified by: Brett's direction on 2026-07-30 ("yes, fold it into that hardening pass" — the --ontology-only adoption mode joining the F21/F24–F27 stewardship pass carried forward from the domain-ontology release review); strict validation green
+Ratified: Brett's direction on 2026-07-30 ("yes, fold it into that hardening pass" — the --ontology-only adoption mode joining the F21/F24–F27 stewardship pass carried forward from the domain-ontology release review); strict validation green
 ---
 
 # Proposal: add-ontology-stewardship-hardening

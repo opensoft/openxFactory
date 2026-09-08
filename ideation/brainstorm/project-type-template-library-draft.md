@@ -12,8 +12,9 @@ spanning from external-facing/high-gate to quarantined/relaxed. Ownership:
 archetype *content* is codex-owned (`hermes/customer/templates/<type>.yaml`);
 the archetype *schema* is neutral (openxFactory). Parent:
 `project-layer-scaffold.md`; consumes the practice catalog
-(`codexfactory-domain-memory-and-practices.md`).
-Topics: project-hermes, project-type-template, archetype, template-library,
+(`codexfactory-domain-memory-and-practices.md`, moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`).
+Topics: project, project-hermes, project-type-template, archetype, template-library,
 project-policy, expected-practices, manual-writer, spike, infra-iac,
 provisioning, subject
 Repository context: openxFactory (schema neutral; content codexFactory hermes/customer/templates/)

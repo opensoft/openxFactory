@@ -186,24 +186,26 @@ def test_narrow_viewports_stack_the_railed_regions_at_natural_height():
         "specificity the thirds rule wins again and the fix is inert")
 
 
-def test_the_document_picker_label_stays_a_compact_row():
-    """T104 F9-3: styles.css carries TWO `.doxbench-picker-label` blocks (the
-    Phase C S1c wave's and the T100 operator patch's; append-wave discipline
-    keeps both). The later block wins per-property but never re-declared
-    `flex-direction` or neutralized the earlier `flex`, so the label inherited
-    `column` from the first wave while `flex: 1` made it compete for the
-    pane's height — and the `flex: 1` <select> inside stretched vertically.
-    Pin the LAST block's two load-bearing properties: it lays out as a ROW and
-    it never competes for the pane's height."""
+def test_the_retired_picker_leaves_no_orphan_rules_behind():
+    """PIN EVOLUTION (Brett's 2026-08-15 annotation round): this pinned the
+    LAST of two `.doxbench-picker-label` blocks against the T104 F9-3 defect —
+    the later block won per-property but never re-declared `flex-direction`, so
+    the label inherited `column` and its `flex: 1` <select> stretched down the
+    pane. Brett's annotation retires the picker itself ("we do not need this
+    section now that the left panel will let us select the active document"),
+    so the defect class goes with the control.
+
+    What replaces the pin is the reason it existed: append-wave discipline
+    leaves duplicate blocks around, so a RETIRED control must not leave rules
+    that can never be reached — dead CSS that a later reader has to disprove."""
     styles = STYLES.read_text(encoding="utf-8")
-    last = styles.rfind(".doxbench-picker-label {")
-    assert last != -1, "the picker-label rule is gone"
-    block = styles[last:styles.index("}", last)]
-    assert "flex-direction: row" in block, (
-        "the winning picker-label block still inherits column from the "
-        "earlier wave's block")
-    assert "flex: none" in block, (
-        "the winning picker-label block still competes for the pane's height")
+    for orphan in (".doxbench-picker-label", ".doxbench-document-picker",
+                   ".doxbench-chrome", ".doxbench-heading {"):
+        assert orphan not in styles, f"orphaned rule for a retired control: {orphan}"
+    # …and the rows that took their place are styled in both waves, so the
+    # later block cannot silently inherit the earlier one's layout again
+    assert styles.count(".doxbench-tabrow") >= 2
+    assert styles.count(".doxbench-statusbar") >= 2
 
 
 @pytest.mark.parametrize("region", REGIONS)

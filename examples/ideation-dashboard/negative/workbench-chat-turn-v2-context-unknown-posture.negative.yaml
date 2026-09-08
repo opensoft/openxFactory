@@ -1,0 +1,32 @@
+# INVALID widened success (contract-v1.40): a posture outside the released
+# vocabulary. There are exactly TWO postures, `full` and `reduced`, because
+# there are exactly two in `ContextPacket` — the wire does not get a third
+# spelling of the same fact, and a plausible-looking `degraded` would be a
+# posture no consumer has a rule for.
+#
+# NOTE what this case ALSO proves: neither conditional fires on it (both require
+# `posture` to equal a named constant), so the refusal comes from the `enum`
+# alone. That is the S1-vs-S3 lesson from contract-v1.38 read on this shape — a
+# conditional guard cannot stand in for the value constraint underneath it.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0007",
+  "assistant_turn_id": "srv-v2-0007",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "context_packet": {
+    "posture": "degraded"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "An answer whose record cannot be trusted about its own context.",
+  "proposals": []
+}

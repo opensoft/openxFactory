@@ -1,0 +1,88 @@
+# Positive example: the seedable tenant overlay ALSO carrying standing policy.
+# The sibling `hermes-client-overlay.example.yaml` is the same document without
+# the block and stays the comparability positive; this one proves the additive
+# block passes with everything else unchanged.
+schema_version: 1
+kind: hermes_client_overlay
+client:
+  ref: opensoft
+  display_name: Company Policy
+  policy_overrides:
+    schema_version: 1
+    kind: client_policy_overrides
+    relation_to_domain: stricter_only
+    policy:
+      repo_boundaries:
+        may_touch:
+        - opensoft/project-alfa/**
+        never_touch:
+        - '**/secrets/**'
+        - infra/**
+      realization:
+        mode: pr_only
+      credential_posture:
+        allowed_families:
+        - repo_read
+        - branch_write
+        - pr_write
+        never_standing:
+        - production
+        - deploy
+        - package_publish
+      budget_envelopes:
+        runner_minutes_per_day: 240
+        credits_per_project: 1000
+      tracking_granularity:
+        level: per_task
+        set_by: finance-accounting-officer
+      auto_clear_envelope:
+        ratified_by: brett-heap
+        ratified_at: '2026-07-23'
+        conjunctive:
+        - practice_maturity: '>= standard'
+        - risk_class: low
+        - credential_surface: unchanged
+        - realization: pr_only
+  memory_boundaries:
+    schema_version: 1
+    kind: client_memory_boundaries
+    buckets:
+      client_private_memory:
+        scope: per_tenant
+      customer_relationship_memory:
+        scope: per_customer
+      domain_learning_candidates:
+        scope: promotable
+      current_state_evidence:
+        scope: installation_discovery
+    consent: gateway_consent_profile
+    invariant: tenant_isolated
+  integration_boundaries:
+    schema_version: 1
+    kind: client_integration_boundaries
+    allowed_classes:
+    - version_control
+    - ci
+    credential_binding:
+      form: reference_only
+      standing_forbidden:
+      - production
+      - deploy
+      - package_publish
+  # ---- OPTIONAL standing policy (declare-client-standing-policy-contract) ----
+  # A Tenant layer carrying FREESTANDING company-wide policy, addressed
+  # `opensoft.company-policy/standing-policy`, alongside — not instead of — its
+  # `policy_overrides` deviation block. The two are orthogonal: an override is a
+  # DEVIATION from the domain baseline, a policy is a POSITION, which is why
+  # this block declares no `relation_to_*` field. The policy BODY is
+  # deliberately a placeholder: the contract governs the addressing envelope,
+  # never the company's actual standing policy, which is a human's to author.
+  policy_namespace: opensoft.company-policy
+  policies:
+    standing-policy:
+      policy_id: standing-policy
+      policy_namespace: opensoft.company-policy
+      summary: Placeholder tenant standing policy (content not in scope).
+      conditions:
+      - id: placeholder-condition
+        blocking: false

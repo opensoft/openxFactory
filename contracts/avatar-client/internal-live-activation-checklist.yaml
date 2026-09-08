@@ -1,0 +1,406 @@
+schema_version: 1
+kind: avatar-client-internal-live-activation-checklist
+
+# ============================================================================
+# internal-live-activation-checklist.yaml — qualify-avatar-live-voice task 4.1
+#
+# WHAT THIS FILE IS, AND WHAT IT IS NOT. The BINDING EXIT CONTRACT for the
+# internal-live ring is the kernel's FOUR-ELEMENT RING, and nothing wider:
+# live provider qualification plus secret scan, telemetry-redaction
+# verification, kill-switch proof, and measured latency evidence
+# (`avatar-client-runtime` "Deterministic-first release gating and kill
+# switches"). The eight-condition list recorded below is the CHECKLIST THAT
+# PRODUCES THAT EVIDENCE. It is not the exit contract, and a reviewer who
+# offers the eight conditions AS the exit contract is refused — that refusal
+# is scenario ALV-003-S01, which is the whole point of writing this file
+# down separately from the ring.
+#
+# PROVENANCE OF THE EIGHT. The list is titled the "GPT-Live-1 Activation
+# Gate" in the kernel's supporting UI-lab document, and it is framed there as
+# the DEFAULT SWAP — "GPT-Live-1 should replace the current primary profile
+# only after all of these conditions are met". It was written for a different
+# candidate and a different act. Reusing its SUBSTANCE at this ring is an
+# authoring construction that Brett ratified on 2026-08-26 (Fork 3, Option C),
+# not an inherited contract, and this file exists so that construction is
+# recorded rather than remembered.
+#
+# THE RESERVATION THAT TRAVELS WITH IT. Every "replace the current primary
+# profile" and default-swap semantic in the original list stays reserved to
+# the separately approved GPT-Live adoption change. Passing this gate confers
+# a SELECTABLE internal-live profile and NO production default (latent
+# decision 3). A proposal to read this gate's closure as a promotion is
+# routed away, not argued with — scenario ALV-003-S04.
+#
+# CLASSIFICATION VOCABULARY (closed):
+#   hard_preflight — MUST hold before any canary traffic. A blocker.
+#   canary_time    — evaluated during the canary, against live traffic.
+#   default_swap_only — belongs to the GPT-Live adoption change; NOT
+#                    evaluated at this ring in its as-written form.
+# A condition whose two halves fall differently is recorded as a SPLIT with
+# both halves classified, because collapsing it to one class would either
+# over-gate the ring or let a live evaluation pass as a deterministic one.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+owning_task: qualify-avatar-live-voice 4.1
+release_ring: internal_live
+candidate_profile: gpt-realtime-2.1
+requirement_id: ALV-003
+requirement: Internal-live activation gate is the kernel's four-element ring
+ruled: >-
+  2026-08-26 by Brett Heap — Fork 3, Option C (four-element ring binding; the
+  eight reused as the mapped preflight and canary checklist, condition 6
+  reinterpreted, replace-primary semantics reserved).
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/fork-decision-memo.md
+  Fork 3, "Per-condition classification for the internal-live qualification of
+  gpt-realtime-2.1".
+
+# ---------------------------------------------------------------------------
+# THE BINDING EXIT CONTRACT — the kernel's four elements.
+# These four, and only these four, close the ring. Each carries the
+# acceptance-map entry that owns its evidence; none is discharged by this
+# file, which records the classification and not the result.
+# ---------------------------------------------------------------------------
+ring_elements:
+  - id: RING-01
+    element: live_provider_qualification
+    statement: >-
+      The live provider profile is qualified for the internal-live ring — the
+      substance the eight-condition checklist below produces.
+    owning_task: qualify-avatar-live-voice 4.1-4.6
+    acceptance_map_refs: [ALV-003]
+    status: open
+  - id: RING-02
+    element: secret_scan
+    statement: >-
+      A green secret scan across the extracted client repository AND the broker
+      deployment. From this gate the release-evidence obligations of
+      `repo-boundary-governance` "Avatar-client release evidence" are active.
+    owning_task: qualify-avatar-live-voice 4.2
+    acceptance_map_refs: [RBG-001, RBG-001-S01, ALV-001-S03]
+    status: open
+  - id: RING-03
+    element: telemetry_redaction_verification
+    statement: >-
+      No log, trace, metric, crash report or support bundle carries a
+      credential, SDP, raw transcript, raw media, or prohibited identifier.
+    owning_task: qualify-avatar-live-voice 4.3
+    acceptance_map_refs: [ACR-011, ACR-011-S01]
+    status: open
+  - id: RING-04
+    element: kill_switch_proof
+    statement: >-
+      Both server kill switches — all-new-session-creation and
+      per-model-profile — exercised for real, each in BOTH block-new and
+      revoke-active modes, BEFORE any canary traffic.
+    owning_task: qualify-avatar-live-voice 4.4
+    acceptance_map_refs: [ACR-012, ACR-012-S04, ALV-003-S02]
+    status: open
+  - id: RING-05
+    element: measured_latency_evidence
+    statement: >-
+      The baseline and gated cells of §5, green against the neutral
+      relative-regression SLO.
+    owning_task: qualify-avatar-live-voice 4.5
+    acceptance_map_refs: [ALV-004, ALV-SLO-001]
+    status: open
+
+# The count is asserted rather than implied: the ring is FOUR EVIDENCE
+# ELEMENTS around live provider qualification. RING-01 is the qualification
+# itself; RING-02..RING-05 are the four evidence elements the kernel names.
+ring_evidence_element_count: 4
+
+# ---------------------------------------------------------------------------
+# THE CHECKLIST — the eight conditions, classified.
+# ---------------------------------------------------------------------------
+conditions:
+  - number: 1
+    condition: >-
+      OpenAI publishes an API model ID and a supported API contract.
+    classification: hard_preflight
+    split: false
+    already_satisfied_for_candidate: true
+    note: >-
+      Substantiated for `gpt-realtime-2.1` before this gate opened — F0 pinned
+      the model id and the API contract. It is recorded as HARD PREFLIGHT
+      rather than dropped, because the class is a property of the condition and
+      not of how easily this candidate met it; for GPT-Live-1 the same
+      condition is a live unknown and effectively default-swap-only.
+    produces_ring_element: [RING-01]
+
+  - number: 2
+    condition: >-
+      Required account, regional, retention and data-control terms are
+      approved.
+    classification: hard_preflight
+    split: false
+    note: >-
+      A blocker. Couples Fork 1 credential custody to Fork 4 data-control: the
+      terms must be approved before a live session is opened, not reconciled
+      after one.
+    produces_ring_element: [RING-01, RING-02]
+    owning_task: qualify-avatar-live-voice 6.1.1, 7.9
+    # ---------------------------------------------------------------------
+    # §7.9 — the regional, data-control and retention VALUES this condition
+    # approves, RULED 2026-08-27 by Brett Heap in session.
+    #
+    # WHY THEY LAND HERE AND NOT IN A DESCRIPTOR. AVC-09's
+    # `region_and_data_controls` is the SINGLE HOME for these values, and no
+    # AVC-09 descriptor instance exists yet — the adapter is not built and
+    # task 6.1.2 has not provisioned the serving install. §7.9 is an
+    # AUTHORING INPUT: pinning it means fixing what the descriptor SHALL
+    # declare when it is authored, so descriptor authoring consumes a ruling
+    # instead of making one. This condition is the natural home because it is
+    # the condition that APPROVES those terms, it is HARD PREFLIGHT, and it
+    # already names §7.9 as an owning task.
+    # ---------------------------------------------------------------------
+    ruled_values:
+      owning_task: qualify-avatar-live-voice 7.9
+      status: ruled
+      ruled: >-
+        2026-08-27 by Brett Heap — §7.9, in session: the provider project's US
+        default region declared honestly, exactly the Fork 4 Option C data
+        classes, and a 90-day retention window for canary-derived
+        structured_record carried by a named domain-owned policy reference.
+      consumed_by: avc_09_region_and_data_controls
+      descriptor_exists: false
+
+      region:
+        declared_region: provider_project_us_default
+        declare_honestly: true
+        statement: >-
+          The region is the PROVIDER PROJECT'S US DEFAULT, and the AVC-09
+          descriptor declares exactly that when it is authored — not a
+          residency guarantee dressed up as one.
+        rationale: >-
+          F0 recorded `region: null` and measured from one harness in one
+          sitting, so there is no measured regional fact to inherit; and the
+          dedicated internal-live provider project (task 6.1.2) is not
+          provisioned, so the only truthful thing to declare is the default
+          the project will actually run under. A descriptor that claimed a
+          pinned region the project does not enforce would be false in the one
+          field the ring points at for locality, and the cohort is internal
+          staff on synthetic or internally-consented audio — the blast radius
+          of the US default at this ring is a stated fact, not a risk being
+          accepted quietly.
+        not_pinned_by_this_ruling:
+          - data_residency
+          - provider_retention
+          - provider_training_opt_out
+        not_pinned_note: >-
+          AVC-09's three OPTIONAL region-and-data-control fields are NOT ruled
+          here. They are authored from the provider's actual terms at
+          descriptor time. Recorded explicitly so a later author does not read
+          this ruling's silence as a ruling that they are absent.
+
+      data_control:
+        classes_permitted: [ephemeral_presentation, structured_record]
+        classes_never_instantiated: [audio, full_transcript, independent_transcription]
+        source_ruling: fork_4_option_c
+        statement: >-
+          EXACTLY the Fork 4 Option C classes and no others. Captions and
+          partial-transcript deltas are `ephemeral_presentation`; decisions,
+          consent versions, approvals and workflow outcomes are
+          `structured_record`. NO `audio`, `full_transcript` or
+          `independent_transcription` instance is EVER created in this ring.
+        operational_telemetry_note: >-
+          `operational_telemetry` is the third ACTIVE kernel class and is not
+          listed as permitted here because it is not a canary-audio data
+          class: redacted telemetry runs under its own policy and RING-03's
+          verification, not under this condition's approved terms.
+        reserved_classes_untouched: true
+        reserved_classes_note: >-
+          The four reserved retention classes stay FORBIDDEN and this ruling
+          unreserves none of them — the kernel says "successor change only"
+          and this change unreserves exactly AVC-09 and AVC-10. Task 6.2.3
+          confirms that by inspection rather than by assertion.
+        enforcement: operational
+        enforcement_note: >-
+          Stated plainly because the opposite claim would be false: NO schema
+          field forbids a second-model shadow or an out-of-class instance
+          today. The guarantee is operational for this ring and the enforcing
+          contract flag is pilot-hardening work (task 6.2.4).
+
+      retention:
+        applies_to: canary_derived_structured_record
+        window_days: 90
+        policy_ref: avatar.internal_live.canary.structured_record.retention.v1
+        policy_owner: domain
+        cited_by: avc_09_descriptor
+        statement: >-
+          Canary-derived `structured_record` is retained for 90 DAYS under the
+          NAMED DOMAIN-OWNED retention policy reference above, which the AVC-09
+          descriptor cites. The window is the ruled value; the reference is
+          where it is authoritatively carried.
+        rationale: >-
+          Ninety days outlives the ring — §7.6's soak is 14 consecutive days
+          and the whole qualification is bounded well inside a quarter — so
+          the record survives long enough to answer a question asked after the
+          canary closes, which is when such questions are actually asked, and
+          not so long that a qualification ring accumulates a standing
+          retention obligation it never justified.
+        reference_split_note: >-
+          The reference/evidence split is the kernel's own, not a new pattern:
+          AVC carries only the consent RECORD REFERENCE and version while
+          domains own evidence, legal basis and withdrawal, and the
+          presentation profile's retention overlay carries "references only;
+          no inline durations". The window is recorded HERE — in a change-owned
+          checklist, as the ruled authoring input — and the DomainxFactory
+          whose sandbox is COHORT-02 registers the policy record under that id
+          in its own retention tree. The descriptor cites the id, never the
+          duration.
+        not_the_same_ninety_as_7_3: >-
+          §7.3's `max_key_age_days: 90` is a SERVER-KEY ROTATION CADENCE and
+          this is a RETENTION WINDOW. They are two unrelated numbers that
+          happen to share a value; nothing couples them and moving one must
+          never move the other.
+
+  - number: 3
+    condition: >-
+      The adapter proves direct low-latency Flutter transport without a media
+      proxy.
+    classification: split
+    split: true
+    halves:
+      - half: topology
+        statement: Direct media, no proxy in the media path.
+        classification: hard_preflight
+        already_satisfied_for_candidate: true
+        note: F0-C-NO_MEDIA returned PASS, so the topology half is substantiated.
+        produces_ring_element: [RING-01]
+      - half: measured_latency_figure
+        statement: The latency figure the transport actually achieves.
+        classification: canary_time
+        note: >-
+          A measurement, and measurements belong to the canary and to §5's
+          evidence run. Judged by the neutral relative-regression SLO, never
+          by a per-profile ceiling.
+        produces_ring_element: [RING-05]
+        owning_task: qualify-avatar-live-voice 5.1-5.4
+
+  - number: 4
+    condition: >-
+      Transcript, interruption, tool, sideband and reconnect capabilities pass
+      contract tests.
+    classification: hard_preflight
+    split: false
+    note: >-
+      Deterministic AVC contract tests. They run against fixtures and need no
+      live traffic, so there is no reason to defer them into the canary and
+      every reason not to.
+    produces_ring_element: [RING-01]
+
+  - number: 5
+    condition: >-
+      Deterministic UI scenarios and domain voice evaluations pass.
+    classification: split
+    split: true
+    halves:
+      - half: deterministic_ui_scenarios
+        statement: The deterministic UI scenario set.
+        classification: hard_preflight
+        note: >-
+          A precondition already landed by the kernel's deterministic-first
+          release gate — the prior ring's evidence, which a later ring
+          requires.
+        produces_ring_element: [RING-01]
+      - half: live_domain_voice_evaluation
+        statement: The domain voice evaluation against live audio.
+        classification: canary_time
+        note: Requires live traffic by definition. Couples Fork 4.
+        produces_ring_element: [RING-01]
+        owning_task: qualify-avatar-live-voice 6.2.1
+
+  - number: 6
+    condition: >-
+      REINTERPRETED FOR THIS RING — no material regression against the
+      client-side direct-provider reference, as defined by the neutral
+      relative-regression SLO.
+    classification: canary_time
+    split: false
+    recorded_form: reinterpreted_only
+    as_written_form_is_reserved: true
+    as_written: >-
+      "Latency and conversational-flow results meet or improve on the
+      gpt-realtime-2.1 baseline."
+    reinterpretation_rationale: >-
+      The as-written condition is COMPARATIVE AGAINST AN INCUMBENT, and it is
+      circular at this ring because `gpt-realtime-2.1` IS the candidate — a
+      profile cannot be gated on beating itself. The as-written comparative
+      reading is therefore reserved to the GPT-Live adoption change, which has
+      a genuine incumbent to compare against, and this ring evaluates the
+      no-material-regression analogue instead. Scenario ALV-003-S03 refuses the
+      literal reading if it is offered.
+    note: >-
+      Recorded HERE IN ITS REINTERPRETED FORM ONLY, per task 4.1. The
+      `as_written` string is carried solely to name what was reserved; it is
+      not a second classification and must never be read as one.
+    produces_ring_element: [RING-05]
+    acceptance_map_refs: [ALV-003-S03, ALV-004, ALV-SLO-001]
+    owning_task: qualify-avatar-live-voice 5.1-5.4
+
+  - number: 7
+    condition: >-
+      Safety, exact-value, consent, handoff and blocked-state evaluations pass
+      for generic, MedxFactory and LedgerxFactory.
+    classification: split
+    split: true
+    halves:
+      - half: deterministic_blocked_state_and_exact_value
+        statement: >-
+          The deterministic halves — blocked-state and exact-value — which
+          replay against fixtures.
+        classification: hard_preflight
+        produces_ring_element: [RING-01]
+      - half: live_cross_domain_evaluations
+        statement: >-
+          The live cross-domain safety, consent and handoff evaluations across
+          generic, MedxFactory and LedgerxFactory.
+        classification: canary_time
+        note: Couples Fork 4; runs against the synthetic evaluation corpus.
+        produces_ring_element: [RING-01]
+        owning_task: qualify-avatar-live-voice 6.2.1
+
+  - number: 8
+    condition: >-
+      An opt-in canary on new sessions succeeds, with rollback via a
+      server-side profile change.
+    classification: split
+    split: true
+    halves:
+      - half: kill_switches_and_rollback_machinery
+        statement: >-
+          The two kill switches and the rollback machinery that the canary's
+          rollback clause presupposes.
+        classification: hard_preflight
+        note: >-
+          HARD PREFLIGHT, and this is the classification most easily got wrong.
+          The machinery must EXIST AND BE PROVEN before any canary traffic —
+          a rollback path first exercised when it is needed is not a rollback
+          path. Scenario ALV-003-S02 keeps the gate closed while it is
+          unproven.
+        produces_ring_element: [RING-04]
+        owning_task: qualify-avatar-live-voice 4.4, 6.3.2
+      - half: opt_in_canary
+        statement: The opt-in canary on new sessions.
+        classification: canary_time
+        note: Canary-time by definition. Cohort and rollback policy are Fork 5.
+        produces_ring_element: [RING-01]
+        owning_task: qualify-avatar-live-voice 6.3.1, 6.3.3
+
+# ---------------------------------------------------------------------------
+# What this gate does NOT confer. Recorded here as well as in task 4.6 so a
+# reader who finds only this file cannot infer promotion from the ring's
+# closure.
+# ---------------------------------------------------------------------------
+gate_confers:
+  selectable_internal_live_profile: true
+  production_default: false
+  statement: >-
+    Passing this gate makes `gpt-realtime-2.1` a SELECTABLE internal-live
+    profile. It does not make it the production default, and no reader may
+    infer promotion from the gate's closure (latent decision 3). Every
+    replace-the-primary semantic belongs to the separately approved GPT-Live
+    adoption change.
+  acceptance_map_refs: [ALV-003-S04]

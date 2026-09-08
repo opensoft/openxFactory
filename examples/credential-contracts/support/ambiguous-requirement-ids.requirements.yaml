@@ -1,0 +1,56 @@
+# SUPPORT (adjudicated for nothing; INDEXED so a reference has something to
+# resolve at). A perfectly valid requirements record that declares ONE id twice
+# with DIFFERENT access modes.
+#
+# This schema requires only a string `id` on a requirement and imposes no
+# repository-wide uniqueness, while the canonical validator scans a whole
+# `credentials/` tree — which is exactly why a BARE requirement id was rejected
+# as the lift's reference shape and why even a QUALIFIED reference must report
+# an ambiguous resolution rather than pick a match. Two matches that differ in
+# `access_mode` would make the lift's outcome depend on traversal order.
+#
+# TWO PROBES POINT AT THIS FILE, and de-duplicating the ids below would leave
+# BOTH passing vacuously rather than failing:
+#   - `negative/consumer-requirement-ref-ambiguous.yaml` — the LIFT path, where
+#     an ambiguous reference makes the two-consumer exemption UNAVAILABLE and
+#     the default `shared-secret-identity` refusal stands;
+#   - `warning/requirement-ref-ambiguous.yaml` — the PER-BINDING path added by
+#     add-requirement-ref-resolution-integrity, where the same ambiguity is
+#     reported on a binding that shares its secret with nobody.
+# Both depend on `projection_sync_lane` being declared TWICE, HERE, with
+# DIFFERENT access modes. The duplication is the fixture.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: example-projection
+  product_name: Example Projection Lane
+requirements:
+  - id: projection_sync_lane
+    purpose: the first record carrying this id
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: projection_sync_lane
+    purpose: >-
+      the SECOND record carrying the same id, with a different access mode —
+      which is what makes picking one a rule with an opinion rather than a rule
+    access_mode: delegated_api
+    minimum_scopes:
+      - projection:read
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: projection_editor_surface
+    purpose: the unambiguous sibling, so the fixture's other reference resolves cleanly
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true

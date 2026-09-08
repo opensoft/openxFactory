@@ -1,0 +1,34 @@
+# expected_failure: honest_receipt_refused_within_skew
+# expected_failure_detail: WITHIN the declared backward skew
+# The direction error, refused by name: this result refuses an honest receipt
+# whose declared submission falls after its header time by LESS than the
+# declared skew. Consensus never compares a header time to any submission's
+# wall clock, so a valid accepting block may carry a time earlier than the
+# material was ever submitted — 'material cannot be anchored before it is
+# submitted' is true of the act and FALSE of the timestamp.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0022
+subject_ref: item-example-0003-anchor-bound-commitment
+verification_mode: receipt_only
+status: refused
+witness_shortfall:
+  configured:
+  - w-example-op-0003
+  - w-example-dur-0003
+  present:
+  - w-example-op-0003
+  missing:
+  - w-example-dur-0003
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0003
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-31T09:00:00Z'
+record_version: 1
+notes: 'a receipt-only verification a holder ran on its own machine against a header set it
+  obtained for itself: no verification_leaf_ref, and that absence is the receipt''s self-sufficiency
+  working as designed, not non-conformance'
+refusal:
+  code: receipt_submission_after_earliest_chain_time
+  statement: declared submission falls after the header time
+  names: rcp-example-0003

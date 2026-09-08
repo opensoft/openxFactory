@@ -1,0 +1,48 @@
+# VALID renewal of the canary's broker certificate: UNATTENDED, key material
+# changed, and complete only because the dependent was re-bound and the rebind
+# EVIDENCED. An unattended renewal owes exactly the rebinds a requested one owes
+# — nothing in this record's mode changes what it must carry, and the absence of
+# an error report would not have been evidence of anything.
+#
+# The evidence is a verification performed AFTER the renewal against the NEW
+# material. That is what turns a silent failure into a missing artifact, which is
+# the only kind of silent failure a validator can catch.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:managed-broker-01-2026-08
+certificate_ref: cert:managed-broker-01
+anchor_ref: anchor:managed-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-08-01T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+  statement: >-
+    The enumeration had been corrected after the directory binding was
+    discovered, so this renewal could compute its rebind set in advance. The
+    previous one could not, which is exactly what went wrong.
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:managed-broker-01-g1
+  new_key_generation_ref: keygen:managed-broker-01-g2
+rebind_obligation:
+  arises: true
+  statement: >-
+    New key material, so every binding made against the superseded generation
+    owes a re-bind before this renewal is complete.
+enumerated_dependents:
+  - bind:managed-broker-01-directory
+dependent_rebinds:
+  - binding_ref: bind:managed-broker-01-directory
+    rebind_evidence:
+      mode: binding_read_against_new_material
+      performed_at: "2026-08-02T11:05:00Z"
+      result: succeeded
+      evidence_ref: evidence:managed-broker-01-rebind-2026-08
+      statement: >-
+        The directory's stored key was read back and matched the new generation.
+        Silence from the broker would not have shown this either way.
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-08-02T11:10:00Z"
+record_version: 1

@@ -1,0 +1,64 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "demotion-execution-receipt.schema.yaml"
+title: Demotion execution receipt
+contract_schema_version: 1
+description: >-
+  Durable evidence written only after an explicit demotion execution has
+  returned proposal material to its exact staged destination. A transition
+  manifest is planning evidence; this receipt is execution evidence.
+type: object
+required:
+  - schema_version
+  - kind
+  - actor
+  - change_id
+  - status
+  - destination
+  - executed_at
+  - transition_manifest
+  - returned_moves
+  - returned_artifacts
+  - removed_change_folder
+properties:
+  schema_version: {const: 1}
+  kind: {const: demotion-execution-receipt}
+  actor: {type: string, minLength: 1}
+  change_id: {type: string, minLength: 1}
+  status: {const: executed}
+  destination:
+    type: object
+    required: [kind, id, path]
+    properties:
+      kind: {const: staged}
+      id:
+        type: string
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*$'
+      path:
+        type: string
+        pattern: '^ideation/staging/[A-Za-z0-9][A-Za-z0-9._-]*$'
+  executed_at: {type: string, format: date-time}
+  transition_manifest:
+    type: string
+    pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+  returned_moves:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [from, to]
+      properties:
+        from:
+          type: string
+          pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+        to:
+          type: string
+          pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+  returned_artifacts:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: string
+      pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+  removed_change_folder: {const: true}

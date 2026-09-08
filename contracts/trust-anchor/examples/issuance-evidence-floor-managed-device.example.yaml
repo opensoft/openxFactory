@@ -1,0 +1,29 @@
+# VALID issuance evidence at the declared floor for a device certificate. The
+# same shortfall entry covers it: the declaration is per REALIZATION, so one
+# honest entry serves every record it actually describes.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:managed-device-05
+certificate_ref: cert:managed-device-05
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: not_established
+  declared_shortfall_ref: ob:managed:TA-R2
+  statement: >-
+    Enrolled through the device-management path; the authority reports the
+    profile, not the request.
+authority_attestation:
+  policy_attestation_ref: attestation:managed-device-issuance-profile-2026-07
+  authority_log_ref: authoritylog:managed-issuing-2026-07-15
+  retrieved_at: "2026-07-15T01:00:00Z"
+issued_at: "2026-07-15T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: false
+  statement: A managed service.
+record_version: 1

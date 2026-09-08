@@ -1,0 +1,137 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_log_checkpoint_anchor
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/log-checkpoint-anchor.schema.yaml"
+contract_id: chain-anchoring-log-checkpoint-anchor
+contract_schema_version: 1
+title: Log checkpoint anchor, with its never-read-as-validation disclaimer
+description: >-
+  A CHECKPOINT OF THE TRANSPARENCY LOG, ANCHORED — AND THE TWO KINDS OF ANCHOR
+  ARE TOLD APART HERE (add-chain-anchoring, capability `chain-anchoring`,
+  requirement "Only validated, gate-passed material is anchored AS AN ITEM").
+
+  AN APPEND-ONLY LOG MAKES THEM DIFFERENT OBJECTS. An ITEM ANCHOR is a commitment
+  to a specific piece of material and is what the anchor-late rule governs: only
+  gate-passed material gets one, and no configuration, operator flag or urgency
+  argument admits unvalidated material to that path, because the resulting item
+  anchor would be PERMANENT. A LOG CHECKPOINT ANCHOR is a different act: it
+  witnesses that THE LOG SAID SOMETHING AT A TIME.
+
+  AND THIS RECORD SAYS WHAT THAT COSTS RATHER THAN PROMISING A PURITY THE
+  MECHANICS CANNOT DELIVER. A checkpoint commits to the log's WHOLE PREFIX by
+  construction — every leaf in it, refusals and later-invalidated events included
+  — so no amount of waiting keeps an earlier leaf out of a later signed tree
+  head. Anchoring a checkpoint therefore DOES place a commitment to unvalidated
+  leaves on a chain. That is correct and expected: a checkpoint covering a refusal
+  leaf is EVIDENCE THAT THE REFUSAL HAPPENED, which is exactly what the evidence
+  plane is for.
+
+  INCLUSION IN AN ANCHORED CHECKPOINT IS NEVER VALIDATION, AND THE DISCLAIMER IS
+  IN THE CONTRACT TEXT RATHER THAN LEFT TO A READER. A surface reporting a leaf
+  as validated on the strength of an anchored checkpoint covering it is REFUSED
+  (`checkpoint_inclusion_presented_as_validation`); the checkpoint proves the
+  log's integrity and ordering and nothing about any leaf. A record that omits or
+  alters the disclaimer is refused (`checkpoint_anchor_missing_disclaimer`),
+  which is what makes it contract text rather than a note.
+
+  THE LOG IS NEVER HELD BACK WAITING FOR VALIDATION. A leaf is written when the
+  event happens, a leaf recording a refusal included, and only the ITEM ANCHOR
+  waits. The two are different acts against different stores, and conflating them
+  would either delay the record or mint an item anchor over unvalidated material.
+
+  A RETRACTION IS A NEW LEAF AND A NEW ANCHOR, NEVER AN ERASURE. Where anchored
+  material is later found wrong, the correction is recorded and ANCHORED FORWARD;
+  this capability makes no claim that an anchored value can be withdrawn, because
+  it cannot. The only erasure property offered anywhere in this family is the salt
+  destruction of the commitment record, and it is a property of the COMMITMENT
+  rather than of the anchor.
+type: object
+required:
+  - schema_version
+  - kind
+  - anchor_id
+  - checkpoint_ref
+  - checkpoint_digest
+  - tree_size
+  - receipt_ref
+  - validation_disclaimer
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_log_checkpoint_anchor]
+  anchor_id: {$ref: '#/$defs/identifier'}
+  checkpoint_ref:
+    # THE CHECKPOINT — the log leaf that is the head of the prefix this anchor
+    # witnesses. Tranche one's log has no separate tree-head record and needs
+    # none: the head IS the newest leaf, since every leaf commits to its
+    # predecessor and is signed.
+    $ref: '#/$defs/identifier'
+  checkpoint_digest:
+    # WHAT THE ANCHOR ACTUALLY COMMITS TO, so this record and its receipt can be
+    # COMPARED rather than assumed to agree: a verifier checks that the
+    # receipt's `material_digest` is this value. Without it the record names an
+    # anchor of nothing in particular.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: log_checkpoint}}
+        required: [subject]
+  tree_size:
+    # THE SIZE OF THE LOG THIS CHECKPOINT COMPLETES. It is what makes an anchored
+    # checkpoint useful against suffix truncation at all — a later reader
+    # comparing an anchored size against a presented one is reading a number no
+    # store can quietly reduce, because the chain already carries it.
+    type: integer
+    minimum: 1
+  receipt_ref:
+    # THE MULTI-ANCHOR RECEIPT for this checkpoint's anchor. A checkpoint anchor
+    # passes through the ruled configuration UNCHANGED — both witnesses, one
+    # receipt, no checkpoint-specific handling — which is why this record
+    # references a receipt rather than restating any part of one.
+    $ref: '#/$defs/identifier'
+  validation_disclaimer:
+    # CARRIED IN THE CONTRACT TEXT, AS A CONSTANT, SO IT TRAVELS WITH EVERY
+    # RECORD. Omitting it is refused and altering it is refused, both under
+    # `checkpoint_anchor_missing_disclaimer`: a disclaimer a realization can
+    # reword is a disclaimer a realization can weaken, and this is the one
+    # sentence whose weakening would turn an integrity witness into a validity
+    # claim.
+    type: string
+    const: >-
+      Inclusion in an anchored checkpoint witnesses that the log said something
+      at a time. It is NEVER validation of any leaf inside it.
+  presented_as_validation:
+    # MUST BE ABSENT OR `false`. It is WRITABLE as `true` on purpose: a
+    # realization that presents checkpoint inclusion as validation is the
+    # commissioned negative, and it is refused BY NAME
+    # (`checkpoint_inclusion_presented_as_validation`) rather than made
+    # unrepresentable, because the refusal has to say what was claimed.
+    type: boolean
+  previous_checkpoint_anchor_ref:
+    # THE PREVIOUS ANCHORED CHECKPOINT, BY IDENTIFIER AND WITHOUT AN INTERVAL.
+    # The cadence obligation is checked over the two anchors' own receipts,
+    # whose chain-accepted times are derived from block headers; an interval
+    # this record ASSERTED would be a minter-written timing value sitting
+    # outside the committed configuration block, which the closure rule refuses
+    # (`receipt_only_input_outside_committed_block`). So the record carries the
+    # pointer and never the number.
+    $ref: '#/$defs/identifier'
+  covers_refused_leaves:
+    # DECLARED, BECAUSE IT IS EXPECTED RATHER THAN EMBARRASSING. A checkpoint
+    # whose prefix includes a leaf recording a refusal is a correct anchor; the
+    # member exists so a reader sees the property was understood rather than
+    # overlooked, and it changes nothing about what the anchor claims.
+    type: boolean
+  anchored_at_tree_size_leaf_ref:
+    # The leaf that recorded this anchoring act, where the realization writes
+    # one. Leaf shapes belong to tranche one's grammar; this family references
+    # leaves and defines none.
+    $ref: '#/$defs/identifier'
+  record_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"

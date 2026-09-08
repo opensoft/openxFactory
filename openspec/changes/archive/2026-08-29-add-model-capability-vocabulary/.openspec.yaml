@@ -1,0 +1,31 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: staged
+  id: openxFactory:staging:doxchat-auto-fit-routing
+  path: ideation/staging/doxchat-auto-fit-routing
+  reason: >-
+    Exit (a) of the staged topic, the first of the three sequenced changes its
+    Q5 disposition resolved to. The topic was captured 2026-08-21 from Brett
+    Heap's direction given in-session immediately after he ruled rule 5' of the
+    `contract-v1.38` model-catalog release — his words are quoted verbatim in
+    the fragment and are its fixed baseline: "wouldnt auto have to route to a
+    model that can accomadate the ctx size?... if we need multi modal then we
+    have to select from that. so there are other items besides raw size that
+    will determine the 'best' route." All six of the topic's questions were
+    dispositioned 2026-08-24. Q3 resolved to ONE closed additive capability
+    declaration — `modalities` — and nothing else until a consumer names
+    itself, on the family precedent that closed vocabularies earn their members
+    from real consumers; it added a batching OBLIGATION that this release must
+    decide, rather than silently pass, the two recorded catalog follow-ups
+    touching the same `$defs/model_entry`. Q5 sequenced this exit first
+    precisely because it is safe: it touches only the schema, the catalog type
+    and the validator, so it does not collide with the ratified-but-unbuilt
+    intake lane that exit (b) must be sequenced against.
+  approved_by: >-
+    Brett Heap — his 2026-08-21 direction created the topic and his rule-5'
+    ruling is what made this exit necessary; the topic's own exit authorizes
+    raising (a) first at `Status: draft`. This records the authority to AUTHOR
+    the proposal, not ratification of its content, which is a separate act and
+    still PENDING.
+  approved_on: 2026-08-21

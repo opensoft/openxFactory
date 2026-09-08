@@ -61,3 +61,11 @@
 - [x] 7.3 Run strict validation for this change and all OpenSpec changes/specs.
 - [x] 7.4 Verify `ideation/staging/` contains only genuine unproposed material and
       every migrated archive bundle verifies.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 1 and 2, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting the two header lines plus a blank separator recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (a), an explicit ratification act named on the record: the ratification commit `71c7028`, "Ratify proposal supporting-document lifecycle", whose body opens "Approved by Brett 2026-07-09" — a separate commit from the archive act `7b172d8` of the same day, which is cited as corroboration. The three-way floor is cleared on the APPROVER axis, the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

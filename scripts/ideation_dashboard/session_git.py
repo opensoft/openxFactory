@@ -102,8 +102,26 @@ SERVED_ALLOWED_SUBCOMMANDS = frozenset({
     "rev-list", "rev-parse", "show", "show-ref", "status", "worktree",
 })
 
-# Refused at EVERY cwd. `fetch`/`pull` would touch local refs, and FR-026/D17 is
-# explicit that the remote is read with `ls-remote` and NEVER fetched.
+# Refused at EVERY cwd. `fetch`/`pull` would touch local refs; the remote is read
+# with `ls-remote` and NEVER fetched.
+#
+# WHERE THAT RULE ACTUALLY LIVES, corrected 2026-08-21 (PR #234 review, P3-A).
+# This comment used to say "FR-026/D17 is explicit", which reads as a citation of
+# ratified spec prose. It is not one. The rule's only written home is a
+# SANCTIONED-DEVIATION note inside a realization task —
+# `openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/tasks.md:97`,
+# "(`git ls-remote --heads`, never a fetch)" — plus this guard and the refusal
+# texts that cite it. `FR-026`/`D17` are that change's own feature and decision
+# numbering, not requirement ids in any promoted spec: no requirement under
+# `openspec/specs/` carries the never-fetch rule at all.
+#
+# PROMOTION CANDIDATE, recorded because the gap is the interesting part: this
+# rule carries real architectural weight — it is why the resume path cannot
+# materialize a remote branch itself, which is the whole shape of §12's colleague
+# hand-off (PR #234, Codex P1) — and a rule that decides that much while living
+# only in an archived change's task note is one an implementer can neither find
+# nor safely weigh. It belongs in a ratified requirement. Raising that is a
+# separate change with its own proposal; this note is the pointer, not the fix.
 FORBIDDEN_ANYWHERE_SUBCOMMANDS = ("fetch", "pull")
 
 # Git's own repository-ROUTING options. They redirect a command at a repository
@@ -563,6 +581,24 @@ class SessionGit:
         self.git(self.served_root, "worktree", "add", str(target), branch)
         return target
 
+    def checked_out_at(self, branch: str) -> str | None:
+        """The working tree that currently has `branch` CHECKED OUT, or None.
+
+        `git for-each-ref --format=%(worktreepath)` fills that field exactly when
+        some working tree holds the ref, which is the condition `git worktree
+        add` refuses with exit 128. Asking BEFORE the add turns a raw GitError
+        naming neither cause nor remedy into the session vocabulary's own
+        refusal (PR #234, Codex P1).
+
+        A pure REF READ: no remote contact, no fetch, nothing written — so it is
+        legal on the served checkout and costs the resume path nothing."""
+        listed = self.git(self.served_root, "for-each-ref",
+                          "--format=%(worktreepath)", f"refs/heads/{branch}")
+        for line in listed.splitlines():
+            if line.strip():
+                return line.strip()
+        return None
+
     def worktree_remove(self, path: Path | str) -> None:
         """`git worktree remove --force <path>` — teardown, BOTH endings
         (FR-021). Removes the directory and git's bookkeeping; the BRANCH
@@ -645,6 +681,75 @@ class SessionGit:
                                f"refs/heads/{branch}")
         return listed.strip() or None if ok else None
 
+    def path_last_commit_at(self, path: Path | str) -> str | None:
+        """The committer date of the newest commit touching a repository path."""
+        candidate = Path(path)
+        if not candidate.is_absolute():
+            candidate = self.served_root / candidate
+        resolved = candidate.resolve()
+        if resolved != self.served_root and not resolved.is_relative_to(
+                self.served_root):
+            raise SessionGitRefused(
+                f"refusing to inspect history for {path!r}: it escapes the "
+                f"served checkout {self.served_root}")
+        rel = resolved.relative_to(self.served_root).as_posix()
+        ok, recorded_at = self._try(
+            self.served_root, "log", "-1", "--format=%cI", "--", rel)
+        return recorded_at.strip() or None if ok else None
+
+    def _atomic_delete_ref(self, branch: str, expect_sha: str) -> None:
+        """Delete one local branch with Git's expected-old-value transaction.
+
+        This is the deliberately narrow exception to the served-checkout command
+        allowlist: callers cannot issue arbitrary ``update-ref`` commands, and
+        this helper can only delete the already validated ``refs/heads`` name at
+        the exact observed object id.
+        """
+        ref = f"refs/heads/{self.require_legal_ref(branch)}"
+        done = self.runner.run(
+            self.served_root, "update-ref", "-d", ref, expect_sha)
+        if done.returncode != 0:
+            current = self.branch_sha(branch)
+            if current is None:
+                # `update-ref -d <ref> <old>` cannot lock a ref that is not
+                # there, so a ref deleted concurrently lands HERE and not on the
+                # success path. Saying it "is at None now" described the state as
+                # an object id; it is an ABSENCE, and the operator's next step is
+                # different (PR #336 Copilot finding). This process deleted
+                # nothing, so it refuses and the caller unwinds its prepared
+                # record rather than claiming a deletion it did not perform.
+                raise SessionGitRefused(
+                    f"refusing to record a delete of {branch!r}: it was at "
+                    f"{expect_sha} when cleanup was authorized and NO LONGER "
+                    "EXISTS — something outside this transaction removed the "
+                    "ref. This process deleted nothing and claims nothing; "
+                    "confirm what removed it, and if the branch is genuinely "
+                    "gone there is no cleanup delete left to run")
+            if current != expect_sha:
+                raise SessionGitRefused(
+                    f"refusing to delete {branch!r}: it was at {expect_sha} when "
+                    f"cleanup was authorized and is at {current} now. Git's "
+                    "atomic expected-value ref transaction preserved the changed "
+                    "ref; observe it and decide again")
+            raise GitError(
+                ("update-ref", "-d", ref, expect_sha), done.returncode,
+                done.stderr or "")
+
+    def restore_branch_if_absent(self, branch: str, sha: str) -> None:
+        """Atomically restore a just-deleted ref only while it remains absent."""
+        ref = f"refs/heads/{self.require_legal_ref(branch)}"
+        done = self.runner.run(
+            self.served_root, "update-ref", ref, sha, "0" * len(sha))
+        if done.returncode != 0:
+            current = self.branch_sha(branch)
+            # Absence is reported as absence here too: the create can also fail
+            # while the ref stays gone (a contended lock), and "the ref is now
+            # None" told the operator nothing about which case they are in.
+            observed = f"at {current}" if current else "still absent"
+            raise SessionGitRefused(
+                f"could not restore {branch!r} at {sha}: the ref is {observed}; "
+                "refusing to overwrite it")
+
     def delete_branch(self, branch: str, *, remote: bool = False,
                       expect_sha: str | None = None, safe: bool = False) -> None:
         """Delete a session branch. Used by the merge ending (FR-033) and the
@@ -674,8 +779,23 @@ class SessionGit:
             raise SessionGitRefused(
                 f"refusing to delete {branch!r}: it is the served checkout's "
                 "current branch (FR-004)")
+        checked_out = self.checked_out_at(branch)
+        if checked_out:
+            raise SessionGitRefused(
+                f"refusing to delete {branch!r}: it is checked out at "
+                f"{checked_out}")
         if expect_sha is not None:
             current = self.branch_sha(branch)
+            if current is None:
+                # An absence, not an object id: "it is at None now" read as a
+                # moved ref and sent the operator looking for work that landed
+                # on a branch that is not there (PR #336 Copilot finding).
+                raise SessionGitRefused(
+                    f"refusing to delete {branch!r}: it was at {expect_sha} when "
+                    "the decision to delete it was made and NO LONGER EXISTS — "
+                    "something outside this operation removed the ref. Nothing "
+                    "was deleted here, so nothing may be recorded as deleted; "
+                    "confirm what removed it and observe the tile again")
             if current != expect_sha:
                 raise SessionGitRefused(
                     f"refusing to delete {branch!r}: it was at {expect_sha} when the "
@@ -687,7 +807,10 @@ class SessionGit:
             # FIRST, because it is the fallible one: a failed push must leave the
             # local ref in place so the whole delete is retryable
             self.git(self.served_root, "push", self.remote, "--delete", branch)
-        self.git(self.served_root, "branch", "-d" if safe else "-D", branch)
+        if expect_sha is not None and not safe:
+            self._atomic_delete_ref(branch, expect_sha)
+        else:
+            self.git(self.served_root, "branch", "-d" if safe else "-D", branch)
 
     # ---- staging + commit: explicit paths, ONE commit, no amend ----
     def stage(self, worktree: Path | str, paths: Iterable[str]) -> tuple[str, ...]:

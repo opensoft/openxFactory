@@ -126,6 +126,15 @@ def test_data_fetches_target_only_snapshot_and_source_passthrough():
     # (notebook.js — GET /capabilities + POST /actions/notebook), and the
     # repository-selector seam (repo-selector.js — GET /snapshot-index.json +
     # POST /actions/refresh).
+    # add-doxbench-distilled-abstract §5 / ruling 1(c)(i) (2026-08-25): a
+    # SIXTH app.js call site, declared here BY NAME --
+    # `POST /actions/workbench/document-abstract`, the docs subpane's
+    # model-derived distilled abstract. It is a NEW SAME-ORIGIN serve.py
+    # route and deliberately not a scoped chat turn: the chat-turn envelope
+    # is chat-shaped (it requires an outline buffer, a human message and a
+    # transcript) and an abstract request carries none of them. So it widens
+    # this count by exactly the arithmetic the paragraph below declares, and
+    # like the thread read it is named rather than folded into a total.
     # The fetch-count invariant widens ONLY by the arithmetic of new SAME-ORIGIN
     # backend routes, or of a new call site against an EXISTING route (T023's
     # renderer-boundary item): the external data source is read by the SERVING
@@ -144,11 +153,19 @@ def test_data_fetches_target_only_snapshot_and_source_passthrough():
     # T023 wire clause (2026-07-31): app.js gains the two doxBench transports
     # -- the released model-catalog GET and the chat-turn POST -- exactly the
     # same-origin route arithmetic this docstring declares widening by.
-    assert len(by_file["app.js"]) == 4
+    # add-doxbench-editing-phase-b task 9.5 (2026-08-19): and the THREAD READ,
+    # `GET /workbench/thread` -- one more same-origin serve.py route, named
+    # here as the LOUD individually-declared widening this pin requires. It is
+    # a GET and only a GET: a thread is written by a TURN, through the Save
+    # gate, so no write call site joins with it.
+    # add-doxbench-distilled-abstract task 7.9: 5 -> 6, the abstract route.
+    assert len(by_file["app.js"]) == 6
+    assert sum("DOCUMENT_ABSTRACT_ROUTE" in a for a in by_file["app.js"]) == 1
     assert any("snapshotUrl" in a or "snapshot" in a.lower() for a in by_file["app.js"])
     assert any("sourceBase" in a for a in by_file["app.js"])
     assert sum("CATALOG_ROUTE" in a for a in by_file["app.js"]) == 1
     assert sum("CHAT_TURN_ROUTE" in a for a in by_file["app.js"]) == 1
+    assert sum("threadUrl" in a for a in by_file["app.js"]) == 1
     assert len(by_file["viewer.js"]) == 1
     assert any("sourceBase" in a for a in by_file["viewer.js"])
     # wheel.js: exactly the archived `landed` read, on the read-only /source route
@@ -605,14 +622,18 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     assert set(by_file) == {"app.js", "viewer.js", "notebook.js", "wheel.js",
                             "repo-selector.js"}
     # T023 wire clause (2026-07-31): app.js's budget rose 2 -> 4 with the two
-    # doxBench transports; add-project-scoped-selection (2026-08-06) rose
+    # doxBench transports, add-doxbench-editing-phase-b task 9.5
+    # (2026-08-19) rose it 4 -> 5 with the thread READ, and
+    # add-doxbench-distilled-abstract task 7.9 (2026-08-25) rose it 5 -> 6 with
+    # the document-abstract route named in the sibling pin's docstring;
+    # add-project-scoped-selection (2026-08-06) rose
     # repo-selector.js 2 -> 4 with the register-projection read + the
     # create-project commission POST; add-opendox-project-header (2026-08-06)
     # rose it 4 -> 5 with the edit-project commission POST — each the LOUD,
     # individually-named widening the sibling pin's docstring declares; every
     # other count is unchanged.
     assert {name: len(args) for name, args in by_file.items()} == {
-        "app.js": 4, "viewer.js": 1, "wheel.js": 1, "notebook.js": 2,
+        "app.js": 6, "viewer.js": 1, "wheel.js": 1, "notebook.js": 2,
         "repo-selector.js": 6}
     # the pin above, quoted: a clobber that relaxes it cannot pass by satisfying
     # the looser form (SC-007's reasoning applied to the renderer boundary)
@@ -631,7 +652,7 @@ def test_the_session_transport_stays_out_of_the_fetch_bearing_set():
     # now: ONE, the pin itself. (Nothing in this block may spell a pinned line
     # literally, in a comment or anywhere else — that is what re-creates the hole.)
     q = '"'
-    for name, n in (("app.js", 4), ("viewer.js", 1), ("wheel.js", 1),
+    for name, n in (("app.js", 6), ("viewer.js", 1), ("wheel.js", 1),
                     ("notebook.js", 2), ("repo-selector.js", 6)):
         count_line = f"assert len(by_file[{q}{name}{q}]) == {n}"
         assert own.count(count_line) == 1, (

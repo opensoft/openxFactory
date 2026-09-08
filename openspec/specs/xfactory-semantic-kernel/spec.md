@@ -1,7 +1,22 @@
 # xfactory-semantic-kernel Specification
 
 ## Purpose
-TBD - created by archiving change add-domain-ontology-layer. Update Purpose after archive.
+
+Define the domain-neutral half of the ontology layer, which openxFactory
+owns: the semantic kernel of shared cross-factory concepts and relation
+primitives — each naming the contract that owns its runtime shape, each
+published only on two independent resolvable adopters — and the
+provider-neutral, content-addressed package contract every domain package
+is written in. It fixes what keeps semantic identity stable across unlike
+domains: exact specialization references, declared relation domain and
+range, external terminologies mapped by reference rather than mirrored,
+and one canonical validator with indexed fixtures whose findings are
+identical over the same bytes. It bounds what reaches a running workflow
+or worker — a purpose-scoped, digest-verified, closure-complete semantic
+context rather than an open corpus — and holds the firewall the layer
+rests on: semantic inference is descriptive only and never a source of
+authority, consent, approval or cross-layer access, and no storage or
+reasoner choice may change canonical meaning.
 ## Requirements
 ### Requirement: Neutral semantic kernel ownership
 openxFactory SHALL define a domain-neutral semantic kernel that identifies

@@ -1,0 +1,31 @@
+schema: spec-driven
+created: 2026-08-14
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-14-add-worker-credential-by-reference
+  reason: >-
+    DERIVED FROM THIS PACKET'S OWN RECORD 2026-08-25, not invented, under
+    Brett's ruling "sweep the three proposal-origin errors". Not a staged
+    ideation topic: the forcing fact is a live operational outage this
+    proposal's own § Why records — "Between 2026-07-25 and 2026-08-13 three
+    Omnigent worker lanes on the opensoft CPC fleet were dark because ONE
+    host-profile OAuth session expired — and nothing noticed, because a
+    host-resident credential fails silently and its repair requires host
+    administration." The ownership split the contract encodes was PRE-RULED on
+    2026-08-11, as this packet's tasks § 1.1 states: "The ownership split was
+    pre-ruled 2026-08-11 — neutral contract, operator as binding; this change
+    realizes that ruling as contract text." That ruling was recorded in the
+    `hermes-stack-topology-per-client` staging topic, which is NOT this
+    change's transition source and is deliberately not declared as one: the
+    topic's own INDEX row exits to OpsxFactory `add-request-intake-boundary`,
+    and this packet's tasks § 1.2 describes its relationship to that topic as
+    a "follow-through pointer" added BY this change rather than an origin it
+    emerged from. Declaring `kind: staged` against it would misstate the
+    record.
+  approved_by: >-
+    Brett Heap — in-session on 2026-08-14, verbatim, as this packet's own
+    lifecycle header records it: "I ratify the contract — implement the
+    realization". The same line records that "realization proceeds directly
+    from this change's tasks per the established lane pattern (Speckit
+    reserved for feature-sized surfaces)".
+  approved_on: 2026-08-14

@@ -841,3 +841,35 @@ for an unowned field would be worse than leaving the one the author wrote.
 3. Post-merge: assemble 7.7's scenario-by-scenario realization mapping and
    exercise 7.4's declared screen-reader legs (c3).
 4. Only then task 7.8: sync the promoted spec and archive.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 5 and 6, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting exactly those two lines recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (a), an explicit ratification act named on the record: this change's own tasks.md 1.7, "Brett ratified the proposal decisions and approved a narrow implementation-start exception on 2026-07-29". The three-way floor is cleared on the APPROVER axis, the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+**The 2026-08-02 decision this supersedes, quoted in full and LEFT STANDING.** The archive
+commit `354ded9` recorded, and this note does not alter, edit, or withdraw one word of it:
+
+> FRONT MATTER deliberately untouched: `status: proposed` stands. The archive tool neither
+> reads nor writes it, NO other change in this repository — active or archived — carries a
+> `status:` field, and no vocabulary for a post-archive value is defined in `docs/` or the
+> `release-realization` capability. The change's location under `openspec/changes/archive/`
+> is its status of record; inventing a value for an unowned field would be worse than leaving
+> the one the author wrote.
+
+**RULED 2026-08-23 (Brett, in-session), recorded as task 5D.2a of
+`govern-openspec-corpus-membership`: BACKFILL IT TOO.** The decision is SUPERSEDED ON ITS OWN
+TERMS rather than overturned. Its stated reason — that no vocabulary for a post-archive value
+is defined — was true when it was written and is no longer: the ratification-citation rule in
+`openspec/specs/document-lifecycle/spec.md` is promoted, it owns the `Status:` field for
+proposals, and it requires the header the 2026-08-02 decision declined to invent. Nothing that
+decision asserted about the corpus of 2026-08-02 has been contradicted. Two consequences are
+recorded rather than left to a reader. FIRST, the lowercase `status: proposed` front-matter
+field the author wrote is deliberately LEFT STANDING and untouched, exactly as A2 of
+`docs/archive-record-discrepancies.md` verifies it; it is not a second status header, because
+`doc_health.corpus.STATUS_RE` is case-sensitive and reads only the capitalised line, so this
+proposal carries exactly ONE machine-read status. SECOND, register entry A2 gains a dated
+supersession addendum in the same slice, with its original text standing.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

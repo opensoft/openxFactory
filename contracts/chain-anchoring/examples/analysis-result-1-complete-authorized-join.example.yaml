@@ -1,0 +1,36 @@
+# THE AUTHORIZED JOIN, END TO END, WITH A DECLARED OUTCOME: per-plane results
+# carried distinctly from the correlated output so what was produced WITHOUT a
+# join is never read as the join's answer; the correlated output names the
+# derivation and use that authorized it; and the de-identification member — a
+# hook, never a standard — claims nothing: absent a named determination made
+# elsewhere, this result remains governed under the same custody as the planes
+# it came from, and the record says so.
+schema_version: 1
+kind: xfactory_chain_anchoring_analysis_result
+result_id: ar-example-0001
+analysis_ref: ana-example-0001
+status: complete
+per_plane_results:
+- plane: record
+  result_ref: res-example-record-0001
+- plane: demographic
+  result_ref: res-example-demographic-0001
+correlated_output:
+  output_ref: res-example-correlated-0001
+  derivation_ref: ld-example-0001
+  use_ref: lu-example-0001
+deidentification:
+  claimed: false
+  named_determination_ref: null
+  remains_governed_personal_data: true
+produced_at: '2026-08-30T15:00:00Z'
+record_version: 1
+notes: 'the authorized join, end to end: per-plane results carried distinctly from
+  the correlated output, the output naming the derivation and the use that authorized
+  it — and no de-identification claimed, because plane separation alone does not
+  make one; absent a named determination the result remains governed under the same
+  custody as the planes it came from'
+result_digest:
+  construction: xfc-jcs-sha256-1
+  subject: analysis_result
+  value: sha256:6078d2075168e8c28f3b4f606ab7169441dba0cbc7294796467dc8950d01c14e

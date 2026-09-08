@@ -1,0 +1,22 @@
+# expected_failure: wrong kind at declared path for role customer
+# Repo-SHAPED negative: a Domain overlay parked at the declared SUBJECT path.
+# Before add-subject-overlay-contract every non-domain kind at a declared path
+# was skipped; now the path is dispatched by kind, and a family-owned kind at
+# the wrong role's path is refused rather than validated as the wrong document.
+schema_version: 1
+kind: hermes_domain_overlay
+
+domain:
+  id: codex
+  display_name: codex Domain Hermes
+  approval_scope_kinds:
+    - engineering_intent
+  required_approval_fields:
+    - approved_scope_ref
+  authority_boundaries:
+    codex_owns:
+      - engineering_decomposition
+    xfactory_owns:
+      - neutral_contracts
+    repository_owns:
+      - final_branch_protection

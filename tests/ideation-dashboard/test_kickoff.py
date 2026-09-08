@@ -56,6 +56,27 @@ def _records_root(root: Path) -> Path:
     return root / gc.DEFAULT_RECORDS_DIR
 
 
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", "-C", str(root),
+         "-c", "user.name=Fixture Human", "-c", "user.email=human@example.test",
+         "-c", "commit.gpgsign=false", *args],
+        capture_output=True, text=True, timeout=60)
+
+
+def _commit(root: Path, message: str = "records") -> None:
+    """COMMIT the fixture tree — the git anchor a ratification must now carry
+    (`record_binding`; the records-tree-trust gap). A ratification's authenticity
+    no longer rests on a file sitting in the records directory, so the tests that
+    exercise a REAL ratification have to produce a real one: written by the
+    console, then committed by a human, exactly as the CLI's own "commit + push
+    the openxFactory checkout to publish" step already instructs."""
+    if not (root / ".git").exists():
+        _git(root, "init", "-q", "-b", "main")
+    _git(root, "add", "-A")
+    _git(root, "commit", "-q", "--no-gpg-sign", "-m", message)
+
+
 def _validate(path: Path, *extra: str) -> subprocess.CompletedProcess:
     if VALIDATOR is None:
         pytest.skip("pinned openxFactory validator not reachable")
@@ -106,6 +127,7 @@ def test_kickoff_after_ratify_dispatches_a_gated_workflow_job(tmp_path):
     console = gc.GateConsole(_gate(root))
 
     console.ratify(CHANGE, "Brett", at=AT_RATIFY)
+    _commit(root, "ratify")            # the ratification's git anchor
     res = console.kickoff(CHANGE, snapshot=snap, at=AT_KICKOFF)
 
     # the workflow-job dispatch descriptor was written and is gated + recorded.
@@ -131,6 +153,7 @@ def test_kickoff_honours_a_declared_realization_outline_and_workflow(tmp_path):
     snap = _snapshot(root)
     console = gc.GateConsole(_gate(root))
     console.ratify(CHANGE, "Brett", at=AT_RATIFY)
+    _commit(root, "ratify")            # the ratification's git anchor
     res = console.kickoff(CHANGE, snapshot=snap, at=AT_KICKOFF,
                           outline="Run the MedxFactory diagnosis workflow.",
                           workflow="medx-diagnosis")
@@ -154,6 +177,17 @@ def test_ratified_change_ids_reads_snapshot_ratification(tmp_path):
 def test_ratified_change_ids_reads_sibling_ratify_records(tmp_path):
     root = _tree(tmp_path)
     gc.GateConsole(_gate(root)).ratify(CHANGE, "Brett", at=AT_RATIFY)
+    # BEFORE the commit the record exists but is anchored to nothing, and the
+    # lookup refuses it with a reason rather than counting it (the
+    # records-tree-trust gap: placement is not proof).
+    unbound: list[str] = []
+    assert ko.ratified_change_ids(records_root=_records_root(root),
+                                  unbound=unbound) == set()
+    assert unbound and all("not committed" in reason or "git work tree" in reason
+                           for reason in unbound)
+    # AFTER the commit the same record IS the ratification: digest-bound, and
+    # anchored to an attributable commit.
+    _commit(root, "ratify")
     assert CHANGE in ko.ratified_change_ids(records_root=_records_root(root))
 
 

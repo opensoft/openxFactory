@@ -2,7 +2,7 @@
 code_surface: openxFactory (scripts/doc_health/ neutrality lane + prompt contract + dispatch wiring + tests; reusable nightly workflow input; no domain-repo or aggregation code)
 target_release: none
 Status: ratified
-Ratified by: Brett's approval of `add-neutrality-drift-lane` on 2026-08-04 (PR #64 review), with D1-D6 carried as decided (seed-first altitude, two-stage detection, rolling-PR delivery, never-moves boundary, xFactories/* v1 scope, incremental cadence)
+Ratified: Brett's approval of `add-neutrality-drift-lane` on 2026-08-04 (PR #64 review), with D1-D6 carried as decided (seed-first altitude, two-stage detection, rolling-PR delivery, never-moves boundary, xFactories/* v1 scope, incremental cadence)
 ---
 
 # Proposal: add-neutrality-drift-lane

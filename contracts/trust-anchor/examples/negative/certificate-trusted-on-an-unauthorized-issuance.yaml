@@ -1,0 +1,49 @@
+# expected_failure: issuance-unauthorized-trusted
+# expected_failure_detail: does not ratify an unauthorized issuance
+# requirement: TA-R2
+# VIOLATES TA-R2: the certificate's issuance evidence records `unauthorized`, and
+# the certificate is recorded as trusted regardless.
+#
+# The reasoning that produces this record is "it works, and it's been working for
+# months" — the certificate is valid, the chain is held, the standing check is
+# clean. The ratified answer is that the certificate's validity does not ratify
+# the issuance retroactively: a valid signature over an unauthorized issuance is
+# still an unauthorized issuance.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-unauthorized-trusted
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "strayed-adapter-clone.core.internal"
+  subject_class: service
+validity:
+  not_before: "2026-06-01T00:00:00Z"
+  not_after: "2027-06-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-unauthorized-trusted-g1
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-unauthorized-trusted-key
+  vault_binding_ref: vaultbinding:core/neg-unauthorized-trusted-key
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: true
+  evidence_ref: ie:core-strayed-06
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-06-02T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-16T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-16T09:00:00Z"
+    result: current_standing_active
+  outcome: trusted

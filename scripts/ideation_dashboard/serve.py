@@ -101,13 +101,8 @@ import argparse
 import functools
 import http.server
 import json
-import os
 import secrets
-import subprocess
 import sys
-import threading
-import time
-import traceback
 import urllib.parse
 from pathlib import Path
 
@@ -115,12 +110,191 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+# The ROUTE EXTENSION POINT (`split-opendox-two-layer-product` § 2.4, design
+# § D2). A neutral module at the top of `scripts/`, belonging to neither
+# package and importing neither, for the same three reasons `output_boundary`
+# and `corpus_adapter` sit there: both sides of the carve consume it, it travels
+# with the carve, and it therefore imports nothing from here. Spelled as a bare
+# top-level import for the same reason `boundary.py` spells `output_boundary`
+# that way.
+import route_extension  # noqa: E402
+
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import doxbench_abstract_store  # noqa: E402
+# The INSTALL-TIME model-provider declaration the two entrypoints make.
+# Hoisted to module scope by add-doxbench-distilled-abstract §5: the graph is
+# acyclic (`doxbench_install` -> `doxbench_bridge` -> `doxbench_mcp`/
+# `doxbench_threads`/`doxbench_model`, none of which imports this module), and
+# importing the declaration STARTS nothing -- the bridge is constructed lazily
+# on the first resolution and its child only at the first turn that needs one.
+# It used to be a function-scope import inside `serve()`, justified as "only an
+# ENTRYPOINT has any business reading an install declaration"; that is a rule
+# about who CALLS `model_port_factory`, which is still exactly one place, and
+# a deferred import was never what enforced it.
+from ideation_dashboard import doxbench_install  # noqa: E402
+from ideation_dashboard import doxbench_knowledge  # noqa: E402
+from ideation_dashboard import doxbench_packet  # noqa: E402
+from ideation_dashboard import doxbench_telemetry  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
+# THE BY-FUNCTION SPLIT (`split-opendox-two-layer-product` § 2.4, PRs 2 and 3
+# of 4). The openDox column's routes live in `serve_workbench.py` (the doxBench
+# workbench surface) and `serve_project.py` (projects, the notebook tile action,
+# select-to-edit); openXdox's live in `serve_gate.py` (the gate console's door)
+# and `serve_projection.py` (the snapshot, index and `/source` routes); this
+# repository's OWN lane routes live in `serve_openxfactory_lanes.py` (RULING
+# DQ-1). The wire vocabulary, the body bounds and the hosted-plane confinement
+# this core AND every column read live in `serve_wire.py`. No column imports
+# this module — the graph is a DAG, which is the whole reason the vocabulary
+# moved out rather than staying here — and the columns are composed back onto
+# `DashboardHandler` as MIXINS below.
+#
+# TWO REGISTRATION MODES, and the difference is the point of PR 3. PR 2's
+# columns are still FIXED CORE ARMS of `_route`/`do_POST`, exactly as they were.
+# PR 3's three are CONTRIBUTED: their arms have left the fixed tables and they
+# arrive as `RouteBinding`s through the extension point, assembled in
+# `profile_openxfactory.py` and dispatched BY NAME against the live handler —
+# so they meet `self.loopback`, `self.capabilities` and the console test by
+# construction rather than by their author's memory. One route deliberately
+# straddles the two: `/snapshot.json`'s HANDLER moved to `serve_projection.py`
+# with its neighbours while its ARM stayed core, because that arm tests
+# `path == self.snapshot_route` — a per-server keyword `build_server` accepts,
+# which a frozen `RouteBinding.pattern` cannot carry.
+#
+# EVERY MOVED MODULE-LEVEL NAME IS IMPORTED BACK BY NAME, so this module's
+# namespace is what it always was: `serve.doxbench_error_body`,
+# `serve.DOXBENCH_ERROR_CATALOG`, `serve.JSON_CTYPE`, `serve._launch_editor`,
+# `serve.resolve_source_path`, `serve.hosted_index` and the rest all still
+# resolve for every reader that already had them.
+# That is what the `F401`s below declare: names imported to be RE-EXPORTED,
+# not names this module happens not to use yet.
+from ideation_dashboard import serve_gate  # noqa: E402
+from ideation_dashboard import serve_openxfactory_lanes  # noqa: E402
+from ideation_dashboard import serve_project  # noqa: E402
+from ideation_dashboard import serve_projection  # noqa: E402
+from ideation_dashboard import serve_workbench  # noqa: E402
+from ideation_dashboard.serve_gate import (  # noqa: E402,F401
+    ACTIONS_GATE_PREFIX,
+)
+from ideation_dashboard.serve_openxfactory_lanes import (  # noqa: E402,F401
+    ACTIONS_APPLY_REGISTER_EDITS_ROUTE,
+    ACTIONS_DTN_SEED_ROUTE,
+    ACTIONS_REFRESH_ROUTE,
+    ACTIONS_STAGING_SEED_ROUTE,
+    COMMITTED_INTENTS_ROUTE,
+)
+from ideation_dashboard.serve_project import (  # noqa: E402,F401
+    _edit_request_fields,
+    _launch_editor,
+    _listed_source_paths,
+    _resolved_listed_edit_entry,
+)
+from ideation_dashboard.serve_projection import (  # noqa: E402,F401
+    BARE_SOURCE_ROUTE,
+    SNAPSHOT_INDEX_ROUTE,
+    SOURCE_PREFIX,
+    resolve_source_path,
+)
+from ideation_dashboard.serve_wire import (  # noqa: E402,F401
+    AGENT_INVOCATION_REFUSAL,
+    CONTEXT_REDUCED_REASON_MAX_LENGTH,
+    HOSTED_SESSION_REFUSAL,
+    DOXBENCH_ABSTRACT_CONVERSATION_KIND,
+    DOXBENCH_ABSTRACT_REFUSAL_STATUS,
+    DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES,
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_BYTES,
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_DISTILLABLE,
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_ELIGIBLE,
+    DOXBENCH_CHAT_TURN_V2_FAILURE_KIND,
+    DOXBENCH_CHAT_TURN_V2_KIND,
+    DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
+    DOXBENCH_ERROR_CATALOG,
+    DOXBENCH_ERR_ABSTRACT_UNAVAILABLE,
+    DOXBENCH_ERR_APPROVAL_REFUSED,
+    DOXBENCH_ERR_CATALOG_UNAVAILABLE,
+    DOXBENCH_ERR_CONSOLE_REQUIRED,
+    DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH,
+    DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
+    DOXBENCH_ERR_CONTEXT_PACKET_INVALID,
+    DOXBENCH_ERR_INTAKE_REFUSED,
+    DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST,
+    DOXBENCH_ERR_INVALID_INTAKE_REQUEST,
+    DOXBENCH_ERR_INVALID_TURN_REQUEST,
+    DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE,
+    DOXBENCH_ERR_MODEL_FAILED,
+    DOXBENCH_ERR_MODEL_TIMEOUT,
+    DOXBENCH_ERR_MODEL_UNAVAILABLE,
+    DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+    DOXBENCH_ERR_RESPONSE_INVALID,
+    DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE,
+    DOXBENCH_ERR_TURN_ID_CONFLICT,
+    DOXBENCH_ERR_TURN_IN_FLIGHT,
+    DOXBENCH_ERR_TURN_SCOPE_REFUSED,
+    DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND,
+    DOXBENCH_LIMIT_BEARING_CODES,
+    DOXBENCH_MAX_REQUEST_BYTES,
+    DOXBENCH_MODEL_CATALOG_KIND,
+    DOXBENCH_WIRE_SCHEMA_VERSION,
+    JSON_CTYPE,
+    JSON_OBJECT_BODY_REQUIRED,
+    NO_LIVE_SESSION_CAUSE,
+    NO_RESOLVED_ACTOR_CAUSE,
+    _ABSTRACT_REASON_NOT_DISTILLABLE,
+    _ABSTRACT_REASON_NOT_ELIGIBLE,
+    _ABSTRACT_REASON_NO_DECLARED_BASE,
+    _ABSTRACT_REASON_SUBJECT_BYTES,
+    _CredentialStream,
+    _DOXBENCH_MSG_ABSTRACT_UNAVAILABLE,
+    _DOXBENCH_MSG_APPROVAL_REFUSED,
+    _DOXBENCH_MSG_CATALOG_UNAVAILABLE,
+    _DOXBENCH_MSG_CONSOLE_REQUIRED,
+    _DOXBENCH_MSG_CONTENT_IDENTITY_MISMATCH,
+    _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED,
+    _DOXBENCH_MSG_CONTEXT_PACKET_INVALID,
+    _DOXBENCH_MSG_INTAKE_REFUSED,
+    _DOXBENCH_MSG_INVALID_ABSTRACT_REQUEST,
+    _DOXBENCH_MSG_INVALID_INTAKE_REQUEST,
+    _DOXBENCH_MSG_INVALID_TURN_REQUEST,
+    _DOXBENCH_MSG_MODEL_CAPABILITY_UNAVAILABLE,
+    _DOXBENCH_MSG_MODEL_FAILED,
+    _DOXBENCH_MSG_MODEL_TIMEOUT,
+    _DOXBENCH_MSG_MODEL_UNAVAILABLE,
+    _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED,
+    _DOXBENCH_MSG_RESPONSE_INVALID,
+    _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE,
+    _DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT,
+    _DOXBENCH_MSG_TURN_ID_CONFLICT,
+    _DOXBENCH_MSG_TURN_IN_FLIGHT,
+    _DOXBENCH_MSG_TURN_SCOPE_REFUSED,
+    _DOXBENCH_MSG_UNRECOGNIZED_TURN_KIND,
+    _MAX_BODY_BYTES,
+    _MAX_REFUSED_DRAIN_BYTES,
+    _UNSET_VALIDATOR_FACTORY,
+    _abstract_reason_prose_bytes,
+    _drain_refused_body,
+    _no_dereference,
+    _sidecar_text,
+    _thread_absence_body,
+    default_doxbench_validators,
+    doxbench_abstract_conversation_key,
+    doxbench_abstract_refusal_body,
+    doxbench_abstract_refusal_status,
+    doxbench_abstract_success_body,
+    doxbench_context_packet,
+    doxbench_declared_fields,
+    doxbench_error_body,
+    doxbench_error_status,
+    doxbench_selected_model,
+    doxbench_turn_failure_body,
+    doxbench_turn_v2_success_body,
+    fresh_ledger_events,
+    hosted_index,
+    hosted_ref_refused,
+    mint_ledger_snapshot,
+    provider_retry_fact,
+)
 
 DEFAULT_HOST = "127.0.0.1"
 SNAPSHOT_ROUTE = "/snapshot.json"
-SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json"
 # add-project-scoped-selection: the register projection the selector's project
 # picker reads. The snapshot INDEX is a locator and deliberately carries no
 # grouping, so the register itself — aggregation-owned, discovered upward from
@@ -128,425 +302,65 @@ SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json"
 # image, which never serves this route) -> 404 -> the picker hides and the
 # selector degrades to today's ungrouped roster.
 PROJECT_REGISTER_ROUTE = "/project-register.json"
-SOURCE_PREFIX = "/source/"
 CAPABILITIES_ROUTE = "/capabilities"
 ACTIONS_NOTEBOOK_ROUTE = "/actions/notebook"
-ACTIONS_REFRESH_ROUTE = "/actions/refresh"
-# add-register-edit-lane: the header's apply button — the serve runs the
-# fulfilment lane once (Brett's ruling: the click is the deliberate human
-# act; only RECORDED commissions are ever applied, so D2's boundary holds).
-ACTIONS_APPLY_REGISTER_EDITS_ROUTE = "/actions/apply-register-edits"
-# add-shared-identity-seeds: DRAFT a DTN candidate-register seed from a
-# repository-lens region. Read-only by construction — it returns TEXT the
-# human merges and never opens the register for writing — so it is loopback-
-# gated like every local action but needs NO gate capability, which is also
-# what lets it answer from a composed (read-only) view.
-ACTIONS_DTN_SEED_ROUTE = "/actions/dtn-seed"
-# The STAGING-QUEUE seed: the same seed-first, write-nothing contract for a
-# set of documents the human selected in the lens matrix. It drafts the
-# fragment `ideation/staging/<topic>/` expects; the human places it.
-ACTIONS_STAGING_SEED_ROUTE = "/actions/staging-seed"
 ACTIONS_EDIT_ROUTE = "/actions/edit"
-ACTIONS_GATE_PREFIX = "/actions/gate/"
 # T050/T051 (change 010-doxbench-editor-chat): the two doxBench HTTP routes.
 # See the section banner above `_handle_workbench_model_catalog` for the
 # judgement calls their handlers make.
 WORKBENCH_MODEL_CATALOG_ROUTE = "/workbench/model-catalog"
+# add-doxbench-editing-phase-b task 9.5: the THREAD read route. A console-
+# internal surface, deliberately NOT a released contract envelope — no
+# openxFactory schema declares a thread shape, and inventing a `schema_version`
+# for one here would claim a release that was never cut. It carries the same
+# unversioned local shape `/capabilities` does, and the sidecar file itself is
+# the governed artifact.
+WORKBENCH_THREAD_ROUTE = "/workbench/thread"
 ACTIONS_WORKBENCH_CHAT_TURN_ROUTE = "/actions/workbench/chat-turn"
+# add-doxbench-distilled-abstract §5 (design D1): the model-derived per-document
+# distilled abstract's OWN route, deliberately NOT a scoped chat turn. The
+# released turn envelope carries a bound buffer key, per-buffer observed hashes
+# and a buffer-keyed proposal target that an abstract request has none of, and
+# `dispatch_turn` would still demand a `{assistant_prose, proposals}` answer from
+# a request that is not a conversation. The provider-boundary requirement says it
+# in as many words -- a consumer whose request is not a conversation SHALL carry
+# its own request shape and its own declared purpose -- so this is a second
+# CONSUMER of the one model seam, never a second meaning for the chat route.
+ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE = "/actions/workbench/document-abstract"
+# add-doxchat-model-intake §2/§3: the MODEL INTAKE surface and its two acts.
+# Three routes and not one, because they answer three different questions and
+# carry three different things.
+#
+#   * the SURFACE (a GET) discloses whether intake is offered at all, which
+#     authentication kinds the declared broker can take, and which declarations
+#     are still waiting on a human. It is what makes the selector's intake
+#     affordance honest: the affordance is rendered only when this route says the
+#     flow behind it can be opened AND completed;
+#   * the INTAKE act (a POST) carries a CREDENTIAL, and so carries it in a way
+#     nothing else on this server does — the facts ride the query string, where a
+#     fact belongs, and the body is the credential and NOTHING ELSE, streamed
+#     straight into the broker's standard input. See `_handle_workbench_model_intake`;
+#   * the APPROVAL act (a POST) carries no credential at all: it names a
+#     declaration and writes the gate-action record that makes it available.
+#
+# Console-internal local shapes, deliberately NOT released contract envelopes,
+# exactly as `WORKBENCH_THREAD_ROUTE` is: no openxFactory schema declares an
+# intake shape, and inventing a `schema_version` for one here would claim a
+# release that was never cut. The governed artifacts are the ones that ARE
+# released — the gate-action record the approval writes, and the settings
+# documents the flow leaves behind.
+WORKBENCH_MODEL_INTAKE_ROUTE = "/workbench/model-intake"
+ACTIONS_WORKBENCH_MODEL_INTAKE_ROUTE = "/actions/workbench/model-intake"
+ACTIONS_WORKBENCH_MODEL_APPROVAL_ROUTE = "/actions/workbench/model-approval"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
-JSON_CTYPE = "application/json; charset=utf-8"
-JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
-_MAX_BODY_BYTES = 65_536  # a tile-action body is tiny; cap it to refuse a flood
 
-# W-5/W-6 (wave re-review): how much of a REFUSED body a reader will
-# read-and-discard so the refusal survives its own transport. Sized past the
-# largest body a real client can legally compose (a maximal 400,000-byte
-# buffer JSON-escapes to under 2.5 MiB); a sender past this is a flood, and
-# its connection closes with bytes unread. Shared by BOTH readers — the tiny
-# global-cap reader and the route-specific bounded reader — so the
-# refusal-races-its-own-transport fix has one posture, not a band.
-_MAX_REFUSED_DRAIN_BYTES = 4 * 1024 * 1024
-
-
-def _drain_refused_body(rfile, declared: int) -> None:
-    """Read and DISCARD a refused body so the refusal survives its own
-    transport (T104 F5/F8; wave re-review W-5/W-6). Chunked in cap-sized
-    reads (never buffering what it refuses to parse) and bounded by
-    `_MAX_REFUSED_DRAIN_BYTES` — beyond it the sender is a flood, not a
-    client whose refusal needs to survive, and the connection closes with
-    bytes unread. A read that stops arriving raises out of the socket
-    timeout (`DashboardHandler.timeout`) rather than blocking forever: the
-    drain without that bound traded an instant refusal for an unbounded
-    block, which was strictly worse (W-5). Module-level over a bare file
-    object so the request-shaped test doubles need nothing beyond `.rfile`.
-    """
-    remaining = min(declared, _MAX_REFUSED_DRAIN_BYTES)
-    try:
-        while remaining > 0:
-            chunk = rfile.read(min(remaining, _MAX_BODY_BYTES))
-            if not chunk:
-                break
-            remaining -= len(chunk)
-    except OSError:
-        return
 _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh": False,
-                                    "session": False, "edit": False},
+                                    "session": False, "edit": False,
+                                    "intent": False},
                          "actor": None, "refresh": {"binding": None, "loopback_only": True}}
 
 
-# --------------------------- doxBench request handling ---------------------------
-#
-# T024 introduced the route-specific request bound, fixed error vocabulary,
-# and injected model-port seam. T050/T051 now consume those foundations from
-# the reachable catalog and chat-turn routes declared above.
-#
-# The wire envelope stays `schema_version`/`kind`-FREE, deliberately: the two
-# additive openxFactory schemas (`xfactory-workbench-model-catalog`,
-# `xfactory-workbench-chat-turn`) are not yet released — blocked on
-# T005-T008, T014, T021, and OpenSpec items 2.1/2.5 (plan.md's "Contract
-# Baseline and Merge Pin", research.md R13). This section reuses serve.py's
-# EXISTING `{"ok": false, "error": <code>, "message": <fixed string>}`
-# discipline only; the schema-versioned envelope arrives WITH the released
-# contract, not before.
-#
-# `WorkbenchModelPort` and its typed catalog/fake now exist as T020's
-# catalog-only core. `model_port_factory` below (and
-# `_workbench_model_port`, on the handler class further down) remains
-# DUCK-TYPED at the injection boundary; the catalog handler consumes
-# `catalog()`, while the turn handler deliberately stops before provider
-# dispatch because the port has no dispatch member yet.
-#
-# Nothing here reaches a provider: no provider SDK import, no provider
-# env-var read, no credential, no raw endpoint, no secret name.
-
-# The ROUTE-SPECIFIC bound (research R7): NOT a second global cap.
-# `_MAX_BODY_BYTES` above stays the EXISTING tiny 65,536-byte tile-action cap
-# — R7 explicitly rejects widening IT, because that would weaken every
-# unrelated action and lose measured limit errors. The doxBench chat-turn
-# route declares this bound for ITSELF, sized to plan.md's Constraints total
-# (1,048,576 UTF-8 bytes).
-#
-# T104 F5-6 UPDATE to that record: "every route that already exists keeps the
-# tiny cap" is no longer quite the rule, because one already-existing verb was
-# found to carry a declared LARGE payload. The gate verb `first-edit` (the
-# governed Save) posts a document's full replacement text, whose bound both
-# sides declare at `doxbench_hash.MAX_BUFFER_BYTES` (400,000) — over the tiny
-# cap by design, so the transport refused a legal Save with a misleading
-# message. That ONE verb now reads through `_read_bounded_json_body` at THIS
-# same bound (see the branch in `_handle_gate_action` for the full record);
-# every other pre-existing route keeps `_read_json_body` and the tiny cap,
-# exactly as R7 decided.
-DOXBENCH_MAX_REQUEST_BYTES = 1_048_576
-
-# ---- released wire identifiers (T024/T050/T051 wire clause) ----
-# The additive openxFactory schemas are RELEASED and PINNED at contract-v1.27
-# (`d09d5820de5b63b9528f6baea884a6dccde9b158`), so the deferral this section
-# used to record is discharged. `doxbench_contracts` is the AUTHORITY: it reads
-# the released bytes, verifies their digests against the checkout's own
-# manifest, and confirms `stack.yaml` still declares that ref. These literals
-# exist only so the pure envelope builders below need no schema import, and the
-# companion suite pins each one against `doxbench_contracts`'s released
-# constant so a second spelling cannot drift. Conformance is never claimed from
-# these constants: every wire shape is VALIDATED against the released schema
-# before it is sent.
-DOXBENCH_WIRE_SCHEMA_VERSION = 1
-DOXBENCH_MODEL_CATALOG_KIND = "workbench-model-catalog"
-DOXBENCH_CHAT_TURN_KIND = "workbench-chat-turn"
-DOXBENCH_CHAT_TURN_SUCCESS_KIND = "workbench-chat-turn-success"
-DOXBENCH_CHAT_TURN_FAILURE_KIND = "workbench-chat-turn-failure"
-
-# ---- fixed doxBench error catalog (mirrors action_errors.ERROR_CATALOG's shape) ----
-# The closed code set combines spellings pinned verbatim by the planning
-# contracts with route-level judgement calls documented beside their entries.
-DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED = "request_limit_exceeded"
-DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE = "model_capability_unavailable"
-DOXBENCH_ERR_CATALOG_UNAVAILABLE = "catalog_unavailable"
-DOXBENCH_ERR_CONSOLE_REQUIRED = "console_required"
-# ---- T050/T051 additions. `turn_id_conflict` is VERBATIM from
-# `contracts/chat-turn.md`; the other five are this slice's own judgement
-# calls (spelling AND, where noted, HTTP status) -- the planning packet pins
-# the BEHAVIOUR but leaves these six spellings/statuses unpinned. See the
-# section banner above `_handle_workbench_model_catalog` for the full record.
-DOXBENCH_ERR_TURN_ID_CONFLICT = "turn_id_conflict"
-DOXBENCH_ERR_TURN_IN_FLIGHT = "turn_in_flight"
-DOXBENCH_ERR_TURN_SCOPE_REFUSED = "turn_scope_refused"
-DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH = "content_identity_mismatch"
-DOXBENCH_ERR_MODEL_UNAVAILABLE = "model_unavailable"
-DOXBENCH_ERR_INVALID_TURN_REQUEST = "invalid_turn_request"
-# ---- T051 dispatch-arm additions. These three spell doxbench_model's
-# CLOSED dispatch-code set (`DISPATCH_FAILURE_CODES`; its fourth member is
-# `model_unavailable`, already above). doxbench_model is a deferred
-# function-scope import in this module, so the spellings are restated as
-# literals here and the companion route test pins the parity — same
-# discipline as the CATALOG_WIRE_KIND restatement in doxbench_model.py.
-DOXBENCH_ERR_MODEL_TIMEOUT = "model_timeout"
-DOXBENCH_ERR_MODEL_FAILED = "model_failed"
-DOXBENCH_ERR_RESPONSE_INVALID = "response_invalid"
-
-# Fixed, module-level messages: never composed from request data, exactly
-# like `action_errors.ERROR_CATALOG`'s messages.
-_DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
-_DOXBENCH_MSG_MODEL_CAPABILITY_UNAVAILABLE = "this plane has no model capability"
-_DOXBENCH_MSG_CATALOG_UNAVAILABLE = "the model catalog could not be assembled safely"
-_DOXBENCH_MSG_CONSOLE_REQUIRED = "this route is available only from the local human console"
-_DOXBENCH_MSG_TURN_ID_CONFLICT = "this turn id was already used for different request content"
-_DOXBENCH_MSG_TURN_IN_FLIGHT = "a turn is already in flight for this conversation"
-_DOXBENCH_MSG_TURN_SCOPE_REFUSED = "the requested scope could not be confirmed"
-_DOXBENCH_MSG_CONTENT_IDENTITY_MISMATCH = "the submitted content does not match its declared identity"
-_DOXBENCH_MSG_MODEL_UNAVAILABLE = "the requested model is not available"
-_DOXBENCH_MSG_INVALID_TURN_REQUEST = "the turn request is malformed"
-_DOXBENCH_MSG_MODEL_TIMEOUT = "the model did not answer within the declared timeout"
-_DOXBENCH_MSG_MODEL_FAILED = "the model request failed"
-_DOXBENCH_MSG_RESPONSE_INVALID = "the model response could not be validated"
-
-# code -> (HTTP status, fixed caller-safe message). `request_limit_exceeded`'s
-# 413 (Payload Too Large) is this slice's own judgement call: the planning
-# contracts do not pin an HTTP status for it the way model-catalog.md's table
-# pins the other three (403/403/500).
-DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
-    DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED: (413, _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED),
-    DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE: (403, _DOXBENCH_MSG_MODEL_CAPABILITY_UNAVAILABLE),
-    DOXBENCH_ERR_CATALOG_UNAVAILABLE: (500, _DOXBENCH_MSG_CATALOG_UNAVAILABLE),
-    DOXBENCH_ERR_CONSOLE_REQUIRED: (403, _DOXBENCH_MSG_CONSOLE_REQUIRED),
-    # turn_id_conflict: 409, spelling VERBATIM in contracts/chat-turn.md.
-    DOXBENCH_ERR_TURN_ID_CONFLICT: (409, _DOXBENCH_MSG_TURN_ID_CONFLICT),
-    # turn_in_flight: judgement-call spelling; the BEHAVIOUR is mandated
-    # (contract's "attach/wait or safe in-flight response", spec's "an
-    # in-flight repeat SHALL attach to or report that turn", FR-018) but the
-    # packet pins no code spelling or status for it.
-    DOXBENCH_ERR_TURN_IN_FLIGHT: (409, _DOXBENCH_MSG_TURN_IN_FLIGHT),
-    # turn_scope_refused: judgement-call spelling; covers the contract's
-    # preconditions 3/4/5 as ONE fail-closed refusal so no response is an
-    # oracle about which repositories, refs, tiles, or paths exist.
-    DOXBENCH_ERR_TURN_SCOPE_REFUSED: (403, _DOXBENCH_MSG_TURN_SCOPE_REFUSED),
-    # content_identity_mismatch: judgement-call spelling; precondition 6, the
-    # stale-input class.
-    DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH: (409, _DOXBENCH_MSG_CONTENT_IDENTITY_MISMATCH),
-    # model_unavailable: judgement-call spelling; precondition 7 plus
-    # spec.md's "a model becomes unavailable after selection but before
-    # submission" edge case.
-    DOXBENCH_ERR_MODEL_UNAVAILABLE: (409, _DOXBENCH_MSG_MODEL_UNAVAILABLE),
-    # invalid_turn_request: judgement-call spelling; known-field shape and
-    # blank message.
-    DOXBENCH_ERR_INVALID_TURN_REQUEST: (400, _DOXBENCH_MSG_INVALID_TURN_REQUEST),
-    # T051 dispatch outcomes (spellings from doxbench_model's closed set;
-    # statuses are this slice's judgement calls): 504 for the deadline
-    # outcome (gateway-timeout semantics), 502 for an adapter failure and
-    # for provider output the validator refused (bad-gateway semantics: the
-    # upstream answered, unusably). Fixed messages, like every entry above.
-    DOXBENCH_ERR_MODEL_TIMEOUT: (504, _DOXBENCH_MSG_MODEL_TIMEOUT),
-    DOXBENCH_ERR_MODEL_FAILED: (502, _DOXBENCH_MSG_MODEL_FAILED),
-    DOXBENCH_ERR_RESPONSE_INVALID: (502, _DOXBENCH_MSG_RESPONSE_INVALID),
-}
-
-
-def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
-    """The fixed doxBench wire body for `code` — a PURE module-level function,
-    testable with no handler and no server. Keys are a fixed allowlist: `ok`,
-    `error`, `message`, and — ONLY for `request_limit_exceeded` — a `limit`
-    block REBUILT from exactly three named fields (`dimension` cast to `str`,
-    `measured` and `maximum` cast to `int`), so nothing request-derived can
-    ever splice an extra key into the response regardless of what a caller
-    passes in `limit`. NO `schema_version`, NO `kind`: those are fields of the
-    future RELEASED openxFactory schemas — the deliberate, recorded deferral
-    the section banner above states."""
-    _, message = DOXBENCH_ERROR_CATALOG[code]
-    body: dict = {"ok": False, "error": code, "message": message}
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
-        body["limit"] = {
-            "dimension": str(limit["dimension"]),
-            "measured": int(limit["measured"]),
-            "maximum": int(limit["maximum"]),
-        }
-    return body
-
-
-def doxbench_error_status(code: str) -> int:
-    """The fixed HTTP status for `code` (companion to `doxbench_error_body`,
-    mirroring `action_errors.ERROR_CATALOG`'s status half)."""
-    return DOXBENCH_ERROR_CATALOG[code][0]
-
-
-# ---- the RELEASED chat-turn failure envelope (T024/T051 wire clause) ----
-#
-# `contracts/model-catalog.md` keeps the CATALOG route's failures on the
-# pre-existing `{ok, error, message}` shape — the release publishes no catalog
-# failure envelope — while `xfactory-workbench-chat-turn.schema.yaml` DOES
-# publish one, closed, requiring a `client_turn_id` of 1..128 characters and
-# admitting no `ok` key at all. Two consequences, both deliberate:
-#
-#   * a chat failure emitted AFTER the request validated against the released
-#     schema carries the released envelope (and therefore no `ok`), because at
-#     that point the turn identity is known AND known to be in bounds; and
-#   * a chat refusal emitted BEFORE that point — the plane gate, the console
-#     gate, the route-specific body bound, a body that is not a JSON object,
-#     and the schema refusal itself — keeps `doxbench_error_body`'s fixed
-#     shape, because the released envelope has no representation for "a
-#     failure with no validated turn identity" and fabricating a
-#     `client_turn_id` would hand the browser a correlation key for a turn the
-#     server never accepted. Refusing to invent one is the fail-closed
-#     direction; the code and fixed message are identical either way.
-
-def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
-                               limit: dict | None = None) -> dict:
-    """The RELEASED `workbench-chat-turn-failure` envelope for `code` — a PURE
-    module-level function, testable with no handler and no server.
-
-    Keys are the released allowlist: `schema_version`, `kind`,
-    `client_turn_id`, `error`, `message`, and — ONLY for
-    `request_limit_exceeded` — the `limit` block, REBUILT from exactly three
-    named fields exactly as `doxbench_error_body` rebuilds it, so nothing
-    request-derived can splice a key into a response. The message is the same
-    fixed module-level constant the pre-release shape used; only the envelope
-    changed."""
-    _, message = DOXBENCH_ERROR_CATALOG[code]
-    body: dict = {
-        "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
-        "kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
-        "client_turn_id": str(client_turn_id),
-        "error": code,
-        "message": message,
-    }
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
-        body["limit"] = {
-            "dimension": str(limit["dimension"]),
-            "measured": int(limit["measured"]),
-            "maximum": int(limit["maximum"]),
-        }
-    return body
-
-
-def doxbench_turn_success_body(*, client_turn_id: str, assistant_turn_id: str,
-                               model_id: str, observed_hashes: dict,
-                               assistant_prose: str, proposals=()) -> dict:
-    """The RELEASED `workbench-chat-turn-success` envelope (T051 dispatch
-    arm) — a PURE module-level function, testable with no handler and no
-    server, exactly like `doxbench_turn_failure_body`.
-
-    Keys are the released allowlist and nothing else: `schema_version`,
-    `kind`, `client_turn_id`, `assistant_turn_id`, `model_id`,
-    `observed_hashes` (REBUILT from exactly the two named 64-hex strings, so
-    nothing caller-derived can splice a key in), `assistant_prose`, and
-    `proposals`. PIN EVOLUTION (T061, the loud widening the original
-    docstring promised): the builder now takes 0-2 VALIDATED
-    `doxbench_turns.TypedProposal` values and REBUILDS each into exactly the
-    released four-field wire shape, so nothing provider-derived can splice a
-    key in. The route still self-validates the built envelope against the
-    released schema before storing or sending it; this builder is never the
-    last word on conformance."""
-    return {
-        "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
-        "kind": DOXBENCH_CHAT_TURN_SUCCESS_KIND,
-        "client_turn_id": str(client_turn_id),
-        "assistant_turn_id": str(assistant_turn_id),
-        "model_id": str(model_id),
-        "observed_hashes": {
-            "outline": str(observed_hashes["outline"]),
-            "document": str(observed_hashes["document"]),
-        },
-        "assistant_prose": str(assistant_prose),
-        "proposals": [
-            {"target": str(p.target), "base_hash": str(p.base_hash),
-             "summary": str(p.summary), "content": str(p.content)}
-            for p in proposals
-        ],
-    }
-
-
-# `build_server`'s sentinel for "the caller said nothing about validators".
-# Distinct from None, which is a caller explicitly declaring NO validators.
-_UNSET_VALIDATOR_FACTORY = object()
-
-
-def default_doxbench_validators() -> dict:
-    """Resolve the released doxBench schema validators from the PINNED
-    openxFactory checkout (`doxbench_contracts.validators`).
-
-    This is `build_server`'s default for the `schema_validator_factory` seam.
-    It is a function, not an eager module-level load, so a server can be built
-    on a plane with no checkout and simply refuse the two model routes rather
-    than failing to start — and so the pin is re-verified per request rather
-    than cached at import, which is what makes a mid-run repin observable.
-
-    Raises whatever `doxbench_contracts` raises (`ContractPinError` on an
-    unreachable checkout, an absent schema, a digest mismatch, a manifest
-    disagreement, or a drifted `stack.yaml` ref). The caller
-    (`_doxbench_validators`) turns any of those into a fail-closed route
-    refusal: "I could not read the contract" is never an implicit pass."""
-    from ideation_dashboard import doxbench_contracts
-    return doxbench_contracts.validators()
-
-
 # --------------------------- capability discovery (pure) ---------------------------
-
-def _launch_editor(command: list[str], *, configured_editor: bool,
-                   popen=subprocess.Popen):
-    """Launch an edit command with the streams its invocation style requires.
-
-    A configured ``$EDITOR`` may be a terminal program, so it must inherit the
-    server's terminal and remain in its session.  The desktop-opener fallback
-    has no interactive contract and is detached from the dashboard process.
-    ``popen`` is injectable so tests never start either kind of program.
-    """
-    if configured_editor:
-        return popen(command)
-    return popen(
-        command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL, start_new_session=True)
-
-
-def _listed_source_paths(entry) -> frozenset[str]:
-    """Source paths the selected snapshot actually projects into the UI.
-
-    The viewer can be reached from the corpus-wide document list, a staged-topic
-    folder, or an active/archived change folder.  Root confinement alone is not
-    enough for select-to-edit: without this projection check, a console-token
-    holder could ask the route to open any existing file under the registered
-    checkout, including one the dashboard never listed.
-    """
-    snapshot = entry.read_json() if entry is not None else None
-    if not isinstance(snapshot, dict):
-        return frozenset()
-
-    paths: set[str] = set()
-    for document in snapshot.get("documents") or []:
-        if isinstance(document, dict) and isinstance(document.get("path"), str):
-            paths.add(document["path"])
-    for collection in ("staged_topics", "changes"):
-        for item in snapshot.get(collection) or []:
-            if not isinstance(item, dict):
-                continue
-            paths.update(path for path in (item.get("files") or [])
-                         if isinstance(path, str))
-    return frozenset(paths)
-
-
-def _edit_request_fields(body) -> tuple[tuple[str, str, str] | None, str | None]:
-    """Validate the select-to-edit wire body without touching the filesystem."""
-    if not isinstance(body, dict):
-        return None, JSON_OBJECT_BODY_REQUIRED
-    path = body.get("path")
-    repository = body.get("repository")
-    ref = body.get("ref")
-    if not all(isinstance(field, str) and field
-               for field in (path, repository, ref)):
-        return None, "path, repository, and ref must be non-empty strings"
-    return (path, repository, ref), None
-
-
-def _resolved_listed_edit_entry(source, path: str, repository: str | None,
-                                ref: str | None):
-    """Return the selected entry only when its projected file is editable."""
-    registry = getattr(source, "registry", None) if source is not None else None
-    if registry is None:
-        return None
-    entry = registry.resolve(repository, ref)
-    target = registry.resolve_source(repository, ref, path)
-    if (entry is None or entry.source_root is None or target is None
-            or not target.is_file() or path not in _listed_source_paths(entry)):
-        return None
-    return entry
-
 
 def compute_capabilities(*, nlm_present: bool, checkout_real: bool, loopback: bool,
                          actor: str | None = None,
@@ -582,7 +396,34 @@ def compute_capabilities(*, nlm_present: bool, checkout_real: bool, loopback: bo
 
     It is INDEPENDENT of `nlm`: a local plane with no notebook still has full
     sessions, because FR-042 already requires a session without its notebook to be
-    a complete session."""
+    a complete session.
+
+    INTENT (add-ideation-intent-plane task 4.4, design D5) is the gate seam's
+    OTHER binding, and it is the photographic negative of the gate leg: the
+    SERVED plane emits intents, the loopback plane executes. D5 fixes the pair
+    — "the LOCAL dashboard gets executing gate routes + the dispose tray FIRST
+    ... and the identical tray then targets the intent API when hosted" — so
+    exactly one of `gate` and `intent` is ever true, and a local session's
+    `gate = local_human` verdict is unchanged by this key's existence.
+
+    Three things it deliberately does NOT depend on, each for its own reason:
+
+      * `hosted_actor`. That field is stamped PER REQUEST from the gateway
+        header and is DISPLAY-ONLY: `add-dashboard-account-menu` Requirement 2
+        says the header flips no capability verdict, and the `/capabilities`
+        handler says the same in its own comment. Keying intent emission on it
+        would make a display fact into an authorization input and would make
+        the `actions` map differ between two requests to one server. The inbox
+        is the identity authority: an unauthenticated POST gets its own 401
+        there, which is a refusal the tray RENDERS rather than a capability the
+        dashboard withholds.
+      * `actor`. That is the LOCAL identity resolved from the checkout; a
+        hosted plane has none by construction and must still emit.
+      * `checkout_real`. Intent emission is a POST to another pod; it needs no
+        corpus. (The committed-intent FEED does read the checkout, but a feed
+        with nothing in it is an empty feed, not an absent capability.)
+
+    So the predicate is the plane itself, and nothing else."""
     binding = refresh_binding
     if binding == registry_mod.BINDING_REGENERATE and not (loopback and checkout_real):
         binding = None
@@ -594,6 +435,12 @@ def compute_capabilities(*, nlm_present: bool, checkout_real: bool, loopback: bo
             "refresh": bool(binding),
             "session": local_human,
             "edit": local_human,
+            # THE HOSTED WRITE-REQUEST SEAM, and the only capability here that
+            # is true OFF loopback. It grants no write: an intent is a REQUEST
+            # the apply lane revalidates and may refuse (kernel schema: "an
+            # intent is NEVER a write"), which is why it does not join the
+            # account menu's WRITE_ACTIONS list either.
+            "intent": not loopback,
         },
         "actor": actor if (actor and checkout_real and loopback) else None,
         "refresh": {
@@ -645,11 +492,6 @@ CONSOLE_TOKEN_HEADER = "X-XF-Console-Token"
 CONSOLE_TOKEN_FIELD = "console_token"
 JSON_CONTENT_TYPE_PREFIX = "application/json"
 
-AGENT_INVOCATION_REFUSAL = (
-    "a session gate verb is human-only (FR-019) and this request does not come "
-    "from the human console this serve started: it must be issued by the served "
-    "page, same-origin, carrying this serve's console token")
-
 
 def mint_console_token() -> str:
     """A fresh, unguessable per-serve console token. New on every start, so a
@@ -669,99 +511,6 @@ def loopback_authorities(port: int) -> frozenset[str]:
             for host in LOOPBACK_HOSTS
         }
     return frozenset(authorities)
-
-
-# The refusal message every hosted non-`main` request gets, verbatim. Fixed text:
-# nothing request-derived reaches the wire (the response discipline this module
-# already keeps for the notebook action).
-HOSTED_SESSION_REFUSAL = ("a ref other than 'main' is session-local data and is "
-                          "not available on this plane")
-
-
-def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
-    """Whether a request naming `ref` must be REFUSED because this is the hosted
-    plane (007-workbench-branch-sessions T083, FR-048).
-
-    FR-048: "The hosted dashboard MUST expose NONE of this capability — no session,
-    no branch-ref selection, no session verb, no worktree, no non-`main` snapshot —
-    and a hosted request naming a non-`main` ref MUST refuse."
-
-    The test is the BIND, not the advertised capability. A capability dict is a
-    startup verdict a handler could in principle be constructed with by hand; the
-    bind is what makes a plane hosted, and the confinement has to hold for any
-    handler that is not on loopback. `None` / blank means `main` (the registry's own
-    `normalize_ref` default), so every pre-existing ref-less request is untouched,
-    and the LOCAL plane is untouched entirely — confining the hosted plane must not
-    confine the plane this whole feature lives on.
-
-    Why the hosted plane cannot simply have sessions: the session's remote-write
-    identity is the invoking engineer's OWN `gh` authentication (FR-034, D22) — a
-    personal credential, which a hosted plane must never hold or borrow — and the
-    worktree a session reads through is a per-machine directory beside a real
-    checkout, which a served image does not have (research R7).
-
-    THE ARRIVAL PATH, RECORDED AND DELIBERATELY NOT BUILT (FR-048, chg 7.2). A
-    hosted session becomes possible by binding the INTENT PLANE's apply-lane ref
-    (openxFactory `add-ideation-intent-plane` §4) through the EXISTING
-    (repository, ref) seam this function guards: the intent plane's lane already
-    owns an identity that is not anybody's personal credential, and a lane ref is
-    already a (repository, ref) pair, so the session would arrive as another row in
-    the same registry — no new seam, no second write chokepoint, and the openxfactory
-    App as the ruled hosted identity (D22). That binding is a SEPARATE change with
-    its own gate: nothing in this module reaches for a lane, and this refusal is
-    where the next reader will be standing when they ask why."""
-    if loopback:
-        return False
-    return not registry_mod.is_publishable_ref(ref)
-
-
-def hosted_index(document: dict) -> dict:
-    """The snapshot INDEX as a hosted plane may project it (FR-048, PR #49 review
-    finding 14): every non-`main` entry dropped, a non-`main` `active` dropped with
-    them, and every non-`main` AGGREGATE MEMBER dropped too.
-
-    `hosted_ref_refused` guards the routes that NAME a ref; the index names none,
-    so it was outside that confinement entirely and published the branch names of
-    unmerged work — the topic and cluster ids of work in progress — to anyone who
-    could reach the bind. Pure, so the rule is testable on its own, and it reuses
-    the SAME `is_publishable_ref` predicate the refusal does, so there is still
-    one definition of "a ref a hosted plane may see".
-
-    THE MEMBER PASS IS WAVE 2's. `entries` and `active` were projected and
-    `aggregates[].members` was not, though `SnapshotRegistry.index_document` emits
-    those members as `{repository, ref}` pairs — so an aggregate naming a session
-    ref published `draft/<topic>` off-loopback with a 200 while `entries` was
-    correctly main-only (reproduced by the wave-2 critic on a production-shaped
-    hosted plane, and reproduced again here before the fix). Content stayed confined
-    (`?ref=…` still 403), so what leaked is the topic id of unmerged work — the same
-    class FR-048 exists to prevent. An aggregate whose members are ALL unpublishable
-    is dropped whole rather than published empty: an aggregate is defined by the
-    snapshots it composes, and one with no visible members is not a narrower view of
-    itself, it is a name with nothing behind it (and a hosted plane composing it
-    would find nothing to render)."""
-    projected = dict(document)
-    entries = [entry for entry in projected.get("entries") or []
-               if registry_mod.is_publishable_ref(entry.get("ref"))]
-    projected["entries"] = entries
-    active = projected.get("active")
-    if isinstance(active, dict) and not registry_mod.is_publishable_ref(active.get("ref")):
-        projected.pop("active", None)
-    if "aggregates" in projected:
-        aggregates = []
-        for aggregate in projected.get("aggregates") or []:
-            if not isinstance(aggregate, dict):
-                continue
-            members = [member for member in aggregate.get("members") or []
-                       if isinstance(member, dict)
-                       and registry_mod.is_publishable_ref(member.get("ref"))]
-            if not members:
-                continue
-            aggregates.append({**aggregate, "members": members})
-        if aggregates:
-            projected["aggregates"] = aggregates
-        else:
-            projected.pop("aggregates", None)
-    return projected
 
 
 def _checkout_real(checkout_root: Path | str) -> bool:
@@ -787,20 +536,26 @@ def _checkout_real(checkout_root: Path | str) -> bool:
 
 
 def resolve_actor(checkout_root: Path | str, override: str | None = None) -> str | None:
-    """The local action center's human identity: an explicit ``--actor`` wins;
-    otherwise the checkout's `git config user.name`. None (no identity) keeps
-    gate actions unavailable — fail-closed, never a guessed actor."""
+    """The local action center's human identity. None (no identity) keeps gate
+    actions unavailable — fail-closed, never a guessed actor.
+
+    THE `--actor` TRUST GAP, on this surface. An explicit `--actor` used to WIN
+    OUTRIGHT: whatever string the flag carried became the identity every
+    gate-action record this serve wrote would name, checked against nothing. The
+    override is now a CLAIM that must match the authenticated principal
+    (`actor_identity`) — the gateway-verified user, a launcher-supplied
+    principal, an explicit allowlist, or this checkout's own git identity, which
+    is also the no-override default the function has always used. An override
+    that cannot be authenticated resolves to None, which is this surface's
+    fail-closed spelling: the plane comes up with gate actions OFF rather than
+    with a fabricated identity attached to them."""
+    from ideation_dashboard import actor_identity
+
     if override and str(override).strip():
-        return str(override).strip()
-    import subprocess
-    try:
-        proc = subprocess.run(
-            ["git", "-C", str(checkout_root), "config", "user.name"],
-            capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.SubprocessError):
-        return None
-    name = (proc.stdout or "").strip()
-    return name or None
+        return actor_identity.authenticated_actor_or_none(
+            override, checkout_root=checkout_root)
+    return actor_identity.authenticated_actor_or_none(
+        None, checkout_root=checkout_root)
 
 
 def real_notebook_adapter():
@@ -856,21 +611,6 @@ def divergence(source_revision: str | None, head: str | None) -> dict[str, str |
     return {"state": state, "source_revision": source_revision, "head": head}
 
 
-# --------------------------- source-path containment (pure) ---------------------------
-
-def resolve_source_path(checkout_root: Path, url_tail: str) -> Path | None:
-    """Resolve a `/source/<tail>` request to an absolute file under
-    `checkout_root`, or None to reject. Rejects absolute paths, NUL bytes, any
-    escape of the root (via `..`, encoded `..`, or a symlink), and non-files.
-    Percent-decoding happens BEFORE the containment check so `%2e%2e` cannot slip
-    past.
-
-    The containment check itself now lives in `snapshot_registry.resolve_within`
-    so the SAME rule applies per registry entry (task 2.2); this stays the
-    single-root entry point every existing caller and test uses."""
-    return registry_mod.resolve_within(Path(checkout_root), url_tail)
-
-
 def _head_of(checkout_root: Path, git=None) -> str | None:
     """Current git HEAD of the checkout, or None (degrades — never blocks
     serving)."""
@@ -883,7 +623,12 @@ def _head_of(checkout_root: Path, git=None) -> str | None:
 
 # --------------------------- request handler ---------------------------
 
-class DashboardHandler(http.server.SimpleHTTPRequestHandler):
+class DashboardHandler(serve_workbench.WorkbenchRoutes,
+                       serve_project.ProjectRoutes,
+                       serve_gate.GateRoutes,
+                       serve_projection.ProjectionRoutes,
+                       serve_openxfactory_lanes.LaneRoutes,
+                       http.server.SimpleHTTPRequestHandler):
     """Static bundle + snapshot + read-only source pass-through. Bound
     subclasses set the class attributes below via `build_server`."""
 
@@ -931,6 +676,36 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # `doxbench_turns.TurnStore()` here -- ONE store per served process, never
     # shared across servers (see `test_turn_store_is_bound_per_server_process`).
     turn_store = None
+    # The per-process DISTILLED-ABSTRACT cache (add-doxbench-distilled-abstract
+    # §5.3, clarification N1). A SEPARATE instance with SEPARATE bounds, never
+    # the chat ledger above: a scope holding more documents than the bound is
+    # the ordinary case for abstracts, so a shared store would evict chat
+    # idempotency records under ordinary abstract churn and a chat retry that
+    # should replay would re-dispatch. None only in hand-constructed handlers;
+    # `build_server` always binds a fresh one.
+    abstract_store = None
+    # The doxBench STAGED-SET KNOWLEDGE SERVICE, declared at INSTALL time
+    # (add-doxbench-editing-phase-b D11, task 10.6). None means NO knowledge
+    # service, which is a declared POSTURE and not an error: the turn degrades
+    # to the reduced packet with its reduction stated, the rails still run, and
+    # the editors are untouched. NOTHING at runtime — no turn, no prompt, no
+    # heuristic — may choose a backend, which is why this is a serve-level
+    # declaration and why the route below only ever READS it.
+    knowledge_declaration = None
+    # The packet assembler this route reaches, bound by `build_server` to
+    # `doxbench_packet.assemble_packet`. INJECTED for the same reason every
+    # other collaborator on this route is (the model port, the notebook
+    # adapter, the schema validators): the packet is now a collaborator, and
+    # the leash it carries -- purpose, scope, expiry -- can only be exercised
+    # end to end by a route that was handed one it must reject. Unlike the
+    # capability seams, absence here is NOT a posture: the real assembler is
+    # the default, because assembling a packet is the pipeline, not a
+    # capability an install may decline.
+    packet_assembler = staticmethod(doxbench_packet.assemble_packet)
+    # The per-process content-free usage meter (task 10.8). None only in
+    # hand-constructed handlers; one meter per served process, beside the turn
+    # store and never shared across servers.
+    usage_meter = None
     actor: str | None = None
     # The repository half of every session key this process serves, BOUND at
     # `build_server` to the served checkout's own repository (finding R2-11). None
@@ -944,6 +719,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     gate_index_validator = None  # test seam: injectable pinned-validator path
     gate_manifest_validator = None  # test seam: pinned workbench-manifest validator
     gate_xref_validator = None  # test seam: pinned cross-reference validator
+    # The CONTRIBUTED routes this server was assembled with
+    # (`split-opendox-two-layer-product` § 2.4), already flattened into one
+    # consult order by `route_extension.collect_bindings`: the in-tree profile
+    # (`profile_openxfactory.ROUTE_EXTENSIONS` — the gate console, the
+    # projection routes, this repository's lane routes) plus whatever the
+    # caller added. The fixed core arms below are consulted first and the
+    # fallback after, so the ORDER a route is reached in is unchanged by where
+    # it is registered. Bound by `build_server`; `()` in hand-constructed
+    # handlers, which therefore serve the core arms alone — the same posture a
+    # hand-constructed handler has always had for every seam `build_server`
+    # binds (no adapter, no validators, no turn store).
+    route_bindings: tuple = ()
 
     # keep the console quiet unless asked otherwise
     def log_message(self, fmt, *args):  # noqa: N802
@@ -1044,885 +831,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None
 
-    def _workbench_model_port(self):
-        """The injected `WorkbenchModelPort` this server was declared with
-        (T024, research R6), or None.
-
-        GATED ON THE SAME local-human verdict the `session` capability already
-        encodes (loopback + real checkout + resolved human actor) rather than
-        a NEW capability key. `GET /workbench/model-catalog` now exposes the
-        catalog on that gate; the additive public `/capabilities` model field
-        remains deferred until the released contract is pinned. Reusing
-        `session` is deliberate, not incidental: both gates protect the same
-        thing, a loopback human console with a real checkout and a resolved
-        actor, and provider dispatch is exactly the kind of action that
-        capability already exists to fence.
-
-        Absence — no declared factory, a plane that fails the reused gate, or
-        a factory that raises — is a POSTURE (an honest empty-catalog /
-        editor-only editor, FR-025, SC-008), not an error, mirroring
-        `_session_pull_requests`/`_session_notebook`'s "absence is a
-        capability verdict" discipline.
-
-        This accessor itself never calls the port: it stays DUCK-TYPED and
-        reports only presence/absence. The catalog handler is the one consumer
-        of `catalog()`; the port PROTOCOL now declares `dispatch` (T049), but
-        no route below calls it -- the dispatch arm is T051's, and the
-        boundary refuses fixed until it lands."""
-        if not self.capabilities.get("actions", {}).get("session"):
-            return None
-        if self.model_port_factory is None:
-            return None
-        try:
-            return self.model_port_factory()
-        except Exception:  # noqa: BLE001 - absence is a capability verdict
-            return None
-
-    def _doxbench_validators(self):
-        """The RELEASED per-kind schema validators for this request, or None.
-
-        Resolved through the INJECTED `schema_validator_factory` seam, bound
-        exactly like `model_port_factory`, so no test and no non-console plane
-        depends on a pinned openxFactory checkout being present. The factory
-        runs PER REQUEST, and the pinned loader re-verifies digests, the
-        checkout's own manifest, and `stack.yaml`'s declared ref every time, so
-        a checkout that drifts mid-run stops being trusted at the next request
-        rather than at the next restart. Since the T104 final-queue Q-2 ruling
-        (2026-08-09) the loader amortizes only the parse/compile behind a
-        digest-keyed cache — the byte verification itself is never skipped, so
-        this comment's freshness claim survives the cache by construction.
-
-        Unlike `_workbench_model_port`, absence here is NOT a posture: a route
-        that cannot read the contract must refuse, because serving a shape
-        nothing verified is exactly the failure this seam exists to prevent.
-        Every exception is swallowed into None — a `ContractPinError`'s text
-        names checkout paths and digests, and that never belongs on the wire or
-        in a response — and the caller emits only a fixed catalog code."""
-        factory = self.schema_validator_factory
-        if factory is None:
-            return None
-        try:
-            validators = factory()
-        except Exception:  # noqa: BLE001 - a pin failure must not reach the wire
-            return None
-        if not isinstance(validators, dict):
-            return None
-        return validators
-
-    @staticmethod
-    def _doxbench_wire_conforms(validators, kind: str, instance) -> bool:
-        """True only when `instance` structurally conforms to the RELEASED
-        schema for `kind`. An absent validator for the kind is FALSE, never a
-        pass: an unknown kind means no verdict, and no verdict is not consent.
-        Validation errors are discarded rather than reported — the caller emits
-        a fixed code, and a jsonschema message can quote instance content."""
-        validator = validators.get(kind) if isinstance(validators, dict) else None
-        if validator is None:
-            return False
-        try:
-            return not any(True for _ in validator.iter_errors(instance))
-        except Exception:  # noqa: BLE001 - a broken validator is not a pass
-            return False
-
-    # ------------------------------------------------------------------
-    # T050/T051 route handlers (change 010-doxbench-editor-chat).
-    #
-    # `GET /workbench/model-catalog` (T050) and `POST
-    # /actions/workbench/chat-turn` (T051) LAND here. Both share the
-    # `session` local-human-console gate `_workbench_model_port` already
-    # documents.
-    #
-    # Five of the six new `DOXBENCH_ERROR_CATALOG` codes are this slice's
-    # OWN judgement calls, spelling and (except where the contract pins a
-    # status) HTTP status alike -- `turn_id_conflict` is the one spelling
-    # taken VERBATIM from `contracts/chat-turn.md` ("Idempotency": "Same
-    # conversation + turn id + different digest -> 409 `turn_id_conflict`"),
-    # status included; `turn_in_flight`,
-    # `turn_scope_refused`, `content_identity_mismatch`, `model_unavailable`,
-    # and `invalid_turn_request` fill a genuine gap in the planning packet,
-    # which pins the BEHAVIOUR each must have (FR-017/FR-018, spec.md's
-    # preconditions 3-7, and the stale-model edge case) without pinning a
-    # code spelling or, for most of them, a status. See each constant's own
-    # comment above `DOXBENCH_ERROR_CATALOG` for its specific citation.
-    #
-    # The wire envelopes below ARE the released `contract-v1.27` shapes
-    # (`xfactory-workbench-model-catalog`, `xfactory-workbench-chat-turn`),
-    # emitted and self-validated since the T020/T024/T050/T051 wire clauses
-    # landed. (This banner previously recorded the pre-release
-    # discriminator-free posture; the release retired it.)
-    #
-    # NO PROVIDER IS EVER CONTACTED FROM THIS SLICE: `WorkbenchModelPort`
-    # now DECLARES `dispatch` (T049), but no code below calls it --
-    # `_handle_workbench_chat_turn`'s dispatch boundary still refuses
-    # `model_capability_unavailable` unconditionally after building (and
-    # discarding) the prompt envelope, until T051's dispatch arm lands with
-    # its own tests -- no provider SDK import, no provider env-var read, no
-    # credential, no raw endpoint, no secret name, anywhere below.
-
-    def _handle_workbench_model_catalog(self, head_only: bool) -> None:
-        """`GET`/`HEAD /workbench/model-catalog` (T050). Dispatched from
-        `_route` so both methods share one gate, mirroring how
-        `CAPABILITIES_ROUTE` is handled."""
-        if not (self.loopback and self.capabilities.get("actions", {}).get("session")
-                and self.actor):
-            self._send_json(
-                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
-                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
-            return
-        console_refusal = self._not_the_human_console()
-        if console_refusal is not None:
-            sys.stderr.write(
-                f"[workbench/model-catalog] agent_invocation refused: {console_refusal}\n")
-            self._send_json(doxbench_error_status(DOXBENCH_ERR_CONSOLE_REQUIRED),
-                            doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
-            return
-        # The RELEASED schema is resolved BEFORE the port is consulted: a plane
-        # that cannot read the contract has no business asking an adapter for a
-        # catalog it could not then verify.
-        validators = self._doxbench_validators()
-        if validators is None:
-            self._send_json(doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
-                            doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
-            return
-        from ideation_dashboard import doxbench_model
-        if port := self._workbench_model_port():
-            try:
-                catalog = port.catalog()
-            except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
-                self._send_json(doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
-                                doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
-                return
-            if not isinstance(catalog, doxbench_model.ModelCatalog):
-                self._send_json(doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
-                                doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
-                return
-        else:
-            # The honest empty-catalog / editor-only posture (FR-025, SC-008):
-            # a SUCCESS, never an error. It travels the SAME enveloping and
-            # validation path as a populated catalog — the released schema
-            # declares an empty `models` array a success, so this posture is
-            # contract-conformant rather than an exception to conformance.
-            catalog = doxbench_model.EMPTY_CATALOG
-        envelope = doxbench_model.catalog_wire_envelope(catalog)
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_MODEL_CATALOG_KIND, envelope):
-            # Self-validation BEFORE send: the console never serves a wire
-            # shape the released schema has not accepted, so a catalog that
-            # cannot be represented conformantly becomes the fixed
-            # "could not be assembled safely" refusal.
-            self._send_json(doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
-                            doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
-            return
-        self._serve_bytes(json.dumps(envelope).encode("utf-8"), JSON_CTYPE, head_only)
-
-    @staticmethod
-    def _wire_valid_turn_id(payload):
-        """The submitted `client_turn_id` if it is usable in the RELEASED
-        failure envelope (a string of 1..128 characters, the released bound),
-        else None.
-
-        Read straight off the raw payload, BEFORE schema validation, for one
-        purpose: a failure the browser cannot correlate to its own turn is
-        nearly useless to it, and most schema refusals have nothing to do with
-        this field. Nothing else is trusted from the unvalidated payload, and a
-        None result never becomes a fabricated id -- it selects the fixed
-        pre-release shape instead."""
-        if not isinstance(payload, dict):
-            return None
-        turn_id = payload.get("client_turn_id")
-        if not isinstance(turn_id, str) or not (1 <= len(turn_id) <= 128):
-            return None
-        return turn_id
-
-    def _refuse_turn(self, validators, code, turn_id, *, limit=None) -> None:
-        """Emit one chat-turn refusal in the correct envelope.
-
-        With a wire-valid `turn_id` this is the RELEASED
-        `workbench-chat-turn-failure` envelope, SELF-VALIDATED against the
-        released schema before it is sent; without one -- or if that envelope
-        somehow fails its own validation -- it is `doxbench_error_body`'s fixed
-        shape. The console never sends a wire shape the released schema has not
-        accepted, and it never invents a turn identity to obtain one.
-
-        Every caller passes `_wire_valid_turn_id`'s verdict, NOT the parsed
-        `client_turn_id` the turn store is keyed on. The two hold the same
-        string whenever the released schema accepted the request, and the
-        distinction only bites when a validator is more permissive than the
-        release: then the wire-valid verdict is None and this emits the fixed
-        shape, rather than putting an out-of-bounds id in an envelope that
-        claims released conformance. The turn STORE keeps using the parsed id,
-        because idempotency is keyed on what the caller actually sent."""
-        status = doxbench_error_status(code)
-        if turn_id is not None:
-            body = doxbench_turn_failure_body(code, turn_id, limit=limit)
-            if self._doxbench_wire_conforms(
-                    validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
-                self._send_json(status, body)
-                return
-        self._send_json(status, doxbench_error_body(code, limit=limit))
-
-    @staticmethod
-    def _parse_workbench_chat_turn_body(payload):
-        """Structural, known-field extraction for `POST /actions/workbench/
-        chat-turn` (T051). Returns a tuple of coerced fields, or `None` on
-        ANY structural violation: a missing/wrong-typed field, a blank-or-
-        whitespace-only `message`, or a buffer list that is not exactly one
-        `outline` plus one `document`. Runs AFTER the released-schema gate, so
-        unknown extra keys are already refused by the CLOSED released envelope
-        rather than ignored here -- this parser no longer needs to decide that
-        question and deliberately still does not: it coerces the known fields
-        the chain needs. NEVER re-implements
-        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
-        this only checks JSON *shape*, then hands the coerced values to
-        those constructors."""
-        from ideation_dashboard import doxbench_turns
-
-        if not isinstance(payload, dict):
-            return None
-
-        client_turn_id = payload.get("client_turn_id")
-        if not isinstance(client_turn_id, str) or not client_turn_id:
-            return None
-
-        scope = payload.get("scope")
-        if not isinstance(scope, dict):
-            return None
-        scope_fields = {}
-        for name in ("repository", "ref", "tile_kind", "tile_id"):
-            value = scope.get(name)
-            if not isinstance(value, str):
-                return None
-            scope_fields[name] = value
-
-        active_document_path = payload.get("active_document_path")
-        if active_document_path is not None and not isinstance(active_document_path, str):
-            return None
-
-        working_subject = payload.get("working_subject")
-        if not isinstance(working_subject, str):
-            return None
-
-        message = payload.get("message")
-        if not isinstance(message, str) or not message.strip():
-            return None
-
-        model_id = payload.get("model_id")
-        if not isinstance(model_id, str) or not model_id:
-            return None
-
-        last_assistant_turn_id = payload.get("last_assistant_turn_id")
-        if last_assistant_turn_id is not None and not isinstance(last_assistant_turn_id, str):
-            return None
-
-        transcript_raw = payload.get("transcript")
-        if not isinstance(transcript_raw, list):
-            return None
-        transcript_turns = []
-        for item in transcript_raw:
-            if not isinstance(item, dict):
-                return None
-            role = item.get("role")
-            # The RELEASED `transcript_turn` spells this field `content`; the
-            # internal `doxbench_turns.TranscriptTurn` keeps its own `text`
-            # attribute, so the mapping happens HERE, at the wire boundary,
-            # rather than by renaming a validated domain type. Reading `text`
-            # off the wire would now be unreachable anyway: the closed released
-            # envelope refuses it before this parser runs.
-            text = item.get("content")
-            if not isinstance(role, str) or not isinstance(text, str):
-                return None
-            transcript_turns.append(doxbench_turns.TranscriptTurn(role=role, text=text))
-
-        buffers_raw = payload.get("buffers")
-        if not isinstance(buffers_raw, list) or len(buffers_raw) != 2:
-            return None
-        turn_buffers = []
-        kinds_seen = []
-        for item in buffers_raw:
-            if not isinstance(item, dict):
-                return None
-            kind = item.get("kind")
-            repository = item.get("repository")
-            path = item.get("path")
-            base_ref = item.get("base_ref")
-            base_revision = item.get("base_revision")
-            base_hash = item.get("base_hash")
-            content_hash = item.get("content_hash")
-            content = item.get("content")
-            dirty = item.get("dirty")
-            if not isinstance(kind, str) or not isinstance(repository, str):
-                return None
-            if path is not None and not isinstance(path, str):
-                return None
-            if not all(isinstance(value, str) for value in
-                       (base_ref, base_revision, base_hash, content_hash, content)):
-                return None
-            if not isinstance(dirty, bool):
-                return None
-            kinds_seen.append(kind)
-            turn_buffers.append(doxbench_turns.TurnBuffer(
-                kind=kind, repository=repository, path=path, base_ref=base_ref,
-                base_revision=base_revision, base_hash=base_hash,
-                content_hash=content_hash, content=content, dirty=dirty))
-        if sorted(kinds_seen) != ["document", "outline"]:
-            return None
-
-        return (client_turn_id, scope_fields, active_document_path, working_subject,
-                message, model_id, last_assistant_turn_id, transcript_turns, turn_buffers)
-
-    def _handle_workbench_chat_turn(self) -> None:
-        """`POST /actions/workbench/chat-turn` (T051). See the section
-        banner above `_handle_workbench_model_catalog` for the judgement
-        calls this handler makes. Every step below refuses before the next
-        and before any disclosure or dispatch."""
-        if not (self.loopback and self.capabilities.get("actions", {}).get("session")
-                and self.actor):
-            self._send_json(
-                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
-                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
-            return
-        console_refusal = self._not_the_human_console()
-        if console_refusal is not None:
-            sys.stderr.write(
-                f"[actions/workbench/chat-turn] agent_invocation refused: {console_refusal}\n")
-            self._send_json(doxbench_error_status(DOXBENCH_ERR_CONSOLE_REQUIRED),
-                            doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
-            return
-
-        payload, refusal = self._read_bounded_json_body(
-            DOXBENCH_MAX_REQUEST_BYTES, "request_body_bytes")
-        if refusal is not None:
-            self._send_json(
-                doxbench_error_status(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED),
-                doxbench_error_body(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED, limit=refusal))
-            return
-        if payload is None:
-            # DELIBERATELY the pre-existing `invalid_body` spelling, NOT a
-            # doxBench code: a body that is not a JSON object at all fails the
-            # same way `/actions/edit` and `/actions/gate/*` already fail it,
-            # with the same fixed module-level message. `DOXBENCH_ERROR_CATALOG`
-            # is the closed set of doxBench-SPECIFIC codes, not the closed set
-            # of codes this route can emit -- `invalid_turn_request` below is
-            # for a well-formed JSON OBJECT that fails the released schema or
-            # the known-field shape.
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": JSON_OBJECT_BODY_REQUIRED})
-            return
-
-        # ---- EXACT SCHEMA (T051), between the body bound (precondition 2) and
-        # scope (precondition 3): the request is validated against the RELEASED
-        # `workbench-chat-turn` envelope BEFORE the precondition chain, which is
-        # otherwise unchanged. The turn id is read first, unvalidated, for one
-        # purpose only -- so a refusal the browser can correlate is possible
-        # (see `_wire_valid_turn_id`). ----
-        turn_id = self._wire_valid_turn_id(payload)
-        validators = self._doxbench_validators()
-        if validators is None:
-            # No readable contract, so no validated turn is possible. Fail
-            # closed on the fixed pre-identity shape: this is a PLANE-level
-            # verdict, not a defect in the caller's request, so it must not be
-            # reported as one.
-            self._send_json(
-                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
-                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
-            return
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_KIND, payload):
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
-            return
-
-        fields = self._parse_workbench_chat_turn_body(payload)
-        if fields is None:
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
-            return
-        (client_turn_id, scope_fields, active_document_path, working_subject, message,
-         model_id, _last_assistant_turn_id, transcript_turns, turn_buffers) = fields
-
-        from ideation_dashboard import doxbench_hash
-        from ideation_dashboard import doxbench_model
-        from ideation_dashboard import doxbench_scope
-        from ideation_dashboard import doxbench_turns
-
-        key = doxbench_scope.ScopeKey(repository=scope_fields["repository"],
-                                      ref=scope_fields["ref"],
-                                      tile_kind=scope_fields["tile_kind"],
-                                      tile_id=scope_fields["tile_id"])
-        outline_buf = next((b for b in turn_buffers if b.kind == "outline"), None)
-        document_buf = next((b for b in turn_buffers if b.kind == "document"), None)
-
-        # ---- step 5: scope, all from SERVER truth ----
-        projection = None
-        session_base = None
-        scope_refused = False
-        try:
-            entry = self.source.registry.resolve(key.repository, key.ref)
-            if entry is None or entry.source_root is None:
-                scope_refused = True
-            else:
-                # THE SESSION'S OWN BASE (T104 R-12): what this scope's branch
-                # was created from, recorded on the entry by the OPEN (or the
-                # bootstrap) — never by anything the request carried. It widens
-                # exactly one comparison in the binding check below: a buffer
-                # still based on the pre-session ref grounds a turn IFF its
-                # recorded base revision is the session's AND the session has
-                # not moved that document past the base — read through the same
-                # confinement and the same decoding lens as `/source` itself,
-                # so both sides hash the same character sequence. Absent
-                # (a non-session scope, an unrecorded base) the binding check
-                # keeps its original name-equality shape.
-                recorded_base = getattr(entry, "session_base", None)
-                if recorded_base:
-                    source_root = Path(entry.source_root)
-
-                    def _session_text(rel, _root=source_root):
-                        target = registry_mod.resolve_within(_root, rel)
-                        if target is None or not target.is_file():
-                            return None
-                        return doxbench_hash.served_text(target.read_bytes())
-
-                    session_base = doxbench_turns.SessionBase(
-                        ref=str(recorded_base[0]),
-                        revision=str(recorded_base[1]),
-                        text_of=_session_text,
-                        # W-4: the base's other recorded revision spellings —
-                        # the serving snapshot's revision at open time, which
-                        # is what a real client's base_revision carries.
-                        alias_revisions=tuple(
-                            str(a) for a in
-                            (getattr(entry, "session_base_aliases", ()) or ())))
-                snapshot = json.loads(entry.read_bytes())
-                # THE CREATED-IN-SESSION RECORD (T107; FR-043, CHK012). Every
-                # input is the ENTRY's — the repository, the ref and the worktree
-                # the registry itself holds — and the request contributes only the
-                # tile identity the branch family is derived from. The browser's
-                # own created overlay (`swb-session.js createdDocuments`) is never
-                # read here and is not a request field this route parses: a body
-                # cannot add a path to this set. With no live session on the
-                # scope's own branch family the answer is empty and this
-                # projection is what it was before T107.
-                created_paths = doxbench_scope.session_created_paths_for_scope(
-                    self.source.registry, key,
-                    repository=entry.repository, ref=entry.ref,
-                    source_root=Path(entry.source_root))
-                projection = doxbench_scope.resolve_scope(
-                    snapshot, key, source_root=Path(entry.source_root),
-                    created_paths=created_paths)
-                if projection is None:
-                    scope_refused = True
-                else:
-                    doxbench_turns.revalidate_scope(
-                        projection=projection, request_scope=key,
-                        active_document_path=active_document_path,
-                        outline_path=outline_buf.path if outline_buf else None,
-                        document_path=document_buf.path if document_buf else None,
-                    )
-        except (doxbench_turns.TurnScopeError, doxbench_scope.ScopeConfinementError,
-                ValueError, OSError):
-            scope_refused = True
-
-        if scope_refused:
-            self._refuse_turn(validators, DOXBENCH_ERR_TURN_SCOPE_REFUSED,
-                              turn_id)
-            return
-
-        # ---- step 6: exact identity ----
-        try:
-            outline, document = doxbench_turns.require_outline_and_document(turn_buffers)
-        except doxbench_turns.TurnBufferKindError:
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
-            return
-
-        try:
-            doxbench_turns.verify_buffer_identity(outline)
-            doxbench_turns.verify_buffer_identity(document)
-        except doxbench_hash.ContentEncodingError:
-            # T104 F5-8: a lone UTF-16 surrogate in buffer content. JSON's
-            # `"\ud800"` escape decodes to a str no runtime can encode to
-            # UTF-8, so `utf8_size`/`content_identity` inside
-            # `verify_buffer_identity` raise `ContentEncodingError` -- a plain
-            # ValueError SIBLING of `TurnError`, which the two turn-shaped
-            # clauses below therefore never caught: the handler died and the
-            # browser got a dropped connection instead of any HTTP envelope.
-            # The released schema accepts the escape (jsonschema checks
-            # structure, not encodability), so this is reachable from any
-            # conforming client. A request whose text cannot be represented
-            # identically across runtimes is MALFORMED -- the fixed
-            # `invalid_turn_request`, refused before any hash comparison.
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
-            return
-        except doxbench_turns.TurnIdentityMismatchError:
-            self._refuse_turn(validators, DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH,
-                              turn_id)
-            return
-        except doxbench_turns.TurnLimitError as exc:
-            self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
-            return
-
-        # ---- step 7: model ----
-        port = self._workbench_model_port()
-        if port is None:
-            self._refuse_turn(validators,
-                              DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE,
-                              turn_id)
-            return
-        try:
-            catalog = port.catalog()
-        except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
-            self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
-            return
-        if not isinstance(catalog, doxbench_model.ModelCatalog):
-            self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
-            return
-        model_entry = catalog.selectable_entry_for(model_id)
-        if model_entry is None:
-            self._refuse_turn(validators, DOXBENCH_ERR_MODEL_UNAVAILABLE,
-                              turn_id)
-            return
-
-        effective_input_limit = doxbench_model.effective_limit_bytes(
-            server_maximum=doxbench_model.SERVER_MAX_INPUT_LIMIT_BYTES,
-            entry_limit=model_entry.input_limit_bytes)
-        effective_output_limit = doxbench_model.effective_limit_bytes(
-            server_maximum=doxbench_model.SERVER_MAX_OUTPUT_LIMIT_BYTES,
-            entry_limit=model_entry.output_limit_bytes)
-
-        # T104 F5-8: these measurements sat OUTSIDE any try, so a lone
-        # surrogate in `message`, `working_subject`, or a transcript turn's
-        # text raised `ContentEncodingError` straight through the handler (the
-        # buffer sizes are re-measured here too, but a surrogate in buffer
-        # content was already refused at step 6). Measured and validated under
-        # ONE try so every field class gets the same fixed refusal.
-        try:
-            outline_bytes = doxbench_hash.utf8_size(outline.content)
-            document_bytes = doxbench_hash.utf8_size(document.content)
-            message_bytes = doxbench_hash.utf8_size(message)
-            working_subject_bytes = doxbench_hash.utf8_size(working_subject)
-            transcript_byte_total = doxbench_turns.transcript_bytes(transcript_turns)
-            doxbench_turns.validate_working_subject(working_subject)
-            doxbench_turns.validate_message(message)
-            doxbench_turns.validate_transcript(transcript_turns)
-            doxbench_turns.validate_request_body_bytes(
-                outline_bytes=outline_bytes, document_bytes=document_bytes,
-                message_bytes=message_bytes, working_subject_bytes=working_subject_bytes,
-                transcript_bytes=transcript_byte_total)
-        except doxbench_hash.ContentEncodingError:
-            # The same sibling-ValueError verdict as step 6's clause: text no
-            # runtime can carry identically is a malformed request, answered
-            # with an HTTP envelope rather than a killed handler.
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
-            return
-        except doxbench_turns.TurnLimitError as exc:
-            self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
-            return
-
-        # `validate_request_body_bytes` cannot accept a NARROWED ceiling (it
-        # only ever checks the fixed `MAX_REQUEST_BODY_BYTES`), so a
-        # stricter catalog entry's limit is enforced here, inline, against
-        # the same measured total -- research R7's "the route's own bound",
-        # applied per-model rather than per-route.
-        request_total_bytes = (outline_bytes + document_bytes + message_bytes
-                               + working_subject_bytes + transcript_byte_total)
-        if request_total_bytes > effective_input_limit:
-            self._refuse_turn(
-                validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED, turn_id,
-                limit={"dimension": "request_body_bytes",
-                       "measured": request_total_bytes,
-                       "maximum": effective_input_limit})
-            return
-
-        # ---- step 8: idempotency, LAST precondition. PEEK FIRST so the
-        # untimed store wait is not entered for a request that can be answered
-        # from an already-resolved record (contracts/chat-turn.md obligation 2;
-        # see test_an_in_flight_attach_returns_promptly_rather_than_hanging).
-        #
-        # T104 F4: the peek is a FAST PATH, never a guarantee. This server is a
-        # `ThreadingHTTPServer` over ONE shared store, so two requests carrying
-        # the same `client_turn_id` can both pass the peek before either
-        # reserves; the loser of that race then attaches inside `reserve` and
-        # comes back with a lease that says DO NOT DISPATCH. That lease is
-        # bound and honoured below -- discarding it dispatched the provider a
-        # second time (FR-019) and then died on an uncaught `TurnConflictError`
-        # out of `complete()`, dropping the connection with no envelope. ----
-        canonical = {
-            "repository": scope_fields["repository"], "ref": scope_fields["ref"],
-            "tile_kind": scope_fields["tile_kind"], "tile_id": scope_fields["tile_id"],
-            "active_document_path": active_document_path,
-            "working_subject": working_subject, "message": message, "model_id": model_id,
-            "transcript": [[turn.role, turn.text] for turn in transcript_turns],
-            "buffers": [
-                {"kind": buf.kind, "path": buf.path, "repository": buf.repository,
-                 "base_ref": buf.base_ref, "base_revision": buf.base_revision,
-                 "base_hash": buf.base_hash, "content_hash": buf.content_hash,
-                 "dirty": buf.dirty}
-                for buf in turn_buffers
-            ],
-        }
-        try:
-            digest = doxbench_hash.sha256_hex(
-                json.dumps(canonical, sort_keys=True, separators=(",", ":"),
-                           ensure_ascii=False))
-        except doxbench_hash.ContentEncodingError:
-            # W-1 (wave re-review): `json.dumps(..., ensure_ascii=False)`
-            # PASSES a lone surrogate through, so the raise happens here, at
-            # the encode inside `sha256_hex` — and `base_ref`/`base_revision`
-            # are the two request fields that reach this statement with no
-            # earlier measurement or hash gate (both are released-schema-valid
-            # surrogate carriers). Same fixed refusal as the other three
-            # sites: malformed request, HTTP envelope, never a dead handler.
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
-            return
-
-        record = self.turn_store.snapshot(key, client_turn_id)
-        if record is not None:
-            if record.state == doxbench_turns.TURN_STATE_IN_FLIGHT:
-                code = (DOXBENCH_ERR_TURN_IN_FLIGHT if record.request_digest == digest
-                       else DOXBENCH_ERR_TURN_ID_CONFLICT)
-                self._refuse_turn(validators, code, turn_id)
-                return
-            if record.request_digest == digest:
-                # A resolved replay: the stored outcome is returned
-                # VERBATIM, byte-identical, never recomputed -- and therefore
-                # NOT re-validated. It was validated when it was finalized;
-                # re-validating here would let a checkout that drifted after
-                # the fact change a stored answer, which is exactly what
-                # byte-identical replay forbids (contracts/chat-turn.md
-                # "Idempotency").
-                outcome = record.validated_result
-                self._send_json(outcome["status"], outcome["body"])
-                return
-            self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
-            return
-
-        try:
-            lease = self.turn_store.reserve(key, client_turn_id, digest)
-        except doxbench_turns.TurnInFlightError:
-            self._refuse_turn(validators, DOXBENCH_ERR_TURN_IN_FLIGHT,
-                              turn_id)
-            return
-        except doxbench_turns.TurnConflictError:
-            self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
-            return
-
-        if not lease.should_dispatch:
-            # The peek/reserve race was LOST: another thread already holds (or
-            # held) this exact turn, and the store has handed back ITS result.
-            # Replayed VERBATIM, byte-identical, never recomputed and never
-            # re-validated -- the same rule, and the same two lines, as the
-            # peek path above.
-            outcome = lease.result
-            self._send_json(outcome["status"], outcome["body"])
-            return
-
-        # ---- step 9: dispatch boundary (T051 dispatch arm). ----
-        # `build_prompt_envelope` is the ONE authority that re-runs scope,
-        # buffer-kind, buffer-to-scope BINDING, and exact identity in the
-        # pinned load-bearing order. Its result is bound ONLY for the
-        # dispatch call below -- never logged, returned, or stored.
-        #
-        # The arm dispatches IFF the injected adapter actually declares the
-        # capability (`callable(getattr(port, "dispatch", None))` -- a
-        # DUCK-TYPED probe, never `isinstance`, so a catalog-only adapter
-        # keeps working). Without it, the fixed
-        # `model_capability_unavailable` refusal below stands byte-identical
-        # to the pre-arm posture. That IS the production posture: no real
-        # adapter exists in this repository, and none is implied -- the
-        # approved deployment adapter is T099's operator-gated slice. Every
-        # provider outcome maps through `doxbench_model.dispatch_turn`
-        # (T049): fixed codes, fixed redacted diagnostics, injected
-        # monotonic clock for the deadline.
-        outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
-        prompt_envelope = None
-        try:
-            prompt_envelope = doxbench_turns.build_prompt_envelope(
-                projection=projection, request_scope=key,
-                active_document_path=active_document_path,
-                model_id=model_id, model_data_handling=model_entry.data_handling,
-                model_input_limit_bytes=effective_input_limit,
-                model_output_limit_bytes=effective_output_limit,
-                working_subject=working_subject, transcript=tuple(transcript_turns),
-                buffers=(outline, document), message=message,
-                session_base=session_base)
-        except doxbench_turns.TurnScopeError:
-            outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED
-        except doxbench_turns.TurnIdentityMismatchError:
-            outcome_code = DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH
-        except doxbench_turns.TurnBufferKindError:
-            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
-        except doxbench_hash.ContentEncodingError:
-            # T104 F5-8, the step-9 re-verification leg: `build_prompt_envelope`
-            # re-runs exact identity, so it re-raises the same sibling
-            # ValueError the pre-reserve legs above already refuse. With those
-            # legs in place no surrogate should survive to here -- but this
-            # boundary maps EVERY re-verification failure to a fixed code, and
-            # leaving one class to kill the handler mid-lease (dropping the
-            # connection AND stranding the reserved slot) is exactly the
-            # defect. Same verdict as the earlier legs: `invalid_turn_request`.
-            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
-
-        if prompt_envelope is not None and callable(getattr(port, "dispatch", None)):
-            # T061: typed proposals validate against the hashes THIS request
-            # was shown — wrong base is a response-side defect mapped to the
-            # fixed response_invalid, never a scope or identity refusal.
-            # G-1: an OUTLINE-ONLY turn (no active document — the request's
-            # `active_document_path` is null, which contract-v1.28 makes legal
-            # by mirroring the already-nullable `buffer_state.path`) names no
-            # document buffer for a proposal to rewrite. The narrowest reading
-            # of a silent contract, recorded in
-            # `doxbench_turns.validate_assistant_response`: such a turn is
-            # chat grounded on the tile's context, with NO document-targeted
-            # proposal. Every turn that DOES name a document is unchanged.
-            permitted_targets = (
-                doxbench_turns.PROPOSAL_TARGETS if active_document_path is not None
-                else ("outline",))
-
-            def _typed_response_validator(raw):
-                return doxbench_turns.validate_assistant_response(
-                    raw, observed=prompt_envelope.observed_hashes,
-                    permitted_targets=permitted_targets)
-            # PR #63 review (Codex P1): the deadline is enforced WHILE
-            # dispatch runs, not merely measured afterwards. The adapter call
-            # runs on a worker thread and the route waits at most the
-            # validated declared timeout; on overrun the fixed model_timeout
-            # refusal finalizes the slot (freeing the conversation) and the
-            # late result — if it ever arrives — is discarded unread by the
-            # abandoned daemon thread. dispatch_turn's own post-hoc elapsed
-            # check stays as the pure verdict for adapters that DO return.
-            outcome = self._deadline_bound_dispatch(
-                port, prompt_envelope, model_entry, _typed_response_validator)
-            if isinstance(outcome, doxbench_model.TurnDispatchSuccess):
-                # `assistant_turn_id` derivation is this slice's judgement
-                # call: the released schema bounds it (1..128) without naming
-                # a scheme, so it is derived from the turn's own canonical
-                # request digest -- deterministic, request-unforgeable, and
-                # carrying no provider or content material.
-                success_body = doxbench_turn_success_body(
-                    client_turn_id=client_turn_id,
-                    assistant_turn_id="assistant-" + digest[:56],
-                    model_id=model_id,
-                    observed_hashes={
-                        "outline": prompt_envelope.observed_hashes.outline.hex,
-                        "document": prompt_envelope.observed_hashes.document.hex,
-                    },
-                    assistant_prose=outcome.assistant_prose,
-                    proposals=outcome.proposals)
-                if self._doxbench_wire_conforms(
-                        validators, DOXBENCH_CHAT_TURN_SUCCESS_KIND, success_body):
-                    body_bytes = json.dumps(success_body).encode("utf-8")
-                    # The stored result IS the sent result (byte-identical
-                    # replay, contracts/chat-turn.md "Idempotency").
-                    #
-                    # T104 F4: a `TurnConflictError` here means this slot was
-                    # resolved by somebody else while this dispatch ran, so
-                    # this answer can NEVER be replayed. Sending it anyway
-                    # would put a body on the wire that the store contradicts
-                    # -- the caller gets the conflict refusal instead, and the
-                    # handler stays alive to write it.
-                    try:
-                        self.turn_store.complete(
-                            key, client_turn_id,
-                            {"status": 200, "body": success_body},
-                            size_bytes=len(body_bytes))
-                    except doxbench_turns.TurnConflictError:
-                        self._refuse_turn(validators,
-                                          DOXBENCH_ERR_TURN_ID_CONFLICT,
-                                          turn_id)
-                        return
-                    self._send_json(200, success_body)
-                    return
-                # FAIL CLOSED: a success the released schema refuses must
-                # never ship -- it is provider output the validator could not
-                # bless, the same class as any other unusable answer.
-                outcome_code = DOXBENCH_ERR_RESPONSE_INVALID
-            else:
-                outcome_code = outcome.error
-
-        status = doxbench_error_status(outcome_code)
-        # The RELEASED failure envelope, self-validated before it is either
-        # stored or sent: what the turn store retains for a byte-identical
-        # replay must be the same validated shape this response carries, or a
-        # replay would answer differently from the original.
-        body = (doxbench_turn_failure_body(outcome_code, turn_id)
-                if turn_id is not None else doxbench_error_body(outcome_code))
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
-            body = doxbench_error_body(outcome_code)
-        body_bytes = json.dumps(body).encode("utf-8")
-        # Planning-contract obligation 1 (contracts/chat-turn.md): a refused
-        # finalization must not abandon the slot -- `fail` frees the
-        # conversation key for a later attempt even on this always-fixed
-        # dispatch-boundary refusal.
-        #
-        # T104 F4: if the slot is already gone (another thread resolved it),
-        # the bookkeeping cannot be done -- but this request's verdict was
-        # computed and self-validated above, so it is still answered. A
-        # store-side conflict must never turn a decided refusal into a dropped
-        # connection.
-        try:
-            self.turn_store.fail(key, client_turn_id,
-                                 {"status": status, "body": body},
-                                 size_bytes=len(body_bytes))
-        except doxbench_turns.TurnConflictError:
-            pass
-        self._send_json(status, body)
-
-    def _deadline_bound_dispatch(self, port, prompt_envelope, model_entry,
-                                 proposal_validator):
-        """Run `doxbench_model.dispatch_turn` under the adapter's OWN declared
-        deadline (PR #63 review, Codex P1). A hung adapter cannot pin the
-        HTTP thread or the conversation slot: the worker is a daemon thread,
-        the wait is bounded by the validated timeout plus a small fixed
-        grace for the wrapper's bookkeeping, and an overrun returns the SAME
-        fixed model_timeout outcome dispatch_turn itself would map. The late
-        result is discarded unread (FR-020/FR-022)."""
-        from ideation_dashboard import doxbench_model
-        try:
-            deadline = doxbench_model.validated_timeout_seconds(
-                port.timeout_seconds)
-        except doxbench_model.AdapterTimeoutError:
-            # Misdeclared adapters keep dispatch_turn's own fixed mapping
-            # (model_failed, no dispatch) — run it inline; nothing can hang
-            # because the declared-timeout gate refuses before any dispatch.
-            return doxbench_model.dispatch_turn(
-                port, prompt_envelope, entry=model_entry, clock=time.monotonic,
-                proposal_validator=proposal_validator)
-        holder = {}
-
-        def _run():
-            try:
-                holder["outcome"] = doxbench_model.dispatch_turn(
-                    port, prompt_envelope, entry=model_entry,
-                    clock=time.monotonic,
-                    proposal_validator=proposal_validator)
-            except Exception:
-                # PR-stabilization R3: a worker-thread exception is an
-                # ADAPTER FAILURE, not a timeout — misreporting it as 504
-                # would replay the wrong verdict forever. Text dropped
-                # unread (FR-020/FR-022).
-                holder["raised"] = True
-
-        worker = threading.Thread(target=_run, daemon=True)
-        worker.start()
-        worker.join(timeout=deadline + 0.25)
-        if holder.get("raised"):
-            return doxbench_model.TurnDispatchFailure(
-                error=DOXBENCH_ERR_MODEL_FAILED,
-                diagnostic="the provider failed and its details are withheld by design")
-        if worker.is_alive() or "outcome" not in holder:
-            return doxbench_model.TurnDispatchFailure(
-                error=DOXBENCH_ERR_MODEL_TIMEOUT,
-                diagnostic="the provider did not answer within the declared timeout")
-        return holder["outcome"]
-
     def _session_repository(self):
         """The repository half of the `(repository, session-branch)` key.
 
@@ -1957,23 +865,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         entry = self._active_entry()
         return str(entry.repository) if entry is not None else None
 
-    def _query_key(self) -> tuple[str | None, str | None]:
-        """The optional `?repository=&ref=` of a read route. Absent repository
-        means the ACTIVE entry — which is what every pre-existing caller sends,
-        so today's behaviour is unchanged."""
-        query = urllib.parse.urlsplit(self.path).query
-        params = urllib.parse.parse_qs(query)
-        repository = (params.get("repository") or [None])[0]
-        ref = (params.get("ref") or [None])[0]
-        return repository, ref
-
     def _route(self, head_only: bool) -> bool:
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path == self.snapshot_route:
             self._serve_snapshot(head_only)
-            return True
-        if path == SNAPSHOT_INDEX_ROUTE:
-            self._serve_index(head_only)
             return True
         if path == PROJECT_REGISTER_ROUTE:
             self._serve_project_register(head_only)
@@ -2001,17 +896,47 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             writable = self._session_repository()
             if writable:
                 payload["repository"] = str(writable)
+            # THE HOSTED ACTOR (add-dashboard-account-menu), resolved PER REQUEST
+            # beside `repository`, `None` when the header is absent. Read from the
+            # gateway-stamped `X-Auth-Request-User` header; DISPLAY-ONLY — the
+            # dox-auth gateway remains the identity authority (it strips any
+            # client value before stamping its own), and the dashboard's trust in
+            # this header rests entirely on the NetworkPolicy boundary that lets
+            # only the gateway reach it. It feeds NO capability verdict and NO
+            # route consults it to authorize: reading a stamped identity for
+            # display does not make this credential-free surface a credential
+            # holder or an auth authority (design D16 nuance).
+            payload["hosted_actor"] = self.headers.get("X-Auth-Request-User") or None
             self._serve_bytes(json.dumps(payload).encode("utf-8"),
                               JSON_CTYPE, head_only)
             return True
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
             self._handle_workbench_model_catalog(head_only)
             return True
-        if path.startswith(SOURCE_PREFIX):
-            self._serve_source(path[len(SOURCE_PREFIX):], head_only)
+        if path == WORKBENCH_MODEL_INTAKE_ROUTE:
+            self._handle_workbench_model_intake_surface(head_only)
             return True
-        if path == "/source" or path == "/source/":  # no file named -> reject
-            self.send_error(404, "no source path")
+        if path == WORKBENCH_THREAD_ROUTE:
+            self._handle_workbench_thread(head_only)
+            return True
+        # ---- the CONTRIBUTED read routes (§ 2.4) ----
+        # AFTER every fixed core arm and BEFORE the static fallback, which is
+        # the placement that makes two things true at once: a contributed route
+        # can never shadow a core one (the core arms have already returned), and
+        # a path no binding claims still falls through to exactly the static
+        # behaviour it falls through to today. Dispatch is BY NAME against
+        # `self`, so a contributed route meets the same gating primitives — the
+        # loopback verdict, the capability dict, the console-host check — that
+        # every arm above meets.
+        matched = route_extension.match(
+            self.route_bindings, "HEAD" if head_only else "GET", path)
+        if matched is not None:
+            binding, remainder = matched
+            handler = getattr(self, binding.handler)
+            if binding.is_prefix:
+                handler(remainder, head_only)
+            else:
+                handler(head_only)
             return True
         return False
 
@@ -2032,352 +957,37 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == ACTIONS_NOTEBOOK_ROUTE:
             self._handle_notebook_action()
             return
-        if path == ACTIONS_REFRESH_ROUTE:
-            self._handle_refresh_action()
-            return
-        if path == ACTIONS_DTN_SEED_ROUTE:
-            self._handle_dtn_seed()
-            return
-        if path == ACTIONS_STAGING_SEED_ROUTE:
-            self._handle_staging_seed()
-            return
-        if path == ACTIONS_APPLY_REGISTER_EDITS_ROUTE:
-            self._handle_apply_register_edits()
-            return
         if path == ACTIONS_EDIT_ROUTE:
             self._handle_edit_action()
             return
         if path == ACTIONS_WORKBENCH_CHAT_TURN_ROUTE:
             self._handle_workbench_chat_turn()
             return
-        if path.startswith(ACTIONS_GATE_PREFIX):
-            self._handle_gate_action(path[len(ACTIONS_GATE_PREFIX):])
+        if path == ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE:
+            self._handle_workbench_document_abstract()
+            return
+        if path == ACTIONS_WORKBENCH_MODEL_INTAKE_ROUTE:
+            self._handle_workbench_model_intake()
+            return
+        if path == ACTIONS_WORKBENCH_MODEL_APPROVAL_ROUTE:
+            self._handle_workbench_model_approval()
+            return
+        # ---- the CONTRIBUTED write routes (§ 2.4) ----
+        # The read path's clause, with the write path's two call shapes and its
+        # own fallback: an action no binding claims still answers
+        # ERR_UNKNOWN_ACTION exactly as it does today. Same by-name dispatch
+        # against `self`, so a contributed write route reaches the loopback and
+        # capability gates by construction rather than by its author's memory.
+        matched = route_extension.match(self.route_bindings, "POST", path)
+        if matched is not None:
+            binding, remainder = matched
+            handler = getattr(self, binding.handler)
+            if binding.is_prefix:
+                handler(remainder)
+            else:
+                handler()
             return
         self._send_error_code(action_errors.ERR_UNKNOWN_ACTION)
-
-    # ---- select-to-edit route (US8 T030; the dashboard itself writes nothing) ----
-    def _handle_edit_action(self) -> None:
-        """Launch the selected source file in the human's local editor.
-
-        The route deliberately shares the human-console boundary with session
-        verbs: loopback + real checkout + resolved actor + per-serve token. The
-        target is resolved through the selected registry entry, so neither a
-        traversal nor a repository/ref mismatch can fall back to another root.
-        """
-        if not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "select-to-edit is loopback-only"})
-            return
-        if not self.capabilities.get("actions", {}).get("edit") or not self.actor:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "select-to-edit is unavailable "
-                                             "(no resolved actor/checkout)"})
-            return
-        console_refusal = self._not_the_human_console()
-        if console_refusal is not None:
-            sys.stderr.write(
-                f"[actions/edit] agent_invocation refused: {console_refusal}\n")
-            self._send_json(403, {"ok": False, "error": "agent_invocation",
-                                  "message": AGENT_INVOCATION_REFUSAL})
-            return
-        fields, body_error = _edit_request_fields(self._read_json_body())
-        if fields is None:
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": body_error or JSON_OBJECT_BODY_REQUIRED})
-            return
-        path, repository, ref = fields
-
-        entry = _resolved_listed_edit_entry(self.source, path, repository, ref)
-        if entry is None:
-            self._send_json(404, {"ok": False, "error": "document_unavailable",
-                                  "message": "the selected document is unavailable"})
-            return
-
-        editor = os.environ.get("EDITOR")
-        # Tests install a recorder on this server instance. Production preserves
-        # the console for a configured terminal editor; only the desktop-opener
-        # fallback is detached with its streams closed.
-        launcher = getattr(self.server, "editor_launcher", None) or (
-            lambda command: _launch_editor(
-                command, configured_editor=bool(editor)))
-        try:
-            from ideation_dashboard import authoring
-            argv = authoring.edit_command(entry.source_root, path, editor=editor)
-            launcher(argv)
-        # The wire response is fixed; full detail stays in the local server log.
-        except Exception as exc:  # noqa: BLE001
-            sys.stderr.write(
-                f"[actions/edit] editor launch failed: {type(exc).__name__}: {exc}\n")
-            self._send_json(500, {"ok": False, "error": "editor_launch_failed",
-                                  "message": "the editor could not be opened; "
-                                             "see the server log"})
-            return
-        self._send_json(200, {"ok": True, "path": path})
-
-    # ---- refresh route (add-dashboard-repo-selector, design D7) ----
-    def _handle_dtn_seed(self) -> None:
-        """Draft a DTN candidate-register seed from a project's SHARED
-        IDENTITIES (add-shared-identity-seeds): the identities two or more of
-        the named member repositories carry, which is the promotion process's
-        first candidate rule computed rather than eyeballed.
-
-        WRITES NOTHING. The response is the register row + detail section as
-        TEXT, in the register's own format and numbering, for a human to
-        merge — the same seed-first discipline the neutrality-drift lane
-        records. That is why this route asks for loopback but not the gate
-        capability, and why it can answer while a composed, read-only view is
-        on screen.
-
-        The carriers are recomputed HERE from the serve's own composed view;
-        the client names the project, the visible subset, and (optionally)
-        the exact carrier COMBINATION a lens region stands for — never the
-        evidence itself. `combination` is what keeps a seed honest to the
-        region it was drafted from: a row reading "carried by 3" drafts those
-        identities and no others."""
-        if not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "seed drafting is loopback-only"})
-            return
-        body = self._read_json_body()
-        if body is None:
-            return
-        project = str(body.get("project_id") or "").strip()
-        if not project:
-            self._send_json(400, {"ok": False, "error": "bad_request",
-                                  "message": "project_id is required"})
-            return
-        repositories = body.get("repositories")
-        combination = body.get("combination")
-        for name, value in (("repositories", repositories),
-                            ("combination", combination)):
-            if value is not None and not isinstance(value, list):
-                self._send_json(400, {"ok": False, "error": "bad_request",
-                                      "message": f"{name} must be a list"})
-                return
-        if self.source is None:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "no snapshot source on this plane"})
-            return
-        composed = self.source.compose_view(project)
-        if composed is None:
-            self._send_json(404, {"ok": False, "error": "unknown_project",
-                                  "message": f"no composed view for {project!r}"})
-            return
-
-        import datetime
-        from doc_health import shared_identity as si
-        rows = si.shared_identities(composed.get("documents"),
-                                    repositories=repositories,
-                                    exactly=combination)
-        if not rows:
-            self._send_json(200, {
-                "ok": False, "error": "nothing_shared",
-                "message": "no document identity is carried by two or more of "
-                           "the named repositories — there is no candidate to "
-                           "draft, which is itself the honest answer"})
-            return
-        register = Path(self.checkout_root) / si.REGISTER_PATH
-        try:
-            register_text = register.read_text(encoding="utf-8")
-        except OSError:
-            register_text = ""       # no register reachable: number from zero
-        draft = si.draft_seed(
-            register_text, rows, project=project,
-            as_of=datetime.date.today().isoformat())
-        payload = draft.as_dict()
-        payload["ok"] = True
-        payload["register"] = si.REGISTER_PATH
-        self._send_json(200, payload)
-
-    def _handle_staging_seed(self) -> None:
-        """Draft a STAGING-QUEUE fragment from the documents the human selected
-        in the lens matrix (Brett, 2026-08-08: "I should have a checkbox on
-        each one to generate the seed from checked").
-
-        WRITES NOTHING, like the register seed beside it: the response is the
-        fragment as TEXT plus the path it belongs at. That is why this route
-        asks for loopback but not the gate capability, and why it can answer
-        while a read-only composed view is on screen.
-
-        The client names the DOCUMENTS; their terms and repositories are read
-        HERE from the serve's own snapshot. A client that could supply the
-        terms could draft a fragment claiming a convergence the corpus does
-        not have, and the fragment's whole value is that its evidence is
-        checkable against the tree.
-        """
-        if not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "seed drafting is loopback-only"})
-            return
-        body = self._read_json_body()
-        if body is None:
-            return
-        project = str(body.get("project_id") or "").strip()
-        wanted = body.get("documents")
-        if not isinstance(wanted, list) or not wanted:
-            self._send_json(400, {"ok": False, "error": "bad_request",
-                                  "message": "documents must be a non-empty list"})
-            return
-        if self.source is None:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "no snapshot source on this plane"})
-            return
-
-        # a composed project view when the plane has one, else the active
-        # snapshot — the keyword lens runs on both, so the seed must too
-        snapshot = self.source.compose_view(project) if project else None
-        if snapshot is None:
-            entry = self.source.registry.resolve(None)
-            snapshot = entry.read_json() if entry is not None else None
-        if not isinstance(snapshot, dict):
-            self._send_json(404, {"ok": False, "error": "unknown_project",
-                                  "message": "no snapshot to read the "
-                                             "selected documents from"})
-            return
-
-        by_id = {}
-        for doc in snapshot.get("documents") or []:
-            if not isinstance(doc, dict):
-                continue
-            for key in (doc.get("id"), doc.get("path")):
-                if key:
-                    by_id.setdefault(str(key), doc)
-        rows, missing = [], []
-        for name in wanted:
-            doc = by_id.get(str(name))
-            if doc is None:
-                missing.append(str(name))
-            else:
-                rows.append(doc)
-        if missing:
-            self._send_json(404, {
-                "ok": False, "error": "unknown_document",
-                "message": "not in this snapshot: " + ", ".join(missing[:5])})
-            return
-
-        import datetime
-        from doc_health import staging_seed as ss
-        existing = []
-        staging_root = Path(self.checkout_root) / ss.STAGING_DIR
-        try:
-            existing = sorted(p.name for p in staging_root.iterdir() if p.is_dir())
-        except OSError:
-            existing = []       # no queue reachable: no collision to avoid
-        draft = ss.draft_staging_seed(
-            rows, project=project or (snapshot.get("repository") or "corpus"),
-            as_of=datetime.date.today().isoformat(),
-            repository=str(snapshot.get("repository") or "openxFactory"),
-            existing=existing)
-        payload = draft.as_dict()
-        payload["ok"] = True
-        payload["index"] = ss.STAGING_INDEX
-        self._send_json(200, payload)
-
-    def _handle_apply_register_edits(self) -> None:
-        """Run the register-edit fulfilment lane once
-        (add-register-edit-lane): apply every dispatched
-        project-register-edit commission, validate, deliver, commit + push
-        the register file alone. Loopback + gate-actor only — the same
-        human-console boundary as the gate verbs — and only RECORDED
-        commissions are ever applied."""
-        if not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "applying register edits is "
-                                             "loopback-only"})
-            return
-        if not self.capabilities.get("actions", {}).get("gate") or not self.actor:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "applying register edits needs "
-                                             "the human gate capability"})
-            return
-        from ideation_dashboard.register_edit_lane import fulfil_once
-        try:
-            report = fulfil_once(Path(self.checkout_root))
-        except Exception as exc:  # noqa: BLE001 - a lane crash must answer, not hang
-            self._send_json(500, {"ok": False, "error": "lane_failed",
-                                  "message": str(exc)[:300]})
-            return
-        payload = report.as_dict()
-        payload["ok"] = report.error is None
-        self._send_json(200 if payload["ok"] else 409, payload)
-
-    def _handle_refresh_action(self) -> None:
-        """ONE affordance, TWO bindings, chosen by the PLANE and never by the
-        client body (a client cannot ask a served plane to regenerate, nor a
-        local plane to re-fetch). Fail-closed: no binding refuses before any body
-        parse, and the writing binding refuses off-loopback.
-
-        UNGATED by ruling (D7 / open question 3's recommendation, stated
-        explicitly): the artifact is derived, regeneration mutates nothing
-        governed, and no build, rollout, or publication path exists here (D1)."""
-        binding = self.capabilities.get("refresh", {}).get("binding")
-        if not binding or self.source is None:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "refresh is unavailable on this plane "
-                                             "(no data source and no served checkout)"})
-            return
-        if binding != registry_mod.BINDING_REFETCH and not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "the regenerate binding is loopback-only"})
-            return
-        body = self._read_json_body()
-        if body is None:
-            body = {}  # a plain POST means "refresh the active snapshot"
-        if not isinstance(body, dict):
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": JSON_OBJECT_BODY_REQUIRED})
-            return
-        repository = body.get("repository")
-        ref = body.get("ref")
-        if repository is not None and not isinstance(repository, str):
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": "repository must be a string"})
-            return
-        if ref is not None and not isinstance(ref, str):
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": "ref must be a string"})
-            return
-        # FR-048 again, on the one WRITE-ish route reachable off-loopback: the
-        # read-only `refetch` binding is available on the hosted plane by design,
-        # so a hosted client could otherwise ask it to refresh a session ref.
-        # (`regenerate` has already refused above, being loopback-only.)
-        if hosted_ref_refused(self.loopback, ref):
-            self._send_json(403, {"ok": False, "error": "session_unavailable",
-                                  "message": HOSTED_SESSION_REFUSAL})
-            return
-        self._run_refresh(repository, ref)
-
-    def _run_refresh(self, repository: str | None, ref: str | None) -> None:
-        """Run the binding. EVERY failure keeps the registry as it was, so the
-        previously rendered snapshot stays renderable and the client reports the
-        failure inline (spec scenario "A refresh fails")."""
-        try:
-            result = self.source.refresh(repository=repository, ref=ref)
-        except registry_mod.PublicationRefused:
-            self._send_json(403, {"ok": False, "error": "publication_refused",
-                                  "message": "a non-main snapshot is never published"})
-            return
-        except registry_mod.DataSourceError as exc:
-            sys.stderr.write(f"[actions/refresh] data source unreachable: {exc}\n")
-            self._send_json(502, {"ok": False, "error": "source_unreachable",
-                                  "message": "the data source could not be read; "
-                                             "the previous snapshot is still shown"})
-            return
-        except ValueError as exc:
-            sys.stderr.write(f"[actions/refresh] {exc}\n")
-            self._send_json(404, {"ok": False, "error": "unknown_snapshot",
-                                  "message": "no such (repository, ref) is registered"})
-            return
-        except Exception:  # noqa: BLE001 — never leak a traceback over the wire
-            self._send_json(500, {"ok": False, "error": "action_failed",
-                                  "message": "refresh failed; see the server log"})
-            return
-        # Keep the handler's own divergence anchor in step with the new active
-        # snapshot, so a subsequent read reports the refreshed revision.
-        active = self._active_entry()
-        if active is not None:
-            type(self).source_revision = active.source_revision
-        self._send_json(200, {"ok": True, **result})
 
     # ---- the human-console test (FR-019's third clause) ----
     def _trusted_console_host(self) -> bool:
@@ -2440,168 +1050,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if not secrets.compare_digest(presented, expected):
             return "the console token does not match this serve's"
         return None
-
-    # ---- executing gate routes (add-ideation-intent-plane §3, D5 local-first) ----
-    def _handle_gate_action(self, verb: str) -> None:
-        """Loopback-only human console verbs over the gate engine. Fail-closed:
-        off-loopback, capability-off, and NON-CONSOLE callers all refuse before
-        any body parse — the three clauses of FR-019, in that order, so the two
-        older refusals keep the exact codes their tests pin."""
-        if not self.loopback:
-            self._send_json(403, {"ok": False, "error": "loopback_only",
-                                  "message": "gate actions are loopback-only"})
-            return
-        if not self.capabilities.get("actions", {}).get("gate") or not self.actor:
-            self._send_json(403, {"ok": False, "error": "action_unavailable",
-                                  "message": "gate actions unavailable "
-                                             "(no resolved actor/checkout)"})
-            return
-        from ideation_dashboard import gate_console
-        from ideation_dashboard import gate_routes
-        # The console-presence test, run ONCE for every verb — a pure read of this
-        # request's own headers, with no side effect. It answers two questions that
-        # used to be one:
-        #
-        #   (a) ENFORCEMENT — FR-019's third clause, on the verbs this feature
-        #       added (the session verbs, whose side effects are a worktree, a
-        #       branch, and a remote write with the engineer's own credential). The
-        #       pre-existing verbs keep their pre-existing posture: widening the
-        #       REFUSAL to them is a separate decision with its own compatibility
-        #       surface, and is NOT smuggled in here.
-        #   (b) PROVENANCE (D23; Brett's 2026-07-27 ruling item 3) — the fact this
-        #       handler is the only place that knows: this action arrived on the
-        #       HTTP surface, and its console presence was shown by THIS SERVE'S
-        #       token. Observing it for every verb is what makes the record say
-        #       which door the action came through, which is the whole point; it
-        #       adds no refusal anywhere, so no pre-existing verb changes behaviour.
-        #
-        # A verb whose presence was not shown and is not enforced (a pre-existing
-        # verb over a non-console call) gets NO provenance rather than a guessed
-        # one: the vocabulary deliberately has no value meaning "not shown", and
-        # inventing one here would be the invisible residual again in a new place.
-        console_refusal = self._not_the_human_console()
-        if verb in gate_routes.SESSION_BEARING_VERBS and console_refusal is not None:
-            sys.stderr.write(
-                f"[actions/gate] agent_invocation refused ({verb}): "
-                f"{console_refusal}\n")
-            self._send_json(403, {"ok": False, "error": "agent_invocation",
-                                  "message": AGENT_INVOCATION_REFUSAL})
-            return
-        provenance = (gate_console.HTTP_CONSOLE_TOKEN
-                      if console_refusal is None else None)
-        # T104 F5-6: `first-edit` is the governed Save -- its body carries the
-        # document's FULL replacement text, and both sides declare the buffer
-        # bound at `doxbench_hash.MAX_BUFFER_BYTES` (400,000 UTF-8 bytes;
-        # doxbench-state.js `DOXBENCH_MAX_BUFFER_BYTES` agrees). The global
-        # `_MAX_BODY_BYTES` reader below (65,536 -- "a tile-action body is
-        # tiny") therefore refused a legal ~70KB Save at the TRANSPORT, and
-        # with the misleading "a JSON object body is required" because that
-        # reader collapses "too large" into the same bare None as any other
-        # malformation. This ONE verb -- branched on the URL-path verb, before
-        # any body byte is read -- goes through the widened route-specific
-        # reader instead. The cap REUSES `DOXBENCH_MAX_REQUEST_BYTES`
-        # (1,048,576) rather than minting a new number: that constant is
-        # already sized to carry a full declared buffer plus JSON-escaping
-        # inflation and envelope overhead for the chat-turn route, and a Save
-        # posts exactly that payload class (the derivation is pinned by
-        # test_the_first_edit_cap_accommodates_the_declared_buffer_bound).
-        # Every OTHER gate verb keeps the tiny cap deliberately: their bodies
-        # ARE tiny, and widening them would weaken unrelated actions
-        # (research R7's reasoning, unchanged).
-        if verb == "first-edit":
-            body, size_refusal = self._read_bounded_json_body(
-                DOXBENCH_MAX_REQUEST_BYTES, "request_body_bytes")
-            if size_refusal is not None:
-                # The verdict for a genuinely oversize Save names the SIZE
-                # problem (fixed message + limit block), never the "JSON
-                # object body" misdirection. Wave re-review P3 honesty note:
-                # the limit block's `measured` figure is the DECLARED
-                # Content-Length — the reader refuses on the declaration and
-                # drains without buffering, so the declaration is exactly
-                # what this refusal is based on (see `_read_bounded_json_body`).
-                self._send_json(
-                    doxbench_error_status(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED),
-                    doxbench_error_body(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                                        limit=size_refusal))
-                return
-        else:
-            body = self._read_json_body()
-        if not isinstance(body, dict):
-            self._send_json(400, {"ok": False, "error": "invalid_body",
-                                  "message": JSON_OBJECT_BODY_REQUIRED})
-            return
-        try:
-            status, payload = gate_routes.run_gate_action(
-                verb, body, checkout_root=Path(self.checkout_root),
-                actor=self.actor,
-                index_validator=self.gate_index_validator,
-                snapshot_path=Path(self.snapshot_path),
-                manifest_validator=self.gate_manifest_validator,
-                xref_validator=self.gate_xref_validator,
-                # BRANCH SESSIONS (007-workbench-branch-sessions T025, research
-                # R1): `checkout_root` above is the SERVED root and stays that
-                # way — no session operation may move it (FR-004). The gap R1
-                # found was that the route had no other input, so it could not
-                # tell which tree a write belonged to. These two close it: the
-                # registry is where session LIVENESS lives (FR-008) and the
-                # repository is the other half of its key. The route resolves the
-                # session EXPLICITLY from them plus the body's tile scope — it
-                # never assumes the active entry is the session, because the
-                # active entry is whatever the human is LOOKING at.
-                session_registry=self._session_registry(),
-                repository=self._session_repository(),
-                session_notebook=self._session_notebook(),
-                # The remote-write port (T082): declared on this LOOPBACK plane and
-                # nowhere else, because its identity is a personal credential
-                # (FR-034, D22). Without it the workbench's save affordance could
-                # not fire at all; with it on a hosted plane the whole confinement
-                # would be void — which is why the same capability answers both.
-                session_pull_requests=self._session_pull_requests(),
-                # THE GATEWAY FACT (D23). Observed above from this request's own
-                # headers and handed down; nothing below re-derives it, and no
-                # request body can spell it — `run_gate_action` reads it from this
-                # argument only, and the value is a `Provenance` type a body
-                # could never be.
-                provenance=provenance)
-        except Exception as exc:  # noqa: BLE001 — never leak a traceback over the wire
-            # THE LOG THE MESSAGE NAMES (T092 acceptance sweep, defect 3). This
-            # clause used to send that message and write NOTHING anywhere: the
-            # server log was byte-identical before and after three separate 500s,
-            # so a human hitting any gate failure had no way at all to find out
-            # what happened — and neither did the sweep, which had to reproduce
-            # each one through the CLI to see a traceback. `http.server`'s own
-            # request logging is suppressed by `log_message` above, so this is the
-            # only place the fact can be recorded.
-            #
-            # The WIRE response is unchanged, deliberately and to the byte: the
-            # fixed catalog message, no exception text, no request-derived value.
-            # The traceback goes to stderr ONLY — the same channel and the same
-            # `[actions/<route>] ` prefix the notebook route already uses (which is
-            # what proved this a real gap rather than an environment artifact: in
-            # the same run, the same log carried nlm's real reason verbatim).
-            self._log_gate_failure(verb, exc)
-            self._send_json(500, {"ok": False, "error": "action_failed",
-                                  "message": "gate action failed; see the "
-                                             "server log"})
-            return
-        self._send_json(status, payload)
-
-    def _log_gate_failure(self, verb: str, exc: BaseException) -> None:
-        """The unexpected-exception half of a gate 500, on the server's stderr.
-
-        Three things, because each answers a different question the sweep had to
-        answer by hand: WHICH verb (the wire response cannot say — it is one fixed
-        message for every verb), WHAT kind of failure (an `OSError` from a
-        derived path and a bug in a route are not the same incident), and the
-        TRACEBACK. `verb` is a route-dispatch value from the fixed
-        `EXECUTING_VERBS` set, not free request text; nothing else from the
-        request reaches even this channel."""
-        sys.stderr.write(
-            f"[actions/gate] unexpected failure in {verb}: "
-            f"{type(exc).__name__}: {exc}\n")
-        traceback.print_exception(type(exc), exc, exc.__traceback__,
-                                  file=sys.stderr)
-        sys.stderr.flush()
 
     def _send_json(self, status: int, obj: dict) -> None:
         body = json.dumps(obj).encode("utf-8")
@@ -2726,285 +1174,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return None
         return self.adapter_factory()
 
-    def _handle_notebook_action(self) -> None:
-        if not self.loopback:
-            self._send_error_code(action_errors.ERR_LOOPBACK_ONLY)
-            return
-        if not self.capabilities.get("actions", {}).get("notebook"):
-            self._send_error_code(action_errors.ERR_ACTION_UNAVAILABLE)
-            return
-        body = self._read_json_body()
-        if not isinstance(body, dict):
-            self._send_error_code(action_errors.ERR_INVALID_BODY)
-            return
-        from ideation_dashboard import notebook_action
-        self._run_notebook_action(notebook_action, body.get("tile_kind"), body.get("tile_id"))
-
-    def _run_notebook_action(self, notebook_action, tile_kind, tile_id) -> None:
-        try:
-            snapshot = json.loads(Path(self.snapshot_path).read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            self._send_error_code(notebook_action.ERR_SNAPSHOT_UNAVAILABLE)
-            return
-        adapter = self._make_adapter()
-        if adapter is None:
-            # unreachable while the capability agrees with the declaration
-            # (`_probe_nlm`), and fail-closed if it ever does not
-            self._send_error_code(notebook_action.ERR_ACTION_UNAVAILABLE)
-            return
-        try:
-            result = notebook_action.run_notebook_action(
-                tile_kind=tile_kind, tile_id=tile_id, snapshot=snapshot,
-                checkout_root=Path(self.checkout_root), adapter=adapter)
-        except notebook_action.NotebookActionError as exc:
-            self._log_action_failure(exc.code, exc.log_detail)
-            self._send_json(exc.status, exc.body())
-            return
-        except Exception:  # noqa: BLE001
-            # never leak a traceback over the wire
-            self._send_error_code(notebook_action.ERR_ACTION_FAILED)
-            return
-        self._send_json(200, result)
-
-    def _log_action_failure(self, code: str, detail: str | None) -> None:
-        """Server-side-only diagnostics for a refused/failed action — the wire
-        carries only the fixed catalog message; the operator sees the detail."""
-        if detail:
-            sys.stderr.write(f"[actions/notebook] {code}: {detail}\n")
-
-    # ---- snapshot ----
-    def _read_snapshot(self) -> bytes | None:
-        """The ACTIVE snapshot's bytes, through the registry when one is bound
-        (the in-process derived cache included) and from the configured path
-        otherwise."""
-        entry = self._active_entry()
-        if entry is not None:
-            return entry.read_bytes()
-        try:
-            return Path(self.snapshot_path).read_bytes()
-        except OSError:
-            return None
-
-    def _serve_snapshot(self, head_only: bool) -> None:
-        """`/snapshot.json` — the active snapshot, or any registered
-        (repository, ref) named by the query. An unknown pair is a 404; the
-        active view the client already has stays untouched.
-
-        On the HOSTED plane a non-`main` ref refuses before resolution (FR-048):
-        the serving index legitimately advertises a live session row (FR-014), so
-        without this a hosted request could name one."""
-        repository, ref = self._query_key()
-        if hosted_ref_refused(self.loopback, ref):
-            self._send_json(403, {"ok": False, "error": "session_unavailable",
-                                  "message": HOSTED_SESSION_REFUSAL})
-            return
-        if repository and self.source is not None:
-            entry = self.source.registry.resolve(repository, ref)
-            if entry is None:
-                # An AGGREGATE id (declared, or register-derived per project —
-                # add-project-merged-projection D11) composes at the default
-                # ref only. Off-loopback, members at unpublishable refs are
-                # dropped before composition (the hosted_index projection,
-                # applied to content).
-                composed = None
-                if registry_mod.is_publishable_ref(ref):
-                    composed = self.source.compose_view(
-                        repository, publishable_only=not self.loopback)
-                if composed is not None:
-                    self._serve_bytes(json.dumps(composed).encode("utf-8"),
-                                      JSON_CTYPE, head_only)
-                    return
-                self.send_error(404, "no such snapshot")
-                return
-            if self._hosted_entry_refused(entry):
-                return
-            self._serve_bytes(entry.read_bytes(), JSON_CTYPE, head_only, entry=entry)
-            return
-        if repository and self.source is None:
-            self.send_error(404, "no such snapshot")
-            return
-        # THE REF-LESS HOLE (PR #49 review finding 14, composing with finding
-        # 10b): a request that NAMES no ref resolves to the ACTIVE entry, and
-        # `hosted_ref_refused` only ever inspected the ref a request named. A
-        # non-`main` active entry would therefore have been served off-loopback
-        # with no key in sight. The refusal now follows the RESOLVED entry.
-        if self._hosted_entry_refused(self._active_entry()):
-            return
-        self._serve_bytes(self._read_snapshot(), JSON_CTYPE, head_only)
-
-    def _hosted_entry_refused(self, entry) -> bool:
-        """Refuse (and answer) when the entry a request RESOLVED to is
-        session-local and this is the hosted plane. Returns whether it answered."""
-        if entry is None or not hosted_ref_refused(self.loopback, getattr(entry, "ref", None)):
-            return False
-        self._send_json(403, {"ok": False, "error": "session_unavailable",
-                              "message": HOSTED_SESSION_REFUSAL})
-        return True
-
-    def _serve_index(self, head_only: bool) -> None:
-        """`/snapshot-index.json` — the roster the selector reads, composed from
-        the registry. No registry (a hand-built handler) means no index, which
-        is exactly how the renderer degrades to a single snapshot."""
-        if self.source is None:
-            self.send_error(404, "no snapshot index")
-            return
-        document = self.source.index_document()
-        # belt AND braces on the hosted plane (FR-048, finding 14): the bootstrap
-        # above admits no session rows off-loopback, and this projection would
-        # drop them anyway — a handler constructed by hand, or a registry a future
-        # route populates, cannot reopen the hole.
-        if not self.loopback:
-            document = hosted_index(document)
-        body = json.dumps(document).encode("utf-8")
-        self._serve_bytes(body, JSON_CTYPE, head_only)
-
-    def _serve_project_register(self, head_only: bool) -> None:
-        """`/project-register.json` — the register PROJECTION the project
-        picker reads (add-project-scoped-selection). Read per request (the
-        register is human-editable between requests), reduced to the
-        navigation fields only, and 404 when no register is reachable — the
-        picker hides and the selector renders today's ungrouped roster.
-
-        TWO PLANES in one document (design D-e): `projects` is TRUTH (the
-        register), `pending` is INTENT — dispatched, undelivered
-        create-project commissions read from the same records scan the
-        duplicate guard uses, so a fresh commission is visible as pending
-        instead of looking like it did nothing. A pending id the register
-        already carries is dropped: the register wins the moment the
-        fulfilment lands, even before the descriptor's status flips."""
-        import yaml
-        from ideation_dashboard.gate_console import DEFAULT_RECORDS_DIR
-        from ideation_dashboard.kickoff import (
-            dispatched_commission_rows, dispatched_commissions,
-            discover_project_register)
-        source = discover_project_register(Path(self.checkout_root))
-        register = None
-        if source is not None:
-            try:
-                register = yaml.safe_load(source.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                register = None
-        if not isinstance(register, dict):
-            self.send_error(404, "no project register")
-            return
-        projects = [
-            {"id": p.get("id"), "name": p.get("name") or p.get("id"),
-             "repositories": [str(r) for r in (p.get("repositories") or [])]}
-            for p in (register.get("projects") or [])
-            if isinstance(p, dict) and p.get("id")
-        ]
-        real_ids = {p["id"] for p in projects}
-        records_root = Path(self.checkout_root) / DEFAULT_RECORDS_DIR
-
-        def _job(descriptor):
-            try:
-                doc = yaml.safe_load(descriptor.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                doc = None
-            return doc if isinstance(doc, dict) else {}
-
-        pending = []
-        for pid, descriptor in sorted(
-                dispatched_commissions(records_root, "create-project").items()):
-            if pid in real_ids:
-                continue
-            job = _job(descriptor)
-            pending.append({
-                "id": pid,
-                "name": job.get("project_name") or pid,
-                "repositories": [str(r) for r in (job.get("repositories") or [])],
-                "dispatched_at": job.get("dispatched_at"),
-            })
-        # add-opendox-project-header (D15): dispatched, undelivered MEMBERSHIP
-        # edits — the popover badges the affected rows until the fulfilment
-        # lands. Same two-plane posture as `pending` above. EVERY queued edit
-        # rides (edits queue, topic D18), oldest first — including edits on a
-        # project that so far exists only as a pending creation, so the apply
-        # affordance's count stays honest; an edit whose project is in
-        # neither plane is dropped (nothing to badge).
-        pending_ids = {p["id"] for p in pending}
-        pending_edits = []
-        for pid, _descriptor, job in dispatched_commission_rows(
-                records_root, "edit-project"):
-            if pid not in real_ids and pid not in pending_ids:
-                continue
-            pending_edits.append({
-                "project_id": pid,
-                "add": [str(r) for r in (job.get("add") or [])],
-                "remove": [str(r) for r in (job.get("remove") or [])],
-                "dispatched_at": job.get("dispatched_at"),
-            })
-        document = {
-            "kind": "project-register-projection",
-            "projects": projects,
-            "pending": pending,
-            "pending_edits": pending_edits,
-        }
-        self._serve_bytes(json.dumps(document).encode("utf-8"), JSON_CTYPE,
-                          head_only)
-
-    # ---- source pass-through ----
-    def _keyed_source(self, tail: str):
-        """Split an optional `<repository>@<ref>/` prefix off a `/source/` tail.
-        The prefix is honoured ONLY when it names a REGISTERED pair, so a real
-        file whose first path segment happens to contain `@` still resolves as a
-        path. Returns (repository, ref, remaining tail).
-
-        A SESSION ref CONTAINS a slash (`draft/<topic>`, `cluster/<id>`), so the
-        key is not always one path segment: the split is tried at every separator,
-        shortest prefix first, and the first candidate naming a REGISTERED pair
-        wins. Registration remains the whole admission test — an unregistered pair
-        falls through to the plain path exactly as before — so widening the split
-        cannot make an unknown key addressable. Both spellings work: the browser
-        percent-encodes the whole key (`repo%40draft%2Ftopic`, one segment) and the
-        runbook's `curl` writes it plainly (`repo@draft/topic`, two)."""
-        if self.source is None or "/" not in tail:
-            return None, None, tail
-        parts = tail.split("/")
-        for cut in range(1, len(parts)):
-            rest = "/".join(parts[cut:])
-            if not rest:
-                break
-            parsed = registry_mod.parse_key_id(
-                urllib.parse.unquote("/".join(parts[:cut])))
-            if parsed is None:
-                continue
-            if self.source.registry.get(*parsed) is not None:
-                return parsed[0], parsed[1], rest
-        return None, None, tail
-
-    def _serve_source(self, tail: str, head_only: bool) -> None:
-        repository, ref, rest = self._keyed_source(tail)
-        # the keyed form is the OTHER route that names a ref (FR-048): a hosted
-        # plane serves no session worktree's bytes, keyed or not
-        if hosted_ref_refused(self.loopback, ref):
-            self._send_json(403, {"ok": False, "error": "session_unavailable",
-                                  "message": HOSTED_SESSION_REFUSAL})
-            return
-        entry = None
-        if self.source is not None:
-            target = self.source.registry.resolve_source(repository, ref, rest)
-            entry = self.source.registry.resolve(repository, ref)
-            # the UNKEYED form resolves to the ACTIVE entry, which the query never
-            # named — the same ref-less hole `_serve_snapshot` closes above
-            if self._hosted_entry_refused(entry):
-                return
-        else:
-            target = resolve_source_path(Path(self.checkout_root), rest)
-        if target is None:
-            self.send_response(404)
-            self._divergence_headers(entry)
-            self.send_header("Content-Length", "0")
-            self.end_headers()
-            return
-        try:
-            body = target.read_bytes()
-        except OSError:
-            self.send_error(404, "unreadable source")
-            return
-        ctype = "text/markdown; charset=utf-8" if target.suffix == ".md" else "text/plain; charset=utf-8"
-        self._serve_bytes(body, ctype, head_only, entry=entry)
-
     def _serve_bytes(self, body: bytes | None, ctype: str, head_only: bool,
                      entry=None) -> None:
         if body is None:
@@ -3116,6 +1285,9 @@ def build_server(
     project_register: Path | str | None = None,
     peek_ttl_seconds: float = registry_mod.PEEK_TTL_SECONDS,
     snapshot_source=None,
+    knowledge_declaration=None,
+    packet_assembler=None,
+    route_extensions: tuple = (),
 ) -> http.server.ThreadingHTTPServer:
     """Build (but do not start) the loopback server. `port=0` binds an ephemeral
     port (read it back from `httpd.server_address`). `head` is injectable so a
@@ -3142,8 +1314,71 @@ def build_server(
     remains available as the baked/local fallback — so a server built exactly as
     every existing caller builds one serves exactly one `(repository, main)`
     entry and behaves as it always has. `snapshot_source` is injectable for
-    tests."""
+    tests.
+
+    `knowledge_declaration` is the INSTALL-TIME declaration of the doxBench
+    staged-set knowledge service's retrieval backend
+    (add-doxbench-editing-phase-b D11): unset means NO knowledge service, which
+    is the declared reduced-packet posture rather than an error, and the
+    production entrypoint declares `SELF_HOSTED_LOCAL_EMBEDDED` explicitly —
+    the same discipline `real_notebook_adapter` carries, and for the same
+    reason: an operator must be able to read what their install talks to, and a
+    library default that quietly built one would defeat that.
+
+    `route_extensions` is the ROUTE EXTENSION POINT
+    (`split-opendox-two-layer-product` § 2.4, design § D2): the tuple of
+    `route_extension.RouteExtension`s this server is ASSEMBLED with, each
+    contributing routes the fixed core dispatch does not carry. `routes()` is
+    called ONCE, here, and the flattened bindings are bound to the handler
+    class; the extensions themselves are deliberately NOT retained, because an
+    extension reachable from a request is an invitation to re-ask it per
+    request, and a dispatch table that can change under traffic is not a
+    dispatch table.
+
+    THE IN-TREE PROFILE (`profile_openxfactory.ROUTE_EXTENSIONS`) is registered
+    HERE, ahead of the caller's tuple, and is NOT passed in by `main()` — the
+    same shape `build_parser` uses for `SUBCOMMAND_EXTENSIONS` (PR 4 of § 2.4).
+    `build_server(...)` names the whole of THIS assembly's server, which is what
+    all 31 in-tree test `build_server(...)` call sites across 27 test files
+    already read it as, so the routes PR 3 moved out of the fixed tables are
+    served by a caller who passes nothing — and by a
+    caller who passes `route_extensions=()` explicitly, which is the same
+    request spelled twice. `route_extensions` stays the seam for whatever a
+    caller adds ON TOP; the default `()` therefore still means "add nothing".
+    A SENTINEL (`None` -> profile, `()` -> none) was considered and refused: the
+    only in-tree caller that passes the keyword at all passes `()` and would
+    have silently lost `/snapshot-index.json`, `/source/` and every gate verb
+    from the servers in the file that tests this very seam. This line is also
+    the one the § 3 carve deletes rather than moves."""
     from ideation_dashboard import doxbench_turns
+    # Imported HERE rather than at module scope, for the reason that is
+    # actually true on this branch — narrower than the one this comment gave
+    # before (Copilot review `PRRT_kwDOTAvnrs6f_iG1`): the profile is a WIRING
+    # input, read once per build and never per request, so it belongs beside
+    # the composition it feeds rather than in this module's import header.
+    # What it is NOT doing is keeping the contributed columns out of the import
+    # graph: `serve.py` already imports all three at module scope above,
+    # because they are `DashboardHandler`'s mixin bases, and the profile
+    # imports exactly those three. The dependency that must stay out of a
+    # module the container runs as a plain script is the CLI column —
+    # `cli_gate` reaches `authoring` -> `workbench` -> PyYAML, which the hosted
+    # image deliberately does not carry — and that one is held out at the
+    # profile's own end, which resolves `SUBCOMMAND_EXTENSIONS` (and
+    # `cli_gate`) on ACCESS through PEP 562 rather than binding them at import
+    # time, so only `cli.py`'s read of them pays. `cli.py` names the same
+    # profile at module scope because a parser is built from it at import time;
+    # a server is not.
+    from ideation_dashboard import profile_openxfactory
+
+    # FIRST, before a socket, a checkout read or a session bootstrap: a
+    # malformed, duplicated, overlapping or non-conforming binding refuses the
+    # BUILD, and it costs nothing to find out before the expensive work starts.
+    # The profile's own bindings go through the SAME collection — a collision
+    # between a contributed route and one of this assembly's own is refused
+    # here too, INCLUDING a caller's exact binding declared under one of this
+    # assembly's prefixes (RULING A, 2026-09-07; `collect_bindings`).
+    route_bindings = route_extension.collect_bindings(
+        tuple(profile_openxfactory.ROUTE_EXTENSIONS) + tuple(route_extensions))
 
     web_dir = Path(web_dir).resolve()
     snapshot_path = Path(snapshot_path).resolve()
@@ -3242,6 +1477,23 @@ def build_server(
                   if schema_validator_factory is not None else None)),
         # ONE fresh turn-idempotency ledger per served process (T050/T051).
         "turn_store": doxbench_turns.TurnStore(),
+        # ONE fresh abstract cache per served process, beside it and never it
+        # (add-doxbench-distilled-abstract §5.3, N1). Two stores, two bounds:
+        # abstract churn over a scope larger than the abstract bound evicts
+        # abstracts and nothing else.
+        "abstract_store": doxbench_abstract_store.AbstractStore(),
+        # The INSTALL-TIME retrieval-backend declaration (task 10.6). Bound
+        # once, here, and READ by the route; the backend instance itself is
+        # built per request from this declaration and from nothing else, so no
+        # tile's derived index is ever visible to another tile's turn.
+        "knowledge_declaration": knowledge_declaration,
+        # The packet assembler, defaulted to the real one (see the class
+        # attribute's own note on why absence is not a posture here).
+        "packet_assembler": staticmethod(
+            packet_assembler if packet_assembler is not None
+            else doxbench_packet.assemble_packet),
+        # ONE fresh content-free usage meter per served process (task 10.8).
+        "usage_meter": doxbench_telemetry.UsageMeter(),
         "actor": resolved_actor,
         # the session key's repository half, for this whole process (R2-11)
         "session_repository": session_repository,
@@ -3250,7 +1502,15 @@ def build_server(
         "gate_manifest_validator": gate_manifest_validator,
         "gate_xref_validator": gate_xref_validator,
         "source": source,
+        # The contributed routes, already in consult order (§ 2.4). One more
+        # injected class attribute, exactly like the seams above it.
+        "route_bindings": route_bindings,
     })
+    # A ROUTE THAT CANNOT BE SERVED MUST NOT START. Resolved against the bound
+    # class — the object the dispatch will `getattr` on — so a binding naming a
+    # handler this server does not have is a refused build rather than a stack
+    # trace on the first live connection.
+    route_extension.resolve_handlers(route_bindings, bound)
     factory = functools.partial(bound, directory=str(web_dir))
     return http.server.ThreadingHTTPServer((host, port), factory)
 
@@ -3284,6 +1544,45 @@ def serve(
     rather than letting `build_server` reach for it on every caller's behalf. A
     caller that passes its own `adapter_factory` (a test, a harness) keeps it."""
     build_kwargs.setdefault("adapter_factory", real_notebook_adapter)
+    # The INSTALL-TIME retrieval-backend declaration, made by the ENTRYPOINT for
+    # the same reason the notebook adapter is: an operator must be able to read
+    # what their install talks to, and `build_server` reaching for one on every
+    # caller's behalf would put that decision out of sight. This is the
+    # self-hosted case of the ratified two-case principle; a tenant install
+    # declares its own here instead.
+    build_kwargs.setdefault("knowledge_declaration",
+                            doxbench_knowledge.SELF_HOSTED_LOCAL_EMBEDDED)
+    # THE MODEL PROVIDER, declared by the same entrypoint discipline. This is
+    # the STANDALONE SECONDARY PATH: the primary entrypoint is
+    # `cli.cmd_generate_and_open`, which makes the identical declaration with
+    # its own `--model-session-root` flag. Both are written out because a
+    # declaration only one of them makes is a serve whose operator cannot tell
+    # which install talks to a model — and `setdefault` keeps a caller's own
+    # factory (a test, a harness) exactly as the two above do.
+    #
+    # The session root follows the SAME rule the CLI defaults to — beside the
+    # served snapshot — so the two entrypoints cannot drift into writing harness
+    # sessions in two different places.
+    #
+    # `doxbench_install` is imported at module scope (see the import block's own
+    # note): the graph is acyclic and importing the declaration starts nothing.
+    # What stays an ENTRYPOINT decision is this call -- the two entrypoints are
+    # the only places that reach for the real declaration, and `build_server`
+    # still never does it on a caller's behalf.
+    #
+    # SINCE add-model-provider-broker (ratified 2026-08-26) the declaration is
+    # `declared_model_port_factory`, which reads the checkout's model-provider
+    # BINDINGS and resolves the broker-backed port when one is declared. A
+    # checkout declaring none resolves exactly the harness factory this line
+    # used to name, so the unconfigured posture is unchanged byte for byte.
+    # This file still names no provider endpoint, holds no credential and holds
+    # no token: all three live in `doxbench_provider` and nowhere else, which
+    # is the narrowed boundary the structural test enforces.
+    build_kwargs.setdefault(
+        "model_port_factory",
+        doxbench_install.declared_model_port_factory(
+            doxbench_install.session_root_beside(snapshot_path),
+            checkout_root=checkout_root))
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")

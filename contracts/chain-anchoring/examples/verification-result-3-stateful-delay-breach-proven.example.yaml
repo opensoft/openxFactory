@@ -1,0 +1,50 @@
+# THE SAT-ON MINTER, EXPOSED BY CADENCE: the anchored checkpoint bracket
+# (cp_out, cp_in — reported together so the bracket's width is visible) bounds
+# the true submission on evidence no minter controls, and a_first minus cp_in
+# is a LOWER bound on the true delay. Here it exceeds the declared maximum plus
+# tolerance: breach PROVEN, whatever the receipt's own declared submission
+# says. Under the bound it would prove NOTHING — not-provably-breached is not
+# compliant, the residual is exactly one cadence interval, and a result reading
+# this check as compliance is refused. Stateful mode also distinguishes the
+# horizon breach from a terminal failure and names the anchor-state record it
+# read.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-example-0003
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: stateful
+status: anchor_incomplete
+incomplete_cause: horizon_breach
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: true
+delay_check:
+  cp_in: '2026-08-30T06:00:00Z'
+  cp_out: '2026-08-30T05:45:00Z'
+  a_first: '2026-08-30T08:00:00Z'
+  bound_seconds: 7200
+  outcome: breach_proven
+  cp_in_ref: leaf-example-checkpoint-anchored-0630
+  cp_out_ref: leaf-example-checkpoint-anchored-0629
+receipt_ref: rcp-example-0004
+anchor_state_ref: as-example-0003
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+verification_leaf_ref: leaf-example-served-verification-0655
+record_version: 1
+notes: 'the sat-on minter, exposed by cadence: the minter DECLARED submission at 07:55, but
+  the anchored checkpoint bracket shows the submission leaf was in the log by cp_in 06:00
+  — so a_first minus cp_in is a LOWER bound of 7200s on the true delay, over the declared
+  maximum plus tolerance (4200s): breach PROVEN. cp_out is reported beside it so the bracket''s
+  width is visible. Falling under the bound would have proven nothing — not-provably-breached
+  is not compliant'

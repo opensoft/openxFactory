@@ -1,0 +1,223 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_deliberation_return
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/deliberation-return.schema.yaml"
+contract_id: clearing-deliberation-return
+contract_schema_version: 1
+title: The deliberation return — per-seat outputs as evidence, bound to the convening
+description: >-
+  THE STRUCTURED RETURN OF EVIDENCE for register entry number two
+  (`admit-deliberation-clearing-operation`, capability
+  `clearing-dispatch-boundary`, requirement "deliberation is register entry
+  number two and returns evidence only"; tasks.md 2.2). The `deliberation`
+  operation runs the seat deliberations of an admitted convening on the governed
+  host and hands back the per-seat outputs. THIS IS THAT HANDING BACK, as a
+  shape.
+
+  A NEUTRAL SCHEMA AUTHORED HERE, AND THAT IS THE RULING RATHER THAN A
+  CONVENIENCE (design D4, OQ1, Brett Heap 2026-09-04). The register's own rule is
+  that a return is validated against the DECLARED value and NEVER against a
+  bundle's copy of it. A declared schema owned by a producing repository would
+  make the PRODUCER the author of the shape its own return is checked against —
+  the bundle-trust error this boundary exists to refuse, moved one level up.
+
+  EVIDENCE, NEVER AN OUTCOME, AND THE ABSENCES BELOW ARE THE CONTRACT. What the
+  seats produce is evidence; the outcome is computed by the runtime from the
+  signed returns, downstream of and outside this boundary. So this shape carries
+  NO verdict, eligibility, decision, go/no-go, approval or recommendation member,
+  at any depth. `additionalProperties: false` at the root and at every nested
+  object is the structural half; `scripts/validate-clearing-dispatch.py` carries
+  the other, applying the same name scan it applies to the operation report and
+  refusing a member whose NAME reads as a verdict with
+  `clearing-report-carries-a-verdict`. THE SCAN IS DISPATCHED ON `kind`, which is
+  why this record's kind is named in ratified text rather than chosen at
+  realization: a realization free to pick the kind would be free to pick whether
+  the scan reaches this operation at all.
+
+  THERE IS NO SIGNATURE MEMBER, AND THAT IS A REFUSAL RATHER THAN AN OMISSION.
+  The entry forbids the host holding any seat key or any other signing key in any
+  form: the return is UNSIGNED on the host and is signed ON RETURN by the
+  originating repository's own hosted signer, so no key is ever present on the
+  host. A signature member here would be a place for a host-side signature to
+  live, and this shape declines to offer one.
+
+  THE SEAT'S OUTPUT IS OPAQUE TO THIS CONTRACT, deliberately. It is a string
+  payload or a reference plus a byte hash. The producing estate's per-seat
+  accounting — turn counts, declared caps, model usage — lives INSIDE that
+  payload and is not lifted into a neutral member, for the same reason the
+  declared schema is not a producer-owned path: a neutral contract that
+  enumerated the producer's fields would be authoring the producer's shape from
+  the other side.
+
+  SEAT IDENTITY IS THE KEY, not a member. `seats` is a keyed collection on the
+  precedent `operation-report.schema.yaml` sets for `lanes` — "an array of
+  fragments would have made 'one composed report' indistinguishable from
+  'several reports in one file'" — and keying also makes a DUPLICATE SEAT
+  IDENTITY unrepresentable rather than merely wrong. No `seat_id` spelling is
+  minted; a producer maps its own onto the key.
+
+  NO SECOND VOCABULARY. No digest construction is declared here:
+  `inbound_bundle_digest` is the VALUE of the inbound sealed-bundle manifest's
+  own `manifest_digest`, computed under `signed-execution-chain`'s
+  `xfc-jcs-sha256-1` over the `sealed_bundle_manifest` subject, referenced and
+  not restated. No handling vocabulary and no job envelope is declared either;
+  the register entry carries the handling class and `neutral-job-envelope` owns
+  job scope references.
+
+  WHICH LANES THIS OPERATION MAY USE IS NOT THIS SCHEMA'S ANSWER. `lane` is typed
+  as an identifier and is not pinned to `artifact`, because the CLOSED REGISTER
+  is the authority on an operation's lanes — "a schema constrains a document, not
+  a decision" — and a `const` here would be a second, uncounted copy of a
+  decision the register owns.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - operation
+  - lane
+  - binding
+  - seats
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  subject_pin:
+    description: >-
+      A SUBJECT PIN, AS A BOUNDED STRING AND WITH NO GRAMMAR IMPOSED. The pin's
+      form belongs to the subject-establishment family that stamps it, not to
+      this one, and a neutral return schema that pinned its grammar would refuse
+      a lawful pin whose shape it never owned — the `repository@revision`
+      spelling alone is enough to break this family's `identifier` pattern.
+      Bounded, so it is still a pin and not a document.
+    type: string
+    minLength: 1
+    maxLength: 400
+
+  byte_hash:
+    description: >-
+      ALGORITHM-TAGGED SHA-256 OVER BYTES, in the spelling
+      `sealed-bundle-manifest.schema.yaml` already uses for a selected file's
+      content hash. Not a canonical-JSON digest and deliberately not shaped like
+      one: a byte stream has nothing to canonicalize.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'
+
+  seat_output:
+    description: >-
+      ONE SEAT'S OUTPUT, as a TAGGED UNION on `form` — the same discriminator
+      shape field (10) of the sealed-bundle manifest already uses for its origin
+      attestation, so no new convention is minted. INLINE carries the output as a
+      STRING: the seat's output is the producing estate's shape, and a neutral
+      contract that typed it as an object would be authoring that shape.
+      REFERENCE carries a path and a REQUIRED byte hash, because a pointer with
+      no hash names bytes nobody can check.
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [form, payload]
+        properties:
+          form: {const: inline}
+          payload:
+            description: >-
+              The seat's output as the host produced it. A string, so that the
+              producer's own per-seat members travel INSIDE it rather than
+              becoming neutral members of this family.
+            type: string
+            minLength: 1
+            maxLength: 1000000
+          content_hash: {$ref: '#/$defs/byte_hash'}
+      - type: object
+        additionalProperties: false
+        required: [form, path, content_hash]
+        properties:
+          form: {const: reference}
+          path:
+            description: >-
+              Where the output sits inside the sealed return object. A path
+              within that object, never a URL and never a repository path: the
+              return is re-served by the clearing side, and a pointer out of the
+              object would be a second fetch this boundary does not permit.
+            type: string
+            minLength: 1
+            maxLength: 400
+          content_hash: {$ref: '#/$defs/byte_hash'}
+          size_bytes: {type: integer, minimum: 0}
+
+  seat_return:
+    description: >-
+      WHAT ONE SEAT HANDED BACK. Exactly its output, and nothing that reads as
+      what the output is FOR. The seat's identity is the key this object is
+      stored under.
+    type: object
+    additionalProperties: false
+    required: [output]
+    properties:
+      output: {$ref: '#/$defs/seat_output'}
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_clearing_deliberation_return}
+
+  operation:
+    description: >-
+      The register entry this return answers. A `const`, because a return of this
+      shape is a return of THIS operation: a document that could name another
+      operation would be a return shape looking for an entry.
+    const: deliberation
+
+  lane:
+    description: >-
+      The lane the dispatch declared. DECLARED, never observed — the provider
+      exposes no runner-group context to a running job, and observed membership
+      is established only by the periodic single-door attestation reading the
+      provider's API. WHICH lanes this operation may use is the closed register's
+      answer and not this schema's.
+    $ref: '#/$defs/identifier'
+
+  binding:
+    description: >-
+      THE RUN IDENTIFIERS THAT BIND THIS RETURN TO THE CONVENING IT ANSWERS.
+      All three are required, because a return that cannot name the exact bundle,
+      at the exact verified pin, for the exact convening job is a return nothing
+      can be matched against — and matching it afterwards by timing or by order
+      is the guess this member exists to remove.
+    type: object
+    additionalProperties: false
+    required: [convening_job_id, verified_subject_pin, inbound_bundle_digest]
+    properties:
+      convening_job_id:
+        description: The convening this deliberation was run for.
+        $ref: '#/$defs/identifier'
+      verified_subject_pin:
+        description: >-
+          The subject pin AS VERIFIED at admission, never the producer's claim of
+          it. The member name carries the word for the reason this family's
+          `declared_*` members carry theirs: a bare `subject_pin` in a neutral
+          record would not say whose word it is.
+        $ref: '#/$defs/subject_pin'
+      inbound_bundle_digest:
+        description: >-
+          The digest of the sealed bundle this return ANSWERS — the VALUE of that
+          bundle's own `manifest_digest`, under the one construction in force. No
+          construction is declared here; `signed-execution-chain`'s
+          `xfc-jcs-sha256-1` over the `sealed_bundle_manifest` subject is the one
+          that computes it.
+        type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+
+  seats:
+    description: >-
+      THE PER-SEAT OUTPUTS, KEYED BY SEAT IDENTITY. `minProperties: 1` because a
+      deliberation return carrying no seat evidences nothing, and a keyed
+      collection because a duplicate seat identity should be unrepresentable
+      rather than merely wrong.
+    type: object
+    minProperties: 1
+    propertyNames: {$ref: '#/$defs/identifier'}
+    additionalProperties: {$ref: '#/$defs/seat_return'}

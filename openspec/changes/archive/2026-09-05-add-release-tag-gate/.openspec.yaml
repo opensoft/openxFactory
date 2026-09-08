@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-09-04
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-04-add-release-tag-gate
+  reason: >-
+    A MEASURED PROCESS COST ON A RATIFIED CHECK, filed as openxFactory issue
+    #664 with the measurement in it rather than argued from impression.
+    `tests/doc-health/test_release_tag_publication.py` asserted, inside the
+    REQUIRED `pytest-suite`, that this repository reads ZERO
+    `release-tag-publication` findings. The annotated tag for a new bundle is
+    published AFTER the cutting pull request merges, at the merge commit, by a
+    second actor holding tag rights — measured at 6s, 23s, 44s and 69s after
+    merge for `contract-v3.1`, `contract-v3.2`, `contract-v3.3` and
+    `contract-v3.4` — and the versioning policy's own realization order puts
+    the tag act at step 5, after the landing at step 4. So the repository
+    GENUINELY carries the finding for the length of that window, and the pin
+    turned it into a failure of a required check on EVERY OPEN PULL REQUEST.
+    RECORDED, NOT ASSUMED: PR #628 (`0d5e1ba9`, 2026-09-03 22:27Z) declared
+    `contract-v3.3` untagged; main and every open lane failed on that one test
+    until the tag was published after PR #636 (`16b85614`) and main went green
+    at `92e662cf` (04:02Z) — five and a half hours, every lane, none of them
+    the cause and none of them able to fix it.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-04: no
+    topic carries release-tag enforcement, cut-time gating, or the placement of
+    a doc-health self-gate. `kind: staged` would claim a staging source that
+    does not resolve. The organized source is the issue and the ruling on it.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — in session on 2026-09-04, lane
+    `openxfactory-max001`, verbatim: "do your recommendation", given on issue
+    #664 against three presented options and settling option 2. THIS IS AN
+    ADMISSION INTO THE PROPOSAL QUEUE AND NOT A RATIFICATION OF CONTENT: it
+    supplies the origin and approval pair the proposal-origin contract requires
+    and nothing more. The packet carries `Status: draft` and owes no
+    ratification citation until a separate act supplies one.
+    WHAT THE RULING SETTLED, carried as LOCKED constraints rather than as
+    decisions this packet takes: the gate runs on EVERY pull request and
+    short-circuits when the release surface is untouched, so that a required
+    context always reports; the suite test keeps only its self-test half; the
+    nightly keeps reporting the condition at its current severity; and making
+    the check REQUIRED is the convener's own console act, recorded as an
+    `[OPERATOR]` task with evidence before archive. Every other decision (D1 …
+    D7 in `design.md`) was the authoring session's — D1 (a cutting pull request
+    cannot be required to carry its own tag, so the obligation is RECORDED
+    rather than enforced) and D2 (`gate-version-reuse`, the one arm beyond the
+    ruling's text) being the two most worth a convener's veto.
+  approved_on: 2026-09-04
+related:
+  - openxFactory:change:add-release-tag-publication-check  # ARCHIVED 2026-09-01. Promoted the requirement this change MODIFIES (`doc-health` § Release-tag publication) and built the family; its distance grading and its "declaring commit is still the published tip" scenario are what make a cutting pull request passable here without a new rule
+  - openxFactory:change:declare-spent-bundle-state         # ARCHIVED 2026-09-03. The other writer of that same requirement, and the amendment this delta restates byte-faithfully alongside the promoted text

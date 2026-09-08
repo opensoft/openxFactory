@@ -1,0 +1,32 @@
+# expected_failure: determination_made_with_minter_claimed_base
+# expected_failure_detail: minter_claimed
+# A pending-versus-breached determination reached on a minter-claimed base is a
+# fail-closed decision resting on a number nothing can check. The honest status
+# where no landed witness is eligible as a base is no_determination — a first-
+# class answer, not a gap.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0020
+subject_ref: item-example-0002-consent-checkpoint-128
+verification_mode: receipt_only
+status: anchor_pending
+horizon_base:
+  kind: minter_claimed
+  ordering_only_witnesses_excluded: true
+witness_shortfall:
+  configured:
+  - w-example-op-0002
+  - w-example-ord-0002
+  present:
+  - w-example-ord-0002
+  missing:
+  - w-example-op-0002
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0002
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-31T09:05:00Z'
+record_version: 1
+notes: 'the ordering-only witness proves the anchor and counts toward the configured set,
+  and is NOT eligible as a horizon base — so with no eligible base the honest status is no_determination,
+  a first-class answer rather than a gap: a claim the artifact cannot check is not a basis
+  for a fail-closed answer'

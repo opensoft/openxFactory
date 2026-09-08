@@ -1,0 +1,285 @@
+# Tasks: add-drafted-proposal-origin
+
+Status: ratified
+Ratified by: add-drafted-proposal-origin
+
+**PROPOSAL AND REALIZATION WERE AUTHORED TOGETHER, BY THE RULING.** Brett's
+2026-09-03 word on issue #318 named the vehicle as "an OpenSpec change on
+`doc-health` with a code surface (`scripts/doc_health/proposal_origin.py` +
+fixtures), proposal and realization authored together", following the
+`add-release-tag-publication-check` precedent for the same reason that packet
+records: canon, the code that enforces it and the tests that pin them cannot
+disagree across a merge boundary without reddening the gate that exists to
+notice exactly that. Groups 1–3 are therefore all discharged in the branch
+this packet lands on. Group 5 is the archive act, last, and open until the
+merge it follows exists.
+
+## 1. Ratification
+
+- [x] 1.1 RATIFIED 2026-09-03 by Brett Heap in session, verbatim: "implement
+      your recommendations on all these", over the lane's written
+      recommendations for issues #561/#339, #318, #511, #553 and the #543 fix
+      (b). For this issue the ruling resolves to SHAPE 1 of the two the issue
+      offered — an origin state that declares provenance without asserting
+      approval — and is recorded as the RULING comment on openxFactory issue
+      #318. Record: `review/ratification-2026-09-03.md`.
+- [x] 1.2 The ruling settles the SHAPE and authorizes the VEHICLE. It does
+      NOT cover the six decisions taken inside that shape (D1–D6 in
+      `proposal.md` § Orchestrator Decisions, argued in `design.md`), which
+      are flagged for veto. D1 in particular — WHICH of the two spellings the
+      ruling named — is a choice the ruling deliberately left open ("a
+      `drafted` kind, or `proposed_on` without `approved_on`").
+
+## 2. Realization — ONE slice
+
+- [x] 2.1 `scripts/doc_health/proposal_origin.py`: the `ad_hoc` arm becomes
+      three states — claims approval, claims drafting, claims neither —
+      keyed on PRESENCE rather than completeness, so a half-written pair is
+      reported as an incomplete claim of the state it reached for rather
+      than silently re-classified as the other state. `APPROVAL_FIELDS` and
+      `DRAFTING_FIELDS` become named module constants. The approval arm is
+      byte-unchanged in rule text and action line (property (c)).
+- [x] 2.2 `_declared_standing` — the ONE header read this family gained. It
+      goes through `corpus.parse_status` + `promotion_fidelity.declared_standing`
+      and compares against `promotion_fidelity.RATIFIED_OR_BEYOND`, which
+      already exists and already means the thing the rule needs, so this
+      family states no second opinion about what is beyond ratification. A
+      packet with no `proposal.md`, no `Status:`, or an unrecognized status
+      answers None and the class stays silent — `fam_status_validity` already
+      reports that document.
+- [x] 2.3 The two new finding classes, named in the module docstring's
+      numbered list beside the existing five and in the doc-health delta's
+      own enumeration: **`drafting-provenance-incomplete`** (ERROR,
+      mechanical) and **`unapproved-origin-at-ratification`** (ERROR,
+      resolution class `contested`).
+- [x] 2.4 `scripts/proposal-support.py`: the same three-state arm in
+      `origin_errors` (D5), the two field pairs copied with the file's own
+      stated criterion for copying rather than importing,
+      `write_origin_block` emitting whichever pair(s) the origin carries and
+      refusing one that completes neither, and `declare-adhoc` gaining
+      `--proposed-by`/`--proposed-on` with the approval pair no longer
+      argparse-required (D6). The id stamp comes from `--approved-on` or
+      `--proposed-on`, whichever is given, and never moves afterwards.
+- [x] 2.5 `tests/doc-health/test_proposal_origin.py`: **18 new tests**, the
+      matrix in both directions — the lawful draft silent (at every
+      pre-ratification standing and with no status header at all), the same
+      packet at every standing in `RATIFIED_OR_BEYOND` a `contested` ERROR,
+      the half-declared drafting pair, the origin declaring neither state,
+      the approval pair still owed in full at both fields, `reason` still
+      owed by a drafting origin, a staged origin at `ratified` owing no
+      approval, the approval-arrives-beside-the-drafting-record case, the
+      gate's three arms, the writer's three arms, and the gate/family field
+      agreement test. Fixtures are `tmp_path` packets built by this suite's
+      own `_change` helper — the family's fixture idiom since it was
+      written, because what it reads is `.openspec.yaml` text and one
+      `Status:` line rather than a corpus of governed documents; the helper
+      gains one optional `status=` argument and its default is unchanged.
+- [x] 2.6 `EXPECTED_ACTIONS` in the family's action-pin table gains the three
+      new action strings, and the table test gains the three behavioural
+      cases that reach them, so the two-directional pin (`expected ==
+      behavioral | static`) holds over fourteen strings rather than eleven.
+- [x] 2.7 `tests/doc-health/test_lifecycle_scan_set.py`: the existing
+      `proposal-origin` entry in `NON_READERS` gains a comment recording WHY
+      it is still a non-reader after gaining a header read — one named
+      packet's own `Status:`, not a sweep over a document list, exactly as
+      `promotion-fidelity` and `duplicate-packet` are non-readers. No
+      assertion moves and no count moves.
+- [x] 2.8 DOCS — `docs/document-lifecycle.md` § Gates In Practice: the origin
+      paragraph names the unapproved state and the two rules that bound it.
+      The doc references the promoted requirements and never restates them,
+      which is the discipline that paragraph already declares.
+- [x] 2.9 SELF-GATE, RE-AIMED — `tests/doc-health/test_modified_block_currency_self_gate.py`:
+      `_LEDGER_SUBJECTS` gains this packet's two rows. THE SELF-GATE FAILED
+      FIRST, BY NAME, naming both subjects and telling the author what to do
+      — which is the assertion working, not an obstacle: it is an EXACT set
+      compared with `==` and never `<=`, so a newly lossy MODIFIED block
+      cannot land unreported. Each row carries the per-unit explanation that
+      set's convention requires and the retirement condition it requires
+      ("when the packet archives and its blocks are promoted"), and the
+      `_moved()` history sentence gains this packet's step (8 → 10).
+      `_PAIRING_SUBJECTS` stays EMPTY — both blocks resolve against promoted
+      canon rather than an active sibling's addition. No other assertion,
+      count or fixture in the suite moved.
+- [x] 2.10 **THE BOT ROUND, PR #619.** Codex refused the review with its usage
+      limit ("You have reached your Codex usage limits for code reviews"),
+      recorded verbatim in the PR; Sourcery is an upsell stub on a private
+      repository. **Copilot found one real defect and it was a SILENT DROP**:
+      `write_origin_block` wrote only pairs it found COMPLETE, so a caller
+      handing it a full approval pair and a lone `proposed_by` got a block
+      with the stray field discarded and nothing said — a record that looks
+      complete, produced by the writer whose own gate reports a half-declared
+      pair as a defect. It now REFUSES a half-given pair, naming what was
+      given and what is missing, and four parametrized tests pin it at either
+      field of either pair. No spec text moved: the delta already said a pair
+      is declared in full or not at all, and the writer was not saying it.
+- [x] 2.11 **THE SECOND CORPUS-CENSUS PIN, FOUND BY CI AND NOT BY THE LOCAL
+      RUN** — `tests/sequenced_after/test_sweep.py`'s live sweep. The local
+      gate this packet ran was `pytest tests/doc-health`, and this pin lives
+      outside it: `co_modified` reads the WHOLE corpus for changes sharing a
+      `(capability, requirement)` key, so a packet carrying MODIFIED blocks
+      moves it. Measured on the merged tree rather than reasoned: `change_ids`
+      158 → 159, `co_modified` 109 → 110, `active_co_modified` 21 → 22, and
+      `sole_modifiers`/`active_sole` UNMOVED at 49/12. THE RISE IS ONE, NOT
+      TWO, and the file's own rule says why a rise of one never comes with the
+      sole set falling: co-modified membership is boolean, so this packet
+      enters once, and BOTH its keys have the same single earlier owner — the
+      archived `add-proposal-origin-contract`, which ADDED both requirements
+      and was ALREADY co-modified through two other keys (doc-health's
+      "Deterministic check families", shared with fifteen changes, and
+      document-lifecycle's "Proposal-owned supporting documents", shared with
+      two). All three moved pins carry their dated narrative and the movement
+      log gains a bullet, in that file's own convention.
+
+## 3. Evidence measured before the packet went up
+
+- [x] 3.1 **No collision.** Every ACTIVE change's `specs/doc-health/spec.md`
+      and `specs/document-lifecycle/spec.md` read for a live delta on either
+      requirement this packet MODIFIES: `add-nightly-dashboard-refresh` ADDS
+      seven unrelated requirements, `settle-aging-staging-topics` MODIFIES
+      "Aging threshold defaults", `add-ideation-intent-plane` MODIFIES "Gates
+      happen on main". Neither of this packet's two titles has another
+      writer.
+- [x] 3.2 **The MODIFIED blocks were copied from canon verbatim and then
+      edited**, both of them, and the five doc-health scenarios plus the four
+      document-lifecycle scenarios canon carries are all restated —
+      `modified-block-currency`'s gate-bearing arm (scenario-title
+      completeness, `error`) reads **0** on both blocks.
+- [x] 3.3 **The new findings have an empty population by construction, and it
+      is measured.** All **109** ad-hoc origins in this repository's active
+      and archived corpus carry a complete approval pair; **0** carry
+      neither, **0** carry half of one, and `proposed_by`/`proposed_on`
+      appear in no packet. Nothing this change adds can fire on anything that
+      exists today.
+- [x] 3.4 **The direction of the one behavioural change to an existing class
+      is strictly fewer findings** (D4): an ad-hoc origin declaring neither
+      state produced two findings and now produces one. No input anywhere
+      produces MORE findings than it did.
+- [x] 3.5 The medx packets read as the evidence for what the missing shape
+      cost: both were admitted by ruling on 2026-08-25, and both spend a
+      paragraph of `approved_by` prose insisting in capitals that the
+      approval is an admission and not a ratification — the vocabulary doing
+      two jobs with one word.
+- [x] 3.6 The `:adhoc:` id's date is the DECLARATION date, not the approval
+      date — measured on `create-medxchart-overlay-boundary`, which carries
+      `:adhoc:2026-08-23-…` and was approved 2026-08-25. That is what lets
+      the durable id be minted once at drafting and never move (D1).
+
+## 4. Recorded, not fixed
+
+**A TICK IN THIS GROUP MEANS THE RECORDING IS DONE, NOT THAT THE THING IS
+FIXED.**
+
+- [x] 4.1 RECORDED, NOT FIXED. **Adding an approval to an existing drafted
+      origin is a HAND amendment.** `write_origin_block` refuses to overwrite
+      an existing declaration — that refusal is the immutability guard and is
+      deliberately not relaxed — so the two approval lines are added by hand,
+      as every ad-hoc `reason` block in this corpus already is. Automating
+      the transcription of an authority's words is available as a later
+      change; it is not available as an implementation detail of this one.
+- [x] 4.2 RECORDED, NOT FIXED. **`kind: ad_hoc` no longer implies approval on
+      its own.** A reader must look at the fields to know the state. Bounded
+      (the fields were always the load-bearing part) and disclosed in
+      `design.md` § D1 rather than left for a reader to discover.
+- [x] 4.3 RECORDED, NOT FIXED. **A `staged` origin has no drafting state.**
+      Its provenance is the topic and the transition record, it has never
+      carried an approval pair, and this change does not ask it to. If a
+      staged packet ever needs to declare "drafted but not admitted", that is
+      a successor and a different argument.
+
+## 5. Archive
+
+- [x] 5.1 **ARCHIVED ON MERGED-PLUS-GREEN, MEASURED AFTER LANDING AND NEVER
+      ASSUMED — DONE 2026-09-04.** This packet carries a code surface, so
+      under `docs/release-realization-flow.md` § The Archive Gate it archives
+      only after the PR merges with green realization evidence on `main`.
+      **MERGED**: PR #619 squashed to `d611666c` on `main`
+      (2026-09-04T01:51:13Z), carrying the packet AND its whole code surface
+      in one landing — the three-state `ad_hoc` arm, `_declared_standing` and
+      the two new finding classes in `scripts/doc_health/proposal_origin.py`;
+      the matching gate arm, the copied field pairs, `write_origin_block`'s
+      new arms and `declare-adhoc`'s two new options in
+      `scripts/proposal-support.py`; and the fixtures in
+      `tests/doc-health/test_proposal_origin.py`,
+      `tests/doc-health/test_lifecycle_scan_set.py` and
+      `tests/doc-health/test_modified_block_currency_self_gate.py`.
+      **GREEN WHERE IT LANDED**: `main`'s own `pytest-suite` run
+      **33835343327** at `92e662cf` — `completed success`, with the
+      realization in that tree (`DRAFTING_FIELDS` reads at
+      `scripts/doc_health/proposal_origin.py:110` and
+      `scripts/proposal-support.py:292` on `92e662cf`) — polled to completion
+      BEFORE this archive branch was cut. It is `main`'s run that satisfies
+      the gate and not this pull request's, because what the rule asks is
+      whether the realization is green WHERE IT LANDED.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and the
+      doc-health single-repo comparison are recorded in § 6 below. The move
+      ran through `python3 scripts/proposal-support.py . archive
+      add-drafted-proposal-origin`, never bare `openspec archive`.
+
+- [x] 5.2 **THE PROMOTION, VERIFIED RATHER THAN ASSUMED.** Both MODIFIED
+      blocks promoted **BYTE-IDENTICALLY**, compared block-for-block against
+      the archived deltas: `document-lifecycle`'s "Proposal origin
+      declaration" — 6220 characters on both sides,
+      `sha256:102cfd1dff709b63e4ebbd4c557bcadd44b677004127a2dbc5c4de859e09b4b8`,
+      all seven scenario titles present and in order — and `doc-health`'s
+      "Proposal-origin checks enforced by reference" — 6400 characters on both
+      sides,
+      `sha256:421f16a04ee040b2ffef8550b7f6d9610145c6654005cf0a607ac883a59fdd92`,
+      all ten scenario titles present and in order. `openspec archive`
+      reported `Totals: + 0, ~ 2, - 0, → 0`, and the two `~` are these.
+- [x] 5.3 **THE ARCHIVE MOVED EXACTLY ONE LEDGER ROW.**
+      `tests/sequenced_after/corpus-ledger.yaml`:
+      `add-drafted-proposal-origin` `state: active` → `archived`, stamped
+      `moved_by: "#644"` / `moved_on: "2026-09-04"`, with `class` HOLDING at
+      `co-modifier`, `declares` absent and `prose` false — **no partner
+      flipped**, so under `add-per-change-sweep-ledger`'s rule **no MOVEMENT
+      LOG entry is owed**: the row diff states the whole move. `--seed-ledger`
+      reported `162 rows, 1 moved by #644`, naming that one row, and
+      `--ledger-diff` is clean afterwards. The class holds because archiving
+      moves a change WITHIN the corpus rather than out of it, and the
+      co-modified reading is taken over the active and archived corpora both.
+- [x] 5.4 **THE SELF-GATE'S TWO ROWS RETIRED ON THEIR OWN STATED CONDITION.**
+      `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+      `_LEDGER_SUBJECTS` carried this packet's two rows with the retirement
+      condition § 2.9 wrote for them — "when the packet archives and its blocks
+      are promoted". **BOTH HALVES WERE VERIFIED BEFORE THE ROWS CAME OUT**,
+      not after (5.2 above is the second half), and the retirement is
+      **RECORDED IN PLACE** rather than left as an absence, on the shape
+      `amend-owner-layer-severity` set: a reader who sees only the net cannot
+      tell a packet whose blocks were PROMOTED from one that was never
+      written. The exact set returns 12 → 10 distinct subjects and `_moved()`'s
+      history sentence gains this step. Measured, not assumed: a doc-health run
+      over this tree returns ZERO `modified-block-currency` lines naming this
+      change id, at any path, and the family reports 10 `info` against the
+      set's 10 members.
+- [x] 5.5 **THE PREDICTED MOVEMENT, CONFIRMED IN REVERSE.** § Measured effect
+      predicted the LANDING would move the headline by **+2 `info` and nothing
+      else**, both this packet's own carriage-ledger lines. The archive
+      promotes both blocks, so the same two lines DISAPPEAR and nothing else
+      does: `main` at `92e662cf` in a clean worktree reads **2 critical, 4
+      error, 26 warning, 17 info**; this tree reads **2 critical, 4 error, 26
+      warning, 15 info**; the line-by-line diff of the two reports is exactly
+      those two lines removed and **zero lines added**. **ONE UNRELATED
+      INSTABILITY OBSERVED AND CHARACTERIZED RATHER THAN SWALLOWED**: the
+      FIRST baseline run also carried a `release-tag-publication` `info` line
+      (contract-v2.6 declared SPENT) that a second run of the SAME baseline
+      tree did not, so the baseline read 18 then 17 `info` over an unchanged
+      checkout. It is a ref-reading family's per-run input, it is `main`'s and
+      not this branch's, and it is the class openxFactory **#635** already
+      tracks and PR **#639** already addresses; the comparison above uses the
+      second, stable baseline and the removed line is absent from both sides.
+
+## 6. Executed
+
+| Command | Result |
+| --- | --- |
+| `OPENSPEC_TELEMETRY=0 openspec validate add-drafted-proposal-origin --strict` | `Change 'add-drafted-proposal-origin' is valid` |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **87 passed, 0 failed** (87 items) |
+| `python3 -m pytest tests/doc-health -q` | **1532 passed, 0 failed** on the landed tree (1528 before task 2.10's four added tests). Baseline for comparison: the same suite at `origin/main` `2b0615da` in a clean worktree, **1500 passed, 0 failed** — this change adds 32 test items. ONE FLAKE OBSERVED AND CHARACTERIZED RATHER THAN SWALLOWED: an intermediate run of the same tree failed `test_the_report_moves_only_in_this_family_s_lines` with an `info` movement of 11 against the family's 10, i.e. ONE NON-FAMILY `info` finding absent from one of that test's two report renderings. It did not reproduce, in that run's own predecessor or its successor over the identical tree, and it cannot be this change's: the missing finding belongs to another family, and every finding this change can emit has an empty population here. The class is the one `#613`/`#614` narrowed by pinning `--as-of` across both renderings — a report-to-report comparison with a per-run input, the remaining candidate being a family that reads published git refs. Recorded for the next reader; not fixed here, and not this packet's to fix. |
+| `python3 -m pytest tests/doc-health/test_proposal_origin.py -q` | **58 passed, 0 failed** (40 before this change) |
+| `python3 scripts/doc-health.py --single-repo .` on `origin/main` (`2b0615da`, clean worktree) | **6 critical, 6 error, 29 warning, 14 info**; `proposal-origin`: no findings |
+| the same run on this branch | **6 critical, 6 error, 29 warning, 16 info**; `proposal-origin`: no findings |
+| RE-MEASURED after merging `origin/main` — baseline `995c0ad5` in a clean worktree | **6 critical, 8 error, 29 warning, 14 info** (main's own error band moved 6 → 8 between the two baselines, by main's landings and not by this branch) |
+| the same run on the merged branch | **6 critical, 8 error, 29 warning, 16 info** — **+2 `info` and nothing else, against a second and newer baseline** |
+| CI on the merged head `b74c8466` | all five required checks **pass**: `pytest-suite` (20m53s), `signed-execution-chain-gate`, `wallet-validation`, `openreposhape-pin`, `merge-master-approval` |
+| `python3 -m pytest tests/ -q -m "not postgres"` locally | 95 failures, **all environmental and none this packet's**: the scratch worktree has no initialized `openXwallet` submodule, so the trust-anchor, wallet-pin and chain suites refuse — the SAME tests fail identically on the untouched `origin/main` worktree beside it, and CI, which initializes submodules, passes them |
+| the two reports diffed | **+2 `info` and nothing else** — both this packet's own MODIFIED blocks in `modified-block-currency`'s carriage ledger, the editorial arm every reworded active MODIFIED block in this corpus produces one of (8 in the baseline, from six other active changes). Zero new `critical`, `error` or `warning`. |

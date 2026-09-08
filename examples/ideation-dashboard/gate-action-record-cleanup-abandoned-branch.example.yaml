@@ -1,0 +1,38 @@
+# VALID cleanup record: an explicitly released orphaned branch. The record is
+# written and schema-validated before the local ref is deleted; deletion failure
+# unwinds it.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: cleanup-abandoned-branch
+target:
+  topic_id: abandoned-onboarding-intake
+  ref: draft/abandoned-onboarding-intake
+provenance:
+  surface: cli
+  console_presence: declared
+at: "2026-08-25T03:20:00Z"
+reason: The draft duplicates the archived subject-establishment contract.
+artifacts:
+  - kind: other
+    reference: refs/heads/draft/abandoned-onboarding-intake@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - kind: other
+    reference: ideation/dashboard/gate-records/draft-abandoned-onboarding-intake/abandon-session-20260825T030000Z.gate-action.yaml
+  - kind: other
+    reference: openspec/changes/archive/2026-08-20-add-subject-establishment
+cleanup:
+  status: completed
+  pre_delete_head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  abandonment:
+    kind: abandon-session-record
+    reference: ideation/dashboard/gate-records/draft-abandoned-onboarding-intake/abandon-session-20260825T030000Z.gate-action.yaml
+    summary: The main-resident abandon-session record names this ref and carries the original reason.
+  retention_release:
+    kind: explicit-human-release
+    scope_kind: staged-topic
+    scope_id: abandoned-onboarding-intake
+    references:
+      - openspec/changes/archive/2026-08-20-add-subject-establishment
+    reason: The draft duplicates the archived subject-establishment contract.
+    superseding_references:
+      - openspec/changes/archive/2026-08-20-add-subject-establishment

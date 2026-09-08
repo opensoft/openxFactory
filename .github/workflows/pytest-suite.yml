@@ -1,0 +1,657 @@
+# The Python test suite, run on every pull request to main and on main itself
+# (issue #292).
+#
+# Until this workflow, NO trigger in this repository ran pytest at all:
+# `openxwallet-consumer-gate.yml` runs the pinned wallet readers,
+# `doc-health-reusable.yml` is
+# workflow_call-only, and `session-open-pr.yml` is workflow_dispatch. That left
+# ~6,200 tests — including the whole ideation-dashboard suite and every
+# behavioral pin in it — enforced by nothing but local discipline. This
+# workflow is the gate.
+#
+# The job carries no display name on purpose: the status check must surface as
+# exactly `pytest-suite`, the literal token branch protection pins. A distinct
+# job display name silently de-advises the gate — the same rule
+# `openxwallet-consumer-gate.yml` documents for itself.
+#
+# WHY THE FULL SUITE IN ONE JOB. Measured by simulating this job exactly — a
+# fresh clone into a directory named `openxFactory` with no aggregation
+# workspace above it, a clean venv holding only the hash-pinned lock, node 22
+# and the pinned openspec CLI on PATH, Python 3.12, and
+# `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1` to deny the ambient git
+# identity a runner does not have:
+#
+#   5877 passed, 17 skipped, 338 deselected, 15 subtests passed, 0 failed
+#   925s (15m25s), exit 0
+#
+# That count is identical to the simulation run before the two fixture repairs,
+# which is the point: the repairs removed environment dependence without
+# skipping or losing a single test.
+#
+# The real gate on GitHub's runner (PR #304, run 32778659788) took 714s
+# (11m54s) — FASTER than any local simulation, so the timeout below is sized off
+# the slower local figures, not this one. That first run also failed, 23 tests
+# in two classes, both of them environment dependencies a developer machine
+# hides rather than defects in this workflow; both are fixed in the tests and
+# described below.
+#
+# 5877 + 17 + 338 = 6232, which is exactly what `--collect-only` reports, so the
+# run covers everything collection sees. Roughly a quarter-hour is comfortably
+# inside a PR-gate budget, so there is no reason to fall back to a collect-only
+# guard plus a partial run — this job pins the collection health AND every
+# assertion.
+#
+# THE PINNED TRIPLE, AND WHY COLLECTION ALONE IS NOT ENOUGH. Those figures were
+# prose until `split-openxwallet-repo` P3, which made a silently SKIPPED
+# `tests/trust-anchor/` indistinguishable from a passing one: that directory now
+# reads the openxWallet custody registry through the `openXwallet/` gitlink, so
+# an uninitialized submodule could turn a whole suite into skips while collection
+# and the human summary both still looked healthy. So all three numbers are read
+# from the JUnit XML's `<testsuite>` ATTRIBUTES rather than grepped out of the
+# human summary line, and all three are checked — with failures and errors
+# required to be zero.
+#
+# SELECTED is the JUnit `tests` attribute: the tests that RAN, which is
+# collection minus the `-m "not postgres"` deselection, PLUS one entry per
+# subtest (pytest-subtests emits a `<testcase>` per subtest). It is not the same
+# number as `--collect-only`'s, and conflating the two is how a pin like this
+# goes stale in one direction and unnoticed in the other.
+#
+# THE THREE ARE NOT PINNED THE SAME WAY, AND THE ASYMMETRY IS MEASURED RATHER
+# THAN AESTHETIC. Two consecutive runs of the same pull request measured
+# SELECTED at 7090 (run 33111235491, 20:15) and 7116 (run 33112622523, 20:32);
+# the pull request added no test between them. A `pull_request` run builds a
+# MERGE of the head with `main`, so its totals include every test `main` took in
+# the interval — 26 of them there. An EQUALITY pin on SELECTED or PASSED would
+# therefore red this REQUIRED check on merges that have nothing to do with the
+# pull request being gated, which is the same deadlock class this file's own
+# "no paths filter" note refuses: a required check that fails for reasons the
+# candidate cannot fix blocks everything.
+#
+# So:
+#   * SKIPPED is pinned EXACTLY. It is the load-bearing number — the one a
+#     directory that silently turns into skips MOVES — and it does not drift with
+#     `main`, because a merge adds passes, not skips.
+#   * SELECTED and PASSED are pinned as a FLOOR. They may only RISE, and the
+#     floor is raised deliberately with its reason; a fall is a real loss of
+#     coverage and reds. The margin is printed on every run so drift is visible
+#     rather than inferred.
+#   * FAILURES and ERRORS must be zero.
+#   * and ONE TEST IS WATCHED BY NAME rather than by any total: the floor
+#     snapshot's freshness verifier, which must appear in the JUnit report as a
+#     `<testcase>` that RAN AND PASSED. It is the one assertion here that
+#     depends on a cross-repository checkout, so it is the one that can go
+#     missing for reasons no count would show — see `FRESHNESS_CLASSNAME` below.
+# THE TRADE IS STATED: a silent loss SMALLER than the margin between the floor
+# and the day's actual count would not red on the floor alone. It would still red
+# on the exact SKIPPED pin if it became skips, and on failures/errors if it
+# became failures — the only uncaught shape is a test that stops being COLLECTED
+# at all while `main` simultaneously adds at least as many. Closing that would
+# need a per-directory count, which is a successor and not this change's scope.
+#
+# The skips are self-skipping guards ("no sibling openxFactory checkout", "no
+# aggregation checkout reachable from this tree", "no sibling LedgerxFactory
+# checkout reachable from this tree") that stand down when no aggregation
+# workspace surrounds the repo, which is the case both here and on a runner.
+# Locally, outside this simulation, those same tests resolve the AGGREGATION
+# submodule instead and run — so a difference between a developer's worktree and
+# CI is expected, not a regression. MEASURED 2026-08-27 on this suite: 18 in a
+# developer worktree, 21 on a runner (a three-skip difference; it was two before
+# `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
+# guard, which resolves and RUNS in a worktree beside `xFactories/`). The exact
+# runner number is pinned in `EXPECT_SKIPPED` below, where the reason for each
+# move is recorded.
+#
+# WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
+# is the ratified validator-input source: `specs/005-customer-subject-runtime/
+# quickstart.md` provisions the bench from it, and `release.py` carries the
+# `.in`/`.lock` pair as AUXILIARY_MEMBERS. Installing it with `--require-hashes`
+# gives this gate the same hash-pinned inputs the contract work was ratified
+# against, instead of whatever the index happens to serve on the day. The `.in`
+# pins all five directly — pyyaml, jsonschema, referencing, rfc3339-validator,
+# pytest — and records why `rfc3339-validator` is not optional: jsonschema
+# registers its date-time format checker only when that package is importable,
+# and the canonical validators fail closed without it.
+#
+# Beyond the lock the suite needs only git and node — plus the openspec CLI,
+# below. It is largely hermetic: tests/hermeticity.py makes the real `nlm` and
+# `gh` unreachable (FR-043), and tests that need git build their own repository
+# in tmp_path.
+#
+# "Their own repository with their own identity" was NOT true everywhere, and
+# the first CI run proved it: 21 tests in
+# tests/ideation-dashboard/test_intent_apply_lane.py failed with
+# `git commit failed (rolled back): Author identity unknown`. Those fixtures
+# passed `-c user.name/-c user.email` on their OWN git calls, but the apply lane
+# under test runs its own `git commit`, which carries no such flags and fell
+# back to an ambient identity that a developer has and a runner does not. The
+# repair belongs in the fixture, not here: it now sets repo-LOCAL identity after
+# `git init`. Deliberately NOT fixed by exporting GIT_AUTHOR_*/GIT_COMMITTER_*
+# in this workflow — that would paper over a real hermeticity defect and leave
+# the suite dependent on the host's global git config. Reproduce the original
+# failure locally with `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`; the
+# rest of the suite was swept the same way and was already clean.
+#
+# WHY `-m "not postgres"`. The `postgres` marker selects the isolated
+# PostgreSQL conformance harness under `tests/hermes_runtime_contracts/postgres/`,
+# which drives real Docker containers against digest-pinned images. There is no
+# docker-detection auto-skip in that harness by design: without docker and the
+# pinned images those tests FAIL at the session fixture (`docker image inspect`)
+# rather than skipping. Selection is opt-in and belongs to its own release-gate
+# runner, `scripts/run-hermes-runtime-postgres-tests.sh`, which invokes pytest
+# with `-m postgres`. The repository documents the paired deselection —
+# `pytest tests/hermes_runtime_contracts -m 'not postgres'` in
+# specs/005-customer-subject-runtime/quickstart.md and in the us3/us4 handoff
+# notes — scoped to that contracts subtree; this gate applies the same
+# deselection at whole-suite scope, for the same reason. Note
+# `postgres/test_runner_contract.py` carries NO marker, so the harness's own
+# contract still runs here — and passes without docker.
+#
+# WHY THE CHECKOUT IS NESTED UNDER `openxFactory/`. MEASURED, not defensive:
+# `scripts/ideation_dashboard/snapshot.py::find_validator` walks up from the
+# repo root looking for `openxFactory/scripts/validate-ideation-dashboard-
+# contracts.py`, and `tests/ideation-dashboard/test_snapshot.py::
+# test_find_validator_locates_pinned_checkout` asserts it resolves. In a flat
+# checkout that assert fails (`assert None is not None`); with the tree placed
+# in a directory named `openxFactory` it passes, 17/17. The default GitHub
+# workspace path would satisfy this only by coincidence — it happens to be
+# `/home/runner/work/openxFactory/openxFactory` because of the repository's
+# name — and that coincidence evaporates on a rename or a differently-named
+# fork. `path: openxFactory` makes the layout explicit instead of lucky, at the
+# cost of a `working-directory` on each step.
+#
+# `fetch-depth: 0` because several tests scan the REAL repository rather than a
+# fixture (test_repo_scan_is_green_under_strict,
+# test_validate_candidate_passes_on_the_realized_repository,
+# test_no_workbench_manifest_is_tracked_in_this_repo). None was PROVEN to need
+# history, so this is insurance against a shallow-clone-only failure that
+# cannot be reproduced off-CI; drop it if checkout time ever matters more.
+#
+# WHY NODE IS INSTALLED EXPLICITLY. 41 test files gate DOM and JS probes on
+# `shutil.which("node")` and SKIP when it is absent — they do not fail. The
+# measured run had node 22 on PATH, so those probes ran and are inside the
+# numbers above. `ubuntu-latest` happens to ship a node today, but relying on
+# the image means a future image change would silently drop dozens of files'
+# worth of assertions and still report this gate green — precisely the
+# green-but-enforcing-nothing failure that issue #292 is about. Pinning node
+# makes the probes deterministic instead of incidental.
+#
+# WHY THE openspec CLI IS INSTALLED. tests/proposal-support/test_proposal_support.py
+# drives the REAL `openspec` binary through the archive wrapper — it is a
+# genuine external dependency of that suite, not a mock. Most of those tests
+# already carried `@unittest.skipUnless(shutil.which("openspec"), ...)`; two did
+# not, and on the first CI run they failed with `FileNotFoundError: 'openspec'`
+# instead of skipping. Both now carry the same guard, so a local run without the
+# CLI skips cleanly.
+#
+# Guards alone would leave this gate green while silently testing nothing, which
+# is the failure mode this whole workflow exists to prevent — so the CLI is
+# installed here too, pinned, and the tests actually RUN. Measured both ways:
+# with openspec absent the file reports 33 passed / 3 skipped; with it present,
+# 36 passed / 0 skipped.
+#
+# HOW IT IS INSTALLED CHANGED ON 2026-09-05, and the version left this file with
+# it. Until then the step was one literal line, `npm install -g
+# @fission-ai/openspec@1.2.0`. That line was a SECOND copy of a pin this
+# repository already held in `contracts/openspec-cli-pin.yaml`, and the two duly
+# moved apart: the pin went to `1.12.0` (#677) while this file still installed
+# `1.2.0`, so the REQUIRED test suite drove one version while the
+# `openspec-cli-pin` gate verified another — the two-copies-of-a-pin defect the
+# pin change named, made visible rather than latent. The step below now runs
+# `scripts/install-pinned-openspec-cli.py`, which resolves the artifact through
+# the pin verifier's OWN code: the tarball is fetched, its SHA-512 and SHA-1 are
+# recomputed against the pin, and only a matching artifact is installed and its
+# directory appended to `$GITHUB_PATH`. The version is therefore written in
+# exactly one place, and this job now drives the same bytes the gate verified.
+# (#667 task 5.1 / #677 task 6.2.)
+#
+# WHAT THAT STEP DOES NOT DO, said here because a reader will reasonably ask.
+# It does not validate the corpus. This job's verdict is the pinned test triple
+# below and nothing else; coupling it to `openspec validate --all --strict`
+# would put a second, foreign judgment inside this repository's most
+# load-bearing required check, and `openspec-cli-pin-gate.yml` already reports
+# that verdict under its own check token. Nor is the installer a `--verify-only`
+# mode of the verifier: that mode is forbidden by `neutral-product-pin` — a
+# pinned validator invoked with no scan target must refuse rather than self-test
+# — and this file does not reopen that decision.
+#
+# WHY NO PATH FILTER. An earlier draft filtered to `tests/**`, `scripts/**`,
+# and `pytest.ini`. That was wrong twice over. First, a large group of tests
+# scans the real repository content rather than a fixture — the trust-anchor
+# validator gate, the release inventory, the workbench guard, derive-possibles,
+# and the ideation readiness and dispatch suites all read `contracts/`,
+# `ideation/`, `docs/`, and `openspec/` — so a content-only change is exactly
+# the kind that can turn this suite red while matching no filtered path.
+# Second, a paths filter on a check that is later marked REQUIRED deadlocks
+# every PR it skips: the check never reports, and GitHub waits for it forever.
+# Running unconditionally costs a few minutes of runner time and removes both
+# hazards. (`openxwallet-consumer-gate.yml` likewise carries no paths filter,
+# though it
+# does not say why.)
+#
+# The `push: main` trigger exists for the same first reason: it catches a
+# content-only merge that regresses a repository-scanning test, and it keeps
+# main's status honest even when a PR was merged stale.
+#
+# CONCURRENCY cancels superseded runs per ref, so a rapid push sequence does not
+# queue several 20-minute duplicates of the same suite.
+#
+# SCOPE — WHAT THIS GATE RUNS, AND WHAT PINS THE REST. It runs `pytest tests/`,
+# the whole-suite shape, and that shape only. `conftest` is an ambient top-level
+# module name with a single `sys.modules` slot, and `tests/doc-health/`,
+# `tests/avatar_runtime/`, and `tests/ideation-dashboard/` each carry their own
+# conftest.py without an `__init__.py`, so they contend for it. Multi-directory
+# invocations USED TO BE ORDER-DEPENDENT because of that: measured at f9457d6f,
+# `pytest tests/doc-health tests/avatar_runtime` failed with 27 collection
+# errors while the same two arguments swapped collected 993 clean. Issue #305
+# closed it inside the conftests themselves — each calls
+# `claim_conftest_slot(globals())` and owns the ambient name for its own subtree
+# — so the two orders now agree (1017 apiece on the merge of #403; the absolute
+# count drifts with the tree, the AGREEMENT is the invariant). The shape this
+# gate does NOT run is pinned three ways in
+# `tests/ideation-dashboard/test_hermeticity.py`:
+# `test_a_directory_conftest_owns_the_ambient_slot_for_its_own_subtree` and its
+# negative control reproduce the collision in a scratch tree in about three
+# seconds, and
+# `test_the_real_two_directory_invocation_collects_the_same_in_either_order`
+# runs the real thing — four child collections, ~11.6 s, inside the suite this
+# gate already runs, so the multi-directory shape is now covered BY the
+# whole-suite shape rather than left unpinned beside it.
+#
+# `--import-mode=importlib` was never available as the repair: pytest.ini's
+# ratified option-free design forecloses it (that file is the rootdir anchor for
+# the FR-043 hermeticity guard), and importlib mode would break every
+# `from conftest import ...` site in the suite besides.
+#
+# TIMEOUT. 35 minutes against a worst measured 17m21s — roughly 2x headroom for
+# a slower runner and, more importantly, a hard stop for the known hang:
+# `tests/ideation-dashboard/test_doxbench_bridge.py` drives a real child process
+# (`fixtures/fake_omp_child.py`) over real pipes and can hang under CPU
+# contention. The job timeout is what bounds that in CI.
+name: pytest-suite
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pytest-suite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: openxFactory
+    env:
+      # See `openxwallet-consumer-gate.yml` for why this is a guard and not an
+      # unconditional mint: `doc-health-reusable.yml:125`'s house pattern.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
+    steps:
+      # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
+      # registry through `openXwallet/`, which is a SECOND, PRIVATE org
+      # repository: `github.token` is scoped to this repository alone and cannot
+      # clone it. The house pattern of `doc-health-reusable.yml` (prepare job:
+      # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth`
+      # → `Init governed submodules only`) is therefore used — mint an App
+      # token, rewrite the SSH URL with `insteadOf` BEFORE checkout, then init
+      # the one gitlink by name. The secret names are
+      # this repository's own content App (App 4253636, installation 145372182,
+      # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
+      # is visibility-`selected` and openxFactory is not among its repositories.
+      #
+      # `submodules: true` on the checkout is NOT the fix and is deliberately
+      # absent: without the URL rewrite it cannot authenticate at all, and with
+      # it, it would additionally fetch `installs/omnigent-install`, which no
+      # test here reads. `--recursive` is rejected one level down for the same
+      # reason.
+      - name: Mint openxFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Rewrite ssh submodule URLs for token auth
+        working-directory: .
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+
+      - uses: actions/checkout@v4
+        with:
+          path: openxFactory
+          fetch-depth: 0
+
+      - name: Init the openXwallet gitlink only
+        run: git submodule update --init openXwallet
+
+      # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
+      # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the
+      # (b′) record §6.1 and proved feasible on 2026-09-01.
+      #
+      # WHAT DEPENDS ON IT, AND WHAT DOES NOT. The load-bearing assertion —
+      # every tracked `openspec/specs` path is on the floor — reads
+      # `contracts/review-lane-floor-snapshot.yaml`, a byte copy vendored in
+      # THIS repository, and needs nothing from here. What this checkout adds is
+      # `tests/review_lane_pin/test_floor_snapshot.py`'s FRESHNESS verifier: the
+      # copy compared byte for byte against the authoritative document. Coverage
+      # is asserted with or without the network; only the copy's fidelity needs
+      # it.
+      #
+      # `continue-on-error` FOR THE REASON THIS FILE ALREADY GIVES ITSELF at
+      # :67-69 — "a required check that fails for reasons the candidate cannot
+      # fix blocks everything". A codexFactory outage, a revoked App grant or a
+      # rewritten history must not wedge every openxFactory pull request.
+      #
+      # AND YET IT CANNOT DEGRADE SILENTLY, WHICH IS THE WHOLE TRICK. When this
+      # step fails the freshness verifier SKIPS, and the pin step below FAILS
+      # THE JOB BY NAME: it looks the verifier's own `<testcase>` up in the
+      # JUnit report and requires it to have RUN AND PASSED. On the normal path
+      # the checkout succeeds, the verifier runs, and that assertion is silent.
+      #
+      # THE NAMED ASSERTION IS THE LOAD-BEARING ONE, AND THE AGGREGATE PIN
+      # ALONE WAS NOT ENOUGH — a Codex P2 finding on PR #569 against the first
+      # cut of this design. That cut leaned on `EXPECT_SKIPPED: "21"`: a failed
+      # checkout makes 22, 22 ≠ 21, red. True, but the pin is an AGGREGATE. On a
+      # run where the checkout fails (+1 skip) while any other conditional skip
+      # starts running — a pull request that fixes or deletes one of the 21 — the
+      # two cancel, the count is 21 again, and the REQUIRED check goes GREEN
+      # with the byte-freshness comparison silently gone. The floors cannot
+      # cover for it either — they are FLOORS with slack, deliberately, and the
+      # green run that proved this design printed `margin 1576` / `margin 1575`
+      # (PR #569, `selected=8666 passed=8645`). A one-test change is not visible
+      # from there. So the verifier is watched BY NAME,
+      # which no other movement in the suite can cancel, and the aggregate pin
+      # keeps its own separate job — the general skip discipline, "a directory
+      # that silently turned into skips".
+      #
+      # THE CREDENTIAL IS THE ONE ALREADY MINTED ABOVE, and it is proven: on PR
+      # #550, `merge-master-approval` checked out this same repository at this
+      # same commit with these same App secrets, in one second, while
+      # `pytest-suite` minted the same token one job over.
+      #
+      # `path:` IS BESIDE THIS REPOSITORY'S TREE, never inside it. A foreign
+      # checkout under `openxFactory/` would be visible to every test that scans
+      # the real tree — the trust-anchor gate, the release inventory, the
+      # workbench guard — and this file's own header explains why that tree's
+      # layout is explicit rather than lucky.
+      - name: Check out the pinned decision core (freshness verifier only)
+        id: core
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/codexFactory
+          ref: "4b12ba83add713666a94129fc45552d8989f8488"
+          path: .merge-master-core
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token || github.token }}
+
+      # No `if: always()`. The checkout above is `continue-on-error`, so this
+      # step is reached on both of its outcomes already; `always()` would ALSO
+      # run it after an unrelated hard failure earlier in the job, where its
+      # warning would be noise attached to somebody else's cause.
+      - name: Say whether the freshness verifier will run
+        run: |
+          set -euo pipefail
+          if [ "${CORE_OUTCOME}" = "success" ]; then
+            echo "pinned decision core on disk: the snapshot freshness verifier will RUN."
+          else
+            echo "::warning title=pytest-suite::the pinned decision core could not be checked out (${CORE_OUTCOME}). The floor snapshot's freshness cannot be verified on this run; the coverage assertion still holds from the vendored copy. The skipped-count pin below will fail this job and name this as the cause."
+          fi
+        env:
+          CORE_OUTCOME: ${{ steps.core.outcome }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Node 22 is here for TWO reasons and both are load-bearing. 41 test files
+      # gate DOM and JS probes on `shutil.which("node")` (see the header), and
+      # the step below needs `npm` to fetch and install the pinned artifact.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # THE CLI COMES FROM THE PIN, NOT FROM A LITERAL. The three
+      # `@unittest.skipUnless(shutil.which("openspec"), …)` tests in
+      # `tests/proposal-support/test_proposal_support.py` drive the real binary
+      # through the archive wrapper, and they are the only reason this job needs
+      # a CLI at all. The version is deliberately NOT written here: it lives in
+      # `contracts/openspec-cli-pin.yaml`, the installer reads it with the
+      # verifier's own parser, and
+      # `tests/openspec_cli_pin/test_openspec_cli_pin.py::
+      # test_the_required_test_workflow_installs_through_the_pin_and_not_by_literal`
+      # asserts the absence against this file's own non-comment bytes — so a
+      # helpful future edit that pastes a version back in fails on the
+      # developer's machine first.
+      #
+      # THE ARTIFACT IS VERIFIED BEFORE IT IS INSTALLED: the installer fetches
+      # the tarball, recomputes its SHA-512 and SHA-1, and refuses unless both
+      # equal the pin. It then appends the executable's directory to
+      # `$GITHUB_PATH` so the pytest step below finds `openspec`. It validates
+      # NOTHING — see the header. `$RUNNER_TEMP` because the install must
+      # outlive this step and the runner is discarded whole afterwards.
+      - name: Install the pinned OpenSpec CLI for tests/proposal-support
+        run: python3 scripts/install-pinned-openspec-cli.py --cache-dir "${RUNNER_TEMP}/openspec-cli-pin"
+
+      - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+
+      # `--junitxml` is a CLI option, not a pytest.ini option: `pytest.ini`'s
+      # ratified option-free design is untouched. `|| true` is deliberately
+      # ABSENT — a failing suite must fail this step, and the pin below is a
+      # SECOND gate on top of that, never a substitute for it.
+      # `PINNED_CORE_CHECKOUT` is how `tests/review_lane_pin/
+      # test_floor_snapshot.py` finds the tree the step above fetched. It is an
+      # absolute path because this step's working directory is `openxFactory/`
+      # while `actions/checkout`'s `path:` is relative to the workspace. When
+      # the checkout failed the directory is absent, the locator returns None,
+      # and the freshness verifier skips — which is the alarm, not a hole.
+      - run: python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
+        env:
+          PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
+
+      # THE PINNED TRIPLE, read from the JUnit XML attributes, PLUS the named
+      # freshness verdict read from the report's own `<testcase>`. See the
+      # header, and `FRESHNESS_CLASSNAME` below for why the second exists.
+      - name: Pin the triple and require the named freshness verifier
+        shell: bash
+        # THE PIN IS TAKEN FROM CI'S OWN RUN, NOT FROM A DEVELOPER MACHINE.
+        # The header already records why the two differ: the self-skip guards
+        # ("no sibling openxFactory checkout", "no aggregation checkout
+        # reachable from this tree") stand down on a runner and resolve in a
+        # developer worktree that sits inside the aggregation, so a locally
+        # measured SKIPPED is knowably the wrong number to pin. These values
+        # were read off run 33111235491 (PR #431, 2026-08-27), whose own summary
+        # line was `7042 passed, 20 skipped, 338 deselected, 28 subtests passed`.
+        #
+        # WHY SELECTED IS 7090 AND NOT 7062, stated because the arithmetic is
+        # not obvious and the next reader WILL check it: pytest-subtests emits a
+        # `<testcase>` per SUBTEST as well as per test, so the JUnit `tests`
+        # attribute is 7042 + 20 + 28 = 7090, and PASSED (selected minus
+        # skipped minus failures minus errors) is 7070 rather than 7042. The
+        # `-q` summary and the XML attributes count different things; the XML is
+        # what is pinned, because the summary is a human line that has changed
+        # format before.
+        #
+        # WHEN THIS MOVES: a real change to the suite moves it, and the fix is
+        # to update these three with the reason in the commit message — never to
+        # relax the comparison. The step prints the actuals on failure so the
+        # correction needs no local reproduction.
+        env:
+          # FLOORS — may only rise, and only with the reason in the commit
+          # message. Measured at run 33111235491 (PR #431, 2026-08-27), the
+          # LOWER of the two runs, so the floor is a number this suite has
+          # actually met rather than the high-water mark of one run.
+          MIN_SELECTED: "7090"
+          MIN_PASSED: "7070"
+          # EXACT — the anti-vacuity pin. 21 on a runner. A developer worktree
+          # inside the aggregation checkout measures a DIFFERENT number, because
+          # the self-skip guards ("no sibling openxFactory checkout", "no
+          # aggregation checkout reachable from this tree", "no sibling
+          # LedgerxFactory checkout reachable from this tree") stand down here and
+          # resolve there; this number is CI's, deliberately.
+          #
+          # MOVED 20 -> 21 on 2026-08-27 by feature
+          # `024-root-governed-repo-recognition`, with the reason the gate's own
+          # error message demands. The added skip is
+          # `tests/domain_pin_setter/test_set_domain_openxfactory_pin.py::
+          # test_the_fixture_still_matches_the_live_ledgerx_shape`, the
+          # fixture-drift guard on the `set-domain-openxfactory-pin.py` comment
+          # regression: its twelve siblings run everywhere off a literal fixture,
+          # and this one alone compares that literal to the LIVE LedgerxFactory
+          # `stack.yaml` and so must stand down where no sibling checkout exists —
+          # which is here. It is a THIRTEENTH assertion that costs a skip, not a
+          # directory that turned into skips, which is the shape this pin exists
+          # to catch.
+          #
+          # UNCHANGED AT 21 ON 2026-09-01, AND THAT IS THE DESIGN. The (b′)
+          # activation added `tests/review_lane_pin/test_floor_snapshot.py`,
+          # whose freshness verifier skips when the pinned decision core is not
+          # on disk. It is NOT expected to skip here: the `Check out the pinned
+          # decision core` step above supplies the tree on every normal run, so
+          # the verifier RUNS and this number does not move. When that
+          # cross-repository fetch fails, the verifier skips, this count becomes
+          # 22, and the comparison below fails the job.
+          #
+          # THAT IS NOW THE SECOND SIGNAL, NOT THE FIRST. This pin is an
+          # aggregate and a canceling pair of changes can hold it at 21 while
+          # the verifier is gone (Codex P2, PR #569); `FRESHNESS_CLASSNAME`
+          # below watches the verifier by name so that boundary crossing has a
+          # signal of its own. Keep both: this one still catches the shape it
+          # was built for — a directory that turned into skips — which the named
+          # verdict says nothing about.
+          #
+          # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the new
+          # module only raises the actuals, which widens the printed margin.)
+          #
+          # UNCHANGED AT 21 BY `mirror-floor-addition-grace`, AND THAT IS THE
+          # DESIGN — the same note the (b′) advance made about the freshness
+          # verifier applies a second time. The required assertion's mirrored
+          # completeness rule is FALSIFIED by replaying the pinned core's own
+          # exported vectors
+          # (`tests/review_lane_pin/test_floor_snapshot.py::TheVectorReplay
+          # ::test_every_vector_replays`), and that replay SKIPS — never
+          # fails — under the SAME condition the freshness verifier already
+          # does: no pinned core on disk. On the normal path here the core
+          # checkout succeeds and BOTH the freshness verifier and the vector
+          # replay RUN, so this number does not move on a normal run. It
+          # moves only when that checkout fails — and then by TWO, not one:
+          # both watched tests share the same `locate_pinned_core()` guard and
+          # skip TOGETHER, so a core-checkout failure reports 23 here, which
+          # reds against this pin exactly as a lone +1 would. Verified on PR
+          # #686's own head, run 33978773175: `skipped=21` on a normal run,
+          # both named verdicts `passed`.
+          EXPECT_SKIPPED: "21"
+          # THE NAMED VERDICT — the freshness verifier watched as itself rather
+          # than as one unit of an aggregate it can hide inside.
+          #
+          # WHY, IN ONE SENTENCE: `EXPECT_SKIPPED` is a SUM, and a sum cannot
+          # tell "the core checkout failed" (+1 skip) from "the core checkout
+          # failed AND some other conditional skip started running" (+1 −1 = 0),
+          # so on that second run the pin reads 21, the required check is GREEN,
+          # and the byte-for-byte comparison the snapshot's fidelity rests on
+          # has silently disappeared. Codex raised exactly this against PR #569
+          # (P2), and it is the CSC-F16 silent-false-green shape a second time —
+          # this file's own defect class, found in this file's own guard.
+          #
+          # SO THE TWO SIGNALS ARE SPLIT AND BOTH ARE KEPT:
+          #   * the named verdict below must be `passed` — the verifier RAN and
+          #     compared real bytes. Absent, skipped, failed or errored all red,
+          #     and cannot be cancelled out by anything happening elsewhere in
+          #     the suite.
+          #   * `EXPECT_SKIPPED` stays exactly as it was, doing the job it was
+          #     always for: the general skip discipline.
+          #
+          # THESE TWO STRINGS ARE A NODE ID and they must track the test. A
+          # rename that forgets them makes the verdict `absent`, which REDS —
+          # fail-safe, deliberately, since the alternative is a watcher pointed
+          # at nothing. `tests/review_lane_pin/test_floor_snapshot.py::
+          # TheRealFiles::test_the_required_suite_watches_the_verifier_by_name`
+          # asserts the pair against the live class and method objects, so the
+          # rename fails on the developer's machine first, with the reason.
+          FRESHNESS_CLASSNAME: "tests.review_lane_pin.test_floor_snapshot.TheFreshnessVerifier"
+          FRESHNESS_TESTNAME: "test_the_snapshot_is_byte_identical_to_the_pinned_core"
+          # THE SECOND WATCHED PAIR, same discipline applied again
+          # (`mirror-floor-addition-grace`): the vector replay is the
+          # FALSIFIER for the required lane's mirrored completeness rule
+          # (design.md §2.1), and its skip needs the same named watch the
+          # freshness comparison's does, for the same reason — an aggregate
+          # skip count cannot tell "the replay stopped running" from "the
+          # replay stopped running AND some other conditional skip started".
+          # `tests/review_lane_pin/test_floor_snapshot.py::TheRealFiles::
+          # test_the_required_suite_watches_the_vector_replay_by_name` asserts
+          # this pair against the live class and method objects.
+          VECTOR_REPLAY_CLASSNAME: "tests.review_lane_pin.test_floor_snapshot.TheVectorReplay"
+          VECTOR_REPLAY_TESTNAME: "test_every_vector_replays"
+        run: |
+          set -euo pipefail
+          read -r SELECTED PASSED SKIPPED FAILURES ERRORS FRESHNESS VECTOR_REPLAY < <(python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          root = ET.parse("pytest-report.xml").getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          selected = sum(int(s.get("tests", 0)) for s in suites)
+          skipped = sum(int(s.get("skipped", 0)) for s in suites)
+          failures = sum(int(s.get("failures", 0)) for s in suites)
+          errors = sum(int(s.get("errors", 0)) for s in suites)
+
+          # A NAMED verdict for one `<testcase>`, by classname and name. A case
+          # with no skipped/failure/error child RAN AND PASSED; that is the
+          # only acceptable outcome, and "no such testcase in the report" is
+          # one of the outcomes it rejects. Shared by the freshness verifier
+          # and the vector replay below — two callers of one rule, so they
+          # cannot drift from each other the way the thing they watch does not
+          # drift either.
+          def named_verdict(classname, name):
+              wanted = (classname, name)
+              verdicts = []
+              for case in root.iter("testcase"):
+                  if (case.get("classname"), case.get("name")) != wanted:
+                      continue
+                  outcome = "passed"
+                  for child in case:
+                      if child.tag in ("skipped", "failure", "error"):
+                          outcome = child.tag
+                          break
+                  verdicts.append(outcome)
+              if not verdicts:
+                  return "absent"
+              # Any non-passing occurrence wins: a verifier that passed once
+              # and skipped once did not verify this run.
+              return next((v for v in verdicts if v != "passed"), "passed")
+
+          freshness = named_verdict(os.environ["FRESHNESS_CLASSNAME"],
+                                     os.environ["FRESHNESS_TESTNAME"])
+          vector_replay = named_verdict(os.environ["VECTOR_REPLAY_CLASSNAME"],
+                                         os.environ["VECTOR_REPLAY_TESTNAME"])
+
+          print(selected, selected - skipped - failures - errors,
+                skipped, failures, errors, freshness, vector_replay)
+          PY
+          )
+          echo "selected=$SELECTED passed=$PASSED skipped=$SKIPPED failures=$FAILURES errors=$ERRORS"
+          echo "freshness verifier ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME): $FRESHNESS"
+          echo "vector replay ($VECTOR_REPLAY_CLASSNAME::$VECTOR_REPLAY_TESTNAME): $VECTOR_REPLAY"
+          echo "floors: selected>=$MIN_SELECTED (margin $((SELECTED - MIN_SELECTED))) passed>=$MIN_PASSED (margin $((PASSED - MIN_PASSED))) skipped==$EXPECT_SKIPPED"
+          rc=0
+          [ "$FAILURES" = "0" ] || { echo "::error::$FAILURES failure(s)"; rc=1; }
+          [ "$ERRORS" = "0" ] || { echo "::error::$ERRORS error(s)"; rc=1; }
+          [ "$SELECTED" -ge "$MIN_SELECTED" ] || { echo "::error::selected $SELECTED is BELOW the floor $MIN_SELECTED — tests stopped being collected. Find them; do not lower the floor"; rc=1; }
+          [ "$PASSED" -ge "$MIN_PASSED" ] || { echo "::error::passed $PASSED is BELOW the floor $MIN_PASSED — find the tests that stopped passing or stopped being collected; do not lower the floor"; rc=1; }
+          [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned exactly $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch. If the change is intended, move the pin WITH the reason"; rc=1; }
+          [ "$FRESHNESS" = "passed" ] || { echo "::error::snapshot freshness verifier did not run — pinned core checkout unavailable or test removed ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME is '$FRESHNESS' in pytest-report.xml, wanted 'passed'). contracts/review-lane-floor-snapshot.yaml was NOT compared byte for byte against the pinned decision core on this run, so a stale copy could assert coverage the real floor does not give. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move FRESHNESS_CLASSNAME/FRESHNESS_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, which is the Codex P2 finding on PR #569"; rc=1; }
+          [ "$VECTOR_REPLAY" = "passed" ] || { echo "::error::vector replay did not run — pinned core checkout unavailable or test removed ($VECTOR_REPLAY_CLASSNAME::$VECTOR_REPLAY_TESTNAME is '$VECTOR_REPLAY' in pytest-report.xml, wanted 'passed'). The required lane's mirrored completeness rule (mirror-floor-addition-grace) was NOT falsified against the pinned core's own vectors on this run, so a divergence between the two floor lanes could go undetected. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move VECTOR_REPLAY_CLASSNAME/VECTOR_REPLAY_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, the same Codex P2 finding on PR #569 applied a second time"; rc=1; }
+          exit $rc

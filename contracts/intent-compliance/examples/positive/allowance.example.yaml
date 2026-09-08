@@ -1,0 +1,34 @@
+schema_version: 1
+kind: policy_allowance
+registry_id: neutral.registry
+allowance_id: neutral.allowance.1
+vocabulary:
+  vocabulary_id: neutral.policy.v1
+  vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb"
+class_id: neutral.restricted_action
+scope:
+  scope_kind: neutral.resource
+  scope_ref: neutral.resource.1
+  operations: [neutral.execute]
+  scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039"
+issuer:
+  principal_id: neutral.issuer.1
+  authority_role: neutral.allowance_issuer
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "1111111111111111111111111111111111111111"
+    content_digest: "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+policy_approval:
+  approval_id: neutral.policy_approval.1
+  principal_id: neutral.approver.1
+  authority_role: neutral.policy_approver
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "1111111111111111111111111111111111111111"
+    content_digest: "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+approved_at: "2026-01-01T00:00:00Z"
+valid_from: "2026-01-01T00:00:00Z"
+valid_until: "2027-01-01T00:00:00Z"
+approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"

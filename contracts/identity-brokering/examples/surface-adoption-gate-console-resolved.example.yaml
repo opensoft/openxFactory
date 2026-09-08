@@ -1,0 +1,39 @@
+# VALID surface adoption at the STRONGER posture: a surface that offers
+# governed write actions, and therefore declares `resolved_authorization` and
+# NAMES the governed decision point those actions resolve against.
+#
+# The gate console is the case the requirement was written for. A gate action is
+# a governance act, so it must bind to a human the system can name — and
+# deciding whether this persona may ratify is a per-action authorization
+# decision, taken in the governed layer against the tenancy graph and the
+# grants recorded there. Organization membership is an INPUT to that decision
+# and never the decision itself, which is why `resolves_in` has exactly one
+# legal value.
+#
+# What the contract can and cannot do is stated honestly: it can check that the
+# posture is declared and that a write-offering surface declares the stronger
+# one. It cannot check that the resolution happens.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-gate-console-0002
+surface_ref: openxfactory-gate-console
+surface_display_name: openxFactory gate console (server-side phase)
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: resolved_authorization
+governed_write_actions:
+  offered: true
+  actions:
+    - ratify_change
+    - close_deployment_grant
+resolved_authorization:
+  decision_point_ref: "hermes://broker-opensoft-shared/authorization/gate-console"
+  resolves_in: governed_layer
+  grants_ref: "openxfactory:credential-contracts/grants/gate-console"
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#gate-console-no-restricted-population"
+declared_at: "2026-08-21T16:10:00Z"

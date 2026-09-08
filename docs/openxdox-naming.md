@@ -21,8 +21,8 @@ dashboard + intent plane + apply lane operating over a corpus of artifacts —
 is named **openXdox**.
 
 - **Capability name:** `openXdox` — house `openX<type>` capital-X form (the
-  lowercase `openxFactory` / `openxWallet` spellings are the family
-  exceptions, not the rule).
+  lowercase `openxFactory` spelling is the family exception, not the rule;
+  `openXwallet` left this list in Amendment 2).
 - **Short handle:** `dox` — already the Kubernetes namespace and the
   `doxbench_*` code-module prefix; both conform unchanged.
 - **Public host:** `openxdox.opensoft.dev` (Amendment 1, below). LOWERCASE on
@@ -107,3 +107,87 @@ issuance is unblocked. **Not yet done at the time of writing:** the shared
 `opensoft-edge-public` Certificate in namespace `opsx-edge` must gain the new
 subject — it lives outside every repository in this workspace, so the live-mode
 edge validators fail until that reissue lands, by design.
+
+## Amendment 2 — `openXwallet` leaves the exception list (2026-08-26)
+
+**`openxWallet` becomes `openXwallet`, the house `openX<type>` capital-X
+form.** Brett's ruling of 2026-08-26 (R1 of `split-openxwallet-repo`), taken
+because the product is being given its own repository and brand at
+`opensoft/openXwallet`, and a brand created under a spelling this record lists
+as an exception would ratify the exception a second time.
+
+The wire label stays LOWERCASE — `openxwallet` capability ids, the
+`xfactory_wallet_*` kind prefix, paths and finding codes are untouched —
+because that is this record's own rule: the brand and the label differ by
+design; this is not a spelling to reconcile. `openXwallet-Install` is
+registered as a NAME here and no repository is created (Q4).
+
+The record above is amended rather than rewritten: `openxWallet` was genuinely
+a family exception when the form was locked on 2026-08-13, and the
+short-handle argument that cited it still holds. Only the brand moved.
+
+## Amendment 3 — `openDox` is taken knowingly (2026-09-06)
+
+**The core is the `opensoft/openDox` PROJECT, and the collision is accepted
+rather than absent.** Brett's ruling of 2026-09-04 (RULING C1 on
+`opensoft/openxFactory` issue #656, 17:46Z), taken because the
+document-and-ideation workbench becomes two open-source layers and the neutral
+core needs the neutral name.
+
+**The facts, as measured on 2026-09-04 rather than asserted.** A GitHub
+ORGANIZATION named `opendox` EXISTS — created 2026-03-20, holding one public
+repository `opendox/dox` ("Rethinking Amazon Product Performance
+Intelligence", 357 KB, last pushed 2026-05-31) on an unrelated subject. GitHub
+search returns SIX repositories named `opendox`: `noitran/opendox` (22 stars, a
+Laravel/Lumen OpenAPI package, last pushed 2022-02-10 — the largest and
+dormant), `fum4/opendox` (0 stars, pushed 2026-07-16, "Spec + CLI + skill for
+agent-written repo docs" — an ACTIVE 2026 project in the ADJACENT
+agent-written-docs space), `dibinraj2003/opendox` (0 stars, 2026-08-10),
+`andymadson/opendox` (1 star, 2025-08-27), `mfbmina/opendox` (2023-01-04) and
+`ritskush1/opendox` (2017-05-22). GitHub namespaces repositories PER OWNER, so
+none of these blocks `opensoft/openDox`; the ORGANIZATION name is unavailable
+and **no claim is made on it**. The brand lives under `opensoft`.
+
+**What is accepted.** The adjacent-subject overlap with `fum4/opendox` is known
+and accepted; which specific abandoned repository originally prompted the word
+"dead" is immaterial to this record. `openXnotes` stays documented as the
+considered alternative and remains unused.
+
+**The record above is amended rather than rewritten.** The sentence "the
+splitting `X` distinguishes it from the taken name `openDox`" was written on
+2026-08-13 against a one-word claim that nobody had measured; the measurement
+is above and the distinction it drew is now a deliberate two-layer
+relationship rather than an avoidance. `openXdox` keeps its name, its
+lowercase wire label, its `dox` handle and its host; what changed is that the
+neutral layer below it is now also named.
+
+**SIX REPOSITORY NAMES, AND THE ELECTION THAT PRODUCED THEM.** Brett's ruling
+of 2026-09-05T14:52Z (`opensoft/openxFactory` issue #656, comment
+`5552614170`), verbatim *"elect the shape for both, follow the pin chain, no
+family yet"*, ELECTS the `openRepoShape` three-repository shape for both
+layers. The names this record registers are therefore six:
+`openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec` and
+`openXdox-code`. The election is recorded where the doctrine says it lives —
+each assembly root's `project.yaml`, `elected_by: Brett Heap`,
+`elected_on: 2026-09-05`, `reference: openxFactory docs/project-repo-schema.md` — and this
+record only registers the NAMES.
+
+**The leg suffixes are not new brands.** `-spec` and `-code` are lowercase and
+hyphenated precisely so they sit in a different naming family from every
+CamelCase product name this record governs: `openDox-code` is a LEG of the
+openDox project, not a product called "openDox-code", and the `openX` + `dox`
+reasoning above does not apply to it. **Electing the shape confers nothing** —
+no gate, no floor, no grant, no authority — so nothing else in this record
+moves with it. `openXdox-Install` keeps its own form and its own rule: it is
+an INSTALL name, not a leg, and it is still registered with no repository
+created.
+
+**The descendant spelling is unaffected.** The transcript spells the
+descendants `medXdox` and `CodeXdox`; the ratified `<Domainx><Product>` form
+governs, so they are `MedxDox`, `codexDox`, `LedgerxDox`, `AdxDox` and
+`OpsxDox` — registered as NAMES here with no repository created, on the same
+rule that registered `openXwallet-Install`. A descendant scaffolded the same
+way carries the same two legs, so its leg names are registered beside it —
+`codexDox-spec`, `codexDox-code`, `MedxDox-spec`, `MedxDox-code`, and so on
+for `LedgerxDox`, `AdxDox` and `OpsxDox` — and, again, no repository is
+created for any of them.

@@ -1,0 +1,50 @@
+# expected_failure: membership-as-authority
+# expected_failure_detail: authorization resolves in 'broker_organization_membership'
+# requirement: IDB-R2
+# VIOLATES R2: membership records ASSOCIATION, not authority.
+#
+# The surface declares the stronger posture and then resolves it in the wrong
+# place: whoever is a member of the organization may act. It is the most
+# tempting shortcut in the whole design, because the broker already knows the
+# memberships and the governed layer requires a call — and it turns an
+# association into a permission, which is the treatment R2's third scenario
+# names as a validation failure.
+#
+# Membership is an INPUT to an authorization decision taken elsewhere, never
+# the decision itself. `resolves_in` therefore has exactly one legal value, and
+# the validator reads that value OUT OF THE CONTRACT rather than restating it.
+#
+# NOTE (review hardening 2026-08-21, finding F8): this record now fires
+# `membership-as-authority` TWICE, and the second firing is the more important
+# one to understand. The first is the `resolves_in` refusal this fixture is
+# named for. The second is the LOCATOR walk: `decision_point_ref` is
+# `broker://…/organizations/opensoft/members`, which is a broker-administration
+# scheme AND an organization's member collection — so this fixture would be
+# refused even with `resolves_in: governed_layer` written in place of the
+# honest value. That is exactly the bypass F8 closed, and the sibling fixture
+# `decision-point-is-the-broker-admin-api` is the probe for it: the same
+# substitution with every declaration in the file conformant.
+#
+# The detail pin stays on the `resolves_in` wording, so this fixture keeps
+# testing the invariant it is named for rather than drifting onto the new one.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-membership-as-authority-9003
+surface_ref: opendox-workbench-membership-gated
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: resolved_authorization
+governed_write_actions:
+  offered: true
+  actions:
+    - publish_document
+resolved_authorization:
+  decision_point_ref: "broker://broker-opensoft-shared/organizations/opensoft/members"
+  resolves_in: broker_organization_membership
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-21T12:20:00Z"

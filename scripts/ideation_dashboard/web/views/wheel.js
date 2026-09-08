@@ -5,8 +5,12 @@
 // the workspace root as wheel-original.html): flat reels with a tanh bulge
 // and a CONTINUOUS magnification curve on the focused wheel only, a 40px
 // scroll accumulator for whole-tile spins, live spring–damper elastic pulls
-// (driven .020/.84, pulled .008/.90), balanced alignment that never seats a
-// linked tile dead on the line, class-coded bezier threads anchored at tile
+// (driven .020/.84, pulled .008/.90), AUTOMATIC alignment by the three
+// connecting-string rules (Brett 2026-08-21 — no string: the wheel centres its
+// FILLED tiles; one string: the connected tile rests NEAR the line, not on it;
+// several strings: one connected tile takes the line, minimal rotation wins —
+// see `alignTarget` in wheel-model.js; a human's own click still centres any
+// tile dead on the line), class-coded bezier threads anchored at tile
 // edges, a badge rail of connection chips BELOW the focused centre tile, a
 // discrete column carousel, and column hiding shipping BOTH candidate-3
 // affordances (header eye -> thin rail, dock chips) over one state.
@@ -57,7 +61,8 @@
 // structured refusal, so this view only maps a wheel to the backend's tile kind.
 
 import { actionRowIsStale,
-  buildWheelModel, connectionsOf, secondDegreeOf, gatherOf, alignTarget, computeReorder,
+  buildWheelModel, connectionsOf, secondDegreeOf, gatherOf,
+  alignTarget, filledGroupCentre, computeReorder,
   SPRING, REEL, tileScale, linkedDrawDistance, actionsFor,
   nextExpanded, isExpandedTile, EXPANDED, WHEEL_KEYS, WHEEL_LABELS,
   tileBox, inReelWindow, drumProject, threadAnchorX, endpointScale, badgeRailBand, bandsOverlap,
@@ -66,7 +71,9 @@ import { actionRowIsStale,
   healthIndicator, healthBlock, jumpRepository } from "./wheel-model.js";
 import { el } from "./helpers.js";
 import { appliedOutcome, commissionedVerb, commissionedWorkflow, gateCapable,
-  mountDisposeTray, mountProposeButton, mountWheelVerb } from "./dispose.js";
+  mountDisposeTray, mountProposeButton, mountWheelVerb, panelEntry } from "./dispose.js";
+import { feedActor, intentCapable, refusalLine, startIntentFeed, statesByTarget }
+  from "./intent-feed.js";
 import { notebookCapable } from "./notebook.js";
 import { SETTINGS_EVENT, currentDrumFactor } from "./settings.js";
 
@@ -371,8 +378,15 @@ export function renderWheel(root, snapshot, ctx) {
 
   // ---- state ----
   const pos = {}, vel = {}, target = {}, acc = {};
+  // RULE 1 at rest (Brett 2026-08-21): a wheel showing no connecting string
+  // centres its FILLED tiles, and BEFORE the first focus every wheel is in
+  // exactly that state — so the deck OPENS centred rather than at slot 0 with
+  // the upper half of every band blank filler. The focus wheel overrides its
+  // own position a few lines below; every other wheel is retargeted by the
+  // rules on the first animation frame.
   for (const w of model.wheels) {
-    pos[w.key] = 0; vel[w.key] = 0; target[w.key] = 0; acc[w.key] = 0;
+    const centre = filledGroupCentre(w.items.length) ?? 0;
+    pos[w.key] = centre; vel[w.key] = 0; target[w.key] = centre; acc[w.key] = 0;
   }
   // Reorder permutation per wheel (Brett 2026-07-24): when a focus links
   // MANY tiles in one wheel, the old parking curve stacked them on top of
@@ -401,6 +415,29 @@ export function renderWheel(root, snapshot, ctx) {
   let flyout = null;        // { host, tile } — the expanded tile's anchored flyout
   let liveIndex = null;     // the driven wheel's last live-pull index
   let railKey = "";         // last rendered badge-rail focus, "key:i"
+  // THE HOSTED INTENT FEED (add-ideation-intent-plane task 4.4). One poller
+  // per render, started only on the plane that emits intents; the abort
+  // signal the app shell hands every view stops it, so switching tabs leaves
+  // no timer behind. It NEVER touches the model: an update just invalidates
+  // the badge rail so the chips redraw (two-plane rendering).
+  const intentFeed = intentCapable(caps) ? startIntentFeed({
+    actor: feedActor(caps),
+    // A stalled row is NOT a refusal - `refusalLine` already writes "not
+    // started" for it, and the panel's label has to agree with its own text.
+    onRefusal: (rec) => panelEntry(rec.state === "stalled" ? "stalled" : "refused",
+      refusalLine(rec)),
+  }) : null;
+  // target id -> the newest feed state for it, rebuilt ONCE per update so the
+  // per-frame tile decoration below is a Map lookup rather than a feed scan.
+  let intentStates = new Map();
+  if (intentFeed) {
+    intentFeed.subscribe((rows) => {
+      intentStates = statesByTarget(rows);
+      railKey = "";
+      drawAll();
+    });
+    signal?.addEventListener("abort", () => intentFeed.stop(), { once: true });
+  }
   let page = 0;
   let raf = null;
   let winH = WIN_H;         // live window height (grows in full screen)
@@ -880,9 +917,18 @@ export function renderWheel(root, snapshot, ctx) {
     const { tiles } = cols[key];
     for (const tile of tiles.values()) tile.remove();
     tiles.clear();
-    const n = wheelByKey(key).items.length;
+    const w = wheelByKey(key);
+    const n = w.items.length;
     const mid = clamp(c.next.blockLo + (c.next.k - 1) / 2, 0, Math.max(0, n - 1));
-    pos[key] = mid + 6; vel[key] = 0; target[key] = mid;
+    // The re-seated wheel obeys the SAME three alignment rules as a plain pull
+    // — a reorder is automatic alignment too, and resting on the raw block
+    // centre would put a tile on the line (or half a step off it) by accident
+    // of the block's parity rather than by the rules. `mid` is only the
+    // REFERENCE position rule 3 measures its minimal rotation from: the whirl-
+    // out has driven `pos` several slots into nowhere by the time we get here.
+    const align = focus ? (gatherOf(model, focus.key, focus.i)[key]?.align || []) : [];
+    const t = alignFor(w, align, mid) ?? mid;
+    pos[key] = t + 6; vel[key] = 0; target[key] = t;
     c.state = "in";
     cols[key].win.classList.remove("wheelreorder");
   }
@@ -897,11 +943,23 @@ export function renderWheel(root, snapshot, ctx) {
       // align on the FIRST-degree tiles when the wheel has any (they rest on
       // the line; second-degree gather around them inside the seated block),
       // else on the second-degree set so a purely-second-degree wheel still
-      // comes into view rather than staying put.
-      const align = gather[w.key]?.align || [];
-      const t = alignTarget(align.map((i) => slotOf(w.key, i)));
-      if (t !== null) target[w.key] = clamp(t, 0, Math.max(0, w.items.length - 1));
+      // comes into view rather than staying put. An EMPTY align set is the
+      // rules' "no connecting string" case, not a no-op: rule 1 centres the
+      // wheel's filled tiles (see `alignFor`).
+      const t = alignFor(w, gather[w.key]?.align || [], pos[w.key]);
+      if (t !== null) target[w.key] = t;
     }
+  }
+
+  // THE ONE PLACE automatic alignment is decided. `alignTarget` (pure, in
+  // wheel-model.js) owns the three connecting-string rules AND the band clamp
+  // that keeps the drum out of blank filler — this only maps the align set from
+  // ITEM space into SLOT space, which is the deck's business because the
+  // reorder permutation lives here. `from` is the position rule 3 measures its
+  // minimal rotation against.
+  function alignFor(w, alignIdxs, from) {
+    return alignTarget(alignIdxs.map((i) => slotOf(w.key, i)),
+      { position: from, itemCount: w.items.length });
   }
 
   // ---- physics ----
@@ -1026,9 +1084,10 @@ export function renderWheel(root, snapshot, ctx) {
   // flat list. (Supersedes the flat reel + tanh bulge while we tune.)
   // Radius knob (the "wheel diameter" setting; `drumF` above): 1 -> R =
   // viewport height (gentle, ~±30° visible); 0.5 -> R = half height (full
-  // horizon at the viewport edges — the classic slot-drum wrap). Default 1 per
-  // Brett's opening spec. Both tuning paths stay open: `?drum=` still wins at
-  // load for compare-by-URL, and the header gear's slider tunes it live.
+  // horizon at the viewport edges — the classic slot-drum wrap). Default 0.5
+  // (was 1 per Brett's opening spec). Both tuning paths stay open: `?drum=`
+  // still wins at load for compare-by-URL, and the header gear's slider
+  // tunes it live.
 
   // The arithmetic moved to wheel-model.js's `drumProject` (2026-08-03) when
   // the docs pane's wheel became a second caller: "the same wheel" has to mean
@@ -1373,6 +1432,14 @@ export function renderWheel(root, snapshot, ctx) {
       const isSecondDeg = !isLinked && secondItems.has(idx);
       const box = layoutTile(tile, d, isFocusWheel, isLinked, focused, appliedVerdict,
         isExpanded, isSecondDeg);
+      // THE INTENT OVERLAY (task 4.4): the hosted plane's per-tile lifecycle
+      // indicator, read from the feed index and NEVER from the model — a
+      // decoration exactly like `data-applied` above, on a plane where the
+      // decision travelled as a request instead of an act.
+      const intentState = w.items[idx]
+        ? (intentStates.get(w.items[idx].id) || "") : "";
+      tile.dataset.intent = intentState;
+      tile.classList.toggle("wheelintent", !!intentState);
       if (w.items[idx]) {
         // summary before health, so the expanded staged tile mounts in reading
         // order: label · sub · summary · health block · action row
@@ -1421,14 +1488,32 @@ export function renderWheel(root, snapshot, ctx) {
       rail.appendChild(chip);
     }
     if (!any) rail.appendChild(el("span", "wheelchip wheelchip-none", "no links yet"));
-    // the dispose tray (local action center, add-ideation-intent-plane §3):
+    // the dispose tray (add-ideation-intent-plane §3 local, task 4.4 hosted):
     // mounts beside the chips when the focused tile is a pending_review
-    // derived possible, the gate capability is live (loopback + actor), and
-    // no verdict has been applied this session.
-    if (key === "possibles" && focus && gateCapable(caps)) {
+    // derived possible and THIS PLANE offers the verb — the loopback plane
+    // through the executing gate route (loopback + actor), the served plane
+    // through intent emission. The two capabilities are mutually exclusive by
+    // construction (serve.py: `intent = not loopback`), so exactly one
+    // transport is ever handed to the tray.
+    if (key === "possibles" && focus && (gateCapable(caps) || intentCapable(caps))) {
       const item = wheelByKey("possibles").items[focus.i];
-      if (item?.derivedPending && !appliedOutcome(item.id)) {
-        mountDisposeTray(rail, item, { onApplied: () => { railKey = ""; drawAll(); } });
+      const hosted = !gateCapable(caps) && intentCapable(caps);
+      // The session-local applied overlay belongs to the LOCAL executing path;
+      // hosted decisions are reported by the feed, so it never suppresses the
+      // hosted tray (a resubmission is the inbox's idempotency problem, and
+      // the human can see its own pending chip).
+      if (item?.derivedPending && (hosted || !appliedOutcome(item.id))) {
+        mountDisposeTray(rail, item, {
+          onApplied: () => { railKey = ""; drawAll(); },
+          onEmitted: () => { railKey = ""; drawAll(); if (intentFeed) intentFeed.refresh(); },
+          intent: hosted ? {
+            // D4: the revision the human is LOOKING at, full and unabbreviated
+            // (the header renders a 12-char prefix of this same field).
+            snapshotRev: snapshot?.generation?.source_revision || "",
+            rows: intentFeed ? intentFeed.rows() : [],
+            error: intentFeed ? intentFeed.error() : null,
+          } : null,
+        });
       }
     }
     // (the propose button is NOT here: per-wheel verbs moved INSIDE the tile,

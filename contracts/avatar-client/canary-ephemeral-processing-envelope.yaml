@@ -1,0 +1,339 @@
+schema_version: 1
+kind: avatar-client-canary-ephemeral-processing-envelope
+
+# ============================================================================
+# canary-ephemeral-processing-envelope.yaml
+# qualify-avatar-live-voice tasks 6.2.2 (the envelope) and 6.2.4 (the
+# non-shadowing operational control). Fork 4, Option C.
+#
+# WHAT THIS FILE IS. Fork 4 Option C ruled that the opt-in canary MAY carry
+# real consented users on the single candidate profile "with strictly
+# ephemeral processing — `ephemeral_presentation` and `structured_record`
+# only — nothing retained, nothing shadowed to a second model". That sentence
+# has, until now, lived only as prose in a memo and as three ruled fields on
+# condition 2 of the activation checklist. This file is the ENVELOPE itself:
+# which consent the canary rides, which data class each artifact of a live leg
+# falls into, how long the one retained class lives and under whose reference,
+# and how a person gets out mid-session.
+#
+# IT INVENTS NOTHING. Every purpose id, retention class, session outcome and
+# retention reference below is READ FROM an existing frozen surface and is
+# named here rather than redefined. The frozen consent-purpose count stays 3,
+# the four reserved retention classes stay forbidden, and `local_persistence`
+# stays `const: false` — task 6.2.3's inspection record confirms all three by
+# inspection at this branch's tree.
+#
+# IT IS A SIBLING, NOT A BUNDLE MEMBER, for the same reason
+# `canary-cohort-and-rollback-policy.yaml`, `latency-sample-minimum.yaml` and
+# `usage-metering-and-alerting.yaml` are: a canary authoring input does not
+# earn a contract-release cut.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+owning_task: qualify-avatar-live-voice 6.2.2, 6.2.4
+release_ring: internal_live
+candidate_profile: gpt-realtime-2.1
+requirement_id: ALV-007
+requirement: Evaluation audio stays synthetic and canary audio stays ephemeral
+acceptance_map_refs: [ALV-007, ALV-007-S01, ALV-007-S03, ALV-007-S04]
+ruled: >-
+  2026-08-26 by Brett Heap — Fork 4, Option C. The §7.9 authoring inputs it
+  consumes (region, data-control classes, retention window and reference) were
+  RULED 2026-08-27 and are carried on
+  `internal-live-activation-checklist.yaml` condition 2 `ruled_values`; this
+  envelope CITES them and does not restate them as a second source.
+source: >-
+  openspec/changes/qualify-avatar-live-voice/proposal.md "F4 — Consent and data
+  control for evaluation audio: Option C"; supporting-docs/fork-decision-memo.md
+  Fork 4.
+consumes_ruled_values_from:
+  file: contracts/avatar-client/internal-live-activation-checklist.yaml
+  location: conditions[number=2].ruled_values
+  fields: [region, data_control, retention]
+  note: >-
+    ONE SOURCE, CITED — not copied. The checklist's `ruled_values` block is
+    machine-checked set-equal by `_check_section_7_9_values`, and a second
+    hand-maintained copy of the same numbers would be a place for them to
+    drift. What this envelope adds is the per-artifact MAPPING the ruled class
+    list does not carry: which thing a live leg produces falls into which
+    class.
+
+# ---------------------------------------------------------------------------
+# 6.2.2 (a) — THE CONSENT THE CANARY RIDES
+# ---------------------------------------------------------------------------
+consent:
+  registry_ref: contracts/avatar-client/registries/consent-purposes.registry.yaml
+  frozen_purpose_count: 3
+  frozen_purpose_count_pin: contracts/avatar-client/interface-lock.yaml `frozen.registries.consent-purposes`
+  new_purposes_introduced: 0
+  media_leg_purposes:
+    - id: avatar.media_capture
+      why: Local microphone capture — the live leg captures the consented user.
+    - id: avatar.provider_processing
+      why: >-
+        Provider session creation and processing — the candidate profile is a
+        provider-hosted realtime model and the leg is created at the provider.
+  structured_record_purpose:
+    id: avatar.structured_record
+    why: >-
+      Retention of a structured workflow record. The canary DOES create
+      `structured_record` artifacts (below), so the third frozen purpose is the
+      one they ride.
+    reconciliation_note: >-
+      RECORDED SO THE TWO TRUE STATEMENTS DO NOT LOOK LIKE A CONTRADICTION.
+      Task 6.2.2 says consent rides "the existing `avatar.media_capture` and
+      `avatar.provider_processing` purposes"; the promoted requirement says
+      consent rides "the existing three neutral purposes". Both are right about
+      different things: the MEDIA LEG rides the first two, and the
+      `structured_record` a decision produces rides the third. All three are
+      pre-existing members of the frozen registry, the count is unchanged at 3,
+      and this envelope names which purpose covers which act rather than
+      choosing between the two sentences.
+  optional_stricter_domain_purpose:
+    permitted: true
+    required: false
+    form: reference
+    resolves_against: the DomainxFactory's own consent tree
+    statement: >-
+      A domain MAY name a stricter purpose reference alongside the neutral
+      purposes — for example a COHORT-02 sandbox whose DomainxFactory holds a
+      narrower consent term than the neutral registry expresses. It is OPTIONAL
+      TO DECLARE and, once declared, NOT OPTIONAL TO SATISFY.
+    unresolved_reference_effect: deny
+    unresolved_reference_note: >-
+      An unresolvable stricter reference DENIES the session. It is never
+      silently downgraded to the neutral pair: a request that asked for a
+      stricter term and could not get it has not obtained the consent it asked
+      for. Probed per domain by corpus scenarios SEC-MEDX-CON-03 and
+      SEC-LEDX-CON-03.
+    does_not_change_count: >-
+      A domain purpose REFERENCE is not a registry member. Naming one adds
+      nothing to the neutral registry and the frozen count stays 3 — which is
+      exactly why the ruling admits a reference rather than a fourth purpose.
+  new_evaluation_purpose:
+    admitted: false
+    statement: >-
+      An evaluation-specific consent purpose is REFUSED for this ring
+      (ALV-007-S03). Qualification audio rides `avatar.provider_processing`
+      with an optional stricter domain reference; a new purpose would move the
+      frozen count off 3 by the back door.
+
+# ---------------------------------------------------------------------------
+# 6.2.2 (b) — THE DATA CLASSES, PER ARTIFACT OF A LIVE LEG
+# ---------------------------------------------------------------------------
+data_classes:
+  permitted: [ephemeral_presentation, structured_record]
+  permitted_source: >-
+    internal-live-activation-checklist.yaml condition 2
+    `ruled_values.data_control.classes_permitted` (§7.9, compared SET-EQUAL by
+    the validator).
+  operational_telemetry_note: >-
+    `operational_telemetry` is the kernel's third ACTIVE class and is
+    deliberately NOT in this envelope's permitted list. Redacted telemetry runs
+    under its own policy and RING-03's verification, not under the canary's
+    approved audio terms. Recorded so its absence reads as a boundary rather
+    than an oversight.
+  mapping:
+    - artifact: captions
+      class: ephemeral_presentation
+      expires: with the session
+    - artifact: partial transcript deltas
+      class: ephemeral_presentation
+      expires: with the session
+    - artifact: streamed model output rendered to the subject
+      class: ephemeral_presentation
+      expires: with the session
+    - artifact: confirmation decisions (AVC-06 accept/decline)
+      class: structured_record
+      retention_ref: avatar.internal_live.canary.structured_record.retention.v1
+    - artifact: consent versions
+      class: structured_record
+      retention_ref: avatar.internal_live.canary.structured_record.retention.v1
+    - artifact: session outcomes and terminal reasons
+      class: structured_record
+      retention_ref: avatar.internal_live.canary.structured_record.retention.v1
+    - artifact: tool and workflow outcomes
+      class: structured_record
+      retention_ref: avatar.internal_live.canary.structured_record.retention.v1
+  never_instantiated:
+    classes: [audio, full_transcript, video, independent_transcription]
+    statement: >-
+      NO instance of any of the four RESERVED retention classes is created by
+      this ring. The reserved set is the registry's own
+      (`retention-classes.registry.yaml` `reserved:`), all four of it.
+    ruled_list_is_narrower_note: >-
+      §7.9's `classes_never_instantiated` names THREE — `audio`,
+      `full_transcript`, `independent_transcription` — and the validator
+      compares that list set-equal, so it may not be widened here. `video` is
+      the fourth reserved class and is absent from the §7.9 list because the
+      ring has no video capability for it to be a data class OF; it is
+      nonetheless reserved-forbidden at the registry and at the AVC-07 enum,
+      which is the level that forbids it. This envelope states all four
+      because the promoted requirement states all four; it does not edit the
+      ruled §7.9 list.
+    unreserves_nothing: >-
+      This change unreserves exactly AVC-09 and AVC-10 and NO retention class.
+      Confirmed by inspection in the task 6.2.3 record.
+
+# ---------------------------------------------------------------------------
+# 6.2.2 (c) — RETENTION OF THE ONE RETAINED CLASS
+# ---------------------------------------------------------------------------
+retention:
+  applies_to: canary_derived_structured_record
+  window_days: 90
+  policy_ref: avatar.internal_live.canary.structured_record.retention.v1
+  policy_owner: domain
+  declared_at: internal-live-activation-checklist.yaml conditions[number=2].ruled_values.retention
+  cited_by: avc_09_descriptor
+  statement: >-
+    Canary-derived `structured_record` lives 90 days under the NAMED
+    DOMAIN-OWNED reference above. The reference is where the window is
+    authoritatively carried; the AVC-09 descriptor cites the id, never the
+    duration. `ephemeral_presentation` has no window because it has no
+    retention: it expires with the session.
+  ephemeral_has_no_window: true
+  not_the_same_ninety_as_7_3: >-
+    §7.3's `max_key_age_days: 90` is a server-key ROTATION CADENCE. Two
+    unrelated numbers that share a value; moving one must never move the other.
+
+# ---------------------------------------------------------------------------
+# 6.2.2 (d) — WITHDRAWAL, AND THAT IT STAYS REACHABLE MID-SESSION
+# ---------------------------------------------------------------------------
+withdrawal:
+  maps_to_outcome: revoked
+  outcome_registry_ref: contracts/avatar-client/registries/session-outcomes.registry.yaml
+  new_outcome_tokens_introduced: 0
+  outcome_note: >-
+    `revoked` ("Lease/consent revoked") is an EXISTING member of the released
+    closed `session-outcomes` registry. Withdrawal introduces no token; it
+    lands on the one the kernel already has, which is also the terminal
+    ROLLBACK-A's abort reuses.
+  reachable_mid_session: true
+  reachable_mid_speech: true
+  reachability_proof:
+    fixture: examples/avatar-first-ui/fixtures/deterministic/consent-withdraw-mid-speech.yaml
+    fixture_id: det-consent-withdraw-mid-speech
+    evidence_ids: [AFU-006-S03]
+    what_it_proves: >-
+      The fixture drives a session to `session_started` -> `media_authorized`
+      -> `command_accepted` -> `transcript_segment` (the avatar is SPEAKING)
+      and only THEN delivers the authoritative `revocation` event. Its expected
+      state is `media_state: revoked`, `capture_active: false`,
+      `governed_commands_enabled: false`, with `control_state: healthy`. That
+      is reachability proved at the worst moment — mid-speech — rather than
+      asserted for the session in general.
+    why_healthy_matters: >-
+      `control_state: healthy` is load-bearing. A withdrawal is a CLEAN
+      AUTHORED TERMINAL, not a `blocked` safety trip, so a subject who
+      withdraws is not shown a failure they did not cause.
+    runtime_proof: >-
+      tests/avatar_runtime/test_consent_revocation.py
+      `test_consent_invalidation_revokes_within_bound` — consent is invalidated
+      against a session holding an ACTIVE attempt and lease, and termination
+      completes inside the recorded revocation bound with
+      `OutcomeCode.CONSENT_REVOKED` and an inactive lease.
+    derivation_row: >-
+      contracts/avatar-client-lab/avatar-state-derivation-table.yaml, the
+      `consent-withdraw-mid-speech.yaml` seed (P6 -> rule R3, INV-4).
+  effect:
+    capture: stops
+    playback: stops
+    lease: revoked
+    leg_terminal: revoked
+    surviving_records: policy_required_only
+  corpus_scenarios: [SEC-GEN-CON-02, SEC-MEDX-CON-02, SEC-LEDX-CON-02]
+
+# ---------------------------------------------------------------------------
+# 6.2.4 — THE NON-SHADOWING GUARANTEE, AS AN OPERATIONAL CONTROL
+# ---------------------------------------------------------------------------
+# THIS IS THE TASK'S WHOLE POINT AND IT IS A NEGATIVE ONE. Task 6.2.4 says
+# "no schema field forbids a second-model shadow today, and claiming otherwise
+# would be false". So the guarantee is recorded here as an OPERATIONAL control
+# with its enforcement status stated in a field, not implied by silence.
+operational_controls:
+  - id: OPC-01
+    control: single_model_on_live_canary_audio
+    statement: >-
+      Exactly ONE model — the single candidate profile `gpt-realtime-2.1` —
+      processes live canary audio. Consented canary audio is NEVER shadowed,
+      mirrored, teed, forked or replayed to a second model for comparison or
+      for any other purpose, at any point in the leg.
+    enforced_by_schema: false
+    enforced_by_schema_note: >-
+      STATED PLAINLY BECAUSE THE OPPOSITE WOULD BE FALSE. No field in AVC-01,
+      AVC-02, AVC-04, AVC-09 or any other published contract shape forbids a
+      second-model shadow. AVC-09 names ONE `requested_model` and ONE
+      `provider_resolved_model`, which describes the adapter's own resolution;
+      it does not, and cannot as written, forbid a broker from opening a second
+      provider leg beside the first. A reader who inferred enforcement from the
+      singular field would be inferring something the schema does not say.
+    enforcement: operational
+    enforcement_mechanism:
+      - >-
+        The ring runs ONE qualified profile and there is nothing to shadow to:
+        `gpt-realtime-2.1` is the FIRST qualified profile,
+        `model_fallback_exists: false`, and `qualified_profiles_remaining` is
+        empty on the rollback posture.
+      - >-
+        Model-versus-model comparison is satisfied by the SYNTHETIC corpus
+        (`synthetic-evaluation-corpus.yaml`), so the design need a shadow would
+        serve does not arise.
+      - >-
+        A design proposing a shadow on live audio is REFUSED at review
+        (ALV-007-S01), and the refusal is the control.
+    enforcing_contract_flag:
+      status: deferred
+      owner_change: avatar-pilot-hardening
+      statement: >-
+        The enforcing CONTRACT FLAG — a schema-level field that makes a
+        second-model shadow structurally unrepresentable rather than merely
+        refused — is pilot-hardening work. It is named here as deferred so a
+        later reader can find the gap by reading the control instead of by
+        discovering it.
+      why_not_here: >-
+        Adding such a field would be a published-shape change on a
+        digest-pinned bundle, and this change unreserves exactly AVC-09 and
+        AVC-10. A qualification ring is not the place to cut a contract release
+        for a flag the pilot ring's threat-model closure will specify properly.
+    scenario_ref: ALV-007-S01
+    corpus_ref: >-
+      No corpus scenario can PROVE a negative about infrastructure the corpus
+      does not observe, and none claims to. The corpus records the refusal in
+      `not_this_corpus.second_model_shadow` and leaves the guarantee where it
+      honestly sits: operational.
+
+  - id: OPC-02
+    control: no_out_of_class_retention_instance
+    statement: >-
+      No `audio`, `full_transcript`, `video` or `independent_transcription`
+      instance is created for canary audio, and no retention profile carrying
+      one is authored.
+    enforced_by_schema: partial
+    enforced_by_schema_note: >-
+      HONEST ABOUT WHICH HALF IS STRUCTURAL. The AVC-07 `retention_class` enum
+      is closed to the three ACTIVE classes, so a retention profile naming a
+      reserved class fails validation structurally
+      (`avc07-reserved-class-refused`). What no schema forbids is a component
+      retaining audio WITHOUT authoring an AVC-07 profile at all — an
+      out-of-class instance is refused operationally, the same way §7.9's own
+      `enforcement: operational` says.
+    enforcement: operational
+    enforcing_contract_flag:
+      status: deferred
+      owner_change: avatar-pilot-hardening
+    scenario_ref: ALV-007-S02
+
+# ---------------------------------------------------------------------------
+# WHAT THIS ENVELOPE DOES NOT CONFER
+# ---------------------------------------------------------------------------
+envelope_confers:
+  ephemeral_canary_processing_terms: true
+  retention_class_unreservation: false
+  new_consent_purpose: false
+  new_session_outcome_token: false
+  real_external_tenant_audio: false
+  statement: >-
+    This envelope states the terms under which the internal-live canary may
+    carry consented internal users. It unreserves nothing, admits no external
+    tenant (`canary-cohort-and-rollback-policy.yaml`
+    `external_tenants.admitted: false`), and confers no production default.

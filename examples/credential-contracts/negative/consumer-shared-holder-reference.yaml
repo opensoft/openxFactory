@@ -1,0 +1,39 @@
+# NEGATIVE (expect: shared-secret-identity). Two bindings on one secret whose
+# consumer blocks name the SAME holder_ref — condition two fails.
+#
+# One system wearing two hats is not two consumers. The lift exists to express
+# "two consuming systems reach one deliberately shared operated identity"; a
+# single holder taking two bindings on one secret is the ordinary collapse the
+# default refusal is for, and adding declarations to it must not buy an
+# exemption.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true

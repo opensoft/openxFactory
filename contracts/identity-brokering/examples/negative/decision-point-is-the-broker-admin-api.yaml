@@ -1,0 +1,54 @@
+# expected_failure: membership-as-authority
+# expected_failure_detail: is a broker-administration URI scheme and a broker administration path
+# requirement: IDB-R2
+# VIOLATES R2: membership as authority, with the enumeration satisfied.
+#
+# `membership-offered-as-authority` says it out loud — `resolves_in:
+# broker_organization_membership` — and the closed enumeration refuses it. This
+# record says the RIGHT WORD and then names the broker's own administration API
+# as the place the decision is taken: the organization's member collection, on
+# the Keycloak admin surface, at this record's own broker instance. Every
+# declaration in the file is conformant. The decision is still "whoever is in
+# the group may act".
+#
+# The enumeration closed the field it governs, and the REFS BESIDE IT ARE FREE
+# TEXT — 300 characters of anything. That is where the broker came back in, and
+# it is the more likely form in practice, because a team that has been told
+# `broker_organization_membership` is illegal writes `governed_layer` and
+# carries on reading memberships. `grants_ref` does the same thing with realm
+# roles.
+#
+# The locator is now walked BY SHAPE, the way rule (e) walks credential values:
+# a broker-product URI scheme, a broker administration path, or a bare path
+# under this record's own broker instance. Like rule (e) it is a blocklist over
+# the classes it knows — an OPAQUE ref that in fact resolves to broker
+# membership cannot be caught by shape at all, and that residue is recorded in
+# the family README rather than papered over.
+#
+# A ref that merely CONTAINS the instance id is deliberately NOT refused: the
+# gate-console positive's governed decision point is
+# `hermes://broker-opensoft-shared/authorization/gate-console`, where the
+# instance id is a legitimate scoping token. Containment cannot tell the two
+# apart; the locator's shape can.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-broker-decision-point-9030
+surface_ref: openxfactory-gate-console-broker-resolved
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: resolved_authorization
+governed_write_actions:
+  offered: true
+  actions:
+    - ratify_change
+resolved_authorization:
+  decision_point_ref: "keycloak://broker-opensoft-shared/admin/realms/xforge/organizations/opensoft/members"
+  resolves_in: governed_layer
+  grants_ref: "keycloak://broker-opensoft-shared/admin/realms/xforge/roles"
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-22T12:40:00Z"

@@ -1,0 +1,139 @@
+# THE DURABILITY PROFILE AND THE ORDERING-ONLY WITNESS'S, SIDE BY SIDE. The
+# durability profile is the one that makes "submitted" honest: a RETAINED DETACHED
+# TIMESTAMP PROOF over the configuration-bound aggregation root is submitted
+# evidence and nothing else, and confirmation additionally requires the upgrade.
+# The ordering-only profile makes no time claim at all, because its network's
+# header carries no usable time field and inventing one would rest a fail-closed
+# decision on a number nothing can check.
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile
+profile_id: cp-example-durability
+version: 1
+chain_id: chain-example-durability
+witness_role: durability
+terms:
+  submitted_condition:
+    statement: a detached timestamp proof committing to the same configuration-bound aggregation
+      root was accepted and retained; this is NOT confirmation on the underlying chain
+    objective_evidence:
+    - retained_detached_timestamp_proof
+  confirmed_condition:
+    statement: the detached proof is upgraded with the declared transaction, inclusion proof,
+      header and chain-acceptance evidence, verified under the configured witness rules
+    chain_acceptance_rule_citation: the configured durability witness's documented chain-acceptance
+      rule, cited by the realization; this profile names no depth of its own
+    objective_evidence:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+    - upgraded_timestamp_proof
+  retained_proof_material:
+  - transaction_bytes
+  - inclusion_proof
+  - block_header
+  - chain_acceptance_evidence
+  - upgraded_timestamp_proof
+  reorganization_rule:
+    statement: a reorganized accepting block moves this witness out of confirmed and the move
+      is written as evidence; the prior confirmed label is not retained by assertion
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  replacement_rule:
+    statement: a replaced commitment transaction moves this witness out of confirmed and the
+      move is written as evidence
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  transition_vectors:
+  - vector_id: cp-example-durability-vec-accept-submitted
+    boundary: pending_to_submitted
+    expectation: accept
+    statement: the declared interface accepted the serialized commitment transaction for processing
+      and nothing more is claimed
+  - vector_id: cp-example-durability-vec-refuse-confirmed
+    boundary: submitted_to_confirmed
+    expectation: refuse
+    statement: interface acceptance alone does not satisfy this profile's confirmation condition
+      and is refused as confirmation
+  - vector_id: cp-example-durability-vec-accept-confirmed
+    boundary: submitted_to_confirmed
+    expectation: accept
+    statement: the configured acceptance rule passed and every named proof element was captured
+      whole
+  - vector_id: cp-example-durability-vec-refuse-stale
+    boundary: confirmed_to_invalid
+    expectation: refuse
+    statement: a reorganized block no longer satisfies this profile and a retained confirmed
+      label is refused
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: confirmation_profile_terms
+  value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+released_at: '2026-08-25T00:00:00Z'
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile
+profile_id: cp-example-ordering-only
+version: 1
+chain_id: chain-example-ordering-only
+witness_role: durability
+terms:
+  submitted_condition:
+    statement: the interface accepted the commitment transaction for processing
+    objective_evidence:
+    - interface_acceptance
+  confirmed_condition:
+    statement: inclusion under the accepting block is proven and all four elements are captured
+      whole; no time claim is made from this witness
+    chain_acceptance_rule_citation: the ordering-only witness's documented inclusion rule;
+      its header carries no usable time field, so this profile cites ordering and inclusion
+      alone
+    objective_evidence:
+    - transaction_bytes
+    - inclusion_proof
+    - block_header
+    - chain_acceptance_evidence
+  retained_proof_material:
+  - transaction_bytes
+  - inclusion_proof
+  - block_header
+  - chain_acceptance_evidence
+  reorganization_rule:
+    statement: a reorganized accepting block moves this witness out of confirmed and the move
+      is written as evidence; the prior confirmed label is not retained by assertion
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  replacement_rule:
+    statement: a replaced commitment transaction moves this witness out of confirmed and the
+      move is written as evidence
+    on_change: rewrite_state_as_evidence
+    evidence_written: true
+  transition_vectors:
+  - vector_id: cp-example-ordering-only-vec-accept-submitted
+    boundary: pending_to_submitted
+    expectation: accept
+    statement: the declared interface accepted the serialized commitment transaction for processing
+      and nothing more is claimed
+  - vector_id: cp-example-ordering-only-vec-refuse-confirmed
+    boundary: submitted_to_confirmed
+    expectation: refuse
+    statement: interface acceptance alone does not satisfy this profile's confirmation condition
+      and is refused as confirmation
+  - vector_id: cp-example-ordering-only-vec-accept-confirmed
+    boundary: submitted_to_confirmed
+    expectation: accept
+    statement: the configured acceptance rule passed and every named proof element was captured
+      whole
+  - vector_id: cp-example-ordering-only-vec-refuse-stale
+    boundary: confirmed_to_invalid
+    expectation: refuse
+    statement: a reorganized block no longer satisfies this profile and a retained confirmed
+      label is refused
+canonical_digest:
+  construction: xfc-jcs-sha256-1
+  subject: confirmation_profile_terms
+  value: sha256:ecf00aa0455846defa6764b77e3835ebc3f86cc056538e9cedfea1ca8d0b37f9
+released_at: '2026-08-25T00:00:00Z'
+record_version: 1

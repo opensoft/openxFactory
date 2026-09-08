@@ -1,0 +1,49 @@
+# VALID widened success (contract-v1.45): the turn that COST TWO PAID PROVIDER
+# CALLS, and says so.
+#
+# Brett ruled on 2026-08-26 that when a minted token expires part-way through a
+# turn the console re-mints and retries ONCE, "with the re-mint and the paid
+# retry VISIBLY RECORDED in the turn record" — because a second paid call the
+# human cannot see is exactly the decision that ruling was made to avoid. Three
+# server-side records of it already existed (the port's content-free mint
+# ledger, the console's own stderr notice, and the broker's audit trail
+# correlated by `--retry-of`) and the browser could read NONE of them. This key
+# is how the fact reaches the person paying for it.
+#
+# WHAT IT CARRIES AND WHAT IT REFUSES TO: that it happened, that it happened at
+# most once (the ruling's bound — a second expiry in one turn refuses instead of
+# buying a third call, and that turn produces a FAILURE envelope, never this
+# one), and the re-mint's audit reference. Never the token, never a prefix or a
+# hash of it, never a provider status and never the provider's words.
+#
+# THE PAIR TO THIS INSTANCE is every other v2 success example, which carries no
+# `provider_retry` at all and stays valid: that is what makes contract-v1.45
+# additive. Absence means "nothing to report, or a producer older than v1.45" —
+# never `retried: false`, which this shape cannot even express.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0009",
+  "assistant_turn_id": "srv-v2-0009",
+  "model_id": "authoring-model",
+  "selected_model": {
+    "requested_model_id": "authoring-model",
+    "routing_rule": false,
+    "data_handling": "leaves this host: a hosted provider reached with a short-lived token the credential broker minted"
+  },
+  "context_packet": {
+    "posture": "full"
+  },
+  "provider_retry": {
+    "retried": true,
+    "at_most_once": true,
+    "audit_ref": "openprofiler-audit-7b21ee08"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "The boundary the outline claims is narrower than the two staged notes support; both are behind this answer.",
+  "proposals": []
+}

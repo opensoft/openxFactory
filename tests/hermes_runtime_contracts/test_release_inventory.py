@@ -10,6 +10,7 @@ the working tree (research Decisions 10 and 11; requirement HGR-009).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import copy
 import hashlib
 import json
@@ -130,6 +131,12 @@ def _bare_origin(tmp_path: Path, name: str = "origin.git") -> Path:
     origin.mkdir()
     _git(origin, "init", "--bare", "--quiet")
     return origin
+
+
+def _write_url_redirect_config(path: Path, source: Path, target: Path) -> None:
+    path.write_text(
+        f'[url "{target.as_uri()}"]\n\tinsteadOf = {source}\n', encoding="utf-8"
+    )
 
 
 # --- deterministic inventory mutations shared with the fixture generator ------
@@ -651,11 +658,29 @@ def test_verify_reads_exact_commit_not_a_short_or_symbolic_revision(
     assert release.verify_inventory_against_commit(repo, commit, inventory) == []
 
 
+def test_verify_uses_the_requested_repository_under_a_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    primary, commit = _synthetic_repo(tmp_path, "primary")
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    inventory = _canonical_inventory(repo)
+    hostile = support.init_git_repo(tmp_path / "hostile")
+    support.commit_files(hostile, {"hostile.txt": "unrelated repository\n"})
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile / ".git"))
+
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
 # --- promotion ----------------------------------------------------------------
 
 
 def _repo_with_committed_inventory(
-    tmp_path: Path, name: str, tag: str
+    tmp_path: Path,
+    name: str,
+    tag: str,
+    *,
+    hazard: Callable[[Path], None] | None = None,
 ) -> tuple[Path, str]:
     repo = support.init_git_repo(tmp_path / name)
     _git(repo, "symbolic-ref", "HEAD", "refs/heads/main")
@@ -671,6 +696,11 @@ def _repo_with_committed_inventory(
     (repo / f"contracts/releases/{tag}.digests.yaml").write_text(
         release.dump_inventory(inventory), encoding="utf-8"
     )
+    # A `hazard` runs AFTER the inventory is built, so the committed inventory
+    # stays the one the ordinary fixture produces and only the release SURFACE
+    # carries the condition under test (fix-content-resolution-conflation).
+    if hazard is not None:
+        hazard(repo)
     commit = _commit_all(repo, "release candidate with inventory")
     return repo, commit
 
@@ -683,6 +713,56 @@ def test_verify_promotion_accepts_a_reviewed_reachable_candidate(
     origin = _bare_origin(tmp_path)
     _git(repo, "remote", "add", "origin", str(origin))
     _git(repo, "push", "--quiet", "origin", "main")
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_uses_repo_origin_despite_indexed_config_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", f"url.{hostile.as_uri()}.insteadOf")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", str(origin))
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_preserves_repository_local_url_rewrite(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    local_alias = "local-release-origin:"
+    _git(repo, "config", f"url.{origin.as_uri()}.insteadOf", local_alias)
+    _git(repo, "remote", "add", "origin", local_alias)
+    _git(repo, "push", "--quiet", "origin", "main")
+
     assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
 
 
@@ -746,6 +826,47 @@ def test_verify_tag_accepts_an_annotated_reachable_tag(tmp_path: Path) -> None:
     assert release.verify_tag(repo, remote="origin", tag=tag) == []
 
 
+def test_verify_tag_uses_repo_origin_despite_config_parameters_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    monkeypatch.setenv(
+        "GIT_CONFIG_PARAMETERS",
+        f"'url.{hostile.as_uri()}.insteadOf={origin}'",
+    )
+
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
 def test_verify_tag_rejects_a_lightweight_tag(tmp_path: Path) -> None:
     tag = "contract-v2.0"
     repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
@@ -787,33 +908,429 @@ def test_verify_tag_reports_a_missing_remote_tag(tmp_path: Path) -> None:
     ]
 
 
+# --- remote-derived operands: mid-run skew and unservable objects --------------
+#
+# Online release verification reads `refs/heads/main` and the tag advertisement
+# from the canonical remote, then answers questions about those object ids
+# inside the local clone. The clone is fixed at the moment it was taken; the
+# remote's refs are not. These fixtures DRIVE that divergence rather than
+# describing it: a second clone advances the bare origin's `main` so the
+# verifying repository genuinely does not hold the object the remote
+# advertises.
+
+
+def _is_ancestor_on_the_real_history(repo: Path, ancestor: str, descendant: str) -> bool:
+    """Ask a repository that holds the whole history, for use as a fixture oracle."""
+    probe = support.run_command(
+        ["git", "merge-base", "--is-ancestor", ancestor, descendant], cwd=repo
+    )
+    assert probe.returncode in (0, 1), probe.stderr
+    return probe.returncode == 0
+
+
+def _object_is_absent(repo: Path, object_id: str) -> bool:
+    """True when the local object store cannot resolve the object id."""
+    probe = support.run_command(
+        ["git", "cat-file", "-e", f"{object_id}^{{object}}"], cwd=repo
+    )
+    return probe.returncode != 0
+
+
+def test_remote_object_probe_rejects_an_alternate_only_object(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path, "repo")
+    origin = _bare_origin(tmp_path, "origin.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    alternate, _ = _synthetic_repo(tmp_path, "alternate")
+    (alternate / "alternate-only.txt").write_text(
+        "alternate object\n", encoding="utf-8"
+    )
+    alternate_commit = _commit_all(alternate, "alternate-only object")
+    assert _object_is_absent(repo, alternate_commit)
+    monkeypatch.setenv(
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES", str(alternate / ".git" / "objects")
+    )
+
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release._resolve_remote_object(repo, "origin", alternate_commit)
+
+    assert "fetch" in str(excinfo.value)
+
+
+def _advance_remote_main_from_a_peer_clone(
+    tmp_path: Path,
+    origin: Path,
+    *,
+    relative: str,
+    content: str,
+    message: str = "another change merged inside the window",
+) -> str:
+    """Advance the bare origin's `main` from a SECOND clone and return the oid.
+
+    The verifying repository never sees this commit, which is exactly the
+    condition continuous integration meets whenever another pull request
+    merges inside a suite's eleven-minute window.
+    """
+    peer = tmp_path / "peer"
+    _git(tmp_path, "clone", "--quiet", "--branch", "main", str(origin), str(peer))
+    _git(peer, "config", "user.name", "Hermes Contract Tests")
+    _git(peer, "config", "user.email", "hermes-tests@example.invalid")
+    _git(peer, "config", "commit.gpgsign", "false")
+    target = peer / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(content, encoding="utf-8")
+    advanced = _commit_all(peer, message)
+    _git(peer, "push", "--quiet", "origin", "HEAD:refs/heads/main")
+    return advanced
+
+
+def _skewed_candidate(
+    tmp_path: Path, tag: str, *, relative: str, content: str
+) -> tuple[Path, str, str]:
+    """Build a candidate repository whose remote `main` has moved beyond it."""
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    # Keep pushed objects loose so a single object file can be made unreadable.
+    _git(origin, "config", "receive.unpackLimit", "10000")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    advanced = _advance_remote_main_from_a_peer_clone(
+        tmp_path, origin, relative=relative, content=content
+    )
+    # The condition is real, not asserted into being.
+    assert release._ls_remote(repo, "origin", "refs/heads/main")[0][0] == advanced
+    assert _object_is_absent(repo, advanced)
+    return repo, commit, advanced
+
+
+def test_verify_promotion_completes_when_remote_main_advanced_past_the_clone(
+    tmp_path: Path,
+) -> None:
+    """THE SKEW REGRESSION. `_ls_remote` names the remote's CURRENT `main`;
+    `git merge-base --is-ancestor` runs inside a clone taken earlier. Before
+    the operand was resolved on entry, `merge-base` exited 128 on the absent
+    object and the verifier raised "commit reachability could not be
+    determined" -- a fail-closed refusal produced by somebody else's merge
+    rather than by anything about this candidate (openxFactory PR #372, run
+    32934803039: one tree, two failures, one pass, decided by what landed
+    during the suite).
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path, tag, relative="unrelated.txt", content="another change\n"
+    )
+    # The same verdict a current clone returns -- see
+    # test_verify_promotion_accepts_a_reviewed_reachable_candidate.
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_completes_when_the_tag_and_main_are_newer_than_the_clone(
+    tmp_path: Path,
+) -> None:
+    """Both of `verify_tag`'s remote-derived operands absent at once: the
+    commit the published tag peels to AND the remote's `main` tip. A tag
+    published since the clone was taken is missing for the same reason main's
+    new tip is, and `_verify_release_at` reads that commit's tree and blobs
+    locally after the ancestor check.
+    """
+    tag = "contract-v2.0"
+    repo, _ = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+
+    peer = tmp_path / "peer"
+    _git(tmp_path, "clone", "--quiet", "--branch", "main", str(origin), str(peer))
+    _git(peer, "config", "user.name", "Hermes Contract Tests")
+    _git(peer, "config", "user.email", "hermes-tests@example.invalid")
+    _git(peer, "config", "commit.gpgsign", "false")
+    (peer / "unrelated.txt").write_text("another change\n", encoding="utf-8")
+    advanced = _commit_all(peer, "another change merged inside the window")
+    _git(peer, "tag", "-a", tag, "-m", "release", advanced)
+    _git(peer, "push", "--quiet", "origin", "HEAD:refs/heads/main")
+    _git(peer, "push", "--quiet", "origin", tag)
+
+    assert _object_is_absent(repo, advanced)
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_surface_drift_is_computed_against_a_resolved_advanced_main(
+    tmp_path: Path,
+) -> None:
+    """THE MASKED SECOND SITE. `_surface_drift` reads the same remote-derived
+    `main_oid` twice -- `_CommitSource(...).list_release_inventories()` (a
+    `git ls-tree` that raises "Git command failed" on an absent commit) and
+    `_blob_object_id(...)` (which swallows `ContentResolutionError` and
+    returns `None`, so an absent commit would compare every real blob against
+    nothing and emit a FALSE drift finding on every release-surface path).
+    Both are masked today by the ancestor check raising first, which is why
+    this test asserts the drift verdict the surface actually warrants: ONE
+    finding, on the one path that moved.
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path,
+        tag,
+        relative="contracts/manifest.yaml",
+        content=f"schema_version: 1\ncontract_bundle_version: {tag}\nextra: drift\n",
+    )
+    findings = release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    assert [(finding["code"], finding["path"]) for finding in findings] == [
+        ("HGR-RELEASE-SURFACE-DRIFT", "contracts/manifest.yaml")
+    ]
+
+
+def _revoke_read_on_the_remote_object(origin: Path, object_id: str) -> list[Path]:
+    """Leave the bare origin's refs readable while its objects cannot be served.
+
+    MEASURED 2026-08-26 (the measurement `tasks.md` § 3.3 asked for): `chmod
+    000` on the whole `objects/` directory -- the mechanism that task proposed
+    FIRST -- makes git refuse the path as a repository at all, so `ls-remote`
+    itself exits 128 with "does not appear to be a git repository" and the
+    fixture proves the pre-existing "remote main is unavailable" path instead
+    of this one. Revoking read on the single object FILE keeps advertisement
+    working (`ls-remote` exits 0, naming the advanced oid) while `upload-pack`
+    answers "not our ref", which is the condition wanted: the remote declines
+    to serve an object it advertises.
+    """
+    loose = origin / "objects" / object_id[:2] / object_id[2:]
+    revoked = (
+        [loose]
+        if loose.is_file()
+        else sorted((origin / "objects" / "pack").glob("*.pack"))
+    )
+    assert revoked, "the fixture found no object file to make unreadable"
+    for path in revoked:
+        path.chmod(0o000)
+    return revoked
+
+
+def test_verify_promotion_fails_closed_naming_the_fetch_it_could_not_perform(
+    tmp_path: Path,
+) -> None:
+    """THE UNAVAILABLE-OBJECT PROOF. An object that cannot be made locally
+    available is a fact about the ENVIRONMENT, so it stays a fail-closed
+    dependency refusal rather than becoming a finding about the release -- and
+    its reason names the retrieval that failed. "Reachability could not be
+    determined" points at the verifier's own uncertainty and sends the reader
+    to inspect the candidate, which is the one place the answer is not.
+    """
+    tag = "contract-v2.0"
+    repo, commit, advanced = _skewed_candidate(
+        tmp_path, tag, relative="unrelated.txt", content="another change\n"
+    )
+    origin = tmp_path / "origin.git"
+    revoked = _revoke_read_on_the_remote_object(origin, advanced)
+    try:
+        # Fixture soundness: the refs still advertise, so this is the
+        # fetch-impossible path and NOT "remote main is unavailable".
+        assert release._ls_remote(repo, "origin", "refs/heads/main")[0][0] == advanced
+        with pytest.raises(release.ReleaseDependencyError) as excinfo:
+            release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    finally:
+        for path in revoked:
+            path.chmod(0o644)
+    message = str(excinfo.value)
+    assert "fetch" in message
+    assert advanced in message
+    assert "could not be determined" not in message
+
+
+@pytest.mark.parametrize(
+    ("relative", "content"),
+    [
+        ("unrelated.txt", "another change\n"),
+        (
+            "contracts/manifest.yaml",
+            "schema_version: 1\ncontract_bundle_version: contract-v2.0\nextra: drift\n",
+        ),
+    ],
+    ids=["skew", "surface-drift"],
+)
+def test_mutation_removing_the_resolution_step_alone_reproduces_the_refusal(
+    tmp_path: Path, relative: str, content: str
+) -> None:
+    """MUTATION CHECK: with the resolution step removed and NOTHING else
+    changed, both skew proofs must fail by reproducing the original refusal on
+    an absent object. A proof that still passed would be pinned to the shape of
+    the fix rather than to the defect. This also pins `_is_ancestor`'s
+    128-branch guard in place: widening it to treat 128 as "not reachable"
+    would invent a verdict from an absence, and this assertion would notice.
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path, tag, relative=relative, content=content
+    )
+    original = release._resolve_remote_object
+    release._resolve_remote_object = lambda *args, **kwargs: None
+    try:
+        with pytest.raises(release.ReleaseDependencyError) as excinfo:
+            release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    finally:
+        release._resolve_remote_object = original
+    assert "commit reachability could not be determined" in str(excinfo.value), (
+        "removing the resolution step did not reproduce the 128 refusal -- the "
+        "skew proofs are unpinned and must be rewritten"
+    )
+
+
+# --- truncated history: a negative verdict a shallow clone cannot earn --------
+#
+# Resolving the operand makes the OBJECT present; it does not make the ANCESTRY
+# present. A shallow clone's graft boundary tells git a commit has no parents,
+# so `merge-base --is-ancestor` returns a definite 1 for a commit that is
+# perfectly reachable on the real history. These fixtures build that exact
+# store: a real `--depth 1` clone, which needs a `file://` URL because git
+# ignores `--depth` on a plain local path.
+
+
+def _shallow_clone(tmp_path: Path, origin: Path, name: str = "shallow") -> Path:
+    """Clone the bare origin's `main` at depth 1 -- a genuinely truncated store."""
+    target = tmp_path / name
+    _git(
+        tmp_path,
+        "clone",
+        "--quiet",
+        "--depth",
+        "1",
+        "--branch",
+        "main",
+        f"file://{origin}",
+        str(target),
+    )
+    _git(target, "config", "user.name", "Hermes Contract Tests")
+    _git(target, "config", "user.email", "hermes-tests@example.invalid")
+    _git(target, "config", "commit.gpgsign", "false")
+    assert _git(target, "rev-parse", "--is-shallow-repository") == "true"
+    return target
+
+
+def test_verify_tag_refuses_a_negative_verdict_a_shallow_clone_cannot_earn(
+    tmp_path: Path,
+) -> None:
+    """MEASURED against the canonical remote before it was fixed, and
+    independently raised by Copilot on pull request #390: the tag here IS on
+    published main -- the fixture pushes it at main's own parent -- but a depth-1
+    clone cannot see the link, so `merge-base` answers a definite 1 and the
+    verifier would have emitted a FALSE `HGR-RELEASE-TAG-UNREACHABLE`. Ruled by
+    Brett 2026-08-26: refuse instead, naming the truncated history.
+    """
+    tag = "contract-v2.0"
+    repo, tagged = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    (repo / "unrelated.txt").write_text("later\n", encoding="utf-8")
+    _commit_all(repo, "main advances past the tagged commit")
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", tagged)
+    _git(repo, "push", "--quiet", "origin", tag)
+
+    shallow = _shallow_clone(tmp_path, origin)
+    # The tag's commit is genuinely reachable from published main, and the
+    # truncated store genuinely cannot tell.
+    assert _object_is_absent(shallow, tagged)
+
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release.verify_tag(shallow, remote="origin", tag=tag)
+    message = str(excinfo.value)
+    assert "shallow" in message
+    assert tagged in message
+    assert "UNREACHABLE" not in message
+    # A full clone of the same origin reaches the honest verdict instead.
+    full = tmp_path / "full"
+    _git(tmp_path, "clone", "--quiet", "--branch", "main", str(origin), str(full))
+    assert release.verify_tag(full, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_refuses_a_negative_verdict_in_a_shallow_clone(
+    tmp_path: Path,
+) -> None:
+    """The candidate path carries the identical hazard, so it carries the
+    identical guard. Here the candidate really is off published main, and the
+    refusal fires anyway -- deliberately: a truncated store cannot tell an
+    earned negative from a grafted one, so a fail-closed refusal naming the
+    truncation is the honest outcome for both, and the finding is left to a
+    clone that can actually judge it.
+    """
+    tag = "contract-v2.0"
+    repo, base = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    (repo / "unrelated.txt").write_text("later\n", encoding="utf-8")
+    candidate = _commit_all(repo, "the candidate the shallow clone will hold")
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    shallow = _shallow_clone(tmp_path, origin)
+    assert _git(shallow, "rev-parse", "HEAD") == candidate
+
+    # Publish a main branched from BEFORE the candidate, so the candidate is
+    # genuinely not an ancestor of it -- an earned negative, on the real history.
+    _git(repo, "checkout", "--quiet", "-b", "side", base)
+    (repo / "sidefile.txt").write_text("side\n", encoding="utf-8")
+    side = _commit_all(repo, "off-main commit")
+    _git(repo, "push", "--quiet", "--force", "origin", f"{side}:refs/heads/main")
+    assert not _is_ancestor_on_the_real_history(repo, candidate, side)
+
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release.verify_promotion(
+            shallow, commit=candidate, remote="origin", tag=tag
+        )
+    message = str(excinfo.value)
+    assert "shallow" in message
+    assert "UNREACHABLE" not in message
+    assert "could not be determined" not in message
+
+
+def test_a_shallow_clone_still_answers_when_merge_base_can_say_yes(
+    tmp_path: Path,
+) -> None:
+    """THE ASYMMETRY, PINNED. The guard re-examines only the NEGATIVE verdict,
+    because a path git found is a path that exists in any store. So a shallow
+    clone whose candidate IS reachable from the advanced remote main verifies
+    normally and no refusal is raised -- which is also what keeps the extra
+    `rev-parse` off the common path.
+    """
+    tag = "contract-v2.0"
+    repo, candidate = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    shallow = _shallow_clone(tmp_path, origin)
+    assert _git(shallow, "rev-parse", "HEAD") == candidate
+
+    # Remote main moves to a DESCENDANT of the shallow clone's tip.
+    (repo / "unrelated.txt").write_text("another change\n", encoding="utf-8")
+    advanced = _commit_all(repo, "another change merged inside the window")
+    _git(repo, "push", "--quiet", "origin", "main")
+    assert _object_is_absent(shallow, advanced)
+
+    assert (
+        release.verify_promotion(
+            shallow, commit=candidate, remote="origin", tag=tag
+        )
+        == []
+    )
+
+
 # --- candidate / realization modes --------------------------------------------
 
 
-def test_validate_candidate_passes_on_the_realized_repository() -> None:
-    # Post-realization (contract-v1.9): the realized release digest inventory is
-    # committed at contracts/releases/contract-v1.9.digests.yaml, which is the
-    # thing this test actually needs to prove -- the pre-realization
-    # missing-inventory state (HGR-RELEASE-INVENTORY-MISSING) is gone for both
-    # candidate and realization validation.
-    #
-    # It does NOT assert `== []`: main keeps moving after a release is cut, and
-    # release members (e.g. contracts/README.md) legitimately drift from the
-    # frozen contract-v1.9 digest inventory in between releases -- that is
-    # correct product behavior (you re-realize for the next version), not a
-    # bug. So drift findings like HGR-RELEASE-DIGEST-MISMATCH are expected and
-    # acceptable here; only the missing-inventory failure mode is disallowed.
-    inventory_path = ROOT / "contracts/releases/contract-v1.9.digests.yaml"
-    assert inventory_path.is_file(), inventory_path
-    catalog = load_yaml_document(ROOT / "contracts/hermes-runtime/contract-index.yaml")
-    candidate = release.validate_candidate(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in candidate
-    ]
-    realization = release.validate_realization(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in realization
-    ]
+def test_validate_candidate_and_realization_pass_for_a_local_annotated_release(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    assert Path(_git(repo, "remote", "get-url", "origin")) == origin
+    catalog = load_yaml_document(repo / "contracts/hermes-runtime/contract-index.yaml")
+
+    assert release.validate_candidate(repo, catalog=catalog) == []
+    assert release.validate_realization(repo, catalog=catalog) == []
 
 
 def test_validate_candidate_passes_for_a_committed_synthetic_candidate(
@@ -940,6 +1457,65 @@ def test_cli_verify_commit_pass_and_missing_inventory(tmp_path: Path) -> None:
     assert payload["findings"][0]["code"] == "HGR-RELEASE-INVENTORY-MISSING"
 
 
+def test_cli_verify_commit_uses_requested_repo_under_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    hostile_common_dir = tmp_path / "hostile-common"
+    hostile_common_dir.mkdir()
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile_common_dir))
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
+
+
+@pytest.mark.parametrize(
+    "inherited_config",
+    [
+        {"GIT_CONFIG_PARAMETERS": "'core.bare=true'"},
+        {
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.bare",
+            "GIT_CONFIG_VALUE_0": "true",
+        },
+    ],
+    ids=["parameters", "indexed"],
+)
+def test_cli_root_discovery_ignores_inherited_command_scope_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    inherited_config: dict[str, str],
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    for name, value in inherited_config.items():
+        monkeypatch.setenv(name, value)
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
+
+
 def test_cli_verify_commit_reports_findings_with_exit_one(tmp_path: Path) -> None:
     tag = "contract-v2.0"
     repo, candidate = _repo_with_committed_inventory(tmp_path, "repo", tag)
@@ -982,6 +1558,37 @@ def test_cli_verify_promotion_and_verify_tag(tmp_path: Path) -> None:
     )
     assert missing_tag.returncode == 1
     assert "HGR-RELEASE-TAG-MISSING" in missing_tag.stdout
+
+
+def test_cli_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    result = _run_cli(
+        "verify-promotion",
+        "--commit",
+        commit,
+        "--remote",
+        "origin",
+        "--tag",
+        tag,
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
 
 
 def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:
@@ -1093,3 +1700,271 @@ def test_two_entries_normalizing_to_one_member_fail_closed(tmp_path: Path) -> No
     with pytest.raises(release.ReleaseDependencyError) as excinfo:
         release.release_membership(repo)
     assert "normalize" in str(excinfo.value) or "collision" in str(excinfo.value)
+
+
+# --- content-resolution conflation (fix-content-resolution-conflation) --------
+#
+# `_blob_object_id` and `_CommitSource.exists` reduce a content resolution to a
+# blob identity or to a presence answer.  Exactly one of the resolver's fifteen
+# refusals establishes that answer; the other fourteen establish nothing about
+# the release.  These proofs separate the two, and the quiet direction — BOTH
+# sides of a `_surface_drift` comparison failing, two non-answers comparing
+# equal, the surface reported undrifted having been read on neither side — is
+# the one that matters, because it emits nothing a reader could notice.
+#
+# The hazards below are driven by COMMITTED DATA (a release-surface path that
+# is a directory or a nested repository link at one commit) and by ARGUMENT (a
+# repository that is not there, a revision that is not an object id, a path
+# that is not canonical) rather than by a real store timeout, per Q4: the
+# requirement is about the distinction, not about any one way of failing.
+
+SURFACE_NON_MEMBER = "contracts/hermes-runtime/README.md"
+
+
+def _hazard_directory(repo: Path) -> None:
+    """Commit a DIRECTORY where a release-surface regular file belongs."""
+
+    target = repo / SURFACE_NON_MEMBER
+    if target.exists():
+        target.unlink()
+    target.mkdir(parents=True)
+    (target / "keep.md").write_text("# not a regular file\n", encoding="utf-8")
+
+
+def _hazard_gitlink(repo: Path, tmp_path: Path) -> None:
+    """Commit a NESTED REPOSITORY LINK where a release-surface file belongs."""
+
+    child = support.init_git_repo(tmp_path / "surface-child")
+    child_commit = support.commit_files(child, {"README.md": "child\n"})
+    target = repo / SURFACE_NON_MEMBER
+    if target.exists():
+        target.unlink()
+    _git(
+        repo,
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        f"160000,{child_commit},{SURFACE_NON_MEMBER}",
+    )
+
+
+def _hazard_absent(repo: Path) -> None:
+    """Commit a tree that simply does not carry the release-surface path."""
+
+    (repo / SURFACE_NON_MEMBER).unlink()
+
+
+def _published(repo: Path, tmp_path: Path, name: str = "origin.git") -> Path:
+    origin = _bare_origin(tmp_path, name)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    return origin
+
+
+# 3.1 — the absent path is the ONE condition that is a release fact, and it
+# still reaches exactly the answer it reaches today, in both directions.
+
+
+def test_a_release_surface_path_absent_at_both_commits_still_reports_clean(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(
+        tmp_path, "repo", tag, hazard=_hazard_absent
+    )
+    _published(repo, tmp_path)
+    assert release._blob_object_id(repo, commit, SURFACE_NON_MEMBER) is None
+    assert release._surface_drift(repo, commit, commit) == []
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_a_release_surface_path_absent_on_one_side_alone_still_drifts(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, candidate = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    _hazard_absent(repo)
+    _commit_all(repo, "the release surface path leaves the tree")
+    _published(repo, tmp_path)
+    assert "HGR-RELEASE-SURFACE-DRIFT" in _codes(
+        release.verify_promotion(repo, commit=candidate, remote="origin", tag=tag)
+    )
+
+
+# 3.2 / 3.6 — a resolution that failed for any other reason refuses, and the
+# reason names the CONDITION OBSERVED rather than a conclusion about the
+# release.  Driven by argument.
+
+
+def test_an_unresolvable_content_question_refuses_instead_of_answering(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    absent_repository = tmp_path / "there-is-no-repository-here"
+
+    conditions = {
+        "Git repository is unavailable": lambda: release._blob_object_id(
+            absent_repository, commit, "contracts/manifest.yaml"
+        ),
+        "revision must be a full Git object ID": lambda: release._blob_object_id(
+            repo, "HEAD", "contracts/manifest.yaml"
+        ),
+        "repository path contains a forbidden segment": (
+            lambda: release._blob_object_id(
+                repo, commit, "contracts/../contracts/manifest.yaml"
+            )
+        ),
+    }
+    for observed, operation in conditions.items():
+        with pytest.raises(release.ReleaseDependencyError) as caught:
+            operation()
+        message = str(caught.value)
+        assert observed in message, message
+        assert caught.value.exit_code == 2
+        # The reason names what failed, never what the release is.
+        assert "drift" not in message.lower(), message
+        assert "unreachable" not in message.lower(), message
+        # The resolver's own refusal is preserved for the reader.
+        assert isinstance(caught.value.__cause__, ContentResolutionError)
+
+
+def test_commit_source_exists_reports_absence_and_refuses_everything_else(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    source = release._CommitSource(repo, commit)
+
+    assert source.exists("contracts/manifest.yaml") is True
+    assert source.exists("contracts/there-is-no-such-file.yaml") is False
+
+    with pytest.raises(release.ReleaseDependencyError):
+        source.exists("contracts/../contracts/manifest.yaml")
+    with pytest.raises(release.ReleaseDependencyError):
+        release._CommitSource(tmp_path / "no-repository", commit).exists(
+            "contracts/manifest.yaml"
+        )
+    with pytest.raises(release.ReleaseDependencyError):
+        release._CommitSource(repo, "HEAD").exists("contracts/manifest.yaml")
+
+
+def test_an_unreadable_manifest_is_not_reported_as_a_release_without_one(
+    tmp_path: Path,
+) -> None:
+    """`exists` at :611 decides whether `contracts/manifest.yaml` is present.
+
+    A safety refusal read as absence there makes `resolve_committed_inventory`
+    answer `None` — "this commit records no release inventory" — which is a
+    verdict about the release manufactured from a fact about the object it
+    could not read.
+    """
+
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    manifest = repo / "contracts/manifest.yaml"
+    manifest.unlink()
+    manifest.mkdir()
+    (manifest / "keep.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    hazarded = _commit_all(repo, "the manifest path stops being a regular file")
+
+    with pytest.raises(release.ReleaseDependencyError) as caught:
+        release.resolve_committed_inventory(repo, hazarded)
+    assert "Git path is not a supported regular file" in str(caught.value)
+    # And the ordinary commit is untouched.
+    assert release.resolve_committed_inventory(repo, commit) is not None
+
+
+# 3.3 — THE QUIET DIRECTION.  Both sides fail; two identical non-answers
+# compare equal; today the surface reports undrifted having been read on
+# neither side.  The verification must refuse, and it must not trade the
+# silence for a drift finding either.
+
+
+def test_a_comparison_that_resolved_neither_side_refuses_rather_than_passing(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(
+        tmp_path, "repo", tag, hazard=_hazard_directory
+    )
+    _published(repo, tmp_path)
+
+    # Both operands are the same commit, which is the ordinary shape of a
+    # promotion check for a candidate already on `main` — so BOTH reads of the
+    # surface path take the same safety refusal.
+    with pytest.raises(release.ReleaseDependencyError) as caught:
+        release._surface_drift(repo, commit, commit)
+    message = str(caught.value)
+    assert "Git path is not a supported regular file" in message, message
+    assert SURFACE_NON_MEMBER in message, message
+    # The failure has two wrong answers and only one of them is loud: the
+    # refusal must not be a drift finding either.
+    assert "HGR-RELEASE-SURFACE-DRIFT" not in message
+
+    with pytest.raises(release.ReleaseDependencyError):
+        release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+
+
+def test_the_quiet_direction_driven_by_argument_refuses_on_both_sides(
+    tmp_path: Path,
+) -> None:
+    """The same failure at the expression `_surface_drift` evaluates.
+
+    Driven by ARGUMENT rather than by a store timeout (Q4): an absent
+    repository reaches the same branch instantly and deterministically.
+    """
+
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _published(repo, tmp_path)
+    main_oid = _git(repo, "rev-parse", "HEAD")
+    absent_repository = tmp_path / "neither-side-can-be-read"
+    assert not absent_repository.exists()
+    assert origin.is_dir()
+
+    for operand in (commit, main_oid):
+        with pytest.raises(release.ReleaseDependencyError):
+            release._blob_object_id(
+                absent_repository, operand, "contracts/manifest.yaml"
+            )
+
+
+# 3.4 — a safety refusal stays a refusal and is not demoted to absence, and it
+# is not softened because the other commit reads cleanly.
+
+
+@pytest.mark.parametrize("hazard_name", ["directory", "gitlink"])
+def test_an_unsafe_release_surface_object_is_refused_not_read_as_absence(
+    tmp_path: Path, hazard_name: str
+) -> None:
+    tag = "contract-v2.0"
+    repo, candidate = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    # The candidate reads cleanly; the published side does not.
+    assert release._blob_object_id(repo, candidate, SURFACE_NON_MEMBER) is not None
+    if hazard_name == "directory":
+        _hazard_directory(repo)
+        _commit_all(repo, "the release surface path becomes a directory")
+        observed = "Git path is not a supported regular file"
+    else:
+        _hazard_gitlink(repo, tmp_path)
+        _git(repo, "commit", "--quiet", "-m", "the release surface path becomes a link")
+        observed = "Git path is not a supported regular file"
+    _published(repo, tmp_path)
+
+    with pytest.raises(release.ReleaseDependencyError) as caught:
+        release.verify_promotion(repo, commit=candidate, remote="origin", tag=tag)
+    assert observed in str(caught.value)
+
+
+# 3.7 — the distinction is read off the resolver's DECLARED code, at source
+# level, never off its prose.  A structural assertion because no behavioural
+# test can see the difference on the day the message is edited.
+
+
+def test_the_distinction_is_carried_by_the_declared_code_not_by_the_message() -> None:
+    source = (ROOT / "scripts/hermes_runtime_validation/release.py").read_text(
+        encoding="utf-8"
+    )
+    assert "CONTENT_PATH_ABSENT" in source
+    assert "exact Git path is unavailable" not in source

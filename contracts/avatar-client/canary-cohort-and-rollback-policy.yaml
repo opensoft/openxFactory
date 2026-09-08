@@ -1,0 +1,559 @@
+schema_version: 1
+kind: avatar-client-canary-cohort-and-rollback-policy
+
+# ============================================================================
+# canary-cohort-and-rollback-policy.yaml
+# qualify-avatar-live-voice tasks 6.3.1 (cohort) and 6.3.2 (revoke-vs-block).
+#
+# THIS IS "THE RECORDED POLICY". The contract kernel has referred to it since
+# `define-avatar-client-contract-kernel`: `avatar-client-runtime`
+# "Deterministic-first release gating and kill switches" says two server kill
+# switches exist, "each with optional revocation of active leases", and that
+# rollback "SHALL stop new sessions on the withdrawn profile, revoke affected
+# active leases WHEN SAFETY REQUIRES IT, and preserve only policy-required
+# records" — and its scenario "Emergency kill switch is activated" says the
+# control API MUST "revoke affected active leases ACCORDING TO THE RECORDED
+# POLICY". The kernel named this document and then left it unwritten. Fork 5
+# recorded that plainly as a named gap: "The 'recorded policy' that decides
+# which criteria require active-lease revocation versus block-new is not
+# written anywhere." Task 6.3.2 exists to write it. Until this file landed,
+# "optional revocation" had no rule selecting the option, which meant the
+# safest-looking reading (revoke everything) and the cheapest-looking reading
+# (revoke nothing) were equally defensible — and neither is correct.
+#
+# RATIFIED SHAPE. Brett Heap ruled Fork 5 on 2026-08-26 as OPTION B —
+# vendor-org plus one internally-staffed domain sandbox, with a hybrid
+# auto/operator rollback governed by this written policy. Option B was chosen
+# OVER the simpler Option A precisely for its rehearsal value: Option A never
+# exercises active-lease revocation outside the consent and control terminals,
+# so it would arrive at the pilot gate with the revocation policy still
+# untested, and the pilot ring requires rollback rehearsal. The auto-detection
+# wiring this policy presupposes is task 6.3.3 and is NOT built by this file.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+candidate_profile: gpt-realtime-2.1
+requirement_id: ALV-008
+requirement: Canary cohort and the recorded revoke-versus-block rollback policy
+ruled: >-
+  2026-08-26 by Brett Heap — Fork 5, Option B (vendor-org plus one internal
+  domain sandbox; hybrid auto/operator rollback under a written policy).
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/fork-decision-memo.md
+  Fork 5, Option B and its RECOMMENDATION section.
+satisfies_kernel_reference:
+  capability: avatar-client-runtime
+  requirement: Deterministic-first release gating and kill switches
+  phrase: "revoke affected active leases according to the recorded policy"
+
+# ---------------------------------------------------------------------------
+# 6.3.1 — THE COHORT
+# ---------------------------------------------------------------------------
+cohort:
+  owning_task: qualify-avatar-live-voice 6.3.1
+  acceptance_map_refs: [ALV-008, ALV-008-S05]
+  members:
+    - id: COHORT-01
+      member: vendor_organization_internal_accounts
+      statement: >-
+        The vendor organization's own internal accounts — internal staff of the
+        organization operating the factory.
+    - id: COHORT-02
+      member: internally_staffed_domain_sandbox
+      statement: >-
+        EXACTLY ONE internally-staffed domain sandbox — an internal test tenant
+        of a single DomainxFactory (a MedxFactory or LedgerxFactory internal
+        sandbox, for example), staffed by internal people.
+      cardinality: exactly_one
+      note: >-
+        "Exactly one" is the ruled boundary, not a starting point. A second
+        domain sandbox widens the ring and requires a new ruling; it is not an
+        operator's call during the canary.
+  audio_policy:
+    permitted: [synthetic, internally_consented]
+    forbidden: [real_external_customer_audio]
+    statement: >-
+      Synthetic or internally-consented audio ONLY. This is continuous with
+      Fork 4's synthetic-first ruling and with F0's synthetic-only precedent.
+  external_tenants:
+    admitted: false
+    statement: >-
+      NO real external tenant is admitted to this cohort. A proposal to admit
+      one MUST be refused and routed to the PILOT ring, which owns
+      data-handling review and real-tenant scale. Internal-live is
+      qualification; it is not the pilot.
+    acceptance_map_refs: [ALV-008-S05]
+  opt_in:
+    mechanism: server_side_capability_resolution
+    allowlist: internal_cohort_allowlist
+    per_session_record: avc_01_request_context
+    client_visible_toggle: false
+    statement: >-
+      Opt-in is SERVER-SIDE capability resolution gated to an allowlisted
+      internal cohort, with the per-session opt-in recorded in the AVC-01
+      request context. It is NOT a client-visible toggle.
+    rationale: >-
+      A client-visible toggle would move cohort membership to the client, where
+      it could neither be enforced nor audited. Resolving server-side keeps the
+      allowlist the single source of membership and leaves a per-session record
+      of who actually opted in.
+  tenant_definition_ref:
+    owning_task: qualify-avatar-live-voice 7.10
+    status: set
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.10, in session: TENANT = COHORT MEMBER,
+      exactly the cohort defined above. Nothing wider, nothing finer.
+    tenant_is: cohort_member
+    resolves_to: cohort.members
+    tenant_ids: [COHORT-01, COHORT-02]
+    tenant_count: 2
+    per_tenant_budget_subject: >-
+      §7.2's $40-per-calendar-month metered per-tenant budget applies ONCE PER
+      COHORT MEMBER. Two members means two budgeted subjects, and $80 of
+      metered per-tenant exposure against a $100 provider-project hard cap.
+    sizing_still_valid: true
+    note: >-
+      This ruling is what §7.2's per-tenant figure was sized against, so the
+      DENOMINATOR stands unchanged: §7.10 recorded that a "tenant" ruled as
+      anything OTHER than a cohort member would force a re-size against a new
+      denominator, and this ruling is the assumed denominator made explicit
+      rather than a new one. A per-session participant would have made the
+      per-tenant figure meaningless; a whole DomainxFactory would have
+      collapsed COHORT-02 into a unit larger than the sandbox actually
+      admitted to the ring. `tenant_count` is CHECKED against `cohort.members`
+      rather than trusted — a count that outlives the membership it summarises
+      is the drift this field exists to catch. AMENDED 2026-08-28: §7.2's two
+      dollar figures were re-ruled ($750 -> $100 project cap, $150 -> $40 per
+      tenant) and this ruling is untouched by it — the re-size was driven by
+      expected SPEND, not by a new denominator, so `sizing_still_valid` still
+      holds and the arithmetic simply restates as 2 x $40 = $80 under $100.
+
+# ---------------------------------------------------------------------------
+# 6.3.2 — THE REVOKE-VERSUS-BLOCK POLICY, in its ratified three-way split.
+#
+# The primitive being governed: TWO server kill switches (all-new-session
+# creation, and per-model-profile), EACH with OPTIONAL revocation of active
+# leases. This policy is the rule that selects the option. The split is
+# faithful to the kernel's own wording — active-lease revocation is mandated
+# "when safety requires it", which is a safety trigger and not a performance
+# one.
+# ---------------------------------------------------------------------------
+rollback_policy:
+  owning_task: qualify-avatar-live-voice 6.3.2
+  acceptance_map_refs: [ALV-008, ALV-008-S01, ALV-008-S02]
+  classes:
+
+    - id: ROLLBACK-A
+      class: hard_safety_or_integrity_breach
+      trigger_mode: automatic
+      action: abort
+      revoke_active_leases: true
+      block_new_sessions: true
+      statement: >-
+        A hard safety or integrity breach AUTO-ABORTS WITH REVOCATION OF ACTIVE
+        LEASES.
+      triggers:
+        - revocation_bound_violation
+        - failed_blocked_state_evaluation
+        - failed_exact_value_evaluation
+        - failed_consent_evaluation
+        - failed_handoff_evaluation
+        - redaction_finding
+        - secret_scan_finding
+        - media_authorization_ordering_violation
+      mechanism: >-
+        Reuses the landed consent-withdraw-mid-speech terminal path — media
+        revoked, capture stops, credential-free terminal, control channel
+        healthy. No new terminal is invented for this class.
+      # RULED 2026-08-27 (§7.8). Carried on the class as well as in
+      # `session_outcome_tokens` so the class a reader lands on states its own
+      # terminal; the two are machine-compared, so they cannot drift apart.
+      session_outcome: revoked
+      session_outcome_path: force_terminated_leg
+      rationale: >-
+        This is the case the kernel's "when safety requires it" names. A safety
+        breach that is allowed to drain keeps serving the unsafe condition for
+        the length of the drain.
+      detection_wiring_owner: qualify-avatar-live-voice 6.3.3
+
+    - id: ROLLBACK-B
+      class: latency_budget_or_elevated_error_or_quota
+      trigger_mode: automatic
+      action: block_new
+      revoke_active_leases: false
+      block_new_sessions: true
+      statement: >-
+        A latency-budget breach under the relative-regression SLO, or an
+        elevated error or quota condition, AUTO-BLOCKS-NEW WITHOUT revoking
+        active leases; in-flight legs DRAIN to their natural terminal.
+      triggers:
+        - material_regression_on_a_gated_percentile
+        - elevated_error_rate
+        - elevated_quota_condition
+      # RULED 2026-08-27 (§7.2 and §7.6). Two of these three triggers were
+      # trip-wires with no trip point: `elevated_error_rate` named no rate and
+      # `elevated_quota_condition` named no quota, so an auto-blocker that
+      # "auto-blocks" could not fire. The latency trigger already resolved
+      # through `slo_ref`.
+      trigger_thresholds:
+        material_regression_on_a_gated_percentile:
+          resolves_to: ALV-SLO-001
+          note: >-
+            Unchanged: the neutral relative-regression rule on a gated cell.
+            This trigger always had its number.
+        elevated_error_rate:
+          abnormal_rate_trailing_window_max_pct: 5
+          trailing_window_sessions: 50
+          same_number_as: canary_exit_criteria.tolerated_error_rate
+          note: >-
+            THE SAME NUMBER as the canary's trailing-window exit criterion, by
+            ruling. Two numbers here would let the canary pass its exit
+            criterion while its auto-blocker was tripping, or the reverse.
+        elevated_quota_condition:
+          per_session_duration_seconds_max: 900
+          per_session_billable_units_max: 300
+          billable_unit: one_us_cent_of_provider_attributed_spend
+          provider_project_monthly_cap_usd: 100
+          provider_project_cap_enforcement: hard_at_the_provider_project
+          uncountable_is: exhausted
+          note: >-
+            The per-session ceilings are enforced SYNCHRONOUSLY IN THE BROKER
+            and terminate through the kernel's existing duration/quota terminal
+            outcome — no new terminal is invented (task 6.1.3) — with a
+            cost-triggered kill carrying an auditable reason distinguishable
+            from an ordinary duration or quota terminal. `uncountable_is:
+            exhausted` follows the org's other real ceiling: a broker that
+            cannot determine its accumulated cost REFUSES the session rather
+            than proceeding blind. The provider-project cap is the ring's ONLY
+            per-tenant hard stop until the deferred durable counter lands
+            (task 6.1.5).
+      rationale: >-
+        Revoking an active lease on a latency regression would cut a person off
+        mid-conversation when blocking new sessions is sufficient, and it would
+        burn on a performance problem the exact mechanism that should be
+        reserved for genuine safety trips. The kernel mandates active-lease
+        revocation for safety, not for regression.
+      # RULED 2026-08-27 (§7.8), and it is the token the ABNORMAL-SESSION RATE
+      # reads: a drained leg is `abandoned`, unless it reached its natural
+      # terminal inside the drain, in which case it is an ordinary `completed`.
+      session_outcome: abandoned
+      session_outcome_path: drained_leg_after_block_new
+      slo_ref: ALV-SLO-001
+      detection_wiring_owner: qualify-avatar-live-voice 6.3.3
+
+    - id: ROLLBACK-C
+      class: quality_or_cost_judgment
+      trigger_mode: operator
+      action: operator_selected
+      revoke_active_leases: operator_selected
+      block_new_sessions: operator_selected
+      statement: >-
+        A quality or cost concern is OPERATOR-TRIGGERED. It is a judgment call
+        read off telemetry, and the operator selects the kill-switch scope and
+        whether active leases are revoked.
+      triggers:
+        - quality_concern
+        - cost_concern
+      # RULED 2026-08-27 (§7.8). The outcome follows the SCOPE the operator
+      # selects, in the same idiom this class already uses for `action` and
+      # `revoke_active_leases`: a revoke-active act emits `revoked` on the
+      # force-terminated path, a block-new act emits `abandoned` (or
+      # `completed`) on the drained path. There is no third token, and this
+      # class introduces none of its own.
+      session_outcome: operator_selected
+      session_outcome_paths: [force_terminated_leg, drained_leg_after_block_new]
+      rationale: >-
+        These are not mechanically decidable. Automating them would convert a
+        judgment into a trip wire on a threshold nobody has ratified.
+      # RULED 2026-08-27 (§7.2 + §7.4), RE-RULED 2026-08-28 on the dollar
+      # figure alone. The class stays a judgment call; what
+      # the ruling adds is the SIGNAL the operator reads before making it, and
+      # the reader that delivers it. The per-tenant budget is METERED ONLY —
+      # Fork 1 Option C defers the durable synchronous per-tenant counter
+      # (task 6.1.5), so nothing can hard-stop a single tenant, and recording
+      # it as hard would be false.
+      trigger_signals:
+        cost_concern:
+          per_tenant_monthly_budget_usd: 40
+          enforcement: metered_and_alerted_only
+          hard_stop_exists: false
+          alert_reader: gh_issue_on_the_doc_health_pattern
+          # RULED 2026-08-27 (§7.10): the SUBJECT this per-tenant number is
+          # metered against is one COHORT MEMBER — see
+          # `cohort.tenant_definition_ref`. Two members, so two budgeted
+          # subjects, which is the denominator §7.2 sized its per-tenant
+          # figure against. RE-RULED 2026-08-28: the figure is $40 (was $150),
+          # a dependent move of the project cap's re-sizing to $100 — a
+          # metered budget above the hard cap is meaningless.
+          budget_subject: cohort_member
+          # RULED 2026-08-27 (§7.7): the ROLE the §7.4 ruling recorded is now a
+          # PERSON. `rollback_policy.operator_surface.holder` is the single
+          # place that name is written down; naming it twice would let the
+          # alert's recipient drift away from the switch's holder, which is the
+          # exact coupling the two rulings exist to guarantee.
+          alert_recipient_ref: rollback_policy.operator_surface.holder
+          note: >-
+            The alert reader is NOT decoration. The org has already been bitten
+            by a budget number nothing consumes — a council reviewer flagged an
+            empty `budget_envelopes` map with "no reader, no
+            `spend_over_envelope` consumer, and no FAO seated". A metered-only
+            threshold with no alert wired to it is that same artifact, so §7.4
+            gives this number its reader: one issue per metering run, on the
+            doc-health supersede-and-close pattern, mentioning the named human
+            who also holds the §7.7 kill switch. That human is named as of
+            §7.7's ruling, so the recipient is a PERSON and no longer a role.
+            See tasks.md §7.4, §7.7 and §7.10.
+
+  operator_surface:
+    owning_task: qualify-avatar-live-voice 7.7
+    status: named
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.7, in session. The holder is a PERSON, the
+      mechanism is a DOCUMENTED RUNBOOK ACT on the serving install, and the
+      rota is deferred to `avatar-pilot-hardening`.
+    holder: Brett Heap
+    holder_kind: named_person
+    holds: both_switches
+    mechanism: documented_runbook_act_on_the_serving_install
+    mechanism_ref: docs/sops/avatar-internal-live-kill-switch.md
+    web_console_used: false
+    rota_deferred_to: avatar-pilot-hardening
+    switches:
+      - id: SWITCH-ALL-NEW
+        scope: all_new_session_creation
+        modes: [block_new, revoke_active]
+      - id: SWITCH-PROFILE
+        scope: per_model_profile
+        profile: gpt-realtime-2.1
+        modes: [block_new, revoke_active]
+    also_the_alert_page_target: true
+    statement: >-
+      The operator surface that fires the kill switches is NAMED, as this
+      policy required before the canary opens. It is not a web console — the
+      console is an explicit kernel non-goal, so nothing was inherited and
+      nothing is invented: the surface IS the runbook at `mechanism_ref`,
+      which carries the two switch scopes, the block-new and revoke-active
+      modes of each, the procedure's contract-level shape, and the honest
+      statement of what stays install-side until task 6.1.2 provisions the
+      serving install.
+    closes_alert_recipient_gap: >-
+      The named holder is ALSO §7.4's page target, by ruling. An alert with no
+      named recipient and a kill switch with no named holder were one gap seen
+      twice; §7.4 recorded its page target as a ROLE precisely because §7.7 was
+      open, and this ruling supplies the person both ends were waiting for —
+      the human who learns about the spend is the human who can stop it.
+    rota_note: >-
+      ONE named human, deliberately, and only for this ring. The cohort is
+      internal staff plus one internally-staffed domain sandbox, so single-
+      holder coverage is proportionate here and is NOT proportionate at the
+      pilot, which admits real tenants. The rota question is deferred to
+      `avatar-pilot-hardening` rather than answered thinly now.
+
+  session_outcome_tokens:
+    owning_task: qualify-avatar-live-voice 7.8
+    status: bound
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.8, in session. Every rollback path's
+      session outcome is drawn from the EXISTING closed registry; no new
+      outcome token is introduced.
+    registry_ref: registries/session-outcomes.registry.yaml
+    new_outcome_token_introduced: false
+    bound:
+      - path: consent_or_lease_revocation
+        outcome: revoked
+        note: >-
+          Fixture-bound before this ruling and UNCHANGED by it. It is the
+          terminal path the other two rulings are measured against.
+      - path: drained_leg_after_block_new
+        rollback_class: ROLLBACK-B
+        outcome: abandoned
+        also_permitted: [completed]
+        also_permitted_when: >-
+          The leg reached its own natural terminal before the drain ran out —
+          then it is a `completed` session that happened to be in flight when
+          new work was blocked, and recording it as `abandoned` would be false.
+        note: >-
+          `abandoned` is the honest token for the ordinary case: ROLLBACK-B
+          blocks NEW sessions and lets in-flight legs drain, so a leg that is
+          still draining when the drain window closes was given up, not
+          completed and not revoked. `revoked` is refused for this path outright
+          — nothing was revoked, and reusing the revocation token here would
+          make the revocation evidence unreadable by hiding real revocations
+          among performance rollbacks.
+      - path: force_terminated_leg
+        rollback_class: ROLLBACK-A
+        outcome: revoked
+        reuses_path: consent_or_lease_revocation
+        reuse_is_exact: true
+        note: >-
+          The SAME token and the SAME terminal path as consent withdrawal,
+          exactly — media revoked, capture stopped, credential-free terminal,
+          control channel healthy. ROLLBACK-A's own `mechanism` already says it
+          reuses that landed path rather than inventing a terminal, so emitting
+          a different token from the same path would contradict the class
+          directly above. `abandoned` is refused for this path: a leg that was
+          force-terminated under a safety trip was not given up, it was cut,
+          and the two are distinguishable facts worth keeping distinguishable.
+    unbound: []
+    statement: >-
+      The session outcome each rollback path emits IS DECLARED IN ADVANCE, as
+      this block required, and every declared token is a member of the closed
+      `session-outcomes` registry. The declaration is what makes the canary's
+      abnormal-session rate readable: `tolerated_error_rate` counts terminals,
+      so a path whose token was inferred after the fact would let the same
+      event be counted differently by two readers.
+
+# ---------------------------------------------------------------------------
+# THE ROLLBACK TARGET. Constrained by task 6.3.4 even though 6.3.4's
+# implementation is later: the constraint binds this copy NOW, because a
+# policy document that implied a model fallback would be wrong the moment it
+# was read, not the moment the code was written.
+# ---------------------------------------------------------------------------
+rollback_target:
+  target: disable_voice_to_text_or_human_handoff
+  model_fallback_exists: false
+  statement: >-
+    Rollback DISABLES VOICE and offers TEXT or HUMAN HANDOFF. Because
+    `gpt-realtime-2.1` is the FIRST qualified live profile, NO model fallback
+    exists, and none may be implied in copy or in code.
+  binding_note: >-
+    This constraint is task 6.3.4's and it binds this document's wording as
+    well as the later implementation. No sentence in this policy may be
+    written so that a reader could infer a graceful hot-swap to another model:
+    there is no other qualified profile to swap to.
+  acceptance_map_refs: [ALV-008-S03]
+  constrained_by_task: qualify-avatar-live-voice 6.3.4
+
+# ---------------------------------------------------------------------------
+# WHAT AN ABORT ENDS — and what it must not end.
+# ---------------------------------------------------------------------------
+abort_scope:
+  ends: media_plane_only
+  survives:
+    - authority_owned_workflow_projection
+    - policy_required_structured_records
+  statement: >-
+    An abort ENDS THE MEDIA PLANE ONLY. The workflow projection is
+    authority-owned and orthogonal to the media leg, so revoking a leg ends
+    media and never the logical session's governed record; policy-required
+    structured records are retained on every terminal.
+  acceptance_map_refs: [ALV-008-S04]
+  proof_owner: qualify-avatar-live-voice 6.3.5
+
+# ---------------------------------------------------------------------------
+# Canary exit criteria — RULED 2026-08-27, BEFORE any canary traffic.
+#
+# This block used to read `status: unset`, with the statement that the three
+# values were "recorded as open so that a canary cannot be declared successful
+# against criteria invented after the fact". The ordering that statement
+# demanded is the evidence: the values below were ruled while the canary was
+# still unopened and every session count was zero.
+# ---------------------------------------------------------------------------
+canary_exit_criteria:
+  owning_task: qualify-avatar-live-voice 7.6
+  status: ruled
+  ruled: >-
+    2026-08-27 by Brett Heap — §7.6, adopting the recommendation in
+    supporting-docs/section-7-authoring-inputs-memo.md §7.6, including the two
+    criteria that memo adds beyond the three §7.6 names.
+  re_ruled: >-
+    2026-08-28 by Brett Heap — §7.6, THE SESSION COUNT ONLY: 200 completed
+    sessions becomes 100, and the COHORT-02 sub-floor 50 becomes 25. Nothing
+    else in this block moves. It is a DEPENDENT consequence of the same day's
+    §7.2 re-ruling ($750 -> $100 provider-project cap): 200 sessions at the
+    §7.2 expected per-session cost is ~$110, which would hit the new cap
+    BEFORE the canary could exit, so the count and the cap would have been
+    ruled to fight each other.
+  source: >-
+    openspec/changes/qualify-avatar-live-voice/supporting-docs/section-7-authoring-inputs-memo.md
+    §7.6.
+
+  soak_duration:
+    consecutive_calendar_days: 14
+    sessions_on_distinct_days_min: 10
+    rationale: >-
+      Fourteen days covers two full business weeks — the cohort is internal
+      staff, so usage is weekday-shaped — and spans a typical provider deploy
+      cadence, so a provider-side change has a real chance of surfacing INSIDE
+      the ring rather than after it. F0's own campaign ran in three separate
+      rounds and the later rounds surfaced behavior the first did not, so a
+      single-block soak would repeat F0's single-configuration weakness. The
+      ten-distinct-day floor stops the whole session count being run in two
+      frantic afternoons, which would satisfy the count while defeating the
+      soak.
+
+  minimum_session_count:
+    completed_sessions: 100
+    sub_floors:
+      cohort_02_domain_sandbox_min: 25
+      per_evaluation_scenario_class_min: 3
+      evaluation_scenario_classes: 15
+    rationale: >-
+      Bounded BELOW by measurability and ABOVE by the §7.2 provider-project
+      cap, and the two now meet. The §6.2.1 coverage floor alone is 15
+      scenario classes x 3 = 45, and a "2 percent" criterion is unmeasurable
+      at small n: at n=50 a single failure is already 2 percent, so the
+      criterion cannot distinguish a good ring from a marginal one. At n=100,
+      2 percent is 2 sessions and 5 percent is 5 — still countable thresholds
+      the criterion can be evaluated against, with ~2.2x headroom over the
+      coverage floor. RE-RULED 2026-08-28 from 200 to 100: 200 sessions at the
+      §7.2 expected per-session cost is ~$110, which would exceed the
+      re-ruled $100 provider-project cap before the canary could exit, so the
+      count follows the cap rather than fighting it. The COHORT-02 floor
+      exists because the cohort has exactly two members and the domain sandbox
+      is the only one that exercises DomainxFactory interpretation: without a
+      floor, 99 vendor-org sessions and 1 sandbox session would technically
+      satisfy "100". It keeps its one-quarter share of the count.
+
+  tolerated_error_rate:
+    abnormal_rate_overall_max_pct: 2
+    abnormal_rate_trailing_window_max_pct: 5
+    trailing_window_sessions: 50
+    trailing_window_is_rollback_b_trip: true
+    abnormal_definition: >-
+      A session is ABNORMAL when it fails to reach
+      `first_playable_after_authorized`, OR terminates to a non-clean terminal
+      that is not a deliberate test action. Consent-withdrawal drills, injected
+      rollback rehearsals and operator-fired ROLLBACK-C are EXCLUDED and
+      counted separately — without this sentence the rate is unfalsifiable,
+      because the ring deliberately produces abnormal-looking terminals.
+    rationale: >-
+      Anchored to observed provider behavior: across ~183 F0 calls no
+      provider-side failure class was recorded, and the one failed smoke was a
+      CLIENT HARNESS defect. So 2 percent is generous against observed provider
+      reliability while leaving headroom for harness flakiness, and 5 percent
+      over a trailing window is an unambiguous degradation worth auto-blocking
+      new sessions on.
+    binds_rollback_b: >-
+      This IS ROLLBACK-B's `elevated_error_rate` threshold, not a second
+      number beside it. Ruling them apart would let the canary pass its exit
+      criterion while its auto-blocker was tripping, or the reverse.
+
+  # Two criteria beyond the three §7.6 names. Without them the ring's own
+  # stated rationale goes undelivered: RING-04 proves the SWITCH works before
+  # any canary traffic, and nothing otherwise proves the DETECTION works.
+  additional_criteria:
+    - id: EXIT-ROLLBACK-B-REHEARSED
+      criterion: >-
+        At least ONE live ROLLBACK-B auto-trip proven end to end through the
+        §6.3.3 detection wiring — injected if it does not occur naturally —
+        with in-flight legs observed DRAINING and `revoke_active_leases: false`
+        honoured.
+      rationale: >-
+        Option B was chosen over Option A precisely for its rehearsal value
+        (see this file's header). An untripped detector is an unrehearsed
+        detector, and RING-04's pre-canary kill-switch proof does not reach it:
+        RING-04 exercises the switch, not the thing that decides to pull it.
+      depends_on_task: qualify-avatar-live-voice 6.3.3
+    - id: EXIT-ROLLBACK-A-CLEAR
+      criterion: Zero unresolved ROLLBACK-A trips at exit.
+      rationale: >-
+        A safety or integrity breach still open at exit would promote a
+        known-unsafe profile toward the pilot ring.
+
+  cost_check: >-
+    100 sessions at the §7.2 expected per-session cost (~$0.55) is ~$55,
+    inside the ruled $100 provider-project cap, so the exit criteria and the
+    spend ceilings do not fight each other. This check is what moved the count
+    on 2026-08-28: at 200 sessions it no longer held. See tasks.md §7.2.

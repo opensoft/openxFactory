@@ -1,0 +1,35 @@
+{
+  "change_id": "qualify-avatar-live-voice",
+  "files": [
+    {
+      "path": "fork-decision-memo.md",
+      "sha256": "000454a77c230bd2b7c9f0d29b894505c6859e85bd59248217c2f26aa5c7627d",
+      "source_path": "ideation/staging/qualify-avatar-live-voice/fork-decision-memo.md",
+      "source_sha256": "a012ede3cbd9dacf4f8ff0de2f1e548be71203a1b52c706071668eb5d0b3cf1b",
+      "source_snapshot_path": "source-snapshots/fork-decision-memo.md"
+    },
+    {
+      "path": "qualify-avatar-live-voice.md",
+      "sha256": "ce3bc03b0d20610e8803c7f01dbf53d4be482228c200573edd8993b48703d5e3",
+      "source_path": "ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md",
+      "source_sha256": "672831bd26adcb6bcdb4cd9e4699f51d685025b017eec1349c9522b7e098c438",
+      "source_snapshot_path": "source-snapshots/qualify-avatar-live-voice.md"
+    },
+    {
+      "note": "Session-authored decision aid for tasks.md 7.1-7.6, added 2026-08-27 by pin-avatar-authoring-inputs. It has NO staging source and therefore no source_path / source_sha256 / source_snapshot_path: it was never a staged fragment, so there is no prior revision for a snapshot to preserve. The checksum above is the whole of its integrity claim.",
+      "path": "section-7-authoring-inputs-memo.md",
+      "sha256": "dab95b53cff93861987930e2cbdea7969cae60dfa9a7d01629ba77c3440b0f5a"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:qualify-avatar-live-voice",
+    "kind": "staged",
+    "path": "ideation/staging/qualify-avatar-live-voice"
+  },
+  "origin_path": "ideation/staging/qualify-avatar-live-voice",
+  "remaining_paths": [],
+  "source_revision": "3f4073390beed6ce80d76f5f84d115fc3923cb15",
+  "transitioned_at": "2026-08-26"
+}

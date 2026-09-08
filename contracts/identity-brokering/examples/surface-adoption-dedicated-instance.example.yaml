@@ -1,0 +1,33 @@
+# VALID surface adoption on a DEDICATED instance, because a population must not
+# co-reside. The co-residence gate of 2026-08-21 found exactly one such
+# population — HealthLinc's clinical patients — and pre-declared it the first
+# dedicated-instance client, so the contract's silence on instance count is
+# exercised at go-live rather than theoretically.
+#
+# The escalation is the whole point: isolation is met by a DEDICATED INSTANCE
+# with its own deployment, datastore and administrative plane, never by
+# partitioning personas inside a shared one. Partitioning pays the full
+# persona-fragmentation cost while buying weaker isolation, because the
+# administrative plane, the datastore and the blast radius stay shared.
+#
+# The restriction names the commitment consulted. An unrecorded restriction is
+# indistinguishable from an unasked question.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-healthlinc-patient-portal-0003
+surface_ref: healthlinc-patient-portal
+surface_display_name: HealthLinc patient portal (Argentina)
+broker_instance:
+  instance_id: broker-healthlinc-ar
+  deployment: dedicated
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: population_restricted
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md"
+  restricted_population: HealthLinc clinical patients (healthlinc-argentina)
+  satisfied_by: dedicated_broker_instance
+declared_at: "2026-08-21T16:20:00Z"

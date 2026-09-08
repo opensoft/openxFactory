@@ -9,6 +9,13 @@
 // and citation first (the register kernel's uncited-rejection rule — the
 // engine refuses without them, and that refusal renders in the panel).
 //
+// TWO TRANSPORTS, ONE TRAY (add-ideation-intent-plane task 4.4, design D5:
+// "the identical tray then targets the intent API when hosted"). `opts.intent`
+// selects the HOSTED transport: the click emits a `gate-intent` to the inbox
+// instead of executing, and the tray shows the feed's chips for this target
+// beside the buttons. Absent `opts.intent` NOTHING about the local path
+// changes — same route, same body, same panel entries, same overlay.
+//
 // DOM-safety: every dynamic value is bound via textContent — refusal
 // messages from the engine included — never innerHTML (the house posture).
 // Two-plane rendering: a successful disposition NEVER mutates the
@@ -16,6 +23,7 @@
 // consults, and the tile shows the verdict with a regenerate hint.
 
 import { el } from "./helpers.js";
+import { emitIntent, renderIntentChips } from "./intent-feed.js";
 
 export const GATE_DISPOSE_ROUTE = "/actions/gate/dispose-possible";
 export const GATE_PROPOSE_ROUTE = "/actions/gate/propose";
@@ -62,11 +70,47 @@ function ensurePanel() {
   return panel;
 }
 
+// The panel's vocabulary. "ok"/"refused" are the LOCAL executing plane's two
+// outcomes and are unchanged; the other three are the hosted plane's, because a
+// submitted intent is neither applied nor refused yet and calling it either
+// would be a lie the human acts on (design D1: the click is the decision, the
+// apply is the custody step behind it).
+//
+// THE HOSTED PLANE HAS FOUR OUTCOMES, NOT TWO, and the panel must be able to
+// SAY each of them. `emitIntent` normalizes the inbox's responses to
+// pending | refused | stalled | error, and the last two are not refusals:
+//   * "stalled" (HTTP 502) - the intent WAS recorded and the apply run could
+//     not be started. Labelling it "refused" tells the human their decision was
+//     rejected when in fact it is on file and undecided, so they re-submit a
+//     decision that is already queued.
+//   * "error" (401 / 429 / 400, or an unreachable inbox) - NOTHING was
+//     recorded. Labelling that "refused" is the opposite lie: it reads as a
+//     server verdict on the decision when the decision never arrived, so the
+//     human does NOT re-submit the thing that never got sent.
+const PANEL_KIND = {
+  ok: { label: "applied", cls: "is-ok" },
+  queued: { label: "queued", cls: "is-queued" },
+  stalled: { label: "stalled", cls: "is-stalled" },
+  error: { label: "not sent", cls: "is-error" },
+  refused: { label: "refused", cls: "is-refused" },
+};
+
+// `emitIntent`/`readEmission` state -> the panel's word for it. Unknown states
+// fall back to "refused", the conservative reading (something went wrong and
+// the human must look), which is also what the whole map used to collapse to.
+export const EMISSION_PANEL_KIND = {
+  pending: "queued",
+  refused: "refused",
+  stalled: "stalled",
+  error: "error",
+};
+
 export function panelEntry(kind, message) {
   const host = ensurePanel();
   const list = host.querySelector(".refusalpanel-list");
-  const item = el("li", "refusalpanel-item " + (kind === "ok" ? "is-ok" : "is-refused"));
-  item.appendChild(el("span", "refusalpanel-kind", kind === "ok" ? "applied" : "refused"));
+  const shape = PANEL_KIND[kind] || PANEL_KIND.refused;
+  const item = el("li", "refusalpanel-item " + shape.cls);
+  item.appendChild(el("span", "refusalpanel-kind", shape.label));
   item.appendChild(el("span", "refusalpanel-msg", message));
   list.insertBefore(item, list.firstChild);
   host.hidden = false;
@@ -104,13 +148,24 @@ function collectRejection() {
 // Mount the tray for one pending possible into `container`. `opts.fetcher`
 // and `opts.collect` are test seams; `opts.onApplied(outcome)` lets the view
 // refresh its overlay.
+//
+// `opts.intent` present => THE HOSTED TRANSPORT (task 4.4). It carries
+// `{ snapshotRev, rows, error, emit? }`: the revision the human is looking at
+// (design D4's `snapshot_rev_seen`), the merged feed rows and error this
+// render saw, and an optional emitter seam. The verdict buttons then submit a
+// request instead of performing an act, and the chips for this target render
+// beside them from the rows handed in — the tray subscribes to nothing and
+// owns no timer, so a rail redraw can never leak one.
 export function mountDisposeTray(container, possible, opts) {
   const o = opts || {};
+  const intent = o.intent || null;
   const tray = el("span", "disposetray");
   for (const v of VERDICTS) {
     const btn = el("button", "disposebtn dispose-" + v.outcome, v.label);
     btn.type = "button";
-    btn.title = v.title;
+    btn.title = intent
+      ? v.title + " (hosted: this submits an intent the apply lane decides)"
+      : v.title;
     btn.addEventListener("click", async (ev) => {
       ev.stopPropagation();
       const body = { possible_id: possible.id, outcome: v.outcome };
@@ -121,6 +176,25 @@ export function mountDisposeTray(container, possible, opts) {
         body.citation = extra.citation;
       }
       tray.classList.add("is-busy");
+      if (intent) {
+        // The kernel forbids a target key inside `args` (the validated target
+        // is the only target — intent_apply_lane.shape_error), so the verb's
+        // arguments travel WITHOUT `possible_id`.
+        const { possible_id: _target, ...args } = body;
+        const result = await (intent.emit || emitIntent)({
+          verb: "dispose-possible",
+          targetId: possible.id,
+          args,
+          snapshotRev: intent.snapshotRev,
+          fetcher: o.fetcher,
+        });
+        tray.classList.remove("is-busy");
+        panelEntry(EMISSION_PANEL_KIND[result.state] || "refused",
+          possible.id + " → dispose-possible " + v.outcome + ": " +
+          result.message);
+        if (o.onEmitted) o.onEmitted(result);
+        return;
+      }
       const result = await post(GATE_DISPOSE_ROUTE, body, o.fetcher);
       tray.classList.remove("is-busy");
       if (result && result.ok) {
@@ -135,6 +209,10 @@ export function mountDisposeTray(container, possible, opts) {
     tray.appendChild(btn);
   }
   container.appendChild(tray);
+  if (intent) {
+    container.appendChild(renderIntentChips(el("span", "intentchips"),
+      possible.id, intent.rows, intent.error));
+  }
   return tray;
 }
 

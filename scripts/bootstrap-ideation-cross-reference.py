@@ -63,6 +63,17 @@ except ImportError:  # pragma: no cover
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+# `doc_health` is a sibling package of this script (both live directly under
+# `scripts/`), so Python's own `sys.path[0]` insertion — the invoked script's
+# containing directory — already makes it importable with no extra path
+# manipulation, whether this runs as `python3 scripts/bootstrap-ideation-
+# cross-reference.py` from any cwd. Verified before relying on it (finding F5,
+# align-status-reader-to-real-lines): unlike a script that genuinely cannot
+# reach `doc_health` (which would keep a local copy joined to the shared rule
+# by an agreement test instead), this one converts.
+from doc_health.lines import split_keepends
+from doc_health import pin_sentinels
+
 ROOT = Path(__file__).resolve().parents[1]
 RENDERER = ROOT / "scripts" / "render-ideation-cross-reference.py"
 GENERATOR_VERSION = "ideation-xref-bootstrap-0.1.0"
@@ -83,20 +94,30 @@ SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 def parse_header(text: str) -> dict[str, str]:
     """Parse the contiguous header field block (H1 + blank skipped) up to the
-    first `## ` body section, joining continuation lines onto their field."""
+    first `## ` body section, joining continuation lines onto their field —
+    identical to `doc_health.ideation_readiness._parse_header`, and pinned to
+    agree with it (`tests/doc-health/test_ideation_readiness.py`).
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not `str.splitlines()`
+    pseudo-lines (finding F5, align-status-reader-to-real-lines): this was
+    the ONE-TIME bootstrap already run once (2026-07-14) to seed the corpus,
+    but a rule that disagrees with its own twin is still worth correcting —
+    if it is ever re-run, its clustering must not silently diverge from what
+    the readiness worker would derive from the same documents now.
+    """
     fields: dict[str, str] = {}
     current: str | None = None
-    for line in text.splitlines():
-        if line.startswith("## "):
+    for body, _ending in split_keepends(text):
+        if body.startswith("## "):
             break
-        if line.startswith("# ") or not line.strip():
+        if body.startswith("# ") or not body.strip():
             continue
-        m = FIELD_RE.match(line)
+        m = FIELD_RE.match(body)
         if m:
             current = m.group(1).strip()
             fields[current] = m.group(2).strip()
         elif current is not None:
-            fields[current] = (fields[current] + " " + line.strip()).strip()
+            fields[current] = (fields[current] + " " + body.strip()).strip()
     return fields
 
 
@@ -121,16 +142,52 @@ def slug(token: str) -> str:
     return SLUG_RE.sub("-", token.lower()).strip("-")
 
 
+# THE CORPUS THIS INDEX IS DERIVED FROM, as git pathspecs, spelled to match
+# `collect()` below EXACTLY. `:(glob)` magic is load-bearing: without it git's
+# default pathspec `*` crosses `/`, so a dirty file under
+# `ideation/brainstorm/inbox/` — which `collect()` does NOT read — would be
+# reported and the pin would be thrown away for content that never entered the
+# derivation. A sentinel is never a licence to skip a pin that was available.
+CORPUS_PATHSPECS = (":(glob)ideation/brainstorm/*.md",
+                    ":(glob)ideation/staging/*/*.md")
+
+
 def git_generation(repo: Path) -> dict[str, str]:
-    def _git(args: list[str]) -> str:
+    """`generation` for the index: the corpus revision, its date, the generator.
+
+    `source_revision` CLAIMS THE CORPUS, NOT THE CHECKOUT, which is what decides
+    both halves of this function. `generator_version` beside it already claims
+    the generator, so a dirty script is that key's problem and not this one; what
+    would make `source_revision` UNTRUE is content read from a working tree no
+    commit holds.
+
+    SO THE CLEANLINESS CHECK IS SCOPED TO THE CORPUS AND MEASURED WITH `status
+    --porcelain` (`declare-sentinel-pin-vocabulary` § 2.6). Scoped, because a
+    whole-tree check would emit a sentinel while the corpus was perfectly
+    committed and some unrelated file was open in an editor — discarding a true
+    pin. `status --porcelain` rather than `diff --quiet`, because `diff` cannot
+    see an UNTRACKED file, and a brand-new brainstorm document is read by
+    `collect()`, changes the index, and is held by no commit — the dirty
+    condition in its purest form. Deletions and additions inside the two globs
+    are caught for the same reason.
+
+    ON A CLEAN CORPUS THE BEHAVIOUR IS BYTE-IDENTICAL TO BEFORE: the same
+    `rev-parse HEAD`, written to the same key. Only the dirty branch is new, and
+    what it writes is the DECLARED spelling for the condition rather than a
+    string of this generator's own invention — imported from
+    `doc_health.pin_sentinels` so that a consumer guarding on the vocabulary and
+    this writer can never drift apart."""
+    def _git(args: list[str], check: bool = True) -> str:
         return subprocess.run(
             ["git", "-C", str(repo), *args],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, check=check,
             env={"TZ": "UTC", "PATH": __import__("os").environ.get("PATH", "")},
         ).stdout.strip()
 
-    rev = _git(["rev-parse", "HEAD"])
     at = _git(["show", "-s", "--format=%cd", "--date=format-local:%Y-%m-%dT%H:%M:%SZ", "HEAD"])
+    dirty = _git(["status", "--porcelain", "--", *CORPUS_PATHSPECS])
+    rev = (pin_sentinels.UNCOMMITTED_WORKTREE if dirty
+           else _git(["rev-parse", "HEAD"]))
     return {"source_revision": rev, "generated_at": at, "generator_version": GENERATOR_VERSION}
 
 

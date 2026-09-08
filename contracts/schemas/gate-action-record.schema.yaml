@@ -38,7 +38,11 @@ description: >-
   extended the same per-action shape to `dispose-possible`
   (`register-update`), `propose` (`workflow-job`), `create-document`
   (`document`), and — `add-workbench-branch-sessions` — `edit-document`
-  (`commit`) and `open-pr` (`pull-request`); `abandon-session` is constrained
+  (`commit`) and `open-pr` (`pull-request`); `share-session`
+  (`add-doxbench-editing-phase-b` §12) is constrained on `target.ref` alone,
+  with no artifact-kind requirement, because it is the one action whose record
+  RESIDENCY depends on whether it had anything to commit — the conditional
+  below states both halves; `abandon-session` is constrained
   on `target.ref` + `reason` with NO artifact-kind requirement (see below).
   Each was safe at the time it landed because no existing record carried that
   action. This does NOT narrow the additive posture below: new action kinds
@@ -161,7 +165,8 @@ properties:
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            lens-save-recipe, lens-add-as-cluster, create-document,
            edit-document, open-pr, abandon-session, promote-to-staging,
-           derive-possibles, research-brief, create-project, edit-project]
+           derive-possibles, research-brief, create-project, edit-project,
+           share-session, cleanup-abandoned-branch, approve-model]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -199,6 +204,31 @@ properties:
     # `edit-project` (add-opendox-project-header) is that mechanic for an
     # EXISTING project's membership — the descriptor carries the added and
     # removed member lists; same boundary, same companion rule (ADDITIVE).
+    # `share-session` (add-doxbench-editing-phase-b §12) hands a live workbench
+    # session to a colleague: it commits the session's DIRTY thread sidecars and
+    # PUSHES the session branch, so the threads a human has been working in stop
+    # being local-only. It is deliberately STRICTLY LESS than `open-pr` — it
+    # reuses that verb's existing remote-write path, opens no pull request,
+    # requests no review, and holds no approval or merge authority — and it is
+    # the reason threads are local until a human says otherwise: a working note
+    # that leaves the machine without an explicit act is a disclosure nobody
+    # chose (ADDITIVE; every prior record stays valid).
+    # `approve-model` (add-doxchat-model-intake §3, contract-v1.45) is the act
+    # that makes a model DECLARED through the console's intake flow AVAILABLE for
+    # governed turns. It exists because "approved" was previously not a record at
+    # all: availability was the conjunction of three runtime facts (the entry is
+    # in the catalog the install handed to the model port, its `available` flag
+    # is true, and the console passed the loopback local-human verdict), with no
+    # approver, no instrument and nothing written down. That is tolerable while
+    # the only way to add a model is to edit a settings document, since whoever
+    # can do that IS the operator; it stops being tolerable the moment a wizard
+    # can, because then the act of entering a payment credential silently becomes
+    # the act of approving a provider for governed work. Those are two decisions
+    # and this action is the second one. It targets `model_declaration` and
+    # carries the `model_approval` block below — issuer, approver, expiry and
+    # audit reference, the accountability `credential-contracts` already demands
+    # of an issued grant (ADDITIVE enum extension; no record has ever carried
+    # this action, so nothing pre-existing is narrowed).
   target: {$ref: "#/$defs/target"}
   provenance: {$ref: "#/$defs/provenance"}
   at:
@@ -212,6 +242,15 @@ properties:
     # Every action produces at least the manual path's artifacts (spec) —
     # an action record with no artifact is invalid.
     items: {$ref: "#/$defs/artifact"}
+  cleanup:
+    $ref: "#/$defs/cleanup"
+  model_approval:
+    $ref: "#/$defs/model_approval"
+    # REQUIRED for action=approve-model (allOf below) and carried by no other
+    # action. OPTIONAL at the record level and required by no unconditional
+    # rule, which is what keeps this extension additive: no record has ever
+    # carried this block, so nothing pre-existing is narrowed and every
+    # committed record stays valid.
   reason:
     type: string
     minLength: 1
@@ -405,6 +444,79 @@ allOf:
       required: [reason]
       properties:
         target: {required: [ref]}
+  # Cleanup is the explicit, local-only ending after an abandon. Its evidence
+  # block is validated before deletion and names exactly one tile scope.
+  - if: {properties: {action: {const: cleanup-abandoned-branch}}}
+    then:
+      required: [cleanup]
+      properties:
+        target:
+          required: [ref]
+          oneOf:
+            - required: [topic_id]
+            - required: [cluster_id]
+            - required: [possible_id]
+  - if:
+      properties:
+        action: {const: cleanup-abandoned-branch}
+        cleanup:
+          properties:
+            retention_release:
+              properties: {kind: {const: explicit-human-release}}
+              required: [kind]
+          required: [retention_release]
+      required: [action, cleanup]
+    then: {required: [reason]}
+  # A `share-session` record (add-doxbench-editing-phase-b §12) names the session
+  # branch it PUSHED — that branch ref IS the pushed ref, because the verb
+  # publishes `refs/heads/<branch>` and nothing else. ADDITIVE: no record has
+  # ever carried this action, so nothing pre-existing is narrowed.
+  #
+  # NO artifact kind is required, and that is a DECISION rather than an
+  # oversight, for the same reason `abandon-session` requires none: this action
+  # has TWO RESIDENCIES and only one of them produces a commit.
+  #
+  #   * With DIRTY thread sidecars to publish, the action commits them WITH this
+  #     record as exactly one commit on the session branch (FR-006's rule, met by
+  #     `commit_gate_action`), so the record is BRANCH-RESIDENT and does carry a
+  #     `commit` artifact. It rides the branch to the colleague, which is a
+  #     virtue: they can see why those threads landed.
+  #   * With nothing dirty but commits the remote has not seen — the ordinary
+  #     state after a run of Saves, since NOTHING pushes implicitly — the action
+  #     commits nothing at all. FR-006's own guard refuses an empty declared set
+  #     ("an action that produced no document has nothing to co-commit"), so the
+  #     record is MAIN-RESIDENT here, exactly as `open-pr`'s is.
+  #
+  # Requiring a `commit` artifact would therefore invalidate the second, which is
+  # the COMMON case, and requiring `pull-request` would be a lie: this verb opens
+  # none, requests no review, and holds no approval or merge authority.
+  - if: {properties: {action: {const: share-session}}}
+    then:
+      properties:
+        target: {required: [ref]}
+  # An `approve-model` record (add-doxchat-model-intake §3, contract-v1.45) NAMES
+  # THE DECLARATION IT APPROVED and CARRIES THE GRANT'S ACCOUNTABILITY. Both
+  # halves are required together and neither is useful alone: a record that did
+  # not name the declaration could not be read back against the model it made
+  # available, and one that named it without an issuer, an approver, an expiry
+  # and an audit reference would answer "who approved this model, when, and under
+  # what authority" with silence — which is the same question
+  # `credential-contracts` already forces every issued grant to answer, and the
+  # reason this action exists rather than a bare `available: true` somewhere.
+  #
+  # NO artifact kind is required, and that is a DECISION rather than an omission.
+  # This action produces no commit, no document, no pull request and no
+  # workflow-job: the approval's own artifact IS this record, and the settings
+  # document it unblocks is written after the record exists. The audit reference
+  # rides `model_approval.audit_ref` where a reader can read it as the fact it
+  # is, rather than as an `other`-kind artifact whose meaning a consumer would
+  # have to guess. `abandon-session` and `share-session` set the precedent for an
+  # action that requires none.
+  - if: {properties: {action: {const: approve-model}}, required: [action]}
+    then:
+      required: [model_approval]
+      properties:
+        target: {required: [model_declaration]}
 $defs:
   # --- what the action acted on ---
   target:
@@ -413,8 +525,8 @@ $defs:
     # four change-lifecycle actions require `change_id`; `dispose-possible`
     # requires `possible_id` + `outcome`; the wheel commissions require
     # `possible_id`, `cluster_id`, and `possible_id` respectively;
-    # `edit-document` requires `document` + `ref`; `open-pr` and
-    # `abandon-session` require `ref`. (The
+    # `edit-document` requires `document` + `ref`; `open-pr`,
+    # `abandon-session` and `share-session` require `ref`. (The
     # unconditional `change_id` requirement moved into the conditional when the
     # disposition action landed — every previously valid record stays valid.)
     properties:
@@ -475,6 +587,20 @@ $defs:
         # to the worktree root rather than to the served checkout. Broadened
         # commentary only; the field, its type, and its optionality are
         # unchanged, so every prior record stays valid.
+      model_declaration:
+        type: string
+        minLength: 1
+        # The MODEL DECLARATION an `approve-model` action approved
+        # (add-doxchat-model-intake §3; ADDITIVE — every prior record stays
+        # valid). Its value is the model-provider BINDING id the declaration
+        # names, which is also the catalog handle a turn would then select, so
+        # one identifier resolves the whole chain: this record, the declaration
+        # in the install's settings document, the binding that names the broker
+        # and the credential REFERENCE, and the catalog entry the human picks.
+        # It is deliberately NOT the credential reference and deliberately NOT a
+        # provider account identifier: a governance record names the thing that
+        # was decided about, and the credential itself lives in the broker's
+        # custody where this record cannot reach it.
       ref:
         type: string
         minLength: 1
@@ -525,6 +651,151 @@ $defs:
         # (ADDITIVE growth, add-ideation-intent-plane task 4.3): the apply lane
         # replaying a gate-intent whose actor the inbox stamped from the
         # ingress-authenticated identity — the record names the third door.
+  # --- the grant accountability an approved model answers in
+  # (add-doxchat-model-intake §3, contract-v1.45). REQUIRED for `approve-model`
+  # by the conditional above and carried by no other action, so no pre-existing
+  # record is narrowed. Every field is required WITHIN the block, which is safe
+  # for the same reason `provenance`'s two are: no record has ever carried this
+  # block, so a half-filled approval has never been written — and a half-filled
+  # one is precisely the shape that would let a reader believe a model was
+  # answerable when it was not.
+  #
+  # WHY THESE FOUR FIELDS AND NOT A NEW VOCABULARY: `credential-contracts`
+  # already holds that a grant template lacking `issued_by`, `approved_by`,
+  # `expires_at` or `audit_ref` is invalid. A model added through a credential
+  # broker is a credential-bearing capability, so it is answerable in the same
+  # terms — respelling them here would have made the same fact unmatchable
+  # across the two families.
+  model_approval:
+    type: object
+    required: [issued_by, approved_by, expires_at, audit_ref, install_posture]
+    properties:
+      issued_by:
+        type: string
+        minLength: 1
+        # WHO PUT THE CREDENTIAL INTO CUSTODY — the principal the broker
+        # recorded as the issuer of the reference this model's binding names.
+        # Distinct from `approved_by` on purpose: enrolling a subscription and
+        # approving a provider for governed work are two decisions, and the whole
+        # reason this action exists is that a wizard would otherwise collapse
+        # them into one.
+      approved_by:
+        type: string
+        minLength: 1
+        # WHO APPROVED IT for this console. Normally equal to the record's own
+        # `actor`; kept as its own field because `actor` records who performed
+        # the ACT and this field records whose AUTHORITY the model runs under,
+        # and a console that later gains delegation would need those to be able
+        # to differ without re-shaping the record.
+      expires_at:
+        type: string
+        format: date-time
+        # WHEN THE APPROVAL STOPS BEING GOOD. An approval with no expiry is a
+        # standing grant nobody re-examines, which is the posture
+        # `credential-contracts` refuses for every other grant in this
+        # workspace. Derived from a producer-side policy constant rather than
+        # taken from the requester: an expiry the requester chooses is an expiry
+        # that is always far away.
+      audit_ref:
+        type: string
+        minLength: 1
+        # THE AUDIT REFERENCE the custody act is keyed by — the reference the
+        # broker returned when it took the credential. Disclosable BY
+        # CONSTRUCTION: the broker's declaration records no token material
+        # against an audit reference (not the token, not a prefix, not a hash),
+        # which is what makes it safe for a governance record and safe to show a
+        # human. It is a REFERENCE and never the credential; a value that looked
+        # like a raw secret would be caught by the credential validator's own
+        # `sk-`/`ghp_`/`-----BEGIN` refusal.
+      install_posture:
+        type: string
+        enum: [single-operator, shared]
+        # WHICH INSTALL THE APPROVAL WAS MADE ON, and therefore which rule it
+        # was made under (Brett's OQ-3 ruling, 2026-08-21, which splits BY
+        # INSTALL). A recorded gate action suffices on a single-operator
+        # loopback console — the human is spending their own subscription on
+        # their own corpus, and requiring a consent instrument for that is
+        # ceremony without a second party. Where the model is enrolled on a
+        # tenant or shared install, or where a turn will process another party's
+        # material, a consent instrument is REQUIRED and `consent_ref` names it
+        # (conditional below). The posture is STATED rather than inferred from
+        # the presence of `consent_ref`, because a record whose rule has to be
+        # reconstructed from which fields it happens to carry cannot be read
+        # back against the ruling it was made under.
+      consent_ref:
+        type: string
+        minLength: 1
+        # The `consent-instrument` this approval was taken under. REQUIRED on a
+        # `shared` posture and FORBIDDEN on a `single-operator` one — both
+        # halves, because "only that case carries `consent_ref`" is what the
+        # ruling says, and a single-operator record that carried one would claim
+        # a second party that does not exist.
+    allOf:
+      - if:
+          required: [install_posture]
+          properties: {install_posture: {const: shared}}
+        then: {required: [consent_ref]}
+      - if:
+          required: [install_posture]
+          properties: {install_posture: {const: single-operator}}
+        then: {not: {required: [consent_ref]}}
+  cleanup:
+    type: object
+    required: [status, pre_delete_head, abandonment, retention_release]
+    properties:
+      status:
+        type: string
+        enum: [prepared, completed]
+      pre_delete_head:
+        type: string
+        pattern: "^[0-9a-f]{40,64}$"
+      abandonment:
+        type: object
+        required: [kind, reference, summary]
+        properties:
+          kind:
+            type: string
+            enum: [abandon-session-record, abandon-ending-marker]
+          reference: {type: string, minLength: 1}
+          summary: {type: string, minLength: 1}
+      retention_release:
+        type: object
+        required: [kind, scope_kind, scope_id, references]
+        properties:
+          kind:
+            type: string
+            enum: [active-proposal, archived-change, executed-demotion,
+                   legacy-executed-demotion, explicit-human-release]
+          scope_kind:
+            type: string
+            enum: [staged-topic, cluster, possible]
+          scope_id: {type: string, minLength: 1}
+          change_id: {type: string, minLength: 1}
+          references:
+            type: array
+            uniqueItems: true
+            items: {type: string, minLength: 1}
+          reason: {type: string, minLength: 1}
+          superseding_references:
+            type: array
+            uniqueItems: true
+            items: {type: string, minLength: 1}
+          recorded_at: {type: string, format: date-time}
+        allOf:
+          - if:
+              properties: {kind: {const: explicit-human-release}}
+              required: [kind]
+            then: {required: [reason]}
+          - if:
+              properties:
+                kind:
+                  enum: [active-proposal, archived-change, executed-demotion,
+                         legacy-executed-demotion]
+              required: [kind]
+            then:
+              required: [change_id, recorded_at]
+              properties:
+                references: {minItems: 1}
   # --- an artifact this action produced ---
   artifact:
     type: object

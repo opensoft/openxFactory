@@ -797,12 +797,55 @@ python3 scripts/ideation_dashboard/cli.py gate abandon-session \
   --scope-kind staged-topic --scope-id <topic-id> \
   --reason "<why this exploration stopped>" [--repository <repository>]
 
-# delete an abandoned session's branch, once the topic's proposal exists
+# delete an abandoned session's local branch after durable retention release
 python3 scripts/ideation_dashboard/cli.py gate cleanup-abandoned-branch \
   --repo-root <served checkout> --actor "<name>" \
   --scope-kind staged-topic --scope-id <topic-id> --ref <branch> \
+  [--retention-release-reason "<why this orphan may be discarded>"] \
+  [--superseding-reference <durable reference>] \
   [--repository <repository>]
 ```
+
+Cleanup resolves retention independently from current tile presence. Its closed
+machine-evidence set is:
+
+1. an active change with the exact declared staged origin (or a surviving
+   possibles-pick compatibility edge),
+2. an archived change whose own `.openspec.yaml` retains that exact staged
+   origin, or
+3. an executed demotion to that exact topic. New `gate demote --execute` runs
+   write a `demotion-execution-receipt`; legacy demotions require both their
+   transition manifest and an exact returned README, INDEX, or round-trip
+   fragment. A transition plan or manifest alone never proves execution. An
+   execution receipt is accepted only when it accounts for every planned move,
+   every returned path stays inside the checkout and exists, and the source
+   change folder is gone.
+
+Machine evidence is correlated to this abandonment, not merely to the same tile
+id. A new `abandon-session` record captures the exact branch head; active/archive
+evidence must be committed, and its commit time (or a demotion receipt's
+execution time) must be no earlier than the abandonment. If the evidence is
+older, the branch advanced after abandonment, or only a legacy ending marker is
+available, the machine lane stays closed and the operator must review the
+current head through a fresh explicit retention release.
+
+Cluster, possible, renamed, missing, duplicate, superseded, and otherwise true
+orphan branches use `--retention-release-reason`. The reason is mandatory on
+that lane; `--superseding-reference` may be repeated to identify where material
+was preserved. Missing files, a missing tile, a missing worktree, age, or an
+undelivered `propose` dispatch never count as positive evidence.
+
+Every successful cleanup remains human-invoked and local-only. Before deletion
+it verifies branch ownership, no live session or attached worktree, and a durable
+`abandon-session` proof; then it validates and writes a main-resident
+`cleanup-abandoned-branch` gate-action record containing the exact pre-delete
+head and retention evidence. The record is filed under the exact ref and moves
+from `prepared` to `completed` only after Git atomically deletes that expected
+head. The operation holds the repository action lock and refuses if the gate,
+Git service, and checkout roots differ. It never deletes the remote branch. If
+deletion fails, the prepared record is removed; if record finalization fails,
+the exact ref is restored when safe. A surviving `prepared` record therefore
+signals recovery work and never claims a completed deletion.
 
 Four flags are easy to miss, and each answers a question the surface asks:
 
@@ -1031,8 +1074,9 @@ review:
 - **The abandon ending.** `abandon-session` with a durable reason. The worktree,
   the registry entry, and the notebook go; the branch and any pushed history
   SURVIVE, and deleting the branch later is the separate, human-invoked
-  `cleanup-abandoned-branch` verb — offered only once the topic's proposal
-  exists.
+  `cleanup-abandoned-branch` verb — permitted only after exact active, archived,
+  or executed-demotion custody is proved, or after a human records a separate
+  explicit retention-release reason for a true orphan.
 
 ## 7. Testing rule: a serve used in testing points at a SCRATCH checkout ONLY
 
@@ -1043,13 +1087,17 @@ creates a worktree container beside it.
 
 Every session test builds a throwaway repository with a local bare `origin`
 (`tests/ideation-dashboard/session_fixtures.py::build_scratch_repo`) under
-`tmp_path`, and the same rule governs the browser smoke (the smoke script lives
-in codexFactory's `specs/007-workbench-branch-sessions/` Speckit surface — run
-it from that checkout):
+`tmp_path`, and the same rule governs the browser smoke. Dated note
+(2026-08-26): the pointer this section once gave —
+`specs/007-workbench-branch-sessions/playwright-smoke.py` in a codexFactory
+checkout — is stale. That file was shed from codexFactory `main` on
+2026-08-03 (`adopt-neutral-tooling-home` tranche C, commit `247203e`); it is
+not gone outright, but it now exists only on unmerged codexFactory branches
+(e.g. `007-workbench-branch-sessions`, `009-hosted-candidate-review`,
+`011-wheel-action-verbs`), never on `main`. Its successor is the harness
+described next.
 
-```bash
-python3 specs/007-workbench-branch-sessions/playwright-smoke.py
-```
+The extended eleven-step doxBench editor/chat version of that smoke now lives IN THIS REPO at `tests/ideation-dashboard/tools/playwright-smoke.py` (ported 2026-08-26 from codexFactory `010-doxbench-editor-chat`, blob `fc321637`): an OPERATOR tool — it needs playwright 1.61.0 + chromium on the host, is deliberately not a `test_*.py` so the hermetic suite never collects it, and is run directly as `python3 tests/ideation-dashboard/tools/playwright-smoke.py`.
 
 That script builds its own scratch world, constructs the server **in Python** so
 the two seams can be fakes — `pull_request_factory` (no `gh`, no network) and

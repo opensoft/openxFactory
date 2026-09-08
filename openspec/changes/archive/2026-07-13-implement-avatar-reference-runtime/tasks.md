@@ -17,3 +17,56 @@
 - [ ] 3.2 Consume any accepted `f0-interface-impact.yaml` variance by its acceptance IDs and update only runtime-owned adapters/tests; record unaffected test evidence as still valid.
 - [ ] 3.3 Pin the realized contract bundle tag, exact commit, per-file digests, interface-lock digest, and acceptance-map digest; run canonical fixtures with the provisional adapter disabled and prove package code cannot import it.
 - [ ] 3.4 Run strict target/all OpenSpec validation, the complete deterministic suite, boundary/import checks, canonical fixture conformance, redaction checks, and `git diff --check`. Confirm that no canonical contract, F0, UI, DomainxFactory, or deployment file changed.
+
+## Bookkeeping annotation — archived with all 11 boxes open (2026-08-22, `archive-register-rulings`)
+
+No box is ticked here and no task text above is altered. This section records
+what the archive evidence actually shows, because this ledger and this change's
+README row disagree with no reconciliation on the record — the anomaly
+enumerated as C6 in `docs/archive-record-discrepancies.md`, ruled on 2026-08-22
+by Brett (in-session, multiple-choice round) to be annotated rather than
+force-ticked.
+
+**What the ledger says.** Eleven boxes across three sections — the package
+boundary and parallel seam (§1), the deterministic broker and control model
+(§2), conformance and realization (§3) — and every one of them is open. It
+archived that way on 2026-07-13 in `44f523b` ("Archive 3 realized avatar
+changes (kernel, revocation clarify, reference runtime)"), whose message
+reports the gates green ("003 --final, 97 runtime tests, openspec --all
+--strict (25 passed)") and says nothing about the open boxes.
+
+**What the README row claims.** "non-deployable deterministic broker/control
+reference realized against `contract-v1.7`, with archive-safe content-addressed
+conformance (FR-034a); archived 2026-07-13." Note the row's own wording:
+realized **against** `contract-v1.7`, not **as** it — this change consumed the
+kernel's bundle and cut none of its own.
+
+**Where the realization evidence actually lives — not in this ledger.**
+
+- The runtime package §1 specifies exists: `xfactory/avatar_runtime/`, with the
+  injected-port modules the boundary tests require, paired with
+  `tests/avatar_runtime/` and its `boundary/`, `conformance/`, `fakes/` and
+  `provisional/` trees (the last being §1's quarantined
+  `avatar-client-parallel-v1` seam).
+- §3.3's content-addressed pin is populated:
+  `tests/avatar_runtime/conformance/realization-pin.yaml` carries
+  `tag: contract-v1.7`, the exact commit `ddff475f75…`, the interface-lock and
+  acceptance-map digests, and the per-file digest set — which is FR-034a, the
+  mechanism that makes the conformance evidence survive this directory being
+  archived.
+- The capability was promoted: `openspec/specs/avatar-reference-runtime/spec.md`.
+- `contract-v1.7`, the bundle it was realized against, is a real annotated tag:
+  `ddff475`, 2026-07-12.
+- **The ticking happened elsewhere.** The execution ledger was the Speckit
+  feature `specs/003-avc-reference-runtime/tasks.md`, at 65 of 65 tasks done, 0
+  open. It was never mirrored back into these eleven boxes.
+
+So the gap is bookkeeping, not evidence.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 3 and 4, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting exactly those two lines recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (b), the archive act itself, because no explicit ratification act appears anywhere on the record: the archive commit `44f523b` applied this change's spec delta into the canonical specs, and a change whose spec deltas have PROMOTED is ratified by construction — the reasoning `bdd09c2` recorded and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites as its own. The three-way floor is cleared on the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

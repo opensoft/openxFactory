@@ -1,0 +1,125 @@
+# expected_failure: clearing-report-carries-a-verdict
+# expected_failure_detail: readiness_verdict
+# VIOLATES "The report is mistaken for a readiness decision → it MUST be refused
+# AND the report MAY be declared a candidate INPUT to that contract when that
+# contract is proposed."
+#
+# One extra member, and it reads like a helpful summary of what the report
+# already says. That is why it is refused mechanically rather than at review: the
+# facts below genuinely do support the conclusion, and the objection is not that
+# the verdict is WRONG. It is that a decision consulted BEFORE dispatch and
+# evidence produced BY dispatch are different artifacts, and a report that
+# carries a verdict is quietly promoted into the contract two promoted
+# capabilities are still waiting for.
+schema_version: 1
+kind: xfactory_clearing_operation_report
+dispatch_id: cd-33999123456-1
+operation: readiness-diagnostic
+operation_claimed: readiness-diagnostic
+lane_selector: both
+cleared_at: '2026-09-03T11:03:58Z'
+clearing_result: success
+outcome: success
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+lanes:
+  coding:
+    declared:
+      runner_group: xfactory-execution-lane-workers
+      dispatch_label: host-coding-cpc-brett01
+      expected_runner: xfactory-coding-cpc-brett01
+    runner:
+      name: xfactory-coding-cpc-brett01
+      os: Windows
+      arch: X64
+      environment: self-hosted
+      identity: CONFIRMED
+    host:
+      hostname: cpc-brett01
+      computername: CPC-BRETT01
+      whoami: cpc-brett01\\runneradmin
+      username: runneradmin
+      userprofile: C:\\Users\\runneradmin
+      workspace: <unset>
+    heartbeat:
+      job_executing: true
+      utc: '2026-09-03T11:04:12Z'
+      epoch: 1788505452
+    environment:
+      RUNNER_NAME: xfactory-coding-cpc-brett01
+      RUNNER_OS: Windows
+      RUNNER_ARCH: X64
+      RUNNER_TEMP: C:\\a\\_temp
+      COMPUTERNAME: CPC-BRETT01
+      USERNAME: runneradmin
+      PROCESSOR_ARCHITECTURE: AMD64
+      NUMBER_OF_PROCESSORS: '8'
+      GITHUB_WORKSPACE: <unset>
+    tools:
+      claude:
+        path: C:\\tools\\claude.exe
+        version: 2.1.4
+      python3:
+        path: C:\\Python312\\python.exe
+        version: 3.12.6
+    compute:
+      python: 3.12.6
+      platform: Windows AMD64
+      node: CPC-BRETT01
+      sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      expected_sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      sha256_check: PASS
+      arithmetic_check: PASS
+      round_trip: PASS
+    result: success
+    forwarded_lines: 31
+  artifact:
+    declared:
+      runner_group: xfactory-artifact-workers
+      dispatch_label: host-rider-cpc-brett01
+      expected_runner: xfactory-artifact-cpc-brett01
+    runner:
+      name: xfactory-artifact-cpc-brett01
+      os: Windows
+      arch: X64
+      environment: self-hosted
+      identity: CONFIRMED
+    host:
+      hostname: cpc-brett01
+      computername: CPC-BRETT01
+      whoami: cpc-brett01\\runneradmin
+      username: runneradmin
+      userprofile: C:\\Users\\runneradmin
+      workspace: <unset>
+    heartbeat:
+      job_executing: true
+      utc: '2026-09-03T11:04:12Z'
+      epoch: 1788505452
+    environment:
+      RUNNER_NAME: xfactory-artifact-cpc-brett01
+      RUNNER_OS: Windows
+      RUNNER_ARCH: X64
+      RUNNER_TEMP: C:\\a\\_temp
+      COMPUTERNAME: CPC-BRETT01
+      USERNAME: runneradmin
+      PROCESSOR_ARCHITECTURE: AMD64
+      NUMBER_OF_PROCESSORS: '8'
+      GITHUB_WORKSPACE: <unset>
+    tools:
+      claude:
+        path: C:\\tools\\claude.exe
+        version: 2.1.4
+      python3:
+        path: C:\\Python312\\python.exe
+        version: 3.12.6
+    compute:
+      python: 3.12.6
+      platform: Windows AMD64
+      node: CPC-BRETT01
+      sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      expected_sha256: 420a56ae77a83e42997bfec97d2d352880fc70e04f6cbade546237e032988618
+      sha256_check: PASS
+      arithmetic_check: PASS
+      round_trip: PASS
+    result: success
+    forwarded_lines: 31
+readiness_verdict: ready

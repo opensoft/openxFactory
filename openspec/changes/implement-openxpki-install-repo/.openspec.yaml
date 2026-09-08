@@ -1,0 +1,34 @@
+schema: spec-driven
+created: 2026-08-21
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-21-implement-openxpki-install-repo
+  reason: >-
+    Successor of a RATIFIED change rather than of a staged topic.
+    `add-trust-anchor` (ratified 2026-08-21 by Brett Heap, realized at
+    `contract-v1.37`) added the `repo-boundary-governance` requirement
+    "OpenXPKI install repository boundary", and that requirement names THIS
+    change id as the act that creates the repository; the parent's tasks 7.2
+    books the same handoff. The organized source material for this change is
+    therefore the ratified requirement itself, cited in the proposal — not an
+    unstaged idea. `ad_hoc` is the correct kind and not a substitute for
+    staging: the staged topic that fathered the parent
+    (`openxFactory:staging:pki-trust-anchor-plane`) was CONSUMED at the
+    parent's proposal transition — its `supporting-docs/manifest.yaml`
+    records the transition and the folder no longer exists under
+    `ideation/staging/` — so declaring `kind: staged` here would claim a
+    staging source that cannot resolve, which the `document-lifecycle`
+    proposal-gate scenario rejects. There is a second, time-bound reason to
+    create the repository now: the amended OpsxFactory change
+    `add-openxpki-qa-image-pipeline` carries a tasks 3.4 obligation to
+    migrate the QA deployment manifests here, and that obligation names a
+    repository that does not yet exist. This change creates and seeds ONE
+    repository under an already-ratified boundary; it deploys no certificate
+    authority, issues no certificate, holds no key, and does not admit the
+    repository to the aggregation.
+  approved_by: >-
+    Brett Heap, 2026-08-21 (session instruction "do both install repos",
+    following his same-day ruling that the install repositories are
+    Opensoft-level and unprefixed, recorded as the parent proposal's
+    Amendment)
+  approved_on: 2026-08-21

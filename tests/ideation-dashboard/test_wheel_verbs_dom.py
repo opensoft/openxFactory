@@ -303,7 +303,11 @@ def _run(tmp_path):
     views = tmp_path / "views"
     views.mkdir()
     (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
-    for name in ("dispose.js", "helpers.js", "wheel-model.js"):
+    # `intent-feed.js` rides along because dispose.js imports it
+    # (add-ideation-intent-plane task 4.4: the tray's hosted transport). This
+    # probe drives the LOCAL path only — no `opts.intent` is ever passed — so
+    # the module is present purely to make the import resolve.
+    for name in ("dispose.js", "helpers.js", "wheel-model.js", "intent-feed.js"):
         shutil.copy(WEB / "views" / name, views / name)
     harness = views / "wheel-verbs.js"
     harness.write_text(_HARNESS, encoding="utf-8")

@@ -1,0 +1,51 @@
+# expected_failure: remediation_skips_gate
+# VIOLATES the exemption's first boundary: a remediation chain is exempt as a
+# CONSUMER and never as a CHAIN. This declaration stands on a chain with no setup
+# attestation and no signed decision — a repair offered on the strength of its
+# purpose.
+#
+# ITS PURPOSE IS NOT A SUBSTITUTE FOR ITS LINKS. The remediation lane would
+# otherwise be the standing bypass: any work wanting to skip the gate would call
+# itself a repair.
+schema_version: 1
+kind: xfactory_signed_execution_chain_remediation_declaration
+declaration_id: rem-neg-gateless
+chain_ref: sha256:0309ca8cb563aae002339b928a48879d9d5da88fac0d13e4b65a1a22d411c032
+remediates:
+  chain_ref: sha256:0e7ae026745c6e272309b75afa55b155eb20565cc81f3c9d6c80c8432b5d7325
+  failed_closure_ref: clo-unclosed-0001
+  failure_class: failed
+  statement: The governed post-merge test of that chain established a FAILING result, which
+    is this control working.
+covered_by_ratifying_signature: true
+inherits_exemption: false
+promotion_claimed: false
+declared_at: '2026-09-01T14:00:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:0309ca8cb563aae002339b928a48879d9d5da88fac0d13e4b65a1a22d411c032
+leaf_type: remediation_declaration
+recorded_at: '2026-09-01T22:33:00Z'
+payload_ref: rem-neg-gateless
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: remediation_declaration
+  value: sha256:c829afa2638572fa002879061a1d9e6ffe434e839f80714a98999a3d1bc1fc66
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:b0d73dd560b44f8be800b3a3b2f42360989fc2147a1a5ee497be19ee5a3cbf4e
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: e7j3z8NA3iZ3q6yAAknA5eHS_ytgKHrx9MnU91O4Y2vx6udMmDVj-56yGhtJz4rqn2ghFA93jAFf-I4MMoywDQ

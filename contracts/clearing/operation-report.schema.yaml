@@ -1,0 +1,239 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_operation_report
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/operation-report.schema.yaml"
+contract_id: clearing-operation-report
+contract_schema_version: 1
+title: The composed operation report for readiness-diagnostic
+description: >-
+  THE COMPOSED REPORT OF RECORD (add-clearing-dispatch-boundary, capability
+  `clearing-dispatch-boundary`, requirement "readiness-diagnostic is register
+  entry number one and is strictly read-only"; tasks.md 6.3). ONE report per
+  DISPATCH, across however many lanes were probed — the artifact the composing
+  step assembles from each lane's forwarded facts. It is NOT a per-lane fragment
+  schema and it is not a log format: what the ratified text forbids is a report
+  that exists only as scattered log lines a reader must reassemble, and the
+  remedy is a single composed artifact with the per-lane facts as a KEYED
+  COLLECTION inside it.
+
+  PROBED FACTS, NOT A DECISION, AND THE DISTINCTION IS LOAD-BEARING. This report
+  is EVIDENCE produced BY passing through the boundary. It is deliberately NOT
+  the neutral infrastructure-readiness result that the promoted
+  `document-cataloging` and `ideation-routing` preflights await — that is a
+  DECISION INPUT consulted BEFORE dispatch, and this is an OUTPUT of having been
+  dispatched. The ratified scenario refuses a consumer or a later change that
+  would treat one as the other, or add an eligibility verdict here. This report
+  MAY be declared a candidate INPUT to that contract when that contract is
+  proposed. Because a schema cannot recognise a verdict by intent,
+  `additionalProperties: false` is the structural half and
+  `scripts/validate-clearing-dispatch.py` carries the other: a member whose name
+  reads as a verdict is refused with `clearing-report-carries-a-verdict`.
+
+  GROUP AND LABEL ARE DECLARED, NEVER OBSERVED, AND THE MEMBER NAMES SAY SO. The
+  provider exposes no runner-group context to a running job, so a probe cannot
+  read the group it was in; what it can report is what the DISPATCH DECLARED for
+  the lane. ACTUAL group membership is established by the periodic single-door
+  attestation reading the provider's API. There is deliberately NO
+  `observed_runner_group` member anywhere in this shape: a record that cannot
+  express a claim cannot make it, and a job reporting its own group would be the
+  bundle-trust error moved onto the host.
+
+  THE ENVIRONMENT ECHO IS A NAME ALLOWLIST, ENFORCED BY `propertyNames`. A
+  wholesale environment dump cannot validate against this shape, which is the
+  point: a credential that someday lands in the host's process environment must
+  not be printable into a public run log by accident.
+
+  THE COMPUTE ROUND TRIP RECORDS BOTH VALUES. The ratified disagreement scenario
+  requires that a mismatch be recorded with BOTH the computed and the expected
+  digest, so `expected_sha256` is required rather than implied by the check
+  result — a shape that recorded only the verdict could not evidence what
+  disagreed.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - dispatch_id
+  - operation_claimed
+  - lane_selector
+  - clearing_result
+  - outcome
+  - lanes
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  job_result:
+    description: >-
+      A lane or gate job's terminal state, in the provider-neutral spelling the
+      estate already uses.
+    type: string
+    enum: [success, failure, cancelled, skipped]
+
+  probed_value:
+    description: >-
+      A value the host reported about itself. A string, because an absent or
+      unavailable fact is reported AS a fact (`<unset>`, `<absent>`,
+      `<unavailable>`) rather than by omitting the member — an omitted probe and
+      a probe that found nothing are different findings.
+    type: string
+    minLength: 1
+    maxLength: 2000
+
+  lane_report:
+    type: object
+    additionalProperties: false
+    required: [declared, runner, host, heartbeat, environment, compute, result]
+    properties:
+      declared:
+        description: >-
+          WHAT THE DISPATCH DECLARED FOR THIS LANE. Named `declared` rather than
+          `lane` so that no reader, and no later edit, can take it for an
+          observation.
+        type: object
+        additionalProperties: false
+        required: [runner_group, dispatch_label, expected_runner]
+        properties:
+          runner_group: {$ref: '#/$defs/identifier'}
+          dispatch_label: {$ref: '#/$defs/identifier'}
+          expected_runner: {$ref: '#/$defs/identifier'}
+      runner:
+        description: >-
+          WHAT THE RUNNER SAID ABOUT ITSELF. `identity` is the comparison against
+          the lane's expected runner, and `MISMATCH` fails the operation rather
+          than being reported and passed over.
+        type: object
+        additionalProperties: false
+        required: [name, os, arch, environment, identity]
+        properties:
+          name: {$ref: '#/$defs/probed_value'}
+          os: {$ref: '#/$defs/probed_value'}
+          arch: {$ref: '#/$defs/probed_value'}
+          environment: {$ref: '#/$defs/probed_value'}
+          identity:
+            type: string
+            enum: [CONFIRMED, MISMATCH]
+      host:
+        description: >-
+          HOST IDENTITY AND THE SERVICE ACCOUNT THE RUNNER EXECUTES AS. `whoami`
+          and `username` are the service-account facts the ratified entry names;
+          `workspace` is reported so that "no checkout" is evidenced rather than
+          asserted.
+        type: object
+        additionalProperties: false
+        required: [hostname, whoami]
+        properties:
+          hostname: {$ref: '#/$defs/probed_value'}
+          computername: {$ref: '#/$defs/probed_value'}
+          whoami: {$ref: '#/$defs/probed_value'}
+          username: {$ref: '#/$defs/probed_value'}
+          userprofile: {$ref: '#/$defs/probed_value'}
+          workspace: {$ref: '#/$defs/probed_value'}
+      heartbeat:
+        type: object
+        additionalProperties: false
+        required: [job_executing, utc, epoch]
+        properties:
+          job_executing: {type: boolean}
+          utc: {type: string, format: date-time}
+          epoch: {type: integer, minimum: 0}
+      environment:
+        description: >-
+          THE NAME-ALLOWLISTED ECHO. `propertyNames` is the enforcement: a name
+          outside the allowlist cannot be written here at all, so a wholesale
+          dump is unrepresentable rather than merely discouraged.
+        type: object
+        propertyNames:
+          enum:
+            - RUNNER_NAME
+            - RUNNER_OS
+            - RUNNER_ARCH
+            - RUNNER_TEMP
+            - COMPUTERNAME
+            - USERNAME
+            - PROCESSOR_ARCHITECTURE
+            - NUMBER_OF_PROCESSORS
+            - GITHUB_WORKSPACE
+        additionalProperties: {$ref: '#/$defs/probed_value'}
+      tools:
+        description: >-
+          READ-ONLY PRINT-BACKS. Presence and version only; an absent tool is a
+          fact to report, never a failure to repair on the host.
+        type: object
+        additionalProperties:
+          type: object
+          additionalProperties: false
+          required: [path, version]
+          properties:
+            path: {$ref: '#/$defs/probed_value'}
+            version: {$ref: '#/$defs/probed_value'}
+      compute:
+        description: >-
+          THE FIXED-INPUT, FIXED-EXPECTED-DIGEST ROUND TRIP. A wrong answer means
+          the runner is not computing what every other host computes, and BOTH
+          values are recorded so the disagreement is legible after the fact.
+        type: object
+        additionalProperties: false
+        required: [sha256, expected_sha256, sha256_check, round_trip]
+        properties:
+          python: {$ref: '#/$defs/probed_value'}
+          platform: {$ref: '#/$defs/probed_value'}
+          node: {$ref: '#/$defs/probed_value'}
+          sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+          expected_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+          sha256_check: {type: string, enum: [PASS, FAIL]}
+          arithmetic_check: {type: string, enum: [PASS, FAIL]}
+          round_trip: {type: string, enum: [PASS, FAIL]}
+      result: {$ref: '#/$defs/job_result'}
+      forwarded_lines:
+        description: >-
+          How many evidence lines this lane forwarded to the composing step. A
+          count, so a lane that forwarded nothing is distinguishable from a lane
+          that was never probed.
+        type: integer
+        minimum: 0
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_clearing_operation_report}
+  dispatch_id:
+    description: >-
+      The dispatch this report is OF. One report per dispatch is the whole point
+      of "composed", so this is required and singular.
+    $ref: '#/$defs/identifier'
+  operation:
+    description: >-
+      The CLEARED operation. NULL when the gate refused — a report that carried
+      the claimed operation here would present a refused claim as a cleared one.
+    oneOf:
+      - {$ref: '#/$defs/identifier'}
+      - {type: 'null'}
+  operation_claimed:
+    description: The operation AS CLAIMED at dispatch, never treated as cleared.
+    $ref: '#/$defs/identifier'
+  lane_selector:
+    description: Which lanes the dispatch asked for.
+    $ref: '#/$defs/identifier'
+  cleared_at: {type: string, format: date-time}
+  clearing_result: {$ref: '#/$defs/job_result'}
+  outcome:
+    description: >-
+      The operation's terminal outcome, the value the composing step appends to
+      the dispatch ledger.
+    type: string
+    enum: [success, failure]
+  run_url: {type: string, minLength: 1, maxLength: 400}
+  lanes:
+    description: >-
+      PER-LANE FACTS AS A KEYED COLLECTION, keyed by the lane key the register
+      entry declares. An array of fragments would have made "one composed report"
+      indistinguishable from "several reports in one file".
+    type: object
+    minProperties: 1
+    propertyNames: {$ref: '#/$defs/identifier'}
+    additionalProperties: {$ref: '#/$defs/lane_report'}

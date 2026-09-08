@@ -1,0 +1,39 @@
+# expected_failure: schema
+# VIOLATES "The return does not validate against the declared neutral schema":
+# "it MUST be refused whole and recorded rather than partially applied ... and it
+# MUST have no effect on any repository, the return being evidence in the first
+# place."
+#
+# THE BINDING IS INCOMPLETE, which is the failure this fixture is really about.
+# `inbound_bundle_digest` is absent, so the return does not say WHICH sealed
+# bundle it answers — and a return that cannot name the exact bundle, at the
+# exact verified pin, for the exact convening job is one nothing can be matched
+# against. Matching it afterwards by timing or by order is the guess the binding
+# exists to remove, so the member is required rather than optional and its
+# absence refuses the whole return.
+#
+# THE DECLARED FAILURE IS `schema`, AND THAT IS NOT A GAP IN THE CLOSED SET. The
+# family's shape refusal is JSON Schema's rule rather than this family's, which
+# is why `scripts/validate-clearing-dispatch.py`'s comment says in as many words
+# that `schema` "is not a member", and why
+# `tests/clearing/test_validator_refusals.py::test_no_fixture_declares_a_code_outside_the_closed_set`
+# excepts it by name. Admitting `deliberation` mints no finding code; reaching
+# for a `clearing-return-schema-invalid` to give this fixture something to
+# declare would be widening a closed set to duplicate a refusal that already
+# fires.
+#
+# THE SHAPE CHECK ONLY EXISTS BECAUSE THE KIND IS ROUTED. An unrouted kind is not
+# validated loosely — it is not validated at all — so this fixture is also the
+# probe that `KIND_TO_SCHEMA` carries the row.
+schema_version: 1
+kind: xfactory_clearing_deliberation_return
+operation: deliberation
+lane: artifact
+binding:
+  convening_job_id: cvn-2026-09-04-0007
+  verified_subject_pin: subject:opensoft/codexFactory@0d5e1ba9
+seats:
+  reviewer-a:
+    output:
+      form: inline
+      payload: 'the seat output'

@@ -2,6 +2,56 @@
 # Model: docs/notebooklm-source-workspaces.md section 6.
 # Governed by: docs/lifecycle-notebook-projection.md.
 workspaces:
+# HOSTING MIGRATION 2026-08-24 (docs/notebook-projection-migration-runbook.md
+# step 6). Every record below now carries the provider_notebook_id of the
+# COMPANY-hosted (<service-account-identity>) notebook. The record ids are
+# key-derived and therefore unchanged, so each record IS still the live book's
+# registration, and no record was retired.
+#
+# THE LEGACY NOTEBOOKS ARE RETIRED. Status: RETIRED 2026-08-26.
+#
+# Runbook step 8 EXECUTED 2026-08-26, after Brett Heap's ruling of that date
+# cleared the 2026-08-24 hold. All seven legacy provider notebooks were
+# ARCHIVE-RENAMED in <convener-personal-mailbox> to
+# "xFactory — <book> (RETIRED 2026-08-26 — hosting migration)" and are otherwise
+# untouched: renamed=7 skipped=0 failed=0, no alias resolves to any of them, and
+# the seven COMPANY books were verified present and un-retitled in the same run.
+#
+# NOTHING WAS DELETED. The renamed notebooks remain live in the legacy account.
+# The left-hand ids below stay recorded because they are what the act addressed
+# and the only remaining handle on those notebooks.
+#
+# No workspace record was retired, and none should be: each record's id is
+# key-derived and unchanged, so it IS the live COMPANY book's registration.
+# What was retired is the legacy PROVIDER NOTEBOOK.
+# See docs/notebook-projection-migration-evidence-2026-08-24.md.
+#
+# HOW THE GATE OPENED, kept because the reasoning outlives the act. Brett Heap
+# ruled 2026-08-26 that the 2026-08-24 hold's condition was satisfied: the
+# oversized `openspec/specs/ideation-dashboard/spec.md` HAD acquired a projected
+# form (the sync's temp-file + rename path above MAX_TEXT_ARG_BYTES), canon had
+# reached title-set equality, and the 2026-08-25 document-parity run reported
+# 675/675 with zero unprojected. Full reasoning — including why the 2026-08-24
+# parity figure was measured by an instrument that could not see the gap:
+# openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/
+#   retirement-gate-clearance-2026-08-26.md
+#
+# The act that followed is docs/notebook-projection-retirement-runbook-step8.md,
+# executed 2026-08-26. Its recorded output is in the migration evidence.
+#
+# Legacy (still live, pending retirement) -> new (live, registered) ids:
+#   ^ THIS HEADER LINE IS CITED VERBATIM by the step-8 runbook, the clearance
+#     record and tasks 4.6, so its wording is FROZEN and is not re-worded to
+#     match today's state. Read it as of 2026-08-26: the left-hand notebooks are
+#     still LIVE (nothing was deleted) and no longer PENDING — they were retired
+#     by archive-rename that day.
+#   b83e63e3-262a-4dfe-9b9f-332b3d27d1bb -> 991f0af7-2077-4c26-ac1d-d92e2af9f99c
+#   6f10282a-7b5b-41c5-9109-55e603890730 -> b331ed13-fa0b-456a-8004-184f66939ecd
+#   99b1ff52-2a93-43c2-b8fc-a153328ccd77 -> 2c2ba7ae-65e1-436a-ba4c-0a5f8f2a99bb
+#   c2b89469-396e-4fef-9154-fa9ade81d64c -> 251c118f-4a02-4c9e-8ea2-025b12237e1c
+#   5830dbd2-5624-4852-987d-9f4e37746448 -> 81217e98-1cd2-4bb4-a4b8-917c601ce9e5
+#   48ac861d-5a5c-4515-92fc-5b7b251c22c7 -> 0042f5e6-6e49-4ea1-9a14-e298bfe0fb09
+#   74ace7c8-b3df-4373-bcd2-64043b153cba -> 02295a6e-0193-4f6f-9501-c6e9e03bdc01
   # RETIRED 2026-08-10 (split-ideation-book-per-repo): the shared Ideation
   # book hit the 300-source cap and was split per-repo. The notebook was
   # archive-renamed "xFactory — Ideation (RETIRED 2026-08-10 — split
@@ -28,7 +78,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-drafts
     provider: notebooklm
-    provider_notebook_id: b83e63e3-262a-4dfe-9b9f-332b3d27d1bb
+    provider_notebook_id: 991f0af7-2077-4c26-ac1d-d92e2af9f99c
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -42,7 +92,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-canon
     provider: notebooklm
-    provider_notebook_id: 6f10282a-7b5b-41c5-9109-55e603890730
+    provider_notebook_id: b331ed13-fa0b-456a-8004-184f66939ecd
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -56,7 +106,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-ideation-opsxfactory
     provider: notebooklm
-    provider_notebook_id: 99b1ff52-2a93-43c2-b8fc-a153328ccd77
+    provider_notebook_id: 2c2ba7ae-65e1-436a-ba4c-0a5f8f2a99bb
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -70,7 +120,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-ideation-codexfactory
     provider: notebooklm
-    provider_notebook_id: c2b89469-396e-4fef-9154-fa9ade81d64c
+    provider_notebook_id: 251c118f-4a02-4c9e-8ea2-025b12237e1c
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -84,7 +134,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-ideation-medxfactory
     provider: notebooklm
-    provider_notebook_id: 5830dbd2-5624-4852-987d-9f4e37746448
+    provider_notebook_id: 81217e98-1cd2-4bb4-a4b8-917c601ce9e5
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -98,7 +148,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-ideation-ledgerxfactory
     provider: notebooklm
-    provider_notebook_id: 48ac861d-5a5c-4515-92fc-5b7b251c22c7
+    provider_notebook_id: 0042f5e6-6e49-4ea1-9a14-e298bfe0fb09
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory
@@ -112,7 +162,7 @@ workspaces:
     schema_version: 1
     id: workspace-xfactory-lifecycle-ideation-openxfactory
     provider: notebooklm
-    provider_notebook_id: 74ace7c8-b3df-4373-bcd2-64043b153cba
+    provider_notebook_id: 02295a6e-0193-4f6f-9501-c6e9e03bdc01
     owner_layer: domain_hermes
     scope:
       domain_id: xfactory

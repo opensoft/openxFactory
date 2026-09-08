@@ -10,8 +10,10 @@ runner — no test in this file may create a real notebook or invoke the real
 from __future__ import annotations
 
 import contextlib
+import functools
 import importlib.util
 import io
+import json
 import itertools
 import re
 import subprocess
@@ -520,6 +522,37 @@ class SessionNotebookAliasTests(unittest.TestCase):
             self.assertTrue(any(t.startswith(STAGED_DOC) for t in titles), titles)
             self.assertEqual(result.documents, (STAGED_DOC,))
 
+    def test_a_session_over_the_provider_source_cap_is_refused_before_any_mutation(self):
+        """Step 5 of the 2026-08-24 hosting migration: the session resync route
+        is deliberately unbounded (workbench finding 21 — the human-waiting
+        route completes what the bounded gate-route creation deferred), so a
+        session worktree whose derived corpus outgrew NotebookLM's per-notebook
+        source cap would be applied as a dead run — adds failing past the cap
+        mid-flight, exactly how the shared Ideation book died on 2026-08-10.
+        The lifecycle books' capacity guard therefore applies here too: refuse
+        BEFORE any mutation, name the excess, and leave every notebook
+        untouched."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _checkout, _worktree = _session_world(root)
+            fake = FakeNlm(LIFECYCLE_BOOKS)
+            adapter = wb.NotebookAdapter(fake, available=True)
+
+            oversize = [(f"docs/doc-{n}.md", _doc(f"body {n}"))
+                        for n in range(sync.NOTEBOOK_SOURCE_CAP + 1)]
+            original = sync.session_source_set
+            sync.session_source_set = lambda target: oversize
+            try:
+                result = sync.sync_session_notebook(
+                    root, "draft/demo-topic", apply=True, adapter=adapter)
+            finally:
+                sync.session_source_set = original
+
+            self.assertTrue(result.skipped, "over-cap is a refusal, not a sync")
+            self.assertIn(str(sync.NOTEBOOK_SOURCE_CAP), result.detail or "")
+            self.assertEqual(fake.created_titles(), [],
+                             "nothing may be created when the plan cannot fit")
+
     def test_the_same_branch_in_a_second_repository_gets_a_different_alias(self):
         with TemporaryDirectory() as td:
             root = Path(td)
@@ -816,7 +849,7 @@ class SessionNotebookRefreshTests(unittest.TestCase):
             # again and no source was ever added from the served checkout
             self.assertEqual(fake.created_titles(), [alias])
             self.assertFalse(any("main body" in c for c in fake.added_contents()))
-            # the three lifecycle books are untouched by an ending
+            # the lifecycle books are untouched by an ending
             self.assertEqual(fake.titles(), ["xf-canon", "xf-drafts", "xf-ideation"])
 
     def test_the_teardown_seam_retires_through_the_real_adapter(self):
@@ -1015,7 +1048,8 @@ class SessionNotebookQuotaTests(unittest.TestCase):
     def test_an_exhausted_quota_still_opens_the_session(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            # three books already exist and the account holds no more
+            # the fixture's lifecycle books already exist and the account
+            # holds no more
             fake = FakeNlm(LIFECYCLE_BOOKS, quota=3)
             adapter = wb.NotebookAdapter(fake, available=True)
 
@@ -1263,8 +1297,20 @@ class SplitIdeationBookTests(unittest.TestCase):
                 state["notebooks"].append(nb)
                 state["sources"].setdefault(nb["id"], [])
                 return ""
+            if head == ("source", "rename"):
+                # MODELS THE WRITE. `_rename_source_when_ready` confirms a
+                # rename by reading the source list back rather than trusting
+                # the call's return (the CLI has been seen erroring while
+                # exiting 0), so a fake that accepted renames without recording
+                # them would make every rename look like it never took.
+                sid, new_title = args[2], args[3]
+                for _nid, rows in state["sources"].items():
+                    for row in rows:
+                        if row.get("id") == sid:
+                            row["title"] = new_title
+                return ""
             if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
-                        ("source", "delete"), ("source", "rename")}:
+                        ("source", "delete")}:
                 return ""
             if head == ("source", "list"):
                 return list(state["sources"].get(args[2], []))
@@ -1390,6 +1436,232 @@ class SplitIdeationBookTests(unittest.TestCase):
             adds = [c for c in calls if c[:2] == ("source", "add")
                     and c[6] != sync.CHARTER_TITLE]
             self.assertEqual(len(adds), 6)
+
+    # ---- the oversized-source rename defect (fixed 2026-08-27) --------------
+    #
+    # Live failure: a 279KB document uploaded, the fixed `time.sleep(2)` was too
+    # short, the rename silently did not take, and the source stranded under
+    # `xf-sync-*.md` where parity read it MISSING. Worse, the documented repair —
+    # re-run the book — ADDED A SECOND STRAY rather than repairing the first.
+
+    def _slow_rename_fake(self, notebooks, ready_after: int):
+        """A provider whose rename only takes on the `ready_after`-th attempt."""
+        calls, attempts = [], {"n": 0}
+        state = {"notebooks": [dict(n) for n in notebooks], "sources": {}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("notebook", "list"):
+                return list(state["notebooks"])
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "add"):
+                nid = args[2]
+                sid = f"s{len(state['sources'].setdefault(nid, [])) + 1}"
+                state["sources"][nid].append({"id": sid,
+                                              "title": "xf-sync-abc123.md"})
+                return f"Added source: xf-sync-abc123.md\nSource ID: {sid}\n"
+            if head == ("source", "rename"):
+                attempts["n"] += 1
+                if attempts["n"] < ready_after:
+                    return ""            # accepted, but does NOT take
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
+                        ("source", "delete")}:
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        return fake, calls, state, attempts
+
+    def test_a_slow_rename_is_polled_until_it_takes(self):
+        """Where `sleep(2)` gave up, polling succeeds."""
+        fake, calls, state, attempts = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=4)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        self.assertEqual(attempts["n"], 4, "should have kept trying")
+        titles = [r["title"] for r in state["sources"]["nbX"]]
+        self.assertEqual(titles, ["[spec] openxFactory: big"])
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1)
+
+    def test_a_rename_that_never_takes_fails_LOUDLY(self):
+        """The silent failure is what stranded the source. It must raise."""
+        fake, _calls, state, _a = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=10**6)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError) as caught:
+                sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        msg = str(caught.exception)
+        self.assertIn("rename never took", msg)
+        self.assertIn("do NOT re-run the sync to fix it", msg)
+        # and it names the hand repair, since that is what the operator must run
+        self.assertIn("nlm source rename", msg)
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["xf-sync-abc123.md"])
+
+    def test_a_rerun_ADOPTS_the_stray_instead_of_adding_a_duplicate(self):
+        """The compounding failure, converted to self-healing.
+
+        Live on 2026-08-27 a re-run added a SECOND `xf-sync-*.md` for one
+        document; canon reached 120 sources and had to be repaired by hand.
+        """
+        text = "x" * 5000
+        digest_body = text
+        calls = []
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return digest_body
+            if head == ("source", "rename"):
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the stray was this document; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_a_stray_whose_CONTENT_differs_is_left_alone(self):
+        """Adoption is keyed on content, so it can repair or do nothing —
+        never claim an unrelated source."""
+        state = {"sources": {"nbX": [{"id": "other",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return "a completely different document"
+            if head == ("source", "add"):
+                sid = f"s{len(state['sources']['nbX']) + 1}"
+                state["sources"]["nbX"].append({"id": sid,
+                                                "title": "xf-sync-new.md"})
+                return f"Source ID: {sid}\n"
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1,
+                         "an unrelated stray must not be adopted")
+        self.assertIn("xf-sync-deadbeef.md",
+                      [r["title"] for r in state["sources"]["nbX"]])
+
+    def test_a_DUPLICATE_TITLE_does_not_satisfy_the_rename_verifier(self):
+        """Copilot on PR #438 — a fail-open inside the fail-open fix.
+
+        The verifier asked "does any source carry this title?". When a
+        pre-existing source already wore it, that returned success while the
+        source just uploaded sat un-renamed. The assertion is a PAIR: THIS id
+        now bears THIS title.
+        """
+        title = "[spec] openxFactory: big"
+        state = {"sources": {"nbX": [{"id": "OLD", "title": title}]}}
+
+        def fake(*args, parse=True):
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "rename"):
+                return ""                      # accepted, never takes
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError):
+                sync._rename_source_when_ready("nbX", "NEW", title)
+
+    def test_adoption_UNWRAPS_a_json_wrapped_body_before_hashing(self):
+        """Codex P1 / Copilot on PR #438 — the repair could never fire.
+
+        `nlm source content` may return the body inside a JSON envelope, which
+        `source_content_text()` exists to tolerate. Hashing raw stdout meant a
+        wrapped response never matched, so adoption silently degraded to a
+        plain add — fail-safe, but a repair that cannot fire is not a repair.
+        """
+        text = "x" * 5000
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "content"):
+                # THE WRAPPED FORM the normalizer exists for
+                return json.dumps({"value": {"content": text}})
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the wrapped stray matched; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_the_content_digest_is_one_mechanism_for_both_sides(self):
+        """Normalising only the fetched half is what created the mismatch."""
+        text = "hello body"
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"value": {"content": text}})))
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"content": text})))
+        self.assertNotEqual(sync._content_digest(text),
+                            sync._content_digest("a different body"))
 
     def test_oversized_source_rides_a_file_and_is_renamed_to_its_title(self):
         # Linux MAX_ARG_STRLEN killed the canon book live 2026-08-10: a doc
@@ -1662,3 +1934,1303 @@ class SessionSweepTests(unittest.TestCase):
                       "a session opened from a feature worktree is LIVE, and "
                       "asking only the canonical checkout would have called it "
                       "dead and retired its notebook")
+
+    def test_session_ref_sees_a_session_opened_from_a_feature_worktree(self):
+        """F3, migration evidence 2026-08-24: the single-branch path never got
+        the sweep's every-worktree enumeration, so `--session-ref` refused the
+        two LIVE draft/* sessions the sweep could see — their session notebooks
+        stayed hosted on the account being abandoned, exactly what runbook
+        step 5 warns about. Same harness as the sweep's near-miss test above,
+        asserted at the level that broke: `live_session_targets` over a real
+        repository whose session was opened from a feature worktree."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            canonical = root / "openxFactory"
+            canonical.mkdir()
+
+            def git(*args, cwd=canonical):
+                subprocess.run(["git", *args], cwd=cwd, check=True,
+                               capture_output=True, text=True)
+
+            git("init", "--initial-branch=main")
+            git("config", "user.email", "h@example.invalid")
+            git("config", "user.name", "Harness")
+            git("config", "commit.gpgsign", "false")
+            (canonical / "seed.md").write_text("# seed\n", encoding="utf-8")
+            git("add", "seed.md")
+            git("commit", "-m", "seed")
+
+            # a FEATURE worktree of the same repository…
+            feature = root / "openxFactory-worktrees" / "feature-x"
+            git("worktree", "add", "-b", "feature-x", str(feature))
+            # …and a SESSION worktree whose container belongs to THAT checkout
+            session = bs.sessions_root(feature) / bs.flatten_branch("draft/topic")
+            session.parent.mkdir(parents=True, exist_ok=True)
+            git("worktree", "add", "-b", "draft/topic", str(session))
+
+            targets = sync.live_session_targets(
+                root, "draft/topic", "openxFactory")
+
+        self.assertEqual(len(targets), 1,
+                         "the session opened from a feature worktree is LIVE; "
+                         "deriving one path from the canonical container alone "
+                         "refuses it and strands its notebook")
+        self.assertEqual(targets[0].repository, "openxFactory")
+        self.assertEqual(targets[0].branch, "draft/topic")
+
+
+# --------------------------- the declared hosting identity ---------------------------
+# add-notebook-projection-identity (ratified 2026-08-23): WHICH account the
+# projection is written to is contract conformance, so a run that cannot prove
+# it refuses rather than falling back.
+
+HOSTING_DECLARED = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  declared_at: "2026-08-23"
+  declared_by: Brett Heap
+share_out: []
+"""
+
+HOSTING_PENDING = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  migration:
+    state: pending
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+share_out: []
+"""
+
+
+def _declare_hosting(root: Path, text: str) -> None:
+    path = root / "openxFactory/examples/notebook-projection-hosting.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def _profile_runner(active: str | None):
+    """A runner answering only `config get auth.default_profile`."""
+    def run(*args, parse=True):
+        if args[:3] == ("config", "get", "auth.default_profile"):
+            if active is None:
+                raise RuntimeError("nlm config get: no configuration")
+            return active
+        return {}
+    return run
+
+
+class HostingDeclarationTests(unittest.TestCase):
+    """The declaration is READ, and the run is BOUND to it or refused."""
+
+    def test_undeclared_install_is_reported_as_a_transition_state_not_a_case(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNone(got, "an undeclared install has no declaration to return")
+        self.assertIn("NO DECLARED HOSTING IDENTITY", out.getvalue())
+        self.assertIn("transition state", out.getvalue(),
+                      "undeclared must be reported as nonconforming, never as "
+                      "a third legitimate case")
+
+    def test_declared_profile_active_binds_the_run(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("company"))
+        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertIn("verified active", out.getvalue())
+
+    def test_a_run_pointed_at_another_account_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        message = str(caught.exception)
+        self.assertIn("Refusing", message,
+                      "writing a governed projection into an undeclared "
+                      "account is the failure this capability retires")
+        self.assertIn("nlm login switch company", message,
+                      "the refusal must carry the exact remediation command")
+
+    def test_an_unreadable_profile_refuses_rather_than_guessing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner(None))
+        self.assertIn("cannot prove", str(caught.exception))
+
+    def test_a_pending_migration_binds_to_the_account_that_holds_the_books(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNotNone(got)
+        self.assertIn("MIGRATION PENDING", out.getvalue())
+        self.assertIn("brettheap@gmail.com", out.getvalue(),
+                      "a declaration is not a migration: until the books move, "
+                      "the run binds where they actually live")
+
+    def test_a_pending_migration_still_refuses_a_third_account(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            with self.assertRaises(SystemExit):
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("someone-else"))
+
+    def test_the_reader_ignores_comments_and_nested_blocks(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, "# leading comment\n" + HOSTING_PENDING)
+            got = sync.read_hosting_declaration(root)
+        self.assertEqual(got["nlm_profile"], "company")
+        self.assertEqual(got["migration_from_nlm_profile"], "personal")
+        self.assertEqual(got["case"], "operator_hosted")
+
+
+class ParityReportTests(unittest.TestCase):
+    """Parity is proven against THE CORPUS SCAN, never against other books."""
+
+    @staticmethod
+    def _world(root: Path) -> None:
+        (root / "openxFactory/examples").mkdir(parents=True, exist_ok=True)
+        (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
+         ).write_text("workspaces:\n", encoding="utf-8")
+        for g in sync.GROUNDING:
+            p = root / g
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("# Grounding\n", encoding="utf-8")
+        base = root / "openxFactory/ideation/brainstorm"
+        base.mkdir(parents=True, exist_ok=True)
+        (base / "idea-00.md").write_text("# Idea\n\nStatus: brainstorm\n",
+                                         encoding="utf-8")
+
+    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with patch.object(sync, "nlm", fake):
+                code = sync.parity_report(root)
+        return code, out.getvalue()
+
+    def test_a_book_missing_a_derived_title_fails_parity(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 1, "an empty live book cannot be at parity with "
+                                  "a scan that derives members")
+        self.assertIn("PARITY FAIL", text)
+        self.assertIn("MISSING", text)
+
+    def test_matching_books_prove_parity_with_nothing_pending(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            for i, key in enumerate(sorted(desired)):
+                fake.sources[f"nb{i}"] = [
+                    {"id": f"s{i}-{j}", "title": title}
+                    for j, title in enumerate(sorted(desired[key].values()))]
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 0, text)
+        self.assertIn("parity: PROVEN", text)
+        self.assertIn("0 pending ADD/DEL/UPD", text)
+
+    def test_parity_never_mutates(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            self._run_parity(root, fake)
+            verbs = {call[:2] for call in fake.calls}
+        # `alias set` belongs in this blocklist: the alias store is a single
+        # flat file shared across profiles, so registering one during a parity
+        # proof repoints xf-canon for every account on the host.
+        for mutating in (("source", "add"), ("source", "delete"),
+                         ("notebook", "create"), ("notebook", "delete"),
+                         ("alias", "set"), ("alias", "delete")):
+            self.assertNotIn(mutating, verbs,
+                             "a parity proof that changes the thing it measures "
+                             "is not a proof")
+
+    def test_a_non_string_profile_answer_is_unknown_not_a_crash(self):
+        """A runner that answers with anything but text means 'unknown'.
+
+        The refusal path depends on this returning None rather than raising:
+        an exception here would escape the guard instead of becoming the
+        governed refusal.
+        """
+        for answer in ({}, [], None, 42):
+            with self.subTest(answer=answer):
+                self.assertIsNone(
+                    sync.active_nlm_profile(lambda *a, parse=True: answer))
+
+
+class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
+    """The binding is re-asserted before EVERY invocation, not once.
+
+    Found in review: profile selection is process-global, so another terminal
+    running `nlm login switch` after the opening check would silently redirect
+    every later add and delete into a different account — across a re-derivation
+    that takes about forty minutes.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+        sync._CONFIG_CACHE = None
+
+    @staticmethod
+    def _config(root: Path, profile: str) -> Path:
+        path = root / "config.toml"
+        path.write_text(f'[output]\nformat = "table"\n\n[auth]\n'
+                        f'browser = "auto"\ndefault_profile = "{profile}"\n',
+                        encoding="utf-8")
+        return path
+
+    def test_the_configured_profile_is_read_from_the_file(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            self.assertEqual(sync.configured_nlm_profile(path), "company")
+
+    def test_an_absent_config_is_unknown(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(
+                sync.configured_nlm_profile(Path(td) / "nope.toml"))
+
+    def test_an_unbound_run_asserts_nothing(self):
+        sync.bind_profile(None)
+        sync.assert_still_bound()  # must not raise
+
+    def test_a_profile_switched_mid_run_refuses_the_next_invocation(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            with patch.object(sync, "NLM_CONFIG", path):
+                sync.bind_profile("company")
+                sync.assert_still_bound()          # still bound: no raise
+                self._config(Path(td), "personal")  # another terminal switches
+                sync._CONFIG_CACHE = None
+                with self.assertRaises(SystemExit) as caught:
+                    sync.assert_still_bound()
+        message = str(caught.exception)
+        self.assertIn("changed mid-run", message)
+        self.assertIn("nlm login switch company", message)
+
+    def test_the_cache_does_not_hide_a_switch(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            with patch.object(sync, "NLM_CONFIG", path):
+                sync._CONFIG_CACHE = None
+                sync.bind_profile("company")
+                sync.assert_still_bound()
+                # rewrite with a different size so the (mtime_ns, size) stamp
+                # moves even inside one filesystem timestamp tick
+                path.write_text('[auth]\ndefault_profile = "a-different-one"\n',
+                                encoding="utf-8")
+                with self.assertRaises(SystemExit):
+                    sync.assert_still_bound()
+
+
+class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
+    """The refusals must fire during an ordinary run, not only in the validator.
+
+    Found in review: nothing the sync runs invoked the validator, so a
+    declaration naming a consumer or service account would have been accepted
+    by `--apply`.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    def _enforce(self, root: Path, text: str, active: str = "company"):
+        _declare_hosting(root, text)
+        return sync.enforce_hosting_profile(root, runner=_profile_runner(active))
+
+    def test_a_service_account_is_refused_by_the_sync_itself(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace(
+                "account: xFactor001@opensoft.one",
+                "account: books@xf.iam.gserviceaccount.com").replace(
+                "domain: opensoft.one", "domain: xf.iam.gserviceaccount.com")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("service account", str(caught.exception))
+
+    def test_a_consumer_account_is_refused_for_the_operator_hosted_case(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace(
+                "account_type: google_workspace_user",
+                "account_type: consumer_google_account")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("google_workspace_user", str(caught.exception))
+
+    def test_an_account_outside_the_declared_domain_is_refused(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace("domain: opensoft.one",
+                                            "domain: elsewhere.example")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("not in the declared domain", str(caught.exception))
+
+    def test_a_third_case_is_refused(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace("case: operator_hosted",
+                                            "case: partly_hosted")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("exactly one of", str(caught.exception))
+
+    def test_a_conforming_declaration_binds_the_run(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = self._enforce(root, HOSTING_DECLARED)
+        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertEqual(sync._BOUND_PROFILE, "company",
+                         "a bound run must pin the profile it verified")
+
+    def test_an_undeclared_install_releases_the_pin(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            sync.bind_profile("stale")
+            with contextlib.redirect_stdout(io.StringIO()):
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNone(sync._BOUND_PROFILE)
+
+    def test_a_self_hosted_personal_declaration_is_accepted(self):
+        text = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: self_hosted
+  account: someone@gmail.com
+  nlm_profile: personal
+share_out: []
+"""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            with contextlib.redirect_stdout(io.StringIO()):
+                got = self._enforce(root, text, active="personal")
+        self.assertEqual(got["case"], "self_hosted",
+                         "an individual's own account is a complete binding")
+
+    def test_nlm_itself_reasserts_the_binding_before_running(self):
+        """The wire, not just the check.
+
+        `assert_still_bound()` is only worth anything if `nlm()` calls it: a
+        drift detector nothing invokes is decoration. Asserted by driving the
+        REAL `nlm()` with a drifted config and a stubbed subprocess, so the
+        refusal must come from the binding rather than from the CLI.
+        """
+        with TemporaryDirectory() as td:
+            path = Path(td) / "config.toml"
+            path.write_text('[auth]\ndefault_profile = "someone-else"\n',
+                            encoding="utf-8")
+            ran = []
+            with patch.object(sync, "NLM_CONFIG", path), \
+                 patch.object(sync.subprocess, "run",
+                              lambda *a, **k: ran.append(a)):
+                sync._CONFIG_CACHE = None
+                sync.bind_profile("company")
+                with self.assertRaises(SystemExit) as caught:
+                    sync.nlm("notebook", "list", "--json")
+        self.assertIn("changed mid-run", str(caught.exception))
+        self.assertEqual(ran, [], "the invocation must be refused BEFORE the "
+                                  "subprocess, not after it has written")
+
+
+class UnreadableDeclarationFailsClosedTests(unittest.TestCase):
+    """A declaration the sync cannot read is NOT an absent one.
+
+    Found in review: the narrow reader wants the `hosting:` block's own
+    two-space scalars. Flow style, four-space indentation and tabs are all
+    valid YAML — the validator passes them — and all yielded nothing here, so
+    the run took the UNDECLARED branch, bound nothing, and left
+    `assert_still_bound()` a no-op for the whole job.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    FLOW = ("schema_version: 1\nkind: notebook_projection_hosting\n"
+            "hosting: {case: operator_hosted, account: x@opensoft.one, "
+            "nlm_profile: company}\nshare_out: []\n")
+    FOUR = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
+            "    case: operator_hosted\n    account: x@opensoft.one\n"
+            "    nlm_profile: company\nshare_out: []\n")
+    TABS = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
+            "\tcase: operator_hosted\n\taccount: x@opensoft.one\n"
+            "\tnlm_profile: company\nshare_out: []\n")
+
+    def test_an_existing_file_always_yields_a_dict_never_none(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, self.FLOW)
+            got = sync.read_hosting_declaration(root)
+        self.assertEqual(got, {}, "present-but-unparsed must be distinguishable "
+                                  "from absent")
+
+    def test_an_absent_file_is_the_only_undeclared_case(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(sync.read_hosting_declaration(Path(td)))
+
+    def test_each_unreadable_shape_refuses_instead_of_running_unbound(self):
+        for label, text in (("flow", self.FLOW), ("four-space", self.FOUR),
+                            ("tabs", self.TABS)):
+            with self.subTest(shape=label), TemporaryDirectory() as td:
+                root = Path(td)
+                _declare_hosting(root, text)
+                with self.assertRaises(SystemExit) as caught:
+                    sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("personal"))
+                self.assertIn("no declaration could be read",
+                              str(caught.exception))
+
+
+class MigrationStateVocabularyTests(unittest.TestCase):
+    """The sync owns the state vocabulary too — one rule, not two gates.
+
+    Found in review: `state: in_progress` FAILED the validator and PASSED the
+    sync, which then bound the DECLARED profile while the books were still in
+    the previous account — a premature migration under `--apply`.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    BASE = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  migration:
+    state: {state}
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+share_out: []
+"""
+
+    def _enforce(self, text: str, active: str):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, text)
+            with contextlib.redirect_stdout(io.StringIO()):
+                return sync.enforce_hosting_profile(
+                    root, runner=_profile_runner(active))
+
+    def test_an_unrecognized_state_is_refused(self):
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(self.BASE.format(state="in_progress"), "company")
+        self.assertIn("migration.state", str(caught.exception))
+
+    def test_pending_and_complete_are_both_accepted(self):
+        self.assertIsNotNone(
+            self._enforce(self.BASE.format(state="pending"), "personal"))
+        self.assertIsNotNone(
+            self._enforce(self.BASE.format(state="complete"), "company"))
+
+    def test_a_pending_migration_without_a_from_profile_is_refused(self):
+        text = self.BASE.format(state="pending").replace(
+            "    from_nlm_profile: personal\n", "")
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(text, "personal")
+        self.assertIn("from_nlm_profile", str(caught.exception))
+
+    def test_the_top_level_profile_is_required_even_while_pending(self):
+        text = self.BASE.format(state="pending").replace(
+            "  nlm_profile: company\n", "")
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(text, "personal")
+        self.assertIn("no top-level nlm_profile", str(caught.exception))
+
+
+class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
+    """The CLI DOES store a profile's email — this change first claimed it did not.
+
+    `profiles/<name>/metadata.json` carries `email`: populated by a recent
+    login, left null by an older one. Null means UNKNOWN and is reported; a
+    populated address that disagrees with the declaration is a refusal.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    @staticmethod
+    def _home(root: Path, profile: str, email) -> Path:
+        home = root / "cli-home"
+        d = home / "profiles" / profile
+        d.mkdir(parents=True)
+        body = "null" if email is None else f'"{email}"'
+        (d / "metadata.json").write_text('{"email": %s}' % body,
+                                         encoding="utf-8")
+        return home
+
+    def test_a_recorded_address_is_read(self):
+        with TemporaryDirectory() as td:
+            home = self._home(Path(td), "company", "xFactor001@opensoft.one")
+            self.assertEqual(sync.profile_account("company", home=home),
+                             "xFactor001@opensoft.one")
+
+    def test_a_null_address_is_unknown_not_empty_string(self):
+        with TemporaryDirectory() as td:
+            home = self._home(Path(td), "company", None)
+            self.assertIsNone(sync.profile_account("company", home=home))
+
+    def test_a_missing_profile_directory_is_unknown(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(
+                sync.profile_account("nope", home=Path(td) / "cli-home"))
+
+    def test_the_right_profile_name_signed_in_as_the_wrong_account_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            home = self._home(root, "company", "someone-else@elsewhere.test")
+            # the REAL reader, pointed at a synthetic CLI home
+            real = functools.partial(sync.profile_account, home=home)
+            with patch.object(sync, "profile_account", real):
+                with self.assertRaises(SystemExit) as caught:
+                    sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("company"))
+        message = str(caught.exception)
+        self.assertIn("signed in as someone-else@elsewhere.test", message)
+        self.assertIn("nlm login --profile company", message)
+
+    def test_an_unknown_address_is_reported_not_treated_as_a_mismatch(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            out = io.StringIO()
+            with patch.object(sync, "profile_account", lambda *a, **k: None):
+                with contextlib.redirect_stdout(out):
+                    got = sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("company"))
+        self.assertIsNotNone(got, "an older login that recorded no address must "
+                                  "not block the run")
+        self.assertIn("records no account address", out.getvalue())
+
+
+# ---------------------------------------------------------------------------
+# add-projection-title-uniqueness — the title derivation is INJECTIVE.
+#
+# A source title is the projection's identity key: `scan()` derives a set keyed
+# by document PATH and `sync_book()` reconciles it against a live book BY
+# TITLE, holding each title at one source. Until 2026-08-25 the derivation
+# special-cased the literal filename `README` and let everything else fall
+# through to a bare stem, so four MedxFactory staging topics shared one source
+# while the manifest recorded four documents as synced.
+# ---------------------------------------------------------------------------
+
+# `design.md` § 6's enumeration, transcribed row for row:
+# (book, relpath, status, title BEFORE this change, title AFTER).
+# The apply that migrated the live books was diffed against this list, so a
+# derivation change that moves any of these fourteen rows must move this
+# constant too, in front of a reader.
+TITLE_MIGRATION = [
+    ("canon", "openxFactory/contracts/memory-gateway/README.md", "standard",
+     "[standard] openxFactory: memory-gateway/README",
+     "[standard] openxFactory: contracts/memory-gateway/README"),
+    ("canon", "xFactories/LedgerxFactory/docs/company-provisioning.md",
+     "ratified",
+     "[ratified] LedgerxFactory: company-provisioning",
+     "[ratified] LedgerxFactory: docs/company-provisioning"),
+    ("drafts", "openxFactory/examples/memory-gateway/README.md", "draft",
+     "[draft] openxFactory: memory-gateway/README",
+     "[draft] openxFactory: examples/memory-gateway/README"),
+    ("drafts",
+     "openxFactory/specs/005-customer-subject-runtime/checklists/"
+     "requirements.md", "draft",
+     "[draft] openxFactory: requirements",
+     "[draft] openxFactory: 005-customer-subject-runtime/checklists/"
+     "requirements"),
+    ("drafts",
+     "openxFactory/specs/007-client-identity-roster/checklists/"
+     "requirements.md", "draft",
+     "[draft] openxFactory: requirements",
+     "[draft] openxFactory: 007-client-identity-roster/checklists/"
+     "requirements"),
+    ("ideation-ledgerxfactory",
+     "xFactories/LedgerxFactory/ideation/staging/company-provisioning/"
+     "company-provisioning.md", "staged",
+     "[staged] LedgerxFactory: company-provisioning",
+     "[staged] LedgerxFactory: company-provisioning/company-provisioning"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/root-truth-grounding/topic.md",
+     "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: root-truth-grounding/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/root-truth-target-claims/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: root-truth-target-claims/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/terminology-normalization/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: terminology-normalization/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/treatment-plan-generation/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: treatment-plan-generation/topic"),
+    ("ideation-openxfactory",
+     "openxFactory/ideation/brainstorm/"
+     "codexfactory-domain-hermes-content.md", "brainstorm",
+     "[brainstorm] openxFactory: codexfactory-domain-hermes-content",
+     "[brainstorm] openxFactory: brainstorm/"
+     "codexfactory-domain-hermes-content"),
+    ("ideation-openxfactory",
+     "openxFactory/ideation/staging/codexfactory-domain-hermes-content/"
+     "codexfactory-domain-hermes-content.md", "staged",
+     "[staged] openxFactory: codexfactory-domain-hermes-content",
+     "[staged] openxFactory: codexfactory-domain-hermes-content/"
+     "codexfactory-domain-hermes-content"),
+    ("ideation-opsxfactory",
+     "xFactories/OpsxFactory/ideation/brainstorm/"
+     "exchange-execution-bringup.md", "staged",
+     "[staged] OpsxFactory: exchange-execution-bringup",
+     "[staged] OpsxFactory: brainstorm/exchange-execution-bringup"),
+    ("ideation-opsxfactory",
+     "xFactories/OpsxFactory/ideation/staging/exchange-execution-bringup/"
+     "exchange-execution-bringup.md", "staged",
+     "[staged] OpsxFactory: exchange-execution-bringup",
+     "[staged] OpsxFactory: exchange-execution-bringup/"
+     "exchange-execution-bringup"),
+]
+
+# Documents that are NOT in the migration and must not move, each one a scope
+# claim: a lone `topic.md` stays bare (the rule qualifies on collision, never
+# pre-emptively), a unique README keeps its parent-directory floor, a
+# repository-root README keeps the repository as its parent, a `record`
+# document qualifies nobody because it projects nowhere, and a stem that
+# matches a promoted capability name is not qualified by the `[spec]` family.
+TITLE_UNMOVED = [
+    ("xFactories/OpsxFactory/ideation/staging/opensoft-tenant-governance/"
+     "topic.md", "staged", "[staged] OpsxFactory: topic"),
+    ("xFactories/OpsxFactory/ideation/README.md", "ratified",
+     "[ratified] OpsxFactory: ideation/README"),
+    ("xFactories/OpsxFactory/README.md", "standard",
+     "[standard] OpsxFactory: OpsxFactory/README"),
+    ("openxFactory/docs/lifecycle-notebook-projection.md", "standard",
+     "[standard] openxFactory: lifecycle-notebook-projection"),
+]
+
+# A `record` document is scanned and projected by no book, so it is outside the
+# uniqueness scope: it must not push the standard document below into a
+# qualifier it does not need.
+RECORD_NAMESAKE = ("openxFactory/ideation/gate-records/"
+                   "lifecycle-notebook-projection.md", "record")
+
+
+def _legacy_stem(rel: str) -> str:
+    """The derivation this change replaced, kept so the BEFORE column of
+    TITLE_MIGRATION is produced rather than transcribed twice."""
+    path = Path(rel)
+    return (f"{path.parent.name}/{path.stem}"
+            if path.stem.lower() == "readme" else path.stem)
+
+
+def _bare_stem_derivation(documents):
+    """Mutation (i): the pre-2026-08-25 derivation, with even the README floor
+    removed. Nothing may pass under this."""
+    return {rel: segs[-1] for rel, _repo, segs in documents}
+
+
+def _one_level_derivation(documents):
+    """Mutation (ii): candidate (b1), always `<parent>/<stem>`. Looks like a
+    fix and leaves `checklists/requirements` colliding with itself — the
+    platform-inert class in disguise, where the changed code yields an equal
+    value."""
+    return {rel: "/".join(segs[-2:]) for rel, _repo, segs in documents}
+
+
+class TitleUniquenessTests(unittest.TestCase):
+    """One projected document, one source — asserted over the derived set."""
+
+    @staticmethod
+    def _write(root: Path, rel: str, status: str) -> None:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"# {Path(rel).stem}\n\nStatus: {status}\n",
+                        encoding="utf-8")
+
+    @classmethod
+    def _world(cls, root: Path) -> None:
+        """The three real collision shapes plus the latent README pair, at
+        their real paths (§ 3.1): four documents sharing a stem inside one
+        directory family; two whose PARENT directories match as well; a pair
+        split across two directory families; and a same-stem pair kept apart
+        today only by a status difference."""
+        (root / "openxFactory").mkdir(parents=True, exist_ok=True)
+        for grounding in sync.GROUNDING:
+            cls._write(root, grounding, "standard")
+        for _book, rel, status, _before, _after in TITLE_MIGRATION:
+            cls._write(root, rel, status)
+        for rel, status, _title in TITLE_UNMOVED:
+            cls._write(root, rel, status)
+        cls._write(root, *RECORD_NAMESAKE)
+        promoted = root / "openxFactory/openspec/specs/ideation-dashboard"
+        promoted.mkdir(parents=True, exist_ok=True)
+        (promoted / "spec.md").write_text("# Spec\n\nStatus: ratified\n",
+                                          encoding="utf-8")
+
+    @staticmethod
+    def _documents(root: Path):
+        """(relpath, repository, segments) for every projected document —
+        the input `scan()` hands the derivation."""
+        desired, _specs = sync.scan(root)
+        rels = {rel for book in desired.values() for rel in book}
+        out = []
+        for rel in sorted(rels):
+            parts = Path(rel).parts
+            repo = parts[1] if parts[0] == "xFactories" else parts[0]
+            out.append((rel, repo, sync.title_segments(Path(rel))))
+        return out
+
+    def test_the_fourteen_enumerated_titles_move_exactly_as_designed(self):
+        """§ 3.1 — the migration is checked against a list, not trusted."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            for book, rel, status, before, after in TITLE_MIGRATION:
+                self.assertEqual(f"[{status}] "
+                                 f"{before.split(']', 1)[1].split(':', 1)[0].strip()}"
+                                 f": {_legacy_stem(rel)}", before,
+                                 f"the BEFORE column of {rel} is not what the "
+                                 f"replaced derivation produced")
+                self.assertIn(rel, desired[book], f"{rel} left book {book}")
+                self.assertEqual(desired[book][rel], after,
+                                 f"{rel} did not land on design.md § 6's title")
+                self.assertNotEqual(desired[book][rel], before,
+                                    f"{rel} was enumerated as a rename")
+
+    def test_documents_outside_the_migration_keep_their_titles(self):
+        """The rule qualifies on collision. Nothing else moves — including the
+        five scope claims in TITLE_UNMOVED."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            titles = {rel: title
+                      for book in desired.values()
+                      for rel, title in book.items()}
+            for rel, _status, expected in TITLE_UNMOVED:
+                self.assertEqual(titles[rel], expected)
+
+    def _assert_injective(self, desired) -> None:
+        """§ 3.2 — the assertion whose absence let the class exist.
+
+        Written over the DERIVED set, never over an expected-title table, so a
+        future derivation cannot satisfy it by agreeing with itself. One
+        method so the mutation check below runs THIS assertion rather than a
+        paraphrase of it.
+        """
+        self.assertTrue(desired, "a fixture that derives nothing proves "
+                                 "injectivity vacuously")
+        for book, items in desired.items():
+            self.assertEqual(
+                len(set(items.values())), len(items),
+                f"book {book} derives fewer titles than it has documents: "
+                f"the shortfall is documents the book cannot hold")
+
+    def test_every_book_derives_one_title_per_document(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            self._assert_injective(sync.scan(root)[0])
+
+    def test_a_status_change_moves_no_other_title(self):
+        """§ 3.3 — the repository-scope choice, pinned structurally.
+
+        Under a (book, status) scope the two `memory-gateway/README`
+        documents are qualified only while their statuses differ, so flipping
+        one moves the other's title and this test reds. That is the point.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            before, _specs = sync.scan(root)
+            before_titles = {rel: title
+                             for book in before.values()
+                             for rel, title in book.items()}
+            moved = "openxFactory/examples/memory-gateway/README.md"
+            self._write(root, moved, "standard")
+            after, _specs = sync.scan(root)
+            after_titles = {rel: title
+                            for book in after.values()
+                            for rel, title in book.items()}
+            for rel, title in before_titles.items():
+                if rel == moved:
+                    continue
+                self.assertEqual(after_titles.get(rel), title,
+                                 f"{rel} was retitled by another document's "
+                                 f"Status: header")
+            self.assertEqual(after_titles[moved],
+                             "[standard] openxFactory: examples/memory-gateway/"
+                             "README",
+                             "the moved document keeps its own qualifier; only "
+                             "its status prefix changes")
+
+    def test_a_unique_readme_still_carries_its_parent_directory(self):
+        """§ 3.5 — the FLOOR. The amendment never SHORTENS a title, including
+        for a repository-root README whose parent IS the repository."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            titles = {rel: title
+                      for book in desired.values()
+                      for rel, title in book.items()}
+            for rel, title in titles.items():
+                if Path(rel).stem.lower() != "readme":
+                    continue
+                stem = title.split(": ", 1)[1]
+                self.assertGreaterEqual(
+                    len(stem.split("/")), 2,
+                    f"{rel} lost its parent-directory floor")
+                self.assertEqual(stem.split("/")[-2:],
+                                 _legacy_stem(rel).split("/"),
+                                 f"{rel}'s floor is not the title the replaced "
+                                 f"rule produced")
+
+    def test_the_spec_and_grounding_families_are_outside_the_scope(self):
+        """§ 2.2 — the exclusion is measured, not a convenience.
+
+        `[spec]` is keyed by a promoted capability's DIRECTORY name and
+        `[grounding]` by a fixed document set. Folding either into the
+        uniqueness scope over-qualified a title for no reason.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            # a governance document whose stem is the promoted capability's
+            # directory name: two families, one spelling, no collision
+            self._write(root, "openxFactory/docs/ideation-dashboard.md",
+                        "standard")
+            desired, _specs = sync.scan(root)
+            canon = desired["canon"]
+            self.assertIn("[spec] openxFactory: ideation-dashboard",
+                          canon.values())
+            self.assertEqual(
+                canon["openxFactory/docs/ideation-dashboard.md"],
+                "[standard] openxFactory: ideation-dashboard",
+                "a `[spec]` title must not qualify a `[status]` one")
+            for family in sync.STEM_SCOPE_EXCLUDES:
+                self.assertTrue(
+                    any(t.startswith(family) for t in canon.values()),
+                    f"the fixture must exercise the {family} family it "
+                    f"claims to hold outside the scope")
+            grounding = [t for book in desired.values() for t in book.values()
+                         if t.startswith("[grounding]")]
+            self.assertTrue(grounding)
+            for title in grounding:
+                self.assertNotIn("/", title.split(": ", 1)[1],
+                                 "the grounding set is keyed by a fixed "
+                                 "document list, never qualified")
+
+    def test_a_record_document_qualifies_nobody(self):
+        """The scope is the PROJECTED set. A `record` document reaches no book,
+        so it cannot cost a projected namesake its bare stem."""
+        rel, _status = RECORD_NAMESAKE
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            placed = [book for book, items in desired.items() if rel in items]
+            self.assertEqual(placed, [], "a record document projects nowhere")
+            self.assertEqual(
+                desired["canon"]["openxFactory/docs/"
+                                 "lifecycle-notebook-projection.md"],
+                "[standard] openxFactory: lifecycle-notebook-projection")
+
+    def test_titles_are_derived_from_structure_not_from_a_rendered_path(self):
+        """§ 3.6 (iii) — a `str(Path)` or separator substitution is inert on
+        POSIX against a value-equality check, so assert the STRUCTURE."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            documents = self._documents(root)
+            segments = dict((rel, segs) for rel, _repo, segs in documents)
+            checklist = ("openxFactory/specs/005-customer-subject-runtime/"
+                         "checklists/requirements.md")
+            self.assertEqual(
+                segments[checklist],
+                ("openxFactory", "specs", "005-customer-subject-runtime",
+                 "checklists", "requirements"))
+            for rel, segs in segments.items():
+                self.assertIsInstance(segs, tuple, f"{rel}")
+                for part in segs:
+                    self.assertIsInstance(part, str, f"{rel}")
+                    self.assertNotIn("/", part, f"{rel}: a segment is a path")
+                    self.assertNotIn("\\", part, f"{rel}: a segment is a path")
+            stems = sync.derive_stems(documents)
+            self.assertEqual(
+                stems[checklist].split("/"),
+                ["005-customer-subject-runtime", "checklists", "requirements"],
+                "the qualifier is three segments deep because two segments "
+                "still collide")
+
+    def test_reverting_the_rule_to_a_bare_stem_reds_the_injectivity_check(self):
+        """§ 3.6 (i) — an assertion that passes against the defective
+        derivation is not the assertion."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            with patch.object(sync, "derive_stems", _bare_stem_derivation):
+                desired, _specs = sync.scan(root)
+            with self.assertRaises(AssertionError):
+                self._assert_injective(desired)
+            offenders = {book: len(items) - len(set(items.values()))
+                         for book, items in desired.items()
+                         if len(set(items.values())) != len(items)}
+            self.assertEqual(
+                sorted(offenders), ["drafts", "ideation-medxfactory",
+                                    "ideation-opsxfactory"],
+                "the fixture must reproduce the three real collisions when the "
+                "rule is reverted")
+            self.assertEqual(sum(offenders.values()), 5,
+                             "five documents were displaced in the live books")
+
+    def test_a_one_level_qualifier_leaves_the_checklists_pair_colliding(self):
+        """§ 3.6 (ii) — candidate (b1) is eliminated on CORRECTNESS.
+
+        Both checklist documents live in a directory named `checklists`, so
+        `<parent>/<stem>` collides with itself. 572 renames and the defect
+        survives; a one-level qualifier is a longer version of the same
+        assumption, not a fix.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            with patch.object(sync, "derive_stems", _one_level_derivation):
+                desired, _specs = sync.scan(root)
+            drafts = desired["drafts"]
+            self.assertNotEqual(
+                len(set(drafts.values())), len(drafts),
+                "a one-level qualifier must still collapse the checklist pair")
+            self.assertEqual(
+                drafts["openxFactory/specs/005-customer-subject-runtime/"
+                       "checklists/requirements.md"],
+                drafts["openxFactory/specs/007-client-identity-roster/"
+                       "checklists/requirements.md"])
+            # and the real rule does not
+            desired, _specs = sync.scan(root)
+            drafts = desired["drafts"]
+            self.assertEqual(len(set(drafts.values())), len(drafts))
+
+
+class ParityProvesDocumentsTests(unittest.TestCase):
+    """§ 3.4 — the check that could not see the defect it existed to catch."""
+
+    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with patch.object(sync, "nlm", fake):
+                code = sync.parity_report(root)
+        return code, out.getvalue()
+
+    @staticmethod
+    def _books_holding(root: Path, desired, specs):
+        """A live account whose bracket-titled sources are EXACTLY the derived
+        title set — the state the old parity called OK."""
+        fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                        for i, k in enumerate(sorted(desired))])
+        for i, key in enumerate(sorted(desired)):
+            fake.sources[f"nb{i}"] = [
+                {"id": f"s{i}-{j}", "title": title}
+                for j, title in enumerate(sorted(set(desired[key].values())))]
+        return fake
+
+    def test_a_collapsed_title_fails_parity_though_the_title_sets_are_equal(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            TitleUniquenessTests._world(root)
+            with patch.object(sync, "derive_stems", _bare_stem_derivation):
+                desired, specs = sync.scan(root)
+                fake = self._books_holding(root, desired, specs)
+                for key, items in desired.items():
+                    self.assertEqual(
+                        {r.get("title") for r in fake.sources_of(specs[key].title)},
+                        set(items.values()),
+                        "the fixture must put the live book at TITLE-set "
+                        "equality, which is the state the old check passed")
+                code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 1, "a book missing five documents is not at "
+                                  "parity, however equal its title sets are")
+        self.assertIn("carry more than one document", text)
+        self.assertIn("COLLAPSED", text)
+        self.assertIn("xFactories/MedxFactory/ideation/staging/"
+                      "root-truth-grounding/topic.md", text)
+
+    def test_the_injective_derivation_proves_parity_over_documents(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            TitleUniquenessTests._world(root)
+            desired, specs = sync.scan(root)
+            fake = self._books_holding(root, desired, specs)
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 0, text)
+        self.assertIn("parity: PROVEN", text)
+        self.assertIn("documents in", text)
+        self.assertNotIn("COLLAPSED", text)
+
+
+# ---------------------------------------------------------------------------
+# P4b — root-level governed-repo recognition (split-openxwallet-repo §11)
+# ---------------------------------------------------------------------------
+
+def _root_product_world(root: Path, *, products=("openXwallet",),
+                        declare=None, initialize=True, extra_pins=()):
+    """An aggregation root pinning `products` as ROOT-LEVEL siblings.
+
+    `declare` overrides which names go into `.gitmodules` (default: `products`),
+    so the tests can separate "pinned" from "present on disk" — the two halves
+    `pinned_root_product_paths` requires jointly. `initialize=False` leaves the
+    directory EMPTY, which is exactly what an uninitialized submodule looks
+    like.
+    """
+    (root / "openxFactory" / "ideation" / "staging" / "demo-topic").mkdir(
+        parents=True)
+    (root / "openxFactory" / STAGED_DOC).write_text(
+        "Status: staged\n\n# openxFactory topic\n", encoding="utf-8")
+    lines = []
+    for name in (declare if declare is not None else products):
+        lines.append(f'[submodule "{name}"]\n\tpath = {name}\n'
+                     f'\turl = https://example.invalid/{name}.git\n')
+    for pin in extra_pins:
+        lines.append(f'[submodule "{pin}"]\n\tpath = {pin}\n'
+                     f'\turl = https://example.invalid/{pin}.git\n')
+    (root / ".gitmodules").write_text("".join(lines), encoding="utf-8")
+    for name in products:
+        base = root / name
+        base.mkdir(parents=True, exist_ok=True)
+        if initialize:
+            (base / "ideation" / "brainstorm").mkdir(parents=True)
+            (base / "ideation" / "brainstorm" / "wallet-idea.md").write_text(
+                "Status: brainstorm\n\n# a wallet idea\n", encoding="utf-8")
+    return root
+
+
+class RootLevelGovernedProductTests(unittest.TestCase):
+    """The notebook half of P4b (task 11.1) and the cross-site pin (task 11.3).
+
+    The defect: `scan()` built its repository set as `["openxFactory",
+    *pinned_factory_paths(root)]` and `pinned_factory_paths` matches only
+    `^\\s*path\\s*=\\s*(xFactories/\\S+)\\s*$`, so a product pinned at the
+    aggregation ROOT was swept by nothing and derived no book. The empirical
+    proof it was a real gap rather than a theoretical one: no
+    `xf-ideation-openavatar` book exists, five months into the ratified
+    openAvatar precedent (`council-systems-architect.md` concern 4).
+    """
+
+    def test_the_allowlist_matches_the_doc_health_authority(self):
+        """TASK 11.3 — the two sites are widened by the SAME allowlist so the
+        notebook set and the doc-health routing set cannot disagree.
+
+        A deliberate second copy, on this repository's own rule for a
+        hyphenated standalone that cannot be imported (`doc_health.recorded_rel`
+        vs `proposal-support.py`'s `manifest_rel`), pinned to its authority
+        here. Without this assertion the copies are just two constants.
+        """
+        corpus_path = REPO_ROOT / "scripts" / "doc_health" / "corpus.py"
+        source = corpus_path.read_text(encoding="utf-8")
+        # read the AUTHORITY without importing the package (which would pull
+        # `doc_health/__init__` and PyYAML into a hermetic notebook test)
+        namespace: dict = {}
+        for line in source.splitlines():
+            if line.startswith("ROOT_LEVEL_GOVERNED_PRODUCTS"):
+                exec(line, namespace)  # noqa: S102  (one literal tuple)
+                break
+        self.assertIn("ROOT_LEVEL_GOVERNED_PRODUCTS", namespace,
+                      f"{corpus_path} no longer declares the authority")
+        self.assertEqual(namespace["ROOT_LEVEL_GOVERNED_PRODUCTS"],
+                         sync.ROOT_LEVEL_GOVERNED_PRODUCTS,
+                         "the notebook sweep and doc-health routing disagree "
+                         "about which root-level repositories are governed")
+        self.assertEqual(sync.ROOT_LEVEL_GOVERNED_PRODUCTS,
+                         ("openAvatar", "openXwallet"))
+
+    def test_a_pinned_and_present_root_product_is_found(self):
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            self.assertEqual(sync.pinned_root_product_paths(root),
+                             ["openXwallet"])
+
+    def test_a_present_but_unpinned_root_product_is_not_found(self):
+        """Pin-state is the authoritative filter, as it is for the factories: a
+        bare directory in a scratch root is not a governed repository."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), declare=())
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_a_pinned_but_absent_root_product_is_not_found(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".gitmodules").write_text(
+                '[submodule "openXwallet"]\n\tpath = openXwallet\n'
+                '\turl = https://example.invalid/openXwallet.git\n',
+                encoding="utf-8")
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_installs_are_never_admitted(self):
+        """THE ALLOWLIST, NOT THE RULE. Admitting every root-level pin would
+        enrol the nine `installs/*` runtime repositories as governed ideation
+        repositories, each deriving its own book."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "installs" / "hermes-install").mkdir(parents=True)
+            root = _root_product_world(
+                root, extra_pins=("installs/hermes-install",))
+            found = sync.pinned_root_product_paths(root)
+            self.assertEqual(found, ["openXwallet"])
+            self.assertNotIn("installs/hermes-install",
+                             sync.governed_repo_paths(root))
+
+    def test_no_gitmodules_admits_nothing(self):
+        """No suffix-heuristic fallback, deliberately: the aggregation root
+        holds `installs/`, `openspec/`, docs and worktree containers, so there
+        is no shape to guess from."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "openXwallet").mkdir()
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_an_uninitialized_root_product_warns_instead_of_reading_empty(self):
+        """A declared-but-uninitialized submodule is an EXISTING, EMPTY
+        directory. Returned silently it makes the sweep compute "this product
+        has no ideation documents", which is indistinguishable in the output
+        from the truth — and the book that should exist would simply never be
+        created."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), initialize=False)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                found = sync.pinned_root_product_paths(root)
+            self.assertEqual(found, ["openXwallet"])
+            text = buf.getvalue()
+            self.assertIn("openXwallet", text)
+            self.assertIn("uninitialized submodule", text)
+            self.assertIn("git submodule update --init openXwallet", text)
+
+    def test_governed_repo_paths_puts_root_products_before_the_factories(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "xFactories" / "codexFactory").mkdir(parents=True)
+            root = _root_product_world(
+                root, extra_pins=("xFactories/codexFactory",))
+            self.assertEqual(sync.governed_repo_paths(root),
+                             ["openXwallet", "xFactories/codexFactory"])
+
+    def test_scan_derives_the_openxwallet_ideation_book(self):
+        """TASK 11.4's acceptance, as a hermetic unit: the book key, its alias
+        `xf-ideation-openxwallet`, its title, and the document inside it."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            desired, specs = sync.scan(root)
+        self.assertIn("ideation-openxwallet", desired)
+        spec = specs["ideation-openxwallet"]
+        self.assertEqual(spec.alias, "xf-ideation-openxwallet")
+        self.assertEqual(spec.title, "xFactory Ideation — openXwallet")
+        self.assertIn("openXwallet/ideation/brainstorm/wallet-idea.md",
+                      desired["ideation-openxwallet"])
+        self.assertEqual(
+            desired["ideation-openxwallet"][
+                "openXwallet/ideation/brainstorm/wallet-idea.md"],
+            "[brainstorm] openXwallet: wallet-idea")
+        # and it did NOT displace openxFactory's own book
+        self.assertIn(f"openxFactory/{STAGED_DOC}",
+                      desired["ideation-openxfactory"])
+
+    def test_scan_derives_the_openavatar_book_by_the_same_widening(self):
+        """openAvatar is admitted on the SAME footing, which is what makes the
+        widening a rule about root-level products rather than a special case
+        for the wallet. (In the live tree openAvatar carries no
+        brainstorm/staged document, so no book derives there yet — membership
+        is STATUS-derived, and the widening removes only the recognition half
+        of the two reasons the book is absent.)"""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), products=("openAvatar",))
+            desired, specs = sync.scan(root)
+        self.assertEqual(specs["ideation-openavatar"].alias,
+                         "xf-ideation-openavatar")
+        self.assertIn("openAvatar/ideation/brainstorm/wallet-idea.md",
+                      desired["ideation-openavatar"])
+
+    def test_a_root_product_with_no_ideation_document_derives_no_book(self):
+        """Recognition is not membership: an ideation book exists exactly when
+        its repo has at least one brainstorm/staged document
+        (split-ideation-book-per-repo). This is why the live tree will still
+        have no `xf-ideation-openavatar` after this widening lands."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), products=())
+            (root / "openXwallet" / "docs").mkdir(parents=True)
+            (root / "openXwallet" / "docs" / "a.md").write_text(
+                "Status: ratified\n", encoding="utf-8")
+            (root / ".gitmodules").write_text(
+                '[submodule "openXwallet"]\n\tpath = openXwallet\n'
+                '\turl = https://example.invalid/openXwallet.git\n',
+                encoding="utf-8")
+            desired, specs = sync.scan(root)
+        self.assertNotIn("ideation-openxwallet", desired)
+        self.assertNotIn("ideation-openxwallet", specs)
+
+    def test_session_repositories_keeps_its_stated_agreement_with_scan(self):
+        """Its docstring claims "deliberately the same repo set `scan()` walks";
+        widening `scan()` alone would have quietly falsified it."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            names = [name for name, _p in sync.session_repositories(root)]
+        self.assertEqual(names, ["openxFactory", "openXwallet"])
+
+    def test_the_workbench_sweep_sees_a_root_products_manifests(self):
+        """The widening is the SAFE direction here: a workbench dir this misses
+        is a live manifest the sweep cannot see, and the sweep DELETES the
+        `xf-wb-*` notebook no live manifest binds."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            (root / "openXwallet" / "ideation" / "workbench").mkdir(
+                parents=True)
+            dirs = sync._out_of_scope_workbench_dirs(root)
+        self.assertIn("openXwallet",
+                      {p.parent.parent.name for p in dirs})

@@ -1,0 +1,575 @@
+---
+code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-state.js` — `BUFFER_KINDS` and the exactly-two-keys validator become a keyed buffer set with `outline` reserved; `doxbench-save.js` — `SAVE_BUFFER_ORDER` becomes the outline-ancestry rule plus documents in a deterministic order, and one document's refusal stops no other; `doxbench_turns.py` — `require_outline_and_document`, `PROPOSAL_TARGETS`, `ObservedHashes`, the nine-section `PROMPT_SECTION_ORDER` and `SYSTEM_CONTRACT_TEXT`; `doxbench-chat.js` — the rail header becomes the loaded-document selector; `doc-wheel.js` — the expanded tile's one `open` verb becomes read / edit / save with a loaded-and-dirty tile state; `doxbench-editor.js` and `staging-workbench.js` — the canvas and context region read the loaded set; `serve.py` — the thread sidecar and knowledge-service routes under the existing interactivity allowlist, the harness bridge behind the unchanged `WorkbenchModelPort`; `session_pr.py`/`gate_routes.py` — share-session reusing the port's existing `push` member and opening no pull request; NEW modules for the packet assembler, the Staged-Set Knowledge Service and its MCP boundary, and the stdlib-only harness bridge; `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` plus the release surface `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `contracts/releases/<tag>.digests.yaml`; and `tests/ideation-dashboard/` — the pinned buffer-shape, turn, save-order, DOM, accessibility and mutation-boundary assertions re-pinned honestly, never deleted)
+target_release: implemented
+contract_release: additive — FOUR releases across THREE schemas in three families, and the frontmatter must name the whole of it (the chat-turn schema carries two of them, at contract-v1.34 and again at contract-v1.40). (1) REALIZED AS `contract-v1.34`: a second, co-resident chat-turn envelope family in `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`; the released v1 envelopes stay byte-identical and valid. (2) REALIZED AS `contract-v1.36`: an additive growth of `contracts/schemas/gate-action-record.schema.yaml` — the `share-session` action enum member and one `allOf` conditional constraining only that new member — which §12's ratified "SHALL be recorded as a human gate action" requires and which the closed enum made unavoidable (see tasks.md 12.7 for why reusing `open-pr` fails). (3) REALIZED AS `contract-v1.38`: an additive growth of `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` — three OPTIONAL properties on `$defs/model_entry` (`routing_rule`, `routes_to`, `resolved_model_id`) that travel together, plus one `dependentRequired` block and two `allOf` conditionals that both require `routing_rule` to be PRESENT and therefore constrain only entries that declare one — which task 11.7's ratified "The menu offers a routing rule" scenario requires and which the closed entry made unavoidable. (4) REALIZED AS `contract-v1.40`: an additive growth of `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` — ONE OPTIONAL property on `$defs/success_v2`, `context_packet`, referencing one new closed `$def` carrying the POSTURE (`full | reduced`) the turn's bounded context packet was assembled under plus that reduction's own reason, with two `allOf` conditionals that constrain only that object — which task 10.7's ratified "with the reduced posture STATED" clause requires and which the closed success envelope made unavoidable. All four are ADDITIVE (minor): nothing previously valid becomes invalid, no required field is added to an existing shape, no shape is removed, and each schema's own `contract_schema_version` stays `1`. All four were ALLOCATED AT REALIZATION per `docs/contract-versioning-policy.md` ("a proposed change MUST NOT reserve a minor number before merge order is known") — no number was reserved at proposal time, and TWO of the four had to move at landing because another change took the number in flight: 11.7's went v1.37 -> v1.38 (PR #235), and 10.7's went v1.39 -> v1.40 (PR #259, add-roster-directory-admission-surface, which allocated v1.39 for the `directory` roster admission surface while this slice was in review). Both re-cuts are the availability test working as written — CHANGELOG presence ON MAIN decides, so the number is rechecked at landing and not only at allocation. NO FURTHER RELEASE IS OWED: the fourth was the last, and its own remaining obligation is the annotated tag, which the versioning policy publishes against the commit that lands rather than at realization.
+Status: ratified
+Ratified: 2026-08-22 by Brett Heap — record: the archive act, taken on his explicit word (the archive commit `02a71d6` / PR #264, "Archived on Brett's explicit word, through proposal-support.py's archive verb"; PR #264's body, "Brett's word given"; and this change's own tasks.md 13.8, "`proposal-support.py archive` is the sanctioned path and it is Brett's act on his explicit word, not a consequence of this box being checked"), together with the commit inside that same PR that actually WROTE this `Status: ratified` value — `bdd09c2`, "Bot round on the archive: a mislabelled sha and a stale proposal Status" — on the reasoning it records: "a change whose spec deltas have PROMOTED is ratified by construction". STATED PRECISELY, because this record's shape is unusual and a reader should not be misled by the header alone: the proposal read `Status: draft` from its proposing commit `d3d7f58` (2026-08-18, PR #205) through every realization slice, and `ratified` was written only at the archive, on a Codex review finding — so what is cited here is the archive act and the promotion it performed, and no separately recorded earlier ratification exists. The `.openspec.yaml` origin pair (`approved_by: Brett Heap (live-UI annotations and in-session rulings, 2026-08-15 through 2026-08-18 …)`, `approved_on: 2026-08-18`) is deliberately NOT cited: it approved the staged topic's EXIT and this change's authoring, it is dated to the proposal day, and the header still read `draft` for the four days after it — the error `docs/archive-record-discrepancies.md` C2 names, and the reason B1's phase-a citation is not a precedent here (there the `approved_on` coincided with the ratification; here it does not). PRs #206 and #207 call this a "ratified change" in prose, but no ratification act distinct from that origin approval is recorded on 2026-08-18. No approving OpenSpec change exists to name, so this is the `Ratified:` record-citing spelling forty-three archived siblings already use, not `Ratified by: <change>`. The header carried NO citation from proposal through archive; this line was added 2026-08-23 by `phase-b-ratification-citation` under the now-promoted ratification-citation rule in `openspec/specs/document-lifecycle/spec.md`, discharging the phase-b half of the item parked at `openspec/changes/archive/2026-08-22-sanction-ratified-record-spelling/tasks.md` 5.2. See tasks.md "Bookkeeping correction".
+Sequenced-after: add-doxbench-editing-phase-a (three MODIFIED requirements below are declared relative to Phase A's outcome)
+---
+
+# Proposal: add-doxbench-editing-phase-b
+
+> **REALIZATION EVIDENCE, RECORDED 2026-08-21 — NOT AN ARCHIVE BLOCK.** This
+> change is still ACTIVE and MUST remain so; see the §12 adjudication below.
+> The evidence is written here at the landing so it does not have to be
+> re-derived when the gate can finally be met.
+>
+> **Merged on the implemented target** (`target_release: implemented`), in
+> realization order:
+> §3 verify list — PR #206 / `e7e7a84`;
+> §4–§9 core — PR #207 / `a4a6f6e`;
+> §13 contract release — PR #210 / `5daa173`, with the annotated tag
+> **`contract-v1.34`** published and verify-commit-proven and its sentinel
+> replaced at `7c544c8`;
+> §10 knowledge service — PR #216 / `ece236a`;
+> §11 harness bridge + thread wiring — PR #223 / `7312c25`.
+>
+> **Green on the implemented target at the landing tree:**
+> `tests/ideation-dashboard` 3699 passed / 15 skipped;
+> `tests/ideation_dashboard` 63 passed; `tests/doc-health` 691 passed;
+> `tests/proposal-support` 31 passed;
+> `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` 0 failed;
+> `validate-ideation-dashboard-contracts.py` 0 errors / 4 warnings (the
+> by-design v1 deprecation notices); doc-health pre/post zero-new against a
+> same-clock `origin/main` baseline. §11's runnable harness surface also ran
+> live against real `omp` v17.3.7 — 8 smoke tests passed, and they skip cleanly
+> where no harness is discoverable, so no gate depends on one.
+>
+> **WHY THIS IS NOT AN ARCHIVE BLOCK.** `release-realization`'s realization
+> archive gate is written over the change's WHOLE declared code surface: *"A
+> change with a non-empty code surface SHALL NOT archive until realization
+> evidence exists: its code merged on the implemented target … Until then the
+> change remains active as approved-but-unrealized intent, preserving the
+> invariant that promoted specs describe what the code does."* This change's
+> `code_surface:` names `session_pr.py`/`gate_routes.py` — share-session — and
+> §12 has not been built. Archiving now would promote the ADDED requirement
+> *"Share-session hands a live session to a colleague"* into
+> `openspec/specs/ideation-dashboard/spec.md`, asserting a SHALL over a verb
+> that does not exist — which is the precise invariant the gate names. The
+> unrealized part is recorded against §12's own open tasks, where it will be
+> read next, rather than papered over here.
+
+
+
+## Why
+
+Phase A landed the half of Brett's editing model that fits the machinery that
+already exists: one active buffer, two views, one Save, one Cancel, and a chat
+that binds to the selection. It said in writing what it was leaving behind —
+"Phase B is everything that needs N path-keyed buffers" — and it left one
+obligation on the record as a carve-out: **naming the bound buffer in the
+durable turn RECORD needs a chat-turn contract release Phase A forbade itself,
+so the obligation rides Phase B.**
+
+Since then the topic stopped being half-ruled. Brett annotated the running
+doxBench app twice on 2026-08-18 and then ruled the memory design in session,
+and a verification pass the same day closed the two structural pieces the
+ruling left implicit. The fragment now carries **26 settled claims and seven
+dispositioned questions, none of them `open`.** Nothing in Phase B is a
+recommendation waiting for an answer; the whole of it is transcription plus
+mechanism.
+
+What the rulings actually ask for is bigger than "more tabs", and the reason is
+worth stating plainly: **the surface stops being an editor with a chat beside
+it and becomes a working session over a staged set.** Three of Brett's rulings
+say that in three different places.
+
+- The rail header is not a label any more, it is a **selector** — "make this a
+  dropdown box that lists the files that have been loaded by clicking the edit
+  button on the wheel. the selected one is the file we are working on." A
+  selector implies a set, and the set is what today's code cannot hold:
+  `BUFFER_KINDS` is `Object.freeze(["outline", "document"])`,
+  `validatedDoxBenchState` throws on any other key set,
+  `require_outline_and_document` refuses a turn that does not carry exactly one
+  of each, and `SAVE_BUFFER_ORDER` is a fixed ordered pair. Four enforced
+  contracts, re-cut together.
+- The chat is not one conversation any more, it is **one thread per document
+  with one context across all of them** — "we need to save the thread per
+  document. but the context for the chat has all the threads in it. so we need
+  to look at a memory system that will allow that to work well for this chat
+  window." Threads must be SAVED, which makes them artifacts, which makes them
+  governed.
+- The context is not the two buffers any more, it is a **bounded packet
+  assembled from the staged set** — the active thread in full, every other
+  thread's state header, and selected corpus evidence, with approved and
+  ratified content protected from aggressive compression BY the assembler
+  because only the assembler can read a lifecycle `Status:` header.
+
+That third one is where this change stops being a doxBench feature. A governed,
+shared, derived retrieval surface that assembles bounded context packets, ranks
+sources by lifecycle status, meters what it spends, and refuses to let raw chat
+become truth is not a new invention here — it is the ratified neutral
+`memory-gateway` capability, and Brett's ruling addendum says so explicitly and
+attaches an honest flag to it: *this may be the contract's first live consumer,
+so read the full spec and declare conformance rather than take the summary on
+faith.* This proposal did that, and the answer is in the next section: the
+knowledge service realizes memory-gateway's M0 read-and-packet shape and two of
+its M1 requirements, and memory-gateway needs **one small delta of its own**,
+because every rail it defines for a customer subject and a credentialed
+provider is inapplicable to a subject-free local retrieval consumer — and
+"inapplicable" must be DECLARED, not silently skipped.
+
+## What Changes
+
+Ten things, in the dependency order they must land in. Everything here is
+already ruled; the mechanism decisions are in `design.md`.
+
+1. **The buffer set widens from exactly two to `outline` plus N loaded
+   documents.** Three pinned layers change together: the state validator's
+   exactly-two-keys rule becomes a keyed set with `outline` permanently
+   reserved and every other key a document; the turn machinery's
+   one-outline-one-document requirement and its two-value `PROPOSAL_TARGETS`
+   become the request's own declared buffer set; and the fixed
+   outline-then-document save order becomes an explicit rule — **the outline
+   first because its commit establishes the session ancestry, then every
+   document in a deterministic order, and one document's refusal stops no
+   other document.** The per-buffer stale-hash guard changes not at all: it was
+   always buffer-scoped, and widening the set means applying it N times.
+
+2. **The loaded set is chosen by a dropdown in the chat rail header, and its
+   selection IS the active buffer.** "Loaded" means exactly one thing from here
+   on: opened through a docs-wheel tile's edit verb. The dropdown lists the
+   loaded documents, scrolls rather than folding, hover-expands a filename that
+   does not fit on one line, and the chat binds to whatever it names — Phase A's
+   binding rule, generalized, with no second context-tracking mechanism beside
+   `state.active_buffer`.
+
+3. **The docs-wheel tile carries three verbs: read, edit, save.** Read is
+   unchanged — the immersive large-window reader. Edit loads the document into
+   the chat context, which is how a document joins the loaded set. Save lives on
+   the tile, is reachable only when that document has unsaved changes, and
+   performs the same governed act as the panel Save through the same pipeline —
+   a second entry point, never a second save path. A loaded tile is COLORED so
+   the human can see that it must be saved.
+
+4. **Each loaded document carries its own persisted thread.** A sidecar file on
+   the session branch, carrying a structured **thread-state header** — active
+   goal, accepted facts, open questions, decisions made in-thread,
+   retrieved-evidence refs, pending actions — above the transcript. Threads
+   commit on the document's Save, riding the existing commit-per-gate-action
+   substrate. Compaction preserves those commitments rather than narrative.
+   Threads are working memory: excluded from PR-as-save promotion by default,
+   and a finding leaves a thread only through the existing lifecycle verbs.
+
+5. **Share-session is an explicit verb.** It commits the threads, pushes the
+   session branch, and returns the ref; a colleague resumes the session from the
+   fetched branch. Threads are local until it runs. It opens no pull request,
+   grants no approval authority, and reuses the pull-request port's existing
+   `push` member rather than adding a remote-write surface.
+
+6. **The Staged-Set Knowledge Service assembles every turn's context as a
+   memory-gateway bounded context packet** — the active thread in full, the
+   other threads' state headers, and selected corpus evidence. It is exposed
+   behind **one MCP boundary** (`search`, `get_source`, `promote_finding`,
+   `reindex`; `graph_query` reserved and unimplemented) over an internal
+   assembly port with provider profiles. **v1 is graph-less**: local hybrid
+   retrieval — lexical plus small embedded vectors plus the structured
+   thread-states. A graph provider is admitted only when a concrete graduation
+   trigger fires (recurring dependency traversal, contradiction detection, or
+   change-impact analysis), Cognee preferred and version-pinned, Graphiti +
+   FalkorDB Lite the alternate. The retrieval backend is an **install-time
+   declaration** per the ratified two-case principle. Approved and ratified
+   content is exempt from aggressive compression BY THE ASSEMBLER, keyed on the
+   content's lifecycle `Status:` header, and the source-ranking hierarchy —
+   ratified canon > staged facts > promoted findings > thread state >
+   harness-local memory last — is encoded in the harness system prompt.
+
+7. **Compression is a three-layer stack with three distinct fidelity
+   contracts**: selection (governed, lossless-by-reference), semantic
+   compaction into the thread-state header (governed, lossy by design,
+   human-reviewable, promotion-gated), and mechanical reversible compression at
+   the LLM boundary — realized v1 by the harness's own `/shake` /
+   `artifact://` offload, inside our own trust boundary, no proxy and no new
+   dependency. Headroom is **watch-listed with its adoption gates recorded**,
+   and this change deliberately does not depend on it.
+
+8. **The chat harness is oh-my-pi behind a thin stdlib-Python bridge under the
+   existing model port.** The bridge translates the serve's HTTP-shaped call to
+   the harness's stdio RPC (`omp --mode rpc`) and is an ADAPTER for the
+   unchanged three-member `WorkbenchModelPort` — no fourth port member, because
+   per-turn model choice is set-model-before-prompt INSIDE the adapter. One
+   harness session per document thread; doxBench mirrors turns to the sidecars,
+   which remain the record; the harness's own memory backends never hold the
+   threads. The model menu is `auto / Opus / Kimi K3 / …`, where `auto` is our
+   own role-mapping rule rather than a provider feature, and where an
+   API-backed entry gets its credential from the ratified broker lane and never
+   from the bridge.
+
+9. **A chat-turn contract release carries the bound buffer and the model.** The
+   released envelope is closed in both directions, so the F2 obligation and the
+   N-buffer request shape both need it. It is realized as a **second,
+   co-resident envelope family** — the v1 envelopes stay byte-identical and
+   accepted — which makes the release ADDITIVE, published in the next available
+   bundle minor and **allocated at realization**, never reserved here.
+
+10. **The verify list gates realization.** Seven items the ruling depends on
+    that our own research has not independently confirmed — the harness's memory
+    backends, its MCP client depth, whether it re-reads `SYSTEM.md` per turn,
+    Cognee's current embedded backend after the Kuzu archival, where the
+    `artifact://` store lands on disk, `/shake`'s programmatic surface, and
+    memory-gateway's realization depth elsewhere in xFactory — are **blocking
+    tasks**: each is verified and its finding recorded before the slice that
+    depends on it may start.
+
+## Memory-gateway conformance, declared
+
+Read in full, not inherited from the ruling's summary. The knowledge service and
+the per-turn packet assembler realize:
+
+- **`Context Packets Bound Runtime Memory` (M0)** — the per-turn packet is
+  purpose-bound, TTL-bearing, source-referenced, and rejected when presented for
+  another purpose. v1 consults no ontology package, so the semantic-context pins
+  that requirement demands *when semantic inference is included* do not arise —
+  and admitting a graph provider later is exactly what makes them arise, which
+  is why the graduation gate names them.
+- **`Canonical Ports Are Product Neutral` and `Provider Profiles Declare
+  Capability` (M0)** — the internal assembly port is the product-neutral
+  surface; the local hybrid v1 and any later graph provider are profiles behind
+  it that declare capability without granting authority.
+- **`Rails Run Before Provider I/O` (M0)** — selection, the lifecycle-status
+  exemption, and the compression policy run BEFORE any retrieval or provider
+  call, and a refusal discloses no packet content.
+- **`Gateway Callers Are Authenticated And Hold No Provider Credentials`
+  (M0)** — the loopback console's resolved actor is the caller identity; the
+  bridge and the retrieval provider hold no provider credential.
+- **`Fail Modes Are Explicit And Break-Glass Is Audited` (M0, fail-modes
+  half)** — the degraded postures are declared: no knowledge service means
+  headers-only context, no model port means editor-only, and neither bypasses a
+  rail to reach a provider. No break-glass path exists on this surface.
+- **`Worker-Local Memory Remains Separate` (M1)** — the split-brain
+  prohibition IS this requirement: the harness's native memory is worker-local
+  and non-authoritative, the sidecars are the record, and an observation becomes
+  durable only through promotion.
+- **`Promotions Are Explicit And Reviewed` (M1)** — the promotion gate. Honest
+  narrowing: the requirement's own scenarios speak of customer memory moving
+  into client or domain layers; this consumer's promotion target is a document
+  in the lifecycle, so what it realizes is the requirement's rule (no automatic
+  durability, review before the target accepts it), not its layer vocabulary.
+
+What it does NOT realize, stated rather than skipped: consent profiles and the
+subject-safety rail (there is no customer subject anywhere on this surface),
+provider bindings and short-lived grants (v1's provider is an in-process local
+index with no credential; an API-backed model or a hosted retrieval backend
+gets its credential from the ratified broker lane, which IS that mechanism),
+revocation, erasure, migration, provider mapping, the customer fill and
+maintenance modes, and the derived-memory-binding schema. **Usage metering
+(M3) is partial**: per-turn and per-session token telemetry is emitted, but a
+self-hosted authoring console has no client, domain, or bill-to target, so this
+change claims compatibility with that requirement and not conformance to it.
+
+**Hence one delta to `memory-gateway` itself.** Today the contract offers a
+consumer exactly two honest options: claim conformance while quietly skipping
+half of M0, or declare non-conformance and lose the vocabulary. This change
+adds one requirement making a third option real — a **declared subject-free
+local consumer class** whose declaration must NAME each rail it declares
+inapplicable and why, which is refused to any consumer that holds provider
+credentials or acquires a subject scope, and which loses the declaration the
+moment either changes. That is a small, neutral addition that makes the
+inapplicability auditable; it grants no exemption and relaxes no rail.
+
+**And the honest "first consumer" statement, stated precisely**
+(`verification-findings.md` §3.7): this change is the first consumer to declare
+formal per-requirement conformance to `memory-gateway` and the first
+SUBJECT-FREE one — not the first thing in xFactory to reference the contract's
+vocabulary at all. `installs/hermes-install`'s `add-memory-gateway-binding`
+(archived 2026-07-24) precedes it with real, tested code, and is narrower,
+subject-bearing, and self-described as a runtime convention ahead of a gateway
+service that does not exist there yet. That precedent strengthens rather than
+weakens the case for the delta: its own text shows the contract has no
+vocabulary for a consumer with no subject at all.
+
+`governed-derived-model` is treated differently and deliberately. Claim 23 says
+the thread-state header, the summaries, and any future graph index conform to
+it. Read directly, that capability's conformance surface is a DomainxFactory's
+`xfactory_derived_model_conformance` declaration over template-backed object
+kinds — a declaration an authoring surface has no place in. So Phase B asserts
+the PROPERTIES in its own requirements (non-authoritative by construction,
+regenerable, promotable only by creating a new object through review) and does
+NOT claim a tier it cannot be validated at. Flagged for Brett's ratification
+read as an interpretation, not a silent narrowing.
+
+## Impact
+
+- `ideation-dashboard` — MODIFIED: the editor buffer contract (N path-keyed
+  buffers; the ancestry-plus-independence save rule); the grounded chat turn
+  (the widened request, the bound-buffer record, the model echo, the context
+  packet, the degraded postures); typed proposals (target is a buffer key);
+  the scoped view (the tile's three verbs; the canvas presents the selected
+  loaded buffer); the model catalog and provider boundary (the menu, `auto` as
+  a declared routing rule, the adapter behind the unchanged port). MODIFIED
+  relative to Phase A's outcome: the chat-binding requirement (binding
+  generalized; the F2 deferral DISCHARGED), the view-surface requirement
+  (its "this does NOT widen the buffer set" clause is what Phase B is), and
+  the one-Save-one-Cancel requirement (the canvas still carries exactly one of
+  each; the tile's per-document Save is admitted as a scoped entry point).
+  ADDED: the loaded-set buffer contract; the loaded-document selector; the
+  tile's three verbs; per-document threads and their state header;
+  share-session; the Staged-Set Knowledge Service and its packet; the
+  three-layer compression stack; the harness bridge; the chat-turn release
+  obligation.
+- `memory-gateway` — ADDED: one requirement declaring the subject-free local
+  retrieval consumer class.
+- Code surface and the contract release surface: as declared in the
+  front-matter. The chat-turn release is additive and its bundle minor is
+  allocated at realization.
+- **Sequencing**: this change's three Phase-A-relative MODIFIED requirements
+  require Phase A's deltas to promote first. Phase A's own archive gate is
+  still open on merged-commit evidence.
+
+## Deliberately out of scope
+
+- **A graph engine, in any form.** Not Cognee, not Graphiti, not FalkorDB, not
+  a "small" one behind a flag. v1 is graph-less on the recorded Mem0 v3
+  caution, and the graduation trigger is a named condition, not a preference.
+- **Headroom**, or any third-party compression proxy. Watch-listed with
+  adoption gates; encoding it as a dependency is exactly what this change
+  refuses to do.
+- **Any cloud or hosted backend as a default.** The retrieval backend is an
+  install-time declaration whose self-hosted case is local-embedded.
+- **Hosted-plane anything.** Branch sessions are a local-plane capability;
+  threads, share-session, the knowledge service, and the harness bridge all
+  inherit that and are absent on the hosted plane.
+- **A real provider adapter's credential lane.** That is
+  `add-model-provider-broker`'s subject and stays there; the bridge holds no
+  secret and this change re-cuts no credential boundary.
+- **Widening the model port.** Three members, unchanged. A fourth would be a
+  second provider verb by another name.
+- **Promoting a thread finding automatically, or a parallel decision store.**
+  Promotion is gate-only, through the lifecycle verbs that already exist.
+- **A `graph_query` implementation.** The name is reserved in the MCP tool
+  contract so its later arrival is not a boundary change; reserving is not
+  building.
+- **Retiring the outline's reserved status.** `outline` stays a permanently
+  reserved key with the ancestry role its commit already has.
+
+## Amendment 1 — the canvas control slot is dirty-state-conditional (2026-08-21)
+
+**Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
+adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
+ANY buffer of the loaded set is dirty, a single Unload control for a clean
+unloadable buffer — authorizing browser annotation A2; the rail's standalone
+unload control and its two-press arm flow are superseded.**
+
+**The ruling is recorded in its ANY-buffer reading deliberately.** Brett's
+sentence — "if there is a change to save or cancel" — names two predicates that
+are not the same, because Save answers for the whole canvas and Cancel for the
+selected buffer. Only the any-buffer reading is safe: under selected-buffer, a
+human whose outline still held unsaved text would lose the only Save on the
+surface the moment they stepped onto a clean document, which is the hazard this
+capability's discard rules exist to prevent. That is the reading the requirement
+states, the scenarios pin, and the realization implements, so it is the reading
+this headline authorizes — an archived headline naming the rejected option would
+license exactly the defect the amendment was written to avoid.
+
+Brett annotated the running doxBench app on 2026-08-21, on
+`button.doxchat-unload` in the chat rail: "remove this button here and
+incorporate its function into the right panel 'cancel' button. if there is a
+change to save or cancel, then have those buttons. if no changes, then have that
+be 'unload' button."
+
+As originally written this requirement forbade that outright — "exactly ONE Save
+control and exactly ONE Cancel control", with a scenario requiring both to be
+present whenever the canvas renders. A clean canvas showing a single Unload
+would have presented zero of each. The annotation was therefore blocked pending
+this amendment rather than built against the delta, and Brett ruled it in
+session by multiple choice.
+
+**Three readings had to be settled from the code, and are now stated in the
+requirement rather than left to the realization:**
+
+*Which dirty?* Brett's words are "if there is a change to save or cancel". Save
+answers for the WHOLE canvas and Cancel for the selected buffer, so the two
+halves of that sentence are not the same predicate. The requirement takes
+ANY-buffer-dirty. Selected-buffer-dirty would withdraw the only Save from a
+human whose outline still held unsaved text merely because they had stepped onto
+a clean document — hiding a Save while work is unsaved, which is the hazard this
+capability's discard rules exist to prevent.
+
+*What does a clean RESERVED buffer show?* The outline is permanently reserved and
+`unloadDocumentBuffer` throws on it; the reserved unbacked `document` slot is
+withheld too, because a turn needs the outline plus at least one document. An
+empty slot would answer no question and would collapse the tab row on every
+selection change. So the Unload control renders and is VISIBLY INERT with its
+reason stated — the same posture the tile's Save verb already uses, and the same
+reason sentences the retired rail control carried, so no accessible text is lost.
+
+*What happens with no gate capability?* The slot does NOT swap. A surface that
+cannot save must go on saying so, and this requirement's own gate-absent
+scenario requires that absence as visible text beside Save. Since an ungated
+surface has no reachable editing, nothing there is ever dirty, and an
+unconditional swap would have made that stated absence unreachable.
+
+**What that clause actually reaches, stated honestly.** Through the shipped
+shell, a gate-off console renders no authoring canvas controls at all, so a
+human on that plane never sees the slot in either occupancy. The clause
+therefore governs the CANVAS MODULE's own no-save-seam branch — a canvas mounted
+without the save seam, which is how the module is reachable directly and how the
+scenario above is written and pinned. It is a module-level invariant, not an
+end-user-visible posture on today's shell, and it is worth keeping precisely
+because the shell's behaviour here is the kind of thing that changes.
+
+**Phase A archived before this amendment reached it, and that is left alone.**
+`add-doxbench-editing-phase-a` was archived on 2026-08-21 (PR #228) carrying its
+ORIGINAL control-count wording, which is therefore what its archival promoted
+into `openspec/specs/ideation-dashboard/spec.md` — "exactly ONE Save control and
+exactly ONE Cancel control", with a scenario requiring both present at mount.
+An earlier revision of this branch had amended Phase A's copy too; a merge from
+main carried those edits into the ARCHIVED change, and they have been reverted.
+An archive must record what was actually ratified, and one that disagreed with
+the spec its own archival produced would be a falsified record — the same rule
+`add-staged-topic-outline-template`'s Amendment 1 applies to its supporting-docs
+copies. Nothing is lost by reverting it: this capability declares the
+requirement under `## MODIFIED Requirements`, so THIS delta is the sole carrier
+of the correction and supersedes the promoted wording when this change archives.
+Until then the promoted spec describes Phase A's shipped posture and this delta
+describes the amended one, which is exactly what a MODIFIED delta is for.
+
+**A pre-existing looseness at the public API, recorded and deliberately not
+widened here.** The controller's public `unloadDocument(key, …)` hard-refuses
+only `OUTLINE_BUFFER_KEY`, while the UI path withholds BOTH reserved keys (the
+outline and the unbacked `document` slot). The asymmetry predates this branch —
+the retired rail control withheld exactly the same way, at the same layer — so
+this amendment neither introduces nor repairs it, and the surface a human can
+reach is correct in both realizations. Tightening the public method is a change
+to the controller's contract and belongs to whoever next opens that contract,
+not to a UI amendment. *(Largely DISSOLVED by Amendment 2 below, later the same
+day, and by the UI moving to meet the method rather than the reverse: the
+reserved set narrowed to the outline alone, so the two layers now name the same
+permanent refusal. This paragraph stands as the record of what was true when
+Amendment 1 was written.)*
+
+**What is NOT amended.** The loaded-set requirement is untouched: a document
+still leaves the set only by an explicit human act, and that act still MUST
+refuse or require an explicit discard while dirty. The new design discharges
+that clause more strongly than the arm flow did, by never offering the act while
+anything is dirty, and its scenario now says so explicitly. The state-level
+refusal in `unloadDocumentBuffer` stays exactly as it is — it is the floor, and a
+floor is not deleted because the surface above it grew a guard rail.
+
+**Ledger entries this supersedes.** Two completed items in this change's own
+`tasks.md` describe surfaces the amendment retires: task 7.1's rail header line,
+removed by annotation A1 in the same slice, and task 8.6's two-press rail
+arm/discard flow, superseded here. Both remain accurate records of what was
+built and when; the ledgers are NOT rewritten, because a ledger that agreed with
+every later correction would stop being a record. This sentence is the pointer
+between them.
+
+**A note on ownership.** `add-doxbench-editing-phase-a` and
+`add-doxbench-editing-phase-b` belong to another session's thread (most recently
+PRs #216 and #223). This amendment was ruled in session by Brett and is recorded
+here rather than negotiated across threads; Phase A's matching statement of the
+same rule is amended in step so the two cannot disagree, and Phase A defers to
+this requirement for the full statement.
+
+## Amendment 2 — the reserved set narrows to the outline alone (2026-08-21)
+
+**Follow-ups this amendment surfaces without owning.** Two real gaps were
+measured while realizing it, both out of an annotation's scope, recorded here so
+they survive as work rather than as a test docstring's parenthetical: (1) a turn
+sent with the loaded set emptied to the outline is refused by the released wire
+shape (`buffers.minItems: 2`) with the fixed catalog message "the turn request
+is malformed", which does not name the missing document — improving that
+sentence is a change to a published failure envelope; **DISCHARGED 2026-08-22 on
+`change/one-buffer-refusal-names-its-cause`**, and the envelope turned out not to
+be the obstacle the note assumed: the released `message` is free-form (`minLength:
+1, maxLength: 500`, no `const`/`enum`/`pattern`) and no promoted requirement
+ratifies the string, so the route now answers this one violation with "the turn
+carries no document beside the outline — use a docs tile's load verb to work on
+one" — the selector's own remedy — while the code, status, and envelope key set
+stay byte-identical and both schema files and `SCHEMA_DIGESTS` are untouched, so
+no contract release is involved; (2) the promoted working
+subject requirement's "SHALL default from the tile's title or summary" is
+unrealized — `createChatState` seeds an empty subject and nothing fills it —
+which is a realization gap in an already-promoted requirement, needing its own
+slice.
+
+**Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I
+do the workflow to edit a document, and then cancel instead of save, then try to
+unload, the unload button is stippled. It should allow the document to unload.
+only the outline can never unload. we always want that to be loaded. If saved or
+canceled so the document is in neutral position, then we can unload it."): the
+reserved set narrows to the outline alone; a backed reserved-slot document in
+the neutral position unloads like any other document; the unbacked slot remains
+inert for want of anything to unload.**
+
+Brett annotated `button.doxbench-unload` on the running doxBench canvas while
+the SELECTED buffer was the tile's own document, held under the reserved
+`document` key with a real path. The control was inert and its title read "this
+is the tile's own document, the reserved buffer a turn falls back on, and is
+never unloaded — load another document to work beside it".
+
+**What the ruling aligns.** Three layers disagreed about what "reserved" meant
+for the Unload act. The UI withheld TWO keys; the controller's `unloadDocument`
+hard-refuses ONE (`outline`); `doxbench-state.js`'s `unloadDocumentBuffer`
+throws on ONE (`outline`). The ruling settles it at the number the two lower
+layers already used, so the surface now follows the state module rather than
+overruling it — which is why Amendment 1's recorded asymmetry is largely
+dissolved rather than merely re-described.
+
+**The claim that justified the withholding was checked before it was removed,
+and it is a WIRE bound, not a breakage.** The stated reason was the ONE-DOCUMENT
+FLOOR: `request_v2.buffers` declares `minItems: 2` and the server's
+`require_outline_and_documents` requires an outline plus at least one document,
+so a session holding only the outline plus this slot has no document to spare.
+Both statements are true and are untouched here. What was measured is what
+actually happens when the set empties, driven end to end through the real
+composition:
+
+* the unload itself is clean — no throw, the canvas keeps its boxes, the
+  selection moves to the outline exactly as the state module says;
+* the ratified selector EMPTY STATE renders at the same moment, naming the
+  remedy: "no document is loaded — use a docs tile's load verb to work on one;
+  the outline is workable on its own";
+* a turn still BUILDS and reaches the transport, binding to `outline`, carrying
+  the one buffer the set holds. Nothing throws inside the request builder;
+* at the server, that one-buffer request fails the released `request_v2` shape
+  and is answered with the fixed `invalid_turn_request` refusal in the v2
+  failure envelope — a 400 the rail renders on its live failure channel with the
+  composer preserved.
+
+So the floor is enforced by an EXPLICIT REFUSAL AT SEND, which is the honest
+surface for a wire bound, rather than by making a clean document permanently
+unremovable. The N3 wedge that originally motivated the withholding — under the
+v1 envelope, emptying the slot left `buildTurnRequest` reading `buffers.document
+.path` on an absent buffer, caught as the generic unsettled-buffer failure so
+the rail said "the buffers are still settling; try Send again in a moment"
+FOREVER — retired with that envelope. The widened builder carries whatever the
+set holds and says nothing untrue. That is the difference between the two
+refusals, and it is the whole difference: one was a permanently false sentence,
+the other is a correct one the human can act on.
+
+**What "neutral position" means, and why it needs no term of its own.** Brett's
+sentence names Save and Cancel as the two ways in. Both leave the buffer clean,
+and the canvas slot already shows Unload ONLY while no buffer of the loaded set
+is dirty (Amendment 1's swap). So the cleanliness half of the ruling is
+discharged by the swap that is already there; Amendment 2 changes only WHICH
+KEYS the control will act on once it is on screen. The dirty rule is untouched,
+including the loaded-set requirement's discharge that withholding the affordance
+entirely while anything is dirty satisfies the refusal.
+
+**The one non-outline withholding that stays, with the true reason.** The
+reserved `document` key can hold two different things. Backed, it is the tile's
+own document and it now unloads. UNBACKED — the create flow's not-yet-created
+artifact, a held buffer with a null path — it is not a member of the loaded set
+at all: `loadedBuffers` filters it out and the selector never lists it, which is
+what makes the ratified empty state reachable. There is no membership for Unload
+to end, so the control stays inert and says so. Its sentence changed with its
+reason, because the old one ("the reserved buffer a turn falls back on, and is
+never unloaded") is no longer true of anything under that key. Cancel is the
+control that acts on that buffer; Unload has no subject. This is a difference of
+SUBJECT, not of authority: the controller still accepts the key and the state
+module still honours it, which is right for a public method.
+
+**What is NOT amended.** The outline's reservation is untouched and is now the
+ONLY one — "only the outline can never unload. we always want that to be
+loaded." All three layers still say so. The loaded-set requirement is untouched:
+a document leaves the set only by an explicit human act, and that act still
+refuses or requires an explicit discard while dirty. Neither wire statement of
+the one-document floor is relaxed. Amendment 1's dirty-state-conditional slot,
+its ANY-buffer reading, and its gate-absent clause all stand exactly as written.
+
+**Ledger entries this supersedes.** Nothing in `tasks.md` is rewritten. The N3
+guard's own test is REPLACED rather than deleted — the same scenario, driven
+through Brett's reported sequence (edit, cancel, unload) and asserting the
+opposite outcome, with the reasoning for the reversal carried in its docstring
+so a reader who finds the old assertion in history can see why it turned over.

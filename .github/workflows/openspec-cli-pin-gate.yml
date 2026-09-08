@@ -1,0 +1,101 @@
+# The OpenSpec CLI CONSUMER gate: openxFactory consumes `@fission-ai/openspec` at
+# a content address, and this gate fetches the real published artifact, verifies
+# it against `contracts/openspec-cli-pin.yaml`, and then runs
+# `openspec validate --all --strict` THROUGH the verified binary.
+#
+# THIS IS THE FIRST REPOSITORY IN THE ESTATE WHOSE ARCHIVE GATE ACTUALLY RUNS IN
+# CI, and that is the change rather than a side effect of it. Before this file,
+# `openspec validate --all --strict` — the check a delta must pass before it may
+# archive — ran in NO repository's continuous integration. This repository's
+# `pytest-suite.yml` installs the CLI, but only so `tests/proposal-support/` can
+# drive the binary; it never validates the corpus. OpsxFactory and codexFactory
+# have no workflow that mentions OpenSpec at all, and MedxFactory, LedgerxFactory
+# and AdxFactory have no workflows at all. The gate every engineer believed was
+# running was running on their own laptop, at whatever version was installed
+# there.
+#
+# SIBLING OF `openreposhape-pin-gate.yml`, AND IT DIFFERS IN EXACTLY ONE WAY that
+# is a fact about the product rather than a shortcut. The openRepoShape gate
+# resolves a git tree at a commit and CHECKS it; this product is not distributed
+# as a git tree but as a published npm artifact, so the verifier resolves the
+# artifact through `npm pack`, recomputes its SHA-512 and SHA-1, and refuses
+# before installing anything. There is no `actions/checkout` of the product and
+# no submodule: there is nothing to mount, and the referent is the tarball.
+#
+# NOT A REQUIRED CHECK, and saying so is part of the change rather than an
+# omission from it. Making a check REQUIRED is an operator act on an organisation
+# ruleset; this workflow reports on pull requests from the moment it lands, and an
+# operator may then select the `openspec-cli-pin` token — a check is not
+# selectable until a workflow has reported under it once, which is why the
+# reporting has to come first.
+#
+# THE VERSION IS NOT WRITTEN IN THIS FILE, and that absence is deliberate. The
+# verifier reads `contracts/openspec-cli-pin.yaml` with its own parser, so there
+# is exactly one place the referent is written. A workflow that installed
+# `@fission-ai/openspec@1.2.0` by literal would be a second copy of the pin, and
+# the whole defect this capability exists to write down is what happens to copies
+# of a pin that move separately.
+# `tests/openspec_cli_pin/test_openspec_cli_pin.py::
+# test_the_gate_workflow_reads_the_pin_and_carries_no_fourth_copy` asserts the
+# absence against this file's own bytes, so a helpful future edit that pastes the
+# version back in fails on the developer's machine first.
+#
+# THAT WAS NOT HYPOTHETICAL, AND THIS COMMENT SAID SO IN THE PRESENT TENSE until
+# 2026-09-05 — it read "which is precisely what `pytest-suite.yml` does today".
+# It did, and by then the two copies HAD moved apart: the pin bumped to `1.12.0`
+# while that literal still installed `1.2.0`, so the required test suite drove
+# one version while this gate verified another. #667 task 5.1 / #677 task 6.2
+# replaced the literal with `scripts/install-pinned-openspec-cli.py`, which
+# resolves the binary through this same verifier's code and is asserted by the
+# twin of the test above. The claim is corrected rather than deleted: the defect
+# is the argument for the absence, and it happened here.
+name: openspec-cli-pin-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openspec-cli-pin-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openspec-cli-pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Node is here to supply `npm`, and for NOTHING else. The version the gate
+      # runs is not this one: it is the artifact the verifier fetches and checks.
+      # `@fission-ai/openspec@1.12.0` declares `engines.node >=20.19.0`, which 22
+      # satisfies (`1.2.0` declared the same floor).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # No `pip install`. The verifier is standard-library only, deliberately, on
+      # the sibling gate's reasoning: a pin verifier that needed a package
+      # installed before it could check which package is installed would be
+      # carrying the assumption it exists to refuse.
+      #
+      # `--no-cache` because a runner is a fresh machine and a cache directory it
+      # would build and throw away is a directory whose reuse nothing ever tests.
+      # The artifact is fetched and hashed here on every run, which is the whole
+      # point of a gate.
+      #
+      # THE INVOCATION IS LITERAL AND IT IS PINNED BY A TEST. `--all` is the scan
+      # target; `neutral-product-pin` requires that a pinned validator invoked
+      # with NO scan target refuse rather than self-test, and requires the literal
+      # invocation to be pinned in the consuming repository so that a silent
+      # repoint to a target that reads nothing is impossible.
+      - name: Verify the OpenSpec CLI pin and validate the corpus at it
+        run: python3 scripts/validate-openspec-cli-pin.py --all --no-cache

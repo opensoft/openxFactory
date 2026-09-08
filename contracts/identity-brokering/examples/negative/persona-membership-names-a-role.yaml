@@ -1,0 +1,39 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: names 'role:platform-admin'
+# requirement: IDB-R3
+# VIOLATES R3: the tenancy graph carried as a membership ID.
+#
+# THE MIRROR'S LAST DOORWAY. Every object on this shape is closed, so no role,
+# grant or project property can be added — and the membership's
+# `organization_id` was a free identifier admitting ':' and '/', so the graph
+# came in as a VALUE instead. `role:platform-admin` is a membership as far as
+# the shape is concerned: the property set held perfectly while the mirror
+# walked through the one field that points at another record.
+#
+# It is also the version that would actually happen. Nobody adds a `roles:`
+# array to a schema that forbids it; somebody DOES write the role into an
+# organization id, because it is the only field there is and it works.
+#
+# Two mechanisms refuse it now. The narrowed `organization_id` pattern admits
+# no ':' and no '/', so a namespaced projection is unrepresentable; and the
+# validator resolves every membership id against the `broker_organization`
+# records in the scan, so the rest is refused as an organization nothing
+# declares. The sibling fixtures carry the other two forms: a tenancy path,
+# and a value that looks exactly like an ordinary company name.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-membership-role-9023
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-membership-role-001a
+display_name: Probe Role Membership
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: membership-role-upstream-0001
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-01-06"
+  - organization_id: role:platform-admin
+    member_since: "2026-01-06"
+asserted_at: "2026-08-22T12:05:00Z"

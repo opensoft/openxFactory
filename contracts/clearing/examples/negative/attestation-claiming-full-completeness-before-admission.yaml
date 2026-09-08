@@ -1,0 +1,130 @@
+# expected_failure: clearing-attestation-overclaims-completeness
+# expected_failure_detail: NARROWER claim
+# VIOLATES "THE LEDGER'S COMPLETENESS CLAIM SHALL BE STATED AT THE STRENGTH THE
+# CURRENT ATTESTATION SUPPORTS ... A presentation of the ledger as the complete
+# audit SHALL cite a current, green attestation AND SHALL NOT OVERSTATE which of
+# those two claims that attestation carries."
+#
+# Every group below still reports `clearing_path_admitted: false`. The door is
+# therefore not yet the only way in AND is not yet open, so the strongest honest
+# claim is the narrower one: no allowlist entry outside each group's expected set
+# exists. The sentence this fixture writes instead — "the ledger is the complete
+# record of everything that reached the host" — is the exact claim the ratified
+# text spends a paragraph making conditional, and it is false in this state by
+# the record's own other fields.
+schema_version: 1
+kind: xfactory_clearing_single_door_attestation
+attestation_id: sda-2026-09-03-0001
+attested_at: '2026-09-03T02:00:00Z'
+provider: github-actions
+clearing_repository: opensoft/xFactory
+clearing_workflow_path: .github/workflows/clearing-dispatch.yml
+enumeration_source: opensoft/xFactory/.github/clearing/grandfather-enumeration.yaml
+groups:
+- runner_group: xfactory-execution-lane-workers
+  expected_allowlist:
+  - execution-lane-coding-worker.yml
+  observed_allowlist:
+  - execution-lane-coding-worker.yml
+  expected_repositories:
+  - opensoft/xFactory
+  observed_repositories:
+  - opensoft/xFactory
+  clearing_path_admitted: false
+  enumerated_members:
+  - workflow: execution-lane-coding-worker.yml
+    declared_allowlist_status: present
+  findings:
+  - finding_class: convergence_not_yet_reached
+    runner_group: xfactory-execution-lane-workers
+    subject: .github/workflows/clearing-dispatch.yml
+    expected_set:
+    - execution-lane-coding-worker.yml
+    detail: 'the operator has not yet admitted the clearing workflow''s path to this group.
+      This is the NOT-YET-CONVERGED state of the single-door requirement, not a widening:
+      convergence is a terminal state, not an entry condition.'
+- runner_group: xfactory-artifact-workers
+  expected_allowlist:
+  - council-deliberation-worker.yml
+  - dashboard-image-worker.yml
+  - doc-health-analysis-worker.yml
+  - doc-health-cataloger-worker.yml
+  - doc-health-derive-possibles-worker.yml
+  - doc-health-readiness-worker.yml
+  observed_allowlist:
+  - council-deliberation-worker.yml
+  - dashboard-image-worker.yml
+  - doc-health-analysis-worker.yml
+  - doc-health-cataloger-worker.yml
+  - doc-health-derive-possibles-worker.yml
+  - doc-health-readiness-worker.yml
+  - an-unaccounted-worker.yml
+  expected_repositories:
+  - opensoft/xFactory
+  observed_repositories:
+  - opensoft/xFactory
+  - opensoft/codexFactory
+  clearing_path_admitted: false
+  enumerated_members:
+  - workflow: council-deliberation-worker.yml
+    declared_allowlist_status: present
+  - workflow: dashboard-image-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-analysis-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-cataloger-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-derive-possibles-worker.yml
+    declared_allowlist_status: present
+  - workflow: doc-health-readiness-worker.yml
+    declared_allowlist_status: present
+  - workflow: review-lane-worker.yml
+    declared_allowlist_status: absent
+  - workflow: ideation-organizer-worker.yml
+    declared_allowlist_status: absent
+  findings:
+  - finding_class: widening
+    runner_group: xfactory-artifact-workers
+    subject: an-unaccounted-worker.yml
+    expected_set:
+    - council-deliberation-worker.yml
+    - dashboard-image-worker.yml
+    - doc-health-analysis-worker.yml
+    - doc-health-cataloger-worker.yml
+    - doc-health-derive-possibles-worker.yml
+    - doc-health-readiness-worker.yml
+    detail: 'an observed allowlist entry this group''s expected set does not derive. Something
+      can reach the host that the enumeration does not account for: a SINGLE-DOOR BREACH.'
+  - finding_class: widening
+    runner_group: xfactory-artifact-workers
+    subject: opensoft/codexFactory
+    expected_set: []
+    detail: an admitted repository other than the clearing repository — a widening of the
+      same class, and the residual the ruling closes. It is why run 33381257642 could queue
+      at all.
+  - finding_class: dark_lane
+    runner_group: xfactory-artifact-workers
+    subject: review-lane-worker.yml
+    expected_set: []
+    detail: an enumerated member holding no allowlist entry. It is ALREADY FAILING CLOSED
+      — nothing reaches the host through it — so it is a disposition item, not a breach.
+  - finding_class: dark_lane
+    runner_group: xfactory-artifact-workers
+    subject: ideation-organizer-worker.yml
+    expected_set: []
+    detail: 'the second dark lane, in the same condition and with the same disposition: retire
+      it into an operation, or remove the reference.'
+  - finding_class: convergence_not_yet_reached
+    runner_group: xfactory-artifact-workers
+    subject: .github/workflows/clearing-dispatch.yml
+    expected_set: []
+    detail: the clearing workflow's path is not yet admitted to this group either.
+completeness_claim:
+  strength: full_post_admission
+  cites_attestation: sda-2026-09-03-0001
+  statement: The door is single, so the ledger is the complete record of everything that reached
+    the host.
+residual_statement: Runner-group membership and workflow allowlists are provider-side configuration
+  outside this repository's version control, changeable by an administrator with no pull request.
+  This contract does not make that configuration versioned and does not claim to; it makes
+  a change to it OBSERVABLE within one attestation cycle.

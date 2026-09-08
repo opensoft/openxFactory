@@ -1,0 +1,66 @@
+# expected_failure: custody-registry-pointer-mismatch
+# expected_failure_detail: cannot be adjudicated against one closed set while naming another
+# requirement: TA-R3
+# VIOLATES TA-R3 by pointing somewhere else. The custody block names
+# `some-other-registry-entirely` at version 99, and every derivation on the record
+# — `evidences`, the assurance ceiling — is the canonical registry's, correctly.
+#
+# So the record validated: the pointer was decorative. Two fields the schema
+# requires, resolved by nothing, and a reader following them lands on a registry
+# that may say anything at all. The closed set a record is adjudicated against is
+# the set it names, so the name has to be the canonical one — which also closes
+# the pairing with the fixture beside this one, where the diverging registry the
+# pointer would have led to is the document being shipped.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-registry-pointer-adrift
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "svc-pointer-adrift.core.internal"
+  subject_class: service
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-08-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-pointer-adrift-g1
+  generated_at: "2026-08-01T00:00:00Z"
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: some-other-registry-entirely
+  registry_version: 99
+  credential_record_ref: credential:neg-pointer-adrift-key
+  vault_binding_ref: vaultbinding:core/neg-pointer-adrift-key
+  declared_at: "2026-08-01T00:00:00Z"
+  declared_by: opensoft
+  statement: >-
+    The member name happens to exist in the canonical registry too, which is why
+    nothing noticed where this record says it came from.
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-02T00:00:00Z"
+    statement: Absent, and recorded as absent.
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-01T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-02T00:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-02T00:00:00Z"
+    result: current_standing_active
+  outcome: refused
+  refusal:
+    code: issuance_evidence_absent
+    statement: Refused for the absent issuance record.
+record_version: 1

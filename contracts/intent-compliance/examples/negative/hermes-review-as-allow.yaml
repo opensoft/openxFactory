@@ -1,0 +1,5 @@
+# expected-failure: composition-outcome
+# requirement: dispatch-floor-and-composition
+schema_version: 1
+kind: intent_compliance_negative_fixture
+mutation: hermes_review_as_allow

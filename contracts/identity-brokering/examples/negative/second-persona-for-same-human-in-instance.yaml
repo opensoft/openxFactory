@@ -1,0 +1,30 @@
+# expected_failure: second-persona-in-instance
+# requirement: IDB-R1
+# VIOLATES R1: one persona per human within a broker instance.
+#
+# The same federated upstream identity — the operator's own Entra directory,
+# subject 9c1f52a7-… — resolving to a SECOND persona in the same instance. This
+# is what identity-per-surface produces when nobody notices: a human who
+# already has a persona signs in through a path that creates another, and from
+# then on their records split between two subjects that nothing links.
+#
+# The federated identity is the only evidence of sameness the broker actually
+# has, which is why the check keys on it. Two personas sharing one upstream
+# identity are one human twice — the precise outcome the whole capability
+# exists to prevent, and the reason the answer to isolation is a dedicated
+# INSTANCE rather than a partition inside a shared one.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-opensoft-shared-9004
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-9004aa22bb33cc44
+display_name: Brett Heap (second persona)
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: 9c1f52a7-4d8e-4b1f-9c33-6f0a1d2e4b77
+    linked_at: "2026-08-22T08:00:00Z"
+organization_memberships:
+  - organization_id: opensoft
+asserted_at: "2026-08-22T08:00:05Z"

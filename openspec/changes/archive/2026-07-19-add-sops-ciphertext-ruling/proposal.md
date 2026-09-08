@@ -1,5 +1,7 @@
 code_surface: none
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-19 by Brett Heap — record: this change's own tasks.md 1.1, "on this branch, PR #34; ratified by Brett Heap 2026-07-19"; the archive act followed the same day in `de85338`, "Archive add-sops-ciphertext-ruling (task 1.5)", which promoted the delta into `openspec/specs/credential-contracts/spec.md` as the twenty-fourth promoted capability delta. Corroborated by `docs/credential-access-model.md` §1.1, verified against the live file — "Ratified by Brett Heap on 2026-07-19 for xFactory GitOps installations (recorded by OpenSpec change `add-sops-ciphertext-ruling`)". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

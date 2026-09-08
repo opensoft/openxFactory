@@ -26,3 +26,12 @@
 - [ ] 3.2 Brett creates the first real document from a project view — the
       write itself is his to make, not something to exercise against his
       checkout unasked.
+
+## Ratification-citation respell (2026-08-23)
+
+- `proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by
+  `govern-openspec-corpus-membership` slice 5A.1, under OQ-4's 2026-08-23
+  ruling — prefix only, the bytes after the colon carried verbatim. The record
+  that justifies the line is Brett's 2026-08-08 in-session direction, quoted on
+  the line itself: "yes, we need to draft from a project view", given when the
+  hand-off was found unavailable on every project-scoped view.

@@ -1,0 +1,34 @@
+# REDACTED 2026-09-07: email addresses -> role placeholders per review/redaction-disposition-2026-09-07.md; original bytes at 543d47a9.
+schema: spec-driven
+created: 2026-08-23
+origin:
+  kind: staged
+  id: openxFactory:staging:notebook-projection-identity
+  path: ideation/staging/notebook-projection-identity
+  reason: >-
+    The single exit of the staged topic, raised on the day its last
+    precondition was met. The topic was captured 2026-08-15 from Brett Heap's
+    live-session ruling, made immediately after he — browsing as his Workspace
+    identity `<convener-workspace-identity>` — hit a "request access" wall on a
+    dashboard "open notebook" link, because the entire governed projection is
+    created under one person's personal consumer Gmail
+    (`<convener-personal-mailbox>`), the `nlm` CLI's default profile. Six claims were
+    settled at capture and five questions left open. All five were
+    dispositioned 2026-08-23 (merged as PR #272): Q2 and the account timing
+    RULED BY BRETT HEAP in session, Q1/Q3/Q4/Q5 adjudicated against executed
+    evidence. Q1 resolved the one-vs-two-changes fork to ONE COMBINED change,
+    which is this one; Q3 settled its own question by RUNNING the mapping
+    against the realized `client-identity-roster` schema and validator, which
+    refused the share-out shape structurally; Q4 unified the approval record
+    with the roster entry; Q5 adopted the `split-ideation-book-per-repo`
+    retirement runbook, with two review-found realization gaps recorded
+    against it. The exit's account precondition — "raised only once a real
+    company account exists" — was MET the same day when Brett confirmed
+    `<service-account-identity>` and authorized raising the change.
+  approved_by: >-
+    Brett Heap (in-session rulings 2026-08-23: the Workspace-user account
+    type, the create-now/soon timing, the confirmation of
+    `<service-account-identity>`, and the explicit authorization to raise this
+    change; the rulings are recorded on the staged topic fragment, merged as
+    openxFactory PR #272)
+  approved_on: 2026-08-23

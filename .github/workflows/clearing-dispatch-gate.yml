@@ -1,0 +1,140 @@
+# THE CLEARING-DISPATCH CONTRACT GATE — the named reader for `contracts/clearing/`.
+#
+# `scripts/validate-clearing-dispatch.py` is not a description of a control, it
+# IS the control: the ratified `clearing-dispatch-boundary` capability's refusals
+# exist as bytes only where something runs them. This workflow is what runs them.
+#
+# THE JOB CARRIES NO `name:` KEY, ON PURPOSE. The status check must surface as
+# exactly `clearing-dispatch-gate`, the literal token a branch ruleset would pin.
+# A distinct job display name silently de-advises the gate — the same rule
+# `openxwallet-consumer-gate.yml` and `signed-execution-chain-gate.yml` both
+# document for themselves.
+#
+# THIS CHECK IS NOT YET REQUIRED, AND THAT IS STATED RATHER THAN LEFT TO BE
+# DISCOVERED. Making it required is an operator act on the repository's rulesets,
+# exactly as `wallet-validation` (ruleset 21538893) and
+# `signed-execution-chain-gate` (ruleset 21957695) each needed one. Until that
+# act, this gate REPORTS and does not GATE. Where a protection rule admits bypass
+# actors, a required check is bypassable by those actors, and this comment is not
+# to be read as claiming an unbypassable gate once the act happens.
+#
+# THE GITLINK IS INITIALIZED BECAUSE THE VALIDATOR REFUSES WITHOUT IT. Public-key
+# decoding and the fingerprint spelling come from the PINNED openXwallet reader,
+# imported rather than copied; the validator exits 2 with the remedy rather than
+# deriving keys with arithmetic of its own. The pin is VERIFIED FIRST, before
+# anything pinned is trusted — a carved-out copy validated against an unverified
+# pin is a check against bytes nobody vouched for.
+#
+# THE ASSERTION STEP IS POSITIVE. On the happy path the reader emits no finding,
+# so "0 errors" is also what a run that opened nothing would print. The proof
+# that it walked anything is the conjunction of the NOTES it does produce: the
+# pinned decoders were read, the closed register was opened and its member count
+# stated, the packaged corpus was adjudicated, EVERY closed refusal code was
+# red-proven, and the whole-tree sweep ran. A green check that proves nothing was
+# walked is a vacuous pass.
+name: clearing-dispatch-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  clearing-dispatch-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # The house guard (`doc-health-reusable.yml`, `openxwallet-consumer-gate.yml`,
+      # `signed-execution-chain-gate.yml`). If the App key is absent the mint is
+      # SKIPPED rather than erroring on an empty app-id, the token expression
+      # falls back, and the scoped init then fails on the PRIVATE nested
+      # repository — a red gate with a legible cause. Falling back is not a pass:
+      # without the pinned decoders this reader refuses rather than proceeding on
+      # arithmetic of its own.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Mint openxFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Rewrite ssh submodule URLs for token auth
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+
+      - uses: actions/checkout@v4
+
+      # SCOPED, not `--recursive`: a blanket init would also fetch
+      # `installs/omnigent-install`, which nothing in this gate reads.
+      - name: Init the openXwallet gitlink only
+        run: git submodule update --init openXwallet
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml jsonschema rfc3339-validator
+
+      # FIRST, before anything pinned is trusted — the same ordering
+      # `openxwallet-consumer-gate.yml` and `signed-execution-chain-gate.yml` use.
+      - name: Verify the openXwallet pin
+        run: python3 scripts/verify-openxwallet-pin.py
+
+      - name: Walk the clearing contracts over this tree
+        shell: bash
+        run: |
+          python3 scripts/validate-clearing-dispatch.py . | tee clearing-gate.log
+
+      - name: Assert the gate actually walked something
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+
+          grep -qE '^note  pinned openXwallet decoders read from ' clearing-gate.log \
+            || fail "the pinned decoders were not read. This reader REFUSES rather than decoding keys with arithmetic of its own, so a run that reached the corpus without them did not happen — investigate the gitlink rather than relaxing this line."
+
+          # THE LITERAL COUNT IS THE POINT. The permitted-operations register is
+          # CLOSED at exactly two members. If this line has to move, the change
+          # that moved it is a GOVERNED CONTRACT CHANGE with a spec delta and a
+          # ratifier — not an edit to a grep.
+          #
+          # IT MOVED ONCE, 1 -> 2, ON 2026-09-04, AND THAT IS WHAT MOVING IT
+          # COSTS: `admit-deliberation-clearing-operation` (PR #645, merged
+          # `3cf917b7`), ratified by Brett Heap, admitting `deliberation` as
+          # register entry number two. The count is one of FIVE frozen copies of
+          # the member set — the validator's constant, the INDEPENDENT constant
+          # in `tests/clearing/test_register_closure.py`, the register instance,
+          # this grep, and `tests/clearing/test_clearing_gate_wiring.py`, which
+          # pins this grep's literal from a second file.
+          grep -qE '^note  permitted-operations register read: contracts/clearing/permitted-operations\.registry\.yaml \(2 registered operations\)' clearing-gate.log \
+            || fail "the closed register was not opened, or it no longer holds exactly two registered operations. Adding an operation is a governed contract change; do not move this assertion to match the file."
+
+          grep -qE '^note  self-test: [0-9]+ packaged record\(s\) validated, [0-9]+ negative fixture\(s\) refused' clearing-gate.log \
+            || fail "the packaged corpus was not adjudicated. The corpus IS the proof that each closed refusal fires."
+
+          # EVERY closed refusal code, red-proven. `N/N` rather than "some":
+          # a refusal nobody has seen go red is a refusal nobody has tested.
+          if ! grep -qE '^note  ([0-9]+)/\1 closed refusal codes red-proven' clearing-gate.log; then
+            fail "not every closed refusal code was red-proven by a packaged fixture. See the clearing-refusal-code-without-probe findings above."
+          fi
+
+          grep -qE '^note  repo scan \(.*\): [0-9]+ artifact\(s\) checked' clearing-gate.log \
+            || fail "the whole-tree sweep did not run, so real artifacts were never adjudicated."
+
+          ! grep -qE '^ERROR \[' clearing-gate.log \
+            || fail "the clearing contracts reader reported an error. Read the ERROR lines above; each names a closed refusal code and the ratified sentence behind it."
+
+          echo "clearing-dispatch-gate: the reader opened the register, adjudicated the corpus, red-proved every closed refusal code, and swept the tree."

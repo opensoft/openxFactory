@@ -1,0 +1,1069 @@
+"""The consumer-identity refusals (add-binding-consumer-identity §2.3–§2.7).
+
+A TEST PER CONDITION, EACH PROVING THE REFUSAL STANDS WHEN ONLY THAT CONDITION
+IS MISSING — and then a mutation round proving each condition is load-bearing in
+the code rather than merely present in it.
+
+THE MUTATION ROUND'S CONTROL IS A BASELINE, NOT A NAME. Naming the killing test
+fixes attribution; it does NOT detect ANCHOR-MISSING, where the named test fails
+on the mutant because its fixture or assertion target is absent rather than
+because the mutation was caught. So each mutant records BOTH halves: the named
+check PASSES against unmutated code, and FAILS against the mutant. The mutant
+population is an explicit count — NINE.
+"""
+from __future__ import annotations
+
+import copy
+import importlib.util
+from itertools import combinations
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _load():
+    spec = importlib.util.spec_from_file_location(
+        "credential_contracts_validator_refusals",
+        ROOT / "scripts" / "validate-credential-contracts.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+V = _load()
+
+REQUIREMENTS_DOC = "credentials/projection.requirements.yaml"
+INDEX = {
+    REQUIREMENTS_DOC: [
+        {"id": "projection_sync_lane", "access_mode": "workload_identity"},
+        {"id": "projection_editor_surface", "access_mode": "workload_identity"},
+        {"id": "projection_report_builder", "access_mode": "workload_identity"},
+        {"id": "intent_dispatch", "access_mode": "dispatch_only"},
+        {"id": "corpus_content_write", "access_mode": "contents_write"},
+    ],
+}
+
+
+def _binding(secret="one-operated-identity", **consumer):
+    binding = {"provider": "azure_key_vault", "vault": "kv-example", "secret_ref": secret,
+               "owner": "example-platform", "rotation_policy": "operator_managed"}
+    if consumer:
+        binding["consumer"] = consumer
+    return binding
+
+
+def _ref(requirement_id, document=REQUIREMENTS_DOC):
+    return {"requirement_id": requirement_id, "requirements_document_ref": document}
+
+
+def _conforming_pair():
+    """The packaged POSITIVE's shape: two consuming systems, one operated
+    identity, all six conditions satisfied."""
+    return {
+        "schema_version": 1,
+        "kind": "xfactory_credential_binding_template",
+        "client": {"id": "example-client"},
+        "credential_bindings": {
+            "projection_sync_lane": _binding(
+                holder_ref="example:service-subject:projection-sync-lane",
+                fetch_identity="example-sync-lane-workload-identity",
+                requirement_ref=_ref("projection_sync_lane"),
+                shared_credential_acknowledged=True),
+            "projection_editor_surface": _binding(
+                holder_ref="example:service-subject:projection-editor-surface",
+                fetch_identity="example-editor-surface-workload-identity",
+                requirement_ref=_ref("projection_editor_surface"),
+                shared_credential_acknowledged=True),
+        },
+    }
+
+
+def _findings(doc, index=None):
+    return V._semantic_findings(doc, INDEX if index is None else index)
+
+
+def _codes(doc, index=None):
+    return sorted({f.split(":", 1)[0] for f in _findings(doc, index)})
+
+
+# --------------------------- the lift, condition by condition ---------------------------
+
+def test_the_conforming_pair_lifts():
+    """The shape the predecessor had to DECLINE. If this ever stops lifting, the
+    per-condition tests below stop meaning anything — they would all be passing
+    on a refusal that was never available to lift."""
+    assert _findings(_conforming_pair()) == []
+
+
+def test_condition_1_a_pair_that_declares_nothing_is_refused():
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        del binding["consumer"]
+    assert _codes(doc) == ["shared-secret-identity"]
+
+
+def test_condition_1_one_side_declaring_nothing_is_refused():
+    doc = _conforming_pair()
+    del doc["credential_bindings"]["projection_editor_surface"]["consumer"]
+    assert _codes(doc) == ["shared-secret-identity"]
+
+
+def test_condition_2_a_shared_holder_reference_is_refused():
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["consumer"]["holder_ref"] = \
+        "example:service-subject:projection-sync-lane"
+    assert _codes(doc) == ["shared-secret-identity"]
+
+
+def test_condition_3_a_shared_fetch_identity_is_refused_under_the_NAMED_fault():
+    """Condition 3's failure is already refused by the default rule, so the new
+    code adds no refusal — it adds a refusal that NAMES THE FAULT. A reader told
+    about secret reuse would split the secret and keep the shared authority."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        "example-sync-lane-workload-identity"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_condition_3_a_MISSING_fetch_identity_is_refused():
+    """The lift's third condition has two arms and only one of them is reached
+    HERE. Where both fetch identities are present and EQUAL while the holders
+    differ, the named `shared-authority-identity` fault applies and REPLACES the
+    default finding for that pair — one fault, one finding — so the arm the lift
+    itself still owns is the one where an identity is missing or is not a
+    string, and the per-system authority is therefore unproven rather than
+    collapsed."""
+    doc = _conforming_pair()
+    del doc["credential_bindings"]["projection_editor_surface"]["consumer"]["fetch_identity"]
+    findings = _findings(doc)
+    assert _codes(doc) == ["shared-secret-identity"]
+    assert "fetch_identity is None, which is not an identifier" in findings[0]
+
+
+@pytest.mark.parametrize("member", ["holder_ref", "fetch_identity"])
+def test_a_GRAMMAR_INVALID_identity_never_grants_the_lift(member):
+    """PR #516, Codex P1 — and the sharpest finding of the whole round.
+
+    A pair carrying `<holder-a>`/`<holder-b>` is DISTINCT as strings while
+    naming nobody, and with the acknowledgment and two resolvable non-dispatch
+    requirements it TOOK the lift — removing a `shared-secret-identity` error
+    that stands today. This change tightens before it lifts, and nothing that is
+    refused today may become accepted by silence. A placeholder is exactly the
+    "grammar-passing sentinel" the packet calls worse than omission, arriving
+    through the exemption door rather than the front one.
+
+    Note the phasing direction: withholding a lift is not a new refusal. The
+    record this refuses is one the current major already refuses."""
+    doc = _conforming_pair()
+    for i, binding in enumerate(doc["credential_bindings"].values()):
+        binding["consumer"][member] = f"<placeholder-{i}>"
+    assert _codes(doc) == ["shared-secret-identity"]
+    assert "is not an identifier" in _findings(doc)[0]
+
+
+def test_an_EXPLICIT_NULL_requirement_ref_is_warned():
+    """PR #516, Codex P2. `requirement_ref: null` is a DECLARED member whose
+    value is not an object, and the major refuses it — but `.get()` made it
+    indistinguishable from an absent optional member, so the shape crossed the
+    deprecation release in silence. The test is whether the KEY is there."""
+    doc = _conforming_pair()
+    binding = doc["credential_bindings"]["projection_sync_lane"]
+    binding["consumer"]["requirement_ref"] = None
+    assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+
+
+def test_an_EXPLICIT_NULL_consumer_block_is_INCOMPLETE_not_UNDECLARED():
+    """PR #516, Codex round 5. `consumer: null` is a block that EXISTS carrying
+    a non-object value, and `.get()` made it indistinguishable from an absent
+    key — so it drew the no-block finding instead of the incomplete-block one.
+    Both are warnings, so nothing about the phasing moved; but the packet
+    separates those two shapes deliberately, and a reader told the block is
+    MISSING when it is present and empty repairs the wrong thing."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_sync_lane"]["consumer"] = None
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-block-incomplete" in codes
+    assert "consumer-identity-undeclared" not in codes
+
+
+def test_an_ABSENT_consumer_block_is_still_UNDECLARED():
+    """The negative control: the two shapes stay two."""
+    doc = _conforming_pair()
+    del doc["credential_bindings"]["projection_sync_lane"]["consumer"]
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-identity-undeclared" in codes
+    assert "consumer-block-incomplete" not in codes
+
+
+@pytest.mark.parametrize("spelling", ["./credentials/r.yaml", "credentials/./r.yaml",
+                                      "credentials/r.yaml/."])
+def test_a_DOT_SEGMENT_is_refused_so_the_grammar_and_the_lookup_agree(spelling):
+    """PR #516, Codex round 5. A `.` segment passed the grammar while never
+    matching the index's canonical key, so the resolver reported not-found on a
+    reference the grammar called fine — the two disagreed about the same path.
+
+    The repair is to refuse the SPELLING rather than normalize it: normalization
+    is path manipulation on a string a record supplies, inside a validator whose
+    rule is that it never opens such a path, and one canonical spelling per
+    document is what makes the lookup a lookup."""
+    assert not V.DOCUMENT_REF.fullmatch(spelling), spelling
+    assert not V._is_document_ref(spelling)
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["requirements_document_ref"] = spelling
+    assert "consumer-requirement-ref-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+    findings = _findings(doc)
+    assert findings and "absolute, escaping, or foreign-repository" in findings[0]
+
+
+def test_the_canonical_spelling_still_resolves():
+    """The negative control for the refusal above."""
+    assert V.DOCUMENT_REF.fullmatch(REQUIREMENTS_DOC)
+    assert _findings(_conforming_pair()) == []
+
+
+def test_an_ABSENT_requirement_ref_is_still_silent():
+    """The negative control: the member is OPTIONAL, and a record that simply
+    does not declare it owes no warning."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        del binding["consumer"]["requirement_ref"]
+    assert [c for c, _ in V._deprecation_warnings(doc)] == []
+
+
+def test_condition_4_a_one_sided_acknowledgment_is_refused():
+    doc = _conforming_pair()
+    del doc["credential_bindings"]["projection_editor_surface"]["consumer"][
+        "shared_credential_acknowledged"]
+    assert _codes(doc) == ["shared-secret-identity"]
+
+
+def test_condition_4_a_false_valued_acknowledgment_is_refused():
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["consumer"][
+        "shared_credential_acknowledged"] = False
+    assert _codes(doc) == ["shared-secret-identity"]
+
+
+def _dispatch_and_content_pair():
+    """An HONEST dispatch/content pair: each reference names its own map key, so
+    condition six holds and only condition five can stand."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["intent_dispatch"] = bindings.pop("projection_sync_lane")
+    bindings["corpus_content_write"] = bindings.pop("projection_editor_surface")
+    bindings["intent_dispatch"]["consumer"]["requirement_ref"] = _ref("intent_dispatch")
+    bindings["corpus_content_write"]["consumer"]["requirement_ref"] = _ref("corpus_content_write")
+    return doc
+
+
+def test_condition_5_a_dispatch_and_content_pair_is_refused_however_declared():
+    doc = _dispatch_and_content_pair()
+    assert _codes(doc) == ["shared-secret-identity"]
+    assert "access modes differ" in _findings(doc)[0]
+
+
+def test_condition_5_two_dispatch_only_consumers_are_refused_by_a_DELIBERATE_over_refusal():
+    """The exclusion over-refuses on purpose and the over-refusal is named rather
+    than left to be discovered: two consumers of ONE dispatch-only credential are
+    refused too, which nothing else in this capability forbids. The dispatch
+    class is where serving-tier separation lives, the population of real
+    two-consumer dispatch cases is currently zero, and a rule that refuses a
+    shape nobody needs is cheaper to relax later than one that permits a shape
+    nobody checked."""
+    index = copy.deepcopy(INDEX)
+    for record in index[REQUIREMENTS_DOC]:
+        record["access_mode"] = "dispatch_only"
+    assert _codes(_conforming_pair(), index) == ["shared-secret-identity"]
+
+
+def test_condition_6_a_pair_pointing_at_a_requirement_neither_binding_is_is_refused():
+    """L2, the execution that defeated the five-condition draft: both references
+    aimed at one requirement so the access modes compare equal."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"] = _ref("projection_sync_lane")
+    assert _codes(doc) == ["shared-secret-identity"]
+    assert "not its own map key" in _findings(doc)[0]
+
+
+def test_the_packaged_serving_tier_negative_stays_refused_however_it_is_declared():
+    """`dispatch-reuses-content-secret.yaml` is this capability's ONLY red proof
+    of serving-tier separation, and the seat broke it with FOUR declarations and
+    its shared secret untouched. It carries those four declarations now."""
+    import yaml
+    path = ROOT / "examples/credential-contracts/negative/dispatch-reuses-content-secret.yaml"
+    doc = yaml.safe_load(path.read_text())
+    consumers = [b["consumer"] for b in doc["credential_bindings"].values()]
+    assert len({c["holder_ref"] for c in consumers}) == 2
+    assert len({c["fetch_identity"] for c in consumers}) == 2
+    assert all(c["shared_credential_acknowledged"] is True for c in consumers)
+    assert doc["credential_bindings"]["intent_dispatch"]["secret_ref"] == \
+        doc["credential_bindings"]["corpus_content_write"]["secret_ref"]
+    assert _codes(doc, {"openxdox-dispatch.requirements.example.yaml": INDEX[REQUIREMENTS_DOC]}) \
+        == ["shared-secret-identity"]
+
+
+# --------------------------- the arity (§2.3a) ---------------------------
+
+def _three_bindings():
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_report_builder"] = _binding(
+        holder_ref="example:service-subject:projection-report-builder",
+        fetch_identity="example-editor-surface-workload-identity",
+        requirement_ref=_ref("projection_report_builder"),
+        shared_credential_acknowledged=True)
+    return doc
+
+
+def test_three_bindings_with_the_second_and_third_sharing_an_authority_are_refused():
+    """The inherited predicate kept the FIRST binding per secret and compared
+    later ones against it, so the pair (b, c) was NEVER examined and this record
+    was accepted on both examined pairs."""
+    assert _codes(_three_bindings()) == ["shared-authority-identity"]
+
+
+def test_the_pairs_examined_are_every_pair_and_not_the_first_against_the_rest():
+    doc = _three_bindings()
+    findings = _findings(doc)
+    assert len(findings) == 1
+    assert "projection_editor_surface" in findings[0]
+    assert "projection_report_builder" in findings[0]
+    assert "projection_sync_lane" not in findings[0]
+
+
+# --------------------------- the access mode (§2.3b) ---------------------------
+
+@pytest.mark.parametrize("mode", [None, 7, "Workload_Identity", "not_a_mode"])
+def test_an_unreadable_access_mode_makes_the_lift_UNAVAILABLE(mode):
+    index = copy.deepcopy(INDEX)
+    for record in index[REQUIREMENTS_DOC]:
+        if mode is None:
+            record.pop("access_mode", None)
+        else:
+            record["access_mode"] = mode
+    assert _codes(_conforming_pair(), index) == ["shared-secret-identity"]
+
+
+def test_two_ABSENT_access_modes_do_not_compare_equal_to_each_other():
+    """`None == None` was one of three lifts a security seat drove through this
+    field. Unreadable means UNAVAILABLE, never "equal, and not dispatch-only"."""
+    index = copy.deepcopy(INDEX)
+    for record in index[REQUIREMENTS_DOC]:
+        record.pop("access_mode", None)
+    findings = _findings(_conforming_pair(), index)
+    assert findings and "unreadable makes the lift UNAVAILABLE" in findings[0]
+
+
+def test_a_variant_spelling_does_not_compare_equal_to_itself():
+    index = copy.deepcopy(INDEX)
+    for record in index[REQUIREMENTS_DOC]:
+        record["access_mode"] = "Dispatch_Only"
+    assert _codes(_conforming_pair(), index) == ["shared-secret-identity"]
+
+
+# --------------------------- resolution (§2.5) ---------------------------
+
+def test_a_reference_resolving_to_nothing_is_reported_and_withholds_the_lift():
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"] = _ref(
+            binding["consumer"]["requirement_ref"]["requirement_id"], "credentials/absent.yaml")
+    findings = _findings(doc)
+    assert findings and "resolves to no requirement" in findings[0]
+
+
+def test_a_reference_resolving_to_TWO_records_with_different_modes_is_reported():
+    index = {REQUIREMENTS_DOC: INDEX[REQUIREMENTS_DOC] + [
+        {"id": "projection_sync_lane", "access_mode": "delegated_api"}]}
+    findings = _findings(_conforming_pair(), index)
+    assert findings and "MORE THAN ONE requirement" in findings[0]
+
+
+def test_the_ambiguity_is_never_resolved_by_picking_one():
+    """The two matches may carry different access modes, so a rule whose outcome
+    depends on which was found first is not a rule. Both orders must refuse."""
+    extra = {"id": "projection_sync_lane", "access_mode": "delegated_api"}
+    for index in ({REQUIREMENTS_DOC: INDEX[REQUIREMENTS_DOC] + [extra]},
+                  {REQUIREMENTS_DOC: [extra] + INDEX[REQUIREMENTS_DOC]}):
+        assert _codes(_conforming_pair(), index) == ["shared-secret-identity"]
+
+
+@pytest.mark.parametrize("document", ["../elsewhere/requirements.yaml",
+                                      "/etc/credentials/requirements.yaml",
+                                      "OpsxFactory:credentials/requirements.yaml"])
+def test_a_reference_that_escapes_the_tree_is_ungrammatical_and_withholds_the_lift(document):
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"] = _ref(
+            binding["consumer"]["requirement_ref"]["requirement_id"], document)
+    findings = _findings(doc)
+    assert findings and "absolute, escaping, or foreign-repository" in findings[0]
+
+
+def test_a_reference_carrying_an_EXTRA_member_does_not_resolve():
+    """PR #516, Copilot. The resolver documented "the two-member object" while
+    checking only that the two were PRESENT, so a reference with a third key
+    could resolve and satisfy the lift — accepting a shape the major's closed
+    block refuses, and doing it on the exemption path where fail-closed matters
+    most. Refusing to RESOLVE it refuses no record: it withholds an exemption,
+    and the default refusal it leaves standing is the one that already stands."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["custody_declared_in"] = "somewhere.yaml"
+    findings = _findings(doc)
+    assert findings and "is not a qualified reference" in findings[0]
+    assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+
+
+@pytest.mark.parametrize("record", [
+    {"schema_version": 1, "kind": "xfactory_credential_binding_template",
+     "client": {"id": "c"},
+     "credential_bindings": {"r": {"provider": "p", "secret_ref": "s", "owner": "o",
+                                   "rotation_policy": "rp",
+                                   "consumer": {"holder_ref": "example:holder",
+                                                "fetch_identity": "example-identity",
+                                                "requirement_ref": {
+                                                    "requirement_id": "r",
+                                                    "requirements_document_ref": "r.yaml",
+                                                    1: "an int key"}}}}},
+    {"schema_version": 1, "kind": "xfactory_credential_binding_template",
+     "client": {"id": "c"},
+     "credential_bindings": {"r": {"provider": "p", "secret_ref": "s", "owner": "o",
+                                   "rotation_policy": "rp",
+                                   "consumer": {"holder_ref": "example:holder",
+                                                "fetch_identity": "example-identity",
+                                                2: "an int member"}}}},
+    {"schema_version": 1, "kind": "xfactory_credential_requirements",
+     "domain": {"id": "d"},
+     "requirements": [{"id": "r", "purpose": "p", "access_mode": "workload_identity",
+                       "requires_domain_approval": True, "requires_human_approval": False,
+                       "max_grant_minutes": 60, "audit_required": True,
+                       "issuance_preconditions": {"accepted_request_required": True,
+                                                  3: True}}]},
+], ids=["reference-key", "block-member", "issuance-precondition"])
+def test_a_NON_STRING_KEY_is_reported_rather_than_raised(record):
+    """PR #516, Codex round 2. The block is UNCONSTRAINED at this minor, so a
+    record may hold a mapping whose keys are not all strings — YAML writes
+    `1: extra` as an int key — and a bare `sorted()` over mixed types raises
+    TypeError, aborting the WHOLE repository scan on a record this release
+    promises stays valid and warned. A crash is not a verdict.
+
+    The parametrisation is the SWEEP rather than the one line a bot pointed at:
+    this validator sorts record-controlled keys in three places, and all three
+    are driven here."""
+    assert isinstance(V._deprecation_warnings(record), list)
+    assert isinstance(V._semantic_findings(record, INDEX), list)
+
+
+MALFORMED_RECORDS = {
+    "credential_bindings is a list": {
+        "schema_version": 1, "kind": "xfactory_credential_binding_template",
+        "client": {"id": "c"}, "credential_bindings": ["a", "b"]},
+    "credential_bindings is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_binding_template",
+        "client": {"id": "c"}, "credential_bindings": "not-a-map"},
+    "requirements is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_requirements",
+        "domain": {"id": "d"}, "requirements": 7},
+    "minimum_scopes is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_requirements",
+        "domain": {"id": "d"},
+        "requirements": [{"id": "r", "purpose": "p", "access_mode": "dispatch_only",
+                          "minimum_scopes": 3, "allowed_workflows": 4,
+                          "requires_domain_approval": True, "requires_human_approval": False,
+                          "max_grant_minutes": 60, "audit_required": True}]},
+}
+
+
+@pytest.mark.parametrize("shape", sorted(MALFORMED_RECORDS))
+def test_a_MALFORMED_record_is_reported_rather_than_raised(shape):
+    """PR #516, Copilot. A SCHEMA-INVALID record reaches the semantic pass —
+    the two passes run BESIDE each other, not one behind the other — so
+    `credential_bindings: [a, b]` reached `.items()` and raised AttributeError,
+    and `requirements: 7` was iterated. Either aborts the WHOLE repository scan,
+    so one malformed record silenced every finding about every other file.
+
+    Same class as the sorted-keys crash, same answer: report, never raise."""
+    record = MALFORMED_RECORDS[shape]
+    assert isinstance(V._semantic_findings(record, INDEX), list)
+    assert isinstance(V._deprecation_warnings(record), list)
+    assert isinstance(V.requirements_index({"r.yaml": record}), dict)
+
+
+def test_the_schema_error_sort_survives_non_string_keys(tmp_path):
+    """PR #516, Copilot. Error paths from a record with `1: foo` mix ints and
+    strings at one position, and a bare sort over those raises — turning a
+    SCHEMA ERROR into a crash, which is the one outcome worse than a wrong
+    verdict."""
+    import subprocess
+    import sys
+    repo = tmp_path / "domain"
+    (repo / "credentials").mkdir(parents=True)
+    (repo / "credentials" / "b.yaml").write_text(
+        "schema_version: 1\n"
+        "kind: xfactory_credential_binding_template\n"
+        "client:\n  id: c\n"
+        "credential_bindings:\n"
+        "  1:\n"
+        "    provider: p\n"
+        "    secret_ref: s\n"
+        "    owner: o\n"
+        "    rotation_policy: rp\n"
+        "    consumer:\n"
+        "      2: an int member\n")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "validate-credential-contracts.py"), str(repo)],
+        capture_output=True, text=True, check=False)
+    assert "Traceback" not in result.stderr, result.stderr
+    assert result.returncode in (0, 1), result.stdout + result.stderr
+
+
+def test_an_overlong_document_reference_does_not_resolve():
+    doc = _conforming_pair()
+    overlong = "credentials/" + ("a" * 400) + ".yaml"
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["requirements_document_ref"] = overlong
+    findings = _findings(doc)
+    assert findings and "absolute, escaping, or foreign-repository" in findings[0]
+
+
+def test_a_bare_requirement_id_does_not_satisfy_the_condition():
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"] = \
+            binding["consumer"]["requirement_ref"]["requirement_id"]
+    findings = _findings(doc)
+    assert findings and "is not a qualified reference" in findings[0]
+
+
+def test_the_resolver_never_opens_a_path_taken_from_a_record(tmp_path, monkeypatch):
+    """Resolution is a lookup against records the validator itself discovered.
+    A record cannot steer it at a file of the record's choosing — so no file
+    read happens at resolution time at all."""
+    opened = []
+    real_open = Path.open
+
+    def spy(self, *args, **kwargs):
+        opened.append(str(self))
+        return real_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", spy)
+    V.resolve_requirement(_ref("projection_sync_lane", "credentials/anything.yaml"), INDEX)
+    assert opened == []
+
+
+# --------------------------- the named fault (§2.4) ---------------------------
+
+def test_the_authority_finding_is_not_scoped_to_a_shared_secret_reference():
+    """Two different holders declaring one fetch identity is the collapse
+    WHATEVER their secret references; scoping the finding to the proxy would
+    leave it unreported when two spellings name one secret."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-second-spelling-of-one-secret"
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        "example-sync-lane-workload-identity"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_one_holder_reusing_its_own_fetch_identity_reports_nothing():
+    """A system legitimately authenticates as itself across the credentials it
+    holds. The subtraction that matters was performed BEFORE widening the
+    finding past the secret reference."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    bindings["projection_editor_surface"]["consumer"]["holder_ref"] = \
+        bindings["projection_sync_lane"]["consumer"]["holder_ref"]
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
+    assert _findings(doc) == []
+
+
+def test_the_authority_finding_compares_only_GRAMMATICAL_identities():
+    """PR #516, Codex P1. This is the one arm of this change that can raise a NEW
+    error on a record carrying no shared secret, so it is the one place a
+    malformed value could turn a deprecation into a refusal: two bindings whose
+    consumers both carry `fetch_identity: ""` validate on the current major, and
+    reading them as "the same identity" would refuse in a MINOR a shape the
+    current major accepts. The malformed values are warned instead, and refused
+    at the major with everything else."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    for name in bindings:
+        bindings[name]["consumer"]["fetch_identity"] = ""
+    assert _findings(doc) == []
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert codes.count("consumer-member-grammar") == 2
+
+
+def test_a_grammatical_shared_authority_is_still_refused():
+    """The negative control: the guard above must cost the finding nothing on the
+    values it exists to catch."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_the_named_fault_REPLACES_the_default_finding_rather_than_accompanying_it():
+    """One fault SHALL produce one finding, or a reader repairing the named fault
+    is left with a second refusal describing the same record."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        "example-sync-lane-workload-identity"
+    findings = _findings(doc)
+    assert len(findings) == 1
+    assert findings[0].startswith("shared-authority-identity")
+
+
+def test_a_record_that_declares_no_consumer_is_refused_exactly_as_it_is_today():
+    """Nothing that is refused today becomes accepted by silence: this change
+    tightens before it lifts."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding.pop("consumer")
+    findings = _findings(doc)
+    assert len(findings) == 1 and findings[0].startswith("shared-secret-identity")
+
+
+# ------------- the namespace that scopes the authority (add-consumer-identity-namespace) -------------
+
+def _same_name_different_holders(secret_b="a-different-secret"):
+    """The shared-authority SHAPE: two holders, one fetch identity, no shared
+    secret. Every test below starts here and adds only namespaces, so what moves
+    the verdict is the member under test and nothing else."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = secret_b
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
+    return doc
+
+
+def _consumers(doc):
+    """The two consumer blocks, in the template's own declaration order.
+
+    ORDER IS DELIBERATELY NOT SORTED, and the reason is that no test in this
+    section depends on WHICH binding receives an edit — every assertion is
+    symmetric over the pair, because the fault this section is about is a
+    property of the PAIR and not of either side. Sorting the keys would fix an
+    order the tests do not read while implying they do. What DOES matter is the
+    arity of the findings, and the two tests that index into a finding list pin
+    `len(...) == 1` before they do.
+    """
+    return [b["consumer"] for b in doc["credential_bindings"].values()]
+
+
+def test_the_shape_reports_before_any_namespace_is_declared():
+    """The BASELINE the rest of this section is read against. Without it a test
+    that passes because the finding was never raised looks like a test that
+    passes because a namespace cleared it."""
+    assert _codes(_same_name_different_holders()) == ["shared-authority-identity"]
+
+
+def test_two_directories_naming_one_principal_the_same_are_NOT_one_authority():
+    """The false refusal this member exists to end (openxFactory#511). Two
+    tenants of one provider may both call a principal `runtime_identity`; before
+    the member the only escape was to write a name the provider does not use,
+    which makes the record FALSE."""
+    doc = _same_name_different_holders()
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_one_namespace_on_both_sides_is_still_the_collapse():
+    """The member SCOPES the comparison; it does not lift it. Same directory,
+    same principal name, two consuming systems is the fault whatever is
+    declared."""
+    doc = _same_name_different_holders()
+    for consumer in _consumers(doc):
+        consumer["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_a_namespace_on_ONE_side_falls_back_and_still_REPORTS():
+    """ABSENCE NEVER CLEARS. An estate that could silence a real shared
+    authority by omitting a member on one side would hold a refusal it can turn
+    off without ever writing anything false — a worse instrument than the
+    over-report the member exists to end."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_the_one_sided_message_names_the_remedy_that_keeps_the_record_TRUE():
+    """The fallback is also the shape most likely to be a MISSING DECLARATION
+    rather than a real collapse, so the message says which repair is the honest
+    one: declare the namespace on BOTH bindings, never delete it from the one
+    that carries it."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    findings = _findings(doc)
+    # PIN THE ARITY BEFORE READING AN INDEX. `[0]` on an unpinned list reads
+    # whichever finding happened to sort first, so a second finding arriving
+    # later would change what this test asserts about without failing it.
+    assert len(findings) == 1
+    assert "identity_namespace" in findings[0]
+    assert "BOTH bindings" in findings[0]
+
+
+def test_an_UNGRAMMATICAL_namespace_is_not_read_as_one_and_the_pair_still_reports():
+    """Clearing on a value nothing could read is the fail-open shape this family
+    has already had to repair once. A malformed namespace is treated exactly as
+    an absent one by the comparison — and warned in its own right beside it."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "not a namespace!"
+    _consumers(doc)[1]["identity_namespace"] = "directory-tenant-b"
+    assert _codes(doc) == ["shared-authority-identity"]
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert warnings.count("consumer-identity-namespace-grammar") == 1
+
+
+def test_the_message_names_the_namespace_when_BOTH_sides_share_one():
+    """`authenticating as 'runtime_identity'` is ambiguous in exactly the way
+    this member exists to end, so where the comparison READ a namespace the
+    finding says which one."""
+    doc = _same_name_different_holders()
+    for consumer in _consumers(doc):
+        consumer["identity_namespace"] = "directory-tenant-a"
+    findings = _findings(doc)
+    assert len(findings) == 1
+    assert "in identity_namespace 'directory-tenant-a'" in findings[0]
+
+
+def test_the_namespace_does_not_reach_a_pair_whose_fetch_identities_ALREADY_differ():
+    """A subtraction, not an addition: the member narrows what is reported and
+    can never widen it. Two different identities were never this fault, and
+    declaring namespaces on them changes nothing."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_a_shared_secret_pair_with_two_namespaces_reaches_the_LIFT_rather_than_the_named_fault():
+    """The named fault REPLACES the default finding for a pair; where the
+    namespaces separate two authorities the pair is no longer that fault, so the
+    six-condition lift decides the record — and here it lifts, every condition
+    holding."""
+    doc = _conforming_pair()
+    for consumer, namespace in zip(_consumers(doc), ("directory-tenant-a", "directory-tenant-b")):
+        consumer["fetch_identity"] = "example-runtime-identity"
+        consumer["identity_namespace"] = namespace
+    assert _findings(doc) == []
+
+
+def test_a_shared_secret_pair_sharing_ONE_namespace_is_refused_under_the_named_fault():
+    """The control for the test above, one byte apart: one namespace on both
+    sides and the pair is the authority collapse again."""
+    doc = _conforming_pair()
+    for consumer in _consumers(doc):
+        consumer["fetch_identity"] = "example-runtime-identity"
+        consumer["identity_namespace"] = "directory-tenant-a"
+    assert _codes(doc) == ["shared-authority-identity"]
+
+
+def test_the_namespace_is_a_DECLARED_member_and_no_longer_an_unknown_one():
+    """Before this change a block carrying `identity_namespace` warned as
+    carrying an undeclared member — a warning against a member the estate had no
+    other way to express. Declaring it is what removes that."""
+    doc = _same_name_different_holders()
+    _consumers(doc)[0]["identity_namespace"] = "directory-tenant-a"
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-block-unknown-member" not in warnings
+    assert "identity_namespace" in V.CONSUMER_MEMBERS
+
+
+def test_the_namespace_does_not_stand_in_for_an_identifier():
+    """A namespace names a DIRECTORY and not a principal, so a block carrying one
+    and no identifiers is still incomplete — on the same ground a grammar-passing
+    sentinel is refused as a repair."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"] = {"identity_namespace": "directory-tenant-a"}
+    warnings = [c for c, _ in V._deprecation_warnings(doc)]
+    assert warnings.count("consumer-block-incomplete") == 2
+
+
+def test_a_namespace_beside_the_stub_token_keeps_the_stub_exemption():
+    """A record written before any install exists MAY already know which
+    directory will issue its identity, and naming a directory names no principal
+    — so the exemption is unchanged. Stated as a decision rather than left to be
+    read off the code: `_declares_stub` keys on the two IDENTIFIERS, and this
+    change does not add a third."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"] = {"instantiation_stub": True,
+                               "identity_namespace": "directory-tenant-a"}
+    assert [c for c, _ in V._deprecation_warnings(doc)] == []
+
+
+def test_the_ninth_code_is_declared_beside_its_family_and_carries_a_probe():
+    """It is a SHAPE fault, so it belongs to the consumer block's family rather
+    than to the resolution family; and a deprecation code with no packaged probe
+    is a deprecation the major cannot evidence."""
+    assert "consumer-identity-namespace-grammar" in V.DEPRECATION_CODES
+    codes = list(V.DEPRECATION_CODES)
+    assert codes.index("consumer-identity-namespace-grammar") == codes.index(
+        "consumer-requirement-ref-grammar") + 1
+    assert "consumer-identity-namespace-grammar" in set(V.WARNING_EXPECTATIONS.values())
+
+
+def test_the_namespace_grammar_warning_says_the_value_is_not_read_as_a_namespace():
+    """Its own code exists for a CONSEQUENCE rather than a taxonomy, and the
+    message is where that consequence reaches the reader."""
+    doc = _conforming_pair()
+    _consumers(doc)[0]["identity_namespace"] = "not a namespace!"
+    message = [m for c, m in V._deprecation_warnings(doc)
+               if c == "consumer-identity-namespace-grammar"][0]
+    assert "NOT READ" in message
+    assert "falls back" in message
+
+
+def test_a_namespace_carrying_a_raw_secret_is_screened_like_the_two_beside_it():
+    """The THIRD free string on the record kind whose invariant is 'never bake a
+    secret', screened in the SAME COMMIT that declares it — declaring a sink and
+    screening it a release later is how the gap §2.6 closed reopens."""
+    doc = _conforming_pair()
+    _consumers(doc)[0]["identity_namespace"] = "ghp_0123456789abcdefghijklmnopqrstuvwxyz"
+    assert any(f.startswith("baked-secret") and "identity_namespace" in f
+               for f in _findings(doc))
+
+
+@pytest.mark.parametrize("name,ns_a,ns_b,fetch_b,same_authority", [
+    ("neither side declares one — every record that exists today", ..., ..., "x", True),
+    ("both declare the same one", "dir-a", "dir-a", "x", True),
+    ("both declare DIFFERENT ones — the only clearing case", "dir-a", "dir-b", "x", False),
+    ("one side only", "dir-a", ..., "x", True),
+    ("one side's value is ungrammatical", "not a ns!", "dir-b", "x", True),
+    ("both values are ungrammatical", "not a ns!", "also bad!", "x", True),
+    ("a declared null is a value nothing can read", None, "dir-b", "x", True),
+    ("the identities already differ", "dir-a", "dir-a", "y", False),
+])
+def test_the_authority_predicate_over_its_WHOLE_truth_table(name, ns_a, ns_b, fetch_b,
+                                                            same_authority):
+    """EIGHT CASES, WHICH IS THE WHOLE TABLE, AND EACH ASSERTED SYMMETRICALLY.
+
+    The fallback is stated in canon as a rule about ABSENCE, and a rule about
+    absence is only as good as its enumeration of the ways a value can be
+    missing: not declared, declared and ungrammatical, declared as null. Testing
+    the first alone would leave the other two to a reader's confidence. EXACTLY
+    ONE row clears — both sides declaring a grammatical namespace and the two
+    differing — and every other row falls back to the bare identity and reports.
+
+    SYMMETRY IS ASSERTED RATHER THAN ASSUMED because the predicate is called
+    over `combinations`, which fixes an order: a predicate that answered
+    differently depending on which binding came first would produce a finding
+    that depends on declaration order, and a rule whose outcome depends on which
+    was found first is not a rule.
+    """
+    con_a = {"fetch_identity": "x"}
+    con_b = {"fetch_identity": fetch_b}
+    if ns_a is not ...:
+        con_a["identity_namespace"] = ns_a
+    if ns_b is not ...:
+        con_b["identity_namespace"] = ns_b
+    assert V._same_fetch_authority(con_a, con_b) is same_authority, name
+    assert V._same_fetch_authority(con_b, con_a) is same_authority, f"{name} (reversed)"
+
+
+# --------------------------- the screen (§2.6, openxFactory#506) ---------------------------
+
+@pytest.mark.parametrize("value", [
+    "-----BEGIN RSA PRIVATE KEY-----",
+    "ghp_0123456789abcdefghijklmnopqrstuvwxyz",
+    "github_pat_11ABCDEF0123456789exampleRawTokenNotAReference",
+    "AKIAIOSFODNN7EXAMPLE",
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345",
+    # openxFactory#506 — three families the marker list and the base64 screen
+    # both missed while the screen's SCOPE was being widened to two new fields.
+    "postgresql://user:hunter2@db.example.invalid/projection",
+    "mongodb+srv://svc:s3cr3t@cluster.example.invalid/db",
+    "password=hunter2",
+    "Server=tcp:example;AccountKey=abc123;",
+    "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJmaXh0dXJlIn0.",
+])
+def test_the_screen_recognises_a_raw_secret(value):
+    assert V._looks_like_raw_secret(value)
+
+
+@pytest.mark.parametrize("value", [
+    "opsx:service-subject:aks-opensoft-qa",
+    "example-sync-lane-workload-identity",
+    "xf.sync.lane",                     # a dotted identifier is NOT a JWT
+    "install_federated_workload_identity",
+    "https://vault.example.invalid/secrets/one",   # a URI with no credentials
+    "kv-opensoft-xfactory-qa",
+])
+def test_the_screen_admits_a_legitimate_identifier(value):
+    """A screen that refused a dotted identifier or a plain URI would be worse
+    than the gap it closes."""
+    assert not V._looks_like_raw_secret(value)
+
+
+def test_the_screen_reads_the_two_new_sinks_and_not_only_secret_ref():
+    for field in ("holder_ref", "fetch_identity"):
+        doc = _conforming_pair()
+        doc["credential_bindings"]["projection_sync_lane"]["consumer"][field] = \
+            "postgresql://user:hunter2@db.example.invalid/projection"
+        assert any(f.startswith("baked-secret") and f"consumer.{field}" in f
+                   for f in _findings(doc)), field
+
+
+def test_the_screens_known_limit_is_recorded_rather_than_claimed_away():
+    """`_B64ISH` requires 40 characters, so a 38-character alphanumeric secret
+    passes even after the expansion. The screen catches shapes it recognises; it
+    is not a secret detector, and a test that pretended otherwise would be the
+    coverage claim the packet refuses to make."""
+    thirty_eight = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9"
+    assert len(thirty_eight) == 38
+    assert not V._looks_like_raw_secret(thirty_eight)
+
+
+# --------------------------- the mutation round (§2.7) ---------------------------
+#
+# NINE MUTANTS: six lift conditions, the every-pair arity, the unreadable
+# access-mode arm, and the resolution-ambiguity arm.
+
+def _blind_condition(condition):
+    """The mutant: this condition no longer refuses anything."""
+    real = V._lift_refusal_detail
+
+    def mutant(first, second, index):
+        found, reason = real(first, second, index)
+        return (None, None) if found == condition else (found, reason)
+    return "_lift_refusal_detail", mutant
+
+
+def _first_against_rest():
+    """The INHERITED shape: keep the first binding per secret and compare later
+    ones against it, so the pair (b, c) is never examined."""
+    def mutant(items, r):
+        items = list(items)
+        return [(items[0], other) for other in items[1:]] if items and r == 2 else \
+            list(combinations(items, r))
+    return "combinations", mutant
+
+
+def _fail_open_access_mode():
+    """The pre-repair reading: compare whatever the record holds. `str()` keeps
+    the honest values honest and reproduces the two defeats exactly — two ABSENT
+    modes compare equal to each other ("None" == "None") and a variant spelling
+    compares equal to itself, both "equal, and not dispatch-only", both
+    lifting."""
+    return "_readable_access_mode", lambda record: str(record.get("access_mode"))
+
+
+def _disambiguate_by_picking_one():
+    """The rule with an opinion: on more than one match, take the first."""
+    real = V.resolve_requirement
+
+    def mutant(ref, index):
+        status, record = real(ref, index)
+        if status == "ambiguous":
+            rid = ref["requirement_id"]
+            doc = ref["requirements_document_ref"]
+            return "ok", [r for r in index.get(doc, []) if r.get("id") == rid][0]
+        return status, record
+    return "resolve_requirement", mutant
+
+
+def _absent_modes_everywhere():
+    index = copy.deepcopy(INDEX)
+    for record in index[REQUIREMENTS_DOC]:
+        record.pop("access_mode", None)
+    return index
+
+
+def _ambiguous_index():
+    return {REQUIREMENTS_DOC: INDEX[REQUIREMENTS_DOC]
+            + [{"id": "projection_sync_lane", "access_mode": "delegated_api"}]}
+
+
+def _pair_without(mutate):
+    doc = _conforming_pair()
+    mutate(doc["credential_bindings"])
+    return doc
+
+
+MUTANTS = {
+    "c1-consumer-declared": (
+        _blind_condition("c1-consumer-declared"),
+        "test_condition_1_a_pair_that_declares_nothing_is_refused",
+        lambda: _pair_without(lambda b: [x.pop("consumer") for x in b.values()]), None),
+    "c2-holders-differ": (
+        _blind_condition("c2-holders-differ"),
+        "test_condition_2_a_shared_holder_reference_is_refused",
+        lambda: _pair_without(lambda b: b["projection_editor_surface"]["consumer"].update(
+            holder_ref="example:service-subject:projection-sync-lane")), None),
+    "c3-fetch-identities-differ": (
+        _blind_condition("c3-fetch-identities-differ"),
+        "test_condition_3_a_MISSING_fetch_identity_is_refused",
+        # The lift's own arm on condition 3. The EQUAL-identity arm is carried by
+        # the named `shared-authority-identity` fault, which replaces the default
+        # finding for that pair and is anchored by its own tests above.
+        lambda: _pair_without(lambda b: b["projection_editor_surface"]["consumer"].pop(
+            "fetch_identity")), None),
+    "c4-both-acknowledge": (
+        _blind_condition("c4-both-acknowledge"),
+        "test_condition_4_a_one_sided_acknowledgment_is_refused",
+        lambda: _pair_without(lambda b: b["projection_editor_surface"]["consumer"].pop(
+            "shared_credential_acknowledged")), None),
+    "c5-requirement-resolves": (
+        _blind_condition("c5-requirement-resolves"),
+        "test_condition_5_a_dispatch_and_content_pair_is_refused_however_declared",
+        # the SAME construction the named test drives: the map keys move with the
+        # references, so condition SIX holds and only condition five stands
+        _dispatch_and_content_pair, None),
+    "c6-reference-names-its-key": (
+        _blind_condition("c6-reference-names-its-key"),
+        "test_condition_6_a_pair_pointing_at_a_requirement_neither_binding_is_is_refused",
+        lambda: _pair_without(lambda b: [x["consumer"].update(
+            requirement_ref=_ref("projection_sync_lane")) for x in b.values()]), None),
+    "every-pair-arity": (
+        _first_against_rest(),
+        "test_three_bindings_with_the_second_and_third_sharing_an_authority_are_refused",
+        _three_bindings, None),
+    "unreadable-access-mode": (
+        _fail_open_access_mode(),
+        "test_two_ABSENT_access_modes_do_not_compare_equal_to_each_other",
+        _conforming_pair, _absent_modes_everywhere()),
+    "resolution-ambiguity": (
+        _disambiguate_by_picking_one(),
+        "test_the_ambiguity_is_never_resolved_by_picking_one",
+        _conforming_pair, _ambiguous_index()),
+}
+
+
+def test_the_mutant_population_is_an_explicit_count():
+    assert len(MUTANTS) == 9
+    assert set(V.LIFT_CONDITIONS) <= set(MUTANTS)
+
+
+@pytest.mark.parametrize("mutant", sorted(MUTANTS))
+def test_the_named_test_PASSES_against_unmutated_code(mutant):
+    """THE ANCHOR CHECK. Without it, a named test that fails on the mutant
+    because its fixture or assertion target is absent is indistinguishable from
+    one that fails because the mutation was caught — ANCHOR-MISSING, which is
+    not the same state as SURVIVED."""
+    (_attribute, _replacement), _named, build, index = MUTANTS[mutant]
+    assert _findings(build(), index) != [], f"{mutant}: the anchor fixture refuses nothing"
+
+
+@pytest.mark.parametrize("mutant", sorted(MUTANTS))
+def test_each_mutant_DIES(mutant, monkeypatch):
+    (attribute, replacement), named, build, index = MUTANTS[mutant]
+    assert named in globals(), f"{mutant} names a test that does not exist: {named}"
+    monkeypatch.setattr(V, attribute, replacement)
+    assert _findings(build(), index) == [], (
+        f"{mutant} SURVIVED — the condition it removes changes no outcome, so the check "
+        f"named {named} is passing on something other than that condition")

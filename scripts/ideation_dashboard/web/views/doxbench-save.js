@@ -9,14 +9,28 @@
 //
 // WHAT SAVE OWNS: order, per-buffer action, and the honest report. Nothing else.
 //
-//   ORDER (FR-034). Outline before Document, from a DECLARED constant rather
-//   than from whichever key an object literal happened to be iterated in. The
-//   order is also a DEPENDENCY, not a preference: the Document is saved against
-//   the session ancestry the Outline's commit establishes, so an Outline that
-//   did not land leaves the Document with nothing to descend from and it is
-//   reported `not_attempted` rather than sent anyway. One rule, fail-closed:
-//   ANY earlier buffer that neither committed nor was unchanged stops the ones
-//   behind it, and every stopped buffer says so in its own row.
+//   ORDER (FR-034, re-cut by add-doxbench-editing-phase-b design D3). Phase A
+//   declared a fixed ORDERED PAIR with a fail-closed CHAIN. Phase B holds N
+//   documents, and keeping the chain would have got the semantics wrong, so the
+//   rule is restated rather than the list lengthened:
+//
+//     1. The `outline` buffer, when dirty, is persisted FIRST. Its commit
+//        establishes the session ancestry every document commit descends from --
+//        the module's own recorded reason, unchanged.
+//     2. A dirty outline that did NOT land stops EVERY document, each reported
+//        `not_attempted` with the missing-ancestry reason. Unchanged from Phase A.
+//     3. Every dirty document is then attempted INDEPENDENTLY. One document's
+//        refusal stops NO other document, because documents carry no ancestry
+//        dependency on each other: each save is one gate action producing one
+//        commit on the same branch, and commit n+1 descends from commit n
+//        regardless of which document n held. Keeping the chain here would
+//        report untried work as blocked by a refusal that had nothing to do
+//        with it -- a false statement about both buffers.
+//     4. Documents run in a DECLARED DETERMINISTIC order (ascending
+//        lexicographic by buffer key). Brett's rule is "documents in any order",
+//        which constrains the CONTRACT -- no ordering rule is imposed on
+//        documents -- and does not license a nondeterministic one, because a
+//        commit series no test can pin is not a commit series anybody can read.
 //
 //   ACTION (FR-031). A buffer that already has a path is the EXISTING edit
 //   action; a buffer that has none yet is the EXISTING create action. Save adds
@@ -25,12 +39,16 @@
 //   (`branch_session.first_edit_eligibility`). A client that believed its own
 //   answer would be claiming an authority it does not hold.
 //
-//   THE REPORT (FR-035). Every buffer gets its own row, always both of them,
+//   THE REPORT (FR-035). Every buffer gets its own row, always all of them,
 //   always the same seven fields, so a partial outcome cannot be reported with
 //   a field quietly missing or with two verdicts blended into one. Only rows
 //   the server actually committed advance their base, and they advance it to the
 //   identity the SERVER reported — never to the client's own optimistic guess.
 //   A refused buffer keeps its text, its base, and its dirty flag untouched.
+//   The row SHAPE is unchanged by Phase B; there are simply more rows, and
+//   `wholeStatus`'s `partial` verdict becomes much more likely, which is why the
+//   ratified per-buffer reporting rule matters more after the widening than
+//   before it.
 //
 // WHAT SAVE DOES NOT OWN:
 //
@@ -47,7 +65,37 @@
 //   * MUTATION OF ANY KIND beyond returning new frozen objects. Nothing here
 //     touches the served checkout, a branch, a record, or browser storage.
 
-export const SAVE_BUFFER_ORDER = Object.freeze(["outline", "document"]);
+// THE ANCESTRY KEY. Permanently reserved, and the only literal buffer name this
+// module knows -- because the outline's commit IS the session ancestry, which is
+// the whole reason the save order has a rule at all.
+export const OUTLINE_BUFFER_KEY = "outline";
+
+// The DECLARED document order (design D3 point 4). Ascending lexicographic
+// comparison of the buffer key by UTF-16 code unit -- no locale, no collator, no
+// special case for the reserved `document` key, which orders as the literal
+// string it is. Spelled here rather than imported because this module, like
+// ./doxbench-state.js, stays import-free so the Node harness executes the
+// browser's exact bytes; a companion test asserts the two spellings agree.
+export const SAVE_DOCUMENT_ORDER_RULE =
+  "ascending lexicographic by buffer key (UTF-16 code unit)";
+
+// The whole ordering rule, in one exported function, so no caller can iterate a
+// buffer map's own key order and call it an order.
+//
+// The outline leads WHEN THE KEY SET HOLDS ONE, and is not invented when it does
+// not (issue #291). The prepend used to be unconditional, which stated the
+// reserved key as a fact about this MODULE rather than about the state it was
+// handed, and so named a buffer for the legitimate absent-outline state this
+// file skips everywhere else (see `validatedState` below). Membership is read
+// the way the state module reads it -- the key is in the set, or it is not.
+export function saveBufferOrder(bufferKeys) {
+  const keys = Array.from(bufferKeys);
+  const documents = keys.filter((key) => key !== OUTLINE_BUFFER_KEY);
+  documents.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return Object.freeze(keys.includes(OUTLINE_BUFFER_KEY)
+    ? [OUTLINE_BUFFER_KEY, ...documents]
+    : documents);
+}
 
 export const SAVE_ACTION_EDIT = "edit-document";
 export const SAVE_ACTION_CREATE = "create-document";
@@ -72,8 +120,8 @@ const CONTEXT_ONLY_REFUSAL =
   + "material, so it is not offered to the governed Save (FR-036)";
 
 const BLOCKED_BY_EARLIER_REFUSAL =
-  "an earlier buffer in the Save order did not land, so there is no session "
-  + "ancestry for this one to be saved against -- nothing was sent";
+  "the outline did not land, so there is no session ancestry for this document "
+  + "to be saved against -- nothing was sent";
 
 function plainObject(value, name) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -91,41 +139,81 @@ function validatedState(value) {
   const buffers = plainObject(state.buffers, "doxBench buffers");
   // T100 P1-3 (real-corpus finding): a staged topic with NO outline
   // document legitimately has an ABSENT outline buffer — the design's own
-  // honest absent-outline state. An absent kind is SKIPPED, not demanded;
-  // a present kind must still be an object, and at least one buffer must
+  // honest absent-outline state. An absent key is SKIPPED, not demanded;
+  // a present key must still be an object, and at least one buffer must
   // exist or there is nothing to save.
+  //
+  // Phase B: the keys come from the STATE, in the declared order, rather than
+  // from a two-name constant. That is the whole widening at this layer.
+  const order = saveBufferOrder(Object.keys(buffers));
   let present = 0;
-  for (const kind of SAVE_BUFFER_ORDER) {
-    if (buffers[kind] == null) continue;
-    plainObject(buffers[kind], `${kind} buffer`);
+  for (const key of order) {
+    if (buffers[key] == null) continue;
+    plainObject(buffers[key], `${key} buffer`);
     present += 1;
   }
   if (present === 0) {
     throw new TypeError("doxBench buffers must carry at least one buffer");
   }
-  return state;
+  return Object.freeze({ state, order });
 }
 
 // A content identity as the server and the state module both spell it, or null.
 // Never coerced into existence: an absent or malformed identity is reported as
 // absent, because inventing one is how an unverifiable claim becomes a fact.
 //
-// SHAPE, not charset. The lowercase-SHA-256 rule belongs where an identity is
-// COMPUTED -- doxbench-state.js's own hashing authority -- and re-deciding it
-// here would make this module a second, differently strict judge of a value it
-// only ever reads and forwards. What it does insist on is that the identity
-// names its algorithm and carries a digest of the declared width, because a
-// base advanced onto a half-stated identity is unverifiable later.
-const IDENTITY_HEX_LENGTH = 64;
+// THE SAME RULE THE ADOPTING MODULE APPLIES (#290). This used to insist on
+// SHAPE ONLY -- any non-empty algorithm, any 64 characters -- on the reasoning
+// that the lowercase-SHA-256 rule belongs where an identity is COMPUTED
+// (doxbench-state.js's own hashing authority) and that re-deciding it here would
+// make this module a second, differently strict judge of a value it only reads
+// and forwards. The second half of that reasoning was wrong, and the divergence
+// it licensed was the defect: the identity accepted HERE is the identity the
+// canvas immediately WRITES into working state through `adoptSavedBase`, which
+// accepts only a lowercase SHA-256 one. So an uppercase-hex or `sha512` answer
+// read `committed` in this module and threw in that one -- a buffer left dirty
+// under a Save reported as landed. Two rules for one value, read and written one
+// step apart, is not defence in depth; it is a gap. There is now ONE rule, and
+// this module applies it where the value is READ: a stated identity nothing can
+// adopt is not a landing, and saying so here is what makes the report true.
+//
+// It is SPELLED here rather than imported because this module stays
+// import-free -- pinned by test_doxbench_mutation_boundary.py's
+// `test_the_save_module_has_no_import_statement`, so the Node harness executes
+// the browser's exact bytes -- exactly as the document-order rule above is
+// re-spelled rather than imported. A companion test
+// (test_doxbench_save.py::test_the_reader_and_the_writer_judge_a_content_identity_identically)
+// asks BOTH modules the same candidate identities and asserts their answers
+// agree, so the two spellings cannot drift apart again unnoticed.
+const CONTENT_IDENTITY_ALGORITHM = "sha256";
+const CONTENT_IDENTITY_HEX = /^[0-9a-f]{64}$/;
+
+// THE TWO WAYS A STATED IDENTITY FAILS, in the words the refusal is built from.
+// Exported because a test that copies a sentence pins the COPY: reword the
+// module and the copy silently stops describing it, which is how a pin quietly
+// becomes decoration. Asserting the module's own constant is the same move
+// `boundReachedReason` makes in doxbench-editor.js, and it keeps the two facts
+// -- never stated, versus stated unusably -- distinguishable by test as well as
+// by eye.
+export const IDENTITY_NOT_STATED = "the content identity it committed";
+export const IDENTITY_NOT_ADOPTABLE =
+  IDENTITY_NOT_STATED + " as a lowercase SHA-256 identity";
 
 function statedIdentity(value) {
-  if (!value || typeof value !== "object") return null;
-  const algorithm = nonEmptyString(value.algorithm);
-  if (!algorithm || typeof value.hex !== "string"
-      || value.hex.length !== IDENTITY_HEX_LENGTH) {
+  // AN ARRAY IS NOT AN IDENTITY, even carrying both properties. `typeof [] ===
+  // "object"`, so the shape test above admitted one while the adopting module's
+  // `plainObject` refuses it -- a fourth divergence, unreachable through JSON
+  // but reachable from any caller that hands this module a live value, and one
+  // that falsifies the agreement the companion test exists to assert.
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (value.algorithm !== CONTENT_IDENTITY_ALGORITHM
+      || typeof value.hex !== "string"
+      || !CONTENT_IDENTITY_HEX.test(value.hex)) {
     return null;
   }
-  return Object.freeze({ algorithm, hex: value.hex });
+  return Object.freeze({
+    algorithm: CONTENT_IDENTITY_ALGORITHM, hex: value.hex,
+  });
 }
 
 // WHICH existing action this path implies. A path the console loaded from a
@@ -137,10 +225,16 @@ function actionForPath(path) {
 // One buffer's answer to "does this need saving, may it be offered, and as
 // WHICH existing action?" -- pure, so the whole plan can be inspected (and
 // tested) without a transport existing at all.
-function planRow(kind, buffer) {
+function planRow(key, buffer) {
   const action = actionForPath(buffer.path);
   const base = {
-    kind,
+    // THE BUFFER KEY, which Phase A spelled `kind`. The row's first field always
+    // named the buffer it is about; under Phase A that identifier happened to be
+    // the two-value kind, and under Phase B it is the buffer KEY -- `outline`,
+    // the reserved `document` create slot, or a document's own path. Renamed
+    // rather than left to carry a path under the word `kind`, which would be a
+    // false statement about the field. The row still has exactly seven fields.
+    key,
     action,
     document: buffer.path === undefined ? null : buffer.path,
     content: typeof buffer.content === "string" ? buffer.content : null,
@@ -173,25 +267,25 @@ function planRow(kind, buffer) {
 // A CLEAN buffer is skipped -- FR-031 persists only changed buffers -- and
 // skipping is not reordering: the buffers that remain keep their places.
 export function saveOrder(stateValue) {
-  const state = validatedState(stateValue);
+  const { state, order } = validatedState(stateValue);
   const rows = [];
-  for (const kind of SAVE_BUFFER_ORDER) {
-    const buffer = state.buffers[kind];
-    if (buffer == null) continue;  // T100 P1-3: absent kind, nothing to plan
+  for (const key of order) {
+    const buffer = state.buffers[key];
+    if (buffer == null) continue;  // T100 P1-3: absent key, nothing to plan
     if (buffer.dirty !== true) continue;
-    rows.push(planRow(kind, buffer));
+    rows.push(planRow(key, buffer));
   }
   return Object.freeze(rows);
 }
 
-function outcomeRow(kind, {
+function outcomeRow(key, {
   status, action = null, ref = null, revision = null, content_hash = null,
   message = null,
 } = {}) {
   // EXACTLY the seven declared fields, in one place, so no verdict can be
   // reported with one of them quietly absent (data-model PerBufferSaveOutcome).
   return Object.freeze({
-    kind, status, action, ref, revision, content_hash, message,
+    key, status, action, ref, revision, content_hash, message,
   });
 }
 
@@ -199,21 +293,32 @@ function outcomeRow(kind, {
 // pure, so the seam composition in app.js is one expression with no logic of
 // its own (T080 client half). The request rows already carry every buffer
 // field the planner reads.
+//
+// EACH ROW STATES ITS OWN KEY. A Phase B caller sends `key`; a caller that
+// sends only `kind` -- the create flow's single-document seam request, which
+// legitimately IS the reserved `document` slot mid-create -- keys by that, which
+// is exactly the reserved key the state module would have given it. Neither is
+// guessed from the path: a row that named its key and then keyed by its path
+// would move a buffer the caller was not asking to move.
 export function savePlanState(request) {
   return Object.freeze({
     key: request.key,
     buffers: Object.freeze(Object.fromEntries(
-      (request.buffers || []).map((row) => [row.kind, row]))),
+      (request.buffers || []).map((row) => [row.key ?? row.kind, row]))),
   });
 }
 
 // What one plan row is handed to the transport. Note what is NOT here: the
 // client's `owned` flag. Ownership is the server's answer from its own rule, and
 // shipping the client's opinion of it would invite the server to trust it.
-function transportRequest(key, row) {
+function transportRequest(scopeKey, row) {
   return Object.freeze({
-    key,
-    kind: row.kind,
+    key: scopeKey,
+    // The transport's own field keeps its Phase A spelling AND its Phase A
+    // meaning: it is the buffer's KIND, which is what the server-side verb cares
+    // about, and it is derived here rather than carried from the row so the wire
+    // shape does not acquire a path under the word `kind`.
+    kind: row.key === OUTLINE_BUFFER_KEY ? "outline" : "document",
     action: row.action,
     document: row.document,
     content: row.content,
@@ -228,15 +333,15 @@ function transportRequest(key, row) {
 // not a landing this module will advance a base on -- it is reported as a
 // refusal naming what was missing, because a base advanced onto an unstated
 // identity is a lie that survives into every later Save.
-function readVerdict(kind, row, answer) {
+function readVerdict(key, row, answer) {
   if (!answer || typeof answer !== "object") {
-    return outcomeRow(kind, {
+    return outcomeRow(key, {
       status: "refused", action: row.action,
       message: "the Save transport returned no verdict for this buffer",
     });
   }
   if (answer.ok !== true) {
-    return outcomeRow(kind, {
+    return outcomeRow(key, {
       status: "refused", action: row.action,
       message: nonEmptyString(answer.message)
         || "the governed Save refused this buffer and stated no reason",
@@ -248,15 +353,25 @@ function readVerdict(kind, row, answer) {
   const missing = [];
   if (!ref) missing.push("the session ref it landed on");
   if (!revision) missing.push("the revision it produced");
-  if (!identity) missing.push("the content identity it committed");
+  if (!identity) {
+    // An identity that was never stated and one stated in a form nothing can
+    // verify later are DIFFERENT facts about the same answer, so the refusal
+    // says which happened rather than collapsing them -- the same reason
+    // `not_attempted` is kept distinct from `refused` above. Both are the same
+    // verdict, though: `refused`, in the vocabulary this module already has,
+    // because a base advanced onto either is unverifiable from then on.
+    missing.push(answer.content_hash == null
+      ? IDENTITY_NOT_STATED
+      : IDENTITY_NOT_ADOPTABLE);
+  }
   if (missing.length) {
-    return outcomeRow(kind, {
+    return outcomeRow(key, {
       status: "refused", action: row.action,
       message: "the governed Save reported success without naming "
         + missing.join(", ") + ", so this buffer's base was not advanced",
     });
   }
-  return outcomeRow(kind, {
+  return outcomeRow(key, {
     status: "committed",
     // the action the SERVER performed when it says so, since it is the one that
     // answered new-versus-existing against the tree it wrote
@@ -295,34 +410,60 @@ function wholeStatus(rows) {
   return landed ? "committed" : "refused";
 }
 
-// Persist every changed buffer, Outline first, and report each one separately.
+// Persist every changed buffer -- the outline first as ANCESTRY, then the
+// documents INDEPENDENTLY in the declared order -- and report each one
+// separately.
 //
 // `transport(request)` is the caller's ONE way to reach the governed action: it
 // answers `{ ok: true, ref, revision, content_hash, ... }` or `{ ok: false,
 // message }`, and whatever it throws is caught and reported as that buffer's
 // refusal rather than escaping as a crash mid-Save.
+//
+// `options.only` (design D4) restricts the act to ONE document plus the
+// ancestry step, which is what a `docs` tile's own Save is: the same pipeline
+// through the same transport, scoped to the document whose tile carries the
+// control, because a control that lives on one document's tile and is enabled by
+// that document's state must not persist three other documents the human is not
+// looking at. Every buffer it did NOT act on is reported `unchanged` if clean
+// and OMITTED if it was simply out of scope -- never reported as refused, which
+// would be a false statement about a buffer nobody asked about.
 export async function runSave(stateValue, options = {}) {
-  const state = validatedState(stateValue);
+  const { state, order } = validatedState(stateValue);
   const transport = options.transport;
   if (typeof transport !== "function") {
     throw new TypeError("runSave requires an injected transport function");
   }
+  const scoped = options.only === undefined || options.only === null
+    ? null
+    : new Set([OUTLINE_BUFFER_KEY].concat(options.only));
   const plan = saveOrder(state);
-  const planned = new Map(plan.map((row) => [row.kind, row]));
+  const planned = new Map(plan.map((row) => [row.key, row]));
   const rows = [];
   const buffers = { ...state.buffers };
-  let blocked = false;
+  // ANCESTRY, and nothing else. Phase A's fail-closed chain stopped every buffer
+  // behind ANY refusal; Phase B stops documents on the OUTLINE alone, because
+  // documents carry no ancestry dependency on each other and reporting one
+  // document's refusal as the cause of another's untried work is a false
+  // statement about both.
+  let ancestryMissing = false;
 
-  for (const kind of SAVE_BUFFER_ORDER) {
-    const row = planned.get(kind);
+  for (const key of order) {
+    if (scoped !== null && !scoped.has(key)) continue;
+    const row = planned.get(key);
     if (!row) {
-      // Not dirty: reported `unchanged` rather than silently omitted, and it
-      // never blocks the buffer behind it -- there was nothing to land.
-      rows.push(outcomeRow(kind, { status: "unchanged" }));
+      // A buffer the state does not HOLD gets no verdict at all (issue #291):
+      // a verdict is a statement of fact about a buffer, and there is no fact
+      // to state about one that does not exist. `== null` is the same
+      // not-held rule `validatedState` and `saveOrder` already read, so the
+      // report cannot name a buffer the planner declined to plan.
+      if (state.buffers[key] == null) continue;
+      // Held but not dirty: reported `unchanged` rather than silently omitted,
+      // and it never blocks anything -- there was nothing to land.
+      rows.push(outcomeRow(key, { status: "unchanged" }));
       continue;
     }
-    if (blocked) {
-      rows.push(outcomeRow(kind, {
+    if (key !== OUTLINE_BUFFER_KEY && ancestryMissing) {
+      rows.push(outcomeRow(key, {
         status: "not_attempted", action: row.action,
         message: BLOCKED_BY_EARLIER_REFUSAL,
       }));
@@ -331,17 +472,18 @@ export async function runSave(stateValue, options = {}) {
     if (row.refusal) {
       // Withheld before the transport is reached: nothing is asked, so nothing
       // can be authorised by asking.
-      rows.push(outcomeRow(kind, {
+      rows.push(outcomeRow(key, {
         status: "refused", action: row.action, message: row.refusal,
       }));
-      blocked = true;
+      if (key === OUTLINE_BUFFER_KEY) ancestryMissing = true;
       continue;
     }
     let verdict;
     try {
-      verdict = readVerdict(kind, row, await transport(transportRequest(state.key, row)));
+      verdict = readVerdict(key, row,
+                            await transport(transportRequest(state.key, row)));
     } catch (error) {
-      verdict = outcomeRow(kind, {
+      verdict = outcomeRow(key, {
         status: "refused", action: row.action,
         message: "the Save transport failed for this buffer -- "
           + ((error && error.message) || "unknown error"),
@@ -349,9 +491,9 @@ export async function runSave(stateValue, options = {}) {
     }
     rows.push(verdict);
     if (verdict.status === "committed") {
-      buffers[kind] = advancedBuffer(state.buffers[kind], verdict);
-    } else {
-      blocked = true;
+      buffers[key] = advancedBuffer(state.buffers[key], verdict);
+    } else if (key === OUTLINE_BUFFER_KEY) {
+      ancestryMissing = true;
     }
   }
 

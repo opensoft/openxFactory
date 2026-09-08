@@ -33,6 +33,8 @@ ideation-dashboard/
 ├── gate-action-record-edit-document.example.yaml      # BRANCH SESSION: document + ref + commit artifact
 ├── gate-action-record-open-pr.example.yaml            # BRANCH SESSION: ref + pull-request artifact (no commit)
 ├── gate-action-record-abandon-session.example.yaml    # BRANCH SESSION: ref + reason (no artifact kind required)
+├── gate-action-record-cleanup-abandoned-branch.example.yaml # BRANCH SESSION: exact head + abandon/release evidence
+├── demotion-execution-receipt.example.yaml            # DEMOTION: post-execution proof for an exact staged return
 ├── gate-intent-pending.example.yaml                   # INTENT PLANE: pending dispose request
 ├── gate-intent-applied.example.yaml                   # INTENT PLANE: applied request + record link
 ├── gate-intent-promote-to-staging.example.yaml        # WHEEL: accepted-possible staging commission
@@ -41,6 +43,18 @@ ideation-dashboard/
 ├── gate-action-record-promote-to-staging.example.yaml # WHEEL: possible target + workflow-job
 ├── gate-action-record-derive-possibles.example.yaml    # WHEEL: cluster target + workflow-job
 ├── gate-action-record-research-brief.example.yaml      # WHEEL: possible target + workflow-job
+├── gate-action-record-approve-model.example.yaml       # MODEL INTAKE: declaration target + grant accountability
+├── workbench-model-catalog-local.example.yaml         # doxBench WIRE: local catalog entry (and the `modalities` ABSENCE case)
+├── workbench-model-catalog-multimodal.example.yaml    # doxBench WIRE: an entry DECLARING `[text, image]` (contract-v2.2)
+├── workbench-model-catalog-empty.example.yaml         # doxBench WIRE: the editor-only SUCCESS posture
+├── workbench-model-catalog-hosted-zero-retention.example.yaml  # doxBench WIRE: hosted badge
+├── workbench-model-catalog-routing-rule.example.yaml  # doxBench WIRE: an `auto` ROUTING RULE (contract-v1.38)
+├── workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member.example.yaml  # rule 5': lawful, and the point of the ruling
+├── workbench-chat-turn-v2-loaded-set.example.yaml     # doxBench WIRE v2: outline + N documents, DECLARED binding
+├── workbench-chat-turn-v2-success.example.yaml        # doxBench WIRE v2: record naming the bound buffer + selected model
+├── workbench-chat-turn-v2-reduced-context.example.yaml # doxBench WIRE v2: the DEGRADED posture, stated (contract-v1.40)
+├── workbench-chat-turn-v2-full-context.example.yaml   # doxBench WIRE v2: the ordinary posture, stated explicitly
+├── workbench-chat-turn-v2-provider-retry.example.yaml # doxBench WIRE v2: the turn that cost two paid calls, and says so
 ├── negative/                                          # one violation per file
 │   ├── snapshot-dangling-document-edge.yaml           #   edge → missing document id
 │   ├── snapshot-dangling-claiming-cluster.yaml        #   claiming_clusters → missing cluster id
@@ -74,6 +88,9 @@ ideation-dashboard/
 │   ├── gate-action-edit-document-no-ref.yaml          #   edit-document naming no session branch
 │   ├── gate-action-open-pr-no-pull-request-artifact.yaml  # open-pr without a pull-request artifact
 │   ├── gate-action-abandon-session-unreasoned.yaml    #   abandon-session without a reason
+│   ├── gate-action-approve-model-without-approval-block.yaml #   approve-model with no grant accountability
+│   ├── gate-action-approve-model-shared-install-without-consent.yaml # shared install, no consent instrument
+│   ├── gate-action-cleanup-explicit-release-without-reason.yaml # explicit cleanup release without its reason
 │   ├── intent-applied-without-record.yaml             # applied intent without its record link
 │   ├── intent-refused-without-reason.yaml             # refused intent without its reason
 │   ├── intent-promote-to-staging-without-possible-id.yaml # wheel intent missing possible target
@@ -82,7 +99,39 @@ ideation-dashboard/
 │   ├── gate-action-promote-to-staging-without-workflow-job.yaml # wheel record missing job
 │   ├── gate-action-derive-possibles-without-workflow-job.yaml    # wheel record missing job
 │   ├── gate-action-derive-possibles-without-cluster-id.yaml      # wheel record missing cluster
-│   └── gate-action-research-brief-without-workflow-job.yaml      # wheel record missing job
+│   ├── gate-action-research-brief-without-workflow-job.yaml      # wheel record missing job
+│   ├── workbench-model-catalog-exposed-credential.negative.yaml  # credential in a public field
+│   ├── workbench-model-catalog-raw-endpoint.negative.yaml        # raw provider endpoint
+│   ├── workbench-model-catalog-plain-entry-resolves-elsewhere.negative.yaml # plain entry, routing field
+│   ├── workbench-model-catalog-routing-badge-gap.negative.yaml   # rule missing a routed model's badge
+│   ├── workbench-model-catalog-routing-dangling-target.negative.yaml # routes to an id nothing offers
+│   ├── workbench-model-catalog-routing-rule-chained.negative.yaml # rule routing to another rule
+│   ├── workbench-model-catalog-routing-rule-unavailable-resolution.negative.yaml # available rule, unavailable resolution
+│   ├── workbench-model-catalog-routing-rule-wider-than-its-resolution.negative.yaml # rule wider than the model that ANSWERS
+│   ├── workbench-model-catalog-routing-badge-inverted-substring.negative.yaml # review A: badge states the INVERSE
+│   ├── workbench-model-catalog-routing-badge-incidental-word.negative.yaml # review D: badge word matched by accident
+│   ├── workbench-model-catalog-routing-badge-holds-the-separator.negative.yaml # routed badge holds " / "
+│   ├── workbench-model-catalog-routing-resolved-outside-routes-to.negative.yaml # review B: resolved id not in routes_to
+│   ├── workbench-model-catalog-routing-self-reference.negative.yaml # rule names itself in routes_to
+│   ├── workbench-model-catalog-modality-outside-the-vocabulary.negative.yaml # modality outside the closed set
+│   ├── workbench-model-catalog-modality-image-only.negative.yaml # declared set omits `text`
+│   ├── workbench-model-catalog-modality-empty-set.negative.yaml  # `modalities: []` — declaring nothing is omission
+│   ├── workbench-chat-turn-unrecognized-kind.negative.yaml       # a kind this release does not serve
+│   ├── workbench-chat-turn-v2-escaping-path.negative.yaml        # buffer path escaping the checkout
+│   ├── workbench-chat-turn-v2-hash-mismatch.negative.yaml        # declared content_hash ≠ recomputed
+│   ├── workbench-chat-turn-v2-identity-subject.negative.yaml     # identity-shaped working_subject
+│   ├── workbench-chat-turn-v2-over-budget.negative.yaml          # buffers over the model input limit
+│   ├── workbench-chat-turn-v2-unknown-model.negative.yaml        # model_id outside the catalog
+│   ├── workbench-chat-turn-v2-untyped-proposal.negative.yaml     # replacement content with no target
+│   ├── workbench-chat-turn-v2-unbound-buffer.negative.yaml       # bound_buffer naming no supplied buffer
+│   ├── workbench-chat-turn-v2-reserved-key-path.negative.yaml    # document path claiming a reserved key
+│   ├── workbench-chat-turn-v2-context-reduced-without-reason.negative.yaml # a reduction nobody can read
+│   ├── workbench-chat-turn-v2-context-reason-on-full.negative.yaml # `full` carrying a reduction reason
+│   ├── workbench-chat-turn-v2-context-unknown-posture.negative.yaml # a third posture the vocabulary has no rule for
+│   ├── workbench-chat-turn-v2-context-extra-field.negative.yaml  # a fourth fact on the closed posture object
+│   ├── workbench-chat-turn-v2-provider-retry-carries-a-token.yaml # a fourth fact on the closed re-mint object
+│   ├── workbench-chat-turn-v2-context-empty-reason-on-full.negative.yaml # `full` + a BLANK reason: the key is present
+│   └── workbench-chat-turn-v2-context-null-reason-on-full.negative.yaml  # `full` + a NULL reason: still present
 └── transitions/                                       # register (old, new) pairs; valid-* pass, invalid-* fail
     ├── valid-pick-and-reject.{before,after}.yaml      #   latent→picked, latent→rejected, plus a new entry
     ├── valid-derived-disposition.{before,after}.yaml  #   derived accept→latent (origin retained) + reject→rejected
@@ -104,7 +153,11 @@ ideation-dashboard/
 | `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |
 | `gate-intent.schema.yaml` | `gate-intent-pending`, `gate-intent-applied`, `gate-intent-promote-to-staging`, `gate-intent-derive-possibles`, `gate-intent-research-brief` | `intent-applied-without-record`, `intent-refused-without-reason`, `intent-promote-to-staging-without-possible-id`, `intent-derive-possibles-without-cluster-id`, `intent-research-brief-without-possible-id` |
-| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session`, `gate-action-record-promote-to-staging`, `gate-action-record-derive-possibles`, `gate-action-record-research-brief` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned`, `gate-action-promote-to-staging-without-workflow-job`, `gate-action-derive-possibles-without-workflow-job`, `gate-action-derive-possibles-without-cluster-id`, `gate-action-research-brief-without-workflow-job` |
+| `xfactory-workbench-model-catalog.schema.yaml` | `workbench-model-catalog-local`, `workbench-model-catalog-multimodal`, `workbench-model-catalog-empty`, `workbench-model-catalog-hosted-zero-retention`, `workbench-model-catalog-routing-rule`, `workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member` | `workbench-model-catalog-exposed-credential`, `workbench-model-catalog-raw-endpoint`, `workbench-model-catalog-plain-entry-resolves-elsewhere`, `workbench-model-catalog-routing-badge-gap`, `workbench-model-catalog-routing-dangling-target`, `workbench-model-catalog-routing-rule-chained`, `workbench-model-catalog-routing-rule-unavailable-resolution`, `workbench-model-catalog-routing-rule-wider-than-its-resolution`, `workbench-model-catalog-routing-badge-inverted-substring`, `workbench-model-catalog-routing-badge-incidental-word`, `workbench-model-catalog-routing-badge-holds-the-separator`, `workbench-model-catalog-routing-resolved-outside-routes-to`, `workbench-model-catalog-routing-self-reference`, `workbench-model-catalog-modality-outside-the-vocabulary`, `workbench-model-catalog-modality-image-only`, `workbench-model-catalog-modality-empty-set` |
+| `xfactory-workbench-chat-turn.schema.yaml` (v1 family, deprecated at `contract-v1.34`, REMOVED at `contract-v3.0`) | none — the four v1 positives retired with the family | none of its own; the SEVEN refusal classes its negatives carried are re-expressed against the surviving family in the row below, and the removal's own new refusal is `workbench-chat-turn-unrecognized-kind` |
+| `xfactory-workbench-chat-turn.schema.yaml` (widened `-v2` family, `contract-v1.34`; the record's CONTEXT POSTURE at `contract-v1.40`; the MID-TURN RE-MINT at `contract-v1.45`) | `workbench-chat-turn-v2-provider-retry`, `workbench-chat-turn-v2-loaded-set`, `workbench-chat-turn-v2-success` (which states NO posture, and is still valid — that is the v1.40 additive claim), `workbench-chat-turn-v2-reduced-context`, `workbench-chat-turn-v2-full-context` | `workbench-chat-turn-unrecognized-kind` (a kind the release does not serve), `workbench-chat-turn-v2-escaping-path`, `workbench-chat-turn-v2-hash-mismatch`, `workbench-chat-turn-v2-identity-subject`, `workbench-chat-turn-v2-over-budget`, `workbench-chat-turn-v2-unknown-model`, `workbench-chat-turn-v2-untyped-proposal`, `workbench-chat-turn-v2-unbound-buffer`, `workbench-chat-turn-v2-reserved-key-path`, `workbench-chat-turn-v2-context-reduced-without-reason`, `workbench-chat-turn-v2-context-reason-on-full`, `workbench-chat-turn-v2-context-unknown-posture`, `workbench-chat-turn-v2-context-extra-field`, `workbench-chat-turn-v2-context-empty-reason-on-full`, `workbench-chat-turn-v2-context-null-reason-on-full`, `workbench-chat-turn-v2-provider-retry-carries-a-token` |
+| `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session`, `gate-action-record-cleanup-abandoned-branch`, `gate-action-record-promote-to-staging`, `gate-action-record-derive-possibles`, `gate-action-record-research-brief`, `gate-action-record-approve-model` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned`, `gate-action-cleanup-explicit-release-without-reason`, `gate-action-promote-to-staging-without-workflow-job`, `gate-action-derive-possibles-without-workflow-job`, `gate-action-derive-possibles-without-cluster-id`, `gate-action-research-brief-without-workflow-job`, `gate-action-approve-model-without-approval-block`, `gate-action-approve-model-shared-install-without-consent` |
+| `demotion-execution-receipt.schema.yaml` | `demotion-execution-receipt` | runtime and focused tests cover malformed or mismatched receipts |
 
 ## Named cases from task 2.4
 
@@ -246,6 +299,22 @@ behavior, task 3.8), so there is deliberately no negative for it.
 
 ```bash
 # Self-test all fixtures + scan the checkout for real instances / committed manifests:
+python3 scripts/validate-ideation-dashboard-contracts.py
+
+# …and the same sweep with warnings treated as errors. It PASSES over this
+# directory again as of contract-v3.0, and the history is worth stating because
+# the note that stood here was false for a whole major before anyone noticed.
+# From contract-v1.34 the four packaged v1 chat-turn fixtures were instances of
+# a DEPRECATED envelope family, so the validator warned on each one (by design —
+# that warning is what the deprecating change class requires) and `--strict`
+# exited 1 on them. This note then said that would hold "until the removal
+# target contract-v2.0 retires the fixtures with the family". contract-v2.0
+# shipped on 2026-08-27 WITHOUT the removal, and the sentence went on asserting
+# a spent target for one major and five minors — the exact silent failure
+# openxFactory issue #522 was filed about. retire-doxbench-chat-turn-v1 executed
+# the removal at contract-v3.0; the fixtures went with the family and the
+# warnings with them. Use `--strict` to FIND deprecated and otherwise-warned
+# shapes; it no longer refuses this directory for that reason:
 python3 scripts/validate-ideation-dashboard-contracts.py --strict
 
 # One file (kind auto-detected):

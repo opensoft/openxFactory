@@ -1,0 +1,16 @@
+# expected_failure: does not match its declared policy_id
+# The key IS the address. A key that disagrees with the payload's policy_id
+# makes <namespace>/<policy-id> resolve to a payload the author did not mean.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  relation_to_baseline: additive_constraints_only
+  policies:
+    admission-conditions:
+      policy_id: admission_conditions
+      policy_namespace: opensoft.codexfactory.project-alfa

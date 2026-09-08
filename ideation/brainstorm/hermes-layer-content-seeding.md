@@ -17,12 +17,13 @@ already have content; this doc is how the content gets there. Content is
 assembled by a pinned overlay stack (`Hermes-Install-Core` ops engine →
 xFactory generic → domain → client → project) and the running Hermes seeds
 the enforceable slice of it into records — the two axes and the seam below.
-Topics: three-layer-hermes-runtime, layer-content-seeding, domain-hermes,
+Topics: hermes, three-layer-hermes-runtime, layer-content-seeding, domain-hermes,
 client-hermes, project-hermes, personality, memory-gateway, practice-catalog,
 overlay-ref, provision-project, client-policy-wizard, project-type-templates,
 hermes-install-core, composition-overlay-stack, openworkflow-lineage
 Repository context: openxFactory (spans codexFactory + installs/hermes-install)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (increment 1 realized; seam/naming/re-pin decisions recorded)
 
 ## Decided (2026-07-22)
@@ -62,7 +63,8 @@ Updated: 2026-07-22 (increment 1 realized; seam/naming/re-pin decisions recorded
   (persona/system-frame, `roles/`, `policies/`, `review-councils/`,
   `memory-boundaries.yaml`, `escalation-rules.yaml`, `agent-mixes.yaml`) and the
   practice catalog, ratified in codexFactory. Detailed in
-  `codexfactory-domain-hermes-content.md`; the persona-depth question is
+  `codexfactory-domain-hermes-content.md` (moved 2026-09-07 to
+  `opensoft/codexFactory@83c9c35a`); the persona-depth question is
   `hermes-persona-character-model.md`.
 - **Client policy wizard** — guided elicitation that tunes the neutral client
   scaffold into a real per-client policy set + the auto-clear envelope, written
@@ -308,7 +310,8 @@ default practices, workflow selection, and memory/consent posture.
   user-facing manuals/help). Likely a **Plane-2 worker**, distinct from the
   domain's `documentation_agent` (which verifies doc/traceability changes). A
   project roster is a separate workstream from the domain roster
-  (`codexfactory-domain-roster-draft.md`); resolve the persona-vs-worker call
+  (`codexfactory-domain-roster-draft.md`, moved 2026-09-07 to
+  `opensoft/codexFactory@83c9c35a`); resolve the persona-vs-worker call
   when it's drafted.
 
 ## The neutralization gradient (how much of each layer is neutral)
@@ -369,7 +372,8 @@ dispatch disablement) enforced at write time, the other two options break:
 
 The *authoring* counterpart of this seam — what to write into stored policy at
 all versus leaving it to the model on the fly — is worked out in
-`codexfactory-domain-policy-model.md`: store the delta (choices, bindings,
+`codexfactory-domain-policy-model.md` (moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`): store the delta (choices, bindings,
 boundaries, staked positions, learning), improvise the textbook. Same line,
 drawn once.
 

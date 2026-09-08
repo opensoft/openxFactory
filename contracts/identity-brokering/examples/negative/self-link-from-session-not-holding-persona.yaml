@@ -1,0 +1,31 @@
+# expected_failure: self-link-outside-persona-session
+# expected_failure_detail: the initiating session holds
+# requirement: IDB-R4
+# VIOLATES R4: an "explicit" link initiated from somewhere else.
+#
+# The record names an initiator, so the actor check passes — and the session
+# that initiated it was holding a DIFFERENT persona from the one the identity
+# joins. That is not the explicit case: it is one human (or one attacker)
+# attaching an identity to a persona they were not authenticated as, which is
+# an account takeover wearing the paperwork of a self link.
+#
+# The ratified text says the link is initiated "from a session already holding
+# that persona". This is that clause, made checkable.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-wrong-session-9009
+broker_instance_ref: broker-opensoft-shared
+mode: self_link
+basis: explicit_user_action
+subjects:
+  - sub-8f2c41d60a974d3b
+surviving_subject: sub-8f2c41d60a974d3b
+linked_identity:
+  provider_id: google-workspace-partner
+  upstream_subject: "209471038475610293847"
+initiated_by:
+  subject: sub-ad91c740be6f5312
+  session_holds_subject: sub-ad91c740be6f5312
+  initiated_at: "2026-08-22T09:45:00Z"
+occurred_at: "2026-08-22T09:45:02Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/link/2026-08-22/09-45-02"

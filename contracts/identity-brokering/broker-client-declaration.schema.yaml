@@ -1,0 +1,125 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: broker_client_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/broker-client-declaration.schema.yaml"
+contract_id: identity-brokering-broker-client-declaration
+contract_schema_version: 1
+title: Identity-brokering broker client declaration
+description: >-
+  A broker service client, declared as TRANSPORT (add-identity-brokering,
+  capability `identity-brokering`, requirements "Workloads are not personas"
+  and "Broker credentials are credential-contract records"; design D5, D8).
+  A client may be provisioned only where a surface genuinely needs OIDC
+  tokens — a confidential client for a web surface, for instance — and the
+  declaration must STATE THAT REASON, so provisioning one is a visible act
+  rather than a default.
+
+  THE SHAPE CARRIES NO ACTOR ROLE AND NO AUTHORITY. There is no property in
+  which an organization membership, a role, a group or a grant could be
+  written, and the three `transport` declarations are REQUIRED CONSTANTS:
+
+    is_transport: true
+    actor_of_governed_acts: false
+    organization_membership_as_authority: false
+
+  Making them required constants rather than optional booleans means the
+  claim is always present and only one value is legal — a client asserting
+  itself an actor, or asserting membership as authority, is not something
+  this shape can say. Non-human authority stays where the family already
+  ratified it: `credential-contracts` grants and `openxwallet` holders,
+  which are strictly stronger than a user row (attenuated grants, proof of
+  possession, key-attributed audit, revocation that propagates). A second,
+  weaker authority vocabulary living next to that one would win by
+  convenience.
+
+  EVERY CREDENTIAL IS A REFERENCE. The client's secret is a
+  `credential-contracts` requirement with a named holder and declared
+  custody, referenced here and stored nowhere here. A configuration export
+  used as reviewed state is credential-free BY CONSTRUCTION rather than by
+  redaction after the fact — which is why the canonical validator also scans
+  string VALUES by credential class, including values reassembled from
+  adjacent chunks: a conformant shape can still carry a pasted secret inside
+  a free-text field that legitimately exists.
+type: object
+required:
+  - schema_version
+  - kind
+  - client_id
+  - broker_instance_ref
+  - surface_ref
+  - oidc_token_reason
+  - credential_requirement
+  - transport
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [broker_client_declaration]
+  client_id: {$ref: '#/$defs/identifier'}
+  broker_instance_ref: {$ref: '#/$defs/identifier'}
+  surface_ref:
+    # The surface this client serves. A client with no surface has no reason
+    # to exist.
+    $ref: '#/$defs/identifier'
+  client_type:
+    type: string
+    enum: [confidential, public]
+  oidc_token_reason:
+    # WHY tokens are required, in the declarer's own words. A free-text
+    # field, and therefore one the credential-value scan covers.
+    type: string
+    minLength: 1
+    maxLength: 600
+  service_account_subject:
+    # Present only where the client has a service-account subject at all.
+    # Declared here so the canonical validator can refuse that subject
+    # appearing as a persona or as the actor of a governed act — the two
+    # laundering routes this requirement closes.
+    $ref: '#/$defs/opaque_subject'
+  credential_requirement: {$ref: '#/$defs/credential_reference'}
+  transport:
+    type: object
+    required:
+      - is_transport
+      - actor_of_governed_acts
+      - organization_membership_as_authority
+    additionalProperties: false
+    properties:
+      is_transport:
+        type: boolean
+        const: true
+      actor_of_governed_acts:
+        type: boolean
+        const: false
+      organization_membership_as_authority:
+        type: boolean
+        const: false
+  declared_at: {type: string, format: date-time}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  opaque_subject:
+    type: string
+    minLength: 16
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+  credential_reference:
+    type: object
+    required: [requirement_id, requirements_document_ref, holder_ref, custody_declared_in]
+    additionalProperties: false
+    properties:
+      requirement_id: {$ref: '#/$defs/identifier'}
+      requirements_document_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+      holder_ref: {$ref: '#/$defs/identifier'}
+      custody_declared_in:
+        type: string
+        minLength: 1
+        maxLength: 300

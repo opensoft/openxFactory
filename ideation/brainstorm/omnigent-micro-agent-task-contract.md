@@ -7,7 +7,7 @@ content-addressed records—a reusable profile, an immutable task envelope, and
 an immutable result—so one narrow transformation has explicit semantics,
 scope, permissions, tools, budgets, validation, stop reasons, evidence, and
 cost without giving the worker durable authority.
-Topics: omnigent, omnigent-domain-overlay, micro-agents, task-envelope,
+Topics: omnigent-micro-agent, omnigent, omnigent-domain-overlay, micro-agents, task-envelope,
 worker-profile, result-contract, neutral-job-envelope, semantic-context,
 permissions, stop-conditions, execution-evidence, feat-request
 Repository context: openxFactory (neutral micro-agent profile, task and result

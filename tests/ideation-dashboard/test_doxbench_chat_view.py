@@ -24,6 +24,8 @@ import pytest
 
 from conftest import REPO_ROOT
 
+from ideation_dashboard import serve as serve_mod
+
 NODE = shutil.which("node")
 
 CHAT_MODEL_JS = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" /
@@ -54,11 +56,11 @@ const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
 const EMPTY_ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
                          models: [] };
 const success = (prose) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: prose, proposals: [] });
-const FAILURE = { schema_version: 1, kind: "workbench-chat-turn-failure",
+const FAILURE = { schema_version: 1, kind: "workbench-chat-turn-v2-failure",
                   client_turn_id: "t-1", error: "model_failed",
                   message: "the model request failed" };
 
@@ -282,7 +284,8 @@ const bufferOf = (kind) => ({
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   content: "# " + kind, dirty: kind === "outline",
 });
-const editorState = { buffers: { outline: bufferOf("outline"),
+const editorState = { active_buffer: "outline",
+                      buffers: { outline: bufferOf("outline"),
                                  document: bufferOf("document") } };
 let s = editComposer(editSubject(selectModel(
   adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"),
@@ -291,13 +294,15 @@ let s = editComposer(editSubject(selectModel(
 // ---- pure request builder ----
 const req = buildTurnRequest({
   state: s, scopeKey: KEY, clientTurnId: "turn-x1",
-  activeDocumentPath: null, editorState });
+  boundBuffer: "outline", editorState });
 out.request = {
   keys: Object.keys(req).sort(),
   version: req.schema_version, kind: req.kind,
   turnId: req.client_turn_id, model: req.model_id,
   subject: req.working_subject, message: req.message,
   scopeKeys: Object.keys(req.scope).sort(),
+  boundBuffer: req.bound_buffer,
+  hasActiveDocumentPath: "active_document_path" in req,
   bufferKinds: req.buffers.map((b) => b.kind),
   bufferKeys: Object.keys(req.buffers[0]).sort(),
   outlineHash: req.buffers[0].content_hash,
@@ -308,22 +313,26 @@ out.request = {
 };
 
 // ---- dispatcher: success / failure / refusal / one-in-flight ----
-const success = { schema_version: 1, kind: "workbench-chat-turn-success",
+const success = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "turn-1", assistant_turn_id: "a-1", model_id: "model-a",
-  observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+  selected_model: { requested_model_id: "model-a", routing_rule: false,
+                    data_handling: "Processed in the approved tenant boundary" },
+  bound_buffer: "docs/detail.md",
+  observed_hashes: { outline: "d".repeat(64), "docs/detail.md": "d".repeat(64) },
   assistant_prose: "grounded answer", proposals: [] };
-const failure = { schema_version: 1, kind: "workbench-chat-turn-failure",
+const failure = { schema_version: 1, kind: "workbench-chat-turn-v2-failure",
   client_turn_id: "turn-1", error: "model_failed",
   message: "the model request failed" };
 
-// T104 F2: a turn the RELEASED envelope would accept names a document
-// (`active_document_path` is a non-empty confined_path there -- only the
-// BUFFER path is nullable), so the dispatch scenarios below carry one. The
-// pure builder above keeps the null-path document buffer it always had.
+// The dispatch scenarios below carry a BACKED document under the reserved key,
+// which is the shape a restored Phase A session holds and a legal instance of
+// the keyed set. The pure builder above keeps the null-path document buffer it
+// always had.
 const DOC_PATH = "docs/detail.md";
-const editorStateWithDoc = { buffers: {
-  outline: bufferOf("outline"),
-  document: { ...bufferOf("document"), path: DOC_PATH } } };
+const editorStateWithDoc = { active_buffer: "document",
+  buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH } } };
 
 async function run(payload, opts = {}) {
   let sent = null;
@@ -335,8 +344,7 @@ async function run(payload, opts = {}) {
   const dispatcher = createTurnDispatcher({
     transports, turnIdFactory: (n) => "turn-" + n });
   const result = await dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   return { sent, result };
 }
 {
@@ -371,19 +379,16 @@ async function run(payload, opts = {}) {
   const dispatcher = createTurnDispatcher({
     transports, turnIdFactory: (n) => "turn-" + n });
   const first = dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   const second = await dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   out.inFlight = { secondRefused: second.refused === true };
   resolveTurn();
   const settled = await first;
   out.inFlight.firstSettled = settled.state.phase;
   // distinct ids per accepted submit
   const third = await dispatcher.submit(settled.state, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   out.inFlight.freshId = third.clientTurnId !== settled.clientTurnId;
 }
 
@@ -405,8 +410,7 @@ async function preflight(stateValue, context) {
   const noModel = editComposer(editSubject(
     adoptCatalog(createChatState(KEY), ENVELOPE), "Working subject"),
     "What next?");
-  const { sent, result } = await preflight(
-    noModel, { activeDocumentPath: DOC_PATH });
+  const { sent, result } = await preflight(noModel, {});
   out.noModel = {
     refused: result.refused === true,
     transportCalled: sent !== null,
@@ -417,58 +421,60 @@ async function preflight(stateValue, context) {
   };
 }
 {
-  // no active document, but the tile HAS usable ones: the note names one
-  const { sent, result } = await preflight(s, {
-    activeDocumentPath: null,
-    documentCandidates: () => ["ideation/staging/topic-x/new.md",
-                               "ideation/staging/topic-x/other.md"],
-  });
-  out.noDocument = {
+  // SUPERSEDES the interim N4 posture (task 8.6, recorded WITH BRETT in the
+  // PR #207 re-verification). Under the v1 wire, a turn bound to a document
+  // loaded BESIDE the tile's own was refused pre-flight with a stated reason,
+  // because the released envelope had room for exactly the outline plus one
+  // reserved slot. The widened envelope carries the loaded set and DECLARES the
+  // binding, so that same selection now SENDS: the request names that document
+  // as the bound buffer and still carries every buffer the canvas holds.
+  const LOADED = "ideation/staging/topic-x/other.md";
+  const besideTheTile = { active_buffer: LOADED, buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH },
+    [LOADED]: { ...bufferOf("document"), path: LOADED } } };
+  const { sent, result } = await preflight(s, { editorState: besideTheTile });
+  out.boundBesideTheTile = {
     refused: result.refused === true,
     transportCalled: sent !== null,
+    boundBuffer: sent ? sent.bound_buffer : "NOT-SENT",
+    bufferPaths: sent ? sent.buffers.map((b) => b.path) : [],
     phase: result.state.phase,
-    composer: result.state.composer,
-    error: result.state.lastFailure && result.state.lastFailure.error,
-    message: result.state.lastFailure && result.state.lastFailure.message,
+    failure: result.state.lastFailure && result.state.lastFailure.error,
   };
 }
 {
-  // no active document, NO candidates, and no outline either: genuinely no
-  // context, so the F2 refusal stands and says what to do instead
-  const outlineless = { buffers: {
-    outline: { ...bufferOf("outline"), path: null },
-    document: { ...bufferOf("document"), path: null } } };
-  let sent = null;
-  const transports = { chatTurn: async (body) => { sent = body;
-    return { ok: true, status: 200, payload: success }; } };
-  const dispatcher = createTurnDispatcher({
-    transports, turnIdFactory: (n) => "turn-" + n });
-  const result = await dispatcher.submit(s, {
-    scopeKey: KEY, editorState: outlineless,
-    activeDocumentPath: null, documentCandidates: () => [] });
-  out.noDocumentAtAll = {
+  // An UNSETTLED buffer ANYWHERE in the loaded set is one identity the request
+  // cannot declare, so the whole turn refuses pre-flight -- the check reads
+  // every buffer the state holds rather than two named ones.
+  const LOADED = "ideation/staging/topic-x/other.md";
+  const oneUnsettled = { active_buffer: "outline", buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH },
+    [LOADED]: { ...bufferOf("document"), path: LOADED, hash_pending: true } } };
+  const { sent, result } = await preflight(s, { editorState: oneUnsettled });
+  out.oneUnsettled = {
     refused: result.refused === true,
     transportCalled: sent !== null,
     error: result.state.lastFailure && result.state.lastFailure.error,
-    message: result.state.lastFailure && result.state.lastFailure.message,
   };
 }
 
-// ---- G-1: the OUTLINE-ONLY turn proceeds with a null active document ----
+// ---- the outline-only turn, now DECLARED rather than implied by a null ----
 {
-  // the real-corpus majority case: no usable document candidate, but the
-  // outline IS backed and in scope, so the turn grounds on it alone
-  const outlineOnlyState = { buffers: {
+  // The real-corpus majority case: the tile's only editable path IS its outline,
+  // so the reserved document slot is not yet created. The turn binds to the
+  // outline and SAYS SO; the widened envelope carries no `active_document_path`
+  // at all, so nothing downstream can infer a binding from one.
+  const outlineOnlyState = { active_buffer: "outline", buffers: {
     outline: bufferOf("outline"),                       // backed: docs/outline.md
     document: { ...bufferOf("document"), path: null } } };  // not yet created
-  const { sent, result } = await preflight(s, {
-    editorState: outlineOnlyState,
-    activeDocumentPath: null, documentCandidates: () => [] });
+  const { sent, result } = await preflight(s, { editorState: outlineOnlyState });
   out.outlineOnly = {
     refused: result.refused === true,
     transportCalled: sent !== null,
-    activeDocumentPath: sent ? sent.active_document_path : "NOT-SENT",
-    hasKey: sent ? ("active_document_path" in sent) : false,
+    boundBuffer: sent ? sent.bound_buffer : "NOT-SENT",
+    hasActiveDocumentPath: sent ? ("active_document_path" in sent) : false,
     outlineBufferPath: sent ? sent.buffers[0].path : null,
     documentBufferPath: sent ? sent.buffers[1].path : "NOT-SENT",
     phase: result.state.phase,
@@ -498,13 +504,19 @@ def view_results(tmp_path_factory):
 
 
 def test_the_request_builder_emits_the_released_request_shape(view_results):
+    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The rail
+    sends the WIDENED envelope: `bound_buffer` replaces `active_document_path`,
+    which is not merely renamed but GONE -- the binding is declared, and the
+    envelope carries no adjacent field anything could infer one from (D17)."""
     r = view_results["request"]
     assert r["keys"] == sorted([
         "schema_version", "kind", "client_turn_id", "scope",
-        "active_document_path", "working_subject", "message", "model_id",
+        "bound_buffer", "working_subject", "message", "model_id",
         "last_assistant_turn_id", "transcript", "buffers"])
+    assert r["hasActiveDocumentPath"] is False
+    assert r["boundBuffer"] == "outline"
     assert r["version"] == 1
-    assert r["kind"] == "workbench-chat-turn"
+    assert r["kind"] == "workbench-chat-turn-v2"
     assert r["turnId"] == "turn-x1"
     assert r["model"] == "model-a"
     assert r["subject"] == "Working subject"
@@ -531,7 +543,7 @@ def test_a_success_settles_clears_composer_and_appends_turns(view_results):
     assert s["settled"] == "idle"
     assert s["composer"] == ""
     assert s["turns"] == 2
-    assert s["sentKind"] == "workbench-chat-turn"
+    assert s["sentKind"] == "workbench-chat-turn-v2"
     assert s["freshBuffers"] is True
 
 
@@ -558,16 +570,18 @@ def test_one_turn_in_flight_and_fresh_ids_per_accepted_submit(view_results):
     assert i["freshId"] is True
 
 
-# ---- T104 F2: shapes the RELEASED envelope refuses never reach the wire ----
+# ---- shapes the RELEASED envelope refuses never reach the wire ----
 #
-# contract-v1.27's request requires `model_id` minLength 1 and
-# `active_document_path` to be a non-empty `confined_path` (only the BUFFER
-# path is nullable there). The rail emitted `""` and `null` for them, so two
-# answerable local conditions -- no model picked, no document active -- arrived
-# as an opaque server refusal, or as `turn_scope_refused` naming nothing the
-# operator could pick instead. Both are now refused pre-flight, in the
-# operator's own vocabulary, with the composer preserved (FR-016) and the
-# transport never consulted.
+# `model_id` is still minLength 1 on the widened envelope, so an unselected model
+# is still refused pre-flight, in the operator's own vocabulary, with the
+# composer preserved (FR-016) and the transport never consulted.
+#
+# The `no_active_document` refusals that stood beside it are GONE with the v1
+# wire that forced them (contract-v1.34, §13): that envelope made a turn declare
+# ONE active document path, so an operator with several candidates had a choice
+# to make before one could be named, and a tile with none had to prove it could
+# ground on the outline instead. The widened envelope carries every loaded buffer
+# and binds to the one the human SELECTED, so neither question can arise.
 
 def test_an_unselected_model_is_refused_pre_flight_not_sent_as_empty(view_results):
     m = view_results["noModel"]
@@ -579,49 +593,59 @@ def test_an_unselected_model_is_refused_pre_flight_not_sent_as_empty(view_result
     assert "model" in m["message"]
 
 
-def test_no_active_document_is_refused_pre_flight_naming_a_usable_one(view_results):
-    d = view_results["noDocument"]
-    assert d["refused"] is True
-    assert d["transportCalled"] is False
-    assert d["phase"] == "idle"
-    assert d["composer"] == "What next?"
-    assert d["error"] == "no_active_document"
-    # ACTIONABLE: the refusal names a document the operator can actually pick
-    assert "ideation/staging/topic-x/new.md" in d["message"]
+def test_a_selection_beside_the_tiles_own_document_now_sends(view_results):
+    """THE N4 DISSOLUTION, pinned (task 8.6 -> §13).
+
+    The interim posture this supersedes was explicit and recorded WITH BRETT: a
+    human could load and edit any number of documents and Save each, but the CHAT
+    could not be re-pointed at one, because the released v1 envelope carried the
+    outline plus one reserved slot and nothing else. Send was held closed for any
+    other selection and the reason was visible on the control.
+
+    The widened envelope ends it: the same selection sends, the request DECLARES
+    that document as the bound buffer, and it still carries every buffer the
+    canvas holds -- binding says what the chat works ON, never what it may see."""
+    b = view_results["boundBesideTheTile"]
+    assert b["refused"] is False, "the interim binding refusal is retired"
+    assert b["transportCalled"] is True
+    assert b["failure"] is None
+    assert b["boundBuffer"] == "ideation/staging/topic-x/other.md"
+    # GROUNDING is unnarrowed: the outline, the tile's own document, and the
+    # document loaded beside it all ride the request.
+    assert sorted(b["bufferPaths"]) == sorted(
+        ["docs/outline.md", "docs/detail.md",
+         "ideation/staging/topic-x/other.md"])
+    assert b["phase"] == "idle"
 
 
-def test_a_tile_with_no_usable_document_says_so_and_names_the_way_forward(
-        view_results):
-    """SCOPED by G-1: this refusal now covers the tile that has neither a
-    candidate NOR a backed outline — genuinely nothing to ground on. A tile
-    whose outline IS backed takes the outline-only path below instead."""
-    d = view_results["noDocumentAtAll"]
-    assert d["refused"] is True
-    assert d["transportCalled"] is False
-    assert d["error"] == "no_active_document"
-    assert "create one" in d["message"]
+def test_one_unsettled_buffer_anywhere_refuses_the_whole_turn(view_results):
+    """The settled-identity pre-flight reads EVERY buffer the state holds, not
+    the two Phase A named: a widened request declares one identity per buffer it
+    carries, so a single unsettled buffer is a single undeclarable identity."""
+    u = view_results["oneUnsettled"]
+    assert u["refused"] is True
+    assert u["transportCalled"] is False
+    assert u["error"] == "buffers_unsettled"
 
 
-# ---- G-1: the outline-only turn, the real-corpus majority case -------------
+# ---- the outline-only turn, the real-corpus majority case -------------------
 #
 # 16 of 21 real staged topics have exactly ONE editable path — the topic's own
-# primary fragment, which the canvas loads as the OUTLINE and which T104 F2
-# therefore does not offer as a DOCUMENT. Those tiles have no document to name.
-# Before contract-v1.28 that made a legal turn impossible and the rail refused;
-# now the turn declares `active_document_path: null`, mirroring the
-# already-nullable `buffer_state.path` the document buffer carries here.
+# primary fragment, which the canvas loads as the OUTLINE. Under the v1 wire such
+# a turn declared `active_document_path: null` and the reader had to infer that
+# the outline was what it was about. It is now DECLARED.
 
-def test_an_outline_only_tile_sends_a_turn_with_a_null_active_document(
+def test_an_outline_only_tile_declares_the_outline_as_its_bound_buffer(
         view_results):
     o = view_results["outlineOnly"]
     assert o["refused"] is False, "the outline-only turn must not be refused"
     assert o["transportCalled"] is True
-    # the key is PRESENT and null — absent and null are different facts, and
-    # the released envelope requires the key
-    assert o["hasKey"] is True
-    assert o["activeDocumentPath"] is None
-    # the outline is what the turn grounds on, and the document buffer is the
-    # not-yet-created shape
+    assert o["boundBuffer"] == "outline"
+    # The field the inference used is not on this envelope at all — the negative
+    # F2/D17 asks for, proven at the wire rather than described.
+    assert o["hasActiveDocumentPath"] is False
+    # the outline is what the turn is bound to, and the document buffer is still
+    # carried in its not-yet-created shape
     assert o["outlineBufferPath"] == "docs/outline.md"
     assert o["documentBufferPath"] is None
     assert o["phase"] == "idle"
@@ -655,7 +679,7 @@ const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
 const proposal = (target, base) => ({ target, base_hash: base,
   summary: "Rework the " + target, content: "# New " + target });
 const successWith = (proposals) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH },
   assistant_prose: "with proposals", proposals });
@@ -666,6 +690,53 @@ let s = settleTurnSuccess(beginTurn(base), successWith([
   proposal("outline", OUTLINE_HASH), proposal("document", DOCUMENT_HASH)]));
 s = refreshProposalCurrency(s, { outline: OUTLINE_HASH,
                                  document: DOCUMENT_HASH });
+
+// F4 (adversarial review of the §13 slice): A PROPOSAL AGAINST A PATH-KEYED
+// THIRD DOCUMENT, carried through the whole chain the widened wire makes
+// possible -- adoption, the card model, and Apply. Every other fixture in this
+// suite targets one of the two RESERVED keys, which a two-name literal would
+// have served just as well; only a path-keyed target can tell the keyed map from
+// the constant it replaced.
+const THIRD = "ideation/staging/topic-x/third.md";
+const THIRD_HASH = "c".repeat(64);
+const wideSuccess = {
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
+  client_turn_id: "t-2", assistant_turn_id: "a-2", model_id: "model-a",
+  bound_buffer: THIRD,
+  // The RECORD's own buffer set -- which is what the permitted-target rule now
+  // reads, instead of a module constant.
+  observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+                     [THIRD]: THIRD_HASH },
+  assistant_prose: "a proposal for the loaded document",
+  proposals: [proposal(THIRD, THIRD_HASH)] };
+let wide = settleTurnSuccess(beginTurn(base), wideSuccess);
+wide = refreshProposalCurrency(wide, { outline: OUTLINE_HASH,
+                                       document: DOCUMENT_HASH,
+                                       [THIRD]: THIRD_HASH });
+const wideApplied = [];
+const wideActions = createProposalActions({
+  applyProposal: async (target) => { wideApplied.push(target); return { ok: true }; } });
+const afterWideApply = await wideActions.apply(wide, THIRD);
+out.pathKeyedProposal = {
+  adoptedKeys: Object.keys(proposalsOf(wide)),
+  cards: proposalCardModel(wide).map(
+    (card) => ({ target: card.target, label: card.label,
+                 ariaLabel: card.ariaLabel, applyEnabled: card.applyEnabled })),
+  appliedThrough: wideApplied,
+  status: (proposalsOf(afterWideApply)[THIRD] || {}).status || null,
+  // …and one that goes STALE re-scores by its own key, like any other.
+  staleStatus: (proposalsOf(refreshProposalCurrency(
+    wide, { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+            [THIRD]: "d".repeat(64) }))[THIRD] || {}).status || null,
+};
+// The unroutable half: a target the RECORD did not observe is dropped, never
+// rendered with an Apply control.
+const unroutable = settleTurnSuccess(beginTurn(base), {
+  ...wideSuccess,
+  client_turn_id: "t-3",
+  proposals: [proposal("ideation/staging/topic-x/never-supplied.md", THIRD_HASH)] });
+out.unroutableProposal = { keys: Object.keys(proposalsOf(unroutable)),
+                           cards: proposalCardModel(unroutable).length };
 
 // card model: both targets, a11y-bearing, apply enabled only when current
 out.cards = proposalCardModel(s);
@@ -854,7 +925,7 @@ out.disclosure = sendDisclosure(s);
 out.noneSelected = sendDisclosure(createChatState(KEY));
 
 // unsettled buffers refuse pre-flight (composer preserved, transport unused)
-const unsettled = { buffers: {
+const unsettled = { active_buffer: "outline", buffers: {
   outline: { kind: "outline", path: "docs/o.md", base_ref: "main",
              base_revision: "r1", base_hash: "c".repeat(64),
              current_hash: null, hash_pending: true, content: "#", dirty: true },
@@ -868,7 +939,7 @@ const dispatcher = createTurnDispatcher({
   turnIdFactory: (n) => "turn-" + n });
 const withText = editComposer(s, "hello?");
 const refusal = await dispatcher.submit(withText, {
-  scopeKey: KEY, activeDocumentPath: null, editorState: unsettled });
+  scopeKey: KEY, editorState: unsettled });
 out.unsettled = { refused: refusal.refused === true, sent,
                   composer: refusal.state.composer };
 
@@ -876,7 +947,7 @@ out.unsettled = { refused: refusal.refused === true, sent,
 const begun = beginTurn(editComposer(s, "first question"));
 const typedDuringFlight = editComposer(begun, "follow-up draft");
 const settled = settleTurnSuccess(typedDuringFlight, {
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: "answer", proposals: [] });
@@ -949,16 +1020,19 @@ const buffer = (kind) => ({ kind, path: null, owned: true, base_ref: "main",
   base_revision: "r1", base_hash: "c".repeat(64),
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "#", dirty: false });
-// T104 F2: a dispatched turn names a document (the released envelope's
-// `active_document_path` is a non-empty confined_path), so these scenarios --
-// whose subject is abort/settlement, not the null-path lifecycle -- carry one.
+// A dispatched turn declares its BOUND BUFFER (contract-v1.34), which the
+// dispatcher reads off `active_buffer` -- so these scenarios, whose subject is
+// abort/settlement rather than the binding itself, carry a selected document.
 const DOC_PATH = "docs/detail.md";
-const editorState = { buffers: {
+const editorState = { active_buffer: "document", buffers: {
   outline: buffer("outline"),
   document: { ...buffer("document"), path: DOC_PATH } } };
-const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
-  observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+  selected_model: { requested_model_id: "model-a", routing_rule: false,
+                    data_handling: "on-tenant" },
+  bound_buffer: DOC_PATH,
+  observed_hashes: { outline: "d".repeat(64), [DOC_PATH]: "d".repeat(64) },
   assistant_prose: "late answer", proposals: [] };
 const base = editComposer(selectModel(
   adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"), "hello");
@@ -973,7 +1047,7 @@ const base = editComposer(selectModel(
       return { ok: true, status: 200, payload: SUCCESS }; } },
     turnIdFactory: (n) => "turn-" + n });
   const pending = dispatcher.submit(live, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH, editorState,
+    scopeKey: KEY, editorState,
     onBegin: (s) => { live = s; }, liveState: () => live });
   live = abortTurn(live);                       // human abandons the flight
   live = editComposer(live, "different");       // and keeps working
@@ -994,7 +1068,7 @@ const base = editComposer(selectModel(
     transports: { chatTurn: async () => null },
     turnIdFactory: (n) => "turn-" + n });
   const result = await dispatcher.submit(base, {
-    scopeKey: KEY, activeDocumentPath: null, editorState: unsettled });
+    scopeKey: KEY, editorState: unsettled });
   out.unsettled = { refused: result.refused === true,
                     error: result.state.lastFailure
                       && result.state.lastFailure.error,
@@ -1065,10 +1139,10 @@ const buffer = (kind) => ({ kind, path: null, owned: true, base_ref: "main",
   base_revision: "r1", base_hash: "c".repeat(64),
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "#", dirty: false });
-// T104 F2: the released envelope requires a named active document; this
-// scenario's subject is the stale-token mapping, so it carries one.
+// The turn declares its BOUND BUFFER (contract-v1.34); this scenario's subject
+// is the stale-token mapping, so it selects the tile's own document.
 const DOC_PATH = "docs/detail.md";
-const editorState = { buffers: {
+const editorState = { active_buffer: "document", buffers: {
   outline: buffer("outline"),
   document: { ...buffer("document"), path: DOC_PATH } } };
 const base = editComposer(selectModel(adoptCatalog(createChatState(KEY),
@@ -1082,7 +1156,7 @@ const dispatcher = createTurnDispatcher({
                message: "the console token does not match this serve's" } }) },
   turnIdFactory: (n) => "turn-" + n });
 const result = await dispatcher.submit(base, {
-  scopeKey: KEY, activeDocumentPath: DOC_PATH, editorState });
+  scopeKey: KEY, editorState });
 out.stale = { phase: result.state.phase,
               composer: result.state.composer,
               error: result.state.lastFailure && result.state.lastFailure.error,
@@ -1151,7 +1225,7 @@ let s = editSubject(editComposer(selectModel(adoptCatalog(createChatState(KEY),
   { schema_version: 1, kind: "workbench-model-catalog", models: [ENTRY] }),
   "model-a"), "draft question"), "Working subject");
 s = settleTurnSuccess(beginTurn(s), {
-  schema_version: 1, kind: "workbench-chat-turn-success", client_turn_id: "t",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success", client_turn_id: "t",
   assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: OUTLINE, document: DOCUMENT },
   assistant_prose: "answer",
@@ -1326,7 +1400,7 @@ const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tena
 const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
                    models: [ENTRY] };
 const success = (prose) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: prose, proposals: [] });
@@ -1363,8 +1437,9 @@ const bufferOf = (kind, path) => ({
   content: "# " + kind, dirty: false });
 const req = buildTurnRequest({
   state: editComposer(s, "follow-up"), scopeKey: KEY, clientTurnId: "turn-n",
-  activeDocumentPath: "docs/detail.md",
-  editorState: { buffers: { outline: bufferOf("outline", "docs/outline.md"),
+  boundBuffer: "document",
+  editorState: { active_buffer: "document",
+                 buffers: { outline: bufferOf("outline", "docs/outline.md"),
                             document: bufferOf("document", "docs/detail.md") } } });
 out.requestTranscript = { turns: req.transcript.length,
                           bytes: bytesOf(req.transcript) };
@@ -1651,9 +1726,17 @@ class Node {
     return this._text + this.children.map((c) => c.textContent).join('');
   }
   set textContent(value) { this.children = []; this._text = String(value); }
-  appendChild(child) { this.children.push(child); return child; }
+  // annotation round 2 asks WHERE the model selector sits, so the stub records
+  // parentage the way every other DOM stub in this suite already does
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   append(...kids) { for (const k of kids) this.appendChild(k); }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // annotation round 2 reads `aria-describedby` back off the send button, so
+  // the stub gains the reader that matches the setter it already had
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
   focus() {}
   walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
@@ -1677,7 +1760,7 @@ const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
   base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "# " + kind, dirty: false });
-const editorState = () => ({ buffers: {
+const editorState = () => ({ active_buffer: "document", buffers: {
   outline: bufferOf("outline", "docs/outline.md"),
   document: bufferOf("document", "docs/detail.md") } });
 
@@ -1690,16 +1773,24 @@ const editorState = () => ({ buffers: {
       catalog: async () => ({ schema_version: 1,
         kind: "workbench-model-catalog", models: [] }),
       chatTurn: async () => null },
-    editorState, activeDocumentPath: () => "docs/detail.md" });
+    editorState });
   await rail.ready;
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
+  const send = byClass(host, "doxchat-send")[0];
   out.emptyCatalog = {
     noteExists: Boolean(note),
-    noteHidden: note ? note.hidden : null,
+    // annotation round 2: the note is sr-only, not hidden — it is the send
+    // button's programmatic description now, so it must stay in the tree
+    noteSrOnly: note ? String(note.className).includes("doxchat-sronly") : null,
     noteText: note ? note.textContent : null,
-    selectorHidden: selector.hidden,
-    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+    selectorDisabled: selector.disabled === true,
+    selectorInSendRow: Boolean(selector.parentNode
+      && String(selector.parentNode.className).includes("doxchat-sendrow")),
+    sendDisabled: send.disabled,
+    sendTitle: send.title,
+    sendDescribedBy: send.getAttribute("aria-describedby"),
+    noteId: note ? note.id : null,
   };
 }
 
@@ -1712,22 +1803,21 @@ const editorState = () => ({ buffers: {
     transports: {
       catalog: () => new Promise((res) => { resolveCatalog = res; }),
       chatTurn: async () => null },
-    editorState, activeDocumentPath: () => "docs/detail.md" });
+    editorState });
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
   // P3-8: the mount-to-catalog window's own words are part of the pin -- the
   // rail must not claim a configuration fact ("no approved model is
   // configured") it cannot know until the one-shot catalog ready settles.
-  const beforeCatalog = { noteHidden: note ? note.hidden : null,
-                          noteText: note ? note.textContent : null,
-                          selectorHidden: selector.hidden };
+  const beforeCatalog = { noteText: note ? note.textContent : null,
+                          selectorDisabled: selector.disabled === true };
   resolveCatalog({ schema_version: 1, kind: "workbench-model-catalog",
                    models: [ENTRY] });
   await rail.ready;
   out.lateCatalog = {
     beforeCatalog,
-    noteHidden: note ? note.hidden : null,
-    selectorHidden: selector.hidden,
+    noteText: note ? note.textContent : null,
+    selectorDisabled: selector.disabled === true,
     options: selector.children.map((o) => o.value),
   };
 }
@@ -1735,7 +1825,7 @@ const editorState = () => ({ buffers: {
 // ---- F5-5: a refused Apply renders a failure note and announces it ----
 {
   const host = new Node("div"); host.ownerDocument = doc;
-  const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+  const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
     client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
     observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
     assistant_prose: "answer",
@@ -1747,7 +1837,7 @@ const editorState = () => ({ buffers: {
       catalog: async () => ({ schema_version: 1,
         kind: "workbench-model-catalog", models: [ENTRY] }),
       chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS }) },
-    editorState, activeDocumentPath: () => "docs/detail.md",
+    editorState,
     applyProposal: async () => ({ ok: false, code: "stale",
       error: "this proposal no longer matches the buffer" }) });
   await rail.ready;
@@ -1794,30 +1884,47 @@ def rail_dom_results(tmp_path_factory):
 
 def test_an_empty_catalog_mount_renders_the_in_rail_unavailability_note(
         rail_dom_results):
-    """F5-9 residual: the rail beside the shell's "chat is unavailable"
-    posture line must not look fully live. The in-rail note states the same
-    posture in the rail's own fixed vocabulary and stands in for the
-    selector; Send stays disabled (that half was already fixed)."""
+    """F5-9 residual: the rail must not look fully live when no model is
+    available. Send stays disabled and the reason is STATED.
+
+    PIN EVOLUTION (Brett's 2026-08-18 annotation round 2: "add a model selector
+    down next to the send button. make this text the hover text for the send
+    button if no model selected"). Two halves of this pin moved. The note no
+    longer STANDS as a visible line — it is sr-only, and its sentence is the
+    send button's `title` and its `aria-describedby` target, which is where a
+    human trying to send actually looks. And the selector no longer HIDES when
+    nothing is selectable: it is a permanent part of the send row, rendered
+    empty and DISABLED, which is the honest shape of this plane's posture (the
+    server answers with a catalog, and the catalog is empty). What has not
+    changed is the rule the pin exists for: the rail never looks live when it
+    is not, and the reason is legible."""
     e = rail_dom_results["emptyCatalog"]
     assert e["noteExists"] is True
-    assert e["noteHidden"] is False
+    assert e["noteSrOnly"] is True
     assert "chat is unavailable" in e["noteText"]
     assert "no approved model" in e["noteText"]
-    assert e["selectorHidden"] is True, (
-        "an empty selector rendered beside the unavailability posture is the "
-        "contradiction this finding names")
+    # the selector is present, beside Send, and inert
+    assert e["selectorInSendRow"] is True
+    assert e["selectorDisabled"] is True
     assert e["sendDisabled"] is True
+    # …and Brett's sentence IS the send button's hover text, and is associated
+    # programmatically rather than by title alone
+    assert e["sendTitle"] == e["noteText"]
+    assert e["sendDescribedBy"] == e["noteId"]
+    assert e["noteId"]
 
 
 def test_a_catalog_arriving_later_replaces_the_note_with_the_live_selector(
         rail_dom_results):
     l = rail_dom_results["lateCatalog"]
     # before the catalog resolves the rail is honest about having no model
-    assert l["beforeCatalog"]["noteHidden"] is False
-    assert l["beforeCatalog"]["selectorHidden"] is True
+    assert "checking the model catalog" in l["beforeCatalog"]["noteText"]
+    assert l["beforeCatalog"]["selectorDisabled"] is True
     # the rail was never unmounted, so the arriving catalog lights it up
-    assert l["noteHidden"] is True
-    assert l["selectorHidden"] is False
+    # a catalog with an available entry clears the reason and enables the
+    # selector in place (annotation round 2: it never hid, so it never unhides)
+    assert l["noteText"] == ""
+    assert l["selectorDisabled"] is False
     assert "model-a" in l["options"]
 
 
@@ -1838,6 +1945,43 @@ def test_the_mount_to_catalog_window_reads_the_loading_sentence(
     # and once the catalog settles empty, the configured-none sentence stands
     settled = rail_dom_results["emptyCatalog"]
     assert "no approved model" in settled["noteText"]
+
+
+def test_a_path_keyed_proposal_is_adopted_rendered_and_applied(card_results):
+    """F4: judgment call 9's claimed failure mode, MEASURED rather than asserted.
+
+    Before the keyed map, `adoptProposals` filtered against a two-name literal
+    and `proposalCardModel` enumerated the same two names — so a proposal against
+    the third document a human loaded was dropped in silence: no record, no card,
+    no Apply, and no refusal either. Every other fixture in this suite targets a
+    RESERVED key, which the old literal served just as well, so nothing measured
+    the difference."""
+    r = card_results["pathKeyedProposal"]
+    third = "ideation/staging/topic-x/third.md"
+    assert r["adoptedKeys"] == [third], (
+        "the record's own observed buffers are the permitted set")
+    assert [card["target"] for card in r["cards"]] == [third]
+    # The BADGE reads as a name a human recognizes; the full key stays available
+    # to assistive technology, so two loaded documents sharing a basename are
+    # never indistinguishable.
+    assert r["cards"][0]["label"] == "third.md"
+    assert third in r["cards"][0]["ariaLabel"]
+    assert r["cards"][0]["applyEnabled"] is True
+    # …and Apply routes to the seam under that key, then marks it applied.
+    assert r["appliedThrough"] == [third]
+    assert r["status"] == "applied"
+    # Currency is per key like any other: move that buffer, that card goes stale.
+    assert r["staleStatus"] == "stale"
+
+
+def test_a_proposal_the_turn_did_not_observe_is_dropped_not_rendered(card_results):
+    """The other half of the same rule: the permitted set is the RECORD's own
+    buffer set, so an unroutable target is dropped rather than guessed at — and
+    dropped means no card, which is the delta's "MUST NOT be rendered with an
+    Apply control"."""
+    r = card_results["unroutableProposal"]
+    assert r["keys"] == []
+    assert r["cards"] == 0
 
 
 def test_a_refused_apply_renders_a_failure_note_and_announces_it(
@@ -1919,6 +2063,12 @@ class Node {
   appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   append(...kids) { for (const k of kids) this.appendChild(k); }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // annotation round 2 reads `aria-describedby` back off the send button, so
+  // the stub gains the reader that matches the setter it already had
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
   focus() {
     // a real browser refuses focus on detached or disabled controls
@@ -1950,10 +2100,10 @@ const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
   base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "# " + kind, dirty: false });
-const editorState = () => ({ buffers: {
+const editorState = () => ({ active_buffer: "document", buffers: {
   outline: bufferOf("outline", "docs/outline.md"),
   document: bufferOf("document", "docs/detail.md") } });
-const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
   assistant_prose: "answer",
@@ -1973,8 +2123,10 @@ function mountRail(overrides = {}) {
     // P3-3 needs a LIVE editor-state provider whose identities can move
     // between submit and settle; every other scenario keeps the fixed one.
     editorState: overrides.editorState || editorState,
-    activeDocumentPath: () => "docs/detail.md",
     applyProposal: overrides.applyProposal || (async () => ({ ok: true })),
+    // The tile title the shell hands down. Left ABSENT by default so every
+    // pre-existing scenario keeps mounting with an empty subject box.
+    subjectDefault: overrides.subjectDefault,
     onState: overrides.onState });
   return { host, rail };
 }
@@ -2112,11 +2264,16 @@ async function catalogPosture(catalog) {
   await rail.ready;
   const note = byClass(host, "doxchat-unavailable")[0];
   const selector = byClass(host, "doxchat-model")[0];
+  const send = byClass(host, "doxchat-send")[0];
   return {
-    noteHidden: note.hidden,
+    // annotation round 2: the note is sr-only and the selector is disabled
+    // rather than hidden, so the posture is read off those two facts plus the
+    // send button's own stated reason
+    noteSrOnly: String(note.className).includes("doxchat-sronly"),
     noteText: note.textContent,
-    selectorHidden: selector.hidden,
-    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+    selectorDisabled: selector.disabled === true,
+    sendDisabled: send.disabled,
+    sendTitle: send.title,
   };
 }
 out.staleTokenCatalog = await catalogPosture(
@@ -2263,6 +2420,12 @@ out.configuredNoneCatalog = await catalogPosture(
   await propose(host);                              // turn 1: proposals render
   const composer = byClass(host, "doxchat-composer")[0];
   composer.value = "a follow-up question"; await fire(composer, "input");
+  // #80: turn 1 left a PENDING proposal, so the first press of Send arms the
+  // discard rather than dispatching (the ruling: no pending set is cleared
+  // without a fixed-vocabulary notice). This probe is about the Apply/settle
+  // race and not about the arm, so it presses through it -- the second press is
+  // the dispatch this scenario has always been about.
+  await fire(byClass(host, "doxchat-send")[0], "click");   // arms
   const turnSettled = fire(byClass(host, "doxchat-send")[0], "click");
   const apply = byClass(host, "doxchat-card-apply")[0];
   const applySettled = fire(apply, "click");        // Apply spans the flight
@@ -2283,7 +2446,7 @@ out.configuredNoneCatalog = await catalogPosture(
 // event that would have re-scored them fired BEFORE they existed ----
 {
   let currentHex = "d".repeat(64);
-  const liveEditorState = () => ({ buffers: {
+  const liveEditorState = () => ({ active_buffer: "document", buffers: {
     outline: { ...bufferOf("outline", "docs/outline.md"),
                current_hash: { algorithm: "sha256", hex: currentHex } },
     document: bufferOf("document", "docs/detail.md") } });
@@ -2306,6 +2469,90 @@ out.configuredNoneCatalog = await catalogPosture(
   out.settleTimeCurrency = {
     status: (rail.state().proposals.outline || {}).status || null,
     applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+
+// ---- CODEX-4 (Codex review of PR #210): the settlement re-score must cover
+// EVERY live buffer, not the two Phase A named. Both scenarios below are chosen
+// to DISCRIMINATE — each one's answer differs before and after the fix, which a
+// scenario whose answer happens to match by accident cannot do:
+//   (c) the reserved slot is PRESENT and the path-keyed buffer did NOT move.
+//       Before: the re-score ran with a two-key map, so that buffer scored
+//       against `undefined` and the card came back falsely STALE.
+//   (d) the reserved slot is ABSENT and the path-keyed buffer DID move.
+//       Before: the guard read `buffers.document`, found nothing, and skipped the
+//       re-score entirely — the card stayed CURRENT with an enabled Apply
+//       against text the buffer no longer held, which is Codex's own reading.
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  const withReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    document: bufferOf('document', 'docs/detail.md'),
+    [LOADED]: bufferOf('document', LOADED) } });
+  const SUCCESS_C = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), document: 'd'.repeat(64),
+                       [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  const { host, rail } = mountRail({
+    editorState: withReservedSlot,
+    chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS_C }) });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  await fire(byClass(host, 'doxchat-send')[0], 'click');
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.unmovedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  let loadedHex = 'd'.repeat(64);
+  // NO reserved `document` slot: the shape a session holds once its create was
+  // re-keyed onto a path.
+  const noReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    [LOADED]: { ...bufferOf('document', LOADED),
+                current_hash: { algorithm: 'sha256', hex: loadedHex } } } });
+  const SUCCESS_D = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  let releaseTurn;
+  const turnGate = new Promise((resolve) => { releaseTurn = resolve; });
+  const { host, rail } = mountRail({
+    editorState: noReservedSlot,
+    chatTurn: async () => { await turnGate;
+      return { ok: true, status: 200, payload: SUCCESS_D }; } });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  const sendSettled = fire(byClass(host, 'doxchat-send')[0], 'click');
+  loadedHex = 'e'.repeat(64);   // the LOADED buffer moves DURING the flight
+  releaseTurn();
+  await sendSettled;
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.movedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+    hasReservedSlot: Object.prototype.hasOwnProperty.call(
+      noReservedSlot().buffers, 'document'),
   };
 }
 
@@ -2335,7 +2582,7 @@ out.configuredNoneCatalog = await catalogPosture(
 // re-enables Send -- a keyboard operator who was ON Send stays there ----
 {
   const FAILURE = { ok: false, status: 502, payload: {
-    schema_version: 1, kind: "workbench-chat-turn-failure",
+    schema_version: 1, kind: "workbench-chat-turn-v2-failure",
     client_turn_id: "t", error: "model_failed",
     message: "the model request failed" } };
   const { host, rail } = mountRail({ chatTurn: async () => FAILURE });
@@ -2365,6 +2612,90 @@ out.configuredNoneCatalog = await catalogPosture(
     activeIsComposer: doc.activeElement === composer2,
   };
 }
+
+// ---- the promoted working-subject default, ON THE MOUNTED RAIL: the box the
+// human sees opens carrying the tile's title, and stays editable ----
+{
+  const TITLE = "keyword lens and edge degree";
+  const { host, rail } = mountRail({ subjectDefault: TITLE });
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  const seededValue = subject.value;
+  const seededState = rail.state().workingSubject;
+  // …and it is a DEFAULT, not a fixed label: typing replaces it, and emptying
+  // it empties it (the placeholder is what shows then).
+  subject.value = "why does the funnel disagree with the wheel?";
+  await fire(subject, "input");
+  const typed = rail.state().workingSubject;
+  subject.value = "";
+  await fire(subject, "input");
+  out.seededSubject = {
+    seededValue, seededState, typed,
+    cleared: rail.state().workingSubject,
+    clearedValue: subject.value,
+    placeholder: subject.attributes.placeholder,
+    // the human's 512-byte refusal is untouched by the seed
+    ariaLabel: subject.attributes["aria-label"],
+  };
+}
+// …and a rail mounted with NO default still opens empty, so the placeholder
+// path the annotation round added is not a dead branch.
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  out.unseededSubject = { value: subject.value,
+                          state: rail.state().workingSubject,
+                          placeholder: subject.attributes.placeholder };
+}
+// …and a tile title the 512-byte bound refuses seeds NOTHING, never a clipped
+// prefix: the box opens empty and sendable rather than holding text the human
+// never typed and the field itself would refuse.
+{
+  const { host, rail } = mountRail({
+    subjectDefault: "t".repeat(MAX_WORKING_SUBJECT_BYTES + 1) });
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  out.overLongSeed = { value: subject.value,
+                       state: rail.state().workingSubject,
+                       failure: rail.state().lastFailure };
+}
+// ---- BRETT'S SCENARIO, THE CLIENT HALF (Amendment 2 follow-up 1) ----------
+// A set unloaded down to the outline refuses AT SEND, and what the human reads
+// is the SERVER's sentence, verbatim -- not a marker the rail substitutes for
+// it. That distinction is live, not hypothetical: the CATALOG failure path
+// deliberately re-normalizes server text into a two-value vocabulary
+// (`recordCatalogFailure`), so "the rail renders whatever the route said" is a
+// property of THIS channel that a future tidy-up could quietly remove, taking
+// the whole improvement with it.
+//
+// The expected string is injected from `serve.py`'s own constant, so the rail
+// and the route cannot drift into saying different things about one state.
+{
+  const NO_DOCUMENT_FAILURE = {
+    schema_version: 1, kind: "workbench-chat-turn-v2-failure",
+    client_turn_id: "t-1", error: "invalid_turn_request",
+    message: __NO_DOCUMENT_MESSAGE__ };
+  const { host, rail } = mountRail({
+    chatTurn: async () => ({ ok: false, status: 400,
+                             payload: NO_DOCUMENT_FAILURE }) });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "which open question should we close next?";
+  await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-failure")[0];
+  out.noDocumentRefusal = {
+    phase: rail.state().phase,
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+    noteHidden: note.hidden,
+    noteText: note.textContent,
+    composer: composer.value,
+    composerState: rail.state().composer,
+  };
+}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -2379,7 +2710,13 @@ def focus_throw_results(tmp_path_factory):
     (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
     shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
     harness = tmp_path / "focus-throw-harness.mjs"
-    harness.write_text(_FOCUS_THROW_HARNESS, encoding="utf-8")
+    # The route's OWN sentence, carried into the browser probe rather than
+    # retyped: a copy here would let the two halves drift and still pass.
+    harness.write_text(
+        _FOCUS_THROW_HARNESS.replace(
+            "__NO_DOCUMENT_MESSAGE__",
+            json.dumps(serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)),
+        encoding="utf-8")
     proc = subprocess.run([NODE, str(harness)], capture_output=True,
                           text=True, timeout=30)
     assert proc.returncode == 0, proc.stderr
@@ -2459,11 +2796,16 @@ def test_a_stale_console_token_catalog_failure_names_the_reload_remedy(
     stale-token vocabulary R-3 uses on the chat-turn path -- never the
     configured-none misdiagnosis."""
     s = focus_throw_results["staleTokenCatalog"]
-    assert s["noteHidden"] is False
+    # PIN EVOLUTION (annotation round 2): the sentence is sr-only and is the
+    # send button's hover text; the selector is present-and-disabled rather than
+    # hidden. WHICH sentence each failure carries — the whole point of F10-1 —
+    # is unchanged.
+    assert s["noteSrOnly"] is True
     assert "console token is stale" in s["noteText"]
     assert "reload" in s["noteText"]
     assert "no approved model" not in s["noteText"]
-    assert s["selectorHidden"] is True
+    assert s["sendTitle"] == s["noteText"]
+    assert s["selectorDisabled"] is True
     assert s["sendDisabled"] is True
 
 
@@ -2473,17 +2815,18 @@ def test_an_unreadable_catalog_gets_its_own_fixed_sentence(focus_throw_results):
     model is configured", because "nothing is configured" and "the answer
     could not be read" are different facts with different remedies."""
     u = focus_throw_results["unreadableCatalog"]
-    assert u["noteHidden"] is False
+    assert u["noteSrOnly"] is True
     assert "could not be read" in u["noteText"]
     assert "no approved model" not in u["noteText"]
-    assert u["selectorHidden"] is True
+    assert u["sendTitle"] == u["noteText"]
+    assert u["selectorDisabled"] is True
     assert u["sendDisabled"] is True
 
 
 def test_a_throwing_catalog_transport_reads_as_unreadable_not_configured_none(
         focus_throw_results):
     t = focus_throw_results["throwingCatalog"]
-    assert t["noteHidden"] is False
+    assert t["noteSrOnly"] is True
     assert "could not be read" in t["noteText"]
     assert "connection refused" not in t["noteText"], "no echoed error text"
     assert "no approved model" not in t["noteText"]
@@ -2493,9 +2836,12 @@ def test_an_empty_catalog_keeps_the_configured_none_note(focus_throw_results):
     """models: [] is a SUCCESS (FR-025) and keeps the existing editor-only
     sentence -- the two failure postures above must not absorb it."""
     e = focus_throw_results["configuredNoneCatalog"]
-    assert e["noteHidden"] is False
+    assert e["noteSrOnly"] is True
     assert "no approved model is configured" in e["noteText"]
     assert "could not be read" not in e["noteText"]
+    # …and this is the sentence Brett pointed at: it is the send button's hover
+    # text now (annotation round 2), not a standing line
+    assert e["sendTitle"] == e["noteText"]
 
 
 def test_an_over_bound_composer_paste_renders_and_announces_the_bound(
@@ -2643,3 +2989,1420 @@ def test_a_landed_apply_clears_the_failure_its_refusal_left_behind(
     assert probe["proposalStatus"] == "applied"
     assert probe["afterError"] is None
     assert probe["noteHidden"] is True
+
+
+def test_the_settlement_rescore_covers_every_live_buffer(focus_throw_results):
+    """CODEX-4 (Codex review of PR #210), through the REAL mount.
+
+    The success-time re-score enumerated `outline` and `document` — the two names
+    Phase A had — so a PATH-KEYED document was scored against a hash the map did
+    not hold, or not scored at all. Both scenarios here DISCRIMINATE: each one's
+    answer differs before and after the fix.
+
+    (d) The reserved slot is absent and the loaded buffer MOVED mid-flight. The
+    old guard read `buffers.document`, found nothing, and skipped the re-score
+    entirely — so the card stayed CURRENT with an enabled Apply against text the
+    buffer no longer held. The swap-time guard would still have refused the
+    click; this is about the card telling the truth before anyone clicks it."""
+    moved = focus_throw_results["movedLoadedCurrency"]
+    assert moved["hasReservedSlot"] is False
+    assert moved["status"] == "stale"
+    assert moved["applyDisabled"] is True
+
+
+def test_the_settlement_rescore_leaves_an_unmoved_buffer_current(focus_throw_results):
+    """(c), the other direction, so the fix cannot be "mark everything stale":
+    the reserved slot is PRESENT and the loaded buffer did NOT move, and the
+    proposal must come back CURRENT and applicable. Before the fix the two-key
+    map scored it against `undefined` and the card read falsely stale — a human
+    told to ask again in a new turn for no reason at all."""
+    unmoved = focus_throw_results["unmovedLoadedCurrency"]
+    assert unmoved["status"] == "current"
+    assert unmoved["applyDisabled"] is False
+
+
+# ---------------------------------------------------------------------------
+# THE PROMOTED WORKING-SUBJECT DEFAULT (capability `ideation-dashboard`,
+# requirement "Browser-local doxBench conversation": "The working subject SHALL
+# default from the tile's title or summary, remain editable, and affect
+# authoring focus only").
+#
+# It was ratified and promoted but never built: `createChatState` seeded an
+# empty subject and nothing ever filled it, which is what Brett's 2026-08-21
+# annotation measured from the running surface ("what is the box used for? i do
+# not know how to use it") and what add-doxbench-editing-phase-b's Amendment 2
+# recorded as a realization gap needing its own slice. This is that slice's
+# evidence: the seed lands, a stored human value still wins over it, the field
+# is still a field, and the 512-byte bound is still refused-never-truncated on
+# both the seeded and the typed side.
+# ---------------------------------------------------------------------------
+
+
+def test_the_mounted_rail_opens_with_the_tiles_title_in_the_subject_box(
+        focus_throw_results):
+    """The realization, where a human meets it: the box the annotation asked
+    about opens carrying the tile's own title instead of empty."""
+    s = focus_throw_results["seededSubject"]
+    assert s["seededValue"] == "keyword lens and edge degree"
+    assert s["seededState"] == "keyword lens and edge degree"
+    # the affordances the annotation round added are untouched by the seed
+    assert s["placeholder"].startswith("working subject — e.g.")
+    assert s["ariaLabel"] == "working subject"
+
+
+def test_the_seeded_subject_is_a_default_and_not_a_fixed_label(
+        focus_throw_results):
+    """"remain editable" is half the requirement's sentence: typing replaces the
+    seed, and emptying the box empties it — a default the human cannot overrule
+    would be a label wearing a text box."""
+    s = focus_throw_results["seededSubject"]
+    assert s["typed"] == "why does the funnel disagree with the wheel?"
+    assert s["cleared"] == ""
+    assert s["clearedValue"] == ""
+
+
+def test_a_rail_mounted_with_no_tile_title_still_opens_empty(
+        focus_throw_results):
+    """The placeholder path stays reachable: a mount handed no default (an older
+    caller, or a composition with no tile record to offer) opens empty, and the
+    placeholder the 2026-08-21 annotation added is what shows there."""
+    u = focus_throw_results["unseededSubject"]
+    assert u["value"] == ""
+    assert u["state"] == ""
+    assert u["placeholder"].startswith("working subject — e.g.")
+
+
+def test_a_tile_title_past_the_bound_seeds_nothing_rather_than_a_prefix(
+        focus_throw_results):
+    """The over-long SOURCE, decided against truncation. The 512-byte bound is
+    refused-never-truncated on both sides, so a seeded prefix would be text the
+    human never typed AND text this module's own rule forbids inventing; a
+    seeded value the field would itself refuse is simply incoherent. Empty is
+    always sendable, so seeding nothing can never leave Send refusing a value
+    nobody entered — and no over-bound failure note is invented for a value the
+    human did not type."""
+    o = focus_throw_results["overLongSeed"]
+    assert o["value"] == ""
+    assert o["state"] == ""
+    assert o["failure"] is None
+
+
+def test_the_no_document_refusal_reaches_the_rail_as_the_routes_own_sentence(
+        focus_throw_results):
+    """Amendment 2 follow-up 1, the client half: what the human READS when a set
+    unloaded down to the outline is sent.
+
+    The route now names the cause and the remedy instead of saying only that the
+    request is malformed, and this pins that the improvement actually arrives.
+    The rail must render the ROUTE's sentence verbatim -- the expected string is
+    `serve.py`'s own constant, injected into the probe, so a message changed on
+    one side and not the other fails here rather than shipping two surfaces that
+    describe one state differently.
+
+    NOT a redundant restatement of the composer-preservation tests above. Those
+    hold for any failure whatsoever; this one holds for THIS failure, and its
+    real target is the substitution risk: `recordCatalogFailure` deliberately
+    replaces server text with a fixed two-value marker on the catalog channel,
+    so a later tidy-up that "made the turn channel consistent" with it would
+    silently discard the sentence this change exists to deliver."""
+    r = focus_throw_results["noDocumentRefusal"]
+    assert r["error"] == "invalid_turn_request", (
+        "the CODE is deliberately unchanged: the class really is a malformed "
+        "request, and only the sentence got more useful")
+    assert r["noteHidden"] is False, "a refusal the human cannot see is no fix"
+    assert r["noteText"] == serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT
+    # The sentence has to carry BOTH halves to be worth the change: the cause
+    # (what is wrong) and the remedy (what to do). Named separately so a future
+    # edit that keeps the string non-empty but drops one half still fails.
+    assert "no document" in r["noteText"], "the cause is named"
+    assert "load" in r["noteText"], "the remedy is named"
+    # FR-016 for this refusal specifically: the question survives the trip, so
+    # loading a document and pressing Send again is all the human has to do.
+    assert r["composer"] == "which open question should we close next?"
+    assert r["composerState"] == r["composer"]
+    assert r["phase"] == "idle", "the rail is ready to send the fixed turn"
+
+
+# --- the pure model's own half: seeding, precedence, and the bounds ---------
+
+_SUBJECT_DEFAULT_HARNESS = """
+import { createChatState, editSubject, rekeyChatState, chatSnapshot,
+         restoreChatState, MAX_WORKING_SUBJECT_BYTES }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "r", ref: "main", tile_kind: "staged", tile_id: "t" };
+const SESSION_KEY = { ...KEY, ref: "swb/session/t" };
+const OTHER_KEY = { ...KEY, tile_id: "other-topic" };
+const TITLE = "ideation governance";
+const byteLen = (text) => Buffer.byteLength(text, "utf8");
+
+// ---- the seed itself ----
+out.seeded = createChatState(KEY, TITLE).workingSubject;
+out.unseeded = createChatState(KEY).workingSubject;
+out.frozen = Object.isFrozen(createChatState(KEY, TITLE));
+// a title EXACTLY at the bound seeds whole -- the refusal is > 512, not >= 512
+const AT_BOUND = "b".repeat(MAX_WORKING_SUBJECT_BYTES);
+out.atBound = { bytes: byteLen(createChatState(KEY, AT_BOUND).workingSubject),
+                whole: createChatState(KEY, AT_BOUND).workingSubject === AT_BOUND };
+// ---- the over-long source: nothing, never a prefix ----
+const OVER = "o".repeat(MAX_WORKING_SUBJECT_BYTES + 1);
+out.overLong = { seeded: createChatState(KEY, OVER).workingSubject,
+                 isPrefixOfSource: OVER.startsWith(
+                   createChatState(KEY, OVER).workingSubject)
+                   && createChatState(KEY, OVER).workingSubject.length > 0 };
+// BYTES, never code points: 171 three-byte characters are 513 bytes and 171
+// code points, so a length-based bound would seed this one and the byte rule
+// refuses it -- the same discrimination the composer's own bound test uses.
+const WIDE = "\\u20ac".repeat(Math.ceil(MAX_WORKING_SUBJECT_BYTES / 3) + 1);
+out.wideSource = { bytes: byteLen(WIDE), codePoints: WIDE.length,
+                   seeded: createChatState(KEY, WIDE).workingSubject };
+// a non-string source (an absent title, a tile record that lost it) seeds
+// nothing rather than the string "undefined"
+out.nonStringSources = [undefined, null, 42, {}].map(
+  (bad) => createChatState(KEY, bad).workingSubject);
+
+// ---- editability, and the human's own bound ----
+const seeded = createChatState(KEY, TITLE);
+out.retyped = editSubject(seeded, "a different focus").workingSubject;
+out.emptied = editSubject(seeded, "").workingSubject;
+// the 512 refusal still holds for a HUMAN edit of a seeded box: the identical
+// state object comes back (which is how the view knows to say so)
+const refused = editSubject(seeded, OVER);
+out.humanOverBoundRefused = { identical: refused === seeded,
+                              held: refused.workingSubject };
+
+// ---- a STORED value wins over the default ----
+const typed = editSubject(createChatState(KEY, TITLE), "the human's own focus");
+out.storedWins = restoreChatState(createChatState(KEY, TITLE),
+  chatSnapshot(typed), {}).workingSubject;
+// ...INCLUDING a deliberately emptied one: the default must not resurrect the
+// title over a box the human emptied on purpose
+const emptied = editSubject(createChatState(KEY, TITLE), "");
+out.clearedStoredWins = { stored: chatSnapshot(emptied).workingSubject,
+                          restored: restoreChatState(createChatState(KEY, TITLE),
+                            chatSnapshot(emptied), {}).workingSubject };
+// a snapshot of an UNRECOGNIZED shape is refused fail-closed, which leaves the
+// seeded state exactly as it was -- the seed is not collateral of the refusal
+out.foreignSnapshotKeepsSeed = restoreChatState(createChatState(KEY, TITLE),
+  { kind: "nope" }, {}).workingSubject;
+
+// ---- a fresh conversation on a new key is seeded like a mount ----
+out.rekeySeeds = rekeyChatState(typed, SESSION_KEY, TITLE).workingSubject;
+out.rekeyDropsTheTypedValue =
+  rekeyChatState(typed, SESSION_KEY, TITLE).workingSubject !== typed.workingSubject;
+out.rekeyOtherTile = rekeyChatState(typed, OTHER_KEY, "another tile").workingSubject;
+out.sameKeyUntouched = rekeyChatState(typed, KEY, TITLE) === typed;
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def subject_default_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the working-subject default probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-subject-default")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "subject-default-harness.mjs"
+    harness.write_text(_SUBJECT_DEFAULT_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_fresh_chat_state_defaults_its_subject_from_the_tile_title(
+        subject_default_results):
+    """The promoted requirement's first clause, in the module that owns what a
+    fresh conversation holds. `createChatState` seeded `workingSubject: ""` and
+    nothing downstream ever filled it, so the box a human opened was always
+    empty — the realization gap Amendment 2 recorded."""
+    assert subject_default_results["seeded"] == "ideation governance"
+    assert subject_default_results["frozen"] is True
+    # a caller with no title to offer still gets the pre-existing empty state
+    assert subject_default_results["unseeded"] == ""
+    assert subject_default_results["nonStringSources"] == ["", "", "", ""]
+
+
+def test_a_title_exactly_at_the_bound_seeds_whole(subject_default_results):
+    """The refusal is OVER the bound, not at it — a 512-byte title is a legal
+    subject and seeds verbatim, which is what keeps the over-long case below a
+    real discrimination rather than an off-by-one."""
+    a = subject_default_results["atBound"]
+    assert a["bytes"] == 512
+    assert a["whole"] is True
+
+
+def test_a_title_past_the_bound_seeds_nothing_never_a_bounded_prefix(
+        subject_default_results):
+    """The over-long SOURCE. `editSubject` refuses an over-bound value and
+    truncates nothing ("no silent truncation is permitted"), and the seed goes
+    through that same rule rather than around it: a clipped title is text the
+    human never typed, and a default the field itself would refuse is
+    incoherent. Empty is always a sendable subject, so nothing seeded can make
+    Send refuse a value nobody entered."""
+    o = subject_default_results["overLong"]
+    assert o["seeded"] == ""
+    assert o["isPrefixOfSource"] is False, (
+        "the over-long title was truncated into the box instead of refused")
+
+
+def test_the_seed_bound_measures_utf8_bytes_and_not_code_points(
+        subject_default_results):
+    """The same byte discrimination the composer's bound carries: 171 three-byte
+    characters are 513 BYTES and 171 code points, so a length-based check would
+    seed a subject the server's own `validate_working_subject` then refuses."""
+    w = subject_default_results["wideSource"]
+    assert w["bytes"] > 512 and w["codePoints"] < 512, "precondition"
+    assert w["seeded"] == ""
+
+
+def test_the_seeded_subject_remains_editable_and_still_refuses_over_bound_edits(
+        subject_default_results):
+    """"remain editable", plus the half a default could quietly break: the
+    512-byte refusal is unchanged for a human edit of a SEEDED box, and it
+    still refuses by returning the identical state object, which is the one
+    signal the view reads to render the refusal note."""
+    assert subject_default_results["retyped"] == "a different focus"
+    assert subject_default_results["emptied"] == ""
+    h = subject_default_results["humanOverBoundRefused"]
+    assert h["identical"] is True
+    assert h["held"] == "ideation governance", "the refused edit kept the seed"
+
+
+def test_a_stored_working_subject_wins_over_the_tile_default(
+        subject_default_results):
+    """The precedence rule. The rail mounts seeded and the restore lands after
+    it, so the persisted subject must overrule the default — otherwise
+    reopening a tile would overwrite the focus a human wrote with the tile's
+    title."""
+    assert subject_default_results["storedWins"] == "the human's own focus"
+
+
+def test_an_emptied_stored_subject_is_not_re_seeded_from_the_title(
+        subject_default_results):
+    """THE SUBTLE HALF, decided and documented in the module. The snapshot
+    spells the subject as a plain string with no absent/null marker, so the
+    stored form cannot distinguish "the human emptied this box" from "nothing
+    was ever put in it" by the field alone. The stored value wins either way:
+    of the two readings, putting the title back over a box someone emptied on
+    purpose overrules a person, while leaving an unfilled box empty costs one
+    keystroke — and with the seed in place, an empty stored subject can only
+    come from an emptying or from a tile whose title seeds nothing anyway."""
+    c = subject_default_results["clearedStoredWins"]
+    assert c["stored"] == "", "precondition: the emptied subject persisted empty"
+    assert c["restored"] == ""
+
+
+def test_a_refused_foreign_snapshot_leaves_the_seeded_subject_standing(
+        subject_default_results):
+    """The fail-closed door and the seed agree: an unrecognized blob returns the
+    state untouched, so the tile default survives a snapshot that could not be
+    read (rather than the refusal costing the human their default too)."""
+    assert subject_default_results["foreignSnapshotKeepsSeed"] == "ideation governance"
+
+
+def test_a_rekeyed_conversation_is_seeded_like_a_fresh_mount(
+        subject_default_results):
+    """FR-011 isolation gives a moved scope key a FRESH conversation, and a
+    fresh conversation is seeded exactly like a mount — so a Save moving this
+    tile onto its session ref comes back with the tile's subject rather than
+    the empty box the un-threaded default would have left."""
+    r = subject_default_results
+    assert r["rekeySeeds"] == "ideation governance"
+    assert r["rekeyDropsTheTypedValue"] is True
+    assert r["rekeyOtherTile"] == "another tile"
+    # …and an unchanged key still returns the identical state object
+    assert r["sameKeyUntouched"] is True
+
+# ---------------------------------------------------------------------------
+# THE MENU OFFERS A ROUTING RULE (contract-v1.38, add-doxbench-editing-phase-b
+# task 11.7) — AND THE VIEW IS UNCHANGED
+#
+# The ratified scenario's first THEN is that a routing entry "MUST declare
+# itself a routing rule and carry the handling badge of every model it may route
+# to", and the sibling scenario's is that the selector "MUST show exactly the
+# available catalog entries and their data-handling badges". The release
+# satisfies both WITHOUT a view change, and this is the probe that says so
+# rather than an argument in prose: the option text a routing entry renders
+# already contains every routed model's badge, because the released contract
+# REQUIRES the rule's own `data_handling` to carry them (the delegated
+# validator's covering rule) and this view already renders that string.
+#
+# So the JS below is the SHIPPED renderer, not a modified one. If a future
+# release moved the badges off `data_handling` into a per-target list, this test
+# would fail and a view change would then be owed.
+# ---------------------------------------------------------------------------
+
+_ROUTING_MENU_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) { this.children = []; this._text = String(value); }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+
+import { mountDoxBenchChatRail, sendDisclosure } from "./doxbench-chat.mjs";
+import { createChatState, adoptCatalog, selectModel }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+
+// The PACKAGED contract-v1.38 positive, verbatim in the parts that matter:
+// the rule's badge carries both routed badges, which is what the covering rule
+// requires of any conformant catalog.
+const ON_TENANT = "Processed in the approved tenant boundary; no retention.";
+const HOSTED = "Zero retention; content leaves the tenant boundary for inference only.";
+const RULE_BADGE = "Routes by role. / " + ON_TENANT + " / " + HOSTED;
+const CATALOG = { schema_version: 1, kind: "workbench-model-catalog", models: [
+  { model_id: "auto", label: "Automatic (routes by role)",
+    provider_class: "routing-rule", available: true,
+    input_limit_bytes: 2048, output_limit_bytes: 8192,
+    data_handling: RULE_BADGE, routing_rule: true,
+    routes_to: ["routed-on-tenant-1", "routed-hosted-zr-1"],
+    resolved_model_id: "routed-on-tenant-1" },
+  { model_id: "routed-on-tenant-1", label: "Approved authoring model (routable)",
+    provider_class: "on-tenant", available: true, input_limit_bytes: 800000,
+    output_limit_bytes: 900000, data_handling: ON_TENANT },
+  { model_id: "routed-hosted-zr-1", label: "Hosted zero-retention model (routable)",
+    provider_class: "hosted-zero-retention", available: true,
+    input_limit_bytes: 2048, output_limit_bytes: 8192, data_handling: HOSTED },
+]};
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+const host = new Node("div"); host.ownerDocument = doc;
+const rail = mountDoxBenchChatRail(host, {
+  scopeKey: KEY,
+  transports: { catalog: async () => CATALOG, chatTurn: async () => null },
+  editorState });
+await rail.ready;
+const selector = byClass(host, "doxchat-model")[0];
+out.options = selector.children.map((o) => ({ value: o.value,
+                                              text: o.textContent }));
+out.selectorDisabled = selector.disabled === true;
+
+// The send-moment disclosure for the RULE, through the shipped pure function.
+const chosen = selectModel(adoptCatalog(createChatState(KEY), CATALOG), "auto");
+out.disclosure = sendDisclosure(chosen);
+out.badges = { onTenant: ON_TENANT, hosted: HOSTED, rule: RULE_BADGE };
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def routing_menu_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the routing-rule menu probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-routing-menu")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "routing-menu-harness.mjs"
+    harness.write_text(_ROUTING_MENU_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_menu_shows_the_routing_rule_carrying_every_routed_badge(
+        routing_menu_results):
+    """The scenario, claimed ON THE MENU. The `auto` option is offered beside
+    the models it may route to, and its own visible text carries BOTH of their
+    handling badges — so a human choosing `auto` reads the posture of everything
+    it might reach, which is the whole point of the requirement's "because"
+    clause."""
+    options = routing_menu_results["options"]
+    badges = routing_menu_results["badges"]
+    assert [o["value"] for o in options] == [
+        "", "auto", "routed-on-tenant-1", "routed-hosted-zr-1"]
+    auto = next(o for o in options if o["value"] == "auto")
+    assert badges["onTenant"] in auto["text"]
+    assert badges["hosted"] in auto["text"]
+    assert "Automatic (routes by role)" in auto["text"]
+    assert routing_menu_results["selectorDisabled"] is False
+
+
+def test_the_send_disclosure_for_a_routing_rule_is_the_union_badge(
+        routing_menu_results):
+    """The send-moment disclosure needs no change either, for the same reason:
+    it names the SELECTED entry's own `data_handling`, and for a rule that
+    string is the union."""
+    assert routing_menu_results["disclosure"] == (
+        routing_menu_results["badges"]["rule"])
+    assert routing_menu_results["badges"]["onTenant"] in (
+        routing_menu_results["disclosure"])
+    assert routing_menu_results["badges"]["hosted"] in (
+        routing_menu_results["disclosure"])
+
+
+# ---------------------------------------------------------------------------
+# THE REDUCED POSTURE IS VISIBLE TO THE HUMAN (contract-v1.40,
+# add-doxbench-editing-phase-b task 10.7)
+#
+# This is the half of task 10.7 that was GATED, and the reason the task stayed
+# open after its packet half landed: the ratified sentence ends "with the
+# reduced posture STATED", the packet stated it, and no human could read it.
+# The release put the posture on the record; this probe is what makes "and on
+# the surface" evidence instead of an argument.
+#
+# It drives the SHIPPED `doxbench-chat.js` bytes through a real mount (P1-7 —
+# a probe executes shipped bytes, never a paraphrase), sends turns through the
+# real dispatcher, and reads the rendered note back off the DOM stub.
+# ---------------------------------------------------------------------------
+
+_POSTURE_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = ''; this.writes = [];
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  // S1's INSTRUMENT. The defect this probe exists to catch is an ORDER — a text
+  // mutation performed while the node is still `hidden`, i.e. while it is out
+  // of the accessibility tree and no live region can observe it. An assertion
+  // read AFTER render() cannot see that: both orders end with the same
+  // attributes. So the stub records `hidden` AT THE MOMENT the write happens.
+  set textContent(value) {
+    this.writes.push({ text: String(value), hiddenAtWrite: this.hidden });
+    this.children = []; this._text = String(value);
+  }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const fire = async (node, type) => {
+  for (const fn of node.listeners[type] || []) await fn({});
+};
+
+import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
+  from "./doxbench-chat.mjs";
+import { createChatState, settleTurnSuccess, beginTurn,
+         adoptThreadTranscript, chatSnapshot, restoreChatState,
+         CONTEXT_REDUCED_REASON_MAX_LENGTH }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+// The reason VERBATIM from `doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE`, so
+// what this probe renders is what a real degraded turn actually carries.
+const REASON = "the staged-set knowledge service is unavailable, so this packet"
+  + " carries the selected thread and the loaded buffers only, with NO corpus"
+  + " evidence; no unbounded context was substituted and no rail was bypassed"
+  + " to reach a provider";
+out.reason = REASON;
+out.lead = REDUCED_CONTEXT_LEAD;
+
+const recordWith = (contextPacket) => {
+  const record = { schema_version: 1,
+    kind: "workbench-chat-turn-v2-success",
+    client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+    selected_model: { requested_model_id: "model-a", routing_rule: false,
+                      data_handling: "on-tenant" },
+    bound_buffer: "outline",
+    observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+    assistant_prose: "answer", proposals: [] };
+  if (contextPacket !== undefined) record.context_packet = contextPacket;
+  return record;
+};
+
+// One mounted rail per case, each sending ONE real turn through the shipped
+// dispatcher and reading the rendered note back.
+async function railCase(contextPacket) {
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+                               payload: recordWith(contextPacket) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "what does the note say?"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  // S1: EVERY non-empty write, and whether the node was hidden when it
+  // happened. A write performed while hidden is a write no live region saw.
+  //
+  // READ ALL OF THEM, NOT THE LAST ONE — measured, and this is the trap the
+  // reviewer named. Under the defect order a reduced turn produces TWO
+  // non-empty writes: the render that settles the turn writes the text while
+  // the node is still hidden (the announcement is lost there), and a LATER
+  // re-render writes the same text again with the node already visible. Reading
+  // `writes[writes.length - 1]` sees only the benign second one and reports
+  // clean — which is exactly what it did, and the revert-test caught it.
+  const written = note ? note.writes.filter((wr) => wr.text !== "") : [];
+  return {
+    // true iff SOME text was written into the note while it was hidden
+    anyWriteWhileHidden: written.some((wr) => wr.hiddenAtWrite === true),
+    firstWriteHidden: written.length ? written[0].hiddenAtWrite : null,
+    nonEmptyWrites: written.length,
+    exists: Boolean(note),
+    hidden: note ? note.hidden : null,
+    text: note ? note.textContent : null,
+    live: note ? note.getAttribute("aria-live") : null,
+    // the answer still arrived: a degraded turn is a SUCCESSFUL turn
+    transcript: rail.state().transcript.length,
+    statePosture: rail.state().contextPacket
+      ? rail.state().contextPacket.posture : null,
+  };
+}
+
+// S4: a reduced answer, then a FAILED follow-up. The reduced answer is STILL
+// the transcript's last assistant turn, so its disclosure must still be there.
+async function reducedThenFailure() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return turn === 1
+          ? { ok: true, status: 200,
+              payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }
+          : { ok: false, status: 502,
+              payload: { schema_version: 1,
+                         kind: "workbench-chat-turn-v2-failure",
+                         client_turn_id: "t", error: "model_failed",
+                         message: "The model could not answer this turn." } };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterFailure = {
+    hidden: note.hidden, text: note.textContent,
+    transcript: rail.state().transcript.length,
+    lastAssistant: rail.state().transcript[
+      rail.state().transcript.length - 1].content,
+    failureShown: !byClass(host, "doxchat-failure")[0].hidden,
+  };
+  return { afterReduced, afterFailure };
+}
+
+// …and the inverse: a reduced answer REPLACED by a full one clears the note,
+// because the answer the note described is no longer the last one.
+async function reducedThenFullSuccess() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return { ok: true, status: 200, payload: recordWith(
+          turn === 1 ? { posture: "reduced", reduced_reason: REASON }
+                     : { posture: "full" }) };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  return { afterReduced,
+           afterFull: { hidden: note.hidden, text: note.textContent } };
+}
+
+out.s4Failure = await reducedThenFailure();
+out.s4FullSuccess = await reducedThenFullSuccess();
+out.reduced = await railCase({ posture: "reduced", reduced_reason: REASON });
+out.full = await railCase({ posture: "full" });
+out.omitted = await railCase(undefined);
+// A record that contradicts itself. The released schema refuses both of these,
+// so they cannot come from a conformant producer -- the surface still has to
+// decide, and it decides SILENCE rather than a half-statement.
+out.reducedNoReason = await railCase({ posture: "reduced" });
+out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON });
+
+// The note describes the TRANSCRIPT'S LAST ASSISTANT ANSWER, so a flight
+// STARTING does not move it — it replaces no answer (S4). This comment used to
+// say the opposite, directly above the probe that asserts it (fresh-eyes F4).
+{
+  const settled = settleTurnSuccess(
+    beginTurn(createChatState(KEY)),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  out.afterSettle = reducedContextNote(settled);
+  out.duringNextFlight = reducedContextNote(beginTurn(settled));
+  // …and switching documents replaces the transcript with the SERVER's thread,
+  // which carries no posture of its own.
+  out.afterThreadSwitch = reducedContextNote(
+    adoptThreadTranscript(settled, [{ human: "q", assistant: "a" }]));
+}
+
+// NEW-1/NEW-2: the SNAPSHOT round trip, which is the fourth answer-replacing
+// path and the one that survives a tile being closed.
+{
+  const reduced = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "q" }),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  const full = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "z" }),
+    recordWith({ posture: "full" }));
+
+  // (a) a snapshot of a reduced conversation CARRIES the posture …
+  const blob = chatSnapshot(reduced);
+  out.snapshotCarries = Boolean(blob.context_packet)
+    && blob.context_packet.posture === "reduced"
+    && blob.context_packet.reduced_reason === REASON;
+  // … INCLUDING an explicitly full one, which is not a quirk: this release's
+  // own doctrine is that absent and `full` are DIFFERENT facts, so a snapshot
+  // that dropped `full` would restore "unknown" over a posture somebody
+  // checked — re-introducing the inference-by-absence the release forbids.
+  // Read defensively: if the key stops being written this must REPORT that,
+  // not crash the harness and make the failure look like a broken probe.
+  out.snapshotCarriesFull =
+    (chatSnapshot(full).context_packet || {}).posture === "full";
+  // The key is omitted only when there is NO posture to state: a conversation
+  // with no answer yet, or one whose answer came from a producer older than
+  // contract-v1.40. That is the case whose blob is unchanged from before.
+  out.snapshotOmitsWhenUnknown =
+    !("context_packet" in chatSnapshot(createChatState(KEY)));
+
+  // (b) restoring it onto a FRESH rail brings the disclosure back with the
+  //     answer it describes.
+  out.restoredReduced = reducedContextNote(
+    restoreChatState(createChatState(KEY), blob, {})) !== null;
+
+  // (c) NEW-1: restoring a DIFFERENT conversation over a reduced one must not
+  //     leave the old note captioning the new answer.
+  const otherBlob = chatSnapshot(full);
+  const crossed = restoreChatState(reduced, otherBlob, {});
+  out.restoreClearsStale = reducedContextNote(crossed) === null;
+  out.crossedLastAssistant =
+    crossed.transcript[crossed.transcript.length - 1].content;
+
+  // (d) an OLD blob — one written before contract-v1.40 — restores to silence
+  //     rather than being refused, which is what makes the field additive.
+  const legacy = { ...blob };
+  delete legacy.context_packet;
+  out.legacyBlobRestores = {
+    note: reducedContextNote(restoreChatState(createChatState(KEY), legacy, {})),
+    transcript: restoreChatState(createChatState(KEY), legacy, {})
+      .transcript.length,
+  };
+
+  // (e) a blob that CONTRADICTS itself fails closed by the same rule a wire
+  //     record does. ASSERTED ON THE ADOPTED STATE, not on the rendered note:
+  //     `reducedContextNote` carries its own second guard on the same rule, so
+  //     a note-level assertion passes even when the adopter trusts the blob —
+  //     measured, by a revert-test (R39) that came back GREEN reading the note.
+  //     The state is where the adopter's verdict actually lands.
+  const contradictions = [
+    { posture: "reduced" },                                   // no reason
+    { posture: "reduced", reduced_reason: "" },               // empty reason
+    { posture: "full", reduced_reason: REASON },              // full WITH one
+    // PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 2). Both of
+    // these adopted as a clean `full` before the fix, though the released shape
+    // refuses the KEY on a full posture whatever it holds.
+    { posture: "full", reduced_reason: "" },                  // full + blank
+    { posture: "full", reduced_reason: null },                // full + null
+    { posture: "degraded", reduced_reason: REASON },          // unknown posture
+    "reduced",                                                // not an object
+  ];
+  // The RELEASED CEILING on the reading side (Codex review of PR #256): a
+  // malformed transport's oversized reason must not reach browser state, the
+  // live region, or the snapshot. The dispatcher checks only `ok` and `kind`.
+  const overCeiling = "x".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH + 1);
+  const atCeiling = "y".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH);
+  // ASTRAL: 300 code points, 600 UTF-16 units. Conformant under `maxLength:
+  // 500`, and the first version of this ceiling discarded it (Codex review).
+  const astral = String.fromCodePoint(0x1F600).repeat(300);
+  out.wireCeiling = {
+    over: settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: overCeiling }))
+      .contextPacket,
+    at: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: atCeiling }))
+      .contextPacket || {}).reduced_reason === atCeiling,
+    bound: CONTEXT_REDUCED_REASON_MAX_LENGTH,
+    astralCodePoints: [...astral].length,
+    astralUtf16Units: astral.length,
+    astralAdopted: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: astral }))
+      .contextPacket || {}).reduced_reason === astral,
+  };
+
+  out.contradictoryBlobs = contradictions.map((cp) =>
+    restoreChatState(createChatState(KEY), { ...blob, context_packet: cp }, {})
+      .contextPacket);
+  // …and the honest blob still adopts, so the guard is not simply refusing
+  // everything.
+  out.goodBlobAdopts = restoreChatState(
+    createChatState(KEY), blob, {}).contextPacket;
+  // …and a full posture with the key ABSENT is still ordinary and adoptable,
+  // so the presence rule refuses the key rather than the posture.
+  out.fullWithNoKeyAdopts = restoreChatState(
+    createChatState(KEY), { ...blob, context_packet: { posture: "full" } }, {})
+    .contextPacket;
+
+  // (f) THE ANSWER THE POSTURE DESCRIBES MUST SURVIVE THE RESTORE (Codex review
+  //     of PR #256). This restore drops malformed turns WHOLE, so a valid
+  //     stored posture can outlive the answer it belonged to.
+  const withTranscript = (turns) => ({ ...blob, transcript: turns });
+  out.restoreDropsOrphanedPosture = {
+    empty: restoreChatState(
+      createChatState(KEY), withTranscript([]), {}).contextPacket,
+    humanOnly: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" }]), {}).contextPacket,
+    newestDropped: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q1" },
+                      { role: "assistant", content: "older answer" },
+                      { role: "human", content: "q2" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    // …and the case that BROKE the first version of this guard: filtering the
+    // malformed final row leaves an OLDER assistant as the tail, so a guard
+    // that reads only the filtered transcript still adopts and captions the
+    // wrong answer (Codex review of PR #256).
+    newestDroppedOlderTail: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "older answer" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    intact: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "answer" }]), {})
+      .contextPacket,
+  };
+}
+
+// NEW-3: typing in the composer must not re-announce the same sentence.
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+        payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "ask"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  const afterTurn = note.writes.length;
+  // seven keystrokes, the reviewer's own measurement
+  for (const ch of "abcdefg") {
+    composer.value += ch; await fire(composer, "input");
+  }
+  out.rewrites = {
+    afterTurn,
+    afterTyping: note.writes.length,
+    stillShown: !note.hidden,
+    text: note.textContent,
+  };
+}
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def posture_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the context-posture probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-posture")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "posture-harness.mjs"
+    harness.write_text(_POSTURE_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_reduced_turn_states_the_posture_and_its_reason_on_the_surface(
+        posture_results):
+    """THE RELEASE'S POINT, on the rendered surface. A turn that ran on the
+    declared reduced packet renders a visible, live-announced note naming the
+    reduction AND its reason — the reason verbatim, because "reduced context"
+    with no why is the silent degradation with a label on it.
+
+    The answer is still there: `transcript` is the human turn plus the
+    assistant's, which is the ratified "MUST NOT ... make the editors
+    unusable" half holding at the same time."""
+    reduced = posture_results["reduced"]
+    assert reduced["exists"] is True
+    assert reduced["hidden"] is False
+    assert reduced["text"] == posture_results["lead"] + posture_results["reason"]
+    assert "reduced context" in reduced["text"]
+    assert "no unbounded context was substituted" in reduced["text"]
+    assert reduced["live"] == "polite"
+    assert reduced["transcript"] == 2
+    assert reduced["statePosture"] == "reduced"
+
+
+def test_the_note_is_UN_HIDDEN_BEFORE_its_text_is_written(posture_results):
+    """S1, and the reason the `aria-live` assertion above is not enough. A
+    `hidden` node is out of the accessibility tree, so text written into one
+    while it is still hidden is a mutation no live region observed — the
+    "live-announced" claim would be false and the attribute would still read
+    `polite`. This release shipped that order the wrong way round and its
+    adversarial review caught it.
+
+    ASSERTED OVER EVERY WRITE, not the last one. Under the defect order the
+    settling render writes the text while the node is still hidden and a LATER
+    re-render writes the identical text with it already visible; an assertion
+    that reads only the final write sees the benign one and passes. That is not
+    hypothetical — this test was written that way first, and the R27
+    revert-test came back GREEN with the defect restored, which is how the
+    weakness was found."""
+    reduced = posture_results["reduced"]
+    assert reduced["nonEmptyWrites"] >= 1
+    assert reduced["firstWriteHidden"] is False
+    assert reduced["anyWriteWhileHidden"] is False
+
+
+def test_a_reduced_answer_keeps_its_disclosure_through_a_FAILED_follow_up(
+        posture_results):
+    """S4, reproduced and closed. The reviewer's sequence: a reduced answer,
+    then a follow-up that FAILS. The reduced answer is still the transcript's
+    last assistant turn — it is still on screen, and it still ran without
+    corpus evidence — so stripping its disclosure is the lost-badge defect this
+    release cited when it rejected per-turn badges, reappearing at rail level.
+
+    The note now survives, because it is keyed to the ANSWER rather than to a
+    flight starting. The failure note appears beside it: two true statements,
+    about two different things."""
+    r = posture_results["s4Failure"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFailure"]["hidden"] is False, "the disclosure was stripped"
+    assert r["afterFailure"]["text"] == r["afterReduced"]["text"]
+    assert r["afterFailure"]["transcript"] == 2
+    assert r["afterFailure"]["lastAssistant"] == "answer"
+    assert r["afterFailure"]["failureShown"] is True
+
+
+def test_a_full_answer_REPLACING_a_reduced_one_clears_the_note(posture_results):
+    """The other half of S4's invariant, and what stops the fix from becoming a
+    note that never goes away: when the answer the note described is replaced
+    by a FULL one, the note goes with it."""
+    r = posture_results["s4FullSuccess"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFull"]["hidden"] is True
+    assert r["afterFull"]["text"] == ""
+
+
+def test_a_full_turn_shows_nothing_new(posture_results):
+    """The other half of the treatment, and it is deliberate rather than
+    unfinished: a standing "full context" badge is a line every operator learns
+    to stop reading, which is exactly how the reduced one would stop being
+    noticed. The note element still EXISTS (so nothing has to be created at the
+    moment it is needed) and renders hidden and empty."""
+    full = posture_results["full"]
+    assert full["exists"] is True
+    assert full["hidden"] is True
+    assert full["text"] == ""
+    assert full["statePosture"] == "full"
+    assert full["transcript"] == 2
+
+
+def test_a_full_posture_carrying_the_KEY_at_all_is_refused(posture_results):
+    """Copilot review of PR #256, finding 2, at the exact boundary it names.
+    `hasReason` asked whether the reason was USABLE, so a stored blob reading
+    `{posture: "full", reduced_reason: ""}` — or `null` — adopted as a clean
+    full posture, though the released shape refuses either outright: its
+    `not: {required: [reduced_reason]}` is a statement about the KEY.
+
+    The adopter now asks two different questions, because the shape asks two:
+    `full` refuses the field for BEING THERE, `reduced` refuses it for being
+    UNUSABLE. This pins the first; the reduced cases in the list above pin the
+    second, unweakened."""
+    # indices 3 and 4 of the contradiction list are the blank and the null
+    assert posture_results["contradictoryBlobs"][3] is None
+    assert posture_results["contradictoryBlobs"][4] is None
+    # …while an absent key is still the ordinary, adoptable full posture.
+    assert posture_results["fullWithNoKeyAdopts"] == {"posture": "full"}
+
+
+def test_a_record_with_no_posture_renders_no_phantom_badge(posture_results):
+    """A producer older than contract-v1.40 states no posture, and the surface
+    says nothing rather than inventing one. Absence is not `full` and it is not
+    `reduced`; it is silence, and silence is what it renders."""
+    omitted = posture_results["omitted"]
+    assert omitted["hidden"] is True
+    assert omitted["text"] == ""
+    assert omitted["statePosture"] is None
+    assert omitted["transcript"] == 2
+
+
+@pytest.mark.parametrize("case", ["reducedNoReason", "fullWithReason"])
+def test_a_self_contradicting_record_renders_nothing_rather_than_half_of_it(
+        posture_results, case):
+    """FAIL-CLOSED ON THE SURFACE TOO. The released schema refuses both of
+    these, so neither can come from a conformant producer — but the adopter is
+    the last thing between a record and a human, and the wrong move would be to
+    keep whichever half looked renderable. A `reduced` with no readable reason
+    would render the words "reduced context" over a reduction nobody can check,
+    which is the failure this requirement is written against."""
+    result = posture_results[case]
+    assert result["hidden"] is True
+    assert result["text"] == ""
+    assert result["statePosture"] is None
+    # …and the ANSWER is not withheld: a malformed posture is a defect in the
+    # record's metadata, never a reason to drop the turn the human asked for.
+    assert result["transcript"] == 2
+
+
+def test_the_note_describes_the_last_answer_and_a_flight_does_not_move_it(
+        posture_results):
+    """THE INVARIANT, RESTATED AFTER S4 — and this test used to assert its
+    opposite. It read "a new flight clears it", which is what produced the
+    stripped-disclosure defect: a flight STARTING replaces no answer, so while
+    the next question is in the air the answer on screen is still the reduced
+    one and its disclosure is still true of it.
+
+    What the note tracks is the transcript's last assistant answer. Every path
+    that replaces that answer replaces the posture beside it, so nothing needs
+    to clear it on the way out."""
+    assert posture_results["afterSettle"] == (
+        posture_results["lead"] + posture_results["reason"])
+    assert posture_results["duringNextFlight"] == (
+        posture_results["lead"] + posture_results["reason"])
+
+
+def test_switching_documents_does_not_caption_the_new_thread_with_the_old_one(
+        posture_results):
+    """The same rule at the other exit. `adoptThreadTranscript` replaces the
+    transcript with the SERVER'S record of the newly selected document, and that
+    record carries no posture — so leaving the previous document's note up would
+    caption one conversation with a fact about another, which is the exact defect
+    class P2-9 found for the transcript itself."""
+    assert posture_results["afterThreadSwitch"] is None
+
+
+def test_the_snapshot_carries_the_posture_and_omits_it_when_there_is_none(
+        posture_results):
+    """NEW-2, taken as CLOSE rather than defer. Unlike the thread sidecar — a
+    durable on-disk format whose parser has fixed arity, correctly left alone —
+    the chat snapshot is a browser-local blob this release fully controls, so
+    the disclosure can survive a tile being closed and reopened without a
+    migration. A conversation with NO posture to state — no answer yet, or an
+    answer from a producer older than contract-v1.40 — writes the blob it
+    always did."""
+    assert posture_results["snapshotCarries"] is True
+    assert posture_results["restoredReduced"] is True
+    # An explicitly FULL posture is persisted too, and that is the doctrine
+    # rather than an oversight: absent and `full` are different facts
+    # everywhere else in this release, so dropping `full` here would restore
+    # "unknown" over a posture somebody checked.
+    assert posture_results["snapshotCarriesFull"] is True
+    # The key is absent only when there is no posture to state at all — which
+    # is the case whose blob is unchanged from before contract-v1.40.
+    assert posture_results["snapshotOmitsWhenUnknown"] is True
+
+
+def test_restoring_a_snapshot_does_not_leave_a_STALE_note_on_a_new_answer(
+        posture_results):
+    """NEW-1: `restoreChatState` is the FOURTH answer-replacing path, and it
+    used to leave `contextPacket` untouched while replacing the transcript
+    wholesale. The reviewer reproduced a restored answer captioned by a note
+    that never described it. Reachability was nil — the sole caller restores
+    onto a freshly mounted rail — but three places claimed the enumeration of
+    answer-replacing paths was complete at three, and it was four."""
+    assert posture_results["restoreClearsStale"] is True
+    assert posture_results["crossedLastAssistant"] == "answer"
+
+
+def test_a_restored_posture_never_outlives_the_answer_it_describes(
+        posture_results):
+    """Codex review of PR #256. `restoreChatState` drops malformed turns WHOLE,
+    so a perfectly valid stored posture can arrive with no answer to describe —
+    and in the worst variant, with the WRONG answer to describe.
+
+    Three reproduced cases, all now cleared: an empty transcript rendering a
+    reduction note for nothing; the assistant turn filtered out while the human
+    turn survives; and the NEWEST assistant turn dropped, which captioned the
+    OLDER answer with the newer one's posture. That last is the wrong-answer
+    caption this invariant exists to prevent, arriving by a third route after
+    the failed-follow-up (S4) and the cross-restore (NEW-1).
+
+    The test is the invariant: the restored transcript must END with an
+    assistant turn. The honest case still adopts, so this is a condition rather
+    than a blanket refusal."""
+    r = posture_results["restoreDropsOrphanedPosture"]
+    assert r["empty"] is None
+    assert r["humanOnly"] is None
+    assert r["newestDropped"] is None
+    assert r["newestDroppedOlderTail"] is None
+    assert r["intact"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
+
+
+def test_an_oversized_reason_from_the_WIRE_is_not_adopted(posture_results):
+    """Codex review of PR #256. The dispatcher validates only `ok` and `kind`,
+    so a malformed transport's over-ceiling reason would reach browser state,
+    the live region, and from there the persisted snapshot. The server refuses
+    one pre-dispatch; this is the same rule on the reading side, for payloads
+    the server did not author. A reason exactly AT the ceiling still adopts, so
+    the bound is a bound and not an off-by-one."""
+    w = posture_results["wireCeiling"]
+    assert w["bound"] == 500
+    assert w["over"] is None
+    assert w["at"] is True
+    # …and the unit is CODE POINTS, not UTF-16 units. A conformant 300-emoji
+    # reason is 600 `.length`, and the first version of this ceiling discarded
+    # it — hiding the very disclosure the release exists to show. The same
+    # mistake this release argued against on the server side (where a
+    # byte-counting guard would refuse a conformant 1,500-byte CJK reason),
+    # arriving on the browser side in the other unit.
+    assert w["astralCodePoints"] == 300
+    assert w["astralUtf16Units"] == 600
+    assert w["astralAdopted"] is True
+
+
+def test_the_browser_ceiling_is_pinned_to_the_RELEASED_maxLength():
+    """The JS constant cannot read the schema, so it is pinned to the released
+    bytes here — the same discipline `serve.CONTEXT_REDUCED_REASON_MAX_LENGTH`
+    gets. Three restatements of one bound, and a test for each pair, so they
+    cannot drift into three ceilings."""
+    import re
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    released = schema["$defs"]["context_packet"]["properties"][
+        "reduced_reason"]["maxLength"]
+    source = CHAT_MODEL_JS.read_text(encoding="utf-8")
+    match = re.search(
+        r"export const CONTEXT_REDUCED_REASON_MAX_LENGTH = (\d+);", source)
+    assert match, "the browser-side ceiling constant moved or was renamed"
+    assert int(match.group(1)) == released
+
+
+def test_a_snapshot_written_before_this_release_still_restores(posture_results):
+    """What makes the snapshot field ADDITIVE rather than a version bump: a
+    blob with no `context_packet` restores its transcript unharmed and simply
+    renders no note — exactly the behaviour before this release. Bumping
+    `CHAT_SNAPSHOT_VERSION` would instead have discarded every stored blob on
+    the first reopen, because `restoreChatState` fail-closes on an unrecognized
+    version and keeps the fresh state."""
+    legacy = posture_results["legacyBlobRestores"]
+    assert legacy["note"] is None
+    assert legacy["transcript"] == 2
+
+
+def test_a_contradictory_stored_posture_fails_closed_like_a_wire_one(
+        posture_results):
+    """One validator, both readers. A hand-edited blob claiming `reduced` with
+    no readable reason adopts to NOTHING, rather than captioning the restored
+    transcript with a reduction nobody can check.
+
+    ASSERTED ON THE ADOPTED STATE, not on the rendered note. `reducedContextNote`
+    holds its own second guard on the same rule, so a note-level assertion is
+    satisfied even when the adopter trusts the blob whole — which a revert-test
+    proved by coming back GREEN (R39) with the validation removed. The state is
+    where the adopter's verdict lands, so that is what this pins."""
+    assert posture_results["contradictoryBlobs"] == [None] * 7
+    # …and the guard is discriminating, not merely refusing everything.
+    assert posture_results["goodBlobAdopts"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
+
+
+def test_typing_does_not_RE_ANNOUNCE_the_same_disclosure(posture_results):
+    """NEW-3. `render()` runs on every keystroke, and re-writing a live region
+    with identical text re-announces it — the reviewer measured seven repeats
+    of the same 227-character sentence while typing one follow-up question. The
+    note is written only when its text actually changes, so the write count is
+    unmoved by typing while the note stays visible and unchanged."""
+    r = posture_results["rewrites"]
+    assert r["afterTyping"] == r["afterTurn"], "the disclosure was re-announced"
+    assert r["stillShown"] is True
+    assert r["text"] == posture_results["lead"] + posture_results["reason"]
+
+
+# ---------------------------------------------------------------------------
+# #287 (2026-08-24): A TIMEOUT MUST NOT READ AS A TRANSPORT REFUSAL.
+#
+# serve.py's turn route self-validates the RELEASED failure envelope before it
+# ships it, and falls back to `doxbench_error_body` — the pre-identity
+# {ok, error, message} shape, with NO `kind` — when that self-validation fails
+# (the validators are unavailable, or the body faults the released schema). The
+# rail's kind check then dropped the code on the floor and rendered
+# TRANSPORT_REFUSED, so a genuine 504 `model_timeout` told the operator "the
+# chat transport refused this turn" — a vocabulary loss, and a misdiagnosis:
+# nothing refused, the model ran out of time.
+#
+# THE FIX IS THE RAIL'S EXISTING CODE-WHITELIST IDIOM, one entry wider. The
+# sentence is chosen from the CODE and composed here (never echoed from the
+# body's own `message`), exactly as `console_required`/`agent_invocation` are
+# already answered with the rail's own reload sentence rather than the server's.
+#
+# WHAT STAYS A TRANSPORT REFUSAL, deliberately: a v1-shaped failure body (it
+# HAS a `kind`, just not this family's — the rail has no released reader for it)
+# and an unparseable body (`payload: null` — nothing was read, so nothing can be
+# mapped). Both are pinned below as UNCHANGED.
+# ---------------------------------------------------------------------------
+
+_TIMEOUT_HARNESS = """
+import { createTurnDispatcher } from "./doxbench-chat.mjs";
+import { createChatState, adoptCatalog, selectModel, editComposer }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const LIVE = "d".repeat(64);
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
+                   models: [ENTRY] };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: LIVE },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+const idle = () => editComposer(selectModel(
+  adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"), "a question");
+
+async function answeredWith(response) {
+  const dispatcher = createTurnDispatcher({
+    turnIdFactory: (n) => "turn-" + n,
+    transports: { chatTurn: async () => response } });
+  const result = await dispatcher.submit(idle(), { scopeKey: KEY, editorState });
+  const failure = result.state.lastFailure;
+  return { error: failure && failure.error, message: failure && failure.message,
+           phase: result.state.phase, composer: result.state.composer };
+}
+
+// The RELEASED failure envelope: unchanged, and still the server's own sentence.
+out.releasedTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  schema_version: 1, kind: "workbench-chat-turn-v2-failure",
+  client_turn_id: "turn-1", error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// THE FINDING: the same 504, delivered in the pre-identity FALLBACK shape.
+out.fallbackTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  ok: false, error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// A FOREIGN-KIND body: it carries a kind, and not this family's -- unchanged.
+//
+// The sample is the RETIRED v1 failure spelling (contract-v3.0,
+// retire-doxbench-chat-turn-v1). Kept deliberately rather than swapped for an
+// invented kind: after the removal it is the most likely foreign kind this rail
+// will ever actually see -- an unupgraded client's own answer replayed at it --
+// and the rule under test is about kinds this rail has no released reader for,
+// which a retired one is by definition.
+out.foreignKindTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  schema_version: 1, kind: "workbench-chat-turn-failure",
+  client_turn_id: "turn-1", error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// An UNPARSEABLE body: nothing was read -- unchanged.
+out.unparseable = await answeredWith({ ok: false, status: 504, payload: null });
+
+// A fallback-shape code the whitelist does NOT carry -- unchanged, deliberately:
+// the whitelist maps only codes with a fixed client sentence, never a guess.
+out.fallbackOtherCode = await answeredWith({ ok: false, status: 502, payload: {
+  ok: false, error: "model_failed", message: "the model request failed" } });
+
+// The console gate's own fallback-shape refusal: unchanged (R-3's mapping).
+out.fallbackConsole = await answeredWith({ ok: false, status: 403, payload: {
+  ok: false, error: "console_required", message: "console only" } });
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def timeout_vocabulary_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the timeout-vocabulary probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-timeout-vocabulary")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "timeout-vocabulary-harness.mjs"
+    # The SERVER's own fixed sentence, carried in rather than retyped — the
+    # point of the probe is that the rail never echoes it.
+    harness.write_text(
+        _TIMEOUT_HARNESS.replace(
+            "__SERVER_TIMEOUT_MESSAGE__",
+            json.dumps(serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT)[1:-1]),
+        encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_released_timeout_envelope_is_unchanged(timeout_vocabulary_results):
+    """The conforming path is the one that already worked: the released
+    envelope's own two fixed fields are retained verbatim, as FR-020/FR-022
+    allow for a body the released schema blessed."""
+    t = timeout_vocabulary_results["releasedTimeout"]
+    assert t["error"] == "model_timeout"
+    assert t["message"] == serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT
+
+
+def test_a_fallback_shape_timeout_is_a_timeout_not_a_transport_refusal(
+        timeout_vocabulary_results):
+    """#287's whole finding. The same 504 in the fallback shape rendered "the
+    chat transport refused this turn" — nothing refused, and the operator was
+    told to suspect their connection instead of the deadline. The code is
+    whitelisted onto the rail's OWN fixed timeout sentence."""
+    t = timeout_vocabulary_results["fallbackTimeout"]
+    assert t["error"] == "model_timeout"
+    assert t["error"] != "transport_refused"
+    assert "transport refused" not in t["message"]
+    assert "time" in t["message"], "the sentence must name the deadline"
+    # chosen from the CODE, never echoed: the server's own sentence for the same
+    # code is a DIFFERENT string, and the rail composes its own with the local
+    # recovery in it — the same discipline the console-token mapping follows.
+    assert t["message"] != serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT
+    # …and the turn still settles honestly: idle again, composer preserved.
+    assert t["phase"] == "idle"
+    assert t["composer"] == "a question"
+
+
+def test_a_foreign_kind_failure_body_stays_a_transport_refusal(
+        timeout_vocabulary_results):
+    """UNCHANGED, deliberately: a body carrying a `kind` this rail has no
+    released reader for is not a body it may interpret field by field. The
+    fallback shape is recognizable precisely because it carries NO kind.
+
+    The probe's sample is the RETIRED v1 failure kind (see the harness comment),
+    which is why the rule stated in the present tense here has not moved with
+    contract-v3.0: this rail never had a reader for that kind, and it has one
+    fewer reason to grow one now."""
+    t = timeout_vocabulary_results["foreignKindTimeout"]
+    assert t["error"] == "transport_refused"
+
+
+def test_an_unparseable_body_stays_a_transport_refusal(
+        timeout_vocabulary_results):
+    """UNCHANGED: `payload: null` is a body that was never read, so there is no
+    code to choose a sentence from."""
+    assert timeout_vocabulary_results["unparseable"]["error"] == \
+        "transport_refused"
+
+
+def test_the_whitelist_maps_only_codes_it_has_a_sentence_for(
+        timeout_vocabulary_results):
+    """THE WHITELIST DECISION, pinned. `model_failed` reaches the fallback
+    shape by exactly the same route as `model_timeout`, and it is deliberately
+    NOT mapped: the rail has no fixed sentence for it, and inventing one here
+    would be a broad code→prose mapping rather than the narrow whitelist the
+    idiom is. Adding a sibling stays a one-line, one-sentence act when one is
+    ruled — and until then the generic refusal is the honest answer."""
+    assert timeout_vocabulary_results["fallbackOtherCode"]["error"] == \
+        "transport_refused"
+    # the sibling that IS mapped, still mapped (R-3), on the same shape
+    assert timeout_vocabulary_results["fallbackConsole"]["error"] == \
+        "console_token_stale"
+
+
+def test_the_fallback_shape_the_rail_reads_is_the_one_serve_py_emits():
+    """The two halves of the finding, pinned against each other rather than
+    described: `doxbench_error_body` really does emit `{ok, error, message}`
+    with NO `kind`, and `model_timeout` really is a 504 in the released
+    catalog. If either moves, this mapping needs re-reading."""
+    body = serve_mod.doxbench_error_body(serve_mod.DOXBENCH_ERR_MODEL_TIMEOUT)
+    assert sorted(body) == ["error", "message", "ok"]
+    assert "kind" not in body
+    assert body["error"] == "model_timeout"
+    assert serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_MODEL_TIMEOUT) == 504

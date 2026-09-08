@@ -1,0 +1,135 @@
+# expected_failure: durability_batch_omits_accepted_event
+# expected_failure_detail: where the resolving checkpoint's own
+# A DENOMINATOR THE MANIFEST CHOSE. It declares two events where the resolving checkpoint's own admissions through the watermark number one. First sequence, last sequence and event count are SUMMARIES of the checkpoint-derived set, not numbers a caller supplies, and the reconciliation is what makes them so.
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_admission
+admission_id: dba-negative-680
+admission_kind: new_leaf
+window_open: '2026-09-02T00:00:00Z'
+window_close: '2026-09-03T00:00:00Z'
+leaf_sequence: 680
+leaf_class: owner_evidence_event
+trusted_acceptance_time: '2026-09-02T10:00:00Z'
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:099038544f51b81467c08f014ec17328e70b45a276160ec44243a78689eed392
+event_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: durability_event_leaf
+  value: sha256:bb285dd7e6d2ce571784de005e826deffc610b13127823b13592a3b081ce67b5
+dedupe_key_ref: dk-negative-680
+dedupe_rule:
+  rule_id: dedupe-example-owner-local
+  key_scope: owner_local_stable
+  on_identical_replay: return_existing_leaf
+  on_key_reuse_with_different_material: refuse_before_sequence_assignment
+  key_custody:
+    reference_id: custody-example-dedupe-keys
+    resolves_into: governed_layer
+late_arrival_rule:
+  rule_id: late-example-acceptance-selects
+  window_selected_from: trusted_acceptance_time
+  source_time_lateness_recorded: off_chain
+admission_transaction:
+  transaction_ref: txn-dba-negative-680
+  atomic: true
+  steps:
+  - validate_eligibility
+  - apply_dedupe_rule
+  - record_acceptance_time
+  - select_window_from_acceptance_time
+  - assign_next_leaf_sequence
+eligibility_snapshot:
+  registry_id: der-example-0001
+  entry_id: der-entry-0002
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: durability_eligibility_terms
+    value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+  activation:
+    log_sequence: 616
+    checkpoint_ref: cp-log-checkpoint-0616
+  standing: active
+merkle_profile:
+  profile_id: dmp-example-daily-merkle
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: daily_merkle_construction
+    value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+membership_path: []
+recorded_at: '2026-09-02T10:00:00Z'
+record_version: 1
+batch_manifest_ref: dbm-negative-omit
+---
+schema_version: 1
+kind: xfactory_chain_anchoring_durability_batch_manifest
+manifest_id: dbm-negative-omit
+terms:
+  window_open: '2026-09-02T00:00:00Z'
+  window_close: '2026-09-03T00:00:00Z'
+  eligibility_snapshot:
+    registry_id: der-example-0001
+    entry_id: der-entry-0002
+    version: 2
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: durability_eligibility_terms
+      value: sha256:a958754817f2860c0e52986dfad5637425657e7e708b4bb1a2c30ab6ca4bcd2a
+    activation:
+      log_sequence: 616
+      checkpoint_ref: cp-log-checkpoint-0616
+    standing: active
+  first_leaf_sequence: 680
+  last_leaf_sequence: 680
+  event_count: 2
+  daily_batch_root:
+    construction: xfc-jcs-sha256-1
+    subject: daily_batch_root
+    value: sha256:54a31a006ee29e1d574e220460eb002e1df48ded0e8cb83c98882b641f33657e
+  merkle_profile:
+    profile_id: dmp-example-daily-merkle
+    version: 1
+    canonical_digest:
+      construction: xfc-jcs-sha256-1
+      subject: daily_merkle_construction
+      value: sha256:498aa35ea0a41ba00fe57f0df0f3c0b388ab1514cfe9ee7187b4104cca5adc8a
+  previous_daily_anchored_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:7cedc69972c687d0c6636aaefa9fa3845ccb63999e5f57d26e5338288bbb7173
+  close_sequence_watermark: 685
+  resolving_log_checkpoint:
+    checkpoint_ref: cp-log-checkpoint-0685
+    tree_size: 686
+    checkpoint_root:
+      construction: xfc-jcs-sha256-1
+      subject: log_checkpoint
+      value: sha256:a7d1a3600d97cb038f57e16d8fe88c11f2dfaf462509d9ab30b5e6b8424a9842
+    signature_ref: sig-log-checkpoint-0685
+  close_reason: fixed_utc_boundary
+  dedupe_rule:
+    rule_id: dedupe-example-owner-local
+    key_scope: owner_local_stable
+    on_identical_replay: return_existing_leaf
+    on_key_reuse_with_different_material: refuse_before_sequence_assignment
+    key_custody:
+      reference_id: custody-example-dedupe-keys
+      resolves_into: governed_layer
+  late_arrival_rule:
+    rule_id: late-example-acceptance-selects
+    window_selected_from: trusted_acceptance_time
+    source_time_lateness_recorded: off_chain
+  selectivity_applied: false
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:8d481fd9f49f94c805df51426b6ddba1435aea510b1a1ae8cdc411420875cf64
+window_closed: true
+continuity_leaf_ref: leaf-dbm-negative-omit-continuity
+signature_ref: sig-dbm-negative-omit
+recorded_at: '2026-09-03T00:00:00Z'
+record_version: 1

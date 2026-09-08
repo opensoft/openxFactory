@@ -1,0 +1,52 @@
+# VALID certificate record with NO custody declaration. The ratified rule is that
+# it evidences the WEAKEST member of the defined set and may hold no authority
+# above that member — so `evidences` and `assurance_ceiling` here are the
+# registry FLOOR's, not a guess and not a blank. Absence of a declaration never
+# buys authority.
+#
+# It also carries the renewal this corpus records as FAILED: one of its two
+# dependents was re-bound and evidenced, the other was not.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:core-workload-02
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "workload-batch-runner.core.internal"
+  subject_class: workload
+validity:
+  not_before: "2026-07-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:core-workload-02-g2
+  generated_at: "2026-07-01T00:00:00Z"
+  supersedes_generation_ref: keygen:core-workload-02-g1
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: true
+  evidence_ref: ie:core-workload-02
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-06-25T00:00:00Z"
+  binding_refs:
+    - bind:core-workload-02-queue
+    - bind:core-workload-02-mesh
+trust_evaluation:
+  evaluated_at: "2026-08-15T12:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-15T12:00:00Z"
+    result: current_standing_active
+  outcome: trusted
+notes: >-
+  No custody declaration exists because the workload's key is provisioned by a
+  platform component that does not yet report custody. The floor is what binds
+  until it does, and raising the ceiling requires declaring custody rather than
+  asserting assurance.
+record_version: 1
+created_at: "2026-07-01T00:00:00Z"

@@ -20,11 +20,25 @@ Ratified by: define-avatar-client-contract-kernel (pending F0 realization)
 | AVC-06 | `avc-06-structured-confirmation.schema.yaml` | Effect-bound confirmation challenge |
 | AVC-07 | `avc-07-retention-profile.schema.yaml` | Retention classes (reserved classes forbidden) |
 | AVC-08 | `avc-08-persona-profile.schema.yaml` | Session-fixed persona |
+| AVC-09 | `avc-09-voice-adapter-descriptor.schema.yaml` | Voice adapter descriptor (server + client components; NO latency budget) |
+| AVC-10 | `avc-10-voice-latency-sample.schema.yaml` | Voice latency sample (raw markers, derived intervals, direct-or-brokered) |
 | AVC-11 | `avc-11-session-command.schema.yaml` | Sole client→control mutation envelope |
 | AVC-12 | `avc-12-state-snapshot.schema.yaml` | Recovery/state snapshot |
 
 AVC-03 (capabilities) is absorbed inline on the AVC-02 grant; AVC-05 (transcript
-segment) is an AVC-04 event payload; AVC-09/AVC-10 are reserved and never reused.
+segment) is an AVC-04 event payload. Both stay RESERVED and are never reused.
+
+AVC-09 and AVC-10 were reserved by this kernel and PUBLISHED at
+`contract-v1.46` by `qualify-avatar-live-voice`, from the reserved shapes
+unchanged. AVC-09 carries no numeric latency-budget field and no secret
+material; AVC-10 carries no raw content. Latency GATING lives in
+`acceptance-map.yaml` as exactly one neutral relative-regression SLO entry
+(`ALV-SLO-001`) at the ratified threshold — more than 15 percent relative OR
+more than 150 ms absolute, whichever is GREATER, on p50 and p95 of
+first-playable-after-authorized and sideband-ready, for Windows desktop and web
+canvas at nominal network. p99, teardown, degraded and jittered network, and
+steady-state per-turn latency are RECORDED and gate nothing; Linux CI is
+reference-generation only and is never a gated delivery platform.
 
 ## Closed registries
 
@@ -38,7 +52,107 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
 
 - `fixtures/index.yaml` — language-neutral, self-describing fixture suite. Any
   conformant draft 2020-12 implementation can execute it (no Python required).
-- `acceptance-map.yaml` — 17 requirements / 72 scenarios (ACR-*/SCO-*/RBG-*).
+- `acceptance-map.yaml` — 26 requirements / 107 scenarios (ACR-*/SCO-*/RBG-*/ALV-*)
+  plus the single `latency_slo` entry.
+- `internal-live-activation-checklist.yaml` — the per-condition classification
+  of the eight-condition checklist that PRODUCES the four-element ring's
+  evidence (`qualify-avatar-live-voice` §4.1). The ring is the binding exit
+  contract; the eight conditions are not. Condition 6 is recorded in its
+  reinterpreted no-material-regression form only. Condition 2 — the hard
+  preflight that approves the regional, retention and data-control terms —
+  carries the §7.9 values ruled 2026-08-27: the provider project's US default
+  region declared honestly, exactly the two Fork 4 Option C data classes
+  (`ephemeral_presentation` + `structured_record`, with `audio`,
+  `full_transcript` and `independent_transcription` never instantiated), and a
+  90-day retention window for canary-derived `structured_record` carried by a
+  named domain-owned policy reference. They are pinned as AUTHORING INPUTS:
+  AVC-09's `region_and_data_controls` remains their single home and no
+  descriptor instance is authored here.
+- `canary-cohort-and-rollback-policy.yaml` — the canary cohort and **the
+  recorded policy** the kernel's kill-switch requirement has referenced since
+  it was written but never had (`qualify-avatar-live-voice` §6.3.1-§6.3.2):
+  safety and integrity breaches auto-abort WITH active-lease revocation;
+  latency-budget and elevated error or quota breaches auto-block-new and let
+  in-flight legs drain; quality and cost are operator-triggered. Rollback
+  disables voice into text or human handoff — `gpt-realtime-2.1` is the first
+  qualified profile, so no model fallback exists. Its `canary_exit_criteria`
+  and its ROLLBACK-B/C trip points carry the §7.6 and §7.2 values ruled
+  2026-08-27, and the same day's later rulings close its three open records:
+  `operator_surface` is `named` (holder Brett Heap, mechanism the runbook at
+  `docs/sops/avatar-internal-live-kill-switch.md` — the web console is a
+  kernel non-goal, §7.7), `session_outcome_tokens` is `bound` with every
+  rollback path's token drawn from the closed `session-outcomes` registry and
+  no new token introduced (§7.8), and `cohort.tenant_definition_ref` is `set`
+  to tenant = cohort member, which gives the metered per-tenant budget its
+  subject (§7.10).
+- `latency-sample-minimum.yaml` — the minimum sample count per gated latency
+  cell (`qualify-avatar-live-voice` §7.5, feeding §5.2): n >= 100 per cell,
+  declared BEFORE measuring, spread over >= 3 runs on >= 2 days, with a short
+  cell RECORDED and never gating. A sibling of the acceptance map rather than
+  a block inside it, because the map is a published digest-pinned bundle
+  member and an authoring input does not earn a release cut.
+- `usage-metering-and-alerting.yaml` — the asynchronous per-tenant usage
+  meter's channel routing and, honestly, WHICH HALF IS BUILT HERE
+  (`qualify-avatar-live-voice` task 6.1.4, executing §7.4). Both figures — the
+  $40 metered-only per-tenant budget and the $100 hard provider-project cap,
+  re-ruled from $150 and $750 on 2026-08-28 —
+  are evaluated at the 50%, 80% and full marks; the project's sub-marks route
+  to the provider's own native budget notifications and the cap to the
+  provider's hard stop, both RECORDED as install-side halves owned by task
+  6.1.2 and neither emitted from this repository. The per-tenant crossing of
+  $40 and any cost-triggered session kill route to `gh issue create` on the
+  doc-health pattern (one issue per run, superseded by a strictly-older date).
+  The tenant sub-marks are computed and recorded but not paged: §7.4 rules the
+  gh-issue channel at the budget itself. The recipient resolves INTO
+  `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder` and is
+  never copied. A sibling of the acceptance map for the same reason
+  `latency-sample-minimum.yaml` is one.
+- `synthetic-evaluation-corpus.yaml` — the SYNTHETIC model-versus-model
+  evaluation corpus (`qualify-avatar-live-voice` task 6.2.1, Fork 4 Option C).
+  35 scripted scenarios across condition 7's five classes — safety,
+  exact-value, consent, handoff, blocked-state — and its three domains —
+  generic, MedxFactory, LedgerxFactory — covering all 15 class x domain cells
+  and reaching all EIGHT of ROLLBACK-A's ratified triggers. Every scenario
+  declares the `SafetyEvalSignal` its FAILURE emits, so §6.3.3's fail-closed
+  input seam finally has a corpus behind the `corpus_ref` it requires; a
+  scenario whose failure mapped to no ratified trigger would be answered by
+  `evaluate_safety_signal` with a NON-tripping verdict, so the validator
+  refuses one. Scripted means scripted: no tenant data, no recorded utterance,
+  and TEXT-LEVEL only — rendering a script to audio is a §5-time and
+  canary-time act of the RUN, because committed audio would be media this ring
+  has no retention class for. A sibling of the acceptance map for the same
+  reason `latency-sample-minimum.yaml` is one; `fixtures/**` is inside the
+  digested semantic surface and an authoring input does not earn a release cut.
+- `canary-ephemeral-processing-envelope.yaml` — the canary's ephemeral
+  processing envelope and its two operational controls
+  (`qualify-avatar-live-voice` tasks 6.2.2 and 6.2.4). Consent rides the
+  existing frozen purposes — the media leg on `avatar.media_capture` and
+  `avatar.provider_processing`, a produced record on
+  `avatar.structured_record` — plus an OPTIONAL stricter domain purpose
+  REFERENCE that is optional to declare and never optional to satisfy: an
+  unresolved one denies rather than falling back to the neutral pair, and a
+  reference is not a registry member, so the frozen count stays 3. Captions and
+  transcript deltas are `ephemeral_presentation`; decisions, consent versions
+  and outcomes are `structured_record` under the ruled 90-day reference
+  `avatar.internal_live.canary.structured_record.retention.v1`, CITED from the
+  checklist's §7.9 block rather than restated. Withdrawal maps onto the
+  existing `revoked` outcome and STAYS REACHABLE MID-SESSION, proved by the
+  landed `det-consent-withdraw-mid-speech` fixture rather than asserted. The
+  non-shadowing guarantee — never two models on live canary audio — is recorded
+  as an OPERATIONAL control with `enforced_by_schema: false` stated plainly and
+  the enforcing contract flag named as `avatar-pilot-hardening` work, because
+  no schema field forbids a second-model shadow today and claiming otherwise
+  would be false.
+- `broker-server-key-binding.template.yaml` and
+  `broker-server-key-rotation-policy.yaml` — the internal-live broker
+  server-key custody pair (`qualify-avatar-live-voice` task 6.1.1, §7.1 and
+  §7.3). The binding is the promoted `xfactory_credential_binding_template`
+  shape with the credential reference, owner and rotation label concrete and
+  `provider`/`vault` as PER-INSTALL PLACEHOLDERS: `credential-contracts`
+  forbids a contract artifact hard-coding a vault operator, product or secret
+  value, so the concrete vault lands in the consuming install's `credentials/`
+  tree. The rotation record carries the 90-day cadence and its triggers,
+  because the published binding shape types `rotation_policy` as a string.
 - `evidence-register.yaml` — resolves every scenario to fixture evidence, a
   recorded manual result, or a named owner + fail-closed default.
 - `scripts/validate-avatar-client.py` — reference runner (reproducible tooling,
@@ -56,9 +170,9 @@ fixtures.
 - The bundle identity (manifest version, changelog entry, annotated tag, release
   commit, per-file digests) must all identify the same realized bundle
   (SCO-001-S02); a disagreement fails release validation.
-- The digested semantic set is: the 8 schemas, `shared-definitions`, the 9
+- The digested semantic set is: the 10 schemas, `shared-definitions`, the 9
   registries, `fixtures/index.yaml`, `acceptance-map.yaml`, `interface-lock.yaml`,
-  and `evidence-register.yaml`. The validator and `redaction/` config ship in the
+  and `evidence-register.yaml` (plus any successor deferral-discharge register). The validator and `redaction/` config ship in the
   release commit as tooling but are not per-file-pinned semantic artifacts.
 
 ## Completion states

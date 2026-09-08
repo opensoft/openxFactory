@@ -23,7 +23,7 @@ project stakeholder needs maps onto a gate the funnel already has.
 Topics: avatar-first-ui, doxbench, ideation-dashboard, client-surface, hermes-layers, worker-host, workstation, gate-console, two-plane, identity
 Repository context: openxFactory owns the neutral surface standard
 (`avatar-first-ui`, ratified) and this topic; the shell platform decision is
-shared with the avatar-client track (private `xfactory-avatar-client` repo);
+shared with the avatar-client track (private `openAvatar` repo);
 codexFactory realizes the local-serve integration it wraps; the Worker Host
 App lives in `Omnigent-Install` and owns the principal separation this topic
 depends on; per-domain subject surfaces land in the DomainxFactory repos.

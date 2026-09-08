@@ -1,0 +1,139 @@
+schema_version: 1
+kind: avatar-client-latency-sample-minimum
+
+# ============================================================================
+# latency-sample-minimum.yaml
+# qualify-avatar-live-voice §7.5, feeding §5.2.
+#
+# WHAT §5.2 ASKS FOR, VERBATIM: "Declare the minimum sample count per gated
+# cell BEFORE measuring, and record it with the evidence (§7.5)." The
+# BEFORE is the entire requirement. A minimum declared after the numbers are
+# in is a minimum chosen to fit them, and the acceptance map's own SLO entry
+# still reads `measured_evidence.status: not_yet_measured` — so this file
+# lands, provably, ahead of the first measurement. That ordering is the
+# evidence, and it is why this record exists as an artifact with a date rather
+# than as a sentence in a run report written afterwards.
+#
+# WHY A SIBLING ARTIFACT AND NOT A BLOCK IN THE ACCEPTANCE MAP.
+# `acceptance-map.yaml` is a PUBLISHED, digest-pinned member of the released
+# contract bundle (contracts/manifest.yaml, contracts/releases/), so moving
+# its bytes is a contract release — CHANGELOG allocation, manifest digest,
+# bundle version bump, inventory rebuild, verify-commit and tag. §7.5 is an
+# authoring input, not a contract change, and it does not earn a bundle cut.
+# This file follows the pattern the ring's other governance artifacts already
+# use — `internal-live-activation-checklist.yaml` and
+# `canary-cohort-and-rollback-policy.yaml` both sit beside the map, resolve
+# their references INTO it, and are not bundle members. The declaration binds
+# the same either way; what changes is whether a consumer's pinned digest set
+# moves for it, and it should not.
+#
+# WHAT A CELL IS. ALV-SLO-001's `comparison_cell.must_match` is
+# [platform, network_class, region], with `reference_classification`
+# separating the direct-provider reference from the governed adapter. The
+# GATED set is 2 platforms x 1 network class (`nominal`) x 2 reference
+# classifications = 4 sampling cells. Both gated intervals —
+# `first_playable_after_authorized_ms` and `sideband_ready_after_request_ms` —
+# are `derived_intervals` of the SAME AVC-10 sample, so one cell's n serves
+# both intervals and both gated percentiles.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+owning_task: qualify-avatar-live-voice 7.5
+feeds_task: qualify-avatar-live-voice 5.2
+slo_ref: ALV-SLO-001
+requirement_id: ALV-005
+requirement: A fresh client-side direct-provider reference is measured before gating
+acceptance_map_refs: [ALV-SLO-001, ALV-005, ALV-005-S02]
+ruled: >-
+  2026-08-27 by Brett Heap — §7.5, adopting the recommendation in
+  supporting-docs/section-7-authoring-inputs-memo.md §7.5.
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/section-7-authoring-inputs-memo.md
+  §7.5 "The statistical argument, kept practical".
+
+declaration:
+  status: declared
+  declared_on: "2026-08-27"
+  declared_before_measuring: true
+  measured_evidence_state_at_declaration: not_yet_measured
+  statement: >-
+    Declared BEFORE any measuring run, as §5.2 requires, and while the
+    acceptance map's SLO entry still records
+    `measured_evidence.status: not_yet_measured`. A later verifier checks the
+    ordering rather than taking it on trust: this record's date precedes every
+    AVC-10 sample timestamp in the §5 evidence run.
+
+minimum:
+  n_min: 100
+  sample_kind: completed_schema_valid_avc_10_samples
+  cells: 4
+  cell_axes: [platform, network_class, reference_classification]
+  gated_platforms: [windows_desktop, web_canvas]
+  gated_network_class: nominal
+  gated_percentiles: [p50, p95]
+  gated_intervals:
+    - first_playable_after_authorized_ms
+    - sideband_ready_after_request_ms
+  rationale: >-
+    The count of samples above the true p95 is Binomial(n, 0.05). At n=30 —
+    F0's sideband count — the p95 estimate is essentially the second-largest of
+    thirty: A MAXIMUM WEARING A PERCENTILE'S NAME, whose nonparametric interval
+    spans roughly the fourth-largest to the maximum. That swing is plausibly
+    comparable to the 246 ms materiality threshold it is meant to test, because
+    that distribution spans 870 ms between its p50 and its p95. At n=100 the
+    expected count above p95 is 5.0 and the estimate is an interior order
+    statistic (~top 3-7), stable well inside the 150-246 ms materiality floor.
+    F0's `first_playable` distribution is tight enough that n=40 would do; a
+    split minimum for the sake of one cheap cell is a two-number rule buying
+    almost nothing, so the flat 100 stands.
+  cost_note: >-
+    4 cells x 100 setup-only sessions is ~$20 at ~$0.05 a setup-only session —
+    about a fifth of the ruled provider-project cap (§7.2, $100/month as
+    re-ruled 2026-08-28, and these cells do not all fall in one month), so the
+    statistically defensible number and the affordable one are the same
+    number. The usual excuse for a small n does not apply here and should not
+    be reached for later.
+
+under_minimum:
+  effect: recorded_not_gated
+  statement: >-
+    A cell with fewer than 100 completed schema-valid samples is RECORDED but
+    MUST NOT GATE. This is a second refusal reason inside the machinery
+    ALV-SLO-001 already has — the map already REFUSES a comparison whose two
+    sides do not share platform, network class and region — rather than a new
+    mechanism. Insufficient n refuses the CLAIM, not the cell.
+
+spread:
+  distinct_runs_min: 3
+  distinct_days_min: 2
+  statement: >-
+    Per cell, the samples MUST span at least three distinct measurement runs on
+    at least two distinct days.
+  rationale: >-
+    F0's entire dataset came from one harness, one configuration, `region:
+    null`, in one sitting, and single-configuration bias is the standing
+    complaint against it (task 5.1). A minimum n taken all at once would repeat
+    that mistake with a bigger number, which is worse than repeating it with a
+    small one because the bigger number looks like rigor.
+
+p99_posture:
+  gate_sample_floor: 500
+  stays_recorded_not_gated: true
+  statement: >-
+    AT n=100, p99 IS EFFECTIVELY THE MAXIMUM — one sample is expected above it.
+    p99 stays `recorded_not_gated` in the acceptance map, and that map's note
+    that the recorded tier holds candidates to become hard gates at the pilot
+    ring "when sample volume supports them" resolves, for p99, to roughly 500
+    samples per cell. Recorded now so that a reader at the pilot gate cannot
+    mistake a recorded p99 taken at n=100 for a gate-ready one.
+
+verification:
+  required_evidence:
+    - The declared minimum recorded before the measurement timestamps.
+    - Per-cell n reported alongside p50 and p95 in the measured evidence, so a
+      reader can RECOMPUTE rather than trust.
+    - The raw AVC-10 samples retained and countable per cell, with `platform`,
+      `network_class`, `region` and `reference_classification` populated so
+      cell membership is DERIVABLE rather than asserted.
+    - Run and date spread per cell.

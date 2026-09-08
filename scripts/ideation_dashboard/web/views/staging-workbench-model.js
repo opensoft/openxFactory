@@ -820,6 +820,10 @@ export const OPEN_PR_ROUTE = "/actions/gate/open-pr";
 // a session-bar affordance -- deliberately absent from SESSION_AFFORDANCES.
 export const FIRST_EDIT_ROUTE = "/actions/gate/first-edit";
 export const ABANDON_SESSION_ROUTE = "/actions/gate/abandon-session";
+// add-doxbench-editing-phase-b §12: the SHARE route, beside open-pr's because it
+// is the same class of act (a remote write with the engineer's own credential)
+// with the pull request removed.
+export const SHARE_SESSION_ROUTE = "/actions/gate/share-session";
 
 // THE HUMAN-CONSOLE HEADER (FR-019's third clause; PR #49 review finding 2).
 // The serve mints a token at start-up and publishes it on `/capabilities`, the
@@ -830,6 +834,38 @@ export const ABANDON_SESSION_ROUTE = "/actions/gate/abandon-session";
 // all read — exactly like the routes above.
 export const CONSOLE_TOKEN_HEADER = "X-XF-Console-Token";
 export const CONSOLE_TOKEN_FIELD = "console_token";
+
+// ---- the model-intake routes (add-doxchat-model-intake §2/§3) -------------
+//
+// MODEL CONSTANTS, like every other route this family addresses: one definition
+// the node harness and the Python route tests both read, and the transport
+// sibling that calls them names no literal of its own.
+export const MODEL_INTAKE_SURFACE_ROUTE = "/workbench/model-intake";
+export const MODEL_INTAKE_ROUTE = "/actions/workbench/model-intake";
+export const MODEL_APPROVAL_ROUTE = "/actions/workbench/model-approval";
+
+// The declared, NON-SECRET facts an enrolment carries, in the order the server
+// reads them. Closed on both sides: the server refuses a parameter it does not
+// name rather than ignoring it, so a caller that believed it had declared
+// something is never silently dropped — and a supplied value can never arrive
+// as one of these, because a query string is a thing proxies and access logs
+// record.
+export const MODEL_INTAKE_FACTS = [
+  "binding", "label", "provider", "endpoint", "dialect", "kind"];
+
+// The enrolment URL for one set of declared facts. PURE: it builds a string and
+// reaches nothing. It carries the facts and NEVER the supplied value — that
+// rides the request body, and the split is the whole reason this helper exists
+// rather than a caller assembling a URL by hand where a fourth parameter could
+// one day be added without anyone noticing what it was.
+export function intakeQuery(route, facts) {
+  const declared = facts || {};
+  const query = MODEL_INTAKE_FACTS
+    .map((name) => encodeURIComponent(name) + "="
+      + encodeURIComponent(asId(declared[name])))
+    .join("&");
+  return route + "?" + query;
+}
 
 export function consoleHeaders(caps) {
   const headers = { "Content-Type": "application/json" };
@@ -898,6 +934,7 @@ export const SESSION_EDIT = "edit";
 export const SESSION_FIRST_EDIT = "first-edit";
 export const SESSION_SAVE = "save";
 export const SESSION_ABANDON = "abandon";
+export const SESSION_SHARE = "share";
 export const SESSION_REFRESH_NOTEBOOK = "refresh-notebook";
 
 // FR-044's four affordances, and the split FR-046 + spec C10 impose on them:
@@ -906,15 +943,21 @@ export const SESSION_REFRESH_NOTEBOOK = "refresh-notebook";
 // subcommand — no artifact declares a transport for it — so giving it one here
 // would invent an FR-020 parity obligation and `fetch` arithmetic that no
 // ratified text asks for.
-export const SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SAVE, SESSION_ABANDON,
-                                    SESSION_REFRESH_NOTEBOOK];
-export const LIVE_SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SAVE, SESSION_ABANDON];
+//
+// §12 adds a FIFTH, SESSION_SHARE, and it is LIVE-or-descriptor like the first
+// three rather than descriptor-only: it IS a gate route and a `gate` subcommand,
+// so it carries the same FR-020 parity obligation the others do.
+export const SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SHARE, SESSION_SAVE,
+                                    SESSION_ABANDON, SESSION_REFRESH_NOTEBOOK];
+export const LIVE_SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SHARE,
+                                         SESSION_SAVE, SESSION_ABANDON];
 export const DESCRIPTOR_ONLY_AFFORDANCES = [SESSION_REFRESH_NOTEBOOK];
 
 const SESSION_ROUTES = {
   [SESSION_EDIT]: EDIT_DOCUMENT_ROUTE,
   [SESSION_SAVE]: OPEN_PR_ROUTE,
   [SESSION_ABANDON]: ABANDON_SESSION_ROUTE,
+  [SESSION_SHARE]: SHARE_SESSION_ROUTE,
   [SESSION_FIRST_EDIT]: FIRST_EDIT_ROUTE,
 };
 
@@ -924,12 +967,16 @@ export const SESSION_VERBS = {
   [SESSION_EDIT]: "edit-document",
   [SESSION_SAVE]: "open-pr",
   [SESSION_ABANDON]: "abandon-session",
+  [SESSION_SHARE]: "share-session",
 };
 
 export const SESSION_LABELS = {
   [SESSION_EDIT]: "✎ rewrite a document in this session",
   [SESSION_SAVE]: "⇪ save — open the pull request",
   [SESSION_ABANDON]: "⌧ abandon this session",
+  // Named for what it DOES and what it does not: a colleague can resume, and no
+  // pull request is opened. "share" alone reads like publishing to the world.
+  [SESSION_SHARE]: "⇧ share — push the branch for a colleague (no pull request)",
   [SESSION_REFRESH_NOTEBOOK]: "↻ re-sync the session notebook",
 };
 
@@ -1279,6 +1326,15 @@ export function sessionRequest(affordance, scope, values) {
     if (asId(v.body).trim()) body.body = asId(v.body).trim();
     return body;
   }
+  if (affordance === SESSION_SHARE) {
+    // The scope and nothing else is REQUIRED. No title and no body -- the route
+    // takes neither, because they name a pull request this verb does not open --
+    // and the note is optional. Returning before the `reason` line below matters:
+    // that line belongs to the abandon ending, and a share that fell through to
+    // it would post an empty required reason on every invocation.
+    if (asId(v.notes).trim()) body.notes = asId(v.notes).trim();
+    return body;
+  }
   body.reason = asId(v.reason).trim();
   return body;
 }
@@ -1312,6 +1368,11 @@ export function sessionCommand(affordance, opts) {
     parts.push("--document", q(asId(o.document) || "<path in the session worktree>"));
     // `--content-file`, never inline text, so a shell cannot mangle a document
     parts.push("--content-file", q(asId(o.contentFile) || "<file holding the replacement>"));
+    if (asId(o.notes).trim()) parts.push("--notes", q(o.notes));
+  } else if (affordance === SESSION_SHARE) {
+    // No `--title`, no `--body-file`: those name a pull request this verb does
+    // not open. The note is optional and never invented — an unfilled note is
+    // absent from the line rather than a placeholder somebody would paste.
     if (asId(o.notes).trim()) parts.push("--notes", q(o.notes));
   } else if (affordance === SESSION_SAVE) {
     // optional, and NOT invented when unfilled: a pull request titled `<title>`
@@ -1394,6 +1455,15 @@ export function presentationPosture(input) {
         "state inline.",
     };
   }
+  // `chat: true` MARKS THE RUNGS THAT ARE ABOUT CHAT rather than about the
+  // plane (Brett's 2026-08-18 annotation round 2). All three below leave the
+  // canvas offered — chat is what failed, not editing — and their sentence now
+  // belongs to the SEND BUTTON, whose tooltip and accessible description state
+  // it where the human is trying to act ("make this text the hover text for the
+  // send button if no model selected"). The plane rungs above carry no such
+  // flag: they explain a canvas that is WITHHELD, there is no send button to
+  // hang them on, and they keep their inline note.
+  //
   // T104 F10-1: the catalog-FAILURE rungs, above editor-only because a
   // failed catalog also reports zero approved models — the count alone
   // cannot tell "nothing is configured" from "the answer could not be
@@ -1404,21 +1474,42 @@ export function presentationPosture(input) {
   // both — chat is what failed, not editing (FR-025).
   if (facts.catalogFailure === "console_required") {
     return {
-      kind: "console-token-stale", canvas: true,
+      kind: "console-token-stale", canvas: true, chat: true,
       note: "chat is unavailable — this page's console token is stale; " +
         "reload the page to continue. Both editors remain fully usable.",
     };
   }
   if (facts.catalogFailure) {
     return {
-      kind: "catalog-unreadable", canvas: true,
+      kind: "catalog-unreadable", canvas: true, chat: true,
       note: "chat is unavailable — the model catalog could not be read; " +
         "both editors remain fully usable.",
     };
   }
   if (approvedModels === 0) {
+    // add-doxchat-model-intake §1: the sentence is UNCHANGED — byte for byte,
+    // and pinned as such — and the intake fact is ADDED to it rather than
+    // replacing it. The posture is true and actionable and stays first;
+    // replacing it with an invitation to enrol would trade a statement of
+    // posture for a call to action, and the posture is the fact the human
+    // needs. What the added clause buys is the one thing the old sentence could
+    // not say: where the remedy is.
+    //
+    // AND ONLY HERE. Neither `catalogFailure` rung above offers it, deliberately
+    // and permanently: an unreadable catalog and a stale console token are bugs
+    // with their own remedies, and telling a human to buy a subscription to fix
+    // a reload is worse than telling them nothing.
+    //
+    // A FACT AND NOT A SECOND SENTENCE. The note is unchanged, character for
+    // character, because the WHERE already has a home: the selector's first
+    // option, which is exactly where Brett asked for it and exactly where the
+    // human is trying to act. A rung that also said it in prose would be the
+    // "second, weaker statement of the same fact" the ratified requirement
+    // refuses. The flag exists so a surface that needs to KNOW — a test, a
+    // future affordance — can ask the ladder rather than re-derive it.
     return {
-      kind: "editor-only", canvas: true,
+      kind: "editor-only", canvas: true, chat: true,
+      intakeOffered: facts.intakeOffered === true,
       note: "chat is unavailable — no approved model is configured; both " +
         "editors remain fully usable.",
     };
@@ -1489,6 +1580,41 @@ export function firstEditVerdict(payload) {
   };
 }
 
+// ---- THE FIVE RULED CAPTION STATES (add-doxbench-distilled-abstract, ruling 5)
+//
+// RULED 2026-08-25 (Brett, option C on `opensoft/openxFactory#84`), reversing
+// IN PART the 2026-08-03 scope ruling recorded under `documentAbstract` below.
+// The deterministic abstract survives exactly as ruled and stays this region's
+// DEFAULT; beside it, doxBench now generates a SEPARATE model-derived abstract
+// on an explicit human request. The two are captioned so a reader can never
+// mistake one for the other, and each caption states WHO derived it and WHAT it
+// is not.
+//
+// These sentences are the SERVER'S vocabulary, not this file's invention:
+// `doxbench_knowledge.RULED_CAPTIONS` spells them for the route, and the whole
+// table is asserted EQUAL to the Python one
+// (`test_doxbench_abstract_pane.py::test_the_five_ruled_captions_are_spelled_exactly_as_the_route_answers`).
+// Five string literals in three files are five strings that drift; one table
+// bridged by one test is not.
+export const ABSTRACT_CAPTION_MODEL_DERIVED = "model-derived";
+export const ABSTRACT_CAPTION_DETERMINISTIC = "deterministic";
+export const ABSTRACT_CAPTION_STALE = "stale";
+export const ABSTRACT_CAPTION_NOT_YET_GENERATED = "not-yet-generated";
+export const ABSTRACT_CAPTION_HOSTED_PLANE = "hosted-plane";
+
+export const ABSTRACT_CAPTIONS = Object.freeze({
+  [ABSTRACT_CAPTION_MODEL_DERIVED]:
+    "Distilled by a model — not authoritative; regenerable from the "
+    + "document.",
+  [ABSTRACT_CAPTION_DETERMINISTIC]: "From the document's own headers",
+  [ABSTRACT_CAPTION_STALE]:
+    "Distilled from an earlier version of this document",
+  [ABSTRACT_CAPTION_NOT_YET_GENERATED]:
+    "No distillation generated for this document yet",
+  [ABSTRACT_CAPTION_HOSTED_PLANE]:
+    "No distillation is available on this plane",
+});
+
 // THE DOCUMENT ABSTRACT (operator annotation vibe_1785602331813_gvku9sh2s):
 // "the top half ... shows the doc selected distilled summary abstract ... an
 // abstract that surfaces the key items delivered by doc."
@@ -1550,6 +1676,223 @@ export function documentAbstract(doc) {
     signals: Object.freeze(signals),
     lands: Object.freeze(lands),
     note,
+    // THE CAPTION, AS A FIELD (add-doxbench-distilled-abstract, ruling 5 /
+    // task 8.1). It was a rule nobody could read off the object: the 08-03
+    // guard was a whole-FILE substring sweep, and once the model-derived
+    // sibling's caption ships in the same file a file-level assertion can no
+    // longer tell "the model-derived abstract correctly says distilled" from
+    // "the deterministic one wrongly does". A field per abstract can, and this
+    // is that field -- ruling 5's exact sentence, the one the route answers
+    // with (`doxbench_knowledge.RULED_CAPTIONS`), and NEVER a distillation.
+    caption: ABSTRACT_CAPTIONS[ABSTRACT_CAPTION_DETERMINISTIC],
+  });
+}
+
+// ---- THE MODEL-DERIVED ABSTRACT'S STATE (add-doxbench-distilled-abstract §7)
+//
+// ONE REGION, ONE STATE AT A TIME (ruling 5 / task 7.5). The upper half of the
+// docs split is a MEASURED 280px box, so two regions would mean two accessible
+// names for one box and a second thing to keep in sync. This function is what
+// decides which of the five ruled states that one region is showing, what it
+// says, what its accessible name is, and which controls exist beside it.
+//
+// PURE, like `documentAbstract` above: it reads a description of what the pane
+// knows and returns a frozen record. No DOM, no I/O, no imports. The transport
+// stays in `app.js` (ONE fetch call site) and the wiring in
+// `staging-workbench.js`; this file cannot reach a route even by accident.
+//
+// THE ACCESSIBLE NAME IS COMPOSED, and that is the whole of task 7.10: the
+// SUBJECT's title (or path) plus the provenance caption of the state showing,
+// joined by an em dash. So a reader using assistive technology learns WHICH
+// DOCUMENT and WHICH PROVENANCE from the name alone, the deterministic and
+// model-derived states are distinguishable without reading the body, and the
+// name MOVES when either half moves. It is never `selected document`: that name
+// belongs to the loaded-document selector, and two surfaces claiming one name is
+// how the two come to disagree about which document a reader is on.
+const ABSTRACT_NAME_JOIN = " — ";
+const ABSTRACT_DIGEST_PREFIX = 12;
+const ABSTRACT_NO_SUBJECT_NAME = "document abstract — no document selected";
+const ABSTRACT_NO_SUBJECT_NOTE = "select a document below to see what it declares";
+const ABSTRACT_SAVED_VERSION_NOTE =
+  "this describes the SAVED version of the document; the unsaved edits in "
+  + "the buffer were never sent";
+const ABSTRACT_WAIT_UNBOUNDED =
+  "generating — this adapter has not yet stated how long it may take";
+
+function abstractWaitText(seconds) {
+  // THE ADAPTER'S OWN BOUND, never the contract's ceiling. `MAX_ADAPTER_TIMEOUT_
+  // SECONDS` is a VALIDATED CEILING and not a prediction, and a region stating
+  // two minutes while the adapter declared one would be lying in the safe
+  // direction and still lying. Before any response for this scope has carried a
+  // bound there is no number to state, so the sentence names none rather than
+  // guessing — an invented number is exactly how 120 gets shown for a
+  // 60-second adapter.
+  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds <= 0) {
+    return ABSTRACT_WAIT_UNBOUNDED;
+  }
+  return "generating — the adapter states a bound of " + seconds
+    + " seconds; this can be cancelled";
+}
+
+// WHICH DIGEST THE ABSTRACT IS COMPARED AGAINST (ruling 3 / task 7.6b).
+//
+// For an UNLOADED subject — which is most wheel subjects — it is the digest of
+// the SERVED SAVED CONTENT, as echoed by the server on the most recent answer
+// for that path. The per-buffer settled-content-identity guard is deliberately
+// NOT required of it: a document with no buffer has no per-buffer identity, and
+// a rule that demanded one would have nothing to compare.
+//
+// Where the subject IS a loaded buffer the comparison ESCALATES to that
+// buffer's own settled identity, because the buffer is then the newer truth
+// about what the document holds. An UNSETTLED buffer (a hash still being
+// computed) proves nothing about content identity, so it falls back rather than
+// forcing a comparison against a value that is about to change.
+export function abstractSubjectDigest(input) {
+  const facts = input || {};
+  const buffer = facts.buffer && typeof facts.buffer === "object"
+    ? facts.buffer : null;
+  if (buffer && buffer.loaded === true && buffer.settled === true
+      && typeof buffer.digest === "string" && buffer.digest) {
+    return buffer.digest;
+  }
+  return typeof facts.echoedDigest === "string" && facts.echoedDigest
+    ? facts.echoedDigest : null;
+}
+
+export function abstractRegionState(input) {
+  const facts = input || {};
+  const subject = facts.subject && typeof facts.subject === "object"
+    ? facts.subject : null;
+  const label = subject
+    ? String(subject.title || subject.path || "") : "";
+  const hosted = facts.plane === "hosted";
+  // A capability is a LOCAL-PLANE fact. The hosted read-only plane offers no
+  // model-consuming route at all, so no capability it might report could make
+  // one appear.
+  const capable = facts.capable === true && !hosted;
+  const generated = facts.generated && typeof facts.generated === "object"
+    ? facts.generated : null;
+  const inFlight = facts.inFlight === true;
+  const dirty = facts.dirty === true;
+  const refusal = facts.refusal && typeof facts.refusal === "object"
+    && typeof facts.refusal.reason === "string" && facts.refusal.reason
+    ? facts.refusal.reason : null;
+
+  // NOTHING SELECTED. An empty scope selects no document, and a region that
+  // claimed a provenance for a document that is not there would be naming an
+  // abstract nobody has. It states the absence instead, in the sentence the
+  // pane already used.
+  if (!subject || !label) {
+    return Object.freeze({
+      captionState: null, caption: "", text: null,
+      accessibleName: ABSTRACT_NO_SUBJECT_NAME,
+      stale: false, digestPrefix: null,
+      note: ABSTRACT_NO_SUBJECT_NOTE, savedVersionNote: null,
+      inFlight: false, waitText: null, structured: false,
+      generateOffered: false, regenerateOffered: false, cancelOffered: false,
+      toggleOffered: false, toggleLabel: null,
+    });
+  }
+
+  const model = facts.view === "model";
+  const named = (state) => label + ABSTRACT_NAME_JOIN + ABSTRACT_CAPTIONS[state];
+
+  // THE DETERMINISTIC STATE, which is what the region OPENS on: it is the one
+  // that exists before any model runs, and it re-presents the document's own
+  // declared fields rather than rendering prose. `structured` says so — the
+  // view draws the summary/topics/lands/signals rows itself, so there is no
+  // `text` for this state to carry.
+  if (!model) {
+    return Object.freeze({
+      captionState: ABSTRACT_CAPTION_DETERMINISTIC,
+      caption: ABSTRACT_CAPTIONS[ABSTRACT_CAPTION_DETERMINISTIC],
+      text: null,
+      accessibleName: named(ABSTRACT_CAPTION_DETERMINISTIC),
+      stale: false, digestPrefix: null, note: null,
+      // The deterministic abstract reads the SNAPSHOT, never a buffer, so it
+      // makes no claim at all about saved-versus-unsaved.
+      savedVersionNote: null,
+      inFlight: false, waitText: null, structured: true,
+      generateOffered: false, regenerateOffered: false, cancelOffered: false,
+      toggleOffered: true,
+      toggleLabel: "show the model-distilled abstract",
+    });
+  }
+
+  // THE MODEL-DERIVED STATE, in its five postures. Order is load-bearing: the
+  // plane outranks the capability, which outranks whatever is cached.
+  const controls = {
+    generateOffered: capable && !inFlight && !generated,
+    regenerateOffered: capable && !inFlight && !!generated,
+    cancelOffered: inFlight,
+    toggleOffered: true,
+    toggleLabel: "show the document's own headers",
+  };
+  const tail = {
+    inFlight,
+    waitText: inFlight ? abstractWaitText(facts.waitBoundSeconds) : null,
+    structured: false,
+    ...controls,
+  };
+
+  // (1) THE HOSTED READ-ONLY PLANE. A statement about the PLANE and never
+  // about the document: nothing here says this document cannot be distilled,
+  // only that this plane does not distil.
+  if (hosted) {
+    return Object.freeze({
+      captionState: ABSTRACT_CAPTION_HOSTED_PLANE,
+      caption: ABSTRACT_CAPTIONS[ABSTRACT_CAPTION_HOSTED_PLANE],
+      text: null,
+      accessibleName: named(ABSTRACT_CAPTION_HOSTED_PLANE),
+      stale: false, digestPrefix: null, note: null, savedVersionNote: null,
+      ...tail,
+      generateOffered: false, regenerateOffered: false,
+    });
+  }
+
+  const current = typeof facts.currentDigest === "string" && facts.currentDigest
+    ? facts.currentDigest : null;
+  const source = generated && typeof generated.subjectDigest === "string"
+    ? generated.subjectDigest : null;
+  // (2) STALE (ruling 3). The subject's content has moved past the digest this
+  // abstract was generated from, so it is SHOWN and LABELLED, with its SOURCE
+  // digest stated — not discarded, not silently refreshed, and never presented
+  // as current. A regeneration in flight shows OVER it rather than replacing
+  // it, which is why `inFlight` rides in `tail` instead of pre-empting a state.
+  const stale = !!(generated && source && current && current !== source);
+  if (generated) {
+    const state = stale
+      ? ABSTRACT_CAPTION_STALE : ABSTRACT_CAPTION_MODEL_DERIVED;
+    return Object.freeze({
+      captionState: state,
+      caption: ABSTRACT_CAPTIONS[state],
+      text: typeof generated.prose === "string" ? generated.prose : null,
+      accessibleName: named(state),
+      stale,
+      // A SHORT PREFIX is what a 280px box can carry, and it is the ABSTRACT'S
+      // OWN digest — the version it describes — never the current one.
+      digestPrefix: stale ? source.slice(0, ABSTRACT_DIGEST_PREFIX) : null,
+      note: refusal,
+      // (3) THE DIRTY LOADED SUBJECT (task 7.4). The server reads the SAVED
+      // bytes and the request carries no field a buffer could travel in, so
+      // this abstract describes the saved version — stated BESIDE the ruled
+      // caption rather than by bending it, because the ruled captions are
+      // exact.
+      savedVersionNote: dirty ? ABSTRACT_SAVED_VERSION_NOTE : null,
+      ...tail,
+    });
+  }
+
+  // (4) NOT YET GENERATED — including after a stated refusal, whose reason is
+  // rendered as the note. A refusal carries NO prose by construction, so there
+  // is no field an unverified answer could arrive in.
+  return Object.freeze({
+    captionState: ABSTRACT_CAPTION_NOT_YET_GENERATED,
+    caption: ABSTRACT_CAPTIONS[ABSTRACT_CAPTION_NOT_YET_GENERATED],
+    text: null,
+    accessibleName: named(ABSTRACT_CAPTION_NOT_YET_GENERATED),
+    stale: false, digestPrefix: null, note: refusal, savedVersionNote: null,
+    ...tail,
   });
 }
 

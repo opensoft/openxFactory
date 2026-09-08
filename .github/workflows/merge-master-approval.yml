@@ -1,0 +1,1828 @@
+# openxFactory's own Merge Master review lane. ADVISORY over every pull
+# request; OPERABLE for the ONE candidate class
+# `.github/merge-approval-envelope.yml` enrolls, and for nothing else.
+#
+# Realizes the WORKFLOW-INSTANCE HALF of `add-substantive-review-lane` task 5.1
+# ("`opensoft/openxFactory` gets its own workflow instance ... since
+# `pull_request_target` fires in the repo the PR targets"). The RULESET HALF of
+# that task is deliberately NOT here — see WHAT THIS STILL DOES NOT DO below.
+#
+# ── AMENDED 2026-09-06 — ACT A4 (openxFactory #656) ──────────────────────────
+#
+# Until this change the lane approved nothing and the absence was STRUCTURAL:
+# no token mint, no review submission, no merge call, and a test that asserted
+# every one of those absences. It now MINTS THE MERGE-MASTER APP TOKEN AND
+# SUBMITS AN APPROVE REVIEW — for a candidate matching the enrolled envelope
+# class, and only when every envelope condition conjunctively holds.
+#
+# THE AUTHORITY, stated where a reader meets the code. Brett Heap, 2026-09-06,
+# on openxFactory #656: *"author the envelope PR now as a narrow first
+# candidate"*. HIS MERGE WORD ON THAT PULL REQUEST IS THE GRANT — for the
+# single candidate `intent-rolling-custody` and for nothing else. The
+# Gate-Rules Council's 2026-08-28 UNANIMOUS REFUSAL STANDS for the class it
+# refused (a class over `openspec/changes/**`, whose admitted surface lies
+# wholly inside the canonical GATE_INTEGRITY_FLOOR and so can never convene),
+# and `add-substantive-review-lane` task 3.2 — the council's general grant of
+# an operable candidate class for this repository — REMAINS OPEN beyond this
+# one candidate.
+#
+# WHAT DID NOT CHANGE, because these are what keep the grant narrow:
+#   * THE JOB ID, HENCE THE CHECK-RUN NAME. Still the single job
+#     `merge-master-approval`. No required-check context moves and no ruleset
+#     is touched by this file.
+#   * THE WORKFLOW'S OWN TOKEN IS STILL READ-ONLY. `permissions:` below grants
+#     `contents: read`, `pull-requests: read`, `checks: read`,
+#     `statuses: read` and nothing else. THE ONLY WRITE AUTHORITY IN THIS LANE
+#     is a per-run GitHub App token, minted from `MERGE_MASTER_APP_ID` /
+#     `MERGE_MASTER_APP_KEY` only AFTER the pinned core has decided, scoped to
+#     `permission-pull-requests: write` ALONE (the APPROVE review AND the
+#     sticky comment: GitHub accepts EITHER `issues: write` OR
+#     `pull_requests: write` on the Issues Comments API when the target is a
+#     pull request, and the merge-master App — installation 159938946, App
+#     ID 4312542 — holds no `issues` permission on this installation at all,
+#     by design) on this repository alone. That is a STRICTER posture than
+#     xFactory's caller, which carries `pull-requests: write` on its own
+#     `GITHUB_TOKEN`.
+#   * THE ADVISORY FLOOR VERDICT still runs on every pull request exactly as
+#     before, and is now COMPOSED OVER the envelope: a candidate touching ANY
+#     never-clearable path is refused before the envelope decides, so an
+#     approval requires the floor AND the envelope to hold together.
+#   * NO MERGE, EVER. This lane submits a review and stops. It issues no merge
+#     call and enables no auto-merge — the aggregation's own intent-apply lane
+#     arms GitHub's auto-merge on its side (ruling D-3 on #656) — and the test
+#     still refuses every merge-shaped string in this file.
+#
+# WHAT IT DOES. On every pull request against the default branch it checks out
+# codexFactory's decision core at a RECORDED PIN, gathers the pull request's
+# changed paths provably complete, and evaluates the `repository_gate_floor`
+# that the core declares for `opensoft/openxFactory` — the never-clearable path
+# set (`scripts/merge_master/openxfactory-review-authority-floor.yaml`). The
+# verdict is rendered to the job summary. That floor has been committed in
+# codexFactory since the `015-widen-review-authority-floor` work and NOTHING in
+# openxFactory read it until this file.
+#
+# APPROVAL, AND ITS ONE DOOR. The approval is reachable ONLY through the
+# envelope: every approval-shaped step below carries
+# `steps.envelope.outputs.decision == 'approve'` in its `if:`, and that output
+# is written by nothing but the pinned core's own exit code. A pull request
+# that matches no enrolled surface reaches `skip` and no fact about it is
+# gathered at all; a candidate that matches but fails any condition reaches
+# `park`, which submits nothing and explains itself on the pull request.
+# `tests/review_lane_pin/test_review_lane_caller.py` asserts that single door,
+# the exact envelope shape it opens for, and the continued absence of every
+# merge-shaped step.
+#
+# WHAT THIS STILL DOES NOT DO, itemized because every one of them is a thing a
+# reader would otherwise assume landed:
+#   * NO MERGE AND NO AUTO-MERGE. There is no merge call and no auto-merge
+#     enablement anywhere below. The absence is STRUCTURAL, not a disabled
+#     condition, and the test asserts it over the file text.
+#   * NO RULESET CHANGE. This check is required by nothing, satisfies nothing,
+#     and blocks nobody. The human review gate on this repository is untouched.
+#     It stays that way until S3 and S5 of `add-wallet-carried-review-authority`
+#     land AND a ratified ruleset change says otherwise.
+#   * NO SECOND CANDIDATE CLASS. `.github/merge-approval-envelope.yml` carries
+#     EXACTLY ONE candidate, `intent-rolling-custody`, enrolled on Brett Heap's
+#     word of 2026-09-06 and confined to `ideation/dashboard/intents/**` and
+#     `ideation/dashboard/gate-records/**`. Adding a second is not a
+#     configuration change but a NEW GRANT, needing its own word or its own
+#     council record; the file is code-owned and the test pins its shape.
+#     The 2026-08-28 refusal is undisturbed and task 3.2 stays OPEN.
+#   * NO TIER-2 COUNCIL CLEARANCE. xFactory's caller composes a ratified
+#     council-clearance rule over its envelope, with a verdict transport, an
+#     anti-spoofing identity binding and a consecutive-clearance derivation.
+#     None of that is here: this lane evaluates the tier-1 envelope alone, so
+#     a condition that fails simply parks and no clearance path exists to
+#     re-decide it. A narrow first candidate does not need a clearance
+#     mechanism, and one it does not have cannot be misused.
+#   * NO WALLET-BOUND EXERCISE RECORD. `governance/review-authority/register.yaml`
+#     records `act`-tier review authority for the merge-readiness council over
+#     `opensoft/openxFactory` (row `row-mrc-0001`). This lane claims no exercise
+#     of it. A wallet-signed exercise verified at `check_verdict` is S3 of
+#     `add-wallet-carried-review-authority` and is unlanded; until it lands such
+#     an act records as `event_class: unauthenticated_request` and
+#     `unattributed`, which `openxwallet/spec.md` rules "is not assigned to a
+#     holder".
+#   * NO REVOCATION CHECK. S5's revocation-at-verdict-consumption, staleness
+#     bound, and unreadable-register-refuses rule are not implemented.
+#
+# WHY THIS IS NOT A THIN CALLER OF `review-lane-reusable.yml`. The obvious-looking
+# precedent — xFactory's `.github/workflows/review-lane.yml`, which is
+# `uses: opensoft/codexFactory/.github/workflows/review-lane-reusable.yml@<sha>`
+# — is the WRONG precedent for this goal, and the reason is recorded so nobody
+# re-derives it:
+#   * that reusable workflow produces a substantive review artifact and a
+#     review-record pull request. It reports no check named
+#     `merge-master-approval`, and its caller is `workflow_dispatch` ONLY: it
+#     never runs on a pull request;
+#   * the `merge-master-approval` check-run name comes from a JOB ID. GitHub
+#     names a called workflow's check-runs `<caller job>/<called job>`, so a
+#     caller that `uses:` a reusable can only ever produce
+#     `merge-master-approval / prepare` and friends — never the literal token a
+#     future ruleset would require.
+# The workflow that actually produces that check is a single non-reusable job:
+# codexFactory's own `.github/workflows/merge-master-approval.yml` and
+# xFactory's aggregation caller of the same name, both `pull_request_target`.
+# That is the shape mirrored here.
+#
+# THE PIN, AND WHY IT DIVERGES FROM xFACTORY'S. xFactory pins codexFactory
+# `f4702f647c285012c15717043332f68f1edefc29` (2026-08-28) in BOTH its
+# merge-master surfaces (`.github/workflows/merge-master-approval.yml` and
+# `.github/workflows/council-convening-lane.yml`) and calls advancing it a
+# recorded re-point ceremony. The 2026-08-28 ceremony converged all three
+# surfaces on that commit; this file diverged again on 2026-09-01, and pinning
+# the same commit HERE is once more impossible: at `f4702f64` the floor document
+# carries FOUR entries rather than the sixty-eight this pin now names — the
+# fifty-three the (b′) ruling landed, grown to sixty spec paths by
+# openxFactory's own promotions, beside eight hand-reasoned chokepoints — and
+# `post_merge_tree_paths`, `candidate_floor_drift` and
+# `parse_repository_floor_reporting` — the three functions steps 7 and 8 below
+# now call — do not exist. Since the floor evaluation is the only thing this
+# caller does, and the (b′) extension is the object of the advance, the
+# converged pin cannot run it. The divergence is therefore FORCED BY THE
+# FEATURE, not chosen for freshness. The pin is recorded in
+# `contracts/review-lane-pin.yaml`, routed to a code owner, asserted by test,
+# and carries the obligation to converge the three surfaces at a future
+# re-point ceremony.
+#
+# (The prior version of this note named `3c35ca8b` (2026-08-21) as xFactory's
+# pin. That was true when it was written and stopped being true at the
+# 2026-08-28 ceremony, which advanced xFactory's two surfaces and did not come
+# back to correct this paragraph. Recorded rather than quietly overwritten: a
+# stale divergence note is the failure mode this whole block exists to prevent.)
+#
+# ADVANCED AGAIN 2026-09-03, from `db157dbb` to `605d48ac` (codexFactory PR
+# #183, an LQ-A7 completeness repair, ADD-SIDE): the machine-generated block
+# was regenerated at openxFactory `6f80e67e` — this pull request's own branch
+# tip, where `add-project-repo-schema` was archived, realized at
+# `contract-v3.1`, promoted — to carry the new
+# `openspec/specs/project-repo-schema/spec.md` onto the floor. Fifty-seven
+# never-clearable paths becomes fifty-eight (and see the next note, which takes
+# it to sixty-three). Per the pinned core's
+# `docs/repository-gate-floor-repair-runbook.md` and openxFactory PR #569
+# (`47f90080`): this file's two pin literals, the pytest-suite core checkout's
+# `ref:`, `contracts/review-lane-pin.yaml`, and the vendored floor snapshot
+# with its digest all move together, in the one commit that made this note.
+#
+# ADVANCED AGAIN THE SAME DAY, from `605d48ac` to `8f770afb` (codexFactory PR
+# #186, merge, 21:55:35Z) — AS THE SECOND LANDER OF A TWO-PACKET COLLISION.
+# Two openxFactory packets promoted a new capability on 2026-09-03 and each
+# asked for its own regeneration. Regeneration ENUMERATES A TREE rather than
+# editing a list, so codexFactory PR #184 — regenerating for THIS repository's
+# `update-standards-body-current-publications` at that branch's PRE-MERGE head
+# `c9928846` — wrote a block correct for the tree it read and silently dropped
+# `openspec/specs/project-repo-schema/spec.md`, which that tree did not carry.
+# PR #186 regenerated once more at `8d893a0f`, this branch's merge of `main`
+# `19d00872` and the first tree anywhere carrying BOTH specs, restoring
+# `project-repo-schema` beside `standards-body-registry` for fifty-five spec
+# paths. Neither earlier pull request is defective: each regenerated at a real
+# tree, exactly as CSC-C7 requires, and the second-lander regeneration is the
+# runbook's own remedy for the collision.
+#
+# The floor total moves fifty-eight -> SIXTY-THREE, and only ONE of the five
+# added entries is a spec. The other four are CHOKEPOINTS: codexFactory PR
+# #182 (merge `e5534552`, 20:51:52Z — authored before #183/#184 but merged
+# after both) floored `governance/factory-identity/register.yaml` and the
+# wallet, grant and custody attestation beside it BY NAME, realizing this
+# repository's ratified `add-cpc-clearing-boundary` task 2.7. All four exist
+# on this repository's tree, so step 8 below gains four reachable floor paths
+# and no dead entry. (And see the next TWO notes, which take the floor to
+# sixty-four and then to sixty-five.)
+#
+# ADVANCED 2026-09-04, from `8f770afb` to `79198ac4` (codexFactory PR #195,
+# merge, 12:25:19Z) — the SAME LQ-A7 completeness repair, ADD-SIDE, and this
+# time a SINGLE LANDER with no collision to answer for. Archiving
+# `add-subject-establishment` promotes
+# `openspec/specs/subject-establishment/spec.md`, which arrived OFF the
+# enumerated floor and reddened the REQUIRED `pytest-suite` by way of
+# `tests/review_lane_pin/test_floor_snapshot.py`'s coverage assertion. PR #195
+# regenerated the machine-generated block at openxFactory `c236c6b1` — THIS
+# pull request's own branch head, the only tree carrying the new path — for
+# fifty-six spec paths.
+#
+# Sixty-three never-clearable paths becomes SIXTY-FOUR, and the single added
+# entry IS the spec: no chokepoint arrives with it, the eight hand-reasoned
+# entries are untouched, nothing is removed, and step 8 below gains one
+# reachable floor path and no dead entry. Per the pinned core's
+# `docs/repository-gate-floor-repair-runbook.md` and openxFactory PR #569
+# (`47f90080`): this file's two pin literals, the pytest-suite core checkout's
+# `ref:`, `contracts/review-lane-pin.yaml`, and the vendored floor snapshot
+# with its digest all move together, in the one commit that made this note.
+#
+# ADVANCED AGAIN 2026-09-04, from `79198ac4` to `bfb8bde3` (codexFactory PR
+# #197, MERGE COMMIT, 14:05:07Z) — THE SAME LQ-A7 COMPLETENESS REPAIR,
+# ADD-SIDE, FOR THE SECOND TIME IN ONE DAY, and the repetition rather than the
+# advance is what this note exists to record. Archiving
+# `create-medxchart-overlay-boundary` promotes
+# `openspec/specs/medxchart-overlay-boundary/spec.md`, which arrived OFF the
+# enumerated floor and reddened the REQUIRED `pytest-suite` in THREE places
+# (`tests/review_lane_pin/test_floor_snapshot.py`'s LQ-A7 coverage assertion
+# AND both of its negative controls, which guard the ordering of that same
+# surface and fail with it by construction) and reddened THIS lane at stage
+# `floor_incomplete`, naming the one uncovered path. PR #197 regenerated the
+# machine-generated block at openxFactory `2a3b29c8` — THIS pull request's own
+# ARCHIVE COMMIT, the first tree in existence carrying the new path — for
+# fifty-seven spec paths.
+#
+# Sixty-four never-clearable paths becomes SIXTY-FIVE, and the single added
+# entry IS the spec: no chokepoint arrives with it, the eight hand-reasoned
+# entries are untouched, nothing is removed, and step 8 below gains one
+# reachable floor path and no dead entry. The five sites move together, in the
+# one commit that made this note, exactly as the note above says.
+#
+# TWO ADVANCES IN ONE DAY IS THE FEATURE'S CADENCE, NOT AN INCIDENT, AND A
+# THIRD IS ALREADY OWED. Every openxFactory archive promoting a NEW capability
+# owes one, because this floor is an EXACT ENUMERATION and a promotion is an
+# addition to the set it enumerates. `add-subject-establishment` paid it at
+# 12:25:19Z and `create-medxchart-overlay-boundary` at 14:05:07Z, one hundred
+# minutes apart, on the same repair path. The SIBLING
+# `create-medxpractice-overlay-boundary` promotes a second new capability and
+# will take the floor 65 -> 66; it is deliberately NOT folded in here, because
+# floored before its tree exists it would be a DEAD entry, which is the state
+# LS-A2 exists to prevent. ONE REGENERATION PER LANDED TREE, IN ORDER.
+#
+# ADVANCED A THIRD TIME 2026-09-04, from `bfb8bde3` to `6d35c4fe` (codexFactory
+# PR #198, MERGE COMMIT, 16:02:21Z) — THE ADVANCE THE NOTE ABOVE PREDICTED BY
+# NAME, and the prediction landing is the point rather than the advance.
+# Archiving `create-medxpractice-overlay-boundary` promotes
+# `openspec/specs/medxpractice-overlay-boundary/spec.md`, the second of the two
+# Medx capabilities, which arrived OFF the enumerated floor for the same
+# structural reason as the first. PR #198 regenerated the block at openxFactory
+# `0ae74086` — this pull request's own pushed head after its archive and ledger
+# commits, the first tree carrying the new path — for fifty-eight spec paths.
+#
+# Sixty-five never-clearable paths becomes SIXTY-SIX, the single added entry IS
+# the spec, the eight hand-reasoned entries are untouched, nothing is removed,
+# and step 8 below gains one reachable floor path and no dead entry. The five
+# sites move together in the one commit that made this note.
+#
+# THE FAMILY CLOSES HERE, AND THE RULE OUTLIVES IT. Three advances in one
+# afternoon — `subject-establishment` at 12:25:19Z, `medxchart-overlay-boundary`
+# at 14:05:07Z, `medxpractice-overlay-boundary` at 16:02:21Z — because an EXACT
+# ENUMERATION owes an advance to every promotion of a NEW capability. No
+# openxFactory change now in flight promotes one, so the next advance belongs to
+# whichever future archive first does; what to carry forward is the rule and the
+# runbook's two-repository order, never the count.
+#
+# ADVANCED A FOURTH TIME 2026-09-04, from `6d35c4fe` to `76fa501c` (codexFactory
+# PR #204, MERGE COMMIT, 23:47:59Z) — EIGHT HOURS AFTER THE NOTE ABOVE CALLED
+# ITSELF THE LAST OF THE FAMILY, and exactly the "whichever future archive first
+# does" it named, not a correction of it. Archiving `add-chain-anchoring`
+# promotes `openspec/specs/chain-anchoring/spec.md`, which arrived OFF the
+# enumerated floor for the same structural reason as the three before it. PR
+# #204 regenerated the block at openxFactory `3afd8a8c` — THIS pull request's
+# own pushed head, EXACTLY — for fifty-nine spec paths.
+#
+# Sixty-six never-clearable paths becomes SIXTY-SEVEN, the single added entry
+# IS the spec, the eight hand-reasoned entries are untouched, nothing is
+# removed, and step 8 below gains one reachable floor path and no dead entry.
+# `git merge-base --is-ancestor origin/main HEAD` holds outright on this
+# branch, so no commit main gained after the branch was cut needed
+# reconciling. The five sites move together in the one commit that made this
+# note.
+#
+# FOUR ADVANCES, ONE DAY: `subject-establishment` at 12:25:19Z,
+# `medxchart-overlay-boundary` at 14:05:07Z, `medxpractice-overlay-boundary` at
+# 16:02:21Z, and `chain-anchoring` at 23:47:59Z — because an EXACT ENUMERATION
+# owes an advance to every promotion of a NEW capability. No openxFactory
+# change now in flight promotes one, so the next advance again belongs to
+# whichever future archive first does.
+#
+# ADVANCED AN EIGHTH TIME 2026-09-05, from `76fa501c` to `e57643a7`
+# (codexFactory PR #208, merge commit), realizing the ratified
+# `mirror-floor-addition-grace` — and its object is the ADDITION GRACE, not a
+# spec promotion: the floor's generated block is BYTE-UNCHANGED (`generated_at`
+# stays `3afd8a8c`, `entry_count` stays 59, floor total stays 67) — the FIRST
+# advance in this pin's history whose floor grew by zero paths. The pinned
+# core's own `add-floor-addition-grace` (codexFactory PR #206, merge
+# `712fc8ca`, an ancestor of `e57643a7`) is what moved: step 8 below now
+# imports `evaluate_floor_completeness` and `pin_window_for_document` from it
+# directly rather than hand-rolling the completeness set difference, and
+# `tests/review_lane_pin/test_floor_snapshot.py` mirrors the same rule locally,
+# falsified by replaying the core's own exported vectors. See
+# `contracts/review-lane-pin.yaml`'s own comment history for the full
+# ancestry measurement; the five pin sites move together in the one commit
+# that made this note.
+#
+# ADVANCED A NINTH TIME 2026-09-05, from `e57643a7` to `67a6ffc9` — task 4.2 of
+# `mirror-floor-addition-grace` (codexFactory PR #212, merge commit,
+# 2026-09-05T18:08:23Z), the ONE regeneration task 4.1 requested at a LANDED
+# openxFactory commit rather than at any pull request's own unlanded head:
+# `f6724f04`, this repository's own `mirror-floor-addition-grace` realization
+# (PR #686). The generated block again grew by ZERO paths — `f6724f04` adds no
+# `openspec/specs` entry the tree at `3afd8a8c` lacked, so `generated_at` and
+# the regenerate command's `--ref` re-timestamp `3afd8a8c` -> `f6724f04` while
+# `entry_count` stays 59 and the floor total stays 67 — the SECOND advance
+# whose floor grew by zero paths, and this time deliberately: the object is
+# retiring `3afd8a8c`, which task 4.3 records was NOT an ancestor of
+# openxFactory `main`, in favor of `f6724f04`, which IS. THAT is what this
+# advance changes operationally: `specs_floor_block.pin_window_for_document`
+# fail-safes to `None` ("not measured") whenever the declared `generated_at`
+# will not resolve as an ancestor of the base branch being measured, so step 8
+# below could only ever report `pin_measured: false` against the eighth
+# advance's `3afd8a8c` on this repository's own `main`. Against `f6724f04` the
+# window is measurable for the first time — the addition-grace mechanism the
+# eighth advance made operative finally has a resolvable pin to measure from.
+# See `contracts/review-lane-pin.yaml`'s own comment history for the full
+# measurement; the five pin sites move together in the one commit that made
+# this note.
+#
+# ADVANCED A TENTH TIME 2026-09-05, from `67a6ffc9` to `ad15a898` — the SECOND
+# post-grace regeneration, and this one requested not by a hand-repair of a
+# stale header but by the packet's OWN archive: codexFactory PR #226 (MERGE
+# COMMIT `ad15a898`, 2026-09-05T21:52:00Z) ran
+# `generate_specs_floor_block.py --write` at openxFactory `b5eddaa3` — the
+# merge commit of PR #699, the openxFactory half of archiving
+# `mirror-floor-addition-grace` itself (codexFactory's own half landed first
+# per the packet's own `sequenced_after:`, PR #218, merge `35c08994`) — and (the
+# same requirement the ninth advance measured) a commit reachable from
+# openxFactory `main`.
+#
+# THE FLOOR GREW BY ONE PATH, AND FOR THE FIRST TIME THAT PATH WAS NOT ALREADY
+# RED SOMEWHERE. PR #699 CREATES
+# `openspec/specs/review-lane-floor-mirror/spec.md` — the specification
+# `mirror-floor-addition-grace` itself promotes on archiving — under a floor
+# that is an exact enumeration; every promotion before the eighth advance
+# reddened at least one lane on the pull request that created its path. Under
+# the grace now in force in both lanes, PR #699 instead landed GREEN: the
+# required lane held the surface `covered-pending`
+# (`created_by_candidate`, tolerance 3) and step 8 below printed
+# `pending_floor_extension` naming the one path, on that pull request itself.
+# `generate_specs_floor_block.py --write` at `b5eddaa3` closes that deferral
+# rather than repairing a refusal: `generated_at` / `--ref` move `f6724f04` ->
+# `b5eddaa3`; `entry_count` moves 59 -> 60; the floor total moves 67 -> 68. The
+# eight hand-reasoned entries are untouched and nothing is removed, so no dead
+# entry arrives with it. See `contracts/review-lane-pin.yaml`'s own comment
+# history for the full measurement; the five pin sites move together in the
+# one commit that made this note.
+#
+# WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
+# reported against a four-entry floor and could refuse only a floor that had
+# gone unreachable on the BASE branch. It now also:
+#   * refuses the candidate that REMOVES OR RENAMES a floored path, judged
+#     against the POST-MERGE path set (the base tree adjusted by the candidate's
+#     own changed files) rather than the base tree alone — LA-A2 and CPL-C1,
+#     whose whole complaint was that the deleting pull request went green and
+#     the NEXT, innocent one went red;
+#   * REPORTS BEFORE IT REFUSES on an unreachable floor — LS-A1: the unreachable
+#     entries by name, and `matched_paths` over the reachable subset, at an
+#     explicit `floor_partially_unreachable` stage, before `exit 1`;
+#   * refuses when a tracked `openspec/specs/**` path is ABSENT from the floor —
+#     LQ-A7's completeness direction, a set difference over `tree_paths.txt`,
+#     which this lane already had on hand.
+# Authority for all three: the (b′) record's §6.1/§9 and the vendored ballot
+# §4, `hermes/domain/review-councils/records/` in codexFactory.
+#
+# TRIGGER / SECURITY REASONING.
+#   * `pull_request_target` runs the workflow definition FROM THE BASE BRANCH.
+#     Every rule, config and pin this job acts on therefore comes from the base
+#     tree, so a pull request can never alter what governs its own evaluation.
+#     No pull-request head content is checked out or executed anywhere below:
+#     only pull-request METADATA and the changed-file LISTING are read via the
+#     API.
+#   * A plain `pull_request` trigger is REFUSED. It runs THIS FILE from the
+#     pull-request head with the App credential that reads a PRIVATE repository
+#     in scope, so a same-repository pull request could rewrite this file to
+#     exfiltrate that token. `pull_request` is absent, and the test asserts its
+#     absence.
+#   * THE ACCEPTED COST, stated rather than discovered: because
+#     `pull_request_target` runs the BASE-BRANCH definition, this workflow does
+#     NOT run on the pull request that introduces it, and `workflow_dispatch`
+#     does not rescue that (the platform resolves dispatchable workflows from
+#     the default branch). The first live report is the next pull request after
+#     this one lands. What stands in for the demo pre-merge is the static test:
+#     it pins the trigger set, the single-job invariant, the exact job id, the
+#     pin agreement, the enrolled envelope's exact shape, the single door the
+#     approval is reachable through, and the absence of every merge-shaped
+#     step.
+#   * A fork pull request reaches this workflow and is evaluated from metadata
+#     only. It can never be approved: the enrolled surface pins an exact
+#     same-repository head ref AND the content App's exact author login, and a
+#     fork satisfies neither, so it resolves to `skip` before any fact about
+#     it is gathered.
+#
+# WHY A MISSING CREDENTIAL FAILS RED HERE, WHERE codexFactory's OWN CALLER GOES
+# GREEN. codexFactory treats absent App config as a green "pre-registration"
+# notice, and that is right THERE: the check is a required gate, so a red check
+# would wedge every pull request. It is wrong HERE. This check gates nothing, so
+# a GREEN run that read no core is a check that manufactures the appearance of
+# review — strictly worse than having no check at all. So the run FAILS with the
+# missing identifiers named. Because no ruleset requires the check, the red
+# blocks nobody.
+name: merge-master-approval
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: >-
+          Re-evaluate this pull request specifically. Empty is a no-op: a
+          dispatch carries no pull-request payload to resolve one from.
+        type: string
+        required: false
+        default: ""
+
+# Per-candidate, not a global singleton. xFactory's group is repo-wide because
+# its candidate is a single rolling nightly pull request; here every open pull
+# request is a candidate, and a repo-wide group would serialize them all behind
+# each other for no benefit. A superseded run's verdict is stale by definition,
+# so cancelling it is correct.
+concurrency:
+  group: merge-master-approval-${{ github.event.pull_request.number || inputs.pr_number || github.ref }}
+  cancel-in-progress: true
+
+# READ-ONLY, DELIBERATELY, AND STILL READ-ONLY AFTER ACT A4. Not one scope
+# here can submit a review, post a comment, merge, or enable auto-merge — the
+# approval and its explanatory comment are written with a separately minted,
+# per-repository App token scoped to `pull-requests: write` ALONE (the
+# review AND the sticky comment: GitHub accepts EITHER `issues: write` OR
+# `pull_requests: write` on the Issues Comments API even though a pull
+# request's conversation thread is what is actually being posted to, and the
+# merge-master App holds no `issues` permission on its installation at all),
+# and nothing else in this job can reach that token. `issues:` is absent
+# BELOW, on THIS workflow's own `GITHUB_TOKEN` (this lane files no notice
+# with it) and no `write` scope appears anywhere in this block. The two READ
+# scopes added by act A4 are what the envelope's all-checks-green condition
+# quantifies over; a declared `permissions:` block sets every undeclared
+# scope to `none`, so they have to be named to be readable at all.
+permissions:
+  contents: read # base checkout + the pinned decision core
+  pull-requests: read # candidate metadata and the changed-file listing
+  checks: read # head check-runs, for the envelope's all-checks-green condition
+  statuses: read # head commit statuses, for the same condition
+
+jobs:
+  # JOB ID IS LOAD-BEARING, TWICE. GitHub names the check-run after the job id.
+  #   1. codexFactory's `.github/merge-approval-envelope.yml` excludes its own
+  #      check-run by SUBSTRING match on the literal `merge-master-approval`, so
+  #      any future enrollment of this repository needs that literal present.
+  #   2. A future ruleset would require that exact token as a check name.
+  # AND THERE MUST BE EXACTLY ONE JOB. A second job in this workflow would
+  # produce a second check-run whose name is not that literal, which is the
+  # failure codexFactory's own caller documents at length. The test refuses a
+  # second job.
+  merge-master-approval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # THE HOUSE GUARD, in this repository's own idiom
+      # (`openxwallet-consumer-gate.yml`): a secret is tested for presence in
+      # `env`, never branched on inside an `if:` expression referencing
+      # `secrets` directly.
+      #
+      # TWO CANDIDATE IDENTITIES, tried in this order, because the cheap one may
+      # already work. `OPENXFACTORY_APP_*` is this repository's OWN content App
+      # and is present today; if its installation can read
+      # `opensoft/codexFactory`, this lane runs with no org-level change at all.
+      # `XFACTORY_APP_*` is the org App xFactory's caller uses to read the core;
+      # it is visibility-`selected` and openxFactory is NOT in its list today.
+      HAS_REPO_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' && secrets.OPENXFACTORY_APP_ID != '' }}
+      HAS_ORG_APP_KEY: ${{ secrets.XFACTORY_APP_PRIVATE_KEY != '' && secrets.XFACTORY_APP_ID != '' }}
+      # THE APPROVAL IDENTITY (act A4), guarded in the same idiom. A DISTINCT
+      # App from the two content identities above: those read codexFactory, this
+      # one submits the review. Accepted from EITHER a repository/org VARIABLE
+      # (xFactory's spelling, `vars.MERGE_MASTER_APP_ID`) or a SECRET of the
+      # same name, because act A1 shares the credential with this repository and
+      # an App id is not sensitive either way — an id that arrives as a secret
+      # must not silently disable the lane. The KEY is only ever a secret.
+      HAS_MERGE_MASTER_APP: ${{ (vars.MERGE_MASTER_APP_ID != '' || secrets.MERGE_MASTER_APP_ID != '') && secrets.MERGE_MASTER_APP_KEY != '' }}
+      # The pin, restated as an env value so the shell can compare it against
+      # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
+      # is `contracts/review-lane-pin.yaml`; this is a second witness and the
+      # test asserts the two agree. Keep it byte-identical to the `ref:` below.
+      PINNED_CORE_COMMIT: "4b12ba83add713666a94129fc45552d8989f8488"
+    steps:
+      # ---- 1. Is there any way to read the decision core at all? ------------
+      - name: Preflight — a decision-core read credential must exist
+        id: preflight
+        run: |
+          set -euo pipefail
+          if [ "${HAS_REPO_APP_KEY}" = "true" ]; then
+            echo "identity=repo" >> "$GITHUB_OUTPUT"
+            echo "Decision-core read credential: this repository's own content App (OPENXFACTORY_APP_*)."
+            exit 0
+          fi
+          if [ "${HAS_ORG_APP_KEY}" = "true" ]; then
+            echo "identity=org" >> "$GITHUB_OUTPUT"
+            echo "Decision-core read credential: the org App (XFACTORY_APP_*)."
+            exit 0
+          fi
+          # FAIL, LOUDLY AND BY NAME. Not a notice, not a skip, not a green
+          # no-op — see the header note on why this differs from codexFactory's
+          # own caller. The reason names exactly what an operator must grant.
+          {
+            echo "### merge-master-approval — FAILED (no decision-core read credential)"
+            echo
+            echo "This advisory lane must read \`opensoft/codexFactory\` at"
+            echo "\`${PINNED_CORE_COMMIT}\` to obtain the decision core. That"
+            echo "repository is private, so the default \`GITHUB_TOKEN\` cannot"
+            echo "read it, and NEITHER candidate identity is available here."
+            echo
+            echo "Grant ONE of the following to \`opensoft/openxFactory\`:"
+            echo
+            echo "1. \`secrets.OPENXFACTORY_APP_ID\` + \`secrets.OPENXFACTORY_APP_PRIVATE_KEY\`"
+            echo "   exist on this repository already — install that App on"
+            echo "   \`opensoft/codexFactory\` (read-only Contents) and this lane"
+            echo "   needs no org-level change."
+            echo "2. Add \`opensoft/openxFactory\` to the \`selected\` repository"
+            echo "   list for the org secrets \`XFACTORY_APP_ID\` and"
+            echo "   \`XFACTORY_APP_PRIVATE_KEY\`."
+            echo
+            echo "This check is ADVISORY and is required by no ruleset, so this"
+            echo "failure blocks no merge. It is red rather than green on"
+            echo "purpose: a green run that read no core would manufacture the"
+            echo "appearance of a review that did not happen."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=merge-master-approval::No decision-core read credential on opensoft/openxFactory. Grant OPENXFACTORY_APP_* access to opensoft/codexFactory, or add this repository to the selected list for XFACTORY_APP_ID / XFACTORY_APP_PRIVATE_KEY. Advisory check: this blocks no merge."
+          exit 1
+
+      # ---- 2. Mint the read token -------------------------------------------
+      # `continue-on-error` on both mints: an App that exists but cannot see
+      # codexFactory must produce the NAMED checkout failure in step 4, not an
+      # opaque action failure here.
+      - name: Mint content-App token (this repository's App)
+        id: repo-token
+        if: steps.preflight.outputs.identity == 'repo'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codexFactory
+
+      - name: Mint content-App token (the org App)
+        id: org-token
+        if: steps.preflight.outputs.identity == 'org'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: codexFactory
+
+      # ---- 3. The base tree, never the pull-request head --------------------
+      # No `ref:`. For `pull_request_target` that is the BASE branch tip; for
+      # `workflow_dispatch` it is the default branch. Never the candidate's
+      # head. `persist-credentials: false` because nothing below pushes.
+      #
+      # `fetch-depth: 0` (decision C of `mirror-floor-addition-grace`,
+      # requirement 5). B1's window —
+      # `git log --diff-filter=A <generated_at>..<base> -- openspec/specs`,
+      # measured in step 8 below via the pinned core's own
+      # `pin_window_for_document` — needs history on THIS checkout back to the
+      # floor snapshot's declared `generated_at`; a shallow checkout (the
+      # default here before this change) cannot resolve it, and the fail-safe
+      # would apply on EVERY run of this lane, silently, which is exactly the
+      # disagreement requirement 6 of the core packet forbids between a lane
+      # that blocks (`pytest-suite`, already `fetch-depth: 0`) and a lane that
+      # only reports.
+      #
+      # MEASURED COST (design.md §4, 2026-09-05): this repository's `main` is
+      # 2,025 commits, packed history 29.6 MiB — the cost of full history on a
+      # step that previously fetched one commit, once per advisory run. The
+      # alternative (deepen only to the declared pin) is cheaper and strictly
+      # more fragile: a depth sufficient today fails INTO the fail-safe later
+      # as the pin ages, and the lane would then report a bystander's path
+      # uncovered with no visible cause. `fetch-depth: 0` makes the
+      # measurement's availability independent of the pin's age; recorded as
+      # the option a reviewer may prefer on cost.
+      - name: Checkout base (this repository)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # ---- 4. The decision core, at the recorded pin ------------------------
+      # `ref:` is a LITERAL 40-hex commit, never a branch. It must stay
+      # byte-identical to `PINNED_CORE_COMMIT` above and to `core_commit` in
+      # `contracts/review-lane-pin.yaml`; the test asserts all three agree and
+      # step 5 re-asserts it at run time.
+      - name: Checkout decision core (opensoft/codexFactory, pinned)
+        id: core
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/codexFactory
+          ref: "4b12ba83add713666a94129fc45552d8989f8488"
+          path: .merge-master-core
+          persist-credentials: false
+          token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
+
+      - name: Name the checkout failure, if the core is unreadable
+        if: steps.core.outcome != 'success'
+        run: |
+          set -euo pipefail
+          {
+            echo "### merge-master-approval — FAILED (decision core unreadable)"
+            echo
+            echo "Could not check out \`opensoft/codexFactory\` at"
+            echo "\`${PINNED_CORE_COMMIT}\`. The credential resolved by the"
+            echo "preflight (\`${IDENTITY}\`) exists but could not read that"
+            echo "repository at that commit."
+            echo
+            echo "Likely causes, in order: the App is not installed on"
+            echo "\`opensoft/codexFactory\`; the installation grants no Contents"
+            echo "read; or the pinned commit is not reachable there (force-push"
+            echo "or a rewritten history)."
+            echo
+            echo "Nothing was evaluated and nothing was approved. This check is"
+            echo "ADVISORY and blocks no merge."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=merge-master-approval::Decision core unreadable — opensoft/codexFactory@${PINNED_CORE_COMMIT} could not be checked out with the ${IDENTITY} identity. Advisory check: this blocks no merge."
+          exit 1
+        env:
+          IDENTITY: ${{ steps.preflight.outputs.identity }}
+
+      # ---- 5. The pin and the checkout must name the same commit ------------
+      # The test in `tests/review_lane_pin/` is the PRIMARY guard on pin
+      # agreement. This is the second one, and it exists because the test can
+      # only see the repository's own tree: it proves the workflow and the pin
+      # file agree, while THIS step proves the commit that actually landed on
+      # disk is that same commit. A hand-edited `ref:`, or a `ref:` the platform
+      # resolved to something else, is refused here rather than judged.
+      - name: Assert the checked-out core is the pinned commit
+        run: |
+          set -euo pipefail
+          PIN_FILE=contracts/review-lane-pin.yaml
+          test -f "$PIN_FILE" || {
+            echo "::error title=merge-master-approval::$PIN_FILE is missing from the base tree; the pinned core cannot be verified." >&2
+            exit 1
+          }
+          # The pin is read with grep rather than a YAML parser on purpose: this
+          # step runs BEFORE Python is set up, and a single anchored field read
+          # needs no parser. The test reads the same file WITH a parser and
+          # asserts the whole shape, so the two together cover it.
+          DECLARED="$(grep -oE '^core_commit:[[:space:]]*"?[0-9a-f]{40}"?[[:space:]]*$' "$PIN_FILE" \
+                      | grep -oE '[0-9a-f]{40}' || true)"
+          if [ -z "$DECLARED" ]; then
+            echo "::error title=merge-master-approval::$PIN_FILE declares no readable 40-hex core_commit." >&2
+            exit 1
+          fi
+          ACTUAL="$(git -C .merge-master-core rev-parse HEAD)"
+          if [ "$DECLARED" != "$PINNED_CORE_COMMIT" ]; then
+            echo "::error title=merge-master-approval::pin drift — $PIN_FILE declares core_commit=$DECLARED but this workflow pins $PINNED_CORE_COMMIT. Change both, in one reviewed diff." >&2
+            exit 1
+          fi
+          if [ "$ACTUAL" != "$DECLARED" ]; then
+            echo "::error title=merge-master-approval::pin drift — the checked-out core is $ACTUAL but $PIN_FILE declares $DECLARED." >&2
+            exit 1
+          fi
+          echo "pinned core verified: $ACTUAL"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Ensure PyYAML
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml
+
+      # ---- 6. Resolve the candidate ----------------------------------------
+      - name: Resolve the candidate pull request
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+          EVENT_PR: ${{ github.event.pull_request.number }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          CONFIG: .github/merge-approval-envelope.yml
+          CORE: .merge-master-core/scripts/merge_master/envelope.py
+          PYTHONPATH: .merge-master-core/scripts
+        run: |
+          set -euo pipefail
+          PR_NUMBER="${EVENT_PR:-}"
+          if [ -z "$PR_NUMBER" ]; then PR_NUMBER="${INPUT_PR:-}"; fi
+          # ---- THE DISPATCH PATH (act A4) ----------------------------------
+          # `workflow_dispatch` carries no pull-request payload, and the
+          # aggregation's intent-apply lane dispatches this workflow with NO
+          # inputs at all (`gh workflow run merge-master-approval.yml --repo
+          # opensoft/openxFactory --ref main`) — the same shape this
+          # repository's own `doc-health-reusable.yml` uses to chain xFactory's
+          # approver, and for the same reason: an App-authored push raises a
+          # `pull_request_target` run that evaluates BEFORE the required checks
+          # finish, and Actions-created check suites never retrigger
+          # `check_suite`, so the explicit dispatch is the trigger that
+          # actually approves.
+          #
+          # A dispatch with no number therefore resolves its candidate the way
+          # xFactory's caller does: from the GOVERNED HEAD REFS the
+          # BASE-BRANCH envelope declares, read by the PINNED core. Never from
+          # the event payload, never from a pull-request head, and never from a
+          # branch the envelope does not enroll. With no envelope committed
+          # this whole block is inert and the dispatch is a no-op exactly as
+          # before.
+          if [ -z "$PR_NUMBER" ] && [ -f "$CONFIG" ]; then
+            if ! python3 "$CORE" --config "$CONFIG" --list-head-refs \
+                 --repo "$REPO" > envelope-head-refs.txt; then
+              echo "::error title=merge-master-approval::the pinned core could not read $CONFIG, so no candidate can be resolved from the envelope. A malformed envelope is loud rather than silently inert." >&2
+              exit 1
+            fi
+            while IFS= read -r governed_ref; do
+              [ -n "$governed_ref" ] || continue
+              # `// empty` so an empty result set reads as EMPTY rather than the
+              # four characters `null` that raw-output jq renders for a JSON
+              # null — which the emptiness test below would read as present.
+              #
+              # NO FAILURE MASKING HERE EITHER (the same rule step 7 states at
+              # length): a `gh pr list` that fails — a transient API error, an
+              # auth hiccup — is not the fact "no open pull request on this
+              # ref", and must not be read as one. An unadorned `|| true`
+              # would let exactly that failure fall through every governed
+              # ref and land on "nothing to evaluate", silently leaving the
+              # custody candidate unapproved with no signal at all. So a
+              # failed listing aborts the run instead of continuing the loop.
+              if ! found="$(gh pr list --repo "$REPO" --head "$governed_ref" \
+                    --base "$DEFAULT_BRANCH" --state open --json number \
+                    -q '.[0].number // empty')"; then
+                echo "::error title=merge-master-approval::could not list open pull requests for governed head ref '$governed_ref' — a failed read is not the same fact as 'no open pull request', so this dispatch resolution refuses rather than moving on to the next ref." >&2
+                exit 1
+              fi
+              if [ -n "$found" ]; then
+                PR_NUMBER="$found"
+                echo "dispatch resolved candidate #$PR_NUMBER on governed head ref '$governed_ref'"
+                break
+              fi
+            done < envelope-head-refs.txt
+          fi
+          # Closed-world shape check before the value reaches any API path.
+          case "$PR_NUMBER" in
+            "" )
+              echo "resolved=false" >> "$GITHUB_OUTPUT"
+              {
+                echo "### merge-master-approval — nothing to evaluate"
+                echo
+                echo "No candidate pull request in the event payload and none"
+                echo "supplied by dispatch. Nothing evaluated, nothing approved."
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+              ;;
+            *[!0-9]* | 0 )
+              echo "::error title=merge-master-approval::candidate pull-request number is not a positive integer: '$PR_NUMBER'" >&2
+              exit 1
+              ;;
+          esac
+          echo "resolved=true" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "candidate: #$PR_NUMBER"
+
+      # ---- 7. The changed-path set, gathered PROVABLY COMPLETE --------------
+      # THE FLOOR IS EXACT SET MEMBERSHIP over changed paths, so a listing that
+      # was silently cut short produces a FALSE CLEAN verdict — the worst
+      # available outcome for this lane. The hardening below is inherited from
+      # the aggregation caller's own hard-won notes and each item names a real
+      # trap, not a hypothetical one:
+      #   * `.changed_files` on the pull-request RESOURCE is the AUTHORITATIVE
+      #     total, and the head SHA is read from the SAME response so the two
+      #     can never describe different trees.
+      #   * `gh pr view --json files` (GraphQL) is hard-coded `files(first: 100)`
+      #     with no pagination and no truncation signal — verified live, a
+      #     6181-file pull request returned exactly 100 entries and exit 0.
+      #   * GraphQL `files.totalCount` is CLAMPED to 3000 and reports
+      #     "complete" on a 6181-file pull request, so it must never be the
+      #     authoritative total.
+      #   * the compare endpoint caps at 300 files and reports no total at all.
+      #   * GraphQL's file type carries NO previous-filename field, so a rename
+      #     out of a floored path shows only the destination. REST carries
+      #     `previous_filename`, and BOTH paths enter the judged set.
+      #   * NO FAILURE MASKING. `gh api` writes its error body to stdout and
+      #     exits non-zero, so a `|| echo '[]'` fallback would convert a failed
+      #     or rate-limited query into a clean, empty, apparently-complete fact
+      #     set. Every failure below parks with its reason instead.
+      - name: Gather the candidate's changed paths (provably complete)
+        id: paths
+        if: steps.candidate.outputs.resolved == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          # A fact that cannot be OBTAINED is not a fact that is EMPTY. Every
+          # gather failure below parks: no verdict, a named reason, and a
+          # SUCCESSFUL job — the park is the outcome, not an infrastructure
+          # error. Nothing is ever fabricated to keep the evaluation moving.
+          park() {
+            echo "parked=true" >> "$GITHUB_OUTPUT"
+            echo "::warning title=merge-master-approval::parked before evaluation: $1"
+            {
+              echo "### merge-master-approval — PARKED (fact gather)"
+              echo
+              echo "- candidate: #${PR_NUMBER}"
+              echo "- reason: $1"
+              echo
+              echo "Fail-closed: no floor verdict was rendered over an unproven"
+              echo "fact set, and nothing was approved."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          }
+          gh api "repos/$REPO/pulls/$PR_NUMBER" > pr.json \
+            || park "could not read the pull-request resource for #$PR_NUMBER — the changed-path set cannot be proven complete"
+          HEAD_SHA="$(jq -r '.head.sha' pr.json)" \
+            || park "could not parse the pull-request resource for #$PR_NUMBER"
+          DECLARED_TOTAL="$(jq -r '.changed_files' pr.json)" \
+            || park "could not read the authoritative changed-file total for #$PR_NUMBER"
+          if [ -z "$HEAD_SHA" ] || [ "$HEAD_SHA" = "null" ]; then
+            park "could not resolve the candidate head SHA for #$PR_NUMBER"
+          fi
+          case "$DECLARED_TOTAL" in
+            "" | null | *[!0-9]* ) park "the authoritative changed-file total for #$PR_NUMBER is not a number" ;;
+          esac
+          gh api "repos/$REPO/pulls/$PR_NUMBER/files?per_page=100" --paginate --slurp \
+            > pr_files.pages.json \
+            || park "could not list the changed files for #$PR_NUMBER — the changed-path set cannot be proven complete"
+          # The filter PROVES the shape as it flattens: an array whose every
+          # entry is an object carrying a string `.filename` AND a string
+          # `.status`. An unexpected payload parks rather than degrading to an
+          # empty set.
+          #
+          # `.status` IS NEW HERE, and it is LA-A2's amendment in one word: "the
+          # lane already pages exactly this listing with `previous_filename`
+          # (step 7); LA-A2's amendment is to add `status` and derive [the
+          # post-merge] set." Without it the core's `post_merge_tree_paths`
+          # cannot tell a deletion from an addition, and it refuses rather than
+          # guessing — "the post-merge tree cannot be reconstructed from
+          # incomplete facts without risking either a silent deletion or a false
+          # accusation." A listing that arrives without a status is therefore a
+          # PARK, in the same class as a listing that arrives short: a fact that
+          # cannot be obtained is not a fact that is empty.
+          jq -e 'if type != "array" then error("file listing is not an array") else . end
+                 | map(if type == "array" then . else [.] end) | add // []
+                 | map(if type == "object" and (.filename | type) == "string"
+                          and (.status | type) == "string" then .
+                       else error("file entry without a string filename and status") end)' \
+            pr_files.pages.json > pr_files.json \
+            || park "the changed-file listing for #$PR_NUMBER was not the expected shape — the changed-path set cannot be proven complete"
+          ENTRY_COUNT="$(jq -r 'length' pr_files.json)"
+          if [ "$ENTRY_COUNT" != "$DECLARED_TOTAL" ]; then
+            park "the changed-file gather saw $ENTRY_COUNT of $DECLARED_TOTAL declared entries for #$PR_NUMBER — refusing to judge a floor over a set that cannot be proven complete"
+          fi
+          # HEAD-SHA RECHECK, after pagination. A force-push mid-gather would
+          # mix two trees into one verdict. It self-heals on the next
+          # `synchronize`.
+          HEAD_SHA_AFTER="$(gh api "repos/$REPO/pulls/$PR_NUMBER" -q '.head.sha')" \
+            || park "could not re-read the candidate head after the changed-path gather"
+          if [ "$HEAD_SHA_AFTER" != "$HEAD_SHA" ]; then
+            park "the candidate head changed during the changed-path gather ($HEAD_SHA -> $HEAD_SHA_AFTER) — refusing to judge over a mixed fact set"
+          fi
+          # BOTH names of a renamed file enter the judged set.
+          jq -r '[ .[] | .filename, (.previous_filename // empty) ] | unique' \
+            pr_files.json > changed_paths.json
+          # THE CHANGED ENTRIES, for the post-merge reconstruction. The three
+          # fields the core's `post_merge_tree_paths` reads, and no others: a
+          # narrower object than `pr_files.json` so the evaluation below cannot
+          # start depending on a field this gather does not prove.
+          jq -r '[ .[] | {filename, status} +
+                         (if .previous_filename then {previous_filename} else {} end) ]' \
+            pr_files.json > changed_entries.json
+          {
+            echo "parked=false"
+            echo "head_sha=$HEAD_SHA"
+            echo "declared_total=$DECLARED_TOTAL"
+            # The ENTRY count, not `changed_paths | length`: a rename is ONE
+            # entry contributing TWO paths, so the path count would make every
+            # rename look like an over-count. The envelope core re-proves the
+            # declared/gathered pair itself and parks if they disagree.
+            echo "entry_count=$ENTRY_COUNT"
+          } >> "$GITHUB_OUTPUT"
+          echo "changed paths gathered: $ENTRY_COUNT entries, declared total $DECLARED_TOTAL, head $HEAD_SHA"
+
+      # ---- 8. The floor verdict, computed by the PINNED core ----------------
+      # The floor's parser, its refusals, its matching rule, its post-merge
+      # reconstruction and its drift attribution all come from the pinned core —
+      # this repository re-implements none of it. What this caller CHOOSES is
+      # WHICH TREE to hand it, and since the (b′) advance that choice is the
+      # POST-MERGE one.
+      #
+      # THREE AMENDMENTS ARE WIRED HERE, and each is a different failure:
+      #
+      #   * LA-A2 / CPL-C1 (both BLOCKING) — DELETIONS. The floor is parsed
+      #     against `post_merge_tree_paths(base tree, this candidate's changed
+      #     files)`, which is CPL-C1's first sufficient discharge in its own
+      #     words: "the base tree adjusted by the candidate's own changed paths
+      #     ... instead of the base tree alone". Against the base tree alone the
+      #     pull request that DELETES a floored path is green and the next,
+      #     innocent pull request is red — the exact inversion LA-A2 filed
+      #     ("drift detection at the causing commit") and CPL-C1 measured. The
+      #     core's `candidate_floor_drift` then says which dead entries are THIS
+      #     candidate's doing and which were already dead on the base branch,
+      #     because failing an innocent author for someone else's deletion is
+      #     the shape LS-A1 calls fail-dark.
+      #
+      #   * LS-A1 (BLOCKING) — REPORT BEFORE YOU REFUSE. On an unreachable
+      #     floor this step no longer prints one refusal string and stops. It
+      #     uses `parse_repository_floor_reporting`, names the unreachable
+      #     entries, and prints `matched_paths` over the REACHABLE subset — the
+      #     four hand-reasoned chokepoints survive every scenario the seat
+      #     probed — at an explicit `floor_partially_unreachable` stage. Then it
+      #     exits non-zero. "Fail-closed means refuse to certify; it does not
+      #     mean stop computing the part you can still compute."
+      #     FAIL-CLOSED IS PRESERVED IN FULL: nothing below certifies, and every
+      #     refusal path still ends in `exit 1`.
+      #
+      #   * LQ-A7 (BLOCKING) — COMPLETENESS, the opposite direction: every
+      #     tracked path under `openspec/specs` that the floor does not name,
+      #     computed over the POST-MERGE tree for the same reason the deletion
+      #     guard is: the pull request that ADDS the uncovered spec is the one
+      #     that must see it. SINCE `mirror-floor-addition-grace`, this is no
+      #     longer a hand-rolled set difference: this step imports the pinned
+      #     core's `evaluate_floor_completeness` directly (authoring decision
+      #     A — the advisory lane already refuses to run at all when the core
+      #     is unreadable, so it has nothing to lose by importing and
+      #     everything to lose by keeping a second copy of the classification)
+      #     and it now ALSO reports `pending_floor_extension`: a path this
+      #     candidate's own diff creates, or one that landed on the base
+      #     branch after the floor snapshot's declared `generated_at` (B1,
+      #     measured here via the core's own `pin_window_for_document`, which
+      #     is why step 3's checkout above now carries `fetch-depth: 0`), is
+      #     covered-pending rather than uncovered — named, counted, and NEVER
+      #     added to the floor. The single call also supersedes the separate
+      #     `candidate_floor_drift` call this step used to make for LA-A2 /
+      #     CPL-C1: `evaluate_floor_completeness` computes the SAME drift
+      #     partition from the SAME post-merge facts internally
+      #     (`caused_by_candidate` / `already_unreachable`), so there is one
+      #     call rather than two callers of the same underlying rule.
+      #     `refusals[0].stage` keeps the meaning it had before this change:
+      #     drift first, then already-unreachable, then completeness, with the
+      #     grace's own `pending_floor_extension` stage reported only when
+      #     nothing refuses.
+      #
+      # THE PREFIX IS A CODE CONSTANT HERE, and deliberately not read from the
+      # floor. The floor document is exact paths; the block it generated them
+      # from declares its prefix in a COMMENT, which is not data. Reading a
+      # prefix out of prose would make this assertion silently narrow when the
+      # prose changed. `openspec/specs` is what the (b′) act floored (record §8)
+      # and it is written here as one literal, next to the reason.
+      - name: Evaluate the openxFactory repository gate floor
+        id: floor
+        if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
+        env:
+          CORE_IMPORT_ROOT: .merge-master-core/scripts
+          GOVERNANCE_DIR: .merge-master-core/scripts/merge_master
+          TARGET_REPOSITORY: opensoft/openxFactory
+          CHANGED_PATHS: changed_paths.json
+          CHANGED_ENTRIES: changed_entries.json
+          # The one surface the (b′) act enumerated. See the note above on why
+          # it is a literal.
+          FLOORED_PREFIX: openspec/specs
+        run: |
+          set -euo pipefail
+          # The repository's own committed tree, as `git diff --name-only`
+          # reports paths — gitlinks appear as a bare name with no trailing
+          # slash, which is the only form the core's `_parse_exact_path`
+          # accepts.
+          git ls-tree -r --name-only HEAD > tree_paths.txt
+          python3 - <<'PY' > floor.json 2> floor.err
+          import json
+          import os
+          import pathlib
+          import sys
+
+          sys.path.insert(0, os.environ["CORE_IMPORT_ROOT"])
+
+          from merge_master.repository_floor import (  # noqa: E402
+              GovernanceDocumentError,
+              evaluate_floor_completeness,
+              load_governance_paths,
+              parse_repository_floor_reporting,
+              post_merge_tree_paths,
+          )
+          from merge_master.specs_floor_block import (  # noqa: E402
+              pin_window_for_document,
+          )
+
+          import yaml  # noqa: E402
+
+          governance_dir = os.environ["GOVERNANCE_DIR"]
+          target = os.environ["TARGET_REPOSITORY"]
+          prefix = os.environ["FLOORED_PREFIX"].rstrip("/") + "/"
+
+          def refuse(stage, reason, **extra):
+              print(json.dumps({"ok": False, "stage": stage,
+                                "reason": reason, **extra}))
+              raise SystemExit(0)
+
+          with open(os.environ["CHANGED_PATHS"], encoding="utf-8") as handle:
+              changed = list(json.load(handle))
+          with open(os.environ["CHANGED_ENTRIES"], encoding="utf-8") as handle:
+              entries = list(json.load(handle))
+          with open("tree_paths.txt", encoding="utf-8") as handle:
+              tree = [line.rstrip("\n") for line in handle if line.strip()]
+
+          # INTEGRITY FIRST, over the whole governance directory. This is the
+          # core's own loader: it refuses an unknown document kind and refuses
+          # two floors declaring one repository. Running it means the verdict
+          # below stands on a directory the core itself accepts, not merely on
+          # one file that happened to parse.
+          try:
+              rule_paths, floors = load_governance_paths([governance_dir])
+          except GovernanceDocumentError as exc:
+              refuse("governance_load", str(exc))
+
+          if target not in floors:
+              # NOT a clean verdict. The absence of a floor for this repository
+              # is reported as the absence it is.
+              refuse("no_floor",
+                     "the pinned decision core declares no repository_gate_floor "
+                     "for %s (floors present: %s)" % (target, sorted(floors)))
+
+          # THE TARGET'S OWN DOCUMENT, located by content rather than by name.
+          # `text` is kept alongside the parsed mapping: `generated_at` lives
+          # in a YAML COMMENT inside the generated block, not a data field, so
+          # `pin_window_for_document` below reads it from the raw text via
+          # `parse_block_header` rather than from `yaml.safe_load`'s result.
+          floor_path, document, floor_text = None, None, None
+          for name in sorted(os.listdir(governance_dir)):
+              if not name.endswith((".yaml", ".yml")):
+                  continue
+              candidate = os.path.join(governance_dir, name)
+              with open(candidate, encoding="utf-8") as handle:
+                  text = handle.read()
+              parsed = yaml.safe_load(text)
+              if not isinstance(parsed, dict):
+                  continue
+              if parsed.get("kind") != "repository_gate_floor":
+                  continue
+              if (parsed.get("floor") or {}).get("repository") != target:
+                  continue
+              floor_path, document, floor_text = candidate, parsed, text
+              break
+
+          # THE POST-MERGE TREE (LA-A2 / CPL-C1). The core refuses a changed
+          # entry it cannot classify rather than guessing, and a guess here is
+          # either a silent deletion or a false accusation — so its refusal is
+          # surfaced as its own stage instead of being folded into the floor's.
+          try:
+              post_merge = list(post_merge_tree_paths(tree, entries))
+          except GovernanceDocumentError as exc:
+              refuse("changed_entries_unusable", str(exc))
+
+          # REPORT-BEFORE-REFUSE (LS-A1). Every STRUCTURAL refusal — a wildcard,
+          # a duplicate, a bad schema_version — still raises here and is still
+          # fatal; only the reachability refusal becomes a reported partition.
+          try:
+              report = parse_repository_floor_reporting(
+                  document, tree_paths=post_merge)
+          except GovernanceDocumentError as exc:
+              refuse("floor_document_refused", str(exc), document=floor_path)
+
+          floor = report.declared
+          verdict = {
+              "ok": True,
+              "stage": report.stage,
+              "floor_id": floor.id,
+              "repository": floor.repository,
+              "document": floor_path,
+              "never_clearable_paths": list(floor.never_clearable_paths),
+              "changed_path_count": len(changed),
+              "changed_entry_count": len(entries),
+              "base_tree_paths": len(tree),
+              "post_merge_tree_paths": len(post_merge),
+              # LS-A1: matches over the REACHABLE subset, always computed and
+              # always printed, refusal or not.
+              "matched_paths": list(report.matching_paths(changed)),
+              "unreachable_paths": list(report.unreachable_paths),
+              "caused_by_candidate": [],
+              "already_unreachable": [],
+              "rule_documents": [os.path.basename(p) for p in rule_paths],
+              "floored_prefix": prefix,
+              "tracked_under_prefix": 0,
+              "uncovered_paths": [],
+              "refusals": [],
+          }
+
+          # LQ-A7 + the addition grace + LA-A2/CPL-C1, ONE CALL — the pinned
+          # core's `evaluate_floor_completeness` (authoring decision A: the
+          # advisory lane IMPORTS rather than re-derives). It computes the
+          # completeness direction (`uncovered` / `pending`) and the drift
+          # partition (`refused_removals` / `already_unreachable`) from the
+          # SAME post-merge facts internally, superseding the separate
+          # `candidate_floor_drift` call this step used to make: one home for
+          # the classification, not two callers of it.
+          #
+          # `base_tree_paths=tree` is the BASE tree (this step's own
+          # `git ls-tree` above ran on the base checkout, step 3) —
+          # `evaluate_floor_completeness` reconstructs the post-merge tree
+          # itself from `tree` + `entries`, the same way `post_merge_tree_paths`
+          # above already did, so `post_merge` (used for LS-A1's reachability
+          # report) and `completeness`'s own internal post-merge set are the
+          # SAME computation run twice on the same inputs, never two rules.
+          #
+          # `generated_at` / `window` are B1's measurement: the floor
+          # snapshot's declared pin, and the paths added to `origin/main`
+          # after it, read via the pinned core's OWN
+          # `pin_window_for_document` — never re-derived here. `window` is
+          # `None` (NOT `()`) whenever the pin does not resolve or is not an
+          # ancestor of the base: no grace from that half, fail-safe, exactly
+          # as the core's own contract states. This is why step 3's checkout
+          # of THIS repository now carries `fetch-depth: 0` — the range
+          # `generated_at..origin/main` is unmeasurable on a shallow checkout,
+          # and an unmeasurable pin silently produces `window=None` on every
+          # run rather than only when the pin is genuinely unresolvable.
+          generated_at, window = pin_window_for_document(
+              floor_text, pathlib.Path("."), base_ref="origin/main",
+              prefix=prefix)
+
+          completeness = evaluate_floor_completeness(
+              floor,
+              prefix=prefix,
+              base_tree_paths=tree,
+              changed_entries=entries,
+              generated_at=generated_at,
+              added_since_pin=window,
+          )
+          verdict.update(completeness.report())
+
+          if verdict["refusals"]:
+              verdict["ok"] = False
+              verdict["stage"] = verdict["refusals"][0]["stage"]
+              verdict["reason"] = verdict["refusals"][0]["reason"]
+          print(json.dumps(verdict))
+          PY
+          if [ ! -s floor.json ]; then
+            echo "::error title=merge-master-approval::the floor evaluation produced no output" >&2
+            if [ -s floor.err ]; then cat floor.err >&2; fi
+            exit 1
+          fi
+          OK="$(jq -r '.ok' floor.json)"
+          echo "evaluated=true" >> "$GITHUB_OUTPUT"
+          echo "ok=$OK" >> "$GITHUB_OUTPUT"
+          # THE REPORT COMES FIRST, AND IT COMES ON EVERY PATH (LS-A1). What is
+          # printed here is printed whether the verdict is clean or refused, so
+          # a reviewer reading a red run still learns which floor entries the
+          # candidate touched rather than only which ones died.
+          #
+          # EVERY LOOKUP CARRIES ITS OWN `// []` OR `// "-"`, and that is not
+          # defensive noise. The four EARLY refusal stages — `governance_load`,
+          # `no_floor`, `changed_entries_unusable`, `floor_document_refused` —
+          # emit a document carrying `stage` and `reason` and nothing else, and
+          # `.matched_paths[]` over an absent key is a jq ERROR, not an empty
+          # list. Without the defaults the report would abort at its first line
+          # exactly when the run has gone wrong, which is the one time a reader
+          # needs it. This whole block is a report and must never be able to
+          # change the verdict, so it also cannot fail the step.
+          jq -r '"stage:                 " + (.stage // "-"),
+                 "floor entries:         " + ((.never_clearable_paths // []) | length | tostring),
+                 "reachable matches:     " + ((.matched_paths // []) | length | tostring),
+                 "unreachable entries:   " + ((.unreachable_paths // []) | length | tostring),
+                 "  caused by candidate: " + ((.caused_by_candidate // []) | length | tostring),
+                 "  already dead:        " + ((.already_unreachable // []) | length | tostring),
+                 "tracked under prefix:  " + ((.tracked_under_prefix // 0) | tostring)
+                                           + " (" + (.floored_prefix // "-") + ")",
+                 "uncovered by floor:    " + ((.uncovered_paths // []) | length | tostring),
+                 "covered-pending:       " + ((.pending_floor_extension.count // 0) | tostring)
+                                           + " (tolerance " + ((.pending_floor_extension.tolerance // 0) | tostring)
+                                           + (if (.pending_floor_extension.escalated // false)
+                                              then ", ESCALATED to floor_incomplete" else "" end)
+                                           + ", pin " + (if (.pending_floor_extension.pin_measured // false)
+                                                         then "measured" else "NOT measured (fail-safe)" end)
+                                           + ")",
+                 ((.matched_paths       // [])[] | "  matched:      " + .),
+                 ((.caused_by_candidate // [])[] | "  YOU KILLED:   " + .),
+                 ((.already_unreachable // [])[] | "  already dead: " + .),
+                 ((.uncovered_paths     // [])[] | "  UNCOVERED:    " + .),
+                 ((.pending_floor_extension.reasons // {}) | to_entries[]
+                   | "  PENDING (" + .value + "): " + .key)' \
+            floor.json || true
+          if [ "$OK" != "true" ]; then
+            jq -r '.refusals[]? | "::error title=merge-master-approval::floor evaluation refused at stage " + .stage + ": " + .reason' floor.json >&2
+            # A refusal that produced no `refusals` array is still a refusal:
+            # the early `refuse()` stages carry `stage` and `reason` alone.
+            [ "$(jq -r '.refusals | length' floor.json 2>/dev/null || echo 0)" != "0" ] \
+              || echo "::error title=merge-master-approval::floor evaluation refused at stage $(jq -r '.stage' floor.json): $(jq -r '.reason' floor.json)" >&2
+            exit 1
+          fi
+          MATCHED="$(jq -r '.matched_paths | length' floor.json)"
+          echo "matched=$MATCHED" >> "$GITHUB_OUTPUT"
+          echo "floor_id=$(jq -r '.floor_id' floor.json)" >> "$GITHUB_OUTPUT"
+          echo "floor evaluated: $MATCHED never-clearable path(s) touched"
+
+      # ---- 9. Render the advisory verdict ----------------------------------
+      - name: Render the advisory verdict
+        if: steps.floor.outputs.evaluated == 'true' && steps.floor.outputs.ok == 'true'
+        env:
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          MATCHED="$(jq -r '.matched_paths | length' floor.json)"
+          {
+            echo "### merge-master-approval — ADVISORY verdict"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| candidate | #${PR_NUMBER} @ \`${HEAD_SHA}\` |"
+            echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
+            echo "| floor | \`$(jq -r '.floor_id' floor.json)\` for \`$(jq -r '.repository' floor.json)\` |"
+            echo "| changed paths judged | $(jq -r '.changed_path_count' floor.json) |"
+            echo "| floor entries | $(jq -r '.never_clearable_paths | length' floor.json) |"
+            echo "| never-clearable paths touched | ${MATCHED} |"
+            PENDING_COUNT="$(jq -r '.pending_floor_extension.count // 0' floor.json)"
+            if [ "$PENDING_COUNT" -gt 0 ]; then
+              echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json) (${PENDING_COUNT} covered-pending, NOT on the floor — see below) |"
+            else
+              echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json), all on the floor |"
+            fi
+            echo "| tree judged | post-merge ($(jq -r '.post_merge_tree_paths' floor.json) paths; base $(jq -r '.base_tree_paths' floor.json)) |"
+            # THE ADDITION GRACE ROW (`mirror-floor-addition-grace`, task 3.4).
+            # `pending_floor_extension` is ALWAYS present in the report shape,
+            # so this row renders on every ok=true run, at 0 when nothing is
+            # graced — never omitted, so a reader cannot mistake its absence
+            # for "no grace was computed".
+            TOLERANCE="$(jq -r '.pending_floor_extension.tolerance // 0' floor.json)"
+            ESCALATED="$(jq -r '.pending_floor_extension.escalated // false' floor.json)"
+            PIN_MEASURED="$(jq -r '.pending_floor_extension.pin_measured // false' floor.json)"
+            echo "| covered-pending (addition grace) | ${PENDING_COUNT} (tolerance ${TOLERANCE}$([ "$ESCALATED" = "true" ] && echo ", ESCALATED") — B1 pin $([ "$PIN_MEASURED" = "true" ] && echo "measured" || echo "NOT measured, fail-safe")) |"
+            echo
+            if [ "$MATCHED" -gt 0 ]; then
+              echo "**This candidate touches a PERMANENTLY HUMAN-ONLY path.** No"
+              echo "council verdict may ever autonomously clear it:"
+              echo
+              jq -r '.matched_paths[] | "- `" + . + "`"' floor.json
+            else
+              echo "This candidate touches none of the never-clearable paths the"
+              echo "pinned core declares for this repository."
+              echo
+              echo "That is NOT a clearance and NOT an approval. It means only"
+              echo "that the repository gate floor does not, by itself, forbid"
+              echo "one. Whether an approval FOLLOWS is decided separately, by"
+              echo "the envelope evaluation below, and only for the one"
+              echo "candidate class \`.github/merge-approval-envelope.yml\`"
+              echo "enrolls. Every other pull request reaches \`skip\` there and"
+              echo "is approved by nothing. No council verdict and no tier-2"
+              echo "clearance exist on this repository at all."
+            fi
+            if [ "$PENDING_COUNT" -gt 0 ]; then
+              # `ESCALATED` cannot be `true` on this path: escalation makes
+              # `completeness.refusals()` append `floor_incomplete`, which
+              # makes `ok` false, and this whole step runs only when
+              # `steps.floor.outputs.ok == 'true'`. An escalated, REFUSED run's
+              # escalation state is surfaced instead in the `floor_incomplete`
+              # refusal's own `.reason` text (`OWED_FLOOR_REGENERATION`'s
+              # "ESCALATED: N covered-pending path(s) exceed the tolerance of
+              # T…"), printed as an `::error` annotation by the evaluation
+              # step above — this table renders only the GRACED, NOT-REFUSED
+              # case, so `${ESCALATED}` is asserted rather than branched on.
+              echo
+              echo "**$PENDING_COUNT path(s) are COVERED-PENDING under the addition"
+              echo "grace** — not floored, not matched, not counted in"
+              echo "\`entry_count\`, and THE FLOOR REGENERATION THIS IMPLIES IS OWED"
+              echo "(tolerance ${TOLERANCE}, not exceeded):"
+              echo
+              jq -r '.pending_floor_extension.reasons | to_entries[]
+                     | "- `" + .key + "` (" + .value + ")"' floor.json
+            fi
+            echo
+            echo "The floor, for reference:"
+            echo
+            jq -r '.never_clearable_paths[] | "- `" + . + "`"' floor.json
+            echo
+            echo "---"
+            echo
+            echo "**THIS SECTION IS THE ADVISORY FLOOR VERDICT ONLY.** It"
+            echo "approves nothing by itself. It is required by no ruleset, it"
+            echo "calls no merge and it enables no auto-merge; the human review"
+            echo "gate on this repository is unchanged, and the ruleset half of"
+            echo "\`add-substantive-review-lane\` task 5.1 is still owed. What"
+            echo "CAN follow is one autonomous APPROVE review, for the single"
+            echo "candidate class enrolled on Brett Heap's word of 2026-09-06"
+            echo "(openxFactory #656, act A4) — see the envelope section below."
+            echo "Wallet-bound exercise recording still waits on S3 and S5 of"
+            echo "\`add-wallet-carried-review-authority\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- 10. Anti-vacuity ------------------------------------------------
+      # In this repository's own idiom (`openxwallet-consumer-gate.yml`'s
+      # "Assert the intake register was actually read"): a POSITIVE conjunction
+      # over evidence the run produced, never an assertion that nothing failed.
+      # A run that reaches here having skipped the evaluation is a run that
+      # would have reported a green advisory check while judging nothing.
+      - name: Assert the pinned core actually judged this candidate
+        if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
+        run: |
+          set -euo pipefail
+          fail() {
+            echo "::error title=merge-master-approval::anti-vacuity check failed — $1" >&2
+            exit 1
+          }
+          test -f floor.json || fail "no floor evaluation output exists"
+          [ "$(jq -r '.ok' floor.json)" = "true" ] \
+            || fail "the floor evaluation did not complete successfully"
+          [ "$(jq -r '.repository' floor.json)" = "opensoft/openxFactory" ] \
+            || fail "the evaluated floor is not this repository's"
+          [ -n "$(jq -r '.floor_id' floor.json)" ] \
+            || fail "the evaluated floor carries no id"
+          [ "$(jq -r '.never_clearable_paths | length' floor.json)" -gt 0 ] \
+            || fail "the evaluated floor names no never-clearable paths, which no valid floor may do"
+          [ "$(jq -r '.document' floor.json)" != "null" ] \
+            || fail "the floor verdict names no source document in the pinned core"
+          # THE (b′) GUARDS, ASSERTED AS POSITIVE EVIDENCE THEY RAN. A guard
+          # that silently stopped computing is indistinguishable from a guard
+          # that found nothing, and these three are the whole object of the
+          # 2026-09-01 advance.
+          [ "$(jq -r '.post_merge_tree_paths' floor.json)" -gt 0 ] \
+            || fail "no post-merge tree was reconstructed, so the deletion guard (LA-A2 / CPL-C1) judged nothing"
+          [ "$(jq -r 'has("uncovered_paths")' floor.json)" = "true" ] \
+            || fail "the completeness assertion (LQ-A7) produced no result"
+          [ "$(jq -r '.tracked_under_prefix' floor.json)" -gt 0 ] \
+            || fail "no tracked path was found under the floored prefix, so the completeness assertion (LQ-A7) compared an empty surface against the floor and would pass over any floor at all"
+          [ "$(jq -r 'has("unreachable_paths")' floor.json)" = "true" ] \
+            || fail "the reachability report (LS-A1) produced no result"
+          # POSITIVE, not merely "no error" (`mirror-floor-addition-grace`,
+          # requirement 4 / task 3.5): a computation that silently stopped
+          # running must be distinguishable from one that ran and found
+          # nothing to grace. `.pending_floor_extension` is ALWAYS present in
+          # `completeness.report()`'s shape, so `has()` alone would pass even
+          # on a run where the key never got merged in at all — checking the
+          # `count`/`paths` PAIR the same way `TheGraceItself`'s classify
+          # function pairs them is closer to a positive result than existence
+          # alone.
+          [ "$(jq -r 'has("pending_floor_extension")' floor.json)" = "true" ] \
+            || fail "the addition-grace computation (pending_floor_extension) produced no result"
+          [ "$(jq -r '.pending_floor_extension | has("count") and has("paths") and has("reasons") and has("pin_measured")' floor.json)" = "true" ] \
+            || fail "the addition-grace computation ran but its report is missing a field (count/paths/reasons/pin_measured) — a partial result is not distinguishable from a stopped one"
+          echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied,"
+          echo "  over the post-merge tree, with the completeness, reachability and addition-grace reports all computed."
+
+      # ---- 11. THE ENVELOPE, for the one enrolled candidate class ----------
+      # ACT A4 (openxFactory #656, Brett Heap 2026-09-06). Everything above is
+      # unchanged and still runs on every pull request; everything from here on
+      # can only ever act on a candidate the BASE-BRANCH envelope enrolls.
+      #
+      # THE CONFIG AND THE CORE BOTH COME FROM THE BASE BRANCH. `$CONFIG` is
+      # read out of the base checkout made in step 3 (no `ref:`, never the
+      # candidate's head) and `$CORE` out of the pinned codexFactory checkout
+      # made in step 4. A pull request can alter neither the rules nor the code
+      # that govern its own approval — and a pull request that EDITS the
+      # envelope lands outside the envelope's own `path_allowlist`, so it can
+      # never be autonomously approved by the class it is editing.
+      #
+      # THE FLOOR IS COMPOSED OVER THE ENVELOPE, not beside it. A candidate
+      # whose changed paths touch ANY never-clearable path parks here before
+      # the envelope is consulted. The enrolled allowlist
+      # (`ideation/dashboard/**`) and the floor (`openspec/specs/**` plus eight
+      # hand-reasoned chokepoints) are disjoint today, so this gate can only
+      # fire on a future widening — which is precisely when it is needed, and
+      # precisely when nobody would remember to add it.
+      #
+      # NO FACT ABOUT AN UNENROLLED PULL REQUEST IS GATHERED. The head ref is
+      # tested against the envelope's own governed set FIRST; a non-candidate
+      # emits `skip` and stops, so this step costs an unenrolled pull request
+      # one core invocation and no API calls.
+      - name: Evaluate the merge-approval envelope (tier 1)
+        id: envelope
+        if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          DECLARED_TOTAL: ${{ steps.paths.outputs.declared_total }}
+          ENTRY_COUNT: ${{ steps.paths.outputs.entry_count }}
+          FLOOR_MATCHED: ${{ steps.floor.outputs.matched }}
+          CONFIG: .github/merge-approval-envelope.yml
+          CORE: .merge-master-core/scripts/merge_master/envelope.py
+          PYTHONPATH: .merge-master-core/scripts
+        run: |
+          set -euo pipefail
+          # --- FAIL-CLOSED OUTPUT EMISSION ----------------------------------
+          # EVERY `$GITHUB_OUTPUT` write in this step goes through `emit` and
+          # nothing else, and the reason is xFactory's hard-won one restated
+          # for this lane. `$GITHUB_OUTPUT` is a newline-delimited `key=value`
+          # file and the LAST write of a key WINS, so any value carrying a
+          # newline appends its own `key=value` pair AFTER the real one. A
+          # naive park that wrote `decision=park` first and `reason=$1` last
+          # would turn ONE newline in a reason into `decision=approve`, which
+          # is this step's entire authority.
+          #
+          # `reason` is NOT produced here: it is `.reason` out of the PINNED
+          # core, which interpolates externally-supplied identifiers into it
+          # (`check-run '<name>' concluded ...`, `status '<context>' is ...` —
+          # names chosen by whichever App wrote the check or posted the
+          # status). It is therefore not trusted to be single-line.
+          #
+          # A value that cannot be rendered on one line is REFUSED, never
+          # escaped and never truncated: the emitter publishes `decision=park`
+          # and nothing the caller supplied, so a hostile or malformed value
+          # can only ever WITHHOLD an approval, never authorise one. And
+          # `decision` carries a closed-world shape — one of four literals,
+          # never interpolated text — so a laundered string cannot become a
+          # verdict either.
+          emit() {
+            OUT_DECISION="$1" OUT_CANDIDATE="${2-}" OUT_REASON="${3-}" \
+            python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import os
+          import re
+          import sys
+
+          ORDER = ("decision", "candidate", "reason")
+          # Closed-world shapes for every field a downstream `if:` compares
+          # against a literal. `reason` carries no shape — it is free prose and
+          # decides nothing — but it must still render on one line.
+          SHAPES = {
+              "decision": re.compile(r"\A(approve|already|skip|park)\Z"),
+              "candidate": re.compile(r"\A[A-Za-z0-9._-]{0,64}\Z"),
+          }
+
+          values = {key: os.environ.get("OUT_" + key.upper(), "")
+                    for key in ORDER}
+          unsafe = any(("\n" in text or "\r" in text)
+                       for text in values.values())
+          unusable = not unsafe and any(
+              not shape.match(values[key]) for key, shape in SHAPES.items())
+          if unsafe or unusable:
+              refusal = "output_unsafe" if unsafe else "output_unusable"
+              print("merge-master: REFUSING the step outputs (%s) — parked."
+                    % refusal, file=sys.stderr)
+              print("decision=park")
+              print("candidate=")
+              print("reason=%s" % refusal)
+          else:
+              for key in ORDER:
+                  print("%s=%s" % (key, values[key]))
+          PY
+          }
+          # A fact that cannot be OBTAINED is not a fact that is EMPTY. Every
+          # gather failure below parks: no approval, a named reason, a sticky
+          # comment on the candidate, and a GREEN job — the park is the
+          # outcome, not an infrastructure error.
+          park() {
+            emit park "" "$1"
+            echo "::warning title=merge-master-approval::envelope parked: $1"
+            {
+              echo "### merge-master-approval — envelope PARKED"
+              echo
+              echo "- candidate: #${PR_NUMBER} @ \`${HEAD_SHA}\`"
+              echo "- reason: $1"
+              echo
+              echo "Fail-closed: no approval was submitted and the pull request"
+              echo "waits for the human gate exactly as before."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          }
+          if [ ! -f "$CONFIG" ]; then
+            emit skip
+            {
+              echo "### merge-master-approval — no envelope on the base branch"
+              echo
+              echo "\`$CONFIG\` is absent, so no candidate class is enrolled and"
+              echo "no envelope decision exists. Advisory verdict only."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # ---- is this pull request even enrolled? --------------------------
+          if ! python3 "$CORE" --config "$CONFIG" --list-head-refs \
+               --repo "$REPO" > envelope-head-refs.txt; then
+            echo "::error title=merge-master-approval::the pinned core could not read $CONFIG. A malformed envelope is a red run, never a silent one — nothing was evaluated and nothing was approved." >&2
+            exit 1
+          fi
+          HEAD_REF="$(jq -r '.head.ref' pr.json)" \
+            || park "could not read the candidate head ref for #$PR_NUMBER"
+          if ! grep -Fxq -- "$HEAD_REF" envelope-head-refs.txt; then
+            emit skip
+            {
+              echo "### merge-master-approval — not an enrolled candidate"
+              echo
+              echo "Head ref \`$HEAD_REF\` is not one of the governed head refs"
+              echo "the base-branch envelope declares, so no envelope decision"
+              echo "is computed and no fact about this pull request is"
+              echo "gathered. Approved by nothing."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # ---- the floor, composed OVER the envelope ------------------------
+          # `matched` is the number of never-clearable paths this candidate
+          # touches, computed by the pinned core in step 8. Anything but a
+          # literal `0` — including an EMPTY value, which is what a skipped or
+          # failed floor step leaves — refuses.
+          if [ "${FLOOR_MATCHED:-}" != "0" ]; then
+            park "the candidate touches the repository gate floor (matched=${FLOOR_MATCHED:-unavailable}); a never-clearable path is never autonomously approvable, whatever the envelope says"
+          fi
+          # ---- head check-runs and commit statuses, PROVABLY COMPLETE -------
+          # All-checks-green quantifies over EVERY non-excluded entry in these
+          # two listings exactly as the path condition quantifies over every
+          # changed path, so they carry the same proof. Each endpoint declares
+          # its own authoritative `total_count`, and the core compares it
+          # against the number of entries this gather actually followed.
+          #
+          # THE TRAP THIS CLOSES, inherited from xFactory's caller rather than
+          # rediscovered: an unpaginated status read while the check-run read
+          # paginates. The combined status resource pages at 30, so a failing
+          # legacy status past entry 30 is invisible and the condition reports
+          # satisfied. `--slurp` cannot be combined with `-q` (gh rejects the
+          # pair), so each listing is slurped raw as an array of PAGE OBJECTS
+          # and a separate jq both proves its shape and projects the fields the
+          # envelope reads. A `total_count` that moves between pages means the
+          # listing changed underneath the pagination: that parks too, rather
+          # than mixing two snapshots.
+          #
+          # NO FAILURE MASKING. `gh api` writes its error body to stdout and
+          # exits non-zero, so a `|| echo '[]'` fallback would convert a failed
+          # or rate-limited query into a clean, empty, apparently-green fact
+          # set. Failures park.
+          gh api "repos/$REPO/commits/$HEAD_SHA/check-runs?per_page=100" \
+            --paginate --slurp > envelope-check-runs.pages.json \
+            || park "could not read the head check-runs — the all-checks-green condition cannot be evaluated"
+          jq -e 'if type != "array" or length == 0 then error("check-run listing is not a non-empty page array") else . end
+                 | if ([.[].total_count] | unique | length) != 1 then error("check-run total_count moved between pages") else . end
+                 | (.[0].total_count) as $total
+                 | if ($total | type) != "number" then error("check-run listing declares no numeric total_count") else . end
+                 | [.[] | .check_runs[]] as $runs
+                 | {total: $total, entry_count: ($runs | length),
+                    entries: [$runs[] | {name: .name, status: .status,
+                                         conclusion: .conclusion,
+                                         started_at: .started_at, id: .id}]}' \
+            envelope-check-runs.pages.json > envelope-check-runs.json \
+            || park "the head check-run listing was not the expected shape — the all-checks-green condition cannot be evaluated"
+          gh api "repos/$REPO/commits/$HEAD_SHA/status?per_page=100" \
+            --paginate --slurp > envelope-statuses.pages.json \
+            || park "could not read the head commit statuses — the all-checks-green condition cannot be evaluated"
+          jq -e 'if type != "array" or length == 0 then error("status listing is not a non-empty page array") else . end
+                 | if ([.[].total_count] | unique | length) != 1 then error("status total_count moved between pages") else . end
+                 | (.[0].total_count) as $total
+                 | if ($total | type) != "number" then error("status listing declares no numeric total_count") else . end
+                 | [.[] | .statuses[]] as $entries
+                 | {total: $total, entry_count: ($entries | length),
+                    entries: [$entries[] | {context: .context, state: .state}]}' \
+            envelope-statuses.pages.json > envelope-statuses.json \
+            || park "the head commit-status listing was not the expected shape — the all-checks-green condition cannot be evaluated"
+          # ---- the author, from REST ----------------------------------------
+          # `.user.login` out of the pull-request RESOURCE, never `gh pr view
+          # --json author` (GraphQL): for a GitHub App the GraphQL author
+          # renders as `app/<slug>` (e.g. `app/openxfactory`), whereas the
+          # envelope's `expected_author` is the REST bot login
+          # `openxfactory[bot]` and the core compares by exact equality. The
+          # submit step below reads the same REST field for its idempotence
+          # check, so the two can never disagree about who authored what.
+          AUTHOR_LOGIN="$(jq -r '.user.login' pr.json)" \
+            || park "could not read the candidate author for #$PR_NUMBER"
+          # ---- the fact set --------------------------------------------------
+          # `open_findings` is deliberately EMPTY and gathered from nothing: the
+          # enrolled candidate declares no `open_finding_title_prefixes` and no
+          # `open_finding_labels`, so the core's open-finding condition can
+          # never block on it and reading every open issue in this repository
+          # would buy an `issues: read` scope that decides nothing. The envelope
+          # file records that choice and what would change it.
+          # `existing_reviews` is likewise empty: idempotence is enforced in the
+          # submit step below, at the identity that actually approves, which is
+          # the only place the approver login is known.
+          jq -n \
+            --arg repo "$REPO" \
+            --arg author "$AUTHOR_LOGIN" \
+            --argjson declared_total "$DECLARED_TOTAL" \
+            --argjson entry_count "$ENTRY_COUNT" \
+            --slurpfile pr pr.json \
+            --slurpfile paths changed_paths.json \
+            --slurpfile checks envelope-check-runs.json \
+            --slurpfile statuses envelope-statuses.json \
+            '{
+              repo: $repo,
+              pr: {
+                number: $pr[0].number,
+                author_login: $author,
+                head_ref: ($pr[0].head | .ref),
+                base_ref: ($pr[0].base | .ref),
+                head_sha: ($pr[0].head | .sha),
+                head_repo: ($pr[0].head | .repo | .full_name),
+                title: $pr[0].title
+              },
+              changed_paths: $paths[0],
+              changed_files_total: $declared_total,
+              changed_paths_entry_count: $entry_count,
+              check_runs: $checks[0].entries,
+              check_runs_total: $checks[0].total,
+              check_runs_entry_count: $checks[0].entry_count,
+              statuses: $statuses[0].entries,
+              statuses_total: $statuses[0].total,
+              statuses_entry_count: $statuses[0].entry_count,
+              open_findings: [],
+              existing_reviews: []
+            }' > envelope-facts.json \
+              || park "could not assemble the candidate fact set"
+          # ---- the decision, computed by the PINNED core --------------------
+          rm -f envelope-decision.json
+          set +e
+          python3 "$CORE" --config "$CONFIG" --facts envelope-facts.json \
+            --output envelope-decision.json
+          rc=$?
+          set -e
+          if [ "$rc" -eq 2 ]; then
+            echo "::error title=merge-master-approval::the pinned envelope core could not evaluate the candidate (config or facts error, exit 2). Nothing was approved; this is red rather than green because a lane that cannot judge must not look like one that judged and found nothing." >&2
+            exit 1
+          fi
+          [ -f envelope-decision.json ] || echo '{}' > envelope-decision.json
+          REASON="$(jq -r '.reason // ""' envelope-decision.json)"
+          CANDIDATE="$(jq -r '.candidate_id // ""' envelope-decision.json)"
+          FAILED="$(jq -r '.failed_condition // ""' envelope-decision.json)"
+          case "$rc" in
+            0)  DECISION=approve ;;
+            12) DECISION=already ;;
+            11) DECISION=skip ;;
+            10) DECISION=park ;;
+            *)
+              echo "::error title=merge-master-approval::the pinned envelope core exited $rc, which is outside its documented contract (0 approve / 10 park / 11 skip / 12 already / 2 error). Nothing was approved." >&2
+              exit 1
+              ;;
+          esac
+          emit "$DECISION" "$CANDIDATE" "$REASON"
+          {
+            echo "### merge-master-approval — ENVELOPE decision"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| candidate | #${PR_NUMBER} @ \`${HEAD_SHA}\` |"
+            echo "| enrolled class | \`${CANDIDATE:-none}\` |"
+            echo "| decision | \`${DECISION}\` |"
+            echo "| failed condition | \`${FAILED:-none}\` |"
+            echo "| reason | ${REASON} |"
+            echo "| envelope | \`${CONFIG}\` on the base branch |"
+            echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` |"
+            echo "| repository gate floor | \`${FLOOR_MATCHED}\` never-clearable path(s) touched |"
+            echo
+            if [ "$DECISION" = "approve" ] && [ "${HAS_MERGE_MASTER_APP}" != "true" ]; then
+              echo "**Every envelope condition holds, but NO APPROVAL WAS"
+              echo "SUBMITTED**: the merge-master App is not configured on this"
+              echo "repository (\`MERGE_MASTER_APP_ID\` as a variable or secret,"
+              echo "plus \`secrets.MERGE_MASTER_APP_KEY\`). That sharing is act A1"
+              echo "on openxFactory #656. Until it lands the candidate parks for"
+              echo "the human gate, which is exactly where it sat before."
+              echo
+            fi
+            echo "The full decision, as the pinned core wrote it:"
+            echo
+            echo '```json'
+            cat envelope-decision.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- 12. THE ONLY WRITE AUTHORITY IN THIS LANE ------------------------
+      # A DEDICATED merge-master App token, never the default `GITHUB_TOKEN`
+      # (whose approvals do not satisfy a required review, and which this
+      # workflow holds read-only anyway).
+      #
+      # MINTED ONLY AFTER THE PINNED CORE HAS DECIDED, and only for a decision
+      # that needs to write: `approve` submits the review, `park` explains
+      # itself on the pull request. Every other decision — `skip`, `already`,
+      # or no decision at all — mints nothing.
+      #
+      # PER-MINT NARROWING. The App installation itself needs `contents: write`
+      # for GitHub to COUNT its approval (counting is computed from the
+      # installation's permissions, live-proven on xFactory). The TOKEN this
+      # step mints needs none of that: it submits one review AND posts one
+      # sticky comment, BOTH under `pull-requests: write` alone. The comment
+      # is Issues-Comments-API shaped — the "Record the envelope outcome"
+      # step below posts and patches through
+      # `POST`/`PATCH .../issues/{n}/comments`, which is what backs a pull
+      # request's general conversation thread even though the number is a PR
+      # number — but GitHub accepts EITHER `issues: write` OR
+      # `pull_requests: write` on that endpoint when the target is a pull
+      # request. The merge-master App's installation on this org (159938946,
+      # App ID 4312542) holds NO `issues` permission at all: requesting
+      # `permission-issues: write` here does not merely omit a nice-to-have,
+      # it makes `create-github-app-token` REFUSE THE MINT OUTRIGHT
+      # ("requested permission not granted"), failing the whole lane before
+      # any review or comment is attempted. xFactory's own production caller
+      # mints with `permission-pull-requests: write` only and posts its
+      # sticky comment through this same endpoint, proven live. Scoping the
+      # mint to exactly this one permission means a compromised downstream
+      # step still holds a token that cannot write contents, merge, post
+      # issues, or touch anything else.
+      - name: Mint the merge-master App token
+        id: mm-token
+        if: >-
+          env.HAS_MERGE_MASTER_APP == 'true' &&
+          (steps.envelope.outputs.decision == 'approve' ||
+           steps.envelope.outputs.decision == 'park')
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.MERGE_MASTER_APP_ID || secrets.MERGE_MASTER_APP_ID }}
+          private-key: ${{ secrets.MERGE_MASTER_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name || 'openxFactory' }}
+          permission-pull-requests: write
+
+      # ---- 13. THE APPROVAL ------------------------------------------------
+      # THE ONE DOOR. `steps.envelope.outputs.decision == 'approve'` is written
+      # by nothing but the pinned core's exit code, through the guarded emitter
+      # in step 11, and it is the sole condition on which any review is ever
+      # submitted from this repository.
+      - name: Submit the approval review (idempotent)
+        id: submit
+        if: env.HAS_MERGE_MASTER_APP == 'true' && steps.envelope.outputs.decision == 'approve'
+        env:
+          GH_TOKEN: ${{ steps.mm-token.outputs.token }}
+          APP_SLUG: ${{ steps.mm-token.outputs.app-slug }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          CANDIDATE: ${{ steps.envelope.outputs.candidate }}
+          REASON: ${{ steps.envelope.outputs.reason }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          APPROVER="${APP_SLUG}[bot]"
+          # IDEMPOTENCE AT THE IDENTITY THAT ACTUALLY APPROVES. Re-approving the
+          # same head is harmless but noisy, and the repository's own ruleset
+          # dismisses approvals on a previous head, so the pair (approver, head)
+          # is the only correct key. REST `.user.login`, matching the author
+          # read in step 11 — the GraphQL `app/<slug>` shape would never match.
+          ALREADY="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+            -q "[.[] | select(.user.login==\"$APPROVER\" and .commit_id==\"$HEAD_SHA\" and .state==\"APPROVED\")] | length" \
+            | jq -s 'add // 0')"
+          if [ "${ALREADY:-0}" -gt 0 ]; then
+            echo "submitted=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::already approved \`$HEAD_SHA\` as $APPROVER — idempotent no-op."
+            echo "Already approved \`$HEAD_SHA\` as \`$APPROVER\` — idempotent no-op." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # THE BODY IS ASSEMBLED WITH `printf` INTO A FILE, never as a
+          # multi-line shell literal. A YAML block scalar ends at the first
+          # line indented below its own base, so a literal whose continuation
+          # lines start at column 0 silently truncates the workflow — the
+          # failure looks like a YAML syntax error a hundred lines away.
+          {
+            printf '%s\n\n' "Autonomously approved by \`$APPROVER\` under the enrolled candidate class \`$CANDIDATE\`: every condition of the reviewed low-risk envelope holds for this exact head (\`$HEAD_SHA\`), and the candidate touches none of the repository gate floor's never-clearable paths. $REASON."
+            printf '%s\n\n' "The envelope and the decision core were both read from the BASE BRANCH, so this pull request did not govern its own approval. THE GRANT IS NARROW: Brett Heap's word of 2026-09-06 on openxFactory#656 enrolls this ONE candidate class and no other, and the Gate-Rules Council's 2026-08-28 unanimous refusal stands for the class it refused. This review is CUSTODY of an already-authenticated decision, not a decision (add-ideation-intent-plane design D1)."
+            printf '%s\n' "This lane approved and stopped: it issued no merge call and enabled no auto-merge. Evidence: $RUN_URL"
+          } > approval-review-body.md
+          gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            -f event=APPROVE -f "body=$(cat approval-review-body.md)" \
+            -f "commit_id=$HEAD_SHA"
+          echo "submitted=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "### merge-master-approval — APPROVED"
+            echo
+            echo "Approved #$PR_NUMBER at \`$HEAD_SHA\` as \`$APPROVER\` under"
+            echo "candidate class \`$CANDIDATE\`. No merge was called and no"
+            echo "auto-merge was enabled by this lane."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- 14. THE EXPLANATORY COMMENT --------------------------------------
+      # ONE sticky comment, updated in place, so the candidate carries exactly
+      # one bot comment that always states the CURRENT outcome rather than a
+      # growing pile of stale ones. It covers both writing decisions: a human
+      # reading a parked custody pull request learns WHY it parked without
+      # opening a run log, and a human reading an approved one learns under
+      # whose word it was approved.
+      #
+      # Best-effort by construction: a failed comment emits a warning and never
+      # fails the run — the approval (or the park) already happened and its
+      # record is the review and the job summary.
+      - name: Record the envelope outcome on the candidate (sticky comment)
+        if: >-
+          env.HAS_MERGE_MASTER_APP == 'true' &&
+          (steps.envelope.outputs.decision == 'approve' ||
+           steps.envelope.outputs.decision == 'park')
+        env:
+          GH_TOKEN: ${{ steps.mm-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.candidate.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.paths.outputs.head_sha }}
+          DECISION: ${{ steps.envelope.outputs.decision }}
+          CANDIDATE: ${{ steps.envelope.outputs.candidate }}
+          REASON: ${{ steps.envelope.outputs.reason }}
+          SUBMITTED: ${{ steps.submit.outputs.submitted }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          MARKER="<!-- merge-master-approval -->"
+          if [ "$DECISION" = "approve" ]; then
+            if [ "${SUBMITTED:-}" = "true" ]; then
+              HEADLINE="**merge-master: APPROVED.** Every condition of the reviewed low-risk envelope holds for the current head (\`$HEAD_SHA\`) under the enrolled candidate class \`$CANDIDATE\`."
+            else
+              HEADLINE="**merge-master: already approved** for the current head (\`$HEAD_SHA\`) under the enrolled candidate class \`$CANDIDATE\` — this run submitted nothing."
+            fi
+          else
+            HEADLINE="**merge-master: parked for the human gate.** The reviewed low-risk envelope did not hold for the current head (\`$HEAD_SHA\`)."
+          fi
+          # Same rule as the review body above: `printf` into a file, never a
+          # multi-line shell literal inside a YAML block scalar.
+          {
+            printf '%s\n' "$MARKER"
+            printf '%s\n\n' "$HEADLINE"
+            if [ "$DECISION" = "approve" ]; then
+              printf '%s\n' "- The grant is narrow: Brett Heap's word of 2026-09-06 on openxFactory#656 enrolls this ONE candidate class and no other; the Gate-Rules Council's 2026-08-28 unanimous refusal stands for the class it refused."
+              printf '%s\n' "- The envelope and the decision core were both read from the BASE BRANCH, so this pull request did not govern its own approval."
+              printf '%s\n' "- This lane approved and stopped: no merge call, no auto-merge."
+            else
+              printf '%s\n' "- Reason: ${REASON:-the evaluation could not complete}"
+              printf '%s\n' "- Fail-closed: no approval was submitted; this pull request waits for your review exactly as it did before the lane became operable."
+            fi
+            printf '%s\n' "- Evidence: $RUN_URL"
+          } > sticky-comment-body.md
+          BODY="$(cat sticky-comment-body.md)"
+          EXISTING="$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            -q ".[] | select(.body|startswith(\"$MARKER\")) | .id" | head -n1 || true)"
+          if [ -n "$EXISTING" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f "body=$BODY" >/dev/null \
+              || echo "::warning title=merge-master-approval::could not update the sticky comment on #$PR_NUMBER; the decision stands and is recorded in the job summary."
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -f "body=$BODY" >/dev/null \
+              || echo "::warning title=merge-master-approval::could not post the sticky comment on #$PR_NUMBER; the decision stands and is recorded in the job summary."
+          fi

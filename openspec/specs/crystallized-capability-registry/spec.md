@@ -1,7 +1,20 @@
 # crystallized-capability-registry Specification
 
 ## Purpose
-TBD - created by archiving change add-capability-steward. Update Purpose after archive.
+
+Establish the registry as the single governed truth about which crystallized
+capabilities exist and what authority each currently holds: one git-resident
+record per capability, with the hot-path dispatch index a derived projection
+regenerated from those records and never hand-edited. Make registration
+constitutive — a capability absent from the registry does not exist
+operationally, and no side registry, allowlist, or ad-hoc lookup may make
+one reachable — and hold records to digests and references so a registry
+leak leaks no tenant data. Advance the `candidate → building → shadow →
+canary → active → degraded → retired` spine only through recorded gate
+outcomes, separate artifact pinning from authority so a demotion bites at
+the next dispatch decision while consumers still pin the old digest, and
+give every field a declared writer. The registry says what may serve and on
+whose word; what happens to a given instance is decided at the junction.
 ## Requirements
 ### Requirement: The Registry Is Governed Truth With A Derived Index
 The registry SHALL be git-resident governed records (one per capability:

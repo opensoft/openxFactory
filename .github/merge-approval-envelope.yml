@@ -1,0 +1,134 @@
+# Merge-approval envelope for `opensoft/openxFactory` — ONE enrolled candidate.
+#
+# Schema: `opensoft/codexFactory` `schemas/merge-approval-envelope.schema.json`,
+# read at the commit `contracts/review-lane-pin.yaml` pins. The evaluating code
+# is that same pinned core's `scripts/merge_master/envelope.py`; this repository
+# re-implements none of it.
+#
+# ── THE GRANT, AND ITS EXACT EXTENT ──────────────────────────────────────────
+#
+# Brett Heap, 2026-09-06, on `opensoft/openxFactory#656`: *"author the envelope
+# PR now as a narrow first candidate"*. HIS MERGE WORD ON THAT PULL REQUEST IS
+# THE GRANT, and it is a grant for the ONE candidate class enrolled below and
+# for nothing else.
+#
+# THE 2026-08-28 REFUSAL STANDS FOR THE CLASS IT REFUSED. The Gate-Rules
+# Council convened on 2026-08-28 and REFUSED, unanimously, the candidate class
+# put to it — a class over `openspec/changes/**`, refused because its admitted
+# surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR and so can
+# never convene. Nothing here disturbs that: the class below admits no
+# `openspec/` path at all, and `add-substantive-review-lane` task 3.2 — the
+# council's general grant of an operable candidate class for this repository —
+# REMAINS OPEN beyond this one candidate.
+#
+# NO OTHER CLASS IS ENROLLED. `candidates` below has exactly one entry. Adding
+# a second is not a configuration change: it is a new grant, needing its own
+# word or its own council record. This file is routed to a code owner
+# (`.github/CODEOWNERS`) so that widening it is a reviewed human act, and
+# `tests/review_lane_pin/test_review_lane_caller.py` asserts the exact shape
+# below — one candidate, these two path prefixes, `require_all_checks: true`.
+#
+# ── SECURITY: WHERE THIS FILE IS READ FROM ───────────────────────────────────
+#
+# The approval workflow reads THIS FILE FROM THE BASE (default) BRANCH ONLY,
+# never from a pull-request head, so a pull request can never alter the rules
+# that govern its own approval. `.github/workflows/merge-master-approval.yml`
+# runs on `pull_request_target`, which resolves the workflow definition AND its
+# base checkout from the base branch, and no step anywhere in it checks out or
+# executes pull-request head content. Any diff that edits THIS file also lands
+# outside the `path_allowlist` below, so such a pull request can never be
+# autonomously approved by the class it is editing.
+#
+# ── THE PRECEDENT THIS MIRRORS ───────────────────────────────────────────────
+#
+# `opensoft/xFactory` `.github/merge-approval-envelope.yml`, candidate
+# `doc-health-nightly`: bot author, exact head ref, narrow derived-tree path
+# allowlist, `require_all_checks: true`, self-excluding check name. Live since
+# 2026-07-28 and narrowed by the council's own R5 on 2026-08-26. The candidate
+# below is the same shape over a different derived tree.
+schema_version: 1
+kind: merge_approval_envelope
+id: openxfactory-merge-approval-envelope
+# Governs Opensoft's own vendor build org only — never a client tenant.
+org: opensoft
+
+candidates:
+  - id: intent-rolling-custody
+    description: >-
+      The rolling intent-custody pull request the aggregation intent-apply lane
+      pushes: bot-authored, confined to the ideation dashboard's own intent and
+      gate-action record trees, append-only by construction, trivially
+      revertible. The authenticated intent was the decision; this approval is
+      CUSTODY, not decision (add-ideation-intent-plane design D1).
+    target_repos:
+      - opensoft/openxFactory
+    # The content App that authors the custody pull request. Verified against
+    # the standing candidate: `gh api repos/opensoft/openxFactory/pulls/176
+    # --jq .user.login` -> `openxfactory[bot]`. A DISTINCT identity from the
+    # merge-master approver (GitHub's author-cannot-approve rule), so its
+    # approval counts.
+    expected_author: openxfactory[bot]
+    # The exact delivery branch the aggregation lane pushes and reuses; schema
+    # v1's exact form, deliberately not the pattern form.
+    expected_head_ref: intents/rolling
+    expected_base_ref: main
+    # ── THE ADMITTED SURFACE ─────────────────────────────────────────────────
+    #
+    # Both prefixes are what `scripts/ideation_dashboard/intent_apply_lane.py`
+    # actually writes, read out of the code rather than assumed:
+    #
+    #   ideation/dashboard/intents/**       `DEFAULT_INTENTS_DIR`; `_write_intent`
+    #                                       writes one `*.gate-intent.yaml` per
+    #                                       decided intent and NEVER overwrites
+    #                                       an existing one (`while path.exists()`
+    #                                       renames), so the tree is append-only.
+    #                                       A refusal is written here too — the
+    #                                       feed reads committed intents.
+    #   ideation/dashboard/gate-records/**  `gate_console.DEFAULT_RECORDS_DIR`;
+    #                                       `gate_action_record_relpath` writes
+    #                                       one `*.gate-action.yaml` audit entry
+    #                                       beside each applied intent.
+    #
+    # OPERATOR NOTE, and it is the point rather than a regression. The apply
+    # lane commits with `git add -A` over a tree its own clean-tree
+    # precondition proved empty, so "everything dirty" is exactly "everything
+    # this pass wrote" — including, for verbs whose target's material state is
+    # a change directory, GOVERNED ARTIFACTS OUTSIDE THESE TWO TREES. Any such
+    # delivery falls outside this allowlist and PARKS FOR THE HUMAN GATE
+    # instead of being autonomously approved. That is what makes this a narrow
+    # first candidate: the autonomy covers the record trees the console's own
+    # engine appends to, and stops at the first path that is anything else.
+    path_allowlist:
+      - ideation/dashboard/intents/**
+      - ideation/dashboard/gate-records/**
+    # Conservative superset of "all required checks green": every non-excluded
+    # check-run on the head SHA must have its latest completed run concluded
+    # success, and every non-excluded commit status must be `success`. The
+    # workflow token cannot read the org ruleset's required set, so requiring
+    # ALL checks green can only park more often, never approve something the
+    # merge gate would block. A head carrying NO check-runs at all is
+    # `considered == 0` and parks — absence is never greenness.
+    require_all_checks: true
+    # Exclude this workflow's own check-run to avoid a self-reference deadlock.
+    # `envelope.py` matches an exclusion when the string is a SUBSTRING of the
+    # check-run name, and GitHub names the check-run after the job id — which
+    # `.github/workflows/merge-master-approval.yml` keeps as the literal
+    # `merge-master-approval` for exactly this reason. Do not shorten this to
+    # `approve`: a substring that broad would also swallow unrelated checks.
+    check_exclusions:
+      - merge-master-approval
+    # NO OPEN-FINDING PREFIXES OR LABELS, deliberately, and recorded rather
+    # than left to inference. xFactory's `doc-health-nightly` names
+    # `doc-health regressions` because that candidate IS the doc-health report
+    # and such an issue is a finding ABOUT the very tree it delivers. No
+    # finding class in this repository is about the intent record trees, so a
+    # prefix here would park the custody lane on an unrelated repository-wide
+    # finding for as long as it stayed open — fail-closed, but on evidence that
+    # says nothing about this candidate. The narrowing here comes from the path
+    # allowlist and the all-checks-green superset instead. Adding a prefix, if
+    # a finding class ever does tie to this surface, is a one-line reviewed
+    # edit to a code-owned file.
+    #
+    # Invariant of the append-only record trees: reverting the merge commit
+    # fully restores the prior tree.
+    revert_suffices: true

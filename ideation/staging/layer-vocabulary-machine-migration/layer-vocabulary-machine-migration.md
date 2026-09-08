@@ -63,6 +63,40 @@ inventory.
 - Do the `$id` URL renames keep server-side redirects/aliases for archived
   release digest inventories?
 
+## Deferral with a named gate (recorded 2026-08-28)
+
+**DEFERRED. The gate is the next hermes-runtime MAJOR, and it has not
+fired.** The claim below — the migration RIDES a major and never causes one
+— is the whole reason this topic cannot be scheduled on its own, and it was
+tested in the month just past.
+
+**`contract-v2.0` fired on 2026-08-27 WITHOUT this migration, and correctly
+so.** The tag is a BREAKING bundle major, but its breakage is the openxWallet
+split (the eight wallet artifacts leaving the bundle for
+`opensoft/openXwallet`, realizing `split-openxwallet-repo` P3, preceded by
+the deprecating minor `contract-v1.47`). Measured rather than assumed:
+`git diff --stat contract-v1.47 contract-v2.0 -- contracts/hermes-runtime/
+contracts/schemas/` reports NO files changed, so the major moved no
+hermes-runtime schema and no v1 schema field, and there was nothing for the
+frozen spellings to ride. The frozen inventory in
+`contracts/policies/layer-vocabulary.yaml` is unchanged: the
+`customer|client|domain` role kinds, `customer_subject`/`customer_subject_ref`,
+the v2-family `$id`/`contract_id` values, the `hermes.layers` role keys, and
+the released v1 field names all still stand.
+
+(Recorded date corrected against the tree: the commission relayed this as
+"contract-v2.0 fired 2026-08-28"; the tag and its commit both date
+2026-08-27. The substance — that it fired without the migration — is
+confirmed.)
+
+**GATE: hermes-runtime v3 / domain-stack schema v2.** Nothing schedules that
+major today. Prose sweeps in Ops/Adx may run before it; key migrations may
+not.
+
+**This deferral is a schedule, not a standing.** It changes no `Status:`,
+and it does NOT stop the topic ageing in doc-health: there is no `deferred`
+state for a staged topic and this change deliberately adds none.
+
 ## Exit
 
 One openxFactory OpenSpec change per surface family at the scheduled major

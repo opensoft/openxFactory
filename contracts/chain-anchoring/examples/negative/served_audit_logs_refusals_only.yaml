@@ -1,0 +1,195 @@
+# expected_failure: served_audit_logs_refusals_only
+# expected_failure_detail: logs refusals only
+# A served surface logging refusals only answers who was turned away and NOT
+# who actually read — and the question an audit asks first is the second one.
+schema_version: 1
+kind: xfactory_chain_anchoring_conformance_declaration
+declaration_id: cad-negative-0052
+capability: chain-anchoring
+realization:
+  realization_id: openxfactory-chain-anchoring-contracts
+  statement: 'the contracts-and-reader realization: twelve schemas, the canonical refusing
+    validator, and this reference corpus. No anchoring subsystem runs; nothing here has reached
+    any chain, and the operator gates (archival node, capture-at-anchor-time, retention, aggregation
+    path, end-to-end degraded paths) all stand open'
+  reader_required_check:
+    check_name: chain-anchoring-reader
+    validator_path: scripts/validate-chain-anchoring.py
+    is_required_in_ruleset: false
+    ruleset_ref: openxFactory main-branch ruleset
+    ruleset_evidence_ref: 'none-yet: wiring the reader as a required check is a successor
+      act, and until it lands every record this family defines confers and refuses nothing'
+declared_at: '2026-09-01T00:00:00Z'
+obligations:
+- entry_id: ce-example-ca-r1
+  obligation: CA-R1
+  satisfaction: partial
+  reason: the chain-agnostic multi-anchor receipt format is defined first, with the four per-chain
+    elements, the committed mint-time configuration block, the closure rule and the timing
+    model all validator-enforced over this corpus; no receipt has been minted against a real
+    chain
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: no anchoring subsystem runs, so capture-time refusal has executed only over
+      packaged fixtures
+    closed_by: the anchoring-subsystem realization (tasks 4.5-4.7 operator gates)
+- entry_id: ce-example-ca-r2
+  obligation: CA-R2
+  satisfaction: partial
+  reason: 'the two ruled witnesses are the only configuration the contracts admit without
+    refusal: a third target and any per-item selectivity are refused by name'
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: the both-witnesses rule has not been exercised end to end on a real item, degraded
+      paths included
+    closed_by: task 4.10, the end-to-end exercise
+- entry_id: ce-example-ca-r3
+  obligation: CA-R3
+  satisfaction: partial
+  reason: the disjoint three-state machine, the named transitions with their leaves, and the
+    fail-closed verification answers are validator-enforced; the operator obligation path
+    has fired only in fixtures
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: no live transition leaf has been written
+    closed_by: the anchoring-subsystem realization
+- entry_id: ce-example-ca-r4
+  obligation: CA-R4
+  satisfaction: partial
+  reason: the item-anchor gate rule and the checkpoint/item anchor distinction are enforced,
+    disclaimer included; the anchor-late path has processed no real material
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: gate wiring for the anchor-late path is not yet exercised
+    closed_by: the anchoring-subsystem realization
+- entry_id: ce-example-ca-r5
+  obligation: CA-R5
+  satisfaction: partial
+  reason: 'the on-chain boundary is contract text carrying a refusing validator: the structural
+    payload refusal, the declared construction, both custody rules and the 128-bit salt floor
+    are enforced by the named reader over every record of this family'
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: the declaration is enforceable and the anchored value's construction is not
+      detectable from the record; the commitment path is not yet the only path that can mint
+      an anchor-bound value
+    closed_by: the realization act that makes the commitment path exclusive, so an undeclared
+      construction is unreachable rather than merely refused
+  structural_residual: CA-R5-COMMITMENT-PATH
+- entry_id: ce-example-ca-r6
+  obligation: CA-R6
+  satisfaction: partial
+  reason: consent state lives in the permissioned plane and only checkpoints are anchored;
+    the per-subject row, on-chain enforcement and recall claims are refused by name
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: which permissioned plane instance runs is a realization decision not yet taken
+    closed_by: the consent-plane instance selection
+- entry_id: ce-example-ca-r7
+  obligation: CA-R7
+  satisfaction: partial
+  reason: served verification and access decisions are shaped as logged leaves, refusals-only
+    surfaces are refused, and no reporting obligation is imposed on independent verifiers
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: no served surface exists yet to write the leaves
+    closed_by: the served-surface realization
+- entry_id: ce-example-ca-r8
+  obligation: CA-R8
+  satisfaction: partial
+  reason: the three-plane separation, the per-plane keys and salts, the authorized scoped
+    derivation and the analysis-result discriminators are all validator-enforced over this
+    corpus
+  declared_at: '2026-09-01T00:00:00Z'
+  declared_residual:
+    statement: the per-plane key derivation construction is declared, not yet fixed by a running
+      identity plane
+    closed_by: the identity-plane realization
+- entry_id: ce-example-ca-r9
+  obligation: CA-R9
+  satisfaction: satisfied
+  reason: no member, enumeration value, refusal code or example in this family names a domain,
+    a domain's record kinds, or any determination standard; the payload refusal is structural,
+    the de-identification member is a hook that names no standard, and both neutrality lists
+    below are empty
+  declared_at: '2026-09-01T00:00:00Z'
+- obligation: CA-R10
+  entry_id: ce-example-ca-r10
+  satisfaction: satisfied
+  declared_at: '2026-09-04T00:00:00Z'
+  obligation_statement: fixed UTC durability batches account for every accepted event exactly
+    once
+  reason: 'the fixed-UTC durability batch is realized as contract shapes: one atomic admission
+    per event, an append-only eligibility denominator snapshotted at window open, a released
+    Merkle construction the reader recomputes under, and a closed daily manifest whose continuity
+    link is over the previous item''s configuration-bound anchored digest'
+- obligation: CA-R11
+  entry_id: ce-example-ca-r11
+  satisfaction: satisfied
+  declared_at: '2026-09-04T00:00:00Z'
+  obligation_statement: witness submission and confirmation remain distinct evidence states
+  reason: submitted and confirmed are distinct per-witness evidence states bound to an operator-approved,
+    versioned, digest-pinned confirmation profile, with the durability witness's two layers
+    reported separately and no numeric depth invented by this contract
+realization_posture:
+  witness_configuration:
+  - witness_id: w-realization-operational
+    role: operational
+    chain_id: chain-example-operational
+    completion_horizon_seconds: 14400
+  - witness_id: w-realization-durability
+    role: durability
+    chain_id: chain-example-durability
+    completion_horizon_seconds: 86400
+  per_item_witness_selection: false
+  ten_year_claim_witness:
+    witness_id: w-realization-durability
+    role: durability
+  operational_witness_conditions:
+    archival_node_declared: false
+    inclusion_proof_captured_at_anchor_time: true
+    corroborating_only: true
+    endpoint_ref: 'none-yet: the archival node is task 4.5''s operator gate, and a plan to
+      run one is not one'
+  audit_surface:
+    logs_permitted_access: false
+    logs_refused_access: true
+    logs_served_verifications: true
+    independent_verifier_reporting_obligation: false
+  checkpoint_cadence:
+    declared_seconds: 900
+    observed_max_interval_seconds: 0
+    observation_window_ref: 'empty-window: no checkpoint anchor has run; the observed maximum
+      over an empty window is recorded as zero, not asserted as compliance'
+  delay_check_reading: proves_breach_only
+  receipt_format: chain_agnostic_multi_anchor
+  item_anchor_gate:
+    only_gate_passed_material: true
+    gate_ref: gate-example-merge-0001
+  attempt_rows_anchored_directly: false
+  neutrality:
+    domain_record_kinds: []
+    overlay_relaxations: []
+    overlay_pin_ref: domain overlays pin this family by commit and digest; they may add refusals
+      and never remove one
+  durability_profile:
+    window_kind: fixed_utc_daily
+    anchored_item: closed_daily_manifest
+    witness_root_shared: true
+    empty_windows_anchored: true
+    eligibility_registry_ref: der-example-0001
+    merkle_profile_ref: dmp-example-daily-merkle
+  confirmation_profile_resolution:
+    configured_networks:
+    - chain-example-operational
+    - chain-example-durability
+    resolved_networks:
+    - chain-example-operational
+    - chain-example-durability
+    registry_ref: cpr-example-0001
+    operator_approval_outstanding: false
+record_version: 1
+notes: 'the declared-shortfall pattern: eight obligations partial with their residuals and
+  closing successors named, one satisfied with its reason, and the structural residual CA-R5-COMMITMENT-PATH
+  held open — an entry claiming it satisfied is refused, because the step from ''declares
+  a salted keyed commitment'' to ''the anchored value IS one'' cannot be read off the record'

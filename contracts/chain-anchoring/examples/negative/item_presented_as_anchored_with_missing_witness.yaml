@@ -1,0 +1,56 @@
+# expected_failure: item_presented_as_anchored_with_missing_witness
+# expected_failure_detail: while the shortfall names
+# anchor_complete over a named missing witness: while an item is incomplete, a
+# verification returns anchor_incomplete NAMING the missing witnesses — never a
+# bare pass and never a bare fail, because the record supports neither answer.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0029
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: receipt_only
+status: anchor_complete
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0004
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+record_version: 1
+notes: 'the SAME item as the stateful result beside it, verified receipt-only: same status,
+  weaker knowledge — this mode cannot distinguish a terminal failure from a horizon breach
+  (incomplete_cause: undistinguished_receipt_only, said rather than omitted silently) and
+  cannot prove a delay breach. The mode member is what lets a caller tell the two answers
+  apart'
+confirmation_profiles_evaluated_under:
+- witness_id: w-example-op-0001
+  chain_id: chain-example-operational
+  profile_id: cp-example-operational
+  version: 2
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: confirmation_profile_terms
+    value: sha256:90c3d4f763e5dc6691ba596f91ef00e8aeb7d21b611b9e3df6030f95dffc7207
+  as_of_token: confirmed_under_v2_at_cp-log-checkpoint-0618
+  current_standing: profile_active
+  new_claim_admitted: true
+- witness_id: w-example-dur-0001
+  chain_id: chain-example-durability
+  profile_id: cp-example-durability
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: confirmation_profile_terms
+    value: sha256:0cbf3cf8b7484f38415d55c5ac3d9b142f59a543d2d94b9ad24cfc144ea94469
+  as_of_token: confirmed_under_v1_at_cp-log-checkpoint-0610
+  current_standing: profile_active
+  new_claim_admitted: true

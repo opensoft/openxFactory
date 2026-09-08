@@ -1,0 +1,48 @@
+schema_version: 1
+kind: openxfactory-intent-compliance-contract-schema
+name: policy_allowance_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/intent-compliance/v1/policy-allowance-registry.schema.yaml"
+contract_id: intent-compliance
+contract_schema_version: 1
+title: Append-only policy-allowance registry revision
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - revision_id
+  - revision_digest
+  - predecessor_revision_digest
+  - published_at
+  - allowances
+properties:
+  schema_version: {const: 1}
+  kind: {const: policy_allowance_registry}
+  registry_id: {$ref: "#/$defs/identifier"}
+  revision_id: {$ref: "#/$defs/identifier"}
+  revision_digest: {$ref: "#/$defs/digest"}
+  predecessor_revision_digest:
+    oneOf:
+      - {$ref: "#/$defs/digest"}
+      - {type: "null"}
+  published_at: {type: string, format: date-time}
+  allowances:
+    type: array
+    maxItems: 64
+    items:
+      type: object
+      additionalProperties: false
+      required: [allowance_id, approval_digest, revocation_digests]
+      properties:
+        allowance_id: {$ref: "#/$defs/identifier"}
+        approval_digest: {$ref: "#/$defs/digest"}
+        revocation_digests:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items: {$ref: "#/$defs/digest"}
+$defs:
+  identifier: {type: string, pattern: "^[a-z][a-z0-9_.:-]{2,127}$"}
+  digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}

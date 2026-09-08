@@ -43,14 +43,14 @@ State manifest: <workspace-root>/.claude/nlm-sync-manifest.json
 The default (book-sync) mode also runs the ideation-dashboard workbench
 orphan sweep (`workbench_orphan_sweep` below): --apply deletes `xf-wb-*`
 scratch notebooks no live workbench manifest binds; the dry run prints the
-plan. Only `xf-wb-*` titles are ever candidates — the three lifecycle books
-above can never be swept.
+plan. Only `xf-wb-*` titles are ever candidates — the lifecycle books above
+can never be swept.
 
 The --session-ref mode is the fourth family: ONE
 `xf-session-<repository>-<branch>` notebook per LIVE branch session
 (007-workbench-branch-sessions, FR-036-FR-040), created / re-synced / retired
 from that session's WORKTREE. It is deliberately independent of everything
-above: the three books stay MAIN-ONLY (a session worktree lives in
+above: the lifecycle books stay MAIN-ONLY (a session worktree lives in
 `<repo>-worktrees/`, outside every book's walk — the exclusion is never
 relaxed), the session leaves no manifest for the sweep to trip over, and the
 `xf-session-` namespace is disjoint from the swept `xf-wb-` one. See
@@ -67,6 +67,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -87,6 +88,24 @@ IDEATION_STATUSES = {"brainstorm", "staged"}
 IDEATION_KEY_PREFIX = "ideation-"
 IDEATION_ALIAS_PREFIX = "xf-ideation-"
 IDEATION_TITLE_PREFIX = "xFactory Ideation — "
+
+# The root-level NEUTRAL PRODUCTS the aggregation pins as SIBLINGS of
+# `openxFactory/` — governed repositories whose aggregation-relative id is a
+# bare name. An explicit ALLOWLIST, never "every root-level `.gitmodules` pin",
+# which would enrol the nine `installs/*` runtime repositories as governed
+# ideation repositories (`split-openxwallet-repo` design D11).
+#
+# A DELIBERATE SECOND COPY of `doc_health.corpus.ROOT_LEVEL_GOVERNED_PRODUCTS`,
+# on the rule this repository already applies to `doc_health.recorded_rel` and
+# `proposal-support.py`'s `manifest_rel`: this script is a HYPHENATED standalone
+# and cannot be imported, and its own tests load it by file path with `scripts/`
+# absent from `sys.path`, so an import of the package constant would work in
+# production and fail in the suite — the worst of the two directions. The two
+# copies are PINNED TO EACH OTHER BY TEST
+# (`tests/notebooklm/test_sync_notebooklm_books.py`), because the notebook set
+# and the doc-health routing set disagreeing about which repositories are
+# governed is exactly the failure `split-openxwallet-repo` task 11.3 forbids.
+ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar", "openXwallet")
 
 # NotebookLM's per-notebook source cap (plan-dependent platform property;
 # contract surface per the projection capability's capacity guard — recorded
@@ -166,7 +185,12 @@ CHAT_PROMPT = (
     "not as fact."
 )
 
-STATUS_RE = re.compile(r"^Status: (brainstorm|staged|draft|ratified|standard|superseded|retired|record)\s*$", re.M)
+# The alternation is CLOSED on purpose and must track `doc_health.TAXONOMY`:
+# an unmatched value makes `scan()` skip the document silently, which reads
+# identically to a deliberate exclusion. `projection` is listed so the skip is
+# a RULE (it is absent from `PROJECTED_STATUSES` below, like `record`) rather
+# than an accident of a regex that never heard of it.
+STATUS_RE = re.compile(r"^Status: (brainstorm|staged|draft|ratified|standard|superseded|retired|record|projection)\s*$", re.M)
 # tests/ excluded: fixture corpora carry deliberate-violation statuses
 # (fake ratified/standard docs) that must never project into the books.
 SKIP_PARTS = {".git", "node_modules", "installs", "__pycache__", "tests"}
@@ -213,6 +237,7 @@ class ImportTarget:
 
 
 def nlm(*args: str, parse: bool = True):
+    assert_still_bound()
     res = subprocess.run(["nlm", *args], capture_output=True, text=True)
     if res.returncode != 0:
         raise RuntimeError(f"nlm {' '.join(args[:3])}...: {res.stderr.strip()[:300]}")
@@ -662,6 +687,141 @@ def pinned_factory_paths(root: Path) -> list[str]:
             if p.is_dir() and not p.name.endswith(SESSION_CONTAINER_SUFFIX)]
 
 
+def pinned_root_product_paths(root: Path) -> list[str]:
+    """Allowlisted root-level neutral products this workspace pins AND has on
+    disk — `openXwallet`, `openAvatar` (`ROOT_LEVEL_GOVERNED_PRODUCTS`).
+
+    Pin-state is the authoritative filter, the same discipline as
+    `pinned_factory_paths`: a bare directory of that name in a scratch root is
+    not a governed repository until the aggregation pins it. Unlike the factory
+    finder there is NO suffix-heuristic fallback for a missing `.gitmodules`,
+    and deliberately: `xFactories/` is a container whose children are all
+    factories, while the aggregation root holds `installs/`, `openspec/`, docs
+    and worktree containers, so there is no shape to guess from — without the
+    pin declaration the honest answer is none.
+
+    AN EMPTY DIRECTORY IS REPORTED, NOT SILENTLY DROPPED. A declared-but-
+    uninitialized submodule is an existing, empty directory, and returning it
+    would make the sweep compute "this product has no ideation documents" —
+    indistinguishable in the output from the truth, and a book that should
+    exist would simply never be created. The warning names the remediation;
+    the path is still returned, because a product with genuinely no ideation
+    documents derives no book either way and the caller must not have to know
+    which case it is looking at.
+    """
+    gm = root / ".gitmodules"
+    if not gm.is_file():
+        return []
+    declared = set(re.findall(r"^\s*path\s*=\s*(\S+)\s*$",
+                              gm.read_text(), re.M))
+    found = []
+    for name in ROOT_LEVEL_GOVERNED_PRODUCTS:
+        if name not in declared or not (root / name).is_dir():
+            continue
+        if not any((root / name).iterdir()):
+            print(f"WARN {name} is pinned at the aggregation root but its "
+                  f"checkout is empty (uninitialized submodule); its ideation "
+                  f"documents cannot be swept. Remediation: run "
+                  f"`git submodule update --init {name}`.")
+        found.append(name)
+    return found
+
+
+def governed_repo_paths(root: Path) -> list[str]:
+    """Every governed repository path below `root` EXCEPT `openxFactory` itself:
+    the allowlisted root-level neutral products, then the pinned factories.
+
+    ONE function for the three call sites that have to agree — `scan()`'s book
+    derivation, `session_repositories()` and `_out_of_scope_workbench_dirs()`.
+    Before this existed the three each spelled `pinned_factory_paths(root)`
+    inline, which is why widening the repository set is a change to one line in
+    each rather than a change anyone can make in one place and forget in two.
+    `openxFactory` stays out because the callers disagree about it: `scan()` and
+    `session_repositories()` name it first, the workbench sweep excludes it as
+    already in the v1 scope.
+    """
+    return [*pinned_root_product_paths(root), *pinned_factory_paths(root)]
+
+
+# A source title is the projection's IDENTITY KEY: scan() derives a set keyed
+# by document PATH and sync_book() reconciles it against a live book BY TITLE,
+# holding each title at one source. A derivation that is not injective
+# therefore DISPLACES documents silently — four MedxFactory staging topics
+# shared one source until 2026-08-25. The statuses below are the ones that
+# actually reach a book; a `record`, `superseded` or `retired` document is
+# scanned and projected by nothing, so it is outside the uniqueness scope and
+# must not qualify anyone else's title.
+PROJECTED_STATUSES = IDEATION_STATUSES | {
+    s for cfg in STATIC_BOOKS.values() for s in cfg["statuses"]}
+
+# The `[spec]` and `[grounding]` families are DELIBERATELY outside the
+# uniqueness scope (add-projection-title-uniqueness § 2.2), not filtered out by
+# accident: `[spec]` is keyed by a promoted capability's DIRECTORY name and
+# `[grounding]` by a fixed three-document set, so neither is derived from a
+# file stem and neither can collide with one. Measurement on 2026-08-25 showed
+# that folding them in over-qualified one `drafts` title for no reason.
+STEM_SCOPE_EXCLUDES = ("[spec]", "[grounding]")
+
+# `README` floors at its parent directory — the title today's rule already
+# produces for every README, so the amendment never SHORTENS an existing
+# title. It is a MINIMUM and not a special case: a README still ambiguous two
+# segments deep keeps qualifying like any other document.
+README_FLOOR_SEGMENTS = 2
+
+
+def title_segments(rel: Path) -> tuple[str, ...]:
+    """A document's path as title segments, outermost first.
+
+    The repository DIRECTORY is the outermost segment, so a repository-root
+    `README.md` floors at `<repo>/README` — byte for byte the title the old
+    `f.parent.name` rule produced. `xFactories/` is a container, not a path
+    component of the repository, so it never appears.
+    """
+    parts = rel.parts[1:] if rel.parts[0] == "xFactories" else rel.parts
+    return (*parts[:-1], Path(parts[-1]).stem)
+
+
+def derive_stems(documents: Sequence[tuple[str, str, tuple[str, ...]]]
+                 ) -> dict[str, str]:
+    """Resolve every projected document's title stem. Returns {relpath: stem}.
+
+    `documents` is (relpath, repository, segments) over the documents that
+    actually project. A stem is the SHORTEST path suffix that no other
+    projected document OF THE SAME REPOSITORY shares
+    (docs/lifecycle-notebook-projection.md § 2). The scope is the repository's
+    whole projected set rather than one book or one status, so a document is
+    never retitled because a same-stem sibling's `Status:` header moved.
+
+    The result is injective per repository, and therefore per book: two
+    documents can only stop at the same suffix string if they stopped at the
+    same DEPTH, and at that depth neither would have found the suffix
+    unshared. A document that never finds an unshared suffix falls back to its
+    whole segment path, which is unique by construction.
+    """
+    by_repo: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+    for rel, repo, segs in documents:
+        by_repo.setdefault(repo, []).append((rel, segs))
+    stems: dict[str, str] = {}
+    for docs in by_repo.values():
+        # how many documents of this repository share each suffix, per depth
+        counts: dict[int, dict[str, int]] = {}
+        for _rel, segs in docs:
+            for k in range(1, len(segs) + 1):
+                level = counts.setdefault(k, {})
+                suffix = "/".join(segs[-k:])
+                level[suffix] = level.get(suffix, 0) + 1
+        for rel, segs in docs:
+            floor = (README_FLOOR_SEGMENTS
+                     if segs[-1].lower() == "readme" else 1)
+            stems[rel] = "/".join(segs)  # whole path: distinct by construction
+            for k in range(min(floor, len(segs)), len(segs) + 1):
+                suffix = "/".join(segs[-k:])
+                if counts[k][suffix] == 1:
+                    stems[rel] = suffix
+                    break
+    return stems
+
+
 def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     """Return ({book_key: {relpath: title}}, {book_key: BookSpec}) desired state.
 
@@ -669,10 +829,16 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     ideation book (and therefore its lazy creation) exists exactly when its
     repo has at least one brainstorm/staged document — charter and grounding
     are seeds added to books that exist, never membership that creates one
-    (split-ideation-book-per-repo)."""
+    (split-ideation-book-per-repo).
+
+    TWO PASSES, in this order, because uniqueness is a property of the
+    FINISHED set while the walk visits one repository at a time: collect each
+    projected document's segments, then resolve every title at once
+    (add-projection-title-uniqueness § 2.1)."""
     desired: dict[str, dict[str, str]] = {b: {} for b in STATIC_BOOKS}
     specs: dict[str, BookSpec] = {b: static_spec(b) for b in STATIC_BOOKS}
-    for base in ["openxFactory", *pinned_factory_paths(root)]:
+    found: list[tuple[str, str, str, tuple[str, ...]]] = []
+    for base in ["openxFactory", *governed_repo_paths(root)]:
         basep = root / base
         for f in sorted(basep.rglob("*.md")):
             rel = f.relative_to(root)
@@ -684,17 +850,20 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
             if not m:
                 continue
             status = m.group(1)
+            if status not in PROJECTED_STATUSES:
+                continue  # scanned, projected by no book, out of scope
             repo = rel.parts[0] if rel.parts[0] != "xFactories" else rel.parts[1]
-            # ambiguous stems take their parent dir (docs/lifecycle-notebook-projection.md §2)
-            stem = f"{f.parent.name}/{f.stem}" if f.stem.lower() == "readme" else f.stem
-            title = f"[{status}] {repo}: {stem}"
-            if status in IDEATION_STATUSES:
-                spec = ideation_spec(repo)
-                specs.setdefault(spec.key, spec)
-                desired.setdefault(spec.key, {})[str(rel)] = title
-            for book, cfg in STATIC_BOOKS.items():
-                if status in cfg["statuses"]:
-                    desired[book][str(rel)] = title
+            found.append((str(rel), repo, status, title_segments(rel)))
+    stems = derive_stems([(rel, repo, segs) for rel, repo, _st, segs in found])
+    for rel, repo, status, _segs in found:
+        title = f"[{status}] {repo}: {stems[rel]}"
+        if status in IDEATION_STATUSES:
+            spec = ideation_spec(repo)
+            specs.setdefault(spec.key, spec)
+            desired.setdefault(spec.key, {})[rel] = title
+        for book, cfg in STATIC_BOOKS.items():
+            if status in cfg["statuses"]:
+                desired[book][rel] = title
     # promoted specs -> canon
     for f in sorted((root / "openxFactory/openspec/specs").glob("*/spec.md")):
         rel = f.relative_to(root)
@@ -727,10 +896,73 @@ def _ensure_alias(spec: BookSpec, notebook_id: str) -> None:
               f"(non-fatal: {exc})")
 
 
-def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> None:
-    """Write the book's external_source_workspace record at creation — its
-    provider id does not exist until the notebook does
-    (split-ideation-book-per-repo; model: docs/notebooklm-source-workspaces.md §6)."""
+def _is_record_id_line(line: str, record_id: str) -> bool:
+    """An ACTIVE record's own `id:` line, matched WHOLE.
+
+    Two things the old `f"id: {record_id}" in text` substring test could not
+    tell apart, both live in the registry today: a RETIRED record kept as a
+    commented block (`# id: workspace-xfactory-lifecycle-ideation`, retained by
+    split-ideation-book-per-repo as the audit trail), and a longer id that
+    merely STARTS with this one (`…-ideation` is a prefix of
+    `…-ideation-opsxfactory`). Rewriting a field inside either would be a write
+    against the wrong book."""
+    stripped = line.strip()
+    if stripped.startswith("#"):
+        return False
+    return stripped == f"id: {record_id}"
+
+
+def _record_item_span(lines: list[str], idx: int) -> tuple[int, int]:
+    """Bounds of the `workspaces:` list item that owns line `idx`.
+
+    A field is only ever read or rewritten INSIDE the record that owns it, so
+    the scan is bounded by the item's own `- ` line and the next one. The
+    registry is edited as TEXT rather than round-tripped through a YAML loader
+    on purpose: its header comments carry the migration record — including one
+    line whose wording is frozen by citation — and a loader would drop every
+    one of them."""
+    start = idx
+    while start > 0 and not lines[start].lstrip().startswith("- "):
+        start -= 1
+    end = idx + 1
+    while end < len(lines):
+        line = lines[end]
+        if line.lstrip().startswith("- "):
+            break
+        if line.strip() and not line[0].isspace() and not line.startswith("#"):
+            break                       # back out at a top-level mapping key
+        end += 1
+    return start, end
+
+
+def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str,
+                            apply: bool) -> None:
+    """Register the book's external_source_workspace record, REPLACING the
+    provider id when the record already stands for a different notebook.
+
+    Written at creation because a book's provider id does not exist until the
+    notebook does (split-ideation-book-per-repo; model:
+    docs/notebooklm-source-workspaces.md §6), and re-asserted on every resolve
+    so the registration converges instead of drifting.
+
+    THE REPLACEMENT is the point (issue #536, realizing
+    `lifecycle-notebook-projection`'s "The migration SHALL replace each book's
+    workspace record rather than merely retiring it"). A hosting-account move
+    re-derives the book under a NEW provider notebook id while the record id,
+    being derived from the book's KEY, is unchanged. This used to print
+    `reconcile by hand` and return, so the record kept pointing at the retired
+    notebook — and retiring the record on top of that would leave the live book
+    with no registration at all. Exactly ONE active record per live book: the
+    record IS the live book's registration, and what a migration retires is the
+    legacy PROVIDER NOTEBOOK, never this record.
+
+    A re-point is never silent, because a silent one would hide an accidental
+    binding to the WRONG notebook: without `--apply` the planned replacement is
+    printed naming both ids and nothing is written; with it, the write is
+    announced the same way. Only `provider_notebook_id` moves — every other
+    field, `created_at` included, is the record's own history and is preserved
+    (the 2026-08-24 migration kept the legacy→new mapping in a file comment,
+    not in a record field; the schema has none)."""
     path = root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
     record_id = f"workspace-xfactory-lifecycle-{spec.key}"
     if not path.is_file():
@@ -738,10 +970,39 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
               f"record {record_id} not written")
         return
     text = path.read_text(encoding="utf-8")
-    if f"id: {record_id}" in text:
-        if notebook_id not in text:
-            print(f"[{spec.key}] NOTICE workspace record {record_id} exists "
-                  f"with a DIFFERENT provider_notebook_id — reconcile by hand")
+    lines = text.splitlines()
+    hit = next((i for i, line in enumerate(lines)
+                if _is_record_id_line(line, record_id)), None)
+    if hit is not None:
+        start, end = _record_item_span(lines, hit)
+        field = next((i for i in range(start, end)
+                      if not lines[i].lstrip().startswith("#")
+                      and lines[i].strip().startswith("provider_notebook_id:")),
+                     None)
+        if field is None:
+            # Nothing to replace and nothing safe to append: the record exists,
+            # so a second one would break the one-record invariant.
+            print(f"[{spec.key}] NOTICE workspace record {record_id} carries no "
+                  f"provider_notebook_id line — reconcile by hand")
+            return
+        current = lines[field].split(":", 1)[1].strip()
+        if current == notebook_id:
+            return                      # already the live book's registration
+        if not apply:
+            print(f"[{spec.key}] REPLACE workspace record {record_id}: "
+                  f"{current} -> {notebook_id} (re-pointed on --apply)")
+            return
+        indent = lines[field][:len(lines[field]) - len(lines[field].lstrip())]
+        lines[field] = f"{indent}provider_notebook_id: {notebook_id}"
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print(f"[{spec.key}] REPLACED workspace record {record_id}: "
+              f"{current} -> {notebook_id} in {path.relative_to(root)} "
+              f"(one active record per live book; commit it with the "
+              f"migration evidence)")
+        return
+    if not apply:
+        print(f"[{spec.key}] REGISTER workspace record {record_id} -> "
+              f"{notebook_id} (written on --apply)")
         return
     created = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     repo = spec.title.removeprefix(IDEATION_TITLE_PREFIX)
@@ -767,7 +1028,8 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
 
 
 def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
-                           notebooks: list[dict] | None = None
+                           notebooks: list[dict] | None = None,
+                           *, bind_alias: bool = True
                            ) -> tuple[str | None, bool]:
     """Resolve a book to its notebook id BY TITLE; lazily create it in apply
     mode. Returns (notebook_id | None, fully_ok). A dry run over a missing
@@ -778,7 +1040,34 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     by_title = {r.get("title"): r.get("id") for r in rows if r.get("id")}
     nid = by_title.get(spec.title)
     if nid:
-        _ensure_alias(spec, nid)
+        # `bind_alias=False` is the READ-ONLY caller's contract. The alias store
+        # is a single flat, PROFILE-INDEPENDENT file, so registering here is a
+        # write with cross-account consequences — a parity proof that repoints
+        # xf-canon is not a proof, it is a migration nobody asked for.
+        if bind_alias:
+            _ensure_alias(spec, nid)
+        # Re-assert the registration on the FOUND path too, which is the only
+        # path a re-derived book takes on the run AFTER the one that created it
+        # (issue #536). Read-only callers stay read-only: with `apply` false
+        # this prints the planned replacement and writes nothing.
+        #
+        # AMBIGUOUS TITLE FIRST. `by_title` keeps whichever row the provider
+        # returned LAST, so two notebooks under one title resolve to an
+        # arbitrary one of them. Projecting into an arbitrary notebook is a
+        # pre-existing hazard; RE-POINTING the governed record at it would be a
+        # new one — it could overwrite an already-correct registration and flap
+        # it as the provider's ordering changes. Report and leave the record
+        # exactly as it stands: an ambiguous title is precisely the case a hand
+        # reconciliation exists for (PR #602, Codex P2).
+        titled = {r.get("id") for r in rows
+                  if r.get("title") == spec.title and r.get("id")}
+        if len(titled) > 1:
+            print(f"[{spec.key}] NOTICE {len(titled)} notebooks are titled "
+                  f"{spec.title!r} ({', '.join(sorted(titled))}) — the "
+                  f"workspace record is left unchanged; resolve the duplicate "
+                  f"by hand before trusting this book's registration")
+        else:
+            ensure_workspace_record(root, spec, nid, apply)
         return nid, True
     if not apply:
         print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")
@@ -814,7 +1103,7 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     except Exception as exc:  # noqa: BLE001
         ok = False
         print(f"[{spec.key}] FAILED chat framing for {spec.title!r}: {exc}")
-    ensure_workspace_record(root, spec, nid)
+    ensure_workspace_record(root, spec, nid, apply)
     time.sleep(2)
     return nid, ok
 
@@ -832,12 +1121,404 @@ def _add_with_one_retry(*args: str) -> str:
         return nlm(*args, parse=False)
 
 
+#: A source still wearing the temp filename an oversized upload lands under.
+#: `tempfile.mkstemp(suffix=".md", prefix="xf-sync-")` produces exactly this.
+STRAY_TEMP_TITLE_RE = re.compile(r"^xf-sync-[A-Za-z0-9_]+\.md$")
+
+#: How long to keep trying the post-upload rename, and how often. A 279KB source
+#: was live-proven on 2026-08-27 to be unready well past the two seconds this
+#: used to wait; the ceiling is generous because the alternative — giving up —
+#: strands the source under its temp name.
+RENAME_READY_TIMEOUT_S = 180
+RENAME_POLL_INTERVAL_S = 3
+
+#: How long to wait after a rename VERIFIES before re-reading it, to prove the
+#: steady state rather than a moment (issue #462).
+#:
+#: The number comes from the live evidence, not from taste. On 2026-08-28 two
+#: applies each had their rename poll pass on ATTEMPT 1 — id + title read back
+#: correctly — and the title later regressed to the temp filename, consistent
+#: with the provider re-stamping the title when ingestion of a 279KB body
+#: completes. In the same incident a rename issued against a FULLY INGESTED
+#: stray took immediately and was still in place 2+ minutes later. So the window
+#: that matters is the tail of ingestion, seconds-to-a-minute after the write is
+#: accepted, and it is bounded above by "renames on settled sources stick".
+#: 45s sits in the middle of that band: long enough that a re-stamp arriving on
+#: ingestion completion has landed before we look, short enough that it costs
+#: three quarters of a minute ONCE PER OVERSIZED DOCUMENT (a single document in
+#: the current corpus) rather than per source. It is a module constant so a test
+#: can patch it and so the number can be re-tuned from evidence, not by editing
+#: control flow.
+RENAME_SETTLE_DELAY_S = 45
+
+#: Byte-length window inside which a temp-titled stray is a CANDIDATE for the
+#: normalized-digest adoption fallback (issue #462).
+#:
+#: The provider does not return large bodies verbatim: all four strays of the
+#: 279,235-byte `ideation-dashboard` spec came back as 281,645 bytes — +2,410,
+#: a provider-side transformation the strict digest can never match. 4,096 bytes
+#: contains that case with room for the same class of transformation to grow a
+#: little, and is still only ~4% of the SMALLEST document that can reach this
+#: path at all (`MAX_TEXT_ARG_BYTES` = 100,000) and ~1.5% of the 279KB one that
+#: motivated it — a NARROW filter, not a catch-all. It is only ever a candidate
+#: filter: length alone never adopts anything. A candidate is adopted solely on
+#: a normalized-digest match, and only when exactly one candidate matches.
+ADOPTION_LENGTH_TOLERANCE_BYTES = 4_096
+
+
+def _content_digest(raw: str) -> str:
+    """The ONE way this module compares source content.
+
+    UNWRAPS FIRST. `nlm source content` may return the body inside a JSON
+    envelope, which `source_content_text()` already exists to tolerate — and the
+    first cut of stray adoption hashed the RAW stdout instead. Against a wrapped
+    response the digests could never match, so the repair silently never fired
+    (Codex P1 / Copilot, PR #438). Fail-safe, in that it degraded to a plain add
+    — but a repair that cannot fire is not a repair.
+
+    Applied to BOTH sides of every comparison. Normalising only the fetched half
+    is what created the mismatch, and one shared function is what stops a second
+    call site drifting the same way. On already-plain text the unwrap is a no-op,
+    so the symmetry costs nothing.
+
+    Digest form matches the manifest's own (`sha256(...)[:16]`).
+    """
+    return hashlib.sha256(source_content_text(str(raw)).encode()).hexdigest()[:16]
+
+
+def _normalized_digest(raw: str) -> str:
+    """A digest under the transformations a provider may DEFENSIBLY apply.
+
+    Used ONLY by the bounded adoption fallback, and only after the strict
+    `_content_digest` gate has failed. The strict digest stays the first gate
+    precisely because it cannot be argued with; this one is deliberately weaker
+    and therefore deliberately fenced (a byte-length tolerance plus a uniqueness
+    requirement — see `_adopt_matching_stray`).
+
+    The normalizations, each named so the weakening is auditable:
+
+      1. JSON unwrap — `source_content_text`, the same first step as
+         `_content_digest`, so a wrapped response is not a false mismatch.
+      2. Unicode NFC — a store that normalizes composition returns the same
+         text in a different encoding of the same characters.
+      3. Line endings — CRLF and lone CR fold to LF.
+      4. Trailing whitespace PER LINE is stripped.
+      5. Trailing newlines at the end of the document are stripped.
+
+    Nothing here is a guess about intent: each is a transformation that changes
+    bytes while preserving the document, and each is applied to BOTH sides.
+
+    WHAT IT IS NOT. It is not a characterization of the +2,410-byte
+    transformation observed on 2026-08-28 — every rule above can only SHRINK a
+    body, so none of them explains growth. That is the honest limit of this
+    function, and it is why the fallback's failure mode is a LOUD STOP rather
+    than a fresh upload: when normalization does not close the gap, the run says
+    so and names the hand repair instead of minting another duplicate.
+    """
+    body = source_content_text(str(raw))
+    body = unicodedata.normalize("NFC", body)
+    body = body.replace("\r\n", "\n").replace("\r", "\n")
+    body = "\n".join(line.rstrip() for line in body.split("\n"))
+    return hashlib.sha256(body.rstrip("\n").encode()).hexdigest()[:16]
+
+
+def _source_rows(handle: str) -> list[dict]:
+    rows = nlm("source", "list", handle, "--json")
+    if isinstance(rows, dict):
+        rows = rows.get("sources") or []
+    return [r for r in (rows or []) if isinstance(r, dict)]
+
+
+def _title_holds(handle: str, source_id: str, title: str) -> bool:
+    """Does THIS source id bear THIS title in a fresh listing?
+
+    The pair is the assertion, not the title alone: asking "does any source
+    carry this title?" returns success when a PRE-EXISTING source already wears
+    it while the one just uploaded sits un-renamed — a fail-open inside the
+    verifier written to close a fail-open (Copilot, PR #438).
+
+    Propagates a `RuntimeError` from an unreadable listing rather than reporting
+    False: "the answer is no" and "I could not look" are different facts and
+    each caller here treats them differently.
+    """
+    return any(str(r.get("id") or "") == source_id
+               and str(r.get("title") or "") == title
+               for r in _source_rows(handle))
+
+
+def _observed_title(handle: str, source_id: str) -> str:
+    """The title `source_id` currently wears, or `''` if it is not listed."""
+    try:
+        for row in _source_rows(handle):
+            if str(row.get("id") or "") == source_id:
+                return str(row.get("title") or "")
+    except RuntimeError:
+        return ""
+    return ""
+
+
+def _verify_rename_settled(handle: str, source_id: str, title: str) -> None:
+    """Re-read a VERIFIED rename after a settle delay; raise if it regressed.
+
+    Issue #462's second hole. A rename's read-back proves a moment. On
+    2026-08-28 two applies each passed the poll on attempt 1 — id + title read
+    back correctly — the manifest was written, the run exited 0, and the title
+    later regressed to the temp filename, consistent with the provider
+    re-stamping the title when ingestion of a 279KB body completes. The source
+    stranded exactly as it had before the #438 fix, with no line in the
+    transcript to say so.
+
+    ONE re-rename is attempted on a regression before raising, because it is
+    cheap (a single write against a source we have already identified) and by
+    then ingestion has had `RENAME_SETTLE_DELAY_S` longer to finish — which is
+    the state in which the live hand repair took immediately and held. It is one
+    retry, never a loop: a provider that re-stamps twice is a fact for an
+    operator to see, not one to spin on.
+
+    An unreadable listing counts as NOT VERIFIED here (`_observed_title` returns
+    `''`), which is the safe direction: this function exists because a title
+    that looks right can be wrong, so "I could not look" must not read as "it
+    held". The cost of a false alarm is a loud message naming a hand check; the
+    cost of a false all-clear is another stranded source and another duplicate
+    on the next run.
+    """
+    time.sleep(RENAME_SETTLE_DELAY_S)
+    observed = _observed_title(handle, source_id)
+    if observed == title:
+        print(f"    settle re-verify: title held ({RENAME_SETTLE_DELAY_S}s)")
+        return
+    print(f"    settle re-verify: title REGRESSED to {observed or '(unlisted)'!r} "
+          f"after {RENAME_SETTLE_DELAY_S}s — re-renaming once")
+    try:
+        nlm("source", "rename", source_id, title, "--notebook", handle,
+            parse=False)
+    except RuntimeError as exc:
+        print(f"    re-rename errored: {str(exc)[:160]}")
+    time.sleep(RENAME_SETTLE_DELAY_S)
+    settled = _observed_title(handle, source_id)
+    if settled == title:
+        print(f"    settle re-verify: title held after one re-rename "
+              f"({RENAME_SETTLE_DELAY_S}s)")
+        return
+    raise RuntimeError(
+        f"oversized source {title!r} ({source_id}) was renamed and verified, "
+        f"then REGRESSED to {settled or '(unlisted)'!r} within "
+        f"{RENAME_SETTLE_DELAY_S}s — twice, the second time after a re-rename "
+        f"(issue #462: the provider appears to re-stamp the title when "
+        f"ingestion of a large body completes). It is live under its temp "
+        f"filename. Wait until the source is fully ingested, then rename it by "
+        f"hand with `nlm source rename {source_id} {title!r} --notebook "
+        f"{handle}`, verify the title is STILL present a minute later, and "
+        f"re-plan — do NOT re-run the sync to fix it")
+
+
+def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
+    """Rename an uploaded source, POLLING until it takes, or fail LOUDLY.
+
+    Replaces a fixed `time.sleep(2)`. That wait was too short for the largest
+    projected document (279KB, live 2026-08-27): the add succeeded, the rename
+    silently did not, and the source stranded under `xf-sync-*.md` — where parity
+    correctly reported it MISSING, because by title it was.
+
+    VERIFIES THE STATE, NOT THE RETURN. The `nlm` CLI has been observed printing
+    `API error (code 7)` while exiting 0, so a rename is confirmed by reading the
+    source list back and finding the title — never by trusting the call's own
+    report. That is the same rule the harness lessons keep arriving at from other
+    directions.
+
+    Raises on timeout rather than returning quietly: a silent failure here is
+    what produced the stranded source and, worse, what let a re-run add a second
+    one instead of repairing the first.
+
+    AND THE READ-BACK PROVES A MOMENT, NOT A STEADY STATE — which is issue #462's
+    second half. On 2026-08-28 both applies' polls passed on attempt 1 and the
+    title later regressed to the temp filename, so the run exited 0 over a
+    stranded source all over again. After the poll confirms, the title is
+    therefore RE-READ after `RENAME_SETTLE_DELAY_S` (`_verify_rename_settled`),
+    one re-rename is attempted if it regressed, and a regression that survives
+    that retry raises here — the same loud path as a rename that never took.
+    """
+    # BOUNDED BY ATTEMPTS AS WELL AS WALL TIME. A caller that patches
+    # `time.sleep` to a no-op (every test in this suite does) would otherwise
+    # turn the wall-clock deadline into a busy-wait spinning until the timeout
+    # elapsed in real seconds. Two bounds, whichever arrives first.
+    max_attempts = max(1, RENAME_READY_TIMEOUT_S // RENAME_POLL_INTERVAL_S)
+    deadline = time.monotonic() + RENAME_READY_TIMEOUT_S
+    attempts = 0
+    last = ""
+    while True:
+        attempts += 1
+        try:
+            nlm("source", "rename", source_id, title, "--notebook", handle,
+                parse=False)
+        except RuntimeError as exc:                       # noqa: PERF203
+            last = str(exc)[:200]
+        # The read-back IS the check, and it asserts the PAIR (see
+        # `_title_holds`): THIS source now bears THIS title.
+        confirmed = False
+        try:
+            confirmed = _title_holds(handle, source_id, title)
+        except RuntimeError as exc:
+            last = f"source list unreadable: {str(exc)[:160]}"
+        if confirmed:
+            # OUTSIDE the try above deliberately: `_verify_rename_settled`
+            # raises RuntimeError on a regression, and catching it here would
+            # feed the loud path straight back into the poll loop.
+            print(f"    renamed on attempt {attempts}")
+            _verify_rename_settled(handle, source_id, title)
+            return
+        if attempts >= max_attempts or time.monotonic() >= deadline:
+            raise RuntimeError(
+                f"oversized source {title!r} uploaded as {source_id} but the "
+                f"rename never took after {attempts} attempts over "
+                f"{RENAME_READY_TIMEOUT_S}s (last: {last or 'no error reported'}). "
+                f"It is live under its temp filename; rename it by hand with "
+                f"`nlm source rename {source_id} {title!r} --notebook {handle}` "
+                f"— do NOT re-run the sync to fix it")
+        time.sleep(RENAME_POLL_INTERVAL_S)
+
+
+@dataclass(frozen=True)
+class _Stray:
+    """One temp-titled source, with its body fetched ONCE.
+
+    `raw` is the CLI's response UNCHANGED — every digest in this module unwraps
+    for itself, and pre-unwrapping here would silently double-unwrap a body that
+    is itself JSON. `length` is the byte length of the UNWRAPPED body, because
+    that is the document's size and the JSON envelope is not part of it.
+    """
+    source_id: str
+    title: str
+    raw: str
+    length: int
+
+
+def _stray_uploads(handle: str) -> list[_Stray]:
+    """Every `xf-sync-*.md` stray in the book, body fetched once each.
+
+    One fetch per stray serves both adoption gates — a stray whose content
+    cannot be read is dropped, exactly as before, because a body we cannot read
+    can match nothing.
+    """
+    try:
+        rows = _source_rows(handle)
+    except RuntimeError:
+        return []
+    strays: list[_Stray] = []
+    for row in rows:
+        row_title = str(row.get("title") or "")
+        source_id = row.get("id")
+        if not source_id or not STRAY_TEMP_TITLE_RE.match(row_title):
+            continue
+        try:
+            raw = str(nlm("source", "content", source_id, parse=False) or "")
+        except RuntimeError:
+            continue
+        body = source_content_text(raw)
+        strays.append(_Stray(str(source_id), row_title, raw,
+                             len(body.encode("utf-8", "replace"))))
+    return strays
+
+
+def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
+    """Rename an already-uploaded stray into place instead of adding a duplicate.
+
+    THE SELF-HEALING HALF. Before this, a run that failed to rename left a
+    stray, and the documented repair — re-run the book — ADDED A SECOND ONE
+    (proven live 2026-08-27: canon reached 120 sources with two `xf-sync-*.md`
+    entries for one document). The failure compounded instead of healing.
+
+    THE STRICT DIGEST IS STILL THE FIRST GATE. A stray whose content matches the
+    document on the manifest's own digest is adopted, full stop — no tolerance,
+    no normalization, nothing to argue with.
+
+    THEN A BOUNDED FALLBACK, for the class that gate can never match (issue
+    #462). The provider does not return large bodies verbatim: all four strays of
+    the 279,235-byte `ideation-dashboard` spec came back as 281,645 bytes, so the
+    strict digest differed every time and the "safe" fall-through to a normal add
+    minted a fresh duplicate on every run. For that class the fallback considers
+    ONLY strays whose body length is within `ADOPTION_LENGTH_TOLERANCE_BYTES` of
+    the projected body, compares `_normalized_digest` on both sides, and adopts
+    when EXACTLY ONE candidate matches. Length never adopts anything by itself,
+    and a title pattern never adopts anything at all — `STRAY_TEMP_TITLE_RE` only
+    decides what is a candidate to compare.
+
+    AND WHEN THE FALLBACK CANNOT DECIDE, THE RUN STOPS — it does not upload.
+    A within-tolerance stray that does not match, or more than one match, is the
+    exact state in which uploading again is the compounding path the issue
+    describes (two applies took canon from 3 strays to 4, silently, exit 0). So
+    this raises, naming every candidate with its byte length, the projected byte
+    length, and the hand adoption. The run's other books still complete: `main`
+    contains a book's failure and exits nonzero at the end.
+
+    With NO within-tolerance stray there is nothing to compound and nothing to
+    decide, so the caller falls through to a normal add — the pre-existing
+    behaviour, unchanged.
+    """
+    strays = _stray_uploads(handle)
+    if not strays:
+        return False
+
+    want = _content_digest(text)
+    for stray in strays:
+        if _content_digest(stray.raw) == want:
+            print(f"    adopted stray {stray.source_id} by strict digest "
+                  f"({stray.title} -> {title!r}; a previous run's rename did "
+                  f"not take)")
+            _rename_source_when_ready(handle, stray.source_id, title)
+            return True
+
+    want_len = len(text.encode("utf-8", "replace"))
+    near = [s for s in strays
+            if abs(s.length - want_len) <= ADOPTION_LENGTH_TOLERANCE_BYTES]
+    if not near:
+        return False
+    want_norm = _normalized_digest(text)
+    matched = [s for s in near if _normalized_digest(s.raw) == want_norm]
+    if len(matched) == 1:
+        stray = matched[0]
+        print(f"    adopted stray {stray.source_id} by normalized digest "
+              f"({stray.title} -> {title!r}; provider body {stray.length}B vs "
+              f"projected {want_len}B)")
+        _rename_source_when_ready(handle, stray.source_id, title)
+        return True
+
+    listed = "; ".join(f"{s.source_id} ({s.title}, {s.length}B)" for s in near)
+    raise RuntimeError(
+        f"oversized source {title!r}: REFUSING to upload another copy. The "
+        f"projected body is {want_len}B and this book already holds "
+        f"{len(near)} temp-titled stray(s) within "
+        f"{ADOPTION_LENGTH_TOLERANCE_BYTES}B of it: {listed}. Adoption needs "
+        f"exactly ONE of them to match on the provider-normalized digest and "
+        f"{len(matched)} did, so adopting would be a guess and adding would "
+        f"mint yet another duplicate (issue #462: two applies took xf-canon "
+        f"from three strays to four, silently). Adopt by hand instead: rename "
+        f"ONE fully-ingested stray to the contract title with `nlm source "
+        f"rename <stray-id> {title!r} --notebook {handle}`, wait, verify the "
+        f"title is STILL present, then re-plan — and delete the remaining "
+        f"duplicates once you have confirmed what they are. Do NOT re-run "
+        f"--apply to repair this: each run mints another stray")
+
+
 def add_text_source(handle: str, text: str, title: str) -> None:
     """Add one text source, riding a temp file + rename when the content is
-    too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
+    too large for a single argv string (see MAX_TEXT_ARG_BYTES).
+
+    THE OVERSIZED PATH NARRATES ITSELF, even when it succeeds (issue #462): the
+    upload's source id, the attempt the rename took on, the settle re-verify, and
+    any adoption each print a sub-line. Both stray-minting applies on 2026-08-28
+    were indistinguishable in the transcript from clean ones — a bare `ADD` line
+    and nothing else — which is how they went unnoticed until parity read the
+    document MISSING. Two lines of output are the difference between a run whose
+    outcome is visible and one whose outcome has to be reconstructed afterwards.
+    """
     if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
         _add_with_one_retry("source", "add", handle, "--text", text,
                             "--title", title)
+        return
+    # Repair before adding: a stray from a previous run's failed rename is this
+    # document already uploaded, and adding again would duplicate it.
+    if _adopt_matching_stray(handle, text, title):
         return
     fd, tmp = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
     try:
@@ -849,9 +1530,9 @@ def add_text_source(handle: str, text: str, title: str) -> None:
             raise RuntimeError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
-        time.sleep(2)
-        nlm("source", "rename", m.group(1), title, "--notebook", handle,
-            parse=False)
+        print(f"    uploaded as {m.group(1)} "
+              f"({len(text.encode('utf-8', 'replace'))}B, as a temp file)")
+        _rename_source_when_ready(handle, m.group(1), title)
     finally:
         os.unlink(tmp)
 
@@ -927,6 +1608,10 @@ def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
     # adds and content updates
     for rel, title in sorted(desired.items()):
         text = (root / rel).read_text(errors="replace")
+        # Raw hash, not `_content_digest`, deliberately: this is REPO text read
+        # from disk and compared against the manifest's stored value. There is no
+        # provider response here and so nothing to unwrap — the digest FORM is
+        # the same, which is what keeps the two comparable.
         digest = hashlib.sha256(text.encode()).hexdigest()[:16]
         prev = mf.get(rel)
         if title in by_title and prev and prev.get("hash") == digest:
@@ -956,12 +1641,19 @@ V1_WORKBENCH_DIR = "openxFactory/ideation/workbench/"
 
 def _out_of_scope_workbench_dirs(root: Path) -> list[Path]:
     """Workbench dirs OUTSIDE the v1 openxFactory sweep scope that could carry
-    live manifests: the aggregation root's own and each xFactories/<repo>'s
-    (worktree containers excluded, matching scan())."""
+    live manifests: the aggregation root's own, each xFactories/<repo>'s, and
+    each allowlisted root-level neutral product's (worktree containers
+    excluded, matching scan()).
+
+    THE WIDENING IS THE SAFE DIRECTION HERE and is not merely for symmetry: a
+    workbench dir this function misses is a live manifest the sweep cannot see,
+    and the sweep DELETES the `xf-wb-*` notebook no live manifest binds. Missing
+    a directory therefore destroys a bound notebook, while including a directory
+    that holds nothing costs one `is_dir()`.
+    """
     dirs = [root / "ideation" / "workbench"]
-    if (root / "xFactories").is_dir():
-        for rel in pinned_factory_paths(root):
-            dirs.append(root / rel / "ideation" / "workbench")
+    for rel in governed_repo_paths(root):
+        dirs.append(root / rel / "ideation" / "workbench")
     return [d for d in dirs if d.is_dir()]
 
 
@@ -1047,7 +1739,7 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
 # --------------------------------------------------------------------------
 # BRANCH-SESSION notebooks (007-workbench-branch-sessions T073; FR-036-FR-040)
 #
-# A fourth notebook family beside the three lifecycle books and the swept
+# A fourth notebook family beside the lifecycle books and the swept
 # `xf-wb-*` reference sets: ONE `xf-session-<repository>-<branch>` notebook per
 # live branch session, synced FROM that session's WORKTREE.
 #
@@ -1138,11 +1830,15 @@ def _dashboard_module(name: str):
 
 def session_repositories(root: Path) -> list[tuple[str, Path]]:
     """(repository, checkout) pairs a session worktree can belong to: the
-    openxFactory checkout plus every PINNED factory — deliberately the same repo
-    set `scan()` walks, so the books and the sessions agree on what a repository
-    is (and neither treats a worktree container as one)."""
+    openxFactory checkout plus every governed repository below the root — the
+    pinned factories AND the allowlisted root-level neutral products —
+    deliberately the same repo set `scan()` walks, so the books and the sessions
+    agree on what a repository is (and neither treats a worktree container as
+    one). That agreement is why this reads `governed_repo_paths` and not
+    `pinned_factory_paths`: the docstring's claim was load-bearing and widening
+    `scan()` alone would have quietly falsified it."""
     pairs = [("openxFactory", root / "openxFactory")]
-    for rel in pinned_factory_paths(root):
+    for rel in governed_repo_paths(root):
         pairs.append((Path(rel).name, root / rel))
     return [(name, path) for name, path in pairs if path.is_dir()]
 
@@ -1156,12 +1852,26 @@ def live_session_targets(root: Path, branch: str,
     residue whose git association had been pruned AND whose branch had been
     deleted it still returned a target — and then drove notebook create /
     re-sync / RETIRE against a session that did not exist. Handed the identical
-    directory, `branch_session.bootstrap_sessions` answered `live=()` and reported
-    it stale: two liveness answers for one input, and the divergent one was the
+    directory, `branch_session.bootstrap_sessions` answered `live=()` and
+    reported it stale: two liveness answers for one input, and the divergent one was the
     one holding the `nlm` credential. `branch_session.live_session_worktree` is
     the bootstrap's own per-branch rule — git must list the directory as a
     worktree ON THIS BRANCH, the branch must exist, and no ending marker may say
-    the session is over (FR-008, FR-021, D10)."""
+    the session is over (FR-008, FR-021, D10).
+
+    THE CONTAINER QUESTION got the sweep's own fix (F3, migration evidence
+    2026-08-24): a session's container is `<checkout>-worktrees/sessions/`,
+    keyed on the checkout the session was OPENED from, and sessions are
+    routinely opened from a FEATURE worktree. Asking only each repository's
+    canonical checkout derived one path and never saw those sessions —
+    `--session-ref` refused two LIVE draft/* branches while `--session-sweep`
+    (which enumerates every worktree) saw both, leaving their notebooks hosted
+    on the account being abandoned. So this enumeration is complete the same
+    way the sweep's is: every worktree git lists for the repository is asked,
+    each as a potential container owner, through the SAME joint signal. An
+    unreadable worktree list still degrades to the canonical root alone —
+    safe here because this mode only ever REFUSES when it finds nothing; it
+    has no retire arm."""
     bs = _dashboard_module("branch_session")
     sg = _dashboard_module("session_git")
     root = Path(root).resolve()
@@ -1169,16 +1879,25 @@ def live_session_targets(root: Path, branch: str,
     for name, checkout in session_repositories(root):
         if repository and name != repository:
             continue
+        roots: list[Path] = [Path(checkout)]
         try:
-            worktree = bs.live_session_worktree(sg.SessionGit(checkout), checkout,
-                                                branch)
+            for record in sg.SessionGit(checkout).worktree_records():
+                candidate = Path(record.path)
+                if candidate not in roots:
+                    roots.append(candidate)
         except Exception:  # noqa: BLE001 - a tree with no git has no sessions
-            worktree = None
-        if worktree is not None:
-            found.append(SessionTarget(repository=name, branch=branch,
-                                       worktree=worktree,
-                                       alias=bs.notebook_alias(name, branch),
-                                       checkout=checkout))
+            pass
+        for checkout_root in roots:
+            try:
+                worktree = bs.live_session_worktree(sg.SessionGit(checkout_root),
+                                                    checkout_root, branch)
+            except Exception:  # noqa: BLE001 - a tree with no git has no sessions
+                worktree = None
+            if worktree is not None:
+                found.append(SessionTarget(repository=name, branch=branch,
+                                           worktree=worktree,
+                                           alias=bs.notebook_alias(name, branch),
+                                           checkout=checkout))
     return found
 
 
@@ -1209,11 +1928,19 @@ def resolve_session_target(root: Path, branch: str,
             "retires it")
     if len(found) > 1:
         names = ", ".join(t.repository for t in found)
+        paths = ", ".join(str(t.worktree) for t in found)
+        if len({t.repository for t in found}) > 1:
+            advice = (f"; a session notebook alias is keyed on "
+                      "(repository, branch) (FR-037, spec C9), so name one "
+                      "with --session-repository")
+        else:
+            advice = ("; the same branch is live under more than one session "
+                      "container IN this repository, which no alias can "
+                      "disambiguate — end or clean up all but one before "
+                      "addressing its notebook")
         raise SessionNotebookRefused(
-            f"[session] branch {branch!r} names a live session in more than one "
-            f"repository ({names}); a session notebook alias is keyed on "
-            "(repository, branch) (FR-037, spec C9), so name one with "
-            "--session-repository")
+            f"[session] branch {branch!r} names a live session in more than "
+            f"one place ({names}: {paths}){advice}")
     return found[0]
 
 
@@ -1378,6 +2105,24 @@ def sync_session_notebook(root: Path, branch: str, apply: bool = False, *,
           f"({rel})")
     for path in paths:
         print(f"[session]   source {path}")
+    # ---- capacity guard (before any mutation) ----
+    # This route is deliberately unbounded (workbench finding 21: the
+    # human-waiting terminal completes what a bounded gate-route creation
+    # deferred), so nothing downstream would stop a session whose derived
+    # corpus outgrew the provider's per-notebook cap — adds would fail past
+    # the cap mid-flight, the shared Ideation book's 2026-08-10 death. The
+    # books' guard therefore applies here too: refuse before ANY mutation,
+    # name the excess and the remedy.
+    if len(paths) > NOTEBOOK_SOURCE_CAP:
+        print(f"[session] {target.alias} REFUSED: {len(paths)} desired sources "
+              f"exceed the provider's {NOTEBOOK_SOURCE_CAP}-source per-notebook "
+              f"cap by {len(paths) - NOTEBOOK_SOURCE_CAP}. Applying would die "
+              "mid-run; scope the session membership rule down or split the "
+              "projection first (see split-ideation-book-per-repo). Nothing "
+              "was created, added, or retired.")
+        return SessionSync(target=target, documents=paths, skipped=True,
+                           detail=f"{len(paths)} desired sources exceed the "
+                                  f"{NOTEBOOK_SOURCE_CAP}-source provider cap")
     if not apply:
         print("[session] dry-run: re-run with --apply to sync")
         return SessionSync(target=target, documents=paths,
@@ -1601,10 +2346,442 @@ def _session_source_count(row) -> int | None:
     return None
 
 
+# --------------------------- the declared hosting identity ---------------------------
+# add-notebook-projection-identity (ratified 2026-08-23). WHICH Google account
+# the projection is created in is contract conformance, not a property of
+# whoever ran `nlm login` first.
+
+HOSTING_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
+_HOSTING_SCALARS = ("case", "account", "account_type", "domain",
+                    "nlm_profile")
+_HOSTING_MIGRATION_SCALARS = ("state", "from_account", "from_nlm_profile")
+
+
+NLM_CONFIG = Path.home() / ".notebooklm-mcp-cli" / "config.toml"
+# Set once the run is bound; re-asserted before EVERY CLI invocation, because
+# the CLI's profile selection is process-global and any other terminal can
+# `nlm login switch` mid-run. A single check before a 40-minute apply binds
+# nothing.
+_BOUND_PROFILE: str | None = None
+_CONFIG_CACHE: tuple[tuple[int, int], str | None] | None = None
+
+
+def configured_nlm_profile(path: Path | None = None) -> str | None:
+    """`auth.default_profile` as it stands ON DISK right now.
+
+    Read from the config FILE rather than by shelling out: this runs before
+    every invocation, so it must cost a stat, not a subprocess. The parse is
+    cached on (mtime_ns, size) and redone only when the file actually moves.
+    """
+    global _CONFIG_CACHE
+    path = path or NLM_CONFIG
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    stamp = (stat.st_mtime_ns, stat.st_size)
+    if _CONFIG_CACHE is not None and _CONFIG_CACHE[0] == stamp:
+        return _CONFIG_CACHE[1]
+    profile = None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    section = None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip()
+            continue
+        if section == "auth":
+            key, sep, value = line.partition("=")
+            if sep and key.strip() == "default_profile":
+                profile = value.strip().strip('"').strip("'") or None
+                break
+    _CONFIG_CACHE = (stamp, profile)
+    return profile
+
+
+def profile_account(profile: str, home: Path | None = None) -> str | None:
+    """The Google address the CLI recorded for `profile`, when it has one.
+
+    Corrects a claim this change shipped with: the CLI DOES store an email, in
+    `profiles/<name>/metadata.json`. It is populated by a recent login and left
+    null by an older one, so a None here means UNKNOWN — not "no such thing" —
+    and an unknown address is reported rather than treated as a mismatch.
+    """
+    base = home or (Path.home() / ".notebooklm-mcp-cli")
+    path = base / "profiles" / profile / "metadata.json"
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    email = meta.get("email") if isinstance(meta, dict) else None
+    return email.strip() or None if isinstance(email, str) else None
+
+
+def bind_profile(profile: str | None) -> None:
+    """Pin the run to `profile`; None releases the pin (undeclared installs)."""
+    global _BOUND_PROFILE
+    _BOUND_PROFILE = profile
+
+
+def assert_still_bound() -> None:
+    """Refuse the invocation if the CLI's profile drifted out from under us.
+
+    The window this closes is real and was found in review: another terminal
+    running `nlm login switch` after the run's opening check would silently
+    redirect every later add and delete into a different Google account. The
+    declaration exists to make that impossible, so the run dies here rather
+    than writing one more source into an account nobody declared.
+    """
+    if _BOUND_PROFILE is None:
+        return
+    active = configured_nlm_profile()
+    if active == _BOUND_PROFILE:
+        return
+    raise SystemExit(
+        f"hosting: the CLI's active profile changed mid-run — bound to "
+        f"{_BOUND_PROFILE!r}, now {active!r}. Refusing every further "
+        f"invocation: the remaining work would land in an account this "
+        f"install has not declared. Re-bind with "
+        f"`nlm login switch {_BOUND_PROFILE}` and re-run; the sync is "
+        f"idempotent, so a resumed run is a no-op over what finished.")
+
+
+def read_hosting_declaration(root: Path) -> dict[str, str] | None:
+    """The install's declared hosting identity, or None when undeclared.
+
+    Deliberately a NARROW SCALAR READER rather than a YAML parse: this script
+    carries no YAML dependency (the workspace registry beside it is handled as
+    text for the same reason), and the full shape — required fields, the
+    two-case vocabulary, the roster's key — is enforced by
+    `scripts/validate-notebook-projection-hosting.py`. Only the `hosting:`
+    block's own scalars and its `migration:` sub-block are read here, which is
+    all the sync needs to bind a run to an account.
+    """
+    path = root / HOSTING_REL
+    if not path.is_file():
+        return None          # genuinely undeclared: the only undeclared case
+    found: dict[str, str] = {}
+    in_hosting = in_migration = False
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent == 0:
+            in_hosting = line.strip() == "hosting:"
+            in_migration = False
+            continue
+        if not in_hosting:
+            continue
+        key, sep, value = line.strip().partition(":")
+        value = value.strip().strip('"').strip("'")
+        if indent == 2:
+            in_migration = (key == "migration" and not value)
+            if sep and key in _HOSTING_SCALARS:
+                found[key] = value
+        elif indent == 4 and in_migration and key in _HOSTING_MIGRATION_SCALARS:
+            found[f"migration_{key}"] = value
+    # An EXISTING file always yields a dict — empty when this narrow reader
+    # could not make sense of it (flow style, other indentation, tabs).
+    # Returning None there would route a present-but-unparsed declaration into
+    # the UNDECLARED branch: the sync would bind nothing and run unbound for the
+    # whole job while the full validator passed the very same file. Fail closed.
+    return found
+
+
+def active_nlm_profile(runner=None) -> str | None:
+    """The profile the CLI will actually use, or None when it cannot be read.
+
+    The CLI selects a profile PROCESS-GLOBALLY, through `auth.default_profile`:
+    of the verbs this sync issues (`notebook`, `source`, `alias`, `tag`,
+    `chat`), NONE accepts a per-invocation `--profile`, so the binding is
+    VERIFIED rather than passed. Only the newer `share` and `login` verbs take
+    the flag.
+    """
+    if runner is None:
+        # ONE source of truth in production: the same config file
+        # `assert_still_bound()` re-reads before every invocation. Two readers
+        # of one fact can disagree, and this one gates the other.
+        return configured_nlm_profile()
+    try:
+        out = runner("config", "get", "auth.default_profile", parse=False)
+    except Exception:  # noqa: BLE001 - an unreadable profile is "unknown"
+        return None
+    if not isinstance(out, str):
+        return None
+    return out.strip() or None
+
+
+# The account shapes a Google USER account never has. A projection host must be
+# one: NotebookLM has no API and a service principal cannot drive its consumer
+# web UI, so such a declaration could never work.
+_NON_USER_MARKERS = (".iam.gserviceaccount.com", ".gserviceaccount.com")
+
+
+_MIGRATION_STATES = (None, "", "pending", "complete")
+
+
+def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
+    """Enforce the declaration rules that must hold ON THE OPERATIONAL PATH.
+
+    `scripts/validate-notebook-projection-hosting.py` checks the whole record,
+    including the roster — but review found it was invoked by nothing the sync
+    runs, so a declaration naming a consumer or service account would have been
+    accepted by an ordinary `--apply`. These few rules are therefore enforced
+    here too, inline and dependency-free; the validator remains the authority
+    on the parts a sync never reads.
+    """
+    if not declared:
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} EXISTS but no declaration could be read "
+            f"from it. The sync reads the `hosting:` block's own two-space "
+            f"scalars; flow style, other indentation or tabs parse as valid "
+            f"YAML for the validator and as nothing here. Refusing rather than "
+            f"running unbound — an unreadable declaration is not an absent "
+            f"one. Re-indent it to match "
+            f"examples/notebook-projection-hosting.yaml.")
+    case = declared.get("case")
+    account = declared.get("account", "")
+    state = declared.get("migration_state")
+    if state not in _MIGRATION_STATES:
+        raise SystemExit(
+            f"hosting: migration.state is {state!r}; it is 'pending', "
+            f"'complete', or absent. An unrecognized state would otherwise "
+            f"bind the run to the DECLARED profile while the books are still "
+            f"in the previous account — a premature migration under --apply.")
+    if state == "pending" and not declared.get("migration_from_nlm_profile"):
+        raise SystemExit(
+            f"hosting: a PENDING migration must name "
+            f"migration.from_nlm_profile — the sync binds there until the "
+            f"books move, and cannot bind to a profile nobody named.")
+    if not declared.get("nlm_profile"):
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} names no top-level nlm_profile. It is "
+            f"required in every state: it is what the run binds to once a "
+            f"migration completes.")
+    if case not in ("operator_hosted", "self_hosted"):
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} declares case {case!r}; an install "
+            f"declares exactly one of operator_hosted or self_hosted")
+    if "@" not in account:
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} names no usable account address")
+    if any(marker in account for marker in _NON_USER_MARKERS):
+        raise SystemExit(
+            f"hosting: {account} is a service account. The hosting identity "
+            f"MUST be a Google USER account — NotebookLM has no API and a "
+            f"service account cannot drive its consumer web UI, so this "
+            f"declaration could never work")
+    if case != "operator_hosted":
+        return
+    if declared.get("account_type") != "google_workspace_user":
+        raise SystemExit(
+            f"hosting: {account} is declared operator-hosted but its "
+            f"account_type is {declared.get('account_type')!r}. The "
+            f"operator-hosted case requires a google_workspace_user: a "
+            f"consumer account keeps a personal recovery path and no admin "
+            f"console, which is what this case exists to remove")
+    domain = declared.get("domain", "")
+    if not domain:
+        raise SystemExit(
+            f"hosting: an operator-hosted declaration must name the domain "
+            f"the operating party administers")
+    if not account.lower().endswith("@" + domain.lower()):
+        raise SystemExit(
+            f"hosting: {account} is not in the declared domain {domain} — "
+            f"the operating party must administer the account it declares")
+
+
+def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None:
+    """Bind this run to the declared hosting identity, or refuse to run.
+
+    Returns the declaration when the run may proceed, None when the install has
+    not declared. Exits when an install HAS declared and the CLI is pointed
+    somewhere else: writing a governed projection into an account nobody
+    declared is precisely the failure this capability exists to retire, so the
+    run fails rather than falling back to the default profile.
+
+    While a declared migration is PENDING the run binds to the account that
+    still HOLDS the books (`migration.from_nlm_profile`) and says so, because a
+    declaration is not a migration — flipping the binding before the books move
+    would break every sync rather than move anything.
+
+    WHAT IS VERIFIED. The profile NAME always, and the ACCOUNT ADDRESS whenever
+    the CLI recorded one: `profiles/<name>/metadata.json` carries an `email`,
+    populated by a recent login and left null by an older one. A null is
+    reported as unknown rather than treated as a match — this change originally
+    claimed the CLI stored no email at all, which review disproved.
+    """
+    declared = read_hosting_declaration(root)
+    if declared is None:
+        bind_profile(None)
+        print("hosting: NO DECLARED HOSTING IDENTITY. This install does not "
+              "meet the declared-hosting requirement — a transition state, not "
+              "a third legitimate case. Running under the CLI's default "
+              "profile; this projection is not governed by a declared account.")
+        return None
+
+    _refuse_unusable_declaration(declared)
+    account = declared.get("account") or "<unnamed>"
+    case = declared.get("case") or "<unstated>"
+    target = declared.get("nlm_profile")
+    pending = declared.get("migration_state") == "pending"
+    profile = declared.get("migration_from_nlm_profile") if pending else target
+    holder = declared.get("migration_from_account", "the previous account") if pending else account
+
+    active = active_nlm_profile(runner)
+    if active is None:
+        raise SystemExit(
+            f"hosting: cannot read the CLI's active profile, so this run "
+            f"cannot prove which account it would write to. Refusing rather "
+            f"than guessing.")
+    if active != profile:
+        raise SystemExit(
+            f"hosting: expected the {profile!r} profile but the CLI's active "
+            f"profile is {active!r}. Refusing: a run that cannot prove which "
+            f"account it writes to is the failure this declaration exists to "
+            f"retire.\n"
+            f"  switch it with:   nlm login switch {profile}\n"
+            f"  first time:       nlm login --profile {profile}")
+
+    # The profile NAME proves which store is used; the address it recorded, if
+    # it recorded one, proves WHICH ACCOUNT that store holds. Check it when
+    # available — a name can point anywhere after a re-login.
+    expected = holder if pending else account
+    signed_in = profile_account(profile)
+    if signed_in and expected and signed_in.lower() != expected.lower():
+        raise SystemExit(
+            f"hosting: profile {profile!r} is signed in as {signed_in}, but "
+            f"this install expects {expected}. Refusing: the profile name "
+            f"matches and the ACCOUNT does not, which is exactly the mix-up a "
+            f"declared identity exists to catch.\n"
+            f"  re-authenticate with:  nlm login --profile {profile}  "
+            f"(as {expected})")
+    if signed_in is None:
+        print(f"hosting: profile {profile!r} records no account address "
+              f"(an older login leaves it null) — the binding is verified by "
+              f"profile NAME only; confirm with `nlm notebook list` that it "
+              f"shows {expected}.")
+
+    bind_profile(profile)
+    if pending:
+        print(f"hosting: MIGRATION PENDING. Declared {case} {account}, but the "
+              f"books still live in {holder} under profile {profile!r} "
+              f"(verified active). This run reconciles them THERE. See "
+              f"docs/notebook-projection-migration-runbook.md.")
+    else:
+        print(f"hosting: {case} — {account} "
+              f"(nlm profile {profile!r}, verified active)")
+    return declared
+
+
+def parity_report(root: Path, *, book: str | None = None,
+                  notebooks: list[dict] | None = None) -> int:
+    """Prove parity of the live books against THE CORPUS SCAN.
+
+    The scan is the reference on purpose: after a hosting migration the legacy
+    books are the artifact whose fidelity is in question, so proving the new
+    account against them proves nothing. Reports per-book DOCUMENT-level
+    membership plus a union reconciliation, and never mutates — including the
+    ALIAS STORE, a single flat file shared across profiles, so registering an
+    alias is a cross-account write rather than a local convenience. Returns 0
+    when every book in scope matches with nothing pending, 1 otherwise.
+
+    Membership is proven at the DOCUMENT level, not at the title level
+    (add-projection-title-uniqueness). Comparing a set of derived titles
+    against a set of live titles CANNOT SEE a document that never received a
+    title of its own: a collapse leaves the two sets equal, which is why this
+    mode reported OK on three books that were missing five documents between
+    them. Set equality alone is therefore no longer parity — a derived title
+    carrying more than one document is a FAILURE that names them.
+    """
+    desired, specs = scan(root)
+    if book and book not in desired:
+        print(f"parity: {book!r} is not a book this scan derives; available: "
+              f"{', '.join(sorted(desired))}")
+        return 1
+    if notebooks is None:
+        notebooks = list_notebooks()
+
+    derived_union: set[str] = set()
+    live_union: set[str] = set()
+    mismatched: list[str] = []
+
+    for key, items in sorted(desired.items()):
+        if book and key != book:
+            continue
+        derived = set(items.values())
+        derived_union |= derived
+        # DOCUMENT-level check, run on the corpus alone: a title carrying more
+        # than one document is a book that cannot hold them all, whatever the
+        # provider says.
+        carried: dict[str, list[str]] = {}
+        for rel, title in items.items():
+            carried.setdefault(title, []).append(rel)
+        collapsed = {t: sorted(rels) for t, rels in carried.items()
+                     if len(rels) > 1}
+        if collapsed:
+            displaced = sum(len(rels) - 1 for rels in collapsed.values())
+            print(f"[{key}] PARITY FAIL: {len(collapsed)} derived title(s) "
+                  f"carry more than one document — {len(items)} documents "
+                  f"derive only {len(derived)} titles, so {displaced} "
+                  f"cannot hold a source of their own")
+            for title, rels in sorted(collapsed.items())[:5]:
+                print(f"[{key}]   COLLAPSED {title}")
+                for rel in rels:
+                    print(f"[{key}]     {rel}")
+        nid, _ok = resolve_or_create_book(root, specs[key], False, notebooks,
+                                          bind_alias=False)
+        if nid is None:
+            print(f"[{key}] PARITY FAIL: no live notebook titled "
+                  f"{specs[key].title!r} ({len(derived)} derived members)")
+            mismatched.append(key)
+            continue
+        rows = nlm("source", "list", nid, "--json")
+        rows = rows if isinstance(rows, list) else []
+        # managed members are the bracket-titled ones; the charter and any
+        # hand-added source are deliberately preserved and not parity subjects
+        live = {r.get("title", "") for r in rows
+                if str(r.get("title", "")).startswith("[")}
+        live_union |= live
+        missing, extra = sorted(derived - live), sorted(live - derived)
+        if not missing and not extra and not collapsed:
+            print(f"[{key}] PARITY OK: {len(items)} documents in "
+                  f"{len(derived)} titles match")
+            continue
+        mismatched.append(key)
+        if missing or extra:
+            print(f"[{key}] PARITY FAIL: {len(missing)} missing, {len(extra)} "
+                  f"extra (derived {len(derived)}, live {len(live)})")
+            for title in missing[:5]:
+                print(f"[{key}]   MISSING {title}")
+            for title in extra[:5]:
+                print(f"[{key}]   EXTRA   {title}")
+
+    print(f"parity union: {len(derived_union)} derived titles, "
+          f"{len(live_union)} live managed titles, "
+          f"{len(derived_union - live_union)} unprojected, "
+          f"{len(live_union - derived_union)} unaccounted")
+    if mismatched:
+        print(f"parity: FAILED for {len(mismatched)} book(s): "
+              f"{', '.join(mismatched)} — pending changes remain")
+        return 1
+    print("parity: PROVEN — every book in scope matches the corpus scan, "
+          "0 pending ADD/DEL/UPD")
+    return 0
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("root", type=Path)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--parity", action="store_true",
+                    help="prove the live books against the CORPUS SCAN "
+                         "(per-book title-set equality + a union "
+                         "reconciliation); reports, never mutates")
     ap.add_argument("--book", help="sync one book only (a scan-derived key: "
                                    "drafts, canon, or ideation-<repo-slug>)")
     ap.add_argument("--session-ref", metavar="BRANCH",
@@ -1631,6 +2808,15 @@ def main() -> None:
                     default=datetime.now(timezone.utc).date().isoformat(),
                     help="date stamp for imported idea files (YYYY-MM-DD)")
     args = ap.parse_args()
+
+    # Bind the run to the declared hosting identity BEFORE any branch that
+    # reaches the CLI — session notebooks and imports are created in the same
+    # account as the lifecycle books, so they are bound by the same rule. A run
+    # that cannot prove which account it writes to must not write at all.
+    enforce_hosting_profile(args.root)
+
+    if args.parity:
+        raise SystemExit(parity_report(args.root, book=args.book))
 
     if args.session_sweep:
         # RECONCILIATION, not a targeted operation. Mutually exclusive with

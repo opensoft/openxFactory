@@ -1,7 +1,23 @@
 # avatar-client-runtime Specification
 
 ## Purpose
-TBD - created by archiving change define-avatar-client-contract-kernel. Update Purpose after archive.
+
+Define the provider-neutral AVC contract kernel published under
+`contracts/avatar-client/` — the session request, discriminated session
+result, event, confirmation, retention, persona, command, and state-snapshot
+schemas with their shared definitions and closed registries — as the one
+protocol a reusable client, reference broker, workflow service, or
+DomainxFactory overlay is written against. Carry the authority semantics
+that give those schemas force: authenticated purpose-bound results and retry
+identity, sideband-before-answer media authorization over a brokered direct
+media plane, leases and epochs across a single sequenced log with
+deterministic snapshot recovery, effect-bound confirmation, server-owned
+model profiles and a session-fixed persona, consent before capture with
+enforceable speech gates, disposable provider context, minimal retention,
+and redacted telemetry. Fix the release discipline for the kernel —
+deterministic-lab evidence before internal-live, an acceptance map that must
+resolve for every requirement and scenario, and the server kill switches —
+while supplying no executable broker, client, or UI of its own.
 ## Requirements
 ### Requirement: Versioned neutral avatar-client contract kernel
 openxFactory SHALL publish the avatar-client contract kernel under

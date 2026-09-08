@@ -1,0 +1,46 @@
+# expected_failure: renewal-failure-misnames-dependents
+# expected_failure_detail: the dependents lacking succeeded evidence are
+# requirement: TA-R4
+# VIOLATES TA-R4: the renewal is honestly recorded as failed and attributed to the
+# issuing workflow, and then names the WRONG dependent as unbound — the one that
+# was actually re-bound and evidenced.
+#
+# This is the same evasion as blaming the dependent, with the constant filled in
+# correctly and the facts moved instead. Attribution to the issuing workflow is
+# only useful if the named set is the real one; otherwise the remediation is
+# pointed at a binding that is already fine while the broken one stays broken and
+# recorded as healthy.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-misnamed-unbound
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: requested
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+authority_outcome: issued
+completion_state: failed
+failure:
+  attribution: issuing_workflow
+  unbound_dependents:
+    - bind:core-workload-02-queue
+  statement: The queue binding is outstanding.
+reported_at: "2026-07-01T03:00:00Z"

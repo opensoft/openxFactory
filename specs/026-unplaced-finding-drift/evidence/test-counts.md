@@ -1,0 +1,88 @@
+# Test counts, before and after (T002, T038)
+
+```bash
+python3 -m pytest tests/doc-health -q
+```
+
+| point | result |
+|---|---|
+| branch point `86b7ca3f`, module untouched | **1215 passed**, 7 warnings |
+| after the RED tests, before the module | 11 failed, 124 passed *(family files only — see `red-log.md`)* |
+| feature landed | **1227 passed**, 7 warnings |
+| after the mutation round, module restored | **1227 passed**, 7 warnings |
+| after the catch-up merge to `22f15cdf` | **1227 passed**, 7 warnings |
+| after the combined review's fixes | **1230 passed**, 7 warnings |
+| after Brett's shape amendment (2026-08-28) | **1236 passed**, 7 warnings |
+| after the catch-up merge to `6d100e51` (the amendment on `main`) | **1270 passed**, 7 warnings |
+
+The last row's baseline moved with the merge — `main` brought a new doc-health
+family (`pin_sentinels`) and its suite — so the +21 is read from the CI-shape
+pair instead, where both sides are extractions of the SAME base: 1229 → 1250
+passed with an IDENTICAL 11-test failure set. See `ci-shape.md`.
+
+The merge moves neither figure: `git diff 86b7ca3f 22f15cdf -- tests/doc-health/
+scripts/doc_health/` is EMPTY, so the 1215 baseline still stands against the
+merged base.
+
+**+12, and every one is named.** Eleven in
+`test_modified_block_currency_reporting.py`:
+
+1. `test_a_run_the_map_places_entirely_emits_no_additional_finding` (delta sc. 1)
+2. `test_a_rule_text_the_map_does_not_place_emits_one_warning_naming_it` (sc. 2)
+3. `test_the_drift_warning_is_worked_from_the_ranked_plan` (sc. 5)
+4. `test_the_drift_finding_is_placed_by_the_map_and_never_by_the_residual` (sc. 2)
+5. `test_a_drift_finding_quoting_an_arm_shaped_rule_text_is_not_misfiled` (sc. 4)
+6. `test_a_title_that_embeds_the_drift_phrase_still_matches_exactly_one_pattern`
+7. `test_two_unplaced_findings_of_one_shape_are_one_remedy` (sc. 3, first half)
+8. `test_two_unplaced_shapes_are_two_remedies` (sc. 3, second half)
+9. `test_the_drift_finding_names_the_first_instance_in_report_order_and_is_deterministic`
+10. `test_extending_the_map_removes_both_the_finding_and_the_residual_row` (sc. 6)
+11. `test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory`
+
+and one in `test_modified_block_currency.py`:
+
+12. `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+
+### Brett's shape amendment added six more, for **+21 total**
+
+Ruled 2026-08-28, verbatim "Amend: shape = arm template, all interpolations
+masked". One test was RENAMED to the new truth
+(`..._one_finding_per_masked_arm_text_not_one_per_remedy` →
+`test_the_drift_grain_is_one_finding_per_arm_template`) and six were added:
+
+16. `test_every_finding_matches_exactly_one_arm_template` — the property the
+    mask rests on, at TEMPLATE level, over every tree and the real corpus.
+17. `test_the_arm_templates_are_the_only_place_the_prose_lives` — no arm may
+    build a rule text inline again, or the mask cannot see it.
+18. `test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape`
+    — the amended scenario 3, first half.
+19. `test_two_findings_of_different_templates_are_two_shapes` — second half.
+20. `test_a_rule_text_no_template_claims_falls_back_and_is_never_merged` — the
+    fail-closed fallback.
+21. `test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template`
+    — why `_shape` masks BEFORE it matches. Added by the mutation round.
+
+### The combined review added three (2026-08-28)
+
+13. `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+    — B1(ii): MEASURES the real grain on the real tree against an independently
+    written mask. Today: 7 unplaced findings, **6** shapes, 6 drift findings.
+14. `test_two_unresolved_blocks_differing_only_in_capability_are_one_shape`
+    — B2: the `sibling's` apostrophe case, RED before the mask fix.
+15. `test_the_drift_classifier_matches_the_module_s_own_opening`
+    — N5: pins F2's new `drift` classifier key against the module's own constant.
+
+**No test was deleted.** One was RENAMED —
+`test_each_of_the_five_rule_shapes_classifies_into_its_own_class` →
+`test_each_of_the_six_rule_shapes_classifies_into_its_own_class` — which is a
+count, not a delta.
+
+**All six of the delta's scenarios have a named test**, and each was seen to
+fail before the module moved (`red-log.md`).
+
+## The runtime figure, corrected
+
+The branch-point run took 27 minutes and every run since has taken about 2. The
+first one was competing with a concurrent full doc-health run on the same
+machine; the suite's real cost is ~2 minutes. Recorded so the first figure is
+not read as a regression this feature fixed.

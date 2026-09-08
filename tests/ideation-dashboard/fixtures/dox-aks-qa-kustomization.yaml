@@ -1,0 +1,69 @@
+# aks-qa overlay for the openDox hosted plane (add-ideation-intent-plane
+# task 4.2, design D7).
+#
+# HUMAN-GATED APPLY (the hermes-install Phase-8 discipline, and — because
+# the QA cluster is a REGISTERED MANAGED SUBJECT of OpsxFactory's
+# aks-administration capability — the apply itself rides a deployment-
+# handoff request to OpsxFactory; the realization evidence cites the
+# request's correlation id):
+#   1. `kustomize build overlays/aks-qa` and read the render;
+#   2. no-secret scan over the render (nothing here carries a value —
+#      both secrets live in kv-opensoft-xfactory-qa);
+#   3. pin images by digest (`kustomize edit set image ...@sha256:<digest>`)
+#      at the release step;
+#   4. read whether the CNI enforces NetworkPolicy (the gateway trust
+#      boundary; advisory, not a blocker — see the deploy README);
+#   5. PHASE A (platform authority) applies deploy/kubernetes/bootstrap
+#      (namespace + executor RBAC) FIRST; then the OpsxFactory-accepted
+#      grant-held handoff applies THIS overlay (workload) into dox.
+# NOTE: this overlay declares NO ingress at all. Auth and actor stamping
+# live in the in-namespace dox-auth gateway, and the PUBLIC ROUTE is a
+# Gateway API HTTPRoute on the shared edge — see
+# `clients/opensoft/k8s/azure/clusters/qa/workloads/edge-routes/dox.yaml`.
+# That edge is ENVOY IN FRONT OF TRAEFIK: Azure Services target Envoy, which
+# terminates TLS and enforces Coraza/OWASP CRS, then forwards plaintext over
+# loopback to Traefik, which owns Gateway API routing. Do not read "Traefik
+# edge" as the whole story — TLS and the WAF are Envoy's half.
+# The nginx `Ingress` this overlay used to carry was removed 2026-08-14:
+# `8c8da9d` replaced ingress-nginx with that Traefik/Envoy edge as the only
+# ingress path, so an `ingressClassName: nginx` object had nothing to serve it
+# and its cert-manager annotation read like a certificate path that does not
+# exist. The older snippet-annotation checklist item went with it.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dox
+
+resources:
+  - ../../base
+  - secretproviderclass-dox.yaml
+  - secretproviderclass-dispatch-app.yaml
+
+patches:
+  - path: csi-volume-patch.yaml
+  - path: minter-csi-patch.yaml
+
+# Release pin (runbook step 3). EVERY workload image is pinned by DIGEST, not
+# tag, so a full `kubectl apply -k overlays/aks-qa` deploys exactly what is
+# running and never regresses a live component onto a floating tag. The base
+# manifests carry human-readable tags (`:v1`, `:pilot`) as labels; these
+# digests are what actually deploy. Rebuild + repin an entry whenever its
+# source changes. Digests below were read from the live QA cluster
+# (`kubectl -n dox get deploy/cronjob ... -o jsonpath='{...containers[0].image}'`)
+# on 2026-08-21, so this apply is a no-op for the three unchanged workloads.
+#
+# dox-auth: v2 = the in-page login-form build (PR #112).
+images:
+  - name: acropensoftxfactoryqa.azurecr.io/dox-auth
+    digest: sha256:efb0497b1f2937c94f5da0eb89a682d56a50181528ee43c4684ff40e95e44e5a
+  - name: acropensoftxfactoryqa.azurecr.io/ideation-dashboard
+    # account-menu-r2 build: same code as account-menu (wheel default 0.5,
+    # account/logout menu — openxFactory #245/#246/#248) with the BAKED
+    # SNAPSHOT + /source corpus refreshed to openxFactory main @ 7ae4fe9,
+    # generated --strict from that same checkout so data and corpus share
+    # one source_revision.
+    digest: sha256:dd0ca7242424048a210547807bc82cf9ef315b06836766f33a10724718edade5
+  - name: acropensoftxfactoryqa.azurecr.io/intent-inbox
+    digest: sha256:30fd2ed828d4796fb7c90461c69ef83d6cb00745813c081a322bffa2ce56b956
+  - name: acropensoftxfactoryqa.azurecr.io/dispatch-token-minter
+    digest: sha256:46efca6fef07158344be0d59e3d89db23c3d14169126dc528806852709eea6bb

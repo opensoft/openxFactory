@@ -131,19 +131,22 @@ refresh: {policy: rebuild-on-base-cve, cadence: monthly}
 ## Decisions to take
 
 - **Runner registration credential** — **RESOLVED 2026-07-26** by
-  `add-worker-enrollment-broker` (staged topic
-  `openxFactory:staging:worker-enrollment-broker`; contract family
-  `contracts/worker-enrollment/`). This was the parked decision behind the
-  fail-closed `runner_services` refusal in PRs #36/#37: there was no legitimate
-  way to hand a host a runner registration token, because minting one needs an
-  administration-tier GitHub App key that must not sit on hosts. The resolution
-  inverts the question — enrollment grants a renewable LEASE, and the host asks
-  a standalone broker for a short-lived single-use registration token against
-  that lease. Minting authority (the opsxfactory administration-tier App key)
-  stays in the broker alone, remove-token brokering for drift repair rides the
-  same authority and audit path, and the app persists only the lease. So
-  `runner_services` gains a broker call in the seam that already refuses, and no
-  key ever reaches a worker host.
+  `add-worker-enrollment-broker` (that topic was promoted in full
+  2026-08-28; its fragment now sits at
+  [`supporting-docs/worker-enrollment-broker.md`](../../../openspec/changes/add-worker-enrollment-broker/supporting-docs/worker-enrollment-broker.md)
+  under origin id `openxFactory:staging:worker-enrollment-broker`;
+  contract family `contracts/worker-enrollment/`). This was the parked
+  decision behind the fail-closed `runner_services` refusal in PRs #36/#37:
+  there was no legitimate way to hand a host a runner registration token,
+  because minting one needs an administration-tier GitHub App key that must
+  not sit on hosts. The resolution inverts the question — enrollment grants a
+  renewable LEASE, and the host asks a standalone broker for a short-lived
+  single-use registration token against that lease. Minting authority (the
+  opsxfactory administration-tier App key) stays in the broker alone,
+  remove-token brokering for drift repair rides the same authority and audit
+  path, and the app persists only the lease. So `runner_services` gains a
+  broker call in the seam that already refuses, and no key ever reaches a
+  worker host.
 - **Container engine**: docker-ce in WSL (leaning) vs Podman (rootless).
 - **App implementation v1**: PowerShell module + supervisor scheduled task
   (leaning — fast, auditable, no toolchain on the host) vs compiled service;
@@ -178,6 +181,36 @@ refresh: {policy: rebuild-on-base-cve, cadence: monthly}
 - LLM-vault consolidation interaction: app materializes auth profiles from
   the master provider vault (`kv-os-llmfact-prod-01`) or the env vault?
   Consolidation should land before or with first Omni-001 install.
+
+## Deferral with a named gate (recorded 2026-08-28)
+
+**DEFERRED. The gate is a chain of three acts, none of them ours, and every
+link is verified below as of 2026-08-28.** This topic's realization is under
+way (substrate steps 1–2 and steps 3–6 merged), and what it waits on is not
+design:
+
+1. **Omnigent-Install PR #40** — "Worker Host App phase 3: enrollment-broker
+   client, leases, fail-closed floor" — raised 2026-07-28 and STILL OPEN.
+   The enrollment client is phase 3; without it a host has no lease.
+2. **OpsxFactory `add-worker-enrollment-broker-service` task 8.1** — Brett's
+   HOSTING-TARGET gate (design B3: confirm the platform subscription, then
+   publish the concrete Azure names in a ratified naming doc BEFORE
+   deploying). Unticked.
+3. **OpsxFactory `add-worker-enrollment-broker-service` task 8.2** — Brett's
+   DEPLOYMENT-CREDENTIAL gate (provision the deployment identity and gate the
+   vault-access secret behind a GitHub Actions Environment with required
+   reviewers). Unticked.
+
+Upstream of all three, the broker service itself is BUILT AND MERGED — the
+broker repository's PR #1 merged 2026-07-27 and PR #2 merged 2026-07-28 — so
+the standing "PR #1 open at Brett's merge gate" reading recorded elsewhere in
+the family is stale and is corrected by this change's tasks.
+
+**This deferral is a schedule, not a standing.** It changes no `Status:`, and
+it does NOT stop the topic ageing in doc-health: there is no `deferred` state
+for a staged topic, this change deliberately adds none, and a topic parked
+behind somebody else's gate is still open work that should keep asking to be
+looked at.
 
 ## Exit
 

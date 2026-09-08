@@ -6,8 +6,15 @@ interface_baseline: avatar-client-parallel-v1
 # (spec FR-030). A baseline correction is made ONLY in this change and published
 # to siblings through the variance protocol.
 frozen:
-  contracts: [AVC-01, AVC-02, AVC-04, AVC-06, AVC-07, AVC-08, AVC-11, AVC-12]
-  reserved_identifiers: [AVC-03, AVC-05, AVC-09, AVC-10]
+  # AVC-09 and AVC-10 left `reserved_identifiers` for `contracts` in
+  # `qualify-avatar-live-voice`, which the kernel named as the owner of that
+  # release. EXACTLY those two moved: AVC-03 (absorbed inline on the AVC-02
+  # grant) and AVC-05 (a registered AVC-04 event payload) stay reserved, and no
+  # identifier is ever reused. `scripts/validate-avatar-client.py` machine-checks
+  # this pair of lists against its own CONTRACT_FILES / RESERVED_IDS constants,
+  # so the hand-mirroring that made this file drift-prone now fails closed.
+  contracts: [AVC-01, AVC-02, AVC-04, AVC-06, AVC-07, AVC-08, AVC-09, AVC-10, AVC-11, AVC-12]
+  reserved_identifiers: [AVC-03, AVC-05]
   result_kinds: [grant, denial, terminal]
   registries:
     session-result-reasons: 15

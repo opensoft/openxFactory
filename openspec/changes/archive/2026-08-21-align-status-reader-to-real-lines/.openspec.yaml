@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-08-19
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-19-align-status-reader-to-real-lines
+  reason: >-
+    The read half of a divergence `align-demote-to-round-trip-rule` half-closed:
+    its `_flip_status` fix made the WRITER count real lines, while
+    `corpus.parse_status` still counts `str.splitlines()` pseudo-lines and can
+    therefore fail to see a header the writer just wrote correctly. Brett ruled it
+    into its own change so doc-health's shared reader — behind sixteen check
+    families — owns its baseline diff separately rather than riding a demote fix
+  approved_by: Brett
+  approved_on: 2026-08-19

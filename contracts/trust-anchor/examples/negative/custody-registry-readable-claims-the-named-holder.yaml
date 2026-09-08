@@ -1,0 +1,43 @@
+# expected_failure: custody-evidences-derivation
+# expected_failure_detail: is derived, never asserted
+# requirement: TA-R3
+# VIOLATES TA-R3: a custody member whose key is READABLE BY THE USING HOST and
+# which claims to evidence that the NAMED HOLDER acted.
+#
+# This is the enumeration failure the openxWallet ruling of 2026-08-07 exists to
+# prevent, carried into chain custody. If it validated, a service certificate
+# whose key sits in a readable file would carry the authority of a key the host
+# cannot use on its own — and it would all validate cleanly, which is the part
+# that makes it dangerous rather than merely wrong.
+#
+# `evidences` is DERIVED from the two declared booleans and recomputed. The
+# member cannot assert its way out of what its own properties say.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody-probe
+registry_version: 1
+assurance_levels:
+  - id: host_attributed_act
+    rank: 1
+    statement: An act attributed to the using host, reviewed before effect.
+  - id: holder_attributed_act
+    rank: 2
+    statement: An act attributed to the named holder, with nothing else in the way.
+custody_models:
+  - id: host_held
+    title: host held
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: named_holder
+    openxwallet_custody_model: holder_readable
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: host_attributed_act
+  - id: host_isolated_per_use_authorized
+    title: host isolated per use authorized
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: true
+    evidences: named_holder
+    openxwallet_custody_model: isolated_per_use_authorized
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: holder_attributed_act
+undeclared_custody_resolves_to: host_held

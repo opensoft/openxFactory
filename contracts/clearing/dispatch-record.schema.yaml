@@ -1,0 +1,381 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_dispatch_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/dispatch-record.schema.yaml"
+contract_id: clearing-dispatch-record
+contract_schema_version: 1
+title: Clearing dispatch record (one per cleared dispatch AND per refusal)
+description: >-
+  THE DISPATCH LEDGER (add-clearing-dispatch-boundary, capability
+  `clearing-dispatch-boundary`, requirement "Every dispatch is recorded, and the
+  single door is attested rather than assumed", as MODIFIED by
+  add-cpc-clearing-boundary; tasks.md 6.4). ONE SHAPE FOR BOTH OUTCOMES: the
+  clearing side records every dispatch it CLEARS and every request it REFUSES,
+  because a boundary that logs only successes cannot evidence what it stopped.
+
+  A DIFFERENT RECORD FROM `contracts/schemas/dispatch-record.schema.yaml`, WHICH
+  ALREADY EXISTS. That file is `add-capability-steward`'s dispatch-JUNCTION
+  decision — which of the crystallized or AI path served a capability request,
+  with `family_match`, `effect_class`, `fallback_cause` and `postconditions`. This
+  one answers what was CLEARED to a governed execution host and what was refused.
+  Same English word, different subject, different owning capability, different
+  `$id`. Neither file is moved or renamed, and each names the other so that a
+  reader who greps the filename lands on the distinction.
+
+  RESOLVED BESIDE CLAIMED, ALWAYS. A bundle is a set of CLAIMS by its packager;
+  its internal consistency evidences only the packager's consistency. Every field
+  with an authoritative provider-side answer is RESOLVED from the provider and
+  compared, and the CLAIMED value is retained beside the resolved one — because a
+  discarded claim makes a disagreement undetectable after the fact.
+
+  THREE VERIFICATION CLASSES, KEPT APART. The ratified text refuses to fold them
+  together and so does this shape:
+    * `verification.provider_verified` — the fields the provider can answer:
+      originating repository, workflow path, source commit, dispatching identity,
+      and the existence of the sealed object with the run that produced it.
+    * `verification.policy_checked` — the fields nothing can verify: operation,
+      worker profile, output schema, data-handling class. They are validated
+      against the CLOSED register and RESOLVED FROM it, and they are never
+      reported as VERIFIED, because "verified" applied to a field nothing could
+      verify is precisely the false assurance this boundary exists to prevent.
+    * `verification.origin_signature` — its OWN outcome, naming the register row
+      and the key it resolved. add-cpc-clearing-boundary makes this a THIRD
+      class, CONJUNCTIVE with the provider resolution: the provider says WHICH
+      RUN produced the object, and the signature says the originating
+      repository's hosted environment INTENDED THIS MANIFEST. Neither cures the
+      other's failure, and folding the signature into the provider-verified set
+      would repeat the very conflation the second class exists to avoid.
+
+  DECLARED IS NOT OBSERVED, AND THE MEMBER NAMES CARRY THE WORD. Where a
+  registered operation is dispatched WITHOUT a sealed bundle — as the first
+  read-only operation is — the record carries the REGISTER ENTRY'S declared
+  handling class and, per lane, that lane's DECLARED group and label. Those are
+  declarations of the dispatch, not observations of the host; OBSERVED group
+  membership is established only by the periodic single-door attestation reading
+  the provider's API. This shape offers no observed counterpart, so a record
+  cannot present a declared lane as an observed one.
+
+  REFUSAL GROUNDS ARE A CLOSED, NAMED ENUMERATION, NOT FREE TEXT — a boundary
+  that logs prose cannot be counted. The enumeration was SEEDED WITH EXACTLY THE
+  TWO GROUNDS THE FIRST REALIZATION EMITS, `unregistered_operation` and
+  `unknown_lane_selector` (`opensoft/xFactory` clearing-dispatch.yml, PR #191),
+  and IT HOLDS FIVE TODAY. The requirement text named nine further grounds and
+  SIX OF THEM REMAIN ABSENT — expiry, hash mismatch, workflow-path contradiction,
+  commit mismatch, unreadable API, committed-data offer — each becoming a member
+  AS THE OPERATION THAT CAN PRODUCE IT LANDS. Adding one is a governed change to
+  this schema, not a new string in a workflow. Seeding all eleven at once would
+  publish grounds no implementation can emit, which is a closed enumeration in
+  name only.
+
+  THE OTHER THREE — lane not permitted, output-schema failure, origin-scoped
+  credential — WERE ADMITTED ON 2026-09-04 by
+  `admit-deliberation-clearing-operation` (ratified by Brett Heap, PR #645,
+  merged `3cf917b7`), because register entry number two is the FIRST entry that
+  can produce any of them: it is the first to permit one lane and refuse the
+  other, the first to declare a return shape a host actually produces, and the
+  first whose job carries a token at all. The count above is written as a reading
+  TAKEN AT A MOMENT rather than as a standing fact, because a sentence its own
+  successor falsifies is a sentence a later reader cannot rely on.
+
+  WORKSPACE DISPOSAL IS A FIELD OF THIS RECORD, not a claim in a job log.
+  add-cpc-clearing-boundary's ADDED requirement puts it here deliberately: this
+  record already exists, is already written for admissions and refusals alike,
+  and its completeness is already attested rather than assumed. A record whose
+  disposal field is absent or empty is NOT evidence of a clean host, and the
+  periodic attestation reports it as an UNATTESTED DISPOSAL.
+
+  IT REFERENCES A CHAIN; IT IS NOT A SECOND LOG. Where a signed execution chain
+  governs the work, `chain_ref` points at it (design OQ2, settled to REFERENCE).
+  A dispatch is not a chain link and this is not a second transparency-log
+  format. It is likewise distinct from the enrollment audit record, whose subject
+  is which hosts may BE runners rather than what was CLEARED to one.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - dispatch_id
+  - dispatched_at
+  - clearing_repository
+  - clearing_workflow_ref
+  - cleared
+  - operation
+  - verification
+  - lane_declarations
+  - declared_data_handling
+  - refusal
+  - workspace_disposal
+  - outcome
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  claimable:
+    type: string
+    minLength: 1
+    maxLength: 400
+
+  provider_verified_field:
+    description: >-
+      One field with an authoritative provider answer. `agrees: false` is a
+      refusal condition, not a note: the dispatch is refused before any runner is
+      selected, and both values stay in the record.
+    type: object
+    additionalProperties: false
+    required: [field, claimed, resolved, agrees]
+    properties:
+      field:
+        type: string
+        enum:
+          - origin_repository
+          - origin_workflow_path
+          - source_commit
+          - dispatching_identity
+          - sealed_object_run
+      claimed:
+        oneOf: [{$ref: '#/$defs/claimable'}, {type: 'null'}]
+      resolved:
+        description: >-
+          The provider's answer. NULL means the resolution could not be
+          performed, which REFUSES — an unreadable or erroring provider API is
+          not a verification that passed.
+        oneOf: [{$ref: '#/$defs/claimable'}, {type: 'null'}]
+      agrees: {type: boolean}
+      resolution_error: {$ref: '#/$defs/claimable'}
+
+  policy_checked_field:
+    description: >-
+      One field the register governs. `resolved_from_register` is the value the
+      dispatch RUNS ON; `claimed` is the bundle's copy, retained for comparison
+      and never executed on. Where the two disagree THE REGISTER GOVERNS and the
+      request is REFUSED — the dispatch proceeds on neither value, because
+      validating a claim and executing on the register's own answer are different
+      acts and only the second denies a producer the ability to choose its own
+      worker profile, lane, or output schema by writing them into a bundle it
+      controls.
+    type: object
+    additionalProperties: false
+    required: [field, claimed, resolved_from_register, agrees]
+    properties:
+      field:
+        type: string
+        enum:
+          - operation
+          - worker_profile
+          - lane
+          - output_schema_ref
+          - data_handling
+          - class_constraints
+      claimed:
+        description: >-
+          NULL where the dispatch carried no bundle, and therefore no claim to
+          compare.
+        oneOf: [{$ref: '#/$defs/claimable'}, {type: 'null'}]
+      resolved_from_register:
+        oneOf: [{$ref: '#/$defs/claimable'}, {type: 'null'}]
+      agrees: {type: boolean}
+
+  refusal_ground:
+    description: >-
+      THE CLOSED, NAMED ENUMERATION. FIVE members as of 2026-09-04, one per
+      refusal a landed entry can actually emit. A ground absent from this
+      enumeration is added by a GOVERNED CHANGE to this schema rather than
+      recorded as free text, and the validator reads this list out of the schema
+      at run time — `clearing-record-refusal-ground-unknown` is not a second copy
+      of it.
+
+      WHO ADMITTED EACH, so a reader is never left to guess whether a member was
+      ratified or typed:
+
+        * `unregistered_operation`   — seeded, add-clearing-dispatch-boundary
+        * `unknown_lane_selector`    — seeded, add-clearing-dispatch-boundary
+        * `lane_not_permitted`       — admit-deliberation-clearing-operation
+        * `output_schema_failure`    — admit-deliberation-clearing-operation
+        * `origin_scoped_credential` — admit-deliberation-clearing-operation
+
+      THE RENDERING RULE, WRITTEN DOWN SO THE SIX THAT REMAIN ARE RENDERED THE
+      SAME WAY. This schema names its awaited grounds IN PROSE and never in
+      identifiers, so there is no identifier anywhere to copy and a realizer
+      would otherwise have to invent one. An identifier is produced FROM one of
+      those prose names by: lower-casing it; joining its words with underscores;
+      dropping any `clearing-` prefix; and turning a compound's internal hyphen
+      into an underscore. The two seeded members already follow it
+      ("unregistered operation" -> `unregistered_operation`; "unknown lane
+      selector" -> `unknown_lane_selector`), and the three admitted in 2026-09
+      were produced by it ("lane not permitted"; "output-schema failure";
+      "origin-scoped credential"). The rule is recorded here rather than
+      re-derived from three examples — and APPLYING IT TO THE SIX THAT REMAIN IS
+      NOT AUTHORIZATION TO SEED THEM.
+
+      `origin` IN `origin_scoped_credential` MEANS THE ORIGINATING REPOSITORY,
+      the sense this schema already fixes for the word in its own field names
+      (`origin_repository`, `origin_workflow_path`, `origin_signature`). It is a
+      credential SCOPED TO the originating repository, wherever it came from —
+      not "the origin signing key's credential" — and the ONE ground covers the
+      whole class of material scoped to that repository which must never reach
+      the host, A SEAT KEY INCLUDED. The awaited list names no separate
+      signing-key ground, and coining one would be minting a CONCEPT where every
+      other member is the rendering of a name this schema already carries.
+
+      THESE ARE NOT THE VALIDATOR'S FINDING CODES. That is a different set with a
+      different spelling — hyphenated and `clearing-` prefixed — and a different
+      emitter. `output_schema_failure` and `origin_scoped_credential` are written
+      by the CLEARING WORKFLOW'S HOSTED FINALIZER at dispatch, not by the
+      canonical validator, which never writes a dispatch record at all.
+    type: string
+    enum:
+      - unregistered_operation
+      - unknown_lane_selector
+      - lane_not_permitted
+      - output_schema_failure
+      - origin_scoped_credential
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_clearing_dispatch_record}
+
+  dispatch_id: {$ref: '#/$defs/identifier'}
+  dispatched_at: {type: string, format: date-time}
+  actor: {$ref: '#/$defs/claimable'}
+  actor_id: {$ref: '#/$defs/claimable'}
+
+  clearing_repository:
+    description: >-
+      The CLEARING REPOSITORY — the one repository authorized to originate
+      execution on the governed host. Carried as DATA, so the neutral contract
+      names no repository of its own.
+    type: string
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$'
+  clearing_workflow_ref: {$ref: '#/$defs/claimable'}
+  run_id: {$ref: '#/$defs/identifier'}
+  run_attempt: {type: integer, minimum: 1}
+  run_url: {type: string, minLength: 1, maxLength: 400}
+
+  cleared:
+    description: >-
+      Whether this dispatch was ADMITTED. False records a refusal, in the same
+      shape, because an unrecorded refusal is a hole in the audit.
+    type: boolean
+
+  operation:
+    description: >-
+      CLAIMED is always present; RESOLVED is null on a refusal. A record that
+      carried only one of them could not say what was ASKED FOR when the answer
+      was no.
+    type: object
+    additionalProperties: false
+    required: [claimed, resolved]
+    properties:
+      claimed: {$ref: '#/$defs/identifier'}
+      resolved:
+        oneOf: [{$ref: '#/$defs/identifier'}, {type: 'null'}]
+
+  bundle_present:
+    description: >-
+      Whether the dispatch carried a sealed bundle. False for a bundle-less
+      operation such as the first read-only one, and the reason a
+      `policy_checked` row may carry a null claim.
+    type: boolean
+
+  verification:
+    type: object
+    additionalProperties: false
+    required: [provider_verified, policy_checked, origin_signature]
+    properties:
+      provider_verified:
+        type: array
+        items: {$ref: '#/$defs/provider_verified_field'}
+      policy_checked:
+        type: array
+        items: {$ref: '#/$defs/policy_checked_field'}
+      origin_signature:
+        description: >-
+          ITS OWN OUTCOME. `performed: false` with `outcome: not_required` is the
+          lawful state for an originating repository holding no active registered
+          origin identity; `not_required` on a repository that DOES hold one is
+          the condition `clearing-origin-signature-missing` refuses.
+        type: object
+        additionalProperties: false
+        required: [performed, outcome]
+        properties:
+          performed: {type: boolean}
+          outcome:
+            type: string
+            enum: [verified, failed, missing, not_required]
+          register_row_id:
+            oneOf: [{$ref: '#/$defs/identifier'}, {type: 'null'}]
+          key_id:
+            oneOf: [{$ref: '#/$defs/identifier'}, {type: 'null'}]
+          register_view_taken_at: {type: string, format: date-time}
+
+  lane_declarations:
+    description: >-
+      The lanes this dispatch DECLARED. There is no observed counterpart in this
+      shape, by construction.
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [lane, declared_runner_group, declared_dispatch_label]
+      properties:
+        lane: {$ref: '#/$defs/identifier'}
+        declared_runner_group: {$ref: '#/$defs/identifier'}
+        declared_dispatch_label: {$ref: '#/$defs/identifier'}
+
+  declared_data_handling:
+    description: >-
+      The DECLARED handling class. For a bundle-less dispatch this is the
+      register entry's own, which is why the member says `declared` rather than
+      carrying the bundle's word for it.
+    $ref: '#/$defs/identifier'
+
+  refusal:
+    description: >-
+      NULL on a cleared dispatch; a ground and a human detail on a refusal. The
+      consistency between this member and `cleared` is a cross-shape rule the
+      canonical validator enforces.
+    oneOf:
+      - type: 'null'
+      - type: object
+        additionalProperties: false
+        required: [ground, detail]
+        properties:
+          ground: {$ref: '#/$defs/refusal_ground'}
+          detail: {$ref: '#/$defs/claimable'}
+
+  workspace_disposal:
+    description: >-
+      DISPOSAL EVIDENCE, as a field of this record. Required on every record,
+      including refusals and timeouts: a dispatch leaves no residue on a governed
+      host, and disposal happens on failure exactly as on success. `disposed:
+      false` is a legible state — it records that the host was NOT left clean —
+      whereas an empty or absent field records nothing at all and is refused as an
+      unattested disposal.
+    type: object
+    additionalProperties: false
+    required: [disposed, method]
+    properties:
+      disposed: {type: boolean}
+      disposed_at: {type: string, format: date-time}
+      method: {$ref: '#/$defs/claimable'}
+      evidence_ref: {$ref: '#/$defs/claimable'}
+
+  chain_ref:
+    description: >-
+      A REFERENCE to the signed execution chain governing this work, where one
+      does. Tagged in the shipped identifier grammar so the pointer is
+      recomputable and comparable rather than nominal. NULL where no chain
+      governs — most dispatches, today.
+    oneOf:
+      - type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+      - type: 'null'
+
+  outcome:
+    type: string
+    enum: [success, failure, refused]

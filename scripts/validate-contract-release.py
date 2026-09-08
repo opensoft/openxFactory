@@ -31,6 +31,7 @@ if str(_ENTRYPOINT_REPO) not in sys.path:
 from scripts.hermes_runtime_validation import release  # noqa: E402
 from scripts.hermes_runtime_validation.content import (  # noqa: E402
     ContentResolutionError,
+    _sanitized_git_environment,
 )
 
 
@@ -64,11 +65,19 @@ def _parser() -> argparse.ArgumentParser:
 def _git_root(path: Path) -> Path | None:
     try:
         result = subprocess.run(
-            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            [
+                "git",
+                "--no-replace-objects",
+                "-C",
+                str(path),
+                "rev-parse",
+                "--show-toplevel",
+            ],
             capture_output=True,
             text=True,
             check=False,
             timeout=10,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

@@ -44,7 +44,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
 | DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `adopted` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
-| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
+| DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `implemented` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
 | DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
 | DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
 | DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
@@ -52,6 +52,8 @@ implemented/promoted, `adopted` = adopted.
 | DTN-022 | Avatar client lab neutral home | `split` | P2 | `adopted` | own repo `opensoft/openAvatar` (ruled 2026-08-03); domain descendants are pin-and-profile distributions |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 | DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
+| DTN-025 | Shared across 3 factories: docs/credentialing.md | `promote` | P2 | `seed` | to be determined at staging (the shared surface, neutralized once) |
+| DTN-026 | openXwallet neutral home | `split` | P1 | `adopted` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos — **`opensoft/LedgerxWallet` CREATED 2026-08-28**, the first; **ADOPTED 2026-08-28** on the archive of `split-openxwallet-repo`: openxFactory re-pinned at `contracts/openxwallet-pin.yaml` and retired 92 local copies at `contract-v2.0`, LedgerxFactory re-pinned through `LedgerxWallet` |
 
 ## Candidate Details
 
@@ -467,7 +469,7 @@ mechanics, fee/term content, jurisdiction-specific clauses.
 ### DTN-017: Subject establishment (facts → neutral design → platform realization → verified apply)
 
 Staged 2026-07-28: staging topic
-[subject-establishment](../ideation/staging/subject-establishment/subject-establishment.md)
+[subject-establishment](../openspec/changes/archive/2026-09-04-add-subject-establishment/supporting-docs/subject-establishment.md)
 (named by Brett Heap while designing LedgerxFactory's company
 provisioning). Every domain runs the same motion at the start of a
 subject's life — establish provenance-graded facts, design the
@@ -534,6 +536,42 @@ of accounts, care-plan template, branch-protection baseline), which
 external systems are supported and their mapping tables, and the expert
 seat that reviews a deviating design.
 
+FILED 2026-08-28 as
+[add-subject-establishment](../openspec/changes/archive/2026-09-04-add-subject-establishment/proposal.md),
+on Brett's ruling "Progress both" — the FULL promotion of the staged
+topic, taking its own declared exit path now that both of its gates are
+clear (LedgerxFactory's first instantiation archived 2026-08-04; the
+codexFactory second consumer decided 2026-07-28). Status accordingly
+moves `staged` → `openspec`. Eleven ADDED requirements, 37 scenarios, on
+a NEW neutral `subject-establishment` capability. Two things a later
+reader should know without opening the packet: the cross-factory apply
+seam is CONSUMED from the ratified `deployment-handoff-boundary` and
+introduces no record kind of its own, because that capability's
+"handoff crosses as a client infrastructure request" requirement forbids
+one by name; and the two artifact kinds' SCHEMAS are deliberately NOT in
+this packet, named instead as the successor
+`add-subject-establishment-contracts` and flagged for veto as OD-1. The
+row moves to `implemented` only when that change archives.
+
+ARCHIVED 2026-09-04 and **THE ROW MOVED ACCORDINGLY, `openspec` →
+`implemented`** — the sentence above is the instruction and this is it being
+carried out, not a re-reading of it. `implemented` is the register's own gloss
+for "implemented/promoted" and the promotion is what happened: PR #491 merged
+at squash `9ef151ad` (2026-09-04), the ruling round completed the same day by
+Brett Heap in session (verbatim "accept all, recommendations stand" — OD-1 …
+OD-6 accepted as proposed, OQ1 … OQ6 recommendations standing), `main` green
+on `pytest-suite` run `33838718587`, and the delta promoted whole into
+`openspec/specs/subject-establishment/spec.md` — eleven requirements, 37
+scenarios, byte-checked against the delta rather than trusted. **NOT
+`adopted`**: that value asks for domain re-pin and local-copy retirement, and
+no domain has instantiated this capability yet — the codexFactory and
+OpsxFactory consumers and the LedgerxFactory back-citation are named as OWED
+work in the archived packet's `tasks.md` § Open, and the two artifact kinds'
+schemas remain the successor `add-subject-establishment-contracts` (OD-1,
+accepted as proposed). The two links above are repointed to the archived
+packet in the same act — the staged-topic link had been dangling since the
+topic's folder left `ideation/staging/` at the full promotion.
+
 ### DTN-018: Domain-repo conformance-gate check pack
 
 Surfaced by the 2026-08-03 codexFactory neutrality sweep (evidence record
@@ -573,9 +611,12 @@ zero domain vocabulary in 545 LOC.
 
 Evidence:
 
-- `xFactories/codexFactory/scripts/proposal-support.py` +
-  `tests/proposal-support/`
-- `openxFactory/docs/doc-health.md` family 5 (the in-repo consumer)
+- `scripts/proposal-support.py` + `tests/proposal-support/` (the live
+  home; the original
+  codexFactory evidence path was shed 2026-08-03 by
+  `change/shed-neutral-utility-pack`, as the implementation note below
+  records — the old path no longer exists)
+- `docs/doc-health.md` family 5 (the in-repo consumer)
 
 Domain-local exclusions: none identified — the tool is pure lifecycle
 mechanics.
@@ -728,3 +769,158 @@ never the medicine.
 Exit condition (per the DTN-016 pattern): a second domain instantiates
 the skeleton; then `add-recommendation-artifact` (or fold into
 governed-derived-model as a profile) stages in openxFactory.
+
+### DTN-025: Shared across 3 factories: docs/credentialing.md
+
+Deterministic seed drafted 2026-08-07 from the ideation dashboard's
+repository lens over project `domains` — pending human approval; this
+candidate enters the register lifecycle only when the seed is merged. It
+satisfies the promotion process's first candidate rule verbatim: “Two or
+more domain repos use the same structure with different domain nouns.”
+
+1 document identity is carried by 2 or more of the project's member
+repositories (Ledgerx, Ops, codex). The carrier set is the evidence: no
+model judged this, and a re-run over the same corpus state drafts the
+same seed.
+
+Evidence:
+
+- `docs/credentialing.md` — carried by 3 of 3: Ledgerx, Ops, codex
+
+Domain-local exclusions: a shared PATH is not a shared CONTRACT — staging
+must read the carriers and separate the neutral structure from each
+factory's domain nouns before any promotion decision.
+
+**Merged (2026-08-26, Brett):** ruled in-session to admit the first
+drafted seed the shared-identity detector produced on its 2026-08-07 live
+run against the real five-factory `domains` project
+([add-shared-identity-seeds](../openspec/changes/add-shared-identity-seeds/proposal.md)
+task 4.4), discharging task 4.5. Row and section above are the drafted
+text verbatim — `doc_health/shared_identity.py`'s `draft_seed` is
+deterministic, so a re-run over the same corpus state reproduces it
+byte-for-byte.
+
+### DTN-026: openXwallet neutral home
+
+Named by Brett on 2026-08-26 rather than surfaced by a sweep, and it is the
+same shape as DTN-022 one product later: a neutral standard whose home is
+wrong. openXwallet is today a set of FEATURES inside openxFactory — two neutral
+contract families (`contracts/openxwallet/` core, `contracts/openxwallet-agent-profile/`
+sibling), one validator plus a syntax gate, one CI workflow, two promoted
+capabilities (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3,
+registered at `contract-v1.31`), five Speckit features, and a conformance corpus
+of 17 positives and 36 negative confirmations. Unlike openAvatar, where the code
+moved and the contracts stayed, here the CONTRACTS ARE THE PRODUCT: both
+families are ratified holder-agnostic and non-substrate, which is the definition
+of content that belongs to no single layer's corpus. What is genuinely
+factory-layer is how openxFactory's review gate USES wallet authority, and today
+the two sit in one repository with no boundary between them.
+
+The entry also carries the reusable half, which is why it is P1 rather than P2:
+**the domain descendant repo is already the house standard, and there is no
+counter-example.** `openChart` is consumed through `MedxChart`, `openPractice`
+through `MedxPractice`, and `openAvatar` through `MedxAvatar` and
+`LedgerxAvatar` (DTN-022's own resolution). No DomainxFactory consumes any open*
+product by direct integration; the only direct consumer of neutral contracts is
+openxFactory-as-layer through `stack.yaml`, and openxFactory is the neutral layer
+rather than a domain. Every prior instance paid for its own bespoke ratifying
+change, so the candidate promotes the PATTERN — pin by commit twice (submodule
+gitlink plus `contracts/<product>-pin.yaml`, same commit); carry only profiles,
+overlays, branding, deploy config and domain validators; nest into the
+DomainxFactory as a submodule and optionally aggregate at `xFactories/`; create
+lazily on the domain's first profile — instead of a fourth one-off boundary.
+
+Evidence:
+
+- `openxFactory/contracts/openxwallet/` + `contracts/openxwallet-agent-profile/`
+  (the two neutral families), `scripts/validate-openxwallet.py`,
+  `scripts/wallet-yaml-syntax-gate.py`, `.github/workflows/wallet-validation.yml`
+- `openxFactory/openspec/specs/openxwallet/` +
+  `openspec/specs/openxwallet-agent-profile/` (the two promoted capabilities) and
+  `openspec/changes/archive/2026-08-08-add-openxwallet/`
+- `openxFactory/ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
+  (the staged topic carrying rulings R1-R8, the inventory, and 5 open questions)
+- precedent: DTN-022 above (`opensoft/openAvatar`, ruled 2026-08-03) plus the
+  descendant-boundary changes `create-medxchart-overlay-boundary` and
+  `create-medxpractice-overlay-boundary`
+
+**THE FIRST DESCENDANT EXISTS, 2026-08-28.** `opensoft/LedgerxWallet` was
+created by the ratified `create-ledgerxwallet-overlay-boundary` and realized:
+`contracts/openxwallet-pin.yaml` (`kind: ledgerxwallet_openxwallet_pin`,
+`relationship: pinned_upstream_composition`) and a nested `openXwallet/`
+gitlink at `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` (`wallet-v1.1^{commit}`)
+in ONE commit; `tests/validate_pin.py` with four fail-closed checks; the
+REQUIRED `pin-validation` check under ruleset `21701436`, ACTIVE; and the
+relocated `templates/wallet-exercise.template.yaml`. LedgerxFactory nests it at
+`LedgerxWallet/` and resolves openXwallet through it at one fixed relative
+path. So the PATTERN this entry promotes now has a realization rather than only
+precedents — pin by commit twice, carry only profile, nest into the
+DomainxFactory, create lazily on the domain's first profile artifact.
+
+**ADOPTED 2026-08-28.** `split-openxwallet-repo` was archived as
+`openspec/changes/archive/2026-08-28-split-openxwallet-repo/` on merged-plus-green
+realization evidence across six repositories, and both halves of this register's
+own definition of `adopted` are now met. The domain re-pin: openxFactory consumes
+openXwallet at `contracts/openxwallet-pin.yaml`, gitlink and digest pin agreeing
+on `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` (tag label `wallet-v1.1`, eight
+digests recomputed at the post-merge re-verify), and LedgerxFactory re-pins
+through `opensoft/LedgerxWallet` — PR #30 turned its finder into a declaration,
+PR #31 nested the descendant, and LedgerxWallet is tagged `lxw-v1.0`
+(`0a0141cafc1fecd5d0e38b14e4f40a67a54a08d3`) under the ACTIVE `pin-validation`
+ruleset 21701436. The local-copy retirement: **92 files deleted** at P3
+(openxFactory PR #431, released as `contract-v2.0` =
+`c9a1500e1a960be827cd714d8024d9aacb40aeb2`), the carve's 100 files minus the 8
+that stay. The intermediate states were passed through rather than occupied —
+`openspec` at the 2026-08-26 ratification, `implemented` at P3's realization — so
+the row advances straight from `staged` to `adopted` at this archive, skipping no
+gate that carries a meaning.
+
+The nested-only placement carries a KNOWN GAP, registered rather than
+discovered: a descendant nested inside a DomainxFactory is outside every
+governed-repo enumeration in the corpus (`scripts/sync-notebooklm-books.py`
+matches `xFactories/<Name>` only; `scripts/doc_health/ideation_routing.py`
+admits `openxFactory` and `xFactories/<Name>`). The ratified precedent is
+already in that hole — the aggregation `.gitmodules` carries no `MedxAvatar`
+and no `LedgerxAvatar` entry either — and closing it is a named successor that
+would cover all three at once.
+
+Domain-local exclusions: `governance/review-authority/` stays in openxFactory —
+it is openxFactory's OWN review authority (`target_repo: opensoft/openxFactory`)
+and codexFactory's merge-gate floor pins the exact path
+`governance/review-authority/register.yaml` with a parser that refuses wildcards.
+Speckit features 013/014, the `trust-anchor` / `identity-brokering` /
+`roles-authority-model` compositions, and all ideation provenance stay as well.
+Machine keys are NOT in scope for the first release: paths, capability ids, the
+`xfactory_wallet_*` kind prefix, the envelope kind, finding codes and filenames
+are frozen, and the kind-prefix rename is a named successor with its own
+deprecation window.
+
+**Resolution (2026-08-26, Brett):** own repo, ruled in session as eight
+recommendations accepted at once — verbatim, "approve R1-R8 as recommended, stage
+the topic and propose". R1 the repo and brand are `opensoft/openXwallet` on the
+ratified house `openX<type>` form, which removes the `openxWallet` exception
+`docs/openxdox-naming.md` currently records and owes that record an Amendment 2.
+R2 machine keys frozen in v1, because a rename in the same change as the move is
+unbisectable and LedgerxFactory pins five kinds and several finding-code strings
+by name. R3 the new repo owns the wallet's own standard while openxFactory keeps
+the seam — which amends the aggregation's working rule #1 to "…or in a neutral
+open* product repo that openxFactory pins; domain repos never author neutral
+contracts". R4 the pin is bidirectional and acyclic: openxFactory pins by commit
+plus per-file sha256 plus `pinned_by_commit_only`, and openXwallet vendors exactly
+one openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`,
+because validator rule (g) reads it. R5 a root-level `openXwallet/` submodule in
+the aggregation, on the DTN-022 precedent. R6 the register stays and its READER
+travels with the validator as a generic authority-register mode. R7 descendant
+casing is `<Domainx><Product>` — `MedxWallet`, `LedgerxWallet`, `codexWallet`,
+`OpsxWallet`, `AdxWallet`. R8 `LedgerxWallet` is first, created at extraction
+time, because LedgerxFactory is the only live consumer. The first release is a
+byte-identical pure move — the eight artifact sha256s must equal openxFactory
+HEAD's manifest rows before `wallet-v1.0` is tagged, and they did — 8/8
+three-way, on a completeness diff that was empty at 100 files. The change
+`split-openxwallet-repo` was **RATIFIED 2026-08-26** (PR
+opensoft/openxFactory#391, both required checks green; ratified as proposed,
+realization through Speckit features), declaring a code surface of scripts, CI
+workflows, pin files and submodule gitlinks, so it archived only on merged plus
+green realization evidence rather than on landing. It archived 2026-08-28 and
+carried this status with it: the advance came at the domain re-pin, not at
+ratification.

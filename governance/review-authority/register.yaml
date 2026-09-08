@@ -1,0 +1,188 @@
+# THE INTAKE REGISTER - review-authority over governed objects.
+#
+# S4 of the ratified change add-wallet-carried-review-authority (design D4):
+# the register and its reader landed in ONE change; this file without
+# scripts/validate-openxwallet.py's register reader confers nothing.
+#
+# DELIBERATELY KINDLESS (design D11): no contract schema exists for this
+# register - its shape is a declared successor until the rule-of-three fires,
+# and the reader IS the shape. It is parsed strictly by the validator's
+# register reader, which runs inside the REQUIRED wallet-validation check.
+#
+# PERMANENTLY HUMAN-ONLY SURFACE (ratified requirement, explicit here by
+# name): no council verdict may ever produce an autonomous approval of a
+# change to THIS file. When entered into gate rules, it is a never-clearable
+# floor member BY NAME (codexFactory side, parent task 5.4) - not inferred
+# from any path-shaped clause. A council whose own commission is recorded
+# here is never eligible to clear a candidate that edits it.
+#
+# Q1c DESIGN CONSTRAINT, recorded here as ratified task 5.5 requires: a
+# file-based register CANNOT satisfy revocation-at-exercise. Every
+# distribution path is digest-pinned and lagging, so this file is an
+# issuance-time snapshot; the conforming home for the REVOCATION SURFACE is a
+# live lookup on the Hermes runtime (S5 successor). This file is right for
+# the MVP's one row; it must not be pretended into a revocation surface.
+register_version: 1
+
+# THE REVOCATION STALENESS BOUND (ratified task 7.3, S5). Q1c above says this
+# file is an issuance-time snapshot and the revocation surface is a live lookup
+# on the Hermes runtime. That runtime does not read THIS file: it reads an
+# operator-established PROJECTION of it. A projection is therefore a lagging
+# copy of a revocation surface, and a lagging revocation surface with no
+# declared bound is an UNBOUNDED window in which a revoked holder keeps
+# reviewing. This line is that bound, and it is declared HERE - beside the rows
+# it bounds, on the human-only surface - rather than in a deploy setting,
+# because how long a revocation may go unhonoured is a governance decision and
+# not an operations one.
+#
+# WHAT IT BOUNDS, precisely: the maximum age of the projection the runtime
+# resolves a seat's authority against, measured from the instant the projection
+# was taken to the instant an exercise is judged. Older than this and the
+# exercise is REFUSED - never proceeded with on the stale copy. The runtime
+# additionally holds a CEILING of its own and honours whichever is tighter, so
+# this declaration can only ever narrow the window a deploy already allows: an
+# artifact must never be able to widen its own trust window.
+#
+# WHY P7D AND NOT SOMETHING TIGHT. Nothing refreshes the projection
+# automatically today - an operator establishes it by hand. A bound tighter
+# than the refresh cadence does not make revocation faster; it parks every
+# convening, and the only routine exit from a parked candidate under a sole
+# code owner is `--admin` (design R1/R5) - the ritual this whole change exists
+# to end. So the FIRST bound is deliberately loose and deliberately honest:
+# seven days is the window a revocation may go unhonoured today, and saying so
+# is worth more than a tight number nobody can meet. TIGHTENING IT IS AN EDIT
+# TO THIS LINE AND NOTHING ELSE - no code change, no deploy - and the intended
+# target once projection refresh is automated is P1D or tighter.
+revocation_staleness_bound: P7D
+
+rows:
+  # The MVP row: ONE holder, ONE target repository, ONE act, tier act, ONE
+  # expires_at. Backed by grant-mrc-0001 (root, issued_by the anchored
+  # operator); act tier stands on the custody attestation beside this file.
+  #
+  # 2026-09-02 — THE ROW IS REPOINTED. Appended beside the row, and the comment
+  # above is left exactly as written: it records how this row was cold-started
+  # and that is still true of the cold start.
+  #
+  # `grant_ref` moves grant-mrc-0001 -> grant-mrc-0002 and `expires_at` moves
+  # 2026-11-23T12:00:00Z -> 2027-06-30T00:00:00Z, character-for-character equal
+  # to the new grant's own `expires_at` because the reader compares the two.
+  # THE ROW'S OWN `state` STAYS `active`: the row is the authority's CONTINUING
+  # EXISTENCE, not the grant's, and a revoked grant does not deactivate the row
+  # that was repointed off it. NO ROW WAS ADDED — the single-row cap bounds
+  # AUTHORITY ROWS and is retained; the row still carries exactly nine fields,
+  # which the reader enforces as exact set equality, and the composition is NOT
+  # smuggled onto it (there is no model field on a row and adding one would be
+  # refused).
+  #
+  # WHY: the holder's declared composition changed on 2026-08-31 (codexFactory
+  # 6edecaf1, the alias-to-exact enrolled-roster model pin flip), grant-mrc-0001
+  # was revoked for DRIFT at 2026-09-02T13:33:48Z, and grant-mrc-0002 was issued
+  # against the changed composition at the same instant. Ratifying human: Brett
+  # Heap (Brett.Heap@opensoft.one), on this permanently human-only surface.
+  # Record: `openspec/changes/add-wallet-carried-review-authority/walk-2026-09-02-register-act.md`.
+  - row_id: row-mrc-0001
+    holder_ref: agent:merge-readiness-council
+    wallet_ref: wal-agent-mrc-0001
+    target_repo: opensoft/openxFactory
+    act: review
+    authority_tier: act
+    grant_ref: grant-mrc-0002
+    expires_at: "2027-06-30T00:00:00Z"
+    state: active
+
+# THE PER-SEAT SIGNING KEYS (add-per-seat-register-entries, wallet-v1.2).
+#
+# Four Ed25519 keypairs were minted 2026-08-28, one per seat of codexFactory's
+# `merge_readiness_council`, and their private halves provisioned as
+# COUNCIL_SEAT_SIGNING_KEY_<SEAT> in that repository's `worker-credentials`
+# environment. The record is codexFactory
+# `hermes/domain/review-councils/records/2026-08-28-seat-signing-keys-minted.md`
+# (merged 78b8fa2) and the PUBLIC halves below are copied from it verbatim.
+#
+# WHY THEY ARE HERE AND NOT ON THE ROWS. A key field on a row fails the reader's
+# exact set equality over the nine row fields, and four per-seat rows fail the
+# single-row cap — which is retained, and which bounds AUTHORITY ROWS. These four
+# entries add no holder, no target repository and no act: all four seats descend
+# from row-mrc-0001, share `wal-agent-mrc-0001`, `grant-mrc-0001`,
+# `opensoft/openxFactory`, `review`, tier `act` and one expiry. The only per-seat
+# fact is the signing key, and a key is not a grant. Every seat has its OWN key,
+# so one seat's compromise is one seat's problem.
+#
+# 2026-09-02 ADDENDUM, append-only: the paragraph above names `grant-mrc-0001`,
+# which the register act of 2026-09-02 REVOKED for DRIFT. The sentence is left
+# standing because it records what the four entries descended from when they
+# were minted; read it now as `grant-mrc-0002`, the grant row-mrc-0001 points at
+# after that act. NOTHING ELSE ABOUT THESE FOUR ENTRIES MOVED: all four still
+# name `authorizing_row: row-mrc-0001`, that row is still `state: active` and
+# still unexpired (2027-06-30T00:00:00Z), and all four therefore still resolve —
+# checked, not assumed, by the reader's `register-seat-row-unresolved` rule
+# inside the REQUIRED wallet-validation check.
+#
+# TWO SPELLINGS OF ONE BODY, both recorded on purpose. `council_ref` is the
+# AUTHORITY ATTACHMENT and must equal the authorizing row's `holder_ref`;
+# `council_id` is the RUNTIME NAME, carried VERBATIM into the Hermes projection,
+# which keys its seat lookup on the exact pair (council_id, seat_id) and spells
+# the council `merge_readiness_council`. Neither spelling is forced by grammar
+# (underscores are legal in the identifier grammar) and neither is derivable
+# from the other by any declared rule, so recording only one would force the
+# operator to INVENT the other at projection time - and an invented value is a
+# projection that can disagree with this register. The reader checks that the
+# two denote one body.
+#
+# WHAT THE READER ENFORCES, so this block is RECORDED and not merely present:
+# each entry's field set is exactly these seven names; `key_fingerprint`
+# RECOMPUTES from `public_key`; `seat_id`, `key_id` and `key_fingerprint` are
+# unique; `authorizing_row` resolves to an ACTIVE, unexpired row in this file;
+# and `council_ref` is the `holder_ref` that row commissions. A `public_key` is 43
+# characters of canonical unpadded base64url — 32 raw bytes — which is why a
+# 64-hex PRIVATE seed pasted here is refused by shape, in the required check,
+# before it can merge. NO PRIVATE HALF, SEED OR PASSPHRASE MAY EVER APPEAR IN
+# THIS FILE.
+#
+# WHAT DERIVES FROM THIS BLOCK. The operator's Hermes register projection
+# (`hermes_review_authority_register_projection`, schema_version 2) takes each
+# seat row from here plus the authorizing row, the wallet's custody model and the
+# grant's constraints — nothing invented — and `revocation_staleness_bound` above
+# travels into it verbatim as `projected_from.staleness_bound`. Until the
+# projection is re-derived, the runtime still refuses with
+# `review_authority.root_key_mismatch`; that step is an operator act and it must
+# not carry a fact this file does not.
+#
+# The council's seat ROSTER is governed in codexFactory, not here: this reader
+# cannot resolve `lead-quality` against a council definition, so an entry is
+# checked against the body this register commissions rather than against a roster.
+# Adding a seat here that the council does not seat records authority nothing
+# will ever present.
+seat_keys:
+  - seat_id: lead-quality
+    council_ref: agent:merge-readiness-council
+    council_id: merge_readiness_council
+    key_id: key-seat-lead-quality-0001
+    public_key: bqJJdpCO4dx31e21t6UA4v7b0r0JaxaqmebrjvhK4OI
+    key_fingerprint: sha256:a78d5d8fc075a0c771db521f6e4dd5ebec1ae9c76c5209a3bd54983fccb5e781
+    authorizing_row: row-mrc-0001
+  - seat_id: lead-security
+    council_ref: agent:merge-readiness-council
+    council_id: merge_readiness_council
+    key_id: key-seat-lead-security-0001
+    public_key: pJn1q--LChggWG1x8j50r3yLzGhIvzaq7aWJB-RIc-U
+    key_fingerprint: sha256:39f3088f6072d111cd64147cdd171c7efd75423e225c1d4b8c00445af21f878e
+    authorizing_row: row-mrc-0001
+  - seat_id: lead-integration
+    council_ref: agent:merge-readiness-council
+    council_id: merge_readiness_council
+    key_id: key-seat-lead-integration-0001
+    public_key: WBLjZ2fFHGTjw-2XKHFQxzACyuo4yDDOFbeHMfsZMNs
+    key_fingerprint: sha256:4d40ee511f5ede92c3843d530eb9d46efa42dbdd22bce07961688ab14004d1f4
+    authorizing_row: row-mrc-0001
+  # The CONDITIONAL tenant seat, minted with the unconditional trio on purpose:
+  # a candidate whose class seats `company-policy-lead` must not be the convening
+  # that discovers a missing key.
+  - seat_id: company-policy-lead
+    council_ref: agent:merge-readiness-council
+    council_id: merge_readiness_council
+    key_id: key-seat-company-policy-lead-0001
+    public_key: zwKZNuvovOXl_FpGW9Oxjs0IATnlzstlFdT1GlqSvpY
+    key_fingerprint: sha256:0b6ad4ab29f2371cc635e392635c796f103a589dab7f5a3dd22b5ca44a504bbb
+    authorizing_row: row-mrc-0001

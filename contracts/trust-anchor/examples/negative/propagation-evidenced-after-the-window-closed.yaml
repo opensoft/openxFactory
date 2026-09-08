@@ -1,0 +1,50 @@
+# expected_failure: propagation-evidenced-after-the-window
+# expected_failure_detail: does not evidence propagation inside it
+# requirement: TA-R6
+# VIOLATES TA-R6's conjunction. The obligation is propagation "within a declared
+# bounded window and with the propagation evidenced" — and this record has both
+# halves separately: a window that closed on 3 May, and evidence performed on
+# 1 September. Four months late, marked `propagated`, and the completion reads
+# `complete`.
+#
+# Checking only that evidence EXISTS makes the window decorative: any record can
+# close any window by gathering the evidence eventually. The evidence has to fall
+# inside the window it evidences, and where it cannot, the honest record is the
+# open exposure the window did not close.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:neg-late-evidence
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: Rides the ratified derivation rule; the clock is the problem.
+revoked:
+  target_kind: anchor
+  target_ref: anchor:retired-root
+  revoked_at: "2026-05-01T00:00:00Z"
+  reason_statement: Pilot authority decommissioned; its trust was withdrawn.
+declared_window:
+  opens_at: "2026-05-01T00:00:00Z"
+  bounded_seconds: 172800
+  closes_at: "2026-05-03T00:00:00Z"
+  statement: Two days, declared in advance.
+assessed_at: "2026-09-02T00:00:00Z"
+subordinate_certificates_reached:
+  - cert:retired-service-09
+downstream_authorities:
+  - authority_ref: authority:pilot-service-api
+    reached_via: subordinate_certificate
+    subordinate_certificate_ref: cert:retired-service-09
+    state: propagated
+    propagation_evidence:
+      mode: standing_check_returned_revoked
+      performed_at: "2026-09-01T00:00:00Z"
+      evidence_ref: evidence:pilot-service-api-standing-revoked
+      statement: >-
+        A standing check returned revoked — in September, for a window that
+        closed in May. The propagation arrived; it did not arrive in time, and
+        the four months in between are the exposure this record does not name.
+completion:
+  state: complete
+  statement: Complete, on evidence the window never saw.
+record_version: 1

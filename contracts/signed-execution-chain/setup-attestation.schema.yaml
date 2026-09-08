@@ -1,0 +1,190 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_setup_attestation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/setup-attestation.schema.yaml"
+contract_id: signed-execution-chain-setup-attestation
+contract_schema_version: 1
+title: Harness-controller setup attestation (link 4)
+description: >-
+  THE ENVIRONMENT THE CONTROLLER PREPARED, BEFORE ANY RUNNER EXECUTED
+  (`add-chain-attestation`, capability `signed-execution-chain`, requirement "The
+  harness controller attests the environment it prepared"). It records the model
+  surface, the harness and its version, the toolchain and the workspace
+  provenance it PROVISIONED; it is signed under a CONTROLLER CERTIFICATE; and it
+  is the CORROBORATION SOURCE for link 5. It is the FIRST LINK IN THIS FAMILY WITH
+  A SIGNER OF ITS OWN, which is why the signed hash-linking rule takes effect
+  here — tranche one could only DECLARE that rule, because inception cannot sign
+  over an identity derived from its own signature and the traveling contract has
+  no signer at all.
+
+  AND IT COMMITS TO THE EXPECTED ATTESTATION SET, WHICH IS WHAT MAKES THE
+  COMPLETENESS RULE MEAN ANYTHING. `signed_setup.expected_attestation_set` names
+  the tasks the controller DISPATCHED under this chain identity, each by a stable
+  per-task reference the corresponding link-5 attestation carries back. IT FALLS
+  INSIDE THE SIGNED BLOCK: an expectation attachable afterwards is an expectation
+  anyone can attach, and one a lane could edit is one a lane will edit down.
+
+  THE COMMITMENT ORIGINATES WHERE THE FACT DOES. The controller PROVISIONS and
+  DISPATCHES; the runner is the party whose record is at stake. A completeness
+  rule derived only from what the runners' side later wrote is satisfiable BY
+  WRITING LESS — a lane that never writes an unwanted attestation produces an
+  enumeration equal to any log-derived set — so the expectation has to come from
+  the side that cannot benefit from shrinking it. This is BIND BEFORE SIGN's
+  sibling one link earlier: there the controller refuses to sign a claim it cannot
+  corroborate; here it states, before any runner executes, what claims are owed.
+
+  A DYNAMIC FAN-OUT IS SERVED BY EXTENSION AND NEVER BY SILENCE. Where the full
+  task set is not knowable when link 4 is signed, the controller EXTENDS the
+  commitment by a CONTROLLER-SIGNED COMMITMENT EXTENSION under the same chain
+  identity — `commitment-extension.schema.yaml` — written AT OR BEFORE THE
+  DISPATCH OF THE TASK IT ADDS, NEVER LATER. The expected set is then link 4 AS
+  EXTENDED. THE DEADLINE IS DISPATCH AND NOT FIRST-ATTESTATION, and the difference
+  is the whole control: a deadline the runner can influence is no deadline, and a
+  realization minting extensions when SIGNING REQUESTS ARRIVE never commits a task
+  whose attestation the runner SUPPRESSES ENTIRELY.
+
+  WHAT THIS DOES NOT REACH IS DECLARED RATHER THAN IMPLIED. A controller that is
+  itself the attacker can UNDER-COMMIT — dispatch a task and never name it — and
+  no comparison against its own commitment will show that. Detection is claimed
+  against A LANE, A RUNNER OR A STORE and never against a compromised controller,
+  whose signature is the root of every fact link 5 carries in any case. The
+  residual is not a gap this rule opens but THE TRUST BOUNDARY THE TIER SPLIT
+  ALREADY DRAWS.
+
+  THE CERTIFICATE IS `add-trust-anchor`'s AND THIS CAPABILITY DEFINES NO SECOND
+  ONE. Four of that change's obligations bind here BY COMPOSITION rather than by
+  restatement — trusted THROUGH AN ANCHOR RECORD the evaluating gate already
+  holds; issued only under a RECORDED AUTHORITY with an ISSUANCE EVIDENCE record;
+  DECLARED CUSTODY bounding what the signature evidences; and REVOCATION CHECKED
+  AT USE. `signed_setup.controller_certificate` carries the references and the
+  standing AS CHECKED AT SIGNING, and the reader composes the rest.
+
+  REVOCATION AFTER SIGNING IS THE FAMILY'S TWO-HORIZON DOCTRINE AND IS A DESIGN
+  DECISION RATHER THAN A RULING. A certificate ALREADY REVOKED AT SIGNING makes
+  this attestation REFUSED OUTRIGHT and nothing downstream is permitted. One
+  revoked AFTER a signature was made does not retroactively unmake an act the gate
+  already permitted; it REFUSES everything the chain has not yet been permitted
+  for. THE TWO ARE RECORDED AS TWO OUTCOMES, because they are two.
+type: object
+required:
+  - schema_version
+  - kind
+  - attestation_id
+  - chain_ref
+  - signed_setup
+  - setup_signature
+  - attested_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_setup_attestation]
+  attestation_id: {$ref: '#/$defs/identifier'}
+  chain_ref:
+    # Present on the envelope for indexing. THE BINDING that matters is
+    # `signed_setup.chain_ref`, inside the signed bytes; the reader refuses a
+    # disagreement between the two rather than resolving it in favour of either
+    # copy, on tranche one's own mismatch doctrine.
+    $ref: '#/$defs/chain_ref'
+  signed_setup: {$ref: '#/$defs/signed_setup'}
+  setup_signature:
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_setup}}
+        required: [signed_over]
+  attested_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  attested_fact:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/attested_fact"
+  task_reference:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/task_reference"
+  signed_setup:
+    # THE EXACT BLOCK THE CONTROLLER'S SIGNATURE COVERS. Nothing outside it is
+    # signed, so nothing outside it may carry a fact this capability requires to be
+    # unforgeable after the fact — the chain identity, the predecessor, the
+    # provisioned environment, the expected attestation set, and the certificate's
+    # standing at signing are therefore ALL INSIDE.
+    #
+    # THERE IS NO `predecessor` MEMBER HERE, AND ITS ABSENCE IS THE RULE RATHER
+    # THAN AN OMISSION: link 4 is the FIRST signed record of its chain, so it has
+    # no prior in-force signed record to descend from. Every later signed kind this
+    # capability defines carries one.
+    type: object
+    required:
+      - chain_ref
+      - digest_construction
+      - controller_certificate
+      - provisioned_environment
+      - expected_attestation_set
+    additionalProperties: false
+    properties:
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      digest_construction:
+        # Declared IN the signed bytes, exactly as inception declares it: a
+        # construction attachable afterwards is a construction anyone can change.
+        # NO SECOND CONSTRUCTION IS DECLARED BY THIS TRANCHE — tranche one put
+        # exactly one in force for every digest this capability computes, including
+        # any a later tranche adds.
+        type: string
+        const: xfc-jcs-sha256-1
+      controller_certificate:
+        # THE CONSUMED CERTIFICATE, BY REFERENCE, PLUS THE STANDING AS CHECKED AT
+        # SIGNING. The certificate record itself is `add-trust-anchor`'s canonical
+        # `xfactory_certificate_record` and is NOT restated here; what this block
+        # adds is the two facts a completed chain must carry because a later reader
+        # cannot re-observe them: WHICH ANCHOR the chain terminates in, and WHAT THE
+        # REVOCATION CHECK RETURNED AT THE MOMENT OF SIGNING.
+        type: object
+        required: [certificate_ref, anchor_ref, revocation_standing_at_signing]
+        additionalProperties: false
+        properties:
+          certificate_ref: {$ref: '#/$defs/identifier'}
+          anchor_ref: {$ref: '#/$defs/identifier'}
+          issuance_evidence_ref: {$ref: '#/$defs/identifier'}
+          declared_custody_model: {$ref: '#/$defs/identifier'}
+          revocation_standing_at_signing:
+            # NOT a `const: active`. A record declaring `revoked` is a record saying
+            # the controller signed under a revoked certificate, and that earns the
+            # NAMED refusal `certificate_revoked_at_signing` — which says what was
+            # actually wrong — rather than a schema error saying a string did not
+            # match a constant. The same choice tranche one made for
+            # `performed_out_of_pipeline`.
+            type: string
+            enum: [active, revoked, unchecked]
+      provisioned_environment:
+        # WHAT THE CONTROLLER PREPARED, fact by fact, each carrying its evidence
+        # class. AN EMPTY ATTESTATION IS REFUSED, because link 5's corroboration
+        # would have nothing to read — `minItems: 1` makes the well-formed record
+        # that records nothing unrepresentable, and the reader's
+        # `setup_attestation_empty` covers a record that reaches it some other way.
+        type: object
+        required: [model_surface, harness, toolchain, workspace_provenance]
+        additionalProperties: false
+        properties:
+          model_surface: {type: array, minItems: 1, items: {$ref: '#/$defs/attested_fact'}}
+          harness: {type: array, minItems: 1, items: {$ref: '#/$defs/attested_fact'}}
+          toolchain: {type: array, minItems: 1, items: {$ref: '#/$defs/attested_fact'}}
+          workspace_provenance: {type: array, minItems: 1, items: {$ref: '#/$defs/attested_fact'}}
+      expected_attestation_set:
+        # THE AUTHORITATIVE SET. The gate compares a successor's enumeration
+        # against THIS, as extended, and refuses anything that is not EQUAL to it —
+        # not a subset and not a superset. `minItems: 1` because a chain that
+        # dispatched nothing has nothing to attest and no work to propose; a
+        # controller with nothing to commit has no link 4 to sign.
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/task_reference'}

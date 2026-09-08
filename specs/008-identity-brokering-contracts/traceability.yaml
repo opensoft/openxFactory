@@ -1,0 +1,871 @@
+schema_version: 1
+kind: openxfactory_realization_traceability
+feature: 008-identity-brokering-contracts
+ratified_change: add-identity-brokering
+capabilities:
+  - identity-brokering
+
+# One row per ratified requirement. `positive_confirmation` names the packaged
+# example that shows the conformant shape; `negative_confirmation` names the
+# recorded probe; `red_proven` records that suppressing the rule's finding code
+# turns the packaged corpus red, which is what proves the probe fails FOR ITS
+# OWN REASON rather than incidentally. Reproduce with:
+#   python3 specs/008-identity-brokering-contracts/evidence/red-proof.py
+
+settlements:
+  # Assigned to this feature by the change's task 2.3; both recommendations
+  # were adopted as written at ratification. Full reasoning in research.md.
+  OQ-3:
+    question: the exact `actor_subject` field shape
+    settled: >-
+      The STRUCTURED REFERENCE — issuer (broker instance), opaque subject,
+      display name at record, plus a provenance discriminator.
+    realized_in: contracts/identity-brokering/actor-subject-reference.schema.yaml
+    reason: >-
+      A bare subject is ambiguous without its issuer, and design D3 makes
+      multiple instances an expected state (the co-residence gate found a
+      dedicated-instance population before the shared instance has its first
+      client). The display name must travel with the record anyway, so the
+      object exists regardless; adding the issuer to it costs one field, and
+      guessing the other way costs a schema major on a field embedded in every
+      governed record naming a human.
+    left_open: >-
+      How a specific consuming record family EMBEDS the reference. Change task
+      4.4 (the gate-console binding) confirms or overrides the shape against a
+      real record before the bundle cuts.
+  OQ-1:
+    question: what happens to records written before the broker existed
+    settled: >-
+      MARK THE BOUNDARY DATE and map on demand. Never a blanket backfill. A
+      pre-broker record stays readable and never presents as a persona.
+    realized_in: >-
+      the three `provenance` classes, with the wrong combinations
+      unrepresentable and `pre_broker.presented_as_persona` a required constant
+      `false`
+    reason: >-
+      A backfill asserts identity resolutions nobody verified — the same
+      false-audit failure the merge ruling refuses — and a mapping table that
+      had to be complete before the broker was useful would stall the adoption
+      behind an unbudgeted data-cleanup exercise.
+
+requirements:
+  IDB-R1:
+    statement: One persona per human within a broker instance
+    artifact: contracts/identity-brokering/persona-assertion.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_persona_assertion (rule b, keyed on the
+      federated upstream identity) and check_surface_adoption (rule m, the
+      required constant `human_accounts_held_by_surface: false`)
+    positive_confirmation: >-
+      examples/persona-two-upstreams-two-organizations.example.yaml
+      (one human, two upstreams, two memberships),
+      examples/persona-dedicated-instance-patient.example.yaml
+      (single within its own instance, with an empty membership set)
+    negative_confirmation: >-
+      examples/negative/second-persona-for-same-human-in-instance.yaml,
+      examples/negative/second-persona-via-whitespace-padded-upstream-subject.yaml
+      (review F1 — the sameness key normalized: a trailing space on the
+      upstream subject minted a second persona for one human),
+      examples/negative/surface-holds-local-human-accounts.yaml
+    red_proven: >-
+      second-persona-in-instance and surface-holds-human-accounts neutered in
+      turn; corpus went red each time. The rule keys on the FEDERATED IDENTITY
+      because that is the only evidence of sameness the broker actually has —
+      there is deliberately no "same human" field, since one would be a second
+      identity population.
+
+  IDB-R2:
+    statement: Organizations realize company boundaries, on the persona
+    artifact: contracts/identity-brokering/broker-organization.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_broker_organization (rule k, the layer
+      vocabulary read from contracts/policies/layer-vocabulary.yaml at run
+      time) and check_surface_adoption (rule f, `resolves_in` read from the
+      contract)
+    positive_confirmation: >-
+      examples/organization-tenant-operator.example.yaml,
+      examples/organization-served-federated-provider.example.yaml
+      (own provider, domain-routed, credential by reference)
+    negative_confirmation: >-
+      examples/negative/membership-offered-as-authority.yaml,
+      examples/negative/decision-point-is-the-broker-admin-api.yaml
+      (review F8 — `resolves_in: governed_layer` declared, and the broker's own
+      admin API named as the decision point; the FIRST fixture to fire
+      membership-as-authority with no accompanying schema finding),
+      examples/negative/persona-membership-names-undeclared-organization.yaml
+      (review F2 — a pattern-clean membership id no organization declares;
+      fires never-mirror-property cleanly, which is what proves the resolution
+      rule rather than the pattern is doing the work),
+      examples/negative/organization-role-outside-layer-vocabulary.yaml
+    red_proven: >-
+      membership-as-authority and reserved-layer-term neutered in turn; corpus
+      went red each time. The named-negative list in the change left this
+      requirement without a probe; both probes were added because its third
+      scenario ("membership is offered as authority") states a validation
+      failure that nothing else in the corpus exercised. The many-to-many and
+      own-provider halves are asserted by the positives: one persona carries
+      two memberships, and an organization federates its own provider without
+      any persona being duplicated.
+
+  IDB-R3:
+    statement: The broker asserts identity and membership only
+    artifact: >-
+      contracts/identity-brokering/persona-assertion.schema.yaml and
+      contracts/identity-brokering/broker-organization.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_closed_world (rule a — a CLOSED
+      ALLOW-LIST derived from the schema, walked at every depth) and
+      check_broker_organization (rule h, the single governed-record pointer)
+    positive_confirmation: >-
+      examples/organization-tenant-operator.example.yaml (exactly one pointer,
+      resolving in the governed layer)
+    negative_confirmation: >-
+      examples/negative/persona-assertion-carries-roles.yaml,
+      examples/negative/persona-assertion-carries-project-scope.yaml,
+      examples/negative/organization-projects-governed-record.yaml,
+      examples/negative/organization-carries-multiple-graph-refs.yaml,
+      examples/negative/persona-membership-names-a-role.yaml (review F2 — the
+      graph as a membership VALUE rather than a property),
+      examples/negative/persona-membership-carries-tenancy-path.yaml
+      (review F2 — the same smuggle as a path)
+    red_proven: >-
+      never-mirror-property and organization-multiple-graph-refs neutered in
+      turn; corpus went red each time. FOUR probes because the mirror arrives
+      four ways: on the assertion, at depth inside a membership, as copied
+      CONTENTS beside a legal pointer, and as a second pointer. The allow-list
+      is derived from the schema rather than written as a second list, per
+      design D2's named risk — a denylist admits every field nobody thought to
+      forbid. Measured separately: an undeclared property injected at all 54
+      object paths across the 14 positives is refused at every one
+      (`closed-world-property`), so the walk is closed at depth rather than at
+      the top level only.
+
+  IDB-R4:
+    statement: Identities link explicitly or merge by decision, never silently
+    artifact: contracts/identity-brokering/identity-link-record.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_identity_link_record (rule c, with the
+      admissible bases READ OUT OF THE SCHEMA at run time) plus the schema's
+      own mode/actor conditionals
+    positive_confirmation: >-
+      examples/identity-link-self-link.example.yaml (initiated from the session
+      already holding the persona),
+      examples/identity-link-admin-merge.example.yaml (approver, both prior
+      subject identifiers, and each resolving to the survivor)
+    negative_confirmation: >-
+      examples/negative/link-record-auto-matched-on-email.yaml,
+      examples/negative/link-record-without-initiator-or-approver.yaml,
+      examples/negative/merge-record-drops-pre-merge-subject.yaml,
+      examples/negative/self-link-from-session-not-holding-persona.yaml,
+      examples/negative/merge-approved-by-one-of-its-own-parties.yaml
+      (review F5 — the merge approved by its own beneficiary; a
+      post-ratification disposition, see research.md),
+      examples/negative/self-link-initiated-by-a-different-subject.yaml
+      (review F7 — the two initiator fields disagreeing, which made an
+      attacker's link read as the victim's own explicit act)
+    red_proven: >-
+      silent-auto-link, link-actor-unnamed, pre-merge-subject-unresolvable and
+      self-link-outside-persona-session neutered in turn; corpus went red each
+      time. The two obligations design D4 ADDED to the ruling are the two that
+      needed the most enforcement: a record naming no actor (otherwise
+      "explicit" is unfalsifiable) and a merge dropping a prior subject
+      (otherwise the merge orphans every record written against it). The
+      session-holds probe is the ratified clause "from a session already
+      holding that persona" made checkable.
+
+  IDB-R5:
+    statement: A governed record binds its actor to a stable opaque subject
+    artifact: contracts/identity-brokering/actor-subject-reference.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_actor_subject_reference and
+      check_opaque_subject (rule d) plus the schema's provenance conditionals
+      and the `opaque_subject` pattern and length floor
+    positive_confirmation: >-
+      examples/actor-reference-broker-asserted.example.yaml,
+      examples/actor-reference-pre-broker-username.example.yaml,
+      examples/actor-reference-mapped-historical.example.yaml
+    negative_confirmation: >-
+      examples/negative/actor-reference-uses-display-name-as-id.yaml,
+      examples/negative/actor-reference-uses-email-as-id.yaml,
+      examples/negative/actor-reference-bare-username-as-persona.yaml,
+      examples/negative/actor-reference-display-name-with-spaces-removed.yaml
+      (review F3 — the display name with its spaces taken out, which cleared
+      BOTH the pattern and the byte-exact comparison),
+      examples/negative/mapping-resolves-username-to-itself.yaml
+      (review F6 — a mapping that resolved a username to itself, so the
+      durable identifier was still the username),
+      examples/negative/broker-asserted-reference-carries-a-mapping.yaml
+      (review F14 — the one provenance combination the conditionals left
+      representable, and the one that skips every mapping rule)
+    red_proven: >-
+      actor-identifier-not-opaque and bare-username-as-persona neutered in
+      turn; corpus went red each time. Three probes for the three
+      substitutions the requirement names (display name, address, upstream
+      account name), and the bare-username probe is OQ-1's settlement under
+      attack: a backfill performed by ASSERTION rather than by mapping. The
+      structural half — no '@', no whitespace, and a length floor no bare
+      username reaches — carries the cases the corpus has never seen.
+
+  IDB-R6:
+    statement: Workloads are not personas
+    artifact: contracts/identity-brokering/broker-client-declaration.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_persona_assertion and
+      check_actor_subject_reference (rule i, the declared-client collision) and
+      check_broker_client_declaration (the three transport constants)
+    positive_confirmation: >-
+      examples/broker-client-confidential-web-surface.example.yaml (a
+      confidential client for a web surface, declared transport, with its
+      stated token need)
+    negative_confirmation: >-
+      examples/negative/workload-declared-as-persona.yaml,
+      examples/negative/service-client-recorded-as-actor.yaml,
+      examples/negative/service-client-membership-as-authority.yaml
+    red_proven: >-
+      workload-as-persona, workload-as-actor and membership-as-authority
+      neutered in turn; corpus went red each time. The three probes are the
+      three routes: into the persona population, into the actor position of a
+      governed record, and into authority by way of a membership. The
+      transport declarations are required CONSTANTS rather than optional
+      booleans, so the claim is always made and only the conformant value is
+      representable.
+
+  IDB-R7:
+    statement: Broker credentials are credential-contract records
+    artifact: >-
+      the `credential_reference` $def shared by
+      broker-organization.schema.yaml, broker-client-declaration.schema.yaml
+      and surface-adoption.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_no_credential_material (rule e — names,
+      values, and values REASSEMBLED from adjacent chunks) and
+      check_surface_adoption (rule g, the retirement of a replaced credential)
+    positive_confirmation: >-
+      examples/organization-served-federated-provider.example.yaml (provider
+      credential by reference),
+      examples/surface-adoption-workbench-read-only.example.yaml (the shared
+      htpasswd secret retired as part of the adoption)
+    negative_confirmation: >-
+      examples/negative/configuration-export-carries-client-secret.yaml,
+      examples/negative/idp-credential-committed-in-manifest.yaml,
+      examples/negative/adoption-leaves-shared-secret-live.yaml,
+      examples/negative/persona-linked-identity-carries-bearer-token.yaml,
+      examples/negative/export-secret-split-across-chunks.yaml,
+      examples/negative/assigned-secret-spaced-out-inside-one-value.yaml
+      (review F10 — the split INSIDE one value, which neither the per-value
+      regexes nor cross-field reassembly spanned),
+      examples/negative/adoption-omits-prior-shared-credential-claim.yaml
+      (review F11 — the adoption that said nothing was the exempt one)
+    red_proven: >-
+      credential-value-embedded and shared-secret-not-retired neutered in turn;
+      corpus went red each time. FIVE probes because the requirement has four
+      distinct clauses and one of them is a scanning property: a configuration
+      export pasted whole, a credential committed as a property, a bearer token
+      stored at rest, an adoption leaving the old secret live, and a secret
+      SPLIT ACROSS CHUNKS that no per-value scan would see. The last is why the
+      scan reassembles array items and sibling strings.
+
+  IDB-R8:
+    statement: Isolation escalates by instance, never by fragmenting personas
+    artifact: contracts/identity-brokering/surface-adoption.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_surface_adoption (rule j) and
+      check_identity_link_record (rule l, personas do not span instances)
+    positive_confirmation: >-
+      examples/surface-adoption-dedicated-instance.example.yaml (the
+      co-residence finding's population on its own instance),
+      examples/surface-adoption-single-organization-instance.example.yaml (a
+      dedicated instance with NO restriction — the silence on count, exercised
+      in the other direction),
+      examples/persona-dedicated-instance-patient.example.yaml
+    negative_confirmation: >-
+      examples/negative/isolation-by-persona-partition-in-shared-instance.yaml,
+      examples/negative/link-record-spans-broker-instances.yaml,
+      examples/negative/co-residence-answered-none-with-nothing-recorded.yaml
+      (review F12 — `none` was the one answer that needed no evidence)
+    red_proven: >-
+      isolation-by-partition and persona-spans-instances neutered in turn;
+      corpus went red each time. The second probe is the clause that would
+      otherwise have gone unproven: the co-residence bar defeated through the
+      LINKING machinery rather than through a deployment decision. The silence
+      on instance count is proven by absence — the single-organization
+      adoption validates with no restriction at all, and nothing in the family
+      requires an instance count in either direction.
+
+  IDB-R9:
+    statement: A surface declares its authorization posture
+    artifact: contracts/identity-brokering/surface-adoption.schema.yaml
+    enforced_by: >-
+      validate_identity_brokering.check_surface_adoption (rule f) plus the
+      schema's write-action/posture conditional
+    positive_confirmation: >-
+      examples/surface-adoption-workbench-read-only.example.yaml (the
+      authenticated-persona posture, honestly declared),
+      examples/surface-adoption-gate-console-resolved.example.yaml (write
+      actions, the stronger posture, and a named governed decision point)
+    negative_confirmation: >-
+      examples/negative/write-action-under-authenticated-persona-posture.yaml,
+      examples/negative/adoption-write-action-without-decision-point.yaml,
+      examples/negative/write-actions-named-while-offered-false.yaml
+      (review F9 — the actions named and the posture not; every posture check
+      keyed on `offered`)
+    red_proven: >-
+      write-action-without-resolved-authorization neutered; corpus went red.
+      Two probes for the two ways the posture fails: the quiet transition (a
+      read-only surface gains a write action and the login silently does work
+      it was never designed for) and the declaration satisfying itself (the
+      stronger posture written down with no decision point named). Design D9's
+      accepted limit is recorded rather than implied: a validator cannot check
+      that the resolution HAPPENS.
+
+coverage_closure:
+  rule: >-
+    The validator fails with negative-requirement-uncovered when any
+    requirement in its closed REQUIREMENTS list carries no probe, and with
+    negative-requirement-unknown when a fixture claims a requirement that does
+    not exist. Coverage cannot silently regress in either direction.
+  measured: 9 of 9 requirements carry at least one negative confirmation
+  after_review_hardening: >-
+    9 of 9, with every requirement except R6 gaining at least one further probe
+    from the 2026-08-21 adversarial review; R6's remaining gap is an ENFORCEMENT
+    SCOPE limit rather than a missing probe (review F13, recorded in the family
+    README's limits section)
+
+corpus:
+  positive_examples: 14
+  negative_confirmations: 41
+  named_by_the_change: 18
+  added_for_unproven_clauses: 9
+  added_by_review_hardening: 14
+  distinct_finding_codes_proven: 22
+  fixtures_failing_with_no_schema_finding: 19
+  note: >-
+    The last count matters because a fixture that also fails schema validation
+    can drift into testing nothing while its self-test stays green. Eight of the
+    fourteen hardening fixtures fail with NO schema finding at all, so the rule
+    each is named for is provably the thing doing the work — including the first
+    clean firing of membership-as-authority, which until now was only ever seen
+    beside a schema refusal.
+
+runtime_read_vocabularies:
+  # Read rather than restated, so a check cannot drift from the thing it
+  # enforces. The same technique validate-openxwallet.py uses for the job
+  # envelope's approval-policy terms.
+  - source: contracts/policies/layer-vocabulary.yaml
+    read: canonical layer ids, reserved layer terms
+    guard: >-
+      the company-role bridge's targets (tenant -> tenant, served -> subject)
+      are checked against the canonical ids; a renamed layer fails loudly as
+      layer-vocabulary-drift rather than leaving this family speaking a second
+      spelling
+  - source: contracts/identity-brokering/identity-link-record.schema.yaml
+    read: the admissible linking bases
+    guard: schema-enum-missing when the enumeration is absent
+  - source: contracts/identity-brokering/surface-adoption.schema.yaml
+    read: where a per-action authorization decision resolves
+    guard: schema-enum-missing when the enumeration is absent
+  - source: contracts/identity-brokering/broker-organization.schema.yaml
+    read: where a governed-record pointer resolves
+    guard: schema-enum-missing when the enumeration is absent
+
+boundary:
+  brokers_created: 0
+  realms_created: 0
+  organizations_created: 0
+  credentials_created: 0
+  personas_created: 0
+  existing_capabilities_modified: 0
+  surface_authentication_changed: none
+  note: >-
+    Contracts, schemas, a validator and a fixture corpus. What the validator
+    cannot check is recorded rather than implied: that a declared
+    authorization posture is actually resolved at run time, that an adoption
+    which does not name a replaced credential did not silently leave one live,
+    and that a free-text field carries no secret encoded in a class the scan
+    does not know. Each is an obligation this contract places on its
+    consumers, stated in the family README.
+
+self_hardening:
+  pass: >-
+    adversarial pass over the validator by its author, 2026-08-21, before any
+    consumer adopted the family — plus three measured probes recorded below
+  finding: >-
+    Four gaps, three of them the same shape as the ones openxwallet's review
+    recorded: a rule that looked right and asked a slightly wrong question.
+  closed:
+    - id: not-branch-widened-the-allow-list
+      was: >-
+        The schema-derived allow-list unioned properties across `allOf`,
+        `anyOf`, `oneOf`, `if`, `then`, `else` AND `not`. Branch unioning is
+        what makes the derivation faithful — the actor reference declares
+        `pre_broker` only inside a conditional — but a `not` branch names what
+        the contract REFUSES, so unioning it in would have made exactly those
+        names legal. Inert today (this family's `not` blocks carry only
+        `required`), and a latent fail-open the moment one carried
+        `properties`. Excluded, with the reasoning recorded at the exclusion.
+      probe: >-
+        an undeclared property injected at all 54 object paths across the 14
+        positives is refused at every one
+    - id: pointer-resolution-point-restated
+      was: >-
+        The organization's governed-record pointer was checked against a
+        LITERAL 'governed_layer' in the validator while the surface adoption's
+        equivalent check read its legal values from the schema. One restated
+        vocabulary in a family whose whole argument is that restated
+        vocabularies drift. Now read from broker-organization.schema.yaml at
+        run time, with schema-enum-missing if the enumeration disappears.
+      probe: >-
+        examples/negative/membership-offered-as-authority.yaml exercises the
+        adoption half; the pointer half is exercised by the positives, which
+        would fail if the enumeration were read as empty (measured: they do,
+        which is how the harness bug below was found)
+    - id: self-link-could-carry-extra-subjects
+      was: >-
+        A `self_link` naming subjects besides the persona it adds to passed
+        every check: a merge wearing the paperwork of a link, with no approver
+        and no pre-merge entries, silently orphaning every record written
+        against the extra subjects. The mode determines which obligations
+        apply, so the mode has to match what the record actually does. Now
+        refused as link-subjects-inconsistent.
+      probe: >-
+        rule-only (no fixture of its own; not every enforced rule needs one,
+        and requirement coverage is closed independently)
+    - id: red-proof-harness-measured-itself
+      was: >-
+        The red-proof harness built its own Context and did not pass the newly
+        added pointer-resolution vocabulary, so every neutered run scored TWO
+        extra errors from the positives failing — the harness reported RED
+        everywhere while measuring its own misconfiguration rather than the
+        rule under test. A harness that cannot go green for the right reason
+        cannot prove anything by going red. Fixed by building the same context
+        main() builds, with the reason recorded in the harness.
+      probe: >-
+        evidence/red-proof-output.txt — nineteen codes, each neutering
+        producing 1-4 errors traceable to the fixtures that claim it, with no
+        constant offset
+  measured_probes:
+    - name: closed-world at depth
+      method: >-
+        inject an undeclared property at every object path of every positive
+        and require closed-world-property
+      result: 54 of 54 paths refused
+    - name: malformed-document robustness
+      method: >-
+        fifteen maximally malformed documents (non-mapping blocks, scalar
+        containers where lists are expected, list and dict values in scalar
+        positions, non-mapping roots, unknown kinds) through validate_record
+      result: >-
+        0 crashes and 0 silent passes — every one reports findings on its own
+        file rather than aborting the run and discarding every other file's
+        findings
+    - name: repo-scan layer is live, and closed over the scanned corpus
+      method: >-
+        a scratch consumer corpus outside this checkout, with two personas
+        sharing one federated identity and an actor reference naming a declared
+        client's service-account subject
+      result: >-
+        second-persona-in-instance fired on both personas and workload-as-actor
+        on the reference; with the two offending records removed the same
+        corpus scans clean, so the cross-record rules resolve against the
+        SCANNED repository's own records and neither resolve against nor
+        collide with the packaged teaching fixtures
+
+promotion:
+  # Change tasks 3.1 and 3.2, executed with the canonical tool.
+  command: >-
+    python3 scripts/proposal-support.py . transition add-identity-brokering
+    ideation/staging/identity-brokering-plane --apply
+  moved: >-
+    ideation/staging/identity-brokering-plane/identity-brokering-plane.md ->
+    openspec/changes/add-identity-brokering/supporting-docs/identity-brokering-plane.md
+  staging_folder_removed: true
+  manifest: openspec/changes/add-identity-brokering/supporting-docs/manifest.yaml
+  manifest_filename_finding: >-
+    Task 3.2 names the file supporting-docs.manifest.yaml; the ratified
+    document-lifecycle spine and the tooling name the ACTIVE change's manifest
+    supporting-docs/manifest.yaml and reserve the other filename for the
+    ARCHIVED form written beside the compressed bundle. Recorded in
+    research.md; the canonical tool was used, so the archive step will produce
+    the archived filename from this manifest.
+  origin_agreement: >-
+    origin.kind/id/path match .openspec.yaml exactly — the tool refuses to
+    proceed on any disagreement, and `proposal-support.py verify
+    add-identity-brokering` reports ok
+  promoted_prose_status: "draft (Proposed by: add-identity-brokering)"
+  source_revision: 5f59a32f3f1ad0b129721a4a4d3ea70d563f589a
+
+review_hardening:
+  # Adversarial review of the ratified family and its canonical validator,
+  # 2026-08-21, by a panel independent of the author — twenty-eight bypass
+  # probes, fourteen verified findings. Every probe that maps to a finding below
+  # now FAILS validation for the code named here; the probes are recorded in the
+  # review workspace and each is reproduced as a packaged negative fixture, so
+  # the corpus reaches the case permanently rather than only in the review.
+  #
+  # Disposition vocabulary:
+  #   fixed      — a check asked the wrong question; the check was corrected
+  #   ruled      — the CONTRACT was tightened beyond the ratified text's letter,
+  #                on an architect ruling recorded in research.md
+  #   documented — the limit is real and unclosable; it is written down instead
+  pass_date: 2026-08-21
+  probes_run: 28
+  findings_verified: 14
+  fixtures_added: 14
+  ratified_corpus_regressions: 0
+
+  findings:
+    F1:
+      severity: high
+      disposition: fixed
+      was: >-
+        Rule (b) keyed persona sameness on the BYTE-EXACT triple (instance_id,
+        provider_id, upstream_subject), so a trailing space, a full-width
+        character or a case change on any of the three minted a SECOND PERSONA
+        for one human — the exact outcome the capability exists to prevent, and
+        the rule that exists to prevent it signed off on four variants.
+      now: >-
+        All three components normalized through `_key` (NFKC, stripped, case
+        folded) on both the index and the lookup. Normalized for identity keys
+        ONLY, because two genuinely different subjects that fold together must
+        stay different everywhere else.
+      code: second-persona-in-instance
+      fixture: examples/negative/second-persona-via-whitespace-padded-upstream-subject.yaml
+      probe: P11 (persona-b trailing space, persona-c provider case, persona-d instance case)
+
+    F2:
+      severity: high
+      disposition: fixed
+      was: >-
+        `organization_memberships[].organization_id` was never resolved and used
+        the family's general `identifier` pattern, which admits ':' and '/'. So
+        `role:platform-admin`, `grant:deploy-prod`, `project:alpha` and
+        `stack/<client>/<env>/layer/tenant` were all legal memberships: the
+        never-mirror rule held on every PROPERTY and the graph rode in as a
+        VALUE, through the one field on a persona assertion that points at
+        another record.
+      now: >-
+        A narrowed `organization_id` $def (no ':', no '/') on the membership AND
+        on `broker_organization.organization_id`, so the two shapes agree and no
+        organization can be declared under an id a conformant membership could
+        not name; plus validator rule (n), resolving each membership id against
+        the `broker_organization` records in the same scan. Corpus-coupled like
+        rules (b), (i) and (l) — skipped when a scan declares no organizations.
+      code: never-mirror-property
+      fixture: >-
+        examples/negative/persona-membership-names-a-role.yaml,
+        examples/negative/persona-membership-names-undeclared-organization.yaml
+        (the clean-firing one), examples/negative/persona-membership-carries-tenancy-path.yaml
+      probe: P01, P01b, P19
+      note: >-
+        Narrowing `broker_organization.organization_id` goes one step beyond the
+        review's brief, which named only the membership field. Taken
+        deliberately: without it the two shapes disagree, and P19's organization
+        record — whose own id IS a tenancy path — stayed conformant while a
+        membership naming it could not exist.
+
+    F3:
+      severity: high
+      disposition: fixed
+      was: >-
+        The display-name-as-subject check compared byte-exactly (after strip and
+        lower), so removing the spaces or the punctuation defeated it:
+        `BrettHeapOpensoft` and `Brett.Heap.Opensoft` cleared the
+        `opaque_subject` pattern AND the comparison at once. Between them the
+        two mechanisms were testing punctuation rather than the substitution.
+      now: >-
+        Both sides compared on their ALPHANUMERIC SKELETON, case folded
+        (`_skeleton`). The fixture comment that over-claimed the old behaviour is
+        corrected in place.
+      code: actor-identifier-not-opaque
+      fixture: examples/negative/actor-reference-display-name-with-spaces-removed.yaml
+      probe: P02 (spaceless, dotted, trailing-dot)
+
+    F4:
+      severity: high
+      disposition: fixed
+      was: >-
+        `repo_scan` excluded any path with `examples` and `identity-brokering`
+        in its parts EVEN FOR AN EXPLICITLY NAMED FILE, and did not count the
+        exclusions. So `validate-identity-brokering.py <family-example>` — the
+        one command an author reaches for to check a single record — reported "0
+        errors" for a file it never opened, and a whole-checkout sweep silently
+        dropped 41 documents while saying nothing about it.
+      now: >-
+        The exclusion applies during a directory SWEEP only, and the note line
+        reports the excluded count alongside the scanned and skipped counts.
+      code: n/a (a silence, not a finding)
+      fixture: >-
+        none needed; the evidence is behavioural and recorded in
+        evidence/f4-single-file-scan.txt — an explicitly named positive now
+        reports "1 artifact validated" where it previously reported 0
+      probe: P25
+
+    F5:
+      severity: medium-high
+      disposition: ruled
+      was: >-
+        A merge approved by one of its own parties passed every check. Probe P20
+        is a merge whose SURVIVING persona is the approving administrator, with
+        both parties named, both kept resolvable, an approval record referenced
+        and a timestamp — the account takeover R4 exists to refuse, with
+        immaculate paperwork.
+      now: >-
+        Refused where the approver is in `subjects` or equals
+        `surviving_subject`. The ratified text says a merge is approved through
+        GOVERNED ADMINISTRATION and does not spell out "not by a party"; this
+        slice adopts the refusal as the faithful reading (architect ruling,
+        2026-08-21), recorded as a post-ratification disposition in research.md.
+      code: merge-approved-by-a-party
+      fixture: examples/negative/merge-approved-by-one-of-its-own-parties.yaml
+      probe: P20
+
+    F6:
+      severity: medium-high
+      disposition: fixed
+      was: >-
+        A `mapped_historical_actor` whose subject WAS its own
+        `mapped_from_username` passed: the mapping block complete, the mapper
+        and date and evidence all present, and the durable identifier in the
+        actor position still the bare username. The blanket backfill OQ-1
+        refuses, wearing the paperwork of a mapping.
+      now: >-
+        A mapped subject equal to its `mapped_from_username`, or equal to any
+        bare username the corpus records as pre-broker, is refused. The second
+        clause closes moving the substitution one field along.
+      code: bare-username-as-persona
+      fixture: examples/negative/mapping-resolves-username-to-itself.yaml
+      probe: P03
+
+    F7:
+      severity: medium
+      disposition: fixed
+      was: >-
+        `initiated_by` carries both `subject` (who acted) and
+        `session_holds_subject` (whose session it was), and only the second was
+        checked. So they could disagree — and the disagreement IS the attack: an
+        attacker's upstream identity attached to a victim's persona, recorded as
+        the victim's own explicit act, with a fully conformant shape.
+      now: Equality required between the two initiator fields.
+      code: self-link-outside-persona-session
+      fixture: examples/negative/self-link-initiated-by-a-different-subject.yaml
+      probe: P04
+
+    F8:
+      severity: medium
+      disposition: ruled + documented
+      was: >-
+        `resolved_authorization.resolves_in` is closed to `governed_layer` and
+        the refs beside it are 300 characters of free text. A record could
+        declare the right word and name the broker's own Keycloak admin API —
+        an organization's member collection — as the decision point, and every
+        declaration in the file was conformant while the decision was still
+        "whoever is in the group may act".
+      now: >-
+        The locator is walked BY SHAPE, using rule (e)'s technique on a
+        different value class: broker-administration URI schemes
+        (keycloak://, broker://), broker administration paths (/admin/realms,
+        an organization's /members collection, a realm's user/role/group/client
+        collections), and a scheme-less ref whose first segment is the record's
+        own broker instance. Applied to `decision_point_ref` AND `grants_ref`.
+      code: membership-as-authority
+      fixture: examples/negative/decision-point-is-the-broker-admin-api.yaml
+      probe: P07
+      residue_documented: >-
+        An OPAQUE ref that in fact resolves to broker membership cannot be
+        caught by shape at all — README limits item 3. A ref that merely
+        CONTAINS the instance id is deliberately not refused either: the
+        gate-console positive's governed decision point is
+        `hermes://broker-opensoft-shared/authorization/gate-console`, where the
+        instance id is a legitimate scoping token, so containment cannot
+        discriminate the two.
+      packaged_fixture_recommented: >-
+        examples/negative/membership-offered-as-authority.yaml now fires
+        membership-as-authority TWICE — its own `resolves_in` refusal and the new
+        locator walk, since its decision_point_ref is
+        `broker://…/organizations/opensoft/members`. Its commentary says so, and
+        its detail pin stays on the `resolves_in` wording so it keeps testing
+        the invariant it is named for.
+
+    F9:
+      severity: medium
+      disposition: fixed
+      was: >-
+        Every posture check keyed on `governed_write_actions.offered`, so a
+        record could NAME the actions it writes and declare `offered: false`
+        beside them. That is what a diff looks like halfway through adding the
+        feature, and what a record looks like when someone answers the posture
+        question with the answer they wish were true.
+      now: >-
+        A schema conditional (a non-empty `actions` list requires
+        `offered: true`, which then requires the stronger posture and a named
+        decision point) plus a validator check reporting it under its own code,
+        so the refusal names the rule rather than an if/then failure — the same
+        reason rule (h) reports a second pointer rather than an array length.
+      code: write-action-without-resolved-authorization
+      fixture: examples/negative/write-actions-named-while-offered-false.yaml
+      probe: P06
+
+    F10:
+      severity: medium
+      disposition: fixed
+      was: >-
+        The secret-class regexes ran on each literal string and on strings
+        JOINED across sibling fields and array items, and missed a secret split
+        with whitespace INSIDE ONE VALUE: `client_secret: hV3x K9pQ 2mZr 7Lw4`
+        leaves four characters after the colon, under the assigned-secret
+        floor. That is what a wrapped or column-truncated export looks like
+        pasted out of a terminal.
+      now: Each string tested twice — as written, and with its whitespace collapsed.
+      code: credential-value-embedded
+      fixture: examples/negative/assigned-secret-spaced-out-inside-one-value.yaml
+      probe: P13
+
+    F11:
+      severity: n/a (contract hardening)
+      disposition: ruled
+      was: >-
+        R7's retirement obligation was enforced only on records that
+        VOLUNTEERED a `replaced_credential` block, so an adoption that named
+        nothing was silently exempt. The requirement bit on honesty and was
+        inert against silence.
+      now: >-
+        `prior_shared_credential` REQUIRED, `none | replaced`. `replaced`
+        requires the block (and the validator then requires the retirement and
+        its date); `none` forbids it and is the AUDITABLE CLAIM — something a
+        reader can later show to be false, which an omission never is. This
+        realizes R7's retirement obligation STRUCTURALLY rather than
+        conditionally. Disclosed in research.md.
+      code: schema
+      fixture: examples/negative/adoption-omits-prior-shared-credential-claim.yaml
+      probe: P05
+      positives_updated: >-
+        all four surface-adoption positives (workbench-read-only -> replaced;
+        gate-console-resolved, dedicated-instance and
+        single-organization-instance -> none) and all seven adoption negatives,
+        so each negative stays a single-reason probe
+
+    F12:
+      severity: n/a (contract hardening)
+      disposition: ruled
+      was: >-
+        `population_restricted` had to name the commitment it consulted; `none`
+        needed nothing. So the co-residence question could be answered without
+        anybody having asked it, `none` being what the field says by default.
+      now: >-
+        `restriction_ref` required for BOTH enum values, and the validator's
+        `isolation-restriction-unrecorded` check extended to both. This realizes
+        the OQ-5 co-residence finding's own "unrecorded negative" rule against
+        its own output. Disclosed in research.md.
+      code: isolation-restriction-unrecorded
+      fixture: examples/negative/co-residence-answered-none-with-nothing-recorded.yaml
+      probe: P16
+      positives_updated: >-
+        the three that went red (workbench-read-only,
+        gate-console-resolved, single-organization-instance); the
+        dedicated-instance positive already referenced its commitment
+
+    F13:
+      severity: medium
+      disposition: documented
+      was: >-
+        Rule (i) — workloads are not personas — resolves a subject against the
+        `broker_client_declaration` records in the SAME SCAN, and so do rules
+        (b), (l) and the new (n). Across the D6 repository split (openxFactory
+        owning contracts, a domain repository owning live records, possibly a
+        third owning client declarations) the check simply does not reach, and
+        nothing said so.
+      now: >-
+        Not closable by this family: the coupling is inherent to a validator
+        that resolves references within a scan and refuses to invent a registry.
+        R6's ENFORCEMENT SCOPE is now stated explicitly — README limits item 4
+        names all four corpus-coupled rules, spells out what a split repository
+        loses, and tells a consumer to scan a tree containing all three record
+        kinds or accept the weaker check knowingly. Also recorded in the
+        validator's own "what this deliberately does not do" section.
+      code: n/a
+      fixture: n/a (a scope statement, not a refusable document)
+      probe: n/a (structural finding)
+
+    F14:
+      severity: low
+      disposition: fixed
+      was: >-
+        The `broker_asserted` provenance branch refused a `pre_broker` block and
+        ADMITTED a `mapping` block — the one wrong combination the conditionals
+        left representable, and the useful one: every rule governing a mapping
+        hangs off provenance being `mapped_historical_actor`, so an unverified
+        resolution travelled inside a record reading as a first-party broker
+        assertion with no mapping rule applying to it.
+      now: >-
+        The branch gains `not: {required: [mapping]}`, wrapped in the same
+        `allOf` form the `pre_broker_username` branch already uses. The
+        schema-derived allow-list walk deliberately excludes `not` branches, so
+        this adds no name to the allow-list.
+      code: schema
+      fixture: examples/negative/broker-asserted-reference-carries-a-mapping.yaml
+      probe: P24
+
+  documentation_corrections:
+    - target: contracts/identity-brokering/broker-organization.schema.yaml
+      was: >-
+        "`company_role` is `tenant` or `served`, the ratified `layer-vocabulary`
+        spelling of the two company boundaries" — an over-claim. `tenant` IS a
+        canonical layer id; `served` is NOT, appearing in the policy only as the
+        ROLE TEXT of the subject layer.
+      now: >-
+        Restated with research.md Decision 4's own honest wording: a company
+        boundary is not a Hermes layer, only one of the two words is a canonical
+        id, `served` is this family's own spelling carried deliberately and
+        BRIDGED rather than silently equated — and `record_kind` is the field
+        that does name a layer.
+    - target: examples/negative/actor-reference-uses-display-name-as-id.yaml
+      was: >-
+        claimed the validator check "catches the single-token names the pattern
+        would let through", when the comparison was byte-exact and caught only
+        an identically spelled subject
+      now: >-
+        corrected to the skeleton comparison, with the correction dated and the
+        remaining residue stated (an abbreviation or initial-plus-surname is a
+        name in the identifier position that no comparison against this record's
+        own display name can see)
+    - target: specs/008-identity-brokering-contracts/research.md (Decision 5)
+      was: >-
+        "the substitution is structurally impossible for the common case" — the
+        length floor cannot deliver that, and the review proved it: a QUALIFIED
+        username (`brett.heap.legacy`, 17 characters, pattern-clean) clears the
+        floor, so `first.last` and `first.last.company` walk through
+      now: >-
+        softened to what a floor can actually do (it rules out `bheap`, not a
+        username), with the real answer named — a broker-issued subject FORMAT,
+        which change task 4.4 is positioned to settle — and the two validator
+        rules that carry it until then identified as rules rather than structure
+    - target: contracts/identity-brokering/README.md
+      was: >-
+        two limits stated in a paragraph under "what this family deliberately
+        does not do"
+      now: >-
+        a dedicated "Known limits" section enumerating all six known limits:
+        the unresolvable posture, the value-scan blocklist, the F8 opaque-ref
+        residue, the F13 corpus-coupling of rules (b)/(i)/(l)/(n) with R6's
+        enforcement scope spelled out across the D6 repository split, the
+        unverifiable `prior_shared_credential: none` claim, and the
+        different-string display name
+
+  verification:
+    corpus: >-
+      python3 scripts/validate-identity-brokering.py . --strict -> 0 errors,
+      0 warnings; 14 positives, 41 negatives, 9/9 requirements, 41 documents
+      reported excluded during the sweep rather than dropped in silence
+    probes: >-
+      every probe mapping to F1-F12 and F14 fails for the code named above
+      (14 of 14 asserted individually, in the probe's own closed world plus the
+      packaged positive corpus)
+    red_proof: >-
+      python3 specs/008-identity-brokering-contracts/evidence/red-proof.py ->
+      OK, all 22 codes load-bearing (19 before this slice; the harness derives
+      its code set from the fixtures' own headers, so the three new codes were
+      covered the moment their fixtures landed)
+    cross_family: >-
+      validate-openxwallet.py and validate-trust-anchor.py unchanged green — no
+      shared module is touched, and each family owns its own validator
+    openspec: OPENSPEC_TELEMETRY=0 openspec validate --all --strict -> all pass

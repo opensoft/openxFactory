@@ -1,0 +1,21 @@
+# WARNING (expect: consumer-identity-undeclared). A binding that declares no
+# `consumer:` block at all — the shape every binding record in the estate has
+# today.
+#
+# IT STAYS VALID, and that is the deprecation working rather than a gap. The
+# versioning policy conditions the whole breaking class on "at least one full
+# minor release where the old shape produced deprecation warnings", so the
+# requiredness that lands at the major is only auditable if this shape warned
+# for a whole minor first. A deprecation that was never registered cannot be
+# shown to have been served.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed

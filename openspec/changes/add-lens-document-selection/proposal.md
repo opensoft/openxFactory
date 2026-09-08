@@ -2,7 +2,7 @@
 code_surface: openxFactory (lens matrix selection + cross-view document highlight; collapsed signature grid with a stated finding; doc_health.staging_seed drafter and its serve route; the theme-token guards; tests)
 target_release: none
 Status: ratified
-Ratified by: Brett's three annotations of 2026-08-08 — the unreadable relationship tiles and their unlabelled count, "this is taking up too much space. what value does it bring?", and "when I hover on one of these documents, the corresponding dot should light up. I should have a checkbox on each one to generate the seed from checked"
+Ratified: Brett's three annotations of 2026-08-08 — the unreadable relationship tiles and their unlabelled count, "this is taking up too much space. what value does it bring?", and "when I hover on one of these documents, the corresponding dot should light up. I should have a checkbox on each one to generate the seed from checked"
 ---
 
 # Proposal: add-lens-document-selection

@@ -1,0 +1,45 @@
+schema: spec-driven
+created: 2026-08-09
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-09-add-omnigent-domain-terminology
+  reason: >-
+    ADMITTED BY RULING 2026-08-25, verbatim: "admit the three remaining
+    packets". That ruling IS the origin act. The act was needed because
+    this packet's own record establishes no origin, and that was measured
+    rather than assumed: openxFactory PR #348 swept the 27 derivable
+    proposal-origin warnings and STOPPED on exactly three, reporting them
+    by name — add-model-provider-broker, add-nightly-dashboard-refresh and
+    add-omnigent-domain-terminology — because each is Status: draft
+    carrying no ratification citation in either sanctioned spelling, so
+    kind: ad_hoc could not be declared without fabricating the approval
+    provenance the contract requires, and kind: staged was unavailable for
+    want of a staging topic. Brett's admission supplies exactly the
+    approval that was absent. THAT OPENING QUOTE IS A STATEMENT OF NEED,
+    NOT AN APPROVAL, and the distinction is recorded here deliberately: it
+    is the forcing fact this proposal answers, not an act admitting the
+    proposal. Treating a quoted requirement as its own approval would let
+    any packet approve itself by quoting the person who asked for the
+    work. KIND IS ad_hoc, re-verified in BOTH DIRECTIONS at this branch
+    point because the staging queue moves: this packet carries no Staging
+    ID header, and ideation/staging/INDEX.md declares no topic exit naming
+    it. No staging origin is claimed because none exists. The created date
+    2026-08-09 is DERIVED from this packet's true first commit c71d93ba in
+    git, not from a folder name or a file timestamp; this packet carried
+    no .openspec.yaml at all, so the file is created rather than appended.
+    THE FORCING FACT, from this packet's own Why heading, which opens on
+    Brett stating the need: "i like that we have a neutral spine cross
+    domain. but we also need to have all notices to users and logs be show
+    in domain best practice and well adopted terminology to make easy for
+    the domain experts to understand." This declaration changes nothing
+    else about the packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Brett — in-session on 2026-08-25, verbatim: "admit the three remaining
+    packets". THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A
+    RATIFICATION OF CONTENT. It supplies the origin and approval pair the
+    proposal-origin contract requires and nothing more: the packet remains
+    Status: draft, it carries no ratification citation, and none is owed —
+    the promoted lifecycle rule requires one only for Status: ratified.
+    Whether this change's content is ratified is a separate act that has
+    not happened.
+  approved_on: 2026-08-25

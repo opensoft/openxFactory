@@ -2,6 +2,8 @@
 
 code_surface: none
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-09 by Brett — record: the archive commit `3d51c3e`, "Archive add-release-realization-flow (ratified; doc-only, archives on landing)", whose body opens "Ratify gate approved by Brett 2026-07-09"; the same act promoted this change's delta into `openspec/specs/release-realization/spec.md`. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

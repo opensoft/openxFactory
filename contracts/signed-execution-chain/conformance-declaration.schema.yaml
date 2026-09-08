@@ -1,0 +1,295 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_conformance_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/conformance-declaration.schema.yaml"
+contract_id: signed-execution-chain-conformance-declaration
+contract_schema_version: 1
+title: Signed-execution-chain realization conformance declaration
+description: >-
+  Obligation by obligation, what a realization of this capability satisfies
+  fully, satisfies partially, and cannot satisfy — with the reason in each case
+  (add-signed-execution-chain, capability `signed-execution-chain`). The shape is
+  `add-trust-anchor`'s ratified DECLARED-SHORTFALL pattern, consumed rather than
+  re-invented: this family's obligations differ, the discipline does not.
+
+  AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL SHORTFALL,
+  DECLARED, WOULD BE CONFORMANT. The declaration is therefore CLOSED over the
+  obligations of the tranches it covers: entries drawn from a closed enumeration,
+  each with a reason and its own `declared_at`. The canonical validator checks
+  coverage in BOTH directions — an obligation with no entry is refused, and so is
+  an entry naming an obligation this capability does not have — because a
+  declaration that can quietly omit an obligation is how a silent gap gets
+  recorded as conformance.
+
+  THE CAPABILITY GREW AT TRANCHE TWO AND SO DID THE SET: NINE OBLIGATIONS BECOME
+  EIGHTEEN (`add-chain-attestation`). SEC-R10..SEC-R18 are tranche two's nine, in
+  the delta's order — the setup attestation, the runner attestation on a recorded
+  request, the corroboration rule and its per-fact evidence class, the tier-2
+  custody rule, the signed pull-request-open decision, the extended hash-linked
+  walk, closure, the remediation exemption, and the executing layer's
+  precondition. WHICH SET IS OWED IS DERIVED FROM THE DECLARATION RATHER THAN
+  FROM A FLAG: a declaration naming ANY tranche-two obligation is closed over all
+  eighteen; one naming none is closed over tranche one's nine, exactly as before.
+  A REALIZATION CANNOT CLAIM TRANCHE TWO AND DECLARE AGAINST NINE.
+
+  AND THE OBLIGATIONS A GATE CANNOT SEE ARE DECLARED IN `attestation_design`,
+  added at tranche two. The gate's own closed-list mapping names three of them as
+  enforced somewhere other than the walk — tier-2 key custody at review and
+  realization, the executing layer's ordering at execution time, and the
+  platform's attribution ceiling as a property of the realization — and a
+  capability that stated them while giving a reader nothing to read would hold
+  three requirements it does not enforce.
+
+  TWO RESIDUALS ARE STRUCTURAL AT THIS TRANCHE AND MAY NOT BE RECORDED AS
+  SATISFIED. SEC-R1's is that the pinned exercise record carries no field holding
+  the SIGNED digest value, so the record alone cannot prove the signed request
+  included `object_ref`; its durable repair is an additive optional field
+  belonging to `opensoft/openXwallet` as a named successor. SEC-R6's is suffix
+  truncation no party has yet observed, which tranche-three anchoring closes by
+  making a head externally witnessed. An entry for either that claims `satisfied`,
+  or that claims less and declares no residual, is REFUSED — this is the
+  requirement "the realization DECLARES that residual rather than claiming
+  coverage" made checkable rather than left in prose.
+
+  SEC-R9 IS THE OBLIGATION THIS CAPABILITY STATES ABOUT ITSELF. Until a named
+  validator that reads these records runs as a REQUIRED check on the repository
+  that holds them, every record this family defines confers and refuses NOTHING,
+  and the declaration says so in the present tense rather than asserting the
+  chain's properties. A merged workflow file is not that evidence; the live
+  ruleset state is.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - capability
+  - realization
+  - declared_at
+  - obligations
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_conformance_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  capability:
+    const: signed-execution-chain
+  realization:
+    type: object
+    required: [realization_id, statement, reader_required_check]
+    additionalProperties: false
+    properties:
+      realization_id: {$ref: '#/$defs/identifier'}
+      statement: {type: string, minLength: 1, maxLength: 900}
+      reader_required_check:
+        # THE NAMED READER, AND WHETHER IT IS ACTUALLY REQUIRED. `check_name` is
+        # the literal status-check token; `is_required_in_ruleset` is the live
+        # ruleset fact, and `false` is a fact to record rather than a defect to
+        # hide. `ruleset_evidence_ref` is what a reader follows to the ruleset
+        # read itself — a merged workflow file is not evidence that a check is
+        # required.
+        type: object
+        required: [check_name, is_required_in_ruleset]
+        additionalProperties: false
+        properties:
+          check_name: {$ref: '#/$defs/identifier'}
+          validator_path: {type: string, minLength: 1, maxLength: 300}
+          is_required_in_ruleset: {type: boolean}
+          ruleset_ref: {type: string, maxLength: 300}
+          ruleset_evidence_ref: {type: string, maxLength: 300}
+  declared_at: {type: string, format: date-time}
+  obligations:
+    # Exactly the obligations of the TRANCHES THE DECLARATION COVERS.
+    # minItems/maxItems are the first line of defence; the validator closes
+    # coverage in both directions, because uniqueItems cannot see that two entries
+    # name the same obligation with different reasons.
+    #
+    # NINE AT TRANCHE ONE, EIGHTEEN FROM TRANCHE TWO — AND `minItems` STAYS AT
+    # NINE, WHICH IS DELIBERATE AND NOT AN OVERSIGHT. Raising it to eighteen would
+    # REFUSE a declaration the shipped bundle already accepts, which
+    # `docs/contract-versioning-policy.md` classes BREAKING and reserves for a
+    # major bump behind a full minor of deprecation warnings. So the SHAPE admits
+    # both sizes and the READER decides which is owed, by a rule DERIVED from the
+    # declaration itself rather than from a flag we invented: a declaration naming
+    # ANY tranche-two obligation (SEC-R10..SEC-R18) SHALL cover all EIGHTEEN; one
+    # naming none SHALL cover exactly tranche one's NINE. A realization cannot
+    # claim tranche two and declare against nine, and a tranche-one declaration
+    # stays exactly as conformant as it was.
+    type: array
+    minItems: 9
+    maxItems: 18
+    uniqueItems: true
+    items:
+      type: object
+      required: [entry_id, obligation, satisfaction, reason, declared_at]
+      additionalProperties: false
+      properties:
+        entry_id: {$ref: '#/$defs/identifier'}
+        obligation:
+          type: string
+          enum: [SEC-R1, SEC-R2, SEC-R3, SEC-R4, SEC-R5, SEC-R6, SEC-R7, SEC-R8, SEC-R9,
+                 SEC-R10, SEC-R11, SEC-R12, SEC-R13, SEC-R14, SEC-R15, SEC-R16,
+                 SEC-R17, SEC-R18]
+        obligation_statement: {type: string, maxLength: 600}
+        satisfaction:
+          type: string
+          enum: [satisfied, partial, cannot]
+        reason:
+          # Required for every satisfaction value, `satisfied` included: a reason
+          # on a satisfied obligation is what a consumer reads to see WHAT was
+          # satisfied and how.
+          type: string
+          minLength: 1
+          maxLength: 1600
+        declared_at:
+          # Per-entry, so a late declaration is visible as one.
+          type: string
+          format: date-time
+        declared_residual:
+          # The shortfall stated at its real strength, with the successor that
+          # closes it NAMED so the gap is visible rather than implied. Forbidden
+          # on a `satisfied` entry — a residual on a satisfied obligation is a
+          # contradiction, and the validator refuses it rather than reading past
+          # it.
+          type: object
+          required: [statement, closed_by]
+          additionalProperties: false
+          properties:
+            statement: {type: string, minLength: 1, maxLength: 1200}
+            closed_by: {type: string, minLength: 1, maxLength: 300}
+        evidence_ref: {type: string, maxLength: 300}
+        compensating_control: {type: string, maxLength: 900}
+  attestation_design:
+    # WHERE THE OBLIGATIONS A GATE CANNOT SEE ARE DECLARED, ADDED AT TRANCHE TWO
+    # AND OPTIONAL SO THAT A TRANCHE-ONE DECLARATION STAYS VALID.
+    #
+    # THE GATE'S OWN MAPPING TABLE SAYS WHY THIS BLOCK EXISTS. Three of tranche
+    # two's obligations are NOT per-chain checks and the table names them as such:
+    # the tier-2 custody rule is "a DESIGN and REALIZATION-CONFORMANCE obligation,
+    # refused at review and at realization, because a gate sees signatures and
+    # never where a key lived or what could read it"; the executing layer's
+    # precondition is enforced EXECUTION-TIME, before this gate is ever reached;
+    # and the platform's attribution ceiling is a property of the REALIZATION
+    # rather than of a request. A capability that stated those three and gave a
+    # reader nothing to read would have three requirements it does not enforce —
+    # which is exactly what the closed-list clause exists to prevent. So the
+    # realization DECLARES its design here, and the reader refuses a DECLARED
+    # BREACH by name.
+    #
+    # WHAT THIS IS NOT. It is not a per-chain check wearing a declaration's
+    # clothes, and it establishes nothing about a chain: a conformant declaration
+    # says the realization is conformant, never that any chain it produced is
+    # admissible. And it is not an exemption surface — every member below whose
+    # wrong value is refused is refused OUTRIGHT, with no declared-shortfall path,
+    # because a shortfall that disqualified nothing would be an exemption and this
+    # capability admits none.
+    type: object
+    required:
+      - tier2_key_custody
+      - controller_placement
+      - signing_delegation
+      - request_attribution
+      - verification_material
+      - execution_layer_ordering
+      - omnigent_matrix_unchanged
+      - commitment_extension_trigger
+    additionalProperties: false
+    properties:
+      tier2_key_custody:
+        # `access_secrets: false` FORBIDS CUSTODY, NOT MERELY LONG-LIVED CUSTODY. A
+        # private key is a secret, and shortening a credential's lifetime does not
+        # make it non-secret: "ephemeral" describes the identity's LIFETIME and
+        # never a relaxation of custody. A design that hands a worker a key for one
+        # task has already breached the constraint it claims to honour, and its own
+        # destruction step is not a defence, because the breach is the crossing and
+        # not the retention.
+        type: string
+        enum:
+          - signing_oracle_at_controller
+          - key_issued_into_worker
+          - key_issued_into_worker_and_destroyed
+          - handle_dereferencing_to_key
+      controller_placement:
+        # "IN EVERY CONFIGURATION" REACHES REACHABILITY AND NOT ONLY HAND-OVER. A
+        # controller process co-resident with the runner, holding a host-readable
+        # key, hands nothing across and would otherwise be conformant as drafted.
+        # THE SIGNING ORACLE IS AN ORACLE ONLY WHERE THE THING ASKING CANNOT REACH
+        # BEHIND IT; a boundary the requester can read across is a boundary in name.
+        type: string
+        enum:
+          - outside_every_runner_scope
+          - hardware_backed_outside_runner_scope
+          - same_host_as_runner
+          - same_process_as_runner
+          - same_credential_scope_as_runner
+          - hardware_backed_reachable_from_runner
+      signing_delegation:
+        # A CREDENTIAL THAT SIGNS AGAIN WITHOUT ASKING IS CUSTODY BY ANOTHER NAME.
+        type: string
+        enum: [per_request_only, reusable_delegation_issued]
+      request_attribution:
+        # THE PLATFORM BRANCH. A realization whose platform cannot distinguish two
+        # tasks the same controller provisioned DECLARES it, and the declaration
+        # leaves the REALIZATION conformant while DISQUALIFYING THE CHAIN: a chain
+        # from such a realization SHALL NOT satisfy the links 1-6 gate for the
+        # terminal act. `cannot_attribute_undeclared` is the same platform with the
+        # declaration withheld, which is non-conformance.
+        type: string
+        enum:
+          - per_task_attribution_established
+          - cannot_attribute_declared
+          - cannot_attribute_undeclared
+      verification_material:
+        # VERIFYING A CHAIN NEEDS NO SECRET, which is why the precondition sits
+        # comfortably beside `access_secrets: false`. Continuity, digests,
+        # certificates and anchor records are PUBLIC MATERIAL, and a design that
+        # required a worker to hold key material in order to verify would have
+        # re-created the very breach the tier split exists to prevent.
+        type: string
+        enum: [public_material_only, key_material_supplied_to_worker]
+      execution_layer_ordering:
+        # THE STRONG VERSION MOVES VERIFICATION FROM AFTER TO BEFORE, and the
+        # record becomes a BY-PRODUCT OF A CONTROL rather than a SUBSTITUTE FOR
+        # ONE. `not_enforced` is the honest value while no running layer refuses —
+        # requirement 9 is then UNMET rather than partially met, which is a fact to
+        # record and not a defect to hide.
+        type: string
+        enum: [verify_before_execute, execute_then_verify, not_enforced]
+      omnigent_matrix_unchanged:
+        # NO SIXTH ARCHETYPE, NO SEVENTH PERMISSION BOOLEAN, NO CHANGE TO
+        # `contracts/omnigent/omnigent-domain-overlay.schema.yaml`. A REFUSAL IS
+        # NOT A PERMISSION: withholding execution requires no capability a worker
+        # does not already have. `false` is a realization saying it widened a
+        # closed matrix, and is refused by name.
+        type: boolean
+      commitment_extension_trigger:
+        # THE DEADLINE IS DISPATCH, AND A REALIZATION THAT MINTS EXTENSIONS ON
+        # SIGNING-REQUEST ARRIVAL NEVER COMMITS A TASK WHOSE ATTESTATION THE
+        # RUNNER SUPPRESSES ENTIRELY — no request, no extension, no expectation —
+        # so link 6's enumeration equals the reduced committed set and THE
+        # DROPPED-ATTESTATION ATTACK PASSES AGAIN, through the very instrument
+        # raised to close it. The scenario refuses A DESIGN, so the design is what
+        # the record carries.
+        type: string
+        enum: [dispatch, signing_request_arrival]
+      ephemeral_lifetime_claimed_non_secret:
+        # A DESIGN THAT ARGUES A KEY VALID FOR ONE TASK IS NOT A SECRET SAYS SO
+        # HERE AND IS REFUSED, because `access_secrets: false` binds CUSTODY rather
+        # than DURATION. "Ephemeral" describes the identity's LIFETIME and never a
+        # relaxation of custody.
+        type: boolean
+      persona_issued_to_workload:
+        # A TIER-2 ATTESTATION IDENTITY IS A WORKLOAD BY `add-identity-brokering`'s
+        # own definition, and a workload is never represented as a persona. A
+        # realization proposing one for a runner says so here and is refused; the
+        # runner's authority stays a `credential-contracts` / `openxwallet` grant.
+        type: boolean
+      statement: {type: string, maxLength: 900}
+  supersedes_declaration_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"

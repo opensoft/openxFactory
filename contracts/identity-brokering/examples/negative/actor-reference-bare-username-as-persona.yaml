@@ -1,0 +1,29 @@
+# expected_failure: bare-username-as-persona
+# expected_failure_detail: is a bare username this corpus records as PRE-BROKER
+# requirement: IDB-R5
+# VIOLATES R5: a pre-broker username presented as a broker-asserted persona.
+#
+# This is what a backfill looks like when it is done by assertion instead of by
+# mapping. The record carries the bare username `bheap` — the same username the
+# corpus records as predating the persona boundary — and declares the broker
+# asserted it. Nobody verified that resolution; the record now says the broker
+# vouched for something it never saw.
+#
+# The settled handling (design OQ-1, change task 2.3) is the other two
+# provenance classes: MARK the record as predating the boundary, or resolve it
+# through an explicitly recorded mapping naming who mapped it and when. A
+# blanket backfill asserts identity resolutions nobody verified — the
+# false-audit failure the merge ruling refuses — which is why history is marked
+# and mapped on demand rather than rewritten.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-bare-username-9012
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-openxwallet/ratify/2026-08-07"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: bheap
+display_name_at_record: Brett Heap
+recorded_at: "2026-08-22T10:10:00Z"

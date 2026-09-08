@@ -1,0 +1,37 @@
+# expected_failure: registry_history_rewritten
+# expected_failure_detail: declares its history rewritten
+# A REGISTER THAT SAYS ITS PAST WAS EDITED. A register whose history can be rewritten cannot show that a rollback did not happen, which is the one thing it exists to show — so the declaration is refused rather than read as having meant something better.
+schema_version: 1
+kind: xfactory_chain_anchoring_confirmation_profile_registry
+registry_id: cpr-negative-0001
+append_only:
+  append_only: true
+  history_rewritten: true
+  signature_ref: sig-negative-cpr
+configured_networks:
+- chain-example-fixture-net
+entries:
+- entry_id: cpr-negative-entry-0001
+  chain_id: chain-example-fixture-net
+  witness_role: operational
+  profile_id: cp-negative-fixture
+  version: 1
+  canonical_digest:
+    construction: xfc-jcs-sha256-1
+    subject: confirmation_profile_terms
+    value: sha256:8358ac733f8413897db1346e1b20195e45bdb7eccdffb88faa634d80321701e8
+  approval:
+    approval_id: approval-example-negative-0001
+    approved_by: operator
+    approved_on: '2026-08-25'
+    approval_record_ref: record-example-operator-approval-negative-0001
+    decision_statement: approved by the repository operator as the objective condition separating
+      submitted from confirmed on this network, with its transition vectors
+  activation:
+    log_sequence: 600
+    checkpoint_ref: cp-log-checkpoint-0600
+  effective_interval:
+    from_window_open: '2026-08-26T00:00:00Z'
+  standing: active
+recorded_at: '2026-09-02T00:00:00Z'
+record_version: 1

@@ -417,3 +417,198 @@ def test_bootstrap_index_yields_empty_possibles_but_names_still_flow(tmp_path):
                              source_revision=PINNED_REVISION, git=FakeGit())
     assert snap["possibles"] == []                                   # bootstrap: empty
     assert _by_id(snap["clusters"])["cl-alpha"]["name"] == "Alpha Cluster"  # name flows
+
+
+# ---- origin_staging_id: the declared precedence order ------------------------
+#
+# `refine-demote-round-trip-mechanics` part 1. The field used to come from the
+# possibles-register pick edge ALONE, and the forward transition removes the
+# staging folder that edge points at — so it resolved to None for exactly the
+# changes that had actually reached proposal, which is the condition a demote
+# exists to reverse. Measured on the real corpus at the time: 12 of 12 active
+# changes reported None, against ONE pick edge in the whole register (carrying no
+# `change_id` at all). The answer was already on disk and unread: the forward
+# transition writes an `origin:` block into the change's own `.openspec.yaml`.
+
+def _change_with_origin(tmp_path, block: str, *, staging_folder: bool = True):
+    """A minimal corpus with one ACTIVE change declaring `block` as its origin,
+    and NO pick edge anywhere — the 12-of-12 shape."""
+    # `good.md` declares a `Possible feats` section so the no-fabrication guard
+    # in `fixtures.project_possibles` lets a register entry cited to it through —
+    # without that, a pick edge silently never reaches the projection and the
+    # precedence tests below would pass for the wrong reason.
+    docs = {"ideation/brainstorm/good.md":
+            "Status: brainstorm\nTopics: alpha\n\n## Possible feats\n\nbody\n"}
+    if staging_folder:
+        docs["ideation/staging/returned-topic/README.md"] = (
+            "# Returned Topic\n\nStatus: staged\nKind: staging-packet\n"
+            "Topics: alpha\n\nbody\n")
+    root = _mini_corpus(tmp_path / "repo", docs)
+    folder = root / "openspec" / "changes" / "add-x"
+    folder.mkdir(parents=True)
+    (folder / "proposal.md").write_text("# Change: add-x\n\nStatus: draft\n",
+                                        encoding="utf-8")
+    if block:
+        (folder / ".openspec.yaml").write_text(
+            "schema: spec-driven\ncreated: 2026-08-19\n" + block, encoding="utf-8")
+    return root
+
+
+def _origin_of(root):
+    snap = generate_snapshot(root, "fixture-repo",
+                             source_revision=PINNED_REVISION, git=FakeGit())
+    return _by_id(snap["changes"])["add-x"]["origin_staging_id"]
+
+
+def test_origin_staging_id_resolves_from_the_changes_own_recorded_origin(tmp_path):
+    """The 12-of-12 shape: a staged origin declared on the change, NO pick edge
+    in the register, and the field still resolves."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"
+        "  path: ideation/staging/returned-topic\n"))
+    assert _origin_of(root) == "returned-topic"
+    # and there really is no pick edge doing the work
+    snap = generate_snapshot(root, "fixture-repo",
+                             source_revision=PINNED_REVISION, git=FakeGit())
+    assert snap["possibles"] == []
+
+
+def test_origin_staging_id_is_the_paths_basename_not_the_namespaced_id(tmp_path):
+    """The declared id is namespaced and the field is compared against
+    `staged_topics[].staging_id`, which is the bare topic. Deriving from the path
+    keeps ONE spelling of the id's shape. Here the two disagree deliberately, so a
+    reader of `origin.id` produces a value that matches no staged topic."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:SOME-OTHER-SPELLING\n"
+        "  path: ideation/staging/returned-topic\n"))
+    assert _origin_of(root) == "returned-topic"
+
+
+def test_a_trailing_slash_on_the_declared_path_does_not_become_an_empty_topic(tmp_path):
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"
+        "  path: ideation/staging/returned-topic/\n"))
+    assert _origin_of(root) == "returned-topic"
+
+
+@pytest.mark.parametrize("declared", [
+    "ideation/staging/returned-topic/openspec",
+    # BACKSLASH-SPELLED, as `str(Path.relative_to(...))` produces on a Windows
+    # checkout (Copilot, PR #221). The writer now records POSIX, but records
+    # already on disk are not reachable by fixing the writer, so the reader
+    # tolerates both spellings rather than assuming its own.
+    "ideation\\staging\\returned-topic\\openspec",
+    "ideation\\staging\\returned-topic",
+])
+def test_a_nested_staging_source_resolves_to_the_topic_not_the_subfolder(
+        tmp_path, declared):
+    """`proposal-support.py transition` accepts ANY directory below
+    `ideation/staging/` as its source, so a real declared origin can read
+    `ideation/staging/<topic>/openspec`. A basename rule answers `openspec` — a
+    topic nobody named, and one the demote would then silently plan every
+    returning file into. The topic is the first segment after the staging root,
+    in either spelling of a separator."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"
+        f"  path: {declared}\n"))
+    assert _origin_of(root) == "returned-topic"
+
+
+def test_a_declared_path_outside_the_staging_root_resolves_nothing(tmp_path):
+    """A malformed declaration is a refusal case, not a parsing challenge: the
+    origin contract puts staged sources below `ideation/staging/`, and guessing a
+    topic out of a path that is not there would target a folder nobody chose."""
+    for bad in ("docs/somewhere-else", "ideation/brainstorm/a-note",
+                "ideation/staging", "returned-topic"):
+        root = _change_with_origin(
+            tmp_path / bad.replace("/", "_"),
+            f"origin:\n  kind: staged\n"
+            f"  id: fixture-repo:staging:returned-topic\n  path: {bad}\n",
+            staging_folder=False)
+        assert _origin_of(root) is None, bad
+
+
+def test_an_ad_hoc_origin_resolves_nothing(tmp_path):
+    """A change that never came from staging has no topic to return to, and
+    inventing one would move material somewhere nobody chose."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: ad_hoc\n"
+        "  id: fixture-repo:adhoc:2026-08-19-add-x\n"
+        "  reason: born from an annotation\n"
+        "  approved_by: Brett\n  approved_on: 2026-08-19\n"), staging_folder=False)
+    assert _origin_of(root) is None
+
+
+def test_an_ad_hoc_origin_carrying_a_staged_looking_path_still_resolves_nothing(tmp_path):
+    """The KIND gate on its own, with the path guard unable to cover for it.
+    `origin_errors` does not forbid extra keys, so an ad-hoc declaration can carry
+    a `path` that looks exactly like a staged one — and the answer is still
+    nothing, because the kind is the statement about where the change came from.
+    Found by mutation: with only `test_an_ad_hoc_origin_resolves_nothing`, deleting
+    the kind check passed, since a real ad-hoc origin has no `path` to parse."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: ad_hoc\n"
+        "  id: fixture-repo:adhoc:2026-08-19-add-x\n"
+        "  path: ideation/staging/returned-topic\n"
+        "  reason: born from an annotation\n"
+        "  approved_by: Brett\n  approved_on: 2026-08-19\n"))
+    assert _origin_of(root) is None
+
+
+def test_a_change_with_no_openspec_metadata_resolves_nothing(tmp_path):
+    root = _change_with_origin(tmp_path, "", staging_folder=False)
+    assert _origin_of(root) is None
+
+
+def test_a_staged_origin_missing_its_path_resolves_nothing(tmp_path):
+    """`origin.path` is the only field this reads; a staged origin without one is
+    malformed (the proposal gate's own `origin_errors` says so) and must not be
+    guessed at from the namespaced id."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"), staging_folder=False)
+    assert _origin_of(root) is None
+
+
+def test_the_recorded_origin_outranks_a_disagreeing_pick_edge(tmp_path):
+    """The precedence order is an ORDER, not a replacement: the recorded origin
+    leads because it is the source the forward transition writes and does not
+    destroy, and the pick edge keeps working wherever one still exists (asserted
+    by the base-repo fixture, which has a pick edge and no `.openspec.yaml`)."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"
+        "  path: ideation/staging/returned-topic\n"))
+    (root / "ideation" / "cross-reference.yaml").write_text(
+        "schema_version: 1\nkind: ideation-cross-reference\n"
+        "generation: {source_revision: deadbeef}\n"
+        "possibles_register:\n"
+        "  - id: pos-other\n    title: Other\n    claim: Something else.\n"
+        "    state: picked\n"
+        "    provenance: {document: ideation/brainstorm/good.md, section: Possible feats}\n"
+        "    pick: {staging_id: a-stale-edge, change_id: add-x}\n",
+        encoding="utf-8")
+    snap = generate_snapshot(root, "fixture-repo",
+                             source_revision=PINNED_REVISION, git=FakeGit())
+    # the edge really did reach the projection — otherwise this passes vacuously
+    assert [p["pick"] for p in snap["possibles"]] == [
+        {"staging_id": "a-stale-edge", "change_id": "add-x"}]
+    assert _origin_of(root) == "returned-topic"
+
+
+def test_the_pick_edge_still_answers_where_no_origin_is_recorded(tmp_path):
+    root = _change_with_origin(tmp_path, "")
+    (root / "ideation" / "cross-reference.yaml").write_text(
+        "schema_version: 1\nkind: ideation-cross-reference\n"
+        "generation: {source_revision: deadbeef}\n"
+        "possibles_register:\n"
+        "  - id: pos-other\n    title: Other\n    claim: Something else.\n"
+        "    state: picked\n"
+        "    provenance: {document: ideation/brainstorm/good.md, section: Possible feats}\n"
+        "    pick: {staging_id: returned-topic, change_id: add-x}\n",
+        encoding="utf-8")
+    assert _origin_of(root) == "returned-topic"

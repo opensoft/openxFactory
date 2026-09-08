@@ -1,0 +1,300 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_digest_construction
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml"
+contract_id: signed-execution-chain-digest-construction
+contract_schema_version: 1
+title: The one digest construction in force for signed-execution-chain
+description: >-
+  THE CONSTRUCTION IS DECLARED HERE, ONCE, AND NOWHERE ELSE
+  (add-signed-execution-chain, capability `signed-execution-chain`, requirement
+  "One digest construction governs every digest this capability computes"). This
+  file declares NO RECORD KIND: it is the shared definition every record shape in
+  the family takes by `$ref`, so that the family cannot grow a second construction
+  rule beside the first — which is exactly how the defect this requirement exists
+  to close appeared twice in the packet's ancestry, once for the chain identity
+  and once for the predecessor digest.
+
+  THE CONSTRUCTION — `xfc-jcs-sha256-1`, three parts, none of them optional:
+
+  1. SERIALIZATION. RFC 8785 JSON Canonicalization Scheme (JCS) over the digest
+     SUBJECT: object members sorted by the UTF-16 code-unit order of their names,
+     no insignificant whitespace, JSON string escaping restricted to the shortest
+     legal form, output as UTF-8.
+  2. ADMITTED VALUE CLASSES — object, array, string, INTEGER, boolean, null. A
+     non-integer number is REFUSED rather than serialized, and so is an integer
+     outside ±(2**53 - 1). ES6 number serialization is the one part of JCS a
+     second implementation reliably gets wrong: an ECMAScript reader holds every
+     number as a double, so it renders 9007199254740993 as 9007199254740992
+     while an exact implementation renders it unchanged, and above about 1e21 the
+     two disagree on exponent form as well. This family declares no non-integer
+     number and no large one — every integer it uses (schema_version, leaf_index,
+     tree_size, registry_version, record_version) is small by orders of
+     magnitude — so refusing what the family does not use is the honest bound,
+     and a silent second answer on a value nobody writes is not.
+
+     A STRING OR MEMBER NAME HOLDING AN UNPAIRED SURROGATE (U+D800-U+DFFF) IS
+     REFUSED TOO. It has no UTF-8 encoding at all, so it has no serialization for
+     any reader to agree with; and a reader that let it through to the encode step
+     would raise an encoding error rather than the construction's own refusal,
+     which turns a value that should be REFUSED into a reader that CRASHES. Every
+     refusal in this construction is the same kind of answer.
+  3. ALGORITHM AND ENCODING. SHA-256 over those bytes, rendered as `sha256:`
+     followed by 64 lowercase hexadecimal characters. Every digest is
+     ALGORITHM-TAGGED, so a later migration is a readable change rather than a
+     silent reinterpretation, and an untagged digest is refused.
+
+  ONE CONSTRUCTION, DISTINCT SUBJECTS, AND THE DISTINCTION IS LOAD-BEARING. What
+  each digest is taken OVER is not shared, so every digest NAMES its subject:
+
+  * `ratified_subject` — the subject being ratified. This is the CONTENT DIGEST,
+    and it is what an exercise's `object_ref` carries. It is computable before any
+    signature exists.
+  * `signed_ratification` — the exact block the ratifying signature covers. This
+    is the CHAIN IDENTITY, and it is a strict SUPERSET of the ratified subject,
+    since the signed bytes also carry the presentation reference, the per-act
+    value and the actor binding.
+  * `transparency_log_leaf` — a leaf's content, which is the leaf record with its
+    own `leaf_digest` and `leaf_signature` removed.
+  * `traveling_contract` — a traveling-contract record, for the log leaf that
+    records its issuance.
+  * `gate_verdict` — the verdict block a gate leaf carries.
+
+  ADDED AT TRANCHE TWO (`add-chain-attestation`), UNDER THIS SAME CONSTRUCTION AND
+  NOT BESIDE IT — the enumeration is what a later tranche extends, which is
+  exactly what the paragraph below already said it would do:
+
+  * `setup_attestation` — the block the harness controller's link-4 signature
+    covers, carrying the provisioned environment AND the committed expected
+    attestation set.
+  * `commitment_extension` — the block a controller-signed extension's signature
+    covers, adding tasks to that expectation at or before their dispatch.
+  * `signed_chain_binding` — the block a controller-signed tier-2 chain binding's
+    signature covers: subject scope, the closed record-kind enumeration, and the
+    chain identity it serves.
+  * `runner_attestation` — the block a link-5 signature covers, produced at the
+    controller under a per-task tier-2 identity.
+  * `signing_request` — a recorded request's own content, so a request beside a
+    signature is a value and not a narration.
+  * `pr_open_decision` — the block a link-6 signature covers, carrying the pull
+    request identifier and the head revision it proposes.
+  * `closure_record` — the block a link-10 signature covers: the authenticated
+    execution, the tested revision, the test identity and the result.
+  * `remediation_declaration` — the block a remediation chain's ratifying
+    signature covers when it declares an unclosed chain as its subject.
+  * `reviewed_subject` — the subject AS THE COUNCIL REVIEWED IT. It is a
+    DIFFERENT SUBJECT from `ratified_subject` and is named separately for the
+    reason this file exists: after an *accepted as amended* verdict the two
+    legitimately differ, and a lineage that used one name for both could not say
+    which end of it a value came from.
+  * `review_record` — the review record itself, which is what makes a lineage name
+    a REVIEW rather than only the SUBJECT a review happened to cover.
+  * `governed_test_definition` — the definition of the governed post-merge test
+    the ratified subject names, so *"governed"* is a value a closure record can be
+    compared against rather than an adjective.
+
+  THE CONTENT DIGEST AND THE CHAIN IDENTITY MUST NOT BE EQUATED. Doing so rejects
+  every conforming chain, and it is unbuildable in the other direction as well:
+  an exercise's `object_ref` would then have to commit to a signature not yet
+  made, and no implementation could construct the record.
+
+  A LATER TRANCHE ADDS NO SECOND RULE. Any digest a later tranche introduces is
+  computed under this construction, with its subject added to the enumeration
+  below; a second construction declared beside this one is a defect whatever it
+  is called.
+
+  AND THAT INVITATION HAS NOW BEEN TAKEN, BY NAME. `add-chain-anchoring` computes
+  ELEVEN further digests and declares no construction of its own: each is
+  `xfc-jcs-sha256-1`, taken by `$ref` to this file, with its subject added to the
+  enumeration below exactly as the paragraph above provides. The subjects follow,
+  in the same voice and to the same purpose — SAYING WHAT EACH DIGEST IS TAKEN
+  OVER, because readers that agree on how to hash can still disagree on what was
+  hashed:
+
+  * `anchor_material` — the validated, gate-passed material submitted for
+    anchoring, taken over that material and nothing else. It is nameable in its
+    own right so a receipt can point at what it anchored without carrying it.
+  * `anchored_commitment` — the two-member block `{material_digest,
+    mint_time_configuration}`, and so a STRICT SUPERSET of `anchor_material` in
+    the same way the chain identity is of the ratified subject. Because the
+    digest covers the WHOLE mint-time configuration block, rewriting a witness
+    set or extending a horizon changes this value and breaks every proof taken
+    against it — which is the property the closure rule exists to buy.
+  * `anchor_receipt` — a whole multi-anchor receipt record, for a reference that
+    names one rather than embeds it.
+  * `anchor_state` — an anchor-state record: one item's per-witness state. Kept a
+    DISTINCT subject from `anchor_receipt` on purpose, because the receipt is
+    PROOF MATERIAL and the state record is STATE, and one digest over both would
+    make the two indistinguishable to anything that compares them.
+  * `anchor_bound_commitment` — an anchor-bound commitment record: the keyed and
+    salted value that stands in for content on a chain. Over the COMMITMENT
+    RECORD, never over the content it commits to.
+  * `consent_checkpoint` — a consent-plane checkpoint: that plane's root at a
+    moment. Over the CHECKPOINT and never over a per-subject row.
+  * `log_checkpoint` — a transparency-log checkpoint: the log's prefix at a
+    declared tree size. It witnesses WHAT THE LOG SAID and is not a claim about
+    the validity of any leaf inside it.
+  * `linkage_derivation` — a linkage-derivation record, at issuance or at use.
+  * `analysis_result` — an analysis-result record, INCLUDING its status
+    discriminator and any named omitted correlation, so a result cannot be
+    re-described after the fact without changing its digest.
+  * `verification_result` — a verification-result record, including the
+    verification mode it was reached under.
+  * `anchor_event` — the `anchor_event` block a chain-anchoring leaf carries,
+    which is that leaf's `payload_digest` subject exactly as `gate_verdict` is a
+    gate leaf's. The block, not the leaf: the leaf's own digest is
+    `transparency_log_leaf`, and the two are different subjects over different
+    bytes.
+
+  AND TAKEN AGAIN, SIX MORE TIMES, BY THE AMENDMENT THAT GAVE `chain-anchoring` A
+  DURABILITY PROFILE (`amend-chain-anchoring-readiness-and-durability`,
+  requirements 2 and 3). Its fixed-UTC batch is a Merkle construction and two
+  append-only registries, so it computes digests over things no prior subject
+  names — and every one of them is `xfc-jcs-sha256-1` under this file, taken by
+  `$ref`, with its subject added below. NOT ONE OF THE SIX IS A SECOND
+  CONSTRUCTION, and none of them re-subjects an existing digest: the daily
+  manifest keeps `anchor_material`, because to the receipt it IS the anchored
+  material, and the configuration-bound value over it keeps
+  `anchored_commitment`.
+
+  * `confirmation_profile_terms` — the TERMS of one confirmation profile as the
+    operator approved them, and the value an append-only registry entry binds as
+    that version's canonical digest. Over the TERMS and never over the whole
+    profile record, so an editorial note beside them cannot silently move the
+    digest a receipt was minted against.
+  * `durability_eligibility_terms` — the TERMS of one eligibility-registry entry:
+    the enumerated neutral event kinds this profile counts. Same shape of
+    reasoning as the confirmation terms, and a DISTINCT subject because the two
+    registries answer different questions and a digest over both would make them
+    indistinguishable to anything that compares them.
+  * `daily_merkle_construction` — the immutable released daily-Merkle
+    construction: canonical leaf encoding, hash algorithm, the two
+    domain-separation strings, ordering, tree shape, odd-node handling, and the
+    deterministic empty root, as one JSON value. Every admission and every
+    manifest binds this digest, which is what makes "the profile was substituted"
+    a checkable claim rather than a worry.
+  * `durability_event_leaf` — ONE accepted event's canonical leaf under that
+    construction. The subject is the LEAF and not the event: what a domain's
+    event is remains the domain's, and this family counts leaves.
+  * `daily_batch_node` — an INTERNAL node of one window's ordered batch tree, the
+    value a membership path carries as a sibling. Distinct from the leaf subject
+    because the construction domain-separates the two, and a path element that
+    could be read as either would defeat that separation at the one place it
+    matters.
+  * `daily_batch_root` — the ROOT of one window's ordered batch tree, including
+    the deterministic empty root a count-zero window emits. Named separately from
+    the internal node it is topologically because the manifest binds the ROOT and
+    a verifier recomputes exactly it, and because two consecutive empty windows
+    share this value on purpose — which is precisely why the manifest's
+    continuity link is over the previous item's `anchored_digest` and never over
+    this.
+type: object
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  construction_name:
+    type: string
+    const: xfc-jcs-sha256-1
+  digest_subject:
+    # ONE ENUMERATION, AND IT IS THE ONLY PLACE A SUBJECT IS NAMED. A digest whose
+    # subject is not on this list is refused rather than guessed at, which is what
+    # makes "every digest NAMES its subject" a checkable claim.
+    #
+    # WIDENED AT TRANCHE TWO AND AGAIN AT TRANCHE THREE, WHICH IS THE ONE WAY THIS
+    # FILE IS MEANT TO MOVE. A later tranche adds SUBJECTS to this enumeration and
+    # never a second CONSTRUCTION; the members below the tranche-one five are
+    # tranche two's eleven and tranche three's eleven, and `construction_name` is
+    # untouched by both.
+    type: string
+    enum:
+      # --- signed-execution-chain (tranche one) ---
+      - ratified_subject
+      - signed_ratification
+      - transparency_log_leaf
+      - traveling_contract
+      - gate_verdict
+      # --- add-chain-attestation (tranche two) ---
+      - setup_attestation
+      - commitment_extension
+      - signed_chain_binding
+      - runner_attestation
+      - signing_request
+      - pr_open_decision
+      - closure_record
+      - remediation_declaration
+      - reviewed_subject
+      - review_record
+      - governed_test_definition
+      # --- add-chain-anchoring, on this file's own invitation above: no second
+      #     construction, one enumeration, eleven further subjects ---
+      - anchor_material
+      - anchored_commitment
+      - anchor_receipt
+      - anchor_state
+      - anchor_bound_commitment
+      - consent_checkpoint
+      - log_checkpoint
+      - linkage_derivation
+      - analysis_result
+      - verification_result
+      - anchor_event
+      # ADDED AT TRANCHE THREE (`add-cpc-clearing-boundary`, realized by the
+      # neutral `contracts/clearing/` family) — ONE SUBJECT, NO SECOND
+      # CONSTRUCTION, which is exactly the movement this file's own header
+      # sanctions. That packet's MODIFIED requirement says it in its own words:
+      # the manifest's digest and the origin signature over it "SHALL use the
+      # estate's canonical JSON construction `xfc-jcs-sha256-1`, which requires
+      # the manifest to be admitted as a SUBJECT of that construction's closed
+      # `digest_subject` enumeration — a tranche widening of SUBJECTS, never a
+      # second construction ... Until that subject exists, this requirement is
+      # UNREALIZABLE as written and SHALL NOT be reported as satisfied." This
+      # member is what makes it realizable.
+      #
+      # * `sealed_bundle_manifest` — the sealed bounded request's manifest, the
+      #   TEN DECLARED FIELDS as one JSON value. The origin signature covers
+      #   this subject and therefore covers all ten fields, the per-file hashes
+      #   included, so no field can be altered after signing without detection.
+      #
+      # WHAT IS DELIBERATELY NOT ADDED HERE. `add-cpc-clearing-boundary`'s own
+      # task 2.9 names a SECOND candidate, the sealed RETURN. No shipped shape
+      # computes a digest over a return today — the return path belongs to the
+      # hosted-finalizer successor — and an admitted subject with no consumer is
+      # a widening nothing exercises. It is added by the tranche that first
+      # produces one, under this same construction.
+      - sealed_bundle_manifest
+      # ADDED BY `amend-chain-anchoring-readiness-and-durability` (ratified
+      # 2026-09-04, requirements 2 and 3; realized against the schemas
+      # `add-chain-anchoring` landed) — SIX SUBJECTS, NO SECOND CONSTRUCTION,
+      # the movement this file's header sanctions and the third tranche to take
+      # it. The description above says what each is taken over. The amendment's
+      # own text is what forces them: its proof chain names distinct,
+      # "mechanically recomputable" nodes, and a node whose subject this
+      # enumeration refuses is a node no conforming record can carry, which
+      # would leave requirement 2 UNREALIZABLE as written.
+      - confirmation_profile_terms
+      - durability_eligibility_terms
+      - daily_merkle_construction
+      - durability_event_leaf
+      - daily_batch_node
+      - daily_batch_root
+  digest:
+    type: object
+    required: [construction, subject, value]
+    additionalProperties: false
+    properties:
+      construction: {$ref: '#/$defs/construction_name'}
+      subject: {$ref: '#/$defs/digest_subject'}
+      value:
+        type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+  chain_ref:
+    # A REFERENCE to a chain, not a digest declaration: the chain identity's
+    # subject is named where the digest is COMPUTED, and a record that merely
+    # points at a chain carries the tagged value in the shipped identifier grammar
+    # so the pointer is recomputable and comparable rather than nominal.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'

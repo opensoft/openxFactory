@@ -1,0 +1,42 @@
+# VALID issuance evidence at the DECLARED FLOOR: the authority does not expose
+# per-certificate request provenance, so the record carries the policy
+# attestation PLUS the authority's own log — a conjunction, not a choice — and
+# states that provenance is NOT established rather than asserting a requester it
+# cannot evidence.
+#
+# The shortfall is named, and the entry it names really does declare it. An
+# asserted-but-unestablished record would be worse than this declared gap, which
+# is why the floor level cannot carry the per-certificate claim at all.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:managed-broker-01
+certificate_ref: cert:managed-broker-01
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+  statement: The enrollment profile the anchor admits.
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: not_established
+  declared_shortfall_ref: ob:managed:TA-R2
+  statement: >-
+    The managed authority reports that a certificate was issued under this
+    profile; it does not report which request produced it. What can be
+    established is recorded and nothing else is.
+authority_attestation:
+  policy_attestation_ref: attestation:managed-device-issuance-profile-2026-08
+  authority_log_ref: authoritylog:managed-issuing-2026-08-01
+  retrieved_at: "2026-08-01T01:00:00Z"
+  statement: >-
+    Both halves: the profile attestation as configured at issuance, and the
+    authority's own log entry for the issuance itself.
+issued_at: "2026-08-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: false
+  statement: >-
+    A managed service. The family administers the profile and consumes the
+    output; it does not operate the issuance path.
+record_version: 1

@@ -1,0 +1,48 @@
+# expected_failure: family-operated-shortfall-claimed
+# expected_failure_detail: excuses the record from the obligation
+# requirement: TA-R7
+# VIOLATES TA-R7 at the point of CITATION rather than of declaration: an anchor of
+# the self-hosted realization — the one whose declaration says
+# `authority_operated_by_family: true` — declares host-held custody, below the
+# strictest member of the closed set, and excuses it by naming that realization's
+# TA-R7 entry.
+#
+# This is the shape an adversarial review used to walk a readable root key past
+# the whole family: every field the schema requires was present, the citation
+# resolved, and the record validated. Two refusals fire here, and both are the
+# point — the entry it names records TA-R7 as SATISFIED (so the shortfall is
+# undeclared), and the realization OPERATES the authority (so there is no
+# shortfall to declare in the first place). A record cannot excuse itself with a
+# fact about somebody else's authority.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-self-hosted-excused-root
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Core Root Authority (second instance)"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2036-08-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-service-issuance-policy
+    authority_kind: policy
+    statement: Service certificates for the production core.
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-excused-root-key
+  vault_binding_ref: vaultbinding:core/neg-excused-root-key
+  declared_at: "2026-08-11T00:00:00Z"
+  declared_by: opensoft
+  declared_shortfall_ref: ob:core:TA-R7
+  statement: >-
+    The signing key is a readable file on the CA host we operate. The credential
+    record exists, the custody is host-held anyway, and the shortfall is
+    declared instead of the custody being fixed.
+record_version: 1
+created_at: "2026-08-11T00:00:00Z"

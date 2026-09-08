@@ -26,14 +26,15 @@ found verbatim in the cited source voids the run (stronger than organizer's
 trust-the-worker posture, per the change's "hash actual doc sections").
 
 NON-MUTATION IS STRUCTURAL (task 3.5). The module's ONLY write surface is
-`persist`, which writes solely through one `OutputBoundary` (the landed
-ideation-dashboard house guard) whose allowlist is the index yaml, its `.md`
-projection, and `health/ideation-readiness/`. There is no code path that edits,
-moves, promotes, or deletes a source document; archived material is read-only
-reference for the extension-fit check. The assembled index is validated against
-the openxFactory index schema (the pinned `validate-ideation-cross-reference.py`)
-BEFORE persistence, and any contract failure is reject-and-reported — the index
-stays at its prior state.
+`persist`, which writes solely through one `OutputBoundary` (the landed write
+guard, neutral at `scripts/output_boundary.py` since
+`split-opendox-two-layer-product` § 2.1) whose allowlist is the index yaml,
+its `.md` projection, and `health/ideation-readiness/`. There is no code path
+that edits, moves, promotes, or deletes a source document; archived material
+is read-only reference for the extension-fit check. The assembled index is
+validated against the openxFactory index schema (the pinned
+`validate-ideation-cross-reference.py`) BEFORE persistence, and any contract
+failure is reject-and-reported — the index stays at its prior state.
 
 FAILURE ISOLATION (like `semantic.run_sweep` / `organizer.run_organizer`). A
 worker failure or invalid/rejected output records a skip and persists nothing;
@@ -62,6 +63,7 @@ except ImportError:  # pragma: no cover
 
 from . import CONTESTED, WARNING, Finding
 from . import corpus as corpus_mod
+from .lines import split_keepends
 
 # --- prompt contract ---------------------------------------------------------
 
@@ -297,20 +299,33 @@ def _is_clusterable_ideation_path(path: str) -> bool:
 def _parse_header(text: str) -> dict[str, str]:
     """Parse the contiguous header field block (H1 + blank skipped) up to the
     first ``## `` body section, joining continuation lines onto their field —
-    identical to the bootstrap's `parse_header`."""
+    identical to the bootstrap's `parse_header`
+    (`scripts/bootstrap-ideation-cross-reference.py`; both converted together,
+    finding F5, and pinned to agree by
+    `tests/doc-health/test_ideation_readiness.py`'s
+    `test_parse_header_agrees_with_the_bootstraps_own_parse_header`).
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not `str.splitlines()`
+    pseudo-lines: this feeds `derive_clusters`, which reads `Status` as the
+    document's stage on the SAME live path
+    (`ideation_readiness_dispatch`/`readiness_dispatch.py`) doc-health's own
+    `corpus.parse_status` reads for the SAME document — a wider split here
+    diverged 4-of-4 on exotic fixtures (readiness clustered a document as
+    'staged' while doc-health reported it as lacking a status entirely).
+    """
     fields: dict[str, str] = {}
     current: str | None = None
-    for line in text.splitlines():
-        if line.startswith("## "):
+    for body, _ending in split_keepends(text):
+        if body.startswith("## "):
             break
-        if line.startswith("# ") or not line.strip():
+        if body.startswith("# ") or not body.strip():
             continue
-        m = _FIELD_RE.match(line)
+        m = _FIELD_RE.match(body)
         if m:
             current = m.group(1).strip()
             fields[current] = m.group(2).strip()
         elif current is not None:
-            fields[current] = (fields[current] + " " + line.strip()).strip()
+            fields[current] = (fields[current] + " " + body.strip()).strip()
     return fields
 
 
@@ -662,19 +677,251 @@ def enforce_contract(raw_output, cluster: dict, sources: dict, *,
 # =========================================================================
 # Validate the assembled index against the openxFactory index schema BEFORE
 # persistence (task 3.2): invoke the pinned `validate-ideation-cross-reference.py`
-# (the dashboard's find-validator walk-up pattern); reject-and-report on failure.
+# (resolved repository-under-test first, per `find_index_validator` below);
+# reject-and-report on failure.
 # =========================================================================
 
-def find_index_validator(start=None):
-    """The pinned openxFactory index validator, discovered by walking up to the
-    sibling aggregation checkout (mirrors the dashboard's
-    `find_openxfactory_validator`). None when unreachable — the caller then
-    records a skip rather than persisting unvalidated output (fail-closed)."""
-    rel = Path("openxFactory") / "scripts" / "validate-ideation-cross-reference.py"
+# The resolution order (harden-ideation-readiness-check, design § 1): the
+# REPOSITORY UNDER TEST first, and any other checkout only as a declared,
+# announced fallback. The ancestor walk alone — what this used to be — always
+# terminates on the one shared checkout beneath an aggregation root, so from an
+# agent worktree it spawned somebody else's validator while the caller believed
+# it had validated against its own. Announced on stderr rather than returned,
+# because every caller of this function wants the path and none of them wants a
+# tuple; the marker is a fixed string so a run can be grepped for it.
+ROOT_FALLBACK_MARKER = "[readiness-root] fallback"
+
+VALIDATOR_REL = Path("scripts") / "validate-ideation-cross-reference.py"
+VALIDATOR_SIBLING_REL = Path("openxFactory") / VALIDATOR_REL
+
+
+def _announce_root_fallback(message: str) -> None:
+    """Say which checkout was resolved and why the fallback was taken.
+
+    stderr, not stdout: the readiness lane's stdout is read by callers that
+    parse it, and a resolution notice is diagnostic rather than result."""
+    print(f"{ROOT_FALLBACK_MARKER}: {message}", file=sys.stderr)
+
+
+def find_index_validator(start=None, *, announce=_announce_root_fallback):
+    """The pinned openxFactory index validator for the REPOSITORY UNDER TEST.
+
+    `start` names that repository (default: the checkout this module lives in).
+    When it carries `scripts/validate-ideation-cross-reference.py` it IS the
+    subject and nothing else is consulted. Only when it does not does the
+    resolver reach further — `OPENXFACTORY_ROOT`, then the ancestor walk to a
+    sibling `openxFactory/` (the aggregation-workspace layout) — and every one
+    of those rungs announces the checkout it resolved and why, so a validator
+    borrowed from another checkout is never borrowed silently.
+
+    None when nothing is reachable — the caller then records a skip rather than
+    persisting unvalidated output (fail-closed)."""
     base = Path(start or Path(__file__).resolve().parents[2]).resolve()
+    own = base / VALIDATOR_REL
+    if own.is_file():
+        return own
+
+    why = (f"the repository under test ({base}) carries no "
+           f"{VALIDATOR_REL.as_posix()}")
+    declared = os.environ.get("OPENXFACTORY_ROOT")
+    if declared:
+        candidate = Path(declared).resolve() / VALIDATOR_REL
+        if candidate.is_file():
+            announce(f"resolved the index validator {candidate} from "
+                     f"OPENXFACTORY_ROOT because {why}")
+            return candidate
+
     for d in [base, *base.parents]:
-        if (d / rel).is_file():
-            return d / rel
+        candidate = d / VALIDATOR_SIBLING_REL
+        if candidate.is_file():
+            announce(f"resolved the index validator {candidate} by walking up "
+                     f"from the repository under test because {why}")
+            return candidate
+    return None
+
+
+# =========================================================================
+# CLASS-WIDE DERIVATION-PIN REACHABILITY (govern-derived-pin-reachability,
+# requirement 4), riding this surface rather than adding a check family.
+#
+# WHY HERE. The promoted pin obligation this extends already lives on the
+# readiness proof surface — an unreachable `generation.source_revision` fails
+# the derivation proof — and it covers exactly ONE artifact. This probe answers
+# the same question across the DECLARED CLASS (`doc_health.pin_class`), which is
+# where the two live orphans sat unreported for a day after the index was
+# repaired. It deliberately adds NO deterministic check family: reachability is
+# not deterministic in that requirement's sense, since the same corpus at the
+# same revision answers differently at different clone depths, and every family
+# added owes a wholesale restatement of the enumeration requirement.
+#
+# THE THREE-WAY OUTCOME IS THE PROMOTED SPLIT, REUSED RATHER THAN RE-SPELLED.
+# A pin unreachable in a COMPLETE clone is a defect in the artifact and FAILS. A
+# clone that cannot answer — truncated history, or a retention namespace that
+# could not be consulted — SKIPS with the condition it actually observed, never
+# the conjecture ("shallow clone?") the sibling packet deleted. Everything else
+# passes.
+# =========================================================================
+
+PIN_PROBE_FAIL = "fail"
+PIN_PROBE_SKIP = "skip"
+PIN_PROBE_PASS = "pass"
+
+
+def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
+                            remote: str = "origin",
+                            allow_remote: bool = True):
+    """`(verdict, reason, report)` for the whole declared pin class.
+
+    `verdict` is `PIN_PROBE_PASS`, `PIN_PROBE_FAIL` or `PIN_PROBE_SKIP`, and the
+    caller turns it into whatever its own surface uses — a pytest failure, a
+    preflight finding, a non-zero exit. The reason ALWAYS names what was
+    consulted and, for a defect, the repair route the artifact's own class
+    allows: retention for immutable evidence, reproduction for a regenerable
+    projection. Naming the route at the moment the finding fires is how the
+    landing obligation is discoverable where it binds."""
+    from . import pin_class
+
+    root = Path(repo or Path(__file__).resolve().parents[2])
+    report = pin_class.verify(root, rev=rev, remote=remote,
+                              allow_remote=allow_remote)
+    rendered = pin_class.render(report)
+
+    if not report.clean:
+        routes = []
+        for result in report.orphans:
+            member = next(m for m in pin_class.PIN_CLASS
+                          if m.id == result.site.member_id)
+            status = _committed_status(root, report.rev, result.site.path)
+            routes.append(f"  {result.site.named()}\n    route -> "
+                          f"{pin_class.repair_route(member, status=status)}")
+        detail = "\n".join(routes)
+        return (PIN_PROBE_FAIL,
+                f"DERIVATION-PIN VERIFICATION FAILED in a COMPLETE clone "
+                f"({report.truncation}). A DEFECT IS EITHER A PIN THAT DOES "
+                f"NOT RESOLVE OR A VALUE THAT WAS NEVER A PIN: an unreachable "
+                f"commit, an uncovered site, a vanished or arrived class "
+                f"member, or a non-commit value the sentinel vocabulary does "
+                f"not declare. A DECLARED sentinel is NOT among them — an "
+                f"artifact carrying one is conforming and is reported as a "
+                f"legal non-pin below. The ref set consulted was "
+                f"{report.main_ref} plus "
+                f"{pin_class.RETENTION_NAMESPACE}/<full-sha> computed from "
+                f"each pin, and no other ref: a commit surviving in this "
+                f"clone's object store is not reachability.\n{rendered}"
+                + (f"\n\nREPAIR ROUTES:\n{detail}" if detail else ""),
+                report)
+
+    if report.inconclusive:
+        return (PIN_PROBE_SKIP,
+                "DERIVATION-PIN REACHABILITY NOT ANSWERABLE here, observed not "
+                "conjectured:\n"
+                + "\n".join(f"  {r.site.named()} — {r.how}"
+                            for r in report.inconclusive)
+                + f"\n{rendered}",
+                report)
+
+    return (PIN_PROBE_PASS, rendered, report)
+
+
+def cluster_skeleton(entry: dict) -> dict:
+    """The comparable shape of one index entry — id, name, topics, tag sources,
+    origin, and each member's path / matched tags / repository.
+
+    Member `stage` is EXCLUDED, and the exclusion is inherited rather than
+    invented here: the landed index's stage annotations are legitimately updated
+    post-generation without a regeneration (a member superseded at a staging
+    exit), so stage can drift from the pinned corpus header while the derivation
+    itself is unchanged. Stage derivation is proved separately.
+
+    Spelled ONCE, here, because the readiness proof and the reproduction check
+    below must compare the same shape; two spellings of "the same skeleton" is
+    how a reproduction claim quietly stops meaning anything."""
+    return {
+        "id": entry["id"], "name": entry["name"], "topics": entry["topics"],
+        "tag_sources": sorted(entry["tag_sources"]),
+        "origin": entry.get("origin"),
+        "members": [{"path": m["path"], "matched_tags": m["matched_tags"],
+                     "repository": m.get("repository")}
+                    for m in entry["members"]],
+    }
+
+
+def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
+                        index_rel: str = "ideation/cross-reference.yaml"):
+    """Does the index committed at `rev` REPRODUCE from the corpus at `pin`?
+
+    Returns `(reproduced, detail)` with `reproduced` True, False, or None when
+    the question could not be asked (the pin does not resolve in this clone, or
+    the index is not committed). This is requirement 3's reproduction obligation
+    made checkable for the one member whose tooling defines derivation: the
+    corpus is reconstructed at the pin with a read-only ``git archive`` — no
+    checkout is touched — the derivation is re-run over it, and the result is
+    compared to the committed body.
+
+    IT IS THE CHECK THAT REFUSES A HAND-MOVED PIN. Reachability of a new pin is
+    necessary and nowhere near sufficient: on pull request #322 the pin was
+    edited from one branch commit to another that was, at that moment, a
+    perfectly reachable branch tip, and nothing established that the body listed
+    the clusters the corpus derives there. A reachability-only rule passes that
+    edit; this one does not."""
+    import io
+    import tarfile
+    import tempfile
+
+    import yaml
+
+    from . import pin_class
+
+    root = Path(repo)
+    committed = pin_class.committed_text(root, rev, index_rel)
+    if committed is None:
+        return None, f"{index_rel} is not committed at {rev} in {root}"
+    index = yaml.safe_load(committed)
+    entries = index.get("topic_entries")
+    if not isinstance(entries, list):
+        return None, f"{index_rel} at {rev} carries no topic_entries list"
+
+    archived = subprocess.run(
+        ["git", "-C", str(root), "archive", pin, "ideation"],
+        capture_output=True)
+    if archived.returncode != 0:
+        detail = (archived.stderr.decode("utf-8", "replace").strip()
+                  or f"git archive exited {archived.returncode}")
+        return None, (f"the corpus at {pin} could not be reconstructed, so "
+                      f"reproduction was NOT ASKED rather than answered: "
+                      f"{detail}")
+
+    with tempfile.TemporaryDirectory(prefix="pin-reproduction-") as tmp:
+        tarfile.open(fileobj=io.BytesIO(archived.stdout)).extractall(tmp)
+        derived = derive_clusters(corpus_mod.load_docs("openxFactory",
+                                                       Path(tmp)))
+    got = [cluster_skeleton(e) for e in derived]
+    want = [cluster_skeleton(e) for e in entries]
+    if got == want:
+        return True, (f"{index_rel} at {rev} reproduces from the corpus at its "
+                      f"pin {pin}: {len(want)} entries, skeleton-identical")
+    return False, (
+        f"{index_rel} at {rev} does NOT reproduce from the corpus at {pin} — "
+        f"{len(want)} committed entries against {len(got)} derived there. The "
+        f"pin's reachability is not evidence that the body matches the state it "
+        f"claims; re-derive the body at the pin, or pin the revision the body "
+        f"was derived from.")
+
+
+def _committed_status(repo, rev: str, path: str) -> str | None:
+    """The lifecycle `Status:` a committed artifact carries, or None.
+
+    Read from committed state, and read at all because the REPAIR ROUTE turns on
+    it: a `record` is repaired by retention and never by an edit."""
+    from . import pin_class
+
+    text = pin_class.committed_text(repo, rev, path)
+    if text is None:
+        return None
+    for line in text.splitlines()[:40]:
+        if line.strip().lower().startswith(("status:", '"status":')):
+            value = line.split(":", 1)[1].strip().strip('",').strip("'")
+            return value or None
     return None
 
 
@@ -1102,7 +1349,12 @@ def make_boundary(root):
     three write targets — the index yaml, its `.md` projection, and
     `health/ideation-readiness/`. Anything else is refused, recorded, and
     raised."""
-    from ideation_dashboard.boundary import OutputBoundary  # lazy: house guard
+    # The guard is NEUTRAL as of `split-opendox-two-layer-product` § 2.1:
+    # it lives at `scripts/output_boundary.py`, in neither package, so
+    # `doc_health` no longer imports anything from `ideation_dashboard`
+    # (tests/doc-health/test_import_direction.py). Still function-local:
+    # the write guard is needed only when this pass actually persists.
+    from output_boundary import OutputBoundary
     return OutputBoundary(root, [INDEX_REL, INDEX_MD_REL, f"{EVIDENCE_DIR}/"])
 
 

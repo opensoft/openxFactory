@@ -32,6 +32,12 @@
 //            sites and the degraded posture (no serve shim, 404 on the static
 //            image) is EXACTLY the viewer's own inline message. A scope with
 //            no outline gets an explicit empty state, never a fabricated one.
+//            Above the rendering sits the TEMPLATED SECTION INDEX
+//            (add-staged-topic-outline-template): the fragment's own headings and
+//            `xspec:` fences, read by the pure outline-model.js, with a one-press
+//            add for each required section the fragment lacks. An add writes into
+//            the outline BUFFER and stops — the human's own Save carries it
+//            through `edit-document`, so the tab gains no write verb.
 //
 // NO TRANSPORT IN THIS FILE (task 4.6, and pinned by test_staging_workbench.py):
 // this module opens no route and carries no request of its own. The workbench's
@@ -74,6 +80,7 @@ import {
   toggleKeyword, createSeed, createOffered, rewritableDocuments, sessionPosture,
   sessionSurfaceHidden, presentationPosture,
   documentAbstract, docWheelEntries, existingOnTopic,
+  abstractRegionState, abstractSubjectDigest,
 } from "./staging-workbench-model.js";
 import { renderDocWheel } from "./doc-wheel.js";
 import { buildLensModel } from "./lens-model.js";
@@ -84,9 +91,11 @@ import {
   openedSessions, sessionOpened,
 } from "./swb-session.js";
 import { primaryFragmentPath } from "./wheel-model.js";
+import { insertSection, outlineModel } from "./outline-model.js";
 import { renderViewer } from "./viewer.js";
 import { mountDoxBenchCanvas } from "./doxbench-editor.js";
 import { mountDoxBenchChatRail } from "./doxbench-chat.js";
+import { openModelIntake } from "./swb-model-intake.js";
 import { clearDoxBenchSession } from "./doxbench-state.js";
 
 // textContent-only element builder (lens.js / canvas.js discipline).
@@ -135,47 +144,323 @@ const CREATE_LABELS = {
 // is what the per-row bar was actually for. `docs.js` keeps its own unrelated
 // `docRow` for the full-page documents view.
 
-// THE ABSTRACT VIEW — the upper half of the split docs pane. Renders what the
-// snapshot already derived for the selected document. textContent only.
-function renderAbstract(host, doc) {
+// ---- THE ABSTRACT REGION'S SESSION STATE (add-doxbench-distilled-abstract §7)
+//
+// MODULE SCOPE, like `lensSection` below and for the same reason: the docs pane
+// is rebuilt on every scope redraw, and a generated abstract that died with the
+// pane would be re-earned by a model call every time a human came back to a
+// document. Ruling 7.6 states the behaviour rather than leaving it to component
+// lifetime — an abstract SURVIVES leaving and re-entering the tile in-session,
+// KEYED BY (path, digest, MODEL) — so that triple is literally the key here.
+// The server replays an identical key without a second dispatch anyway; this is
+// what keeps the request from being made at all.
+//
+// THE MODEL IS IN IT (packet review, Codex on PR #352, 2026-08-25) because the
+// SERVER's key gained it, and a client that disagreed would win: a browser
+// replaying its own cached prose after a model switch never asks the server at
+// all, so the server's correct key is never consulted and the reader is handed
+// one model's prose under another model's name. It is the model the request was
+// DISPATCHED WITH — the id this pane can know before asking — while the model
+// the artifact RECORDS is the resolved one the answer carries; for an `auto`
+// entry those differ, and the cost of that is one replayed round trip the
+// server answers from its own cache, never a wrong answer.
+//
+// SESSION-LOCAL AND NOTHING ELSE (ruling 2(b)): it reaches no storage, no
+// snapshot, no corpus and no gate artifact, and it dies with the page. Bounded
+// by entry count with INSERTION-ORDER eviction — deterministic, never ordered by
+// a clock — which is the same discipline the server's own abstract store keeps,
+// and re-dispatch after eviction is expected behaviour rather than an error.
+const ABSTRACT_SESSION_LIMIT = 8;
+const ABSTRACT_ENTRY_LIMIT = 64;
+const abstractSessions = new Map();
+
+function boundMap(map, limit) {
+  while (map.size > limit) {
+    const oldest = map.keys().next();
+    if (oldest.done) return;
+    map.delete(oldest.value);
+  }
+}
+
+// THE DOCS PANE REPAINTS WHEN THE MODEL CHOICE MOVES. The abstract shown is a
+// fact about (document, digest, MODEL), and the model lives on the chat rail —
+// so a human switching model while the docs pane stands still would otherwise
+// keep reading the previous model's prose under the model-derived caption,
+// which is the artifact-lies-about-its-provenance failure one surface further
+// out. The shell calls this from the rail's own state callback; the pane
+// registers `session.repaint` as it renders.
+function repaintAbstractSession(scopeKey) {
+  const session = abstractSessions.get(String(scopeKey || ""));
+  if (session && typeof session.repaint === "function") session.repaint();
+}
+
+function abstractSessionFor(scopeKey) {
+  const key = String(scopeKey || "");
+  let session = abstractSessions.get(key);
+  if (!session) {
+    session = {
+      // (path, digest, model) -> the verified abstract the server answered with
+      abstracts: new Map(),
+      // (path, model) -> which of that pair's digests is the one to show
+      current: new Map(),
+      // path -> the entry key of the most recent answer for it UNDER ANY MODEL.
+      // The fallback for a console with NO model selectable at all (ruling 7.7:
+      // where the gate capability is absent the control is ABSENT and any
+      // already-generated abstract "SHALL remain readable with its normal
+      // caption"). The model qualification exists to disambiguate between two
+      // models a human is choosing between; with nothing to choose from there
+      // is nothing to disambiguate, and hiding a readable abstract behind an
+      // absent selection would break that ruling.
+      lastAnswered: new Map(),
+      // path -> the digest the server last echoed for it (ruling 3's source of
+      // truth for an UNLOADED subject: the SERVED SAVED CONTENT's digest)
+      latest: new Map(),
+      // (path, model) -> the sentence a stated refusal gave, rendered as the
+      // note. Model-qualified for the same reason the abstracts are: "this
+      // model could not distil this document" is not a fact about the next
+      // model a human picks.
+      refusals: new Map(),
+      // THE ADAPTER'S OWN declared bound, learned from the most recent answer
+      // for THIS scope. Null until one has carried it: the region then names no
+      // number rather than inventing the 120-second contract ceiling.
+      waitBound: null,
+      // one monotonic token; a generation whose token has moved on is one
+      // somebody cancelled or superseded, and it never paints
+      token: 0,
+      inFlight: null,
+      subject: null,
+      repaint: null,
+    };
+    abstractSessions.set(key, session);
+    boundMap(abstractSessions, ABSTRACT_SESSION_LIMIT);
+  }
+  return session;
+}
+
+// COMPOSED AS JSON, NEVER JOINED — the `scopeKey` ruling (N6) one level down.
+// A document path and a model id are both attacker-influenced strings that can
+// contain any separator a join might pick, and two different triples composing
+// one string is how one document's abstract becomes another's.
+function abstractEntryKey(path, digest, modelId) {
+  return JSON.stringify([String(path), String(digest), String(modelId)]);
+}
+
+// "WHICH DIGEST OF THIS DOCUMENT, UNDER THIS MODEL, IS THE ONE TO SHOW." The
+// digest half moves when the document is edited; the model half moves when the
+// human picks another model, and it is what makes a switched model show the
+// NOT-YET-GENERATED state rather than the previous model's prose.
+function abstractCurrentKey(path, modelId) {
+  return JSON.stringify([String(path), String(modelId)]);
+}
+
+const ABSTRACT_NO_MODEL_SENTENCE =
+  "no approved model is configured on this console, so there is nothing to "
+  + "distil this document with";
+
+// ONE SENTENCE PER FAILURE CLASS, WRITTEN HERE. A plane or transport verdict
+// answers in the released error shape, and this surface maps the CODE to its
+// own sentence rather than echoing the server's message (FR-020/FR-022: this
+// pane states an absence, it never quotes a server). A STATED abstract refusal
+// is the one exception and deliberately so: its `reason` is SERVER-AUTHORED
+// text about the DOCUMENT or the ANSWER, written by serve.py or the verifier to
+// be rendered here.
+//
+// THE INVARIANT, STATED AS IT NOW HOLDS (review N1). "One of serve.py's own
+// FIXED sentences" stopped being true on 2026-08-26, when `abstract-too-long`
+// began naming the two numbers a reader needs to act on. What holds — and what
+// makes rendering a server's own words safe here at all — is narrower and
+// exact: the WORDING is the server's, composed from nothing the caller sent;
+// the only variable parts are AT MOST TWO INTEGERS this process measured over
+// the answer (`TurnLimitError` carries the dimension and the two numbers and
+// never the text it measured); and no prose, no provider text and no document
+// text ever reaches the string. A reason is a sentence about an absence, and it
+// stays one.
+const ABSTRACT_ERROR_SENTENCES = {
+  model_capability_unavailable:
+    "this console cannot reach a model right now, so nothing was distilled",
+  model_timeout:
+    "the model did not answer within the bound its adapter declared",
+  model_failed: "the model call failed, so nothing was distilled",
+  invalid_abstract_request:
+    "this request was refused as malformed before any provider was reached",
+  abstract_unavailable:
+    "the server could not produce an abstract for this document",
+  turn_scope_refused:
+    "this document is not readable in this tile's scope",
+  console_required:
+    "this console's token is stale — reload the page and try again",
+};
+
+function abstractRefusalSentence(payload) {
+  if (payload && typeof payload.refused === "string") {
+    return typeof payload.reason === "string" && payload.reason
+      ? payload.reason
+      : "this document was refused as a subject (" + payload.refused + ")";
+  }
+  const code = payload && typeof payload.error === "string"
+    ? payload.error : null;
+  if (code && ABSTRACT_ERROR_SENTENCES[code]) {
+    return ABSTRACT_ERROR_SENTENCES[code];
+  }
+  return "no distillation was generated: this console could not read an answer";
+}
+
+// THE ABSTRACT VIEW — the upper half of the split docs pane, and EXACTLY ONE
+// `role=region` (ruling 5 / task 7.5). Two abstracts take turns inside it:
+//
+//   * the DETERMINISTIC one, which re-presents what the snapshot already
+//     derived for the selected document and is what the region OPENS on,
+//     because it is the one that exists before any model runs;
+//   * the MODEL-DERIVED one, written by a provider on an explicit human
+//     request and reached by an explicit control.
+//
+// One STATE renders at a time — the box is a measured 280px, and two regions
+// would mean two accessible names for one box. Which state, what it says, its
+// accessible name and which controls exist are all decided by the PURE
+// `abstractRegionState` in the model module; this function only draws the
+// answer. textContent only.
+function renderAbstract(host, doc, ctx) {
   host.innerHTML = "";
   const model = documentAbstract(doc);
-  if (!model) {
-    host.appendChild(el("div", "swb-empty",
-      "select a document below to see what it declares"));
+  const seam = (ctx && ctx.seam) || null;
+  const path = model ? model.path : null;
+  const state = abstractRegionState({
+    subject: model ? { path: model.path, title: model.title } : null,
+    view: ctx ? ctx.view() : "deterministic",
+    plane: seam && seam.hosted ? "hosted" : "local",
+    capable: !!(seam && seam.capable),
+    generated: ctx && path ? ctx.generatedFor(path) : null,
+    currentDigest: ctx && path ? ctx.currentDigestFor(path) : null,
+    inFlight: !!(ctx && path && ctx.inFlightFor(path)),
+    waitBoundSeconds: ctx ? ctx.waitBound() : null,
+    refusal: ctx && path ? ctx.refusalFor(path) : null,
+    dirty: !!(ctx && path && ctx.dirtyFor(path)),
+  });
+  // THE ONE NAME THIS REGION HAS (task 7.10), composed by the formatter from
+  // the subject's identity and the provenance of the state showing — and re-set
+  // on every render, because a name that did not move when the state did would
+  // be a name for whichever state happened to be first.
+  host.setAttribute("aria-label", state.accessibleName);
+  if (model) host.appendChild(el("div", "swb-abstracttitle", model.title));
+
+  // THE CONTROLS ROW. Chrome, not a state: these are how a human switches
+  // between the two abstracts and asks for a distillation, and they render no
+  // abstract themselves.
+  const controls = el("div", "swb-abstractcontrols");
+  if (state.toggleOffered && ctx) {
+    const toggle = el("button", "swb-abstracttoggle", state.toggleLabel);
+    toggle.type = "button";
+    toggle.addEventListener("click", () => ctx.switchView());
+    controls.appendChild(toggle);
+  }
+  // GENERATION IS EXPLICITLY INVOKED (task 7.1). It is never a side effect of
+  // selection, of the mount-time seed, or of opening a scope — the wheel
+  // notifies on EVERY notch and once more at mount, so a selection-triggered
+  // design would spend a model call on every document a human spins past.
+  // ABSENT rather than present-and-refusing where the gate capability is not
+  // live, and absent on the hosted plane, which offers no such route at all.
+  if (state.generateOffered || state.regenerateOffered) {
+    const regenerating = !!state.regenerateOffered;
+    const generate = el("button", "swb-abstractgenerate",
+      regenerating
+        ? "re-generate from the current version"
+        : "distil this document with a model");
+    generate.type = "button";
+    // THE ONE PLACE A REFRESH INTENT IS ISSUED. The RE-GENERATE control means
+    // "ask again", and without saying so on the request it could not: a
+    // regeneration against unchanged content and an unchanged model has an
+    // identical cache key by construction, so the server would replay and the
+    // control would be inert except by the accident of eviction. GENERATE means
+    // "ask", and asks with no intent, so the first press of a session and every
+    // re-entry take the ordinary replay path.
+    generate.addEventListener("click", () => ctx.generate(regenerating));
+    controls.appendChild(generate);
+  }
+  if (state.cancelOffered && ctx) {
+    const cancel = el("button", "swb-abstractcancel", "cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", () => ctx.cancel());
+    controls.appendChild(cancel);
+  }
+  if (controls.children.length) host.appendChild(controls);
+
+  // THE CAPTION, which is the whole of ruling 5: every state says WHO derived
+  // it and WHAT it is not, as VISIBLE TEXT — and for the two states with a
+  // provenance to claim it is part of the accessible name as well. A stale
+  // caption also states the SOURCE digest it was distilled from (a short
+  // prefix: what a 280px box can carry), so "an earlier version" names WHICH
+  // earlier version.
+  if (state.caption) {
+    host.appendChild(el("div", "swb-abstractcaption",
+      state.digestPrefix
+        ? state.caption + " (source digest " + state.digestPrefix + "...)"
+        : state.caption));
+  }
+  if (state.savedVersionNote) {
+    host.appendChild(el("div", "swb-abstractsaved", state.savedVersionNote));
+  }
+  if (state.inFlight) {
+    const inflight = el("div", "swb-abstractinflight", state.waitText);
+    inflight.setAttribute("aria-live", "polite");
+    host.appendChild(inflight);
+  }
+  if (state.note) {
+    host.appendChild(el("div", "swb-abstractnote swb-empty", state.note));
+  }
+
+  // ONE STATE BODY. `structured` is the deterministic abstract, which draws the
+  // document's own declared fields; anything else renders the model's prose, or
+  // nothing where there is none — a stated refusal carries NO prose by
+  // construction, so an unverified answer has no field to arrive in.
+  const body = el("div", "swb-abstractstate swb-abstractstate-"
+    + (state.structured ? "deterministic" : "model"));
+  host.appendChild(body);
+  if (!state.structured) {
+    // (N2) NO PROMOTION AFFORDANCE, and that is a deliberate boundary rather
+    // than an oversight: this abstract is read-only terminal content, and
+    // nothing in this slice writes a document header. A future verb —
+    // "propose this as the document's own Summary:" — attaches HERE, on this
+    // body, and rides the path that already exists end to end: the chat rail's
+    // typed proposal, Apply into the buffer, and the human's own governed Save
+    // through the gate (the proposal's Option B'). Naming it now is what keeps
+    // the read-only slice from becoming an architectural dead end.
+    if (state.text) {
+      const prose = el("div", "swb-abstractprose", state.text);
+      prose.setAttribute("dir", "auto");
+      body.appendChild(prose);
+    }
     return;
   }
-  host.appendChild(el("div", "swb-abstracttitle", model.title));
   const meta = [model.stage, model.kind].filter(Boolean).join(" · ");
-  if (meta) host.appendChild(el("div", "swb-abstractmeta", meta));
+  if (meta) body.appendChild(el("div", "swb-abstractmeta", meta));
   if (model.note) {
-    host.appendChild(el("div", "swb-empty", model.note));
+    body.appendChild(el("div", "swb-empty", model.note));
     return;
   }
   if (model.summary) {
     const summary = el("div", "swb-abstractsummary", model.summary);
     summary.setAttribute("dir", "auto");
-    host.appendChild(summary);
+    body.appendChild(summary);
   }
   if (model.lands.length) {
-    host.appendChild(el("div", "swb-abstractlabel", "feeds"));
+    body.appendChild(el("div", "swb-abstractlabel", "feeds"));
     const lands = el("div", "swb-abstractlands");
     for (const entry of model.lands) {
       lands.appendChild(el("span", "swb-abstractchip", entry));
     }
-    host.appendChild(lands);
+    body.appendChild(lands);
   }
   if (model.topics.length) {
-    host.appendChild(el("div", "swb-abstractlabel", "topics"));
+    body.appendChild(el("div", "swb-abstractlabel", "topics"));
     const topics = el("div", "swb-abstracttopics");
     for (const topic of model.topics) {
       topics.appendChild(el("span", "swb-abstractchip", topic));
     }
-    host.appendChild(topics);
+    body.appendChild(topics);
   }
   if (model.signals.length) {
     // The score alone explains nothing; the signals say WHICH part is thin.
-    host.appendChild(el("div", "swb-abstractlabel",
+    body.appendChild(el("div", "swb-abstractlabel",
       model.score === null ? "signals"
         : "signals · score " + model.score));
     const signals = el("div", "swb-abstractsignals");
@@ -183,11 +468,41 @@ function renderAbstract(host, doc) {
       signals.appendChild(el("span", "swb-abstractchip",
         signal.name + " " + signal.count));
     }
-    host.appendChild(signals);
+    body.appendChild(signals);
   }
 }
 
-function renderDocsPanel(pane, scope, onOpen, create) {
+// `onBind` WAS the selection half of Phase A's model: choosing a document on the
+// wheel bound the canvas's single document buffer — and therefore the chat — to
+// that path, through the canvas's own `selectDocument`.
+//
+// add-doxbench-editing-phase-b RE-CUT that, and the adversarial review of PR #207
+// is what surfaced why it had to. The ratified delta names exactly THREE selection
+// routes — "the context region's `outline` selection tab SHALL select the
+// `outline` buffer, LOADING A DOCUMENT SHALL SELECT THAT DOCUMENT, and the chat
+// rail's loaded-document selector SHALL select among the loaded documents" — and a
+// docs-row selection is not one of them. Keeping it was not merely redundant, it
+// made the ratified loaded set UNREACHABLE: a tile click switched the single
+// reserved slot to that path FIRST, so the LOAD that followed always found the
+// document "already loaded" and the set could never hold two. The 24-document
+// bound, the selector's multi-entry listing and the `A second document is loaded`
+// scenario were all dead ends behind it — measured, not reasoned.
+//
+// So a wheel selection now moves the ABSTRACT above it and nothing else, which is
+// the other half of the annotation that asked for the wheel in the first place
+// ("for the top half when a doc is selected on the wheel, we load a viewer of
+// that doc"), and the tile's own LOAD verb is the binding route.
+// `verbs` (add-doxbench-editing-phase-b, Q3 ruled) carries the tile's two NEW
+// verbs plus the live buffer state its marking is derived from. Injected exactly
+// like every other seam on this surface, and OPTIONAL: without it the tile keeps
+// its read verb and states the absence of the other two rather than failing on
+// activation, which is the delta's own rule for a surface where editing is
+// unreachable.
+//
+//   verbs.load(path)            -> Promise<{ok, error?}>
+//   verbs.save(path)            -> Promise<{ok, error?}>
+//   verbs.bufferStateFor(path)  -> {loaded, dirty, owned} | null   (LIVE, never cached)
+function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
   // The wheel owns a RAF loop and a ResizeObserver, so the OUTGOING one has to
   // be torn down before its host DOM is discarded — a re-render on every scope
   // change would otherwise leak one animation loop per render, each observing
@@ -210,7 +525,15 @@ function renderDocsPanel(pane, scope, onOpen, create) {
   const split = el("div", "swb-docsplit");
   const abstract = el("div", "swb-docabstract");
   abstract.setAttribute("role", "region");
-  abstract.setAttribute("aria-label", "selected document");
+  // RULING 6 / task 7.10: this region is NO LONGER named `selected document`.
+  // That name belongs to the loaded-document SELECTOR, and two surfaces
+  // claiming one name is how the two come to disagree about which document a
+  // human is on. The live name is COMPOSED per render, by the pure formatter,
+  // from the SUBJECT's title plus the provenance caption of the state showing —
+  // so a reader on assistive technology learns which document AND which
+  // provenance from the name alone, and the name moves when either does. This
+  // is only the name it carries before any selection has landed.
+  abstract.setAttribute("aria-label", abstractRegionState({}).accessibleName);
   // THE LOWER HALF IS THE WHEEL (the annotation's second half, delivered
   // 2026-08-03): "the same wheel of the docs we have used before" at 0.4 of
   // this subpane's radius. It is the deck's own drum — same projection, same
@@ -220,22 +543,353 @@ function renderDocsPanel(pane, scope, onOpen, create) {
   const selector = el("div", "swb-docselector");
   split.append(abstract, selector);
   pane.appendChild(split);
+  // WHERE A TILE VERB'S OUTCOME LANDS. A load refused at the loaded-set bound
+  // and a save the governed pipeline declined are both facts the human must be
+  // able to read; a control that swallowed them would be a control that lies
+  // about whether their work is saved. Announced as well as shown.
+  const note = el("div", "swb-docverbnote");
+  note.setAttribute("aria-live", "polite");
+  note.hidden = true;
+  pane.appendChild(note);
+
+  // ---- THE ABSTRACT REGION'S CONTROLLER (§7) -------------------------------
+  //
+  // The pane owns the READING CHOICE (which of the two abstracts is showing)
+  // and the DISPATCH; everything that must outlive a pane redraw — the
+  // abstracts themselves, the digests the server echoed, the adapter's learned
+  // bound — lives in the module-scope session above. No transport of its own:
+  // `seam.generate` is the injected seam `app.js` built, exactly like `save`,
+  // `catalog` and `chatTurn`.
+  const seam = abstractSeam || null;
+  const session = abstractSessionFor(seam ? seam.scopeKey : "");
+  // THE READING CHOICE IS PANE-LOCAL AND OPENS DETERMINISTIC (ruling 5: "the
+  // deterministic abstract MUST be the opening view" — it is the one that
+  // exists before any model runs). It does NOT persist across a redraw or a
+  // scope; the ABSTRACT does, which is the thing ruling 7.6 is about.
+  let abstractView = "deterministic";
+  const paint = () => renderAbstract(
+    abstract, session.subject ? session.subject.doc : null, ctx);
+  // A generation OUTLIVES the pane that asked for it: a redraw between the
+  // click and the answer would otherwise leave the result painting into a
+  // detached node while the live region showed nothing. So everything after
+  // the await repaints through the session's CURRENT pane, and each render
+  // re-registers this one (below).
+  const repaint = () => (session.repaint || paint)();
+
+  // `refresh` is the EXPLICIT REFRESH INTENT, and ONLY the RE-GENERATE control
+  // passes it. A selection change, the mount-time seed, a tile re-entry and the
+  // first GENERATE all leave it false, so the server replays as before — and a
+  // re-entry does not even reach here, because the cache above answers it.
+  async function runAbstractGeneration(refresh) {
+    const subject = session.subject;
+    if (!subject || !seam || typeof seam.generate !== "function") return;
+    const path = subject.path;
+    const modelId = typeof seam.modelId === "function" ? seam.modelId() : null;
+    const noteKey = abstractCurrentKey(path, modelId);
+    abstractView = "model";
+    if (!modelId) {
+      // STATED, NEVER DISPATCHED: with no approved model there is nothing to
+      // ask for. The shell's posture note says this about the plane; this says
+      // it about the act the human just invoked.
+      session.refusals.set(noteKey, ABSTRACT_NO_MODEL_SENTENCE);
+      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
+      repaint();
+      return;
+    }
+    const token = (session.token += 1);
+    session.inFlight = path;
+    session.refusals.delete(noteKey);
+    repaint();
+    let answer = null;
+    try {
+      answer = await seam.generate(path, modelId, refresh === true);
+    } catch (unused) {
+      answer = null;
+    }
+    // CANCELLED OR SUPERSEDED. The token moved on, so a human took this wait
+    // back or asked again; the answer is dropped without being recorded.
+    // Cancelling never reaches the server — a request already in flight
+    // completes there and its store replays it, so asking again costs nothing.
+    if (token !== session.token) return;
+    session.inFlight = null;
+    const payload = answer && answer.payload
+      && typeof answer.payload === "object" ? answer.payload : null;
+    const echoed = payload && typeof payload.subject_path === "string"
+      ? payload.subject_path : null;
+    const digest = payload && typeof payload.subject_digest === "string"
+      ? payload.subject_digest : null;
+    // A REFUSED GENERATION SAYS WHY, AND THE OPERATOR SEES IT (first real run
+    // of this surface, 2026-08-26).
+    //
+    // WHAT WENT WRONG. The route composed a reason, sent it on the wire, and
+    // `abstractRefusalSentence` mapped it to a sentence — and then it was
+    // dropped, because the subject recheck below returned before recording ANY
+    // answer that names no subject, and an ERROR-shaped body names none:
+    // `doxbench_error_body` is `{ok, error, message}` by construction. So every
+    // one of `ABSTRACT_ERROR_SENTENCES` was unreachable, an unparseable body was
+    // unreachable, and an operator who pressed the control saw the region go
+    // back to the not-yet-generated caption as though nothing had been asked.
+    //
+    // WHOSE ANSWER THIS IS is the question the recheck was answering, and the
+    // honest form of it is against `path` — the subject THIS REQUEST was
+    // dispatched for. An answer NAMING A DIFFERENT document is not this
+    // request's and is dropped whole; an answer naming NONE is still this
+    // request's, and its refusal is recorded against the path it was asked for.
+    // Keyed by (path, model) like every other refusal, so it can only ever
+    // render on the document a human actually invoked it from — and it renders
+    // there even if they spun away while it was in flight, which is precisely
+    // when a reader most needs to be told the ask failed.
+    //
+    // A REFUSAL CARRIES NO PROSE by construction, at the verifier's boundary
+    // and on the wire, so nothing recorded here is text a wrong-document
+    // abstract could be painted from. That is what makes recording it safe
+    // where recording a SUCCESS is not.
+    const foreign = !!(echoed && echoed !== path);
+    const succeeded = !!(payload && payload.ok === true && digest
+      && typeof payload.prose === "string" && payload.prose);
+    if (!foreign && !succeeded) {
+      session.refusals.set(noteKey, abstractRefusalSentence(payload));
+      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
+    }
+    // THE SUBJECT RECHECK AT PAINT (task 7.2), unchanged in what it guards:
+    // without it a slow answer paints itself over whatever the reader has since
+    // spun to, under a confident caption — a wrong-document abstract that reads
+    // as right. It is DISCARDED UNRENDERED — and not recorded either, because a
+    // discarded answer that quietly populated the cache would paint itself the
+    // moment the reader came back, which is the same defect one repaint later.
+    //
+    // `foreign` IS PART OF THIS TEST, not only of the refusal one above (review
+    // N3). The store below keys by the DISPATCHED `path`; this recheck asked
+    // only whether the ECHO matches the LIVE subject. Those two questions agree
+    // everywhere except in one shape — an answer echoing a path that is NOT the
+    // dispatched one but IS the document the reader has since spun to — and
+    // there they disagreed in the worst direction: the answer passed the
+    // recheck and was then cached as the DISPATCHED document's abstract. One
+    // document's prose filed under another's name is precisely what this
+    // recheck exists to prevent, so the echo is tested against the DISPATCH
+    // first and the two now ask the same question.
+    const live = session.subject;
+    if (!live || foreign || echoed !== live.path) {
+      repaint();
+      return;
+    }
+    // THE ADAPTER'S OWN DECLARED BOUND, learned from the answer that carried
+    // it, and never the contract's validated ceiling.
+    if (payload && typeof payload.wait_bound_seconds === "number"
+        && Number.isFinite(payload.wait_bound_seconds)
+        && payload.wait_bound_seconds > 0) {
+      session.waitBound = payload.wait_bound_seconds;
+    }
+    // WHICH BYTES THE SERVER READ, recorded whatever the answer was: a stated
+    // refusal echoing a NEW digest is exactly how the pane learns that an
+    // UNLOADED subject has moved past the abstract it already holds (ruling 3).
+    if (digest) {
+      session.latest.set(path, digest);
+      boundMap(session.latest, ABSTRACT_ENTRY_LIMIT);
+    }
+    if (succeeded) {
+      // KEYED BY THE MODEL THIS REQUEST WAS DISPATCHED WITH, not by the one the
+      // answer records. They are the same for a plain entry and differ for a
+      // routing rule, and the REQUESTED id is the only one a later lookup can
+      // reconstruct: the pane knows what the human has selected, never what an
+      // `auto` rule will resolve to. `modelId` on the entry below still carries
+      // the RESOLVED id the server answered with, so the caption and the
+      // provenance never claim a model that did not answer.
+      session.abstracts.set(abstractEntryKey(path, digest, modelId),
+        Object.freeze({
+          prose: payload.prose,
+          subjectDigest: digest,
+          modelId: typeof payload.model_id === "string"
+            ? payload.model_id : null,
+          generation: typeof payload.generation === "number"
+            ? payload.generation : null,
+        }));
+      boundMap(session.abstracts, ABSTRACT_ENTRY_LIMIT);
+      session.current.set(noteKey, digest);
+      boundMap(session.current, ABSTRACT_ENTRY_LIMIT);
+      session.lastAnswered.set(path, abstractEntryKey(path, digest, modelId));
+      boundMap(session.lastAnswered, ABSTRACT_ENTRY_LIMIT);
+    }
+    // NO `else` HERE ANY MORE: the refusal was recorded ABOVE, before the
+    // recheck, which is the only place it can be recorded for the answers that
+    // name no subject at all.
+    repaint();
+  }
+
+  const ctx = {
+    seam,
+    view: () => abstractView,
+    switchView() {
+      abstractView = abstractView === "model" ? "deterministic" : "model";
+      paint();
+    },
+    generatedFor(path) {
+      // KEYED BY (path, digest, MODEL), which is what makes a regeneration
+      // after an edit a NEW entry rather than an overwrite — and what lets the
+      // abstract for the version a reader last saw stay findable while it is
+      // labelled stale. The MODEL is read LIVE, so switching model shows the
+      // not-yet-generated state for a document this model has not distilled,
+      // and switching back replays the one it did.
+      const modelId = seam && typeof seam.modelId === "function"
+        ? seam.modelId() : null;
+      if (!modelId) {
+        // NO MODEL SELECTABLE — the ungated and hosted consoles. See
+        // `lastAnswered` above: ruling 7.7 keeps an already-generated abstract
+        // readable there, so the lookup falls back to this document's most
+        // recent answer under whatever model produced it.
+        const recent = session.lastAnswered.get(path);
+        return recent ? session.abstracts.get(recent) || null : null;
+      }
+      const digest = session.current.get(abstractCurrentKey(path, modelId));
+      return digest
+        ? session.abstracts.get(abstractEntryKey(path, digest, modelId)) || null
+        : null;
+    },
+    currentDigestFor(path) {
+      return abstractSubjectDigest({
+        buffer: seam && typeof seam.identityFor === "function"
+          ? seam.identityFor(path) : null,
+        echoedDigest: session.latest.get(path) || null,
+      });
+    },
+    refusalFor(path) {
+      const modelId = seam && typeof seam.modelId === "function"
+        ? seam.modelId() : null;
+      const reason = session.refusals.get(abstractCurrentKey(path, modelId));
+      return reason ? { reason } : null;
+    },
+    dirtyFor(path) {
+      const identity = seam && typeof seam.identityFor === "function"
+        ? seam.identityFor(path) : null;
+      return !!(identity && identity.loaded && identity.dirty);
+    },
+    // WHICH TILE THE GENERATE CONTROL WOULD ACT ON — recorded by the wheel's
+    // own callback, never acted on there (task 7.1).
+    subjectIs(entry) {
+      session.subject = entry && entry.path
+        ? { path: entry.path, doc: entry.row.doc || null } : null;
+    },
+    inFlightFor: (path) => session.inFlight === path,
+    waitBound: () => session.waitBound,
+    cancel() {
+      // CANCELLING TAKES THE WAIT BACK, honestly: it stops this region waiting.
+      // It does not claim to have stopped a provider, because it has not.
+      session.token += 1;
+      session.inFlight = null;
+      paint();
+    },
+    generate(refresh) {
+      // Deliberately NOT awaited by the listener: a click handler that returned
+      // the pending dispatch would hold the event open for the whole wait.
+      void runAbstractGeneration(refresh === true);
+    },
+  };
+  session.repaint = paint;
 
   // A drum is one reel, so the sections flatten — carrying their labels onto
   // the tiles rather than losing them (see `docWheelEntries`).
   const entries = docWheelEntries(scope);
+  let seeded = false;
+  // PR #196 review F4: while the wheel is being RECONCILED to the document the
+  // canvas actually holds, its own onSelect must not turn round and ask for
+  // that document again — the reconcile is the canvas answering, not a human
+  // choosing.
+  let reconciling = false;
+  // THE ABSTRACT FOLLOWS THE WHEEL TILE (ruling 6), AND NOTHING ELSE HAPPENS ON
+  // A NOTCH (task 7.1). `setFocus` fires the callback below on EVERY notch and
+  // once more as the reel lays out, so a design that generated an abstract on
+  // selection would spend a model call on every document a human spins past —
+  // which is exactly why generation is an explicit control on the centred tile
+  // instead, and why this callback records which subject that control would act
+  // on rather than acting.
   const wheel = renderDocWheel(selector, entries, {
-    onSelect: (entry) => renderAbstract(abstract, entry ? entry.row.doc : null),
-    // SELECT and OPEN stay distinct verbs, as they were in the flat list:
-    // selecting must not steal the read-only viewer, and opening (from the
+    onSelect: (entry) => {
+      // The abstract above, and NOTHING else: a selection is not a binding route
+      // under Phase B (see the note above this function), and not a generation
+      // either (the note above this mount). `seeded` and `reconciling` survive
+      // because the reconcile below still drives this callback, and neither a
+      // mount-time seed nor the canvas answering is a human choosing anything.
+      renderAbstract(abstract, entry ? entry.row.doc : null, ctx);
+      ctx.subjectIs(entry);
+      if (!seeded) { seeded = true; return; }
+      if (reconciling) return;
+    },
+    // SELECT and READ stay distinct verbs, as they were in the flat list:
+    // selecting must not steal the read-only viewer, and reading (from the
     // expanded tile) must not be the only way to look at a document.
-    onOpen: onOpen ? (row) => onOpen(row) : null,
+    onRead: onOpen ? (row) => onOpen(row) : null,
+    // LOAD FOR EDITING — the ONE route into the loaded set (design D5). The
+    // outcome is surfaced on the pane itself: a refusal (the loaded-set bound,
+    // an out-of-scope path, a failed source read) must be VISIBLE, never a
+    // click that appears to do nothing.
+    onLoad: verbs && typeof verbs.load === "function"
+      ? async (row) => {
+          const outcome = await verbs.load(row.path);
+          renderTileVerbNote(note, outcome, "load");
+          wheel.refreshBufferState();
+        }
+      : null,
+    // SAVE — the same governed pipeline the canvas Save reaches, scoped to this
+    // document plus the outline-ancestry step (design D4). A second entry point
+    // to one mechanism.
+    onSave: verbs && typeof verbs.save === "function"
+      ? async (row) => {
+          const outcome = await verbs.save(row.path);
+          renderTileVerbNote(note, outcome, "save");
+          wheel.refreshBufferState();
+        }
+      : null,
+    bufferStateFor: verbs && typeof verbs.bufferStateFor === "function"
+      ? (path) => verbs.bufferStateFor(path)
+      : null,
   });
   pane.__docWheel = wheel;
+  // The pane's own refresh hook, so the shell can say "a buffer moved" without
+  // knowing anything about the wheel.
+  pane.__docWheelRefresh = () => wheel.refreshBufferState();
 
   // An empty scope has no tile to select, so nothing seeded the abstract: say
   // so explicitly rather than leaving the upper half blank.
-  if (!entries.length) renderAbstract(abstract, null);
+  if (!entries.length) {
+    ctx.subjectIs(null);
+    renderAbstract(abstract, null, ctx);
+  }
+
+  // PR #196 review F4: the wheel is a SELECTION control over the same choice
+  // the canvas's own picker makes, and the picker already reverts to the
+  // document really loaded whenever a selection does not land (blocked by the
+  // unsaved-edit guard, refused as out of scope, refused because the load
+  // failed). The wheel had no such reconciliation and `selectPath` — written
+  // for exactly this — had no caller at all, so the two controls and the
+  // canvas could sit on three different documents at once. Returned to the
+  // shell rather than reached for: this panel still knows nothing about the
+  // canvas.
+  return (path) => {
+    if (path == null) return;
+    reconciling = true;
+    try { wheel.selectPath(path); } finally { reconciling = false; }
+  };
+}
+
+// One tile verb's outcome, stated. FIXED phrasing per class, with the seam's own
+// reason appended when it supplies one — the seam's reasons are this surface's
+// own sentences (a measured bound, a governed refusal), never provider or
+// document text.
+function renderTileVerbNote(note, outcome, verb) {
+  if (!note) return;
+  const ok = Boolean(outcome && outcome.ok);
+  const reason = outcome && typeof outcome.error === "string" ? outcome.error : "";
+  if (ok) {
+    note.textContent = verb === "save"
+      ? "saved through the governed Save"
+      : "loaded for editing — the chat and the canvas are on it now";
+  } else {
+    note.textContent = (verb === "save"
+      ? "the governed Save did not land"
+      : "this document was not loaded")
+      + (reason ? " — " + reason : "");
+  }
+  note.hidden = false;
 }
 
 // WHICH lens section is showing. Module-scope like the lens session itself:
@@ -382,8 +1036,13 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
     subPanes.get("keywords").appendChild(rail);
     pane.appendChild(dialog);
 
-    // the SHARED bullseye widget, ABOVE the always-present matrix (design
-    // D1/D3). EVERY region is an activatable create gesture — the matches-ALL
+    // the SHARED bullseye widget, its own named tablist section beside the
+    // matrix's (design D1/D3; spec.md :439 post-ratify-doxbench-landed-
+    // context-surfaces — each is an ALWAYS-REACHABLE section of the ONE
+    // tablist above, not simultaneously rendered; the ordering the earlier
+    // "above the always-present matrix" wording expressed is now the
+    // tablist's declared section order). EVERY region is an activatable
+    // create gesture — the matches-ALL
     // centre AND each ring sector (Brett's 2026-07-25 ruling on open question
     // 2) — ONLY when the create affordance is offered at all. A sector seeds
     // `Topics:` from its OWN matched combination; the centre seeds the whole
@@ -443,6 +1102,266 @@ function outlineEmpty(pane, message) {
   pane.appendChild(el("div", "swb-empty swb-outline-empty", message));
 }
 
+// ---- the templated section index + the add-section affordance -----------------
+//      (add-staged-topic-outline-template tasks 3.2-3.4)
+//
+// WHAT THE INDEX SAYS, and what it deliberately does not. The section model
+// (outline-model.js) reads the fragment's OWN `## ` headings and `xspec:` fences,
+// fence-aware, so a fragment that merely QUOTES the canonical skeleton is not
+// reported as having adopted it. Everything below is presentation over that one
+// verdict: no second scanner, no content-sniffing, and no heading the file does
+// not carry.
+//
+// NON-CONFORMANCE IS NOT AN ERROR STATE (task 3.3). Conformance is REQUIRED
+// only for topics staged after the template ratified and OPT-IN for the 30-odd
+// that came before, so most fragments in the corpus carry none of it. A
+// pre-template fragment renders its real sections and one calm sentence saying
+// the shape is earned when the topic is next worked -- never a warning, never a
+// count of failures, and never a rewrite as a side effect of opening the tab.
+
+// One line per state, and each one is about the TOPIC's stage of migration
+// rather than about a fault in the file.
+function outlineStateLine(model) {
+  if (model.state === "conforming") {
+    return "conforming — the three required sections are present and every open "
+      + "question carries its four sub-fields";
+  }
+  if (model.state === "pre-template") {
+    return "staged before the outline template — it carries none of the required "
+      + "sections yet, which is the opt-in posture, not a fault. The shape is "
+      + "earned when the topic is next worked, never by opening it here.";
+  }
+  return "partly templated — the sections below are what the fragment carries; "
+    + "the rest are still to be written when the topic is next worked";
+}
+
+const OUTLINE_ROLE_LABELS = {
+  required: "required", added: "added", "proposal-element": "proposal element",
+};
+
+// The provenance line stamped on a section this affordance adds. UTC, because
+// the date is a governance record on the document rather than a clock reading
+// for the reader — a local-time stamp would make the same act carry two
+// different dates depending on who performed it.
+function provenanceDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// THE REFUSAL VOCABULARY, mapped from the seam's CODE and never from its text.
+//
+// W-10's lesson, and both other consumers of `applyProposal` already forbid the
+// shortcut: doxbench-chat.js calls its mapping a WHITELIST and drops the seam's
+// error text unread, and the canvas states the codes "remain the canvas's and are
+// never echoed". Echoing them here reached a human with "this proposal no longer
+// matches the buffer" — a noun this tab never uses — and with a settling-window
+// sentence carrying no recovery, which is exactly the collapse W-10 undid. Each
+// sentence below names its own recovery, in the tab's own voice.
+const ADD_SECTION_UNSETTLED =
+  "the outline buffer's identity is still settling — press add again in a moment";
+const ADD_SECTION_STALE =
+  "the outline buffer moved while this section was being composed — press add "
+  + "again to compose it against the current text";
+const ADD_SECTION_UNAVAILABLE =
+  "the outline buffer is not available for editing on this console — nothing "
+  + "was written";
+const ADD_SECTION_REFUSED =
+  "the insertion was refused and nothing was written — press add again";
+
+function addSectionRefusal(outcome) {
+  const code = outcome && typeof outcome.code === "string" ? outcome.code : null;
+  if (code === "unsettled") return ADD_SECTION_UNSETTLED;
+  if (code === "stale") return ADD_SECTION_STALE;
+  if (code === "unavailable") return ADD_SECTION_UNAVAILABLE;
+  return ADD_SECTION_REFUSED;
+}
+
+// One add, end to end: the insert is computed against what the OUTLINE BUFFER
+// holds (never against the stored bytes rendered below it, which is exactly the
+// human's unsaved work behind), and it lands through the canvas's own
+// `applyProposal` — the settled-identity gate, the line-ending re-flavor and the
+// same `edit()` a keystroke goes through. This function performs NO write of its
+// own, opens no route, and calls no gate action.
+//
+// `required` marks the GAP-ROW route, where the caller asks by the contract's own
+// label and the section lands under its canonical heading and seed. The free-form
+// route leaves it false and gets the human's heading verbatim.
+async function runAddSection(seam, path, note, title, after, required) {
+  note.hidden = false;
+  const live = seam.buffer();
+  if (!live) {
+    note.textContent = "the outline buffer is not loaded yet — nothing was written";
+    return null;
+  }
+  // The buffer and this panel resolve the fragment through the SAME
+  // `primaryFragmentPath` rule, so a disagreement is a defect rather than a
+  // situation to paper over: refused, said out loud, and nothing written.
+  if (live.path !== path) {
+    note.textContent = "the canvas is holding a different outline (" + live.path
+      + ") — nothing was written";
+    return null;
+  }
+  const patch = insertSection(live.text, {
+    title, after, required, addedBy: seam.actor, date: provenanceDate(),
+  });
+  if (!patch.ok) {
+    // The MODEL's reasons are this tab's own sentences (it is our pure module,
+    // written for this surface), so they are stated verbatim. The SEAM's are not,
+    // which is why the branch below maps a code instead.
+    note.textContent = patch.reason;
+    return null;
+  }
+  const outcome = await seam.apply(live.baseHash, patch.text);
+  if (!outcome || outcome.ok !== true) {
+    note.textContent = addSectionRefusal(outcome);
+    return null;
+  }
+  const where = patch.mode === "end"
+    ? "at the end of the outline"
+    : patch.mode + ' "' + patch.target + '"';
+  // WHAT HAPPENED AND WHAT DID NOT, in one sentence: the text is in the buffer,
+  // it is unsaved, and the human's existing Save is what commits it. This
+  // affordance is not a write and must never read like one. The heading NAMED is
+  // the one written, not the one asked for — a required section lands under its
+  // canonical skeleton heading.
+  note.textContent = 'added "' + patch.heading + '" to the outline buffer ' + where
+    + " with Added-by provenance — unsaved: the canvas Save carries it through "
+    + "edit-document on the session branch";
+  return outcome;
+}
+
+// The add controls. `seam` null means editing is not live on this plane, and
+// then every control renders DISABLED WITH NO LISTENER BOUND (task 3.4): the
+// affordance still says what it would be, because a surface that hides its own
+// authority teaches the reader nothing, but there is no write path to reach —
+// the same posture viewer.js's "open in editor" button and the docs tile's
+// load/save verbs already take where the capability is absent.
+function mountAddSection(host, model, path, seam) {
+  const note = el("div", "swb-outlinenote");
+  note.setAttribute("aria-live", "polite");
+  note.hidden = true;
+  const absent = "adding a section needs the local human console's editing "
+    + "capability — this plane has none, so no write path is offered";
+
+  // `intent()` is read at CLICK time, never closed over at build time: the
+  // free-form control's two values are whatever the human has typed and chosen
+  // by then.
+  function addControl(label, cls, intent) {
+    const btn = el("button", "swb-cbtn swb-outlineadd " + cls, label);
+    btn.type = "button";
+    if (!seam) {
+      // NO LISTENER IS BOUND. Disabled alone would still leave a write path on
+      // the page for anything that re-enabled the node; there is nothing here to
+      // reach.
+      btn.disabled = true;
+      btn.title = absent;
+      return btn;
+    }
+    btn.title = "insert the section skeleton into the outline buffer — your Save "
+      + "commits it through edit-document";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        const asked = intent();
+        await runAddSection(seam, path, note, asked.title, asked.after,
+                            asked.required === true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+    return btn;
+  }
+
+  // The MISSING required sections, each its own one-press add scoped to its
+  // canonical place. The template's own order decides where it lands, so an add
+  // never moves what a human already wrote.
+  for (const gap of model.gaps) {
+    if (gap.kind !== "missing-section") continue;
+    const row = el("div", "swb-outlinegap");
+    row.appendChild(el("span", "swb-outlinegaplabel",
+      "no " + gap.label + " section"));
+    // `required` is the load-bearing flag: the button asks by the contract's
+    // LABEL, so the model may resolve it loosely to the canonical heading and
+    // seed. Nothing else in the tab is allowed that latitude.
+    const asked = { title: gap.label, after: null, required: true };
+    row.appendChild(addControl("add it", "swb-outlineaddgap", () => asked));
+    host.appendChild(row);
+  }
+  // …and the questions the contract says are incomplete. STATED ONLY: the
+  // affordance adds SECTIONS, and filling a sub-field is the human's sentence to
+  // write, not a slot for this surface to stuff.
+  for (const gap of model.gaps) {
+    if (gap.kind !== "incomplete-question") continue;
+    host.appendChild(el("div", "swb-outlinegap",
+      gap.label + " — still to carry " + gap.missing.join(", ")));
+  }
+
+  // The free-form add, scoped EXPLICITLY: the human names the section and the
+  // one it goes behind, and that target is the patch's addressing key.
+  const form = el("div", "swb-cfield swb-outlineform");
+  const titleLabel = el("label", "swb-clabel", "add a section");
+  const titleInput = el("input", "swb-outlinetitle");
+  titleInput.type = "text";
+  titleInput.setAttribute("placeholder", "section heading");
+  // Named for assistive navigation. The visible `label` beside it carries no
+  // `for`/`id` pair, and a placeholder is not an accessible name — it disappears
+  // the moment the human types.
+  titleInput.setAttribute("aria-label", "heading of the section to add");
+  titleInput.disabled = !seam;
+  const afterLabel = el("label", "swb-clabel", "after");
+  const afterSelect = el("select", "swb-outlineafter");
+  afterSelect.setAttribute("aria-label",
+    "the section the new one is added after — the patch's addressing key");
+  afterSelect.disabled = !seam;
+  const endOption = el("option", null, "(the end of the outline)");
+  endOption.value = "";
+  afterSelect.appendChild(endOption);
+  for (const section of model.sections) {
+    const option = el("option", null, section.title);
+    option.value = section.title;
+    afterSelect.appendChild(option);
+  }
+  form.append(titleLabel, titleInput, afterLabel, afterSelect,
+    addControl("add", "swb-outlineaddfree", () => ({
+      title: String(titleInput.value || "").trim(),
+      after: afterSelect.value || null,
+    })));
+  host.appendChild(form);
+  if (!seam) host.appendChild(el("div", "swb-lensnote", absent));
+  host.appendChild(note);
+}
+
+// The whole index, rendered from the loaded text the viewer handed back.
+function renderOutlineIndex(host, text, path, seam) {
+  host.innerHTML = "";
+  const model = outlineModel(text);
+  // "AS STORED" is not decoration. This index describes the SAVED fragment while
+  // the canvas beside it holds unsaved work, so after an add a gap row here still
+  // reports a section the buffer already has — and without the label that reads as
+  // the page contradicting itself rather than as the two honest answers the
+  // deliberate two-renderings split gives (see `renderOutlinePanel`).
+  const header = el("div", "swb-abstractlabel", "outline template — as stored");
+  header.title = "the sections in the SAVED fragment; the canvas beside this "
+    + "holds your unsaved edits, so the two differ by exactly that much";
+  host.appendChild(header);
+  host.appendChild(el("div", "swb-lensnote swb-outlinestate", outlineStateLine(model)));
+  if (!model.sections.length) {
+    host.appendChild(el("div", "swb-empty",
+      "this fragment carries no `## ` sections outside its code fences"));
+  }
+  for (const section of model.sections) {
+    const row = el("div", "swb-outlinerow");
+    row.appendChild(el("span", "swb-outlinetitleline", section.title));
+    row.appendChild(el("span", "swb-abstractchip",
+      OUTLINE_ROLE_LABELS[section.role] || section.role));
+    row.appendChild(el("span", "swb-outlineline", "line " + section.line));
+    if (section.addedBy) {
+      row.appendChild(el("span", "swb-outlineprov", "Added-by: " + section.addedBy));
+    }
+    host.appendChild(row);
+  }
+  mountAddSection(host, model, path, seam);
+}
+
 // `sourceBase` is the ACTIVE (repository, ref)'s own keyed `/source/` base
 // (PR #49 review finding 16). Without it `renderViewer` fell back to the unkeyed
 // `/source/`, which the server resolves to the ACTIVE REGISTRY ENTRY — and the
@@ -452,7 +1371,13 @@ function outlineEmpty(pane, message) {
 // which app.js keys correctly — showed the session's own. US2 acceptance
 // scenario 5 and FR-010 both name the outline explicitly, and spec §US2 calls
 // this exact failure "specifically dangerous — a draft view mistaken for main".
-function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
+//
+// `sections` (add-staged-topic-outline-template task 3.2) is the ADD-SECTION
+// seam, or null where editing is not live on this plane. It is the shell's
+// narrow window onto the outline buffer — read the live text and its settled
+// identity, hand back the whole next text — and nothing more: no transport, no
+// gate action, and no second state authority over the buffer.
+function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit, sections) {
   pane.innerHTML = "";
   // task 5.6: "new fragment in this topic" — offered for STAGED scopes only and
   // HIDDEN (never disabled) for a cluster or a possible, which have no staging
@@ -480,13 +1405,27 @@ function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
       "outline of the PICKED staging topic " + scope.outline.stagingId +
       " (the pick is recorded register data)"));
   }
+  // THE TEMPLATED SECTION INDEX, above the rendered fragment. It is built from
+  // the bytes the viewer loads and hands back (`onText`), so it needs no fetch of
+  // its own and cannot describe a fragment that never arrived: on a failed or
+  // degraded load this host stays empty and the viewer's own message stands
+  // alone.
+  const index = el("div", "swb-outlineindex");
+  pane.appendChild(index);
   const host = el("div", "swb-outline");
   pane.appendChild(host);
   // read-only, through the viewer's own /source pass-through: renderViewer owns
   // the fetch, the divergence banner, and the degraded no-shim / 404 message —
   // exactly the document viewer's posture, because it IS the document viewer.
+  //
+  // TWO RENDERINGS OF "THE OUTLINE" SURVIVE ON PURPOSE (Phase A): this one says
+  // what is STORED in the source, and the canvas on the right says what the
+  // human HAS unsaved. Collapsing them would answer one question and lose the
+  // other, so focusing this selection tab makes the outline the active buffer
+  // over there without changing what is rendered here.
   const doc = (snapshot.documents || []).find((d) => d.path === path) || null;
-  renderViewer(host, { path, doc, sourceBase, edit });
+  renderViewer(host, { path, doc, sourceBase, edit,
+    onText: (text) => renderOutlineIndex(index, text, path, sections) });
 }
 
 // ---- the full-screen shell (task 4.2) ------------------------------------------
@@ -644,6 +1583,18 @@ export function mountStagingWorkbench(container, snapshot,
   rail.hidden = true;
   rail.setAttribute("role", "region");
   rail.setAttribute("aria-label", "doxBench chat rail");
+  // add-doxchat-model-intake §2: WHERE THE ENROLMENT FLOW OPENS. Inside the
+  // rail region, because that is where the control the human pressed lives and
+  // the flow is about that control's own emptiness — never a page-level modal,
+  // which would take the editors away from a human who is otherwise still
+  // working. Hidden and empty until the flow is opened.
+  //
+  // APPENDED AFTER THE RAIL MOUNTS, never at construction: `destroy()` clears
+  // the rail host, so a node parked there before a remount is a node the next
+  // teardown silently eats. Re-appending an existing child MOVES it, which is
+  // exactly the idempotence a remount needs.
+  const intakeHost = el("div", "doxbench-intake-host");
+  intakeHost.hidden = true;
   const regions = el("div", "swb-regions");
   regions.append(context, canvas, rail);
 
@@ -734,7 +1685,11 @@ export function mountStagingWorkbench(container, snapshot,
     const btn = el("button", "swb-tab", def.label);
     btn.type = "button";
     btn.setAttribute("role", "tab");
-    btn.addEventListener("click", () => { activeTab = def.key; drawTab(); });
+    btn.addEventListener("click", () => {
+      activeTab = def.key;
+      drawTab();
+      bindCanvasToSelectionTab(def.key);
+    });
     // CHK007 (T100 AT, re-reported 2026-08-02): this CONTEXT strip is the
     // second `role=tablist` on the surface and had no roving tabindex
     // either — the operator's re-report lands here. Same WAI-ARIA APG
@@ -757,6 +1712,7 @@ export function mountStagingWorkbench(container, snapshot,
       ev.preventDefault();
       activeTab = next;
       drawTab();
+      bindCanvasToSelectionTab(next);
       tabButtons.get(next).focus();
     });
     tabbar.appendChild(btn);
@@ -964,9 +1920,16 @@ export function mountStagingWorkbench(container, snapshot,
     }
     const pane = el("div", "swb-pane swb-pane-" + activeTab);
     body.appendChild(pane);
+    // PR #196 review F4: the docs pane hands back the reconcile the shell needs
+    // to put the wheel back on the document the canvas really holds. A redraw
+    // rebuilds the wheel, so the previous pane's reconcile is dropped with it
+    // and the new one is adopted here.
+    reconcileDocsSelection = null;
     if (activeTab === "docs") {
-      renderDocsPanel(pane, scope, onOpenDoc
-        ? (row) => onOpenDoc(row.path, row.doc) : null, create);
+      reconcileDocsSelection = renderDocsPanel(pane, scope, onOpenDoc
+        ? (row) => onOpenDoc(row.path, row.doc) : null, create,
+        docTileVerbs(), docsAbstractSeam());
+      syncContextSelection();   // a fresh wheel starts where the canvas is
     } else if (activeTab === "lens") {
       // the session survives the tab switch and reseeds on a scope change —
       // the panel itself never builds a selection (design D4)
@@ -974,7 +1937,8 @@ export function mountStagingWorkbench(container, snapshot,
         lensScopeSnapshot(snapshot, scope), scope);
       renderLensPanel(pane, snapshot, scope, lensSession, create);
     } else {
-      renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit);
+      renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit,
+        outlineSectionSeam());
     }
   }
 
@@ -1013,12 +1977,34 @@ export function mountStagingWorkbench(container, snapshot,
   // LIVE — fed back by the rail's adopted catalog through a pure callback
   // (the shell still opens no route). Zero until a catalog really loads.
   let approvedModelCount = 0;
+  // WHICH MODEL AN ABSTRACT WOULD BE DISTILLED BY. The chat rail is where a
+  // human CHOOSES one and the shell already hears its state, so the docs pane
+  // borrows that choice rather than growing a second model picker for a second
+  // consumer. It falls back to the first APPROVED entry, because a reader in
+  // the docs pane has not necessarily opened the rail at all.
+  let abstractModelId = null;
   // T104 F10-1: the rail-reported catalog FAILURE, beside the count and by
   // the same channel. Without it every catalog failure fell through the
   // ladder to approvedModelCount === 0's "no approved model is configured" —
   // a misdiagnosis for both the recoverable stale token and the unreadable
   // catalog. Null until the rail reports one; reset on rail teardown.
   let railCatalogFailure = null;
+  // add-doxchat-model-intake §1: WHETHER THE ENROLMENT FLOW EXISTS ON THIS
+  // INSTALL. A SERVER fact, read once per mount through the injected intake
+  // seam and pushed into the rail — never guessed, and never derived from the
+  // catalog being empty, because "there is nothing configured" and "there is a
+  // governed way to configure something" are different questions and only the
+  // server can answer the second. Null until it answers; the rail keeps its
+  // pre-change behaviour in the meantime, which is exactly what the ratified
+  // sequencing requirement asks for.
+  let modelIntakeOffered = false;
+  // What the LAST rendered posture note was told, so the `onState` refresh can
+  // tell a real change from a re-render — the same shape the count and the
+  // failure comparison already have.
+  let postureIntakeOffered = false;
+  // The open flow, so a second click cannot mount a second panel over the
+  // first — the same one-controller discipline the canvas and the rail keep.
+  let intakeController = null;
   // R-1: the restored chat blob may arrive before the rail mounts (the canvas
   // restores during its own initial load), so it is held and applied as soon
   // as both sides exist — buffers and proposals never diverge.
@@ -1034,11 +2020,50 @@ export function mountStagingWorkbench(container, snapshot,
     // blob still pending at that moment is re-applied forever.
     const companion = pendingCompanion;
     pendingCompanion = null;
-    railController.restore(companion, {
-      outline: hexOf(live.buffers.outline),
-      document: hexOf(live.buffers.document),
-    });
+    const restoreHashes = {};
+    for (const key of Object.keys(live.buffers || {})) {
+      restoreHashes[key] = hexOf(live.buffers[key]);
+    }
+    railController.restore(companion, restoreHashes);
   }
+  // add-doxchat-model-intake §1: ONE read of the intake surface, through the
+  // injected seam and nothing else. Every failure — no seam declared, a thrown
+  // transport, a refusal, an answer that is not the shape this shell expects —
+  // reaches the same honest answer: the flow is not offered here. That is what
+  // makes the sequencing requirement's "indistinguishable from today" true by
+  // construction rather than by care.
+  async function readModelIntakeSurface() {
+    const seam = doxbench && doxbench.modelIntake;
+    if (!seam || typeof seam.surface !== "function") return false;
+    try {
+      const surface = await seam.surface();
+      return !!(surface && surface.offered === true);
+    } catch (unused) {
+      return false;
+    }
+  }
+
+  // The act the rail's first option names. It opens the sibling flow into the
+  // panel host and does nothing else: the transport, the form, the hand-off and
+  // the approval all live over there, where a transport is allowed to live.
+  function openModelIntakeFlow() {
+    const seam = doxbench && doxbench.modelIntake;
+    if (!seam) return null;
+    if (intakeController && typeof intakeController.close === "function") {
+      intakeController.close();
+    }
+    intakeController = openModelIntake(intakeHost, {
+      transports: seam,
+      onClose: () => { intakeController = null; },
+      // A COMPLETED APPROVAL CHANGES WHAT THE CATALOG SAYS, and the rail's
+      // catalog was read once at mount. Redrawing is the honest way to pick the
+      // new entry up: it remounts the rail, which re-reads the catalog through
+      // the same one transport rather than growing a second refresh path.
+      onApproved: () => { drawCanvas(); },
+    });
+    return intakeController;
+  }
+
   function teardownRail() {
     if (railController && typeof railController.destroy === "function") {
       railController.destroy();
@@ -1047,6 +2072,20 @@ export function mountStagingWorkbench(container, snapshot,
     regions.classList.toggle("has-rail", false);
     rail.hidden = true;
     approvedModelCount = 0;  // a torn-down rail reports no models (R5)
+    // …and no intake surface either: the flag is re-read per mount, so leaving
+    // it set would let a torn-down rail's answer describe the next plane.
+    modelIntakeOffered = false;
+    postureIntakeOffered = false;
+    abstractModelId = null;  // …and vouches for no model id either
+    // …AND THE DOCS PANE HEARS IT, exactly as it hears a model CHANGE from the
+    // rail's own state callback. The abstract shown is a fact about
+    // (document, digest, MODEL), so a region left painted under a model id
+    // that no longer exists is the same stale-provenance claim the onState
+    // repaint was added to prevent — reached by teardown rather than by a
+    // switch. The seam reads `active`/`scope` through optional chaining and
+    // the pane's `paint` writes into its own captured node, so this is safe
+    // from every teardown caller, including `close()`.
+    repaintAbstractSession(docsAbstractSeam().scopeKey);
     railCatalogFailure = null;  // …and no catalog failure either (F10-1)
     // T104 F1: a companion blob captured for the tile being torn down must
     // never be applied to the NEXT tile's rail — it was cleared only on a
@@ -1069,6 +2108,415 @@ export function mountStagingWorkbench(container, snapshot,
   function railScopeKey() {
     return { repository: active.repository, ref: active.ref,
              tile_kind: scope.kind, tile_id: scope.id };
+  }
+  // ---- THE SELECTION HALF (add-doxbench-editing-phase-a) ------------------
+  //
+  // The context region chooses which buffer the canvas presents, and therefore
+  // which buffer the chat works on. Both routes below go through the CANVAS's
+  // own primitives — `setActiveBuffer` and `selectDocument`, which own the
+  // state authority, the scope refusal, and the unsaved-Document guard. This
+  // file adds no second context-tracking mechanism and no second guard: it
+  // says which selection happened and lets the canvas answer.
+  //
+  // The switch is IMMEDIATE and has no confirm step, because changing which
+  // buffer is ACTIVE replaces no content. The guard that DOES interrupt is
+  // unchanged and unrelated: switching to a different DOCUMENT with unsaved
+  // edits replaces buffer content, so `selectDocument` still blocks on it —
+  // on this route exactly as on the canvas picker's.
+  function bindCanvasToSelectionTab(tabKey) {
+    if (tabKey !== "outline") return;   // `docs` binds per ROW, below; `lens` binds nothing
+    if (!canvasController || typeof canvasController.setActiveBuffer !== "function") return;
+    canvasController.setActiveBuffer("outline");
+    // The rail states which buffer it is working on, read live off the canvas
+    // state. A pure selection change moves no content identity, so nothing
+    // else would have told it.
+    refreshRailFromCanvas();
+  }
+  async function bindCanvasToDocument(path) {
+    if (!canvasController || typeof canvasController.selectDocument !== "function") return;
+    // PR #196 review F6: the canvas contains its own load failures now, so this
+    // resolves with a stated refusal rather than rejecting — but the await is
+    // what makes the two lines below run AFTER the answer instead of before it,
+    // and the catch is defence in depth for a seam that ever regressed (an
+    // unhandled rejection here would leave the wheel showing a document that
+    // never loaded, with nothing said).
+    let outcome = null;
+    try {
+      outcome = await canvasController.selectDocument(path);
+    } catch (unused) {
+      outcome = { status: "refused", reason: null };
+    }
+    // F3: the rail states which buffer it is WORKING ON, and choosing the
+    // document already loaded (`unchanged`) still moves that binding — so the
+    // refresh runs on every outcome, not only the ones that switch. Without it
+    // the rail kept saying "Working on — outline" beside a chat now bound to
+    // the document.
+    refreshRailFromCanvas();
+    // F4: unless the switch actually landed, the wheel must go back to the
+    // document the canvas really holds — the same reconciliation the canvas's
+    // own picker has always done for itself. A `blocked` outcome leaves the
+    // guard open; if the human then resolves it with Discard, the switch fires
+    // `onIdentitySettled` and the reconcile below runs again through
+    // `syncContextSelection`, landing the wheel on the document that won.
+    if (!outcome || (outcome.status !== "switched" && outcome.status !== "unchanged")) {
+      syncContextSelection();
+    }
+    // RETURNED for the load route (the only caller since Phase B stopped a docs
+    // row selection from binding): the tile states the outcome, so the verb has
+    // to be able to read it.
+    return outcome;
+  }
+  // ---- THE TILE VERBS (add-doxbench-editing-phase-b, Q3 ruled) -------------
+  //
+  // Every one goes through the CANVAS's own primitives, exactly as the selection
+  // half above does: the canvas owns the loaded set, the state authority, the
+  // scope refusal and the governed Save, and this file says which verb a human
+  // invoked. No second loaded-set store, no second save path, no widened
+  // authority — the tile's Save is a second ENTRY POINT to one mechanism.
+  //
+  // Absent where editing is absent: with no canvas controller the seam returns
+  // no functions at all, and the tile then STATES the absence rather than
+  // failing on activation.
+  function docTileVerbs() {
+    // F3 (PR #207 review): where EDITING is unreachable the tile must offer no
+    // load and no save AT ALL -- the ratified rule is that they "MUST be
+    // unreachable and MUST state that absence rather than failing when
+    // activated". Returning live functions that answered "not wired" on click was
+    // failing on activation with the wrong sentence, which is the exact posture
+    // the requirement forbids. `read` is untouched: it needs no gate capability.
+    //
+    // The predicate is `canvasOffered()` -- THE SAME derivation `drawCanvas`
+    // uses to decide whether to mount an editing canvas at all -- and
+    // deliberately NOT `canvasController !== null`. The docs pane is drawn
+    // BEFORE the canvas mounts (`drawTab` runs first), so a controller check
+    // would have withheld the verbs on every capable surface too: the tile
+    // would say "no editing capability" on a console that has one. Asking the
+    // capability directly cannot be fooled by mount ordering, and the verbs
+    // below re-check the controller at CLICK time, by which point it exists.
+    if (!canvasOffered()) {
+      return { bufferStateFor: () => null };
+    }
+    return {
+      load: async (path) => {
+        // Re-checked at CLICK time, not at render time: the docs pane is drawn
+        // before the canvas mounts, so a human who clicks before the mount
+        // settles gets a stated refusal rather than a thrown handler.
+        if (!canvasController
+            || typeof canvasController.loadDocumentForEditing !== "function") {
+          return { ok: false,
+                   error: "this console has no editing seam wired" };
+        }
+        // TWO ROUTES, and which one applies is a fact about the RESERVED SLOT.
+        //
+        // While that slot is UNBACKED — a scope whose projection published no
+        // document, and the create flow's not-yet-created artifact — the first
+        // load FILLS it, through `selectDocument`. That keeps the released v1
+        // envelope's own document present (it carries the outline plus the
+        // reserved slot and nothing else) and keeps Phase A's unsaved-edit guard
+        // on the one transition that still REPLACES a buffer's content, which is
+        // exactly the narrowing the delta predicted: the guard is "unchanged by
+        // this rule WHERE IT STILL APPLIES" and is never extended to selection.
+        //
+        // Once the slot is backed, a load ADDS a path-keyed buffer beside it and
+        // replaces nothing — which is what makes the loaded set a set.
+        const reserved = reservedDocumentPath();
+        let outcome = null;
+        try {
+          if (reserved === null) {
+            const switched = await bindCanvasToDocument(path);
+            outcome = switched && (switched.status === "switched"
+                                   || switched.status === "unchanged")
+              ? { ok: true, key: "document", error: null }
+              : { ok: false,
+                  error: (switched && switched.reason)
+                    || "this document was not loaded" };
+          } else {
+            outcome = await canvasController.loadDocumentForEditing(path);
+          }
+        } catch (unused) {
+          outcome = { ok: false, error: "the load failed" };
+        }
+        // No explicit tail here: `loadDocumentForEditing` fires
+        // `onLoadedSetChanged`, and that is the ONE tail (F9). Running it again
+        // from inside the seam was two spellings of one act -- exactly the
+        // criticism that retired the `unloadBuffer` seam -- and it redrew the
+        // docs wheel twice on every load.
+        return outcome || { ok: false, error: "the load was refused" };
+      },
+      save: async (path) => {
+        if (!canvasController
+            || typeof canvasController.saveDocument !== "function") {
+          return { ok: false, error: "the governed Save is not wired here" };
+        }
+        // F2 (PR #207 review): `saveDocument` takes a BUFFER KEY, not a path,
+        // and the two differ for exactly the buffer every restored Phase A
+        // session holds -- a real document under the RESERVED `document` key.
+        // Passing the path made the tile's Save enabled (the marking resolves by
+        // path and found it) and then refused (the save resolved by key and did
+        // not). The key is the one `bufferStateFor` already resolved, so it is
+        // read from there rather than derived a second time.
+        const live = docBufferState(path);
+        const key = live && live.key ? live.key : path;
+        let outcome = null;
+        try {
+          outcome = await canvasController.saveDocument(key);
+        } catch (unused) {
+          outcome = { ok: false, error: "the Save failed" };
+        }
+        syncContextFromCanvas();
+        return outcome || { ok: false, error: "the Save was refused" };
+      },
+      // LIVE, read at paint time and never cached (design D9): "has an open
+      // unsaved edit" is a fact about a browser, and the snapshot's generator
+      // cannot observe one, so it is never written anywhere.
+      bufferStateFor: docBufferState,
+    };
+  }
+  // The one resolver from a document PATH to the live buffer that holds it,
+  // carrying the KEY it is held under (F2). Both the tile's marking and the
+  // tile's Save read it, so the control's enabled state and the act it performs
+  // cannot resolve to different buffers.
+  function docBufferState(path) {
+    const live = canvasController && canvasController.state();
+    if (!live || !live.buffers) return null;
+    for (const key of Object.keys(live.buffers)) {
+      const buffer = live.buffers[key];
+      if (buffer && buffer.kind === "document" && buffer.path === path) {
+        return { loaded: true, dirty: buffer.dirty === true,
+                 owned: buffer.owned === true, key };
+      }
+    }
+    return { loaded: false, dirty: false, owned: true, key: null };
+  }
+  // THE SUBJECT'S PER-BUFFER SETTLED CONTENT IDENTITY, where the subject is
+  // also a loaded buffer (ruling 3 / task 7.6b). Kept apart from
+  // `docBufferState` above, which answers the tile verbs' question ("which
+  // buffer holds this path, under which key"); this one answers the abstract's
+  // ("what does that buffer currently hash to, and is that hash settled"). An
+  // UNSETTLED hash is reported as such rather than as a value, so the digest
+  // rule can fall back instead of comparing against a number about to change.
+  function docBufferIdentity(path) {
+    const live = canvasController && canvasController.state();
+    if (!live || !live.buffers) return null;
+    for (const key of Object.keys(live.buffers)) {
+      const buffer = live.buffers[key];
+      if (buffer && buffer.kind === "document" && buffer.path === path) {
+        return {
+          loaded: true,
+          dirty: buffer.dirty === true,
+          settled: !buffer.hash_pending
+            && !!(buffer.current_hash && buffer.current_hash.hex),
+          digest: (buffer.current_hash && buffer.current_hash.hex) || null,
+        };
+      }
+    }
+    return null;
+  }
+
+  // ---- THE DISTILLED ABSTRACT'S SEAM (add-doxbench-distilled-abstract §7) ---
+  //
+  // Injected into the docs pane exactly like every other seam on this surface.
+  // The pane opens no route: `generate` is the ONE transport `app.js` built for
+  // the abstract route, handed over already closed over its console token.
+  function docsAbstractSeam() {
+    const wired = !!(doxbench
+      && typeof doxbench.documentAbstract === "function");
+    return {
+      // THE GENERATE CONTROL EXISTS ONLY WHERE GENERATION IS AUTHORIZED
+      // (ruling 7.7: ABSENT, not present-and-refusing). The predicate is
+      // `canvasOffered()` — the SAME derivation the canvas mount and the tile
+      // verbs use — so the pane can never claim a capability the canvas
+      // withheld, nor deny one it has.
+      capable: canvasOffered() && wired,
+      // A statement about the PLANE, which outranks any capability it reports.
+      hosted: sessionSurfaceHidden(caps),
+      // COMPOSED AS JSON, NEVER JOINED (adversarial review 2026-08-25, N6;
+      // the same ruling `doxbench_bridge.conversation_key` records for the
+      // harness session key). `abstractSessions` is a module-scope map keyed by
+      // this string, and a separator has to be a character no component can
+      // contain — but a repository name, a git ref and a tile id can all
+      // contain a pipe. Two different scopes therefore composed ONE key, and
+      // the second silently inherited the first's cached abstracts, echoed
+      // digests and learned wait bound. JSON escaping makes the composition
+      // injective by construction.
+      scopeKey: JSON.stringify([
+        String(active?.repository || ""), String(active?.ref || ""),
+        String(scope?.kind || ""), String(scope?.id || ""),
+      ]),
+      modelId: () => abstractModelId,
+      identityFor: (path) => docBufferIdentity(path),
+      generate: wired
+        ? (subjectPath, modelId, refresh) => doxbench.documentAbstract({
+            scope: {
+              repository: String(active?.repository || ""),
+              ref: String(active?.ref || ""),
+              tile_kind: String(scope?.kind || ""),
+              tile_id: String(scope?.id || ""),
+            },
+            // THE CLOSED REQUEST SHAPE (§5). A scope, a path and a model id —
+            // and no buffer, because the server reads the SAVED bytes and
+            // unsaved text must never leave this browser. There is no field it
+            // could travel in even by accident.
+            subject_path: String(subjectPath),
+            model_id: String(modelId),
+            // THE EXPLICIT REFRESH INTENT, and ONLY when the RE-GENERATE
+            // control issued one. ABSENT rather than `false` on every other
+            // invocation, because the route's closed shape reads an absent
+            // field as no intent and a request that says nothing about
+            // refreshing is the honest shape of "a human asked for this
+            // document, not for it again".
+            ...(refresh === true ? { refresh: true } : {}),
+          })
+        : null,
+    };
+  }
+
+  // ---- THE ADD-SECTION SEAM (add-staged-topic-outline-template task 3.2) ----
+  //
+  // The outline tab's add-section affordance writes into the OUTLINE BUFFER and
+  // stops there. The human's existing Save is what carries the new section to the
+  // branch through `edit-document`; this seam performs no write, opens no route,
+  // and invokes no gate verb. That is the whole of the ruling: section-scoped
+  // patching is a patch-TARGETING detail, so it introduces no second write verb.
+  //
+  // `apply` is the canvas's OWN `applyProposal`, reused rather than paralleled.
+  // It is the existing primitive for "swap one buffer's whole text": it gates on
+  // the SETTLED content identity (so an insert computed against text the buffer
+  // has since moved off is refused, never forced), re-applies the document's own
+  // line-ending flavor (without which one reviewed insertion becomes a whole-file
+  // EOL rewrite — the defect the buffer contract's proposal path already paid
+  // for), and lands through the same `edit()` a keystroke does, which is what
+  // makes the dirty state, the hashing and the Save plan identical to typing. A
+  // second insertion method would have to re-earn all three.
+  //
+  // WITHHELD, not degraded, where editing is not live (task 3.4). The predicate
+  // is `canvasOffered()` — the same derivation `drawCanvas` and `docTileVerbs`
+  // use, and deliberately not `canvasController !== null`, because `drawTab` runs
+  // BEFORE the canvas mounts and a controller check would withhold the affordance
+  // on every capable console too. A null seam makes the controls inert with no
+  // listener bound.
+  function outlineSectionSeam() {
+    if (!canvasOffered()) return null;
+    return {
+      actor: (caps && caps.actor) || "local",
+      // Read at CLICK time, never cached: "what the outline buffer holds" is a
+      // fact about this browser a moment ago.
+      buffer: () => {
+        const live = canvasController && canvasController.state();
+        const buffer = live && live.buffers ? live.buffers.outline : null;
+        if (!buffer) return null;
+        return { path: buffer.path, text: buffer.content,
+                 baseHash: (buffer.current_hash && buffer.current_hash.hex) || null };
+      },
+      // Every refusal this seam makes for itself carries a CODE, in the same
+      // vocabulary `applyProposal` answers in, because the panel maps codes and
+      // never echoes text (W-10). A refusal with no code would fall through to
+      // the panel's generic sentence rather than the accurate one.
+      apply: async (baseHash, text) => {
+        if (!canvasController
+            || typeof canvasController.applyProposal !== "function") {
+          return { ok: false, code: "unavailable",
+                   error: "this console has no editing seam wired" };
+        }
+        try {
+          return await canvasController.applyProposal(
+            "outline", { base_hash: baseHash, content: text });
+        } catch (unused) {
+          return { ok: false, code: "failed", error: "the insertion failed" };
+        }
+      },
+    };
+  }
+  // "A buffer moved" — repaint the tiles' loaded / loaded-and-dirty marking and
+  // the expanded tile's Save reachability from the live state.
+  function refreshDocTiles() {
+    const pane = body.querySelector
+      ? body.querySelector(".swb-pane-docs")
+      : null;
+    if (pane && typeof pane.__docWheelRefresh === "function") {
+      pane.__docWheelRefresh();
+    }
+  }
+  // The wheel's reconcile, as adopted by the last docs draw (null on the other
+  // selection tabs, where there is no wheel to reconcile).
+  let reconcileDocsSelection = null;
+  // WHICH DOCUMENT THE CANVAS IS ON, in ONE place (add-doxbench-editing-phase-b).
+  //
+  // Phase A could read `state.buffers.document.path`: there was exactly one
+  // document slot, so "the document the canvas holds" was a single well-defined
+  // value whichever buffer happened to be SELECTED. Phase B holds N, so the
+  // question needs a stated rule, and this is it:
+  //
+  //   1. the SELECTED buffer's path, when a document is selected — that is the
+  //      document the human is working on, and it is what the wheel must
+  //      reconcile to and what a released v1 turn must name; otherwise
+  //   2. the FIRST loaded document in the declared order, because the outline
+  //      being selected does not mean the canvas holds no document — it means the
+  //      human stepped to the outline, and the docs wheel must still sit on the
+  //      document they were on rather than snapping back to the top of the reel;
+  //   3. `null` when nothing is loaded.
+  //
+  // Reading it in TWO places with two spellings is exactly how the wheel and the
+  // canvas came to disagree before (PR #196 review F4), so both callers below
+  // read this.
+  function canvasDocumentPath() {
+    const current = canvasController && canvasController.state();
+    if (!current || !current.buffers) return null;
+    const selected = current.buffers[current.active_buffer];
+    if (selected && selected.kind === "document" && selected.path) {
+      return selected.path;
+    }
+    const documentKeys = Object.keys(current.buffers)
+      .filter((key) => key !== "outline")
+      .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+    for (const key of documentKeys) {
+      const buffer = current.buffers[key];
+      if (buffer && buffer.path) return buffer.path;
+    }
+    return null;
+  }
+  // The RESERVED `document` slot's own path, or null -- the question the LOAD
+  // route asks to decide whether a first load FILLS the unbacked slot or ADDS a
+  // path-keyed buffer beside it. It stopped being a wire question at
+  // contract-v1.34, when the widened envelope started carrying the whole loaded
+  // set; it remains a state question, and it is still a different one from
+  // `canvasDocumentPath` above, which answers "which document is the human on"
+  // for the WHEEL.
+  function reservedDocumentPath() {
+    const current = canvasController && canvasController.state();
+    if (!current || !current.buffers) return null;
+    const reserved = current.buffers.document;
+    return reserved && reserved.path ? reserved.path : null;
+  }
+  function syncContextSelection() {
+    if (typeof reconcileDocsSelection !== "function") return;
+    const path = canvasDocumentPath();
+    if (path == null) return;
+    reconcileDocsSelection(path);
+  }
+  // T100 P1-A, factored out (Phase A): every settled identity refreshes the
+  // rail's proposal currency so stale reaches the RENDERED cards — and the same
+  // pass re-renders the rail's header, which is where the bound buffer is
+  // stated. A pure selection change calls it directly for that second reason.
+  // Still a PURE callback: it reads the live controller and opens no route.
+  function syncContextFromCanvas() {
+    refreshRailFromCanvas();
+    syncContextSelection();
+  }
+  function refreshRailFromCanvas() {
+    if (!railController || !canvasController) return;
+    const current = canvasController.state();
+    if (!current || !current.buffers) return;
+    const hexOf = (b) => (b && b.current_hash && b.current_hash.hex) || null;
+    // add-doxbench-editing-phase-b: currency is refreshed for EVERY buffer key
+    // the canvas holds, not two fixed names. A proposal's target is a buffer key
+    // now, so a currency map that carried only two of N keys would leave a
+    // proposal against a third document permanently unable to go stale.
+    const hashes = {};
+    for (const key of Object.keys(current.buffers)) {
+      hashes[key] = hexOf(current.buffers[key]);
+    }
+    railController.refreshCurrency(hashes);
   }
   function canvasHoldsUnsavedWork() {
     const live = canvasController && canvasController.state();
@@ -1107,6 +2555,30 @@ export function mountStagingWorkbench(container, snapshot,
       railController.rekey(railScopeKey());
     }
   }
+  // ONE rule for whether the plane's posture stands as an inline line (Brett's
+  // 2026-08-18 annotation round 2, on the `editor-only` instance of it: "add a
+  // model selector down next to the send button. make this text the hover text
+  // for the send button if no model selected").
+  //
+  // A CHAT rung's sentence is now the send button's stated reason — tooltip and
+  // `aria-describedby`, inside the rail, where the human is trying to act — so
+  // it does not stand here as well. The PLANE rungs (hosted, gate-off, unkeyed,
+  // source-unavailable) keep the inline note: they explain a canvas that is
+  // WITHHELD or degraded, the rail is not even mounted for most of them, and
+  // there is no control to hang the sentence on.
+  function showPostureNote(plane) {
+    const stands = !!plane.note && plane.chat !== true;
+    postureNote.textContent = stands ? plane.note : "";
+    postureNote.hidden = !stands;
+  }
+
+  // WHETHER THIS SURFACE OFFERS EDITING AT ALL — one derivation, read by the
+  // canvas mount and by the docs tile's verbs (F3), so the tile can never claim a
+  // capability the canvas withheld or deny one it has.
+  function canvasOffered() {
+    return !!scope && createGateLive(caps) && !sessionSurfaceHidden(caps)
+      && !!active?.repository && !!active?.ref;
+  }
   function drawCanvas() {
     if (canvasController && typeof canvasController.destroy === "function") {
       canvasController.destroy();
@@ -1127,13 +2599,12 @@ export function mountStagingWorkbench(container, snapshot,
       sourceAvailable: !!(doxbench && doxbench.loadSource),
       approvedModelCount,
       catalogFailure: railCatalogFailure,
+      intakeOffered: modelIntakeOffered,
     });
-    postureNote.textContent = plane.note || "";
-    postureNote.hidden = !plane.note;
-    const canvasOffered = !!scope && createGateLive(caps) && !sessionSurfaceHidden(caps) &&
-      !!active?.repository && !!active?.ref;
-    canvas.hidden = !canvasOffered;
-    if (!canvasOffered) return;
+    showPostureNote(plane);
+    const offered = canvasOffered();
+    canvas.hidden = !offered;
+    if (!offered) return;
     // the SAME posture derivation drawSession() already uses, so the
     // session-created documents doxBench treats as editable never drift from
     // what the session bar itself would call this tile's own session
@@ -1160,16 +2631,21 @@ export function mountStagingWorkbench(container, snapshot,
       // active/source base, the session bar, and the rail's scope key.
       onSaveLanded: (ref) => adoptSessionRef(ref, { canvasAlreadyRekeyed: true }),
       // T100 P1-A: every settled identity refreshes the rail's proposal
-      // currency so stale reaches the RENDERED cards.
-      onIdentitySettled: () => {
-        if (!railController || !canvasController) return;
-        const current = canvasController.state();
-        if (!current) return;
-        const hexOf = (b) => (b && b.current_hash && b.current_hash.hex) || null;
-        railController.refreshCurrency({
-          outline: hexOf(current.buffers.outline),
-          document: hexOf(current.buffers.document),
-        });
+      // currency so stale reaches the RENDERED cards — and (PR #196 review F4)
+      // puts the context region's own selection back on whichever document the
+      // canvas ended up holding, which is how a guard resolved with Discard
+      // reaches the wheel.
+      onIdentitySettled: syncContextFromCanvas,
+      // Amendment 1 (2026-08-21): the UNLOAD act moved onto the canvas slot, so
+      // the shell can no longer learn about it from the rail seam that used to
+      // wrap the call. This is the canvas's OWN declared notification for
+      // exactly the two facts that changed — the loaded SET and the SELECTION —
+      // and it carries the same tail the retired `unloadBuffer` seam ran: the
+      // context region follows the canvas, and the docs tiles re-mark which
+      // documents are loaded.
+      onLoadedSetChanged: () => {
+        syncContextFromCanvas();
+        refreshDocTiles();
       },
     });
     // T055: the chat rail mounts ONLY when the seam bundle carries BOTH
@@ -1185,6 +2661,21 @@ export function mountStagingWorkbench(container, snapshot,
       railController = mountDoxBenchChatRail(rail, {
         scopeKey: { repository: active.repository, ref: active.ref,
                     tile_kind: scope.kind, tile_id: scope.id },
+        // THE WORKING SUBJECT'S DEFAULT (promoted requirement "Browser-local
+        // doxBench conversation": it "SHALL default from the tile's title or
+        // summary, remain editable"). The shell is where the tile record is, so
+        // the shell resolves it and the rail is simply told -- the same shape as
+        // the scope key above, and the same value the canvas is already handed
+        // and the header already renders, so the three cannot drift.
+        //
+        // `scope.title` IS the resolution: `workbenchScope` derives one display
+        // title per tile kind (a cluster's `name`, a possible's `title`, a
+        // staged topic's `staging_id`), and no tile in the snapshot family
+        // carries a field NAMED summary. The nearest summary-shaped field is
+        // `possible.claim` (a required one-line prose claim), deliberately not
+        // used: the title is the one field all three kinds share, and a
+        // disjunction is satisfied by either half.
+        subjectDefault: scope.title,
         transports: { catalog: doxbench.catalog, chatTurn: doxbench.chatTurn },
         onState: (chatState) => {
           // R-1 (T104 F1): the rail exists now, so a blob restored before it
@@ -1197,15 +2688,43 @@ export function mountStagingWorkbench(container, snapshot,
           applyPendingCompanion();
           const models = chatState.models || [];
           const count = models.filter((m) => m.available === true).length;
+          // The docs pane's abstract borrows the rail's model choice (see
+          // `abstractModelId` above). Read on EVERY state, not only when the
+          // count moves, because choosing a different model changes nothing
+          // about how many are available.
+          const chosen = typeof chatState.selectedModelId === "string"
+            ? chatState.selectedModelId : null;
+          const firstApproved = (models.find(
+            (m) => m.available === true) || {}).model_id;
+          const previousAbstractModel = abstractModelId;
+          abstractModelId = chosen
+            || (typeof firstApproved === "string" ? firstApproved : null);
+          // A CHANGED CHOICE REPAINTS THE DOCS ABSTRACT. The pane's session
+          // cache is keyed by the model, so the region's state genuinely
+          // differs after a switch — not-yet-generated for a model that has
+          // not distilled this document, and the other model's abstract again
+          // on the way back. Without this the DOM keeps whatever the previous
+          // model produced, captioned as though this model produced it.
+          if (abstractModelId !== previousAbstractModel) {
+            repaintAbstractSession(docsAbstractSeam().scopeKey);
+          }
           // T104 F10-1: the FAILURE moves the note too, not only the count —
           // a failed catalog never changes the count (it stays zero), which
           // is exactly why the misdiagnosed "no approved model is
           // configured" note used to stand unchallenged.
           const failure = chatState.catalogFailure || null;
+          // add-doxchat-model-intake §1: the INTAKE-OFFERED fact moves the note
+          // too, on the same channel and for the same reason the failure does.
+          // The surface answers after the rail has already mounted and settled
+          // its catalog, so neither the count nor the failure changes at that
+          // moment — without this leg the ladder would keep describing a plane
+          // whose remedy had just become available.
+          const intakeChanged = modelIntakeOffered !== postureIntakeOffered;
           if (count !== approvedModelCount
-              || failure !== railCatalogFailure) {
+              || failure !== railCatalogFailure || intakeChanged) {
             approvedModelCount = count;
             railCatalogFailure = failure;
+            postureIntakeOffered = modelIntakeOffered;
             const refreshed = presentationPosture({
               gateLive: createGateLive(caps),
               surfaceHidden: sessionSurfaceHidden(caps),
@@ -1214,25 +2733,94 @@ export function mountStagingWorkbench(container, snapshot,
               sourceAvailable: !!(doxbench && doxbench.loadSource),
               approvedModelCount,
               catalogFailure: railCatalogFailure,
+              intakeOffered: modelIntakeOffered,
             });
-            postureNote.textContent = refreshed.note || "";
-            postureNote.hidden = !refreshed.note;
+            showPostureNote(refreshed);
           }
         },
+        // add-doxchat-model-intake §1: the rail names the ACT and the shell
+        // performs it. The rail opens no transport of its own — the privacy pin
+        // asserts it — so choosing the selector's first option calls back here,
+        // and the flow that carries a provider credential lives in the sibling
+        // module where a transport is allowed to live.
+        openIntake: () => openModelIntakeFlow(),
         applyProposal: (target, record) => (canvasController
           ? canvasController.applyProposal(target, record)
           : null),
         editorState: () => canvasController && canvasController.state(),
-        activeDocumentPath: () => {
-          const current = canvasController && canvasController.state();
-          return current ? current.buffers.document.path : null;
+        // add-doxbench-editing-phase-b: the rail's loaded-document SELECTOR
+        // reaches the selection through the canvas's own primitive, which owns
+        // the state authority. D7: three routes, one value -- this one, the
+        // context region's outline tab, and a load -- and the selector never
+        // becomes a second state authority.
+        // (The `unloadBuffer` seam went with the rail control it served. The act
+        // is the canvas slot's now, and it reaches the SAME
+        // `canvasController.unloadDocument` from inside — so the dirty refusal
+        // still lives in one place, and the shell follows through
+        // `onLoadedSetChanged` above rather than by wrapping the call.)
+        selectBuffer: async (key) => {
+          if (!canvasController
+              || typeof canvasController.setActiveBuffer !== "function") return;
+          // `setActiveBuffer` fires `onLoadedSetChanged` itself, which carries
+          // the tail (F9). Selection is a loaded-set fact like any other.
+          canvasController.setActiveBuffer(key);
         },
-        // T104 F2: the documents a turn on this tile may actually name — the
-        // scope authority's own intersection, so a "no active document"
-        // refusal names one the operator can pick instead of stopping at the
-        // refusal. Read from the projection this canvas was mounted on; the
-        // shell derives nothing of its own here.
-        documentCandidates: () => projection.active_document_candidates || [],
+        // add-doxbench-editing-phase-b task 7.2's THREAD half: selecting a
+        // document switches the transcript to that document's thread. The
+        // thread is the server's record — one sidecar per document, on the
+        // session branch — so the rail reads it through this seam and invents
+        // nothing. Absent (a plane with no thread transport) the rail keeps its
+        // pre-§11 behaviour, which is the editor-only posture unchanged.
+        loadThread: (typeof doxbench?.thread === "function"
+          ? (key) => doxbench.thread({
+              repository: String(active.repository || ""),
+              ref: String(active.ref || ""),
+              tile_kind: String(scope.kind || ""),
+              tile_id: String(scope.id || ""),
+              document: String(key || ""),
+            })
+          : null),
+        // (The v1 wire's narrowing stood here: the rail's active-document option
+        // was pinned to the RESERVED slot's own path, because the released
+        // envelope carried that one document and nothing else, and beside it the
+        // candidate list a "no active document" refusal named. contract-v1.34's
+        // widened family carries the whole loaded set and a DECLARED bound-buffer
+        // key, so the rail reads its binding off the one selection authority
+        // itself and neither option exists any more -- task 8.6's N4 posture ends
+        // here, as that record said it would.)
+      });
+      // add-doxchat-model-intake §1: the panel's host is re-parented into the
+      // freshly-mounted rail (the mount clears it), and the intake SURFACE is
+      // read once so the selector knows whether to render its first option. One
+      // read per mount, through the injected seam, and a refusal of any kind
+      // leaves `intakeOffered` false — which renders the selector exactly as it
+      // rendered before this change.
+      rail.appendChild(intakeHost);
+      const mountedRail = railController;
+      readModelIntakeSurface().then((offered) => {
+        if (railController !== mountedRail) return;
+        // SET BEFORE THE RAIL IS TOLD, and that order is load-bearing: telling
+        // the rail adopts new state, which renders, which calls back into
+        // `onState` — and `onState` is the ONE place this shell refreshes the
+        // posture note from. Setting the flag first means that existing refresh
+        // carries the new fact; adding a third `showPostureNote` call site here
+        // would have been a second answer to "what does this plane look like",
+        // which is exactly the duplication the two pinned call sites exist to
+        // prevent.
+        modelIntakeOffered = offered;
+        railController.intakeOffer(offered);
+      });
+    }
+    // PR #196 review F3, the mount-time half: the rail's header names the
+    // canvas's buffers, and the canvas HAS none until its initial load settles
+    // -- so the header rendered "(absent)" and stayed that way until some
+    // unrelated event happened to re-render the rail. One refresh when the load
+    // resolves, guarded because the controller may already have been torn down
+    // and replaced by then.
+    const mounted = canvasController;
+    if (mounted && mounted.ready && typeof mounted.ready.then === "function") {
+      mounted.ready.then(() => {
+        if (canvasController === mounted) syncContextFromCanvas();
       });
     }
     // LAST, after every mount: each pane's controller clears its own host, so
@@ -1510,8 +3098,13 @@ export function mountStagingWorkbench(container, snapshot,
         // PerBufferSaveOutcome), one per kind — never a map. Indexing it as one
         // gave `undefined` for every save, so even a COMMITTED body would have
         // read as refused.
+        // add-doxbench-editing-phase-b: the per-buffer outcome row's first
+        // field is `key` (the BUFFER KEY) rather than `kind`. This seam request
+        // declares no key, so `savePlanState` keys it by its `kind` -- which
+        // lands it on the reserved `document` slot, exactly what a create's
+        // not-yet-keyed buffer is.
         const row = (verdict && Array.isArray(verdict.buffers)
-          ? verdict.buffers.find((r) => r && r.kind === "document") : null);
+          ? verdict.buffers.find((r) => r && r.key === "document") : null);
         if (row && row.status === "committed") return { committed: true };
         return { refused: (row && row.message) || "the save was refused" };
       } catch (err) {

@@ -1,0 +1,98 @@
+# VALID conformance declaration: the SELF-HOSTED authority, which conforms by
+# construction. Every obligation is satisfied and every entry still carries a
+# reason, because "with the reason in each case" is what lets a consumer see
+# WHAT was satisfied rather than trusting a bare verdict.
+schema_version: 1
+kind: xfactory_trust_anchor_conformance_declaration
+declaration_id: decl:core-self-hosted-authority
+capability: trust-anchor
+realization:
+  realization_id: realization:core-self-hosted-authority
+  statement: >-
+    A certificate authority the family operates end to end, serving the
+    production core. Its internals are ours, so the obligations that depend on
+    reading the authority's own behaviour are all reachable.
+  authority_operated_by_family: true
+  authority_statement: >-
+    Operated by the family: the anchor keys, the issuance path and the logs are
+    all inside the estate the family administers.
+  population_statement: Service and workload certificates for the production core.
+declared_at: "2026-08-10T00:00:00Z"
+obligations:
+  - entry_id: ob:core:TA-R1
+    obligation: TA-R1
+    obligation_statement: Systems trust anchors, never individual certificates
+    satisfaction: satisfied
+    reason: >-
+      Every certificate record names the anchor it is trusted through, and the
+      trust store is populated from anchor records rather than from individual
+      certificates. A chain terminating in no held anchor is refused with the
+      missing anchor named.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R2
+    obligation: TA-R2
+    obligation_statement: A certificate issues only under recorded authority
+    satisfaction: satisfied
+    reason: >-
+      The authority exposes per-certificate request provenance, so every
+      issuance carries the requester, the request identity and the request time
+      alongside the admitted authority it was issued under.
+    declared_at: "2026-08-10T00:00:00Z"
+    achieved_establishment_level: per_certificate_record
+  - entry_id: ob:core:TA-R3
+    obligation: TA-R3
+    obligation_statement: Declared chain custody bounds what a certificate evidences
+    satisfaction: satisfied
+    reason: >-
+      Chain custody is declared from the closed registry on every anchor and on
+      every certificate whose key the family provisions; `evidences` and the
+      assurance ceiling are derived from it rather than asserted.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R4
+    obligation: TA-R4
+    obligation_statement: Renewal that changes key material is a rebind obligation
+    satisfaction: satisfied
+    reason: >-
+      The issuing workflow owns the rebind: it enumerates the dependents from
+      the certificate record, re-binds each, and verifies each against the new
+      material before reporting the renewal complete.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R5
+    obligation: TA-R5
+    obligation_statement: Dependent bindings are recorded against the certificate
+    satisfaction: satisfied
+    reason: >-
+      Every authority binding is recorded against its certificate before the
+      certificate enters service, and a dependent discovered later is recorded
+      as a defect of the record with the enumeration corrected.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R6
+    obligation: TA-R6
+    obligation_statement: Revocation propagates to the authority the certificate supported
+    satisfaction: satisfied
+    reason: >-
+      Revocation propagates through openxWallet's derivation rule within a
+      declared window, standing is checked at use, and an unevidenced window is
+      escalated as an open exposure rather than closed.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R7
+    obligation: TA-R7
+    obligation_statement: >-
+      Authority material and issuance credentials are credential records, never
+      committed
+    satisfaction: satisfied
+    reason: >-
+      Anchor keys and every issuance or administration credential exist as
+      credential-contracts records with vault bindings at the strictest member
+      of the closed custody set, brokered into ephemeral scope. Nothing is
+      committed, in plaintext or in any reversible encoding, including for QA.
+    declared_at: "2026-08-10T00:00:00Z"
+  - entry_id: ob:core:TA-R8
+    obligation: TA-R8
+    obligation_statement: A realization declares the obligations it cannot meet
+    satisfaction: satisfied
+    reason: >-
+      This declaration is the artifact, refreshed whenever an obligation's
+      standing changes rather than at audit time.
+    declared_at: "2026-08-10T00:00:00Z"
+record_version: 1

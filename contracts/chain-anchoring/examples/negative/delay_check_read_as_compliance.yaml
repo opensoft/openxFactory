@@ -1,0 +1,48 @@
+# expected_failure: delay_check_read_as_compliance
+# expected_failure_detail: 'delay_check/compliant'
+# A compliance member on the delay check reads a LOWER bound as an UPPER one:
+# exceeding the declared maximum proves a breach; falling under it leaves the
+# true delay unknown, with a residual of exactly one cadence interval. There is
+# no compliant member in the shape and there will not be one; a record carrying
+# one anyway is refused by name rather than reported as an unexpected property.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0023
+subject_ref: item-example-0004-correction-checkpoint-652
+verification_mode: stateful
+status: anchor_incomplete
+incomplete_cause: horizon_breach
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T08:00:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0004
+  - w-example-dur-0004
+  present:
+  - w-example-op-0004
+  missing:
+  - w-example-dur-0004
+terminal_failure_distinguished: true
+delay_check:
+  cp_in: '2026-08-30T06:00:00Z'
+  cp_out: '2026-08-30T05:45:00Z'
+  a_first: '2026-08-30T08:00:00Z'
+  bound_seconds: 7200
+  outcome: breach_proven
+  cp_in_ref: leaf-example-checkpoint-anchored-0630
+  cp_out_ref: leaf-example-checkpoint-anchored-0629
+  compliant: true
+receipt_ref: rcp-example-0004
+anchor_state_ref: as-example-0003
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-30T16:00:00Z'
+verification_leaf_ref: leaf-example-served-verification-0655
+record_version: 1
+notes: 'the sat-on minter, exposed by cadence: the minter DECLARED submission at 07:55, but
+  the anchored checkpoint bracket shows the submission leaf was in the log by cp_in 06:00
+  — so a_first minus cp_in is a LOWER bound of 7200s on the true delay, over the declared
+  maximum plus tolerance (4200s): breach PROVEN. cp_out is reported beside it so the bracket''s
+  width is visible. Falling under the bound would have proven nothing — not-provably-breached
+  is not compliant'

@@ -1,0 +1,443 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_conformance_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/conformance-declaration.schema.yaml"
+contract_id: chain-anchoring-conformance-declaration
+contract_schema_version: 1
+title: Chain-anchoring realization conformance declaration
+description: >-
+  Obligation by obligation, what a realization of this capability satisfies
+  fully, satisfies partially, and cannot satisfy — with the reason in each case
+  (add-chain-anchoring, capability `chain-anchoring`, covering all nine
+  requirements and standing in particular for "Both ruled witnesses anchor every
+  anchored item, with no selectivity", "Only validated, gate-passed material is
+  anchored AS AN ITEM", "Served verification and access decisions are logged
+  leaves" and "This capability is neutral and names no domain semantics"). The
+  shape is `add-trust-anchor`'s ratified DECLARED-SHORTFALL pattern as tranche
+  one consumed it — this family's obligations differ, the discipline does not.
+
+  AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL SHORTFALL,
+  DECLARED, WOULD BE CONFORMANT. The declaration is therefore CLOSED over this
+  capability's NINE obligations: exactly nine entries drawn from a closed
+  enumeration, each with a reason and its own `declared_at`. The canonical
+  validator checks coverage in BOTH directions — an obligation with no entry is
+  refused (`obligation_not_declared`), and so is an entry naming an obligation
+  this capability does not have — because a declaration that can quietly omit an
+  obligation is how a silent gap gets recorded as conformance.
+
+  ONE RESIDUAL IS STRUCTURAL AT THIS REALIZATION AND MAY NOT BE RECORDED AS
+  SATISFIED. `CA-R5-COMMITMENT-PATH` is the step from *"the record DECLARES a
+  salted keyed commitment"* to *"the anchored value IS one"*: a record declaring
+  a salted keyed construction while anchoring a plain digest is not detectable
+  from the record, and closing it requires the realization to establish that the
+  commitment path is the ONLY path that can mint an anchor-bound value, so an
+  undeclared construction is UNREACHABLE rather than merely refused. An entry
+  claiming `satisfied` over it is REFUSED
+  (`structural_residual_declared_satisfied`), exactly as tranche one refuses
+  closure of its own two structural residuals.
+
+  AND THE POSTURE IS DECLARED AS FACTS A VALIDATOR ADJUDICATES, NOT AS PROSE.
+  The witness configuration, the operational witness's three adoption conditions,
+  the served audit surface, the checkpoint cadence, how a delay check is read,
+  the receipt's shape, the item-anchor gate and the neutrality of the family are
+  each a member below with a named refusal behind it. Every one of them is
+  REQUIRED: a posture member a realization could omit is a posture it could
+  decline to state precisely where stating it would be refused, and silence is
+  the one answer this pattern does not admit.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - capability
+  - realization
+  - declared_at
+  - obligations
+  - realization_posture
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_conformance_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  capability:
+    const: chain-anchoring
+  realization:
+    type: object
+    required: [realization_id, statement, reader_required_check]
+    additionalProperties: false
+    properties:
+      realization_id: {$ref: '#/$defs/identifier'}
+      statement: {type: string, minLength: 1, maxLength: 900}
+      reader_required_check:
+        # THE NAMED READER, AND WHETHER IT IS ACTUALLY REQUIRED. `check_name` is
+        # the literal status-check token; `is_required_in_ruleset` is the live
+        # ruleset fact, and `false` is a fact to record rather than a defect to
+        # hide. `ruleset_evidence_ref` is what a reader follows to the ruleset
+        # read itself — a merged workflow file is not evidence that a check is
+        # required. Until the reader runs as a required check on the repository
+        # holding these records, every record this family defines confers and
+        # refuses nothing, and the declaration says so in the present tense.
+        type: object
+        required: [check_name, is_required_in_ruleset]
+        additionalProperties: false
+        properties:
+          check_name: {$ref: '#/$defs/identifier'}
+          validator_path: {type: string, minLength: 1, maxLength: 300}
+          is_required_in_ruleset: {type: boolean}
+          ruleset_ref: {type: string, maxLength: 300}
+          ruleset_evidence_ref: {type: string, maxLength: 300}
+  declared_at: {type: string, format: date-time}
+  obligations:
+    # Exactly the capability's nine obligations, one per requirement in the
+    # spec's own order. minItems/maxItems are the first line of defence; the
+    # validator closes coverage in both directions, because `uniqueItems` cannot
+    # see that two entries name the same obligation with different reasons.
+    type: array
+    # ELEVEN, EXACTLY: one entry per obligation, no more and no fewer. The bound
+    # moved from nine when `amend-chain-anchoring-readiness-and-durability`
+    # ratified its two additive requirements — a declaration whose length could
+    # not follow the capability would either refuse every conforming record or
+    # tolerate a silence, and both are the closure failing.
+    minItems: 11
+    maxItems: 11
+    uniqueItems: true
+    items:
+      type: object
+      required: [entry_id, obligation, satisfaction, reason, declared_at]
+      additionalProperties: false
+      properties:
+        entry_id: {$ref: '#/$defs/identifier'}
+        obligation:
+          # CA-R1 the multi-anchor receipt; CA-R2 both ruled witnesses with no
+          # selectivity; CA-R3 the fail-closed missing-witness state; CA-R4
+          # anchor-late over gate-passed material; CA-R5 the on-chain boundary
+          # and its refusing validator; CA-R6 the permissioned consent plane;
+          # CA-R7 served verification and access leaves; CA-R8 the separated
+          # planes and the authorized linkage derivation; CA-R9 neutrality.
+          #
+          # CA-R10 AND CA-R11 ARE THE AMENDMENT'S TWO, AND THE SET IS ELEVEN
+          # BECAUSE THE CAPABILITY IS ELEVEN
+          # (`amend-chain-anchoring-readiness-and-durability`, ratified
+          # 2026-09-04; its own `tasks.md` 3.2 counts "all eleven promoted
+          # requirements"). CA-R10 the fixed-UTC durability batch that accounts
+          # for every accepted event exactly once; CA-R11 witness submission and
+          # confirmation as distinct evidence states. A declaration that
+          # enumerated nine after the amendment ratified would be a declaration
+          # SILENT on two obligations, which is precisely what
+          # `obligation_not_declared` exists to refuse — the set had to move with
+          # the capability or the closure would have started lying.
+          type: string
+          enum: [CA-R1, CA-R2, CA-R3, CA-R4, CA-R5, CA-R6, CA-R7, CA-R8, CA-R9,
+                 CA-R10, CA-R11]
+        obligation_statement: {type: string, maxLength: 600}
+        satisfaction:
+          type: string
+          enum: [satisfied, partial, cannot]
+        reason:
+          # Required for every satisfaction value, `satisfied` included: a reason
+          # on a satisfied obligation is what a consumer reads to see WHAT was
+          # satisfied and how.
+          type: string
+          minLength: 1
+          maxLength: 1600
+        declared_at:
+          # Per-entry, so a late declaration is visible as one.
+          type: string
+          format: date-time
+        declared_residual:
+          # The shortfall stated at its real strength, with the successor that
+          # closes it NAMED so the gap is visible rather than implied. Forbidden
+          # on a `satisfied` entry — a residual on a satisfied obligation is a
+          # contradiction, and the validator refuses it rather than reading past
+          # it.
+          type: object
+          required: [statement, closed_by]
+          additionalProperties: false
+          properties:
+            statement: {type: string, minLength: 1, maxLength: 1200}
+            closed_by: {type: string, minLength: 1, maxLength: 300}
+        structural_residual:
+          # NAMED WHERE AN ENTRY CARRIES ONE, so the validator can refuse a
+          # `satisfied` claim over it BY NAME rather than by reading the reason
+          # text. It is deliberately a closed enumeration of ONE at this
+          # realization: a second structural residual is a contract change and
+          # not a declaration a realization writes for itself.
+          type: string
+          enum: [CA-R5-COMMITMENT-PATH]
+        evidence_ref: {type: string, maxLength: 300}
+        compensating_control: {type: string, maxLength: 900}
+  realization_posture:
+    # THE FACTS THE VALIDATOR ADJUDICATES, EACH WITH ITS NAMED REFUSAL.
+    type: object
+    required:
+      - witness_configuration
+      - per_item_witness_selection
+      - ten_year_claim_witness
+      - operational_witness_conditions
+      - durability_profile
+      - confirmation_profile_resolution
+      - audit_surface
+      - checkpoint_cadence
+      - delay_check_reading
+      - receipt_format
+      - item_anchor_gate
+      - attempt_rows_anchored_directly
+      - neutrality
+    additionalProperties: false
+    properties:
+      witness_configuration:
+        # EXACTLY TWO ENTRIES, ROLES `operational` AND `durability`. NO
+        # `maxItems: 2`: a third anchor target adopted by a realization, an
+        # operator or a later author acting alone is REFUSED BY NAME
+        # (`third_anchor_target`) because the configuration is RULED and not an
+        # implementation choice — and a shape that could not express three could
+        # carry no negative example. No condition is written here under which a
+        # third target would become admissible, since a later ruling answers to
+        # its own evidence.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: object
+          required: [witness_id, role, chain_id]
+          additionalProperties: false
+          properties:
+            witness_id: {$ref: '#/$defs/identifier'}
+            role: {$ref: '#/$defs/witness_role'}
+            chain_id: {$ref: '#/$defs/chain_id'}
+            completion_horizon_seconds: {$ref: '#/$defs/duration_seconds'}
+      per_item_witness_selection:
+        # `true` IS REFUSED (`witness_selectivity_rule`), on the ruling's own
+        # ground: a rule that decides per item which witness that item is worth
+        # is a rule that will eventually decide wrong about the item that
+        # matters. The cost argument is answered by AGGREGATION rather than by
+        # selection.
+        type: boolean
+      ten_year_claim_witness:
+        # EVERY TEN-YEAR CLAIM CITES THE DURABILITY WITNESS. A claim made
+        # against the operational witness is REFUSED
+        # (`ten_year_claim_on_operational_witness`) and the same claim against
+        # the durability witness is admitted; the operational witness's anchor
+        # remains valid corroboration of the same fact at a shorter horizon.
+        # "Primary" is order of arrival and never evidentiary weight.
+        type: object
+        required: [witness_id, role]
+        additionalProperties: false
+        properties:
+          witness_id: {$ref: '#/$defs/identifier'}
+          role: {$ref: '#/$defs/witness_role'}
+      operational_witness_conditions:
+        # THE OPERATIONAL WITNESS IS ADOPTED UNDER THREE CONDITIONS AND NONE OF
+        # THEM IS OPTIONAL. The ground is that this chain's transaction data is
+        # pruned within days, and the promotion in ORDERING does not soften the
+        # pruning finding — which is why a long-horizon claim still rests on the
+        # other witness.
+        type: object
+        required: [archival_node_declared, inclusion_proof_captured_at_anchor_time, corroborating_only]
+        additionalProperties: false
+        properties:
+          archival_node_declared:
+            # An archival node RUN by the realization, not a plan to run one.
+            type: boolean
+          inclusion_proof_captured_at_anchor_time:
+            # `false` IS REFUSED (`operational_anchor_without_retained_proof`).
+            # A plan to re-derive the proof later is not accepted, because the
+            # chain will have pruned the material the derivation needs.
+            type: boolean
+          corroborating_only:
+            # `false` IS REFUSED (`claim_stands_on_operational_witness_alone`).
+            # That witness is corroborating and never sole.
+            type: boolean
+          endpoint_ref: {type: string, maxLength: 300}
+      audit_surface:
+        # THE COMPLETENESS CLAIM IS OVER THE SERVED SURFACE, AND IT NAMES WHICH
+        # SURFACE THAT IS. A party verifying a receipt on its own machine
+        # against a header set it obtained for itself is INVISIBLE here BY
+        # CONSTRUCTION — no request to serve, no surface to instrument — and
+        # that invisibility is a PROPERTY OF THE DESIGN rather than a gap.
+        type: object
+        required:
+          - logs_permitted_access
+          - logs_refused_access
+          - logs_served_verifications
+          - independent_verifier_reporting_obligation
+        additionalProperties: false
+        properties:
+          logs_permitted_access:
+            # `false` IS REFUSED (`served_audit_logs_refusals_only`). A record of
+            # refusals alone answers who was turned away and NOT who actually
+            # read, and the question an audit asks first is the second one.
+            type: boolean
+          logs_refused_access: {type: boolean}
+          logs_served_verifications:
+            # `false` IS REFUSED (`served_verification_event_unlogged`) — a
+            # served verification, successful or failed, is written as a leaf
+            # and a failure is recorded as a failure rather than as an absent
+            # event.
+            type: boolean
+          independent_verifier_reporting_obligation:
+            # `true` IS REFUSED (`reporting_obligation_on_independent_verifiers`).
+            # An authenticated call-home before or after a LOCAL verification
+            # trades the receipt's self-sufficiency for a telemetry channel,
+            # makes the minter's reachability a precondition of verification
+            # again, and turns the who-verified-what trail off a public chain
+            # into a trail the minter collects instead. An unobservable
+            # verification is the CORRECT OUTCOME, not a defect to instrument
+            # away.
+            type: boolean
+      checkpoint_cadence:
+        # THE DECLARED CADENCE AND WHAT WAS OBSERVED. `observed_max_interval_seconds`
+        # greater than `declared_seconds` is REFUSED
+        # (`checkpoint_cadence_not_met`): anchoring checkpoints less often
+        # widens the bracket in which a submission-to-anchor delay could hide,
+        # and that is a breach in its own right with its own leaf — so the
+        # evasion is a SECOND, INDEPENDENT finding rather than the way out of
+        # the delay check.
+        #
+        # NEITHER VALUE IS A RECEIPT-ONLY INPUT. The cadence a verifier READS
+        # lives in the receipt's committed mint-time configuration block; these
+        # are a realization's declaration and its own observation, which is why
+        # they may live here without breaching the closure rule.
+        type: object
+        required: [declared_seconds, observed_max_interval_seconds]
+        additionalProperties: false
+        properties:
+          declared_seconds: {$ref: '#/$defs/duration_seconds'}
+          observed_max_interval_seconds: {$ref: '#/$defs/duration_seconds'}
+          observation_window_ref: {type: string, maxLength: 300}
+      delay_check_reading:
+        # `proves_compliance` IS REFUSED (`delay_check_read_as_compliance`). The
+        # check rests on a LOWER bound: exceeding the declared maximum proves a
+        # breach, and falling under it leaves the true delay unknown.
+        # Not-provably-breached is not compliant, and the residual is exactly
+        # one cadence interval.
+        type: string
+        enum: [proves_breach_only, proves_compliance]
+      receipt_format:
+        # `single_chain_shaped` IS REFUSED (`receipt_single_chain_shape`) as a
+        # one-way door: the chain-agnostic format is used with a one-entry list
+        # where only one chain is configured, and the refusal is recorded
+        # against the receipt requirement rather than treated as a style
+        # preference.
+        type: string
+        enum: [chain_agnostic_multi_anchor, single_chain_shaped]
+      item_anchor_gate:
+        # `only_gate_passed_material: false` IS REFUSED
+        # (`item_anchor_over_ungated_material`). A broken chain is a fraud
+        # signal, nothing on a chain can be un-published, and a false
+        # attestation that reaches a chain is therefore PERMANENT — the latency
+        # saved by anchoring on submission is one aggregation interval and the
+        # risk taken is permanent.
+        type: object
+        required: [only_gate_passed_material]
+        additionalProperties: false
+        properties:
+          only_gate_passed_material: {type: boolean}
+          gate_ref: {$ref: '#/$defs/identifier'}
+      attempt_rows_anchored_directly:
+        # `true` IS REFUSED (`attempt_row_offered_for_direct_anchoring`). A
+        # per-attempt public trail leaks BY METADATA what the payload rules keep
+        # off a chain; batched checkpoints over the attempt leaves are anchored
+        # instead.
+        type: boolean
+      durability_profile:
+        # THE AMENDMENT'S REQUIREMENT 2, DECLARED BY THE REALIZATION RATHER THAN
+        # INFERRED FROM ITS RECORDS. A realization can hold perfectly conforming
+        # manifests and still be running the wrong profile — batching hourly,
+        # anchoring the raw batch root, selecting among events — and none of that
+        # is visible in one record. So it is DECLARED, and each wrong answer is
+        # expressible and refused by name.
+        type: object
+        required: [window_kind, anchored_item, witness_root_shared,
+                   empty_windows_anchored]
+        additionalProperties: false
+        properties:
+          window_kind:
+            # FIXED UTC MIDNIGHT-TO-MIDNIGHT, OR IT IS NOT THIS PROFILE.
+            type: string
+            enum: [fixed_utc_daily, rolling_interval, operator_triggered]
+          anchored_item:
+            # THE CLOSED DAILY MANIFEST'S CONFIGURATION-BOUND ANCHORED DIGEST.
+            # `raw_daily_batch_root` and `per_event` are the two refused answers:
+            # the first drops the accounting and the configuration from the
+            # commitment, the second gives every constituent event its own
+            # receipt, which is the shape the amendment names and refuses.
+            type: string
+            enum: [closed_daily_manifest, raw_daily_batch_root, per_event]
+          witness_root_shared:
+            # BOTH CONFIGURED WITNESSES' COMMITMENT PATHS BEGIN AT ONE
+            # `aggregation_root`. `false` is the split-root realization the
+            # amendment refuses by name.
+            type: boolean
+          empty_windows_anchored: {type: boolean}
+          eligibility_registry_ref: {$ref: '#/$defs/identifier'}
+          merkle_profile_ref: {$ref: '#/$defs/identifier'}
+      confirmation_profile_resolution:
+        # THE AMENDMENT'S REQUIREMENT 3 GATE, AND IT IS A GATE ON AUTHORING
+        # ITSELF: *"If either profile is unresolved, schema and validator
+        # authoring SHALL remain blocked rather than leaving finality to an
+        # implementer."* A realization declares which networks it configures and
+        # which of them have a resolved, operator-approved, active profile; a
+        # configured network missing from the resolved set is the BLOCKED state,
+        # named (`confirmation_profile_unresolved`) rather than passed over.
+        #
+        # THIS IS WHERE THE OPERATOR GATE MEETS THE CONTRACT. The contract can be
+        # authored — these shapes ARE the vessel an approval is published into —
+        # and what it cannot do is report a profile resolved that no operator
+        # approved. So the declaration says so in the present tense, exactly as
+        # the reader-not-required warning does.
+        type: object
+        required: [configured_networks, resolved_networks, registry_ref]
+        additionalProperties: false
+        properties:
+          configured_networks:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: {$ref: '#/$defs/chain_id'}
+          resolved_networks:
+            type: array
+            minItems: 0
+            uniqueItems: true
+            items: {$ref: '#/$defs/chain_id'}
+          registry_ref: {$ref: '#/$defs/identifier'}
+          operator_approval_outstanding: {type: boolean}
+      neutrality:
+        # BOTH LISTS ARE REQUIRED AND BOTH ARE EXPECTED EMPTY. A non-empty
+        # `domain_record_kinds` is REFUSED
+        # (`domain_record_kind_in_neutral_family`) — a domain-specific record
+        # kind lands in that domain's digest-pinned overlay, and the neutral
+        # capability gains no field, code or vocabulary naming the domain. A
+        # non-empty `overlay_relaxations` is REFUSED
+        # (`overlay_relaxes_neutral_refusal`) — an overlay may ADD refusals and
+        # never remove them, which is what the pin is for.
+        type: object
+        required: [domain_record_kinds, overlay_relaxations]
+        additionalProperties: false
+        properties:
+          domain_record_kinds:
+            type: array
+            minItems: 0
+            uniqueItems: true
+            items: {type: string, minLength: 1, maxLength: 200}
+          overlay_relaxations:
+            type: array
+            minItems: 0
+            uniqueItems: true
+            items: {type: string, minLength: 1, maxLength: 200}
+          overlay_pin_ref: {type: string, maxLength: 300}
+  supersedes_declaration_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  witness_role:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_role"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  duration_seconds:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"

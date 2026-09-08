@@ -1,0 +1,330 @@
+schema_version: 1
+kind: openxfactory-clearing-contract-schema
+name: xfactory_clearing_sealed_bundle_manifest
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/clearing/v1/sealed-bundle-manifest.schema.yaml"
+contract_id: clearing-sealed-bundle-manifest
+contract_schema_version: 1
+title: Sealed bounded request manifest (the ten declared fields)
+description: >-
+  THE SEALED BOUNDED REQUEST, AS A RECORD (add-clearing-dispatch-boundary,
+  capability `clearing-dispatch-boundary`, requirement "Work crosses the boundary
+  only as a sealed bounded request", as MODIFIED by add-cpc-clearing-boundary).
+  Cross-repository work reaches a governed execution host ONLY as this object,
+  and it carries ALL TEN declared fields:
+
+    (1) the originating repository and workflow  -> `origin`
+    (2) the source commit                        -> `source_commit`
+    (3) a unique job id and an expiration        -> `job`
+    (4) the selected-file manifest with a hash per file -> `selected_files`
+    (5) the permitted operation                  -> `operation`
+    (6) the required worker profile              -> `worker_profile`
+    (7) the exact runner group and the unique dispatch label -> `lane`
+    (8) the output schema                        -> `output_schema_ref`
+    (9) the data-handling classification         -> `data_handling`
+   (10) a signature or trusted hosted-workflow provenance -> `origin_attestation`
+
+  A REQUEST, NOT A MIRROR. This is a SHORT-LIVED SEALED JOB OBJECT and it is
+  never a committed path of copied data in any repository: an expiring object is
+  a REQUEST, while a committed copy outlives the work, carries the source's
+  handling class into a second repository's permanent history, and cannot
+  distinguish two dispatches of the same content. `job.expires_at` is REQUIRED
+  for exactly that reason, and a request whose expiration has passed is refused
+  rather than served.
+
+  FIELD (10) IS NO LONGER A FREE DISJUNCTION WHERE AN ORIGIN IDENTITY IS
+  REGISTERED. add-cpc-clearing-boundary tightened it: where an ACTIVE origin
+  identity is registered for the originating repository in the neutral
+  factory-identity register (`governance/factory-identity/`), field (10) SHALL be
+  an ORIGIN SIGNATURE made by that identity over the manifest, and trusted
+  hosted-workflow provenance alone SHALL NOT satisfy it. Where NO origin identity
+  is registered, hosted provenance satisfies it exactly as the basis states — so
+  registering an identity TIGHTENS a producer and never loosens one, and the
+  boundary stays usable by a producer not yet issued a key. WHICH VARIANT IS
+  LAWFUL IS A CROSS-SHAPE FACT A SCHEMA CANNOT SEE, because it depends on a
+  register this file cannot read; `scripts/validate-clearing-dispatch.py` resolves
+  the register and refuses with `clearing-origin-signature-missing`.
+
+  THE SIGNATURE COVERS ALL TEN FIELDS, the per-file hashes included, so no field
+  can be altered after signing without detection. `origin_signature.covered_fields`
+  is the enumerated proof of that coverage, and a set short of ten is refused
+  rather than reported as a signed manifest.
+
+  TWO CONSTRUCTIONS, AND NAMING BOTH IS WHAT KEEPS THIS FROM BEING A SECOND
+  VOCABULARY. The manifest is a JSON value: its digest, and the origin signature
+  computed over it, use the estate's canonical JSON construction
+  `xfc-jcs-sha256-1` with the subject `sealed_bundle_manifest` — admitted to that
+  construction's closed enumeration at tranche three, a widening of SUBJECTS and
+  never a second construction (see
+  `contracts/signed-execution-chain/digest-construction.schema.yaml`). PER-FILE
+  CONTENT HASHES ARE NOT JSON VALUES: they are plain algorithm-tagged SHA-256 over
+  the file's BYTES, carry no `construction` and no `subject`, and a per-file hash
+  written as a canonical-JSON digest is refused as a category error rather than
+  accepted as a stricter rule.
+
+  THE POLICY-CHECKED FIELDS ARE CLAIMS. `worker_profile`, `lane`,
+  `output_schema_ref` and `data_handling` have NO authoritative provider answer.
+  add-cpc-clearing-boundary requires that they be RESOLVED FROM the
+  permitted-operations register entry the `operation` id names, and that the
+  bundle's copies be treated as CLAIMS compared against the resolved entry rather
+  than as the values the dispatch runs on. Where a copy disagrees, THE REGISTER
+  GOVERNS: the request is refused and the disagreement recorded, rather than the
+  dispatch proceeding on either value. Validating a claim against the register and
+  executing on the register's own answer are different acts, and only the second
+  denies a producer the ability to choose its own worker profile, lane, or output
+  schema by writing them into a bundle it controls.
+
+  NO ELEVENTH FIELD. Nothing below is an addition to the ratified ten; the member
+  names group them, and `additionalProperties: false` is what keeps an eleventh
+  from arriving as a convenience.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - origin
+  - source_commit
+  - job
+  - selected_files
+  - operation
+  - worker_profile
+  - lane
+  - output_schema_ref
+  - data_handling
+  - origin_attestation
+
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+
+  byte_hash:
+    description: >-
+      ALGORITHM-TAGGED SHA-256 OVER FILE BYTES. Not a canonical-JSON digest, and
+      deliberately not shaped like one: no `construction`, no `subject`. A file's
+      content is a byte stream and a JSON canonicalization has nothing to
+      canonicalize in it.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'
+
+  manifest_digest:
+    description: >-
+      THE DIGEST OF THIS MANIFEST, under the ONE construction in force. The three
+      members and their value shapes are those of
+      `signed-execution-chain/digest-construction.schema.yaml` `$defs/digest`,
+      restated structurally because the two families are separately registered
+      contract files rather than one bundle resolved by relative `$ref`. The
+      canonical validator asserts the restatement still agrees with that file, so
+      a drift is a finding rather than a silent second rule.
+    type: object
+    additionalProperties: false
+    required: [construction, subject, value]
+    properties:
+      construction:
+        type: string
+        const: xfc-jcs-sha256-1
+      subject:
+        type: string
+        const: sealed_bundle_manifest
+      value:
+        type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+
+  declared_field_token:
+    description: >-
+      The ten declared fields, as tokens a signature's coverage is enumerated
+      over. The set is CLOSED and its members are the ten member names of this
+      record — an eleventh token would be an eleventh field.
+    type: string
+    enum:
+      - origin
+      - source_commit
+      - job
+      - selected_files
+      - operation
+      - worker_profile
+      - lane
+      - output_schema_ref
+      - data_handling
+      - origin_attestation
+
+  origin_signature:
+    description: >-
+      FIELD (10), THE TIGHTENED FORM. Required where the originating repository
+      holds an ACTIVE row in the factory-identity register. `register_row_id` and
+      `key_id` name the row and the key the verifier resolved, so the check is
+      recomputable rather than nominal; `manifest_digest` is the subject the
+      signature covers; `covered_fields` enumerates the coverage, and the
+      canonical validator refuses a set short of the ten declared fields, because
+      a partial signature is not a signed manifest.
+    type: object
+    additionalProperties: false
+    required:
+      - attestation_type
+      - register_row_id
+      - key_id
+      - manifest_digest
+      - signature
+      - covered_fields
+    properties:
+      attestation_type: {const: origin_signature}
+      register_row_id: {$ref: '#/$defs/identifier'}
+      key_id: {$ref: '#/$defs/identifier'}
+      manifest_digest: {$ref: '#/$defs/manifest_digest'}
+      signature:
+        description: >-
+          The Ed25519 signature over the canonical bytes of the manifest subject,
+          as unpadded base64url. The PUBLIC half it verifies against lives in the
+          factory-identity register; nothing in this record is, or resolves to,
+          key material.
+        type: string
+        pattern: '^[A-Za-z0-9_-]{86}$'
+      covered_fields:
+        type: array
+        minItems: 10
+        maxItems: 10
+        uniqueItems: true
+        items: {$ref: '#/$defs/declared_field_token'}
+
+  hosted_workflow_provenance:
+    description: >-
+      FIELD (10), THE BASIS FORM, and the interim floor the ratified text sets.
+      Lawful ONLY where the originating repository holds no active registered
+      origin identity: the estate had no signing identity for factory packaging
+      when the boundary was ratified, requiring a signature then would have made
+      the contract unimplementable, and requiring nothing would have made field
+      (10) decoration. It is verified API-side like every other provider-answerable
+      field — the provider says WHICH RUN produced the object — and it says nothing
+      about intent, which is the question the origin signature answers.
+    type: object
+    additionalProperties: false
+    required: [attestation_type, provider, run_id]
+    properties:
+      attestation_type: {const: hosted_workflow_provenance}
+      provider: {$ref: '#/$defs/identifier'}
+      run_id: {$ref: '#/$defs/identifier'}
+      run_attempt: {type: integer, minimum: 1}
+      run_url: {type: string, minLength: 1, maxLength: 400}
+
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_sealed_bundle_manifest}
+
+  # ---- field (1): the originating repository and workflow -----------------
+  origin:
+    description: >-
+      FIELD (1). Both members have an authoritative provider-side answer and are
+      RESOLVED AND COMPARED before any dispatch; a value here is the packager's
+      CLAIM, and its internal consistency evidences only the packager's
+      consistency.
+    type: object
+    additionalProperties: false
+    required: [repository, workflow_path]
+    properties:
+      repository:
+        type: string
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$'
+      workflow_path:
+        type: string
+        minLength: 1
+        maxLength: 400
+
+  # ---- field (2): the source commit ---------------------------------------
+  source_commit:
+    description: >-
+      FIELD (2). Provider-verifiable: compared against the head commit the
+      provider reports for the originating run.
+    type: string
+    pattern: '^[0-9a-f]{40}$'
+
+  # ---- field (3): a unique job id and an expiration -----------------------
+  job:
+    description: >-
+      FIELD (3). `expires_at` is what makes this object a REQUEST rather than a
+      copy, and it is what a replayed handle hits.
+    type: object
+    additionalProperties: false
+    required: [job_id, expires_at]
+    properties:
+      job_id: {$ref: '#/$defs/identifier'}
+      expires_at: {type: string, format: date-time}
+      issued_at: {type: string, format: date-time}
+
+  # ---- field (4): the selected-file manifest with a hash per file ---------
+  selected_files:
+    description: >-
+      FIELD (4). SELECTED FILES ONLY. The request carries the files its manifest
+      names and nothing else; a request seeking the originating repository's
+      working tree, history, or credentials is refused rather than narrowed. A
+      file listed without its hash is refused, which is why `content_hash` is
+      required on every member rather than optional on some.
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [path, content_hash]
+      properties:
+        path: {type: string, minLength: 1, maxLength: 400}
+        content_hash: {$ref: '#/$defs/byte_hash'}
+        size_bytes: {type: integer, minimum: 0}
+
+  # ---- field (5): the permitted operation ---------------------------------
+  operation:
+    description: >-
+      FIELD (5). The operation id, which MUST have an entry in the closed
+      permitted-operations register. A request naming an unregistered operation
+      is refused before any runner is selected.
+    $ref: '#/$defs/identifier'
+
+  # ---- field (6): the required worker profile -----------------------------
+  worker_profile:
+    description: >-
+      FIELD (6). A CLAIM. The value the dispatch RUNS ON is the register entry's,
+      and a disagreement refuses.
+    $ref: '#/$defs/identifier'
+
+  # ---- field (7): the exact runner group and the unique dispatch label -----
+  lane:
+    description: >-
+      FIELD (7). The GROUP is the security boundary the provider enforces and the
+      LABEL is the routing choice within it; both are in the request so the
+      clearing side can refuse a request asking for a lane its operation is not
+      registered for, BEFORE any runner is involved. Both are literal values.
+    type: object
+    additionalProperties: false
+    required: [runner_group, dispatch_label]
+    properties:
+      runner_group: {$ref: '#/$defs/identifier'}
+      dispatch_label: {$ref: '#/$defs/identifier'}
+
+  # ---- field (8): the output schema ---------------------------------------
+  output_schema_ref:
+    description: >-
+      FIELD (8). A CLAIM, resolved from the register entry. A return is validated
+      against the ENTRY's declared output schema, never against the bundle's copy
+      of it.
+    type: string
+    minLength: 1
+    maxLength: 400
+
+  # ---- field (9): the data-handling classification ------------------------
+  data_handling:
+    description: >-
+      FIELD (9). A CLAIM, resolved from the register entry. The vocabulary is
+      `document-cataloging`'s handling class; this family defines none of its own.
+    $ref: '#/$defs/identifier'
+
+  # ---- field (10): a signature or trusted hosted-workflow provenance -------
+  origin_attestation:
+    description: >-
+      FIELD (10), as a TAGGED UNION rather than a free-form blob, so that a
+      reader can tell which of the two the producer offered without guessing. The
+      LAWFULNESS of the variant depends on the factory-identity register and is
+      therefore enforced by the canonical validator, not here.
+    type: object
+    oneOf:
+      - $ref: '#/$defs/origin_signature'
+      - $ref: '#/$defs/hosted_workflow_provenance'

@@ -65,6 +65,7 @@ from datetime import date
 from pathlib import Path
 
 from . import (AUTO_FIXABLE, CONTESTED, ERROR, INFO, WARNING, Finding, Skip)
+from .corpus import ROOT_LEVEL_GOVERNED_PRODUCTS
 
 try:  # PyYAML is the suite's one optional dependency (runner/semantic do the same).
     import yaml
@@ -215,23 +216,49 @@ def _known_repositories(ctx):
                    for p in paths):
                 known = set(paths) | {"openxFactory", "xFactory"}
                 return known, "gitmodules", Path(agg)
-    # Convention fallback: the governed repos in scope plus the recognized
-    # aggregation-layout shapes, accepted by pattern (membership beyond scope is
-    # a strict-gate concern reported as skipped).
-    known = set(ctx.repo_paths) | {"openxFactory", "xFactory"}
+    # Convention fallback: the governed repos in scope, the recognized
+    # aggregation-layout shapes accepted by pattern, and the root-level neutral
+    # products, which have no pattern to be accepted by — their aggregation
+    # id is a BARE NAME, indistinguishable by shape from a typo, so the
+    # allowlist is the only thing that can admit them (membership beyond scope
+    # is a strict-gate concern reported as skipped).
+    known = (set(ctx.repo_paths) | {"openxFactory", "xFactory"}
+             | set(ROOT_LEVEL_GOVERNED_PRODUCTS))
     return known, "convention", (Path(agg) if agg is not None else None)
 
 
 def _governed_repo_ids(ctx) -> set[str]:
-    """Aggregation-relative repository IDs of the governed doc repos in scope
-    (`corpus.discover_repos` convention): openxFactory and `xFactories/<Name>`
-    for each DomainxFactory. References into these are resolvable without
-    materialization; only pinned install/runtime repositories are `external`
-    and subject to the nightly-skip / strict-materialization check."""
-    ids = set()
+    """Aggregation-relative repository IDs of the governed doc repos in scope:
+    openxFactory, `xFactories/<Name>` for each DomainxFactory
+    (`corpus.discover_repos` convention), and every root-level neutral product
+    on `corpus.ROOT_LEVEL_GOVERNED_PRODUCTS`. References into these are
+    resolvable without materialization; only pinned install/runtime repositories
+    are `external` and subject to the nightly-skip / strict-materialization
+    check.
+
+    WHY THE ROOT PRODUCTS ARE ADMITTED UNCONDITIONALLY, not derived from
+    `ctx.repo_paths` like the other two. `discover_repos` enumerates
+    `openxFactory` plus `xFactories/*` and nothing else, so a root-level product
+    can never appear in `repo_paths` — deriving membership from it would leave
+    this set permanently narrow and every reference into `openXwallet` classed
+    EXTERNAL, which is the defect this widening exists to close
+    (`council-systems-architect.md` concern 4). The allowlist is a statement
+    about the aggregation's TOPOLOGY, which is true whether or not this
+    particular run has the product checked out; the materialization question is
+    asked separately and by a different check.
+
+    The `repo_paths` loop tolerates an allowlisted name defensively rather than
+    prefixing it `xFactories/`: if `discover_repos` is ever widened to sweep a
+    root-level product's own documents, the two sites must not disagree about
+    that product's ID, and a silent `xFactories/openXwallet` would be a
+    repository that exists nowhere.
+    """
+    ids = set(ROOT_LEVEL_GOVERNED_PRODUCTS)
     for name in ctx.repo_paths:
-        ids.add("openxFactory" if name == "openxFactory"
-                else f"xFactories/{name}")
+        if name == "openxFactory" or name in ROOT_LEVEL_GOVERNED_PRODUCTS:
+            ids.add(name)
+        else:
+            ids.add(f"xFactories/{name}")
     return ids
 
 
@@ -252,8 +279,9 @@ def _repository_unknown_reason(repo, known, mode) -> str | None:
             or CONVENTION_INSTALL_RE.match(repo)):
         return None
     return (f"repository {repo!r} is not a recognized aggregation repository id "
-            "(reserved 'xFactory', 'openxFactory', 'xFactories/<Name>', or "
-            "'installs/<name>')")
+            "(reserved 'xFactory', 'openxFactory', 'xFactories/<Name>', "
+            "'installs/<name>', or a root-level neutral product: "
+            + ", ".join(repr(n) for n in ROOT_LEVEL_GOVERNED_PRODUCTS) + ")")
 
 
 def _posix_path_reason(path: str) -> str | None:
@@ -849,11 +877,25 @@ def _strip_inline_code(line: str) -> str:
 
 
 def _scan_lines(text: str):
-    """Yield (lineno, line, in_code_fence) with ``` fence tracking (families
-    `_scan_lines` precedent). Fenced and inline-code examples are ignored by
-    the provenance checks so a documented example never reads as a real
-    definition or reference (delta scenario "Duplicate-looking references
-    occur")."""
+    """Yield (lineno, line, in_code_fence) with ``` fence tracking. Fenced
+    and inline-code examples are ignored by the provenance checks so a
+    documented example never reads as a real definition or reference (delta
+    scenario "Duplicate-looking references occur").
+
+    NOT the `doc_health.lines`/real-line rule (finding F6, focused
+    re-verify, align-status-reader-to-real-lines, 2026-08-19): this is a
+    byte-for-byte copy of `families._scan_lines` as it existed BEFORE that
+    change converted it, and this copy was never itself converted. Its
+    docstring used to point at "families `_scan_lines` precedent" as if
+    following that pointer would land on matching behavior — it would not,
+    since `families._scan_lines` now scans real lines and this function
+    still scans `str.splitlines()` pseudo-lines. Deliberately left
+    unconverted: it is not a reader of a document's lifecycle header (it
+    scans for provenance references and fence state, never `Status:`/
+    `Kind:`/etc.), so it sits outside the wide ruling's every-*header*-
+    reader clause; recorded, with `_template_gaps`, in tasks.md §7 as a
+    latent (0-of-1227 files diverge) sibling the corrected sweep found.
+    """
     fenced = False
     for i, line in enumerate(text.splitlines(), start=1):
         if line.lstrip().startswith("```"):

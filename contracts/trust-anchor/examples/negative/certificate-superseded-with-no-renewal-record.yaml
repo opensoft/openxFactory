@@ -1,0 +1,63 @@
+# expected_failure: renewal-key-change-understated
+# expected_failure_detail: a rebind obligation with no owner
+# requirement: TA-R4
+# VIOLATES TA-R4 by SILENCE. The certificate declares that its current key
+# generation supersedes an earlier one — so the key changed — and no renewal
+# record in this corpus accounts for that change.
+#
+# The renewal record is where the rebind obligation lives: who owed what, to which
+# dependents, and with what evidence. A key change with no renewal record is that
+# obligation with no owner, and the dependents keep pointing wherever they
+# pointed. This is the shape an adversarial probe reached for after the
+# `changed: false` shape — same silence, one fewer record to write.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-superseded-without-a-renewal
+realization_ref: realization:managed-cloud-authority-canary
+anchor_ref: anchor:managed-issuing
+subject:
+  identifier: "fleet-agent-77.managed.example"
+  subject_class: device
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-02-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-superseded-g2
+  generated_at: "2026-08-01T00:00:00Z"
+  supersedes_generation_ref: keygen:neg-superseded-g1
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-08-01T00:00:00Z"
+  declared_by: opensoft
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-02T00:00:00Z"
+    statement: The managed authority produced no issuance record for the reissue.
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-02T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-02T00:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-02T00:00:00Z"
+    result: current_standing_active
+  outcome: refused
+  refusal:
+    code: issuance_evidence_absent
+    statement: >-
+      Refused for the missing issuance record, so this fixture fails for the
+      unaccounted key change rather than for a trusted evaluation.
+record_version: 2

@@ -1,0 +1,238 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_durability_batch_admission
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/durability-batch-admission.schema.yaml"
+contract_id: chain-anchoring-durability-batch-admission
+contract_schema_version: 1
+title: One atomic admission of one event into one fixed UTC durability window
+description: >-
+  ONE EVENT'S ENTRY INTO ONE WINDOW, AND THE RECORD OF THE ONE TRANSACTION THAT
+  PUT IT THERE (`amend-chain-anchoring-readiness-and-durability`, requirement
+  "Fixed UTC durability batches account for every accepted event exactly once").
+
+  THE FIVE THINGS ARE ONE TRANSACTION, WHICH IS WHY THEY ARE ONE RECORD. The
+  amendment: *"One atomic log-admission transaction SHALL validate a declared
+  durability-eligible owner-evidence event, apply the dedupe rule, record trusted
+  acceptance time, select the window from that acceptance time, and assign the
+  next monotonic leaf sequence."* Split across five steps that can each succeed
+  alone, every interleaving is a way for an event to be counted twice or not at
+  all; as ONE transaction, the admission race at the midnight boundary has
+  exactly one outcome. `admission_transaction.atomic` and its `steps` are
+  DECLARED, and a realization that declares otherwise is refused by name
+  (`durability_admission_not_atomic`) rather than trusted to have meant something
+  better.
+
+  ACCEPTANCE TIME SELECTS THE WINDOW AND SOURCE TIME NEVER DOES. `owner_source_time`
+  is DESCRIPTIVE ONLY. A window a source time could select is a window an owner
+  could reopen by backdating, and a closed window that can be reopened is not
+  closed; the late-arrival rule declares this in the direction it holds, both
+  wrong answers are writable, and the refusals are
+  `durability_window_selected_from_source_time` and
+  `source_time_lateness_recorded_on_chain`.
+
+  MIDNIGHT BELONGS TO THE NEW WINDOW, BECAUSE THE INTERVAL IS HALF-OPEN. An
+  acceptance at exactly `00:00:00Z` enters the window that OPENS then: the prior
+  window's exclusive boundary has passed. Stating it here is not pedantry — an
+  inclusive upper bound puts one instant in two windows, and this family has
+  already paid three review rounds for direction errors in a timing model.
+
+  THE SEQUENCE ORDERS EVENTS WITHIN A WINDOW AND MUST NOT INVERT THE PARTITION.
+  Two admissions whose acceptance order and sequence order disagree are refused
+  across the scope (`durability_sequence_inverts_acceptance_partition`), because
+  the partition is what the completeness walk relies on: a verifier reproduces
+  the admission set by walking sequences and trusting that the order it finds is
+  the order acceptance imposed.
+
+  A REPLAY IS AN ACKNOWLEDGEMENT AND NOT A SECOND ADMISSION. Replay of the same
+  dedupe key with the same material digest returns the EXISTING leaf and
+  sequence; it consumes no second sequence
+  (`dedupe_replay_consumed_a_second_sequence`) and it returns NO pre-closure
+  anchor receipt, because the anchored item is the CLOSED DAILY MANIFEST and a
+  constituent event that received its own receipt would be a second anchored item
+  hiding inside the first (`constituent_event_given_separate_receipt`).
+
+  AND THE DEDUPE KEY STAYS OFF PUBLIC CHAINS. It is owner-local and stable, which
+  makes it a correlation handle the moment it is reachable from an anchor; the
+  custody reference carried by the dedupe rule is the same shape every salt and
+  key in this family takes, and anything but `governed_layer` is refused
+  (`dedupe_key_reachable_from_anchor`).
+type: object
+required:
+  - schema_version
+  - kind
+  - admission_id
+  - admission_kind
+  - window_open
+  - window_close
+  - leaf_sequence
+  - leaf_class
+  - trusted_acceptance_time
+  - material_digest
+  - event_leaf_digest
+  - dedupe_key_ref
+  - dedupe_rule
+  - late_arrival_rule
+  - admission_transaction
+  - eligibility_snapshot
+  - merkle_profile
+  - membership_path
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_durability_batch_admission]
+  admission_id: {$ref: '#/$defs/identifier'}
+  admission_kind:
+    # A NEW LEAF, OR THE ACKNOWLEDGEMENT OF ONE THAT ALREADY EXISTS. The second
+    # is a first-class outcome rather than an error: an idempotent producer will
+    # replay, and the honest answer is the existing leaf and sequence.
+    type: string
+    enum: [new_leaf, replay_acknowledgement]
+  window_open:
+    # THE WINDOW'S INCLUSIVE OPEN, WHICH IS A UTC MIDNIGHT. A non-midnight
+    # boundary is a DECLARED value and is refused by name
+    # (`durability_window_not_fixed_utc_midnight`) rather than made
+    # unrepresentable by a pattern, because a refusal must say that the window
+    # was not one of the profile's fixed windows — and a pattern error saying a
+    # string did not match a regex does not say that.
+    type: string
+    format: date-time
+  window_close:
+    # THE WINDOW'S EXCLUSIVE CLOSE, the next midnight. Carried rather than
+    # derived so that a record with a mis-declared interval is visible in the
+    # record instead of being silently repaired by a reader.
+    type: string
+    format: date-time
+  leaf_sequence:
+    # THE MONOTONIC SIGNED-LOG SEQUENCE THIS ADMISSION BOUND, exactly once, to
+    # the acceptance timestamp, the material digest and the dedupe key.
+    type: integer
+    minimum: 0
+  leaf_class:
+    # OWNER EVIDENCE OR ANCHORING CONTROL. `anchoring_control` is writable
+    # BECAUSE the recursion refusal must have a fixture: a control leaf offered
+    # as an eligible event in the batch it produces is exactly the self-inclusion
+    # that would make the manifest contain its own description.
+    $ref: '#/$defs/leaf_class'
+  trusted_acceptance_time:
+    # THE ONE CLOCK THAT SELECTS A WINDOW. Trusted means the LOG's, not the
+    # owner's: this family's timing doctrine already admits three clocks and no
+    # party's assertion among them.
+    type: string
+    format: date-time
+  owner_source_time:
+    # DESCRIPTIVE ONLY. It may sit before this window's open — that is the
+    # late-arrival case, and it is normal — and it may never select or reopen a
+    # window.
+    type: string
+    format: date-time
+  source_time_lateness_seconds:
+    # HOW LATE, WHERE IT WAS LATE. Recorded so the lateness is auditable; the
+    # late-arrival rule says WHERE it is recorded, and `on_chain` is the refused
+    # answer.
+    $ref: '#/$defs/duration_seconds'
+  material_digest:
+    # WHAT WAS ADMITTED, under the one construction, with the family's own
+    # subject for anchored material. The dedupe rule compares THIS value: a key
+    # replayed with a different material digest is a different event wearing the
+    # same handle.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: anchor_material}}
+        required: [subject]
+  event_leaf_digest:
+    # THE CANONICAL LEAF FOR THIS EVENT UNDER THE SNAPSHOTTED CONSTRUCTION. It is
+    # a DISTINCT subject from the material digest because the construction
+    # domain-separates a leaf from the value inside it, and a record that carried
+    # one value for both would defeat that separation at the one place a verifier
+    # recomputes.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: durability_event_leaf}}
+        required: [subject]
+  dedupe_key_ref:
+    # THE STABLE OWNER-LOCAL HANDLE, BY REFERENCE. The key itself is never
+    # carried and never reaches a chain; what is carried is a reference whose
+    # custody the dedupe rule declares.
+    $ref: '#/$defs/identifier'
+  dedupe_rule: {$ref: '#/$defs/dedupe_rule'}
+  late_arrival_rule: {$ref: '#/$defs/late_arrival_rule'}
+  admission_transaction:
+    # THE ONE TRANSACTION, AND THE FIVE THINGS IT DID. `steps` is enumerated so
+    # a realization that performed four of the five is refused for the one it
+    # skipped, which is a different and more useful answer than "not atomic".
+    type: object
+    required: [transaction_ref, atomic, steps]
+    additionalProperties: false
+    properties:
+      transaction_ref: {$ref: '#/$defs/identifier'}
+      atomic: {type: boolean}
+      steps:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+            - validate_eligibility
+            - apply_dedupe_rule
+            - record_acceptance_time
+            - select_window_from_acceptance_time
+            - assign_next_leaf_sequence
+  eligibility_snapshot:
+    # THE WINDOW'S BOUND DENOMINATOR, CARRIED ON EVERY ADMISSION IN IT. Every
+    # admission assigned to one window carries the SAME snapshot, and the reader
+    # refuses a window whose admissions disagree — because a denominator that
+    # differs between two events of one window is two windows pretending to be
+    # one.
+    $ref: '#/$defs/eligibility_snapshot'
+  merkle_profile: {$ref: '#/$defs/merkle_profile_snapshot'}
+  membership_path:
+    # THE PATH FROM THIS LEAF TO THE WINDOW'S BATCH ROOT. Every included event
+    # carries one; an accepted sequence in the window with no path into the
+    # closed batch is refused as incomplete even where the root has valid witness
+    # evidence (`durability_batch_omits_accepted_event`).
+    $ref: '#/$defs/batch_membership_path'
+  batch_manifest_ref:
+    # THE CLOSED WINDOW'S MANIFEST, once there is one. Absent while the window is
+    # open, which is the honest state of an admission in an open window: the
+    # event is evidenced by the signed owner-local log and is NOT yet publicly
+    # anchored.
+    $ref: '#/$defs/identifier'
+  replay_of_leaf_sequence:
+    # THE EXISTING SEQUENCE A REPLAY ACKNOWLEDGEMENT RETURNS. On a
+    # `replay_acknowledgement` it must equal `leaf_sequence`, because the whole
+    # point is that no second sequence was consumed; a record where the two
+    # differ is the second admission the dedupe rule was supposed to prevent.
+    type: integer
+    minimum: 0
+  pre_closure_anchor_receipt_ref:
+    # THE MEMBER A CONFORMING ADMISSION DOES NOT CARRY, KEPT WRITABLE SO THE
+    # REFUSAL HAS A FIXTURE. Constituent events are membership leaves of the
+    # closed daily item and receive no separate multi-anchor receipt; one here is
+    # `constituent_event_given_separate_receipt`.
+    $ref: '#/$defs/identifier'
+  recorded_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  duration_seconds:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"
+  leaf_class:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/leaf_class"
+  dedupe_rule:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/dedupe_rule"
+  late_arrival_rule:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/late_arrival_rule"
+  eligibility_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/eligibility_snapshot"
+  merkle_profile_snapshot:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/merkle_profile_snapshot"
+  batch_membership_path:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/batch_membership_path"

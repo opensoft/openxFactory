@@ -1236,6 +1236,20 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   content: attr(data-applied) " ✓ (regenerate to fold in)";
   font-size: 9px; color: var(--good);
 }
+/* the HOSTED plane's per-tile intent indicator (add-ideation-intent-plane task
+   4.4): the same decorate-never-mutate posture as `.wheelapplied`, on a plane
+   where the decision travelled as a request the apply lane still owns. */
+.wheeltile.wheelintent { border-style: dashed; border-color: var(--st-proposal); }
+.wheeltile.wheelintent::after {
+  content: "intent: " attr(data-intent);
+  font-size: 9px; color: var(--st-proposal);
+}
+.wheeltile.wheelintent[data-intent="applied"] { border-color: var(--good); }
+.wheeltile.wheelintent[data-intent="applied"]::after { color: var(--good); }
+.wheeltile.wheelintent[data-intent="refused"],
+.wheeltile.wheelintent[data-intent="stalled"] { border-color: var(--blocked); }
+.wheeltile.wheelintent[data-intent="refused"]::after,
+.wheeltile.wheelintent[data-intent="stalled"]::after { color: var(--blocked); }
 .refusalpanel {
   position: fixed; right: 14px; bottom: 14px; z-index: 30; width: 340px;
   max-height: 40vh; overflow-y: auto; background: var(--panel);
@@ -1253,7 +1267,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .refusalpanel-kind { flex: none; font-family: var(--mono); font-size: 9px; border-radius: 999px; padding: 0 6px; }
 .is-refused .refusalpanel-kind { background: var(--blocked-bg); color: var(--blocked); }
 .is-ok .refusalpanel-kind { background: var(--good-bg); color: var(--good); }
+/* the HOSTED plane's other outcomes (task 4.4): submitted-not-yet-decided,
+   recorded-but-not-dispatched, and never-sent-at-all. Distinct from a refusal
+   on purpose - only one of the three is a verdict on the decision. */
+.is-queued .refusalpanel-kind { background: var(--faint); color: var(--st-proposal); }
+.is-stalled .refusalpanel-kind { background: var(--faint); color: var(--blocked); }
+.is-error .refusalpanel-kind { background: var(--faint); color: var(--faint-ink); }
 .refusalpanel-msg { color: var(--ink); }
+
+/* ---- intent-feed chips (add-ideation-intent-plane task 4.4, ruling D-1) ----
+   The hosted overlay's per-target lifecycle indicators, rendered beside the
+   dispose tray from the JOINED feed (the inbox's pending list plus the
+   committed intents this serve reads out of the corpus). They decorate; they
+   never restyle a tile's own snapshot-derived state, which is what keeps the
+   two planes separate on screen. Every colour is a shared token, so the chips
+   theme in light, dark and auto without a second rule set. */
+.intentchips { display: inline-flex; gap: 4px; margin-left: 6px; align-items: center; }
+.intentchip {
+  font-family: var(--mono); font-size: 9px; line-height: 1.6;
+  border-radius: 999px; padding: 0 6px; border: 1px solid transparent;
+  background: var(--faint); color: var(--muted); white-space: nowrap;
+}
+.intentchip-pending { color: var(--st-proposal); border-color: var(--st-proposal); }
+.intentchip-applied { background: var(--good-bg); color: var(--good); }
+.intentchip-refused { background: var(--blocked-bg); color: var(--blocked); }
+.intentchip-stalled { color: var(--blocked); border-color: var(--blocked); }
+.intentchip-error { color: var(--faint-ink); border-color: var(--border); }
 .gatebtn-live { border-color: var(--good); }
 
 /* ---- settings panel (header gear, views/settings.js) -----------------------
@@ -1294,6 +1333,43 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .settingsreset:hover { border-color: var(--st-staged); color: var(--st-staged); }
 .settingsnote { margin: 6px 10px 9px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 .settingspanel :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
+/* ---- account menu (header user icon, views/account-menu.js) ----------------
+   The user-account button reuses .themebtn's chrome (same header button family)
+   with the same open-state accent as the gear. The dropdown is FIXED and
+   anchored under its button by script for the same reason the settings panel is
+   — the app shell (.wrap) clips overflow. Every colour is a shared custom
+   property, so it themes in light/dark/auto with no second rule set. The menu
+   is DISPLAY-ONLY: it shows the signed-in identity and derived access level and
+   (hosted mode) a logout that delegates to the gateway; it authorizes nothing.
+   (add-dashboard-account-menu) */
+.accountbtn { padding: 3px 7px; }
+.accountbtn[aria-expanded="true"] { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu {
+  position: fixed; top: 60px; left: 16px; z-index: 40; width: 240px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); font-size: 11px;
+}
+.accountmenu-head {
+  display: flex; align-items: center; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint);
+}
+.accountmenu-title {
+  flex: 1; font-weight: 600; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; font-size: 10px;
+}
+.accountmenu-close { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 11px; }
+.accountmenu-who { margin: 9px 10px 0; color: var(--ink); font-family: var(--mono); font-size: 11px; }
+.accountmenu-level { margin: 4px 10px 0; color: var(--muted); font-size: 10px; }
+.accountmenu-logoutrow { margin: 9px 10px; }
+.accountmenu-logout {
+  display: inline-block; font-family: var(--mono); font-size: 10px; cursor: pointer;
+  color: var(--muted); text-decoration: none;
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+}
+.accountmenu-logout:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
 
 /* ---- staged tile health chrome (add-staging-workbench D10) ------------------
    Two levels, verbatim from the snapshot's `health` object (pure helpers in
@@ -1543,35 +1619,83 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxbench-canvas[hidden] { display: none; }
 .swb-regions.has-rail .doxbench-canvas { flex-basis: 32%; }
 
-.doxbench-heading {
-  font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink);
-  margin: 0 0 4px; flex: none;
+/* Brett's 2026-08-15 annotation round: `.doxbench-heading` is retired — the
+   region's accessible name carries "doxBench · <scope>" and the h2 duplicated
+   it visibly for no gain. The TAB ROW takes that slot: view tabs left, the
+   panel's Save/Cancel right, in one line. */
+.doxbench-tabrow {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 8px; flex: none; min-width: 0;
 }
-.doxbench-tabs { display: flex; gap: 6px; flex: none; }
-.doxbench-tab {
+.doxbench-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+/* add-doxbench-editing-phase-a: the VIEW tabs (Editor/Preview) took over the
+   strip the retired BUFFER tablist used to occupy, so they inherit its look
+   verbatim — the selected-tab rule below still keys on aria-selected, which
+   stays selection's one and only spelling. */
+.doxbench-viewtabs { display: flex; gap: 6px; flex: none; }
+.doxbench-viewtab {
   font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
   background: none; border: 1px solid var(--border); border-bottom: none;
   border-radius: 5px 5px 0 0; padding: 4px 12px;
 }
-.doxbench-tab:hover { color: var(--ink); }
+.doxbench-viewtab:hover { color: var(--ink); }
 .doxbench-panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.doxbench-pane {
+.doxbench-viewpane {
   flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
   border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px;
   padding: 10px 12px; background: var(--panel);
 }
-.doxbench-pane[hidden] { display: none; }
-.doxbench-toolbar { display: flex; align-items: center; gap: 8px; flex: none; }
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-bufferbox[hidden] { display: none; }
+/* the panel chrome: the document picker, one status region per buffer, and the
+   one Save / one Cancel — all OUTSIDE both view tabs, so each control and its
+   answer are on screen from either view. */
+/* The status row under the tab row. Brett's 2026-08-18 annotation round 2
+   retired its STANDING text — the controls' own enabled state says what the
+   sentences used to — so what remains is sr-only (the per-buffer live regions,
+   for assistive technology and for the partial-Save contract), the gate-absent
+   reason, and ONE transient visible line for events. */
+.doxbench-statusbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  flex: none; min-width: 0;
+}
+/* The house sr-only idiom, the same one `.doxchat-announce` uses one region
+   over: out of the visual flow, still in the accessibility tree, still
+   announced. NOT `display: none` and NOT `hidden`, either of which would take
+   the live region out of the tree along with the text. */
+.doxbench-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+/* The EVENT line: a refusal, or a Save that did not wholly land. Visible only
+   while it has something to say, and it says it briefly — standing text is what
+   annotation round 2 removed. */
+.doxbench-eventnote {
+  flex-basis: 100%; min-width: 0; font-size: 11px; color: var(--blocked);
+  overflow-wrap: anywhere;
+}
+.doxbench-eventnote[hidden] { display: none; }
+.doxbench-save-note[hidden] { display: none; }
+.doxbench-unload-note[hidden] { display: none; }
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
-.doxbench-discard, .doxbench-save {
+/* Amendment 1 (2026-08-21): Unload shares the slot with the Save/Cancel pair and
+   is never on screen beside them, so it takes the same look — the slot's
+   occupancy is what changes, not its shape. */
+.doxbench-cancel, .doxbench-save, .doxbench-unload {
   font-family: var(--mono); font-size: 10.5px; cursor: pointer; color: var(--muted);
   background: var(--faint); border: 1px solid var(--border); border-radius: 4px;
   padding: 2px 9px;
 }
-.doxbench-discard:hover { border-color: var(--st-staged); color: var(--st-staged); }
-.doxbench-discard:disabled, .doxbench-save:disabled { opacity: 0.5; cursor: not-allowed; }
-.doxbench-textarea, .doxbench-editarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-cancel:hover, .doxbench-unload:hover {
+  border-color: var(--st-staged); color: var(--st-staged);
+}
+.doxbench-cancel:disabled, .doxbench-save:disabled,
+.doxbench-unload:disabled { opacity: 0.5; cursor: not-allowed; }
+.doxbench-unload[hidden], .doxbench-save[hidden],
+.doxbench-cancel[hidden] { display: none; }
+.doxbench-textarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .doxbench-textarea {
   font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--panel);
   border: 1px solid var(--border); border-radius: 5px; padding: 8px 10px;
@@ -1621,19 +1745,10 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    (legible without a hover), the document picker that reaches
    selectDocument, and the refused-edit status state. Append-only — no rule
    above this comment is touched. */
-.doxbench-save-note, .doxbench-guard-save-note {
+.doxbench-save-note, .doxbench-guard-save-note, .doxbench-unload-note {
   font-size: 10px; color: var(--faint-ink); font-style: italic; flex-basis: 100%;
 }
 .doxbench-status-error { color: var(--blocked); font-weight: 600; }
-.doxbench-picker-label {
-  display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: var(--muted);
-  flex: none;
-}
-.doxbench-document-picker {
-  font-family: var(--sans); font-size: 12px; color: var(--ink); background: var(--panel);
-  border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px;
-}
-.doxbench-document-picker:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; }
 
 /* ---- doxBench posture note + forced-colors modes (US5, T091/T093) ------- */
 /* The inline posture explanation (FR-040/FR-025): visible, wrapped, never
@@ -1655,7 +1770,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   .pill,
   .swb-posture-note,
   .swb-tab,
-  .doxbench-tab,
+  .doxbench-viewtab,
   .doxbench-save-note {
     border: 1px solid ButtonText;
   }
@@ -1663,7 +1778,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
     background: Highlight;
   }
   .swb-tab[aria-selected="true"],
-  .doxbench-tab[aria-selected="true"] {
+  .doxbench-viewtab[aria-selected="true"] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }
@@ -1698,9 +1813,39 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px solid var(--border); border-radius: 6px;
 }
 .doxchat-composer { min-height: 64px; resize: vertical; }
-.doxchat-header {
-  font-size: 12px; font-weight: 600; color: var(--ink);
-  padding: 6px 8px; border-bottom: 1px solid var(--border);
+/* THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled). A
+   native scrolling select IS the overflow policy (design D6): no folding, no
+   chip row, no least-recently-used eviction, because every loaded buffer may
+   hold unsaved work. `size` is left to the platform so the list scrolls in its
+   own popup exactly as the approved-model selector's does. */
+.doxchat-loaded {
+  width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.doxchat-loaded:disabled { opacity: .5; cursor: not-allowed; }
+/* A context-only entry is loadable for grounding but has no reachable Save, and
+   the option says so rather than looking like an owned document (design D2). */
+.doxchat-loaded-option[data-owned="false"] { font-style: italic; }
+.doxchat-loaded-option[data-dirty="true"] { font-weight: 700; }
+/* (`.doxchat-unload` went with its control: Brett's 2026-08-21 annotation moved
+   the loaded set's one way out onto the canvas slot, where `.doxbench-unload`
+   now carries it beside the Save and Cancel it stands in for.) */
+.doxchat-loaded-note {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The HONEST empty state — rendered, never hidden. */
+.doxchat-loaded-empty {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The selected entry's FULL name, for assistive technology. Visually hidden and
+   still a live region — the same idiom `doxchat-announce` uses one region over.
+   The visible label may be a basename or a distinguishing suffix; "the full name
+   MUST be available to assistive technology" is a separate obligation, and a
+   title attribute alone does not discharge it. */
+.doxchat-loaded-full {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
 }
 .doxchat-card-target {
   align-self: flex-start; font: 10px/1.4 ui-monospace, monospace;
@@ -1749,67 +1894,114 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px solid var(--border); border-radius: 6px;
   background: var(--faint); color: var(--ink);
 }
+/* THE SEND ROW (Brett's 2026-08-18 annotation round 2): the approved-model
+   selector sits beside Send, where the choice it governs is used. The selector
+   takes the slack so a long model label truncates rather than pushing Send off
+   the row; Send keeps its intrinsic width. */
+.doxchat-sendrow {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  min-width: 0;
+}
+.doxchat-sendrow .doxchat-model { flex: 1 1 auto; min-width: 0; }
+.doxchat-sendrow .doxchat-send { flex: none; }
+.doxchat-model:disabled { opacity: .5; cursor: not-allowed; }
+/* The same sr-only idiom `.doxchat-announce` uses: the unavailability sentence
+   is the send button's programmatic description now, not a standing line, so it
+   must stay in the accessibility tree while leaving the visual flow. */
+.doxchat-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
 .doxchat-send { align-self: flex-end; }
 .doxchat-card-apply:disabled, .doxchat-card-reject:disabled,
 .doxchat-send:disabled { opacity: .5; cursor: not-allowed; }
 .doxchat-failure { color: var(--blocked); font-size: 12px; }
 .doxchat-failure[hidden] { display: none; }
+/* contract-v1.40 (task 10.7): the assembled context's REDUCED posture, stated
+   under the transcript it describes. `--muted`, not `--blocked`: a reduced
+   packet is a turn that SUCCEEDED under a declared degradation, not a refusal,
+   and colouring it like one would misreport what happened. */
+.doxchat-context { color: var(--muted); font-size: 12px; }
+.doxchat-context[hidden] { display: none; }
+/* add-doxchat-model-intake task 3.6: what the last answer cost beyond one
+   provider call. Beside the posture note, in the same muted register, because
+   it is the same class of thing — a fixed, server-derived statement about the
+   answer just rendered. It is a live region, so it is never `display: none`
+   while it carries text; the `[hidden]` rule only applies when it does not. */
+.doxchat-provider-retry { color: var(--muted); font-size: 12px; }
+.doxchat-provider-retry[hidden] { display: none; }
+/* The selector's one non-model option (add-doxchat-model-intake §1). Marked so
+   a human can see at a glance that the first entry is an ACT and not a model —
+   the list it heads is otherwise all models. */
+.doxchat-model-intake { font-style: italic; }
+/* Where the enrolment flow opens: inside the rail, under the controls it is
+   about, and taking no space at all until it is opened. */
+.doxbench-intake-host { margin-top: 8px; }
+.doxbench-intake-host[hidden] { display: none; }
+.swb-intake-panel {
+  display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid var(--border); border-radius: 6px; padding: 8px;
+}
+.swb-intake-heading { margin: 0; font-size: 13px; }
+.swb-intake-note { margin: 0; color: var(--muted); font-size: 12px; }
+.swb-intake-form { display: flex; flex-direction: column; gap: 6px; }
+.swb-intake-field { display: flex; flex-direction: column; gap: 2px; }
+.swb-intake-field[hidden] { display: none; }
+.swb-intake-label { color: var(--muted); font-size: 11px; }
+.swb-intake-input, .swb-intake-dialect, .swb-intake-kind { width: 100%; }
+.swb-intake-status { color: var(--muted); font-size: 12px; }
+.swb-intake-status[hidden] { display: none; }
 /* T100 P2: screen-reader announcement region (visually hidden, aria-live). */
 .doxchat-announce {
   position: absolute; width: 1px; height: 1px; margin: -1px;
   clip-path: inset(50%); overflow: hidden; white-space: nowrap;
 }
-/* ---- canvas editor internals (same operator patch, part 3) ---- */
-.doxbench-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
-.doxbench-tab {
+/* ---- canvas editor internals (same operator patch, part 3) ----
+   add-doxbench-editing-phase-a re-pointed this block from the retired BUFFER
+   tablist onto the VIEW tablist that replaced it, and from the per-buffer
+   toolbar onto the panel chrome. Nothing about the LOOK changed: the same
+   strip, in the same place, answering a different question. */
+.doxbench-viewtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.doxbench-viewtab {
   font: inherit; padding: 6px 14px; cursor: pointer; color: var(--muted);
   background: transparent; border: 1px solid transparent;
   border-bottom: none; border-radius: 6px 6px 0 0;
 }
-.doxbench-tab[aria-selected="true"] {
+.doxbench-viewtab[aria-selected="true"] {
   color: var(--ink); background: var(--panel);
   border-color: var(--border); font-weight: 600;
 }
-.doxbench-toolbar {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 6px 0;
+.doxbench-statusbar {
+  display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap;
+  padding: 4px 0 6px;
 }
-.doxbench-picker-label {
-  /* T104 F9-3: this later block wins per-property over the S1c wave's block
-     above, but it never re-declared flex-direction, so `column` survived from
-     that wave while `flex: 1` made the label compete with the editarea for
-     the pane's HEIGHT — the <select> inside (flex: 1) stretched vertically.
-     The label is a compact row above the toolbar, never a height competitor:
-     row explicitly, flex: none explicitly. */
-  display: flex; flex-direction: row; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--muted); min-width: 0; flex: none;
-}
-.doxbench-picker-label select {
-  flex: 1; min-width: 0; font: inherit; padding: 4px 6px;
-  background: var(--panel); color: var(--ink);
-  border: 1px solid var(--border); border-radius: 6px;
-}
+.doxbench-eventnote { font-size: 12px; }
+.doxbench-tabrow { padding-top: 2px; }
 .doxbench-panes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-.doxbench-pane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
-.doxbench-pane[hidden] { display: none; }
-.doxbench-textarea, .doxbench-editarea {
+.doxbench-viewpane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-bufferbox[hidden] { display: none; }
+.doxbench-textarea {
   flex: 1 1 auto; min-height: 120px; width: 100%; box-sizing: border-box;
   resize: none; padding: 10px; font: 13px/1.5 ui-monospace, monospace;
   background: var(--panel); color: var(--ink);
   border: 1px solid var(--border); border-radius: 6px;
 }
+/* the Preview view tab is the LARGE rendered pane it names, not the sliver a
+   split pane could spare it. */
 .doxbench-preview {
-  flex: 0 1 40%; min-height: 0; overflow-y: auto; padding: 8px 10px;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 8px 10px;
   border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;
 }
 .doxbench-status { font-size: 12px; color: var(--muted); }
-.doxbench-save, .doxbench-discard, .doxbench-guard-save,
+.doxbench-save, .doxbench-cancel, .doxbench-unload, .doxbench-guard-save,
 .doxbench-guard-discard, .doxbench-guard-cancel {
   font: inherit; padding: 5px 12px; cursor: pointer;
   border: 1px solid var(--border); border-radius: 6px;
   background: var(--faint); color: var(--ink);
 }
-.doxbench-save:disabled, .doxbench-discard:disabled { opacity: .5; cursor: not-allowed; }
+.doxbench-save:disabled, .doxbench-cancel:disabled { opacity: .5; cursor: not-allowed; }
 .doxbench-save-note, .doxbench-guard-save-note { font-size: 12px; color: var(--muted); }
 .doxbench-guard {
   display: flex; flex-direction: column; gap: 8px; padding: 10px;
@@ -1946,6 +2138,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   background: var(--surface); color: var(--ink);
 }
 .swb-docopen:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE'S THREE VERBS (add-doxbench-editing-phase-b, Q3 ruled). Load and
+   Save share the read verb's chrome, because they are three verbs on one row
+   rather than three visual languages. */
+.swb-docload, .swb-docsave {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.swb-docload:disabled, .swb-docsave:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE MARKING, in the wheel's existing badge/colour idiom (design D9).
+   LOADED and LOADED-AND-DIRTY are separately distinguishable, because Brett
+   named both: one says "this is in the chat context", the other says "this must
+   be saved". Driven off live buffer state; never written into the snapshot. */
+.swb-doctile.swb-docloaded {
+  border-color: var(--st-staged); box-shadow: inset 0 0 0 1px var(--st-staged);
+}
+.swb-doctile.swb-docneedssave {
+  border-color: var(--st-proposal); background: var(--faint);
+  box-shadow: inset 0 0 0 2px var(--st-proposal);
+}
+/* Where a tile verb's outcome lands — a refused load (the measured loaded-set
+   bound) or a Save the governed pipeline declined. */
+.swb-docverbnote {
+  font-size: 11px; color: var(--faint-ink);
+  padding: 4px 8px; border-top: 1px solid var(--border);
+}
 .swb-row-selected {
   outline: 2px solid var(--st-staged); outline-offset: -2px;
   background: var(--faint);
@@ -1964,6 +2182,31 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   font-family: var(--mono); font-size: 10.5px; color: var(--muted);
   border: 1px solid var(--border); border-radius: 10px; padding: 1px 8px;
 }
+/* THE ABSTRACT REGION'S CHROME (add-doxbench-distilled-abstract §7). One
+   region holds two abstracts that take turns, so the controls row, the
+   provenance caption and the in-flight line are OUTSIDE the state body: they
+   describe which abstract is showing rather than belonging to either. The box
+   is a measured 280px, so every one of these is a single compact line. */
+.swb-abstractcontrols { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.swb-abstracttoggle, .swb-abstractgenerate, .swb-abstractcancel {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+/* THE CAPTION IS NEVER DECORATION. Ruling 5 makes it the sentence that says who
+   derived this abstract and what it is not, so it gets its OWN line above the
+   body at the surface's secondary weight — never folded into the body text,
+   where it would read as part of the abstract rather than as a claim about it. */
+.swb-abstractcaption {
+  font-size: 10.5px; color: var(--muted); margin: 2px 0 4px;
+  overflow-wrap: anywhere;
+}
+.swb-abstractsaved, .swb-abstractinflight {
+  font-size: 10.5px; color: var(--faint-ink); margin-bottom: 4px;
+}
+.swb-abstractnote { font-size: 11px; margin-bottom: 4px; }
+.swb-abstractprose { font-size: 12px; margin: 4px 0 6px; overflow-wrap: anywhere; }
+.swb-abstractstate { min-height: 0; }
 
 /* HEIGHT CHAIN (measured, 2026-08-03). `.swb-body` scrolls and `.swb-pane` is
    unconstrained, so a restructured pane grew to its content — the docs
@@ -2311,3 +2554,21 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
   margin-left: 6px; font-size: 10px; font-weight: 700; letter-spacing: .04em;
   text-transform: uppercase; color: var(--picked); cursor: help;
 }
+
+/* The outline tab's TEMPLATED SECTION INDEX and its add-section affordance
+   (add-staged-topic-outline-template tasks 3.2-3.4). Deliberately quiet: a
+   pre-template fragment is the normal case for most of the corpus while
+   conformance is opt-in, so nothing here reaches for the blocked/warning
+   palette — the state line is prose in the same muted voice as the lens notes. */
+.swb-outlineindex { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.swb-outlinerow { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.swb-outlinetitleline { font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
+.swb-outlineline, .swb-outlineprov { font-size: 10.5px; color: var(--faint-ink); }
+.swb-outlinegap {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.swb-outlineform { flex-wrap: wrap; margin-top: 4px; }
+.swb-outlinetitle { flex: 1; min-width: 160px; }
+.swb-outlineadd:disabled { opacity: 0.5; cursor: not-allowed; }
+.swb-outlinenote { font-size: 11px; color: var(--muted); line-height: 1.45; }

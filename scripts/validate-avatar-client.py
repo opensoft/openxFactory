@@ -75,7 +75,14 @@ ALLOWED_VARIANCE_FIELDS = {
     "severity", "disposition", "rationale", "owner_change",
 }
 
-# ---- The eight AVC contracts + reserved identifiers (spec FR-001/FR-002) ----
+# ---- The published AVC contracts + reserved identifiers (spec FR-001/FR-002) ----
+# AVC-09 and AVC-10 joined this map in `qualify-avatar-live-voice`, in the SAME
+# change that lands their schemas. They had to move together: the reserved-id
+# guard in check_schemas fail-closes on the mere EXISTENCE of an
+# `avc-09-*.schema.yaml` file, so a schema landing one commit ahead of this
+# constant would red the repository between commits. AVC-03 and AVC-05 stay
+# reserved, and check_interface_lock now machine-checks both of these constants
+# against interface-lock.yaml so the hand-mirroring cannot drift again.
 CONTRACT_FILES = {
     "AVC-01": "avc-01-session-request.schema.yaml",
     "AVC-02": "avc-02-session-result.schema.yaml",
@@ -83,10 +90,12 @@ CONTRACT_FILES = {
     "AVC-06": "avc-06-structured-confirmation.schema.yaml",
     "AVC-07": "avc-07-retention-profile.schema.yaml",
     "AVC-08": "avc-08-persona-profile.schema.yaml",
+    "AVC-09": "avc-09-voice-adapter-descriptor.schema.yaml",
+    "AVC-10": "avc-10-voice-latency-sample.schema.yaml",
     "AVC-11": "avc-11-session-command.schema.yaml",
     "AVC-12": "avc-12-state-snapshot.schema.yaml",
 }
-RESERVED_IDS = {"AVC-03", "AVC-05", "AVC-09", "AVC-10"}
+RESERVED_IDS = {"AVC-03", "AVC-05"}
 
 # ---- Semantic consumed set for per-file digests (spec FR-022 / Q1) ----
 # Directories/files whose members are digested + manifest-registered. The
@@ -222,9 +231,40 @@ class Findings:
         self.notes.append(f"note  {msg}")
 
 
+class MalformedYAML(yaml.YAMLError):
+    """A YAML file the validator must read does not PARSE.
+
+    Deliberately a subclass of `yaml.YAMLError`: several readers here already
+    catch `yaml.YAMLError` to fail closed on their own (`_load_f0_instance`
+    among them), and those handlers must keep working exactly as before.
+    Subclassing means this carries the file's identity to the top of the run
+    without changing the behaviour of a single existing `except`."""
+
+    def __init__(self, path: Path, exc: Exception) -> None:
+        self.path = path
+        self.original = exc
+        # The message stays the parser's own. The existing handlers already
+        # format their finding as `{relative path}: {exc}`, so prefixing the
+        # path here would print it twice; `run()` names the file from `.path`
+        # instead.
+        super().__init__(str(exc))
+
+
 def load_yaml(path: Path) -> Any:
+    """Parse one YAML document, naming the file when it does not parse.
+
+    Every reader in this validator funnels through here, so a syntax error
+    anywhere becomes one identifiable, catchable failure rather than a bare
+    `yaml.scanner.ScannerError` escaping to `main()` as an anonymous harness
+    failure. `run()` turns it into a finding; the readers that already fail
+    closed on a YAMLError keep doing so untouched."""
     with path.open(encoding="utf-8") as fh:
-        return yaml.safe_load(fh)
+        try:
+            return yaml.safe_load(fh)
+        except MalformedYAML:
+            raise
+        except yaml.YAMLError as exc:
+            raise MalformedYAML(path, exc) from exc
 
 
 def schema_files() -> list[Path]:
@@ -276,7 +316,9 @@ def check_metadata(f: Findings) -> None:
             cid = doc.get("contract_id")
             if path.name in CONTRACT_FILES.values():
                 if cid not in CONTRACT_FILES:
-                    f.error("meta", f"{rel}: contract_id must be one of the 8 AVC ids")
+                    f.error("meta", f"{rel}: contract_id must be one of the "
+                                    f"{len(CONTRACT_FILES)} published AVC ids "
+                                    f"{sorted(CONTRACT_FILES)}")
                 if "contract_schema_version" not in doc:
                     f.error("meta", f"{rel}: missing contract_schema_version")
         else:
@@ -309,7 +351,7 @@ def check_schemas(f: Findings, registry: Registry, docs: dict[str, dict]) -> Non
                 registry.resolver(base_uri=base).lookup(ref)
             except Exception as exc:  # noqa: BLE001
                 f.error("ref", f"{name}: unresolved $ref {ref!r}: {exc}")
-    # all eight contracts present?
+    # every published contract present?
     present = {d.get("contract_id") for d in docs.values()}
     for cid, fname in CONTRACT_FILES.items():
         if cid not in present:
@@ -395,11 +437,72 @@ def check_speech_gate(f: Findings, docs: dict[str, dict]) -> None:
 
 # --------------------------- orchestration ---------------------------
 
+def _report(f: Findings, strict: bool) -> int:
+    for line in f.notes:
+        print(line)
+    for line in f.warnings:
+        print(line)
+    for line in f.errors:
+        print(line)
+    n_e, n_w = len(f.errors), len(f.warnings)
+    print(f"\nvalidate-avatar-client: {n_e} error(s), {n_w} warning(s)")
+    if n_e or (strict and n_w):
+        return 1
+    return 0
+
+
+def _rel(path: Path) -> str:
+    """Repository-relative path for a finding, falling back to the absolute one."""
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def run(strict: bool, require_realization: bool) -> int:
     f = Findings()
     if not AVC.is_dir():
         print("ERROR contracts/avatar-client/ not found", file=sys.stderr)
         return 2
+
+    # A YAML SYNTAX ERROR IS A FINDING, NOT A TRACEBACK — caught once, here.
+    # Every reader funnels through `load_yaml`, which names the offending file
+    # and raises `MalformedYAML`. Before this, an unparseable document anywhere
+    # in the family escaped to `main()` as an anonymous `ERROR harness failure`
+    # with exit 2, which told a reader that the tool broke rather than that
+    # their file did. Catching per-site would be 31 call sites today and one
+    # more each time a reader is added, so it is caught at the boundary
+    # instead. Fail closed: whatever had been collected is reported alongside
+    # the parse failure, and the run stops.
+    try:
+        return _run_checks(f, strict, require_realization)
+    except MalformedYAML as bad:
+        f.error("yaml-syntax",
+                f"{_rel(bad.path)} does not parse as YAML "
+                f"({type(bad.original).__name__}); nothing that reads it can be "
+                f"verified (fail closed) — {bad.original}")
+        return _report(f, strict)
+
+
+def _run_checks(f: Findings, strict: bool, require_realization: bool) -> int:
+    # FAIL CLOSED ON A STRUCTURALLY UNREADABLE ACCEPTANCE MAP, ONCE, HERE.
+    # A top-level list is valid YAML and a malformed acceptance map, and a
+    # dozen readers below index it as a mapping. Each of those raised in turn,
+    # which surfaced as `ERROR harness failure: 'list' object has no attribute
+    # 'get'` and exit 2 — a crash, not a finding, and it aborted the run before
+    # any check could report. Guarding each reader separately would be
+    # whack-a-mole and would leave the next reader to be added exposed, so the
+    # shape is refused once, up front. Every downstream check is meaningless
+    # against a map that cannot be indexed, so this returns rather than
+    # continuing on a document nothing can read.
+    amap_path = AVC / "acceptance-map.yaml"
+    if amap_path.is_file() and not isinstance(load_yaml(amap_path), dict):
+        f.error("acceptance-map",
+                "contracts/avatar-client/acceptance-map.yaml does not load as a "
+                "mapping; requirement and scenario traceability, the latency "
+                "posture, and every cross-reference resolved against it are "
+                "unverifiable (fail closed)")
+        return _report(f, strict)
 
     check_metadata(f)
     registry, docs = build_registry(f)
@@ -409,7 +512,30 @@ def run(strict: bool, require_realization: bool) -> int:
     # Fixture / acceptance / evidence / redaction / digest / F0-gate checks are
     # added in later phases; each guards on artifact presence so the validator
     # stays green at every phase checkpoint.
+    check_interface_lock(f)
+    # qualify-avatar-live-voice §4.1 and §6.3.1-§6.3.2: the ratified rulings are
+    # written down by hand in two governance artifacts beside the acceptance
+    # map, so they are machine-compared against this validator's constants for
+    # the same reason the frozen identifier lists are.
+    check_activation_checklist(f)
+    check_canary_rollback_policy(f)
+    # The six §7 authoring inputs ruled 2026-08-27 land in three artifacts. The
+    # canary policy's share is checked inside the policy check above (its exit
+    # criteria and the ROLLBACK-B/C trip points); these two carry the rest.
+    check_latency_sample_minimum(f)
+    check_broker_credential_binding(f)
+    # §6.2 (Fork 4 Option C): the synthetic evaluation corpus and the canary's
+    # ephemeral processing envelope. Both guard on presence, and both read the
+    # values another artifact already ratified — ROLLBACK-A's triggers, the
+    # frozen purposes, the reserved retention classes, §7.9's retention window
+    # — rather than mirroring them into a second copy that can drift.
+    check_synthetic_evaluation_corpus(f)
+    check_ephemeral_processing_envelope(f)
     ev_ids = check_fixtures(f, registry, docs)
+    # The latency comparison cases carry acceptance evidence exactly as the
+    # fixtures do, so their ids join the set the evidence register resolves
+    # against; an automated entry may name either kind.
+    ev_ids |= check_latency_posture(f)
     check_acceptance_and_evidence(f, ev_ids)
     check_client_lab_acceptance_map(f)
     check_capability_scenario_register(f)
@@ -420,25 +546,2259 @@ def run(strict: bool, require_realization: bool) -> int:
     check_digests(f, require_realization)
     check_f0_gate(f, require_realization)
 
-    for line in f.notes:
-        print(line)
-    for line in f.warnings:
-        print(line)
-    for line in f.errors:
-        print(line)
-
-    n_e, n_w = len(f.errors), len(f.warnings)
-    print(f"\nvalidate-avatar-client: {n_e} error(s), {n_w} warning(s)")
-    if n_e or (strict and n_w):
-        return 1
-    return 0
+    return _report(f, strict)
 
 
 ALL_CLASSES = {"valid", "invalid", "boundary", "compatibility",
                "unknown-field", "unknown-authority", "redaction", "adversarial"}
 KNOWN_CHECKS = {"acceptance_map_parity", "contract_location", "release_identity",
-                "content_addressed_pin", "fixture_conformance"}
+                "content_addressed_pin", "fixture_conformance",
+                # qualify-avatar-live-voice §3.1-§3.3
+                "interface_lock_reserved_set", "latency_posture"}
 EVID_TYPES = {"automated", "manual", "deferred"}
+
+# ---- the two-tier latency posture (qualify-avatar-live-voice §3.3) ----------
+# The SLO entry's shape, at the RATIFIED threshold. These are not defaults the
+# map may override: the check compares the map's declared numbers against them
+# and fails on a disagreement, because a threshold that can be edited in the
+# artifact it gates is not a threshold.
+SLO_KIND = "neutral_relative_regression"
+SLO_RELATIVE_PCT = 15
+SLO_ABSOLUTE_MS = 150
+SLO_MATERIALITY_RULE = "greater_of"
+SLO_GATED_PERCENTILES = {"p50", "p95"}
+SLO_GATED_INTERVALS = {"first_playable_after_authorized_ms",
+                       "sideband_ready_after_request_ms"}
+SLO_GATED_PLATFORMS = {"windows_desktop", "web_canvas"}
+SLO_GATED_NETWORK = "nominal"
+SLO_REFERENCE_ONLY_PLATFORMS = {"linux_ci"}
+SLO_CELL_AXES = ("platform", "network_class", "region")
+SLO_OUTCOMES = {"pass", "fail", "recorded", "refused"}
+# A per-profile numeric latency ceiling, however it is spelled. Fork 2's Option
+# C means NO such field exists on a neutral contract and none is declared as a
+# gating field in the acceptance map: the only numeric threshold in this family
+# is the SLO's own `absolute_threshold_ms`, which is a RELATIVE-regression
+# allowance, not a ceiling on a profile.
+LATENCY_CEILING_KEY = re.compile(
+    r"(?i)^(?:latency_budgets?|latency_budget_ms|latency_ceiling_ms"
+    r"|max_latency_ms|[a-z0-9_]*_budget_ms|[a-z0-9_]*_latency_ceiling_ms)$"
+)
+
+# ---- the internal-live activation checklist (qualify-avatar-live-voice §4.1) --
+# The RATIFIED per-condition classification, mirrored here so the checklist
+# artifact and this validator are two independent statements of the same Fork 3
+# Option C ruling — the same discipline `check_interface_lock` applies to the
+# frozen identifier lists. A hand-copied ruling drifts; a hand-copied ruling
+# that is machine-compared drifts LOUDLY.
+CHECKLIST_FILE = "internal-live-activation-checklist.yaml"
+CHECKLIST_KIND = "avatar-client-internal-live-activation-checklist"
+CHECKLIST_CLASSES = {"hard_preflight", "canary_time", "default_swap_only"}
+# Condition number -> the classification the ruling assigns it. `split` means
+# the condition's two halves fall differently and BOTH must be recorded.
+CHECKLIST_RULED = {
+    1: "hard_preflight",
+    2: "hard_preflight",
+    3: "split",
+    4: "hard_preflight",
+    5: "split",
+    6: "canary_time",
+    7: "split",
+    8: "split",
+}
+# For each split condition, the ruled classification of each named half. The
+# half NAMES are part of the ruling too: a checklist that renamed a half could
+# otherwise satisfy the count while silently reclassifying it.
+CHECKLIST_RULED_HALVES = {
+    3: {"topology": "hard_preflight",
+        "measured_latency_figure": "canary_time"},
+    5: {"deterministic_ui_scenarios": "hard_preflight",
+        "live_domain_voice_evaluation": "canary_time"},
+    7: {"deterministic_blocked_state_and_exact_value": "hard_preflight",
+        "live_cross_domain_evaluations": "canary_time"},
+    8: {"kill_switches_and_rollback_machinery": "hard_preflight",
+        "opt_in_canary": "canary_time"},
+}
+CHECKLIST_RING_ELEMENTS = {
+    "RING-01": "live_provider_qualification",
+    "RING-02": "secret_scan",
+    "RING-03": "telemetry_redaction_verification",
+    "RING-04": "kill_switch_proof",
+    "RING-05": "measured_latency_evidence",
+}
+# The kernel's ring is FOUR EVIDENCE ELEMENTS around live provider
+# qualification, so RING-01 is the qualification and RING-02..05 are the four.
+CHECKLIST_RING_EVIDENCE_COUNT = 4
+
+# ---- the canary cohort and rollback policy (§6.3.1-§6.3.2) -----------------
+POLICY_FILE = "canary-cohort-and-rollback-policy.yaml"
+POLICY_KIND = "avatar-client-canary-cohort-and-rollback-policy"
+# Fork 5 Option B's three-way split, as ratified. The revoke flag is the whole
+# point of the policy — the kernel gives each kill switch an OPTIONAL
+# active-lease revocation and this is the rule that selects the option — so it
+# is compared explicitly rather than trusted.
+# The ruled cohort is exactly one of EACH kind — vendor-organization internal
+# accounts AND exactly one internally-staffed domain sandbox. Held as a set so
+# the check can count per kind instead of trusting a total.
+POLICY_COHORT_KINDS = {"vendor_organization_internal_accounts",
+                       "internally_staffed_domain_sandbox"}
+POLICY_RULED_CLASSES = {
+    "ROLLBACK-A": {"trigger_mode": "automatic", "action": "abort",
+                   "revoke_active_leases": True},
+    "ROLLBACK-B": {"trigger_mode": "automatic", "action": "block_new",
+                   "revoke_active_leases": False},
+    "ROLLBACK-C": {"trigger_mode": "operator", "action": "operator_selected",
+                   "revoke_active_leases": "operator_selected"},
+}
+
+# ---- the §7 authoring inputs, RULED 2026-08-27 ------------------------------
+# §7 is the list of values "the rulings deliberately left to proposal and
+# realization time", and its own preamble states the hazard: "leaving any unset
+# opens the ring on an unstated assumption". Six of them are now ruled, and the
+# artifacts that carry them are mirrored here for exactly the reason the
+# checklist and the rollback split already are — a hand-copied ruling drifts,
+# and a hand-copied ruling that is machine-compared drifts LOUDLY.
+#
+# §7.6 — the canary exit criteria. These moved `canary_exit_criteria` off
+# `status: unset`, which that block's own statement said existed "so that a
+# canary cannot be declared successful against criteria invented after the
+# fact". Comparing the numbers is how that sentence stays true after the
+# values land: a criterion that can be edited in the artifact it gates is not a
+# criterion.
+POLICY_EXIT_SOAK_DAYS = 14
+POLICY_EXIT_DISTINCT_DAYS = 10
+# RE-RULED 2026-08-28: 200 -> 100 completed sessions and a 50 -> 25 COHORT-02
+# sub-floor, a dependent move of §7.2's project cap ($750 -> $100). 200
+# sessions at the §7.2 expected per-session cost is ~$110 and would hit the new
+# cap before the canary could exit.
+POLICY_EXIT_SESSIONS = 100
+POLICY_EXIT_COHORT_02_MIN = 25
+POLICY_EXIT_PER_SCENARIO_CLASS_MIN = 3
+POLICY_EXIT_ABNORMAL_OVERALL_PCT = 2
+POLICY_EXIT_ABNORMAL_TRAILING_PCT = 5
+POLICY_EXIT_TRAILING_WINDOW_SESSIONS = 50
+# The two criteria ruled BEYOND the three §7.6 names. Without them the ring's
+# own stated rationale goes undelivered: RING-04 proves the kill SWITCH before
+# any canary traffic, and nothing otherwise proves the DETECTION.
+POLICY_EXIT_ADDITIONAL_IDS = {"EXIT-ROLLBACK-B-REHEARSED", "EXIT-ROLLBACK-A-CLEAR"}
+
+# §7.2 — the numeric ceilings, at the two places the rollback policy consumes
+# them. ROLLBACK-B carried three triggers and trip points for only one of them:
+# `elevated_error_rate` named no rate and `elevated_quota_condition` named no
+# quota, so an "auto-blocker" had nothing to auto-block on.
+ROLLBACK_B_ERROR_TRAILING_PCT = 5
+ROLLBACK_B_TRAILING_WINDOW_SESSIONS = 50
+ROLLBACK_B_SESSION_SECONDS_MAX = 900
+ROLLBACK_B_SESSION_UNITS_MAX = 300
+# RE-RULED 2026-08-28: the project cap moves $750 -> $100 (re-sized from a
+# headroom ceiling to actual expected monthly spend) and the metered per-tenant
+# budget follows it $150 -> $40, because a metered budget above the hard cap is
+# meaningless. The per-session ceilings above did NOT move.
+ROLLBACK_B_PROJECT_CAP_USD = 100
+ROLLBACK_C_TENANT_BUDGET_USD = 40
+
+# §7.7 — the operator surface, RULED 2026-08-27. The artifact's own former
+# statement was that "a canary opened without a named holder has an unfireable
+# kill switch", so the rules here are the ones that keep the surface FIREABLE:
+# a person rather than a role, a mechanism, and a runbook that RESOLVES. A
+# `mechanism_ref` pointing at a document nobody wrote is the same unfireable
+# switch wearing a filename.
+POLICY_OPERATOR_HOLDER = "Brett Heap"
+POLICY_OPERATOR_HOLDER_KIND = "named_person"
+POLICY_OPERATOR_MECHANISM = "documented_runbook_act_on_the_serving_install"
+POLICY_OPERATOR_RUNBOOK = "docs/sops/avatar-internal-live-kill-switch.md"
+# The kernel's TWO switches and no more: "all new session creation, and per
+# model profile — each with optional revocation of active leases". Finer scopes
+# are deferred with the features they would govern, so a third scope recorded
+# here is a switch the runtime does not have.
+POLICY_SWITCH_SCOPES = {"all_new_session_creation", "per_model_profile"}
+POLICY_SWITCH_MODES = {"block_new", "revoke_active"}
+
+# §7.8 — the session-outcome token each rollback path emits. The ruling is that
+# NO NEW TOKEN is introduced, so the tokens are resolved against the closed
+# registry rather than mirrored here; what is mirrored is the PATH-TO-TOKEN
+# ruling itself.
+# The ONE registry §7.8's tokens may be drawn from, spelled as the artifact
+# spells it in `session_outcome_tokens.registry_ref` — AVC-relative, so the two
+# can be compared directly instead of one being reconstructed from the other.
+OUTCOME_REGISTRY_REF = "registries/session-outcomes.registry.yaml"
+POLICY_OUTCOME_PATHS = {
+    "consent_or_lease_revocation": "revoked",
+    "drained_leg_after_block_new": "abandoned",
+    "force_terminated_leg": "revoked",
+}
+# The same fact carried twice on purpose — once on the class a reader lands on,
+# once in the block that owns §7.8 — and therefore compared, exactly as the
+# error rate is. `(outcome, path)` per class; ROLLBACK-C is operator-selected
+# and names no single token.
+POLICY_CLASS_OUTCOMES = {
+    "ROLLBACK-A": ("revoked", "force_terminated_leg"),
+    "ROLLBACK-B": ("abandoned", "drained_leg_after_block_new"),
+}
+POLICY_ROLLBACK_C_OUTCOME = "operator_selected"
+
+# §7.10 — "tenant" for this ring. The per-tenant spend and metering dimensions
+# have no subject without it, and §7.2's per-tenant figure was sized on this
+# denominator.
+POLICY_TENANT_IS = "cohort_member"
+
+# §7.9 — the declared region, data-control classes and retention window, pinned
+# on the activation checklist's condition 2 (the condition that APPROVES the
+# regional, retention and data-control terms and already names §7.9 as an
+# owning task). No AVC-09 descriptor instance exists yet; these are the values
+# descriptor authoring consumes.
+CHECKLIST_S79_CONDITION = 2
+CHECKLIST_S79_REGION = "provider_project_us_default"
+# Fork 4 Option C, exactly: captions and deltas ephemeral, decisions and
+# outcomes structured. Held as an ORDERED-INSENSITIVE set and compared
+# set-equal, because a class quietly ADDED is the failure mode here.
+CHECKLIST_S79_DATA_CLASSES = {"ephemeral_presentation", "structured_record"}
+# The three the ruling says are never instantiated in this ring. They are also
+# three of the four RESERVED retention classes, which stay forbidden; the check
+# compares the recorded list rather than trusting the prose beside it.
+CHECKLIST_S79_NEVER = {"audio", "full_transcript", "independent_transcription"}
+CHECKLIST_S79_RETENTION_DAYS = 90
+
+# ---- §6.2, the canary's consent envelope and its synthetic corpus -----------
+# Fork 4 Option C's two artifacts. They are checked here for the same reason
+# the canary policy is: they are governance artifacts written by hand beside
+# the acceptance map, and the values that matter in them are values another
+# artifact already ratified. Wherever a value exists elsewhere it is READ from
+# there — ROLLBACK-A's trigger vocabulary from the policy, the frozen purpose
+# list from the registry, the reserved retention classes from the registry, the
+# retention window and reference from the checklist's §7.9 block — so these
+# constants are only the identifiers and the ruled shapes.
+CORPUS_FILE = "synthetic-evaluation-corpus.yaml"
+CORPUS_KIND = "avatar-client-synthetic-evaluation-corpus"
+# Condition 7's five classes and three domains, exactly. Condition 7 says the
+# evaluations must pass "for generic, MedxFactory and LedgerxFactory", so a
+# corpus with a fourth domain or a missing class is not the corpus that
+# condition names.
+CORPUS_CLASSES = {"safety", "exact_value", "consent", "handoff", "blocked_state"}
+CORPUS_DOMAINS = {"generic", "MedxFactory", "LedgerxFactory"}
+ENVELOPE_FILE = "canary-ephemeral-processing-envelope.yaml"
+ENVELOPE_KIND = "avatar-client-canary-ephemeral-processing-envelope"
+ENVELOPE_MEDIA_PURPOSES = {"avatar.media_capture", "avatar.provider_processing"}
+ENVELOPE_STRUCTURED_PURPOSE = "avatar.structured_record"
+ENVELOPE_WITHDRAWAL_OUTCOME = "revoked"
+ENVELOPE_SHADOW_CONTROL = "single_model_on_live_canary_audio"
+ENVELOPE_PILOT_SUCCESSOR = "avatar-pilot-hardening"
+# The fixture's IDENTITY is pinned; its PATH deliberately is not. The envelope
+# carries the path in `withdrawal.reachability_proof.fixture` and the check
+# resolves THAT, so the citation is what gets proved. Mirroring the location
+# here as well would be the drift these checks exist to prevent: relocating the
+# fixture would update the envelope and leave this constant behind, and the
+# resulting failure would be about a stale copy rather than about the claim.
+WITHDRAWAL_FIXTURE_ID = "det-consent-withdraw-mid-speech"
+
+# ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
+SAMPLE_MIN_FILE = "latency-sample-minimum.yaml"
+SAMPLE_MIN_KIND = "avatar-client-latency-sample-minimum"
+SAMPLE_MIN_N = 100
+SAMPLE_MIN_RUNS = 3
+SAMPLE_MIN_DISTINCT_DAYS = 2
+SAMPLE_MIN_P99_FLOOR = 500
+SAMPLE_MIN_UNDER_EFFECT = "recorded_not_gated"
+
+# ---- §7.1 and §7.3, the broker server-key custody pair (task 6.1.1) ---------
+BINDING_FILE = "broker-server-key-binding.template.yaml"
+BINDING_KIND = "xfactory_credential_binding_template"
+BINDING_ID = "avatar_broker_openai_internal_live"
+# The published shape's own required set, plus `vault`. Mirrored so this check
+# fails on a field the binding template DROPS as loudly as on one it mis-values.
+BINDING_FIELDS = ("provider", "vault", "secret_ref", "owner", "rotation_policy")
+# The two fields that MUST stay per-install placeholders in this repository.
+BINDING_PLACEHOLDER_FIELDS = ("provider", "vault")
+BINDING_SECRET_REF = "avatar-broker-openai-internal-live"
+BINDING_ROTATION_LABEL = "operator_managed"
+ROTATION_FILE = "broker-server-key-rotation-policy.yaml"
+ROTATION_KIND = "xfactory_credential_rotation_policy"
+ROTATION_MAX_KEY_AGE_DAYS = 90
+ROTATION_GLOBAL_TRIGGERS = {"client_offboarding", "suspected_exposure",
+                            "provider_policy_change", "privileged_scope_change"}
+ROTATION_ADDED_TRIGGERS = {"avatar_platform_maintainer_change",
+                           "canary_cohort_change", "release_ring_promotion"}
+# THE CANON PROHIBITION, made mechanical. `credential-contracts` says
+# "Contract artifacts, lane definitions, and domain repositories SHALL NOT
+# hard-code a vault operator, a vault product, or any secret value." This
+# repository IS a contract artifact tree, so the rule binds every value in the
+# custody pair. The token list is the approved provider families from
+# docs/credential-access-model.md plus the vault-naming prefixes the estate
+# actually uses — the point is to catch the paste, not to enumerate the world.
+#
+# Matched against a SQUASHED form of each value — lowercased with every
+# non-alphanumeric character removed — because a product name is the same
+# product whether it is written `azure_key_vault`, `Azure Key Vault` or
+# `azure-key-vault`, and a token list that only knows one spelling catches the
+# careful paste and misses the careless one.
+VAULT_PRODUCT_TOKENS = ("azurekeyvault", "keyvault", "awssecretsmanager",
+                        "secretsmanager", "gcpsecretmanager", "secretmanager",
+                        "1password", "bitwarden", "hashicorpvault",
+                        "vaultazurenet")
+# Vault INSTANCE names, matched raw against the lowercased value: these are
+# naming conventions rather than words, and squashing them would turn `kv-`
+# into a two-letter substring that fires on ordinary prose.
+VAULT_INSTANCE_TOKENS = ("kv-", "vault.azure.net")
+# A raw secret value pasted where a reference belongs — the same markers the
+# credential-contracts validator refuses in a binding's `secret_ref`.
+#
+# WRITTEN LOWERCASE AND MATCHED AGAINST THE LOWERCASED VALUE, so a case-varied
+# paste (`GHP_...`, `-----BEGIN`, `Akia...`) hits exactly as the canonical
+# spelling does. A scan that only knows one casing catches the tidy paste and
+# misses the careless one, which is the wrong way round.
+#
+# Deliberately NOT squashed the way `VAULT_PRODUCT_TOKENS` is. The
+# normalization that is right for a product NAME is wrong for a key PREFIX,
+# because a key prefix's separators ARE part of the marker: squashing would
+# reduce `-----begin` to `begin` and `gho_` to `gho`, which fire on the
+# ordinary words "beginning" and "ghost". A scan that cannot tell a key from
+# prose is worse than no scan, because its findings get dismissed.
+BINDING_SECRET_MARKERS = ("-----begin", "sk-proj-", "sk-svcacct-", "ghp_",
+                          "github_pat_", "gho_", "ghs_", "akia")
+
+
+def _acceptance_map_ids() -> set[str] | None:
+    """Every requirement id, scenario id and SLO id the acceptance map declares.
+    Used to resolve the cross-references the §4.1 and §6.3 artifacts carry, so a
+    reference to a scenario that was renamed or never existed is a finding
+    rather than a decoration.
+
+    Returns an EMPTY SET when the map is simply absent (its own checks report
+    that), and `None` when the file exists but does not load as a mapping. The
+    distinction matters: a top-level list is valid YAML and a malformed
+    acceptance map, and reading it as a mapping used to raise straight out of
+    this helper — which aborted the whole run with a harness failure BEFORE any
+    check could report anything. An unreadable map is a finding, fail closed,
+    the same way every other reader in this file refuses one."""
+    ids: set[str] = set()
+    path = AVC / "acceptance-map.yaml"
+    if not path.is_file():
+        return ids
+    amap = load_yaml(path)
+    if not isinstance(amap, dict):
+        return None
+    for req in amap.get("requirements") or []:
+        if not isinstance(req, dict):
+            continue
+        if req.get("id"):
+            ids.add(req["id"])
+        for sc in req.get("scenarios") or []:
+            if isinstance(sc, dict) and sc.get("id"):
+                ids.add(sc["id"])
+    slo = amap.get("latency_slo")
+    if isinstance(slo, dict) and slo.get("id"):
+        ids.add(slo["id"])
+    return ids
+
+
+def _resolve_map_ids(f: Findings, cat: str, rp: str) -> set[str]:
+    """`_acceptance_map_ids()` with its unreadable-map signal turned into a
+    finding for the calling artifact. Returns an empty set afterwards so the
+    caller's remaining checks still run — the refusal is recorded, and the run
+    continues to report everything else rather than dying on the first bad
+    file."""
+    known = _acceptance_map_ids()
+    if known is None:
+        f.error(cat, f"{rp}: contracts/avatar-client/acceptance-map.yaml does not "
+                     f"load as a mapping, so the cross-references this artifact "
+                     f"carries cannot be resolved (fail closed)")
+        return set()
+    return known
+
+
+def _check_map_refs(f: Findings, cat: str, where: str,
+                    refs: Any, known: set[str]) -> None:
+    """Every `acceptance_map_refs` entry must resolve. Skipped only when the map
+    itself is missing or unreadable, which the caller already reports."""
+    if refs is None or not known:
+        return
+    if not isinstance(refs, list):
+        f.error(cat, f"{where}: acceptance_map_refs must be a list")
+        return
+    for r in refs:
+        if r not in known:
+            f.error(cat, f"{where}: acceptance_map_refs names {r!r}, which the "
+                         f"acceptance map does not declare")
+
+
+def check_activation_checklist(f: Findings) -> None:
+    """§4.1: machine-check the internal-live activation checklist against the
+    ratified Fork 3 Option C classification.
+
+    The artifact records a RULING, and a ruling written down by hand is exactly
+    the kind of thing that drifts when someone later "tidies" it. Four
+    obligations:
+
+    1. THE EIGHT ARE ALL THERE, numbered 1..8, no gaps and no duplicates. Seven
+       conditions is a checklist someone edited; nine is one someone extended.
+    2. EVERY CLASSIFICATION MATCHES THE RULING, including the per-half
+       classification of the four split conditions and the half NAMES. A split
+       recorded as a single class is the specific error that would let a live
+       evaluation pass as a deterministic preflight one.
+    3. CONDITION 6 IS RECORDED IN ITS REINTERPRETED FORM ONLY. The as-written
+       comparative reading is reserved to the GPT-Live adoption change; if the
+       artifact ever recorded it as a live second classification, the ring would
+       be gated on a profile beating itself.
+    4. THE RING IS FOUR EVIDENCE ELEMENTS AND THE GATE CONFERS NO DEFAULT. The
+       exit contract cannot widen by editing this file, and the artifact may
+       never say the gate promotes a profile to production.
+    5. CONDITION 2 CARRIES §7.9's RULED VALUES. That condition is the one that
+       APPROVES the regional, retention and data-control terms, it is HARD
+       PREFLIGHT, and it already named §7.9 as an owning task — so the values
+       descriptor authoring will consume live there, and are checked there.
+
+    Fail closed on a missing or unreadable checklist: §4.1 lands it, and a ring
+    whose classification cannot be read is not a classified ring."""
+    path = AVC / CHECKLIST_FILE
+    rp = f"contracts/avatar-client/{CHECKLIST_FILE}"
+    cat = "activation-checklist"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; the internal-live per-condition "
+                     f"classification is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != CHECKLIST_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CHECKLIST_KIND!r}")
+
+    known = _resolve_map_ids(f, cat, rp)
+
+    # --- 1 + 2: the eight conditions and their ruled classifications ---
+    conditions = doc.get("conditions")
+    if not isinstance(conditions, list):
+        f.error(cat, f"{rp}: `conditions` missing or not a list (fail closed)")
+        return
+
+    # SHAPE FIRST, AND STRICTLY. Every entry must be a mapping carrying an
+    # INTEGER `number`, and the eight must be exactly 1..8 with none repeated.
+    # This used to filter non-mappings and non-integers out of the completeness
+    # scan, which was wrong twice over: a stray scalar in the list vanished
+    # silently, and a ninth entry numbered "1" (a string) let the scan see a
+    # clean 1..8 and then raised a KeyError in the loop below — a harness
+    # failure that aborted the run instead of reporting a finding. A malformed
+    # checklist is a finding, never a crash and never a silent skip.
+    # `bool` is rejected explicitly because it subclasses `int` in Python, so
+    # `number: true` would otherwise be accepted as 1.
+    if len(conditions) != 8:
+        f.error(cat, f"{rp}: `conditions` carries {len(conditions)} entries; the "
+                     f"eight-condition checklist must carry exactly 8, because a "
+                     f"missing condition reads as a satisfied one and an extra one "
+                     f"is a condition nobody ratified")
+        return
+    numbers: list[int] = []
+    shape_ok = True
+    for i, cond in enumerate(conditions):
+        if not isinstance(cond, dict):
+            f.error(cat, f"{rp}: conditions[{i}] is a {type(cond).__name__}, not a "
+                         f"mapping; a condition that is not a mapping cannot carry "
+                         f"a classification and is never skipped over")
+            shape_ok = False
+            continue
+        n = cond.get("number")
+        if isinstance(n, bool) or not isinstance(n, int):
+            f.error(cat, f"{rp}: conditions[{i}] has number {n!r} "
+                         f"({type(n).__name__}); a condition number must be an "
+                         f"integer 1..8")
+            shape_ok = False
+            continue
+        numbers.append(n)
+    if not shape_ok:
+        return
+    if sorted(numbers) != list(range(1, 9)):
+        f.error(cat, f"{rp}: condition numbers {sorted(numbers)} are not exactly "
+                     f"1..8 with each appearing once; the eight-condition checklist "
+                     f"must carry all eight, because a missing condition reads as a "
+                     f"satisfied one")
+        return
+
+    for cond in conditions:
+        n = cond["number"]
+        where = f"{rp} condition {n}"
+        ruled = CHECKLIST_RULED[n]
+        declared = cond.get("classification")
+        _check_map_refs(f, cat, where, cond.get("acceptance_map_refs"), known)
+
+        if ruled == "split":
+            if declared != "split":
+                f.error(cat, f"{where}: classification {declared!r} but the ruling "
+                             f"splits this condition; both halves must be "
+                             f"classified separately")
+                continue
+            if cond.get("split") is not True:
+                f.error(cat, f"{where}: classification is 'split' but `split` is "
+                             f"{cond.get('split')!r}")
+            halves = cond.get("halves")
+            if not isinstance(halves, list):
+                f.error(cat, f"{where}: split condition carries no `halves` list")
+                continue
+            got = {}
+            for h in halves:
+                if not isinstance(h, dict):
+                    continue
+                got[h.get("half")] = h.get("classification")
+                _check_map_refs(f, cat, f"{where} half {h.get('half')!r}",
+                                h.get("acceptance_map_refs"), known)
+            want = CHECKLIST_RULED_HALVES[n]
+            if set(got) != set(want):
+                f.error(cat, f"{where}: halves {sorted(got, key=str)} != the ruled "
+                             f"halves {sorted(want)}")
+            for half, want_cls in want.items():
+                if half in got and got[half] != want_cls:
+                    f.error(cat, f"{where} half {half!r}: classification "
+                                 f"{got[half]!r} != the ruled {want_cls!r}")
+            for half, cls in got.items():
+                if cls not in CHECKLIST_CLASSES:
+                    f.error(cat, f"{where} half {half!r}: classification {cls!r} is "
+                                 f"not one of {sorted(CHECKLIST_CLASSES)}")
+        else:
+            if declared != ruled:
+                f.error(cat, f"{where}: classification {declared!r} != the ruled "
+                             f"{ruled!r}")
+            if cond.get("split"):
+                f.error(cat, f"{where}: recorded as split, but the ruling gives it "
+                             f"a single classification")
+            if cond.get("halves"):
+                f.error(cat, f"{where}: carries `halves` but is not a split "
+                             f"condition")
+
+        # --- 3: condition 6 in its reinterpreted form ONLY ---
+        if n == 6:
+            if cond.get("recorded_form") != "reinterpreted_only":
+                f.error(cat, f"{where}: recorded_form "
+                             f"{cond.get('recorded_form')!r} != "
+                             f"'reinterpreted_only'; task 4.1 records condition 6 "
+                             f"in its reinterpreted form only")
+            if cond.get("as_written_form_is_reserved") is not True:
+                f.error(cat, f"{where}: as_written_form_is_reserved must be true — "
+                             f"the comparative reading belongs to the GPT-Live "
+                             f"adoption change, and applied here it would gate "
+                             f"gpt-realtime-2.1 on beating itself")
+
+    # --- 5: §7.9's ruled region, data-control and retention values ---
+    _check_section_7_9_values(
+        f, cat, rp,
+        next((c for c in conditions if c["number"] == CHECKLIST_S79_CONDITION), {}))
+
+    # --- 4: the ring is four evidence elements, and confers no default ---
+    ring = doc.get("ring_elements")
+    if not isinstance(ring, list):
+        f.error(cat, f"{rp}: `ring_elements` missing or not a list (fail closed)")
+    else:
+        got = {}
+        for e in ring:
+            if not isinstance(e, dict):
+                continue
+            got[e.get("id")] = e.get("element")
+            _check_map_refs(f, cat, f"{rp} {e.get('id')}",
+                            e.get("acceptance_map_refs"), known)
+        if got != CHECKLIST_RING_ELEMENTS:
+            f.error(cat, f"{rp}: ring elements {sorted(got.items(), key=str)} != "
+                         f"the kernel's ring {sorted(CHECKLIST_RING_ELEMENTS.items())} "
+                         f"— the binding exit contract is the four-element ring and "
+                         f"nothing wider")
+        if doc.get("ring_evidence_element_count") != CHECKLIST_RING_EVIDENCE_COUNT:
+            f.error(cat, f"{rp}: ring_evidence_element_count "
+                         f"{doc.get('ring_evidence_element_count')!r} != "
+                         f"{CHECKLIST_RING_EVIDENCE_COUNT}")
+
+    confers = doc.get("gate_confers")
+    if not isinstance(confers, dict):
+        f.error(cat, f"{rp}: `gate_confers` missing; the artifact must state that "
+                     f"the gate confers no production default (latent decision 3)")
+    else:
+        if confers.get("production_default") is not False:
+            f.error(cat, f"{rp}: gate_confers.production_default is "
+                         f"{confers.get('production_default')!r}; passing this gate "
+                         f"confers a SELECTABLE internal-live profile and NO "
+                         f"production default")
+        if confers.get("selectable_internal_live_profile") is not True:
+            f.error(cat, f"{rp}: gate_confers.selectable_internal_live_profile must "
+                         f"be true")
+        _check_map_refs(f, cat, f"{rp} gate_confers",
+                        confers.get("acceptance_map_refs"), known)
+
+
+def _check_section_7_9_values(f: Findings, cat: str, rp: str, cond: dict) -> None:
+    """§7.9: the declared region, data-control classes and retention window,
+    RULED 2026-08-27 and pinned on activation-checklist condition 2.
+
+    THE DESCRIPTOR DOES NOT EXIST YET, and that is the reason these rules
+    matter rather than a reason to skip them. AVC-09's `region_and_data_controls`
+    is the single home for the values; the adapter is unbuilt and task 6.1.2 has
+    not provisioned the serving install, so what is pinned is what the descriptor
+    SHALL declare when it is authored. An authoring input that is not checked is
+    an authoring input the author gets to re-decide.
+
+    The rule with real teeth is the data-control set comparison. Fork 4 Option C
+    permits EXACTLY two classes for canary audio, and the hazard is a class
+    quietly ADDED — `audio` or `full_transcript` appearing here would unreserve
+    by editing a checklist what the kernel says only a successor change may
+    unreserve. So the permitted classes are compared set-equal and the
+    never-instantiated list is compared set-equal too, rather than either being
+    spot-checked or trusted to the prose beside it."""
+    vals = cond.get("ruled_values") if isinstance(cond, dict) else None
+    if not isinstance(vals, dict):
+        f.error(cat, f"{rp} condition {CHECKLIST_S79_CONDITION}: no `ruled_values` "
+                     f"block (fail closed); §7.9's region, data-control and retention "
+                     f"values are a HARD PREFLIGHT term of this condition, and an "
+                     f"unpinned authoring input opens the ring on an unstated "
+                     f"assumption")
+        return
+    if vals.get("status") != "ruled":
+        f.error(cat, f"{rp} §7.9: ruled_values.status is {vals.get('status')!r} != "
+                     f"'ruled'")
+
+    region = vals.get("region") or {}
+    if region.get("declared_region") != CHECKLIST_S79_REGION:
+        f.error(cat, f"{rp} §7.9: region.declared_region is "
+                     f"{region.get('declared_region')!r} != the ruled "
+                     f"{CHECKLIST_S79_REGION!r}")
+    # HONESTY IS THE RULING, not a footnote to it. F0 recorded `region: null`
+    # and the provider project is unprovisioned, so a descriptor claiming a
+    # pinned region the project does not enforce would be false in the one field
+    # the ring points at for locality.
+    if region.get("declare_honestly") is not True:
+        f.error(cat, f"{rp} §7.9: region.declare_honestly is "
+                     f"{region.get('declare_honestly')!r}; the ruled value is the "
+                     f"provider project's default DECLARED HONESTLY, not a residency "
+                     f"guarantee the project does not enforce")
+
+    dc = vals.get("data_control") or {}
+    permitted = set(dc.get("classes_permitted") or [])
+    if permitted != CHECKLIST_S79_DATA_CLASSES:
+        f.error(cat, f"{rp} §7.9: data_control.classes_permitted "
+                     f"{sorted(permitted, key=str)} != the Fork 4 Option C classes "
+                     f"{sorted(CHECKLIST_S79_DATA_CLASSES)}; a class added here "
+                     f"unreserves by checklist edit what the kernel says only a "
+                     f"successor change may unreserve")
+    never = set(dc.get("classes_never_instantiated") or [])
+    if never != CHECKLIST_S79_NEVER:
+        f.error(cat, f"{rp} §7.9: data_control.classes_never_instantiated "
+                     f"{sorted(never, key=str)} != {sorted(CHECKLIST_S79_NEVER)}; the "
+                     f"ruling is that no such instance is EVER created in this ring")
+    if permitted & CHECKLIST_S79_NEVER:
+        f.error(cat, f"{rp} §7.9: data_control permits and forbids "
+                     f"{sorted(permitted & CHECKLIST_S79_NEVER)} at once")
+    if dc.get("reserved_classes_untouched") is not True:
+        f.error(cat, f"{rp} §7.9: data_control.reserved_classes_untouched is "
+                     f"{dc.get('reserved_classes_untouched')!r}; this change "
+                     f"unreserves exactly AVC-09 and AVC-10 and no retention class")
+    # NO SCHEMA FIELD FORBIDS A SECOND-MODEL SHADOW TODAY. Recording the
+    # guarantee as enforced would be the false claim task 6.2.4 exists to refuse.
+    if dc.get("enforcement") != "operational":
+        f.error(cat, f"{rp} §7.9: data_control.enforcement is "
+                     f"{dc.get('enforcement')!r} != 'operational'; no schema field "
+                     f"forbids an out-of-class instance or a second-model shadow "
+                     f"today, and claiming otherwise would be false (task 6.2.4)")
+
+    ret = vals.get("retention") or {}
+    if ret.get("window_days") != CHECKLIST_S79_RETENTION_DAYS:
+        f.error(cat, f"{rp} §7.9: retention.window_days is "
+                     f"{ret.get('window_days')!r} != the ruled "
+                     f"{CHECKLIST_S79_RETENTION_DAYS}")
+    if ret.get("applies_to") != "canary_derived_structured_record":
+        f.error(cat, f"{rp} §7.9: retention.applies_to is "
+                     f"{ret.get('applies_to')!r} != "
+                     f"'canary_derived_structured_record'; the window is ruled for "
+                     f"canary-derived structured records, not for the ring at large")
+    # A WINDOW WITH NO POLICY REFERENCE IS AN INLINE DURATION. The kernel's
+    # split is references-only: domains own the record, the descriptor cites it.
+    if not ret.get("policy_ref"):
+        f.error(cat, f"{rp} §7.9: retention names no `policy_ref`; the ruled window "
+                     f"is carried by a NAMED DOMAIN-OWNED policy reference that the "
+                     f"descriptor cites — a duration with no reference is the inline "
+                     f"retention the kernel's reference-only split refuses")
+    if ret.get("policy_owner") != "domain":
+        f.error(cat, f"{rp} §7.9: retention.policy_owner is "
+                     f"{ret.get('policy_owner')!r} != 'domain'; the retention record "
+                     f"is domain-owned, as consent evidence already is")
+
+
+def check_canary_rollback_policy(f: Findings) -> None:
+    """§6.3.1-§6.3.2: machine-check the recorded revoke-versus-block policy.
+
+    This is the document the kernel has referenced since it was written —
+    "revoke affected active leases ACCORDING TO THE RECORDED POLICY" — and Fork
+    5 recorded that it had never actually been written. Now that it exists, the
+    part worth enforcing is the part that would be dangerous to get wrong:
+
+    * THE THREE-WAY SPLIT AND ITS REVOKE FLAGS. Safety breaches revoke active
+      leases; latency and error breaches block new sessions and let in-flight
+      legs DRAIN; quality and cost are operator judgment. Flipping ROLLBACK-B's
+      revoke flag to true would cut people off mid-conversation on a
+      performance regression, and would spend on a latency problem the
+      mechanism the kernel reserves for safety.
+    * NO MODEL FALLBACK. `gpt-realtime-2.1` is the first qualified profile, so
+      rollback can only disable voice into text or handoff. The constraint is
+      task 6.3.4's and it binds this artifact's COPY as well as the later code.
+    * AN ABORT ENDS MEDIA ONLY, and no real external tenant is admitted.
+
+    Fail closed on a missing or unreadable policy."""
+    path = AVC / POLICY_FILE
+    rp = f"contracts/avatar-client/{POLICY_FILE}"
+    cat = "canary-policy"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; the kernel's 'recorded policy' for kill-switch "
+                     f"scope is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != POLICY_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {POLICY_KIND!r}")
+
+    known = _resolve_map_ids(f, cat, rp)
+
+    # --- the cohort ---
+    cohort = doc.get("cohort")
+    if not isinstance(cohort, dict):
+        f.error(cat, f"{rp}: `cohort` missing (fail closed)")
+    else:
+        _check_map_refs(f, cat, f"{rp} cohort", cohort.get("acceptance_map_refs"), known)
+        ext = cohort.get("external_tenants") or {}
+        if ext.get("admitted") is not False:
+            f.error(cat, f"{rp}: cohort.external_tenants.admitted is "
+                         f"{ext.get('admitted')!r}; no real external tenant is "
+                         f"admitted to the internal-live canary")
+        opt = cohort.get("opt_in") or {}
+        if opt.get("client_visible_toggle") is not False:
+            f.error(cat, f"{rp}: cohort.opt_in.client_visible_toggle is "
+                         f"{opt.get('client_visible_toggle')!r}; opt-in is "
+                         f"server-side capability resolution, never a client toggle")
+        if opt.get("mechanism") != "server_side_capability_resolution":
+            f.error(cat, f"{rp}: cohort.opt_in.mechanism "
+                         f"{opt.get('mechanism')!r} != "
+                         f"'server_side_capability_resolution'")
+        # EXACTLY ONE OF EACH KIND, counted per kind rather than in total.
+        # A length-2 list plus an at-least-one sandbox test accepted TWO
+        # sandboxes and NO vendor organization — a cohort of two domain
+        # sandboxes and no vendor staff, which is a different ring than the one
+        # ruled, passing a check meant to fix its boundary. Both kinds are
+        # counted separately now, so neither can stand in for the other.
+        members = cohort.get("members")
+        if not isinstance(members, list):
+            f.error(cat, f"{rp}: cohort.members missing or not a list (fail closed)")
+        else:
+            kinds = [m.get("member") for m in members if isinstance(m, dict)]
+            non_mappings = len(members) - len(kinds)
+            if non_mappings:
+                f.error(cat, f"{rp}: cohort.members carries {non_mappings} entry/ies "
+                             f"that are not mappings; a cohort member that cannot be "
+                             f"read is never counted as present")
+            for kind in POLICY_COHORT_KINDS:
+                n = kinds.count(kind)
+                if n != 1:
+                    f.error(cat, f"{rp}: cohort.members carries {n} entries of kind "
+                                 f"{kind!r}; the ruled cohort is EXACTLY ONE of each "
+                                 f"— the vendor organization's internal accounts AND "
+                                 f"exactly one internally-staffed domain sandbox")
+            unexpected = sorted(set(kinds) - POLICY_COHORT_KINDS)
+            if unexpected:
+                f.error(cat, f"{rp}: cohort.members names unratified kind(s) "
+                             f"{unexpected}; admitting a new kind of member widens "
+                             f"the ring and needs a ruling")
+            sandbox = [m for m in members if isinstance(m, dict)
+                       and m.get("member") == "internally_staffed_domain_sandbox"]
+            if len(sandbox) == 1 and sandbox[0].get("cardinality") != "exactly_one":
+                f.error(cat, f"{rp}: the domain sandbox cardinality is "
+                             f"{sandbox[0].get('cardinality')!r} != 'exactly_one'; "
+                             f"a second sandbox widens the ring and needs a ruling")
+
+    # --- the three-way rollback split ---
+    pol = doc.get("rollback_policy")
+    if not isinstance(pol, dict):
+        f.error(cat, f"{rp}: `rollback_policy` missing (fail closed)")
+    else:
+        _check_map_refs(f, cat, f"{rp} rollback_policy",
+                        pol.get("acceptance_map_refs"), known)
+        classes = pol.get("classes")
+        if not isinstance(classes, list):
+            f.error(cat, f"{rp}: rollback_policy.classes missing or not a list")
+        else:
+            got = {c.get("id"): c for c in classes if isinstance(c, dict)}
+            if set(got) != set(POLICY_RULED_CLASSES):
+                f.error(cat, f"{rp}: rollback classes {sorted(got, key=str)} != the "
+                             f"ratified three-way split "
+                             f"{sorted(POLICY_RULED_CLASSES)}")
+            for cid, want in POLICY_RULED_CLASSES.items():
+                c = got.get(cid)
+                if not isinstance(c, dict):
+                    continue
+                for key, wanted in want.items():
+                    if c.get(key) != wanted:
+                        f.error(cat, f"{rp} {cid}: {key} is {c.get(key)!r} != the "
+                                     f"ratified {wanted!r}")
+                _check_map_refs(f, cat, f"{rp} {cid}",
+                                c.get("acceptance_map_refs"), known)
+
+    # --- the rollback target: no model fallback ---
+    tgt = doc.get("rollback_target")
+    if not isinstance(tgt, dict):
+        f.error(cat, f"{rp}: `rollback_target` missing (fail closed)")
+    else:
+        if tgt.get("model_fallback_exists") is not False:
+            f.error(cat, f"{rp}: rollback_target.model_fallback_exists is "
+                         f"{tgt.get('model_fallback_exists')!r}; gpt-realtime-2.1 is "
+                         f"the FIRST qualified profile, so no model fallback exists "
+                         f"and none may be implied")
+        if tgt.get("target") != "disable_voice_to_text_or_human_handoff":
+            f.error(cat, f"{rp}: rollback_target.target {tgt.get('target')!r} != "
+                         f"'disable_voice_to_text_or_human_handoff'")
+        _check_map_refs(f, cat, f"{rp} rollback_target",
+                        tgt.get("acceptance_map_refs"), known)
+
+    # --- an abort ends the media plane only ---
+    scope = doc.get("abort_scope")
+    if not isinstance(scope, dict):
+        f.error(cat, f"{rp}: `abort_scope` missing (fail closed)")
+    else:
+        if scope.get("ends") != "media_plane_only":
+            f.error(cat, f"{rp}: abort_scope.ends {scope.get('ends')!r} != "
+                         f"'media_plane_only'; the authority-owned workflow "
+                         f"projection survives every abort")
+        survives = set(scope.get("survives") or [])
+        want_survives = {"authority_owned_workflow_projection",
+                         "policy_required_structured_records"}
+        if survives != want_survives:
+            f.error(cat, f"{rp}: abort_scope.survives {sorted(survives)} != "
+                         f"{sorted(want_survives)}")
+        _check_map_refs(f, cat, f"{rp} abort_scope",
+                        scope.get("acceptance_map_refs"), known)
+
+    _check_section_7_values(f, cat, rp, doc)
+
+
+def _rollback_class(doc: Any, class_id: str) -> dict:
+    """One rollback class by id, or an empty mapping. Re-read from the document
+    rather than threaded down from the split check, so the §7 rules report even
+    when the split itself is malformed — a policy with a broken class list still
+    has trip points worth checking, and a check that silently skips is a check
+    that is not there."""
+    pol = doc.get("rollback_policy")
+    if not isinstance(pol, dict):
+        return {}
+    for c in pol.get("classes") or []:
+        if isinstance(c, dict) and c.get("id") == class_id:
+            return c
+    return {}
+
+
+def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
+    """§7.6's canary exit criteria and the §7.2 trip points ROLLBACK-B and
+    ROLLBACK-C consume, RULED 2026-08-27.
+
+    Three things here would be dangerous to get wrong, and each is a defect the
+    artifact itself named before the values landed:
+
+    * AN EXIT CRITERION INVENTED AFTER THE FACT. The block's own former
+      statement said the three values were held open "so that a canary cannot
+      be declared successful against criteria invented after the fact". Now
+      that they are set, the way that sentence stays true is that they are
+      compared against the ruling rather than read out of the file that the
+      canary's own operator could edit.
+    * A TRIGGER WITH NO TRIP POINT. ROLLBACK-B is an AUTOMATIC block-new class
+      whose `elevated_error_rate` and `elevated_quota_condition` triggers named
+      no number: an auto-blocker that cannot decide to fire is decoration. So
+      EVERY trigger a class declares must resolve to a threshold, checked by
+      set comparison rather than by spot-checking the ones we remember.
+    * TWO NUMBERS FOR ONE FACT. The canary's trailing-window tolerated error
+      rate and ROLLBACK-B's `elevated_error_rate` are the SAME number by
+      ruling. Ruled apart, the canary could pass its exit criterion while its
+      auto-blocker was tripping, or the reverse. They are compared to each
+      other, not merely each to a constant, so a future edit that moves both
+      consistently still has to move them to the ruled value — and one that
+      moves only one fails on both rules at once.
+
+    §7.7, §7.8 and §7.10 were ruled the same day and close the three gaps this
+    artifact recorded against itself, each with the same shape of hazard:
+
+    * AN UNFIREABLE KILL SWITCH. `operator_surface` said of itself that "a
+      canary opened without a named holder has an unfireable kill switch". A
+      holder recorded as a ROLE, or a `mechanism_ref` naming a runbook nobody
+      wrote, is that same unfireable switch with a value in the field — so the
+      holder must be a named person and the runbook must RESOLVE ON DISK.
+    * AN OUTCOME TOKEN INFERRED AFTER THE FACT. The block required the outcome
+      "DECLARED IN ADVANCE rather than inferred", and the ruling introduces NO
+      new token. Both halves are checked: the path-to-token mapping against the
+      ruling, and every token against the closed `session-outcomes` REGISTRY
+      rather than against a list mirrored here — a mirrored list would let the
+      registry shrink underneath a policy still naming a member of it. The
+      token is also carried on the rollback class itself and compared, for the
+      same reason the error rate is.
+    * A BUDGET WITH NO SUBJECT. The per-tenant figure is metered against a
+      "tenant" that was `status: unset`. Tenant is now a cohort member, and the
+      recorded `tenant_count` is RECOMPUTED from `cohort.members` rather than
+      trusted — a count that outlives the membership it summarises is exactly
+      how a re-sized budget goes unnoticed.
+    """
+    exit_criteria = doc.get("canary_exit_criteria")
+    if not isinstance(exit_criteria, dict):
+        f.error(cat, f"{rp}: `canary_exit_criteria` missing (fail closed); §7.6's "
+                     f"soak duration, session count and tolerated error rate are "
+                     f"the canary's exit contract")
+        exit_criteria = {}
+    elif exit_criteria.get("status") != "ruled":
+        f.error(cat, f"{rp}: canary_exit_criteria.status is "
+                     f"{exit_criteria.get('status')!r} != 'ruled'; §7.6 was ruled "
+                     f"2026-08-27 and a canary opened against unset criteria can be "
+                     f"declared successful against criteria invented after the fact")
+
+    soak = exit_criteria.get("soak_duration") or {}
+    for key, want in (("consecutive_calendar_days", POLICY_EXIT_SOAK_DAYS),
+                      ("sessions_on_distinct_days_min", POLICY_EXIT_DISTINCT_DAYS)):
+        if soak.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.soak_duration.{key} is "
+                         f"{soak.get(key)!r} != the ruled {want}")
+
+    sessions = exit_criteria.get("minimum_session_count") or {}
+    if sessions.get("completed_sessions") != POLICY_EXIT_SESSIONS:
+        f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
+                     f"completed_sessions is {sessions.get('completed_sessions')!r} "
+                     f"!= the ruled {POLICY_EXIT_SESSIONS}; the count is bounded "
+                     f"BELOW by measurability — at n=50 a single failure is already "
+                     f"2 percent, so the tolerated rate could not be evaluated at "
+                     f"all — and ABOVE by §7.2's provider-project cap, which is what "
+                     f"moved it from 200 on 2026-08-28")
+    floors = sessions.get("sub_floors") or {}
+    for key, want in (("cohort_02_domain_sandbox_min", POLICY_EXIT_COHORT_02_MIN),
+                      ("per_evaluation_scenario_class_min",
+                       POLICY_EXIT_PER_SCENARIO_CLASS_MIN)):
+        if floors.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
+                         f"sub_floors.{key} is {floors.get(key)!r} != the ruled "
+                         f"{want}; without the floors, 99 vendor-org sessions and "
+                         f"one sandbox session would technically satisfy the count")
+
+    rate = exit_criteria.get("tolerated_error_rate") or {}
+    for key, want in (("abnormal_rate_overall_max_pct",
+                       POLICY_EXIT_ABNORMAL_OVERALL_PCT),
+                      ("abnormal_rate_trailing_window_max_pct",
+                       POLICY_EXIT_ABNORMAL_TRAILING_PCT),
+                      ("trailing_window_sessions",
+                       POLICY_EXIT_TRAILING_WINDOW_SESSIONS)):
+        if rate.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.tolerated_error_rate.{key} is "
+                         f"{rate.get(key)!r} != the ruled {want}")
+    if not rate.get("abnormal_definition"):
+        f.error(cat, f"{rp}: canary_exit_criteria.tolerated_error_rate carries no "
+                     f"`abnormal_definition`; a rate whose numerator is undefined is "
+                     f"unfalsifiable, and this ring deliberately produces "
+                     f"abnormal-looking terminals (consent drills, injected rollback "
+                     f"rehearsals, operator-fired ROLLBACK-C)")
+
+    got_additional = {a.get("id") for a in exit_criteria.get("additional_criteria") or []
+                      if isinstance(a, dict)}
+    if got_additional != POLICY_EXIT_ADDITIONAL_IDS:
+        f.error(cat, f"{rp}: canary_exit_criteria.additional_criteria "
+                     f"{sorted(got_additional, key=str)} != the ruled "
+                     f"{sorted(POLICY_EXIT_ADDITIONAL_IDS)}; RING-04 proves the kill "
+                     f"SWITCH before any canary traffic and nothing else proves the "
+                     f"DETECTION, which is what Option B was chosen for")
+
+    # --- every declared trigger resolves to a trip point ---
+    rb = _rollback_class(doc, "ROLLBACK-B")
+    thresholds = rb.get("trigger_thresholds")
+    if not isinstance(thresholds, dict):
+        f.error(cat, f"{rp} ROLLBACK-B: `trigger_thresholds` missing (fail closed); "
+                     f"an AUTOMATIC block-new class whose triggers carry no numbers "
+                     f"cannot decide to fire")
+        thresholds = {}
+    declared = {t for t in rb.get("triggers") or [] if isinstance(t, str)}
+    missing = sorted(declared - set(thresholds))
+    if missing:
+        f.error(cat, f"{rp} ROLLBACK-B: trigger(s) {missing} declare no trip point; "
+                     f"every automatic trigger resolves to a threshold or the class "
+                     f"is decoration")
+    extra = sorted(set(thresholds) - declared)
+    if extra:
+        f.error(cat, f"{rp} ROLLBACK-B: trip point(s) {extra} name no declared "
+                     f"trigger; a threshold nothing fires on is a number with no "
+                     f"reader")
+
+    err = thresholds.get("elevated_error_rate") or {}
+    if err.get("abnormal_rate_trailing_window_max_pct") != ROLLBACK_B_ERROR_TRAILING_PCT:
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_error_rate trailing-window rate is "
+                     f"{err.get('abnormal_rate_trailing_window_max_pct')!r} != the "
+                     f"ruled {ROLLBACK_B_ERROR_TRAILING_PCT} percent")
+    if err.get("trailing_window_sessions") != ROLLBACK_B_TRAILING_WINDOW_SESSIONS:
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_error_rate trailing window is "
+                     f"{err.get('trailing_window_sessions')!r} sessions != the ruled "
+                     f"{ROLLBACK_B_TRAILING_WINDOW_SESSIONS}")
+    # THE SAME NUMBER, compared to itself. This is the coupling the ruling
+    # names: the exit criterion and the auto-blocker's trip are one fact.
+    for key in ("abnormal_rate_trailing_window_max_pct", "trailing_window_sessions"):
+        if rate.get(key) is not None and err.get(key) != rate.get(key):
+            f.error(cat, f"{rp}: ROLLBACK-B's elevated_error_rate {key} "
+                         f"{err.get(key)!r} disagrees with canary_exit_criteria."
+                         f"tolerated_error_rate {key} {rate.get(key)!r}; they are ONE "
+                         f"ruled number — apart, the canary can pass its exit "
+                         f"criterion while its auto-blocker is tripping")
+
+    quota = thresholds.get("elevated_quota_condition") or {}
+    for key, want in (("per_session_duration_seconds_max",
+                       ROLLBACK_B_SESSION_SECONDS_MAX),
+                      ("per_session_billable_units_max",
+                       ROLLBACK_B_SESSION_UNITS_MAX),
+                      ("provider_project_monthly_cap_usd",
+                       ROLLBACK_B_PROJECT_CAP_USD)):
+        if quota.get(key) != want:
+            f.error(cat, f"{rp} ROLLBACK-B: elevated_quota_condition.{key} is "
+                         f"{quota.get(key)!r} != the ruled {want} (§7.2)")
+    if quota.get("uncountable_is") != "exhausted":
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_quota_condition.uncountable_is is "
+                     f"{quota.get('uncountable_is')!r} != 'exhausted'; a broker that "
+                     f"cannot determine its accumulated cost REFUSES the session "
+                     f"rather than proceeding blind")
+
+    # --- ROLLBACK-C's cost signal: metered, and with a reader ---
+    rc = _rollback_class(doc, "ROLLBACK-C")
+    cost = (rc.get("trigger_signals") or {}).get("cost_concern") or {}
+    if cost.get("per_tenant_monthly_budget_usd") != ROLLBACK_C_TENANT_BUDGET_USD:
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern.per_tenant_monthly_budget_usd is "
+                     f"{cost.get('per_tenant_monthly_budget_usd')!r} != the ruled "
+                     f"{ROLLBACK_C_TENANT_BUDGET_USD} (§7.2)")
+    if cost.get("hard_stop_exists") is not False:
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern.hard_stop_exists is "
+                     f"{cost.get('hard_stop_exists')!r}; Fork 1 Option C DEFERS the "
+                     f"durable synchronous per-tenant counter (task 6.1.5), so "
+                     f"nothing can hard-stop a single tenant and recording this as "
+                     f"hard would be false")
+    if not cost.get("alert_reader"):
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern names no `alert_reader`; a "
+                     f"metered-only budget with nothing wired to it is the "
+                     f"`budget_envelopes: {{}}` failure this org has already had "
+                     f"flagged in review — §7.4 exists to give this number a reader")
+
+    pol = doc.get("rollback_policy")
+    pol = pol if isinstance(pol, dict) else {}
+    _check_operator_surface(f, cat, rp, pol)
+    _check_session_outcome_tokens(f, cat, rp, doc, pol)
+    _check_tenant_definition(f, cat, rp, doc)
+
+
+def _check_operator_surface(f: Findings, cat: str, rp: str, pol: dict) -> None:
+    """§7.7: the operator surface that fires the kill switches, RULED
+    2026-08-27 — a named PERSON, a documented runbook act, and a runbook that
+    exists.
+
+    Fail closed on absence: the block's own former statement is that a canary
+    opened without a named holder has an unfireable kill switch, which would
+    make ROLLBACK-C undeliverable and ROLLBACK-A dependent on automation alone.
+    Deleting the block is therefore the defect, not a deferral."""
+    surface = pol.get("operator_surface")
+    if not isinstance(surface, dict):
+        f.error(cat, f"{rp}: `rollback_policy.operator_surface` missing (fail "
+                     f"closed); the surface that fires the kill switches MUST be "
+                     f"named before the canary opens")
+        return
+    if surface.get("status") != "named":
+        f.error(cat, f"{rp}: operator_surface.status is "
+                     f"{surface.get('status')!r} != 'named'; §7.7 was ruled "
+                     f"2026-08-27 and a canary opened without a named holder has an "
+                     f"unfireable kill switch")
+    if surface.get("holder") != POLICY_OPERATOR_HOLDER:
+        f.error(cat, f"{rp}: operator_surface.holder is {surface.get('holder')!r} != "
+                     f"the ruled {POLICY_OPERATOR_HOLDER!r}")
+    # A ROLE IS THE FAILURE THIS FIELD EXISTS TO CATCH. §7.4 recorded its page
+    # target as a role precisely BECAUSE §7.7 was open; a holder recorded as a
+    # role again would re-open the gap while looking closed.
+    if surface.get("holder_kind") != POLICY_OPERATOR_HOLDER_KIND:
+        f.error(cat, f"{rp}: operator_surface.holder_kind is "
+                     f"{surface.get('holder_kind')!r} != "
+                     f"{POLICY_OPERATOR_HOLDER_KIND!r}; §7.7 requires a PERSON, and "
+                     f"a role recorded here is the same gap §7.4 was already holding "
+                     f"open")
+    if surface.get("holds") != "both_switches":
+        f.error(cat, f"{rp}: operator_surface.holds is {surface.get('holds')!r} != "
+                     f"'both_switches'; the kernel gives this ring two switches and "
+                     f"the ruled holder holds both")
+    if surface.get("mechanism") != POLICY_OPERATOR_MECHANISM:
+        f.error(cat, f"{rp}: operator_surface.mechanism is "
+                     f"{surface.get('mechanism')!r} != {POLICY_OPERATOR_MECHANISM!r}")
+    if surface.get("web_console_used") is not False:
+        f.error(cat, f"{rp}: operator_surface.web_console_used is "
+                     f"{surface.get('web_console_used')!r}; the web console is an "
+                     f"explicit kernel non-goal and no operator surface is inherited "
+                     f"from it")
+    if not surface.get("rota_deferred_to"):
+        f.error(cat, f"{rp}: operator_surface names no `rota_deferred_to`; ONE named "
+                     f"holder is proportionate to this ring and not to the pilot, so "
+                     f"the deferral is part of the ruling and not an omission")
+    # §7.4's page target and §7.7's holder are ONE human by ruling — "the person
+    # who learns about the spend is the person who can stop it".
+    if surface.get("also_the_alert_page_target") is not True:
+        f.error(cat, f"{rp}: operator_surface.also_the_alert_page_target is "
+                     f"{surface.get('also_the_alert_page_target')!r}; §7.4's page "
+                     f"target and §7.7's holder are ONE human by ruling — an alert "
+                     f"with no named recipient and a kill switch with no named "
+                     f"holder are the same gap seen twice")
+
+    # THE MECHANISM IS A DOCUMENT, SO THE DOCUMENT MUST EXIST. A `mechanism_ref`
+    # that resolves to nothing is an unfireable switch with a filename in the
+    # field, which is the failure this whole block was opened against.
+    ref = surface.get("mechanism_ref")
+    if ref != POLICY_OPERATOR_RUNBOOK:
+        f.error(cat, f"{rp}: operator_surface.mechanism_ref is {ref!r} != the ruled "
+                     f"{POLICY_OPERATOR_RUNBOOK!r}")
+    if isinstance(ref, str) and ref:
+        # Routed through the shared `_repo_file` guard rather than keeping a
+        # second hand-rolled containment check here. This site already refused
+        # an escape; what it gains is the SPECIFIC refusal — absolute, or a
+        # `..` segment — and, more usefully, one implementation for every
+        # YAML-supplied path in this validator instead of two that can drift.
+        target = _repo_file(f, cat, f"{rp}: operator_surface.mechanism_ref", ref)
+        if target is None:
+            pass  # refused above with the reason; the filesystem is untouched
+        elif not target.is_file():
+            f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} resolves to "
+                         f"no file; the RULED MECHANISM IS THAT DOCUMENT, so a "
+                         f"dangling reference is an unfireable kill switch wearing a "
+                         f"filename")
+
+    # The two switches the kernel gives this ring, and their two modes each.
+    switches = surface.get("switches")
+    if not isinstance(switches, list):
+        f.error(cat, f"{rp}: operator_surface carries no `switches` list; the holder "
+                     f"holds two named switches, not an unspecified control")
+        return
+    scopes = [s.get("scope") for s in switches if isinstance(s, dict)]
+    if len(scopes) != len(switches):
+        f.error(cat, f"{rp}: operator_surface.switches carries entries that are not "
+                     f"mappings; a switch that cannot be read is never counted as "
+                     f"present")
+    if set(scopes) != POLICY_SWITCH_SCOPES:
+        f.error(cat, f"{rp}: operator_surface switch scopes {sorted(scopes, key=str)} "
+                     f"!= the kernel's two {sorted(POLICY_SWITCH_SCOPES)}; finer "
+                     f"scopes are DEFERRED with the features they would govern, so a "
+                     f"third scope here is a switch the runtime does not have")
+    for s in switches:
+        if not isinstance(s, dict):
+            continue
+        modes = set(s.get("modes") or [])
+        if modes != POLICY_SWITCH_MODES:
+            f.error(cat, f"{rp}: switch {s.get('id')!r} declares modes "
+                         f"{sorted(modes, key=str)} != "
+                         f"{sorted(POLICY_SWITCH_MODES)}; each kill switch carries "
+                         f"OPTIONAL active-lease revocation, and RING-04 exercises "
+                         f"both modes of both switches before any canary traffic")
+
+
+def _registry_members(f: Findings, cat: str, rp: str, ref: str) -> set[str] | None:
+    """The members of one closed AVC registry, read from the registry file at
+    `ref` (a path relative to `contracts/avatar-client/`).
+
+    Read rather than mirrored on purpose: §7.8's ruling is that no NEW outcome
+    token is introduced, and the way that stays true is that the check resolves
+    against the vocabulary the schemas are parity-checked against. A constant
+    copied into this module would keep agreeing with itself after the registry
+    moved. Returns None when the registry file is absent — which is reported,
+    never silently skipped; a present-but-unparseable registry instead raises
+    MalformedYAML, which the run() boundary turns into its own finding.
+
+    PRECONDITION: `ref` is a PINNED, in-tree reference — the caller has already
+    compared it against the sanctioned path for that vocabulary. This helper
+    therefore carries no containment guard of its own: a guard that no caller
+    can trip is a guard no test can prove, and an unprovable guard is worth less
+    than the sentence saying where the real one lives."""
+    target = AVC / ref
+    if not target.is_file():
+        f.error(cat, f"{rp}: the closed registry `{ref}` is absent, so the declared "
+                     f"tokens cannot be resolved against it (fail closed)")
+        return None
+    doc = load_yaml(target)
+    members = doc.get("members") if isinstance(doc, dict) else None
+    if not isinstance(members, list):
+        f.error(cat, f"{rp}: `{ref}` carries no readable `members` list (fail "
+                     f"closed)")
+        return None
+    return {m.get("id") for m in members if isinstance(m, dict)}
+
+
+def _check_session_outcome_tokens(f: Findings, cat: str, rp: str,
+                                  doc: Any, pol: dict) -> None:
+    """§7.8: the session outcome each rollback path emits, RULED 2026-08-27.
+
+    Two rules, and the second is the one with teeth. First, the path-to-token
+    mapping matches the ruling — a drained leg is `abandoned`, a
+    force-terminated leg is `revoked` on the same terminal path consent
+    withdrawal already uses. Second, EVERY token named anywhere in the block is
+    a member of the closed `session-outcomes` registry, because the ruling's
+    whole content is that no new token was introduced: a policy that invents
+    `drained` or `blocked` would otherwise read as a decision rather than as
+    the schema violation it is.
+
+    Two rules that look like bookkeeping and are not. The artifact's own
+    `registry_ref` is PINNED to the sanctioned vocabulary and then FOLLOWED, so
+    the document cannot name one registry while this rule reads another. And
+    `unbound` must be an EXPLICIT EMPTY LIST: §7.8's claim is "nothing remains
+    unbound", which is asserted, never inferred from a field that is simply
+    absent."""
+    block = pol.get("session_outcome_tokens")
+    if not isinstance(block, dict):
+        f.error(cat, f"{rp}: `rollback_policy.session_outcome_tokens` missing (fail "
+                     f"closed); the outcome each rollback path emits is DECLARED IN "
+                     f"ADVANCE rather than inferred")
+        return
+    if block.get("status") != "bound":
+        f.error(cat, f"{rp}: session_outcome_tokens.status is "
+                     f"{block.get('status')!r} != 'bound'; §7.8 was ruled 2026-08-27 "
+                     f"and every path now carries a declared token")
+    if block.get("new_outcome_token_introduced") is not False:
+        f.error(cat, f"{rp}: session_outcome_tokens.new_outcome_token_introduced is "
+                     f"{block.get('new_outcome_token_introduced')!r}; the ruling's "
+                     f"content is that NO new outcome token is introduced")
+
+    bound = block.get("bound")
+    if not isinstance(bound, list):
+        f.error(cat, f"{rp}: session_outcome_tokens.bound missing or not a list")
+        bound = []
+    got = {e.get("path"): e for e in bound if isinstance(e, dict)}
+    if set(got) != set(POLICY_OUTCOME_PATHS):
+        f.error(cat, f"{rp}: session_outcome_tokens bound paths "
+                     f"{sorted(got, key=str)} != the ruled "
+                     f"{sorted(POLICY_OUTCOME_PATHS)}")
+    for path, want in POLICY_OUTCOME_PATHS.items():
+        entry = got.get(path)
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("outcome") != want:
+            f.error(cat, f"{rp}: session_outcome_tokens path {path!r} emits "
+                         f"{entry.get('outcome')!r} != the ruled {want!r}")
+    # NOTHING MAY REMAIN UNBOUND — AND THE FIELD MUST SAY SO IN THOSE WORDS.
+    # §7.8's claim is not "no unbound paths are visible", it is "nothing remains
+    # unbound", so the artifact has to ASSERT the empty list rather than merely
+    # fail to carry a non-empty one. A truthiness test read `{}`, `""`, `0` and
+    # a MISSING KEY as "nothing unbound", which means deleting the field — the
+    # single easiest edit — would have silently satisfied the strongest claim in
+    # the block. An explicit empty LIST is the only passing shape.
+    if "unbound" not in block:
+        f.error(cat, f"{rp}: session_outcome_tokens carries no `unbound` key; §7.8's "
+                     f"claim is that NOTHING remains unbound, and a claim that "
+                     f"strong is asserted as an empty list — never inferred from an "
+                     f"absent field")
+    else:
+        unbound = block.get("unbound")
+        if not isinstance(unbound, list):
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound is a "
+                         f"{type(unbound).__name__} ({unbound!r}), not a list; an "
+                         f"empty mapping or empty string reads as 'nothing unbound' "
+                         f"to a truthiness test and as a malformed record to a reader")
+        elif unbound:
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound still carries "
+                         f"{len(unbound)} path(s) while status is 'bound'; §7.8 bound "
+                         f"every path, so an unbound entry is the open state returning "
+                         f"under a closed label")
+
+    # THE ARTIFACT'S OWN REGISTRY REFERENCE IS PINNED, AND THEN FOLLOWED.
+    # `registry_ref` was recorded but never checked, so the policy could have
+    # named one vocabulary while this rule resolved against another — the
+    # document and its validator disagreeing in silence, which is worse than
+    # either being wrong alone. The ref is PINNED rather than freely followed
+    # because the contract grants no choice here: `session-outcomes` is a CLOSED
+    # registry with exactly one file, and letting the artifact nominate its own
+    # vocabulary would invent flexibility that would defeat the closure. So the
+    # ref must equal the sanctioned path — and the read then goes THROUGH it, so
+    # the check demonstrably resolves what the document says it resolves.
+    ref = block.get("registry_ref")
+    if ref != OUTCOME_REGISTRY_REF:
+        f.error(cat, f"{rp}: session_outcome_tokens.registry_ref is {ref!r} != the "
+                     f"sanctioned {OUTCOME_REGISTRY_REF!r}; the outcome vocabulary is "
+                     f"a CLOSED registry, so the artifact may not nominate a "
+                     f"different one — and a ref nobody checks lets the policy point "
+                     f"one way while the rule reads another")
+    # A BAD REF IS NOT A REASON TO SKIP THE MEMBERSHIP RULE. Resolving against
+    # the sanctioned path when the ref is wrong keeps the token check running;
+    # rewarding a broken reference with a weaker validation is the one outcome
+    # this must not have.
+    known = _registry_members(
+        f, cat, rp, ref if ref == OUTCOME_REGISTRY_REF else OUTCOME_REGISTRY_REF)
+    if known is not None:
+        declared: set[str] = set()
+        for entry in bound:
+            if not isinstance(entry, dict):
+                continue
+            if isinstance(entry.get("outcome"), str):
+                declared.add(entry["outcome"])
+            declared.update(t for t in entry.get("also_permitted") or []
+                            if isinstance(t, str))
+        invented = sorted(declared - known)
+        if invented:
+            f.error(cat, f"{rp}: session_outcome_tokens names {invented}, which "
+                         f"is/are not member(s) of the closed `session-outcomes` "
+                         f"registry; §7.8 introduces NO new outcome token")
+
+    # THE SAME FACT, CARRIED TWICE, COMPARED. The class a reader lands on states
+    # its own terminal; the §7.8 block owns the mapping. Apart, a class could
+    # promise one terminal while the policy bound another.
+    for cid, (want_outcome, want_path) in POLICY_CLASS_OUTCOMES.items():
+        c = _rollback_class(doc, cid)
+        if c.get("session_outcome") != want_outcome:
+            f.error(cat, f"{rp} {cid}: session_outcome is "
+                         f"{c.get('session_outcome')!r} != the ruled "
+                         f"{want_outcome!r} (§7.8)")
+        if c.get("session_outcome_path") != want_path:
+            f.error(cat, f"{rp} {cid}: session_outcome_path is "
+                         f"{c.get('session_outcome_path')!r} != {want_path!r}")
+        entry = got.get(want_path)
+        if isinstance(entry, dict) and entry.get("outcome") != c.get("session_outcome"):
+            f.error(cat, f"{rp}: {cid}'s session_outcome "
+                         f"{c.get('session_outcome')!r} disagrees with "
+                         f"session_outcome_tokens path {want_path!r} "
+                         f"{entry.get('outcome')!r}; they are ONE ruled fact")
+    rc = _rollback_class(doc, "ROLLBACK-C")
+    if rc.get("session_outcome") != POLICY_ROLLBACK_C_OUTCOME:
+        f.error(cat, f"{rp} ROLLBACK-C: session_outcome is "
+                     f"{rc.get('session_outcome')!r} != "
+                     f"{POLICY_ROLLBACK_C_OUTCOME!r}; the operator selects the scope "
+                     f"and the scope binds the token, so this class names no single "
+                     f"outcome of its own")
+
+
+def _check_tenant_definition(f: Findings, cat: str, rp: str, doc: Any) -> None:
+    """§7.10: "tenant" for this ring, RULED 2026-08-27 as the cohort member.
+
+    The recorded `tenant_count` is RECOMPUTED from `cohort.members` rather than
+    read. §7.2's per-tenant budget was sized on two tenants sitting comfortably
+    under the project cap; if the cohort ever grew and the count stayed at 2,
+    the budget would silently be metering against a denominator that no longer
+    exists, which is precisely the re-sizing the task said would be needed."""
+    cohort = doc.get("cohort")
+    cohort = cohort if isinstance(cohort, dict) else {}
+    ref = cohort.get("tenant_definition_ref")
+    if not isinstance(ref, dict):
+        f.error(cat, f"{rp}: `cohort.tenant_definition_ref` missing (fail closed); "
+                     f"without it the per-tenant spend and metering dimensions have "
+                     f"no subject")
+        return
+    if ref.get("status") != "set":
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.status is "
+                     f"{ref.get('status')!r} != 'set'; §7.10 was ruled 2026-08-27 and "
+                     f"§7.2's per-tenant budget has no subject until it is")
+    if ref.get("tenant_is") != POLICY_TENANT_IS:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_is is "
+                     f"{ref.get('tenant_is')!r} != the ruled {POLICY_TENANT_IS!r}; "
+                     f"a tenant ruled as anything else re-opens §7.2's sizing against "
+                     f"a new denominator")
+
+    members = cohort.get("members")
+    members = members if isinstance(members, list) else []
+    member_ids = {m.get("id") for m in members if isinstance(m, dict)}
+    declared_ids = set(ref.get("tenant_ids") or [])
+    if declared_ids != member_ids:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_ids "
+                     f"{sorted(declared_ids, key=str)} != the cohort's own members "
+                     f"{sorted(member_ids, key=str)}; tenant IS cohort member, so the "
+                     f"two lists are one list")
+    if ref.get("tenant_count") != len(member_ids):
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_count is "
+                     f"{ref.get('tenant_count')!r} but the cohort carries "
+                     f"{len(member_ids)} member(s); §7.2's $"
+                     f"{ROLLBACK_C_TENANT_BUDGET_USD}/month per-tenant figure was "
+                     f"sized on this denominator, so a count that outlives its "
+                     f"membership re-sizes the budget silently")
+    if ref.get("sizing_still_valid") is not True:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.sizing_still_valid is "
+                     f"{ref.get('sizing_still_valid')!r}; the ruling is the "
+                     f"denominator §7.2 already assumed, so it must state that the "
+                     f"per-tenant figure stands — or §7.2 needs re-ruling, not a "
+                     f"quiet flag")
+
+
+def check_latency_sample_minimum(f: Findings) -> None:
+    """§7.5, feeding §5.2: the minimum sample count per gated latency cell.
+
+    §5.2's requirement is an ORDERING — "Declare the minimum sample count per
+    gated cell BEFORE measuring" — and an ordering cannot be checked from the
+    numbers alone once both exist. What CAN be checked, and is, is that the
+    declaration exists, is dated, says of itself that it preceded measurement,
+    and — the rule with teeth — DECLARES THE SAME CELL SET THE SLO GATES. A
+    minimum declared over a different set of platforms, percentiles or
+    intervals than the ones it is supposed to gate is a minimum for nothing:
+    it would read as rigor while leaving every gated cell without a floor.
+
+    The cell COUNT is recomputed from the SLO's own gated axes rather than
+    trusted, because "4 cells" is the kind of number that stays behind when the
+    axes it summarises move.
+
+    Fail closed on a missing or unreadable record: an undeclared minimum is
+    exactly the state §5.2 exists to prevent, and ALV-005-S02 ("A percentile is
+    claimed from an undeclared sample count") is its scenario."""
+    path = AVC / SAMPLE_MIN_FILE
+    rp = f"contracts/avatar-client/{SAMPLE_MIN_FILE}"
+    cat = "sample-minimum"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; §5.2 requires the minimum sample count per gated "
+                     f"cell to be DECLARED BEFORE MEASURING, so its absence is the "
+                     f"defect and not a deferral (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != SAMPLE_MIN_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {SAMPLE_MIN_KIND!r}")
+    known = _resolve_map_ids(f, cat, rp)
+    _check_map_refs(f, cat, rp, doc.get("acceptance_map_refs"), known)
+
+    decl = doc.get("declaration") or {}
+    if decl.get("declared_before_measuring") is not True:
+        f.error(cat, f"{rp}: declaration.declared_before_measuring is "
+                     f"{decl.get('declared_before_measuring')!r}; §5.2's whole "
+                     f"requirement is the ordering — a minimum declared after the "
+                     f"numbers are in is a minimum chosen to fit them")
+    if not decl.get("declared_on"):
+        f.error(cat, f"{rp}: declaration carries no `declared_on`; an undated "
+                     f"declaration cannot be shown to precede the measurements")
+
+    minimum = doc.get("minimum") or {}
+    if minimum.get("n_min") != SAMPLE_MIN_N:
+        f.error(cat, f"{rp}: minimum.n_min is {minimum.get('n_min')!r} != the ruled "
+                     f"{SAMPLE_MIN_N}; at n=30 a p95 estimate is the second-largest "
+                     f"of thirty — a maximum wearing a percentile's name")
+    under = doc.get("under_minimum") or {}
+    if under.get("effect") != SAMPLE_MIN_UNDER_EFFECT:
+        f.error(cat, f"{rp}: under_minimum.effect is {under.get('effect')!r} != "
+                     f"{SAMPLE_MIN_UNDER_EFFECT!r}; a short cell is RECORDED and MUST "
+                     f"NOT GATE")
+    spread = doc.get("spread") or {}
+    for key, want in (("distinct_runs_min", SAMPLE_MIN_RUNS),
+                      ("distinct_days_min", SAMPLE_MIN_DISTINCT_DAYS)):
+        if spread.get(key) != want:
+            f.error(cat, f"{rp}: spread.{key} is {spread.get(key)!r} != the ruled "
+                         f"{want}; a minimum n taken all at once repeats F0's "
+                         f"single-configuration weakness with a bigger number")
+    p99 = doc.get("p99_posture") or {}
+    if p99.get("gate_sample_floor") != SAMPLE_MIN_P99_FLOOR:
+        f.error(cat, f"{rp}: p99_posture.gate_sample_floor is "
+                     f"{p99.get('gate_sample_floor')!r} != {SAMPLE_MIN_P99_FLOOR}")
+    if p99.get("stays_recorded_not_gated") is not True:
+        f.error(cat, f"{rp}: p99_posture.stays_recorded_not_gated is "
+                     f"{p99.get('stays_recorded_not_gated')!r}; at n=100 p99 IS "
+                     f"effectively the maximum, and the acceptance map keeps it "
+                     f"recorded-not-gated")
+
+    # --- the declared cell set must be the set the SLO actually gates ---
+    amap = load_yaml(AVC / "acceptance-map.yaml") if (AVC / "acceptance-map.yaml").is_file() else None
+    slo_entries = _slo_entries(amap) if isinstance(amap, dict) else []
+    if len(slo_entries) != 1:
+        return  # check_latency_posture already reports zero or two
+    gated = slo_entries[0].get("gated") or {}
+    pairs = (("gated_platforms", "platforms"),
+             ("gated_percentiles", "percentiles"),
+             ("gated_intervals", "intervals"))
+    for mine, theirs in pairs:
+        declared = set(minimum.get(mine) or [])
+        actual = set(gated.get(theirs) or [])
+        if declared != actual:
+            f.error(cat, f"{rp}: minimum.{mine} {sorted(declared)} != the SLO's "
+                         f"gated {theirs} {sorted(actual)}; a minimum declared over a "
+                         f"different cell set than the one it gates leaves every "
+                         f"gated cell without a floor")
+    if minimum.get("gated_network_class") != gated.get("network_class"):
+        f.error(cat, f"{rp}: minimum.gated_network_class "
+                     f"{minimum.get('gated_network_class')!r} != the SLO's gated "
+                     f"network class {gated.get('network_class')!r}")
+    # RECOMPUTED, not trusted: platforms x one gated network class x the two
+    # reference classifications the comparison cell separates.
+    expected_cells = len(set(gated.get("platforms") or [])) * 2
+    if expected_cells and minimum.get("cells") != expected_cells:
+        f.error(cat, f"{rp}: minimum.cells is {minimum.get('cells')!r} but the SLO's "
+                     f"gated axes give {expected_cells} "
+                     f"(platforms x nominal network x reference-versus-adapter)")
+
+
+def check_broker_credential_binding(f: Findings) -> None:
+    """§7.1 and §7.3 (task 6.1.1): the broker server-key custody pair.
+
+    The binding is the ring's ONLY deployment source for the provider key —
+    F0's mode-600 local file and its age-escrow copy are explicitly not one —
+    so two properties are worth failing closed on:
+
+    * THE VAULT STAYS OUT OF THE CONTRACT. `credential-contracts` is explicit:
+      "Contract artifacts, lane definitions, and domain repositories SHALL NOT
+      hard-code a vault operator, a vault product, or any secret value." That
+      rule is easy to honour on the day it is written and easy to break six
+      months later, when someone with the install's values in front of them
+      fills in the two placeholders here because they look empty. So every
+      VALUE in both files is scanned for a vault-product token and for raw
+      secret material, and `provider` and `vault` must still be placeholders.
+    * THE OVERRIDE AND THE BINDING CANNOT DRIFT APART. A rotation cadence keyed
+      to a credential name that no binding declares governs nothing, and a
+      binding whose cadence record names a different credential is unrotated
+      while looking rotated. The two names are compared.
+
+    Fail closed on either file missing: task 6.1.1 is the custody discharge,
+    and a missing binding is an unbound key rather than a deferred one."""
+    cat = "broker-credential"
+    bpath = AVC / BINDING_FILE
+    brp = f"contracts/avatar-client/{BINDING_FILE}"
+    if not bpath.is_file():
+        f.error(cat, f"{brp} absent; the internal-live broker server key would have "
+                     f"no binding, and F0's local file plus age escrow is explicitly "
+                     f"NOT a deployment source (fail closed)")
+        return
+    doc = load_yaml(bpath) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{brp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{brp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != BINDING_KIND:
+        f.error(cat, f"{brp}: kind {doc.get('kind')!r} != {BINDING_KIND!r}; task 6.1.1 "
+                     f"requires the PROMOTED binding-template shape, not a local one")
+    known = _resolve_map_ids(f, cat, brp)
+
+    bindings = doc.get("credential_bindings")
+    if not isinstance(bindings, dict) or BINDING_ID not in bindings:
+        f.error(cat, f"{brp}: credential_bindings does not declare {BINDING_ID!r}")
+        binding = {}
+    else:
+        binding = bindings[BINDING_ID] if isinstance(bindings[BINDING_ID], dict) else {}
+        surplus = sorted(set(bindings) - {BINDING_ID})
+        if surplus:
+            f.error(cat, f"{brp}: credential_bindings also declares {surplus}; this "
+                         f"record binds ONE credential, and a second binding beside "
+                         f"it shares its blast radius without saying so")
+    for field in BINDING_FIELDS:
+        if not binding.get(field):
+            f.error(cat, f"{brp} {BINDING_ID}: `{field}` missing; the published "
+                         f"template shape is followed exactly, never trimmed")
+    for field in BINDING_PLACEHOLDER_FIELDS:
+        value = binding.get(field)
+        if isinstance(value, str) and not (value.startswith("<") and value.endswith(">")):
+            f.error(cat, f"{brp} {BINDING_ID}: `{field}` is {value!r}, a concrete "
+                         f"value; the vault operator and product are a PER-INSTALL "
+                         f"EXECUTION BINDING and may not be hard-coded in a contract "
+                         f"artifact — the concrete value belongs in the install's "
+                         f"credentials/ tree")
+    if binding.get("secret_ref") != BINDING_SECRET_REF:
+        f.error(cat, f"{brp} {BINDING_ID}: secret_ref {binding.get('secret_ref')!r} != "
+                     f"{BINDING_SECRET_REF!r}; task 6.1.2 requires a DEDICATED "
+                     f"internal-live provider project distinct from the F0 lab, so a "
+                     f"distinct key reference follows")
+    if binding.get("rotation_policy") != BINDING_ROTATION_LABEL:
+        f.error(cat, f"{brp} {BINDING_ID}: rotation_policy "
+                     f"{binding.get('rotation_policy')!r} != "
+                     f"{BINDING_ROTATION_LABEL!r}; the numeric cadence lives in "
+                     f"{ROTATION_FILE}, because the published shape types this field "
+                     f"as a string and every corpus instance uses it as an "
+                     f"accountability label")
+    res = doc.get("resolution") or {}
+    if res.get("resolved_by") != "broker_only":
+        f.error(cat, f"{brp}: resolution.resolved_by is {res.get('resolved_by')!r} != "
+                     f"'broker_only'; task 6.1.1 says the binding is 'resolved only by "
+                     f"the broker'")
+    if res.get("materialization") != "ephemeral_process_scope":
+        f.error(cat, f"{brp}: resolution.materialization is "
+                     f"{res.get('materialization')!r} != 'ephemeral_process_scope'; "
+                     f"the fetched value is never baked into an image, committed "
+                     f"config, or a log")
+    _check_map_refs(f, cat, f"{brp} resolution", res.get("acceptance_map_refs"), known)
+    _check_no_vault_or_secret(f, cat, brp, doc)
+
+    # --- the cadence half (§7.3) ---
+    rpath = AVC / ROTATION_FILE
+    rrp = f"contracts/avatar-client/{ROTATION_FILE}"
+    if not rpath.is_file():
+        f.error(cat, f"{rrp} absent; §7.3's cadence has no home — the binding's "
+                     f"`rotation_policy` is a string in the published schema and "
+                     f"cannot hold a maximum key age (fail closed)")
+        return
+    rdoc = load_yaml(rpath) or {}
+    if not isinstance(rdoc, dict):
+        f.error(cat, f"{rrp}: not a mapping (fail closed)")
+        return
+    if rdoc.get("schema_version") != 1:
+        f.error(cat, f"{rrp}: schema_version {rdoc.get('schema_version')!r} != 1")
+    if rdoc.get("kind") != ROTATION_KIND:
+        f.error(cat, f"{rrp}: kind {rdoc.get('kind')!r} != {ROTATION_KIND!r}")
+    if rdoc.get("binds_credential_binding") != BINDING_ID:
+        f.error(cat, f"{rrp}: binds_credential_binding "
+                     f"{rdoc.get('binds_credential_binding')!r} != {BINDING_ID!r}; a "
+                     f"cadence keyed to a credential no binding declares governs "
+                     f"nothing")
+    pol = rdoc.get("rotation_policy") or {}
+    globals_ = set(pol.get("require_rotation_on") or [])
+    if globals_ != ROTATION_GLOBAL_TRIGGERS:
+        f.error(cat, f"{rrp}: rotation_policy.require_rotation_on "
+                     f"{sorted(globals_)} != the inherited global list "
+                     f"{sorted(ROTATION_GLOBAL_TRIGGERS)}; §7.3 inherits it UNCHANGED "
+                     f"and adds to it — narrowing it here would silently drop the "
+                     f"SOP's compromise path, which rides `suspected_exposure`")
+    override = (pol.get("credential_overrides") or {}).get(BINDING_ID) or {}
+    if override.get("max_key_age_days") != ROTATION_MAX_KEY_AGE_DAYS:
+        f.error(cat, f"{rrp}: {BINDING_ID} max_key_age_days is "
+                     f"{override.get('max_key_age_days')!r} != the ruled "
+                     f"{ROTATION_MAX_KEY_AGE_DAYS}; 90 is the org's only enforced "
+                     f"key-age tier, and it is chosen partly so that at most one "
+                     f"rotation can land inside the 14-day canary soak")
+    added = set(override.get("additional_require_rotation_on") or [])
+    if added != ROTATION_ADDED_TRIGGERS:
+        f.error(cat, f"{rrp}: {BINDING_ID} additional_require_rotation_on "
+                     f"{sorted(added)} != the ruled {sorted(ROTATION_ADDED_TRIGGERS)}")
+    record = pol.get("rotation_record") or {}
+    if "secret_value" not in set(record.get("forbidden_fields") or []):
+        f.error(cat, f"{rrp}: rotation_record does not forbid `secret_value`; the "
+                     f"SOP records owner, date, reason and the LOGICAL reference, "
+                     f"never the value")
+    _check_map_refs(f, cat, f"{rrp} rotation_record",
+                    record.get("acceptance_map_refs"), known)
+    _check_no_vault_or_secret(f, cat, rrp, rdoc)
+
+
+def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
+                              trail: str = "") -> None:
+    """Walk every VALUE of a custody record for a hard-coded vault product or
+    raw secret material.
+
+    Values only, and every value — not just the fields we expect to carry one.
+    The prohibition is on the artifact, not on a field list: a vault name
+    pasted into a `note`, a `statement` or a `rationale` is hard-coded in a
+    contract artifact just as surely as one pasted into `vault`, and prose is
+    exactly where such a paste survives review. Comments are not walked,
+    because YAML comments are not content and a comment explaining WHY the
+    product is absent must be allowed to be legible."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            _check_no_vault_or_secret(f, cat, rp, value, f"{trail}.{key}" if trail else str(key))
+    elif isinstance(node, list):
+        for i, item in enumerate(node):
+            _check_no_vault_or_secret(f, cat, rp, item, f"{trail}[{i}]")
+    elif isinstance(node, str):
+        low = node.lower()
+        squashed = re.sub(r"[^a-z0-9]", "", low)
+        hits = sorted({t for t in VAULT_PRODUCT_TOKENS if t in squashed}
+                      | {t for t in VAULT_INSTANCE_TOKENS if t in low})
+        if hits:
+            f.error(cat, f"{rp}: value at {trail or '<root>'} names vault product or "
+                         f"instance token(s) {hits}; the vault operator and product "
+                         f"are a per-install execution binding and a contract artifact "
+                         f"may not hard-code one")
+        marks = sorted({m for m in BINDING_SECRET_MARKERS if m in low})
+        if marks:
+            f.error(cat, f"{rp}: value at {trail or '<root>'} carries raw secret "
+                         f"marker(s) {marks}; credentials are delivered BY REFERENCE, "
+                         f"never baked into a repository")
+
+
+# --- shape guards for the §6.2 readers --------------------------------------
+# `x.get("k") or {}` DEFENDS ONLY AGAINST ABSENCE, and absence is the easy
+# case. A key that is PRESENT but holds a list, a string or a number is
+# truthy, survives the `or`, and then raises AttributeError out of the next
+# `.get()` — which ends the run as an anonymous harness crash rather than as
+# the finding a malformed contract artifact deserves. These two read a value
+# at the shape the caller requires, RECORD a finding when it is present and
+# wrong, and hand back an empty container so the rest of the run continues and
+# reports everything else. Fail closed, and say which file and field did it.
+def _as_mapping(f: Findings, cat: str, where: str, value: object) -> dict:
+    """A value that must be a MAPPING if it is present at all.
+
+    Absent reads as empty on purpose: the caller's own field checks then
+    report the specific field that is missing, which is a more useful message
+    than "this block is absent"."""
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return value
+    f.error(cat, f"{where} must be a mapping, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return {}
+
+
+def _as_sequence(f: Findings, cat: str, where: str, value: object) -> list:
+    """A value that must be a LIST if it is present at all.
+
+    A string is deliberately NOT accepted as a sequence here. Iterating one
+    yields its CHARACTERS, so a scalar written where a list belongs would
+    quietly become a set of single letters — `set("safety")` reading as six
+    triggers — and every downstream comparison would then be wrong in a way
+    that looks like data rather than like a typo."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    f.error(cat, f"{where} must be a list, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return []
+
+
+def _mappings_in(f: Findings, cat: str, where: str, value: object) -> list[dict]:
+    """Every MAPPING member of a list-valued field, with non-mapping members
+    reported rather than skipped in silence. A list whose entries are strings
+    would otherwise read as a legitimately empty set of ids."""
+    out: list[dict] = []
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, dict):
+            out.append(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a mapping, got "
+                         f"{type(item).__name__}")
+    return out
+
+
+def _strings_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The non-blank STRING members of a list-valued field, as a set.
+
+    Two failures this replaces, both of which `set(...)` alone commits:
+
+    A NON-STRING MEMBER IS REPORTED, NEVER DROPPED. Filtering with
+    `if isinstance(t, str)` shrinks a vocabulary silently, so a policy listing
+    seven triggers and one malformed entry would validate a corpus against
+    seven and say nothing — the malformed artifact hides behind the good part
+    of itself. Consistent with `_mappings_in`, the bad member is a finding and
+    the good members still participate; a field with NO usable member is left
+    empty for the caller to refuse.
+
+    AND AN UNHASHABLE MEMBER IS A FINDING RATHER THAN A CRASH. `set()` over a
+    list containing a mapping raises `TypeError: unhashable type: 'dict'`,
+    which ends the run the same anonymous way the `.get()` on a list did."""
+    out: set[str] = set()
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, str) and item.strip():
+            out.add(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a non-empty string, got "
+                         f"{item!r}; a malformed member is reported, not "
+                         f"silently dropped from the set it belongs to")
+    return out
+
+
+def _ids_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The string `id` of every mapping member of a list-valued field.
+
+    Same discipline as `_strings_in`, for the registries these checks read
+    their vocabularies out of: a member whose `id` is absent or is itself a
+    mapping would otherwise either vanish from the set or raise `TypeError`
+    on the way into it."""
+    out: set[str] = set()
+    for i, item in enumerate(_mappings_in(f, cat, where, value)):
+        ident = item.get("id")
+        if isinstance(ident, str) and ident.strip():
+            out.add(ident)
+        else:
+            f.error(cat, f"{where}[{i}].id must be a non-empty string, got "
+                         f"{ident!r}")
+    return out
+
+
+def _repo_file(f: Findings, cat: str, where: str, claimed: object) -> Path | None:
+    """A repository-relative path READ FROM YAML, resolved safely or refused.
+
+    A path that arrives from a contract artifact reaches `ROOT / value` and
+    then the filesystem, and two ordinary-looking values leave the repository
+    entirely. An ABSOLUTE path discards the left operand — `Path("/repo") /
+    "/etc/passwd"` is `/etc/passwd`, by pathlib's specification rather than by
+    accident — and any `..` segment walks out of the tree. On a CI runner that
+    turns a YAML field into an arbitrary-file-read primitive.
+
+    Both are refused as FINDINGS naming which one it was, never silently. The
+    join is then `resolve()`d and re-checked with `is_relative_to`, because
+    the two syntactic tests alone would not catch a path that is relative and
+    `..`-free yet still leaves the tree by another route.
+
+    SYMLINKS ARE NOT GIVEN SEPARATE HANDLING, deliberately. `resolve()`
+    already follows them, so a symlink inside the repository pointing outside
+    it lands outside ROOT and is refused by the containment check like any
+    other escape. Going further — refusing paths that are symlinked but still
+    contained — would be threat-modelling a validator that reads files from
+    its own repository against an attacker who can already write that
+    repository, which is not a boundary this tool holds or claims to.
+
+    Returns the resolved path, or None when it was refused."""
+    if not isinstance(claimed, str) or not claimed.strip():
+        f.error(cat, f"{where} must be a non-empty string path, got "
+                     f"{claimed!r}; `ROOT / <non-string>` raises rather than "
+                     f"reporting")
+        return None
+    candidate = Path(claimed)
+    if candidate.is_absolute():
+        f.error(cat, f"{where} {claimed!r} is an ABSOLUTE path; joining one to "
+                     f"the repository root discards the root entirely, so this "
+                     f"is refused rather than resolved")
+        return None
+    if ".." in candidate.parts:
+        f.error(cat, f"{where} {claimed!r} contains a '..' segment, which walks "
+                     f"out of the repository; refused rather than resolved")
+        return None
+    root = ROOT.resolve()
+    target = (root / candidate).resolve()
+    if not target.is_relative_to(root):
+        f.error(cat, f"{where} {claimed!r} resolves to {target}, which is "
+                     f"outside the repository; refused rather than read")
+        return None
+    return target
+
+
+def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
+    """ROLLBACK-A's ratified trigger vocabulary, READ FROM THE POLICY.
+
+    Not mirrored as a constant here on purpose. The corpus's whole claim is
+    that every scenario's failure maps to a trigger the rollback policy already
+    ratified; checking it against a second copy in this file would only prove
+    the two copies agree with each other. Returns None (and records a finding)
+    when the vocabulary cannot be read, because a corpus checked against
+    nothing is a corpus that was not checked."""
+    path = AVC / POLICY_FILE
+    if not path.is_file():
+        f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} is absent, so ROLLBACK-A's "
+                     f"trigger vocabulary cannot be read; every scenario's "
+                     f"emitted trigger is unverifiable (fail closed)")
+        return None
+    prp = f"contracts/avatar-client/{POLICY_FILE}"
+    doc = _as_mapping(f, cat, prp, load_yaml(path))
+    policy = _as_mapping(f, cat, f"{prp} rollback_policy",
+                         doc.get("rollback_policy"))
+    classes = _mappings_in(f, cat, f"{prp} rollback_policy.classes",
+                           policy.get("classes"))
+    for entry in classes:
+        if entry.get("id") == "ROLLBACK-A":
+            # NON-STRING MEMBERS ARE REPORTED, NOT FILTERED AWAY. Dropping them
+            # would shrink the ratified vocabulary in silence: a policy listing
+            # seven usable triggers and one malformed entry would check the
+            # corpus against seven and say nothing, so the malformed artifact
+            # would hide behind the good part of itself. The surviving strings
+            # still participate — the same semantics `_mappings_in` uses — and
+            # a list with NO usable member falls through to the refusal below,
+            # because an empty vocabulary would fail every scenario for the
+            # wrong reason.
+            triggers = _strings_in(f, cat, f"{prp} ROLLBACK-A.triggers",
+                                   entry.get("triggers"))
+            if not triggers:
+                break
+            return triggers
+    f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} declares no readable ROLLBACK-A "
+                 f"trigger list; the corpus cannot be checked against the "
+                 f"ratified vocabulary (fail closed)")
+    return None
+
+
+def check_synthetic_evaluation_corpus(f: Findings) -> None:
+    """§6.2.1: the synthetic model-versus-model evaluation corpus.
+
+    Four things are checked, and each exists because its failure mode is a
+    corpus that LOOKS complete:
+
+    1. EVERY SCENARIO'S FAILURE MAPS TO A RATIFIED TRIGGER. `detection.py`
+       answers an unrecognised trigger with `REFUSED_UNKNOWN_TRIGGER` — a
+       NON-tripping verdict — so a scenario carrying an invented trigger would
+       fail silently at canary time: the evaluation would report a failure and
+       the ring would not abort. The vocabulary is read from the rollback
+       policy, never from a copy here.
+
+    2. EVERY CLASS x DOMAIN CELL IS COVERED. Condition 7 requires five classes
+       to pass for three domains; a missing cell is a condition-7 claim with no
+       evidence behind it, and §7.6's session floor counts those same 15 cells.
+
+    3. EVERY ROLLBACK-A TRIGGER IS REACHABLE FROM THE CORPUS. §6.3.3 proved the
+       safety trip for all eight recorded triggers; a corpus that can only
+       produce six of them leaves two proven paths unexercised.
+
+    4. THE DECLARED COVERAGE COUNTS ARE RECOMPUTED, never trusted. A totals
+       block that disagrees with the scenarios beneath it is the exact shape of
+       a corpus that was edited without its summary.
+
+    Fail closed on an unreadable corpus; skip silently when the file is absent
+    so the validator stays green at every phase checkpoint."""
+    cat = "eval-corpus"
+    path = AVC / CORPUS_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{CORPUS_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != CORPUS_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CORPUS_KIND!r}")
+    if not str(doc.get("corpus_ref") or "").strip():
+        f.error(cat, f"{rp}: no `corpus_ref`; `SafetyEvalSignal.corpus_ref` is "
+                     f"required and non-empty precisely so a verdict can be "
+                     f"re-run by whoever reads the record")
+
+    # Fork 4's first clause, as fields rather than as prose.
+    syn = _as_mapping(f, cat, f"{rp} synthesis", doc.get("synthesis"))
+    if syn.get("content_origin") != "scripted":
+        f.error(cat, f"{rp}: synthesis.content_origin is "
+                     f"{syn.get('content_origin')!r} != 'scripted'; Fork 4 "
+                     f"Option C rules that the evaluation corpus is SYNTHETIC")
+    for field in ("tenant_data", "real_utterances"):
+        if syn.get(field) != "none":
+            f.error(cat, f"{rp}: synthesis.{field} is {syn.get(field)!r} != "
+                         f"'none'; a corpus carrying either is not synthetic")
+    audio = _as_mapping(f, cat, f"{rp} synthesis.audio_synthesis",
+                        syn.get("audio_synthesis"))
+    if audio.get("status") != "not_performed_by_this_artifact":
+        f.error(cat, f"{rp}: synthesis.audio_synthesis.status does not record "
+                     f"that rendering to audio is a §5/canary-time act of the "
+                     f"RUN; committed audio would be media this ring has no "
+                     f"retention class for")
+
+    allowed = _rollback_a_triggers(f, cat)
+    scenarios = _as_sequence(f, cat, f"{rp} scenarios", doc.get("scenarios"))
+    if not scenarios:
+        f.error(cat, f"{rp}: no scenarios; an empty corpus is not a corpus")
+        return
+
+    seen_ids: set[str] = set()
+    cells_seen: set[str] = set()
+    triggers_seen: set[str] = set()
+    by_class: dict[str, int] = {}
+    by_domain: dict[str, int] = {}
+    class_triggers: dict[str, set[str]] = {}
+    for sc in scenarios:
+        if not isinstance(sc, dict):
+            f.error(cat, f"{rp}: a scenario entry is not a mapping")
+            continue
+        sid = sc.get("scenario_id")
+        if not sid:
+            f.error(cat, f"{rp}: a scenario carries no scenario_id")
+            continue
+        if sid in seen_ids:
+            f.error(cat, f"{rp}: duplicate scenario_id {sid!r}")
+        seen_ids.add(sid)
+        klass, domain = sc.get("class"), sc.get("domain")
+        if klass not in CORPUS_CLASSES:
+            f.error(cat, f"{rp}: {sid} names class {klass!r}; condition 7's "
+                         f"classes are {sorted(CORPUS_CLASSES)}")
+        if domain not in CORPUS_DOMAINS:
+            f.error(cat, f"{rp}: {sid} names domain {domain!r}; condition 7's "
+                         f"domains are {sorted(CORPUS_DOMAINS)}")
+        if klass in CORPUS_CLASSES and domain in CORPUS_DOMAINS:
+            cell = f"{klass}/{domain}"
+            cells_seen.add(cell)
+            if sc.get("cell") != cell:
+                f.error(cat, f"{rp}: {sid} records cell {sc.get('cell')!r} but "
+                             f"its class and domain make it {cell!r}")
+            by_class[klass] = by_class.get(klass, 0) + 1
+            by_domain[domain] = by_domain.get(domain, 0) + 1
+        script = sc.get("script")
+        if not isinstance(script, list) or not script:
+            f.error(cat, f"{rp}: {sid} carries no scripted exchange; a scenario "
+                         f"with no script cannot be run")
+        expected = _as_mapping(f, cat, f"{rp} {sid} expected",
+                               sc.get("expected"))
+        if not str(expected.get("behavior") or "").strip():
+            f.error(cat, f"{rp}: {sid} declares no expected behavior; a "
+                         f"scenario with no expectation cannot pass or fail")
+        emit = _as_mapping(f, cat, f"{rp} {sid} emits_on_failure",
+                           sc.get("emits_on_failure"))
+        trig = emit.get("trigger")
+        if allowed is not None and trig not in allowed:
+            f.error(cat, f"{rp}: {sid} emits trigger {trig!r}, which is not one "
+                         f"of ROLLBACK-A's ratified triggers {sorted(allowed)}; "
+                         f"`evaluate_safety_signal` answers an unrecognised "
+                         f"trigger with a NON-tripping verdict, so this "
+                         f"scenario's failure would not abort the ring")
+        elif allowed is not None:
+            triggers_seen.add(trig)
+            if klass in CORPUS_CLASSES:
+                class_triggers.setdefault(klass, set()).add(trig)
+        if emit.get("rollback_class") != "ROLLBACK-A":
+            f.error(cat, f"{rp}: {sid} names rollback_class "
+                         f"{emit.get('rollback_class')!r}; the safety-eval trip "
+                         f"fires ROLLBACK-A and no other class")
+        if emit.get("session_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+            f.error(cat, f"{rp}: {sid} names session_outcome "
+                         f"{emit.get('session_outcome')!r} != "
+                         f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}; §7.8 binds "
+                         f"ROLLBACK-A's force-terminated leg to that token")
+        if emit.get("scenario_class") != klass:
+            f.error(cat, f"{rp}: {sid} emits scenario_class "
+                         f"{emit.get('scenario_class')!r} but is classified "
+                         f"{klass!r}; the signal would misreport its own class")
+
+    # (2) every class x domain cell
+    expected_cells = {f"{k}/{d}" for k in CORPUS_CLASSES for d in CORPUS_DOMAINS}
+    for missing in sorted(expected_cells - cells_seen):
+        f.error(cat, f"{rp}: no scenario covers cell {missing!r}; condition 7 "
+                     f"requires that class to pass for that domain")
+
+    # (3) every ratified trigger reachable
+    if allowed is not None:
+        for unreached in sorted(allowed - triggers_seen):
+            f.error(cat, f"{rp}: no scenario can produce ROLLBACK-A trigger "
+                         f"{unreached!r}; §6.3.3 proved the safety trip for all "
+                         f"eight recorded triggers and this corpus reaches "
+                         f"fewer")
+
+    # The per-class trigger declaration must match what the scenarios emit.
+    # The LOOP still runs when the vocabulary is unreadable, because
+    # `_strings_in` shape-checks each declared list and that is worth doing
+    # either way; only the COMPARISON is conditional (see the note below).
+    for entry in _mappings_in(f, cat, f"{rp} classes", doc.get("classes")):
+        cid = entry.get("id")
+        declared = _strings_in(f, cat, f"{rp} class {cid!r} triggers",
+                               entry.get("triggers"))
+        actual = class_triggers.get(cid, set()) if allowed is not None else set()
+        if cid in CORPUS_CLASSES and actual and declared != actual:
+            f.error(cat, f"{rp}: class {cid!r} declares triggers "
+                         f"{sorted(declared)} but its scenarios emit "
+                         f"{sorted(actual)}")
+
+    # (4) recomputed coverage
+    cov = _as_mapping(f, cat, f"{rp} coverage", doc.get("coverage"))
+    recomputed = [("scenarios_total", len(scenarios)),
+                  ("cells", len(cells_seen)),
+                  ("classes", len(CORPUS_CLASSES)),
+                  ("domains", len(CORPUS_DOMAINS))]
+    # `triggers_covered` IS ONLY RECOMPUTABLE WHEN THE VOCABULARY WAS READ.
+    # With an unreadable policy `triggers_seen` is empty because nothing could
+    # be matched against it — not because the corpus reaches no trigger — so
+    # comparing it would manufacture a coverage mismatch on top of the real
+    # unreadable-policy finding, and the reader would have to work out which
+    # of the two to act on. One true finding is worth more than two.
+    if allowed is not None:
+        recomputed.append(("triggers_covered", len(triggers_seen)))
+    for key, actual in recomputed:
+        if cov.get(key) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios beneath it give {actual}; a summary "
+                         f"that disagrees with its corpus is how an edited "
+                         f"corpus keeps an old claim")
+    for key, actual in (("scenarios_by_class", by_class),
+                        ("scenarios_by_domain", by_domain)):
+        # A comparison rather than a `.get()`, so a wrong shape cannot crash
+        # here — but reading it through the guard turns "records ['safety']
+        # but the scenarios give {...}" into a message that names the shape.
+        if _as_mapping(f, cat, f"{rp} coverage.{key}", cov.get(key)) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios give {actual}")
+
+
+def check_ephemeral_processing_envelope(f: Findings) -> None:
+    """§6.2.2 and §6.2.4: the canary's ephemeral processing envelope.
+
+    The envelope's job is to say, in fields, what Fork 4 Option C ruled in
+    prose. So the checks are the ones that keep those fields honest against the
+    surfaces that already own the facts:
+
+    - THE PURPOSES ARE THE FROZEN THREE, read from the registry rather than
+      mirrored. `new_purposes_introduced` is compared to 0 and the count to the
+      registry's own length, so the envelope cannot admit a fourth purpose by
+      declaring one.
+    - THE NEVER-INSTANTIATED CLASSES ARE ALL FOUR RESERVED CLASSES, read from
+      the registry's `reserved:` block. §7.9's own list names three (it omits
+      `video`, which this ring has no capability for) and is compared set-equal
+      by its own check; this one is the full reserved set, because the promoted
+      requirement names all four.
+    - THE RETENTION WINDOW AND REFERENCE MATCH THE CHECKLIST'S §7.9 BLOCK, read
+      from the checklist. Two artifacts carrying the same 90 days is two places
+      for it to drift.
+    - WITHDRAWAL'S REACHABILITY CITES A FIXTURE THAT EXISTS. A reachability
+      claim whose proof is a filename nobody wrote is not a proof, and the
+      fixture's `fixture_id` is compared so a rename cannot quietly orphan it.
+    - THE NON-SHADOWING CONTROL STAYS OPERATIONAL (§6.2.4). `enforced_by_schema`
+      must be exactly False and the enforcing flag must stay named as
+      pilot-hardening work: no schema field forbids a second-model shadow
+      today, and a later editor flipping this to `true` would be writing the
+      false claim task 6.2.4 exists to refuse."""
+    cat = "eval-envelope"
+    path = AVC / ENVELOPE_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{ENVELOPE_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != ENVELOPE_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {ENVELOPE_KIND!r}")
+
+    # ---- consent: the frozen three, read from the registry ----
+    reg_path = AVC / "registries" / "consent-purposes.registry.yaml"
+    frozen: set[str] = set()
+    if reg_path.is_file():
+        creg = "contracts/avatar-client/registries/consent-purposes.registry.yaml"
+        frozen = _ids_in(
+            f, cat, f"{creg} members",
+            _as_mapping(f, cat, creg, load_yaml(reg_path)).get("members"))
+    con = _as_mapping(f, cat, f"{rp} consent", doc.get("consent"))
+    if frozen and con.get("frozen_purpose_count") != len(frozen):
+        f.error(cat, f"{rp}: consent.frozen_purpose_count is "
+                     f"{con.get('frozen_purpose_count')!r} but the registry "
+                     f"holds {len(frozen)} purposes")
+    if con.get("new_purposes_introduced") != 0:
+        f.error(cat, f"{rp}: consent.new_purposes_introduced is "
+                     f"{con.get('new_purposes_introduced')!r} != 0; this ring "
+                     f"reuses the frozen purposes and adds none")
+    media = _ids_in(f, cat, f"{rp} consent.media_leg_purposes",
+                    con.get("media_leg_purposes"))
+    if media != ENVELOPE_MEDIA_PURPOSES:
+        f.error(cat, f"{rp}: consent.media_leg_purposes {sorted(media, key=str)} "
+                     f"!= {sorted(ENVELOPE_MEDIA_PURPOSES)}; task 6.2.2 rules "
+                     f"that the media leg rides exactly those two")
+    struct = _as_mapping(f, cat, f"{rp} consent.structured_record_purpose",
+                         con.get("structured_record_purpose")).get("id")
+    if struct != ENVELOPE_STRUCTURED_PURPOSE:
+        f.error(cat, f"{rp}: consent.structured_record_purpose.id is "
+                     f"{struct!r} != {ENVELOPE_STRUCTURED_PURPOSE!r}")
+    if frozen:
+        for pid in sorted((media | {struct}) - frozen):
+            f.error(cat, f"{rp}: consent names purpose {pid!r}, which is not a "
+                         f"member of the frozen registry")
+    opt = _as_mapping(f, cat, f"{rp} consent.optional_stricter_domain_purpose",
+                      con.get("optional_stricter_domain_purpose"))
+    if opt.get("unresolved_reference_effect") != "deny":
+        f.error(cat, f"{rp}: optional_stricter_domain_purpose."
+                     f"unresolved_reference_effect is "
+                     f"{opt.get('unresolved_reference_effect')!r} != 'deny'; a "
+                     f"stricter term that silently falls back to the neutral "
+                     f"pair was never obtained")
+    if _as_mapping(f, cat, f"{rp} consent.new_evaluation_purpose",
+                   con.get("new_evaluation_purpose")
+                   ).get("admitted") is not False:
+        f.error(cat, f"{rp}: consent.new_evaluation_purpose.admitted is not "
+                     f"False; ALV-007-S03 refuses an evaluation-specific "
+                     f"purpose for this ring")
+
+    # ---- data classes: permitted from §7.9, forbidden from the registry ----
+    dc = _as_mapping(f, cat, f"{rp} data_classes", doc.get("data_classes"))
+    permitted = _strings_in(f, cat, f"{rp} data_classes.permitted",
+                            dc.get("permitted"))
+    if permitted != CHECKLIST_S79_DATA_CLASSES:
+        f.error(cat, f"{rp}: data_classes.permitted {sorted(permitted, key=str)} "
+                     f"!= {sorted(CHECKLIST_S79_DATA_CLASSES)}; the ruled Fork 4 "
+                     f"Option C classes are exactly those two")
+    ret_reg = AVC / "registries" / "retention-classes.registry.yaml"
+    reserved: set[str] = set()
+    if ret_reg.is_file():
+        rreg = "contracts/avatar-client/registries/retention-classes.registry.yaml"
+        reserved = _ids_in(
+            f, cat, f"{rreg} reserved",
+            _as_mapping(f, cat, rreg, load_yaml(ret_reg)).get("reserved"))
+    never = _strings_in(
+        f, cat, f"{rp} data_classes.never_instantiated.classes",
+        _as_mapping(f, cat, f"{rp} data_classes.never_instantiated",
+                    dc.get("never_instantiated")).get("classes"))
+    if reserved and never != reserved:
+        f.error(cat, f"{rp}: data_classes.never_instantiated.classes "
+                     f"{sorted(never, key=str)} != the registry's reserved set "
+                     f"{sorted(reserved)}; all four stay forbidden and this "
+                     f"ring instantiates none of them")
+    if permitted & reserved:
+        f.error(cat, f"{rp}: data_classes permits reserved class(es) "
+                     f"{sorted(permitted & reserved)}")
+
+    # ---- retention: read the ruled values from the checklist, not a copy ----
+    ck_path = AVC / CHECKLIST_FILE
+    ruled_ret: dict = {}
+    if ck_path.is_file():
+        ckp = f"contracts/avatar-client/{CHECKLIST_FILE}"
+        ck = _as_mapping(f, cat, ckp, load_yaml(ck_path))
+        for cond in _mappings_in(f, cat, f"{ckp} conditions",
+                                 ck.get("conditions")):
+            if cond.get("number") == CHECKLIST_S79_CONDITION:
+                ruled_ret = _as_mapping(
+                    f, cat, f"{ckp} condition 2 ruled_values.retention",
+                    _as_mapping(f, cat, f"{ckp} condition 2 ruled_values",
+                                cond.get("ruled_values")).get("retention"))
+                break
+    ret = _as_mapping(f, cat, f"{rp} retention", doc.get("retention"))
+    if ruled_ret:
+        for key in ("window_days", "policy_ref", "applies_to"):
+            if ret.get(key) != ruled_ret.get(key):
+                f.error(cat, f"{rp}: retention.{key} is {ret.get(key)!r} but the "
+                             f"checklist's §7.9 ruling says "
+                             f"{ruled_ret.get(key)!r}; the ruled value has one "
+                             f"home and this artifact cites it")
+    elif ck_path.is_file():
+        f.error(cat, f"{rp}: the checklist declares no §7.9 retention block to "
+                     f"check this envelope's window and reference against")
+
+    # ---- withdrawal: the existing outcome, reachable mid-session ----
+    wd = _as_mapping(f, cat, f"{rp} withdrawal", doc.get("withdrawal"))
+    if wd.get("maps_to_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+        f.error(cat, f"{rp}: withdrawal.maps_to_outcome is "
+                     f"{wd.get('maps_to_outcome')!r} != "
+                     f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}")
+    if wd.get("new_outcome_tokens_introduced") != 0:
+        f.error(cat, f"{rp}: withdrawal.new_outcome_tokens_introduced is "
+                     f"{wd.get('new_outcome_tokens_introduced')!r} != 0; the "
+                     f"closed session-outcomes registry gains no member here")
+    out_reg = AVC / "registries" / "session-outcomes.registry.yaml"
+    if out_reg.is_file():
+        oreg = "contracts/avatar-client/registries/session-outcomes.registry.yaml"
+        outcomes = _ids_in(
+            f, cat, f"{oreg} members",
+            _as_mapping(f, cat, oreg, load_yaml(out_reg)).get("members"))
+        if wd.get("maps_to_outcome") not in outcomes:
+            f.error(cat, f"{rp}: withdrawal.maps_to_outcome "
+                         f"{wd.get('maps_to_outcome')!r} is not a member of the "
+                         f"released session-outcomes registry")
+    for flag in ("reachable_mid_session", "reachable_mid_speech"):
+        if wd.get(flag) is not True:
+            f.error(cat, f"{rp}: withdrawal.{flag} is {wd.get(flag)!r}; task "
+                         f"6.2.2 requires withdrawal to STAY REACHABLE during a "
+                         f"session")
+    proof = _as_mapping(f, cat, f"{rp} withdrawal.reachability_proof",
+                        wd.get("reachability_proof"))
+    # THE RAW VALUE GOES TO THE GUARD, UNCOERCED. `str(value or "")` in front
+    # of `_repo_file` defeats the very check it looks like it is helping:
+    # `str(["x"])` is `"['x']"`, a non-empty STRING, so the non-string guard
+    # cannot fire, the name resolves as an ordinary relative path inside the
+    # tree, and a malformed shape is then reported as a missing file — the
+    # wrong finding, arrived at by throwing away the evidence.
+    raw = proof.get("fixture")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
+                     f"reachability claim with no proof is an assertion")
+    else:
+        fx = _repo_file(f, cat, f"{rp} withdrawal.reachability_proof.fixture",
+                        raw)
+        if fx is None:
+            pass  # refused above with the reason; never touched the filesystem
+        # `_repo_file` accepted it, so it IS a non-blank string; coercing is
+        # safe only here, AFTER the guard rather than in front of it.
+        elif not fx.is_file():
+            f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
+                         f"{raw!r} does not exist; the proof is a filename")
+        else:
+            claimed = str(raw)
+            fid = _as_mapping(f, cat, claimed, load_yaml(fx)).get("fixture_id")
+            if fid != proof.get("fixture_id") or fid != WITHDRAWAL_FIXTURE_ID:
+                f.error(cat, f"{rp}: the cited fixture's fixture_id is {fid!r}, "
+                             f"which does not match the envelope's "
+                             f"{proof.get('fixture_id')!r} / the landed "
+                             f"{WITHDRAWAL_FIXTURE_ID!r}")
+
+    # ---- §6.2.4: the non-shadowing control stays OPERATIONAL ----
+    controls = {c.get("control"): c for c in _mappings_in(
+        f, cat, f"{rp} operational_controls",
+        doc.get("operational_controls"))}
+    shadow = controls.get(ENVELOPE_SHADOW_CONTROL)
+    if shadow is None:
+        f.error(cat, f"{rp}: no operational control named "
+                     f"{ENVELOPE_SHADOW_CONTROL!r}; task 6.2.4 requires the "
+                     f"non-shadowing guarantee to be RECORDED as one")
+        return
+    if shadow.get("enforced_by_schema") is not False:
+        f.error(cat, f"{rp}: the non-shadowing control records "
+                     f"enforced_by_schema="
+                     f"{shadow.get('enforced_by_schema')!r}; NO schema field "
+                     f"forbids a second-model shadow today and claiming "
+                     f"otherwise would be false (task 6.2.4)")
+    if shadow.get("enforcement") != "operational":
+        f.error(cat, f"{rp}: the non-shadowing control records enforcement="
+                     f"{shadow.get('enforcement')!r} != 'operational'")
+    flag = _as_mapping(
+        f, cat, f"{rp} {ENVELOPE_SHADOW_CONTROL} enforcing_contract_flag",
+        shadow.get("enforcing_contract_flag"))
+    if flag.get("status") != "deferred":
+        f.error(cat, f"{rp}: the enforcing contract flag records status="
+                     f"{flag.get('status')!r} != 'deferred'; it is not built")
+    if flag.get("owner_change") != ENVELOPE_PILOT_SUCCESSOR:
+        f.error(cat, f"{rp}: the enforcing contract flag names owner_change="
+                     f"{flag.get('owner_change')!r} != "
+                     f"{ENVELOPE_PILOT_SUCCESSOR!r}; task 6.2.4 requires the "
+                     f"enforcing flag to be named as pilot-hardening work")
 
 
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
@@ -470,7 +2830,22 @@ def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> se
         if sdoc is None:
             f.error("fixture-target", f"{cid}: unknown target schema {target!r}")
             continue
-        errs = list(Draft202012Validator(sdoc, registry=registry).iter_errors(c.get("instance")))
+        try:
+            errs = list(Draft202012Validator(sdoc, registry=registry)
+                        .iter_errors(c.get("instance")))
+        except Exception as exc:  # noqa: BLE001
+            # A `$ref` that cannot resolve is a BROKEN REGISTRY, not a fixture
+            # result. It happens when a schema the registry depends on failed
+            # to parse: that parse failure is already a finding, the run
+            # continues to report everything else, and then this raised
+            # `Unresolvable` out of jsonschema and ended the run as an
+            # anonymous harness failure. A case that cannot be executed is
+            # recorded as a case that did not pass — fail closed.
+            f.error("fixture-unresolvable",
+                    f"{cid}: target {target!r} could not be executed "
+                    f"({type(exc).__name__}: {str(exc)[:120]}); a fixture that "
+                    f"cannot run is never counted as passing")
+            continue
         actual = "valid" if not errs else "invalid"
         if actual != expect:
             detail = errs[0].message[:120] if errs else ""
@@ -538,6 +2913,17 @@ def check_acceptance_and_evidence(f: Findings, fixture_evidence_ids: set[str]) -
     if not amap_path.is_file():
         return
     amap = load_yaml(amap_path)
+    if not isinstance(amap, dict):
+        # A top-level list is valid YAML and a malformed acceptance map. Reading
+        # it as a mapping raised straight out of this function and aborted the
+        # whole run with a harness failure, so the traceability check that this
+        # very function performs never got to report anything. Refuse it as a
+        # finding instead, the way every other reader here refuses one.
+        f.error("acceptance-map",
+                "contracts/avatar-client/acceptance-map.yaml does not load as a "
+                "mapping; requirement and scenario traceability is unverifiable "
+                "(fail closed)")
+        return
     reqs = amap.get("requirements") or []
     scen_ids: list[str] = []
     map_req_titles: list[str] = []
@@ -751,6 +3137,11 @@ def _release_map_index(path: Path) -> dict[str, dict]:
     scenarios{sid: title}}} for the client-lab parity cross-check."""
     doc = load_yaml(path) or {}
     idx: dict[str, dict] = {}
+    if not isinstance(doc, dict):
+        # An unreadable released map indexes to nothing rather than raising; the
+        # caller's parity check then reports the mismatch as a finding, and the
+        # readers that own this file report the shape itself.
+        return idx
     for r in doc.get("requirements") or []:
         rid = r.get("id")
         scen = {s.get("id"): (s.get("title") or "").strip()
@@ -878,13 +3269,25 @@ def check_client_lab_acceptance_map(f: Findings) -> None:
             g = s.get("gate")
             if g is not None and g not in CLIENT_LAB_GATES:
                 f.error("client-lab-gates", f"{rp}: scenario {sid} gate {g!r} is not one of the nine gates")
+            # Both of these are YAML-SUPPLIED PATHS joined to the repository
+            # root and then handed to the filesystem — `discharge_via` is
+            # `load_yaml`d — so they go through the same containment guard the
+            # §6.2 and §7 readers use. An absolute value discards the root and
+            # a `..` segment walks out of the tree; either would make a
+            # contract artifact an arbitrary-file-read on the runner.
             fx = s.get("fixture")
-            if fx is not None and not (ROOT / fx).is_file():
-                f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
+            if fx is not None:
+                fxp = _repo_file(f, "client-lab-fixture",
+                                 f"{rp}: scenario {sid} fixture", fx)
+                if fxp is not None and not fxp.is_file():
+                    f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
             dv = s.get("discharge_via")
             if dv is not None:
-                dvp = ROOT / dv
-                if not dvp.is_file():
+                dvp = _repo_file(f, "client-lab-discharge",
+                                 f"{rp}: scenario {sid} discharge_via", dv)
+                if dvp is None:
+                    pass  # refused with its reason; the filesystem is untouched
+                elif not dvp.is_file():
                     f.error("client-lab-discharge", f"{rp}: scenario {sid} discharge_via {dv} does not exist")
                 else:
                     reg = load_yaml(dvp) or {}
@@ -1300,6 +3703,339 @@ def check_redaction(f: Findings) -> None:
                 if m.group(0) in sentinels:
                     continue
                 f.error("redaction", f"{path.relative_to(ROOT)}: denylist pattern {pid} matched non-sentinel content: {m.group(0)[:40]!r}")
+
+
+def check_interface_lock(f: Findings) -> None:
+    """ACR-001-S04 (evidence-register check `interface_lock_reserved_set`):
+    machine-check `interface-lock.yaml`'s frozen contract/reserved lists against
+    this validator's own CONTRACT_FILES / RESERVED_IDS constants.
+
+    The constants MIRROR the lock by hand rather than reading it — deliberately,
+    so the file that declares the freeze and the tool that enforces it are two
+    independent statements — but an unchecked hand mirror drifts. This makes the
+    two disagree LOUDLY instead of silently, which is what `qualify-avatar-live-
+    voice` needed when it moved exactly AVC-09 and AVC-10 out of the reserved
+    set: an unreservation that edits one and forgets the other is now a finding,
+    and so is releasing a THIRD reserved identifier along the way.
+
+    Fail closed on a missing or unreadable lock."""
+    path = AVC / "interface-lock.yaml"
+    rp = "contracts/avatar-client/interface-lock.yaml"
+    if not path.is_file():
+        f.error("interface-lock", f"{rp} absent; the frozen baseline is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    frozen = doc.get("frozen") if isinstance(doc, dict) else None
+    if not isinstance(frozen, dict):
+        f.error("interface-lock", f"{rp}: `frozen` block missing or not a mapping (fail closed)")
+        return
+    locked = frozen.get("contracts") or []
+    reserved = frozen.get("reserved_identifiers") or []
+    if not isinstance(locked, list) or not isinstance(reserved, list):
+        f.error("interface-lock", f"{rp}: `contracts` and `reserved_identifiers` must be lists")
+        return
+    if len(locked) != len(set(locked)):
+        f.error("interface-lock", f"{rp}: duplicate id in frozen.contracts")
+    if len(reserved) != len(set(reserved)):
+        f.error("interface-lock", f"{rp}: duplicate id in frozen.reserved_identifiers")
+    if set(locked) != set(CONTRACT_FILES):
+        f.error("interface-lock",
+                f"{rp}: frozen.contracts {sorted(set(locked))} != the validator's published set "
+                f"{sorted(CONTRACT_FILES)} — the lock and CONTRACT_FILES must move in the same change")
+    if set(reserved) != RESERVED_IDS:
+        f.error("interface-lock",
+                f"{rp}: frozen.reserved_identifiers {sorted(set(reserved))} != the validator's "
+                f"reserved set {sorted(RESERVED_IDS)} — unreserving an id edits BOTH or neither")
+    overlap = set(locked) & set(reserved)
+    if overlap:
+        f.error("interface-lock",
+                f"{rp}: {sorted(overlap)} is both published and reserved; an identifier is one or "
+                f"the other and is never reused")
+
+
+def _slo_entries(node: Any) -> list[dict]:
+    """Every mapping in the acceptance map that declares itself a neutral
+    relative-regression SLO. Collected by walking rather than by reading one
+    known key, so a SECOND entry hidden under another key is found too — 'exactly
+    one' has to mean exactly one in the document, not one where we looked."""
+    found: list[dict] = []
+    if isinstance(node, dict):
+        if node.get("kind") == SLO_KIND:
+            found.append(node)
+        for v in node.values():
+            found.extend(_slo_entries(v))
+    elif isinstance(node, list):
+        for item in node:
+            found.extend(_slo_entries(item))
+    return found
+
+
+def _ceiling_keys_in_properties(node: Any) -> list[str]:
+    """Property NAMES under any `properties` mapping that read as a numeric
+    latency ceiling. Only property names are inspected: AVC-09 and AVC-10 name
+    these same strings inside their `not` blocks precisely in order to forbid
+    them, and a scan that could not tell a prohibition from a declaration would
+    fail the very schemas doing the prohibiting."""
+    hits: list[str] = []
+    if isinstance(node, dict):
+        props = node.get("properties")
+        if isinstance(props, dict):
+            hits.extend(k for k in props if isinstance(k, str) and LATENCY_CEILING_KEY.match(k))
+        for k, v in node.items():
+            if k == "not":
+                continue
+            hits.extend(_ceiling_keys_in_properties(v))
+    elif isinstance(node, list):
+        for item in node:
+            hits.extend(_ceiling_keys_in_properties(item))
+    return hits
+
+
+def _ceiling_keys_in_mapping(node: Any) -> list[str]:
+    hits: list[str] = []
+    if isinstance(node, dict):
+        hits.extend(k for k in node if isinstance(k, str) and LATENCY_CEILING_KEY.match(k))
+        for v in node.values():
+            hits.extend(_ceiling_keys_in_mapping(v))
+    elif isinstance(node, list):
+        for item in node:
+            hits.extend(_ceiling_keys_in_mapping(item))
+    return hits
+
+
+def _evaluate_comparison(case: dict) -> tuple[str, str]:
+    """Apply the neutral relative-regression rule to one comparison case.
+
+    WHAT A CASE'S `tier` MEANS: it is the case's own INPUT CLAIM about which
+    tier the comparison is offered for, not a fact this function reads off the
+    samples. That distinction decides every off-nominal outcome below, so it is
+    stated rather than left to be inferred.
+
+    Returns (outcome, why). Outcomes:
+
+    - ``refused``  — the pair is not evidence at all, in one of two ways. Either
+      the two sides do not share a comparable cell (mismatched platform, network
+      class or region, or a reference side that is not a direct-provider
+      reference), or the case CLAIMS THE GATED TIER from a cell that cannot
+      gate — off-nominal network, a non-gated delivery platform, or Linux CI,
+      which is reference-generation only.
+    - ``recorded`` — a comparable pair that does NOT claim the gated tier: a
+      tail percentile, a tail interval, or a degraded/jittered network run.
+      Measured and reported as informational tail evidence; gates nothing.
+    - ``fail``     — a comparable, gated pair whose adapter percentile is a
+      MATERIAL regression: ``adapter > reference + max(0.15 * reference, 150)``.
+    - ``pass``     — a comparable, gated pair that is not a material regression.
+
+    THE ORDER IS LOAD-BEARING. Cell comparability is checked first and beats
+    everything: a comparison across mismatched conditions must never be
+    evaluated, not even to a passing number. The gated-tier CLAIM is resolved
+    next, because the ratified rule says degraded-network evidence "MAY be
+    recorded but MUST NOT substitute for the nominal-network gated cells" — so
+    off-nominal refusal has to attach to the CLAIM, not to the network class
+    itself. Refusing every off-nominal comparison outright would make the
+    recorded tier unreachable and contradict the acceptance map, which lists
+    degraded and jittered under `recorded_not_gated.network_classes`.
+    """
+    ref, adp = case.get("reference") or {}, case.get("adapter") or {}
+    if ref.get("classification") != "direct_provider_reference":
+        return "refused", ("the reference side is not classified "
+                           f"direct_provider_reference (got {ref.get('classification')!r})")
+    if adp.get("classification") != "governed_adapter":
+        return "refused", ("the adapter side is not classified governed_adapter "
+                           f"(got {adp.get('classification')!r})")
+    for axis in SLO_CELL_AXES:
+        if ref.get(axis) != adp.get(axis):
+            return "refused", (f"{axis} differs ({ref.get(axis)!r} vs {adp.get(axis)!r}); "
+                               f"the SLO is defined only within a matching cell")
+    claims_gated = (case.get("tier") == "gated"
+                    and case.get("percentile") in SLO_GATED_PERCENTILES
+                    and case.get("interval") in SLO_GATED_INTERVALS)
+    if not claims_gated:
+        return "recorded", ("tail evidence: recorded, never gating at the internal-live ring")
+    platform = adp.get("platform")
+    if platform in SLO_REFERENCE_ONLY_PLATFORMS:
+        return "refused", (f"the case claims the gated tier, but {platform} is "
+                           f"reference-generation only and is never a gated delivery platform")
+    if platform not in SLO_GATED_PLATFORMS:
+        return "refused", (f"the case claims the gated tier, but {platform!r} is not one of "
+                           f"the gated delivery platforms")
+    if adp.get("network_class") != SLO_GATED_NETWORK:
+        return "refused", (f"the case claims the gated tier from network_class "
+                           f"{adp.get('network_class')!r}; such a run MAY be recorded as tail "
+                           f"evidence but never substitutes for a nominal-network gated cell")
+    reference_ms, adapter_ms = ref.get("value_ms"), adp.get("value_ms")
+    if not isinstance(reference_ms, (int, float)) or not isinstance(adapter_ms, (int, float)):
+        return "refused", "a side carries no numeric value_ms"
+    allowance = max(SLO_RELATIVE_PCT / 100.0 * reference_ms, float(SLO_ABSOLUTE_MS))
+    if adapter_ms > reference_ms + allowance:
+        return "fail", (f"{adapter_ms} exceeds {reference_ms} + max(15%, 150 ms) = "
+                        f"{reference_ms + allowance}")
+    return "pass", (f"{adapter_ms} is within {reference_ms} + max(15%, 150 ms) = "
+                    f"{reference_ms + allowance}")
+
+
+def check_latency_posture(f: Findings) -> set[str]:
+    """§3.3: enforce the two-tier latency posture, fail-closed, and return the
+    evidence ids the comparison cases carry so the evidence register can resolve
+    them the way it resolves a fixture id.
+
+    Three obligations, all from `qualify-avatar-live-voice`'s ratified rulings:
+
+    1. EXACTLY ONE neutral relative-regression SLO entry lives in the acceptance
+       map, at the ratified threshold — more than 15 percent relative OR more
+       than 150 ms absolute, WHICHEVER IS GREATER. Zero entries fails closed
+       (an ungated ring), two fail too (two rules say nothing about which binds),
+       and a threshold that disagrees with the ratified numbers fails whichever
+       direction it drifts.
+    2. THE TWO TIERS ARE DECLARED AND DISJOINT. p50 and p95 on the two setup
+       intervals, on Windows desktop and web canvas at nominal network, are
+       GATED. p99, teardown, degraded and jittered network, and steady-state
+       per-turn latency are RECORDED and gate nothing. A gated percentile that
+       also appears in the recorded tier would make the posture unreadable.
+    3. NO PER-PROFILE NUMERIC LATENCY CEILING is presented as a gating field —
+       not as a property of any avatar-client schema, and not as a key in the
+       acceptance map. That is Fork 2's Option B, which was not ruled.
+    """
+    evidence_ids: set[str] = set()
+    amap_path = AVC / "acceptance-map.yaml"
+    if not amap_path.is_file():
+        f.error("latency-posture",
+                "acceptance-map.yaml absent; the relative-regression SLO is unverifiable (fail closed)")
+        return evidence_ids
+    amap = load_yaml(amap_path) or {}
+
+    # --- 1. exactly one SLO entry, at the ratified threshold ---
+    entries = _slo_entries(amap)
+    if not entries:
+        f.error("latency-posture",
+                f"no acceptance-map entry declares kind {SLO_KIND!r}; the internal-live ring "
+                f"would be ungated (fail closed)")
+        return evidence_ids
+    if len(entries) > 1:
+        ids = [e.get("id") for e in entries]
+        f.error("latency-posture",
+                f"{len(entries)} neutral relative-regression SLO entries in the acceptance map "
+                f"({ids}); exactly one may exist, because two rules say nothing about which binds")
+        return evidence_ids
+    slo = entries[0]
+    mat = slo.get("materiality") or {}
+    if mat.get("rule") != SLO_MATERIALITY_RULE:
+        f.error("latency-posture",
+                f"SLO materiality rule {mat.get('rule')!r} != {SLO_MATERIALITY_RULE!r}; the "
+                f"'whichever is greater' clause is load-bearing")
+    if mat.get("relative_threshold_pct") != SLO_RELATIVE_PCT:
+        f.error("latency-posture",
+                f"SLO relative threshold {mat.get('relative_threshold_pct')!r} != the ratified "
+                f"{SLO_RELATIVE_PCT} percent")
+    if mat.get("absolute_threshold_ms") != SLO_ABSOLUTE_MS:
+        f.error("latency-posture",
+                f"SLO absolute threshold {mat.get('absolute_threshold_ms')!r} != the ratified "
+                f"{SLO_ABSOLUTE_MS} ms")
+    cell = slo.get("comparison_cell") or {}
+    if set(cell.get("must_match") or []) != set(SLO_CELL_AXES):
+        f.error("latency-posture",
+                f"SLO comparison cell axes {sorted(set(cell.get('must_match') or []))} != "
+                f"{sorted(SLO_CELL_AXES)}")
+
+    # --- 2. the two tiers, declared and disjoint ---
+    gated = slo.get("gated") or {}
+    recorded = slo.get("recorded_not_gated") or {}
+    gp = set(gated.get("percentiles") or [])
+    gi = set(gated.get("intervals") or [])
+    if gp != SLO_GATED_PERCENTILES:
+        f.error("latency-posture",
+                f"SLO gated percentiles {sorted(gp)} != {sorted(SLO_GATED_PERCENTILES)}")
+    if gi != SLO_GATED_INTERVALS:
+        f.error("latency-posture",
+                f"SLO gated intervals {sorted(gi)} != {sorted(SLO_GATED_INTERVALS)}")
+    if set(gated.get("platforms") or []) != SLO_GATED_PLATFORMS:
+        f.error("latency-posture",
+                f"SLO gated platforms {sorted(set(gated.get('platforms') or []))} != "
+                f"{sorted(SLO_GATED_PLATFORMS)}; Linux CI is reference-generation only")
+    if gated.get("network_class") != SLO_GATED_NETWORK:
+        f.error("latency-posture",
+                f"SLO gated network class {gated.get('network_class')!r} != {SLO_GATED_NETWORK!r}")
+    rp_set = set(recorded.get("percentiles") or [])
+    ri_set = set(recorded.get("intervals") or [])
+    if "p99" not in rp_set:
+        f.error("latency-posture", "SLO recorded tier must name p99 as recorded-not-gated")
+    if not any(i.startswith("teardown") for i in ri_set):
+        f.error("latency-posture",
+                "SLO recorded tier must name the teardown / hangup-to-terminal interval")
+    if gp & rp_set:
+        f.error("latency-posture",
+                f"percentile(s) {sorted(gp & rp_set)} are declared BOTH gated and recorded-not-gated")
+    if gi & ri_set:
+        f.error("latency-posture",
+                f"interval(s) {sorted(gi & ri_set)} are declared BOTH gated and recorded-not-gated")
+    if set(slo.get("reference_generation_only_platforms") or []) != SLO_REFERENCE_ONLY_PLATFORMS:
+        f.error("latency-posture",
+                f"SLO reference-generation-only platforms "
+                f"{sorted(set(slo.get('reference_generation_only_platforms') or []))} != "
+                f"{sorted(SLO_REFERENCE_ONLY_PLATFORMS)}")
+
+    # --- 3. no per-profile numeric latency ceiling anywhere ---
+    for name in sorted(AVC.glob("*.schema.yaml")):
+        try:
+            doc = load_yaml(name)
+        except yaml.YAMLError:
+            continue  # reported by build_registry
+        for key in sorted(set(_ceiling_keys_in_properties(doc))):
+            f.error("latency-ceiling",
+                    f"{name.name}: property {key!r} is a per-profile numeric latency ceiling; "
+                    f"latency gating is the neutral relative-regression SLO, and the measured "
+                    f"numbers live in AVC-10 samples")
+    for key in sorted(set(_ceiling_keys_in_mapping(amap))):
+        f.error("latency-ceiling",
+                f"acceptance-map.yaml: key {key!r} presents a numeric latency ceiling as a gating "
+                f"field; the only numeric thresholds this map may carry are the SLO's own "
+                f"relative and absolute regression allowances")
+
+    # --- execute the self-describing comparison cases ---
+    index = AVC / "fixtures" / "index.yaml"
+    cases = ((load_yaml(index) or {}).get("latency_comparison_cases") or []) if index.is_file() else []
+    if not cases:
+        f.error("latency-posture",
+                "no latency_comparison_cases in fixtures/index.yaml; the relative-regression rule "
+                "and its cross-cell refusal are unproven (fail closed)")
+        return evidence_ids
+    case_ids: set[str] = set()
+    outcomes_seen: set[str] = set()
+    for c in cases:
+        cid = c.get("case_id")
+        if cid in case_ids:
+            f.error("latency-case-dup", f"duplicate latency comparison case_id {cid}")
+        case_ids.add(cid)
+        expect = c.get("expect")
+        if expect not in SLO_OUTCOMES:
+            f.error("latency-case-expect",
+                    f"{cid}: expect must be one of {sorted(SLO_OUTCOMES)}, got {expect!r}")
+            continue
+        if c.get("class") not in ALL_CLASSES:
+            f.error("latency-case-class", f"{cid}: unknown class {c.get('class')!r}")
+        if c.get("tier") == "gated" and expect in ("pass", "fail"):
+            # A case claiming to close a GATED cell must name a gated percentile
+            # and a gated interval, or the two-tier posture is being widened by
+            # fixture rather than by ruling.
+            if c.get("percentile") not in SLO_GATED_PERCENTILES:
+                f.error("latency-case-tier",
+                        f"{cid}: gated case names percentile {c.get('percentile')!r}, which is "
+                        f"recorded-not-gated at this ring")
+            if c.get("interval") not in SLO_GATED_INTERVALS:
+                f.error("latency-case-tier",
+                        f"{cid}: gated case names interval {c.get('interval')!r}, which is "
+                        f"recorded-not-gated at this ring")
+        actual, why = _evaluate_comparison(c)
+        outcomes_seen.add(actual)
+        if actual != expect:
+            f.error("latency-case", f"{cid}: expected {expect} but got {actual} ({why})")
+        elif c.get("evidence_id"):
+            evidence_ids.add(c["evidence_id"])
+    for need in sorted(SLO_OUTCOMES - outcomes_seen):
+        f.error("latency-coverage",
+                f"no latency comparison case exercises the {need!r} outcome; the two-tier posture "
+                f"is not proven end to end")
+    return evidence_ids
 
 
 def _pin_is_content_addressed(pin: dict) -> bool:

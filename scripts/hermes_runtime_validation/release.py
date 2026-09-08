@@ -14,16 +14,18 @@ unavailable or unsafe dependency raises :class:`ReleaseDependencyError`
 from __future__ import annotations
 
 import hashlib
-import os
-from pathlib import Path
-import subprocess
-from typing import Iterable, Mapping
-
 import posixpath
+import re
+import subprocess
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
+    CONTENT_PATH_ABSENT,
     ContentResolutionError,
+    _sanitized_git_environment,
     resolve_git_object,
 )
 
@@ -41,11 +43,49 @@ INVENTORY_SCHEMA_PATH = "contracts/releases/release-digest-inventory.schema.yaml
 MANIFEST_PATH = "contracts/manifest.yaml"
 RELEASES_DIRECTORY = "contracts/releases"
 VALIDATOR_PACKAGE = "scripts/hermes_runtime_validation"
+INTENT_CONTRACT_PREFIX = "contracts/intent-compliance"
+INTENT_IMPLEMENTATION_PACKAGE = "scripts/intent_compliance"
+INTENT_TEST_PACKAGE = "tests/intent-compliance"
+INTENT_VALIDATOR_PATH = "scripts/validate-intent-compliance.py"
+INTENT_RELEASE_FLOOR = (2, 3)
+INTENT_REQUIRED_REGISTRATIONS = (
+    (
+        "intent-compliance-veto-class-vocabulary",
+        "contracts/intent-compliance/veto-class-vocabulary.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance",
+        "contracts/intent-compliance/policy-allowance.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance-revocation",
+        "contracts/intent-compliance/policy-allowance-revocation.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance-registry",
+        "contracts/intent-compliance/policy-allowance-registry.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-decision",
+        "contracts/intent-compliance/compliance-decision.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-conformance-validator",
+        INTENT_VALIDATOR_PATH,
+        "tool",
+    ),
+)
 
 NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
+    "scripts/validate-ideation-dashboard-contracts.py",
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",
@@ -67,14 +107,6 @@ RELEASE_SURFACE_PATHS = (
     "contracts/README.md",
     "contracts/hermes-runtime/README.md",
     "docs/contract-versioning-policy.md",
-)
-
-_SCRUBBED_GIT_ENVIRONMENT = (
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_REPLACE_REF_BASE",
 )
 
 
@@ -134,10 +166,6 @@ def _is_release_inventory_path(path: object) -> bool:
 def _run_git(
     repo: Path, *arguments: str, binary: bool = False, allow_failure: bool = False
 ) -> subprocess.CompletedProcess:
-    environment = os.environ.copy()
-    for name in _SCRUBBED_GIT_ENVIRONMENT:
-        environment.pop(name, None)
-    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", str(repo), *arguments],
@@ -145,7 +173,7 @@ def _run_git(
             text=not binary,
             check=False,
             timeout=30,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ReleaseDependencyError("Git command is unavailable") from exc
@@ -191,6 +219,73 @@ def _ls_remote(repo: Path, remote: str, *patterns: str) -> list[tuple[str, str]]
     return rows
 
 
+def _resolve_remote_object(repo: Path, remote: str, object_id: str) -> None:
+    """Make a remote-derived object locally readable before anything reads it.
+
+    Online release verification asks the canonical remote what its ``main`` and
+    its tags point at, then answers questions about those object ids inside the
+    local clone.  The two halves have different ages: a clone is fixed at the
+    moment it was taken, the remote's refs are not.  When ``main`` advances
+    after the clone, every local operation over the advertised object fails for
+    that reason alone -- ``git merge-base --is-ancestor`` exits 128, a tree read
+    fails outright, and a blob read resolves to nothing.
+
+    The obligation is therefore on the OPERAND rather than on any one
+    comparison: resolve the object where it enters the local world, and all
+    four of its readers are covered by construction.  Probe first, so the
+    common case of an already-current clone costs nothing and the verifier
+    performs no network write at all; fetch only the single named object, never
+    a ref, so the clone's remote-tracking refs and ``FETCH_HEAD`` are left
+    exactly as they were.
+
+    Q1, MEASURED 2026-08-26 and decided on the measurement: no ref-fetch
+    fallback.  ``git fetch <remote> <oid>`` against the canonical remote
+    (``git@github.com:opensoft/openxFactory.git``) returned 0 for an object
+    under no ref the clone tracked, twice -- by hand on the live failure, and
+    from a depth-1 clone fetching a commit 25 behind the tip in 4.80s, well
+    inside ``_run_git``'s 30-second cap.  A remote that declines to serve an
+    advertised object is therefore the fail-closed case below, not a case for a
+    speculative wider fetch nobody has needed.
+
+    Raises ``ReleaseDependencyError`` naming the RETRIEVAL that failed, which
+    is a fact about the environment rather than a verdict about the release.
+    The reason names the fetch, the remote, the object and git's exit status,
+    and deliberately claims NO cause beyond that: a fetch can fail for a
+    refused credential, an unreachable host, a timeout or a remote that
+    declines the object, and asserting one of them would be the same failure of
+    diagnosis as announcing that reachability "could not be determined".
+    Subprocess output is not embedded, following ``_run_git``'s own terseness
+    and so that a remote URL never travels inside a dependency error.
+    """
+
+    probe = _run_git(
+        repo, "cat-file", "-e", f"{object_id}^{{object}}", allow_failure=True
+    )
+    if probe.returncode == 0:
+        return
+    fetch = _run_git(
+        repo,
+        "fetch",
+        "--no-tags",
+        "--no-write-fetch-head",
+        remote,
+        object_id,
+        allow_failure=True,
+    )
+    if fetch.returncode != 0:
+        raise ReleaseDependencyError(
+            f"remote object fetch failed: {remote} {object_id} "
+            f"(git exit {fetch.returncode})"
+        )
+    confirm = _run_git(
+        repo, "cat-file", "-e", f"{object_id}^{{object}}", allow_failure=True
+    )
+    if confirm.returncode != 0:
+        raise ReleaseDependencyError(
+            f"remote object fetch did not provide {object_id} from {remote}"
+        )
+
+
 def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     result = _run_git(
         repo, "merge-base", "--is-ancestor", ancestor, descendant, allow_failure=True
@@ -200,10 +295,90 @@ def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def _refuse_unreachable_in_a_shallow_clone(
+    repo: Path, ancestor: str, descendant: str
+) -> None:
+    """Refuse a NEGATIVE ancestor verdict that a truncated history cannot earn.
+
+    Resolving a remote-derived operand makes the OBJECT present.  It does not
+    make the ANCESTRY present.  In a shallow clone the graft boundary tells git
+    that a commit has no parents, so ``git merge-base --is-ancestor`` returns 1
+    -- a definite "no" -- for a commit that is perfectly reachable on the real
+    history.  Reporting that as ``HGR-RELEASE-*-UNREACHABLE`` would be a verdict
+    invented from an absence, which is the same fault as reporting an absent
+    object as unreachable and is what requirement 2 of
+    ``fix-release-reachability-race`` forbids.
+
+    The asymmetry is the whole rule, and it is why this is not a blanket refusal
+    on shallow clones: a POSITIVE verdict is trustworthy in any store, because a
+    path git found is a path that exists.  Only the NEGATIVE is suspect, so only
+    the negative is re-examined -- which also keeps the cost off the common path,
+    one ``rev-parse`` on the false branch and nothing at all otherwise.
+
+    A shallow clone that genuinely holds a non-ancestor gets this refusal too,
+    rather than the finding it would have earned.  That is deliberate: the
+    verifier cannot tell the two apart, and a fail-closed dependency refusal
+    naming the truncated history is the honest outcome for both.  Deepen the
+    clone, or verify from a full one.
+
+    Ruled by Brett on 2026-08-26 (fold-in of ``tasks.md`` § 6.4, raised on a
+    measurement and independently on openxFactory pull request #390's review).
+    """
+
+    result = _run_git(repo, "rev-parse", "--is-shallow-repository", allow_failure=True)
+    if result.returncode != 0 or str(result.stdout).strip() != "true":
+        return
+    raise ReleaseDependencyError(
+        f"ancestry cannot be judged in a shallow clone: {ancestor} against {descendant}"
+    )
+
+
+def _resolution_established_absence(
+    exc: ContentResolutionError, commit: str, path: str
+) -> bool:
+    """Whether ``exc`` established that ``path`` is absent from ``commit``'s tree.
+
+    Fifteen refusals reach this from ``resolve_git_object`` and exactly one of
+    them is a fact about the release: the tree was read and the path was not in
+    it.  The other fourteen say the commit is not in the store, the repository
+    cannot be opened, git cannot be run, the read timed out, the argument was
+    malformed, or an unsafe or inexact object was refused — and none of them
+    establishes anything about the release.
+
+    Spelling all fifteen the same way is how a verification reports a surface
+    it never read.  It fails in BOTH directions and the quiet one is worse: a
+    failure on one side of a comparison manufactures a drift finding out of an
+    environment fact, and a failure on BOTH sides makes two identical
+    non-answers compare EQUAL and reports the surface undrifted, emitting
+    nothing a reader could notice.  So everything but the one data condition
+    becomes a fail-closed dependency refusal whose reason names the CONDITION
+    OBSERVED rather than a conclusion about the release.
+
+    The condition is read off the resolver's DECLARED code and never off its
+    message (OD-4): a message is prose, and a near-miss match on edited prose
+    would silently reclassify a safety refusal as release data.
+
+    `HGR-RELEASE-PATH-UNRESOLVABLE` at the inventory-path read is deliberately
+    NOT routed through here — it already emits a named finding rather than a
+    silent value, and changing what a published finding code means to consumers
+    is a contract question rather than a defect fix
+    (`fix-content-resolution-conflation` OD-3, tasks.md § 7.1).
+    """
+
+    if exc.code == CONTENT_PATH_ABSENT:
+        return True
+    raise ReleaseDependencyError(
+        f"release content could not be resolved at {commit}: {path}: {exc}"
+    ) from exc
+
+
 def _blob_object_id(repo: Path, commit: str, path: str) -> str | None:
+    """The blob object id at ``commit``, or ``None`` ONLY for an established absence."""
+
     try:
         return resolve_git_object(repo, commit, path).blob_oid
-    except ContentResolutionError:
+    except ContentResolutionError as exc:
+        _resolution_established_absence(exc, commit, path)
         return None
 
 
@@ -228,11 +403,14 @@ class _WorkingTreeSource:
         return target.is_file() and not target.is_symlink()
 
     def list_python(self, package: str) -> list[str]:
-        base = self.root / package
+        return [member for member in self.list_files(package) if member.endswith(".py")]
+
+    def list_files(self, directory: str) -> list[str]:
+        base = self.root / directory
         if not base.is_dir():
             return []
         members: list[str] = []
-        for candidate in base.rglob("*.py"):
+        for candidate in base.rglob("*"):
             if candidate.is_file() and not candidate.is_symlink():
                 members.append(candidate.relative_to(self.root).as_posix())
         return members
@@ -289,18 +467,28 @@ class _CommitSource:
         return yaml.safe_load(resolved.data)
 
     def exists(self, path: str) -> bool:
+        """Presence at the pinned commit, or a refusal — never a manufactured absence.
+
+        Four callers consume this answer as data: two decide whether a
+        validator or a normative doc is a release member, one decides whether
+        ``contracts/manifest.yaml`` is present at the commit, and one decides
+        membership for a listed path.  A ``False`` produced by an environment
+        failure is a verdict about the release read off a fact about the
+        machine.
+        """
+
         try:
             resolve_git_object(self.root, self.commit, path)
-        except ContentResolutionError:
+        except ContentResolutionError as exc:
+            _resolution_established_absence(exc, self.commit, path)
             return False
         return True
 
     def list_python(self, package: str) -> list[str]:
-        return [
-            entry
-            for entry in _list_tree(self.root, self.commit, package)
-            if entry.endswith(".py")
-        ]
+        return [entry for entry in self.list_files(package) if entry.endswith(".py")]
+
+    def list_files(self, directory: str) -> list[str]:
+        return _list_tree(self.root, self.commit, directory)
 
     def list_release_inventories(self) -> list[str]:
         return _bytewise(
@@ -342,9 +530,9 @@ def _artifact_id(path: str) -> str:
 
 
 def _collect_members(
-    source: object,
+    source: _WorkingTreeSource | _CommitSource,
 ) -> tuple[list[str], dict[str, Mapping[str, object]]]:
-    catalog = source.load_yaml(CATALOG_PATH)  # type: ignore[attr-defined]
+    catalog = source.load_yaml(CATALOG_PATH)
     if not isinstance(catalog, Mapping):
         raise ReleaseDependencyError("contract catalog is not a mapping")
     catalog_map: dict[str, Mapping[str, object]] = {}
@@ -378,8 +566,7 @@ def _collect_members(
         # (PR #45 review finding 1).
         if repo_path == ".." or repo_path.startswith("../"):
             raise ReleaseDependencyError(
-                "catalog path escapes the repository after normalization: "
-                f"{relative}",
+                f"catalog path escapes the repository after normalization: {relative}",
                 code="HGR-RELEASE-MEMBER-ESCAPES",
             )
         # Two DISTINCT entries normalizing to one repository file would let a
@@ -394,7 +581,108 @@ def _collect_members(
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
-    fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)  # type: ignore[attr-defined]
+    manifest = source.load_yaml(MANIFEST_PATH)
+    if not isinstance(manifest, Mapping):
+        raise ReleaseDependencyError("contract manifest is not a mapping")
+    raw_bundle_tag = manifest.get("contract_bundle_version")
+    bundle_match = (
+        re.fullmatch(r"contract-v(\d+)\.(\d+)", raw_bundle_tag)
+        if isinstance(raw_bundle_tag, str)
+        else None
+    )
+    release_version = (
+        (int(bundle_match.group(1)), int(bundle_match.group(2)))
+        if bundle_match is not None
+        else None
+    )
+    intent_floor_active = (
+        release_version is not None and release_version >= INTENT_RELEASE_FLOOR
+    )
+    intent_registrations = []
+    for entry in manifest.get("contracts", []) or []:
+        if not isinstance(entry, Mapping):
+            continue
+        identifier = entry.get("id")
+        path = entry.get("path")
+        if (
+            isinstance(identifier, str) and identifier.startswith("intent-compliance-")
+        ) or (
+            isinstance(path, str)
+            and (
+                path.startswith(INTENT_CONTRACT_PREFIX + "/")
+                or path == INTENT_VALIDATOR_PATH
+            )
+        ):
+            intent_registrations.append(entry)
+
+    intent_contract_members = source.list_files(INTENT_CONTRACT_PREFIX)
+    intent_implementation_members = source.list_python(INTENT_IMPLEMENTATION_PACKAGE)
+    intent_test_members = source.list_python(INTENT_TEST_PACKAGE)
+    intent_surface_present = bool(
+        intent_contract_members
+        or intent_implementation_members
+        or intent_test_members
+        or source.exists(INTENT_VALIDATOR_PATH)
+    )
+
+    if intent_floor_active or intent_registrations or intent_surface_present:
+        registration_identities = [
+            (entry.get("id"), entry.get("path"), entry.get("type"))
+            for entry in intent_registrations
+        ]
+        registrations_by_identity = {
+            identity: entry
+            for identity, entry in zip(
+                registration_identities, intent_registrations, strict=True
+            )
+        }
+        missing = set(INTENT_REQUIRED_REGISTRATIONS) - registrations_by_identity.keys()
+        unexpected = registrations_by_identity.keys() - set(
+            INTENT_REQUIRED_REGISTRATIONS
+        )
+        registrations_are_exact = (
+            len(registration_identities) == len(INTENT_REQUIRED_REGISTRATIONS)
+            and not missing
+            and not unexpected
+        )
+        if missing or (intent_floor_active and not registrations_are_exact):
+            missing_ids = ", ".join(sorted(identifier for identifier, _, _ in missing))
+            unexpected_ids = ", ".join(
+                sorted(str(identifier) for identifier, _, _ in unexpected)
+            )
+            raise ReleaseDependencyError(
+                "intent-compliance release registration must contain exactly six "
+                "canonical tuples; missing: "
+                f"{missing_ids or '<none>'}; unexpected: "
+                f"{unexpected_ids or '<none>'}",
+                code="HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE",
+            )
+        for identity in INTENT_REQUIRED_REGISTRATIONS:
+            identifier, path, artifact_type = identity
+            if not source.exists(path):
+                raise ReleaseDependencyError(
+                    f"intent-compliance required release member is unavailable: {path}",
+                    code="HGR-RELEASE-INTENT-MEMBER-MISSING",
+                )
+            members.add(path)
+            if artifact_type != "schema":
+                continue
+            registration = registrations_by_identity[identity]
+            catalog_map[path] = {
+                "contract_id": identifier,
+                "contract_schema_version": registration.get("schema_version"),
+                "type": artifact_type,
+            }
+        for member in intent_contract_members:
+            members.add(member)
+        for member in intent_implementation_members:
+            members.add(member)
+        for member in intent_test_members:
+            members.add(member)
+        members.add(INTENT_VALIDATOR_PATH)
+        members.add("scripts/__init__.py")
+
+    fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)
     if not isinstance(fixture_index, Mapping):
         raise ReleaseDependencyError("fixture index is not a mapping")
     for case in fixture_index.get("cases", []) or []:
@@ -404,10 +692,10 @@ def _collect_members(
             if isinstance(raw_input, str):
                 members.add(FIXTURE_PREFIX + raw_input)
 
-    for member in source.list_python(VALIDATOR_PACKAGE):  # type: ignore[attr-defined]
+    for member in source.list_python(VALIDATOR_PACKAGE):
         members.add(member)
     for validator in NAMED_VALIDATORS:
-        if source.exists(validator):  # type: ignore[attr-defined]
+        if source.exists(validator):
             members.add(validator)
     # Decision-10 mandatory auxiliaries are unconditional release members: each
     # is added with no exists() guard, mirroring how the catalog release_member
@@ -420,7 +708,7 @@ def _collect_members(
     # Normative docs are genuinely conditional ("modified normative docs") and
     # join the bundle only when present at the source.
     for extra in NORMATIVE_DOCS:
-        if source.exists(extra):  # type: ignore[attr-defined]
+        if source.exists(extra):
             members.add(extra)
 
     members = {member for member in members if not _is_release_inventory_path(member)}
@@ -456,11 +744,13 @@ def _entry_for(
     }
 
 
-def _build_inventory(source: object, *, bundle_tag: str) -> dict[str, object]:
+def _build_inventory(
+    source: _WorkingTreeSource | _CommitSource, *, bundle_tag: str
+) -> dict[str, object]:
     members, catalog_map = _collect_members(source)
     entries: list[dict[str, object]] = []
     for path in members:
-        _, git_mode, digest = source.read_member(path)  # type: ignore[attr-defined]
+        _, git_mode, digest = source.read_member(path)
         entries.append(_entry_for(path, catalog_map, git_mode, digest))
     entries.sort(key=lambda entry: str(entry["path"]).encode("utf-8"))
     return {
@@ -718,8 +1008,13 @@ def verify_promotion(
     if not main_rows:
         raise ReleaseDependencyError("remote main is unavailable")
     main_oid = main_rows[0][0]
+    # Resolve the live operand where it enters the local world: the ancestor
+    # check below and BOTH of `_surface_drift`'s reads at :732 answer out of the
+    # local object store.
+    _resolve_remote_object(repo_root, remote, main_oid)
 
     if not _is_ancestor(repo_root, commit_oid, main_oid):
+        _refuse_unreachable_in_a_shallow_clone(repo_root, commit_oid, main_oid)
         findings.append(
             _finding(
                 "HGR-RELEASE-CANDIDATE-UNREACHABLE",
@@ -798,12 +1093,18 @@ def verify_tag(repo_root: Path, *, remote: str, tag: str) -> list[dict[str, str]
             )
         )
     peeled_commit = peeled[0][0] if peeled else direct[0][0]
+    # A tag published since the clone was taken is absent for the same reason
+    # main's new tip is, and `_verify_release_at` at :816 walks this commit's
+    # tree and blobs locally.
+    _resolve_remote_object(repo_root, remote, peeled_commit)
 
     main_rows = _ls_remote(repo_root, remote, "refs/heads/main")
     if not main_rows:
         raise ReleaseDependencyError("remote main is unavailable")
     main_oid = main_rows[0][0]
+    _resolve_remote_object(repo_root, remote, main_oid)
     if not _is_ancestor(repo_root, peeled_commit, main_oid):
+        _refuse_unreachable_in_a_shallow_clone(repo_root, peeled_commit, main_oid)
         findings.append(
             _finding(
                 "HGR-RELEASE-TAG-UNREACHABLE",

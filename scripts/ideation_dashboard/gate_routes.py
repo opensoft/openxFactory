@@ -61,12 +61,13 @@ branch (FR-025), stale residue (FR-008), or an externally-dispatching verb (FR-0
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 
 import yaml
 
 from pathlib import Path
 
-from . import branch_session, gate_console, generator
+from . import branch_session, doxbench_threads, gate_console, generator
 from . import session_git as session_git_mod
 from . import session_pr
 from .boundary import (
@@ -94,7 +95,13 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # (and SESSION_BEARING_VERBS) when it landed; the declaration
                    # here lagged, so the roster disagreed with what the route
                    # actually executes.
-                   "first-edit")
+                   "first-edit",
+                   # add-doxbench-editing-phase-b §12: the doxBench SHARE verb.
+                   # It EXECUTES (it commits and it pushes), so it belongs here
+                   # rather than in the descriptor-only remainder — and it is
+                   # session-bearing below, which is what subjects it to the
+                   # console-presence refusal every remote-writing verb carries.
+                   "share-session")
 
 # The verbs that can OPEN, WRITE INTO, or END a branch session. They are the
 # verbs whose write lands in a per-repository worktree, so they are the verbs
@@ -102,7 +109,14 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
 # finding 8, leg a).
 SESSION_BEARING_VERBS = ("create-document", "edit-document", "open-pr",
                          "abandon-session", "cleanup-abandoned-branch",
-                         "first-edit")
+                         "first-edit",
+                         # §12.4: share-session writes into the session worktree
+                         # AND performs a remote write with the engineer's own
+                         # credential — the two properties this tuple exists to
+                         # carry repository identity for, and the membership
+                         # that makes FR-019's console-presence clause ENFORCED
+                         # for it rather than merely observed.
+                         "share-session")
 
 # Action names recorded on the gate-action record for the two lens verbs. The
 # names mirror the verb (honest audit), beside the enumerated console actions.
@@ -372,6 +386,17 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
                         session_notebook=session_notebook,
                         pull_requests=session_pull_requests,
                         provenance=provenance)
+    if verb == "share-session":
+        # The SAME `session_pull_requests` port `open-pr` is handed, because
+        # §12's requirement is that the verb reuse the existing remote-write
+        # path rather than introduce a second one. No `session_notebook`: a
+        # share creates and retires nothing.
+        return _share_session(body, checkout_root, actor, records_dir,
+                              snapshot_path, session_registry=session_registry,
+                              repository=repository,
+                              tile_inventory=tile_inventory,
+                              pull_requests=session_pull_requests,
+                              provenance=provenance)
     if verb == "abandon-session":
         return _abandon_session(body, checkout_root, actor, records_dir,
                                 snapshot_path, session_registry=session_registry,
@@ -383,7 +408,7 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
         return _cleanup_abandoned_branch(
             body, checkout_root, actor, records_dir, snapshot_path,
             session_registry=session_registry, repository=repository,
-            tile_inventory=tile_inventory)
+            tile_inventory=tile_inventory, provenance=provenance)
     if verb == "first-edit":
         return _first_edit(body, checkout_root, actor, records_dir,
                            snapshot_path, session_registry=session_registry,
@@ -1881,18 +1906,261 @@ def execute_edit_document(gate, *, document: str, content, records_dir: str,
 # per-worktree action lock itself, and that lock is NOT reentrant — so nothing
 # here may claim it around the call.
 
+# ===========================================================================
+# SHARE-SESSION (add-doxbench-editing-phase-b tasks.md §12, contract-v1.36)
+#
+# The verb that hands a live workbench session to a colleague, and the reason
+# threads are LOCAL until a human says otherwise. It is defined by what it is
+# STRICTLY LESS THAN: `open-pr` pushes the branch AND opens a pull request into
+# the Merge-Master ritual; share-session pushes the branch and stops. Same port,
+# same credential rule, same console posture — one member instead of three.
+#
+# The whole verb is three steps: commit the session's DIRTY thread sidecars,
+# push the branch, return and record the pushed ref.
+# ===========================================================================
+
+SHARE_SESSION_REMEDY = (
+    "share-session publishes an ACTIVE branch session; open the tile and Save "
+    "once to start one, then share it.")
+
+# The port members this verb is FORBIDDEN to reach. Written down as DATA, not
+# left as an absence, because "opens no pull request, requests no review, holds
+# no approval or merge authority" is only checkable against a list somebody
+# committed to — `session_pr.PORT_OPERATIONS` minus `push` is exactly it, and
+# deriving it that way means a port that grows a fourth member fails this
+# assertion instead of quietly widening the verb.
+FORBIDDEN_SHARE_OPERATIONS: tuple[str, ...] = tuple(
+    op for op in session_pr.PORT_OPERATIONS if op != "push")
+
+# Sharing is NOT promotion (task 9.4). The verb pushes a branch; it promotes no
+# finding, and the thread prefix stays excluded from session-PR promotion by
+# default. Read from the threads module rather than restated, so the exclusion
+# has ONE spelling on this surface too.
+SHARE_IS_NOT_PROMOTION = (
+    "shared, not promoted: this verb pushes the session branch and promotes "
+    "nothing. Threads stay excluded from session pull-request promotion by "
+    "default (" + ", ".join(doxbench_threads.promotion_excluded_prefixes())
+    + "), and a finding becomes durable only by someone creating a new object "
+    "through an existing lifecycle verb, with provenance.")
+
+
+@dataclasses.dataclass(frozen=True)
+class SharePlan:
+    """What one share invocation has to do, decided by a SIDE-EFFECT-FREE read.
+
+    Computed before the port is touched so the "nothing new" answer costs no
+    remote write, and so the record's residency (below) is known before a gate
+    is built at either root."""
+
+    branch: str
+    threads: tuple[str, ...]
+    local_sha: str | None
+    remote_sha: str | None
+
+    @property
+    def commits(self) -> bool:
+        """Whether this share has sidecars to commit — which is also what
+        decides where its record lives."""
+        return bool(self.threads)
+
+    @property
+    def unpushed(self) -> bool:
+        """Whether the branch holds commits the remote has not seen. This is the
+        ORDINARY state after a run of Saves, not an edge case: nothing pushes
+        implicitly, so every Save leaves a commit here."""
+        return bool(self.local_sha) and self.local_sha != self.remote_sha
+
+    @property
+    def nothing_new(self) -> bool:
+        return not self.commits and not self.unpushed
+
+    def report(self) -> str:
+        """The HONEST nothing-new sentence (task 12.3). It names both things it
+        checked, because "nothing to share" with no reason reads as a failure."""
+        return (
+            f"nothing new to share: {self.branch!r} has no uncommitted thread "
+            f"sidecars, and the remote already holds this branch at "
+            f"{(self.remote_sha or '')[:12]}. Nothing was pushed.")
+
+
+def plan_share(git, *, worktree, branch: str) -> SharePlan:
+    """Read what a share WOULD do. No commit, no push, no remote write.
+
+    `remote_sha` uses `git ls-remote`, which is side-effect-free and never
+    fetches — the same read the merge observation already trusts."""
+
+    dirty = git.dirty_paths(worktree)
+    return SharePlan(
+        branch=branch,
+        threads=doxbench_threads.shareable_thread_paths(dirty),
+        local_sha=git.head(worktree) or None,
+        remote_sha=git.remote_sha(branch))
+
+
+def share_session_gate_factory(actor: str, records_dir: str):
+    """The gate builder for a share, at whichever root the plan needs.
+
+    DELIBERATELY NARROWER THAN `first_edit_gate_factory`: the records tree and
+    NOTHING else. That factory grants the thread-sidecar prefix because a Save
+    WRITES a sidecar through its gate; a share never writes one. It commits
+    sidecars that are already on disk, staged by explicit path through git, and
+    the only thing it writes through the gate is its own record. Granting the
+    thread prefix here would widen the allowlist for a write that does not
+    exist, so it is not granted, and a companion test asserts the difference."""
+
+    def build(root):
+        return HumanGate(root, [records_dir], human_actor=actor,
+                         session_root=root)
+    return build
+
+
+def execute_share_session(gate_factory, git, *, session, pull_requests,
+                          records_dir: str, checkout_root: Path | str,
+                          notes: str | None = None, at: str | None = None,
+                          provenance=None) -> dict:
+    """Commit the session's dirty threads, push the branch, record the share.
+
+    Human-only: the agent path is rejected (BoundaryViolation) BEFORE the plan
+    is read and long before anything is pushed, exactly as `execute_open_pr`
+    rejects it before the port is touched.
+
+    TWO RECORD RESIDENCIES, and the reason is structural rather than a taste
+    call — the contract-v1.36 entry states the same thing schema-side:
+
+      * WITH dirty sidecars, the record rides their commit onto the session
+        branch (`commit_gate_action`, untouched), so one gate action is one
+        commit and the record travels to the colleague who fetches the branch.
+      * WITH nothing dirty and commits the remote has not seen, there is
+        nothing to co-commit, and FR-006's own guard REFUSES an empty declared
+        set. So the record is main-resident, exactly as `open-pr`'s is.
+
+    The ordering differs with it, and the difference is reported rather than
+    hidden: the branch-resident record is written INSIDE the commit and so
+    precedes the push, while the main-resident one is written after it. A push
+    that fails after a thread commit therefore leaves a recorded commit and an
+    unshared branch — which the next invocation sees as `unpushed` and pushes,
+    honestly, rather than reporting nothing to do."""
+
+    # FIRST, before the plan and before the port: a gate at the SERVED checkout,
+    # which is where a main-resident record would land and where the agent-path
+    # refusal is identical either way.
+    main_gate = gate_factory(Path(checkout_root))
+    human = gate_console.require_human_gate(main_gate)
+    root = Path(human.output.root)
+    at = at or gate_console._utcnow()
+    if session is None:
+        raise branch_session.SessionRefused(
+            "`share-session` publishes an ACTIVE branch session; there is none "
+            "on this tile. " + SHARE_SESSION_REMEDY)
+    if Path(checkout_root).resolve() != root.resolve():
+        raise branch_session.SessionRefused(
+            f"the gate is rooted at {root} but the served checkout is "
+            f"{checkout_root}: a share's main-resident record is written into "
+            "the SERVED checkout's gate-records tree")
+    if pull_requests is None:
+        raise branch_session.SessionRefused(
+            "no pull-request port is declared on this plane, so `share-session` "
+            "has no identity to push with. The remote write uses the INVOKING "
+            "ENGINEER's own `gh` authentication (FR-034) — the same plane rule "
+            "the session Save already carries, and the reason a hosted plane "
+            "never holds one")
+
+    worktree = Path(session.worktree)
+    plan = plan_share(git, worktree=worktree, branch=session.branch)
+
+    # TASK 12.3, decided BEFORE the port: nothing new is reported, never pushed
+    # again. Costs one local status read and one `ls-remote`, and no write.
+    if plan.nothing_new:
+        return {"ok": True, "shared": False, "branch": plan.branch,
+                "pushed_ref": None, "revision": plan.local_sha,
+                "threads": [], "reason": plan.report(),
+                "promotion": SHARE_IS_NOT_PROMOTION}
+
+    commit = None
+    if plan.commits:
+        # THE P3-17 DISCHARGE. These sidecars belong to documents that were
+        # DISCUSSED and, in the tail case that obligation named, never Saved
+        # again — so no Save will ever carry them and they would not travel.
+        # They ride the SHARE's own commit instead, which is the first verb with
+        # a legitimate reason to commit a thread on its own.
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor, action=gate_console.ACTION_SHARE_SESSION,
+            at=at, ref=plan.branch, notes=notes, provenance=provenance,
+            artifacts=[branch_session.commit_artifact(
+                branch_session.action_stamp(at))])
+        commit = branch_session.commit_gate_action(
+            gate_factory(worktree), git, worktree=worktree,
+            branch=plan.branch, record=record, documents=plan.threads,
+            records_dir=records_dir,
+            summary=f"share-session: {len(plan.threads)} thread(s)",
+            session=session)
+
+    # THE ONLY REMOTE WRITE, and the port's EXISTING member. Everything above is
+    # local; everything the colleague can see happens here.
+    pull_requests.push(plan.branch)
+    pushed_ref = f"refs/heads/{plan.branch}"
+    revision = git.head(worktree) or plan.local_sha
+
+    if commit is None:
+        # Main-resident, and written AFTER the push, exactly as `open-pr`'s is:
+        # the record attests to a share that has already happened.
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor, action=gate_console.ACTION_SHARE_SESSION,
+            at=at, ref=plan.branch, notes=notes, provenance=provenance,
+            artifacts=[{"kind": gate_console.ART_OTHER,
+                        "reference": pushed_ref}])
+        record_path = gate_console.write_gate_action_record(
+            human, records_dir, record)
+        # Relative to the SERVED checkout, the root a main-resident record is
+        # read back from — `open-pr`'s response says the same thing the same way.
+        record_rel = str(Path(record_path).relative_to(root))
+    else:
+        # Relative to the WORKTREE, because that is where it rode its commit.
+        record_rel = commit.record_relpath
+
+    return {"ok": True, "shared": True, "branch": plan.branch,
+            "pushed_ref": pushed_ref, "revision": revision,
+            "threads": list(plan.threads),
+            "record": record_rel,
+            "record_resident": "branch" if commit is not None else "main",
+            "promotion": SHARE_IS_NOT_PROMOTION}
+
+
 def first_edit_gate_factory(actor: str, records_dir: str):
     """The worktree-rooted gate builder `commit_first_edit` writes through.
 
     Called with the session worktree ONLY once the transaction has opened or
     joined the session, so the gate's root, its declared session root, and the
     tree the record lands in are the same directory by construction (FR-015).
-    The records tree is the sole allowance, exactly as `_edit_document` grants
-    it: the narrow session-rewrite allowance is unlocked by the DECLARATION, not
-    by a wider path list."""
+
+    TWO declared allowances, and no third: the records tree, exactly as
+    `_edit_document` grants it, and — since add-doxbench-editing-phase-b (task
+    9.5, `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/tasks.md`) — the THREAD
+    SIDECAR tree.
+
+    THE WIDENING IS AS NARROW AS THE TASK ALLOWS, and this note is the record of
+    why it is this wide and no wider (PR #207 review, F10). The allowance is ONE
+    prefix, the threads module's own declared one, granted to ONE gate — the doxBench
+    first-edit/Save gate — and to no other gate on this surface; a companion test
+    asserts the prefix appears exactly once in this module. It is a PREFIX rather
+    than a per-document path because the gate is constructed once per Save and the
+    sidecar path is derived per document inside that Save
+    (`doxbench_threads.thread_commit_paths`), so a path-exact allowance would have
+    to be recomputed by this factory from state it does not hold. What keeps the
+    prefix from being a hole is that nothing else can write under it: the module
+    exposes exactly one write route (`write_thread`), the path rule refuses an
+    absolute, traversal-shaped or already-a-sidecar document, and the boundary
+    still resolves every write inside the session worktree. A thread commits WITH the document's Save on
+    the one-commit-per-gate-action path (design §4.2), and it is written through
+    this same gate's `write_gate_artifact`, so without the prefix DECLARED here
+    the boundary refuses it as `outside-allowlist`. The narrow session-rewrite
+    allowance is still unlocked by the DECLARATION rather than by a wider path
+    list, and nothing else on this surface widens: only this gate gains the
+    thread prefix."""
     def build(worktree):
-        return HumanGate(worktree, [records_dir], human_actor=actor,
-                         session_root=worktree)
+        return HumanGate(worktree,
+                         [records_dir, doxbench_threads.THREAD_PREFIX],
+                         human_actor=actor, session_root=worktree)
     return build
 
 
@@ -1930,7 +2198,15 @@ def execute_first_edit(*, git, session_registry, repository: str, tile,
         base_hash=base_hash, records_dir=records_dir, at=at, notes=notes,
         inventory=tile_inventory, base=base, notebook=notebook,
         provenance=provenance, summary=summary, continuation=continuation,
-        proposal=proposal)
+        proposal=proposal,
+        # THREADS COMMIT WITH THE DOCUMENT'S SAVE (add-doxbench-editing-phase-b
+        # task 9.2). The RULE is `doxbench_threads`', named here — the one place
+        # doxBench's Save is assembled — and applied by the transaction to the
+        # NORMALISED document path it settles on, because that is the path the
+        # turn's own sidecar was written under. Passing the seam rather than a
+        # computed list is what keeps those two paths the same file; computing
+        # it here would derive it from the caller's spelling instead.
+        thread_paths_for=doxbench_threads.thread_commit_paths)
     return {
         "ok": True,
         "verb": outcome.action,
@@ -2250,9 +2526,12 @@ def execute_open_pr(gate, git, *, session, pull_requests, records_dir: str,
         # and `open_or_update`'s create fallback), and that '' flowed straight into
         # the record's `reference`, which the schema requires NON-EMPTY: a 200 was
         # reported to the human while an FR-029 audit record naming NOTHING landed
-        # in the served corpus, where `validate-docs.sh` then fails on it (PR #49
-        # tail finding B5, reproduced). Refused HERE — before the marker and before
-        # the record — and honestly, because the push already happened.
+        # in the served corpus, where codexFactory's `scripts/validate-docs.sh`
+        # then failed on it (PR #49 tail finding B5, reproduced) — that script ran
+        # these tests when they lived in codexFactory, before the doc-health
+        # relocation (adopt-neutral-tooling-home, ratified 2026-08-03; archived
+        # 2026-08-05). Refused HERE — before the marker and before the record —
+        # and honestly, because the push already happened.
         raise branch_session.SessionRefused(
             f"the branch {session.branch!r} WAS pushed, but the pull-request port's "
             f"`open_or_update` returned NO url for it, so there is nothing for the "
@@ -2527,6 +2806,75 @@ def _open_pr(body: dict, root: Path, actor: str, records_dir: str,
     return 200, result
 
 
+def _share_session(body: dict, root: Path, actor: str, records_dir: str,
+                   snapshot_path, *, session_registry=None,
+                   repository: str | None = None, tile_inventory=None,
+                   pull_requests=None,
+                   provenance=None) -> tuple[int, dict]:
+    """The §12 SHARE verb's route arm — `_open_pr`'s refusal chain with the
+    pull-request half removed, because that is precisely what the verb is.
+
+    It takes NO `title` and NO `body`: those exist on `open-pr` to name a pull
+    request, and a verb that opens none has nothing to name. `notes` stays,
+    because the record carries one."""
+    blank = _refuse_blank_actor("share-session", actor)
+    if blank:
+        return blank
+    scope_kind = _str_or_none(body.get("scope_kind"))
+    scope_id = _str_or_none(body.get("scope_id"))
+    if not scope_kind or not scope_id:
+        return _invalid(
+            "share-session requires the tile scope (scope_kind + scope_id): the "
+            "session whose branch it pushes is resolved from the tile")
+    if scope_kind not in branch_session.SCOPE_KINDS:
+        return _invalid("scope_kind must be one of "
+                        f"{', '.join(branch_session.SCOPE_KINDS)}")
+    if session_registry is None:
+        return _refused(
+            "no session registry is declared on this plane, so no branch session "
+            "can be live here. " + SHARE_SESSION_REMEDY)
+    snapshot = _load_snapshot(snapshot_path)
+    try:
+        if tile_inventory is None:
+            tile_inventory = discover_tile_inventory(root, snapshot)
+        session, git = resolve_session(
+            (scope_kind, scope_id), checkout_root=root,
+            registry=session_registry, repository=repository,
+            records_dir=records_dir, tile_inventory=tile_inventory,
+            verb="share-session", require_live=True,
+            remedy=SHARE_SESSION_REMEDY)
+    except branch_session.SessionRefused as exc:
+        return _refused(exc.report())
+    except session_git_mod.GitError as exc:
+        return _refused(f"the session could not be resolved: {exc}")
+    except OSError as exc:
+        return _refused(f"the session could not be resolved: {exc}")
+    try:
+        result = execute_share_session(
+            share_session_gate_factory(actor, records_dir), git,
+            session=session, pull_requests=pull_requests,
+            records_dir=records_dir, checkout_root=root,
+            notes=_str_or_none(body.get("notes")), provenance=provenance)
+    except BoundaryViolation as exc:
+        return _refused(exc.refusal.report(), status=403)
+    except gate_console.GateRefused as exc:
+        return _refused(str(exc))
+    except branch_session.SessionRefused as exc:
+        return _refused(exc.report())
+    except session_pr.PullRequestRefused as exc:
+        # The port's own reason, VERBATIM, exactly as `open-pr` reports it: a
+        # rejected push, a `gh` auth that is not there. On the main-resident
+        # path nothing was recorded, because that record is written last; on the
+        # branch-resident path the thread commit stands and the NEXT invocation
+        # sees it as unpushed and shares it, which is why this is safe to retry.
+        return _refused(str(exc))
+    except session_git_mod.GitError as exc:
+        return _refused(f"the session could not be shared: {exc}")
+    except OSError as exc:
+        return _refused(f"the share-session record could not be written: {exc}")
+    return 200, result
+
+
 # ==========================================================================
 # ABANDON-SESSION — the ending that saves nothing (T053; FR-021, FR-022)
 #
@@ -2586,7 +2934,8 @@ ABANDON_REMEDY = ("There is nothing to abandon: a session ends ONCE, and its "
                   "registry entry is what makes it live (FR-008). A branch or a "
                   "worktree that survives is not a session — resume it or start a "
                   "new ordinal with the tile's next write (FR-025), and clean the "
-                  "branch up once the topic's proposal exists (FR-028).")
+                  "branch up once durable retention-release evidence exists "
+                  "(FR-028).")
 
 
 def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str,
@@ -2622,6 +2971,11 @@ def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str
             f"{checkout_root}: an abandon record is MAIN-RESIDENT — written into "
             "the SERVED checkout's gate-records tree, never onto the session "
             "branch, which FR-028's cleanup deletes (FR-022, plan Constraint 10)")
+    abandoned_head = git.branch_sha(session.branch)
+    if not abandoned_head:
+        raise branch_session.SessionRefused(
+            f"cannot abandon {session.branch!r}: its exact branch head could not "
+            "be resolved for the durable abandonment record")
     _refuse_record_stamp_collision(
         root, action=gate_console.ACTION_ABANDON_SESSION,
         target_id=gate_console.ref_target_id(session.branch), at=at,
@@ -2638,7 +2992,10 @@ def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str
         # record naming one would name something that does not exist (FR-022).
         # The branch itself is the artifact, referenced as `other` — the schema
         # requires at least one (`artifacts.minItems: 1`).
-        artifacts=[{"kind": gate_console.ART_OTHER, "reference": session.branch}])
+        artifacts=[{
+            "kind": gate_console.ART_OTHER,
+            "reference": f"refs/heads/{session.branch}@{abandoned_head}",
+        }])
     # FIRST — see the ORDER note above. The reason is the one artifact this verb
     # exists to leave behind and the record write is the only irrecoverable step,
     # so it happens while the session is still LIVE and the retry still works.
@@ -2675,8 +3032,9 @@ def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str
             record_path.unlink()
         raise
     hint = ("the session ended and saved nothing; the branch is retained as "
-            "evidence and becomes deletable once the topic's proposal exists "
-            "(`cleanup-abandoned-branch`, FR-028)")
+            "evidence until active/archived proposal custody, executed demotion, "
+            "or a separate explicit human retention release permits "
+            "`cleanup-abandoned-branch` (FR-028)")
     if branch_session.TORN_NOTEBOOK not in torn.torn_down:
         hint += " — no session notebook was retired here (see `notes`)"
     notes = list(torn.notes)
@@ -2809,15 +3167,13 @@ def _abandon_session(body: dict, root: Path, actor: str, records_dir: str,
 # HUMAN-INVOKED, ALWAYS. It is never a consequence of a `propose` dispatch: a
 # dispatch commissions authoring that may never deliver a proposal, and deleting
 # the only surviving evidence of an exploration on the strength of a commission is
-# exactly the failure FR-028 names. The window opens when the topic's PROPOSAL
-# EXISTS — the register's pick edge joined to an ACTIVE change — and not before.
+# exactly the failure FR-028 names. The window opens only when durable active,
+# archived, or executed-demotion custody exists, or when a human separately
+# releases a true orphan with a recorded reason.
 #
-# It writes NO gate-action record, following contracts/gate-routes.md's success
-# shape (`{ok, verb, ref, deleted}`) literally: the durable audit of this branch's
-# life is the MAIN-RESIDENT `abandon-session` record, which names the branch and
-# the reason and outlives it — which is the whole point of that record's residence.
-# The HumanGate is still required, because the authority check is not about whether
-# an artifact is written.
+# It validates and writes a MAIN-RESIDENT cleanup record containing the exact
+# pre-delete head, abandon proof, and release evidence before performing a
+# compare-and-swap local delete. A failed delete unwinds that new record.
 # ==========================================================================
 
 
@@ -2825,45 +3181,188 @@ def execute_cleanup_abandoned_branch(gate, git, *, tile, ref: str, registry,
                                      repository: str | None,
                                      checkout_root: Path | str,
                                      records_dir: str, tile_inventory=None,
-                                     proposal=None) -> dict:
+                                     proposal=None,
+                                     retention_release_reason: str | None = None,
+                                     superseding_references=(),
+                                     provenance=None) -> dict:
     """Delete an ABANDONED session's surviving branch (FR-028). Human-only: an
     `OutputBoundary` / agent path is rejected and REPORTED before the branch is
-    touched. Every precondition is `branch_session.assert_branch_cleanup_permitted`
-    — the state machine's rules live with the state machine — and each one persists
-    nothing."""
-    gate_console.require_human_gate(gate)           # agent path -> BoundaryViolation
+    touched. Preconditions live with the state machine; the successful transaction
+    adds one main-resident audit record and deletes only the local ref."""
+    human = gate_console.require_human_gate(gate)   # agent path -> BoundaryViolation
     branch = str(ref or "").strip()
-    root = Path(checkout_root)
-    state = proposal if proposal is not None else branch_session.proposal_state_for(
-        tile, records_root=root / records_dir, checkout_root=root)
-    # The fifth precondition RETURNS the proof that this session was abandoned, so
-    # the hint below reports what was verified rather than asserting it (PR #49
-    # second-review finding 3: the old hint attested to a record that need not
-    # have existed, over a branch the same call had just deleted).
-    proof = branch_session.assert_branch_cleanup_permitted(
-        git, registry, repository=repository or "", tile=tile, branch=branch,
-        proposal=state, checkout_root=root, inventory=tile_inventory,
-        records_dir=records_dir)
-    # Local only: a session branch that was never pushed has no remote to clean,
-    # and one that WAS pushed carries the pull request the human may still be
-    # reading. Deleting a remote branch is the MERGE path's business (FR-033).
-    git.delete_branch(branch)
-    return {
-        "ok": True,
-        "verb": "cleanup-abandoned-branch",
-        "ref": branch,
-        "deleted": True,
-        "abandon_proof": proof,
-        "hint": f"the abandoned session's branch is gone, and the abandon it ends "
-                f"was VERIFIED before the delete: {proof} (FR-022, FR-028)",
-    }
+    root = Path(checkout_root).resolve()
+    gate_root = Path(human.output.root).resolve()
+    git_root = Path(git.served_root).resolve()
+    if gate_root != root or git_root != root:
+        raise branch_session.SessionRefused(
+            "cleanup requires the human gate, Git service, and checkout_root to "
+            f"name the same repository; got gate={gate_root}, git={git_root}, "
+            f"checkout={root}")
+
+    # The served checkout's git-dir lock serializes record creation, evidence
+    # revalidation, and ref deletion across CLI and HTTP processes.
+    with git.worktree_action_lock(
+            root, action=f"cleanup abandoned branch {branch}"):
+        candidates = branch_session.retention_release_candidates(
+            root, tile, records_dir=records_dir)
+        abandonment = branch_session.abandon_evidence(
+            root, branch, records_dir=records_dir)
+        head = git.branch_sha(branch)
+        machine_retention = None
+        correlation_error = None
+        if candidates and abandonment is not None and head:
+            # EVERY candidate is correlated, not just the first: a tile can carry
+            # several exact-origin records, and one that predates the abandonment
+            # disqualifies only itself (PR #336 review finding 2). The reported
+            # error is the FIRST candidate's, so a refusal still names the
+            # nearest-miss evidence rather than whichever was tried last.
+            for candidate in candidates:
+                failure = branch_session.machine_release_correlation_error(
+                    candidate, abandonment, head)
+                if not failure:
+                    machine_retention = candidate
+                    correlation_error = None
+                    break
+                if correlation_error is None:
+                    correlation_error = failure
+        elif candidates:
+            # Nothing to correlate against — no abandonment proof, or no ref. The
+            # preconditions below refuse on exactly those, and they refuse better
+            # when the evidence they name is the tile's first candidate.
+            machine_retention = candidates[0]
+
+        state = proposal if proposal is not None else branch_session.proposal_state_for(
+            tile, records_root=root / records_dir, checkout_root=root)
+        if machine_retention is None and state.dispatch_in_flight:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: a `propose` commission for tile "
+                f"{tile.scope_id!r} was dispatched and the proposal has not landed "
+                "yet. A dispatch is a commission, not retention-release evidence; "
+                "finish or resolve that authoring before cleanup.")
+
+        retention = machine_retention
+        explicit_reason = str(retention_release_reason or "").strip()
+        if retention is None and explicit_reason:
+            retention = branch_session.explicit_retention_release(
+                tile, explicit_reason, superseding_references)
+        if retention is None and correlation_error:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r} through machine evidence: "
+                f"{correlation_error}. Record a fresh disposition after "
+                "abandonment or provide a new explicit human retention-release "
+                "reason for the current head.")
+
+        proof = branch_session.assert_branch_cleanup_permitted(
+            git, registry, repository=repository or "", tile=tile, branch=branch,
+            retention=retention, checkout_root=root, inventory=tile_inventory,
+            records_dir=records_dir)
+        abandonment = branch_session.abandon_evidence(
+            root, branch, records_dir=records_dir)
+        if abandonment is None:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: abandonment evidence disappeared "
+                "while cleanup was being prepared")
+        head = git.branch_sha(branch)
+        if not head:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: its exact pre-delete head could not "
+                "be resolved")
+        if retention.kind != branch_session.RETENTION_EXPLICIT_HUMAN:
+            correlation_error = branch_session.machine_release_correlation_error(
+                retention, abandonment, head)
+            if correlation_error:
+                raise branch_session.SessionRefused(
+                    f"no cleanup of {branch!r}: {correlation_error}")
+
+        evidence_references = list(retention.references)
+        artifacts = [
+            {"kind": gate_console.ART_OTHER,
+             "reference": f"refs/heads/{branch}@{head}"},
+            {"kind": gate_console.ART_OTHER,
+             "reference": abandonment.reference},
+        ]
+        artifacts.extend(
+            {"kind": gate_console.ART_OTHER, "reference": reference}
+            for reference in evidence_references)
+        at = gate_console._utcnow()
+        target_args = {
+            "topic_id": tile.scope_id if tile.scope_kind == branch_session.STAGED_TOPIC else None,
+            "cluster_id": tile.scope_id if tile.scope_kind == branch_session.CLUSTER else None,
+            "possible_id": tile.scope_id if tile.scope_kind == branch_session.POSSIBLE else None,
+        }
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor,
+            action=gate_console.ACTION_CLEANUP_ABANDONED_BRANCH,
+            at=at, ref=branch, artifacts=artifacts,
+            reason=retention.reason,
+            provenance=provenance,
+            cleanup={
+                "status": "prepared",
+                "pre_delete_head": head,
+                "abandonment": {
+                    "kind": abandonment.kind,
+                    "reference": abandonment.reference,
+                    "summary": abandonment.summary,
+                },
+                "retention_release": retention.as_record(),
+            },
+            **target_args)
+        gate_console.validate_gate_action_record(record)
+        record_path = gate_console.write_gate_action_record(
+            human, records_dir, record, exclusive=True)
+        try:
+            # Local only. Atomic expected-old-value deletion preserves any ref
+            # advanced after the observation above.
+            git.delete_branch(branch, expect_sha=head)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                record_path.unlink()
+            raise
+
+        record["cleanup"]["status"] = "completed"
+        gate_console.validate_gate_action_record(record)
+        try:
+            gate_console.replace_gate_action_record(human, records_dir, record)
+        except BaseException as finalize_error:
+            try:
+                git.restore_branch_if_absent(branch, head)
+            except BaseException as restore_error:
+                raise branch_session.SessionRefused(
+                    f"cleanup deleted {branch!r} at {head}, but could not "
+                    "finalize its record or restore the ref. The surviving "
+                    f"record is PREPARED and requires manual recovery: "
+                    f"finalize={finalize_error}; restore={restore_error}") \
+                    from finalize_error
+            with contextlib.suppress(OSError):
+                record_path.unlink()
+            raise branch_session.SessionRefused(
+                f"cleanup record finalization failed after deleting {branch!r}; "
+                "the exact ref was restored and the prepared record removed, so "
+                f"the operation is safely retryable: {finalize_error}") \
+                from finalize_error
+
+        return {
+            "ok": True,
+            "verb": "cleanup-abandoned-branch",
+            "ref": branch,
+            "deleted": True,
+            "abandon_proof": proof,
+            "pre_delete_head": head,
+            "retention_release": retention.as_record(),
+            "record": str(record_path.relative_to(root)),
+            "hint": f"the abandoned session's branch is gone, and the abandon "
+                    f"it ends was VERIFIED before the delete: {proof}; retention "
+                    f"released by {retention.kind} (FR-022, FR-028)",
+        }
 
 
 def _cleanup_abandoned_branch(body: dict, root: Path, actor: str,
                               records_dir: str, snapshot_path, *,
                               session_registry=None,
                               repository: str | None = None,
-                              tile_inventory=None) -> tuple[int, dict]:
+                              tile_inventory=None,
+                              provenance=None) -> tuple[int, dict]:
     blank = _refuse_blank_actor("cleanup-abandoned-branch", actor)
     if blank:
         return blank
@@ -2880,6 +3379,17 @@ def _cleanup_abandoned_branch(body: dict, root: Path, actor: str,
     if not ref:
         return _invalid("cleanup-abandoned-branch requires the ref (the abandoned "
                         "session branch to delete)")
+    raw_reason = body.get("retention_release_reason", body.get("reason"))
+    if raw_reason is not None and not isinstance(raw_reason, str):
+        return _invalid("retention_release_reason must be the human's durable "
+                        "text for releasing an orphaned branch")
+    release_reason = _str_or_none(raw_reason)
+    raw_references = body.get("superseding_references", [])
+    if not isinstance(raw_references, list) or any(
+            not isinstance(reference, str) or not reference.strip()
+            for reference in raw_references):
+        return _invalid("superseding_references must be a list of nonblank "
+                        "reference strings")
     snapshot = _load_snapshot(snapshot_path)
     gate = HumanGate(root, [records_dir], human_actor=actor)
     try:
@@ -2890,11 +3400,17 @@ def _cleanup_abandoned_branch(body: dict, root: Path, actor: str,
             tile=branch_session.Tile(scope_kind, scope_id), ref=ref,
             registry=session_registry, repository=repository,
             checkout_root=root, records_dir=records_dir,
-            tile_inventory=tile_inventory)
+            tile_inventory=tile_inventory,
+            retention_release_reason=release_reason,
+            superseding_references=tuple(
+                reference.strip() for reference in raw_references),
+            provenance=provenance)
     except BoundaryViolation as exc:
         return _refused(exc.refusal.report(), status=403)
     except branch_session.SessionRefused as exc:
         return _refused(exc.report())
+    except gate_console.GateRefused as exc:
+        return _refused(str(exc))
     except session_git_mod.SessionGitRefused as exc:
         return _refused(str(exc))
     except session_git_mod.GitError as exc:

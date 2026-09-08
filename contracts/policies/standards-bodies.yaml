@@ -49,8 +49,21 @@ bodies:
     # organisation is restricted. Commercial product use requires a SFIA
     # Partner Licence. REMOVED from the opsx overlay on this finding.
     reuse_licence: SFIA Foundation licensing scheme — Partner Licence required for commercial product use
-    redistribution_permitted_in_product_config: 'no'
-    source_url: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+    # OPERATOR OVERRIDE 2026-09-01: Brett selected product-config permission
+    # without written SFIA permission. This is a policy override, not a
+    # steward-granted licence conclusion; the official conflict remains above.
+    redistribution_permitted_in_product_config: 'yes'
+    # The licensing source moved from `source_url` to `licence_page` on
+    # 2026-09-03 (PR #593, Copilot review round 1). It had NOT moved when the
+    # current-publication block below added its own `source_url`: the entry then
+    # carried the key TWICE, and `yaml.safe_load` takes the LAST silently — so
+    # every reader, this file's own validator included, saw the SFIA 9 page and
+    # the licensing evidence D2 exists to preserve was GONE from the parsed
+    # document while still visibly present in the text. `licence_page` is the
+    # field the registry already uses for exactly this (APQC, IAB Tech Lab), and
+    # separating the two URLs is what makes the current-publication source and
+    # the licensing source independently readable rather than positional.
+    licence_page: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
     confidence: high
     jurisdiction: international  # UK-origin (SFIA Foundation)
     name: SFIA (Skills Framework for the Information Age)
@@ -61,6 +74,21 @@ bodies:
       management, USUP incident management, PROG programming, TEST testing).
       Skill-shaped rather than role-shaped, which fits worker classes more
       closely than practice frameworks do. Strong fit for opsx and codex.
+    current_version: SFIA 9
+    status: current
+    verified_on: 2026-09-01
+    source_url: https://sfia-online.org/en/sfia-9
+    operator_override:
+      status: unverified
+      decision: permit_product_configuration
+      approved_by: Brett Heap
+      approved_on: 2026-09-01
+      rationale: >-
+        Operator ruling authorizes descriptive SFIA 9 crosswalks in product
+        configuration despite the steward's restrictive licensing statement.
+      conflicting_source: >-
+        https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+      legal_review: outstanding
 
   # ---------------------------------------------------------------- IT operations
   - id: itil4
@@ -82,6 +110,23 @@ bodies:
       Deployment Management, Release Management, Monitoring and Event
       Management). ITIL 4 names PRACTICES, not roles — a worker class maps
       to the practice it acts within, never to a job title.
+    attribution_note: ITIL is a registered trade mark; reference only.
+  - id: itil5
+    current_version: ITIL Version 5
+    status: current
+    verified_on: 2026-09-01
+    source_url: https://www.peoplecert.org/news-and-announcements/itil-version-5-explained
+    confidence: high
+    jurisdiction: international  # UK-origin (PeopleCert)
+    name: ITIL Version 5
+    steward: PeopleCert
+    names: practices
+    scope: >-
+      Current IT service-management practice vocabulary. ITIL names practices,
+      not worker roles; a crosswalk is descriptive and never confers practice
+      authority or certification.
+    reuse_licence: PeopleCert proprietary — permission for product configuration not established
+    redistribution_permitted_in_product_config: unclear_treat_as_no
     attribution_note: ITIL is a registered trade mark; reference only.
   - id: cobit_2019
     # LICENCE VERDICT 2026-08-09 (live-source): DO NOT ADOPT. ISACA requires an
@@ -128,14 +173,145 @@ bodies:
   # ---------------------------------------------------------------- accounting
   # ---------------------------------------------------------------- marketing
   - id: iab
-    jurisdiction: international  # US-origin
-    name: IAB / IAB Tech Lab specifications and taxonomies
-    steward: Interactive Advertising Bureau
+    # LICENCE VERDICT 2026-08-26 (live-source, APQC method): USABLE in shipped
+    # product configuration under CC BY 3.0 with attribution. This REVERSES the
+    # 2026-08-26 population-round finding of "no licence text", which was a
+    # false negative for an understandable reason: that round read the taxonomy
+    # LANDING PAGES, which genuinely publish none. The grant lives one hop away,
+    # on the artifacts. Two independent primary sources:
+    #   (1) the Content Taxonomy 3.0 Implementation Guide PDF, page 2 — see
+    #       licence_page below. It names the TAXONOMY as the licensed work, not
+    #       a specification document, and it is version-unqualified.
+    #   (2) the Taxonomies repo README "License" section, carrying the same
+    #       CC BY 3.0 grant, corroborated verbatim by an independent mirror
+    #       (ubermedia/IAB-Taxonomies) so the wording is genuine upstream text
+    #       rather than a rendering artefact or a recent edit.
+    # The site ToU's all-caps redistribution ban does NOT govern, because the
+    # ToU itself subordinates: "for any IAB Tech Lab Materials licensed to you
+    # pursuant to a Separate License, such Separate License (and not these Terms
+    # of Use) shall govern your usage of those IAB Tech Lab Materials."
+    # CC BY 3.0 is that Separate License. This is the OPPOSITE of the SFIA and
+    # ITIL outcomes above, where the steward's own terms blocked product use.
+    #
+    # KNOWN DEFECTS in the steward's packaging, recorded so a future reader does
+    # not re-derive them. The repo has NO LICENSE file — GitHub's licence API
+    # 404s on it, so scanners will read the repo as unlicensed and any SCA gate
+    # must be answered by hand. The .tsv data files carry no notice of any kind:
+    # all three were scanned for licen[cs]|copyright|creative commons|© at zero
+    # hits each. And the README's grant SENTENCE is stale OpenRTB boilerplate
+    # ("OpenRTB Specification the IAB Tech Lab is licensed under...") copied from
+    # the openrtb repo and never re-pointed — only its SECOND paragraph was
+    # adapted, to "applicable taxonomies" and the Taxonomy and Mapping Working
+    # Group. So the README states the inbound (contributor -> Tech Lab)
+    # direction cleanly and garbles the outbound one; the PDF in (1) is what
+    # supplies the outbound grant correctly scoped.
+    #
+    # STEWARD CORRECTED on this round. Was "Interactive Advertising Bureau",
+    # which is the TRADE ASSOCIATION and not the publisher. IAB Technology
+    # Laboratory, Inc. is a separate 501(c)(6) — EIN 47-3384874, New York,
+    # established 2015, spun out of IAB as an independent R&D consortium — and
+    # is the copyright holder in every notice on these artifacts and the CC BY
+    # licensor. The ambiguity that produced the error is real: Audience Taxonomy
+    # material appears under both iabtechlab.com/standards/ and the trade
+    # association's iab.com/guidelines/. The `iab` id is KEPT rather than split,
+    # because the AdxFactory overlay resolves against it; only `steward`,
+    # `name` and `scope` move.
+    #
+    # OPEN FOLLOW-UP, deliberately not this entry's act: asking IAB Tech Lab in
+    # a public issue to fix the OpenRTB sentence and add a LICENSE file would
+    # convert the converging inference below into an on-the-record answer at no
+    # cost. It is an outward-facing approach and is held rather than done here.
+    jurisdiction: international  # US-origin (New York)
+    name: IAB Tech Lab Content, Audience, and Ad Product Taxonomies
+    steward: IAB Technology Laboratory, Inc. (IAB Tech Lab)
     names: adtech_specifications_and_taxonomies
     scope: >-
-      Content Taxonomy, Audience Taxonomy, OpenRTB. Names ad-tech plumbing
-      rather than roles — expect it to fit the media/audience classes and
-      not the creative or compliance ones.
+      Content Taxonomy (topical "aboutness" plus orthogonal vectors for
+      environment, purpose, source, form factor and brand suitability),
+      Audience Taxonomy (demographic, interest and purchase-intent segment
+      nomenclature), and Ad Product Taxonomy (the product or service being
+      advertised). These name ad-tech plumbing and content/audience CATEGORIES,
+      not roles and not authority — expect fit with the media and audience
+      worker classes and not the creative or compliance ones, and never read a
+      taxonomy node as an agent power.
+      OPENRTB IS OUTSIDE THIS ENTRY'S INVESTIGATED SCOPE, and is named here
+      rather than dropped because the AdxFactory overlay cites it under this id
+      for `media_planner`. It is the same steward's real-time bidding PROTOCOL,
+      not a taxonomy, and the 2026-08-26 licence round covered the three
+      taxonomies above. It is not LESS covered — the README's stale sentence
+      grants CC BY 3.0 to the "OpenRTB Specification" by name, which is the one
+      thing that sentence does say cleanly — but it was not separately verified
+      on this round, and a citation to it inherits that limit.
+    current_version: >-
+      Content Taxonomy 3.1, GitHub release Taxos-202412 published 2024-12-09
+      (standards page states December 2024 — agrees); Audience Taxonomy 1.1,
+      2020 (standards page says October 2020, the steward's own XLSX upload path
+      says 2020/07 — CONTESTED, unresolved); Ad Product Taxonomy 2.0, GitHub
+      release AP2-202310 published 2023-10-18 (standards page says November 2024
+      — CONTESTED, unresolved). Verified 2026-08-26. The artifact dates (GitHub
+      release tags) are recorded as primary and the standards-page claims are
+      recorded beside them; NEITHER contested date is resolved in either
+      direction, and both must be re-verified on any overlay change. This is the
+      APQC discipline applied — a body reference outliving its numbering is the
+      failure mode these fields exist to catch.
+    status: current
+    source_url: https://github.com/InteractiveAdvertisingBureau/Taxonomies
+    term_list_availability: public  # Full TSVs in a public repo, no gate and no lead form.
+    licence_page: >-
+      Not a page on iabtechlab.com — like APQC's, the correctly-scoped grant is
+      printed INSIDE the artifact: page 2 of the Content Taxonomy 3.0
+      Implementation Guide PDF, under the heading "License", at
+      https://iabtechlab.com/wp-content/uploads/2021/09/Implementation-Guide-Content-Taxonomy-3-0-pc-Sept2021.pdf
+      (22pp; page 2 is the "About IAB Tech Lab" front matter, whose footer reads
+      "© 2021 IAB Technology Laboratory"). Text-extracted with pypdf from the
+      actual file bytes rather than trusted to a summarizer. CAVEAT HELD OPEN
+      rather than resolved: that document is cover-stamped "Released for Public
+      Comment September 2021", so the best-scoped evidence sits on a
+      draft-stage artifact. It is the steward's own publication and it agrees
+      with the README and the ToU, but no FINAL-stamped taxonomy PDF carrying
+      the same block was located. The blanket grant is at
+      https://raw.githubusercontent.com/InteractiveAdvertisingBureau/Taxonomies/main/README.md
+      and the ToU deferral at https://iabtechlab.com/terms-of-use/. Cited as
+      SILENT so neither is later read as supporting or contradicting: the Brand
+      Suitability CT 2.2 Implementation Guide and the February 2022
+      Seller-Defined Audience standards PDF carry © notices and no CC grant.
+    reuse_licence: >-
+      CC BY 3.0. The grant verbatim, from page 2 of the Content Taxonomy 3.0
+      Implementation Guide: "Content Taxonomy by the IAB Tech Lab's Taxonomy
+      Working Group is licensed under a Creative Commons Attribution 3.0
+      License.   To view a copy of this license, visit
+      creativecommons.org/licenses/by/3.0/ or write to Creative Commons, 171
+      Second Street, Suite 300, San Francisco, CA 94105, USA." Legal code:
+      https://creativecommons.org/licenses/by/3.0/legalcode
+    redistribution_permitted_in_product_config: yes_with_conditions  # Two conditions, both CC BY 3.0's: §4(b) attribution and §4(a) the licence URI travelling with the distribution. See attribution_required.
+    attribution_required: >-
+      Credit IAB Tech Lab's Taxonomy Working Group as the Original Author, name
+      the work and its version (e.g. "Content Taxonomy 3.1"), carry the licence
+      URI https://creativecommons.org/licenses/by/3.0/, and — CC BY 3.0
+      §4(b)(iv), the credit identifying the use — identify the crosswalk as OUR
+      mapping rather than an IAB Tech Lab endorsed one. §4(a) additionally
+      requires the licence copy or URI travel with every distribution and
+      FORBIDS imposing terms that restrict a recipient's exercise of the
+      licensed rights. A domain overlay embedding taxonomy names or ids is a
+      distribution and must carry all of it. There is no share-alike and no
+      non-commercial bar in CC BY 3.0; attribution is the whole obligation.
+    attribution_note: >-
+      NOTHING TRAVELS WITH THE DATA — there is no LICENSE file and the .tsv
+      files carry no notice — so the attribution above cannot be inherited from
+      the source and must be AUTHORED into each consuming overlay. EVIDENCE IS
+      NOT EVEN across the three taxonomies: the Content Taxonomy grant is the
+      best-evidenced, because it is the work the PDF names; Audience Taxonomy
+      and Ad Product Taxonomy rest on the README's blanket "applicable
+      taxonomies" wording plus the ToU deferral, which is sound but one notch
+      weaker, and a crosswalk to either should say so. IAB Tech Lab's IPR Policy
+      (v2.15.25, January 2025) is gated behind an acknowledgment form and was
+      NOT read; it is scoped to Submissions by IAB Tech Lab MEMBERS, so it does
+      not reach us as a downstream consumer — assessed non-blocking, not
+      assessed absent. The steward's own XLSX download for Audience Taxonomy 1.1
+      (/wp-content/uploads/2020/07/IABTL-Audience-Taxonomy-1.1-Final.xlsx) now
+      returns HTTP 404 while the standards page still links it, so cite the
+      GitHub raw path and not the site download.
+    confidence: high  # The grant, the steward entity and the ToU deferral are each verified on primary sources. The weak points are named rather than averaged away: the best-scoped grant sits on a "Released for Public Comment" PDF, Audience and Ad Product coverage rests on blanket wording, and two of three version dates are CONTESTED between the steward's own surfaces — see current_version, which resolves neither.
   - id: ama_marketing
     jurisdiction: united_states
     name: American Marketing Association definitions
@@ -510,6 +686,13 @@ bodies:
   # that is obtained — registering the BODY here is fine; shipping its
   # hierarchy is not. O*NET is the CC BY 4.0 alternative and is therefore the
   # recommended primary US role/task vocabulary.
+  # ^ SUPERSEDED 2026-08-26 AS TO APQC ONLY. That bar quoted apqc.org's site
+  # Terms of Service rather than the licence APQC prints inside the PCF
+  # itself, which grants the reuse outright — see the corrected verdict on the
+  # apqc_pcf entry below, and task 3b.5k of add-omnigent-domain-terminology.
+  # The first sentence's principle stands unchanged, and so does O*NET's
+  # standing: naming a ROLE and naming a PROCESS are different claims, so the
+  # two bodies are complements, not substitutes.
   #
   # AUTHORITY CONTEXT, NOT ROLE LABELS: CPA licensure (nasba_aicpa_uaa),
   # PCAOB standards, and IRS Circular 230 describe humans holding legal
@@ -519,6 +702,26 @@ bodies:
   # REJECTED, recorded so it is not re-proposed: SOX section 404 — a binding
   # legal obligation, but not a taxonomy. Cite the SEC obligation and use
   # COSO/PCAOB vocabulary instead.
+  # LICENCE VERDICT CORRECTED 2026-08-26: USABLE in shipped product
+  # configuration, with the attribution paragraph carried verbatim. The
+  # 2026-08-09 bar was read off the wrong document — apqc.org's site Terms of
+  # Service, which govern that portal's Online Resources — and APQC was never
+  # run through the product-configuration reuse test that eliminated the other
+  # eight commercially stewarded bodies. The licence that governs the PCF is
+  # printed inside the PCF itself, on page 2 of the PDF under the heading
+  # COPYRIGHT AND ATTRIBUTION, and grants exactly what a shipped overlay does.
+  # Brett read PCF 8.0's page 2 in a browser on 2026-08-26 and confirmed the
+  # grant and its attribution paragraph are present; the identical paragraph
+  # was text-extracted from the primary 7.4, 7.3.1 and 7.3.0 PDFs.
+  # SCOPE LIMIT, recorded rather than assumed: the grant is over "the PCF" —
+  # the document holding element names, hierarchy numbers and five-digit
+  # element IDs. Process DEFINITIONS ship in separate "Process Definitions and
+  # Key Measures" documents whose front matter has not been read, so this
+  # verdict does not reach definition text.
+  # The superseded verdict is NOT rewritten: task 3b.5b and the ledgerx report
+  # `usa-accounting-bodies-research-report.md` are record-class evidence with
+  # a 2026-08-09 cutoff and stand as written. The correction is task 3b.5k of
+  # add-omnigent-domain-terminology.
   - id: apqc_pcf
     name: APQC Process Classification Framework (Cross-Industry)
     steward: APQC
@@ -532,18 +735,50 @@ bodies:
       controller_reviewer, and compliance_reviewer. Process names describe
       organizational work, not artifact-only authority; approval, payment,
       posting, and filing nodes must not be applied as agent powers.
-    current_version: Cross-Industry PCF 8.0, published 2026-02-27
+    crosswalk_scopes:
+      - 8.0 Manage Information Technology (IT)
+      - 9.0 Manage Financial Resources
+    current_version: Cross-Industry PCF 8.0, published 2026-02-27 (licence page verified 2026-08-26)
     status: current
+    verified_on: 2026-09-01
     source_url: https://www.apqc.org/resource-library/resource-listing/apqc-process-classification-framework-pcf-cross-industry-pdf-13
     term_list_availability: public  # Download is lead-form gated; public measure pages expose definitions.
+    licence_page: >-
+      Not a page on apqc.org: the grant is printed inside the artifact, on
+      page 2 of the cross-industry PCF PDF under the heading COPYRIGHT AND
+      ATTRIBUTION. For the pinned 8.0 the record is Brett's browser reading of
+      that page on 2026-08-26, because apqc.org answers HTTP 403 to every
+      automated fetch and no 8.0 mirror is public. The automation-verifiable
+      copies of the same paragraph are the primary 7.4 PDFs at
+      https://solutions.ifrc.org/sites/default/files/2024-10/K014750_APQC%20Process%20Classification%20Framework%20(PCF)%20-%20Cross%20Industry%20-%20PDF%20Version%207.4.pdf
+      and
+      https://www.business-analysis.com.au/wp-content/uploads/2025/04/K014750_APQC-Process-Classification-Framework-PCF-Cross-Industry-PDF-Version-7.4_January-2025.pdf
+      plus 7.3.1 at https://juraguvi.com/data/files/pcf_crossindustry_v7.3.1_september_2023.pdf
+      and 7.3.0 at https://www.ospco.net/wp-content/uploads/2022/07/APQC_7_3_ver_1653811220.pdf
+      — three independently hosted versions carrying it identically, which is
+      why it reads as APQC's standard licence page and not a one-version quirk.
+    reuse_licence: >-
+      APQC's own in-document grant, NOT a Creative Commons licence: "APQC
+      hereby grants you a perpetual, worldwide, royalty-free license to use,
+      copy, publish, modify, and create derivative works of the PCF", provided
+      all copies and derivative works carry the attribution paragraph.
+    redistribution_permitted_in_product_config: yes_with_conditions  # The condition is the attribution paragraph, verbatim, in every copy and derivative work.
+    attribution_required: >-
+      Reproduce the attribution_note paragraph below VERBATIM and unaltered,
+      with its ® marks intact, in every copy of the PCF and in every
+      derivative work — a domain overlay embedding PCF element names or
+      numbers is a derivative work and must carry it. Process Classification
+      Framework® and PCF® are registered marks of APQC; a crosswalk
+      references the term and never adopts it as a class identity.
     attribution_note: >-
-      PCF and PCF element content are APQC intellectual property and PCF is a
-      registered mark. APQC's current Terms of Service limit use to internal
-      process improvement and prohibit public reproduction/distribution unless
-      an applicable membership or license permits it. Do not ship a copied term
-      hierarchy in product configuration until APQC confirms the required
-      license and attribution in writing.
-    confidence: high  # Version, release date, hierarchy, and current terms were verified on APQC pages.
+      APQC's Process Classification Framework® (PCF) is an open standard
+      developed by APQC, a nonprofit that promotes benchmarking and best
+      practices worldwide. The PCF is intended to facilitate organizational
+      improvement through process management and benchmarking, regardless of
+      industry, size, or geography. To download the full PCF or
+      industry-specific versions of the PCF, as well as associated measures
+      and benchmarking, please visit www.apqc.org/pcf.
+    confidence: high  # Version and release date from APQC's own listing; the grant read on the PCF PDF's page 2 — 8.0 by Brett in a browser 2026-08-26, 7.3.0-7.4 by text extraction from primary PDFs.
 
   - id: coso_icif
     name: COSO Internal Control—Integrated Framework
@@ -805,16 +1040,40 @@ bodies:
       vocabulary for the Ledgerx workers. The source describes whole human jobs;
       crosswalk individual task statements, not licenses or authority, to the
       narrower artifact-only agents.
-    current_version: O*NET Database 30.3, May 2026
+    # FLAG DISCHARGED 2026-08-26, and the flag's own condition is what let it
+    # be. It read: "FLAGGED, NOT CORRECTED — the opsx/codex re-verification
+    # found O*NET 31.0 (August 2026) is the current production database, so
+    # this pin is one release behind. It is left as-is deliberately: this
+    # entry is LedgerxFactory's, its overlay's CC BY attribution names 'the
+    # O*NET 30.3 Database' by version, and the pin and that attribution must
+    # move together in one act by that domain." That domain has now moved its
+    # half: LedgerxFactory `ded4a0128f9e` on branch
+    # `change/apqc-terminology-and-onet-pin` rewrites the overlay's CC BY
+    # block to O*NET's version-stamped 31.0 wording, so the pin moves here in
+    # the same authoring act rather than drifting apart from it. Codes and
+    # titles are unchanged across 30.3 -> 31.0 — re-read against the body's
+    # own current publication — so no shipped mapping is affected; what moves
+    # is the version a reader would check against.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetcenter.org/database.html
     term_list_availability: public
+    # The version-stamped attribution is why this entry could not be corrected
+    # on its own: onetcenter.org's required credit wording names the release
+    # ("This page includes information from the O*NET 31.0 Database..."), so a
+    # pin bump without the overlay's wording would have made the shipped
+    # credit false rather than merely stale.
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET 31.0 Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not approved, endorsed, or tested these modifications (the overlay's
+      version-stamped wording, quoted exactly).
     attribution_note: >-
-      O*NET 30.3 database content is CC BY 4.0 except stated exceptions. Credit
-      the O*NET 30.3 Database and USDOL/ETA, link CC BY 4.0, identify changes,
-      retain O*NET trademark usage, and state that USDOL/ETA has not endorsed
-      modifications.
-    confidence: high  # Version, data shape, relevant occupations, and license were verified.
+      O*NET 31.0 database content is CC BY 4.0 except stated exceptions. O*NET
+      is a trademark of USDOL/ETA and must be used as an adjective.
+    confidence: high  # Version, data shape, relevant occupations, and license were verified; version and licence wording re-read on onetcenter.org 2026-08-26.
 
   - id: aicpa_trust_services_criteria
     name: 2017 Trust Services Criteria (with Revised Points of Focus—2022)
@@ -856,7 +1115,16 @@ bodies:
       opsx workers cannot execute, so every crosswalk records the authority
       gap. Mappings are at occupation level; task-level verification is
       outstanding.
-    current_version: O*NET Database 30.3
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the opsx
+    # population). Was `O*NET Database 30.3`, which was current at the
+    # 2026-08-09 run and has since been superseded — O*NET ships quarterly.
+    # Every occupation code and title listed in `scope` was re-read against
+    # the source_url below and is UNCHANGED across the release, so the opsx
+    # crosswalk is unaffected; the pin moves so the entry does not read as
+    # verified against a version that is no longer current. This is the APQC
+    # failure mode (a body reference outliving its numbering) caught by the
+    # rule that entry put here.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetonline.org/find/family?f=15
     term_list_availability: public
@@ -885,7 +1153,13 @@ bodies:
       15-1254.00, 15-1243.00, 15-1211.00, 27-3042.00. Describes whole HUMAN
       jobs that include releasing and deploying; codex workers cannot merge
       or release, so every crosswalk records the authority gap.
-    current_version: O*NET Database 30.3
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the codex
+    # population), on the same finding as the opsx entry above: 30.3 was
+    # current at the 2026-08-09 run, O*NET ships quarterly, and every code
+    # and title listed in `scope` was re-read and is UNCHANGED across the
+    # release. 27-3042.00 was re-read on its own summary page; the other six
+    # on the family listing at source_url.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetonline.org/find/family?f=15
     term_list_availability: public
@@ -903,6 +1177,62 @@ bodies:
   # copyright, but share-alike means reproducing definitional text could
   # oblige our own configuration to be CC BY-SA. Asymmetric risk for a label
   # we can write ourselves, so no entry is registered.
+
+  # -------------------------------------- Marketing (registered 2026-08-26)
+  # Registered ahead of the adx population (3.3), because AdxFactory has no
+  # role-level body at all today: three of its ten worker classes carry an IAB
+  # crosswalk and the other seven carry display labels only. The adx marketing
+  # brief (`supporting-docs/marketing-bodies-research-prompt.md` in
+  # AdxFactory) is written but has never been run; registering the body does
+  # not pre-empt that run, it gives the run something registered to map to.
+  # STRUCTURAL DIFFERENCE FROM THE OPSX AND CODEX ENTRIES, and the reason
+  # `source_url` here is the database page rather than a family listing:
+  # marketing work does not concentrate in one SOC family the way computing
+  # work does in 15-0000. It spans 11-0000 (management), 13-0000 (business and
+  # financial operations), 15-0000 (computer and mathematical) and 27-0000
+  # (arts, design, entertainment, sports and media). A single
+  # onetonline.org/find/family?f=NN URL would quietly claim one family covers
+  # the domain, so the four family listings are named here instead:
+  #   https://www.onetonline.org/find/family?f=11
+  #   https://www.onetonline.org/find/family?f=13
+  #   https://www.onetonline.org/find/family?f=15
+  #   https://www.onetonline.org/find/family?f=27
+  # Licence text: https://www.onetcenter.org/license_db.html
+  - id: onet_marketing_occupations
+    name: O*NET Database — marketing, advertising and media occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    jurisdiction: united_states
+    names: "other:occupations_tasks_and_work_activities"
+    scope: >-
+      Occupation titles, tasks and work activities for marketing management,
+      market and search-marketing analysis, audience and data analysis,
+      creative direction, and marketing-adjacent regulatory compliance —
+      spanning SOC families 11-0000, 13-0000, 15-0000 and 27-0000 rather than
+      any one of them. Codes read on O*NET OnLine 2026-08-26: 11-2021.00
+      Marketing Managers; 13-1161.01 Search Marketing Strategists; 13-1041.00
+      Compliance Officers with 13-1041.07 Regulatory Affairs Specialists;
+      15-2051.00 Data Scientists with 15-2051.01 Business Intelligence
+      Analysts; and 27-1011.00 Art Directors, which carries "Creative
+      Director" as a reported job title verbatim. KNOWN GAPS, recorded so the
+      adx population does not force a mapping over them: O*NET has no title
+      match for "media planner" or "media buyer", and lifecycle or retention
+      marketing matches only partially. Describes whole HUMAN jobs that
+      include buying media, approving creative and signing off compliance;
+      adx workers can do none of those, so every crosswalk records the
+      authority gap. Mappings are at occupation level; task-level
+      verification is outstanding here as it is for opsx and codex.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetcenter.org/database.html
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high  # Version and licence read on the body's own pages 2026-08-26, the six occupation codes on O*NET OnLine the same day. Which adx worker maps to which code is 3.3's act and is not asserted here.
 
   # ASSESSED AND REJECTED for the medical domain (recorded so they are not
   # re-proposed), from the medx live-source verification 2026-08-09:

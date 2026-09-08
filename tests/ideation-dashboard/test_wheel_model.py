@@ -15,10 +15,22 @@ add-possibles-derivation-lane delta fixes:
   synthesized honesty-rule demo placeholders, only while the register is
               empty, dash-brass and never confusable with indexed data
 
-Plus the pure elastic-alignment math the spec locks: group centroid, +0.45
-nudge when a tile would land dead-centre, a single linked tile parked 0.8
-step off-centre, and the many-linked reorder permutation (Brett 2026-07-24)
-that seats linked tiles in consecutive slots instead of stacking them.
+Plus the pure AUTOMATIC-ALIGNMENT math — the three connecting-string rules
+(Brett 2026-08-21), which supersede the locked prototype's `balancedTarget`
+and the 2026-07-23 span-midpoint delta:
+
+  rule 1  a wheel showing NO connecting string centres its FILLED tiles in the
+          band (`filledGroupCentre`), instead of keeping whatever position it
+          held — which at load was slot 0, half the band blank filler
+  rule 2  exactly ONE connected tile rests NEAR the line but not ON it, at the
+          named `ALIGN.near` offset (0.8 slot, the prototype's own park value)
+  rule 3  with SEVERAL connected tiles one of them sits ON the line — the
+          minimal rotation from the wheel's current position (`centredChoice`),
+          lowest index breaking a tie; the +0.45 dead-centre nudge that used to
+          forbid exactly this is gone
+
+— and the many-linked reorder permutation (Brett 2026-07-24) that seats linked
+tiles in consecutive slots instead of stacking them.
 
 The EXPANDED-TILE extension (Brett 2026-07-25) is unit-tested here too: the
 `nextExpanded` gesture reducer (a second click on the focused centre tile
@@ -65,10 +77,11 @@ from ideation_dashboard.generator import generate_snapshot
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 WHEEL_MODEL_JS = WEB / "views" / "wheel-model.js"
+WHEEL_JS = WEB / "views" / "wheel.js"
 NODE = shutil.which("node")
 
 _NODE_HARNESS = """
-import { buildWheelModel, connectionsOf, alignTarget, SPRING, REEL,
+import { buildWheelModel, connectionsOf, SPRING, REEL,
   tileOffset, tileScale, tileOpacity, linkedDrawDistance,
   WHEEL_KEYS } from './wheel-model.mjs';
 import { readFileSync } from 'node:fs';
@@ -91,14 +104,6 @@ for (const w of m.wheels) {
 }
 console.log(JSON.stringify({
   keys: WHEEL_KEYS, wheels, edges, demoMode: m.demoMode, focusConns,
-  align: {
-    single: alignTarget([4]),
-    singleEdge: alignTarget([0]),
-    pair: alignTarget([2, 4]),
-    deadCentre: alignTarget([3, 4, 5]),
-    spread: alignTarget([0, 1, 9]),
-    none: alignTarget([]),
-  },
   park: {
     inWindow: linkedDrawDistance(1.5),
     far: linkedDrawDistance(9),
@@ -794,22 +799,195 @@ def test_gather_output_is_sorted_deduped_and_deterministic(tmp_path):
                 assert len(idxs) == len(set(idxs)), (cid, key, field)
 
 
-# ---- the locked elastic-alignment math -----------------------------------------
+# ---- the three AUTOMATIC-ALIGNMENT rules (Brett 2026-08-21) ---------------------
+#
+# `alignTarget(linkedIndices, {position, itemCount})` decides where a wheel comes
+# to rest when something ELSE is focused, keyed on how many of its own tiles the
+# focused context is threading to (`gatherOf(...).align`, mapped into slot
+# space). A human's own click still centres any tile dead on the line; that is
+# wheel.js's `setFocus` and these rules never see it.
+#
+#   rule 1  NO connecting string     -> `filledGroupCentre(itemCount)`: the real
+#                                       tiles centre in the band, position-
+#                                       independent, no tile favoured
+#   rule 2  exactly ONE string       -> that tile parks `ALIGN.near` (0.8 slot)
+#                                       off the line — below it, or above when it
+#                                       sits too near the top edge
+#   rule 3  SEVERAL strings          -> `centredChoice(indices, position)`: one
+#                                       connected tile lands exactly ON the line,
+#                                       the one needing the smallest rotation,
+#                                       lowest index breaking a tie
+#
+# Each case is (id, linkedIndices, position, itemCount).
 
-def test_alignment_targets_match_the_locked_prototype(tmp_path):
-    r = _run_wheel_model(_hand_snapshot([]), tmp_path)
-    align = r["align"]
-    assert align["single"] == pytest.approx(4 - 0.8)    # single parks 0.8 below
-    assert align["singleEdge"] == pytest.approx(0.8)    # ...or above at the edge
-    assert align["pair"] == pytest.approx(3.0)           # balanced centroid
-    # a tile within .35 of the centroid nudges the wheel 0.45 AWAY from it
-    # (the prototype's balancedTarget, ported verbatim)
-    assert align["deadCentre"] == pytest.approx(3.55)
-    assert align["spread"] == pytest.approx(4.5)         # span midpoint, not centroid
-    assert align["none"] is None                         # no pull
+_ALIGN_HARNESS = """
+import { alignTarget, filledGroupCentre, centredChoice, ALIGN }
+  from './wheel-model.mjs';
+import { readFileSync } from 'node:fs';
+const cases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+console.log(JSON.stringify({
+  near: ALIGN.near,
+  results: cases.map(([, linked, position, itemCount]) => ({
+    target: alignTarget(linked, { position, itemCount }),
+    centre: filledGroupCentre(itemCount),
+    choice: centredChoice(linked, position),
+  })),
+}));
+"""
+
+
+def _run_align(cases, tmp_path):
+    """Run every (id, linkedIndices, position, itemCount) case through the
+    ACTUAL alignTarget, returning (ALIGN.near, {case id: result})."""
+    if NODE is None:
+        pytest.skip("node not available for the JS derivation probe")
+    shutil.copy(WHEEL_MODEL_JS, tmp_path / "wheel-model.mjs")
+    (tmp_path / "align.mjs").write_text(_ALIGN_HARNESS, encoding="utf-8")
+    cases_path = tmp_path / "align-cases.json"
+    cases_path.write_text(json.dumps([list(c) for c in cases]), encoding="utf-8")
+    proc = subprocess.run(
+        [NODE, str(tmp_path / "align.mjs"), str(cases_path)],
+        capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, f"node harness failed:\n{proc.stderr}"
+    out = json.loads(proc.stdout)
+    return out["near"], dict(zip([c[0] for c in cases], out["results"]))
+
+
+ALIGN_CASES = [
+    # rule 1 — no connecting string: the filled group centres, wherever the
+    # wheel happens to be and whatever its parity
+    ("none-odd", [], 0, 7),
+    ("none-even", [], 0, 8),
+    ("none-single-tile", [], 0, 1),
+    ("none-empty-wheel", [], 0, 0),
+    ("none-from-the-bottom", [], 6, 7),
+    # rule 2 — one string: near the line, never on it
+    ("one-mid", [4], 0, 10),
+    ("one-top-edge", [0], 0, 10),
+    ("one-bottom-edge", [9], 0, 10),
+    ("one-on-a-single-tile-wheel", [0], 0, 1),
+    # rule 3 — several strings: one connected tile takes the line
+    ("many-nearest-below", [2, 4, 8], 7.0, 10),
+    ("many-nearest-above", [2, 4, 8], 2.1, 10),
+    ("many-exact-tie", [2, 6], 4.0, 10),
+    # the three cases the SUPERSEDED prototype math answered differently
+    ("was-balanced-pair", [2, 4], 0, 10),
+    ("was-dead-centre-nudge", [3, 4, 5], 0, 10),
+    ("was-span-midpoint", [0, 1, 9], 0, 10),
+]
+
+
+def test_rule1_a_wheel_with_no_string_centres_its_filled_tiles(tmp_path):
+    """No thread reaches this wheel, so nothing is aligned ON: the real tiles —
+    slots 0..count-1, everything outside them blank filler — centre in the band,
+    biased toward no tile. Position-independent by construction."""
+    _, r = _run_align(ALIGN_CASES, tmp_path)
+    assert r["none-odd"]["target"] == pytest.approx(3.0)    # 7 tiles: 0..6
+    assert r["none-even"]["target"] == pytest.approx(3.5)   # 8 tiles: between 3/4
+    assert r["none-single-tile"]["target"] == pytest.approx(0.0)
+    # the same answer from anywhere on the drum — a wheel that was spun to the
+    # bottom still returns to the centred group
+    assert r["none-from-the-bottom"]["target"] == r["none-odd"]["target"]
+    # ...and each equals `filledGroupCentre`, the rule's own named helper
+    for cid in ("none-odd", "none-even", "none-single-tile", "none-from-the-bottom"):
+        assert r[cid]["target"] == pytest.approx(r[cid]["centre"]), cid
+    # an EMPTY wheel has nothing to centre: null, and the deck keeps its position
+    assert r["none-empty-wheel"]["target"] is None
+    assert r["none-empty-wheel"]["centre"] is None
+
+
+def test_rule2_a_single_string_rests_near_the_line_not_on_it(tmp_path):
+    """One connected tile parks at the NAMED `ALIGN.near` offset — near the
+    centreline, deliberately off it, because a tile exactly on the line
+    collapses its thread into a flat connector."""
+    near, r = _run_align(ALIGN_CASES, tmp_path)
+    assert near == pytest.approx(0.8)   # the locked prototype's own park value
+    assert r["one-mid"]["target"] == pytest.approx(4 - near)      # below the line
+    assert r["one-top-edge"]["target"] == pytest.approx(near)     # ...above at the top
+    assert r["one-bottom-edge"]["target"] == pytest.approx(9 - near)
+    # NEAR, NOT ON: the connected tile never lands on the line, not even when it
+    # is the wheel's only tile (the band clamp widens by `near` for exactly this)
+    for cid, i in (("one-mid", 4), ("one-top-edge", 0), ("one-bottom-edge", 9),
+                   ("one-on-a-single-tile-wheel", 0)):
+        assert r[cid]["target"] != pytest.approx(i), cid
+        assert abs(r[cid]["target"] - i) == pytest.approx(near), cid
+
+
+def test_rule3_several_strings_put_one_connected_tile_on_the_line(tmp_path):
+    """With several connected tiles the wheel MAY seat one dead-centre, and
+    does: exactly one connected tile, chosen by MINIMAL ROTATION from the
+    wheel's current position, with the lowest index breaking a tie."""
+    _, r = _run_align(ALIGN_CASES, tmp_path)
+    # the target IS an index in the linked set — a tile on the line, not between
+    assert r["many-nearest-below"]["target"] == pytest.approx(8)   # from 7.0
+    assert r["many-nearest-above"]["target"] == pytest.approx(2)   # from 2.1
+    # equidistant (|2-4| == |6-4|) -> the lower index, deterministically
+    assert r["many-exact-tie"]["target"] == pytest.approx(2)
+    # `centredChoice` is the named decision and the target is exactly it
+    for cid in ("many-nearest-below", "many-nearest-above", "many-exact-tie"):
+        assert r[cid]["target"] == pytest.approx(r[cid]["choice"]), cid
+
+
+def test_the_superseded_prototype_alignment_math_is_gone(tmp_path):
+    """The three cases that pinned `balancedTarget`: a group no longer rests on
+    its span midpoint, and the +0.45 dead-centre nudge — whose entire purpose
+    was to keep a tile OFF the line — is removed rather than scoped, because
+    rule 3 is its inverse."""
+    _, r = _run_align(ALIGN_CASES, tmp_path)
+    assert r["was-balanced-pair"]["target"] == pytest.approx(2)      # was 3.0
+    assert r["was-dead-centre-nudge"]["target"] == pytest.approx(3)  # was 3.55
+    assert r["was-span-midpoint"]["target"] == pytest.approx(0)      # was 4.5
+    # every one of them now seats a CONNECTED tile on the line
+    for cid, linked in (("was-balanced-pair", [2, 4]),
+                        ("was-dead-centre-nudge", [3, 4, 5]),
+                        ("was-span-midpoint", [0, 1, 9])):
+        assert r[cid]["target"] in [pytest.approx(i) for i in linked], cid
+
+
+def test_the_deck_routes_every_automatic_alignment_through_the_rules():
+    """wheel.js's half: the three rules are decided in ONE place, and the things
+    the ruling explicitly preserves are still preserved.
+
+    A second alignment path is how the rules drift apart, so `alignFor` — the
+    only mapping from item space into slot space — must be the only caller of
+    the pure `alignTarget`, and every automatic resting position (the live pull,
+    the post-reorder re-seat, the pre-focus rest) must come through it."""
+    src = WHEEL_JS.read_text(encoding="utf-8")
+    assert src.count("alignTarget(") == 1, \
+        "alignTarget must have exactly ONE call site in the deck: alignFor"
+    align_for = src.split("function alignFor(", 1)[1].split("\n  }", 1)[0]
+    assert "alignTarget(alignIdxs.map((i) => slotOf(w.key, i))" in align_for
+    assert "position: from, itemCount: w.items.length" in align_for
+
+    # the LIVE pull: an empty align set is rule 1, not a skipped wheel, so the
+    # old clamp-to-item-range (which fought rule 2's off-line park) is gone too
+    retarget = src.split("function retarget(", 1)[1].split("\n  }", 1)[0]
+    assert "alignFor(w, gather[w.key]?.align || [], pos[w.key])" in retarget
+    assert "clamp(t," not in retarget, \
+        "alignTarget owns the band clamp; a second one re-centres rule 2's park"
+
+    # the post-reorder re-seat is automatic alignment too: it must not simply
+    # rest the wheel on the raw block centre
+    reorder = src.split("function applyReorder(", 1)[1].split("\n  }", 1)[0]
+    assert "alignFor(w, align, mid)" in reorder
+    assert "target[key] = t;" in reorder
+
+    # rule 1 before any focus exists: the deck opens with filled groups centred
+    assert "filledGroupCentre(w.items.length) ?? 0" in src
+
+    # PRESERVED. A human's own click still centres the clicked tile dead on the
+    # line — these rules govern AUTOMATIC alignment, never user intent.
+    set_focus = src.split("function setFocus(", 1)[1].split("\n  }", 1)[0]
+    assert "target[key] = slotOf(key, i);" in set_focus
+    # PRESERVED. reduced motion still snaps, and the locked springs still drive.
+    assert "if (reduceMotion) {" in src
+    assert "focus?.key === w.key ? SPRING.driven : SPRING.pulled" in src
+
+
+def test_linked_tiles_park_inside_the_edge_fade_band(tmp_path):
     # linked tiles beyond the near band park INSIDE the edge-fade zone
     # (<= ~2.5 steps), leaving the outer rows to fade for the cylinder read
-    park = r["park"]
+    park = _run_wheel_model(_hand_snapshot([]), tmp_path)["park"]
     assert park["inWindow"] == pytest.approx(1.5)        # verbatim inside ~1.8
     assert 1.8 < park["far"] < 2.6                       # parked short of the fade band
     assert park["farNeg"] == pytest.approx(-park["far"]) # symmetric
@@ -833,7 +1011,7 @@ def test_reel_geometry_matches_the_locked_prototype(tmp_path):
 #
 # (id, urlRaw, storedRaw) -> the factor wheel.js draws with. The knob's whole
 # contract: an explicit `?drum=` URL param WINS (the compare-by-URL tuning tool),
-# else the saved setting, else the default 1; a parseable POSITIVE number is
+# else the saved setting, else the default 0.5; a parseable POSITIVE number is
 # clamped into [0.3, 2.0] rather than discarded (a stale tuning URL still renders
 # a legible wheel); anything else — absent, non-numeric, zero, negative — is "no
 # opinion" and falls through to the next source.
@@ -860,7 +1038,7 @@ DRUM_CASES = [
 def test_drum_bounds_are_the_settings_knob(tmp_path):
     """The slider's range/step/default are wheel geometry, not UI trivia."""
     r = _run_drum(DRUM_CASES, tmp_path)
-    assert r["bounds"] == {"min": 0.3, "max": 2.0, "step": 0.05, "default": 1}
+    assert r["bounds"] == {"min": 0.3, "max": 2.0, "step": 0.05, "default": 0.5}
 
 
 def test_drum_url_param_wins_over_the_saved_setting(tmp_path):
@@ -879,9 +1057,9 @@ def test_drum_invalid_inputs_fall_back_through_precedence(tmp_path):
     assert r["url-negative-uses-stored"] == pytest.approx(1.25)
     # ...and an unusable stored value (corrupt JSON left in localStorage,
     # negative) lands on the default rather than a broken cylinder
-    assert r["both-absent-default"] == 1
-    assert r["stored-garbage-default"] == 1
-    assert r["stored-negative-default"] == 1
+    assert r["both-absent-default"] == pytest.approx(0.5)
+    assert r["stored-garbage-default"] == pytest.approx(0.5)
+    assert r["stored-negative-default"] == pytest.approx(0.5)
     # the single-candidate view of the same rule
     assert out["candidates"]["url-garbage-uses-stored"] is None
     assert out["candidates"]["url-zero-uses-stored"] is None

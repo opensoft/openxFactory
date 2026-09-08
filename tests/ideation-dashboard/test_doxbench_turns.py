@@ -89,7 +89,7 @@ from ideation_dashboard.doxbench_turns import (
     TurnScopeError,
     TurnStore,
     build_prompt_envelope,
-    require_outline_and_document,
+    require_outline_and_documents,
     revalidate_scope,
     transcript_bytes,
     validate_message,
@@ -98,7 +98,7 @@ from ideation_dashboard.doxbench_turns import (
     validate_working_subject,
     verify_buffer_identity,
 )
-from ideation_dashboard import doxbench_turns
+from ideation_dashboard import doxbench_packet, doxbench_turns
 
 MODULE_PATH = REPO_ROOT / "scripts" / "ideation_dashboard" / "doxbench_turns.py"
 
@@ -195,6 +195,77 @@ def _valid_buffers(
     ]
 
 
+_UNSET = object()
+
+
+def _revalidate_v1_shaped(
+    *,
+    projection,
+    request_scope,
+    active_document_path,
+    outline_path,
+    document_path,
+):
+    """`revalidate_scope` as the RELEASED v1 WIRE reaches it.
+
+    RE-PINNED by `add-doxbench-editing-phase-b` (task 5.2). Phase A's signature
+    took a PAIR of paths plus an `active_document_path`, and refused when the
+    declared active path did not equal the one supplied document path. The
+    ratified Phase B contract states the same refusal over a SET -- "a turn whose
+    declared binding does not match a supplied buffer MUST still refuse before
+    any provider call" -- because the set is now the outline plus N loaded
+    documents and no single `document_path` exists to compare against.
+
+    This shim performs EXACTLY the translation `serve.py` performs at the
+    released v1 wire, in one place, so every scenario below keeps asserting the
+    verdict the real route produces:
+
+      * the declared binding is the declared active document path where it names
+        one, and `None` where the v1 envelope declares none (never inferred --
+        design D17);
+      * the supplied buffer keys are the outline's reserved key plus the one
+        document's key, which is its path, or the reserved unbacked key when it
+        has none;
+      * the paths to confine are the outline's and the document's.
+
+    Every verdict is preserved: a mismatching active path is now a bound key the
+    supplied set does not hold, and a null active path beside a path-backed
+    document is refused by the module's own no-binding clause rather than by a
+    `None != path` comparison.
+    """
+    return revalidate_scope(
+        projection=projection,
+        request_scope=request_scope,
+        bound_buffer_key=active_document_path,
+        buffer_keys=("outline",)
+        + (("document",) if document_path is None else (document_path,)),
+        paths=(outline_path, document_path),
+    )
+
+
+def _section(envelope, key: str) -> PromptSection:
+    """One section, looked up BY KEY.
+
+    RE-PINNED (task 5.4's packet half). These lookups used to be POSITIONAL
+    (`envelope.sections[6]`), which pinned a section's identity to a count that
+    the packet's own sections change — and which had already gone quietly wrong
+    once: `sections[6]` named the outline buffer in a test whose assertion about
+    the DOCUMENT buffer still passed, because the outline happened to carry the
+    label it was checking for. Nothing is weakened here: the declared ORDER is
+    still asserted whole, against `prompt_section_keys`, in
+    `test_envelope_sections_are_assembled_in_the_exact_declared_order`; what
+    these call sites assert is which section carries which text, and a key says
+    that where an index only implied it."""
+
+    matches = [section for section in envelope.sections if section.key == key]
+    assert len(matches) == 1, (key, [s.key for s in envelope.sections])
+    return matches[0]
+
+
+def _document_section(envelope, path: str = DOCUMENT_PATH) -> PromptSection:
+    return _section(envelope, "document_buffer:" + path)
+
+
 def _build_envelope(
     *,
     projection: ScopeProjection | None = None,
@@ -209,8 +280,15 @@ def _build_envelope(
     buffers=None,
     message: str = "Which open question should we close next?",
     session_base=None,
+    bound_buffer_key=_UNSET,
+    packet=None,
+    meter=None,
+    clock=None,
 ) -> PromptEnvelope:
     return build_prompt_envelope(
+        packet=packet,
+        meter=meter,
+        **({} if clock is None else {"clock": clock}),
         projection=projection if projection is not None else _valid_projection(),
         request_scope=request_scope if request_scope is not None else _key(),
         active_document_path=active_document_path,
@@ -223,6 +301,11 @@ def _build_envelope(
         buffers=buffers if buffers is not None else _valid_buffers(),
         message=message,
         session_base=session_base,
+        # What `serve.py` passes at the released v1 wire: the declared active
+        # document path IS the declared binding where it names one, and `None`
+        # says the envelope declares none (add-doxbench-editing-phase-b D17).
+        bound_buffer_key=(active_document_path
+                          if bound_buffer_key is _UNSET else bound_buffer_key),
     )
 
 
@@ -231,24 +314,141 @@ def _build_envelope(
 # ===========================================================================
 
 
-def test_prompt_section_order_is_the_nine_step_deterministic_sequence():
+def test_prompt_section_order_is_the_declared_deterministic_sequence():
+    """RE-PINNED TWICE by `add-doxbench-editing-phase-b` (task 5.4).
+
+    First half (landed earlier): the single `document_buffer` SLOT became the
+    `document_buffers` GROUP, because the request now carries the outline plus N
+    loaded documents and a fixed slot cannot name them.
+
+    SECOND HALF (this slice): the PACKET's four groups joined the constant, in
+    design §3.1 step 5's own order — the packet's declaration, then the selected
+    thread, then the other threads' state headers, then the evidence with refs,
+    all ahead of the outline and document buffers. `transcript` keeps Phase A's
+    position: step 5 does not name it at all, so moving it would invent an
+    ordering the design does not state.
+
+    Still ONE constant, still deterministic, and still pinned at BOTH levels:
+    the declared groups here, and the concrete per-request keys below — which
+    now depend on the packet as well as on the buffer set, because two of the
+    packet's groups expand per item exactly as `document_buffers` does.
+    """
     assert PROMPT_SECTION_ORDER == (
         "system_contract",
         "model_data_handling",
         "scope_metadata",
         "working_subject",
         "transcript",
+        "context_packet",
+        "selected_thread",
+        "thread_state_headers",
+        "evidence",
         "outline_buffer",
-        "document_buffer",
+        "document_buffers",
+        "human_message",
+        "response_instruction",
+    )
+    # With NO packet the packet groups contribute nothing at all — no empty
+    # section and no placeholder. (A real turn always has one; `None` is the
+    # question "what would the order be without", not a shape a route produces.)
+    assert doxbench_turns.prompt_section_keys(["b.md", "a.md"], packet=None) == (
+        "system_contract",
+        "model_data_handling",
+        "scope_metadata",
+        "working_subject",
+        "transcript",
+        "outline_buffer",
+        "document_buffer:a.md",
+        "document_buffer:b.md",
         "human_message",
         "response_instruction",
     )
 
 
 def test_envelope_sections_are_assembled_in_the_exact_declared_order():
-    envelope = _build_envelope()
-    assert [section.key for section in envelope.sections] == list(PROMPT_SECTION_ORDER)
+    packet = doxbench_packet.reduced_packet(
+        projection=_valid_projection(), scope=_key(),
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,))
+    envelope = _build_envelope(packet=packet)
+    assert [section.key for section in envelope.sections] == list(
+        doxbench_turns.prompt_section_keys([DOCUMENT_PATH], packet=packet))
     assert all(isinstance(section, PromptSection) for section in envelope.sections)
+
+
+def test_a_turn_with_no_packet_supplied_carries_the_declared_reduced_one():
+    """Task 5.4's packet half, at the assembler: EVERY turn carries a packet.
+
+    A caller that supplies none does not get a packet-less prompt — it gets the
+    DECLARED REDUCED packet, because "no knowledge service" is a posture with a
+    stated reduction (design §3.4) and not the absence of the pipeline. This is
+    the leg the route never exercises, since the route always assembles one."""
+    envelope = _build_envelope(packet=None)
+    sections = {section.key: section.text for section in envelope.sections}
+    declaration = sections[doxbench_packet.PACKET_SECTION_DECLARATION]
+    assert "posture: reduced" in declaration
+    assert "reduced because:" in declaration
+    assert doxbench_packet.PACKET_SECTION_SELECTED_THREAD not in sections
+    assert not [key for key in sections
+                if key.startswith(doxbench_packet.EVIDENCE_SECTION_PREFIX)]
+
+
+_FOREIGN_SCOPE = ScopeKey(repository="some-other-repo", ref="main",
+                          tile_kind="staged", tile_id="a-different-tile")
+
+
+def _packet_for(scope, *, clock=lambda: 0.0, ttl=300.0):
+    return doxbench_packet.reduced_packet(
+        projection=_valid_projection(), scope=scope,
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,),
+        clock=clock, ttl_seconds=ttl)
+
+
+def test_the_consuming_surface_REJECTS_a_packet_issued_for_another_scope():
+    """The delta: "a consuming surface presented with such a packet MUST reject
+    it and request a new one."
+
+    Found by the adversarial review (F1): `require_valid` existed, was tested,
+    and had ZERO production call sites — a packet issued for another repository
+    and another tile was rendered into the prompt unexamined. The leash is only
+    a leash where something pulls on it."""
+    foreign = _packet_for(_FOREIGN_SCOPE)
+    with pytest.raises(doxbench_packet.PacketScopeMismatch):
+        _build_envelope(packet=foreign)
+
+
+def test_the_consuming_surface_REJECTS_a_packet_issued_for_another_purpose():
+    packet = _packet_for(_key())
+    other_purpose = dataclasses.replace(packet, purpose="doxbench-share-session")
+    with pytest.raises(doxbench_packet.PacketPurposeMismatch):
+        _build_envelope(packet=other_purpose)
+
+
+def test_the_consuming_surface_REJECTS_an_EXPIRED_packet():
+    stale = _packet_for(_key(), clock=lambda: 0.0, ttl=1.0)
+    with pytest.raises(doxbench_packet.PacketExpired):
+        _build_envelope(packet=stale, clock=lambda: 5.0)
+
+
+def test_a_rejected_packet_discloses_none_of_its_own_content():
+    """Revalidation runs BEFORE any section text is assembled, so a rejected
+    packet cannot leak what it was carrying."""
+    sentinel = "SENTINEL-FOREIGN-PACKET-GOAL"
+    foreign = doxbench_packet.assemble_packet(
+        projection=_valid_projection(), scope=_FOREIGN_SCOPE,
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,),
+        query=sentinel, knowledge=None, clock=lambda: 0.0)
+    with pytest.raises(doxbench_packet.PacketRejected) as raised:
+        _build_envelope(packet=foreign)
+    assert sentinel not in str(raised.value)
+    assert sentinel not in repr(raised.value)
+
+
+def test_a_freshly_assembled_packet_never_fails_its_own_expiry_check():
+    """The revalidation reads the SAME clock the packet was issued on, so a
+    packet assembled for this very turn cannot be rejected as stale by a second
+    clock reading."""
+    envelope = _build_envelope(packet=None, clock=lambda: 12345.0)
+    assert envelope.sections
 
 
 def test_assembly_is_byte_for_byte_deterministic_for_identical_input():
@@ -260,12 +460,29 @@ def test_assembly_is_byte_for_byte_deterministic_for_identical_input():
 
 def test_system_contract_and_response_instruction_are_the_fixed_constants():
     envelope = _build_envelope()
-    system_section = envelope.sections[0]
-    instruction_section = envelope.sections[-1]
+    system_section = _section(envelope, "system_contract")
+    instruction_section = _section(envelope, "response_instruction")
     assert system_section.key == "system_contract"
     assert system_section.text == SYSTEM_CONTRACT_TEXT
     assert instruction_section.key == "response_instruction"
     assert instruction_section.text == RESPONSE_INSTRUCTION_TEXT
+
+
+def test_the_grounding_sentence_names_every_section_the_packet_adds():
+    """RE-PINNED (adversarial review, F8). The grounding sentence told the model
+    to ground "strictly in the outline and document buffers, the scope metadata,
+    and the transcript" — which EXCLUDED every section §10 added, and therefore
+    contradicted the source-ranking hierarchy sitting directly beneath it in the
+    same constant (rank 2 is staged facts, rank 3 promoted findings, rank 4
+    active thread state: all of them arrive in sections the sentence did not
+    admit). A prompt that ranks material it also forbids is a prompt that cannot
+    be followed."""
+    for named in ("context packet", "thread", "thread-state headers",
+                  "evidence", "outline", "document buffers", "scope metadata",
+                  "transcript"):
+        assert named in SYSTEM_CONTRACT_TEXT, named
+    # and the hierarchy it must agree with is still there, unmoved (task 5.5)
+    assert doxbench_turns.SOURCE_RANKING_TEXT in SYSTEM_CONTRACT_TEXT
 
 
 def test_model_data_handling_section_carries_the_selected_facts():
@@ -275,7 +492,7 @@ def test_model_data_handling_section_carries_the_selected_facts():
         model_input_limit_bytes=800_000,
         model_output_limit_bytes=900_000,
     )
-    section = envelope.sections[1]
+    section = _section(envelope, "model_data_handling")
     assert section.key == "model_data_handling"
     assert "opaque-local-id" in section.text
     assert "Processed in the approved tenant boundary" in section.text
@@ -285,7 +502,7 @@ def test_model_data_handling_section_carries_the_selected_facts():
 
 def test_scope_metadata_section_carries_repository_ref_and_tile():
     envelope = _build_envelope()
-    section = envelope.sections[2]
+    section = _section(envelope, "scope_metadata")
     assert section.key == "scope_metadata"
     assert REPOSITORY in section.text
     assert REF in section.text
@@ -295,14 +512,14 @@ def test_scope_metadata_section_carries_repository_ref_and_tile():
 
 def test_working_subject_section_carries_the_exact_text():
     envelope = _build_envelope(working_subject="Clarify the acceptance boundary")
-    section = envelope.sections[3]
+    section = _section(envelope, "working_subject")
     assert section.key == "working_subject"
     assert "Clarify the acceptance boundary" in section.text
 
 
 def test_human_message_section_carries_the_exact_new_message():
     envelope = _build_envelope(message="Which open question should we close next?")
-    section = envelope.sections[7]
+    section = _section(envelope, "human_message")
     assert section.key == "human_message"
     assert "Which open question should we close next?" in section.text
 
@@ -310,26 +527,27 @@ def test_human_message_section_carries_the_exact_new_message():
 def test_exactly_one_outline_and_one_document_buffer_required():
     outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)
-    resolved_outline, resolved_document = require_outline_and_document([document, outline])
+    resolved_outline, resolved_documents = require_outline_and_documents(
+        [document, outline])
     assert resolved_outline is outline
-    assert resolved_document is document
+    assert resolved_documents == {DOCUMENT_PATH: document}
 
 
 def test_missing_document_buffer_refuses():
     outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
     with pytest.raises(TurnBufferKindError):
-        require_outline_and_document([outline])
+        require_outline_and_documents([outline])
 
 
 def test_missing_outline_buffer_refuses():
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)
     with pytest.raises(TurnBufferKindError):
-        require_outline_and_document([document])
+        require_outline_and_documents([document])
 
 
 def test_empty_buffer_list_refuses():
     with pytest.raises(TurnBufferKindError):
-        require_outline_and_document([])
+        require_outline_and_documents([])
 
 
 def test_duplicate_kind_refuses():
@@ -337,7 +555,95 @@ def test_duplicate_kind_refuses():
     two = _buffer("outline", path=OUTLINE_PATH, content="different")
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)
     with pytest.raises(TurnBufferKindError):
-        require_outline_and_document([one, two, document])
+        require_outline_and_documents([one, two, document])
+
+
+@pytest.mark.parametrize("reserved", ["outline", "document"])
+def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
+    # The DEFAULT refused set is the widened lane's, which is the fail-closed
+    # direction for any new caller (Codex review CODEX-1).
+    """F2 (adversarial review of the §13 slice): a document buffer whose own PATH
+    is a reserved key must be refused HERE, before identity verification and
+    before any port.
+
+    The outline spelling was the dangerous one. `buffer_key_for` mapped it to the
+    reserved outline key, this requirement accepted it, and
+    `ordered_document_keys` then filtered it OUT — so every later step read a set
+    that did not contain it: its declared content hash was never verified, its
+    bytes were never counted against the request bound, and the released v1
+    success builder indexed an empty document list, dying with the connection and
+    stranding the turn's store lease. The `document` spelling is refused with it,
+    mirroring the browser's own `LOAD_REFUSED_RESERVED_KEY`, which refuses both
+    for the same reason."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    claimant = _buffer("document", path=reserved, content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError) as raised:
+        require_outline_and_documents([outline, claimant])
+    assert "reserved buffer key" in str(raised.value)
+
+
+def test_the_v1_lane_refuses_only_the_outline_spelling():
+    """CODEX-1 (Codex review of PR #210). The rule is PER LANE, because the two
+    spellings fail differently.
+
+    `outline` is a crash class on every lane: `ordered_document_keys` filters that
+    key out of the document enumeration, so the buffer vanishes from every later
+    step — reproduced at a4a6f6e as a dropped connection with no response.
+
+    `document` is a collision only where the reserved unbacked slot can ride
+    BESIDE a path-backed document, which is the widened lane alone. The v1
+    envelope carries exactly one document whose key is `document` either way, and
+    such a turn was SERVED at a4a6f6e (reproduced: HTTP 200, dispatched), so
+    refusing it here would break the promise this release's additive class
+    makes."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    at_document = _buffer("document", path="document", content=DOCUMENT_CONTENT)
+    _resolved, documents = require_outline_and_documents(
+        [outline, at_document],
+        refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+    assert set(documents) == {"document"}
+    # …and the outline spelling stays refused on that same narrowed set.
+    at_outline = _buffer("document", path="outline", content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError):
+        require_outline_and_documents(
+            [outline, at_outline],
+            refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+
+
+def test_the_two_lane_refusal_sets_differ_by_exactly_the_unbacked_key():
+    """The per-lane sets are stated as a relationship, not as two literals that
+    could drift apart."""
+    assert (doxbench_turns.RESERVED_BUFFER_KEYS
+            - doxbench_turns.V1_RESERVED_BUFFER_KEYS) == {
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY}
+    assert doxbench_turns.V1_RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY}
+
+
+def test_the_reserved_keys_are_the_same_two_the_browser_refuses():
+    """The two sides of F2's rule must name the same keys, or one of them is
+    refusing a load the other accepts on the wire. The browser owns the
+    human-facing refusal (`LOAD_REFUSED_RESERVED_KEY`); the server owns the wire
+    one, because a request is not obliged to have come from that browser."""
+    assert doxbench_turns.RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY,
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY,
+    }
+    state_js = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+                / "doxbench-state.js").read_text(encoding="utf-8")
+    assert 'LOAD_REFUSED_RESERVED_KEY = "path_is_a_reserved_key"' in state_js
+    for key in doxbench_turns.RESERVED_BUFFER_KEYS:
+        assert f'BUFFER_KEY = "{key}"' in state_js, key
+
+
+def test_the_reserved_unbacked_slot_is_still_accepted():
+    """The other half of the same rule: a document with NO path is the create
+    flow's own buffer and belongs under the reserved key. Refusing a null path
+    here would refuse the create flow itself."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    unbacked = _buffer("document", path=None, content=DOCUMENT_CONTENT)
+    _resolved_outline, documents = require_outline_and_documents([outline, unbacked])
+    assert set(documents) == {"document"}
 
 
 def test_extra_unexpected_kind_refuses():
@@ -345,7 +651,7 @@ def test_extra_unexpected_kind_refuses():
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)
     rogue = _buffer("comment", path="ideation/staging/demo-topic/scratch.md", content="x")
     with pytest.raises(TurnBufferKindError):
-        require_outline_and_document([outline, document, rogue])
+        require_outline_and_documents([outline, document, rogue])
 
 
 def test_build_prompt_envelope_refuses_the_same_way_on_bad_buffer_kinds():
@@ -358,10 +664,13 @@ def test_build_prompt_envelope_refuses_the_same_way_on_bad_buffer_kinds():
 
 def test_full_outline_and_document_content_survive_exactly_in_their_sections():
     envelope = _build_envelope()
-    outline_section = envelope.sections[5]
-    document_section = envelope.sections[6]
+    outline_section = _section(envelope, "outline_buffer")
+    document_section = _document_section(envelope)
     assert outline_section.key == "outline_buffer"
-    assert document_section.key == "document_buffer"
+    # RE-PINNED (task 5.4): a document's section is named for the BUFFER KEY it
+    # carries, so a prompt with four documents has four separately identifiable
+    # sections rather than one slot that could only ever hold the last of them.
+    assert document_section.key == "document_buffer:" + DOCUMENT_PATH
     assert OUTLINE_CONTENT in outline_section.text
     assert DOCUMENT_CONTENT in document_section.text
 
@@ -373,7 +682,7 @@ def test_buffer_at_the_exact_400000_byte_boundary_is_accepted_and_survives_whole
     assert utf8_size(content) == HASH_MAX_BUFFER_BYTES == 400_000
 
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert marker in document_section.text
 
@@ -381,7 +690,7 @@ def test_buffer_at_the_exact_400000_byte_boundary_is_accepted_and_survives_whole
 def test_crlf_content_is_preserved_exactly_no_newline_normalization():
     content = "Line1\r\nLine2\r\nLine3\r\n"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert "Line1\r\nLine2" in document_section.text
     # a normalizer that rewrote CRLF to LF would break this exact substring
@@ -394,7 +703,7 @@ def test_combining_character_content_is_preserved_not_composed():
     assert combining != composed
     content = f"marker-combining-{combining}-end"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert combining in document_section.text
     # a normalizer that composed the accent would rewrite this exact substring
@@ -406,7 +715,7 @@ def test_astral_plane_character_content_is_preserved_exactly():
     astral = "\U0001F600" * 5  # GRINNING FACE, outside the BMP
     content = f"marker-astral-{astral}-end"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert astral in document_section.text
 
@@ -414,7 +723,7 @@ def test_astral_plane_character_content_is_preserved_exactly():
 def test_transcript_is_bounded_but_never_selected_or_summarized():
     turns = tuple(TranscriptTurn(role="human", text=f"turn-{i}") for i in range(5))
     envelope = _build_envelope(transcript=turns)
-    transcript_section = envelope.sections[4]
+    transcript_section = _section(envelope, "transcript")
     assert transcript_section.key == "transcript"
     for turn in turns:
         assert turn.text in transcript_section.text
@@ -425,22 +734,22 @@ def test_transcript_is_bounded_but_never_selected_or_summarized():
 
 def test_dirty_buffer_carries_the_explicit_dirty_working_state_label():
     envelope = _build_envelope(buffers=_valid_buffers(document_dirty=True))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert WORKING_STATE_DIRTY_LABEL in document_section.text
     assert WORKING_STATE_CLEAN_LABEL not in document_section.text
 
 
 def test_clean_buffer_carries_the_explicit_clean_working_state_label():
     envelope = _build_envelope(buffers=_valid_buffers(document_dirty=False))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert WORKING_STATE_CLEAN_LABEL in document_section.text
     assert WORKING_STATE_DIRTY_LABEL not in document_section.text
 
 
 def test_outline_and_document_labels_are_independent_of_each_other():
     envelope = _build_envelope(buffers=_valid_buffers(outline_dirty=True, document_dirty=False))
-    outline_section = envelope.sections[5]
-    document_section = envelope.sections[6]
+    outline_section = _section(envelope, "outline_buffer")
+    document_section = _document_section(envelope)
     assert WORKING_STATE_DIRTY_LABEL in outline_section.text
     assert WORKING_STATE_CLEAN_LABEL in document_section.text
 
@@ -468,8 +777,19 @@ def test_envelope_exposes_fr013_required_fields():
     assert envelope.transcript == turns
     assert envelope.active_document_path == DOCUMENT_PATH
     assert isinstance(envelope.observed_hashes, ObservedHashes)
+    # RE-PINNED (task 5.3): identities are keyed by BUFFER KEY. `outline` stays
+    # readable as a property because that key is permanently reserved; a
+    # document is asked for by its own key.
     assert isinstance(envelope.observed_hashes.outline, ContentIdentity)
-    assert isinstance(envelope.observed_hashes.document, ContentIdentity)
+    assert isinstance(envelope.observed_hashes.for_key(DOCUMENT_PATH),
+                      ContentIdentity)
+    assert envelope.observed_hashes.keys() == ("outline", DOCUMENT_PATH)
+    # NO `bound_buffer_key` FIELD (adversarial review of PR #207, F4): the
+    # declared binding is a VALIDATION input, never a claim stored where no reader
+    # can consult it. §13's widened envelope is the only place a record can name
+    # the bound buffer, and until then the gap stays STATED rather than filled
+    # with an unreadable field.
+    assert not hasattr(envelope, "bound_buffer_key")
 
 
 # --- exact identity recompute / mismatch refusal ----------------------------
@@ -561,7 +881,7 @@ def test_build_prompt_envelope_refuses_on_content_hash_mismatch_for_either_buffe
 
 def test_revalidate_scope_accepts_a_fully_matching_binding():
     projection = _valid_projection()
-    revalidate_scope(
+    _revalidate_v1_shaped(
         projection=projection,
         request_scope=_key(),
         active_document_path=DOCUMENT_PATH,
@@ -574,7 +894,7 @@ def test_revalidate_scope_refuses_when_request_scope_does_not_equal_the_active_b
     projection = _valid_projection()
     mismatched = ScopeKey(repository=REPOSITORY, ref=REF, tile_kind="staged", tile_id="other-topic")
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=mismatched,
             active_document_path=DOCUMENT_PATH,
@@ -586,7 +906,7 @@ def test_revalidate_scope_refuses_when_request_scope_does_not_equal_the_active_b
 def test_revalidate_scope_refuses_when_active_document_path_does_not_match_document_buffer():
     projection = _valid_projection(extra_context=("ideation/staging/demo-topic/other.md",))
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=_key(),
             active_document_path="ideation/staging/demo-topic/other.md",
@@ -598,7 +918,7 @@ def test_revalidate_scope_refuses_when_active_document_path_does_not_match_docum
 def test_revalidate_scope_refuses_an_out_of_scope_document_path():
     projection = _projection(_key(), context_paths=(OUTLINE_PATH,), outline_path=OUTLINE_PATH)
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=_key(),
             active_document_path=DOCUMENT_PATH,
@@ -610,7 +930,7 @@ def test_revalidate_scope_refuses_an_out_of_scope_document_path():
 def test_revalidate_scope_refuses_a_traversal_shaped_document_path():
     projection = _projection(_key(), context_paths=(OUTLINE_PATH,), outline_path=OUTLINE_PATH)
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=_key(),
             active_document_path="../../etc/passwd",
@@ -622,7 +942,7 @@ def test_revalidate_scope_refuses_a_traversal_shaped_document_path():
 def test_revalidate_scope_refuses_an_out_of_scope_outline_path():
     projection = _projection(_key(), context_paths=(DOCUMENT_PATH,), outline_path=DOCUMENT_PATH)
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=_key(),
             active_document_path=DOCUMENT_PATH,
@@ -655,7 +975,7 @@ def test_readable_but_not_editable_document_path_is_refused_before_disclosure():
     assert cited_path in projection.context_paths
     assert cited_path not in projection.editable_paths
     with pytest.raises(TurnScopeError) as raised:
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=_key(),
             active_document_path=cited_path,
@@ -714,7 +1034,7 @@ def test_scope_revalidation_uses_the_real_scope_authority_for_a_realistic_fixtur
     assert non_owned_context_path not in projection.editable_paths
     # Disclosure requires edit authority: the real, editable owned path
     # resolves fine.
-    revalidate_scope(
+    _revalidate_v1_shaped(
         projection=projection,
         request_scope=key,
         active_document_path=owned_path,
@@ -723,7 +1043,7 @@ def test_scope_revalidation_uses_the_real_scope_authority_for_a_realistic_fixtur
     )
     # A real readable-but-not-editable path refuses.
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=key,
             active_document_path=non_owned_context_path,
@@ -732,7 +1052,7 @@ def test_scope_revalidation_uses_the_real_scope_authority_for_a_realistic_fixtur
         )
     # But a real out-of-scope path still refuses.
     with pytest.raises(TurnScopeError):
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=key,
             active_document_path="docs/not-in-scope.md",
@@ -778,7 +1098,7 @@ def test_every_published_candidate_passes_the_real_turn_guard_on_every_fixture(t
             continue
         for candidate in projection.active_document_candidates:
             checked += 1
-            revalidate_scope(
+            _revalidate_v1_shaped(
                 projection=projection,
                 request_scope=key,
                 active_document_path=candidate,
@@ -803,7 +1123,7 @@ def test_a_published_outline_path_always_passes_the_real_turn_guard(tmp_path):
                                    created_paths=case["created_paths"])
         if projection is None or projection.outline_path is None:
             continue
-        revalidate_scope(
+        _revalidate_v1_shaped(
             projection=projection,
             request_scope=key,
             active_document_path=None,
@@ -853,7 +1173,7 @@ def test_an_outline_only_turn_passes_the_real_guard_on_the_real_derivation(tmp_p
     assert projection.outline_path is not None
     # the turn a tile like this can actually send: no active document, and the
     # outline the projection published
-    revalidate_scope(
+    _revalidate_v1_shaped(
         projection=projection,
         request_scope=key,
         active_document_path=None,
@@ -886,10 +1206,10 @@ def test_a_document_proposal_is_refused_on_a_turn_that_names_no_document():
     rewrite of a document that does not exist, so it fails closed here as a
     RESPONSE defect (the request was fine) rather than becoming an Apply the
     buffer layer would have to refuse later."""
-    observed = doxbench_turns.ObservedHashes(
-        outline=content_identity(OUTLINE_CONTENT),
-        document=content_identity(DOCUMENT_CONTENT),
-    )
+    observed = doxbench_turns.ObservedHashes(by_key={
+        "outline": content_identity(OUTLINE_CONTENT),
+        "document": content_identity(DOCUMENT_CONTENT),
+    })
     document_proposal = {
         "assistant_prose": "here", "proposals": [{
             "target": "document",
@@ -905,10 +1225,10 @@ def test_a_document_proposal_is_refused_on_a_turn_that_names_no_document():
 
 
 def test_an_outline_proposal_is_still_offered_on_an_outline_only_turn():
-    observed = doxbench_turns.ObservedHashes(
-        outline=content_identity(OUTLINE_CONTENT),
-        document=content_identity(DOCUMENT_CONTENT),
-    )
+    observed = doxbench_turns.ObservedHashes(by_key={
+        "outline": content_identity(OUTLINE_CONTENT),
+        "document": content_identity(DOCUMENT_CONTENT),
+    })
     validated = doxbench_turns.validate_assistant_response(
         {"assistant_prose": "here", "proposals": [{
             "target": "outline",
@@ -923,7 +1243,7 @@ def test_null_not_yet_created_document_path_is_permitted():
     # created on disk) is not subject to editable-path membership and must
     # not be refused on that ground.
     projection = _valid_projection()
-    revalidate_scope(
+    _revalidate_v1_shaped(
         projection=projection,
         request_scope=_key(),
         active_document_path=None,
@@ -1134,7 +1454,7 @@ def test_an_unsaved_buffer_based_on_the_sessions_own_base_grounds_a_turn():
         buffers=_pre_session_buffers(),
         session_base=_session_base(documents={DOCUMENT_PATH: DOCUMENT_CONTENT}),
     )
-    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+    assert _document_section(envelope).text.endswith(DOCUMENT_CONTENT)
 
 
 def test_a_pre_session_buffer_is_refused_once_the_session_diverged_past_its_base():
@@ -1170,7 +1490,7 @@ def test_a_buffer_declaring_the_serving_snapshots_revision_grounds_too():
             documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
             alias_revisions=("snapshot-rev-at-open",)),
     )
-    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+    assert _document_section(envelope).text.endswith(DOCUMENT_CONTENT)
 
     # an alias never relaxes the byte clause ...
     with pytest.raises(TurnScopeError):
@@ -1271,7 +1591,7 @@ def test_a_document_the_session_never_held_grounds_only_an_empty_base():
                     base_ref="main", base_revision="base-rev-1", dirty=True)
     buffers = [_buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT), fresh]
     envelope = _build_envelope(buffers=buffers, session_base=_session_base())
-    assert envelope.sections[6].text.endswith("typed later")
+    assert _document_section(envelope).text.endswith("typed later")
 
     claiming = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT,
                        base_ref="main", base_revision="base-rev-1")
@@ -1300,8 +1620,10 @@ def test_document_buffer_with_a_null_path_is_disclosed_with_a_not_yet_created_he
     buffers = _valid_buffers()
     buffers[1] = _buffer("document", path=None, content=DOCUMENT_CONTENT)
     envelope = _build_envelope(active_document_path=None, buffers=buffers)
-    document_section = envelope.sections[6]
-    assert document_section.key == "document_buffer"
+    document_section = _section(envelope, "document_buffer:document")
+    # The reserved unbacked slot: no path to be keyed by, so it keeps the
+    # reserved `document` key and its section is named for that key.
+    assert document_section.key == "document_buffer:document"
     assert "Path: (not yet created)" in document_section.text
     assert DOCUMENT_CONTENT in document_section.text
 
@@ -1318,7 +1640,7 @@ def test_outline_buffer_with_a_null_path_is_disclosed_with_a_not_yet_created_hea
     envelope = _build_envelope(
         projection=projection, active_document_path=DOCUMENT_PATH, buffers=buffers
     )
-    outline_section = envelope.sections[5]
+    outline_section = _section(envelope, "outline_buffer")
     assert outline_section.key == "outline_buffer"
     assert "Path: (not yet created)" in outline_section.text
     assert OUTLINE_CONTENT in outline_section.text
@@ -1380,11 +1702,13 @@ def test_second_turn_after_an_intervening_edit_uses_the_new_content_never_a_cach
     second_envelope = _build_envelope(
         buffers=_valid_buffers(document_content=edited_content),
     )
-    assert first_envelope.observed_hashes.document.hex == content_identity(DOCUMENT_CONTENT).hex
-    assert second_envelope.observed_hashes.document.hex == content_identity(edited_content).hex
-    assert first_envelope.observed_hashes.document.hex != second_envelope.observed_hashes.document.hex
-    assert edited_content in second_envelope.sections[6].text
-    assert DOCUMENT_CONTENT not in edited_content or edited_content in second_envelope.sections[6].text
+    first = first_envelope.observed_hashes.for_key(DOCUMENT_PATH)
+    second = second_envelope.observed_hashes.for_key(DOCUMENT_PATH)
+    assert first.hex == content_identity(DOCUMENT_CONTENT).hex
+    assert second.hex == content_identity(edited_content).hex
+    assert first.hex != second.hex
+    assert edited_content in _document_section(second_envelope).text
+    assert DOCUMENT_CONTENT not in edited_content or edited_content in _document_section(second_envelope).text
 
 
 # ===========================================================================
@@ -2654,10 +2978,14 @@ def test_module_holds_no_bound_network_module_in_its_namespace():
 # time, which is a browser-model state and never a server error (R4).
 # ---------------------------------------------------------------------------
 
-_OBSERVED = doxbench_turns.ObservedHashes(
-    outline=ContentIdentity(algorithm="sha256", hex="a" * 64),
-    document=ContentIdentity(algorithm="sha256", hex="b" * 64),
-)
+# RE-PINNED by `add-doxbench-editing-phase-b` (task 5.3): the observed
+# identities are KEYED by buffer key now, not two named fields, because the set
+# is the outline plus N loaded documents. The two keys here are exactly the two
+# reserved ones, which is what the released v1 wire supplies.
+_OBSERVED = doxbench_turns.ObservedHashes(by_key={
+    "outline": ContentIdentity(algorithm="sha256", hex="a" * 64),
+    "document": ContentIdentity(algorithm="sha256", hex="b" * 64),
+})
 
 
 def _proposal(**over):
@@ -2737,3 +3065,337 @@ def test_wrong_base_names_the_response_class_not_a_scope_or_identity_error():
     with pytest.raises(doxbench_turns.TurnResponseError):
         doxbench_turns.validate_assistant_response(
             _raw([_proposal(base_hash="c" * 64)]), observed=_OBSERVED)
+
+
+# ===========================================================================
+# add-doxbench-editing-phase-b §5: the turn contract over a BUFFER SET.
+#
+# Phase A's turn machinery was two-buffer-shaped at three points -- the
+# one-outline-one-document requirement, the active-path equality, and the
+# two-value proposal target enum with its literal cap of 2. Each has an exact
+# generalization, and each is asserted here on a request carrying the outline
+# plus THREE documents, which is the shape no Phase A pin could express.
+# ===========================================================================
+
+
+def _document(path: str, content: str) -> doxbench_turns.TurnBuffer:
+    return _buffer("document", path=path, content=content)
+
+
+_THREE = (
+    "ideation/staging/demo-topic/zulu.md",
+    "ideation/staging/demo-topic/alpha.md",
+    "ideation/staging/demo-topic/nested/alpha.md",
+)
+
+
+def _three_document_projection() -> ScopeProjection:
+    projection = _valid_projection()
+    return dataclasses.replace(
+        projection,
+        context_paths=frozenset(set(projection.context_paths) | set(_THREE)),
+        editable_paths=frozenset(set(projection.editable_paths) | set(_THREE)),
+    )
+
+
+def _three_document_buffers():
+    return [_buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)] + [
+        _document(path, "# " + path + "\n") for path in _THREE
+    ]
+
+
+def test_the_buffer_set_requirement_accepts_one_outline_and_n_documents():
+    """Task 5.1: one outline plus ONE OR MORE documents, each bound to a
+    distinct in-scope editable path, keyed by that path."""
+    buffers = _three_document_buffers()
+    outline, documents = require_outline_and_documents(buffers)
+    assert outline is buffers[0]
+    assert set(documents) == set(_THREE)
+    assert all(documents[key].path == key for key in documents)
+
+
+def test_the_same_document_supplied_twice_refuses():
+    """A duplicated key makes "which text did the model see" unanswerable, and
+    it is impossible in a well-formed keyed set, so it is a refusal rather than
+    a last-write-wins."""
+    buffers = _three_document_buffers()
+    buffers.append(_document(_THREE[0], "# a different body\n"))
+    with pytest.raises(TurnBufferKindError):
+        require_outline_and_documents(buffers)
+
+
+def test_the_declared_document_order_is_deterministic_and_matches_the_browser():
+    """Task 5.4 and design D3 point 4. The Python side sorts on UTF-16 code
+    units, not code points, so the two runtimes cannot disagree about a key --
+    and the RULE STRING is asserted identical to the browser module's own."""
+    assert doxbench_turns.ordered_document_keys(_THREE) == (
+        "ideation/staging/demo-topic/alpha.md",
+        "ideation/staging/demo-topic/nested/alpha.md",
+        "ideation/staging/demo-topic/zulu.md",
+    )
+    assert doxbench_turns.ordered_buffer_keys(_THREE)[0] == "outline"
+    state_js = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+                / "doxbench-state.js").read_text(encoding="utf-8")
+    save_js = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+               / "doxbench-save.js").read_text(encoding="utf-8")
+    assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in state_js
+    assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in save_js
+    # F8 (adversarial review of the §13 slice): §13 added three more places that
+    # order buffer keys -- the request builder, the selector listing, and the
+    # proposal card order -- and a rule re-spelled in prose is a rule that drifts.
+    # Every home carries the SAME string, and this is where that is enforced.
+    views = REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+    for home in ("doxbench-chat.js", "doxbench-chat-model.js"):
+        text = (views / home).read_text(encoding="utf-8")
+        assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in text, home
+
+
+def test_a_turn_carrying_three_documents_assembles_one_section_each():
+    """Task 5.4: the two buffer sections become the outline section plus one
+    section per loaded document, in the declared order, from ONE constant."""
+    three_projection = _three_document_projection()
+    packet = doxbench_packet.reduced_packet(
+        projection=three_projection, scope=_key(), selected_key=_THREE[1],
+        loaded_keys=_THREE)
+    envelope = build_prompt_envelope(
+        packet=packet,
+        projection=three_projection,
+        request_scope=_key(),
+        active_document_path=_THREE[1],
+        model_id="opaque-local-id",
+        model_data_handling="Processed in the approved tenant boundary",
+        model_input_limit_bytes=800_000,
+        model_output_limit_bytes=900_000,
+        working_subject="Clarify the acceptance boundary",
+        transcript=(),
+        buffers=_three_document_buffers(),
+        message="Which open question should we close next?",
+        bound_buffer_key=_THREE[1],
+    )
+    assert [section.key for section in envelope.sections] == list(
+        doxbench_turns.prompt_section_keys(_THREE, packet=packet))
+    assert not hasattr(envelope, "bound_buffer_key"), (
+        "F4: the declared binding is checked, never stored unreadably")
+    # Every buffer's identity is observed, keyed, and recomputed at assembly
+    # time -- four of them, not two.
+    assert envelope.observed_hashes.keys() == doxbench_turns.ordered_buffer_keys(_THREE)
+    assert len(envelope.observed_hashes) == 4
+    # Every document's own text survives whole in its own section.
+    by_key = {section.key: section.text for section in envelope.sections}
+    for path in _THREE:
+        assert ("# " + path + "\n") in by_key["document_buffer:" + path]
+
+
+def test_a_turn_declaring_a_binding_it_did_not_supply_refuses():
+    """The delta's `A turn names a bound buffer it did not supply` scenario --
+    refused before any provider call, exactly as the Phase A active-path
+    revalidation did."""
+    with pytest.raises(TurnScopeError) as raised:
+        revalidate_scope(
+            projection=_three_document_projection(),
+            request_scope=_key(),
+            bound_buffer_key="ideation/staging/demo-topic/never-loaded.md",
+            buffer_keys=("outline",) + _THREE,
+            paths=(OUTLINE_PATH,) + _THREE,
+        )
+    assert "no supplied buffer" in str(raised.value)
+
+
+def test_a_turn_declaring_no_binding_may_not_supply_a_path_backed_document():
+    """The v1 envelope carries no declared binding, and design D17 forbids
+    inferring one. So the ONLY legal no-binding shape is the outline plus the
+    reserved unbacked create slot: a request that supplies a document it is
+    working on and declines to say so is refused rather than guessed at."""
+    with pytest.raises(TurnScopeError) as raised:
+        revalidate_scope(
+            projection=_three_document_projection(),
+            request_scope=_key(),
+            bound_buffer_key=None,
+            buffer_keys=("outline", _THREE[0]),
+            paths=(OUTLINE_PATH, _THREE[0]),
+        )
+    assert "declares no bound buffer" in str(raised.value)
+    # The reserved unbacked slot IS legal with no binding.
+    revalidate_scope(
+        projection=_three_document_projection(),
+        request_scope=_key(),
+        bound_buffer_key=None,
+        buffer_keys=("outline", "document"),
+        paths=(OUTLINE_PATH, None),
+    )
+
+
+def test_every_supplied_path_is_confined_not_merely_the_bound_one():
+    """Task 5.2: EVERY supplied path must be in-scope and editable. Confining
+    only the bound buffer would let a turn carry material from outside the tile
+    as long as it claimed to be working on something else."""
+    projection = _three_document_projection()
+    with pytest.raises(TurnScopeError):
+        revalidate_scope(
+            projection=projection,
+            request_scope=_key(),
+            bound_buffer_key=_THREE[0],
+            buffer_keys=("outline",) + _THREE + ("docs/not-in-scope.md",),
+            paths=(OUTLINE_PATH,) + _THREE + ("docs/not-in-scope.md",),
+        )
+
+
+def test_the_binding_check_runs_per_buffer_over_the_whole_set():
+    """Design §1.2: `_require_buffer_binding` runs per buffer exactly as it did
+    for the one document Phase A allowed. A single buffer smuggled in under
+    another repository refuses the whole turn."""
+    buffers = _three_document_buffers()
+    buffers[2] = dataclasses.replace(buffers[2], repository="another-repo")
+    with pytest.raises(TurnScopeError):
+        build_prompt_envelope(
+            projection=_three_document_projection(),
+            request_scope=_key(),
+            active_document_path=_THREE[1],
+            model_id="opaque-local-id",
+            model_data_handling="handling",
+            model_input_limit_bytes=800_000,
+            model_output_limit_bytes=900_000,
+            working_subject="subject",
+            transcript=(),
+            buffers=buffers,
+            message="message",
+            bound_buffer_key=_THREE[1],
+        )
+
+
+def test_a_stale_hash_on_any_one_of_n_buffers_refuses_the_whole_turn():
+    """The per-buffer identity check, applied N times and nowhere widened."""
+    buffers = _three_document_buffers()
+    buffers[3] = dataclasses.replace(buffers[3], content_hash="0" * 64)
+    with pytest.raises(TurnIdentityMismatchError):
+        build_prompt_envelope(
+            projection=_three_document_projection(),
+            request_scope=_key(),
+            active_document_path=_THREE[1],
+            model_id="opaque-local-id",
+            model_data_handling="handling",
+            model_input_limit_bytes=800_000,
+            model_output_limit_bytes=900_000,
+            working_subject="subject",
+            transcript=(),
+            buffers=buffers,
+            message="message",
+            bound_buffer_key=_THREE[1],
+        )
+
+
+def _observed_for(keys) -> doxbench_turns.ObservedHashes:
+    return doxbench_turns.ObservedHashes(by_key={
+        key: ContentIdentity(algorithm="sha256", hex=f"{index:064x}")
+        for index, key in enumerate(("outline",) + tuple(keys))
+    })
+
+
+def test_a_proposal_may_target_any_buffer_key_the_request_supplied():
+    """Task 5.3: the target is a BUFFER KEY drawn from the request's own set,
+    so a proposal can name a path -- which the retired two-value enum could
+    not express at all."""
+    observed = _observed_for(_THREE)
+    validated = doxbench_turns.validate_assistant_response(
+        {"assistant_prose": "here", "proposals": [{
+            "target": _THREE[1],
+            "base_hash": observed.for_key(_THREE[1]).hex,
+            "summary": "revise alpha", "content": "# revised\n"}]},
+        observed=observed)
+    assert validated.proposals[0].target == _THREE[1]
+
+
+def test_a_proposal_naming_a_key_the_request_did_not_supply_is_unroutable():
+    """The delta's `A proposal targets a buffer that was not sent` scenario:
+    refused as unroutable rather than guessed at."""
+    observed = _observed_for(_THREE)
+    with pytest.raises(doxbench_turns.TurnResponseError) as raised:
+        doxbench_turns.validate_assistant_response(
+            {"assistant_prose": "here", "proposals": [{
+                "target": "ideation/staging/demo-topic/never-sent.md",
+                "base_hash": "a" * 64, "summary": "s", "content": "c"}]},
+            observed=observed)
+    assert "unknown" in str(raised.value)
+
+
+def test_the_proposal_cap_is_the_requests_own_buffer_count():
+    """Task 5.3: the cap stops being the literal 2. With four buffers supplied,
+    four proposals are inside the bound and five are not -- so widening the
+    loaded set neither silently widens what one response may rewrite beyond
+    what it was grounded on, nor silently narrows it, which a fixed 2 would
+    have done the moment a third document was loaded."""
+    observed = _observed_for(_THREE)
+    keys = ("outline",) + doxbench_turns.ordered_document_keys(_THREE)
+    at_bound = doxbench_turns.validate_assistant_response(
+        {"assistant_prose": "here", "proposals": [
+            {"target": key, "base_hash": observed.for_key(key).hex,
+             "summary": "s", "content": "c"} for key in keys]},
+        observed=observed)
+    assert len(at_bound.proposals) == 4
+    with pytest.raises(doxbench_turns.TurnResponseError) as raised:
+        doxbench_turns.validate_assistant_response(
+            {"assistant_prose": "here", "proposals": [
+                {"target": key, "base_hash": observed.for_key(key).hex,
+                 "summary": "s", "content": "c"} for key in keys]
+                + [{"target": keys[0], "base_hash": observed.outline.hex,
+                    "summary": "s", "content": "c"}]},
+            observed=observed)
+    assert "too many proposals" in str(raised.value)
+
+
+def test_two_proposals_naming_one_buffer_key_still_refuse():
+    observed = _observed_for(_THREE)
+    with pytest.raises(doxbench_turns.TurnResponseError) as raised:
+        doxbench_turns.validate_assistant_response(
+            {"assistant_prose": "here", "proposals": [
+                {"target": _THREE[0], "base_hash": observed.for_key(_THREE[0]).hex,
+                 "summary": "s", "content": "one"},
+                {"target": _THREE[0], "base_hash": observed.for_key(_THREE[0]).hex,
+                 "summary": "s", "content": "two"}]},
+            observed=observed)
+    assert "duplicated" in str(raised.value)
+
+
+def test_a_narrowing_may_not_admit_a_buffer_the_request_never_supplied():
+    """G-1's narrowing survives and stays a NARROWING: a `permitted_targets`
+    naming a key outside the supplied set cannot smuggle it in, because a
+    narrowing that widened would be a widening wearing the wrong name."""
+    observed = _observed_for(_THREE)
+    with pytest.raises(doxbench_turns.TurnResponseError):
+        doxbench_turns.validate_assistant_response(
+            {"assistant_prose": "here", "proposals": [{
+                "target": "ideation/staging/demo-topic/never-sent.md",
+                "base_hash": "a" * 64, "summary": "s", "content": "c"}]},
+            observed=observed,
+            permitted_targets=("ideation/staging/demo-topic/never-sent.md",))
+
+
+def test_the_system_contract_states_the_source_ranking_hierarchy():
+    """Task 5.5: the hierarchy is STATED, in order, and names its last rank
+    non-authoritative rather than leaving the model to infer any of it."""
+    text = doxbench_turns.SYSTEM_CONTRACT_TEXT
+    assert doxbench_turns.SOURCE_RANKING_TEXT in text
+    order = [text.index(fragment) for fragment in (
+        "ratified or standard canon",
+        "accepted or staged facts",
+        "promoted findings",
+        "active thread state",
+        "harness-local memory",
+    )]
+    assert order == sorted(order), "the hierarchy must be stated in rank order"
+    assert "NON-AUTHORITATIVE" in text
+
+
+def test_the_request_body_bound_measures_every_loaded_document():
+    """Task 5.1's arithmetic half: a bound that measured only some of the
+    buffers it is bounding would be no bound at all."""
+    ceiling = doxbench_turns.MAX_REQUEST_BODY_BYTES
+    doxbench_turns.validate_request_body_bytes(
+        outline_bytes=1, message_bytes=1, working_subject_bytes=1,
+        transcript_bytes=1, document_buffer_bytes=(1, 1, 1))
+    with pytest.raises(TurnLimitError) as raised:
+        doxbench_turns.validate_request_body_bytes(
+            outline_bytes=1, message_bytes=1, working_subject_bytes=1,
+            transcript_bytes=1, document_buffer_bytes=(ceiling, ceiling))
+    assert raised.value.dimension == "request_body_bytes"
+    assert raised.value.measured == 2 * ceiling + 4

@@ -4,7 +4,10 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "consent-instrument-class-registry.schema.yaml"
 title: "xFactory consent-instrument class registry: domain-owned classes under neutral constraints"
-contract_schema_version: 1
+# 1 -> 2 (add-client-identity-roster): `status_aliases` values track the
+# instrument schema's six-state lifecycle. Additive — no existing alias
+# declaration becomes invalid.
+contract_schema_version: 2
 type: object
 description: >-
   Each domain declares its own CLOSED registry of consent-instrument classes
@@ -74,7 +77,10 @@ properties:
             minLength: 1
           additionalProperties:
             type: string
-            enum: [draft, pending_signatures, executed, amended, terminated]
+            enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
           # Domain spelling -> neutral enum value, DECLARED at conformance
           # time (D3). Keys are domain spellings only; the validator refuses
           # an alias whose key is itself a neutral spelling.
+          # A domain spelling MAY target `withdrawn`; declaring `withdrawn`
+          # itself as an alias of `terminated` is nonconformant, because the
+          # two are distinct events that both raise the cascade obligation.

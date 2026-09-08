@@ -16,7 +16,7 @@ Companion to `RESUME-HERE.md` (mission/constraints) in this directory.
 | **D** (domain regression) | T067, T072, T073 | `tests/hermes_runtime_contracts/test_domain_regression.py`; `contracts/hermes-runtime/domain-regression-inventory.schema.yaml`; `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`; `contracts/hermes-runtime/fixtures/regression/*.yaml`; `scripts/hermes_runtime_validation/domain_regression.py` |
 | **H** (handoff) | T069, T075 | `tests/hermes_runtime_contracts/test_consumer_handoff.py`; `contracts/hermes-runtime/consumer-handoff-receipt.schema.yaml`; `contracts/hermes-runtime/fixtures/pins/consumer-receipt-wrong-repository.yaml` (+ any additional `fixtures/pins/handoff-*.yaml`); `scripts/hermes_runtime_validation/consumer_handoff.py` |
 | **DOC** | T076 | `contracts/hermes-runtime/README.md` (edit), `docs/contract-versioning-policy.md` (edit), `docs/xfactory-domain-factory-model.md` (edit), `docs/terminology-and-repo-topology.md` (edit or create) |
-| **Coordinator** | T077, T078 | `contracts/hermes-runtime/contract-index.yaml`, `fixtures/index.yaml`, `acceptance-map.yaml`, `evidence-register.yaml`; `scripts/validate-hermes-runtime-contracts.py`; `tests/hermes_runtime_contracts/test_validator_cli.py`; `tests/hermes_runtime_contracts/test_fixture_index.py`; `openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`; `specs/005-customer-subject-runtime/tasks.md` |
+| **Coordinator** | T077, T078 | `contracts/hermes-runtime/contract-index.yaml`, `fixtures/index.yaml`, `acceptance-map.yaml`, `evidence-register.yaml`; `scripts/validate-hermes-runtime-contracts.py`; `tests/hermes_runtime_contracts/test_validator_cli.py`; `tests/hermes_runtime_contracts/test_fixture_index.py`; `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`; `specs/005-customer-subject-runtime/tasks.md` |
 
 ## §2 Forbidden for ALL lanes (coordinator-enforced)
 
@@ -57,7 +57,7 @@ identity asserted inside `properties` as `schema_version: {const: 1}` +
 | `domain-regression-inventory.schema.yaml` | `domain-regression-inventory` | 1 | `openxfactory-hermes-runtime-domain-regression-inventory` |
 | `consumer-handoff-receipt.schema.yaml` | `consumer-handoff-receipt` | 1 | `openxfactory-hermes-runtime-consumer-handoff-receipt` |
 
-Content requirements (authoritative sources lanes MUST read: `specs/005-customer-subject-runtime/data-model.md` §§Job Lifecycle V2 / DomainRegressionEntry / HermesG0HandoffReceipt; the NJE-004 / SCO-002 / HGR-009 delta specs under `openspec/changes/add-hermes-customer-subject-runtime-contract/specs/`; `specs/005-customer-subject-runtime/contracts/{schema-inventory,release-and-consumer-pin}.md`):
+Content requirements (authoritative sources lanes MUST read: `specs/005-customer-subject-runtime/data-model.md` §§Job Lifecycle V2 / DomainRegressionEntry / HermesG0HandoffReceipt; the NJE-004 / SCO-002 / HGR-009 delta specs under `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/specs/`; `specs/005-customer-subject-runtime/contracts/{schema-inventory,release-and-consumer-pin}.md`):
 
 - **v2 jobs**: every record requires the neutral scope tuple via
   `$ref shared-definitions.schema.yaml#/$defs/layer_scope`; reuse

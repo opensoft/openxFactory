@@ -1,0 +1,56 @@
+# NEGATIVE (expect: shared-authority-identity). THREE bindings on ONE secret, the
+# SECOND AND THIRD sharing a fetch identity while the first differs from both.
+#
+# THIS IS THE ARITY FIXTURE. The predicate this rule inherits kept the FIRST
+# binding seen for each secret reference and compared every later one against it,
+# so the pair (second, third) was never examined at all: both examined pairs
+# lifted cleanly and the record shipped the exact authority collapse
+# `shared-authority-identity` exists to name. The first-against-rest shape is
+# REPLACED, not extended — the conditions hold over EVERY PAIR.
+#
+# Delete the third binding and this record is the packaged POSITIVE. That is the
+# point: nothing about the first two changed.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true
+  projection_report_builder:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-report-builder
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_report_builder
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+      shared_credential_acknowledged: true

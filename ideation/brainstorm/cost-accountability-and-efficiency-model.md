@@ -13,9 +13,10 @@ layer** runs a reporting-to-accounting function tracking company-wide costs and
 **defines the tracking granularity the subject layer must honor**; and the
 **Project/Subject layer** carries a project accountant tracking project and
 sub-project task spend. Sibling of `codexfactory-domain-roster-draft.md`
-(where the domain slice is captured); grandchild of
+(where the domain slice is captured; moved 2026-09-07 to
+`opensoft/codexFactory@83c9c35a`); grandchild of
 `hermes-layer-content-seeding.md`.
-Topics: cost-accountability, credits, clock-in, efficiency-audit,
+Topics: practice-adoption, cost-accountability, credits, clock-in, efficiency-audit,
 practice-catalog, domain-hermes, client-hermes, project-hermes, accounting,
 spend-tracking, granularity-contract, layer-content-seeding
 Repository context: openxFactory (spans domain/client/subject content + hermes-install runtime evidence)

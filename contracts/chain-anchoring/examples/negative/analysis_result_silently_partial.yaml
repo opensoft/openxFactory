@@ -1,0 +1,32 @@
+# expected_failure: analysis_result_silently_partial
+# expected_failure_detail: names no omitted correlation
+# A refused correlation returned with nothing naming what was refused: a
+# consumer reads the value it is given and not the circumstance behind it, so a
+# result that merely omits what it could not do is consumed as a result that
+# had nothing to add. The three shapes — complete, correlation-refused, no-
+# correlation-requested — are decidable apart BY THE RESULT ITSELF.
+schema_version: 1
+kind: xfactory_chain_anchoring_analysis_result
+result_id: ar-negative-0065
+analysis_ref: ana-example-0001
+status: correlation_refused
+per_plane_results:
+- plane: record
+  result_ref: res-example-record-0001
+- plane: demographic
+  result_ref: res-example-demographic-0001
+deidentification:
+  claimed: false
+  named_determination_ref: null
+  remains_governed_personal_data: true
+produced_at: '2026-08-30T15:00:00Z'
+record_version: 1
+notes: 'the authorized join, end to end: per-plane results carried distinctly from
+  the correlated output, the output naming the derivation and the use that authorized
+  it — and no de-identification claimed, because plane separation alone does not
+  make one; absent a named determination the result remains governed under the same
+  custody as the planes it came from'
+result_digest:
+  construction: xfc-jcs-sha256-1
+  subject: analysis_result
+  value: sha256:c8e76d619d708aa6d98d3874aac8e02cee9ce8093d90a97f355145a166daca15

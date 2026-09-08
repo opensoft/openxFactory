@@ -1,0 +1,46 @@
+# THE DELIBERATION RETURN, in the shape register entry number two declares.
+#
+# WHAT IS HERE AND NOTHING ELSE: the per-seat outputs, keyed by seat identity,
+# and the three run identifiers that bind the return to the convening it answers
+# — the convening job id, the VERIFIED subject pin, and the digest of the
+# INBOUND sealed bundle. A return that could not name the exact bundle, at the
+# exact verified pin, for the exact convening job, would be a return nothing
+# could be matched against, and matching it afterwards by timing or by order is
+# the guess the binding removes.
+#
+# WHAT IS DELIBERATELY ABSENT. No signature: the return is UNSIGNED on the host,
+# because the entry forbids any seat key or signing key ever being present there,
+# and it is signed ON RETURN by the originating repository's own hosted signer.
+# No outcome, no verdict, no eligibility, no recommendation: what the seats
+# produce is evidence, and the outcome is computed by the runtime from the signed
+# returns, outside this boundary.
+#
+# THE SEAT'S OUTPUT IS OPAQUE, and both forms are shown so a reader sees the
+# choice the shape offers: `inline` for an output small enough to travel in the
+# record, `reference` for one that sits beside it in the sealed return object
+# with its byte hash. The producing estate's own per-seat members — turn counts,
+# declared caps, model usage — travel INSIDE the payload rather than becoming
+# members of this neutral family.
+schema_version: 1
+kind: xfactory_clearing_deliberation_return
+operation: deliberation
+lane: artifact
+binding:
+  convening_job_id: cvn-2026-09-04-0007
+  verified_subject_pin: subject:opensoft/codexFactory@0d5e1ba9
+  inbound_bundle_digest: sha256:2b7d1c4e6a8f0b3d5e7091a2c4e6f80b1d3f5a7c9e0b2d4f6a8c0e2f4a6b8d0c
+seats:
+  reviewer-a:
+    output:
+      form: inline
+      payload: |
+        {"seat":"reviewer-a","num_turns":4,"declared_turn_cap":8,
+         "declared_model":"example-model-1","model_usage":{"input":18422,"output":2109},
+         "notes":"the seat's own output, carried as the producing estate wrote it"}
+      content_hash: sha256:7c1e9a3b5d7f0921a3c5e7f90b2d4f6a8c0e2f4a6b8d0c2e4f60718293a4b5c6
+  reviewer-b:
+    output:
+      form: reference
+      path: seat_results/reviewer-b.json
+      content_hash: sha256:aa11bb22cc33dd44ee55ff6677889900aabbccddeeff00112233445566778899
+      size_bytes: 14208

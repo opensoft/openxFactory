@@ -1,0 +1,43 @@
+# INVALID roster fragment — violates FR-003 "Provider consent alone MUST NOT
+# be recordable as access": the entry names its granted permissions and its
+# ratified capability but declares NO ADMISSION ACT AT ALL. The measured
+# finding this contract exists for is four admin-consented permissions held
+# for six days that still returned 401 until the admission act landed, so
+# consent is not admission and an entry that records only consent records
+# nothing this family calls access (finding consent-recorded-as-access).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_a
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission: []
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

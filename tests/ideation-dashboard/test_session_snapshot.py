@@ -54,7 +54,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT, serve_surface_source
 
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import cli as cli_mod
@@ -826,15 +826,30 @@ def test_the_hosted_session_arrival_path_is_recorded_and_not_built():
     assertion is deliberately on the refusal site's own comment — that is where
     the next reader will be standing when they ask "why can this not be hosted?"
     """
-    src = (REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py").read_text(
-        encoding="utf-8")
+    # REPOINTED by `split-opendox-two-layer-product` § 2.4 PR 3 of 4, disclosed
+    # in that PR's body. Every anchor below used to be read out of `serve.py`
+    # alone. PR 3 moved `hosted_ref_refused` itself into `serve_wire.py` (both
+    # openXdox's projection column and the openxFactory lane column read it, and
+    # a column importing `serve` is the cycle `serve_wire` exists to prevent),
+    # `_serve_snapshot`/`_serve_source` into `serve_projection.py` and
+    # `_handle_refresh_action` into `serve_openxfactory_lanes.py`. Pointed at one
+    # file this test would have failed outright, and narrowed to that file's
+    # remaining content it would have gone hollow. It reads the whole serve
+    # surface instead — the same widening the `apply_lane` absence below already
+    # took, at the same strength: the definition, its named prose, the call-site
+    # floor and the per-route bodies are all still asserted.
+    src = serve_surface_source()
     marker = "def hosted_ref_refused("
     assert marker in src
     block = src.split(marker, 1)[1].split("\ndef ", 1)[0]
     assert "add-ideation-intent-plane" in block
     assert "apply-lane" in block
     assert "(repository, ref)" in block
-    # RECORDED, not built: no apply-lane binding exists anywhere in the serve
+    # RECORDED, not built: no apply-lane binding exists anywhere in the serve.
+    # This is an ABSENCE over the whole serve (`split-opendox-two-layer-
+    # product` § 2.4 made it seven files), so it is asserted over the surface,
+    # not just this one file — widened, never narrowed, per the standing
+    # ruling for this slice.
     assert "apply_lane" not in src
     # every route that accepts a ref asks the one predicate
     assert src.count("hosted_ref_refused(") >= 4   # the definition + 3 call sites

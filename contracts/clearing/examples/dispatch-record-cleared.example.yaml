@@ -1,0 +1,89 @@
+# A CLEARED DISPATCH, RECORDED — and recorded FROM DECLARATIONS, because this
+# operation carries no bundle.
+#
+# `bundle_present: false` is the fact that explains every null below. The
+# ratified requirement covers this case explicitly: "Where a registered operation
+# is dispatched WITHOUT a sealed bundle — as the first read-only operation is —
+# the record carries the REGISTER ENTRY'S DECLARED data-handling classification,
+# and, for each selected lane, that lane's DECLARED runner group and DECLARED
+# dispatch label." So `policy_checked` rows carry a null CLAIM and a resolved
+# value: there was no bundle to claim anything.
+#
+# THE THREE VERIFICATION CLASSES ARE KEPT APART, which is most of the point of
+# this shape. `provider_verified` holds only fields the provider can answer.
+# `policy_checked` holds fields nothing can verify — reported as policy-checked,
+# never as verified, because "verified" applied to a field nothing could verify
+# is the false assurance this boundary exists to prevent. `origin_signature` is
+# its OWN outcome; here `not_required`, because no bundle and no registered
+# producer are in play.
+#
+# THE LANES ARE DECLARED. There is no observed counterpart in this record and
+# there is none in the shape: observed group membership is established only by
+# the single-door attestation reading the provider's API.
+#
+# DISPOSAL IS A FIELD, NOT A LOG LINE. add-cpc-clearing-boundary put it here
+# deliberately — this record already exists, is already written for admissions
+# and refusals alike, and its completeness is already attested rather than
+# assumed. Note what the method says: no workspace was created at all, which is a
+# stronger statement than one that was cleaned up.
+schema_version: 1
+kind: xfactory_clearing_dispatch_record
+dispatch_id: cd-33999123456-1
+dispatched_at: '2026-09-03T11:03:58Z'
+actor: brettheap
+actor_id: '1513478'
+clearing_repository: opensoft/xFactory
+clearing_workflow_ref: opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main
+run_id: '33999123456'
+run_attempt: 1
+run_url: https://github.com/opensoft/xFactory/actions/runs/33999123456
+cleared: true
+operation:
+  claimed: readiness-diagnostic
+  resolved: readiness-diagnostic
+bundle_present: false
+verification:
+  provider_verified:
+  - field: origin_repository
+    claimed: opensoft/xFactory
+    resolved: opensoft/xFactory
+    agrees: true
+  - field: dispatching_identity
+    claimed: brettheap
+    resolved: brettheap
+    agrees: true
+  policy_checked:
+  - field: operation
+    claimed: readiness-diagnostic
+    resolved_from_register: readiness-diagnostic
+    agrees: true
+  - field: worker_profile
+    claimed: null
+    resolved_from_register: cpc-readonly-probe
+    agrees: true
+  - field: data_handling
+    claimed: null
+    resolved_from_register: public_log_only
+    agrees: true
+  origin_signature:
+    performed: false
+    outcome: not_required
+    register_row_id: null
+    key_id: null
+lane_declarations:
+- lane: coding
+  declared_runner_group: xfactory-execution-lane-workers
+  declared_dispatch_label: host-coding-cpc-brett01
+- lane: artifact
+  declared_runner_group: xfactory-artifact-workers
+  declared_dispatch_label: host-rider-cpc-brett01
+declared_data_handling: public_log_only
+refusal: null
+workspace_disposal:
+  disposed: true
+  disposed_at: '2026-09-03T11:09:02Z'
+  method: runner temp accumulator removed at job teardown; no workspace was created because
+    the operation performs no checkout
+  evidence_ref: https://github.com/opensoft/xFactory/actions/runs/33999123456#step:6
+chain_ref: null
+outcome: success

@@ -4,12 +4,21 @@ and agent write passes through it, and every refusal is reported, not silent
 
 from __future__ import annotations
 
+import types
 from pathlib import Path
 
 import pytest
 
 from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
 
+import output_boundary
+
+# Imported through the RE-EXPORT path on purpose. The guard's source of truth
+# is `scripts/output_boundary.py` since `split-opendox-two-layer-product`
+# § 2.1, and `ideation_dashboard.boundary` stays a live alias for it; every
+# assertion below therefore also exercises the alias, and
+# `test_the_re_export_hands_back_the_same_objects` pins that it is an alias
+# rather than a second definition.
 from ideation_dashboard import boundary
 from ideation_dashboard.boundary import (
     AGENT, MACHINERY, OUTSIDE_ALLOWLIST, OUTSIDE_ROOT,
@@ -296,9 +305,59 @@ def test_the_two_governed_write_sites_spell_newline_empty_at_the_source():
     grep is the strongest assertion this platform admits. If a third
     governed write site lands (count -> 3) or a revert drops one
     (count -> 2 becomes 1), the count forces the author to face this
-    docstring and decide deliberately."""
-    src = Path(boundary.__file__).read_text(encoding="utf-8")
+    docstring and decide deliberately.
+
+    Read from `output_boundary`, which is where the two sites LIVE since
+    § 2.1 moved the guard out of this package; reading
+    `ideation_dashboard.boundary` would now read the re-export shim and count
+    zero."""
+    src = Path(output_boundary.__file__).read_text(encoding="utf-8")
     sites = src.count('write_text(text, encoding="utf-8", newline="")')
     assert sites == 2, (
         f"expected exactly the two governed write sites (create_document, "
         f"rewrite_session_document) to spell newline=\"\"; found {sites}")
+
+
+# ---- the re-export shim (split-opendox-two-layer-product § 2.1) ----
+
+def test_the_re_export_hands_back_the_same_objects():
+    """`ideation_dashboard.boundary` is an ALIAS for `output_boundary`, not a
+    second copy of the guard.
+
+    This matters beyond tidiness. Roughly thirty test modules and ten package
+    modules import the boundary by the old path while `doc_health` now imports
+    the new one, so a duplicate definition would make `except BoundaryViolation`
+    silently miss refusals raised on the other side, and `isinstance(r,
+    Refusal)` false for a refusal the same run produced. Identity is the only
+    assertion that rules that out; equal behaviour would not."""
+    assert boundary.OutputBoundary is output_boundary.OutputBoundary
+    assert boundary.HumanGate is output_boundary.HumanGate
+    assert boundary.BoundaryViolation is output_boundary.BoundaryViolation
+    assert boundary.Refusal is output_boundary.Refusal
+    for name in ("MACHINERY", "AGENT", "HUMAN", "OUTSIDE_ROOT",
+                 "OUTSIDE_ALLOWLIST", "SOURCE_EDIT", "SOURCE_DELETE",
+                 "SESSION_REWRITE", "GATE_SIDE_EFFECT", "DOCUMENT_ESCAPE",
+                 "HEADER_INCOMPLETE", "WORKBENCH_DIR", "STAGING_DIR"):
+        assert getattr(boundary, name) == getattr(output_boundary, name), name
+
+
+def test_the_re_export_covers_every_public_name_the_guard_defines():
+    """A name added to the guard and NOT re-exported would break the old import
+    path for that name only — the kind of half-move that passes every existing
+    test and fails on somebody else's branch. Compared against the guard's own
+    public surface so the shim cannot fall behind silently."""
+    public = set()
+    for name, value in vars(output_boundary).items():
+        if name.startswith("_") or isinstance(value, types.ModuleType):
+            continue  # private, or a stdlib module the guard imported
+        home = getattr(value, "__module__", "output_boundary")
+        if home == "output_boundary":  # not a stdlib name re-bound here
+            public.add(name)
+    assert {"OutputBoundary", "HumanGate", "MACHINERY"} <= public, (
+        f"the surface scan found {sorted(public)}, which does not even contain "
+        f"the guard's own headline names — the scan is broken, not the shim")
+    missing = sorted(public - set(boundary.__all__))
+    assert missing == [], (
+        f"`output_boundary` defines {missing} but `ideation_dashboard.boundary` "
+        f"does not re-export them, so `from ideation_dashboard.boundary import "
+        f"<name>` is broken for those names")

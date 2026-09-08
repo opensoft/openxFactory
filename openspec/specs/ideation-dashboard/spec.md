@@ -1,7 +1,27 @@
 # ideation-dashboard Specification
 
 ## Purpose
-TBD - created by archiving change add-ideation-dashboard. Update Purpose after archive.
+
+Define the dashboard as a generated projection, never a source of truth: one
+deterministic generator scans a single repository at a single ref and emits
+the schema-versioned `ideation-dashboard-snapshot` that every renderer reads
+through the snapshot index, and when the rendered view disagrees with the
+repository it is the view that is regenerated. Build the human's working
+surfaces on that one snapshot — the six-column docs-first realization funnel
+and its secondary views, the cluster canvas, the keyword-lens set builder,
+the workbench's temporary reference sets, the drill-down explorer and
+read-only viewer, and the repository / project / project-group navigation the
+project register resolves. Fix the interactivity boundary as the capability's
+spine: the generator, renderers, workbench actions and every agent path are
+non-mutating over source documents and may never execute a lifecycle gate,
+while humans create, edit and gate through the console, branch sessions and
+the doxBench editor, each act producing the same governed artifacts as the
+manual path plus a recorded action, and kickoff dispatching the ratified
+change's next step under the workflow-gate contract rather than running it
+here. Keep the model-facing work equally bounded — grounded chat turns and
+distilled abstracts are explicitly invoked, session-local, reached through
+one narrow provider boundary with broker-minted tokens, and never snapshot
+fields.
 ## Requirements
 ### Requirement: Snapshot projection contract
 The ideation dashboard SHALL be a generated projection, never a source of truth: a deterministic generator scans `ideation/` plus active and archived OpenSpec changes for ONE repository at ONE ref and emits one schema-versioned snapshot (`kind: ideation-dashboard-snapshot`, `schema_version`, and a `repository` field), and renderers SHALL read only snapshots, addressed by the (repository, ref) pair through the snapshot registry. When the dashboard disagrees with the repository, the dashboard is wrong and is regenerated. The generator SHALL be runnable for every registered repository, and the `repository` field plus the snapshot index are what make per-repository instances and an aggregate roll-up composable — no repository is privileged, and the earlier openxFactory-only scope is superseded.
@@ -49,6 +69,29 @@ from the same snapshot.
 ### Requirement: Project grouping hierarchy
 The dashboard SHALL support a two-level grouping hierarchy over repositories — repositories belong to named projects (a project is a set of repositories) and projects belong to project groups — declared in one schema-versioned project register (`kind: project-register`, neutral schema, instance owned by the aggregation/workspace layer), resolved by the generator into `project` and `project_group` snapshot fields, and surfaced through the project-first header (the project dropdown and the repository filter) — the former header-level roll-up strip is retired (Brett's 2026-08-06 ruling), with the pure grouping model remaining available to any view wanting a roll-up. Repository membership SHALL be multi-parent: a repository MAY live in any number of projects (a project is a named view over repositories, not an owner), the snapshot's singular `project` field SHALL carry the PRIMARY project (the first project in register order declaring the repository, so grouped roll-ups render each repository under exactly one heading), and the snapshot SHALL additionally carry the full membership as an additive `projects` list whose first element is that primary. A project SHALL belong to at most one project group. Grouping is descriptive navigation only: it confers no lifecycle state or authority, and renderers read grouping from the snapshot, never from the register directly.
 
+**ADDED BY `add-project-repo-schema`, and additive in every direction.** The
+register SHALL additionally carry an OPTIONAL per-project `schema` election, an
+OPTIONAL per-project `reference` recording the document that election followed,
+and an OPTIONAL per-project `repository_roles` list assigning each named
+repository a `role` of `spec`, `code` or `assembly`. All three SHALL be optional
+and additive: a project declaring none of them is legal, renders identically and
+is reviewed identically, and `repositories` remains the single membership answer
+every existing consumer reads — a repository named in `repository_roles` SHALL
+also appear in that project's `repositories`, and at most one repository per
+project SHALL carry `role: assembly`. Where an electing project carries its own
+assembly-root manifest, the register row SHALL be DERIVABLE FROM that manifest
+and the manifest is the SOURCE; the register stays descriptive and is never the
+origin of the election. Register writes continue to reach the file only through
+the recorded `project-register-edit` commission.
+
+**THE EXISTING POSTURE GOVERNS THE NEW FIELDS UNCHANGED.** Neither `schema`, nor
+`reference`, nor a `role` SHALL confer lifecycle state, authority, gate standing
+or clearance eligibility over any repository, project or group it names, and a
+consumer deriving any permission from one is DEFECTIVE. These are exactly the
+fields a later consumer reads as permission, which is why the posture is restated
+here rather than left to the sentence above it — and why it is restated a third
+and fourth time, in the schema's own description and in the instance header.
+
 #### Scenario: A project spans several repositories
 - **WHEN** the project register maps more than one repository to a project
 - **THEN** the project roll-up MUST aggregate those repositories' snapshot entries under one project heading
@@ -70,6 +113,34 @@ The dashboard SHALL support a two-level grouping hierarchy over repositories —
 #### Scenario: The register changes
 - **WHEN** the project register is edited
 - **THEN** grouping updates only through snapshot regeneration — rendered grouping is never hand-edited
+
+#### Scenario: A project records a schema election and leg roles
+- **WHEN** a register row declares `schema: project-repo-schema`, a `reference`, and a `repository_roles` list naming one assembly, one spec and one code repository
+- **THEN** the row is valid and the election is machine-readable by the instrument that already names the group
+- **AND** the election confers no lifecycle state, authority, gate standing or clearance eligibility over any repository it names
+
+#### Scenario: A project declares neither field
+- **WHEN** a register row carries no `schema`, no `reference` and no `repository_roles`
+- **THEN** the row is valid, renders identically and is reviewed identically
+- **AND** nothing is owed by a project that declined the schema
+
+#### Scenario: A role names a repository the project does not list
+- **WHEN** a `repository_roles` entry names a repository absent from that project's `repositories`
+- **THEN** the register is refused, `repositories` being the single membership answer every existing consumer reads
+
+#### Scenario: A project names two assembly roots
+- **WHEN** a project assigns `role: assembly` to more than one repository
+- **THEN** the register is refused, an electing project having exactly one per-project root
+
+#### Scenario: A consumer reads authority out of a role
+- **WHEN** a tool treats `role: spec` as evidence that spec authority lives in that repository
+- **THEN** that consumer is defective and its reading MUST NOT be honoured
+- **AND** the register has not thereby become a governance boundary, which the ratified prose forbids
+
+#### Scenario: A row disagrees with the project's own manifest
+- **WHEN** an electing project's assembly-root manifest and its register row disagree
+- **THEN** the manifest is the source and the row is derivable from it
+- **AND** the disagreement is reported as drift rather than silently reconciled
 
 ### Requirement: Cluster canvas working surface
 Each cluster SHALL open a canvas working surface rendered from the snapshot: a member pane listing exactly the cluster's `Topics:`-derived document edges (downstream artifacts — staged picks, proposals, realizations — render in a lineage strip, never as members), an evidence board whose pinned passages carry section reference and passage hash, gap prompts rendered as actionable slots (member documents unclaimed by any possible; possibles without document support), and a possibles rail with option-set grouping and a composer that drafts possibles-register entries for human commit; canvas machinery mutates no source document and AI-derived suggestions enter only as pending-review items.
@@ -291,7 +362,11 @@ The dashboard SHALL be delivered as a local generate-and-open command plus a pub
 - **THEN** it MUST NOT — legacy docs without `Possible feats:` sections simply carry no possibles
 
 ### Requirement: Staged-topic proposal commissioning
-The gate console SHALL offer a human-only `propose` action on a staging topic that commissions proposal authoring as a recorded dispatch — a `workflow-job` descriptor naming the proposal-authoring workflow and targeting the topic's staging id, plus a gate-action record — without authoring anything itself; the commissioned authoring runs externally and lands as an ordinary OpenSpec change subject to the existing review and ratify gates. The console SHALL refuse a topic absent from the pinned checkout's staging area and SHALL refuse a duplicate commission while a dispatched `propose` job for the same topic remains undelivered. The console SHALL ALSO refuse `propose` while the topic's tile carries an UNRESOLVED branch session, and the refusal MUST name the session and the two resolutions available — merge its pull request, or abandon the session to discard it. Proposal is the end of the staging pipeline: commissioning it from a tile whose drafts are still scattered across an unmerged branch would propose from a state no reviewer can see, so the human SHALL clear the session first. A session is UNRESOLVED while its snapshot registry entry is live; a merged session and an abandoned session are both resolved, and a branch surviving an abandon MUST NOT block propose, because the abandon already recorded the human's decision to discard. An abandoned branch is retained as reviewable evidence only until the topic's PROPOSAL exists; once it does, that branch MAY be deleted, because the proposal has closed the topic off and the abandoned exploration no longer has a question to answer. The deletion SHALL remain a human-invoked cleanup rather than an automatic consequence of commissioning — `propose` dispatches authoring and the proposal lands externally, so the branch MUST NOT be destroyed on the strength of a commission that has not yet produced anything.
+The gate console SHALL offer a human-only `propose` action on a staging topic that commissions proposal authoring as a recorded dispatch — a `workflow-job` descriptor naming the proposal-authoring workflow and targeting the topic's staging id, plus a gate-action record — without authoring anything itself; the commissioned authoring runs externally and lands as an ordinary OpenSpec change subject to the existing review and ratify gates. The console SHALL refuse a topic absent from the pinned checkout's staging area and SHALL refuse a duplicate commission while a dispatched `propose` job for the same topic remains undelivered. The console SHALL ALSO refuse `propose` while the topic's tile carries an UNRESOLVED branch session, and the refusal MUST name the session and the two resolutions available — merge its pull request, or abandon the session to discard it. Proposal is the end of the staging pipeline: commissioning it from a tile whose drafts are still scattered across an unmerged branch would propose from a state no reviewer can see, so the human SHALL clear the session first. A session is UNRESOLVED while its snapshot registry entry is live; a merged session and an abandoned session are both resolved, and a branch surviving an abandon MUST NOT block propose, because the abandon already recorded the human's decision to discard.
+
+An abandoned branch SHALL remain reviewable evidence until a human invokes cleanup with a durable RETENTION-RELEASE basis. The console SHALL accept an exact-tile active proposal, an archived change carrying that exact staged origin, or an executed demotion returning the proposal to that exact tile as machine-resolved preservation evidence. A demotion plan, proposal dispatch, missing change, missing worktree, missing tile, or non-live session state MUST NOT itself release retention. Demotion execution SHALL be proved by a durable execution receipt for new demotions; a pre-receipt demotion MAY be accepted only when the exact transition manifest and an exact returned-topic artifact jointly prove execution.
+
+Where no machine-resolved preservation evidence exists, cleanup MAY proceed only through an explicit human retention release carrying a nonblank reason. This lane SHALL support staged-topic, cluster, possible, missing, renamed, and otherwise orphaned tile identities without inferring that absence is disposition. Every successful cleanup SHALL remain human-invoked, local-only, and non-automatic; SHALL verify the branch belongs to the supplied tile, the session is not live, no worktree is attached, and a durable `abandon-session` proof names the ref; and SHALL write a main-resident cleanup record naming the exact tile scope, pre-delete head, abandonment proof, retention-release evidence, and reason where explicitly supplied. A failed deletion MUST NOT leave a record claiming success.
 
 #### Scenario: A staged tile is taken toward proposal
 - **WHEN** a human runs the propose action on a staging topic
@@ -320,10 +395,96 @@ The gate console SHALL offer a human-only `propose` action on a staging topic th
 - **WHEN** propose is invoked for a topic whose session was abandoned but whose pushed branch still exists
 - **THEN** propose MUST proceed — the session is resolved, and the surviving branch is reviewable evidence rather than unresolved working state
 
-#### Scenario: An abandoned branch outlives the proposal that closed its topic
-- **WHEN** a topic's proposal exists and an abandoned session branch for that topic is still present
-- **THEN** that branch MAY be deleted — the proposal has closed the topic off, so the abandoned exploration is no longer evidence anyone needs
-- **AND** the deletion MUST be human-invoked, never an automatic consequence of the `propose` dispatch, whose commissioned authoring may not have produced a proposal yet
+#### Scenario: An active proposal preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and an active change resolves to the exact staged-topic origin
+- **THEN** the branch MAY be deleted after every ownership, liveness, worktree, and abandonment-proof check passes
+- **AND** the cleanup record MUST name that active change as its retention-release evidence
+
+#### Scenario: An archived proposal preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and an archived change's own staged-origin metadata resolves to the exact topic
+- **THEN** the archived change MUST release retention even though it is not a live proposal and no current pick edge survives
+- **AND** the cleanup record MUST name the archived change and its origin evidence
+
+#### Scenario: Historical evidence predates the abandonment
+- **WHEN** matching active, archived, or demotion evidence was recorded before the session was abandoned
+- **THEN** that historical evidence MUST NOT release retention for the newer abandoned work
+- **AND** cleanup MUST require a fresh machine disposition or explicit human retention release
+
+#### Scenario: The abandoned branch moved after abandonment
+- **WHEN** the branch no longer points at the exact head recorded by `abandon-session`
+- **THEN** machine-resolved retention evidence MUST NOT authorize deletion
+- **AND** cleanup MUST preserve the moved ref until a new explicit human retention release names the current head
+
+#### Scenario: An executed demotion preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and a demotion execution receipt proves that the proposal returned to the exact staged topic
+- **THEN** the executed demotion MUST release retention
+- **AND** the cleanup record MUST name the demotion evidence and returned destination
+
+#### Scenario: A legacy demotion is corroborated by returned artifacts
+- **WHEN** a pre-receipt demotion has an exact transition manifest and an exact returned-topic artifact naming the same change and destination
+- **THEN** their joint evidence MAY release retention
+- **AND** neither artifact alone MUST be treated as execution proof
+
+#### Scenario: A demotion was planned but not executed
+- **WHEN** a transition manifest and plan exist but no execution receipt or exact returned-topic artifact proves execution
+- **THEN** cleanup MUST NOT infer that the proposal was demoted
+- **AND** the machine-evidence lane MUST refuse without deleting the branch
+
+#### Scenario: Demotion execution is incomplete
+- **WHEN** any planned source artifact is missing, any move is skipped, the source change remains, or a returned artifact does not occupy its exact planned destination
+- **THEN** demotion MUST NOT emit an `executed` receipt
+- **AND** cleanup MUST NOT treat the partial result as retention-release evidence
+
+#### Scenario: The current tile is absent but exact disposition survives
+- **WHEN** the supplied tile is absent from the current inventory but branch-family ownership, abandonment proof, and accepted retention-release evidence all resolve to its exact identity
+- **THEN** current tile absence MUST NOT block cleanup
+- **AND** absence MUST contribute no positive disposition evidence of its own
+
+#### Scenario: A true orphan is explicitly released by a human
+- **WHEN** no machine-resolved preservation evidence exists and a human invokes cleanup with a nonblank retention-release reason
+- **THEN** cleanup MAY delete the abandoned local branch after all non-disposition preconditions pass
+- **AND** it MUST first record the exact scope, pre-delete head, reason, and prior abandonment proof in the main-resident cleanup record
+
+#### Scenario: A non-staged tile has no proposal lifecycle
+- **WHEN** an abandoned cluster or possible branch is cleaned
+- **THEN** it MUST use the explicit human retention-release lane rather than being permanently blocked on a proposal state that tile kind can never carry
+
+#### Scenario: An orphan has neither disposition nor explicit release
+- **WHEN** no accepted preservation evidence exists and no nonblank human retention-release reason is supplied
+- **THEN** cleanup MUST refuse and delete nothing
+- **AND** missing files, missing tiles, missing worktrees, and absent changes MUST NOT weaken that refusal
+
+#### Scenario: Retention evidence names another tile
+- **WHEN** active, archived, demoted, or operator-supplied evidence resolves to a different tile identity than the branch's supplied owner
+- **THEN** cleanup MUST refuse with the mismatch and persist nothing
+
+#### Scenario: Origin metadata is non-staged or malformed
+- **WHEN** a change declares an ad-hoc, unsupported, or malformed origin
+- **THEN** cleanup MUST NOT reinterpret that change through the possibles-pick compatibility fallback
+- **AND** ambiguity unrelated to the requested tile MUST NOT globally block exact evidence for the requested tile
+
+#### Scenario: Cleanup is attempted on live or unattested work
+- **WHEN** the session is live, a worktree remains attached, the branch is outside the tile's branch family, or no durable `abandon-session` proof names the ref
+- **THEN** cleanup MUST refuse regardless of proposal or retention-release evidence
+
+#### Scenario: Branch deletion fails after the cleanup record is prepared
+- **WHEN** local branch deletion fails after the cleanup action prepared its main-resident record
+- **THEN** the record MUST be unwound so no durable artifact claims a deletion that did not occur
+- **AND** the branch and prior abandonment evidence MUST remain available for retry
+
+#### Scenario: Concurrent cleanup attempts share a tile and timestamp
+- **WHEN** cleanup attempts target different refs for the same tile during the same second, or two attempts race for the same ref
+- **THEN** their records MUST NOT overwrite or unlink one another
+- **AND** only a record whose exact ref deletion completed MAY enter completed state
+
+#### Scenario: The branch changes during cleanup
+- **WHEN** the ref advances after its head is inspected but before deletion
+- **THEN** the expected-value deletion MUST fail atomically and preserve the advanced ref
+- **AND** no cleanup record may claim that the advanced ref was deleted
+
+#### Scenario: Cleanup services address different repositories
+- **WHEN** the human gate output root and the Git service root do not resolve to the same checkout
+- **THEN** cleanup MUST refuse before writing a record or touching a branch
 
 ### Requirement: Deterministic per-document completeness signal
 The snapshot generator SHALL compute a per-document completeness signal at generation time and emit it as an additive `completeness` object on each `documents[]` entry — a `score` plus five named signals: `structure` (the fraction of the document's expected structural elements present, the expected set fixed per `Kind:` with a common fallback — H1 title, the governance header block, at least one section), `length` (body size normalized against a fixed saturation threshold, so padding past the threshold cannot outscore substance), `open_markers` (an INVERSE signal over open-question / TODO / TBD markers normalized against a fixed saturation count), `keyword_coverage` (the fraction of the document's declared `Topics:` subjects that resolve to the snapshot's keyword vocabulary), and `link_degree` (the document's snapshot edge degree — cluster document edges plus `destinations` staged topics, changes, and capabilities — normalized against a fixed saturation degree). Every signal SHALL be reported as a named normalized value beside the raw count that produced it, so a rendered bar is explainable. The computation MUST be deterministic and reproducible from the pinned tree alone: no model call, no wall clock, no network, no judgment input of any kind, with the `score` a fixed-weight combination of the normalized signals at a fixed decimal precision — the weights are contract constants in v1 (a tunable configuration would be a successor change, never a per-run input). The per-document signal SHALL stay out of judgment surfaces: it MUST NOT be an input to the readiness recommendation gate and MUST NOT produce a doc-health finding; its ONE sanctioned gate consumer is the staged-to-proposal readiness gate defined in this change, which consumes document scores only through the staged-topic health aggregate — no other gate verb, console guard, or lifecycle transition may consult it or refuse on it (Brett's 2026-07-25 ruling supersedes this change's earlier informational-only bound). Growth is additive — the field is optional, no existing snapshot is invalidated, and a renderer reading a pre-growth snapshot MUST degrade to showing no completeness rather than failing.
@@ -436,12 +597,13 @@ The wheel's staged tiles SHALL surface the topic's health at two levels matching
 - **THEN** the refusal's cited blockers are the authoritative account and the display MUST NOT suppress or restate the refusal
 
 ### Requirement: Workbench lens bullseye at tile scope
-The staging workbench's `lens` panel SHALL render the match-count bullseye — the same rings-by-match-count, sectored-by-matched-subset, dotted geometry the keyword lens renders (rings index how many checked keywords a document matches, innermost = all) — at TILE SCOPE, above the always-present flat matrix, from the SAME scoped keyword-lens derivation the panel already performs. The bullseye MUST introduce no new analysis, no new score, and no new snapshot field: it renders the geometry the scoped derivation already returns, and each rail row's declared count stays the snapshot's corpus-wide number verbatim, labelled as such. The flat matrix SHALL remain always present and MUST NOT become a toggle-only alternate. There SHALL be exactly ONE bullseye renderer serving both the keyword-lens view and the workbench panel, so the two surfaces cannot drift. The human's checked-keyword selection SHALL persist across tab switches within one workbench session, and SHALL reset to the scope's seed when a different scope is opened or the workbench is closed.
+The staging workbench's `lens` panel SHALL render the match-count bullseye — the same rings-by-match-count, sectored-by-matched-subset, dotted geometry the keyword lens renders (rings index how many checked keywords a document matches, innermost = all) — at TILE SCOPE, from the SAME scoped keyword-lens derivation the panel already performs. The bullseye MUST introduce no new analysis, no new score, and no new snapshot field: it renders the geometry the scoped derivation already returns, and each rail row's declared count stays the snapshot's corpus-wide number verbatim, labelled as such. The keyword rail, the bullseye, and the flat matrix SHALL each be a NAMED, ALWAYS-REACHABLE SECTION of ONE tablist on that panel, and no section SHALL be reachable only by dismissing another; that tablist SHALL carry full APG semantics — roving tabindex, arrow keys, Home and End — and the ordering relation the earlier `above` wording expressed SHALL be discharged by the tablist's declared section order rather than by simultaneous rendering. The flat matrix SHALL remain a first-class always-reachable section and MUST NOT be demoted to an opt-in alternate of the bullseye. This supersedes the earlier simultaneity clause, which the shipped three-subtab restructure contradicted: what that clause protected was ACCESS to the matrix, and a named section of a keyboard-driven tablist protects access without spending a third of the panel on a second drawing. There SHALL be exactly ONE bullseye renderer serving both the keyword-lens view and the workbench panel, so the two surfaces cannot drift. The human's checked-keyword selection SHALL persist across tab switches within one workbench session, and SHALL reset to the scope's seed when a different scope is opened or the workbench is closed.
 
 #### Scenario: The workbench lens panel renders the bullseye
 - **WHEN** a human opens the workbench's `lens` tab on any topic-bearing tile
-- **THEN** the match-count bullseye MUST render at that tile's scope, above the flat matrix
-- **AND** the flat matrix MUST still render, as the always-available view of the same membership
+- **THEN** the match-count bullseye MUST be a named, always-reachable section of that panel's tablist, rendered at that tile's scope
+- **AND** the flat matrix MUST be an equally named, always-reachable section of the same tablist
+- **AND** neither MUST be reachable only by toggling the other off
 
 #### Scenario: The scoped bullseye introduces no new number
 - **WHEN** the workbench bullseye renders
@@ -455,6 +617,11 @@ The staging workbench's `lens` panel SHALL render the match-count bullseye — t
 #### Scenario: A new scope reseeds the selection
 - **WHEN** the workbench is closed, or opened on a different tile
 - **THEN** the checked selection MUST reset to that scope's seed keywords rather than carrying the previous scope's keywords forward
+
+#### Scenario: The lens sections are driven from the keyboard
+- **WHEN** a human moves through the lens panel's section tablist with arrow keys, Home, and End
+- **THEN** every section MUST be reachable without a pointer
+- **AND** exactly one tab MUST be in the tab order at a time
 
 ### Requirement: Gated document creation verb
 The gate console SHALL offer a human-only `create-document` verb that brings a NEW ideation document into existence through the EXISTING tested authoring engine, enforced at the route so the workbench affordance, the CLI parity subcommand, and a direct request are gated identically. The verb SHALL accept an area, title, summary, topics, and optional repository context, kind, status, possible-feat seeds, and source citation, defaulting the repository context from the served snapshot's repository, and SHALL write the document through the authoring scaffold with its controlled header block (`Status`, `Kind`, `Summary`, `Topics`, `Repository context`, `Captured`) in the declared order. A created document's `Status:` SHALL default to `brainstorm` in EVERY area — the verb MUST NOT derive a lifecycle status from the area it writes into, because a document's tie to a staging packet is carried by its PLACEMENT inside that packet's folder and not by its status header, and a just-captured thought is `brainstorm` wherever it sits. A human-supplied status MUST be accepted only from the create-legal set (`brainstorm`, `staged`, `draft`), so no document can be born already approved. The write MUST be create-only: an EXISTING target refuses as a source-edit refusal and is never overwritten, and this verb grants NO edit or delete authority over any existing document. Every successful create SHALL persist a gate-action record naming the created document's repository-relative path in its target and referencing the created document as a `document`-kind artifact. The verb MUST be loopback-only and MUST fail closed on an unresolved actor, and any agent or automated invocation MUST be rejected and reported, like every gate action. The verb SHALL make no engine change beyond the status and source passthrough the header block requires: the header contract, the filename normalization, and every refusal are the authoring engine's, surfaced verbatim at the route.
@@ -861,7 +1028,7 @@ Branch sessions SHALL exist on the LOCAL plane only, and the hosted dashboard MU
 - **THEN** a hosted session MUST be reachable by binding that ref through the existing (repository, ref) seam, with no re-cutting of the snapshot source interface
 
 ### Requirement: doxBench scoped view
-The dashboard SHALL provide doxBench as the named evolution of the staging workbench: a full-screen view scoped to exactly ONE topic-bearing tile — a cluster, a possible, or a staged topic — with three coordinated regions over that scope. A context region SHALL retain `docs` and `lens`: `docs` SHALL list the tile's document set derived strictly from the snapshot's own edges (a cluster's `document_edges`; a possible's `supporting_evidence` documents, with any claiming-cluster member documents shown as a separately labelled inherited section, never conflated with cited evidence; a staged topic's files that are corpus documents plus every document whose `destinations.staged_topics` names it, plus — Brett's 2026-07-25 dogfood ruling — the member documents of the topic's linked clusters as a THIRD, separately labelled cluster-neighbourhood section, inherited via clusters, never conflated with the topic's own material, and never an input to the topic's health or the readiness gate, which stay folder-scoped) and SHALL render each row's completeness bar and named signals verbatim from the snapshot, never recomputing them; `lens` SHALL render interconnectedness scoped to that tile's keywords and documents by RE-SCOPING the existing keyword-lens and edge-degree derivation — the same `keyword_index` seed and the same edge/degree computation the funnel and wheel already use, filtered to the tile's scope — and MUST NOT introduce a new analysis, a new score, or a new snapshot field. An authoring canvas SHALL present exactly two primary tabs, `Outline` and `Document`: Outline SHALL load the topic's declared outline material when one exists — for a staged topic, the fragment's outline material — and Document SHALL load the active document selected from the scoped docs set; both SHALL provide browser-local editing plus live rendered Markdown preview on the local human console, while an absent outline remains an explicit empty/create state rather than fabricated content. A chat region SHALL contain Working subject, transcript, server-declared model selection, and composer, and SHALL ground turns on the current canvas buffers as specified by this change. doxBench's corpus write authority SHALL remain the human-only gate verbs `create-document`, `edit-document`, `open-pr`, and session abandon: buffer edits, chat turns, and AI Apply MUST write no corpus document, register entry, workbench manifest, snapshot, branch, or gate artifact; Save MAY materialize/join a branch session and invoke only create/edit as specified; no verb MAY delete a document; and no session write may touch the served checkout. With the gate/model capabilities absent or on the hosted plane, the context SHALL remain usable and doxBench SHALL render read-only outline/document content without reachable editing, chat, or write controls.
+The dashboard SHALL provide doxBench as the named evolution of the staging workbench: a full-screen view scoped to exactly ONE topic-bearing tile — a cluster, a possible, or a staged topic — with three coordinated regions over that scope. A context region SHALL retain `docs` and `lens`: `docs` SHALL list the tile's document set derived strictly from the snapshot's own edges (a cluster's `document_edges`; a possible's `supporting_evidence` documents, with any claiming-cluster member documents shown as a separately labelled inherited section, never conflated with cited evidence; a staged topic's files that are corpus documents plus every document whose `destinations.staged_topics` names it, plus — Brett's 2026-07-25 dogfood ruling — the member documents of the topic's linked clusters as a THIRD, separately labelled cluster-neighbourhood section, inherited via clusters, never conflated with the topic's own material, and never an input to the topic's health or the readiness gate, which stay folder-scoped) and SHALL render each row's completeness bar and named signals verbatim from the snapshot, never recomputing them; `lens` SHALL render interconnectedness scoped to that tile's keywords and documents by RE-SCOPING the existing keyword-lens and edge-degree derivation — the same `keyword_index` seed and the same edge/degree computation the funnel and wheel already use, filtered to the tile's scope — and MUST NOT introduce a new analysis, a new score, or a new snapshot field. The `docs` context's expanded tile SHALL offer this capability's three document verbs — read, load-for-editing, and save — as specified by their own requirement. An authoring canvas SHALL present exactly ONE buffer at a time — the SELECTED buffer of the loaded set — and the SELECTION SHALL be made outside the canvas rather than by the canvas: the context region's `outline` selection tab SHALL select the `outline` buffer, loading a document SHALL select that document, and the chat rail's loaded-document selector SHALL select among the loaded documents. The `outline` buffer SHALL load the topic's declared outline material when one exists — for a staged topic, the fragment's outline material — and a document buffer SHALL load the exact document the human loaded; the canvas SHALL provide browser-local editing plus live rendered Markdown preview of the SELECTED buffer on the local human console, presented as this capability's Editor/Preview view-tab pair rather than as a side-by-side split pane, while an absent outline remains an explicit empty/create state rather than fabricated content. The canvas MUST NOT render a second buffer-selection tablist beside the selection surfaces the context region and the chat rail own, because two controls answering one question is how the two come to disagree. A chat region SHALL contain Working subject, the loaded-document selector, transcript, server-declared model selection, and composer, and SHALL ground turns on the current canvas buffers and this capability's bounded context packet as specified by this capability. doxBench's corpus write authority SHALL remain the human-only gate verbs `create-document`, `edit-document`, `open-pr`, session share, and session abandon: buffer edits, chat turns, thread writes, and AI Apply MUST write no corpus document, register entry, workbench manifest, snapshot, or gate artifact; Save MAY materialize/join a branch session and invoke only create/edit as specified; no verb MAY delete a document; and no session write may touch the served checkout. With the gate/model capabilities absent or on the hosted plane, the context SHALL remain usable and doxBench SHALL render read-only outline/document content without reachable editing, chat, threads, or write controls. The `docs` context SHALL present its document set as a VERTICAL SPLIT: a per-document ABSTRACT REGION above, and a single-reel DOCUMENT WHEEL below that places this scope's documents — every separately labelled section of them flattened into one ordered reel — in the surface's own drum projection with its own established click and spin gestures. Selecting a wheel tile SHALL make that document the abstract region's SUBJECT, and the abstract region SHALL RE-PRESENT ONLY what the snapshot already carries for that document — its own `Summary:` header, its declared topics, its stage and kind, its declared destinations, and its completeness score beside the five named signals — and MUST NOT compute, adjust, or re-weight any of it, exactly as the docs rows are already held to. The `lens` context SHALL present its three sections as named, always-reachable sections of one tablist as that panel's own requirement specifies. Neither presentation SHALL introduce a new score or a new snapshot field. The no-new-ANALYSIS clause in this requirement, and in the workbench bullseye requirement it restates, SHALL be read as governing THE BULLSEYE'S OWN GEOMETRY and the completeness signals — the derivations those clauses were written about — and SHALL NOT be read as forbidding a separately captioned, explicitly non-authoritative MODEL-DERIVED artifact that this capability's own requirements govern, feeds no score, no aggregate, no readiness tier and no gate, and never replaces or adjusts anything the snapshot carries. A model-derived artifact admitted this way SHALL be presented BESIDE the snapshot-derived material and never merged into it, so a reader can always tell which claim is the document's own and which a model made.
 
 #### Scenario: doxBench opens on a cluster
 - **WHEN** a human opens doxBench from a cluster tile
@@ -877,12 +1044,17 @@ The dashboard SHALL provide doxBench as the named evolution of the staging workb
 - **WHEN** a human opens doxBench from a staged-topic tile
 - **THEN** `docs` MUST list the topic folder's corpus documents together with every document whose declared destination names that staging topic
 - **AND** the member documents of the topic's linked clusters MUST appear in a separately labelled cluster-neighbourhood section, never conflated with the topic's own material
-- **AND** the Outline canvas MUST load that fragment's outline material from the active repository/ref
+- **AND** the `outline` buffer MUST load that fragment's outline material from the active repository/ref
 
-#### Scenario: A document becomes active
-- **WHEN** a human selects a row in the scoped docs context
-- **THEN** the Document canvas MUST load that exact document and make Document the active authoring tab
-- **AND** docs/lens context and chat state MUST remain available
+#### Scenario: A document is loaded for editing
+- **WHEN** a human uses the load verb on a `docs` tile
+- **THEN** the canvas MUST load that exact document as a buffer of the loaded set and select it
+- **AND** docs/lens context, every other loaded buffer, and chat state MUST remain available
+
+#### Scenario: The outline selection tab becomes the working context
+- **WHEN** a human focuses the context region's `outline` selection tab
+- **THEN** the `outline` buffer MUST become the selected buffer and the canvas MUST show that buffer's working content, including unsaved edits
+- **AND** the context region's own outline pane MUST keep rendering the material as it stands in the source, so "what is stored" and "what I have unsaved" remain separately readable
 
 #### Scenario: Cluster-neighbourhood documents stay out of health
 - **WHEN** a staged topic's health or its readiness gate is computed
@@ -900,11 +1072,11 @@ The dashboard SHALL provide doxBench as the named evolution of the staging workb
 
 #### Scenario: A scope carries no outline
 - **WHEN** the opened tile has no outline material
-- **THEN** the Outline canvas MUST render an explicit empty state rather than fabricating or drafting one
+- **THEN** the canvas MUST render an explicit empty state for the `outline` buffer rather than fabricating or drafting one
 - **AND** only a capable local human console MAY offer a create-backed outline buffer
 
 #### Scenario: A human edits before a session exists
-- **WHEN** a capable local human edits an outline or document buffer with no active branch session
+- **WHEN** a capable local human edits any buffer with no active branch session
 - **THEN** the edit MUST remain browser-local and available to the next chat turn
 - **AND** the served checkout and every shared surface MUST remain unchanged
 
@@ -916,19 +1088,48 @@ The dashboard SHALL provide doxBench as the named evolution of the staging workb
 #### Scenario: doxBench renders without gate or model capability
 - **WHEN** doxBench runs on a surface where gate and model capabilities are absent
 - **THEN** docs/lens and available source content MUST remain readable
-- **AND** no editing, chat, Apply, Save, or other write-implying control MUST be reachable
+- **AND** no editing, chat, Apply, Save, Cancel, load, share, or other write-implying control MUST be reachable
 
 #### Scenario: doxBench is used on a narrow viewport
 - **WHEN** the three desktop regions cannot remain usable side by side
-- **THEN** the same context, Outline/Document canvas, and chat regions MUST stack without losing state, labels, keyboard reachability, or focus order
+- **THEN** the same context, authoring canvas, and chat regions MUST stack without losing state, labels, keyboard reachability, or focus order
+
+#### Scenario: The docs context presents its documents as a split
+- **WHEN** a human opens doxBench's `docs` context on any topic-bearing tile
+- **THEN** the pane MUST render a per-document abstract region above and a single-reel document wheel below
+- **AND** selecting a wheel tile MUST make that document the abstract region's subject
+
+#### Scenario: The abstract region re-presents and never recomputes
+- **WHEN** the abstract region renders a document the snapshot scores
+- **THEN** its score and named signals MUST be the snapshot's `completeness` object verbatim
+- **AND** doxBench MUST NOT compute, adjust, or re-weight any signal
+
+#### Scenario: The lens context is presented in three sections
+- **WHEN** a human opens the `lens` context on a topic-bearing tile
+- **THEN** the keyword rail, the bullseye, and the flat matrix MUST each be a named, always-reachable section of one tablist
+
+#### Scenario: A model-derived artifact is admitted beside the snapshot's own
+- **WHEN** the docs context renders a model-derived abstract for a document
+- **THEN** it MUST be presented beside the snapshot-derived material with its own caption, never merged into it
+- **AND** it MUST feed no completeness score, no staged-topic aggregate, no readiness tier, and no gate
+
+#### Scenario: The no-new-analysis clause is read against the bullseye
+- **WHEN** the no-new-analysis clause is applied to a derivation
+- **THEN** it MUST govern the bullseye's geometry and the completeness signals
+- **AND** it MUST NOT be read as forbidding an artifact this capability's own requirements govern
 
 ### Requirement: doxBench surface identity
-The dashboard SHALL name the integrated staging-workbench authoring surface **doxBench**, using that exact casing in visible product copy, navigation and heading text, accessible names, documentation, tests, and realization evidence. doxBench SHALL remain the named human-facing evolution of the existing `ideation-dashboard` staging workbench rather than a second capability. Existing technical identifiers — including `workbench-*` schemas, routes, module names, the `workbench-chat-turn` kind, `WorkbenchModelPort`, branch-session records, and persisted dashboard artifacts — MUST remain compatible and MUST NOT be renamed or rewritten solely to adopt the doxBench name.
+The dashboard SHALL name the integrated staging-workbench authoring surface **doxBench**, using that exact casing wherever the surface names itself — visible product copy, navigation, heading text where a heading exists, ACCESSIBLE NAMES, documentation, tests, and realization evidence. A region whose accessible name already carries the product name SHALL NOT be required to restate it as visible heading text: an accessible `region` is announced by its name on entry, so a heading duplicating that name adds nothing an assistive technology did not already receive while costing visible space, and a surface MAY therefore carry its name in the accessible name alone. Where a surface renders a heading at all, that heading MUST use the exact casing. doxBench SHALL remain the named human-facing evolution of the existing `ideation-dashboard` staging workbench rather than a second capability. Existing technical identifiers — including `workbench-*` schemas, routes, module names, the `workbench-chat-turn` kind, `WorkbenchModelPort`, branch-session records, and persisted dashboard artifacts — MUST remain compatible and MUST NOT be renamed or rewritten solely to adopt the doxBench name.
 
 #### Scenario: The integrated authoring surface is presented
 - **WHEN** the dashboard exposes the integrated authoring surface
-- **THEN** its visible heading and accessible surface name MUST use the exact name `doxBench`
+- **THEN** its accessible surface name MUST use the exact name `doxBench`, and any heading it does render MUST use that exact name too
 - **AND** generic controls MAY retain descriptive workbench terminology where that terminology names an inherited technical concept
+
+#### Scenario: A named region would restate its own name visibly
+- **WHEN** a doxBench region already carries the product name as its accessible name
+- **THEN** a visible heading repeating that same name MUST NOT be required, because it is announced twice and occupies space the surface needs for material
+- **AND** the accessible name MUST NOT be dropped in exchange — removing the heading is only permitted while the region stays named
 
 #### Scenario: Existing workbench artifacts are loaded
 - **WHEN** doxBench consumes a pre-name snapshot, branch-session record, route, schema, or other `workbench-*` artifact
@@ -936,56 +1137,78 @@ The dashboard SHALL name the integrated staging-workbench authoring surface **do
 - **AND** no persisted identifier or artifact kind MUST be rewritten merely to carry the doxBench name
 
 ### Requirement: doxBench editor buffer contract
-The local doxBench surface SHALL maintain exactly two explicit authoring buffers for its canvas — `outline` and `document` — and each buffer SHALL carry its kind, repository-relative path or `null` for a not-yet-created artifact, repository, base ref, base source revision, base content hash, current content hash, current text, and dirty state. The outline buffer SHALL be seeded from the opened scope's declared outline material when one exists and MUST NOT be fabricated from the active document's headings; the document buffer SHALL be seeded from the active document selected from the scoped document set or from the existing create-document flow. Editing either buffer MUST be a browser-local, reversible action that writes no corpus document, snapshot, register, workbench manifest, gate artifact, or branch until the human invokes Save. Save SHALL compare current and base hashes, persist a new path through `create-document` and an existing path through `edit-document`, preserve each verb's existing validation and authority boundary, and refresh/rebase each successfully saved buffer from the resulting session ref and source revision. Saving two dirty backed buffers SHALL invoke one existing gate action per changed document in deterministic outline-then-document order and MUST NOT invent a multi-document write verb, rewrite history, or hide partial success. Discard SHALL restore the last loaded/saved base content and MUST persist nothing.
+The local doxBench surface SHALL maintain a KEYED BUFFER SET for its canvas — the permanently reserved `outline` key plus one key per LOADED document — and each buffer SHALL carry its kind, repository-relative path or `null` for a not-yet-created artifact, repository, base ref, base source revision, base content hash, current content hash, current text, and dirty state. A document buffer's key SHALL be its repository-relative path, so a document can be loaded at most once and no two buffers can claim the same file; at most ONE unbacked document buffer MAY exist, under the reserved key `document`, which is the not-yet-created artifact of the existing create flow and SHALL be re-keyed to its path when its first Save gives it one. The outline buffer SHALL be seeded from the opened scope's declared outline material when one exists and MUST NOT be fabricated from any document's headings; a document buffer SHALL be seeded from the document the human loaded or from the existing create-document flow. Editing any buffer MUST be a browser-local, reversible action that writes no corpus document, snapshot, register, workbench manifest, gate artifact, or branch until the human invokes Save. Save SHALL compare current and base hashes, persist a new path through `create-document` and an existing path through `edit-document`, preserve each verb's existing validation and authority boundary, and refresh/rebase each successfully saved buffer from the resulting session ref and source revision. Save ordering SHALL be an explicit rule rather than a fixed list: the `outline` buffer SHALL be persisted FIRST when it is dirty, because its commit establishes the session ancestry the document commits descend from; every dirty document buffer SHALL then be persisted in a DETERMINISTIC order the realization declares, each through its own existing gate action as one commit; and a dirty outline that did not land SHALL stop every document with a stated `not_attempted` verdict. One document's refusal SHALL NOT stop another document, because documents carry no ancestry dependency on each other and reporting one refusal as the cause of untried work is a false statement about both. Save MUST NOT invent a multi-document write verb, rewrite history, or hide partial success, and every buffer it acted on SHALL report its own verdict. Discard SHALL restore the last loaded/saved base content of the buffer it names and MUST persist nothing. A document that is the `docs` context's ABSTRACT SUBJECT SHALL NOT thereby become a buffer: the abstract subject is a READING selection over the scope's documents, independent of the keyed buffer set, so making a document the abstract's subject MUST NOT load it, key it, seed it, mark it dirty, or place it in the loaded set. Only the load-for-editing verb creates a document buffer.
 
 #### Scenario: A human edits the outline before chatting
 - **WHEN** a human changes the outline buffer without invoking Save
 - **THEN** the canvas MUST show the outline as dirty
 - **AND** no corpus file, branch, snapshot, register, manifest, or gate record MUST change
 
-#### Scenario: A human selects a document
-- **WHEN** a human selects a document from the scoped `docs` context
-- **THEN** the `Document` buffer MUST load that exact document from the active repository/ref and record its source revision and content hash
-- **AND** changing the selection with unsaved document edits MUST require the human to save or discard rather than silently replacing the buffer
+#### Scenario: A second document is loaded
+- **WHEN** a human loads a second document while the first is still loaded and dirty
+- **THEN** both document buffers MUST exist under their own path keys with their own dirty state and their own base identity
+- **AND** loading the second MUST NOT replace, discard, or flush the first
+
+#### Scenario: A document already loaded is loaded again
+- **WHEN** a human invokes the load verb on a document the loaded set already holds
+- **THEN** that existing buffer MUST become the selected one and MUST NOT be reloaded from source, because reloading would silently discard its unsaved text
 
 #### Scenario: A scope has no outline
 - **WHEN** the opened scope declares no outline material
-- **THEN** the Outline tab MUST show an explicit empty state
-- **AND** it MAY offer a new outline buffer whose first persistence uses `create-document`, but it MUST NOT fabricate or persist an outline merely by opening the tab
+- **THEN** the outline buffer MUST show an explicit empty state
+- **AND** it MAY offer a new outline buffer whose first persistence uses `create-document`, but it MUST NOT fabricate or persist an outline merely by being opened
 
-#### Scenario: One dirty buffer is saved
-- **WHEN** the human invokes Save with exactly one backed buffer dirty
-- **THEN** exactly one `create-document` or `edit-document` gate action MUST persist that buffer on the tile's branch session
-- **AND** the successful response MUST become the buffer's new base ref, revision, content, and hash
-
-#### Scenario: Both dirty buffers are saved
-- **WHEN** the human invokes Save with both backed buffers dirty
-- **THEN** the outline action MUST run before the document action and each changed document MUST produce its own existing gate-action commit
+#### Scenario: Several dirty documents are saved
+- **WHEN** the human invokes Save with a dirty outline and three dirty documents
+- **THEN** the outline action MUST run first and each changed document MUST then produce its own existing gate-action commit in the declared deterministic order
 - **AND** no combined or hidden write verb MUST be introduced
 
-#### Scenario: The second save action fails
-- **WHEN** the outline save commits and the subsequent document save refuses
-- **THEN** the UI MUST report the committed outline and refused document separately
-- **AND** the outline buffer MUST advance to its committed base while the document buffer remains dirty
-- **AND** the system MUST NOT amend, reset, or otherwise erase the committed outline action
+#### Scenario: One document's save refuses
+- **WHEN** the outline commits, the first document commits, and the second document's save refuses
+- **THEN** the third document MUST still be attempted, because it descends from the same ancestry and the refusal was not about it
+- **AND** the report MUST name the committed, refused, and remaining buffers separately
+
+#### Scenario: The outline's save refuses
+- **WHEN** the outline is dirty and its save refuses
+- **THEN** every dirty document MUST be reported `not_attempted` with the missing-ancestry reason and MUST NOT be sent
+- **AND** every buffer's text, base, and dirty state MUST be preserved exactly
+
+#### Scenario: An unbacked document buffer is first saved
+- **WHEN** the reserved unbacked document buffer is persisted through `create-document` and the server reports the path it created
+- **THEN** that buffer MUST be re-keyed from the reserved key to its path
+- **AND** the reserved key MUST become available for a later create without carrying anything from the buffer that left it
 
 #### Scenario: A human discards local edits
 - **WHEN** the human invokes Discard on a dirty buffer
-- **THEN** that buffer MUST return to its last loaded or saved base content
+- **THEN** that buffer MUST return to its last loaded or saved base content and no other buffer MUST change
 - **AND** no gate action or provider call MUST occur
 
+#### Scenario: A document is pointed at but not loaded
+- **WHEN** a human makes a document the docs context's abstract subject without invoking load-for-editing
+- **THEN** no buffer MUST be created or keyed for that document
+- **AND** the keyed buffer set MUST be unchanged
+
 ### Requirement: Grounded doxBench chat turn
-The local human-console doxBench surface SHALL offer a chat rail containing a `Working subject` field, transcript, server-declared model selector, and message composer. Each submitted turn SHALL use a versioned `workbench-chat-turn` request containing the repository/ref and tile scope, active document path, `working_subject`, new user message, bounded prior transcript, selected model id, a client-generated turn id, and the complete current outline and document buffer descriptors and text including their hashes. The server MUST independently resolve and confine the repository/ref, tile, outline path, and active document path before a provider call; MUST verify every declared content hash; and MUST record in the response the exact buffer hashes, model id, and turn id used. Unsaved buffer text SHALL be eligible turn input and MUST be labelled as working state rather than governed or committed content. The next turn SHALL use the buffer contents that exist when that next turn is submitted, including intervening human edits and locally applied AI proposals, rather than reusing a previous turn's text. The request/response schemas SHALL impose explicit byte, transcript-turn, and output bounds; an over-bound turn MUST refuse with the applicable measured limit and MUST NOT silently truncate, summarize, or omit either buffer. Exactly one turn MAY be in flight per browser conversation key. Within one server process, the client turn id SHALL be idempotent: a repeated completed id with identical input hashes SHALL return the recorded result without another provider dispatch, an in-flight repeat SHALL attach to or report that turn, and reuse with different content or hashes MUST refuse. A provider or response-validation failure MUST return a fixed redacted error, preserve both buffers, append no assistant proposal, and disclose no credential, raw provider response, prompt, document content, or unsaved text in logs or error details.
+The local human-console doxBench surface SHALL offer a chat rail containing a `Working subject` field, the loaded-document selector, transcript, server-declared model selection, and message composer. Each submitted turn SHALL use a versioned `workbench-chat-turn` request containing the repository/ref and tile scope, the BOUND BUFFER's key, `working_subject`, the new user message, the bounded prior transcript, the selected model id, a client-generated turn id, and the complete current descriptors and text of the outline buffer and of every loaded document buffer including their hashes. The server MUST independently resolve and confine the repository/ref, the tile, and every supplied buffer path before a provider call; MUST verify every declared content hash; MUST refuse a request whose bound-buffer key names no supplied buffer; and MUST record in the response the exact per-buffer hashes, the bound buffer's key, the model id, and the turn id used. The turn RECORD SHALL name the buffer the turn was bound to, so a transcript read later says which material the conversation was working on — Phase A deferred this because the released envelope had no room for it, and this capability's contract release discharges that obligation rather than substituting a server-side-only field no reader can consult. The response SHALL echo the model that answered together with the selected-model metadata the contract release carries, so a transcript states which model produced which turn rather than leaving it to be inferred. Unsaved buffer text SHALL be eligible turn input and MUST be labelled as working state rather than governed or committed content. Per-turn context SHALL be assembled as this capability's bounded context packet and MUST NOT be assembled by concatenating whatever the browser happened to send. The next turn SHALL use the buffer contents and thread state that exist when that next turn is submitted, including intervening human edits and locally applied AI proposals, rather than reusing a previous turn's text. The request/response schemas SHALL impose explicit byte, buffer-count, transcript-turn, and output bounds; an over-bound turn MUST refuse with the applicable measured limit and MUST NOT silently truncate, summarize, or omit any buffer. Exactly one turn MAY be in flight per browser conversation key. Within one server process the client turn id SHALL be idempotent: a repeated completed id with identical input hashes SHALL return the recorded result without another provider dispatch, an in-flight repeat SHALL attach to or report that turn, and reuse with different content or hashes MUST refuse. A provider or response-validation failure MUST return a fixed redacted error, preserve every buffer, append no assistant proposal, and disclose no credential, raw provider response, prompt, document content, thread content, or unsaved text in logs or error details.
+
+#### Scenario: A turn is bound to one of several loaded documents
+- **WHEN** four documents are loaded and the human sends a message with the third selected
+- **THEN** the request MUST name that buffer's key as the bound buffer and MUST carry the outline and all four documents with their hashes
+- **AND** the completed turn's durable record MUST name that same bound buffer
+
+#### Scenario: A turn names a bound buffer it did not supply
+- **WHEN** a request's bound-buffer key names no buffer in its own buffer set
+- **THEN** the route MUST refuse before any provider call, exactly as the existing active-path revalidation does
 
 #### Scenario: A human edit feeds the next turn
-- **WHEN** a human edits either buffer after one assistant response and submits another message
-- **THEN** the new request MUST carry the edited current buffer text and hash
+- **WHEN** a human edits any loaded buffer after one assistant response and submits another message
+- **THEN** the new request MUST carry that buffer's edited current text and hash
 - **AND** the response MUST identify that hash as the content the model saw
 
 #### Scenario: Unsaved edits are discussed
 - **WHEN** a dirty buffer is included in a chat turn
 - **THEN** the model MAY use that exact unsaved text
-- **AND** neither the request nor response MUST represent the text as committed, governed, or present on `main`
+- **AND** neither the request nor the response MUST represent the text as committed, governed, or present on `main`
 
 #### Scenario: The route receives a mismatched path or hash
 - **WHEN** a turn names a path outside the opened tile's allowed scope, a repository/ref other than the active binding, or a hash that does not match the supplied text
@@ -993,66 +1216,96 @@ The local human-console doxBench surface SHALL offer a chat rail containing a `W
 - **AND** no browser conversation state or corpus state MUST be persisted by the server
 
 #### Scenario: A turn exceeds a declared limit
-- **WHEN** the combined buffers, transcript, message, or requested output exceed the selected catalog entry's or route's limit
+- **WHEN** the combined buffers, transcript, assembled packet, message, or requested output exceed the selected catalog entry's or route's limit
 - **THEN** the route MUST refuse and name the exceeded dimension and limit
 - **AND** it MUST NOT silently truncate or send a partial document to the provider
 
 #### Scenario: A turn completes
 - **WHEN** the provider returns a valid response for the exact request
-- **THEN** the chat rail MUST append assistant prose and any typed proposals under one turn id
-- **AND** focus, active canvas tab, editor selection, scroll position, and dirty state MUST remain usable
+- **THEN** the chat rail MUST append assistant prose and any typed proposals under one turn id, into the SELECTED document's thread
+- **AND** focus, the selected document, the active view tab, editor selection, scroll position, and every buffer's dirty state MUST remain usable
 
 #### Scenario: A completed turn is retried
 - **WHEN** the same client turn id is submitted again in the same server process with identical content and hashes
 - **THEN** the recorded result MUST be returned without a second provider dispatch
 
 #### Scenario: A turn id is reused for different content
-- **WHEN** a client turn id is repeated with different buffer text, hashes, subject, message, or model
+- **WHEN** a client turn id is repeated with different buffer text, hashes, bound buffer, subject, message, or model
 - **THEN** the server MUST refuse the idempotency conflict before any additional provider call
 
 #### Scenario: A provider or response validation fails
 - **WHEN** the provider call fails or its response violates the typed response schema
-- **THEN** both editor buffers MUST remain byte-identical and no assistant proposal MUST be appended
-- **AND** the UI MUST receive a fixed actionable failure while logs and response details reveal no credential, raw provider payload, prompt, document content, or unsaved text
+- **THEN** every editor buffer MUST remain byte-identical and no assistant proposal MUST be appended
+- **AND** the UI MUST receive a fixed actionable failure while logs and response details reveal no credential, raw provider payload, prompt, document content, thread content, or unsaved text
 
 ### Requirement: doxBench model catalog and provider boundary
-The dashboard backend SHALL expose a same-origin workbench model catalog whose entries carry a stable opaque model id, human label, provider class, input/output limits, availability, and a human-readable data-handling badge. The catalog MUST NOT expose a provider credential, raw secret, raw endpoint, secret environment-variable name, or provider request template, and the browser MUST NOT call any model provider directly. A chat turn SHALL accept only a model id present and available in the current catalog and SHALL resolve that id through a server-side injected model-provider port. Provider credentials MUST come only from the deployment's approved server-side credential mechanism and MUST NOT enter browser storage, a request body, response body, dashboard snapshot, chat transcript, log, gate record, git artifact, or exception detail. A hosted fallback MAY be offered only when the deployment explicitly enables it and its configured data-handling policy meets the catalog badge; otherwise the model MUST be unavailable. The model catalog and turn routes SHALL be offered only on a loopback human console with a real checkout, resolved actor, and demonstrated console presence; the hosted/read-only plane MUST offer neither route.
+The dashboard backend SHALL expose a same-origin workbench model catalog whose entries carry a stable opaque model id, human label, provider class, input/output limits, availability, and a human-readable data-handling badge. The catalog MUST NOT expose a provider credential, raw secret, raw endpoint, secret environment-variable name, or provider request template, and the browser MUST NOT call any model provider directly. EVERY MODEL CONSUMER on this surface — a chat turn, and any further consumer such as a per-document derivation — SHALL accept only a model id present and available in the current catalog and SHALL resolve that id through a server-side injected model-provider port whose member surface SHALL remain exactly the three declared members — the adapter-declared timeout, the catalog, and the single opaque dispatch — so that per-turn model selection, harness session handling, and any adapter-internal routing are performed INSIDE an adapter and MUST NOT be added as a fourth provider verb. A catalog entry MAY name a ROUTING RULE this capability owns rather than a single provider model — an `auto` entry that maps a turn to a model by declared role — and such an entry SHALL declare itself as a routing rule with the data-handling badge of the models it may route to, because an entry that hid a routing decision behind a model-shaped id would report a handling posture it does not control. Provider credentials MUST come only from the deployment's approved server-side credential mechanism and MUST NOT enter browser storage, a request body, response body, dashboard snapshot, chat transcript, thread file, log, gate record, git artifact, or exception detail; an adapter that reaches a hosted provider SHALL obtain its credential through the ratified broker lane and MUST NOT hold or read a raw secret of its own. A hosted fallback MAY be offered only when the deployment explicitly enables it and its configured data-handling policy meets the catalog badge; otherwise the model MUST be unavailable. The model catalog and EVERY model-consuming route SHALL be offered only on a loopback human console with a real checkout, resolved actor, and demonstrated console presence; the hosted/read-only plane MUST offer NONE of them. A NEW model consumer SHALL reach the provider through this same seam and MUST NOT be added as a fourth provider verb, MUST NOT open a second provider path, and MUST NOT be smuggled through the chat-turn envelope: a consumer whose request is not a conversation SHALL carry its own request shape and its own declared purpose. The port MUST also be DECLARED AT AN ENTRYPOINT for any consumer to reach a provider at all; where no entrypoint declares one, every consumer's honest posture is an absent capability rather than an error. Where the declared adapter is STATEFUL — a supervised harness child holding per-thread sessions — the declaration SHALL resolve to ONE instance for the life of the served process, and the per-request accessor SHALL return that same instance rather than constructing a new one, because an adapter rebuilt per request cannot hold the one-session-per-document-thread correspondence this capability requires elsewhere and would restart a child on every call.
 
 #### Scenario: The browser loads model choices
 - **WHEN** local doxBench opens with one or more allowed providers configured
 - **THEN** the selector MUST show exactly the available catalog entries and their data-handling badges
 - **AND** no credential or raw provider endpoint MUST be present in the page or catalog response
 
+#### Scenario: The menu offers a routing rule
+- **WHEN** the catalog offers an `auto` entry that this capability resolves to a model by role
+- **THEN** the entry MUST declare itself a routing rule and carry the handling badge of every model it may route to
+- **AND** the resolved model MUST be recorded on the turn, so a transcript names the model that actually answered
+
 #### Scenario: No model is configured
 - **WHEN** the model catalog is empty
 - **THEN** the chat rail MUST explain that no allowed model is configured
-- **AND** the Outline and Document editors MUST remain usable
+- **AND** every loaded editor MUST remain usable
 
 #### Scenario: An unknown model id is submitted
 - **WHEN** a chat request names a model id absent from or unavailable in the current catalog
 - **THEN** the server MUST refuse before any provider call
+
+#### Scenario: A fourth provider verb is proposed
+- **WHEN** any realization would add a port member beyond the declared three to carry model switching, session handling, or harness control
+- **THEN** it MUST be rejected — that behavior belongs inside an adapter, and a fourth member is a second provider verb by another name
 
 #### Scenario: A browser attempts a direct provider call
 - **WHEN** the dashboard bundle or runtime would contact a model endpoint other than the same-origin workbench routes
 - **THEN** the renderer boundary MUST fail validation and the call MUST NOT ship
 
 #### Scenario: Hosted doxBench is opened
-- **WHEN** doxBench runs on the hosted/read-only plane
+- **WHEN** doxBench runs on the hosted plane
 - **THEN** the model catalog and turn capabilities MUST be absent
 - **AND** no chat or editor control implying unavailable authority MUST be reachable
 
-### Requirement: Typed AI proposals and stale-application protection
-A workbench chat response MAY contain ordinary assistant prose and zero or more typed edit proposals, and each proposal SHALL name exactly one target (`outline` or `document`), carry complete proposed content, identify the target buffer's input `base_hash`, and include a human-readable summary. A provider response MUST NOT write, save, commit, create, delete, or apply any document by itself. The browser SHALL render Apply only for schema-valid typed proposals. Applying a proposal SHALL replace only the named browser buffer, mark it dirty, remain locally reversible, and MUST NOT invoke Save or any gate action. Immediately before Apply, the browser MUST recompute the target buffer hash and compare it with the proposal's `base_hash`; a mismatch MUST refuse as stale and offer inspection of current versus proposed content or a new turn, but MUST NOT silently merge or expose an authority-bypassing force-apply action. Chat prose without a typed proposal MUST NOT be inferred as replacement content.
+#### Scenario: A second model consumer is added
+- **WHEN** a capability adds a model consumer that is not a chat turn
+- **THEN** it MUST resolve its model through the same server-side injected port under the same loopback-console gate
+- **AND** the port's member surface MUST remain exactly the three declared members
 
-#### Scenario: An AI proposes a document revision
-- **WHEN** a valid response proposes document content against the current document hash
-- **THEN** the human MAY apply it to the Document buffer
+#### Scenario: A non-conversation request is offered as a chat turn
+- **WHEN** a model consumer whose request carries no human message, transcript, or buffer set would ride the chat-turn envelope
+- **THEN** it MUST be rejected and MUST carry its own request shape and declared purpose
+
+#### Scenario: No entrypoint declares a model port
+- **WHEN** a served process is started by an entrypoint that declares no model-provider port
+- **THEN** every model consumer MUST report an absent capability and MUST NOT fail as an error
+
+#### Scenario: A stateful adapter is resolved twice in one process
+- **WHEN** two requests in one served process each resolve the model port
+- **THEN** both MUST receive the SAME adapter instance
+- **AND** no adapter child process MUST be started a second time by the act of resolving
+
+### Requirement: Typed AI proposals and stale-application protection
+A workbench chat response MAY contain ordinary assistant prose and zero or more typed edit proposals, and each proposal SHALL name exactly one target BUFFER KEY drawn from the request's own supplied buffer set, carry complete proposed content, identify that buffer's input `base_hash`, and include a human-readable summary. A proposal naming a key the request did not supply MUST be refused as unroutable rather than guessed at, and two proposals MUST NOT name the same key in one response. The number of proposals in one response SHALL be bounded by the contract, and the bound SHALL be expressed over the request's buffer count rather than a fixed pair, so widening the loaded set does not silently widen what one response may rewrite beyond what it was grounded on. A provider response MUST NOT write, save, commit, create, delete, or apply any document by itself. The browser SHALL render Apply only for schema-valid typed proposals. Applying a proposal SHALL replace only the named browser buffer, mark it dirty, remain locally reversible, and MUST NOT invoke Save or any gate action. Immediately before Apply, the browser MUST recompute the target buffer hash and compare it with the proposal's `base_hash`; a mismatch MUST refuse as stale and offer inspection of current versus proposed content or a new turn, but MUST NOT silently merge or expose an authority-bypassing force-apply action. Chat prose without a typed proposal MUST NOT be inferred as replacement content.
+
+#### Scenario: An AI proposes a revision to the selected document
+- **WHEN** a valid response proposes content for the bound document's key against that buffer's current hash
+- **THEN** the human MAY apply it to that buffer
 - **AND** the buffer MUST become dirty while the corpus and branch remain unchanged until Save
 
-#### Scenario: A proposal targets both buffers
-- **WHEN** one turn returns valid outline and document proposals
-- **THEN** each proposal MUST have its own target and base hash
-- **AND** the human MUST be able to apply or reject each independently
+#### Scenario: A proposal targets a buffer that was not sent
+- **WHEN** a response names a buffer key absent from the request's buffer set
+- **THEN** that proposal MUST be refused as unroutable and MUST NOT be rendered with an Apply control
+
+#### Scenario: Two proposals name one buffer
+- **WHEN** one response returns two proposals against the same buffer key
+- **THEN** the response MUST be refused rather than applied in an arbitrary order
 
 #### Scenario: Human work makes a proposal stale
 - **WHEN** the human changes the target buffer after the turn was issued and then invokes Apply
@@ -1450,4 +1703,890 @@ A retirement performed by reconciliation SHALL be reported as a reconciliation, 
 #### Scenario: The targeted route keeps refusing a dead branch
 - **WHEN** a caller names a branch with no live session for targeted retirement
 - **THEN** the request is refused naming the joint liveness signal, unchanged by this capability's new route
+
+### Requirement: Demote refreshes a staged topic's outline and never silently replaces it
+The reverse transition SHALL leave the demoted topic's primary fragment carrying the ACTUAL text of the last attempted `proposal.md` and the demoted change's own provenance, and MUST NOT reset that fragment to the pre-proposal aspirational snapshot the change folder holds. The primary fragment is the file the existing deterministic, path-only selection already names; this requirement adds no second candidate file and MUST NOT change that selection.
+
+A returning file whose destination is the topic's declared primary fragment SHALL keep `Status: staged`. It MUST NOT be flipped to `Status: draft`: the same selection rule still calls that file the staged topic's outline, so a draft status there makes the document disagree with every reader of it. The `Status: draft` flip remains correct and unchanged for the proposal documents returning to the topic's `openspec/` workspace.
+
+The reverse transition SHALL fill the fragment's round-trip provenance slots from values it holds when it executes — the change id, the date demoted, the demote reason, the date the change was raised, and the change's state at demote. The state-at-demote slot SHALL carry the change's status TOGETHER WITH its task progress where the change records tasks, because the status alone is a constant: the reverse transition refuses any change that is not active, so a status-only slot can never distinguish one demote from another. Where the change records no tasks, the slot SHALL carry the status alone rather than a fabricated count. A value that is genuinely unavailable SHALL be recorded as unavailable and MUST NOT be fabricated or left reading as an unused placeholder.
+
+The fragment's proposal-element sections — the sections wrapped in the ratified `xspec:candidate` marker grammar — SHALL be refreshed from the corresponding sections of the returned `proposal.md`. Only sections present in BOTH the fragment and the returned proposal SHALL be rewritten; the refresh MUST NOT invent a section the proposal does not carry, and MUST NOT delete a section the proposal omits. Where the demoted change carries no `proposal.md`, the provenance slots SHALL still be filled and the sections left untouched.
+
+**The snapshot is a fallback SOURCE, never the authority.** Where the destination fragment already exists and differs from the change folder's snapshot of it, the reverse transition MUST NOT replace the destination's bytes. The refresh SHALL apply INTO the existing fragment, bounded to the provenance slots and the marked proposal-element sections, leaving every other byte of that file unchanged; and the snapshot copy SHALL be preserved in the topic beside it under a non-colliding name and named in the transition's own record, so that nothing is discarded either. Only where no fragment exists at the destination SHALL the snapshot be restored first and then refreshed. No live human work is ever silently replaced by a demote.
+
+EXACTLY ONE addition is carved out of that byte bound, and it is not part of the refresh. Where the destination fragment carries no lifecycle status header at all, the reverse transition SHALL add one — the `staged` status the primary-fragment rule above already requires — and SHALL name that addition in its execution record. Without it the reverse transition leaves behind a fragment the forward transition refuses, making the cycle one-way for the very topic it has just returned material to; a live fragment can reach that state because it is the human's own working document and never had to pass the forward gate to acquire a header. It is an ADDITION and never a rewrite: a header the fragment already carries is the human's statement about their own document and MUST NOT be changed. No other byte outside the provenance slots and the marked proposal-element sections may be written.
+
+The refresh SHALL be idempotent: applying it twice with the same inputs SHALL produce the same bytes. It SHALL preserve the destination document's own line-ending flavor rather than translating it.
+
+#### Scenario: The state-at-demote slot carries progress beside the status
+- **WHEN** a change recording tasks is demoted
+- **THEN** the state-at-demote slot MUST carry the change's status and its task progress together
+- **AND** the progress MUST come from the change's own recorded tasks rather than being counted a second way
+
+#### Scenario: A demoted change records no tasks
+- **WHEN** a change with no recorded tasks is demoted
+- **THEN** the state-at-demote slot MUST carry the status alone
+- **AND** a task count MUST NOT be fabricated
+
+#### Scenario: The returning outline keeps its staged status
+- **WHEN** a demote returns a file whose destination is the topic's declared primary fragment
+- **THEN** that file MUST keep `Status: staged`
+- **AND** the proposal documents returning to the topic's `openspec/` workspace MUST still continue as `Status: draft`
+
+#### Scenario: The proposal-element sections carry the real prior text
+- **WHEN** a topic that reached proposal is demoted and the change carries a `proposal.md`
+- **THEN** the fragment's `xspec:candidate` proposal-element sections MUST carry that proposal's actual text
+- **AND** they MUST NOT carry the pre-proposal aspirational text the change folder snapshotted
+
+#### Scenario: The destination fragment already exists and differs
+- **WHEN** a demote's primary-fragment destination exists and differs from the change folder's snapshot of it
+- **THEN** the destination's bytes MUST NOT be replaced by the snapshot
+- **AND** the provenance slots and the marked proposal-element sections MUST be refreshed in place, leaving every other byte of that file unchanged
+- **AND** the snapshot MUST be preserved in the topic under a non-colliding name and named in the transition's record
+
+#### Scenario: The live fragment carries no lifecycle status header
+- **WHEN** a demote's primary-fragment destination exists, differs from the snapshot, and carries no lifecycle status header
+- **THEN** a `staged` header MUST be added and named in the execution record
+- **AND** every other byte outside the provenance slots and the marked proposal-element sections MUST still be unchanged
+- **AND** a header the fragment already carries MUST NOT be changed
+
+#### Scenario: The refresh runs twice
+- **WHEN** the reverse transition's fragment refresh is applied twice with the same inputs
+- **THEN** the resulting bytes MUST be identical
+- **AND** the document's own line-ending flavor MUST be preserved rather than translated
+
+### Requirement: The reverse transition resolves its origin staging topic from a declared order
+The reverse transition SHALL resolve the staging topic it returns material to through a DECLARED PRECEDENCE ORDER rather than a single source: an explicitly supplied topic first, then the change's own recorded origin where that origin declares a staged kind, then a possibles-register pick edge naming the change. The first source that answers SHALL win, and an explicitly supplied topic SHALL always win, because a human naming the destination is the most direct statement of intent available.
+
+A change whose recorded origin is not staged — an ad-hoc origin, or none — SHALL NOT have a staging topic inferred for it. The reverse transition SHALL refuse with a stated reason and name the explicit option instead, because a change that never came from staging has no topic to return to and inventing one would move material somewhere nobody chose.
+
+The resolution MUST NOT depend solely on register state the forward transition destroys. A pick edge points at a staging folder, the forward transition removes that folder, and a resolution reading only pick edges therefore fails for exactly the changes that actually reached proposal — which is the condition a demote exists to reverse.
+
+#### Scenario: A change that reached proposal is demoted with no pick edge present
+- **WHEN** a change whose recorded origin declares a staged kind is demoted, and no possibles pick edge names it
+- **THEN** the origin staging topic MUST be resolved from the change's own recorded origin
+- **AND** the demote MUST NOT refuse for want of a topic
+
+#### Scenario: An explicitly supplied topic is offered alongside a resolvable origin
+- **WHEN** a human supplies a staging topic explicitly and the change's recorded origin also names one
+- **THEN** the explicitly supplied topic MUST be used
+
+#### Scenario: A change with no staged origin is demoted
+- **WHEN** a change whose recorded origin is ad-hoc or absent is demoted with no explicit topic
+- **THEN** the reverse transition MUST refuse with a stated reason
+- **AND** it MUST NOT infer a staging topic
+- **AND** the refusal MUST name the explicit option
+
+### Requirement: The reverse transition's own artifacts do not block the topic's next transition
+Every artifact the reverse transition writes into a staging topic SHALL satisfy the same governed-document rules the forward transition enforces on that topic, so that a topic which has received returned material can be transitioned again without an operator working around an artifact the reverse transition itself left behind. In particular a governed markdown artifact it writes SHALL carry a valid lifecycle status header.
+
+This is a round-trip obligation rather than a formatting preference: the reverse transition is one half of a cycle whose other half refuses governed markdown without a status header, so an artifact that fails that rule makes the cycle one-way for the topic it was applied to.
+
+#### Scenario: A returned topic is transitioned again
+- **WHEN** a topic that has received returned material through the reverse transition is transitioned forward again over its whole folder
+- **THEN** the forward transition MUST NOT refuse because of an artifact the reverse transition wrote
+- **AND** every governed markdown artifact the reverse transition wrote MUST carry a valid lifecycle status header
+
+### Requirement: The doxBench canvas presents Editor and Preview view tabs
+The doxBench authoring canvas SHALL present the active buffer as exactly two VIEW TABS — `Editor`, the buffer's raw Markdown text, and `Preview`, its large rendered Markdown — and MUST NOT render the raw text and its rendering side by side in one pane. `Preview` SHALL be the tab selected when the canvas mounts, because most opens are to read or resume rather than to immediately type. Switching INTO `Preview` SHALL render the active buffer's current content before that tab becomes visible, so a switch never displays a rendering the debounce had not yet applied; switching into `Editor` SHALL require no such flush, because the raw text is never debounced. The view tabs SHALL reuse the capability's existing single Markdown rendering path and its existing debounce, and MUST NOT introduce a second rendering path, a second sanitizer, or a raw-markup sink. The view tabs answer WHICH VIEW of one buffer is shown and MUST NOT be used to answer which buffer is active — that choice belongs to the context region.
+
+#### Scenario: The canvas mounts
+- **WHEN** doxBench mounts its authoring canvas on a capable local human console
+- **THEN** exactly two view tabs MUST be present, `Editor` and `Preview`
+- **AND** `Preview` MUST be the selected tab
+- **AND** the raw text and its rendering MUST NOT both be visible in one pane
+
+#### Scenario: A human types and then switches to Preview
+- **WHEN** a human edits the active buffer in `Editor` and switches to `Preview` before the debounce has elapsed
+- **THEN** the rendering MUST be brought up to the buffer's current content as part of the switch
+- **AND** the human MUST NOT see the pre-edit rendering
+
+#### Scenario: A human switches back to Editor
+- **WHEN** a human switches from `Preview` to `Editor`
+- **THEN** the raw Markdown MUST be shown as it stands, with no re-render required and no content transformation
+
+#### Scenario: A view tab is asked to select a buffer
+- **WHEN** any realization would let the view tabs choose which buffer the canvas shows
+- **THEN** it MUST be rejected — the context region selects the buffer and the view tabs select the view of it
+
+### Requirement: One Save and one Cancel govern the doxBench canvas
+The doxBench authoring canvas SHALL carry exactly ONE control slot placed outside both view tabs so that the slot and its answer are on screen whichever view the human is standing on, and what that slot renders SHALL be conditional on whether the loaded set holds unsaved work: while ANY buffer of the loaded set is dirty the slot SHALL render exactly ONE Save control and exactly ONE Cancel control, and while NO buffer is dirty it SHALL render exactly ONE Unload control in their place; the canvas MUST NOT render a duplicate Save, Cancel, or Unload per view tab or per buffer WITHIN THE CANVAS, and MUST NOT render Save or Cancel beside Unload, because the slot's own content is what tells a human whether this canvas is holding unsaved work. The dirty condition SHALL be read from the SAME per-buffer dirty flag Save and Cancel already derive their reachability from, and a realization that introduces a second source of dirtiness for the swap MUST be rejected. The condition SHALL be ANY-buffer-dirty rather than selected-buffer-dirty: Save answers for the whole canvas, so a rule that withdrew it whenever the SELECTED buffer happened to be clean would hide the only Save from a human whose other buffer still holds unsaved text — the precise hazard this capability's discard rules exist to prevent. The Unload control SHALL perform the loaded set's one way out for the SELECTED buffer, SHALL NAME that buffer where it can act, SHALL be reachable only where that buffer is a document the loaded set holds under a key that is not the reserved `outline` AND that names a document, and SHALL otherwise render as visibly inert while STATING the reason it cannot act as VISIBLE TEXT beside it rather than only in a hover title — the same standard this requirement already sets for an unreachable Save, and for the same reason doubled: a disabled control cannot take focus, so a title alone is reachable by neither a keyboard nor a screen reader. Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I do the workflow to edit a document, and then cancel instead of save, then try to unload, the unload button is stippled. It should allow the document to unload. only the outline can never unload. we always want that to be loaded. If saved or canceled so the document is in neutral position, then we can unload it."): the reserved set narrows to the outline alone; a backed reserved-slot document in the neutral position unloads like any other document; the unbacked slot remains inert for want of anything to unload. The `outline` key SHALL therefore be the ONLY key this control permanently withholds, and a document held under the reserved `document` key SHALL be as unloadable as one held under its own path once no buffer of the loaded set is dirty — the amendment narrows WHICH KEYS the control acts on and changes the dirty rule not at all. The UNBACKED `document` slot SHALL remain inert, and the realization MUST state that as a want of SUBJECT rather than as a reservation: the slot is held but names no document, so it has no loaded-set membership for the act to end, and the control's stated reason MUST NOT claim a reservation it no longer carries. Emptying the loaded set of every document SHALL NOT be prevented by withholding this act: where the turn contract's one-document floor makes such a session unable to build a turn, the surface SHALL refuse AT SEND with the composer preserved and the selector's honest empty state rendered, because a stated refusal a human can act on is a better discharge of a wire bound than a control that can never be reached. Where the gate capability is absent the slot SHALL keep its Save and Cancel posture unchanged and MUST NOT swap to Unload, because a surface that cannot save must go on saying so. A per-document Save on the context region's `docs` tile is NOT such a duplicate and SHALL be permitted: it lives on a different surface, is scoped to the document whose tile carries it, and reaches the same governed pipeline — one save mechanism with a second entry point, which is the opposite of a second save path. The canvas Save SHALL keep the semantics the editor buffer contract gives it — it persists every dirty backed buffer through the existing `create-document`/`edit-document` gate actions under that contract's ordering rule, as commit-per-gate-action on the tile's branch session, with `open-pr` remaining the separate promotion act. Save's verdict SHALL continue to be reported PER BUFFER, so a partial success across several documents remains separately readable. Cancel SHALL discard the SELECTED buffer back to its last loaded or saved base content and MUST NOT touch any other buffer, because discard destroys unsaved human work, has no cross-buffer dependency, and a single control that silently reverted a buffer the human is not looking at would be this surface's one irreversible surprise — a hazard that grows, not shrinks, as the loaded set grows. Neither control SHALL grant any authority the surface did not already hold: no force-save, no force-discard, no bypass of a refusal, and no second write route. Where the gate capability is absent, both controls SHALL state that absence as visible text beside them rather than only in a hover title, and MUST NOT be reachable.
+
+#### Scenario: The canvas offers its controls while a buffer is dirty
+- **WHEN** doxBench renders its authoring canvas with any buffer of the loaded set dirty
+- **THEN** exactly one Save control and exactly one Cancel control MUST be rendered on the canvas, outside both view tabs
+- **AND** no Unload control MUST be rendered beside them
+- **AND** no per-view-tab or per-buffer duplicate of any of them MUST be rendered inside the canvas
+
+#### Scenario: The canvas offers its controls while nothing is dirty
+- **WHEN** doxBench renders its authoring canvas with no buffer of the loaded set dirty and a loaded document selected
+- **THEN** exactly one Unload control MUST be rendered in the same slot, outside both view tabs
+- **AND** no Save control and no Cancel control MUST be rendered beside it
+- **AND** the Unload control MUST be reachable and MUST name the selected document it would unload
+
+#### Scenario: Nothing is dirty and the selected buffer is the reserved outline
+- **WHEN** doxBench renders its authoring canvas with nothing dirty and the reserved `outline` buffer selected
+- **THEN** the Unload control MUST be rendered and MUST be visibly inert rather than absent
+- **AND** it MUST state that the outline is reserved and is never unloaded as VISIBLE TEXT beside it, not only in a hover title, because the inert control cannot take focus to reveal one
+- **AND** the `outline` key MUST be the ONLY key this control withholds by reservation (Amendment 2)
+
+#### Scenario: The tile's own document is edited, cancelled, and unloaded
+- **WHEN** a human edits the document held under the reserved `document` key, invokes Cancel rather than Save, and then invokes Unload
+- **THEN** the Unload control MUST be reachable and MUST name that document, because the buffer is clean and its key is not the outline
+- **AND** the document MUST leave the loaded set
+- **AND** the selector MUST render its honest empty state where it was the only loaded document
+- **AND** the same MUST hold where the buffer was returned to a clean state by Save instead of Cancel
+
+#### Scenario: The selected buffer is the unbacked create slot
+- **WHEN** doxBench renders its authoring canvas with nothing dirty and the reserved `document` key holding the not-yet-created artifact, which has no path
+- **THEN** the Unload control MUST be rendered and MUST be visibly inert rather than absent
+- **AND** its stated reason MUST name the absence of anything to unload, and MUST NOT claim the slot is reserved against unloading
+
+#### Scenario: The slot renders where the gate capability is absent
+- **WHEN** the authoring canvas is mounted with no gate save capability and no buffer is dirty
+- **THEN** the slot MUST keep rendering its Save and Cancel controls with Save unreachable and its absence stated as visible text
+- **AND** an Unload control MUST NOT be rendered in their place, because the swap would replace the one statement that a surface cannot save with a control that never says so
+
+#### Scenario: The swap is asked for a second source of dirtiness
+- **WHEN** any realization would drive the Save/Cancel-versus-Unload swap from a dirtiness signal other than the per-buffer dirty flag Save and Cancel already read
+- **THEN** it MUST be rejected — two answers to "is this canvas holding unsaved work" is how the two come to disagree
+
+#### Scenario: The canvas Save is invoked with several buffers dirty
+- **WHEN** a human invokes the canvas Save with the outline and two documents dirty
+- **THEN** each changed document MUST persist through its existing gate action under the buffer contract's ordering rule
+- **AND** the verdict MUST be reported per buffer, so a committed buffer and a refused buffer are separately readable
+
+#### Scenario: Cancel is invoked with several documents loaded
+- **WHEN** a human invokes Cancel while one of four loaded buffers is selected and dirty
+- **THEN** only the selected buffer MUST return to its base content, and the other three MUST be untouched
+- **AND** nothing MUST be persisted, committed, or dispatched
+
+#### Scenario: A control is asked for authority it does not have
+- **WHEN** any realization would add a force-save, a force-discard, a refusal bypass, or a second write route to either control or to the tile's Save
+- **THEN** it MUST be rejected — an additional entry point MUST NOT widen what the act may do
+
+#### Scenario: The gate capability is absent
+- **WHEN** the canvas renders on a surface with no gate capability
+- **THEN** Save MUST be unreachable and MUST state that absence as visible text beside it, not only in a hover title
+
+### Requirement: The doxBench chat binds to the active buffer selection
+The doxBench chat SHALL take its working context from the SELECTED BUFFER of the loaded set and MUST NOT maintain a second, separately-chosen context beside it. Changing the selection SHALL change the chat's working context IMMEDIATELY, with no confirmation step, because changing which buffer is selected replaces no content and destroys nothing; the existing unsaved-edit guard SHALL be unchanged by this rule where it still applies, and it SHALL NOT be extended to selection, since a selection change no longer replaces any buffer's content once documents are held side by side rather than in one slot. Focusing the context region's `outline` selection tab SHALL put the chat in outline-editing context; selecting a loaded document in the chat rail's selector SHALL put the chat in that document's context. The chat SHALL STATE its current binding on the chat surface itself and SHALL make it SELECTABLE there, so which material a conversation is working on is both read and chosen where the conversation happens. Naming the bound buffer inside a turn's durable RECORD SHALL now be CARRIED rather than deferred: Phase A recorded the obligation against the buffer-set widening that next releases the chat-turn contract, this capability performs that release, and the record SHALL therefore name the bound buffer's key. A server-side-only field that no reader can consult MUST NOT be accepted as a substitute for it, and the record MUST derive the bound buffer from the request's DECLARED binding rather than inferring it from which document happened to be supplied. This SHALL generalize the existing active-path revalidation rather than replace it: a turn whose declared binding does not match a supplied buffer MUST still refuse before any provider call. Binding SHALL govern what the chat is working ON and MUST NOT narrow what the turn may be grounded on — the turn continues to carry the outline and every loaded document the grounded-turn contract requires, plus the assembled context packet.
+
+#### Scenario: The selection changes mid-conversation
+- **WHEN** a human with an open conversation selects a different loaded document
+- **THEN** the chat's working context MUST follow immediately and the chat MUST show that document's own thread
+- **AND** no confirmation step MUST be required, because no content is replaced by the change
+
+#### Scenario: The outline is selected
+- **WHEN** the context region's `outline` selection tab is focused
+- **THEN** a turn submitted next MUST be bound to the `outline` buffer
+- **AND** the chat surface MUST state that binding, so the human can see which material the conversation is working on before they send
+
+#### Scenario: A turn record is consulted for its bound buffer
+- **WHEN** a reader consults a completed turn's durable record to learn which buffer that turn was bound to
+- **THEN** the record MUST name it, carried on the released envelope this capability's contract release provides
+- **AND** the named buffer MUST be the one the request DECLARED as bound, never one inferred from the supplied paths
+
+#### Scenario: A turn's declared binding does not match its buffers
+- **WHEN** a turn declares a binding that matches no buffer supplied under it
+- **THEN** the route MUST refuse before any provider call, exactly as the existing active-path revalidation does
+
+#### Scenario: Binding is mistaken for grounding
+- **WHEN** any realization would use the binding to drop a buffer or a packet section the grounded-turn contract requires the request to carry
+- **THEN** it MUST be rejected — binding names what the chat works on, not what it may see
+
+### Requirement: The canvas controls stay inside the per-buffer staleness guard
+Every doxBench canvas control SHALL remain subject to the existing per-buffer content-identity guard, and consolidating controls onto the panel MUST NOT create a path around it. A Save attempted against a buffer whose settled content identity has moved since the acting request last observed it MUST refuse that buffer, exactly as it does today; an AI proposal applied against a moved identity MUST refuse as stale; a turn whose declared buffer hash does not match the supplied text MUST refuse before any provider call. The guard SHALL be applied PER BUFFER rather than per panel, because it describes one buffer's identity and nothing about it depends on how many buffers exist. Cancel MOVES a buffer's identity back to its base and SHALL therefore emit the same settled-identity notification an edit or a discard already emits, so no proposal card continues to offer Apply against text the buffer no longer holds. While a Save is in flight the canvas SHALL state that fact, withdraw the controls it would otherwise offer, and REFUSE rather than queue a second Save or a concurrent edit, because the bytes handed over are the bytes the verdict describes.
+
+#### Scenario: Save meets a moved identity
+- **WHEN** a buffer's settled content identity has moved since the request that is now being saved observed it
+- **THEN** that buffer's save MUST refuse, and its text, base, and dirty state MUST be preserved exactly
+
+#### Scenario: Cancel moves an identity
+- **WHEN** Cancel restores the active buffer to its base content
+- **THEN** the settled-identity notification MUST fire, exactly as it does for an edit or a discard
+- **AND** any proposal card whose base no longer matches MUST stop offering Apply
+
+#### Scenario: A second Save is attempted
+- **WHEN** a human invokes Save while a Save is already in flight for this canvas
+- **THEN** it MUST refuse and say so, and MUST NOT be queued
+
+#### Scenario: An edit is attempted mid-save
+- **WHEN** a human edits a buffer whose bytes are currently in flight to the save seam
+- **THEN** the edit MUST refuse visibly rather than silently vanish or land underneath the verdict
+
+### Requirement: The canvas view surface is expressed over the buffer set, not over two names
+The view tabs, the canvas Save, the canvas Cancel, and the chat binding SHALL each be expressed over the capability's declared buffer set and its selected-buffer key, and MUST NOT hard-code any literal buffer name into their own structure. The view tabs render whichever buffer is selected and MUST NOT enumerate buffers; the canvas Save operates over the declared buffer set; Cancel operates on the selected-buffer key; the chat binds to the selected-buffer key. Phase A held this requirement WITHOUT widening the buffer set and required a realization that widened it to be rejected; that clause is now DISCHARGED, because the widening is exactly what this capability performs — in the buffer contract, the turn contract, and the save ordering rule, which are the three places that ever enumerated `outline` and `document`. The purpose of this requirement is unchanged and is now proven: widening the buffer set required changing those contracts and NOTHING on the view surface, and any FURTHER widening — a third buffer kind, a per-buffer view mode, a second selection surface — SHALL likewise be a change to the buffer contract alone. A realization that re-introduces a literal buffer name into the view tabs, the controls, or the binding MUST be rejected. A surface that selects a SUBJECT TO DESCRIBE rather than a buffer to edit — the `docs` context's document wheel, whose selection drives the abstract region's subject — SHALL NOT be a second selection surface within the meaning of this requirement and SHALL therefore require no change to the buffer contract. The test is whether the surface can make a buffer the canvas's SELECTED BUFFER: the wheel cannot, and a surface that could would be a second selection surface however it is labelled.
+
+#### Scenario: A view surface names a buffer literally
+- **WHEN** a realization builds the view tabs, Save, Cancel, or the chat binding around a literal buffer name
+- **THEN** it MUST be rejected — these surfaces read the buffer set and the selected key
+
+#### Scenario: The buffer set widens
+- **WHEN** the buffer set grows from two buffers to the outline plus several loaded documents
+- **THEN** the view tabs, the canvas Save, Cancel, and the chat binding MUST require no structural change to carry it
+- **AND** the change MUST be confined to the buffer contract, the turn contract, and the save ordering rule
+
+#### Scenario: A surface selects a subject rather than a buffer
+- **WHEN** the docs context's wheel selection changes which document the abstract region describes
+- **THEN** it MUST NOT change the canvas's selected buffer and MUST require no change to the buffer contract
+- **AND** the view tabs, the canvas Save, Cancel, and the chat binding MUST be unaffected
+
+### Requirement: The outline tab renders the staged-topic template
+The doxBench outline tab SHALL render a conforming staged topic's primary fragment as its templated sections rather than as undifferentiated prose, so the surface a human iterates a topic in shows the same structure the template contract requires. Section identity SHALL come from the fragment's own headings and its `xspec:` marker fences — the addressing grammar the template already uses — and the tab MUST NOT infer sections by content-sniffing or by fabricating headings the fragment does not carry.
+
+The tab SHALL offer an add-section affordance. A section added through it SHALL be written by the existing `edit-document` path on the topic's branch session, scoped by the section it targets — the heading, or the `xspec:candidate` fence where the section is a proposal-element block — as the patch's addressing key. It MUST NOT introduce a second write verb: section-scoped patching is a patch-TARGETING detail, not a different kind of action, and `edit-document` already supplies the branch-scoped, committed, reviewable machinery.
+
+(AMENDED 2026-08-15, Brett: "amend to edit-document". As ratified this named `edit-apply`, carried from the topic's Q4. `edit-apply` is the gate console's MAIN-RESIDENT redline verb — it requires a `change_id` and applies to change documents — so it cannot write a staged topic's fragment on a session branch, and the two states are mutually exclusive besides: a fragment whose topic has an owning change has already moved out of staging. `edit-document` is the session content verb the buffer contract already uses. Q4's intent is unchanged; only the verb name was wrong.) Every section added this way SHALL carry its `Added-by:` provenance, whether the author is the human or an agent.
+
+The tab SHALL degrade rather than refuse on a NON-CONFORMING fragment. Topics staged before the template ratifies are conformant only opt-in, so the tab MUST render what is present, MUST NOT report a pre-existing topic as broken, and MUST NOT rewrite a fragment into conformance as a side effect of opening it. Conformance is earned when a human next works the topic, never by the act of viewing it.
+
+Rendering the template MUST NOT change the outline buffer's existing seeding, hashing, dirty-state, or Save semantics. The buffer contract governs how the outline is loaded and written; this requirement governs only how its content is presented and how a new section is addressed.
+
+#### Scenario: A conforming topic is opened in the outline tab
+- **WHEN** the outline tab opens a primary fragment carrying the template
+- **THEN** its required sections MUST be rendered as identified sections
+- **AND** section identity MUST come from headings and `xspec:` fences, never from content-sniffing
+
+#### Scenario: A human adds a section
+- **WHEN** the add-section affordance is used
+- **THEN** the write MUST go through `edit-document` scoped to the targeted section
+- **AND** the added section MUST carry `Added-by:` provenance
+- **AND** no second write verb MUST be introduced
+
+#### Scenario: A pre-template topic is opened
+- **WHEN** the outline tab opens a fragment staged before ratification that carries none of the required sections
+- **THEN** it MUST render what is present without reporting the topic as broken
+- **AND** it MUST NOT rewrite the fragment into conformance on open
+
+#### Scenario: The gate capability is absent
+- **WHEN** the outline tab renders on a plane with no gate capability
+- **THEN** the add-section affordance MUST NOT be offered as a live control
+- **AND** no write path MUST be reachable from the page
+
+### Requirement: Hosted actor surfaced additively on capabilities
+The serving side SHALL include a `hosted_actor` field on the `/capabilities` response, resolved PER REQUEST from the gateway-stamped `X-Auth-Request-User` header, and `null` when that header is absent. The field is additive to the existing unversioned `/capabilities` shape — the same additive pattern the prior `model` and `repository` fields followed — so it introduces no version bump and existing consumers are unaffected. The field is DISPLAY-ONLY: the dox-auth gateway remains the identity authority, the dashboard's trust in the header rests on the NetworkPolicy boundary that lets only the gateway reach it, and the dashboard reads the header to present a name and never to authorize.
+
+#### Scenario: The stamped header is present
+- WHEN a request carrying `X-Auth-Request-User: alice` reaches the `/capabilities` route
+- THEN the response's `hosted_actor` MUST be `alice`
+- AND the value is resolved per request, beside the existing per-request `repository` field
+
+#### Scenario: The header is absent
+- WHEN `/capabilities` is requested on a local or loopback serve, or by an unauthenticated path that still reached the probe, with no `X-Auth-Request-User` header
+- THEN `hosted_actor` MUST be `null`
+
+#### Scenario: A client-supplied header on a direct request is not trusted differently
+- WHEN a direct (non-gateway) request carries a client-supplied `X-Auth-Request-User`
+- THEN the dashboard MUST treat it exactly as any other value of that header — as DISPLAY data only — and MUST NOT authorize any action on it, because trust rests on the NetworkPolicy boundary and the gateway, which strips client values before stamping its own, remains the identity authority
+
+### Requirement: The dashboard authorizes nothing on the hosted actor
+The dashboard SHALL treat `hosted_actor` as presentation data only and MUST NOT use it to grant, gate, or unlock any action. All existing write, gate, and edit gating stays exactly as-is — a loopback bind, a real checkout, a resolved local actor, and the per-serve console token — none of which consults `hosted_actor`. Recording the design-D16 boundary nuance explicitly: the credential-free dashboard now READS a stamped identity header for display, which does not make it a credential holder or an authorization authority.
+
+#### Scenario: A hosted request with an actor still cannot write or gate
+- WHEN a request is hosted (not loopback) and carries a stamped `hosted_actor`
+- THEN every write, gate, and edit affordance MUST remain unavailable exactly as it is today
+- AND the presence of `hosted_actor` MUST NOT change any capability verdict, because those capabilities are keyed on the loopback console verdict and never on identity presence
+
+### Requirement: The user-account menu
+The dashboard SHALL render a user-account control in the top-right corner header controls, beside the theme and settings buttons, that opens a dropdown showing the signed-in username, the session's access level, and a logout control. The username SHALL be `hosted_actor`. The access level SHALL be DERIVED from the existing `/capabilities.actions` map plus loopback state — read-only when no write, gate, or edit action is available, otherwise naming the granted capabilities — reusing existing capability flags and inventing no new authorization. The menu SHALL follow the established header-popover interaction contract: anchored under its button, closed on Escape and on outside click, keyboard-focusable, and DOM-safe with every dynamic value bound via `textContent` and never `innerHTML`.
+
+#### Scenario: A hosted session opens the menu
+- WHEN a viewer with a present `hosted_actor` opens the account menu
+- THEN it MUST show that username, the derived access level, and an enabled logout control
+- AND it MUST anchor under its button, close on Escape and outside click, and bind every dynamic value via `textContent`
+
+#### Scenario: A local session opens the menu
+- WHEN the menu opens with `hosted_actor` absent (local mode)
+- THEN it MUST show the local actor if the serve resolved one, or a generic "local session" label otherwise
+- AND it MUST show NO logout control, because there is no gateway session to end
+
+#### Scenario: The access level reflects the capability verdict
+- WHEN the menu renders its access level
+- THEN it MUST read the level from the existing `/capabilities.actions` map plus loopback state, showing read-only when no write, gate, or edit action is available and otherwise naming the granted capabilities
+- AND it MUST NOT introduce any new authorization flag
+
+### Requirement: Logout delegates to the gateway
+The logout control SHALL navigate the browser to the gateway-owned `/logout` route, which clears the session cookie and redirects to `/login`. The dashboard SHALL NOT implement session termination itself.
+
+#### Scenario: Activating logout leaves for the gateway
+- WHEN a viewer activates the logout control
+- THEN the browser MUST navigate to `/logout`
+- AND the dashboard MUST NOT clear any session or perform any termination of its own
+
+### Requirement: The doxBench loaded set is the outline plus the documents the human loaded
+The loaded set SHALL be exactly the `outline` buffer plus every document a human has LOADED through the `docs` tile's load verb, and no other route SHALL add a document to it — not a chat proposal, not a retrieval result, not the snapshot, and not an inherited edge. A document SHALL leave the loaded set only by an explicit human act, and that act MUST refuse or require an explicit discard while the buffer is dirty, because unloading a dirty buffer destroys unsaved work exactly as Cancel does. Membership SHALL be session-local working state: it MUST NOT be written into the snapshot, the register, the workbench manifest, or any generated projection, because "a human has this open right now" is a fact about a browser the generator cannot observe. A document the tile offers as READ-ONLY CONTEXT — an inherited, cluster-neighbourhood, cited, or inbound-context document that is not the tile's own editable material — MAY be loaded for grounding and for conversation, and its buffer SHALL carry that non-owned status so the governed Save withholds it with the stated context-only reason exactly as it does today; such a buffer MUST NOT be offered a reachable Save on its tile and MUST NOT be marked as needing one. The loaded set SHALL be bounded, and reaching the bound SHALL refuse the load with the measured bound stated rather than silently evicting a buffer that may hold unsaved work.
+
+#### Scenario: A retrieval result is not a loaded document
+- **WHEN** the knowledge service returns a document as evidence for a turn
+- **THEN** that document MUST NOT join the loaded set, MUST NOT appear in the selector, and MUST NOT become an editable buffer
+- **AND** the human MUST use the load verb if they want to edit it
+
+#### Scenario: A dirty document is unloaded
+- **WHEN** a human unloads a document whose buffer has unsaved edits
+- **THEN** the unload MUST refuse or require an explicit discard, and MUST NOT silently drop the text
+- **AND** WITHHOLDING the unload affordance entirely while anything is dirty MUST satisfy this rule, because an act that cannot be reached is refused in the strongest available form
+- **AND** the state-level unload MUST keep refusing a dirty buffer that names no explicit discard, whether or not any surface can currently reach it
+
+#### Scenario: A context-only document is loaded
+- **WHEN** a human loads an inherited or cited document that is not this tile's own editable material
+- **THEN** it MAY be loaded for grounding and conversation with its non-owned status carried on the buffer
+- **AND** its tile MUST NOT offer a reachable Save and MUST NOT be marked as needing one
+
+#### Scenario: The loaded-set bound is reached
+- **WHEN** a human loads one document past the declared bound
+- **THEN** the load MUST refuse and state the measured bound
+- **AND** no already-loaded buffer MUST be evicted to make room
+
+#### Scenario: Membership is asked to persist
+- **WHEN** any realization would record which documents are loaded into the snapshot, register, manifest, or a published projection
+- **THEN** it MUST be rejected — membership is session-local, and a generator cannot observe a live browser
+
+### Requirement: The loaded-document selector names the working document
+The chat rail SHALL carry a SELECTOR listing every loaded document, and its selected entry SHALL BE the selected buffer that the canvas presents and the chat binds to. The selector SHALL be a scrolling list rather than a fixed-width row of chips, so a session that accumulates many loaded documents needs no folding, overflow, or least-recently-used eviction policy — the control is the overflow mechanism. An entry whose filename does not fit on one line SHALL reveal its full name on hover and to assistive technology, and MUST NOT be silently truncated or ellipsized into ambiguity with another entry. Every entry SHALL be distinguishable when two loaded documents share a basename, because a selector that cannot tell two files apart is worse than one that shows a longer name. The selector SHALL be keyboard-reachable and operable with the surface's established selection semantics, and MUST NOT introduce a second spelling of selection beside the one the surface already uses. Selecting an entry SHALL be immediate, SHALL switch the transcript to that document's thread, and MUST NOT be the surface's only route to selection: loading a document and focusing the `outline` selection tab SHALL both continue to select, and every route SHALL leave the selector, the canvas, and the chat agreeing about which buffer is selected. Where no document is loaded, the selector SHALL render its empty state honestly rather than hiding, and the `outline` buffer SHALL remain selectable and workable on its own.
+
+#### Scenario: Several documents are loaded
+- **WHEN** a human has loaded five documents
+- **THEN** the selector MUST list all five and MUST name which one is selected
+- **AND** no entry MUST be folded away, dropped, or evicted to fit
+
+#### Scenario: A long filename does not fit
+- **WHEN** a loaded document's name is longer than one line of the selector
+- **THEN** hovering the entry MUST reveal the full name, and the full name MUST be available to assistive technology
+- **AND** the entry MUST remain distinguishable from every other entry
+
+#### Scenario: Two loaded documents share a basename
+- **WHEN** two loaded documents have the same file name in different folders
+- **THEN** the selector MUST distinguish them
+
+#### Scenario: Selection is changed from another route
+- **WHEN** a human selects the `outline` tab or loads a new document
+- **THEN** the selector, the canvas, and the chat MUST all agree about which buffer is selected
+
+#### Scenario: Nothing is loaded yet
+- **WHEN** no document has been loaded
+- **THEN** the selector MUST render an honest empty state rather than hiding
+- **AND** the `outline` buffer MUST remain selectable and workable
+
+### Requirement: A docs tile carries read, load-for-editing, and save
+The `docs` context's expanded tile SHALL offer exactly three verbs — READ, which opens the immersive full-window read-only reader unchanged; LOAD-FOR-EDITING, which loads the document into the chat context as a member of the loaded set and selects it; and SAVE, which persists that document through the same governed pipeline the canvas Save uses. These are the CONTRACT names other requirements refer to; the visible control labels SHALL follow the surface's own copy, and load-for-editing MAY be labelled `edit` or `load` — the annotation that ruled this verb used both words — provided the label does not reclaim the bare word "edit" for an act that happens outside the app. The SAVE verb SHALL be reachable only while that document's buffer is dirty and SHALL be visibly inert otherwise, so the control's own state answers "does this need saving" without a sentence of standing text. The tile SAVE SHALL run the SAME pipeline as the canvas Save, restricted to that document plus the outline-ancestry step the buffer contract requires when the outline is dirty, and it MUST NOT persist another loaded document the human is not looking at; every buffer it acted on — including the outline when the ancestry step ran — SHALL report its own verdict on the same surfaces the canvas Save reports on. A tile whose document is LOADED SHALL be visibly marked as loaded and, where that buffer is dirty, as needing a save; the marking SHALL be driven from live session-local buffer state and MUST NOT be written into the snapshot, the register, or any generated projection. The three verbs SHALL be offered only where the surface already holds the authority each needs: READ requires no gate capability, and LOAD and SAVE MUST be unreachable wherever editing is unreachable, stating that absence rather than failing on activation. A document that is not this tile's own editable material MUST NOT offer a reachable SAVE. Where the `docs` context presents its document set as a WHEEL rather than as a list, these three verbs SHALL attach to the WHEEL'S EXPANDED TILE, and their contract names, their authority conditions, their dirty-state gating, and their per-buffer reporting obligations SHALL be unchanged: how the document set is PRESENTED is not a change to the verbs a document carries, and a change of presentation MUST NOT introduce a fourth verb.
+
+#### Scenario: A tile is expanded
+- **WHEN** a human expands a `docs` tile on a capable local console
+- **THEN** the action row MUST offer read, load-for-editing, and save
+- **AND** save MUST be inert unless that document's buffer is dirty
+
+#### Scenario: Read is unchanged
+- **WHEN** a human activates read
+- **THEN** the immersive full-window read-only reader MUST open exactly as it does today, and no buffer MUST be created or loaded
+
+#### Scenario: A loaded document's tile is marked
+- **WHEN** a document is loaded and its buffer becomes dirty
+- **THEN** the tile MUST be visibly marked as loaded and as needing a save
+- **AND** the marking MUST come from live buffer state and MUST NOT be recorded in the snapshot or any projection
+
+#### Scenario: The tile save runs with a dirty outline
+- **WHEN** a human invokes a tile's save while the outline is also dirty
+- **THEN** the outline MUST be persisted first as the ancestry step and that document MUST then be persisted, each reporting its own verdict
+- **AND** no other loaded document MUST be persisted by that act
+
+#### Scenario: Editing is unavailable
+- **WHEN** the tile renders on a surface where editing is unreachable
+- **THEN** load and save MUST be unreachable and MUST state that absence rather than failing when activated
+- **AND** read MUST remain available, because it needs no gate capability
+
+#### Scenario: The docs context presents a wheel
+- **WHEN** the `docs` context renders its document set as a wheel rather than as a list
+- **THEN** the three verbs MUST attach to the expanded wheel tile with their authority conditions unchanged
+- **AND** no fourth verb MUST be introduced by the change of presentation
+
+### Requirement: Each loaded document carries a session thread with a structured state header
+Every loaded document SHALL carry its own persisted chat THREAD, and switching the selected document SHALL switch which thread the chat shows and appends to. A thread SHALL persist as a SIDECAR FILE on the session's own branch, written only inside the session worktree and never into the served checkout, and it SHALL carry a STRUCTURED THREAD-STATE HEADER above its transcript declaring at least: the active goal, the accepted facts, the open questions, the decisions made in the thread, the refs of evidence the thread retrieved, and the pending actions. Thread state SHALL be NON-AUTHORITATIVE by construction and REGENERABLE from the transcript it summarizes: it MUST NOT be cited as governed truth, and it MUST NOT become truth by being compacted, promoted in place, or carried into a record that claims authority. COMPACTION SHALL preserve those commitments rather than the narrative that produced them: a compaction that drops an open question, a decision, an accepted fact, or a pending action SHALL be a defect, while dropping prose that restates them is the point. Threads SHALL commit with the document's Save, riding the existing one-commit-per-gate-action substrate so a thread and the document text it discusses cannot land through separate paths. Threads are WORKING MEMORY: they SHALL be excluded by default from the promotion a session's pull request performs, and a finding SHALL leave a thread only through the lifecycle verbs that already exist — an idea note, a fragment, or a disposition on the topic, with provenance — so no parallel decision store is created. Raw chat SHALL NOT become durable truth automatically by any path. Threads SHALL exist only where branch sessions exist, and MUST be absent on the hosted plane and wherever the gate capability is unavailable.
+
+#### Scenario: The selected document changes
+- **WHEN** a human selects a different loaded document
+- **THEN** the chat MUST show that document's own thread and append to it
+- **AND** the previous document's thread MUST be preserved unchanged
+
+#### Scenario: A thread is compacted
+- **WHEN** a thread is compacted to stay inside its bounds
+- **THEN** every open question, decision, accepted fact, evidence ref, and pending action in the state header MUST survive the compaction
+- **AND** the compacted result MUST remain non-authoritative and regenerable
+
+#### Scenario: A document is saved
+- **WHEN** a human saves a document whose thread has new turns
+- **THEN** the thread MUST commit with that document's save inside the session worktree
+- **AND** the served checkout MUST remain untouched
+
+#### Scenario: A thread finding should become durable
+- **WHEN** something decided in a thread should become part of the corpus
+- **THEN** it MUST be promoted through an existing lifecycle verb with provenance
+- **AND** the thread itself MUST NOT be promoted as truth and MUST NOT be published by default with the session's pull request
+
+#### Scenario: Threads are asked for on a surface without sessions
+- **WHEN** doxBench runs on the hosted plane or without the gate capability
+- **THEN** no thread MUST be created, written, or offered
+
+### Requirement: Share-session hands a live session to a colleague
+The workbench SHALL offer an explicit human-only SHARE-SESSION verb that commits the session's threads, PUSHES the session branch, and returns the pushed ref, so a colleague can resume the same session from the fetched branch. Threads and every other session artifact SHALL be LOCAL until this verb runs: no thread, buffer, or session artifact SHALL be pushed as a side effect of a Save, a turn, a compaction, or a periodic task, because a working note that leaves the machine without an explicit act is a disclosure nobody chose. The verb SHALL open no pull request, request no review, and hold NO approval or merge authority; it SHALL reuse the existing remote-write path rather than introducing a second one, and it MUST NOT bypass any branch protection. Invoking it when nothing has changed since the last share SHALL report that honestly rather than pushing again. The verb SHALL be recorded as a human gate action naming the branch and the pushed ref, and it MUST be loopback-only, MUST fail closed on an unresolved actor, and MUST reject any invocation that cannot demonstrate it originates from the human console this serve started, exactly like every other gate action on this surface. The push identity SHALL follow the PLANE under the same rule the session save verb already carries: on the local plane the invoking engineer's own credential, never a stored service identity. Share-session SHALL be a local-plane capability, absent on the hosted plane, and where the gate capability is absent it SHALL render as a copyable descriptor rather than a live control.
+
+#### Scenario: A session is shared
+- **WHEN** a human invokes share-session on an active session with uncommitted threads
+- **THEN** the threads MUST commit, the branch MUST be pushed, and the pushed ref MUST be returned and recorded
+- **AND** no pull request MUST be opened and no review MUST be requested
+
+#### Scenario: A colleague resumes the session
+- **WHEN** a colleague fetches the shared branch and opens the same tile
+- **THEN** they MUST be able to resume that session — its documents and its threads — from the fetched branch under the existing session-join rules
+
+#### Scenario: Nothing has changed since the last share
+- **WHEN** share-session is invoked with nothing new to push
+- **THEN** it MUST report that honestly and MUST NOT push again
+
+#### Scenario: A thread leaves the machine without the verb
+- **WHEN** any realization would push a thread, a buffer, or a session artifact as a side effect of a Save, a turn, a compaction, or a scheduled task
+- **THEN** it MUST be rejected — sharing is an explicit act
+
+#### Scenario: Share-session is asked for approval authority
+- **WHEN** any path would have share-session merge, approve, request review, or bypass protection
+- **THEN** it MUST be refused
+
+### Requirement: The staged-set knowledge service assembles a bounded context packet
+Per-turn context SHALL be assembled as a BOUNDED CONTEXT PACKET by a Staged-Set Knowledge Service, and the packet SHALL contain the SELECTED document's thread in full, the THREAD-STATE HEADERS of the other loaded documents' threads, and SELECTED corpus evidence from the tile's staged set plus promoted findings only — never an unrestricted corpus, never another tile's material, and never a thread the session does not hold. The packet SHALL declare its purpose, the exact sources it carries with their refs, its bound scope, and its expiry, and it SHALL be invalid as input to any other purpose, scope, or expired turn; a consuming surface presented with such a packet MUST reject it and request a new one. Assembly SHALL run as a RAIL BEFORE any retrieval provider or model provider is reached: selection, the lifecycle-status exemption below, and the compression policy are decided first, and a refusal at that stage MUST disclose no packet content. The service SHALL be exposed behind exactly ONE tool boundary declaring a small tool contract — search, get_source, promote_finding, and reindex, with a graph query name RESERVED and unimplemented — and behind that boundary an INTERNAL ASSEMBLY PORT SHALL be the product-neutral surface a retrieval backend implements as a declared PROVIDER PROFILE. The v1 profile SHALL be local and GRAPH-LESS: lexical retrieval plus small embedded vectors plus the structured thread-states, with NO graph engine, on the recorded caution that a graph memory layer measured worse on recall, latency, and token cost than the retrieval it replaced. A graph provider SHALL be admitted only when a concrete GRADUATION TRIGGER is recorded — a recurring need for dependency traversal, contradiction detection, or change-impact analysis — and admitting one SHALL require the semantic-plane bounds to hold at that time: its index stays a derived projection, its inferred relations stay advisory, and no inference MAY create or widen authority, establish approval, or authorize an action. The retrieval backend SHALL be an INSTALL-TIME DECLARATION under the ratified two-case principle — local-embedded for a self-hosted install, a hosted backend only where a tenant install declares one — and a backend MUST NOT be selected at runtime by a turn, a prompt, or a heuristic. Content whose lifecycle status is APPROVED or RATIFIED SHALL be EXEMPT from aggressive compression, and the exemption SHALL be applied BY THE ASSEMBLER keyed on the content's own lifecycle status header; it MUST NOT be delegated to any component that cannot read that status. The source-ranking hierarchy SHALL be stated in the harness system prompt in this order — ratified or standard canon, then accepted or staged facts, then promoted findings, then active thread state, then harness-local memory last and explicitly non-authoritative — and MUST NOT be left to the model to infer. Where the knowledge service is unavailable the turn SHALL degrade to a declared reduced packet — the selected thread and the loaded buffers, with the reduced posture STATED — and MUST NOT bypass a rail to reach a provider, MUST NOT silently substitute an unbounded context, and MUST NOT fail an editor that does not need it.
+
+#### Scenario: A turn is assembled
+- **WHEN** a turn is submitted with four documents loaded
+- **THEN** the packet MUST carry the selected document's thread in full, the other three threads' state headers, and the evidence the service selected
+- **AND** the packet MUST declare its purpose, sources, scope, and expiry
+
+#### Scenario: A packet is reused for another purpose
+- **WHEN** a packet issued for one turn's purpose or scope is presented for another, or after it has expired
+- **THEN** the consuming surface MUST reject it and request a new packet
+
+#### Scenario: Evidence outside the staged set is requested
+- **WHEN** retrieval would return material outside the tile's staged set and the promoted findings
+- **THEN** it MUST be excluded from the packet
+
+#### Scenario: A graph engine is proposed for v1
+- **WHEN** any realization would add a graph engine, graph store, or graph index before a graduation trigger is recorded
+- **THEN** it MUST be rejected, and the reserved graph query name MUST remain unimplemented
+
+#### Scenario: A graph provider is graduated in
+- **WHEN** a recorded graduation trigger admits a graph provider behind the assembly port
+- **THEN** its index MUST remain a derived projection and its inferred relations MUST remain advisory
+- **AND** no inference MUST create authority, establish approval, or authorize an action
+
+#### Scenario: Ratified content meets the compressor
+- **WHEN** the packet carries content whose lifecycle status is approved or ratified
+- **THEN** the assembler MUST exempt it from aggressive compression before any provider is reached
+- **AND** the exemption MUST NOT be delegated to a component that cannot read a lifecycle status
+
+#### Scenario: The backend is chosen at runtime
+- **WHEN** a turn, a prompt, or a heuristic would select the retrieval backend
+- **THEN** it MUST be rejected — the backend is an install-time declaration
+
+#### Scenario: The knowledge service is unavailable
+- **WHEN** the knowledge service cannot answer
+- **THEN** the turn MUST degrade to the declared reduced packet with the reduced posture stated
+- **AND** it MUST NOT substitute an unbounded context, bypass a rail, or make the editors unusable
+
+### Requirement: Context compression is a three-layer stack with declared fidelity
+Compression SHALL be organized as THREE layers, each with a declared fidelity contract, and no layer SHALL be described as doing another's work. Layer one is SELECTION, performed by the knowledge service: it is LOSSLESS BY REFERENCE, because material left out of a packet remains one retrieval call away and the packet names what it carries. Layer two is SEMANTIC COMPACTION into the thread-state header: it is LOSSY BY DESIGN, human-reviewable, promotion-gated, non-authoritative, and regenerable — it preserves commitments and discards narrative. Layer three is MECHANICAL REVERSIBLE COMPRESSION at the model boundary: heavy material offloads to session artifacts behind recoverable placeholders, and it SHALL be REVERSIBLE — an offloaded item MUST be retrievable in full by the same session — and SHALL run INSIDE this surface's own trust boundary, with no third-party proxy in the path and no new network dependency. Every artifact any layer produces SHALL be non-authoritative and regenerable, and MUST NOT become truth by being compressed, cached, or offloaded. The lifecycle-status exemption SHALL live UPSTREAM of layer three, in the assembler, and MUST NOT be delegated into any component that cannot read a lifecycle status — a compressor with no caller-metadata surface is disqualified from carrying it by construction, not by preference. A candidate component for any layer SHALL be recorded with its adoption gates rather than adopted provisionally, and this capability MUST NOT depend on a watch-listed candidate: a candidate is admitted only when every recorded gate holds, including a sandboxed trial measuring net benefit on this surface's own workload rather than a published headline. Every external claim about a candidate SHALL be verified against the upstream source before it enters contract text. A LAYER-2-CLASS SIBLING ARTIFACT MAY be declared: a derived artifact that carries layer two's FIDELITY WORD — lossy by design — without being layer two's own work, without writing the thread-state header, and without claiming layer two's commitment-preservation rule, which is shaped for a transcript and not for a document. A sibling SHALL declare its own verifier and its own refusal rule, and MUST NOT be recorded as a second OWNER of any layer: the declared owner of each layer stays exactly one component, because a fidelity contract with two owners in a one-owner field is a comment rather than a checker. A sibling is bound by every clause of this requirement that speaks of what ANY layer produces — non-authoritative, regenerable, never truth by being compressed, cached, or offloaded — and by the promotion rule, which stays a human creating a new object through review. Layer two's HUMAN-REVIEWABLE adjective SHALL be inherited by a sibling as a STATED OPEN OBLIGATION rather than claimed as discharged where the realization provides only presentation, because rendering an artifact in a pane is not a human reviewing it.
+
+#### Scenario: A layer claims another's fidelity
+- **WHEN** a realization describes selection as lossy, semantic compaction as lossless, or mechanical offload as a semantic summary
+- **THEN** it MUST be rejected — the three fidelity contracts are what make the stack readable
+
+#### Scenario: An offloaded item is needed again
+- **WHEN** material offloaded at layer three is required in full later in the same session
+- **THEN** it MUST be retrievable in full
+
+#### Scenario: A third-party compressor is proposed
+- **WHEN** a proposal would route model traffic through a third-party compressor or proxy
+- **THEN** it MUST be rejected unless every recorded adoption gate holds, including a sandboxed trial on this surface's own workload
+- **AND** the lifecycle-status exemption MUST NOT be moved into a component that cannot read a lifecycle status
+
+#### Scenario: A compressed artifact is cited as truth
+- **WHEN** any path would treat a summary, a thread-state header, an offloaded artifact, or a derived index as authoritative
+- **THEN** it MUST be rejected — promotion happens only by creating a new object through review
+
+#### Scenario: A sibling artifact is declared at a layer's fidelity class
+- **WHEN** a derived artifact is declared as a layer-2-class sibling
+- **THEN** it MUST carry the lossy-by-design fidelity word, declare its own verifier and refusal rule, and remain non-authoritative and regenerable
+- **AND** the declared owner of layer two MUST remain exactly one component
+
+#### Scenario: A sibling claims layer two's own obligations
+- **WHEN** a sibling artifact is described as preserving commitments or as writing the thread-state header
+- **THEN** it MUST be rejected — those are layer two's own work, and a sibling borrows the fidelity class and not the job
+
+#### Scenario: Presentation is offered as human review
+- **WHEN** a realization claims a sibling artifact is human-reviewable because it is rendered on a surface
+- **THEN** the claim MUST be rejected and the adjective MUST stand as a stated open obligation
+
+### Requirement: The chat harness runs behind the existing model port through a local bridge
+The chat harness SHALL be reached as an ADAPTER for the existing three-member model port, through a THIN LOCAL BRIDGE that translates the server's call into the harness's own process protocol, and the bridge SHALL be the only component that knows the harness's protocol. The bridge SHALL be a local child process of the console's own server, MUST NOT be reachable from the browser or from any non-loopback surface, and MUST NOT hold, read, or log a provider credential — where a menu entry reaches a hosted provider, its credential comes from the deployment's approved credential mechanism through the ratified broker lane. The bridge's process lifecycle SHALL be declared: it is started on demand, supervised, and restarted on failure, and a bridge that cannot start or has died SHALL surface as the honest model-unavailable posture — the editors and the loaded set stay usable and the chat states why it is not — rather than as a crash, a hang, or a silent empty answer. ONE harness session SHALL correspond to one document thread, so switching the selected document switches the harness session, and the harness's own session identity MUST NOT be shared across two documents' threads. The SIDECAR THREAD FILES SHALL REMAIN THE RECORD: doxBench mirrors each turn into the sidecar, and the harness's native memory backends MUST NOT hold the threads. Where a harness-native memory backend is enabled at all it SHALL hold only non-authoritative material, SHALL be ranked last by the source hierarchy, and MUST NOT be consulted as a source of governed truth — two stores claiming to be the same thread is a split brain, and the sidecar wins by contract, not by convention. Per-turn model choice SHALL be applied inside the adapter before the prompt is dispatched, and MUST NOT be expressed as an additional port member.
+
+#### Scenario: The bridge is not running
+- **WHEN** a turn is submitted and the bridge cannot start or has died
+- **THEN** the surface MUST show the honest model-unavailable posture and state why
+- **AND** the editors and the loaded set MUST remain fully usable
+
+#### Scenario: The selected document changes mid-session
+- **WHEN** the human switches to another loaded document and sends a turn
+- **THEN** the harness session MUST switch with the thread
+- **AND** one harness session MUST NOT serve two documents' threads
+
+#### Scenario: The harness offers to remember the thread
+- **WHEN** the harness's native memory would store the thread, or a turn would be reconstructed from it
+- **THEN** it MUST be rejected — the sidecar is the record
+- **AND** any harness-local memory that is enabled MUST be treated as non-authoritative and ranked last
+
+#### Scenario: The bridge is reached from outside
+- **WHEN** anything other than this server's own process would reach the bridge
+- **THEN** it MUST be refused — the bridge is loopback-local and holds no credential of its own
+
+### Requirement: The chat-turn contract release carries the bound buffer and the model
+This capability's widened turn SHALL be carried by a RELEASED chat-turn contract, and the release SHALL be additive: the currently released envelopes SHALL remain valid and byte-identical, and the widened shape SHALL be introduced as a co-resident envelope family rather than by mutating a closed envelope, so nothing that validates today stops validating. The released widened family SHALL carry, at minimum: the outline plus every loaded document buffer, the BOUND BUFFER's key on both the request and the durable record, the per-buffer observed hashes keyed by buffer, a proposal target expressed as a buffer key, and the SELECTED-MODEL metadata that lets a record state which model answered. The release version SHALL be ALLOCATED AT REALIZATION under the repository's contract-versioning policy and MUST NOT be reserved by this proposal, because a reserved number is a claim about a merge order nobody knows yet. The release SHALL record its change class, its migration note, and the removal target for anything it deprecates, and the older family SHALL keep working for at least one full published release after it is deprecated. The runtime SHALL keep resolving its pinned wire schemas from the checkout it runs in and MUST keep refusing before consulting any provider when a pinned contract cannot be read; a release MUST NOT relax that refusal. A field the released envelope has no room for MUST NOT be carried as a server-side-only value that no reader can consult, and MUST NOT be inferred from an adjacent field that answers a different question — the record either names the thing or the gap stays stated.
+
+#### Scenario: An older client sends a released v1 turn
+- **WHEN** a client submits a turn in the previously released envelope shape
+- **THEN** it MUST still validate and MUST still be served
+- **AND** the older shape's bytes MUST be unchanged by this release
+
+#### Scenario: The release version is reserved early
+- **WHEN** a proposal would reserve the release's version number before merge order is known
+- **THEN** it MUST be rejected — the version is allocated at realization
+
+#### Scenario: A record is asked which model answered
+- **WHEN** a reader consults a turn record for the model that produced it
+- **THEN** the record MUST name it from the released envelope's own metadata
+
+#### Scenario: A field has no room in the envelope
+- **WHEN** a needed field does not fit the released envelope
+- **THEN** it MUST NOT be carried as an unreadable server-side-only value or inferred from a field that answers a different question
+- **AND** the obligation MUST be recorded against the release that will carry it
+
+### Requirement: The deterministic document abstract is never captioned as a distillation and states its absences
+The `docs` context's abstract region MUST NOT caption, label, or announce the deterministic abstract as a distillation, as a summary the surface produced, or as any analysis nobody ran — it re-presents fields the snapshot already carries, and claiming more would be the surface asserting work nobody did. Where the snapshot carries no derived material at all for the subject document, the region SHALL STATE that absence in words rather than rendering an empty box. Where a single named field is absent, the region SHALL OMIT that field rather than rendering a placeholder that reads as a value.
+
+#### Scenario: A document carries no derived material
+- **WHEN** the abstract region's subject is a document the snapshot references but does not catalogue
+- **THEN** the region MUST state in words that there is nothing derived to show
+- **AND** it MUST NOT render an empty abstract that reads as the document having no content
+
+#### Scenario: A named field is absent for the subject
+- **WHEN** the snapshot carries no summary for the subject document, or the document declares no topics
+- **THEN** the region MUST omit that field rather than rendering a placeholder that reads as a value
+
+#### Scenario: The deterministic abstract would be called a distillation
+- **WHEN** any caption, label, or accessible name would describe the deterministic abstract as a distillation or as an analysis the surface performed
+- **THEN** it MUST be rejected
+
+### Requirement: The model-derived distilled document abstract
+The `docs` context SHALL offer a MODEL-DERIVED distilled abstract of ONE subject document, declared as a layer-2-class sibling artifact — lossy by design, non-authoritative, and regenerable from the document — and it MUST NOT become authoritative by being cached, rendered, copied, or projected. The abstract's SUBJECT SHALL be the document the docs wheel has selected, which is a reading selection and never a buffer, and the bytes described SHALL be the SAVED file's content: where the subject is also a loaded buffer with unsaved edits, the abstract SHALL be captioned as describing the saved version, and unsaved buffer text MUST NOT be sent to any provider. The subject SHALL be drawn from the scope projection's EDITABLE path set, honouring the surface's standing rule that disclosure requires edit authority; where a pointed-at document is readable but not editable, the region SHALL state honestly that no distillation is available for it rather than generating one, and a realization MUST NOT widen the disclosure set to reach a subject. The deterministic snapshot-derived abstract SHALL remain present, separately captioned, and SHALL be the region's default, because it is the one that exists before any model runs. The model-derived abstract SHALL feed no completeness score, no staged-topic health aggregate, no readiness tier and no gate, and SHALL NOT be promotable except by a human creating a new document through an existing gate verb.
+
+#### Scenario: A subject is readable but not editable
+- **WHEN** the wheel's selected document is in the scope's context paths but not its editable paths
+- **THEN** the region MUST state that no distillation is available for that document
+- **AND** no provider MUST be reached and the disclosure set MUST NOT be widened
+
+#### Scenario: The subject is a dirty loaded buffer
+- **WHEN** the subject document is loaded and its buffer carries unsaved edits
+- **THEN** the abstract MUST describe the SAVED content and MUST be captioned as describing the saved version
+- **AND** the unsaved buffer text MUST NOT be sent to any provider
+
+#### Scenario: A reader wants the document's own account
+- **WHEN** the abstract region opens on any subject
+- **THEN** the deterministic snapshot-derived abstract MUST be the default view
+- **AND** the model-derived abstract MUST be separately captioned wherever it is shown
+
+### Requirement: Abstract generation is explicitly invoked and never a side effect of selection
+Generation of a model-derived abstract SHALL be invoked EXPLICITLY by a human control acting on the currently selected subject, and MUST NOT be triggered by a selection change, a mount-time seed, a scope opening, or any other side effect — the docs wheel notifies its consumer on every notch and at mount, so a selection-triggered design would dispatch a model call for every document a reader spins past. An in-flight generation SHALL be cancellable and SHALL state the expected wait with THE ADAPTER'S OWN DECLARED TIMEOUT as its visible bound — the value the adapter reports, not the contract's maximum, which is a validated ceiling and not a prediction. A RE-GENERATE control SHALL be offered against the subject's current content digest, and invoking it SHALL carry an EXPLICIT REFRESH INTENT that bypasses the abstract cache's completed-entry replay as that cache's own requirement specifies — without it the control would be inert whenever content and model are unchanged, which is the ordinary case a reader invokes it in. Every generation SHALL carry the subject path, the content digest, and the RESOLVED MODEL ID it was generated for, and WHEN a SUCCESSFUL generation resolves against a subject the pane no longer has selected, the result MUST be discarded unrendered and uncached and the not-yet-generated caption MUST show for the current subject; a REFUSAL or an ERROR answering the subject the request was DISPATCHED for SHALL be recorded against THAT subject and rendered on it when it is next shown — a refusal carries no prose, so it is the one answer that cannot paint a wrong document, and dropping it left an invoked control looking like one that did nothing — and MUST NOT be rendered against any other subject, while any answer NAMING A DIFFERENT subject than the one dispatched MUST be discarded whole and recorded against neither. Where the subject's content has moved past the digest an abstract was generated from, the abstract SHALL BE SHOWN AND LABELLED STALE with its source digest stated, and MUST NOT be silently discarded, silently refreshed, or presented as current; a regeneration in flight SHALL show the in-flight state over it. The SOURCE DIGEST for an unloaded subject SHALL be the digest of the SERVED SAVED CONTENT, and the per-buffer settled-content-identity guard SHALL be escalated to only where the subject is also a loaded buffer — most wheel subjects have no buffer, and a per-buffer rule applied to them would have nothing to compare. An abstract already generated in the session SHALL survive leaving and re-entering the tile, keyed by subject path, content digest and resolved model id, so returning to a document does not spend a second call on an answered question — and a re-entry SHALL carry NO refresh intent, because a reader coming back to a document has asked for nothing. Where the gate capability is absent on the local console, the generation control SHALL be ABSENT rather than present-and-refusing, and any already-generated abstract SHALL remain readable with its normal caption.
+
+#### Scenario: A human spins the docs wheel
+- **WHEN** a human moves the docs wheel across N documents
+- **THEN** no model dispatch MUST occur
+
+#### Scenario: A slow generation resolves after the subject changed
+- **WHEN** a generation resolves and the pane's selected subject is no longer the subject it was dispatched for
+- **THEN** a SUCCESSFUL result MUST be discarded unrendered and MUST NOT be cached
+- **AND** the region MUST show the not-yet-generated caption for the current subject
+- **AND** a REFUSAL or ERROR answering the DISPATCHED subject MUST be recorded against that subject and rendered on it when it is next shown, and MUST NOT be rendered against any other subject
+- **AND** a result NAMING A DIFFERENT subject than the one dispatched MUST be discarded whole, recorded against neither subject
+
+#### Scenario: A generation is in flight
+- **WHEN** a generation has been invoked and has not resolved
+- **THEN** the region MUST show a cancellable in-flight state stating the expected wait bounded by the adapter's OWN declared timeout
+- **AND** the stated bound MUST NOT be the contract's validated maximum where the adapter declares something shorter
+
+#### Scenario: The subject has moved past the abstract's digest
+- **WHEN** the subject document's content no longer matches the digest its abstract was generated from
+- **THEN** the abstract MUST be shown, labelled stale, with its source digest stated
+- **AND** it MUST NOT be silently discarded or presented as current
+
+#### Scenario: An unloaded subject's digest is taken
+- **WHEN** the subject is a document that is not a loaded buffer
+- **THEN** the source digest MUST be the digest of the served saved content
+- **AND** the per-buffer settled-content-identity guard MUST NOT be required of it
+
+#### Scenario: The RE-GENERATE control is invoked on an already-generated abstract
+- **WHEN** a human invokes RE-GENERATE on a subject whose abstract is already completed for the current content digest and resolved model
+- **THEN** the request MUST carry refresh intent and a second dispatch MUST occur
+- **AND** the completed entry MUST NOT be replayed as the answer
+
+#### Scenario: The gate capability is absent
+- **WHEN** the docs context renders on a local console without the gate capability
+- **THEN** the generation control MUST be absent rather than present-and-refusing
+- **AND** any already-generated abstract MUST remain readable
+
+### Requirement: The abstract request carries exactly one subject document
+An abstract request SHALL carry EXACTLY ONE subject document's content and MUST NOT carry the layer-one context packet, another buffer, another document, a transcript, or a human message — with no human message in the prompt, the subject document's own content is the entire instruction-bearing text, and every additional document is both an injection surface and a disclosure the request has no reason to make. The request SHALL be assembled by its own non-chat assembler and MUST NOT be expressed as a chat turn: the chat assembler requires an outline buffer, one or more document buffers, a non-blank human message, a working subject and a transcript, none of which an abstract request has. The assembled prompt SHALL be BYTE-IDENTICAL for identical construction input, so a prompt is reviewable and a dispatch is reproducible. The response bound SHALL be tighter than the chat surface's assistant-prose ceiling, because the region that renders it is a fixed-height pane and an abstract that overflows it is not an abstract. Provider-bound content MUST NOT include a credential, a raw endpoint, a secret name, or unsaved buffer text.
+
+#### Scenario: A request would carry the context packet
+- **WHEN** a bounded context packet of ANY declared purpose, or any second document, is handed to the abstract assembler
+- **THEN** the assembler MUST refuse it before any provider is reached
+- **AND** the refusal MUST NOT depend on the packet's declared purpose, because an abstract request carries no packet at all
+
+#### Scenario: The same subject is assembled twice
+- **WHEN** the same subject document, content digest and model are assembled twice
+- **THEN** the rendered prompt bytes MUST be identical
+
+#### Scenario: An abstract request is offered as a chat turn
+- **WHEN** an abstract request would be dispatched through the chat-turn assembler
+- **THEN** it MUST be rejected — the request carries its own assembler and its own declared shape
+
+### Requirement: The distilled abstract is verified against the document's own declared fields
+A returned abstract SHALL be verified before it is rendered, and the verification base SHALL be the SNAPSHOT'S OWN declared fields for the subject document — its declared topics and its declared destinations — so the rule fires on the FIRST generation and not only on a regeneration; a previously generated abstract, where one exists, SHALL be an ADDITIONAL base and never the only one. The declared-field check SHALL be described as SUBJECT-MENTION COVERAGE and MUST NOT be described as a fidelity or faithfulness check, because a provider returns assistant prose as one opaque string and nothing downstream can establish that a mentioned subject was treated faithfully; a realization that claims otherwise MUST be rejected. The abstract SHALL name the subject document's path or title, and MUST NOT name any repository path absent from its own request — this is the one structural clause the response bytes can decide, and it refuses both a wrong-document answer and a leaked-neighbour answer. A verification failure SHALL be a stated refusal that renders no abstract, and MUST NOT be silently downgraded to rendering the unverified text. The verified artifact SHALL be structurally non-authoritative and SHALL record what it is regenerable from, in the manner of this surface's existing compacted-artifact type, and it MUST NOT reuse that type where that type's own commitment classes do not apply. The artifact SHALL also record the SUBJECT PATH, the SUBJECT CONTENT DIGEST and the RESOLVED MODEL ID it was produced from, and the recorded model id MUST be the model that actually answered — which is why those three are also the cache key, since a store that replayed one model's prose under another model's recorded id would make the artifact lie about its own provenance.
+
+#### Scenario: An abstract mentions none of the declared subjects
+- **WHEN** a returned abstract mentions no declared topic and no declared destination of its subject document
+- **THEN** it MUST be refused and no abstract MUST be rendered
+
+#### Scenario: An abstract names a foreign path
+- **WHEN** a returned abstract names a repository path that its own request did not carry
+- **THEN** it MUST be refused as a wrong-document or leaked answer
+
+#### Scenario: Coverage is described as fidelity
+- **WHEN** a realization or its documentation describes the declared-field check as verifying faithfulness
+- **THEN** it MUST be rejected — the check is subject-mention coverage over one opaque string
+
+#### Scenario: The first generation is verified
+- **WHEN** the first abstract for a document is returned and no previous abstract exists
+- **THEN** it MUST still be verified against the snapshot's declared topics and destinations
+
+### Requirement: A model-derived abstract is session-local and never a snapshot field
+A model-derived abstract SHALL be session-local and MUST NOT be written into the dashboard snapshot for as long as the snapshot's byte-identical guarantee stands, because keying a model value by content digest makes a CACHE stable and does not make a TREE reproducible — a cold cache, a substituted adapter, or a provider revision all change the bytes while the working tree does not. The observable SHALL hold in BOTH directions: an emitted snapshot MUST be byte-identical whether or not any abstract was generated, and no snapshot field MUST carry a model-derived value. Generation MUST NOT block, delay, or fail a snapshot, a publication lane, or a gate action; where the port raises, times out, or is absent, the snapshot MUST be unaffected and the region MUST state the not-yet-generated caption. On the hosted read-only plane, where no model-consuming route is offered, the region SHALL render the deterministic abstract and state that no distillation is available ON THAT PLANE — a statement about the plane and never about the document. Projecting an abstract into the snapshot in future SHALL require its own change amending the byte-identical scenario first, and MUST NOT be treated as an additive growth this requirement already permits.
+
+#### Scenario: The generator runs on a tree with and without generation
+- **WHEN** the generator runs over an unchanged working tree, once with abstracts generated in the session and once without
+- **THEN** both snapshots MUST be byte-identical
+- **AND** no snapshot field MUST carry a model-derived value
+
+#### Scenario: The provider is absent or fails
+- **WHEN** the model port is absent, raises, or exceeds its timeout
+- **THEN** the snapshot MUST be unaffected and no lane or gate action MUST fail
+- **AND** the region MUST state the not-yet-generated caption
+
+#### Scenario: The hosted plane renders the docs context
+- **WHEN** a viewer opens the docs context on the hosted read-only plane
+- **THEN** the deterministic abstract MUST render and the region MUST state that no distillation is available on that plane
+
+### Requirement: The abstract cache is a separate bounded store keyed by path, digest and model, and an explicit refresh bypasses it
+An abstract cache SHALL be a SEPARATE, separately bounded store and MUST NOT share the chat surface's turn-idempotency ledger, whose per-process instance is bounded by entry count and total bytes and would evict chat records under abstract churn — a scope larger than that bound is the ordinary case, not an edge case. The cache key SHALL be composed of the subject's PATH, its CONTENT DIGEST, and the RESOLVED MODEL ID the request dispatched against, QUALIFIED BY the request's SCOPE — its REPOSITORY and REF — so no key is ever shared across scopes. The digest MUST be in the key so a regeneration after an edit is a NEW key rather than a same-key conflict; a store that refused a changed digest under an unchanged key would refuse every regeneration after every edit. The RESOLVED MODEL ID MUST be in the key because this surface lets a human change the selected model while the document stands still: on a path-and-digest key that second request is identical, so the first model's answer would replay while the artifact records the newly selected model — a claim the artifact's own recorded model id makes false on its face, and one the provider boundary's rule that every consumer resolves a catalog model id forbids. Where the selected entry is a ROUTING RULE rather than a single provider model, the key SHALL carry the RESOLVED model id and not the rule's id, for the same reason a turn records the model that actually answered. The cache SHALL admit at most ONE in-flight generation per key, with a concurrent request for the same key attaching to it rather than dispatching a second time. A request carrying NO REFRESH INTENT SHALL replay a completed result for an identical key without a second dispatch — this is the path that makes an abstract survive leaving and re-entering the tile. A request carrying an EXPLICIT REFRESH INTENT — which is what the RE-GENERATE control issues — SHALL BYPASS completed replay: it SHALL invalidate the completed entry for its key, dispatch again, and its result SHALL replace that entry. Without that bypass the RE-GENERATE control would be INERT for the ordinary case it exists for, because a regeneration against unchanged content and an unchanged model has an identical key. A refresh intent MUST NOT open a second in-flight generation where one is already in flight for the same key: a second invocation attaches to the first, so an impatient double-click spends one model call and not two, and refresh intent MUST NOT be inferred from a selection change, a mount, a re-entry, or any other event that is not the human control being invoked. Eviction SHALL be deterministic and MUST NOT be ordered by wall-clock time, and a re-dispatch after eviction SHALL be stated expected behaviour rather than an error. Nothing in the cache SHALL be authoritative, and its contents MUST NOT outlive the session or be written to any corpus, snapshot, register, or gate artifact.
+
+#### Scenario: Abstract churn over a large scope
+- **WHEN** abstracts are generated across a scope holding more documents than the cache bound
+- **THEN** eviction MUST be deterministic and re-dispatch after eviction MUST be expected behaviour
+- **AND** the chat surface's turn-idempotency records MUST NOT be evicted by abstract activity
+
+#### Scenario: The subject is edited and regenerated
+- **WHEN** a subject document changes and an abstract is requested again
+- **THEN** the request MUST be treated as a new key rather than refused as a conflict
+
+#### Scenario: Two requests race for one subject
+- **WHEN** a second request arrives for a key whose generation is in flight
+- **THEN** it MUST attach to the in-flight generation rather than dispatching a second time
+
+#### Scenario: RE-GENERATE is invoked on an unchanged document with an unchanged model
+- **WHEN** a human invokes the RE-GENERATE control and neither the subject's content digest nor the resolved model has changed since the completed entry
+- **THEN** the completed entry MUST be invalidated and a second dispatch MUST occur
+- **AND** the new result MUST replace that entry rather than being discarded as a duplicate
+
+#### Scenario: RE-GENERATE is invoked twice before the first resolves
+- **WHEN** the RE-GENERATE control is invoked a second time while its own generation is still in flight for the same key
+- **THEN** the second invocation MUST attach to the in-flight generation rather than dispatching a third time
+
+#### Scenario: The selected model changes while the document stands still
+- **WHEN** an abstract is requested for a subject whose content digest is unchanged but whose resolved model id differs from the completed entry's
+- **THEN** it MUST be treated as a DIFFERENT key and MUST dispatch against the newly resolved model
+- **AND** the first model's result MUST NOT be replayed under the new model's identity
+
+#### Scenario: Re-entering the tile is not a refresh
+- **WHEN** a reader leaves the tile and returns to a subject whose abstract is already generated, with no control invoked
+- **THEN** the completed result MUST replay with no second dispatch
+- **AND** refresh intent MUST NOT be inferred from the re-entry
+
+### Requirement: One abstract region, named for its subject and its provenance
+The `docs` context SHALL carry EXACTLY ONE abstract region, presenting ONE abstract at a time — switched by an explicit control, opening on the DETERMINISTIC one — because the upper half of the docs split carries a measured fixed height that two regions cannot share and the deterministic abstract is the only one that always exists. That region's ACCESSIBLE NAME SHALL be composed of the SUBJECT's title or path together with the provenance caption of the state currently shown, so a reader using assistive technology can tell WHICH DOCUMENT and WHICH PROVENANCE they have landed on from the name alone, and the deterministic and model-derived states are distinguishable without reading the body. The region MUST NOT be named `selected document` or otherwise announced as the selected buffer: that name belongs to the loaded-document selector, and two surfaces claiming one name is how the two come to disagree. Each state SHALL carry its own caption declaring who derived it and what it is not — the model-derived abstract as model-derived, non-authoritative and regenerable; the deterministic abstract as derived from the document's own headers, and NEVER as a distillation; a stale abstract as describing an earlier version, with the source digest stated; an ungenerated abstract as not yet generated; and, on the hosted plane, as unavailable on that plane. The model-derived and deterministic captions SHALL be BOTH visible text and part of the region's accessible name; the stale, ungenerated and hosted-plane captions SHALL be visible text inside the already-named region. The region SHALL follow this surface's established idiom — a named `role=region` carrying no heading of its own, in the surface's exact casing. No caption SHALL describe the model-derived abstract in terms that imply it may be cited.
+
+#### Scenario: Both abstracts exist for one subject
+- **WHEN** a subject has both a deterministic and a model-derived abstract
+- **THEN** exactly ONE abstract region MUST exist and exactly one abstract MUST render at a time, switched by an explicit control
+- **AND** the deterministic abstract MUST be the opening view
+
+#### Scenario: A reader lands on the region with assistive technology
+- **WHEN** a reader enters the abstract region with assistive technology
+- **THEN** the region's accessible name MUST carry both the subject's identity and the provenance of the state shown
+- **AND** it MUST NOT be announced as the selected document
+
+#### Scenario: The provenance state changes
+- **WHEN** the region switches between the deterministic and the model-derived abstract for one subject
+- **THEN** the accessible name MUST change with it, so the two states are distinguishable by name
+
+#### Scenario: A caption implies citability
+- **WHEN** a caption describes the model-derived abstract as a summary of record, an authoritative account, or otherwise citable
+- **THEN** it MUST be rejected
+
+### Requirement: Model capability is reached with a broker-minted token
+The dashboard SHALL obtain model capability by invoking a configured credential BROKER to MINT a short-lived, scoped token, and SHALL then call the provider with that token directly. The broker SHALL NOT stand in the request path: it holds custody and issues, because a broker between the console and the provider adds a hop to every turn and to every chunk of a streamed one, which is the wrong place to spend latency in an interactive authoring surface.
+
+The broker PROGRAM SHALL be declared by configuration rather than written into code: the binding names the executable and its fixed leading arguments, because the broker (openProfiler) is external to this repository and a program path this repository cannot verify must not be frozen into it. The broker's DECLARED CONTRACT — its subcommand and flag vocabulary and its answer shapes — is published by that program's own declaration document and is encoded where the adapter speaks it, so relocating or wrapping the program is a configuration act while a contract change is a code act on both sides.
+
+#### Scenario: A model turn mints and calls
+- WHEN a model-backed affordance dispatches a turn and a broker binding is configured
+- THEN the dashboard invokes the declared broker command to mint a token, and calls the provider with it
+
+#### Scenario: No binding is configured
+- WHEN no broker binding exists
+- THEN the existing `model_capability_unavailable` refusal is returned unchanged, and the human is told that no model provider is configured
+
+### Requirement: The provider boundary narrows to one module rather than disappearing
+Exactly ONE named module SHALL hold a provider endpoint, a provider SDK, or a minted token, and every other module in this repository SHALL remain free of all three. The structural check that today asserts no provider is contacted from anywhere SHALL be rewritten to assert this narrower boundary rather than removed, because a guard that is deleted the first time it becomes inconvenient was never a guard.
+
+The browser SHALL NEVER receive a minted token. The provider call is made from the loopback console process; a token delivered to a page is exfiltratable by anything able to run script there, and the doxBench views hold no transport by construction, which is a property worth more than the hop it would save.
+
+#### Scenario: A view cannot reach a provider
+- WHEN any view module is inspected
+- THEN it contains no provider endpoint, no provider SDK import, and no token
+
+#### Scenario: A token never crosses to the browser
+- WHEN a model-backed affordance runs
+- THEN no response to the browser carries the minted token
+
+### Requirement: The dashboard holds bindings, and a minted token outlives nothing
+Settings SHALL store a model-provider BINDING — an id, a label, the provider name, the credential reference the broker resolves, the authentication kind, the principal who approved the credential, the provider route the minted token is presented at, and the broker invocation — and SHALL NOT store the API key or OAuth token itself. The provider route is the CONSUMER's declaration because the broker's own declared surface deliberately does not name one: a broker that named an endpoint would be accountable for it, and it refuses to be. A binding is safe to read, log and commit; a long-lived secret is none of those, and the standing rule for this workspace is that machinery holds grant and binding templates only.
+
+When a human supplies a credential, the dashboard SHALL hand it to the broker and retain nothing: the value SHALL NOT be written to any file, held in any state that outlives the request, echoed in any response, or included in any error. What the dashboard keeps is the reference the broker returns.
+
+A MINTED token SHALL live in process memory only. It SHALL NOT be written to any file, included in any response, recorded in any log or error, or survive the process that minted it, and it SHALL NOT be used past the expiry the broker declared.
+
+#### Scenario: A human sets an API key
+- WHEN a key is entered in settings
+- THEN it is passed to the broker's standard input and the dashboard stores only the returned reference
+- AND the key appears in no response, no log line, no snapshot and no file in the checkout
+
+#### Scenario: A minted token expires
+- WHEN a token passes the expiry the broker declared
+- THEN it is discarded rather than retried, and a further call mints again
+
+#### Scenario: A binding is inspected
+- WHEN settings are read back
+- THEN the binding's fields are disclosed and no credential material exists to disclose
+
+### Requirement: A broker or provider that cannot answer refuses honestly
+A broker that is absent, unconfigured, unreachable, slow, or that returns a malformed answer SHALL produce the same fixed, redacted refusal the model seam already defines, and SHALL state the reason to the human rather than only to a log. A provider that refuses, times out, or rejects the minted token SHALL map onto that same shape, so provider detail never reaches the wire.
+
+A failure SHALL NOT be reported as an empty result, because an empty list of model-proposed subjects is indistinguishable from a model that had nothing to say. A refusal SHALL distinguish a missing capability from a failed call, so a human can tell "nothing is configured" from "it broke".
+
+#### Scenario: The broker fails
+- WHEN the broker exits non-zero, times out, or returns unparseable output
+- THEN the affordance reports that no token could be minted, distinctly from a model that answered with nothing
+
+#### Scenario: A provider-shaped error never reaches the wire
+- WHEN the provider returns an error carrying provider detail
+- THEN the refusal disclosed to the browser remains the fixed redacted shape
+
+### Requirement: Convergent lens regions draft candidate-register seeds
+The dashboard SHALL draft a domain-neutralization candidate-register seed from a repository-lens region carrying two or more repositories, because such a region is the promotion process's first candidate rule — two or more domain repositories carrying the same structure — computed rather than eyeballed. A region with a single carrier SHALL NOT be draftable and SHALL say why. The draft SHALL be produced in the register's own format: a Candidate List row and a `### DTN-NNN:` detail section, numbered past every identifier the register mentions so a drafted-but-unmerged seed never collides, quoting the rule it satisfies and listing each identity with its carriers as the evidence — the carrier set IS the evidence for this rule, so the draft SHALL be deterministic and involve no model judgment.
+
+The drafting SHALL write nothing. The register is never opened for writing and a candidate enters the register lifecycle only when a human merges the seed, which is the same seed-first discipline the machine-drafted intake path already records; because nothing is written, the affordance SHALL remain available on a composed read-only view and SHALL NOT claim a gate capability. The evidence SHALL be recomputed by the serving side from its own composed view — the client names the project, the visible member set, and the region's carrier combination, never the identities — and a seed SHALL cover exactly the region it was drafted from rather than everything the wider visible set happens to share.
+
+#### Scenario: A convergent region drafts a seed
+- WHEN a human drafts from a lens region whose identities two or more repositories carry
+- THEN the response is a register-format row and detail section naming those identities and their carriers, numbered from the register's own numbering
+- AND the register file is unchanged
+
+#### Scenario: A seed covers exactly its region
+- WHEN the region is a sector naming an exact repository combination
+- THEN the drafted seed covers the identities whose carriers are exactly that combination, and no others
+
+#### Scenario: A single-carrier region cannot be drafted
+- WHEN a region's identities are carried by only one repository
+- THEN the draft affordance is unavailable and states that a candidate needs two or more carriers
+
+#### Scenario: A plane that cannot compose has no candidates
+- WHEN the drafting route is asked about a project with no composed view
+- THEN it refuses and names the project, rather than drafting from a single repository's documents
+
+### Requirement: A catalog entry declares the input modalities it accepts, from a closed vocabulary
+A workbench model catalog entry's INPUT MODALITIES SHALL be declarable from a CLOSED vocabulary whose members are exactly `text` and `image`, and the declaration SHALL be optional. It exists so that a routing decision can ask whether a candidate can carry what a turn actually contains, rather than inferring capability from a model's name or from its byte limits — which describe how MUCH a model accepts, never WHAT KIND.
+
+Its ABSENCE SHALL NOT be read as a capability claim in either direction: an entry that declares nothing is a producer that predates this vocabulary, and a reader SHALL treat it as text-only for routing purposes while recording that the entry made no declaration. This mirrors the handling-posture rule the chat-turn family already promotes, where absence means "a producer older than the field" rather than a stated posture. Requiring the field instead would break every catalog released before it, which an additive growth must not do.
+
+Where declared, the set SHALL be non-empty and SHALL contain `text`. A model that cannot accept text is not a model this catalog can route a chat turn to, so an image-only declaration describes something the surface has no use for and SHALL be refused rather than stored.
+
+THE VOCABULARY IS CLOSED, AND EXTENDED ONLY BY THE CHANGE THAT GOVERNS A NEW MEMBER. A modality enters when a real consumer needs it — the same rule this family already applies to the client-identity roster's admission surfaces, where a member enters with the ratified change that governs it rather than because a capability is imaginable. `image` enters here because a turn carrying an image is the named near-term consumer; audio, video, tool-calling, structured output, latency class and cost class do NOT enter, because nothing consumes them yet and a vocabulary guessed ahead of its consumers is one nothing validates against.
+
+The declaration SHALL describe INPUT acceptance only. Output modality, tool-calling and structured-output support are different questions with different consumers, and folding them into one set would produce a field whose members mean different things to different readers.
+
+#### Scenario: An entry declares that it accepts images
+- **WHEN** a catalog entry declares modalities `text` and `image`
+- **THEN** the declaration is valid and a router may treat the model as a candidate for a turn carrying an image
+
+#### Scenario: An entry declares nothing
+- **WHEN** a catalog entry carries no modality declaration
+- **THEN** the entry is valid, is treated as text-only for routing, and is recorded as having made no declaration
+- **AND** its silence is not reported as a claim that it rejects images
+
+#### Scenario: A modality outside the vocabulary is declared
+- **WHEN** an entry declares a modality that is not `text` or `image`
+- **THEN** the catalog is refused, naming the closed vocabulary
+- **AND** the remedy is the change that governs the new modality, not a wider field
+
+#### Scenario: An entry declares images but not text
+- **WHEN** an entry declares a modality set that omits `text`
+- **THEN** it is refused: a chat turn always carries text, so a model that cannot accept text is not routable here
+
+#### Scenario: A consumer needs a modality the vocabulary lacks
+- **WHEN** a real consumer requires a modality outside the closed set
+- **THEN** the vocabulary is extended by the change that governs that consumer, additively
+- **AND** the extension names the consumer, rather than enumerating capabilities that might one day be wanted
+
+### Requirement: The catalog type enforces every bound the released schema enforces
+The server-side catalog type SHALL refuse every catalog the RELEASED SCHEMA would refuse on a bound it declares. A type gate weaker than the wire gate lets a catalog be constructed and dispatched in-process that `GET /workbench/model-catalog` then refuses to serve, because the route validates the projected envelope against the released schema — a divergence this capability has already had to close once, for a routing rule's target list.
+
+EVERY STRING BOUND THE RELEASED SCHEMA DECLARES SHALL BE ENFORCED AT CONSTRUCTION, with no residue. The schema bounds five string-valued fields — `model_id`, `label`, `provider_class`, `data_handling` and `resolved_model_id` — by maximum length, and two of them (`model_id` and `resolved_model_id`) additionally by character pattern. All five SHALL be held to those bounds by the type. The catalog's ENTRY COUNT SHALL likewise not exceed the released maximum.
+
+Partial parity SHALL NOT be claimed as parity. A capability that enforces some of its released bounds and not others leaves a reader unable to tell which construction failures are real, and leaves the type gate weaker than the wire gate in exactly the places nobody checked. Where a bound is restated in the type rather than read from the schema, the restatement SHALL name the released bound it mirrors, so a later reader can see the two are meant to agree and can find the other one.
+
+#### Scenario: A catalog exceeds the released entry maximum
+- **WHEN** a catalog is constructed with more entries than the released schema permits
+- **THEN** construction is refused, naming the measured count and the released maximum
+- **AND** the refusal happens at construction rather than at the moment the route declines to serve it
+
+#### Scenario: An identifier exceeds the released bounds
+- **WHEN** an entry is constructed with a `model_id` longer than the released maximum, or outside the released character pattern
+- **THEN** construction is refused on the same bounds the released schema states
+- **AND** the refusal matches what the reference-bearing fields already enforce for the same values
+
+#### Scenario: A descriptive string field exceeds its released maximum
+- **WHEN** an entry is constructed with a `label`, `provider_class` or `data_handling` longer than the released schema permits
+- **THEN** construction is refused, naming the measured length and the released maximum for that field
+- **AND** no such field is left checked for blankness alone
+
+#### Scenario: Every declared string bound is covered
+- **WHEN** the released schema declares a maximum length or a character pattern on any catalog string field
+- **THEN** the type refuses a value violating it at construction
+- **AND** a field the schema bounds but the type does not is a defect in this requirement, not an accepted residue
 

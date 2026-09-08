@@ -2,7 +2,7 @@
 code_surface: openxFactory (dashboard runtime — composed-model visible-set narrowing under union/intersection, selector filter as a visibility control with mode toggle and bulk moves, per-project view state, app wiring, styles; tests)
 target_release: none
 Status: ratified
-Ratified by: Brett's 2026-08-07 view-selector ruling (topic `dashboard-project-scoping` D19) — "the 'view' selector would be best as 1. all, 2. the visible union, 3. the visible intersection… we can make this a toggle of union and intersection. Then make a select all or deselect all" — with "otherwise lets implment this idea" as the instruction to realize
+Ratified: Brett's 2026-08-07 view-selector ruling (topic `dashboard-project-scoping` D19) — "the 'view' selector would be best as 1. all, 2. the visible union, 3. the visible intersection… we can make this a toggle of union and intersection. Then make a select all or deselect all" — with "otherwise lets implment this idea" as the instruction to realize
 ---
 
 # Proposal: add-project-visible-set

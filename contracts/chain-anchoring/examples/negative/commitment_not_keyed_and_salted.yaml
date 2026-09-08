@@ -1,0 +1,33 @@
+# expected_failure: commitment_not_keyed_and_salted
+# expected_failure_detail: keyed=False
+# The honestly declared plain digest — and the honesty is not a defence,
+# because the boundary refuses the CONSTRUCTION and not the disclosure. This is
+# the half an implementer is most likely to get wrong: a plain digest of a
+# record looks like exactly the right thing to anchor.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0038
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: sha256
+  keyed: false
+  salted: false
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_source: csprng
+  salt_width_bits: 256
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+named_gate_ref: gate-example-merge-0001
+record_version: 1
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:952363f285df4b716f27569c84f317dd26ddc88acf3779f2ea1ef0768f4871d0

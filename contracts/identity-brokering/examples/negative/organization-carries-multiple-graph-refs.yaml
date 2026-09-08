@@ -1,0 +1,28 @@
+# expected_failure: organization-multiple-graph-refs
+# expected_failure_detail: 2 governed-record references
+# requirement: IDB-R3
+# VIOLATES R3: at most ONE resolvable reference to a governed record.
+#
+# The incremental failure, caught at step two. Each reference here is
+# defensible on its own — the company is a tenant AND it is served by another
+# part of the family — and that is precisely how the mirror grows: a second
+# reference for convenience, then a third, until broker state is a partial copy
+# of the tenancy graph.
+#
+# The bound is in the schema (`maxItems: 1`) and this finding names the rule
+# rather than the array length, because a refusal that reads "too many items"
+# teaches nobody why one is the limit.
+schema_version: 1
+kind: broker_organization
+organization_id: farheap-double-ref
+display_name: FarHeap Solutions (double reference)
+company_role: served
+broker_instance_ref: broker-opensoft-shared
+governed_record_refs:
+  - record_kind: subject
+    record_ref: hermes/subject/farheap
+    resolves_in: governed_layer
+  - record_kind: tenant
+    record_ref: hermes/tenant/farheap
+    resolves_in: governed_layer
+declared_at: "2026-08-21T12:15:00Z"

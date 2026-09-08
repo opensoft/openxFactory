@@ -1,0 +1,55 @@
+# expected_failure: leaf_hash_link_broken
+# VIOLATES requirement 6's second scenario. The leaf's `previous_leaf_digest` is
+# not the digest of the leaf before it, so the link chain is broken at this
+# position and a consistency proof against any earlier observed head fails here.
+#
+# It is reported as a FRAUD SIGNAL rather than as a corrupted file. The log's
+# hash structure — not an access control and not a convention — is what makes an
+# alteration inside an observed prefix detectable, and a broken link is that
+# structure doing its job.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n20
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: vdt-n20
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:01f1dbcc618b116a6d3ebb9076bc9891f545d33dbf92322db5a998cc62f9268b
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:9422f999e44d76585b6112086afa41380ace5a8f89053abc963aad4d922f3595
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: h3enOoWoxXGiRBP9k4npZGzykCpOIWDoZ5pomGLl8F-sSB4rpQGJFVecZoFWwcGrDHREHjbR64hFFQDtAUy9CQ
