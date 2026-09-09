@@ -27,10 +27,23 @@ malformed pin is reported as a defect of the pin rather than of the environment 
 and the two properties the whole change exists for: that the default mode never
 consults PATH, and that a PATH binary at the wrong version is refused rather than
 tolerated.
+
+THE DEPENDENCY CLOSURE, ADDED 2026-09-08 by `pin-openspec-cli-dependency-closure`,
+is tested the same way and for the same reason. A SYNTHETIC lockfile is written
+beside every synthetic pin — its recorded address the REAL SHA-512 of bytes the
+test holds, its entry for the package carrying the synthetic pin's own
+integrity — so `verify_lockfile` does real hashing and real JSON reading on real
+bytes while only the registry stays fictional. The REAL committed lockfile is
+checked too, and offline: `test_the_real_committed_lockfile_verifies_against_the_real_pin`
+hashes `contracts/openspec-cli-pin.1.12.0.package-lock.json` against the pin's
+recorded address, so a hand-edit of either file fails on a developer's machine
+before it can red a gate.
 """
 from __future__ import annotations
 
+import ast
 import base64
+import binascii
 import hashlib
 import importlib.util
 import json
@@ -55,6 +68,19 @@ SHASUM = "c844543999f673cdd72445879b86a4abea4c07ef"
 # as such: an engineer with yesterday's global install is exactly the case the
 # version check exists to catch.
 ROLLBACK_VERSION = "1.2.0"
+
+# THE DEPENDENCY CLOSURE the pin now carries. Written as literals here on exactly
+# the terms VERSION/INTEGRITY/SHASUM are: the suite asserts the REAL pin against
+# them, so a bump that regenerates the lockfile and forgets to re-record its
+# address fails here rather than in CI.
+LOCKFILE_NAME = "openspec-cli-pin.1.12.0.package-lock.json"
+LOCKFILE_INTEGRITY = ("sha512-aw5lIN45tQq2WZlltd+NtSaxP9Vg3TrFGP3reqI+3bDoE0YZ"
+                      "jW+dPIVgdxQLE+Yn0nqwEequaC3+6ff5nkCORA==")
+LOCKFILE_PACKAGES = 80
+
+# The synthetic lockfile's name. DIFFERENT from the real one deliberately: a test
+# that reused the real name could pass while resolving the real file.
+SYNTHETIC_LOCKFILE_NAME = "synthetic.package-lock.json"
 
 PAYLOAD = b"a synthetic tarball standing in for the published artifact"
 
@@ -100,15 +126,60 @@ def _address(payload: bytes) -> tuple[str, str]:
             hashlib.sha1(payload).hexdigest())
 
 
-def write_pin(tmp_path: Path, **overrides) -> Path:
-    """A well-formed synthetic pin, in the real pin's own grammar.
+def synthetic_lockfile(cli_integrity: str, dependencies: int = 3) -> bytes:
+    """A lockfile in npm's own `lockfileVersion: 3` shape, small enough to read.
+
+    The SHAPE is copied from the real generated file rather than invented — a
+    root (`""`) entry carrying name/version/dependencies, and one
+    `node_modules/<name>` entry per package with `version`, `resolved` and
+    `integrity` — because `verify_lockfile` and `staging_manifest` both read that
+    shape and a fixture that got it wrong would test a reader nothing produces.
+    """
+    packages = {
+        "": {"name": "openspec-cli-pin-closure", "version": "0.0.0",
+             "dependencies": {PACKAGE: VERSION}},
+        f"node_modules/{PACKAGE}": {
+            "version": VERSION,
+            "resolved": (f"https://registry.npmjs.org/{PACKAGE}/-/"
+                         f"openspec-{VERSION}.tgz"),
+            "integrity": cli_integrity,
+            "bin": {"openspec": "bin/openspec.js"}},
+    }
+    for index in range(dependencies):
+        name = f"a-dependency-{index}"
+        packages[f"node_modules/{name}"] = {
+            "version": "1.0.0",
+            "resolved": (f"https://registry.npmjs.org/{name}/-/"
+                         f"{name}-1.0.0.tgz"),
+            "integrity": _address(f"{name} bytes".encode())[0]}
+    return (json.dumps({"name": "openspec-cli-pin-closure", "version": "0.0.0",
+                        "lockfileVersion": 3, "requires": True,
+                        "packages": packages}, indent=2) + "\n").encode("utf-8")
+
+
+def write_pin(tmp_path: Path, lockfile_body: bytes | None = None,
+              **overrides) -> Path:
+    """A well-formed synthetic pin AND the lockfile it names, in the pin's grammar.
 
     Written as TEXT rather than as a dict so the narrow reader is exercised on
     every one of these tests: a fixture that handed `verify` a dict would leave
     the parser — the only thing standing between this tool and a pin file it
     misreads — tested exactly once.
+
+    THE LOCKFILE IS WRITTEN BESIDE THE PIN because that is where the pin resolves
+    it — `lockfile:` is a bare name, not a path — and its recorded address and
+    count are DERIVED from the bytes actually written, so the default fixture is
+    always self-consistent and a test that wants a disagreement has to ask for
+    one. `lockfile_body=` supplies different bytes (still self-consistently
+    addressed, which is how the CLI-integrity disagreement is reached without
+    also tripping the digest check first).
     """
     integrity, shasum = _address(PAYLOAD)
+    body = synthetic_lockfile(integrity) if lockfile_body is None else lockfile_body
+    (tmp_path / SYNTHETIC_LOCKFILE_NAME).write_bytes(body)
+    lockfile_integrity, _ = _address(body)
+    locked = len([key for key in json.loads(body)["packages"]
+                  if key.startswith("node_modules/")])
     fields = {
         "schema_version": "1",
         "kind": "pinned_contract_manifest",
@@ -121,6 +192,9 @@ def write_pin(tmp_path: Path, **overrides) -> Path:
         "integrity": f'"{integrity}"',
         "shasum": f'"{shasum}"',
         "binary": "openspec",
+        "lockfile": SYNTHETIC_LOCKFILE_NAME,
+        "lockfile_integrity": f'"{lockfile_integrity}"',
+        "lockfile_packages": f'"{locked}"',
         "verify_pin": "scripts/validate-openspec-cli-pin.py",
         "consumer_entrypoint": "scripts/validate-openspec-cli-pin.py",
     }
@@ -231,8 +305,9 @@ def _fake_registry(mod, monkeypatch):
     which is how `--path-mode` is proved never to be reached by the default.
     """
     calls: list[list[str]] = []
-    served = {"payload": PAYLOAD, "reports": VERSION, "verdict": 0,
-              "report": report(), "origin": "git@github.com:opensoft/openxFactory.git"}
+    served = {"payload": PAYLOAD, "reports": VERSION, "installs": VERSION,
+              "verdict": 0, "report": report(),
+              "origin": "git@github.com:opensoft/openxFactory.git"}
 
     def fake_run(argv, **kwargs):
         calls.append([str(a) for a in argv])
@@ -247,10 +322,32 @@ def _fake_registry(mod, monkeypatch):
             (destination / f"fission-ai-openspec-{VERSION}.tgz").write_bytes(
                 served["payload"])
             return subprocess.CompletedProcess(argv, 0, "", "")
+        if argv[1:2] == ["ci"]:
+            # `npm ci` installs a PROJECT, in a working directory, so the
+            # fictional registry reads `cwd` the way the real one does — and the
+            # executable lands where a project's does, at
+            # `node_modules/.bin/<binary>`.
+            prefix = Path(kwargs["cwd"])
+            binaries = prefix / "node_modules" / ".bin"
+            binaries.mkdir(parents=True, exist_ok=True)
+            (binaries / "openspec").write_text("#!/bin/sh\n", encoding="utf-8")
+            # AND THE PACKAGE ITSELF, since `install_locked` now INSPECTS the
+            # tree it installed rather than believing npm's exit code: a double
+            # that left only a `.bin` shim would be exactly the vacuous install
+            # `assert_installed_package` exists to refuse.
+            if served["installs"] is not None:
+                installed = prefix / "node_modules" / PACKAGE
+                installed.mkdir(parents=True, exist_ok=True)
+                (installed / "package.json").write_text(
+                    json.dumps({"name": PACKAGE,
+                                "version": served["installs"]}),
+                    encoding="utf-8")
+            return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["install"]:
-            prefix = Path(argv[argv.index("--prefix") + 1])
-            (prefix / "bin").mkdir(parents=True, exist_ok=True)
-            (prefix / "bin" / "openspec").write_text("#!/bin/sh\n", encoding="utf-8")
+            # RETAINED AS A TRAP. Nothing under test may run `npm install` any
+            # more: it re-resolves the ranges the lockfile exists to fix. A run
+            # that reaches here gets no executable and fails `pin-unresolvable`,
+            # which is a louder answer than a helpfully-served binary.
             return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["--version"]:
             return subprocess.CompletedProcess(argv, 0, served["reports"] + "\n", "")
@@ -291,6 +388,9 @@ def test_the_real_pin_parses_into_the_expected_shape(pin):
     assert pin["integrity"] == INTEGRITY
     assert pin["shasum"] == SHASUM
     assert pin["binary"] == "openspec"
+    assert pin["lockfile"] == LOCKFILE_NAME
+    assert pin["lockfile_integrity"] == LOCKFILE_INTEGRITY
+    assert pin["lockfile_packages"] == str(LOCKFILE_PACKAGES)
 
 
 def test_the_real_pin_names_this_file_as_the_one_entrypoint(pin):
@@ -442,7 +542,7 @@ def test_a_registry_serving_the_wrong_artifact_is_refused_end_to_end(
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(write_pin(tmp_path))]) == 2
     assert any(call[1:2] == ["pack"] for call in calls)
-    assert not any(call[1:2] == ["install"] for call in calls), \
+    assert not any(call[1:2] in (["ci"], ["install"]) for call in calls), \
         "nothing may be installed from bytes that failed their content address"
 
 
@@ -515,7 +615,7 @@ def test_the_happy_path_runs_the_pinned_binary_against_the_named_repository(
     invocation = [call for call in calls
                   if call[1:] == ["validate", "--all", "--strict"]]
     assert len(invocation) == 1, calls
-    assert invocation[0][0].endswith("/bin/openspec")
+    assert invocation[0][0].endswith("/node_modules/.bin/openspec")
 
 
 def test_a_failing_validation_is_exit_one_and_not_a_pin_refusal(
@@ -565,8 +665,10 @@ def test_the_install_never_runs_lifecycle_scripts(mod, tmp_path, fake_npm):
     (tmp_path / "openspec").mkdir()
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(write_pin(tmp_path))]) == 0
-    install = [call for call in calls if call[1:2] == ["install"]][0]
+    install = [call for call in calls if call[1:2] == ["ci"]][0]
     assert "--ignore-scripts" in install
+    assert not any(call[1:2] == ["install"] for call in calls), \
+        "`npm install` re-resolves the ranges the lockfile exists to fix"
 
 
 def test_a_cache_hit_still_reverifies_the_artifact(mod, tmp_path, fake_npm):
@@ -578,9 +680,9 @@ def test_a_cache_hit_still_reverifies_the_artifact(mod, tmp_path, fake_npm):
     argv = ["--all", "--cache-dir", str(cache), "--repo", str(tmp_path),
             "--pin", str(write_pin(tmp_path))]
     assert mod.main(argv) == 0
-    first = len([call for call in calls if call[1:2] == ["install"]])
+    first = len([call for call in calls if call[1:2] == ["ci"]])
     assert mod.main(argv) == 0
-    assert len([call for call in calls if call[1:2] == ["install"]]) == first
+    assert len([call for call in calls if call[1:2] == ["ci"]]) == first
     assert len([call for call in calls if call[1:2] == ["pack"]]) == 2
 
 
@@ -594,7 +696,7 @@ def test_a_cache_stamped_for_other_bytes_is_rebuilt(mod, tmp_path, fake_npm):
     stamp = next(cache.glob("*/.pin-verified"))
     stamp.write_text("sha512-somethingelse\n", encoding="utf-8")
     assert mod.main(argv) == 0
-    assert len([call for call in calls if call[1:2] == ["install"]]) == 2
+    assert len([call for call in calls if call[1:2] == ["ci"]]) == 2
 
 
 def test_there_is_no_verify_only_mode(mod):
@@ -620,6 +722,7 @@ def test_the_refusal_vocabulary_is_exactly_what_the_code_raises(mod):
         "pin-no-target",
         "pin-unresolvable",
         "pin-integrity-mismatch",
+        "pin-lockfile-mismatch",
         "pin-version-mismatch",
         "pin-disposition-malformed",
         "pin-disposition-stale",
@@ -641,6 +744,9 @@ def test_the_gate_workflow_reads_the_pin_and_carries_no_fourth_copy():
     assert VERSION not in body, \
         "the gate must read the version out of the pin, never restate it"
     assert INTEGRITY not in body
+    assert LOCKFILE_INTEGRITY not in body, \
+        "the closure's address is a fifth copy of the pin if it is restated here"
+    assert LOCKFILE_NAME not in body
 
 
 # ------------------------------------------- the installer, and the test job --
@@ -669,6 +775,8 @@ def test_the_required_test_workflow_installs_through_the_pin_and_not_by_literal(
     assert VERSION not in body, \
         "the test job must read the version out of the pin, never restate it"
     assert INTEGRITY not in body
+    assert LOCKFILE_INTEGRITY not in body
+    assert LOCKFILE_NAME not in body
     assert "@fission-ai/openspec@" not in body, \
         ("the literal install is the defect the pin exists to close; the CLI is "
          "resolved through scripts/install-pinned-openspec-cli.py")
@@ -698,7 +806,7 @@ def test_the_installer_puts_the_pinned_executable_on_the_runners_path(
     # fetched, installed, and ASKED WHAT IT IS — the version assertion is not
     # skipped merely because the install path is the one that produced it.
     assert [call for call in calls if call[1:2] == ["pack"]]
-    assert [call for call in calls if call[1:2] == ["install"]]
+    assert [call for call in calls if call[1:2] == ["ci"]]
     assert [call for call in calls if call[1:2] == ["--version"]] == \
         [[str(executable), "--version"]]
 
@@ -848,6 +956,12 @@ def test_the_real_pin_records_the_previous_referent_as_the_rollback(pin):
     assert rollback[0]["integrity"].startswith("sha512-2XDmPZ")
     assert rollback[0]["shasum"] == "0fd5333520c8846f0ac51727379b8812e2f13c1b"
     assert ROLLBACK_VERSION in rollback[0]["tarball"]
+    # AND THE GAP THE CLOSURE LEAVES, DECLARED RATHER THAN DISCOVERED. No
+    # lockfile is committed for `1.2.0`, so a rollback that moved only these four
+    # fields would be REFUSED on its first run — which is the fail-closed answer
+    # and is why the rollback block says so in its own words.
+    assert "UNCOVERED" in rollback[0]["dependency_closure"]
+    assert "regenerated lockfile" in rollback[0]["dependency_closure"]
 
 
 # ------------------------------------------------- the grammar the pin gained
@@ -1038,6 +1152,983 @@ def test_a_failing_exit_whose_report_names_no_error_refuses(mod, tmp_path,
         a_disposition()))
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(path)]) == 2
+
+
+# ------------------------------------------------- the dependency closure ----
+# THE SHORTFALL THE PIN DECLARED, AND THE MECHANISM THAT CLOSES IT
+# (`pin-openspec-cli-dependency-closure`, 2026-09-08). The referent addressed the
+# CLI's own bytes and said nothing about the 79 packages it runs on: nine of its
+# ten runtime dependencies are caret ranges npm resolved at install time, so two
+# installs of identical verified bytes could run over different trees. What
+# follows pins the repair — an authored lockfile addressed by digest, an install
+# that runs THROUGH it, and a cache that cannot serve one tree in another's name.
+
+
+def test_the_pin_declares_a_lockfile_and_an_undeclared_one_is_a_moving_reference(
+        mod, tmp_path):
+    """`pin-tag-only`, AND NOT A LOCKFILE CODE OF ITS OWN, which is a claim.
+
+    A pin that names an artifact and no lockfile installs that artifact's
+    dependencies by RESOLVING THEIR RANGES, and a caret range is exactly the
+    moving reference this code already refuses. "The moment a pin trusts a range
+    the fail-closed property is gone" is that code's own sentence, and it is as
+    true of a dependency range as of a version range.
+    """
+    path = write_pin(tmp_path, lockfile=None)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_lockfile(mod.read_pin(path), path)
+    assert exc.value.code == "pin-tag-only"
+    assert "resolving" in exc.value.detail
+    assert "Remediation:" in str(exc.value)
+
+
+@pytest.mark.parametrize("mutation, detail", [
+    ({"lockfile": "../elsewhere/package-lock.json"},
+     "a lockfile resolves BESIDE the pin, and a traversal is not a name"),
+    ({"lockfile": "contracts/package-lock.json"},
+     "a path is not the bare name the pin's grammar admits"),
+    ({"lockfile": "package-lock.yaml"}, "the closure is JSON, and only JSON"),
+    ({"lockfile_integrity": None},
+     "a lockfile with no address is a file anybody may edit"),
+    ({"lockfile_integrity": '"sha1-abcdef"'},
+     "the wrong algorithm is not the referent"),
+    ({"lockfile_integrity": '"sha512-tooshort=="'},
+     "a truncated address addresses nothing"),
+    ({"lockfile_packages": None}, "a count nothing records is a count nothing checks"),
+    ({"lockfile_packages": '"0"'}, "a closure of no packages locks nothing"),
+    ({"lockfile_packages": '"eighty"'}, "an unusable count is a defect"),
+])
+def test_a_malformed_closure_declaration_is_refused_as_a_pin_defect(
+        mod, tmp_path, mutation, detail):
+    path = write_pin(tmp_path, **mutation)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_lockfile(mod.read_pin(path), path)
+    assert exc.value.code == "pin-tag-only", detail
+
+
+def test_the_lockfile_resolves_beside_the_pin_and_nowhere_else(mod, tmp_path):
+    """`lockfile:` is a NAME and the resolution is `pin_path.parent / name`.
+
+    That is what makes the rule survive `--pin PATH`: a synthetic pin in a
+    temporary directory and the real pin in `contracts/` each find their OWN
+    lockfile, and neither can reach the other's.
+    """
+    path = write_pin(tmp_path)
+    lockfile, integrity, packages = mod.pinned_lockfile(mod.read_pin(path), path)
+    assert lockfile == tmp_path / SYNTHETIC_LOCKFILE_NAME
+    assert lockfile.is_file()
+    assert integrity.startswith("sha512-")
+    assert packages == 4
+
+
+def test_a_lockfile_whose_bytes_moved_is_refused_with_the_new_code(
+        mod, tmp_path):
+    """THE CENTRAL REFUSAL. Either the file was edited without re-recording its
+    address, or the address was moved without regenerating the file; the two are
+    one claim and they move together."""
+    path = write_pin(tmp_path,
+                     lockfile_integrity=f'"{_address(b"other bytes")[0]}"')
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE DIGEST DRIFT" in exc.value.detail
+    assert "Remediation:" in str(exc.value)
+
+
+def test_a_lockfile_locking_another_artifact_than_the_pin_is_refused(
+        mod, tmp_path):
+    """ONE PIN MAY NAME ONE ARTIFACT.
+
+    Without this check a correctly-hashed lockfile could install some OTHER
+    version of the CLI entirely, and the artifact verification would still pass —
+    over bytes nothing ran. The lockfile here is internally consistent (its own
+    digest and count are recorded correctly), so the digest check passes and this
+    is the check that has to catch it.
+    """
+    stranger = _address(b"a different published artifact")[0]
+    path = write_pin(tmp_path, lockfile_body=synthetic_lockfile(stranger))
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE REFERENT DISAGREEMENT" in exc.value.detail
+    assert stranger in exc.value.detail
+
+
+def test_a_lockfile_that_locks_the_package_not_at_all_is_refused(mod, tmp_path):
+    body = json.loads(synthetic_lockfile(_address(PAYLOAD)[0]))
+    body["packages"].pop(f"node_modules/{PACKAGE}")
+    path = write_pin(tmp_path,
+                     lockfile_body=(json.dumps(body, indent=2) + "\n").encode())
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "carries no entry" in exc.value.detail
+
+
+def test_a_tree_of_the_wrong_size_is_refused_on_the_recorded_count(
+        mod, tmp_path):
+    """The corroborating half, checked on `shasum:`'s own terms: it is recorded
+    because a reviewer reads a count and not a digest, and it is checked because
+    a recorded value nothing verifies drifts into being wrong."""
+    path = write_pin(tmp_path, lockfile_packages='"9"')
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE SIZE DRIFT" in exc.value.detail
+
+
+@pytest.mark.parametrize("body, detail", [
+    (b"not json at all", "an unreadable closure is not a trusted one"),
+    (b'{"lockfileVersion": 3}', "no `packages` object is a shape this reader does not implement"),
+])
+def test_an_unreadable_lockfile_is_pin_unreadable_and_not_a_mismatch(
+        mod, tmp_path, body, detail):
+    """The division the pin file itself already draws. A MISMATCH is a
+    disagreement between two well-formed statements a reviewer can act on; a
+    lockfile that is not JSON is the state in which no comparison can be reached
+    at all, which is what `pin-unreadable` names."""
+    lockfile = tmp_path / SYNTHETIC_LOCKFILE_NAME
+    lockfile.write_bytes(body)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, _address(body)[0], 4, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-unreadable", detail
+
+
+def _relockfile(body: bytes, mutate) -> bytes:
+    """The synthetic lockfile with its parsed document mutated in place.
+
+    A helper rather than four hand-rolled `json.loads`/`json.dumps` pairs: every
+    test below wants the SAME well-formed closure with exactly one thing wrong
+    with it, and `write_pin` re-derives the address and the count from whatever
+    comes back, so the only disagreement a test reaches is the one it asked for.
+    """
+    document = json.loads(body)
+    mutate(document)
+    return (json.dumps(document, indent=2) + "\n").encode("utf-8")
+
+
+@pytest.mark.parametrize("declared", [1, 4, 9, "3", 3.0, None, True])
+def test_a_lockfile_in_a_form_this_reader_does_not_implement_is_refused(
+        mod, tmp_path, declared):
+    """THE CONTRACT `read_lockfile` STATES IS NOW THE CONTRACT IT KEEPS.
+
+    The refusal beside it has always said this reader implements the
+    lockfileVersion 2/3 shape and only that, while nothing read `lockfileVersion`
+    at all — so a later form carrying a `packages` object would have been read by
+    a reader with no knowledge of its semantics, which is the guessing a pin may
+    not do. Raised by review of PR #813; `mod.LOCKFILE_VERSIONS` is the
+    declaration and this is the enforcement.
+
+    A string `"3"` and a float `3.0` are refused too, and deliberately: npm
+    writes an integer, and a value of another type is a file npm did not write.
+    """
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc.__setitem__("lockfileVersion", declared)
+                       if declared is not None else doc.pop("lockfileVersion"))
+    lockfile = tmp_path / SYNTHETIC_LOCKFILE_NAME
+    lockfile.write_bytes(body)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, _address(body)[0], 4, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-unreadable"
+    assert "lockfileVersion" in exc.value.detail
+    assert "refused rather than guessed at" in exc.value.detail
+
+
+@pytest.mark.parametrize("declared", [2, 3])
+def test_the_two_forms_this_reader_declares_are_the_two_it_reads(mod, declared):
+    """The other half of the check above: the declaration is not a bare refusal
+    list, and both forms npm writes with a `packages` object still read."""
+    assert declared in mod.LOCKFILE_VERSIONS
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc.__setitem__("lockfileVersion", declared))
+    assert mod.read_lockfile(body)["lockfileVersion"] == declared
+
+
+@pytest.mark.parametrize("integrity", [
+    "sha512-AB", "sha512-A", "sha512-AAAAA", "sha512-QUJD="])
+def test_a_malformed_lockfile_address_is_a_named_refusal_and_not_a_traceback(
+        mod, tmp_path, integrity):
+    """RAISED BY REVIEW OF PR #813 AS A CRASH, AND IT IS NOT ONE — but it is
+    worth a test either way, because the reason it is not one is a fact about
+    the standard library's exception hierarchy rather than about this file.
+
+    `base64.b64decode(..., validate=True)` raises `binascii.Error` on impossible
+    padding, and every value above matches `INTEGRITY_RE` and reaches it.
+    `binascii.Error` IS a `ValueError` subclass, so the guard already caught it
+    and already produced the named refusal; the type is now written out at the
+    catch site as well, and this test is what keeps the property from depending
+    on anybody rediscovering that relation.
+    """
+    assert issubclass(binascii.Error, ValueError)
+    path = write_pin(tmp_path, lockfile_integrity=f'"{integrity}"')
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_lockfile(mod.read_pin(path), path)
+    assert exc.value.code == "pin-tag-only"
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_integrity(dict(mod.read_pin(path), integrity=integrity))
+    assert exc.value.code == "pin-tag-only"
+
+
+@pytest.mark.parametrize("dropped", ["integrity", "resolved"])
+def test_a_locked_entry_with_no_address_of_its_own_is_refused(
+        mod, tmp_path, fake_npm, dropped):
+    """A CLOSURE WITH ONE UNADDRESSED MEMBER IS NOT A CLOSURE (raised by review
+    of PR #813, on the head that fixed the first seven threads).
+
+    Everything else about this lockfile is right: it hashes to its recorded
+    address, its entry for the pinned package carries the pin's own referent, the
+    count agrees, and the root asks for the package. ONE dependency has lost half
+    its address — and `npm ci` verifies a package against the integrity recorded
+    FOR IT, so that one would be fetched on the registry's word alone while every
+    check above passed. `resolved` is required beside `integrity` for the other
+    half of the same reason: the integrity says WHICH BYTES and the resolved URL
+    says WHERE THEY CAME FROM, and an entry with no origin is a package `npm ci`
+    must go and find, which is the resolution this change exists to close.
+
+    Refused BEFORE the fetch, on the ordering rule the rest of check 3 follows.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    body = _relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"]["node_modules/a-dependency-1"].pop(dropped))
+    path = write_pin(tmp_path, lockfile_body=body)
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE ENTRY UNADDRESSED" in exc.value.detail
+    assert "node_modules/a-dependency-1" in exc.value.detail
+    assert f"no `{dropped}`" in exc.value.detail
+    assert "1 of 4 locked entries" in exc.value.detail
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert not any(call[0] == "npm" for call in calls), \
+        "an unaddressed entry must not spend a registry round trip"
+
+
+def test_a_link_entry_is_a_refusal_and_not_an_exemption(mod, tmp_path):
+    """`link: true` IS THE UNPINNED STATE UNDER ANOTHER NAME.
+
+    npm writes it for a workspace or a `file:` dependency: the entry points at a
+    LOCAL DIRECTORY, which has no content address, no registry origin, and
+    whatever contents that disk holds at install time. Nothing generates one for
+    this pin today — the staging project has no workspaces — which is precisely
+    why the rule is asserted now, while it costs nothing, rather than met for the
+    first time by a reader wondering whether it counts.
+    """
+    body = _relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"].__setitem__(
+            "node_modules/a-dependency-2",
+            {"resolved": "packages/local", "link": True}))
+    lockfile = tmp_path / SYNTHETIC_LOCKFILE_NAME
+    lockfile.write_bytes(body)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, _address(body)[0], 4, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "`link: true`" in exc.value.detail
+    assert "a local directory, not an artifact" in exc.value.detail
+
+
+def test_every_locked_entry_of_the_real_lockfile_is_addressed(mod, pin):
+    """THE CHECK, RUN AGAINST THE REAL COMMITTED FILE, by the verifier itself.
+
+    `test_the_real_lockfile_locks_the_pinned_artifact_and_resolves_nothing`
+    already asserts this property of the file. That test guards THIS repository
+    at pytest time; this one asserts that the VERIFIER enforces it — which is
+    what runs in every consuming repository and in the gate, where no pytest
+    does. The count returned is the tree the pin records.
+    """
+    document = json.loads((PIN.parent / LOCKFILE_NAME).read_text(encoding="utf-8"))
+    assert mod.assert_every_entry_addressed(document, LOCKFILE_NAME) == \
+        LOCKFILE_PACKAGES
+
+
+def test_the_root_entry_is_exempt_because_it_is_not_a_package(mod):
+    """The root (`""`) declares the tree; it is not a member of it, and it
+    carries no `resolved`/`integrity` in any lockfile npm writes. Exempting it is
+    a decision, so it is asserted rather than left to the loop's shape."""
+    document = json.loads(synthetic_lockfile(_address(PAYLOAD)[0]))
+    assert set(document["packages"][""]) == {"name", "version", "dependencies"}
+    assert mod.assert_every_entry_addressed(document, SYNTHETIC_LOCKFILE_NAME) == 4
+
+
+def test_a_lockfile_whose_root_asks_for_nothing_is_refused_before_the_install(
+        mod, tmp_path, fake_npm):
+    """THE VACUOUS PASS, AND WHERE IT IS CAUGHT (raised by review of PR #813).
+
+    `npm ci` installs what the ROOT MANIFEST asks for, and that manifest is
+    DERIVED from the lockfile's own root entry. A root declaring nothing yields a
+    manifest asking for nothing, an `npm ci` that installs nothing and exits 0,
+    and — before this — an install failure reported as `pin-unresolvable`, which
+    blames the environment for a defect in a committed file. The lockfile here is
+    otherwise perfect: it hashes to its address, it locks the pinned package at
+    the pin's own referent, and the count agrees.
+
+    REFUSED BEFORE THE FETCH, on the ordering rule the rest of check 3 follows.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc["packages"][""].pop("dependencies"))
+    path = write_pin(tmp_path, lockfile_body=body)
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE ROOT DECLARES NOTHING TO INSTALL" in exc.value.detail
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert not any(call[0] == "npm" for call in calls), \
+        "a root that asks for nothing must not spend a registry round trip"
+
+
+@pytest.mark.parametrize("key, refused", [
+    ("dependencies", False),
+    ("devDependencies", False),
+    ("optionalDependencies", True),
+    ("peerDependencies", True),
+])
+def test_only_a_root_key_that_actually_installs_satisfies_the_root_check(
+        mod, key, refused):
+    """WHICH DECLARATIONS COUNT, and why two of the four do not.
+
+    npm may SKIP an optional dependency silently — a platform mismatch, a failed
+    fetch — so a root declaring the CLI only there is a root whose `npm ci` can
+    exit 0 having installed nothing, which is the very state this check exists to
+    refuse. What satisfies a PEER range is decided by the rest of the tree rather
+    than by the declaration, which fails for the same reason by a different
+    mechanism. Both are still COPIED into the derived manifest — dropping them
+    would make the manifest disagree with the lockfile — and neither is accepted
+    as the thing that installs the pinned product.
+    """
+    def only(doc: dict) -> None:
+        root = doc["packages"][""]
+        root.pop("dependencies", None)
+        root[key] = {PACKAGE: VERSION}
+
+    document = json.loads(_relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]), only))
+    if refused:
+        with pytest.raises(mod.PinRefusal) as exc:
+            mod.staging_manifest(document, PACKAGE)
+        assert exc.value.code == "pin-lockfile-mismatch"
+        assert key not in mod.INSTALLING_DEPENDENCY_KEYS
+    else:
+        assert mod.staging_manifest(document, PACKAGE)[key] == {PACKAGE: VERSION}
+        assert key in mod.INSTALLING_DEPENDENCY_KEYS
+    assert key in mod.MANIFEST_DEPENDENCY_KEYS
+
+
+def test_the_staging_manifest_refuses_rather_than_deriving_an_empty_one(mod):
+    """The guard lives in `staging_manifest` AS WELL AS in `verify_lockfile`.
+
+    The function is reachable on its own — it is the derivation the whole
+    single-source property rests on — and a guard that lives only in one caller
+    is a guard the next caller does not have.
+    """
+    document = json.loads(_relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"][""].pop("dependencies")))
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.staging_manifest(document, PACKAGE)
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert PACKAGE in exc.value.detail
+
+
+def test_an_install_that_installed_nothing_is_refused_before_the_binary_is_asked(
+        mod, tmp_path, fake_npm):
+    """A ZERO EXIT FROM `npm ci` IS A STATEMENT ABOUT NPM, NOT ABOUT THE DISK.
+
+    Raised by review of PR #813. The double here does what a vacuous install
+    does: it exits 0 and leaves a `.bin` shim, and no `node_modules/<package>`
+    at all. `assert_installed_package` reads the tree instead of believing the
+    exit code, so the run refuses `pin-unresolvable` rather than arriving at
+    `assert_reported_version` with a binary whose provenance nothing established.
+    """
+    calls, served = fake_npm
+    served["installs"] = None
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path)
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert any(call[1:2] == ["ci"] for call in calls)
+    assert not any(call[1:2] == ["--version"] for call in calls), \
+        "the tree is inspected BEFORE the binary is asked what it is"
+
+
+def test_an_install_of_another_version_than_the_pin_is_refused(
+        mod, tmp_path, fake_npm):
+    """The registry shipped a tree the pin does not name.
+
+    `assert_reported_version` asks the BINARY what it is; this asks what the
+    registry actually SHIPPED, and a pin is satisfied only when both agree with
+    it. The double keeps reporting the pinned version from `--version`, so this
+    can only pass if the tree itself is read.
+    """
+    calls, served = fake_npm
+    served["installs"] = ROLLBACK_VERSION
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path)
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert served["reports"] == VERSION
+    assert not any(call[1:2] == ["--version"] for call in calls)
+
+
+def test_the_installed_tree_is_read_at_the_packages_own_path(mod, tmp_path):
+    """The assertion reads `node_modules/<package>/package.json` and nothing
+    else — a scoped name (`@scope/name`) is TWO path segments, so a reader that
+    treated it as one would look in a directory nothing writes."""
+    prefix = tmp_path / "prefix"
+    installed = prefix / "node_modules" / PACKAGE
+    installed.mkdir(parents=True)
+    (installed / "package.json").write_text(
+        json.dumps({"name": PACKAGE, "version": VERSION}), encoding="utf-8")
+    assert PACKAGE.count("/") == 1
+    assert mod.assert_installed_package(prefix, PACKAGE, VERSION) == VERSION
+    (installed / "package.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.assert_installed_package(prefix, PACKAGE, VERSION)
+    assert exc.value.code == "pin-unresolvable"
+
+
+def test_an_absent_lockfile_is_not_an_unlocked_pass(mod, tmp_path):
+    path = write_pin(tmp_path)
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    lockfile.unlink()
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-unreadable"
+    assert "not an unlocked pass" in exc.value.detail
+
+
+def test_the_closure_is_checked_before_a_registry_round_trip_is_spent(
+        mod, tmp_path, fake_npm):
+    """ORDERING, and it is the same ordering rule the pin's shape checks follow.
+
+    A lockfile that disagrees with the pin is a defect of THIS REPOSITORY, and a
+    refusal arriving only after a fetch has been spent reaching it reports the
+    environment as though it were at fault.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path,
+                     lockfile_integrity=f'"{_address(b"other bytes")[0]}"')
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert not any(call[0] == "npm" for call in calls), \
+        "a lockfile disagreeing with the pin must not spend a registry round trip"
+
+
+def test_the_install_runs_npm_ci_through_the_lockfile_and_never_npm_install(
+        mod, tmp_path, fake_npm, capsys):
+    """THE ACT THE CHANGE EXISTS FOR, asserted on the argv that actually ran.
+
+    `npm install` treats a lockfile as a starting point and may re-resolve a
+    range that has since acquired a newer satisfying version; `npm ci` treats it
+    as the answer. Only the second makes "the installed tree IS the pinned tree"
+    a fact about the run.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path)
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 0
+    ci = [call for call in calls if call[1:2] == ["ci"]]
+    assert len(ci) == 1, calls
+    assert "--ignore-scripts" in ci[0]
+    assert not any(call[1:2] == ["install"] for call in calls)
+    printed = capsys.readouterr().out
+    assert "dependency closure" in printed
+    assert "installed with `npm ci --ignore-scripts`" in printed
+    assert f"({4} packages)" in printed
+
+
+def test_the_staging_project_is_written_from_the_lockfiles_own_root_entry(
+        mod, tmp_path, fake_npm):
+    """NO SECOND COPY OF THE DEPENDENCY DECLARATION.
+
+    `npm ci` refuses when a `package.json` and a `package-lock.json` disagree, so
+    a second COMMITTED manifest would be a second copy that eventually moves
+    apart — the defect this whole pin family exists to end. The manifest is a
+    FUNCTION of the lockfile instead, so the two agree by construction.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    body = synthetic_lockfile(_address(PAYLOAD)[0])
+    path = write_pin(tmp_path, lockfile_body=body)
+    prefix = tmp_path / "prefix"
+    executable = mod.install_locked(prefix, body, PACKAGE, VERSION, "openspec")
+    assert executable == prefix / "node_modules" / ".bin" / "openspec"
+    assert (prefix / "package-lock.json").read_bytes() == body
+    manifest = json.loads((prefix / "package.json").read_text(encoding="utf-8"))
+    root = json.loads(body)["packages"][""]
+    assert manifest["name"] == root["name"]
+    assert manifest["version"] == root["version"]
+    assert manifest["dependencies"] == root["dependencies"]
+    assert mod.staging_manifest(json.loads(body), PACKAGE)["dependencies"] == {
+        PACKAGE: VERSION}
+
+
+def test_a_different_lockfile_is_a_different_cache_entry(mod, tmp_path,
+                                                         fake_npm):
+    """A DIFFERENT TREE IS A DIFFERENT INSTALL.
+
+    Before the closure was pinned, two runs at one artifact could legitimately
+    produce two different `node_modules` and the cache had no way to tell them
+    apart: the same directory served both, and whichever ran first decided what
+    the second one got. The lockfile's digest is folded into the key so a
+    lockfile edit lands in a NEW directory rather than reusing — or silently
+    overwriting — the old one.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    cache = tmp_path / "cache"
+    first = write_pin(tmp_path)
+    argv = ["--all", "--cache-dir", str(cache), "--repo", str(tmp_path)]
+    assert mod.main(argv + ["--pin", str(first)]) == 0
+    assert len(list(cache.glob("*/"))) == 1
+    # the SAME artifact, a DIFFERENT closure
+    second = write_pin(tmp_path,
+                       lockfile_body=synthetic_lockfile(_address(PAYLOAD)[0],
+                                                        dependencies=5))
+    assert mod.main(argv + ["--pin", str(second)]) == 0
+    assert len(list(cache.glob("*/"))) == 2, \
+        "one directory served two different dependency trees"
+    assert len([call for call in calls if call[1:2] == ["ci"]]) == 2
+
+
+def test_the_cache_key_carries_the_artifact_and_the_closure_both(mod):
+    body = synthetic_lockfile(_address(PAYLOAD)[0])
+    key = mod.cache_key(PACKAGE, VERSION, SHASUM, body)
+    assert key.startswith(f"{PACKAGE.replace('/', '__')}-{VERSION}-{SHASUM}-")
+    assert key != mod.cache_key(PACKAGE, VERSION, SHASUM,
+                                synthetic_lockfile(_address(PAYLOAD)[0],
+                                                   dependencies=5))
+
+
+def test_the_cache_stamp_names_both_addresses_so_a_stale_closure_rebuilds(
+        mod, tmp_path, fake_npm):
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    cache = tmp_path / "cache"
+    argv = ["--all", "--cache-dir", str(cache), "--repo", str(tmp_path),
+            "--pin", str(write_pin(tmp_path))]
+    assert mod.main(argv) == 0
+    stamp = next(cache.glob("*/.pin-verified"))
+    assert stamp.read_text(encoding="utf-8").strip().splitlines() == [
+        _address(PAYLOAD)[0],
+        _address(synthetic_lockfile(_address(PAYLOAD)[0]))[0]]
+    stamp.write_text(_address(PAYLOAD)[0] + "\n", encoding="utf-8")
+    assert mod.main(argv) == 0
+    assert len([call for call in calls if call[1:2] == ["ci"]]) == 2, \
+        "a directory stamped for another closure must be rebuilt, not reused"
+
+
+def test_path_mode_says_it_did_not_install_the_closure(mod, tmp_path, fake_npm,
+                                                       monkeypatch, capsys):
+    """`--path-mode` INSTALLS NOTHING, so it cannot honestly claim the tree.
+
+    The lockfile is still verified — that is a statement about this repository's
+    files and not about any install — and the log says in as many words that the
+    closure was NOT installed through, because a line reading "closure verified"
+    beside a binary resolved from PATH would be true of the file and false of the
+    run.
+    """
+    calls, _ = fake_npm
+    monkeypatch.setattr(mod.shutil, "which", lambda name: f"/usr/bin/{name}")
+    (tmp_path / "openspec").mkdir()
+    assert mod.main(["--all", "--path-mode", "--repo", str(tmp_path),
+                     "--pin", str(write_pin(tmp_path))]) == 0
+    printed = capsys.readouterr().out
+    assert "NOT INSTALLED THROUGH" in printed
+    assert not any(call[1:2] == ["ci"] for call in calls)
+
+
+def test_a_supplied_tarball_is_still_installed_through_the_lockfile(
+        mod, tmp_path, fake_npm):
+    """`--tarball` VERIFIES the supplied bytes and installs the pinned CLOSURE.
+
+    That is not a weakening of the mode: `verify_lockfile` has already refused
+    unless the lockfile's entry for the package carries THIS integrity, so the
+    CLI bytes `npm ci` installs are the bytes just verified here. What the mode
+    saves is the `npm pack`, which is what it always saved — the dependencies
+    were never in that tarball.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    artifact = tmp_path / "supplied.tgz"
+    artifact.write_bytes(PAYLOAD)
+    assert mod.main(["--all", "--tarball", str(artifact), "--repo",
+                     str(tmp_path), "--pin", str(write_pin(tmp_path))]) == 0
+    assert not any(call[1:2] == ["pack"] for call in calls)
+    assert [call for call in calls if call[1:2] == ["ci"]]
+
+
+# ------------------------------------------------- the REAL committed closure
+
+def test_the_real_committed_lockfile_verifies_against_the_real_pin(mod, pin):
+    """THE PIN AND ITS LOCKFILE, CHECKED AGAINST EACH OTHER, HERE, OFFLINE.
+
+    The same discipline `test_the_real_pin_disposes_exactly_the_captured_findings`
+    applies to the dispositions: the two halves of one claim are reconciled on a
+    developer's machine, with no registry and no install, so a hand-edit of
+    either file — or a bump that regenerates one and forgets the other — shows up
+    as a failing test rather than as a red required check.
+    """
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, PIN)
+    assert lockfile == PIN.parent / LOCKFILE_NAME
+    assert lockfile.is_file(), "the pin names a lockfile that is not committed"
+    assert integrity == LOCKFILE_INTEGRITY
+    assert packages == LOCKFILE_PACKAGES
+    raw = mod.verify_lockfile(lockfile, integrity, packages, PACKAGE, INTEGRITY)
+    assert len(raw) > 0
+
+
+def test_the_real_lockfile_locks_the_pinned_artifact_and_resolves_nothing(mod):
+    """Every entry carries a resolved URL and an integrity, and the CLI's is the
+    pin's own referent. A lockfile with an unresolved entry is a lockfile that
+    would resolve one at install time, which is the whole thing this closes."""
+    document = json.loads((PIN.parent / LOCKFILE_NAME).read_text(encoding="utf-8"))
+    assert document["lockfileVersion"] == 3
+    entries = {key: value for key, value in document["packages"].items()
+               if key.startswith("node_modules/")}
+    assert len(entries) == LOCKFILE_PACKAGES
+    assert entries[f"node_modules/{PACKAGE}"]["integrity"] == INTEGRITY
+    assert entries[f"node_modules/{PACKAGE}"]["version"] == VERSION
+    unresolved = [key for key, value in entries.items()
+                  if not value.get("resolved") or not value.get("integrity")]
+    assert unresolved == [], f"entries that would resolve at install time: {unresolved}"
+
+
+def test_the_real_lockfile_holds_the_pinned_packages_declared_dependencies(mod):
+    """The ten runtime dependencies the pin's header names — nine caret ranges
+    and one exact — are all LOCKED, which is the closure being closed rather
+    than merely declared."""
+    document = json.loads((PIN.parent / LOCKFILE_NAME).read_text(encoding="utf-8"))
+    entries = document["packages"]
+    declared = entries[f"node_modules/{PACKAGE}"]["dependencies"]
+    assert set(declared) == {
+        "@inquirer/core", "@inquirer/prompts", "chalk", "commander",
+        "cross-spawn", "diff", "fast-glob", "ora", "yaml", "zod"}
+    assert len([spec for spec in declared.values() if spec.startswith("^")]) == 9
+    assert declared["cross-spawn"] == "7.0.6"
+    for name in declared:
+        assert f"node_modules/{name}" in entries, \
+            f"{name} is declared by the pinned package and locked by nothing"
+
+
+def running_lines(source: str) -> str:
+    """The lines of a module that RUN: every docstring, and every WHOLE-LINE
+    `#` comment, removed — and a line carrying an INLINE comment kept entire.
+
+    THE RULE THE TWO TESTS BELOW SHARE, and it is the two workflow tests' rule
+    applied to Python: a line that RUNS may not restate the pin; a line that
+    EXPLAINS may quote it. `scripts/proposal-support.py` names
+    `@fission-ai/openspec@1.12.0` four times in prose — once in a `#` comment and
+    three times inside FUNCTION docstrings, describing that version's three
+    documented archive failure paths — and that narrative is exactly the kind of
+    writing the rule protects. Stripping only the MODULE docstring would have
+    caught the comment and missed the three, which is why this walks the AST for
+    every bare string expression rather than reaching for `ast.get_docstring`.
+
+    THE INLINE-COMMENT ASYMMETRY IS DELIBERATE AND IT ERRS STRICT (stated
+    2026-09-08 on review of PR #813, which read the older wording — "every
+    comment" — as a promise this makes good on by narrowing the claim rather than
+    the check). A WHOLE-LINE comment is prose and nothing else; a line carrying a
+    trailing `#` is a line that RUNS, and the rule is about lines that run. So
+    the pin's literals may not appear anywhere on such a line — not even after
+    the `#` — and the only failure this can produce is a FALSE POSITIVE: a
+    would-be author of `foo(bar)  # at 1.12.0` is told to move the note onto its
+    own line or into the docstring. That is a one-line edit in the safe
+    direction. Tokenizing the source to strip inline comments — the other exit —
+    would buy that convenience by WIDENING the surface on which a second copy of
+    the pin may sit, which is the surface these two tests exist to keep empty.
+    `test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one` pins
+    the behaviour so it stays a decision rather than becoming an accident.
+    """
+    tree = ast.parse(source)
+    prose: set[int] = set()
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)):
+            prose.update(range(node.lineno - 1, (node.end_lineno or node.lineno)))
+    return "\n".join(
+        line for index, line in enumerate(source.splitlines())
+        if index not in prose and not line.lstrip().startswith("#"))
+
+
+def test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one():
+    """THE ASYMMETRY, PINNED SO IT STAYS A DECISION (review of PR #813).
+
+    The helper's older wording promised "every comment" and delivered whole-line
+    ones. The claim is narrowed rather than the check widened, because the two
+    exits are not symmetric in what they risk: keeping inline comments can only
+    produce a FALSE POSITIVE — an author is told to move a note onto its own line
+    — while stripping them would WIDEN the surface on which a second copy of the
+    pin may sit, which is the surface the two tests below exist to keep empty.
+
+    The `#` inside a string literal is here for the other half of that argument:
+    a naive strip-at-the-first-hash would have cut this line in two and dropped
+    running code, so the cheap version of the other exit is not available either.
+    """
+    source = (
+        '"""a module docstring"""\n'
+        '# a whole-line comment\n'
+        'value = "a literal with a # inside it"\n'
+        'call(value)  # a trailing note\n'
+        'def f():\n'
+        '    """a function docstring"""\n'
+        '    return value\n')
+    kept = running_lines(source)
+    assert "a module docstring" not in kept
+    assert "a function docstring" not in kept
+    assert "a whole-line comment" not in kept
+    assert "a trailing note" in kept, \
+        "an inline comment sits on a line that RUNS and is judged with it"
+    assert 'a literal with a # inside it' in kept, \
+        "a `#` inside a string is not a comment and the code must survive it"
+    assert "return value" in kept
+
+
+RESOLVER = "resolve_pinned"
+
+# Where a caller of the resolver could live. `.github/` holds no `.py` today and
+# is swept anyway: a workflow that grew an inline script would be exactly the
+# caller nobody thought to look for, and a sweep that cannot see it is a sweep
+# reporting "three callers" while there are four.
+CALLER_SEARCH_ROOTS = ("scripts", ".github", "tests")
+
+# The three, repo-relative, in the one order `sorted` produces.
+KNOWN_CALLERS = [
+    "scripts/install-pinned-openspec-cli.py",
+    "scripts/proposal-support.py",
+    "scripts/validate-openspec-cli-pin.py",
+]
+
+# A module that NAMES the resolver and never calls it — the false positive a
+# substring reader cannot tell from a caller. Written here rather than committed
+# as a fixture file because the property under test is a property of the READER,
+# and a reader is tested by handing it source.
+MENTIONS_BUT_NEVER_CALLS = '\n'.join([
+    '"""A module that only NAMES the resolver.',
+    '',
+    'It describes `resolve_pinned(package, version, integrity, ...)` in prose,',
+    'which is the writing the no-second-copy rule protects, and calls nothing.',
+    '"""',
+    '# The comment form too: resolve_pinned(pin) is what the installer reaches for.',
+    'ADVICE = "call resolve_pinned(pin) rather than installing by hand"',
+    '',
+    '',
+    'def explain():',
+    '    return ADVICE',
+])
+
+CALLS_IT_BOTH_WAYS = '\n'.join([
+    'import verifier',
+    '',
+    '',
+    'def go(pin):',
+    '    executable = verifier.resolve_pinned(pin, npm="npm")',
+    '    return resolve_pinned(pin)',
+])
+
+
+def resolver_calls(source: str) -> list[str]:
+    """Every REAL call to `resolve_pinned` in this module, by spelling.
+
+    PARSED, NOT GREPPED, on `tests/import_scan.py`'s own sentence about the
+    scanners that police an import direction: "Modules in this corpus
+    legitimately NAME other packages in prose … A substring grep calls all of
+    those violations, and the pressure to make it green is pressure to delete
+    true documentation." Exactly that is true of this resolver's name, and this
+    repository is full of files that discuss it — the packet's evidence, the
+    installer's docstring, and THIS test module, which writes
+    `resolve_pinned(` several times and calls it never.
+
+    BOTH SPELLINGS, because the estate uses both: the verifier's own `main`
+    calls the bare name it defines, while the two other callers reach it as
+    `verifier.resolve_pinned(...)` through the module they loaded by path. An
+    `ast.Attribute` is matched on its ATTRIBUTE and not on the object before the
+    dot, so a caller that binds the verifier under another name is still seen.
+    The spelling is RETURNED rather than a bare count, so a failure can say which
+    form it found.
+    """
+    calls: list[str] = []
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if ((isinstance(func, ast.Name) and func.id == RESOLVER)
+                or (isinstance(func, ast.Attribute) and func.attr == RESOLVER)):
+            calls.append(ast.unparse(func))
+    return calls
+
+
+def _parsed_source(path: Path) -> str:
+    """The file's text, with an unparseable module REFUSED rather than skipped.
+
+    A file the sweep cannot read is a hole in the invariant, and a hole that
+    reports itself as a pass is the failure mode this whole packet is about.
+    """
+    source = path.read_text(encoding="utf-8")
+    try:
+        ast.parse(source)
+    except SyntaxError as exc:
+        raise AssertionError(
+            f"{path.relative_to(ROOT)} does not parse ({exc}); the caller sweep "
+            "cannot read it, and an unreadable file is a hole in the invariant "
+            "rather than a file with no callers in it") from exc
+    return source
+
+
+def _python_modules_that_could_call_it() -> list[Path]:
+    found: list[Path] = []
+    for name in CALLER_SEARCH_ROOTS:
+        root = ROOT / name
+        assert root.is_dir(), \
+            f"the caller sweep names {name}/, which is not a directory here"
+        found.extend(sorted(root.rglob("*.py")))
+    return found
+
+
+def test_the_caller_sweep_reads_calls_and_not_mentions():
+    """THE NEGATIVE CONTROL, and it is the finding this reader was rewritten for.
+
+    Raised by review of PR #813: the sweep below used to ask whether the TEXT
+    `resolve_pinned(` appeared in a file, which cannot tell a CALL from a
+    docstring, a comment or a string literal — so a script that merely EXPLAINED
+    the resolver would have been required to bind a closure it never resolves,
+    and the cheapest way to make that green would have been to delete the
+    explanation.
+    """
+    assert f"{RESOLVER}(" in MENTIONS_BUT_NEVER_CALLS, \
+        "the control is only a control if a substring reader would flag it"
+    assert resolver_calls(MENTIONS_BUT_NEVER_CALLS) == [], \
+        "a name in a docstring, a comment or a string literal is not a caller"
+    assert resolver_calls(CALLS_IT_BOTH_WAYS) == [
+        f"verifier.{RESOLVER}", RESOLVER], "both spellings must be seen"
+
+
+def test_this_very_module_names_the_resolver_and_is_not_a_caller():
+    """The control again, IN SITU, on a real committed file rather than a string.
+
+    This module writes `resolve_pinned(` — in the constants above, in the prose,
+    and in the assertions below — and calls it nowhere. Under the old substring
+    reader, widening the sweep to `tests/` would have reported THIS FILE as a
+    fourth caller of the resolver and demanded it bind a closure. It is the
+    reason the sweep can be widened at all.
+    """
+    source = Path(__file__).read_text(encoding="utf-8")
+    assert f"{RESOLVER}(" in source
+    assert resolver_calls(source) == []
+
+
+def test_every_caller_of_the_resolver_hands_it_the_closure():
+    """THE MISS THIS TEST EXISTS FOR, and it was a real one.
+
+    `resolve_pinned` gained two required arguments, and this repository has
+    THREE callers of it, not two: the verifier's own `main`, the INSTALLER
+    (`scripts/install-pinned-openspec-cli.py`, which `pytest-suite.yml` runs),
+    and `scripts/proposal-support.py` — the entrypoint through which the ARCHIVE
+    act runs, named in `contracts/manifest.yaml`'s own consumption rule beside
+    the validation entrypoint. The third was missed on the first pass and CI
+    caught it as ten `TypeError`s.
+
+    A `grep` is the wrong shape for that and a test is the right one: it names
+    the invariant — every caller of the resolver reaches the closure through the
+    verifier's own functions, and none re-implements one — so a FOURTH caller
+    added later fails here rather than in someone else's required check.
+
+    THE SWEEP READS SYNTAX, NOT TEXT (rewritten 2026-09-08 on review of PR
+    #813), and that is what let it WIDEN. It used to glob `scripts/*.py` and ask
+    whether `resolve_pinned(` appeared in the text; it now walks the AST of every
+    `.py` under `scripts/`, `.github/` and `tests/` and counts only real `Call`
+    nodes. The two changes are ONE change: a text reader could not have been
+    pointed at `tests/` without immediately reporting this very file as a caller,
+    so the imprecision was also a ceiling on the sweep's reach.
+
+    A caller appearing anywhere in those three trees fails HERE — including a
+    test that decides to drive the resolver directly. That is then a deliberate
+    edit to `KNOWN_CALLERS` with a reason, not a silent fourth caller, which is
+    the discipline this file applies to every other list it pins.
+    """
+    callers = sorted(
+        path.relative_to(ROOT).as_posix()
+        for path in _python_modules_that_could_call_it()
+        if resolver_calls(_parsed_source(path)))
+    assert callers == KNOWN_CALLERS, \
+        "a caller of the pinned resolver appeared or vanished; read it"
+    for relative in callers:
+        path = ROOT / relative
+        source = path.read_text(encoding="utf-8")
+        if relative == "scripts/validate-openspec-cli-pin.py":
+            # The resolver's own file, which DEFINES it and calls it by the bare
+            # name. Asserted rather than skipped, so the walk is proved to see
+            # the `Name` form in situ and not only in the synthetic control.
+            assert resolver_calls(source) == [RESOLVER]
+            continue
+        assert resolver_calls(source) == [f"verifier.{RESOLVER}"], (
+            f"{path.name} reaches the resolver by an unexpected spelling; the "
+            "estate's two other callers load the verifier as `verifier`")
+        assert "pinned_lockfile" in source and "verify_lockfile" in source, (
+            f"{path.name} calls resolve_pinned without reaching the closure "
+            "through the verifier's own functions")
+        body = running_lines(source)
+        for literal in (VERSION, INTEGRITY, SHASUM, LOCKFILE_INTEGRITY,
+                        LOCKFILE_NAME):
+            assert literal not in body, \
+                f"{path.name} restates {literal[:32]}…, which is a second copy"
+
+
+def test_the_installer_carries_no_copy_of_the_pin_at_all():
+    """THE SINGLE-PARSER PROPERTY, extended to the third referent.
+
+    `scripts/install-pinned-openspec-cli.py` gained the closure by CALLING
+    `pinned_lockfile` and `verify_lockfile`, not by learning what a lockfile is.
+    The version, the integrity, the lockfile's name and the lockfile's address
+    are written in RUNNING CODE in this file exactly as often as they were
+    before: never.
+
+    DOCSTRINGS AND `#` COMMENTS ARE EXCLUDED by `running_lines`, on the two
+    workflow tests' own rule: this file's history NAMES the two versions that
+    moved apart ("the pin went to 1.12.0 while the workflow still installed
+    1.2.0"), and that narrative is the ARGUMENT for the absence. A line that RUNS
+    may not restate the pin; a line that explains why may quote it.
+    """
+    body = running_lines(INSTALLER.read_text(encoding="utf-8"))
+    for literal in (VERSION, INTEGRITY, SHASUM, LOCKFILE_INTEGRITY,
+                    LOCKFILE_NAME):
+        assert literal not in body, \
+            f"the installer restates {literal[:32]}…, which is a second copy"
+    assert "pinned_lockfile" in body and "verify_lockfile" in body, \
+        "the installer must reach the closure through the verifier's own functions"
+    assert "subprocess" not in body and "package-lock.json" not in body, \
+        ("the installer must not implement an install, a lockfile reader or a "
+         "staging project of its own — `resolve_pinned` owns all three")
 
 
 # ------------------------------------------------------------ repository scope
@@ -1263,7 +2354,7 @@ def test_the_integrity_check_still_precedes_everything_dispositions_do(
         a_disposition()))
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(path)]) == 2
-    assert not any(call[1:2] == ["install"] for call in calls)
+    assert not any(call[1:2] in (["ci"], ["install"]) for call in calls)
     assert not any(call[1:2] == ["validate"] for call in calls)
 
 

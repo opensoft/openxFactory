@@ -904,7 +904,13 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     resolve through the retention namespace on the remote, and this test runs
     with `allow_remote=False` so it answers the same way on a machine with no
     network. What it does assert is the separation the design turns on — the
-    commit path and the classification path never see the same site."""
+    commit path and the classification path never see the same site.
+
+    THE FROZEN PAIR IS THE STANDING CENSUS, not the raw result count:
+    one declared member's population arrives AND departs by design, so a
+    total including it says something different on Monday than on Tuesday
+    without anything having drifted (ruling D-8(a); the last paragraph
+    below measures both readings)."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
     # 70, not the 66 this census landed with, and every step is kept apart
     # because each was taken by a different packet: two on 2026-08-28 and two
@@ -984,8 +990,31 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # repaired by retention, never by editing the record" names —
     # `refs/retention/pins/<full-sha>` on the remote — which is also how the two
     # 2026-08-24 records resolve, and NOT a rewrite of the pin.
-    assert len(report.results) == 71
-    assert len({r.site.member_id for r in report.results}) == 24
+    #
+    # 71 -> 71, AND THE NUMBER IS NOW READ OFF THE STANDING POPULATION
+    # (ruling D-8(a), 2026-09-08). `gate-intent-snapshot-rev` was promoted from
+    # FUTURE to CURRENT when the live intent-plane dispatch exercise landed
+    # committed gate intents, and it is the first member declared
+    # `population=ROLLING`: its instances are written on the dashboard's
+    # rolling branch, land through a custody PR and are consumed, so `main`
+    # carries none of them at one revision and four at the next. A total that
+    # counted them would red on a tree with intents and pass on one without,
+    # and the only repair a reader could apply is to bump the number — which is
+    # exactly the reflex a frozen census exists to prevent. So the frozen
+    # arithmetic is taken over the STANDING population and the rolling sites
+    # are excluded from it ALONE: they are still swept, still verified, still
+    # reported, and still bound by "no site is classified twice" below.
+    # MEASURED BOTH WAYS on 2026-09-08 rather than reasoned: on `main`
+    # (eea40d17, no intents committed) `verify()` reads 71 results / 24 members
+    # and a standing census of (71, 24); on a tree carrying the four real
+    # intents from `origin/intents/rolling` it reads 75 results / 25 members
+    # and the SAME standing census of (71, 24). The frozen pair is the one that
+    # did not move.
+    standing_sites, standing_members = pc.standing_census(report.results)
+    assert (standing_sites, standing_members) == (71, 24)
+    # ...and the exclusion is exactly one declared row, not a hole a later
+    # member can fall into unnoticed.
+    assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
     assert report.uncovered == ()

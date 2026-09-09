@@ -427,9 +427,17 @@ the block was written into a registry-less tree.
   marker form.
 - **FR-016**: Named units MUST be extracted as CommonMark code spans following
   the colon, in order, honouring a longer backtick fence where the unit itself
-  contains backticks. The reason MUST be everything after the last code span's
-  following ` — `, and MUST NOT be found by splitting on punctuation. A marker
-  MUST remain of marker form when no reason is present.
+  contains backticks. The reason MUST begin at the first ` — ` separator
+  standing outside every code span, and MUST NOT be found by splitting on
+  punctuation — canon's own wording: "THE REASON SHALL BEGIN AT THE FIRST
+  ` — ` SEPARATOR STANDING OUTSIDE EVERY CODE SPAN: the units named are the
+  spans that close before that separator, the reason is everything after it,
+  and a code span that falls inside the reason is prose the reason quotes
+  rather than a unit the marker names."
+  (`openspec/specs/doc-health/spec.md`:1725–1730).
+  *(Amended 2026-09-09 to match canon after `amend-marker-reason-boundary`
+  (#739); this bullet previously stated the retired last-code-span rule.)*
+  A marker MUST remain of marker form when no reason is present.
 - **FR-017**: The `Merged into` destination MUST NOT be read as a named unit.
 - **FR-018**: A marker MUST suppress only units it names AND that are in fact
   absent from the block. A marker naming a unit the block still carries MUST be
@@ -597,10 +605,17 @@ it. None is a choice this feature makes freely.
 
 - **A1 — A `Removed from canon` marker's reason is optional.** Marker FORM is
   anchored on the complete prefix (`specs/doc-health/spec.md`:125–129); the
-  reason is defined as "everything after the last code span's following ` — `"
-  (:142–146) and the delta's own written-out `Merged into` example carries none
-  (:189). A marker with no reason is therefore of marker form and declares its
-  named units.
+  reason begins at the first ` — ` separator standing outside every code span
+  — canon's own wording: "THE REASON SHALL BEGIN AT THE FIRST ` — ` SEPARATOR
+  STANDING OUTSIDE EVERY CODE SPAN: the units named are the spans that close
+  before that separator, the reason is everything after it, and a code span
+  that falls inside the reason is prose the reason quotes rather than a unit
+  the marker names." (`openspec/specs/doc-health/spec.md`:1725–1730), and the
+  delta's own written-out `Merged into` example carries none (:189).
+  *(Amended 2026-09-09 to match canon after `amend-marker-reason-boundary`
+  (#739); this reading previously cited the retired last-code-span rule at
+  :142–146.)* A marker with no reason is therefore of marker form and
+  declares its named units.
 - **A2 — Unit comparison is case-sensitive and cannot reuse
   `promotion_fidelity.norm`.** ":84–90 — matched in full after whitespace
   normalization ... no normalization beyond it applies" forbids the casefolding
