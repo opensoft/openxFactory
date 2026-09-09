@@ -6,7 +6,12 @@ sequenced_after: [admit-install-repos-to-aggregation]
 
 # Proposal: refresh-install-repository-enumerations
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-09 by Brett Heap — in session, verbatim *"ratify
+refresh-install-repository-enumerations"*, on openxFactory
+[#591](https://github.com/opensoft/openxFactory/issues/591) comment
+5593837071; AS AUTHORED, no veto on D1, D3 or D5; record
+`review/ratification-2026-09-09.md`.
 Proposed: 2026-09-08
 Lane: openxfactory-3 (openXfactory-3)
 Origin: openxFactory issue
@@ -30,6 +35,45 @@ drafting provenance in `.openspec.yaml`, no `approved_by`, no `approved_on`.
 **AND NOTHING IS REALIZED BY IT.** No promoted specification byte moves — a
 change's spec delta is a PROPOSAL about canon, and canon is written by the
 archive act. Every box in `tasks.md` is unticked.
+
+**FILE-FORWARD NOTE, 2026-09-09 — THE RATIFICATION HAS NOW BEEN GIVEN. THE TWO
+PARAGRAPHS ABOVE ARE THE RECORD OF THE DRAFT STATE THIS PACKET WAS AUTHORED IN
+AND ARE KEPT VERBATIM RATHER THAN DELETED**, because ratified bytes do not move
+to tidy a tense and because the distinction they draw is the whole point: the
+word that ADMITS work and the word that RATIFIES text are different acts, and
+both have now been given. *"do 794, 795 and 796"* (2026-09-08 ~14:3xZ)
+admitted the work; *"ratify refresh-install-repository-enumerations"*
+(2026-09-09 ~00:24Z, openxFactory
+[#591](https://github.com/opensoft/openxFactory/issues/591) comment
+5593837071) reaches this text, and it was given over a packet carrying all
+three veto points — **none was vetoed, so the packet is ratified AS
+AUTHORED.** Exactly TWO sentences ABOVE THIS NOTE are superseded by that act,
+and they are quoted here rather than edited in place (a third, opening
+§ Ratification below, is disposed of in the same way there):
+
+> The packet is `Status: draft` and carries no ratification citation, which is
+> the lawful unapproved shape `add-drafted-proposal-origin` defined: drafting
+> provenance in `.openspec.yaml`, no `approved_by`, no `approved_on`.
+
+> Every box in `tasks.md` is unticked.
+
+The packet is now `Status: ratified` with **ONE** citation line — the
+`Ratified:` line in the header above, which is what `ratified-provenance`
+counts — and `.openspec.yaml` carries `approved_by` and `approved_on` **ADDED
+BESIDE** the drafting provenance it was authored with, `kind`, `id` and
+`reason` unmoved, which is the addition-not-rewrite shape that same capability
+defined for exactly this transition. `tasks.md` § 1 and § 2 are ticked, § 1 on
+the word and § 2 on what openxFactory PR
+[#818](https://github.com/opensoft/openxFactory/pull/818) landed at squash
+`6da94302`.
+
+**EVERY OTHER SENTENCE ABOVE STILL HOLDS, AND THE SECOND PARAGRAPH'S FIRST
+CLAUSE MOST OF ALL: RATIFICATION PERFORMS NO REALIZATION.** No promoted
+specification byte moves on this word — `openspec/specs/` is untouched by the
+ratifying commit — the `## Purpose` widening stays OWED at `tasks.md` § 4.1,
+no box in § 3 or § 4 ticks, and openxFactory
+[#796](https://github.com/opensoft/openxFactory/issues/796) stays open until
+the archive, which is a SEPARATE act on a SEPARATE word.
 
 ## Why
 
@@ -212,8 +256,31 @@ moves.
 
 ## Ratification
 
-`Status: draft`. Brett Heap's word of 2026-09-08 admitted the work and
-ratifies none of the text below. **The decision most worth a veto is
+**GIVEN 2026-09-09 by Brett Heap** (openxFactory operator authority), in
+session, verbatim *"ratify refresh-install-repository-enumerations"*, recorded
+on openxFactory [#591](https://github.com/opensoft/openxFactory/issues/591) as
+comment 5593837071 (2026-09-09T00:24:24Z). **RATIFIED AS AUTHORED: the three
+veto points below were carried verbatim in `tasks.md` § 1.2 and in openxFactory
+PR [#818](https://github.com/opensoft/openxFactory/pull/818)'s body, and NONE
+of them was vetoed** — D1 stands, so the derived option is recorded NOT TAKEN
+rather than foreclosed; D3 stands, so the six-MODIFIED scope including the two
+units absent from #796's list is ratified; D5 stands, so *"Submodule
+sequencing"* keeps its open tail. The record is
+`review/ratification-2026-09-09.md`. **THE WORD RATIFIES AND DOES NOT
+ARCHIVE**, so `tasks.md` § 4 stays owed and #796 stays open.
+
+**The sentence this section was authored with is superseded by that act and is
+kept in place rather than deleted**, because it is the record of the state the
+packet was reviewed in:
+
+> `Status: draft`. Brett Heap's word of 2026-09-08 admitted the work and
+> ratifies none of the text below.
+
+That remained true of the 2026-09-08 word for as long as it was the only
+one, and the three veto points below are kept as authored because they are
+what the 2026-09-09 word was given over.
+
+**The decision most worth a veto is
 `design.md` D1**: *widen the enumerations now and state the index rule*
 (recommended), against *replace the hand lists with a list derived from the
 aggregation's `installs/` mount list* — #796's own second option, refused here
