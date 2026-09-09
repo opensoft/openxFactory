@@ -50,7 +50,7 @@ groups:
   - opensoft/xFactory
   observed_repositories:
   - opensoft/xFactory
-  - opensoft/codexFactory
+  - codeXfactory/codexFactory
   clearing_path_admitted: false
   enumerated_members:
   - workflow: council-deliberation-worker.yml

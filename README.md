@@ -520,136 +520,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-marker-defect-reporting](openspec/changes/amend-marker-defect-reporting/proposal.md)
-  — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
-  openxFactory operator authority, in-session, *"merge 842 and 846 when green,
-  then ratify the 729 packet"* — one utterance of three clauses in order, and
-  the order was kept: #842 merged `4cdadd56` and #846 merged `183d1b43`, both
-  green, and the encode is the third clause; records
-  `openspec/changes/amend-marker-defect-reporting/review/ratification-2026-09-09.md`
-  and `verification-2026-09-09.md`). `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it —
-  `kind` and `id` unmoved, the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
-  Brett Heap's earlier *"author the 729 packet"*, which instructed a lane to
-  write a remedy and decided no wording, and the ratification is the separate
-  act above. **THE OWED SUCCESSOR OF
-  `amend-marker-reason-boundary` § 5.1, filed as issue #729.**
-  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
-  gives a marker exactly ONE reporting ground — it names a unit the block still
-  carries — so two other ways of declaring nothing are silent about the MARKER
-  and point its author at a unit instead of at their own paragraph: a name that
-  matches no unit of the requirement (silent since the family launched, recorded
-  by `suppression` itself as "a plausible later ruling" it had no standing to
-  invent), and a code span standing INSIDE a reason, which the boundary
-  correctly reads as prose so that the unit its author had in mind is reported
-  while the marker that caused it is not. The amendment restates the requirement
-  with ONE body sentence replaced, stating THREE grounds at the marker-defect
-  class's existing `info` band, and ADDS TWO SCENARIOS at the end of the block,
-  one per ground; the reason-quotes scenario's third `AND` — the unit stays
-  subject to the carriage arms — is carried word for word, the new report being
-  added BESIDE that carriage rather than in place of it. **`design.md` D1 IS THE
-  VETO POINT AND IT IS A MEASUREMENT:** the second ground is NARROW, firing only
-  where a reason-quoted span matches EXACTLY a promoted unit the block does not
-  carry and no marker declares removed. The issue's own remedy shape — any span
-  inside a reason — is written out beside it with its cost, because a reason is
-  prose and prose quotes: of the SIXTEEN unit-naming markers this corpus carried
-  on 2026-09-09, EIGHT quote a code span inside their reason, every one of them
-  a PROMOTED marker, and of the 34 spans they quote ZERO is a derived unit — so
-  the position predicate is the predicate for canon's own blessed form and its
-  share grew from 2 of 7 to 8 of 16 in three days. **D1 WAS PUT AND WAS NOT
-  VETOED, and A is ratified AS DESIGNED** — ground two included, together with
-  the narrowing `design.md` D5 adds to the ruling's literal wording (*"and that
-  no marker declares removed"*, narrower in the silent direction), disclosed on
-  issue #729 before the act the word authorized. Realized in the same pull
-  request under `release-realization`'s merged-plus-green rule
-  (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
-  `Marker` gains one field for the post-boundary spans `parse_marker` derived
-  and DISCARDED (which is why the second silence was not mechanically detectable
-  at all), `suppression` resolves them and the names that match nothing, and one
-  interpolated `{why}` field carries all three grounds through the class's
-  EXISTING template — so `_ARM_TEMPLATES` stays at eight, the existing
-  `CLASS_MARKERS` probe places every new finding, and ground one's rendered text
-  is byte-identical to the one it shipped with. **BOTH NEW GROUNDS RAISE ZERO
-  FINDINGS ON THIS CORPUS TODAY**, measured: `--family
-  modified-block-currency` is identical to `origin/main`'s output line for line,
-  this packet's own block included, so the amendment is normative for the next
-  marker written rather than a sweep of the present one. **THE ADVERSARIAL PASS
-  FOUND ONE OVER-CLAIM AND IT WAS FIXED BEFORE THE FLIP**: the replacing
-  sentence had opened *"a marker that declares nothing SHALL itself be
-  reported"*, whose converse is false — a marker carrying NO code span parses to
-  no names and reaches none of the three grounds — so the clause now says what
-  the three grounds report, and the nameless marker is recorded as an unruled
-  fourth case at `tasks.md` § 5.7. Under `release-realization` the packet still
-  archives on merged-plus-green realization evidence rather than on landing, on
-  a separate word, so issue #729 closes at archive.
-
-- [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
-  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
-  first-hand and with NO RELAY to lane `codexfactory-1` (session name
-  `codeXfactory-1`), verbatim **"ratify 813"** at 2026-09-09T03:19Z, over head
-  `f2f7ee8d` with every check green and 0 unresolved threads; record
-  `openspec/changes/pin-openspec-cli-dependency-closure/review/ratification-2026-09-09.md`).
-  **CLOSES THE OPEN ITEM #667 DECLARED
-  AND DID NOT CLOSE.** `contracts/openspec-cli-pin.yaml` has said since
-  2026-09-04 that its referent addresses the CLI's own bytes and **not** its
-  DEPENDENCY CLOSURE — `@fission-ai/openspec@1.12.0` declares ten runtime
-  dependencies, nine of them caret ranges npm resolved at install time, so two
-  runs of the identical verified artifact could adjudicate this corpus over two
-  different trees. This packet vendors an authored
-  `contracts/openspec-cli-pin.1.12.0.package-lock.json` (80 packages, every one
-  resolved and addressed, its entry for the CLI carrying the pin's own
-  referent), records it in the pin as `lockfile:` / `lockfile_integrity:` /
-  `lockfile_packages:`, and binds the verifier and the installer to it: the
-  committed lockfile is hashed BEFORE any registry round trip, ONE new refusal
-  code `pin-lockfile-mismatch` covers digest drift, a lockfile locking another
-  artifact than the pin, a tree of the wrong size, ANY OTHER locked entry
-  carrying no `resolved`/`integrity` of its own (a `link: true` local directory
-  included — a closure with one unaddressed member is not a closure), and a
-  lockfile ROOT that asks for the pinned package nowhere (the last two added
-  2026-09-08 on Copilot review of PR #813, with a `lockfileVersion` check
-  refusing `pin-unreadable` outside the forms the reader implements), and the
-  install runs
-  `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
-  staging project whose `package.json` is DERIVED from the lockfile's own root
-  entry, INSPECTING the installed tree before the binary is asked what it is,
-  with the reuse cache keyed on the lockfile's digest as well as the
-  artifact's. **ALL THREE CALLERS of `resolve_pinned` are bound to it** — the
-  verifier's own `main`, `scripts/install-pinned-openspec-cli.py` (the install
-  `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through
-  which the ARCHIVE act runs; the third was MISSED on the first pass and this
-  pull request's own required `pytest-suite` caught it, which is why the
-  invariant is now a test that pins the caller list rather than a habit — one
-  that PARSES rather than greps, since Copilot review of this pull request, and
-  sweeps `scripts/`, `.github/` and `tests/` because it can. The
-  archive caller is where the closure matters most: `openspec archive` writes a
-  ratified delta into canon, and until this the tree adjudicating an archive
-  could differ from the tree adjudicating the validation that cleared it. **RULED**, not chosen by the lane: Brett Heap,
-  2026-09-08T14:14:49Z, first-hand, verbatim *"Vendor a lockfile
-  (Recommended)"*, on a four-option packet whose other three exits — enumerate
-  the resolved tree in the pin, vendor the built tree as one artifact by digest,
-  accept the shortfall as declared — are recorded with their reasons in
-  `design.md` § 1. **THAT RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT** —
-  the packet held `Status: draft` and task 5.1 open through FOUR Copilot review
-  rounds (13 threads, 11 taken and 2 cosmetic folded into the ratifying commit)
-  until the SECOND and separate word above ratified the text. Two words, one
-  operator, two days, two decisions, both recorded. **NOTHING NORMATIVE MOVES BY
-  THE RATIFICATION**: the two ADDED requirements are ratified as written, and
-  tasks 5.2 (validation re-run at the gate) and 5.3 (realization evidence)
-  remain OWED — ratification is not an archive. Ticks
-  `add-openspec-cli-pin` task 5.2 and `bump-openspec-cli-pin-to-1.12` task 6.4.
-  Two ADDED requirements in `neutral-product-pin` and nothing MODIFIED,
-  deliberately (`design.md` § 4): #667's own MODIFIED block on the referent rule
-  is still unarchived, and a second unarchived modifier of one requirement is
-  the overwrite this estate's scenario-currency findings are all about. **WHAT
-  STAYS OPEN, named rather than implied:** trust-on-first-use of the 79 registry
-  integrity values captured when the lockfile was generated; the regeneration
-  obligation at every bump — five things now move together, not four, enforced
-  by the verifier's first-run refusal rather than remembered; and the `1.2.0`
-  rollback entry, declared UNCOVERED in the pin itself, so a rollback is a change
-  to author and not a revert to apply. Workflows take NO edit at all, which is
-  the single-source property paying out.
-
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
@@ -2865,6 +2735,147 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [pin-openspec-cli-dependency-closure](openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
+  session, first-hand to lane `codexfactory-1` (session name `codeXfactory-1`)
+  at **16:26Z**, verbatim *"archive the closure change"*). Ratified 2026-09-09,
+  verbatim *"ratify 813"* at 03:19Z, first-hand to the same lane with **NO
+  RELAY**, over head `f2f7ee8d` plus that commit's cosmetic provenance edits;
+  record `review/ratification-2026-09-09.md` (task 5.1). A SEPARATE and earlier
+  ruling — 2026-09-08T14:14:49Z, *"Vendor a lockfile (Recommended)"*, on a
+  four-option packet — chose the EXIT and ratified no text; two words, one
+  operator, two days, two decisions. **THIS CLOSED THE OPEN ITEM #667 DECLARED
+  AND DID NOT CLOSE:** the pin's referent addressed the CLI's own bytes and not
+  its dependency closure, so nine caret ranges resolved at install time and two
+  runs of the identical verified artifact could adjudicate this corpus over two
+  different trees. `code_surface` is NON-EMPTY — one new artifact
+  (`contracts/openspec-cli-pin.1.12.0.package-lock.json`, 80 packages, every one
+  resolved and addressed) and four moved in substance — so under
+  `release-realization` it archived on **merged-plus-green realization evidence,
+  not on landing**, and both halves are cited rather than asserted: **MERGED** at
+  [#813](https://github.com/opensoft/openxFactory/pull/813) → merge commit
+  `4c08a7a2`, 2026-09-09T05:54Z; **GREEN, AND GREEN THROUGH THE THING THIS
+  PACKET BUILT** — every `openspec-cli-pin` run since that merge resolves the CLI
+  through this lockfile, so the required check is not merely green beside the
+  closure but green BY it: conclusion `success` on
+  [#841](https://github.com/opensoft/openxFactory/pull/841) head `5f275d6a`
+  ([run 34351162201](https://github.com/opensoft/openxFactory/actions/runs/34351162201),
+  12:28:10Z) and on [#847](https://github.com/opensoft/openxFactory/pull/847)
+  head `98776fcf`
+  ([run 34372430624](https://github.com/opensoft/openxFactory/actions/runs/34372430624),
+  15:46:37Z). **AND THE ARCHIVE VERB ITSELF IS EVIDENCE:**
+  `scripts/proposal-support.py … archive` is the third caller this packet bound
+  to the closure, and it installed through this lockfile to archive #841 and #847
+  before it installed through it to archive this — the closure verifying itself.
+  **THE ARCHIVE GATE REFUSED FIRST, AND THE REFUSAL WAS RIGHT.** The packet's own
+  ratification bookkeeping (`1921e96a`, 2026-09-09T03:53:51Z, Copilot thread 14)
+  had rewritten `origin.approved_by` twenty-eight minutes after the ratifying
+  commit `93ba99f0`, and `release-realization` § *"Origin retention at archive"*
+  makes that a refusal with no bypass. The declaration was RESTORED byte-for-byte
+  (`git diff 93ba99f0` empty, blob `d3e4f174` on both sides; `1921e96a` proven
+  the sole mutator, six later merges having carried bytes and authored none) on
+  Brett Heap's second word of the day — **18:03Z, *"restore per 709"*** — in the
+  shape issue #709 and its landed restorations #710–#713 set, with the displaced
+  sentence relocated verbatim to a dated section of `tasks.md` rather than
+  dropped. **PROMOTED INTO CANON — TWO ADDED REQUIREMENTS, BOTH BYTE-IDENTICAL TO
+  THE ARCHIVED DELTA** (blocks extracted programmatically and hashed: 4,321 bytes
+  / `sha256 d844aae2…` / 4 scenarios, and 3,004 bytes / `sha256 a8f9b76c…` / 3
+  scenarios, on both sides): `neutral-product-pin` goes **16 → 18** — *A pinned
+  artifact that resolves dependencies at install time carries a vendored lockfile,
+  and the install runs through it* and *A vendored resolution is regenerated with
+  the referent, and an entry without one is declared uncovered*. The promotion
+  diff reads **96 added, 0 removed**, so the serializer normalized nothing: the
+  sixteen pre-existing requirements are byte-identical but for the formerly-last
+  block gaining the one trailing newline that separates the appended text, and the
+  `## Purpose` block (1,547 bytes) is byte-identical and still true. **WHAT STAYS
+  OPEN, NAMED RATHER THAN IMPLIED, AND CARRYING THE RESERVED `- [~]` DEFERRED
+  MARKER RATHER THAN A TICK:** task **6.1**, an independent attestation of the 79
+  registry integrity values, still trust-on-first-use (**owner: openxFactory**);
+  and task **6.2**, a `1.2.0` lockfile IF a rollback is ever taken (**owner:
+  whoever takes the rollback**), whose condition has never been triggered and
+  whose gap the pin's `rollback:` entry already DECLARES uncovered.
+
+- [amend-marker-defect-reporting](openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of the same day (in
+  session, verbatim *"do 1, then 2"* — item 1 being this archive and the closure
+  of openxFactory [#729](https://github.com/opensoft/openxFactory/issues/729))
+  and the `release-realization` rule that a change with a NON-EMPTY code surface
+  archives on **merged-plus-green realization evidence, not on landing**. **THE
+  EVIDENCE, BOTH HALVES, CITED RATHER THAN ASSERTED:** ratified and realized in
+  one pull request, **PR
+  [#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`**
+  (2026-09-09T17:39:11Z, ratifying commit `4e3c2e26`, records
+  `openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/review/ratification-2026-09-09.md`
+  and `verification-2026-09-09.md`), and **`pytest-suite` run
+  [34384218837](https://github.com/opensoft/openxFactory/actions/runs/34384218837)
+  `success` on `main` at `250d93d7` itself** — the green run is ON the merge
+  commit, not merely on a descendant. Governing issue **#729**, THE OWED
+  SUCCESSOR of `amend-marker-reason-boundary` § 5.1.
+  **ONE PROMOTED SENTENCE, AND IT GAVE A MARKER EXACTLY ONE REPORTING GROUND.**
+  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
+  reported a marker only where it named a unit the block still carries, so two
+  other ways of declaring nothing were silent about the MARKER and pointed its
+  author at a unit instead of at their own paragraph: a name matching no unit of
+  the requirement (silent since the family launched, recorded by `suppression`
+  itself as *"a plausible later ruling"* it had no standing to invent), and a
+  code span standing INSIDE a reason, which `amend-marker-reason-boundary`'s
+  boundary correctly reads as prose so that the unit its author had in mind was
+  reported while the marker that caused it was not. The archived block restates
+  the requirement with **ONE body sentence replaced**, stating **THREE grounds**
+  at the marker-defect class's existing `info` band, and **ADDS TWO SCENARIOS**
+  at the end of the block, one per new ground; the reason-quotes scenario's
+  third `AND` — the unit stays subject to the carriage arms — is carried word for
+  word, the new report being added BESIDE that carriage rather than in place of
+  it. **`design.md` D1 WAS THE VETO POINT AND IT IS A MEASUREMENT:** ground two
+  is NARROW, firing only where a reason-quoted span matches EXACTLY a promoted
+  unit the block does not carry and no marker declares removed. The issue's own
+  remedy shape — any span inside a reason — is written out beside it with its
+  cost, because a reason is prose and prose quotes: of the SIXTEEN unit-naming
+  markers the corpus carried on 2026-09-09, EIGHT quote a code span inside their
+  reason, every one of them a PROMOTED marker, and of the 34 spans they quote
+  ZERO is a derived unit — so the position predicate is the predicate for
+  canon's own blessed form, and its share grew from 2 of 7 to 8 of 16 in three
+  days. **D1 WAS PUT AND WAS NOT VETOED, and A is ratified AS DESIGNED** —
+  ground two included, together with the narrowing `design.md` D5 adds to the
+  ruling's literal wording (*"and that no marker declares removed"*, narrower in
+  the SILENT direction), disclosed on issue #729 before the act the word
+  authorized. Realized in the same pull request
+  (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
+  `Marker` gained one field for the post-boundary spans `parse_marker` derived
+  and DISCARDED — which is why the second silence was not mechanically
+  detectable at all — `suppression` resolves them in a second pass and the names
+  that match nothing in the first, and one interpolated `{why}` field carries
+  all three grounds through the class's EXISTING template, so `_ARM_TEMPLATES`
+  stayed at eight, the existing `CLASS_MARKERS` probe places every new finding,
+  and ground one's rendered text is byte-identical to the one it shipped with.
+  Tests **128 → 139**. **BOTH NEW GROUNDS RAISED ZERO FINDINGS ON THIS CORPUS**,
+  measured rather than assumed: the amendment is normative for the next marker
+  written rather than a sweep of the present one. **THE ADVERSARIAL PASS FOUND
+  ONE OVER-CLAIM AND IT WAS FIXED BEFORE THE FLIP**: the replacing sentence had
+  opened *"a marker that declares nothing SHALL itself be reported"*, whose
+  converse is false — a marker carrying NO code span parses to no names and
+  reaches none of the three grounds — so the clause says what the three grounds
+  report, and the nameless marker was recorded as an unruled fourth case.
+  **FIVE RESIDUES ARE NAMED AS FILED, UNCLAIMED SUCCESSORS AT THIS ARCHIVE**, on
+  the ruling of 2026-09-06T23:10Z (*"Tick on the recording"*) and as
+  `review/ratification-2026-09-09.md` foresaw in terms (*"the issues are filed at
+  the archive word"*): **#856** (§ 5.2, a name matching a unit the BLOCK adds and
+  canon does not is still silent — the unruled fourth ground), **#857** (§ 5.3,
+  canon's *advisory at launch* paragraph still describes the pre-flip state,
+  false in both halves since the #357 flip of 2026-08-31), **#858** (§ 5.4,
+  `specs/019-modified-block-currency-family` FR-018 still states the ONE-ground
+  rule — the shape PR #827 already established for the predecessor's FR-016),
+  **#859** (§ 5.5, the estate-wide run of grounds two and three, filed as the
+  SIBLING of the predecessor's still-open #731 rather than folded into it, whose
+  declared scope is the name-set narrowing and not this population) and **#860**
+  (§ 5.7, a marker that names nothing at all, whose own ratified text asked for
+  the issue to be filed at the archive word). Spec count **61 → 61** and canon's
+  marker lines **8 → 8**, so **no codexFactory floor advance**: this packet's
+  `Removed from canon` marker REPLACES #719's in place, that predecessor's marker
+  being deliberately not restated (`tasks.md` § 4.3) because its named unit is a
+  sentence canon no longer carries, so restating it would make the block report
+  ITSELF under its own new ground three. Lane `openxfactory-1`.
 
 - [bump-openspec-cli-pin-to-1.12](openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
