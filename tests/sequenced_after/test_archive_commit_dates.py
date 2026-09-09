@@ -645,8 +645,16 @@ def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_FACTS():
              if record.entries[n]["fact"] == CLOCK_FACT]
     renamed = [n for n in record.order
                if record.entries[n]["fact"].startswith(RENAMED_PREFIX)]
+    # CAUSE 4 IS A SUBSET, NOT AN EQUALITY (Codex P2, round 2): the header
+    # grants a later measured rename its own entry, and pinning this set would
+    # red the suite for exactly the lawful repair the validator accepts. Every
+    # cause-4 row, known or later, is re-measured in the test below.
+    assert set(RENAMED) <= set(renamed), renamed
+    # CAUSE 1 IS PINNED EXACTLY, and deliberately so: the header states this
+    # cause CANNOT RECUR through the wrapper, which has owned the clock at the
+    # archive act since #797. An eleventh clock row would mean the wrapper was
+    # bypassed, and that should red rather than pass.
     assert len(clock) == 10, clock
-    assert set(renamed) == set(RENAMED), renamed
     assert len(record.order) >= 12
     # The ten are EXACTLY ONE DAY EARLY — the local-clock shape, not a range.
     import datetime as _dt
@@ -657,49 +665,86 @@ def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_FACTS():
                 == _dt.timedelta(days=1)), name
 
 
-def test_THE_RENAME_DISPOSITIONS_CITE_A_RENAME_AND_AN_ARCHIVE_ACT_THAT_AGREE():
-    """CAUSE 4, re-measured rather than taken on the entry's word.
+def _git_out(*args: str) -> str:
+    return subprocess.run(["git", "-C", str(ROOT), *args],
+                          capture_output=True, text=True, check=True).stdout
 
-    The record's whole authority is that every entry states a fact anyone can
-    re-measure, and the fact these two state is a compound one: the directory
-    was RENAMED inside `archive/` by `746be44f`, and the ARCHIVE ACT that
-    actually created it agrees with the name. Both halves are measured here —
-    the rename out of `git show --name-status -M`, and the archive act's UTC day
-    out of `git log` — because an entry that merely asserted them would silence
-    a finding on prose. (The earlier wording called `746be44f` a repository
-    initial import; the root commit is `3fd3e33e` of 2026-06-21, `746be44f` has
-    ONE parent and the subject "Add avatar-first client workflow scaffolding",
-    and the two directories predate it by six days.)"""
+
+def test_EVERY_CAUSE_4_DISPOSITION_CITES_A_RENAME_AND_AN_AGREEING_ARCHIVE_ACT():
+    """CAUSE 4, re-measured rather than taken on the entry's word — for EVERY
+    such row, not merely the two this corpus carries today.
+
+    The record's authority is that every entry states a fact anyone can
+    re-measure, and a cause-4 fact is a COMPOUND one: the directory was RENAMED
+    inside `archive/` by the commit the entry gives as `adding_commit`, and the
+    ARCHIVE ACT that actually created it AGREES with the name. Both halves are
+    measured — the rename out of `git show --name-status -M`, the archive act's
+    UTC day out of `git log` — because an entry that merely asserted them would
+    silence a finding on prose.
+
+    GENERALISED OVER THE RECORD, not written against the two known names (Codex
+    P2, round 2): the header grants a later measured rename its own entry, so a
+    later entry must meet the same standard rather than escape the check. Its
+    `fact` must name its own `adding_commit` in full and a SECOND full object
+    name whose UTC day equals the date the directory carries — that second name
+    being the archive act. The two known rows additionally pin the name they
+    were renamed FROM and the act they cite.
+
+    (The earlier wording called `746be44f` a repository initial import; the root
+    commit is `3fd3e33e` of 2026-06-21, `746be44f` has ONE parent and the
+    subject "Add avatar-first client workflow scaffolding", and the two
+    directories predate it by six days.)"""
     import datetime as _dt
+    import re as _re
     record = sa.load_archive_date_dispositions(sa.dispositions_path(ROOT))
-    root_commits = subprocess.run(
-        ["git", "-C", str(ROOT), "rev-list", "--max-parents=0", "HEAD"],
-        capture_output=True, text=True, check=True).stdout.split()
-    assert RENAME_COMMIT not in root_commits, "the rename is not the root"
-    parents = subprocess.run(
-        ["git", "-C", str(ROOT), "log", "-1", "--format=%P", RENAME_COMMIT],
-        capture_output=True, text=True, check=True).stdout.split()
-    assert len(parents) == 1, parents
-    shown = subprocess.run(
-        ["git", "-C", str(ROOT), "show", "--name-status", "-M", "--format=",
-         RENAME_COMMIT],
-        capture_output=True, text=True, check=True).stdout
+    renamed = [n for n in record.order
+               if record.entries[n]["fact"].startswith(RENAMED_PREFIX)]
+    assert set(RENAMED) <= set(renamed), renamed
+
+    for name in renamed:
+        entry = record.entries[name]
+        adding = entry["adding_commit"]
+        fact = entry["fact"]
+        # NOT THE ROOT AND NOT A MERGE: a rename is an ordinary later commit.
+        assert adding not in _git_out("rev-list", "--max-parents=0",
+                                      "HEAD").split(), name
+        assert len(_git_out("log", "-1", "--format=%P", adding).split()) == 1, \
+            name
+        # The fact names the rename commit, and a SECOND full object name.
+        assert adding in fact, name
+        others = [sha for sha in _re.findall(r"\b[0-9a-f]{40}\b", fact)
+                  if sha != adding]
+        assert others, name
+        # THE RENAME IS REALLY IN THAT COMMIT, with this directory as its
+        # destination — measured with rename detection ON, which is the only
+        # way to see a rename at all.
+        shown = _git_out("show", "--name-status", "-M", "--format=", adding)
+        pairs = [line for line in shown.splitlines()
+                 if line.startswith("R") and f"archive/{name}/" in line]
+        assert pairs, name
+        # …and at least one cited act AGREES with the directory's date.
+        days = set()
+        for act in others:
+            when = _git_out("log", "-1", "--format=%cI", act).strip()
+            days.add(_dt.datetime.fromisoformat(when).astimezone(
+                _dt.timezone.utc).date().isoformat())
+        assert name[:10] in days, (name, others, days)
+
+    # …and the two this corpus carries are pinned name for name.
+    shown = _git_out("show", "--name-status", "-M", "--format=", RENAME_COMMIT)
     for name, (was, act) in RENAMED.items():
         entry = record.entries[name]
         assert entry["adding_commit"] == RENAME_COMMIT, name
-        assert RENAME_COMMIT in entry["fact"], name
         assert was in entry["fact"], name
         assert act in entry["fact"], name
-        # The rename really is in that commit, from that name to this one.
         pairs = [line for line in shown.splitlines()
                  if line.startswith("R")
                  and f"archive/{was}/" in line
                  and f"archive/{name}/" in line]
         assert pairs, (name, was)
-        # …and the ARCHIVE ACT the entry cites agrees with the directory's date.
-        when = subprocess.run(
-            ["git", "-C", str(ROOT), "log", "-1", "--format=%cI", act],
-            capture_output=True, text=True, check=True).stdout.strip()
+        # …and THIS act, named rather than merely one of the shas in the fact,
+        # is the one whose UTC day equals the directory's date.
+        when = _git_out("log", "-1", "--format=%cI", act).strip()
         day = _dt.datetime.fromisoformat(when).astimezone(
             _dt.timezone.utc).date().isoformat()
         assert day == name[:10], (name, act, day)
