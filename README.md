@@ -877,6 +877,43 @@ Active changes:
   — FOUR in all, because "Both at once" names two repositories and each carries
   its own object and its own substrate.
 
+  **AMENDED 2026-09-08 by this change's own realization (lane `opsXfactory-1`),
+  the superseded clause quoted rather than rewritten: realization ticked 19 of
+  the 28 boxes with dated evidence, left 8 carrying dated NOT-OWED lines and
+  left 1 — box 4.2, the MODIFIED-block currency check — run, recorded and
+  deliberately open for the archive act, so this row's**
+
+  > **all 28 boxes in `tasks.md` stay unticked**, § 1's ratification boxes
+  > included
+
+  **no longer holds — and the row makes the same claim a SECOND time, further
+  down, where both halves are now false:**
+
+  > **NOTHING IS REALIZED** — no archived byte is edited, no pin is re-derived,
+  > no checker is written, no repository's convention is amended, and **all 28
+  > boxes in `tasks.md` stay unticked**.
+
+  **Both halves of that one are superseded, not just the box clause: 19 boxes
+  ARE ticked, and something IS realized — `docs/document-lifecycle.md` gained
+  the neutral minimum at commit `645e88ec` — so "NOTHING IS REALIZED" fails in
+  its own right. NOT superseded within it, and each re-verified rather than
+  assumed:** no archived byte was edited, no pin was re-derived, no checker was
+  written, and no repository's convention was amended — the three OTHER clauses
+  of that sentence all still hold, and the amendment of OpsxFactory's own
+  convention remains that repository's act.
+
+  **AND, ON THE FIRST QUOTATION: NOT superseded, and each re-verified rather
+  than assumed:**
+  the neighbouring **RATIFICATION PERFORMS NO REALIZATION** and four of the five
+  assertions beside it, which realization left exactly as it found them — no
+  archived byte edited, no pin re-derived, no checker written, and no delta
+  promoted, promotion happening only at the archive act; the fifth, "no document
+  is amended", was true of the RATIFICATION and is precisely what realization
+  then did, at `docs/document-lifecycle.md` under task 3.4, in commit
+  `645e88ec`. The comparison with `add-consent-custody-rederivation-record` also
+  stands: measured 2026-09-09 UTC at `main` `6cc06288`, that packet still carries
+  all 46 boxes unticked.
+
 - [adopt-configured-notebook-hosting-identity](openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (convener), verbatim *"Ratify 783 and merge"*, given through the interactive
