@@ -1596,7 +1596,9 @@ def fam_release_tag_publication(ctx):
     findings, the reason is recorded exactly as any other skip's is AND those
     findings are reported under the same repository — the repository still
     counts as skipped in the accounting below, so the family-level `Skip` and
-    the cut-time gate that fails closed on it are untouched.
+    the cut-time gate that fails closed on it are untouched. Where EVERY
+    repository skipped, the family-level `Skip` carries them too rather than
+    abandoning them at this boundary.
     """
     results: list[Finding] = []
     skips: list[str] = []
@@ -1633,5 +1635,16 @@ def fam_release_tag_publication(ctx):
             continue
         results.extend(outcome)
     if len(skips) == len(scoped):
-        return Skip(FAMILY, "; ".join(skips))
+        # EVERY REPOSITORY SKIPPED, AND THE ANSWER IS STILL A SKIP — but it no
+        # longer ABANDONS what those repositories established (#766, Codex on
+        # PR #871 P1). This return is reached far more often than its docstring
+        # suggests: `--single-repo` puts ONE repository in scope, and on the
+        # aggregation nightly NINE of the ten governed repositories skip for
+        # carrying no manifest at all, so a single flaky ref read on the tenth
+        # makes `len(skips) == len(scoped)` true and used to erase the whole
+        # family's report for that night. The skip is what a consumer that
+        # fails closed on one reads — `validate-release-tag-gate.py` is
+        # untouched — and the findings ride along for a consumer that renders
+        # the report.
+        return _skip("; ".join(skips), results)
     return results

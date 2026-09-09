@@ -2873,3 +2873,28 @@ def test_the_wholly_skipped_wording_is_untouched(tmp_path):
     assert out[0].action == (
         "no action — this repository's tag obligation was not evaluated, and "
         "the reason is recorded rather than omitted")
+
+
+def test_a_family_level_skip_still_carries_what_the_repositories_established():
+    """AND THE ALL-SKIPPED RETURN ABANDONS NOTHING EITHER (Codex, PR #871 P1).
+
+    `len(skips) == len(scoped)` is reached far more often than "nothing in
+    scope was askable at all" suggests: `--single-repo` puts ONE repository in
+    scope, and on the aggregation nightly NINE of the ten governed repositories
+    skip for carrying no manifest, so ONE flaky ref read on the tenth satisfies
+    it. The answer is still a `Skip` — the cut-time gate must go on failing
+    closed on it — and it now carries what the repositories had established.
+    """
+    class Ctx:
+        repo_paths = {"alphaFactory": Path("r")}
+        git = _PartialShim(remotes={"r": "tip"}, present_commits={"tip"})
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    assert isinstance(out, Skip), (
+        "the enforcing moment reads this as a skip and refuses; that must not "
+        "move")
+    assert "published refs for contract-v2.0 could not be consulted" \
+        in out.reason
+    assert len(_established_absence(out.findings)) == 1, (
+        "and the record the amended `AND` requires is not abandoned at the "
+        "family boundary either")
