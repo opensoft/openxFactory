@@ -1,0 +1,23 @@
+########## python3 scripts/validate-sequenced-after.py .
+sequenced_after validation passed (41 active changes, 8 declaring the field).
+rc=0
+########## python3 scripts/validate-sequenced-after.py . --ledger-diff
+sequenced_after corpus sweep
+----------------------------
+change ids (41 active + 144 archived): 185
+co-modified at requirement granularity (each would owe a declaration): 132
+sole modifiers (each would declare `sequenced_after: []`): 53
+ACTIVE changes: co-modified / sole: 24 / 17
+declaring `sequenced_after:`: 12 (add-consent-custody-rederivation-record, add-per-change-sweep-ledger, add-sequenced-after-substrate, adopt-codexfactory-repository-identity, adopt-configured-notebook-hosting-identity, amend-chain-anchoring-readiness-and-durability, extend-merge-master-envelope-to-floor-bot-lanes, govern-archived-record-edits, mirror-floor-addition-grace, mirror-floor-regeneration-automation, publish-openspec-cli-pin-as-contract-member, register-gate-rules-council-seats)
+declaring an explicit `[]` root claim: 0
+prose `Sequenced-after:` headers: 3 (3 archived)
+DEEPEST DECLARED CHAIN RESOLVED: 2 hop(s), from add-per-change-sweep-ledger
+
+per-change sweep ledger consistent with the corpus (185 rows).
+rc=0
+########## python3 scripts/validate-scope-globs.py .
+scope_globs validation passed (all active changes conform).
+rc=0
+########## python3 scripts/validate-manifest-digests.py .
+OK contracts/manifest.yaml: 188 per-file digest(s) verify
+rc=0

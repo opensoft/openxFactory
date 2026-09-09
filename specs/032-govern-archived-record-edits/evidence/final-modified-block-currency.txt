@@ -1,0 +1,5 @@
+canon chars 5815
+delta chars (script bound) 7209
+delta chars (ADDED bound) 7186
+script-bound canon lines removed: 0
+ADDED-bound canon lines removed: 0

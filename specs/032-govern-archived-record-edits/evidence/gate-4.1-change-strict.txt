@@ -1,0 +1,5 @@
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (<pinned-cli-cache>/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+-> <pinned-cli-cache>/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec validate govern-archived-record-edits --strict --json  (in <scratchpad>/oxf-realize-f3)
+Totals: 1 passed, 0 failed (1 items)
+OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address and every target validated --strict clean
+rc=0
