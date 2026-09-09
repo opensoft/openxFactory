@@ -3,14 +3,14 @@
 ## Purpose
 
 Define how a surface that holds no write authority can nevertheless be the place
-decisions are taken. A click on the hosted dashboard — or on a mobile client —
-emits a `gate-intent` carrying the actor, the verb, the target, the args, the
-`snapshot_rev_seen` the actor was looking at and a one-way status, and the
-gate-console engine, still the only executor of a gate verb, replays it against a
-fresh checkout with full server-side revalidation before anything is written. The
-serving surface keeps no repository credential and gains no write route, so the
-read-only posture the hosted dashboard was built on is preserved rather than
-traded away for the ability to act.
+where decisions are taken. A click on the hosted dashboard — or on a mobile
+client — emits a `gate-intent` carrying the actor, the verb, the target, the
+args, the `snapshot_rev_seen` the actor was looking at and a one-way status, and
+the gate-console engine, still the only executor of a gate verb, replays it
+against a fresh checkout with full server-side revalidation before anything is
+written. The serving surface keeps no repository credential and gains no write
+route, so the read-only posture the hosted dashboard was built on is preserved
+rather than traded away for the ability to act.
 
 Keep the authority minimal and the accounting honest at every step. Exactly one
 new credentialed component exists — the intent inbox — and it holds dispatch
