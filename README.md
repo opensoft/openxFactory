@@ -588,62 +588,6 @@ Active changes:
   in codexFactory is touched. **MQ-1 IS ANSWERED** — the same word as
   codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
 
-- [refresh-install-repository-enumerations](openspec/changes/refresh-install-repository-enumerations/proposal.md)
-  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap
-  (openxFactory operator authority), in session, verbatim **"ratify
-  refresh-install-repository-enumerations"**, recorded on openxFactory
-  [#591](https://github.com/opensoft/openxFactory/issues/591) as comment
-  5593837071 at 2026-09-09T00:24:24Z — ratified **AS AUTHORED**, with no veto
-  on any of the three veto points carried verbatim in `tasks.md` § 1.2 and in
-  PR [#818](https://github.com/opensoft/openxFactory/pull/818)'s body
-  (`design.md` D1, D3, D5); approval pair ADDED beside the drafting provenance
-  in `.openspec.yaml`, `kind`/`id`/`reason` unmoved, the addition-not-rewrite
-  shape `add-drafted-proposal-origin` defined; record
-  `openspec/changes/refresh-install-repository-enumerations/review/ratification-2026-09-09.md`).
-  **RATIFICATION PERFORMS NO REALIZATION** — no delta is promoted, the owed
-  `## Purpose` widening stays owed at `tasks.md` § 4.1, § 3 and § 4 stay
-  unticked, and openxFactory#796 stays open until the archive.
-  Origin: openxFactory
-  [#796](https://github.com/opensoft/openxFactory/issues/796) — OQ-9 and task
-  § 8.4 of the archived `implement-omniworker-install-repo`, filed at that
-  packet's archive (`d7fbe933`) and extended the same day by an addendum that
-  raised its scope from three enumerations to FOUR. Admitted to the queue by
-  Brett Heap, 2026-09-08 ~14:3xZ, verbatim *"do 794, 795 and 796"*, recorded on
-  [#591](https://github.com/opensoft/openxFactory/issues/591) — **AN ADMISSION
-  AND AN INSTRUCTION TO AUTHOR, NOT A RATIFICATION**: it chooses neither of
-  #796's two options and decides no requirement wording. Refreshes the FOUR
-  hand-maintained install-repository enumerations a fifth install repository
-  (`opensoft/OmniWorker-Install`, admitted by opensoft/xFactory#274 →
-  `648c8bd3`) made incomplete: **6 `## MODIFIED` requirements** across
-  `repo-boundary-governance` (3), `shared-contract-ownership` (2) and
-  `canonical-contract-migration` (1), each restating the promoted text word for
-  word with a `Removed from canon by` marker naming the replaced unit, plus
-  **1 `## ADDED`** requirement stating that these enumerations are an INDEX
-  whose authority is the aggregation's `installs/` mount list and each
-  repository's own boundary requirement. **THE COLLISION #796 SAID TO CHECK FOR
-  DOES NOT EXIST, MEASURED:** no active change writes the *"Install repository
-  scope"* key (two archived writers only), and the `co-modifier` class on
-  `implement-keycloak-install-repo` / `implement-openxpki-install-repo` comes
-  from each sharing its OWN sibling boundary requirement with an active
-  partner, NOT from the enumeration. This packet's OWN ledger row nonetheless
-  reads `class: co-modifier`, because the ledger's corpus includes ARCHIVED
-  changes and `admit-install-repos-to-aggregation` wrote the same key in
-  August — so the packet DECLARES the sequence it is in,
-  `sequenced_after: [admit-install-repos-to-aggregation]`, resolving at depth 1;
-  `co-modifier` is a fact about history and not a live collision.
-  **#796's SECOND OPTION IS REFUSED, NOT FORECLOSED** (`design.md` D1): a list
-  derived from the aggregation's `installs/` group would carry NINE mounts
-  against an indexed set of FIVE, enrolling three repositories no reviewed act
-  placed under the requirement and duplicating `xFactory-Installer`, which its
-  own requirement already governs. **NO GENERATOR IS BUILT**, no promoted
-  specification byte moves, no contract is cut, `code_surface: none`, and
-  `tasks.md` § 1 and § 2 are ticked (the ratification, and the authoring #818
-  landed) while § 3 and § 4 stay unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
-  `tasks.md` § 4.1, the `repo-boundary-governance` `## Purpose` widening, which
-  a delta cannot carry and which is taken in the archive commit as a separate
-  hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.
-  Lane `openxfactory-3`.
-
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim **"merge 292 when green,
@@ -3040,6 +2984,97 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [refresh-install-repository-enumerations](openspec/changes/archive/2026-09-09-refresh-install-repository-enumerations/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of the same day (in
+  session, ~00:3xZ, verbatim
+  *"archive refresh-install-repository-enumerations"*, recorded and claimed on
+  issue
+  [#591](https://github.com/opensoft/openxFactory/issues/591)) — given directly
+  after his ratifying word *"ratify refresh-install-repository-enumerations"*
+  (~00:24Z, comment 5593837071), so **TWO ACTS ON TWO WORDS**; and on the
+  `release-realization` rule its own front matter names: `code_surface: none`
+  and `target_release: implemented`, so the packet archives **ON LANDING**
+  rather than on merged-plus-green realization evidence. Ratification landed at
+  PR [#822](https://github.com/opensoft/openxFactory/pull/822) → squash
+  `5fb0851b` (2026-09-09T01:30:06Z), which is also the **ratifying commit** the
+  archive's origin gate retained against (`ORIGIN RETAINED`, declaration
+  unchanged); the authoring landed at
+  [#818](https://github.com/opensoft/openxFactory/pull/818) → `6da94302`.
+  **PROMOTED — SIX `## MODIFIED` REQUIREMENTS AND ONE `## ADDED`, ACROSS THREE
+  CAPABILITIES, BYTE-IDENTICAL TO THE ARCHIVED DELTAS.** All seven blocks were
+  extracted programmatically from delta and canon and hashed: identical on both
+  sides (`Install repository scope` 2,879 B; `Canonical workflow authority`
+  2,508 B; `Copy-first migration` 2,178 B; the ADDED *"Install-repository
+  enumerations are an index with a named authority"* 4,344 B; `Contract version
+  pinning` 4,082 B; `Submodule sequencing` 1,952 B; `Contract provenance and
+  compatibility` 1,666 B). **NOT ONE OTHER REQUIREMENT MOVED** — the 19
+  requirements the deltas do not name are byte-identical before and after —
+  and `repo-boundary-governance` goes **10 → 11** requirements while
+  `shared-contract-ownership` (12) and `canonical-contract-migration` (3) hold
+  their counts. **No file is added under `openspec/specs/`, so no codexFactory
+  floor advance is owed.** The eight frozen packet files are **PURE RENAMES**
+  (`git diff -M --numstat` reports `0 0` on each,
+  `review/ratification-2026-09-09.md` included), the one lawful `tasks.md` edit
+  having landed in the commit before
+  the serializer's output. **THE FOUR ENUMERATIONS #796 NAMED ARE ALL CLOSED,
+  AND ITS ITEM 2 IS CORRECTED ON THE RECORD:** enumerations 1 and 3 widened
+  from two and four names to five (with `OmniWorker-Install`'s own admission
+  record — path, remote, opensoft/xFactory#274 → `648c8bd3` — and a third
+  routing scenario appended); enumeration 2's in-scope unit is the *"Contract
+  breaks an adapter"* trigger's **two runtime ADAPTER FAMILIES**, not a
+  repository pair, `canonical-contract-migration` naming `Hermes-Install`
+  nowhere; and enumeration 4, the `## Purpose`, is § 4.1's owed act below.
+  **TWO UNITS #796 DID NOT LIST** were widened as veto point D3 and **not
+  vetoed** — the `WHEN` bullets of *"Canonical workflow authority"* and
+  *"Copy-first migration"*. **ONE WIDENING IS DELIBERATELY OPEN-ENDED** (D5,
+  also unvetoed): *"Submodule sequencing"* takes `… or a later install
+  repository`, because that scenario governs the act of ADMITTING a repository
+  that by definition is not yet indexed.
+  **THE `## Purpose` WAS WIDENED IN THIS ARCHIVE, AND THE PACKET DECLARED IT
+  OWED HERE** (`tasks.md` § 4.1, ratified in #822): the block named
+  `openxFactory`, `Hermes-Install` and `Omnigent-Install` and had not moved
+  since `9ebceeff` (2026-06-26) — 74 days and three repositories behind — while
+  the capability now governs five install-repository boundaries. It now names
+  all six repositories, in **one hunk separate from the promotion and in its own
+  commit AFTER it**, the shape `publish-openspec-cli-pin-as-contract-member`
+  used at its own archive (§ 5.8, promotion `26c2661b` then widening
+  `e0672360`). Measured token by token: **21 tokens → 24**, three names
+  inserted and the conjunction moving to the last item, canon's serial comma
+  before the final `and` preserved, every other token byte-identical, one line
+  removed and two added. No `Removed from canon by` marker is owed — a Purpose
+  carries no SHALL and is not a canon unit — and no promoted requirement's text
+  is edited by it.
+  **§ 3's SIX BOXES ARE STATEMENTS OF WHAT THE PACKET DOES NOT DO, AND EACH IS
+  TICKED AS A CONFIRMED DISPOSITION RATHER THAN AS WORK PERFORMED** — the
+  archive tool refuses any `- [ ]`, so they had to close, and each clause says
+  what was RE-MEASURED and what it read. § 3.2–§ 3.5 hold unqualified: no
+  script, workflow or test; no contract, register, digest inventory, version or
+  tag; no repository created, admitted, renamed, re-pinned or retired and no
+  submodule pointer anywhere in the estate; both named candidate sites
+  (`contracts/README.md` line 18, `docs/repo-boundary-pilot-plan.md` line 100)
+  still unedited **and NO issue filed at this archive at all**. § 3.6 is
+  re-measured inside the file the archive rewrote: *"Install repo scope links"*
+  is one of the seven untouched `repo-boundary-governance` requirements, so
+  D2's one real collision with the ACTIVE `implement-keycloak-install-repo` and
+  `implement-openxpki-install-repo` is never entered. **§ 3.1 IS THE ONE PLACE
+  THE ARCHIVE ACT ITSELF MOVES WHAT A BOX NAMES, AND ITS CLAUSE SAYS SO IN
+  TERMS**: the statement is about the PACKET'S OWN DIFF, which held exactly as
+  written (#818 → `6da94302` names nine files and no file under
+  `openspec/specs/`), and the tick claims that measurement rather than a claim
+  that canon is untouched here.
+  **openxFactory#796 IS NOT CLOSED BY THIS PULL REQUEST AND WAS OPEN AT ITS
+  HEAD.** § 4.2 ticks **ON THE RECORDING** under the ruling of 2026-09-06
+  (*"Tick on the recording"*), for the reason the ratified box itself gives —
+  the closing comment must name the archive commit, whose merge sha does not
+  exist until the merge — so the closing is the landing lane's act and the
+  comment's content is drafted in full inside the tick, item by item, including
+  the item-2 correction. The header paragraph that declared every box unticked
+  carries **two dated dispositions**, the ratification's and this archive's,
+  each quoting in place the one sentence it discharges; **no box's ratified text
+  is rewritten anywhere** — all nine ratified bodies are carried byte-identical
+  beneath their archive-time clauses, extracted programmatically rather than
+  retyped. Lane `openxfactory-3`.
 
 - [implement-omniworker-install-repo](openspec/changes/archive/2026-09-08-implement-omniworker-install-repo/proposal.md)
   — **ARCHIVED 2026-09-08**, on Brett Heap's separate word of the same day (in

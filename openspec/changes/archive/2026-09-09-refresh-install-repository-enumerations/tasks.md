@@ -31,6 +31,31 @@ which is § 4 and is owed on a SEPARATE word. **§ 3 AND § 4 STAY UNTICKED BY
 DESIGN** — § 3's boxes are statements of what this packet does NOT do, disposed
 of by the archive act, and § 4's are the archive act itself.
 
+**DISPOSITION 2026-09-09, AT THE ARCHIVE — THE SECOND OF TWO DISPOSITIONS UNDER
+THAT PARAGRAPH, AND IT DISCHARGES THE LAST SENTENCE OF THE FIRST.** The
+ratification's disposition above closed one sentence, left the rest standing and
+named what the archive would move; this one IS the archive, so the sentence it
+discharges is quoted in place rather than deleted:
+
+> **§ 3 AND § 4 STAY UNTICKED BY DESIGN** — § 3's boxes are statements of what
+> this packet does NOT do, disposed of by the archive act, and § 4's are the
+> archive act itself.
+
+**BOTH SECTIONS ARE NOW TICKED, ON A SEPARATE WORD, AND THIS PULL REQUEST IS
+THAT ACT.** At THIS commit the original paragraph therefore reads as follows:
+promoted specification bytes DO move (**`+ 1, ~ 6, - 0`** across three
+capabilities, promoted by the pinned CLI); the `## Purpose` IS edited (§ 4.1,
+the one act this packet declared owed at its archive); the ledger row DOES move
+`state: active` → `state: archived` (§ 4.3); and every box in this file is now
+`[x]`. **TWO OF ITS CLAUSES ARE NOT MOVED AND STILL HOLD UNQUALIFIED:** no
+issue is closed — **openxFactory#796 is OPEN at this commit**, and § 4.2 names
+who closes it and when — and no repository is touched anywhere in the estate.
+The proposal pull request that carried the paragraph,
+[#818](https://github.com/opensoft/openxFactory/pull/818) → merge commit
+`6da94302` (2026-09-09T00:20:31Z), named nine files and **no file under
+`openspec/specs/`**; § 3.1 measures that and says why it is not extended to
+cover this commit.
+
 ## 1. Ratification (Brett Heap's act, not this lane's) — GIVEN 2026-09-09
 
 - [x] 1.1 Ratify this packet. Brett Heap's word on the pull request or on
@@ -220,35 +245,123 @@ evidence the packet is reviewable at all.
 
 ## 3. What is NOT done by this packet, stated so no tick can claim it
 
-- [ ] 3.1 **No promoted specification is edited.**
+**DISPOSITION 2026-09-09, AT THE ARCHIVE — EVERY BOX IN THIS SECTION IS A
+STATEMENT, AND EACH IS TICKED AS A CONFIRMED DISPOSITION RATHER THAN AS WORK
+PERFORMED.** `scripts/proposal-support.py … archive` refuses a packet carrying
+any `- [ ]` (*"change has incomplete tasks"*), so a section whose boxes say
+what was NOT done must close its boxes to archive at all. Each is therefore
+ticked with a dated clause saying **that the statement was RE-MEASURED at this
+commit and what the measurement read** — never that the thing was done. **THE
+RATIFIED TEXT OF EVERY BOX IS CARRIED VERBATIM BENEATH ITS ARCHIVE-TIME
+CLAUSE**, extracted from the ratified file rather than retyped, and nothing in
+it is deleted, weakened or reworded. **ONE BOX, § 3.1, IS ABOUT THE PACKET'S
+OWN DIFF, AND IT IS THE ONE PLACE THE ARCHIVE ACT ITSELF MOVES WHAT THE BOX
+NAMES** — its clause says so in terms rather than reading the statement as
+covering an act this packet booked in § 4.
+
+- [x] 3.1 **CONFIRMED AT ARCHIVE 2026-09-09 — TRUE OF THE PACKET'S OWN DIFF,
+      WHICH IS WHAT THE STATEMENT IS ABOUT, AND NOT EXTENDED TO COVER THIS
+      COMMIT.** Measured at the pull request that carried this statement,
+      [#818](https://github.com/opensoft/openxFactory/pull/818) → merge commit
+      `6da94302`: `git diff --stat` over that landing names **nine files and
+      no file under `openspec/specs/`** — README, this packet's seven files,
+      and one `tests/sequenced_after/corpus-ledger.yaml` row — so the
+      statement held exactly as written and was verified by the command it
+      named. **THE ARCHIVE COMMIT IS A DIFFERENT ACT AND THIS TICK DOES NOT
+      HIDE IT:** the pinned CLI promotes the deltas into all three of those
+      files here (`+ 1, ~ 6, - 0`), which is the act `proposal.md` reserves
+      for the archive — *"a change's spec delta is a PROPOSAL about canon, and
+      canon is written by the archive act"* — and which § 4's own preamble
+      books. **THE TICK CLAIMS THE MEASUREMENT AT #818, NOT A CLAIM THAT CANON
+      IS UNTOUCHED AT THIS COMMIT.** The ratified text follows unchanged:
+      **No promoted specification is edited.**
       `openspec/specs/repo-boundary-governance/spec.md`,
       `openspec/specs/shared-contract-ownership/spec.md` and
       `openspec/specs/canonical-contract-migration/spec.md` are UNTOUCHED by
       this packet's diff. Verified by `git diff --stat` naming no file under
       `openspec/specs/`.
-- [ ] 3.2 **No generator, checker, script, workflow or test is written.** D1's
+- [x] 3.2 **CONFIRMED AT ARCHIVE 2026-09-09: NOT DONE, BY DESIGN — NO
+      GENERATOR, CHECKER, SCRIPT, WORKFLOW OR TEST IS WRITTEN BY THIS PACKET
+      OR BY ITS ARCHIVE, AND THE STATEMENT HOLDS UNQUALIFIED AT THIS COMMIT.**
+      Re-measured over BOTH pull requests: #818 → `6da94302` names nothing
+      under `scripts/`, `.github/workflows/` or `tests/` except the one
+      `corpus-ledger.yaml` data row — a ledger row is not a test — and this
+      archive pull request names nothing under those three trees either. D1's
+      refusal of the derived option is unchanged and is still the reason: the
+      ADDED requirement states the declared-filter obligation a checker would
+      consume, and nothing consumes it yet. The ratified text follows
+      unchanged:
+      **No generator, checker, script, workflow or test is written.** D1's
       refusal of the derived option is the reason, and D4 states it: a rule and
       its checker landing in one act is how this estate has shipped rules a
       checker's shape quietly narrowed. If a checker is ever wanted, its input
       is the ADDED requirement's declared-filter obligation.
-- [ ] 3.3 **No contract is added, changed or cut.** `contracts/manifest.yaml`,
+- [x] 3.3 **CONFIRMED AT ARCHIVE 2026-09-09: NOT DONE, BY DESIGN — NO
+      CONTRACT IS ADDED, CHANGED OR CUT, AND NO REGISTER MOVES IN THIS
+      ARCHIVE.** Re-measured at this commit: `contracts/manifest.yaml`,
+      `contracts/README.md`, `contracts/CHANGELOG.md` and
+      `contracts/releases/**` are untouched by both pull requests,
+      `contract_bundle_version` does not move, no version is allocated or
+      reserved, and no annotated tag is owed or pushed. `release-tag-gate`
+      does not fire, the diff touching no `contracts/` path. The one
+      `release-inventory-drift` `error` standing on `main`
+      (`docs/contract-versioning-policy.md`) is PRE-EXISTING and its finding
+      is byte-identical before and after this archive. The ratified text
+      follows unchanged:
+      **No contract is added, changed or cut.** `contracts/manifest.yaml`,
       `contracts/README.md` and `contracts/CHANGELOG.md` are untouched, no
       digest inventory moves, no `contract_bundle_version` is allocated or
       reserved, and no annotated tag is owed.
-- [ ] 3.4 **No repository is created, admitted, renamed, re-pinned or
+- [x] 3.4 **CONFIRMED AT ARCHIVE 2026-09-09: NOT DONE, BY DESIGN — NO
+      REPOSITORY IS CREATED, ADMITTED, RENAMED, RE-PINNED OR RETIRED BY THIS
+      ARCHIVE, AND NOTHING IS EDITED IN ANY OTHER REPOSITORY.** Re-measured:
+      both pull requests touch `opensoft/openxFactory` only; no `.gitmodules`
+      entry and no submodule gitlink is named in either diff, here or anywhere
+      in the estate. The fifth repository's creation and admission remain
+      facts this packet WRITES DOWN rather than performs, and promoting the
+      widened index alters neither. The ratified text follows unchanged:
+      **No repository is created, admitted, renamed, re-pinned or
       retired**, and no submodule pointer moves in any repository. The fifth
       repository's creation and admission ALREADY HAPPENED —
       `opensoft/OmniWorker-Install` created 2026-09-05T16:15:48Z,
       admitted by opensoft/xFactory#274 → `648c8bd3` — and this packet only
       writes those facts into the index.
-- [ ] 3.5 **The two sites named as candidates are NOT edited and no issue is
+- [x] 3.5 **CONFIRMED AT ARCHIVE 2026-09-09: NOT DONE, BY DESIGN — BOTH
+      CANDIDATE SITES ARE STILL UNEDITED, AND NO ISSUE IS FILED AT THIS
+      ARCHIVE AT ALL.** Re-measured at this commit: `contracts/README.md`
+      line 18 still reads *"Hermes-Install and Omnigent-Install"* and
+      `docs/repo-boundary-pilot-plan.md` line 100 still reads as the dated
+      pilot record it is; neither file appears in either pull request's diff.
+      **AND THIS ARCHIVE FILES NO ISSUE** — unlike the
+      `implement-omniworker-install-repo` archive, which filed six — so the
+      two sites stay UNCLAIMED CANDIDATES named in `proposal.md`
+      § *What it does NOT change* and nowhere else. Editing the first would
+      put a SECOND `release-inventory-drift` finding on `main` until the next
+      cut, which is why it is out of scope by class rather than by preference.
+      The ratified text follows unchanged:
+      **The two sites named as candidates are NOT edited and no issue is
       filed for them by this packet**: `contracts/README.md` line 18 (an
       editorial release-inventory member, whose edit would put a
       `release-inventory-drift` finding on `main` until the next cut) and
       `docs/repo-boundary-pilot-plan.md` line 100 (a dated historical record).
       Both are listed in `proposal.md` § *What it does NOT change* as
       unclaimed.
-- [ ] 3.6 **`Install repo scope links` is NOT widened.** It is D2's one real
+- [x] 3.6 **CONFIRMED AT ARCHIVE 2026-09-09: NOT DONE, BY DESIGN — AND
+      THIS ONE IS RE-MEASURED IN THE PROMOTED FILE THE ARCHIVE REWRITES.**
+      *"Install repo scope links"* is one of the **seven requirements of
+      `repo-boundary-governance` this archive does not name**, and its
+      promoted bytes are IDENTICAL on both sides of the promotion: every
+      requirement block in all three capabilities was extracted
+      programmatically and hashed before and after, and the only blocks that
+      differ are the six the deltas declare `## MODIFIED` plus the one they
+      declare `## ADDED` (`repo-boundary-governance` 10 → 11 requirements;
+      `shared-contract-ownership` 12 → 12; `canonical-contract-migration`
+      3 → 3). So the statement is not merely un-acted-on here — it is
+      re-verified against the rewritten file. The collision it names is
+      therefore never entered: `implement-keycloak-install-repo` and
+      `implement-openxpki-install-repo` are both still ACTIVE at this commit
+      and neither is disturbed. The ratified text follows unchanged:
+      **`Install repo scope links` is NOT widened.** It is D2's one real
       collision with `implement-keycloak-install-repo` and
       `implement-openxpki-install-repo`, both ACTIVE, and the fifth
       repository's equivalent obligation is already promoted in *"OmniWorker
@@ -260,7 +373,58 @@ evidence the packet is reviewable at all.
 LANDING rather than on merged-plus-green realization evidence. These three boxes
 tick in the archive commit itself.
 
-- [ ] 4.1 **THE `## Purpose` WIDENING — OWED HERE BECAUSE IT CANNOT TRAVEL IN A
+**DISPOSITION 2026-09-09 — THE SEPARATE WORD, AND WHAT EACH OF THE THREE TICKS
+IS.** The archive act was authorized by **Brett Heap, 2026-09-09 ~00:3xZ, in
+session, verbatim "archive refresh-install-repository-enumerations"**, recorded
+on openxFactory [#591](https://github.com/opensoft/openxFactory/issues/591) and
+given directly after his separate ratifying word *"ratify
+refresh-install-repository-enumerations"* (~00:2xZ) — two acts on two words, in
+the order `release-realization` and this section require. **§ 4.1 TICKS ON THE
+DOING**: the widening is taken in this pull request, in its own commit and its
+own hunk. **§ 4.3 TICKS ON THE DOING**: the row is re-seeded in this pull
+request, in its own commit, because the `--moved-by` pull request number does
+not exist until the pull request does. **§ 4.2 TICKS ON THE RECORDING, NOT ON
+THE DOING**, under Brett Heap's ruling of 2026-09-06 (verbatim *"Tick on the
+recording"*): **openxFactory#796 IS OPEN AT THIS COMMIT** and its closing is
+held by the landing lane, for the reason the box's own text gives — the closing
+comment must name the archive commit, and an archive commit's merge sha does
+not exist until the merge. Its clause drafts that comment's content in full, so
+the record stands here whether or not the comment is posted from this lane.
+
+- [x] 4.1 **TICKED ON THE DOING — THE WIDENING IS TAKEN IN THIS PULL
+      REQUEST, IN ITS OWN COMMIT, IN A HUNK SEPARATE FROM THE PROMOTION, AND
+      THE SENTENCE IS QUOTED HERE AS WRITTEN.**
+      `openspec/specs/repo-boundary-governance/spec.md`'s `## Purpose` now
+      reads, in full:
+
+      > Defines how `openxFactory`, `Hermes-Install`, `Omnigent-Install`,
+      > `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` assign
+      > canonical workflow policy ownership, install repository scope,
+      > copy-first migration rules, and guarded repo-boundary execution.
+
+      **THE EDIT IS EXACTLY THE TWO THINGS § 4.1 SAID IT WOULD BE, MEASURED
+      TOKEN BY TOKEN RATHER THAN EYEBALLED.** A whitespace-insensitive token
+      diff of the promoted sentence against the widened one reads **21 tokens
+      → 24**, and every difference falls inside the list:
+      `` `Omnigent-Install`, ``, `` `Keycloak-Install`, `` and
+      `` `OpenXPKI-Install`, `` are inserted
+      after `` `Hermes-Install`, ``, and the name following canon's own `and`
+      becomes `` `OmniWorker-Install` `` — the conjunction moving to the LAST
+      item, whichever that is. **THE SERIAL COMMA BEFORE THE FINAL `and` IS
+      CANON'S AND IS PRESERVED**, now standing after `` `OpenXPKI-Install` ``.
+      Every other token is byte-identical, and the sentence's last two lines
+      are UNTOUCHED BYTES, so the file diff is **one line removed and two
+      added** and re-wraps only the line the longer list outgrew. **NOTHING
+      ELSE IN THE `## Purpose` BLOCK IS TOUCHED** — no clause is reworded,
+      reordered or removed — **and no promoted requirement's text is edited by
+      it**; no `Removed from canon by` marker is owed, a Purpose carrying no
+      SHALL and not being a canon unit. The shape is
+      `publish-openspec-cli-pin-as-contract-member`'s at its own archive: its
+      § 5.8 widening landed as commit `e0672360`, one hunk at the top of the
+      file, AFTER the archive commit `26c2661b` had written the promotion —
+      and this follows it commit for commit. The ratified text follows
+      unchanged:
+      **THE `## Purpose` WIDENING — OWED HERE BECAUSE IT CANNOT TRAVEL IN A
       DELTA.** `openspec/specs/repo-boundary-governance/spec.md`'s `## Purpose`
       names `openxFactory`, `Hermes-Install` and `Omnigent-Install` and has not
       moved since `9ebceeff` (2026-06-26), while the capability now governs
@@ -297,7 +461,45 @@ tick in the archive commit itself.
       marker is owed: a Purpose is prose ABOUT the capability, carries no
       SHALL, and is not a canon unit. The tick MUST quote the sentence as
       written so the act is on the record.
-- [ ] 4.2 **Close openxFactory#796** with the archive commit named, and record
+- [x] 4.2 **TICKED ON THE RECORDING, NOT ON THE DOING — #796 IS OPEN AT
+      THIS COMMIT AND IS CLOSED BY THE LANDING LANE, WITH THE CLOSING
+      COMMENT'S CONTENT DRAFTED HERE IN FULL SO THE RECORD DOES NOT DEPEND ON
+      THE COMMENT.** Per Brett Heap's ruling of 2026-09-06, verbatim *"Tick on
+      the recording"*, and for the reason the ratified text itself gives: the
+      closing comment must name **the archive commit**, and an archive
+      commit's merge sha does not exist until the merge — and this lane does
+      not merge. The holder is therefore the lane that lands this pull
+      request, named here rather than left implicit. **WHAT THE CLOSING
+      COMMENT MUST SAY, DRAFTED:** (1) **#796's enumeration 1**,
+      `shared-contract-ownership` — WIDENED, two units, *"Contract version
+      pinning"*'s *"Install repo consumes a contract"* trigger and *"Submodule
+      sequencing"*'s *"Submodule is proposed"* trigger, the second OPEN-ENDED
+      by D5 (*"… or a later install repository"*); (2) **#796's enumeration
+      2**, `canonical-contract-migration` — WIDENED, one unit, **and the
+      issue's own description of it is CORRECTED**: that capability names
+      `Hermes-Install` NOWHERE and `Omnigent-Install` only inside a hedged
+      *"source repos (e.g. Omnigent-Install)"* in its own `## Purpose`, so the
+      unit a fifth repository made incomplete is the *"Contract breaks an
+      adapter"* trigger's **two runtime ADAPTER FAMILIES**, not a repository
+      pair, and that is the unit widened; (3) **#796's enumeration 3**,
+      `repo-boundary-governance`'s *"Install repository scope"* — WIDENED from
+      four names to five, with `OmniWorker-Install`'s own admission record
+      (path, remote, opensoft/xFactory#274 →
+      `648c8bd3fc4717e5b969cd95ea3e0207700e8925`) and a third routing scenario
+      APPENDED, **plus TWO units #796 did not list**, both `WHEN` bullets in
+      the same capability (*"Canonical workflow authority"* and *"Copy-first
+      migration"*), carried as veto point D3 and not vetoed; (4) **#796's
+      enumeration 4**, the 2026-09-08 addendum's `## Purpose` block — taken as
+      **§ 4.1's owed act in the archive commit**, not as a delta, because a
+      `## Purpose` in a delta is read only at capability creation; and (5) the
+      ADDED requirement *"Install-repository enumerations are an index with a
+      named authority"*, which is what stops a sixth repository needing a
+      fifth archaeology exercise. **THE ISSUE CLOSES ON THE RECORDING OF THE
+      ENUMERATIONS HAVING MOVED, NOT ON A SUCCESSOR BEING NAMED** — the
+      distinction the ratified text draws, and it is satisfied: the
+      enumerations moved in this pull request. The ratified text follows
+      unchanged:
+      **Close openxFactory#796** with the archive commit named, and record
       in the closing comment which of its four enumerations were widened
       (1, 2 corrected, 3 and the two unlisted bullets), which was taken as
       § 4.1's owed act (4), and the one correction to the issue's own text —
@@ -306,6 +508,25 @@ tick in the archive commit itself.
       trigger rather than a repository pair. Closing it is an act on the
       recording: the issue closes because the enumerations moved, not because a
       successor was named.
-- [ ] 4.3 Re-seed the sweep-ledger row at the archive (`state: active` →
+- [x] 4.3 **TICKED ON THE DOING — THE ROW IS RE-SEEDED IN THIS PULL
+      REQUEST, IN ITS OWN COMMIT AFTER THE PULL REQUEST NUMBER EXISTS, AND
+      `--ledger-diff` IS RE-RUN CLEAN AT THAT HEAD.** Performed with the tool
+      rather than by hand: `python3 scripts/validate-sequenced-after.py .
+      --seed-ledger --moved-by '#<PR>'`. Exactly one field pair moves and
+      nothing else about the row changes — from `{state: active, class:
+      co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1,
+      prose: false, moved_by: "#818", moved_on: "2026-09-08"}` to the same row
+      with `state: archived`, `moved_by: "#<PR>"` and
+      `moved_on: "2026-09-09"`, the date the
+      `archive/2026-09-09-refresh-install-repository-enumerations` directory
+      carries, which is the reading the ledger's own header requires of a row
+      flipping active → archived. `class:` stays `co-modifier` and `declares:`
+      stays `[admit-install-repos-to-aggregation]` at depth 1 — the history
+      fact D2 explains, never a live collision. **THE DIFF IS THE CHECK AND IT
+      IS REPORTED IN THE PULL REQUEST BODY:** exactly one row moves, and any
+      other row that moves is a collision this packet did not predict.
+      `validate-sequenced-after.py .` and `--ledger-diff` both pass at the
+      head the archive record cites. The ratified text follows unchanged:
+      Re-seed the sweep-ledger row at the archive (`state: active` →
       `state: archived`) and re-run `--ledger-diff` clean at the head the
       archive record cites.
