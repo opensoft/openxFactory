@@ -225,6 +225,36 @@ this ruling; that one edit is made in `tasks.md` in the realizing pull request.*
 The word's second and third clauses — the merge and the next-sweep report — are
 the LANDING lane's acts and are claimed by no box here.
 
+**THE CODEX P1 RESIDUAL — RULED: ACCEPTED, AND RECORDED RATHER THAN CLOSED.**
+Brett Heap, in session, **2026-09-09T13:57:49Z**, verbatim:
+
+> **"accept the residual, record it"**
+
+Recorded on openxFactory issue
+[#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5603082637),
+comment **5603082637**. **THE RESIDUAL, STATED EXACTLY.** The arming lives
+inside the delivery step *Open or update the single automated advance*, which is
+gated `steps.repin.outputs.action == 'advance'`, so a firing on which the pinned
+core has not moved never reaches it: **a refused arming is re-attempted only on
+the next firing that DELIVERS an advance, and that firing moves the head
+first.** **IT IS ACCEPTED AS THE CONFORMING SHAPE.** No third
+`gh pr merge --auto` occurrence is added — decision **M-C's ratified
+exactly-twice equality stands untouched**, and the named negative control still
+reds at three; no amendment is opened; and the residual is **DISCLOSED WHERE THE
+RUN IS READ** rather than closed, on both surfaces and in the same words: the
+delivery step's refusal witness and the no-op firing's outcome report, commit
+**`d368b07b`** on PR
+[#844](https://github.com/opensoft/openxFactory/pull/844), measured by
+`test_a_refused_arming_is_a_recorded_outcome_not_a_failed_advance` and
+`test_the_not_armed_branch_states_the_retry_condition_when_rendered`. **WHAT
+WOULD LET AN ARMED STATE COMPLETE ANYTHING IS UNCHANGED BY THIS WORD:**
+`admit-review-lane-repin-to-merge-approval-envelope` (box 4.3, unfiled, needs
+its own word), and until it lands the armed state is inert by box 1.3's ruling
+above. **THIS WORD TICKS NO BOX.** It answers a finding raised on the REALIZING
+pull request, not on the packet's text; box 3.5's evidence carries it, and the
+packet's decisions are where the 2026-09-08 word and the two rulings above left
+them.
+
 **WHAT THIS ADDENDUM DOES NOT DO.** It ratifies nothing new: the proposal was
 ratified on 2026-09-08 and its text has not moved. It performs no merge, files
 no successor, touches no ruleset and enrols no candidate. The realization it

@@ -362,7 +362,15 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       re-arm from the no-op path would be a THIRD occurrence of the arming
       command, which decision M-C admits by EQUALITY at two and a named control
       reds at three, so admitting one needs an amendment and is recorded on #745
-      for Brett Heap rather than taken here. Copilot's finding on the same head
+      for Brett Heap rather than taken here. **RULED 2026-09-09T13:57:49Z, AND
+      THE RESIDUAL IS ACCEPTED RATHER THAN CLOSED.** Brett Heap, verbatim
+      *"accept the residual, record it"* (#745 comment 5603082637): no third
+      `gh pr merge --auto` occurrence, M-C's exactly-twice equality untouched,
+      no amendment opened — **the disclosure above IS the conforming shape**,
+      and `admit-review-lane-repin-to-merge-approval-envelope` (box 4.3) remains
+      the act that would let an armed state complete anything. The word is
+      recorded in this packet's ratification record, 2026-09-09 addendum.
+      Copilot's finding on the same head
       is fixed with it: all three witness variants now reach the lowercase
       `ARMED_TAIL` through one ` — ` join instead of across a full stop, measured
       from the workflow's own bytes by
@@ -378,6 +386,26 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       control — `TheOutcomeReportIsExecutedNotJustRead` cuts the jq program out
       of the shipped step, renders every branch, and proves it can see a parse
       failure by mutating the program until jq refuses it.
+      **A THIRD FINDING ON THE SAME STEP IS VALID, AND FIXED.** One layer out
+      from the program, the LISTING's failure was coerced with `|| echo '[]'`,
+      so an expired token or a transient API error rendered *"no previous
+      automated pin advance has ever been opened on this branch"* — a claim
+      ABOUT the platform, made on a firing that could not read the platform, and
+      the opposite of the step's own header; it is the masking
+      `merge-master-approval.yml`'s gather refuses in terms. The read's exit
+      status is now kept separate from its output: only a listing `gh` actually
+      RETURNED reaches jq, and a non-zero exit falls through to the fallback the
+      step already carried (*"the last automated pin advance could not be read
+      from the platform on this firing"*). **The step still never fails the
+      run**, and "unreadable" and "none" are now different sentences. The class
+      gained the control it never had: `TheOutcomeReportIsExecutedNotJustRead`
+      now executes the STEP'S OWN SHELL against a stubbed `gh`, with
+      `test_a_listing_the_platform_refused_is_reported_unreadable` measuring the
+      refusal on both surfaces, two positives in the other direction (a
+      genuinely empty listing still says so; a real listing renders end to end),
+      and `test_this_control_can_actually_see_the_masking_come_back`, which
+      mutates the coercion back into the shipped script and requires the false
+      claim to reappear.
       **DEPARTURE, DISCLOSED: THE TAIL CARRIES ONE CLAUSE MORE THAN M-E WROTE.**
       M-E's sentence ends *"…so the arming is inert."*; box 1.3's ruling asks for
       the inertness to be declared as *no approver is enrolled and the armed pull
