@@ -17,6 +17,15 @@ gate bookkeeping this packet owes rather than behaviour it changes: the
 `## MODIFIED` block's sibling-pairing marker, and the corpus-ledger row seeded
 by `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`.
 
+**M-1 STEP (1) REALIZED 2026-09-09, AND IT TICKS FIVE MORE AND NO OTHERS: 2.1,
+2.2, 2.4, 2.5 AND 2.6.** Each names "the merged commit", "the same commit", "the
+new test green" or "the control green" as its own condition, and this
+realization is that commit. **2.3 IS NOT TICKED AND IT IS HALF-SATISFIED**: its
+condition is *"the same commit PLUS ONE OBSERVED RUN"*, the reporting is built
+and asserted here, and the RUN has not happened — so it stays open beside
+**2.7**, which waits on the same first firing against the OLD path. Ticking 2.3
+now would count a witness nobody has read.
+
 **RATIFIED 2026-09-08, AND IT TICKS FOUR BOXES AND NO OTHERS: 1.1, 1.2, 5.1 AND
 5.2.** Each names the ratifying word or the ratifying commit as its own tick
 condition. **1.3 (MQ-2) AND 1.4 (MQ-3) STAY OPEN** — each asks for a word
@@ -46,23 +55,34 @@ standing between them as this packet's gate.
 
 ## 2. M-1 step (1) — this repository's FIRST realization: dual-path acceptance, landing BEFORE codexFactory moves
 
-- [ ] 2.1 `.github/workflows/review-lane-repin.yml` declares the ORDERED
+- [x] 2.1 `.github/workflows/review-lane-repin.yml` declares the ORDERED
       candidate list, old path FIRST, and the fetch step tries each in order.
       **Ticks on:** the merged commit.
-- [ ] 2.2 `scripts/review_lane_repin.py` takes the same ordered list and returns
+- [x] 2.2 `scripts/review_lane_repin.py` takes the same ordered list and returns
       `floor_document_unobtainable` only when EVERY candidate fails, naming
       every path tried (M-3). **Ticks on:** the same commit.
 - [ ] 2.3 The run reports WHICH candidate resolved, and says nothing about a
       migration when it was the first. **Ticks on:** the same commit plus one
       observed run.
-- [ ] 2.4 M-4 (if it stands): `contracts/review-lane-repin-binding.template.yaml`
+- [x] 2.4 M-4 (if it stands): `contracts/review-lane-repin-binding.template.yaml`
       gains `source_documents:` under `privileges.source_repository`, and the
       lane does NOT read it at run time. **Ticks on:** the same commit.
-- [ ] 2.5 The lockstep assertion lands: every declaration of the list — workflow
-      env, script constant, `test_floor_snapshot.py`'s `FLOOR_IN_CORE`,
-      `test_review_lane_caller.py`'s literal, and the binding if 2.4 stands —
-      carries the SAME ordered list. **Ticks on:** the new test green.
-- [ ] 2.6 A negative control proves the lane still refuses when NO candidate
+- [x] 2.5 The lockstep assertion lands: every declaration of the list — workflow
+      env, script constant, the test literal, and the binding if 2.4 stands —
+      carries the SAME ordered list; **and the two sites that declare ONE path
+      rather than the list — `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and
+      `test_review_lane_caller.py`'s literal — are asserted to equal CANDIDATE
+      ONE.** **Ticks on:** the new test green.
+      **TEXT CORRECTED 2026-09-09, WITH THE TICK, ON A COPILOT FINDING**
+      (#823 comment 3963705705). As written this box asked those two sites to
+      carry the two-entry list, and they cannot: both declare what
+      `contracts/review-lane-pin.yaml` names, and **M-6 freezes that pin until
+      step (3)** — making them carry the successor would land step (3) early and
+      point a live pin at a file codexFactory has not created. They are
+      declarations of the PATH IN FORCE, not of the candidate list, so the
+      assertion that fits them is head-equality, and that is what now lands. The
+      original tick over-claimed and this is the correction, not a widening.
+- [x] 2.6 A negative control proves the lane still refuses when NO candidate
       resolves, and does not silently pass. **Ticks on:** the control green.
 - [ ] 2.7 **The no-op is proven, not asserted**: one re-pin run observed green
       against the OLD path with dual acceptance in place, resolving candidate
