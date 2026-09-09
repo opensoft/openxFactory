@@ -324,13 +324,21 @@ binary: openspec
 verify_pin: scripts/validate-openspec-cli-pin.py
 
 # THE CONSUMER OBLIGATION, in one field, because it is the whole point of the
-# pin. Every repository in the estate runs STRICT OpenSpec validation and every
-# OpenSpec ARCHIVE through this entrypoint and through nothing else. A repository
-# that calls a bare `openspec` binary is not running the pinned tool, whatever
-# version happens to answer, because nothing verified which tool answered. The
-# entrypoint refuses when the pinned bytes cannot be verified, refuses when it is
-# given no scan target, and — in the PATH mode a developer may ask for — refuses
-# when the binary on PATH reports a version other than the one above.
+# pin. Every repository in the estate runs STRICT OpenSpec validation through
+# this entrypoint and through nothing else. A repository that calls a bare
+# `openspec` binary is not running the pinned tool, whatever version happens to
+# answer, because nothing verified which tool answered. The entrypoint refuses
+# when the pinned bytes cannot be verified, refuses when it is given no scan
+# target, and — in the PATH mode a developer may ask for — refuses when the
+# binary on PATH reports a version other than the one above.
+#
+# THE TWO GOVERNED ACTS ARE REACHED BY TWO COMMANDS, NOT ONE. This entrypoint
+# VALIDATES and has no archive verb — `archive <id>` is rejected as an
+# unrecognized argument. The OpenSpec ARCHIVE act runs through
+# `scripts/proposal-support.py <root> archive <change-id>` in the SAME pinned
+# checkout, which imports this entrypoint's own resolver and verifies the
+# artifact's content address before invoking the resolved binary — never an
+# ambient `openspec`.
 consumer_entrypoint: scripts/validate-openspec-cli-pin.py
 
 # The invocation the entrypoint issues, recorded so that WHICH COMMAND RAN is a
