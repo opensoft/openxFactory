@@ -131,17 +131,26 @@ def module_tree(name: str):
     return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
 
-def imported_module_names(path):
-    """Every module name a file IMPORTS, with its line — absolute spellings
-    only, which is all a neutrality question needs (a relative import is
-    confined to its own package, and a neutral module is in no package)."""
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+def imported_module_names(tree):
+    """Every module name a parsed file IMPORTS, with its line — absolute
+    spellings only, which is all a neutrality question needs (a relative import
+    is confined to its own package, and a neutral module is in no package).
+
+    Takes a TREE for the same reason `sibling_imports` does: the negative
+    control at the bottom feeds this very function a lost-neutrality source
+    string, rather than a second copy of its body.
+    """
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 yield alias.name, node.lineno
         elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
             yield node.module, node.lineno
+
+
+def parse_file(path):
+    """One file on disk, parsed."""
+    return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
 
 def names_a_forbidden_package(module: str, forbidden) -> bool:
@@ -355,7 +364,8 @@ def test_the_neutral_wire_messages_module_imports_neither_package():
     about three wire strings; they can be lost independently, and one looped
     assertion would report only the first."""
     offenders = [f"wire_messages.py:{line} imports {module!r}"
-                 for module, line in imported_module_names(NEUTRAL_WIRE_MESSAGES)
+                 for module, line in imported_module_names(
+                     parse_file(NEUTRAL_WIRE_MESSAGES))
                  if names_a_forbidden_package(
                      module, FORBIDDEN_FOR_A_NEUTRAL_MODULE)]
     assert offenders == [], (
@@ -365,13 +375,18 @@ def test_the_neutral_wire_messages_module_imports_neither_package():
     # Non-vacuity: a scan of a file that could not be read, or of the wrong
     # path, would also find no offenders.
     assert NEUTRAL_WIRE_MESSAGES.is_file()
-    assert [m for m, _ in imported_module_names(NEUTRAL_WIRE_MESSAGES)] == \
+    assert [m for m, _ in
+            imported_module_names(parse_file(NEUTRAL_WIRE_MESSAGES))] == \
         ["__future__"], "the neutral module's import list is no longer stdlib-only"
 
 
 def test_the_neutrality_scan_would_catch_either_package():
     """A negative control for the absence above, in both spellings of both
-    packages and in a lazy import, fed through the same two functions."""
+    packages and in a lazy import, fed through the SAME two functions the test
+    uses — `imported_module_names` and `names_a_forbidden_package`, not copies
+    of them — so a hole in either (a missed `import a.b` form, `ast.walk`
+    missing a function-local import) cannot leave that test green over a
+    module that has lost the property."""
     restored = (
         "from ideation_dashboard import snapshot_registry\n"
         "import scripts.ideation_dashboard.serve_wire\n"
@@ -380,15 +395,10 @@ def test_the_neutrality_scan_would_catch_either_package():
         "def _late():\n"
         "    import scripts.doc_health.corpus\n"
     )
-    tree = ast.parse(restored)
-    found = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            found += [a.name for a in node.names]
-        elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
-            found.append(node.module)
-    caught = [m for m in found
-              if names_a_forbidden_package(m, FORBIDDEN_FOR_A_NEUTRAL_MODULE)]
+    found = list(imported_module_names(ast.parse(restored)))
+    caught = [f"{module} (line {line})" for module, line in found
+              if names_a_forbidden_package(
+                  module, FORBIDDEN_FOR_A_NEUTRAL_MODULE)]
     assert len(caught) == 4, (
         f"the scan recognised {caught} out of {found} — a real loss of "
         "neutrality could slip past "
