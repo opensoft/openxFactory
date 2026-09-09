@@ -27,57 +27,52 @@ forbids non-fast-forward updates, so a candidate is only ever advanced forward.
 MEASUREMENT GOVERNS.** § *Version Identity* requires one entry per release
 *"listing every contract added, changed, or deprecated"*, and a bundle is a
 commit's whole tree rather than a session's intention. Measured at the candidate
-with `git diff --name-status contract-v3.4 <candidate> -- contracts/`: **FOUR
-additions and FIFTEEN modifications**. Each is named below with the change or
-pull request that made it, and none but the first is this session's.
+with `git diff --name-status contract-v3.4 <candidate> -- contracts/`: **FIVE
+additions and TWENTY-NINE modifications**, THE CUT'S OWN TWO INCLUDED. Each is
+named below with the change or pull request that made it, and none but the
+consent schema is this session's.
 
-### Added — four
+**THIS COUNT WAS TAKEN TWICE, AND THE FIRST TAKING WAS WRONG.** An earlier form
+of this entry said four and fifteen: it was measured at the integration point,
+BEFORE this entry and the rebuilt inventory existed, so the cut omitted its own
+two self-referential members — which `contract-v3.4`'s entry names for itself
+in the last row of the table below. The candidate was REMADE rather than
+patched, and remade again over a second integration when `main` moved thirteen
+files under `contracts/` beneath it.
 
-- **`contracts/openspec-cli-pin.yaml`** — the pinned OpenSpec CLI as a
-  registered contract member, by `publish-openspec-cli-pin-as-contract-member`
-  (archived 2026-09-08). **This bundle is what finally publishes that
-  registration**: the row was authored after `contract-v3.4` peeled, so no
-  tagged bundle has carried it until now. Subsequently refined in place by
-  `50a60830`, `d175874f` (naming both governed-act commands in the header) and
-  `c599c904` (repairing two dangling `cited_to` paths).
-- **`contracts/openspec-cli-pin.1.12.0.package-lock.json`** — the pin's vendored
-  dependency closure (80 packages), `50a60830`, indexed as a member of the pin's
-  own `contracts/README.md` row by `37a31769`. A pin that names a version
-  without pinning what that version installs is a pin in name only.
-- **`contracts/policies/repository-identity.yaml`** — the repository-identity
-  mapping file and its row, `170ca386` (`adopt-codexfactory-repository-identity`
-  task 1.1 / T069).
-- **`contracts/review-lane-repin-binding.template.yaml`** — the re-pin lane's
-  binding template, `5c782f29` (step 1, #823) and `82c9f059` (step 3, #829),
-  respelled to `github:codeXfactory` by `8c7a1fca` (ruling 1(c)).
+### What moved, and who moved it
 
-### Changed — fifteen
+| path(s) | moved by |
+|---|---|
+| A `contracts/openspec-cli-pin.yaml` | `publish-openspec-cli-pin-as-contract-member` (archived 2026-09-08) — **this bundle is what finally publishes that registration**, the row having been authored after `contract-v3.4` peeled. Refined in place since by `50a60830`, `d175874f` (both governed-act commands named in the header) and `c599c904` (two dangling `cited_to` paths repaired) |
+| A `contracts/openspec-cli-pin.1.12.0.package-lock.json` | `50a60830` — the pin's vendored dependency closure, 80 packages, indexed as a member of the pin's own `contracts/README.md` row by `37a31769`. A pin that names a version without pinning what that version installs is a pin in name only |
+| A `contracts/policies/repository-identity.yaml` | `170ca386` — `adopt-codexfactory-repository-identity` task 1.1 / T069 |
+| A `contracts/review-lane-repin-binding.template.yaml` | `5c782f29` (step 1, **#823**) and `82c9f059` (step 3, **#829**), respelled to `github:codeXfactory` by `8c7a1fca` (ruling 1(c)) |
+| M `contracts/schemas/consent-instrument.schema.yaml` | `f59a587d` — **THE CUT'S OCCASION**: `contract_schema_version` 2 → 3 for ONE closed optional top-level array, `custody_rederivations[]` |
+| 8 M — six `contracts/omnigent/examples/` files (five negative manifest fixtures and `omnigent-install-manifest.example.yaml`) and two `contracts/hermes-domain-overlay/examples/` files (`hermes-subject-overlay.example.yaml` and the `subject-undeclared-kind` negative overlay) | `edbc2621` — `adopt-codexfactory-repository-identity` slice A's recorded rename sweep |
+| M `contracts/openreposhape-pin.yaml` | `303bfd53` (**#700**) — advanced to `e9c4827b`: 31 digested / 45 path-only over a 76-file surface |
+| M `contracts/openxwallet-pin.yaml` | `30eccf0c` — advanced to `wallet-v1.5` (`f3eb929b`), commit and tag only, eight digests re-verified unchanged |
+| M `contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` | `9ffc6252` (**#732**), `d5a549e4` (**#747**) and `8d92bfaf` (**#764**) — three decision-core re-pins — plus `4f69a545` (slice B1, gated at runbook step 1.2). **NOT this cut's**, named so a reader intersecting the diff with this entry does not attribute them to it |
+| 5 M under `contracts/hermes-runtime/` — the family README, `fixtures/domain-regression-inventory.yaml` and three `fixtures/regression/` fixtures | `44fc8063` — slice B3, the eight `contract-v3.4` inventoried members. **Arrived on `main` AFTER this cut's first integration point**, which is why the candidate was re-integrated and remade rather than measured against a tree that had moved |
+| 8 M under `contracts/clearing/examples/` — the deliberation-return example, the factory-identity register fixture, five negatives and the single-door attestation | `8a5d0d91` — slice B2, the re-issued factory-origin identity. Same re-integration |
+| M `contracts/manifest.yaml` | `170ca386` and `37a31769` (registration rows and prose) AND **THIS CUT** (the `contract_bundle_version` line, the `consent-instrument` row's re-derived `sha256`, and that row's new `consumption_rule` paragraph) |
+| M `contracts/README.md` | `170ca386` and `37a31769` AND **THIS CUT** (the consent row's `contract-v3.5` amendment note, and its corpus count re-measured rather than incremented) |
+| M `contracts/CHANGELOG.md`, A `contracts/releases/contract-v3.5.digests.yaml` | **THIS CUT** — this entry and the rebuilt inventory |
 
-- **`contracts/schemas/consent-instrument.schema.yaml`** — `f59a587d`, this
-  change. `contract_schema_version` 2 → 3 for ONE closed optional top-level
-  array, `custody_rederivations[]`.
-- **`contracts/manifest.yaml`** and **`contracts/README.md`** — the registration
-  and editorial members. Moved by this cut itself (the bundle version, the
-  consent row's digest and its new `consumption_rule` paragraph, the corpus
-  re-count and the consent row's amendment note), and before it by `170ca386`
-  and `37a31769`.
-- **Six `contracts/omnigent/examples/` files** — the five negative manifest
-  fixtures (`manifest-dual-domain-overlay`, `-legacy-vocabulary`,
-  `-missing-effective-profiles`, `-parallel-identity`,
-  `-semantic-duplicate-worker`) and `omnigent-install-manifest.example.yaml` —
-  and **two `contracts/hermes-domain-overlay/examples/` files**
-  (`hermes-subject-overlay.example.yaml` and the `subject-undeclared-kind`
-  negative overlay): all eight by `edbc2621`,
-  `adopt-codexfactory-repository-identity` slice A's recorded rename sweep.
-- **`contracts/openreposhape-pin.yaml`** — advanced to `e9c4827b` by `303bfd53`
-  (#700): 31 digested / 45 path-only over a 76-file surface.
-- **`contracts/openxwallet-pin.yaml`** — advanced to `wallet-v1.5` (`f3eb929b`)
-  by `30eccf0c`, commit and tag only, eight digests re-verified unchanged.
-- **`contracts/review-lane-pin.yaml`** and
-  **`contracts/review-lane-floor-snapshot.yaml`** — the pinned decision core
-  advanced three times, `9ffc6252` (#732), `d5a549e4` (#747) and `8d92bfaf`
-  (#764), with the pin also moved by `4f69a545` (slice B1, gated at runbook
-  step 1.2).
+### What moved OUTSIDE `contracts/` and is still a release member
+
+Two inventory members live outside `contracts/` and both moved since
+`contract-v3.4`, so they are named here rather than left to the diff:
+
+- **`docs/contract-versioning-policy.md`** — `0083a71d`, *"Move the release-tag
+  zero-findings pin into a gate on the cutting pull request"*. A `NORMATIVE_DOCS`
+  **and** `RELEASE_SURFACE_PATHS` member; it moved on `main` before this cut
+  reached it.
+- **`tests/intent-compliance/test_release_boundary.py`** — **THIS CUT**, the
+  cut-coupled tripwire: `_release_state()` fails loudly on a bundle its enum does
+  not name, so the new `contract-v3.5` member, both match arms and a hand-written
+  measurement paragraph move with the bundle version or the required suite reds.
+  `contract-v3.4`'s entry re-baselined this same file for the same reason.
 
 ### Change class: ADDITIVE (minor), argued over the WHOLE bundle
 
@@ -87,7 +82,9 @@ individually**, because "the bundle is additive" is a claim about every row in
 it and not only about the row the session came to move:
 
 - **The consent schema is the ONLY `*.schema.yaml` in this bundle** — measured,
-  not assumed: no other path in the nineteen ends in `.schema.yaml`. Its growth
+  not assumed: of the thirty-four paths, exactly one ends in `.schema.yaml`
+  (`git diff --name-status contract-v3.4 <candidate> -- contracts/ | grep
+  '\.schema\.yaml'` returns that one line). Its growth
   adds one OPTIONAL top-level property. Nothing is removed, no enumeration is
   narrowed, no existing property becomes required, and the RECORD envelope's
   `schema_version` stays `const: 1`. Every instrument already in the estate
@@ -96,10 +93,16 @@ it and not only about the row the session came to move:
   pass.
 - **`manifest.yaml` and `contracts/README.md` are EDITORIAL members** — rows,
   digests and prose. They carry no consumer-visible shape, and both are moved by
-  every cut.
-- **The eight `examples/` and fixture files are CORPUS, not contract** — a
-  rename sweep over declared identity spellings. No schema they instantiate
-  moved in this bundle, so nothing a consumer validates against changed.
+  every cut — as are this entry and the inventory, the cut's own two members.
+- **Twenty-one `examples/` and fixture files are CORPUS, not contract** — the
+  eight of slice A's rename sweep over declared identity spellings, the eight
+  `clearing/examples/` files re-signed under the re-issued factory-origin
+  identity (`8a5d0d91`), and five `hermes-runtime/` inventoried members
+  (`44fc8063`). **No schema any of them instantiates moved in this bundle**, so
+  nothing a consumer validates against changed: they are the instances, and the
+  shapes they are checked against are byte-identical to `contract-v3.4`'s.
+  Re-signing a fixture changes a signature over the same shape, which is a new
+  witness to an unchanged contract rather than a new contract.
 - **The four pin files are PINS.** Advancing a pin changes the TARGET a consumer
   checks out; it does not change the pin record's own shape, and no pin schema
   moved here. `openxwallet-pin.yaml` re-verified its eight digests as unchanged

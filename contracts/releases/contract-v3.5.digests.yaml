@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:17bdbc49ed8bdb1b089e163b7ad8d738085af07d0ce637f37d097f7d58af34f0
+  digest: sha256:7faa134255d3496b5dfe717172532bd9d102c679be5bd57f5604faffabcf059b
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -20,7 +20,7 @@ entries:
   path: contracts/hermes-runtime/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:c14f1d6d4f38d4e74d959e6abeb0703f7079891b3907b2feecee1f59a566e763
+  digest: sha256:376f970ec9bcf497215e354ceccce8a332d3c1efb7be10875bc606dbf7f7a492
 - artifact_id: hermes-runtime-acceptance-map
   path: contracts/hermes-runtime/acceptance-map.yaml
   type: acceptance-map
@@ -310,7 +310,7 @@ entries:
   path: contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml
   type: fixture
   git_mode: '100644'
-  digest: sha256:5d5d9815c7cb6f240d216efbb74d7e32e5545d6b4ea815e5efb4a7ccab8dc18e
+  digest: sha256:33e5e8fad6e068099ea8a6dd5a7227ffeda39c343a75704add5ffed3f984fd5f
 - artifact_id: hermes-runtime-fixture-index
   path: contracts/hermes-runtime/fixtures/index.yaml
   type: fixture-index
@@ -540,17 +540,17 @@ entries:
   path: contracts/hermes-runtime/fixtures/regression/digest-mismatch.yaml
   type: fixture
   git_mode: '100644'
-  digest: sha256:26df927b6647cfb7340723befca31758d15e3def88270be32140a5549d017d44
+  digest: sha256:3b442833740ff016eb7422cf954c71adb4cea639f051c388281714d703a3dcdc
 - artifact_id: contracts-hermes-runtime-fixtures-regression-duplicate-repository.yaml
   path: contracts/hermes-runtime/fixtures/regression/duplicate-repository.yaml
   type: fixture
   git_mode: '100644'
-  digest: sha256:03bcfb439bad404ea15aea034cfdd6afe950dc0c7fac6be1108294f43cf8e109
+  digest: sha256:8df7ab81f947f7c79c083bcbdcb0bb1e69b51418bdbfe5d4a8755c34105c0fc7
 - artifact_id: contracts-hermes-runtime-fixtures-regression-missing-exclusion-reason.yaml
   path: contracts/hermes-runtime/fixtures/regression/missing-exclusion-reason.yaml
   type: fixture
   git_mode: '100644'
-  digest: sha256:7587549d7fca9d1d7a4323a330ec70879df432ea78b28cbe3957e2350f7d36dd
+  digest: sha256:3b31231a6eeeba0c1ca2b07932d4ba85e732ac8cebe043d5fc38100b3f900341
 - artifact_id: contracts-hermes-runtime-fixtures-release-release-inventory-duplicate-path.yaml
   path: contracts/hermes-runtime/fixtures/release/release-inventory-duplicate-path.yaml
   type: fixture
@@ -1068,17 +1068,17 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:2c80c07181cb91a4b2e1c6039c60e33713d0bddd6e8c4ba7fed04fe4e7c59a14
+  digest: sha256:d4b9402c59168e629879c61afe4f3022a3ecf3331b8043a0b246cde76a2bc39a
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:56d7e3c0da4b39a9e386c1bef5fca3350ebbff6390f97d2cd6ea5a01c8d0d855
+  digest: sha256:07a337f76cb08cba7276c67c1fad7a7faeeee7a66798f07d398ca655e3c85878
 - artifact_id: docs-xfactory-domain-factory-model.md
   path: docs/xfactory-domain-factory-model.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:91b7f9914643c20b354b2b66ddfabc593d7c443db7d5a73827fcab2e719a64e5
+  digest: sha256:fba5ac5f1e2fca6ef866bda26f7c9dadd10c52f17afe2532d778672480a3342e
 - artifact_id: requirements-hermes-runtime-contracts.in
   path: requirements/hermes-runtime-contracts.in
   type: requirements
