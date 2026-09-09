@@ -675,3 +675,83 @@ the freeze exists so a realization cannot quietly re-point a ratified
 dependency. Re-deriving it is the separate governed question task **0.2**
 anticipated. Named in § 5 of the amendment record so the next lane finds it at
 the packet rather than at the gate.
+
+## 17. Addendum: line 103 reclassified RENAME (gated, slice B1) by ruling
+
+**Recorded**: 2026-09-09. **Lane**: `provenance-autonomous-merge`. **Numbered
+17, not 16**, deliberately: sibling branch `realize/codexfactory-identity-b2`
+(pull request [#802](https://github.com/opensoft/openxFactory/pull/802))
+already carries its own unmerged "§ 16 — the deferred occurrence is assigned to
+slice B2", filed against the same base. This section and that one are siblings
+on divergent branches; whichever of #801 / #802 lands second will hit a
+`## 16` / no-`## 16` collision in this file at merge time regardless of what
+either branch calls its own new section, and reconciling that collision is the
+landing lane's act, not this ruling's. Filing this as § 17 avoids ALSO
+colliding on the number itself.
+
+### 17.1 The ruling and what it reclassifies
+
+Brett Heap (convener), 2026-09-09, interactive walkthrough: `identity_namespace`
+at `contracts/review-lane-repin-binding.template.yaml:103` is respelled
+`github:opensoft` → `github:codeXfactory` (§ RULED in
+`review/addendum-2026-09-08-token-namespace.md`; task 3.5 amended in
+`review/amendment-2026-09-09-task-3-5.md`). The line is now a **RENAME**-class,
+**gated**, **slice B1** occurrence — the same disposition as the file's lines 46
+and 110, which it sits beside.
+
+### 17.2 The arithmetic, measured rather than assumed
+
+**This occurrence carries ZERO hits under the sweep's own literal pattern, in
+either spelling, and that is not a discrepancy — it is exactly what
+`review/addendum-2026-09-08-token-namespace.md` § 1 already found:** *"It is
+also not a `opensoft/codexFactory` literal, so `git grep -i
+'opensoft/codexfactory'` never sees it: the sweep's completeness arithmetic is
+unaffected by whatever is decided here, in either direction."* Verified
+directly, not recalled:
+
+```sh
+$ git show origin/main:contracts/review-lane-repin-binding.template.yaml \
+    | grep -n identity_namespace | grep -io 'opensoft/codexfactory'; echo "exit $?"
+exit 1   # no match — "github:opensoft" contains no "opensoft/codexFactory" substring
+$ grep -n identity_namespace contracts/review-lane-repin-binding.template.yaml \
+    | grep -io 'opensoft/codexfactory'; echo "exit $?"
+exit 1   # no match at this branch's head either — "github:codeXfactory" ditto
+```
+
+So the ruling's reclassification is **+1 row in the governed classification
+table, +0 in the `git grep -o -i 'opensoft/codexfactory'` hit count, +0
+files** — the file was already counted (via lines 46/110) before this ruling.
+This is the SAME blindness class named in § 1 of the token-namespace addendum:
+*"the same blindness class as `docs/xfactory-domain-factory-model.md:868`
+(#805 M-1) and `docs/dogfood-content-migration-plan.md:49` (#806 M-3) — prose
+or machine text that becomes false BECAUSE an occurrence moved, carrying no
+moved literal of its own."*
+
+**A "+1 hit" framing was proposed going into this addendum and does not
+survive the check.** The most recent verified cumulative RENAME total found
+anywhere in this realization is sibling branch #802's § 16.3: **126 hits / 61
+files** at `origin/main` `67405838` (slice A landed + the four gated slices'
+carrier table). Neither `128 / 62` nor `129 / 62` appears anywhere in this
+evidence file, in `tasks.md`, or in any comment on pull requests #801 or #802
+— `grep -rn '128\|129' openspec/changes/adopt-codexfactory-repository-identity/
+review/ openspec/changes/adopt-codexfactory-repository-identity/evidence/`
+returns nothing matching those figures as counts. Freshly re-measured at
+`origin/main` `ca4a1558` (today, corpus has moved further — this file's own
+§ 13 and § 15 already document that the totals drift daily and are re-derived
+rather than carried forward):
+
+```sh
+$ git grep -o -i 'opensoft/codexfactory' origin/main -- contracts/ \
+    ':!contracts/signed-execution-chain/' tests/ .github/ governance/ \
+    scripts/ 'docs/' ':!docs/decisions/' README.md | wc -l
+126
+$ git grep -l -i 'opensoft/codexfactory' origin/main -- <same pathspecs> | wc -l
+55
+```
+
+**This ruling's own arithmetic is therefore: +0 hits / +0 files against the
+`git grep -o -i` measure, at any base — the number does not move because this
+occurrence was never in it.** What moves is the classification table: one more
+governed line is now named, ruled and assigned to a slice, closing the gap the
+token-namespace addendum opened rather than leaving it as a recorded "needs
+Brett's word."

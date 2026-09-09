@@ -87,7 +87,7 @@ PIN = REPO_ROOT / "contracts/review-lane-pin.yaml"
 PIN_CLASS_SOURCE = REPO_ROOT / "scripts/doc_health/pin_class.py"
 # The pinned core's `path_allowlist` glob dialect, MIRRORED locally
 # (`add-structured-scope-substrate`) because the authority
-# (`opensoft/codexFactory` `scripts/merge_master/envelope.py`) lives in a
+# (`codeXfactory/codexFactory` `scripts/merge_master/envelope.py`) lives in a
 # sibling submodule this repository does not vendor. `path_matches` is the
 # harness that lets a static suite evaluate a real changed-path set against a
 # candidate's allowlist without a live approval run.
@@ -172,7 +172,7 @@ APPROVER_CREDENTIAL = ("secrets.MERGE_MASTER_APP_KEY",
                        "vars.MERGE_MASTER_APP_ID",
                        "steps.mm-token.outputs.token")
 
-PINNED_REPOSITORY = "opensoft/codexFactory"
+PINNED_REPOSITORY = "codeXfactory/codexFactory"
 FLOOR_REPOSITORY = "opensoft/openxFactory"
 
 SHA_RE = re.compile(r"\b[0-9a-f]{40}\b")
@@ -391,6 +391,153 @@ class TheRealFiles(unittest.TestCase):
     def test_the_caller_and_the_pin_exist(self) -> None:
         self.assertTrue(CALLER.is_file(), f"missing caller: {CALLER}")
         self.assertTrue(PIN.is_file(), f"missing pin: {PIN}")
+
+    def test_every_mint_that_feeds_a_core_checkout_is_scoped_to_the_pins_owner(
+            self) -> None:
+        """THE CREDENTIAL FOLLOWS THE TARGET, ACROSS THE WHOLE REPOSITORY.
+
+        `adopt-codexfactory-repository-identity` moved the decision core's OWNER
+        SEGMENT. `actions/create-github-app-token` resolves the installation
+        from its `owner:` input (`GET /orgs/<owner>/installation`) and the token
+        it returns reaches only THAT installation's repositories — the rule this
+        estate already writes down at
+        `contracts/review-lane-repin-binding.template.yaml`: "`owner:` alone
+        would yield a token good for every repository this App is installed on
+        IN THE ORGANIZATION". Transfer step 1.6 creates a SECOND, SEPARATE
+        installation on the new organization; it does not widen the old one.
+
+        So respelling a checkout's `repository:` and leaving its mint's `owner:`
+        naming the old organization produces a token that cannot read the
+        target, and the failure presents as a REPOSITORY problem for a
+        CREDENTIAL cause. Nothing caught that before this test: the two mint
+        assertions in `test_repin_lane.py` key on
+        `repository.split("/", 1)[1]`, the BARE NAME, and are owner-blind by
+        construction.
+
+        This walks every workflow in the repository, finds every
+        `actions/checkout` whose `repository:` is the pin's repository, resolves
+        the mint its `token:` expression names, and requires that mint's
+        `owner:` to be the pin's OWNER SEGMENT — a literal, never
+        `github.repository_owner`, which is this repository's owner and not the
+        core's.
+        """
+        pin = yaml.safe_load(self.pin_text)
+        pinned = str(pin["repository"])
+        owner = pinned.split("/", 1)[0]
+        self.assertEqual(PINNED_REPOSITORY, pinned)
+
+        step_re = re.compile(r"steps\.([A-Za-z0-9_-]+)\.outputs\.token")
+        checked = []
+        for workflow in sorted((REPO_ROOT / ".github/workflows").glob("*.yml")):
+            document = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+            if not isinstance(document, dict):
+                continue
+            steps = [step
+                     for job in (document.get("jobs") or {}).values()
+                     if isinstance(job, dict)
+                     for step in (job.get("steps") or [])
+                     if isinstance(step, dict)]
+            mints = {step["id"]: step for step in steps
+                     if "id" in step
+                     and str(step.get("uses", "")).startswith(
+                         "actions/create-github-app-token")}
+            for step in steps:
+                with_ = step.get("with") or {}
+                if not str(step.get("uses", "")).startswith("actions/checkout"):
+                    continue
+                if str(with_.get("repository", "")) != pinned:
+                    continue
+                where = f"{workflow.name}: {step.get('name') or step.get('id')}"
+                ids = step_re.findall(str(with_.get("token", "")))
+                # A `token:` may name SEVERAL mints and fall through them —
+                # `merge-master-approval.yml` names two, the repository App and
+                # the organization App, selected by its preflight. EVERY one of
+                # them is a credential that must be able to read the target, so
+                # every one is held to the pin's owner. Naming none would mean
+                # the checkout relies on `github.token`, which cannot read a
+                # private repository in another organization at all.
+                self.assertTrue(
+                    ids,
+                    f"{where} checks out {pinned} but its `token:` names no "
+                    "mint step; `github.token` alone cannot read a private "
+                    "repository in another organization")
+                for mint_id in ids:
+                    mint = mints.get(mint_id)
+                    self.assertIsNotNone(
+                        mint, f"{where} names mint step id {mint_id!r}, "
+                        "which is not an actions/create-github-app-token step "
+                        "in the same workflow")
+                    minted = str((mint.get("with") or {}).get("owner", ""))
+                    self.assertEqual(
+                        owner, minted,
+                        f"{where} checks out {pinned} with the token from "
+                        f"{mint_id!r}, minted at owner={minted!r}; a GitHub "
+                        f"App installation is per-organization, so this must "
+                        f"be the literal {owner!r}")
+                    checked.append(f"{where} <- {mint_id}")
+
+        self.assertTrue(
+            checked,
+            f"no actions/checkout of {pinned} was found in any workflow — "
+            "either the pinned core is no longer checked out anywhere (in "
+            "which case this module's whole premise is gone) or the search "
+            "stopped matching, which is the failure this assertion exists to "
+            "make loud rather than green")
+
+    def test_every_mint_narrowed_to_the_core_repository_names_the_pins_owner(
+            self) -> None:
+        """The same rule from the OTHER SIDE, so a mint cannot hide.
+
+        The test above starts at the checkouts. A mint narrowed to the core's
+        repository with `repositories:` but wired to nothing, or wired through
+        an expression this module's regex does not recognise, would be invisible
+        to it. This one starts at the mints instead: every
+        `create-github-app-token` whose `repositories:` names the pin's BARE
+        repository name must carry the pin's OWNER SEGMENT as its `owner:`.
+
+        Together the two directions leave no way to respell a target without
+        moving its credential, which is the drift that made the first
+        realization of this slice unmergeable.
+        """
+        pin = yaml.safe_load(self.pin_text)
+        pinned = str(pin["repository"])
+        owner, bare = pinned.split("/", 1)
+
+        checked = []
+        for workflow in sorted((REPO_ROOT / ".github/workflows").glob("*.yml")):
+            document = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+            if not isinstance(document, dict):
+                continue
+            for job in (document.get("jobs") or {}).values():
+                if not isinstance(job, dict):
+                    continue
+                for step in (job.get("steps") or []):
+                    if not isinstance(step, dict):
+                        continue
+                    if not str(step.get("uses", "")).startswith(
+                            "actions/create-github-app-token"):
+                        continue
+                    with_ = step.get("with") or {}
+                    scoped = [name.strip()
+                              for name in str(with_.get("repositories", "")).split()
+                              if name.strip()]
+                    if bare not in scoped:
+                        continue
+                    where = f"{workflow.name}: {step.get('name') or step.get('id')}"
+                    self.assertEqual(
+                        owner, str(with_.get("owner", "")),
+                        f"{where} mints a token narrowed to {bare!r} at "
+                        f"owner={with_.get('owner')!r}; the repository is "
+                        f"{pinned}, and an App installation is "
+                        "per-organization")
+                    checked.append(where)
+
+        self.assertTrue(
+            checked,
+            f"no create-github-app-token step narrowed to {bare!r} was found "
+            "in any workflow; if the core is now read without an App token, "
+            "this assertion's premise has changed and must be revisited "
+            "deliberately")
 
     def test_the_workflow_and_the_pin_name_the_same_commit(self) -> None:
         """THE POINT OF THIS MODULE."""
