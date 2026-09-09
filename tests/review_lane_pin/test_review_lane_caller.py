@@ -25,8 +25,18 @@ that pull request is the grant, for that class and nothing else. So this module
 no longer asserts that no approval exists; it asserts that the approval exists
 BEHIND EXACTLY ONE DOOR and that the door is this narrow. Specifically:
 
+THE DOOR WIDENED ONCE, ON EVIDENCE, AND THAT WIDENING IS ALSO PINNED. Approval
+run 34309524696 parked the real apply commit `e970dfec` on `path_allowlist`:
+the lane's own `derive_possibles.apply_disposition` had updated
+`ideation/cross-reference.yaml` alongside the two record trees, and that path
+was not enrolled. Brett Heap ruled D-10 (a) on #656, 2026-09-09: the register
+is the third surface the apply lane writes by construction — every applied
+disposition touches it — so it belongs inside the same autonomy, and nothing
+else does; the generic Markdown projection `ideation/cross-reference.md` stays
+refused because the apply lane never writes it.
+
   * the envelope declares EXACTLY ONE candidate, with that author, that head
-    ref, those two path prefixes, and `require_all_checks: true`;
+    ref, those three path entries, and `require_all_checks: true`;
   * the enrolled surface admits no `openspec/` path, so the refused class is
     not smuggled back in under a different name;
   * every approval-shaped step is gated on `steps.envelope.outputs.decision ==
@@ -72,6 +82,13 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github/workflows/merge-master-approval.yml"
 PIN = REPO_ROOT / "contracts/review-lane-pin.yaml"
 PIN_CLASS_SOURCE = REPO_ROOT / "scripts/doc_health/pin_class.py"
+# The pinned core's `path_allowlist` glob dialect, MIRRORED locally
+# (`add-structured-scope-substrate`) because the authority
+# (`opensoft/codexFactory` `scripts/merge_master/envelope.py`) lives in a
+# sibling submodule this repository does not vendor. `path_matches` is the
+# harness that lets a static suite evaluate a real changed-path set against a
+# candidate's allowlist without a live approval run.
+SCOPE_GLOBS_SOURCE = REPO_ROOT / "scripts/scope_globs.py"
 CODEOWNERS = REPO_ROOT / ".github/CODEOWNERS"
 
 # The check-run name a future ruleset would require, and the substring
@@ -106,7 +123,27 @@ ENROLLED_AUTHOR = "openxfactory[bot]"
 ENROLLED_HEAD_REF = "intents/rolling"
 ENROLLED_BASE_REF = "main"
 ENROLLED_PATHS = ["ideation/dashboard/intents/**",
-                  "ideation/dashboard/gate-records/**"]
+                  "ideation/dashboard/gate-records/**",
+                  "ideation/cross-reference.yaml"]
+
+# D-10 (a): the third surface, and its refused projection. Kept as literals,
+# same reasoning as ENROLLED_PATHS above.
+REGISTER_PATH = "ideation/cross-reference.yaml"
+REGISTER_PROJECTION_PATH = "ideation/cross-reference.md"
+
+# The exact three-file apply commit approval run 34309524696 parked on
+# (`e970dfec`) — the evidence the D-10 (a) ruling widened the allowlist to
+# admit. Restated as literals rather than executed against git history: this
+# module already ties the shipped envelope to a recorded ruling elsewhere, and
+# a `git show` dependency here would make the suite depend on this exact
+# commit staying reachable in every clone.
+E970DFEC_FILES = (
+    "ideation/cross-reference.yaml",
+    "ideation/dashboard/gate-records/pos-derived-governed-kill-switch-custody-"
+    "contract/dispose-possible-20260909T032339Z.gate-action.yaml",
+    "ideation/dashboard/intents/pos-derived-governed-kill-switch-custody-"
+    "contract/dispose-possible-20260909-032304-ae2da8fb79.gate-intent.yaml",
+)
 
 # THE ONE DOOR. The literal `if:` fragment every approval-shaped step must
 # carry. `steps.envelope.outputs.decision` is written by nothing but the pinned
@@ -178,6 +215,22 @@ def _load_pin_class():
     # field's annotation through `sys.modules[cls.__module__].__dict__`, so an
     # unregistered module raises `AttributeError: 'NoneType' object has no
     # attribute '__dict__'` on its first dataclass. Measured, not anticipated.
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_scope_globs():
+    """Load `scripts/scope_globs.py` by path — the pinned core's glob dialect,
+    mirrored locally, byte-for-behaviour (see `SCOPE_GLOBS_SOURCE` above and
+    `tests/scope_globs/test_dialect_lockstep.py`, which is what keeps the
+    mirror honest against the authority). Loaded the same way as
+    `_load_pin_class`: by path, under a private module name, so this module's
+    behaviour does not depend on collection order.
+    """
+    name = "_review_lane_scope_globs_probe"
+    spec = importlib.util.spec_from_file_location(name, SCOPE_GLOBS_SOURCE)
+    module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
@@ -556,10 +609,13 @@ class TheRealFiles(unittest.TestCase):
             "the admitted surface is the two record trees "
             "`scripts/ideation_dashboard/intent_apply_lane.py` actually writes "
             "(`DEFAULT_INTENTS_DIR` and `gate_console.DEFAULT_RECORDS_DIR`) "
-            "and nothing else. The lane commits with `git add -A`, so a "
-            "delivery that touches anything beyond them falls outside this "
-            "list and PARKS — which is what makes this a narrow first "
-            "candidate rather than a general grant.")
+            "PLUS the register `ideation/cross-reference.yaml` "
+            "(`doc_health.derive_possibles.apply_disposition` updates it on "
+            "every applied disposition — ruling D-10 (a), Brett Heap, "
+            "2026-09-09, on #656) and nothing else. The lane commits with "
+            "`git add -A`, so a delivery that touches anything beyond them "
+            "falls outside this list and PARKS — which is what makes this a "
+            "narrow first candidate rather than a general grant.")
         self.assertIs(
             candidate.get("require_all_checks"), True,
             "stated explicitly rather than left to the schema default: a "
@@ -619,6 +675,72 @@ class TheRealFiles(unittest.TestCase):
         self.assertNotIn(
             "**", [p.strip() for p in candidate.get("path_allowlist") or []],
             "a universal pattern is an allowlist that admits everything")
+
+    # ---- D-10 (a): THE REGISTER IS IN, ITS PROJECTION IS NOT --------------
+    #
+    # Approval run 34309524696 parked the real apply commit `e970dfec` on
+    # `path_allowlist` because the lane's own write to the register,
+    # `ideation/cross-reference.yaml`, was not enrolled. Brett Heap ruled
+    # D-10 (a) on #656, 2026-09-09: the register is a third surface the apply
+    # lane writes BY CONSTRUCTION (every applied disposition touches it), so
+    # it belongs inside the same autonomy the two record trees already have.
+    # These tests use the pinned core's own mirrored glob dialect
+    # (`scripts/scope_globs.py:path_matches`) to EVALUATE the allowlist against
+    # real paths, rather than merely asserting the literal list — the harness
+    # `add-structured-scope-substrate` already gives this repository.
+
+    def test_the_register_is_admitted_and_its_projection_is_not(self) -> None:
+        """The register the apply lane writes is IN; its generated Markdown
+        projection is NOT — the apply lane never writes that file
+        (`scripts/render-ideation-cross-reference.py` produces it separately,
+        by a distinct, human-run lane), so admitting it would widen the grant
+        past what the apply lane's own code does.
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        self.assertTrue(
+            sg.path_matches(REGISTER_PATH, patterns),
+            "the register `derive_possibles.apply_disposition` updates on "
+            "every applied disposition must be inside the allowlist (ruling "
+            "D-10 a)")
+        self.assertFalse(
+            sg.path_matches(REGISTER_PROJECTION_PATH, patterns),
+            "the generated Markdown projection is not a lane write, and "
+            "admitting it would widen the grant past what the apply lane's "
+            "own code does")
+
+    def test_the_real_e970dfec_file_set_evaluates_admitted(self) -> None:
+        """The exact commit approval run 34309524696 parked on now evaluates
+        admitted — every changed path in it matches at least one allowlist
+        glob, which is the pinned core's `path_allowlist` condition
+        (`extend-merge-master-envelope-to-floor-bot-lanes/design.md` row 2:
+        "every changed path inside it; no changed paths at all parks").
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        unmatched = [path for path in E970DFEC_FILES
+                    if not sg.path_matches(path, patterns)]
+        self.assertEqual(
+            unmatched, [],
+            "the real e970dfec apply commit must evaluate fully admitted "
+            "now; unmatched: %r" % unmatched)
+
+    def test_the_same_set_plus_the_projection_still_parks(self) -> None:
+        """The same real file set, with the generated `.md` projection added
+        as if the lane had also touched it, must still evaluate NOT admitted —
+        the projection is refused ground even alongside an otherwise-admitted
+        delivery.
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        widened = E970DFEC_FILES + (REGISTER_PROJECTION_PATH,)
+        self.assertFalse(
+            all(sg.path_matches(path, patterns) for path in widened),
+            "adding the generated Markdown projection to the change set must "
+            "still park — the apply lane never writes it")
 
     def test_the_envelope_records_the_grant_and_the_standing_refusal(self) -> None:
         """A grant a reader cannot find is a grant nobody can audit."""
