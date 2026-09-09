@@ -26,9 +26,12 @@ and the core body readers carry `JSON_OBJECT_BODY_REQUIRED` and
 `_MAX_BODY_BYTES`. Filing this vocabulary under `serve_workbench.py` would have
 made the CORE depend on the openDox column, which is the carve backwards.
 
-WIDENED BY PR 3 OF 4, for exactly the same reason it exists. The hosted-plane
-confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index`
-(FR-048) — moves here as a group, but the three names are not read alike.
+WIDENED BY PR 3 OF 4 for exactly the same reason this module exists, and
+NARROWED AGAIN by pre-carve split S-3 — read the two together, because the
+group described next is no longer all of it. The hosted-plane confinement —
+`HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index` (FR-048) —
+ARRIVED here as a group, but the three names are not read alike, and that is
+what eventually sent one of them on.
 `hosted_ref_refused` is read by the CORE (`_divergence_headers`, `serve.py`),
 by the openXdox projection column (`serve_projection.py`: the snapshot, index
 and `/source` routes) and by the openxFactory adapter column
