@@ -1,6 +1,8 @@
 # Tasks: pin-openspec-cli-dependency-closure
 
 Status: ratified
+Ratified by: pin-openspec-cli-dependency-closure — 2026-09-09, Brett Heap, "ratify 813" (record `review/ratification-2026-09-09.md`)
+Kind: tasks
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in this
 pull request or a measurement recorded verbatim in
@@ -12,9 +14,33 @@ Group 6 is successor work and is not ticked.
 (Recommended)"* on 2026-09-08T14:14:49Z, choosing among four exits — that settled
 the APPROACH and did not ratify this text — and then ruled *"ratify 813"* on
 2026-09-09T03:19Z, first-hand, which did. Task 5.1 is ticked on the second word
-and on nothing else. **5.2 AND 5.3 REMAIN OWED:** ratification is not an archive,
-and the validation and realization evidence are re-run at the archive gate rather
-than trusted from here. Group 6 is successor work and stays unticked.
+and on nothing else. *(**5.2 AND 5.3 REMAIN OWED:** ratification is not an
+archive, and the validation and realization evidence are re-run at the archive
+gate rather than trusted from here. Group 6 is successor work and stays unticked.
+— TRUE AT RATIFICATION AND NOW SUPERSEDED, kept as the record of what this file
+claimed rather than deleted: 5.2 and 5.3 were re-run and ticked at the archive on
+2026-09-09, and group 6 carries the reserved DEFERRED marker. Read the paragraph
+below.)*
+
+**AMENDED 2026-09-09, AT THE ARCHIVE — AND THIS IS THAT ACT.** Brett Heap ruled
+first-hand to lane `codexfactory-1` (session name `codeXfactory-1`,
+`session_01VazHnCSe7mh4WUj7E97h8y`) at **2026-09-09T16:26Z**, verbatim:
+**"archive the closure change"**. Slice 5's two remaining boxes tick HERE, on
+evidence RE-RUN at the archive gate rather than inherited from authoring: **5.2**
+the pinned entrypoint's `--change … --strict` and its whole-corpus `--all`, both
+run on this branch and both quoted with their totals; **5.3** the realization
+evidence `release-realization` owes for a non-empty `code_surface` — merged, plus
+the `openspec-cli-pin` required check green THROUGH THIS PACKET'S OWN LOCKFILE on
+later pull requests. **NEITHER GROUP-6 BOX IS TICKED AND NEITHER IS CLAIMED.**
+Both are successor work by this packet's own slice-6 heading ("not this packet"),
+and each carries the reserved DEFERRED marker `- [~]` — the form
+`openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md` § 5.3
+uses and `2026-09-09-add-openspec-cli-pin` § 6.2 used at its own archive — rather
+than `- [x]`: `scripts/proposal-support.py … archive` refuses any packet whose
+`tasks.md` still matches `^- \[ \]` ("change has incomplete tasks") with no
+bypass flag, and ticking a box whose work did not happen would buy that refusal
+off with a false claim. The marker says the box is open and says who owns it; it
+does not say the work is done.
 
 ### 2026-09-09 — the origin declaration restored to its ratifying bytes (#709 precedent)
 
@@ -278,20 +304,74 @@ the commit message.
       rollback UNCOVERED, `pin-lockfile-mismatch` as the single new code, the
       cache-hit boundary, and the two pre-existing host-absolute fixture paths
       left standing.
-- [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate pin-openspec-cli-dependency-closure
+- [x] 5.2 **(DONE 2026-09-09, AT THE ARCHIVE GATE — RE-RUN, NOT INHERITED.)**
+      `OPENSPEC_TELEMETRY=0 openspec validate pin-openspec-cli-dependency-closure
       --strict` and `--all --strict` green at the archive gate, re-run at that
-      time rather than trusted from authoring.
-- [ ] 5.3 Realization evidence per `release-realization`: merged, with the
+      time rather than trusted from authoring. Both halves ran on the archiving
+      branch THROUGH THE PINNED ENTRYPOINT and never a bare `openspec` — the
+      `1.2.0` binary on the workstation's `PATH` was used for nothing — and the
+      tool named itself on each run: `@fission-ai/openspec@1.12.0 from pinned
+      artifact … integrity sha512-oFE2Lj7WVSc87nSi… verified`, over `dependency
+      closure openspec-cli-pin.1.12.0.package-lock.json (80 packages);
+      lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed with
+      \`npm ci --ignore-scripts\``. **THIS PACKET'S OWN LOCKFILE IS WHAT RESOLVED
+      THE TOOL THAT ARCHIVES IT.**
+      `python3 scripts/validate-openspec-cli-pin.py --repo . --change
+      pin-openspec-cli-dependency-closure --strict --no-cache` →
+      **`Totals: 1 passed, 0 failed (1 items)`**, exit **0**.
+      `python3 scripts/validate-openspec-cli-pin.py --repo . --all --no-cache` →
+      **`Totals: 99 passed, 2 failed (101 items)`**, exit **0**,
+      **`0 UNDISPOSITIONED failures`**; the two failures are the estate's two
+      STANDING ACCEPTED EXCEPTIONS and neither is this packet's
+      (`add-chain-attestation` and `add-composed-view-authoring`, dispositioned
+      in `contracts/openspec-cli-pin.yaml` on Brett Heap's 2026-09-05 ruling
+      *"take exit 2"*). The post-archive re-run — same command, one item fewer —
+      is recorded in the archiving pull request.
+- [x] 5.3 **(DONE 2026-09-09 — MERGED, AND GREEN THROUGH THE LOCKFILE.)**
+      Realization evidence per `release-realization`: merged, with the
       `openspec-cli-pin` required check green on this pull request THROUGH the
       lockfile path. `target_release` moves no bundle, so no cut is owed.
+      **MERGED:** [#813](https://github.com/opensoft/openxFactory/pull/813),
+      merge commit `4c08a7a2`, 2026-09-09T05:54Z. **GREEN, AND GREEN THROUGH THE
+      THING THIS PACKET BUILT** — every `openspec-cli-pin` run since that merge
+      has resolved the CLI through this lockfile, so the required check is not
+      merely green beside the closure but green BY it: conclusion `success` on
+      [#841](https://github.com/opensoft/openxFactory/pull/841) head `5f275d6a`
+      ([run 34351162201](https://github.com/opensoft/openxFactory/actions/runs/34351162201),
+      2026-09-09T12:28:10Z) and on
+      [#847](https://github.com/opensoft/openxFactory/pull/847) head `98776fcf`
+      ([run 34372430624](https://github.com/opensoft/openxFactory/actions/runs/34372430624),
+      2026-09-09T15:46:37Z). That check has been REQUIRED on `main` since
+      2026-09-08 (org ruleset `22551797`), so these are the required gate
+      reporting and not advisory runs. **AND THE ARCHIVE VERB ITSELF IS
+      EVIDENCE:** `scripts/proposal-support.py … archive` is the third caller
+      this packet bound to the closure, and it installed through this lockfile
+      to archive #841 and #847 before it installed through it to archive this.
 
 ## 6. Successor work (not this packet)
 
-- [ ] 6.1 An independent attestation of the 79 registry integrity values captured
+- [~] 6.1 **DEFERRED 2026-09-09, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+      An independent attestation of the 79 registry integrity values captured
       in the lockfile — a provenance attestation, a mirrored registry, or a
       second capture from an independent network path compared against this one.
       **Owner: openxFactory.** Design § 6.1 states precisely what this closure
-      does and does not claim; nothing here pretends the gap is shut.
-- [ ] 6.2 A `1.2.0` lockfile, IF a rollback is ever taken. **Owner: whoever takes
-      the rollback**, in the same commit, per the pin's own `dependency_closure:`
-      declaration. Not authored speculatively, and design § 6.3 says why.
+      does and does not claim; nothing here pretends the gap is shut. NOTHING HAS
+      ATTESTED THEM: the 79 values are still trust-on-first-use, captured once
+      against the live registry on 2026-09-08 and never compared against a second
+      source, and this marker says so rather than letting an archive imply
+      otherwise. It did not gate this archive — slice 6's own heading reads
+      "successor work (not this packet)" — and the packet has declared the gap
+      in its `proposal.md` § Impact, in `design.md` § 6.1 and in the pin's own
+      header since the day it landed.
+- [~] 6.2 **DEFERRED 2026-09-09, AT THE ARCHIVE — CONDITIONAL WORK THAT HAS NOT
+      BEEN TRIGGERED.** A `1.2.0` lockfile, IF a rollback is ever taken.
+      **Owner: whoever takes the rollback**, in the same commit, per the pin's own
+      `dependency_closure:` declaration. Not authored speculatively, and design
+      § 6.3 says why. NO ROLLBACK HAS BEEN TAKEN, so the condition on this box has
+      never been met and there is nothing to have done: authoring a `1.2.0`
+      lockfile today would record what today's caret ranges resolve to, which is
+      a fiction of reproducibility rather than a record of one, and nothing would
+      install through it to catch the rot. The gap is not silent — the pin's
+      `rollback:` entry DECLARES `dependency_closure:` UNCOVERED and the verifier
+      refuses that referent on its first run rather than installing it unlocked,
+      which is the promoted requirement's own second scenario.
