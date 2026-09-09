@@ -996,6 +996,152 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
 
 
 # ===========================================================================
+# The OUTCOME REPORT, executed rather than read
+#
+# WHY THIS CLASS EXISTS. `Report what became of the last automated advance`
+# ends its command substitution with `2>/dev/null || true` and falls back to
+# "the last automated pin advance could not be read from the platform on this
+# firing" — deliberately, because a step that only reports may never fail an
+# advance. The cost of that guard is that a jq program which stopped PARSING
+# would degrade in TOTAL SILENCE: every firing would emit the fallback and
+# nothing would ever say why. Until this class, nothing measured that program.
+#
+# RAISED BY A REVIEW FINDING THAT WAS WRONG, AND KEPT BECAUSE THE PLACE IT
+# POINTED AT WAS RIGHT. Copilot, on openxFactory #844, read the MERGED
+# branch's `\(... // "an unreadable commit")` as an unescaped nested string
+# that would stop jq parsing. It does not — a jq interpolation opens an
+# expression context in which a string literal is ordinary, and the branch
+# renders correctly on both a present and an absent oid, which is what the
+# cases below MEASURE rather than argue. But the finding named a real class of
+# silent failure that had no control, so the refutation is landed AS one
+# instead of being thrown away in a review reply nobody re-reads.
+#
+# THE BYTES ARE THE SHIPPED ONES, cut out of the workflow at test time by the
+# same idiom `_shell_function` uses for the delivery step's shell.
+# ===========================================================================
+
+class TheOutcomeReportIsExecutedNotJustRead(unittest.TestCase):
+
+    #: The reporting step, by the name the workflow gives it.
+    STEP = "Report what became of the last automated advance"
+
+    @classmethod
+    def _program(cls) -> str:
+        """The jq program, cut verbatim out of the shipped step.
+
+        A MISSING PROGRAM IS A NAMED FAILURE, for `_shell_function`'s reason:
+        if the step is rewritten so there is nothing to cut, the case must say
+        so rather than leave the next reader decoding a substring error.
+        """
+        run = _step(cls.STEP)["run"]
+        marker = "| jq -r '"
+        start = run.find(marker)
+        if start < 0:
+            raise AssertionError(
+                f"the step {cls.STEP!r} no longer pipes into `jq -r '...'`; "
+                "this harness runs the workflow's OWN program and there is "
+                "none to cut out")
+        start += len(marker)
+        end = run.find("' 2>/dev/null", start)
+        if end < 0:
+            raise AssertionError(
+                f"the jq program in {cls.STEP!r} has no closing quote before "
+                "`2>/dev/null`; the cut cannot be made")
+        return run[start:end]
+
+    def _render(self, listing: str, program: str = None):
+        """Run the program over `listing`, as the step pipes it."""
+        jq = shutil.which("jq")
+        self.assertIsNotNone(
+            jq, "jq is not on PATH; the lane's reporting step needs it at run "
+                "time and this control needs it to measure that step")
+        return subprocess.run(
+            [jq, "-r", self._program() if program is None else program],
+            input=listing, capture_output=True, text=True)
+
+    def test_every_branch_of_the_outcome_report_parses_and_renders(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        SIX FIXTURES, EACH THE SHAPE `gh pr list --json
+        number,state,mergeCommit,autoMergeRequest` really returns. A branch
+        that stopped parsing, or that rendered the wrong sentence, reds here
+        instead of degrading into a fallback nobody reads.
+        """
+        cases = (
+            ("[]",
+             "no previous automated pin advance has ever been opened"),
+            ('[{"number":732,"state":"MERGED",'
+             '"mergeCommit":{"oid":"9ffc6252"},"autoMergeRequest":null}]',
+             "#732 MERGED at 9ffc6252"),
+            # THE BRANCH THE FINDING NAMED: the nested literal inside the
+            # interpolation, reached by an ABSENT oid, which is the only way
+            # the `//` fallback fires at all.
+            ('[{"number":732,"state":"MERGED","mergeCommit":null,'
+             '"autoMergeRequest":null}]',
+             "#732 MERGED at an unreadable commit"),
+            ('[{"number":733,"state":"OPEN","mergeCommit":null,'
+             '"autoMergeRequest":{"enabledAt":"2026-09-09T00:00:00Z"}}]',
+             "#733 is still OPEN with auto-merge ARMED"),
+            ('[{"number":733,"state":"OPEN","mergeCommit":null,'
+             '"autoMergeRequest":null}]',
+             "#733 is still OPEN and auto-merge is NOT armed"),
+            ('[{"number":734,"state":"CLOSED","mergeCommit":null,'
+             '"autoMergeRequest":null}]',
+             "#734 was CLOSED unmerged"),
+        )
+        for listing, expected in cases:
+            with self.subTest(expected=expected):
+                proc = self._render(listing)
+                self.assertEqual(
+                    0, proc.returncode,
+                    f"jq refused the shipped program: {proc.stderr}")
+                self.assertEqual("", proc.stderr)
+                self.assertIn(expected, proc.stdout)
+
+    def test_the_not_armed_branch_states_the_retry_condition_when_rendered(
+            self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        THE DISCLOSURE IS ASSERTED ON THE RENDERED LINE, not on the program's
+        source, because a reader meets it rendered. This is the residual Codex
+        raised as P1 on openxFactory #844: the arming lives in the DELIVERY
+        step, gated `steps.repin.outputs.action == 'advance'`, so the no-op
+        firing this step belongs to re-attempts nothing — and a re-arm from
+        here would be a THIRD occurrence of the arming command, which decision
+        M-C admits by EQUALITY at two.
+        """
+        proc = self._render('[{"number":733,"state":"OPEN",'
+                            '"mergeCommit":null,"autoMergeRequest":null}]')
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        for clause in ("the arming lives in the delivery step",
+                       "re-attempts it only on its next firing that delivers "
+                       "an advance",
+                       "that firing moves the head first"):
+            self.assertIn(clause, proc.stdout, clause)
+        # AND IT IS STILL ONLY A REPORT: the rendered line names no act.
+        for term in DISPOSAL_TERMS:
+            self.assertNotIn(term, proc.stdout)
+
+    def test_this_control_can_actually_see_a_parse_failure(self) -> None:
+        """ANTI-VACUITY, the `ca9fafe6` lesson applied to a new harness.
+
+        A parse check that cannot observe a parse failure is worth nothing. The
+        shipped program is mutated into one jq really does refuse — its final
+        `end` removed — and the same runner is required to report that, so the
+        cases above are PROVEN capable of firing rather than assumed to be.
+        """
+        program = self._program().rstrip()
+        self.assertTrue(program.endswith("end"), program[-40:])
+        broken = self._render("[]", program=program[:-len("end")])
+        self.assertNotEqual(
+            0, broken.returncode,
+            "a program jq should refuse was accepted; this harness cannot see "
+            "a parse failure")
+        # ...and the control in the other direction: unmutated, it is accepted.
+        self.assertEqual(0, self._render("[]").returncode)
+
+
+# ===========================================================================
 # Requirement 2 — refusing a core commit the source default branch does not carry
 # ===========================================================================
 

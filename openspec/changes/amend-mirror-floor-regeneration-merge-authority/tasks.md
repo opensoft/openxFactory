@@ -367,6 +367,17 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       `ARMED_TAIL` through one ` — ` join instead of across a full stop, measured
       from the workflow's own bytes by
       `TheArmingIsExecutedNotJustRead._assert_the_tail_is_joined_cleanly`.
+      **AND THE REPORTING SURFACE GAINED THE CONTROL IT NEVER HAD.** A second
+      Copilot finding on the same head — that the MERGED branch's nested string
+      inside a jq interpolation would stop the program parsing — is FALSE, and
+      is refuted by running it: all six branches parse and render under jq 1.7,
+      the absent-oid fallback included. But that step swallows jq's stderr by
+      design (`2>/dev/null || true`, so a report may never fail an advance),
+      which means a program that really did stop parsing would degrade in
+      silence, and nothing measured it. The refutation is therefore landed as a
+      control — `TheOutcomeReportIsExecutedNotJustRead` cuts the jq program out
+      of the shipped step, renders every branch, and proves it can see a parse
+      failure by mutating the program until jq refuses it.
       **DEPARTURE, DISCLOSED: THE TAIL CARRIES ONE CLAUSE MORE THAN M-E WROTE.**
       M-E's sentence ends *"…so the arming is inert."*; box 1.3's ruling asks for
       the inertness to be declared as *no approver is enrolled and the armed pull
