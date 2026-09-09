@@ -387,7 +387,7 @@ dispositions:
     cited_to:
       - openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose two written forms this block uses
       - council LA-A1 — the contradiction the tranche's re-conditioning was raised to close
-      - openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
+      - openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
       - openspec/changes/add-chain-attestation/specs/signed-execution-chain/spec.md — the marker, in the block the finding names
     ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
     retires_when: >-
@@ -411,7 +411,7 @@ dispositions:
       - openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte
       - PR #444 — the landed change that declared the rename with the `Merged into` marker
       - council LA-A1 — the ruling that reserved the marker forms
-      - openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
+      - openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
     ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
     retires_when: >-
       add-composed-view-authoring archives, which needs ONE open box (task 3.2, a
