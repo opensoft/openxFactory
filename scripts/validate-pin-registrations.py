@@ -193,13 +193,26 @@ _LIST_ITEM = re.compile(r"^(?P<indent> *)- (?P<text>\S.*?)\s*$")
 # whole; a comment or a blank line between two items does NOT end a list; and
 # the walk stays inside `dispositions:` and counts its entries, so every line is
 # bound to the entry that carries it instead of to a position in a global list.
-# `>-` is the only style the production reader admits, but every style is matched
-# HERE, because this reader's job at the opener is to skip a body, and a body it
-# failed to recognise is exactly the decoy the bench found.
+# `>-` is the only style the production reader admits, but EVERY style and every
+# key spelling is matched HERE, because this reader's job at the opener is to skip
+# a body, and a body it failed to recognise is exactly the decoy the bench found.
+# The first cut of this pattern took an identifier-shaped key (`[A-Za-z_]\w*`),
+# which is one repository's house style and not YAML's — a hyphenated `INV-2: >-`
+# or a quoted `"a: b": >-` opens a folded scalar just as well, and its body would
+# have been walked as structure (Copilot, PR #863). The key is now any plain
+# scalar up to the `: ` separator, or a quoted one, and a trailing comment on the
+# header line is admitted because YAML admits it. ONE BOUNDARY IS DELIBERATE: a
+# KEYLESS block scalar (`- >-` as a whole sequence entry) is not matched, because
+# a line of that shape inside an open `cited_to:` list is a CITATION under the
+# pin's own production and is read as one. Such an entry cannot hide a decoy
+# either — it is not a mapping, so it contributes no parsed citation while its
+# body's lines bind to its entry index, and the per-entry comparison refuses the
+# field.
 _DISPOSITIONS_KEY = re.compile(r"^(?P<indent> *)" + DISPOSITIONS_FIELD + r":\s*$")
 _BLOCK_SCALAR_KEY = re.compile(
-    r"^(?P<indent> *)(?P<dash>- )?[A-Za-z_][A-Za-z0-9_]*:[ \t]+"
-    r"[|>][+-]?[0-9]*[ \t]*$")
+    r"^(?P<indent> *)(?P<dash>- )?"
+    r"(?:\"[^\"]*\"|'[^']*'|[^\s#][^:]*)"
+    r":[ \t]+[|>][0-9+-]*(?:[ \t]+#.*)?[ \t]*$")
 _SEQUENCE_ITEM = re.compile(r"^(?P<indent> *)- ")
 _COMMENT_OR_BLANK = re.compile(r"^\s*(?:#.*)?$")
 

@@ -1729,3 +1729,37 @@ def test_a_row_failing_on_a_citation_is_not_labelled_ok_where_it_names_no_entryp
         captured.out), captured.out
     # The inapplicability is still said, which is what the branch is for.
     assert "the entrypoint assertions do not apply" in captured.out, captured.out
+
+
+def test_a_block_scalar_is_recognised_by_yamls_key_spellings_not_one_houses(
+        ) -> None:
+    """TAKEN FROM THE BENCH ON PR #863 (Copilot). The opener's first cut matched
+    an identifier-shaped key, which is this corpus's house style and not YAML's:
+    a hyphenated `INV-2: >-` or a quoted `"a: b": >-` opens a folded scalar just
+    as well, and its body would have been walked as structure — the decoy class
+    this change exists to close, reintroduced through the key spelling. The
+    boundary below is deliberate and asserted with the rest: a KEYLESS `- >-`
+    inside an open list is a citation under the pin's own production."""
+    module = _load_checker()
+    for header in ["    why: >-", "    INV-2: >-", '    "a: b": >', "    \'k\': |-",
+                   "  - why: |", "    why: >-  # a note on the header line",
+                   "    a.b-c_d: >+2", "    a.b-c_d: >2+", "notes: >-"]:
+        assert module._BLOCK_SCALAR_KEY.match(header), header
+    for other in ["    why: not a block scalar", "      - >-", "    cited_to:",
+                  "      - openspec/a.md: gone", "dispositions:"]:
+        assert not module._BLOCK_SCALAR_KEY.match(other), other
+
+    # And end to end: a decoy under a HYPHENATED key is skipped, and the two real
+    # citations still come back bound to their entry.
+    text = ("dispositions:\n"
+            "  - repo: scratchFactory\n"
+            "    INV-2: >-\n"
+            "      A folded reason under a key YAML allows and an identifier\n"
+            "      pattern does not:\n"
+            "      cited_to:\n"
+            "        - openspec/decoy/a.md — prose\n"
+            "    cited_to:\n"
+            "      - first — one\n"
+            "      - second — two\n")
+    assert module.citation_lines_by_entry(text) == [
+        (1, "first — one"), (1, "second — two")]
