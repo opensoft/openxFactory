@@ -2932,23 +2932,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
-  — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
-  from the dashboard-action-center + cloud-workstation-topology brainstorms;
-  ratified 2026-07-23) for the intent plane that makes the dashboard the
-  process action center WITHOUT weakening D16: a click emits a signed
-  `gate-intent` (actor, verb, target, snapshot_rev_seen); a dispatch-only
-  inbox wakes the apply lane; the gate-console engine revalidates and commits
-  intent + gate-action record + artifacts atomically via rolling PR
-  (second-touch DECIDED: custody-not-decision, batched auto-merge). Two-plane
-  rendering (snapshot + intent-feed overlay + refusal panel), identity ladder
-  (per-user htpasswd -> Keycloak, contract-invisible), dispose tray as the
-  first verb (local loopback-executing routes first, hosted intents second),
-  Flutter verdict terminal as the same client class. Also carries the
-  document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
-  until merged). (code surface: codexFactory, openxFactory, omnigent-install,
-  xFactory; release allocated at realization)
-
 - [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
   — ratified 2026-08-08 ("yes, we need to draft from a project view").
   `Composed views are read-only with a repository jump` states its reason as
@@ -3087,6 +3070,82 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-ideation-intent-plane](openspec/changes/archive/2026-09-09-add-ideation-intent-plane/proposal.md)
+  — **ARCHIVED 2026-09-09**, under Brett Heap's ruling of 2026-09-05T23:38Z (in
+  session, verbatim *"rule path A, 4.5 is a deferred successor"*, recorded on
+  issue [#656](https://github.com/opensoft/openxFactory/issues/656)), which
+  settled in terms that this change **FINISHES AND PROMOTES** — 4.4, 5.1 and 5.2
+  realized, "then the change archives WITH promotion" — and under his ruling
+  **D-2** authorizing the live exercise the archive stands on. `code_surface` is
+  NON-EMPTY (codexFactory, openxFactory, omnigent-install, xFactory), so under
+  `release-realization` this packet archived on **merged-plus-green realization
+  evidence, not on landing**, and both halves are cited rather than asserted.
+  **THE REALIZATION, PULL REQUEST BY PULL REQUEST, EACH MERGE COMMIT READ BACK
+  WITH `gh pr view <n> --json mergeCommit`:** the hosted tray's flip from
+  descriptor to intent emission —
+  [#718](https://github.com/opensoft/openxFactory/pull/718) → `d179cc0d` (the
+  `actions.intent` capability, the same-origin transport a credential-free pod
+  permits, the pending/applied/refused chips over `GET /intents`, the refusal
+  panel); the boundary suite —
+  [#727](https://github.com/opensoft/openxFactory/pull/727) → `07624d5e`
+  (`tests/ideation-dashboard/test_intent_plane_boundary.py`, six proofs
+  one-to-one with task 5.1's own sentence, the hosted≡local equivalence new);
+  the custody chain — [#735](https://github.com/opensoft/openxFactory/pull/735) →
+  `6d3237e6` with opensoft/xFactory#304 → `b2db7e47` and opensoft/xFactory#313 →
+  `ddd19650`; and the **eight defects six live runs found, each fixed by its own
+  verified pull request on Brett's word and none worked around** —
+  opensoft/xFactory#345 → `90435875`,
+  [#781](https://github.com/opensoft/openxFactory/pull/781) → `450bb602`,
+  [#808](https://github.com/opensoft/openxFactory/pull/808) → `2ef7d8c2`,
+  [#814](https://github.com/opensoft/openxFactory/pull/814) → `c991c0f3`,
+  [#816](https://github.com/opensoft/openxFactory/pull/816) → `89242304`,
+  opensoft/xFactory#362 → `119280a8`,
+  [#830](https://github.com/opensoft/openxFactory/pull/830) → `202c170d` and
+  opensoft/xFactory#369 → `c2313277`.
+  **THE LIVE EVIDENCE — D-2, RUN END TO END ON QA AKS:** a real refusal at the D4
+  stale-view rung (xFactory `intent-apply` run
+  [34229563533](https://github.com/opensoft/xFactory/actions/runs/34229563533),
+  `success`; commit `36d07ecf`, one refusal record and nothing else) and a real
+  APPLY (run
+  [34306919288](https://github.com/opensoft/xFactory/actions/runs/34306919288),
+  `success`; commit `e970dfec` — register, gate-action record and gate-intent in
+  ONE commit), followed by **the first autonomous merge through the intent
+  plane**: custody re-run
+  [34319843472](https://github.com/opensoft/xFactory/actions/runs/34319843472)
+  → approval run
+  [34319868940](https://github.com/opensoft/openxFactory/actions/runs/34319868940)
+  → `codexfactory[bot]` APPROVED at 2026-09-09T06:37:22Z → auto-merge landed
+  [#176](https://github.com/opensoft/openxFactory/pull/176) as **`7681e409`** at
+  2026-09-09T06:37:45Z. Five earlier runs PARKED or REFUSED, every one with a
+  named reason and none approving anything.
+  **PROMOTED INTO CANON — EIGHT ADDED REQUIREMENTS, ALL BYTE-IDENTICAL TO THE
+  ARCHIVED DELTAS** (each block extracted programmatically from delta and canon
+  and hashed): the NEW capability `ideation-intent-plane` is created with
+  **seven** requirements and **eleven** scenarios — *Intents are requests, never
+  writes*; *Minimal-authority intent inbox*; *Apply lane revalidates and commits
+  atomically*; *Second touch is custody, not decision*; *Two-plane rendering*;
+  *Identity ladder without contract change*; *Dispose tray is the first verb* —
+  and `document-lifecycle` goes **18 → 19** with *Gates happen on main* (two
+  scenarios), its other eighteen requirements byte-identical before and after.
+  The new capability's `## Purpose` was WRITTEN BY THIS ACT rather than left as
+  the pinned CLI's `TBD - created by archiving …` placeholder, the shape
+  `mirror-floor-addition-grace` used at its own archive (`b5eddaa3`); it carries
+  no SHALL and lies outside the byte-checked region. **A FILE IS ADDED UNDER
+  `openspec/specs/`**, so a codexFactory review-authority floor regeneration is
+  owed after this lands — deferred, not discharged, by the addition grace
+  (`pending_floor_extension`, tolerance 3).
+  **§ 4.5 STAYS A DEFERRED SUCCESSOR** exactly as
+  [#714](https://github.com/opensoft/openxFactory/pull/714) → `3d1b8cce` encoded
+  it under the same ruling: the Flutter verdict-terminal client is outside this
+  change's completion bar, the two endpoints' contract is fixed here and
+  unchanged, and the client is raised as its own change when wanted. Governing
+  record **#656** stays **OPEN** — this is an archive act, not the end of the
+  lane's work. **NOT DONE HERE:** no contract, register, digest inventory,
+  version or tag moves; no script, workflow or test moves; and the apply lane's
+  known projection lag (`ideation/cross-reference.md` trails the register by one
+  disposition) is recorded on #656 for a docs-projection successor rather than
+  fixed by this act.
 
 - [refresh-install-repository-enumerations](openspec/changes/archive/2026-09-09-refresh-install-repository-enumerations/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of the same day (in
