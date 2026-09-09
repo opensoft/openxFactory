@@ -1,0 +1,162 @@
+1c1
+< # Doc-Health Report — 2026-09-08
+---
+> # Doc-Health Report — 2026-09-09
+9,10c9,10
+< Canon share by words: 38.9% (345150 canon words / 886876 governance words, promoted specs included).
+< Findings: 10 critical, 9 error, 55 warning, 16 info. New regressions vs previous report: 0.
+---
+> Canon share by words: 38.9% (345349 canon words / 887075 governance words, promoted specs included).
+> Findings: 10 critical, 9 error, 57 warning, 16 info. New regressions vs previous report: 0.
+33c33
+< | standard | 6 | 16115 |
+---
+> | standard | 6 | 16314 |
+105,136c105,138
+< - [warning] oxf-realize-f3:docs/deploy-artifacts-plan.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/deployment-worker-model.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/dogfood-content-migration-plan.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/domain-stack-pin-implementation-plan.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/factory-taxonomy-model.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/feature-decomposition.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/intake-and-installer-plan.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/merge-council.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/merge-master.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/omnigent-constitution.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/pr-admission.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/runtime-services-plan.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/self-hosted-runtime-binding-plan.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/spec-kit-stage-ownership.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/traceability-model.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/tui-spec-questionnaire.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:docs/workflow-contract.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:docs/workflow-gap-solutions.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:examples/README.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:examples/memory-gateway/README.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:examples/pre-run-simulations/README.md — draft without transition for 61 days
+< - [warning] oxf-realize-f3:ideation/staging/agent-wallet-identity — staged topic untouched 33 days
+< - [warning] oxf-realize-f3:ideation/staging/client-credential-escrow-registry — staged topic untouched 51 days
+< - [warning] oxf-realize-f3:ideation/staging/dashboard-project-scoping — staged topic untouched 32 days
+< - [warning] oxf-realize-f3:ideation/staging/recurrence-crystallization — staged topic untouched 37 days
+< - [warning] oxf-realize-f3:ideation/staging/tier2-council-clearance-pattern — staged topic untouched 32 days
+< - [warning] oxf-realize-f3:ideation/staging/workbench-branch-sessions — staged topic untouched 32 days
+< - [warning] oxf-realize-f3:templates/installation/README.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:templates/intake/README.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:templates/intake/subtypes/README.md — draft without transition for 62 days
+< - [warning] oxf-realize-f3:templates/ui/README.md — draft without transition for 62 days
+< - [info] oxf-realize-f3:(drafts) — draft age distribution days: min=0 max=62 n=70
+---
+> - [warning] oxf-realize-f3:docs/deploy-artifacts-plan.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/deployment-worker-model.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/dogfood-content-migration-plan.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/domain-stack-pin-implementation-plan.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/factory-taxonomy-model.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/feature-decomposition.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/intake-and-installer-plan.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/merge-council.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/merge-master.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/omnigent-constitution.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/pr-admission.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/runtime-services-plan.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/self-hosted-runtime-binding-plan.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/spec-kit-stage-ownership.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/traceability-model.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/tui-spec-questionnaire.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:docs/workflow-contract.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:docs/workflow-gap-solutions.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:examples/README.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:examples/memory-gateway/README.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:examples/pre-run-simulations/README.md — draft without transition for 62 days
+> - [warning] oxf-realize-f3:ideation/staging/agent-wallet-identity — staged topic untouched 34 days
+> - [warning] oxf-realize-f3:ideation/staging/client-credential-escrow-registry — staged topic untouched 52 days
+> - [warning] oxf-realize-f3:ideation/staging/dashboard-project-scoping — staged topic untouched 33 days
+> - [warning] oxf-realize-f3:ideation/staging/manager-review-approval-scope-kind — staged topic untouched 30 days
+> - [warning] oxf-realize-f3:ideation/staging/recurrence-crystallization — staged topic untouched 38 days
+> - [warning] oxf-realize-f3:ideation/staging/session-notebook-reconciliation — staged topic untouched 30 days
+> - [warning] oxf-realize-f3:ideation/staging/tier2-council-clearance-pattern — staged topic untouched 33 days
+> - [warning] oxf-realize-f3:ideation/staging/workbench-branch-sessions — staged topic untouched 33 days
+> - [warning] oxf-realize-f3:templates/installation/README.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:templates/intake/README.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:templates/intake/subtypes/README.md — draft without transition for 63 days
+> - [warning] oxf-realize-f3:templates/ui/README.md — draft without transition for 63 days
+> - [info] oxf-realize-f3:(drafts) — draft age distribution days: min=1 max=63 n=70
+167,168c169,170
+< - [warning] oxf-realize-f3:ideation/brainstorm/cross-domain/XFI-2026-002/routing.yaml — [aging] routing record in 'split' state untouched 33 days (latest transition; warning at 30, error at 90)
+< - [warning] oxf-realize-f3:ideation/brainstorm/inbox/XFI-2026-001/routing.yaml — [aging] routing record in 'triaging' state untouched 33 days (latest transition; warning at 30, error at 90)
+---
+> - [warning] oxf-realize-f3:ideation/brainstorm/cross-domain/XFI-2026-002/routing.yaml — [aging] routing record in 'split' state untouched 34 days (latest transition; warning at 30, error at 90)
+> - [warning] oxf-realize-f3:ideation/brainstorm/inbox/XFI-2026-001/routing.yaml — [aging] routing record in 'triaging' state untouched 34 days (latest transition; warning at 30, error at 90)
+258,290c260,294
+< - severity=warning family=ideation-routing repo=oxf-realize-f3 path=ideation/brainstorm/cross-domain/XFI-2026-002/routing.yaml rule="[aging] routing record in 'split' state untouched 33 days (latest transition; warning at 30, error at 90)" action="progress the routing record or record an explicit deferral" class="contested"
+< - severity=warning family=ideation-routing repo=oxf-realize-f3 path=ideation/brainstorm/inbox/XFI-2026-001/routing.yaml rule="[aging] routing record in 'triaging' state untouched 33 days (latest transition; warning at 30, error at 90)" action="progress the routing record or record an explicit deferral" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/deploy-artifacts-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/deployment-worker-model.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/dogfood-content-migration-plan.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/domain-stack-pin-implementation-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/factory-taxonomy-model.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/feature-decomposition.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/intake-and-installer-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/merge-council.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/merge-master.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/omnigent-constitution.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/pr-admission.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/runtime-services-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/self-hosted-runtime-binding-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/spec-kit-stage-ownership.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/traceability-model.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/tui-spec-questionnaire.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/workflow-contract.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/workflow-gap-solutions.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/README.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/memory-gateway/README.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/pre-run-simulations/README.md rule="draft without transition for 61 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/agent-wallet-identity rule="staged topic untouched 33 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/client-credential-escrow-registry rule="staged topic untouched 51 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/dashboard-project-scoping rule="staged topic untouched 32 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/recurrence-crystallization rule="staged topic untouched 37 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/tier2-council-clearance-pattern rule="staged topic untouched 32 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/workbench-branch-sessions rule="staged topic untouched 32 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/installation/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/intake/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/intake/subtypes/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+< - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/ui/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+---
+> - severity=warning family=ideation-routing repo=oxf-realize-f3 path=ideation/brainstorm/cross-domain/XFI-2026-002/routing.yaml rule="[aging] routing record in 'split' state untouched 34 days (latest transition; warning at 30, error at 90)" action="progress the routing record or record an explicit deferral" class="contested"
+> - severity=warning family=ideation-routing repo=oxf-realize-f3 path=ideation/brainstorm/inbox/XFI-2026-001/routing.yaml rule="[aging] routing record in 'triaging' state untouched 34 days (latest transition; warning at 30, error at 90)" action="progress the routing record or record an explicit deferral" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/deploy-artifacts-plan.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/deployment-worker-model.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/dogfood-content-migration-plan.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/domain-stack-pin-implementation-plan.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/factory-taxonomy-model.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/feature-decomposition.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/intake-and-installer-plan.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/merge-council.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/merge-master.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/omnigent-constitution.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/pr-admission.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/runtime-services-plan.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/self-hosted-runtime-binding-plan.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/spec-kit-stage-ownership.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/traceability-model.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/tui-spec-questionnaire.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/workflow-contract.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=docs/workflow-gap-solutions.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/memory-gateway/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=examples/pre-run-simulations/README.md rule="draft without transition for 62 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/agent-wallet-identity rule="staged topic untouched 34 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/client-credential-escrow-registry rule="staged topic untouched 52 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/dashboard-project-scoping rule="staged topic untouched 33 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/manager-review-approval-scope-kind rule="staged topic untouched 30 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/recurrence-crystallization rule="staged topic untouched 38 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/session-notebook-reconciliation rule="staged topic untouched 30 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/tier2-council-clearance-pattern rule="staged topic untouched 33 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=ideation/staging/workbench-branch-sessions rule="staged topic untouched 33 days" action="progress the topic to a proposal, or record the outcome it already reached — the primary fragment superseded/retired, or an Exit taken: line naming the archived change" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/installation/README.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/intake/README.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/intake/subtypes/README.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+> - severity=warning family=staged-candidate-aging repo=oxf-realize-f3 path=templates/ui/README.md rule="draft without transition for 63 days" action="ratify, supersede, or retire the draft" class="contested"
+328c332
+< - severity=info family=staged-candidate-aging repo=oxf-realize-f3 path=(drafts) rule="draft age distribution days: min=0 max=62 n=70" action="trend data — no action required" class="contested"
+---
+> - severity=info family=staged-candidate-aging repo=oxf-realize-f3 path=(drafts) rule="draft age distribution days: min=1 max=63 n=70" action="trend data — no action required" class="contested"
