@@ -589,9 +589,21 @@ Active changes:
   codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
 
 - [refresh-install-repository-enumerations](openspec/changes/refresh-install-repository-enumerations/proposal.md)
-  — authored 2026-09-08, **`Status: draft`** (no ratification citation, and none
-  is owed: the lawful unapproved shape `add-drafted-proposal-origin` defined,
-  drafting provenance only in `.openspec.yaml`). Origin: openxFactory
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap
+  (openxFactory operator authority), in session, verbatim **"ratify
+  refresh-install-repository-enumerations"**, recorded on openxFactory
+  [#591](https://github.com/opensoft/openxFactory/issues/591) as comment
+  5593837071 at 2026-09-09T00:24:24Z — ratified **AS AUTHORED**, with no veto
+  on any of the three veto points carried verbatim in `tasks.md` § 1.2 and in
+  PR [#818](https://github.com/opensoft/openxFactory/pull/818)'s body
+  (`design.md` D1, D3, D5); approval pair ADDED beside the drafting provenance
+  in `.openspec.yaml`, `kind`/`id`/`reason` unmoved, the addition-not-rewrite
+  shape `add-drafted-proposal-origin` defined; record
+  `openspec/changes/refresh-install-repository-enumerations/review/ratification-2026-09-09.md`).
+  **RATIFICATION PERFORMS NO REALIZATION** — no delta is promoted, the owed
+  `## Purpose` widening stays owed at `tasks.md` § 4.1, § 3 and § 4 stay
+  unticked, and openxFactory#796 stays open until the archive.
+  Origin: openxFactory
   [#796](https://github.com/opensoft/openxFactory/issues/796) — OQ-9 and task
   § 8.4 of the archived `implement-omniworker-install-repo`, filed at that
   packet's archive (`d7fbe933`) and extended the same day by an addendum that
@@ -624,8 +636,9 @@ Active changes:
   against an indexed set of FIVE, enrolling three repositories no reviewed act
   placed under the requirement and duplicating `xFactory-Installer`, which its
   own requirement already governs. **NO GENERATOR IS BUILT**, no promoted
-  specification byte moves, no contract is cut, `code_surface: none`, and all
-  boxes in `tasks.md` are unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
+  specification byte moves, no contract is cut, `code_surface: none`, and
+  `tasks.md` § 1 and § 2 are ticked (the ratification, and the authoring #818
+  landed) while § 3 and § 4 stay unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
   `tasks.md` § 4.1, the `repo-boundary-governance` `## Purpose` widening, which
   a delta cannot carry and which is taken in the archive commit as a separate
   hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.
