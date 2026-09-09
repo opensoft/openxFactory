@@ -14,18 +14,23 @@ nothing checks is a claim, not a floor.
 
 THE MANIFEST DOES NOT EXIST YET, AND THAT IS NOT A FAILURE. It is authored at
 the carve commit as the LAST thing on that tree (the § 6 ceremony), so this
-validator is landed BEFORE its subject. Given no manifest it prints
-`NO MANIFEST <path> (nothing to validate)` and exits 0. That is a deliberate
-seat-holding pass and the one place here that is not fail-closed: the alternative
-is a red suite for every pull request between this file and the carve, which
-would train the lane to ignore it. Everything after the manifest appears is
-fail-closed.
+validator is landed BEFORE its subject. Given no manifest AT THE DEFAULT PATH it
+prints `NO MANIFEST <path> (nothing to validate)` and exits 0. That is a
+deliberate seat-holding pass and the one place here that is not fail-closed: the
+alternative is a red suite for every pull request between this file and the
+carve, which would train the lane to ignore it. It applies to the DEFAULT path
+ONLY — a `--manifest` the caller NAMED and that is not there refuses
+(`carve-unreadable`), because otherwise the one not-fail-closed branch in this
+file is the branch a typo selects and a mistyped path is green forever.
+Everything after the manifest appears is fail-closed.
 
 SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
 
-  1. SHAPE — `schema_version`/`kind`, the three consts, a 40-lowercase-hex
-     `carve_commit`, a label `carve_tag`, the closed maps and lists, and the
-     per-disposition required keys (`carve-shape-invalid`).
+  1. SHAPE — `schema_version` (the INTEGER 1, so neither `true` nor `1.0`
+     passes), `kind`, the three consts, a 40-lowercase-hex `carve_commit`, a
+     label `carve_tag`, the closed maps and lists, the CLOSED top-level and
+     per-disposition key sets, and the per-disposition required keys
+     (`carve-shape-invalid`).
   2. REVISION — refuse unless the repository's `HEAD`, or `--at <sha>`, resolves
      to `carve_commit` (`carve-revision-mismatch`). This is what makes "a file
      changed on main between the manifest and the move" a REFUSAL on the next
@@ -33,9 +38,13 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
   3. DIGEST — recompute the sha256 of the RAW GIT BLOB at `carve_commit` for
      every moved row and compare the recorded `git_mode` from the tree
      (`carve-digest-mismatch`); a row for a path the commit does not carry is
-     `carve-path-absent`.
+     `carve-path-absent`. The blob is in hand here, so `edits[].lines` are also
+     bounded by its line count (`carve-shape-invalid`): a line past EOF at the
+     carve commit is not the falsifiable claim the line numbers are carried for.
   4. SURFACE COMPLETENESS — walk `git ls-tree -r <carve_commit>` under every
-     `moved_paths:` prefix; every file there must appear in EXACTLY one row
+     `moved_paths:` prefix; every prefix must match at least one file
+     (`carve-surface-vacuous`), every file there must appear in EXACTLY one row,
+     and no two rows may arrive at one destination path
      (`carve-file-undeclared` / `carve-file-duplicated`). This is
      `validate-openreposhape-pin.py`'s check 5 re-aimed, and it is the ruling's
      "a file in no row" sentence as running code — the one failure mode per-file
@@ -66,6 +75,13 @@ WHY NO SCHEMA FILE SHIPS WITH THIS. A new artifact under `contracts/` fires
 shape checks in code, which is also the precedent
 `validate-openreposhape-pin.py` sets for a pin-like claim with exactly one
 instance.
+
+THE DIGEST FIELD IS `sha256: "<64 hex>"` AND THE PRECEDENT'S IS
+`digest: sha256:<hex>`. The divergence originates in the scout memo § 1.2, whose
+row example this validator implements verbatim; the two documents' digest fields
+are therefore NOT interchangeable, and this is recorded rather than corrected
+because the manifest author follows the memo (a change of field shape is the
+memo's to make, not this validator's).
 
 WHERE THE MANIFEST LIVES. `docs/opendox-carve-manifest.yaml`, the path § 3.1 and
 § D6 name verbatim, RULED OQ-E (2026-09-09) after the scout measured that `docs/`
@@ -140,15 +156,23 @@ KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
     "replicated_at_destination",
 )
 
-# The refusal vocabulary, FIXED and ordered by the check that raises it. Other
-# code may branch on the CODE, so no failure path here may invent one.
+# The refusal vocabulary, FIXED, COMPLETE and ordered by the check that raises
+# it. Other code may branch on the CODE, so no failure path here may invent one
+# — and completeness is asserted rather than asserted-in-prose:
+# `tests/carve_manifest/test_carve_manifest.py` scans this file's own
+# `CarveRefusal(...)` sites and fails if any code is missing from this tuple.
 #
-# `carve-unreadable` is NOT in the vocabulary and its absence is the point, on
-# `validate-openreposhape-pin.py`'s reasoning: the nine below each describe a
-# MANIFEST that disagrees with the tree it claims, every one of them a finding a
-# reviewer can act on. `carve-unreadable` describes an environment in which no
-# finding can be reached at all. It still exits 2 — excluded from the
-# vocabulary, not from fail-closure.
+# `carve-unreadable` IS in the vocabulary, which is a correction. It was left
+# out on the reasoning that it "describes an environment in which no finding can
+# be reached at all", and four of its five raise sites are exactly that — no
+# git, no resolvable HEAD, a failed `ls-tree`, bytes that cannot be read. But a
+# closed vocabulary whose stated purpose is that callers branch on the code may
+# not have a value outside itself; and the fifth site was a DOCUMENT defect
+# wearing the environment's name (an unparseable manifest), which now refuses as
+# `carve-shape-invalid` with the parser's own position. The split this tuple now
+# carries: `carve-unreadable` is the ENVIRONMENT and the ENCODING — the bytes
+# never became a document — and every other code is a manifest that disagrees
+# with the tree it claims.
 REFUSAL_CODES: tuple[str, ...] = (
     "carve-shape-invalid",
     "carve-revision-mismatch",
@@ -156,9 +180,11 @@ REFUSAL_CODES: tuple[str, ...] = (
     "carve-path-absent",
     "carve-file-undeclared",
     "carve-file-duplicated",
+    "carve-surface-vacuous",
     "carve-vocabulary-unknown",
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
+    "carve-unreadable",
 )
 
 REMEDIATION = (
@@ -176,8 +202,46 @@ TAG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 MODE_RE = re.compile(r"^(100644|100755|120000)$")
 EDIT_KEYS = {"class", "lines", "note"}
-ROW_KEYS = {"source_path", "git_mode", "sha256", "disposition", "destination",
-            "destination_path", "edits", "reason", "evidence"}
+
+# The DOCUMENT's key set, CLOSED. `header:` is optional prose — it is where
+# RULED OQ-E's convention break is recorded — and every other key here is
+# required by check 1. Closed because the schema the three consts are borrowed
+# from is `additionalProperties: false`, and because an open top level means a
+# mistyped `moved_path:` is ignored in silence while the key it failed to be is
+# the one that carries the whole surface.
+TOP_LEVEL_KEYS = frozenset({
+    "schema_version", "kind", "header", "carve_commit", "carve_tag",
+    "source_repository", "digest_algorithm", "digest_source", "path_order",
+    "destinations", "edit_classes", "not_moved_reasons", "moved_paths", "rows",
+})
+
+# THE ROW GRAMMAR, PER DISPOSITION AND IN ONE PLACE. The memo's § 1.2 moved row
+# is `source_path + git_mode + sha256 + disposition + destination +
+# destination_path`, and its `not_moved` row is `source_path + disposition +
+# reason + evidence` — "no digest", and by the same reasoning no destination: a
+# `not_moved` row carrying one reads at the destination as "this file goes
+# there" while its own disposition says it does not, and today's `destination`
+# would even be validated against `destinations:` on its way past.
+#
+# `edits` is grammatically legal on EVERY disposition, deliberately: whether an
+# edit list AGREES with the disposition is check 6's question, and check 6
+# answers it as `carve-disposition-inconsistent` — a more precise finding, for a
+# row all of whose keys are real ones, than "unknown key".
+ROW_KEYS_BY_DISPOSITION: dict[str, frozenset[str]] = {
+    "moved_verbatim": frozenset({
+        "source_path", "disposition", "git_mode", "sha256", "destination",
+        "destination_path", "edits"}),
+    "moved_with_declared_edit": frozenset({
+        "source_path", "disposition", "git_mode", "sha256", "destination",
+        "destination_path", "edits"}),
+    "not_moved": frozenset({
+        "source_path", "disposition", "reason", "evidence", "edits"}),
+}
+
+# What ANY row may carry at all. A row whose `disposition` is outside the three
+# is checked against this union, because the vocabulary miss belongs to check 5
+# and a shape refusal here would hide which check did the work.
+ROW_KEYS: frozenset[str] = frozenset().union(*ROW_KEYS_BY_DISPOSITION.values())
 
 
 class CarveRefusal(Exception):
@@ -280,14 +344,36 @@ def blob_at(repo: Path, commit: str, path: str) -> bytes | None:
 # --------------------------------------------------------------------------
 
 def read_manifest(path: Path) -> dict[str, Any]:
+    """The manifest as a document, with its two failure kinds kept APART.
+
+    READING is `carve-unreadable`: an I/O error, or bytes that are not UTF-8 at
+    all — the environment, in which no finding about a document can be reached
+    because there is no document. PARSING is `carve-shape-invalid`: an
+    unparseable manifest is not an environment, it is a DOCUMENT DEFECT a
+    reviewer acts on, in the same place and the same way as the empty manifest
+    three lines below (which parses to `None` and has always been
+    `carve-shape-invalid`). They used to get codes from two different
+    vocabularies — one unclosed bracket handed a code-branching caller a value
+    the vocabulary said did not exist — so the parser's own position is reported
+    under the document code instead.
+    """
     try:
-        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     # `ValueError` covers `UnicodeDecodeError`: a manifest that is not valid
     # UTF-8 is unreadable, and it must reach the reader as this named exit-2
     # refusal rather than as a traceback and exit 1.
-    except (OSError, ValueError, yaml.YAMLError) as exc:
+    except (OSError, ValueError) as exc:
         raise CarveRefusal("carve-unreadable",
-                           f"the manifest could not be parsed: {exc}") from exc
+                           f"the manifest could not be read: {exc}") from exc
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        at = (f" at line {mark.line + 1} column {mark.column + 1}"
+              if mark is not None else "")
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"the manifest is not parseable YAML{at}: {exc}") from exc
     if not isinstance(doc, dict):
         raise CarveRefusal(
             "carve-shape-invalid",
@@ -319,14 +405,27 @@ def check_shape(doc: dict[str, Any]) -> None:
     malformed entry would be two checks wearing one name. Check 6 keeps what is
     actually its own: whether the entries AGREE with the disposition.
     """
-    if doc.get("schema_version") != SCHEMA_VERSION:
+    version = doc.get("schema_version")
+    if (not isinstance(version, int) or isinstance(version, bool)
+            or version != SCHEMA_VERSION):
         raise CarveRefusal(
             "carve-shape-invalid",
-            f"`schema_version: {doc.get('schema_version')!r}`; this validator "
-            f"reads version {SCHEMA_VERSION} only")
+            f"`schema_version: {version!r}`; this validator reads the INTEGER "
+            f"{SCHEMA_VERSION} only. `true` and `1.0` are both EQUAL to 1 in "
+            "Python, and the first assertion of a fail-closed chain may not be "
+            "satisfied by a bool")
     if doc.get("kind") != KIND:
         raise CarveRefusal("carve-shape-invalid",
                            f"`kind: {doc.get('kind')!r}`, not {KIND!r}")
+    stray = sorted(set(doc) - TOP_LEVEL_KEYS, key=repr)
+    if stray:
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"the manifest carries the unknown top-level key(s) {stray!r}; the "
+            "document grammar is closed (`header:` is the one optional key), so "
+            "a mistyped `moved_path:` refuses here rather than being ignored in "
+            "silence — and it is the surface list that a stray key is most "
+            "likely to be a misspelling of")
     for key, expected in CONSTS.items():
         if doc.get(key) != expected:
             raise CarveRefusal(
@@ -420,7 +519,7 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
     if not isinstance(row, dict):
         raise CarveRefusal("carve-shape-invalid",
                            f"{where} is not a mapping ({row!r})")
-    stray = sorted(set(row) - ROW_KEYS)
+    stray = sorted(set(row) - ROW_KEYS, key=repr)
     if stray:
         raise CarveRefusal(
             "carve-shape-invalid",
@@ -460,22 +559,29 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                 "is not 64 lowercase hex characters")
         _require_str(row, "destination", f"{where} ({source_path})")
         _require_str(row, "destination_path", f"{where} ({source_path})")
-        for key in ("reason", "evidence"):
+        for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION[disposition]):
             if key in row:
                 raise CarveRefusal(
                     "carve-shape-invalid",
                     f"{where} ({source_path}) is `{disposition}` and carries "
-                    f"`{key}:`; a reason answers why a file did NOT move")
+                    f"`{key}:`; a reason, and the evidence for it, answer why a "
+                    "file did NOT move")
     elif disposition == "not_moved":
         _require_str(row, "reason", f"{where} ({source_path})")
         _require_str(row, "evidence", f"{where} ({source_path})")
-        for key in ("sha256", "git_mode"):
+        for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION["not_moved"]):
             if key in row:
                 raise CarveRefusal(
                     "carve-shape-invalid",
                     f"{where} ({source_path}) is `not_moved` and carries "
-                    f"`{key}:`; a digest at the carve commit is the claim that "
-                    "these bytes arrive somewhere, and nothing arrives")
+                    f"`{key}:`; a digest, a mode or a DESTINATION at the carve "
+                    "commit is the claim that these bytes arrive somewhere, and "
+                    "nothing arrives. The memo's § 1.2 `not_moved` row is "
+                    "`source_path + disposition + reason + evidence`, and a "
+                    "destination on it would be validated against "
+                    "`destinations:` on its way past — arriving at the "
+                    "destination as `this file goes there` over a disposition "
+                    "that says it does not")
 
     edits = row.get("edits")
     if edits is not None:
@@ -492,7 +598,7 @@ def _check_edits_shape(where: str, source_path: str, edits: Any) -> None:
         if not isinstance(edit, dict):
             raise CarveRefusal("carve-shape-invalid",
                                f"{at} is not a mapping ({edit!r})")
-        stray = sorted(set(edit) - EDIT_KEYS)
+        stray = sorted(set(edit) - EDIT_KEYS, key=repr)
         if stray:
             raise CarveRefusal(
                 "carve-shape-invalid",
@@ -591,12 +697,60 @@ def check_digests(repo: Path, doc: dict, tree: dict[str, str]) -> int:
                 f"  recomputed {actual}\n"
                 f"the bytes at {commit[:12]} are not the bytes this row "
                 "promises the destination")
+        _check_edit_lines(index, path, row, content, commit)
     return recomputed
+
+
+def _check_edit_lines(index: int, path: str, row: dict[str, Any],
+                      content: bytes, commit: str) -> None:
+    """`edits[].lines` must name lines the blob at `carve_commit` HAS.
+
+    The blob is already in hand from the digest recompute, so the upper bound is
+    free. The line numbers are carried for exactly one reason — the memo's, that
+    they make the claim "falsifiable at the destination" — and a line past EOF at
+    the carve commit is falsifiable here, for nothing.
+
+    `carve-shape-invalid` rather than a code of its own: the `edits[]` entry
+    grammar is check 1's (declared there and moved forward deliberately), the
+    predicate is the same one — `1 <= line <= <bound>` — with the blob supplying
+    the bound that the document alone cannot, and the reader's action is
+    identical to every other malformed edits entry. A second code for the same
+    action would ask a caller to learn a distinction that changes nothing it does.
+    """
+    total = content.count(b"\n") + (0 if not content or content.endswith(b"\n")
+                                    else 1)
+    for position, edit in enumerate(row.get("edits") or []):
+        for line in edit["lines"]:
+            if line > total:
+                raise CarveRefusal(
+                    "carve-shape-invalid",
+                    f"rows[{index}].edits[{position}] ({path}) names line "
+                    f"{line}, and the blob at {commit[:12]} carries "
+                    f"{total} line(s); a declared edit at a line the file does "
+                    "not have cannot be checked at the destination, which is "
+                    "the whole reason the lines are recorded")
 
 
 def check_surface(doc: dict, tree: dict[str, str]) -> int:
     """Every file under the declared prefixes appears in EXACTLY one row."""
     commit = doc["carve_commit"]
+
+    # THE PREFIX LIST FIRST. The completeness check below is only as good as
+    # `moved_paths:`, and a mistyped prefix (`scripts/ideation_dashbord`)
+    # contributes an EMPTY surface while looking like coverage in review — the
+    # silent case being the typo and its rows dropped together, which is exactly
+    # the hand-editing error a ~430-row manifest invites. Its own code rather
+    # than `carve-shape-invalid` because the document is well formed: this is a
+    # claim about the TREE, which is why check 1 cannot make it, and the remedy
+    # is to re-derive the prefix from the tree rather than to fix a grammar.
+    for entry in doc["moved_paths"]:
+        if not any(in_surface(path, [entry]) for path in tree):
+            raise CarveRefusal(
+                "carve-surface-vacuous",
+                f"`moved_paths:` declares {entry!r}, which matches NO file at "
+                f"{commit[:12]}. A prefix that names nothing declares nothing, "
+                "and the completeness check cannot report a file that no prefix "
+                "reaches — so a dead prefix reads as coverage and provides none")
     surface = {p for p in tree if in_surface(p, doc["moved_paths"])}
 
     seen: dict[str, int] = {}
@@ -609,6 +763,25 @@ def check_surface(doc: dict, tree: dict[str, str]) -> int:
                 "file has exactly one disposition and exactly one destination, "
                 "and a file with two rows has neither")
         seen[path] = index
+
+    # The DESTINATION side of the same question. `seen` guarantees completeness
+    # and uniqueness on the SOURCE side only, so two source files may otherwise
+    # claim one destination path — at which point one overwrites the other at
+    # the destination and the manifest, read as the carve's instruction sheet,
+    # does not say which arrives.
+    arrivals: dict[tuple[str, str], int] = {}
+    for index, row in enumerate(doc["rows"]):
+        if row.get("disposition") not in MOVED_DISPOSITIONS:
+            continue
+        arrival = (row["destination"], row["destination_path"])
+        if arrival in arrivals:
+            raise CarveRefusal(
+                "carve-file-duplicated",
+                f"rows[{arrivals[arrival]}] AND rows[{index}] both send a file "
+                f"to the DESTINATION {arrival[0]}:{arrival[1]}; two sources "
+                "arriving at one destination path means one of them overwrites "
+                "the other, and the manifest does not say which")
+        arrivals[arrival] = index
 
     undeclared = sorted(surface - set(seen))
     if undeclared:
@@ -771,7 +944,16 @@ def main(argv: list[str] | None = None) -> int:
 
     # THE SEAT-HOLDING PASS, and the one place here that is not fail-closed.
     # See the module docstring: this validator lands BEFORE its subject.
-    if not manifest_path.is_file():
+    #
+    # IT KEYS OFF `args.manifest is None`, not off the file's absence alone. The
+    # pass is right for the DEFAULT path and wrong for a NAMED one: a job that
+    # typos `--manifest docs/carve-manifest.yaml`, or the memo's own one-shot
+    # step in the carve PR after the file is renamed, would otherwise select the
+    # single not-fail-closed branch in this file and go green forever — for a
+    # manifest nobody validated. A named absent path is `carve-unreadable`
+    # (below, inside the refusal handler): the environment could not hand this
+    # program a document, which is that code's half of the split.
+    if args.manifest is None and not manifest_path.is_file():
         if args.json:
             print(json.dumps({"result": "no-manifest",
                               "manifest": str(manifest_path)}))
@@ -780,6 +962,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     try:
+        if not manifest_path.is_file():
+            raise CarveRefusal(
+                "carve-unreadable",
+                f"--manifest {args.manifest!r} names {manifest_path}, which is "
+                "not a file. The seat-holding pass covers the DEFAULT path "
+                f"({MANIFEST_RELPATH}) only, before the § 6 ceremony authors "
+                "it; it does not extend to a manifest the caller named, because "
+                "a typo must not be indistinguishable from `not yet written`")
         summary = validate(manifest_path, repo, args.at)
     except CarveRefusal as exc:
         if args.json:

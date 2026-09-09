@@ -15,10 +15,13 @@ THE SCRIPT IS RUN AS A SUBPROCESS, not imported, for the reason
 `tests/manifest_digests/test_manifest_digest_sweep.py:26-45` gives: the
 documented way to invoke it is `python3 scripts/validate-carve-manifest.py`,
 and a test of the imported function proves the code executes rather than that
-the documented invocation succeeds and prints what its readers depend on. The
-module IS also loaded by path, once, for the two constant assertions — the
-ratified refusal vocabulary and the ruled manifest path — because those are
-claims about the file's contents rather than about a run.
+the documented invocation succeeds and prints what its readers depend on. EVERY
+behavioural test here goes through the subprocess, with no exception. The module
+IS also loaded by path, once, for the constant assertions — the ratified refusal
+vocabulary, the ruled manifest path, the ruled vocabularies, and the docstring's
+record of the digest-field divergence — and the script's SOURCE is read once
+more to assert that the closed vocabulary is COMPLETE: those are claims about
+the file's contents rather than about a run.
 
 THE REAL-REPOSITORY TEST IS THE § 8.2 SEAT AND IT DOES NOT SKIP.
 `docs/opendox-carve-manifest.yaml` does not exist yet — the § 6 ceremony
@@ -48,6 +51,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -63,6 +67,11 @@ SCRIPT = REPO_ROOT / "scripts" / "validate-carve-manifest.py"
 # `MODULE.REFUSAL_CODES == MODULE.REFUSAL_CODES` would be a tautology; spelling
 # the list out is what makes a silent rename or reorder in the validator a test
 # failure — which is the point, because other code branches BY CODE.
+#
+# `carve-unreadable` is IN the list. It used to be raised but excluded, so a
+# caller branching on the code met a value the vocabulary said did not exist;
+# `test_every_code_the_validator_can_emit_is_in_the_vocabulary` below now holds
+# the tuple complete by scanning the script's own raise sites.
 RATIFIED_CODES = (
     "carve-shape-invalid",
     "carve-revision-mismatch",
@@ -70,15 +79,27 @@ RATIFIED_CODES = (
     "carve-path-absent",
     "carve-file-undeclared",
     "carve-file-duplicated",
+    "carve-surface-vacuous",
     "carve-vocabulary-unknown",
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
+    "carve-unreadable",
 )
 
 # RULING OQ-1's own list, verbatim. Three, not four.
 RULED_EDIT_CLASSES = ["import rewrites", "path constants", "adapter calls"]
 
 SURFACE = "scripts/pkg/"
+
+# TWO REAL FILENAMES WHOSE BYTEWISE ORDER IS THE REVERSE OF THEIR CODE-POINT
+# ORDER, which is what makes `path_order: bytewise_utf8` a claim with a
+# consequence rather than a synonym for `sorted()`. `\xff` is not valid UTF-8
+# and decodes (`surrogateescape`) to U+DCFF = 56575; `\xee\x80\x80` IS valid
+# UTF-8 for U+E000 = 57344. So bytes put `\xee…` first (0xEE < 0xFF) and code
+# points put `\udcff` first (56575 < 57344). A code-point sort would accept the
+# reverse of this tuple; the validator must not.
+PATHS_UTF8_CANNOT_HOLD = (b"scripts/pkg/\xee\x80\x80.py",
+                          b"scripts/pkg/\xff.py")
 
 
 def _load():
@@ -119,10 +140,30 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
     return done
 
 
+def _git_bytes(root: Path, *args: str) -> bytes:
+    """git, capturing BYTES — for `-z` output, whose records may hold a path
+    that is not valid UTF-8 and which no text decoder may touch on the way in."""
+    done = subprocess.run(["git", "-C", str(root), *args],
+                          capture_output=True, check=False)
+    assert done.returncode == 0, \
+        f"git {' '.join(args)} in {root} failed: {done.stderr!r}"
+    return done.stdout
+
+
 def _write(repo: Path, rel: str, text: str) -> None:
     target = repo / rel
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(text, encoding="utf-8")
+
+
+def _write_raw(repo: Path, rel: bytes, data: bytes) -> None:
+    """Create a file whose NAME is bytes — the case `os.fsdecode` exists for.
+    `Path` cannot hold `b"\\xff"` as text without a decoder, so the whole path
+    is assembled and opened as bytes."""
+    target = os.path.join(os.fsencode(repo), rel)
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, "wb") as handle:
+        handle.write(data)
 
 
 class Scratch:
@@ -149,13 +190,30 @@ class Scratch:
 
     def blobs(self, commit: str) -> dict[str, str]:
         """`{path: git_mode}` for the carve surface at `commit`, read the way
-        the validator reads it."""
-        listing = _git(self.repo, "ls-tree", "-r", "--full-tree", commit).stdout
+        the validator reads it — `-z`, `--full-tree`, `surrogateescape`, and a
+        SEGMENT-AWARE prefix test.
+
+        Copilot's second review was right that this used to claim that and not
+        do it: without `-z`, git QUOTES a path it cannot print (`\\xff.py` comes
+        back as `"scripts/pkg/\\377.py"`, quotes and octal included), so the
+        bare `startswith` dropped exactly the filenames the ordering test needs
+        — silently, since a dropped file just means no row is generated for it.
+        The reading is duplicated rather than imported from the validator on
+        purpose: a fixture that borrowed `in_surface` would agree with a broken
+        `in_surface` too.
+        """
         out: dict[str, str] = {}
-        for line in listing.splitlines():
-            meta, _, path = line.partition("\t")
+        listing = _git_bytes(self.repo, "ls-tree", "-r", "-z", "--full-tree",
+                             commit).decode("utf-8", "surrogateescape")
+        prefix = SURFACE.rstrip("/")
+        for record in listing.split("\0"):
+            if not record:
+                continue
+            meta, _, path = record.partition("\t")
             mode, kind, _oid = meta.split(" ")
-            if kind == "blob" and path.startswith(SURFACE):
+            if kind != "blob":
+                continue
+            if path == prefix or path.startswith(prefix + "/"):
                 out[path] = mode
         return out
 
@@ -164,6 +222,19 @@ class Scratch:
             ["git", "-C", str(self.repo), "cat-file", "blob",
              f"{commit}:{path}"], capture_output=True, check=True).stdout
         return hashlib.sha256(raw).hexdigest()
+
+
+def add_paths_utf8_cannot_hold(scratch: Scratch) -> str:
+    """Commit `PATHS_UTF8_CANNOT_HOLD` into the carve surface; return the sha.
+
+    Two REAL files, not two strings in a document: the point of the ordering
+    check is that git names files in bytes, so the fixture has to as well.
+    """
+    for rel in PATHS_UTF8_CANNOT_HOLD:
+        _write_raw(scratch.repo, rel, b"X = 1\n")
+    _git(scratch.repo, "add", "--", "scripts")
+    _git(scratch.repo, "commit", "-q", "-m", "names Unicode cannot hold")
+    return _git(scratch.repo, "rev-parse", "HEAD").stdout.strip()
 
 
 @pytest.fixture
@@ -201,7 +272,11 @@ def clean_manifest(scratch: Scratch, commit: str | None = None
     commit = commit or scratch.head
     blobs = scratch.blobs(commit)
     rows: list[dict[str, Any]] = []
-    for path in sorted(blobs, key=lambda p: p.encode("utf-8")):
+    # `surrogateescape` on the encode, for the same reason the validator's sort
+    # key uses it: a path is bytes, and a strict encode would raise out of the
+    # GENERATOR for the filenames the ordering test is built on.
+    for path in sorted(blobs,
+                       key=lambda p: p.encode("utf-8", "surrogateescape")):
         name = path.rsplit("/", 1)[-1]
         if name == "delta.py":
             rows.append({
@@ -288,6 +363,36 @@ def test_the_refusal_vocabulary_is_the_ratified_list() -> None:
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
 
 
+def test_every_code_the_validator_can_emit_is_in_the_vocabulary() -> None:
+    """The closure, ASSERTED rather than documented.
+
+    `REFUSAL_CODES` was referenced nowhere in the script, so nothing stopped a
+    check raising a code outside it — and one already did: `carve-unreadable`
+    was raised at five sites and excluded from the tuple by design, which left a
+    caller that branches on the code (the stated reason the vocabulary is
+    closed) meeting a value the vocabulary said did not exist. This scans the
+    script's own raise sites, so the tuple cannot drift from them in either
+    direction: no code raised but unlisted, and no code listed but never raised.
+    """
+    source = SCRIPT.read_text(encoding="utf-8")
+    raised = sorted(set(re.findall(r'CarveRefusal\(\s*"([^"]+)"', source)))
+    assert len(raised) > 5, \
+        f"the scan found only {raised}, so it is not evidence of anything"
+    assert [c for c in raised if c not in MODULE.REFUSAL_CODES] == []
+    assert sorted(MODULE.REFUSAL_CODES) == raised
+
+
+def test_the_module_records_the_digest_field_divergence() -> None:
+    """The manifest's field is `sha256: <64 hex>` and the release-digest
+    inventory it borrows its three consts from is `digest: sha256:<hex>`. The
+    divergence originates in the memo, so it is recorded rather than corrected —
+    and a reader of one document does NOT already know how to write the other,
+    which is the sentence that has to be findable in the file."""
+    doc = MODULE.__doc__ or ""
+    assert "digest: sha256:<hex>" in doc, doc
+    assert "memo § 1.2" in doc, doc
+
+
 def test_the_edit_class_list_is_the_rulings_own_verbatim() -> None:
     """Three, not four. The packet proposed `vocabulary parameterization` and
     the ruling does not carry it, so a parameterization edit is expressible as
@@ -336,6 +441,38 @@ def test_an_absent_manifest_is_not_a_refusal(scratch: Scratch) -> None:
     assert "(nothing to validate)" in done.stdout, done.stdout
 
 
+def test_a_named_manifest_that_does_not_exist_refuses(scratch: Scratch) -> None:
+    """The seat-holding pass is for the DEFAULT path, and only for it.
+
+    A caller that NAMED a manifest and got exit 0 because the path was wrong is
+    the worst outcome this file can produce: the one branch here that is not
+    fail-closed becomes the branch a typo selects, and a job verifying nothing
+    reports green forever. `carve-unreadable`, because the environment could not
+    hand the program a document at all.
+    """
+    missing = scratch.repo / "docs" / "not-the-carve-manifest.yaml"
+    assert not missing.exists()
+    done = run(scratch, "--manifest", str(missing))
+    combined = done.stdout + done.stderr
+    assert done.returncode == 2, combined
+    assert ": carve-unreadable —" in combined, combined
+    assert "Remediation:" in combined, combined
+    assert "NO MANIFEST" not in combined, combined
+
+
+def test_a_named_manifest_that_does_not_exist_refuses_in_json(
+        scratch: Scratch) -> None:
+    """`--json` says `refused` with the code, not `no-manifest`: a caller that
+    branches on the field must not read a typo as `not written yet`."""
+    done = run(scratch, "--manifest",
+               str(scratch.repo / "docs" / "typo.yaml"), "--json")
+    assert done.returncode == 2, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["result"] == "refused"
+    assert payload["code"] == "carve-unreadable"
+    assert payload["code"] in RATIFIED_CODES
+
+
 def test_at_verifies_an_earlier_carve_commit(scratch: Scratch) -> None:
     """The manifest is cut at the carve commit and `main` moves on; `--at`
     asks the question the manifest actually answers."""
@@ -358,6 +495,53 @@ def test_an_unresolvable_at_refuses(scratch: Scratch) -> None:
 # --------------------------------------------------------------------------
 # check 1 — shape
 # --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("version", [True, 1.0, "1", 1.5, None])
+def test_a_schema_version_that_is_not_the_integer_one_refuses(
+        scratch: Scratch, version: Any) -> None:
+    """`true` and `1.0` are both EQUAL to 1 in Python, so a plain `!=` admitted
+    them — `schema_version: true` verified a whole manifest. The first assertion
+    of a fail-closed chain is the last place to be type-blind."""
+    doc = clean_manifest(scratch)
+    doc["schema_version"] = version
+    refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_an_unknown_top_level_key_refuses(scratch: Scratch) -> None:
+    """The document grammar is closed too, not only the row's: an ignored
+    `moved_path:` is a surface nobody declared, reported (if at all) as some
+    other fault further down."""
+    doc = clean_manifest(scratch)
+    doc["moved_path"] = [SURFACE]
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "moved_path" in combined, combined
+
+
+def test_the_optional_header_key_is_still_accepted(scratch: Scratch) -> None:
+    """`header:` is where RULED OQ-E's convention break is recorded, so closing
+    the top level must not close it out. The clean manifest carries one."""
+    doc = clean_manifest(scratch)
+    assert "header" in doc
+    scratch.write(doc)
+    assert run(scratch).returncode == 0
+
+
+def test_an_unparseable_manifest_is_a_document_defect(scratch: Scratch) -> None:
+    """A DOCUMENT defect, `carve-shape-invalid`, with the parser's position —
+    not `carve-unreadable`. An empty manifest (parsing to `None`) and a manifest
+    with one unclosed bracket are the same kind of fault to the same reader, and
+    they used to answer with codes from two different vocabularies."""
+    path = scratch.manifest_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("kind: opendox-carve-manifest\nrows: [unclosed\n",
+                    encoding="utf-8")
+    done = run(scratch)
+    combined = done.stdout + done.stderr
+    assert done.returncode == 2, combined
+    assert ": carve-shape-invalid —" in combined, combined
+    assert "not parseable YAML at line" in combined, combined
+    assert "Traceback" not in done.stderr, done.stderr
+
 
 def test_a_wrong_kind_refuses(scratch: Scratch) -> None:
     doc = clean_manifest(scratch)
@@ -412,6 +596,22 @@ def test_a_not_moved_row_carrying_a_digest_refuses(scratch: Scratch) -> None:
     doc = clean_manifest(scratch)
     row_named(doc, "delta.py")["sha256"] = "0" * 64
     refuses(scratch, doc, "carve-shape-invalid")
+
+
+@pytest.mark.parametrize("key,value", [("destination", "opendox_code"),
+                                       ("destination_path", "src/x.py"),
+                                       ("git_mode", "100644")])
+def test_a_not_moved_row_carrying_a_destination_refuses(
+        scratch: Scratch, key: str, value: str) -> None:
+    """Symmetric with the digest it already refused, and for the same sentence:
+    nothing arrives. Such a row used to PASS — and its `destination` was even
+    validated against `destinations:` on the way — so it read at the destination
+    as `this file goes there` over a disposition saying it does not. The memo's
+    § 1.2 `not_moved` row is `source_path + disposition + reason + evidence`."""
+    doc = clean_manifest(scratch)
+    row_named(doc, "delta.py")[key] = value
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert key in combined, combined
 
 
 def test_a_not_moved_row_without_evidence_refuses(scratch: Scratch) -> None:
@@ -569,9 +769,57 @@ def test_a_not_moved_row_for_an_absent_path_refuses(scratch: Scratch) -> None:
     refuses(scratch, doc, "carve-path-absent")
 
 
+def test_an_edit_line_past_the_end_of_the_blob_refuses(
+        scratch: Scratch) -> None:
+    """`beta.py` has three lines at the carve commit, so line 999999 is a claim
+    nothing at the destination can check — which is the ONLY reason the line
+    numbers are recorded. The blob is already read for the digest, so the bound
+    is free; it was simply never applied."""
+    doc = clean_manifest(scratch)
+    row_named(doc, "beta.py")["edits"][0]["lines"] = [1, 999999]
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "999999" in combined, combined
+    assert "3 line(s)" in combined, combined
+
+
+def test_an_edit_on_the_last_line_of_the_blob_passes(scratch: Scratch) -> None:
+    """The bound is inclusive and off by nothing: the clean manifest's own
+    `adapter calls` edit is on line 3 of a three-line file."""
+    doc = clean_manifest(scratch)
+    assert row_named(doc, "beta.py")["edits"][1]["lines"] == [3]
+    scratch.write(doc)
+    assert run(scratch).returncode == 0
+
+
 # --------------------------------------------------------------------------
 # check 4 — surface completeness
 # --------------------------------------------------------------------------
+
+def test_a_moved_paths_prefix_that_matches_nothing_refuses(
+        scratch: Scratch) -> None:
+    """The completeness check is only as good as the prefix list. A mistyped
+    prefix contributes an EMPTY surface while looking like coverage in review,
+    and the silent case — the typo and its rows dropped together — is exactly
+    the hand-editing error a ~430-row manifest invites."""
+    doc = clean_manifest(scratch)
+    doc["moved_paths"] = [SURFACE, "scripts/ideation_dashbord"]
+    combined = refuses(scratch, doc, "carve-surface-vacuous")
+    assert "scripts/ideation_dashbord" in combined, combined
+
+
+def test_two_rows_arriving_at_one_destination_path_refuse(
+        scratch: Scratch) -> None:
+    """`seen` guarantees uniqueness on the SOURCE side only. Two sources sent to
+    one destination path means one overwrites the other at the destination, and
+    the manifest — read as the carve's instruction sheet — does not say which."""
+    doc = clean_manifest(scratch)
+    alpha = row_named(doc, "alpha.py")
+    gamma = row_named(doc, "gamma.py")
+    gamma["destination"] = alpha["destination"]
+    gamma["destination_path"] = alpha["destination_path"]
+    combined = refuses(scratch, doc, "carve-file-duplicated")
+    assert "DESTINATION" in combined, combined
+
 
 def test_a_file_in_no_row_refuses(scratch: Scratch) -> None:
     """RULING OQ-1's own sentence as running code: a file in no row is an
@@ -752,17 +1000,50 @@ def test_a_manifest_that_is_not_utf8_refuses_rather_than_crashing(
     assert "Traceback" not in done.stderr, done.stderr
 
 
-def test_the_path_order_key_survives_a_path_utf8_cannot_hold() -> None:
-    """git names files in BYTES. `tree_at()` decodes them with
-    `surrogateescape`, so the bytewise sort key encodes the same way: a strict
-    `encode('utf-8')` would raise `UnicodeEncodeError` out of the comparison
-    and end the run with a traceback instead of a verdict."""
-    doc = {"rows": [
-        {"source_path": "scripts/pkg/alpha.py", "disposition": "moved_verbatim"},
-        {"source_path": os.fsdecode(b"scripts/pkg/\xffzeta.py"),
-         "disposition": "moved_verbatim"},
-    ]}
-    MODULE.check_disposition_consistency(doc)
+def test_the_fixture_reads_the_tree_the_way_the_validator_does(
+        scratch: Scratch) -> None:
+    """Copilot's second review, pinned: without `-z` git QUOTES a path it cannot
+    print, so `Scratch.blobs()` used to DROP the two filenames below — silently,
+    because a dropped file simply produces no row. A fixture generator that
+    cannot see a file cannot generate the case that file exists for."""
+    commit = add_paths_utf8_cannot_hold(scratch)
+    seen = scratch.blobs(commit)
+    for raw in PATHS_UTF8_CANNOT_HOLD:
+        assert os.fsdecode(raw) in seen, sorted(map(repr, seen))
+    assert not [p for p in seen if p.startswith('"')], sorted(map(repr, seen))
+
+
+def test_the_row_order_is_bytewise_and_not_by_code_point(
+        scratch: Scratch) -> None:
+    """`path_order: bytewise_utf8` DISTINGUISHES ITSELF from a code-point sort,
+    and this is the fixture in which the two disagree.
+
+    Both real files: `\\xff` is not valid UTF-8 and decodes to U+DCFF (56575),
+    while `\\xee\\x80\\x80` is valid UTF-8 for U+E000 (57344) — so the bytes and
+    the code points order them oppositely. The correct (bytewise) order passes;
+    feeding the validator the code-point order, which a `sorted(paths)`
+    implementation would have accepted, refuses.
+
+    This replaces a test that called `check_disposition_consistency` in process,
+    asserted nothing, and used two paths that agree under both orders — so the
+    suite pinned `the encode does not raise` and nothing about the ordering.
+    """
+    commit = add_paths_utf8_cannot_hold(scratch)
+    doc = clean_manifest(scratch, commit)
+    paths = [row["source_path"] for row in doc["rows"]]
+    bytewise = sorted(paths, key=lambda p: p.encode("utf-8", "surrogateescape"))
+    by_code_point = sorted(paths)
+    assert bytewise != by_code_point, \
+        f"the fixture is not divergent, so it proves nothing: {paths!r}"
+    assert paths == bytewise, f"the generator must emit bytewise: {paths!r}"
+
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+    order = {row["source_path"]: row for row in doc["rows"]}
+    doc["rows"] = [order[path] for path in by_code_point]
+    refuses(scratch, doc, "carve-path-order-violation")
 
 
 # --------------------------------------------------------------------------
