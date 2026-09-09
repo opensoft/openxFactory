@@ -519,70 +519,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-marker-defect-reporting](openspec/changes/amend-marker-defect-reporting/proposal.md)
-  — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
-  openxFactory operator authority, in-session, *"merge 842 and 846 when green,
-  then ratify the 729 packet"* — one utterance of three clauses in order, and
-  the order was kept: #842 merged `4cdadd56` and #846 merged `183d1b43`, both
-  green, and the encode is the third clause; records
-  `openspec/changes/amend-marker-defect-reporting/review/ratification-2026-09-09.md`
-  and `verification-2026-09-09.md`). `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it —
-  `kind` and `id` unmoved, the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
-  Brett Heap's earlier *"author the 729 packet"*, which instructed a lane to
-  write a remedy and decided no wording, and the ratification is the separate
-  act above. **THE OWED SUCCESSOR OF
-  `amend-marker-reason-boundary` § 5.1, filed as issue #729.**
-  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
-  gives a marker exactly ONE reporting ground — it names a unit the block still
-  carries — so two other ways of declaring nothing are silent about the MARKER
-  and point its author at a unit instead of at their own paragraph: a name that
-  matches no unit of the requirement (silent since the family launched, recorded
-  by `suppression` itself as "a plausible later ruling" it had no standing to
-  invent), and a code span standing INSIDE a reason, which the boundary
-  correctly reads as prose so that the unit its author had in mind is reported
-  while the marker that caused it is not. The amendment restates the requirement
-  with ONE body sentence replaced, stating THREE grounds at the marker-defect
-  class's existing `info` band, and ADDS TWO SCENARIOS at the end of the block,
-  one per ground; the reason-quotes scenario's third `AND` — the unit stays
-  subject to the carriage arms — is carried word for word, the new report being
-  added BESIDE that carriage rather than in place of it. **`design.md` D1 IS THE
-  VETO POINT AND IT IS A MEASUREMENT:** the second ground is NARROW, firing only
-  where a reason-quoted span matches EXACTLY a promoted unit the block does not
-  carry and no marker declares removed. The issue's own remedy shape — any span
-  inside a reason — is written out beside it with its cost, because a reason is
-  prose and prose quotes: of the SIXTEEN unit-naming markers this corpus carried
-  on 2026-09-09, EIGHT quote a code span inside their reason, every one of them
-  a PROMOTED marker, and of the 34 spans they quote ZERO is a derived unit — so
-  the position predicate is the predicate for canon's own blessed form and its
-  share grew from 2 of 7 to 8 of 16 in three days. **D1 WAS PUT AND WAS NOT
-  VETOED, and A is ratified AS DESIGNED** — ground two included, together with
-  the narrowing `design.md` D5 adds to the ruling's literal wording (*"and that
-  no marker declares removed"*, narrower in the silent direction), disclosed on
-  issue #729 before the act the word authorized. Realized in the same pull
-  request under `release-realization`'s merged-plus-green rule
-  (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
-  `Marker` gains one field for the post-boundary spans `parse_marker` derived
-  and DISCARDED (which is why the second silence was not mechanically detectable
-  at all), `suppression` resolves them and the names that match nothing, and one
-  interpolated `{why}` field carries all three grounds through the class's
-  EXISTING template — so `_ARM_TEMPLATES` stays at eight, the existing
-  `CLASS_MARKERS` probe places every new finding, and ground one's rendered text
-  is byte-identical to the one it shipped with. **BOTH NEW GROUNDS RAISE ZERO
-  FINDINGS ON THIS CORPUS TODAY**, measured: `--family
-  modified-block-currency` is identical to `origin/main`'s output line for line,
-  this packet's own block included, so the amendment is normative for the next
-  marker written rather than a sweep of the present one. **THE ADVERSARIAL PASS
-  FOUND ONE OVER-CLAIM AND IT WAS FIXED BEFORE THE FLIP**: the replacing
-  sentence had opened *"a marker that declares nothing SHALL itself be
-  reported"*, whose converse is false — a marker carrying NO code span parses to
-  no names and reaches none of the three grounds — so the clause now says what
-  the three grounds report, and the nameless marker is recorded as an unruled
-  fourth case at `tasks.md` § 5.7. Under `release-realization` the packet still
-  archives on merged-plus-green realization evidence rather than on landing, on
-  a separate word, so issue #729 closes at archive.
-
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
@@ -2858,6 +2794,87 @@ Archived changes:
   and task **6.2**, a `1.2.0` lockfile IF a rollback is ever taken (**owner:
   whoever takes the rollback**), whose condition has never been triggered and
   whose gap the pin's `rollback:` entry already DECLARES uncovered.
+
+- [amend-marker-defect-reporting](openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of the same day (in
+  session, verbatim *"do 1, then 2"* — item 1 being this archive and the closure
+  of openxFactory [#729](https://github.com/opensoft/openxFactory/issues/729))
+  and the `release-realization` rule that a change with a NON-EMPTY code surface
+  archives on **merged-plus-green realization evidence, not on landing**. **THE
+  EVIDENCE, BOTH HALVES, CITED RATHER THAN ASSERTED:** ratified and realized in
+  one pull request, **PR
+  [#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`**
+  (2026-09-09T17:39:11Z, ratifying commit `4e3c2e26`, records
+  `openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/review/ratification-2026-09-09.md`
+  and `verification-2026-09-09.md`), and **`pytest-suite` run
+  [34384218837](https://github.com/opensoft/openxFactory/actions/runs/34384218837)
+  `success` on `main` at `250d93d7` itself** — the green run is ON the merge
+  commit, not merely on a descendant. Governing issue **#729**, THE OWED
+  SUCCESSOR of `amend-marker-reason-boundary` § 5.1.
+  **ONE PROMOTED SENTENCE, AND IT GAVE A MARKER EXACTLY ONE REPORTING GROUND.**
+  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
+  reported a marker only where it named a unit the block still carries, so two
+  other ways of declaring nothing were silent about the MARKER and pointed its
+  author at a unit instead of at their own paragraph: a name matching no unit of
+  the requirement (silent since the family launched, recorded by `suppression`
+  itself as *"a plausible later ruling"* it had no standing to invent), and a
+  code span standing INSIDE a reason, which `amend-marker-reason-boundary`'s
+  boundary correctly reads as prose so that the unit its author had in mind was
+  reported while the marker that caused it was not. The archived block restates
+  the requirement with **ONE body sentence replaced**, stating **THREE grounds**
+  at the marker-defect class's existing `info` band, and **ADDS TWO SCENARIOS**
+  at the end of the block, one per new ground; the reason-quotes scenario's
+  third `AND` — the unit stays subject to the carriage arms — is carried word for
+  word, the new report being added BESIDE that carriage rather than in place of
+  it. **`design.md` D1 WAS THE VETO POINT AND IT IS A MEASUREMENT:** ground two
+  is NARROW, firing only where a reason-quoted span matches EXACTLY a promoted
+  unit the block does not carry and no marker declares removed. The issue's own
+  remedy shape — any span inside a reason — is written out beside it with its
+  cost, because a reason is prose and prose quotes: of the SIXTEEN unit-naming
+  markers the corpus carried on 2026-09-09, EIGHT quote a code span inside their
+  reason, every one of them a PROMOTED marker, and of the 34 spans they quote
+  ZERO is a derived unit — so the position predicate is the predicate for
+  canon's own blessed form, and its share grew from 2 of 7 to 8 of 16 in three
+  days. **D1 WAS PUT AND WAS NOT VETOED, and A is ratified AS DESIGNED** —
+  ground two included, together with the narrowing `design.md` D5 adds to the
+  ruling's literal wording (*"and that no marker declares removed"*, narrower in
+  the SILENT direction), disclosed on issue #729 before the act the word
+  authorized. Realized in the same pull request
+  (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
+  `Marker` gained one field for the post-boundary spans `parse_marker` derived
+  and DISCARDED — which is why the second silence was not mechanically
+  detectable at all — `suppression` resolves them in a second pass and the names
+  that match nothing in the first, and one interpolated `{why}` field carries
+  all three grounds through the class's EXISTING template, so `_ARM_TEMPLATES`
+  stayed at eight, the existing `CLASS_MARKERS` probe places every new finding,
+  and ground one's rendered text is byte-identical to the one it shipped with.
+  Tests **128 → 139**. **BOTH NEW GROUNDS RAISED ZERO FINDINGS ON THIS CORPUS**,
+  measured rather than assumed: the amendment is normative for the next marker
+  written rather than a sweep of the present one. **THE ADVERSARIAL PASS FOUND
+  ONE OVER-CLAIM AND IT WAS FIXED BEFORE THE FLIP**: the replacing sentence had
+  opened *"a marker that declares nothing SHALL itself be reported"*, whose
+  converse is false — a marker carrying NO code span parses to no names and
+  reaches none of the three grounds — so the clause says what the three grounds
+  report, and the nameless marker was recorded as an unruled fourth case.
+  **FIVE RESIDUES ARE NAMED AS FILED, UNCLAIMED SUCCESSORS AT THIS ARCHIVE**, on
+  the ruling of 2026-09-06T23:10Z (*"Tick on the recording"*) and as
+  `review/ratification-2026-09-09.md` foresaw in terms (*"the issues are filed at
+  the archive word"*): **#856** (§ 5.2, a name matching a unit the BLOCK adds and
+  canon does not is still silent — the unruled fourth ground), **#857** (§ 5.3,
+  canon's *advisory at launch* paragraph still describes the pre-flip state,
+  false in both halves since the #357 flip of 2026-08-31), **#858** (§ 5.4,
+  `specs/019-modified-block-currency-family` FR-018 still states the ONE-ground
+  rule — the shape PR #827 already established for the predecessor's FR-016),
+  **#859** (§ 5.5, the estate-wide run of grounds two and three, filed as the
+  SIBLING of the predecessor's still-open #731 rather than folded into it, whose
+  declared scope is the name-set narrowing and not this population) and **#860**
+  (§ 5.7, a marker that names nothing at all, whose own ratified text asked for
+  the issue to be filed at the archive word). Spec count **61 → 61** and canon's
+  marker lines **8 → 8**, so **no codexFactory floor advance**: this packet's
+  `Removed from canon` marker REPLACES #719's in place, that predecessor's marker
+  being deliberately not restated (`tasks.md` § 4.3) because its named unit is a
+  sentence canon no longer carries, so restating it would make the block report
+  ITSELF under its own new ground three. Lane `openxfactory-1`.
 
 - [bump-openspec-cli-pin-to-1.12](openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
