@@ -311,6 +311,10 @@ carrying this group needs a human merge word.**
       before and after.
 - [ ] 6.5 Confirm zero remaining live occurrences of `opensoft/codexFactory`
       outside the frozen and not-swept sets.
+      PRECONDITION (ruled 2026-09-09): the per-line verdict table is
+      re-derived at the ceremony window, not carried forward; any new
+      RENAME-class occurrence found then is assigned to a slice before #801
+      merges.
 
 ## 7. Cut the contract bundle
 
