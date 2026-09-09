@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v3.4
+contract_bundle_version: contract-v3.5
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2063,7 +2063,29 @@ contracts:
       per-row schema_version below mirrors that const, not the schema
       file's contract_schema_version — because bumping it would
       invalidate every instrument in the estate, which is the opposite
-      of additive. Consumed through the pinned
+      of additive.
+      Digest refreshed again at contract-v3.5 by
+      add-consent-custody-rederivation-record, which bumps this schema's
+      contract_schema_version 2 -> 3 for ONE ADDITIVE growth: a closed
+      top-level custody_rederivations[] array, SIBLING of custody rather
+      than a member of it, whose entries are closed at TEN required
+      fields (at, commit, previous_locator, observed_locator,
+      previous_sha256, observed_sha256, diff_class, reason, ruling_ref,
+      recorded_by) under two CLOSED enumerations — diff_class
+      [path_only, header_only, content] and reason
+      [lifecycle_header_edit, archive_move, other_ruled_edit]. It makes
+      an AUTHORIZED act that moves a pinned target's bytes or its path
+      RECORDABLE, so a custody pin that no longer resolves can be
+      re-derived from the record rather than rewritten to match what it
+      finds. Nothing is removed, no enumeration is narrowed, no property
+      becomes required, and every instrument already in the estate stays
+      valid unchanged — none declares the new array. The RECORD
+      envelope's schema_version stays const 1 for the same reason it did
+      at contract-v1.33. The locators are OPAQUE and are NOT paths:
+      resolution runs through the consuming repository's declared
+      custody store mapping, and the GIT re-derivation legs are that
+      repository's own — a pass by the neutral validator published with
+      this bundle is NOT a currency claim. Consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   - id: consent-instrument-class-registry

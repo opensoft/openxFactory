@@ -302,16 +302,59 @@ of a digest *"written back into custody.sha256"* and of leaving the pin
   (`contracts/manifest.yaml:3` declares `contract-v3.4`; `contracts/releases/`
   holds `contract-v3.4.digests.yaml` as its highest) — **a measurement, not a
   reservation**. Re-measure at the cut; a sibling cut may have taken it.
-- [ ] 5.2 Realization order steps 1–2: fetch, integrate onto the final
+- [x] **TICKED 2026-09-09.** 5.2 Realization order steps 1–2: fetch, integrate onto the final
   integration point, re-check availability, allocate, then move every release
   surface atomically in ONE candidate commit — `contracts/manifest.yaml`
   (`contract_bundle_version`, the `consent-instrument` row's `sha256` — today
   `13b0fe46…` — and its `consumption_rule`), `contracts/CHANGELOG.md`, and
   `contracts/releases/<version>.digests.yaml`.
-- [ ] 5.3 The CHANGELOG entry names what changed in the bundle, not what this
+- [x] **TICKED 2026-09-09.** 5.3 The CHANGELOG entry names what changed in the bundle, not what this
   session intended: § *Version Identity* requires one entry per release listing
   every contract added, changed or deprecated, and a bundle is a commit's whole
   tree.
+**§ 5.2 AND § 5.3 EVIDENCE, 2026-09-09.** The candidate is ONE commit on branch
+`033-add-consent-custody-rederivation-record`, taken after Phases B–F, over the
+integration point `9d658813` (a MERGE of `origin/main@587f21a0`, never a
+rebase). Transcripts:
+`specs/033-add-consent-custody-rederivation-record/evidence/phaseG-T060-measurement.txt`
+and `.../phaseG-T061a-T061c-coupling.txt`.
+
+- **THE NUMBER WAS MEASURED AT THE INTEGRATION POINT, NOT RESERVED BEFORE IT.**
+  `contract-v3.4` on all three surfaces — `contracts/manifest.yaml:3`, the
+  highest `contracts/releases/` inventory, and the highest `contract-v*` tag —
+  so **`contract-v3.5` is free**. Main had moved 39 commits, SEVEN under
+  `contracts/`, since the previous measurement; this is the one that counts.
+  **The CLAIM on issue #630 row 4 is the LANE's and is not made here** (box 5.1).
+- **EVERY RELEASE SURFACE MOVES IN THE ONE COMMIT**: `contract_bundle_version`
+  → `contract-v3.5`; the `consent-instrument` row's new `consumption_rule`
+  paragraph, inserted BEFORE the closing sentence in the `contract-v1.33` slot;
+  `contracts/CHANGELOG.md`; and `contracts/releases/contract-v3.5.digests.yaml`,
+  **BUILT by `validate-contract-release.py build`, never hand-edited** — 283
+  entries, delta ZERO against `contract-v3.4`'s 283.
+  **The row's `sha256` needed no move**: `2b834492…` was re-derived in § 2's own
+  commit, so it is verified current here rather than edited, and no commit on
+  this branch was ever left with a stale digest.
+- **THE CUT-COUPLED TESTS ARE MEASURED FROM THE LAST CUT, NOT ASSUMED.**
+  `807a4f47` moved SIX files, not four. `test_release_boundary.py` takes all
+  three edits — the `FEATURE_SUCCESSOR_9` member, BOTH match arms, and a
+  hand-written paragraph whose "membership unchanged" claim is measured twice
+  over (three registered rows differ at this candidate, none of them an
+  intent-compliance member; and the member set itself returns ZERO changed
+  paths since `contract-v3.4`). `test_clearing_manifest_rows.py` takes **NO
+  EDIT**, measured by running it: its only failure was the absent inventory,
+  which `build` then created — the outcome `807a4f47` engineered when it
+  repaired that file's bundle-version equality rather than re-pinning a number
+  that would fail again here.
+- **THE CHANGELOG NAMES THE BUNDLE, NOT THE SESSION.** Nineteen paths — 4
+  additions, 15 modifications — each attributed to its originating change or
+  pull request, and the ADDITIVE class argued row by row rather than asserted:
+  the consent schema is the ONLY `*.schema.yaml` in the bundle and grows one
+  optional property; `manifest.yaml` and `contracts/README.md` are editorial;
+  the eight `examples/` files are corpus under a rename sweep; the four pin
+  files change a TARGET and not a shape. Nothing removed, no enumeration
+  narrowed, nothing deprecated. The entry also records what the bundle does NOT
+  do: the rule is declared and enforced nowhere, and no custody pin is repaired.
+
 - [ ] 5.4 Step 3: run every gate against that exact unchanged candidate —
   `release-tag-gate` (which evaluates any PR touching `contracts/manifest.yaml`
   or `contracts/releases/`), `pytest-suite`, `scripts/validate-manifest-digests.py`,

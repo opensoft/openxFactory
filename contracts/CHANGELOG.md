@@ -9,6 +9,117 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.5 — 2026-09-09 (additive; the consent instrument gains a re-derivable custody record, and the bundle carries the OpenSpec CLI pin's first publication, the repository-identity mapping, the re-pin binding template and four pin advances)
+
+Cut under `add-consent-custody-rederivation-record` § 5, ratified 2026-09-08 by
+Brett Heap (reviewer of record), lane `opsXfactory-1`. The whole release surface
+moves in ONE candidate commit over ONE integration point, per
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Bundle Realization Order* step 2, and the integration is a MERGE of `main`
+into the cutting branch rather than a rebase — opensoft org ruleset **8981805**
+forbids non-fast-forward updates, so a candidate is only ever advanced forward.
+**The number was measured at that integration point and not reserved before it**:
+`contract-v3.4` on all three surfaces (`manifest.yaml:3`, the highest
+`contracts/releases/` inventory, and the highest `contract-v*` tag), so
+`contract-v3.5` was free.
+
+**THE CUT WAS ORDERED FOR THE CONSENT SCHEMA AND MEASURED TO CARRY MORE, AND THE
+MEASUREMENT GOVERNS.** § *Version Identity* requires one entry per release
+*"listing every contract added, changed, or deprecated"*, and a bundle is a
+commit's whole tree rather than a session's intention. Measured at the candidate
+with `git diff --name-status contract-v3.4 <candidate> -- contracts/`: **FOUR
+additions and FIFTEEN modifications**. Each is named below with the change or
+pull request that made it, and none but the first is this session's.
+
+### Added — four
+
+- **`contracts/openspec-cli-pin.yaml`** — the pinned OpenSpec CLI as a
+  registered contract member, by `publish-openspec-cli-pin-as-contract-member`
+  (archived 2026-09-08). **This bundle is what finally publishes that
+  registration**: the row was authored after `contract-v3.4` peeled, so no
+  tagged bundle has carried it until now. Subsequently refined in place by
+  `50a60830`, `d175874f` (naming both governed-act commands in the header) and
+  `c599c904` (repairing two dangling `cited_to` paths).
+- **`contracts/openspec-cli-pin.1.12.0.package-lock.json`** — the pin's vendored
+  dependency closure (80 packages), `50a60830`, indexed as a member of the pin's
+  own `contracts/README.md` row by `37a31769`. A pin that names a version
+  without pinning what that version installs is a pin in name only.
+- **`contracts/policies/repository-identity.yaml`** — the repository-identity
+  mapping file and its row, `170ca386` (`adopt-codexfactory-repository-identity`
+  task 1.1 / T069).
+- **`contracts/review-lane-repin-binding.template.yaml`** — the re-pin lane's
+  binding template, `5c782f29` (step 1, #823) and `82c9f059` (step 3, #829),
+  respelled to `github:codeXfactory` by `8c7a1fca` (ruling 1(c)).
+
+### Changed — fifteen
+
+- **`contracts/schemas/consent-instrument.schema.yaml`** — `f59a587d`, this
+  change. `contract_schema_version` 2 → 3 for ONE closed optional top-level
+  array, `custody_rederivations[]`.
+- **`contracts/manifest.yaml`** and **`contracts/README.md`** — the registration
+  and editorial members. Moved by this cut itself (the bundle version, the
+  consent row's digest and its new `consumption_rule` paragraph, the corpus
+  re-count and the consent row's amendment note), and before it by `170ca386`
+  and `37a31769`.
+- **Six `contracts/omnigent/examples/` files** — the five negative manifest
+  fixtures (`manifest-dual-domain-overlay`, `-legacy-vocabulary`,
+  `-missing-effective-profiles`, `-parallel-identity`,
+  `-semantic-duplicate-worker`) and `omnigent-install-manifest.example.yaml` —
+  and **two `contracts/hermes-domain-overlay/examples/` files**
+  (`hermes-subject-overlay.example.yaml` and the `subject-undeclared-kind`
+  negative overlay): all eight by `edbc2621`,
+  `adopt-codexfactory-repository-identity` slice A's recorded rename sweep.
+- **`contracts/openreposhape-pin.yaml`** — advanced to `e9c4827b` by `303bfd53`
+  (#700): 31 digested / 45 path-only over a 76-file surface.
+- **`contracts/openxwallet-pin.yaml`** — advanced to `wallet-v1.5` (`f3eb929b`)
+  by `30eccf0c`, commit and tag only, eight digests re-verified unchanged.
+- **`contracts/review-lane-pin.yaml`** and
+  **`contracts/review-lane-floor-snapshot.yaml`** — the pinned decision core
+  advanced three times, `9ffc6252` (#732), `d5a549e4` (#747) and `8d92bfaf`
+  (#764), with the pin also moved by `4f69a545` (slice B1, gated at runbook
+  step 1.2).
+
+### Change class: ADDITIVE (minor), argued over the WHOLE bundle
+
+The additions are additive by construction — a member that did not exist cannot
+have narrowed. **Each MODIFICATION to an already-published contract is checked
+individually**, because "the bundle is additive" is a claim about every row in
+it and not only about the row the session came to move:
+
+- **The consent schema is the ONLY `*.schema.yaml` in this bundle** — measured,
+  not assumed: no other path in the nineteen ends in `.schema.yaml`. Its growth
+  adds one OPTIONAL top-level property. Nothing is removed, no enumeration is
+  narrowed, no existing property becomes required, and the RECORD envelope's
+  `schema_version` stays `const: 1`. Every instrument already in the estate
+  validates unchanged, and none declares the new array — proven by the packaged
+  corpus, where all six pre-existing valid examples are byte-unedited and still
+  pass.
+- **`manifest.yaml` and `contracts/README.md` are EDITORIAL members** — rows,
+  digests and prose. They carry no consumer-visible shape, and both are moved by
+  every cut.
+- **The eight `examples/` and fixture files are CORPUS, not contract** — a
+  rename sweep over declared identity spellings. No schema they instantiate
+  moved in this bundle, so nothing a consumer validates against changed.
+- **The four pin files are PINS.** Advancing a pin changes the TARGET a consumer
+  checks out; it does not change the pin record's own shape, and no pin schema
+  moved here. `openxwallet-pin.yaml` re-verified its eight digests as unchanged
+  at the new tag, which is the strongest form of that statement.
+
+**NOTHING IN THIS BUNDLE IS BREAKING, AND NOTHING IS DEPRECATED.**
+
+### What this bundle does NOT do
+
+The consent family's re-derivation rule is DECLARED here and ENFORCED nowhere.
+The neutral validator published with this bundle takes only the legs derivable
+from a record's own bytes — anchor and linkage in both digest and locator,
+declared order, the unrewritten pin, `path_only` digest equality, closed
+enumerations and entry closure — and a pass by it is **NOT a currency claim**. A
+`content`-class divergence yields a THIRD OUTCOME, `WITHHELD`, and exit `3`,
+"needs a human decision", rather than a pass. The GIT re-derivation legs, the
+declared custody store mapping that resolves an opaque locator, and the operated
+custody-digest check are the CONSUMING repository's, and no consumer file is
+written by this release. No custody pin is repaired by this bundle.
+
 ## contract-v3.4 — 2026-09-04 (additive; the chain-anchoring family reaches its first bundle WITH the ratified readiness-and-durability amendment already realized in it, `deliberation` becomes clearing register entry two, and the openRepoShape consumption pin advances to `122d729b`)
 
 Cut on the repository owner's word — Brett Heap, 2026-09-04, in session, lane

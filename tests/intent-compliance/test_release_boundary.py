@@ -97,6 +97,25 @@ class ReleaseState(StrEnum):
     is the one fact the library cannot tell from "unnoticed", and worth stating
     carefully here because a cut carrying two whole families is exactly the kind a
     reader assumes MUST have moved this one.
+    Advanced again at the ``contract-v3.5`` cut
+    (add-consent-custody-rederivation-record § 5), which registers NO new
+    family: it amends ONE already-registered schema,
+    ``contracts/schemas/consent-instrument.schema.yaml``, whose
+    ``contract_schema_version`` goes 2 -> 3 for a single closed optional
+    top-level array. MEASURED against ``contract-v3.4``'s 283-entry inventory
+    rather than assumed: exactly THREE registered rows differ at this cut —
+    ``contracts/manifest.yaml``, ``contracts/README.md`` and
+    ``docs/contract-versioning-policy.md`` — the first two EDITORIAL members
+    this cut itself moves, the third moved on ``main`` before the cut reached
+    it. The consent schema, its packaged corpus and its canonical validator are
+    registered rows of NEITHER inventory. And the intent-compliance member set
+    was measured DIRECTLY as well as by inventory: ``git diff --name-status``
+    from ``contract-v3.4`` to this candidate over
+    ``contracts/intent-compliance``, ``scripts/intent_compliance``,
+    ``tests/intent-compliance`` and ``scripts/validate-intent-compliance.py``
+    returns ZERO paths. So the membership this file asserts is again UNCHANGED
+    — stated by hand, like every advance above it, because "unchanged" is the
+    one fact the library cannot tell from "unnoticed".
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -113,6 +132,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_6 = "contract-v3.2"
     FEATURE_SUCCESSOR_7 = "contract-v3.3"
     FEATURE_SUCCESSOR_8 = "contract-v3.4"
+    FEATURE_SUCCESSOR_9 = "contract-v3.5"
 
 
 def _release_state() -> ReleaseState:
@@ -205,6 +225,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_6
             | ReleaseState.FEATURE_SUCCESSOR_7
             | ReleaseState.FEATURE_SUCCESSOR_8
+            | ReleaseState.FEATURE_SUCCESSOR_9
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -242,6 +263,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_6
             | ReleaseState.FEATURE_SUCCESSOR_7
             | ReleaseState.FEATURE_SUCCESSOR_8
+            | ReleaseState.FEATURE_SUCCESSOR_9
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
