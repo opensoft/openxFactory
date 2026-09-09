@@ -16,6 +16,73 @@ and on nothing else. **5.2 AND 5.3 REMAIN OWED:** ratification is not an archive
 and the validation and realization evidence are re-run at the archive gate rather
 than trusted from here. Group 6 is successor work and stays unticked.
 
+### 2026-09-09 — the origin declaration restored to its ratifying bytes (#709 precedent)
+
+**THE ARCHIVE GATE REFUSED THIS PACKET BEFORE IT ARCHIVED IT, AND THE REFUSAL
+WAS RIGHT.** `release-realization` § "Origin retention at archive": *"Mutation
+of an origin declaration after ratification SHALL be rejected at the archive
+gate."* This packet's `.openspec.yaml` `origin.approved_by` was rewritten
+**twenty-eight minutes after ratification** by `1921e96a`
+(2026-09-08T23:53:51-04:00 = **2026-09-09T03:53:51Z**, *"Finish the
+ratification's own bookkeeping: every file in the packet says one thing about
+its state (Copilot thread 14)"*), landing on `main` inside the #813 merge
+`4c08a7a2`. The ratifying commit is `93ba99f0` — the first commit whose
+`proposal.md` declares `Status: ratified`, resolved by the gate's own
+`ratifying_commit` walk and not taken on report — and `scripts/proposal-support.py
+… archive` refused with `changed keys: approved_by`, exit 2, no bypass flag.
+
+`1921e96a` IS THE SOLE MUTATOR, PROVEN RATHER THAN ASSUMED. Six later commits
+touch the file and every one of them is a MERGE that carried bytes and authored
+none: each has a parent already at blob `701584a3` and produces `701584a3`
+(`a1f08c39`, `7681e409`, `9a67d42c`, `1e8235fc`, `86651a58`, `18a5788d`).
+`1921e96a` alone has a single parent — the ratifying commit, at blob `d3e4f174`
+— and produced `701584a3`. **No key outside `origin:` moved after ratification**,
+so restoring the origin block restores the whole file, and the packet's
+`.openspec.yaml` is now byte-for-byte the ratifying commit's: `git diff 93ba99f0
+-- <path>` is EMPTY and the blob is `d3e4f174` on both sides.
+
+**THE SENTENCE IS NOT DROPPED — IT IS HERE, WHICH IS ITS PROPER HOME.** What
+`1921e96a` added to the origin block, verbatim:
+
+> THE SEPARATE ACT THIS FIELD ONCE SAID WAS OWED HAS HAPPENED: Brett Heap
+> ratified the text on 2026-09-09T03:19Z, verbatim **"ratify 813"**, first-hand
+> to lane codexfactory-1 with no relay, and the packet now carries
+> `Status: ratified` with its citation; the record is
+> `review/ratification-2026-09-09.md`. This field still describes the FIRST act,
+> which is what `approved_by` means here — who authorized the AUTHORING — with
+> the second named so the file does not assert a state that has moved.
+
+**Every word of that is TRUE and none of it is withdrawn.** Ratification
+happened exactly as it says; the record is `review/ratification-2026-09-09.md`;
+this file's own header carries `Status: ratified` with its citation line, and
+task 5.1 is ticked on it. **So read the restored origin block's *"This packet
+carries `Status: draft`, carries no ratification citation, and owes one from a
+separate act"* as THE STATE AT RATIFICATION, which is the only state an origin
+declaration is ever allowed to describe** — an origin block records who
+authorized the AUTHORING, is fixed at ratification, and is not a live status
+field. The correction was right about the facts and wrong about the file: a
+packet that has just been ratified must record that fact in its lifecycle
+headers, its tasks and its record — all three of which it did, in the same
+commit — and must NOT reach into the one block the retention rule freezes.
+
+THE LESSON, WRITTEN DOWN RATHER THAN LEFT TO THE NEXT LANE. #709's operational
+rule was *"a corpus-wide sweep MUST NOT touch a ratified packet's origin
+block"*. This mutation was not a corpus-wide sweep — it was **the packet's own
+ratification bookkeeping**, a reviewer-prompted pass making every file in the
+packet say one consistent thing about its state, which is ordinarily exactly
+the right instinct. That is what makes it worth recording: the origin block is
+the one file in a ratified packet that must be left saying the OLD thing, and a
+consistency sweep is therefore MORE likely to break it than a careless one.
+
+Disposition for this contested-class act, as the retention requirement
+requires: **Brett Heap, 2026-09-09T18:03Z, first-hand to lane `codexfactory-1`
+(session name `codeXfactory-1`, `session_01VazHnCSe7mh4WUj7E97h8y`), verbatim
+"restore per 709"** — taken in the shape issue #709 and its four landed
+restorations [#710](https://github.com/opensoft/openxFactory/pull/710)–[#713](https://github.com/opensoft/openxFactory/pull/713)
+set: restore byte-for-byte to the ratifying commit, relocate the later text to
+the packet's proper home rather than dropping it, and record the disposition in
+the commit message.
+
 ---
 
 ## 1. The vendored resolution
