@@ -1,0 +1,10 @@
+canon chars 5815 delta chars 7209
+canon lines removed: 0
+delta lines added: 17
+--- reconciliation of the two block bounds ---
+canon chars (terminator "\n### Requirement:"): 5815
+delta chars, terminator "\n### Requirement:" (quickstart script as written): 7209
+delta chars, terminator "\n## ADDED Requirements" (quickstart stated expectation): 7186
+difference: 23 = len("\n## ADDED Requirements\n") = 23
+script-bound: canon lines removed = 0
+ADDED-bound: canon lines removed = 0
