@@ -69,33 +69,57 @@ MOVED_NAMES = (
 )
 
 
+def _module(name, lineno):
+    """One edge, kept only when `name` is a MODULE of this package rather than
+    a name re-exported from `__init__` (`from . import GENERATOR_VERSION`)."""
+    if (PACKAGE / f"{name}.py").is_file():
+        yield name, lineno
+
+
 def _sibling_modules(path):
     """Every module of THIS package `path` imports, with the line it does it on.
 
-    Covers the four spellings a module in this package can use. A name in a
-    comment, a docstring or a string literal is not an import and is not
-    reported — `doxbench_scope.py` is named in prose by several modules that
-    must keep naming it.
+    Covers the FIVE spellings a module in this package can use, and the fifth
+    is the one a scanner forgets: `from . import doxbench_scope` parses as an
+    `ImportFrom` with `level=1` and `module=None`, so a helper that reads
+    `node.module` sees nothing at all. It is not a hypothetical spelling — the
+    package uses it forty times (`gate_routes.py:70`, `kickoff.py:61`,
+    `doxbench_scope.py:730` and the rest), and missing it would have let the
+    exact back-edge these tests exist to prevent walk straight past them
+    (Copilot review of PR #837).
+
+    A name in a comment, a docstring or a string literal is not an import and
+    is not reported — `doxbench_scope.py` is named in prose by several modules
+    that must keep naming it. `from pkg import X` and `from . import X` can
+    also name a NAME rather than a module (`generator.py:70` imports
+    `GENERATOR_VERSION` that way), so a yielded name is kept only when a
+    sibling module of that name actually exists.
     """
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
             module = node.module or ""
-            if node.level and module:                       # from .X import a
-                yield module.split(".")[0], node.lineno
+            if node.level:
+                if module:                                  # from .X import a
+                    yield from _module(module.split(".")[0], node.lineno)
+                else:
+                    for alias in node.names:                # from . import X
+                        yield from _module(alias.name, node.lineno)
             elif module in ("ideation_dashboard", "scripts.ideation_dashboard"):
                 for alias in node.names:                    # from pkg import X
-                    yield alias.name, node.lineno
+                    yield from _module(alias.name, node.lineno)
             else:
                 for prefix in ("ideation_dashboard.", "scripts.ideation_dashboard."):
                     if module.startswith(prefix):           # from pkg.X import a
-                        yield module[len(prefix):].split(".")[0], node.lineno
+                        yield from _module(module[len(prefix):].split(".")[0],
+                                           node.lineno)
                         break
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 for prefix in ("ideation_dashboard.", "scripts.ideation_dashboard."):
                     if alias.name.startswith(prefix):       # import pkg.X
-                        yield alias.name[len(prefix):].split(".")[0], node.lineno
+                        yield from _module(alias.name[len(prefix):].split(".")[0],
+                                           node.lineno)
                         break
 
 
