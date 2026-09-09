@@ -19,6 +19,15 @@ Amended: 2026-09-05 — repository shape, by Brett Heap in session, verbatim
 *"elect the shape for both, follow the pin chain, no family yet"*
 (`opensoft/openxFactory`#656 comment `5552614170`); record:
 `review/amendment-2026-09-05-repository-shape.md`.
+Amended: 2026-09-09 — FLOOR PART 2 restated as a source→destination mapping
+with declared multiplicity, by Brett Heap by click-through in session
+`openXfactory-4`, verbatim *"OQ-K → FLOOR PART 2 restated as a
+source→destination mapping with declared multiplicity for replicated files (a
+small amendment PR to the change)"* (`opensoft/openxFactory`#656 comment
+`5609526215`); record:
+`review/amendment-2026-09-09-floor-part-2-mapping.md`. RULING OQ-1 is NOT
+reopened — the floor still has four parts and part 2 is still about tests; only
+part 2's TEST moves, and § RULED OQ-1 item 2 carries it.
 Lane: `openxfactory-opendox`.
 
 **THIS PACKET IS RATIFIED AND IT STILL PERFORMS NOTHING.** `Status:
@@ -152,10 +161,14 @@ above do. Full statements, with the alternatives Brett rejected, are in
     waiting on the descendant.
 12. **RULING OQ-1 — 22:15Z — THE FOUR-PART FLOOR**, and it is a REQUIREMENT of
     this change: a mapping manifest with per-file digests at the cut plus a CLOSED
-    edit-class list (import rewrites, path constants, adapter calls); test counts
-    that must SUM across the three repositories; a neutral conformance corpus every
-    destination passes; and a snapshot-equivalence run. Rejected:
-    manifest-with-digests only; snapshot-equivalence only.
+    edit-class list (import rewrites, path constants, adapter calls); a
+    source→destination TEST MAPPING with declared multiplicity *(amended
+    2026-09-09 — this first read "test counts that must SUM across the three
+    repositories"; RULING OQ-K, `#656` comment `5609526215`, restates the test
+    and not the part — see § RULED OQ-1 item 2 and `design.md` § D6 (2))*; a
+    neutral conformance corpus every destination passes; and a
+    snapshot-equivalence run. Rejected: manifest-with-digests only;
+    snapshot-equivalence only.
 13. **RULING OQ-2 — 22:16Z — ONE CHAIN.** Inside the family openDox is pinned ONLY
     by openXdox and every descendant pins openXdox; the mapping core is never
     bypassed. Outside the family openDox is used freely as open source — the ruling
@@ -466,8 +479,27 @@ this change rather than a recommendation in it:
    **per-file digests at the cut**, plus a **CLOSED list of permitted edit
    classes** — *import rewrites, path constants, adapter calls*. A file in no row,
    or an edit in no class, is an undeclared movement and the carve REFUSES.
-2. **Test counts that must SUM across the three repositories** — 3,927 `def
-   test_` leave, 52% of this repository's 7,612.
+2. **A source→destination TEST MAPPING WITH DECLARED MULTIPLICITY** — every
+   source file carrying `def test_` has at least one post-split home named by its
+   own manifest row; a replicated row declares the repository set its replica
+   lands in, and the sum check reads
+   `Σ(destinations) = source_count + Σ (m − 1) × row_test_count` from the
+   manifest. **AMENDED 2026-09-09 (RULING OQ-K).** This first read *"Test counts
+   that must SUM across the three repositories — 3,927 `def test_` leave, 52% of
+   this repository's 7,612"*, and § D6 (2) stated the test as equality with the
+   pre-split count. Brett Heap's ruling of 2026-09-09T22:19:57Z — verbatim
+   *"OQ-K → FLOOR PART 2 restated as a source→destination mapping with declared
+   multiplicity for replicated files (a small amendment PR to the change)"*
+   (`opensoft/openxFactory`#656 comment `5609526215`; record
+   `review/amendment-2026-09-09-floor-part-2-mapping.md`) — replaces the equality,
+   which is false by design: the landed carve manifest's 18
+   `replicated_at_destination` rows carry three test modules with 30 `def test_`
+   between them, and § 3.7 requires EVERY destination to pass the conformance
+   corpus, so the post-split sum exceeds the pre-split count by exactly 60 and an
+   equality test would be "fixed" by deleting replicas. Measured against the
+   landed manifest at `carve_commit b075fd91`: 4,411 source, 4,471 across the
+   destinations, `4,471 = 4,411 + 60`. ✔ **The intent is unchanged — no test is
+   lost, and a silent drop still refuses.** § D6 (2) carries the restated text.
 3. **A neutral conformance corpus every destination passes.**
 4. **A snapshot-equivalence run** proving the new stack renders the same
    dashboard snapshot as the old.

@@ -3,6 +3,7 @@
 Status: ratified
 Ratified by: split-opendox-two-layer-product — 2026-09-05, Brett Heap, "ratify #666" (record `review/ratification-2026-09-05.md`)
 Amended: 2026-09-05 — repository shape, by Brett Heap in session, verbatim "elect the shape for both, follow the pin chain, no family yet" (`opensoft/openxFactory`#656 comment `5552614170`); record `review/amendment-2026-09-05-repository-shape.md`. § D12 records the decision; § D8's drafted Amendment 3 text and the R-index below carry it.
+Amended: 2026-09-09 — FLOOR PART 2 restated as a source→destination mapping with declared multiplicity, by Brett Heap by click-through in session `openXfactory-4`, verbatim "OQ-K → FLOOR PART 2 restated as a source→destination mapping with declared multiplicity for replicated files (a small amendment PR to the change)" (`opensoft/openxFactory`#656 comment `5609526215`); record `review/amendment-2026-09-09-floor-part-2-mapping.md`. § D6 (2) carries the restated text; RULING OQ-1 is not reopened and the floor still has four parts.
 
 Companion to `proposal.md`. The proposal argues the doctrine, carries the eleven
 2026-09-04 acts as LOCKED constraints and names the wave; this document records
@@ -33,7 +34,7 @@ constraints. This table is the index this document's decisions cite.
 | **Q6** | 17:49Z | freeze the dashboard now and carve immediately; the five re-home | D9 |
 | **Q7** | 17:51Z | `opensoft` owns both; both PUBLIC from day one under Apache-2.0 | D10 |
 | **DQ-1** | 22:14Z (`#656` comment `5547049745`) | **`openxFactory` KEEPS its own adapter**; `doc-health` and OpenSpec stay here, a small package beside them implements the seam, `codexDox` is a thin descendant that pins openXdox and reuses it. The fifteen engineering rows stay in `openxFactory`; the shed (§ 5) precedes the first descendant (§ 7) | D1, D3, D3a, D9, and the successor map's third column |
-| **OQ-1** | 22:15Z (`#656` comment `5547060378`) | **the FOUR-PART FLOOR**, as a requirement and not a recommendation: mapping manifest + per-file digests + a CLOSED edit-class list (import rewrites, path constants, adapter calls); test counts that SUM; a neutral conformance corpus; a snapshot-equivalence run | D6 |
+| **OQ-1** | 22:15Z (`#656` comment `5547060378`) | **the FOUR-PART FLOOR**, as a requirement and not a recommendation: mapping manifest + per-file digests + a CLOSED edit-class list (import rewrites, path constants, adapter calls); test counts that SUM — **restated 2026-09-09 by RULING OQ-K as a source→destination MAPPING with declared multiplicity** (`#656` comment `5609526215`), the part unchanged and only its test moved; a neutral conformance corpus; a snapshot-equivalence run | D6 |
 | **OQ-2** | 22:16Z (`#656` comment `5547067574`) | **ONE CHAIN** — inside the family openDox is pinned only by openXdox; outside it, openDox is used freely as open source. No third MODIFIED requirement on `neutral-product-pin` | D3a, and the `neutral-product-pin` delta's scope |
 | **OQ-3** | 22:21Z (`#656` comment `5547107565`) | **no `document-lifecycle` delta now**; descendants declare lifecycles via `domain-mapping-declaration`; revisit at `MedxDox` | D3a, and the packet's declared-not-modified list |
 | **SHAPE** | **2026-09-05** 14:52Z (`#656` comment `5552614170`) | **"elect the shape for both, follow the pin chain, no family yet"** — openDox and openXdox each elect the `openRepoShape` three-repository shape (six repositories, scaffolded, election recorded in `project.yaml`); a descendant's referent is reached through the DECLARED pin chain (`opensoft/openRepoShape`#40); NO family holder is created and the option stays open | **D12**, and D8, D10, D11 as amended |
@@ -542,14 +543,63 @@ RULING DQ-1 they do not move repository at all; the only edit they take is
 re-expressing the reader's path literals as `adapter calls` — one of the three,
 by name.
 
-**(2) TEST COUNTS THAT MUST SUM ACROSS THE THREE REPOSITORIES.** 3,927 `def
-test_` across 125 files — 52% of this repository's 7,612. Post-split collection
-counts in openDox plus openXdox plus whatever remains in `openxFactory` (which
-under RULING DQ-1 now includes the adapter's own tests) SHALL SUM to the
-pre-split count, pinned by test the way `pytest-suite.yml` already pins this
-repository's collection triple. This catches the most likely way a 125-file suite
-loses coverage in a carve: tests dropped silently rather than moved — and it is
-the part whose absence Brett named when he rejected snapshot-equivalence alone.
+**(2) A SOURCE→DESTINATION TEST MAPPING WITH DECLARED MULTIPLICITY.** Every file
+in the carve manifest's declared surface that carries at least one `def test_`
+maps to the destination or destinations its OWN ROW names, and that mapping — not
+a scalar equality — is the floor. Four clauses:
+
+**(a) TOTAL COVERAGE — no test is lost.** Every source file carrying tests has at
+least ONE post-split home. A file with tests and no home is a LOST TEST and the
+carve REFUSES. This is the intent the ratified text was reaching for, stated
+directly instead of inferred from an arithmetic identity.
+
+**(b) DECLARED MULTIPLICITY.** A row dispositioned
+`not_moved / replicated_at_destination` DECLARES the set of repositories its
+replica lands in, INCLUDING the retained `openxFactory` copy; its multiplicity
+`m` is that set's size. Multiplicity is declared IN THE ROW and never inferred at
+arrival: an undeclared replica set makes the check uncomputable, which is a
+refusal and not a pass. This is one obligation on FLOOR PART 1, carried at
+`tasks.md` § 5.4a as the input part 2 reads — the manifest edit lands in its own
+pull request, not in this amendment.
+
+**(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES.** Collected `def test_` at
+openDox plus openXdox plus whatever remains in `openxFactory` (which under RULING
+DQ-1 includes the adapter's own tests, and the retained replicas)
+
+> Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count
+
+with every term read from the manifest at the carve commit. Measured against the
+LANDED manifest (PR #865) at `carve_commit b075fd91`: source 4,411 across 146
+`.py` rows; destinations 1,128 + 2,345 + 998 = 4,471; three replicated test
+modules carrying 30 `def test_` at `m = 3` each; `4,471 = 4,411 + 60`. ✔
+
+**(d) PINNED BY TEST** at each destination and in `openxFactory`, the way
+`pytest-suite.yml` already pins this repository's collection triple.
+
+This still catches the most likely way a large suite loses coverage in a carve —
+tests dropped silently rather than moved, the part whose absence Brett named when
+he rejected snapshot-equivalence alone — and it no longer punishes the replicas
+§ 3.7 requires.
+
+> Amended 2026-09-09. This first read *"TEST COUNTS THAT MUST SUM ACROSS THE
+> THREE REPOSITORIES. 3,927 `def test_` across 125 files — 52% of this
+> repository's 7,612. Post-split collection counts … SHALL SUM to the pre-split
+> count"*. RULING OQ-K (`#656` comment `5609526215`, 2026-09-09T22:19:57Z, record
+> `review/amendment-2026-09-09-floor-part-2-mapping.md`) restates it, because the
+> equality is false twice. It is false BY DESIGN: the landed manifest's 18
+> `replicated_at_destination` rows include three test modules carrying 30
+> `def test_`, and § 3.7 requires EVERY destination to pass the conformance
+> corpus, so those 30 have three homes each and the post-split sum exceeds the
+> pre-split count by exactly 60 on its first run — an equality that would be
+> "fixed" by deleting replicas, breaking FLOOR PART 3 to satisfy FLOOR PART 2.
+> And it is false by STALENESS: `3,927 / 125 / 7,612` were measured at
+> `a858e5b0` on 2026-09-04; at `carve_commit b075fd91`
+> `tests/ideation-dashboard/` alone holds 4,169 `def test_` across 140 `.py`
+> files and the repository holds 8,731. A scalar in a ratified document is
+> re-falsified by every merge; a mapping over the manifest is re-evaluated from
+> the manifest. RULING OQ-1 is NOT reopened — four parts, part 2 still about
+> tests, both rejected single-instrument alternatives still rejected; only part
+> 2's TEST moved.
 
 **(3) A NEUTRAL CONFORMANCE CORPUS EVERY DESTINATION PASSES**, on the wallet
 extraction's own pattern of positives plus negative confirmations — a corpus with
