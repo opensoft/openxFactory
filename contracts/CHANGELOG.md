@@ -9,119 +9,295 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v3.5 — 2026-09-09 (additive; the consent instrument gains a re-derivable custody record, and the bundle carries the OpenSpec CLI pin's first publication, the repository-identity mapping, the re-pin binding template and four pin advances)
+## contract-v3.5 — 2026-09-09 (additive; the eight inventoried members are re-issued under `codeXfactory/codexFactory`, so the release surface stops describing a repository identity that no longer resolves)
 
-Cut under `add-consent-custody-rederivation-record` § 5, ratified 2026-09-08 by
-Brett Heap (reviewer of record), lane `opsXfactory-1`. The whole release surface
-moves in ONE candidate commit over ONE integration point, per
+Cut as task **7.2–7.3** of the RATIFIED change
+[`adopt-codexfactory-repository-identity`](../openspec/changes/adopt-codexfactory-repository-identity/proposal.md),
+whose realization moved `opensoft/codexFactory` to `codeXfactory/codexFactory`
+across this repository's governed content. **The cut is owed, not elective**, and
+its own § 5 (*Version treatment, derived rather than assumed*) says by which
+rule: eight members of the declared `contract-v3.4` digest inventory changed
+bytes, and
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
-§ *Bundle Realization Order* step 2, and the integration is a MERGE of `main`
-into the cutting branch rather than a rebase — opensoft org ruleset **8981805**
-forbids non-fast-forward updates, so a candidate is only ever advanced forward.
-**The number was measured at that integration point and not reserved before it**:
-`contract-v3.4` on all three surfaces (`manifest.yaml:3`, the highest
-`contracts/releases/` inventory, and the highest `contract-v*` tag), so
-`contract-v3.5` was free.
+§ *What a red `verify-commit` at HEAD means* calls a mismatch on a non-editorial
+member *"a defect: a normative contract's bytes moved while the repository went
+on declaring a bundle that describes different bytes"*, whose *"remedy is a
+release cut, never a hand-edit"*. No inventory row and no
+`contract_bundle_version` was adjusted to make a comparison pass; the inventory
+below is built by the tool from the candidate's own bytes.
 
-**THE CUT WAS ORDERED FOR THE CONSENT SCHEMA AND MEASURED TO CARRY MORE, AND THE
-MEASUREMENT GOVERNS.** § *Version Identity* requires one entry per release
-*"listing every contract added, changed, or deprecated"*, and a bundle is a
-commit's whole tree rather than a session's intention. Measured at the candidate
-with `git diff --name-status contract-v3.4 <candidate> -- contracts/`: **FIVE
-additions and TWENTY-NINE modifications**, THE CUT'S OWN TWO INCLUDED. Each is
-named below with the change or pull request that made it, and none but the
-consent schema is this session's.
+**THE WHOLE RELEASE SURFACE IS DERIVED IN ONE ACT OVER ONE INTEGRATION POINT**,
+per § *Bundle Realization Order* step 2. The integration point is `origin/main`
+at `95e67ab0` — the merge of PR **#806**, the LAST of the change's four gated
+realization slices, committed 2026-09-09T20:44:00Z. **The candidate was first
+derived at `00d368a4` (#805, 20:00:16Z) and then RE-DERIVED here when `main`
+moved**, per step 1's *"fetch and rebase onto the final integration point, then
+immediately recheck bundle/tag availability"*; availability was re-checked at
+this tip rather than carried forward from the first derivation. See § *The
+bundle number, FRESH-COUNTED at the candidate* below. Re-measured across the
+move: neither #806 nor #864, the two pull requests that landed in between,
+touches a single release-inventory member — checked by exact path against the
+inventory's 283 entries — so the re-derivation moved no digest that the first
+derivation had not already moved.
 
-**THIS COUNT WAS TAKEN TWICE, AND THE FIRST TAKING WAS WRONG.** An earlier form
-of this entry said four and fifteen: it was measured at the integration point,
-BEFORE this entry and the rebuilt inventory existed, so the cut omitted its own
-two self-referential members — which `contract-v3.4`'s entry names for itself
-in the last row of the table below. The candidate was REMADE rather than
-patched, and remade again over a second integration when `main` moved thirteen
-files under `contracts/` beneath it.
+### What forced the cut: the eight inventoried members, old digest → new digest
 
-### What moved, and who moved it
+Measured with `validate-contract-release.py verify-commit --commit 00d368a4`,
+which reported exactly ten `HGR-RELEASE-DIGEST-MISMATCH` findings — these eight
+plus the two editorial members § *What a red `verify-commit` at HEAD means*
+allows between cuts (`contracts/manifest.yaml`, `contracts/README.md`).
 
-| path(s) | moved by |
-|---|---|
-| A `contracts/openspec-cli-pin.yaml` | `publish-openspec-cli-pin-as-contract-member` (archived 2026-09-08) — **this bundle is what finally publishes that registration**, the row having been authored after `contract-v3.4` peeled. Refined in place since by `50a60830`, `d175874f` (both governed-act commands named in the header) and `c599c904` (two dangling `cited_to` paths repaired) |
-| A `contracts/openspec-cli-pin.1.12.0.package-lock.json` | `50a60830` — the pin's vendored dependency closure, 80 packages, indexed as a member of the pin's own `contracts/README.md` row by `37a31769`. A pin that names a version without pinning what that version installs is a pin in name only |
-| A `contracts/policies/repository-identity.yaml` | `170ca386` — `adopt-codexfactory-repository-identity` task 1.1 / T069 |
-| A `contracts/review-lane-repin-binding.template.yaml` | `5c782f29` (step 1, **#823**) and `82c9f059` (step 3, **#829**), respelled to `github:codeXfactory` by `8c7a1fca` (ruling 1(c)) |
-| M `contracts/schemas/consent-instrument.schema.yaml` | `f59a587d` — **THE CUT'S OCCASION**: `contract_schema_version` 2 → 3 for ONE closed optional top-level array, `custody_rederivations[]` |
-| 8 M — six `contracts/omnigent/examples/` files (five negative manifest fixtures and `omnigent-install-manifest.example.yaml`) and two `contracts/hermes-domain-overlay/examples/` files (`hermes-subject-overlay.example.yaml` and the `subject-undeclared-kind` negative overlay) | `edbc2621` — `adopt-codexfactory-repository-identity` slice A's recorded rename sweep |
-| M `contracts/openreposhape-pin.yaml` | `303bfd53` (**#700**) — advanced to `e9c4827b`: 31 digested / 45 path-only over a 76-file surface |
-| M `contracts/openxwallet-pin.yaml` | `30eccf0c` — advanced to `wallet-v1.5` (`f3eb929b`), commit and tag only, eight digests re-verified unchanged |
-| M `contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` | `9ffc6252` (**#732**), `d5a549e4` (**#747**) and `8d92bfaf` (**#764**) — three decision-core re-pins — plus `4f69a545` (slice B1, gated at runbook step 1.2). **NOT this cut's**, named so a reader intersecting the diff with this entry does not attribute them to it |
-| 5 M under `contracts/hermes-runtime/` — the family README, `fixtures/domain-regression-inventory.yaml` and three `fixtures/regression/` fixtures | `44fc8063` — slice B3, the eight `contract-v3.4` inventoried members. **Arrived on `main` AFTER this cut's first integration point**, which is why the candidate was re-integrated and remade rather than measured against a tree that had moved |
-| 8 M under `contracts/clearing/examples/` — the deliberation-return example, the factory-identity register fixture, five negatives and the single-door attestation | `8a5d0d91` — slice B2, the re-issued factory-origin identity. Same re-integration |
-| M `contracts/manifest.yaml` | `170ca386` and `37a31769` (registration rows and prose) AND **THIS CUT** (the `contract_bundle_version` line, the `consent-instrument` row's re-derived `sha256`, and that row's new `consumption_rule` paragraph) |
-| M `contracts/README.md` | `170ca386` and `37a31769` AND **THIS CUT** (the consent row's `contract-v3.5` amendment note, and its corpus count re-measured rather than incremented) |
-| M `contracts/CHANGELOG.md`, A `contracts/releases/contract-v3.5.digests.yaml` | **THIS CUT** — this entry and the rebuilt inventory |
+| member | `contract-v3.4` digest | `contract-v3.5` digest |
+| --- | --- | --- |
+| `contracts/hermes-runtime/README.md` | `sha256:c14f1d6d4f38…` | `sha256:376f970ec9bc…` |
+| `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` | `sha256:5d5d9815c7cb…` | `sha256:33e5e8fad6e0…` |
+| `contracts/hermes-runtime/fixtures/regression/digest-mismatch.yaml` | `sha256:26df927b6647…` | `sha256:3b442833740f…` |
+| `contracts/hermes-runtime/fixtures/regression/duplicate-repository.yaml` | `sha256:03bcfb439bad…` | `sha256:8df7ab81f947…` |
+| `contracts/hermes-runtime/fixtures/regression/missing-exclusion-reason.yaml` | `sha256:7587549d7fca…` | `sha256:3b31231a6eee…` |
+| `docs/contract-versioning-policy.md` | `sha256:9c5cf8989234…` | `sha256:d4b9402c5916…` |
+| `docs/terminology-and-repo-topology.md` | `sha256:56d7e3c0da4b…` | `sha256:07a337f76cb0…` |
+| `docs/xfactory-domain-factory-model.md` | `sha256:91b7f9914643…` | `sha256:fba5ac5f1e2f…` |
 
-### What moved OUTSIDE `contracts/` and is still a release member
+**THE SUBSTANCE IS ONE OWNER SEGMENT AND NOTHING ELSE.** The supported-domain
+regression denominator
+([`contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`](hermes-runtime/fixtures/domain-regression-inventory.yaml))
+now keys its codex row on `codeXfactory/codexFactory`; the row's `commit`
+(`7bfa492f`), `stack_path`, `stack_digest`, `domain_id`, `expected_contract_ref`
+and `expected_result` are byte-unchanged, and the row moved to the head of the
+list only because entries are held in bytewise repository order. Its three
+negative fixtures and the family README's denominator paragraph follow the same
+one-segment rule. The three normative documents restate the denominator's
+membership in prose. **A transfer moves the OWNER SEGMENT ONLY** — bare names,
+commits, repository-relative paths and blob digests are untouched — which is
+`repository-identity.yaml`'s `owner_segment_rule`, and it is why this is an
+additive cut and not a compatibility event.
 
-Two inventory members live outside `contracts/` and both moved since
-`contract-v3.4`, so they are named here rather than left to the diff:
+**The root `README.md` is NOT a member and owes nothing here**, although a
+substring search says otherwise: the inventory carries `contracts/README.md` and
+`contracts/hermes-runtime/README.md`, and matching `README.md` as a substring
+finds both. Membership was re-measured by EXACT path; the count is eight, not
+nine.
 
-- **`docs/contract-versioning-policy.md`** — `0083a71d`, *"Move the release-tag
-  zero-findings pin into a gate on the cutting pull request"*. A `NORMATIVE_DOCS`
-  **and** `RELEASE_SURFACE_PATHS` member; it moved on `main` before this cut
-  reached it.
-- **`tests/intent-compliance/test_release_boundary.py`** — **THIS CUT**, the
-  cut-coupled tripwire: `_release_state()` fails loudly on a bundle its enum does
-  not name, so the new `contract-v3.5` member, both match arms and a hand-written
-  measurement paragraph move with the bundle version or the required suite reds.
-  `contract-v3.4`'s entry re-baselined this same file for the same reason.
+### The mapping row is the resolver, and this is the bundle that publishes it
 
-### Change class: ADDITIVE (minor), argued over the WHOLE bundle
+[`contracts/policies/repository-identity.yaml`](policies/repository-identity.yaml)
+is NEW in this bundle and registered in
+[`manifest.yaml`](manifest.yaml) as `id: repository-identity`. It carries the
+`opensoft/codexFactory → codeXfactory/codexFactory` row with
+`transfer_state: complete`, and the estate resolves a FORMER repository identity
+**through that file, by lookup, and never through a provider redirect** — a
+redirect lapses the moment the former owner reuses the name. The row also
+records the derived, tool-imposed GHCR lowercasing (`codexfactory`) as a
+spelling and not a second identity, per OQ-6 (ruled 2026-09-08T03:51Z: canonical
+`codeXfactory/codexFactory`).
 
-The additions are additive by construction — a member that did not exist cannot
-have narrowed. **Each MODIFICATION to an already-published contract is checked
-individually**, because "the bundle is additive" is a claim about every row in
-it and not only about the row the session came to move:
+**NOTHING IMMUTABLE WAS RESPELLED TO MATCH THE ROW.** Archived OpenSpec packets,
+dated verification tables, and signature- or digest-covered artifacts stay
+verbatim: in particular the 34 files under
+`contracts/signed-execution-chain/examples/`, whose `ground_ref` sits inside a
+signature the fixture key cannot re-issue, are byte-unchanged in this bundle and
+`scripts/validate-signed-execution-chain.py` is the check that proves it.
 
-- **The consent schema is the ONLY `*.schema.yaml` in this bundle** — measured,
-  not assumed: of the thirty-four paths, exactly one ends in `.schema.yaml`
-  (`git diff --name-status contract-v3.4 <candidate> -- contracts/ | grep
-  '\.schema\.yaml'` returns that one line). Its growth
-  adds one OPTIONAL top-level property. Nothing is removed, no enumeration is
-  narrowed, no existing property becomes required, and the RECORD envelope's
-  `schema_version` stays `const: 1`. Every instrument already in the estate
-  validates unchanged, and none declares the new array — proven by the packaged
-  corpus, where all six pre-existing valid examples are byte-unedited and still
-  pass.
-- **`manifest.yaml` and `contracts/README.md` are EDITORIAL members** — rows,
-  digests and prose. They carry no consumer-visible shape, and both are moved by
-  every cut — as are this entry and the inventory, the cut's own two members.
-- **Twenty-one `examples/` and fixture files are CORPUS, not contract** — the
-  eight of slice A's rename sweep over declared identity spellings, the eight
-  `clearing/examples/` files re-signed under the re-issued factory-origin
-  identity (`8a5d0d91`), and five `hermes-runtime/` inventoried members
-  (`44fc8063`). **No schema any of them instantiates moved in this bundle**, so
-  nothing a consumer validates against changed: they are the instances, and the
-  shapes they are checked against are byte-identical to `contract-v3.4`'s.
-  Re-signing a fixture changes a signature over the same shape, which is a new
-  witness to an unchanged contract rather than a new contract.
-- **The four pin files are PINS.** Advancing a pin changes the TARGET a consumer
-  checks out; it does not change the pin record's own shape, and no pin schema
-  moved here. `openxwallet-pin.yaml` re-verified its eight digests as unchanged
-  at the new tag, which is the strongest form of that statement.
+### The origin identity is re-issued in this bundle's tree
 
-**NOTHING IN THIS BUNDLE IS BREAKING, AND NOTHING IS DEPRECATED.**
+`governance/factory-identity/` is not a release-inventory member, so it moves no
+digest here, but the re-issuance is part of the same act and this entry names it
+so that a reader of the tag can find it: PR **#802** (`20298c64`) re-issued
+`grant-origin-codexfactory-0001` and `wal-origin-codexfactory-0001` against the
+new repository identity, re-pointed `register.yaml`, and updated
+`governance/review-authority/grants/grant-grc-0001.yaml`. **Until that
+re-issuance is live, codexFactory clearing dispatches are REFUSED** — that is
+the transfer revoking the origin identity, working as designed rather than
+failing.
 
-### What this bundle does NOT do
+### `--domain-repo` KEY MIGRATION — the one command-line break in this release
 
-The consent family's re-derivation rule is DECLARED here and ENFORCED nowhere.
-The neutral validator published with this bundle takes only the legs derivable
-from a record's own bytes — anchor and linkage in both digest and locator,
-declared order, the unrewritten pin, `path_only` digest equality, closed
-enumerations and entry closure — and a pass by it is **NOT a currency claim**. A
-`content`-class divergence yields a THIRD OUTCOME, `WITHHELD`, and exit `3`,
-"needs a human decision", rather than a pass. The GIT re-derivation legs, the
-declared custody store mapping that resolves an opaque locator, and the operated
-custody-digest check are the CONSUMING repository's, and no consumer file is
-written by this release. No custody pin is repaired by this bundle.
+The domain-regression denominator is resolved by exact `commit:path` Git objects
+through deterministic mappings, and **the mapping key is the inventoried
+repository identity**. So every release-time and CI invocation of
+`scripts/validate-hermes-runtime-contracts.py` that named the codex checkout by
+hand must change its key:
+
+```sh
+# contract-v3.4 and earlier
+--domain-repo opensoft/codexFactory=/path/to/codexFactory
+# contract-v3.5 onward
+--domain-repo codeXfactory/codexFactory=/path/to/codexFactory
+```
+
+`--domain-repo-root <root>` callers resolve the same rename by directory: the
+checkout must be reachable at `<root>/codeXfactory/codexFactory` or
+`<root>/codeXfactory/codexFactory.git`. **A stale key is a dependency failure,
+never a skip** — the validator refuses a missing object rather than passing the
+denominator with one supported consumer silently unmeasured, which is the whole
+reason the denominator is versioned.
+
+### Also carried into this cut, MEASURED rather than intended
+
+A bundle is a commit's whole tree, not a session's intention. Measured with
+`git diff --name-status contract-v3.4 HEAD -- contracts/`: **four additions and
+twenty-seven modifications**, every path attributed.
+
+**Four additions.** `contracts/policies/repository-identity.yaml` (above; #799 /
+#815, registered in the manifest). `contracts/openspec-cli-pin.yaml` and
+`contracts/openspec-cli-pin.1.12.0.package-lock.json` — the OpenSpec CLI
+consumption pin and its vendored dependency closure, published as a contract
+member by `publish-openspec-cli-pin-as-contract-member` (#754, #757, #780) with
+the pin's own registration row and no `sha256` for the stated reason that the
+pin legitimately moves on three distinct events.
+`contracts/review-lane-repin-binding.template.yaml` — the re-pin lane's
+operator-facing binding template (#715, #726, #801), whose
+`identity_namespace` reads `github:codeXfactory` by the convener's ruling of
+2026-09-09 rather than being left at `github:opensoft`.
+
+**Twenty-seven modifications, in four groups.** (1) The eight inventoried
+members above, plus `contracts/manifest.yaml` (two new registration rows and
+this cut's version line) and `contracts/README.md` (the contract-index rows for
+the pin, its lockfile and the mapping row) — both editorial. (2) Sixteen
+identity respells that are NOT inventory members and therefore drift nothing:
+eight `contracts/clearing/examples/**` files and
+`contracts/hermes-domain-overlay/examples/**` ×2 plus
+`contracts/omnigent/examples/**` ×6 (#799 `edbc2621`, #802). (3) Three
+consumption pins advanced by their own gates: `openreposhape-pin.yaml` to
+`e9c4827b` (#700), `openxwallet-pin.yaml` to `wallet-v1.5` / `f3eb929b` (#740,
+eight digests reverified unchanged). (4) `review-lane-pin.yaml` and
+`review-lane-floor-snapshot.yaml`, the decision-core re-pins of #686, #689,
+#702, #732, #747, #764 and #801 — **NOT this cut's act**, recorded here only
+because the bundle contains them.
+
+### Change class: ADDITIVE (minor), measured
+
+No required field is added, no shape is removed, no `contract_schema_version`
+moves, and no role or vocabulary SEMANTICS change. Every edit to a published
+member replaces one owner segment with another inside a value that was already a
+free-form repository string. Nothing this bundle carries refuses a record
+`contract-v3.4` accepted, with the single exception named above, which is a
+COMMAND-LINE key and not a record shape.
+
+### The bundle number, FRESH-COUNTED at the candidate
+
+Measured at the integration point rather than trusted:
+
+- [`manifest.yaml`](manifest.yaml) declared `contract_bundle_version:
+  contract-v3.4` before this edit.
+- [`releases/`](releases/) held inventories through
+  [`contract-v3.4.digests.yaml`](releases/contract-v3.4.digests.yaml); there was
+  no `contract-v3.5.digests.yaml`.
+- `git ls-remote --tags origin 'refs/tags/contract-v*'` publishes annotated tags
+  through `contract-v3.4` (`807a4f47`), and
+  `refs/tags/contract-v3.5` is ABSENT — so no earlier bundle owes a tag, and
+  this number is not a reuse.
+- There is no `Unreleased` block pending in this file.
+
+`contract-v3.5` is taken HERE and was reserved nowhere. The change's own task
+7.2 says so in terms — *"no number is reserved by this packet, and this packet
+has a live ordering dependency besides"* — which is § *Version Identity*'s rule
+that a proposed change MUST NOT reserve a minor before merge order is known.
+
+### Inventory: 283 members, membership UNCHANGED, twelve re-baselined
+
+[`releases/contract-v3.5.digests.yaml`](releases/contract-v3.5.digests.yaml) is
+built LAST by `validate-contract-release.py build --tag contract-v3.5` from the
+candidate's own bytes and is never hand-edited. Measured against
+`contract-v3.4`'s 283 entries: **no member added, none removed, no `git_mode`
+changed**, and TWELVE digests re-baselined — the eight above; the three
+editorial members (`contracts/manifest.yaml`, `contracts/README.md`, and this
+file); and `tests/intent-compliance/test_release_boundary.py`, which is a
+release member and carries the by-hand boundary statement every cut past the
+intent-compliance floor is required to write. That statement is the twelfth
+mover and is what it says: `FEATURE_SUCCESSOR_9 = "contract-v3.5"` is added to
+the enum and to both match arms, and the docstring records the MEASUREMENT that
+this cut moves NO intent-compliance member — `git diff --name-status
+contract-v3.4 HEAD` over `contracts/intent-compliance/`,
+`scripts/intent_compliance/`, `tests/intent-compliance/` and
+`scripts/validate-intent-compliance.py` reports ZERO paths. The library floor is
+an at-or-after comparison and would not have noticed the bump on its own, which
+is why the statement is a hand act and not an inference.
+
+None of the four newly added `contracts/` paths is a release-inventory member:
+membership is closed over the surface
+`scripts/hermes_runtime_validation/release.py` enumerates, and a manifest
+registration row does not by itself confer it.
+
+`contract-v3.4`'s tag and inventory are untouched and remain valid provenance.
+
+### The cut lands after ALL FOUR realization slices, and the recorded disagreement is moot
+
+The change realized in four gated slices, sequenced by the ceremony merge order
+that the lane added to the operator runbook
+(`~/session-prompts/runbook-codexfactory-org-transfer.md` § *Ceremony merge
+order*, outside this repository) over the packet's
+[`tasks.md`](../openspec/changes/adopt-codexfactory-repository-identity/tasks.md)
+§ 7: #801 (machine surfaces, `e86eca35`), #802 (origin identity, `20298c64`, a
+HUMAN merge word), #805 (the eight inventoried members, `00d368a4`) and #806
+(prose and README, `95e67ab0`).
+
+**That order put the cut at row 5 and #806 at row 6, and one recorded
+disagreement said the cut belonged after all four**, on the letter of tasks 7.1
+and 6.5. #806 landed at 20:44:00Z, forty-four minutes after #805 and BEFORE this
+candidate was re-derived — **so the cut is after all four and the disagreement
+is settled by events rather than by argument**. It is also settled on the
+measurement either reading needed: not one of #806's sixteen files is a member
+of the `contract-v3.4` inventory, checked by exact path against its 283 entries,
+so neither this cut's inputs nor task 7.1's condition could have changed across
+it in either order.
+
+### Migration guidance
+
+* **A consumer pinned at `contract-v3.4` re-pins to `contract-v3.5`** by moving
+  `xfactory.contract_ref` to this bundle's published commit, recording the tag,
+  and re-running the per-file digest checks under § *Domain Upgrade Runbook*.
+  **There is no shape work.**
+* **A consumer that names the codex repository on a command line or in CI
+  changes the key**, per § *`--domain-repo` KEY MIGRATION* above. This is the
+  only break in the release.
+* **A consumer that resolves a FORMER identity reads
+  `contracts/policies/repository-identity.yaml`**, never a provider redirect,
+  and NEVER respells an immutable or dated record to match a row.
+* **A codexFactory clearing producer re-reads the origin register.** A sealed
+  request whose `origin.repository` still names `opensoft/codexFactory` is
+  refused by `scripts/validate-clearing-dispatch.py` against the re-issued
+  register, and that refusal is correct.
+
+### The annotated tag is published at the LANDED commit, not from this branch
+
+§ *Bundle Realization Order* step 4: *"Land the exact reviewed commit on
+published `main`. If promotion creates a different commit, that commit becomes
+the new candidate and every gate and review reruns before tagging."* Step 5 then
+publishes the tag at that exact published commit. **SKIPPING THE
+RE-VERIFICATION AT STEP 4 IS WHAT MADE `contract-v3.1` DEFECTIVE** — a squash
+merge ALWAYS creates a different commit.
+
+**Task 7.4 IS AN OPERATOR ACT AND IS NOT PERFORMED BY THE CUTTING LANE.**
+`verify-promotion` and the annotated tag are RELEASE SURFACES; the ceremony
+runbook's own legend does not cover them and assigns them to the operator. The
+exact sequence, run from a freshly refreshed openxFactory checkout AFTER this
+cut lands on `main`:
+
+```sh
+git -C <openxFactory> fetch origin --tags
+LANDED="$(git -C <openxFactory> rev-parse origin/main)"   # the landed merge/squash sha of this cut
+
+# 1. re-verify the inventory at the LANDED commit (step 4)
+python3 scripts/validate-contract-release.py verify-commit --commit "$LANDED"
+
+# 2. prove the tag is absent, the version is next, the candidate is reachable
+#    from remote main, and no release-surface blob drifted (step 5 precondition)
+python3 scripts/validate-contract-release.py verify-promotion \
+    --commit "$LANDED" --remote origin --tag contract-v3.5
+
+# 3. publish the annotated tag at that exact commit
+git -C <openxFactory> tag -a contract-v3.5 -m contract-v3.5 "$LANDED"
+git -C <openxFactory> push origin contract-v3.5
+
+# 4. verify the published tag from an INDEPENDENTLY refreshed checkout
+python3 scripts/validate-contract-release.py verify-tag --remote origin --tag contract-v3.5
+```
+
+The tag message is the tag name and nothing else, matching `contract-v3.3` and
+`contract-v3.4`. **If step 1 or step 2 reports a finding, STOP and do not
+tag**: the landed commit is then a new candidate, and every gate and review
+reruns before step 3.
 
 ## contract-v3.4 — 2026-09-04 (additive; the chain-anchoring family reaches its first bundle WITH the ratified readiness-and-durability amendment already realized in it, `deliberation` becomes clearing register entry two, and the openRepoShape consumption pin advances to `122d729b`)
 

@@ -97,25 +97,22 @@ class ReleaseState(StrEnum):
     is the one fact the library cannot tell from "unnoticed", and worth stating
     carefully here because a cut carrying two whole families is exactly the kind a
     reader assumes MUST have moved this one.
-    Advanced again at the ``contract-v3.5`` cut
-    (add-consent-custody-rederivation-record § 5), which registers NO new
-    family: it amends ONE already-registered schema,
-    ``contracts/schemas/consent-instrument.schema.yaml``, whose
-    ``contract_schema_version`` goes 2 -> 3 for a single closed optional
-    top-level array. MEASURED against ``contract-v3.4``'s 283-entry inventory
-    rather than assumed: exactly THREE registered rows differ at this cut —
-    ``contracts/manifest.yaml``, ``contracts/README.md`` and
-    ``docs/contract-versioning-policy.md`` — the first two EDITORIAL members
-    this cut itself moves, the third moved on ``main`` before the cut reached
-    it. The consent schema, its packaged corpus and its canonical validator are
-    registered rows of NEITHER inventory. And the intent-compliance member set
-    was measured DIRECTLY as well as by inventory: ``git diff --name-status``
-    from ``contract-v3.4`` to this candidate over
-    ``contracts/intent-compliance``, ``scripts/intent_compliance``,
-    ``tests/intent-compliance`` and ``scripts/validate-intent-compliance.py``
-    returns ZERO paths. So the membership this file asserts is again UNCHANGED
-    — stated by hand, like every advance above it, because "unchanged" is the
-    one fact the library cannot tell from "unnoticed".
+    Advanced again at the ``contract-v3.5`` cut, which is a REPOSITORY-IDENTITY
+    cut and not a feature one: ``adopt-codexfactory-repository-identity`` moved
+    ``opensoft/codexFactory`` to ``codeXfactory/codexFactory``, and EIGHT members
+    of ``contract-v3.4``'s inventory carry that owner segment in their bytes — the
+    supported-domain regression denominator, its three negative fixtures, the
+    hermes-runtime family README and three normative documents. NOT ONE of them is
+    an intent-compliance member, so the membership this file asserts is again
+    UNCHANGED. MEASURED rather than assumed: ``git diff --name-status
+    contract-v3.4 HEAD`` over ``contracts/intent-compliance/``,
+    ``scripts/intent_compliance/``, ``tests/intent-compliance/`` and
+    ``scripts/validate-intent-compliance.py`` reports ZERO paths, so no member of
+    this family moved a byte between the two cuts. Stated by hand, like every
+    advance above it, because "unchanged" is the one fact the library cannot tell
+    from "unnoticed" — and worth stating here because an identity cut is exactly
+    the kind a reader assumes swept every path in the repository, when what it
+    actually moved is one owner segment inside a small measured set.
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
