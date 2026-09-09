@@ -653,6 +653,141 @@ def test_a_drifted_replica_is_not_admitted_and_the_limit_is_the_manifests(
     assert refusal(done) == "arrival-undeclared-file"
 
 
+def test_a_declared_replica_is_verified_against_the_carve_blob(
+        carve: Carve) -> None:
+    """The stronger claim `--replica-at` buys. The manifest declares no path
+    and no digest for a replica (RULED OQ-C, and measured: all 18 rows carry
+    neither), so the OPERATOR declares where it landed — the runbook's per-leg
+    table in machine form — and the copy becomes as falsifiable as a row."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/neutral.py", SURFACE_FILES["scripts/pkg/neutral.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/neutral.py=src/pkg/neutral.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_declared"] == 1
+    assert payload["replicas_verified"] == 1
+    # ADMITTED BY NAME, not by a coincidence of bytes: the digest admission
+    # never runs for a path the operator declared.
+    assert payload["admitted"]["replica"] == 0
+
+
+def test_a_declared_replica_that_never_arrived_refuses_missing(
+        carve: Carve) -> None:
+    """The question the digest admission cannot ask, and the memo's own worry
+    about `scripts/corpus_adapter.py`: a destination importing a module that
+    never arrived. Undeclared, an absent replica is indistinguishable from a
+    replica this leg does not want."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/neutral.py=src/pkg/neutral.py")
+    assert refusal(done) == "arrival-missing"
+
+
+def test_a_declared_replica_that_drifted_refuses_digest_mismatch(
+        carve: Carve) -> None:
+    """Declaring is what withdraws the exemption. Undeclared, this same file is
+    `arrival-undeclared-file`; declared, it is the copy failing to be one."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/neutral.py", "NEUTRAL = 4\nDRIFTED = True\n")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/neutral.py=src/pkg/neutral.py")
+    assert refusal(done) == "arrival-digest-mismatch"
+
+
+def test_an_expected_replica_rewrite_is_simply_not_declared(
+        carve: Carve) -> None:
+    """`tests/corpus-adapter/test_conformance.py`'s implementation-aware block
+    names the home factory and MUST be rewritten at each destination. The
+    verifier does not need a waiver grammar for that: the operator declares the
+    replicas that are copies and leaves the rewritten one undeclared, where the
+    admission rules are exactly what they were."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/neutral.py", SURFACE_FILES["scripts/pkg/neutral.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_declared"] == 0
+    assert payload["admitted"]["replica"] == 1
+
+
+def test_replica_at_may_not_name_a_moved_row(carve: Carve) -> None:
+    """A flag that could name a moved row would let a caller re-point a row the
+    manifest already placed — the one thing the manifest is for."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=src/pkg/elsewhere.py")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_a_malformed_replica_at_refuses_rather_than_being_ignored(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    for value in ("scripts/pkg/neutral.py", "=src/pkg/neutral.py",
+                  "scripts/pkg/neutral.py="):
+        done = run(carve, manifest, "--destination", "scratch_code",
+                   "--dest-root", str(dest), "--phase", "A", "--json",
+                   "--replica-at", value)
+        assert refusal(done) == "arrival-unreadable", value
+
+
+def test_one_replica_may_not_be_declared_at_two_paths(carve: Carve) -> None:
+    """A repeated key would silently keep whichever `append` parsed last, and
+    the operator would believe both were checked."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/neutral.py=src/pkg/neutral.py",
+               "--replica-at", "scripts/pkg/neutral.py=src/pkg/other.py")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_the_scaffolds_posture_document_is_admitted_under_a_declared_root(
+        carve: Carve) -> None:
+    """MEASURED, and it is the openDox-spec leg's first real run.
+    `docs/branch-protection.md` ships with the leg scaffold (present in the
+    three openDox repositories 2026-09-09; owed to the openXdox family by RULED
+    OQ-O) and is in no leg's `REQUIRED_FILES`, while `docs/` IS a declared root
+    for `opendox_spec` — which receives
+    `docs/ideation-dashboard-session-runbook.md`. Before this admission the
+    leg refused `arrival-undeclared-file` on a file the carve never touched.
+
+    It is admitted as SCAFFOLD and not left to `--allow-created`, because the
+    two make different claims: `--allow-created` records that the destination
+    ASSEMBLED the file, and a document whose whole subject is provenance may
+    not arrive carrying a false one.
+    """
+    doc = copy.deepcopy(carve.manifest_doc())
+    doc["rows"][0]["destination_path"] = "docs/alpha.md"
+    manifest = carve.write_manifest(doc, "manifest-docs.yaml")
+    dest = carve.materialise(doc, "scratch_code", name="dest-docs")
+    _write(dest, "docs/branch-protection.md", "# posture\n")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["admitted"]["scaffold"] == 1
+    assert "docs/branch-protection.md" in MODULE.SCAFFOLD_DOCS
+
+
 def test_the_scaffolds_own_files_are_admitted_from_its_leg_shape_test(
         carve: Carve) -> None:
     """The allowlist is READ FROM THE DESTINATION, not copied into openxFactory:

@@ -71,14 +71,23 @@ reach is worse than one that does not reach.
   * A `replicated_at_destination` row carries NO `destination`, NO
     `destination_path` and NO digest — by the row grammar, and RULED OQ-C is the
     reason: "this manifest declares what LEAVES, not what the destination
-    assembles." So a replica's ARRIVAL is undeclared by construction. This file
-    ADMITS a destination file whose bytes still equal a replica's blob at
-    `carve_commit` and reports the count; it CANNOT refuse a replica that
-    drifted. The drift is expected in at least one case the memo names:
+    assembles." So a replica's ARRIVAL is undeclared BY THE MANIFEST, and
+    nothing here derives it: a guess at `src/<pkg>/<basename>` would be
+    inventing the answer it then checked. Two readings, and both are offered.
+    UNDECLARED, this file ADMITS a destination file whose bytes still equal a
+    replica's blob at `carve_commit` and reports the count; it cannot say
+    whether the replica is there at all, and it cannot refuse one that drifted.
+    DECLARED with `--replica-at <source>=<destpath>` — the runbook's per-leg
+    table in machine form, restated in the pull request that places it — the
+    replica is answered with the two codes a row is answered with,
+    `arrival-missing` and `arrival-digest-mismatch`, and is admitted in the
+    walk by NAME rather than by a coincidence of bytes. Drift is EXPECTED in at
+    least one case the memo names —
     `tests/corpus-adapter/test_conformance.py`'s implementation-aware block
-    imports the home factory and MUST be rewritten at each destination to that
-    destination's own. A row that is neither verbatim nor declared-edit is not
-    made falsifiable by wishing.
+    imports the home factory and MUST be rewritten at each destination — and
+    that copy is simply not declared, which leaves it exactly where it was. A
+    row that is neither verbatim nor declared-edit is not made falsifiable by
+    wishing; it is made falsifiable by somebody declaring where it went.
   * A file CREATED at a destination has no row either (RULED OQ-C) — the import
     root, `pyproject.toml`, `pytest.ini`, `conftest.py`, and openXdox-code's
     `openxfactory_surface.py` (RULED OQ-L). Each is named on the command line
@@ -201,6 +210,24 @@ GITKEEP = ".gitkeep"
 # declared root for both `-code` legs, so it must be admitted or every arrived
 # code leg refuses on the file that proves it is a leg.
 LEG_SHAPE_TEST = "tests/test_leg_shape.py"
+
+# The scaffold's own DOCUMENT under a declared root — the one admission
+# `REQUIRED_FILES` cannot supply, because no leg's list names it.
+# `docs/branch-protection.md` ships with the leg scaffold (measured
+# 2026-09-09 in `opensoft/openDox`, `openDox-spec` and `openDox-code`; owed to
+# the three openXdox repositories by RULED OQ-O's levelling), and `docs/` IS a
+# declared root for `opendox_spec`, which receives
+# `docs/ideation-dashboard-session-runbook.md`. MEASURED against the landed
+# manifest, an openDox-spec leg built from its 56 rows refuses
+# `arrival-undeclared-file` on the scaffold's own posture document — a leg that
+# arrived perfectly, failed on a file the carve never touched.
+#
+# It is admitted as SCAFFOLD rather than left to `--allow-created`, because the
+# two say different things: `--allow-created` records in the pull request that
+# the destination ASSEMBLED this file, and a document whose whole subject is
+# provenance may not arrive carrying a false one. Named here, and not read from
+# the destination, because nothing at the destination declares it.
+SCAFFOLD_DOCS: frozenset[str] = frozenset({"docs/branch-protection.md"})
 
 
 class ArrivalRefusal(Exception):
@@ -582,6 +609,114 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
 
 
 # --------------------------------------------------------------------------
+# check 2b — replicas the OPERATOR declares (the manifest cannot)
+# --------------------------------------------------------------------------
+
+def parse_replica_placements(values: list[str],
+                             doc: dict[str, Any]) -> dict[str, str]:
+    """`--replica-at SOURCE=DESTPATH`, parsed against the manifest's replicas.
+
+    WHY A COMMAND-LINE DECLARATION AND NOT A DERIVATION. Measured over the
+    landed manifest, all 18 `not_moved / replicated_at_destination` rows carry
+    NO `destination`, NO `destination_path`, NO `sha256` and NO `git_mode` —
+    the row grammar gives a `not_moved` row none of them, and RULED OQ-C is the
+    reason ("this manifest declares what LEAVES, not what the destination
+    assembles"). So there is nothing in the document to derive a replica's
+    arrival from, and a verifier that guessed — `src/<pkg>/<basename>`, say —
+    would be inventing the answer it then checked. The only party who knows
+    where a replica landed is the operator who placed it, and the runbook's
+    per-leg table is where that is written down; this flag is that table in
+    machine form, restated in the pull request that makes the placement.
+
+    IT NARROWS NOTHING THAT PASSES TODAY. An UNDECLARED replica is still
+    admitted by identity with its blob at the carve commit and still counted
+    (`admitted.replica`); this adds a stronger claim for the operator willing
+    to make it, and does not withdraw the weaker one. What the declaration buys
+    is the two questions the digest admission cannot ask: whether the replica
+    is THERE AT ALL — a destination importing a module that never arrived is
+    the memo's own worry about `scripts/corpus_adapter.py` — and whether it is
+    the carve's bytes at the path the operator says it is, rather than at some
+    path under a declared root where a coincidence of bytes let it in.
+
+    IT WIDENS NO VOCABULARY. A declared replica is answered with the two codes
+    a ROW is answered with — `arrival-missing` and `arrival-digest-mismatch` —
+    because a declaration makes it exactly as falsifiable as a row, and a
+    seventh code for the same two failures would be a second name for one
+    thing.
+    """
+    replicas = {row["source_path"] for row in replica_rows(doc)}
+    placements: dict[str, str] = {}
+    for value in values:
+        source_path, sep, relpath = value.partition("=")
+        if not sep or not source_path or not relpath:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--replica-at {value!r} is not SOURCE=DESTPATH: the left side "
+                "is a replica row's source_path in openxFactory and the right "
+                "is where it landed, relative to --dest-root")
+        relpath = relpath.replace(os.sep, "/")
+        if source_path not in replicas:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--replica-at names {source_path!r}, which is not a "
+                f"`not_moved / {REPLICA_REASON}` row of this manifest. A "
+                "moved row's arrival is declared by its own "
+                "`destination_path:`, and a flag that could name one would let "
+                "a caller re-point a row the manifest already placed")
+        if source_path in placements:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--replica-at names {source_path!r} twice "
+                f"({placements[source_path]!r} and {relpath!r}); one replica "
+                "lands at one path per destination, and a repeated key would "
+                "silently keep whichever was parsed last")
+        placements[source_path] = relpath
+    return placements
+
+
+def check_replicas(placements: dict[str, str], dest_root: Path,
+                   source_repo: Path, carve_commit: str) -> int:
+    """Every DECLARED replica present, and byte-identical to the carve blob."""
+    verified = 0
+    for source_path, relpath in sorted(placements.items()):
+        target = dest_root / relpath
+        if not os.path.lexists(target):
+            raise ArrivalRefusal(
+                "arrival-missing",
+                f"--replica-at declares the replica of {source_path} at "
+                f"{relpath} and {target} does not exist. RULED OQ-A places a "
+                "replica AT the destination and RETAINS it here; a replica "
+                "that never arrived leaves the leg importing a module that is "
+                "not there, which its own `validate` finds later and less "
+                "clearly")
+        _mode, data = read_arrived(target)
+        carve = blob_at(source_repo, carve_commit, source_path)
+        if carve is None:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"{source_repo} carries no blob at {carve_commit[:12]}:"
+                f"{source_path}, which the declared replica is compared "
+                f"against; run {MANIFEST_VALIDATOR}")
+        if data != carve:
+            raise ArrivalRefusal(
+                "arrival-digest-mismatch",
+                f"the replica of {source_path} at {relpath} has sha256 "
+                f"{digest(data)} where its blob at {carve_commit[:12]} has "
+                f"{digest(carve)}. A replica is a COPY (RULED OQ-A) and the "
+                "manifest records no digest for one, so DECLARING it is what "
+                "makes the copy checkable — a declared replica that drifted is "
+                "a claim withdrawn, not a fidelity this file never had. Where "
+                "the copy MUST differ at this destination — "
+                "`tests/corpus-adapter/test_conformance.py`'s "
+                "implementation-aware block names the home factory and is "
+                "rewritten at each destination — do not declare it with "
+                "--replica-at; it is then admitted, uncounted as verified, on "
+                "the same terms as before")
+        verified += 1
+    return verified
+
+
+# --------------------------------------------------------------------------
 # check 3 — nothing under a declared root that no row places
 # --------------------------------------------------------------------------
 
@@ -598,9 +733,12 @@ def scaffold_allowlist(dest_root: Path) -> set[str]:
 
     The test module itself is added, because it lives under `tests/` — a
     declared root for both `-code` legs — and a leg that refused on the file
-    proving it is a leg would be unusable.
+    proving it is a leg would be unusable. `SCAFFOLD_DOCS` is added for the
+    same reason one level over: `docs/branch-protection.md` is under
+    `opendox_spec`'s declared `docs/` root and is in no leg's
+    `REQUIRED_FILES`.
     """
-    allowed = {LEG_SHAPE_TEST}
+    allowed = {LEG_SHAPE_TEST} | set(SCAFFOLD_DOCS)
     source = dest_root / LEG_SHAPE_TEST
     try:
         text = source.read_text(encoding="utf-8")
@@ -747,17 +885,23 @@ def check_carved_from(dest_root: Path, doc: dict[str, Any]) -> dict[str, str]:
 # --------------------------------------------------------------------------
 
 def verify(doc: dict[str, Any], destination: str, dest_root: Path,
-           source_repo: Path, phase: str,
-           allow_created: set[str]) -> dict[str, Any]:
-    """The four checks in order, first failure wins."""
+           source_repo: Path, phase: str, allow_created: set[str],
+           replica_placements: dict[str, str]) -> dict[str, Any]:
+    """The checks in order, first failure wins."""
     carve_commit = doc["carve_commit"]
     rows = rows_for(doc, destination)
-    if rows:
+    if rows or replica_placements:
         require_commit(source_repo, carve_commit)
     counts = check_arrivals(rows, dest_root, source_repo, carve_commit, phase)
+    replicas_verified = check_replicas(replica_placements, dest_root,
+                                       source_repo, carve_commit)
 
     roots = declared_roots(rows)
+    # A DECLARED replica is admitted BY NAME, so it no longer rides into the
+    # walk on a coincidence of bytes: the operator said where it is, and that
+    # path is the one admitted.
     placed = {row["destination_path"] for row in rows}
+    placed.update(replica_placements.values())
     replicas: set[str] = set()
     for row in replica_rows(doc):
         data = blob_at(source_repo, carve_commit, row["source_path"])
@@ -785,6 +929,8 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
         "digests_verified": counts["digests_verified"],
         "declared_edits_diffed": counts["diffed"],
         "declared_edits_unapplied": counts["unapplied"],
+        "replicas_declared": len(replica_placements),
+        "replicas_verified": replicas_verified,
         "declared_roots": roots,
         "files_walked": admitted["walked"],
         "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
@@ -821,6 +967,11 @@ def main(argv: list[str] | None = None) -> int:
         "--allow-created", metavar="PATH", action="append", default=[],
         help=("a file the destination legitimately assembles and no row places "
               "(RULED OQ-C); repeatable, exact destination-relative paths"))
+    parser.add_argument(
+        "--replica-at", metavar="SOURCE=PATH", action="append", default=[],
+        help=("where a `not_moved / replicated_at_destination` row landed at "
+              "this destination; the manifest declares no path or digest for "
+              "a replica, so declaring one here makes the copy checkable"))
     parser.add_argument(
         "--json", action="store_true",
         help="print one JSON object on stdout instead of the human line")
@@ -890,8 +1041,9 @@ def main(argv: list[str] | None = None) -> int:
                 "which is not a directory")
         where = str(dest_root)
         summary = verify(doc, args.destination, dest_root, source_repo,
-                         args.phase, {p.replace(os.sep, "/")
-                                      for p in args.allow_created})
+                         args.phase,
+                         {p.replace(os.sep, "/") for p in args.allow_created},
+                         parse_replica_placements(args.replica_at, doc))
     except ArrivalRefusal as exc:
         if args.json:
             print(json.dumps({"result": "refused", "code": exc.code,
@@ -916,6 +1068,9 @@ def main(argv: list[str] | None = None) -> int:
                 f"{summary['declared_edits_diffed']} declared-edit row(s) "
                 f"within their lines, "
                 f"{summary['declared_edits_unapplied']} unapplied; "
+                f"{summary['replicas_verified']} of "
+                f"{summary['replicas_declared']} declared replica(s) "
+                f"byte-identical; "
                 f"{summary['files_walked']} file(s) under {roots} with none "
                 f"undeclared ({adm['scaffold']} scaffold, {adm['replica']} "
                 f"replica, {adm['created']} created)")

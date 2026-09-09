@@ -172,20 +172,51 @@ Its five findings and one environment code:
 manifest lives here; a verifier copied six ways is six things to keep in step
 with one document.
 
-**What it deliberately does NOT prove.** A `replicated_at_destination` row
-carries no `destination`, no `destination_path` and no digest — by the row
-grammar, because the manifest declares what LEAVES and a replica is a copy the
-destination assembles. So the verifier ADMITS a destination file whose bytes
-equal a replica's blob at `carve_commit` and reports the count, and it cannot
-refuse a replica that drifted. That is the manifest's limit, not the verifier's:
-`tests/corpus-adapter/test_conformance.py`'s implementation-aware block MUST be
-rewritten at each destination to that destination's own factory, so a replica is
-neither verbatim nor declared-edit by construction. Files CREATED at a
-destination (RULED OQ-C — `pyproject.toml`, `conftest.py`, `pytest.ini`,
-openXdox-code's `openxfactory_surface.py`) have no row either, and are named on
-the command line with `--allow-created`, once each, so that every unplaced file
-at a destination is either admitted by a rule or written down in the pull
-request that admits it.
+**What it deliberately does NOT prove, and what the operator can make it
+prove.** A `replicated_at_destination` row carries no `destination`, no
+`destination_path` and no digest — by the row grammar, because the manifest
+declares what LEAVES and a replica is a copy the destination assembles.
+Measured over the landed manifest, all **18** such rows carry none of the four.
+So nothing in the document says where a replica landed, and the verifier does
+not guess: a derivation like `src/<pkg>/<basename>` would be inventing the
+answer it then checked.
+
+Two readings, both available, and the choice is per replica:
+
+* **Undeclared** — the verifier ADMITS a destination file whose bytes equal a
+  replica's blob at `carve_commit` and reports the count. It cannot say whether
+  the replica is there at all, and it cannot refuse one that drifted.
+* **Declared**, with `--replica-at <source_path>=<destination path>` — the
+  per-leg table below in machine form, restated in the pull request that places
+  it. A declared replica is answered with the two codes a ROW is answered with,
+  `arrival-missing` and `arrival-digest-mismatch`, and is admitted in the walk
+  by NAME rather than by a coincidence of bytes. Declare every replica that is
+  a pure copy.
+
+The one replica that must NOT be declared is
+`tests/corpus-adapter/test_conformance.py`: its implementation-aware block
+(`:72-84`) imports the home factory and MUST be rewritten at each destination
+to that destination's own, so it is neither verbatim nor declared-edit by
+construction. Leaving it undeclared leaves it exactly where it was.
+
+Files CREATED at a destination (RULED OQ-C — `pyproject.toml`, `conftest.py`,
+`pytest.ini`, openXdox-code's `openxfactory_surface.py`) have no row either,
+and are named on the command line with `--allow-created`, once each, so that
+every unplaced file at a destination is either admitted by a rule or written
+down in the pull request that admits it.
+
+**The scaffold's own files are admitted without `--allow-created`**, and the
+distinction is load-bearing rather than convenience: `--allow-created` records
+in the pull request that the destination ASSEMBLED the file, which is false of
+anything the scaffold shipped before the carve began. The verifier reads each
+leg's `tests/test_leg_shape.py` `REQUIRED_FILES` from the destination itself
+(never a second copy here, and parsed rather than imported), admits any
+`.gitkeep` by name, and carries one named document the lists cannot supply:
+**`docs/branch-protection.md`**. That one matters because `docs/` IS a declared
+root for `opendox_spec` — it receives `docs/ideation-dashboard-session-runbook.md`
+— so before that admission a perfectly arrived openDox-spec leg refused
+`arrival-undeclared-file` on the scaffold's own posture document. Measured
+against the landed manifest, not reasoned about.
 
 ---
 
@@ -382,9 +413,19 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
 ```sh
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src --phase B \
-    --allow-created pytest.ini --allow-created conftest.py
-# expect exit 0: 62 edited row(s), declared-lines-only
+    --allow-created pytest.ini --allow-created conftest.py \
+    --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
+    --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
+    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
+# expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
+# replica(s) byte-identical
 ```
+
+One `--replica-at` per replica this leg places as a pure copy, at the path it
+was placed. The three neutral modules above are permanent replicas (RULED
+OQ-A); `scripts/corpus_adapter.py` is a replica now and is retired after the
+OQ-L pin lands (RULED OQ-Q, 2026-09-09 ~22:3xZ), so it is declared while it is
+one.
 
 The dominant edit is mechanical — `ideation_dashboard.X` → `opendox.X` /
 `openxdox.X` on the `import rewrites` rows, plus the dead
@@ -406,9 +447,11 @@ the verifier with `--allow-created`, and the pull request says why:
 
 * both `-code` legs: `pytest.ini` (the rootdir anchor) and a root `conftest.py`
   — **unless Phase 1 already landed them, which is where they belong**;
-* the `replicated_at_destination` copies — admitted automatically when their
-  bytes still equal the carve blob, and named with `--allow-created` once
-  their destination-side rewrite has begun;
+* the `replicated_at_destination` copies — DECLARE each pure copy with
+  `--replica-at <source_path>=<destination path>`, which makes its presence and
+  its bytes checkable; leave `tests/corpus-adapter/test_conformance.py`
+  undeclared, because its implementation-aware block is rewritten here by
+  design, and name it with `--allow-created` once that rewrite has begun;
 * **`openxdox-code/src/openxdox/openxfactory_surface.py`** — the mirror of
   `openxdox_surface.py`, the re-export surface openxFactory's own adapter
   reaches after the shed (RULED OQ-L). One line plus its reason per name, on
