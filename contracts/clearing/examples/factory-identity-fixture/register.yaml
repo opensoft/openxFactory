@@ -5,7 +5,7 @@
 # reasons, both deliberate:
 #
 #   1. THE LIVE REGISTER'S PRIVATE HALVES DO NOT EXIST IN THIS REPOSITORY, and
-#      they must not. `opensoft/codexFactory`'s origin key lives only in that
+#      they must not. `codeXfactory/codexFactory`'s origin key lives only in that
 #      repository's own hosted packaging environment; a packaged example signed
 #      by it could only exist if that key had left the environment the ratified
 #      requirement confines it to.
@@ -14,7 +14,7 @@
 #      packaged examples red for a fact about a different subject.
 #
 # The whole-tree sweep is the other half: run with a path, the validator resolves
-# REAL artifacts against the LIVE register, so `opensoft/codexFactory` really is
+# REAL artifacts against the LIVE register, so `codeXfactory/codexFactory` really is
 # treated as a registered producer there.
 #
 # THE KEY BELOW IS AN EPHEMERAL FIXTURE. Its public half and one signature are

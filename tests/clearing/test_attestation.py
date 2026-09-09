@@ -65,17 +65,17 @@ def test_every_finding_names_its_group_and_its_expected_set() -> None:
 def test_an_admitted_repository_other_than_the_clearing_one_is_a_widening() -> None:
     """The measured residual the ruling closes, carried in the corpus.
 
-    `opensoft/codexFactory` is admitted to the artifact group. That is why run
+    `codeXfactory/codexFactory` is admitted to the artifact group. That is why run
     33381257642 could queue for eighteen hours at all — the group admitted the
     repository and allowlisted only xFactory paths — and the attestation reports
     it as a widening of the same class as an unexpected path.
     """
     artifact = next(g for g in POSITIVE["groups"]
                     if g["runner_group"] == "xfactory-artifact-workers")
-    assert "opensoft/codexFactory" in artifact["observed_repositories"]
+    assert "codeXfactory/codexFactory" in artifact["observed_repositories"]
     assert artifact["expected_repositories"] == ["opensoft/xFactory"]
     repo_findings = [f for f in artifact["findings"]
-                     if f["subject"] == "opensoft/codexFactory"]
+                     if f["subject"] == "codeXfactory/codexFactory"]
     assert repo_findings and repo_findings[0]["finding_class"] == "widening"
 
 
