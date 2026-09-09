@@ -1,5 +1,8 @@
 # Ratification — 2026-09-04
 
+Status: record
+Kind: report
+
 ## Decision
 
 RATIFIED by Brett Heap.
