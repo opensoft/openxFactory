@@ -2039,7 +2039,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/consent-instrument.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 13b0fe46fdb8791020b426dcd763aced2a3280a82923b32d3a0d0877ab6ad441
+    sha256: 2b83449253dbd4494753598756f25e084a4ef37c260adf52e7295b32b41d466b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

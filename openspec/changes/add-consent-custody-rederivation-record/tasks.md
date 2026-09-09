@@ -4,11 +4,27 @@ Status: ratified
 Ratified by: add-consent-custody-rederivation-record — 2026-09-08, Brett Heap, "ratify 774, merge it and land it" (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
 
-**NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
-PACKET RATHER THAN AN OVERSIGHT.** This is a PROPOSAL. No schema byte moves, no
-contract version is cut, no digest inventory is written, no validator leg is
-added, no example is authored, no consumer pin advances, and no instrument takes
-an entry.
+**AMENDED 2026-09-09 — ONE NAMED SENTENCE ABOVE IS SUPERSEDED, AND IT IS QUOTED
+IN PLACE RATHER THAN DELETED.** The superseded sentence is exactly this one, and
+no other:
+
+> **NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
+> PACKET RATHER THAN AN OVERSIGHT.**
+
+Realization began on 2026-09-09 under Speckit feature
+`specs/033-add-consent-custody-rederivation-record`, lane `opsXfactory-1`, and
+the boxes below are ticked as their acts land — each in the same commit as its
+evidence.
+
+The clause that FOLLOWED it in the same paragraph — *"no consumer pin advances,
+and no instrument takes an entry"* — is **NOT** superseded. It still holds and
+will keep holding: those are § 6's acts, § 6 is the CONSUMER's, and nothing in
+this realization reaches an OpsxFactory file. The rest of the original sentence
+is superseded only as each act lands: this is a PROPOSAL no longer, schema bytes
+have moved, and the remaining clauses fall one at a time with their boxes.
+
+**TICKED 2026-09-09** — every tick below carries a note naming the act, the
+commit or record that performed it, and the evidence transcript that proves it.
 
 **Tags.** Untagged = openxFactory. `[OpsxFactory]` = `opensoft/OpsxFactory` and
 its own OpenSpec instance — listed as the CONSUMER'S owed acts, outside this
@@ -62,7 +78,7 @@ ratification, a human-only surface write, a tag.
 
 ## 2. The schema edit
 
-- [ ] 2.1 `contracts/schemas/consent-instrument.schema.yaml`: add the top-level
+- [x] 2.1 **TICKED 2026-09-09.** `contracts/schemas/consent-instrument.schema.yaml`: add the top-level
   `custody_rederivations` property — `type: array`, items `type: object` with
   `additionalProperties: false` and `required: [at, commit, previous_locator,
   observed_locator, previous_sha256, observed_sha256, diff_class, reason,
@@ -75,23 +91,47 @@ ratification, a human-only surface write, a tag.
   class among the other two); `reason`
   `enum: [lifecycle_header_edit, archive_move, other_ruled_edit]`; `ruling_ref`
   and `recorded_by` `type: string, minLength: 1`.
-- [ ] 2.2 `custody` IS NOT EDITED. Confirm by diff that its two properties, its
+- [x] 2.2 **TICKED 2026-09-09.** `custody` IS NOT EDITED. Confirm by diff that its two properties, its
   `required`, its `additionalProperties: false` and its comment block are
   byte-identical after the change. A diff touching `custody` fails this task.
-- [ ] 2.3 `contract_schema_version: 2` → `3`, with the in-file comment written in
+- [x] 2.3 **TICKED 2026-09-09.** `contract_schema_version: 2` → `3`, with the in-file comment written in
   the style of the existing `1 -> 2` note: what grew, that it is ADDITIVE, and
   that the RECORD envelope's `schema_version` stays `const: 1` because moving it
   would invalidate every instrument in the estate.
-- [ ] 2.4 An in-file comment on the new property recording WHY it is a sibling
+- [x] 2.4 **TICKED 2026-09-09.** An in-file comment on the new property recording WHY it is a sibling
   (ruling D9's closure argument, design C-1) and that `ruling_ref` is a DECLARED
   POINTER the validator does not resolve — the `dependent_refs.ref` posture.
-- [ ] 2.5 An in-file comment on the locator pair recording that `custody.locator`
+- [x] 2.5 **TICKED 2026-09-09.** An in-file comment on the locator pair recording that `custody.locator`
   is OPAQUE and is NOT a path (C-6a): resolution runs through the consuming
   repository's DECLARED custody store mapping, the two legs are evaluated on
   opposite sides of the commit, and an archive move is unadmittable without the
   pair. Name the measurement: every OpsxFactory locator carries an
   `opsx:opensoft/` scheme prefix and three of four targets resolve at no ref
   under their literal path.
+
+**§ 2 EVIDENCE, 2026-09-09.** All five acts landed in ONE commit on branch
+`033-add-consent-custody-rederivation-record`. Transcripts:
+`specs/033-add-consent-custody-rederivation-record/evidence/T015-T016-schema-proofs.txt`
+and `.../evidence/T017-manifest-digests.txt`.
+
+- **2.2 is PROVEN, not asserted.** `git diff -U0` over the schema reports
+  exactly TWO hunks — line 14 (`contract_schema_version` and its `2 -> 3` note)
+  and an APPEND at 354 (the new property). The `custody` object occupies lines
+  180–196 and lies in NEITHER. The sha256 of the `custody` block is
+  `2bd85913c3640dee61b8c66ca93fb0d68b03d22308cc9f04594678a80ab4bd3c` at HEAD and
+  the same in the working tree.
+- **The three identity fields stay put** (`$id` at line 7, the record envelope's
+  `schema_version: const: 1` at 72–73, and `contracts/manifest.yaml`'s row-level
+  `schema_version: 1` at 2041), as the `contract-v1.33` precedent left them.
+- **The `consent-instrument` row's `sha256` was RE-DERIVED IN THIS SAME COMMIT**
+  — `13b0fe46…` → `2b834492…` — because a per-file digest is integrity
+  bookkeeping for the edited file, not a release surface. The commit that made
+  it stale is the commit that closes it, so no commit on this branch is left
+  with a stale digest. `validate-manifest-digests.py`: **189 per-file digests
+  verify, rc=0**.
+- **The growth is ADDITIVE, measured**: `validate-consent-instruments.py
+  --strict` reports **0 errors, 0 warnings**, with all SIX existing valid
+  examples still valid and unedited — none declares the new array.
 
 ## 3. The canonical validator — internal legs only
 

@@ -1,0 +1,22 @@
+T015 / T016 — Phase B proofs, 2026-09-09T15:21:55Z
+
+$ git diff -U0 -- contracts/schemas/consent-instrument.schema.yaml | grep -E "^@@"
+@@ -14 +14,9 @@ title: "xFactory consent instrument: the neutral rung-1<->rung-2 authority-chain
+@@ -354,0 +363,115 @@ properties:
+
+TWO HUNKS ONLY. Hunk 1 is line 14 (contract_schema_version + its 2->3 note).
+Hunk 2 is an APPEND at 354 (the new sibling property). The custody object
+occupies lines 180-196 and lies in NEITHER hunk.
+
+T015 — custody block byte-identity (sha256 of lines '  custody:' .. before '  status:'):
+  HEAD:    2bd85913c3640dee61b8c66ca93fb0d68b03d22308cc9f04594678a80ab4bd3c
+  WORKING: 2bd85913c3640dee61b8c66ca93fb0d68b03d22308cc9f04594678a80ab4bd3c
+
+T016 — the three identity fields Q4 froze:
+  $id            : 7:$id: "consent-instrument.schema.yaml"
+  envelope const : 72:  schema_version: 73-    const: 1 
+  manifest row   :     schema_version: 1
+
+$ git diff --stat -- contracts/schemas/consent-instrument.schema.yaml
+ contracts/schemas/consent-instrument.schema.yaml | 125 ++++++++++++++++++++++-
+ 1 file changed, 124 insertions(+), 1 deletion(-)
