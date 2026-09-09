@@ -169,13 +169,76 @@ jobs:
       # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
       # the only authority on where a submodule lives, so a hardcoded
       # organization would rot at the next repoint and would stay silent when a
-      # THIRD organization appeared. More than one foreign owner therefore FAILS
-      # the run instead of guessing, because `create-github-app-token` takes one
-      # `owner` per step and a second pair has to be written by hand.
+      # THIRD organization appeared.
+      #
+      # ONE MINT PER OWNER, IN NUMBERED SLOTS (opensoft/xFactory#366). The first
+      # cut of this block credentialed exactly ONE foreign owner and FAILED the
+      # run on a second, on the reasoning that `create-github-app-token` takes
+      # one `owner` per step and "a second pair has to be written by hand". The
+      # aggregation then admitted a second owner: commit 99f1643 ("Repoint the
+      # LedgerxFactory submodule at ledgerXfactory, its own enterprise org",
+      # 2026-09-07 16:49Z) put `xFactories/LedgerxFactory` under
+      # `ledgerXfactory` while `xFactories/MedxFactory` and `xFactories/MedxEHR`
+      # stayed under `MedxSoft`, and from 2026-09-08 every nightly died HERE,
+      # before a single bundle was built — 0 artifacts, which also starves the
+      # child lanes' `GITHUB_SHA != source_sha` provenance gate (opensoft/
+      # xFactory runs 34180399272 and 34303636250). So the hand-written pairs
+      # are now written: `FOREIGN_OWNER_SLOTS` mint steps, each guarded on its
+      # slot being filled, and ONE rewrite step that credentials every filled
+      # slot. A count ABOVE the slot count still refuses loudly and NAMES the
+      # owners rather than guessing — the same refusal as before, moved from
+      # "more than one" to "more than the slots this file carries".
+      #
+      # THE THIRD OWNER IS THE MOVED DECISION CORE, AND NOTHING HERE NAMES IT
+      # (openxFactory slice B1b of `adopt-codexfactory-repository-identity`;
+      # codeXfactory/codexFactory#279, the 6.5 precheck ruling of
+      # 2026-09-09T15:25Z). `xFactories/codexFactory` left `opensoft` for its
+      # own enterprise organization `codeXfactory` on 2026-09-09; the
+      # aggregation's `.gitmodules` follows in opensoft/xFactory#376, and from
+      # that commit the governed set spans THREE foreign owners — `MedxSoft`,
+      # `ledgerXfactory` and `codeXfactory`. The detection below needed no new
+      # line for it: it reads the owner out of `.gitmodules`, and
+      # `actions/create-github-app-token@v2` resolves the installation from its
+      # own `owner:` input, so the only thing the moved core required was the
+      # installation — which exists. The App behind `XFACTORY_APP_ID` is App
+      # `4253636` (`openxfactory`), and it carries installation `160352673` on
+      # `codeXfactory` (all repositories, created 2026-09-09T10:42-04:00,
+      # `contents: write`), alongside `157085693` on `MedxSoft` and
+      # `160353680` on `ledgerXfactory` — one App, three installations, one per
+      # organization, which is exactly the shape the slot mechanism assumes.
+      # What the flip DOES consume is the SPARE slot: three owners in three
+      # slots leaves none, and the next repoint would then red the nightly in
+      # the refusal below — the #366 failure again, one organization later. So
+      # the slot count moves 3 -> 4 in the same act that admits the third
+      # owner, which keeps the property the spare was chosen for. This is the
+      # procedure the refusal message itself prescribes, carried out ahead of
+      # the `.gitmodules` flip rather than after it.
+      #
+      # A NESTED LEG IN A THIRD ORGANIZATION IS OUT OF REACH HERE, and that is
+      # bounded rather than silent: this step reads the AGGREGATION's
+      # `.gitmodules`, which is all that exists before the init below runs, so
+      # an owner declared only inside a governed submodule's OWN `.gitmodules`
+      # — the shape `xFactories/MedxEHR`'s `spec`/`code` legs have — is
+      # invisible to the detection. Measured at the pins main carries today,
+      # every such leg the init touches belongs to an owner the top level
+      # already declares: `MedxEHR/spec` and `MedxEHR/code` are `MedxSoft`,
+      # `openxFactory/openXwallet` is `opensoft`. A leg in a fourth
+      # organization would fail at the init with git's own message, and the
+      # remedy would be the same: fill another slot.
       - name: Detect foreign submodule owners
         id: foreign-owner
         env:
           SELF_OWNER: ${{ github.repository_owner }}
+          # THE ONE PLACE THE SLOT COUNT IS WRITTEN. It feeds the refusal
+          # message, this step's own slot loop, and — through the `slots`
+          # output — the rewrite step below, so none of the three can disagree
+          # with the others. `tests/doc-health/test_submodule_owner_tokens.py`
+          # asserts it equals the number of mint steps actually present, in
+          # BOTH the prepare and finalize jobs. FOUR, for the THREE owners the
+          # aggregation declares from opensoft/xFactory#376 onward (see the
+          # moved-decision-core note above): one spare slot so the next repoint
+          # is a `.gitmodules` edit and not a red nightly.
+          FOREIGN_OWNER_SLOTS: "4"
         run: |
           set -euo pipefail
           # The SAME governed filter the init step below applies, so the two can
@@ -183,6 +246,7 @@ jobs:
           GOVERNED='^(openxFactory|xFactories/)'
           MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
           FOREIGN=""
+          ALL=""
           while read -r key path; do
             [ -n "${path:-}" ] || continue
             printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
@@ -197,50 +261,186 @@ jobs:
               continue
             fi
             echo "governed submodule ${path} -> owner ${owner}"
+            ALL="${ALL}${owner}"$'\n'
             if [ "$owner" != "$SELF_OWNER" ]; then
               FOREIGN="${FOREIGN}${owner}"$'\n'
             fi
           done <<< "$MODULES"
           UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
           COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
-          if [ "$COUNT" -gt 1 ]; then
-            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+          if [ "$COUNT" -gt "$FOREIGN_OWNER_SLOTS" ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but this workflow carries only $FOREIGN_OWNER_SLOTS mint slots, and actions/create-github-app-token mints ONE owner per step; add a 'Mint app token for foreign submodule owner <n>' step per owner beyond $FOREIGN_OWNER_SLOTS, raise FOREIGN_OWNER_SLOTS with it, and add the matching OWNER_<n>/TOKEN_<n> pair to 'Rewrite foreign-owner submodule URLs' — in BOTH the prepare and finalize jobs"
             exit 1
           fi
-          if [ "$COUNT" -eq 1 ]; then
-            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
-            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
-            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
-          else
-            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
-            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+          echo "slots=${FOREIGN_OWNER_SLOTS}" >> "$GITHUB_OUTPUT"
+          # EVERY governed owner, self included, space separated. Only the
+          # fallback-token step below reads it: a PAT is not per-installation,
+          # so it needs the owner list rather than a slot.
+          echo "owners_all=$(printf '%s' "$ALL" | sed '/^$/d' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          # Every slot is written, filled or empty, because each mint step
+          # reads its own slot and an unset output would read as the literal
+          # string of an unresolved expression rather than as "empty".
+          slot=0
+          while [ "$slot" -lt "$FOREIGN_OWNER_SLOTS" ]; do
+            slot=$((slot + 1))
+            owner=$(printf '%s\n' "$UNIQUE" | sed -n "${slot}p")
+            echo "owner_${slot}=${owner}" >> "$GITHUB_OUTPUT"
+            if [ -n "$owner" ]; then
+              echo "foreign submodule owner ${owner} needs its own installation token (slot ${slot})"
+            fi
+          done
+          if [ "$COUNT" -eq 0 ]; then
             echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
           fi
-      - name: Mint app token for the foreign submodule owner
-        id: foreign-app-token
-        # NO `|| github.token` FALLBACK, deliberately: if the App is not
-        # installed on that organization this step fails loudly, which is a far
-        # better diagnosis than the "Repository not found" the init printed for
-        # two nights.
-        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+      # NO `|| github.token` FALLBACK, deliberately: a token minted for the
+      # wrong installation prints "Repository not found" at the init and reads
+      # like a deleted repository, which is what cost two nights in 2026-08.
+      #
+      # `continue-on-error` IS NOT A FALLBACK. It exists so that a mint which
+      # cannot succeed — overwhelmingly because the App is not installed on
+      # that organization — is turned by the rewrite step below into a finding
+      # that NAMES the organization and the operator act that fixes it, instead
+      # of stopping the job on this action's own API error, which names neither
+      # the submodule that needed the token nor any remedy. The run still
+      # FAILS; it fails saying what to do.
+      - name: Mint app token for foreign submodule owner 1
+        id: foreign-app-token-1
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_1 != ''
+        continue-on-error: true
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+          owner: ${{ steps.foreign-owner.outputs.owner_1 }}
+      - name: Mint app token for foreign submodule owner 2
+        id: foreign-app-token-2
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_2 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_2 }}
+      - name: Mint app token for foreign submodule owner 3
+        id: foreign-app-token-3
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_3 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_3 }}
+      - name: Mint app token for foreign submodule owner 4
+        id: foreign-app-token-4
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_4 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_4 }}
       # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
       # `insteadOf` by the LONGEST matching left-hand side, and
       # `git@github.com:<owner>/` is longer than `git@github.com:` — this
       # narrows the earlier rewrite for exactly that owner's submodules and
       # leaves every other governed submodule on the caller-org token. Removing
       # the broad rewrite would strand every same-org submodule instead.
+      #
+      # BOTH URL FORMS PER OWNER, because the form that actually broke was the
+      # https one. `.gitmodules` is the authority on the URL as well as on the
+      # owner, and it is free to spell either form: `xFactories/MedxEHR`'s own
+      # `.gitmodules` declares its two legs as
+      # `https://github.com/MedxSoft/MedxEHR-{spec,code}.git`, which the
+      # ssh-keyed rewrite never matched. So from the first nightly after the
+      # nested-leg init landed (#651, `b4216821`, 2026-09-04 13:30Z) the init
+      # died `fatal: could not read Username for 'https://github.com': No such
+      # device or address` — opensoft/xFactory runs 33939303830 (2026-09-05),
+      # 34006720351 (2026-09-06) and 34076748501 (2026-09-07), the three
+      # nightlies BEFORE the second foreign owner moved the failure one step
+      # earlier into the detection above. Crediting only one of the two forms
+      # is what made a private repository look like an anonymous fetch.
+      #
+      # `--add`, NOT a plain set, on both: `insteadOf` is a MULTI-VALUED key, so
+      # the second form would REPLACE the first without it.
+      #
+      # THE SELF OWNER IS DELIBERATELY NOT GIVEN AN https FORM HERE. Measured at
+      # the pins main carries: every `opensoft`-owned governed submodule and
+      # every nested leg the init touches under one (`openxFactory/openXwallet`)
+      # is declared `git@github.com:`, which the broad rewrite above already
+      # covers; adding a narrow `https://github.com/opensoft/` rewrite would
+      # also capture the checked-out repository's OWN origin URL, which the
+      # report-delivery lanes push through, for no failure anyone has observed.
       - name: Rewrite foreign-owner submodule URLs
-        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
-        run: |
-          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.count != '0'
         env:
-          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
-          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
+          SLOTS: ${{ steps.foreign-owner.outputs.slots }}
+          OWNER_1: ${{ steps.foreign-owner.outputs.owner_1 }}
+          TOKEN_1: ${{ steps.foreign-app-token-1.outputs.token }}
+          OWNER_2: ${{ steps.foreign-owner.outputs.owner_2 }}
+          TOKEN_2: ${{ steps.foreign-app-token-2.outputs.token }}
+          OWNER_3: ${{ steps.foreign-owner.outputs.owner_3 }}
+          TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
+          OWNER_4: ${{ steps.foreign-owner.outputs.owner_4 }}
+          TOKEN_4: ${{ steps.foreign-app-token-4.outputs.token }}
+        run: |
+          set -euo pipefail
+          # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the
+          # detection's output; an empty or non-numeric value would make the
+          # loop below a no-op under `[ -lt ]` semantics and this step would
+          # report success having credentialed nothing — a silent pass on the
+          # exact path #366 is about.
+          if ! printf '%s' "${SLOTS:-}" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::error::the foreign-owner detection reported no usable slot count (SLOTS='${SLOTS:-}'), so no governed submodule owner can be credentialed; this step refuses rather than passing having rewritten nothing"
+            exit 1
+          fi
+          rc=0
+          slot=0
+          while [ "$slot" -lt "$SLOTS" ]; do
+            slot=$((slot + 1))
+            owner_var="OWNER_${slot}"
+            token_var="TOKEN_${slot}"
+            owner="${!owner_var}"
+            token="${!token_var}"
+            if [ -z "$owner" ]; then
+              continue
+            fi
+            if [ -z "$token" ]; then
+              echo "::error::no GitHub App installation access token could be minted for organization '${owner}', which owns at least one governed submodule this run has to clone; slot ${slot}'s mint step above carries the API's own words. The overwhelmingly likely cause is that the App behind XFACTORY_APP_ID has no installation on '${owner}' — creating one there (all repositories, contents: read) is an OPERATOR act on that organization and no workflow change substitutes for it. Until it exists this run refuses rather than sweeping a corpus with a governed repository silently missing from it"
+              rc=1
+              continue
+            fi
+            git config --global --add url."https://x-access-token:${token}@github.com/${owner}/".insteadOf "git@github.com:${owner}/"
+            git config --global --add url."https://x-access-token:${token}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} credentialed from its own installation (slot ${slot})"
+          done
+          exit "$rc"
+      # THE DOCUMENTED PAT FALLBACK NEEDS THE https FORM TOO (Codex, PR #831).
+      # With no App key configured every per-owner mint above is skipped, and
+      # `SUBMODULE_TOKEN` is a PAT rather than an installation token — one
+      # credential for every organization it can read — so it needs no slot,
+      # only the owner list. Without this step a caller that supplies the
+      # documented fallback still failed the init on a private https leg such
+      # as MedxEHR's `spec`, because the pre-checkout rewrite above gives the
+      # PAT the ssh form ONLY.
+      #
+      # SCOPED TO THE OWNERS `.gitmodules` DECLARES, not to `https://github.com/`
+      # at large, and that is the whole reason this is a separate step rather
+      # than a second line up there: a broad https key would also capture the
+      # checked-out repository's OWN origin URL, which the report-delivery
+      # lanes push through. Per-owner keys cannot reach it — and `.gitmodules`
+      # is not readable before the checkout anyway.
+      - name: Rewrite governed submodule https URLs for the fallback token
+        if: env.HAS_APP_KEY != 'true'
+        env:
+          TOKEN: ${{ secrets.SUBMODULE_TOKEN || github.token }}
+          OWNERS: ${{ steps.foreign-owner.outputs.owners_all }}
+        run: |
+          set -euo pipefail
+          for owner in $OWNERS; do
+            git config --global --add url."https://x-access-token:${TOKEN}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} https URLs credentialed from the fallback token"
+          done
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
@@ -1103,13 +1303,76 @@ jobs:
       # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
       # the only authority on where a submodule lives, so a hardcoded
       # organization would rot at the next repoint and would stay silent when a
-      # THIRD organization appeared. More than one foreign owner therefore FAILS
-      # the run instead of guessing, because `create-github-app-token` takes one
-      # `owner` per step and a second pair has to be written by hand.
+      # THIRD organization appeared.
+      #
+      # ONE MINT PER OWNER, IN NUMBERED SLOTS (opensoft/xFactory#366). The first
+      # cut of this block credentialed exactly ONE foreign owner and FAILED the
+      # run on a second, on the reasoning that `create-github-app-token` takes
+      # one `owner` per step and "a second pair has to be written by hand". The
+      # aggregation then admitted a second owner: commit 99f1643 ("Repoint the
+      # LedgerxFactory submodule at ledgerXfactory, its own enterprise org",
+      # 2026-09-07 16:49Z) put `xFactories/LedgerxFactory` under
+      # `ledgerXfactory` while `xFactories/MedxFactory` and `xFactories/MedxEHR`
+      # stayed under `MedxSoft`, and from 2026-09-08 every nightly died HERE,
+      # before a single bundle was built — 0 artifacts, which also starves the
+      # child lanes' `GITHUB_SHA != source_sha` provenance gate (opensoft/
+      # xFactory runs 34180399272 and 34303636250). So the hand-written pairs
+      # are now written: `FOREIGN_OWNER_SLOTS` mint steps, each guarded on its
+      # slot being filled, and ONE rewrite step that credentials every filled
+      # slot. A count ABOVE the slot count still refuses loudly and NAMES the
+      # owners rather than guessing — the same refusal as before, moved from
+      # "more than one" to "more than the slots this file carries".
+      #
+      # THE THIRD OWNER IS THE MOVED DECISION CORE, AND NOTHING HERE NAMES IT
+      # (openxFactory slice B1b of `adopt-codexfactory-repository-identity`;
+      # codeXfactory/codexFactory#279, the 6.5 precheck ruling of
+      # 2026-09-09T15:25Z). `xFactories/codexFactory` left `opensoft` for its
+      # own enterprise organization `codeXfactory` on 2026-09-09; the
+      # aggregation's `.gitmodules` follows in opensoft/xFactory#376, and from
+      # that commit the governed set spans THREE foreign owners — `MedxSoft`,
+      # `ledgerXfactory` and `codeXfactory`. The detection below needed no new
+      # line for it: it reads the owner out of `.gitmodules`, and
+      # `actions/create-github-app-token@v2` resolves the installation from its
+      # own `owner:` input, so the only thing the moved core required was the
+      # installation — which exists. The App behind `XFACTORY_APP_ID` is App
+      # `4253636` (`openxfactory`), and it carries installation `160352673` on
+      # `codeXfactory` (all repositories, created 2026-09-09T10:42-04:00,
+      # `contents: write`), alongside `157085693` on `MedxSoft` and
+      # `160353680` on `ledgerXfactory` — one App, three installations, one per
+      # organization, which is exactly the shape the slot mechanism assumes.
+      # What the flip DOES consume is the SPARE slot: three owners in three
+      # slots leaves none, and the next repoint would then red the nightly in
+      # the refusal below — the #366 failure again, one organization later. So
+      # the slot count moves 3 -> 4 in the same act that admits the third
+      # owner, which keeps the property the spare was chosen for. This is the
+      # procedure the refusal message itself prescribes, carried out ahead of
+      # the `.gitmodules` flip rather than after it.
+      #
+      # A NESTED LEG IN A THIRD ORGANIZATION IS OUT OF REACH HERE, and that is
+      # bounded rather than silent: this step reads the AGGREGATION's
+      # `.gitmodules`, which is all that exists before the init below runs, so
+      # an owner declared only inside a governed submodule's OWN `.gitmodules`
+      # — the shape `xFactories/MedxEHR`'s `spec`/`code` legs have — is
+      # invisible to the detection. Measured at the pins main carries today,
+      # every such leg the init touches belongs to an owner the top level
+      # already declares: `MedxEHR/spec` and `MedxEHR/code` are `MedxSoft`,
+      # `openxFactory/openXwallet` is `opensoft`. A leg in a fourth
+      # organization would fail at the init with git's own message, and the
+      # remedy would be the same: fill another slot.
       - name: Detect foreign submodule owners
         id: foreign-owner
         env:
           SELF_OWNER: ${{ github.repository_owner }}
+          # THE ONE PLACE THE SLOT COUNT IS WRITTEN. It feeds the refusal
+          # message, this step's own slot loop, and — through the `slots`
+          # output — the rewrite step below, so none of the three can disagree
+          # with the others. `tests/doc-health/test_submodule_owner_tokens.py`
+          # asserts it equals the number of mint steps actually present, in
+          # BOTH the prepare and finalize jobs. FOUR, for the THREE owners the
+          # aggregation declares from opensoft/xFactory#376 onward (see the
+          # moved-decision-core note above): one spare slot so the next repoint
+          # is a `.gitmodules` edit and not a red nightly.
+          FOREIGN_OWNER_SLOTS: "4"
         run: |
           set -euo pipefail
           # The SAME governed filter the init step below applies, so the two can
@@ -1117,6 +1380,7 @@ jobs:
           GOVERNED='^(openxFactory|xFactories/)'
           MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
           FOREIGN=""
+          ALL=""
           while read -r key path; do
             [ -n "${path:-}" ] || continue
             printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
@@ -1131,50 +1395,186 @@ jobs:
               continue
             fi
             echo "governed submodule ${path} -> owner ${owner}"
+            ALL="${ALL}${owner}"$'\n'
             if [ "$owner" != "$SELF_OWNER" ]; then
               FOREIGN="${FOREIGN}${owner}"$'\n'
             fi
           done <<< "$MODULES"
           UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
           COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
-          if [ "$COUNT" -gt 1 ]; then
-            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+          if [ "$COUNT" -gt "$FOREIGN_OWNER_SLOTS" ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but this workflow carries only $FOREIGN_OWNER_SLOTS mint slots, and actions/create-github-app-token mints ONE owner per step; add a 'Mint app token for foreign submodule owner <n>' step per owner beyond $FOREIGN_OWNER_SLOTS, raise FOREIGN_OWNER_SLOTS with it, and add the matching OWNER_<n>/TOKEN_<n> pair to 'Rewrite foreign-owner submodule URLs' — in BOTH the prepare and finalize jobs"
             exit 1
           fi
-          if [ "$COUNT" -eq 1 ]; then
-            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
-            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
-            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
-          else
-            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
-            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+          echo "slots=${FOREIGN_OWNER_SLOTS}" >> "$GITHUB_OUTPUT"
+          # EVERY governed owner, self included, space separated. Only the
+          # fallback-token step below reads it: a PAT is not per-installation,
+          # so it needs the owner list rather than a slot.
+          echo "owners_all=$(printf '%s' "$ALL" | sed '/^$/d' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          # Every slot is written, filled or empty, because each mint step
+          # reads its own slot and an unset output would read as the literal
+          # string of an unresolved expression rather than as "empty".
+          slot=0
+          while [ "$slot" -lt "$FOREIGN_OWNER_SLOTS" ]; do
+            slot=$((slot + 1))
+            owner=$(printf '%s\n' "$UNIQUE" | sed -n "${slot}p")
+            echo "owner_${slot}=${owner}" >> "$GITHUB_OUTPUT"
+            if [ -n "$owner" ]; then
+              echo "foreign submodule owner ${owner} needs its own installation token (slot ${slot})"
+            fi
+          done
+          if [ "$COUNT" -eq 0 ]; then
             echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
           fi
-      - name: Mint app token for the foreign submodule owner
-        id: foreign-app-token
-        # NO `|| github.token` FALLBACK, deliberately: if the App is not
-        # installed on that organization this step fails loudly, which is a far
-        # better diagnosis than the "Repository not found" the init printed for
-        # two nights.
-        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+      # NO `|| github.token` FALLBACK, deliberately: a token minted for the
+      # wrong installation prints "Repository not found" at the init and reads
+      # like a deleted repository, which is what cost two nights in 2026-08.
+      #
+      # `continue-on-error` IS NOT A FALLBACK. It exists so that a mint which
+      # cannot succeed — overwhelmingly because the App is not installed on
+      # that organization — is turned by the rewrite step below into a finding
+      # that NAMES the organization and the operator act that fixes it, instead
+      # of stopping the job on this action's own API error, which names neither
+      # the submodule that needed the token nor any remedy. The run still
+      # FAILS; it fails saying what to do.
+      - name: Mint app token for foreign submodule owner 1
+        id: foreign-app-token-1
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_1 != ''
+        continue-on-error: true
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+          owner: ${{ steps.foreign-owner.outputs.owner_1 }}
+      - name: Mint app token for foreign submodule owner 2
+        id: foreign-app-token-2
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_2 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_2 }}
+      - name: Mint app token for foreign submodule owner 3
+        id: foreign-app-token-3
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_3 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_3 }}
+      - name: Mint app token for foreign submodule owner 4
+        id: foreign-app-token-4
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_4 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_4 }}
       # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
       # `insteadOf` by the LONGEST matching left-hand side, and
       # `git@github.com:<owner>/` is longer than `git@github.com:` — this
       # narrows the earlier rewrite for exactly that owner's submodules and
       # leaves every other governed submodule on the caller-org token. Removing
       # the broad rewrite would strand every same-org submodule instead.
+      #
+      # BOTH URL FORMS PER OWNER, because the form that actually broke was the
+      # https one. `.gitmodules` is the authority on the URL as well as on the
+      # owner, and it is free to spell either form: `xFactories/MedxEHR`'s own
+      # `.gitmodules` declares its two legs as
+      # `https://github.com/MedxSoft/MedxEHR-{spec,code}.git`, which the
+      # ssh-keyed rewrite never matched. So from the first nightly after the
+      # nested-leg init landed (#651, `b4216821`, 2026-09-04 13:30Z) the init
+      # died `fatal: could not read Username for 'https://github.com': No such
+      # device or address` — opensoft/xFactory runs 33939303830 (2026-09-05),
+      # 34006720351 (2026-09-06) and 34076748501 (2026-09-07), the three
+      # nightlies BEFORE the second foreign owner moved the failure one step
+      # earlier into the detection above. Crediting only one of the two forms
+      # is what made a private repository look like an anonymous fetch.
+      #
+      # `--add`, NOT a plain set, on both: `insteadOf` is a MULTI-VALUED key, so
+      # the second form would REPLACE the first without it.
+      #
+      # THE SELF OWNER IS DELIBERATELY NOT GIVEN AN https FORM HERE. Measured at
+      # the pins main carries: every `opensoft`-owned governed submodule and
+      # every nested leg the init touches under one (`openxFactory/openXwallet`)
+      # is declared `git@github.com:`, which the broad rewrite above already
+      # covers; adding a narrow `https://github.com/opensoft/` rewrite would
+      # also capture the checked-out repository's OWN origin URL, which the
+      # report-delivery lanes push through, for no failure anyone has observed.
       - name: Rewrite foreign-owner submodule URLs
-        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
-        run: |
-          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.count != '0'
         env:
-          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
-          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
+          SLOTS: ${{ steps.foreign-owner.outputs.slots }}
+          OWNER_1: ${{ steps.foreign-owner.outputs.owner_1 }}
+          TOKEN_1: ${{ steps.foreign-app-token-1.outputs.token }}
+          OWNER_2: ${{ steps.foreign-owner.outputs.owner_2 }}
+          TOKEN_2: ${{ steps.foreign-app-token-2.outputs.token }}
+          OWNER_3: ${{ steps.foreign-owner.outputs.owner_3 }}
+          TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
+          OWNER_4: ${{ steps.foreign-owner.outputs.owner_4 }}
+          TOKEN_4: ${{ steps.foreign-app-token-4.outputs.token }}
+        run: |
+          set -euo pipefail
+          # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the
+          # detection's output; an empty or non-numeric value would make the
+          # loop below a no-op under `[ -lt ]` semantics and this step would
+          # report success having credentialed nothing — a silent pass on the
+          # exact path #366 is about.
+          if ! printf '%s' "${SLOTS:-}" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::error::the foreign-owner detection reported no usable slot count (SLOTS='${SLOTS:-}'), so no governed submodule owner can be credentialed; this step refuses rather than passing having rewritten nothing"
+            exit 1
+          fi
+          rc=0
+          slot=0
+          while [ "$slot" -lt "$SLOTS" ]; do
+            slot=$((slot + 1))
+            owner_var="OWNER_${slot}"
+            token_var="TOKEN_${slot}"
+            owner="${!owner_var}"
+            token="${!token_var}"
+            if [ -z "$owner" ]; then
+              continue
+            fi
+            if [ -z "$token" ]; then
+              echo "::error::no GitHub App installation access token could be minted for organization '${owner}', which owns at least one governed submodule this run has to clone; slot ${slot}'s mint step above carries the API's own words. The overwhelmingly likely cause is that the App behind XFACTORY_APP_ID has no installation on '${owner}' — creating one there (all repositories, contents: read) is an OPERATOR act on that organization and no workflow change substitutes for it. Until it exists this run refuses rather than sweeping a corpus with a governed repository silently missing from it"
+              rc=1
+              continue
+            fi
+            git config --global --add url."https://x-access-token:${token}@github.com/${owner}/".insteadOf "git@github.com:${owner}/"
+            git config --global --add url."https://x-access-token:${token}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} credentialed from its own installation (slot ${slot})"
+          done
+          exit "$rc"
+      # THE DOCUMENTED PAT FALLBACK NEEDS THE https FORM TOO (Codex, PR #831).
+      # With no App key configured every per-owner mint above is skipped, and
+      # `SUBMODULE_TOKEN` is a PAT rather than an installation token — one
+      # credential for every organization it can read — so it needs no slot,
+      # only the owner list. Without this step a caller that supplies the
+      # documented fallback still failed the init on a private https leg such
+      # as MedxEHR's `spec`, because the pre-checkout rewrite above gives the
+      # PAT the ssh form ONLY.
+      #
+      # SCOPED TO THE OWNERS `.gitmodules` DECLARES, not to `https://github.com/`
+      # at large, and that is the whole reason this is a separate step rather
+      # than a second line up there: a broad https key would also capture the
+      # checked-out repository's OWN origin URL, which the report-delivery
+      # lanes push through. Per-owner keys cannot reach it — and `.gitmodules`
+      # is not readable before the checkout anyway.
+      - name: Rewrite governed submodule https URLs for the fallback token
+        if: env.HAS_APP_KEY != 'true'
+        env:
+          TOKEN: ${{ secrets.SUBMODULE_TOKEN || github.token }}
+          OWNERS: ${{ steps.foreign-owner.outputs.owners_all }}
+        run: |
+          set -euo pipefail
+          for owner in $OWNERS; do
+            git config --global --add url."https://x-access-token:${TOKEN}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} https URLs credentialed from the fallback token"
+          done
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \

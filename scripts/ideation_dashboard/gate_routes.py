@@ -947,7 +947,7 @@ def execute_lens_add_as_cluster(gate, *, repository: str, name: str,
     pending_review human-seen submission into the cross-reference queue. The
     evidence contract is enforced BEFORE any write (human_seen), and the
     generated cross-reference index is NEVER touched. Human-only."""
-    from . import lens, workbench as wb
+    from . import lens, lens_submission, workbench as wb
 
     human = gate_console.require_human_gate(gate)   # agent path -> BoundaryViolation
     root = human.output.root
@@ -957,7 +957,7 @@ def execute_lens_add_as_cluster(gate, *, repository: str, name: str,
         repository, name, checked, pinned, snapshot,
         includes=includes, excludes=excludes, now=at)
     repo_root = manifest_validator.resolve().parents[1] if manifest_validator else None
-    res = lens.add_as_cluster(                       # evidence enforced before persistence
+    res = lens_submission.add_as_cluster(            # evidence enforced before persistence
         w, human.output, snapshot, submission, now=at,
         validate=True, validator=manifest_validator,
         xref_validator=xref_validator, repo=repo_root)

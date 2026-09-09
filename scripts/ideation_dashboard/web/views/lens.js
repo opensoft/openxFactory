@@ -149,7 +149,7 @@ function renderReasonForm(container, labelText, onConfirm) {
 // textContent-bound, so drafted prose can never inject markup. States plainly
 // where the manifest lands and, for add-as-cluster, that the human-seen proposal
 // enters the cross-reference queue with a pending_review disposition (T028
-// realized; the tested engine lens.add_as_cluster submits it).
+// realized; the tested engine lens_submission.add_as_cluster submits it).
 function renderPlan(container, plan, opts) {
   const o = opts || {};
   container.innerHTML = "";

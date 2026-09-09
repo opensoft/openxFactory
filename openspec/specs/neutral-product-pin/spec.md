@@ -43,6 +43,27 @@ refused in that shape's own words, "a tag can be moved": a tag MAY be recorded
 beside the commit as a human-readable label, never as the thing being trusted,
 and a pin SHALL NOT express a version RANGE.
 
+WHERE THE PRODUCT IS DISTRIBUTED AS A PUBLISHED, CONTENT-ADDRESSED ARTIFACT
+RATHER THAN AS A SOURCE TREE, the pin SHALL carry that ARTIFACT'S DIGEST as its
+referent and SHALL declare `revision_kind` accordingly, and the release NAME —
+the version string — is a LABEL recorded beside it on exactly the terms a tag is
+recorded beside a commit. The distinction is the same one and it is not weakened
+by the change of medium: a digest over the published bytes cannot be moved,
+whereas a version name is kept stable by a REGISTRY'S POLICY and an operator who
+administers it, and a policy is not a content address.
+
+Such a pin carries NEITHER a per-file `sha256` list NOR a `pinned_by_commit_only:`
+list, and their absence is not a permitted omission but a consequence of the
+medium. Those two lists exist because a commit is not a digest a consumer can
+compare a single file against, so the surface must be ENUMERATED for
+completeness to be checkable at all. A published artifact needs no enumeration:
+ONE digest addresses EVERY byte inside it, so no member can be undeclared and
+none can be added or altered without changing the referent. The completeness
+obligation is therefore DISCHARGED MORE STRONGLY here rather than waived, and a
+pin of this kind SHALL record every field the consumer's verifier checks —
+including any secondary address the registry publishes — so that no declared
+field goes unverified.
+
 #### Scenario: A pin declares a tag and no commit
 - **WHEN** a pin file names a release tag but no commit
 - **THEN** the pin is refused, because a tag can be moved and a commit cannot
@@ -55,6 +76,15 @@ and a pin SHALL NOT express a version RANGE.
 #### Scenario: A pin expresses a range
 - **WHEN** a pin expresses a version range or a moving reference
 - **THEN** it is refused, because the moment a pin trusts a range the fail-closed property is gone
+
+#### Scenario: The product is published as an artifact rather than as a source tree
+- **WHEN** the consumed product is distributed as a published package whose registry publishes a digest over its bytes
+- **THEN** the pin records that digest as the referent, declares a `revision_kind` naming it, and records the version string only as a label
+- **AND** the pin carries no per-file list, one digest over the artifact addressing every file inside it and leaving nothing undeclared
+
+#### Scenario: A published-artifact pin records only a version
+- **WHEN** such a pin names a version, a dist-tag or a range and records no digest over the artifact
+- **THEN** it is refused on the same ground a tag-only pin is refused, a name whose stability is a registry's policy not being the thing that is trusted
 
 ### Requirement: An unanswerable pin question refuses, and the refusal names its remedy
 A consumer of a pinned neutral product SHALL FAIL CLOSED: an uninitialized
@@ -391,3 +421,319 @@ not evidence that it did not move.
 #### Scenario: A packet claims no cut is owed and shows no measurement
 - **WHEN** a registering packet asserts that no bundle is spent but records no derived-membership reading
 - **THEN** the assertion is unevidenced, because the membership is computed rather than obvious and a reader cannot tell an unmoved membership from an unmeasured one
+
+### Requirement: The OpenSpec CLI is a pinned neutral product, and every strict validation and every archive runs at the pin
+The OpenSpec CLI SHALL be declared as a pinned external neutral product in
+`contracts/openspec-cli-pin.yaml`, and every `openspec validate … --strict` and
+every `openspec archive` performed as a governed act SHALL run at that pin. The
+CLI is not an incidental developer convenience: `validate --strict` is the gate a
+spec delta passes before it may archive, and `archive` is the act that writes a
+ratified delta into canon — so WHICH TOOL ADJUDICATED is a fact about the
+governance record itself, and a corpus that cannot say which tool adjudicated
+cannot say what its canon was checked against.
+
+The pin SHALL be the ONLY declaration of that version. A version literal written
+anywhere else — a workflow's `npm install -g <package>@<version>` line, a
+README, a runbook step, an agent instruction — is a SECOND COPY of the pin, and
+copies of a pin move separately; such a literal SHALL be replaced by a read of
+the pin file rather than kept in step by discipline.
+
+#### Scenario: A governed act runs the CLI
+- **WHEN** an engineer or an agent validates a change strictly, or archives a ratified change
+- **THEN** the tool that runs is the one the pin names, verified against its recorded content address before it is invoked
+- **AND** a run at any other version is refused rather than reported, because strict verdicts differ between versions and a run at the wrong version is a different check rather than a weaker one
+
+#### Scenario: A workflow restates the version
+- **WHEN** a workflow, runbook or instruction file carries the pinned version as a literal
+- **THEN** that literal is a second copy of the pin and MUST be replaced by a read of the pin file
+- **AND** the replacement is owed even where the literal is currently correct, because the defect is that two writings can diverge and not that one of them is wrong today
+
+#### Scenario: The corpus is asked which tool checked it
+- **WHEN** a reader asks which CLI adjudicated a green strict validation
+- **THEN** the answer is the artifact at the content address the pin records
+- **AND** an answer of "whatever was on the runner" is the unpinned state this requirement ends, not a permitted variation of it
+
+### Requirement: A consuming repository runs OpenSpec validation only through the pinned entrypoint, so a PATH binary cannot affect the gate
+A repository consuming the pinned OpenSpec CLI SHALL invoke strict validation
+ONLY through the entrypoint the pin names in `consumer_entrypoint:`, and that
+entrypoint SHALL resolve the CLI from the verified artifact rather than from
+`PATH`, so that whatever binary an engineer or a runner happens to have installed
+CANNOT determine a gate's verdict. A repository that calls a bare `openspec`
+binary is NOT running the pinned tool whatever version answers, because nothing
+verified which tool answered; the enforcement claim in such a repository is
+UNMET.
+
+Where an entrypoint offers a PATH mode for local iteration, that mode SHALL
+REFUSE with a named exit unless the binary on `PATH` reports exactly the pinned
+version, and a required check SHALL NOT invoke it. Each consuming repository
+SHALL additionally pin the `openxFactory` version it consumes in its
+`stack.yaml`, so that WHICH pin file governed a run is as answerable as which
+tool ran.
+
+#### Scenario: A gate runs on a machine with a different CLI installed
+- **WHEN** a required check runs in an environment whose `PATH` carries an `openspec` at some other version
+- **THEN** the gate's verdict is unchanged, the entrypoint having never consulted `PATH`
+- **AND** a gate whose verdict COULD be changed by an ambient installation does not satisfy this requirement, whichever way it happened to resolve
+
+#### Scenario: A developer asks for the local binary
+- **WHEN** a developer invokes the entrypoint's PATH mode to avoid a registry round trip
+- **THEN** the run proceeds only if the local binary reports exactly the pinned version, and otherwise refuses with a named exit and a remedy
+- **AND** a required check does not use that mode, the mode existing to check a local install rather than to substitute for the pinned one
+
+#### Scenario: A consuming repository wires its own gate
+- **WHEN** a domain or install repository adds strict OpenSpec validation to its continuous integration
+- **THEN** it invokes the pinned entrypoint from the pinned `openxFactory` checkout rather than copying the entrypoint or installing the CLI itself
+- **AND** it names in its `stack.yaml` the `openxFactory` version whose pin it is consuming
+
+### Requirement: A pinned CLI version bump is one human-only act that lands its target-version evidence in the same change
+A change that moves a pinned tool's version SHALL be HUMAN-ONLY and SHALL NOT be
+clearable by a council or any other automated authority, and it SHALL carry, IN
+THE SAME CHANGE, evidence that the governed trees VALIDATE CLEAN at the TARGET
+version — `validate --all --strict` reporting zero failures for every repository
+the bump reaches. A bump proposed without that evidence SHALL be refused, because
+the tool being bumped is the tool that judges whether the bump's own change is
+valid, and a candidate that could repoint its own adjudicator could clear itself.
+
+THE EVIDENCE IS OWED BECAUSE THE COST IS MEASURED AND NOT HYPOTHETICAL. Strict
+verdicts and archive admissibility differ between CLI versions over trees that
+did not change: conditions that pass at one version fail at another on
+PRE-EXISTING content, and a newer `archive` may REFUSE deltas an older one
+admitted. An unpinned or unevidenced upgrade therefore turns green repositories
+red and stalls every archive across the estate, and it does so in the name of
+whoever ran the upgrade rather than in the name of the conditions that predate
+them. Where the target version's failures are pre-existing conditions, the change
+SHALL either remedy them or DECLARE each one with its owner; silence about a
+known failure is not evidence of its absence.
+
+#### Scenario: A bump is proposed with no target-version run
+- **WHEN** a change moves the pinned version and carries no `--all --strict` result at the target version
+- **THEN** the change is refused, the evidence being the whole basis on which a bump can be judged safe
+- **AND** the refusal is not satisfied by the CURRENT version's clean run, which says nothing about the target
+
+#### Scenario: An automated authority is asked to clear a bump
+- **WHEN** a council or other automated authority is asked to clear a pull request that moves the pin
+- **THEN** the request is refused as human-only, because the candidate would otherwise repoint the very tool that judges its own change
+
+#### Scenario: The target version fails on conditions that predate the bump
+- **WHEN** the target version's strict run fails over content the change did not author
+- **THEN** each failure is remedied in the change or DECLARED with its owner, and the bump does not land silently over it
+- **AND** the failures are not attributed to the change that measured them
+
+### Requirement: A pin whose content address cannot be verified refuses, and the refusal names its remedy
+A consumer of a pinned tool SHALL FAIL CLOSED where the pinned artifact's
+CONTENT ADDRESS cannot be verified: an unreachable registry, an absent package
+manager, an artifact whose recomputed digest disagrees with the pin, a binary
+that will not report its version, or a pin that records a movable referent SHALL
+each produce a REFUSAL with a named exit, and SHALL NOT resolve to an implicit
+pass, to a fallback on an ambient installation, or to a skip. Every such refusal
+SHALL carry a REMEDIATION STRING naming what to run and where the version policy
+lives, so the exit is in the message rather than in tribal memory.
+
+THE DIGEST IS VERIFIED BEFORE THE TOOL IS INSTALLED AND BEFORE IT IS INVOKED, by
+running code rather than by a stated obligation. A resolver that merely REQUESTS
+a version by name and trusts what it receives has verified nothing: the version
+label is a NAME whose stability is a registry's policy, while the artifact's
+digest is a CONTENT ADDRESS that nothing can move. A pin that records only a
+version, or that records a range, a caret or a dist-tag, SHALL be refused in the
+grammar's own words about a tag.
+
+#### Scenario: The registry serves an artifact the pin does not name
+- **WHEN** the fetched artifact's recomputed digest differs from the pin's recorded content address
+- **THEN** the run refuses, and nothing is installed from those bytes
+- **AND** the version label having matched is not a mitigating fact, the label not being the referent
+
+#### Scenario: The pinned artifact cannot be fetched
+- **WHEN** the registry is unreachable or the package manager is absent
+- **THEN** the run refuses with a named exit rather than falling back to an ambient installation
+- **AND** the refusal names what to run, an unanswerable question never being an implicit pass
+
+#### Scenario: A refusal carries no remediation
+- **WHEN** a fail-closed path emits a refusal that does not name a command and the policy it belongs to
+- **THEN** the refusal is itself a defect of this capability, because it tells the operator that something is wrong without telling them what to run
+
+### Requirement: A dispositioned finding is cited, upgrade-coupled, and refused when stale
+A pinned tool's finding that a consuming repository DECLINES TO FIX SHALL be recorded as an explicit DISPOSITION in the pin file itself, and that disposition SHALL carry a non-empty CITATION to the canon that makes the acceptance lawful and SHALL name the authority that granted it; a disposition carrying neither is an UNCITED EXCEPTION and the pin is REFUSED rather than the entry being skipped.
+A pinned tool is a FOREIGN JUDGMENT about a LOCAL corpus, and the two can
+genuinely disagree without either being defective. Where the disagreement is
+that the tool cannot read a convention this corpus has RATIFIED, the only edit
+that satisfies the tool would REVERT a ratified decision — so the finding is not
+a defect to remedy but an exception to accept, and an exception this estate
+cannot see is worse than the finding it hides.
+
+THE DISPOSITION IS ENUMERATED, NEVER PATTERNED. A disposition SHALL identify ONE
+finding — the repository, the item, the delta path, and the finding's own text
+compared whole after whitespace normalization — and SHALL NOT be expressed as a
+pattern, a wildcard, a severity or a family. One written exception that could
+absorb a second, unread finding is the failure mode of every suppression list,
+and enumeration is what makes each acceptance a separate human reading.
+
+THE DISPOSITIONS ARE UPGRADE-COUPLED. They are declared against ONE version's
+findings and SHALL be RE-DERIVED whenever the pin's version moves, because a
+different version is a different judgment: a tool that rewords, drops or adds a
+check produces findings the old exceptions do not describe. A pin that carried
+its predecessor's exceptions forward unexamined would be granting exemptions in
+the name of a judgment nobody made.
+
+A DISPOSITION MATCHED BY NO FINDING IN A WHOLE-CORPUS SCAN SHALL REFUSE THE
+RUN, and a NARROWED scan SHALL NOT decide staleness at all — "this finding no
+longer occurs" is a claim about the whole corpus, and a run over named targets
+legitimately never opens the items it was not asked about. A narrowed run SHALL
+still APPLY the dispositions it matches, and SHALL state that it checked none
+for staleness, so a green narrowed run is never mistaken for an audit of the
+list. An exception that
+outlives the condition it was granted for is a standing exemption nobody
+re-reads, and the moment that makes it stale — the change archiving out of the
+scanned corpus, or the tool ceasing to report it — is precisely the moment a
+human should re-examine it. The refusal SHALL be a defect of the PIN and not of
+the deltas: an unmatched FINDING is a statement about what somebody wrote, an
+unmatched DISPOSITION is a statement about the pin file, and the two send a
+reader to different remedies.
+
+A DISPOSITION IS SCOPED TO ONE REPOSITORY. Where one pin governs several
+consuming repositories, a disposition SHALL name the repository whose corpus it
+is about, and a run over any other repository SHALL neither apply it nor treat
+it as stale — otherwise a change absent because it was never in that tree is
+indistinguishable from a change absent because it archived, and only the second
+may refuse.
+
+A RUN THAT APPLIED A DISPOSITION SHALL SAY SO, BY NAME. The run's output SHALL
+name every applied exception, its reason, its citations and its granting
+authority, and SHALL NOT report the result in terms that read as a clean tree; a
+green check that silently suppressed a finding has told its reader something
+false by omission.
+
+#### Scenario: A pinned tool reports a finding the corpus has ratified against
+- **WHEN** a pinned tool's check contradicts a convention this corpus has ratified, and the only edit satisfying the tool would revert a ratified decision
+- **THEN** the finding is DISPOSITIONED in the pin with a citation to that canon rather than fixed
+- **AND** the pin is not moved back, nor the check disabled, nor the decision reverted
+
+#### Scenario: A disposition carries no citation
+- **WHEN** a disposition records no `cited_to:`, an empty one, or no granting authority
+- **THEN** the pin is REFUSED as malformed, before any artifact is fetched
+- **AND** the entry is not silently skipped, because skipping would re-fail a finding somebody believed was settled
+
+#### Scenario: A dispositioned finding stops occurring
+- **WHEN** a declared disposition is matched by no finding in the run — its change archived, or the tool no longer reports it
+- **THEN** the run REFUSES with a named exit until the disposition is removed
+- **AND** the refusal is a defect of the pin rather than of the deltas, so its remedy is an edit to the pin file
+
+#### Scenario: A run opens only named targets
+- **WHEN** the pinned validator is invoked over named items rather than the whole corpus
+- **THEN** the dispositions matching those items are applied, and NO disposition is reported stale
+- **AND** the run states that staleness was not checked, a narrowed scan being unable to establish that a finding no longer occurs
+
+#### Scenario: A finding is reported that no disposition covers
+- **WHEN** the pinned tool reports a blocking finding that no in-scope disposition matches
+- **THEN** the run FAILS with the ordinary invalid-deltas verdict, naming each uncovered finding
+- **AND** the remedy offered is to fix it OR to disposition it with a citation, never to loosen the match
+
+#### Scenario: The pin's version moves
+- **WHEN** a change moves the pinned version
+- **THEN** the dispositions are RE-DERIVED against the target version's own findings and evidenced in that same change
+- **AND** an exception inherited without re-derivation is refused, a different version being a different judgment
+
+#### Scenario: A consuming repository runs the same pin over its own tree
+- **WHEN** a repository other than the one a disposition names is validated through the same pinned entrypoint
+- **THEN** that disposition is neither applied to nor treated as stale by that run
+- **AND** the repository's own findings are judged only against dispositions scoped to it
+
+#### Scenario: A run passes with dispositions applied
+- **WHEN** every blocking finding is covered and the run succeeds
+- **THEN** the output names each applied exception with its reason, citations and granting authority
+- **AND** the result is NOT reported as a clean tree, the tree not being clean
+
+### Requirement: A pinned artifact that resolves dependencies at install time carries a vendored lockfile, and the install runs through it
+Where a pinned external neutral product is distributed as a published artifact
+whose installation RESOLVES dependency ranges, the pin SHALL carry a VENDORED
+RESOLUTION — a lockfile in the format that product's own package manager
+consumes, committed beside the pin, addressed by a digest over its exact bytes
+recorded in the pin, together with the size of the tree it locks. The consumer's
+verifier SHALL recompute that digest BEFORE any registry round trip is spent and
+SHALL REFUSE with a named exit on disagreement; SHALL REFUSE unless the vendored
+resolution's own entry for the pinned product carries the pin's OWN referent, so
+that one pin cannot name two artifacts; and SHALL INSTALL THROUGH the vendored
+resolution with the package manager's CLEAN-INSTALL verb — the one that resolves
+nothing and refuses when the manifest and the lockfile disagree — never the verb
+that may re-resolve a range. A pin that declares NO vendored resolution for such
+a product SHALL be refused on the same ground a range is refused: the ranges it
+leaves unresolved are a moving reference, and the moment a pin trusts a range the
+fail-closed property is gone.
+
+VERIFYING AN ARTIFACT'S OWN BYTES SAYS NOTHING ABOUT THE CODE IT RUNS ON. A
+content address over a published artifact addresses every file inside it and no
+file outside it, so a tool whose declared dependencies are ranges is a tool whose
+BEHAVIOUR is not pinned by its own digest: two runs of identical, verified bytes
+may execute different dependency trees, on two machines or on one machine a week
+apart. Where that tool is a REQUIRED check, the unpinned half is the half that
+can turn a green gate red with no version moved, no pin changed and no commit
+authored. The vendored resolution closes that, and any reuse cache the consumer
+keeps SHALL be keyed on the vendored resolution's digest as well as the
+artifact's, because a different tree is a different install and must not be
+served out of a directory built for another one.
+
+THE STAGING MANIFEST THE CLEAN INSTALL REQUIRES SHALL BE DERIVED from the
+vendored resolution rather than committed beside it. A clean install refuses when
+its manifest and its lockfile disagree, so a second committed file would be a
+second copy of one declaration, and copies of a declaration move separately —
+which is the defect this capability's pin rule exists to end.
+
+#### Scenario: A pinned artifact declares dependency ranges
+- **WHEN** a pin names a published artifact whose manifest declares dependencies as ranges rather than as exact versions
+- **THEN** the pin carries a vendored resolution beside it, addressed by a digest over its bytes, and the verifier installs through it
+- **AND** a pin carrying none is refused, unresolved ranges being the moving reference this capability already refuses
+
+#### Scenario: The committed resolution and the pin disagree
+- **WHEN** the vendored resolution's recomputed digest differs from the digest the pin records, or its entry for the pinned product carries a referent other than the pin's
+- **THEN** the run refuses with a named exit, before any artifact is installed
+- **AND** the refusal is reported as a defect of the CONSUMING REPOSITORY rather than of the registry, the two halves of one pin having disagreed with each other
+
+#### Scenario: The install re-resolves a range
+- **WHEN** a consumer installs the pinned product with a verb that treats the lockfile as a starting point rather than as the answer
+- **THEN** the install does not satisfy this requirement, whatever tree it happens to produce, because a run that MAY re-resolve has not pinned the resolution
+- **AND** the clean-install verb is used instead, so that "the installed tree is the pinned tree" is a fact about the run rather than a hope
+
+#### Scenario: A reuse cache serves a tree it was not built for
+- **WHEN** the vendored resolution changes and a consumer's cache is keyed only on the artifact's address
+- **THEN** one directory would serve two different dependency trees and whichever ran first would decide what the second received
+- **AND** the cache key incorporates the resolution's digest, so the second tree is a new entry rather than a silent reuse
+
+### Requirement: A vendored resolution is regenerated with the referent, and an entry without one is declared uncovered
+A change that moves a pinned artifact's REFERENT SHALL regenerate the vendored
+resolution and re-record its digest and its tree size IN THE SAME CHANGE, so that
+the referent and its closure move together and never apart; and the regeneration
+COMMAND SHALL be recorded in the pin, so a bump does not depend on remembering
+how the file was produced. Where a pin records an entry that is NOT covered by a
+vendored resolution — a recorded rollback referent, or any other alternative the
+pin names — the pin SHALL DECLARE that entry uncovered in the pin itself, stating
+what a consumer must author before that entry can be installed at all; an
+uncovered entry SHALL NOT be silently installable by resolving its ranges.
+
+THIS OBLIGATION IS ENFORCED AND NOT MERELY STATED. A bump that moved the referent
+and left the vendored resolution behind leaves that resolution's entry for the
+product carrying the OLD referent, so the verifier's first run after the bump
+refuses on the disagreement rule above. The declaration in the pin is therefore a
+statement of a condition the running code already checks, which is the form this
+capability requires of every pin obligation: running code rather than a stated
+duty.
+
+A SPECULATIVELY GENERATED RESOLUTION IS WORSE THAN A DECLARED GAP. Generating a
+lockfile for an old referent at today's date records the versions today's ranges
+resolve to, which is a fiction of reproducibility rather than a record of one;
+and because nothing installs through it, its correctness is checked by no run and
+rots unobserved. So the gap is written down, with its consequence, rather than
+papered over.
+
+#### Scenario: A version bump forgets the resolution
+- **WHEN** a change moves the pin's referent and does not regenerate the vendored resolution
+- **THEN** the verifier refuses on its first run, the resolution's entry for the product naming the previous referent
+- **AND** the pull request cannot merge where the verifier is a required check, so the obligation is met by the gate rather than by memory
+
+#### Scenario: A rollback referent carries no resolution
+- **WHEN** a pin records a previous referent as a rollback and no vendored resolution is committed for it
+- **THEN** the pin declares that entry uncovered, and names what must be authored before it can be installed
+- **AND** restoring that referent is a change to author rather than a revert to apply, because a rollback that installs an unpinned tree is not the state it claims to restore
+
+#### Scenario: The regeneration recipe is unrecorded
+- **WHEN** a pin carries a vendored resolution but does not say how it was produced
+- **THEN** the next bump must guess at the staging project that generated it, and a guess produces a diff that is the wrapper rather than the tree
+- **AND** the pin records the command and the staging shape, so a regeneration is reproducible by a reader who was not there
