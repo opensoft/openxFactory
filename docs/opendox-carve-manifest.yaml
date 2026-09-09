@@ -7,6 +7,24 @@
 # It is checked by `scripts/validate-carve-manifest.py`, driven on every
 # required-suite pass by `tests/carve_manifest/test_carve_manifest.py`.
 #
+# HOW TO VERIFY IT, AND WHY THE NO-ARGUMENT RUN IS NOT THE ANSWER TODAY. The
+# validator's check 2 asks whether the tested revision RESOLVES TO
+# `carve_commit`, so the documented no-argument invocation only answers from a
+# checkout of the carve commit itself. From anywhere else — a branch that has
+# the manifest, `main` after this landed, or CI's synthetic merge ref — it
+# refuses `carve-revision-mismatch`, and the invocation to use is:
+#
+#     python3 scripts/validate-carve-manifest.py --at b075fd91dc8fced8e1373825ba80220c33536bae
+#
+# That is a DEFECT IN CHECK 2, recorded on `#656` in the carve-commit ceremony
+# comment (2026-09-09T19:33Z) and repaired by § 3.1 part 1b, which re-reads
+# check 2 as "`carve_commit` is an ANCESTOR of the tested revision", compares
+# each moved row's blob at BOTH revisions in check 3, and walks the surface at
+# the tested revision in check 4. This manifest lives under `docs/`, outside the
+# surface, so its own landing never trips that walk. Once 1b is in, the
+# no-argument run answers from any descendant of the carve commit and this note
+# is history.
+#
 # THIS IS THE FIRST MACHINE-VALIDATED YAML UNDER `docs/` IN THIS REPOSITORY, and
 # that is a deliberate break with the convention, not an oversight. Measured
 # 2026-09-08: `find docs -name '*.yaml'` returned 0, and every other
