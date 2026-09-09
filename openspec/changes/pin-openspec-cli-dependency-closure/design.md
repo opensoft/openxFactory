@@ -149,24 +149,43 @@ pin disagree with each other* — remedy: regenerate the committed lockfile at t
 pinned version. Collapsing them would name the wrong defect in the one message a
 reviewer reads.
 
-**One code covers three disagreements**, in the order of how much each says, and
+**One code covers four disagreements**, in the order of how much each says, and
 that grouping copies `verify_artifact`'s own precedent of reporting INTEGRITY
 DRIFT ahead of SHASUM DRIFT under one code: `LOCKFILE DIGEST DRIFT` (the bytes
 are not the bytes the pin addresses — everything else would be a statement about
 a file this pin does not name), `LOCKFILE REFERENT DISAGREEMENT` (the lockfile
 locks a different `@fission-ai/openspec`, or none), `LOCKFILE SIZE DRIFT` (the
-tree is not the recorded size).
+tree is not the recorded size), and `LOCKFILE ROOT DECLARES NOTHING TO INSTALL`.
+
+**The fourth was added 2026-09-08 on review of this pull request** (Copilot, on
+`staging_manifest`), and it is under this code rather than `pin-unreadable`
+because both halves are well-formed and READABLE and they DISAGREE: the pin names
+an artifact, and the lockfile's root entry does not ask for it. `npm ci` installs
+what the ROOT MANIFEST asks for, that manifest is DERIVED from this entry, so a
+root asking for nothing yields an install of nothing and an exit 0 — a lockfile
+could even carry a perfect `node_modules/@fission-ai/openspec` entry, passing
+every check above, while its root asked for something else. The remedy is the
+same one the other three carry, regenerate the lockfile at the pinned version,
+which is what makes it the same code. `dependencies` and `devDependencies` count;
+`optionalDependencies` does NOT, because npm may skip an optional dependency
+silently and a root declaring the CLI only there is a root whose install can
+succeed having installed nothing — the same vacuous pass by a different route —
+and `peerDependencies` does not, because what satisfies a peer range is decided
+by the rest of the tree. Both are still COPIED into the derived manifest, so it
+cannot disagree with the lockfile.
 
 **Two codes it deliberately is NOT.** A pin that declares NO lockfile is
 `pin-tag-only`, because unresolved caret ranges ARE a moving reference and *"the
 moment a pin trusts a range the fail-closed property is gone"* is that code's own
 sentence — quoted from `neutral-product-pin`, and as true of a dependency range
-as of a version range. A lockfile that is absent, is not JSON, or carries no
-`packages` object is `pin-unreadable`, on the division that file already draws: a
-MISMATCH is a disagreement between two well-formed statements a reviewer can act
-on, and an unreadable lockfile is the state in which no such comparison can be
-reached at all — the same state an absent pin file is in, and it takes the same
-code.
+as of a version range. A lockfile that is absent, is not JSON, declares a
+`lockfileVersion` outside `LOCKFILE_VERSIONS`, or carries no `packages` object is
+`pin-unreadable`, on the division that file already draws: a MISMATCH is a
+disagreement between two well-formed statements a reviewer can act on, and an
+unreadable lockfile is the state in which no such comparison can be reached at
+all — the same state an absent pin file is in, and it takes the same code. A
+version 4 lockfile does not disagree with the pin; it is ILLEGIBLE to this
+reader, and those are different findings for a reviewer.
 
 ### 2.4 `npm ci`, and the derived staging manifest
 
@@ -374,10 +393,26 @@ Whoever takes it authors a `1.2.0` lockfile in the same commit.
   manager's lockfile; the requirement is written in terms of "the resolution
   format the product's own package manager consumes" rather than naming npm, so
   the capability admits it without an amendment.
-- **`lockfileVersion: 3` is asserted by a test.** npm's lockfile format has
-  changed before. A future npm that writes a different version will fail that
-  test on a developer's machine at regeneration time, which is where the
-  decision belongs.
+- **`lockfileVersion: 3` is asserted by a test, AND BY THE READER.** npm's
+  lockfile format has changed before. A future npm that writes a different
+  version will fail that test on a developer's machine at regeneration time,
+  which is where the decision belongs. Added 2026-09-08 on review of this pull
+  request (Copilot, on `read_lockfile`): the READER now checks it too, against
+  the `LOCKFILE_VERSIONS` declaration, and refuses `pin-unreadable` outside it.
+  The refusal beside it had always CLAIMED the reader implements the version 2/3
+  shape and only that, while nothing read `lockfileVersion` at all — so a later
+  form still carrying a `packages` object would have been read by a reader with
+  no knowledge of its semantics. A stated contract the code did not keep is
+  worse than no contract, and admitting a form is now an edit to that tuple.
+- **A zero exit from `npm ci` is a statement about npm, not about the disk.**
+  Added 2026-09-08 on the same review: after the install, the pinned package's
+  own `package.json` must be present at `node_modules/@fission-ai/openspec/` and
+  must declare the pinned version, BEFORE `assert_reported_version` asks the
+  binary anything. The two are not duplicates — one reads what the registry
+  SHIPPED and the other what the BINARY SAYS, and a pin is satisfied only when
+  both agree with it — and without the first, a vacuous or substituted install
+  reaches the version check as a confusing verdict about a binary rather than as
+  the install defect it is.
 - **80 packages, not 94.** The brief this lane worked from recorded 94 as a
   prior measurement. Re-measured on 2026-09-08 three independent ways — the
   existing `npm install --global` install path, the generated lockfile's

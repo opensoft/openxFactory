@@ -109,6 +109,17 @@ own root entry — no second committed copy of the dependency declaration:
 }
 ```
 
+`staging_manifest()` REFUSES rather than deriving that block empty
+(`pin-lockfile-mismatch`, `LOCKFILE ROOT DECLARES NOTHING TO INSTALL`, added
+2026-09-08 on Copilot review of PR #813). A root entry that declared no
+dependency would have produced a well-formed manifest asking for nothing, an
+`npm ci` that installed nothing and exited 0, and a gate green over a tree it
+never built; `optionalDependencies` and `peerDependencies` do not satisfy the
+check, because npm may skip the first silently and the second is satisfied by the
+rest of the tree. The install then INSPECTS what it built —
+`node_modules/@fission-ai/openspec/package.json`, present and at the pinned
+version — before `assert_reported_version` asks the binary anything.
+
 The reuse directory's name and its stamp:
 
 ```
@@ -160,10 +171,23 @@ DECLARED GAP IN A REQUIRED CHECK is a declared gap in the thing that stops
 merges. This packet's own `openspec-cli-pin` run is therefore the enforced gate,
 and § 5 above is that gate's own log line.
 
+**A NOTE ON THE TWO QUOTED LOG LINES BELOW.** Both are reproduced VERBATIM except
+for one elision: the runner's host-absolute prefix is replaced by an ellipsis
+(`…/`), because Principle IV of `.specify/memory/constitution.md` forbids a
+host-absolute path in a committed file and evidence that carries one is evidence
+that stops being portable the moment the runner is recycled. The elided prefixes
+were an ephemeral `mktemp` directory and the Actions runner's `_temp`
+respectively; nothing the lines are quoted FOR lives in either. What each line is
+quoted for is its TAIL, and the tails are byte-exact. (Redacted 2026-09-08 on
+review of PR #813.)
+
 ## 7. The suite
 
-`python3 -m pytest tests/openspec_cli_pin -q` → **`123 passed`** (was 93).
-`python3 -m pytest tests/sequenced_after -q` → **`177 passed`**.
+`python3 -m pytest tests/openspec_cli_pin -q` → **`147 passed`** (was 93; 123
+before the Copilot-review round of 2026-09-08 added the `lockfileVersion`,
+malformed-address, root-declaration, installed-tree and `running_lines` cases).
+`python3 -m pytest tests/proposal-support -q` → **`95 passed, 2 subtests`**.
+`python3 -m pytest tests/sequenced_after -q` → **`195 passed`**.
 No test skips are added, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
 untouched and its two floors only rise.
 
@@ -173,7 +197,7 @@ openxFactory PR **#813**, run `34240127032`, job *"Verify the OpenSpec CLI pin
 and validate the corpus at it"*, on a fresh runner with `--no-cache`:
 
 ```
-openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (/tmp/openspec-cli-pin-82zgjois/prefix/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (…/openspec-cli-pin-<mktemp>/prefix/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
 openspec-cli-pin: dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed with `npm ci --ignore-scripts`
 Totals: 100 passed, 2 failed (102 items)
 OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
@@ -189,7 +213,7 @@ CLI for tests/proposal-support" step on the same pull request — the second of 
 three callers, resolving the same closure into the runner's `$GITHUB_PATH`:
 
 ```
-install-pinned-openspec-cli: @fission-ai/openspec@1.12.0 verified against its content address (integrity sha512-oFE2Lj7WVSc87nSi…) and installed at /home/runner/work/_temp/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef-6b0e6520de39b50a/node_modules/.bin/openspec, over the pinned dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages, lockfile_integrity sha512-aw5lIN45tQq2WZll…, installed with `npm ci --ignore-scripts`).
+install-pinned-openspec-cli: @fission-ai/openspec@1.12.0 verified against its content address (integrity sha512-oFE2Lj7WVSc87nSi…) and installed at …/_temp/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef-6b0e6520de39b50a/node_modules/.bin/openspec, over the pinned dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages, lockfile_integrity sha512-aw5lIN45tQq2WZll…, installed with `npm ci --ignore-scripts`).
 ```
 
 The cache directory's name carries BOTH addresses — the artifact's shasum
@@ -237,3 +261,27 @@ floors: selected>=7090 (margin 3323) passed>=7070 (margin 3322) skipped==21
 `EXPECT_SKIPPED` is EXACT and it did not move: this change adds no skip, which is
 what task 4.2 claims and this is the measurement of it. Both floors only rose.
 All nine checks on the pull request are green.
+
+## 11. THE COPILOT ROUND OF 2026-09-08, AND WHICH OF THE SEVEN WERE REAL
+
+Seven review threads stood on PR #813. Recorded here rather than only in the
+threads, because two of them are findings about this verifier's *stated
+contracts* and one is a finding about this file.
+
+| # | Subject | Disposition |
+| - | ------- | ----------- |
+| 1 | `read_lockfile()` refuses "the lockfileVersion 2/3 shape" and never read `lockfileVersion` | **REAL, fixed.** `LOCKFILE_VERSIONS = (2, 3)` is the declaration; the reader refuses `pin-unreadable` outside it. A stated contract the code did not keep. |
+| 2 | `resolve_pinned()` gained required arguments and a caller still used the old signature | **ALREADY FIXED** when the thread was written: raised 14:55:59Z, and the third caller was bound at 15:48:05Z (commit `152faba9`, § 9 above), with `test_every_caller_of_the_resolver_hands_it_the_closure` pinning the caller list at three. |
+| 3 | `base64.b64decode(..., validate=True)` raises `binascii.Error`, which `except (ValueError, TypeError)` misses | **NOT A DEFECT.** `binascii.Error` IS a `ValueError` subclass, so both decode sites already produced `PinRefusal('pin-tag-only')` on impossible padding rather than a traceback. The type is now NAMED at both catch sites anyway — a guard a reader must derive from the exception hierarchy is a guard the next reader will re-raise — and a parametrized regression test asserts the refusal and the subclass relation. |
+| 4 | `running_lines()` claims to remove "every comment" and removes only whole-line ones | **REAL in the CLAIM, not in the check.** The docstring is narrowed and the asymmetry stated: a whole-line comment is prose, a line carrying a trailing `#` is a line that RUNS, and the only failure the strictness can produce is a false positive fixed by moving a note onto its own line. Stripping inline comments would WIDEN the surface on which a second copy of the pin may sit, which is the surface those two tests exist to keep empty. Pinned by `test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one`. |
+| 5 | This evidence file embedded host-absolute runner paths | **REAL, fixed.** Both quoted log lines are elided to `…/`; Principle IV of `.specify/memory/constitution.md` forbids a host-absolute path in a committed file. The tails, which are what the lines are quoted for, are byte-exact. (Two host-absolute paths remain in `tests/openspec_cli_pin/fixtures/*.json` — captured CLI output landed on `main` by `bump-openspec-cli-pin-to-1.12`, untouched by this pull request and not this packet's to redact.) |
+| 6 | Duplicate `import os` in `tests/proposal-support/test_proposal_support.py` | **REAL, fixed.** |
+| 7 | `staging_manifest()` may derive a manifest with no dependencies, so `npm ci` installs nothing | **REAL, fixed, and in two places.** `root_dependency_spec()` refuses `pin-lockfile-mismatch` (`LOCKFILE ROOT DECLARES NOTHING TO INSTALL`) from `verify_lockfile` — before the fetch, on the ordering rule the rest of check 3 follows — and from `staging_manifest` itself, which is reachable on its own. `assert_installed_package()` then reads the installed tree before the binary is asked what it is. |
+
+`pin-lockfile-mismatch` rather than `pin-unreadable` for thread 7, and
+`pin-unreadable` rather than `pin-lockfile-mismatch` for thread 1, on the ONE
+division this file already draws and `design.md` § 2.3 states: a MISMATCH is a
+disagreement between two well-formed, readable statements, with a remedy
+(regenerate the lockfile at the pinned version); `pin-unreadable` is the state in
+which no comparison can be reached at all. A root that asks for the wrong thing
+disagrees. A `lockfileVersion` this reader has never implemented is illegible.

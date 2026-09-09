@@ -225,6 +225,15 @@ def registry(support, real_pin, tmp_path, monkeypatch):
             binaries = prefix / "node_modules" / ".bin"
             binaries.mkdir(parents=True, exist_ok=True)
             (binaries / binary).write_text("#!/bin/sh\n", encoding="utf-8")
+            # AND THE PACKAGE ITSELF, since `install_locked` now INSPECTS the
+            # tree it installed rather than believing npm's exit code: a double
+            # that left only a `.bin` shim would be exactly the vacuous install
+            # `assert_installed_package` exists to refuse.
+            installed = prefix / "node_modules" / real_pin["package"]
+            installed.mkdir(parents=True, exist_ok=True)
+            (installed / "package.json").write_text(
+                json.dumps({"name": real_pin["package"], "version": version}),
+                encoding="utf-8")
             return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["--version"]:
             return subprocess.CompletedProcess(argv, 0, served["reports"] + "\n", "")

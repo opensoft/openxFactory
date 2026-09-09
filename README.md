@@ -533,10 +533,14 @@ Active changes:
   `lockfile_packages:`, and binds the verifier and the installer to it: the
   committed lockfile is hashed BEFORE any registry round trip, ONE new refusal
   code `pin-lockfile-mismatch` covers digest drift, a lockfile locking another
-  artifact than the pin, and a tree of the wrong size, and the install runs
+  artifact than the pin, a tree of the wrong size, and a lockfile ROOT that asks
+  for the pinned package nowhere (that last added 2026-09-08 on Copilot review of
+  PR #813, with a `lockfileVersion` check refusing `pin-unreadable` outside the
+  forms the reader implements), and the install runs
   `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
   staging project whose `package.json` is DERIVED from the lockfile's own root
-  entry, with the reuse cache keyed on the lockfile's digest as well as the
+  entry, INSPECTING the installed tree before the binary is asked what it is,
+  with the reuse cache keyed on the lockfile's digest as well as the
   artifact's. **ALL THREE CALLERS of `resolve_pinned` are bound to it** — the
   verifier's own `main`, `scripts/install-pinned-openspec-cli.py` (the install
   `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through

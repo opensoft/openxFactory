@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import ast
 import base64
+import binascii
 import hashlib
 import importlib.util
 import json
@@ -304,8 +305,9 @@ def _fake_registry(mod, monkeypatch):
     which is how `--path-mode` is proved never to be reached by the default.
     """
     calls: list[list[str]] = []
-    served = {"payload": PAYLOAD, "reports": VERSION, "verdict": 0,
-              "report": report(), "origin": "git@github.com:opensoft/openxFactory.git"}
+    served = {"payload": PAYLOAD, "reports": VERSION, "installs": VERSION,
+              "verdict": 0, "report": report(),
+              "origin": "git@github.com:opensoft/openxFactory.git"}
 
     def fake_run(argv, **kwargs):
         calls.append([str(a) for a in argv])
@@ -329,6 +331,17 @@ def _fake_registry(mod, monkeypatch):
             binaries = prefix / "node_modules" / ".bin"
             binaries.mkdir(parents=True, exist_ok=True)
             (binaries / "openspec").write_text("#!/bin/sh\n", encoding="utf-8")
+            # AND THE PACKAGE ITSELF, since `install_locked` now INSPECTS the
+            # tree it installed rather than believing npm's exit code: a double
+            # that left only a `.bin` shim would be exactly the vacuous install
+            # `assert_installed_package` exists to refuse.
+            if served["installs"] is not None:
+                installed = prefix / "node_modules" / PACKAGE
+                installed.mkdir(parents=True, exist_ok=True)
+                (installed / "package.json").write_text(
+                    json.dumps({"name": PACKAGE,
+                                "version": served["installs"]}),
+                    encoding="utf-8")
             return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["install"]:
             # RETAINED AS A TRAP. Nothing under test may run `npm install` any
@@ -1294,6 +1307,224 @@ def test_an_unreadable_lockfile_is_pin_unreadable_and_not_a_mismatch(
     assert exc.value.code == "pin-unreadable", detail
 
 
+def _relockfile(body: bytes, mutate) -> bytes:
+    """The synthetic lockfile with its parsed document mutated in place.
+
+    A helper rather than four hand-rolled `json.loads`/`json.dumps` pairs: every
+    test below wants the SAME well-formed closure with exactly one thing wrong
+    with it, and `write_pin` re-derives the address and the count from whatever
+    comes back, so the only disagreement a test reaches is the one it asked for.
+    """
+    document = json.loads(body)
+    mutate(document)
+    return (json.dumps(document, indent=2) + "\n").encode("utf-8")
+
+
+@pytest.mark.parametrize("declared", [1, 4, 9, "3", 3.0, None, True])
+def test_a_lockfile_in_a_form_this_reader_does_not_implement_is_refused(
+        mod, tmp_path, declared):
+    """THE CONTRACT `read_lockfile` STATES IS NOW THE CONTRACT IT KEEPS.
+
+    The refusal beside it has always said this reader implements the
+    lockfileVersion 2/3 shape and only that, while nothing read `lockfileVersion`
+    at all — so a later form carrying a `packages` object would have been read by
+    a reader with no knowledge of its semantics, which is the guessing a pin may
+    not do. Raised by review of PR #813; `mod.LOCKFILE_VERSIONS` is the
+    declaration and this is the enforcement.
+
+    A string `"3"` and a float `3.0` are refused too, and deliberately: npm
+    writes an integer, and a value of another type is a file npm did not write.
+    """
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc.__setitem__("lockfileVersion", declared)
+                       if declared is not None else doc.pop("lockfileVersion"))
+    lockfile = tmp_path / SYNTHETIC_LOCKFILE_NAME
+    lockfile.write_bytes(body)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, _address(body)[0], 4, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-unreadable"
+    assert "lockfileVersion" in exc.value.detail
+    assert "refused rather than guessed at" in exc.value.detail
+
+
+@pytest.mark.parametrize("declared", [2, 3])
+def test_the_two_forms_this_reader_declares_are_the_two_it_reads(mod, declared):
+    """The other half of the check above: the declaration is not a bare refusal
+    list, and both forms npm writes with a `packages` object still read."""
+    assert declared in mod.LOCKFILE_VERSIONS
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc.__setitem__("lockfileVersion", declared))
+    assert mod.read_lockfile(body)["lockfileVersion"] == declared
+
+
+@pytest.mark.parametrize("integrity", [
+    "sha512-AB", "sha512-A", "sha512-AAAAA", "sha512-QUJD="])
+def test_a_malformed_lockfile_address_is_a_named_refusal_and_not_a_traceback(
+        mod, tmp_path, integrity):
+    """RAISED BY REVIEW OF PR #813 AS A CRASH, AND IT IS NOT ONE — but it is
+    worth a test either way, because the reason it is not one is a fact about
+    the standard library's exception hierarchy rather than about this file.
+
+    `base64.b64decode(..., validate=True)` raises `binascii.Error` on impossible
+    padding, and every value above matches `INTEGRITY_RE` and reaches it.
+    `binascii.Error` IS a `ValueError` subclass, so the guard already caught it
+    and already produced the named refusal; the type is now written out at the
+    catch site as well, and this test is what keeps the property from depending
+    on anybody rediscovering that relation.
+    """
+    assert issubclass(binascii.Error, ValueError)
+    path = write_pin(tmp_path, lockfile_integrity=f'"{integrity}"')
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_lockfile(mod.read_pin(path), path)
+    assert exc.value.code == "pin-tag-only"
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.pinned_integrity(dict(mod.read_pin(path), integrity=integrity))
+    assert exc.value.code == "pin-tag-only"
+
+
+def test_a_lockfile_whose_root_asks_for_nothing_is_refused_before_the_install(
+        mod, tmp_path, fake_npm):
+    """THE VACUOUS PASS, AND WHERE IT IS CAUGHT (raised by review of PR #813).
+
+    `npm ci` installs what the ROOT MANIFEST asks for, and that manifest is
+    DERIVED from the lockfile's own root entry. A root declaring nothing yields a
+    manifest asking for nothing, an `npm ci` that installs nothing and exits 0,
+    and — before this — an install failure reported as `pin-unresolvable`, which
+    blames the environment for a defect in a committed file. The lockfile here is
+    otherwise perfect: it hashes to its address, it locks the pinned package at
+    the pin's own referent, and the count agrees.
+
+    REFUSED BEFORE THE FETCH, on the ordering rule the rest of check 3 follows.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    body = _relockfile(synthetic_lockfile(_address(PAYLOAD)[0]),
+                       lambda doc: doc["packages"][""].pop("dependencies"))
+    path = write_pin(tmp_path, lockfile_body=body)
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE ROOT DECLARES NOTHING TO INSTALL" in exc.value.detail
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert not any(call[0] == "npm" for call in calls), \
+        "a root that asks for nothing must not spend a registry round trip"
+
+
+@pytest.mark.parametrize("key, refused", [
+    ("dependencies", False),
+    ("devDependencies", False),
+    ("optionalDependencies", True),
+    ("peerDependencies", True),
+])
+def test_only_a_root_key_that_actually_installs_satisfies_the_root_check(
+        mod, key, refused):
+    """WHICH DECLARATIONS COUNT, and why two of the four do not.
+
+    npm may SKIP an optional dependency silently — a platform mismatch, a failed
+    fetch — so a root declaring the CLI only there is a root whose `npm ci` can
+    exit 0 having installed nothing, which is the very state this check exists to
+    refuse. What satisfies a PEER range is decided by the rest of the tree rather
+    than by the declaration, which fails for the same reason by a different
+    mechanism. Both are still COPIED into the derived manifest — dropping them
+    would make the manifest disagree with the lockfile — and neither is accepted
+    as the thing that installs the pinned product.
+    """
+    def only(doc: dict) -> None:
+        root = doc["packages"][""]
+        root.pop("dependencies", None)
+        root[key] = {PACKAGE: VERSION}
+
+    document = json.loads(_relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]), only))
+    if refused:
+        with pytest.raises(mod.PinRefusal) as exc:
+            mod.staging_manifest(document, PACKAGE)
+        assert exc.value.code == "pin-lockfile-mismatch"
+        assert key not in mod.INSTALLING_DEPENDENCY_KEYS
+    else:
+        assert mod.staging_manifest(document, PACKAGE)[key] == {PACKAGE: VERSION}
+        assert key in mod.INSTALLING_DEPENDENCY_KEYS
+    assert key in mod.MANIFEST_DEPENDENCY_KEYS
+
+
+def test_the_staging_manifest_refuses_rather_than_deriving_an_empty_one(mod):
+    """The guard lives in `staging_manifest` AS WELL AS in `verify_lockfile`.
+
+    The function is reachable on its own — it is the derivation the whole
+    single-source property rests on — and a guard that lives only in one caller
+    is a guard the next caller does not have.
+    """
+    document = json.loads(_relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"][""].pop("dependencies")))
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.staging_manifest(document, PACKAGE)
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert PACKAGE in exc.value.detail
+
+
+def test_an_install_that_installed_nothing_is_refused_before_the_binary_is_asked(
+        mod, tmp_path, fake_npm):
+    """A ZERO EXIT FROM `npm ci` IS A STATEMENT ABOUT NPM, NOT ABOUT THE DISK.
+
+    Raised by review of PR #813. The double here does what a vacuous install
+    does: it exits 0 and leaves a `.bin` shim, and no `node_modules/<package>`
+    at all. `assert_installed_package` reads the tree instead of believing the
+    exit code, so the run refuses `pin-unresolvable` rather than arriving at
+    `assert_reported_version` with a binary whose provenance nothing established.
+    """
+    calls, served = fake_npm
+    served["installs"] = None
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path)
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert any(call[1:2] == ["ci"] for call in calls)
+    assert not any(call[1:2] == ["--version"] for call in calls), \
+        "the tree is inspected BEFORE the binary is asked what it is"
+
+
+def test_an_install_of_another_version_than_the_pin_is_refused(
+        mod, tmp_path, fake_npm):
+    """The registry shipped a tree the pin does not name.
+
+    `assert_reported_version` asks the BINARY what it is; this asks what the
+    registry actually SHIPPED, and a pin is satisfied only when both agree with
+    it. The double keeps reporting the pinned version from `--version`, so this
+    can only pass if the tree itself is read.
+    """
+    calls, served = fake_npm
+    served["installs"] = ROLLBACK_VERSION
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path)
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert served["reports"] == VERSION
+    assert not any(call[1:2] == ["--version"] for call in calls)
+
+
+def test_the_installed_tree_is_read_at_the_packages_own_path(mod, tmp_path):
+    """The assertion reads `node_modules/<package>/package.json` and nothing
+    else — a scoped name (`@scope/name`) is TWO path segments, so a reader that
+    treated it as one would look in a directory nothing writes."""
+    prefix = tmp_path / "prefix"
+    installed = prefix / "node_modules" / PACKAGE
+    installed.mkdir(parents=True)
+    (installed / "package.json").write_text(
+        json.dumps({"name": PACKAGE, "version": VERSION}), encoding="utf-8")
+    assert PACKAGE.count("/") == 1
+    assert mod.assert_installed_package(prefix, PACKAGE, VERSION) == VERSION
+    (installed / "package.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.assert_installed_package(prefix, PACKAGE, VERSION)
+    assert exc.value.code == "pin-unresolvable"
+
+
 def test_an_absent_lockfile_is_not_an_unlocked_pass(mod, tmp_path):
     path = write_pin(tmp_path)
     pin = mod.read_pin(path)
@@ -1362,7 +1593,7 @@ def test_the_staging_project_is_written_from_the_lockfiles_own_root_entry(
     body = synthetic_lockfile(_address(PAYLOAD)[0])
     path = write_pin(tmp_path, lockfile_body=body)
     prefix = tmp_path / "prefix"
-    executable = mod.install_locked(prefix, body, "openspec")
+    executable = mod.install_locked(prefix, body, PACKAGE, VERSION, "openspec")
     assert executable == prefix / "node_modules" / ".bin" / "openspec"
     assert (prefix / "package-lock.json").read_bytes() == body
     manifest = json.loads((prefix / "package.json").read_text(encoding="utf-8"))
@@ -1370,7 +1601,7 @@ def test_the_staging_project_is_written_from_the_lockfiles_own_root_entry(
     assert manifest["name"] == root["name"]
     assert manifest["version"] == root["version"]
     assert manifest["dependencies"] == root["dependencies"]
-    assert mod.staging_manifest(json.loads(body))["dependencies"] == {
+    assert mod.staging_manifest(json.loads(body), PACKAGE)["dependencies"] == {
         PACKAGE: VERSION}
 
 
@@ -1523,7 +1754,8 @@ def test_the_real_lockfile_holds_the_pinned_packages_declared_dependencies(mod):
 
 
 def running_lines(source: str) -> str:
-    """The lines of a module that RUN, with every comment and docstring removed.
+    """The lines of a module that RUN: every docstring, and every WHOLE-LINE
+    `#` comment, removed — and a line carrying an INLINE comment kept entire.
 
     THE RULE THE TWO TESTS BELOW SHARE, and it is the two workflow tests' rule
     applied to Python: a line that RUNS may not restate the pin; a line that
@@ -1534,6 +1766,21 @@ def running_lines(source: str) -> str:
     writing the rule protects. Stripping only the MODULE docstring would have
     caught the comment and missed the three, which is why this walks the AST for
     every bare string expression rather than reaching for `ast.get_docstring`.
+
+    THE INLINE-COMMENT ASYMMETRY IS DELIBERATE AND IT ERRS STRICT (stated
+    2026-09-08 on review of PR #813, which read the older wording — "every
+    comment" — as a promise this makes good on by narrowing the claim rather than
+    the check). A WHOLE-LINE comment is prose and nothing else; a line carrying a
+    trailing `#` is a line that RUNS, and the rule is about lines that run. So
+    the pin's literals may not appear anywhere on such a line — not even after
+    the `#` — and the only failure this can produce is a FALSE POSITIVE: a
+    would-be author of `foo(bar)  # at 1.12.0` is told to move the note onto its
+    own line or into the docstring. That is a one-line edit in the safe
+    direction. Tokenizing the source to strip inline comments — the other exit —
+    would buy that convenience by WIDENING the surface on which a second copy of
+    the pin may sit, which is the surface these two tests exist to keep empty.
+    `test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one` pins
+    the behaviour so it stays a decision rather than becoming an accident.
     """
     tree = ast.parse(source)
     prose: set[int] = set()
@@ -1544,6 +1791,39 @@ def running_lines(source: str) -> str:
     return "\n".join(
         line for index, line in enumerate(source.splitlines())
         if index not in prose and not line.lstrip().startswith("#"))
+
+
+def test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one():
+    """THE ASYMMETRY, PINNED SO IT STAYS A DECISION (review of PR #813).
+
+    The helper's older wording promised "every comment" and delivered whole-line
+    ones. The claim is narrowed rather than the check widened, because the two
+    exits are not symmetric in what they risk: keeping inline comments can only
+    produce a FALSE POSITIVE — an author is told to move a note onto its own line
+    — while stripping them would WIDEN the surface on which a second copy of the
+    pin may sit, which is the surface the two tests below exist to keep empty.
+
+    The `#` inside a string literal is here for the other half of that argument:
+    a naive strip-at-the-first-hash would have cut this line in two and dropped
+    running code, so the cheap version of the other exit is not available either.
+    """
+    source = (
+        '"""a module docstring"""\n'
+        '# a whole-line comment\n'
+        'value = "a literal with a # inside it"\n'
+        'call(value)  # a trailing note\n'
+        'def f():\n'
+        '    """a function docstring"""\n'
+        '    return value\n')
+    kept = running_lines(source)
+    assert "a module docstring" not in kept
+    assert "a function docstring" not in kept
+    assert "a whole-line comment" not in kept
+    assert "a trailing note" in kept, \
+        "an inline comment sits on a line that RUNS and is judged with it"
+    assert 'a literal with a # inside it' in kept, \
+        "a `#` inside a string is not a comment and the code must survive it"
+    assert "return value" in kept
 
 
 def test_every_caller_of_the_resolver_hands_it_the_closure():

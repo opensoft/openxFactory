@@ -66,16 +66,31 @@ happens; nothing below decides it.
 - [x] 3.2 `verify_lockfile()` — check 3, run BEFORE the registry round trip.
       ONE new refusal code, `pin-lockfile-mismatch`, added to `REFUSAL_CODES`,
       covering `LOCKFILE DIGEST DRIFT`, `LOCKFILE REFERENT DISAGREEMENT` (the
-      lockfile locks a different artifact than the pin, or none) and
-      `LOCKFILE SIZE DRIFT`. An absent or unparseable lockfile is
-      `pin-unreadable`, on the division that file already draws.
+      lockfile locks a different artifact than the pin, or none),
+      `LOCKFILE SIZE DRIFT` and — added 2026-09-08 on Copilot review of PR #813
+      — `LOCKFILE ROOT DECLARES NOTHING TO INSTALL` (`root_dependency_spec()`:
+      the root `""` entry must declare the pinned package under `dependencies`
+      or `devDependencies`, `optionalDependencies` and `peerDependencies` NOT
+      counting because neither reliably installs; the derived manifest is a
+      function of that entry, so a root asking for nothing yields an `npm ci`
+      that installs nothing and exits 0). An absent or unparseable lockfile — or
+      one declaring a `lockfileVersion` outside `LOCKFILE_VERSIONS`, checked from
+      the same review — is `pin-unreadable`, on the division that file already
+      draws: a version 4 lockfile does not DISAGREE with the pin, it is
+      illegible to this reader.
 - [x] 3.3 `install_locked()` REPLACES `install_artifact()`: `npm ci
       --ignore-scripts --no-audit --no-fund` in a staging project whose
       `package.json` is DERIVED from the lockfile's own root entry
       (`staging_manifest()`), so there is no second committed copy of the
       dependency declaration. `--ignore-scripts` stays. The executable is
       `<prefix>/node_modules/.bin/openspec`, still a path this code returns and
-      never a name a shell resolves.
+      never a name a shell resolves. AND THE TREE IS INSPECTED, not believed
+      (`assert_installed_package()`, added 2026-09-08 on the same review): a zero
+      exit from `npm ci` is a statement about npm, so the package's own
+      `package.json` must be present at `node_modules/@fission-ai/openspec/` and
+      must declare the pinned version, BEFORE `assert_reported_version` asks the
+      binary anything — one reads what the registry SHIPPED, the other what the
+      BINARY SAYS, and a pin is satisfied only when both agree with it.
 - [x] 3.4 `cache_key()` folds `sha512(lockfile)[:16]` into the reuse directory's
       name and the `.pin-verified` stamp carries BOTH addresses, so a different
       tree is a different cache entry and a directory stamped for another closure

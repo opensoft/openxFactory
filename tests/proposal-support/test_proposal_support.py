@@ -8,7 +8,6 @@ import importlib.util
 import json
 import os
 from pathlib import Path
-import os
 import shutil
 import subprocess
 import sys
@@ -146,6 +145,15 @@ def serve_a_fictional_registry(test: unittest.TestCase) -> list:
             shim.write_text(f'#!/bin/sh\nexec "{forwarded}" "$@"\n',
                             encoding="utf-8")
             shim.chmod(0o755)
+            # AND THE PACKAGE ITSELF, since `install_locked` now INSPECTS the
+            # tree it installed rather than believing npm's exit code: a double
+            # that left only a `.bin` shim would be exactly the vacuous install
+            # `assert_installed_package` exists to refuse.
+            installed = prefix / "node_modules" / package
+            installed.mkdir(parents=True, exist_ok=True)
+            (installed / "package.json").write_text(
+                json.dumps({"name": package, "version": version}),
+                encoding="utf-8")
             return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["--version"]:
             return subprocess.CompletedProcess(argv, 0, version + "\n", "")

@@ -55,13 +55,21 @@ bytes, and this tool:
     already told them;
   * refuses the SAME code unless the lockfile's own entry for the pinned package
     carries the pin's `integrity:` — so the two halves of one pin cannot name two
-    different artifacts — and unless the tree holds exactly `lockfile_packages:`
-    packages;
+    different artifacts — unless the tree holds exactly `lockfile_packages:`
+    packages, and unless the lockfile's ROOT entry actually ASKS FOR the pinned
+    package, without which the derived manifest would ask for nothing and the
+    install would succeed having installed nothing;
+  * refuses `pin-unreadable` for a `lockfileVersion` outside the forms it
+    implements, rather than half-reading a shape whose semantics it has never
+    seen;
   * INSTALLS THROUGH IT with `npm ci --ignore-scripts` in a staging project whose
     `package.json` is DERIVED from the lockfile's own root entry, never
     `npm install`, which would resolve the ranges again and undo the whole act.
     `npm ci` resolves nothing and checks every package against the lockfile's
-    recorded integrity, so the installed tree IS the lockfile's tree;
+    recorded integrity, so the installed tree IS the lockfile's tree — and the
+    tree is then INSPECTED, not assumed: the pinned package's own
+    `package.json` must be on disk at the pinned version before the binary is
+    ever asked what it is;
   * KEYS THE REUSE CACHE ON THE LOCKFILE'S DIGEST as well as the artifact's,
     because a different tree is a different install and must not be served out
     of a directory that was built for another one.
@@ -215,6 +223,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import hashlib
 import json
 import os
@@ -310,7 +319,16 @@ REFUSAL_CODES: tuple[str, ...] = (
 #                              or its entry for the pinned package carries an
 #                              integrity other than the pin's referent (or no
 #                              entry at all), or the tree it locks is not the
-#                              size `lockfile_packages:` records
+#                              size `lockfile_packages:` records, or its ROOT
+#                              entry does not ASK FOR the pinned package at all
+#                              (added 2026-09-08 on review of PR #813: the
+#                              staging manifest is derived from that entry, so a
+#                              root asking for nothing yields an `npm ci` that
+#                              installs nothing and exits 0)
+#
+# A lockfile in a FORM this reader does not implement — a `lockfileVersion`
+# outside `LOCKFILE_VERSIONS` — is NOT this code either: it is `pin-unreadable`,
+# because the two statements do not disagree, one of them is illegible.
 #
 # A pin that declares NO lockfile at all is NOT this code: it is `pin-tag-only`,
 # because unresolved caret ranges are a MOVING REFERENCE, and "the moment a pin
@@ -352,6 +370,33 @@ PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")
 # tuple exists so that admitting a second is an edit to a declaration rather than
 # to a condition buried in a branch.
 CONTENT_ADDRESSED_KINDS: tuple[str, ...] = ("package_integrity",)
+
+# The npm lockfile FORMS `read_lockfile` implements, declared on exactly the
+# terms above rather than left implicit in what the reader happens to touch.
+# `lockfileVersion` 2 and 3 both carry the `packages` object every check below
+# reads; version 1 carries only the legacy `dependencies` tree, in which nothing
+# here would find an entry. The refusal is what makes the tuple load-bearing: a
+# future version 4 could carry a `packages` object whose SEMANTICS this reader
+# has never seen, and a reader that accepts a form it does not implement is
+# guessing — which is the one thing a pin may not do. Admitting a form is an edit
+# HERE and to the prose beside it, never a shape that slipped through.
+LOCKFILE_VERSIONS: tuple[int, ...] = (2, 3)
+
+# The root-manifest keys `staging_manifest` COPIES into the derived
+# `package.json`, and the subset of them that actually INSTALLS the pinned
+# package under `npm ci`.
+#
+# `optionalDependencies` is deliberately absent from the second tuple: npm may
+# SKIP an optional dependency silently — a platform mismatch, an install-time
+# failure — so a root declaring the CLI only there is a root whose `npm ci`
+# could exit 0 having installed nothing, which is the vacuous pass the root
+# check exists to refuse. `peerDependencies` is out for the same reason by a
+# different mechanism: what satisfies a peer range is decided by the rest of the
+# tree, not by this declaration.
+MANIFEST_DEPENDENCY_KEYS: tuple[str, ...] = (
+    "dependencies", "devDependencies", "optionalDependencies",
+    "peerDependencies")
+INSTALLING_DEPENDENCY_KEYS: tuple[str, ...] = ("dependencies", "devDependencies")
 
 
 class PinRefusal(Exception):
@@ -571,7 +616,14 @@ def pinned_integrity(pin: dict) -> tuple[str, str]:
             "trusted")
     try:
         raw = base64.b64decode(integrity.strip()[len("sha512-"):], validate=True)
-    except (ValueError, TypeError) as exc:
+    except (binascii.Error, ValueError, TypeError) as exc:
+        # `binascii.Error` IS a `ValueError` subclass, so the pair alone already
+        # closed this path — a value matching `INTEGRITY_RE` with impossible
+        # padding refuses `pin-tag-only` rather than raising. It is NAMED anyway,
+        # because the guard a reader has to derive from the exception hierarchy
+        # is a guard the next reader will ask about (as review of PR #813 did),
+        # and because `base64.b64decode`'s own documented exception should be
+        # legible at the site that catches it.
         raise PinRefusal(
             "pin-tag-only",
             f"the pin's integrity {integrity!r} is not decodable base64: "
@@ -653,7 +705,10 @@ def pinned_lockfile(pin: dict, pin_path: Path) -> tuple[Path, str, int]:
             "closure is not a pinned one")
     try:
         raw = base64.b64decode(integrity.strip()[len("sha512-"):], validate=True)
-    except (ValueError, TypeError) as exc:
+    except (binascii.Error, ValueError, TypeError) as exc:
+        # Named for the reason given at the referent's own decode above: the
+        # subclass relation already closed this path, and a guard nobody can read
+        # without the exception hierarchy in hand is one nobody can review.
         raise PinRefusal(
             "pin-tag-only",
             f"the pin's lockfile_integrity {integrity!r} is not decodable "
@@ -881,14 +936,26 @@ def verify_artifact(tarball: Path, integrity: str, shasum: str) -> None:
 
 
 def read_lockfile(payload: bytes) -> dict:
-    """The lockfile as a mapping with a `packages` object, or `pin-unreadable`.
+    """The lockfile as a mapping in a form this reader IMPLEMENTS, or `pin-unreadable`.
 
     `pin-unreadable` and NOT `pin-lockfile-mismatch`, on the same division the
     pin file itself already draws: a mismatch is a DISAGREEMENT between two
     well-formed statements, each of which a reviewer can read and act on. A
-    lockfile that is absent, is not JSON, or carries no `packages` object is a
-    state in which no such comparison can be reached at all — the same state an
-    absent or ungrammatical pin file is in, and it takes the same code.
+    lockfile that is absent, is not JSON, declares a `lockfileVersion` this
+    reader does not implement, or carries no `packages` object is a state in
+    which no such comparison can be reached at all — the same state an absent or
+    ungrammatical pin file is in, and it takes the same code. A version 4
+    lockfile does not DISAGREE with the pin; it is illegible to this reader, and
+    those are different findings for a reviewer.
+
+    THE VERSION IS CHECKED AND NOT MERELY DESCRIBED (added 2026-09-08 on review
+    of PR #813). The refusal below said this reader implements the
+    lockfileVersion 2/3 shape while nothing read `lockfileVersion` at all, so a
+    future form that still carried a `packages` object would have been accepted
+    silently by a reader with no knowledge of its semantics — a stated contract
+    the code did not keep. `LOCKFILE_VERSIONS` is now the declaration and this is
+    the enforcement, so a regenerated lockfile in a new form fails LOUDLY at
+    authoring time rather than being half-supported at run time.
     """
     try:
         document = json.loads(payload.decode("utf-8"))
@@ -898,15 +965,73 @@ def read_lockfile(payload: bytes) -> dict:
             f"the committed lockfile is not readable JSON ({exc}); the pin's "
             "dependency closure cannot be compared against anything, and an "
             "unreadable closure is never an implicitly trusted one") from exc
-    if not isinstance(document, dict) or not isinstance(
-            document.get("packages"), dict):
+    if not isinstance(document, dict):
+        raise PinRefusal(
+            "pin-unreadable",
+            "the committed lockfile is not a JSON object; the pin's dependency "
+            "closure cannot be compared against anything")
+    declared = document.get("lockfileVersion")
+    if (isinstance(declared, bool) or not isinstance(declared, int)
+            or declared not in LOCKFILE_VERSIONS):
+        raise PinRefusal(
+            "pin-unreadable",
+            f"the committed lockfile declares lockfileVersion {declared!r}, and "
+            f"this reader implements "
+            f"{' and '.join(str(v) for v in LOCKFILE_VERSIONS)} only. A form "
+            "this reader does not implement is refused rather than guessed at: "
+            "a later form may carry a `packages` object whose meaning is not the "
+            "meaning read here, and a pin that half-understands its own closure "
+            "is not a pinned one")
+    if not isinstance(document.get("packages"), dict):
         raise PinRefusal(
             "pin-unreadable",
             "the committed lockfile carries no `packages` object; this is the "
-            "lockfileVersion 2/3 shape npm writes and the only one this reader "
-            "implements, and a form it does not implement is refused rather "
-            "than guessed at")
+            "shape npm writes at the lockfileVersion declared above and the only "
+            "one this reader implements, and a form it does not implement is "
+            "refused rather than guessed at")
     return document
+
+
+def root_dependency_spec(document: dict, package: str) -> str:
+    """The version spec the lockfile's ROOT entry declares for `package`, or refuse.
+
+    THE CHECK THAT KEEPS `npm ci` FROM SUCCEEDING VACUOUSLY (added 2026-09-08 on
+    review of PR #813). `npm ci` installs what the ROOT MANIFEST asks for, and
+    the root manifest here is DERIVED from this same root entry — so a lockfile
+    whose `""` entry declares no dependencies at all yields a manifest that asks
+    for nothing, an `npm ci` that installs nothing, and, before this, an install
+    failure blamed on the environment (`pin-unresolvable`) when the defect was in
+    the committed lockfile. Worse, a lockfile could carry a perfectly good
+    `node_modules/<package>` entry — passing every check above — while its root
+    asked for something else entirely.
+
+    `pin-lockfile-mismatch` AND NOT `pin-unreadable`, which is where this parts
+    company with the version check above. Both halves here are well-formed and
+    both are readable; they DISAGREE. The pin names an artifact and the
+    lockfile's root does not ask for it, which is the same finding as the
+    referent disagreement beside it and carries the same remedy: regenerate the
+    committed lockfile at the pinned version. `pin-unreadable` would send a
+    reviewer looking for a corrupt file instead.
+    """
+    root = document["packages"].get("")
+    if not isinstance(root, dict):
+        raise PinRefusal(
+            "pin-unreadable",
+            "the committed lockfile carries no root (`\"\"`) package entry, so "
+            "the staging manifest an `npm ci` needs cannot be derived from it")
+    for key in INSTALLING_DEPENDENCY_KEYS:
+        declared = root.get(key)
+        if isinstance(declared, dict) and package in declared:
+            return str(declared[package])
+    raise PinRefusal(
+        "pin-lockfile-mismatch",
+        "the committed lockfile: LOCKFILE ROOT DECLARES NOTHING TO INSTALL\n"
+        f"  the root (`\"\"`) entry does not declare {package} under "
+        f"{' or '.join(INSTALLING_DEPENDENCY_KEYS)}\n"
+        "`npm ci` installs what the ROOT MANIFEST asks for, and that manifest is "
+        "derived from this entry — so a root that asks for nothing yields an "
+        "install of nothing and a gate that passes over a tree it never built. "
+        "Regenerate the lockfile at the pinned version")
 
 
 def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
@@ -932,6 +1057,15 @@ def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
                          on `shasum:`'s terms: it is recorded because a reviewer
                          reads a count and not a digest, and it is checked
                          because a recorded value nothing verifies drifts.
+      ROOT DECLARES NOTHING TO INSTALL
+                         (added 2026-09-08 on review of PR #813) the lockfile's
+                         ROOT entry does not ask for the pinned package, so the
+                         derived staging manifest asks for nothing and `npm ci`
+                         would install nothing and exit 0. Reported HERE, before
+                         the fetch, and not left to the install: the defect is in
+                         a committed file, and reaching it through a failed
+                         `npm ci` names the environment for a fault of this
+                         repository. See `root_dependency_spec`.
 
     RUN BEFORE THE FETCH. A lockfile that disagrees with the pin is a defect of
     this repository, and a refusal that arrives only after a registry round trip
@@ -989,10 +1123,11 @@ def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
             "count is corroboration and the digest is the referent, so this "
             "reports a disagreement the digest could not have survived unless "
             "the count itself was mis-recorded")
+    root_dependency_spec(document, package)
     return raw
 
 
-def staging_manifest(document: dict) -> dict:
+def staging_manifest(document: dict, package: str) -> dict:
     """The `package.json` an `npm ci` through this lockfile needs, DERIVED from it.
 
     NOT VENDORED BESIDE THE LOCKFILE, and that is the single-source property
@@ -1003,20 +1138,24 @@ def staging_manifest(document: dict) -> dict:
     Deriving the manifest from the lockfile's own root entry makes them agree BY
     CONSTRUCTION: there is one written declaration, and the other is a function
     of it.
+
+    IT TAKES THE PACKAGE NAME so that a manifest asking for NOTHING can never be
+    returned (added 2026-09-08 on review of PR #813). The derivation is only
+    sound while the root actually declares the pinned package: derive from a root
+    that declares nothing and the function returns a well-formed manifest whose
+    `npm ci` installs an empty tree and exits 0. `root_dependency_spec` refuses
+    that, here as well as in `verify_lockfile`, because this function is reachable
+    on its own and a guard that lives only in one caller is a guard the next
+    caller does not have.
     """
-    root = document["packages"].get("")
-    if not isinstance(root, dict):
-        raise PinRefusal(
-            "pin-unreadable",
-            "the committed lockfile carries no root (`\"\"`) package entry, so "
-            "the staging manifest an `npm ci` needs cannot be derived from it")
+    root_dependency_spec(document, package)
+    root = document["packages"][""]
     manifest: dict = {
         "name": str(root.get("name") or "openspec-cli-pin-closure"),
         "version": str(root.get("version") or "0.0.0"),
         "private": True,
     }
-    for key in ("dependencies", "devDependencies", "optionalDependencies",
-                "peerDependencies"):
+    for key in MANIFEST_DEPENDENCY_KEYS:
         value = root.get(key)
         if isinstance(value, dict) and value:
             manifest[key] = value
@@ -1076,8 +1215,8 @@ def fetch_artifact(package: str, version: str, destination: Path,
     return tarballs[0]
 
 
-def install_locked(prefix: Path, lockfile_bytes: bytes, binary: str,
-                   npm: str = "npm") -> Path:
+def install_locked(prefix: Path, lockfile_bytes: bytes, package: str,
+                   version: str, binary: str, npm: str = "npm") -> Path:
     """Install THE LOCKFILE'S TREE into a private prefix; return the executable.
 
     `npm ci` AND NOT `npm install`, which is the whole act rather than a flag
@@ -1106,10 +1245,21 @@ def install_locked(prefix: Path, lockfile_bytes: bytes, binary: str,
     resolves. (It was `<prefix>/bin/<binary>` under the previous `npm install
     --global --prefix` install; the property is unchanged and only the layout
     moved, because a lockfile installs a PROJECT and not a global.)
+
+    AND THE INSTALLED TREE IS INSPECTED BEFORE IT IS BELIEVED (added 2026-09-08
+    on review of PR #813). A zero exit from `npm ci` is a statement about npm,
+    not about what is on disk: the package's own `package.json` must be present
+    at `node_modules/<package>/` and must declare the PINNED version. Without
+    that, an `npm ci` over a manifest asking for nothing — or a `node_modules`
+    assembled from a stale cache, or a `.bin` shim left by another run — reaches
+    `assert_reported_version` with a binary whose provenance nothing established.
+    The version check here is not a duplicate of that one either: this reads what
+    the REGISTRY SHIPPED and that one reads what the BINARY SAYS, and a pin is
+    satisfied only when both agree with it.
     """
     prefix.mkdir(parents=True, exist_ok=True)
     (prefix / "package-lock.json").write_bytes(lockfile_bytes)
-    manifest = staging_manifest(read_lockfile(lockfile_bytes))
+    manifest = staging_manifest(read_lockfile(lockfile_bytes), package)
     (prefix / "package.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     result = _run([npm, "ci", "--ignore-scripts", "--no-audit", "--no-fund"],
@@ -1122,7 +1272,45 @@ def install_locked(prefix: Path, lockfile_bytes: bytes, binary: str,
             f"(exit {result.returncode}, executable "
             f"{'present' if executable.exists() else 'absent'}): "
             f"{(result.stderr or result.stdout).strip() or 'no output'}")
+    assert_installed_package(prefix, package, version)
     return executable
+
+
+def assert_installed_package(prefix: Path, package: str, version: str) -> str:
+    """The pinned package is ON DISK, at its own path, at the pinned version.
+
+    Split out rather than inlined because it is an ASSERTION ABOUT THE TREE and
+    the function above it is an act: the install may be reported however npm
+    likes, and this is the sentence that says what was actually built. It runs
+    BEFORE `assert_reported_version`, so a vacuous or substituted install is
+    named as such instead of arriving as a confusing verdict about a binary.
+    """
+    manifest = prefix / "node_modules" / Path(package) / "package.json"
+    if not manifest.is_file():
+        raise PinRefusal(
+            "pin-unresolvable",
+            f"`npm ci` reported success and left no {package} at "
+            f"node_modules/{package}/package.json under {prefix}. An install "
+            "that installed nothing is not a satisfied pin, however green its "
+            "exit code: the tree this gate adjudicates over would be a tree "
+            "nothing put the pinned product into")
+    try:
+        installed = json.loads(manifest.read_text(encoding="utf-8"))
+        reported = str(installed["version"])
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise PinRefusal(
+            "pin-unresolvable",
+            f"the installed {package} carries no readable version in "
+            f"{manifest} ({exc}); a tree that cannot say what it holds cannot "
+            "be the pinned one") from exc
+    if reported != version:
+        raise PinRefusal(
+            "pin-version-mismatch",
+            f"the installed {package} declares version {reported!r}, but the "
+            f"pin records {version!r}. `npm ci` installed a tree the lockfile "
+            "and the pin do not agree about, and a run at the wrong version is "
+            "not a weaker check but a different one")
+    return reported
 
 
 def assert_reported_version(executable: Path, version: str) -> str:
@@ -1580,8 +1768,8 @@ def resolve_pinned(package: str, version: str, integrity: str, shasum: str,
     verify_artifact(tarball, integrity, shasum)
 
     if cache_root is None:
-        return install_locked(workspace / "prefix", lockfile_bytes, binary,
-                              npm=npm)
+        return install_locked(workspace / "prefix", lockfile_bytes, package,
+                              version, binary, npm=npm)
 
     prefix = cache_root / cache_key(package, version, shasum, lockfile_bytes)
     stamp = prefix / ".pin-verified"
@@ -1595,7 +1783,8 @@ def resolve_pinned(package: str, version: str, integrity: str, shasum: str,
             pass
     if prefix.exists():
         shutil.rmtree(prefix, ignore_errors=True)
-    executable = install_locked(prefix, lockfile_bytes, binary, npm=npm)
+    executable = install_locked(prefix, lockfile_bytes, package, version,
+                                binary, npm=npm)
     try:
         stamp.write_text(stamped + "\n", encoding="utf-8")
     except OSError:
@@ -1710,8 +1899,8 @@ def main(argv: list[str] | None = None) -> int:
                 supplied = Path(args.tarball)
                 verify_artifact(supplied, integrity, shasum)   # check 3
                 executable = install_locked(workspace / "prefix",
-                                            lockfile_bytes, binary,
-                                            npm=args.npm)
+                                            lockfile_bytes, package, version,
+                                            binary, npm=args.npm)
             else:
                 cache_root = None if args.no_cache else (
                     Path(args.cache_dir) if args.cache_dir
