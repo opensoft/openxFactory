@@ -675,3 +675,193 @@ the freeze exists so a realization cannot quietly re-point a ratified
 dependency. Re-deriving it is the separate governed question task **0.2**
 anticipated. Named in § 5 of the amendment record so the next lane finds it at
 the packet rather than at the gate.
+
+## 18. Addendum, 2026-09-09: the four GATED slices reconciled to a MOVING `main`, and the arithmetic re-closed there
+
+**Numbered 18, not 16 or 17, and that is deliberate.** Two addenda to this file
+are already authored and UNMERGED, each on a different draft: **§ 16 on #802**
+(slice B2) and **§ 17 on #801** (slice B1). This one lands on **#806** (slice
+B4). The three will meet in this file when the slices land in ceremony order,
+and skipping to 18 is what keeps the section numbers from colliding at that
+merge — the numbers are not a claim about landing order, and § 16 and § 17 are
+NOT missing when you read this on #806's branch.
+
+### 18.1 What this addendum records, and what it does not
+
+It records ONE act: reconciling the four GATED drafts with `origin/main` on
+2026-09-09 (runbook step **10.2**, ordered by Brett Heap that day), and
+re-closing the sweep arithmetic at the head they were reconciled to. **It rules
+nothing.** Every occurrence it assigns is assigned by a rule already published
+in this file, cited per assignment, and no verdict here is new.
+
+### 18.2 `main` MOVED FIVE TIMES DURING THE RECONCILIATION, and that is the finding
+
+The reconciliation began against `ca4a1558` and finished against `7681e409`.
+In between, `origin/main` advanced through **six** commits in five landings:
+
+| head | what landed |
+| --- | --- |
+| `86651a58` | #827 (specs/019 FR-016 restated), #828 (pin registration is checked) |
+| `9a67d42c` | #826 (`openspec-cli-pin.yaml` header), #824 (`govern-archived-record-edits`) |
+| `82c9f059` | **#829 — M-1 step (3) of `relocate-review-authority-floor-mirror`** |
+| `7681e409` | #830 (merge-approval envelope, ruling D-10 (a)), #176 (the bot's `intents/rolling`) |
+
+**Each of the four branches was merged to the SAME final head, `7681e409`**, and
+every number below is measured there. Slice B1 took **three** merges rather
+than one, because two of those landings rewrote the exact lines it edits.
+
+**This is a fact about the corpus, not a complaint.** A repository with an
+autonomous merge lane and three active governed lanes does not hold still for a
+four-pull-request reconciliation, so *"reconciled"* is only ever a claim about a
+NAMED head. Every commit message on the four branches names its head for that
+reason, and a slice that sits unmerged long enough will need this done again.
+
+### 18.3 The one conflict class, and how it was resolved — twice
+
+`.github/workflows/review-lane-repin.yml`'s `env:` block conflicted with B1 at
+`86651a58` and AGAIN at `82c9f059`, both times because
+`relocate-review-authority-floor-mirror` was rewriting the line IMMEDIATELY
+BELOW `SOURCE_REPOSITORY:`:
+
+* at **#817/#818** the single `FLOOR_IN_SOURCE:` became the two-entry ordered
+  `FLOOR_IN_SOURCE_CANDIDATES:` with a status-classifying fetch loop (M-1 step
+  (1), the migration window OPENED);
+* at **#829** that list returned to ONE entry at the successor path, with the
+  `candidate N of M` witness machinery (M-1 step (3), the window CLOSED).
+
+**The resolution rule was the same both times, and it is the rule this addendum
+recommends for the next collision: take the relocating lane's structure
+VERBATIM, and re-apply only this change's spelling inside it.** Nothing about
+the floor relocation was re-litigated in a rename slice — B1 contributes exactly
+`SOURCE_REPOSITORY: codeXfactory/codexFactory` to that block, and the relocated
+fetch loop reads the moved repository ONLY through `${SOURCE_REPOSITORY}`, so
+the whole loop and its refusal messages inherit the rename with no further edit.
+`docs/review-lane-repin-runbook.md` conflicted the same way at `82c9f059` and
+was resolved the same way.
+
+### 18.4 Occurrences `main` added while the slices sat, assigned by the published rule
+
+`git grep -o -i 'opensoft/codexFactory'`, `f03fd875` (the branch point) ->
+`7681e409`: **nine** new occurrences, in four places. None was left unassigned.
+
+| where | count | class, and the rule that says so | slice |
+| --- | ---: | --- | --- |
+| `README.md` — `relocate-review-authority-floor-mirror`'s OpenSpec Records entry, citing codexFactory #232 (twice) and #293 (twice) | 4 | **RENAME.** § 5 already ruled this exact shape four times over for the citations B4 respells at `:1001`, `:1002`, `:1113`, `:1115`: *"kept-current index citation; issue NUMBERS carry through a transfer"* | **B4**, respelled |
+| `docs/review-lane-repin-runbook.md:354` — #829's rewritten snapshot re-copy, `gh api "repos/opensoft/codexFactory/contents/${FLOOR}?ref=${CORE}"` | 1 | **RENAME.** A live operator command against the moved repository, in a machine-adjacent runbook B1 owns and already respells | **B1**, respelled |
+| `tests/review_lane_pin/test_review_lane_caller.py:90` — #830's comment naming where the `path_allowlist` glob authority lives | 1 | **RENAME.** A live pointer at the moved repository, four lines from the same file's `PINNED_REPOSITORY = "codeXfactory/codexFactory"` | **B1**, respelled |
+| `openspec/changes/relocate-review-authority-floor-mirror/{proposal.md, review/ratification-2026-09-08.md}` | 3 | **NOT SWEPT** — another lane's in-flight packet, and one of the two is a dated ratification record. § 7's published disposition, unchanged | none, by design |
+
+**#829's net effect on the total was ZERO** and that is worth stating so a
+future reader does not conclude nothing needed doing: the same commit deleted
+the runbook's old fetch line, so `git grep | wc -l` read 412 before and after
+while the occurrence that needed respelling was a different one.
+
+### 18.5 The arithmetic, re-closed at `7681e409`
+
+`git grep -o -i 'opensoft/codexFactory'` on `origin/main@7681e409`:
+**413 occurrences across 174 files**.
+
+| slice | respells | files |
+| --- | ---: | ---: |
+| **B1** (#801) — decision-core pin, workflows, operator tools | **42** | 15 |
+| **B2** (#802) — factory-origin identity re-issue, clearing examples | **37** | 15 |
+| **B3** (#805) — the eight contract-v3.4 inventoried members | **12** | 9 |
+| **B4** (#806) — remaining live documents and `README.md` | **30** | 15 |
+| **UNION** | **121** | **54** |
+
+**The four file sets are DISJOINT**, checked rather than asserted: 15 + 15 + 9 +
+15 = 54, and no file appears in two slices' respelling sets.
+
+Residual — of `main`'s own 413, what the four slices deliberately leave:
+
+| occurrences | files | disposition |
+| ---: | ---: | --- |
+| 44 | 34 | `contracts/signed-execution-chain/` — **FROZEN**, digest-pinned chain content; the *"cannot be respelled at all"* set |
+| 91 | 38 | `openspec/changes/` — **NOT SWEPT**, other lanes' in-flight packets |
+| 59 | 6 | `openspec/changes/adopt-codexfactory-repository-identity/` — **FROZEN**, this packet's own records (§ 11 self-reference) |
+| 55 | 17 | `specs/` — **FROZEN**, Speckit feature directories |
+| 19 | 13 | `ideation/` — **NOT SWEPT** |
+| 17 | 10 | `openspec/changes/archive/` — **FROZEN**, archived packets |
+| 3 | 1 | `README.md` — **FROZEN** per line (§ 5): the packet's own dated measurement, and the two completed-mint sentences |
+| 2 | 1 | `contracts/policies/repository-identity.yaml` — the `former:` mapping key, **NEVER SWEPT by design**; respelling it would delete the mapping |
+| 1 | 1 | `docs/decisions/0002-xfactory-aggregation-repo.md` — **FROZEN**, ADR record |
+| 1 | 1 | `docs/dogfood-content-migration-plan.md:49` — **FROZEN** line, B4's per-line verdict |
+| **292** | **122** | **TOTAL RESIDUAL** |
+
+**BOTH AXES CLOSE, and the closure is the check.** Occurrences: 121 + 292 = 413,
+`main`'s exact total. Files: 54 respelled + 122 residual − 2 MIXED = 174,
+`main`'s exact file count. The two mixed files are `README.md` (ten lines
+renamed, three frozen) and `docs/dogfood-content-migration-plan.md` (renamed
+lines plus one frozen). An arithmetic that closes on both axes is what tells you
+no occurrence was silently dropped between the slices.
+
+### 18.6 The twenty-two literals the slices ADD, and why they are not a regression
+
+Three of this packet's own record files carry MORE `opensoft/codexFactory`
+literals on the branches than on `main` — **+8** and **+7** in this evidence file
+(§ 17 on B1, § 16 on B2) and **+3** in
+`review/addendum-2026-09-08-token-namespace.md` (B1), plus **+4** in this
+addendum itself — **twenty-two**, counted from the diff rather than
+estimated. Every one is a QUOTATION inside a record of the change, which § 11
+already classifies as self-reference and freezes. Task 6.5's
+zero-residual check is a check over LIVE surfaces; a record that quotes the
+former identity in order to say what moved is not a live surface, and a sweep
+that respelled these would make each record claim it is about the identity it
+moves TO.
+
+### 18.7 Gates at this reconciliation
+
+Every branch was measured at its own head against `origin/main@7681e409`
+measured in a THROWAWAY WORKTREE at that commit — never against a remembered
+baseline.
+
+| check | B1 (#801) | B2 (#802) | B3 (#805) | B4 (#806) |
+| --- | --- | --- | --- | --- |
+| `pytest tests/review_lane_pin tests/clearing tests/credential_contracts -q` | 626 passed, 2 skipped, 48 subtests | 624 / 2 / 48 | 624 / 2 / 48 | 624 / 2 / 48 |
+| `openspec validate --all --strict` | 101 passed / 3 failed | same | same | same |
+| `validate-sequenced-after.py . --ledger-diff` | consistent, 189 rows | same | same | same |
+| doc-health `--single-repo .` critical+error | **IDENTICAL to `main`** | **IDENTICAL** | **+7, all `release-inventory-drift`** | **IDENTICAL** |
+| freeze check (`contracts/signed-execution-chain/`, `openspec/changes/archive/`, `specs/`, `docs/decisions/`, `ideation/`) | EMPTY | EMPTY | EMPTY | EMPTY |
+
+**`openspec validate --all --strict` now fails THREE, not one, and none of the
+three is ours.** § 15.6 recorded `100 passed, 1 failed` with
+`change/disposition-codexfactory-declared-renames` (§ 10) as the only failure.
+`main` has since gained two more, both measured at `7681e409` in the throwaway
+worktree: `change/pin-openspec-cli-dependency-closure` — its ADDED requirement
+*"A pinned artifact that resolves dependencies at install time carries a
+vendored lockfile…"* does not carry SHALL or MUST **on its first body line**,
+which is the parser's rule — and `spec/repo-boundary-governance`. **Recorded
+here rather than fixed here**: they belong to #813 and #828's lanes, and a
+rename slice must not edit another packet's requirement text to make a shared
+gate read green. The number to compare against on these four drafts is **3**,
+and any FOURTH failure is a real defect in the slice reporting it.
+
+**B3's seven ERRORs are the predicted transient, and the delta was measured by
+NAME, not by count**: `contracts/hermes-runtime/README.md`,
+`contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`, the three
+`fixtures/regression/` negatives, `docs/terminology-and-repo-topology.md` and
+`docs/xfactory-domain-factory-model.md`. With the pre-existing
+`docs/contract-versioning-policy.md` the family reports EIGHT — task **7.5**'s
+prediction — and the bundle cut (ceremony row 4) discharges all eight. No other
+family moves on any of the four branches, and nothing that stands on `main`
+disappears.
+
+### 18.8 What this addendum does NOT discharge
+
+* **Task 6.5 stays open.** It is a whole-corpus zero-residual check to be run
+  after the transfer and after all four slices land, and it is strictly last.
+  This addendum re-derives the arithmetic it will need; it does not perform it.
+* **Task 7.5's zero-findings row stays unticked** — only the cut can tick it.
+* **The `identity_namespace` question at
+  `contracts/review-lane-repin-binding.template.yaml:103` stays open**, awaiting
+  Brett Heap's word on the record in
+  `review/addendum-2026-09-08-token-namespace.md`. Nothing in this
+  reconciliation touched that line.
+* **One staleness in another lane's prose is REPORTED, NOT EDITED.**
+  `README.md`'s `relocate-review-authority-floor-mirror` Records entry still
+  describes the workflow constant as `FLOOR_IN_SOURCE` at `:138`; #818 renamed
+  it to `FLOOR_IN_SOURCE_CANDIDATES` and #829 moved its value again. It carries
+  no identity occurrence, so it is outside every slice's class, and a rename
+  slice correcting another lane's ratified narrative would be exactly the
+  boundary violation this packet's design forbids. Raised on codexFactory #279
+  for that lane.
