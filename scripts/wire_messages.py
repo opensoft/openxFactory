@@ -4,11 +4,11 @@ package.
 
 WHY THIS MODULE SITS AT THE TOP OF `scripts/` AND BELONGS TO NEITHER PACKAGE.
 It joins `output_boundary.py` (`split-opendox-two-layer-product` § 2.1 / design
-D2), the one neutral module in this tree, and it was created for the same
-reason that one was: a seam cannot be drawn through an import that crosses it
-in the forbidden direction. OQ-B B-1 creates a second, `path_slug.py`, for the
-same reason again — it is NOT in this tree, it is in flight on its own PR
-(#843), and this file does not depend on it either way. All three strings
+D2), and it was created for the same reason that one was: a seam cannot be
+drawn through an import that crosses it in the forbidden direction. OQ-B B-1
+creates another for the same reason again, `path_slug.py` (PR #843, a sibling
+of the PR that created this file); the two are independent, and this module
+neither imports it nor depends on whether it has landed. All three strings
 lived in `ideation_dashboard/serve_wire.py` — the shared wire vocabulary, an
 openDox module under design D3's three-column assignment — and
 `ideation_dashboard/serve_openxfactory_lanes.py`, which is openxFactory's own
