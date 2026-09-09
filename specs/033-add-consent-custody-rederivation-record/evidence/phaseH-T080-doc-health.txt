@@ -1,0 +1,56 @@
+T080 — THE doc-health TWO-REPORT COMPARISON. 2026-09-09.
+
+BOTH RUNS ARE MADE COMPARABLE BY CONSTRUCTION, not by inspection afterwards.
+  * IDENTICAL report basenames — `doc-health.md` in both — differing only in
+    their directory, so the report's own self-reference cannot appear as a diff
+    line and manufacture a finding difference that is really a filename one.
+  * IDENTICAL checkout-directory basenames — `openXFactory`-cased `openxFactory`
+    under `base/` and `head/` — for the same reason: a path fragment differing
+    between two runs is a filename difference wearing a finding's clothes.
+  * ONE PINNED `--as-of 2026-09-09` on both, so a clock rollover between the two
+    runs cannot move an aging-class finding. That failure has happened before
+    and is recorded at `specs/032`'s
+    `doc-health-diff-INTERIM-superseded-clock-rollover.txt`.
+
+THE TWO SHAS, BOTH NAMED, THE BASELINE RE-TAKEN AT THE COMMIT THIS BRANCH LAST
+MERGED FROM rather than at an older one:
+  BASE  587f21a0efe7d6dece70e2e44c5713926eee46f3   (`main`, the integration point)
+  HEAD  d54d89caf39193dee16ca06868510084ca510b9d   (the candidate)
+
+$ python3 scripts/doc-health.py --single-repo <dir>/openxFactory \
+      --as-of 2026-09-09 --report-out <dir>/doc-health.md
+  base rc=0     head rc=0
+
+  BASE  Findings: 10 critical, 7 error, 67 warning, 15 info.  New regressions vs previous report: 0.
+  HEAD  Findings: 10 critical, 6 error, 67 warning, 13 info.  New regressions vs previous report: 0.
+
+THE FINDING SETS ARE NOT IDENTICAL, AND THE DIFFERENCE IS ENTIRELY IN THE RIGHT
+DIRECTION. Measured over the diff rather than eyeballed: **ZERO findings are
+ADDED at any severity in any family** — `grep '^+' | grep 'severity='` returns
+nothing. THREE are REMOVED, all of them `release-inventory-drift`, and the cut
+is exactly what removes them:
+
+  [error] docs/contract-versioning-policy.md — bytes differ from the digest
+          'contract-v3.4' records
+  [info]  contracts/README.md   — same, editorial member
+  [info]  contracts/manifest.yaml — same, editorial member
+
+Those are the THREE registered rows the T060 measurement independently found had
+moved since `contract-v3.4` — the two families agree without being told to.
+Building `contract-v3.5.digests.yaml` at this tree is what closes them, which is
+the drift check working rather than being silenced: nothing was hand-edited to
+make the comparison pass, and the versioning policy names hand-editing an
+inventory or `contract_bundle_version` as the forbidden repair.
+
+THE CORPUS GROWTH WAS CHECKED FOR TRIPPING A FAMILY, because "expected, the
+corpus grew" is not a disposition. The new `examples/consent-instrument/withheld/`
+directory, the seventeen new fixtures and the new `tests/consent_instruments/`
+package trip **NO** `location-conformance`, `status-validity`,
+`lifecycle-header` or any other family: no finding names any of those paths at
+either severity in either report. The only headline movement is arithmetic —
+canon share 39.8% -> 39.7% on a governance-word denominator that grew by 1,716
+draft words (this feature's own evidence and README prose), with the canon
+numerator unchanged at 358,220.
+
+ARTEFACTS: `doc-health/base/doc-health.md`, `doc-health/head/doc-health.md`,
+`doc-health/doc-health-diff.txt`.

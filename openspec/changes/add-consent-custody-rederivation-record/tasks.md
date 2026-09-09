@@ -33,7 +33,7 @@ ratification, a human-only surface write, a tag.
 
 ## 0. Bookkeeping this branch already carries, and the one stamp that is provisional
 
-- [ ] 0.1 **RE-STAMP THE SWEEP LEDGER ROW WITH THE REAL PULL-REQUEST NUMBER.**
+- [x] **TICKED 2026-09-09.** 0.1 **RE-STAMP THE SWEEP LEDGER ROW WITH THE REAL PULL-REQUEST NUMBER.**
   `tests/sequenced_after/corpus-ledger.yaml` carries this change's row —
   `{state: active, class: co-modifier, declares: [add-consent-instrument],
   depth: 1}` — and the DERIVED keys are measured and correct
@@ -51,13 +51,13 @@ ratification, a human-only surface write, a tag.
 
 ## 1. Ratification — OWED, NOT GIVEN
 
-- [ ] 1.1 **[OPERATOR] Ratify or veto.** The F.1 ruling of 2026-09-07 ordered
+- [x] **TICKED 2026-09-09.** 1.1 **[OPERATOR] Ratify or veto.** The F.1 ruling of 2026-09-07 ordered
   this authoring and chose the repair FORM; it approved no field name, no enum
   member, no closure posture and no chain rule. Ratification is a separate act.
   Record it at `review/ratification-<date>.md` in the neighbours' form, flip
   `Status: draft` → `Status: ratified` on `proposal.md`, `design.md` and this
   file, and add the `Ratified:` line plus the README row's status flip.
-- [ ] 1.2 **[OPERATOR] The eleven veto points, ruled individually or as a
+- [x] **TICKED 2026-09-09.** 1.2 **[OPERATOR] The eleven veto points, ruled individually or as a
   block:** C-1 sibling not member; C-2 the name `custody_rederivations`; C-3
   ten fields all required; C-4 `diff_class` members; C-5 `reason` members;
   C-6 the chain rule, the path pair and the ancestry leg; C-6a declared locator
@@ -66,7 +66,7 @@ ratification, a human-only surface write, a tag.
   `contract_schema_version: 3`; C-9 a `content` class WITHHOLDS the verdict;
   C-10 a re-derivation is not an amendment. A veto on C-1, C-6, C-6a or C-7
   changes the delta; a veto on C-2, C-4 or C-5 changes only the schema text.
-- [ ] 1.3 **[OPERATOR] C-10 SUPERSEDES ONE CLAUSE OF YOUR OWN F.1 RULING and
+- [x] **TICKED 2026-09-09.** 1.3 **[OPERATOR] C-10 SUPERSEDES ONE CLAUSE OF YOUR OWN F.1 RULING and
   needs your word specifically.** The ruling says the three instruments take
   *"their `amendments` entries plus the structured block"*. C-10 writes the
   structured block and NO `amendments` entry, because an amendment is a status
@@ -75,6 +75,31 @@ ratification, a human-only surface write, a tag.
   instruments to `amended` to record that a repository moved a file underneath
   an unchanged pin. Keeping the `amendments` entry is yours to choose; the cost
   is that transition.
+
+**§ 0 AND § 1 EVIDENCE, 2026-09-09.** These four boxes record acts ALREADY
+PERFORMED before realization began; they are ticked here because the acts are
+done and cited, not because this session did them.
+
+- **0.1 — the re-stamp LANDED at `6cfe9ba6`.** The row now reads
+  `moved_by: "#774", moved_on: "2026-09-07"`, the real pull request rather than
+  the provisional `#757` another lane had taken.
+  `validate-sequenced-after.py . --ledger-diff`: *per-change sweep ledger
+  consistent with the corpus (**189 rows**)*, rc=0.
+- **1.1 — ratified, and the citation states what is MEASURED ABSENT.** The
+  record is `review/ratification-2026-09-08.md`; `Status: ratified` stands on
+  `proposal.md`, `design.md` and this file; the `Ratified:` line is
+  `proposal.md:10`; the README Records row is flipped. **There is NO approving
+  GitHub review on PR #774** (`research.md` R12) — so the ratification rests on
+  the in-repo record, on Brett Heap's OWN MERGE (`merged_by brettheap`,
+  `2026-09-08T03:48:44Z`, `543d47a9` over head `0d541576`) and on his
+  LANDING/LANDED comments, and the absence is named rather than papered over.
+- **1.2 — all eleven ruled, as a block.** The record's words, quoted exactly and
+  never more: *"Every other decision likewise stands as recommended; no veto was
+  exercised on any of the eleven."*
+- **1.3 — the operator veto was NOT exercised**, under the record's own heading
+  *"Task 1.3's operator veto was NOT exercised"*, so **the default stands**: no
+  `amendments` entry is written for a custody re-derivation, and the three
+  OpsxFactory instruments stay `status: executed`.
 
 ## 2. The schema edit
 
@@ -294,7 +319,7 @@ of a digest *"written back into custody.sha256"* and of leaving the pin
 
 ## 5. The contract cut
 
-- [ ] 5.1 **[OPERATOR-adjacent] CLAIM THE VERSION NUMBER on openxFactory issue
+- [ ] **NOT-OWED-HERE 2026-09-09 — the LANE's act, reported not performed.** 5.1 **[OPERATOR-adjacent] CLAIM THE VERSION NUMBER on openxFactory issue
   #630, row 4 (Contract cuts), AT CUT TIME AND NOT BEFORE.** Row 4's rule is
   *"Claim the **version number**, not the files"*, and `docs/contract-versioning-policy.md`
   § *Bundle Realization Order* step 1 allocates it at the final integration
@@ -355,16 +380,46 @@ and `.../phaseG-T061a-T061c-coupling.txt`.
   narrowed, nothing deprecated. The entry also records what the bundle does NOT
   do: the rule is declared and enforced nowhere, and no custody pin is repaired.
 
-- [ ] 5.4 Step 3: run every gate against that exact unchanged candidate —
+- [x] **TICKED 2026-09-09.** 5.4 Step 3: run every gate against that exact unchanged candidate —
   `release-tag-gate` (which evaluates any PR touching `contracts/manifest.yaml`
   or `contracts/releases/`), `pytest-suite`, `scripts/validate-manifest-digests.py`,
   `scripts/validate-contract-release.py`, `scripts/validate-consent-instruments.py`.
-- [ ] 5.5 Step 4: land the exact reviewed commit. If promotion creates a
+- [ ] **NOT-OWED-HERE 2026-09-09 — the LANE's act under `plan.md`'s landing contract.** 5.5 Step 4: land the exact reviewed commit. If promotion creates a
   different commit, that commit becomes the candidate and every gate reruns.
-- [ ] 5.6 **[OPERATOR]** Step 5: publish the annotated tag at the exact
+- [ ] **NOT-OWED-HERE 2026-09-09 — an [OPERATOR] act at the LANDED MERGE COMMIT.** 5.6 **[OPERATOR]** Step 5: publish the annotated tag at the exact
   published commit and verify it from an independently refreshed checkout. The
   gate records the tag as OWED and does not require it before step 4; the
   obligation is on whoever lands step 4.
+
+**§ 5.4 EVIDENCE, 2026-09-09.** All five gates were run against the EXACT
+UNCHANGED candidate `d54d89ca`, nothing edited between forming it and running
+them. Transcript:
+`specs/033-add-consent-custody-rederivation-record/evidence/phaseG-T064-gates.txt`.
+
+- **`release-tag-gate` — rc=0**, *"the release-tag obligation holds over the
+  merge tree d54d89caf: no error, no warning"*, run with an **EXPLICIT
+  `--base 587f21a0`**. The default resolves `--base` to the head's FIRST PARENT,
+  which on a branch that integrated by merging `main` INTO it is this branch's
+  own prior tip — it would diff the wrong tree and return a near-empty result
+  that LOOKS like a pass. `TAG OWED` is the expected state, not a finding: the
+  tag is step 5 and box 5.6's, at the landed merge commit.
+- **the full suite — 10662 passed, 36 skipped, 1 failed**, and that one failure
+  is PROVEN pre-existing by a baseline in a separate clone at pristine
+  `origin/main`. It resolves a pinned checkout that exists only in an
+  aggregation workspace layout. **Both cut-coupled tests pass at the candidate**
+  — `test_release_boundary.py` with its three edits, `test_clearing_manifest_rows.py`
+  with NONE.
+- **`validate-manifest-digests.py` — rc=0**, 189 per-file digests verify.
+- **`validate-contract-release.py verify-commit --commit d54d89ca` — rc=0**,
+  the inventory re-derived against the candidate itself rather than trusted.
+- **`validate-consent-instruments.py --strict` — rc=0**, 0 errors, 0 warnings,
+  0 withheld.
+- **doc-health, as a TWO-REPORT PAIR** with identical report and checkout
+  basenames and one pinned `--as-of`: **ZERO findings added at any severity in
+  any family**, and THREE `release-inventory-drift` findings REMOVED — the same
+  three registered rows the § 5.2 measurement independently found had moved.
+  The new `withheld/` bucket, the seventeen fixtures and the new test package
+  trip no family at all. Transcript: `.../evidence/phaseH-T080-doc-health.txt`.
 
 ## 6. The consumer handoff — [OpsxFactory]'s OWED ACT, not this change's
 
@@ -373,12 +428,12 @@ This change archives on ITS realization evidence (§§ 2–5 merged and green); 
 items below are OpsxFactory's, in OpsxFactory's own change, under OpsxFactory's
 own gates.
 
-- [ ] 6.1 `[OpsxFactory]` Advance `stack.yaml` `contract_ref` (today
+- [ ] **NOT-OWED 2026-09-09 — the CONSUMER's, in OpsxFactory's own change.** 6.1 `[OpsxFactory]` Advance `stack.yaml` `contract_ref` (today
   `724a2a4f…`) to the cut bundle's commit **in lockstep with the
   worker-enrollment-broker's runtime-shape validation** — the pin and the
   broker's declared shape move in one act, or the `pin_gap_misdeclared` guard
   fails the advance closed.
-- [ ] 6.2 `[OpsxFactory]` Write the THREE PRESCRIPTIONS set out verbatim in
+- [ ] **NOT-OWED 2026-09-09 — the CONSUMER's, in OpsxFactory's own change.** 6.2 `[OpsxFactory]` Write the THREE PRESCRIPTIONS set out verbatim in
   `design.md` § *The consumer handoff* — and **NO `amendments` entry** anywhere
   (design C-10). **They are NOT uniform**, and an earlier draft of this task
   wrongly prescribed one entry apiece with equal locators. Two of the three
@@ -399,18 +454,18 @@ own gates.
     HEAD = `7fc4bb21…`.
   Re-measure each digest at write time rather than copying these; they were
   taken at the OpsxFactory tree on 2026-09-07.
-- [ ] 6.2b `[OpsxFactory]` **DECLARE THE CUSTODY STORE MAPPING** that resolves
+- [ ] **NOT-OWED 2026-09-09 — the CONSUMER's, in OpsxFactory's own change.** 6.2b `[OpsxFactory]` **DECLARE THE CUSTODY STORE MAPPING** that resolves
   `opsx:<tenant>/<repo-relative path>`, which the ADDED requirement obliges of
   any repository holding instruments, and **operate the custody-digest check**
   that performs the re-derivation legs (the C-7 obligation; F.2's gate is where
   it lands).
-- [ ] 6.3 `[OpsxFactory]` Write NO entry for `57fd9fd2` on
+- [ ] **NOT-OWED 2026-09-09 — the CONSUMER's, in OpsxFactory's own change.** 6.3 `[OpsxFactory]` Write NO entry for `57fd9fd2` on
   `opsx-farheap-node-inventory-reader-consent.yaml`: its content pin is not
   broken. Its LOCATOR did move when `add-managed-service-mapping` archived
   (2026-08-26), so it is a candidate for a separate `archive_move` entry with a
   differing locator pair and an unchanged digest on both sides — the first real
   exercise of the path pair, and the consumer's call.
-- [ ] 6.4 `[OpsxFactory]` Discharge F.1 in the owed-findings register — **(archive
+- [ ] **NOT-OWED 2026-09-09 — the CONSUMER's, in OpsxFactory's own change.** 6.4 `[OpsxFactory]` Discharge F.1 in the owed-findings register — **(archive
   in flight; the live path until then is
   `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`)**
   — which archives 2026-09-07 to
@@ -419,15 +474,56 @@ own gates.
 
 ## 7. Named as owed elsewhere, and deliberately not taken here
 
-- [ ] 7.1 **F.2's custody-digest gate is NOT built here.** Ruled scope: *"every
+- [ ] **NOT-OWED 2026-09-09 — named as owed elsewhere, performed nowhere here.** 7.1 **F.2's custody-digest gate is NOT built here.** Ruled scope: *"every
   in-repo sha256 pointer to an in-repo target"*. Owner: OpsxFactory, its own
   change. This packet supplies only the consent-custody family's re-derivation
   rule, which that gate consumes.
-- [ ] 7.2 **F.3 is NOT settled here.** The *"both at once"* ruling asks for an
+- [ ] **NOT-OWED 2026-09-09 — named as owed elsewhere, performed nowhere here.** 7.2 **F.3 is NOT settled here.** The *"both at once"* ruling asks for an
   OpsxFactory change AND an openxFactory change amending the promoted
   `document-lifecycle` capability. This packet is neither and touches no
   `document-lifecycle` requirement.
-- [ ] 7.3 **No other content-address family is given a re-derivation record.**
+- [ ] **NOT-OWED 2026-09-09 — named as owed elsewhere, performed nowhere here.** 7.3 **No other content-address family is given a re-derivation record.**
   Whether plan-acceptance desired-state refs, evidence digests, fence baselines
   or contract pins want the same shape is a question F.2's inventory answers,
   not this one.
+
+---
+
+**NOTE, 2026-09-09 — WHAT LANDING THIS DECLARES, AND WHAT IT DOES NOT ARM.**
+Landing this realization **DECLARES** the consent family's re-derivation rule.
+Under `govern-archived-record-edits`' TRANSITION CLAUSE that matters: an edit of
+a consent pinned target converts from **REPORTED** to **REFUSED** for that
+family. **It converts ONCE F.2's GATE EXISTS, and that gate is § 7.1's —
+OpsxFactory's own.** Nothing here builds it, schedules it, or arms it, and no
+consequence of this note is takeable in this repository. It is recorded so that
+the conversion is a known consequence of landing rather than a surprise found
+later. The same note is carried in the realization evidence.
+
+**OWED FINDING, 2026-09-09 — THE IDENTICAL-LOCATORS `path_only` GAP. RECORDED,
+DELIBERATELY NOT CLOSED.**
+
+- **(a) The defect.** `diff_class: path_only` means *only the locator changed*.
+  An entry declaring it with `previous_locator == observed_locator` — and
+  therefore, by task 3.4c's leg, equal digests on both sides — records an event
+  that DID NOT OCCUR: nothing moved and nothing changed. Nothing in the schema,
+  in the validator as realized, or in the ratified delta refuses it.
+- **(b) The leg it would need, and why that leg is NEUTRAL.** A check that
+  `previous_locator != observed_locator` whenever `diff_class: path_only`.
+  **Design C-7's placement test puts it on THIS side of the line**: both
+  locators are fields of the record, so the contradiction is derivable from the
+  record's own bytes without opening a repository — the identical test that
+  placed `path_only` digest equality (task 3.4c) here rather than with the
+  consumer.
+- **(c) Its home.** F.2's custody-digest gate (§ 7.1, OpsxFactory's) or a
+  SUCCESSOR openxFactory change. **It is owed somewhere; it is not owed here** —
+  no ratified task names it, and this packet's rule is realize-what-was-ratified.
+  **DO NOT add the refusal leg under this change.**
+
+**BOX ACCOUNTING, 2026-09-09 — AND IT SUMS TO 46.**
+**35 TICKED** (0.1; 1.1–1.3; 2.1–2.5; 3.1–3.5 incl. 3.4b and 3.4c; 4.1–4.9 incl.
+4.1b, 4.1c, 4.3b, 4.3c, 4.8b, 4.8c, 4.8d; 5.2, 5.3, 5.4)
+**+ 3 NOT-OWED-HERE** (5.1 the lane claims the number, 5.5 the lane's landing
+bookkeeping, 5.6 the `[OPERATOR]` tag)
+**+ 8 NOT-OWED** (6.1, 6.2, 6.2b, 6.3, 6.4; 7.1, 7.2, 7.3)
+**= 46.** Every tick rides the same commit as its evidence, proven from history
+rather than asserted at `.../evidence/phaseH-T083-tick-audit.txt`.

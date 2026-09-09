@@ -19,6 +19,25 @@ included, so the default stands: no `amendments` entry is written and the three
 instruments stay `executed`.
 Lane: opsXfactory-1
 
+**REALIZATION NOTE, ADDED 2026-09-09 — ADDITIVE, CORRECTING ONE RATIFIED
+ENUMERATION THIS REALIZATION FALSIFIES. Nothing above is deleted or rewritten.**
+The paragraph above says *"every box in `tasks.md` stays unticked"*. That was
+TRUE OF THE RATIFICATION and is FALSE OF THE REALIZATION, which began
+2026-09-09 on branch `033-add-consent-custody-rederivation-record` under Speckit
+feature `specs/033-add-consent-custody-rederivation-record`, lane
+`opsXfactory-1`: **35 boxes are ticked, 3 carry NOT-OWED-HERE lines and 8 carry
+NOT-OWED lines — 46 in all**, each tick in the same commit as its evidence.
+**THE REST OF THAT PARAGRAPH IS NOT SUPERSEDED, and each clause is re-verified
+rather than assumed.** Schema bytes DID move and a contract version IS cut, so
+those two clauses fall with the box clause; but **no consumer file is edited** —
+that is § 6's act, § 6 is OpsxFactory's, and this realization writes no
+OpsxFactory file, so the three custody pins stay broken until the consumer acts.
+The eleven decisions still stand as recommended with no veto exercised, task
+1.3's included, so no `amendments` entry is written and the three instruments
+stay `executed`. **`design.md`, `.openspec.yaml` and the spec delta are
+UNTOUCHED by realization** — this note and `tasks.md` are the only
+post-ratification edits in the packet.
+
 Origin: OpsxFactory PR **#248** (merged `40aaa93b`), ruling comment
 [5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298)
 — Brett Heap, 2026-09-07T13:51Z, in session, first-hand to lane opsXfactory-1.

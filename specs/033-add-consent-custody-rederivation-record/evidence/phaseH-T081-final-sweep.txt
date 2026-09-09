@@ -1,0 +1,62 @@
+T081 — THE FINAL GATE SWEEP AT THE BRANCH HEAD. 2026-09-09.
+
+Run over the Phase H tree — the bookkeeping content of this commit — after the
+candidate `d54d89ca` and touching nothing under `contracts/`.
+
+THE PREMISE THAT MAKES THIS SWEEP NARROWER THAN T064's IS VERIFIED, NOT ASSUMED:
+$ git diff --name-only d54d89caf39193dee16ca06868510084ca510b9d -- contracts/
+(empty)
+So `validate-release-tag-gate.py` and `validate-contract-release.py
+verify-commit` are correctly OMITTED here: the certified tree under `contracts/`
+is still the candidate's, byte for byte. Had that command printed a path, the
+candidate would no longer be the certified tree and BOTH release gates would
+re-run in this sweep.
+
+$ python3 scripts/validate-openspec-cli-pin.py --change add-consent-custody-rederivation-record --strict
+OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address and every target validated --strict clean
+rc=0
+
+$ python3 scripts/validate-openspec-cli-pin.py --all --strict
+OK openspec-cli-pin: ... every target validated --strict with 0 UNDISPOSITIONED failures.
+THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
+rc=0
+  The two are PRE-EXISTING and are neither this feature's nor in a file it
+  touches: both are `add-composed-view-authoring` MODIFIED-block findings,
+  dispositioned and accepted by Brett Heap on 2026-09-05, verbatim "take exit
+  2". THIS IS NOT THE `pin-disposition-stale` THIRD OUTCOME — that would be
+  exit 2, an accepted exception whose finding no longer occurs; here the
+  findings still occur and their dispositions still apply, so rc=0.
+
+$ python3 scripts/validate-consent-instruments.py --strict
+validate-consent-instruments: 0 error(s), 0 warning(s), 0 withheld
+rc=0
+
+$ python3 scripts/validate-sequenced-after.py .
+archive-date agreement passed; archive-date-vs-commit agreement passed
+(12 disposition(s) in force)
+rc=0
+
+$ python3 scripts/validate-sequenced-after.py . --ledger-diff
+per-change sweep ledger consistent with the corpus (189 rows).
+rc=0
+
+$ python3 scripts/validate-scope-globs.py
+scope_globs validation passed (all active changes conform).
+rc=0
+
+$ python3 scripts/validate-manifest-digests.py
+OK contracts/manifest.yaml: 189 per-file digest(s) verify
+rc=0
+
+$ python3 -m pytest tests/ -q -m "not postgres"
+1 failed, 10662 passed, 36 skipped, 338 deselected, 9 warnings, 140 subtests passed in 1779.49s (0:29:39)
+rc=1
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+  The SAME single pre-existing failure as at the candidate, proven by baseline
+  in a separate clone at pristine `origin/main`
+  (`phaseE-baseline-preexisting-failures.txt`). Identical counts to the
+  candidate's run — 10662 passed, 36 skipped — so PHASE H'S BOOKKEEPING MOVED
+  NO TEST. In particular the doc-health report PAIR copied into
+  `evidence/doc-health/` trips no `status-validity`,
+  `location-conformance` or lifecycle-header family: a report filed as evidence
+  is evidence, and the suite agrees.
