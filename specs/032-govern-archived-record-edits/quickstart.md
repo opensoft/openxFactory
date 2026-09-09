@@ -6,6 +6,25 @@ Every claim in this feature is a command. Run them from the repository root of a
 checkout on the feature branch. `PIN` is the pinned CLI prefix
 (`<scratchpad>/cli-pin-prefix`); PATH's `openspec` is 1.2.0 and is never used.
 
+**ARCHIVE NOTE, DATED 2026-09-09 AND ADDED BY `archive-govern-archived-record-edits`
+(lane `opsXfactory-1`).** The packet archived on 2026-09-09 to
+`openspec/changes/archive/2026-09-09-govern-archived-record-edits/`. **THE
+COMMANDS BELOW ARE NOT REPOINTED, AND REPOINTING THEM WOULD BREAK THEM.** This
+file's own preamble says to run them "from the repository root of a checkout on
+the feature branch" — branch `032-govern-archived-record-edits`, where the packet
+sits at `openspec/changes/govern-archived-record-edits/` and where the archive
+path matches nothing. The recipes are correct for the tree they name. TO RE-RUN
+ANY OF THEM ON `main` AFTER THE ARCHIVE, substitute
+`openspec/changes/archive/2026-09-09-govern-archived-record-edits/` for
+`openspec/changes/govern-archived-record-edits/`; § 5's currency measurement in
+particular reads the delta and will raise `FileNotFoundError` without the
+substitution. § 5's expected result is unchanged by the move and was RE-RUN at
+the archive against base `46059b77`: **canon 5,815 characters, 0 canon lines
+removed**, identical to the figure recorded on 2026-09-08 — and that is the
+result AFTER `main` added a requirement to the same capability (`56e69a11`), so
+§ 3's finding-set comparison and § 5's block measurement must both be taken
+against the base the run actually used, never against a remembered one.
+
 ## 0. Where you are
 
 ```bash
