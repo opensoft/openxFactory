@@ -556,9 +556,13 @@ directly instead of inferred from an arithmetic identity.
 **(b) DECLARED MULTIPLICITY.** A row dispositioned
 `not_moved / replicated_at_destination` DECLARES the set of repositories its
 replica lands in, INCLUDING the retained `openxFactory` copy; its multiplicity
-`m` is that set's size. Multiplicity is declared IN THE ROW and never inferred at
-arrival: an undeclared replica set makes the check uncomputable, which is a
-refusal and not a pass. This is one obligation on FLOOR PART 1, carried at
+`m` is that set's size. **The set is NAMED, not left to be read off § 3.7: for
+this carve every one of the three test-carrying replicated rows declares the same
+three homes — `openxFactory` (retained), `opensoft/openDox-code` and
+`opensoft/openXdox-code` — so `m = 3` for each**, and that enumeration is the
+declaration until the manifest's row grammar carries the field. Multiplicity is
+declared IN THE ROW and never inferred at arrival: an undeclared replica set
+makes the check uncomputable, which is a refusal and not a pass. This is one obligation on FLOOR PART 1, carried at
 `tasks.md` § 5.4a as the input part 2 reads — the manifest edit lands in its own
 pull request, not in this amendment.
 

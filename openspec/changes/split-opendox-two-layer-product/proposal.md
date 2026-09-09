@@ -482,7 +482,9 @@ this change rather than a recommendation in it:
 2. **A source→destination TEST MAPPING WITH DECLARED MULTIPLICITY** — every
    source file carrying `def test_` has at least one post-split home named by its
    own manifest row; a replicated row declares the repository set its replica
-   lands in, and the sum check reads
+   lands in — for this carve all three test-carrying replicated rows declare the
+   same three homes, `openxFactory` (retained), `opensoft/openDox-code` and
+   `opensoft/openXdox-code`, so `m = 3` for each — and the sum check reads
    `Σ(destinations) = source_count + Σ (m − 1) × row_test_count` from the
    manifest. **AMENDED 2026-09-09 (RULING OQ-K).** This first read *"Test counts
    that must SUM across the three repositories — 3,927 `def test_` leave, 52% of

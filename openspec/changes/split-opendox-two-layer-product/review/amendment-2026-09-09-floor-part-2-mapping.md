@@ -224,6 +224,16 @@ Two currency notes, so a later reader is not surprised:
   measured on 2026-09-04 (`proposal.md` `code_surface:`, `design.md` § D2). They
   are removed only from the FLOOR's own TEST, which is the one place a stale
   scalar was load-bearing.
+- **`proposal.md`'s `Lane:` header.** Copilot's review of the amendment pull
+  request asked for it to be refreshed from `openxfactory-opendox` to the lane's
+  current name. DECLINED, and the reason is this packet's own prior amendment:
+  *"The `Ratified:` and `Lane:` lines are UNTOUCHED — the lane rename of 12:46Z
+  explicitly does not rewrite records"*
+  (`review/amendment-2026-09-05-repository-shape.md`, § What changed, file by
+  file). The header records the lane the packet was AUTHORED in; the amendment
+  records carry the current name in their own `Lane:` lines, which is where the
+  correlation belongs. Refreshing it would rewrite a ratified header to say
+  something that was not true when it was written.
 
 ## What changed, file by file
 

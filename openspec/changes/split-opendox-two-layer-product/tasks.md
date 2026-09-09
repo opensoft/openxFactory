@@ -893,7 +893,10 @@ the bookkeeping that ticks this group.
   a file with tests and no home is a LOST TEST and the carve REFUSES.
   **(b) DECLARED MULTIPLICITY** — each `not_moved / replicated_at_destination`
   row DECLARES the repository set its replica lands in, the retained
-  `openxFactory` copy included, and `m` is that set's size. This is one
+  `openxFactory` copy included, and `m` is that set's size. **For this carve the
+  declared set is, for all three test-carrying replicated rows, `openxFactory`
+  (retained) · `opensoft/openDox-code` · `opensoft/openXdox-code` — so `m = 3`**,
+  and it is written out here rather than left to be read off § 3.7. This is one
   obligation ON FLOOR PART 1 and it is the input this part reads: the row grammar
   of `docs/opendox-carve-manifest.yaml` gains the field in FLOOR PART 1's OWN
   successor pull request (the manifest is not this packet's file), and until it
@@ -931,8 +934,11 @@ the bookkeeping that ticks this group.
     declares) — THEN the carve REFUSES `test-home-missing`. A `deleted_at_carve`
     row carrying `def test_` is the same refusal under its own name: deleting
     tests is a decision to be RULED, never inferred from a disposition. Measured
-    at `carve_commit`: zero such rows, and `deleted_at_carve` carries zero
-    `def test_`. *(This is the intent the ratified text was reaching for — no
+    at `carve_commit`: **no row under the surface carries `def test_` and no
+    home** — each of the 146 test-carrying rows names a destination, a
+    `stays_openxfactory_*` reason or a replica set — and **no `deleted_at_carve`
+    row carries a single `def test_`**, so neither limb of this case fires today.
+    *(This is the intent the ratified text was reaching for — no
     test is lost — stated directly instead of inferred from an arithmetic
     identity.)*
   - **A SILENT DROP AT A DESTINATION.** WHEN a destination's collected
@@ -943,7 +949,9 @@ the bookkeeping that ticks this group.
   - **A REPLICATED FILE — the case the equality could not express (NEW, RULING
     OQ-K).** WHEN a row is `not_moved / replicated_at_destination` declaring
     MULTIPLICITY 3 and carrying 20 `def test_`
-    (`tests/corpus-adapter/test_conformance.py`), THEN those 20 are counted ONCE
+    (`tests/corpus-adapter/test_conformance.py`) — the declared homes being
+    `openxFactory` (retained), `opensoft/openDox-code` and
+    `opensoft/openXdox-code` — THEN those 20 are counted ONCE
     in `source_count` and THREE times across the homes, the excess is exactly
     `(3 − 1) × 20 = 40`, and the check **PASSES** — **AND** deleting a replica to
     make a raw equality hold is ITSELF a refusal, because § 3.7 requires every
