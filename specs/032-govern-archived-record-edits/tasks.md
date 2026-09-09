@@ -679,6 +679,25 @@ and actor for each of the 28 boxes.
       `gh` invocation this realization made is the read-only PR query in this
       line, which the task itself directs. Working tree clean at the stop.
 
+      **CORRECTED 2026-09-09 by `archive-govern-archived-record-edits` (lane
+      `opsXfactory-1`) — stale-but-TRUE-WHEN-WRITTEN text, quoted and never
+      rewritten in place.** The record above states:
+
+      > The change directory is still `openspec/changes/govern-archived-record-edits/`
+      > with NO entry under `openspec/changes/archive/`, so `openspec archive` was
+      > never run.
+
+      That was TRUE on 2026-09-08 and is FALSE NOW. `openspec archive` WAS run,
+      on 2026-09-09 through the pinned CLI 1.12.0, and the packet is at
+      `openspec/changes/archive/2026-09-09-govern-archived-record-edits/`.
+      **THE RECORD IS NOT WEAKENED BY THE CORRECTION AND IS THE STRONGER FOR
+      IT**: T033's claim was about what THE REALIZATION did, and the realization
+      still ran no archive — a SEPARATE act, in a separate change on a separate
+      branch, did, which is exactly the separation T033 exists to prove.
+      **EVERY OTHER SENTENCE OF THE RECORD STILL HOLDS UNQUALIFIED**, the
+      0-pull-requests query and the NOT-MERGED merge-base included, both being
+      statements about the realization branch at its own stop.
+
 - [x] T034 Copy the checklists' results and the final gate summary into the
       report for STOP (B), then STOP: no `gh`, no PR, no comment, no merge, no
       `openspec archive`. (FR-015)
