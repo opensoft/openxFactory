@@ -200,14 +200,30 @@ def _shell_function(source: str, name: str) -> str:
     assertion"; a harness that carried its OWN copy of the witness logic would
     pass forever while the workflow drifted. The bytes executed below are the
     bytes the runner executes, cut out of the workflow at test time.
+
+    A MISSING FUNCTION IS A NAMED FAILURE, NOT A `ValueError`. If the workflow
+    is edited so a function this harness executes no longer exists — or its
+    closing brace stops sitting at the definition's own indent — the test that
+    depends on it must say WHICH function it could not find, or the next reader
+    is left decoding a bare substring error from `str.index`.
     """
     marker = f"{name}() {{"
-    start = source.index(marker)
+    start = source.find(marker)
+    if start < 0:
+        raise AssertionError(
+            f"the delivery step defines no shell function {name!r}; the "
+            "harness executes the workflow's OWN bytes and there are none to "
+            "execute")
     line_start = source.rfind("\n", 0, start) + 1
     indent = source[line_start:start]
     end_marker = f"\n{indent}}}\n"
-    end = source.index(end_marker, start) + len(end_marker)
-    return textwrap.dedent(source[line_start:end])
+    end = source.find(end_marker, start)
+    if end < 0:
+        raise AssertionError(
+            f"the shell function {name!r} has no closing `}}` at its own "
+            f"indent ({len(indent)} spaces); the definition could not be cut "
+            "out of the workflow")
+    return textwrap.dedent(source[line_start:end + len(end_marker)])
 
 
 def _mutated_floor(original: bytes, *, added_path: str,

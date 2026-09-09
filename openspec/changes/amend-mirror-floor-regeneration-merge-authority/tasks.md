@@ -408,8 +408,12 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       validate … --strict` and `--all --strict` at the pinned CLI
       (`contracts/openspec-cli-pin.yaml`) with the failure set compared to main;
       `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff` clean.
-      **2026-09-09 — MEASURED ON BOTH SIDES, at `origin/main` `56e69a11` in a
-      SEPARATE CLONE (never in the authoring clone) and at this branch.**
+      **2026-09-09 — MEASURED ON BOTH SIDES, in a SEPARATE CLONE (never in the
+      authoring clone) and at this branch. THE TWO BASES ARE NAMED RATHER THAN
+      ASSUMED EQUAL:** the branch is cut from `origin/main` `56e69a11`; the
+      control clone resolved `main` a few minutes later and sits at `9fa79cfd`,
+      three commits further on. The difference is accounted for exactly below
+      rather than waved at.
 
       `python3 -m pytest tests/review_lane_pin -q -p no:randomly` → main **173
       passed, 2 skipped, 48 subtests**; branch **188 passed, 2 skipped, 48
@@ -425,11 +429,19 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       empty), as are the error and skip counts. The pre-existing failures are
       environmental — a local checkout resolves neither the openXwallet
       submodule nor the pinned-core sibling the way CI does — and are shown
-      unchanged rather than claimed. **DISCLOSED: that head-side run was
-      collected two cases before the last two were written**, which is why its
-      delta reads +13; a confirming re-run at the final head is recorded in the
-      realizing pull request's body, and the directory figures above are the
-      exact ones.
+      unchanged rather than claimed.
+
+      **THE +13 IS ACCOUNTED FOR EXACTLY, BY COLLECTION RATHER THAN BY
+      ARITHMETIC**, because two bases that are not the same commit cannot be
+      compared on a total alone. `pytest tests/ -m "not postgres"
+      --collect-only`, sorted and diffed: **16 ids only on this branch** — the
+      15 new cases plus the renamed one — and **3 ids only on the control** —
+      `test_the_lane_opens_a_pull_request_and_stops_there`, the name 3.2
+      renamed away, and two `tests/ideation-dashboard/test_serve_column_split.py`
+      cases that landed on `main` in `9fa79cfd`, AFTER this branch was cut.
+      16 − 3 = 13, and **no other id differs in either direction**. The
+      directory figures above are unaffected by that drift and are the exact
+      +15.
 
       `OPENSPEC_TELEMETRY=0 python3 scripts/validate-openspec-cli-pin.py --all`
       at the PINNED CLI (`@fission-ai/openspec@1.12.0`, content address

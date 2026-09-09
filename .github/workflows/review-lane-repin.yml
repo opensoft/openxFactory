@@ -614,10 +614,10 @@ jobs:
       # `enable-auto-merge`, `--method PUT`, `-X PUT`, `/reviews`,
       # `enablePullRequestAutoMerge` — and the raw-API merge endpoint are still
       # absent, `scripts/review_lane_repin.py` still names none of the ten, and
-      # `test_the_lane_opens_a_pull_request_and_stops_there` measures all of
-      # that BY EQUALITY rather than trusting this comment: the arming appears
-      # exactly twice, no `gh pr merge` occurrence lacks `--auto`, and a THIRD
-      # occurrence reds its own named control.
+      # `test_the_lane_opens_a_pull_request_arms_and_stops_there` measures all
+      # of that BY EQUALITY rather than trusting this comment: the arming
+      # appears exactly twice, no `gh pr merge` occurrence lacks `--auto`, and a
+      # THIRD occurrence reds its own named control.
       #
       # REQUIREMENT 7: "at most one automated pin advance pull request is open
       # at any time". The branch name is FIXED, and the delivery follows the
