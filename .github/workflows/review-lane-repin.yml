@@ -348,9 +348,18 @@ jobs:
             # refuse for a reason that is not true. So the HTTP status is
             # inspected: a 404 means genuinely absent and moves to the next
             # candidate; anything else ABORTS THE STEP, fail-closed.
+            # REDIRECT ORDER IS LOAD-BEARING AND IT IS `2>&1 >FILE`, NOT
+            # `>FILE 2>&1`. The latter points stderr at the FILE — the command
+            # substitution then captures nothing, `ERR` is empty, the 404
+            # classification below never matches, and EVERY miss aborts the
+            # step, which is the exact opposite of the intent and would break
+            # this lane on a genuine absence. It also leaves error text in the
+            # document the lane is about to treat as the floor. Written this way
+            # round, stderr is duplicated to the substitution BEFORE stdout is
+            # sent to the file, so `ERR` is the message and `${OUT}` is bytes.
             set +e
             ERR="$(gh api "repos/${SOURCE_REPOSITORY}/contents/${CANDIDATE}?ref=${BRANCH_SHA}" \
-                     -H "Accept: application/vnd.github.raw" > "${OUT}" 2>&1)"
+                     -H "Accept: application/vnd.github.raw" 2>&1 >"${OUT}")"
             RC=$?
             set -e
             if [ "${RC}" -eq 0 ]; then

@@ -1628,6 +1628,45 @@ class DualPathAcceptance(unittest.TestCase):
         self.assertEqual("noop", payload["action"])
         self.assertIn(EXPECTED_CANDIDATES[1], payload["reason"])
 
+    def test_an_undeclared_obtained_path_is_refused_and_never_echoed(self):
+        """The reported path is VALIDATED, not echoed.
+
+        It is written into the witness lines, the pull-request body and the
+        repeat commands a reviewer runs, so a mis-wiring would put a path this
+        lane never resolves in front of the one person checking it. The refusal
+        composes with M-7: the lane never searches beyond the declared list, so
+        a path outside it is a WIRING FAULT and not a relocation, and the
+        message says so rather than leaving a reader to infer it.
+        """
+        outcome = R.plan_advance(
+            current_core="a" * 40, source_default_branch="main",
+            candidate_commit="b" * 40, candidate_reachable=True,
+            reachability_evidence="ev", floor_bytes=_floor_document(3),
+            snapshot_bytes=_floor_document(2),
+            floor_source_path="scripts/merge_master/somewhere-else.yaml")
+        payload = outcome.as_dict()
+        self.assertEqual("refuse", payload["action"])
+        self.assertEqual("floor_source_path_undeclared", payload["stage"])
+        self.assertIn("scripts/merge_master/somewhere-else.yaml",
+                      payload["reason"],
+                      "the refusal must name the value it was handed")
+        for candidate in EXPECTED_CANDIDATES:
+            self.assertIn(candidate, payload["reason"],
+                          "the refusal must name the declared set")
+        self.assertIn("wiring fault", payload["reason"])
+
+        # AND IT DOES NOT FIRE ON THE HONEST CASES. A declared path advances,
+        # and an ABSENT value falls back to the path in force — the shape the
+        # workflow produces when it reports nothing.
+        for good in (*EXPECTED_CANDIDATES, None, ""):
+            ok = R.plan_advance(
+                current_core="a" * 40, source_default_branch="main",
+                candidate_commit="b" * 40, candidate_reachable=True,
+                reachability_evidence="ev", floor_bytes=_floor_document(3),
+                snapshot_bytes=_floor_document(2), floor_source_path=good)
+            self.assertEqual("advance", ok.as_dict()["action"],
+                             f"a declared or absent value must not refuse: {good!r}")
+
     def test_the_lane_never_searches_beyond_the_declared_list(self):
         """Scenario: The document is never discovered.
 
