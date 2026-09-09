@@ -111,7 +111,7 @@ rows:
   add-hermes-domain-overlay-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ideation-cross-reference-readiness: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ideation-dashboard: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-ideation-intent-plane: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-ideation-intent-plane: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#832", moved_on: "2026-09-09"}
   add-identity-brokering: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lens-document-selection: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lens-gate-verbs: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
