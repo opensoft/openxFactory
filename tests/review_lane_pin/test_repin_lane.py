@@ -226,6 +226,51 @@ def _shell_function(source: str, name: str) -> str:
     return textwrap.dedent(source[line_start:end + len(end_marker)])
 
 
+#: The shape of a shell-option declaration: `set -euo pipefail` and its
+#: neighbours. Anchored whole-line so a `set` used for anything else — setting
+#: positional parameters, say — is not mistaken for the step's options.
+SET_LINE_RE = re.compile(r"set -[A-Za-z]+(?: [A-Za-z][A-Za-z-]*)*")
+
+
+def _shell_options(source: str) -> str:
+    """The `set` line the step DECLARES, cut out of the shipped run block.
+
+    THE BYTES ARE ONLY THE SHIPPED BYTES IF THE CONDITIONS ARE TOO (Copilot on
+    openxFactory #844). The executed harnesses below cut the delivery step's
+    own functions out of the workflow and then ran them under a hard-coded
+    `set -uo pipefail`, while the step itself ships `set -euo pipefail`:
+    ERREXIT OFF. A function that would terminate the real step on an
+    unexpected non-zero command therefore ran to completion in the harness,
+    and the case passed on behaviour the runner would never produce — the
+    exact shape of the `ca9fafe6` lesson this file opens with, "controls must
+    MEASURE the same inputs as the shipped assertion", one layer out: the
+    same inputs AND the same conditions.
+
+    So the options are READ here for `_shell_function`'s reason, and the day
+    the step's own options change the harness changes with them rather than
+    keeping a stale copy that passes.
+
+    THE DECLARATION IS THE RUN BLOCK'S FIRST ACTIVE LINE, and this insists on
+    it: a `set` buried further down would be a different thing (a mid-script
+    relaxation), and reading it as the step's options would understate what
+    the runner enforces from the top.
+    """
+    for line in source.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if SET_LINE_RE.fullmatch(stripped):
+            return stripped
+        raise AssertionError(
+            "the run block's first active line is not a shell-option "
+            f"declaration but {stripped!r}; this harness runs the step's own "
+            "bytes under the step's own options and cannot read them")
+    raise AssertionError(
+        "the run block declares no shell options at all; this harness runs "
+        "the step's own bytes under the step's own options and there are "
+        "none to read")
+
+
 def _mutated_floor(original: bytes, *, added_path: str,
                    generated_at: str) -> bytes:
     """The authoritative document as it would read after ONE regeneration.
@@ -768,8 +813,18 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
     HEAD = "b" * 40
 
     def _execute(self, rc: int, output: str, *,
-                 view: str = "", view_fails: bool = False) -> tuple:
+                 view: str = "", view_fails: bool = False,
+                 mutate: tuple = None) -> tuple:
         """Run the delivery step's OWN witness functions against a stand-in `gh`.
+
+        UNDER THE STEP'S OWN SHELL OPTIONS, read by `_shell_options` rather
+        than restated here: the step ships `set -euo pipefail` and this
+        harness used to hard-code `set -uo pipefail`, so errexit — the option
+        that decides whether an unexpected non-zero TERMINATES the step — was
+        the one condition the harness did not reproduce. `mutate` is a
+        `(old, new)` substitution over the assembled script, and it is how
+        `test_the_harness_aborts_where_the_real_step_would` proves the option
+        really is in force in here.
 
         Returns `(completed_process, summary_text, gh_call_log)`.
         """
@@ -777,12 +832,18 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         armed_tail = next(line for line in run.splitlines()
                           if line.strip().startswith("ARMED_TAIL="))
         script = "\n".join((
-            "set -uo pipefail",
+            _shell_options(run),
             armed_tail.strip(),
             _shell_function(run, "command_safe"),
             _shell_function(run, "report_the_arming"),
             'report_the_arming "$1" "$2"',
         ))
+        if mutate is not None:
+            old, new = mutate
+            self.assertIn(old, script,
+                          "the mutation has nothing to undo; the control that "
+                          "uses it would be measuring nothing")
+            script = script.replace(old, new, 1)
         with tempfile.TemporaryDirectory() as raw:
             tmp = pathlib.Path(raw)
             bin_dir = tmp / "bin"
@@ -948,6 +1009,61 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         _, readable, _ = self._execute(0, "")
         self.assertNotIn("UNREADABLE", readable)
 
+    def test_the_harness_aborts_where_the_real_step_would(self) -> None:
+        """ANTI-VACUITY FOR THE SHELL OPTIONS THEMSELVES (Copilot on openxFactory #844).
+
+        THE HARNESS RAN THE SHIPPED BYTES UNDER OPTIONS THE RUNNER DOES NOT
+        USE. `set -uo pipefail` was hard-coded in `_execute` while the
+        delivery step ships `set -euo pipefail`, and the missing `-e` is not a
+        detail of style: it is the option that decides whether an unexpected
+        non-zero TERMINATES the step. Every case in this class could have
+        passed on a witness that aborted the real workflow half-way through.
+
+        `_shell_options` now READS the line off the step, and this is what
+        gives that read teeth rather than letting it merely happen. The
+        `|| true` guarding the shipped `gh pr view` is cut OUT of the
+        extracted function by name — a deliberately unguarded failing
+        command, and the ONLY guard cut, so the abort has one cause — and
+        the same refusing `gh` the case above uses is put behind it. Under the
+        step's real options the harness must DIE there: a non-zero status and
+        no witness on either surface. Under the old hard-coded options it
+        sailed past and emitted the UNREADABLE line, which is precisely the
+        blindness the finding named.
+        """
+        options = _shell_options(_step(DELIVERY_STEP_NAME)["run"])
+        self.assertIn(
+            "e", options.split()[1],
+            f"the delivery step declares {options!r} and no longer sets "
+            "errexit; this control and the harness it guards are measuring a "
+            "condition that is gone")
+
+        aborted, summary, called = self._execute(
+            0, "", view_fails=True,
+            mutate=("2>/dev/null || true)", "2>/dev/null)"))
+        self.assertNotEqual(
+            0, aborted.returncode,
+            "an unguarded failing command did NOT terminate the harness, so "
+            "the harness is not running under the step's errexit and every "
+            "case in this class is measuring a shell the runner never uses")
+        self.assertEqual("", summary)
+        self.assertEqual([], self._notices(aborted))
+        # AND IT DIED AT THAT COMMAND, not before it. A harness that aborted
+        # on its own scaffolding would satisfy the three assertions above
+        # while measuring nothing: the refusing `gh pr view` is reached, logs
+        # its one call, and the next line never runs.
+        self.assertEqual(
+            1, len(called.splitlines()),
+            f"the abort is not the mutated `gh pr view`; gh log was {called!r}")
+        self.assertTrue(called.startswith("pr view "), called)
+
+        # ...AND THE PAIRED POSITIVE (task 4.5): unmutated, the SAME refusing
+        # `gh` is a clean zero, because the shipped guard is there. So the
+        # abort above is the removed guard and not the harness dying of its
+        # own accord under an option it cannot survive at all.
+        survived, named, _ = self._execute(0, "", view_fails=True)
+        self.assertEqual(0, survived.returncode, survived.stderr)
+        self.assertIn("UNREADABLE", named)
+
     def test_the_notice_payload_cannot_forge_a_workflow_command(self) -> None:
         """Scenario: No mechanism can release the arming, and the lane says so.
 
@@ -984,7 +1100,7 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         """
         run = _step(DELIVERY_STEP_NAME)["run"]
         script = "\n".join((
-            "set -uo pipefail",
+            _shell_options(run),
             _shell_function(run, "command_safe"),
             'command_safe "$1"',
         ))
@@ -1177,6 +1293,14 @@ class TheOutcomeReportIsExecutedNotJustRead(unittest.TestCase):
             "jq is not on PATH; the reporting step needs it at run time and "
             "this control needs it to measure that step")
         run = _step(self.STEP)["run"] if script is None else script
+        # THE OPTIONS ARE THE STEP'S OWN HERE TOO (Copilot on openxFactory
+        # #844). Unlike the delivery harness above, this one executes the
+        # WHOLE run block, so the `set` line it runs under is the shipped line
+        # by construction — including the deliberate ABSENCE of errexit that
+        # is how this reporting step keeps its promise never to fail a run.
+        # Asserted rather than assumed, so an edit that starts assembling a
+        # script here cannot quietly substitute options of its own.
+        self.assertIn(_shell_options(_step(self.STEP)["run"]), run)
         with tempfile.TemporaryDirectory() as raw:
             tmp = pathlib.Path(raw)
             bin_dir = tmp / "bin"
