@@ -55,7 +55,7 @@ from ideation_dashboard.doxbench_model import (
     SERVER_MAX_INPUT_LIMIT_BYTES,
     SERVER_MAX_OUTPUT_LIMIT_BYTES,
 )
-from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
+from ideation_dashboard.doxbench_scope_types import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_telemetry import (
     OPERATION_CONTEXT_PACKET, PROVIDER_ROLE_RETRIEVAL, TurnUsage,
 )

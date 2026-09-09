@@ -1414,7 +1414,7 @@ Active changes:
   Task 6.1 of `add-openspec-cli-pin` is now ticked; 6.3 of the bump stays
   UNTICKED — MedxFactory, LedgerxFactory and AdxFactory are still unwired.
 
-- [prepare-openspec-1.12-readiness](openspec/changes/prepare-openspec-1.12-readiness/proposal.md)
+- [prepare-openspec-1-12-readiness](openspec/changes/prepare-openspec-1-12-readiness/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's in-session word
   *"start the 1.12 upgrade fixes"* — an ADMISSION TO THE QUEUE, not a
   ratification. **THE PIN IS NOT BUMPED AND IS NOT IN THIS DIFF.**
@@ -1460,7 +1460,7 @@ Active changes:
   while those two changes are active, `1.12.0 --strict` cannot read 0 here and
   `openspec archive` at 1.12.0 would refuse both; both findings vanish when the
   two archive. Evidence, with both BEFORE/AFTER totals verbatim:
-  `openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
+  `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
 
 - [split-opendox-two-layer-product](openspec/changes/split-opendox-two-layer-product/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,

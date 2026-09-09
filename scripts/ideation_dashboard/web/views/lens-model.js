@@ -1021,8 +1021,8 @@ export function savePlan(model, repository, name) {
 // The on-screen PLAN of "add as cluster": the same recipe-seeded manifest PLUS
 // the note that the human-seen cross-reference-queue proposal enters with a
 // pending_review disposition (T028 realized 2026-07-14; the tested engine
-// lens.add_as_cluster submits it via human_seen.py — this surface previews the
-// plan, the browser writes nothing).
+// lens_submission.add_as_cluster submits it via human_seen.py — this surface
+// previews the plan, the browser writes nothing).
 export function clusterPlan(model, repository, name) {
   const plan = savePlan(model, repository, name);
   plan.kind = "add-as-cluster";
