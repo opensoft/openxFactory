@@ -25,8 +25,18 @@ that pull request is the grant, for that class and nothing else. So this module
 no longer asserts that no approval exists; it asserts that the approval exists
 BEHIND EXACTLY ONE DOOR and that the door is this narrow. Specifically:
 
+THE DOOR WIDENED ONCE, ON EVIDENCE, AND THAT WIDENING IS ALSO PINNED. Approval
+run 34309524696 parked the real apply commit `e970dfec` on `path_allowlist`:
+the lane's own `derive_possibles.apply_disposition` had updated
+`ideation/cross-reference.yaml` alongside the two record trees, and that path
+was not enrolled. Brett Heap ruled D-10 (a) on #656, 2026-09-09: the register
+is the third surface the apply lane writes by construction — every applied
+disposition touches it — so it belongs inside the same autonomy, and nothing
+else does; the generic Markdown projection `ideation/cross-reference.md` stays
+refused because the apply lane never writes it.
+
   * the envelope declares EXACTLY ONE candidate, with that author, that head
-    ref, those two path prefixes, and `require_all_checks: true`;
+    ref, those three path entries, and `require_all_checks: true`;
   * the enrolled surface admits no `openspec/` path, so the refused class is
     not smuggled back in under a different name;
   * every approval-shaped step is gated on `steps.envelope.outputs.decision ==
@@ -59,11 +69,14 @@ TWO TIERS, following `tests/openxwallet_pin/test_verify_pin.py`:
 from __future__ import annotations
 
 import importlib.util
+import os
 import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
+import unittest.mock
 
 import yaml
 
@@ -72,6 +85,13 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github/workflows/merge-master-approval.yml"
 PIN = REPO_ROOT / "contracts/review-lane-pin.yaml"
 PIN_CLASS_SOURCE = REPO_ROOT / "scripts/doc_health/pin_class.py"
+# The pinned core's `path_allowlist` glob dialect, MIRRORED locally
+# (`add-structured-scope-substrate`) because the authority
+# (`opensoft/codexFactory` `scripts/merge_master/envelope.py`) lives in a
+# sibling submodule this repository does not vendor. `path_matches` is the
+# harness that lets a static suite evaluate a real changed-path set against a
+# candidate's allowlist without a live approval run.
+SCOPE_GLOBS_SOURCE = REPO_ROOT / "scripts/scope_globs.py"
 CODEOWNERS = REPO_ROOT / ".github/CODEOWNERS"
 
 # The check-run name a future ruleset would require, and the substring
@@ -106,7 +126,27 @@ ENROLLED_AUTHOR = "openxfactory[bot]"
 ENROLLED_HEAD_REF = "intents/rolling"
 ENROLLED_BASE_REF = "main"
 ENROLLED_PATHS = ["ideation/dashboard/intents/**",
-                  "ideation/dashboard/gate-records/**"]
+                  "ideation/dashboard/gate-records/**",
+                  "ideation/cross-reference.yaml"]
+
+# D-10 (a): the third surface, and its refused projection. Kept as literals,
+# same reasoning as ENROLLED_PATHS above.
+REGISTER_PATH = "ideation/cross-reference.yaml"
+REGISTER_PROJECTION_PATH = "ideation/cross-reference.md"
+
+# The exact three-file apply commit approval run 34309524696 parked on
+# (`e970dfec`) — the evidence the D-10 (a) ruling widened the allowlist to
+# admit. Restated as literals rather than executed against git history: this
+# module already ties the shipped envelope to a recorded ruling elsewhere, and
+# a `git show` dependency here would make the suite depend on this exact
+# commit staying reachable in every clone.
+E970DFEC_FILES = (
+    "ideation/cross-reference.yaml",
+    "ideation/dashboard/gate-records/pos-derived-governed-kill-switch-custody-"
+    "contract/dispose-possible-20260909T032339Z.gate-action.yaml",
+    "ideation/dashboard/intents/pos-derived-governed-kill-switch-custody-"
+    "contract/dispose-possible-20260909-032304-ae2da8fb79.gate-intent.yaml",
+)
 
 # THE ONE DOOR. The literal `if:` fragment every approval-shaped step must
 # carry. `steps.envelope.outputs.decision` is written by nothing but the pinned
@@ -178,6 +218,22 @@ def _load_pin_class():
     # field's annotation through `sys.modules[cls.__module__].__dict__`, so an
     # unregistered module raises `AttributeError: 'NoneType' object has no
     # attribute '__dict__'` on its first dataclass. Measured, not anticipated.
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_scope_globs():
+    """Load `scripts/scope_globs.py` by path — the pinned core's glob dialect,
+    mirrored locally, byte-for-behaviour (see `SCOPE_GLOBS_SOURCE` above and
+    `tests/scope_globs/test_dialect_lockstep.py`, which is what keeps the
+    mirror honest against the authority). Loaded the same way as
+    `_load_pin_class`: by path, under a private module name, so this module's
+    behaviour does not depend on collection order.
+    """
+    name = "_review_lane_scope_globs_probe"
+    spec = importlib.util.spec_from_file_location(name, SCOPE_GLOBS_SOURCE)
+    module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
@@ -556,10 +612,13 @@ class TheRealFiles(unittest.TestCase):
             "the admitted surface is the two record trees "
             "`scripts/ideation_dashboard/intent_apply_lane.py` actually writes "
             "(`DEFAULT_INTENTS_DIR` and `gate_console.DEFAULT_RECORDS_DIR`) "
-            "and nothing else. The lane commits with `git add -A`, so a "
-            "delivery that touches anything beyond them falls outside this "
-            "list and PARKS — which is what makes this a narrow first "
-            "candidate rather than a general grant.")
+            "PLUS the register `ideation/cross-reference.yaml` "
+            "(`doc_health.derive_possibles.apply_disposition` updates it on "
+            "every applied disposition — ruling D-10 (a), Brett Heap, "
+            "2026-09-09, on #656) and nothing else. The lane commits with "
+            "`git add -A`, so a delivery that touches anything beyond them "
+            "falls outside this list and PARKS — which is what makes this a "
+            "narrow first candidate rather than a general grant.")
         self.assertIs(
             candidate.get("require_all_checks"), True,
             "stated explicitly rather than left to the schema default: a "
@@ -619,6 +678,72 @@ class TheRealFiles(unittest.TestCase):
         self.assertNotIn(
             "**", [p.strip() for p in candidate.get("path_allowlist") or []],
             "a universal pattern is an allowlist that admits everything")
+
+    # ---- D-10 (a): THE REGISTER IS IN, ITS PROJECTION IS NOT --------------
+    #
+    # Approval run 34309524696 parked the real apply commit `e970dfec` on
+    # `path_allowlist` because the lane's own write to the register,
+    # `ideation/cross-reference.yaml`, was not enrolled. Brett Heap ruled
+    # D-10 (a) on #656, 2026-09-09: the register is a third surface the apply
+    # lane writes BY CONSTRUCTION (every applied disposition touches it), so
+    # it belongs inside the same autonomy the two record trees already have.
+    # These tests use the pinned core's own mirrored glob dialect
+    # (`scripts/scope_globs.py:path_matches`) to EVALUATE the allowlist against
+    # real paths, rather than merely asserting the literal list — the harness
+    # `add-structured-scope-substrate` already gives this repository.
+
+    def test_the_register_is_admitted_and_its_projection_is_not(self) -> None:
+        """The register the apply lane writes is IN; its generated Markdown
+        projection is NOT — the apply lane never writes that file
+        (`scripts/render-ideation-cross-reference.py` produces it separately,
+        by a distinct, human-run lane), so admitting it would widen the grant
+        past what the apply lane's own code does.
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        self.assertTrue(
+            sg.path_matches(REGISTER_PATH, patterns),
+            "the register `derive_possibles.apply_disposition` updates on "
+            "every applied disposition must be inside the allowlist (ruling "
+            "D-10 a)")
+        self.assertFalse(
+            sg.path_matches(REGISTER_PROJECTION_PATH, patterns),
+            "the generated Markdown projection is not a lane write, and "
+            "admitting it would widen the grant past what the apply lane's "
+            "own code does")
+
+    def test_the_real_e970dfec_file_set_evaluates_admitted(self) -> None:
+        """The exact commit approval run 34309524696 parked on now evaluates
+        admitted — every changed path in it matches at least one allowlist
+        glob, which is the pinned core's `path_allowlist` condition
+        (`extend-merge-master-envelope-to-floor-bot-lanes/design.md` row 2:
+        "every changed path inside it; no changed paths at all parks").
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        unmatched = [path for path in E970DFEC_FILES
+                    if not sg.path_matches(path, patterns)]
+        self.assertEqual(
+            unmatched, [],
+            "the real e970dfec apply commit must evaluate fully admitted "
+            "now; unmatched: %r" % unmatched)
+
+    def test_the_same_set_plus_the_projection_still_parks(self) -> None:
+        """The same real file set, with the generated `.md` projection added
+        as if the lane had also touched it, must still evaluate NOT admitted —
+        the projection is refused ground even alongside an otherwise-admitted
+        delivery.
+        """
+        sg = _load_scope_globs()
+        candidate = sole_candidate(envelope_document())
+        patterns = candidate.get("path_allowlist") or []
+        widened = E970DFEC_FILES + (REGISTER_PROJECTION_PATH,)
+        self.assertFalse(
+            all(sg.path_matches(path, patterns) for path in widened),
+            "adding the generated Markdown projection to the change set must "
+            "still park — the apply lane never writes it")
 
     def test_the_envelope_records_the_grant_and_the_standing_refusal(self) -> None:
         """A grant a reader cannot find is a grant nobody can audit."""
@@ -1010,6 +1135,204 @@ class TheRealFiles(unittest.TestCase):
     def test_the_caller_workflow_directory_is_already_code_owned(self) -> None:
         owners = CODEOWNERS.read_text(encoding="utf-8")
         self.assertRegex(owners, r"(?m)^\.github/workflows/\s+@\S+")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# THE GOVERNANCE DIRECTORIES OF THE PINNED CORE
+#
+# ONE CONSUMER THE RELOCATION PACKET'S ENUMERATION MISSED, because it finds the
+# floor document BY SWEEPING A DIRECTORY rather than by file name — so no search
+# for the old path could have surfaced it. Step 8 of this caller (`Evaluate the
+# openxFactory repository gate floor`) loads every governance document in the
+# pinned core checkout and then picks out the one declaring THIS repository.
+# codexFactory moved that document to `floor/` (`relocate-review-authority-floor`,
+# its PR #297 -> `8165d1f3`); at any core commit after the move,
+# `scripts/merge_master/` holds the two clearance rules and NO floor, so this
+# step would have refused `no_floor` and PARKED every openxFactory merge-master
+# evaluation on the first pin advance past the relocation. Fail-closed, never a
+# silent approve — but a full park, and a park nobody would connect to another
+# repository's tidy-up.
+#
+# `relocate-review-authority-floor-mirror` M-1 step (3) therefore reads BOTH
+# directories, tolerating the absence of `floor/` at pins older than the move —
+# and the pin IS older: `4b12ba83`, where `floor/` is `HTTP 404` (measured
+# 2026-09-09).
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: The two directories, restated as LITERALS for this module's standing reason:
+#: a value read from the file under test makes the check a tautology. Order is
+#: part of the declaration — the document search takes the first match, and the
+#: loader has already refused a second floor for one repository.
+EXPECTED_GOVERNANCE_DIRS = (".merge-master-core/scripts/merge_master",
+                            ".merge-master-core/floor")
+
+#: The self-contained block inside step 8's embedded Python that decides WHICH
+#: declared directories this checkout actually has. Extracted and EXECUTED by
+#: the cases below, so the tolerance is proven over the shipped bytes rather
+#: than over a paraphrase of them.
+SELECTION_START = "# ---- GOVERNANCE DIRECTORY SELECTION (extracted verbatim) -"
+SELECTION_END = "# ---- END GOVERNANCE DIRECTORY SELECTION -"
+
+
+def floor_step(document: dict) -> dict:
+    for job in (document.get("jobs") or {}).values():
+        for step in (job or {}).get("steps") or []:
+            if (step or {}).get("id") == "floor":
+                return step
+    raise AssertionError("the caller has no `floor` evaluation step")
+
+
+def selection_source(script: str) -> str:
+    """The marked block, dedented, ready to `exec`.
+
+    Raises rather than returning an empty string: a check that silently runs
+    nothing is the failure mode this whole module exists to refuse.
+    """
+    lines = script.splitlines()
+    start = end = None
+    for index, line in enumerate(lines):
+        if SELECTION_START in line:
+            start = index + 1
+        elif SELECTION_END in line:
+            end = index
+    if start is None or end is None or end <= start:
+        raise AssertionError(
+            "step 8 no longer carries the marked governance-directory "
+            "selection block; the cases that execute it would check nothing")
+    body = [line for line in lines[start:end]]
+    indent = min(len(line) - len(line.lstrip())
+                 for line in body if line.strip())
+    source = "\n".join(line[indent:] if line.strip() else "" for line in body)
+    if "os.path.isdir" not in source:
+        raise AssertionError(
+            "the extracted selection block no longer tests for a directory's "
+            "presence; the tolerance it is asked to prove is not in it")
+    return source
+
+
+class TheGovernanceDirectoriesOfThePinnedCore(unittest.TestCase):
+    """Tier 1 for the directory sweep, part static and part executed."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.document = caller_document(CALLER.read_text(encoding="utf-8"))
+        cls.step = floor_step(cls.document)
+        cls.script = cls.step["run"]
+        cls.python = cls.script.split("<<'PY'", 1)[-1]
+
+    def select(self, root: pathlib.Path, layout: dict) -> list:
+        """Run the SHIPPED selection block over a fabricated checkout."""
+        declared = []
+        for relative, names in layout.items():
+            directory = root / relative
+            directory.mkdir(parents=True, exist_ok=True)
+            for name in names:
+                (directory / name).write_text("kind: probe\n", encoding="utf-8")
+        for relative in (".merge-master-core/scripts/merge_master",
+                         ".merge-master-core/floor"):
+            declared.append(str(root / relative))
+        namespace = {"os": os}
+        environment = dict(os.environ)
+        environment["GOVERNANCE_DIRS"] = "\n".join(declared) + "\n"
+        with unittest.mock.patch.dict(os.environ, environment, clear=True):
+            exec(selection_source(self.script), namespace)  # noqa: S102
+        return [pathlib.Path(item).relative_to(root).as_posix()
+                for item in namespace["governance_dirs"]]
+
+    def test_the_step_declares_both_directories_and_no_singular_one(self) -> None:
+        declared = tuple(line.strip() for line
+                         in (self.step.get("env") or {})
+                         .get("GOVERNANCE_DIRS", "").splitlines()
+                         if line.strip())
+        self.assertEqual(
+            EXPECTED_GOVERNANCE_DIRS, declared,
+            "step 8 must declare BOTH governance directories of the pinned "
+            "core, in this order: the floor moved to `floor/` in codexFactory "
+            "#297 and the pin still predates the move")
+        self.assertNotIn(
+            "GOVERNANCE_DIR:", self.script,
+            "a leftover singular declaration would be read by nothing and "
+            "would tell the next reader the sweep is over one directory")
+        self.assertNotIn(
+            "GOVERNANCE_DIR\"]", self.python,
+            "the embedded script still reads the singular environment name")
+
+    def test_a_pre_relocation_checkout_evaluates_without_the_new_directory(self) -> None:
+        """THE TOLERANCE, over the layout this repository is pinned to.
+
+        `4b12ba83` has no `floor/` at all. The selection must take the one
+        directory that exists rather than handing the core's loader a path that
+        is not there — `load_governance_paths` treats a non-directory as a FILE
+        and would raise `FileNotFoundError`, which no `except
+        GovernanceDocumentError` catches, so the step would die with a
+        traceback instead of evaluating.
+        """
+        with tempfile.TemporaryDirectory() as raw:
+            root = pathlib.Path(raw)
+            selected = self.select(root, {
+                ".merge-master-core/scripts/merge_master": (
+                    "openxfactory-review-authority-floor.yaml",
+                    "codexfactory-routine-code-clearance.yaml")})
+        self.assertEqual([".merge-master-core/scripts/merge_master"], selected)
+
+    def test_a_post_relocation_checkout_finds_the_relocated_directory(self) -> None:
+        """THE NEGATIVE CONTROL: the floor ONLY under `floor/`.
+
+        This is every core commit after `8165d1f3`, and it is what the next pin
+        advance will check out. Without this the sweep finds two clearance
+        rules, no floor, and parks the lane.
+        """
+        with tempfile.TemporaryDirectory() as raw:
+            root = pathlib.Path(raw)
+            selected = self.select(root, {
+                ".merge-master-core/scripts/merge_master": (
+                    "codexfactory-routine-code-clearance.yaml",
+                    "nightly-sweep-council-clearance.yaml"),
+                ".merge-master-core/floor": (
+                    "openxfactory-review-authority-floor.yaml",)})
+        self.assertEqual([".merge-master-core/scripts/merge_master",
+                          ".merge-master-core/floor"], selected,
+                         "both directories must be swept, in declared order")
+
+    def test_a_directory_without_a_yaml_document_is_not_swept(self) -> None:
+        """The core's loader REFUSES a directory holding no YAML.
+
+        Handing it one would turn a directory that is not a governance
+        directory at this pin into a `governance_load` refusal — the same park,
+        for a reason that is not true.
+        """
+        with tempfile.TemporaryDirectory() as raw:
+            root = pathlib.Path(raw)
+            (root / ".merge-master-core/floor").mkdir(parents=True)
+            (root / ".merge-master-core/floor/README.md").write_text(
+                "not a governance document\n", encoding="utf-8")
+            selected = self.select(root, {
+                ".merge-master-core/scripts/merge_master": (
+                    "openxfactory-review-authority-floor.yaml",)})
+        self.assertEqual([".merge-master-core/scripts/merge_master"], selected)
+
+    def test_no_governance_directory_at_all_is_refused_not_evaluated(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = pathlib.Path(raw)
+            (root / ".merge-master-core").mkdir()
+            selected = self.select(root, {})
+        self.assertEqual([], selected)
+        self.assertIn(
+            "if not governance_dirs:", self.python,
+            "an empty selection must REFUSE; an empty list handed to the "
+            "loader would find no floor and report it as the repository's "
+            "absence rather than the checkout's")
+        self.assertIn('refuse("governance_load"', self.python)
+
+    def test_the_loader_and_the_document_search_span_every_selected_directory(self) -> None:
+        """The selection is only worth what the two readers below do with it."""
+        self.assertIn("load_governance_paths(governance_dirs)", self.python,
+                      "the core's loader must be given the whole selection")
+        self.assertNotIn("load_governance_paths([governance_dir])", self.python)
+        self.assertIn("for directory in governance_dirs:", self.python,
+                      "the document search must span every selected directory, "
+                      "or a floor found by the loader in `floor/` is then "
+                      "looked for in `scripts/merge_master/` alone")
 
 
 class NegativeControls(unittest.TestCase):

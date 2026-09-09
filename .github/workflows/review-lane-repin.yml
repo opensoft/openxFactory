@@ -135,29 +135,47 @@ jobs:
 
     env:
       SOURCE_REPOSITORY: opensoft/codexFactory
-      # THE ORDERED CANDIDATE LIST, PATH IN FORCE FIRST, FIRST-OBTAINED-WINS.
-      # Realizes M-1 step (1) of `relocate-review-authority-floor-mirror`
-      # (ratified 2026-09-08, PR #817): codexFactory is relocating this document
-      # off every CODEOWNERS prefix (codexFactory #293), and a two-repository
-      # move cannot be atomic — if codexFactory moved first, every firing of
-      # this lane would refuse `floor_document_unobtainable`.
+      # THE DECLARED CANDIDATE LIST — ONE ENTRY AGAIN, FIRST-OBTAINED-WINS.
+      # M-1 STEP (3) of `relocate-review-authority-floor-mirror` (ratified
+      # 2026-09-08, PR #817): THE MIGRATION WINDOW IS CLOSED. Step (1) opened it
+      # (PR #823, `5c782f29`) by appending the successor below the path in
+      # force; codexFactory's move landed at its PR #297, merge commit
+      # `8165d1f3`; run 34311220954 (2026-09-09T04:30Z) obtained the document at
+      # the successor and reported step (3) as owed. This is that step.
       #
-      # OLD FIRST IS THE SAFETY ARGUMENT (M-2), not a formatting choice: until
-      # the document actually moves, candidate one always resolves and this lane
-      # behaves EXACTLY as it did with a single path, so landing this ahead of
-      # another repository's change is an observable no-op.
+      # WHY IT RETURNS TO ONE ENTRY rather than keeping the pair for comfort:
+      # two standing homes would mean the lane no longer knows where the
+      # document lives, and a file reappearing at the abandoned path — by a
+      # revert, a bad cherry-pick, or an author who did not read the relocation
+      # — would be taken as authoritative and byte-copied into this
+      # repository's witnessed snapshot. The list is a MIGRATION WINDOW opened
+      # by a named governed relocation, not a feature.
       #
-      # THIS LIST IS DUPLICATED, DELIBERATELY, in
-      # `scripts/review_lane_repin.py`'s `FLOOR_IN_SOURCE_CANDIDATES` and in the
-      # `tests/review_lane_pin/` literals — "a value read from the artifact it
-      # is used to check makes the check a tautology". The duplication is held
-      # honest by an assertion that every declaration carries the SAME ordered
-      # list, not by anyone remembering.
+      # THE LIST FORM AND ITS LOOP STAY, and that is the requirement rather than
+      # a leftover: the ratified requirement resolves the document through an
+      # ORDERED list, refuses only when EVERY candidate fails naming each one
+      # tried, and makes a firing that resolves anything but the FIRST entry SAY
+      # SO. With one entry that last branch cannot fire; it is the machinery the
+      # NEXT governed relocation opens with an env edit, and deleting it would
+      # make that relocation a rewrite of this step instead.
       #
-      # IT RETURNS TO ONE ENTRY at M-1 step (3), once one advance has been
-      # observed against the successor. The lane never SEARCHES beyond it (M-7).
+      # STILL DUPLICATED, DELIBERATELY, in `scripts/review_lane_repin.py`'s
+      # `FLOOR_IN_SOURCE_CANDIDATES` — "a value read from the artifact it is
+      # used to check makes the check a tautology" — and held honest by an
+      # assertion that every declaration carries the SAME ordered list, not by
+      # anyone remembering.
+      #
+      # NOT THE SAME THING AS WHAT THE PIN NAMES, and this is the one subtlety
+      # step (3) left behind: `contracts/review-lane-pin.yaml` describes the
+      # document at `core_commit`, which is still the PRE-relocation
+      # `4b12ba83` — the successor path 404s there (measured 2026-09-09) — so
+      # the pin and the two single-path test declarations still name the old
+      # path, and move on the first advance that carries `core_commit` past the
+      # relocation. This list names where the document is at the commit the lane
+      # FETCHES, which is codexFactory's default branch head.
+      #
+      # THE LANE NEVER SEARCHES BEYOND IT (M-7).
       FLOOR_IN_SOURCE_CANDIDATES: |
-        scripts/merge_master/openxfactory-review-authority-floor.yaml
         floor/openxfactory-review-authority-floor.yaml
       BOT_BRANCH: bot/review-lane-repin
       BINDING: contracts/review-lane-repin-binding.template.yaml
@@ -329,7 +347,20 @@ jobs:
           OUT="${RUNNER_TEMP}/floor-at-source.yaml"
           FIRST=""
           OBTAINED=""
+          OBTAINED_INDEX=0
+          INDEX=0
           TRIED=""
+          # HOW MANY CANDIDATES ARE DECLARED, counted from the same env value
+          # the resolution loop reads, so the witness can say "candidate N of M"
+          # and a reader of the run learns whether a migration window is OPEN
+          # (M above one) without opening the workflow. Its own pass, because
+          # the loop below STOPS at the first hit and would never reach the
+          # entries past it.
+          TOTAL=0
+          while IFS= read -r CANDIDATE; do
+            [ -n "${CANDIDATE}" ] || continue
+            TOTAL=$((TOTAL + 1))
+          done <<< "${FLOOR_IN_SOURCE_CANDIDATES}"
           # FIRST-OBTAINED-WINS over the declared list, IN ORDER. Each miss is
           # recorded so a refusal names the whole set that was tried, and the
           # loop stops at the first hit — it never keeps looking for a "better"
@@ -337,6 +368,7 @@ jobs:
           # is not entitled to arbitrate.
           while IFS= read -r CANDIDATE; do
             [ -n "${CANDIDATE}" ] || continue
+            INDEX=$((INDEX + 1))
             [ -n "${FIRST}" ] || FIRST="${CANDIDATE}"
             TRIED="${TRIED:+${TRIED}, }${CANDIDATE}"
             # ABSENCE IS THE ONLY THING THAT ADVANCES THE LOOP. An `if` around
@@ -364,6 +396,7 @@ jobs:
             set -e
             if [ "${RC}" -eq 0 ]; then
               OBTAINED="${CANDIDATE}"
+              OBTAINED_INDEX="${INDEX}"
               break
             fi
             if printf '%s' "${ERR}" | grep -qiE '(HTTP 404|Not Found)'; then
@@ -375,15 +408,16 @@ jobs:
 
           if [ -n "${OBTAINED}" ]; then
             echo "path=${OUT}" >> "$GITHUB_OUTPUT"
-            echo "source_path=${OBTAINED}" >> "$GITHUB_OUTPUT"
-            # THE WITNESS LINE. It names WHICH declared path answered, and says
-            # in words whether that is the path in force or a migration in
-            # progress — so a reader of the run learns the state of a
-            # two-repository move without opening either diff.
+            # THE WITNESS LINE. It names WHICH declared path answered and HOW
+            # MANY were declared, and says in words whether that is the path in
+            # force or a migration in progress — so a reader of the run learns
+            # the state of a two-repository move without opening either diff.
+            # "candidate 1 of 1" is the settled state M-1 step (3) restored;
+            # "candidate 1 of 2" or more would mean a window is open again.
             if [ "${OBTAINED}" = "${FIRST}" ]; then
-              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — candidate 1 of the declared list, the path in force; no migration in progress"
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — candidate ${OBTAINED_INDEX} of ${TOTAL} in the declared list, the path in force; no migration in progress"
             else
-              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — NOT the first declared candidate: ${FIRST} did not resolve, so the relocation ruled by relocate-review-authority-floor has landed in codexFactory and M-1 step (3) is now owed here"
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — candidate ${OBTAINED_INDEX} of ${TOTAL}, NOT the first declared candidate: ${FIRST} did not resolve, so a governed relocation has landed in codexFactory and this repository owes the step that returns the list to one entry"
             fi
             echo "${WITNESS}"
             echo "${WITNESS}" >> "$GITHUB_STEP_SUMMARY"
@@ -393,7 +427,6 @@ jobs:
             # ONLY when no declared candidate resolved.
             rm -f "${OUT}"
             echo "path=" >> "$GITHUB_OUTPUT"
-            echo "source_path=" >> "$GITHUB_OUTPUT"
             echo "::warning title=review-lane-repin::no declared candidate resolved at ${BRANCH_SHA} (tried: ${TRIED}); the lane will refuse."
           fi
 
@@ -416,7 +449,6 @@ jobs:
           REACHABLE: ${{ steps.source.outputs.reachable }}
           EVIDENCE: ${{ steps.source.outputs.evidence }}
           FLOOR_PATH: ${{ steps.floor.outputs.path }}
-          FLOOR_SOURCE_PATH: ${{ steps.floor.outputs.source_path }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -427,7 +459,6 @@ jobs:
             --candidate-reachable "${REACHABLE}" \
             --reachability-evidence "${EVIDENCE}" \
             --floor-document "${FLOOR_PATH}" \
-            --floor-source-path "${FLOOR_SOURCE_PATH}" \
             --run-url "${RUN_URL}" \
             --plan-out "${RUNNER_TEMP}/plan.json" \
             --body-out "${RUNNER_TEMP}/pr-body.md" \
