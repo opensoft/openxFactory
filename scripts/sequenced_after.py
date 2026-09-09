@@ -1605,6 +1605,19 @@ def archive_date_problems(
 # "rule 1 + 2a on 812, this lane authors it": MEASURE the disagreement, and
 # DISPOSITION the known cases IN PLACE rather than renaming a directory other
 # records cite.
+#
+# THE ARM CANNOT SAY WHY A NAME AND A COMMIT DIFFER, AND FOUR CAUSES PRODUCE
+# THE SAME SHAPE, which is why a disposition carries a `fact` and a `ruled_by`
+# and is not an allow-list of names: (1) a LOCAL CLOCK BEHIND UTC named the
+# directory — the defect, and the ten; (2) the archive ACT and its COMMIT fell
+# on different UTC days; (3) the change id ARRIVED CARRYING its own
+# `YYYY-MM-DD-` prefix, which the pinned CLI preserves deliberately; and (4) an
+# archived directory was RENAMED INSIDE `archive/` after its archive act, so
+# under `--no-renames` the destination name attributes to the RENAME commit —
+# the shape of this corpus's two oldest directories, whose lawful disposition
+# cites the rename commit AND the archive act it moved. The record's header
+# names all four; `archive-date-dispositions.yaml` is where they are written
+# down.
 
 #: The disposition record, beside the corpus ledger and read the same way.
 DISPOSITIONS_REL = (Path("tests") / "sequenced_after"
@@ -1823,16 +1836,27 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     and the two attributions were compared directory by directory and agreed on
     all 144, under history simplification and `--full-history` alike.
 
-    THE INITIAL-IMPORT SHAPE FALLS OUT OF IT: a single commit that adds many
-    directories attributes all of them to itself, which is exactly what
-    `746be44f` did to this corpus's two oldest directories — and what
-    `01198cce`, which archived two changes at once, did in the ordinary course.
+    THE MANY-DIRECTORIES-ONE-COMMIT SHAPE FALLS OUT OF IT: a single commit that
+    adds many directories attributes all of them to itself, which is what
+    `01198cce`, archiving two changes at once, did in the ordinary course.
+    `746be44f` produces the same shape on this corpus's two oldest directories
+    WITHOUT BEING AN ARCHIVE ACT AT ALL — it is a single-parent commit six days
+    later that RENAMED both out of their `-openworkflow` names, and under
+    `--no-renames` a rename's destination is an add. Their archive acts are
+    `484042de` and `d7b66d72`, both on 2026-06-26 UTC, both AGREEING with the
+    names; that is CAUSE 4 of the disposition record and not an import.
 
     `--no-renames`, DELIBERATELY. The question this arm asks is "when did this
     NAME come to exist", and rename detection answers a different one: a
     directory renamed within the archive would be paired as `R` and never
     reported as an add at all, so its new name would silently have no adding
-    commit. `core.quotePath=false` keeps a non-ASCII name readable rather than
+    commit — the gate would not merely misdate it, it would not see it. THE
+    PRICE OF THE CHOICE IS CAUSE 4: a directory renamed inside `archive/` after
+    its archive act attributes to the RENAME commit and can disagree with its
+    name by any distance, not merely a day. That is a FINDING, and a
+    disposition citing the rename commit and the original archive act answers
+    it — which is the trade taken on purpose, a finding a record can dispose of
+    beating a directory the gate cannot measure. `core.quotePath=false` keeps a non-ASCII name readable rather than
     C-quoted; a name containing a newline would still be unreadable here, and
     is not an `<YYYY-MM-DD>-<change-id>` directory in the first place.
 

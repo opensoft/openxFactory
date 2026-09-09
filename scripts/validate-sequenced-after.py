@@ -52,7 +52,7 @@ Usage:
     `openspec/changes/archive/` matching `ARCHIVE_DIR` is measured against the
     UTC committer date of the OLDEST commit that added it — one
     `git log --diff-filter=A --reverse --no-renames --name-only` walk over the
-    archive root, so the initial-import shape (many directories, one commit)
+    archive root, so a batch archive act (many directories, one commit)
     attributes correctly and the cost is 83ms rather than the 9.3s of 144
     per-directory calls. A disagreement is reported BY NAME unless
     `tests/sequenced_after/archive-date-dispositions.yaml` disposes of it, and a
@@ -72,11 +72,17 @@ Usage:
     answer a gate must never give.
 
     THE ARM MEASURES A NAME AGAINST A COMMIT, AND CANNOT ITSELF JUDGE WHY THEY
-    DIFFER. A wrapper-made archive whose commit crossed UTC midnight, and a
-    change id that arrived carrying its own `YYYY-MM-DD-` prefix (which the
-    pinned CLI preserves DELIBERATELY), both produce the same shape as the
-    defect. That judgement is what a disposition's `fact` records, and why the
-    record is a record rather than an allow-list.
+    DIFFER. FOUR causes produce the same shape: the clock defect; a
+    wrapper-made archive whose commit crossed UTC midnight; a change id that
+    arrived carrying its own `YYYY-MM-DD-` prefix (which the pinned CLI
+    preserves DELIBERATELY); and a directory RENAMED INSIDE `archive/` after
+    its archive act, which `--no-renames` attributes to the RENAME commit and
+    which can therefore disagree by any distance, not merely a day — the shape
+    of this corpus's two oldest directories, whose dispositions cite the rename
+    commit AND the archive act it moved. (Rename detection is not the repair:
+    under `-M` the destination never appears as an add and the directory would
+    be silently unmeasured.) That judgement is what a disposition's `fact`
+    records, and why the record is a record rather than an allow-list.
 
     BOTH ARMS RUN ON ONE PASS. They read different things and want different
     repairs, so the first one's failure does not return before the second has

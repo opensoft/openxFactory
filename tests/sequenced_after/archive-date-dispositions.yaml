@@ -27,7 +27,7 @@ kind: archive_date_dispositions
 # validator reports it STALE and reds the run, which is the intended answer.
 #
 # WHAT THE MEASUREMENT CAN AND CANNOT SAY. This arm compares a NAME to a COMMIT.
-# It cannot tell you WHY they differ, and three different causes produce the
+# It cannot tell you WHY they differ, and FOUR different causes produce the
 # same shape - which is exactly why an entry carries a `fact` and a `ruled_by`
 # rather than merely a directory name:
 #
@@ -48,11 +48,21 @@ kind: archive_date_dispositions
 #      that same rule. Such a directory carries the date IN THE ID and will
 #      normally disagree with its adding commit. The estate has no such change
 #      today.
+#   4. AN ARCHIVED DIRECTORY WAS RENAMED INSIDE `archive/` AFTER ITS ARCHIVE
+#      ACT. The walk is `--no-renames` DELIBERATELY - the question is "when did
+#      this NAME come to exist" - so the destination reads as an ADD at the
+#      RENAME commit and may disagree with the name by any distance, not merely
+#      a day (a fixture renaming a directory a month later reproduces it
+#      exactly). The lawful disposition cites the RENAME commit as
+#      `adding_commit` and NAMES THE ARCHIVE ACT ITSELF in `fact`, which is
+#      what the two entries below do. Rename detection is NOT the repair: under
+#      `-M` the destination never appears as `A` at all, so the directory would
+#      be silently unmeasured - worse than a finding a disposition can answer.
 #
-# CAUSES 2 AND 3 ARE LAWFUL ENTRIES when they are actually measured, and their
+# CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured, and their
 # `fact` must say which one it is rather than borrowing the clock sentence
 # below - a disposition's whole value is that it records the judgement the
-# measurement could not make. What is forbidden is writing either one BEFORE it
+# measurement could not make. What is forbidden is writing any of them BEFORE it
 # is measured. (Codex P2, PR #820: the earlier wording forbade every future
 # entry, which left a correct archive of shape 2 or 3 with no lawful repair at
 # `enforcement: error`.)
@@ -83,8 +93,10 @@ kind: archive_date_dispositions
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
-#   fact             what happened, in the vocabulary above. Two appear below;
-#                    a later entry of cause 2 or 3 names its own.
+#   fact             what happened, in the vocabulary above. Two appear below -
+#                    cause 1 (ten entries) and cause 4 (two, which also cite the
+#                    archive act the rename moved); a later entry of cause 2 or
+#                    3 names its own.
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
@@ -106,7 +118,12 @@ dispositions:
     directory_date: "2026-06-26"
     adding_commit: "746be44f7af6f6bce51ee75602d7a77951efa1df"
     commit_date_utc: "2026-07-02"
-    fact: "repository initial import, not an archive act"
+    fact: "renamed within archive/ on 2026-07-02 by
+      746be44f7af6f6bce51ee75602d7a77951efa1df, from
+      2026-06-26-enable-live-openworkflow-factory; the archive act itself,
+      484042de8b83d8b96d8e1eb32ef848c2356eab74 on 2026-06-26 UTC, AGREES with
+      the name - under --no-renames the new name attributes to the rename
+      commit"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
 
@@ -114,7 +131,12 @@ dispositions:
     directory_date: "2026-06-26"
     adding_commit: "746be44f7af6f6bce51ee75602d7a77951efa1df"
     commit_date_utc: "2026-07-02"
-    fact: "repository initial import, not an archive act"
+    fact: "renamed within archive/ on 2026-07-02 by
+      746be44f7af6f6bce51ee75602d7a77951efa1df, from
+      2026-06-26-migrate-canonical-policy-to-openworkflow; the archive act
+      itself, d7b66d725cd8f291366871fb2f09f5a4b1587579 on 2026-06-26 UTC,
+      AGREES with the name - under --no-renames the new name attributes to the
+      rename commit"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
 

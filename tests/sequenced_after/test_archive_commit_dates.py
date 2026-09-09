@@ -45,6 +45,24 @@ sa = _load()
 RULED = 'Brett Heap 2026-09-08 "rule 1 + 2a on 812"'
 CITED = "opensoft/openxFactory#812"
 
+#: CAUSE 1, the defect and the ten.
+CLOCK_FACT = "named by a local clock one day behind UTC; #780's defect, unnoticed"
+
+#: CAUSE 4, and the two oldest directories of this corpus. `746be44f` is NOT an
+#: initial import — it is a single-parent commit that RENAMED both out of their
+#: `-openworkflow` names six days after the archive acts that created them, and
+#: under `--no-renames` a rename's destination reads as an add.
+RENAMED_PREFIX = "renamed within archive/"
+RENAME_COMMIT = "746be44f7af6f6bce51ee75602d7a77951efa1df"
+RENAMED = {
+    "2026-06-26-enable-live-openxfactory": (
+        "2026-06-26-enable-live-openworkflow-factory",
+        "484042de8b83d8b96d8e1eb32ef848c2356eab74"),
+    "2026-06-26-migrate-canonical-policy-to-openxfactory": (
+        "2026-06-26-migrate-canonical-policy-to-openworkflow",
+        "d7b66d725cd8f291366871fb2f09f5a4b1587579"),
+}
+
 
 # --- fixtures: real repositories, real commit dates --------------------------
 
@@ -172,16 +190,22 @@ def test_the_LOCAL_CLOCK_SHAPE_is_what_it_catches_not_merely_a_string_compare(
     assert _validate(root).returncode == 1
 
 
-def test_the_INITIAL_IMPORT_SHAPE_attributes_MANY_directories_to_ONE_commit(
+def test_the_BATCH_ARCHIVE_SHAPE_attributes_MANY_directories_to_ONE_commit(
         tmp_path):
-    """`746be44f` added this corpus's two oldest directories in one commit, six
-    days after the date their names carry. One walk, oldest-first, must give
-    both of them that commit — not one of them, and not the commit that
-    happened to touch each first afterwards."""
+    """One commit that adds several archived directories — `01198cce` archived
+    two changes at once in the ordinary course — must give ALL of them that
+    commit: not one of them, and not the commit that happened to touch each
+    first afterwards.
+
+    NOT AN "INITIAL IMPORT". This suite used to call the shape that and cite
+    `746be44f` for it; measured, `746be44f` is a single-parent commit dated
+    2026-07-02 that RENAMED this corpus's two oldest directories out of their
+    `-openworkflow` names, and the root commit is `3fd3e33e` (2026-06-21). The
+    rename shape is CAUSE 4 and has its own tests below."""
     root = _repo(tmp_path / "repo")
     _write(root, "2026-06-26-enable-live")
     _write(root, "2026-06-26-migrate-policy")
-    sha = _commit(root, "2026-07-02T18:18:41+08:00", "initial import")
+    sha = _commit(root, "2026-07-02T18:18:41+08:00", "batch archive")
     # A LATER commit touching one of them must not become its adding commit.
     (root / "openspec" / "changes" / "archive" / "2026-06-26-enable-live"
      / "notes.md").write_text("later\n", encoding="utf-8")
@@ -195,6 +219,91 @@ def test_the_INITIAL_IMPORT_SHAPE_attributes_MANY_directories_to_ONE_commit(
     for name in ("2026-06-26-enable-live", "2026-06-26-migrate-policy"):
         assert (f"archive-date-vs-commit: {name}: dated 2026-06-26, added "
                 f"2026-07-02 by {sha} — undispositioned") in result.stdout
+
+
+def _renamed_inside_archive(root: Path) -> tuple[str, str]:
+    """An archive act, then a RENAME of the archived directory A MONTH LATER.
+
+    CAUSE 4, built rather than described: the directory is named for the day it
+    was archived, and the only later act is a rename that never touched its
+    content."""
+    _write(root, "2026-08-01-add-thing")
+    act = _commit(root, "2026-08-01T10:00:00+00:00", "archive act")
+    archive = root / "openspec" / "changes" / "archive"
+    _run(["git", "mv", str(archive / "2026-08-01-add-thing"),
+          str(archive / "2026-08-01-add-thing-renamed")], root)
+    rename = _commit(root, "2026-09-01T10:00:00+00:00", "rename within archive")
+    return act, rename
+
+
+def test_a_RENAME_INSIDE_ARCHIVE_is_the_FOURTH_CAUSE_and_is_ANY_DISTANCE_WIDE(
+        tmp_path):
+    """The shape the record's two oldest entries actually have.
+
+    `--no-renames` asks "when did this NAME come to exist", so a directory
+    renamed INSIDE `archive/` attributes to the RENAME commit — here a month
+    after the archive act that created it, which is the point: this cause is not
+    bounded by a day the way the clock defect is, and a reviewer who assumed
+    every finding was one day early would misread it."""
+    root = _repo(tmp_path / "repo")
+    act, rename = _renamed_inside_archive(root)
+    added = sa.adding_commits(root)
+    assert added["2026-08-01-add-thing-renamed"] == (rename, "2026-09-01")
+    # HISTORY still carries the OLD name — it really was added, by the archive
+    # act — but it is not on disk, and only what is on disk is measured. So the
+    # rename leaves exactly one finding, against the name that exists.
+    assert added["2026-08-01-add-thing"] == (act, "2026-08-01")
+    assert not (root / "openspec" / "changes" / "archive"
+                / "2026-08-01-add-thing").exists()
+    _record(root, [])
+    result = _validate(root)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert ("archive-date-vs-commit: 2026-08-01-add-thing-renamed: dated "
+            f"2026-08-01, added 2026-09-01 by {rename} — undispositioned") \
+        in result.stdout
+    # …and the ARCHIVE ACT itself agrees with the name, which is the fact a
+    # cause-4 disposition records and the measurement cannot.
+    when = _run(["git", "log", "-1", "--format=%cI", act], root).stdout.strip()
+    assert when.startswith("2026-08-01")
+
+
+def test_a_CAUSE_4_DISPOSITION_CITING_THE_RENAME_COMMIT_is_the_LAWFUL_REPAIR(
+        tmp_path):
+    """The header grants causes 2, 3 and 4 a lawful entry once MEASURED, and the
+    entry cites the rename commit as `adding_commit` while its `fact` names the
+    archive act. Nothing about the arm's comparison changes."""
+    root = _repo(tmp_path / "repo")
+    act, rename = _renamed_inside_archive(root)
+    _record(root, [_entry(
+        "2026-08-01-add-thing-renamed", "2026-08-01", rename, "2026-09-01",
+        fact=(f"renamed within archive/ on 2026-09-01 by {rename}, from "
+              f"2026-08-01-add-thing; the archive act itself, {act} on "
+              f"2026-08-01 UTC, AGREES with the name"))])
+    result = _validate(root)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive-date-vs-commit agreement passed" in result.stdout
+    assert "undispositioned" not in result.stdout
+
+
+def test_RENAME_DETECTION_WOULD_HIDE_THE_DIRECTORY_FROM_THE_ARM_ENTIRELY(
+        tmp_path):
+    """WHY `--no-renames` STAYS, stated as a measurement rather than a claim.
+
+    Under `-M` the destination of a rename is never reported as an `A`, so the
+    renamed directory would have NO adding commit and the arm would skip it in
+    silence — a directory the gate cannot see, which is strictly worse than a
+    finding a disposition can answer. The cost of the choice is cause 4; the
+    cost of the alternative is a blind spot."""
+    root = _repo(tmp_path / "repo")
+    _renamed_inside_archive(root)
+    detected = _run(["git", "log", "--diff-filter=A", "--reverse", "-M",
+                     "--format=", "--name-only", "--",
+                     "openspec/changes/archive"], root).stdout
+    assert "2026-08-01-add-thing-renamed" not in detected
+    plain = _run(["git", "log", "--diff-filter=A", "--reverse", "--no-renames",
+                  "--format=", "--name-only", "--",
+                  "openspec/changes/archive"], root).stdout
+    assert "2026-08-01-add-thing-renamed" in plain
 
 
 def test_an_UNCOMMITTED_archive_directory_is_SKIPPED_not_reported(tmp_path):
@@ -504,7 +613,17 @@ def test_THE_BATCH_WALK_AGREES_WITH_A_PER_DIRECTORY_LOG_on_every_DISPOSITION():
         assert entry["commit_date_utc"] == day, name
 
 
-def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_names_two_facts():
+def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_ITS_FACTS():
+    """The known facts must be PRESENT and every entry must state one — asserted
+    that way rather than by exact set equality and a hard twelve.
+
+    THE HEADER PERMITS LAWFUL FUTURE ENTRIES (causes 2, 3 and 4 once actually
+    measured), so a test that pinned the fact set to today's two, and the count
+    to today's twelve, would forbid in the suite exactly what the record grants
+    in its header — the defect Codex P2 had already found one level up. What the
+    record's authority actually rests on is that EVERY entry states a fact and
+    the ruling that accepted it, and that the facts it does carry are the ones
+    measured; both are asserted, and the count is a LOWER BOUND."""
     record = sa.load_archive_date_dispositions(sa.dispositions_path(ROOT))
     added = sa.adding_commits(ROOT)
     assert sa.archive_commit_problems(ROOT, added, record) == []
@@ -516,29 +635,84 @@ def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_names_two_fact
         assert entry["commit_date_utc"] != entry["directory_date"], name
         assert entry["ruled_by"] == RULED, name
         assert entry["cited_to"] == CITED, name
+        # EVERY entry disposes of its finding with a stated cause. A blank or
+        # whitespace `fact` is a name on a list.
+        assert isinstance(entry["fact"], str) and entry["fact"].strip(), name
     facts = {record.entries[name]["fact"] for name in record.order}
-    assert facts == {
-        "named by a local clock one day behind UTC; #780's defect, unnoticed",
-        "repository initial import, not an archive act"}
-    imported = [n for n in record.order
-                if record.entries[n]["fact"].startswith("repository initial")]
-    assert len(imported) == 2 and len(record.order) == 12
+    assert CLOCK_FACT in facts
+    clock = [n for n in record.order
+             if record.entries[n]["fact"] == CLOCK_FACT]
+    renamed = [n for n in record.order
+               if record.entries[n]["fact"].startswith(RENAMED_PREFIX)]
+    assert len(clock) == 10, clock
+    assert set(renamed) == set(RENAMED), renamed
+    assert len(record.order) >= 12
     # The ten are EXACTLY ONE DAY EARLY — the local-clock shape, not a range.
     import datetime as _dt
-    for name in record.order:
-        if name in imported:
-            continue
+    for name in clock:
         entry = record.entries[name]
         assert (_dt.date.fromisoformat(entry["commit_date_utc"])
                 - _dt.date.fromisoformat(entry["directory_date"])
                 == _dt.timedelta(days=1)), name
 
 
+def test_THE_TWO_RENAME_DISPOSITIONS_CITE_A_RENAME_AND_AN_ARCHIVE_ACT_THAT_AGREE():
+    """CAUSE 4, re-measured rather than taken on the entry's word.
+
+    The record's whole authority is that every entry states a fact anyone can
+    re-measure, and the fact these two state is a compound one: the directory
+    was RENAMED inside `archive/` by `746be44f`, and the ARCHIVE ACT that
+    actually created it agrees with the name. Both halves are measured here —
+    the rename out of `git show --name-status -M`, and the archive act's UTC day
+    out of `git log` — because an entry that merely asserted them would silence
+    a finding on prose. (The earlier wording called `746be44f` a repository
+    initial import; the root commit is `3fd3e33e` of 2026-06-21, `746be44f` has
+    ONE parent and the subject "Add avatar-first client workflow scaffolding",
+    and the two directories predate it by six days.)"""
+    import datetime as _dt
+    record = sa.load_archive_date_dispositions(sa.dispositions_path(ROOT))
+    root_commits = subprocess.run(
+        ["git", "-C", str(ROOT), "rev-list", "--max-parents=0", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.split()
+    assert RENAME_COMMIT not in root_commits, "the rename commit is not the root"
+    parents = subprocess.run(
+        ["git", "-C", str(ROOT), "log", "-1", "--format=%P", RENAME_COMMIT],
+        capture_output=True, text=True, check=True).stdout.split()
+    assert len(parents) == 1, parents
+    shown = subprocess.run(
+        ["git", "-C", str(ROOT), "show", "--name-status", "-M", "--format=",
+         RENAME_COMMIT],
+        capture_output=True, text=True, check=True).stdout
+    for name, (was, act) in RENAMED.items():
+        entry = record.entries[name]
+        assert entry["adding_commit"] == RENAME_COMMIT, name
+        assert RENAME_COMMIT in entry["fact"], name
+        assert was in entry["fact"], name
+        assert act in entry["fact"], name
+        # The rename really is in that commit, from that name to this one.
+        pairs = [line for line in shown.splitlines()
+                 if line.startswith("R")
+                 and f"archive/{was}/" in line
+                 and f"archive/{name}/" in line]
+        assert pairs, (name, was)
+        # …and the ARCHIVE ACT the entry cites agrees with the directory's date.
+        when = subprocess.run(
+            ["git", "-C", str(ROOT), "log", "-1", "--format=%cI", act],
+            capture_output=True, text=True, check=True).stdout.strip()
+        day = _dt.datetime.fromisoformat(when).astimezone(
+            _dt.timezone.utc).date().isoformat()
+        assert day == name[:10], (name, act, day)
+
+
 def test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED():
+    record = sa.load_archive_date_dispositions(sa.dispositions_path(ROOT))
     result = _validate(ROOT)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "archive-date-vs-commit agreement passed" in result.stdout
-    assert "12 disposition(s) in force, enforcement error" in result.stdout
+    # The COUNT is read from the record rather than pinned, so a lawful future
+    # entry does not red this test for existing — the header permits them.
+    assert (f"{len(record.order)} disposition(s) in force, enforcement error"
+            in result.stdout)
     assert "undispositioned" not in result.stdout
 
 
@@ -576,9 +750,15 @@ def test_NO_GIT_ON_PATH_is_NOT_RUN_rather_than_a_TRACEBACK(tmp_path,
 def _git_shim(tmp_path: Path, failing_arg: str) -> Path:
     """A directory holding a `git` that delegates to the real one EXCEPT when
     `failing_arg` is among its arguments, where it fails the way git fails."""
+    import shlex
     import shutil
     real = shutil.which("git")
     assert real, "the real git is needed to build the shim"
+    # QUOTED: the path is interpolated into a `/bin/sh` script, and a checkout
+    # under a directory with a space (or anything else the shell splits on)
+    # would otherwise build a shim that execs the wrong thing — a fixture
+    # failing for a reason that has nothing to do with the arm.
+    real = shlex.quote(real)
     shim_dir = tmp_path / f"shim-{failing_arg.strip('-')}"
     shim_dir.mkdir()
     shim = shim_dir / "git"
@@ -642,13 +822,22 @@ def test_THE_DECLINE_CASES_ARE_A_SUBCLASS_so_the_CLI_can_tell_them_apart():
     assert issubclass(sa.ArchiveHistoryUnavailable, sa.SequencedAfterError)
 
 
-def test_THE_RECORD_NAMES_THE_THREE_CAUSES_and_forbids_only_UNMEASURED_entries():
-    """Codex P2 on PR #820. The arm compares a NAME to a COMMIT and cannot say
-    WHY they differ; a correct archive whose commit crossed UTC midnight, and a
-    change id that arrived carrying its own `YYYY-MM-DD-` prefix (which the
-    pinned CLI preserves deliberately), produce the same shape as the defect.
-    The header's earlier wording forbade EVERY future entry, which left both of
-    those with no lawful repair at `enforcement: error`."""
+def test_THE_RECORD_NAMES_THE_FOUR_CAUSES_and_forbids_only_UNMEASURED_entries():
+    """Codex P2 on PR #820, and the fourth cause the adversarial review found.
+
+    The arm compares a NAME to a COMMIT and cannot say WHY they differ. A
+    correct archive whose commit crossed UTC midnight; a change id that arrived
+    carrying its own `YYYY-MM-DD-` prefix (which the pinned CLI preserves
+    deliberately); and a directory RENAMED INSIDE `archive/` after its archive
+    act, which the deliberate `--no-renames` attributes to the RENAME commit,
+    all produce the same shape as the defect. The header's earlier wording
+    forbade EVERY future entry, and named only three causes while two of its own
+    entries were of the fourth.
+
+    ALL FIVE PLACES ARE PINNED HERE — the record header, the module docstring,
+    the CLI help, the lifecycle doc and this test — because a cause named in one
+    of them and missing from the others is how the record came to call a rename
+    an initial import in the first place."""
     text = sa.dispositions_path(ROOT).read_text(encoding="utf-8")
     # The leading `# ` of every comment line is stripped BEFORE flattening, so
     # an assertion may span the file's line wrapping. Flattening the raw text
@@ -657,16 +846,39 @@ def test_THE_RECORD_NAMES_THE_THREE_CAUSES_and_forbids_only_UNMEASURED_entries()
         line.lstrip().removeprefix("#").strip()
         for line in text.splitlines()).replace("  ", " ")
     flat = " ".join(flat.split())
+    assert "FOUR different causes produce the same shape" in flat
     assert "A LOCAL CLOCK BEHIND UTC named the directory" in flat
     assert "THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS" in flat
     assert "THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX" in flat
-    assert "CAUSES 2 AND 3 ARE LAWFUL ENTRIES when they are actually measured" \
+    assert ("AN ARCHIVED DIRECTORY WAS RENAMED INSIDE `archive/` AFTER ITS "
+            "ARCHIVE ACT") in flat
+    assert "CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured" \
         in flat
-    assert "What is forbidden is writing either one BEFORE it is measured." \
+    assert "What is forbidden is writing any of them BEFORE it is measured." \
         in flat
-    # …and the doc paragraph carries the same limitation, so a reader of the
-    # lifecycle doc is not told the arm judges a cause it cannot judge.
-    lifecycle = " ".join((ROOT / "docs" / "document-lifecycle.md")
-                         .read_text(encoding="utf-8").split())
+
+    def _flat(path):
+        return " ".join(path.read_text(encoding="utf-8").split())
+
+    # THE MODULE that measures, THE CLI that reports, and THE DOC a reader
+    # reaches for must name the same four causes; a reader of any one of them
+    # must not be told the arm judges a cause it cannot judge.
+    # THE MODULE is a python file, so its comment `#` survives a whitespace
+    # flatten; these phrases are pinned WITHIN one line for that reason.
+    module = _flat(MODULE)
+    assert "AND FOUR CAUSES PRODUCE" in module
+    assert "archived directory was RENAMED INSIDE `archive/` after its archive" \
+        in module
+    assert "PRICE OF THE CHOICE IS CAUSE 4: a directory renamed inside" in module
+
+    cli = _flat(VALIDATOR)
+    assert ("THE ARM MEASURES A NAME AGAINST A COMMIT, AND CANNOT ITSELF JUDGE "
+            "WHY THEY DIFFER. FOUR causes produce the same shape") in cli
+    assert "a directory RENAMED INSIDE `archive/` after" in cli
+    assert "under `-M` the destination never appears as an add" in cli
+
+    lifecycle = _flat(ROOT / "docs" / "document-lifecycle.md")
     assert ("THE ARM COMPARES A NAME TO A COMMIT AND CANNOT ITSELF SAY WHY THEY "
-            "DIFFER") in lifecycle
+            "DIFFER, and FOUR causes produce the same shape") in lifecycle
+    assert "a directory RENAMED INSIDE `archive/` after its" in lifecycle
+    assert "under `-M` the destination never appears as an add" in lifecycle
