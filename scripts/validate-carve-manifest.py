@@ -83,6 +83,25 @@ are therefore NOT interchangeable, and this is recorded rather than corrected
 because the manifest author follows the memo (a change of field shape is the
 memo's to make, not this validator's).
 
+TWO `destinations:` KEYS SHARING ONE `{repository, leg}` BODY DO NOT REFUSE ON
+THEIR OWN (S8, RE-VERIFICATION of `d97371d1`, 2026-09-09, which asked the
+question). A redundant alias is harmless BY ITSELF: `destinations:` is a
+document-level fact, and nothing about the document alone says whether any row
+ever exercises both keys in a way that collides at the destination. Whether it
+does is a claim about the ROWS' arrivals — check 4's question — and refusing it
+in check 1 would decide check 4's question with check 1's information, on the
+same reasoning check 5 and not check 1 owns whether a row's `destination` names
+a real key at all. It would also make check 4's own fix UNREACHABLE: check 1
+always runs first, so a shape-level refusal on the body alone would mean no
+manifest carrying two same-body keys ever reaches `check_surface`'s arrivals
+check again, leaving that check's fix — keying the duplicate-arrival check on
+the real `(repository, leg, destination_path)` rather than on the alias
+`(destination, destination_path)`, which is the S8 fix itself — provably
+correct but permanently untested by any subprocess run of this file, which is
+how every behavioural test in `tests/carve_manifest/test_carve_manifest.py` is
+required to run. The fix stays in `check_surface`, where the question it
+answers actually lives.
+
 WHERE THE MANIFEST LIVES. `docs/opendox-carve-manifest.yaml`, the path § 3.1 and
 § D6 name verbatim, RULED OQ-E (2026-09-09) after the scout measured that `docs/`
 holds no other machine-validated YAML in this repository. The break with the
@@ -277,6 +296,16 @@ class CarveRefusal(Exception):
         super().__init__(code, detail)
 
     def render(self, manifest: Path) -> str:
+        """Render the human message; always printable, even over a non-UTF-8
+        tree path. `self.detail` can interpolate a `tree_at()` path decoded
+        with `surrogateescape` (Copilot review `5155397957`, 2026-09-09,
+        `scripts/validate-carve-manifest.py:280`): this is safe printed to
+        `sys.stderr` because CPython pins stderr's error handler to
+        `backslashreplace` regardless of what `PYTHONIOENCODING` requests, so
+        the surrogate is escaped rather than raising — measured across 14 runs
+        (3 refusal paths × 5 stdio configurations, plain and `--json`), all
+        exit 2, none a traceback.
+        """
         return f"FAIL {manifest}: {self.code} — {self.detail}\n{REMEDIATION}"
 
 
@@ -471,6 +500,9 @@ def check_shape(doc: dict[str, Any]) -> None:
             f"`destinations:` is not a non-empty mapping ({destinations!r}); "
             "a row's `destination` is a KEY here, because one typo otherwise "
             "ships a file to a repository nobody declared")
+    # Two keys sharing one `{repository, leg}` body are NOT refused here —
+    # deliberate, and explained in the module docstring (S8) rather than here:
+    # it is check 4's question, not this one's.
     for key, entry in destinations.items():
         if not isinstance(entry, dict):
             raise CarveRefusal(
@@ -763,6 +795,7 @@ def _check_edit_lines(index: int, path: str, row: dict[str, Any],
 def check_surface(doc: dict, tree: dict[str, str]) -> int:
     """Every file under the declared prefixes appears in EXACTLY one row."""
     commit = doc["carve_commit"]
+    destinations = doc["destinations"]
 
     # THE PREFIX LIST FIRST. The completeness check below is only as good as
     # `moved_paths:`, and a mistyped prefix (`scripts/ideation_dashbord`)
@@ -798,18 +831,42 @@ def check_surface(doc: dict, tree: dict[str, str]) -> int:
     # claim one destination path — at which point one overwrites the other at
     # the destination and the manifest, read as the carve's instruction sheet,
     # does not say which arrives.
-    arrivals: dict[tuple[str, str], int] = {}
+    #
+    # Keyed on the REAL arrival — `destinations[key]`'s `(repository, leg)`
+    # body plus `destination_path` — and NOT on the row's `destination` ALIAS.
+    # `destinations:` may legally carry two keys with an identical
+    # `{repository, leg}` body (check_shape does not refuse that — see its own
+    # comment for why), so two rows naming the two DIFFERENT keys with one
+    # shared `destination_path` used to pass silently, keyed as two distinct
+    # aliases rather than as the one real destination they are — exactly the
+    # "one of them overwrites the other" outcome `carve-file-duplicated`
+    # exists to refuse (S8, RE-VERIFICATION of `d97371d1`, 2026-09-09). A
+    # `destination` that names no key of `destinations:` is check 5's
+    # `carve-vocabulary-unknown` (check 4 runs first): fall back to keying on
+    # the alias itself rather than crash ahead of it, in a shape (a 1-tuple)
+    # that can never collide with a resolved `(repository, leg, path)` key.
+    arrivals: dict[tuple[str, ...], int] = {}
     for index, row in enumerate(doc["rows"]):
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
-        arrival = (row["destination"], row["destination_path"])
+        dest_key = row["destination"]
+        dest_entry = destinations.get(dest_key)
+        if dest_entry is not None:
+            arrival = (dest_entry["repository"], dest_entry["leg"],
+                       row["destination_path"])
+            where = f"{dest_entry['repository']} ({dest_entry['leg']})"
+        else:
+            arrival = (dest_key,)
+            where = dest_key
         if arrival in arrivals:
             raise CarveRefusal(
                 "carve-file-duplicated",
                 f"rows[{arrivals[arrival]}] AND rows[{index}] both send a file "
-                f"to the DESTINATION {arrival[0]}:{arrival[1]}; two sources "
-                "arriving at one destination path means one of them overwrites "
-                "the other, and the manifest does not say which")
+                f"to the DESTINATION {where}:{row['destination_path']}; two "
+                "sources arriving at one real destination path means one of "
+                "them overwrites the other, and the manifest does not say "
+                "which — even across two DIFFERENT `destination` keys that "
+                "declare the same repository and leg")
         arrivals[arrival] = index
 
     undeclared = sorted(surface - set(seen))

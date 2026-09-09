@@ -860,6 +860,32 @@ def test_two_rows_arriving_at_one_destination_path_refuse(
     assert "DESTINATION" in combined, combined
 
 
+def test_two_destination_aliases_sharing_a_body_still_refuse_a_duplicate_arrival(
+        scratch: Scratch) -> None:
+    """S8 (RE-VERIFICATION of `d97371d1`, 2026-09-09). The duplicate-arrival
+    check used to key on the manifest's own `destination` ALIAS
+    (`(destination, destination_path)`), not on the REAL arrival. Two KEYS of
+    `destinations:` may declare an identical `{repository, leg}` body — the
+    grammar does not forbid it — and two rows naming the two DIFFERENT keys
+    with one shared `destination_path` used to pass silently: keyed on the
+    alias they look like two different destinations, but they are one real
+    file, and one of them overwrites the other exactly as
+    `carve-file-duplicated` exists to refuse. Proved against the pre-fix
+    validator: this fixture exits 0 under `git show
+    HEAD:scripts/validate-carve-manifest.py` at the round-3 head `d97371d1`,
+    and exit 2 `carve-file-duplicated` under the fix."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_code_alias"] = dict(
+        doc["destinations"]["opendox_code"])
+    alpha = row_named(doc, "alpha.py")
+    gamma = row_named(doc, "gamma.py")
+    assert gamma["destination"] == alpha["destination"] == "opendox_code"
+    gamma["destination"] = "opendox_code_alias"
+    gamma["destination_path"] = alpha["destination_path"]
+    combined = refuses(scratch, doc, "carve-file-duplicated")
+    assert "destination" in combined, combined
+
+
 def test_a_file_in_no_row_refuses(scratch: Scratch) -> None:
     """RULING OQ-1's own sentence as running code: a file in no row is an
     UNDECLARED MOVEMENT and the carve refuses."""
