@@ -9,7 +9,6 @@ and explicitly recorded session-created documents are editable.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 

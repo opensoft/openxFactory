@@ -37,9 +37,9 @@ NOTHING HERE REACHES a filesystem, a socket or a provider: it is five frozen
 dataclasses, their `as_dict` projections and one validation tuple.
 
 INVOCATION (design D12): `serve.py` runs BOTH as a script and as a module, so
-modules in this package use ABSOLUTE `ideation_dashboard.*` imports, never
-`from . import`. This one imports nothing from the package at all, and must
-not start: it is the bottom of the scope graph.
+this module uses ABSOLUTE `ideation_dashboard.*` imports, never `from . import`.
+This one imports nothing from the package at all, and must not start: it is
+the bottom of the scope graph.
 """
 
 from __future__ import annotations

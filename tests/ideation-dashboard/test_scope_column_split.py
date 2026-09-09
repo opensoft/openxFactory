@@ -24,8 +24,8 @@ WHAT THIS FILE KEEPS TRUE, and why each half needs saying:
      noted.
 
   2. **THE SURFACE.** `doxbench_scope` re-exports all six names, which is what
-     lets forty-odd landed test modules and `serve_workbench`'s four lazy
-     imports keep working unchanged. A re-export that COPIED instead of
+     lets 13 landed test modules (26 import statements) and `serve_workbench`'s
+     four lazy imports keep working unchanged. A re-export that COPIED instead of
      re-binding would pass an equality test and fail `isinstance` and
      `except ScopeConfinementError` in production, so identity is what is
      asserted — `is`, not `==`.
@@ -40,7 +40,7 @@ PARSED, NOT GREPPED, and with a scanner of this file's own rather than
 `tests/import_scan.py`'s. That helper deliberately SKIPS relative imports —
 correct for its own question, which is about other top-level packages, and
 wrong for this one: `from .doxbench_scope import ScopeKey` is exactly the edge
-this file exists to catch, and it names no top-level package at all. All four
+this file exists to catch, and it names no top-level package at all. All five
 spellings the package admits are read: absolute `from ideation_dashboard.X
 import`, `from scripts.ideation_dashboard.X import`, `from ideation_dashboard
 import X`, and relative `from . import X` / `from .X import`.
