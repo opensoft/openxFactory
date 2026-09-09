@@ -490,7 +490,7 @@ gate is green: at the old reader every one of these writes is refused.
 
 ## 4. Downstream owed acts — named with owners, not discharged here
 
-- [ ] 4.1 **[OPERATOR] / [hermes-install]** Refresh the register projection
+- [x] 4.1 **[OPERATOR] / [hermes-install]** Refresh the register projection
       after §3 lands: the next `hermes-register-projection-refresher` tick, or a
       manual `project-register` run against the merged revision. The visible
       signal is `seat_count` 4 → 8 and `councils` gaining `gate_rules_council`.
@@ -498,10 +498,31 @@ gate is green: at the old reader every one of these writes is refused.
       `review_authority.root_key_mismatch` and no authority flows.** Nothing in
       hermes-install needs a code change: `derive_projection` already keys on
       `(council_id, seat_id)` and already reports `councils` as a set.
-- [ ] 4.2 **[hermes-install]** Observe a SCHEDULED refresher firing. Already on
+      DONE 2026-09-09: Brett Heap's operator read, in-session, verbatim
+      "source-revision is 68712924, seat_count 8" — the AKS QA
+      `hermes-register-projection` ConfigMap annotations. Rule 2 record:
+      https://github.com/opensoft/openxFactory/pull/717#issuecomment-5593896064.
+      seat_count 4 → 8; `councils` now `[gate_rules_council,
+      merge_readiness_council]`. Refreshed on a SCHEDULED tick of
+      `CronJob/hermes-register-projection-refresher` — no manual Job was run.
+      Companion: hermes-install PR #74 → merge commit `985f5027` (feature 022:
+      two-council fixture at openxFactory 68712924, byte-exact expected
+      projection, +22 tests, evidence doc
+      `docs/evidence/register-projection-refresh-2026-09-08.md`); zero
+      production lines — the refresher already resolved openxFactory's
+      default-branch head each tick, and derivation was already council-aware
+      on `(council_id, seat_id)`. The projection now carries 8 seats.
+- [x] 4.2 **[hermes-install]** Observe a SCHEDULED refresher firing. Already on
       that repository's follow-up list; only a manual migration job is on record
       to date, so the standing manual re-projection duty is not retired by this
       change.
+      DONE 2026-09-09: the refresh recorded under 4.1 IS that observation —
+      Brett Heap's operator read of the AKS QA `hermes-register-projection`
+      ConfigMap annotations (source-revision 68712924, seat_count 8) reflects
+      a refresh driven by a SCHEDULED tick of
+      `CronJob/hermes-register-projection-refresher`, not a manual Job. The
+      standing manual re-projection duty remains not retired by this change
+      (unchanged).
 - [ ] 4.3 **[codexFactory]** Close the floor-reachability gap this change WIDENS
       (design D6): `governance/review-authority/{grants,wallets,attestations}/`
       are not named in

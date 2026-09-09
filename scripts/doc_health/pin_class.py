@@ -60,6 +60,40 @@ MORE (delta requirement 4). Both halves matter:
   a reader cannot derive from the pin is not predictably reachable. The
   namespace is COMPUTED from the pin (`retention_ref`), never enumerated.
 
+A HISTORICAL-EVIDENCE MEMBER IS NOT ASKED TO RESOLVE, and that is a property
+of the artifact rather than a tolerance granted to it (ruling D-8(a),
+2026-09-08). Every member above records "I WAS DERIVED FROM this repository at
+X", and an unreachable X makes that claim uncheckable by anybody. A gate intent
+records something else: `snapshot_rev_seen` is the revision the actor WAS
+LOOKING AT when they decided, and the apply lane's job is to REFUSE an intent
+whose view has gone stale. The refusal record that results legitimately cites a
+revision that no longer resolves here — this repository's own D4 stale-view
+refusal cites `66ca33fd…`, a name the checkout cannot resolve to an object at
+all, which is precisely what that record was written to attest. Judging it for
+reachability reports a defect against a record doing its job, and neither repair
+route on offer means anything for it: retaining the commit would not make the
+view any more or less what it was, and re-pinning would make the record state
+something the actor did not see. So `reachability` states the expectation PER
+MEMBER — `MUST_RESOLVE` for every derivation pin, `HISTORICAL_EVIDENCE` where
+the pin is testimony about a past view. A historical pin `main` still reaches is
+reported PASS, because that is a true and free observation; one `main` does not
+reach is reported HISTORICAL rather than ORPHAN, WITHOUT consulting the
+retention namespace — the question is not asked of this class, so no remote read
+is performed on its behalf and no INCONCLUSIVE can arrive from one.
+
+A ROLLING POPULATION IS NEITHER ARRIVED NOR VANISHED. The same member is the
+first whose committed instances come AND GO: intents are written on the
+dashboard's rolling branch, land through a custody PR, and are consumed.
+`main` carries none of them at one revision and several at the next, so the
+presence check that serves every other row would report the row VANISHED on
+Monday and say nothing on Tuesday — a finding a reader learns to ignore, which
+is how a real vanished row gets missed. `population` states it: `STANDING` for a
+member whose artifacts persist once written, `ROLLING` for one whose census
+moves BY DESIGN. A ROLLING member is exempt from the vanished direction and is
+counted SEPARATELY from the frozen census (`standing_census`), so the count that
+is frozen is the one a drift would be visible in rather than one that moves
+every time a human presses a button.
+
 A CONSEQUENCE WORTH KNOWING BEFORE YOU REGENERATE SOMETHING. `main` means the
 PUBLISHED branch, so an artifact regenerated on a branch and pinned to one of
 that branch's OWN unlanded commits reports as orphaned until the branch lands.
@@ -202,6 +236,17 @@ REPO_LOCAL = "repo-local"          # a commit of THIS repository
 CROSS_REPOSITORY = "cross-repository"   # state in another repository, answered
                                         # against another remote by another authority
 
+# WHAT THE MEMBER'S PIN IS FOR, which decides whether it OWES resolution.
+MUST_RESOLVE = "must-resolve"      # a DERIVATION pin: "I was derived from this
+                                   # repository at X", so an unreachable X makes
+                                   # the artifact's central claim uncheckable
+HISTORICAL_EVIDENCE = "historical-evidence"
+                                   # TESTIMONY about a past view: "X is the
+                                   # revision I was looking at". A record that
+                                   # cites a revision no longer resolvable is
+                                   # doing its job, not failing at it — see the
+                                   # module docstring. May be unreachable.
+
 # The spellings that mean THIS repository where an artifact names the repository
 # a pin belongs to. Both are committed today: the routing records say
 # `openxFactory`, the hermes handoff receipt says `opensoft/openxFactory`.
@@ -283,6 +328,17 @@ CURRENT = "current"                # committed instances carry real pins today
 FUTURE = "future"                  # a schema requires the pin; no committed
                                    # instance holds a real one yet
 
+# WHETHER THE COMMITTED INSTANCES PERSIST, which decides whether their ABSENCE
+# means anything. Orthogonal to `presence`: `presence` says whether the class
+# has ever carried a committed pin, `population` says whether the set of
+# instances is stable enough for a census to be frozen against it.
+STANDING = "standing"              # once written, the artifact stays written;
+                                   # its disappearance is declaration drift
+ROLLING = "rolling"                # instances arrive AND depart by design, so
+                                   # neither an empty nor a growing census is a
+                                   # finding — exempt from the vanished
+                                   # direction and from the frozen count
+
 
 @dataclass(frozen=True)
 class PinMember:
@@ -311,6 +367,24 @@ class PinMember:
     # Default True because every member but one writes the key unconditionally;
     # a False is a MEASUREMENT and states it.
     key_expected: bool = True
+    # Whether the pin OWES resolution. Defaulted to `MUST_RESOLVE` because that
+    # is what a DERIVATION pin is, and every row but one is one: a member
+    # claiming the exemption has to say so, rather than a member owing
+    # resolution having to remember to ask for it.
+    reachability: str = MUST_RESOLVE
+    # Whether the committed instances persist. Defaulted to `STANDING` for the
+    # same reason and in the same direction.
+    population: str = STANDING
+    # A companion field:value the RECORD must ALSO carry, beyond path+key, for
+    # a site to belong to this member. Empty (the default) for every row but
+    # one: path+key already disambiguates every other artifact family, so
+    # stating an unused third axis on every row would be guesswork nobody
+    # asked for. `gate-intent-snapshot-rev`'s glob covers a whole DIRECTORY
+    # (`ideation/dashboard/intents/**`) that a future record kind could share,
+    # and `snapshot_rev_seen` alone would not say which one a given file is —
+    # so that member alone states the third axis (verifier finding, PR #816).
+    requires_field: str = ""
+    requires_value: str = ""
 
     def line_re(self) -> re.Pattern:
         if self.pattern:
@@ -325,6 +399,27 @@ class PinMember:
         the non-pin classification; the commit-shaped path still runs
         `line_re()` and is untouched by it."""
         return _wide_field_re(self.key)
+
+    def record_matches(self, text: str) -> bool:
+        """Whether a record's full text carries this member's required
+        companion field:value pair — True unconditionally when the member
+        declares none, which is the ordinary case.
+
+        Reuses `_wide_field_re`, the same "any scalar value under this key"
+        lookup the non-commit-value classification already trusts, so the
+        record's ACTUAL companion field is read rather than guessed at from
+        the path alone. Comment lines are skipped for the same reason every
+        other scan in this module skips them."""
+        if not self.requires_field:
+            return True
+        pattern = _wide_field_re(self.requires_field)
+        for line in text.splitlines():
+            if is_comment_line(line):
+                continue
+            m = pattern.search(line)
+            if m and _scalar(m.group("value")) == self.requires_value:
+                return True
+        return False
 
 
 @dataclass(frozen=True)
@@ -805,6 +900,47 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "the member is what teaches the key, since `PIN_KEY_VOCABULARY` is "
              "the union of the declared field keys.",
     ),
+    # ---- PROMOTED out of the FUTURE block on arrival -----------------------
+    # The row below was declared FUTURE and is CURRENT now, and it sits here
+    # rather than where it was written because the block heading under it says
+    # "no committed real pin yet" and that stopped being true of it. A
+    # promotion that flips the flag and leaves the row under a heading
+    # contradicting it is how a reader learns to stop trusting the headings.
+    PinMember(
+        id="gate-intent-snapshot-rev",
+        paths=("ideation/dashboard/intents/**/*.yaml",),
+        key="snapshot_rev_seen",
+        key_form="field",
+        generator="the dashboard gate console (gate intents)",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        reachability=HISTORICAL_EVIDENCE,
+        population=ROLLING,
+        requires_field="kind",
+        requires_value="gate-intent",
+        note="`gate-intent.schema.yaml` carries `snapshot_rev_seen` for "
+             "optimistic concurrency. PROMOTED FROM `FUTURE` ON ARRIVAL "
+             "(ruling D-8(a), 2026-09-08): the live intent-plane dispatch "
+             "exercise for openxFactory #656 landed committed refusal records "
+             "under `ideation/dashboard/intents/`, and the declaration's "
+             "arrival direction said so — which is the case it was written "
+             "for. `requires_field`/`requires_value` narrow the match to a "
+             "record whose `kind` is actually `gate-intent` (verifier finding, "
+             "PR #816): the directory glob alone would exempt ANY record — of "
+             "any kind — dropped under this tree that happened to carry "
+             "`snapshot_rev_seen`, and a stray one is UNCOVERED rather than "
+             "silently inheriting the historical exemption. It is declared "
+             "HISTORICAL_EVIDENCE because the value is the "
+             "revision the actor SAW rather than one this artifact was derived "
+             "from: the 2026-08-15 refusal cites `66ca33fd…`, a revision this "
+             "checkout resolves to no object, and citing it is exactly what "
+             "that record attests. It is declared ROLLING because intents are "
+             "written on the dashboard's rolling branch, land through a "
+             "custody PR and are consumed, so `main` legitimately carries none "
+             "at one revision and several at the next.",
+    ),
+
     # ---- FUTURE members: schema-declared, no committed real pin yet --------
     # Declared now rather than on discovery. The day the first instance lands
     # committed its pins join the class automatically, which is precisely the
@@ -865,19 +1001,6 @@ PIN_CLASS: tuple[PinMember, ...] = (
         presence=FUTURE,
         note="`xfactory-ideation-organizer-recommendations.schema.yaml` lists "
              "`source_revision` as required.",
-    ),
-    PinMember(
-        id="gate-intent-snapshot-rev",
-        paths=("ideation/dashboard/intents/**/*.yaml",),
-        key="snapshot_rev_seen",
-        key_form="field",
-        generator="the dashboard gate console (gate intents)",
-        reproduction=MEASURED,
-        locality=REPO_LOCAL,
-        presence=FUTURE,
-        note="`gate-intent.schema.yaml` carries `snapshot_rev_seen` for "
-             "optimistic concurrency. It pins repository state like every "
-             "other member, so it is declared; no committed instance today.",
     ),
 )
 
@@ -1507,6 +1630,13 @@ def committed_text(repo, rev: str, path: str) -> str | None:
 
 
 def _sites_in(text: str, member: PinMember, path: str) -> list[PinSite]:
+    if not member.record_matches(text):
+        # The record does not carry the member's required companion
+        # field:value (e.g. `kind`), so this path's pin belongs to no member
+        # here — it is picked back up, if it is swept at all, by the generic
+        # vocabulary sweep and reported UNCOVERED rather than silently
+        # exempted.
+        return []
     found, pat = [], member.line_re()
     lines = text.splitlines()
     for n, line in enumerate(lines, start=1):
@@ -1558,20 +1688,66 @@ def swept_sites(repo, rev: str = "HEAD",
     return out
 
 
-def covering_member(path: str, key: str) -> PinMember | None:
+def _member_for(path: str, key: str) -> PinMember | None:
+    """The declared member whose path+key matches, WITHOUT consulting the
+    record's own text — the cheap half of `covering_member`, split out so a
+    caller can decide whether the extra read is worth doing before it fetches
+    anything. path+key alone disambiguates every member but one; the one that
+    also needs the record's own text is named on `requires_field` below."""
     for member in PIN_CLASS:
         if member.key_form != "field" or member.key != key:
             continue
-        if path_matches(path, member.paths):
-            return member
+        if not path_matches(path, member.paths):
+            continue
+        return member
     return None
+
+
+def covering_member(path: str, key: str,
+                    text: str | None = None) -> PinMember | None:
+    """The declared member a swept site belongs to, or None.
+
+    `text` is the record's own committed bytes, consulted ONLY when a member
+    declares a `requires_field` — path+key alone is still sufficient for every
+    other row, and a caller with no text handy (nothing in this module needs
+    that today) simply skips the extra check rather than raising."""
+    member = _member_for(path, key)
+    if member is None:
+        return None
+    if (member.requires_field and text is not None
+            and not member.record_matches(text)):
+        return None
+    return member
 
 
 def uncovered_sites(repo, rev: str = "HEAD",
                     *, paths: list[str] | None = None) -> list[PinSite]:
-    """Swept sites no declared member covers — requirement 4's second half."""
-    return [s for s in swept_sites(repo, rev, paths=paths)
-            if covering_member(s.path, s.key) is None]
+    """Swept sites no declared member covers — requirement 4's second half.
+
+    A site whose path AND key both match a declared member, but whose record
+    fails that member's `requires_field` companion check, is uncovered too:
+    the member that would otherwise claim it has said, in its own
+    declaration, that this particular record is not one of its own.
+
+    The record's own text is fetched ONLY for a site whose path+key already
+    resolves to a member declaring `requires_field` (today, only
+    `gate-intent-snapshot-rev`) — `swept_sites` above already read every
+    candidate file once to find these sites, and re-reading it here for the
+    ordinary row that never consults `record_matches` would be a second
+    `git show` per candidate path for no reason."""
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    text_cache: dict[str, str | None] = {}
+    out: list[PinSite] = []
+    for site in swept_sites(repo, rev, paths=paths):
+        member = _member_for(site.path, site.key)
+        if member is not None and member.requires_field:
+            if site.path not in text_cache:
+                text_cache[site.path] = committed_text(repo, rev, site.path)
+            member = covering_member(site.path, site.key,
+                                     text_cache[site.path])
+        if member is None:
+            out.append(site)
+    return out
 
 
 # ------------------------------------------------------- the non-commit value
@@ -1688,7 +1864,17 @@ def member_non_pin_sites(repo, rev: str = "HEAD",
     field a non-commit value could stand in, and widening a prose pattern to
     accept any scalar would make every sentence quoting the marker a site.
     FUTURE members are skipped for the absence half by construction — having no
-    committed instance is what `presence=FUTURE` states."""
+    committed instance is what `presence=FUTURE` states.
+
+    A record whose path+key matches but whose own text fails a
+    `requires_field` companion check (today, only `gate-intent-snapshot-rev`)
+    is not an instance of this member at all — the same `record_matches` gate
+    `_sites_in` applies to the commit-shaped pin path, reused here rather than
+    reimplemented, so a non-commit value under that record's key is left for
+    the generic sweep (`non_pin_sites`' own resolution loop) to classify
+    instead of being attributed to a member the record itself disclaims. Such
+    a record is also not counted against the absence half: a record that is
+    not a `gate-intent` cannot be a `gate-intent` missing its field."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     sites: list[NonPinSite] = []
     absent: list[AbsentKey] = []
@@ -1701,6 +1887,8 @@ def member_non_pin_sites(repo, rev: str = "HEAD",
                 continue
             text = committed_text(repo, rev, path)
             if text is None:
+                continue
+            if not member.record_matches(text):
                 continue
             found, seen = _non_pin_in(text, member.key, pattern, path,
                                       member.id)
@@ -1751,13 +1939,28 @@ def non_pin_sites(repo, rev: str = "HEAD",
     The uncovered half is returned SEPARATELY as well as being classified,
     because a sentinel standing under a key no declared member covers is TWO
     findings: the class has a coverage gap, and the value has a classification.
-    Letting either mask the other would leave one of them unreported."""
+    Letting either mask the other would leave one of them unreported.
+
+    As in `uncovered_sites`, the record's own text is fetched ONLY when the
+    path+key already resolves to a member declaring `requires_field` — the
+    ordinary row never needs a second read of a file `swept_non_pin_sites`
+    already read once."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     covered, absent = member_non_pin_sites(repo, rev, paths=paths)
     known = {(s.path, s.key, s.line) for s in covered}
-    uncovered = [s for s in swept_non_pin_sites(repo, rev, paths=paths)
-                 if (s.path, s.key, s.line) not in known
-                 and covering_member(s.path, s.key) is None]
+    text_cache: dict[str, str | None] = {}
+    uncovered: list[NonPinSite] = []
+    for site in swept_non_pin_sites(repo, rev, paths=paths):
+        if (site.path, site.key, site.line) in known:
+            continue
+        member = _member_for(site.path, site.key)
+        if member is not None and member.requires_field:
+            if site.path not in text_cache:
+                text_cache[site.path] = committed_text(repo, rev, site.path)
+            member = covering_member(site.path, site.key,
+                                     text_cache[site.path])
+        if member is None:
+            uncovered.append(site)
     return covered + uncovered, uncovered, absent
 
 
@@ -1808,6 +2011,13 @@ def vanished_members(repo, rev: str = "HEAD",
     committed instance is what `presence=FUTURE` states, and an arrival is
     reported by `arrived_future_members` instead.
 
+    A ROLLING member is exempt too, and for a different reason than a FUTURE
+    one: its instances have landed and will land again, but they also DEPART by
+    design, so an empty census is a fact about where in the cycle the repository
+    stands rather than about the declaration. Reporting it would produce a
+    finding that appears and disappears without anything drifting — and a
+    finding a reader learns to ignore is how a real vanished row gets missed.
+
     Answered ONLY for the repository the declaration describes: see
     `DECLARATION_SUBJECT_MARKERS`."""
     paths = paths if paths is not None else committed_paths(repo, rev)
@@ -1816,6 +2026,8 @@ def vanished_members(repo, rev: str = "HEAD",
     gone = []
     for member in PIN_CLASS:
         if member.presence != CURRENT:
+            continue
+        if member.population == ROLLING:
             continue
         if not any(path_matches(p, member.paths) for p in paths):
             gone.append(member)
@@ -1849,6 +2061,11 @@ def arrived_future_members(repo, rev: str = "HEAD",
 
 PASS = "pass"
 ORPHAN = "orphan"
+HISTORICAL = "historical"      # a HISTORICAL_EVIDENCE member's pin that `main`
+                               # does not reach. NOT an orphan: the artifact
+                               # attests a view rather than a derivation, so the
+                               # revision is allowed to have stopped resolving
+                               # and no repair route exists or is owed.
 LOST = "lost"                  # orphaned AND unrecoverable; declared in
                                # KNOWN_LOSSES, with the superseding act either
                                # still owed or discharged by a cited record
@@ -1859,7 +2076,8 @@ NOT_APPLICABLE = "not-applicable"
 @dataclass(frozen=True)
 class PinResult:
     site: PinSite
-    verdict: str               # PASS | ORPHAN | INCONCLUSIVE | NOT_APPLICABLE
+    verdict: str               # PASS | ORPHAN | HISTORICAL | LOST |
+                               # INCONCLUSIVE | NOT_APPLICABLE
     how: str                   # which half of the ref set answered, or why not
     discharge: str | None = None    # LOST only: the committed superseding
                                     # record found at this revision, or None
@@ -1908,6 +2126,18 @@ class PinClassReport:
     @property
     def orphans(self) -> list[PinResult]:
         return [r for r in self.results if r.verdict == ORPHAN]
+
+    @property
+    def historical(self) -> list[PinResult]:
+        """Historical-evidence pins no ref reaches — CONFORMING, and reported
+        rather than silent.
+
+        It sits beside reachable and orphaned rather than inside either, for the
+        same reason a declared sentinel does: reporting it as reachable would
+        claim a resolution nobody performed, and reporting it as an orphan would
+        offer a repair route for a record that is doing exactly what it exists
+        to do. Neither `clean` nor `fully_verified` consults it."""
+        return [r for r in self.results if r.verdict == HISTORICAL]
 
     @property
     def lost(self) -> list[PinResult]:
@@ -1976,12 +2206,16 @@ class PinClassReport:
     def summary(self) -> str:
         by_member = len({r.site.member_id for r in self.results})
         awaiting = len(self.lost_awaiting_record)
+        standing_sites, standing_members = standing_census(self.results)
         return (f"{len(self.results)} declared pin sites across {by_member} "
                 f"class members at {self.rev[:12]}: {len(self.verified)} "
                 f"reachable, {len(self.orphans)} orphaned, "
                 f"{len(self.lost)} lost (declared unrecoverable, {awaiting} "
                 f"awaiting a superseding record), "
-                f"{len(self.inconclusive)} inconclusive; "
+                f"{len(self.historical)} historical evidence (not required to "
+                f"resolve), {len(self.inconclusive)} inconclusive; "
+                f"standing population {standing_sites} site(s) across "
+                f"{standing_members} member(s); "
                 f"{len(self.uncovered)} uncovered site(s), "
                 f"{len(self.vanished)} vanished member(s), "
                 f"{len(self.arrived)} future member(s) now carrying pins; "
@@ -2026,6 +2260,47 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
                 f"cross-repository pin ({member.generator}); "
                 f"{site.locality_why}; answered against another remote by "
                 f"another authority"))
+            continue
+        if member.reachability == HISTORICAL_EVIDENCE:
+            # ASKED OF `main` ONLY, AND ANSWERED EITHER WAY WITHOUT A REMOTE
+            # READ. Reaching for the retention namespace here would spend a
+            # network round trip on a question this class is not asked, and
+            # would let an unconsultable remote turn a conforming record into an
+            # INCONCLUSIVE that holds `fully_verified` open. `main` is a local
+            # ancestry query, so the true-and-free observation is still made.
+            #
+            # `main_ref is None` IS NOT A HISTORICAL FINDING. Before this fix,
+            # a clone with no `main` at all reported every site here HISTORICAL
+            # — the same verdict a genuinely unreached revision earns — which
+            # claimed a "not reached by main" fact this branch never actually
+            # asked for (Copilot review, PR #816). No `main` to ask is the
+            # identical "the branch half of the ref set could not be
+            # consulted" condition every MUST_RESOLVE member below already
+            # answers INCONCLUSIVE with, and this member owes the same
+            # answer: HISTORICAL is reserved for the concrete, asked-and-not-
+            # reached outcome. This still performs no remote read.
+            if main_ref is None:
+                results.append(PinResult(
+                    site, INCONCLUSIVE,
+                    f"no `main` in this clone (looked for "
+                    f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the "
+                    f"ref set could not be consulted"))
+                continue
+            if reachable_from_main(repo, site.pin, main_ref):
+                results.append(PinResult(site, PASS,
+                                         f"ancestor of {main_ref}"))
+                continue
+            results.append(PinResult(
+                site, HISTORICAL,
+                f"HISTORICAL EVIDENCE ({member.generator}): `{site.key}` "
+                f"records the revision this artifact SAW, not one it was "
+                f"derived from, and it is not reached by {main_ref}. That is "
+                f"not a defect and no repair route is owed — retaining the "
+                f"commit would not make the recorded view any more or less "
+                f"what it was, and re-pinning would make the record state "
+                f"something nobody read. The retention namespace is NOT "
+                f"consulted for this class: the question is not asked of it, "
+                f"so no remote read is performed on its behalf."))
             continue
         if main_ref is None:
             results.append(PinResult(
@@ -2138,6 +2413,30 @@ def repair_route(member: PinMember, *, status: str | None = None) -> str:
             "cannot be edited at all, retention is the route instead.")
 
 
+def rolling_members() -> tuple[PinMember, ...]:
+    """The members whose committed population arrives AND departs by design.
+
+    One home for the exclusion, rather than a list of ids retyped in the census
+    that consumes it: a row promoted to ROLLING joins here, and the frozen
+    count stops moving with it without anybody remembering to edit a test."""
+    return tuple(m for m in PIN_CLASS if m.population == ROLLING)
+
+
+def standing_census(results) -> tuple[int, int]:
+    """`(site count, member count)` over the STANDING population only.
+
+    THE NUMBER THAT CAN HONESTLY BE FROZEN. A rolling member's sites move every
+    time a human presses a button in the gate console, so freezing a total that
+    includes them would red every unrelated change and teach the next reader to
+    bump the number rather than to read it — which is the failure mode a frozen
+    census exists to prevent. The rolling sites are still verified, still
+    reported and still subject to "no site is classified twice"; they are only
+    excluded from the ARITHMETIC."""
+    rolling = {m.id for m in rolling_members()}
+    standing = [r for r in results if r.site.member_id not in rolling]
+    return len(standing), len({r.site.member_id for r in standing})
+
+
 def tool_defined_members() -> tuple[PinMember, ...]:
     """The members whose reproduction is byte-comparable — the only ones a
     reproduction check can answer in bytes rather than in a recorded
@@ -2156,7 +2455,8 @@ def render(report: PinClassReport) -> str:
              f"  clone:   {report.truncation}"]
     for result in report.results:
         mark = {PASS: "ok  ", ORPHAN: "ORPH", LOST: "LOST",
-                INCONCLUSIVE: "skip", NOT_APPLICABLE: "n/a "}[result.verdict]
+                HISTORICAL: "hist", INCONCLUSIVE: "skip",
+                NOT_APPLICABLE: "n/a "}[result.verdict]
         lines.append(f"  [{mark}] {result.site.named()} — {result.how}")
     for site in report.uncovered:
         lines.append(f"  [UNCOVERED] {site.named()} — no declared class member "

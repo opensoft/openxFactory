@@ -1,6 +1,7 @@
 # Tasks: refresh-install-repository-enumerations
 
-Status: draft
+Status: ratified
+Ratified by: refresh-install-repository-enumerations — 2026-09-09, Brett Heap, in session, verbatim "ratify refresh-install-repository-enumerations" (openxFactory #591 comment 5593837071); record `review/ratification-2026-09-09.md`
 Lane: openxfactory-3 (openXfactory-3)
 
 **EVERY BOX BELOW IS UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER THAN
@@ -10,31 +11,92 @@ and no repository is touched anywhere in the estate. The six `## MODIFIED`
 blocks and the one `## ADDED` requirement under `specs/` are a proposal ABOUT
 canon; canon is written by the archive act, which is § 4.
 
-**DISPOSITION 2026-09-09, AT THE ARCHIVE — THE PARAGRAPH ABOVE IS QUOTED IN
-PLACE RATHER THAN REWRITTEN, AND THIS PARAGRAPH SAYS WHICH OF ITS CLAUSES THE
-ARCHIVE MOVED.** It was written of the PROPOSAL pull request,
+**DISPOSITION 2026-09-09 — RATIFICATION GIVEN. EXACTLY ONE SENTENCE ABOVE IS
+SUPERSEDED, AND IT IS QUOTED IN PLACE RATHER THAN DELETED:**
+
+> **EVERY BOX BELOW IS UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER
+> THAN AN OVERSIGHT.**
+
+**§ 1 and § 2 ARE NOW TICKED AND NOTHING ELSE IS.** § 1 ticks on Brett Heap's
+word of 2026-09-09 (~00:24Z), in session, verbatim *"ratify
+refresh-install-repository-enumerations"*, recorded on openxFactory #591 as
+comment 5593837071 — ratified AS AUTHORED, with no veto on any of the three
+veto points § 1.2 carries. § 2 ticks on what openxFactory PR **#818** landed at
+squash **`6da94302`** (2026-09-09T00:20:31Z), each box naming its evidence
+below. **EVERY OTHER SENTENCE OF THE PARAGRAPH ABOVE STILL HOLDS, AND THAT IS
+THE POINT OF THE DISPOSITION**: no promoted specification byte moves on this
+word, no `## Purpose` is edited, no issue is closed, no ledger row is claimed as
+final, no repository is touched, and canon is still written by the archive act,
+which is § 4 and is owed on a SEPARATE word. **§ 3 AND § 4 STAY UNTICKED BY
+DESIGN** — § 3's boxes are statements of what this packet does NOT do, disposed
+of by the archive act, and § 4's are the archive act itself.
+
+**DISPOSITION 2026-09-09, AT THE ARCHIVE — THE SECOND OF TWO DISPOSITIONS UNDER
+THAT PARAGRAPH, AND IT DISCHARGES THE LAST SENTENCE OF THE FIRST.** The
+ratification's disposition above closed one sentence, left the rest standing and
+named what the archive would move; this one IS the archive, so the sentence it
+discharges is quoted in place rather than deleted:
+
+> **§ 3 AND § 4 STAY UNTICKED BY DESIGN** — § 3's boxes are statements of what
+> this packet does NOT do, disposed of by the archive act, and § 4's are the
+> archive act itself.
+
+**BOTH SECTIONS ARE NOW TICKED, ON A SEPARATE WORD, AND THIS PULL REQUEST IS
+THAT ACT.** At THIS commit the original paragraph therefore reads as follows:
+promoted specification bytes DO move (**`+ 1, ~ 6, - 0`** across three
+capabilities, promoted by the pinned CLI); the `## Purpose` IS edited (§ 4.1,
+the one act this packet declared owed at its archive); the ledger row DOES move
+`state: active` → `state: archived` (§ 4.3); and every box in this file is now
+`[x]`. **TWO OF ITS CLAUSES ARE NOT MOVED AND STILL HOLD UNQUALIFIED:** no
+issue is closed — **openxFactory#796 is OPEN at this commit**, and § 4.2 names
+who closes it and when — and no repository is touched anywhere in the estate.
+The proposal pull request that carried the paragraph,
 [#818](https://github.com/opensoft/openxFactory/pull/818) → merge commit
-`6da94302` (2026-09-09T00:20:31Z), where every box was unticked and every
-clause held — measured: that landing's `git diff --stat` names nine files and
-**no file under `openspec/specs/`**. **THE ARCHIVE IS THE ACT THAT WRITES
-CANON**, which the last sentence above already says (*"canon is written by the
-archive act, which is § 4"*), so at THIS commit: promoted specification bytes
-DO move (**`+ 1, ~ 6, - 0`** across three capabilities, promoted by the pinned
-CLI); the `## Purpose` IS edited (§ 4.1, the one act this packet declared owed
-at its archive); the ledger row DOES move `state: active` →
-`state: archived` (§ 4.3); and every box below is now `[x]`. **TWO CLAUSES ARE
-NOT MOVED AND STILL HOLD UNQUALIFIED:** no issue is closed —
-**openxFactory#796 is OPEN at this commit**, and § 4.2 names who closes it and
-when — and no repository is touched anywhere in the estate.
+`6da94302` (2026-09-09T00:20:31Z), named nine files and **no file under
+`openspec/specs/`**; § 3.1 measures that and says why it is not extended to
+cover this commit.
 
-## 1. Ratification (Brett Heap's act, not this lane's)
+## 1. Ratification (Brett Heap's act, not this lane's) — GIVEN 2026-09-09
 
-- [ ] 1.1 Ratify this packet. Brett Heap's word on the pull request or on
+- [x] 1.1 Ratify this packet. Brett Heap's word on the pull request or on
       openxFactory#796; the packet is `Status: draft` until then. His word of
       2026-09-08 (*"do 794, 795 and 796"*, recorded on openxFactory#591)
       ADMITTED the work and ratifies no text: it names no option, no
       requirement wording and no scope.
-- [ ] 1.2 The three veto points are put to him verbatim in the pull request
+      **RATIFIED 2026-09-09 by Brett Heap** (openxFactory operator authority),
+      in session at ~00:24Z, verbatim *"ratify
+      refresh-install-repository-enumerations"* — recorded on openxFactory
+      **#591** as comment **5593837071** (2026-09-09T00:24:24Z). **THE WORD
+      NAMES THIS PACKET AND NOTHING ELSE**, and it is a SECOND and separate act
+      from *"do 794, 795 and 796"*, which this box already recorded as an
+      admission ratifying no text — so the distinction the box was authored on
+      is the distinction the record now carries, rather than one word being
+      read as two. `proposal.md`, `design.md` and this file now carry
+      `Status: ratified` with **ONE** citation line each — `Ratified:` in
+      `proposal.md`, `Ratified by:` here and in `design.md` — which is what
+      `ratified-provenance` counts. Record:
+      `review/ratification-2026-09-09.md`.
+      **THE SURFACE IS DISCLOSED RATHER THAN GLOSSED, BECAUSE THIS BOX'S OWN
+      LIST IS UNDER-INCLUSIVE AND THE BOX'S TEXT DOES NOT MOVE.** The sentence
+      above names two surfaces — *"on the pull request or on
+      openxFactory#796"* — and the word arrived on neither: it was given IN
+      SESSION and recorded on **openxFactory#591**, which is the surface this
+      SAME BOX already names for Brett Heap's word on this packet two sentences
+      later (*"His word of 2026-09-08 … recorded on openxFactory#591"*). So the
+      condition the box exists to enforce — that the word be DURABLY RECORDED
+      and citable rather than asserted from a session — is met, and what is
+      wrong is the enumeration rather than the record. **THE PRECEDENT IS IN
+      THIS PACKET'S OWN FAMILY:** the archived `implement-omniworker-install-repo`
+      took Brett Heap's ruling *"Accept Omni001-XEAON"* (2026-09-05 ~22:50Z) and
+      the approval of its four dated amendments (*"do all 4, they are all
+      approved"*, 2026-09-07 ~22:55Z) on **openxFactory#591** and archived on
+      them. **Raised by `chatgpt-codex-connector` as a P2 on this pull request
+      and TAKEN AS A DISCLOSURE**: a reader who wants the enumeration widened
+      can have it in a successor, and a reader who wants the word on #796
+      instead can have Brett Heap say so — neither is invented here, and the
+      box is not unticked on a surface list that its own third sentence
+      contradicts.
+- [x] 1.2 The three veto points are put to him verbatim in the pull request
       body and stand or fall on their own:
       - **D1** — widen the enumerations and state the index rule
         (recommended), against replacing the hand lists with a list derived
@@ -49,24 +111,65 @@ when — and no repository is touched anywhere in the estate.
         #796's own item 2 under the corrected reading, not extra scope.
       - **D5** — the OPEN-ENDED widening of *"Submodule sequencing"*, the one
         place a closed five-name list would be wrong.
-- [ ] 1.3 On ratification, flip `Status: draft` to `Status: ratified` in
+      **ALL THREE WERE PUT TO HIM VERBATIM, AND NONE WAS VETOED.** They were
+      carried word for word in openxFactory PR **#818**'s body under the
+      heading *"Veto points, put verbatim"* — D1 with the derived option
+      written out beside it and the nine-against-five measurement that refuses
+      it, D3 with the two units absent from #796's list NAMED and the deletion
+      a refusal would mean stated, D5 with the reason a closed list would be
+      wrong in that one scenario — and in this file, and in the README records
+      row. The word came back naming the packet with no qualification, no
+      exception and no reversal, so **D1, D3 and D5 all stand and the packet is
+      ratified AS AUTHORED**: the derived option is recorded NOT TAKEN rather
+      than foreclosed, the six-MODIFIED scope keeps both unlisted `WHEN`
+      bullets, and *"Submodule sequencing"* keeps its open tail.
+- [x] 1.3 On ratification, flip `Status: draft` to `Status: ratified` in
       `proposal.md`, `design.md` and this file, add the `Ratified:` /
       `Ratified by:` lines naming the word and its date, and write
       `review/ratification-<date>.md` as `Status: record`. **Ratification
       performs no realization**: no delta is promoted, no Purpose is widened,
       no box in § 3 or § 4 ticks on it, and #796 stays open.
+      **DONE IN THIS PULL REQUEST, AND NOTHING BEYOND IT.** `Status: draft` →
+      `Status: ratified` in `proposal.md`, `design.md` and this file, each
+      carrying exactly ONE citation line; `.openspec.yaml` gains `approved_by`
+      and `approved_on` **BESIDE** the drafting provenance it was authored
+      with, `kind`, `id` and `reason` unmoved — the addition-not-rewrite shape
+      `add-drafted-proposal-origin` defined for this transition and the shape
+      the archive gate's origin-retention arm reads;
+      `review/ratification-2026-09-09.md` is written as `Status: record`; and
+      the README records row's STATUS WORDING moves while nothing else in
+      README does. The four superseded draft-state sentences — THREE in
+      `proposal.md` (two in the paragraphs the file-forward note answers, one
+      opening its § Ratification) and one in this file — are QUOTED IN PLACE
+      under dated notes rather than deleted. **AND NOTHING ELSE MOVES, WHICH IS WHAT THIS BOX
+      PROMISED**: no delta is promoted, `openspec/specs/` is untouched by this
+      commit, no `## Purpose` is widened, no box in § 3 or § 4 ticks, no ledger
+      row's derived keys move, and openxFactory #796 stays open.
 
-## 2. Authoring and validation (this lane's act, done before the pull request)
+## 2. Authoring and validation (this lane's act, done before the pull request) — DONE, LANDED BY #818 `6da94302`
 
 These boxes tick on the pull request, not at the archive, because they are the
 evidence the packet is reviewable at all.
 
-- [ ] 2.1 Three spec deltas authored, BUILT from the promoted text
+- [x] 2.1 Three spec deltas authored, BUILT from the promoted text
       programmatically rather than retyped, so no unit is dropped by
       transcription: `specs/repo-boundary-governance/spec.md` (3 MODIFIED +
       1 ADDED), `specs/shared-contract-ownership/spec.md` (2 MODIFIED),
       `specs/canonical-contract-migration/spec.md` (1 MODIFIED).
-- [ ] 2.2 Every MODIFIED block carries a
+      **LANDED BY openxFactory PR #818 → squash `6da94302`**
+      (2026-09-09T00:20:31Z), which added exactly these three delta files and
+      nothing under `openspec/specs/`. Re-measured on the ratified tree:
+      `specs/repo-boundary-governance/spec.md` carries one
+      `## MODIFIED Requirements` section with **3** requirements (*Install
+      repository scope*, *Canonical workflow authority*, *Copy-first
+      migration*) and one `## ADDED Requirements` section with **1**
+      (*Install-repository enumerations are an index with a named authority*);
+      `specs/shared-contract-ownership/spec.md` **2** MODIFIED (*Contract
+      version pinning*, *Submodule sequencing*);
+      `specs/canonical-contract-migration/spec.md` **1** MODIFIED (*Contract
+      provenance and compatibility*) — **6 MODIFIED + 1 ADDED**, the count the
+      packet declares.
+- [x] 2.2 Every MODIFIED block carries a
       `**Removed from canon by refresh-install-repository-enumerations
       (2026-09-08):**` marker naming the replaced sentence or bullet as a
       CommonMark code span, fenced with a longer backtick run where the unit
@@ -74,14 +177,38 @@ evidence the packet is reviewable at all.
       standing outside every span. Verified by parsing each marker with
       `scripts/doc_health/modified_block_currency.py`'s own `parse_marker`, so
       the names the checker will read are the names the author intended.
-- [ ] 2.3 `.openspec.yaml` carries the ad-hoc origin declaration written by
+      **LANDED BY #818 `6da94302`, AND RE-MEASURED ON THE RATIFIED TREE WITH
+      THE CHECKER'S OWN READER.** Parsing every marker in the three delta files
+      through `scripts/doc_health/modified_block_currency.py`'s `parse_marker`
+      returns **SIX markers, exactly ONE name each** — one in
+      `canonical-contract-migration`, three in `repo-boundary-governance`, two
+      in `shared-contract-ownership` — so the names the checker will read are
+      the names the author intended, and no marker names a unit its block does
+      not replace.
+- [x] 2.3 `.openspec.yaml` carries the ad-hoc origin declaration written by
       `scripts/proposal-support.py . declare-adhoc` with DRAFTING provenance
       only (`proposed_by` + `proposed_on`, no `approved_by`, no `approved_on`)
       — the lawful unapproved shape `add-drafted-proposal-origin` defined.
-- [ ] 2.4 One row added to README's *"OpenSpec Records"* active-changes block.
+      **LANDED BY #818 `6da94302` IN EXACTLY THAT SHAPE**, which is why the
+      packet was reviewable as an unapproved draft at all: at that commit the
+      origin carried `proposed_by` and `proposed_on` and neither approval
+      field. **§ 1.3 HAS SINCE ADDED THE APPROVAL PAIR BESIDE IT, AND THAT IS
+      THIS BOX'S OWN CAPABILITY RATHER THAN A DEPARTURE FROM IT**: `approval is
+      an addition, never a rewrite` is `add-drafted-proposal-origin`'s rule,
+      the drafting provenance this box records is kept exactly as authored, and
+      `kind`, `id` and `reason` never moved. Written by
+      `scripts/proposal-support.py . declare-adhoc`, verified by
+      `proposal-support.py . verify` at both heads.
+- [x] 2.4 One row added to README's *"OpenSpec Records"* active-changes block.
       That block is substrate-claimed on openxFactory#630 for THIS ONE ROW;
       nothing else in README is touched.
-- [ ] 2.5 One row seeded into `tests/sequenced_after/corpus-ledger.yaml` by
+      **LANDED BY #818 `6da94302`** — one row at the head of README's *"OpenSpec
+      Records"* active-changes block, and `git show --stat 6da94302` names
+      `README.md` with **+43** lines and no deletion, so nothing else in that
+      file moved. THIS PULL REQUEST TOUCHES THE SAME ONE ROW AND ONLY ITS
+      STATUS WORDING (§ 1.3), under the same substrate claim on
+      openxFactory#630.
+- [x] 2.5 One row seeded into `tests/sequenced_after/corpus-ledger.yaml` by
       `scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`.
       Measured shape: `{state: active, class: co-modifier, declares:
       [admit-install-repos-to-aggregation], depth: 1, prose: false}` —
@@ -89,7 +216,16 @@ evidence the packet is reviewable at all.
       that one wrote the same key in August, NOT because a live change collides
       (D2). The diff is the check: any OTHER row that moves is a collision this
       packet did not predict and must be explained before merge.
-- [ ] 2.6 Validation run and reported in the pull request body, every command
+      **LANDED BY #818 `6da94302`** — `git show 6da94302:` on the ledger names
+      `tests/sequenced_after/corpus-ledger.yaml` with **+1** line and no
+      deletion, and the row reads exactly the measured shape this box declares,
+      stamped `moved_by: "#818"`, `moved_on: "2026-09-08"`. **EXACTLY ONE ROW
+      MOVED AND NO OTHER**, which is what this box said the diff would prove.
+      A RATIFICATION MOVES NO DERIVED KEY — `state` is still `active`, `class`,
+      `declares`, `depth` and `prose` are unchanged — so this pull request
+      re-seeds nothing and `--ledger-diff` reads consistent at its head; § 4.3
+      is where the row next moves, at the archive.
+- [x] 2.6 Validation run and reported in the pull request body, every command
       and result: `openspec validate refresh-install-repository-enumerations
       --strict` and `--all --strict` (the two pre-existing failures,
       `add-chain-attestation` and `add-composed-view-authoring`, are unrelated
@@ -99,6 +235,13 @@ evidence the packet is reviewable at all.
       `doc-health.py --single-repo . --fail-on error`; the
       `tests/sequenced_after` and `tests/proposal-support` suites;
       `git diff --check`.
+      **RUN AND REPORTED IN #818's BODY**, every command with its result, at
+      head `35d9aead` — the table under *"Validation — every command and its
+      result"*, whose figures that body records as RE-MEASURED at that head
+      rather than carried from an earlier one. **RE-RUN ON THE RATIFIED TREE IN
+      THIS PULL REQUEST** and reported in its body the same way, so the ticked
+      evidence is a measurement on the tree that lands and not a citation of an
+      older one.
 
 ## 3. What is NOT done by this packet, stated so no tick can claim it
 

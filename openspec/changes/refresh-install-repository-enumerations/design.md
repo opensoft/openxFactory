@@ -1,6 +1,7 @@
 # Design: refresh-install-repository-enumerations
 
-Status: draft
+Status: ratified
+Ratified by: refresh-install-repository-enumerations — 2026-09-09, Brett Heap, in session, verbatim "ratify refresh-install-repository-enumerations" (openxFactory #591 comment 5593837071); D1, D3 and D5 all stand, none vetoed; record `review/ratification-2026-09-09.md`
 Lane: openxfactory-3 (openXfactory-3)
 
 Six decisions, **D1** through **D6**. D1 is the one #796 asked for and the one
