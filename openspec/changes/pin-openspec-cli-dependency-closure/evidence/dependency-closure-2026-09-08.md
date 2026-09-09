@@ -134,6 +134,14 @@ tree cannot be served in another's name.
 
 ## 5. The gate, end to end, at its own invocation
 
+Quoted from the run that first proved the closure path, and left as it was
+recorded. **`Totals:` counts ITEMS IN THE CORPUS, not this packet** — it rises
+whenever `main` lands a change, so it is reported with the run that produced it
+and never carried forward as a claim. The same invocation on this branch after
+the round-8 merge of `origin/main` reported `Totals: 103 passed, 2 failed (105
+items)`, exit 0, the same `2 applied` and the same `0 UNDISPOSITIONED failures`.
+Those last three are the load-bearing figures and they have not moved once.
+
 ```
 $ python3 scripts/validate-openspec-cli-pin.py --repo . --all --no-cache
 openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (…/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
@@ -183,13 +191,32 @@ review of PR #813.)
 
 ## 7. The suite
 
-`python3 -m pytest tests/openspec_cli_pin -q` → **`154 passed`** (was 93; 123
-before the Copilot-review rounds of 2026-09-08, which added the
-`lockfileVersion`, malformed-address, root-declaration, installed-tree and
-`running_lines` cases in round 5, the entry-address cases in round 6, and the two
-caller-sweep controls in round 7).
-`python3 -m pytest tests/proposal-support -q` → **`95 passed, 2 subtests`**.
-`python3 -m pytest tests/sequenced_after -q` → **`195 passed`**.
+**THIS SECTION IS THE ONE PLACE THE COUNTS LIVE, and every figure in it is the
+tail of a real run.** A count restated in prose elsewhere is a second copy of a
+number nothing checks — the defect this whole packet exists to end, applied to
+itself — so `proposal.md`'s front matter and `tasks.md` 4.1 point HERE rather
+than carry arithmetic, and no delta is spelled out in words. The four Copilot
+review rounds of 2026-09-08/09 moved these figures four times, which is the
+argument for measuring rather than remembering them.
+
+Measured on this branch after the round-8 merge of `origin/main`:
+
+| Run | Result |
+| --- | ------ |
+| `pytest tests/openspec_cli_pin -q` | **`154 passed`** |
+| `pytest tests/proposal-support -q` | **`95 passed, 2 subtests passed`** |
+| `pytest tests/sequenced_after -q` | **`195 passed`** |
+| the three together | **`444 passed, 2 subtests passed`** |
+| `pytest tests/proposal-support tests/openspec_cli_pin -q`, pinned CLI on PATH as the required job supplies it | **`249 passed, 2 subtests passed`** |
+
+`tests/openspec_cli_pin` stood at **93** before this packet and **154** after it.
+The intermediate heads, for anyone reading the review threads in order: **123**
+when the packet was first proposed, **147** after round 5 (the `lockfileVersion`,
+malformed-address, root-declaration, installed-tree and `running_lines` cases),
+**152** after round 6 (the entry-address cases), **154** after round 7 (the two
+caller-sweep controls). Round 8 changed no test and no count; it reconciled the
+numbers written down in this packet to the ones its runs actually report.
+
 No test skips are added, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
 untouched and its two floors only rise.
 
@@ -243,8 +270,9 @@ non-defining caller to reach the closure through the verifier's own functions an
 to restate no literal. A fourth caller added later fails there rather than in
 somebody else's required check.
 
-Measured after the fix, with the pinned CLI on PATH exactly as the required job
-supplies it:
+Measured immediately after that fix (commit `152faba9`), with the pinned CLI on
+PATH exactly as the required job supplies it — a HISTORICAL figure, kept because
+it is the measurement that closed the miss, and superseded by § 7's table:
 
 ```
 $ pytest tests/proposal-support tests/openspec_cli_pin -q
@@ -253,16 +281,30 @@ $ pytest tests/proposal-support tests/openspec_cli_pin -q
 
 ## 10. THE REQUIRED SUITE, GREEN, ON THE FIXED HEAD
 
-`pytest-suite` run `34247095390`, the pinned-triple step's own arithmetic:
+`pytest-suite` run `34247095390`, on the head that closed the third-caller miss,
+the pinned-triple step's own arithmetic:
 
 ```
 selected=10413 passed=10392 skipped=21 failures=0 errors=0
 floors: selected>=7090 (margin 3323) passed>=7070 (margin 3322) skipped==21
 ```
 
-`EXPECT_SKIPPED` is EXACT and it did not move: this change adds no skip, which is
-what task 4.2 claims and this is the measurement of it. Both floors only rose.
-All nine checks on the pull request are green.
+And on each later head, the same step, each figure from the run named beside it:
+
+| Head | `pytest-suite` run | Arithmetic |
+| ---- | ------------------ | ---------- |
+| `408768cc` (round 5) | `34293779640` | `selected=10488 passed=10467 skipped=21 failures=0 errors=0` |
+| `3440d251` (round 6) | `34296114948` | `selected=10493 passed=10472 skipped=21 failures=0 errors=0` |
+| `d538f9d8` (round 7) | `34297941930` | `selected=10495 passed=10474 skipped=21 failures=0 errors=0` |
+
+`selected` rises as `main` lands changes and as this packet adds tests; it is
+recorded per run rather than pinned, and the floors (`selected>=7090`,
+`passed>=7070`) are what the job actually enforces.
+
+`EXPECT_SKIPPED` is EXACT and it has not moved once across four rounds: this
+change adds no skip, which is what task 4.2 claims and these are the measurements
+of it. `failures=0 errors=0` on every head above. All nine checks on the pull
+request are green.
 
 ## 11. THE COPILOT ROUNDS OF 2026-09-08, AND WHICH FINDINGS WERE REAL
 

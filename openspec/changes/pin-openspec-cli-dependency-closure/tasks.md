@@ -132,25 +132,50 @@ happens; nothing below decides it.
 
 ## 4. Tests and proof
 
-- [x] 4.1 `tests/openspec_cli_pin/test_openspec_cli_pin.py`: **93 → 124**. The
-      thirty-one cover the closure declaration's shape, the three mismatch forms, the
-      unreadable/absent lockfile, the ordering (no npm call is spent before a
-      lockfile disagreement is reported), `npm ci` rather than `npm install`, the
-      derived staging manifest, the cache key and the two-address stamp,
+- [x] 4.1 `tests/openspec_cli_pin/test_openspec_cli_pin.py`: **93 before this
+      packet, 154 now.** COUNTS ARE MEASURED AND DATED, never arithmetic carried
+      in prose — a hard-coded delta is a second copy of a number nothing checks,
+      which is the defect this whole packet is about, and the four review rounds
+      of 2026-09-08/09 moved this figure four times. Every number below is the
+      tail of a real run, and § 7 of the evidence packet carries the same
+      measurements with the same provenance.
+
+      The added tests cover the closure declaration's shape, the mismatch forms,
+      the unreadable/absent lockfile, an unimplemented `lockfileVersion`, a
+      malformed lockfile address, a locked entry with no address of its own and a
+      `link: true` entry, a root that asks for nothing, the ordering (no npm call
+      is spent before a lockfile disagreement is reported), `npm ci` rather than
+      `npm install`, the derived staging manifest, the installed tree being
+      inspected rather than believed, the cache key and the two-address stamp,
       `--path-mode` saying it did not install the closure, `--tarball` installing
-      through it anyway, and — offline, against the REAL committed files — that
-      the pin and its lockfile agree with each other.
-      `python3 -m pytest tests/openspec_cli_pin -q` → **`124 passed`**; and,
-      with the pinned CLI on PATH exactly as the required job supplies it,
+      through it anyway, the caller sweep's two controls, and — offline, against
+      the REAL committed files — that the pin and its lockfile agree with each
+      other.
+
+      Measured on this branch after the round-8 merge of `origin/main`:
+      `python3 -m pytest tests/openspec_cli_pin -q` → **`154 passed`**;
+      `tests/proposal-support` → **`95 passed, 2 subtests passed`**;
+      `tests/sequenced_after` → **`195 passed`**; the three together →
+      **`444 passed, 2 subtests passed`**. With the pinned CLI on PATH exactly as
+      the required job supplies it,
       `pytest tests/proposal-support tests/openspec_cli_pin -q` →
-      **`192 passed, 2 subtests passed`**.
+      **`249 passed, 2 subtests passed`**.
+
+      The whole required suite, from CI rather than a workstation:
+      `pytest-suite` run **34297941930** at head **`d538f9d8`** reported
+      `selected=10495 passed=10474 skipped=21 failures=0 errors=0`, against
+      floors `selected>=7090` and `passed>=7070`.
 - [x] 4.2 No test skips, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
       untouched and its two FLOORS only rise. No `conftest.py` is added.
 - [x] 4.3 Prove the entrypoint end to end for real, against the live registry, at
       the gate's own invocation:
       `python3 scripts/validate-openspec-cli-pin.py --repo . --all --no-cache`
-      → exit 0, `Totals: 99 passed, 2 failed (101 items)`, `2 applied`,
-      `0 UNDISPOSITIONED failures`, with the closure line in the log:
+      → exit 0, `2 applied`, `0 UNDISPOSITIONED failures`, and the corpus
+      totals of the run that produced this line — `Totals: 103 passed, 2 failed
+      (105 items)` on this branch after the round-8 merge; the item count rises
+      as `main` lands changes and is recorded with its run rather than pinned,
+      the load-bearing figures being the two dispositioned failures and the zero
+      undispositioned ones. The closure line in the log:
       `dependency closure openspec-cli-pin.1.12.0.package-lock.json (80
       packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed
       with \`npm ci --ignore-scripts\``.
