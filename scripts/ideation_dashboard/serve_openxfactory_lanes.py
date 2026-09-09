@@ -48,13 +48,25 @@ if str(_SCRIPTS_DIR) not in sys.path:  # plain-script parity with serve.py (D12)
 
 import route_extension  # noqa: E402
 
-from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
-from ideation_dashboard.serve_wire import (  # noqa: E402
+# The three fixed wire strings, at their own neutral home rather than through
+# the wire module (openDox under design D3): same reason as the predicate
+# below, and a `str` literal carries no dependency, so the treatment OQ-B
+# B-1 gave `slug` — a neutral module beside `output_boundary` — was
+# available to them, which is where the ruling sent them. OQ-B B-2.
+from wire_messages import (  # noqa: E402
     HOSTED_SESSION_REFUSAL,
     JSON_CTYPE,
     JSON_OBJECT_BODY_REQUIRED,
-    hosted_ref_refused,
 )
+
+from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
+# The hosted-plane ref confinement, at its own home rather than through the
+# wire module (openDox under design D3): this column is openxFactory's own
+# engineering adapter and STAYS, so the import it used to make is the edge
+# RULING OQ-2 forbids. `serve_projection` is openXdox, which is the allowed
+# direction and the one OQ-B B-3 already took for the sessions reach.
+# OQ-B re-plumb B-2, ruled on `#656` 2026-09-09 ("rule B-2 (i')").
+from ideation_dashboard.serve_projection import hosted_ref_refused  # noqa: E402
 
 # add-ideation-intent-plane task 4.4 (Brett Heap's ruling D-1, openxFactory
 # #656): the COMMITTED half of the hosted intent feed — the applied/refused
