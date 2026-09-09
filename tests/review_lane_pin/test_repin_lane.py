@@ -1533,6 +1533,32 @@ class DualPathAcceptance(unittest.TestCase):
                 "list the lane actually resolves — M-4 is documentation, and "
                 "documentation that lies is worse than none")
 
+    def test_the_two_single_path_declarations_equal_candidate_one(self):
+        """Scenario: The declarations are asserted to agree.
+
+        TWO SITES DECLARE ONE PATH RATHER THAN THE LIST, AND CONFLATING THEM
+        WITH THE LIST IS THE MISTAKE THIS CASE EXISTS TO STOP.
+        `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and the literal in
+        `test_review_lane_caller.py` both declare what
+        `contracts/review-lane-pin.yaml` NAMES — and M-6 freezes that pin until
+        M-1 step (3). Making either carry the successor would land step (3)
+        early and point a live pin at a file codexFactory has not created. So
+        the assertion that fits them is HEAD-EQUALITY: each must equal candidate
+        one, the path in force, and each must NOT yet name the successor.
+        """
+        for path in (REPO_ROOT / "tests/review_lane_pin/test_floor_snapshot.py",
+                     REPO_ROOT / "tests/review_lane_pin/test_review_lane_caller.py"):
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(
+                EXPECTED_CANDIDATES[0], text,
+                f"{path.name} no longer declares the path in force; it "
+                "declares what the pin names, and the pin does not move until "
+                "M-1 step (3)")
+            self.assertNotIn(
+                EXPECTED_CANDIDATES[1], text,
+                f"{path.name} already names the successor path — that is M-1 "
+                "step (3) landing early, ahead of the file existing")
+
     def test_the_path_in_force_is_first_so_this_realization_is_a_no_op(self):
         """Scenario: The first candidate resolves and nothing is different.
 

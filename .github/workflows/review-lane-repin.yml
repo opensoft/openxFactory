@@ -319,11 +319,12 @@ jobs:
           GH_TOKEN: ${{ steps.source-token.outputs.token }}
           BRANCH_SHA: ${{ steps.source.outputs.sha }}
         run: |
-          # `-e` IS KEPT. Every failure this step tolerates is tolerated by an
-          # explicit construct — the `gh api` call sits in an `if` condition and
-          # the two guards are `||` compounds — so the strictness the step
-          # shipped with is unchanged, and an unexpected failure still aborts
-          # rather than being read as "no candidate resolved".
+          # `-e` IS KEPT, AND THE ONE PLACE IT IS SUSPENDED IS EXPLICIT. The
+          # `gh api` call runs under `set +e` for exactly as long as it takes to
+          # capture its exit status, and the status is then CLASSIFIED: only a
+          # 404 — genuinely absent — moves to the next candidate, and every
+          # other failure aborts the step. So no failure is tolerated by
+          # accident, and "no candidate resolved" means what it says.
           set -euo pipefail
           OUT="${RUNNER_TEMP}/floor-at-source.yaml"
           FIRST=""
@@ -338,11 +339,29 @@ jobs:
             [ -n "${CANDIDATE}" ] || continue
             [ -n "${FIRST}" ] || FIRST="${CANDIDATE}"
             TRIED="${TRIED:+${TRIED}, }${CANDIDATE}"
-            if gh api "repos/${SOURCE_REPOSITORY}/contents/${CANDIDATE}?ref=${BRANCH_SHA}" \
-                 -H "Accept: application/vnd.github.raw" > "${OUT}" 2>/dev/null; then
+            # ABSENCE IS THE ONLY THING THAT ADVANCES THE LOOP. An `if` around
+            # `gh api` would swallow EVERY failure — auth, rate limit, a 500 —
+            # and read it as "this candidate does not exist", which during a
+            # migration window is the worst possible misreading: a transient
+            # error on candidate one would fall through to the successor and
+            # report a relocation that has not happened, or exhaust the list and
+            # refuse for a reason that is not true. So the HTTP status is
+            # inspected: a 404 means genuinely absent and moves to the next
+            # candidate; anything else ABORTS THE STEP, fail-closed.
+            set +e
+            ERR="$(gh api "repos/${SOURCE_REPOSITORY}/contents/${CANDIDATE}?ref=${BRANCH_SHA}" \
+                     -H "Accept: application/vnd.github.raw" > "${OUT}" 2>&1)"
+            RC=$?
+            set -e
+            if [ "${RC}" -eq 0 ]; then
               OBTAINED="${CANDIDATE}"
               break
             fi
+            if printf '%s' "${ERR}" | grep -qiE '(HTTP 404|Not Found)'; then
+              continue
+            fi
+            echo "::error title=review-lane-repin::reading ${CANDIDATE} at ${BRANCH_SHA} failed for a reason that is NOT absence (exit ${RC}): ${ERR}. The lane refuses rather than reading a transient or permission failure as a moved document."
+            exit 1
           done <<< "${FLOOR_IN_SOURCE_CANDIDATES}"
 
           if [ -n "${OBTAINED}" ]; then

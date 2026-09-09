@@ -68,9 +68,20 @@ standing between them as this packet's gate.
       gains `source_documents:` under `privileges.source_repository`, and the
       lane does NOT read it at run time. **Ticks on:** the same commit.
 - [x] 2.5 The lockstep assertion lands: every declaration of the list — workflow
-      env, script constant, `test_floor_snapshot.py`'s `FLOOR_IN_CORE`,
-      `test_review_lane_caller.py`'s literal, and the binding if 2.4 stands —
-      carries the SAME ordered list. **Ticks on:** the new test green.
+      env, script constant, the test literal, and the binding if 2.4 stands —
+      carries the SAME ordered list; **and the two sites that declare ONE path
+      rather than the list — `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and
+      `test_review_lane_caller.py`'s literal — are asserted to equal CANDIDATE
+      ONE.** **Ticks on:** the new test green.
+      **TEXT CORRECTED 2026-09-09, WITH THE TICK, ON A COPILOT FINDING**
+      (#823 comment 3963705705). As written this box asked those two sites to
+      carry the two-entry list, and they cannot: both declare what
+      `contracts/review-lane-pin.yaml` names, and **M-6 freezes that pin until
+      step (3)** — making them carry the successor would land step (3) early and
+      point a live pin at a file codexFactory has not created. They are
+      declarations of the PATH IN FORCE, not of the candidate list, so the
+      assertion that fits them is head-equality, and that is what now lands. The
+      original tick over-claimed and this is the correction, not a widening.
 - [x] 2.6 A negative control proves the lane still refuses when NO candidate
       resolves, and does not silently pass. **Ticks on:** the control green.
 - [ ] 2.7 **The no-op is proven, not asserted**: one re-pin run observed green

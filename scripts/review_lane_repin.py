@@ -439,6 +439,24 @@ def plan_advance(*, current_core: str | None,
             f"`{SNAPSHOT_FILE}` is not on disk; there is nothing to compare "
             "the authoritative document against")
 
+    # THE OBTAINED PATH IS VALIDATED, NOT ECHOED. It arrives from the workflow
+    # as a string and is written into the witness lines, the pull-request body
+    # and the repeat commands a reviewer runs — so an unnoticed mis-wiring
+    # would put a path this lane never resolves in front of the one person
+    # checking it. It must be one of the DECLARED candidates: anything else is
+    # refused rather than reported, on the same fail-closed footing as the
+    # absent document below.
+    if floor_source_path and floor_source_path not in FLOOR_IN_SOURCE_CANDIDATES:
+        declared = ", ".join(f"`{c}`" for c in FLOOR_IN_SOURCE_CANDIDATES)
+        return Refusal(
+            "floor_source_path_undeclared",
+            f"the lane reported obtaining the floor document from "
+            f"`{floor_source_path}`, which is not one of the declared "
+            f"candidates ({declared}). A witness naming a path this lane does "
+            "not resolve is worse than no witness, and the lane never searches "
+            "beyond the declared list, so this is a wiring fault and not a "
+            "relocation. No site is changed")
+
     obtained = floor_source_path or FLOOR_IN_SOURCE
 
     if floor_bytes == snapshot_bytes:
