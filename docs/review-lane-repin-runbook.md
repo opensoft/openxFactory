@@ -122,10 +122,12 @@ gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # ide
 #    that quietly accepts either home cannot tell a relocation from a file
 #    somebody put back.
 FLOOR=floor/openxfactory-review-authority-floor.yaml
+FETCHED="$(mktemp)"          # resolved at run time: no host path is committed
 gh api "repos/opensoft/codexFactory/contents/${FLOOR}?ref=${CORE}" \
-  -H "Accept: application/vnd.github.raw" > /tmp/floor-at-core.yaml
-test -s /tmp/floor-at-core.yaml || { echo "no floor document at ${FLOOR}@${CORE} — STOP"; exit 1; }
-cp /tmp/floor-at-core.yaml contracts/review-lane-floor-snapshot.yaml
+  -H "Accept: application/vnd.github.raw" > "${FETCHED}"
+test -s "${FETCHED}" || { echo "no floor document at ${FLOOR}@${CORE} — STOP"; exit 1; }
+cp "${FETCHED}" contracts/review-lane-floor-snapshot.yaml
+rm -f "${FETCHED}"
 
 # 3. Recompute the two declared witnesses FROM THE BYTES YOU JUST WROTE.
 sha256sum contracts/review-lane-floor-snapshot.yaml
