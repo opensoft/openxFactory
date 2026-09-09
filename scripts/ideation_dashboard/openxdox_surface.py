@@ -12,7 +12,7 @@ openDox under design D3.
 The honest shape — and Brett Heap's ruling on `#656` (2026-09-09, "rule all OQs
 as recommended", OQ-B item B-3) — is that openxFactory's lane reaches sessions
 THROUGH openXdox, which already imports `branch_session` in its own right
-(`cli_gate.py:46`, `gate_routes.py:70`, `doxbench_scope.py:801`). This module is
+(`cli_gate.py:46`, `gate_routes.py:70`, `doxbench_scope.py:729`). This module is
 that reach made explicit and given a name, one commit before the carve rather
 than as an undeclared edge discovered during it.
 
