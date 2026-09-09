@@ -1864,7 +1864,17 @@ def member_non_pin_sites(repo, rev: str = "HEAD",
     field a non-commit value could stand in, and widening a prose pattern to
     accept any scalar would make every sentence quoting the marker a site.
     FUTURE members are skipped for the absence half by construction — having no
-    committed instance is what `presence=FUTURE` states."""
+    committed instance is what `presence=FUTURE` states.
+
+    A record whose path+key matches but whose own text fails a
+    `requires_field` companion check (today, only `gate-intent-snapshot-rev`)
+    is not an instance of this member at all — the same `record_matches` gate
+    `_sites_in` applies to the commit-shaped pin path, reused here rather than
+    reimplemented, so a non-commit value under that record's key is left for
+    the generic sweep (`non_pin_sites`' own resolution loop) to classify
+    instead of being attributed to a member the record itself disclaims. Such
+    a record is also not counted against the absence half: a record that is
+    not a `gate-intent` cannot be a `gate-intent` missing its field."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     sites: list[NonPinSite] = []
     absent: list[AbsentKey] = []
@@ -1877,6 +1887,8 @@ def member_non_pin_sites(repo, rev: str = "HEAD",
                 continue
             text = committed_text(repo, rev, path)
             if text is None:
+                continue
+            if not member.record_matches(text):
                 continue
             found, seen = _non_pin_in(text, member.key, pattern, path,
                                       member.id)

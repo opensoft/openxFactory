@@ -1143,6 +1143,48 @@ def test_non_pin_sites_resolution_loop_only_rereads_the_requires_field_member(
     assert GATE_INTENT_WRONG_KIND_REL in {s.path for s in uncovered}
 
 
+def test_member_non_pin_sites_does_not_attribute_a_wrong_kind_record(
+        tmp_path):
+    """Copilot review, PR #816, `pin_class.py:~1940`. `non_pin_sites`'
+    resolution loop already re-checks `requires_field` before finalizing an
+    UNCOVERED verdict (the two tests above), but its sibling
+    `member_non_pin_sites` attributed a non-commit value to
+    `gate-intent-snapshot-rev` on path+key alone, with no companion `kind`
+    check at all — so a record under `ideation/dashboard/intents/**` whose
+    `kind` was never `gate-intent` could be reported COVERED by it before
+    `non_pin_sites` ever ran its own (correct) check, because a covered site
+    is removed from consideration before the resolution loop sees it. Same
+    defect family as `test_a_stray_record_of_a_different_kind_is_not_exempt`
+    (the commit-shaped pin path), proven here directly on
+    `member_non_pin_sites` rather than through a caller that stubs it out."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    _write(repo, GATE_INTENT_WRONG_KIND_REL,
+          _gate_intent_wrong_kind("sentinel-not-a-commit-value"))
+    _write(repo, GATE_INTENT_REL,
+          _gate_intent("sentinel-not-a-commit-value-2",
+                       refusal="index rejected"))
+    _commit(repo, "a wrong-kind record and a real gate intent, both non-pin")
+
+    covered, _absent = pc.member_non_pin_sites(repo, "HEAD")
+
+    assert [s for s in covered
+            if s.path == GATE_INTENT_WRONG_KIND_REL] == [], (
+        "a record whose kind is not gate-intent must not be attributed to "
+        "gate-intent-snapshot-rev by member_non_pin_sites at all")
+    [real] = [s for s in covered if s.path == GATE_INTENT_REL]
+    assert real.member_id == "gate-intent-snapshot-rev"
+    assert real.value == "sentinel-not-a-commit-value-2"
+
+    # ...and the resolution loop this feeds still reaches the right verdict:
+    # the stray record falls through to `swept_non_pin_sites` and lands
+    # UNCOVERED rather than silently vanishing from both passes, while the
+    # genuine gate intent stays covered and off the uncovered list.
+    _classified, uncovered, _absent2 = pc.non_pin_sites(repo, "HEAD")
+    uncovered_paths = {s.path for s in uncovered}
+    assert GATE_INTENT_WRONG_KIND_REL in uncovered_paths
+    assert GATE_INTENT_REL not in uncovered_paths
+
+
 def test_a_rolling_member_carrying_nothing_is_not_reported_vanished(tmp_path):
     """DEFECT (E), first half. `main` legitimately carries no intent at all
     between custody PRs, and a row that reported VANISHED every time the queue
