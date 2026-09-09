@@ -1692,6 +1692,41 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                 support.origin_retention_errors(root, moved,
                                                 change="change-s"), [])
 
+    def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
+        """A REVISION IS A REVISION, however it is spelled — and getting that
+        wrong is silent NON-detection, which is the failure class this whole
+        guard exists to end rather than a cosmetic defect. The pairing is
+        recognised by matching git's own `%H` against the revision asked
+        about, so a caller naming the commit any other lawful way (`HEAD`, an
+        abbreviated hash, an annotated tag) would have compared unequal, been
+        answered None, and let the walk re-base onto the move exactly as it
+        did before #833. Raised by the review bench on PR #846; the only
+        caller today passes a full hash out of `git log --format=%H`, so this
+        pins the property rather than repairing a live failure."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            self.rename(root, "change-r", "change-s")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            git(root, "-c", "user.name=Test", "-c",
+                "user.email=test@example.com", "tag", "-a", "-m",
+                "the move", "the-move")
+            rel = "openspec/changes/change-s/proposal.md"
+            former = "openspec/changes/change-r/proposal.md"
+            for spelling in (head, head[:12], "HEAD", "the-move"):
+                with self.subTest(revision=spelling):
+                    self.assertEqual(
+                        support.renamed_from(root, spelling, rel), former)
+                    self.assertEqual(
+                        support.ratified_under_a_former_path(
+                            root, spelling, rel), former)
+            # a revision that resolves to nothing answers None rather than
+            # raising — an unreadable history already behaved that way
+            self.assertIsNone(
+                support.renamed_from(root, "no-such-revision", rel))
+
     def test_a_git_config_cannot_switch_the_guard_off(self):
         """NO GIT CONFIG SWITCHES THE GUARD OFF. Rename detection is
         configurable — `diff.renames=false`, `diff.renameLimit=1` — and a

@@ -607,7 +607,31 @@ def renamed_from(root: Path, revision: str, rel: str) -> str | None:
     its 189 packets — for records nothing reads. A pairing is then accepted
     ONLY when its destination is `rel` itself, so a rename hop belonging to
     some other name can never be read as the predecessor of the current one.
+
+    ANY SPELLING OF THE REVISION IS ACCEPTED, and that is a guard property
+    rather than a convenience. The pairing is recognised by comparing git's
+    own `%H` against the revision asked about, so `HEAD`, `HEAD~1`, a tag or
+    an abbreviated sha would every one of them compare unequal to a full
+    40-hex hash and be answered None — NO PAIRING, no refusal: the #833
+    defect back, reached through a caller rather than a config. So the
+    revision is resolved to its commit hash first (`rev-parse --verify
+    <revision>^{commit}`, which also peels an annotated tag). The only
+    caller today passes a full hash straight out of `git log --format=%H`,
+    so this changes no answer in this corpus; it is here so that a future
+    call site cannot switch the guard off by naming its commit differently
+    (raised by the review bench on PR #846, pinned by
+    `test_the_guard_reads_any_spelling_of_the_candidate_commit`). A revision
+    that resolves to nothing answers None, as an unreadable history already
+    did.
     """
+    resolved = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "rev-parse", "--verify",
+         f"{revision}^{{commit}}"],
+        capture_output=True, text=True, check=False,
+    )
+    if resolved.returncode != 0:
+        return None
+    revision = resolved.stdout.strip()
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root.resolve()), "log", "--follow",
          "--find-renames", "--name-status", "--format=%x00%H", "-1",
