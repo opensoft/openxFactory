@@ -95,11 +95,65 @@ than closed: the re-pin is proposed automatically and the regeneration is still
 a hand act — stated without hedging, in the same terms the parent packet uses
 about itself.
 
-- [ ] 2.1 `codexFactory: add-floor-regeneration-automation` is ratified and
+**2026-09-09 — THE PARAGRAPH ABOVE IS THE RECORD OF THIS GROUP AS IT STOOD ON
+2026-09-06 AND IS KEPT UNCHANGED. Both boxes are now TICKED on acts that have
+happened, each citing the pull request, merge commit or run it was read from.**
+
+- [x] 2.1 `codexFactory: add-floor-regeneration-automation` is ratified and
   realized: the regeneration lane runs the shipped generator at a LANDED
   openxFactory `main` commit and opens the regeneration pull request itself.
-- [ ] 2.2 That lane's additions-only and block-confinement refusals are landed
+  **RATIFIED, REALIZED, AND OBSERVED AT A LANDED COMMIT THREE TIMES — the last
+  of them on the real promotion cycle of 2026-09-09.**
+  **RATIFIED:** codexFactory PR
+  [#235](https://github.com/codeXfactory/codexFactory/pull/235), merge commit
+  `ffc090d0c0c5d4bacc526f54dae9283ba0cafe80` (2026-09-06T02:04:36Z).
+  **REALIZED:** codexFactory PR
+  [#242](https://github.com/codeXfactory/codexFactory/pull/242), merge commit
+  `55acd2943326a12d904ea23a5409ec7aa92e4246` (2026-09-06T08:48:24Z), shipping
+  `.github/workflows/floor-regeneration.yml`,
+  `scripts/merge_master/floor_regeneration.py`,
+  `credentials/floor-regeneration-bot-binding.template.yaml`,
+  `docs/repository-gate-floor-repair-runbook.md` and
+  `tests/merge-master/test_floor_regeneration.py`.
+  **THE LANE RUNS THE SHIPPED GENERATOR AT A LANDED openxFactory COMMIT AND
+  OPENS THE PULL REQUEST ITSELF** — read from the run logs, not from a report
+  about them. Run `34024535671` (2026-09-06T09:23:54Z, `event: schedule`)
+  opened codexFactory #248 at `1897f282` (the same run 5.2 cites). Run
+  **`34389386288`** (2026-09-09T18:30:10Z, success) — *"regenerated at
+  b075fd91 (refs/remotes/origin/main): 60 -> 61 entries, added
+  ['openspec/specs/ideation-intent-plane/spec.md']; owed because
+  membership_changed (covered-pending: 1)"* — updated the open bot pull request
+  #302. Run **`34407444737`** (2026-09-09T21:32:00Z, success) — *"regenerated
+  at 424e2913 (refs/remotes/origin/main)"*, *"open-or-update decision: open"* —
+  opened codexFactory
+  [#314](https://github.com/codeXfactory/codexFactory/pull/314), author
+  `app/openxfactory`, **files: `floor/openxfactory-review-authority-floor.yaml`
+  ONLY**, merged at `b08958aed1d704f29f29c666142d15e653537724`
+  (2026-09-09T23:27:22Z), floor block 60 -> 61.
+  **"AT A LANDED COMMIT" IS MEASURED RATHER THAN ASSERTED:** each of
+  `1897f282`, `b075fd91` and `424e2913` answers
+  `git merge-base --is-ancestor <sha> origin/main` on this tree, checked for
+  this tick.
+- [x] 2.2 That lane's additions-only and block-confinement refusals are landed
   and tested there, not here.
+  **LANDED THERE BY #242 (`55acd294`), AND ABSENT HERE — both halves checked
+  rather than assumed.** In codexFactory
+  `tests/merge-master/test_floor_regeneration.py`, read at
+  `codeXfactory/codexFactory@main` through the contents API:
+  `REQUIREMENT 3 — additions-only` carries
+  `test_R3_S1_a_removed_path_stops_the_run`,
+  `test_R3_S2_additions_alone_proceed`,
+  `test_R3_S3_a_mixed_regeneration_is_refused_whole_not_split` and the
+  anti-vacuity control
+  `test_ANTI_VACUITY_the_additions_only_assertion_can_fail` (that repository's
+  task 3.6); `REQUIREMENT 4 — the diff is confined to the machine-generated
+  block` carries `test_R4_S1_a_change_outside_the_markers_refuses`,
+  `test_R4_S2_the_declared_tolerance_is_never_touched_by_a_machine` and
+  `test_R4_S3_the_hand_reasoned_entries_survive_every_automated_run`.
+  **NOT HERE, and that is the half a tick could quietly get wrong:**
+  `grep -rniE 'additions_only|additions-only|assert_confined|confinement'` over
+  `tests/review_lane_pin/` and `scripts/review_lane_repin.py` returns nothing,
+  so this repository asserts neither refusal and claims neither.
 - [x] 2.3 No codexFactory file is edited by this change or by its realization,
   and this packet claims no authority over one.
   **DONE, and it is measurable rather than promised: this realization's diff
@@ -416,8 +470,50 @@ boxes:
    [#726](https://github.com/opensoft/openxFactory/pull/726) → `0f9361e0`).
    Each is named on the box whose evidence it belongs to.
 
-- [ ] 5.1 A real `openspec/specs/**` promotion lands here and the advisory lane
+- [x] 5.1 A real `openspec/specs/**` promotion lands here and the advisory lane
   reports `pending_floor_extension` with a non-zero count — quoted verbatim.
+  **OBSERVED 2026-09-09. The promotion is real, the count is non-zero, and the
+  path the report names is the one the promotion created.**
+  **THE PROMOTION:** openxFactory PR
+  [#832](https://github.com/opensoft/openxFactory/pull/832) — *"Archive
+  add-ideation-intent-plane with promotion (Path A PR-5: 4.4/5.1/5.2 ticked on
+  the D-2 evidence)"* — merge commit
+  `56e69a11c59d473da23eab455cb9848dc083fac3`, 2026-09-09T07:49:06Z, which
+  CREATED `openspec/specs/ideation-intent-plane/spec.md`. It is a corpus event
+  no lane manufactured: another lane archived its own packet, and this box's
+  wait ended as a side effect of that.
+  **THE ADVISORY READING, QUOTED VERBATIM** from the step `Evaluate the
+  openxFactory repository gate floor` of `merge-master-approval` run
+  [34417309342](https://github.com/opensoft/openxFactory/actions/runs/34417309342)
+  (2026-09-09T23:31:45Z, `pull_request_target`, `success`, candidate head
+  `1c640a5b`):
+
+  ```
+  stage:                 pending_floor_extension
+  floor entries:         68
+  reachable matches:     0
+  unreachable entries:   0
+    caused by candidate: 0
+    already dead:        0
+  tracked under prefix:  61 (openspec/specs)
+  uncovered by floor:    0
+  covered-pending:       1 (tolerance 3, pin measured)
+    PENDING (added_to_base_after_pin): openspec/specs/ideation-intent-plane/spec.md
+  floor evaluated: 0 never-clearable path(s) touched
+  ```
+
+  **THREE THINGS IN THAT BLOCK ARE WHY IT SATISFIES THE BOX AND THE FIRST
+  CYCLE'S READING DID NOT.** The stage is `pending_floor_extension` rather than
+  `floor_complete`. The count is **1**, not the `0` this box refused to tick on
+  in 2026-09-06 (run 34066687712, quoted below in the record kept above). And
+  it is `pin measured`, not the B1 fail-safe, with the per-path reason
+  `added_to_base_after_pin` — the path entered `main` AFTER the snapshot's
+  pinned core `4b12ba83`, which is exactly the class this box was written to
+  observe. The count is 1 against `tolerance 3`, so the grace holds and nothing
+  is refused; what DISCHARGES the pending path is the re-pin, which is 5.5's
+  question and deliberately not this box's.
+  **THE 2026-09-06 RECORD IS KEPT BELOW UNCHANGED**, because it is the honest
+  account of why this box stayed open for three days.
   **STAYS OPEN, AND NOT FOR WANT OF A CYCLE.** The first observed cycle carried
   no `openspec/specs/**` promotion at all — see the group note above — so there
   was never a non-zero count to quote. codexFactory bot PR
@@ -502,6 +598,41 @@ boxes:
   (5.1): the advisory reading on #732 itself was `covered-pending:       0 (tolerance 3, pin measured)` (run
   [34066687712](https://github.com/opensoft/openxFactory/actions/runs/34066687712)).
   Ticks on the first cycle that starts from a non-zero count, and not before.
+
+  **2026-09-09 — THE CYCLE THAT STARTS FROM A NON-ZERO COUNT IS RUNNING, HALF
+  ONE IS SUPERSEDED RATHER THAN UNMET, AND HALF TWO HAS NOT HAPPENED YET. THE
+  BOX STAYS OPEN.**
+  **(a) *"Both merge on a human word"* is SUPERSEDED for the codexFactory half
+  by a later RATIFIED mechanism, and the superseding is recorded here rather
+  than the clause being deleted.** `amend-floor-regeneration-merge-authority`
+  (codexFactory [#289](https://github.com/codeXfactory/codexFactory/pull/289),
+  realized by #292) arms auto-merge on the regeneration pull request, and on
+  2026-09-09 codexFactory
+  [#314](https://github.com/codeXfactory/codexFactory/pull/314) merged at
+  `b08958aed1d704f29f29c666142d15e653537724` (23:27:22Z) with `mergedBy:
+  app/openxfactory` and `author: app/openxfactory`. Bot author, bot arming
+  (08:32:34Z on the #302 lineage, re-armed on #314 at 21:32Z), bot approval
+  (`codexfactory[bot]` APPROVED at 22:49:36Z on `fcb2bd13`, merge-master run
+  34414078939), platform merge. **No human word was given on that candidate
+  and, by the ratified amendment, none was owed.** Disclosed operator acts on
+  the PATH but not on the candidate's content: closing #302 after #310 made its
+  update path conflict, and one hand `workflow_dispatch` of
+  `merge-master-approval` at 22:49Z because the first evaluation ran while
+  checks were still pending.
+  **(b) THIS REPOSITORY'S HALF OF THE CYCLE HAS NOT RUN, so `covered-pending`
+  has not returned to zero and no run can be quoted for it.** The floor moved on
+  `codeXfactory/codexFactory` `main` at 23:27:22Z; the `review-lane-repin` sweep
+  before it — run
+  [34416680260](https://github.com/opensoft/openxFactory/actions/runs/34416680260)
+  (2026-09-09T23:22:59Z, success) — was five minutes early and correctly found
+  nothing owed. **The next `17 * * * *` tick is the first firing that can see
+  the moved floor**, and what it should open is this repository's first
+  ARMED-INERT advance (`amend-mirror-floor-regeneration-merge-authority` box
+  1.3: the arming is inert by ruling until the enrolment successor lands), which
+  a human then merges. **Half two ticks on the FIRST `main` run after that
+  re-pin lands, quoting `covered-pending: 0` from it, and not before. That is an
+  event, not a judgement, and this record will not simulate it.**
+  **THE MERGE WORD FOR THAT RE-PIN IS BRETT HEAP'S AND HAS NOT BEEN GIVEN.**
 - [ ] 5.6 The end-to-end wall time is measured and recorded against the two hand
   cycles in `proposal.md` § Why (55 min and 77 min).
   **MEASURED AND RECORDED — NOT YET THE FIGURE THE BOX ASKS FOR, SO IT STAYS
@@ -516,6 +647,23 @@ boxes:
   ZERO in this cycle, which is the claim; WALL TIME was attended by three repairs
   and one grant wait, so the comparable unattended figure is owed on the first
   repair-free cycle.
+
+  **2026-09-09 — THE FIGURE IS STILL OWED; THE 2026-09-09 CYCLE DOES NOT SUPPLY
+  IT EITHER. THE BOX STAYS OPEN.** Two reasons, both measured:
+  **(a) THE CYCLE IS NOT END-TO-END YET.** The box asks for an END-TO-END wall
+  time and the end is this repository's re-pin merge, which has not happened
+  (5.5 (b)). The codexFactory half alone ran promotion `56e69a11`
+  (2026-09-09T07:49:06Z) -> first owed regeneration run 34389386288 (18:30:10Z)
+  -> #314 opened 21:32:00Z -> merged `b08958ae` 23:27:22Z: **15 h 38 min 16 s**,
+  which is a half-cycle figure and not the one asked for.
+  **(b) IT WAS NOT REPAIR-FREE, and by a wider margin than the first cycle
+  was.** The path was cleared by codexFactory #306, #307, #308 and #310, by a
+  hand `workflow_dispatch` of the merge-master, and by an operator closing #302
+  — on top of the openxFactory-side org-move repairs (#801) that reddened both
+  lanes from ~13:1xZ to 15:40Z. **LANE TIME — an operator authoring the advance
+  — was again ZERO, which is the packet's actual claim**; the comparable
+  UNATTENDED wall time remains owed on the first cycle that runs clean end to
+  end in both repositories.
 - [x] 5.7 ONE observed refusal on a real run, of any kind (non-landed core, a
   site that did not move, an unresolved binding), quoted verbatim — or the box
   stays OPEN and says so rather than being ticked on a test-only observation.
@@ -566,6 +714,11 @@ boxes:
   record is `review/ratification-2026-09-06.md`. The box is left UNTICKED
   deliberately — ticking an owner's-act box is a claim an agent may not make
   about the owner, and this dated note is how the act is recorded instead.**
+  **2026-09-09 — THE ACT IS DONE AND ONLY THE TICK IS OWED, and the tick is
+  Brett Heap's.** Nothing about this box waits on work in either repository: the
+  ratification happened on 2026-09-06 and is cited above with its word, its head
+  and its record. Carried into the archive ledger below as NEEDS-BRETT (tick
+  only), not as unfinished realization.
 - [ ] 6.2 Rule on the authoring decisions M-1 through M-7, and in particular on
   M-7 (the lane writes no comment-history paragraph, so eight advances of
   narrative in `contracts/review-lane-pin.yaml` stop accruing) and on M-1's
@@ -573,6 +726,11 @@ boxes:
   **2026-09-06 — STOOD. Under the ratification word, M-1 through M-7 stand as
   recommended and no veto was exercised; each remains one edit away. The box
   stays UNTICKED for the same reason 6.1's does.**
+  **2026-09-09 — UNCHANGED: no veto has been exercised on M-1..M-7 in the three
+  days since, and M-1's schedule location has been exercised on every hourly
+  tick since 2026-09-06 with no operator dispatch. The act is done and only the
+  tick is owed; carried into the archive ledger below as NEEDS-BRETT (tick
+  only).**
 - [ ] 6.3 SEPARATE AND NOT ASKED FOR HERE: whether the merge-master low-risk
   envelope — live today only for the doc-health nightly lane — should ever be
   extended to this lane. The default is a human merge word, and it holds until
@@ -580,6 +738,26 @@ boxes:
   and noting that `contracts/review-lane-pin.yaml` is itself a never-clearable
   floor entry whose stated ground is that a clearable pin *"would let a pull
   request choose its own judge"*.
+  **2026-09-09 — THE SUCCESSOR IS NAMED AND FILED, AND THE QUESTION IS ANSWERED
+  FOR THE OTHER REPOSITORY BUT NOT FOR THIS LANE.**
+  **NAMED AND FILED:** `openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/`
+  is an ACTIVE change in this repository, governed by
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and opened on
+  Brett Heap's 2026-09-07 ~02:0xZ multiple-choice ruling, verbatim *"Propose the
+  extension now"*. Under the 2026-09-06 owed-successor ruling — an owed
+  successor's task box ticks when the successor is NAMED — this box is
+  TICKABLE. **It is left UNTICKED because § 6 is the owner's-acts section and
+  the tick is his, for the same reason 6.1's and 6.2's are.**
+  **ANSWERED THERE, NOT HERE:** codexFactory's side of the envelope was extended
+  (candidate class `openxfactory-floor-regeneration`, codexFactory #282/#308)
+  and PROVEN on 2026-09-09 — `codexfactory[bot]` approved #314 and that App
+  approval satisfied the count-1 rulesets. **THIS LANE'S TWIN IS NOT ENROLLED.**
+  `amend-mirror-floor-regeneration-merge-authority` realized the arming here
+  INERT BY RULING (its box 1.3), and the enrolment successor
+  `admit-review-lane-repin-to-merge-approval-envelope` (that packet's box 4.3)
+  is UNFILED and needs its own word. **So the default this box names — a human
+  merge word on the re-pin pull request — still holds, and holds until this box
+  is ruled.**
 - [ ] 6.4 Install or extend the App grant the binding in 3.8 names, if M-6 stands.
   **BRETT'S ACT, AND IT IS THE ONE THING BETWEEN THIS LANE AND A FIRST FIRING.**
   The lane refuses loudly until it resolves, so nothing silently half-works. The
@@ -613,3 +791,79 @@ boxes:
   [#726](https://github.com/opensoft/openxFactory/pull/726) → `0f9361e0`, which
   moved the binding template's grants and the mint together, the test holding
   them equal moving with them.
+
+  **2026-09-09 — A THIRD PART, and it is why the box's own subject moved:** the
+  transfer of `opensoft/codexFactory` to `codeXfactory/codexFactory` (~13:1xZ)
+  voided the cross-organization read grant, and both floor lanes fail-closed at
+  the mint for three hourly ticks. Brett Heap installed the App on the new
+  organization at **2026-09-09T14:42:32Z** (installation `160352673`, all
+  repositories, contents / pull_requests / workflows write), and the first
+  `review-lane-repin` run to mint with `owner: codeXfactory` and succeed was
+  [34376977439](https://github.com/opensoft/openxFactory/actions/runs/34376977439)
+  (16:28:48Z, success). **THE ACT IS DONE — three times over — AND ONLY THE TICK
+  IS OWED**, which is Brett Heap's; carried into the archive ledger below as
+  NEEDS-BRETT (tick only).
+
+## Archive assessment — 2026-09-09, NOT ARCHIVED, and the ledger that says why
+
+**THE WORD WAS GIVEN AND THE ARCHIVE WAS NOT TAKEN, and the second fact is not
+a refusal of the first.** Brett Heap, 2026-09-09 ~23:3xZ, in session, verbatim
+**"archive the option-(b) packets, this lane authors it"**, over the real cycle
+observed that evening: openxFactory promoted `openspec/specs/ideation-intent-plane/spec.md`
+(PR [#832](https://github.com/opensoft/openxFactory/pull/832), `56e69a11`,
+07:49:06Z) -> codexFactory's scheduled lane found the regeneration owed and
+opened the bot pull request (#302 08:32Z, superseded by
+[#314](https://github.com/codeXfactory/codexFactory/pull/314) at 21:32Z once
+#310 made the diff floor-only) -> the lane armed auto-merge -> the merge-master
+minted and `codexfactory[bot]` APPROVED (22:49:36Z, run 34414078939) -> the App
+approval satisfied the count-1 rulesets -> auto-merge completed at
+`b08958aed1d704f29f29c666142d15e653537724`, 23:27:22Z. Bot author, bot arming,
+bot approval, platform merge; floor block 60 -> 61.
+
+**THIS PACKET'S OWN `target_release:` NAMES EVIDENCE THAT DOES NOT YET EXIST,
+AND THAT IS THE WHOLE REASON.** `proposal.md` declares the archive condition in
+its own words — *"ONE COMPLETE CYCLE OBSERVED UNATTENDED — a real
+`openspec/specs/**` promotion here, followed by a bot-opened codexFactory
+regeneration pull request **and a bot-opened re-pin pull request in this
+repository**, both carrying their witnesses, both merged"*. **The codexFactory
+half of that sentence is now satisfied. This repository's half is not**: the
+floor moved at 23:27:22Z, five minutes after the `review-lane-repin` sweep of
+23:22:59Z (run 34416680260) had correctly found nothing owed, so the first
+firing that can see the moved floor is the next `17 * * * *` tick. Under
+`release-realization` a code-surface packet archives only on merged + green
+realization evidence, and **archiving on evidence that has not been produced is
+the one thing this packet has refused to do at every earlier step** (5.1 stayed
+open for three days rather than tick on a `covered-pending: 0`). It is
+consistent to refuse it here too.
+
+**THE LEDGER — every box that is still open, what act it names, and whether the
+act has happened.**
+
+| Box | The act it names | Happened? | Disposition |
+|---|---|---|---|
+| 5.5 | Both halves merge on a human word; `covered-pending` returns to zero on the next `main` run, quoted verbatim | **PART** | (a) the human-word clause is SUPERSEDED for the codexFactory half by `amend-floor-regeneration-merge-authority` — #314 merged with `mergedBy: app/openxfactory`, no human word owed; (b) this repository's re-pin has NOT opened, so no run can be quoted for `covered-pending: 0`. **Waits on an EVENT, then on Brett Heap's merge word.** |
+| 5.6 | End-to-end wall time measured against the 55 min / 77 min hand cycles | **NO** | The end of the cycle is this repository's re-pin merge. The codexFactory half alone is 15 h 38 min 16 s and was attended by four repairs (#306/#307/#308/#310), a hand dispatch and an operator closing #302. LANE TIME was again ZERO. **Waits on the same event.** |
+| 6.1 | Ratify or refuse this packet | **YES — 2026-09-06** | Brett Heap, *"ratify both when green, then land them"*, PR #708, head `e4ef8ade`; record `review/ratification-2026-09-06.md`. **NEEDS-BRETT (tick only)** — an agent may not tick an owner's-act box. |
+| 6.2 | Rule on authoring decisions M-1..M-7 | **YES — 2026-09-06** | Stood as recommended under the ratification word; no veto in the three days since. **NEEDS-BRETT (tick only).** |
+| 6.3 | Whether the merge-master low-risk envelope should ever be extended to THIS lane | **NO (successor NAMED)** | `extend-merge-master-envelope-to-floor-bot-lanes` is an ACTIVE change here, opened on the 2026-09-07 word *"Propose the extension now"*. Under the 2026-09-06 owed-successor ruling the box is TICKABLE ON THE NAMING; it sits in § 6, so the tick is his. The default — a human merge word on the re-pin — HOLDS. **NEEDS-BRETT (ruling or tick).** |
+| 6.4 | Install or extend the App grant the 3.8 binding names | **YES — three times** | (a) already in place at first firing; (b) `workflows: write` granted 2026-09-06T20:25:29Z; (c) the `codeXfactory` installation `160352673` at 2026-09-09T14:42:32Z after the org move. **NEEDS-BRETT (tick only).** |
+
+**NOT ONE OF THE SIX IS UNDONE REALIZATION OF THIS CHANGE.** Four (6.1, 6.2,
+6.3, 6.4) are owner's acts, three of them already TAKEN and recorded above with
+their words and dates; two (5.5, 5.6) are observations of an event that has not
+occurred. **No box was ticked to satisfy a gate, none was deleted, and the
+superseded human-word clause at 5.5 (a) is recorded with its superseding
+mechanism rather than struck out.**
+
+**WHAT WOULD MAKE THE ARCHIVE TAKEABLE, in order:** (1) the next `17 * * * *`
+`review-lane-repin` tick opens this repository's first ARMED-INERT advance
+(inert by the 1.3 ruling in `amend-mirror-floor-regeneration-merge-authority`,
+which stays ACTIVE by its own gate and is untouched by this pull request);
+(2) Brett Heap merges it; (3) the first `main` run after that quotes
+`covered-pending: 0`, which ticks 5.5, and the completed cycle supplies 5.6's
+end-to-end figure; (4) Brett Heap ticks 6.1, 6.2, 6.4 and rules or ticks 6.3.
+**Then the archive is a bookkeeping act rather than a claim** — through
+`scripts/proposal-support.py . archive mirror-floor-regeneration-automation`,
+promoting `specs/review-lane-floor-mirror/` into
+`openspec/specs/review-lane-floor-mirror/spec.md`, on the precedent of PR
+[#699](https://github.com/opensoft/openxFactory/pull/699) (`b5eddaa3`).
