@@ -210,7 +210,7 @@ def build_workbench_from_recipe(
       * `recipe.last_run` is stamped so the set is immediately re-runnable.
 
     Returns the in-memory Workbench; the caller persists it via `save`/
-    `add_as_cluster` through an OutputBoundary. Never writes anything itself."""
+    `lens_submission.add_as_cluster` through an OutputBoundary. Never writes anything itself."""
     now = now or _utcnow()
     recipe: dict = {"checked": list(checked)}
     if pinned:

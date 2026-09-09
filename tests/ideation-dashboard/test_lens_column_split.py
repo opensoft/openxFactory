@@ -70,14 +70,21 @@ def _imports_sibling(source: str, sibling: str):
 def test_lens_imports_nothing_from_human_seen():
     """The removed edge, stated as the thing it is: a DIRECTION. `lens.py` is
     openDox; `human_seen.py` is openxFactory's own engineering adapter (D3's
-    third column, RULING DQ-1). openDox may not reach it."""
+    third column, RULING DQ-1). openDox may not reach it — directly, or
+    transitively by re-importing the module `human_seen` moved to
+    (`lens_submission`); a bare `from . import lens_submission` in `lens.py`
+    would restore the same reach with every other test in the suite still
+    green, so the scan below covers both siblings."""
     source = LENS.read_text(encoding="utf-8")
     offenders = [f"lens.py:{line} {spelling}"
-                 for line, spelling in _imports_sibling(source, "human_seen")]
+                 for sibling in ("human_seen", "lens_submission")
+                 for line, spelling in _imports_sibling(source, sibling)]
     assert offenders == [], (
         "`lens.py` is the openDox set-builder and must not import openxFactory's "
         "cross-reference submission path — that is what pre-carve split S-2 "
-        f"removed, and `lens_submission.py` is where it went. Offenders: {offenders}")
+        "removed, and `lens_submission.py` is where it went — nor may it "
+        "re-import `lens_submission` itself, which would restore the "
+        f"`human_seen` reach transitively. Offenders: {offenders}")
 
 
 def test_the_scan_sees_every_spelling_of_the_edge():
