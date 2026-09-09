@@ -135,7 +135,30 @@ jobs:
 
     env:
       SOURCE_REPOSITORY: codeXfactory/codexFactory
-      FLOOR_IN_SOURCE: scripts/merge_master/openxfactory-review-authority-floor.yaml
+      # THE ORDERED CANDIDATE LIST, PATH IN FORCE FIRST, FIRST-OBTAINED-WINS.
+      # Realizes M-1 step (1) of `relocate-review-authority-floor-mirror`
+      # (ratified 2026-09-08, PR #817): codexFactory is relocating this document
+      # off every CODEOWNERS prefix (codexFactory #293), and a two-repository
+      # move cannot be atomic — if codexFactory moved first, every firing of
+      # this lane would refuse `floor_document_unobtainable`.
+      #
+      # OLD FIRST IS THE SAFETY ARGUMENT (M-2), not a formatting choice: until
+      # the document actually moves, candidate one always resolves and this lane
+      # behaves EXACTLY as it did with a single path, so landing this ahead of
+      # another repository's change is an observable no-op.
+      #
+      # THIS LIST IS DUPLICATED, DELIBERATELY, in
+      # `scripts/review_lane_repin.py`'s `FLOOR_IN_SOURCE_CANDIDATES` and in the
+      # `tests/review_lane_pin/` literals — "a value read from the artifact it
+      # is used to check makes the check a tautology". The duplication is held
+      # honest by an assertion that every declaration carries the SAME ordered
+      # list, not by anyone remembering.
+      #
+      # IT RETURNS TO ONE ENTRY at M-1 step (3), once one advance has been
+      # observed against the successor. The lane never SEARCHES beyond it (M-7).
+      FLOOR_IN_SOURCE_CANDIDATES: |
+        scripts/merge_master/openxfactory-review-authority-floor.yaml
+        floor/openxfactory-review-authority-floor.yaml
       BOT_BRANCH: bot/review-lane-repin
       BINDING: contracts/review-lane-repin-binding.template.yaml
       # A hand firing defaults to an inspection; a scheduled or dispatched
@@ -317,17 +340,82 @@ jobs:
           GH_TOKEN: ${{ steps.source-token.outputs.token }}
           BRANCH_SHA: ${{ steps.source.outputs.sha }}
         run: |
+          # `-e` IS KEPT, AND THE ONE PLACE IT IS SUSPENDED IS EXPLICIT. The
+          # `gh api` call runs under `set +e` for exactly as long as it takes to
+          # capture its exit status, and the status is then CLASSIFIED: only a
+          # 404 — genuinely absent — moves to the next candidate, and every
+          # other failure aborts the step. So no failure is tolerated by
+          # accident, and "no candidate resolved" means what it says.
           set -euo pipefail
           OUT="${RUNNER_TEMP}/floor-at-source.yaml"
-          if gh api "repos/${SOURCE_REPOSITORY}/contents/${FLOOR_IN_SOURCE}?ref=${BRANCH_SHA}" \
-               -H "Accept: application/vnd.github.raw" > "${OUT}"; then
+          FIRST=""
+          OBTAINED=""
+          TRIED=""
+          # FIRST-OBTAINED-WINS over the declared list, IN ORDER. Each miss is
+          # recorded so a refusal names the whole set that was tried, and the
+          # loop stops at the first hit — it never keeps looking for a "better"
+          # path, because a second copy is a fact about codexFactory this lane
+          # is not entitled to arbitrate.
+          while IFS= read -r CANDIDATE; do
+            [ -n "${CANDIDATE}" ] || continue
+            [ -n "${FIRST}" ] || FIRST="${CANDIDATE}"
+            TRIED="${TRIED:+${TRIED}, }${CANDIDATE}"
+            # ABSENCE IS THE ONLY THING THAT ADVANCES THE LOOP. An `if` around
+            # `gh api` would swallow EVERY failure — auth, rate limit, a 500 —
+            # and read it as "this candidate does not exist", which during a
+            # migration window is the worst possible misreading: a transient
+            # error on candidate one would fall through to the successor and
+            # report a relocation that has not happened, or exhaust the list and
+            # refuse for a reason that is not true. So the HTTP status is
+            # inspected: a 404 means genuinely absent and moves to the next
+            # candidate; anything else ABORTS THE STEP, fail-closed.
+            # REDIRECT ORDER IS LOAD-BEARING AND IT IS `2>&1 >FILE`, NOT
+            # `>FILE 2>&1`. The latter points stderr at the FILE — the command
+            # substitution then captures nothing, `ERR` is empty, the 404
+            # classification below never matches, and EVERY miss aborts the
+            # step, which is the exact opposite of the intent and would break
+            # this lane on a genuine absence. It also leaves error text in the
+            # document the lane is about to treat as the floor. Written this way
+            # round, stderr is duplicated to the substitution BEFORE stdout is
+            # sent to the file, so `ERR` is the message and `${OUT}` is bytes.
+            set +e
+            ERR="$(gh api "repos/${SOURCE_REPOSITORY}/contents/${CANDIDATE}?ref=${BRANCH_SHA}" \
+                     -H "Accept: application/vnd.github.raw" 2>&1 >"${OUT}")"
+            RC=$?
+            set -e
+            if [ "${RC}" -eq 0 ]; then
+              OBTAINED="${CANDIDATE}"
+              break
+            fi
+            if printf '%s' "${ERR}" | grep -qiE '(HTTP 404|Not Found)'; then
+              continue
+            fi
+            echo "::error title=review-lane-repin::reading ${CANDIDATE} at ${BRANCH_SHA} failed for a reason that is NOT absence (exit ${RC}): ${ERR}. The lane refuses rather than reading a transient or permission failure as a moved document."
+            exit 1
+          done <<< "${FLOOR_IN_SOURCE_CANDIDATES}"
+
+          if [ -n "${OBTAINED}" ]; then
             echo "path=${OUT}" >> "$GITHUB_OUTPUT"
-            echo "fetched ${FLOOR_IN_SOURCE} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes)"
+            echo "source_path=${OBTAINED}" >> "$GITHUB_OUTPUT"
+            # THE WITNESS LINE. It names WHICH declared path answered, and says
+            # in words whether that is the path in force or a migration in
+            # progress — so a reader of the run learns the state of a
+            # two-repository move without opening either diff.
+            if [ "${OBTAINED}" = "${FIRST}" ]; then
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — candidate 1 of the declared list, the path in force; no migration in progress"
+            else
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — NOT the first declared candidate: ${FIRST} did not resolve, so the relocation ruled by relocate-review-authority-floor has landed in codexFactory and M-1 step (3) is now owed here"
+            fi
+            echo "${WITNESS}"
+            echo "${WITNESS}" >> "$GITHUB_STEP_SUMMARY"
           else
             # The decision module turns an absent document into a refusal that
-            # names itself; leaving `path` empty is how it is told.
+            # names itself; leaving `path` empty is how it is told. It fires
+            # ONLY when no declared candidate resolved.
+            rm -f "${OUT}"
             echo "path=" >> "$GITHUB_OUTPUT"
-            echo "::warning title=review-lane-repin::could not fetch ${FLOOR_IN_SOURCE} at ${BRANCH_SHA}; the lane will refuse."
+            echo "source_path=" >> "$GITHUB_OUTPUT"
+            echo "::warning title=review-lane-repin::no declared candidate resolved at ${BRANCH_SHA} (tried: ${TRIED}); the lane will refuse."
           fi
 
       # ---- 4. Measure, decide, write, and RE-READ ----------------------------
@@ -349,6 +437,7 @@ jobs:
           REACHABLE: ${{ steps.source.outputs.reachable }}
           EVIDENCE: ${{ steps.source.outputs.evidence }}
           FLOOR_PATH: ${{ steps.floor.outputs.path }}
+          FLOOR_SOURCE_PATH: ${{ steps.floor.outputs.source_path }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -359,6 +448,7 @@ jobs:
             --candidate-reachable "${REACHABLE}" \
             --reachability-evidence "${EVIDENCE}" \
             --floor-document "${FLOOR_PATH}" \
+            --floor-source-path "${FLOOR_SOURCE_PATH}" \
             --run-url "${RUN_URL}" \
             --plan-out "${RUNNER_TEMP}/plan.json" \
             --body-out "${RUNNER_TEMP}/pr-body.md" \

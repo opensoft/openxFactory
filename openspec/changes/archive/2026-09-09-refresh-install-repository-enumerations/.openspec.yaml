@@ -1,0 +1,92 @@
+schema: spec-driven
+created: 2026-09-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-08-refresh-install-repository-enumerations
+  reason: >-
+    OQ-9 AND TASK § 8.4 OF THE ARCHIVED `implement-omniworker-install-repo`,
+    filed at that packet's archive as openxFactory issue #796 so the owed box
+    ticked on a naming rather than staying open, and extended by a 2026-09-08
+    addendum that raised its scope from three enumerations to FOUR after
+    `copilot-pull-request-reviewer` raised the fourth on PR #803.
+    THE GAP IS AN INDEX, NOT A BOUNDARY. `opensoft/OmniWorker-Install` was
+    created 2026-09-05T16:15:48Z, admitted to the top-level xFactory aggregation
+    at `installs/omniworker-install` by opensoft/xFactory#274 (merge commit
+    648c8bd3fc4717e5b969cd95ea3e0207700e8925), and its boundary requirement was
+    promoted into `repo-boundary-governance` on 2026-09-08 by openxFactory#803
+    (d7fbe933). So the repository exists, is mounted and is governed — while
+    four hand-written enumerations across three capabilities still name two or
+    four install repositories. One of them, `repo-boundary-governance`'s `##
+    Purpose`, has not moved since 9ebceeff (2026-06-26) and is three
+    repositories behind.
+    WHY IT WAS DEFERRED, AND WHY THE DEFERRAL ENDS HERE. Every predecessor left
+    the enumeration alone on `implement-keycloak-install-repo`'s reasoning that
+    two changes sharing one requirement collide at archive time. This packet
+    CHECKED that collision rather than inheriting it, and it does not exist: no
+    active change writes the `Install repository scope` requirement key at all
+    (two archived writers only), and the `co-modifier` class on both `implement-
+    keycloak-install-repo` and `implement-openxpki-install-repo` comes from each
+    sharing its OWN sibling boundary requirement with an active partner (`add-
+    identity-brokering`, `add-trust-anchor`), not from the enumeration. Grepping
+    all 41 other active change directories for each of the seven requirement
+    titles this packet writes -- the six it MODIFIES plus the one it ADDS --
+    returns zero hits, so nothing is owed under `release-realization`'s
+    ordered-deltas rule. THE LEDGER ROW NEVERTHELESS SEEDS `class: co-modifier`,
+    and that is not a contradiction: the ledger's corpus is active PLUS
+    archived, and `admit-install-repos-to-aggregation` -- archived -- wrote
+    `Install repository scope` in August. `class:` states a fact about HISTORY;
+    the absence of a LIVE collision is the separate fact above. Which is why
+    this packet DECLARES `sequenced_after: [admit-install-repos-to-aggregation]`
+    at depth 1, the positive claim that its deltas are relative to that
+    change's outcome, rather than leaving the field absent.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/INDEX.md` and every topic folder were read on 2026-09-08:
+    no topic carries the install-repository enumerations, the index-versus-
+    authority question, or the aggregation mount list. `kind: staged` would
+    claim a staging source that does not resolve. The organized source is issue
+    #796 and the archived packet's own design § D6.
+  proposed_by: >-
+    Lane `openxfactory-3` (display `openXfactory-3`), session 60ef3d3f, agent O
+    — authoring the successor openxFactory issue
+  proposed_on: 2026-09-08
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-09
+    (~00:24Z), lane `openxfactory-3`, verbatim: "ratify
+    refresh-install-repository-enumerations", recorded on openxFactory issue
+    #591 as comment 5593837071 at 2026-09-09T00:24:24Z.
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind`, `id` and `reason`
+    never move, which is the shape `add-drafted-proposal-origin` (issue #318)
+    defined for this transition: approval is a pure ADDITION to a fixed origin
+    identity, so nothing that repeats `kind` and `id` comes to disagree with
+    the packet, and the archive gate's origin-retention arm reads the
+    declaration this commit establishes.
+    TWO DIFFERENT WORDS, AND ONLY THE SECOND RATIFIES. The earlier word "do
+    794, 795 and 796" (2026-09-08 ~14:3xZ, same issue) ADMITTED the work and
+    the packet said in terms that it ratified no text; this word reaches the
+    text. It was given over a packet whose THREE veto points were carried
+    verbatim in `tasks.md` § 1.2 and in openxFactory PR #818's body — `design.md`
+    D1 (WIDEN the enumerations and state the index rule, against replacing the
+    hand lists with a list derived from the aggregation's `installs/` mount
+    list, refused on the nine-against-five measurement and recorded NOT TAKEN
+    rather than foreclosed), `design.md` D3 (the SIX-MODIFIED scope, of which
+    exactly TWO widened units are absent from issue #796's list) and
+    `design.md` D5 (the one deliberately OPEN-ENDED widening, "Submodule
+    sequencing") — and NONE of the three was vetoed. The packet is ratified AS
+    AUTHORED.
+    RATIFICATION PERFORMS NO REALIZATION. No promoted specification byte moves,
+    the `## Purpose` widening stays OWED at `tasks.md` § 4.1, no box in
+    `tasks.md` § 3 or § 4 ticks on this word, and openxFactory issue #796 stays
+    open until the archive. Under `release-realization` an EMPTY `code_surface`
+    archives on landing rather than on merged-plus-green realization evidence —
+    on a SEPARATE word, which this one is not.
+    Record: `review/ratification-2026-09-09.md`.
+  approved_on: 2026-09-09
+related:
+  - openxFactory:change:archive/2026-09-08-implement-omniworker-install-repo  # ARCHIVED. The packet whose design § D6 OQ-9 and tasks § 8.4 name this successor, and whose ADDED boundary requirement made the fifth repository governed
+  - openxFactory:change:archive/2026-08-25-admit-install-repos-to-aggregation  # ARCHIVED. The last widening of *"Install repository scope"*, taken for two of four repositories; the model for this packet's MODIFIED block, and the act that left the `## Purpose` behind
+  - openxFactory:change:implement-keycloak-install-repo  # ACTIVE. Named because #796 said to check it for collision; measured NOT to write this packet's requirement keys (design D2), and its README-link obligation is why `Install repo scope links` is out of scope
+  - openxFactory:change:implement-openxpki-install-repo  # ACTIVE. Same, the second half of the same measurement
+  - openxFactory:change:archive/2026-09-08-publish-openspec-cli-pin-as-contract-member  # ARCHIVED. The landed precedent for declaring a `## Purpose` widening owed in tasks and taking it in the archive commit as a separate hunk (its § 5.8)
+  - openxFactory:change:archive/2026-09-04-add-drafted-proposal-origin  # ARCHIVED. The lawful unapproved origin shape this packet is authored in
+  - openxFactory:change:prepare-openspec-1.12-readiness  # ACTIVE. States the rule that a delta's `## Purpose` is read only at capability creation; cited as reasoning rather than as canon because it has not archived
