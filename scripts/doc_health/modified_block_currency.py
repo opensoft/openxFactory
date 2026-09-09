@@ -818,8 +818,6 @@ class Marker:
         # unit-naming forms, which declare a fact about UNITS rather than a
         # relation between two documents. A LAST parameter with a default, so
         # every existing positional construction of a `Marker` still reads.
-        # A LAST parameter with a default, so
-        # every existing positional construction of a `Marker` still reads.
         self.basis = basis
         # THE SPANS THE REASON QUOTES — the code spans of a unit-naming
         # marker's tail that fall AFTER the reason boundary, in order,
@@ -1357,7 +1355,7 @@ _WHY_QUOTED = ("whose reason QUOTES {quoted}, a promoted unit of the "
 
 def suppression(markers: list[Marker], canon_units: list[Unit],
                 block_units: list[Unit]
-                ) -> tuple[set[tuple[str, str]], list[Marker]]:
+                ) -> tuple[set[tuple[str, str]], list[_MarkerDefect]]:
     """`(suppressed, defective)` — what the block's markers declare, and which of
     them declare nothing.
 
