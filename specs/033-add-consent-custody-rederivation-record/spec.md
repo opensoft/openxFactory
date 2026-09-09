@@ -62,7 +62,7 @@ carried forward from the packet.
 | --- | --- |
 | Feature number | `033` — `specs/` on `main` ends at `032-govern-archived-record-edits`; `git branch -r` shows no `033-*` on origin. No collision. |
 | Packet task boxes | 46, ZERO ticked (§ 0: 1, § 1: 3, § 2: 5, § 3: 7, § 4: 16, § 5: 6, § 6: 5, § 7: 3). |
-| Boxes in this feature's scope | 37 to TICK (§ 0.1, § 1.1–1.3, § 2.1–2.5, § 3.1–3.5, § 4.1–4.9, § 5.2–5.5); § 5.1 MEASURED and reported, claimed by the lane; § 5.6 `[OPERATOR]`; §§ 6–7 (8 boxes) NOT-OWED. |
+| Boxes in this feature's scope | **35 to TICK** (§ 0.1, § 1.1–1.3, § 2.1–2.5, § 3.1–3.5, § 4.1–4.9, § 5.2–5.4); **3 NOT-OWED-HERE** (§ 5.1 the lane's claim, § 5.2's number MEASURED and reported by me; § 5.5 the lane's landing bookkeeping; § 5.6 `[OPERATOR]` tag); **8 NOT-OWED** (§§ 6–7). 35 + 3 + 8 = 46. |
 | `contract_schema_version` today | `2` (`contracts/schemas/consent-instrument.schema.yaml:16`). |
 | `custody` object today | closed to exactly `{locator, sha256}`, `additionalProperties: false`. |
 | Canonical validator | `scripts/validate-consent-instruments.py`, 862 lines; `Findings` carries `errors` / `warnings` / `notes` ONLY; exit codes documented `0 ok, 1 findings, 2 dependency/harness error`. |
@@ -224,17 +224,65 @@ unchanged candidate.
   packet's `code_surface` says so in as many words; the CHANGELOG entry records
   it as a consumer-visible behaviour change of the validator.
 - **The manifest corpus comment is already stale.** Re-measure, do not increment.
-- **A `content`-class fixture must not redden CI.** Whatever exit-status class
-  WITHHELD takes, the packaged corpus containing a withheld fixture must leave
-  the repository's own gates green, or this feature breaks `pytest-suite` for
-  everyone. This is a hard constraint on the answer to clarify question Q3.
+- **A `content`-class fixture must not redden CI — and the constraint turned out
+  not to bind.** MEASURED at clarify round 1: **no caller reads this validator's
+  exit code today** — not one of the twelve workflows, no pytest, and no
+  OpsxFactory leg. So a new nonzero status for WITHHELD reddens nothing, and the
+  PACKAGED withheld fixture is exempt from it in any case (an expected
+  withholding is to the third bucket what an expected failure is to a negative).
+- **The exit-code NUMBER is not this feature's to rule.** It is planned on `3`
+  behind a single named constant, parked for Brett Heap. A different ruling
+  moves the constant and nothing else.
 
 ## Clarifications
 
-### Session 2026-09-09 — architect seat (lane `opsXfactory-1`)
+### Session 2026-09-09 — architect seat (lane `opsXfactory-1`), after cross-model adversarial review
 
-Pending. Questions are in
-`specs/033-add-consent-custody-rederivation-record/clarify-questions.md`.
+Twelve questions asked and RULED; answers are written inline beneath each
+question in
+`specs/033-add-consent-custody-rederivation-record/clarify-questions.md`, with
+two additions (A1, A2) the review raised. The binding effects on this
+specification:
+
+- **Q1** — ONE pull request carries §§ 2–5 (§ *Version Identity* requires the
+  manifest and changelog to move atomically with the contract files). The
+  version number is re-measured and CLAIMED BY THE LANE at the last
+  merge-from-main before the merge; the PR body names `contract-v3.5` as a
+  provisional MEASURED candidate. **The landing contract is recorded in
+  `plan.md`.** § 5.5 and § 5.6 are NOT-OWED-HERE.
+- **Q2** — **PARKED FOR BRETT**, planned on a new exit code for "needs a human
+  decision", provisionally `3`, behind a single named constant. The refutation
+  of the exit-0 reading is accepted: task 3.4b requires *"the exit status the
+  repository rules"* and the delta says WITHHELD is *"never a pass"*, and the
+  supposed CI constraint does not bind because no caller reads the code.
+- **Q3** — `examples/consent-instrument/withheld/` +
+  `EXPECTED_WITHHELD_OUTCOMES`, fail-closed both ways; `repo_scan` reports
+  WITHHELD as found.
+- **Q4** — only `contract_schema_version` moves.
+- **Q5** — **NO SPLIT**: the manifest's digest re-derivation, bundle version and
+  `consumption_rule` paragraph ALL ride the single § 5.2 candidate commit,
+  because intermediate branch commits are ungated (CI runs at the PR head).
+  § 2's commit leaves the digest stale on purpose and says so.
+- **Q6** — the CHANGELOG attributes all 4 additions and 14 modifications since
+  `contract-v3.4`; ADDITIVE minor.
+- **Q7** — `tests/consent_instruments/`; BOTH fixture and parametrized pytest
+  for the walk; BOTH source-level ban and runtime patch over ALL THREE buckets.
+- **Q8** — amend three README sites in the `3b530009` form (this packet's own
+  row; `README.md:3022`, keeping *"the three pins are still broken"*; and
+  `README.md:2993`, the load-bearing premise of `govern-archived-record-edits`'
+  transition clause). The LANE posts the substrate note for the two sibling-row
+  sentences BEFORE they are written.
+- **Q9** — tree and table complete, nine new *Named cases* bullets, a third
+  table column.
+- **Q10** — all seven finding codes adopted verbatim.
+- **Q11** — § 5.4 ticks on the local run of all five gates against the exact
+  candidate.
+- **Q12** — walk the whole entry minus the two digest fields.
+- **A1** — `contracts/README.md:102` carries a corpus count task 4.9 does not
+  name, already false at 6/7; an ADDITIONAL realization act corrects it.
+- **A2** — landing DECLARES the consent family's re-derivation rule, which under
+  `govern-archived-record-edits`' transition clause converts that family from
+  REPORTED to REFUSED once F.2's gate exists. **State it; do not act on it.**
 
 ## Requirements *(mandatory)*
 
@@ -281,21 +329,35 @@ Pending. Questions are in
   generally any state in which the pin has been advanced to a value the chain
   records as observed.
 - **FR-012**: the validator MUST NOT open a repository, shell out to `git`, or
-  read a file named by a locator, and a TEST MUST pin that absence.
+  read a file named by a locator. **TWO assertions pin the absence** (Q7c), both
+  in `tests/consent_instruments/`: a SOURCE-LEVEL ban (no `subprocess` import,
+  no `git` token, no locator-named file read anywhere in the module) AND a
+  RUNTIME patch of `subprocess.run` and `Path.open` exercised over **all three
+  buckets** — positive, negative and withheld — since the withheld leg is the
+  one most likely to reach for a repository.
 - **FR-013**: the validator's report line for a chained instrument MUST state
   what it checked and what it did not, so a neutral pass is not readable as a
   currency verdict.
 - **FR-014**: a `content`-class entry with sound internal legs MUST yield
   `custody-content-class-withheld` as a NAMED OUTCOME distinct from error and
-  from warning — reported beside the error and warning counts, with an exit
-  status class meaning "needs a human decision".
+  from warning — reported beside the error and warning counts, with a **NEW exit
+  status meaning "needs a human decision"**. The status MUST be a **single named
+  module constant** (provisionally `3`; the NUMBER is parked for Brett Heap, so
+  a different ruling moves the constant and nothing else), the script's
+  `Exit codes:` docstring MUST be extended **in this script only**, and the
+  design note MUST record that the number is his ruling. A withheld fixture in
+  the PACKAGED corpus is EXEMPT from raising it — an expected withholding is to
+  the third bucket what an expected failure is to a negative.
 - **FR-015**: a `path_only` entry whose `previous_sha256 != observed_sha256`
   MUST be refused.
-- **FR-016**: `walk_strings` MUST be extended over
-  `custody_rederivations[].ruling_ref` and `.recorded_by` (and the locators, on
-  the same footing as `custody.locator`), reusing the existing
-  `BASE64_BLOB_RX` / `data:` / PDF-magic / multi-line predicates and the
-  `embedded-original-content` finding code.
+- **FR-016**: `walk_strings` MUST be extended over **the whole entry minus the
+  two digest fields** (`previous_sha256`, `observed_sha256`) — so both locators,
+  `ruling_ref` and `recorded_by` are walked, and `commit` / `at` / `diff_class` /
+  `reason` ride along already bounded by a pattern, a format or a closed
+  enumeration. It reuses the existing `BASE64_BLOB_RX` / `data:` / PDF-magic /
+  multi-line predicates and the `embedded-original-content` finding code, and is
+  proved BOTH by the § 4.8b fixture in the self-test AND by a **parametrized
+  pytest** reaching each of the four free strings.
 
 ### Functional Requirements — § 4, the fixtures
 
@@ -311,23 +373,48 @@ Pending. Questions are in
   omitting `recorded_by`; an entry carrying an ELEVENTH property; a rewritten
   pin; a blob-shaped `ruling_ref` AND a blob-shaped `recorded_by`; and a
   `path_only` entry whose two digests differ.
-- **FR-022**: a WITHHELD fixture MUST exist and MUST be asserted as WITHHELD —
-  neither positive nor negative — which requires `self_test` to grow a THIRD
-  expectation bucket.
+- **FR-022**: a WITHHELD fixture MUST live in a THIRD directory
+  `examples/consent-instrument/withheld/` and MUST be asserted as WITHHELD —
+  neither positive nor negative. `self_test` MUST grow an
+  `EXPECTED_WITHHELD_OUTCOMES` table that is **fail-closed both ways**, exactly
+  as `EXPECTED_NEGATIVE_FINDINGS` is: a fixture on disk with no table entry and
+  a table entry with no fixture are each errors. `repo_scan` (layer 2) needs no
+  bucket discipline — it reports WITHHELD as it finds it.
 - **FR-023**: `examples/consent-instrument/README.md` and the
   `consent-instrument` corpus comment in `contracts/manifest.yaml` MUST carry
-  RE-MEASURED counts, not arithmetic on the stale figures.
+  RE-MEASURED counts, not arithmetic on the stale figures. The README's Layout
+  tree and *Schema → example map* table MUST be COMPLETE over the grown corpus,
+  the table MUST gain a **third column** for the withheld bucket, and *Named
+  cases from the spec* MUST gain **one bullet per refusal code (7) + one
+  positive chain-shapes bullet + one withheld bullet**.
+- **FR-024** *(added at clarify A1, and NOT named by any ratified task)*:
+  `contracts/README.md`'s row for `scripts/validate-consent-instruments.py` +
+  `examples/consent-instrument/` MUST carry the RE-MEASURED counts. It reads
+  *"self-testing over 5 positives, 5 indexed negatives, and 2 purpose probes"*
+  and is **already false at 6/7 before this feature adds a byte**. It is carried
+  as an ADDITIONAL realization act, not as an edit to the ratified task list's
+  numbering.
 
 ### Functional Requirements — § 5, the cut
 
-- **FR-030**: the version MUST be allocated at the final integration point after
-  a re-check of availability on all three surfaces (manifest, `contracts/
-  releases/`, tags), never read from this document.
+- **FR-030**: §§ 2–5 MUST land in **ONE pull request** — § *Version Identity*
+  requires the manifest and changelog to be committed atomically with the
+  contract files. The version MUST be allocated at the final integration point
+  after a re-check of availability on all three surfaces (manifest,
+  `contracts/releases/`, tags), never read from this document; the orchestrator
+  **re-measures at every merge-from-main and reports**, and the PR body names
+  `contract-v3.5` as an explicitly PROVISIONAL measured candidate. The CLAIM on
+  issue #630 row 4 is the LANE's, at the last merge-from-main before the merge.
 - **FR-031**: `contracts/manifest.yaml` (`contract_bundle_version`, the
-  `consent-instrument` row's `sha256` re-derived from the moved file, and its
-  `consumption_rule`), `contracts/CHANGELOG.md` and
+  `consent-instrument` row's `sha256` re-derived from the moved file, and an
+  APPENDED `contract-v3.5` `consumption_rule` paragraph in the `contract-v1.33`
+  style), `contracts/CHANGELOG.md` and
   `contracts/releases/<version>.digests.yaml` MUST move atomically in ONE
-  candidate commit.
+  candidate commit — **all three manifest edits included, with NO split**.
+  § 2's schema commit therefore leaves the digest STALE ON PURPOSE and its
+  commit message MUST say so; intermediate branch commits are ungated because CI
+  runs at the PR head. `consent-instrument-class-registry`'s row MUST be
+  untouched.
 - **FR-032**: the CHANGELOG entry MUST list every contract added, changed or
   deprecated in the bundle — including the four `contracts/` additions and
   fourteen modifications since `contract-v3.4` that this session did not author
@@ -341,6 +428,13 @@ Pending. Questions are in
   `scripts/validate-contract-release.py`, and
   `scripts/validate-consent-instruments.py`.
 - **FR-035**: the annotated tag MUST be left OWED. This feature does not tag.
+- **FR-036** *(the landing contract, ruled at Q1 and recorded in `plan.md`)*:
+  landing is a **MERGE COMMIT** — there is no linear-history rule on this
+  repository. The LANE performs the final merge-from-main inside its Rule 6
+  window, RE-RUNS the gates against that merge commit (policy step 4: it IS "a
+  different commit"), then merges. The annotated tag targets the LANDED MERGE
+  COMMIT. If `main` advanced under `contracts/` between integration and merge,
+  the lane REPEATS the integration.
 
 ### Functional Requirements — bookkeeping and evidence
 
@@ -362,6 +456,26 @@ Pending. Questions are in
   `AMENDED <UTC date>`, tick marker `**TICKED <UTC date>`.
 - **FR-045**: doc-health MUST be compared as two reports with identical
   basenames and a pinned `--as-of`.
+- **FR-046** *(ruled at Q8)*: THREE `README.md` sites MUST be amended in the
+  `3b530009` form — this packet's own OpenSpec Records row (*"all 46 boxes …
+  stay unticked"*); `README.md:3022`'s present-tense box count, **keeping
+  "the three pins are still broken"** because that half stays true (the repair
+  is § 6, the consumer's); and **`README.md:2993`**, the
+  `govern-archived-record-edits` row's *"the consent family's is PROPOSED only
+  (`contract_schema_version: 2`, no `custody_rederivations` property,
+  `contract-v3.4`, 46/46 boxes unticked)"* — false on all four counts after this
+  lands and the load-bearing premise of that rule's TRANSITION CLAUSE. The
+  past-tense *"left its 46"* and the dated *"measured 2026-09-09 … at `main`
+  `6cc06288`"* are LEFT as true-when-written. **The LANE posts the substrate
+  note for the two sibling-row sentences BEFORE they are written**; this
+  packet's own row rides its standing row-3 claim (`5571680388`).
+- **FR-047** *(ruled at clarify A2 — state it, do not act on it)*: the
+  realization evidence and the neighbourhood of § 7 in the packet's `tasks.md`
+  MUST carry a DATED note recording that landing this realization **DECLARES the
+  consent family's re-derivation rule**, so under `govern-archived-record-edits`'
+  transition clause an edit of a consent pinned target converts from **REPORTED**
+  to **REFUSED** for that family **once F.2's gate exists**. Nothing in this
+  feature builds, schedules or ticks for it.
 
 ### Key Entities
 
@@ -383,7 +497,7 @@ Pending. Questions are in
   errors and 0 warnings over the grown corpus, and its self-test note reports
   THREE bucket counts.
 - **SC-002**: the packet's `tasks.md` carries 46 notes summing exactly to
-  37 ticked + 1 measured-and-reported (§ 5.1) + 8 NOT-OWED (§ 5.6, §§ 6–7),
+  **35 TICKED + 3 NOT-OWED-HERE (§ 5.1, § 5.5, § 5.6) + 8 NOT-OWED (§§ 6–7)**,
   with no box ticked whose act was not performed.
 - **SC-003**: `git diff` of the schema shows ZERO lines inside the `custody`
   object.
@@ -394,7 +508,12 @@ Pending. Questions are in
 - **SC-006**: the pinned CLI reports `--change … --strict` 1 passed / 0 failed
   and `--all --strict` with zero UNDISPOSITIONED failures.
 - **SC-007**: `python3 -m pytest tests/ -q -m "not postgres"` is green,
-  including the new no-git assertion test.
+  including the new `tests/consent_instruments/` package — the source-level
+  no-git ban, the runtime patch over all three buckets, and the parametrized
+  blob-walk test.
+- **SC-010**: `scripts/validate-consent-instruments.py` over an instrument that
+  WITHHOLDS exits in the new named status class, and the packaged corpus exits
+  0 — the two are distinguishable from the command line.
 - **SC-008**: doc-health's finding set on this branch is diff-identical to
   `main`'s at every severity, both reports taken with the same `--as-of`.
 - **SC-009**: `scripts/validate-sequenced-after.py .` and `--ledger-diff` are
@@ -411,7 +530,11 @@ Pending. Questions are in
 ## Out of scope
 
 - **§ 5.1's CLAIM** of the version number on openxFactory issue #630 row 4 —
-  this feature MEASURES the number and reports it; the LANE posts the claim.
+  this feature MEASURES the number and reports it at every merge-from-main; the
+  LANE posts the claim at the last one before the merge.
+- **§ 5.5** — landing the exact reviewed commit, and the post-merge gate re-run
+  the merge commit forces. The LANE ticks it in a follow-up bookkeeping commit
+  while the packet is still live.
 - **§ 5.6** — the annotated tag and its independent verification are
   `[OPERATOR]` acts.
 - **§ 6** — every `[OpsxFactory]` consumer act: the `stack.yaml` re-pin in
@@ -420,5 +543,9 @@ Pending. Questions are in
   custody-digest check, and the F.1 discharge in the owed-findings register.
 - **§ 7** — F.2's gate, F.3's settlement, and any other content-address
   family's re-derivation record.
-- Opening the pull request, posting any GitHub comment, merging, tagging, or
-  archiving the OpenSpec change.
+- Opening the pull request, posting any GitHub comment (the row-3/row-4
+  substrate notes included), merging, tagging, or archiving the OpenSpec change.
+- **Arming A2's cross-repo consequence.** Landing DECLARES the consent family's
+  rule, which converts `govern-archived-record-edits`' posture for that family
+  from REPORTED to REFUSED once F.2's gate exists. This feature RECORDS that and
+  builds nothing for it.
