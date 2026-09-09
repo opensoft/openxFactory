@@ -34,9 +34,14 @@ by the openXdox projection column (`serve_projection.py`: the snapshot, index
 and `/source` routes) and by the openxFactory adapter column
 (`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback).
 `HOSTED_SESSION_REFUSAL` is read by both columns only — the core never names
-it. `hosted_index` has exactly one in-tree reader, `serve_projection.py`'s
-`_serve_index` (an openXdox FR-048 index-confinement rule; the § 3 carve will
-have to re-home it out of this shared module alongside its column). Leaving
+it. `hosted_index` NO LONGER LIVES HERE: pre-carve split S-3 (§ 3.1 of this
+same change) re-homed it into `serve_projection.py` beside its one in-tree
+reader `_serve_index`, which is what this paragraph asked for before the split
+existed — an openXdox FR-048 index-confinement rule inside a module that goes
+WHOLE to openDox is a file the carve manifest cannot file under one column. So
+the group above is this module's HISTORY and two of the three names are its
+contents; `serve.py` imports `hosted_index` back from `serve_projection`, and
+`serve.hosted_index` resolves exactly as it did. Leaving
 any of the three in `serve.py` would have forced at least one column to
 import `serve` while `serve` imported it, which is the cycle this module
 exists to prevent; filing any of them under a column would have made the core
@@ -1382,52 +1387,3 @@ def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
     if loopback:
         return False
     return not registry_mod.is_publishable_ref(ref)
-
-
-def hosted_index(document: dict) -> dict:
-    """The snapshot INDEX as a hosted plane may project it (FR-048, PR #49 review
-    finding 14): every non-`main` entry dropped, a non-`main` `active` dropped with
-    them, and every non-`main` AGGREGATE MEMBER dropped too.
-
-    `hosted_ref_refused` guards the routes that NAME a ref; the index names none,
-    so it was outside that confinement entirely and published the branch names of
-    unmerged work — the topic and cluster ids of work in progress — to anyone who
-    could reach the bind. Pure, so the rule is testable on its own, and it reuses
-    the SAME `is_publishable_ref` predicate the refusal does, so there is still
-    one definition of "a ref a hosted plane may see".
-
-    THE MEMBER PASS IS WAVE 2's. `entries` and `active` were projected and
-    `aggregates[].members` was not, though `SnapshotRegistry.index_document` emits
-    those members as `{repository, ref}` pairs — so an aggregate naming a session
-    ref published `draft/<topic>` off-loopback with a 200 while `entries` was
-    correctly main-only (reproduced by the wave-2 critic on a production-shaped
-    hosted plane, and reproduced again here before the fix). Content stayed confined
-    (`?ref=…` still 403), so what leaked is the topic id of unmerged work — the same
-    class FR-048 exists to prevent. An aggregate whose members are ALL unpublishable
-    is dropped whole rather than published empty: an aggregate is defined by the
-    snapshots it composes, and one with no visible members is not a narrower view of
-    itself, it is a name with nothing behind it (and a hosted plane composing it
-    would find nothing to render)."""
-    projected = dict(document)
-    entries = [entry for entry in projected.get("entries") or []
-               if registry_mod.is_publishable_ref(entry.get("ref"))]
-    projected["entries"] = entries
-    active = projected.get("active")
-    if isinstance(active, dict) and not registry_mod.is_publishable_ref(active.get("ref")):
-        projected.pop("active", None)
-    if "aggregates" in projected:
-        aggregates = []
-        for aggregate in projected.get("aggregates") or []:
-            if not isinstance(aggregate, dict):
-                continue
-            members = [member for member in aggregate.get("members") or []
-                       if isinstance(member, dict)
-                       and registry_mod.is_publishable_ref(member.get("ref"))]
-            if not members:
-                continue
-            aggregates.append({**aggregate, "members": members})
-        if aggregates:
-            projected["aggregates"] = aggregates
-        else:
-            projected.pop("aggregates", None)
-    return projected
