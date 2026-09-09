@@ -903,7 +903,9 @@ the bookkeeping that ticks this group.
   lands the enumeration below IS the declaration. An undeclared replica set makes
   the check uncomputable, which is a REFUSAL and not a pass.
   **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES** —
-  `Σ(destinations) = source_count + Σ(replicated rows) (m − 1) × row_test_count`,
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
+  row_test_count` — the Σ ranges over the REPLICATED ROWS ONLY, and a row that is
+  not replicated contributes nothing to it —
   every term read from the manifest at the carve commit. Measured against the
   LANDED 454-row manifest (#865 → `17167481`) at `carve_commit b075fd91`:
   source **4,411** over 146 `.py` rows (openDox-code 1,098 · openXdox-code 2,315 ·
@@ -959,7 +961,8 @@ the bookkeeping that ticks this group.
     this and would have failed on it, on its first run, forever.
   - **AN UNDECLARED REPLICA SET (NEW, RULING OQ-K).** WHEN a
     `replicated_at_destination` row names no homes, THEN its multiplicity is
-    unknown, `Σ (m − 1) × row_test_count` is UNCOMPUTABLE, and the carve REFUSES
+    unknown, the Σ over replicated rows of `(m − 1) × row_test_count` is
+    UNCOMPUTABLE, and the carve REFUSES
     `replica-multiplicity-undeclared` — an uncomputable check is never a pass.
     This is what clause (b)'s obligation on FLOOR PART 1 is owed FOR.
 
@@ -1124,7 +1127,8 @@ realization evidence, never on landing. Each line is its own evidence.
   of the three closed classes; the source→destination TEST MAPPING closing on
   § 5.4's ledger — every test function with at least one home, the replicated
   set enumerated with its multiplicity, and
-  `Σ(destinations) = source_count + Σ (m − 1) × row_test_count`
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
+  row_test_count`
   (amended 2026-09-09 — RULING OQ-K; this first said *"the collection counts
   SUMMING across the three repositories"*, which the replicas make false as an
   equality); the neutral conformance corpus green in EVERY destination

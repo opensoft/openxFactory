@@ -485,7 +485,8 @@ this change rather than a recommendation in it:
    lands in — for this carve all three test-carrying replicated rows declare the
    same three homes, `openxFactory` (retained), `opensoft/openDox-code` and
    `opensoft/openXdox-code`, so `m = 3` for each — and the sum check reads
-   `Σ(destinations) = source_count + Σ (m − 1) × row_test_count` from the
+   `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
+   row_test_count` from the
    manifest. **AMENDED 2026-09-09 (RULING OQ-K).** This first read *"Test counts
    that must SUM across the three repositories — 3,927 `def test_` leave, 52% of
    this repository's 7,612"*, and § D6 (2) stated the test as equality with the

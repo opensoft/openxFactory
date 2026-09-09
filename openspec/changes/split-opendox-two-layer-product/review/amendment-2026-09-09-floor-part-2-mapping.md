@@ -114,7 +114,9 @@ The full restated text is what now stands at `design.md` § D6 (2) and
   inferred at arrival — an undeclared replica set makes the check uncomputable,
   which is a refusal and not a pass.
 - **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES.**
-  `Σ(destinations) = source_count + Σ(replicated rows) (m − 1) × row_test_count`.
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
+  — the Σ ranges over the REPLICATED ROWS ONLY; a row that is not replicated
+  contributes nothing to it.
   Every term is read from the manifest at the carve commit; nothing is estimated
   and no number is transcribed into prose where it can go stale.
 - **(d) PINNED BY TEST**, at each destination and in `openxFactory`, the way
@@ -173,14 +175,17 @@ Post-split homes:
 The check:
 
 ```
-Σ(destinations)  = source_count + Σ (m − 1) × row_test_count
-       4,471     =    4,411     +      (3 − 1) × 30
-       4,471     =    4,411     +           60          ✔
+Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count
+
+        4,471   =     4,411    +   (3 − 1) × 20 + (3 − 1) × 6 + (3 − 1) × 4
+        4,471   =     4,411    +                60                            ✔
 ```
 
-The ratified equality reads `4,471 = 4,411` and fails by exactly 60 — which is
-`Σ(m − 1) × row_test_count`, the term it does not have. The restated check
-passes on the same tree with nothing deleted.
+The Σ ranges over the REPLICATED ROWS ONLY — here the three test-carrying ones,
+each at `m = 3` — and a row that is not replicated contributes nothing to it.
+The ratified equality reads `4,471 = 4,411` and fails by exactly 60, which is
+that Σ: the term it does not have. The restated check passes on the same tree
+with nothing deleted.
 
 Two currency notes, so a later reader is not surprised:
 
@@ -210,7 +215,8 @@ Two currency notes, so a later reader is not surprised:
   must SUM across the three repositories"* (the other 15 are RULING DQ-1's
   stay-home requirements and never mention the floor). That phrase names no
   quantity to be equal to — counts DO sum, and under the restatement they sum to
-  `source_count + Σ(m − 1) × row_test_count` — so it is not falsified by OQ-K and
+  `source_count + Σ over replicated rows of (m − 1) × row_test_count` — so it is
+  not falsified by OQ-K and
   is left byte-identical deliberately, rather than swept across 87 sites for a
   sentence that is still true. The 2026-09-05 repository-shape amendment set the
   same precedent in its own words: *"No spec delta file is touched by this
