@@ -650,7 +650,7 @@ acts that carry the declaration:
   `workers/profiles/coding-patch-worker.yaml` and
   `rendered/effective-profiles/coding-patch-worker.yaml` in
   `OmniWorker-Install` are byte-verbatim, digest-pinned projections of
-  `omnigent/profiles/coding-patch-worker.yaml` in **opensoft/codexFactory**
+  `omnigent/profiles/coding-patch-worker.yaml` in **codeXfactory/codexFactory**
   (digest `f2f70eb2…`, source commit `e3507ab4`, `mode: byte_verbatim`; the
   renderer fails closed on a mismatch). Editing them outside codexFactory would
   fork a governed projection, so that one is a **codexFactory** act — an

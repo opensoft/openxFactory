@@ -500,11 +500,10 @@ class OriginRetentionError(SupportError):
     duplicated to a second id, which git pairs identically and which leaves
     the baseline just as unestablishable — issue #833), no ratifying commit
     exists to compare against, or the history that holds the baseline could
-    not be read. What
-    they share is the only thing a caller can act on — the packet CANNOT BE
-    SHOWN to still carry the origin it was ratified over — and none of them is
-    the "fix the tree and retry" shape that `SupportError` means everywhere
-    else in this script.
+    not be read. What they share is the only thing a caller can act on — the
+    packet CANNOT BE SHOWN to still carry the origin it was ratified over — and
+    none of them is the "fix the tree and retry" shape that `SupportError` means
+    everywhere else in this script.
 
     A subclass rather than a message, so the CLI can answer with its own exit
     status (2) and a script can branch on "retention could not be established"

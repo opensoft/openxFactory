@@ -1456,3 +1456,321 @@ def test_the_citation_grammar_is_stated_directly() -> None:
         == [("tree-path", "docs/a.md")]
     assert module.referent_region(
         f"docs/a.md {DASH} the gloss") == "docs/a.md"
+
+
+# --------------------------------------------------------------------------
+# The reader is STRUCTURAL — issue #851, from the bench on PR #842
+#
+# Two findings, and the first of them is the one the arm's global-count
+# alignment could not see. A `cited_to:`/`- …` pair written inside a folded
+# `why: >-` was admitted as structure while a `#` comment between two real items
+# ENDED the real list; the two errors CANCEL, the counts agree, `zip` pairs the
+# wrong lines, and a dangling citation after the comment is never opened while
+# the run exits 0 — this arm's own silence, in the shape it exists to end. The
+# second is the unquoting rule: the production reader passes every item through
+# `_unquote`, so quoting a scalar (the repair this arm NAMES for a successor, for
+# the ` #` and `: ` ambiguities it measures) would leave a permanent divergence
+# warning behind if this reader kept the quotes — a repair that cannot clear the
+# warning it was made for.
+#
+# The fixtures are written as RAW BYTES for the same reason the bench's earlier
+# group is: `yaml.safe_dump` would quote the defect away before the arm saw it.
+# --------------------------------------------------------------------------
+
+def _decoy_and_comment_pin(tmp_path: Path) -> Path:
+    """Codex's scenario, verbatim: a folded `why:` quoting the field's own
+    grammar, a comment between two real items, and a DANGLING citation after
+    that comment. The decoy names a path that EXISTS, so the arm as first
+    written exits 0 on this tree — which is what makes the fixture a fixture."""
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir(exist_ok=True)
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    (tmp_path / "openspec" / "specs").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "openspec/specs/spec.md").write_text("# canon\n", encoding="utf-8")
+    (tmp_path / "openspec" / "decoy").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "openspec/decoy/never-opened.md").write_text(
+        "# not a citation\n", encoding="utf-8")
+    pin_file = tmp_path / "contracts" / "scratch-pin.yaml"
+    pin_file.parent.mkdir(parents=True, exist_ok=True)
+    pin_file.write_text(
+        "kind: pinned_contract_manifest\n"
+        f"consumer_entrypoint: {entrypoint}\n"
+        "dispositions:\n"
+        "  - repo: scratchFactory\n"
+        "    item: a-declared-change\n"
+        "    why: >-\n"
+        "      The reason, which quotes the field's own grammar because that is\n"
+        "      what a disposition about this checker would have to do:\n"
+        "      cited_to:\n"
+        "        - openspec/decoy/never-opened.md — quoted prose, not structure\n"
+        "    cited_to:\n"
+        f"      - openspec/specs/spec.md {DASH} the real first citation\n"
+        "      # the ratification thread, noted between the items\n"
+        f"      - openspec/changes/gone/spec.md {DASH} the dangling one\n"
+        "    ratified_by: a human, on a date, in their own words\n",
+        encoding="utf-8")
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text(yaml.safe_dump({"contracts": [
+        {"id": "scratch-pin", "path": "contracts/scratch-pin.yaml", "type": "pin",
+         "consumption_rule": f"Invoke `{entrypoint}` from the checkout."}]}),
+        encoding="utf-8")
+    return manifest
+
+
+def test_a_folded_decoy_and_a_comment_no_longer_cancel_each_other_out(
+        tmp_path, monkeypatch, capsys) -> None:
+    """THE BENCH'S CASE, END TO END. The arm as first written read the folded
+    decoy as one citation line and stopped the real list at the comment, so two
+    lines met two parsed citations, the counts agreed, and the citation AFTER the
+    comment — the dangling one — was never classified at all. It is classified
+    now, and the decoy is not."""
+    module = _load_checker()
+    manifest = _decoy_and_comment_pin(tmp_path)
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert ("dispositions[1] (a-declared-change) cites "
+            "`openspec/changes/gone/spec.md`") in captured.out, captured.out
+    # The decoy is prose inside a block scalar and is never read as structure —
+    # neither opened, nor counted, nor named.
+    assert "never-opened" not in captured.out, captured.out
+    assert "2 citation(s)" in captured.out, captured.out
+
+
+def test_the_folded_decoy_case_is_bound_line_by_line_to_its_entry(
+        tmp_path) -> None:
+    """The same fixture read directly, so the binding is asserted and not merely
+    inferred from the finding above."""
+    module = _load_checker()
+    _decoy_and_comment_pin(tmp_path)
+    text = (tmp_path / "contracts/scratch-pin.yaml").read_text(encoding="utf-8")
+    assert module.citation_lines_by_entry(text) == [
+        (1, f"openspec/specs/spec.md {DASH} the real first citation"),
+        (1, f"openspec/changes/gone/spec.md {DASH} the dangling one")]
+    parsed = list(module.parsed_citations_of(
+        yaml.safe_load(text)["dispositions"]))
+    assert [entry for entry, _line in module.citation_lines_by_entry(text)] == [
+        index for index, _item, _citation in parsed]
+
+
+def test_the_reader_walks_the_structure_and_binds_every_line_to_its_entry(
+        ) -> None:
+    """The three rules, stated directly: a block scalar's body is skipped whole,
+    a comment or a blank line does not end a list, and every line comes back
+    bound to the `dispositions[]` entry whose block carries it."""
+    module = _load_checker()
+    text = ("kind: pinned_contract_manifest\n"
+            "dispositions:\n"
+            "  - repo: scratchFactory\n"
+            "    why: |\n"
+            "      A literal block that happens to contain\n"
+            "      cited_to:\n"
+            "        - openspec/decoy/a.md — prose\n"
+            "    cited_to:\n"
+            "      - first — one\n"
+            "\n"
+            "      # a comment, and a blank line above it\n"
+            "      - second — two\n"
+            "    ratified_by: a human\n"
+            "  - repo: other\n"
+            "    cited_to:\n"
+            "      - third — three\n"
+            "notes: >-\n"
+            "  a folded field AFTER the section, whose body is not structure:\n"
+            "  cited_to:\n"
+            "    - openspec/decoy/b.md — prose\n")
+    assert module.citation_lines_by_entry(text) == [
+        (1, "first — one"), (1, "second — two"), (2, "third — three")]
+    assert module.citation_lines_in(text) == [
+        "first — one", "second — two", "third — three"]
+
+
+def test_equal_totals_that_fall_in_different_entries_refuse_the_field(
+        tmp_path, monkeypatch, capsys) -> None:
+    """EQUAL COUNTS ARE NOT AN ALIGNMENT, which is the whole of issue #851's
+    first finding. Entry 1 carries a nested sequence — two list-item lines, one
+    parsed citation — and entry 2 carries a flow sequence, which is one parsed
+    citation and no line at all. The totals agree; the binding does not; the
+    field is refused rather than classified against the wrong entry."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    pin_file = tmp_path / "contracts" / "scratch-pin.yaml"
+    pin_file.parent.mkdir(parents=True)
+    pin_file.write_text(
+        "kind: pinned_contract_manifest\n"
+        f"consumer_entrypoint: {entrypoint}\n"
+        "dispositions:\n"
+        "  - repo: scratchFactory\n"
+        "    item: first-entry\n"
+        "    cited_to:\n"
+        "      - - openspec/changes/gone/spec.md\n"
+        "        - a second line of one citation\n"
+        "  - repo: scratchFactory\n"
+        "    item: second-entry\n"
+        "    cited_to: [council LA-A1]\n",
+        encoding="utf-8")
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text(yaml.safe_dump({"contracts": [
+        {"id": "scratch-pin", "path": "contracts/scratch-pin.yaml", "type": "pin",
+         "consumption_rule": f"Invoke `{entrypoint}` from the checkout."}]}),
+        encoding="utf-8")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "do not fall in the same `dispositions[]` entries" in captured.out, (
+        captured.out)
+    assert "bytes 1x2, structure 1x1, 2x1" in captured.out, captured.out
+    assert "cannot say WHICH disposition a line belongs to" in captured.out, (
+        captured.out)
+    assert "nothing classified" in captured.out, captured.out
+
+
+# ---- the production unquoting rule, applied here too ----
+
+def test_a_quoted_citation_scalar_no_longer_diverges(
+        tmp_path, monkeypatch, capsys) -> None:
+    """THE REPAIR THIS ARM NAMES FOR A SUCCESSOR, MADE POSSIBLE. Quoting the
+    scalar is what clears the ` #` and `: ` ambiguities the arm measures; the
+    production reader passes every item through `_unquote`, so its semantic
+    citation carries no quotes. This reader now applies the same rule, so the
+    quoted line and the parsed string agree and no divergence WARN survives the
+    repair. The path is still read out of the line, quotes and all."""
+    module = _load_checker()
+    (tmp_path / "openspec" / "specs").mkdir(parents=True)
+    (tmp_path / "openspec/specs/spec.md").write_text("# canon\n", encoding="utf-8")
+    manifest = _raw_case(tmp_path, [
+        f'"openspec/specs/spec.md {DASH} the measurement, `Totals: 23 passed, '
+        f'2 failed (25 items)`"',
+        f"'openspec/specs/spec.md {DASH} PR #444, the landed change'",
+    ])
+    raw = yaml.safe_load(
+        (tmp_path / "contracts/scratch-pin.yaml").read_text(encoding="utf-8"))
+    assert all(isinstance(c, str) for c in raw["dispositions"][0]["cited_to"]), (
+        "the fixture is only a fixture while quoting makes these plain strings")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+    assert "WARN" not in captured.out, captured.out
+    assert "read differently" not in captured.out, captured.out
+    assert "2 name a path in this tree" in captured.out, captured.out
+
+
+def test_the_reader_unquotes_the_line_the_way_the_production_reader_does(
+        ) -> None:
+    module = _load_checker()
+    text = ("dispositions:\n"
+            "  - repo: scratchFactory\n"
+            "    cited_to:\n"
+            "      - \"Totals: 23 passed, 2 failed (25 items)\"\n"
+            "      - 'PR #444 — the landed change'\n"
+            "      - openspec/specs/spec.md — unquoted, and unchanged\n"
+            "      - `a backquoted span` — not a YAML quote, and left alone\n")
+    assert module.citation_lines_in(text) == [
+        "Totals: 23 passed, 2 failed (25 items)",
+        "PR #444 — the landed change",
+        "openspec/specs/spec.md — unquoted, and unchanged",
+        "`a backquoted span` — not a YAML quote, and left alone"]
+
+
+def test_the_unquoting_rule_is_the_production_readers_own_rule() -> None:
+    """The restated rule, pinned equal to the one it was taken from — the same
+    discipline `OWN_REPOSITORY_SPELLINGS` is held to, and for the same reason:
+    `scripts/validate-openspec-cli-pin.py` is hyphenated and unimportable, so the
+    rule is written out here and a divergence must RED rather than drift."""
+    module = _load_checker()
+    spec = importlib.util.spec_from_file_location(
+        "validate_openspec_cli_pin_for_parity",
+        REPO_ROOT / "scripts" / "validate-openspec-cli-pin.py")
+    assert spec and spec.loader
+    production = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(production)
+    for raw in ['"quoted"', "'quoted'", "plain", '"unbalanced', "mixed'",
+                '"', "''", '""', "  padded  ", '"PR #444 — a citation"',
+                "'openspec/a.md: gone'", "`backquoted`", "", "-",
+                '"nested \'inner\' quotes"']:
+        assert module._unquote(raw) == production._unquote(raw), raw
+
+
+# ---- a failing row is never labelled OK — Copilot on PR #842 ----
+
+def test_a_row_failing_on_a_citation_is_not_labelled_ok_where_it_names_no_entrypoint(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The entrypoint branch returns the CITATION arm's verdict, so its line has
+    to carry that verdict's label too: a row failing on a dangling citation must
+    not print `OK` about the assertions that did not apply."""
+    module = _load_checker()
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin", "consumption_rule": "CHECK OUT, NEVER COPY."},
+        pin={"kind": "pinned_contract_manifest",
+             "dispositions": [{
+                 "repo": "scratchFactory", "item": "a-declared-change",
+                 "cited_to": [f"openspec/changes/gone/spec.md {DASH} the "
+                              f"measurement"]}]},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert ("MEASURED scratch-pin: `contracts/scratch-pin.yaml` is registered "
+            "and present; it names no `consumer_entrypoint:`") in captured.out, (
+        captured.out)
+    assert "OK scratch-pin: `contracts/scratch-pin.yaml` is registered" not in (
+        captured.out), captured.out
+    # The inapplicability is still said, which is what the branch is for.
+    assert "the entrypoint assertions do not apply" in captured.out, captured.out
+
+
+def test_a_block_scalar_is_recognised_by_yamls_key_spellings_not_one_houses(
+        ) -> None:
+    """TAKEN FROM THE BENCH ON PR #863 (Copilot). The opener's first cut matched
+    an identifier-shaped key, which is this corpus's house style and not YAML's:
+    a hyphenated `INV-2: >-` or a quoted `"a: b": >-` opens a folded scalar just
+    as well, and its body would have been walked as structure — the decoy class
+    this change exists to close, reintroduced through the key spelling. The
+    boundary below is deliberate and asserted with the rest: a KEYLESS `- >-`
+    inside an open list is a citation under the pin's own production."""
+    module = _load_checker()
+    for header in ["    why: >-", "    INV-2: >-", '    "a: b": >', "    \'k\': |-",
+                   "  - why: |", "    why: >-  # a note on the header line",
+                   "    a.b-c_d: >+2", "    a.b-c_d: >2+", "notes: >-",
+                   # YAML ends a key at a colon FOLLOWED BY WHITESPACE, so an
+                   # internal colon and an escaped quote are part of the key
+                   # (Codex, PR #863, on the cut that stopped at any colon).
+                   "    a:b: >-", '    "a\\"b: c": >-', "    \'it\'\'s\': >-"]:
+        assert module._BLOCK_SCALAR_KEY.match(header), header
+    for other in ["    why: not a block scalar", "      - >-", "    cited_to:",
+                  "      - openspec/a.md: gone", "dispositions:",
+                  "    finding: \'x: y\'",
+                  "      - openspec/a.md — a gloss that ends in >"]:
+        assert not module._BLOCK_SCALAR_KEY.match(other), other
+
+    # And end to end: a decoy under a HYPHENATED key is skipped, and the two real
+    # citations still come back bound to their entry.
+    text = ("dispositions:\n"
+            "  - repo: scratchFactory\n"
+            "    INV-2: >-\n"
+            "      A folded reason under a key YAML allows and an identifier\n"
+            "      pattern does not:\n"
+            "      cited_to:\n"
+            "        - openspec/decoy/a.md — prose\n"
+            "    cited_to:\n"
+            "      - first — one\n"
+            "      - second — two\n")
+    assert module.citation_lines_by_entry(text) == [
+        (1, "first — one"), (1, "second — two")]
+    # And the same, under a key carrying an INTERNAL COLON — legal YAML, and the
+    # shape the second cut of this pattern missed.
+    assert module.citation_lines_by_entry(
+        text.replace("INV-2:", "a:b:")) == [
+        (1, "first — one"), (1, "second — two")]

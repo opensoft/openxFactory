@@ -60,7 +60,8 @@ THREE ARMS, SEVEN FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
    GROUNDS since `amend-marker-defect-reporting` (2026-09-09, openxFactory issue
    #729): a marker that names a unit the block still carries; a marker whose
    REASON quotes a code span exactly matching a promoted unit the block leaves
-   out, which under the reason boundary names nothing; and a marker naming
+   out and that marker does not also NAME before its reason boundary, which
+   under that boundary declares nothing; and a marker naming
    something that matches no unit of the promoted requirement or of the block.
    Each ground is one finding, because each is one remedy. None of them
    inherits the ledger's hedge: a marker that does not describe the block is

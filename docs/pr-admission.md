@@ -6,7 +6,7 @@ Status: draft
 
 Engineering-specific PR admission now lives in:
 
-- `opensoft/codexFactory/docs/pr-admission-merge-readiness.md`
+- `codeXfactory/codexFactory/docs/pr-admission-merge-readiness.md`
 
 ## Neutral Admission Rule
 

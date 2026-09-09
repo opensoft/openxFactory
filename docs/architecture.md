@@ -22,7 +22,7 @@ See [Terminology And Repository Topology](terminology-and-repo-topology.md) and
 
 The first product domain stack repositories are expected to be
 `opensoft/MedxFactory`, `opensoft/OpsxFactory`, `opensoft/LedgerxFactory`,
-`opensoft/AdxFactory`, and `opensoft/codexFactory`.
+`opensoft/AdxFactory`, and `codeXfactory/codexFactory`.
 
 Credential access across those domain stacks is governed by the
 [xFactory Credential Access Model](credential-access-model.md). Domain repos
