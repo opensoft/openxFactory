@@ -1,7 +1,9 @@
 # Tasks: govern-archived-record-edits
 
 Status: ratified
-Ratified by: govern-archived-record-edits — 2026-09-08, Brett Heap, CLI approval `gh pr review 788 --approve` (review 5141756427, APPROVED 2026-09-08T12:38:36Z, empty body) (record `review/ratification-2026-09-08.md`)
+Ratified by: govern-archived-record-edits — 2026-09-08, Brett Heap, CLI approval
+`gh pr review 788 --approve` (review 5141756427, APPROVED 2026-09-08T12:38:36Z,
+empty body) (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
 
 **NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
@@ -111,8 +113,13 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
 
   That was TRUE WHEN WRITTEN and is FALSE NOW. This file has carried
   `Status: ratified` with its `Ratified by:` citation since 2026-09-08 (header,
-  lines 3-4), ratified by Brett Heap, GitHub review `5141756427`, APPROVED
-  `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`. The
+  lines 3-4), ratified by Brett Heap on reviews `5141756427`
+  (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+  `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+  subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+  dismissal message — so the ratification stands on
+  `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+  review. The
   corpus-precedent sentence beside it is a statement about
   `add-consent-custody-rederivation-record` at its own head and is NOT corrected
   here; measured at openxFactory `main` `6cc06288` on 2026-09-09 UTC that packet
@@ -128,7 +135,7 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   branch's head (packet evidence file `evidence/realization-2026-09-08.md`
   § 4.3). The ledger file is READ here and NOT rewritten.
 
-## 1. Ratification — OWED, NOT GIVEN [SUPERSEDED 2026-09-08: GIVEN]
+## 1. Ratification — OWED, NOT GIVEN — AMENDED 2026-09-08
 
 **GIVEN 2026-09-08, AND THE BOXES BELOW STAY UNTICKED.** Brett Heap ratified
 this packet by CLI approval on PR #788 (GitHub review 5141756427, APPROVED
@@ -161,6 +168,27 @@ still not realization — realization is what happened next, on the same day, an
 the boxes below are ticked against the ratification RECORD rather than against
 the approval being read as realization.
 
+**THE APPROVAL STATE ITSELF WAS RE-MEASURED, AND IT IS NOT WHAT A READER WOULD
+ASSUME.** Measured 2026-09-09 UTC with a read-only
+`gh api repos/opensoft/openxFactory/pulls/788/reviews` and the issue timeline,
+PR #788 carries **TWO** approving reviews by `brettheap`, not one:
+`5141756427`, APPROVED `2026-09-08T12:38:36Z` on commit `d0f8cccf`, and
+`5142530432`, APPROVED `2026-09-08T13:45:56Z` on commit `158a4d3b`. **BOTH now
+read `DISMISSED`**, dismissed by GitHub on the pushes that followed them — at
+`2026-09-08T12:53:23Z` and `2026-09-08T13:53:22Z`, each with `state_was:
+approved` and NO dismissal message, which is the signature of automatic
+stale-approval dismissal under branch protection rather than a withdrawal.
+Both bodies are EMPTY. **THE RATIFICATION STANDS** on
+`review/ratification-2026-09-08.md`, not on a currently-APPROVED review, and
+this realization records that rather than leaving a reader to find a dismissed
+review behind an unqualified "APPROVED". The RATIFIED text above, the record and
+the ratified README row sentences are FROZEN and are not edited for this; the
+clause lives in the realization's own notes and evidence. (The record names one
+review and gives the ratified baseline as `8cc76e1b`, where the API reports
+`d0f8cccf` as review `5141756427`'s commit; the record's own § on the two clocks
+already measures the packet's bytes as identical at both heads, so nothing here
+resolves that and nothing needs to.)
+
 **NOT superseded, and unchanged:** the sentence naming the ratification itself —
 *"Brett Heap ratified this packet by CLI approval on PR #788 (GitHub review
 5141756427, APPROVED 2026-09-08T12:38:36Z, empty body); record
@@ -169,7 +197,9 @@ cites, and no word of the approval is quoted anywhere, because the body is EMPTY
 
 **THE HEADING IS AMENDED TOO, AND IT SUPERSEDES A DELIBERATE DECISION, WHICH IS
 WHY THAT DECISION IS NAMED.** The heading now reads `## 1. Ratification — OWED,
-NOT GIVEN [SUPERSEDED 2026-09-08: GIVEN]`. The clause superseded is this
+NOT GIVEN — AMENDED 2026-09-08`, the marker being the pair's closed
+vocabulary `AMENDED <UTC date>` as a whole token rather than a bare
+parenthetical or a `[SUPERSEDED …]` form. The clause superseded is this
 section's own:
 
 > The heading is left as written because it names what the section was raised to
@@ -198,9 +228,14 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   **TICKED 2026-09-08 by this change's realization
   (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: Brett Heap
   ratified this packet. UTC DATE: 2026-09-08.
-  EVIDENCE, cited as the record cites it: GitHub review `5141756427`, state
-  APPROVED, submitted `2026-09-08T12:38:36Z`, record
-  `review/ratification-2026-09-08.md`; ratified baseline `8cc76e1b`. **NO WORD IS
+  EVIDENCE, cited as the record cites it and re-measured against the GitHub API
+  on 2026-09-09: reviews `5141756427`
+  (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+  `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+  subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+  dismissal message — so the ratification stands on
+  `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+  review; ratified baseline `8cc76e1b`. **NO WORD IS
   QUOTED**: the approval body is EMPTY, so no verbatim word exists, and this note
   restates what the record states rather than attributing a sentence to him.
 - [x] 1.2 **[OPERATOR] TWO named widenings and one split, each a veto point.**
@@ -211,8 +246,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: all three were
   put to him verbatim immediately before the
   approval and NONE was exercised, so the packet is ratified AS WRITTEN. UTC
-  DATE: 2026-09-08. EVIDENCE: review `5141756427`, APPROVED
-  `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`; the
+  DATE: 2026-09-08. EVIDENCE: reviews `5141756427`
+  (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+  `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+  subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+  dismissal message — so the ratification stands on
+  `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+  review; the
   not-exercised finding is the record's, not this note's inference. No word
   quoted — the body is empty.
   - [x] 1.2a **The pin SCOPE.** Your 2026-09-06 shape selection (comment
@@ -232,8 +272,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
     NOT exercised, so the DEFAULT STANDS —
     every pin of every declared family, not custody pins only. UTC DATE:
-    2026-09-08. EVIDENCE: review `5141756427`, APPROVED `2026-09-08T12:38:36Z`,
-    record `review/ratification-2026-09-08.md`. No word quoted.
+    2026-09-08. EVIDENCE: reviews `5141756427`
+    (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+    `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+    subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+    dismissal message — so the ratification stands on
+    `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+    review. No word quoted.
   - [x] 1.2b **The no-rule consequence, and WHEN it bites.** As written the
     requirement REPORTS such an edit — naming the family, the target and the
     home that owes the rule — and refuses only once that family declares.
@@ -252,8 +297,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
     NOT exercised, so the DEFAULT STANDS —
     option (i), report-then-refuse as written; (ii) refuse-from-landing and (iii)
-    strike were not taken. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`,
-    APPROVED `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`.
+    strike were not taken. UTC DATE: 2026-09-08. EVIDENCE: reviews `5141756427`
+    (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+    `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+    subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+    dismissal message — so the ratification stands on
+    `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+    review.
     No word quoted.
   - [x] 1.2c **The ONE-vs-TWO ADDED split.** Your F.3 wording names "an ADDED
     requirement" — singular — carrying both halves of the rule. This packet
@@ -270,8 +320,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
     NOT exercised, so the DEFAULT STANDS — TWO
     `## ADDED` requirements, not one; the delta was not collapsed. UTC DATE:
-    2026-09-08. EVIDENCE: review `5141756427`, APPROVED `2026-09-08T12:38:36Z`,
-    record `review/ratification-2026-09-08.md`; the shape is measured at this
+    2026-09-08. EVIDENCE: reviews `5141756427`
+    (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+    `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+    subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+    dismissal message — so the ratification stands on
+    `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+    review; the shape is measured at this
     head as 1 `## MODIFIED` + 2 `## ADDED` blocks, 18 scenarios. No word quoted.
 - [x] 1.3 **[OPERATOR] Rule on D-3 specifically** — whether the `## MODIFIED`
   block closing *Proposal packets carry the lifecycle header*'s dangling "takes
@@ -285,8 +340,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   same approval, and the veto was not
   exercised — the `## MODIFIED` block is WANTED and stands, which is exactly why
   task 4.2's currency obligation is live until archive and why box 4.2 below is
-  left open. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`, APPROVED
-  `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`. No word
+  left open. UTC DATE: 2026-09-08. EVIDENCE: reviews `5141756427`
+  (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+  `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+  subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+  dismissal message — so the ratification stands on
+  `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+  review. No word
   quoted.
 - [x] 1.4 **[OPERATOR] Rule on the reading NOT taken** — a STRICT READ-ONLY
   ARCHIVE. `design.md` § *Readings not taken* 1 records why this packet declines
@@ -298,8 +358,13 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: ruled by the
   same approval, and the veto was not
   exercised — the strict read-only archive reading remains NOT TAKEN and would be
-  a different change. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`,
-  APPROVED `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`;
+  a different change. UTC DATE: 2026-09-08. EVIDENCE: reviews `5141756427`
+  (APPROVED `2026-09-08T12:38:36Z` on `d0f8cccf`) and `5142530432` (APPROVED
+  `2026-09-08T13:45:56Z` on `158a4d3b`), BOTH since DISMISSED by GitHub on the
+  subsequent pushes — stale-approval dismissal at 12:53:23Z and 13:53:22Z, no
+  dismissal message — so the ratification stands on
+  `review/ratification-2026-09-08.md` rather than on a currently-APPROVED
+  review;
   the declining reasons are `design.md` § *Readings not taken* 1. No word quoted.
 - [x] 1.5 Write `review/ratification-<date>.md` recording the word verbatim, the
   head it was given against, and what it does and does not authorize.
@@ -309,7 +374,10 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   written and is in this packet. UTC DATE:
   2026-09-08. EVIDENCE: `review/ratification-2026-09-08.md`, which names the
   ratified baseline `8cc76e1b`, the review id `5141756427`, the APPROVED state
-  and its `2026-09-08T12:38:36Z` timestamp, and what the approval does and does
+  and its `2026-09-08T12:38:36Z` timestamp (the record names ONE review; the
+  realization measured TWO and both are now DISMISSED — see the § 1 amendment
+  above and the evidence file, neither of which edits the record), and what the
+  approval does and does
   not authorize. **WHERE THIS BOX SAYS "the word verbatim", THE RECORD RECORDS
   THAT THERE IS NONE**: the approval carried an EMPTY body, so the record names
   the act and its resolvable identifiers instead and states in its own words that
@@ -368,7 +436,7 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   that the block was authored current; 4.2 keeps the obligation live until
   archive and is deliberately left open below.
 
-## 3. Composition — named here; 3.4 alone is this packet's own act [SUPERSEDED 2026-09-08: 3.1 IS ALSO PERFORMED]
+## 3. Composition — named here; 3.4 alone is this packet's own act — AMENDED 2026-09-08
 
 **AMENDED 2026-09-08 by this change's realization
 (`govern-archived-record-edits`, lane `opsXfactory-1`); the superseded clause is
@@ -577,8 +645,14 @@ a pin arriving with a forward merge is a pin.
   written and landed with PR #788. UTC DATE:
   2026-09-08. EVIDENCE: `README.md:515` carries this change's "OpenSpec Records"
   row on openxFactory `main`. It is not re-authored here; realization appends ONE
-  dated superseding sentence at the END of that row, because the row asserts that
-  all 28 boxes stay unticked and this file now falsifies it. **The Rule 7 union
+  dated superseding sentence at the END of that row, because that row makes the
+  now-false claim TWICE — once at `README.md:527` ("all 28 boxes in `tasks.md`
+  stay unticked, § 1's ratification boxes included") and again at
+  `README.md:545-548` ("**NOTHING IS REALIZED** … and **all 28 boxes in
+  `tasks.md` stay unticked**") — and this file falsifies BOTH: 19 boxes are
+  ticked, and `docs/document-lifecycle.md` IS amended, so "NOTHING IS REALIZED"
+  is false in its own right and not only in its box clause. The single appended
+  amendment block-quotes both. **The Rule 7 union
   re-derivation, if another lane's substrate claim lands first, is the LANE'S act
   at landing and is not performed here.**
 - [ ] 5.2 Rule 6 LANDING notice on the PR and in `LANES.md` before merging into
@@ -615,13 +689,27 @@ a pin arriving with a forward merge is a pin.
   3.4, with 3.1/3.2/3.3/3.5 named beside it for the chain's readability and
   gating nothing here.
 
+  **AMENDED 2026-09-08 by this change's realization; the superseded clause is
+  quoted rather than rewritten.** This box states:
+
+  > what the archive act reads is the UNTICKED BOX 3.4
+
+  That is SUPERSEDED: box 3.4 IS NOW TICKED, on commit `645e88ec`, so what the
+  archive act reads there is a box whose act is done. **NOT superseded, and
+  still exactly right:** the reasoning around it — that § 3 holds three
+  different kinds of act, that "Only the last of the three can hold this packet
+  open", and that 3.1/3.2/3.3/3.5 are named beside it "for the chain's
+  readability and gating nothing here". The box was the gate; the gate is now
+  clear. (Caught by the `grep -n -i untick` re-derivation over the packet rather
+  than by reading, which is why that sweep is run.)
+
   **NOT OWED HERE — THE ARCHIVE ACT IS THE LANE'S.** Dated 2026-09-08. The
   realization runs no `openspec archive`. **WHAT IT DID DO IS CLEAR THIS BOX'S
   GATE**: the box this one names as holding the packet open — 3.4 — IS NOW TICKED
-  above, on commit `645e88ec`, so the condition this box waits on is met and the
-  archive act is unblocked on that ground. 3.1 is ticked too; 3.2, 3.3 and 3.5
-  remain other repositories' or other packets' acts and gate nothing here, exactly
-  as this box says.
+  above, so the condition this box waits on is met and the archive act is
+  unblocked on that ground. 3.1 is ticked too; 3.2, 3.3 and 3.5 remain other
+  repositories' or other packets' acts and gate nothing here, exactly as this box
+  says.
 - [ ] 6.2 Confirm at the archive act that the three requirement blocks reach
   `openspec/specs/document-lifecycle/spec.md` — *Ratified spec deltas reach the
   promoted specification* is checked against the archived delta's own bytes,

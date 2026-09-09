@@ -640,15 +640,34 @@ Active changes:
   […#issuecomment-5578961206](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578961206)
   — FOUR in all, because "Both at once" names two repositories and each carries
   its own object and its own substrate.
+
   **AMENDED 2026-09-08 by this change's own realization (lane `opsXfactory-1`),
   the superseded clause quoted rather than rewritten: realization ticked 19 of
   the 28 boxes with dated evidence, left 8 carrying dated NOT-OWED lines and
   left 1 — box 4.2, the MODIFIED-block currency check — run, recorded and
   deliberately open for the archive act, so this row's**
 
-  > all 28 boxes in `tasks.md` stay unticked, § 1's ratification boxes included
+  > **all 28 boxes in `tasks.md` stay unticked**, § 1's ratification boxes
+  > included
 
-  **no longer holds. NOT superseded, and each re-verified rather than assumed:**
+  **no longer holds — and the row makes the same claim a SECOND time, further
+  down, where both halves are now false:**
+
+  > **NOTHING IS REALIZED** — no archived byte is edited, no pin is re-derived,
+  > no checker is written, no repository's convention is amended, and **all 28
+  > boxes in `tasks.md` stay unticked**.
+
+  **Both halves of that one are superseded, not just the box clause: 19 boxes
+  ARE ticked, and something IS realized — `docs/document-lifecycle.md` gained
+  the neutral minimum at commit `645e88ec` — so "NOTHING IS REALIZED" fails in
+  its own right. NOT superseded within it, and each re-verified rather than
+  assumed:** no archived byte was edited, no pin was re-derived, no checker was
+  written, and no repository's convention was amended — the three OTHER clauses
+  of that sentence all still hold, and the amendment of OpsxFactory's own
+  convention remains that repository's act.
+
+  **AND, ON THE FIRST QUOTATION: NOT superseded, and each re-verified rather
+  than assumed:**
   the neighbouring **RATIFICATION PERFORMS NO REALIZATION** and four of the five
   assertions beside it, which realization left exactly as it found them — no
   archived byte edited, no pin re-derived, no checker written, and no delta

@@ -213,7 +213,8 @@ at content address `c844543999f673cdd72445879b86a4abea4c07ef`, integrity
 
 ```bash
 OPENSPEC_TELEMETRY=0 PATH="$PIN/bin:$PATH" \
-  python3 scripts/validate-openspec-cli-pin.py --change govern-archived-record-edits --strict
+  python3 scripts/validate-openspec-cli-pin.py --change
+  govern-archived-record-edits --strict
 ```
 
 - **rc 0.** `Totals: 1 passed, 0 failed (1 items)`
@@ -356,6 +357,97 @@ review id `5141756427`, its APPROVED state, its `2026-09-08T12:38:36Z` timestamp
 and the record path, and say in terms that the approval body is EMPTY so no
 verbatim word exists. Restating what a record states is citation; putting a
 sentence in his mouth would be invention, and none is made.
+
+## The approval state, re-measured — BOTH REVIEWS NOW READ DISMISSED
+
+**A READER WHO SEES "APPROVED" AND STOPS THERE WOULD BE MISLED, SO THE TWO
+FACTS ARE STATED IN ONE CLAUSE EVERYWHERE THIS REALIZATION CITES THE APPROVAL.**
+Measured 2026-09-09 UTC, read-only, `gh api
+repos/opensoft/openxFactory/pulls/788/reviews` plus the issue timeline for the
+dismissal events:
+
+| Review | By | State now | Submitted | Commit | Body | Dismissed |
+| --- | --- | --- | --- | --- | --- | --- |
+| `5141756427` | `brettheap` (MEMBER) | **DISMISSED** (`state_was: approved`) | `2026-09-08T12:38:36Z` | `d0f8cccf` | EMPTY | `2026-09-08T12:53:23Z`, no message |
+| `5142530432` | `brettheap` (MEMBER) | **DISMISSED** (`state_was: approved`) | `2026-09-08T13:45:56Z` | `158a4d3b` | EMPTY | `2026-09-08T13:53:22Z`, no message |
+| `5138391380` | `sourcery-ai[bot]` | COMMENTED | `2026-09-08T06:58:14Z` | `97d1e7fa` | 248 bytes | — |
+
+**THERE ARE TWO APPROVING REVIEWS, NOT ONE**, and both were dismissed by GitHub
+on the pushes that followed them. No dismissal message on either, with
+`state_was: approved` on both timeline events — the signature of automatic
+stale-approval dismissal under branch protection, not a withdrawal. **THE
+RATIFICATION STANDS** on `review/ratification-2026-09-08.md`, which is the
+durable record, and NOT on a currently-APPROVED review; every note this
+realization writes says so in the same clause as the citation.
+
+**THE RATIFIED TEXT IS NOT EDITED FOR THIS.** `proposal.md`'s front matter, the
+ratification record itself, and the ratified README row sentences all say
+"APPROVED" without the dismissal, and all three are FROZEN. The clause lives in
+the realization's own notes and in this file. Nine notes in the packet's
+`tasks.md` carry it.
+
+**ONE DIVERGENCE, NAMED RATHER THAN RESOLVED.** The record gives the ratified
+baseline as `8cc76e1b`; the API reports `d0f8cccf` as review `5141756427`'s
+commit. The record's own § on the two clocks already measures the packet's bytes
+as IDENTICAL at both heads, so nothing turns on it and this realization resolves
+nothing — it records both readings, because the failure this packet exists to
+refuse is a claim whose basis nobody can re-derive.
+
+## The active-proposal census — what the corpus actually does
+
+**19 TICKED / 9 OPEN IS THE NORM HERE, NOT AN INNOVATION**, and it is counted
+rather than asserted. Across the **40 active openxFactory changes carrying a
+`tasks.md`** at this head:
+
+- **38 of 40 carry at least one ticked box** while still active and unarchived.
+- Only **TWO** are wholly unticked: `adopt-medxsoft-repository-identity` (0/30)
+  and `add-consent-custody-rederivation-record` (0/46) — the second being the
+  very packet this one cites at task 3.3, which is why it was the comparison the
+  ratified text reached for.
+- Ratios span 50/6 (`prepare-openspec-1.12-readiness`) to 0/46; this packet's
+  19/9 sits in the middle of the distribution.
+
+An active packet with every box open is the OUTLIER in this corpus. That is the
+measured basis for ticking a ratified-but-unarchived packet, and it is recorded
+here so the archive act does not have to take it on trust.
+
+## The `untick` re-derivation over the packet
+
+**RUN AFTER THE CONTENT WAS FINAL, AND IT CAUGHT TWO THINGS READING DID NOT.**
+`grep -rn -i untick` over the packet's `tasks.md`, `proposal.md`, `design.md`,
+`.openspec.yaml`, `review/` and `specs/` (the evidence file is excluded, since
+recording the sweep would otherwise perturb it) returns **27 hits**, every one
+classified:
+
+- **Ratified assertions now AMENDED, with a block quote beside them** —
+  `tasks.md` 7, 80-81, 86, 138, 142, and **686** (the § 6.1 "what the archive act
+  reads is the UNTICKED BOX 3.4"); `proposal.md` 17 and 99.
+- **This realization's own block quotes of those** — `tasks.md` 17, 95, 154, 158;
+  `proposal.md` 57, 63.
+- **This realization's own prose** — `tasks.md` 103, 648, 650; `proposal.md` 52.
+- **True statements about OTHER packets, measured and dated** — `tasks.md` 124
+  and 505, `proposal.md` 152 and 282, `design.md` 231,
+  `specs/document-lifecycle/spec.md` 266 (all the consent packet's 46/0, verified
+  2026-09-09 at `main` `6cc06288`).
+
+**THE SWEEP EARNED ITS PLACE: `tasks.md:686` was found by it, not by reading.**
+§ 6.1's ratified "what the archive act reads is the UNTICKED BOX 3.4" is
+falsified by 3.4's tick, and the note there addressed it in prose without
+block-quoting it. It now carries the quote, in the same form as every other
+amendment.
+
+**AND ONE FINDING THIS REALIZATION DELIBERATELY DOES NOT FIX, because it cannot:**
+`.openspec.yaml:47-50` asserts *"NOTHING IS REALIZED BY THIS PACKET. No archived
+byte is edited, no pin is re-derived, no checker is written, no convention is
+amended, and every box in `tasks.md` is unticked."* Two of those clauses are now
+false — something IS realized, and the boxes are not all unticked. **`.openspec.yaml`
+is FROZEN** by the ratified scope (`spec.md` FR-009a lists it, and the packet's
+own § *What This Change Does NOT Do* keeps it), so amending it is not this
+realization's act. It is RECORDED here instead, by file and line, so the archive
+act sees a known-stale ratified assertion rather than discovering one. The same
+is true of `review/ratification-2026-09-08.md:115` ("stays unticked on `main`"),
+which is a record of what was true when it was captured and is correct as a
+record.
 
 ## Gates that could not be run
 

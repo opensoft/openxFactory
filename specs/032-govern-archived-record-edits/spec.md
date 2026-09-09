@@ -39,21 +39,43 @@ ready for the archive act, which the lane performs.
   `moved_by: "#788", moved_on: "2026-09-08"`, and `README.md:515` carries the
   packet's "OpenSpec Records" row. Neither is authored again here.
 - **No in-repo content-address pin names `docs/document-lifecycle.md`**, so the
-  § 3.4 edit is not a pinned-target edit. Measured two ways: `contracts/manifest.yaml`
-  contains ZERO `docs/`-prefixed path values (parsed, not grepped), and no
-  `*.yaml|*.yml|*.json` file in the repository pairs a `sha256` with that path.
-  The only occurrences of the path beside a digest are in `examples/document-cataloging/`,
-  which are illustrative fixtures rather than live pins.
+  § 3.4 edit is not a pinned-target edit. **CORRECTED 2026-09-08 during
+  realization — the method as originally stated would have missed a real
+  candidate.** This bullet said the measurement was "no `*.yaml|*.yml|*.json`
+  file in the repository pairs a `sha256` with that path". A `sha256`-keyed
+  search alone MISSES the fixtures' `content_hash:` key — for example
+  `examples/document-cataloging/document-catalog-reference-invalidation.example.yaml`
+  pairs the path with `content_hash:` and never with `sha256:` — so a re-runner
+  following the old wording would get a different (and falsely clean) result.
+  **THE METHOD AS RUN, which a re-runner should follow**: (1) parse
+  `contracts/manifest.yaml` as YAML and walk every string value — ZERO
+  `docs/`-prefixed path values; (2) `grep` the repository's `*.yaml|*.yml|*.json`
+  for the PATH itself, not for a digest key — FIVE files name it; (3) resolve
+  each of the five by reading what sits beside the path, `content_hash:` and
+  `passage_sha256:` as well as `sha256:`. The conclusion is unchanged and is now
+  reached by a method that would have found the candidate: the only pairings live
+  in `examples/document-cataloging/` (plus one comment in a contracts schema and
+  one prose mention in an archived `.openspec.yaml`), and they are illustrative
+  fixtures rather than live pins — PROVEN, not asserted, because
+  `scripts/validate-document-catalog.py` validates their SHAPE and never hashes a
+  file on disk, and doc-health's catalog families read `health/document-catalog/`,
+  which does not exist in this repository.
 - **THE OPSXFACTORY TWIN HAS LANDED.** `govern-archived-record-edits` merged into
   OpsxFactory `main` as **`bbbef015cd394e2de31586b9718356586c413884`** (PR #279,
   committed 2026-09-08T11:28:23-04:00 = **2026-09-08T15:28:23Z**), verified in a
   read-only clone: `git merge-base --is-ancestor bbbef015… origin/main` succeeds.
   Every statement in this feature that the twin had not landed is superseded by
   this measurement.
-- **The packet holds SIX files**, counted rather than carried forward from the
-  ratification record's five-file baseline (which predates its own `review/`
-  record): `.openspec.yaml`, `design.md`, `proposal.md`, `tasks.md`,
-  `review/ratification-2026-09-08.md`, `specs/document-lifecycle/spec.md`.
+- **The packet holds SIX files AT THE RATIFIED HEAD, and SEVEN after
+  realization — each count names its head, because the two are both true and
+  neither supersedes the other.** At `main` `3504287a` / base `68712924`: SIX,
+  counted rather than carried forward from the ratification record's five-file
+  baseline (which predates its own `review/` record) — `.openspec.yaml`,
+  `design.md`, `proposal.md`, `tasks.md`, `review/ratification-2026-09-08.md`,
+  `specs/document-lifecycle/spec.md`. At this branch's head, SEVEN: realization
+  adds `evidence/realization-2026-09-08.md`, which is exactly what the
+  `proposal.md` realization note records. A statement of the count is therefore
+  incomplete without its head.
 - **doc-health stamps the CHECKOUT'S DIRECTORY BASENAME into every finding** —
   `repo=<basename>`, the `Repo-Identity:` header, and the "scope limited to
   single repo <name>" line — so a baseline taken in a differently-named directory
@@ -92,7 +114,8 @@ open.
 
 1. **Given** `docs/document-lifecycle.md` at this branch's head, **When** a
    reader looks for the form a bookkeeping note takes, **Then** the document
-   states the dated line `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>`
+   states the dated line `Edited (bookkeeping): <UTC date> by <change-id> —
+   <edit class>`
    byte-for-byte as the ratified requirement states it, and says it belongs in
    the edited file's own lifecycle-header block.
 2. **Given** the same document, **When** a reader asks what authorizes the
@@ -299,9 +322,14 @@ the realization PR body can cite them rather than bury them:
    3.4's "record the minimum". Declining them leaves the note recorded with no
    statement that it is not the authorization.
 4. **The README Records row sentence** (mirror ruling M-A1 → FR-010c) — this
-   branch writes `README.md`, which the earlier scope froze. The row asserts "all
-   28 boxes in `tasks.md` stay unticked"; realization falsifies it. Declining
-   leaves a false sentence in the repository's own index of records.
+   branch writes `README.md`, which the earlier scope froze. **The row makes the
+   now-false claim TWICE, not once** — at `README.md:527` ("**all 28 boxes in
+   `tasks.md` stay unticked**, § 1's ratification boxes included") and again at
+   `README.md:545-548` ("**NOTHING IS REALIZED** — … and **all 28 boxes in
+   `tasks.md` stay unticked**"), where BOTH halves fail: 19 boxes are ticked, and
+   `docs/document-lifecycle.md` IS amended, so "NOTHING IS REALIZED" is false in
+   its own right. ONE amendment block-quotes both. Declining leaves two false
+   sentences in the repository's own index of records.
 5. **Amending the § 1 heading "Ratification — OWED, NOT GIVEN"** (mirror ruling
    M-A7 → FR-017b) — the packet's own ratified text says the heading is left as
    written ON PURPOSE, so amending it supersedes a deliberate decision, which is
@@ -478,11 +506,20 @@ performed as the named reversal act.
   ("…and every box in `tasks.md` stays unticked") and line 44 ("…and every box in
   `tasks.md` stays unticked") each assert the unticked state, and each MUST be
   quoted in the note as superseded. (Panel P5.)
-- **FR-010c**: This branch ALSO writes `README.md`: ONE dated superseding sentence
-  appended at the END of this change's "OpenSpec Records" row, which asserts
-  "**all 28 boxes in `tasks.md` stay unticked**". The sentence goes at the row's
-  end and NEVER near the block anchor, so a concurrent lane's row edit collides on
-  a different line. (Mirror ruling M-A1; VETO POINT 4.)
+- **FR-010c**: This branch ALSO writes `README.md`: ONE dated superseding
+  amendment appended at the END of this change's "OpenSpec Records" row. **THE
+  ROW ASSERTS THE NOW-FALSE FACT IN TWO PLACES AND THE AMENDMENT MUST QUOTE
+  BOTH**: `README.md:527` "**all 28 boxes in `tasks.md` stay unticked**, § 1's
+  ratification boxes included", and `README.md:545-548` "**NOTHING IS
+  REALIZED** — no archived byte is edited, no pin is re-derived, no checker is
+  written, no repository's convention is amended, and **all 28 boxes in
+  `tasks.md` stay unticked**." The second is superseded in BOTH halves — 19
+  boxes are ticked AND `docs/document-lifecycle.md` is amended — while its three
+  other clauses (no archived byte, no pin, no checker; and no convention amended)
+  still hold and are named as not superseded. Each quotation is BYTE-EXACT,
+  emphasis markers included. The amendment goes at the row's END and NEVER near
+  the block anchor, so a concurrent lane's row edit collides on a different line.
+  (Mirror ruling M-A1; VETO POINT 4.)
 - **FR-011** (origin: the packet's § 4 gate list): Every § 4 gate MUST be run at the final head and its output
   recorded verbatim, including the doc-health finding-set diff against `main`.
   A FORWARD MERGE from `main` taken after that run makes the run stale: the gate

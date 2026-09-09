@@ -364,8 +364,10 @@ and actor for each of the 28 boxes.
       § 3 "Composition — named here; 3.4 alone is this packet's own act" (line
       161), which 3.1's tick falsifies. (FR-017b; veto point 5)
       **Done 2026-09-08 in commit `0e7a67f3`.** § 1 now reads `## 1. Ratification — OWED,
-      NOT GIVEN [SUPERSEDED 2026-09-08: GIVEN]` and § 3 `## 3. Composition — named here; 3.4
-      alone is this packet's own act [SUPERSEDED 2026-09-08: 3.1 IS ALSO PERFORMED]` —
+      NOT GIVEN — AMENDED 2026-09-08` and § 3 `## 3. Composition — named here;
+      3.4 alone is this packet's own act — AMENDED 2026-09-08` — the pair's
+      CLOSED marker vocabulary `AMENDED <UTC date>` as a whole token, adopted
+      from the twin in place of the `[SUPERSEDED …]` form first written —
       whole-token markers, not bare parentheticals, with the original words kept in front of
       each. § 1's amendment NAMES the ratified clause it supersedes ("The heading is left as
       written because it names what the section was raised to hold") and says that superseding
@@ -614,11 +616,18 @@ and actor for each of the 28 boxes.
       such. VERIFY FR-018 POST HOC in the same pass: for every tick, the commit
       that added it also added or cited its evidence — no tick appears in a commit
       earlier than the evidence it rests on.
-      **Done 2026-09-08.** FR-014 verified on ALL 11 authored commits in `git
-      log main..HEAD`: each carries `Lane: opsXfactory-1`, `Co-Authored-By:
-      Claude Fable 5.1` and `Claude-Session:`. There are ZERO merge commits in
-      the range, so the merge-commit exemption was not needed and no forward
-      merge is being read as a violation. FR-018 verified POST HOC by walking
+      ~~**Done 2026-09-08.** FR-014 verified on ALL 11 authored commits in `git
+      log main..HEAD`~~ — **STRUCK 2026-09-08 after the refutation panel: that
+      count was true when written and stale when read.** Eleven was the range at
+      the moment of the check; two commits followed it (`be643e55`, `5dccfad1`)
+      and the panel measured 13. RE-VERIFIED by counting rather than recalling —
+      13 of 13 authored commits carry `Lane: opsXfactory-1`, `Co-Authored-By:
+      Claude Fable 5.1` and `Claude-Session:`, ZERO merge commits in that range
+      — and RE-VERIFIED AGAIN after the forward merge, where the merge commit is
+      the one entry FR-014 exempts and is named as such rather than counted as a
+      violation. The number is struck, not deleted, and the same correction is
+      owed to commit `5dccfad1`'s message, which carries the stale figure and
+      cannot be rewritten; this line is that correction. FR-018 verified POST HOC by walking
       the range in order: all 19 packet ticks land in ONE commit, `0e7a67f3`,
       which itself touches the evidence file, and the evidence they cite was
       recorded in `31704f0a`, the commit BEFORE it. No tick appears in a commit
