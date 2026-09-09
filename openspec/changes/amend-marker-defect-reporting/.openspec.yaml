@@ -1,0 +1,75 @@
+schema: spec-driven
+created: 2026-09-09
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-09-amend-marker-defect-reporting
+  reason: >-
+    AN OWED SUCCESSOR, filed as openxFactory issue #729 and scoped by the
+    packet that owed it. `amend-marker-reason-boundary` (PR #719, origin #692,
+    itself filed out of the adversarial review of PR #685) moved a marker's
+    reason boundary so that a code span standing after the first ` — ` outside
+    every code span is prose the reason quotes rather than a unit the marker
+    names. Its own `tasks.md` § 5.1, ratified 2026-09-06, recorded TWO silences
+    it did not take: a marker naming something no unit of the requirement
+    matches, which has been silent since the family launched; and the case that
+    amendment created, an author separating two NAMES with the separator, whose
+    second span is read as prose so that the unit it meant to declare is
+    reported while the MARKER that caused it is not. It named that successor as
+    having "its own scenarios to write, and it is not this packet".
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT
+    A PATCH. The promoted requirement mandates exactly ONE reporting ground for
+    a marker — "A marker naming a unit the block still carries declares nothing
+    and SHALL itself be reported" — and `suppression` conforms to it exactly,
+    its own docstring recording the third resolution as "deliberately NOT a
+    finding … an obligation this feature has no standing to invent". For the
+    second case canon does not merely omit a report: it PRESCRIBES the treatment
+    ("the units the span would have named MUST therefore remain subject to the
+    carriage arms"), which this packet keeps word for word and adds a report
+    about the MARKER beside. Two obligations over the same facts is an amendment
+    of the requirement, so the remedy is a `## MODIFIED` block with the
+    realization in the same pull request under `release-realization`'s
+    merged-plus-green rule.
+    AND ONE FIELD IS THE ENABLING HALF: `parse_marker` derived the
+    post-boundary spans and DISCARDED them, so the second silence was not
+    merely unreported but not mechanically detectable at all.
+    BOTH GROUNDS HAVE A POPULATION OF ZERO TODAY, measured rather than assumed
+    on 2026-09-09 over main @ 6df21737 — the tree the design was taken on, and
+    the scope every figure in this packet is stated at. Sixteen unit-naming
+    markers in the corpus, EIGHT of them quoting a code span inside their reason
+    and every one of those eight a PROMOTED marker; of the 34 spans they quote,
+    ZERO is a derived unit of its own document. That third figure is the design:
+    a ground written on the span's POSITION reports eight correct markers the
+    moment a MODIFIED block restates one of their requirements, and the share
+    grew from 2 of 7 to 8 of 16 in three days, so `design.md` D1 takes the
+    EXACT-MATCH predicate and writes the position predicate out beside it with
+    its cost.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-09: no
+    topic carries the marker grammar, marker defect reporting, or doc-health's
+    carriage arms. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is issue #729 and the archived § 5.1 that
+    scoped it.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `3c606f68`), authoring the remedy issue #729
+    proposes. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: Brett Heap's
+    "author the 729 packet" (2026-09-09T12:32:46Z) instructs a lane to author,
+    and his "merge 842 and 846 when green, then ratify the 729 packet"
+    (2026-09-09T13:13:41Z) states the intended sequence — neither ratifies a
+    wording and neither takes a design decision, and the ratification they
+    foresee happens on a later word once this pull request is frozen green. The
+    lawful unapproved shape is the one `add-drafted-proposal-origin` added —
+    drafting provenance, no `approved_by`, no `approved_on` — and every document
+    in the packet carries `Status: draft` to match. The decision most worth a
+    veto is `design.md` D1: option A, a reason-quoted span reported only where
+    it matches EXACTLY a promoted unit the block does not carry and no marker
+    declares removed, against option B, any code span inside a reason — the
+    remedy shape issue #729's own body proposes, which fires on canon's blessed
+    form and on eight correct promoted markers. A veto of A is a veto of ground
+    two alone; ground three rests on no predicate choice.
+  proposed_on: 2026-09-09
+related:
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary          # ARCHIVED (PR #719). Owed this successor at its own tasks.md § 5.1, and created the second of the two silences reported here; its bytes are NOT edited
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check     # ARCHIVED. Promoted the requirement this block MODIFIES, wrote the one-ground sentence, and recorded the first silence as "a plausible later ruling"
+  - openxFactory:change:archive/2026-09-05-amend-unreadable-read-sibling-scenarios  # ARCHIVED (PR #688). The shape this packet is authored on: an amend of doc-health canon realized in the same pull request
+  - openxFactory:change:archive/2026-08-28-add-unclassified-finding-class        # ARCHIVED. Owns the class map and the shape mask this packet's one template keeps intact
+  - openxFactory:change:archive/2026-09-02-govern-sibling-added-modified-deltas  # ARCHIVED. Added the pairing form, whose whole-tail reason rule this packet leaves untouched, and the ONE-TEMPLATE-FOR-FOUR-STATES precedent design.md D2 follows

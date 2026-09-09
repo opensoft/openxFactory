@@ -519,6 +519,49 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-marker-defect-reporting](openspec/changes/amend-marker-defect-reporting/proposal.md)
+  — authored 2026-09-09, **`Status: draft`** (NOT RATIFIED: Brett Heap's
+  *"author the 729 packet"* instructs a lane to author and decides no wording;
+  `tasks.md` § 1 is unticked and `.openspec.yaml` carries drafting provenance
+  with no approval pair). **THE OWED SUCCESSOR OF
+  `amend-marker-reason-boundary` § 5.1, filed as issue #729.**
+  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
+  gives a marker exactly ONE reporting ground — it names a unit the block still
+  carries — so two other ways of declaring nothing are silent about the MARKER
+  and point its author at a unit instead of at their own paragraph: a name that
+  matches no unit of the requirement (silent since the family launched, recorded
+  by `suppression` itself as "a plausible later ruling" it had no standing to
+  invent), and a code span standing INSIDE a reason, which the boundary
+  correctly reads as prose so that the unit its author had in mind is reported
+  while the marker that caused it is not. The amendment restates the requirement
+  with ONE body sentence replaced, stating THREE grounds at the marker-defect
+  class's existing `info` band, and ADDS TWO SCENARIOS at the end of the block,
+  one per ground; the reason-quotes scenario's third `AND` — the unit stays
+  subject to the carriage arms — is carried word for word, the new report being
+  added BESIDE that carriage rather than in place of it. **`design.md` D1 IS THE
+  VETO POINT AND IT IS A MEASUREMENT:** the second ground is NARROW, firing only
+  where a reason-quoted span matches EXACTLY a promoted unit the block does not
+  carry and no marker declares removed. The issue's own remedy shape — any span
+  inside a reason — is written out beside it with its cost, because a reason is
+  prose and prose quotes: of the SIXTEEN unit-naming markers this corpus carried
+  on 2026-09-09, EIGHT quote a code span inside their reason, every one of them
+  a PROMOTED marker, and of the 34 spans they quote ZERO is a derived unit — so
+  the position predicate is the predicate for canon's own blessed form and its
+  share grew from 2 of 7 to 8 of 16 in three days. Realized in the same pull
+  request under `release-realization`'s merged-plus-green rule
+  (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
+  `Marker` gains one field for the post-boundary spans `parse_marker` derived
+  and DISCARDED (which is why the second silence was not mechanically detectable
+  at all), `suppression` resolves them and the names that match nothing, and one
+  interpolated `{why}` field carries all three grounds through the class's
+  EXISTING template — so `_ARM_TEMPLATES` stays at eight, the existing
+  `CLASS_MARKERS` probe places every new finding, and ground one's rendered text
+  is byte-identical to the one it shipped with. **BOTH NEW GROUNDS RAISE ZERO
+  FINDINGS ON THIS CORPUS TODAY**, measured: `--family
+  modified-block-currency` is identical to `origin/main`'s output line for line,
+  this packet's own block included, so the amendment is normative for the next
+  marker written rather than a sweep of the present one.
+
 - [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
   first-hand and with NO RELAY to lane `codexfactory-1` (session name
