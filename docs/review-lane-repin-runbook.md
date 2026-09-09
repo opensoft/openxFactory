@@ -111,12 +111,21 @@ CORE=$(gh api repos/opensoft/codexFactory/commits/main --jq .sha)
 gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
 
 # 2. Re-copy the snapshot. NEVER hand-edit it: it is a witness.
-#    The path moved on 2026-09-09 (codexFactory #297 -> 8165d1f3, its
-#    `relocate-review-authority-floor`); at a CORE older than that the document
-#    is still at scripts/merge_master/openxfactory-review-authority-floor.yaml.
-#    Check the exit status: a 404 here writes an EMPTY snapshot over a witness.
-gh api "repos/opensoft/codexFactory/contents/floor/openxfactory-review-authority-floor.yaml?ref=${CORE}" \
-  -H "Accept: application/vnd.github.raw" > contracts/review-lane-floor-snapshot.yaml
+#    FETCH TO A TEMPORARY FILE AND PROVE IT BEFORE IT LANDS ON THE WITNESS.
+#    Redirecting `gh api` straight into the snapshot writes an EMPTY file over
+#    it when the read 404s, which is the one edit this file must never suffer.
+#    THE PATH MOVED on 2026-09-09 (codexFactory #297 -> 8165d1f3, its
+#    `relocate-review-authority-floor`). At a CORE older than that the document
+#    is at scripts/merge_master/openxfactory-review-authority-floor.yaml, and
+#    you set FLOOR to it DELIBERATELY: there is no automatic fallback here for
+#    the same reason the lane's declared list is one entry again — a command
+#    that quietly accepts either home cannot tell a relocation from a file
+#    somebody put back.
+FLOOR=floor/openxfactory-review-authority-floor.yaml
+gh api "repos/opensoft/codexFactory/contents/${FLOOR}?ref=${CORE}" \
+  -H "Accept: application/vnd.github.raw" > /tmp/floor-at-core.yaml
+test -s /tmp/floor-at-core.yaml || { echo "no floor document at ${FLOOR}@${CORE} — STOP"; exit 1; }
+cp /tmp/floor-at-core.yaml contracts/review-lane-floor-snapshot.yaml
 
 # 3. Recompute the two declared witnesses FROM THE BYTES YOU JUST WROTE.
 sha256sum contracts/review-lane-floor-snapshot.yaml
