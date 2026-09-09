@@ -100,7 +100,8 @@ credential_bindings:
       holder_ref: "openxfactory:workflow:review-lane-repin"
       # THE IDENTITY IT AUTHENTICATES TO THE STORE WITH.
       fetch_identity: "github-actions:openxfactory:review-lane-repin"
-      identity_namespace: "github:opensoft"
+      # AMENDED 2026-09-09 by ruling (task 3.5): the namespace follows the source repository's organization; see review/addendum-2026-09-08-token-namespace.md
+      identity_namespace: "github:codeXfactory"
 
 # WHAT THE LANE MAY DO WITH IT, ENUMERATED. Read as the binding's least
 # privilege: anything not listed here is not granted, and the fourth line is a
