@@ -75,8 +75,22 @@ from ideation_dashboard import doxbench_threads
 # implementation so they cannot drift into two spellings of one rule.
 from ideation_dashboard.doxbench_packet import states_something
 
-JSON_CTYPE = "application/json; charset=utf-8"
-JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
+# The three FIXED WIRE STRINGS moved OUT of this module to the neutral
+# `scripts/wire_messages.py` (OQ-B re-plumb B-2, ruled on `#656`
+# 2026-09-09): `serve_openxfactory_lanes.py` is openxFactory's own adapter
+# column and STAYS, this module is openDox under design D3, and RULING OQ-2
+# forbids that direction after the carve. A `str` literal carries no
+# dependency, so all three are neutral by construction. Re-exported here —
+# the SAME OBJECTS, not copies — so `serve_wire.JSON_CTYPE` and its two
+# siblings keep resolving for every existing caller (`serve.py`,
+# `serve_workbench.py`, `serve_project.py`, `serve_gate.py`,
+# `serve_projection.py`, and the suites that read them off `serve`).
+from wire_messages import (  # noqa: F401  (re-export)
+    HOSTED_SESSION_REFUSAL,
+    JSON_CTYPE,
+    JSON_OBJECT_BODY_REQUIRED,
+)
+
 _MAX_BODY_BYTES = 65_536  # a tile-action body is tiny; cap it to refuse a flood
 
 # W-5/W-6 (wave re-review): how much of a REFUSED body a reader will
@@ -1344,9 +1358,3 @@ AGENT_INVOCATION_REFUSAL = (
     "from the human console this serve started: it must be issued by the served "
     "page, same-origin, carrying this serve's console token")
 
-
-# The refusal message every hosted non-`main` request gets, verbatim. Fixed text:
-# nothing request-derived reaches the wire (the response discipline this module
-# already keeps for the notebook action).
-HOSTED_SESSION_REFUSAL = ("a ref other than 'main' is session-local data and is "
-                          "not available on this plane")
