@@ -5,6 +5,7 @@ Ratified by: govern-archived-record-edits — 2026-09-08, Brett Heap, CLI approv
 `gh pr review 788 --approve` (review 5141756427, APPROVED 2026-09-08T12:38:36Z,
 empty body) (record `review/ratification-2026-09-08.md`)
 Lane: opsXfactory-1
+Edited (bookkeeping): 2026-09-09 by archive-govern-archived-record-edits — archive move
 
 **NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
 PACKET RATHER THAN AN OVERSIGHT.** This is a PROPOSAL. No archived byte is
@@ -36,6 +37,74 @@ feature directory — and the delta reaches promoted canon only at the archive a
 **Tags.** Untagged = openxFactory. `[OpsxFactory]` = `opensoft/OpsxFactory` and
 its own OpenSpec instance — listed as the domain twin's acts, outside this
 change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
+
+**DISPOSITION 2026-09-09, AT THE ARCHIVE — THE THIRD AND LAST DISPOSITION UNDER
+THIS PREAMBLE, AND THE ONE THAT MOVES CANON.** The realization's amendment above
+closed the "EVERY BOX IS UNTICKED" sentence and re-verified the sentence beside
+it; THIS one is the archive, so the clause it discharges is quoted in place
+rather than deleted:
+
+> No archived byte is edited, no pin is re-derived, no checker is written, no
+> repository's local convention is amended, and no spec delta is promoted.
+
+**EXACTLY ONE OF ITS FIVE CLAUSES MOVES, AND IT IS THE LAST.** The delta IS
+promoted at this commit — one `## MODIFIED` requirement replaced wholesale and
+two `## ADDED` requirements appended in
+`openspec/specs/document-lifecycle/spec.md`, which goes **18 → 20**
+requirements. **THE OTHER FOUR HOLD UNQUALIFIED AND ARE RE-MEASURED HERE, NOT
+ASSUMED:** no pin is re-derived, because **NO IN-REPO `sha256` PIN NAMES ANY
+FILE THIS PULL REQUEST TOUCHES** — measured at base `9a67d42c` by searching every
+`*.yaml`/`*.yml`/`*.json` in the tree for each touched path as a literal string.
+**THE ONE NEAR MISS IS NAMED RATHER THAN LEFT TO BE FOUND:**
+`contracts/review-lane-floor-snapshot.yaml:217` DOES name
+`openspec/specs/document-lifecycle/spec.md`, and it is **A PATH LIST, NOT A
+DIGEST** — the floor enumerates the CODEOWNERS-gated paths and carries no
+`sha256` of any of them, its own bytes being what
+`contracts/review-lane-pin.yaml` witnesses, and that file is not touched here.
+The spec path is ALREADY in the list and stays in it; **NO FILE IS ADDED UNDER
+`openspec/specs/`**, so no floor advance is owed either — the shape
+`refresh-install-repository-enumerations` measured at its own archive. No checker is written
+(nothing under `scripts/`, `.github/` or `tests/` other than the one ledger
+row); no repository's local convention is amended (nothing outside this
+repository is touched at all); and **no archived byte is edited** — for the
+reason the next paragraph gives, which is this packet's whole subject.
+
+**THIS IS THE FIRST ARCHIVE PERFORMED UNDER THE RULE THIS PACKET PROMOTES, AND
+THE FIRST RECORD THAT RULE BINDS IS THIS PACKET'S OWN.** *An archived record is
+edited only as a bookkeeping correction under a recorded ruling* names, among
+the edits it REFUSES, "a task record or its tick state" — so ticking a box on
+this file AFTER it moves under `openspec/changes/archive/` is an edit the
+requirement forbids, whatever ruling authorizes it. **THE RESOLUTION IS
+ORDERING, NOT AN EXCEPTION**, and it is the precedent's:
+`refresh-install-repository-enumerations` closed its boxes in the commit BEFORE
+its archive commit (openxFactory PR [#825](https://github.com/opensoft/openxFactory/pull/825)
+→ `ca4a1558`). **EVERY TICK IN THIS FILE IS AUTHORED WHILE THE PACKET IS STILL
+LIVE**, in the commit that precedes the move; the archive commit that follows is
+a PURE MOVE plus the promotion, and it edits no byte of any file it moves. So
+the rule's refusal is never engaged and no exception to it is claimed, taken or
+needed.
+
+**THE `Edited (bookkeeping):` LINE IN THE HEADER ABOVE IS CARRIED ANYWAY, AND
+THAT IS STRICTER THAN THE MINIMUM RATHER THAN LOOSER.** On the ordering above
+the neutral minimum is not owed at all — nothing under `archive/` is edited —
+but this file's diff is presented at its ARCHIVED path across the pull request,
+and a reader who sees `openspec/changes/archive/2026-09-09-…/tasks.md` modified
+deserves the record rather than the inference. The line names the change and the
+class; the RULING it records under is the ratified packet itself, whose § 6
+boxes reserve exactly these acts to the archive act and were approved by Brett
+Heap on 2026-09-08 — recorded BEFORE the edit, which is what the requirement
+asks of a ruling. The note says WHAT changed and never THAT IT MAY.
+
+**PRECONDITIONS, MEASURED BEFORE THE MOVE AND NOT AFTER IT.** (1) Box 4.2's
+currency check: canon **5,815 characters**, unchanged since ratification, **0
+canon lines removed** under both bounds — canon did NOT move, so the block is
+carried forward as ratified and no re-derivation is owed. (2) Neither `## ADDED`
+title collides with anything promoted: an exact-title grep over all of
+`openspec/specs/` returns nothing for either. (3) The packet's open boxes at
+this commit are exactly **3.2, 3.3, 3.5, 4.2, 5.2, 5.3, 6.1, 6.2 and 6.3** —
+nine, which is the 8 dated NOT-OWED plus box 4.2 — and the ones this act closes
+are **4.2, 6.1 and 6.2**. **BOX 6.3 STAYS OPEN AND IS NOT TICKED BY THIS ACT**,
+for the reason its own clause now gives.
 
 ## 0. Bookkeeping this branch carries, and the one stamp that is provisional
 
@@ -580,7 +649,7 @@ a pin arriving with a forward merge is a pin.
   summary lines, and the dispositioned-exception count compared with the
   ratification record's baseline in BOTH directions. Result recorded there:
   `--change` rc 0, `--all --strict` rc 0 with **ZERO UNDISPOSITIONED** findings.
-- [ ] 4.2 **Currency of the MODIFIED block, continuously until archive.**
+- [x] 4.2 **Currency of the MODIFIED block, continuously until archive.**
   `A MODIFIED requirement block restates the requirement as canon currently
   states it` attaches for as long as this change is active. Re-run the
   byte-identity check against `openspec/specs/document-lifecycle/spec.md` before
@@ -596,6 +665,24 @@ a pin arriving with a forward merge is a pin.
   signal the `modified-block-currency` family exists to keep live, and the archive
   act would inherit a ticked box instead of an obligation. Evidence without a tick
   is permitted; a tick without evidence is not, and this box is the former.
+
+  **TICKED 2026-09-09 AT THE ARCHIVE ACT (`archive-govern-archived-record-edits`,
+  lane `opsXfactory-1`) — THE RE-RUN THIS BOX WAS HELD OPEN FOR, AND IT IS A
+  RE-RUN RATHER THAN AN INHERITANCE.** ACT: the byte-identity check re-run
+  against `openspec/specs/document-lifecycle/spec.md` at base `9a67d42c`,
+  immediately before the move and not after it. UTC DATE: 2026-09-09.
+  EVIDENCE, verbatim from the run: **canon 5,815 characters**, delta **7,209**
+  (the quickstart script's own `\n### Requirement:` bound) / **7,186** (bounded
+  at `## ADDED Requirements`), **0 canon lines removed** under BOTH bounds, 17
+  and 15 lines added respectively. **CANON DID NOT MOVE.** The figure is
+  character-for-character the one `evidence/realization-2026-09-08.md`
+  § *Measurement 2* recorded on 2026-09-08 and the one the README row states, so
+  the MODIFIED block is carried forward AS RATIFIED and **no re-derivation is
+  owed** — had canon moved, this box would have stopped the archive rather than
+  been brought forward inside it. **THE PROMOTION IS THEN VERIFIED IN THE OTHER
+  DIRECTION TOO**, after the move: all three delta blocks are byte-identical to
+  the blocks the archive wrote into canon, extracted programmatically and
+  compared rather than eyeballed (§ 6.2).
 - [x] 4.3 `python3 scripts/validate-sequenced-after.py .`, `--ledger-diff`,
   `validate-scope-globs.py .`, `validate-manifest-digests.py .` all clean.
 
@@ -674,7 +761,7 @@ a pin arriving with a forward merge is a pin.
 
 ## 6. Archive
 
-- [ ] 6.1 **Archive WHEN ITS ARTIFACTS LAND**, per `release-realization`: the
+- [x] 6.1 **Archive WHEN ITS ARTIFACTS LAND**, per `release-realization`: the
   declared `code_surface` is `none`, so the archive gate is not merged-plus-green
   realization evidence. **This box said "nothing in § 3 gates it: those are
   other packets' acts", and § 3 holds THREE different kinds of act, not one.**
@@ -710,7 +797,27 @@ a pin arriving with a forward merge is a pin.
   unblocked on that ground. 3.1 is ticked too; 3.2, 3.3 and 3.5 remain other
   repositories' or other packets' acts and gate nothing here, exactly as this box
   says.
-- [ ] 6.2 Confirm at the archive act that the three requirement blocks reach
+
+  **TICKED 2026-09-09 ON THE DOING, AT THE ARCHIVE ACT
+  (`archive-govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the
+  archive is TAKEN IN THIS PULL REQUEST, in the commit after this one, by
+  `openspec archive govern-archived-record-edits --yes` run through the PINNED
+  CLI `@fission-ai/openspec@1.12.0` with `OPENSPEC_TELEMETRY=0` from the
+  repository root — never `PATH`'s 1.2.0. UTC DATE: 2026-09-09. EVIDENCE: the
+  packet moves to
+  `openspec/changes/archive/2026-09-09-govern-archived-record-edits/` and the CLI
+  reports `added 2, modified 1, removed 0, renamed 0`, `specsUpdated: true`.
+  **THE GATE THIS BOX NAMES IS RE-READ AT THIS COMMIT AND IS CLEAR**:
+  `code_surface: none`, so `release-realization` archives this packet ON LANDING;
+  box 3.4 — the only § 3 box that could hold it open, and this repository's own
+  act — is ticked; the THREE remaining § 3 boxes (3.2, 3.3, 3.5) and the two § 5
+  boxes (5.2, 5.3) are other repositories', other packets' or the LANDING LANE's
+  acts and gate nothing here, exactly as this box's own text says. **THE ARCHIVE
+  DATE IS UTC AND AGREES WITH THE CLOCK THE ESTATE READS**: the CLI stamps the
+  directory from the LOCAL clock (it has no date option — the trap `#790`
+  recorded), and the run was made at 2026-09-09 ~02:1x local = ~06:1xZ, so both
+  clocks read 2026-09-09 and the directory needs no correction.
+- [x] 6.2 Confirm at the archive act that the three requirement blocks reach
   `openspec/specs/document-lifecycle/spec.md` — *Ratified spec deltas reach the
   promoted specification* is checked against the archived delta's own bytes,
   which is the reason this packet exists.
@@ -722,9 +829,66 @@ a pin arriving with a forward merge is a pin.
   (`evidence/realization-2026-09-08.md`
   § *Measurement 2*) and its box is deliberately left open so the archive act
   re-runs it rather than inheriting a tick.
+
+  **TICKED 2026-09-09 AT THE ARCHIVE ACT (`archive-govern-archived-record-edits`,
+  lane `opsXfactory-1`) — THE CONFIRMATION IS PERFORMED, NOT PROMISED, AND IT IS
+  MEASURED AGAINST THE ARCHIVED DELTA'S OWN BYTES.** ACT: after the move, all
+  three requirement blocks were extracted PROGRAMMATICALLY from the archived
+  delta at
+  `openspec/changes/archive/2026-09-09-govern-archived-record-edits/specs/document-lifecycle/spec.md`
+  and from the promoted `openspec/specs/document-lifecycle/spec.md`, and compared
+  as strings — never read side by side. UTC DATE: 2026-09-09. EVIDENCE:
+
+  - *Proposal packets carry the lifecycle header* (the `## MODIFIED`) — the
+    promoted block is **byte-identical** to the archived delta's block. The
+    requirement is replaced WHOLESALE, as `openspec`'s MODIFIED semantics
+    require. **ITS SEVEN SCENARIOS ARE ALL PRESENT, AND CANON'S SIX ARE ALL
+    AMONG THEM, BYTE-IDENTICAL** — the seventh, *A header defect is discharged
+    on an archived packet*, is the block's one addition. A MODIFIED delta
+    REPLACES the named requirement wholesale, so a scenario it failed to restate
+    would be a scenario silently deleted from canon; none is.
+  - *An archived record is edited only as a bookkeeping correction under a
+    recorded ruling* (`## ADDED`) — **byte-identical**, appended.
+  - *A change that edits a pinned target re-derives every dependent pin in the
+    same change* (`## ADDED`) — **byte-identical**, appended.
+
+  **AND NOT ONE OTHER REQUIREMENT MOVED.** The capability goes **18 → 20**
+  requirements; the 17 the delta does not name are byte-identical before and
+  after; nothing is REMOVED, so no ``**Removed from canon by …**`` marker is
+  owed. The file's whole diff is **+238 / −0** lines, and the ONLY change outside
+  the three blocks is a single blank line the CLI's serializer inserts before
+  `## Requirements` — the same normalization
+  `refresh-install-repository-enumerations` took at its archive
+  (`ca4a1558`, hunk `@@ -4,7 +4,9 @@`). **THIS IS THE REASON THIS PACKET
+  EXISTS**: *Ratified spec deltas reach the promoted specification* is checked
+  against the ARCHIVED delta's bytes, so those bytes are now canon's authority,
+  and the requirement promoted one commit earlier is what forbids editing them.
 - [ ] 6.3 [OPERATOR] The archive word.
 
   **NOT OWED HERE — ONLY BRETT HEAP GIVES IT.** Dated 2026-09-08. No approval,
   ruling or word is read out of the ratification for this: the 2026-09-08
   approval ratified the packet and is not an archive word. This realization
   neither gives it nor asks for it, and ticks nothing against it.
+
+  **STILL NOT OWED, AND STILL NOT TICKED — RE-READ 2026-09-09 AT THE ARCHIVE ACT
+  (`archive-govern-archived-record-edits`, lane `opsXfactory-1`), WHICH IS THE
+  ONE BOX THIS ACT LEAVES OPEN AND SAYS SO RATHER THAN CLOSING IT QUIETLY.** The
+  archive act searched for a recorded archive word and **FOUND NONE**: the
+  governing issue [#630](https://github.com/opensoft/openxFactory/issues/630)
+  carries the lane's own CLAIM of the archive act (comment `5596604879`,
+  2026-09-09T06:01:38Z) and its correction, and NO word of Brett Heap's
+  authorizing it; the 2026-09-08 approval on PR #788 ratified the packet and this
+  box already refuses to read an archive word out of it. **A LANE'S DISPATCH IS
+  NOT THE OPERATOR'S WORD**, and inventing one here would be exactly the
+  fabricated provenance the MODIFIED requirement above forbids. **WHAT WOULD
+  DISCHARGE IT, NAMED SO IT IS NOT GUESSED AT:** Brett Heap's approval of THIS
+  archive pull request, or a separate word of his recorded on a citable surface —
+  the shape `refresh-install-repository-enumerations` had, whose archive ran on a
+  word verbatim *"archive refresh-install-repository-enumerations"* recorded on
+  openxFactory #591 and distinct from its ratifying word. **THE PACKET THEREFORE
+  ARCHIVES WITH ONE OPEN BOX AND THE OPENNESS IS THE RECORD**: the merge of this
+  pull request cannot happen without his approval, so the word arrives before the
+  archive lands even though it does not exist at this commit — and the landing
+  lane owes the tick, as a header/bookkeeping edit of an archived file under the
+  ruling that approval IS, carrying the neutral minimum, or a successor change
+  records it. Neither is claimed here.
