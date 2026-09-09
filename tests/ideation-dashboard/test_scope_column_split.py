@@ -138,7 +138,7 @@ def test_openDox_readers_import_the_types_and_not_the_authority(module):
 
 
 def test_types_module_is_the_bottom_of_the_scope_graph():
-    """No back-edge, by any of the four spellings — cycle and edge at once."""
+    """No back-edge, by any of the five spellings — cycle and edge at once."""
     edges = list(_sibling_modules(PACKAGE / "doxbench_scope_types.py"))
     assert not edges, (
         f"doxbench_scope_types imports {edges} from its own package; it must "
