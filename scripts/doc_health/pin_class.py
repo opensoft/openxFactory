@@ -885,7 +885,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
         reproduction=MEASURED,
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
-        note="`repository: opensoft/codexFactory` — the DECISION CORE'S commit. "
+        note="`repository: codeXfactory/codexFactory` — the DECISION CORE'S commit. "
              "It does not resolve in this repository and must not be reported "
              "as an orphan; codexFactory answers for it, and locally "
              "`.github/workflows/merge-master-approval.yml` compares this "

@@ -54,7 +54,6 @@ from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 from ideation_dashboard.serve_wire import (  # noqa: E402
     HOSTED_SESSION_REFUSAL,
     JSON_CTYPE,
-    hosted_index,
     hosted_ref_refused,
 )
 
@@ -79,6 +78,66 @@ def resolve_source_path(checkout_root: Path, url_tail: str) -> Path | None:
     so the SAME rule applies per registry entry (task 2.2); this stays the
     single-root entry point every existing caller and test uses."""
     return registry_mod.resolve_within(Path(checkout_root), url_tail)
+
+
+# ------------------------ hosted-plane index projection (pure) ------------------------
+# RE-HOMED HERE, byte for byte, by pre-carve split S-3 of
+# `split-opendox-two-layer-product` § 3.1, out of `serve_wire.py:1387-1433`.
+# That module's own docstring named the obligation: `hosted_index` is an
+# openXdox FR-048 index-confinement rule with exactly one in-tree reader,
+# `_serve_index` below, and the shared wire vocabulary goes WHOLE to openDox —
+# so the carve manifest, which files each path under ONE column, could not have
+# filed `serve_wire.py` while this function was still in it. Nothing changed but
+# the address: the body is the same text, `registry_mod` is the import this
+# module already had, and `serve.py` re-exports the name from here instead.
+
+def hosted_index(document: dict) -> dict:
+    """The snapshot INDEX as a hosted plane may project it (FR-048, PR #49 review
+    finding 14): every non-`main` entry dropped, a non-`main` `active` dropped with
+    them, and every non-`main` AGGREGATE MEMBER dropped too.
+
+    `hosted_ref_refused` guards the routes that NAME a ref; the index names none,
+    so it was outside that confinement entirely and published the branch names of
+    unmerged work — the topic and cluster ids of work in progress — to anyone who
+    could reach the bind. Pure, so the rule is testable on its own, and it reuses
+    the SAME `is_publishable_ref` predicate the refusal does, so there is still
+    one definition of "a ref a hosted plane may see".
+
+    THE MEMBER PASS IS WAVE 2's. `entries` and `active` were projected and
+    `aggregates[].members` was not, though `SnapshotRegistry.index_document` emits
+    those members as `{repository, ref}` pairs — so an aggregate naming a session
+    ref published `draft/<topic>` off-loopback with a 200 while `entries` was
+    correctly main-only (reproduced by the wave-2 critic on a production-shaped
+    hosted plane, and reproduced again here before the fix). Content stayed confined
+    (`?ref=…` still 403), so what leaked is the topic id of unmerged work — the same
+    class FR-048 exists to prevent. An aggregate whose members are ALL unpublishable
+    is dropped whole rather than published empty: an aggregate is defined by the
+    snapshots it composes, and one with no visible members is not a narrower view of
+    itself, it is a name with nothing behind it (and a hosted plane composing it
+    would find nothing to render)."""
+    projected = dict(document)
+    entries = [entry for entry in projected.get("entries") or []
+               if registry_mod.is_publishable_ref(entry.get("ref"))]
+    projected["entries"] = entries
+    active = projected.get("active")
+    if isinstance(active, dict) and not registry_mod.is_publishable_ref(active.get("ref")):
+        projected.pop("active", None)
+    if "aggregates" in projected:
+        aggregates = []
+        for aggregate in projected.get("aggregates") or []:
+            if not isinstance(aggregate, dict):
+                continue
+            members = [member for member in aggregate.get("members") or []
+                       if isinstance(member, dict)
+                       and registry_mod.is_publishable_ref(member.get("ref"))]
+            if not members:
+                continue
+            aggregates.append({**aggregate, "members": members})
+        if aggregates:
+            projected["aggregates"] = aggregates
+        else:
+            projected.pop("aggregates", None)
+    return projected
 
 
 class ProjectionRoutes:
