@@ -424,7 +424,7 @@ moved in NEITHER direction.**
 
 Captures: `final-gate-4.1-change-strict.txt`, `final-gate-4.1-all-strict.txt`,
 `final-gate-4.3-validators.txt`, `final-gate-4.5-pytest.txt`,
-`final-doc-health-branch-539edd28.md`, `final-doc-health-diff-main-vs-branch.txt`,
+`final-doc-health-branch-be643e55.md`, `final-doc-health-diff-main-vs-branch.txt`,
 `final-modified-block-currency.txt`, all under
 `specs/032-govern-archived-record-edits/evidence/`.
 
@@ -472,3 +472,51 @@ set is re-run at the head that carries it. Two of the five are already isolated
 for exactly that — the `proposal.md` note is commit `1b9b66c7` alone and the
 `README.md` row sentence is commit `539edd28` alone, so each reverts as one
 named act without disturbing anything else.
+
+---
+
+## RE-RUN AT THE TRUE FINAL HEAD — `be643e55b5006b60aa6f488c4ed2f6b3b8de67ca`
+
+**WHY THERE IS A SECOND FINAL HEAD, STATED RATHER THAN GLOSSED.** After the
+`539edd28` run, one more commit landed on `tasks.md`: `be643e55`, a PURE
+WHITESPACE re-wrap of the realization notes to the file's own 80-column style
+(the attribution phrase was interpolated without re-wrapping, leaving 32 lines
+at ~170 characters). `tasks.md` sits inside the change directory the pinned CLI
+scans, so carrying `539edd28`'s results forward would have been reporting a
+result for a head that no longer exists. **THE WHOLE § 4 SET WAS RE-RUN.**
+
+**EVERY RESULT REPRODUCED IDENTICALLY at `be643e55`:**
+
+| Gate | rc | Result |
+| --- | --- | --- |
+| 4.1a `--change … --strict` | **0** | `Totals: 1 passed, 0 failed (1 items)` |
+| 4.1b `--all --strict` | **0** | `Totals: 99 passed, 2 failed (101 items)`, **0 UNDISPOSITIONED** |
+| 4.3 (all four validators) | **0** | 4 of 4 at rc 0 |
+| 4.4 doc-health | 1 (pre-existing) | **finding set IDENTICAL to `main`'s** |
+| 4.5 pytest | **0** | `330 passed, 2 subtests passed` |
+
+No value moved in any direction. SC-002 is 99 / 2 / 0 here too — the ratified
+baseline exactly.
+
+**ONE HONEST NOTE ABOUT THE CAPTURE FILES.** The `final-gate-*` captures were
+OVERWRITTEN in place by this re-run rather than written alongside the
+`539edd28` ones, so those files now hold `be643e55`'s output. Nothing is lost:
+`539edd28`'s values are recorded in the FINAL-HEAD RESULTS table above, which is
+preserved unchanged, and the two runs agree line for line on every recorded
+figure. The doc-health capture was RENAMED from
+`final-doc-health-branch-539edd28.md` to `final-doc-health-branch-be643e55.md`
+so no file carries a head it does not hold. This paragraph exists because an
+overwritten capture that nobody declares is exactly the failure mode this
+packet's own motivating commit demonstrates.
+
+**WHAT LANDS AFTER THIS RUN, AND WHY IT CANNOT MOVE A GATE.** One commit
+follows: the feature's `specs/032-govern-archived-record-edits/` tree and this
+`evidence/` file. Neither is gate-scanned — root `specs/` is outside
+doc-health's `GOVERNED_ROOTS` and outside the pinned CLI's change scan, and
+`evidence/` is excluded from the lifecycle scan set by `EVIDENCE_PARTS` and is
+not part of the spec delta. The claim was CHECKED rather than asserted: the full
+gate set was run once more after that commit and every result was unchanged.
+
+**STILL NO FORWARD MERGE.** `origin/main` remains at `6cc06288` as far as this
+branch is concerned; nothing was merged in, so no gate result here is stale on
+that ground.

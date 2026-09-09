@@ -1,5 +1,5 @@
-openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (<pinned-cli-cache>/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
--> <pinned-cli-cache>/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec validate --all --strict --json  (in <scratchpad>/oxf-realize-f3)
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (/home/brett/.cache/openxfactory/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+-> /home/brett/.cache/openxfactory/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef/bin/openspec validate --all --strict --json  (in /tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/ee808615-4d8a-475f-bcb3-6f92a89909f0/scratchpad/oxf-realize-f3)
 change/add-chain-attestation
   ✗ [ERROR] signed-execution-chain/spec.md: MODIFIED "A gate validates the short chain as a hash-linked chain" omits scenario(s) the current spec still has: "a tranche-two link does not exist yet". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
 change/add-composed-view-authoring
@@ -449,4 +449,4 @@ openspec-cli-pin: DISPOSITIONED FINDINGS in openxFactory (2 applied) — this ru
         cited to: openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte; PR #444 — the landed change that declared the rename with the `Merged into` marker; council LA-A1 — the ruling that reserved the marker forms; openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
         accepted by: Brett Heap, 2026-09-05, "take exit 2"
 OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
-rc=0
+4.1b rc=0

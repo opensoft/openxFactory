@@ -556,43 +556,130 @@ and actor for each of the 28 boxes.
       that ground; a veto exercised after it re-opens it for the paths it touches, and the two
       veto-bearing commits are isolated for exactly that.
 
-- [ ] T030 [P] Verify SC-007: `git diff main...HEAD --name-only` contains only
+- [x] T030 [P] Verify SC-007: `git diff main...HEAD --name-only` contains only
       the SIX allowed paths — the feature directory, `docs/document-lifecycle.md`,
       the packet's `tasks.md`, its new `evidence/` file, its `proposal.md`, and
       `README.md` — and nothing under any `archive/` path, nothing in `design.md`,
       `.openspec.yaml` or the spec delta.
-- [ ] T030a [P] Verify SC-001 as the FULL LINE FORM, and WORD-DIFF the two
+      **Done 2026-09-08, verified at final head `be643e55`.** `git diff
+      main...HEAD --name-only` names exactly the SIX allowed paths and nothing
+      else: the feature directory `specs/032-govern-archived-record-edits/`,
+      `docs/document-lifecycle.md`, the packet's `tasks.md`, its new
+      `evidence/realization-2026-09-08.md`, its `proposal.md`, and `README.md`.
+      The forbidden-path scan returns NOTHING for any `archive/` path, the
+      packet's `design.md`, `.openspec.yaml` or
+      `specs/document-lifecycle/spec.md`, or anything under `scripts/`,
+      `.github/`, `contracts/` or `tests/`. Three-dot, so the comparison runs
+      against the merge base `68712924`; no forward merge was taken, so the base
+      did not move.
+
+- [x] T030a [P] Verify SC-001 as the FULL LINE FORM, and WORD-DIFF the two
       explanatory sentences against FR-005's wording so a paraphrase cannot drift
       in unnoticed: the document contains
       `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>`
       byte-for-byte, em dash and placeholders included, and the citation is the
       last clause of the bullet's parent prose. Substring presence is not the
       check. (Panel P8)
-- [ ] T030b [P] Verify SC-009: every superseding amendment carries a block quote
+      **Done 2026-09-08.** SC-001 verified as the FULL LINE FORM, not substring
+      presence: `docs/document-lifecycle.md` line 143 is exactly the two-space
+      indent + the ratified form + the sentence's terminating period OUTSIDE the
+      closing backtick, and the form matches the delta's line 122 byte-for-byte
+      (em dash U+2014 and both placeholders). Exactly ONE occurrence. The
+      citation is the LAST CLAUSE of the bullet's parent prose ("… Ratified by
+      `govern-archived-record-edits` (2026-09-08)."), there is no colon after
+      the change name, and the archive-act statement sits EARLIER in that prose.
+      WORD-DIFF against FR-005's wording: both explanatory sentences contain
+      every FR keyword in order, and the SequenceMatcher opcodes are INSERTIONS
+      ONLY — no deletion and no substitution, so no paraphrase drifted in. The
+      insertions are "authorizing the class of edit" (the ratified requirement's
+      own phrase) and "so it is not the authorization for the edit" (required by
+      FR-002). Exactly two explanatory sentences found.
+
+- [x] T030b [P] Verify SC-009: every superseding amendment carries a block quote
       and names the clause that is NOT superseded — counted across `tasks.md`,
       the two headings, `proposal.md` and the README row.
-- [ ] T031 [P] Verify FR-014 on every AUTHORED commit: `git log main..HEAD`
+      **Done 2026-09-08.** SC-009 counted across all EIGHT superseding
+      amendments, every one carrying a block quote of what it supersedes AND
+      naming the neighbouring clause that is not: in the packet `tasks.md` — the
+      preamble, § 0.1's STAYS-UNTICKED paragraph, § 0.1's CORRECTED stale-text
+      block, § 1's sentence plus its re-assertion, the § 1 heading marker and
+      the § 3 heading marker; in `proposal.md` — the enumeration note covering
+      the front-matter sentence and both unticked-state sentences; and in
+      `README.md` — the row sentence. Totals: 25 block-quote lines and 7
+      explicit not-superseded namings across the three files.
+
+- [x] T031 [P] Verify FR-014 on every AUTHORED commit: `git log main..HEAD`
       shows `Lane: opsXfactory-1`, `Co-Authored-By: Claude Fable 5.1` and
       `Claude-Session:` on each; a forward-merge commit is exempt and is named as
       such. VERIFY FR-018 POST HOC in the same pass: for every tick, the commit
       that added it also added or cited its evidence — no tick appears in a commit
       earlier than the evidence it rests on.
-- [ ] T032 [P] Verify the three requirements no other task carries: FR-016 (no
+      **Done 2026-09-08.** FR-014 verified on ALL 11 authored commits in `git
+      log main..HEAD`: each carries `Lane: opsXfactory-1`, `Co-Authored-By:
+      Claude Fable 5.1` and `Claude-Session:`. There are ZERO merge commits in
+      the range, so the merge-commit exemption was not needed and no forward
+      merge is being read as a violation. FR-018 verified POST HOC by walking
+      the range in order: all 19 packet ticks land in ONE commit, `0e7a67f3`,
+      which itself touches the evidence file, and the evidence they cite was
+      recorded in `31704f0a`, the commit BEFORE it. No tick appears in a commit
+      earlier than the evidence it rests on.
+
+- [x] T032 [P] Verify the three requirements no other task carries: FR-016 (no
       checker, workflow, pin or repair is authored — `git diff main...HEAD
       --name-only` names no file under `scripts/`, `.github/`, `contracts/` or
       `tests/`), FR-019 (the full Speckit tree is committed, `checklists/` and
       `analysis.md` included), and SC-006 (COUNT the packet's boxes: 28 total,
       each either `- [x]` with a dated note or `- [ ]` with a dated NOT-OWED
       line, no box left in its pre-realization state).
-- [ ] T033 Commit the Speckit tree — `checklists/` and `analysis.md` — with
+      **Done 2026-09-08.** FR-016: `git diff main...HEAD --name-only` names
+      **0** files under `scripts/`, `.github/`, `contracts/` or `tests/` — no
+      checker written, no pin edited, no pin repaired. FR-019: the full Speckit
+      tree is committed — `spec.md`, `clarify-questions.md`, `plan.md`,
+      `research.md`, `quickstart.md`, `tasks.md`, `analysis.md` and all EIGHT
+      files under `checklists/`, 15 tracked files. SC-006: the packet's boxes
+      COUNTED at HEAD — **19 `- [x]` + 9 `- [ ]` = 28**, each ticked box
+      carrying a dated note and each unticked box a dated NOT-OWED or
+      run-recorded line, and no box left in its pre-realization state.
+
+- [x] T033 Commit the Speckit tree — `checklists/` and `analysis.md` — with
       explicit paths and the three trailers. (FR-019)
-- [ ] T033a VERIFY THE STOP CONDITION AGAINST REPOSITORY STATE, not intention:
+      **Done 2026-09-08 as this commit.** The Speckit tree was already committed
+      by the specify/plan/checklist commits and is verified complete at T032;
+      this commit carries the feature's own `tasks.md` ticks and the packet
+      evidence file's final section, with explicit paths and the three trailers.
+      It touches only `specs/032-govern-archived-record-edits/` and the packet's
+      `evidence/` directory — neither gate-scanned (root `specs/` is outside
+      doc-health's `GOVERNED_ROOTS` and outside the pinned CLI's change scan;
+      `evidence/` is excluded from the lifecycle scan by `EVIDENCE_PARTS` and is
+      not part of the spec delta) — and the full gate set was re-run afterwards
+      to CHECK that rather than assert it.
+
+- [x] T033a VERIFY THE STOP CONDITION AGAINST REPOSITORY STATE, not intention:
       no pull request exists for this branch that this feature opened, no comment
       was posted by it anywhere, no merge or `openspec archive` was run, and the
       working tree is clean. (FR-015, FR-038)
-- [ ] T034 Copy the checklists' results and the final gate summary into the
+      **Done 2026-09-08, verified AGAINST REPOSITORY STATE rather than
+      intention.** `gh api
+      repos/opensoft/openxFactory/pulls?head=opensoft:032-govern-archived-record-edits&state=all`
+      returns **0** — no pull request exists for this branch, open or closed.
+      `git merge-base --is-ancestor HEAD origin/main` fails: NOT MERGED. The
+      change directory is still `openspec/changes/govern-archived-record-edits/`
+      with NO entry under `openspec/changes/archive/`, so `openspec archive` was
+      never run. No GitHub comment was posted on any surface in any repository,
+      and no such act was routed to another agent, session or person. The only
+      `gh` invocation this realization made is the read-only PR query in this
+      line, which the task itself directs. Working tree clean at the stop.
+
+- [x] T034 Copy the checklists' results and the final gate summary into the
       report for STOP (B), then STOP: no `gh`, no PR, no comment, no merge, no
       `openspec archive`. (FR-015)
+      **Done 2026-09-08.** The checklist results (327 passed / 4 dispositioned /
+      0 open) and the final gate summary are carried into the STOP (B) report.
+      STOPPING HERE: no `gh` write, no PR, no comment, no merge, no `openspec
+      archive`. Claiming, the pull request, the LANDING/LANDED notices, the
+      claim discharge on issue #630 and the archive act are lane
+      `opsXfactory-1`'s.
+
 
 ---
 
