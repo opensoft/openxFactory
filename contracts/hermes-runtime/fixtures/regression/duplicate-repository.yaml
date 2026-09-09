@@ -47,7 +47,7 @@ inventory:
     expected_contract_ref: "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
     expected_contract_schema_version: 1
     expected_result: pass
-  - repository: opensoft/codexFactory
+  - repository: codeXfactory/codexFactory
     commit: "7bfa492f700de29cdeab31dc899420745546d982"
     stack_path: stack.yaml
     stack_digest: "sha256:06f88e192bfd17d42ea6519072e472b9f6d028d88ab0985065640e37c9719722"
