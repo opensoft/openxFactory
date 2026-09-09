@@ -112,3 +112,61 @@ verifier, and the pinned core commit. This packet touches no judge.
 * **MQ-3** — realization (3)'s trigger is "one advance observed against the
   successor path". Is one enough, or should it be one advance plus one clean
   no-op sweep?
+
+## 7. ADDENDUM, 2026-09-09 — a second consumer, and what step (3) could not do
+
+Written at M-1 step (3), against facts that did not exist when § 1–§ 6 were.
+Both items are DISCLOSURES: this packet's own enumeration was wrong by one, and
+one of its boxes cannot be ticked truthfully yet.
+
+### 7.1 The consumer § 1 missed, because it does not name the document
+
+`code_surface:` says "FIVE sites and no others", and it was arrived at by
+finding every place that names the document's PATH. **A sixth consumer finds the
+document by SWEEPING A DIRECTORY**, so no path search could have surfaced it:
+`.github/workflows/merge-master-approval.yml` step 8 loads every governance
+document under the pinned core's `scripts/merge_master`
+(`load_governance_paths`) and then picks out the one declaring this repository.
+
+At any core commit after codexFactory's move, that directory holds the two
+clearance rules and **no floor**. Measured 2026-09-09, running the shipped step
+against real checkouts of both commits:
+
+| core checkout | step 8 as it stood | step 8 as this realization leaves it |
+|---|---|---|
+| `4b12ba83` (today's pin) | `{"ok": true, "stage": "floor_complete"}` | `floor_complete`, 68 entries, document under `scripts/merge_master/` |
+| `8165d1f3` (post-move) | `{"ok": false, "stage": "no_floor"}` | `floor_complete`, 68 entries, document under `floor/` |
+
+`no_floor` exits the step non-zero, so the lane would have **PARKED every
+openxFactory merge-master evaluation** from the first pin advance past the
+relocation — fail-closed, never a silent approve, but a park whose cause is in
+another repository's tidy-up. It is repaired here rather than deferred because
+the trigger is a bot's scheduled advance rather than anybody's decision.
+
+**THE REPAIR IS TWO DIRECTORIES, NOT A SEARCH**, which is M-7 applied to a
+sweep: the step declares `scripts/merge_master` and `floor` and takes the
+declared directories the checkout actually has, so a pin older than the move and
+a pin newer than it evaluate identically. Reading both is also STRICTER than
+reading either — the core's loader refuses two documents declaring one
+repository, so a copy left behind at the abandoned path becomes a loud refusal
+rather than a silent choice. codexFactory's own callers took the same shape in
+its #297 (`--rule "$RULE_DIR" --rule "$FLOOR_DIR"`); the tolerance for an absent
+`floor/` is needed only on this side, because this repository pins an OLDER core
+than codexFactory runs against.
+
+### 7.2 M-6 is right and box 4.2 is not yet true
+
+M-6 says the pin "must name a path that exists" and sequences it last. What § 2
+did not notice is WHERE it must exist: `contracts/review-lane-pin.yaml` declares
+`taken_at: core_commit`, so its `floor_snapshot.of` and its `pinned_members`
+entry describe the document **at `core_commit`** — and `core_commit` is still
+`4b12ba83`, which predates the relocation. Measured 2026-09-09: the successor
+path is `HTTP 404` there.
+
+So step (3) moves what names where the lane FETCHES (the candidate list, its
+three sibling declarations) and leaves what names where the PIN carries it. The
+pin has not moved because the lane has had nothing to advance: D-3 fixed the
+document's bytes across the move, so every firing since has been a no-op, and
+`core_commit` advances at codexFactory's next floor REGENERATION. The four
+pinned-core declarations move in one diff at that advance, and a test reds from
+the advance until they do — the box cannot be lost.

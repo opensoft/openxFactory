@@ -111,7 +111,11 @@ CORE=$(gh api repos/opensoft/codexFactory/commits/main --jq .sha)
 gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
 
 # 2. Re-copy the snapshot. NEVER hand-edit it: it is a witness.
-gh api "repos/opensoft/codexFactory/contents/scripts/merge_master/openxfactory-review-authority-floor.yaml?ref=${CORE}" \
+#    The path moved on 2026-09-09 (codexFactory #297 -> 8165d1f3, its
+#    `relocate-review-authority-floor`); at a CORE older than that the document
+#    is still at scripts/merge_master/openxfactory-review-authority-floor.yaml.
+#    Check the exit status: a 404 here writes an EMPTY snapshot over a witness.
+gh api "repos/opensoft/codexFactory/contents/floor/openxfactory-review-authority-floor.yaml?ref=${CORE}" \
   -H "Accept: application/vnd.github.raw" > contracts/review-lane-floor-snapshot.yaml
 
 # 3. Recompute the two declared witnesses FROM THE BYTES YOU JUST WROTE.
