@@ -432,6 +432,36 @@ its own.>
   the bundle beside it takes today; the wrapper says so rather than re-dating
   somebody's id — and the ledger row the archiving change seeds takes the
   directory's date at the flip.
+  THE NAME IS ALSO MEASURED AGAINST HISTORY, which the clock rule alone cannot
+  reach: `scripts/validate-sequenced-after.py .` compares every archived
+  directory's date prefix to the UTC date of the commit that added it, and
+  reports a disagreement by name. That directory name is the archive's DATE OF
+  RECORD — ledger rows, ratification records, the README index and
+  cross-references in other archives all read it — so a name one day away from
+  the commit that created it states a day the archive did not happen on. Ten
+  such names were landed by a local clock one day behind UTC before the wrapper
+  owned the clock, and two more were RENAMED inside `archive/` six days after
+  the archive acts that created them (the acts themselves agree with the
+  names); all twelve are dispositioned IN PLACE, names untouched, in
+  `tests/sequenced_after/archive-date-dispositions.yaml`, each citing its
+  adding commit, the fact and the ruling (issue #812, Brett Heap 2026-09-08).
+  RENAMING IS NOT THE REMEDY: history is history, every citation stands, and a
+  rename would move every record that points at the directory to correct a name
+  whose only defect is that it is one day early. THE ARM COMPARES A NAME TO A
+  COMMIT AND CANNOT ITSELF SAY WHY THEY DIFFER, and FOUR causes produce the
+  same shape: besides the clock defect, a correct archive whose commit fell on
+  the next UTC day; a change id that arrived carrying its own `YYYY-MM-DD-`
+  prefix (which the pinned CLI preserves deliberately, so the directory takes
+  the date IN THE ID); and a directory RENAMED INSIDE `archive/` after its
+  archive act, which the walk's deliberate `--no-renames` attributes to the
+  RENAME commit and which can therefore disagree by any distance, not merely a
+  day — the two 2026-06-26 entries above are exactly that, and their lawful
+  disposition cites the rename commit AND the archive act it moved. (Rename
+  detection is not the repair: under `-M` the destination never appears as an
+  add and the directory would be silently unmeasured.) Each of those is a
+  lawful disposition once MEASURED, naming its own cause — which is why a
+  disposition carries a `fact` and the ruling that accepted it, and is not
+  merely an allow-list of names.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).
