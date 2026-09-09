@@ -77,6 +77,22 @@ FLOOR_REPOSITORY = "opensoft/openxFactory"
 # The path the pinned core keeps the floor document at. Restated as a literal
 # rather than read from the pin, for the reason `test_review_lane_caller.py`
 # states about the job id: asserting the file equals itself is a tautology.
+#
+# NOT WHERE THE RE-PIN LANE FETCHES IT ANY MORE, AND THAT IS NOT A STALE VALUE.
+# codexFactory relocated the document to `floor/…` (its #297 -> `8165d1f3`), and
+# `relocate-review-authority-floor-mirror` M-1 step (3) pointed the lane's
+# candidate list there. THIS constant names the PINNED core's copy, and the pin
+# is still at `4b12ba83`, which predates the move: measured 2026-09-09, `floor/…`
+# is `HTTP 404` at that commit and this path resolves there (15456 bytes, sha256
+# `926d536d…abf3c0`). `locate_pinned_core()` below finds the checkout BY this
+# path, so a premature edit here does not fail loudly — it makes the freshness
+# verifier SKIP, which `pytest-suite`'s named-verdict gate then reds. It moves
+# with `contracts/review-lane-pin.yaml`'s `floor_snapshot.of`, the pin's
+# `pinned_members` entry and `test_review_lane_caller.py`'s literal, in ONE diff,
+# on the first advance that carries `core_commit` past the relocation —
+# `test_repin_lane.py::TheDeclaredCandidateList::
+# test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`
+# reds until they do, and that red is the packet's box 4.2 falling due.
 FLOOR_IN_CORE = "scripts/merge_master/openxfactory-review-authority-floor.yaml"
 
 # THE FLOORED SURFACE. `openspec/specs` is what the (b′) act enumerated (record

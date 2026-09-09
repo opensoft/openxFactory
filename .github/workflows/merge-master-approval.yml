@@ -976,7 +976,37 @@ jobs:
         if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
         env:
           CORE_IMPORT_ROOT: .merge-master-core/scripts
-          GOVERNANCE_DIR: .merge-master-core/scripts/merge_master
+          # BOTH GOVERNANCE DIRECTORIES OF THE PINNED CORE, and the second one
+          # is why this is a list. THIS STEP FINDS THE FLOOR BY SWEEPING A
+          # DIRECTORY, not by file name, so codexFactory's relocation of the
+          # document (its `relocate-review-authority-floor`, PR #297 ->
+          # `8165d1f3`) is invisible to every path-name search and would have
+          # taken this lane down at the NEXT pin advance: at any core commit
+          # after the move, `scripts/merge_master/` holds the two clearance
+          # rules and NO floor, so `no_floor` would refuse and PARK every
+          # openxFactory merge-master evaluation. Fail-closed, never a silent
+          # approve — but a full park, and a park nobody would connect to
+          # another repository's tidy-up.
+          #
+          # THE PIN IS STILL PRE-RELOCATION (`4b12ba83`), where `floor/` DOES
+          # NOT EXIST — measured 2026-09-09: `HTTP 404` at that commit, and the
+          # document is under `scripts/merge_master/` there. So the selection
+          # below takes the declared directories that this checkout actually
+          # has, and both pins evaluate identically.
+          #
+          # READING BOTH IS ALSO STRICTER THAN READING EITHER: the pinned core's
+          # own loader refuses when two documents declare one repository, so a
+          # copy left behind at the abandoned path becomes a LOUD refusal
+          # instead of a silent choice between two floors.
+          #
+          # codexFactory's own callers took the same shape in #297
+          # (`--rule "$RULE_DIR" --rule "$FLOOR_DIR"`); this is that fix on this
+          # side of the pin, where the tolerance for an absent `floor/` is
+          # needed because this repository pins an OLDER core than codexFactory
+          # runs against.
+          GOVERNANCE_DIRS: |
+            .merge-master-core/scripts/merge_master
+            .merge-master-core/floor
           TARGET_REPOSITORY: opensoft/openxFactory
           CHANGED_PATHS: changed_paths.json
           CHANGED_ENTRIES: changed_entries.json
@@ -1011,7 +1041,32 @@ jobs:
 
           import yaml  # noqa: E402
 
-          governance_dir = os.environ["GOVERNANCE_DIR"]
+          # ---- GOVERNANCE DIRECTORY SELECTION (extracted verbatim) ----------
+          # THESE LINES ARE READ OUT OF THIS FILE AND EXECUTED BY
+          # `tests/review_lane_pin/test_review_lane_caller.py`, between the
+          # marker comments, against fabricated pre-relocation and
+          # post-relocation checkouts. They are self-contained on purpose — no
+          # core import, no network — so the rule that decides WHICH
+          # directories this pin has can be tested as the shipped bytes rather
+          # than as a copy of them. Keep them self-contained, or the test that
+          # proves the tolerance stops being able to run them.
+          #
+          # A DECLARED DIRECTORY IS TAKEN WHEN IT EXISTS AND HOLDS AT LEAST ONE
+          # YAML DOCUMENT. Existence alone is not enough: the core's loader
+          # refuses a directory holding no YAML at all, and across a relocation
+          # window the same declared set spans pins where a directory is not a
+          # governance directory yet. Both conditions are ABSENCE, and absence
+          # of the whole set is refused below rather than passed on as an empty
+          # list.
+          declared_dirs = [line.strip() for line
+                           in os.environ["GOVERNANCE_DIRS"].splitlines()
+                           if line.strip()]
+          governance_dirs = [
+              directory for directory in declared_dirs
+              if os.path.isdir(directory)
+              and any(name.endswith((".yaml", ".yml"))
+                      for name in os.listdir(directory))]
+          # ---- END GOVERNANCE DIRECTORY SELECTION ---------------------------
           target = os.environ["TARGET_REPOSITORY"]
           prefix = os.environ["FLOORED_PREFIX"].rstrip("/") + "/"
 
@@ -1027,13 +1082,25 @@ jobs:
           with open("tree_paths.txt", encoding="utf-8") as handle:
               tree = [line.rstrip("\n") for line in handle if line.strip()]
 
-          # INTEGRITY FIRST, over the whole governance directory. This is the
-          # core's own loader: it refuses an unknown document kind and refuses
-          # two floors declaring one repository. Running it means the verdict
-          # below stands on a directory the core itself accepts, not merely on
-          # one file that happened to parse.
+          # NO GOVERNANCE DIRECTORY AT ALL IS A REFUSAL, not an empty load. It
+          # reuses `governance_load` rather than inventing a stage: the
+          # governance documents could not be loaded, and the reason says which
+          # directories were looked for. Reachable only if the pinned core
+          # checkout is not what it claims to be.
+          if not governance_dirs:
+              refuse("governance_load",
+                     "none of the declared governance directories exists in "
+                     "the pinned core checkout with a YAML document in it "
+                     "(declared: %s)" % ", ".join(declared_dirs))
+
+          # INTEGRITY FIRST, over every governance directory this pin has. This
+          # is the core's own loader: it refuses an unknown document kind and
+          # refuses two floors declaring one repository — including one left
+          # behind at a path a relocation abandoned. Running it means the
+          # verdict below stands on directories the core itself accepts, not
+          # merely on one file that happened to parse.
           try:
-              rule_paths, floors = load_governance_paths([governance_dir])
+              rule_paths, floors = load_governance_paths(governance_dirs)
           except GovernanceDocumentError as exc:
               refuse("governance_load", str(exc))
 
@@ -1049,22 +1116,29 @@ jobs:
           # in a YAML COMMENT inside the generated block, not a data field, so
           # `pin_window_for_document` below reads it from the raw text via
           # `parse_block_header` rather than from `yaml.safe_load`'s result.
+          #
+          # ACROSS EVERY DIRECTORY THIS PIN HAS, in declared order. The loader
+          # above has already refused a second floor for this repository, so
+          # "the first one found" cannot be a choice between two.
           floor_path, document, floor_text = None, None, None
-          for name in sorted(os.listdir(governance_dir)):
-              if not name.endswith((".yaml", ".yml")):
-                  continue
-              candidate = os.path.join(governance_dir, name)
-              with open(candidate, encoding="utf-8") as handle:
-                  text = handle.read()
-              parsed = yaml.safe_load(text)
-              if not isinstance(parsed, dict):
-                  continue
-              if parsed.get("kind") != "repository_gate_floor":
-                  continue
-              if (parsed.get("floor") or {}).get("repository") != target:
-                  continue
-              floor_path, document, floor_text = candidate, parsed, text
-              break
+          for directory in governance_dirs:
+              for name in sorted(os.listdir(directory)):
+                  if not name.endswith((".yaml", ".yml")):
+                      continue
+                  candidate = os.path.join(directory, name)
+                  with open(candidate, encoding="utf-8") as handle:
+                      text = handle.read()
+                  parsed = yaml.safe_load(text)
+                  if not isinstance(parsed, dict):
+                      continue
+                  if parsed.get("kind") != "repository_gate_floor":
+                      continue
+                  if (parsed.get("floor") or {}).get("repository") != target:
+                      continue
+                  floor_path, document, floor_text = candidate, parsed, text
+                  break
+              if floor_path is not None:
+                  break
 
           # THE POST-MERGE TREE (LA-A2 / CPL-C1). The core refuses a changed
           # entry it cannot classify rather than guessing, and a guess here is

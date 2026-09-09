@@ -137,10 +137,13 @@ privileges:
     # the declaration in the lane's own sources and the run-time prohibition;
     # this is an ADDITIONAL site.
     #
-    # ORDERED, PATH IN FORCE FIRST, first-obtained-wins, returning to one entry
-    # at M-1 step (3). The lane never searches beyond it (M-7).
+    # ORDERED, first-obtained-wins, and BACK TO ONE ENTRY: M-1 step (3) closed
+    # the migration window this list was opened for, after codexFactory's move
+    # landed (its PR #297, `8165d1f3`) and one run obtained the document at the
+    # successor (run 34311220954). Two standing homes would mean the lane no
+    # longer knows where the document lives. The lane never searches beyond it
+    # (M-7), and it never reads THIS declaration at run time.
     source_documents:
-      - scripts/merge_master/openxfactory-review-authority-floor.yaml
       - floor/openxfactory-review-authority-floor.yaml
   floored_repository:
     repository: opensoft/openxFactory
