@@ -197,12 +197,12 @@ def test_the_live_register_makes_codexfactory_a_registered_producer(
 
     The packaged corpus resolves against a fixture register — the live private
     halves do not exist in this repository and must not — so this is the test
-    that keeps the live path from being untested. `opensoft/codexFactory` holds
+    that keeps the live path from being untested. `codeXfactory/codexFactory` holds
     the first origin row, minted by `add-cpc-clearing-boundary`'s realization, and
     a bundle from it presenting hosted provenance alone is therefore refused.
     """
-    assert "opensoft/codexFactory" in live_origins
-    row = live_origins["opensoft/codexFactory"]
+    assert "codeXfactory/codexFactory" in live_origins
+    row = live_origins["codeXfactory/codexFactory"]
     assert row["act"] == "originate"
     assert row["_public_key"] is not None, (
         "the live row's public half does not decode; a key that cannot be "
@@ -214,7 +214,7 @@ def test_a_bundle_from_the_live_registered_producer_needs_a_signature(
         reader, registry_and_docs, entries, live_origins) -> None:
     doc = _load(UNREGISTERED)
     doc = copy.deepcopy(doc)
-    doc["origin"]["repository"] = "opensoft/codexFactory"
+    doc["origin"]["repository"] = "codeXfactory/codexFactory"
     findings = adjudicate(reader, registry_and_docs, entries, live_origins, doc)
     assert "clearing-origin-signature-missing" in reader.codes_of(findings.errors), \
         findings.errors
@@ -353,7 +353,7 @@ def test_the_live_codexfactory_row_has_not_lapsed(reader, live_origins) -> None:
     """
     from datetime import datetime, timezone
 
-    row = live_origins["opensoft/codexFactory"]
+    row = live_origins["codeXfactory/codexFactory"]
     assert not reader.row_has_lapsed(row, datetime.now(timezone.utc)), (
         f"the live origin row expired at {row.get('expires_at')}. Supersede it "
         f"with a new row naming it, or mark it revoked — a revoked row never "

@@ -31,7 +31,7 @@ operation: deliberation
 lane: artifact
 binding:
   convening_job_id: cvn-2026-09-04-0007
-  verified_subject_pin: subject:opensoft/codexFactory@0d5e1ba9
+  verified_subject_pin: subject:codeXfactory/codexFactory@0d5e1ba9
 seats:
   reviewer-a:
     output:

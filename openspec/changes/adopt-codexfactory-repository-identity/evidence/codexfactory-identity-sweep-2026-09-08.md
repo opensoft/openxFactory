@@ -600,6 +600,13 @@ it is in no open slice.** Three reasons, in order of weight:
 next touch, or to a fifth slice after that ceremony completes.** Flagged on
 codexFactory issue #279 so the owning lane reads it rather than discovering it.
 
+**[THIS DISPOSITION IS SUPERSEDED — see § 16.](#16-addendum-the-deferred-occurrence-is-assigned-to-slice-b2)**
+The deferral's three grounds were measured at a head where the ceremony was
+mid-construction; two of the three expired when the register act landed, and
+the adversarial review of the four slices found that the deferral makes task
+6.5 unreachable. The occurrence is now IN slice B2. The measurement and the
+classification above are unchanged and are not restated.
+
 ### 15.3 The arithmetic, re-closed at this head
 
 | bucket | hits | files |
@@ -675,6 +682,133 @@ the freeze exists so a realization cannot quietly re-point a ratified
 dependency. Re-deriving it is the separate governed question task **0.2**
 anticipated. Named in § 5 of the amendment record so the next lane finds it at
 the packet rather than at the gate.
+
+---
+
+## 16. Addendum: the deferred occurrence is assigned to slice B2
+
+**Recorded**: 2026-09-08, fix round on the adversarial review of the four gated
+slices. **Head measured**: openxFactory `main` `67405838`. **Lane**:
+`provenance-autonomous-merge`.
+
+**This section supersedes § 15.2's DISPOSITION only.** § 15.2's measurement, its
+attribution to commit `4719f07f` and its classification under the published rule
+(`governance/**` → RENAME, counterfactual, present-tense) all stand and are not
+restated here. § 2's recorded measurement at `e8021fed` is **not** rewritten:
+it says governance **6 / 3** and that is what was true at that head.
+
+### 16.1 Why the deferral could not stand
+
+Raised by the Opus adversarial review of pull request
+[#802](https://github.com/opensoft/openxFactory/pull/802) as finding **H-1**.
+The review re-derived the residual independently — union of the four drafts'
+file lists against the RENAME-class file list at `origin/main` — and found
+exactly this file, then named the consequence the deferral had not:
+
+> **Consequence: packet task 6.5 — *"zero remaining live occurrences outside the
+> frozen and not-swept sets"* — cannot be ticked while these stand,** even after
+> all four slices land.
+
+§ 15.2 gave three grounds for deferring. Re-tested at `67405838`, two have
+expired and the third has inverted:
+
+| ground, as recorded in § 15.2 | state at this head |
+| --- | --- |
+| 1. *"another lane's live ceremony artifact, mid-construction, with unfilled `@@…@@` operator placeholders"* | **EXPIRED.** The register act LANDED: openxFactory #798 (`74f75b6c`), #811, codexFactory #290, aggregation #352/#355. `grep -c '@@' governance/review-authority/grants/grant-grc-0001.yaml` → **0**. The five keypairs are minted and the placeholders are substituted; the artifact is a landed record, not a construction site. |
+| 2. *"a review-authority grant — a key-custody surface, adjacent to the permanently human-only class"* | **DOES NOT APPLY, checked against the floor rather than by adjacency.** `contracts/review-lane-floor-snapshot.yaml:97` records that the floor *"omits `governance/review-authority/{grants,wallets,attestations}/`"*; `:101` floors `governance/review-authority/register.yaml` **alone**. The human-only enumeration at `:153-156` names four `governance/factory-identity/` files by name and this is not one of them. So the file is NOT on the human-only floor — a point the review made independently. |
+| 3. *"the four rename slices are already authored and under review; adding a file to one of them now would collide with that review"* | **INVERTED.** The review has been delivered and this IS its fix round. Adding the file now collides with nothing; deferring it past the ceremony is what would collide, because 6.5 is ticked at the ceremony. |
+
+### 16.2 The assignment, and what changed in the file
+
+**Assigned to slice B2 (#802).** B2 is the governance slice, the file is in a
+`governance/` pathspec, and B2 already carries the only other `governance/`
+occurrences. Both occurrences are respelled, and the surrounding sentence is
+reworded so the explanation still reads correctly at the new address:
+
+- `:94-95` — *"a reader expects `opensoft/codexFactory` here"* becomes *"a reader
+  expects the decision core's own repository — `codeXfactory/codexFactory` —
+  here"*.
+- `:104` — *"A row naming `opensoft/codexFactory` would be a row this estate
+  cannot resolve"* becomes the same sentence at the new address.
+- A paragraph is ADDED recording that the asymmetry is unchanged by the
+  transfer, that both spellings are COUNTERFACTUALS (what a reader expects; what
+  an unresolvable row would look like) and therefore live assertions about the
+  core's CURRENT address rather than dated records of a reading, and that the
+  unresolvability the sentence turns on is structural — `repo_scan` builds its
+  context from the scanned repository's own records, which no owner segment
+  changes.
+
+**The `objects:` field itself is NOT touched**, and that is the point of the
+comment it explains: `objects: [opensoft/openxFactory]` is correct, is not a
+paste, and does not move.
+
+### 16.3 The governance class re-measured, and the arithmetic re-closed
+
+| | hits | files |
+| --- | ---: | ---: |
+| governance class as § 2 recorded it at `e8021fed` | 6 | 3 |
+| **governance class at `67405838`** | **8** | **4** |
+| the delta | **+2** | **+1** |
+
+```sh
+git grep -o -i 'opensoft/codexfactory' origin/main -- 'governance/'   # 8
+git grep -l -i 'opensoft/codexfactory' origin/main -- 'governance/'   # 4 files
+#   governance/factory-identity/grants/grant-origin-codexfactory-0001.yaml
+#   governance/factory-identity/register.yaml
+#   governance/factory-identity/wallets/wal-origin-codexfactory-0001.yaml
+#   governance/review-authority/grants/grant-grc-0001.yaml       <- the +2 / +1
+```
+
+The sweep's RENAME total therefore closes at **126 / 61**, not § 2's 124 / 60.
+This is the CUMULATIVE figure — everything slice A and the four gated slices
+respell between them — and it is deliberately not the same number as the count
+still standing on `main`, because slice A has landed:
+
+| bucket | hits | files |
+| --- | ---: | ---: |
+| § 2's recorded RENAME subtotal at `e8021fed` (slice A not yet landed) | 124 | 60 |
+| the governance delta above (§ 15.2's occurrence) | +2 | +1 |
+| **the sweep's RENAME total** | **126** | **61** |
+| less slice A, LANDED in #799 | −8 | −8 |
+| **sweepable residual standing at `67405838`** | **118** | **53** |
+| plus the mapping key, NEVER swept (§ 15.1) | +2 | +1 |
+| **`git grep -o -i` over the RENAME pathspecs at `67405838`** | **120** | **54** |
+
+measured directly:
+
+```sh
+git grep -o -i 'opensoft/codexfactory' origin/main -- \
+  contracts/ ':!contracts/signed-execution-chain/' tests/ .github/ \
+  governance/ scripts/ docs/ ':!docs/decisions/' README.md      # 120
+git grep -l -i 'opensoft/codexfactory' origin/main -- <same>    # 54 files
+```
+
+— the same 120 / 54 § 15.3 recorded, unchanged, which is the check that this
+addendum re-labels the buckets rather than moving any count. The cumulative
+total is carried entirely by the landed slice plus the four gated ones:
+
+| carrier | hits | files |
+| --- | ---: | ---: |
+| slice A — LANDED in #799 | 8 | 8 |
+| slice B1 — #801 | 41 | 15 |
+| slice B2 — #802, **including this file** | **37** | **15** |
+| slice B3 — #805 | 12 | 9 |
+| slice B4 — #806 (25 respelled + 3 FROZEN per § 5) | 28 | 14 |
+| **total** | **126** | **61** |
+
+§ 15.3's separate `+2 / +1` for the mapping's own lookup key (§ 15.1) is
+unaffected and stays outside the cumulative total: it is NEVER swept, by design,
+because the mapping row's `former:` key is the one place the old identity must
+survive to be resolvable. It is the whole of the difference between the
+sweepable residual (118 / 53) and what `git grep` reports over the RENAME
+pathspecs (120 / 54).
+
+**Task 6.5 is now reachable.** With slice A landed and the four gated slices
+merged, the sweepable RENAME residual is zero, and the only `opensoft/codexFactory`
+occurrences left in the repository are the frozen classes, the not-swept classes
+and the mapping key — each of which 6.5 excludes by name.
+
+---
 
 ## 17. Addendum: line 103 reclassified RENAME (gated, slice B1) by ruling
 
