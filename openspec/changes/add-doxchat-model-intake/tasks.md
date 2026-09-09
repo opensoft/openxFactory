@@ -299,7 +299,7 @@ verbatim, so the build's own record names the sentence it was built to.
   live console. **Re-verify the delta block against canon before archiving** —
   the standing warning above, unchanged and still live.
 - 2026-09-05 — the missing `## 4.` group header supplied, by
-  `prepare-openspec-1.12-readiness`. Tasks 4.1 and 4.2 had always been a group
+  `prepare-openspec-1-12-readiness`. Tasks 4.1 and 4.2 had always been a group
   of their own — the two acts this change still owes — but no header was ever
   written for them, so they sat physically under `## 3. Proposed, then
   approved` while their leading number said 4. OpenSpec 1.12.0's task-grouping

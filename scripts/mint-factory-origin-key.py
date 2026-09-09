@@ -118,7 +118,7 @@ SENTINEL_FALLBACK = "FILL-IN-AT-MINT"
 #: to live somewhere a program can read it.
 SECRET_NAME = "FACTORY_ORIGIN_SIGNING_KEY"
 ENVIRONMENT = "worker-credentials"
-TARGET_REPO = "opensoft/codexFactory"
+TARGET_REPO = "codeXfactory/codexFactory"
 
 #: The ceiling this realization adopts for an origin grant, in days. The same
 #: number `validate-factory-identity.MAX_GRANT_DAYS` enforces; imported from it
@@ -844,13 +844,13 @@ assumes.
 
 ## What was minted
 
-One Ed25519 key pair, the ORIGIN identity of `opensoft/codexFactory`. Exactly
+One Ed25519 key pair, the ORIGIN identity of `codeXfactory/codexFactory`. Exactly
 one: the ratified requirement admits one origin identity per originating
 repository, and a second concurrent row is refused.
 
 | Repository | Key id | Public key (unpadded base64url, 32 raw bytes) | Key fingerprint |
 | --- | --- | --- | --- |
-| `opensoft/codexFactory` | `key-factory-codexfactory-0001` | `{public_key}` | `{key_fingerprint}` |
+| `codeXfactory/codexFactory` | `key-factory-codexfactory-0001` | `{public_key}` | `{key_fingerprint}` |
 
 The fingerprint is the one spelling the estate computes everywhere —
 `"sha256:" + sha256(raw 32-byte public key).hexdigest()` — and it RECOMPUTES

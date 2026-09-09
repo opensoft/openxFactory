@@ -1,6 +1,7 @@
 # Design: add-openspec-cli-pin
 
-Status: draft
+Status: ratified
+Ratified by: add-openspec-cli-pin — 2026-09-04, Brett Heap, "ratify 667" (record `review/ratification-2026-09-04.md`)
 
 Nine decisions, each with the alternative that was rejected and why. The
 proposal's § Authoring decisions is the index; this is the argument.

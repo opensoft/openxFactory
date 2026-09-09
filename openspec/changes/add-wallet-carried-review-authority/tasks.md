@@ -1123,7 +1123,7 @@ already says in words, dated 2026-08-31: *"the lane change adds this
 requirement and this change was authored the day that change ratified"*.
 `add-substantive-review-lane` archives FIRST, and the refusal ends there.
 
-Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+Recorded by `prepare-openspec-1-12-readiness`, which measured this corpus
 under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
 (#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
 written, the finding is `[INFO]` rather than a validation failure, and the
