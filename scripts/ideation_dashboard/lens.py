@@ -63,14 +63,17 @@ from .workbench import (
     Workbench, WorkbenchError, _utcnow,
 )
 
-# add_as_cluster SUBMITS the human-seen cluster proposal into the cross-reference
-# recommendation queue (change 3.5 / T028). The T028 blocker cleared 2026-07-14
-# when add-ideation-cross-reference-readiness realized the pending_review intake
-# contract in ideation-cross-reference.schema.yaml; the submission path lives in
-# human_seen.py (build -> refuse-if-incomplete -> write -> validate against the
-# pinned cross-reference validator). This note is surfaced BOTH on-screen (the
-# browser PLAN — byte-identical to lens-model.js's PENDING_PROPOSAL_NOTE) and as
-# the add_as_cluster result note.
+# `lens_submission.add_as_cluster` SUBMITS the human-seen cluster proposal into
+# the cross-reference recommendation queue (change 3.5 / T028). The T028 blocker
+# cleared 2026-07-14 when add-ideation-cross-reference-readiness realized the
+# pending_review intake contract in ideation-cross-reference.schema.yaml; the
+# submission path lives in human_seen.py (build -> refuse-if-incomplete -> write
+# -> validate against the pinned cross-reference validator). THE VERB LEFT THIS
+# MODULE with pre-carve split S-2; the NOTE stayed, because it is surfaced BOTH
+# on-screen (the browser PLAN — byte-identical to lens-model.js's
+# PENDING_PROPOSAL_NOTE) and as the lens_submission.add_as_cluster result note,
+# and that byte-identity cross-check is between this module and its OWN browser
+# half.
 PENDING_PROPOSAL_NOTE = (
     "Workbench reference set created (recipe-seeded, through the engine + "
     "boundary) and the human-seen cluster proposal submitted to the "
