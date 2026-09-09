@@ -2949,16 +2949,31 @@ Archived changes:
   figure this row states below, which is why the block could be carried forward
   as ratified rather than re-derived. Had it moved, the archive would have
   stopped.
-  **THE SEVEN PACKET FILES ARE PURE RENAMES** (`git diff -M --numstat` reports
-  `0 0` on each), because **THIS IS THE FIRST ARCHIVE THE RULE BINDS AND THE
-  RECORD IT BINDS FIRST IS ITS OWN**: the requirement promoted here refuses an
-  edit to "a task record or its tick state" on an archived file, so § 4.2 and all
-  three of § 6 were ticked in the commit BEFORE the move, while the packet was
-  still live — the shape `refresh-install-repository-enumerations` used at
-  `ca4a1558`. **NO ARCHIVED BYTE IS EDITED ANYWHERE IN THE PULL REQUEST**, proven
-  per commit rather than asserted. Five boxes remain open and each already
+  **THE SEVEN PACKET FILES ARE PURE RENAMES AT THE MOVE COMMIT `faeabe22`** —
+  `git show -M --numstat faeabe22` reports `0 0` on all seven — because **THIS IS
+  THE FIRST ARCHIVE THE RULE BINDS AND THE RECORD IT BINDS FIRST IS ITS OWN**:
+  the requirement promoted here refuses an edit to "a task record or its tick
+  state" on an archived file, so § 4.2 and all three of § 6 were ticked in the
+  commit BEFORE the move, while the packet was still live — the shape
+  `refresh-install-repository-enumerations` used at `ca4a1558`. **THE COMMIT IS
+  NAMED BECAUSE THE CLAIM IS TRUE OF IT AND NOT OF THE PULL REQUEST RANGE, AND
+  THE DIFFERENCE IS THE WHOLE POINT RATHER THAN A QUALIFICATION OF IT.** Over
+  `origin/main..HEAD` the same command reports **`212 4`** against `tasks.md`,
+  because rename detection folds the pre-move ticks of `fd4589fa` into the
+  rename — those 212 added and 4 removed lines are the ticks, written while the
+  file sat at its LIVE path, and the six other packet files stay `0 0` over the
+  range as well. **NO ARCHIVED BYTE IS EDITED ANYWHERE IN THE PULL REQUEST** —
+  proven per commit rather than asserted, and the per-commit proof is what a
+  range diff cannot show. Five boxes remain open and each already
   carried a dated NOT-OWED line before this act: 3.2, 3.3 and 3.5 (other
   repositories' or another packet's) and 5.2 and 5.3 (the landing lane's).
+  **ONE ROW MOVES AND NONE IS ADDED**, counted inside the two blocks' real
+  bounds — the archived block ends at the `## Install Repo Pins` heading, and a
+  count run to end-of-file overstates it by one: at base `46059b77` *Active
+  changes* carries 44 rows and *Archived changes* 149; at this commit, **44 → 43
+  and 149 → 150**. (The commit message of the change that moved the row states
+  `150 → 151` from the unbounded count and is wrong by one in each block; it is
+  corrected here rather than in a rewritten commit.)
   **THE ROW THIS REPLACES IS CARRIED FORWARD BELOW RATHER THAN REWRITTEN**, its
   two dated amendments included. **EXACTLY TWO BYTE-LEVEL CHANGES WERE MADE TO
   IT, BOTH PATH REPOINTS AND NEITHER A CLAIM**: the row's own link, above, and
