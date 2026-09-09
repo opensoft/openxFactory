@@ -97,6 +97,38 @@ def _reaches(name: str, forbidden=OPENDOX_SESSION_MODULES):
             for module, line in sibling_imports_of(name) if module in forbidden]
 
 
+_SLUG_FAMILY_NAMES = ("MAX_SLUG_CHARS", "_SLUG_KEY_SEPARATOR",
+                      "_SLUG_KEY_DIGEST_CHARS", "_slug_key_digest", "slug")
+
+
+def _own_bindings(source: str, names, *, filename="<scratch>"):
+    """Every name in `names` that the parsed `source` BINDS itself — an
+    `Assign`/`AnnAssign` target, or a `FunctionDef`/`AsyncFunctionDef`/
+    `ClassDef` name — anywhere in the module. Walks the whole tree rather
+    than reading `tree.body` alone, so a binding nested inside a function or
+    a conditional is not missed either.
+
+    Deliberately excludes `ImportFrom`: importing a name IS the re-export
+    this guard exists to prove, so the question this asks is narrower — does
+    the module ALSO define the name itself, which an `is` comparison on an
+    interned int or string cannot answer (Copilot round 2, 2026-09-09, on an
+    earlier revision's `:126-128` — see the test below)."""
+    tree = ast.parse(source, filename=filename)
+    bound = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name in names:
+                bound.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in names:
+                    bound.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            if node.target.id in names:
+                bound.add(node.target.id)
+    return bound
+
+
 # --------------------------------------------------------------------------
 # B-1 — the neutral slug
 # --------------------------------------------------------------------------
@@ -120,13 +152,67 @@ def test_the_slug_is_ONE_object_at_every_import_path():
     The two constants matter as much as the function: `lens-model.js` pins its
     own copy of the bound against `workbench.MAX_SLUG_CHARS` by name, and
     `test_lens.py::test_js_and_python_persistence_constants_agree` compares the
-    two derivations output-for-output."""
+    two derivations output-for-output.
+
+    NOTE the three constant checks below are necessary but not sufficient:
+    `200`, `"-k"` and `16` are interned by CPython, so `is` on them would
+    pass just the same if `workbench.py` DEFINED its own copies with those
+    values instead of importing them (Copilot round 2, 2026-09-09). The two
+    function-object checks stay real evidence — functions are never interned
+    — and `test_workbench_source_re_exports_the_slug_family_rather_than_
+    redefining_it` below is the assertion that actually closes the gap, at
+    the source rather than the value."""
     assert workbench.slug is path_slug.slug
     assert human_seen.slug is path_slug.slug
     assert workbench.MAX_SLUG_CHARS is path_slug.MAX_SLUG_CHARS
     assert workbench._SLUG_KEY_SEPARATOR is path_slug._SLUG_KEY_SEPARATOR
     assert workbench._SLUG_KEY_DIGEST_CHARS is path_slug._SLUG_KEY_DIGEST_CHARS
     assert workbench._slug_key_digest is path_slug._slug_key_digest
+
+
+def test_workbench_source_re_exports_the_slug_family_rather_than_redefining_it():
+    """The proof Copilot round 2 actually asked for (suppressed comment,
+    2026-09-09, on an earlier revision's `:126-128`): `workbench.X is
+    path_slug.X` on the three constants above is not evidence of a
+    re-export, because `200`, `"-k"` and `16` are interned by CPython — the
+    same assertions would pass just the same if `workbench.py` DEFINED its
+    own copies of them instead of importing them. Copilot's own proposed fix
+    (value equality) is weaker still: a redefinition with the same value is
+    also equal.
+
+    So the family is checked at the SOURCE, not the value: `workbench.py`
+    must bind none of the five names by assignment or definition anywhere in
+    the module, and the only place any of them appears must be the
+    `from path_slug import (...)` at its top."""
+    workbench_path = PACKAGE / "workbench.py"
+    source = workbench_path.read_text(encoding="utf-8")
+
+    own = _own_bindings(source, _SLUG_FAMILY_NAMES, filename=str(workbench_path))
+    assert own == set(), (
+        f"workbench.py defines {sorted(own)} itself — it must re-export the "
+        "slug family from path_slug, never redefine any of it")
+
+    tree = ast.parse(source, filename=str(workbench_path))
+    imported = {
+        alias.asname or alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module == "path_slug"
+        for alias in node.names
+    }
+    assert set(_SLUG_FAMILY_NAMES) <= imported, (
+        "workbench.py must import the whole slug family from path_slug; "
+        f"missing {sorted(set(_SLUG_FAMILY_NAMES) - imported)}")
+
+    # Non-vacuity (the fix this round exists to make): on a scratch COPY of
+    # the source — a string, never the real file — add back exactly
+    # Copilot's scenario, `workbench.py` keeping the import but ALSO binding
+    # its own `MAX_SLUG_CHARS`, and show the SAME function catches it.
+    redefined = source + "\nMAX_SLUG_CHARS = 200\n"
+    caught = _own_bindings(redefined, _SLUG_FAMILY_NAMES,
+                            filename="<scratch: workbench.py + a redefinition>")
+    assert caught == {"MAX_SLUG_CHARS"}, (
+        "the non-vacuity control failed to catch a scratch redefinition of "
+        f"MAX_SLUG_CHARS: {caught}")
 
 
 def test_the_relocated_slug_behaves_exactly_as_it_did():
