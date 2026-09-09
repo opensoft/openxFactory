@@ -122,9 +122,9 @@ and preserved retired-layer evidence cases.
 compatibility denominator and `fixtures/domain-regression-inventory.yaml` is
 the realized instance. It names every supported DomainxFactory repository
 with an exact published commit, `stack.yaml` path, raw-blob digest, domain
-ID, and expected contract pin: `opensoft/AdxFactory`,
-`opensoft/LedgerxFactory`, `opensoft/MedxFactory`, `opensoft/OpsxFactory`,
-and `opensoft/codexFactory`. `opensoft/LegalxFactory` is recorded as an
+ID, and expected contract pin: `codeXfactory/codexFactory`,
+`opensoft/AdxFactory`, `opensoft/LedgerxFactory`, `opensoft/MedxFactory`,
+and `opensoft/OpsxFactory`. `opensoft/LegalxFactory` is recorded as an
 explicit exclusion because it has no canonical `stack.yaml` yet. The
 denominator is versioned evidence, never an implicit "all current domains"
 scan.
