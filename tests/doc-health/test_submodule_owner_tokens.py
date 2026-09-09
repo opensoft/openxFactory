@@ -301,6 +301,20 @@ def test_more_owners_than_slots_still_refuses_and_names_them(tmp_path):
     assert "3 mint slots" in done.stdout
 
 
+def credentialed(token, owner, repo):
+    """The URL git must resolve to when `owner`'s submodule is credentialed.
+
+    Built here rather than typed at each call site (Copilot, PR #831): three
+    duplicated full-URL literals are three places for the expectation to drift
+    from the rewrite, and a reader should not have to reassemble a credential
+    shape by eye to see which token an owner routes to. Strict equality on the
+    WHOLE string stays — that is the "longest prefix wins" claim, and a
+    substring check would pass for the right owner routed to the wrong token,
+    which is the failure this file exists to catch.
+    """
+    return f"https://x-access-token:{token}@github.com/{owner}/{repo}.git"
+
+
 # THE PLACEHOLDER TOKENS ARE DELIBERATELY NOT TOKEN-SHAPED. A `ghs_`-prefixed
 # literal reads as a real installation token to a secret scanner and to a
 # reader, and both of those cost more than the realism buys (Copilot, PR #831).
@@ -344,13 +358,13 @@ def test_both_forms_resolve_to_the_owners_own_token(tmp_path):
     })
     assert done.returncode == 0, done.stdout + done.stderr
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
+        credentialed("medx-installation-token", "MedxSoft", "MedxEHR")
     # The form that reddened 2026-09-05..07: MedxEHR's nested legs.
     assert resolve("https://github.com/MedxSoft/MedxEHR-spec.git") == \
-        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR-spec.git"
+        credentialed("medx-installation-token", "MedxSoft", "MedxEHR-spec")
     assert resolve("git@github.com:ledgerXfactory/LedgerxFactory.git") == \
-        ("https://x-access-token:ledger-installation-token@github.com/"
-         "ledgerXfactory/LedgerxFactory.git")
+        credentialed("ledger-installation-token", "ledgerXfactory",
+                     "LedgerxFactory")
 
 
 def test_the_broad_rewrite_still_serves_every_other_owner(tmp_path):
@@ -360,9 +374,9 @@ def test_the_broad_rewrite_still_serves_every_other_owner(tmp_path):
     # Longest prefix wins in BOTH directions: the narrow key takes MedxSoft,
     # the broad one keeps everything else.
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
+        credentialed("medx-installation-token", "MedxSoft", "MedxEHR")
     assert resolve("git@github.com:opensoft/codexFactory.git") == \
-        "https://x-access-token:caller-org-token@github.com/opensoft/codexFactory.git"
+        credentialed("caller-org-token", "opensoft", "codexFactory")
 
 
 def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
@@ -377,7 +391,7 @@ def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
     # The owner that COULD be served still was, so the failure names one
     # organization rather than hiding behind the first one to break.
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
+        credentialed("medx-installation-token", "MedxSoft", "MedxEHR")
     assert resolve("git@github.com:ledgerXfactory/LedgerxFactory.git") == \
         "git@github.com:ledgerXfactory/LedgerxFactory.git"
 
