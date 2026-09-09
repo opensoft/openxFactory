@@ -314,6 +314,44 @@ python3 -m pytest tests/sequenced_after tests/proposal-support tests/scope_globs
 - `330 passed, 2 subtests passed in 26.32s`
 - capture: `specs/032-govern-archived-record-edits/evidence/gate-4.5-pytest.txt`
 
+## The note classes, and they sum to 28
+
+Every box in this packet's `tasks.md` carries exactly ONE of the three classes,
+audited mechanically rather than counted by eye:
+
+| Class | Count | Boxes |
+| --- | --- | --- |
+| **ticked-with-evidence** | **19** | 0.1, 1.1, 1.2, 1.2a, 1.2b, 1.2c, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 3.1, 3.4, 4.1, 4.3, 4.4, 4.5, 5.1 |
+| **NOT-OWED** | **8** | 3.2, 3.3, 3.5 (other repositories or another packet), 5.2, 5.3 (the lane's landing acts), 6.1, 6.2, 6.3 (the archive act) |
+| **RUN-RECORDED-LEFT-OPEN** | **1** | 4.2 |
+| | **28** | |
+
+**19 + 8 + 1 = 28**, which is the packet's full box count. The audit also
+confirmed: no box carries two classes or none; every note carries its UTC date;
+the tick state matches the class on every box (nothing ticked without the
+ticked-with-evidence class, nothing carrying that class left unticked); and all
+FIVE § 4 notes CITE this file rather than restating a result.
+
+**Every NOT-OWED note says WHICH KIND it is.** All eight are NOT-OWED-YET —
+falling due to another repository, another packet, or the lane — rather than
+permanently another's; each names the owner and, where it is measurable, the
+state that owner is in at a named head and date.
+
+**The class is not the note.** Each of the 28 also carries the act performed, the
+UTC date, and a pointer to its evidence.
+
+## No invented quotation
+
+Every block quotation this realization wrote into `tasks.md` was checked
+mechanically against the file's pre-edit bytes: **7 block quotes and 4 inline
+quotations, all 11 present verbatim** (whitespace-normalised comparison against
+`HEAD:openspec/changes/govern-archived-record-edits/tasks.md`). **NO WORD IS
+ATTRIBUTED TO BRETT HEAP ANYWHERE.** The § 1 notes cite the ratification by
+review id `5141756427`, its APPROVED state, its `2026-09-08T12:38:36Z` timestamp
+and the record path, and say in terms that the approval body is EMPTY so no
+verbatim word exists. Restating what a record states is citation; putting a
+sentence in his mouth would be invention, and none is made.
+
 ## Gates that could not be run
 
 **NONE.** Every § 4 gate RAN. No gate was skipped for a missing dependency or an
