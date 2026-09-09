@@ -335,6 +335,16 @@ jobs:
       # rather than turned into a red advance — and it cannot be
       # `continue-on-error`, which no step in this lane may carry, so the guard
       # is in the shell.
+      #
+      # THE TWO OPEN BRANCHES ARE WHERE THE RESIDUAL IS DISCLOSED (Codex P1 on
+      # openxFactory #844). An open advance is reported as ARMED or as NOT
+      # armed, and the NOT-armed line states the retry condition exactly: the
+      # arming lives in the DELIVERY step, which is gated
+      # `steps.repin.outputs.action == 'advance'`, so a no-op firing — this
+      # step's own firing — re-attempts nothing. Re-arming from here would be a
+      # THIRD `gh pr merge --auto` occurrence, which decision M-C's ratified
+      # equality forbids and a named negative control reds, so the lane says
+      # what it does not do rather than quietly doing it.
       - name: Report what became of the last automated advance
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -350,8 +360,10 @@ jobs:
               .[0] as $pr
               | if $pr.state == "MERGED" then
                   "the last automated pin advance #\($pr.number) MERGED at \($pr.mergeCommit.oid // "an unreadable commit")"
+                elif $pr.state == "OPEN" and $pr.autoMergeRequest then
+                  "the last automated pin advance #\($pr.number) is still OPEN with auto-merge ARMED; no candidate class admits this lane, so it waits for a human merge word"
                 elif $pr.state == "OPEN" then
-                  "the last automated pin advance #\($pr.number) is still OPEN (auto-merge \(if $pr.autoMergeRequest then "ARMED" else "NOT armed" end)); no candidate class admits this lane, so it waits for a human merge word"
+                  "the last automated pin advance #\($pr.number) is still OPEN and auto-merge is NOT armed; the arming lives in the delivery step, so this lane re-attempts it only on its next firing that delivers an advance, and that firing moves the head first. No candidate class admits this lane either way, so it waits for a human merge word; openxFactory #745 box 4.4 is the measurement of what the platform does with an arming here, and box 4.3 the enrolment that would let an armed state complete anything"
                 else
                   "the last automated pin advance #\($pr.number) was CLOSED unmerged"
                 end
@@ -751,12 +763,25 @@ jobs:
             elif printf '%s' "${output}" | grep -qi 'already enabled'; then
               witness="auto-merge ARMED on #${number} at ${head_oid} (already enabled) — ${ARMED_TAIL}"
             else
-              # ONE LINE, ONE REASON, AND A NAMED RETRY. The platform's own
-              # message is carried verbatim so a reader can tell a 422
-              # "requirements not met yet" from a permission problem without
-              # opening the run.
+              # ONE LINE, ONE REASON, AND THE RETRY CONDITION EXACTLY. The
+              # platform's own message is carried verbatim so a reader can tell
+              # a 422 "requirements not met yet" from a permission problem
+              # without opening the run.
+              #
+              # "ON ITS NEXT FIRING" WAS TOO LOOSE AND IS NARROWED (Codex P1 on
+              # openxFactory #844). The arming lives in THIS step, which is
+              # gated `steps.repin.outputs.action == 'advance'`, so a firing
+              # that finds nothing to advance does not reach it: a refused
+              # arming is re-attempted on the next firing that DELIVERS an
+              # advance, and that firing moves the head first. Saying "its next
+              # firing" would have promised an hourly retry the lane does not
+              # perform. The residual is recorded on openxFactory #745.
+              #
+              # THE JOIN IS THE SAME ON ALL THREE VARIANTS (Copilot on #844):
+              # `ARMED_TAIL` opens lowercase, so every branch reaches it
+              # through " — " and never across a sentence end.
               reason="$(printf '%s' "${output}" | tr '\n' ' ' | cut -c1-300)"
-              witness="auto-merge NOT armed on #${number} at ${head_oid}: platform refused (${reason}) — the advance is delivered and correct; the lane will re-arm on its next firing. ${ARMED_TAIL}"
+              witness="auto-merge NOT armed on #${number} at ${head_oid}: platform refused (${reason}); the advance is delivered and correct, and the lane re-attempts the arming only on its next firing that delivers an advance — ${ARMED_TAIL}"
             fi
             echo "::notice title=review-lane-repin::$(command_safe "${witness}")"
             echo "${witness}" >> "$GITHUB_STEP_SUMMARY"

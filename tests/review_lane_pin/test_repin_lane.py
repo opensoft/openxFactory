@@ -660,7 +660,14 @@ class AnAutomatedPinAdvanceOnlyEverProposes(TreeFixtureMixin, unittest.TestCase)
         what became of the pull request the last one armed.
 
         THE REPORTING STEP MUST NEVER START ACTING, so it is swept for every
-        disposal term of its own.
+        disposal term of its own — AND IT IS WHERE THE RESIDUAL IS DISCLOSED
+        (Codex P1 on openxFactory #844). An open advance is reported as ARMED
+        or as NOT armed, and the NOT-armed branch states the retry condition
+        exactly: the arming lives in the DELIVERY step, so the no-op firing
+        this step belongs to re-attempts nothing. Re-arming from here would be
+        a THIRD occurrence of the arming command, which decision M-C admits by
+        EQUALITY at two and a named control reds at three — so the disclosure
+        is the act, and the widening is refused.
         """
         run = _step(DELIVERY_STEP_NAME)["run"]
         self.assertIn("::notice title=review-lane-repin::", run)
@@ -675,6 +682,22 @@ class AnAutomatedPinAdvanceOnlyEverProposes(TreeFixtureMixin, unittest.TestCase)
         self.assertIn("MERGED at", outcome_run)
         self.assertIn("still OPEN", outcome_run)
         self.assertIn("CLOSED unmerged", outcome_run)
+
+        # THE OPEN CASE IS TWO BRANCHES, and the platform field it splits on is
+        # really requested, or the ARMED branch could never be reached.
+        self.assertIn("autoMergeRequest", outcome_run)
+        self.assertIn("still OPEN with auto-merge ARMED", outcome_run)
+        self.assertIn("still OPEN and auto-merge is NOT armed", outcome_run)
+        # ...and the NOT-armed branch says exactly WHEN the lane tries again,
+        # in the same words the delivery step's refusal witness uses, so a
+        # reader is not told two different things by the two surfaces.
+        retry_condition = ("re-attempts it only on its next firing that "
+                           "delivers an advance")
+        self.assertIn(retry_condition, outcome_run)
+        self.assertIn("that firing moves the head first", outcome_run)
+        # THE DISCLOSURE IS NOT AN ARMING. This step reads; the sweep below is
+        # what holds it to that, and it is the reason the residual is disclosed
+        # here rather than closed by a third arming.
         for term in DISPOSAL_TERMS:
             self.assertNotIn(
                 term, outcome_run,
@@ -797,6 +820,45 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         return [line for line in proc.stdout.splitlines()
                 if line.startswith("::notice")]
 
+    @staticmethod
+    def _armed_tail() -> str:
+        """`ARMED_TAIL`'s VALUE, cut out of the shipped workflow.
+
+        Read rather than restated, for the reason `_shell_function` gives: a
+        harness carrying its own copy of the tail would keep passing while the
+        lane's wording drifted. Used by the three variant cases below to assert
+        HOW the tail is joined, which is the whole of Copilot's finding on
+        openxFactory #844.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        line = next(candidate for candidate in run.splitlines()
+                    if candidate.strip().startswith("ARMED_TAIL="))
+        value = line.strip()[len("ARMED_TAIL="):]
+        assert value.startswith('"') and value.endswith('"'), value
+        return value[1:-1]
+
+    def _assert_the_tail_is_joined_cleanly(self, summary: str) -> None:
+        """The witness reaches `ARMED_TAIL` through " — " and never a full stop.
+
+        COPILOT, openxFactory #844: the tail opens lowercase ("the platform
+        merges..."), so a branch that appended it after a period produced a
+        sentence starting in lower case. The fix is one join for all three
+        variants, and this is where "all three" is measured rather than
+        promised: the same assertion runs from the armed, the already-enabled
+        and the refused case, against the tail READ FROM THE WORKFLOW.
+        """
+        tail = self._armed_tail()
+        self.assertFalse(tail[:1].isupper(),
+                         "the tail no longer opens lowercase; re-read this "
+                         "join rather than re-pinning it")
+        self.assertTrue(
+            summary.strip().endswith(" \u2014 " + tail),
+            f"the witness does not reach ARMED_TAIL through an em-dash join: "
+            f"{summary!r}")
+        self.assertNotIn(". " + tail, summary,
+                         "the tail is appended after a full stop and reads as "
+                         "a sentence starting in lower case")
+
     def test_a_successful_arming_names_the_pull_request_and_the_head(self) -> None:
         """Scenario: The arming is reported where the run is read.
 
@@ -815,6 +877,7 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         self.assertTrue(summary.strip().startswith(expected_prefix), summary)
         self.assertIn("NO CANDIDATE CLASS ADMITS THIS LANE TODAY", summary)
         self.assertIn("headRefOid", log)
+        self._assert_the_tail_is_joined_cleanly(summary)
 
     def test_a_refused_arming_is_a_recorded_outcome_not_a_failed_advance(self) -> None:
         """Scenario: A parked pin advance is not merged.
@@ -825,7 +888,17 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         pull request for as long as no candidate class admits it. The refusal
         must therefore be a REPORTED outcome: the function exits zero, the
         platform's own message is carried verbatim, and the line says the
-        advance is delivered and the lane will re-arm.
+        advance is delivered and names WHEN the arming is re-attempted.
+
+        THE RETRY CONDITION IS STATED EXACTLY, AND THAT IS A NARROWING OF WHAT
+        THIS LINE FIRST SAID (Codex P1 on openxFactory #844). "the lane will
+        re-arm on its next firing" promised an hourly retry the lane does not
+        perform: the arming lives in the DELIVERY step, gated
+        `steps.repin.outputs.action == 'advance'`, so a no-op firing never
+        reaches it. What the lane actually does — re-attempt on the next firing
+        that DELIVERS an advance, which moves the head first — is what the line
+        now says, and the residual is recorded on openxFactory #745 rather than
+        closed by widening the arming to a third occurrence M-C forbids.
 
         PROVEN CAPABLE OF FAILING by the paired positive above: the same
         function on a zero status emits the ARMED line instead.
@@ -835,8 +908,13 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         self.assertEqual(0, proc.returncode, proc.stderr)
         self.assertIn("auto-merge NOT armed on #732", summary)
         self.assertIn(message, summary)
-        self.assertIn("will re-arm on its next firing", summary)
+        self.assertIn(
+            "re-attempts the arming only on its next firing that delivers an "
+            "advance", summary)
+        # THE OVER-PROMISE IS REFUSED BY NAME, so restoring it reds here.
+        self.assertNotIn("re-arm on its next firing", summary)
         self.assertNotIn("auto-merge ARMED", summary)
+        self._assert_the_tail_is_joined_cleanly(summary)
 
     def test_an_already_armed_pull_request_is_an_idempotent_success(self) -> None:
         """Scenario: A further advance owed while the armed pull request is parked updates it and re-arms.
@@ -852,6 +930,7 @@ class TheArmingIsExecutedNotJustRead(unittest.TestCase):
         self.assertIn(f"auto-merge ARMED on #732 at {self.HEAD} (already enabled)",
                       summary)
         self.assertNotIn("NOT armed", summary)
+        self._assert_the_tail_is_joined_cleanly(summary)
 
     def test_an_unreadable_pull_request_is_named_rather_than_left_blank(self) -> None:
         """Scenario: The arming is reported where the run is read.

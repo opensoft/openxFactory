@@ -346,8 +346,27 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       that fallback the line whose whole purpose is to name a head names nothing,
       silently. Two further outcomes have their own line: `(already enabled)`,
       and `auto-merge NOT armed on #… : platform refused (<the platform's own
-      message, verbatim>) — the advance is delivered and correct; the lane will
-      re-arm on its next firing`.
+      message, verbatim>); the advance is delivered and correct, and the lane
+      re-attempts the arming only on its next firing that delivers an advance`.
+      **AMENDED IN REVIEW, 2026-09-09, AND THE SUPERSEDED WORDING IS QUOTED
+      RATHER THAN DELETED.** The refusal line first read *"— the advance is
+      delivered and correct; the lane will re-arm on its next firing."*, which
+      promised a retry the lane does not perform: the arming lives in the
+      DELIVERY step, gated `steps.repin.outputs.action == 'advance'`, so a no-op
+      firing never reaches it (Codex P1 on PR #844). It now names the condition
+      exactly, and the same fact is stated on the OTHER surface where a reader
+      meets it — the no-op firing's own report of an OPEN advance, which splits
+      ARMED from NOT armed and, in the NOT-armed case, says the lane re-attempts
+      the arming only on its next firing that delivers an advance and that the
+      firing moves the head first. **THE RESIDUAL IS DISCLOSED, NOT CLOSED:** a
+      re-arm from the no-op path would be a THIRD occurrence of the arming
+      command, which decision M-C admits by EQUALITY at two and a named control
+      reds at three, so admitting one needs an amendment and is recorded on #745
+      for Brett Heap rather than taken here. Copilot's finding on the same head
+      is fixed with it: all three witness variants now reach the lowercase
+      `ARMED_TAIL` through one ` — ` join instead of across a full stop, measured
+      from the workflow's own bytes by
+      `TheArmingIsExecutedNotJustRead._assert_the_tail_is_joined_cleanly`.
       **DEPARTURE, DISCLOSED: THE TAIL CARRIES ONE CLAUSE MORE THAN M-E WROTE.**
       M-E's sentence ends *"…so the arming is inert."*; box 1.3's ruling asks for
       the inertness to be declared as *no approver is enrolled and the armed pull
