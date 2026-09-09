@@ -148,6 +148,33 @@ the ratifying commit.
 each on the act it already names — this repository's step (1), codexFactory's
 move, and this repository's step (3).
 
+## ONE CORRECTION MADE AFTER THE RATIFYING WORD, DISCLOSED RATHER THAN FOLDED IN
+
+**The ratified requirement text was edited after the word of 23:51Z, and it is
+recorded here so the record is not outrun by its own packet.** Copilot raised it
+on #817 (comment 3963496884) against the merged head: the requirement said the
+candidate list *"SHALL be declared in the lane's own sources AND in the
+credential binding's read surface"*, while the same packet puts that binding
+site for veto as **M-4**, with **MQ-2 open** and `tasks.md` boxes 1.3 and 2.4
+("M-4 (if it stands)") written on the assumption it may be dropped.
+
+**A ratified SHALL cannot be contingent on a question the same ratification left
+open**, so the two could not both be right. The requirement now mandates only
+what is NOT in question — the declaration in the lane's own sources, and the
+run-time prohibition on reading the list from any artifact a check compares it
+against — and treats the binding as an ADDITIONAL site the packet recommends,
+covered by the same agreement assertion if it stands and removed by a veto of
+M-4 without touching the requirement.
+
+**WHY THIS WAS TAKEN RATHER THAN ESCALATED.** It removes a contradiction the
+ratifying word itself created by ratifying M-4 as vetoable alongside a text that
+mandated it; it makes the requirement demand LESS rather than more; and it
+changes no decision — M-4 still stands as recommended, MQ-2 is still open, and no
+box moved. **It is nonetheless an edit to ratified requirement text made by this
+lane and not by an owner's word, and Brett Heap may veto it in one edit**: the
+alternative he may prefer is Copilot's option (b) — close MQ-2, mark M-4
+non-optional throughout, and restore the original mandate.
+
 ## Scope
 
 This record ratifies the PROPOSAL. The realization is a separate pull request on
