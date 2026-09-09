@@ -358,6 +358,32 @@ TEMPLATE_MARKERS = _ArmTemplate("template:marker-defects", (
     "{change_id} ({date}) naming {named}, which the block still restates — a "
     "declaration that does not describe the block"))
 
+# THE TWO REPORTS `amend-marker-defect-reporting` ADDS (2026-09-09), SHARING ONE
+# TEMPLATE ON `TEMPLATE_PAIRING`'S OWN RULE. A marker whose reason QUOTES a unit
+# the block does not carry, and a marker naming what no unit matches, are two
+# PREDICATES with ONE remedy: both live in `CLASS_MARKERS`, both carry
+# `_LEDGER_SEVERITY` and both carry `_MARKER_ACTION`, which is a per-CLASS
+# constant `test_every_finding_carries_its_class_s_band_and_action` compares
+# against. Under the shape mask — "one shape is one map entry is one REMEDY" —
+# two templates would claim two remedies where there is one, so the predicate
+# goes in an INTERPOLATED `{why}` exactly as the pairing class's four reported
+# states do.
+#
+# IT IS SEPARATE FROM `TEMPLATE_MARKERS` AND THAT IS NOT THE SAME QUESTION.
+# `TEMPLATE_MARKERS` ends in an ASSERTION about its own predicate ("which the
+# block still restates"), which is false of both new cases; folding all three
+# into one `{why}` template would rewrite a shipped rule text that this suite
+# pins by rendered bytes and that a reader may have dispositioned by text.
+#
+# THE OPENING IS `TEMPLATE_MARKERS`' OPENING, DELIBERATELY: `CLASS_MARKERS`'
+# class pattern is `_BLOCK_HEAD + r"carries a '\w+' marker by "`, so reusing it
+# means the map already PLACES these findings and the seventh class
+# (`unplaced-finding drift`) stays silent. Measured: a wording that did not
+# reuse it raised one `warning` drift finding per unplaced shape.
+TEMPLATE_MARKER_VOID = _ArmTemplate("template:marker-declares-nothing", (
+    "active MODIFIED block for {title!r} carries a {form!r} marker by "
+    "{change_id} ({date}) that declares nothing about the block: {why}"))
+
 TEMPLATE_UNRESOLVED = _ArmTemplate("template:title-resolution", (
     "active MODIFIED block for {title!r} resolves to no promoted requirement, "
     "no rename of its own, and no active sibling's addition: {why}"))
@@ -399,7 +425,14 @@ TEMPLATE_DRIFT = _ArmTemplate("template:unplaced-drift", (
 # not load-bearing today — the six are mutually exclusive over masked text and a
 # test says so — but a deterministic order is what makes a future collision a
 # stable wrong answer instead of an unstable one.
+# NINE ENTRIES SINCE `amend-marker-defect-reporting` (2026-09-09). The new
+# template is registered BESIDE `TEMPLATE_MARKERS` rather than appended, both
+# being readings of one paragraph; the order is still not load-bearing (the nine
+# are mutually exclusive over masked text and a test says so) and the drift
+# template still reads before the two `govern-sibling-added-modified-deltas`
+# adds, exactly as it did.
 _ARM_TEMPLATES = (TEMPLATE_TITLES, TEMPLATE_LEDGER, TEMPLATE_MARKERS,
+                  TEMPLATE_MARKER_VOID,
                   TEMPLATE_UNRESOLVED, TEMPLATE_ORDERING, TEMPLATE_DRIFT,
                   TEMPLATE_PAIRING, TEMPLATE_COLLISION)
 
@@ -780,11 +813,11 @@ class Marker:
     """
 
     __slots__ = ("form", "change_id", "date", "names", "destination", "reason",
-                 "paragraph", "basis")
+                 "paragraph", "basis", "quoted")
 
     def __init__(self, form: str, change_id: str, date: str, names: list[str],
                  destination: str | None, reason: str | None, paragraph: str,
-                 basis: str | None = None):
+                 basis: str | None = None, quoted: list[str] | None = None):
         self.form = form
         self.change_id = change_id
         self.date = date
@@ -798,6 +831,18 @@ class Marker:
         # relation between two documents. A LAST parameter with a default, so
         # every existing positional construction of a `Marker` still reads.
         self.basis = basis
+        # THE SPANS THE REASON QUOTES — the code spans standing AFTER the reason
+        # boundary, normalized, in order. `amend-marker-reason-boundary` ruled
+        # that such a span "is prose the reason quotes rather than a unit the
+        # marker names" and `parse_marker` DISCARDED them, which made the defect
+        # `amend-marker-defect-reporting` reports mechanically invisible: a
+        # would-be declaration and a mention are the same bytes in a different
+        # position, and the position was not kept. `names` is unchanged — this
+        # field is READ ONLY by `_declares_nothing` and suppresses nothing. Empty
+        # for the pairing form, which names no units at all and whose WHOLE tail
+        # is reason: every span in it is a mention by construction, so there is
+        # no would-be declaration for the report to be about.
+        self.quoted = list(quoted or [])
 
     def __repr__(self) -> str:  # pragma: no cover - diagnostics only
         return f"Marker({self.form!r}, {self.change_id!r}, {self.names!r})"
@@ -884,6 +929,7 @@ def parse_marker(paragraph: str) -> Marker | None:
         # canon is in, and unchanged by the amendment.
         names = [normalize(c) for _s, _e, c in spans]
         reason = None
+        quoted: list[str] = []
     else:
         # THE FAILURE DIRECTION IS THE CONSERVATIVE ONE. A marker that separated
         # its NAMES with ` — ` has the later ones read as reason: they suppress
@@ -892,7 +938,17 @@ def parse_marker(paragraph: str) -> Marker | None:
         # (measured 2026-09-06, seven markers).
         names = [normalize(c) for _s, e, c in spans if e <= cut]
         reason = normalize(tail[cut + len(_REASON_SEP):]) or None
-    return Marker(form, change_id, date, names, destination, reason, text)
+        # AND THE SPANS ON THE OTHER SIDE OF THE BOUNDARY ARE KEPT RATHER THAN
+        # DISCARDED (`amend-marker-defect-reporting` 2026-09-09). They name
+        # nothing, exactly as the amended sentence says; what changes is that
+        # `_declares_nothing` can now SEE them, so a span an author wrote inside
+        # the reason that happens to match a unit the block dropped is reported
+        # as the would-be declaration it looks like. `end <= cut` partitions the
+        # spans exactly (`_reason_boundary`), so this complement needs no second
+        # membership test.
+        quoted = [normalize(c) for _s, e, c in spans if e > cut]
+    return Marker(form, change_id, date, names, destination, reason, text,
+                  None, quoted)
 
 
 def is_dated_bold_note(paragraph: str) -> bool:
@@ -1264,11 +1320,15 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
     - the name matches a canon unit the block still CARRIES -> the MARKER is
       reported and nothing is suppressed by that name, because a declaration
       that does not describe the block is a declaration no reader can rely on;
-    - the name matches NO canon unit -> nothing suppressed, nothing reported.
-      That third case is fail-closed and is deliberately NOT a finding: the
-      delta mandates exactly one reporting case for a marker, and adding a
-      second is an obligation this feature has no standing to invent. Recorded
-      as a plausible later ruling.
+    - the name matches NO canon unit -> nothing suppressed HERE, and this
+      function still reports nothing about it. **THE PLAUSIBLE LATER RULING WAS
+      TAKEN** (`amend-marker-defect-reporting`, 2026-09-09, openxFactory issue
+      #729): a name matching no unit of the basis AND no unit of the block is
+      now REPORTED — but by `_declares_nothing`, beside this function rather
+      than inside it, because suppression is unchanged by it. Nothing is
+      suppressed by such a name, before or after; what moved is that the corpus
+      now says so out loud. The scope that keeps the report honest, and the
+      reason it is not simply this `continue`, are in `_declares_nothing`.
 
     THEN THE SCENARIO-TITLE EXTENSION, and it is gated. Where a `Removed from
     canon` marker names an absent scenario TITLE **and the block adds no
@@ -1340,8 +1400,102 @@ _MARKER_ACTION = ("name a unit the block does not restate, or drop the "
                   "declaration — a marker that does not describe the block "
                   "declares nothing")
 
+_UNIT_NAMING = ("removed", "merged")
+
+# THE TWO `why` CLAUSES, and neither may reproduce another arm template's
+# discriminating prose. `tests/doc-health/test_modified_block_currency_reporting.py`
+# reads one phrase per template out of an INDEPENDENTLY typed probe table and
+# requires exactly one hit per finding, so a clause carrying (say) " does not
+# carry " would make this template's own findings read as the ledger's as well.
+# "does not restate" is `_MARKER_ACTION`'s own verb and collides with nothing.
+_VOID_QUOTED = ("its reason quotes {quoted}, a unit the basis states and this "
+                "block does not restate — a span standing after the reason "
+                "separator names nothing, so the unit stays reported rather "
+                "than declared")
+
+_VOID_UNMATCHED = ("it names {named}, matching no unit of the basis and none "
+                   "of the block's own — a declaration about nothing")
+
+
+def _declares_nothing(block: ActiveBlock, canon_units: list[Unit],
+                      block_units: list[Unit]) -> list[tuple[Marker, str]]:
+    """`[(marker, why)]` — the block's OWN markers that declare nothing about it.
+
+    THE FIFTH AND SIXTH GROUNDS FOR REPORTING A MARKER
+    (`amend-marker-defect-reporting`, 2026-09-09, openxFactory issue #729), and
+    they are read here rather than in `suppression` because neither SUPPRESSES
+    anything: suppression's three-way resolution is byte-for-byte the rule it
+    was, and this is a second reading of the same paragraph.
+
+    - **THE REASON QUOTES A UNIT THE BLOCK DOES NOT CARRY.** `Marker.quoted`
+      carries the spans standing after the reason boundary. Where one of them
+      matches a unit of the basis that the block does NOT restate, the author
+      wrote a would-be declaration on the wrong side of the separator: under
+      `amend-marker-reason-boundary` it names nothing, so the unit is REPORTED by
+      the carriage arms — correctly, and with no hint that a declaration for it
+      was attempted three words away. This is the NARROW predicate (`design.md`
+      D1 option A). The BROAD one — any span inside any reason — is what the
+      corpus refuses: measured 2026-09-09, EIGHT of this corpus's SIXTEEN
+      unit-naming markers quote a code span inside their reason, every one of
+      them promoted and every quoted span reason-prose, and canon blesses
+      exactly that shape.
+    - **A NAME MATCHES NOTHING AT ALL.** Not a unit of the basis, not a unit of
+      the block. `suppression`'s third resolution has always been silent here,
+      by an author's deliberate fail-closed choice recorded as a plausible later
+      ruling; the ruling was taken.
+
+    THE SPAN A MARKER ALSO NAMES IS NOT REPORTED TWICE. A reason that quotes a
+    unit the marker already named before the separator declares it once and
+    mentions it once, which is legitimate prose, so a `quoted` entry that is
+    already in `names` is skipped.
+
+    A QUOTED SPAN MATCHING A UNIT THE BLOCK **DOES** CARRY IS SILENT, and that
+    is the narrow predicate's whole point: canon carries it, the block carries
+    it, nothing is being dropped, and a report would be a report about a
+    quotation.
+
+    **SCOPED TO MARKERS THE BLOCK'S OWN CHANGE DECLARES, AND THIS SCOPE IS
+    LOAD-BEARING RATHER THAN CAUTIOUS.** A marker promotes into canon with the
+    requirement that carries it, so a later block restating that requirement
+    carries a PREDECESSOR'S marker — a record of a ratified removal whose named
+    unit is, necessarily, no longer a unit of canon. Without this scope the
+    second ground would fire on every faithful restatement of an amended
+    requirement, forever, and grow with each amendment: MEASURED on this very
+    packet, whose block carries `amend-marker-reason-boundary`'s promoted marker
+    verbatim and would otherwise report itself. `document-lifecycle` requires the
+    restatement; the requirement itself says a marker "is NOT a carriage unit, in
+    either direction"; and only the change that WROTE a marker declares anything
+    by it. Measured cost of the scope today: zero — both unit-naming markers the
+    family reads on this corpus are declared by the change that carries them.
+    """
+    have = {u.pair() for u in block_units}
+    by_text: dict[str, list[Unit]] = {}
+    for u in canon_units:
+        by_text.setdefault(u.text, []).append(u)
+    block_texts = {u.text for u in block_units}
+
+    out: list[tuple[Marker, str]] = []
+    for marker in block.markers:
+        if marker.form not in _UNIT_NAMING or marker.change_id != block.change:
+            continue
+        absent = [q for q in marker.quoted
+                  if q not in marker.names
+                  and by_text.get(q)
+                  and not any(u.pair() in have for u in by_text[q])]
+        if absent:
+            listed = "; ".join(
+                _quote(u) for q in absent for u in by_text[q])
+            out.append((marker, _VOID_QUOTED.format(quoted=listed)))
+        unmatched = [n for n in marker.names
+                     if n not in by_text and n not in block_texts]
+        if unmatched:
+            out.append((marker, _VOID_UNMATCHED.format(
+                named=", ".join(repr(n) for n in unmatched))))
+    return out
+
 
 def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
+                        void: list[tuple[Marker, str]] = (),
                         ) -> list[Finding]:
     """THE FOURTH FINDING CLASS — a defect in a DECLARATION, not a comparison.
 
@@ -1351,6 +1505,21 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
     index, and the seventh reads the class map's own verdict. It carries the ledger's `info` band so the advisory launch
     holds in both halves, and it deliberately does NOT carry the ledger's hedge:
     a marker naming a unit the block still restates is wrong with certainty.
+
+    **THREE GROUNDS SINCE `amend-marker-defect-reporting` (2026-09-09), ONE
+    CLASS AND ONE ACTION.** `void` carries `_declares_nothing`'s pairs — a
+    reason quoting a unit the block does not carry, and a name matching nothing
+    at all — and they render through `TEMPLATE_MARKER_VOID`, whose opening is
+    this template's so that `CLASS_MARKERS`' pattern places them and the drift
+    class stays silent. A LAST PARAMETER WITH A DEFAULT, on the same rule
+    `Marker.basis` was added under: every existing call still reads. The band and
+    the action do NOT move — `_LEDGER_SEVERITY` and `_MARKER_ACTION` are the
+    class's, compared against the class constant by
+    `test_every_finding_carries_its_class_s_band_and_action`, so the per-ground
+    prose lives in the rule text and nowhere else. Not `contested` either: this
+    family is deliberately absent from `FAMILY_RESOLUTION`, so a corrected marker
+    whose finding disappears does not become an `error` under the
+    uncited-resolution rule.
     """
     out: list[Finding] = []
     for marker in defective:
@@ -1360,6 +1529,13 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
             TEMPLATE_MARKERS.render(title=block.title, form=marker.form,
                                     change_id=marker.change_id,
                                     date=marker.date, named=named),
+            _MARKER_ACTION))
+    for marker, why in void:
+        out.append(Finding(
+            _LEDGER_SEVERITY, FAMILY, repo, block.delta_rel,
+            TEMPLATE_MARKER_VOID.render(title=block.title, form=marker.form,
+                                        change_id=marker.change_id,
+                                        date=marker.date, why=why),
             _MARKER_ACTION))
     return out
 
@@ -2053,9 +2229,16 @@ def fam_modified_block_currency(ctx):
                 basis = override.get(block.change, basis)
                 suppressed, defective = suppression(
                     block.markers, basis.units, block.units)
+                # READ AFTER `suppression` AND AGAINST THE SAME BASIS — which is
+                # `override`'s where a declaring sibling supplies one, so a
+                # marker is judged against the text its block is actually
+                # measured against rather than against canon the block was never
+                # compared to.
+                void = _declares_nothing(block, basis.units, block.units)
                 findings.extend(_arm_titles(repo, block, basis, suppressed))
                 findings.extend(_arm_ledger(repo, block, basis, suppressed))
-                findings.extend(_arm_marker_defects(repo, block, defective))
+                findings.extend(_arm_marker_defects(repo, block, defective,
+                                                    void))
     # SORTED BY THE FAMILY ITSELF, SEVERITY FIRST. `runner.run_suite` sorts the
     # whole report, so an unsorted family is invisible there and visible
     # immediately in a `--family` run — which is the run a session uses while

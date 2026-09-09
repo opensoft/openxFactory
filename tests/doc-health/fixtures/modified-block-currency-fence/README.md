@@ -34,10 +34,22 @@ falsifiable:
   provider SHALL obtain its credential through the`, which matches no canon unit
   at all, so it suppresses nothing and **the clause is reported**.
 
-The second requirement emits **no marker defect**, and that is correct rather
-than an oversight: the delta reports a marker only where it names a unit the
-block STILL CARRIES. A name matching no canon unit declares nothing and is
-silent — the three-way resolution in `suppression()`.
+The second requirement emitted **no marker defect** as this fixture was first
+written, and that was correct rather than an oversight: the delta reported a
+marker only where it named a unit the block STILL CARRIES, so a name matching no
+canon unit declared nothing and was silent — the three-way resolution in
+`suppression()`, which its author recorded as fail-closed and as a plausible
+later ruling.
+
+**AMENDED BY `amend-marker-defect-reporting` (2026-09-09, openxFactory issue
+#729): IT NOW EMITS ONE, AND THIS FIXTURE IS THE CASE THE RULING WAS WORTH
+TAKING FOR.** A name matching no unit of the basis and none of the block's own is
+now reported at `info`, in the marker-defect class, so the mis-fenced marker is
+answered by a finding that names both fragments —
+`An adapter that reaches a hosted provider SHALL obtain its credential through
+the` and `broker lane.` — instead of by a carriage row that names the clause and
+nothing that names the declaration. The clause is STILL reported by the carriage
+arm: the new report stands beside that carriage and takes nothing from it.
 
 Without the single-backtick sibling, a build that ignored fences entirely and
 matched the whole paragraph would pass the first case.

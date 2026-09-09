@@ -519,6 +519,48 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-marker-defect-reporting](openspec/changes/amend-marker-defect-reporting/proposal.md)
+  — authored 2026-09-09, **`Status: draft`** (NOT ratified; no word has been
+  given over this text), lane `openxfactory-1`, on Brett Heap's *"author the 729
+  packet"*, which instructs a lane to author the remedy openxFactory
+  [#729](https://github.com/opensoft/openxFactory/issues/729) proposes — an
+  ORIGIN, not an approval. **ONE PROMOTED SENTENCE STATED ONE GROUND FOR
+  REPORTING A MARKER, AND WAS READ — CORRECTLY, BY THE RUNNING CODE — AS STATING
+  THE ONLY GROUND.** `doc-health`'s *Currency of an active change's MODIFIED
+  requirement blocks* says a marker is reported where it *"names a unit the block
+  still carries"*, so two defects in a declaration pass in silence: a name
+  matching NO unit at all (`suppression`'s own docstring calls that silence
+  fail-closed and records a report there as *"a plausible later ruling"*), and a
+  code span an author writes INSIDE the reason — which
+  `amend-marker-reason-boundary` (#719) rightly ruled names nothing, and which
+  `parse_marker` therefore DISCARDED, so a would-be declaration about the very
+  unit the block dropped is mechanically invisible. **THE MEASUREMENT MOVED THE
+  ISSUE'S OWN WORDING BEFORE THE PACKET WAS WRITTEN.** #729 proposed reporting a
+  marker that *"carries a code span INSIDE its reason"*; measured on 2026-09-09
+  across 115 files and 18,394 derived units, **8 of this corpus's 16**
+  unit-naming markers are written that way, every one of them PROMOTED and every
+  quoted span reason-prose — so that predicate reports canon's blessed form and
+  grows with the corpus (2 of 7 three days earlier). The delta therefore encodes
+  the **NARROW** ground — a reason-quoted span that EXACTLY MATCHES a unit of the
+  basis the block does not carry, on which **zero** of the eight fires — with the
+  broad one written out beside it as `design.md` **D1**, the veto point. The
+  MODIFIED block restates the requirement in full (122 canon units: 59 body, 16
+  scenario titles, 47 bullets, byte-faithful, the #719 note and marker included)
+  and replaces ONE sentence with three grounds; the promoted scenario *A marker's
+  reason quotes a code span* is carried WHOLE, its third `AND` included, so the
+  report stands BESIDE the carriage arms rather than in place of them. **REALIZED
+  IN THE SAME PULL REQUEST** on the `amend-marker-reason-boundary` shape
+  (`code_surface: openxFactory`, `target_release: implemented`, archiving on
+  merged-plus-green evidence): `Marker.quoted` keeps the spans the reason quotes,
+  `_declares_nothing` reads them and the marker's names against the basis, ONE
+  new arm template reuses `TEMPLATE_MARKERS`' opening so the existing class map
+  places both grounds, and `tests/doc-health` **1635 → 1645** — with FOUR
+  existing assertions edited and each named in `tasks.md` § 3.7, one of them a
+  DELIBERATE behaviour change: the `-fence` tree's single-backtick mis-fence,
+  which asserted the old silence and now gets the finding the amendment exists to
+  give it. **Both grounds report ZERO on this corpus today**, and the family's
+  own report is byte-identical to `main`'s.
+
 - [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
   first-hand and with NO RELAY to lane `codexfactory-1` (session name

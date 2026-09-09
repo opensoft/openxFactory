@@ -1655,7 +1655,16 @@ def _independently_masked(rule):
 _TEMPLATE_PROBES = {
     "titles": " omits ",
     "ledger": " does not carry ",
-    "markers": " marker by ",
+    # RE-POINTED BY `amend-marker-defect-reporting`, 2026-09-09, AND THE OLD
+    # PROBE WAS THE CASUALTY OF ITS OWN RULE. `" marker by "` was one
+    # template's fixed prose and is now TWO's: `TEMPLATE_MARKER_VOID` reuses
+    # `TEMPLATE_MARKERS`' opening deliberately, so that `CLASS_MARKERS`' class
+    # pattern places both grounds and the drift class stays silent. A probe
+    # matching two templates makes `_independent_template_of` assert against
+    # itself, so each is re-pointed to a fragment of its OWN closing prose,
+    # which is the only half of the two texts that differs.
+    "markers": ", which the block still restates",
+    "void": " that declares nothing about the block: ",
     "unresolved": " resolves to no promoted requirement, ",
     "ordering": "the ordering of MODIFIED blocks for ",
     "drift": "this family's own class map has no pattern for ",
@@ -1769,6 +1778,9 @@ def test_every_finding_matches_exactly_one_arm_template():
         assert hits[0].endswith(
             {"titles": "scenario-titles", "ledger": "carriage-ledger",
              "markers": "marker-defects", "unresolved": "title-resolution",
+             # MOVED BY `amend-marker-defect-reporting`: a NINTH template, one
+             # more row, and the property is unchanged.
+             "void": "marker-declares-nothing",
              "ordering": "ordering", "drift": "unplaced-drift",
              # MOVED BY `govern-sibling-added-modified-deltas`: two more
              # templates, two more rows, and the property is unchanged.
@@ -1884,8 +1896,16 @@ def test_the_arm_templates_are_the_only_place_the_prose_lives():
     # purpose — one shape, one map entry, one remedy — so the two new classes
     # bring exactly two, and a third would mean a state had been given fixed
     # prose of its own.
-    assert len(mbc._ARM_TEMPLATES) == 8
-    assert len({t.id for t in mbc._ARM_TEMPLATES}) == 8
+    #
+    # MOVED AGAIN BY `amend-marker-defect-reporting`, 2026-09-09: EIGHT -> NINE.
+    # Its TWO new grounds for reporting a marker share ONE template on exactly
+    # the pairing class's argument — same class, same band, same
+    # `_MARKER_ACTION`, so one remedy — and a TENTH would mean a ground had been
+    # given fixed prose of its own. It is a ninth rather than folded into
+    # `TEMPLATE_MARKERS` because that template ends in an ASSERTION about its
+    # own predicate ("which the block still restates") that is false of both.
+    assert len(mbc._ARM_TEMPLATES) == 9
+    assert len({t.id for t in mbc._ARM_TEMPLATES}) == 9
 
 
 def test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape():

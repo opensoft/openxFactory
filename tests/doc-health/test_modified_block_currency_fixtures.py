@@ -884,16 +884,37 @@ def test_the_inner_backtick_does_not_truncate_the_named_unit():
     therefore names a FRAGMENT that matches no canon unit — so it suppresses
     nothing and the clause is reported.
 
-    It is NOT reported as a marker defect: the delta reports a marker only when
-    it names a unit the block STILL CARRIES, and a name matching no canon unit
-    declares nothing and is silent. Without this sibling, a build that ignored
-    fences entirely and matched the whole paragraph would pass the test above.
+    **AND IT IS NOW REPORTED AS A MARKER DEFECT, WHICH IS A DELIBERATE
+    BEHAVIOUR CHANGE AND THE ONE THIS ASSERTION USED TO DENY.** As first
+    ratified the delta reported a marker only when it named a unit the block
+    STILL CARRIES, so a name matching no canon unit declared nothing and was
+    silent — this test asserted that silence, and `suppression`'s own docstring
+    called it fail-closed and recorded a report there as a plausible later
+    ruling. `amend-marker-defect-reporting` (2026-09-09, openxFactory issue
+    #729) TAKES that ruling, and this fixture is the case it was worth taking
+    for: an author who fenced a backtick-carrying unit with a single backtick
+    names two FRAGMENTS, suppresses nothing, and used to be answered with a
+    carriage row naming the clause and nothing naming the declaration. The
+    assertion is INVERTED rather than deleted — the finding is required, and
+    required to name both fragments — because the silence it pinned is the
+    defect the amendment removes. Named as a behaviour change in that packet's
+    `tasks.md` § 3.6 and in its pull request.
+
+    Without this sibling, a build that ignored fences entirely and matched the
+    whole paragraph would pass the test above.
     """
     findings = _for(_tree(TFENCE), SINGLE)
     hits = _of(findings, "ledger")
     assert len(hits) == 1, [f.rule[:100] for f in hits]
     assert "broker lane" in hits[0].rule
-    assert _of(findings, "marker") == []
+    marker_hits = _of(findings, "marker")
+    assert len(marker_hits) == 1, [f.rule[:120] for f in marker_hits]
+    rule = marker_hits[0].rule
+    assert "that declares nothing about the block: it names" in rule
+    assert ("'An adapter that reaches a hosted provider SHALL obtain its "
+            "credential through the', 'broker lane.'") in rule, rule
+    assert "matching no unit of the basis and none of the block's own" in rule
+    assert marker_hits[0].severity == INFO
 
     # the mechanism, directly: the single-backtick marker's names are a fragment
     root = _root(TFENCE, RFENCE)
