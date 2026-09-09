@@ -87,8 +87,16 @@ def _load_nlm_auth():
 
 nlm_auth = _load_nlm_auth()
 
-STORED = "xFactor001@opensoft.one"
-LEGACY = "brettheap@gmail.com"
+# SYNTHETIC, and nothing is lost by it (adopt-configured-notebook-hosting-identity
+# task 4.1). Both are compared against EACH OTHER and against values captured
+# inside this harness — `merge_profile_metadata()` carries an existing email
+# forward and refuses a mismatched one — never against a live account. The
+# account-mismatch and carry-forward tests therefore keep their exact meaning:
+# what they assert is that two strings do or do not agree, which is true of any
+# two strings. `example.invalid` is this repository's synthetic-address
+# convention (RFC 2606 guarantees it never resolves).
+STORED = "projection-host@example.invalid"
+LEGACY = "previous-host@example.invalid"
 
 
 class FakePage:

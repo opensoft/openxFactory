@@ -27,7 +27,7 @@ subject:
   # validator enforces THAT list, not a neutral one.
   owner: engineering-directorate
   repositories:
-    - opensoft/codexFactory
+    - codeXfactory/codexFactory
 
   policies:
     # Addressable as <policy_namespace>/<policy_id>. The key IS the address,

@@ -412,7 +412,26 @@ its own.>
   under canonical specs; affected docs may claim `standard`. Before archive,
   proposal support is packaged as `supporting-docs.tar.gz` beside the archived
   change with a readable checksum manifest. Historical bundles never live
-  under canonical `openspec/specs/`.
+  under canonical `openspec/specs/`. THE ARCHIVE DATE IS UTC:
+  `proposal-support.py archive` derives it once as today in UTC, runs the
+  pinned OpenSpec CLI with `TZ=UTC` (the CLI has no date option and names
+  `openspec/changes/archive/<YYYY-MM-DD>-<change>/` from its own clock),
+  refuses a `--date` that is not today in UTC, and inspects the tree the CLI
+  left on every exit status. The name it expects is the one the CLI's OWN rule
+  produces — `<today>-<change>`, except that a change id already carrying a
+  `YYYY-MM-DD-` prefix keeps it, which the CLI does deliberately — and any other
+  name is REFUSED unconditionally; it is also reverted where the wrapper can do
+  so safely —
+  exactly one new directory naming this change, its active path free, and
+  `openspec/specs/` free of uncommitted tracked changes — and where it cannot,
+  it says which part it left behind rather than claiming a revert it did not
+  make. A change already left in two places, and an archive the CLI reports as
+  retained after a failure, are refused WITHOUT a revert. So the bundle's
+  `packaged_at` and the directory name are one date — EXCEPT for the
+  date-prefixed id just named, whose directory takes the date IN THE ID while
+  the bundle beside it takes today; the wrapper says so rather than re-dating
+  somebody's id — and the ledger row the archiving change seeds takes the
+  directory's date at the flip.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

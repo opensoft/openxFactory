@@ -98,8 +98,12 @@ repoint them for you. This is the 2026-08-10 precedent's order.
 ## Step 1a — Get the credential from custody, not from a person
 
 Before you can sign in as the hosting account you need its credential, and the
-hosting record tells you where it is held — `hosting.custody` in
-`examples/notebook-projection-hosting.yaml` — by naming the BINDING
+hosting record tells you where it is held — `hosting.custody` in this
+install's own live declaration, resolved from configuration and NOT the
+synthetic `examples/notebook-projection-hosting.yaml`
+(`adopt-configured-notebook-hosting-identity`, 2026-09-08; see
+[the declaration](lifecycle-notebook-projection.md#the-declaration) for the
+resolution order) — by naming the BINDING
 (`binding_kind` / `binding_client` / `binding_id`). It does not name the vault
 or the secret, and it is not supposed to: resolve it through the binding
 instance in the consuming install, which carries the provider, vault,
@@ -140,10 +144,16 @@ step 3 closes it. Do steps 2 and 3 together.
 
 ## Step 3 — Flip the declaration out of the pending state
 
-In `examples/notebook-projection-hosting.yaml`, set
+In **this install's own live declaration** — the one configuration resolves to,
+not the synthetic example committed here — set
 `hosting.migration.state: complete`. Only now does the sync bind to `company`.
-Commit it with the migration evidence; do not flip it early, or every sync
-refuses until the books actually move.
+Commit it, in the repository that holds it, with the migration evidence; do not
+flip it early, or every sync refuses until the books actually move. Prove the
+result before moving on:
+
+```bash
+python3 scripts/validate-notebook-projection-hosting.py --resolved   # expect: 0 error(s)
+```
 
 ## Step 4 — Re-derive the lifecycle books (~40 minutes)
 
@@ -267,8 +277,9 @@ nlm share invite xf-canon <email> --role viewer --profile company
 nlm share status xf-canon --json --profile company     # reconcile the roster
 ```
 
-Either way the approval writes a `share_out` entry in
-`examples/notebook-projection-hosting.yaml` — the entry IS the record. The
+Either way the approval writes a `share_out` entry in this install's own live
+declaration — the entry IS the record, and it is not written into the synthetic
+example committed here, whose rows record nothing. The
 pending request from 2026-08-15 sitting in the personal account is granted here
 or recorded as denied; it is not left to expire unrecorded.
 

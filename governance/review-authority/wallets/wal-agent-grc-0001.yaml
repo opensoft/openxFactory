@@ -1,0 +1,171 @@
+# LIVE INSTANCE — not packaged corpus, not a teaching fixture.
+#
+# The SECOND wallet in the stack: codexFactory's `gate_rules_council` as a
+# body, minted under tasks §3.2–3.3 of the ratified change
+# register-gate-rules-council-seats (openxFactory PR #717 → `a59f2ae5`,
+# amended #751). openxFactory ships no instance records EXCEPT the declared
+# narrow exception `wal-agent-mrc-0001.yaml` already records: repo_scan builds
+# its context from the scanned repository's own records, and a
+# cross-repository audience wallet has no resolution path today
+# (add-wallet-carried-review-authority clarifications N7). This file must stay
+# OUTSIDE any examples/ path or the scanner will silently stop treating it as
+# live (mint runbook §3.1).
+#
+# WHY A SECOND WALLET AND NOT A SECOND AUDIENCE ON THE FIRST. `gate_rules_council`
+# is a DIFFERENT BODY from `merge_readiness_council` — a cross-layer
+# rule-SETTING body (codexFactory `hermes/domain/review-councils/gate-rules.yaml`
+# `council.scope: per_repository_rule_setting`), not the per-PR enrolled
+# surface. Two bodies are two holders, two compositions, two revocation
+# radiuses and two grants; one wallet holding both would make one body's
+# composition drift revoke the other's authority by accident rather than by
+# the ruling that accepts the coupling (Q-GRC-2 accepts a SHARED-ROSTER
+# coupling, which is a different thing from a shared wallet).
+#
+# Custody holder_readable is the registry's designed tier for a consumer with
+# no key infrastructure: it reaches authority tier `act`, its signatures
+# evidence the ENVIRONMENT, and approval-before-apply is the compensating
+# control already in force by the constitutional floor (N13).
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-grc-0001
+holder:
+  holder_id: agent:gate-rules-council
+  holder_class: agent
+  display_label: codexFactory gate rules council (body)
+key_reference:
+  # OPERATOR-MINTED identity (task 3.2 [OPERATOR]): private half retained in
+  # the operator's vault, never entering git/CI/agent sessions; only the
+  # public half appears here. Minted and supplied by Brett Heap 2026-09-08.
+  #
+  # NO `key_fingerprint` HERE, and the omission is the mrc precedent's, not an
+  # oversight: `key_reference` carries `did`, `key_id`,
+  # `public_key_multibase` and `signature_algorithm`; only `keys[]` entries
+  # carry a fingerprint.
+  did: "did:key:z6MkqohimztNL3Moz7JzsoRx13Fbad2VDHBwG7rKMGU2xsaA"
+  key_id: key-grc-0001
+  public_key_multibase: z6MkqohimztNL3Moz7JzsoRx13Fbad2VDHBwG7rKMGU2xsaA
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-09-08T12:31:36Z"
+  # Strict identifier grammar (no '@'): the email-form anchor token
+  # Brett.Heap@opensoft.one is scoped to grant issued_by by S2's authorized
+  # widening and is deliberately NOT generalized to wallet fields.
+  declared_by: Brett.Heap
+keys:
+  # THE FOUR GATE-RULES SEAT SIGNING KEYS, wallet-declared (openXwallet
+  # `add-multi-key-wallets`, wallet-v1.3; read here at `wallet-v1.5`, the
+  # release whose widened register reader can represent a SECOND council at
+  # all — openXwallet #16/#17/#18, merged `f3eb929b`).
+  #
+  # WHY THEY BELONG HERE AND NOT ONLY IN THE REGISTER. hermes-install writes the
+  # REGISTER-RECORDED `key_id` into an exercise record's `presenting_key_ref` —
+  # deliberately, over the per-convening ephemeral one, "because the contract
+  # requires this ref to resolve to a wallet key present in the corpus, and an
+  # ephemeral key never is". The pinned validator's rule (r) refuses a
+  # presenting key no wallet DECLARES, so without this block the first
+  # gate-rules seat return naming a seat key would be refused on arrival. The
+  # register knowing a key is not the wallet declaring it.
+  #
+  # ONE AUTHORITY, SEVERAL PRESENTERS. These keys do not multiply what this
+  # wallet may hold: grant-grc-0001 is addressed to the WALLET, row-grc-0001
+  # commissions ONE holder, and each key's custody caps only what THAT key's
+  # signature evidences. The pinned reader refuses a declared key whose ceiling
+  # outranks this wallet's own, so the arrangement is checked and not merely
+  # intended.
+  #
+  # CUSTODY IS `holder_readable` FOR ALL FOUR, and the determination is ruled
+  # rather than assumed: Q-GRC-1, RULED 2026-09-06T14:13:46Z — "mint the four
+  # private halves into codexFactory's `worker-credentials` now,
+  # `holder_readable`". Each private half is a 32-byte Ed25519 seed held as an
+  # encrypted GitHub Actions secret in codexFactory's `worker-credentials`
+  # environment under a GRC-NAMESPACED name
+  # (`COUNCIL_SEAT_SIGNING_KEY_GRC_<SEAT>`), read from the holder job's own
+  # process environment. The namespacing is not cosmetic: the merge-readiness
+  # mint of 2026-08-28 took `root_key_env_var()`'s output
+  # (`COUNCIL_SEAT_SIGNING_KEY_<SEAT>`), that function is not council-aware,
+  # and `lead-security` is a seat BOTH bodies seat — so the unnamespaced name
+  # is already taken by the other body's seed.
+  #
+  # THE HOLDER EXECUTION CONTEXT IS NAMED AND HAS NEVER RUN. See the custody
+  # attestation `../attestations/custody-attest-wal-agent-grc-0001.yaml`, which
+  # states the posture in terms rather than leaving it to be inferred from a
+  # custody token.
+  #
+  # THE ROOT KEY'S DECLARATION ABOVE IS OPERATOR-VAULTED. `key-grc-0001`'s
+  # private half never enters git, CI or an agent session, and the register has
+  # no slot for it — there is no register row for a root key.
+  #
+  # PROVENANCE OF THESE VALUES. `key_fingerprint` is VERBATIM from codexFactory
+  # `hermes/domain/review-councils/records/2026-09-08-gate-rules-seat-signing-keys-minted.md`
+  # and byte-identical to the same key's entry in `../register.yaml`.
+  # `public_key_multibase` and `did` are DERIVED from that record's published
+  # public half through the PINNED decoders
+  # (`scripts/validate-factory-identity.py --derive`), never by a second tool:
+  # `z` plus base58btc of the two-byte ed25519 multicodec prefix and the 32 raw
+  # bytes, the same encoding `key-grc-0001` above uses, where the `did` and the
+  # multibase are one string. Nothing is invented: the pinned reader RECOMPUTES
+  # each fingerprint from the multibase beside it, and the register reader
+  # recomputes the same value from that key's base64url half, so a
+  # transcription slip in either place fails the REQUIRED `wallet-validation`
+  # check.
+  #
+  # FOUR SEATS, AND THE TWO THAT ARE NOT HERE. `lead-architect`,
+  # `lead-security` and `lead-quality` are the domain-layer seats;
+  # `company-policy-lead` is the tenant-layer seat this council seats
+  # unconditionally (the CONDITIONAL pull-in this body declares is a rule it
+  # writes for OTHER councils, not a condition on its own bench).
+  # `client-security-compliance-officer` (a conjunction PERSONA with no seat
+  # id) and `intent_owner_role_slot` (`binding:
+  # symbolic_until_project_roster`) are DELIBERATELY ABSENT under Q-GRC-4,
+  # RULED 2026-09-06T14:13:46Z: "register neither deferred seat now; delete
+  # neither." Their keys are registered by whichever codexFactory roster act
+  # binds them, in that same governed act.
+  - did: "did:key:z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f"
+    key_id: key-grc-seat-lead-architect-0001
+    key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
+    public_key_multibase: z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f
+    signature_algorithm: ed25519
+    display_label: gate rules council — lead-architect seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-09-08T12:31:36Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6MkuhdCAPTFWuZaFYxirVUvda8YirV2RXzRstqfLRsa9fX8"
+    key_id: key-grc-seat-lead-security-0001
+    key_fingerprint: sha256:71976b6c8952181b85ee5d5aed3fab02b8c40f6a192ea434cb4abc209713707a
+    public_key_multibase: z6MkuhdCAPTFWuZaFYxirVUvda8YirV2RXzRstqfLRsa9fX8
+    signature_algorithm: ed25519
+    display_label: gate rules council — lead-security seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-09-08T12:31:36Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6Mkt5ggtRwemWZ6YouaefNXgBXe8tdLSZBs9EwUU4wc94gk"
+    key_id: key-grc-seat-lead-quality-0001
+    key_fingerprint: sha256:e76138bba4bf500fa0b96f5eaf57980c5d15a6127e43120a9bf7e91348c21bdd
+    public_key_multibase: z6Mkt5ggtRwemWZ6YouaefNXgBXe8tdLSZBs9EwUU4wc94gk
+    signature_algorithm: ed25519
+    display_label: gate rules council — lead-quality seat
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-09-08T12:31:36Z"
+      declared_by: Brett.Heap
+  - did: "did:key:z6MkqmJwz92kJQEJpcdLkxd19537opBX7MvxSQSs8GuAxsqp"
+    key_id: key-grc-seat-company-policy-lead-0001
+    key_fingerprint: sha256:72a6fea097059eeddc4e34c01ab2de8ec2639a8fe00ce3dc41f07605eab2d4e7
+    public_key_multibase: z6MkqmJwz92kJQEJpcdLkxd19537opBX7MvxSQSs8GuAxsqp
+    signature_algorithm: ed25519
+    display_label: gate rules council — company-policy-lead seat (tenant layer)
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-09-08T12:31:36Z"
+      declared_by: Brett.Heap
+state: active
+created_at: "2026-09-08T12:31:36Z"
+policy_version: 1
