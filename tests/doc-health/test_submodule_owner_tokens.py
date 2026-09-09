@@ -290,7 +290,10 @@ def run_rewrite(tmp_path, pairs, slot_count=3, broad_token=None):
            "GIT_CONFIG_GLOBAL": str(config),
            "GIT_CONFIG_NOSYSTEM": "1",
            "SLOTS": str(slot_count)}
-    for index in range(1, slot_count + 1):
+    # A malformed slot count is a case under test, so the env is still built
+    # with as many pairs as the caller passed pairs for.
+    declared = slot_count if isinstance(slot_count, int) else max(pairs, default=0)
+    for index in range(1, declared + 1):
         owner, token = pairs.get(index, ("", ""))
         env[f"OWNER_{index}"] = owner
         env[f"TOKEN_{index}"] = token
@@ -355,3 +358,20 @@ def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
         "https://x-access-token:ghs_medx@github.com/MedxSoft/MedxEHR.git"
     assert resolve("git@github.com:ledgerXfactory/LedgerxFactory.git") == \
         "git@github.com:ledgerXfactory/LedgerxFactory.git"
+
+
+def test_a_slot_count_that_did_not_arrive_is_its_own_refusal(tmp_path):
+    # `[ n -lt "" ]` would abort and `[ n -lt 0 ]` would loop zero times; both
+    # end with this step reporting success having credentialed nothing, which
+    # is a silent pass on exactly the path #366 is about.
+    for bad in ("", "0", "three"):
+        done, _ = run_rewrite(
+            tmp_path, {1: ("MedxSoft", "ghs_medx")}, slot_count=bad)
+        assert done.returncode == 1, f"SLOTS={bad!r} did not refuse"
+        assert "no usable slot count" in done.stdout
+
+
+def test_the_slot_guard_is_in_both_jobs():
+    for job in JOBS:
+        script = step(job, REWRITE)["run"]
+        assert "grep -qE '^[1-9][0-9]*$'" in script

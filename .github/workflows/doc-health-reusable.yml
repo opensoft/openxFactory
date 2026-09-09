@@ -342,6 +342,15 @@ jobs:
           TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
         run: |
           set -euo pipefail
+          # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the
+          # detection's output; an empty or non-numeric value would make the
+          # loop below a no-op under `[ -lt ]` semantics and this step would
+          # report success having credentialed nothing — a silent pass on the
+          # exact path #366 is about.
+          if ! printf '%s' "${SLOTS:-}" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::error::the foreign-owner detection reported no usable slot count (SLOTS='${SLOTS:-}'), so no governed submodule owner can be credentialed; this step refuses rather than passing having rewritten nothing"
+            exit 1
+          fi
           rc=0
           slot=0
           while [ "$slot" -lt "$SLOTS" ]; do
@@ -1398,6 +1407,15 @@ jobs:
           TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
         run: |
           set -euo pipefail
+          # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the
+          # detection's output; an empty or non-numeric value would make the
+          # loop below a no-op under `[ -lt ]` semantics and this step would
+          # report success having credentialed nothing — a silent pass on the
+          # exact path #366 is about.
+          if ! printf '%s' "${SLOTS:-}" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::error::the foreign-owner detection reported no usable slot count (SLOTS='${SLOTS:-}'), so no governed submodule owner can be credentialed; this step refuses rather than passing having rewritten nothing"
+            exit 1
+          fi
           rc=0
           slot=0
           while [ "$slot" -lt "$SLOTS" ]; do
