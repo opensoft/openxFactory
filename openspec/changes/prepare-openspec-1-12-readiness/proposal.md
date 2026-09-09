@@ -4,7 +4,7 @@ target_release: implemented (the openxFactory main line; doc-only, so realizatio
 Status: draft
 ---
 
-# Proposal: prepare-openspec-1.12-readiness
+# Proposal: prepare-openspec-1-12-readiness
 
 Status: draft
 Proposed: 2026-09-05
