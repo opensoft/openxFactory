@@ -783,7 +783,7 @@ prose about the domain — none of it a runner-label selector.
 - **`opensoft/OmniWorker-Install`'s `workers/profiles/coding-patch-worker.yaml`
   and `rendered/effective-profiles/coding-patch-worker.yaml` are untouched.**
   They are byte-verbatim digest-pinned projections of
-  `omnigent/profiles/coding-patch-worker.yaml` in opensoft/codexFactory (A2's
+  `omnigent/profiles/coding-patch-worker.yaml` in codeXfactory/codexFactory (A2's
   own carve-out); editing them here would fork a governed projection, so
   their label set's retirement is a **codexFactory** act, out of scope here
   and not performed.

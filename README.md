@@ -2898,7 +2898,7 @@ Archived changes:
   ([run 34308880435](https://github.com/opensoft/openxFactory/actions/runs/34308880435)).
   **THE DOWNSTREAM REALIZATION THIS BUMP NAMED AS OWED IS ALSO IN:** the four
   consuming repositories are wired — codexFactory
-  [#227](https://github.com/opensoft/codexFactory/pull/227) (`bb66d85c`),
+  [#227](https://github.com/codeXfactory/codexFactory/pull/227) (`bb66d85c`),
   MedxFactory [#28](https://github.com/MedxSoft/MedxFactory/pull/28)
   (`9884668d`), LedgerxFactory
   [#34](https://github.com/ledgerXfactory/LedgerxFactory/pull/34) (`0f265d8c`)
