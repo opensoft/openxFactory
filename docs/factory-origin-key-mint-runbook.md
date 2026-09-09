@@ -66,8 +66,34 @@ or report saying otherwise is refused by the capability's own scenario.
 | --- | --- |
 | Who | The responsible operator under the Human Escalation Contract (`docs/roles-and-authority.md:103-140`). Nobody else, and no agent. |
 | Where | A HOST SHELL you control. Not a container an agent can read, not CI. |
-| What you need | Python 3.12 with `cryptography`; the openXwallet gitlink initialized (`git submodule update --init openXwallet`); `gh` authenticated as somebody who can write an environment secret on `opensoft/codexFactory`; and TWO worktrees — this repository on `realize/factory-identity-register`, and a codexFactory checkout on `realize/factory-identity-floor-entry` where the mint record lands. |
+| What you need | Python 3.12 with `cryptography`; the openXwallet gitlink initialized (`git submodule update --init openXwallet`); `gh` authenticated as somebody who can write an environment secret on `codeXfactory/codexFactory`; and TWO worktrees — this repository on `realize/factory-identity-register`, and a codexFactory checkout on `realize/factory-identity-floor-entry` where the mint record lands. |
 | Time | Under ten minutes. The PR review is the long pole, not the ceremony. |
+
+**PRECONDITION: THE REPOSITORY IS AT ITS NEW ADDRESS AND ITS ENVIRONMENT CAME
+WITH IT.** Every `codeXfactory/codexFactory` line in this runbook — the
+authentication check above, the preflight's `worker-credentials` resolution
+below, the custody `gh secret set`, and the mint record's table — assumes the
+organization transfer has COMPLETED. Two things have to be true before the
+preflight can pass, and they are two:
+
+1. **The transfer itself** (transfer runbook step 1.2): `gh api
+   repos/codeXfactory/codexFactory --jq '{full_name,private,visibility}'` reads
+   `codeXfactory/codexFactory`. Before that step the address 404s and the
+   preflight's environment check fails on a repository that does not exist.
+2. **The `worker-credentials` environment and its secrets survived the
+   transfer** (transfer runbook step **1.5**). GitHub carries environments,
+   environment secrets and their protection rules across an organization
+   transfer, but that is a property to VERIFY and not to assume — the preflight
+   reads the environment, so a transfer that dropped it is discovered here
+   rather than after the seed is provisioned and unrecoverable. Confirm with
+   `gh api repos/codeXfactory/codexFactory/environments/worker-credentials --jq
+   .name` before you start.
+
+Do not "fix" a preflight refusal by minting into the old address. The old
+address redirects for git operations, but a secret written through a redirect
+lands in whatever repository the redirect resolves to and the register would
+then name a custody location the estate cannot audit. **If either precondition
+is unmet, the ceremony does not start.**
 
 The private half must reach EXACTLY ONE destination and no other: the
 originating repository's own hosted packaging environment. Not a governed
@@ -114,7 +140,7 @@ unreachable.
 
 | | |
 | --- | --- |
-| **Preflight** | `gh auth status`; the `worker-credentials` environment of `opensoft/codexFactory` resolves; the PINNED openXwallet decoders are importable; BOTH worktrees are clean and on their expected branches; all five `FILL-IN-AT-MINT` sentinels are still present (3 in the wallet, 2 in the attestation — the DISTRIBUTION, not only the total); `FACTORY_ORIGIN_SIGNING_KEY` does NOT already exist; today's mint record does not exist; the grant and its backing row already agree. Every check is read-only, so a refusal here spends nothing. |
+| **Preflight** | `gh auth status`; the `worker-credentials` environment of `codeXfactory/codexFactory` resolves; the PINNED openXwallet decoders are importable; BOTH worktrees are clean and on their expected branches; all five `FILL-IN-AT-MINT` sentinels are still present (3 in the wallet, 2 in the attestation — the DISTRIBUTION, not only the total); `FACTORY_ORIGIN_SIGNING_KEY` does NOT already exist; today's mint record does not exist; the grant and its backing row already agree. Every check is read-only, so a refusal here spends nothing. |
 | **Mint** | generates the 32-byte seed with `secrets.token_bytes(32)`, derives the public half, and obtains `did` / `key_fingerprint` / `public_key_multibase` by CALLING `scripts/validate-factory-identity.py`'s own `derive` entry point IN-PROCESS. It implements no encoding of its own — see below. |
 | **Custody** | writes the 64-hex seed to `gh secret set` on the child's STDIN, CONFIRMS the name now appears in the environment, records the RFC3339 instant, then overwrites and deletes the variable. If the store fails or cannot be confirmed it aborts BEFORE any register edit. |
 | **Fill** | replaces the five sentinels, and re-stamps the expiries if the mint happens after the drafted `issued_at`. |
@@ -271,7 +297,7 @@ and no gate may.
 
 ## The mint record template
 
-Mirrors `opensoft/codexFactory`
+Mirrors `codeXfactory/codexFactory`
 `hermes/domain/review-councils/records/2026-08-28-seat-signing-keys-minted.md`.
 
 **`scripts/mint-factory-origin-key.py` writes this record from this template**,
@@ -300,13 +326,13 @@ re-minted, no existing custody declaration moved.>
 
 ## What was minted
 
-One Ed25519 key pair, the ORIGIN identity of `opensoft/codexFactory`. Exactly
+One Ed25519 key pair, the ORIGIN identity of `codeXfactory/codexFactory`. Exactly
 one: the ratified requirement admits one origin identity per originating
 repository, and a second concurrent row is refused.
 
 | Repository | Key id | Public key (unpadded base64url, 32 raw bytes) | Key fingerprint |
 | --- | --- | --- | --- |
-| `opensoft/codexFactory` | `key-factory-codexfactory-0001` | `<43 chars>` | `sha256:<64 hex>` |
+| `codeXfactory/codexFactory` | `key-factory-codexfactory-0001` | `<43 chars>` | `sha256:<64 hex>` |
 
 The fingerprint is the one spelling the estate computes everywhere —
 `"sha256:" + sha256(raw 32-byte public key).hexdigest()` — and it RECOMPUTES
@@ -322,7 +348,7 @@ ed25519 multicodec prefix and the 32 raw bytes.
 
 The private half is a 32-byte Ed25519 seed, held ONLY as an encrypted GitHub
 Actions secret in the `worker-credentials` environment of
-`opensoft/codexFactory`, under the name `FACTORY_ORIGIN_SIGNING_KEY`.
+`codeXfactory/codexFactory`, under the name `FACTORY_ORIGIN_SIGNING_KEY`.
 
 There is no suffix because there is exactly one origin identity. There is no
 second copy: not on a governed execution host, not on a workstation, not on a

@@ -861,7 +861,7 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
 
         core = next(step for step in steps
                     if "candidate core" in step.get("name", ""))
-        self.assertEqual("opensoft/codexFactory", core["with"]["repository"])
+        self.assertEqual("codeXfactory/codexFactory", core["with"]["repository"])
         self.assertEqual("${{ steps.source.outputs.sha }}", core["with"]["ref"])
         self.assertFalse(core["with"]["persist-credentials"])
 
@@ -1175,7 +1175,7 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
         self.assertTrue(identity["consumer"]["fetch_identity"])
 
         source = self.binding["privileges"]["source_repository"]
-        self.assertEqual("opensoft/codexFactory", source["repository"])
+        self.assertEqual("codeXfactory/codexFactory", source["repository"])
         self.assertEqual(["contents:read"], source["grants"])
         for write in ("contents:write", "actions:write", "pull-requests:write"):
             self.assertIn(write, source["never_grants"])

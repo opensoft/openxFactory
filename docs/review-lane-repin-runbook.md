@@ -106,9 +106,9 @@ refused, when the credential is unavailable, or when you need an advance now.
 
 ```sh
 # 1. Resolve the codexFactory commit and CONFIRM IT IS ON THE DEFAULT BRANCH.
-gh api repos/opensoft/codexFactory --jq .default_branch
-CORE=$(gh api repos/opensoft/codexFactory/commits/main --jq .sha)
-gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
+gh api repos/codeXfactory/codexFactory --jq .default_branch
+CORE=$(gh api repos/codeXfactory/codexFactory/commits/main --jq .sha)
+gh api "repos/codeXfactory/codexFactory/compare/main...${CORE}" --jq .status   # identical|behind
 
 # 2. Re-copy the snapshot. NEVER hand-edit it: it is a witness.
 #    FETCH TO A TEMPORARY FILE AND PROVE IT BEFORE IT LANDS ON THE WITNESS.
@@ -123,7 +123,7 @@ gh api "repos/opensoft/codexFactory/compare/main...${CORE}" --jq .status   # ide
 #    somebody put back.
 FLOOR=floor/openxfactory-review-authority-floor.yaml
 FETCHED="$(mktemp)"          # resolved at run time: no host path is committed
-gh api "repos/opensoft/codexFactory/contents/${FLOOR}?ref=${CORE}" \
+gh api "repos/codeXfactory/codexFactory/contents/${FLOOR}?ref=${CORE}" \
   -H "Accept: application/vnd.github.raw" > "${FETCHED}"
 test -s "${FETCHED}" || { echo "no floor document at ${FLOOR}@${CORE} — STOP"; exit 1; }
 cp "${FETCHED}" contracts/review-lane-floor-snapshot.yaml
@@ -154,15 +154,29 @@ not open a pull request carrying four of them.
 
 ## The credential
 
-The lane runs under the App already installed in both repositories, declared as
+The lane runs under the App installed in both repositories, declared as
 a template with no live value in
 [`contracts/review-lane-repin-binding.template.yaml`](../contracts/review-lane-repin-binding.template.yaml).
+
+**THE TWO REPOSITORIES ARE IN TWO ORGANIZATIONS, AND THAT IS TWO
+INSTALLATIONS.** Since the decision core moved to `codeXfactory`, the App is
+installed once on `opensoft` (which holds this repository) and once on
+`codeXfactory` (which holds the decision core). A GitHub App installation is
+per-organization: installing on one does not widen the other, and there is no
+single installation that covers both. `actions/create-github-app-token@v2`
+resolves the installation from its `owner:` input, so the lane's mint for the
+SOURCE read names `owner: codeXfactory` LITERALLY — not
+`${{ github.repository_owner }}`, which would resolve to `opensoft` and yield a
+token that cannot reach the core at all. That mint carries no
+`continue-on-error`: it fails CLOSED, with the action's own message naming the
+owner it could not resolve. **If the `codeXfactory` installation does not exist,
+this lane cannot run, and the fix is the installation — never a wider token.**
 
 It needs, and the binding declares, exactly:
 
 | repository | permissions | why |
 |---|---|---|
-| `opensoft/codexFactory` | `contents: read` | resolve the default branch, fetch the floor document |
+| `codeXfactory/codexFactory` | `contents: read` | resolve the default branch, fetch the floor document |
 | `opensoft/openxFactory` | `contents: write`, `pull-requests: write`, `workflows: write` | push `bot/review-lane-repin` — including the two pinned sites that live in `.github/workflows/` — and open and update the one pull request |
 
 `workflows: write` is not decorative. Two of the five pinned sites are workflow
