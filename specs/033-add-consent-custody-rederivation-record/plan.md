@@ -40,15 +40,27 @@ used.
 
 ## Constitution Check
 
-| Rule | How this plan satisfies it |
-| --- | --- |
-| OpenSpec governs, Speckit implements | The packet is ratified; this feature writes no requirement and edits no ratified prose. |
-| Ratified prose frozen | `proposal.md`, `design.md`, `.openspec.yaml` and the delta are untouched except ONE additive dated realization note after `proposal.md`'s `Lane:` line, permitted by architect ruling Q10. |
-| Every YAML carries `schema_version` + `kind` | The grown schema keeps both; new fixtures carry both. |
-| Neutral contracts live here; consumers pin | No consumer file is written. § 6 stays the consumer's. |
-| Tick only what is done | A box is ticked in the same commit as its evidence, or in neither. |
-| No host-absolute paths in committed files | Every path written is repo-relative. |
-| Lane discipline | `Lane: opsXfactory-1` on every commit; no PR, no comment, no merge, no tag from this seat. |
+Against `.specify/memory/constitution.md` (v1.0.0), principle by principle —
+named, not generically asserted.
+
+| Principle | Verdict | How |
+| --- | --- | --- |
+| **I. Contract-First, Domain-Neutral Core** | PASS | The grown property is domain-neutral; the DOMAIN half — the custody store mapping and the operated re-derivation check — is explicitly the consumer's (§ 6, C-6a/C-7). No domain vocabulary lands here. No consumer file is written. |
+| **II. Governed Change Flow** | PASS | The packet is a ratified OpenSpec change with `code_surface: openxFactory` and `target_release:` declared; this Speckit feature owns the implementation tasks and duplicates no governance decision. Under `release-realization` the change archives only on merged, green realization evidence — which is why § 5 is in scope and the archive is not. |
+| **III. Document Lifecycle and Status Discipline** | PASS | No `Status:` header is edited by this feature except through the ratified packet's own already-completed transition. The three README amendments carry the `3b530009` form with an `AMENDED <date>` marker — a deliberate, reviewable step, never a silent status edit. Phase F is BLOCKED until the lane's substrate note exists. |
+| **IV. Schema and Artifact Discipline** | PASS | Every new fixture carries `schema_version` and `kind`; the new fixtures are `.example.yaml` / `negative/*.yaml` / `withheld/*.yaml` instantiation stubs, never live configuration; no credential and no host-absolute path is written; the new `examples/consent-instrument/withheld/` bucket is indexed in that directory's README, and `contracts/README.md`'s row is corrected (clarify A1). |
+| **V. Validation Gates (NON-NEGOTIABLE)** | PASS | T081 runs every affected `scripts/validate-*.py` plus the PINNED `--all --strict`; doc-health is compared as a two-report pair with a pinned `--as-of` (T080); behaviour is proven by fixtures and tests (Phases D and E), never by assertion. |
+| **VI. Versioned, Content-Addressed Releases** | PASS | All five coordinated values move together in ONE candidate commit (T061–T063); the version is allocated at realization and NOT reserved — the PR body names it as provisional and the LANE claims it at the last merge-from-main; the change class is ADDITIVE (minor) with the measurement that justifies it; the tag is left OWED for the operator and targets the LANDED merge commit. |
+| **VII. Fail-Closed Authority Boundaries** | PASS | Both new enumerations are CLOSED; an unknown member is a schema refusal. Every refusal leg refuses rather than degrades — WITHHELD is a third outcome precisely so that "cannot admit" is never reported as a pass. Fixtures carry no credential and no tenant data. No authority is claimed that the ratified packet does not carry: the exit-code NUMBER is parked for Brett rather than invented here. |
+| **Repository Constraints** | PASS | Work is in an isolated worktree under `../openxFactory-worktrees/`; every commit stages explicit paths and carries `Lane: opsXfactory-1`; no aggregation pin is touched; the validator grown here is a governed reference implementation ratified by this packet. |
+| **Development Workflow and Quality Gates** | PASS | specify → clarify → plan → tasks → checklist → analyze, run from the worktree; clarifications recorded in `clarify-questions.md` and encoded into `spec.md`; analyze must reach ZERO before implementation; § 5's release metadata is the shared surface that **serializes at the lane's final integration commit**, which is exactly what the landing contract below prescribes. |
+
+**One deviation, declared rather than hidden.** Principle V requires the
+validators green before any commit is pushed. Phase B deliberately leaves
+`contracts/manifest.yaml`'s `consent-instrument` digest stale until Phase G's
+candidate commit closes it (clarify Q5a). The principle is satisfied AT THE
+PUSHED HEAD, which is what CI evaluates; the intermediate commit states the
+staleness and names the commit that closes it (T017).
 
 ## Project Structure
 

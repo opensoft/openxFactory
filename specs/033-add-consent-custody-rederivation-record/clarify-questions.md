@@ -272,14 +272,14 @@ is the leg most likely to reach for a repository.
 
 1. **line 856–857**, its own OpenSpec Records row: *"**all 46 boxes in
    `tasks.md` stay unticked**"* — becomes FALSE.
-2. **line 2949**, inside `govern-archived-record-edits`' row: *"exactly as the
+2. **line 2950**, inside `govern-archived-record-edits`' row: *"exactly as the
    sibling `add-consent-custody-rederivation-record` left its 46"* — past tense,
    arguably survives.
 3. **line 3022**, inside the `add-pre-archive-citation-gate` narrative: *"that
    packet is a ratified PROPOSAL with all 46 boxes unticked, so the three pins
    are still broken"* — present tense, becomes FALSE (the pins DO stay broken:
    that half is § 6, the consumer's).
-4. **line 3098–3100**: *"measured 2026-09-09 UTC at `main` `6cc06288`, that
+4. **line 3098–3100** (the sentence ends at 3100): *"measured 2026-09-09 UTC at `main` `6cc06288`, that
    packet still carries all 46 boxes unticked"* — a DATED measurement, stays
    true as written.
 

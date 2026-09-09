@@ -131,7 +131,7 @@ dependency).
 - [ ] **T027** *(box 3.3)* **NO GIT RE-DERIVATION IS ADDED.** The module opens no
       repository, shells out to no `git`, and reads no file named by a locator.
 - [ ] **T028** *(box 3.4b)* `self_test` grows the THIRD expectation bucket
-      (see T042); `repo_scan` reports WITHHELD as found (Q3b) and needs no
+      (built at T045/T046); `repo_scan` reports WITHHELD as found (Q3b) and needs no
       bucket discipline.
 
 ## Phase D — § 4, the fixtures
@@ -252,7 +252,7 @@ dependency).
       `contract-v3.4`, 46/46 boxes unticked)"* — **false on all four counts
       after this lands**, and the premise of that rule's TRANSITION CLAUSE.
 - [ ] **T059** *(Q8a-2, Q8a-4)* **LEAVE** the past-tense *"left its 46"*
-      (`README.md:2949`) and the dated *"measured 2026-09-09 UTC at `main`
+      (`README.md:2950`) and the dated *"measured 2026-09-09 UTC at `main`
       `6cc06288`"* (`README.md:3098`) as TRUE-WHEN-WRITTEN. Record the decision;
       do not edit them.
 
@@ -354,6 +354,60 @@ dependency).
       `pytest tests/ -q -m "not postgres"`. Transcripts to `evidence/`.
 - [ ] **T082** Push the branch. **No pull request, no comment, no merge, no
       tag** — every one of those is the lane's or Brett's.
+
+## Traceability — every `spec.md` requirement to the tasks that discharge it
+
+| Requirement | Tasks | Packet box |
+| --- | --- | --- |
+| FR-001 | T010 | 2.1 |
+| FR-002 | T011 | 2.1 |
+| FR-003 | T015 | 2.2 |
+| FR-004 | T012 | 2.3 |
+| FR-005 | T013, T014 | 2.4, 2.5 |
+| FR-010 | T020 | 3.1 |
+| FR-011 | T021 | 3.2 |
+| FR-012 | T027, T050, T051 | 3.3 |
+| FR-013 | T025 | 3.4 |
+| FR-014 | T023, T024, T053 | 3.4b |
+| FR-015 | T022 | 3.4c |
+| FR-016 | T026, T042, T052 | 3.5 |
+| FR-020 | T030, T031, T032, T033 | 4.1, 4.1b, 4.1c, 4.2 |
+| FR-021 | T034–T043, T044 | 4.3, 4.3b, 4.3c, 4.4, 4.5, 4.6, 4.7, 4.8, 4.8b, 4.8d |
+| FR-022 | T028, T045, T046 | 4.8c |
+| FR-023 | T047, T048 | 4.9 |
+| FR-024 | T049 | *(none — clarify A1)* |
+| FR-030 | T060 | 5.1 (measurement only) |
+| FR-031 | T017, T061 | 5.2 |
+| FR-032 | T062 | 5.3 |
+| FR-033 | T063 | 5.2 |
+| FR-034 | T064 | 5.4 |
+| FR-035 | T066 | 5.6 |
+| FR-036 | T003 (recorded), T065, T066 | 5.5, 5.6 |
+| FR-040 | T070, T071, T072, T073, T075, T076 | 0.1, 1.1, 1.2, 1.3, 6.x, 7.x |
+| FR-041 | the tick discipline stated in this file's header; enforced at T070–T074 | — |
+| FR-042 | T079 | — |
+| FR-043 | T077 | — |
+| FR-044 | T074 | — |
+| FR-045 | T080 | — |
+| FR-046 | T055, T056, T057, T058, T059 | *(none — clarify Q8)* |
+| FR-047 | T078 | *(none — clarify A2)* |
+
+**Every success criterion has a gate.** SC-001 → T064/T081; SC-002 → T076;
+SC-003 → T015; SC-004 → T064/T081; SC-005 → T064; SC-006 → T081; SC-007 →
+T054/T081; SC-008 → T080; SC-009 → T081; SC-010 → T053 and T064.
+
+**Every ratified delta scenario has a realizing task.** The MODIFIED
+requirement's seven scenarios land in Phase B and Phase D (the sibling siting
+T010; the untouched `custody` T015; the no-amendment carve-out — realized by
+writing NO `amendments` machinery at all, asserted at T015/T016; the
+never-rewritten pin T021/T041; the unattributed-acceptance refusal T010/T039;
+the unknown class or reason T011/T038; the additive no-array case T033). The
+ADDED requirement's fifteen scenarios split by the C-7 line: the INTERNAL legs
+land at T020–T028 with fixtures T030–T046, and the GIT legs (re-derivation at
+`commit^`/`commit`, ancestry, HEAD termination, `header_only` contradicted by
+the measured diff, an unresolvable locator pair) are the CONSUMER's under
+§ 7.1 and are realized nowhere here — which is the split the requirement itself
+states, not a gap.
 
 ## Dependencies
 
