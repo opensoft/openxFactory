@@ -590,12 +590,12 @@ Active changes:
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
   when green, then realize them"*, recorded 2026-09-08T23:51Z on
   [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
-  [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232), over
+  [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232), over
   [#817](https://github.com/opensoft/openxFactory/pull/817); record
   `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
   lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
   `codexFactory:change:relocate-review-authority-floor`
-  ([codexFactory #293](https://github.com/opensoft/codexFactory/pull/293)),
+  ([codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293)),
   which answers MQ-1: the same word, not separately. **THE CONDITION *"when
   green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
   smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
@@ -614,13 +614,13 @@ Active changes:
   M-7 STAND AS RECOMMENDED, no veto entered.** The
   openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
   verbatim *"rule shape 1, measure first, this lane realizes it"*
-  ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
+  ([codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232)
   comment 5586188401, mirrored on
   [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
   rules the SHAPE and ratifies no text.** codexFactory is to move
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
   CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
-  [codexFactory #293](https://github.com/opensoft/codexFactory/pull/293),
+  [codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293),
   decision D-7 names this companion and D-2 sequences it FIRST). **THIS
   REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
   `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
