@@ -7,27 +7,30 @@
 # It is checked by `scripts/validate-carve-manifest.py`, driven on every
 # required-suite pass by `tests/carve_manifest/test_carve_manifest.py`.
 #
-# HOW TO VERIFY IT, AND WHY THE NO-ARGUMENT RUN IS NOT THE ANSWER TODAY. The
-# validator's check 2 asks whether the tested revision RESOLVES TO
-# `carve_commit`, so the documented no-argument invocation only answers from a
-# checkout of the carve commit itself. From anywhere else — a branch that has
-# the manifest, `main` after this landed, or CI's synthetic merge ref — it
-# refuses `carve-revision-mismatch`, and the invocation to use is:
+# HOW TO VERIFY IT. From any checkout that carries `carve_commit` in its
+# history, either invocation answers:
 #
+#     python3 scripts/validate-carve-manifest.py
 #     python3 scripts/validate-carve-manifest.py --at b075fd91dc8fced8e1373825ba80220c33536bae
 #
-# That is a DEFECT IN CHECK 2, recorded on `#656` in the carve-commit ceremony
-# comment (2026-09-09T19:33Z) and repaired by § 3.1 part 1b, which re-reads
-# check 2 as "`carve_commit` is an ANCESTOR of the tested revision", compares
-# each moved row's blob at BOTH revisions in check 3, and walks the surface at
-# the tested revision in check 4. This manifest lives under `docs/`, outside the
-# surface, so its own landing never trips that walk. Once 1b is in, the
-# no-argument run answers from any descendant of the carve commit and this note
-# is history.
+# As first landed, check 2 asked whether the tested revision RESOLVES TO
+# `carve_commit`, so only a checkout of the carve commit itself could pass and
+# every other revision — a branch carrying the manifest, `main` after this
+# landed, CI's synthetic merge ref — refused `carve-revision-mismatch`. That was
+# a DEFECT IN CHECK 2, recorded on `#656` in the carve-commit ceremony comment
+# (2026-09-09T19:33Z) and repaired by § 3.1 part 1b, which re-reads check 2 as
+# "`carve_commit` is an ANCESTOR of the tested revision", compares each moved
+# row's blob at BOTH revisions in check 3, and walks the surface at the tested
+# revision in check 4. With 1b landed the no-argument run answers from any
+# descendant of the carve commit, and `--at <sha>` remains how you ask about one
+# revision in particular. This manifest lives under `docs/`, outside the
+# surface, so its own landing never trips check 4's walk.
 #
 # THIS IS THE FIRST MACHINE-VALIDATED YAML UNDER `docs/` IN THIS REPOSITORY, and
 # that is a deliberate break with the convention, not an oversight. Measured
-# 2026-09-08: `find docs -name '*.yaml'` returned 0, and every other
+# 2026-09-08, BEFORE this file existed: `find docs -name '*.yaml'` returned 0.
+# Rerun it after this landed and it returns exactly one path — this file — which
+# is the break being recorded, not a contradiction of it. Every other
 # `schema_version`/`kind` artifact with a validator lives under `contracts/`,
 # `examples/`, `tests/**`, `governance/` or `health/`. § 3.1 and design § D6 name
 # `docs/opendox-carve-manifest.yaml` verbatim and Brett Heap RULED OQ-E on
@@ -1260,8 +1263,8 @@ rows:
     destination_path: src/opendox/doxbench_scope_types.py
     edits:
       - class: adapter calls
-        lines: [16]
-        note: "SCOPE_KINDS is funnel-stage vocabulary openXdox owns, validated by ScopeKey.__post_init__ in a module that lands in openDox; successor #838 is OPEN at the carve, so the line is declared here (group-3 record, 2026-09-09)"
+        lines: [50, 69, 71]
+        note: "SCOPE_KINDS is funnel-stage vocabulary openXdox owns, validated by ScopeKey.__post_init__ in a module that lands in openDox; successor #838 is OPEN at the carve, so the lines are declared here (group-3 record, 2026-09-09). :50 is the tuple assignment, :69 and :71 the two reads inside __post_init__ — verifier round 1 corrected an earlier citation of :16, which is docstring prose"
   - source_path: scripts/ideation_dashboard/doxbench_status_exemption.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -1798,9 +1801,9 @@ rows:
     destination: openxdox_code
     destination_path: scripts/validate-ideation-dashboard-contracts.py
     edits:
-      - class: import rewrites
-        lines: [1]
-        note: "the strict validator spans BOTH legs' schema families (snapshot and gate-action at openXdox; workbench, chat-turn and model-catalog at openDox) plus the registers that stay; RULED OQ-G's principle sends a subject that crosses the columns to openXdox, the leg that pins openDox, and the schema paths it resolves are rewritten there"
+      - class: path constants
+        lines: [114, 115, 116, 909, 1800]
+        note: "the strict validator spans BOTH legs' schema families (snapshot and gate-action at openXdox; workbench, chat-turn and model-catalog at openDox) plus the registers that stay; RULED OQ-G's principle sends a subject that crosses the columns to openXdox, the leg that pins openDox, and the paths it resolves are rewritten there. The statements are :114 (the __file__-derived repository root), :115 SCHEMAS_DIR and :116 EXAMPLES_DIR, plus the two repo-relative prefix filters naming the same directories in the tree walks (:909, :1800). Verifier round 1 corrected an earlier `import rewrites` entry citing :1, the shebang: measured at the carve commit this file imports no dashboard module at all — every import is stdlib or third-party and survives the move — so the edit it needs is package-internal asset paths, not import rewrites"
   - source_path: scripts/wire_messages.py
     disposition: not_moved
     reason: replicated_at_destination
@@ -2085,6 +2088,9 @@ rows:
       - class: import rewrites
         lines: [28, 29, 30]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [26]
+        note: "the sibling TEST module `test_gate_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module human_seen, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (_post, _serving), not a test of the stays column, and its subject (gate_console and boundary) travels."
   - source_path: tests/ideation-dashboard/test_dashboard_refresh_lane.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -2179,6 +2185,9 @@ rows:
       - class: import rewrites
         lines: [55, 56, 57, 699]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [683]
+        note: "the sibling TEST module `test_doxbench_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module doxbench_contracts, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (_assert_refusal, _post_turn, _turn_v2), not a test of the stays column, and its subject (doxbench_scope) travels."
       - class: path constants
         lines: [60]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
@@ -2196,6 +2205,9 @@ rows:
       - class: import rewrites
         lines: [30, 31, 32, 33, 293, 437, 1207, 1208]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [177, 420]
+        note: "the sibling TEST module `test_doxbench_model` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module doxbench_contracts, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (FORBIDDEN_PORT_MEMBERS), not a test of the stays column, and its subject (doxbench_model, doxbench_scope and doxbench_turns) travels."
   - source_path: tests/ideation-dashboard/test_doxbench_bridge_live.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2299,6 +2311,9 @@ rows:
       - class: import rewrites
         lines: [31, 32, 33, 34, 35, 127, 128, 928, 1046, 1126]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [37, 121, 157, 714, 829, 864, 881, 1099, 1112]
+        note: "the sibling TEST module `test_doxbench_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module doxbench_contracts, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (_handler_class, _serving, _TURN_SENTINELS and the staged-set helpers), not a test of the stays column, and its subject (doxbench_scope and generator) travels."
   - source_path: tests/ideation-dashboard/test_doxbench_mcp.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2473,6 +2488,9 @@ rows:
       - class: import rewrites
         lines: [39, 40, 41, 42, 43, 541, 546, 646, 651, 698, 998, 1046, 1093, 1149, 1150, 1151, 1152, 1153, 1191, 1212, 1213, 1214, 1215, 1216, 1265, 1266, 1267, 1268, 1269, 1296, 1312, 1334, 1335, 1362, 1363, 1374]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [47]
+        note: "the sibling TEST module `test_doxbench_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module doxbench_contracts, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (DOC_ALPHA, DOC_ZULU, OUTLINE_PATH, _handler_class, _serving, _turn_v2 and nine more), not a test of the stays column, and its subject (doxbench_model, doxbench_scope and generator) travels."
   - source_path: tests/ideation-dashboard/test_doxbench_threads.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2575,6 +2593,9 @@ rows:
       - class: import rewrites
         lines: [28, 29, 30]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [26]
+        note: "the sibling TEST module `test_gate_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module human_seen, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (_post, _serving), not a test of the stays column, and its subject (gate_console and boundary) travels."
   - source_path: tests/ideation-dashboard/test_explorer_viewer.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2769,6 +2790,9 @@ rows:
       - class: import rewrites
         lines: [59, 60, 61, 62, 63, 371, 1155, 1183, 1194, 1289]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [1135]
+        note: "the sibling TEST module `test_doxbench_model` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module doxbench_contracts, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (FORBIDDEN_PORT_MEMBERS), not a test of the stays column, and its subject (the model-provider broker at openDox) travels."
   - source_path: tests/ideation-dashboard/test_nightly_lane.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -2880,6 +2904,9 @@ rows:
       - class: import rewrites
         lines: [26, 27, 28]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [24]
+        note: "the sibling TEST module `test_gate_routes` is this manifest's own not_moved / stays_openxfactory_adapter row — it imports the stays module human_seen, so it exists at no destination and the line is rewritten onto the destination suite's own harness. RULED OQ-G's refinement does not reach this file: the reach is HARNESS REUSE (_post, _serving), not a test of the stays column, and its subject (gate_console and boundary) travels."
   - source_path: tests/ideation-dashboard/test_renderer.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3098,11 +3125,9 @@ rows:
         lines: [106]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
   - source_path: tests/ideation-dashboard/test_shared_identity.py
-    disposition: moved_verbatim
-    git_mode: '100644'
-    sha256: "4d58a143eda02b279d72ebffb188d60b8f79654bb6a47e56607ce36172459656"
-    destination: opendox_code
-    destination_path: tests/test_shared_identity.py
+    disposition: not_moved
+    reason: stays_openxfactory_adapter
+    evidence: "tasks.md § 5.4 (RULING DQ-1): the openxFactory remainder now includes the adapter's own tests. Its SUBJECT is doc_health.shared_identity (:22-23), openxFactory's own engine, which lies outside the carve surface entirely and has no row and no replica, exercised through /actions/dtn-seed — a route defined and served by the stays-column serve_openxfactory_lanes.py (:95 the route constant, :112 the handler, :162 the doc_health import). It also imports the stays test module test_gate_routes (:20). Verifier round 1 (2026-09-09) re-filed this row from moved_verbatim: no destination can receive the file unedited, and RULED OQ-G's refinement — a test that reaches the stays column stays — applies to it."
   - source_path: tests/ideation-dashboard/test_smoke_signals.py
     disposition: moved_verbatim
     git_mode: '100644'
@@ -3167,11 +3192,9 @@ rows:
         lines: [43]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
   - source_path: tests/ideation-dashboard/test_staging_seed.py
-    disposition: moved_verbatim
-    git_mode: '100644'
-    sha256: "623aa4eb8b04ea3579d19d1ca21e49e8ec095993b2c6f0b9632cb5a43981c6b6"
-    destination: opendox_code
-    destination_path: tests/test_staging_seed.py
+    disposition: not_moved
+    reason: stays_openxfactory_adapter
+    evidence: "tasks.md § 5.4 (RULING DQ-1): the openxFactory remainder now includes the adapter's own tests. Its SUBJECT is doc_health.staging_seed (:24), openxFactory's own engine, which lies outside the carve surface entirely and has no row and no replica, exercised through /actions/staging-seed — a route defined and served by the stays-column serve_openxfactory_lanes.py (:99 the route constant, :186 the handler, :253 the doc_health import). It also imports the stays test module test_gate_routes (:22, :187). Verifier round 1 (2026-09-09) re-filed this row from moved_verbatim: no destination can receive the file unedited, and RULED OQ-G's refinement — a test that reaches the stays column stays — applies to it."
   - source_path: tests/ideation-dashboard/test_staging_workbench.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
