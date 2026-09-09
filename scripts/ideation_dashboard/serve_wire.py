@@ -51,7 +51,8 @@ exists to prevent; filing any of them under a column would have made the core
 (for `hosted_ref_refused`) or the other column (for `HOSTED_SESSION_REFUSAL`)
 depend on a column. It belongs here on this module's own stated remit: pure
 predicates over already-validated inputs, plus fixed refusal prose. `serve.py`
-imports all three back by name, so `serve.hosted_ref_refused` and
+now takes two of the three wire names from this module — `hosted_index` comes
+from `serve_projection` instead — so `serve.hosted_ref_refused` and
 `serve.hosted_index` still resolve for the suites that call them directly.
 
 NOTHING HERE REACHES A PROVIDER, a socket or a filesystem: it is constants,
