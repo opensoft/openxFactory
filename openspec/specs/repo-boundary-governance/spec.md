@@ -1,7 +1,8 @@
 # repo-boundary-governance Specification
 
 ## Purpose
-Defines how `openxFactory`, `Hermes-Install`, and `Omnigent-Install` assign
+Defines how `openxFactory`, `Hermes-Install`, `Omnigent-Install`,
+`Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` assign
 canonical workflow policy ownership, install repository scope, copy-first
 migration rules, and guarded repo-boundary execution.
 
