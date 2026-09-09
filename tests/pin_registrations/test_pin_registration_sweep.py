@@ -64,6 +64,15 @@ some other sweep has to be taught to ignore, while a scratch tree is read by
 this test alone. Where a fixture needs a path that really exists, it uses
 `pytest.ini` — small, stable, and already the file the digest lane borrows.
 
+A FOURTH ASSERTION JOINED THE CHECKER AND ITS OWN GROUP JOINED THIS FILE
+(issue #840): a `dispositions[].cited_to` citation must RESOLVE. The pin's
+header rests its whole exception mechanism on the citation and nothing opened
+one, so PR #834's rename left two citations naming a path that is gone while
+`--all --no-cache` exited 0 either way. That group's fixtures, its live-corpus
+anti-vacuity pin, its named assertion about #834's rename in BOTH directions,
+and the classifier stated at its boundaries are at the foot of this file, with
+the reasoning beside them.
+
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set). The subprocess in the positive test is `sys.executable` plus a script
 path, the shape `tests/manifest_digests/` already uses; every other test touches
@@ -653,3 +662,453 @@ def test_more_than_one_failed_assertion_is_reported_per_assertion(
     assert "the row carries no `consumption_rule`" in captured.out, captured.out
     assert "FAIL 2 finding(s) over 1 pin registration(s)" in captured.out, (
         captured.out)
+
+
+# --------------------------------------------------------------------------
+# A disposition's `cited_to` resolves — issue #840, the fourth assertion
+#
+# THE DEFECT, MEASURED. PR #834 renamed `prepare-openspec-1.12-readiness` to
+# `prepare-openspec-1-12-readiness`; two `dispositions[].cited_to` citations in
+# the live pin went on naming the old path; `validate-openspec-cli-pin.py --all
+# --no-cache` exited 0 before AND after the rename, printing both stale
+# citations into the disposition report a reviewer reads. The pin's header rests
+# the entire exception mechanism on the citation — "A DISPOSITION WITHOUT A
+# CITATION IS REFUSED, not ignored" — and nothing opened one.
+#
+# THE FIXTURES ARE THE FOUR CASES THE ARM EXISTS TO SEPARATE, on the same
+# `tmp_path` discipline as the groups above: a coherent set of citations in
+# every form the live pin uses; a citation naming a path that is not in the
+# tree; a citation whose path is MALFORMED as a repo-relative reference (the
+# host-absolute and `..` cases, with a REAL host file named, so a checker that
+# merely joined and asked would report it present); and a pin carrying no
+# `dispositions:` at all, where the assertion does not apply and says so.
+# --------------------------------------------------------------------------
+
+DASH = "—"
+
+
+def _pin_with_citations(citations: list, entrypoint: str = "scripts/tool.py") -> dict:
+    return {
+        "kind": "pinned_contract_manifest",
+        "consumer_entrypoint": entrypoint,
+        "dispositions": [{
+            "repo": "scratchFactory",
+            "item": "a-declared-change",
+            "path": "some-capability/spec.md",
+            "level": "ERROR",
+            "finding": "the tool's message, matched whole",
+            "why": "the estate declared the narrowing",
+            "cited_to": citations,
+            "ratified_by": "a human, on a date, in their own words",
+        }],
+    }
+
+
+def _case_with_citations(tmp_path: Path, citations: list) -> Path:
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir(exist_ok=True)
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    return _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": f"Invoke `{entrypoint}` from the checkout."},
+        pin=_pin_with_citations(citations, entrypoint),
+        pin_relpath="contracts/scratch-pin.yaml")
+
+
+# ---- the live corpus, and the rename this arm was written for ----
+
+def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
+) -> None:
+    """The anti-vacuity pin for the citation arm, on `_carries_at_least_one_pin_row`'s
+    precedent: a sweep over a pin with no in-tree citations exits 0 and prints a
+    cheerful count, indistinguishable from one that opened something. This names
+    the corpus fact instead — the live pin DOES carry citations that resolve
+    here — so deleting the last one reds this test rather than quietly emptying
+    the assertion."""
+    module = _load_checker()
+    pin = yaml.safe_load(
+        (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8"))
+    citations = [c for entry in pin["dispositions"] for c in entry["cited_to"]]
+    assert citations, "the live pin records no citations at all"
+    in_tree = []
+    for citation in citations:
+        text = module.as_citation_text(citation)
+        assert text is not None, citation
+        kind, referent = module.classify_citation(text)
+        if kind == "tree-path":
+            in_tree.append(referent)
+    assert len(in_tree) >= 2, in_tree
+    missing = [p for p in in_tree if not (REPO_ROOT / p).exists()]
+    assert not missing, f"citations naming paths that are gone: {missing}"
+
+
+def test_the_renamed_readiness_evidence_is_cited_at_its_landed_path() -> None:
+    """#834's rename, pinned by name in both directions, because the drift it
+    caused is the whole reason this arm exists: the dotted path must be gone from
+    every `cited_to` this repository owns, and the dotless one must be there."""
+    text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
+    landed = ("openspec/changes/prepare-openspec-1-12-readiness/evidence/"
+              "openspec-1.12-readiness-2026-09-05.md")
+    assert (REPO_ROOT / landed).is_file(), landed
+    citation_lines = [line for line in text.splitlines()
+                      if line.startswith("      - openspec/changes/prepare-")]
+    assert len(citation_lines) == 2, citation_lines
+    for line in citation_lines:
+        assert landed in line, line
+    # The dotted spelling survives ONLY where it is another repository's path or
+    # a name in prose — never as a path this tree is asked to resolve.
+    for line in text.splitlines():
+        if line.startswith("      - ") and "prepare-openspec-1.12-readiness" in line:
+            assert line.startswith("      - codexFactory "), line
+
+
+# ---- fixture 1: every citation form the live pin uses, all coherent ----
+
+def test_citations_in_every_form_pass_and_the_count_says_what_was_measured(
+        tmp_path, monkeypatch, capsys) -> None:
+    module = _load_checker()
+    (tmp_path / "openspec" / "specs" / "some").mkdir(parents=True)
+    (tmp_path / "openspec/specs/some/spec.md").write_text("# canon\n",
+                                                          encoding="utf-8")
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs/a-record.md").write_text("# a record\n", encoding="utf-8")
+    manifest = _case_with_citations(tmp_path, [
+        f"openspec/specs/some/spec.md:1770 {DASH} the promoted requirement",
+        f"docs/a-record.md {DASH} the record, cited whole",
+        f"council LA-A1 {DASH} the ruling that reserved the marker forms",
+        f"PR #444 {DASH} the landed change",
+        f"https://example.invalid/upstream {DASH} the upstream note",
+        f"codexFactory openspec/changes/not-here/spec.md {DASH} another tree's path",
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+    assert ("OK scratch-pin: 1 disposition(s) carry 6 citation(s) — 2 name a "
+            "path in this tree, 1 a URL, 1 a forge reference, 1 a path "
+            "qualified to another repository, 1 no machine referent; every "
+            "in-tree path resolves") in captured.out, captured.out
+
+
+def test_a_citation_naming_a_directory_resolves(
+        tmp_path, monkeypatch, capsys) -> None:
+    """`.exists()` and not `.is_file()`: a citation legitimately names a change
+    packet's directory, and refusing one would be this checker inventing a rule
+    the pin does not carry."""
+    module = _load_checker()
+    (tmp_path / "openspec" / "changes" / "a-packet").mkdir(parents=True)
+    manifest = _case_with_citations(tmp_path, [
+        f"openspec/changes/a-packet {DASH} the packet, cited as a whole",
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+    assert exit_code == 0, capsys.readouterr().out
+
+
+# ---- fixture 2: the citation names a path that is not in the tree ----
+
+def test_a_citation_naming_a_path_that_is_gone_is_reported(
+        tmp_path, monkeypatch, capsys) -> None:
+    """#834's drift, reproduced: the citation is well formed, the disposition is
+    ratified and cited, and the path it names was renamed away."""
+    module = _load_checker()
+    manifest = _case_with_citations(tmp_path, [
+        f"openspec/changes/prepare-openspec-1.12-readiness/evidence/measured.md "
+        f'§ "The two refusals" {DASH} the measurement',
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert ("FAIL scratch-pin: dispositions[1] (a-declared-change) cites "
+            "`openspec/changes/prepare-openspec-1.12-readiness/evidence/"
+            "measured.md`, but no such path is in this tree") in captured.out, (
+        captured.out)
+    assert "a suppression with a footnote" in captured.out, captured.out
+    # And the row's OK line is withheld: a row with a dangling citation does not
+    # cohere, whatever its entrypoint does.
+    assert "OK scratch-pin: `contracts/scratch-pin.yaml` is present" not in (
+        captured.out), captured.out
+    assert "MEASURED scratch-pin:" in captured.out, captured.out
+
+
+def test_each_dangling_citation_is_reported_separately(
+        tmp_path, monkeypatch, capsys) -> None:
+    module = _load_checker()
+    manifest = _case_with_citations(tmp_path, [
+        f"openspec/changes/gone-one/spec.md {DASH} one",
+        f"openspec/changes/gone-two/spec.md {DASH} two",
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "cites `openspec/changes/gone-one/spec.md`" in captured.out
+    assert "cites `openspec/changes/gone-two/spec.md`" in captured.out
+    assert "FAIL 2 finding(s) over 1 pin registration(s)" in captured.out, (
+        captured.out)
+
+
+# ---- fixture 3: the reference is malformed as a repo-relative path ----
+
+def test_a_host_absolute_citation_is_refused_even_though_it_exists(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The containment group's argument, on the citation field: the fixture names
+    a REAL host file by absolute path, so a checker that merely joined and asked
+    `.exists()` would report it present while no consumer's checkout carries
+    it — and Article IV refuses a committed host path on its own terms."""
+    module = _load_checker()
+    absolute = str(REPO_ROOT / "pytest.ini")
+    assert Path(absolute).is_file()
+    manifest = _case_with_citations(tmp_path, [
+        f"{absolute} {DASH} the host's own copy",
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is an ABSOLUTE path" in captured.out, captured.out
+    assert "a citation is opened from the pinned checkout" in captured.out, (
+        captured.out)
+
+
+def test_a_citation_that_walks_out_of_the_tree_is_refused(
+        tmp_path, monkeypatch, capsys) -> None:
+    module = _load_checker()
+    outside = tmp_path.parent / "outside-cited.md"
+    outside.write_text("# outside\n", encoding="utf-8")
+    manifest = _case_with_citations(tmp_path, [
+        f"../outside-cited.md {DASH} a path out of the tree",
+    ])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "contains a '..' segment" in captured.out, captured.out
+
+
+def test_a_citation_that_is_not_a_readable_value_is_reported(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Neither a string nor a single-key mapping: nothing to reconstruct, so
+    nothing to open."""
+    module = _load_checker()
+    manifest = _case_with_citations(tmp_path, [["a", "b"]])
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "neither a string nor a single-key mapping" in captured.out, (
+        captured.out)
+
+
+# ---- fixture 4: no dispositions, so the assertion does not apply ----
+
+def test_a_pin_with_no_dispositions_is_reported_as_inapplicable_not_silent(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Canon obliges no pin to carry `dispositions:` — the two sibling pins carry
+    none — and the line says the assertion did not apply, so a reader can tell an
+    inapplicable assertion from an unmade one."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": f"Invoke `{entrypoint}` from the checkout."},
+        pin={"kind": "pinned_contract_manifest",
+             "consumer_entrypoint": entrypoint},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+    assert ("carries no `dispositions:`, so the citation assertion does not "
+            "apply") in captured.out, captured.out
+
+
+def test_a_disposition_with_no_cited_to_is_left_to_the_pins_own_verifier(
+        tmp_path, monkeypatch, capsys) -> None:
+    """`cited_to:`'s PRESENCE is `validate-openspec-cli-pin.py`'s refusal
+    (`pin-disposition-malformed`), in its own words. Restating another checker's
+    finding in different words is what § 5.4 refused when it kept these
+    questions in separate families — so this arm counts it and says whose it
+    is."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    pin = _pin_with_citations([], entrypoint)
+    del pin["dispositions"][0]["cited_to"]
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": f"Invoke `{entrypoint}` from the checkout."},
+        pin=pin, pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+    assert "1 disposition(s) carry no `cited_to:` list" in captured.out, (
+        captured.out)
+    assert "pin-disposition-malformed" in captured.out, captured.out
+
+
+# ---- the two grammars, and the WARN class ----
+
+def test_a_citation_the_two_readers_disagree_about_is_warned_not_failed(
+        tmp_path, monkeypatch, capsys) -> None:
+    """MEASURED ON THE LIVE PIN. Two citations quote the tool's own output
+    (```Totals: 23 passed, 2 failed (25 items)```), and a bare `: ` inside a
+    plain scalar makes the line a single-key MAPPING to `yaml.safe_load` while
+    the pin's own line-based reader takes the whole line as one string. The arm
+    reconstructs the line the pin reads, classifies THAT, and warns — because
+    quoting the scalar changes what that line reader CAPTURES, in a file
+    vendored byte-identical into three sibling repositories, which is a governed
+    repair and not this checker's to force."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    (tmp_path / "openspec" / "specs").mkdir(parents=True)
+    (tmp_path / "openspec/specs/spec.md").write_text("# canon\n", encoding="utf-8")
+    pin_file = tmp_path / "contracts" / "scratch-pin.yaml"
+    pin_file.parent.mkdir(parents=True, exist_ok=True)
+    # Written as RAW YAML, not `safe_dump`: the defect is in the bytes, and a
+    # dumper would quote it away.
+    pin_file.write_text(
+        "kind: pinned_contract_manifest\n"
+        f"consumer_entrypoint: {entrypoint}\n"
+        "dispositions:\n"
+        "  - repo: scratchFactory\n"
+        "    item: a-declared-change\n"
+        "    cited_to:\n"
+        "      - openspec/specs/spec.md — the measurement, `Totals: 23 passed"
+        ", 2 failed (25 items)`\n",
+        encoding="utf-8")
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text(yaml.safe_dump({"contracts": [
+        {"id": "scratch-pin", "path": "contracts/scratch-pin.yaml", "type": "pin",
+         "consumption_rule": f"Invoke `{entrypoint}` from the checkout."}]}),
+        encoding="utf-8")
+    raw = yaml.safe_load(pin_file.read_text(encoding="utf-8"))
+    assert not isinstance(raw["dispositions"][0]["cited_to"][0], str), (
+        "the fixture is only a fixture while PyYAML still reads this as a map")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+    assert "WARN scratch-pin: dispositions[1] (a-declared-change)" in (
+        captured.out), captured.out
+    assert "reads as a single-key MAPPING" in captured.out, captured.out
+    assert "1 reconstructed from a single-key mapping" in captured.out, (
+        captured.out)
+
+
+def test_the_reconstruction_restores_the_line_the_pin_reader_sees() -> None:
+    module = _load_checker()
+    line = ("openspec/specs/spec.md — the measurement, `Totals: 23 passed, "
+            "2 failed (25 items)`")
+    parsed = yaml.safe_load(f"cited_to:\n  - {line}\n")["cited_to"][0]
+    assert not isinstance(parsed, str)
+    assert module.as_citation_text(parsed) == line
+    assert module.as_citation_text("plain") == "plain"
+    assert module.as_citation_text(["a", "b"]) is None
+    assert module.as_citation_text(17) is None
+    assert module.as_citation_text({"a": 1, "b": 2}) is None
+
+
+# ---- the arm runs even where the entrypoint assertions are terminal ----
+
+def test_a_dangling_citation_is_reported_beside_a_terminal_entrypoint_refusal(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The ordering decision, asserted so it is a decision and not an accident:
+    `consumer_entrypoint: 17` is terminal for the row, and running the citation
+    arm afterwards would hide every dangling citation behind that one finding."""
+    module = _load_checker()
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin", "consumption_rule": "CHECK OUT, NEVER COPY."},
+        pin=_pin_with_citations(
+            [f"openspec/changes/gone/spec.md {DASH} the measurement"], 17),
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is not a non-empty string path" in captured.out, captured.out
+    assert "cites `openspec/changes/gone/spec.md`" in captured.out, captured.out
+    assert "FAIL 2 finding(s) over 1 pin registration(s)" in captured.out, (
+        captured.out)
+
+
+# ---- the classifier, stated directly at its boundaries ----
+
+def test_the_citation_grammar_is_stated_directly() -> None:
+    """The grammar the PIN documents, and not one character more. Its header says
+    of the field exactly "`cited_to:` is required and must be non-empty", and its
+    own reader admits a list of non-empty lines whose members it never parses. So
+    a referent is read only where a citation names one unambiguously, and every
+    other form is recognised-and-unresolved rather than a finding."""
+    module = _load_checker()
+    kind_of = lambda text: module.classify_citation(text)[0]
+    referent_of = lambda text: module.classify_citation(text)[1]
+
+    # An unqualified repo-relative path is THIS tree's, and it is resolved.
+    assert kind_of(f"openspec/specs/doc-health/spec.md {DASH} canon") == "tree-path"
+    assert referent_of(
+        f"openspec/specs/doc-health/spec.md:1770 {DASH} canon") == (
+            "openspec/specs/doc-health/spec.md")
+    # The `§` section and a trailing parenthetical are cut with the gloss.
+    assert referent_of(
+        f'openspec/changes/a/evidence/m.md § "The two refusals" {DASH} the '
+        f"measurement") == "openspec/changes/a/evidence/m.md"
+    assert referent_of(
+        f"codexFactory PR #216 (prepare-openspec-1-12-readiness, head b2a6af34) "
+        f"{DASH} the packet") == "#216"
+
+    # A QUALIFIER puts the path in another context, so this tree does not
+    # resolve it — and the qualifier is why, not the path's absence.
+    assert kind_of(
+        f"codexFactory openspec/changes/a/spec.md {DASH} another tree") == (
+            "qualified")
+    assert kind_of(
+        f"codexFactory hermes/domain/records/r.md §5.1/§12.0 {DASH} a ruling"
+    ) == "qualified"
+
+    # A `#` or a `://` means the referent is not a path at all.
+    assert kind_of(f"PR #444 {DASH} the landed change") == "reference"
+    assert kind_of(f"#673 {DASH} the readiness issue") == "reference"
+    assert kind_of(f"opensoft/openxFactory#840 {DASH} the issue") == "reference"
+    assert kind_of(f"https://example.invalid/x {DASH} upstream") == "url"
+
+    # No machine referent: read as prose and never reported missing.
+    assert kind_of(f"council LA-A1 {DASH} the ruling") == "prose"
+    assert kind_of(f"1.12.0 {DASH} the version this was measured at") == "prose"
+    assert kind_of(f"{DASH} a gloss and nothing else") == "prose"
+
+    # Not a citation this arm can read at all.
+    assert kind_of("") == "unreadable"
+    assert kind_of("   ") == "unreadable"
+
+    # The `:<line>` suffix is a reading aid: stripped, and deliberately NOT
+    # checked, because a line number drifts with every edit above it while the
+    # citation still names the right document — and the pin documents no line
+    # grammar to enforce either way.
+    assert referent_of(f"docs/a.md:999999 {DASH} a line far past EOF") == (
+        "docs/a.md")
