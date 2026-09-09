@@ -1688,6 +1688,21 @@ def swept_sites(repo, rev: str = "HEAD",
     return out
 
 
+def _member_for(path: str, key: str) -> PinMember | None:
+    """The declared member whose path+key matches, WITHOUT consulting the
+    record's own text — the cheap half of `covering_member`, split out so a
+    caller can decide whether the extra read is worth doing before it fetches
+    anything. path+key alone disambiguates every member but one; the one that
+    also needs the record's own text is named on `requires_field` below."""
+    for member in PIN_CLASS:
+        if member.key_form != "field" or member.key != key:
+            continue
+        if not path_matches(path, member.paths):
+            continue
+        return member
+    return None
+
+
 def covering_member(path: str, key: str,
                     text: str | None = None) -> PinMember | None:
     """The declared member a swept site belongs to, or None.
@@ -1696,16 +1711,13 @@ def covering_member(path: str, key: str,
     declares a `requires_field` — path+key alone is still sufficient for every
     other row, and a caller with no text handy (nothing in this module needs
     that today) simply skips the extra check rather than raising."""
-    for member in PIN_CLASS:
-        if member.key_form != "field" or member.key != key:
-            continue
-        if not path_matches(path, member.paths):
-            continue
-        if (member.requires_field and text is not None
-                and not member.record_matches(text)):
-            continue
-        return member
-    return None
+    member = _member_for(path, key)
+    if member is None:
+        return None
+    if (member.requires_field and text is not None
+            and not member.record_matches(text)):
+        return None
+    return member
 
 
 def uncovered_sites(repo, rev: str = "HEAD",
@@ -1715,14 +1727,25 @@ def uncovered_sites(repo, rev: str = "HEAD",
     A site whose path AND key both match a declared member, but whose record
     fails that member's `requires_field` companion check, is uncovered too:
     the member that would otherwise claim it has said, in its own
-    declaration, that this particular record is not one of its own."""
+    declaration, that this particular record is not one of its own.
+
+    The record's own text is fetched ONLY for a site whose path+key already
+    resolves to a member declaring `requires_field` (today, only
+    `gate-intent-snapshot-rev`) — `swept_sites` above already read every
+    candidate file once to find these sites, and re-reading it here for the
+    ordinary row that never consults `record_matches` would be a second
+    `git show` per candidate path for no reason."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     text_cache: dict[str, str | None] = {}
     out: list[PinSite] = []
     for site in swept_sites(repo, rev, paths=paths):
-        if site.path not in text_cache:
-            text_cache[site.path] = committed_text(repo, rev, site.path)
-        if covering_member(site.path, site.key, text_cache[site.path]) is None:
+        member = _member_for(site.path, site.key)
+        if member is not None and member.requires_field:
+            if site.path not in text_cache:
+                text_cache[site.path] = committed_text(repo, rev, site.path)
+            member = covering_member(site.path, site.key,
+                                     text_cache[site.path])
+        if member is None:
             out.append(site)
     return out
 
@@ -1904,7 +1927,12 @@ def non_pin_sites(repo, rev: str = "HEAD",
     The uncovered half is returned SEPARATELY as well as being classified,
     because a sentinel standing under a key no declared member covers is TWO
     findings: the class has a coverage gap, and the value has a classification.
-    Letting either mask the other would leave one of them unreported."""
+    Letting either mask the other would leave one of them unreported.
+
+    As in `uncovered_sites`, the record's own text is fetched ONLY when the
+    path+key already resolves to a member declaring `requires_field` — the
+    ordinary row never needs a second read of a file `swept_non_pin_sites`
+    already read once."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     covered, absent = member_non_pin_sites(repo, rev, paths=paths)
     known = {(s.path, s.key, s.line) for s in covered}
@@ -1913,10 +1941,13 @@ def non_pin_sites(repo, rev: str = "HEAD",
     for site in swept_non_pin_sites(repo, rev, paths=paths):
         if (site.path, site.key, site.line) in known:
             continue
-        if site.path not in text_cache:
-            text_cache[site.path] = committed_text(repo, rev, site.path)
-        if covering_member(site.path, site.key,
-                           text_cache[site.path]) is None:
+        member = _member_for(site.path, site.key)
+        if member is not None and member.requires_field:
+            if site.path not in text_cache:
+                text_cache[site.path] = committed_text(repo, rev, site.path)
+            member = covering_member(site.path, site.key,
+                                     text_cache[site.path])
+        if member is None:
             uncovered.append(site)
     return covered + uncovered, uncovered, absent
 

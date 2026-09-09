@@ -32,7 +32,9 @@ import ast
 import re
 import subprocess
 
+from collections import Counter
 from pathlib import Path
+from unittest import mock
 
 import pytest
 import yaml
@@ -1069,6 +1071,76 @@ def test_a_stray_record_of_a_different_kind_is_not_exempt(tmp_path):
               if r.site.member_id == "gate-intent-snapshot-rev"]
     assert real.verdict == pc.HISTORICAL
     assert GATE_INTENT_WRONG_KIND_REL in {s.path for s in report.uncovered}
+
+
+def test_uncovered_sites_only_rereads_text_for_the_requires_field_member(
+        tmp_path):
+    """Copilot review, PR #816, `pin_class.py:1727`. `uncovered_sites` used to
+    fetch every candidate path's committed text a SECOND time (via
+    `text_cache`) to resolve `covering_member`, even though `swept_sites`
+    above it had already read the same file once to find the site — one
+    extra `git show` per candidate path, paid even by the ordinary member
+    that never consults that text at all. The fix reads it a second time
+    ONLY when the site's already-matched member declares `requires_field`
+    (today, only `gate-intent-snapshot-rev`).
+
+    One repository, two commit-shaped sites: an ordinary readiness record and
+    a real gate intent, spied with `committed_text` wrapped so every call and
+    its path are observable."""
+    repo, old = reachable_pin_repo(tmp_path)
+    _write(repo, GATE_INTENT_REL, _gate_intent(old, refusal="index rejected"))
+    _commit(repo, "an ordinary readiness record and a real gate intent")
+
+    with mock.patch.object(pc, "committed_text",
+                           wraps=pc.committed_text) as spy:
+        pc.uncovered_sites(repo, "HEAD")
+    counts = Counter(call.args[2] for call in spy.call_args_list)
+
+    # The readiness record's matched member (`ideation-readiness-run`)
+    # declares no `requires_field`: read once, by `swept_sites`, never again.
+    assert counts[READINESS_REL] == 1
+    # The gate intent's matched member (`gate-intent-snapshot-rev`) DOES
+    # declare one (`kind`): read once by `swept_sites`, and once more to
+    # confirm the companion field.
+    assert counts[GATE_INTENT_REL] == 2
+
+
+def test_non_pin_sites_resolution_loop_only_rereads_the_requires_field_member(
+        tmp_path, monkeypatch):
+    """Same defect, same fix, in the sibling caller named alongside it
+    (`pin_class.py:~1913`): `non_pin_sites`' own uncovered-resolution loop
+    must not re-read a candidate's text unless the matched member declares
+    `requires_field`.
+
+    `member_non_pin_sites` is stubbed to report nothing pre-classified, so
+    every non-commit value `swept_non_pin_sites` finds is forced through the
+    resolution loop under test rather than being screened out by the
+    sibling's own (broader, requires_field-blind) pass first — isolating the
+    exact code the review comment named."""
+    repo, _ = reachable_pin_repo(tmp_path)
+    _write(repo, READINESS_REL,
+          _readiness_record("sentinel-not-a-commit-value"))
+    _write(repo, GATE_INTENT_WRONG_KIND_REL,
+          _gate_intent_wrong_kind("sentinel-not-a-commit-value-2"))
+    _commit(repo, "a non-commit value under an ordinary key, and one under "
+                 "the requires_field member's key on a wrong-kind record")
+
+    monkeypatch.setattr(pc, "member_non_pin_sites",
+                        lambda *a, **kw: ([], []))
+
+    with mock.patch.object(pc, "committed_text",
+                           wraps=pc.committed_text) as spy:
+        classified, uncovered, absent = pc.non_pin_sites(repo, "HEAD")
+    counts = Counter(call.args[2] for call in spy.call_args_list)
+
+    # The ordinary member's file: read once, by `swept_non_pin_sites`, and
+    # never again by the resolution loop.
+    assert counts[READINESS_REL] == 1
+    # The requires_field member's file: read once by `swept_non_pin_sites`,
+    # and once more by the resolution loop to confirm the companion field —
+    # which fails here (`kind: something-else`), so the site lands uncovered.
+    assert counts[GATE_INTENT_WRONG_KIND_REL] == 2
+    assert GATE_INTENT_WRONG_KIND_REL in {s.path for s in uncovered}
 
 
 def test_a_rolling_member_carrying_nothing_is_not_reported_vanished(tmp_path):
