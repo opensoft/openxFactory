@@ -5,7 +5,7 @@ kind: pinned_workflow
 # review-lane-pin.yaml — which codexFactory decision core judges openxFactory.
 #
 # `.github/workflows/merge-master-approval.yml` checks out
-# `opensoft/codexFactory` at an exact commit to obtain the Merge Master decision
+# `codeXfactory/codexFactory` at an exact commit to obtain the Merge Master decision
 # core. THIS FILE IS THAT CLAIM, recorded where a reviewer can see it change,
 # and `tests/review_lane_pin/test_review_lane_caller.py` is the running code
 # that refuses to let the two disagree.
@@ -44,7 +44,7 @@ kind: pinned_workflow
 
 # The pinned repository. Private; the caller mints a read-only content-App token
 # to reach it.
-repository: opensoft/codexFactory
+repository: codeXfactory/codexFactory
 
 # THE TRUSTED REFERENT. Exactly 40 lowercase hex. `revision_kind: commit` is
 # declared and a tag or branch is REFUSED — a movable ref is not a pin, and the

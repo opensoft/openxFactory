@@ -134,7 +134,7 @@ jobs:
       pull-requests: write
 
     env:
-      SOURCE_REPOSITORY: opensoft/codexFactory
+      SOURCE_REPOSITORY: codeXfactory/codexFactory
       # THE DECLARED CANDIDATE LIST — ONE ENTRY AGAIN, FIRST-OBTAINED-WINS.
       # M-1 STEP (3) of `relocate-review-authority-floor-mirror` (ratified
       # 2026-09-08, PR #817): THE MIGRATION WINDOW IS CLOSED. Step (1) opened it
@@ -224,13 +224,34 @@ jobs:
       # below is scoped to ONE repository and requests EXACTLY that
       # repository's `grants:` in the binding — held equal by
       # `test_each_mint_requests_exactly_its_repository_grants`.
+      #
+      # `owner: codeXfactory`, NOT `github.repository_owner`. The source
+      # repository moved organizations, and `actions/create-github-app-token`
+      # resolves the installation from `owner:`
+      # (`GET /orgs/<owner>/installation`): the token reaches only THAT
+      # installation's repositories. Transfer step 1.6 creates a SECOND,
+      # SEPARATE installation on `codeXfactory` and does not widen the
+      # `opensoft` one, so `github.repository_owner` — `opensoft`, since this
+      # workflow runs in openxFactory — would mint a token that cannot read the
+      # source however Phase 1 goes. The mint below is the LOUD place for that
+      # to surface.
+      #
+      # THIS STEP HAS NO `continue-on-error`, DELIBERATELY, and MUST NOT GAIN
+      # ONE. It fails CLOSED: a missing or unwidened installation stops the lane
+      # at the mint, with `create-github-app-token`'s own message naming the
+      # owner it could not resolve. That is strictly better than continuing to a
+      # checkout that reports a repository problem for a credential cause. The
+      # two `continue-on-error` mints in `merge-master-approval.yml` are
+      # deliberately the other way for a different reason, stated there: their
+      # checkout has a NAMED diagnostic step that must be the thing a human
+      # reads.
       - name: Mint the codexFactory READ token
         id: source-token
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
           permission-contents: read
 
@@ -503,7 +524,7 @@ jobs:
         if: steps.repin.outputs.action == 'advance'
         uses: actions/checkout@v4
         with:
-          repository: opensoft/codexFactory
+          repository: codeXfactory/codexFactory
           ref: ${{ steps.source.outputs.sha }}
           path: .merge-master-core
           persist-credentials: false
