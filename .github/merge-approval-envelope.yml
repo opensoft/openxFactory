@@ -26,7 +26,7 @@
 # word or its own council record. This file is routed to a code owner
 # (`.github/CODEOWNERS`) so that widening it is a reviewed human act, and
 # `tests/review_lane_pin/test_review_lane_caller.py` asserts the exact shape
-# below — one candidate, these two path prefixes, `require_all_checks: true`.
+# below — one candidate, these three path entries, `require_all_checks: true`.
 #
 # ── SECURITY: WHERE THIS FILE IS READ FROM ───────────────────────────────────
 #
@@ -74,8 +74,10 @@ candidates:
     expected_base_ref: main
     # ── THE ADMITTED SURFACE ─────────────────────────────────────────────────
     #
-    # Both prefixes are what `scripts/ideation_dashboard/intent_apply_lane.py`
-    # actually writes, read out of the code rather than assumed:
+    # The two record-tree prefixes below, PLUS the register path the operator
+    # note that follows them names, are what
+    # `scripts/ideation_dashboard/intent_apply_lane.py` actually writes, read
+    # out of the code rather than assumed:
     #
     #   ideation/dashboard/intents/**       `DEFAULT_INTENTS_DIR`; `_write_intent`
     #                                       writes one `*.gate-intent.yaml` per
@@ -90,17 +92,29 @@ candidates:
     #                                       beside each applied intent.
     #
     # OPERATOR NOTE, and it is the point rather than a regression. The apply
-    # lane commits with `git add -A` over a tree its own clean-tree
-    # precondition proved empty, so "everything dirty" is exactly "everything
-    # this pass wrote" — including, for verbs whose target's material state is
-    # a change directory, GOVERNED ARTIFACTS OUTSIDE THESE TWO TREES. Any such
-    # delivery falls outside this allowlist and PARKS FOR THE HUMAN GATE
-    # instead of being autonomously approved. That is what makes this a narrow
-    # first candidate: the autonomy covers the record trees the console's own
-    # engine appends to, and stops at the first path that is anything else.
+    # lane writes EXACTLY THREE SURFACES by construction: the two record trees
+    # above and the ideation cross-reference REGISTER,
+    # `ideation/cross-reference.yaml` — `doc_health.derive_possibles`'s
+    # `apply_disposition` updates that file's `possibles_register` entry for
+    # every disposition it applies, so a register write is not an occasional
+    # side effect, it is what "applied" means. All three are therefore inside
+    # the autonomy this candidate is granted (ruling D-10 (a), Brett Heap,
+    # 2026-09-09, on #656). NOT admitted: `ideation/cross-reference.md`, the
+    # generated Markdown PROJECTION `scripts/render-ideation-cross-reference.py`
+    # produces separately from the YAML — the apply lane never writes it, and
+    # admitting it would widen the grant past what the lane's own code does.
+    # Also not admitted: anything else `git add -A` sweeps in over a tree its
+    # own clean-tree precondition proved empty — for verbs whose target's
+    # material state is a change directory, GOVERNED ARTIFACTS OUTSIDE THE
+    # THREE SURFACES ABOVE. Any such delivery falls outside this allowlist and
+    # PARKS FOR THE HUMAN GATE instead of being autonomously approved. That is
+    # what keeps this a narrow candidate: the autonomy covers exactly the
+    # surfaces the console's own engine writes, and stops at the first path
+    # that is anything else.
     path_allowlist:
       - ideation/dashboard/intents/**
       - ideation/dashboard/gate-records/**
+      - ideation/cross-reference.yaml
     # Conservative superset of "all required checks green": every non-excluded
     # check-run on the head SHA must have its latest completed run concluded
     # success, and every non-excluded commit status must be `success`. The
