@@ -112,7 +112,7 @@ Brett Heap's ruling of 2026-09-09 — *"Exit 3 = needs a human decision
 | a REAL instrument that withholds, nothing errors | **3** |
 | a REAL instrument that withholds AND errors | **1** — errors dominate; a malformed record is not a decision for a human to take |
 | findings, no withholding | **1** |
-| harness/dependency failure | **2** |
+| dependency/harness error | **2** — the ratified wording, not narrowed (panel F10) |
 
 ## `examples/consent-instrument/README.md` growth (T047)
 
@@ -131,6 +131,6 @@ Brett Heap's ruling of 2026-09-09 — *"Exit 3 = needs a human decision
   locators are EQUAL records an event that did not occur, and no fixture here
   provokes a refusal because **no refusal exists to provoke**. Ruled 2026-09-09:
   do not add the leg; record it as an OWED FINDING (T084, FR-048).
-- **Any git-dependent leg.** Six of the ratified delta's 22 scenarios are the
+- **Any git-dependent leg.** NINE of the ratified delta's 22 scenarios are the
   consumer's under § 7.1, and no fixture in this corpus can exercise them,
   because the neutral validator opens no repository.

@@ -64,8 +64,10 @@ bookkeeping commit while the packet is still live; Brett tags.
 
 ## Q2 — WITHHELD needs an exit-status class, and this repository has ruled none
 
-**Measured.** Every `Exit codes:` docstring in `scripts/` reads `0 ok, 1
-findings, 2 harness error`. The only `3` in the tree is
+**Measured.** Every `Exit codes:` docstring in `scripts/` tops out at **2** —
+most read `0 ok, 1 findings, 2 harness error`, and **this script's own reads
+`0 ok, 1 findings, 2 dependency/harness error` at line 80**, which is the
+ratified wording the growth must KEEP rather than narrow (panel F10). The only `3` in the tree is
 `scripts/avatar-metering-alert.py` — "nothing crossed a paging threshold" —
 which is a different meaning. `Findings` in
 `scripts/validate-consent-instruments.py` carries `errors` / `warnings` /
@@ -124,7 +126,7 @@ openxFactory issue #630 as the repository-level record.
   the third bucket what an expected failure is to a negative — so the packaged
   self-test still exits `0`.
 - The script's docstring becomes
-  **`Exit codes: 0 ok, 1 findings, 2 harness error, 3 withheld — needs a human
+  **`Exit codes: 0 ok, 1 findings, 2 dependency/harness error, 3 withheld — needs a human
   decision`**, extended in THIS SCRIPT ONLY.
 - **A single named constant** still carries the number, and the ruling is cited
   at that constant, in the design note and in the realization evidence — with
@@ -226,7 +228,26 @@ that same style (what grew, that it is additive, that the envelope stayed), or
 rewrite the rule? (c) Confirm `consent-instrument-class-registry`'s row is
 untouched — nothing in this change reaches class declarations.
 
-**ANSWER — REVISED against the question's own premise.**
+**ANSWER — revised TWICE. The second revision, by the consistency panel (F2),
+is the OPERATIVE ruling; the first is kept below because its reasoning about
+ungated intermediate commits is true and was simply not the deciding factor.**
+
+**OPERATIVE (panel F2, 2026-09-09).** The split runs on WHAT THE FIELD IS:
+
+- the `consent-instrument` row's **`sha256` is INTEGRITY BOOKKEEPING FOR THE
+  EDITED FILE**, not a release surface → it rides the **§ 2 schema commit**;
+- **`contract_bundle_version`, the appended `consumption_rule` paragraph,
+  `contracts/CHANGELOG.md`, the digest inventory and the cut-coupled tests** are
+  **VERSION IDENTITY**, which is what policy step 2's atomicity concerns → they
+  ride the ONE **§ 5.2 candidate commit**.
+
+**Consequence: every intermediate commit is GREEN, and the declared constitution
+deviation is WITHDRAWN** — FR-049 and T079a are removed, and T017 now re-derives
+the digest instead of declaring it stale.
+
+---
+
+**THE FIRST REVISION, kept as authored:**
 
 **(a) NO SPLIT.** Task 5.2 and policy step 2 both require every release surface
 to move in ONE candidate commit. The question's constraint — that

@@ -72,10 +72,14 @@ schema_version below mirrors that const, not the schema file's
 contract_schema_version"*. That sentence is the measured backing for Q4's
 ruling that the row field stays put.
 
-**Ruled at Q5:** this does NOT force a split. Intermediate branch commits are
-ungated — CI runs at the PR head — so the re-derivation rides the § 5.2
-candidate commit with the bundle version and the appended `consumption_rule`
-paragraph, and § 2's commit leaves the digest stale on purpose.
+**Ruled at Q5, then REVISED BY THE CONSISTENCY PANEL (F2), and the revision is
+operative.** The split runs on WHAT THE FIELD IS, not on which commit is
+convenient: a per-file `sha256` is INTEGRITY BOOKKEEPING FOR THE EDITED FILE,
+so it rides the **§ 2 schema commit** — the commit that makes it stale closes
+it. `contract_bundle_version`, the appended `consumption_rule` paragraph, the
+CHANGELOG, the inventory and the cut-coupled tests are VERSION IDENTITY, which
+is what policy step 2's atomicity concerns, and they ride the ONE § 5.2
+candidate. **Every intermediate commit is green; no deviation is declared.**
 
 ## R6 — What the bundle carries beyond this session
 

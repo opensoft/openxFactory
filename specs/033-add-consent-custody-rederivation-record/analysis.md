@@ -11,9 +11,16 @@ auto-executed; the tree is committed by the lane's own explicit-pathspec commits
 
 ## Findings
 
-**ZERO.** No CRITICAL, HIGH, MEDIUM or LOW finding across the six detection
-passes. This is a SECOND-pass result, not a first-pass one: the no-arg checklist
-set ran first and found **46 defects across 431 items in ten checklists**, all
+**THIS SECTION'S VERDICT WAS SUPERSEDED, AND IS LEFT STANDING WITH THE
+CORRECTION RATHER THAN REWRITTEN TO LOOK PRESCIENT.** It recorded ZERO findings
+at commit `489be604`. A **consistency panel** then ran on that same commit and
+returned **PROCEED AFTER FIXES** with TEN findings — including two HIGH defects
+this pass did not catch (the cut-coupled tests the cut reds, and the
+manifest-edit split), one HIGH unimplementable assertion (the naive no-git ban),
+and a MAJOR miscount of the scenario taxonomy in this feature's own favour.
+**A zero-finding analyze pass is not a clean bill of health.** The figures in
+this report are the POST-FIX ones. The six passes read: This is a SECOND-pass result, not a first-pass one: the no-arg checklist
+set ran first and found **46 defects across 430 items in ten checklists** (430 MEASURED — panel F8 corrected 431), all
 fixed and re-verified before this analysis ran. The analyze pass confirms a tree
 that has already been attacked — which is the only reading under which a
 zero-finding report carries information.
@@ -37,24 +44,18 @@ zero-finding report carries information.
 | Tasks | **75** (`T001`–`T083`, no duplicate ids), each naming the box, clarify answer, ruling or checklist finding it discharges |
 | Unmapped tasks | **NONE** |
 | Packet boxes §§ 0–5 | **38 / 38 covered** — verified by diff against the packet's own list: IDENTICAL |
-| Ratified delta scenarios | **22 / 22 in the matrix** — 16 realized here, 6 NOT-OWED with the C-7 reason (all six git-dependent) |
+| Ratified delta scenarios | **22 / 22 in the matrix** — **13 realized here, 9 NOT-OWED**, all nine git-dependent. The earlier 16/6 was WRONG, and wrong in this feature's favour; corrected by panel F4 |
 | Box accounting | **35 TICKED + 3 NOT-OWED-HERE + 8 NOT-OWED = 46** |
-| Checklist items | **431 / 431 ticked, 0 open findings** across ten checklists |
+| Checklist items | **430 / 430 ticked, 0 open findings** across ten checklists (MEASURED, panel F8) |
 
 ## Constitution alignment
 
-No violations. **One declared deviation**, recorded in `plan.md` rather than
-silently taken:
-
-> Principle V requires the affected validators green before any commit is
-> pushed. Phase B deliberately leaves `contracts/manifest.yaml`'s
-> `consent-instrument` digest stale until Phase G's candidate commit closes it
-> (clarify Q5a, which ruled against splitting the manifest edit). The principle
-> is satisfied **at the pushed head**, which is what CI evaluates; T017 makes
-> the intermediate commit state the staleness and name the commit that closes
-> it.
-
-The principle's purpose is that pushed work be green, and pushed work is green.
+No violations, **and no deviation** — the one this report previously declared is
+WITHDRAWN by panel F2. The `consent-instrument` per-file digest is integrity
+bookkeeping for the edited file rather than a release surface, so it is
+re-derived in the § 2 commit that moves the schema. `validate-manifest-digests.py`
+is green at EVERY commit on the branch, not only at the pushed head, and
+Principle V is satisfied without qualification.
 
 ## Recorded, deliberately not closed
 
@@ -73,15 +74,18 @@ Surfaced for the architect; not taken on this seat's authority.
 - Ambiguity count: **0**
 - Duplication count: **0**
 - Critical issues: **0**
-- Checklist findings raised then closed: **46**
+- Checklist findings raised then closed: **46** (over 430 items)
+- Consistency-panel findings raised then closed: **10** (2 HIGH scope/sequencing, 1 HIGH implementability, 2 MAJOR, 3 MEDIUM, 2 LOW)
 
 ## Next actions
 
-No CRITICAL or HIGH issue blocks implementation. The two gates before `T010` sit
-outside this seat:
+The consistency panel's verdict is **PROCEED AFTER FIXES**, and the fixes are
+applied. Nothing blocks implementation:
 
-1. **Brett Heap's Q2 ruling is IN** — exit `3`, *"needs a human decision"* — so
-   nothing in clarify round 1 is open.
-2. **Phase F remains BLOCKED** on the lane's row-3 substrate note for the two
-   sibling-row README sentences. Phase G must not wait on it; T055 carries the
-   cadence and the terminal disposition.
+1. **Brett Heap's Q2 ruling is IN** — exit `3`, *"needs a human decision"*, with
+   exit 2 keeping its ratified *"dependency/harness error"* wording.
+2. **Phase F is DISCHARGED**, not blocked — the lane's row-3 substrate note is
+   posted at [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475),
+   and it covers all four sibling sentences, which sit in ONE README row
+   (`README.md:2854–3101`).
+3. **Phases F and G are independent**; G never waits on F.

@@ -63,7 +63,7 @@ carried forward from the packet.
 | Feature number | `033` — `specs/` on `main` ends at `032-govern-archived-record-edits`; `git branch -r` shows no `033-*` on origin. No collision. |
 | Packet task boxes | 46, ZERO ticked (§ 0: 1, § 1: 3, § 2: 5, § 3: 7, § 4: 16, § 5: 6, § 6: 5, § 7: 3). |
 | Boxes in this feature's scope | **35 to TICK** (§ 0.1, § 1.1–1.3, § 2.1–2.5, § 3.1–3.5, § 4.1–4.9, § 5.2–5.4); **3 NOT-OWED-HERE** (§ 5.1 the lane's claim, § 5.2's number MEASURED and reported by me; § 5.5 the lane's landing bookkeeping; § 5.6 `[OPERATOR]` tag); **8 NOT-OWED** (§§ 6–7). 35 + 3 + 8 = 46. |
-| `contract_schema_version` today | `2` (`contracts/schemas/consent-instrument.schema.yaml:16`). |
+| `contract_schema_version` today | `2` (`contracts/schemas/consent-instrument.schema.yaml:14` — MEASURED, panel F8). |
 | `custody` object today | closed to exactly `{locator, sha256}`, `additionalProperties: false`. |
 | Canonical validator | `scripts/validate-consent-instruments.py`, 862 lines; `Findings` carries `errors` / `warnings` / `notes` ONLY; exit codes documented `0 ok, 1 findings, 2 dependency/harness error`. |
 | Validator baseline on this branch | `0 error(s), 0 warning(s)`; self-test reports **6 valid**, **7 negative**, 2 purpose probes. |
@@ -187,9 +187,11 @@ unchanged candidate.
    **Then** availability is RE-CHECKED at that point and not read from this
    file.
 2. **Given** the candidate commit, **When** it is inspected, **Then**
-   `contracts/manifest.yaml` (bundle version, the `consent-instrument` row's
-   `sha256` and its `consumption_rule`), `contracts/CHANGELOG.md` and
-   `contracts/releases/contract-v3.5.digests.yaml` all moved in it.
+   `contracts/manifest.yaml` (bundle version and the appended
+   `consumption_rule` paragraph), `contracts/CHANGELOG.md`,
+   `contracts/releases/contract-v3.5.digests.yaml` and every cut-coupled test
+   all moved in it — and the `consent-instrument` row's `sha256` did NOT, having
+   already moved with the schema in § 2.
 3. **Given** the digest inventory, **When** it is produced, **Then** it was
    BUILT by `validate-contract-release.py build` and never hand-edited.
 4. **Given** the landed commit, **When** it differs from the reviewed candidate
@@ -293,10 +295,17 @@ specification:
   `EXPECTED_WITHHELD_OUTCOMES`, fail-closed both ways; `repo_scan` reports
   WITHHELD as found.
 - **Q4** — only `contract_schema_version` moves.
-- **Q5** — **NO SPLIT**: the manifest's digest re-derivation, bundle version and
-  `consumption_rule` paragraph ALL ride the single § 5.2 candidate commit,
-  because intermediate branch commits are ungated (CI runs at the PR head).
-  § 2's commit leaves the digest stale on purpose and says so.
+- **Q5** — **REVISED BY THE CONSISTENCY PANEL (F2), and the revision is the
+  operative ruling.** The split runs on WHAT THE FIELD IS, not on which commit is
+  convenient. The `consent-instrument` row's **`sha256` is INTEGRITY BOOKKEEPING
+  FOR THE EDITED FILE**, not a release surface, so it rides the **§ 2 schema
+  commit** — the commit that made it stale is the commit that closes it.
+  **`contract_bundle_version`, the appended `consumption_rule` paragraph,
+  `contracts/CHANGELOG.md`, the digest inventory and the cut-coupled tests** are
+  VERSION IDENTITY, which is what policy step 2's atomicity concerns, so they
+  ride the ONE § 5.2 candidate commit. **Every intermediate commit is therefore
+  GREEN and no constitution deviation is declared** — the earlier "stale on
+  purpose" reading is WITHDRAWN.
 - **Q6** — the CHANGELOG attributes all 4 additions and 14 modifications since
   `contract-v3.4`; ADDITIVE minor.
 - **Q7** — `tests/consent_instruments/`; BOTH fixture and parametrized pytest
@@ -395,12 +404,22 @@ specification:
   `observed_sha256` while a later entry exists, and more generally any state in
   which the pin has been advanced to a value the chain records as observed.
 - **FR-012** *(box 3.3; clarify Q7c)*: the validator MUST NOT open a repository, shell out to `git`, or
-  read a file named by a locator. **TWO assertions pin the absence** (Q7c), both
-  in `tests/consent_instruments/`: a SOURCE-LEVEL ban (no `subprocess` import,
-  no `git` token, no locator-named file read anywhere in the module) AND a
-  RUNTIME patch of `subprocess.run` and `Path.open` exercised over **all three
-  buckets** — positive, negative and withheld — since the withheld leg is the
-  one most likely to reach for a repository.
+  read a file named by a locator. **TWO assertions pin the absence, and both are
+  ARGUMENT-SCOPED because the naive forms are unimplementable** (panel F3):
+  - **(a) SOURCE-LEVEL BAN** — the module MUST NOT `import subprocess`, MUST NOT
+    call `subprocess.*` / `os.system` / `os.popen`, and MUST NOT contain a `git`
+    COMMAND token. **`SKIP_DIR_NAMES`'s `".git"` entry (validator line 735) is
+    ALLOWLISTED BY EXACT TOKEN**: it is a directory-name exclusion that makes the
+    walk skip a git directory — the opposite of reading one — and a naive `git`
+    grep would fail on it forever.
+  - **(b) RUNTIME ASSERTION** — patch `subprocess.run`, `subprocess.Popen` and
+    `subprocess.check_output` and assert **none is called**; and wrap
+    `Path.open` / `open` and assert **every path opened resolves UNDER the corpus
+    root passed to the run**. That is the scoped form of "reads no locator
+    target": a locator names a file in a CONSUMER repository, so any open outside
+    the corpus root fails the assertion. Exercised over **all three buckets** —
+    positive, negative and withheld — since the withheld leg is the one most
+    likely to reach for a repository.
 - **FR-013** *(box 3.4; ratified delta scenario "The neutral pass is not a
   currency claim")*: the validator's report line for a chained instrument MUST
   enumerate the EIGHT things it checked, in the requirement's own terms —
@@ -420,7 +439,7 @@ specification:
   *"Exit 0, report only"*; **it is the repository rule ratified task 3.4b asked
   for, and until that selection the repository had ruled none.** The status MUST
   sit behind a **single named module constant**; the script's `Exit codes:`
-  docstring MUST become `0 ok, 1 findings, 2 harness error, 3 withheld — needs a
+  docstring MUST become `0 ok, 1 findings, 2 dependency/harness error, 3 withheld — needs a
   human decision`, extended **in this script only**; and the ruling MUST be cited
   verbatim, with its channel, at the constant, in the design note and in the
   realization evidence. A withheld fixture in the PACKAGED corpus is EXEMPT from
@@ -518,15 +537,31 @@ specification:
   `contract-v3.5` as an explicitly PROVISIONAL measured candidate. The CLAIM on
   issue #630 row 4 is the LANE's, at the last merge-from-main before the merge.
 - **FR-031** *(box 5.2; clarify Q5)*: `contracts/manifest.yaml` (`contract_bundle_version`, the
-  `consent-instrument` row's `sha256` re-derived from the moved file, and an
   APPENDED `contract-v3.5` `consumption_rule` paragraph in the `contract-v1.33`
-  style), `contracts/CHANGELOG.md` and
-  `contracts/releases/<version>.digests.yaml` MUST move atomically in ONE
-  candidate commit — **all three manifest edits included, with NO split**.
-  § 2's schema commit therefore leaves the digest STALE ON PURPOSE and its
-  commit message MUST say so; intermediate branch commits are ungated because CI
-  runs at the PR head. `consent-instrument-class-registry`'s row MUST be
-  untouched.
+  style), `contracts/CHANGELOG.md`,
+  `contracts/releases/<version>.digests.yaml` **and every cut-coupled test
+  (FR-031a)** MUST move atomically in ONE candidate commit — these are VERSION
+  IDENTITY, which is what policy step 2's atomicity concerns.
+  **The `consent-instrument` row's `sha256` is NOT among them** (panel F2): a
+  per-file digest is INTEGRITY BOOKKEEPING FOR THE EDITED FILE, not a release
+  surface, so it is re-derived in the **§ 2 schema commit** — the commit that
+  makes it stale is the commit that closes it. **Every intermediate commit is
+  green and no deviation is declared.** `consent-instrument-class-registry`'s
+  row MUST be untouched.
+- **FR-031a** *(panel F1 — CUT-COUPLED ACTS, ruled IN SCOPE)*: the cut reds tests
+  that no artifact named before the panel. `tests/intent-compliance/test_release_boundary.py`
+  enumerates every bundle version it has been told how to classify, up to
+  `FEATURE_SUCCESSOR_8 = "contract-v3.4"` (line 115), and `_release_state()`
+  **fails LOUDLY on a bundle the enum does not name** — a deliberate tripwire, so
+  a cut that moves `contract_bundle_version` without it reds the required suite.
+  The `contract-v3.4` precedent (`807a4f47`) moved **SIX** files, not four:
+  `CHANGELOG.md`, `contracts/README.md`, `manifest.yaml`, the digest inventory,
+  **and both** `tests/intent-compliance/test_release_boundary.py` and
+  `tests/clearing/test_clearing_manifest_rows.py`. The candidate MUST therefore
+  carry every bundle-version-coupled edit, **RE-MEASURED at the candidate rather
+  than copied from this text**, so that T064's exact-candidate full-suite gate
+  can pass. These are DECLARED cut-coupled acts attributed to the cut — not
+  invented scope.
 - **FR-032** *(box 5.3; clarify Q6)*: the CHANGELOG entry MUST list every
   contract added, changed or deprecated in the bundle, each attributed to the
   change that made it. **THE PATH LIST MUST BE RE-MEASURED AT THE FINAL
@@ -573,7 +608,7 @@ specification:
 
 ### Functional Requirements — bookkeeping and evidence
 
-- **FR-040** *(boxes 0.1, 1.1–1.3, 5.1, 5.5, 5.6, 6.1–6.4, 7.1–7.3; architect ruling Q1)*: every box in §§ 0–5 whose act is verifiably DONE MUST be ticked
+- **FR-040** *(boxes 0.1, 1.1–1.3, 5.1, 5.5, 5.6, 6.1–6.4, 7.1–7.3; architect ruling **032-Q1**)*: every box in §§ 0–5 whose act is verifiably DONE MUST be ticked
   with a note citing the record and the timestamp. **Every box NOT ticked MUST
   carry a dated line, and this enumeration is EXHAUSTIVE rather than
   illustrative**: § 5.1 (the lane claims the number; this feature only measures
@@ -581,7 +616,7 @@ specification:
   `[OPERATOR]` tag) take **NOT-OWED-HERE** lines; §§ 6.1, 6.2, 6.2b, 6.3, 6.4,
   7.1, 7.2 and 7.3 take **NOT-OWED** lines. Note classes MUST sum to 46 —
   **35 ticked + 3 NOT-OWED-HERE + 8 NOT-OWED**.
-- **FR-041** *(architect ruling Q5)*: a box MUST be ticked in the same commit as its evidence, or in
+- **FR-041** *(architect ruling **032-Q5**)*: a box MUST be ticked in the same commit as its evidence, or in
   neither — **and the discipline MUST be VERIFIED AFTER THE FACT FROM THE COMMIT
   HISTORY, not merely intended at commit time**. A post-hoc `git log` pass MUST
   show, for every tick, that the commit carrying the tick is the same commit
@@ -598,18 +633,18 @@ specification:
   un-grown corpus, the 0/0 with three bucket counts, and
   `pytest tests/consent_instruments`) MUST each file a transcript too. A phase
   judged complete on an unrecorded local run is a gate that was not run.
-- **FR-042** *(architect ruling Q4)*: evidence MUST be written to BOTH
+- **FR-042** *(architect ruling **032-Q4**)*: evidence MUST be written to BOTH
   `specs/033-add-consent-custody-rederivation-record/evidence/` and
   `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-<date>.md`.
-- **FR-043** *(architect ruling Q10)*: ratified prose — `proposal.md`, `design.md`, `.openspec.yaml` and
+- **FR-043** *(architect ruling **032-Q10**)*: ratified prose — `proposal.md`, `design.md`, `.openspec.yaml` and
   the delta — MUST stay frozen. `tasks.md`, the evidence file, and ONE additive
   dated realization note after the `Lane:` line in `proposal.md` correcting any
   ratified enumeration this realization falsifies are the only permitted edits.
-- **FR-044** *(architect ruling Q1, the `3b530009` form)*: any ratified "stays unticked" sentence amended by a tick MUST be
+- **FR-044** *(architect ruling **032-Q1**, the `3b530009` form)*: any ratified "stays unticked" sentence amended by a tick MUST be
   amended in the SAME commit in the `3b530009` form — block-quote the
   superseded sentence, name the un-superseded neighbour, marker
   `AMENDED <UTC date>`, tick marker `**TICKED <UTC date>`.
-- **FR-045** *(architect ruling Q10; tooling CHK036/CHK037)*: doc-health MUST be compared as two reports whose **`--report-out`
+- **FR-045** *(architect ruling **032-Q10**; tooling CHK036/CHK037)*: doc-health MUST be compared as two reports whose **`--report-out`
   BASENAMES are identical** (differing only in directory, so the report's own
   self-reference cannot appear as a diff line) and whose **CHECKOUT DIRECTORY
   basenames are also identical** (so a path fragment cannot differ between the
@@ -645,11 +680,6 @@ specification:
   evidence AND in a dated note beside § 7 of the packet's `tasks.md`, carrying
   the defect, the neutral leg it would need, C-7's placement test, and its home
   (F.2's gate or a successor change). **No refusal leg is added here.**
-- **FR-049** *(architect ruling, 2026-09-09)*: the realization evidence MUST
-  record the Q5a **DECLARED CONSTITUTION DEVIATION** with its REASON — policy
-  § *Bundle Realization Order* step 2's release-surface ATOMICITY outranks
-  intermediate-commit gate cleanliness, and CI gates the HEAD, not every commit
-  on the way to it.
 - **FR-047** *(ruled at clarify A2 — state it, do not act on it)*: the
   realization evidence and the neighbourhood of § 7 in the packet's `tasks.md`
   MUST carry a DATED note recording that landing this realization **DECLARES the
@@ -657,6 +687,21 @@ specification:
   transition clause an edit of a consent pinned target converts from **REPORTED**
   to **REFUSED** for that family **once F.2's gate exists**. Nothing in this
   feature builds, schedules or ticks for it.
+
+### Question-set naming convention *(panel F5)*
+
+**TWO question sets are cited in this document and they collide.** This
+feature's own clarify round is `Q1`…`Q12`, ANSWERED 2026-09-09 and recorded in
+`clarify-questions.md`. The reused architect rulings from the F.3 twin
+(`specs/032-govern-archived-record-edits`) are ITS question set, and a bare
+`Q1` would name two different rulings — 033's *"one PR carries §§ 2–5"* and
+032's *"tick every box whose act is verifiably DONE"*.
+
+**Convention, in force from here:** the twin's rulings are written
+**`032-Q<n>`** wherever they are cited (FR-040, FR-041, FR-042, FR-043, FR-044,
+FR-045 and their tasks); a bare **`Q<n>`** always means THIS feature's clarify
+round. Panel and checklist findings are cited as `F<n>` and `CHK<n>` and never
+as questions.
 
 ### Key Entities
 

@@ -9,7 +9,7 @@
 this one is the EXECUTABLE list. Every `T###` below names the packet box or
 architect answer it discharges. A packet box is TICKED only by the `T###` that
 performs its act, in the same commit as that act's evidence (architect ruling
-Q5). Where this file and the packet differ, the packet governs.
+**032-Q5**; see `spec.md` § *Question-set naming convention*). Where this file and the packet differ, the packet governs.
 
 **BOX ACCOUNTING, and it must sum to 46.**
 
@@ -90,9 +90,15 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 - [ ] **T016** *(Q4)* Confirm by diff that `$id`, the record envelope's
       `schema_version: const: 1` and the manifest row's `schema_version: 1` are
       all unmoved.
-- [ ] **T017** *(Q5a)* Commit message STATES that
-      `contracts/manifest.yaml`'s `consent-instrument` digest is now
-      deliberately stale and names T060 as the commit that closes it.
+- [ ] **T017** *(clarify Q5, AS REVISED BY PANEL F2)* **RE-DERIVE the
+      `consent-instrument` row's `sha256` in THIS COMMIT**, from the moved file,
+      by `sha256sum`. A per-file digest is INTEGRITY BOOKKEEPING FOR THE EDITED
+      FILE, not a release surface — policy step 2's atomicity concerns VERSION
+      IDENTITY — so the commit that makes it stale is the commit that closes it.
+      **No commit on this branch is left with a stale digest and no deviation is
+      declared**; `validate-manifest-digests.py` is green at every commit, and
+      the commit message says which row moved and why it moved HERE rather than
+      at the cut.
 
 ## Phase C — § 3, the canonical validator
 
@@ -122,8 +128,10 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       Brett Heap's word.** Define a single module constant
       `EXIT_NEEDS_DECISION = 3` and return it from `report()` when a REAL
       instrument withholds and nothing errors. Extend the module docstring's
-      line to **`Exit codes: 0 ok, 1 findings, 2 harness error, 3 withheld —
-      needs a human decision`**, **in this script only**, and state the
+      line to **`Exit codes: 0 ok, 1 findings, 2 dependency/harness error, 3
+      withheld — needs a human decision`** — exit 2 KEEPS its ratified wording
+      *"dependency/harness error"*; do not narrow it to *"harness error"*
+      (panel F10), **in this script only**, and state the
       PRECEDENCE on the next line: **`errors dominate — an instrument that both
       withholds and errors exits 1, because a malformed record is not a decision
       for a human to take`** (architect ruling, 2026-09-09, CONFIRMED). At the constant, cite
@@ -263,13 +271,26 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ## Phase E — `tests/consent_instruments/` (Q7)
 
-- [ ] **T050** *(box 3.3, Q7c)* **Source-level no-git ban**: assert the module
-      imports no `subprocess`, contains no `git` token, and reads no file named
-      by a locator.
-- [ ] **T051** *(box 3.3, Q7c)* **Runtime patch**: patch `subprocess.run` and
-      `Path.open` and prove neither is reached, exercised over **ALL THREE
-      buckets** — positive, negative and withheld — since the withheld leg is
-      the one most likely to reach for a repository.
+- [ ] **T050** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Source-level no-git
+      ban**, argument-scoped because the naive form is unimplementable: assert
+      the module does NOT `import subprocess`, contains no `subprocess.` /
+      `os.system` / `os.popen` call, and contains no `git` COMMAND token.
+      **ALLOWLIST THE EXACT TOKEN `".git"` in `SKIP_DIR_NAMES`** (validator
+      line 735): it is a DIRECTORY-NAME EXCLUSION that makes the tree walk skip
+      a git directory — the opposite of reading one — and a naive `git` grep
+      would red forever on it. The allowlist is by exact token, not by
+      substring.
+- [ ] **T051** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Runtime assertion**, in
+      two argument-scoped halves, because "reads no file" is false of a
+      validator that must read its own corpus:
+      (a) patch `subprocess.run`, `subprocess.Popen` and
+      `subprocess.check_output` and assert **NONE is called**;
+      (b) wrap `Path.open` and `open` and assert **every path opened resolves
+      UNDER the corpus root passed to the run**. That is the checkable form of
+      "reads no locator target": a locator names a file in a CONSUMER
+      repository, so any open resolving outside the corpus root fails.
+      Exercised over **ALL THREE buckets** — positive, negative and withheld —
+      since the withheld leg is the one most likely to reach for a repository.
 - [ ] **T052** *(box 3.5, Q7b)* **Parametrized blob-walk test** proving the walk
       reaches each of the four free strings (`previous_locator`,
       `observed_locator`, `ruling_ref`, `recorded_by`).
@@ -320,9 +341,15 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       `contract-v3.4`, 46/46 boxes unticked)"* — **false on all four counts
       after this lands**, and the premise of that rule's TRANSITION CLAUSE.
 - [ ] **T059** *(Q8a-2, Q8a-4)* **LEAVE** the past-tense *"left its 46"*
-      (`README.md:2950`) and the dated *"measured 2026-09-09 UTC at `main`
-      `6cc06288`"* (`README.md:3098`) as TRUE-WHEN-WRITTEN. Record the decision;
-      do not edit them.
+      (**`README.md:2949–2950`** — the sentence SPANS both lines, which is why
+      the ruling said 2949 and the earlier measurement said 2950; both are
+      right about their own half) and the dated *"measured 2026-09-09 UTC at
+      `main` `6cc06288`"* (`README.md:3098–3100`) as TRUE-WHEN-WRITTEN. Record
+      the decision; do not edit them.
+      **ALL FOUR sibling sentences sit in ONE README row** — the
+      `govern-archived-record-edits` OpenSpec Records entry, `README.md:2854–3101`
+      — so T057, T058 and this task are three edits to a SINGLE row, not to
+      three rows, and the substrate note covers the row once (panel F9).
 
 ## Phase G — § 5, THE CUT (LAST)
 
@@ -333,9 +360,11 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       additive minor on all three surfaces (`contracts/manifest.yaml:3`,
       `contracts/releases/`, `git tag -l 'contract-v*'`) — **and RE-MEASURE THE
       BUNDLE'S OWN CONTENTS**, `git diff --name-status contract-v3.4 HEAD --
-      contracts/` at that commit. `research.md` R6's 4-added/14-modified list
-      was measured at branch creation and moves every time another lane lands,
-      so T062 is written from THIS measurement, never from R6. Report both to
+      contracts/` **at the candidate commit** (`git diff --name-status
+      contract-v3.4 <candidate> -- contracts/`). `research.md` R6's
+      4-added/14-modified list was measured at BRANCH CREATION and moves every
+      time another lane lands, so **T062 is written from THIS measurement and
+      never from R6** (FR-032, panel F7). Report both to
       the lane. **Both are re-measured at EVERY merge-from-main.** Do not post
       the claim.
 - [ ] **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
@@ -351,6 +380,43 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       The v1.33 paragraph sits BETWEEN the registration line and that closing
       sentence; the v3.5 paragraph goes in the same slot, after it.
       **`consent-instrument-class-registry`'s row is untouched.**
+- [ ] **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
+      `git show --stat --format='' 807a4f47` — the `contract-v3.4` cut — and
+      read what a cut ACTUALLY moves. Measured at this branch: **SIX files**,
+      not four — `contracts/CHANGELOG.md`, `contracts/README.md`,
+      `contracts/manifest.yaml`, `contracts/releases/contract-v3.4.digests.yaml`,
+      `tests/clearing/test_clearing_manifest_rows.py` and
+      `tests/intent-compliance/test_release_boundary.py`. Derive the
+      bundle-version-coupled edit set FOR THIS CANDIDATE from that measurement
+      and record it in `evidence/`. **These are DECLARED cut-coupled acts
+      attributed to the cut, not invented scope.**
+- [ ] **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
+      — the tripwire that would otherwise red T064's full-suite gate.
+      `_release_state()` **fails LOUDLY on a bundle the enum does not name**, so
+      moving `contract_bundle_version` without this edit reds the required
+      suite. Three edits, mirroring what `807a4f47` did:
+      (i) a new enum member `FEATURE_SUCCESSOR_9 = "contract-v3.5"` beside
+      `FEATURE_SUCCESSOR_8` (line 115);
+      (ii) the member added to **BOTH** match arms (lines ~207 and ~244) —
+      there are TWO, and missing either hits `assert_never`;
+      (iii) the **hand-written "what this cut moved" paragraph** in the enum's
+      docstring, in the register the file already uses: what this bundle
+      carries, and whether any intent-compliance member's bytes moved —
+      **MEASURED against `contract-v3.4`'s inventory, never asserted**, because
+      the file's own comment says *"unchanged" is the one fact the library
+      cannot tell from "unnoticed"*.
+- [ ] **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
+      **MEASURE whether it needs an edit; do not assume either way.** The
+      expected answer is NO EDIT, and the reason is recorded in the file itself:
+      `807a4f47` REPAIRED its bundle-version equality precisely so it would not
+      need re-pinning again, *"rather than re-pinned to a number that would fail
+      again at `contract-v3.5`"*. Its live assertions are that the declared
+      bundle is NEVER BEHIND the rows' registering release, that both have an
+      inventory beside them, and (line 95) that no row's `consumption_rule`
+      mentions `contract-v3.5` — all satisfied by a v3.5 cut that creates the
+      inventory and leaves the clearing rows alone. **Run it against the
+      candidate and record the result**; if it does red, it is a cut-coupled
+      edit and belongs in the same candidate commit.
 - [ ] **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
       changed in the BUNDLE, not what this session intended**: all **4 additions
       and 14 modifications** under `contracts/` since `contract-v3.4`
@@ -410,7 +476,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 - [ ] **T073** *(box 1.3)* TICK with evidence: the record's *"Task 1.3's operator
       veto was NOT exercised"* section, and the default that stands (no
       `amendments` entry; the three instruments stay `executed`).
-- [ ] **T074** *(architect ruling Q1/Q10 form)* Amend the packet `tasks.md`'s
+- [ ] **T074** *(architect rulings **032-Q1**/**032-Q10** form)* Amend the packet `tasks.md`'s
       ratified preamble in the `3b530009` form **in the same commit as the first
       tick**. **Superseded sentence**: *"NOTHING BELOW IS DONE. EVERY BOX IS
       UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER THAN AN OVERSIGHT."*
@@ -433,7 +499,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       7.3 — named as owed elsewhere, performed nowhere here.
 - [ ] **T076** **Note classes SUM TO 46**: 35 ticked + 3 NOT-OWED-HERE + 8
       NOT-OWED. Assert the arithmetic in the evidence file.
-- [ ] **T077** *(architect ruling Q10)* ONE additive dated realization note after
+- [ ] **T077** *(architect ruling **032-Q10**)* ONE additive dated realization note after
       `proposal.md`'s `Lane:` line, correcting any ratified ENUMERATION this
       realization falsifies (the *"every box in `tasks.md` stays unticked"*
       sentence). **`design.md`, `.openspec.yaml` and the delta stay frozen.**
@@ -444,21 +510,10 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       transition clause an edit of a consent pinned target converts from
       **REPORTED** to **REFUSED** for that family **once F.2's gate exists**
       (§ 7.1, OpsxFactory's). **Build nothing, schedule nothing, tick nothing.**
-- [ ] **T079a** *(architect ruling, 2026-09-09 — ACCEPTED AS RULED)* The
-      realization evidence MUST record the **DECLARED CONSTITUTION DEVIATION**
-      and its REASON, not merely the fact of it: Principle V wants the affected
-      validators green before any commit is pushed, and clarify Q5a leaves
-      `contracts/manifest.yaml`'s `consent-instrument` digest stale between
-      § 2's schema commit and § 5.2's candidate. **The reason is a precedence,
-      and it is the ruled one**: `docs/contract-versioning-policy.md`
-      § *Bundle Realization Order* step 2's ATOMICITY of the release surface
-      OUTRANKS intermediate-commit gate cleanliness, and **CI gates the HEAD**,
-      not every commit on the way to it. T017's commit message is the local half
-      of the record; this is the durable half.
-- [ ] **T079** *(architect ruling Q4)* Evidence in BOTH trees:
+- [ ] **T079** *(architect ruling **032-Q4**)* Evidence in BOTH trees:
       `specs/033-add-consent-custody-rederivation-record/evidence/` and
       `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md`.
-- [ ] **T080** *(architect ruling Q10)* **doc-health TWO-REPORT COMPARISON.**
+- [ ] **T080** *(architect ruling **032-Q10**)* **doc-health TWO-REPORT COMPARISON.**
       `python3 scripts/doc-health.py --single-repo <checkout> --as-of <ONE
       pinned date> --report-out <dir>/doc-health.md`, run once against `main`
       and once against this branch. **The two `--report-out` basenames MUST BE
@@ -560,7 +615,8 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 | FR-023 | T047, T048 | 4.9 |
 | FR-024 | T049 | *(none — clarify A1)* |
 | FR-030 | T060 | 5.1 (measurement only) |
-| FR-031 | T017, T061 | 5.2 |
+| FR-031 | T061 | 5.2 |
+| FR-031a | T061a, T061b, T061c | 5.2 *(panel F1, cut-coupled)* |
 | FR-032 | T062 | 5.3 |
 | FR-033 | T063 | 5.2 |
 | FR-034 | T064 | 5.4 |
@@ -579,7 +635,6 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 | FR-046 | T055, T056, T057, T058, T059 | *(none — clarify Q8)* |
 | FR-047 | T078 | *(none — clarify A2)* |
 | FR-048 | T084 | *(none — architect ruling 2026-09-09)* |
-| FR-049 | T079a | *(none — architect ruling 2026-09-09)* |
 
 **Every success criterion has a gate.** SC-001 → T064/T081; SC-002 → T076;
 SC-003 → T015; SC-004 → T064/T081; SC-005 → T064; SC-006 → T081; SC-007 →
@@ -588,40 +643,53 @@ T054/T081; SC-008 → T080; SC-009 → T081; SC-010 → T053.
 ## Traceability — the ratified delta's 22 scenarios, one row each
 
 **MEASURED: 7 scenarios on the `## MODIFIED` requirement, 15 on the `## ADDED`
-one.** Every row says which tasks realize it, or says plainly that it is the
-CONSUMER's and why. **A scenario marked NOT-OWED is not a gap** — it is the
-C-7 split the requirement itself states: the neutral validator takes what is
-derivable from the record's own bytes, and the git re-derivation runs where the
-target's bytes are, in the consuming repository under § 7.1.
+one.** **13 are realized here; 9 are NOT-OWED.** The taxonomy was CORRECTED by
+the consistency panel (F4) — an earlier count of 6 NOT-OWED was wrong, and it
+was wrong in the direction that flatters this feature.
 
-| # | Requirement | Scenario | Realized by | Note |
+**THE CLASSIFYING TEST IS THE SCENARIO'S `THEN`, not its subject matter.** A
+scenario whose THEN asserts *"custody is current"*, or asserts a re-derivation
+that **design C-7 forbids the neutral validator from performing**, cannot be
+satisfied by anything in this repository — openxFactory holds no consent
+instruments and the validator opens no repository. Scenarios **8, 9 and 10** read
+as "ours" because their internal legs live here, but each one's THEN is a
+CURRENCY VERDICT, and the currency verdict is the consumer's by the same split
+that put the git legs there. **One class per scenario, no scenario counted
+twice.**
+
+| # | Requirement | Scenario | Class | Realized by / why not |
 | --- | --- | --- | --- | --- |
-| 1 | MODIFIED | Custody is a pointer, not a payload | T015, T016 | Pre-existing and PRESERVED; realized as the proof that `custody` did not move |
-| 2 | MODIFIED | A re-derivation is recorded beside custody, never inside it | T010, T013, T015 | The sibling siting, its D9/C-1 comment, and the byte-identity proof |
-| 3 | MODIFIED | A re-derivation does not amend the instrument | **FR-007** — T015, T016 | Realized as an ABSENCE: no `amendments` machinery is added anywhere, asserted by diff |
-| 4 | MODIFIED | The executed pin is never rewritten to match the moved target | T021, T041 | `custody-pin-rewritten`, with a MULTI-ENTRY fixture |
-| 5 | MODIFIED | An unattributed or uncited acceptance is refused | T010, T039 | `ruling_ref` + `recorded_by` in `required`; two negatives |
-| 6 | MODIFIED | An unknown class or reason is refused at the contract | T011, T038 | Closed enums; two detail-pinned negatives |
-| 7 | MODIFIED | An instrument that declares no re-derivations is unaffected | T033, FR-001's `required` ban | A byte-unchanged existing example, re-validated |
-| 8 | ADDED | A direct pin verifies with no chain | T033 | The no-array case; the HEAD hash itself is the consumer's |
-| 9 | ADDED | An unbroken chain is admitted, link by link | T020, T030, T032 | Internal legs only; the per-commit re-derivation is the consumer's |
-| 10 | ADDED | A path move is re-derived at both paths | T031, T014 | The locator pair and its comment; the resolution at `commit^`/`commit` is the consumer's |
-| 11 | ADDED | A `path_only` entry whose digests differ is refused | T022, T043 | `custody-path-class-digests-differ` — NEUTRAL, both digests are record fields |
-| 12 | ADDED | A `header_only` claim contradicted by the diff is refused | — | **NOT-OWED (§ 7.1).** Needs the measured diff, so it needs the repository |
-| 13 | ADDED | A locator pair that resolves at neither path is refused | T014 (comment only) | **NOT-OWED (§ 7.1).** Resolution runs through the consumer's DECLARED mapping |
-| 14 | ADDED | A content-class divergence withholds the verdict | T023, T024, T045, T046, T053 | The WITHHELD outcome and exit `3` — Brett Heap's ruling of 2026-09-09 |
-| 15 | ADDED | A consumer gate propagates a withheld verdict and never upgrades it | — | **NOT-OWED (§ 6.2b).** It is the consumer's gate by construction |
-| 16 | ADDED | A broken link is refused, not repaired | T020, T034 | `custody-chain-broken-link` |
-| 17 | ADDED | A chain that does not anchor to the pin is refused | T020, T037 | `custody-chain-unanchored`, one fixture per anchor half |
-| 18 | ADDED | A chain on a commit that is not an ancestor of HEAD is refused | — | **NOT-OWED (§ 7.1).** The ancestry leg needs git history |
-| 19 | ADDED | A HEAD digest matching no terminus is refused | — | **NOT-OWED (§ 7.1).** Needs the target's bytes at HEAD |
-| 20 | ADDED | Entries out of recorded-time order are refused | T020, T036 | `custody-chain-out-of-order`; equal timestamps ADMITTED |
-| 21 | ADDED | A chain that cannot be re-derived is refused, never admitted | — | **NOT-OWED (§ 7.1).** "Cannot re-derive" is a statement about a repository |
-| 22 | ADDED | The neutral pass is not a currency claim | T025 | The eight-item report line — the scenario that makes the split legible |
+| 1 | MODIFIED | Custody is a pointer, not a payload | **HERE** | T015, T016 — pre-existing and PRESERVED; realized as the proof `custody` did not move |
+| 2 | MODIFIED | A re-derivation is recorded beside custody, never inside it | **HERE** | T010, T013, T015 |
+| 3 | MODIFIED | A re-derivation does not amend the instrument | **HERE** | FR-007 — T015, T016; realized as an ABSENCE, asserted by diff |
+| 4 | MODIFIED | The executed pin is never rewritten to match the moved target | **HERE** | T021, T041 — `custody-pin-rewritten`, multi-entry fixture |
+| 5 | MODIFIED | An unattributed or uncited acceptance is refused | **HERE** | T010, T039 |
+| 6 | MODIFIED | An unknown class or reason is refused at the contract | **HERE** | T011, T038 |
+| 7 | MODIFIED | An instrument that declares no re-derivations is unaffected | **HERE** | T033, and FR-001's ban on the top-level `required:` |
+| 8 | ADDED | A direct pin verifies with no chain | **NOT-OWED** | THEN is *"custody is current"* — it needs the target hashed at HEAD, which C-7 puts in the consumer's gate |
+| 9 | ADDED | An unbroken chain is admitted, link by link | **NOT-OWED** | THEN is *"custody is current"* AND *"the admission cites the commits it re-derived"* — both need the repository |
+| 10 | ADDED | A path move is re-derived at both paths | **NOT-OWED** | THEN is *"the check resolves the starting locator at the commit's parent and the observed locator at the commit"* — the re-derivation C-7 forbids here. T014 writes the in-file COMMENT that states the rule; it does not satisfy the scenario |
+| 11 | ADDED | A `path_only` entry whose digests differ is refused | **HERE** | T022, T043 — both digests are record fields, so the leg is neutral |
+| 12 | ADDED | A `header_only` claim contradicted by the diff is refused | **NOT-OWED** | Needs the measured diff |
+| 13 | ADDED | A locator pair that resolves at neither path is refused | **NOT-OWED** | Resolution runs through the consumer's DECLARED mapping |
+| 14 | ADDED | A content-class divergence withholds the verdict | **HERE** | T023, T024, T045, T046, T053 — the class is a record field, so WITHHELD is computable without a repository |
+| 15 | ADDED | A consumer gate propagates a withheld verdict and never upgrades it | **NOT-OWED** | It is the consumer's gate by construction (§ 6.2b) |
+| 16 | ADDED | A broken link is refused, not repaired | **HERE** | T020, T034 |
+| 17 | ADDED | A chain that does not anchor to the pin is refused | **HERE** | T020, T037 — one fixture per anchor half |
+| 18 | ADDED | A chain on a commit that is not an ancestor of HEAD is refused | **NOT-OWED** | The ancestry leg needs git history |
+| 19 | ADDED | A HEAD digest matching no terminus is refused | **NOT-OWED** | Needs the target's bytes at HEAD |
+| 20 | ADDED | Entries out of recorded-time order are refused | **HERE** | T020, T036; equal timestamps ADMITTED, exercised at T032 |
+| 21 | ADDED | A chain that cannot be re-derived is refused, never admitted | **NOT-OWED** | "Cannot re-derive" is a statement about a repository |
+| 22 | ADDED | The neutral pass is not a currency claim | **HERE** | T025 — the eight-item report line, the scenario that makes the split legible |
 
-**Six of 22 are NOT-OWED here, and all six are git-dependent** (12, 13, 15, 18,
-19, 21). The locator-gap leg the ratified delta names in its refusal list but
-gives no scenario of its own is realized anyway at T020/T035
+**13 HERE + 9 NOT-OWED = 22.** Every one of the nine is git-dependent under the
+test above, and all nine land with the consumer under § 7.1 / § 6.2b. **This is
+the C-7 split the requirement itself states, not a gap** — but it is a LARGER
+share of the delta than the first count admitted, and the honest figure is the
+one that belongs here.
+
+The locator-gap leg the ratified delta names in its refusal list but gives no
+scenario of its own is realized anyway at T020/T035
 (`custody-chain-locator-gap`), because the requirement's chained condition
 states it in the body.
 
@@ -633,8 +701,8 @@ A (T001-T007)
         └─> C (T020-T028)
               └─> D (T030-T049)
                     └─> E (T050-T054)
-                          ├─> F (T055-T059)   was blocked; UNBLOCKED 2026-09-09 (#630 c5603344475)
-                          └─> G (T060-T066)   LAST; must not wait on F
+                          ├─> F (T055-T059)   UNBLOCKED 2026-09-09 (#630 c5603344475)
+                          └─> G (T060-T066)   LAST, and INDEPENDENT of F
                                 └─> H (T070-T082)
 ```
 
