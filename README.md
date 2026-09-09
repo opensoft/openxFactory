@@ -520,7 +520,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
-  — authored 2026-09-08, `Status: draft`. **CLOSES THE OPEN ITEM #667 DECLARED
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
+  first-hand and with NO RELAY to lane `codexfactory-1` (session name
+  `codeXfactory-1`), verbatim **"ratify 813"** at 2026-09-09T03:19Z, over head
+  `f2f7ee8d` with every check green and 0 unresolved threads; record
+  `openspec/changes/pin-openspec-cli-dependency-closure/review/ratification-2026-09-09.md`).
+  **CLOSES THE OPEN ITEM #667 DECLARED
   AND DID NOT CLOSE.** `contracts/openspec-cli-pin.yaml` has said since
   2026-09-04 that its referent addresses the CLI's own bytes and **not** its
   DEPENDENCY CLOSURE — `@fission-ai/openspec@1.12.0` declares ten runtime
@@ -559,8 +564,14 @@ Active changes:
   (Recommended)"*, on a four-option packet whose other three exits — enumerate
   the resolved tree in the pin, vendor the built tree as one artifact by digest,
   accept the shortfall as declared — are recorded with their reasons in
-  `design.md` § 1. **THE RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT**;
-  the packet owes a ratification citation from a separate act. Ticks
+  `design.md` § 1. **THAT RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT** —
+  the packet held `Status: draft` and task 5.1 open through FOUR Copilot review
+  rounds (13 threads, 11 taken and 2 cosmetic folded into the ratifying commit)
+  until the SECOND and separate word above ratified the text. Two words, one
+  operator, two days, two decisions, both recorded. **NOTHING NORMATIVE MOVES BY
+  THE RATIFICATION**: the two ADDED requirements are ratified as written, and
+  tasks 5.2 (validation re-run at the gate) and 5.3 (realization evidence)
+  remain OWED — ratification is not an archive. Ticks
   `add-openspec-cli-pin` task 5.2 and `bump-openspec-cli-pin-to-1.12` task 6.4.
   Two ADDED requirements in `neutral-product-pin` and nothing MODIFIED,
   deliberately (`design.md` § 4): #667's own MODIFIED block on the referent rule

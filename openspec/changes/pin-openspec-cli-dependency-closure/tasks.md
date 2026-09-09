@@ -1,16 +1,20 @@
 # Tasks: pin-openspec-cli-dependency-closure
 
-Status: draft
+Status: ratified
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in this
 pull request or a measurement recorded verbatim in
 `evidence/dependency-closure-2026-09-08.md`, taken by this lane on 2026-09-08.
 Group 6 is successor work and is not ticked.
 
-**RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"Vendor a lockfile
-(Recommended)"* on 2026-09-08T14:14:49Z, choosing among four exits. That settles
-the approach and does not ratify this text. Task 5.1 records ratification when it
-happens; nothing below decides it.
+**RATIFICATION HAPPENED ON 2026-09-09**, and is recorded in
+`review/ratification-2026-09-09.md`. Brett Heap ruled *"Vendor a lockfile
+(Recommended)"* on 2026-09-08T14:14:49Z, choosing among four exits — that settled
+the APPROACH and did not ratify this text — and then ruled *"ratify 813"* on
+2026-09-09T03:19Z, first-hand, which did. Task 5.1 is ticked on the second word
+and on nothing else. **5.2 AND 5.3 REMAIN OWED:** ratification is not an archive,
+and the validation and realization evidence are re-run at the archive gate rather
+than trusted from here. Group 6 is successor work and stays unticked.
 
 ---
 
@@ -152,14 +156,17 @@ happens; nothing below decides it.
       the REAL committed files — that the pin and its lockfile agree with each
       other.
 
-      Measured on this branch after the round-8 merge of `origin/main`:
+      Measured on this branch at the RATIFYING commit, after its merge of
+      `origin/main` (`ca4a1558`):
       `python3 -m pytest tests/openspec_cli_pin -q` → **`154 passed`**;
       `tests/proposal-support` → **`95 passed, 2 subtests passed`**;
-      `tests/sequenced_after` → **`195 passed`**; the three together →
-      **`444 passed, 2 subtests passed`**. With the pinned CLI on PATH exactly as
+      `tests/sequenced_after` → **`235 passed`**; the three together →
+      **`484 passed, 2 subtests passed`**. With the pinned CLI on PATH exactly as
       the required job supplies it,
       `pytest tests/proposal-support tests/openspec_cli_pin -q` →
-      **`249 passed, 2 subtests passed`**.
+      **`249 passed, 2 subtests passed`**. `sequenced_after` moved 195 → 235
+      from `main`'s own new tests, none of them this packet's; evidence § 7 says
+      so rather than letting the figure read as growth here.
 
       The whole required suite, from CI rather than a workstation:
       `pytest-suite` run **34297941930** at head **`d538f9d8`** reported
@@ -171,8 +178,8 @@ happens; nothing below decides it.
       the gate's own invocation:
       `python3 scripts/validate-openspec-cli-pin.py --repo . --all --no-cache`
       → exit 0, `2 applied`, `0 UNDISPOSITIONED failures`, and the corpus
-      totals of the run that produced this line — `Totals: 103 passed, 2 failed
-      (105 items)` on this branch after the round-8 merge; the item count rises
+      totals of the run that produced this line — `Totals: 102 passed, 2 failed
+      (104 items)` on this branch at the ratifying commit; the item count rises
       as `main` lands changes and is recorded with its run rather than pinned,
       the load-bearing figures being the two dispositioned failures and the zero
       undispositioned ones. The closure line in the log:
@@ -192,9 +199,18 @@ happens; nothing below decides it.
 
 ## 5. Archive preflight
 
-- [ ] 5.1 Ratification by Brett Heap, recorded in `review/ratification-<date>.md`.
-      Not sought by this packet's landing: the 2026-09-08 ruling authorized the
-      AUTHORING and named no view on the content.
+- [x] 5.1 Ratification by Brett Heap, recorded in
+      `review/ratification-2026-09-09.md`. Verbatim **"ratify 813"**,
+      2026-09-09T03:19Z, first-hand to lane `codexfactory-1` (session name
+      `codeXfactory-1`), with no relay. It is a SECOND and separate act: the
+      2026-09-08 ruling authorized the AUTHORING and named no view on the
+      content, which is why this box was held open through four Copilot review
+      rounds. The record names the text ratified (head `f2f7ee8d` plus that
+      commit's two cosmetic provenance edits), what ratification changes and does
+      not, and the four design decisions ratified as written — the `1.2.0`
+      rollback UNCOVERED, `pin-lockfile-mismatch` as the single new code, the
+      cache-hit boundary, and the two pre-existing host-absolute fixture paths
+      left standing.
 - [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate pin-openspec-cli-dependency-closure
       --strict` and `--all --strict` green at the archive gate, re-run at that
       time rather than trusted from authoring.

@@ -2,11 +2,11 @@
 
 Status: record
 
-Measured by lane `codeXfactory-1` on 2026-09-08, on branch
-`change/pin-openspec-cli-dependency-closure`, against the LIVE npm registry with
-`npm 11.19.0` and `node v22.22.2`. Every number below is a command's own output
-or a walk of a tree that command produced; nothing is transcribed from a prior
-record.
+Measured by lane `codexfactory-1` (session name `codeXfactory-1`) on 2026-09-08,
+on branch `change/pin-openspec-cli-dependency-closure`, against the LIVE npm
+registry with `npm 11.19.0` and `node v22.22.2`. Every number below is a
+command's own output or a walk of a tree that command produced; nothing is
+transcribed from a prior record.
 
 ## 1. What was unpinned, restated from the artifact itself
 
@@ -137,10 +137,13 @@ tree cannot be served in another's name.
 Quoted from the run that first proved the closure path, and left as it was
 recorded. **`Totals:` counts ITEMS IN THE CORPUS, not this packet** — it rises
 whenever `main` lands a change, so it is reported with the run that produced it
-and never carried forward as a claim. The same invocation on this branch after
-the round-8 merge of `origin/main` reported `Totals: 103 passed, 2 failed (105
-items)`, exit 0, the same `2 applied` and the same `0 UNDISPOSITIONED failures`.
-Those last three are the load-bearing figures and they have not moved once.
+and never carried forward as a claim. The same invocation on this branch at the
+RATIFYING commit reported `Totals: 102 passed, 2 failed (104 items)`, exit 0, the
+same `2 applied` and the same `0 UNDISPOSITIONED failures`. It has read 101, 102,
+104 and 105 items across this pull request's heads as `main` landed and archived
+changes underneath it; the three figures that have NOT moved once — exit 0, two
+dispositioned, zero undispositioned — are the load-bearing ones, which is why
+they are the ones stated rather than the total.
 
 ```
 $ python3 scripts/validate-openspec-cli-pin.py --repo . --all --no-cache
@@ -199,15 +202,26 @@ than carry arithmetic, and no delta is spelled out in words. The four Copilot
 review rounds of 2026-09-08/09 moved these figures four times, which is the
 argument for measuring rather than remembering them.
 
-Measured on this branch after the round-8 merge of `origin/main`:
+Measured on this branch at the RATIFYING commit, after its merge of
+`origin/main` (`ca4a1558`):
 
 | Run | Result |
 | --- | ------ |
 | `pytest tests/openspec_cli_pin -q` | **`154 passed`** |
 | `pytest tests/proposal-support -q` | **`95 passed, 2 subtests passed`** |
-| `pytest tests/sequenced_after -q` | **`195 passed`** |
-| the three together | **`444 passed, 2 subtests passed`** |
+| `pytest tests/sequenced_after -q` | **`235 passed`** |
+| the three together | **`484 passed, 2 subtests passed`** |
 | `pytest tests/proposal-support tests/openspec_cli_pin -q`, pinned CLI on PATH as the required job supplies it | **`249 passed, 2 subtests passed`** |
+
+**`tests/sequenced_after` moved 195 → 235 between round 8 and this commit and
+NOT ONE of the forty is this packet's**: they arrived from `main`
+(`tests/sequenced_after/test_archive_commit_dates.py`, landed by
+`fix/archive-date-vs-adding-commit`). It is recorded rather than quietly
+re-typed, because a suite this packet does not own is a suite whose count will
+move again, which is the whole argument for measuring at a named head instead of
+remembering a number. This packet's own two suites — `openspec_cli_pin` and
+`proposal-support` — are unmoved at 154 and 95, and the ratifying commit adds no
+test to either.
 
 `tests/openspec_cli_pin` stood at **93** before this packet and **154** after it.
 The intermediate heads, for anyone reading the review threads in order: **123**

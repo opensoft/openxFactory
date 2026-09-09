@@ -5,8 +5,8 @@ Status: draft
 ## 0. The ruling, recorded verbatim, and what it did and did not settle
 
 **Brett Heap, 2026-09-08T14:14:49Z, first-hand, in session**, on a four-option
-packet put to him by lane `codeXfactory-1`. The timestamp is the one the lane's
-CLAIMED comment carries on openxFactory PR #667.
+packet put to him by lane `codexfactory-1` (session name `codeXfactory-1`). The
+timestamp is the one the lane's CLAIMED comment carries on openxFactory PR #667.
 
 The four options, as they were put:
 
