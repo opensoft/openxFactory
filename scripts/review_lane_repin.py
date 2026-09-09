@@ -61,12 +61,50 @@ import yaml
 
 SOURCE_REPOSITORY = "opensoft/codexFactory"
 
-# Where the pinned core keeps the authoritative floor document. Restated as a
-# literal rather than read out of the pin, for the reason
+# Where the pinned core keeps the authoritative floor document. Restated as
+# literals rather than read out of the pin, for the reason
 # `tests/review_lane_pin/test_floor_snapshot.py` gives about its own copy of
 # this constant: a value read from the artifact it is used to check makes the
 # check a tautology.
-FLOOR_IN_SOURCE = "scripts/merge_master/openxfactory-review-authority-floor.yaml"
+#
+# AN ORDERED LIST, AND IT IS A MIGRATION WINDOW RATHER THAN A FEATURE.
+# `relocate-review-authority-floor-mirror` (ratified 2026-09-08, PR #817)
+# realizes M-1 step (1): codexFactory is relocating this document off every
+# CODEOWNERS prefix (`relocate-review-authority-floor`, codexFactory #293), and
+# a two-repository move cannot be atomic — if codexFactory moved first, every
+# firing of this lane would refuse `floor_document_unobtainable`. So the lane
+# resolves the document through the candidates BELOW, IN ORDER, and takes the
+# FIRST one obtained.
+#
+# THE PATH IN FORCE IS FIRST, AND THAT IS THE WHOLE SAFETY ARGUMENT (M-2).
+# Until codexFactory actually moves the file, candidate one always resolves and
+# this lane behaves EXACTLY as it did with a single path — so landing this ahead
+# of another repository's change is an observable no-op rather than a leap.
+# Newest-first would change behaviour on the day this landed instead of on the
+# day the document moved.
+#
+# IT RETURNS TO ONE ENTRY (M-1 step (3)). Once one advance has been observed
+# against the successor, the superseded entry is deleted and this is a
+# single-path constant again. A standing list of two would mean the lane no
+# longer knows where the document lives, and a file reappearing at the abandoned
+# path — by a revert, a bad cherry-pick, or an author who did not read the
+# relocation — would be byte-copied into this repository's witnessed snapshot.
+#
+# THE LANE NEVER SEARCHES (M-7). It resolves ONLY these paths, in this order. No
+# lookup by `kind: repository_gate_floor`, by basename, or by code search: a
+# discovered file is one an author elsewhere can plant, and what is found here is
+# copied verbatim into `contracts/review-lane-floor-snapshot.yaml`.
+FLOOR_IN_SOURCE_CANDIDATES: tuple[str, ...] = (
+    # The path in force today.
+    "scripts/merge_master/openxfactory-review-authority-floor.yaml",
+    # The successor `relocate-review-authority-floor` D-1 names.
+    "floor/openxfactory-review-authority-floor.yaml",
+)
+
+# The head of the list: the path in force. Kept as its own name because every
+# message that names ONE path means this one, and because a reader looking for
+# the old single-valued constant finds it still saying what it always said.
+FLOOR_IN_SOURCE = FLOOR_IN_SOURCE_CANDIDATES[0]
 
 SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -199,6 +237,11 @@ class Advance:
     before: Witnesses
     after: Witnesses
     clears: tuple[str, ...]
+    #: The candidate path the document was ACTUALLY obtained from. Carried on
+    #: the outcome rather than re-derived where the body is built, so the
+    #: witness a reviewer reads and the path the lane read are the same value
+    #: and cannot drift apart during the migration window.
+    floor_source_path: str = FLOOR_IN_SOURCE
 
     def as_dict(self) -> dict:
         return {"action": "advance",
@@ -207,6 +250,7 @@ class Advance:
                 "source_repository": SOURCE_REPOSITORY,
                 "source_default_branch": self.source_default_branch,
                 "reachability_evidence": self.reachability_evidence,
+                "floor_source_path": self.floor_source_path,
                 "before": self.before.as_dict(),
                 "after": self.after.as_dict(),
                 "clears": list(self.clears)}
@@ -334,7 +378,8 @@ def plan_advance(*, current_core: str | None,
                  candidate_reachable: bool | None,
                  reachability_evidence: str,
                  floor_bytes: bytes | None,
-                 snapshot_bytes: bytes | None) -> Outcome:
+                 snapshot_bytes: bytes | None,
+                 floor_source_path: str | None = None) -> Outcome:
     """Decide, from measurements alone, whether an advance is owed.
 
     THE ORDER OF THE REFUSALS IS THE POINT. Landedness is checked BEFORE the
@@ -373,10 +418,18 @@ def plan_advance(*, current_core: str | None,
             f"(`{PIN_FILE}` lines 375-382). No site is changed")
 
     if floor_bytes is None:
+        # EVERY CANDIDATE IS NAMED, not just the first. The refusal fires only
+        # when NONE of the declared paths resolved, so a reader must be able to
+        # see the whole set that was tried without going to the workflow — and a
+        # migration that has gone wrong in BOTH directions reads as one refusal
+        # rather than as a puzzle about which path was meant.
+        tried = ", ".join(f"`{c}`" for c in FLOOR_IN_SOURCE_CANDIDATES)
         return Refusal(
             "floor_document_unobtainable",
-            f"`{FLOOR_IN_SOURCE}` could not be obtained from "
-            f"{SOURCE_REPOSITORY}@{candidate_commit}. The other four sites are "
+            f"the authoritative floor document could not be obtained from "
+            f"{SOURCE_REPOSITORY}@{candidate_commit} at any declared path "
+            f"({tried}). The lane resolves ONLY these paths, in this order, and "
+            "never searches for the document. The other four sites are "
             "NOT advanced without it: an advance carrying a stale witness is "
             "worse than no advance")
 
@@ -386,10 +439,30 @@ def plan_advance(*, current_core: str | None,
             f"`{SNAPSHOT_FILE}` is not on disk; there is nothing to compare "
             "the authoritative document against")
 
+    # THE OBTAINED PATH IS VALIDATED, NOT ECHOED. It arrives from the workflow
+    # as a string and is written into the witness lines, the pull-request body
+    # and the repeat commands a reviewer runs — so an unnoticed mis-wiring
+    # would put a path this lane never resolves in front of the one person
+    # checking it. It must be one of the DECLARED candidates: anything else is
+    # refused rather than reported, on the same fail-closed footing as the
+    # absent document below.
+    if floor_source_path and floor_source_path not in FLOOR_IN_SOURCE_CANDIDATES:
+        declared = ", ".join(f"`{c}`" for c in FLOOR_IN_SOURCE_CANDIDATES)
+        return Refusal(
+            "floor_source_path_undeclared",
+            f"the lane reported obtaining the floor document from "
+            f"`{floor_source_path}`, which is not one of the declared "
+            f"candidates ({declared}). A witness naming a path this lane does "
+            "not resolve is worse than no witness, and the lane never searches "
+            "beyond the declared list, so this is a wiring fault and not a "
+            "relocation. No site is changed")
+
+    obtained = floor_source_path or FLOOR_IN_SOURCE
+
     if floor_bytes == snapshot_bytes:
         return NoOp(
             f"nothing is owed: `{SNAPSHOT_FILE}` is byte-identical to "
-            f"`{FLOOR_IN_SOURCE}` at "
+            f"`{obtained}` at "
             f"{SOURCE_REPOSITORY}@{source_default_branch} ({candidate_commit}); "
             f"the pin stays at {current_core}")
 
@@ -397,6 +470,7 @@ def plan_advance(*, current_core: str | None,
                    core_before=current_core,
                    source_default_branch=source_default_branch,
                    reachability_evidence=reachability_evidence,
+                   floor_source_path=obtained,
                    before=witnesses_of(snapshot_bytes),
                    after=witnesses_of(floor_bytes),
                    clears=tuple(newly_floored_paths(snapshot_bytes,
@@ -570,7 +644,8 @@ def render_pr_body(advance: Advance, *, run_url: str,
         f"`{advance.source_default_branch}`, resolved at run time by this lane "
         "— **not** taken from any event payload.",
         f"- {advance.reachability_evidence}",
-        f"- The vendored snapshot is a BYTE COPY of `{FLOOR_IN_SOURCE}` at "
+        f"- The vendored snapshot is a BYTE COPY of "
+        f"`{advance.floor_source_path}` at "
         f"`{advance.candidate_commit}`; its `sha256` and `entry_count` above "
         "are computed from the bytes written to it, not carried across from "
         "codexFactory.",
@@ -582,7 +657,8 @@ def render_pr_body(advance: Advance, *, run_url: str,
         f"gh api repos/{SOURCE_REPOSITORY}/compare/"
         f"{advance.source_default_branch}...{advance.candidate_commit} "
         "--jq .status",
-        f"gh api repos/{SOURCE_REPOSITORY}/contents/{FLOOR_IN_SOURCE}"
+        f"gh api repos/{SOURCE_REPOSITORY}/contents/"
+        f"{advance.floor_source_path}"
         f"?ref={advance.candidate_commit} "
         "-H 'Accept: application/vnd.github.raw' | sha256sum",
         "```",
@@ -634,6 +710,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--floor-document", default=None,
                         help="a file holding the authoritative floor "
                              "document's bytes at the candidate commit")
+    parser.add_argument("--floor-source-path", default=None,
+                        help="the candidate path the floor document was "
+                             "actually obtained from, for the witness lines. "
+                             "Absent means the path in force")
     parser.add_argument("--run-url", default="")
     parser.add_argument("--plan-out", default=None)
     parser.add_argument("--body-out", default=None)
@@ -655,7 +735,8 @@ def main(argv: list[str] | None = None) -> int:
         candidate_reachable=_tri_state(args.candidate_reachable),
         reachability_evidence=args.reachability_evidence,
         floor_bytes=floor_bytes,
-        snapshot_bytes=snapshot_bytes)
+        snapshot_bytes=snapshot_bytes,
+        floor_source_path=args.floor_source_path)
 
     payload = outcome.as_dict()
 

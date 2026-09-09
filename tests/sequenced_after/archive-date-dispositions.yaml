@@ -1,0 +1,221 @@
+schema_version: 1
+kind: archive_date_dispositions
+
+# ARCHIVE-DATE DISPOSITIONS - the measured disagreements between an archived
+# directory's NAME and the UTC date of the commit that added it, each accepted
+# once, in place, on the record.
+#
+# WHAT THIS FILE IS FOR. `openspec/changes/archive/<YYYY-MM-DD>-<id>/` is an
+# archive's DATE OF RECORD: ledger rows, ratification records, README index
+# entries and cross-references in other archives all read it, and
+# `sequenced_after.ARCHIVE_DIR` parses it as fact. A name one day away from the
+# commit that created it therefore states a day the archive did not happen on.
+# `scripts/validate-sequenced-after.py .` measures every archived directory
+# against its adding commit on the plain run (issue #812) and reports each
+# disagreement by name; an entry here is what says a disagreement has been
+# LOOKED AT, and by whom.
+#
+# THE RULING. Brett Heap, 2026-09-08, verbatim: "rule 1 + 2a on 812, this lane
+# authors it" - (1) MEASURE the disagreement as a named finding; (2a)
+# DISPOSITION the known cases IN PLACE, names untouched. History is history and
+# every citation stands: renaming a directory would move every record that
+# points at it, to correct a name whose only defect is that it is one day early.
+#
+# ENTRIES ARE ADDED ONLY FOR A MEASURED DISAGREEMENT, AND NEVER IN ADVANCE.
+# A pre-emptive entry - one written for an archive that has not happened, or for
+# a directory that agrees - is a disposition of a fact that does not exist; the
+# validator reports it STALE and reds the run, which is the intended answer.
+#
+# WHAT THE MEASUREMENT CAN AND CANNOT SAY. This arm compares a NAME to a COMMIT.
+# It cannot tell you WHY they differ, and FOUR different causes produce the
+# same shape - which is exactly why an entry carries a `fact` and a `ruled_by`
+# rather than merely a directory name:
+#
+#   1. A LOCAL CLOCK BEHIND UTC named the directory. The defect, and the ten
+#      below. `proposal-support.py archive` now OWNS THE CLOCK at the archive
+#      act (#797, issue #790) - it derives today in UTC once, runs the pinned
+#      OpenSpec CLI under `TZ=UTC`, and asserts the directory the CLI left - so
+#      this cause cannot recur through the wrapper.
+#   2. THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS. The wrapper
+#      owns the clock at the ACT; the adding commit is made (and, squash-merged,
+#      dated) later. An archive named just before UTC midnight and merged just
+#      after is a CORRECT archive that this arm reports. 132 of this corpus's
+#      144 directories agree, so it is rare - not impossible.
+#   3. THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX, which the
+#      pinned CLI preserves DELIBERATELY (`archive.js:1119-1124`: re-prefixing
+#      would stutter the name and sort the folder under a day the change did not
+#      happen on), and `archive_directory_name()` computes the expected name by
+#      that same rule. Such a directory carries the date IN THE ID and will
+#      normally disagree with its adding commit. The estate has no such change
+#      today.
+#   4. AN ARCHIVED DIRECTORY WAS RENAMED INSIDE `archive/` AFTER ITS ARCHIVE
+#      ACT. The walk is `--no-renames` DELIBERATELY - the question is "when did
+#      this NAME come to exist" - so the destination reads as an ADD at the
+#      RENAME commit and may disagree with the name by any distance, not merely
+#      a day (a fixture renaming a directory a month later reproduces it
+#      exactly). The lawful disposition cites the RENAME commit as
+#      `adding_commit` and NAMES THE ARCHIVE ACT ITSELF in `fact`, which is
+#      what the two entries below do. Rename detection is NOT the repair: under
+#      `-M` the destination never appears as `A` at all, so the directory would
+#      be silently unmeasured - worse than a finding a disposition can answer.
+#
+# CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured, and
+# their `fact` must say which one it is rather than borrowing the clock sentence
+# below - a disposition's whole value is that it records the judgement the
+# measurement could not make. What is forbidden is writing any of them BEFORE it
+# is measured. (Codex P2, PR #820: the earlier wording forbade every future
+# entry, which left a correct archive of shape 2 or 3 with no lawful repair at
+# `enforcement: error`.)
+#
+# A STALE ENTRY IS ITSELF A DEFECT and is reported as one: an entry naming a
+# directory that no longer exists, one whose directory AGREES with its adding
+# commit, and one citing a commit or a date that history does not carry are all
+# findings. The record's authority is that every entry states a fact anyone can
+# re-measure; an entry nobody can check silences a finding on nothing.
+#
+# ENFORCEMENT. `error` - the reading the ruling asks for once every measured
+# disagreement carries a disposition, which the twelve below make true: the
+# live corpus is green with 0 undispositioned findings. `warning` prints the
+# same findings and leaves the run's verdict alone, and is what a repository
+# adopting this arm sets while it writes its own dispositions.
+# `--strict-archive-dates` asks for `error` regardless, and never for less.
+#
+# KEYS
+#   directory        the archived directory, exactly as it is named on disk.
+#   directory_date   the date its NAME carries.
+#   adding_commit    the FULL object name of the oldest commit adding any file
+#                    under it (`git log --diff-filter=A --reverse --no-renames
+#                    --name-only -- openspec/changes/archive`). Never
+#                    abbreviated: this is a citation, and an abbreviation is
+#                    ambiguous by construction.
+#   commit_date_utc  that commit's COMMITTER date, in UTC. (Author and
+#                    committer dates agree on all 144 directories of this
+#                    corpus; the committer date is recorded because it is when
+#                    the commit entered this history, which is the act the
+#                    directory name claims to date.)
+#   fact             what happened, in the vocabulary above. Two appear below -
+#                    cause 1 (ten entries) and cause 4 (two, which also cite the
+#                    archive act the rename moved); a later entry of cause 2 or
+#                    3 names its own.
+#   ruled_by         the ruling that accepted it.
+#   cited_to         where the measurement and the ruling are recorded.
+#
+# EVERY SCALAR IN AN ENTRY IS QUOTED, the same rule the corpus ledger beside it
+# settled on: an unquoted `2026-06-26` is a DATE to YAML and not a string, an
+# all-digit object name would be an int, and one quoting rule is easier to keep
+# right than a per-key judgement about which entry values happen to be safe
+# unquoted. THE THREE FILE KEYS ABOVE ARE DELIBERATELY NOT QUOTED and must stay
+# that way: `schema_version` is an INTEGER the loader compares to `1`, and
+# `kind` and `enforcement` are enumerated bare tokens it compares to a fixed
+# set — quoting `schema_version` would make it the string `"1"` and the record
+# would be refused. (Copilot round 1: the sentence said "every scalar" and the
+# file keys contradicted it.)
+
+enforcement: error
+
+dispositions:
+  - directory: "2026-06-26-enable-live-openxfactory"
+    directory_date: "2026-06-26"
+    adding_commit: "746be44f7af6f6bce51ee75602d7a77951efa1df"
+    commit_date_utc: "2026-07-02"
+    fact: "renamed within archive/ on 2026-07-02 by
+      746be44f7af6f6bce51ee75602d7a77951efa1df, from
+      2026-06-26-enable-live-openworkflow-factory; the archive act itself,
+      484042de8b83d8b96d8e1eb32ef848c2356eab74 on 2026-06-26 UTC, AGREES with
+      the name - under --no-renames the new name attributes to the rename
+      commit"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-06-26-migrate-canonical-policy-to-openxfactory"
+    directory_date: "2026-06-26"
+    adding_commit: "746be44f7af6f6bce51ee75602d7a77951efa1df"
+    commit_date_utc: "2026-07-02"
+    fact: "renamed within archive/ on 2026-07-02 by
+      746be44f7af6f6bce51ee75602d7a77951efa1df, from
+      2026-06-26-migrate-canonical-policy-to-openworkflow; the archive act
+      itself, d7b66d725cd8f291366871fb2f09f5a4b1587579 on 2026-06-26 UTC,
+      AGREES with the name - under --no-renames the new name attributes to the
+      rename commit"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-04-add-ideation-cross-reference-readiness"
+    directory_date: "2026-08-04"
+    adding_commit: "7bf79c63af9d9d73b0419d13136d7ba20c589f6a"
+    commit_date_utc: "2026-08-05"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-04-add-possibles-derivation-lane"
+    directory_date: "2026-08-04"
+    adding_commit: "6d1994c7695328d5a2441dc3da537e3577e785dd"
+    commit_date_utc: "2026-08-05"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-04-adopt-neutral-utility-pack"
+    directory_date: "2026-08-04"
+    adding_commit: "61ecb5a5a3632a7aad03879892b6f143bcf31deb"
+    commit_date_utc: "2026-08-05"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-04-implement-avatar-client-lab"
+    directory_date: "2026-08-04"
+    adding_commit: "25d8e1c6691f0b636de8eff8acee4d171d206f5e"
+    commit_date_utc: "2026-08-05"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-06-add-opendox-project-header"
+    directory_date: "2026-08-06"
+    adding_commit: "01198cce1244a938243120232b5ad379cd94a4bb"
+    commit_date_utc: "2026-08-07"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-06-add-project-scoped-selection"
+    directory_date: "2026-08-06"
+    adding_commit: "01198cce1244a938243120232b5ad379cd94a4bb"
+    commit_date_utc: "2026-08-07"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-06-add-proposal-origin-contract"
+    directory_date: "2026-08-06"
+    adding_commit: "5ea242643f0466641b84ff72e51790074cc1e297"
+    commit_date_utc: "2026-08-07"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-09-qualify-avatar-brokered-call-feasibility"
+    directory_date: "2026-08-09"
+    adding_commit: "e34dce6e8cbd7e86cc946b1e0556ece65b5dbcf4"
+    commit_date_utc: "2026-08-10"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-08-25-add-dispatch-credential-contract"
+    directory_date: "2026-08-25"
+    adding_commit: "881e1c058fba71668224380ede404c5f9e7c0eb1"
+    commit_date_utc: "2026-08-26"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-09-04-add-chain-anchoring"
+    directory_date: "2026-09-04"
+    adding_commit: "66d11a2422e778e9c6f7fe6dc358af83f9c1648d"
+    commit_date_utc: "2026-09-05"
+    fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"

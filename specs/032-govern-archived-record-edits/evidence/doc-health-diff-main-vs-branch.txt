@@ -1,0 +1,8 @@
+9c9
+< Canon share by words: 38.9% (345150 canon words / 886876 governance words, promoted specs included).
+---
+> Canon share by words: 38.9% (345349 canon words / 887075 governance words, promoted specs included).
+33c33
+< | standard | 6 | 16115 |
+---
+> | standard | 6 | 16314 |

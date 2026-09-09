@@ -22,6 +22,61 @@ immediately before the approval — so the defaults stand: **every declared
 family, report-then-refuse, and TWO ADDED requirements.**
 Lane: opsXfactory-1
 
+**REALIZATION NOTE — added 2026-09-08 by this change's own realization
+(`govern-archived-record-edits`, lane `opsXfactory-1`). Purely additive: the
+sentences it corrects are QUOTED, never rewritten, and the YAML front matter
+above is byte-unchanged.** Realization has now happened, on the same day as
+ratification, and it adds TWO artifacts the enumerations below do not name.
+
+The `code_surface:` front matter enumerates this packet's whole diff:
+
+> this packet's whole diff is governance text in openxFactory: one
+> `document-lifecycle` spec delta (two `## ADDED` requirements and one
+> `## MODIFIED`), this packet's own four files, one README "OpenSpec Records"
+> row, and one `tests/sequenced_after/corpus-ledger.yaml` row.
+
+**That enumeration is now incomplete in three ways, and it is corrected here
+rather than rewritten** — editing the folded `code_surface:` scalar would change
+a ratified front-matter value the archive gate reads. (1) It does not name
+`docs/document-lifecycle.md`, which task 3.4 requires this repository to edit and
+which realization edited at commit `645e88ec`. (2) It does not name this packet's
+new `evidence/realization-2026-09-08.md`. (3) "this packet's own four files" was
+already a count taken before the packet's own `review/` record existed; the packet
+holds SEVEN files at this head. **NOT superseded, and still exactly true:**
+`code_surface: none` itself, and every clause after the enumeration — no contract
+is added or changed, `contracts/manifest.yaml` is untouched, no digest inventory
+moves, no `contracts/CHANGELOG.md` line is owed, no release tag is owed, and NO
+validator, workflow, script or test changes. Realization wrote no checker and no
+pin, so the declared value stands and `target_release: implemented` is unaffected.
+
+**TWO SENTENCES IN THIS PROPOSAL ASSERT THE UNTICKED STATE, and both are
+superseded by the same act.** From the header block above:
+
+> **RATIFICATION PERFORMS NO REALIZATION.** No document is amended, no archived
+> byte is edited, no pin is re-derived, no checker is written, no spec delta is
+> promoted, and every box in `tasks.md` stays unticked; realization is a later,
+> separately claimed act.
+
+and from § *THAT RULING IS AN ADMISSION TO THE QUEUE* below:
+
+> Whether these words say it correctly is Brett Heap's to decide, and until he
+> does this packet is `draft` and every box in `tasks.md` stays unticked.
+
+Superseded in one respect only: `tasks.md` now carries 19 boxes ticked with dated
+evidence, 8 with dated NOT-OWED lines, and 1 — box 4.2 — run, recorded and
+deliberately left open. **NOT superseded, and borne out by what happened:**
+"realization is a later, separately claimed act" — it was, under the lane's
+standing claim on openxFactory issue #630 — and the first sentence's other five
+clauses, which remain true, since ratification itself amended no document and
+realization is what did. The second sentence's condition was discharged on
+2026-09-08: he decided, this packet is `Status: ratified`, and it is no longer
+`draft`.
+
+**STILL TRUE AND NOT WEAKENED BY ANY OF THIS**: no archived byte was edited, no
+pin was re-derived, no checker was written, no repository's local convention was
+amended, and the spec delta reaches promoted canon only at the ARCHIVE ACT, which
+has not happened.
+
 Origin: Brett Heap's **F.3** ruling, in session, first-hand to lane
 `opsXfactory-1`, given on OpsxFactory PR #248 in **TWO comments on two days**,
 and both are named because each carries one of the two verbatim selections. The

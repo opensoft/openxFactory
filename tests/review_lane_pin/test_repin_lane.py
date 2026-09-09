@@ -345,10 +345,21 @@ class TheLaneRefusesACommitTheSourceDefaultBranchDoesNotCarry(
         for smuggled in ("--payload", "--client-payload", "--event",
                          "--event-payload", "--dispatch", "--ref"):
             self.assertNotIn(smuggled, options)
+        # THE SET MOVED ONCE, AND THE REASON IS RECORDED RATHER THAN THE PIN
+        # BEING WIDENED QUIETLY. `floor_source_path` was added by M-1 step (1)
+        # of `relocate-review-authority-floor-mirror`: during the governed
+        # relocation the lane resolves an ORDERED list of candidate paths, and
+        # WHICH one answered is a MEASUREMENT THE WORKFLOW MADE — the same class
+        # as `candidate_reachable` or `reachability_evidence`, and the exact
+        # thing this assertion exists to admit. It is not payload-shaped: it
+        # cannot come from an event, it is compared against the module's own
+        # declared candidate list, and it changes no decision — only which path
+        # the witnesses name. It returns to seven at M-1 step (3), when the list
+        # returns to one entry and the parameter has nothing left to say.
         self.assertEqual(
             {"current_core", "source_default_branch", "candidate_commit",
              "candidate_reachable", "reachability_evidence", "floor_bytes",
-             "snapshot_bytes"},
+             "snapshot_bytes", "floor_source_path"},
             set(inspect.signature(R.plan_advance).parameters))
 
         self.assertRegex(LANE_SHELL, r"gh api \"repos/\$\{SOURCE_REPOSITORY\}\"")
@@ -1418,6 +1429,313 @@ class EveryRatifiedScenarioHasATest(unittest.TestCase):
         self.assertEqual(
             set(), missing,
             "these ratified scenarios are claimed by no test docstring")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# M-1 STEP (1): DUAL-PATH ACCEPTANCE DURING THE GOVERNED RELOCATION
+#
+# Realizes `relocate-review-authority-floor-mirror` (ratified 2026-09-08 by
+# Brett Heap, verbatim "ratify 293 and 817 when green, then realize them";
+# landed as openxFactory #817 -> `c98a0544`). codexFactory is relocating the
+# authoritative floor document off every CODEOWNERS prefix
+# (`relocate-review-authority-floor`, codexFactory #293 -> `e4e13599`), and a
+# two-repository move cannot be atomic: if codexFactory moved first, every
+# firing of this lane would refuse `floor_document_unobtainable`.
+#
+# WHAT THESE CASES PIN, and each is a decision of that packet rather than a
+# taste of this author's:
+#   M-2  the list is ORDERED and the PATH IN FORCE IS FIRST, which is what makes
+#        this realization an observable NO-OP until the document actually moves;
+#   M-3  the refusal keeps its identifier and fires only when NO candidate
+#        resolved, naming every path tried;
+#   M-4  the binding's `source_documents:` is an ADDITIONAL declared site, a
+#        RECOMMENDATION with MQ-2 still open — so it is asserted to AGREE when
+#        present and asserted to be depended upon by NOTHING;
+#   M-6  `contracts/review-lane-pin.yaml` does NOT move in this step;
+#   M-7  the lane never SEARCHES beyond the declared list.
+# ═══════════════════════════════════════════════════════════════════════════
+
+PIN_FILE = REPO_ROOT / "contracts/review-lane-pin.yaml"
+
+#: The ordered list, restated here as a LITERAL for the same reason the lane and
+#: the module each restate it: a value read from the artifact it is used to
+#: check makes the check a tautology. This is the fourth independent
+#: declaration, and the point of the first test below is that all of them agree.
+EXPECTED_CANDIDATES = (
+    "scripts/merge_master/openxfactory-review-authority-floor.yaml",
+    "floor/openxfactory-review-authority-floor.yaml",
+)
+
+
+def _workflow_candidates() -> tuple[str, ...]:
+    """The lane's declared list, read out of the workflow's `env:` block."""
+    for job in LANE_DOC["jobs"].values():
+        declared = (job.get("env") or {}).get("FLOOR_IN_SOURCE_CANDIDATES")
+        if declared:
+            return tuple(line.strip() for line in declared.splitlines()
+                         if line.strip())
+    return ()
+
+
+def _binding_source_documents() -> tuple[str, ...] | None:
+    """The binding's declared read surface, or None when M-4 is not taken."""
+    doc = yaml.safe_load(BINDING_TEMPLATE.read_text(encoding="utf-8"))
+    declared = ((doc.get("privileges") or {}).get("source_repository") or {}
+                ).get("source_documents")
+    return None if declared is None else tuple(declared)
+
+
+def _floor_document(entries: int) -> bytes:
+    """The smallest document `floor_entry_count` accepts, with N entries.
+
+    Hand-built rather than copied from the vendored snapshot: these cases are
+    about WHICH PATH the bytes came from, not about what the bytes say, and a
+    fixture that carried the real floor would go stale on every regeneration.
+    """
+    paths = "\n".join(f"    - governance/p{i}.yaml" for i in range(entries))
+    return (f"schema_version: 1\nkind: repository_gate_floor\n"
+            f"floor:\n  id: probe\n  repository: opensoft/openxFactory\n"
+            f"  never_clearable_paths:\n{paths}\n").encode("utf-8")
+
+
+def _fetch_step() -> dict:
+    for job in LANE_DOC["jobs"].values():
+        for step in job.get("steps", []):
+            if step.get("id") == "floor":
+                return step
+    raise AssertionError("the lane has no `floor` fetch step")
+
+
+class DualPathAcceptance(unittest.TestCase):
+    """The declared candidate list, and the properties the packet ratified."""
+
+    def test_every_declaration_of_the_list_carries_the_same_ordered_list(self):
+        """Scenario: The declarations are asserted to agree.
+
+        THE DUPLICATION IS DELIBERATE AND THIS IS WHAT HOLDS IT HONEST. The
+        workflow, the module and this test each carry the list as a literal,
+        because `scripts/review_lane_repin.py` records that "a value read from
+        the artifact it is used to check makes the check a tautology". Nothing
+        reads the list from the binding at run time either. So the agreement is
+        ASSERTED rather than arranged, and a hand that edits one site and not
+        the others reds here instead of shipping a lane whose three declarations
+        disagree about where the document lives.
+        """
+        self.assertEqual(EXPECTED_CANDIDATES, tuple(R.FLOOR_IN_SOURCE_CANDIDATES),
+                         "the module's list disagrees with this test's literal")
+        self.assertEqual(EXPECTED_CANDIDATES, _workflow_candidates(),
+                         "the workflow's list disagrees with the module's")
+        binding = _binding_source_documents()
+        if binding is not None:
+            self.assertEqual(
+                EXPECTED_CANDIDATES, binding,
+                "the binding declares a read surface that disagrees with the "
+                "list the lane actually resolves — M-4 is documentation, and "
+                "documentation that lies is worse than none")
+
+    def test_the_two_single_path_declarations_equal_candidate_one(self):
+        """Scenario: The declarations are asserted to agree.
+
+        TWO SITES DECLARE ONE PATH RATHER THAN THE LIST, AND CONFLATING THEM
+        WITH THE LIST IS THE MISTAKE THIS CASE EXISTS TO STOP.
+        `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and the literal in
+        `test_review_lane_caller.py` both declare what
+        `contracts/review-lane-pin.yaml` NAMES — and M-6 freezes that pin until
+        M-1 step (3). Making either carry the successor would land step (3)
+        early and point a live pin at a file codexFactory has not created. So
+        the assertion that fits them is HEAD-EQUALITY: each must equal candidate
+        one, the path in force, and each must NOT yet name the successor.
+        """
+        for path in (REPO_ROOT / "tests/review_lane_pin/test_floor_snapshot.py",
+                     REPO_ROOT / "tests/review_lane_pin/test_review_lane_caller.py"):
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(
+                EXPECTED_CANDIDATES[0], text,
+                f"{path.name} no longer declares the path in force; it "
+                "declares what the pin names, and the pin does not move until "
+                "M-1 step (3)")
+            self.assertNotIn(
+                EXPECTED_CANDIDATES[1], text,
+                f"{path.name} already names the successor path — that is M-1 "
+                "step (3) landing early, ahead of the file existing")
+
+    def test_the_path_in_force_is_first_so_this_realization_is_a_no_op(self):
+        """Scenario: The first candidate resolves and nothing is different.
+
+        M-2, AND IT IS THE SAFETY ARGUMENT FOR LANDING THIS AHEAD OF ANOTHER
+        REPOSITORY'S CHANGE. Until codexFactory actually moves the file,
+        candidate one always resolves and the lane behaves exactly as it did
+        with a single path. Newest-first would change behaviour on the day this
+        landed rather than on the day the document moved, and the ordering is
+        therefore load-bearing rather than cosmetic.
+        """
+        self.assertEqual(
+            EXPECTED_CANDIDATES[0], R.FLOOR_IN_SOURCE,
+            "the module's single-valued name must still be the path in force")
+        self.assertEqual(
+            "scripts/merge_master/openxfactory-review-authority-floor.yaml",
+            EXPECTED_CANDIDATES[0],
+            "candidate one is the path codexFactory has NOT yet moved away "
+            "from; if this ever needs editing, that is M-1 step (3) and it is "
+            "a separate ratified act")
+
+    def test_the_refusal_names_every_candidate_and_fires_only_when_none_resolve(self):
+        """Scenario: A missing copy refuses the whole advance.
+
+        M-3. The identifier does not change, no variant is introduced, and the
+        message names the WHOLE set tried — a migration that has gone wrong in
+        both directions must read as one refusal rather than as a puzzle about
+        which path was meant.
+        """
+        outcome = R.plan_advance(
+            current_core="a" * 40, source_default_branch="main",
+            candidate_commit="b" * 40, candidate_reachable=True,
+            reachability_evidence="ev", floor_bytes=None,
+            snapshot_bytes=b"whatever")
+        payload = outcome.as_dict()
+        self.assertEqual("refuse", payload["action"])
+        self.assertEqual("floor_document_unobtainable", payload["stage"])
+        for candidate in EXPECTED_CANDIDATES:
+            self.assertIn(candidate, payload["reason"],
+                          "the refusal must name every path it tried")
+
+    def test_a_later_candidate_carries_its_own_name_into_every_witness(self):
+        """Scenario: A later candidate resolves during a governed relocation.
+
+        The witness a reviewer reads and the path the lane read are ONE value,
+        carried on the outcome rather than re-derived where the body is built,
+        so they cannot drift apart during the migration window.
+        """
+        successor = EXPECTED_CANDIDATES[1]
+        outcome = R.plan_advance(
+            current_core="a" * 40, source_default_branch="main",
+            candidate_commit="b" * 40, candidate_reachable=True,
+            reachability_evidence="ev", floor_bytes=_floor_document(3),
+            snapshot_bytes=_floor_document(2), floor_source_path=successor)
+        self.assertEqual("advance", outcome.as_dict()["action"])
+        self.assertEqual(successor, outcome.as_dict()["floor_source_path"])
+        self.assertEqual(successor, outcome.floor_source_path)
+
+    def test_a_noop_names_the_path_it_actually_read(self):
+        """Scenario: The first candidate resolves and nothing is different."""
+        same = _floor_document(2)
+        outcome = R.plan_advance(
+            current_core="a" * 40, source_default_branch="main",
+            candidate_commit="b" * 40, candidate_reachable=True,
+            reachability_evidence="ev", floor_bytes=same, snapshot_bytes=same,
+            floor_source_path=EXPECTED_CANDIDATES[1])
+        payload = outcome.as_dict()
+        self.assertEqual("noop", payload["action"])
+        self.assertIn(EXPECTED_CANDIDATES[1], payload["reason"])
+
+    def test_an_undeclared_obtained_path_is_refused_and_never_echoed(self):
+        """The reported path is VALIDATED, not echoed.
+
+        It is written into the witness lines, the pull-request body and the
+        repeat commands a reviewer runs, so a mis-wiring would put a path this
+        lane never resolves in front of the one person checking it. The refusal
+        composes with M-7: the lane never searches beyond the declared list, so
+        a path outside it is a WIRING FAULT and not a relocation, and the
+        message says so rather than leaving a reader to infer it.
+        """
+        outcome = R.plan_advance(
+            current_core="a" * 40, source_default_branch="main",
+            candidate_commit="b" * 40, candidate_reachable=True,
+            reachability_evidence="ev", floor_bytes=_floor_document(3),
+            snapshot_bytes=_floor_document(2),
+            floor_source_path="scripts/merge_master/somewhere-else.yaml")
+        payload = outcome.as_dict()
+        self.assertEqual("refuse", payload["action"])
+        self.assertEqual("floor_source_path_undeclared", payload["stage"])
+        self.assertIn("scripts/merge_master/somewhere-else.yaml",
+                      payload["reason"],
+                      "the refusal must name the value it was handed")
+        for candidate in EXPECTED_CANDIDATES:
+            self.assertIn(candidate, payload["reason"],
+                          "the refusal must name the declared set")
+        self.assertIn("wiring fault", payload["reason"])
+
+        # AND IT DOES NOT FIRE ON THE HONEST CASES. A declared path advances,
+        # and an ABSENT value falls back to the path in force — the shape the
+        # workflow produces when it reports nothing.
+        for good in (*EXPECTED_CANDIDATES, None, ""):
+            ok = R.plan_advance(
+                current_core="a" * 40, source_default_branch="main",
+                candidate_commit="b" * 40, candidate_reachable=True,
+                reachability_evidence="ev", floor_bytes=_floor_document(3),
+                snapshot_bytes=_floor_document(2), floor_source_path=good)
+            self.assertEqual("advance", ok.as_dict()["action"],
+                             f"a declared or absent value must not refuse: {good!r}")
+
+    def test_the_lane_never_searches_beyond_the_declared_list(self):
+        """Scenario: The document is never discovered.
+
+        M-7, AND IT IS A NEGATIVE CONTROL RATHER THAN A READING OF INTENT. A
+        discovered file is one an author in the OTHER repository can plant, and
+        whatever is found here is byte-copied into this repository's witnessed
+        snapshot. So the fetch step is asserted to contain no discovery verb and
+        no wildcard, and the module is asserted to name no path outside the
+        declared list.
+        """
+        run = _fetch_step()["run"]
+        for forbidden in ("/search/", "search?", "--jq '.tree",
+                          "git ls-files", "basename", "find ", "grep -r"):
+            self.assertNotIn(
+                forbidden, run,
+                f"the fetch step performs discovery via {forbidden!r}; the "
+                "lane resolves the declared list and refuses, never searches")
+        self.assertNotIn(
+            "*", run.split("FLOOR_IN_SOURCE_CANDIDATES")[-1],
+            "a wildcard in the resolution loop is a search by another name")
+        source = MODULE_SOURCE.read_text(encoding="utf-8")
+        stray = [line for line in source.splitlines()
+                 if "openxfactory-review-authority-floor.yaml" in line
+                 and not any(c in line for c in EXPECTED_CANDIDATES)]
+        self.assertEqual([], stray,
+                         "the module names a floor path outside the declared "
+                         "candidate list")
+
+    def test_the_binding_declaration_is_documentation_and_nothing_depends_on_it(self):
+        """M-4 is a RECOMMENDATION and MQ-2 is OPEN, so nothing may need it.
+
+        The ratified requirement mandates the declaration in the lane's own
+        sources and the run-time prohibition; the binding is an ADDITIONAL site.
+        Vetoing M-4 must delete that block and nothing else, so this asserts
+        that neither the lane nor the module READS the binding for this list —
+        which is also the tautology bar the packet inherited.
+        """
+        run = _fetch_step()["run"]
+        self.assertNotIn("BINDING", run,
+                         "the fetch step reads the binding at run time")
+        source = MODULE_SOURCE.read_text(encoding="utf-8")
+        self.assertNotIn("source_documents", source,
+                         "the module reads the binding's declared read surface, "
+                         "which makes the agreement check a tautology")
+        binding_text = BINDING_TEMPLATE.read_text(encoding="utf-8")
+        if "source_documents" in binding_text:
+            self.assertIn(
+                "MQ-2", binding_text,
+                "the block must record that it is a recommendation with an "
+                "open question, so a reader does not take it for a mandate")
+
+    def test_the_pin_does_not_move_in_this_step(self):
+        """M-6: `contracts/review-lane-pin.yaml` advances at step (3), not here.
+
+        It is a LIVE pin naming exactly ONE path, and it must name a path that
+        exists. Advancing it now would point it at a file codexFactory has not
+        yet created; that is why the packet sequences it last.
+        """
+        pin = yaml.safe_load(PIN_FILE.read_text(encoding="utf-8"))
+        named = [entry.get("path") for entry in (pin.get("pinned_members") or [])]
+        named.append((pin.get("floor_snapshot") or {}).get("of"))
+        self.assertIn(
+            EXPECTED_CANDIDATES[0], named,
+            "the pin must still name the path in force; moving it is M-1 step "
+            "(3) and needs the successor to exist first")
+        self.assertNotIn(
+            EXPECTED_CANDIDATES[1], named,
+            "the pin already names the successor path — that is M-1 step (3) "
+            "landing early, before codexFactory has created it")
 
 
 if __name__ == "__main__":  # pragma: no cover
