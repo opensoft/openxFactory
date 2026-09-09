@@ -2898,3 +2898,39 @@ def test_a_family_level_skip_still_carries_what_the_repositories_established():
     assert len(_established_absence(out.findings)) == 1, (
         "and the record the amended `AND` requires is not abandoned at the "
         "family boundary either")
+
+
+def test_a_wholly_unaskable_family_manufactures_no_findings(tmp_path):
+    """AND THE ALL-SKIPPED RETURN CARRIES ONLY WHAT WAS ESTABLISHED (Codex,
+    PR #871 P2).
+
+    The loop SYNTHESIZES an `info` per skip, so `results` is never empty at
+    that return; carrying `results` there made every wholly-unaskable run a
+    carrying skip whose "findings" were its own skip notes, and `run_suite`
+    counts and ranks whatever a skip carries. A family no repository could ask
+    must answer the byte-identical plain `Skip` it always did — asserted on the
+    TYPE, because that is what decides it: `run_suite` reads
+    `getattr(out, "findings", ())`, and the base `Skip` has no such attribute.
+    """
+    repo, _ = _repo(tmp_path)
+    _declare(repo, None, "no bundle")
+    _push(repo)
+    unreadable = tmp_path / "no-remote"
+    unreadable.mkdir()
+    subprocess.run(["git", "init", "-q", "-b", "main", str(unreadable)],
+                   check=True, capture_output=True)
+
+    class Ctx:
+        repo_paths = {"alphaFactory": repo, "betaFactory": unreadable}
+        git = RealGit()
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    assert type(out) is Skip, (
+        "nothing was established, so nothing rides out — a carrying skip here "
+        "would put the loop's own skip notes in the headline count and the "
+        "ranked plan")
+    assert getattr(out, "findings", ()) == ()
+    assert "no contract bundle declared" in out.reason and \
+        "published main" in out.reason, (
+            "and every reason is still recorded, by the family-level skip "
+            "line itself")

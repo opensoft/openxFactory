@@ -1597,10 +1597,18 @@ def fam_release_tag_publication(ctx):
     findings are reported under the same repository — the repository still
     counts as skipped in the accounting below, so the family-level `Skip` and
     the cut-time gate that fails closed on it are untouched. Where EVERY
-    repository skipped, the family-level `Skip` carries them too rather than
-    abandoning them at this boundary.
+    repository skipped, the family-level `Skip` carries what was ESTABLISHED
+    rather than abandoning it at this boundary — and nothing else, so a family
+    that was wholly unaskable answers the plain `Skip` it always did.
     """
     results: list[Finding] = []
+    # WHAT THE REPOSITORIES ESTABLISHED, kept apart from `results` because
+    # `results` also holds the per-skip `info` this loop SYNTHESIZES two
+    # branches below. Only this list may ride out on a family-level `Skip`
+    # (Codex on PR #871 P2): carrying `results` there would turn a wholly
+    # unaskable family into a carrying skip whose "findings" are its own skip
+    # notes, and the run would count and rank rows no repository established.
+    established: list[Finding] = []
     skips: list[str] = []
     scoped = sorted(ctx.repo_paths.items())
     if not scoped:
@@ -1632,6 +1640,7 @@ def fam_release_tag_publication(ctx):
                 INFO, repo, f"not checked: {outcome.reason}", action,
                 resolution="auto-fixable"))
             results.extend(carried)
+            established.extend(carried)
             continue
         results.extend(outcome)
     if len(skips) == len(scoped):
@@ -1646,5 +1655,15 @@ def fam_release_tag_publication(ctx):
         # fails closed on one reads — `validate-release-tag-gate.py` is
         # untouched — and the findings ride along for a consumer that renders
         # the report.
-        return _skip("; ".join(skips), results)
+        #
+        # `established`, NOT `results`, AND THE DIFFERENCE IS THE WHOLE OF THE
+        # SECOND ROUND (Codex on PR #871 P2). `results` also holds the `info`
+        # this loop synthesizes for each skip, so it is never empty here and
+        # `results` would make EVERY wholly-unaskable run a carrying skip —
+        # manufacturing ranked rows out of the skip notes themselves, for a
+        # family no repository was able to ask. `established` is empty unless
+        # some repository actually got somewhere, so `_skip` answers the
+        # byte-identical plain `Skip` in that case and every reason is still
+        # recorded, by the family-level skip line itself.
+        return _skip("; ".join(skips), established)
     return results
