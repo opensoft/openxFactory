@@ -183,3 +183,33 @@ check risk. It should NOT be made silently, which is why this record exists.
   model and `:49` of the dogfood plan are its three concrete instances so far.
   Recorded on [#279](https://github.com/opensoft/codexFactory/issues/279) with
   the review summary.
+
+---
+
+## RULED 2026-09-09 — Brett Heap (convener): respell to `github:codeXfactory`
+
+Decided in session, interactive walkthrough, lane `provenance-autonomous-merge`.
+
+Both readings above were presented to the convener:
+
+- **Reading A** — the namespace names the CONSUMER's issuing directory (the
+  Actions secret store of `opensoft/openxFactory`, which does not move), so
+  `github:opensoft` is already true and stays true; the finding's premise does
+  not arise.
+- **Reading B** — the namespace is read, in practice, as the estate the
+  binding operates across, sitting three lines above two members that now say
+  `codeXfactory`; a reader of the finished record sees `github:opensoft`
+  immediately above them and the plain reading is misleading.
+
+**The convener chose the source-repository reading (Reading B).** Verbatim
+option chosen: *"Respell to github:codeXfactory."* The field is respelled to
+`identity_namespace: "github:codeXfactory"` at
+`contracts/review-lane-repin-binding.template.yaml:103`, in slice B1
+(pull request [#801](https://github.com/opensoft/openxFactory/pull/801)), per
+§ 5 above. Task 3.5 is amended to cover this line; see
+`review/amendment-2026-09-09-task-3-5.md`. The per-line verdict is recorded in
+the sweep evidence file's § 17.
+
+**Status stays `record`.** This section records the ruling; it does not
+reopen §§ 1-6 above, which stand as the analysis that produced the two
+readings the convener chose between.
