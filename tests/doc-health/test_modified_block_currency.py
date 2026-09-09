@@ -482,7 +482,19 @@ def test_names_separated_by_the_separator_fail_in_the_CONSERVATIVE_direction():
                    mbc.Unit(mbc.BODY, "A second unit.")]
     suppressed, defective = mbc.suppression([m], canon_units, [])
     assert suppressed == {(mbc.BODY, "A unit.")}
-    assert defective == []
+    # ...AND SINCE `amend-marker-defect-reporting` (2026-09-09, openxFactory
+    # issue #729) THE CONSERVATIVE DIRECTION IS NO LONGER A SILENT ONE. This
+    # assertion read `defective == []` until that amendment, and the sentence
+    # it was true of gave a marker exactly ONE reporting ground. `A second
+    # unit.` is a canon unit this block does not carry, quoted inside the
+    # reason where the boundary reads it as prose — which is the second ground
+    # exactly, and this test's own shape is the one it was written for. The
+    # THIRD name, `A third unit.`, matches no canon unit and so buys the marker
+    # nothing under either the old reading or the new third ground here, the
+    # block stating nothing either.
+    assert len(defective) == 1, defective
+    assert "A second unit." in defective[0].why
+    assert "A third unit." not in defective[0].why
 
 
 def test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule():
@@ -519,7 +531,15 @@ def test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule
     suppressed, defective = mbc.suppression([amended], canon_units, [])
     assert (mbc.SCENARIO_BULLET, "**THEN** the run reports") not in suppressed
     assert suppressed == {(mbc.BODY, "A unit.")}
-    assert defective == []
+    # AND THE MARKER IS NOW REPORTED FOR IT — `amend-marker-defect-reporting`
+    # (2026-09-09, openxFactory issue #729). This assertion read
+    # `defective == []` under the one-ground sentence, so the amended parse left
+    # the bullet REPORTED by the carriage arm and said nothing about the marker
+    # whose reason quoted it. The bullet is a canon unit, absent from the block,
+    # named by nothing: the second ground's predicate, on the case this test
+    # already built.
+    assert len(defective) == 1, defective
+    assert "**THEN** the run reports" in defective[0].why
 
     # THE SAME MARKER READ THE RETIRED WAY — every code span in the tail is a
     # name — and the bullet its author only quoted goes silently missing.
@@ -534,6 +554,13 @@ def test_a_reason_quoting_a_REAL_canon_unit_suppresses_it_under_the_retired_rule
         [retired], canon_units, [])
     assert (mbc.SCENARIO_BULLET,
             "**THEN** the run reports") in suppressed_retired
+    # STILL SILENT UNDER THE RETIRED READING, AND THAT IS THE POINT OF THE
+    # COMPARISON. `amend-marker-defect-reporting`'s second ground skips a span
+    # the marker ALSO NAMES — the author declared it, so quoting it again
+    # declares nothing new — and under the retired rule the bullet IS a name.
+    # So the retired reading suppresses the bullet and reports nothing about it
+    # either way, which is exactly what made the defect silent rather than
+    # noisy.
     assert defective_retired == [], (
         "and nothing is reported about it — which is what makes the defect "
         "silent rather than noisy")
@@ -2393,3 +2420,311 @@ def test_the_collision_class_carries_its_own_band_and_action():
         "modification declared against canon, or withdraw or re-target the "
         "rename whose `TO:` title canon already carries"}
     assert mbc._COLLISION_SEVERITY == WARNING
+
+
+# ------------------------------------------------- 10. the three marker-defect
+# grounds (`amend-marker-defect-reporting`, 2026-09-09, openxFactory issue #729)
+#
+# ADDED BESIDE THE EXISTING TESTS, and TWO existing assertions flipped rather
+# than were loosened: `test_names_separated_by_the_separator_fail_in_the_
+# CONSERVATIVE_direction` and `test_a_reason_quoting_a_REAL_canon_unit_
+# suppresses_it_under_the_retired_rule` each BUILD the second ground's shape and
+# each asserted `defective == []` under the one-ground sentence. Those are the
+# two lines this amendment exists to change, and they are changed where they
+# stand rather than duplicated here.
+
+_BLOCK_REL = "openspec/changes/a-change/specs/doc-health/spec.md"
+
+
+def _block(units, markers, title="A requirement"):
+    """An `ActiveBlock` built by hand — no fixture tree, because these tests are
+    about `suppression` and the arm rather than about discovery."""
+    return mbc.ActiveBlock("a-change", "doc-health", title, _BLOCK_REL,
+                           list(units), list(markers), [], None)
+
+
+def _defect_findings(canon_units, block_units, markers):
+    suppressed, defective = mbc.suppression(markers, canon_units, block_units)
+    block = _block(block_units, markers)
+    return suppressed, mbc._arm_marker_defects("alphaFactory", block, defective)
+
+
+def test_the_spans_a_reason_quotes_are_carried_rather_than_discarded():
+    """PARSE LEVEL, AND IT IS THE ENABLING HALF OF THE WHOLE AMENDMENT.
+
+    `amend-marker-reason-boundary` stopped reading a post-boundary span as a
+    name — correctly — and then DROPPED it: the `e <= cut` filter kept the
+    names and no field carried the rest, so "a reason that quotes a unit the
+    block leaves out" was not mechanically detectable at all. `Marker.quoted`
+    is that field. It changes no parse: `names` and `reason` are what the
+    amended boundary already derived.
+    """
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— replaced by the `**THEN** the run reports` bullet")
+    assert m.names == ["A unit."]
+    assert m.quoted == ["**THEN** the run reports"]
+    assert m.reason == "replaced by the `**THEN** the run reports` bullet"
+
+    # NO BOUNDARY, NO QUOTED SPANS: every span is a name and there is no reason
+    # for one to sit inside — the form canon's written-out `Merged into` example
+    # is in.
+    every = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `One.`; "
+        "`Two.`")
+    assert every.names == ["One.", "Two."] and every.quoted == []
+
+    # AND THE PAIRING FORM CARRIES NONE, whatever its reason quotes. It names no
+    # units, so no span in its tail is a would-be declaration; reporting one
+    # would invent a fourth ground over a form the amendment does not touch.
+    pairing = mbc.parse_marker(
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):** — the reason names `a code span` inside itself")
+    assert pairing.names == [] and pairing.quoted == []
+
+
+def test_a_reason_quoting_an_uncarried_promoted_unit_reports_the_marker():
+    """GROUND TWO FIRES, and it fires on the EXACT MATCH.
+
+    Canon carries the bullet the reason quotes, the block carries neither unit,
+    and no marker declares the bullet removed — so the quotation is a would-be
+    declaration the boundary reads as prose, and its author is told which
+    paragraph of theirs caused it. The unit itself is STILL reported by the
+    carriage arm: the report is added beside the carriage, which is the third
+    `AND` of canon's reason-quotes scenario standing unchanged.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit."),
+                   mbc.Unit(mbc.SCENARIO_BULLET, "**THEN** the run reports",
+                            "A scenario")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— replaced by the `**THEN** the run reports` bullet")
+    suppressed, findings = _defect_findings(canon_units, [], [m])
+
+    # the quoted bullet is NOT suppressed — the boundary's own rule, unchanged
+    assert suppressed == {(mbc.BODY, "A unit.")}
+    assert len(findings) == 1, [f.rule for f in findings]
+    assert "**THEN** the run reports" in findings[0].rule
+    assert "QUOTES" in findings[0].rule
+    assert findings[0].severity == INFO
+    assert findings[0].action == mbc._MARKER_ACTION
+    assert mbc.classify(findings[0]) == mbc.CLASS_MARKERS
+
+
+def test_a_reason_quoting_something_that_is_no_unit_at_all_stays_SILENT():
+    """THE NARROW PREDICATE, WHICH IS `design.md` D1's WHOLE SUBJECT.
+
+    A reason is prose and prose in this corpus quotes: 8 of the 16 unit-naming
+    markers this corpus carried on 2026-09-09 quote a code span inside their
+    reason, every one of them promoted, and ZERO of those spans is a derived
+    unit. A ground written on the span's POSITION would report all eight the
+    moment a MODIFIED block restated one of their requirements. Written on the
+    EXACT MATCH, it reports none of them — which is what this test holds, in the
+    shape those eight are written in.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— the clause after the dash asserts which cause is commonest, by the "
+        "`WHEN` that names both facts and the `AND` that requires the family "
+        "to establish which holds")
+    assert m.quoted == ["WHEN", "AND"]
+    suppressed, findings = _defect_findings(canon_units, [], [m])
+    assert suppressed == {(mbc.BODY, "A unit.")}
+    assert findings == [], [f.rule for f in findings]
+
+
+def test_a_reason_quoting_a_unit_another_marker_declares_removed_stays_SILENT():
+    """AND THIS IS WHY GROUND TWO RUNS IN A SECOND PASS.
+
+    Where a sibling marker properly declares the quoted unit gone, the
+    quotation hides nothing and the author has nothing to fix — so reporting it
+    would send them to correct a marker that is already right. The predicate
+    therefore asks about a unit NO marker accounts for, which cannot be decided
+    until every name in the block has been resolved.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit."),
+                   mbc.Unit(mbc.BODY, "A quoted unit.")]
+    quoting = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— superseded together with `A quoted unit.`")
+    declaring = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A quoted unit.` — declared here, one unit to a marker")
+    suppressed, findings = _defect_findings(canon_units, [],
+                                            [quoting, declaring])
+    assert suppressed == {(mbc.BODY, "A unit."), (mbc.BODY, "A quoted unit.")}
+    assert findings == [], [f.rule for f in findings]
+
+
+def test_a_name_matching_no_unit_of_canon_or_of_the_block_reports_the_marker():
+    """GROUND THREE FIRES — the silence `add-modified-block-currency-check`
+    recorded as a plausible later ruling, and openxFactory issue #729 is that
+    ruling.
+
+    The name suppresses nothing, which is unchanged and still fail-closed; what
+    changed is that the MARKER is now reported, so a mistyped name costs its
+    author a finding pointing at the marker rather than a finding pointing at
+    the unit they thought they had declared.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A unti.` — a typed name, one letter out")
+    suppressed, findings = _defect_findings(canon_units, [], [m])
+    assert suppressed == set()
+    assert len(findings) == 1, [f.rule for f in findings]
+    assert "'A unti.'" in findings[0].rule
+    assert "matches no unit of the promoted requirement or of the block" in (
+        findings[0].rule)
+    assert findings[0].severity == INFO
+    assert mbc.classify(findings[0]) == mbc.CLASS_MARKERS
+
+    # ...AND ONLY THE NAMES THAT MATCHED NOTHING ARE NAMED IN IT. A marker whose
+    # other names are sound is reported for the one that is not, because that is
+    # the name its author edits.
+    two = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A unit.`; `A unti.` — one sound name and one typed")
+    _sup, both = _defect_findings(canon_units, [], [two])
+    assert len(both) == 1 and "'A unti.'" in both[0].rule
+    assert "'A unit.'" not in both[0].rule
+
+
+def test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT():
+    """`design.md` D3, THE RESIDUE, PINNED SO IT IS A DECISION AND NOT A GAP.
+
+    A name matching no canon unit but matching a unit the BLOCK states is text
+    the block ADDS. The amended sentence reports a name matching neither side,
+    so this is silent — deliberately: whether a marker may declare a unit of the
+    block's own addition removed is a fourth ground nobody has ruled, and this
+    packet does not invent it.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "An added unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`An added unit.` — names something only the block states")
+    suppressed, findings = _defect_findings(canon_units, block_units, [m])
+    assert suppressed == set()
+    assert findings == [], [f.rule for f in findings]
+
+
+def test_a_well_formed_marker_is_silent_on_all_three_grounds():
+    """THE DIRECTION THAT MATTERS MOST: the shape every legitimate marker in
+    this corpus is written in raises nothing.
+
+    One name, matching a canon unit the block does not carry; a reason after the
+    boundary; and — because a reason quotes — a code span inside that reason
+    which is not a unit of anything.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit."),
+                   mbc.Unit(mbc.BODY, "A kept unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "A kept unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** `A unit.` "
+        "— absorbed by the `openxFactory` broker clause above")
+    suppressed, findings = _defect_findings(canon_units, block_units, [m])
+    assert suppressed == {(mbc.BODY, "A unit.")}
+    assert findings == [], [f.rule for f in findings]
+
+
+def test_ground_ONE_reports_exactly_the_finding_this_class_shipped_with():
+    """THE REGRESSION GUARD ON THE ONE GROUND THAT DID NOT CHANGE.
+
+    `amend-marker-defect-reporting` moved the WHY into an interpolated field of
+    `TEMPLATE_MARKERS` — one template for three grounds, on the
+    `TEMPLATE_PAIRING` precedent — and ground one's rendered text is
+    BYTE-IDENTICAL to the one it has always emitted. The expected string is
+    typed out here rather than read off the template, which is what makes the
+    comparison falsifiable.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A carried unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "A carried unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A carried unit.` — declared gone while the block still restates it")
+    suppressed, findings = _defect_findings(canon_units, block_units, [m])
+    assert suppressed == set()
+    assert len(findings) == 1
+    assert findings[0].rule == (
+        "active MODIFIED block for 'A requirement' carries a 'removed' marker "
+        "by add-example-change (2026-08-27) naming 'A carried unit.', which "
+        "the block still restates — a declaration that does not describe the "
+        "block")
+
+
+def test_a_marker_defective_on_two_grounds_reports_TWO_findings():
+    """ONE FINDING PER GROUND, because a ranked plan is a list of REMEDIES and
+    the two are two different edits: move a span in front of the separator, and
+    stop naming a unit the block restates. The order is fixed — ground one, then
+    ground three, then ground two — so a marker defective twice reports the same
+    two rows every run.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A carried unit."),
+                   mbc.Unit(mbc.BODY, "A dropped unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "A carried unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A carried unit.` — and `A dropped unit.` went with it")
+    _sup, findings = _defect_findings(canon_units, block_units, [m])
+    assert len(findings) == 2, [f.rule for f in findings]
+    assert "still restates" in findings[0].rule
+    assert "QUOTES" in findings[1].rule
+    assert {f.action for f in findings} == {mbc._MARKER_ACTION}
+    assert {mbc.classify(f) for f in findings} == {mbc.CLASS_MARKERS}
+
+
+def test_each_new_marker_defect_ground_matches_exactly_one_arm_template():
+    """THE PROPERTY THE SHAPE MASK DEPENDS ON, HELD RATHER THAN HOPED.
+
+    `{why}` lands inside `TEMPLATE_MARKERS`' own `(?s:.*?)` gap, so a WHY clause
+    carrying another template's fixed prose in order — the ledger's
+    " does not carry " … " of the " … " body units and scenario bullets ", say —
+    could make one rule text match two templates and red the partition
+    `_shape` and `classify` both rest on. Both new clauses are worded to avoid
+    it; this is what checks the wording.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A carried unit."),
+                   mbc.Unit(mbc.BODY, "A dropped unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "A carried unit.")]
+    quoting = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A carried unit.` — and `A dropped unit.` went with it")
+    unmatched = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`A unti.` — a typed name")
+    _sup, findings = _defect_findings(canon_units, block_units,
+                                     [quoting, unmatched])
+    assert len(findings) == 3, [f.rule for f in findings]
+    for f in findings:
+        masked = mbc._mask_repr_spans(f.rule)
+        hits = [t.id for t in mbc._ARM_TEMPLATES if t.matches(masked)]
+        assert hits == ["template:marker-defects"], (hits, f.rule)
+        assert mbc._shape(f.rule) == "template:marker-defects"
+        assert mbc.classify(f) == mbc.CLASS_MARKERS
+
+
+def test_no_marker_in_this_corpus_raises_either_NEW_ground_today():
+    """D0, RE-DERIVED AS A TEST RATHER THAN QUOTED FROM THE PACKET.
+
+    Both new grounds have a population of ZERO on this corpus, which is what
+    makes the amendment inert at landing and normative for the next marker
+    written. Measured over the same population `_corpus_markers` walks, with
+    each marker resolved against the units of the document that carries it — a
+    PROXY for the promoted requirement's units, said so rather than implied,
+    exactly as the sibling corpus test says it of itself.
+
+    A CEILING RATHER THAN AN EXACT COUNT, so that an unrelated marker landing
+    later is not read as this ground's regression: what is asserted is that no
+    marker of this corpus quotes, inside its reason, a span that is a unit of
+    its own document — the only shape the narrow predicate can fire on.
+    """
+    markers = _corpus_markers()
+    assert len(markers) >= 8, [str(p) for p, _m, _u in markers]
+    quoting = [(rel, m) for rel, m, _u in markers if m.quoted]
+    assert len(quoting) >= 5, [str(r) for r, _m in quoting]
+    for rel, marker, units in markers:
+        real = {u.text for u in units}
+        for span in marker.quoted:
+            assert span not in real or span in marker.names, (rel, span)
