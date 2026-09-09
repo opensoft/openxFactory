@@ -71,7 +71,7 @@ PIN = REPO_ROOT / "contracts/review-lane-pin.yaml"
 SNAPSHOT = REPO_ROOT / "contracts/review-lane-floor-snapshot.yaml"
 PYTEST_SUITE = REPO_ROOT / ".github/workflows/pytest-suite.yml"
 
-PINNED_REPOSITORY = "opensoft/codexFactory"
+PINNED_REPOSITORY = "codeXfactory/codexFactory"
 FLOOR_REPOSITORY = "opensoft/openxFactory"
 
 # The path the pinned core keeps the floor document at. Restated as a literal

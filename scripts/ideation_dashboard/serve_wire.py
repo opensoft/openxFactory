@@ -26,25 +26,51 @@ and the core body readers carry `JSON_OBJECT_BODY_REQUIRED` and
 `_MAX_BODY_BYTES`. Filing this vocabulary under `serve_workbench.py` would have
 made the CORE depend on the openDox column, which is the carve backwards.
 
-WIDENED BY PR 3 OF 4, for exactly the same reason it exists. The hosted-plane
-confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index`
-(FR-048) — moves here as a group, but the three names are not read alike.
-`hosted_ref_refused` is read by the CORE (`_divergence_headers`, `serve.py`),
-by the openXdox projection column (`serve_projection.py`: the snapshot, index
-and `/source` routes) and by the openxFactory adapter column
-(`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback).
-`HOSTED_SESSION_REFUSAL` is read by both columns only — the core never names
-it. `hosted_index` has exactly one in-tree reader, `serve_projection.py`'s
-`_serve_index` (an openXdox FR-048 index-confinement rule; the § 3 carve will
-have to re-home it out of this shared module alongside its column). Leaving
-any of the three in `serve.py` would have forced at least one column to
-import `serve` while `serve` imported it, which is the cycle this module
-exists to prevent; filing any of them under a column would have made the core
-(for `hosted_ref_refused`) or the other column (for `HOSTED_SESSION_REFUSAL`)
-depend on a column. It belongs here on this module's own stated remit: pure
-predicates over already-validated inputs, plus fixed refusal prose. `serve.py`
-imports all three back by name, so `serve.hosted_ref_refused` and
-`serve.hosted_index` still resolve for the suites that call them directly.
+WIDENED BY PR 3 OF 4 for exactly the same reason this module exists, and
+EMPTIED AGAIN by the pre-carve splits — read them together, because the
+hosted-plane group this paragraph used to describe HAS NOW LEFT IN FULL. The
+hosted-plane confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`,
+`hosted_index` (FR-048) — ARRIVED here as a group, but the three names are not
+read alike, and that is what eventually sent every one of them on. This
+paragraph is now this module's HISTORY of them, and the record of where each
+went and why:
+
+- `hosted_index` went FIRST, by pre-carve split S-3 (§ 3.1 of this same
+  change), into `serve_projection.py` beside its one in-tree reader
+  `_serve_index` — an openXdox FR-048 index-confinement rule inside a module
+  that goes WHOLE to openDox is a file the carve manifest cannot file under
+  one column.
+- `hosted_ref_refused` FOLLOWED IT, into the same module, beside it, by OQ-B
+  re-plumb B-2 on Brett Heap's ruling of 2026-09-09 (`#656`, "rule B-2 (i')").
+  It was read by the CORE (`_divergence_headers`, `serve.py`), by the openXdox
+  projection column (`serve_projection.py`: the snapshot, index and `/source`
+  routes) and by the openxFactory adapter column
+  (`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback)
+  — and that LAST reader is what settled it. `serve_openxfactory_lanes.py`
+  STAYS in openxFactory, so its import of a name defined here was an
+  openxFactory to openDox edge, which RULING OQ-2 forbids after the carve. The
+  predicate's one dependency, `snapshot_registry.is_publishable_ref`, is the
+  openXdox column and was already imported by `serve_projection.py`, so the
+  move costs no dependency and adds no edge, and three of its four call sites
+  were already in the destination.
+- `HOSTED_SESSION_REFUSAL` went in the SAME re-plumb, but the other way: a
+  `str` literal carries no dependency, so it is neutral by construction and
+  joined `JSON_CTYPE` and `JSON_OBJECT_BODY_REQUIRED` in the neutral
+  `scripts/wire_messages.py` — where it is `not_moved`, reason
+  `replicated_at_destination` (RULED OQ-A/OQ-C), rather than filed under any
+  column at all. It is re-exported here, so it still resolves off this module.
+
+So the group above names nothing this module DEFINES any more. Leaving any of
+the three in `serve.py` would still have forced at least one column to import
+`serve` while `serve` imported it, which is the cycle this module exists to
+prevent — this module was the right first home for all three and the wrong
+last one for each. `serve.py` takes `hosted_index` and `hosted_ref_refused`
+from `serve_projection` and the three strings from this module's re-export, so
+`serve.hosted_ref_refused`, `serve.hosted_index` and `serve.JSON_CTYPE` all
+resolve exactly as they did for the suites that call them directly. What
+remains here is this module's own stated remit: the shared wire vocabulary and
+pure envelope builders over already-validated inputs, plus fixed refusal prose
+BOTH columns read.
 
 NOTHING HERE REACHES A PROVIDER, a socket or a filesystem: it is constants,
 fixed refusal prose, pure envelope builders over already-validated inputs, and
@@ -61,17 +87,27 @@ import json
 from ideation_dashboard import doxbench_knowledge
 from ideation_dashboard import doxbench_packet
 from ideation_dashboard import doxbench_threads
-# The ONE definition of "a ref a hosted plane may see" (`is_publishable_ref`),
-# reached by the two hosted-plane predicates below. No cycle: `snapshot_registry`
-# imports no module of the serve split.
-from ideation_dashboard import snapshot_registry as registry_mod
 # The family's NON-BLANK rule (issue #263), imported rather than
 # restated: the type gate and this server boundary share one
 # implementation so they cannot drift into two spellings of one rule.
 from ideation_dashboard.doxbench_packet import states_something
 
-JSON_CTYPE = "application/json; charset=utf-8"
-JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
+# The three FIXED WIRE STRINGS moved OUT of this module to the neutral
+# `scripts/wire_messages.py` (OQ-B re-plumb B-2, ruled on `#656`
+# 2026-09-09): `serve_openxfactory_lanes.py` is openxFactory's own adapter
+# column and STAYS, this module is openDox under design D3, and RULING OQ-2
+# forbids that direction after the carve. A `str` literal carries no
+# dependency, so all three are neutral by construction. Re-exported here —
+# the SAME OBJECTS, not copies — so `serve_wire.JSON_CTYPE` and its two
+# siblings keep resolving for every existing caller (`serve.py`,
+# `serve_workbench.py`, `serve_project.py`, `serve_gate.py`,
+# `serve_projection.py`, and the suites that read them off `serve`).
+from wire_messages import (  # noqa: F401  (re-export)
+    HOSTED_SESSION_REFUSAL,
+    JSON_CTYPE,
+    JSON_OBJECT_BODY_REQUIRED,
+)
+
 _MAX_BODY_BYTES = 65_536  # a tile-action body is tiny; cap it to refuse a flood
 
 # W-5/W-6 (wave re-review): how much of a REFUSED body a reader will
@@ -603,8 +639,8 @@ DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES = "abstract-too-long"
 # One statement covering BOTH ways a subject can fail eligibility -- outside this
 # scope entirely, and inside it but readable-only -- and deliberately not an
 # oracle about which: `editable_paths` is fed only from sections flagged `owned`
-# (doxbench_scope.py:356-358), and the standing rule is that disclosure requires
-# edit authority (doxbench_scope.py:390, enforced at doxbench_turns.py:585-591).
+# (doxbench_scope.py:284-286), and the standing rule is that disclosure requires
+# edit authority (doxbench_scope.py:318, enforced at doxbench_turns.py:585-591).
 _ABSTRACT_REASON_NOT_ELIGIBLE = (
     "this document is not one of this scope's editable documents, and on this "
     "surface disclosure requires edit authority, so no distillation is "
@@ -1339,95 +1375,3 @@ AGENT_INVOCATION_REFUSAL = (
     "from the human console this serve started: it must be issued by the served "
     "page, same-origin, carrying this serve's console token")
 
-
-# The refusal message every hosted non-`main` request gets, verbatim. Fixed text:
-# nothing request-derived reaches the wire (the response discipline this module
-# already keeps for the notebook action).
-HOSTED_SESSION_REFUSAL = ("a ref other than 'main' is session-local data and is "
-                          "not available on this plane")
-
-
-def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
-    """Whether a request naming `ref` must be REFUSED because this is the hosted
-    plane (007-workbench-branch-sessions T083, FR-048).
-
-    FR-048: "The hosted dashboard MUST expose NONE of this capability — no session,
-    no branch-ref selection, no session verb, no worktree, no non-`main` snapshot —
-    and a hosted request naming a non-`main` ref MUST refuse."
-
-    The test is the BIND, not the advertised capability. A capability dict is a
-    startup verdict a handler could in principle be constructed with by hand; the
-    bind is what makes a plane hosted, and the confinement has to hold for any
-    handler that is not on loopback. `None` / blank means `main` (the registry's own
-    `normalize_ref` default), so every pre-existing ref-less request is untouched,
-    and the LOCAL plane is untouched entirely — confining the hosted plane must not
-    confine the plane this whole feature lives on.
-
-    Why the hosted plane cannot simply have sessions: the session's remote-write
-    identity is the invoking engineer's OWN `gh` authentication (FR-034, D22) — a
-    personal credential, which a hosted plane must never hold or borrow — and the
-    worktree a session reads through is a per-machine directory beside a real
-    checkout, which a served image does not have (research R7).
-
-    THE ARRIVAL PATH, RECORDED AND DELIBERATELY NOT BUILT (FR-048, chg 7.2). A
-    hosted session becomes possible by binding the INTENT PLANE's apply-lane ref
-    (openxFactory `add-ideation-intent-plane` §4) through the EXISTING
-    (repository, ref) seam this function guards: the intent plane's lane already
-    owns an identity that is not anybody's personal credential, and a lane ref is
-    already a (repository, ref) pair, so the session would arrive as another row in
-    the same registry — no new seam, no second write chokepoint, and the openxfactory
-    App as the ruled hosted identity (D22). That binding is a SEPARATE change with
-    its own gate: nothing in this module reaches for a lane, and this refusal is
-    where the next reader will be standing when they ask why."""
-    if loopback:
-        return False
-    return not registry_mod.is_publishable_ref(ref)
-
-
-def hosted_index(document: dict) -> dict:
-    """The snapshot INDEX as a hosted plane may project it (FR-048, PR #49 review
-    finding 14): every non-`main` entry dropped, a non-`main` `active` dropped with
-    them, and every non-`main` AGGREGATE MEMBER dropped too.
-
-    `hosted_ref_refused` guards the routes that NAME a ref; the index names none,
-    so it was outside that confinement entirely and published the branch names of
-    unmerged work — the topic and cluster ids of work in progress — to anyone who
-    could reach the bind. Pure, so the rule is testable on its own, and it reuses
-    the SAME `is_publishable_ref` predicate the refusal does, so there is still
-    one definition of "a ref a hosted plane may see".
-
-    THE MEMBER PASS IS WAVE 2's. `entries` and `active` were projected and
-    `aggregates[].members` was not, though `SnapshotRegistry.index_document` emits
-    those members as `{repository, ref}` pairs — so an aggregate naming a session
-    ref published `draft/<topic>` off-loopback with a 200 while `entries` was
-    correctly main-only (reproduced by the wave-2 critic on a production-shaped
-    hosted plane, and reproduced again here before the fix). Content stayed confined
-    (`?ref=…` still 403), so what leaked is the topic id of unmerged work — the same
-    class FR-048 exists to prevent. An aggregate whose members are ALL unpublishable
-    is dropped whole rather than published empty: an aggregate is defined by the
-    snapshots it composes, and one with no visible members is not a narrower view of
-    itself, it is a name with nothing behind it (and a hosted plane composing it
-    would find nothing to render)."""
-    projected = dict(document)
-    entries = [entry for entry in projected.get("entries") or []
-               if registry_mod.is_publishable_ref(entry.get("ref"))]
-    projected["entries"] = entries
-    active = projected.get("active")
-    if isinstance(active, dict) and not registry_mod.is_publishable_ref(active.get("ref")):
-        projected.pop("active", None)
-    if "aggregates" in projected:
-        aggregates = []
-        for aggregate in projected.get("aggregates") or []:
-            if not isinstance(aggregate, dict):
-                continue
-            members = [member for member in aggregate.get("members") or []
-                       if isinstance(member, dict)
-                       and registry_mod.is_publishable_ref(member.get("ref"))]
-            if not members:
-                continue
-            aggregates.append({**aggregate, "members": members})
-        if aggregates:
-            projected["aggregates"] = aggregates
-        else:
-            projected.pop("aggregates", None)
-    return projected

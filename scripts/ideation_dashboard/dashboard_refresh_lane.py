@@ -118,7 +118,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from ideation_dashboard.boundary import OutputBoundary  # noqa: E402
+from output_boundary import OutputBoundary  # noqa: E402
 
 LANE = "ideation-dashboard-refresh"
 STATUS_NAME = "refresh-status.json"

@@ -1741,9 +1741,23 @@ reading it as a named unit would make every valid merge marker report itself
 under the rule below. Only the code spans after the colon name units.
 
 A marker SHALL suppress only the units it names AND that are in fact absent from
-the block. A marker naming a unit the block still carries declares nothing and
-SHALL itself be reported, because a declaration that does not describe the block
-is a declaration no reader can rely on.
+the block. A MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of
+them one finding at the `info` band this family's marker-defect class already
+carries: it names a unit the block still carries; or a code span standing INSIDE
+its reason matches EXACTLY a unit of the requirement's basis that the block does
+not carry and that no marker declares removed, the boundary above reading that
+span as prose rather than as a name, so that its author declared nothing about a
+unit they plainly had in mind; or it names something matching no unit of the
+requirement's basis and no unit of the block. Each of the three is a declaration
+that does not describe the block, which is a declaration no reader can rely on,
+and a report on the MARKER is what points an author at the paragraph they wrote
+rather than at the unit it failed to declare. THE SECOND GROUND SHALL BE READ NARROWLY, on the exact match and never
+on the span's position alone: a reason is prose and prose in this corpus quotes,
+so a code span inside a reason matching no unit of the requirement is the NORMAL
+FORM of a reason and SHALL NOT be reported. The second ground SHALL NOT withdraw
+the carriage arms from the unit the span would have named — the scenario below
+that keeps that unit subject to them stands unchanged — the report being added
+BESIDE the carriage and never in place of it.
 
 **A named scenario TITLE carries its bullets with it ONLY IN A GENUINE
 REMOVAL.** Where a `Removed from canon` marker names a scenario title AND the
@@ -1850,7 +1864,58 @@ the units it meant to name would be REPORTED rather than silently dropped. No
 marker in this corpus is written that way, which is what the seven were measured
 to establish.
 
-**Removed from canon by amend-marker-reason-boundary (2026-09-06):** ``The parser SHALL extract the code spans following the colon, in order, per CommonMark; the reason is everything after the last code span's following ` — `.`` — the sentence measures the reason from the LAST code span, so a code span an author writes inside the reason is read as a named unit and the reason is shortened to whatever follows it; the two markers this specification itself carries are the live instances, each naming three units where its author named one. The unit is REPLACED rather than deleted, by the sentences above that begin the reason at the first separator standing outside every code span and say that a span inside the reason names nothing. Nothing else in this requirement is dropped.
+**AMENDED BY `amend-marker-defect-reporting` (2026-09-09).** Every paragraph
+and every scenario above this note stands exactly as promoted —
+`amend-marker-reason-boundary`'s own note and its narrative included — and the
+only change this block makes to promoted text is to ONE body sentence: the one
+that gave a marker exactly ONE reporting ground. TWO SCENARIOS ARE ADDED, at the
+END of the block, one for each ground added, because a normative ground no
+scenario exercises is a ground the next author re-deriving this class has nothing
+to test against. No promoted scenario moves, is retitled or loses a bullet: the
+reason-quotes scenario's third `AND`, which keeps the quoted unit subject to the
+carriage arms, is carried word for word, this amendment adding a report about the
+MARKER beside that carriage rather than replacing it. No arm is removed, no
+severity moves, no threshold moves, no disposition rule changes, this family's
+registration in the resolution table is untouched, and the set of trees over
+which this family speaks is not altered by one line. AND
+`amend-marker-reason-boundary`'S OWN `Removed from canon` MARKER IS DELIBERATELY
+NOT RESTATED HERE, on this requirement's own rule that a marker is not a
+carriage unit in either direction: restating it would declare a removal this
+change did not perform, and its named unit — a sentence canon no longer carries
+because that change removed it — matches no unit of the requirement or of this
+block, which is the third ground above reporting this block for copying a
+predecessor's declaration forward.
+
+A MARKER IS A DECLARATION, AND UNTIL THIS AMENDMENT A DECLARATION THAT DESCRIBED
+NOTHING WAS SILENT IN TWO WAYS. The first is as old as the family: a name
+matching no unit of the requirement suppressed nothing and was reported as
+nothing, which `add-modified-block-currency-check` recorded as a plausible later
+ruling it had no standing to take, because this sentence gave a marker exactly
+one reporting ground. The second is younger than the boundary:
+`amend-marker-reason-boundary` correctly stopped reading a code span inside a
+reason as a name, and an author who separates two NAMES with the separator
+therefore declares only the first — the second is read as prose, suppresses
+nothing, and the unit it meant to declare is REPORTED, which is the conservative
+direction, but the marker that caused it is not, so its author is pointed at a
+unit rather than at their own paragraph. THE SECOND GROUND IS NARROW BY DESIGN
+AND THE MEASUREMENT IS WHY. Measured on this corpus on 2026-09-09, across every
+promoted specification and every active delta OTHER THAN THIS ONE — this block
+carries a marker of its own and a figure a reader is invited to re-derive must
+name the tree it was taken on: SIXTEEN unit-naming markers, of which EIGHT quote
+a code span inside their reason, every one of them a marker promoted into canon
+and every quoted span reason-prose; and of those quoted spans, ZERO is a derived
+unit of the document carrying it. So a ground written on the span's POSITION
+would report eight legitimate markers the moment a MODIFIED block restated one
+of them, and would grow with the corpus, while a ground written on an EXACT
+MATCH against an uncarried unit is silent on all eight. THE POPULATION OF BOTH
+NEW GROUNDS IS ZERO TODAY, and that is measured rather than hoped: of the active
+MODIFIED blocks this family reads, TWO carry a unit-naming marker at all, both
+of the `Merged into` form, each naming one unit that matches its resolved basis,
+neither quoting a code span in a reason. A ground whose population is zero at
+landing is a ground that reports the NEXT marker written, which is the only
+moment at which either silence has ever cost anybody anything.
+
+**Removed from canon by amend-marker-defect-reporting (2026-09-09):** `A marker naming a unit the block still carries declares nothing and SHALL itself be reported, because a declaration that does not describe the block is a declaration no reader can rely on.` — the sentence gives a marker exactly ONE reporting ground, and the two silences openxFactory issue #729 reports fall outside it: a reason that quotes a unit the block leaves out declares nothing about that unit, and a name matching no unit anywhere declares nothing at all. The unit is REPLACED rather than deleted, by the sentences above that state three grounds, read the second one narrowly, and keep the carriage arms over a unit a reason only quoted. Nothing else in this requirement is dropped, and this reason carries no code span so that the marker names exactly one unit under the grammar it is written in.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
@@ -1930,6 +1995,17 @@ to establish.
 - **WHEN** a unit-naming marker's tail carries no ` — ` separator standing outside every code span, a separator INSIDE a span being that unit's own bytes rather than a boundary
 - **THEN** every code span after the closing colon MUST name a unit
 - **AND** the marker MUST carry no reason, which is the form the written-out `Merged into` example above is in
+
+#### Scenario: A marker's reason quotes a unit the block does not carry
+- **WHEN** a code span standing after a unit-naming marker's reason separator, and not also named before it, matches a unit of the requirement's basis exactly, and neither the block nor any marker in it accounts for that unit
+- **THEN** the run MUST report the marker itself in the `info` band, the span having been read as prose while the unit it had in mind went undeclared
+- **AND** the unit MUST remain subject to the carriage arms, the report being added beside that carriage rather than in place of it
+- **AND** a code span inside a reason that matches NO unit of the requirement's basis MUST NOT be reported, a reason being prose that quotes and this corpus's markers quoting one routinely
+
+#### Scenario: A marker names something no unit matches
+- **WHEN** a marker names a code span matching no unit of the requirement's basis and no unit of the block
+- **THEN** the run MUST report the marker itself in the `info` band, a declaration about nothing being unusable as evidence about the block
+- **AND** the name MUST suppress nothing, which is the reading this family has always taken and is unchanged by the report
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long

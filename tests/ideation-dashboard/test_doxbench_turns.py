@@ -1062,7 +1062,7 @@ def test_scope_revalidation_uses_the_real_scope_authority_for_a_realistic_fixtur
 
 
 # ---------------------------------------------------------------------------
-# T104 F2 (PR #63 second review, P1 doxbench_scope.py:398): EVERY ADVERTISED
+# T104 F2 (PR #63 second review, P1 doxbench_scope.py:326): EVERY ADVERTISED
 # CANDIDATE MUST SURVIVE THIS MODULE'S OWN GUARD
 #
 # The scope authority publishes `active_document_candidates` and this module

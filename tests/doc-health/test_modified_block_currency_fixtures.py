@@ -884,16 +884,28 @@ def test_the_inner_backtick_does_not_truncate_the_named_unit():
     therefore names a FRAGMENT that matches no canon unit — so it suppresses
     nothing and the clause is reported.
 
-    It is NOT reported as a marker defect: the delta reports a marker only when
-    it names a unit the block STILL CARRIES, and a name matching no canon unit
-    declares nothing and is silent. Without this sibling, a build that ignored
-    fences entirely and matched the whole paragraph would pass the test above.
+    AND SINCE `amend-marker-defect-reporting` (2026-09-09, openxFactory issue
+    #729) THE MARKER IS REPORTED TOO, WHICH IS WHY THIS ASSERTION MOVED. It read
+    `_of(findings, "marker") == []` under the sentence that gave a marker exactly
+    ONE reporting ground — "it names a unit the block STILL CARRIES" — and a name
+    matching no canon unit was silent by that sentence's own construction. This
+    fixture is the REAL instance of the silence that amendment retires: the
+    fragment matches no unit of canon and no unit of the block, so its author saw
+    only the ledger row for a clause they thought they had declared, with nothing
+    pointing at the truncating fence that caused it. Now the ledger row and the
+    marker row arrive together, which is the debugging trip the issue was filed
+    about. Without this sibling, a build that ignored fences entirely and matched
+    the whole paragraph would pass the test above.
     """
     findings = _for(_tree(TFENCE), SINGLE)
     hits = _of(findings, "ledger")
     assert len(hits) == 1, [f.rule[:100] for f in hits]
     assert "broker lane" in hits[0].rule
-    assert _of(findings, "marker") == []
+    defects = _of(findings, "marker")
+    assert len(defects) == 1, [f.rule[:160] for f in defects]
+    assert "matches no unit of the promoted requirement or of the block" in (
+        defects[0].rule)
+    assert defects[0].severity == INFO
 
     # the mechanism, directly: the single-backtick marker's names are a fragment
     root = _root(TFENCE, RFENCE)

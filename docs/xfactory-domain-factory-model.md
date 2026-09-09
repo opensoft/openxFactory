@@ -293,10 +293,15 @@ DomainxFactory revalidates from exact `commit:path` Git objects — a dirty
 local checkout is never regression evidence. The supported set is named with
 exact commits in
 `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`:
-currently `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
-`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `opensoft/codexFactory`,
+currently `codeXfactory/codexFactory`, `opensoft/AdxFactory`,
+`opensoft/LedgerxFactory`, `opensoft/MedxFactory`, and `opensoft/OpsxFactory`,
 with `opensoft/LegalxFactory` recorded as an explicit exclusion until it has
-a canonical `stack.yaml`.
+a canonical `stack.yaml`. **The order is the fixture's**, which is bytewise
+sorted — `codeXfactory` sorts before `opensoft` because `c` < `o` — and the
+same order is carried by the three sibling enumerations in
+`contracts/hermes-runtime/README.md`, `docs/contract-versioning-policy.md` and
+`docs/terminology-and-repo-topology.md`. All four sentences make the same claim
+about the same fixture, so they agree about its order.
 
 Contract and overlay provenance is content-addressed. Runtime assembly resolves
 exact commits and file digests, and directory overlays resolve through complete
@@ -865,8 +870,14 @@ final outcome claim.
 
 ## Product Domain Stack Repositories
 
-The sellable domain stacks should live in separate repositories under the
-`opensoft` GitHub organization.
+The sellable domain stacks should live in separate repositories, each under the
+GitHub organization that owns it. Four are under `opensoft`; the engineering
+stack moved to `codeXfactory` with the codexFactory organization transfer, and
+`contracts/policies/repository-identity.yaml` is the resolver that maps its
+former identity to its current one. **An enumeration here is a containment claim
+as well as a list**, so a stack that moves has to move in this sentence too —
+which is a thing a literal-string sweep cannot find, because the sentence names
+no repository.
 
 ```text
 opensoft/MedxFactory
@@ -885,10 +896,15 @@ opensoft/AdxFactory
   marketing, advertising, growth, and campaign domain stack
   https://github.com/opensoft/AdxFactory
 
-opensoft/codexFactory
+codeXfactory/codexFactory
   software, code, repo, and engineering domain stack
-  https://github.com/opensoft/codexFactory
+  https://github.com/codeXfactory/codexFactory
 ```
+
+**The block above is in domain order, not sorted order, and that is deliberate**
+— unlike the four prose enumerations of the regression fixture, it is not a
+reading of a sorted machine file, so re-sorting it would be a change with
+nothing to agree with. Do not "fix" it to match them.
 
 Each domain stack repo defines one productized domain factory. It may contain
 multiple deployment profiles, such as clinic, group practice, hospital,

@@ -1,4 +1,4 @@
-# Tasks: prepare-openspec-1.12-readiness
+# Tasks: prepare-openspec-1-12-readiness
 
 Status: draft
 

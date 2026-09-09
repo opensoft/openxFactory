@@ -52,6 +52,12 @@ CANONICAL_CONTRACT_REF = "3d51c3ed5854d112bcc049e1ef7f70863b993fa3"
 # version 1, stack path stack.yaml, and an expected pass.
 PINNED_TABLE: tuple[tuple[str, str, str, str], ...] = (
     (
+        "codeXfactory/codexFactory",
+        "7bfa492f700de29cdeab31dc899420745546d982",
+        "sha256:06f88e192bfd17d42ea6519072e472b9f6d028d88ab0985065640e37c9719722",
+        "codex",
+    ),
+    (
         "opensoft/AdxFactory",
         "d0e42622d1da51a3aa6475e2df076df4e55e7918",
         "sha256:b5ab723eac7395523a7988468076048e4d0426e03b556231dfb4c282bb8b3fc9",
@@ -74,12 +80,6 @@ PINNED_TABLE: tuple[tuple[str, str, str, str], ...] = (
         "beed3481fb7f500695bcc4394bb686fab125ad71",
         "sha256:3de89a6c7e8b9f112deb7074b8798dc17311425f819968f2f7e1c7e86c7e8fa0",
         "opsx",
-    ),
-    (
-        "opensoft/codexFactory",
-        "7bfa492f700de29cdeab31dc899420745546d982",
-        "sha256:06f88e192bfd17d42ea6519072e472b9f6d028d88ab0985065640e37c9719722",
-        "codex",
     ),
 )
 
@@ -404,10 +404,10 @@ def test_repository_resolver_deterministic_root_rules(tmp_path: Path) -> None:
 
 def test_repository_resolver_resolves_a_bare_git_mirror(tmp_path: Path) -> None:
     root = tmp_path / "mirrors"
-    bare = root / "opensoft" / "codexFactory.git"
+    bare = root / "codeXfactory" / "codexFactory.git"
     bare.mkdir(parents=True)
     resolver = build_repository_resolver(None, root)
-    assert resolver("opensoft/codexFactory") == bare
+    assert resolver("codeXfactory/codexFactory") == bare
 
 
 # --------------------------------------------------------------------------- #

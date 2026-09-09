@@ -91,8 +91,9 @@
 #     nobody ruled.
 #   * `objects: [opensoft/openxFactory]` — STANDS, AND IT NEEDS AN EXPLICIT
 #     SENTENCE BECAUSE IT LOOKS WRONG AT FIRST READING. This body governs
-#     codexFactory's gate rules, so a reader expects `opensoft/codexFactory`
-#     here. It is `opensoft/openxFactory` for a structural reason, and the
+#     codexFactory's gate rules, so a reader expects the decision core's own
+#     repository — `codeXfactory/codexFactory` — here. It is
+#     `opensoft/openxFactory` for a structural reason, and the
 #     reason is not a paste from `grant-mrc-0002`: the reader enforces SET
 #     EQUALITY between this list and the backing row's `target_repo`, the
 #     register is an OPENXFACTORY artifact adjudicated inside THIS
@@ -100,12 +101,23 @@
 #     its context from the scanned repository's own records — a
 #     cross-repository audience has no resolution path today
 #     (add-wallet-carried-review-authority clarifications N7). A row naming
-#     `opensoft/codexFactory` would be a row this estate cannot resolve, not a
-#     wider authority. The object is therefore the repository whose review this
-#     register commissions, and the body's DOMAIN of rule-setting is a
-#     different thing that no field here carries. The same asymmetry is already
-#     on `grant-mrc-0002` for the same reason; it is re-derived here rather
-#     than inherited.
+#     `codeXfactory/codexFactory` would be a row this estate cannot resolve,
+#     not a wider authority. The object is therefore the repository whose
+#     review this register commissions, and the body's DOMAIN of rule-setting
+#     is a different thing that no field here carries. The same asymmetry is
+#     already on `grant-mrc-0002` for the same reason; it is re-derived here
+#     rather than inherited.
+#
+#     THE ASYMMETRY IS UNCHANGED BY THE ORGANIZATION TRANSFER, and the two
+#     spellings above moved with it (`adopt-codexfactory-repository-identity`,
+#     realization slice B2). Both are COUNTERFACTUALS — what a reader expects,
+#     and what a row this estate cannot resolve would look like — so they are
+#     live assertions about the decision core's CURRENT address rather than
+#     dated records of a reading, and a frozen `opensoft/` spelling here would
+#     make the explanation argue against an address nobody would write. The
+#     unresolvability the sentence turns on is structural: `repo_scan` builds
+#     its context from the scanned repository's own records, which no owner
+#     segment changes.
 #   * `authority_tier: act` — STANDS, on a named and checkable basis: the
 #     custody attestation
 #     `../attestations/custody-attest-wal-agent-grc-0001.yaml`, which attests

@@ -85,8 +85,8 @@ if str(_SCRIPTS_DIR) not in sys.path:
 from ideation_dashboard import register as register_mod  # noqa: E402
 from ideation_dashboard import snapshot as snapshot_mod  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
-from ideation_dashboard.boundary import OutputBoundary  # noqa: E402
 from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from output_boundary import OutputBoundary  # noqa: E402
 
 LANE = "ideation-dashboard-snapshot"
 DEFAULT_CHECKOUT = "openxFactory"       # v1 scope: the pinned openxFactory checkout

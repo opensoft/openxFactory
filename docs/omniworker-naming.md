@@ -290,6 +290,15 @@ its own release line, and its own boundary — the same act
 
 ## Open question — the GitHub runner label `omnigent`
 
+> **Amended 2026-09-09 — `omnigent` is RETIRED from every repository's
+> registration material and documentation; see Amendments § A3.** The
+> separately worded retirement A2 (below) left owed has now been given: the
+> DECLARED label sets in opensoft/OmniWorker-Install, opensoft/CloudPC-Install
+> and opensoft/Omnigent-Install no longer name `omnigent`, and `omniworker` is
+> the sole common label going forward. No live runner is re-labelled by this
+> amendment — that removal is Brett Heap's own operator act, owed, and A3
+> names the exact command.
+
 > **Amended 2026-09-08 — this open question is ANSWERED, and the answer is
 > ADDITIVE; see Amendments § A2.** `omniworker` is to be registered as a SECOND
 > runner label beside `omnigent`, and `omnigent` is NOT retired by that act —
@@ -705,3 +714,101 @@ The three acts land as independent pull requests; their squash commits are
 gathered on opensoft/openxFactory#795 rather than restated here, because a
 merge commit written into this record before it exists would be exactly the
 kind of predicted value A1's own closing rule forbids.
+
+### A3 — 2026-09-09 · `omnigent` retired from registration material and documentation
+
+**Authority for this amendment.** Brett Heap, 2026-09-09, in session, verbatim:
+
+> do all of these 8 that you can do. all approved
+
+recorded on opensoft/openxFactory#591. The CLAIM comment posted by lane
+openxfactory-3 (~15:45Z) named eight items; this retirement is item 7 of that
+list. Unlike A2, this word does not merely authorize taking an issue's own
+recommended exit — it directly approves the retirement A2 left owed, in
+terms: *"`omnigent` is not retired, anywhere. Its retirement needs its own
+separately worded ruling."* This is that separately worded ruling.
+
+**What A2 left owed, and what this amendment discharges.** A2 ADDED
+`omniworker` beside `omnigent` and explicitly declined to retire `omnigent`,
+naming the retirement as "a separate, later act that is free once nothing
+names the old spelling." This amendment is that act: every piece of
+REGISTRATION MATERIAL and DOCUMENTATION in opensoft/OmniWorker-Install,
+opensoft/CloudPC-Install and opensoft/Omnigent-Install that declared or
+instructed registering `omnigent` as a runner label now declares or instructs
+`omniworker` alone. Historical narrative describing the A2 decision (why
+`omniworker` was added beside `omnigent`, the 2026-09-08 ruling quote, the
+2026-09-08 and 2026-09-09 point-in-time measurements of the live runner's
+label set) is left byte-unchanged where it records what was true when it was
+written, on this record's own rule — only the DECLARED, forward-looking
+statements moved.
+
+**The measurement, unchanged from A2.** Nothing in the xFactory aggregation
+ever selected on `omnigent`; that was true at A2 and remains true, so this
+retirement changes no workflow anywhere (none was edited) and no lane loses a
+dispatch path. The measurement re-taken once more before this amendment,
+2026-09-09, against every workflow file across
+opensoft/OmniWorker-Install/.github/workflows/, opensoft/CloudPC-Install/.github/workflows/,
+opensoft/Omnigent-Install/.github/workflows/, opensoft/xFactory/.github/workflows/
+and opensoft/openxFactory/.github/workflows/: **zero** `runs-on` entries,
+`dispatch_label` values or required-label probes name `omnigent` anywhere.
+`gh search code 'omnigent' --owner opensoft` over the rest of the
+organization turns up only the product name, the `Omnigent-Install`
+repository, the `contracts/omnigent/` family, `OMNIGENT_*` environment
+variables, worker/compose service ids such as `omnigent-coder-worker`, and
+prose about the domain — none of it a runner-label selector.
+
+**What this amendment changes.** The DECLARED (not live) label sets:
+
+| Repository | What moved |
+|---|---|
+| opensoft/OmniWorker-Install | the committed host manifest's two worker `labels:` lists, six locally authored `workers/profiles/*.yaml` `runner_labels`, the host app's bootstrap-volunteer `manifest_labels`, its paired test fixture, the published readiness example and heartbeat fixture corpus, `tests/test_artifact_lane_contract.py`'s common-label-only test, and the runbooks' label lists and prescriptive prose |
+| opensoft/CloudPC-Install | the coding-rider heartbeat publisher and both rider bootstrap scripts' `$labels`, the non-shipping ruled rider identity record, and the registration-convention docs |
+| opensoft/Omnigent-Install | the codexFactory execution-lane runbook's runner-label references |
+
+**What this amendment does NOT touch — read it narrowly.**
+
+- **No live runner is re-labelled.** A runner's label set lives SERVER-SIDE at
+  GitHub. Every act above moves DESIRED state only; a runner already
+  registered keeps `omnigent` until an operator REMOVES it there. That removal
+  is Brett Heap's own operator act, not performed by any change in this
+  amendment or the pull requests it describes. `omnigent` is a CUSTOM label,
+  so the removal is an in-place call —
+  `gh api -X DELETE /orgs/opensoft/actions/runners/<runner_id>/labels/omnigent`
+  (or Settings → Actions → Runners → the runner → Labels) — no downtime, no
+  removal token, no runner-service churn. The reverse call,
+  `gh api -X POST /orgs/opensoft/actions/runners/<runner_id>/labels -f 'labels[]=omnigent'`,
+  restores it if the retirement needs to be undone.
+- **No workflow changes**, in any of the five repositories measured above.
+  Nothing selected on `omnigent`, so nothing loses a label to select on.
+- **`opensoft/OmniWorker-Install`'s `workers/profiles/coding-patch-worker.yaml`
+  and `rendered/effective-profiles/coding-patch-worker.yaml` are untouched.**
+  They are byte-verbatim digest-pinned projections of
+  `omnigent/profiles/coding-patch-worker.yaml` in opensoft/codexFactory (A2's
+  own carve-out); editing them here would fork a governed projection, so
+  their label set's retirement is a **codexFactory** act, out of scope here
+  and not performed.
+- **`opensoft/OmniWorker-Install`'s `hostapp/tests/fixtures/worker-enrollment/`
+  corpus is untouched**, on the same rule A2 recorded: it is machine-produced
+  against the CI fake broker and its own README forbids hand-editing it. It
+  still reads `omnigent` alone (it never gained `omniworker` at A2 either),
+  and stays that way until the corpus is next regenerated through the module.
+- **`opensoft/xFactory`'s one textual `omnigent` mention** — a comment in
+  `.github/workflows/dashboard-image-worker.yml` describing the registered
+  label set — is unchanged. This lane does not edit workflow files; if that
+  comment is to track the retirement it is a separate, reported act.
+- **The GitHub runner label `omniworker` is unaffected.** It remains the
+  fleet's registered common label, declared everywhere `omnigent` used to be
+  declared alongside it.
+
+**Where else this is recorded.**
+
+The three acts land as independent pull requests against
+opensoft/OmniWorker-Install, opensoft/CloudPC-Install and
+opensoft/Omnigent-Install, branch `chore/retire-omnigent-runner-label` (the
+CloudPC-Install branch additionally carries the unrelated `OMNIGENT_ROOT`
+deprecating-fallback removal from `packs/service-rider/selftest/check_heartbeat_contract.py`,
+branch `chore/retire-omnigent-label-and-omnigent-root-fallback`, cited on
+opensoft/CloudPC-Install#19). Their PR numbers and squash commits are not
+restated here before they exist, on A1's own closing rule; they are recorded
+on opensoft/openxFactory#591 (lane openxfactory-3's CLAIM/report comments)
+instead.

@@ -8,7 +8,7 @@ those tables; this file pins what LEFT them, at the same strength and in the
 same shape — a literal tuple, ordered, compared whole — so the two files
 together still describe the entire dispatch of this server.
 
-FOUR THINGS, because each answers a different question a reviewer of a move has:
+FIVE THINGS, because each answers a different question a reviewer of a move has:
 
   1. **The methods still resolve on `DashboardHandler`.** A move that fell out
      of the base list, or a mixin that failed to compose, would leave the
@@ -27,6 +27,12 @@ FOUR THINGS, because each answers a different question a reviewer of a move has:
      level up): a contributed route reaches `self.loopback` because it is
      dispatched against the live handler, not because its author remembered to
      check.
+  5. **The pre-carve column re-homing stays done.** Split S-3 (§ 3.1) moved
+     `hosted_index` out of `serve_wire.py` — the module that goes WHOLE to
+     openDox — into this openXdox column, leaving NO re-export behind, because
+     the carve manifest files each path under exactly one column. Re-adding it
+     to the wire module (or importing it back there for convenience) would put
+     openXdox content into an openDox file again with nothing else red.
 
 WHAT THIS FILE IS NOT. It is not a second copy of the behavioural suites. Every
 moved route keeps its own tests — `test_repo_selector.py` for refresh and the
@@ -52,7 +58,7 @@ import route_extension  # noqa: E402
 from ideation_dashboard import profile_openxfactory  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
 from ideation_dashboard import serve_gate, serve_openxfactory_lanes  # noqa: E402
-from ideation_dashboard import serve_projection  # noqa: E402
+from ideation_dashboard import serve_projection, serve_wire  # noqa: E402
 from ideation_dashboard.generator import generate_snapshot  # noqa: E402
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
@@ -284,3 +290,31 @@ def test_the_off_loopback_probe_is_not_vacuous(tmp_path):
                     == "loopback_only"), (
             f"{path} answered loopback_only on a LOOPBACK bind — the parity "
             "test above is asserting nothing")
+
+
+# ---------------------------------------------------------------------------
+# 5. the pre-carve column re-homing (split S-3, § 3.1)
+# ---------------------------------------------------------------------------
+
+
+def test_the_hosted_index_projection_belongs_to_the_projection_column():
+    """`hosted_index` is defined HERE and is not reachable on `serve_wire`.
+
+    Both halves matter and neither implies the other for the carve manifest:
+    the wire module is an openDox row, so an openXdox rule defined in it — or
+    merely RE-EXPORTED from it for a caller's convenience — is a path with two
+    columns, which is the shape § 3.1 cannot file. `getattr` catches both,
+    since a `def` and an `import` set the same module attribute.
+    """
+    assert callable(getattr(serve_projection, "hosted_index", None))
+    assert getattr(serve_wire, "hosted_index", None) is None, (
+        "`hosted_index` is reachable on `serve_wire` again — S-3 re-homed it "
+        "into `serve_projection` and left no re-export; see `serve_wire.py`'s "
+        "module docstring")
+
+
+def test_serve_re_exports_the_hosted_index_from_its_new_home():
+    """The public surface S-3 preserved: `serve.hosted_index` still resolves,
+    and resolves to the projection column's function rather than to a second
+    copy left in the wire module."""
+    assert serve_mod.hosted_index is serve_projection.hosted_index
