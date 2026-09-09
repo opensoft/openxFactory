@@ -1,6 +1,12 @@
 # Design: relocate-review-authority-floor-mirror
 
-Status: draft
+Status: ratified
+Ratified by: relocate-review-authority-floor-mirror — 2026-09-08, Brett Heap,
+verbatim "ratify 293 and 817 when green, then realize them" (openxFactory #745,
+mirrored on codexFactory #232; record `review/ratification-2026-09-08.md`). M-1
+through M-7 stand as recommended; no veto entered. MQ-1 is answered — the same
+word ratified the codexFactory sibling — and MQ-2 and MQ-3 were not ruled, so
+each stands as this document recommends and neither blocks realization (1).
 Kind: design
 
 The measurement this packet rests on is the sibling's:
