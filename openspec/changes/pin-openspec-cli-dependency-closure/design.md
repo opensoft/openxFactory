@@ -1,6 +1,12 @@
 # Design: pin-openspec-cli-dependency-closure
 
-Status: draft
+Status: ratified
+Ratified by: pin-openspec-cli-dependency-closure — 2026-09-09, Brett Heap,
+verbatim "ratify 813", heard first-hand by lane codexfactory-1 (session name
+codeXfactory-1, session session_01SaMMgNoPTARduWJ4956UBg) with no relay; record
+`review/ratification-2026-09-09.md`. The SEPARATE and earlier ruling recorded in
+§ 0 below chose the exit and did not ratify this text; both acts are real and
+both are cited.
 
 ## 0. The ruling, recorded verbatim, and what it did and did not settle
 
@@ -28,8 +34,13 @@ The four options, as they were put:
 four exits is taken and nothing further: not the path, not the field names, not
 the refusal code, not the rollback question, not one line of what follows. Every
 judgment below is this lane's, is listed as such, and is open to a reviewer.
-This packet carries `Status: draft` and owes a ratification citation from a
-separate act.
+
+**THE CITATION THAT PARAGRAPH ONCE OWED HAS BEEN PAID.** The packet held
+`Status: draft` through four Copilot review rounds precisely because this ruling
+did not cover the content; Brett Heap ratified the text SEPARATELY on
+2026-09-09T03:19Z, verbatim *"ratify 813"*, and the header above carries that
+citation. Every judgment listed below was ratified AS WRITTEN — the four named
+individually in `review/ratification-2026-09-09.md`.
 
 ## 1. Why the other three were not chosen
 

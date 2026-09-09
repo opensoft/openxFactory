@@ -60,9 +60,16 @@ no pin field, no verifier line, no test.
 
 ## What ratification changes, and what it does not
 
-**CHANGES:** the `Status:` header of `proposal.md` and `tasks.md`; the
-`Ratified:` citation in `proposal.md`; the tick on task 5.1; and the packet's
-eligibility to be archived once tasks 5.2 and 5.3 are met at the gate.
+**CHANGES:** the `Status:` header of `proposal.md`, `tasks.md` and `design.md`;
+the `Ratified:` / `Ratified by:` citation each of those carries; the tick on task
+5.1; and the packet's eligibility to be archived once tasks 5.2 and 5.3 are met
+at the gate. (`design.md`'s header, and the two paragraphs that still said a
+citation was owed, were completed in the FOLLOW-UP commit named in the pull
+request rather than the ratifying one — Copilot caught the packet asserting two
+different states about itself. `evidence/` and this record carry
+`Status: record`, which is their correct lifecycle value and not a draft; the
+spec delta carries no `Status:` header, as no spec delta in this repository
+does.)
 
 **DOES NOT CHANGE:** anything normative. The two ADDED requirements in
 `neutral-product-pin` are ratified **as written** and not re-opened; no
