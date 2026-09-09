@@ -15,6 +15,7 @@ import importlib.util
 import io
 import json
 import itertools
+import os
 import re
 import subprocess
 import sys
@@ -1988,9 +1989,9 @@ HOSTING_DECLARED = """schema_version: 1
 kind: notebook_projection_hosting
 hosting:
   case: operator_hosted
-  account: xFactor001@opensoft.one
+  account: projection-host@example.invalid
   account_type: google_workspace_user
-  domain: opensoft.one
+  domain: example.invalid
   nlm_profile: company
   declared_at: "2026-08-23"
   declared_by: Brett Heap
@@ -2001,22 +2002,90 @@ HOSTING_PENDING = """schema_version: 1
 kind: notebook_projection_hosting
 hosting:
   case: operator_hosted
-  account: xFactor001@opensoft.one
+  account: projection-host@example.invalid
   account_type: google_workspace_user
-  domain: opensoft.one
+  domain: example.invalid
   nlm_profile: company
   migration:
     state: pending
-    from_account: brettheap@gmail.com
+    from_account: previous-host@example.invalid
     from_nlm_profile: personal
 share_out: []
 """
 
 
-def _declare_hosting(root: Path, text: str) -> None:
-    path = root / "openxFactory/examples/notebook-projection-hosting.yaml"
+#: Where this harness writes a declaration inside its temporary workspace. It is
+#: no longer where the sync LOOKS — `hosting_declaration_path()` resolves that
+#: from configuration (adopt-configured-notebook-hosting-identity) — so the
+#: helper writes the record AND the configuration naming it, which is what keeps
+#: every test below asserting exactly what it asserted before the resolver
+#: existed. That equivalence is packet task 2.5, the box that makes the live
+#: record's move safe: if any assertion here had to change, the resolver would
+#: not be behaviour-preserving and the move could not be trusted.
+_DECLARATION_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
+
+
+def _configure_hosting(root: Path, declaration_rel: str) -> None:
+    """Write the workspace configuration naming `declaration_rel`."""
+    config = root / sync.HOSTING_CONFIG_REL
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(f"declaration_path: {declaration_rel}\n",
+                      encoding="utf-8")
+
+
+def _declare_hosting(root: Path, text: str,
+                     rel: str = _DECLARATION_REL) -> None:
+    path = root / rel
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+    _configure_hosting(root, rel)
+
+
+class _HostingResolverCase(unittest.TestCase):
+    """A hosting test whose resolution comes from THIS harness and nowhere else.
+
+    `$XFACTORY_NOTEBOOK_HOSTING_DECLARATION` is first in the resolution order,
+    so a developer who exports it for their own install would otherwise redirect
+    every test below at their real declaration — a live account reached from a
+    test run, which is the class of thing `tests/hermeticity.py` exists to make
+    impossible. Snapshotted and restored per test rather than cleared once for
+    the module, so the tests that set it deliberately still can.
+
+    AND THE CLI PROFILE STORE IS ISOLATED TOO, WHICH WAS ALREADY A DEFECT AND
+    THE SYNTHETIC LITERALS ARE WHAT EXPOSED IT. `enforce_hosting_profile()`
+    calls `profile_account(profile)`, which reads `Path.home() /
+    ".notebooklm-mcp-cli" / "profiles" / <name> / "metadata.json"` — the
+    OPERATOR'S REAL STORE. On a CI runner there is no such profile, the reader
+    returns None, and the address comparison is reported as unknown; on the
+    machine that authored the fixtures the `company` profile existed and its
+    recorded address EQUALLED the literal, so three tests here passed by
+    coincidence rather than by construction. Replacing the literal with a
+    synthetic one turned that coincidence into a failure, which is the useful
+    kind of failure: the tests were reaching outside the harness.
+
+    The stub honours an explicit `home=`, so the one class that drives the REAL
+    reader against a synthetic CLI home keeps doing exactly that; an ambient
+    call with no home is UNKNOWN, which is the state the production reader
+    documents and the state a runner is actually in.
+    """
+
+    def setUp(self):
+        super().setUp()
+        env = patch.dict(os.environ, {}, clear=False)
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop(sync.HOSTING_ENV, None)
+
+        real = sync.profile_account
+
+        def _only_from_a_named_home(profile, home=None):
+            if home is not None:
+                return real(profile, home=home)
+            return None
+
+        guard = patch.object(sync, "profile_account", _only_from_a_named_home)
+        guard.start()
+        self.addCleanup(guard.stop)
 
 
 def _profile_runner(active: str | None):
@@ -2030,7 +2099,7 @@ def _profile_runner(active: str | None):
     return run
 
 
-class HostingDeclarationTests(unittest.TestCase):
+class HostingDeclarationTests(_HostingResolverCase):
     """The declaration is READ, and the run is BOUND to it or refused."""
 
     def test_undeclared_install_is_reported_as_a_transition_state_not_a_case(self):
@@ -2054,7 +2123,7 @@ class HostingDeclarationTests(unittest.TestCase):
             with contextlib.redirect_stdout(out):
                 got = sync.enforce_hosting_profile(
                     root, runner=_profile_runner("company"))
-        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertEqual(got["account"], "projection-host@example.invalid")
         self.assertIn("verified active", out.getvalue())
 
     def test_a_run_pointed_at_another_account_refuses(self):
@@ -2090,7 +2159,7 @@ class HostingDeclarationTests(unittest.TestCase):
                     root, runner=_profile_runner("personal"))
         self.assertIsNotNone(got)
         self.assertIn("MIGRATION PENDING", out.getvalue())
-        self.assertIn("brettheap@gmail.com", out.getvalue(),
+        self.assertIn("previous-host@example.invalid", out.getvalue(),
                       "a declaration is not a migration: until the books move, "
                       "the run binds where they actually live")
 
@@ -2197,7 +2266,7 @@ class ParityReportTests(unittest.TestCase):
                     sync.active_nlm_profile(lambda *a, parse=True: answer))
 
 
-class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
+class ProfileBindingHoldsForTheWholeRunTests(_HostingResolverCase):
     """The binding is re-asserted before EVERY invocation, not once.
 
     Found in review: profile selection is process-global, so another terminal
@@ -2261,7 +2330,7 @@ class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
                     sync.assert_still_bound()
 
 
-class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
+class DeclarationIsEnforcedOnTheOperationalPathTests(_HostingResolverCase):
     """The refusals must fire during an ordinary run, not only in the validator.
 
     Found in review: nothing the sync runs invoked the validator, so a
@@ -2280,9 +2349,9 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
         with TemporaryDirectory() as td:
             root = Path(td)
             text = HOSTING_DECLARED.replace(
-                "account: xFactor001@opensoft.one",
+                "account: projection-host@example.invalid",
                 "account: books@xf.iam.gserviceaccount.com").replace(
-                "domain: opensoft.one", "domain: xf.iam.gserviceaccount.com")
+                "domain: example.invalid", "domain: xf.iam.gserviceaccount.com")
             with self.assertRaises(SystemExit) as caught:
                 self._enforce(root, text)
         self.assertIn("service account", str(caught.exception))
@@ -2300,7 +2369,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
     def test_an_account_outside_the_declared_domain_is_refused(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            text = HOSTING_DECLARED.replace("domain: opensoft.one",
+            text = HOSTING_DECLARED.replace("domain: example.invalid",
                                             "domain: elsewhere.example")
             with self.assertRaises(SystemExit) as caught:
                 self._enforce(root, text)
@@ -2321,7 +2390,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 got = self._enforce(root, HOSTING_DECLARED)
-        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertEqual(got["account"], "projection-host@example.invalid")
         self.assertEqual(sync._BOUND_PROFILE, "company",
                          "a bound run must pin the profile it verified")
 
@@ -2375,7 +2444,7 @@ share_out: []
                                   "subprocess, not after it has written")
 
 
-class UnreadableDeclarationFailsClosedTests(unittest.TestCase):
+class UnreadableDeclarationFailsClosedTests(_HostingResolverCase):
     """A declaration the sync cannot read is NOT an absent one.
 
     Found in review: the narrow reader wants the `hosting:` block's own
@@ -2389,13 +2458,13 @@ class UnreadableDeclarationFailsClosedTests(unittest.TestCase):
         sync.bind_profile(None)
 
     FLOW = ("schema_version: 1\nkind: notebook_projection_hosting\n"
-            "hosting: {case: operator_hosted, account: x@opensoft.one, "
+            "hosting: {case: operator_hosted, account: x@example.invalid, "
             "nlm_profile: company}\nshare_out: []\n")
     FOUR = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
-            "    case: operator_hosted\n    account: x@opensoft.one\n"
+            "    case: operator_hosted\n    account: x@example.invalid\n"
             "    nlm_profile: company\nshare_out: []\n")
     TABS = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
-            "\tcase: operator_hosted\n\taccount: x@opensoft.one\n"
+            "\tcase: operator_hosted\n\taccount: x@example.invalid\n"
             "\tnlm_profile: company\nshare_out: []\n")
 
     def test_an_existing_file_always_yields_a_dict_never_none(self):
@@ -2423,7 +2492,7 @@ class UnreadableDeclarationFailsClosedTests(unittest.TestCase):
                               str(caught.exception))
 
 
-class MigrationStateVocabularyTests(unittest.TestCase):
+class MigrationStateVocabularyTests(_HostingResolverCase):
     """The sync owns the state vocabulary too — one rule, not two gates.
 
     Found in review: `state: in_progress` FAILED the validator and PASSED the
@@ -2438,13 +2507,13 @@ class MigrationStateVocabularyTests(unittest.TestCase):
 kind: notebook_projection_hosting
 hosting:
   case: operator_hosted
-  account: xFactor001@opensoft.one
+  account: projection-host@example.invalid
   account_type: google_workspace_user
-  domain: opensoft.one
+  domain: example.invalid
   nlm_profile: company
   migration:
     state: {state}
-    from_account: brettheap@gmail.com
+    from_account: previous-host@example.invalid
     from_nlm_profile: personal
 share_out: []
 """
@@ -2483,7 +2552,7 @@ share_out: []
         self.assertIn("no top-level nlm_profile", str(caught.exception))
 
 
-class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
+class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(_HostingResolverCase):
     """The CLI DOES store a profile's email — this change first claimed it did not.
 
     `profiles/<name>/metadata.json` carries `email`: populated by a recent
@@ -2506,9 +2575,9 @@ class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
 
     def test_a_recorded_address_is_read(self):
         with TemporaryDirectory() as td:
-            home = self._home(Path(td), "company", "xFactor001@opensoft.one")
+            home = self._home(Path(td), "company", "projection-host@example.invalid")
             self.assertEqual(sync.profile_account("company", home=home),
-                             "xFactor001@opensoft.one")
+                             "projection-host@example.invalid")
 
     def test_a_null_address_is_unknown_not_empty_string(self):
         with TemporaryDirectory() as td:
@@ -3234,3 +3303,220 @@ class RootLevelGovernedProductTests(unittest.TestCase):
             dirs = sync._out_of_scope_workbench_dirs(root)
         self.assertIn("openXwallet",
                       {p.parent.parent.name for p in dirs})
+
+
+# --------------------- the declaration's path is RESOLVED ---------------------
+# adopt-configured-notebook-hosting-identity (ratified 2026-09-08). The record's
+# `account`, its `migration.from_account` and its roster rows are the values
+# `enforce_hosting_profile()` compares against the account a CLI profile is
+# actually signed in as — so they could not be redacted in place — and this
+# repository is becoming public. The live record therefore moved to a configured
+# private home and the committed file became a synthetic fixture.
+#
+# WHAT THESE TESTS OWE. The four the resolver owes (packet task 2.4): env-var
+# resolution, workspace-config resolution, absent configuration is UNDECLARED
+# and the run continues unbound, and a configured path resolving to the shipped
+# example is REFUSED with the file and the remedy named. Two more are here
+# because the design commits to them explicitly: the env var WINS over the
+# config (D-1), and a configured path that is not there reads as UNDECLARED
+# rather than breaking (OQ-A's own table, the uninitialized-submodule case).
+
+class TheDeclarationsPathResolvesFromConfigurationTests(_HostingResolverCase):
+    """One resolution order: env var, then workspace config, then UNDECLARED."""
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    def _bind(self, root: Path, active: str = "company"):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            got = sync.enforce_hosting_profile(
+                root, runner=_profile_runner(active))
+        return got, out.getvalue()
+
+    @staticmethod
+    def _write(root: Path, rel: str, text: str = HOSTING_DECLARED) -> Path:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    def test_the_env_var_resolves_the_declaration(self):
+        """An ABSOLUTE path in the environment binds the run."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            path = self._write(root, "elsewhere/private/hosting.yaml")
+            os.environ[sync.HOSTING_ENV] = str(path)
+            got, text = self._bind(root)
+        self.assertEqual(got["account"], "projection-host@example.invalid")
+        self.assertIn("verified active", text)
+
+    def test_a_workspace_relative_env_var_resolves_from_the_root(self):
+        """The relative spelling must reach the SAME file as the absolute one.
+
+        Both are supported on purpose: a declaration inside the workspace is
+        written short, and one outside it needs the absolute form.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "elsewhere/private/hosting.yaml")
+            os.environ[sync.HOSTING_ENV] = "elsewhere/private/hosting.yaml"
+            got, _ = self._bind(root)
+        self.assertEqual(got["account"], "projection-host@example.invalid")
+
+    def test_the_workspace_configuration_resolves_the_declaration(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "installs/private/hosting.yaml")
+            _configure_hosting(root, "installs/private/hosting.yaml")
+            got, text = self._bind(root)
+        self.assertEqual(got["account"], "projection-host@example.invalid")
+        self.assertIn("verified active", text)
+
+    def test_the_env_var_wins_over_the_workspace_configuration(self):
+        """D-1's precedence, asserted rather than assumed.
+
+        A one-off operator run and a CI job both need to override without
+        editing a file, so the environment is FIRST — and the only way to see
+        that is to make the two disagree and name which one answered.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "from-config/hosting.yaml",
+                        HOSTING_DECLARED.replace(
+                            "nlm_profile: company",
+                            "nlm_profile: from-the-config-file"))
+            _configure_hosting(root, "from-config/hosting.yaml")
+            self._write(root, "from-env/hosting.yaml")
+            os.environ[sync.HOSTING_ENV] = "from-env/hosting.yaml"
+            got, _ = self._bind(root)
+        self.assertEqual(got["nlm_profile"], "company",
+                         "the environment variable is FIRST in the order; a "
+                         "config file that also answers must not win")
+
+    def test_absent_configuration_is_undeclared_and_does_not_break(self):
+        """The public-clone case, and it must stay non-breaking.
+
+        A clone with no configuration is UNDECLARED — the transition state the
+        ratified requirement already defines — and runs under the CLI's default
+        profile exactly as a pre-requirement install does. It is reported as
+        NOT MEETING the requirement, never as a third legitimate case.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            got, text = self._bind(root, active="whatever-is-active")
+        self.assertIsNone(got)
+        self.assertIn("NO DECLARED HOSTING IDENTITY", text)
+        self.assertIn("transition state", text)
+        self.assertIn("nothing is configured", text,
+                      "an undeclared install must be told WHY it is "
+                      "undeclared, or the operator cannot act on it")
+        self.assertIsNone(sync._BOUND_PROFILE)
+
+    def test_a_configured_path_that_does_not_exist_is_undeclared(self):
+        """The uninitialized-submodule case, which the ruling calls CORRECT.
+
+        OQ-A weighed hermes-install as the live record's home and recorded this
+        against it: "a checkout without the submodule initialized reads as
+        UNDECLARED (which is correct, and is why that state must stay
+        non-breaking)". So this is not a hole in the resolver — it is the
+        resolver doing what the ruling says. A file that EXISTS and cannot be
+        parsed is a different thing and still fails closed.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _configure_hosting(root, "installs/not-cloned-yet/hosting.yaml")
+            got, text = self._bind(root, active="whatever-is-active")
+        self.assertIsNone(got)
+        self.assertIn("NO DECLARED HOSTING IDENTITY", text)
+        self.assertIn("is not a readable file", text,
+                      "silence here would let an operator believe the record "
+                      "was read")
+
+    def test_a_configured_path_resolving_to_the_shipped_example_is_refused(self):
+        """The fail-closed arm (D-2), decided by the MARKER and not by the path.
+
+        Treating this as UNDECLARED was the alternative and was rejected: the
+        undeclared branch runs the sync unbound under whatever profile happens
+        to be active, which is the failure this capability exists to retire.
+        Configuration that names a fixture is a mistake somebody made.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "anywhere/copied-example.yaml",
+                        HOSTING_DECLARED.replace(
+                            "  case: operator_hosted",
+                            "  instance: example\n  case: operator_hosted"))
+            os.environ[sync.HOSTING_ENV] = "anywhere/copied-example.yaml"
+            with self.assertRaises(SystemExit) as caught:
+                self._bind(root)
+        message = str(caught.exception)
+        self.assertIn("SHIPPED SYNTHETIC EXAMPLE", message)
+        self.assertIn("copied-example.yaml", message,
+                      "the refusal must name the file the operator configured")
+        self.assertIn("declaration_path", message,
+                      "and the exact remedy, like its sibling refusals do")
+        self.assertIn("hosting.instance", message)
+
+    def test_the_marker_is_read_from_the_record_not_from_the_path(self):
+        """A copy of the fixture under any other name is still a fixture.
+
+        Symlinks, worktrees and copies make a path comparison unreliable, which
+        is why OQ-C put the marker INSIDE the record: the file above is named
+        nothing like the shipped example and is refused anyway. This is the
+        complement — the same content WITHOUT the marker binds.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "anywhere/copied-example.yaml")
+            os.environ[sync.HOSTING_ENV] = "anywhere/copied-example.yaml"
+            got, _ = self._bind(root)
+        self.assertEqual(got["account"], "projection-host@example.invalid",
+                         "only the marker refuses; the path never did")
+
+    def test_the_shipped_example_is_not_the_last_resort(self):
+        """The resolver must never reach the committed fixture on its own.
+
+        Defaulting to it would make every fresh clone declare an install it is
+        not: the sync would bind to a profile named in a fixture, or refuse for
+        the wrong reason. Asserted against the REAL repository path, so this
+        fails if a later reader re-adds the constant as a fallback.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, sync.EXAMPLE_REL)
+            self.assertIsNone(sync.hosting_declaration_path(root))
+            self.assertIsNone(sync.read_hosting_declaration(root))
+
+    def test_a_record_marked_live_binds(self):
+        """Only `example` refuses; every other marker value is a declaration.
+
+        The live record carries `instance: live` and an older record carries no
+        `instance` at all, and both must bind — the refusal is scoped to the
+        one value that means "this is a fixture", never to the field's presence.
+        """
+        for marker in ("live", "opensoft-production", None):
+            with self.subTest(marker=marker), TemporaryDirectory() as td:
+                root = Path(td)
+                text = HOSTING_DECLARED if marker is None else \
+                    HOSTING_DECLARED.replace(
+                        "  case: operator_hosted",
+                        f"  instance: {marker}\n  case: operator_hosted")
+                self._write(root, "private/hosting.yaml", text)
+                os.environ[sync.HOSTING_ENV] = "private/hosting.yaml"
+                got, _ = self._bind(root)
+                self.assertEqual(got["account"],
+                                 "projection-host@example.invalid")
+
+    def test_an_empty_environment_value_is_unset(self):
+        """An exported-but-empty variable is not a configuration answer."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._write(root, "installs/private/hosting.yaml")
+            _configure_hosting(root, "installs/private/hosting.yaml")
+            os.environ[sync.HOSTING_ENV] = "   "
+            self.assertEqual(
+                sync.hosting_declaration_path(root),
+                root / "installs/private/hosting.yaml",
+                "an empty override must fall through to the next step rather "
+                "than resolving to the workspace root")

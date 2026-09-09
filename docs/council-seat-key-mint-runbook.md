@@ -1,6 +1,7 @@
 # Council Seat Signing Keys — Mint and Register Act (operator runbook)
 
-Status: draft
+Status: ratified
+Ratified by: register-gate-rules-council-seats
 Kind: runbook
 Repository context: openxFactory
 Backed by: `openspec/changes/register-gate-rules-council-seats/tasks.md` §3,
@@ -9,11 +10,17 @@ Backed by: `openspec/changes/register-gate-rules-council-seats/tasks.md` §3,
   merged `78b8fa2`) and the register-act form of
   [`walk-2026-09-02-register-act.md`](../openspec/changes/add-wallet-carried-review-authority/walk-2026-09-02-register-act.md)
 
-**Why this document is `draft` and not `ratified`.** It is authored by a
-PROPOSAL. `register-gate-rules-council-seats` is unratified as this is written,
-and a runbook that ratifies itself would be the same defect the estate has
-already named twice: a described control treated as an existing one. It becomes
-`Status: ratified` at task 1.6, on the change's ratification, and not before.
+**Why this document was `draft` until now, and what changed.** It was authored
+by a PROPOSAL, and a runbook that ratifies itself would be the same defect the
+estate has already named twice: a described control treated as an existing one.
+So it carried `Status: draft` and said in terms that it becomes
+`Status: ratified` "at task 1.6, on the change's ratification, and not before."
+`register-gate-rules-council-seats` was **RATIFIED 2026-09-06T14:13:46Z** by
+Brett Heap, verbatim *"lets take them in your recommended order all approved"*
+(`openspec/changes/register-gate-rules-council-seats/review/ratification-2026-09-06.md`),
+and this header flip is task 1.6 being performed. **Ratified does not mean
+enforced** — see the last bullet of "What this runbook deliberately does not
+do": no gate in this estate refuses a register act that skips this document.
 
 **What it is for.** The operator ceremony for commissioning a COUNCIL BODY into
 openxFactory's intake register: mint its seat signing keys, declare them in a
