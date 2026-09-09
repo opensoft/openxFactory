@@ -9,7 +9,9 @@ PACKET RATHER THAN AN OVERSIGHT.** This is a PROPOSAL. No archived byte is
 edited, no pin is re-derived, no checker is written, no repository's local
 convention is amended, and no spec delta is promoted.
 
-**AMENDED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`), on the precedent of commit `3b530009`; the superseded sentence is
+**AMENDED 2026-09-08 by this change's realization
+(`govern-archived-record-edits`, lane `opsXfactory-1`), on the precedent of
+commit `3b530009`; the superseded sentence is
 quoted rather than rewritten.** The preamble above opened:
 
 > **NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED, AND THAT IS THE STATE OF THE
@@ -85,7 +87,9 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   not in tension, because the row is bookkeeping the branch carries and the box
   is a claim about the packet having begun.
 
-  **AMENDED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`); the superseded sentence is quoted rather than rewritten.** The
+  **AMENDED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`); the superseded
+  sentence is quoted rather than rewritten.** The
   paragraph above opened:
 
   > **THE BOX STAYS UNTICKED, AND THAT IS THE CONVENTION RATHER THAN AN
@@ -98,7 +102,9 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   distinction is exactly why the box is ticked NOW, when the packet HAS begun,
   and was rightly unticked before.
 
-  **CORRECTED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`) — stale-but-true-when-written text, quoted and never rewritten
+  **CORRECTED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`) —
+  stale-but-true-when-written text, quoted and never rewritten
   in place.** The paragraph above states:
 
   > this packet is `Status: draft` awaiting ratification at task 1.1
@@ -112,7 +118,9 @@ change's archive gate. `[OPERATOR]` = only Brett Heap can perform it.
   here; measured at openxFactory `main` `6cc06288` on 2026-09-09 UTC that packet
   still carries 46 unticked boxes and 0 ticked, so it remains true as written.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the re-stamp is DONE and landed with PR #788. UTC DATE:
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the re-stamp is
+  DONE and landed with PR #788. UTC DATE:
   2026-09-08. EVIDENCE: `tests/sequenced_after/corpus-ledger.yaml:214` reads
   `moved_by: "#788", moved_on: "2026-09-08"` on openxFactory `main`, and
   `python3 scripts/validate-sequenced-after.py . --ledger-diff` reports
@@ -132,7 +140,9 @@ because that is the convention this corpus keeps: the sibling packet
 46 boxes ticked, its § 1 among them. Ratification is not realization, and a
 half-ticked list would say the packet had begun.
 
-**AMENDED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`); each superseded sentence is quoted rather than rewritten.**
+**AMENDED 2026-09-08 by this change's realization
+(`govern-archived-record-edits`, lane `opsXfactory-1`); each superseded sentence
+is quoted rather than rewritten.**
 
 Superseded, from the paragraph above:
 
@@ -185,7 +195,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   definition of the bookkeeping class, no ordering between ruling and edit, and
   no refusal posture. Each is `design.md`'s D-1..D-8 and each is a veto point.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: Brett Heap ratified this packet. UTC DATE: 2026-09-08.
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: Brett Heap
+  ratified this packet. UTC DATE: 2026-09-08.
   EVIDENCE, cited as the record cites it: GitHub review `5141756427`, state
   APPROVED, submitted `2026-09-08T12:38:36Z`, record
   `review/ratification-2026-09-08.md`; ratified baseline `8cc76e1b`. **NO WORD IS
@@ -195,7 +207,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   Mirrored from the domain twin's 1.2a/1.2b/1.2c, because the same three
   decisions are open in both halves and a ruling on one is a ruling on both.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: all three were put to him verbatim immediately before the
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: all three were
+  put to him verbatim immediately before the
   approval and NONE was exercised, so the packet is ratified AS WRITTEN. UTC
   DATE: 2026-09-08. EVIDENCE: review `5141756427`, APPROVED
   `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`; the
@@ -214,7 +228,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     and contract pins are obliged by nothing while that gate re-derives them.
     Narrowing here forces the same narrowing on the OpsxFactory half.
 
-    **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was NOT exercised, so the DEFAULT STANDS —
+    **TICKED 2026-09-08 by this change's realization
+    (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
+    NOT exercised, so the DEFAULT STANDS —
     every pin of every declared family, not custody pins only. UTC DATE:
     2026-09-08. EVIDENCE: review `5141756427`, APPROVED `2026-09-08T12:38:36Z`,
     record `review/ratification-2026-09-08.md`. No word quoted.
@@ -232,7 +248,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     states the same rule at its own altitude, and a downstream `MUST` may not
     contradict a neutral `MUST NOT`.
 
-    **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was NOT exercised, so the DEFAULT STANDS —
+    **TICKED 2026-09-08 by this change's realization
+    (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
+    NOT exercised, so the DEFAULT STANDS —
     option (i), report-then-refuse as written; (ii) refuse-from-landing and (iii)
     strike were not taken. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`,
     APPROVED `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`.
@@ -248,7 +266,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
     its scope sentence must reach outside the archive tree, and the OpsxFactory
     half must collapse the same way.
 
-    **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was NOT exercised, so the DEFAULT STANDS — TWO
+    **TICKED 2026-09-08 by this change's realization
+    (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the veto was
+    NOT exercised, so the DEFAULT STANDS — TWO
     `## ADDED` requirements, not one; the delta was not collapsed. UTC DATE:
     2026-09-08. EVIDENCE: review `5141756427`, APPROVED `2026-09-08T12:38:36Z`,
     record `review/ratification-2026-09-08.md`; the shape is measured at this
@@ -260,7 +280,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   finding; taking it means a MODIFIED block that must stay current until
   archive (task 4.2).
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: ruled by the same approval, and the veto was not
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: ruled by the
+  same approval, and the veto was not
   exercised — the `## MODIFIED` block is WANTED and stands, which is exactly why
   task 4.2's currency obligation is live until archive and why box 4.2 below is
   left open. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`, APPROVED
@@ -272,7 +294,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   contradicting canon in force, and it would overturn the F.3 selection). It
   remains available and would be a different change.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: ruled by the same approval, and the veto was not
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: ruled by the
+  same approval, and the veto was not
   exercised — the strict read-only archive reading remains NOT TAKEN and would be
   a different change. UTC DATE: 2026-09-08. EVIDENCE: review `5141756427`,
   APPROVED `2026-09-08T12:38:36Z`, record `review/ratification-2026-09-08.md`;
@@ -280,7 +304,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
 - [x] 1.5 Write `review/ratification-<date>.md` recording the word verbatim, the
   head it was given against, and what it does and does not authorize.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the record was written and is in this packet. UTC DATE:
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the record was
+  written and is in this packet. UTC DATE:
   2026-09-08. EVIDENCE: `review/ratification-2026-09-08.md`, which names the
   ratified baseline `8cc76e1b`, the review id `5141756427`, the APPROVED state
   and its `2026-09-08T12:38:36Z` timestamp, and what the approval does and does
@@ -296,7 +322,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
 - [x] 2.1 `## ADDED` — *An archived record is edited only as a bookkeeping
   correction under a recorded ruling*. Authored.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is authored and ratified as written. UTC DATE:
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is
+  authored and ratified as written. UTC DATE:
   2026-09-08. EVIDENCE: `specs/document-lifecycle/spec.md` at the ratified
   baseline `8cc76e1b`, unchanged at this branch's head (`git log 3504287a..HEAD`
   over the packet, promoted canon and the § 3.4 target is EMPTY); the delta's
@@ -305,7 +333,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
 - [x] 2.2 `## ADDED` — *A change that edits a pinned target re-derives every
   dependent pin in the same change*. Authored.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is authored and ratified as written, TWO
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is
+  authored and ratified as written, TWO
   `## ADDED` requirements rather than one, the split having survived veto point
   1.2c. UTC DATE: 2026-09-08. EVIDENCE: `specs/document-lifecycle/spec.md` at the
   ratified baseline `8cc76e1b`, unchanged at this head; five scenarios in this
@@ -321,7 +351,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
   ``**Removed from canon by …**`` marker is owed and doc-health's
   `modified-block-currency` arm reports nothing against this block.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is authored and ratified as written. UTC DATE:
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the block is
+  authored and ratified as written. UTC DATE:
   2026-09-08. EVIDENCE: `specs/document-lifecycle/spec.md` at the ratified
   baseline `8cc76e1b`, unchanged at this head; the currency re-measurement is
   recorded in the packet evidence file `evidence/realization-2026-09-08.md`
@@ -338,7 +370,9 @@ landing, not strike), and TWO `## ADDED` requirements (not one).
 
 ## 3. Composition — named here; 3.4 alone is this packet's own act [SUPERSEDED 2026-09-08: 3.1 IS ALSO PERFORMED]
 
-**AMENDED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`); the superseded clause is quoted rather than rewritten.** The
+**AMENDED 2026-09-08 by this change's realization
+(`govern-archived-record-edits`, lane `opsXfactory-1`); the superseded clause is
+quoted rather than rewritten.** The
 heading asserted:
 
 > 3.4 alone is this packet's own act
@@ -354,7 +388,9 @@ for 3.2, 3.3 and 3.5. (Mirror ruling M-A3.)
   lands and is ratified. Both packets cross-cite by change id and repository;
   the citations are re-checked to resolve once both heads settle.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`), ON A PERFORMED CHECK RATHER THAN ON THE MERGE ALONE.** ACT: the
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`), ON A PERFORMED CHECK
+  RATHER THAN ON THE MERGE ALONE.** ACT: the
   twin landed AND the cross-citations were re-checked in both directions. UTC
   DATE: 2026-09-08 (the landing); the check was run 2026-09-09 UTC and both heads
   are named. EVIDENCE: the twin merged into OpsxFactory `main` as
@@ -367,7 +403,8 @@ for 3.2, 3.3 and 3.5. (Mirror ruling M-A3.)
   convention, `add-pre-archive-citation-gate` and `add-content-address-integrity-gate`;
   and the twin's citations of this packet, of PR #788 → openxFactory `main`
   `3504287a`, and of this packet's ratification record. Tabulated citation by
-  citation in the packet evidence file `evidence/realization-2026-09-08.md` § *Measurement 3*, which also records the
+  citation in the packet evidence file `evidence/realization-2026-09-08.md` §
+  *Measurement 3*, which also records the
   two that had MOVED under the packet and still resolve: the integrity-gate change
   lives on an OpsxFactory branch rather than `main`, exactly as this packet says,
   and `add-pre-archive-citation-gate` has since archived into the second path this
@@ -414,7 +451,9 @@ for 3.2, 3.3 and 3.5. (Mirror ruling M-A3.)
   rules, as a form the lifecycle header block accepts. A governance document, so
   `code_surface` stays `none`.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the neutral minimum is recorded in this repository's own
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the neutral
+  minimum is recorded in this repository's own
   lifecycle document. UTC DATE: 2026-09-08. EVIDENCE: commit
   **`645e88ec41c271b002376017e810540f5e1912b1`** ("Adopt the neutral
   bookkeeping-note minimum in the lifecycle document (S1)"), which appends ONE
@@ -455,16 +494,20 @@ measured at base `68712924`.** "In-repo" is load-bearing — task 1.2a's ratifie
 scope is in-repo pointers to in-repo targets, and a broader claim would overstate
 what was measured; nothing here is a claim about a pin held in a consuming
 repository. Method and full working, including the FIVE files that name the path
-and why none of them is a pin, are in the packet evidence file `evidence/realization-2026-09-08.md`
+and why none of them is a pin, are in the packet evidence file
+`evidence/realization-2026-09-08.md`
 § *Measurement 1*; the measurement is re-taken at the branch's final head, because
 a pin arriving with a forward merge is a pin.
 
 - [x] 4.1 `python3 scripts/validate-openspec-cli-pin.py --change openspec/changes/govern-archived-record-edits --strict`
   and `--all --strict` with no undispositioned finding.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: both runs performed through the pinned-CLI entrypoint with
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: both runs
+  performed through the pinned-CLI entrypoint with
   `@fission-ai/openspec@1.12.0` on `PATH` (PATH's 1.2.0 never used). UTC DATE:
-  2026-09-08. EVIDENCE: `evidence/realization-2026-09-08.md` § 4.1, which carries the exact command text with its
+  2026-09-08. EVIDENCE: `evidence/realization-2026-09-08.md` § 4.1, which
+  carries the exact command text with its
   environment, the pinned CLI's verified provenance, both return codes and both
   summary lines, and the dispositioned-exception count compared with the
   ratification record's baseline in BOTH directions. Result recorded there:
@@ -476,7 +519,8 @@ a pin arriving with a forward merge is a pin.
   archive and bring the block forward if canon moved.
 
   **RUN, RECORDED, AND DELIBERATELY LEFT OPEN FOR THE ARCHIVE ACT.** Dated
-  2026-09-08. The check WAS run and its result IS recorded — `evidence/realization-2026-09-08.md`
+  2026-09-08. The check WAS run and its result IS recorded —
+  `evidence/realization-2026-09-08.md`
   § *Measurement 2*: canon 5,815 characters, **0 canon lines removed**, the
   difference entirely inserted, re-taken at the branch's final head. **THE BOX IS
   NOT TICKED, AND THAT IS THE POINT**: this requirement demands currency
@@ -487,15 +531,21 @@ a pin arriving with a forward merge is a pin.
 - [x] 4.3 `python3 scripts/validate-sequenced-after.py .`, `--ledger-diff`,
   `validate-scope-globs.py .`, `validate-manifest-digests.py .` all clean.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: all four validators run. UTC DATE: 2026-09-08. EVIDENCE:
-  `evidence/realization-2026-09-08.md` § 4.3, which records each command, its return code and its summary line
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: all four
+  validators run. UTC DATE: 2026-09-08. EVIDENCE:
+  `evidence/realization-2026-09-08.md` § 4.3, which records each command, its
+  return code and its summary line
   verbatim; all four exit **rc 0**, `--ledger-diff` reporting `per-change sweep
   ledger consistent with the corpus`.
 - [x] 4.4 `python3 scripts/doc-health.py --single-repo . --fail-on error` with
   the finding set diff-identical to `main`'s.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: doc-health run on the branch and its FINDING SET diffed
-  against `main`'s. UTC DATE: 2026-09-08. EVIDENCE: `evidence/realization-2026-09-08.md` § 4.4, which records the
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: doc-health run
+  on the branch and its FINDING SET diffed
+  against `main`'s. UTC DATE: 2026-09-08. EVIDENCE:
+  `evidence/realization-2026-09-08.md` § 4.4, which records the
   identity-safe recipe (both baseline checkouts carry the branch checkout's own
   directory basename, because doc-health stamps that basename into every finding
   line; `--previous-report` never used), the main-vs-main PROOF at zero
@@ -508,8 +558,11 @@ a pin arriving with a forward merge is a pin.
 - [x] 4.5 `pytest tests/sequenced_after tests/proposal-support tests/scope_globs -q`
   green.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the three test paths run. UTC DATE: 2026-09-08. EVIDENCE:
-  `evidence/realization-2026-09-08.md` § 4.5 — **rc 0** captured as a return code rather than inferred from a
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the three test
+  paths run. UTC DATE: 2026-09-08. EVIDENCE:
+  `evidence/realization-2026-09-08.md` § 4.5 — **rc 0** captured as a return
+  code rather than inferred from a
   pipeline, summary `330 passed, 2 subtests passed`.
 
 ## 5. Bookkeeping and landing
@@ -519,7 +572,9 @@ a pin arriving with a forward merge is a pin.
   (Rule 7). Note `main` moves hourly here: merge forward, never rebase pushed
   commits.
 
-  **TICKED 2026-09-08 by this change's realization (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the row is written and landed with PR #788. UTC DATE:
+  **TICKED 2026-09-08 by this change's realization
+  (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the row is
+  written and landed with PR #788. UTC DATE:
   2026-09-08. EVIDENCE: `README.md:515` carries this change's "OpenSpec Records"
   row on openxFactory `main`. It is not re-authored here; realization appends ONE
   dated superseding sentence at the END of that row, because the row asserts that
@@ -575,7 +630,8 @@ a pin arriving with a forward merge is a pin.
   **NOT OWED HERE — THE ARCHIVE ACT IS THE LANE'S.** Dated 2026-09-08. This
   confirmation is performed AT the archive act, against the archived delta's own
   bytes, and cannot be performed before it. What this realization contributes is
-  the input: box 4.2's currency measurement is run and recorded (`evidence/realization-2026-09-08.md`
+  the input: box 4.2's currency measurement is run and recorded
+  (`evidence/realization-2026-09-08.md`
   § *Measurement 2*) and its box is deliberately left open so the archive act
   re-runs it rather than inheriting a tick.
 - [ ] 6.3 [OPERATOR] The archive word.
