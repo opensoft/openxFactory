@@ -103,14 +103,28 @@ than the token rule: the arm was classifying `yaml.safe_load`'s VALUE
 where the pin's grammar, its own reader and its own printed report all carry the
 LINE. A general YAML parser does not give that line back — measured on the live
 pin, two citations come back single-key MAPPINGS and three come back TRUNCATED at
-the ` #` of a forge reference. So `citation_lines_in` reads the `cited_to:` lines
-from the pin's bytes, `check_citations` aligns them one-to-one against the parsed
-structure (and refuses the field outright if the two counts disagree, rather than
+the ` #` of a forge reference. So `citation_lines_by_entry` reads the `cited_to:`
+lines from the pin's bytes, `check_citations` aligns them against the parsed
+structure (and refuses the field outright if the two readings disagree, rather than
 attach a finding to the wrong item), and `read_citation` reads EVERY token of the
 line's referent region, deciding the kind by form (`://`, then `#`, then `/`) and
 reserving "another repository's" for a path immediately preceded by a repository
 name the pin ITSELF declares in its `repo:` fields. The readers' disagreement is
 still measured and named for a successor, but no verdict rests on it any more.
+
+A FOURTH BENCH ROUND MADE THE BYTE READER STRUCTURAL (issue #851, Codex and
+Copilot on PR #842). Its first version matched a `cited_to:` key ANYWHERE in the
+bytes and stopped a list at the first non-item line, and equal GLOBAL counts were
+its proof of alignment — so a `cited_to:`/`- …` pair quoted inside a folded
+`why: >-` and a `#` comment swallowing a real item CANCEL, and a dangling
+citation after the comment is never opened while the run exits 0.
+`citation_lines_by_entry` now skips a block scalar's body whole, treats a comment
+or a blank line inside a list as the non-member it is, and returns every line
+BOUND to the `dispositions[]` entry that carries it, which is what
+`check_citations` compares entry by entry. It also applies the production
+reader's own `_unquote` to each line, so quoting a scalar — the repair this arm
+names for a successor — can actually clear the divergence it was made for
+instead of making it permanent.
 
 Run: python3 scripts/validate-pin-registrations.py (also exercised by
 tests/pin_registrations/test_pin_registration_sweep.py on every required-suite
@@ -167,10 +181,27 @@ _TOKEN_DECORATION = "`'\"\u201c\u201d()[]{}<>,;" + CITATION_SECTION
 # its items as `^      - (\S.*)$`; the indentation is matched RELATIVE to the
 # key here rather than fixed at six spaces, because `yaml.safe_dump` writes a
 # sequence at its key's own column and the tests' fixtures are written that way.
-# See `citation_lines_in`.
+# See `citation_lines_by_entry`.
 _CITED_TO_KEY = re.compile(r"^(?P<indent> *)(?P<dash>- )?" + CITATION_FIELD
                            + r":\s*$")
 _LIST_ITEM = re.compile(r"^(?P<indent> *)- (?P<text>\S.*?)\s*$")
+
+# THE THREE THINGS THAT MAKE THE READER STRUCTURAL RATHER THAN GLOBAL (issue
+# #851, Codex on PR #842). A `cited_to:` key line or a `- ` item written inside
+# FOLDED PROSE is content, not structure — a disposition's `why: >-` may quote
+# the very grammar this reader matches — so a block scalar's body is skipped
+# whole; a comment or a blank line between two items does NOT end a list; and
+# the walk stays inside `dispositions:` and counts its entries, so every line is
+# bound to the entry that carries it instead of to a position in a global list.
+# `>-` is the only style the production reader admits, but every style is matched
+# HERE, because this reader's job at the opener is to skip a body, and a body it
+# failed to recognise is exactly the decoy the bench found.
+_DISPOSITIONS_KEY = re.compile(r"^(?P<indent> *)" + DISPOSITIONS_FIELD + r":\s*$")
+_BLOCK_SCALAR_KEY = re.compile(
+    r"^(?P<indent> *)(?P<dash>- )?[A-Za-z_][A-Za-z0-9_]*:[ \t]+"
+    r"[|>][+-]?[0-9]*[ \t]*$")
+_SEQUENCE_ITEM = re.compile(r"^(?P<indent> *)- ")
+_COMMENT_OR_BLANK = re.compile(r"^\s*(?:#.*)?$")
 
 # The spellings that mean THIS repository where a citation qualifies a path with
 # a repository name. Restated from `scripts/doc_health/pin_class.py`'s
@@ -247,8 +278,34 @@ def rule_names_entrypoint(rule: str, entrypoint: str) -> bool:
         start = index + 1
 
 
-def citation_lines_in(text: str) -> list[str]:
-    """Every `cited_to:` list-item LINE the pin's bytes carry, in file order.
+def _unquote(raw: str) -> str:
+    """The production reader's unquoting rule, applied to a citation LINE.
+
+    RESTATED FROM `scripts/validate-openspec-cli-pin.py`'s `_unquote`, not
+    imported: that file is hyphenated and therefore unimportable, and this
+    checker is a standalone script — the same reason `OWN_REPOSITORY_SPELLINGS`
+    is restated above, and pinned equal to its source by a test in
+    `tests/pin_registrations/` so a divergence reds rather than drifts.
+
+    WHY THE RULE HAS TO BE THE SAME ONE (issue #851, Codex on PR #842). The
+    production reader passes every `^      - (\\S.*)$` item through `_unquote`
+    before it is anything, so a QUOTED citation scalar has no quotes in the text
+    the pin's own verifier prints and compares. The obvious repair for the ` #`
+    and `: ` ambiguities this arm measures is to quote those scalars — and if
+    this reader kept the quotes, the repair would turn a divergence WARN that
+    names a real disagreement into a permanent one that names only the quotes.
+    A repair that cannot clear the warning it was made for is not a repair.
+    """
+    value = raw.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
+
+
+def citation_lines_by_entry(text: str) -> list[tuple[int, str]]:
+    """Every `cited_to:` list-item LINE, paired with the `dispositions[]` entry
+    (1-based, counting every sequence item as `parsed_citations_of` does) whose
+    block carries it, in file order.
 
     THE CITATION IS THE LINE, AND THAT IS THE FIELD'S DOCUMENTED GRAMMAR. The
     pin's header says of `cited_to:` only that it "is required and must be
@@ -257,7 +314,9 @@ def citation_lines_in(text: str) -> list[str]:
     line, whose members it deliberately never parses because flattening them
     "would make the reader guess a delimiter that a citation could itself
     contain". That line is also exactly what its disposition report PRINTS for a
-    human to open. So the line is what this arm classifies.
+    human to open. So the line is what this arm classifies — after `_unquote`,
+    which is the one transformation the production reader itself applies to that
+    same production, so a quoted scalar means here what it means there.
 
     AND A GENERAL YAML PARSER DOES NOT GIVE THAT LINE BACK — measured, twice, on
     the live pin. Two citations quote the tool's own output (```Totals: 23
@@ -271,6 +330,26 @@ def citation_lines_in(text: str) -> list[str]:
     reader of the pin's STRUCTURE (which entry, which item, in what order); the
     citation itself is read from the bytes.
 
+    THE WALK IS STRUCTURAL, AND EQUAL GLOBAL COUNTS ARE NO LONGER THE PROOF
+    (issue #851, and the arm's first version is what it is written against).
+    That version matched a `cited_to:` key ANYWHERE in the bytes and stopped a
+    list at the first line that was not an item, so a `cited_to:`/`- …` pair
+    quoted inside a folded `why: >-` was admitted as structure while a `#`
+    comment between two real items ENDED the real list — and the two errors
+    cancel: the counts agree, `zip` pairs the wrong lines, and a dangling
+    citation after the comment is never opened while the run exits 0. Three
+    rules answer that, and each is one of the two mistakes:
+
+      * a BLOCK SCALAR's body is skipped whole (blank lines and every line
+        indented past the key's own column), so nothing written inside a
+        disposition's prose is ever read as the pin's structure;
+      * a COMMENT or a BLANK line inside a list is skipped and does not end it,
+        because neither is a member of the sequence in YAML either;
+      * the walk stays inside `dispositions:` and counts its entries, so each
+        line comes back BOUND to the entry whose block carries it. The caller
+        compares that binding against the parsed structure entry by entry, and a
+        decoy that cancels a swallowed item no longer agrees with anything.
+
     A list item is admitted at or below the key's own indentation because that is
     where both writers put one: the live pin indents its items under
     `cited_to:`, and `yaml.safe_dump` (which the tests' fixtures use) writes a
@@ -278,25 +357,82 @@ def citation_lines_in(text: str) -> list[str]:
     where it is the first key of a sequence entry, whose items then sit two
     columns in.
     """
-    lines = text.splitlines()
-    found: list[str] = []
-    index = 0
-    while index < len(lines):
-        key = _CITED_TO_KEY.match(lines[index])
-        index += 1
-        if key is None:
+    pairs: list[tuple[int, str]] = []
+    section: int | None = None      # the indentation of `dispositions:`
+    entry_indent: int | None = None  # the indentation of its sequence items
+    entry_index = 0
+    list_depth: int | None = None    # an open `cited_to:` list's item floor
+    block_at: int | None = None      # an open block scalar's key column
+    for raw in text.splitlines():
+        indent = len(raw) - len(raw.lstrip(" "))
+        if block_at is not None:
+            # A blank line and every more-indented line are the scalar's own
+            # content; the first line at or left of the key's column ends it and
+            # is read here as structure.
+            if not raw.strip() or indent > block_at:
+                continue
+            block_at = None
+        if _COMMENT_OR_BLANK.match(raw):
             continue
-        # A `- cited_to:` line is the field as the FIRST key of a sequence
-        # entry, which is what `yaml.safe_dump` writes; its items sit two columns
-        # in, past the dash.
-        depth = len(key.group("indent")) + (2 if key.group("dash") else 0)
-        while index < len(lines):
-            item = _LIST_ITEM.match(lines[index])
-            if item is None or len(item.group("indent")) < depth:
-                break
-            found.append(item.group("text"))
-            index += 1
-    return found
+
+        key = _DISPOSITIONS_KEY.match(raw)
+        if key is not None:
+            section = len(key.group("indent"))
+            entry_indent = None
+            entry_index = 0
+            list_depth = None
+            continue
+
+        opener = _BLOCK_SCALAR_KEY.match(raw)
+        if section is None:
+            if opener is not None:
+                block_at = len(opener.group("indent")) + (
+                    2 if opener.group("dash") else 0)
+            continue
+
+        sequence = _SEQUENCE_ITEM.match(raw)
+        item = _LIST_ITEM.match(raw)
+        if sequence is not None and entry_indent is None and indent >= section:
+            entry_indent = indent
+
+        if sequence is not None and indent == entry_indent:
+            # A new `dispositions[]` entry. Its first key may be `cited_to:` or a
+            # block scalar, both of which are read from this same line below.
+            entry_index += 1
+            list_depth = None
+        elif list_depth is not None and item is not None and indent >= list_depth:
+            pairs.append((entry_index, _unquote(item.group("text"))))
+            continue
+        elif indent <= section:
+            # The mapping has left `dispositions:`; a sibling key at or left of
+            # its column is another field entirely.
+            section = None
+            entry_indent = None
+            list_depth = None
+            if opener is not None:
+                block_at = len(opener.group("indent")) + (
+                    2 if opener.group("dash") else 0)
+            continue
+        else:
+            # Any other key line inside an entry closes an open list, which is
+            # what the pin's own reader does with it too.
+            list_depth = None
+
+        if opener is not None:
+            block_at = len(opener.group("indent")) + (
+                2 if opener.group("dash") else 0)
+            continue
+        cited = _CITED_TO_KEY.match(raw)
+        if cited is not None:
+            list_depth = len(cited.group("indent")) + (
+                2 if cited.group("dash") else 0)
+    return pairs
+
+
+def citation_lines_in(text: str) -> list[str]:
+    """The citation LINES alone, in file order — `citation_lines_by_entry`
+    without the binding, for a caller that only needs the text."""
+    return [line for _entry, line in citation_lines_by_entry(text)]
 
 
 def yaml_reading_of(citation):
@@ -452,7 +588,8 @@ def read_citation(citation: str, declared=frozenset()):
 def parsed_citations_of(dispositions):
     """`(entry index, item, citation)` for every parsed citation, in file order.
 
-    The order `citation_lines_in` is aligned against. A disposition that carries
+    The order `citation_lines_by_entry` is aligned against — the entry index is
+    the one the byte reader binds each line to. A disposition that carries
     no `cited_to:` list contributes nothing and is counted as uncited by the
     caller: the pin's own verifier owns that refusal.
     """
@@ -465,6 +602,16 @@ def parsed_citations_of(dispositions):
         item = str(entry.get("item", "unnamed"))
         for citation in citations:
             yield index, item, citation
+
+
+def _per_entry(indices) -> str:
+    """`1x4, 2x3` — how many citations each entry carries, for a finding that has
+    to show a reader WHERE two readings of the same file part company."""
+    counts: dict[int, int] = {}
+    for index in indices:
+        counts[index] = counts.get(index, 0) + 1
+    return ", ".join(f"{index}x{counts[index]}"
+                     for index in sorted(counts)) or "none"
 
 
 def check_citations(row_id, raw_path, pin, pin_text, findings):
@@ -487,10 +634,11 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
     difference the header rests the mechanism on.
 
     WHAT IT ASSERTS. The pin's `cited_to:` LINES are read from its bytes
-    (`citation_lines_in`) and ALIGNED one-to-one, in file order, against the
-    citations `yaml.safe_load` parsed — so a finding can name the entry and the
-    item it belongs to while the text it classifies is the line the pin's own
-    reader admits. Every machine referent of every line is then read by
+    (`citation_lines_by_entry`), each one BOUND to the `dispositions[]` entry
+    whose block carries it, and ALIGNED in file order against the citations
+    `yaml.safe_load` parsed — so a finding can name the entry and the item it
+    belongs to while the text it classifies is the line the pin's own reader
+    admits. Every machine referent of every line is then read by
     `read_citation`; the referents that name an UNQUALIFIED repo-relative path
     are resolved inside this tree with the same containment helper the registered
     `path` and `consumer_entrypoint:` go through; and a path that is absent — or
@@ -500,13 +648,18 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
     told how many referents were read, how many of them this tree owns, and how
     many were recognised and left to a forge, a network or another repository.
 
-    THE ALIGNMENT IS PROVED, NOT ASSUMED. If the bytes yield a different NUMBER
-    of citation lines than the structure does, this arm refuses the whole field
-    with one finding instead of classifying anything: an off-by-one would attach
-    every finding to the wrong item, and a citation written in a flow sequence
-    (`cited_to: [a, b]`) or spread over two lines is a form the pin's own
-    line-based reader does not admit either. Refusing loudly is the one behaviour
-    that cannot mislead.
+    THE ALIGNMENT IS PROVED, NOT ASSUMED, AND EQUAL TOTALS ARE NOT THE PROOF
+    (issue #851). What is compared is the SEQUENCE OF ENTRY NUMBERS the two
+    readers produce: if a line does not fall in the same `dispositions[]` entry
+    as the parsed citation it would be paired with — whether because the counts
+    differ at all, or because they differ per entry and cancel in the total —
+    this arm refuses the whole field with one finding instead of classifying
+    anything. An off-by-one would attach every finding to the wrong item; a
+    citation written in a flow sequence (`cited_to: [a, b]`) or spread over two
+    lines is a form the pin's own line-based reader does not admit either; and a
+    `cited_to:` quoted inside folded prose cancelling an item swallowed at a
+    comment is exactly what a global count cannot see. Refusing loudly is the one
+    behaviour that cannot mislead.
 
     WHAT IT DELIBERATELY DOES NOT ASSERT. Not the `:<line>` suffix, the gloss, or
     a qualifier's adjacency (`read_citation`). Not a URL's reachability, a forge
@@ -537,24 +690,49 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
 
     declared = repository_qualifiers(pin)
     parsed = list(parsed_citations_of(dispositions))
-    lines = citation_lines_in(pin_text)
+    bound = citation_lines_by_entry(pin_text)
+    lines = [line for _entry, line in bound]
     uncited = sum(1 for entry in dispositions
                   if not isinstance(entry, dict)
                   or not isinstance(entry.get(CITATION_FIELD), list)
                   or not entry[CITATION_FIELD])
 
-    if len(lines) != len(parsed):
-        findings.append(
-            f"FAIL {row_id}: `{raw_path}` carries {len(lines)} "
-            f"`{CITATION_FIELD}:` line(s) in its bytes and {len(parsed)} parsed "
-            f"citation(s) in its structure, so this arm cannot say WHICH "
-            f"disposition a line belongs to — it refuses the whole field rather "
-            f"than attach findings to the wrong entry. A citation is one line "
-            f"(`^      - (\\S.*)$` is the pin's own production); a flow sequence "
-            f"or a citation spread over two lines is a form the pin's own reader "
-            f"does not admit either")
-        print(f"MEASURED {row_id}: the citation bytes and the parsed structure "
-              f"disagree about how many citations there are; nothing classified")
+    # THE BINDING IS THE PROOF, ENTRY BY ENTRY. Equal global counts were the
+    # first version's proof and they are not one: a decoy admitted from folded
+    # prose and a real item swallowed at a comment cancel out (issue #851). What
+    # is compared now is the SEQUENCE OF ENTRY NUMBERS the two readers produce,
+    # so a line and the citation it is paired with belong to the same
+    # `dispositions[]` block or the field is refused whole.
+    if [entry for entry, _line in bound] != [index for index, _i, _c in parsed]:
+        if len(lines) != len(parsed):
+            findings.append(
+                f"FAIL {row_id}: `{raw_path}` carries {len(lines)} "
+                f"`{CITATION_FIELD}:` line(s) in its bytes and {len(parsed)} "
+                f"parsed citation(s) in its structure, so this arm cannot say "
+                f"WHICH disposition a line belongs to — it refuses the whole "
+                f"field rather than attach findings to the wrong entry. A "
+                f"citation is one line (`^      - (\\S.*)$` is the pin's own "
+                f"production); a flow sequence or a citation spread over two "
+                f"lines is a form the pin's own reader does not admit either")
+            print(f"MEASURED {row_id}: the citation bytes and the parsed "
+                  f"structure disagree about how many citations there are; "
+                  f"nothing classified")
+        else:
+            findings.append(
+                f"FAIL {row_id}: `{raw_path}` carries {len(lines)} "
+                f"`{CITATION_FIELD}:` line(s) and {len(parsed)} parsed "
+                f"citation(s), but they do not fall in the same "
+                f"`{DISPOSITIONS_FIELD}[]` entries "
+                f"(bytes {_per_entry(entry for entry, _line in bound)}, "
+                f"structure {_per_entry(index for index, _i, _c in parsed)}), so "
+                f"this arm cannot say WHICH disposition a line belongs to — it "
+                f"refuses the whole field rather than attach findings to the "
+                f"wrong entry. Equal totals are not an alignment: a `{CITATION_FIELD}:`"
+                f" written inside folded prose and an item swallowed at a comment "
+                f"cancel each other out in a global count")
+            print(f"MEASURED {row_id}: the citation bytes and the parsed "
+                  f"structure agree on how many citations there are but not on "
+                  f"which disposition carries them; nothing classified")
         return False
 
     ok = True
@@ -725,8 +903,13 @@ def check_row(row, findings):
         # below, and canon obliges no pin to carry the field. Reported as
         # measured rather than passed over in silence, so a reader can tell an
         # inapplicable assertion from an unmade one.
-        print(f"OK {row_id}: `{raw_path}` is registered and present; it names no "
-              f"`{ENTRYPOINT_FIELD}:`, so the entrypoint assertions do not apply")
+        # `OK` ONLY WHERE THE ROW IS OK (Copilot on PR #842). This branch returns
+        # the CITATION arm's verdict, so a row failing on a dangling citation
+        # would otherwise carry an unconditional `OK` line about the assertions
+        # that did not apply — a label no reader should have to discount.
+        print(f"{'OK' if citations_ok else 'MEASURED'} {row_id}: `{raw_path}` is "
+              f"registered and present; it names no `{ENTRYPOINT_FIELD}:`, so the "
+              f"entrypoint assertions do not apply")
         return citations_ok
 
     # NOT coerced with `str()` before the containment helper runs: that would
