@@ -46,6 +46,18 @@ fails without saying which of the three assertions failed is the very thing
 `tasks.md` § 5.4 refused when it placed this checker beside
 `release-inventory-drift` rather than inside it.
 
+TWO GROUPS WERE ADDED FROM THE REVIEW BENCH, and both assert the SAME defect
+class the rest of the file does — a comparison that passes without measuring.
+CONTAINMENT: an absolute registered path, a `..` escape, an absolute entrypoint
+and a non-string path. The absolute-path fixtures deliberately name a REAL,
+EXISTING host file (`pytest.ini` by absolute path), because the defect is
+precisely that `Path(root) / "/abs"` discards the root and the host's copy makes
+`.is_file()` say yes. WHOLE-PATH NAMING: Codex's case verbatim — the pin says
+`scripts/tool.py`, a stale rule says `scripts/tool.py.old` — plus the
+deliberate allowance for a leading `/` (the same entrypoint named through the
+pinned checkout directory) and its refusal for a leading name character, and the
+predicate stated directly at its boundaries.
+
 THE FIXTURES ARE BUILT IN `tmp_path`, NOT COMMITTED. On
 `tests/manifest_digests/`'s precedent: a committed broken manifest is a file
 some other sweep has to be taught to ignore, while a scratch tree is read by
@@ -396,6 +408,184 @@ def test_a_nested_pin_row_is_still_measured(
     captured = capsys.readouterr()
     assert exit_code == 1, captured.out
     assert "FAIL nested-pin:" in captured.out, captured.out
+
+
+# --------------------------------------------------------------------------
+# Containment — taken from the bench (Copilot and Codex, independently)
+# --------------------------------------------------------------------------
+
+def test_an_absolute_registered_path_is_refused_even_though_it_exists(
+        tmp_path, monkeypatch, capsys) -> None:
+    """`Path(root) / "/abs"` DISCARDS the root. The fixture names a REAL,
+    EXISTING host file on purpose — `pytest.ini` by absolute path — so a
+    checker that merely joined and asked `.is_file()` would report it present
+    while no consumer's checkout carries it."""
+    module = _load_checker()
+    absolute = str(REPO_ROOT / "pytest.ini")
+    assert Path(absolute).is_file()
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": absolute, "type": "pin"},
+        pin=None, pin_relpath=None)
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is an ABSOLUTE path" in captured.out, captured.out
+    assert "publishes bytes no consumer's checkout contains" in captured.out, (
+        captured.out)
+
+
+def test_a_registered_path_that_walks_out_of_the_tree_is_refused(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Same defect through `..`: the escape target is created for real, so the
+    refusal cannot be mistaken for a missing-file finding."""
+    module = _load_checker()
+    outside = tmp_path.parent / "outside-pin.yaml"
+    outside.write_text("kind: pinned_contract_manifest\n", encoding="utf-8")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "../outside-pin.yaml", "type": "pin"},
+        pin=None, pin_relpath=None)
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "contains a '..' segment" in captured.out, captured.out
+
+
+def test_an_absolute_entrypoint_is_refused(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The same containment on the pin's own field: a host path is unreachable
+    from the pinned checkout the recipe tells the consumer to make."""
+    module = _load_checker()
+    absolute = str(REPO_ROOT / "pytest.ini")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": f"Invoke `{absolute}` from the checkout."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": absolute},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is an ABSOLUTE path" in captured.out, captured.out
+    assert "unreachable there" in captured.out, captured.out
+
+
+def test_a_non_string_registered_path_is_refused_rather_than_raising(
+        tmp_path, monkeypatch, capsys) -> None:
+    module = _load_checker()
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text(yaml.safe_dump({"contracts": [
+        {"id": "scratch-pin", "path": 17, "type": "pin"},
+    ]}), encoding="utf-8")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is not a non-empty string path" in captured.out, captured.out
+
+
+# --------------------------------------------------------------------------
+# The rule names a WHOLE path — taken from the bench (Codex, P2)
+# --------------------------------------------------------------------------
+
+def test_a_rule_naming_a_longer_path_does_not_count_as_naming_the_entrypoint(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Codex's case, verbatim: the pin says `scripts/tool.py` while a stale rule
+    says `scripts/tool.py.old`. A substring test calls that coherent, and the
+    rename drift this whole lane exists to catch rides through."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": "Invoke `scripts/tool.py.old` from the checkout."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": entrypoint},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert ("never names `scripts/tool.py` as a whole path") in captured.out, (
+        captured.out)
+
+
+def test_a_rule_naming_the_entrypoint_through_the_checkout_directory_counts(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The deliberate allowance, asserted so it is a decision and not an
+    accident: a LEADING `/` names the same entrypoint through the checkout
+    directory the recipe tells the consumer to make."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": "Run `.openxfactory-pin/scripts/tool.py`."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": entrypoint},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0, captured.out
+
+
+def test_a_rule_naming_a_different_directory_does_not_count(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The other side of that allowance: a leading NAME character is a different
+    file, not the same entrypoint reached through a checkout."""
+    module = _load_checker()
+    entrypoint = "scripts/tool.py"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / entrypoint).write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin",
+             "consumption_rule": "Run `myscripts/tool.py`."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": entrypoint},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "as a whole path" in captured.out, captured.out
+
+
+def test_the_delimiter_rule_is_stated_directly() -> None:
+    """The predicate itself, at its boundaries — the live rule's own backticked
+    form included, so the shape the corpus actually uses is pinned."""
+    module = _load_checker()
+    names = module.rule_names_entrypoint
+    assert names("invokes `scripts/tool.py` from that checkout", "scripts/tool.py")
+    assert names("run scripts/tool.py", "scripts/tool.py")
+    assert names("run scripts/tool.py, then stop", "scripts/tool.py")
+    assert names("run .pin/scripts/tool.py", "scripts/tool.py")
+    assert not names("run scripts/tool.py.old", "scripts/tool.py")
+    assert not names("run scripts/tool.py2", "scripts/tool.py")
+    assert not names("run scripts/tool.py/inner.py", "scripts/tool.py")
+    assert not names("run myscripts/tool.py", "scripts/tool.py")
+    assert not names("run the entrypoint the pin names", "scripts/tool.py")
+    # A rule that names BOTH — the stale longer path first — still counts,
+    # because one delimited occurrence is the whole claim.
+    assert names("scripts/tool.py.old, corrected to `scripts/tool.py`",
+                 "scripts/tool.py")
 
 
 def test_more_than_one_failed_assertion_is_reported_per_assertion(

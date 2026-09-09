@@ -62,6 +62,18 @@ three sibling repositories: a check added there grows the re-vendor debt for a
 question that is openxFactory's alone. Neither the pin file nor that vendored
 validator is touched by this change.
 
+TWO SHARPENINGS TAKEN FROM THE REVIEW BENCH, both of them the same defect class
+this file is about — a comparison that passes without measuring. Copilot and
+Codex each raised that `ROOT / <claimed>` DISCARDS the root for an absolute path
+and follows a `..` out of the tree, so a row naming a host path would be
+reported "in this tree" whenever the HOST carries that file while no consumer's
+checkout does; `resolve_in_tree` refuses both, mirroring
+`scripts/validate-avatar-client.py`'s containment helper and Article IV's
+"Committed files MUST NOT contain host-absolute paths". Codex raised that a bare
+substring test reports `scripts/tool.py.old` as naming `scripts/tool.py` — the
+exact rename drift this lane exists to catch, passing; `rule_names_entrypoint`
+requires a delimited path token.
+
 Run: python3 scripts/validate-pin-registrations.py (also exercised by
 tests/pin_registrations/test_pin_registration_sweep.py on every required-suite
 pass, the same lane `tests/manifest_digests/` gives the estate-wide digest
@@ -70,6 +82,7 @@ Exit codes: 0 every registered pin coheres, 1 named findings, 2 harness error.
 """
 from __future__ import annotations
 
+import string
 import sys
 from pathlib import Path
 
@@ -85,6 +98,72 @@ MANIFEST = ROOT / "contracts" / "manifest.yaml"
 PIN_TYPE = "pin"
 ENTRYPOINT_FIELD = "consumer_entrypoint"
 RULE_FIELD = "consumption_rule"
+
+# A path token continues across these; a delimited occurrence of the entrypoint
+# is one that neither of them runs into. See `rule_names_entrypoint` below.
+NAME_CHARS = frozenset(string.ascii_letters + string.digits + "._-")
+TRAILING_CHARS = NAME_CHARS | frozenset("/")
+
+
+def resolve_in_tree(claimed):
+    """The claimed path resolved inside `ROOT`, or a REFUSAL REASON.
+
+    Returns `(path, None)` or `(None, reason)`. Mirrors
+    `scripts/validate-avatar-client.py`'s containment helper rather than
+    inventing a second dialect for the same question, and exists because
+    `Path(root) / "/abs"` DISCARDS the root: a row naming an absolute or
+    `..`-escaping path would otherwise be reported "in this tree" whenever the
+    HOST happens to carry that file, while no consumer's checkout contains it.
+    The constitution's Article IV says the same thing about the corpus —
+    "Committed files MUST NOT contain host-absolute paths; use repo-relative
+    paths or runtime resolution" — so a register naming one is a finding on its
+    own terms and not merely an unreadable path.
+    """
+    if not isinstance(claimed, str) or not claimed.strip():
+        return None, ("is not a non-empty string path, and `ROOT / "
+                      "<non-string>` raises rather than reporting")
+    candidate = Path(claimed)
+    if candidate.is_absolute():
+        return None, ("is an ABSOLUTE path; joining one to the repository root "
+                      "discards the root entirely, and no consumer's checkout "
+                      "carries a host path")
+    if ".." in candidate.parts:
+        return None, ("contains a '..' segment, which walks out of the "
+                      "repository the register speaks for")
+    root = ROOT.resolve()
+    target = (root / candidate).resolve()
+    if not target.is_relative_to(root):
+        return None, (f"resolves to {target}, which is outside the repository; "
+                      f"refused rather than read")
+    return target, None
+
+
+def rule_names_entrypoint(rule: str, entrypoint: str) -> bool:
+    """True when `rule` names `entrypoint` as a DELIMITED path token.
+
+    A bare substring test is too weak for the drift this lane exists to catch:
+    a stale rule saying `scripts/tool.py.old` CONTAINS `scripts/tool.py`, so the
+    rename that produced it would be reported coherent. An occurrence therefore
+    counts only when the text does not continue the token — a following name
+    character, `.`, `-`, `_` or `/` all mean the rule is naming a DIFFERENT
+    path.
+
+    A LEADING `/` is deliberately allowed while a leading name character is not:
+    `.openxfactory-pin/scripts/tool.py` is the same entrypoint named through the
+    checkout directory a consumer is told to make, which is exactly the recipe
+    the register publishes, whereas `myscripts/tool.py` is another file.
+    """
+    start = 0
+    while True:
+        index = rule.find(entrypoint, start)
+        if index == -1:
+            return False
+        before = rule[index - 1] if index else ""
+        end = index + len(entrypoint)
+        after = rule[end] if end < len(rule) else ""
+        if before not in NAME_CHARS and after not in TRAILING_CHARS:
+            return True
+        start = index + 1
 
 
 def iter_pin_rows(node):
@@ -120,7 +199,14 @@ def check_row(row, findings):
             f"no `path`, so the register names no pin at all")
         return False
 
-    pin_path = ROOT / str(raw_path)
+    pin_path, refusal = resolve_in_tree(raw_path)
+    if refusal is not None:
+        findings.append(
+            f"FAIL {row_id}: the row registers `{raw_path}`, which {refusal} — "
+            f"a register naming a path outside the tree publishes bytes no "
+            f"consumer's checkout contains")
+        return False
+
     if not pin_path.is_file():
         findings.append(
             f"FAIL {row_id}: the row registers `{raw_path}` but no such file is "
@@ -153,7 +239,14 @@ def check_row(row, findings):
         return True
 
     entrypoint = str(entrypoint)
-    if not (ROOT / entrypoint).is_file():
+    entrypoint_path, refusal = resolve_in_tree(entrypoint)
+    if refusal is not None:
+        findings.append(
+            f"FAIL {row_id}: the pin names `{ENTRYPOINT_FIELD}: {entrypoint}`, "
+            f"which {refusal} — the published recipe invokes the entrypoint FROM "
+            f"THE PINNED CHECKOUT, and a path outside it is unreachable there")
+        ok = False
+    elif not entrypoint_path.is_file():
         findings.append(
             f"FAIL {row_id}: the pin names `{ENTRYPOINT_FIELD}: {entrypoint}` but "
             f"no such file is in this tree — a consumer following the published "
@@ -169,9 +262,11 @@ def check_row(row, findings):
             f"`{entrypoint}` — the register must state the "
             f"checkout-at-the-pinned-ref recipe")
         ok = False
-    elif entrypoint not in str(rule):
+    elif not rule_names_entrypoint(str(rule), entrypoint):
         findings.append(
-            f"FAIL {row_id}: the row's `{RULE_FIELD}` never names `{entrypoint}`, "
+            f"FAIL {row_id}: the row's `{RULE_FIELD}` never names `{entrypoint}` "
+            f"as a whole path — a longer path that merely CONTAINS it is a "
+            f"different file and is exactly the rename drift this asks about; "
             f"the entrypoint this pin's `{ENTRYPOINT_FIELD}:` field carries — the "
             f"register must name the ACTUAL command for each governed act, and a "
             f"rule that names none is not executable by the consumer it is "
