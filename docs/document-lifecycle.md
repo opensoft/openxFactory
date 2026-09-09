@@ -432,6 +432,21 @@ its own.>
   the bundle beside it takes today; the wrapper says so rather than re-dating
   somebody's id — and the ledger row the archiving change seeds takes the
   directory's date at the flip.
+  THE NAME IS ALSO MEASURED AGAINST HISTORY, which the clock rule alone cannot
+  reach: `scripts/validate-sequenced-after.py .` compares every archived
+  directory's date prefix to the UTC date of the commit that added it, and
+  reports a disagreement by name. That directory name is the archive's DATE OF
+  RECORD — ledger rows, ratification records, the README index and
+  cross-references in other archives all read it — so a name one day away from
+  the commit that created it states a day the archive did not happen on. Ten
+  such names were landed by a local clock one day behind UTC before the wrapper
+  owned the clock, and two more are the repository's initial import rather than
+  an archive act; all twelve are dispositioned IN PLACE, names untouched, in
+  `tests/sequenced_after/archive-date-dispositions.yaml`, each citing its
+  adding commit, the fact and the ruling (issue #812, Brett Heap 2026-09-08).
+  RENAMING IS NOT THE REMEDY: history is history, every citation stands, and a
+  rename would move every record that points at the directory to correct a name
+  whose only defect is that it is one day early.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

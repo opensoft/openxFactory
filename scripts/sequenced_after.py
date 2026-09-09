@@ -1587,6 +1587,389 @@ def archive_date_problems(
     return problems
 
 
+# --- the ARCHIVE-DATE-vs-ADDING-COMMIT arm (issue #812) ----------------------
+#
+# A DIFFERENT FACT FROM `archive_date_problems`, and the two must not be
+# confused. That arm compares a LEDGER ROW to a directory name — provenance
+# against provenance. THIS arm compares the DIRECTORY NAME to HISTORY: the UTC
+# date of the commit that first added the directory. The directory name is the
+# archive's DATE OF RECORD (ledger rows, ratification records and citations all
+# read it, and `ARCHIVE_DIR` parses it as fact), so a name one day away from the
+# commit that created it states a day the archive did not happen on.
+#
+# NEITHER #797 ARM LOOKS AT HISTORY. `proposal-support.py archive` owns the
+# clock GOING FORWARD (UTC date, `TZ=UTC` for the pinned CLI, the created
+# directory asserted) and `archive_date_problems` gates the ledger — and the ten
+# directories a local clock one day behind UTC named before either existed are
+# invisible to both. Issue #812; ruled by Brett Heap 2026-09-08, verbatim
+# "rule 1 + 2a on 812, this lane authors it": MEASURE the disagreement, and
+# DISPOSITION the known cases IN PLACE rather than renaming a directory other
+# records cite.
+
+#: The disposition record, beside the corpus ledger and read the same way.
+DISPOSITIONS_REL = (Path("tests") / "sequenced_after"
+                    / "archive-date-dispositions.yaml")
+
+DISPOSITIONS_SCHEMA_VERSION = 1
+DISPOSITIONS_KIND = "archive_date_dispositions"
+
+#: The severity dial the RECORD carries, so a repository adopting this arm can
+#: measure before it gates. `warning` prints every finding and leaves the
+#: verdict alone; `error` makes them exit 1.
+ENFORCEMENT_WARNING = "warning"
+ENFORCEMENT_ERROR = "error"
+ENFORCEMENTS = (ENFORCEMENT_WARNING, ENFORCEMENT_ERROR)
+
+#: Every key a disposition entry MUST carry, all of them non-empty strings. A
+#: disposition missing the fact it disposes of, or the ruling that authorized
+#: it, is a name on a list — it silences a finding and records nothing.
+DISPOSITION_KEYS = ("directory", "directory_date", "adding_commit",
+                    "commit_date_utc", "fact", "ruled_by", "cited_to")
+
+#: A FULL object name, never an abbreviation: an abbreviated sha is ambiguous by
+#: construction and this record is a citation.
+FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+#: The archive root, as git spells it in a pathspec and in `--name-only` output.
+ARCHIVE_REL_POSIX = "openspec/changes/archive"
+
+
+def dispositions_path(repo_root: str | Path) -> Path:
+    return Path(repo_root) / DISPOSITIONS_REL
+
+
+@dataclass(frozen=True)
+class ArchiveDateDispositions:
+    """One parsed disposition record: its severity dial, its entries, and the
+    ORDER they were written in (so a report reads in the record's own order)."""
+
+    enforcement: str
+    order: tuple[str, ...]
+    entries: dict[str, dict[str, object]]
+
+
+def load_archive_date_dispositions(
+    source: str | bytes | Path,
+) -> ArchiveDateDispositions:
+    """Parse the disposition record under the STRICT loader, refusing anything
+    it cannot read rather than defaulting it.
+
+    EVERY DEFAULT HERE WOULD BE A SILENT WEAKENING. A missing `enforcement:`
+    defaulted to `warning` turns a typo into a disabled gate; an entry missing
+    `ruled_by` defaulted to nothing records a disposition nobody authorized;
+    a `dispositions:` key that does not parse, read as "no dispositions", turns
+    the whole record into twelve findings whose real cause is one bad line. So
+    the loader raises, and the CLI answers with exit 2 — CANNOT RUN, which is a
+    different fact from a corpus that disagrees.
+
+    THE ENTRIES ARE A SEQUENCE, NOT A MAPPING KEYED BY DIRECTORY, so each entry
+    carries its own `directory:` and reads as the record of a decision rather
+    than as a lookup table. The strict loader's duplicate-KEY refusal therefore
+    does not cover duplicate ENTRIES, and this function refuses them by name
+    instead: two dispositions for one directory is two decisions about one fact,
+    and last-one-wins would silently apply whichever the file happened to end
+    with. That is the very defect `load_ledger` reads its file through the
+    strict loader to avoid, reproduced one level down.
+    """
+    try:
+        text = fms.source_text(source)
+    except fms.StrictFrontMatterError as exc:
+        raise SequencedAfterError(
+            f"malformed archive-date disposition record: {exc}") from exc
+
+    for number, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("%"):
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: a YAML directive "
+                f"({line.strip()!r}) at line {number}")
+    if fms.yaml is None:  # pragma: no cover - pyyaml is a suite dependency
+        raise SequencedAfterError(
+            "pyyaml is required to read the archive-date disposition record")
+    try:
+        fms._scan_refused_constructs(text)  # anchors, aliases, merge keys
+        documents = list(fms.yaml.load_all(text, Loader=fms.StrictLoader))
+    except fms.StrictFrontMatterError as exc:
+        raise SequencedAfterError(
+            f"malformed archive-date disposition record: {exc}") from exc
+    except fms.yaml.YAMLError as exc:
+        raise SequencedAfterError(
+            f"malformed archive-date disposition record: does not parse: "
+            f"{exc}") from exc
+    if len(documents) != 1 or not isinstance(documents[0], dict):
+        raise SequencedAfterError(
+            "malformed archive-date disposition record: exactly one YAML "
+            "mapping document is required")
+    document = documents[0]
+
+    if (document.get("schema_version") != DISPOSITIONS_SCHEMA_VERSION
+            or document.get("kind") != DISPOSITIONS_KIND):
+        raise SequencedAfterError(
+            f"malformed archive-date disposition record: it must declare "
+            f"`schema_version: {DISPOSITIONS_SCHEMA_VERSION}` and "
+            f"`kind: {DISPOSITIONS_KIND}`, not "
+            f"{document.get('schema_version')!r} / {document.get('kind')!r}")
+    enforcement = document.get("enforcement")
+    if enforcement not in ENFORCEMENTS:
+        raise SequencedAfterError(
+            f"malformed archive-date disposition record: `enforcement:` must "
+            f"be one of {', '.join(ENFORCEMENTS)}, not {enforcement!r}")
+
+    raw = document.get("dispositions")
+    if not isinstance(raw, list):
+        raise SequencedAfterError(
+            "malformed archive-date disposition record: the `dispositions:` "
+            "sequence is missing")
+
+    entries: dict[str, dict[str, object]] = {}
+    order: list[str] = []
+    for index, entry in enumerate(raw, start=1):
+        if not isinstance(entry, dict):
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: entry {index} is "
+                f"not a mapping")
+        empty = [key for key in DISPOSITION_KEYS
+                 if not isinstance(entry.get(key), str) or not entry[key].strip()]
+        if empty:
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: entry {index} "
+                f"({entry.get('directory')!r}) is missing or empties "
+                f"{', '.join(empty)}; every key is REQUIRED, because a "
+                f"disposition without the fact it disposes of, or without the "
+                f"ruling that authorized it, silences a finding and records "
+                f"nothing")
+        directory = entry["directory"]
+        if ARCHIVE_DIR.match(directory) is None:
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: entry {index} "
+                f"names {directory!r}, which is not an "
+                f"`<YYYY-MM-DD>-<change-id>` archive directory")
+        for key in ("directory_date", "commit_date_utc"):
+            if not is_moved_on(entry[key]):
+                raise SequencedAfterError(
+                    f"malformed archive-date disposition record: entry {index} "
+                    f"({directory}) carries {key}: {entry[key]!r}, which is "
+                    f"not a real ISO date")
+        if FULL_SHA.match(entry["adding_commit"]) is None:
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: entry {index} "
+                f"({directory}) carries adding_commit: "
+                f"{entry['adding_commit']!r}, which is not a FULL 40-character "
+                f"object name; an abbreviation is ambiguous by construction "
+                f"and this record is a citation")
+        if directory in entries:
+            raise SequencedAfterError(
+                f"malformed archive-date disposition record: {directory!r} is "
+                f"dispositioned twice (entries "
+                f"{order.index(directory) + 1} and {index}); two decisions "
+                f"about one fact, and last-one-wins would silently apply "
+                f"whichever the file ends with")
+        entries[directory] = entry
+        order.append(directory)
+    return ArchiveDateDispositions(enforcement=enforcement,
+                                   order=tuple(order), entries=entries)
+
+
+def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(repo_root), *args],
+                          capture_output=True, text=True)
+
+
+def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
+    """Archived DIRECTORY NAME -> (full sha, UTC date) of the OLDEST commit that
+    added any file under it.
+
+    ONE WALK, NOT ONE PER DIRECTORY. `git log --diff-filter=A --reverse
+    --name-only -- openspec/changes/archive` visits every add under the archive
+    root once, oldest first, and the first commit to touch a directory is
+    therefore the one that created it; `setdefault` keeps it. Measured on this
+    corpus at 83ms against 9.3s for 144 per-directory `git log` calls — 113x —
+    and the two attributions were compared directory by directory and agreed on
+    all 144, under history simplification and `--full-history` alike. THE INITIAL-IMPORT SHAPE FALLS OUT OF IT: a single
+    commit that adds many directories attributes all of them to itself, which
+    is exactly what `746be44f` did to this corpus's two oldest directories.
+
+    `--no-renames`, DELIBERATELY. The question this arm asks is "when did this
+    NAME come to exist", and rename detection answers a different one: a
+    directory renamed within the archive would be paired as `R` and never
+    reported as an add at all, so its new name would silently have no adding
+    commit. `core.quotePath=false` keeps a non-ASCII name readable rather than
+    C-quoted; a name containing a newline would still be unreadable here, and
+    is not an `<YYYY-MM-DD>-<change-id>` directory in the first place.
+
+    THE COMMITTER DATE (`%cI`), not the author date: it is when the commit
+    entered this history, which is the act the directory name claims to date.
+    On this corpus the two agree on all 144 directories, so nothing turns on the
+    choice today — the reason it is written down is that a rebase can move one
+    and not the other.
+
+    RAISES rather than returning a partial answer when the checkout cannot
+    answer the question at all: not a git work tree root, or a SHALLOW clone,
+    in which every directory older than the graft boundary would be attributed
+    to the boundary commit and reported as a disagreement nobody made.
+    """
+    root = Path(repo_root)
+    probe = _git(root, "rev-parse", "--show-toplevel")
+    if probe.returncode != 0:
+        detail = probe.stderr.strip() or f"git rev-parse exited {probe.returncode}"
+        raise SequencedAfterError(
+            f"{str(root)!r} is not inside a git work tree, so the commit that "
+            f"added each archived directory cannot be read: {detail}")
+    # THE ROOT ITSELF, not merely somewhere inside a work tree. A tree that is
+    # only NESTED in some repository — a fixture corpus written under a
+    # checkout, an export copied into one — has its archive directories
+    # untracked in that repository's history, and every one of them would then
+    # read as having no adding commit. Refusing to run is the honest answer;
+    # inventing one from a history that does not describe this tree is not.
+    if Path(probe.stdout.strip()).resolve() != root.resolve():
+        raise SequencedAfterError(
+            f"{str(root)!r} is not the ROOT of a git work tree (the work tree "
+            f"containing it is rooted at {probe.stdout.strip()!r}), so this "
+            f"tree's archived directories are not the ones that history "
+            f"describes")
+    shallow = _git(root, "rev-parse", "--is-shallow-repository")
+    answer = shallow.stdout.strip()
+    if shallow.returncode != 0 or answer not in ("true", "false"):
+        raise SequencedAfterError(
+            f"git could not say whether this checkout is shallow "
+            f"({(shallow.stderr.strip() or answer or 'no answer')!r}), and the "
+            f"answer decides whether the walk below can be believed at all")
+    if answer == "true":
+        raise SequencedAfterError(
+            "this checkout is SHALLOW, so the commit that added an archived "
+            "directory is mostly not in it: every directory older than the "
+            "graft boundary would be attributed to the boundary commit and "
+            "reported as a disagreement nobody made. Check out with "
+            "`fetch-depth: 0`, which the required `pytest-suite` workflow "
+            "already does")
+
+    walk = _git(root, "-c", "core.quotePath=false", "log", "--diff-filter=A",
+                "--reverse", "--no-renames", "--format=%x00%H%x09%cI",
+                "--name-only", "--", ARCHIVE_REL_POSIX)
+    if walk.returncode != 0:
+        raise SequencedAfterError(
+            f"the archive history walk failed: "
+            f"{walk.stderr.strip() or f'git log exited {walk.returncode}'}")
+
+    found: dict[str, tuple[str, str]] = {}
+    prefix = ARCHIVE_REL_POSIX + "/"
+    for block in walk.stdout.split("\x00"):
+        if not block.strip():
+            continue
+        lines = block.split("\n")
+        sha, _, committed = lines[0].partition("\t")
+        try:
+            when = datetime.datetime.fromisoformat(committed.strip())
+        except ValueError as exc:  # pragma: no cover - git writes strict ISO
+            raise SequencedAfterError(
+                f"git reported an unreadable committer date "
+                f"{committed.strip()!r} on {sha}: {exc}") from exc
+        day = when.astimezone(datetime.timezone.utc).date().isoformat()
+        for path in lines[1:]:
+            path = path.strip()
+            if not path.startswith(prefix):
+                continue
+            rest = path[len(prefix):]
+            if "/" not in rest:
+                # A FILE SITTING DIRECTLY IN `archive/` (a README, an index) is
+                # not a change directory and dates nothing.
+                continue
+            found.setdefault(rest.split("/", 1)[0], (sha, day))
+    return found
+
+
+def archive_commit_problems(
+    repo_root: str | Path,
+    added: dict[str, tuple[str, str]],
+    dispositions: ArchiveDateDispositions,
+) -> list[str]:
+    """Archived directories whose name disagrees with their adding commit and
+    carry no disposition — AND dispositions that describe a fact that is not
+    there.
+
+    A STALE DISPOSITION IS ITSELF A DEFECT, and reported in the same list. The
+    record's whole authority is that each entry states a MEASURED fact and the
+    ruling that accepted it; an entry naming a directory that no longer exists,
+    or one that agrees with its adding commit, or one citing a commit history
+    does not, silences a finding on the strength of a fact nobody can check.
+
+    PER DIRECTORY, NOT PER CHANGE ID — deliberately unlike `archive_dates`,
+    which skips an id with two dated directories because the caller there is a
+    provenance stamp that would have to guess. Nothing is guessed here: each
+    directory's name and each directory's adding commit are both well defined,
+    so both are measured, and the ambiguity between them remains `resolve`'s
+    finding to report.
+
+    A DIRECTORY WITH NO ADDING COMMIT IS SKIPPED, not reported: it is
+    uncommitted in this work tree, and an archive that has not been committed
+    yet has no date in history to disagree with. Its clock is
+    `proposal-support.py archive`'s to own at creation (#797), not this arm's
+    to guess at afterwards.
+    """
+    on_disk: dict[str, str] = {}
+    for dirs in archived_change_dirs(repo_root).values():
+        for directory in dirs:
+            match = ARCHIVE_DIR.match(directory.name)
+            if match is not None:
+                on_disk[directory.name] = match.group("date")
+
+    disagreeing: dict[str, tuple[str, str, str]] = {}
+    for name, dated in on_disk.items():
+        record = added.get(name)
+        if record is None:
+            continue
+        sha, day = record
+        if day != dated:
+            disagreeing[name] = (dated, day, sha)
+
+    problems: list[str] = []
+    for name in sorted(disagreeing):
+        if name in dispositions.entries:
+            continue
+        dated, day, sha = disagreeing[name]
+        problems.append(
+            f"archive-date-vs-commit: {name}: dated {dated}, added {day} by "
+            f"{sha} — undispositioned")
+
+    for name in dispositions.order:
+        entry = dispositions.entries[name]
+        if name not in on_disk:
+            problems.append(
+                f"archive-date-disposition STALE: {name}: no archived "
+                f"directory of that name exists, so this entry disposes of "
+                f"nothing; remove it, or restore the directory it names")
+            continue
+        if name not in added:
+            problems.append(
+                f"archive-date-disposition STALE: {name}: no commit in this "
+                f"history added it, so the disagreement this entry cites "
+                f"cannot be measured")
+            continue
+        if name not in disagreeing:
+            sha, day = added[name]
+            problems.append(
+                f"archive-date-disposition STALE: {name}: the directory AGREES "
+                f"with the UTC date of its adding commit ({day}, {sha}), so "
+                f"there is no disagreement to disposition; remove the entry")
+            continue
+        dated, day, sha = disagreeing[name]
+        cited: list[str] = []
+        if entry["directory_date"] != dated:
+            cited.append(f"directory_date {entry['directory_date']!r} where the "
+                         f"name carries {dated!r}")
+        if entry["adding_commit"] != sha:
+            cited.append(f"adding_commit {entry['adding_commit']!r} where "
+                         f"history says {sha!r}")
+        if entry["commit_date_utc"] != day:
+            cited.append(f"commit_date_utc {entry['commit_date_utc']!r} where "
+                         f"history says {day!r}")
+        if cited:
+            problems.append(
+                f"archive-date-disposition STALE: {name}: it cites "
+                f"{'; '.join(cited)}; a disposition that describes a different "
+                f"fact disposes of nothing")
+    return problems
+
+
 def readings_from_ledger(ledger: Ledger) -> dict[str, Reading]:
     """The ledger's OWN reading of the corpus, as `Reading`s.
 
