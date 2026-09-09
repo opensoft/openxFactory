@@ -73,6 +73,17 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   path constants, adapter calls); built at § 3.1, § 3.7, § 5.4 and § 5.5; gated
   one evidence line per part at § 8.2. Rejected: manifest-with-digests only;
   snapshot-equivalence only.
+  **AMENDED 2026-09-09 — RULING OQ-K** (2026-09-09T22:19:57Z, comment
+  `5609526215`,
+  <https://github.com/opensoft/openxFactory/issues/656#issuecomment-5609526215>):
+  **PART 2's TEST is restated as a source→destination MAPPING with declared
+  multiplicity**, because the ratified equality is false once the carve
+  manifest's `replicated_at_destination` rows put the same test function at more
+  than one home. **The floor still has FOUR parts, part 2 is still about tests,
+  and both rejected single-instrument alternatives stay rejected** — this row's
+  bookkeeping is otherwise unchanged. Restated at § D6 (2) and § 5.4; the
+  § 8.2 evidence line moves with it. Record:
+  `review/amendment-2026-09-09-floor-part-2-mapping.md`.
 - [x] 0.5 `[oxF]` **RULED OQ-2 — 22:16Z** (comment `5547067574`): ONE CHAIN —
   inside the family openDox is pinned ONLY by openXdox and every descendant pins
   openXdox; outside the family openDox is used freely as open source. **No third
@@ -905,6 +916,44 @@ the bookkeeping that ticks this group.
   cross-repository equality: an equality pin on a sum reds on merge refs that add
   tests for reasons the candidate cannot fix, which is the deadlock class that
   file already refuses by name.
+
+  **THE CASES THIS CHECK OWES, EACH OF THEM A REFUSAL.** The floor carries no
+  `#### Scenario:` blocks because it has no spec delta to host them (§ D6, *"WHY
+  NO PROMOTED REQUIREMENT IS AUTHORED FOR THE FLOOR"*), so the obligation lands
+  here as named cases on the build task. The first two are the ratified rule's
+  own, kept in intent; the last two are RULING OQ-K's, and exist because a
+  mapping can fail in ways an equality could not express.
+  - **A TEST WITH NO HOME.** WHEN a file under the declared surface carries
+    `def test_` AND its row names no home — no `destination`, and no `not_moved`
+    reason that constitutes one (`stays_openxfactory_adapter` and
+    `stays_openxfactory_governance` are a home AT `openxFactory`;
+    `replicated_at_destination` is a home at `openxFactory` PLUS every home it
+    declares) — THEN the carve REFUSES `test-home-missing`. A `deleted_at_carve`
+    row carrying `def test_` is the same refusal under its own name: deleting
+    tests is a decision to be RULED, never inferred from a disposition. Measured
+    at `carve_commit`: zero such rows, and `deleted_at_carve` carries zero
+    `def test_`. *(This is the intent the ratified text was reaching for — no
+    test is lost — stated directly instead of inferred from an arithmetic
+    identity.)*
+  - **A SILENT DROP AT A DESTINATION.** WHEN a destination's collected
+    `def test_` falls BELOW the total its own rows declare, THEN the carve
+    REFUSES `destination-test-shortfall`. *(The most likely way a large suite
+    loses coverage in a carve, and the part whose absence Brett named when he
+    rejected snapshot-equivalence alone.)*
+  - **A REPLICATED FILE — the case the equality could not express (NEW, RULING
+    OQ-K).** WHEN a row is `not_moved / replicated_at_destination` declaring
+    MULTIPLICITY 3 and carrying 20 `def test_`
+    (`tests/corpus-adapter/test_conformance.py`), THEN those 20 are counted ONCE
+    in `source_count` and THREE times across the homes, the excess is exactly
+    `(3 − 1) × 20 = 40`, and the check **PASSES** — **AND** deleting a replica to
+    make a raw equality hold is ITSELF a refusal, because § 3.7 requires every
+    destination to carry that corpus. The ratified equality had no way to state
+    this and would have failed on it, on its first run, forever.
+  - **AN UNDECLARED REPLICA SET (NEW, RULING OQ-K).** WHEN a
+    `replicated_at_destination` row names no homes, THEN its multiplicity is
+    unknown, `Σ (m − 1) × row_test_count` is UNCOMPUTABLE, and the carve REFUSES
+    `replica-multiplicity-undeclared` — an uncomputable check is never a pass.
+    This is what clause (b)'s obligation on FLOOR PART 1 is owed FOR.
 
   > Amended 2026-09-09. This item first read: *"**FLOOR PART 2 (RULED OQ-1) —
   > test counts that must SUM across the three repositories.** 3,927 `def test_`

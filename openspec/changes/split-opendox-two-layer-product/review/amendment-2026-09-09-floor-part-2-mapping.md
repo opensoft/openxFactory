@@ -120,6 +120,23 @@ The full restated text is what now stands at `design.md` § D6 (2) and
 - **(d) PINNED BY TEST**, at each destination and in `openxFactory`, the way
   `pytest-suite.yml` already pins this repository's collection triple. Unchanged.
 
+**And the cases the check owes, each of them a refusal**, carried at `tasks.md`
+§ 5.4. The floor has no `#### Scenario:` blocks because it has no spec delta to
+host them — the same reason no promoted requirement is authored for it — so the
+scenario obligation lands as NAMED CASES on the build task, which is where a
+carve operator reads them:
+
+| case | verdict |
+| --- | --- |
+| a file under the surface carries `def test_` and its row names no home (no `destination`, and no `not_moved` reason that constitutes one) | REFUSE `test-home-missing` — and a `deleted_at_carve` row carrying tests is the same refusal under its own name, because deleting tests is a decision to be RULED. Measured at `carve_commit`: zero such rows |
+| a destination's collected `def test_` falls BELOW the total its own rows declare | REFUSE `destination-test-shortfall` — the silent drop, the part whose absence Brett named when he rejected snapshot-equivalence alone |
+| a `replicated_at_destination` row declares `m = 3` and carries 20 `def test_` (`tests/corpus-adapter/test_conformance.py`) | **PASS** — counted once in `source_count`, three times across the homes, excess exactly `(3 − 1) × 20 = 40`; **and deleting a replica to make a raw equality hold is itself a refusal**, because § 3.7 requires every destination to carry that corpus. This is the case the ratified equality could not express and would have failed on |
+| a `replicated_at_destination` row names no homes | REFUSE `replica-multiplicity-undeclared` — the multiplicity is unknown, the sum term is UNCOMPUTABLE, and an uncomputable check is never a pass. This is what clause (b)'s obligation on FLOOR PART 1 is owed for |
+
+The first two are the ratified rule's own cases kept in intent; the last two are
+RULING OQ-K's, and they exist because a mapping can fail in ways an equality
+could not express.
+
 ## The arithmetic, with the landed manifest's real numbers
 
 Measured 2026-09-09 in a detached worktree at `origin/main` `17167481` (the
@@ -218,12 +235,13 @@ Two currency notes, so a later reader is not surprised:
 | `design.md` header | one `Amended:` line | a SECOND naming OQ-K, with the sentence that RULING OQ-1 is not reopened and the floor still has four parts |
 | `design.md` R-index, row `OQ-1` | *"test counts that SUM"* | the same clause plus **restated 2026-09-09 by RULING OQ-K**, the comment id, and *"the part unchanged and only its test moved"*. The row's other four clauses and its `D6` pointer do not move |
 | `design.md` § D6 (2) | one paragraph stating the equality | the restated part in four clauses (a) total coverage, (b) declared multiplicity, (c) the sum check over declared multiplicities, (d) pinned by test — followed by an inline `> Amended 2026-09-09.` note carrying the original paragraph verbatim and both reasons it was false. §§ D6 (1), (3), (4), the closed edit-class list and the *"WHY NO PROMOTED REQUIREMENT IS AUTHORED"* paragraph are byte-identical |
-| `tasks.md` § 5.4 | the ratified equality item | the four clauses, the measured arithmetic, and the inline amendment note. Clause (b) carries the one obligation this amendment puts on FLOOR PART 1 — a replicated row declares its repository set — and names FLOOR PART 1's own successor pull request as where the manifest's row grammar gains the field |
+| `tasks.md` § 0.4 (the RULED OQ-1 bookkeeping row) | the ratified encoding record | the same row plus an `**AMENDED 2026-09-09 — RULING OQ-K**` note in § 0.6's own inline-bold style, naming the comment, the URL and what moved — so the bookkeeping row does not read as if part 2 were never restated. The row's tick, its rejected alternatives and its § D6 / § 3.1 / § 3.7 / § 5.4 / § 5.5 / § 8.2 pointers do not move |
+| `tasks.md` § 5.4 | the ratified equality item | the four clauses, the measured arithmetic, **the four named REFUSAL CASES the check owes**, and the inline amendment note. Clause (b) carries the one obligation this amendment puts on FLOOR PART 1 — a replicated row declares its repository set — and names FLOOR PART 1's own successor pull request as where the manifest's row grammar gains the field |
 | `tasks.md` § 8.2 (the archive gate's floor evidence) | *"the collection counts SUMMING across the three repositories"* | the mapping closing on § 5.4's ledger, with the identity, and an inline amendment clause quoting what it first said. The other three evidence lines and the *"None of these is 'the tests passed'"* sentence do not move |
 | `README.md` OpenSpec Records row | the 2026-09-05 amendment note | that note, plus this amendment with the verbatim word, the timestamp, this record's path and the one-sentence reason. No other row moves |
 | `review/amendment-2026-09-09-floor-part-2-mapping.md` | — | this file |
 
-**Nine sites, four files plus this record.** Every one of them is inside the
+**Ten sites, four files plus this record.** Every one of them is inside the
 change's own directory except the README row, which the 2026-09-05 amendment's
 own form requires (*"the change's OpenSpec Records row"*). Nothing under
 `contracts/`, `.github/`, `scripts/`, `openspec/specs/` or `docs/` is touched —
