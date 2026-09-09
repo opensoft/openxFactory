@@ -521,8 +521,23 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
-  — authored 2026-09-09, **`Status: draft`** (NOT RATIFIED; ratification and
-  archive are separate acts on Brett Heap's word), lane `openxfactory-1`.
+  — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
+  openxFactory operator authority, verbatim *"Ratify with TOLERATED"* — a
+  MULTIPLE-CHOICE ruling recorded on PR
+  [#870](https://github.com/opensoft/openxFactory/pull/870) at
+  2026-09-09T23:31:12Z, which reaches `design.md` **D1** and resolves it as
+  **TOLERATED** rather than PERMITTED; because TOLERATED is the option the
+  packet already encoded, **THE WORDING STANDS UNCHANGED** and no substitution
+  was performed. Records
+  `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md`
+  and `verification-2026-09-09.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it,
+  `kind` and `id` unmoved — the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
+  Brett Heap's earlier *"R1 'lawful' amendment packet"*, which commissioned the
+  authoring and decided no wording. **THE ARCHIVE IS A SEPARATE ACT**:
+  `tasks.md` § 4 stays open, nothing under `openspec/specs/` is edited yet, and
+  openxFactory #868 closes at the archive rather than at this landing.
   Origin: openxFactory
   [#868](https://github.com/opensoft/openxFactory/issues/868), filed out of
   **Codex's refused P2 on PR

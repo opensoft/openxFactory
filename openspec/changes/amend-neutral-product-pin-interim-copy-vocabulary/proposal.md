@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-neutral-product-pin-interim-copy-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-09 by Brett Heap (openxFactory operator authority) — "Ratify with TOLERATED"; record at review/ratification-2026-09-09.md
 Proposed: 2026-09-09, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-09, verbatim **"R1 'lawful' amendment packet"**,
 given in session as one option of several put to him.
@@ -14,13 +15,21 @@ Origin: openxFactory issue
 [#868](https://github.com/opensoft/openxFactory/issues/868), filed by this lane
 out of Codex's refused P2 on PR
 [#780](https://github.com/opensoft/openxFactory/pull/780).
-**THE WORD AUTHORIZED THE PROPOSING, NOT THE CONTENT. RATIFICATION IS OWED AND
-IS BRETT HEAP'S ACT** — nothing below is ratified by being authored, no
-requirement here may be cited as approved until he rules on this packet itself,
-and **NOTHING IS PROMOTED**: this pull request edits no file under
-`openspec/specs/`, no script, no test, no contract and no workflow. The
-judgments this authoring session took are `design.md` **D1 through D6**, each
-with a recommendation, each put for veto.
+**THAT WORD AUTHORIZED THE PROPOSING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Brett Heap ruled on this packet itself
+on 2026-09-09, verbatim **"Ratify with TOLERATED"** — a multiple-choice ruling
+that reaches `design.md` **D1**, the packet's declared veto point, and resolves
+it as **TOLERATED** rather than PERMITTED, so the encoded wording stands
+UNCHANGED and no substitution is owed. The citation is the single `Ratified:`
+line above, which is what `ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-09.md` and the gate run captured beside it at
+`review/verification-2026-09-09.md`. **NOTHING IS PROMOTED BY THIS
+RATIFICATION**: this pull request still edits no file under `openspec/specs/`,
+no script, no test, no contract and no workflow — promotion happens at the
+ARCHIVE, which is a separate act on a separate word, and openxFactory #868
+closes there and not at this landing. The judgments this packet put for veto are
+`design.md` **D1 through D6**; D1 was ruled, and D2–D6 were carried beside it
+and not vetoed.
 
 ## Why
 

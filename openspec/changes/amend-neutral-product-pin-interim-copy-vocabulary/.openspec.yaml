@@ -65,6 +65,38 @@ origin:
     reservation in the BODY rather than only in the scenario) and D4 (add a
     scenario rather than rely on the body alone) are the other two, each costed.
   proposed_on: 2026-09-09
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-09, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "Ratify with
+    TOLERATED", recorded on openxFactory PR #870 at 2026-09-09T23:31:12Z. THIS
+    IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never move,
+    which is the shape `add-drafted-proposal-origin` (issue #318) defined for
+    this transition: approval is a pure ADDITION beside a fixed origin identity,
+    so the support manifest that repeats `kind` and `id` never comes to disagree
+    with the packet, and the archive gate's origin-retention arm reads the
+    declaration this commit establishes. The earlier word of 2026-09-09,
+    verbatim "R1 'lawful' amendment packet", stays the ORIGIN of the AUTHORING
+    and is not read as an approval.
+    THE WORD IS A MULTIPLE-CHOICE RULING AND IT REACHES `design.md` D1, the
+    packet's declared veto point: TOLERATED against PERMITTED, the latter being
+    the word the refusal on PR #780 itself floated. It is resolved as TOLERATED,
+    which is the RECOMMENDED and ENCODED option, so THE PACKET'S WORDING STANDS
+    UNCHANGED — the case-preserving substitution over the seven enumerated
+    occurrences (`specs/neutral-product-pin/spec.md` lines 121, 133, 134, 170,
+    171, 185, 186) was NOT performed, and `lawful` stays reserved for a
+    stack-pinned consumption while the declared interim copy is TOLERATED on the
+    same four terms, an undeclared duplicate never becoming tolerated by being
+    useful. D2 through D6 were carried beside D1 and were not vetoed.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD. `code_surface: none`
+    means this packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization evidence,
+    but that archive is not performed here: nothing under `openspec/specs/` is
+    edited by this ratification, `tasks.md` § 4 stays OPEN, and openxFactory
+    #868 therefore closes AT THE ARCHIVE and not at this landing.
+    Record: `review/ratification-2026-09-09.md`, with the gate run re-derived on
+    the ratified tree at `review/verification-2026-09-09.md`.
+  approved_on: 2026-09-09
 related:
   - openxFactory:change:archive/2026-09-08-publish-openspec-cli-pin-as-contract-member  # ARCHIVED (proposal PR #757, archive PR #780). RATIFIED AND PROMOTED the requirement this block MODIFIES; its bytes are NOT edited, and the refused P2 that names this packet's shape stands on its archive pull request
   - openxFactory:change:split-opendox-two-layer-product                                 # ACTIVE, ratified 2026-09-05. The only other active `neutral-product-pin` delta. It modifies TWO OTHER requirements of the same specification, shares no requirement key with this block, and therefore owes no ordering declaration in either direction

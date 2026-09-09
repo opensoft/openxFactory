@@ -1,6 +1,7 @@
 # Design: amend-neutral-product-pin-interim-copy-vocabulary
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-interim-copy-vocabulary — 2026-09-09, Brett Heap, "Ratify with TOLERATED" (record `review/ratification-2026-09-09.md`)
 Date: 2026-09-09
 Kind: design
 
@@ -60,10 +61,21 @@ made by a packet whose whole argument is that it moves no rule. The narrower
 form does the work the defect needs (the two statuses inside this requirement
 get two words) and reaches nothing else.
 
-## D1 — THE VETO POINT: TOLERATED against PERMITTED
+## D1 — THE VETO POINT: TOLERATED against PERMITTED — RULED TOLERATED
 
-**Recommended: TOLERATED. Written that way. A veto is a mechanical substitution
-over an ENUMERATED set of occurrences, listed below, and moves nothing else.**
+**RULED 2026-09-09 by Brett Heap, verbatim *"Ratify with TOLERATED"*, as a
+MULTIPLE-CHOICE ruling over this decision** (recorded on PR #870 at
+2026-09-09T23:31:12Z; record `review/ratification-2026-09-09.md`). **THE
+RECOMMENDATION WAS TAKEN, SO NOTHING IN THE DELTA MOVES**: the seven occurrences
+enumerated below stay exactly as written, the case-preserving substitution
+described here was NOT performed, and the alternative is retained on this page
+as the record of what was put and declined rather than as work owed. The
+enumeration is what made the choice mechanical, and it is the reason the ruling
+could be applied by leaving the text alone.
+
+**Recommended: TOLERATED. Written that way. A veto — had it landed — would have
+been a mechanical substitution over an ENUMERATED set of occurrences, listed
+below, and would have moved nothing else.**
 
 The refusal on #780 itself floated the alternative in as many words — *"say
 `PERMITTED as a declared interim` in the scenario, reserving `lawful`/`compliant`
@@ -117,8 +129,9 @@ row — which follows the delta and is likewise not ratification surface.
 `PERMITTED`, a lower-case one becomes `permitted`. **Nothing else moves** — not
 the reservation, not the added paragraph's structure, not the scenario, not the
 marker (whose reason names no status word), not the tasks, not the sequencing.
-The veto is one case-preserving substitution over those seven lines and a re-run
-of the gates.
+The veto would have been one case-preserving substitution over those seven lines
+and a re-run of the gates. **IT DID NOT LAND**: the ruling of 2026-09-09 chose
+TOLERATED, so the seven lines are ratified as written.
 
 **THE OCCURRENCES ARE NOT REDUNDANT AND ARE DELIBERATELY NOT REDUCED.** Codex
 offered removing some as the alternative to enumerating them (P2 on PR #870).

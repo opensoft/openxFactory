@@ -1,6 +1,7 @@
 # Tasks: amend-neutral-product-pin-interim-copy-vocabulary
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-interim-copy-vocabulary — 2026-09-09, Brett Heap, "Ratify with TOLERATED" (record `review/ratification-2026-09-09.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: none`. There is no realization group,
@@ -12,28 +13,35 @@ task list rather than on merged-plus-green realization evidence. **The
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in its body. **§ 1
-(ratification) IS ENTIRELY OPEN AND STAYS OPEN**: this packet is a DRAFT, no
-word ratifies it, and no box in that section may be ticked by the lane that
-authored it. § 4 (archive) is likewise open and is a separate act on Brett
-Heap's word.
+(ratification) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT** — Brett Heap's
+*"Ratify with TOLERATED"* of 2026-09-09, which is his act and not the authoring
+lane's. **§ 4 (archive) STAYS ENTIRELY OPEN**: promotion is a separate act on a
+separate word, so openxFactory #868 closes at the archive and not at this
+landing. § 5 records what was measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-09
 
-- [ ] 1.1 **RATIFY THE PACKET.** Brett Heap's word of 2026-09-09, verbatim
-      *"R1 'lawful' amendment packet"*, commissioned this AUTHORING and is
-      recorded as the packet's origin; it ratifies no wording and takes no
-      design decision, so `.openspec.yaml` carries drafting provenance with **no
-      approval pair** and every document carries `Status: draft`. On
-      ratification: `proposal.md`, `design.md` and this file take `Status:
-      ratified` with **ONE** citation line each (`Ratified:` in `proposal.md`'s
-      front matter, `Ratified by:` here and in `design.md`), `.openspec.yaml`
-      gains `approved_by`/`approved_on` **BESIDE** the drafting provenance with
-      `kind` and `id` unmoved — the addition-not-rewrite shape
+- [x] 1.1 **RATIFIED 2026-09-09 by Brett Heap** (openxFactory operator
+      authority), verbatim *"Ratify with TOLERATED"*, given as a
+      MULTIPLE-CHOICE ruling and recorded on PR **#870** at
+      2026-09-09T23:31:12Z. The earlier word of 2026-09-09, verbatim *"R1
+      'lawful' amendment packet"*, stays recorded as the ORIGIN of the
+      AUTHORING — it commissioned a lane to write the remedy, ratified no
+      wording and took no design decision, and it is not read as an approval.
+      `proposal.md`, `design.md` and this file now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md`, `Ratified by:`
+      here and in `design.md`), which is what `ratified-provenance` counts.
+      `.openspec.yaml` gains `approved_by`/`approved_on` **BESIDE** the drafting
+      provenance with `kind` and `id` unmoved — the addition-not-rewrite shape
       `add-drafted-proposal-origin` (issue #318) defined for this transition and
-      the shape the archive gate's origin-retention arm reads — and the act is
-      recorded at `review/ratification-<YYYY-MM-DD>.md`.
-- [ ] 1.2 **RULE `design.md` D1 — THE VETO POINT: TOLERATED against PERMITTED.**
-      TOLERATED is recommended and written. PERMITTED is the alternative and is
+      the shape the archive gate's origin-retention arm reads. Records:
+      `review/ratification-2026-09-09.md`, with the gate run re-derived on the
+      ratified tree beside it at `review/verification-2026-09-09.md`.
+- [x] 1.2 **`design.md` D1 IS RULED — TOLERATED, NOT PERMITTED.** The veto point
+      was put and the recommendation was TAKEN, so **the encoded wording stands
+      UNCHANGED and no substitution was performed**: the seven occurrences
+      enumerated below are ratified exactly as written. TOLERATED was
+      recommended and written. PERMITTED is the alternative and is
       the word the refusal on PR #780 itself floated (*"say `PERMITTED as a
       declared interim` in the scenario"*), which is why it is put rather than
       simply passed over. D1 records three reasons for TOLERATED — PERMITTED is
@@ -53,7 +61,9 @@ Heap's word.
       word and does not move; nothing else in the packet moves either. **The
       seven are NOT redundant and are deliberately not reduced** — D1 records
       what each does.
-- [ ] 1.3 **RULE `design.md` D2 and D4 — the two additions.** D2 puts the
+- [x] 1.3 **`design.md` D2 and D4 STOOD — neither was vetoed.** The ruling of
+      2026-09-09 reached D1 and left both additions as designed: the body
+      paragraph and the added scenario are ratified as encoded. D2 puts the
       reservation in the requirement BODY rather than leaving the two bullets to
       carry it alone (Codex's finding is satisfiable by the bullets alone; the
       refusal on #780 named the gap that leaves). D4 adds ONE scenario at the
