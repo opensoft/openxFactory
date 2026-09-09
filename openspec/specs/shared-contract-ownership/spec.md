@@ -4,7 +4,9 @@
 Defines how `openxFactory` owns shared factory contracts, how install repos pin
 contract compatibility, how submodules are sequenced, and how evidence is
 preserved from proposal through merge readiness.
+
 ## Requirements
+
 ### Requirement: Canonical contract home
 `openxFactory` SHALL define the canonical home for shared factory contracts that
 govern behavior between factory subsystems or across DomainxFactories. Migrated
@@ -47,7 +49,7 @@ or digest drift. For this Gate G0 handoff, the consumer receipt SHALL require
 before resolving downstream objects.
 
 #### Scenario: Install repo consumes a contract
-- **WHEN** `Hermes-Install` or `Omnigent-Install` consumes a shared contract
+- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` consumes a shared contract
 - **THEN** it MUST document and verify the exact published `openxFactory` bundle tag and commit
 - **AND** it MUST pin the required contract paths, schema versions, and per-file digests
 
@@ -76,17 +78,21 @@ before resolving downstream objects.
 - **WHEN** a consumer remains on an older valid bundle pin during an additive release
 - **THEN** that consumer remains conformant to its pinned contract until it deliberately upgrades
 
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` consumes a shared contract`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. Every other clause of this requirement is word for word what canon states, the Gate G0 handoff sentence included: that sentence requires `opensoft/xFactory-Hermes-Install` and rejects `FarHeap/Hermes-Install` for ONE consumer receipt and is not an index of install repositories, so it is carried unchanged and deliberately not widened.
+
 ### Requirement: Submodule sequencing
 `openxFactory` SHALL document submodule intent and update procedures before
 adding install repositories as submodules.
 
 #### Scenario: Submodule is proposed
-- **WHEN** a change proposes adding `Hermes-Install` or `Omnigent-Install` as a submodule
+- **WHEN** a change proposes adding `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, or a later install repository as a submodule
 - **THEN** a decision record MUST document the remote, path, pinned commit, update process, and rollback process
 
 #### Scenario: Hermes-Install remote is unresolved
 - **WHEN** `Hermes-Install` still points to a non-Opensoft remote and the target umbrella repo is `opensoft/openxFactory`
 - **THEN** the Hermes submodule MUST NOT be added until the move, fork, mirror, or external remote decision is approved
+
+**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** a change proposes adding `Hermes-Install` or `Omnigent-Install` as a submodule`` — the bullet is REPLACED rather than deleted, by the widened trigger above it, which keeps canon's grammar exactly (`a change proposes adding … as a submodule`) and extends only its list, with the serial comma a five-plus-item list takes before its final `or` (measured style: `openspec/specs` carries 561 such lines against 232 without). **AND IT IS THE ONE WIDENING IN THIS PACKET THAT DOES NOT CLOSE THE LIST**, which is a deliberate difference from the other five and not an inconsistency: the two names become five plus `or a later install repository`, because this scenario governs the act of ADMITTING a repository that by definition is not yet indexed, and a closed list here would exempt the sixth admission from the decision record the scenario exists to require. The requirement's body and its *"Hermes-Install remote is unresolved"* scenario are word for word what canon states; that scenario names one repository's unresolved remote as a condition, not an index, and is not widened.
 
 ### Requirement: Evidence preservation
 Each repo-boundary feature SHALL preserve traceability evidence from proposal
@@ -503,4 +509,3 @@ test that permits the quiet direction is how this defect would return.
 - **WHEN** the distinction is removed and the proofs are run
 - **THEN** the refusal proofs MUST fail, reproducing the flattened value the defect produces
 - **AND** a proof that still passes MUST be treated as unpinned and rewritten rather than accepted
-
