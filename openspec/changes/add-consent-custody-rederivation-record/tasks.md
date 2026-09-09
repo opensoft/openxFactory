@@ -469,8 +469,8 @@ THE LIVE RECORD; the two blocks above are the withdrawn one.**
   `contracts/manifest.yaml` takes main plus ONE re-applied key, the
   `consent-instrument` row's `sha256`, so no commit on this branch is ever left
   carrying a stale digest.
-- **THE CANDIDATE IS ONE COMMIT AND IT IS ITS OWN DECLARING COMMIT.** THIS COMMIT
-  (its sha is filed by the follow-up evidence commit) carries the whole release
+- **THE CANDIDATE IS ONE COMMIT AND IT IS ITS OWN DECLARING COMMIT.** `d14b514f`
+  (filed here by the follow-up evidence-only commit) carries the whole release
   surface: `contracts/manifest.yaml` (`contract_bundle_version` → `contract-v3.6`,
   the `contract-v3.6` `consumption_rule` paragraph in the `contract-v1.33` slot
   before the closing sentence, and the family comment's re-measured corpus
@@ -521,6 +521,23 @@ THE LIVE RECORD; the two blocks above are the withdrawn one.**
 - **BOXES 5.5 AND 5.6 STAY UNTICKED.** 5.5 is the lane's landing act and 5.6 is
   the operator's annotated tag at the LANDED merge commit. `TAG OWED` is the
   expected state at this candidate, not a finding.
+
+- **BOX 5.4 — THE COMMIT-ADDRESSED GATES, FILED BY THE FOLLOW-UP EVIDENCE-ONLY
+  COMMIT** against the EXACT UNCHANGED candidate `d14b514f`:
+  `validate-release-tag-gate.py --head d14b514f --base 17167481` **rc=0**,
+  *"the release-tag obligation holds over the merge tree d14b514f4: no error, no
+  warning"* (and the branch form `--base fee36588` reads the same), with
+  `TAG OWED` as the expected notice rather than a finding;
+  `verify-commit --commit d14b514f` **rc=0**, *"release verify-commit: pass"*,
+  `inventory=contracts/releases/contract-v3.6.digests.yaml`; the inventory-diff
+  attribution check **0 UNATTRIBUTED**; the doc-health TWO-REPORT PAIR (base
+  `fee36588`, head `d14b514f`, `--as-of 2026-09-09`) adding **ZERO** findings at
+  any severity in any family and REMOVING the two `release-inventory-drift`
+  findings the cut closes; and the FULL SUITE **rc=1** — `1 failed, 10713 passed, 36 skipped, 338 deselected, 9 warnings, 139 subtests passed in 2044.37s (0:34:04)`,
+  the one failure being the baselined environment-shaped
+  `test_find_validator_locates_pinned_checkout`. Transcripts:
+  `specs/033-add-consent-custody-rederivation-record/evidence/phaseI-recut-v3.6-*.txt`
+  and `.../evidence/doc-health-recut-v3.6/`.
 
 ## 6. The consumer handoff — [OpsxFactory]'s OWED ACT, not this change's
 

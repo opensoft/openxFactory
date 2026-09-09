@@ -1,0 +1,32 @@
+$ python3 $S/AUDIT/invdiff.py contract-v3.5 d14b514f
+OLD  contract-v3.5  inventory contract-v3.5: 283 entries
+NEW  d14b514f  contract-v3.6: 283 entries
+
+ADDED (0):
+
+REMOVED (0):
+
+DIGEST-CHANGED (4):
+  M | contracts/CHANGELOG.md | a2b65ff30b9c | d3e4ddbfba4c | d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5
+  M | contracts/README.md | f3a959fa223d | a8f1ac59abf8 | d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5; d54d89ca Cut contract-v3.5: the consent instrument's re-derivable custody record reaches a bundle; f420cd50 Execute §§ 3 and 4: the chain's internal legs, a third outcome, and the corpus that proves them
+  M | contracts/manifest.yaml | 93564e191379 | db09218b28b9 | d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5; fee36588 Merge origin/main (17167481) into 033-add-consent-custody-rederivation-record: integrate the published contract-v3.5 (#866 → a37ae0cd, tagged) before re-cutting as contract-v3.6; d54d89ca Cut contract-v3.5: the consent instrument's re-derivable custody record reaches a bundle; f420cd50 Execute §§ 3 and 4: the chain's internal legs, a third outcome, and the corpus that proves them; f59a587d Execute § 2: the consent instrument grows its custody re-derivation sibling
+  M | tests/intent-compliance/test_release_boundary.py | a235e1c55947 | 3ad36da5ca35 | d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5
+
+NON-DIGEST FIELD CHANGES (0):
+
+INVENTORY MEMBERS OUTSIDE contracts/ (91):
+  unchanged docs/contract-versioning-policy.md
+  unchanged docs/terminology-and-repo-topology.md
+  unchanged docs/xfactory-domain-factory-model.md
+  unchanged requirements/hermes-runtime-contracts.in
+  unchanged requirements/hermes-runtime-contracts.lock
+  unchanged scripts/__init__.py
+  unchanged scripts/hermes-runtime-dataset-digest.py
+  unchanged scripts/hermes_runtime_validation/__init__.py
+  unchanged scripts/hermes_runtime_validation/acceptance.py
+  unchanged scripts/hermes_runtime_validation/catalog.py
+  unchanged scripts/hermes_runtime_validation/consumer_handoff.py
+  unchanged scripts/hermes_runtime_validation/content.py
+  unchanged scripts/hermes_runtime_validation/domain_regression.py
+  unchanged scripts/hermes_runtime_validation/fixtures.py
+rc=0

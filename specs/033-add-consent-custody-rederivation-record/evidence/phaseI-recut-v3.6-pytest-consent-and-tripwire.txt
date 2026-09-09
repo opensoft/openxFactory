@@ -1,4 +1,4 @@
 $ python3 -m pytest tests/consent_instruments tests/intent-compliance/test_release_boundary.py -q
 ...............................................                          [100%]
-47 passed in 1.93s
+47 passed in 2.12s
 rc=0

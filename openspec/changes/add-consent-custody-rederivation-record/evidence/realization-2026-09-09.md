@@ -19,7 +19,7 @@ what was DONE, what was DELIBERATELY NOT done, and where each claim is proven.
 | 3, 4 | The validator's internal legs, the WITHHELD third outcome and exit `3`, the extended blob walk, eighteen fixtures across three buckets (3 positive, 14 negative, 1 withheld — counted by listing), the three corpus-count surfaces — **and `tests/consent_instruments/`**, because box 3.3 asks for a TEST that pins an absence and a tick cannot precede its own evidence | `f420cd50` |
 | — | Q8's three README amendments, in the `3b530009` form | `7c79f524` |
 | 5 | ~~**THE CUT — `contract-v3.5`**, every release surface in ONE candidate commit, plus the cut-coupled `test_release_boundary.py` edits~~ **WITHDRAWN 2026-09-09** — `contract-v3.5` was taken by openxFactory #866 (`a37ae0cd`, tagged) on Brett Heap's ordering ruling; the cut is RE-MADE as `contract-v3.6`. See § *Cut re-made as `contract-v3.6`* below | ~~`d54d89ca`~~, remade `e9a688d3` — **both withdrawn** |
-| 5 | **THE CUT — `contract-v3.6`**, every release surface in ONE candidate commit over the integration point `fee36588`, plus the cut-coupled `test_release_boundary.py` edits | THIS COMMIT (sha filed by the follow-up evidence commit) |
+| 5 | **THE CUT — `contract-v3.6`**, every release surface in ONE candidate commit over the integration point `fee36588`, plus the cut-coupled `test_release_boundary.py` edits | `d14b514f` |
 
 Integration point: `origin/main` at `587f21a0`, merged in (never rebased —
 opensoft org ruleset 8981805 forbids non-fast-forward updates). **SUPERSEDED
@@ -365,8 +365,8 @@ with no `Unreleased` block pending. Transcript:
 
 ### The candidate
 
-THIS COMMIT — its sha is filed by the follow-up evidence commit. ONE commit, its
-own declaring commit, carrying `contracts/manifest.yaml`,
+**`d14b514f412e915dd45fe66f1149969598d8a91c`** — filed here by the follow-up evidence-only commit, as the candidate
+itself promised. ONE commit, its own declaring commit, carrying `contracts/manifest.yaml`,
 `contracts/CHANGELOG.md`, `contracts/releases/contract-v3.6.digests.yaml` (BUILT
 by the tool, 283 entries), `contracts/README.md`,
 `tests/intent-compliance/test_release_boundary.py` and this bookkeeping.
@@ -409,6 +409,31 @@ the `## contract-v3.6` entry: zero unattributed. Transcript:
 SHA; they run against the EXACT UNCHANGED candidate immediately after it is
 formed, and their transcripts plus the candidate's sha are filed by a FOLLOW-UP
 EVIDENCE-ONLY commit that touches no release surface.
+
+### Gates ADDRESSED TO THE CANDIDATE BY SHA — filed by this follow-up commit
+
+Run against the EXACT UNCHANGED candidate `d14b514f` (`git status --porcelain`
+empty throughout), each rc read from the transcript's TAIL and never from its
+header — which is the reading error that let the withdrawn candidate's RED
+release-tag gate pass for green.
+
+| gate | rc | summary, verbatim |
+| --- | --- | --- |
+| `validate-release-tag-gate.py --head d14b514f --base 17167481` (main tip) | 0 | `the release-tag obligation holds over the merge tree d14b514f4: no error, no warning` — plus the `TAG OWED` notice, which is the expected state and not a finding |
+| `validate-release-tag-gate.py --head d14b514f --base fee36588` (branch form) | 0 | same line, same tree: `declared bundle: contract-v3.5 at the base fee36588a -> contract-v3.6 at the head d14b514f4` |
+| `validate-contract-release.py verify-commit --commit d14b514f` | 0 | `release verify-commit: pass` / `inventory=contracts/releases/contract-v3.6.digests.yaml` |
+| `invdiff.py contract-v3.5 d14b514f` + exact-path attribution check | 0 | 283/283, 0 added, 0 removed, 4 digest-changed, 0 non-digest field changes; **UNATTRIBUTED: 0** |
+| doc-health TWO-REPORT PAIR (`--as-of 2026-09-09`, base `fee36588`, head `d14b514f`) | 0 / 0 | **ZERO findings added at any severity in any family**; TWO `release-inventory-drift` findings REMOVED (`contracts/README.md`, `contracts/manifest.yaml`) and `release-inventory-drift` count at HEAD is ZERO |
+| `pytest tests/ -q -m "not postgres" -p no:cacheprovider` | 1 | `1 failed, 10713 passed, 36 skipped, 338 deselected, 9 warnings, 139 subtests passed in 2044.37s (0:34:04)` |
+
+The single failure in the full suite is the BASELINED, environment-shaped
+`tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout`,
+which resolves a pinned checkout that exists only in an aggregation workspace
+layout. It is proven pre-existing at pristine `origin/main` by
+`specs/.../evidence/phaseE-baseline-preexisting-failures.txt`, and no other test
+fails. Transcripts: `specs/.../evidence/phaseI-recut-v3.6-release-tag-gate.txt`,
+`-verify-commit.txt`, `-invdiff-at-candidate.txt`, `-doc-health.txt`,
+`doc-health-recut-v3.6/`, `-pytest-full.txt`.
 
 ### Still NOT DONE, and still owed elsewhere
 
