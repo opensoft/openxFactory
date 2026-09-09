@@ -15,7 +15,7 @@ workflow, script or contract byte of the LANE is edited and nothing in
 codexFactory is touched. Two files outside the packet DO move, and both are
 gate bookkeeping this packet owes rather than behaviour it changes: the
 `## MODIFIED` block's sibling-pairing marker, and the corpus-ledger row seeded
-by `scripts/validate-sequenced-after.py --seed-ledger`.
+by `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`.
 
 **RATIFIED 2026-09-08, AND IT TICKS FOUR BOXES AND NO OTHERS: 1.1, 1.2, 5.1 AND
 5.2.** Each names the ratifying word or the ratifying commit as its own tick

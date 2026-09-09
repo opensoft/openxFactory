@@ -159,7 +159,7 @@ It edits no workflow, no script, no contract and no pin byte of the lane, and it
 edits nothing in codexFactory. Two files outside the packet do move, and both
 are gate bookkeeping this packet owes rather than behaviour it changes: the
 `## MODIFIED` block's sibling-pairing marker, and the corpus-ledger row seeded
-by `validate-sequenced-after.py --seed-ledger`. **THE RATIFICATION OF 2026-09-08
+by `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`. **THE RATIFICATION OF 2026-09-08
 TICKS FOUR BOXES AND NO OTHERS** — 1.1, 1.2, 5.1 and 5.2, each because that
 box's own stated condition is the ratifying word or the ratifying commit — and
 every remaining box, 1.3 (MQ-2) and 1.4 (MQ-3) included, is untouched by merging

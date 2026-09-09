@@ -540,7 +540,7 @@ Active changes:
   `Modified over …'s addition by … (…):` marker in the same form the sibling
   `amend-mirror-floor-regeneration-merge-authority` uses for the OTHER
   requirement of the same parent, and the row was seeded by the sanctioned tool
-  (`validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
+  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
   row this repository has stamped through issue #790's UTC clock, which is why
   its `moved_on` reads `2026-09-09`. **RATIFICATION PERFORMS NO REALIZATION** —
   it ticks `tasks.md` boxes 1.1, 1.2, 5.1 and 5.2 and nothing else; **1.3 (MQ-2)
