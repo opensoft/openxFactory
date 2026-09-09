@@ -59,7 +59,7 @@ import yaml
 # The pinned repository and the document this lane mirrors.
 # ---------------------------------------------------------------------------
 
-SOURCE_REPOSITORY = "opensoft/codexFactory"
+SOURCE_REPOSITORY = "codeXfactory/codexFactory"
 
 # Where the pinned core keeps the authoritative floor document. Restated as
 # literals rather than read out of the pin, for the reason

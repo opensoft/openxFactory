@@ -33,8 +33,14 @@ lens. Splitting the pair across the column boundary would have moved a
 cross-checked constant away from the thing it is cross-checked against. That
 import, and the four names read from `workbench.py`, are this module's two
 `stays -> openDox` reaches; they are recorded for the manifest author rather
-than solved here, because `human_seen.py:46` already reaches `workbench.slug`
-the same way and the scout memo files all of them under § 7 OQ-B, unruled.
+than solved here, and § 7 OQ-B is RULED as of 2026-09-09 (Brett Heap, `#656`,
+"rule all OQs as recommended"): these two reaches are the ones the ruling
+leaves IN-TREE, because `add_as_cluster` is adapter->core by construction and
+the carve reaches it THROUGH openXdox as an `import rewrites` edit. The sibling
+reaches that same ruling re-plumbs BEFORE the carve are elsewhere --
+`human_seen.py`'s `workbench.slug` (B-1, PR #843: `slug` into the neutral
+`scripts/path_slug.py`, which is where `human_seen` reads it once that lands)
+and the four `serve_wire` names `serve_openxfactory_lanes.py` reads (B-2).
 
 NO BEHAVIOUR CHANGE: same names, same signatures, same order of operations,
 same refusals.

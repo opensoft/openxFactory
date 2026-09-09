@@ -1,6 +1,8 @@
 # Tasks: bump-openspec-cli-pin-to-1.12
 
-Status: draft
+Status: ratified
+Ratified by: bump-openspec-cli-pin-to-1.12 — 2026-09-05, Brett Heap, "ratify 677" (record `review/ratification-2026-09-05.md`)
+Kind: tasks
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in
@@ -16,10 +18,28 @@ been discharged in their own pull requests and are ticked with the evidence
 beside them — 6.1 (the ratification record) and 6.2 (the `pytest-suite.yml`
 literal). 5.1, 6.3 and 6.4 are untouched and still owed.
 
-**RATIFICATION HAS NOT HAPPENED.** Brett Heap ruled *"take exit 2"* on
-2026-09-05, deciding WHICH of the three exits #673 enumerated is taken. That
-settles the substance of the approach and does not ratify this text. Task 6.1
-records ratification when it happens; nothing below decides it.
+**ARCHIVED 2026-09-09 — AND THIS IS THAT ACT.** Brett Heap ruled first-hand to
+lane `codexfactory-1` (session name `codeXfactory-1`,
+`session_01KU9sXSmC78QxYF6C8kqfqo`) at 2026-09-09T12:59Z, verbatim: **"archive
+the bump change"**. **NO BOX IS TICKED BY THIS ARCHIVE AND NONE NEEDED TO BE:**
+all 26 boxes were already `[x]` on `main` before this act — verified by grep for
+`^- \[ \]` and `^- \[~\]`, both empty — the last of them discharged 2026-09-08 by
+#804 (6.3) and #813 (6.4). The archive changes the lifecycle header at the top of
+this file, moves the packet, and promotes its one ADDED requirement; it decides
+nothing below.
+
+**RATIFICATION HAS NOT HAPPENED.** *(TRUE AT AUTHORING, AND SUPERSEDED — kept as
+the record of what this file claimed rather than deleted, as `proposal.md` keeps
+its own superseded copy of the same claim in its `Origin:` block two lines under a
+header that now reads `Status: ratified`. RATIFIED 2026-09-05, verbatim "ratify 677",
+heard first-hand by session `opsXfactory-1`; the lifecycle header at the top of
+this file now reads `Status: ratified` and names that ratification on its citation
+line, and task 6.1 below is ticked with the record. Read the present tense below as
+the authoring session's, not as a claim about this file at the archive.)* Brett
+Heap ruled *"take exit 2"* on 2026-09-05, deciding WHICH of the three exits #673
+enumerated is taken. That settles the substance of the approach and does not
+ratify this text. Task 6.1 records ratification when it happens; nothing below
+decides it.
 
 **THIS PULL REQUEST IS HUMAN-ONLY** under the ratified requirement *"A pinned
 CLI version bump is one human-only act…"*. It moves the pin, and a council or
