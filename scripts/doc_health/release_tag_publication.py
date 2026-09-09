@@ -875,6 +875,65 @@ def _finding(sev, repo, rule, action, resolution="auto-fixable", path=MANIFEST):
                    resolution=resolution)
 
 
+# --- A SKIP THAT DOES NOT TAKE THE FINDINGS WITH IT (openxFactory #766) ------
+#
+# WHAT WAS LOST. `check_repo` answers `Skip | list[Finding]`, and every `return
+# Skip(...)` below the grading loop's first `findings.append` discarded whatever
+# the repository had ALREADY established: the raw-HTML `error`, every
+# accepted-SPENT `info`, and every LIGHTWEIGHT or MISPLACED `error` raised for a
+# bundle the loop reached BEFORE the one whose refs failed. The shape is
+# pre-existing and general; what made it a defect worth naming is that
+# `amend-absent-changelog-is-an-answer` promoted an `AND` requiring the
+# established-absence fact be recorded "BESIDE the grading rather than INSTEAD
+# of it" — so a promoted MUST now names the loss out loud, and on these three
+# arms it was not honoured.
+#
+# WHAT IS NOT CHANGED, AND THIS IS THE WHOLE OF WHY NO CANON MOVES. A PARTIAL
+# SKIP IS STILL A SKIP, everywhere a skip is counted. It satisfies
+# `isinstance(outcome, Skip)` at every call site in the estate: the family below
+# still records the reason in `skips` and still returns its family-level `Skip`
+# on `len(skips) == len(scoped)`, and `validate-release-tag-gate.py` — which
+# runs this family over ONE repository — still meets a `Skip` and still refuses
+# at `gate-unaskable`, exactly as the scenario *The cut-time check cannot ask
+# the family's question* requires of the enforcing moment. Nothing about WHEN a
+# skip is reported moves either: *Version control cannot answer* still gets its
+# skip, in the words it already had. The only thing that changes is that the
+# findings the repository had established travel WITH the reason instead of
+# dying on the return — which is what that scenario and the amended `AND` ask
+# for TOGETHER rather than in the alternative.
+#
+# THE RESIDUE IS DISCLOSED RATHER THAN HIDDEN. Where the skipping repository is
+# the ONLY one in scope — the cut-time gate, and a `--single-repo` run — the
+# family still answers with a bare family-level `Skip` and the carried findings
+# go no further. That is deliberate: the gate MUST fail closed there, and what a
+# partial skip should mean to the family's own `len(skips) == len(scoped)`
+# accounting is the ruling openxFactory #766 records as the wider remedy, not
+# something this fix takes on its own authority.
+@dataclass
+class _PartialSkip(Skip):
+    """A `Skip` carrying the findings established before the question stopped
+    being askable.
+
+    A `Skip` FIRST AND BY INHERITANCE, so nothing that reads a skip has to learn
+    a new shape to go on failing closed on one; the findings are an addition a
+    reader may consult, never a substitution a reader must handle.
+    """
+
+    findings: tuple[Finding, ...] = ()
+
+
+def _skip(reason: str, findings=()):
+    """The grading loop's skip.
+
+    PLAIN WHERE NOTHING WAS ESTABLISHED — a repository that had produced no
+    finding answers with the byte-identical `Skip` it always did, so the arms
+    that carry nothing are unchanged down to their type — and carrying
+    otherwise.
+    """
+    return _PartialSkip(FAMILY, reason, tuple(findings)) if findings \
+        else Skip(FAMILY, reason)
+
+
 # --- the SPENT ladder --------------------------------------------------------
 #
 # ORDERED, AND EXACTLY ONE STATE PER DECLARATION. Each return below excludes
@@ -1142,6 +1201,13 @@ def check_repo(repo: str, repo_path: Path, git,
     """One repository. `Skip` where the question could not be asked, a list of
     findings otherwise — empty when the obligation is met.
 
+    A SKIP RAISED ONCE THE GRADING HAS BEGUN CARRIES WHAT IT FOUND (#766). The
+    three arms inside the loop below stop this repository part-way, and a skip
+    is still what they report; the findings established before them ride along
+    on `_PartialSkip.findings` rather than being discarded by the return, so the
+    record `amend-absent-changelog-is-an-answer` requires be kept BESIDE the
+    grading survives a question the family could not finish asking.
+
     EVERY BUNDLE THIS REPOSITORY HAS CUT IS INSPECTED, not only the one the
     manifest currently declares. The distance grading applies to the CURRENT
     declaration, which is the only one still inside its legitimate window; a
@@ -1402,8 +1468,12 @@ def check_repo(repo: str, repo_path: Path, git,
     for bundle in in_scope:
         kind, detail = _tag_state(git, repo_path, bundle)
         if kind == "unlistable":
-            return Skip(FAMILY, f"{repo}: the published refs for {bundle} "
-                                f"could not be consulted")
+            # THE SKIP STANDS AND THE FINDINGS COME WITH IT (#766). The reason
+            # is the one this arm always reported, and the loop still stops
+            # here — what changes is that the bundles graded before this one no
+            # longer die on the return.
+            return _skip(f"{repo}: the published refs for {bundle} "
+                         f"could not be consulted", findings)
         if kind == "ok":
             continue
         if kind == "lightweight":
@@ -1437,10 +1507,10 @@ def check_repo(repo: str, repo_path: Path, git,
             if decl is not None:
                 kind, _ = _tag_state(git, repo_path, decl.superseding)
                 if kind == "unlistable":
-                    return Skip(FAMILY,
-                                f"{repo}: the published refs for "
-                                f"{decl.superseding}, named as {bundle}'s "
-                                f"superseding bundle, could not be consulted")
+                    return _skip(f"{repo}: the published refs for "
+                                 f"{decl.superseding}, named as {bundle}'s "
+                                 f"superseding bundle, could not be consulted",
+                                 findings)
                 if kind == "ok":
                     # ACCEPTED. Recorded, never silent — ruled by Brett Heap on
                     # 2026-09-02 on an alternative put to him and declined —
@@ -1487,8 +1557,8 @@ def check_repo(repo: str, repo_path: Path, git,
             continue
         distance = distance_from_tip(git, repo_path, bundle, tip, threshold + 2)
         if distance is None:
-            return Skip(FAMILY, f"{repo}: the earliest commit declaring "
-                                f"{bundle} could not be resolved")
+            return _skip(f"{repo}: the earliest commit declaring "
+                         f"{bundle} could not be resolved", findings)
         if distance == 0:
             continue
         if distance <= threshold:
@@ -1521,6 +1591,12 @@ def fam_release_tag_publication(ctx):
     omitted" the requirement forbids. Each skip contributes an `info`, and the
     family-level `Skip` is kept for the case it genuinely describes: nothing in
     scope was askable at all.
+
+    AND A PARTIAL SKIP IS REPORTED AS BOTH (#766). Where the skip carries
+    findings, the reason is recorded exactly as any other skip's is AND those
+    findings are reported under the same repository — the repository still
+    counts as skipped in the accounting below, so the family-level `Skip` and
+    the cut-time gate that fails closed on it are untouched.
     """
     results: list[Finding] = []
     skips: list[str] = []
@@ -1532,11 +1608,28 @@ def fam_release_tag_publication(ctx):
         outcome = check_repo(repo, Path(repo_path), ctx.git, threshold)
         if isinstance(outcome, Skip):
             skips.append(outcome.reason)
+            # WHAT THE SKIP CARRIES IS REPORTED BESIDE IT, NEVER INSTEAD OF IT
+            # (#766). `getattr` rather than `isinstance` because the only
+            # question here is whether anything was established: a plain `Skip`
+            # answers the empty tuple and takes the wholly-unevaluated wording
+            # below, which is the byte-identical line it always had.
+            carried = list(getattr(outcome, "findings", ()))
+            action = ("no action — this repository's tag obligation was not "
+                      "evaluated, and the reason is recorded rather than "
+                      "omitted")
+            if carried:
+                # AND THE ACTION SAYS SO, because "not evaluated" would now be
+                # false of the repository this line sits above: part of it was,
+                # and those findings are printed with it.
+                action = (f"no action on this line — the question it names "
+                          f"could not be asked, and the {len(carried)} "
+                          f"finding(s) this repository HAD established before "
+                          f"it are reported beside it rather than discarded "
+                          f"with it")
             results.append(_finding(
-                INFO, repo, f"not checked: {outcome.reason}",
-                "no action — this repository's tag obligation was not "
-                "evaluated, and the reason is recorded rather than omitted",
+                INFO, repo, f"not checked: {outcome.reason}", action,
                 resolution="auto-fixable"))
+            results.extend(carried)
             continue
         results.extend(outcome)
     if len(skips) == len(scoped):

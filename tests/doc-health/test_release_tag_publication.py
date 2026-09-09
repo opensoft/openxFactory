@@ -2639,3 +2639,237 @@ def test_a_declaration_with_no_readable_subject_is_a_changelog_error(tmp_path):
     assert [f for f in findings
             if "contract-v2.6 was cut and SUPERSEDED" in f.rule]
     assert not [f for f in findings if f.severity == INFO]
+
+
+# --------------------------------- a skip that does not take the findings with
+# it (openxFactory #766)
+#
+# THE THREE ARMS BELOW ARE THE WHOLE OF THE DEFECT, and each is exercised over a
+# repository that had ALREADY established something when the question stopped
+# being askable. `amend-absent-changelog-is-an-answer` promoted an `AND`
+# requiring the established-absence fact be recorded "BESIDE the grading rather
+# than INSTEAD of it"; a `return Skip(...)` inside the grading loop discarded
+# `findings` whole, so on these arms it was recorded instead of NOTHING. The
+# shape was pre-existing and general — the raw-HTML `error`, every
+# accepted-SPENT `info` and every MISPLACED or LIGHTWEIGHT `error` raised for an
+# earlier bundle died on the same returns — and what the amendment changed is
+# that a promoted MUST now names the loss out loud.
+#
+# EVERY ASSERTION BELOW KEEPS THE SKIP. That is deliberate and it is the reason
+# no canon moves: *Version control cannot answer* requires the skip, and *The
+# cut-time check cannot ask the family's question* requires the gate to fail
+# closed on one. A fix that turned these arms into findings would have satisfied
+# the amended `AND` by breaking two ratified scenarios.
+
+
+class _PartialShim(FakeGit):
+    """A HELD tip whose changelog does not read — so the established-absence
+    `info` is appended — over a tag seam that answers nothing.
+
+    `blobs_at` answers the manifest and a per-path None for the changelog;
+    `ls_tree_paths` answers an empty listing, which is what establishes the
+    document's own absence and licenses the grading. `declared` is per
+    repository so one shim can serve a repository that reaches the loop and one
+    that never does.
+    """
+
+    def __init__(self, declared=None, **kwargs):
+        super().__init__(**kwargs)
+        self._declared = declared or {"r": "contract-v2.0"}
+
+    def blobs_at(self, repo, commit, relpaths):
+        body = f"contract_bundle_version: {self._declared[repo.name]}\n".encode()
+        return {p: (body if p == MANIFEST else None) for p in relpaths}
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return []
+
+
+def _established_absence(findings):
+    return [f for f in findings if f.severity == INFO and f.path == CHANGELOG]
+
+
+def test_an_unlistable_ref_keeps_the_record_it_had_already_established():
+    """ARM ONE — `_tag_state` answers `unlistable` for a bundle in scope.
+
+    MEASURED IN THE ORIGIN ISSUE AND REPRODUCED HERE: a held tip, a bundle in
+    scope, no readable changelog and a tag-ref seam that answers nothing
+    returned the skip and the `info` appended two lines earlier was GONE.
+    """
+    git = _PartialShim(remotes={"r": "tip"}, present_commits={"tip"})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip), (
+        "the skip is KEPT — the refs genuinely could not be consulted, and the "
+        "cut-time gate fails closed on exactly this")
+    assert "published refs for contract-v2.0 could not be consulted" \
+        in out.reason, "and it is reported in the words it always had"
+    carried = _established_absence(out.findings)
+    assert len(carried) == 1, (
+        "the fact the amended `AND` requires be recorded BESIDE the grading "
+        "must survive a question the family could not finish asking")
+    assert _CHANGELOG_HELD_WORDS in carried[0].rule
+    assert _TREE_LISTS_NONE_WORDS in carried[0].rule
+
+
+def test_an_unresolvable_declaring_commit_keeps_what_it_had_established():
+    """ARM THREE — `distance_from_tip` cannot resolve the earliest commit.
+
+    The tag read ANSWERS here (an explicit `(None, None)` is "the remote lists
+    no such tag", not "the refs could not be listed"), so the loop reaches the
+    distance arm and the walk is what fails.
+    """
+    git = _PartialShim(remotes={"r": "tip"}, present_commits={"tip"},
+                       tag_refs={(str(Path("r")), "contract-v2.0"):
+                                 (None, None)})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert "earliest commit declaring contract-v2.0 could not be resolved" \
+        in out.reason
+    assert len(_established_absence(out.findings)) == 1
+
+
+class _SupersedingUnlistable(FakeGit):
+    """A repository whose changelog READS and declares one bundle SPENT, where
+    the refs for the SUPERSEDING bundle are the ones that cannot be listed.
+
+    Three bundles are cut and the manifest has moved to the last of them, so the
+    loop grades `contract-v2.0` — a superseded, never-published bundle, an
+    `error` — BEFORE it reaches `contract-v2.6`, whose declaration sends it to
+    ask about `contract-v3.0`. That ordering is the point: the finding under
+    test is one the loop had already appended when the skip fired.
+    """
+
+    _LOG = ("# Contract changelog\n\n## contract-v3.0 — 2026-09-02 (a cut)\n\n"
+            + _spent_line() + "\n\n").encode()
+
+    def blobs_at(self, repo, commit, relpaths):
+        bodies = {MANIFEST: b"contract_bundle_version: contract-v3.0\n",
+                  CHANGELOG: self._LOG}
+        return {p: bodies.get(p) for p in relpaths}
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return [rtp.inventory_path(b) for b in ("contract-v2.0",
+                                                "contract-v2.6",
+                                                "contract-v3.0")]
+
+    def tag_ref(self, repo, name):
+        # THE ONE UNLISTABLE REF, and it is the superseding bundle's. Every
+        # other name answers `(None, None)` — an ANSWER, "no such tag" — so the
+        # arm under test is the only one that can fire.
+        return None if name == "contract-v3.0" else (None, None)
+
+
+def test_an_unlistable_superseding_ref_keeps_the_earlier_bundles_error():
+    """ARM TWO — the refs for a bundle NAMED as a superseding bundle.
+
+    This arm is reached only from inside the SPENT ladder, and the finding it
+    used to discard is a graded `error` about a DIFFERENT bundle — which is why
+    the loss was never only about the `info` the amendment added.
+    """
+    git = _SupersedingUnlistable(remotes={"r": "tip"}, present_commits={"tip"})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert ("published refs for contract-v3.0, named as contract-v2.6's "
+            "superseding bundle, could not be consulted") in out.reason
+    superseded = [f for f in out.findings
+                  if f.severity == ERROR
+                  and "contract-v2.0 was cut and SUPERSEDED" in f.rule]
+    assert len(superseded) == 1, (
+        "the bundle the loop graded BEFORE the one whose refs failed is not "
+        "unreported because a later bundle could not be asked about")
+
+
+def test_a_skip_with_nothing_established_is_the_plain_skip_it_always_was():
+    """THE ARMS THAT CARRY NOTHING ARE UNCHANGED DOWN TO THEIR TYPE.
+
+    A repository whose changelog READS and declares nothing appends no finding
+    before the tag arm, so this skip is a plain `Skip` and not the carrier —
+    which keeps the fix off every path it has no business on.
+    """
+    class NoRefs(FakeGit):
+        def tag_ref(self, repo, name):
+            return None
+
+        def ls_tree_paths(self, repo, ref, prefix):
+            return []
+
+    git = NoRefs(remotes={"r": "tip"},
+                 blobs={("r", MANIFEST):
+                        b"contract_bundle_version: contract-v2.0\n",
+                        ("r", CHANGELOG): b"# Contract changelog\n"})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert type(out) is Skip, (
+        "nothing was established, so nothing is carried and the return is the "
+        "byte-identical shape this arm always had")
+
+
+def test_the_family_reports_beside_the_skip_what_the_skip_carried():
+    """THE FAMILY ENTRY — the reason recorded AND the findings printed.
+
+    Two repositories, because a family whose every repository skipped answers
+    with one family-level `Skip` by design; the second declares a below-floor
+    bundle, so it has nothing in scope, reaches no arm and answers an empty
+    list.
+    """
+    class Ctx:
+        repo_paths = {"alphaFactory": Path("r"), "betaFactory": Path("below")}
+        git = _PartialShim(declared={"r": "contract-v2.0",
+                                     "below": "contract-v1.0"},
+                           remotes={"r": "tip", "below": "tip"},
+                           present_commits={"tip"})
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    assert not isinstance(out, Skip)
+    reasons = [f for f in out if f.rule.startswith("not checked:")]
+    assert len(reasons) == 1, "the skip's reason is still recorded, never omitted"
+    assert "published refs for contract-v2.0 could not be consulted" \
+        in reasons[0].rule
+    assert "reported beside it rather than discarded with it" \
+        in reasons[0].action, (
+        "and the action no longer claims the repository was not evaluated, "
+        "which is false of one whose findings are printed under it")
+    assert len(_established_absence(out)) == 1, (
+        "the carried finding reaches the report, which is the whole of #766")
+
+
+def test_a_partial_skip_still_counts_as_a_skip_so_the_gate_still_fails_closed():
+    """THE CONTRACT THAT MUST NOT MOVE — *The cut-time check cannot ask the
+    family's question*.
+
+    `validate-release-tag-gate.py` runs this family over ONE repository and
+    refuses at `gate-unaskable` on `isinstance(outcome, Skip)`. A partial skip
+    is counted in `skips` exactly as a whole one is, so a lone repository that
+    partially skipped still answers a family-level `Skip` and the enforcing
+    moment still fails closed. An unasked question is not a pass.
+    """
+    class Ctx:
+        repo_paths = {"alphaFactory": Path("r")}
+        git = _PartialShim(remotes={"r": "tip"}, present_commits={"tip"})
+
+    assert isinstance(rtp.fam_release_tag_publication(Ctx()), Skip)
+
+
+def test_the_wholly_skipped_wording_is_untouched(tmp_path):
+    """AND THE LINE A WHOLLY-SKIPPED REPOSITORY GETS IS THE ONE IT HAD.
+
+    The action text is the promoted wording of a repository that really was not
+    evaluated; only the carrying case takes different words, so a report reader
+    who has learned this line does not meet a new one for an unchanged fact.
+    """
+    repo, _ = _repo(tmp_path)
+    _declare(repo, None, "no bundle")
+    _push(repo)
+    tagged, _ = _repo(tmp_path, "tagged")
+    _declare(tagged, "contract-v2.0", "cut")
+    _git(tagged, "tag", "-a", "contract-v2.0", "-m", "x")
+    _push(tagged)
+
+    class Ctx:
+        repo_paths = {"alphaFactory": repo, "betaFactory": tagged}
+        git = RealGit()
+
+    out = rtp.fam_release_tag_publication(Ctx())
+    assert [f.severity for f in out] == [INFO]
+    assert out[0].action == (
+        "no action — this repository's tag obligation was not evaluated, and "
+        "the reason is recorded rather than omitted")
