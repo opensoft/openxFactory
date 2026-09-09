@@ -41,9 +41,18 @@ Heap's word.
       word; the admission is conditional and terminal and TOLERATED is the word
       for that; and PERMITTED is already spent one capability over
       (`domain-descendant-boundary:113`, *"the placement is permitted"*) on a
-      non-deprecated state. **A veto costs four words** — two scenario bullets,
-      the added body paragraph, the added scenario — plus the marker's reason
-      sentence, and nothing else in the packet moves.
+      non-deprecated state. **A veto is a case-preserving substitution over an
+      ENUMERATED set of SEVEN occurrences inside the `## MODIFIED` block** —
+      `specs/neutral-product-pin/spec.md` lines 121, 133, 134 (added body
+      paragraph), 170, 171 (the two replaced canon bullets) and 185, 186 (added
+      scenario) — listed line by line in `design.md` D1, plus one in the delta's
+      own header prose at line 25 and the packet's prose, neither of which is
+      ratification surface. **Replacing only some would leave both status words
+      live in one requirement**, which is the defect this packet closes, so the
+      set is enumerated rather than counted. The marker's reason names no status
+      word and does not move; nothing else in the packet moves either. **The
+      seven are NOT redundant and are deliberately not reduced** — D1 records
+      what each does.
 - [ ] 1.3 **RULE `design.md` D2 and D4 — the two additions.** D2 puts the
       reservation in the requirement BODY rather than leaving the two bullets to
       carry it alone (Codex's finding is satisfiable by the bullets alone; the

@@ -62,8 +62,8 @@ get two words) and reaches nothing else.
 
 ## D1 — THE VETO POINT: TOLERATED against PERMITTED
 
-**Recommended: TOLERATED. Written that way. One veto changes four words and
-nothing else.**
+**Recommended: TOLERATED. Written that way. A veto is a mechanical substitution
+over an ENUMERATED set of occurrences, listed below, and moves nothing else.**
 
 The refusal on #780 itself floated the alternative in as many words — *"say
 `PERMITTED as a declared interim` in the scenario, reserving `lawful`/`compliant`
@@ -90,11 +90,44 @@ decision is put for veto rather than simply taken.
    re-spending the word here would create the very cross-requirement ambiguity
    this packet exists to end, one capability over.
 
-**What a veto costs.** Four words: two in the scenario bullets, one in the added
-body paragraph, one in the added scenario, plus the marker's reason sentence.
-Nothing else in the packet moves — not the reservation, not the added
-paragraph's structure, not the scenario, not the tasks, not the sequencing. The
-veto is one `sed` and a re-run of the gates.
+**What a veto costs, ENUMERATED rather than summarized** — the count matters,
+because replacing SOME occurrences would leave both status words live in one
+requirement, which is the very defect this packet closes, and this list is what
+makes the substitution mechanical rather than a judgment call.
+
+**Inside the `## MODIFIED Requirements` block — SEVEN occurrences, at
+`specs/neutral-product-pin/spec.md`:**
+
+| line | occurrence | where |
+| --- | --- | --- |
+| 121 | `TOLERATED` | added body paragraph — *"A declared consumption copy is TOLERATED"* |
+| 133 | `tolerated` | added body paragraph — *"SHALL NOT describe a tolerated interim"* |
+| 134 | `TOLERATED` | added body paragraph — *"SHALL say TOLERATED where it means"* |
+| 170 | `TOLERATED` | replaced scenario `THEN` — *"the copy is TOLERATED ONLY as"* |
+| 171 | `tolerated` | replaced scenario `AND` — *"never becoming tolerated by being useful"* |
+| 185 | `TOLERATED` | added scenario `THEN` — *"is TOLERATED as an interim"* |
+| 186 | `TOLERATED` | added scenario `AND` — *"owed the word TOLERATED wherever"* |
+
+**Plus ONE in the delta file's own header prose** (line 25, *"the first is given
+TOLERATED"*), which is not part of the requirement and not ratification surface,
+and **the packet's prose** — `proposal.md`, `tasks.md`, this file and the README
+row — which follows the delta and is likewise not ratification surface.
+
+**The case is preserved as written**: an upper-case occurrence becomes
+`PERMITTED`, a lower-case one becomes `permitted`. **Nothing else moves** — not
+the reservation, not the added paragraph's structure, not the scenario, not the
+marker (whose reason names no status word), not the tasks, not the sequencing.
+The veto is one case-preserving substitution over those seven lines and a re-run
+of the gates.
+
+**THE OCCURRENCES ARE NOT REDUNDANT AND ARE DELIBERATELY NOT REDUCED.** Codex
+offered removing some as the alternative to enumerating them (P2 on PR #870).
+Each of the seven does distinct work: 121 states the status, 133 and 134 are the
+prohibition and the positive obligation and neither implies the other, 170 and
+171 are the two replaced canon bullets, and 185 and 186 are the added scenario's
+`THEN` and `AND` — a scenario whose whole subject is the word cannot assert it
+without naming it. Reducing the set to shrink a veto's diff would weaken the
+requirement to make a hypothetical edit smaller.
 
 **Rejected: leaving the scenario's word alone and changing the BODY's instead**
 (make the body say "not compliant with the required-check requirement" and let

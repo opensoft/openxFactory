@@ -548,19 +548,24 @@ Active changes:
   on the same four terms and the required-check claim stays unmet for exactly as
   long as it did before, which is what the refusal on #780 predicted. **THE VETO
   POINT IS `design.md` D1**: TOLERATED against PERMITTED — the word that refusal
-  itself floated — costed at four words either way. **THE RESERVATION IS
+  itself floated — a case-preserving substitution over an ENUMERATED seven
+  occurrences in the `## MODIFIED` block, listed line by line in D1 (replacing
+  only some would leave both status words live in one requirement, which is the
+  defect this packet closes). **THE RESERVATION IS
   DELIBERATELY SCOPED, NOT CAPABILITY-WIDE** (D0a): the specification's fifth use
   of `lawful` at `:555` is a different requirement on a DISPOSITION's acceptance,
   and a capability-wide claim would have put ratified text in violation on the
-  day this promoted. `code_surface: none`, MEASURED — `grep -rn "lawful"
-  scripts/ tests/` returns 66 lines across 33 files and every one is prose, and
-  the one line naming this requirement (`scripts/validate-pin-registrations.py:27`)
+  day this promoted. `code_surface: none`, MEASURED:
+  `grep -rn "lawful" scripts/ tests/` returns 66 lines across 33 files
+  and every one is prose, and the one line naming this requirement
+  (`scripts/validate-pin-registrations.py:27`)
   is a docstring quoting its REGISTRATION sentences, which this packet does not
   touch. `sequenced_after: []`, the positive root claim: the only other active
   `neutral-product-pin` delta is `split-opendox-two-layer-product`, which
   modifies two OTHER requirements, so this is the **sole ACTIVE modifier** and no
-  ordering declaration is owed in either direction (the sweep ledger's `class:
-  co-modifier` grades the archived promoter too, and is a different question).
+  ordering declaration is owed in either direction (the sweep ledger's
+  `class: co-modifier` grades the archived promoter too, which is a different
+  question).
   **NOT FIXED IN PASSING** (D6): this specification's pre-existing
   `--strict` failure — `requirements.16.text`, on *A pinned artifact that
   resolves dependencies at install time carries a vendored lockfile…* at `:645`
