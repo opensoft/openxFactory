@@ -1856,9 +1856,11 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     name by any distance, not merely a day. That is a FINDING, and a
     disposition citing the rename commit and the original archive act answers
     it — which is the trade taken on purpose, a finding a record can dispose of
-    beating a directory the gate cannot measure. `core.quotePath=false` keeps a non-ASCII name readable rather than
-    C-quoted; a name containing a newline would still be unreadable here, and
-    is not an `<YYYY-MM-DD>-<change-id>` directory in the first place.
+    beating a directory the gate cannot measure.
+
+    `core.quotePath=false` keeps a non-ASCII name readable rather than C-quoted;
+    a name containing a newline would still be unreadable here, and is not an
+    `<YYYY-MM-DD>-<change-id>` directory in the first place.
 
     THE COMMITTER DATE (`%cI`), not the author date: it is when the commit
     entered this history, which is the act the directory name claims to date.

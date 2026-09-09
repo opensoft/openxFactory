@@ -59,8 +59,8 @@ kind: archive_date_dispositions
 #      `-M` the destination never appears as `A` at all, so the directory would
 #      be silently unmeasured - worse than a finding a disposition can answer.
 #
-# CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured, and their
-# `fact` must say which one it is rather than borrowing the clock sentence
+# CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured, and
+# their `fact` must say which one it is rather than borrowing the clock sentence
 # below - a disposition's whole value is that it records the judgement the
 # measurement could not make. What is forbidden is writing any of them BEFORE it
 # is measured. (Codex P2, PR #820: the earlier wording forbade every future

@@ -46,7 +46,8 @@ RULED = 'Brett Heap 2026-09-08 "rule 1 + 2a on 812"'
 CITED = "opensoft/openxFactory#812"
 
 #: CAUSE 1, the defect and the ten.
-CLOCK_FACT = "named by a local clock one day behind UTC; #780's defect, unnoticed"
+CLOCK_FACT = ("named by a local clock one day behind UTC; "
+              "#780's defect, unnoticed")
 
 #: CAUSE 4, and the two oldest directories of this corpus. `746be44f` is NOT an
 #: initial import — it is a single-parent commit that RENAMED both out of their
@@ -613,7 +614,7 @@ def test_THE_BATCH_WALK_AGREES_WITH_A_PER_DIRECTORY_LOG_on_every_DISPOSITION():
         assert entry["commit_date_utc"] == day, name
 
 
-def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_ITS_FACTS():
+def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_FACTS():
     """The known facts must be PRESENT and every entry must state one — asserted
     that way rather than by exact set equality and a hard twelve.
 
@@ -656,7 +657,7 @@ def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_ITS_FACT
                 == _dt.timedelta(days=1)), name
 
 
-def test_THE_TWO_RENAME_DISPOSITIONS_CITE_A_RENAME_AND_AN_ARCHIVE_ACT_THAT_AGREE():
+def test_THE_RENAME_DISPOSITIONS_CITE_A_RENAME_AND_AN_ARCHIVE_ACT_THAT_AGREE():
     """CAUSE 4, re-measured rather than taken on the entry's word.
 
     The record's whole authority is that every entry states a fact anyone can
@@ -674,7 +675,7 @@ def test_THE_TWO_RENAME_DISPOSITIONS_CITE_A_RENAME_AND_AN_ARCHIVE_ACT_THAT_AGREE
     root_commits = subprocess.run(
         ["git", "-C", str(ROOT), "rev-list", "--max-parents=0", "HEAD"],
         capture_output=True, text=True, check=True).stdout.split()
-    assert RENAME_COMMIT not in root_commits, "the rename commit is not the root"
+    assert RENAME_COMMIT not in root_commits, "the rename is not the root"
     parents = subprocess.run(
         ["git", "-C", str(ROOT), "log", "-1", "--format=%P", RENAME_COMMIT],
         capture_output=True, text=True, check=True).stdout.split()
@@ -852,8 +853,7 @@ def test_THE_RECORD_NAMES_THE_FOUR_CAUSES_and_forbids_only_UNMEASURED_entries():
     assert "THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX" in flat
     assert ("AN ARCHIVED DIRECTORY WAS RENAMED INSIDE `archive/` AFTER ITS "
             "ARCHIVE ACT") in flat
-    assert "CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually measured" \
-        in flat
+    assert "CAUSES 2, 3 AND 4 ARE LAWFUL ENTRIES when they are actually" in flat
     assert "What is forbidden is writing any of them BEFORE it is measured." \
         in flat
 
@@ -867,9 +867,8 @@ def test_THE_RECORD_NAMES_THE_FOUR_CAUSES_and_forbids_only_UNMEASURED_entries():
     # flatten; these phrases are pinned WITHIN one line for that reason.
     module = _flat(MODULE)
     assert "AND FOUR CAUSES PRODUCE" in module
-    assert "archived directory was RENAMED INSIDE `archive/` after its archive" \
-        in module
-    assert "PRICE OF THE CHOICE IS CAUSE 4: a directory renamed inside" in module
+    assert "directory was RENAMED INSIDE `archive/` after its archive" in module
+    assert "PRICE OF THE CHOICE IS CAUSE 4: a directory renamed" in module
 
     cli = _flat(VALIDATOR)
     assert ("THE ARM MEASURES A NAME AGAINST A COMMIT, AND CANNOT ITSELF JUDGE "
