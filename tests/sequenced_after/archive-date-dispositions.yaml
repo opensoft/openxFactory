@@ -60,10 +60,16 @@ kind: archive_date_dispositions
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
-# EVERY SCALAR IS QUOTED, the same rule the corpus ledger beside it settled on:
-# an unquoted `2026-06-26` is a DATE to YAML and not a string, an all-digit
-# object name would be an int, and one quoting rule is easier to keep right than
-# a per-key judgement about which values happen to be safe unquoted.
+# EVERY SCALAR IN AN ENTRY IS QUOTED, the same rule the corpus ledger beside it
+# settled on: an unquoted `2026-06-26` is a DATE to YAML and not a string, an
+# all-digit object name would be an int, and one quoting rule is easier to keep
+# right than a per-key judgement about which entry values happen to be safe
+# unquoted. THE THREE FILE KEYS ABOVE ARE DELIBERATELY NOT QUOTED and must stay
+# that way: `schema_version` is an INTEGER the loader compares to `1`, and
+# `kind` and `enforcement` are enumerated bare tokens it compares to a fixed
+# set — quoting `schema_version` would make it the string `"1"` and the record
+# would be refused. (Copilot round 1: the sentence said "every scalar" and the
+# file keys contradicted it.)
 
 enforcement: error
 

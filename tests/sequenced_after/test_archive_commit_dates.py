@@ -289,6 +289,13 @@ def test_a_MISSING_RECORD_is_CANNOT_RUN_and_exits_2(tmp_path):
     ("schema_version: 1\nkind: something_else\n"
      "enforcement: error\ndispositions: []\n",
      "must declare `schema_version: 1` and `kind: archive_date_dispositions`"),
+    # The record's own header says the three FILE keys are deliberately not
+    # quoted; quoting `schema_version` makes it the string "1" and the loader
+    # refuses. Asserted so the comment's claim is checked, not merely written
+    # (Copilot round 1).
+    ('schema_version: "1"\nkind: archive_date_dispositions\n'
+     "enforcement: error\ndispositions: []\n",
+     "must declare `schema_version: 1` and `kind: archive_date_dispositions`"),
     ("schema_version: 1\nkind: archive_date_dispositions\n"
      "enforcement: error\ndispositions:\n  - directory: x\n",
      "is missing or empties"),
@@ -533,3 +540,25 @@ def test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED():
     assert "archive-date-vs-commit agreement passed" in result.stdout
     assert "12 disposition(s) in force, enforcement error" in result.stdout
     assert "undispositioned" not in result.stdout
+
+
+def test_NO_GIT_ON_PATH_is_NOT_RUN_rather_than_a_TRACEBACK(tmp_path,
+                                                           monkeypatch):
+    """The plain run did not shell out to git before this arm — every other git
+    caller in the module sits behind `--archive-gate`, which an operator asks
+    for. So a machine without git would have gone from a working validator to a
+    `FileNotFoundError` out of the middle of a corpus check."""
+    import os
+    root = _repo(tmp_path / "repo")
+    _write(root, "2026-08-04-add-thing")
+    _commit(root, "2026-08-05T00:30:00+00:00")
+    _record(root, [])
+    empty = tmp_path / "no-git-here"
+    empty.mkdir()
+    env = dict(os.environ, PATH=str(empty))
+    result = subprocess.run([sys.executable, str(VALIDATOR), str(root)],
+                            capture_output=True, text=True, env=env)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive-date-vs-commit arm NOT RUN" in result.stdout
+    assert "git could not be run" in result.stdout
+    assert "Traceback" not in result.stderr

@@ -1770,8 +1770,24 @@ def load_archive_date_dispositions(
 
 
 def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "-C", str(repo_root), *args],
-                          capture_output=True, text=True)
+    """Run git, converting "there is no git" into this module's error class.
+
+    THE PLAIN VALIDATION RUN DID NOT SHELL OUT TO GIT BEFORE THIS ARM. Every
+    other git caller in this module sits behind `--archive-gate`, which an
+    operator asks for; the arm below runs on the DEFAULT run, so a machine
+    without git in `PATH` would go from a working validator to a
+    `FileNotFoundError` traceback out of the middle of a corpus check. That is
+    the one refusal shape this CLI does not use, and the caller already knows
+    what to do with a named reason: the arm says it could not run and leaves
+    the verdict alone.
+    """
+    try:
+        return subprocess.run(["git", "-C", str(repo_root), *args],
+                              capture_output=True, text=True)
+    except OSError as exc:
+        raise SequencedAfterError(
+            f"git could not be run ({exc}), so the commit that added each "
+            f"archived directory cannot be read") from exc
 
 
 def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
