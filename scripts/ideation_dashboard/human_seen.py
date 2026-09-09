@@ -42,7 +42,7 @@ from typing import Any, Mapping, Sequence
 
 import yaml
 
-from .boundary import OutputBoundary
+from output_boundary import OutputBoundary
 # The neutral path slug, at its own home rather than through `workbench`
 # (openDox under design D3): this module is openxFactory's own engineering
 # adapter and STAYS, so the import it used to make is the edge RULING OQ-2

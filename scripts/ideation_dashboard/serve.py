@@ -193,6 +193,7 @@ from ideation_dashboard.serve_projection import (  # noqa: E402,F401
     SNAPSHOT_INDEX_ROUTE,
     SOURCE_PREFIX,
     hosted_index,
+    hosted_ref_refused,
     resolve_source_path,
 )
 from ideation_dashboard.serve_wire import (  # noqa: E402,F401
@@ -288,7 +289,6 @@ from ideation_dashboard.serve_wire import (  # noqa: E402,F401
     doxbench_turn_failure_body,
     doxbench_turn_v2_success_body,
     fresh_ledger_events,
-    hosted_ref_refused,
     mint_ledger_snapshot,
     provider_retry_fact,
 )

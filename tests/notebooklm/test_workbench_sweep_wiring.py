@@ -94,7 +94,7 @@ def _live_manifest(root: Path, name: str, alias: str) -> Path:
     (<root>/openxFactory/ideation/workbench/)."""
     repo = root / "openxFactory"
     boundary_root = repo
-    from ideation_dashboard.boundary import OutputBoundary
+    from output_boundary import OutputBoundary
     w = wb.Workbench.create("openxFactory", name, now="2026-07-14T08:00:00Z")
     w.bind_notebook(alias, now="2026-07-14T08:00:00Z")
     return wb.save(w, OutputBoundary(boundary_root, [wb.WORKBENCH_DIR]))
