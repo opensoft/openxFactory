@@ -12,9 +12,9 @@ whole requirement this file enforces — **"a file in no row, or an edit in no
 class, is an UNDECLARED MOVEMENT and the carve REFUSES"** — and a manifest that
 nothing checks is a claim, not a floor.
 
-THE MANIFEST DOES NOT EXIST YET, AND THAT IS NOT A FAILURE. It is authored at
-the carve commit as the LAST thing on that tree (the § 6 ceremony), so this
-validator is landed BEFORE its subject. Given no manifest AT THE DEFAULT PATH it
+THE MANIFEST DOES NOT EXIST YET, AND THAT IS NOT A FAILURE. It is authored AT
+the carve commit (the § 6 ceremony) and lands after it, so this validator is
+landed BEFORE its subject. Given no manifest AT THE DEFAULT PATH it
 prints `NO MANIFEST <path> (nothing to validate)` and exits 0. That is a
 deliberate seat-holding pass and the one place here that is not fail-closed: the
 alternative is a red suite for every pull request between this file and the
@@ -31,21 +31,42 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
      label `carve_tag`, the closed maps and lists, the CLOSED top-level and
      per-disposition key sets, and the per-disposition required keys
      (`carve-shape-invalid`).
-  2. REVISION — refuse unless the repository's `HEAD`, or `--at <sha>`, resolves
-     to `carve_commit` (`carve-revision-mismatch`). This is what makes "a file
-     changed on main between the manifest and the move" a REFUSAL on the next
-     pull request rather than a surprise at the destination.
-  3. DIGEST — recompute the sha256 of the RAW GIT BLOB at `carve_commit` for
-     every moved row and compare the recorded `git_mode` from the tree
-     (`carve-digest-mismatch`); a row for a path the commit does not carry is
-     `carve-path-absent`. The blob is in hand here, so `edits[].lines` are also
-     bounded by its line count (`carve-shape-invalid`): a line past EOF at the
-     carve commit is not the falsifiable claim the line numbers are carried for.
-  4. SURFACE COMPLETENESS — walk `git ls-tree -r <carve_commit>` under every
-     `moved_paths:` prefix; every prefix must match at least one file
-     (`carve-surface-vacuous`), every file there must appear in EXACTLY one row,
-     and no two rows may arrive at one destination path
-     (`carve-file-undeclared` / `carve-file-duplicated`). This is
+  2. REVISION — `carve_commit` must name a commit THIS REPOSITORY CARRIES and
+     be an ANCESTOR of the REVISION UNDER TEST (`HEAD`, or `--at <sha>`), by
+     `git merge-base --is-ancestor` (`carve-revision-mismatch`). Identity is
+     the trivial ancestor case, so the ceremony's own run at the carve commit
+     still passes. What this refuses is a referent the tested revision does not
+     descend from — another tree's commit, against which every comparison
+     below would be measuring two unrelated histories.
+  3. DIGEST — TWO comparisons per moved row, in TWO passes over the rows, and
+     the order between them is itself a finding. PASS 1, at `carve_commit` (the
+     referent the row claims): recompute the sha256 of the RAW GIT BLOB and
+     compare it and the `git_mode` the tree carries against what the row
+     records (`carve-digest-mismatch`); a path the referent does not carry is
+     `carve-path-absent`. That is the manifest lying about its OWN referent — a
+     document defect its author fixes, and it outranks anything the tree did
+     afterwards. PASS 2, at the revision under test: the blob and the mode
+     there must still be the referent's (`carve-digest-mismatch`, worded
+     CHANGED SINCE THE CARVE), and a path deleted since the carve is
+     `carve-path-absent` worded the same way. Pass 2 IS the memo's § 6 step 3 —
+     "a file changed on main between the manifest and the move surfaces as
+     `carve-digest-mismatch` on the next pull request" — and it is where that
+     pressure lives now that check 2 no longer demands identity. The referent
+     blob is in hand from pass 1, so `edits[].lines` are also bounded by its
+     line count (`carve-shape-invalid`): a line past EOF at the carve commit is
+     not the falsifiable claim the line numbers are carried for.
+  4. SURFACE COMPLETENESS — walk `git ls-tree -r` under every `moved_paths:`
+     prefix at BOTH revisions. At `carve_commit`: every prefix must match at
+     least one file (`carve-surface-vacuous`), every file there must appear in
+     EXACTLY one row, no row may name a path outside that surface
+     (`carve-path-absent`), and no two rows may arrive at one destination path
+     (`carve-file-undeclared` / `carve-file-duplicated`). Then the same
+     completeness question at the revision under test, which is the tree the
+     carve would actually run against: a file that has APPEARED under the
+     surface since the carve is in no row and refuses as
+     `carve-file-undeclared`, and a ROW whose path has been DELETED since the
+     carve refuses as `carve-path-absent` — the latter is what catches a
+     `not_moved` row, which the digest loop never reads. This is
      `validate-openreposhape-pin.py`'s check 5 re-aimed, and it is the ruling's
      "a file in no row" sentence as running code — the one failure mode per-file
      digests cannot see, because they say nothing about a file nobody listed.
@@ -57,6 +78,38 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
      is a contradiction (`carve-disposition-inconsistent`). Then the rows'
      file order must equal their bytewise-UTF-8 sort, which is what the const
      `path_order: bytewise_utf8` claims (`carve-path-order-violation`).
+
+WHY CHECK 2 IS ANCESTRY AND NOT IDENTITY (AMENDED 2026-09-09, before the
+manifest was authored). As landed, check 2 required the revision under test to
+RESOLVE TO `carve_commit`, on the § 6 ceremony's own sentence that the manifest
+is "the LAST thing on that tree". That is UNSATISFIABLE in every run this
+validator actually gets: a pull request's CI checks out a synthetic MERGE REF,
+a commit no manifest can ever name, and the manifest's own landing makes
+`main`'s tip the manifest's squash — also never `carve_commit`. The manifest's
+own pull request could therefore never have gone green, and the § 8.2 seat
+(`test_the_real_repository_answers_at_the_ruled_path`, which asserts `OK` from
+the moment the file exists) would have redded the required suite for every lane
+from the moment it landed.
+
+The ceremony's intent is not identity. It is that a file which moves between
+the manifest and the carve must REFUSE, BY NAME. Identity was one way to buy
+that, and it bought it by refusing every revision as well — a gate that cannot
+tell a changed file from a changed repository is a stopped clock, right twice
+and never usefully. Ancestry, plus check 3's pass 2 and check 4's second walk,
+buys exactly the refusal and nothing else: `carve_commit` must be in the tested
+revision's history, and every declared path must still be — byte for byte and
+mode for mode — what the manifest says it was at the carve. A tree that has
+moved UNDER THE SURFACE still refuses, naming the file; a tree that has moved
+anywhere else does not.
+
+THE MANIFEST'S OWN LANDING CANNOT TRIP CHECK 4. The manifest lives at
+`docs/opendox-carve-manifest.yaml` and `docs/` is not a `moved_paths:` prefix —
+the surface is `scripts/ideation_dashboard/`, `tests/ideation-dashboard/` and
+their siblings (memo § 2.1). So the commit that adds the manifest adds a file
+OUTSIDE the surface, which check 4 does not walk and no row needs to declare.
+That the ruled path is outside its own surface is load-bearing for the
+ceremony rather than merely tidy: a manifest inside the surface it declares
+would be, the instant it landed, a file under the surface no row declares.
 
 WHY THE VOCABULARIES ARE CLOSED IN CODE AND NOT IN A SCHEMA UNDER `contracts/`.
 The three dispositions and the three edit classes are Brett Heap's ruling,
@@ -130,7 +183,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 try:
     import yaml
@@ -353,14 +406,31 @@ def resolve_revision(repo: Path, at: str | None) -> str:
     return done.stdout.decode("utf-8", "replace").strip()
 
 
-def tree_at(repo: Path, commit: str) -> dict[str, str]:
-    """`{path: git_mode}` for every BLOB at `commit`.
+class TreeEntry(NamedTuple):
+    """One blob at one revision: the file mode, and git's own object id.
 
-    One `ls-tree` for the whole tree rather than a call per row: the modes are
-    needed for check 3 and the path set for check 4, and both come out of the
-    same listing. `-z` because a path is bytes and git quotes unusual ones
-    otherwise; `--full-tree` because the answer must not depend on where this
-    process was started.
+    THE OID IS CARRIED BECAUSE CHECK 3 NOW COMPARES ONE PATH AT TWO REVISIONS.
+    Two blobs are the same bytes exactly when git named them the same object —
+    the id is a hash of the content that git itself computed, in this one
+    repository, under this one algorithm — so "did this file change since the
+    carve" is answerable without reading either blob. On a ~430-row manifest
+    that is ~430 `cat-file` invocations not spent per extra revision; the bytes
+    are still read for the one row whose ids differ, so the refusal can name
+    the sha256 the reader is being asked to compare.
+    """
+
+    mode: str
+    oid: str
+
+
+def tree_at(repo: Path, commit: str) -> dict[str, TreeEntry]:
+    """`{path: TreeEntry(mode, oid)}` for every BLOB at `commit`.
+
+    One `ls-tree` for the whole tree rather than a call per row: the modes and
+    ids are needed for check 3 and the path set for check 4, and all of them
+    come out of the same listing. `-z` because a path is bytes and git quotes
+    unusual ones otherwise; `--full-tree` because the answer must not depend on
+    where this process was started.
     """
     done = _git(repo, "ls-tree", "-r", "-z", "--full-tree", commit)
     if done.returncode != 0:
@@ -368,7 +438,7 @@ def tree_at(repo: Path, commit: str) -> dict[str, str]:
             "carve-unreadable",
             f"`git ls-tree -r {commit[:12]}` failed in {repo}: "
             + done.stderr.decode("utf-8", "replace").strip())
-    tree: dict[str, str] = {}
+    tree: dict[str, TreeEntry] = {}
     for record in done.stdout.decode("utf-8", "surrogateescape").split("\0"):
         if not record:
             continue
@@ -377,9 +447,9 @@ def tree_at(repo: Path, commit: str) -> dict[str, str]:
         if len(fields) != 3:  # pragma: no cover - git's format is stable
             raise CarveRefusal("carve-unreadable",
                                f"unparseable ls-tree record {record!r}")
-        mode, kind, _oid = fields
+        mode, kind, oid = fields
         if kind == "blob":
-            tree[path] = mode
+            tree[path] = TreeEntry(mode, oid)
     return tree
 
 
@@ -745,41 +815,86 @@ def in_surface(path: str, moved_paths: list[str]) -> bool:
 # --------------------------------------------------------------------------
 
 def check_revision(repo: Path, doc: dict, at: str | None) -> str:
+    """The REVISION UNDER TEST, returned. `carve_commit` must be its ANCESTOR.
+
+    ANCESTRY AND NOT IDENTITY — the module docstring carries why, at length:
+    identity is unsatisfiable on a pull request's merge ref and on `main` after
+    the manifest lands, so as landed this check could never pass in a real run.
+    Two questions survive here, and only two. Is `carve_commit` a commit THIS
+    repository carries — a referent nobody can resolve is a claim about
+    nothing, and a fetch too shallow to reach it is the same finding as a wrong
+    one. And is it in the tested revision's HISTORY — a referent outside it
+    describes some other tree, and checks 3 and 4 would be comparing two
+    unrelated histories file by file and reporting the difference as drift.
+
+    What identity used to buy — "a file changed on `main` between the manifest
+    and the move REFUSES" — is checks 3 and 4's second comparison now, per file
+    and by name, which is the form the memo's § 6 step 3 asks for anyway.
+    """
     resolved = resolve_revision(repo, at)
     carve_commit = doc["carve_commit"]
-    if resolved != carve_commit:
-        asked = f"--at {at}" if at is not None else "HEAD"
+    asked = f"--at {at}" if at is not None else "HEAD"
+    known = _git(repo, "rev-parse", "--verify", "--quiet",
+                 f"{carve_commit}^{{commit}}")
+    if known.returncode != 0 or not known.stdout.strip():
         raise CarveRefusal(
             "carve-revision-mismatch",
-            f"{asked} in {repo} is {resolved}, but the manifest's digests are "
-            f"taken at carve_commit {carve_commit}. The manifest is authored "
-            "as the LAST thing on the carve tree, so a tree that has moved "
-            "since is exactly the condition this refuses: re-cut at a new "
-            "carve commit, or verify the old one with "
-            f"`--at {carve_commit[:12]}`")
-    return carve_commit
+            f"the manifest names carve_commit {carve_commit}, which {repo} "
+            "DOES NOT CARRY as a commit. The referent must survive into the "
+            "tree the gate reads, so a digest taken at a commit this "
+            "repository cannot resolve is unverifiable here — whether the "
+            "commit is wrong or the checkout is too shallow to reach it, the "
+            "answer this validator can give is the same")
+    ancestor = _git(repo, "merge-base", "--is-ancestor",
+                    carve_commit, resolved)
+    if ancestor.returncode != 0:
+        raise CarveRefusal(
+            "carve-revision-mismatch",
+            f"carve_commit {carve_commit[:12]} is NOT AN ANCESTOR of {asked} "
+            f"in {repo} ({resolved}); the manifest's digests are taken on a "
+            "tree this revision does not descend from, so every comparison "
+            "below would be measuring two unrelated histories against each "
+            "other and calling the difference drift. Verify the carve's own "
+            f"line with `--at {carve_commit[:12]}`, or re-cut the manifest at "
+            "a commit this revision carries")
+    return resolved
 
 
-def check_digests(repo: Path, doc: dict, tree: dict[str, str]) -> int:
+def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
+                  tested: dict[str, TreeEntry], verified_at: str) -> int:
+    """Check 3's two comparisons, in TWO PASSES, and in that order.
+
+    PASS 1 asks whether the manifest is true about the tree it NAMES. PASS 2
+    asks whether that tree is still the one the carve would run against.
+
+    TWO PASSES RATHER THAN BOTH COMPARISONS INSIDE ONE ROW LOOP, because the
+    order between the two KINDS of finding is a finding in itself. A manifest
+    that lies about its own referent is a DOCUMENT defect its author fixes by
+    recomputing a digest; a file that changed on `main` afterwards is a TREE
+    fact whose remedy is the § 6 re-cut. The first must be reported even when
+    some other row also moved on main, and a per-row loop would instead report
+    whichever of the two rows happened to sort first — which is to say, it
+    would hand the reader a remedy chosen by filename.
+    """
     commit = doc["carve_commit"]
     recomputed = 0
     for index, row in enumerate(doc["rows"]):
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
         path = row["source_path"]
-        if path not in tree:
+        if path not in referent:
             raise CarveRefusal(
                 "carve-path-absent",
                 f"rows[{index}] records a sha256 for {path}, which "
                 f"{doc['source_repository']}@{commit[:12]} does not carry as a "
                 "file; a digest of nothing is not a digest")
-        if tree[path] != row["git_mode"]:
+        if referent[path].mode != row["git_mode"]:
             raise CarveRefusal(
                 "carve-digest-mismatch",
                 f"{path}: MODE DRIFT — the manifest records git_mode "
                 f"{row['git_mode']} and the tree at {commit[:12]} carries "
-                f"{tree[path]}. A mode flip is the one change a blob digest "
-                "cannot see, which is why the mode is carried")
+                f"{referent[path].mode}. A mode flip is the one change a blob "
+                "digest cannot see, which is why the mode is carried")
         content = blob_at(repo, commit, path)
         if content is None:  # pragma: no cover - ls-tree already said blob
             raise CarveRefusal(
@@ -796,6 +911,55 @@ def check_digests(repo: Path, doc: dict, tree: dict[str, str]) -> int:
                 f"the bytes at {commit[:12]} are not the bytes this row "
                 "promises the destination")
         _check_edit_lines(index, path, row, content, commit)
+
+    # PASS 2 — THE MEMO'S § 6 STEP 3. Pass 1 has now proved, for every moved
+    # row, that the recorded `sha256` and `git_mode` ARE the referent's; so
+    # comparing the tested revision against the referent is the same question
+    # as comparing it against the manifest, asked without a second blob read.
+    # It runs unguarded even when the two revisions coincide: `tested` IS
+    # `referent` then (one `ls-tree`, see `validate`), so every comparison here
+    # is an identity and the pass is a no-op by construction rather than by a
+    # branch nobody exercises.
+    for index, row in enumerate(doc["rows"]):
+        if row.get("disposition") not in MOVED_DISPOSITIONS:
+            continue
+        path = row["source_path"]
+        if path not in tested:
+            raise CarveRefusal(
+                "carve-path-absent",
+                f"{path}: DELETED SINCE THE CARVE — rows[{index}] declares it "
+                f"`{row['disposition']}` at {commit[:12]}, and "
+                f"{verified_at[:12]} no longer carries it as a file. The "
+                "carve ships the bytes at the carve commit, so a source the "
+                "tree has since dropped is a move nobody can review at the "
+                "destination: re-cut the manifest at a new carve commit")
+        if tested[path].mode != referent[path].mode:
+            raise CarveRefusal(
+                "carve-digest-mismatch",
+                f"{path}: MODE DRIFT SINCE THE CARVE — the manifest records "
+                f"git_mode {row['git_mode']} at {commit[:12]} and "
+                f"{verified_at[:12]} carries {tested[path].mode}. A mode flip "
+                "is the one change a blob digest cannot see, and one that "
+                "happened after the carve is the § 6 pressure exactly: re-cut "
+                "the manifest at a new carve commit")
+        if tested[path].oid == referent[path].oid:
+            continue
+        content = blob_at(repo, verified_at, path)
+        # `tested` came from `ls-tree`, which already said blob, so the
+        # `<unreadable>` arm is unreachable outside a racing checkout.
+        moved_to = (hashlib.sha256(content).hexdigest()
+                    if content is not None
+                    else "<unreadable>")  # pragma: no cover
+        raise CarveRefusal(
+            "carve-digest-mismatch",
+            f"{path}: CHANGED SINCE THE CARVE\n"
+            f"  at carve_commit {commit[:12]}  {row['sha256']}\n"
+            f"  at {verified_at[:12]}              {moved_to}\n"
+            "the file has moved on since the manifest was cut, so the bytes "
+            "the carve would ship are not the bytes this row promises the "
+            "destination. This is the § 6 ceremony's intended pressure "
+            "and not a defect in it: re-cut the manifest at a new carve "
+            "commit and recompute every digest")
     return recomputed
 
 
@@ -829,8 +993,16 @@ def _check_edit_lines(index: int, path: str, row: dict[str, Any],
                     "the whole reason the lines are recorded")
 
 
-def check_surface(doc: dict, tree: dict[str, str]) -> int:
-    """Every file under the declared prefixes appears in EXACTLY one row."""
+def check_surface(doc: dict, referent: dict[str, TreeEntry],
+                  tested: dict[str, TreeEntry], verified_at: str) -> int:
+    """Every file under the declared prefixes appears in EXACTLY one row — at
+    the referent AND at the revision under test.
+
+    The referent walk proves the manifest COMPLETE about the tree it names; the
+    second walk proves it complete about the tree the carve would actually run
+    against. The second is the only part of check 2's old identity requirement
+    that was ever about a file, and it is the half worth keeping.
+    """
     commit = doc["carve_commit"]
     destinations = doc["destinations"]
 
@@ -842,15 +1014,19 @@ def check_surface(doc: dict, tree: dict[str, str]) -> int:
     # than `carve-shape-invalid` because the document is well formed: this is a
     # claim about the TREE, which is why check 1 cannot make it, and the remedy
     # is to re-derive the prefix from the tree rather than to fix a grammar.
+    # KEYED ON THE REFERENT, deliberately: `moved_paths:` is a claim about the
+    # tree the digests were taken at, and a prefix that has since been emptied
+    # on `main` is a DELETION the row-level checks report file by file, not a
+    # manifest that declared nothing.
     for entry in doc["moved_paths"]:
-        if not any(in_surface(path, [entry]) for path in tree):
+        if not any(in_surface(path, [entry]) for path in referent):
             raise CarveRefusal(
                 "carve-surface-vacuous",
                 f"`moved_paths:` declares {entry!r}, which matches NO file at "
                 f"{commit[:12]}. A prefix that names nothing declares nothing, "
                 "and the completeness check cannot report a file that no prefix "
                 "reaches — so a dead prefix reads as coverage and provides none")
-    surface = {p for p in tree if in_surface(p, doc["moved_paths"])}
+    surface = {p for p in referent if in_surface(p, doc["moved_paths"])}
 
     seen: dict[str, int] = {}
     for index, row in enumerate(doc["rows"]):
@@ -923,6 +1099,36 @@ def check_surface(doc: dict, tree: dict[str, str]) -> int:
             f"the manifest declares {len(absent)} row(s) for path(s) the "
             f"carve surface at {commit[:12]} does not carry: "
             + ", ".join(absent[:10]) + (" …" if len(absent) > 10 else ""))
+
+    # THE SAME TWO QUESTIONS AT THE REVISION UNDER TEST. Both are no-ops when
+    # the two revisions coincide — `tested` IS `referent` then, so the two set
+    # differences below are the two already taken above, and both were empty or
+    # this line is unreachable.
+    tested_surface = {p for p in tested if in_surface(p, doc["moved_paths"])}
+    appeared = sorted(tested_surface - surface)
+    if appeared:
+        raise CarveRefusal(
+            "carve-file-undeclared",
+            f"{len(appeared)} file(s) have APPEARED under the carve surface "
+            f"since {commit[:12]} and no row declares them at "
+            f"{verified_at[:12]}: "
+            + ", ".join(appeared[:10])
+            + (" …" if len(appeared) > 10 else "")
+            + " — a file in no row is an UNDECLARED MOVEMENT and the carve "
+              "refuses (RULING OQ-1). The manifest describes a surface the "
+              "tree has grown past: re-cut it at a new carve commit")
+    vanished = sorted(surface - tested_surface)
+    if vanished:
+        raise CarveRefusal(
+            "carve-path-absent",
+            f"{len(vanished)} row(s) name path(s) DELETED SINCE THE CARVE — "
+            f"under the surface at {commit[:12]}, absent at "
+            f"{verified_at[:12]}: "
+            + ", ".join(vanished[:10])
+            + (" …" if len(vanished) > 10 else "")
+            + ". Check 3 reports this for a MOVED row, with its digest; this "
+              "is what reports it for a `not_moved` row, which the digest "
+              "loop never reads at all")
     return len(surface)
 
 
@@ -1014,13 +1220,23 @@ def check_disposition_consistency(doc: dict) -> None:
 
 def validate(manifest_path: Path, repo: Path,
              at: str | None) -> dict[str, Any]:
-    """The six checks in order, first failure wins."""
+    """The six checks in order, first failure wins.
+
+    TWO REVISIONS travel through checks 3 and 4: the REFERENT the manifest
+    names, and the revision UNDER TEST that check 2 proved descends from it.
+    """
     doc = read_manifest(manifest_path)
     check_shape(doc)
-    commit = check_revision(repo, doc, at)
-    tree = tree_at(repo, commit)
-    recomputed = check_digests(repo, doc, tree)
-    surface = check_surface(doc, tree)
+    verified_at = check_revision(repo, doc, at)
+    commit = doc["carve_commit"]
+    referent = tree_at(repo, commit)
+    # ONE `ls-tree` when the two revisions coincide — the ceremony's own run at
+    # the carve commit, and every `--at <carve_commit>`. The second listing
+    # would be the first, record for record, and sharing the object makes every
+    # comparison against it an identity rather than a branch to be trusted.
+    tested = referent if verified_at == commit else tree_at(repo, verified_at)
+    recomputed = check_digests(repo, doc, referent, tested, verified_at)
+    surface = check_surface(doc, referent, tested, verified_at)
     check_vocabularies(doc)
     check_disposition_consistency(doc)
 
@@ -1031,6 +1247,7 @@ def validate(manifest_path: Path, repo: Path,
         "result": "ok",
         "manifest": str(manifest_path),
         "carve_commit": commit,
+        "verified_at": verified_at,
         "carve_tag": doc["carve_tag"],
         "source_repository": doc["source_repository"],
         "rows": len(doc["rows"]),
@@ -1054,8 +1271,8 @@ def main(argv: list[str] | None = None) -> int:
         help="the git repository the digests are taken in (default: this one)")
     parser.add_argument(
         "--at", metavar="SHA", default=None,
-        help=("verify against this revision instead of HEAD; it must still "
-              "resolve to the manifest's carve_commit"))
+        help=("verify against this revision instead of HEAD; the manifest's "
+              "carve_commit must be an ANCESTOR of it"))
     parser.add_argument(
         "--json", action="store_true",
         help="print one JSON object on stdout instead of the human line")
@@ -1120,9 +1337,16 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary))
     else:
         counts = summary["dispositions"]
+        # BOTH REVISIONS ARE NAMED WHEN THEY DIFFER, and only then: the carve
+        # commit alone is the whole answer on the ceremony's own run, and a
+        # reader of a pull-request log needs to know that `OK` was reached at
+        # the merge ref and not only at the referent.
+        where = (f"{summary['source_repository']}@"
+                 f"{summary['carve_commit'][:12]} ({summary['carve_tag']})")
+        if summary["verified_at"] != summary["carve_commit"]:
+            where += f", verified at {summary['verified_at'][:12]}"
         print(f"OK {manifest_path}: {summary['rows']} row(s) at "
-              f"{summary['source_repository']}@{summary['carve_commit'][:12]} "
-              f"({summary['carve_tag']}) — "
+              f"{where} — "
               f"{counts['moved_verbatim']} moved_verbatim, "
               f"{counts['moved_with_declared_edit']} moved_with_declared_edit, "
               f"{counts['not_moved']} not_moved; "
