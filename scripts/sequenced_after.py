@@ -1821,9 +1821,12 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     therefore the one that created it; `setdefault` keeps it. Measured on this
     corpus at 83ms against 9.3s for 144 per-directory `git log` calls — 113x —
     and the two attributions were compared directory by directory and agreed on
-    all 144, under history simplification and `--full-history` alike. THE INITIAL-IMPORT SHAPE FALLS OUT OF IT: a single
-    commit that adds many directories attributes all of them to itself, which
-    is exactly what `746be44f` did to this corpus's two oldest directories.
+    all 144, under history simplification and `--full-history` alike.
+
+    THE INITIAL-IMPORT SHAPE FALLS OUT OF IT: a single commit that adds many
+    directories attributes all of them to itself, which is exactly what
+    `746be44f` did to this corpus's two oldest directories — and what
+    `01198cce`, which archived two changes at once, did in the ordinary course.
 
     `--no-renames`, DELIBERATELY. The question this arm asks is "when did this
     NAME come to exist", and rename detection answers a different one: a
@@ -1839,10 +1842,13 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     choice today — the reason it is written down is that a rebase can move one
     and not the other.
 
-    RAISES rather than returning a partial answer when the checkout cannot
-    answer the question at all: not a git work tree root, or a SHALLOW clone,
-    in which every directory older than the graft boundary would be attributed
-    to the boundary commit and reported as a disagreement nobody made.
+    RAISES rather than returning a partial answer, IN TWO CLASSES that the
+    caller must keep apart. `ArchiveHistoryUnavailable` when the checkout
+    DECLINES the question — no git, not a work tree, not its root, or a SHALLOW
+    clone in which every directory older than the graft boundary would be
+    attributed to the boundary commit and reported as a disagreement nobody
+    made. Plain `SequencedAfterError` when git FAILS after those probes passed,
+    which is not a context to skip but a walk that did not happen.
     """
     root = Path(repo_root)
     probe = _git(root, "rev-parse", "--show-toplevel")
