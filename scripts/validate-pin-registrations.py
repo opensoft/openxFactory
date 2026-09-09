@@ -199,9 +199,13 @@ _LIST_ITEM = re.compile(r"^(?P<indent> *)- (?P<text>\S.*?)\s*$")
 # The first cut of this pattern took an identifier-shaped key (`[A-Za-z_]\w*`),
 # which is one repository's house style and not YAML's — a hyphenated `INV-2: >-`
 # or a quoted `"a: b": >-` opens a folded scalar just as well, and its body would
-# have been walked as structure (Copilot, PR #863). The key is now any plain
-# scalar up to the `: ` separator, or a quoted one, and a trailing comment on the
-# header line is admitted because YAML admits it. ONE BOUNDARY IS DELIBERATE: a
+# have been walked as structure (Copilot, PR #863). The second cut spelled the key
+# as "anything up to a colon", which is not the separator either: YAML ends a key
+# at a colon FOLLOWED BY WHITESPACE, so `a:b: >-` and `"a\"b: c": >-` are one key
+# each and both were missed (Codex, same PR). The key is therefore ANY text, read
+# non-greedily up to the first `: ` that is followed by a block-scalar header —
+# which is exactly where YAML ends it — and a trailing comment on the header line
+# is admitted because YAML admits it. ONE BOUNDARY IS DELIBERATE: a
 # KEYLESS block scalar (`- >-` as a whole sequence entry) is not matched, because
 # a line of that shape inside an open `cited_to:` list is a CITATION under the
 # pin's own production and is read as one. Such an entry cannot hide a decoy
@@ -211,7 +215,7 @@ _LIST_ITEM = re.compile(r"^(?P<indent> *)- (?P<text>\S.*?)\s*$")
 _DISPOSITIONS_KEY = re.compile(r"^(?P<indent> *)" + DISPOSITIONS_FIELD + r":\s*$")
 _BLOCK_SCALAR_KEY = re.compile(
     r"^(?P<indent> *)(?P<dash>- )?"
-    r"(?:\"[^\"]*\"|'[^']*'|[^\s#][^:]*)"
+    r"[^\s#].*?"
     r":[ \t]+[|>][0-9+-]*(?:[ \t]+#.*)?[ \t]*$")
 _SEQUENCE_ITEM = re.compile(r"^(?P<indent> *)- ")
 _COMMENT_OR_BLANK = re.compile(r"^\s*(?:#.*)?$")

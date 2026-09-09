@@ -1743,10 +1743,16 @@ def test_a_block_scalar_is_recognised_by_yamls_key_spellings_not_one_houses(
     module = _load_checker()
     for header in ["    why: >-", "    INV-2: >-", '    "a: b": >', "    \'k\': |-",
                    "  - why: |", "    why: >-  # a note on the header line",
-                   "    a.b-c_d: >+2", "    a.b-c_d: >2+", "notes: >-"]:
+                   "    a.b-c_d: >+2", "    a.b-c_d: >2+", "notes: >-",
+                   # YAML ends a key at a colon FOLLOWED BY WHITESPACE, so an
+                   # internal colon and an escaped quote are part of the key
+                   # (Codex, PR #863, on the cut that stopped at any colon).
+                   "    a:b: >-", '    "a\\"b: c": >-', "    \'it\'\'s\': >-"]:
         assert module._BLOCK_SCALAR_KEY.match(header), header
     for other in ["    why: not a block scalar", "      - >-", "    cited_to:",
-                  "      - openspec/a.md: gone", "dispositions:"]:
+                  "      - openspec/a.md: gone", "dispositions:",
+                  "    finding: \'x: y\'",
+                  "      - openspec/a.md — a gloss that ends in >"]:
         assert not module._BLOCK_SCALAR_KEY.match(other), other
 
     # And end to end: a decoy under a HYPHENATED key is skipped, and the two real
@@ -1762,4 +1768,9 @@ def test_a_block_scalar_is_recognised_by_yamls_key_spellings_not_one_houses(
             "      - first — one\n"
             "      - second — two\n")
     assert module.citation_lines_by_entry(text) == [
+        (1, "first — one"), (1, "second — two")]
+    # And the same, under a key carrying an INTERNAL COLON — legal YAML, and the
+    # shape the second cut of this pattern missed.
+    assert module.citation_lines_by_entry(
+        text.replace("INV-2:", "a:b:")) == [
         (1, "first — one"), (1, "second — two")]
