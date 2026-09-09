@@ -45,20 +45,22 @@ RECIPE SEMANTICS (the same rules lens-model.js implements):
                      lacking the full evidence contract before persistence, and
                      writes the `pending_review` entry into the gitignored queue
                      validated by the pinned cross-reference validator — never
-                     rewriting the generated index.
+                     rewriting the generated index. The Python half of this verb
+                     now lives in `lens_submission.py` (pre-carve split S-2):
+                     submitting into openxFactory's cross-reference queue is
+                     adapter-column work, so this module states the semantics and
+                     no longer imports `human_seen`.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Mapping, Sequence
 
-from . import human_seen, workbench as wb
-from .human_seen import HumanSeenSubmission, SubmissionRefused  # noqa: F401 (re-export)
+from . import workbench as wb
 from .workbench import (
-    ACTION_ADD_AS_CLUSTER, SEED_RECIPE, VIA_MANUAL_INCLUDE, VIA_RECIPE_MATCH,
-    OutputBoundary, Workbench, WorkbenchError, _utcnow, save,
+    SEED_RECIPE, VIA_MANUAL_INCLUDE, VIA_RECIPE_MATCH,
+    Workbench, WorkbenchError, _utcnow,
 )
 
 # add_as_cluster SUBMITS the human-seen cluster proposal into the cross-reference
@@ -223,60 +225,3 @@ def build_workbench_from_recipe(
     source_revision = (snapshot.get("generation") or {}).get("source_revision") or "unknown"
     w.data["recipe"]["last_run"] = {"source_revision": source_revision, "at": now}
     return w
-
-
-@dataclass
-class AddAsClusterResult:
-    """Outcome of `add_as_cluster`: the recipe-seeded manifest path PLUS the
-    human-seen submission written into the cross-reference queue."""
-    manifest_path: Path
-    queue_path: Path
-    queue_relpath: str
-    cluster_id: str
-    intake: dict
-    note: str = PENDING_PROPOSAL_NOTE
-
-
-def add_as_cluster(
-    w: Workbench, boundary: OutputBoundary, snapshot: Mapping,
-    submission: HumanSeenSubmission, *,
-    relpath: str | None = None, now: str | None = None,
-    validate: bool = False, validator: Path | None = None,
-    xref_validator: Path | None = None, repo=None,
-) -> AddAsClusterResult:
-    """Create the recipe-seeded workbench reference set on disk AND submit the
-    human-seen cluster proposal into the cross-reference recommendation queue
-    (change 3.5 / T028; the pending_review intake contract realized 2026-07-14).
-
-    Order (nothing is persisted until the evidence is complete):
-
-      1. REFUSE an evidence-incomplete submission before ANY write (spec scenario
-         "A submission lacks evidence" — `human_seen.require_complete_evidence`).
-      2. Build the human-seen intake from the set's members + the submission's
-         organizer evidence, write the `pending_review` entry into the gitignored
-         cross-reference queue THROUGH the boundary, and (`validate=True`)
-         re-check it with the pinned cross-reference validator (`xref_validator`).
-      3. Record the honest `add-as-cluster` action referencing that queue entry.
-      4. Save the recipe-seeded manifest through the boundary LAST, so the
-         PERSISTED manifest carries the action_history entry (`validate=True`
-         re-checks it with the pinned dashboard validator, `validator`).
-
-    The manifest is saved AFTER the action is recorded: recording appends the
-    `add-as-cluster` entry to the in-memory workbench, so saving last is what puts
-    it in the file at `manifest_path` (previously the action was appended after
-    save, leaving the written manifest without it).
-
-    Returns the manifest + queue paths and the intake index. The proposal NEVER
-    bypasses review — a disposing authority folds it into the index on acceptance
-    (retaining its `origin: human-seen` provenance)."""
-    human_seen.require_complete_evidence(submission)            # step 1: refuse first
-    result = human_seen.submit_from_workbench(                  # step 2: write queue entry
-        w, snapshot, submission, boundary, now=now,
-        validate=validate, validator=xref_validator, repo=repo)
-    w.record_action(ACTION_ADD_AS_CLUSTER, reference=result.relpath, now=now)  # step 3
-    manifest_path = save(w, boundary, relpath=relpath, validate=validate,       # step 4: persist WITH the action
-                         validator=validator)
-    return AddAsClusterResult(
-        manifest_path=manifest_path, queue_path=result.path,
-        queue_relpath=result.relpath, cluster_id=result.cluster_id,
-        intake=result.index, note=PENDING_PROPOSAL_NOTE)

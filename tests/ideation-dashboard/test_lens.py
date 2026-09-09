@@ -41,6 +41,7 @@ from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxf
 
 from ideation_dashboard import human_seen as hs
 from ideation_dashboard import lens
+from ideation_dashboard import lens_submission   # add-as-cluster: pre-carve split S-2
 from ideation_dashboard import workbench as wb
 from ideation_dashboard.boundary import OutputBoundary
 from ideation_dashboard.generator import generate_snapshot
@@ -485,7 +486,7 @@ def test_add_as_cluster_creates_manifest_and_submits_human_seen(tmp_path):
     w = lens.build_workbench_from_recipe(
         "fixture-repo", "Governance lens", ["ideation-governance"], [], snap, now=NOW)
     boundary = _boundary(tmp_path)
-    res = lens.add_as_cluster(
+    res = lens_submission.add_as_cluster(
         w, boundary, snap, _submission(), now=NOW,
         validate=True, validator=VALIDATOR, xref_validator=XREF_VALIDATOR)
     # (1) the recipe-seeded manifest lands under the gitignored workbench dir.
@@ -529,7 +530,7 @@ def test_add_as_cluster_action_is_recorded_in_the_persisted_manifest(tmp_path):
     w = lens.build_workbench_from_recipe(
         "fixture-repo", "Governance lens", ["ideation-governance"], [], snap, now=NOW)
     boundary = _boundary(tmp_path)
-    res = lens.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
+    res = lens_submission.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
     reloaded = wb.Workbench.load(res.manifest_path)
     actions = [a for a in reloaded.data.get("action_history", [])
                if a["action"] == wb.ACTION_ADD_AS_CLUSTER]
@@ -546,7 +547,7 @@ def test_add_as_cluster_refuses_incomplete_evidence_before_any_write(tmp_path):
     # manifest and no queue entry are written (spec "A submission lacks evidence").
     bad = _submission(passage_sha256="")
     with pytest.raises(hs.SubmissionRefused):
-        lens.add_as_cluster(w, boundary, snap, bad, now=NOW)
+        lens_submission.add_as_cluster(w, boundary, snap, bad, now=NOW)
     assert not [p for p in tmp_path.rglob("*") if p.is_file()]
     assert not boundary.refusals
 
@@ -558,7 +559,7 @@ def test_add_as_cluster_queue_stays_on_the_declared_allowlist(tmp_path):
     # the boundary allowlists only ideation/workbench/ (the queue lives under it),
     # so the submission has NO route to any off-allowlist path.
     boundary = _boundary(tmp_path)
-    lens.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
+    lens_submission.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
     from ideation_dashboard.boundary import BoundaryViolation
     with pytest.raises(BoundaryViolation):
         boundary.write_output("ideation/staging/human-seen.yaml", "x: 1")
