@@ -40,7 +40,13 @@ kind: sequenced_after_corpus_ledger
 #             (`#<digits>`), never that the pull request exists, that it touched
 #             this row, or that it had landed when the row was stamped. It is a
 #             pointer for a human reading the history, not evidence.
-#   moved_on  the date it did. Shape- and calendar-checked, likewise unverified.
+#   moved_on  the date it did, IN UTC. Shape- and calendar-checked, likewise
+#             unverified. A row FLIPPING active -> archived takes the date its
+#             `archive/<YYYY-MM-DD>-<id>` directory carries, because at that one
+#             moment the row's move and the archive are the same act; every
+#             other move records the day it happened.
+#             `validate-sequenced-after.py` reports any archived row whose
+#             moved_on PREDATES its directory, which no move can (issue #790).
 #
 # FILE KEYS (not row keys)
 #   seeded_from  the commit this file was FIRST seeded from, once, as history.
@@ -241,6 +247,7 @@ rows:
   refine-promotion-provenance: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   refresh-install-repository-enumerations: {state: active, class: co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1, prose: false, moved_by: "#818", moved_on: "2026-09-08"}
   register-gate-rules-council-seats: {state: active, class: sole, declares: [add-wallet-carried-review-authority, openXwallet:widen-register-reader-for-a-second-council], depth: 1, prose: false, moved_by: "#717", moved_on: "2026-09-06"}
+  relocate-review-authority-floor-mirror: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#817", moved_on: "2026-09-09"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
