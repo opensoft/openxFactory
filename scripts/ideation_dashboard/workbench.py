@@ -55,8 +55,8 @@ import yaml
 # `scripts/path_slug.py` (OQ-B re-plumb B-1, ruled on `#656` 2026-09-09):
 # `human_seen.py` is openxFactory's own adapter and STAYS, this module is
 # openDox under design D3, and RULING OQ-2 forbids that direction after the
-# carve. Re-exported here — the SAME OBJECTS, not copies — so `workbench.slug`
-# and the two bound constants keep resolving for every existing caller
+# carve. Re-exported here — the SAME OBJECTS, not copies — so `workbench.slug`,
+# the bound and its key half keep resolving for every existing caller
 # (`authoring`, `gate_console`, `gate_routes`, the suite, and `lens-model.js`'s
 # comment, which names `workbench.MAX_SLUG_CHARS` as its twin).
 from path_slug import (  # noqa: F401  (re-export)

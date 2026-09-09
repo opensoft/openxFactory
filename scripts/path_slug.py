@@ -31,11 +31,13 @@ than shared across a repository boundary with no pin, so openDox gets a replica
 and this copy stays. It therefore has NO row of its own in
 `docs/opendox-carve-manifest.yaml`'s moved set beyond that disposition.
 
-CALLERS. `ideation_dashboard/workbench.py` re-exports `slug` and the two bound
-constants so `workbench.slug` keeps resolving for every existing caller (the
-openDox and openXdox readers, and `lens-model.js`'s byte-identical twin, which
-names `workbench.MAX_SLUG_CHARS` in its own comment). `human_seen.py` — the
-openxFactory adapter this file exists for — imports from here directly.
+CALLERS. `ideation_dashboard/workbench.py` re-exports the whole family below —
+`slug`, the three constants and the digest, the SAME objects rather than copies
+— so `workbench.slug` and `workbench.MAX_SLUG_CHARS` keep resolving for every
+existing caller (the openDox and openXdox readers, the suite, and
+`lens-model.js`'s byte-identical twin, which names `workbench.MAX_SLUG_CHARS` in
+its own comment). `human_seen.py` — the openxFactory adapter this file exists
+for — imports from here directly.
 
 MIRRORED IN JAVASCRIPT. `web/views/lens-model.js`'s `slug` is the same
 derivation in the browser, locked byte-identical by
