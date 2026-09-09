@@ -182,6 +182,56 @@ NOT of the twin, which ticked 1.1 and 1.2; and it stopped being true of this pul
 request the moment the ratification landed inside it. The sentence is amended to
 say what actually happened.
 
+## ADDENDUM 2026-09-09 — THE TWO BOXES THIS RECORD LEFT OPEN ARE RULED
+
+**APPENDED, NOT A REWRITE.** Every word above is the record of 2026-09-08 and is
+left standing exactly as it was written, including the two passages this
+addendum supersedes — a record that is edited to agree with a later word stops
+being evidence of what was decided when. What changed is a second and a third
+word from the same ratifier, one day later, and they are recorded here beside
+the first.
+
+**BOX 1.3 — RULED: THE REALIZATION LANDS INERT.** Brett Heap, in session,
+**2026-09-09T11:48:21Z**, verbatim:
+
+> **"rule land inert, this lane realizes it"**
+
+Recorded on openxFactory issue
+[#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5601338925),
+comment **5601338925**. The recommendation of `design.md` M-A's last alternative
+is taken: the arming lands NOW rather than waiting for
+`admit-review-lane-repin-to-merge-approval-envelope`, **with the inertness
+DECLARED in the workflow's own witness line and reported in the run summary** —
+`NO CANDIDATE CLASS ADMITS THIS LANE TODAY, so the arming is inert: the pull
+request waits for the same human merge word a hand-authored advance needs, until
+admit-review-lane-repin-to-merge-approval-envelope lands.` **The section *What it
+does NOT decide* above, at its first bullet — "BOX 1.3 IS NOT RULED BY THIS
+WORD" — is TRUE OF THE 2026-09-08 WORD and superseded by this one.** Box 4.3
+(filing the successor) is NOT ruled by it and stays open.
+
+**BOX 1.2 — RULED: NONE VETOED.** Brett Heap, in session, **2026-09-09**,
+verbatim:
+
+> **"none vetoed, merge it when green, then report the next sweep"**
+
+Recorded on openxFactory issue
+[#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5601413264),
+comment **5601413264**. **M-A THROUGH M-G ALL STAND AS RECOMMENDED, none
+vetoed** — the answer this record's § *Which decisions stand* already carried
+one line each, now given the word that ticks the box. **The passage above at
+*1.2 — veto or let stand*, which held the box open on the landing lane's
+instruction and said "say the word and 1.2 ticks in one edit", is superseded by
+this ruling; that one edit is made in `tasks.md` in the realizing pull request.**
+The word's second and third clauses — the merge and the next-sweep report — are
+the LANDING lane's acts and are claimed by no box here.
+
+**WHAT THIS ADDENDUM DOES NOT DO.** It ratifies nothing new: the proposal was
+ratified on 2026-09-08 and its text has not moved. It performs no merge, files
+no successor, touches no ruleset and enrols no candidate. The realization it
+authorizes is a separate pull request whose own diff is the evidence for § 3,
+and which, by box 1.3's ruling, is observably INERT until the enrolment
+successor lands.
+
 ## Scope
 
 This record ratifies the PROPOSAL. **The realization is a later word and a

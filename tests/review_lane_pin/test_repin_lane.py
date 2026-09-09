@@ -31,11 +31,14 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import inspect
+import os
 import pathlib
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import textwrap
 import unittest
 
 import yaml
@@ -54,6 +57,54 @@ REQUIRED_SUITE = REPO_ROOT / ".github/workflows/pytest-suite.yml"
 RATIFIED_DELTA = (
     REPO_ROOT / "openspec/changes/mirror-floor-regeneration-automation"
     / "specs/review-lane-floor-mirror/spec.md")
+
+#: THE SECOND RATIFIED DELTA OVER THE SAME CAPABILITY.
+#: `amend-mirror-floor-regeneration-merge-authority` (ratified 2026-09-08 by
+#: Brett Heap, verbatim "merge 292 when green, then ratify 807"; openxFactory
+#: PR #807 -> `6cc06288`) carries ONE `## MODIFIED` block restating requirement
+#: 1 in full. Its scenarios are ratified text exactly as the parent's are, so
+#: the mapping below reads BOTH files: a mapping that read only the parent
+#: would report full coverage while seven ratified scenarios went unmeasured.
+AMENDED_DELTA = (
+    REPO_ROOT / "openspec/changes/amend-mirror-floor-regeneration-merge-authority"
+    / "specs/review-lane-floor-mirror/spec.md")
+
+#: THE ONE ARMING COMMAND THE NARROWED REQUIREMENT ADMITS, SPELLED EXACTLY.
+#: The amendment narrowed requirement 1 from "SHALL NOT merge" to "SHALL NOT
+#: merge BY ITS OWN ACT" and admitted the lane ARMING THE PLATFORM'S auto-merge
+#: on its OWN pull request. Decision M-C fixes the admission BY EQUALITY rather
+#: than by a loosened regex — exactly this string, exactly twice, in the
+#: workflow only — and M-A/M-B fix the spelling: `--squash` on the lane's own
+#: measured precedent (PR #732, one parent), the pull request named by the
+#: lane's own head branch so one spelling serves both delivery paths.
+ARMING_COMMAND = 'gh pr merge --auto --squash "${BOT_BRANCH}"'
+
+#: EXACTLY HOW MANY TIMES IT MAY APPEAR: once on the `gh pr edit` path and once
+#: on the `gh pr create` path. A THIRD occurrence is a second route to the
+#: merge, which the requirement forbids in terms, and
+#: `test_a_third_arming_occurrence_reds_this_control` is what notices.
+ARMINGS_EXPECTED = 2
+
+#: The two of the ten swept spellings the amendment narrows, and NOTHING ELSE.
+#: They are narrowed FOR THE WORKFLOW ONLY: the driver keeps all ten, which is
+#: the blast-radius bound the packet argued (`design.md` M-C) and which
+#: `test_the_driver_names_no_disposal_act_at_all` creates rather than assumes.
+NARROWED_FOR_THE_WORKFLOW = ("gh pr merge", "--auto")
+
+#: Every disposal act the lane and its driver are forbidden to name, in the
+#: spellings the GitHub CLI, the REST API and the GraphQL API actually use.
+DISPOSAL_TERMS = (
+    "gh pr merge", "gh pr review", "gh pr close", "--auto", "--admin",
+    "enable-auto-merge", "--method PUT", "-X PUT", "/reviews",
+    "enablePullRequestAutoMerge",
+)
+
+#: The merge endpoint reached through the raw API is still a merge.
+RAW_API_MERGE_RE = r"gh api[^\n]*pulls/[^\n]*/merge"
+
+#: The name of the delivery step the arming lives in, per decision M-A ("inside
+#: the existing 'Open or update the single automated advance' step").
+DELIVERY_STEP_NAME = "Open or update the single automated advance"
 
 SHA40_RE = re.compile(r"\b[0-9a-f]{40}\b")
 SHA256_RE = re.compile(r"\b[0-9a-f]{64}\b")
@@ -125,6 +176,38 @@ def _active(text: str) -> str:
 
 
 LANE_ACTIVE = _active(LANE_TEXT)
+
+
+def _step(name: str) -> dict:
+    """The named step of the lane's one job, from the PARSED workflow.
+
+    Read from the parse rather than from the flat text so a second step doing
+    the same thing under another credential cannot hide inside a comment or a
+    neighbouring block.
+    """
+    for step in LANE_DOC["jobs"]["review-lane-repin"]["steps"]:
+        if isinstance(step, dict) and step.get("name") == name:
+            return step
+    raise AssertionError(f"the lane has no step named {name!r}")
+
+
+def _shell_function(source: str, name: str) -> str:
+    """The named shell function's DEFINITION, cut out of `source` verbatim.
+
+    THIS IS WHAT MAKES THE EXECUTED TESTS BELOW MEASUREMENTS RATHER THAN
+    RE-STATEMENTS. `mirror-floor-addition-grace`'s archive (`ca9fafe6`) taught
+    this repository that "controls must MEASURE the same inputs as the shipped
+    assertion"; a harness that carried its OWN copy of the witness logic would
+    pass forever while the workflow drifted. The bytes executed below are the
+    bytes the runner executes, cut out of the workflow at test time.
+    """
+    marker = f"{name}() {{"
+    start = source.index(marker)
+    line_start = source.rfind("\n", 0, start) + 1
+    indent = source[line_start:start]
+    end_marker = f"\n{indent}}}\n"
+    end = source.index(end_marker, start) + len(end_marker)
+    return textwrap.dedent(source[line_start:end])
 
 
 def _mutated_floor(original: bytes, *, added_path: str,
@@ -214,26 +297,372 @@ class TreeFixtureMixin:
 
 class AnAutomatedPinAdvanceOnlyEverProposes(TreeFixtureMixin, unittest.TestCase):
 
-    def test_the_lane_opens_a_pull_request_and_stops_there(self) -> None:
+    def test_the_lane_opens_a_pull_request_arms_and_stops_there(self) -> None:
         """Scenario: The lane opens a pull request and stops there.
 
-        Measured against the shell the runner executes. `gh pr create` and
-        `gh pr edit` are the only two dispositions in the file; every verb that
-        would DISPOSE of the pull request is absent, and absence is asserted
-        term by term so a later edit that adds one fails here.
+        AS NARROWED 2026-09-08 by
+        `amend-mirror-floor-regeneration-merge-authority`: the lane "opens a
+        pull request carrying that advance and takes no further action on it
+        BEYOND ARMING THE PLATFORM'S AUTO-MERGE on that same pull request AND
+        it neither merges BY ITS OWN ACT nor approves that pull request".
+
+        RENAMED WITH THE FLIP, DELIBERATELY. `tasks.md` 3.2 names this case by
+        its old name, `test_the_lane_opens_a_pull_request_and_stops_there`, and
+        that name stopped describing what it asserts: the lane now takes one
+        further act. The SCENARIO title in this docstring is the ratified one
+        and is unchanged, which is what the mapping reads.
+
+        MEASURED IN BOTH DIRECTIONS, AND THE NARROWING IS BOUNDED BY EQUALITY.
+        The positive: the delivery step really does open (or update) a pull
+        request AND really does arm, so the lane is neither inert nor silently
+        unchanged. The negative: EIGHT of the ten disposal spellings are still
+        refused in the workflow, and the two that are narrowed are admitted
+        only inside the one exact arming command — asserted by equality and by
+        an occurrence count, so a third `gh pr merge` anywhere reds this test.
         """
         shell = _active(LANE_SHELL)
         self.assertIn("gh pr create", shell)
-        for disposing in ("gh pr merge", "gh pr review", "gh pr close",
-                          "--auto", "--admin", "enable-auto-merge",
-                          "--method PUT", "-X PUT", "/reviews",
-                          "enablePullRequestAutoMerge"):
+        self.assertIn("gh pr edit", shell)
+
+        # THE ADMISSION, BY EQUALITY. Exactly two occurrences — one per
+        # delivery path — and exactly this spelling, so the arming cannot
+        # quietly become a wider command.
+        self.assertEqual(
+            ARMINGS_EXPECTED, shell.count("gh pr merge"),
+            "the lane names `gh pr merge` other than exactly twice; the "
+            "amendment admits ONE arming command, once per delivery path")
+        self.assertEqual(
+            ARMINGS_EXPECTED, shell.count(ARMING_COMMAND),
+            "the arming is not the exact admitted spelling, twice: "
+            + ARMING_COMMAND)
+        # ...and no `gh pr merge` occurrence may lack `--auto`: a bare merge is
+        # the act the requirement still forbids by the lane's OWN act.
+        for call in re.findall(r"gh pr merge[^\n]*", shell):
+            self.assertIn("--auto", call, f"a merge that is not an arming: {call!r}")
+        # `--auto` appears ONLY in the arming, so the flag cannot leak onto
+        # some other call later.
+        self.assertEqual(ARMINGS_EXPECTED, shell.count("--auto"))
+
+        # THE EIGHT THAT ARE STILL REFUSED IN THE WORKFLOW.
+        still_refused = tuple(term for term in DISPOSAL_TERMS
+                              if term not in NARROWED_FOR_THE_WORKFLOW)
+        self.assertEqual(8, len(still_refused))
+        for disposing in still_refused:
             self.assertNotIn(
                 disposing, shell,
-                f"the lane may propose but never dispose; found {disposing!r}")
+                f"the lane may propose and arm, but never dispose; found "
+                f"{disposing!r}")
         self.assertNotRegex(
-            shell, r"gh api[^\n]*pulls/[^\n]*/merge",
+            shell, RAW_API_MERGE_RE,
             "the merge endpoint reached through the raw API is still a merge")
+
+        # ANTI-VACUITY, both halves: the refused set is proven capable of
+        # firing, and so is the narrowed one, so a future edit to either tuple
+        # cannot silently turn this case into a no-op.
+        self.assertIn(still_refused[0], "gh pr review --approve")
+        self.assertIn(NARROWED_FOR_THE_WORKFLOW[0], "gh pr merge --squash")
+
+    def test_an_envelope_approved_fully_green_advance_merges_with_no_human_act(
+            self) -> None:
+        """Scenario: An envelope-approved, fully green pin advance merges with no human act.
+
+        WHAT IS MEASURABLE HERE IS THAT THE LANE'S LAST ACT IS THE ARMING, and
+        that is the whole of what the scenario asks of the LANE — "the lane
+        performs no act at merge time, its last act having been the arming".
+        The merge itself is the platform's, on a predicate this repository's
+        rulesets hold; § 4.1 of the packet is what observes it live, and this
+        case is deliberately not a stand-in for that.
+
+        So: the arming lives in the delivery step, it is the LAST command that
+        step runs on either path, and no step of the job that comes after it
+        touches the pull request at all.
+        """
+        step = _step(DELIVERY_STEP_NAME)
+        run = step["run"]
+        self.assertEqual(2, run.count(ARMING_COMMAND))
+
+        # On each path the arming (and the reporting of it) is the last thing
+        # done. Measured by position: nothing that names the pull request
+        # follows the final `report_the_arming` call.
+        after = run[run.rindex("report_the_arming") + len("report_the_arming"):]
+        for verb in ("gh pr ", "git push", "gh api"):
+            self.assertNotIn(verb, after,
+                             f"the lane acts on its pull request after arming: {verb!r}")
+
+        # And no LATER step of the job reaches the pull request either.
+        steps = LANE_DOC["jobs"]["review-lane-repin"]["steps"]
+        for later in steps[steps.index(step) + 1:]:
+            self.assertNotIn("gh pr ", _active(later.get("run") or ""),
+                             f"step {later.get('name')!r} acts after the arming")
+
+    def test_a_parked_pin_advance_is_not_merged(self) -> None:
+        """Scenario: A parked pin advance is not merged.
+
+        A PARK FIRES NOTHING BECAUSE THE LANE HOLDS NO PREDICATE. The arming is
+        `--auto` and only `--auto`: there is no unconditional merge, no
+        `--admin`, no raw merge endpoint and no merge queue, so a pull request
+        the envelope parks simply stays open exactly as an unarmed one would.
+
+        Measured as the ABSENCE of any second route AND as the absence of any
+        branch in the lane that reads a verdict and acts on it: the lane reads
+        no review decision, no mergeable state and no check conclusion.
+        """
+        shell = _active(LANE_SHELL)
+        for call in re.findall(r"gh pr merge[^\n]*", shell):
+            self.assertIn("--auto", call)
+            self.assertNotIn("--admin", call)
+        for verdict in ("reviewDecision", "mergeStateStatus", "mergeable",
+                        "statusCheckRollup", "--admin", "merge_queue",
+                        "merge-queue"):
+            self.assertNotIn(
+                verdict, shell,
+                "the lane reads a disposal verdict and could act on it; the "
+                f"platform holds the predicate, not this lane: {verdict!r}")
+
+    def test_a_further_advance_owed_while_armed_updates_and_re_arms(self) -> None:
+        """Scenario: A further advance owed while the armed pull request is parked updates it and re-arms.
+
+        THE UPDATE PATH IS DELIVERY, NOT DISPOSAL, and the requirement says so
+        in terms: where a further advance is owed while an ARMED pull request
+        is open, the lane "SHALL take that same update path and SHALL re-arm
+        the platform's auto-merge on that pull request idempotently".
+
+        Measured on the delivery step's two branches, cut out of the shipped
+        text: the `gh pr edit` branch updates the ONE open pull request rather
+        than opening a second, and it carries an arming of its own that is
+        BYTE-IDENTICAL to the open path's — so an armed intent the platform
+        dropped is restored, and one it kept is left exactly as it is.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        head, _, tail = run.partition('if [ -n "${OPEN_PR}" ]; then')
+        self.assertTrue(tail, "the single-flight update branch is gone")
+        update_branch, _, open_branch = tail.partition("\nelse\n")
+        self.assertTrue(open_branch, "the open branch is gone")
+
+        self.assertIn("gh pr edit", update_branch)
+        self.assertNotIn("gh pr create", update_branch)
+        self.assertIn("gh pr create", open_branch)
+
+        self.assertEqual(1, update_branch.count(ARMING_COMMAND),
+                         "the update path does not re-arm exactly once")
+        self.assertEqual(1, open_branch.count(ARMING_COMMAND),
+                         "the open path does not arm exactly once")
+        self.assertEqual(0, head.count(ARMING_COMMAND),
+                         "an arming runs before either delivery path")
+
+        # IDEMPOTENT MEANS UNCONDITIONAL. The re-arming is not guarded on what
+        # the previous state was — the lane never has to reason about whether
+        # the platform kept the intent.
+        for branch in (update_branch, open_branch):
+            arming_line = next(line for line in branch.splitlines()
+                               if ARMING_COMMAND in line)
+            self.assertNotIn("autoMergeRequest", arming_line)
+            self.assertTrue(
+                arming_line.strip().startswith("if ARM_OUTPUT="),
+                f"the arming is conditioned on something: {arming_line!r}")
+
+    def test_a_head_that_moves_after_an_approval_is_not_merged_on_that_approval(
+            self) -> None:
+        """Scenario: A head that moves after an approval is not merged on that approval.
+
+        ENFORCED BY PLATFORM RULE, AND THE LANE'S PART IS TO NOT INTERFERE.
+        This repository's rulesets carry `dismiss_stale_reviews_on_push: true`
+        (18834180) and `require_last_push_approval: true` (18962101), so an
+        approval dies when the head moves. What this case measures is the only
+        half the lane can get wrong: it MOVES the head on its update path (a
+        real push, never a force), and it takes no act that could preserve,
+        re-solicit or re-issue an approval across that move.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        self.assertIn("git commit-tree", run)
+        self.assertRegex(run, r"git push origin \"\$\{BOT_BRANCH\}\"")
+        for forcing in ("--force", "--force-with-lease", " -f "):
+            self.assertNotIn(forcing, run)
+        shell = _active(LANE_SHELL)
+        for solicitation in ("gh pr review", "/reviews", "--approve",
+                             "dismissPullRequestReview", "/dismissals",
+                             "requested_reviewers", "--add-reviewer"):
+            self.assertNotIn(
+                solicitation, shell,
+                f"the lane touches the approval that binds the head: {solicitation!r}")
+
+    def test_the_lane_never_posts_an_approval_under_any_identity(self) -> None:
+        """Scenario: The lane never posts an approval.
+
+        NEGATIVE CONTROL (a) OF `tasks.md` 3.3, AND IT MEASURES: it varies the
+        SAME inputs the shipped sweep reads — the workflow's executable shell
+        and the driver's source — rather than asserting over a hard-coded set.
+        That is the `mirror-floor-addition-grace` lesson (`ca9fafe6`), learned
+        in this repository when two controls hard-coded empty sets and so could
+        never have failed.
+
+        Every approval and dismissal spelling is checked against BOTH inputs,
+        and each is proven capable of firing against a string that contains it
+        — one provocation per spelling, so a typo in any single pattern reds
+        here instead of passing forever.
+        """
+        approval_spellings = (
+            r"gh\s+pr\s+review",
+            r"--approve\b",
+            r"createPullRequestReview",
+            r"submitPullRequestReview",
+            r"/reviews\b",
+            r"dismissPullRequestReview",
+            r"/dismissals\b",
+        )
+        shell = _active(LANE_SHELL)
+        driver = MODULE_SOURCE.read_text(encoding="utf-8")
+        for spelling in approval_spellings:
+            self.assertNotRegex(
+                shell, spelling,
+                f"the lane names an approval or dismissal act: {spelling}")
+            self.assertNotRegex(
+                driver, spelling,
+                f"the driver names an approval or dismissal act: {spelling}")
+
+        provocations = (
+            "gh pr review 1 --approve",
+            "gh pr merge 1 --approve",
+            "mutation { createPullRequestReview }",
+            "mutation { submitPullRequestReview }",
+            "gh api repos/o/r/pulls/1/reviews",
+            "mutation { dismissPullRequestReview }",
+            "gh api repos/o/r/pulls/1/reviews/2/dismissals",
+        )
+        self.assertEqual(len(approval_spellings), len(provocations))
+        for spelling, provocation in zip(approval_spellings, provocations):
+            self.assertRegex(provocation, spelling, spelling)
+
+    def test_a_third_arming_occurrence_reds_this_control(self) -> None:
+        """Scenario: No mechanism can release the arming, and the lane says so.
+
+        NEGATIVE CONTROL (b) OF `tasks.md` 3.3. The requirement forbids "a
+        SECOND ROUTE TO THE MERGE"; the two armings are one route stated once
+        per delivery path, and a THIRD occurrence of `gh pr merge` anywhere in
+        the lane is the shape a second route would take.
+
+        IT MEASURES THE SAME INPUT THE SHIPPED SWEEP READS: the count is taken
+        from the workflow's own executable shell, and the control is then
+        proven capable of failing by running the identical count over that same
+        text with one more arming spliced into it.
+        """
+        shell = _active(LANE_SHELL)
+
+        def armings(text: str) -> int:
+            return text.count("gh pr merge")
+
+        self.assertEqual(ARMINGS_EXPECTED, armings(shell))
+        self.assertGreater(
+            armings(shell + "\n" + ARMING_COMMAND), ARMINGS_EXPECTED,
+            "the counter cannot see a third arming; this control measures "
+            "nothing")
+
+    def test_the_driver_names_no_disposal_act_at_all(self) -> None:
+        """Scenario: The lane opens a pull request and stops there.
+
+        NEGATIVE CONTROL (c) OF `tasks.md` 3.3, AND IT IS NEW RATHER THAN
+        CARRIED. `_shell_text()` reads only the workflow's `run:` blocks, so
+        `scripts/review_lane_repin.py` — the module that actually writes the
+        five sites — HAS NEVER BEEN SWEPT in this repository. codexFactory's
+        twin could call its driver's untouched sweep the blast-radius bound of
+        the narrowing; here that bound has to be CREATED before it can be
+        claimed, and this is it.
+
+        ALL TEN terms stay refused in the driver, including the two the
+        workflow now admits: the driver arms nothing.
+        """
+        driver = MODULE_SOURCE.read_text(encoding="utf-8")
+        self.assertEqual(10, len(DISPOSAL_TERMS))
+        for term in DISPOSAL_TERMS:
+            self.assertNotIn(
+                term, driver,
+                f"the driver names a disposal act: {term!r}. The narrowing "
+                "moved the WORKFLOW's boundary and nothing else")
+        self.assertNotRegex(driver, RAW_API_MERGE_RE)
+
+        # ANTI-VACUITY, one provocation per term, so a typo in any single entry
+        # reds here rather than quietly measuring nothing.
+        provocations = (
+            'subprocess.run(["gh", "pr", "merge"])  # gh pr merge',
+            "# gh pr review --approve",
+            "# gh pr close 1",
+            "# --auto",
+            "# --admin",
+            "# enable-auto-merge",
+            "# --method PUT",
+            "# -X PUT",
+            "# /reviews",
+            "# enablePullRequestAutoMerge",
+        )
+        self.assertEqual(len(DISPOSAL_TERMS), len(provocations))
+        for term, provocation in zip(DISPOSAL_TERMS, provocations):
+            self.assertIn(term, provocation, term)
+
+    def test_no_mechanism_can_release_the_arming_and_the_lane_says_so(self) -> None:
+        """Scenario: No mechanism can release the arming, and the lane says so.
+
+        TWO HALVES, AND THE SECOND IS THE ONE THAT IS EASY TO SKIP.
+
+        THE LANE SAYS SO: the armed witness carries the inertness clause in
+        words — no candidate class admits this lane, so the arming cannot
+        complete and the pull request waits for the same human merge word a
+        hand-authored advance needs — and it NAMES the successor that will make
+        the clause false, so the day it stops being true is the day one lane
+        deletes one sentence. Ruled by Brett Heap on 2026-09-09, verbatim
+        "rule land inert, this lane realizes it" (openxFactory #745 comment
+        5601338925), against `tasks.md` box 1.3.
+
+        THE LANE DOES NOT WIDEN ANYTHING: it names no ruleset, no bypass list,
+        no envelope enrolment and no floor removal — the four acts the
+        requirement forbids by name in this scenario.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        tail = next(line for line in run.splitlines()
+                    if line.strip().startswith("ARMED_TAIL="))
+        for clause in ("NO CANDIDATE CLASS ADMITS THIS LANE TODAY",
+                       "the arming is inert",
+                       "human merge word",
+                       "admit-review-lane-repin-to-merge-approval-envelope"):
+            self.assertIn(clause, tail,
+                          f"the inertness is not declared: {clause!r}")
+
+        shell = _active(LANE_SHELL)
+        for widening in ("rulesets", "bypass_actors", "bypass-actors",
+                         ".github/merge-approval-envelope", "candidates:",
+                         "never_clearable", "SPECS_FLOOR_PATHS"):
+            self.assertNotIn(
+                widening, shell,
+                f"the lane reaches for a widening act: {widening!r}")
+
+    def test_the_arming_is_reported_where_the_run_is_read(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        BOTH SURFACES, AND THE FOLLOWING FIRING TOO (decision M-E). The arming
+        emits a `::notice` AND a step-summary line naming the pull request and
+        the head it armed at, both read from the platform so another party can
+        recompute them; and a separate READ-ONLY step says, on the next firing,
+        what became of the pull request the last one armed.
+
+        THE REPORTING STEP MUST NEVER START ACTING, so it is swept for every
+        disposal term of its own.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        self.assertIn("::notice title=review-lane-repin::", run)
+        self.assertIn('echo "${witness}" >> "$GITHUB_STEP_SUMMARY"', run)
+        for value in ("auto-merge ARMED on #${number} at ${head_oid}",
+                      "headRefOid"):
+            self.assertIn(value, run)
+
+        outcome = _step("Report what became of the last automated advance")
+        outcome_run = _active(outcome["run"])
+        self.assertIn("--state all", outcome_run)
+        self.assertIn("MERGED at", outcome_run)
+        self.assertIn("still OPEN", outcome_run)
+        self.assertIn("CLOSED unmerged", outcome_run)
+        for term in DISPOSAL_TERMS:
+            self.assertNotIn(
+                term, outcome_run,
+                f"a step that only READS state names a disposal act: {term!r}")
 
     def test_the_lane_never_writes_to_the_default_branch(self) -> None:
         """Scenario: The lane never writes to the default branch.
@@ -275,6 +704,200 @@ class AnAutomatedPinAdvanceOnlyEverProposes(TreeFixtureMixin, unittest.TestCase)
         self.assertEqual(
             set(R.WRITABLE_PATHS), walked,
             "the advance created a file outside the five sites")
+
+
+# ===========================================================================
+# The arming, EXECUTED rather than read
+#
+# WHY A SECOND CLASS AND WHY IT RUNS SHELL. Everything above reads the
+# workflow's text. "A refused arming is a recorded outcome and never a failed
+# advance" and "an unreadable value is SAID rather than left blank" are claims
+# about which BRANCH a value reaches and what comes out of it, and a text
+# assertion cannot decide either. So the two shell functions the delivery step
+# defines are cut out of the shipped workflow and EXECUTED against a stand-in
+# `gh`, and the emitted lines are asserted by equality.
+#
+# THE STAND-IN IS THE ONLY FAKE. The bytes under test are the workflow's own,
+# read at test time by `_shell_function`, so a drift between the harness and
+# the lane is impossible by construction rather than by discipline.
+# ===========================================================================
+
+class TheArmingIsExecutedNotJustRead(unittest.TestCase):
+
+    #: A fabricated head. Not a live sha, deliberately: a fixture that used one
+    #: would go stale the day the branch moves.
+    HEAD = "b" * 40
+
+    def _execute(self, rc: int, output: str, *,
+                 view: str = "", view_fails: bool = False) -> tuple:
+        """Run the delivery step's OWN witness functions against a stand-in `gh`.
+
+        Returns `(completed_process, summary_text, gh_call_log)`.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        armed_tail = next(line for line in run.splitlines()
+                          if line.strip().startswith("ARMED_TAIL="))
+        script = "\n".join((
+            "set -uo pipefail",
+            armed_tail.strip(),
+            _shell_function(run, "command_safe"),
+            _shell_function(run, "report_the_arming"),
+            'report_the_arming "$1" "$2"',
+        ))
+        with tempfile.TemporaryDirectory() as raw:
+            tmp = pathlib.Path(raw)
+            bin_dir = tmp / "bin"
+            bin_dir.mkdir()
+            gh = bin_dir / "gh"
+            gh.write_text(
+                "#!/usr/bin/env bash\n"
+                'printf "%s\\n" "$*" >> "$GH_CALL_LOG"\n'
+                'if [ -n "${GH_VIEW_FAIL:-}" ]; then exit 1; fi\n'
+                'printf "%s\\n" "$GH_VIEW_OUTPUT"\n',
+                encoding="utf-8")
+            gh.chmod(0o755)
+            summary = tmp / "summary.md"
+            summary.write_text("", encoding="utf-8")
+            log = tmp / "gh.log"
+            log.write_text("", encoding="utf-8")
+            env = dict(os.environ)
+            env.update({
+                "PATH": f"{bin_dir}:{env['PATH']}",
+                "GITHUB_STEP_SUMMARY": str(summary),
+                "GITHUB_REPOSITORY": "opensoft/openxFactory",
+                "BOT_BRANCH": R.BOT_BRANCH,
+                "GH_CALL_LOG": str(log),
+                "GH_VIEW_OUTPUT": view if view else f"732 {self.HEAD}",
+            })
+            if view_fails:
+                env["GH_VIEW_FAIL"] = "1"
+            proc = subprocess.run(
+                ["bash", "-c", script, "harness", str(rc), output],
+                capture_output=True, text=True, env=env)
+            return proc, summary.read_text(encoding="utf-8"), log.read_text(
+                encoding="utf-8")
+
+    def _notices(self, proc) -> list:
+        return [line for line in proc.stdout.splitlines()
+                if line.startswith("::notice")]
+
+    def test_a_successful_arming_names_the_pull_request_and_the_head(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        THE VALUES ARE READ FROM THE PLATFORM, AND THE LINE IS ASSERTED BY
+        EQUALITY. Both surfaces carry the same sentence, the `gh pr view` that
+        supplies the number and the head really is called, and the inertness
+        clause is present while it is true.
+        """
+        proc, summary, log = self._execute(0, "")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        expected_prefix = f"auto-merge ARMED on #732 at {self.HEAD} — "
+        self.assertEqual(1, len(self._notices(proc)), proc.stdout)
+        self.assertTrue(self._notices(proc)[0].startswith(
+            "::notice title=review-lane-repin::" + expected_prefix),
+            self._notices(proc))
+        self.assertTrue(summary.strip().startswith(expected_prefix), summary)
+        self.assertIn("NO CANDIDATE CLASS ADMITS THIS LANE TODAY", summary)
+        self.assertIn("headRefOid", log)
+
+    def test_a_refused_arming_is_a_recorded_outcome_not_a_failed_advance(self) -> None:
+        """Scenario: A parked pin advance is not merged.
+
+        THE ONE FAILURE MODE THAT WILL ACTUALLY HAPPEN. Community discussion
+        #190610 reports that enabling auto-merge returns HTTP 422 until every
+        merge requirement is ALREADY met — precisely the state of this lane's
+        pull request for as long as no candidate class admits it. The refusal
+        must therefore be a REPORTED outcome: the function exits zero, the
+        platform's own message is carried verbatim, and the line says the
+        advance is delivered and the lane will re-arm.
+
+        PROVEN CAPABLE OF FAILING by the paired positive above: the same
+        function on a zero status emits the ARMED line instead.
+        """
+        message = "GraphQL: Pull request is not in the correct state (422)"
+        proc, summary, _ = self._execute(1, message)
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn("auto-merge NOT armed on #732", summary)
+        self.assertIn(message, summary)
+        self.assertIn("will re-arm on its next firing", summary)
+        self.assertNotIn("auto-merge ARMED", summary)
+
+    def test_an_already_armed_pull_request_is_an_idempotent_success(self) -> None:
+        """Scenario: A further advance owed while the armed pull request is parked updates it and re-arms.
+
+        RE-ARMING AN ARMED PULL REQUEST MUST NOT READ AS A FAILURE. The
+        platform answers "auto-merge is already enabled"; the lane records that
+        as ARMED and says which, so a reader is never told the arming was
+        refused when the intent is standing.
+        """
+        proc, summary, _ = self._execute(
+            1, "X GitHub Actions: auto-merge is already enabled on this pull request")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn(f"auto-merge ARMED on #732 at {self.HEAD} (already enabled)",
+                      summary)
+        self.assertNotIn("NOT armed", summary)
+
+    def test_an_unreadable_pull_request_is_named_rather_than_left_blank(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        WITHOUT THE FALLBACKS a transient `gh pr view` failure emits "ARMED on
+        # at " — the witness whose whole purpose is to name the head an
+        approval must bind to, naming nothing, silently. The lesson is this
+        repository's own: an absent reading is not a value.
+        """
+        proc, summary, _ = self._execute(0, "", view_fails=True)
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn("auto-merge ARMED on #an UNREADABLE number at an "
+                      "UNREADABLE head", summary)
+        # The control in the other direction: a readable view names neither.
+        _, readable, _ = self._execute(0, "")
+        self.assertNotIn("UNREADABLE", readable)
+
+    def test_the_notice_payload_cannot_forge_a_workflow_command(self) -> None:
+        """Scenario: No mechanism can release the arming, and the lane says so.
+
+        A `::notice` MESSAGE IS A PARSED LINE AND THIS PAYLOAD IS THE
+        PLATFORM'S OWN TEXT. GitHub Actions percent-DECODES the message, so a
+        refusal carrying the literal characters `%0A` would become a newline in
+        the log and whatever followed it would become a SECOND workflow
+        command. The escape runs `%` FIRST, or the escapes would themselves be
+        re-escaped, and the step SUMMARY — which parses no commands — keeps the
+        platform's own bytes.
+        """
+        forged = "refused%0A::error::forged"
+        proc, summary, _ = self._execute(1, forged)
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertEqual(1, len(self._notices(proc)), proc.stdout)
+        for line in proc.stdout.splitlines():
+            self.assertFalse(line.startswith("::error::"),
+                             f"the payload forged a workflow command: {line!r}")
+        self.assertIn("%250A", proc.stdout)
+        self.assertIn(forged, summary)
+
+    def test_the_escaper_encodes_percent_first(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        THE ORDER IS THE WHOLE OF THE ESCAPE, and it is not observable through
+        the arming step's own inputs today — the refusal branch flattens
+        newlines to spaces before the payload ever reaches the escaper — so it
+        is measured against the shipped function DIRECTLY rather than left as a
+        comment nobody can check. `%` must be substituted FIRST or the escapes
+        it writes are themselves re-escaped: a payload carrying a literal
+        `%0A` beside a real newline must come out with the literal INERT
+        (`%250A`) and the real newline ENCODED (`%0A`), and reversing the two
+        lines turns the real newline into visible text instead.
+        """
+        run = _step(DELIVERY_STEP_NAME)["run"]
+        script = "\n".join((
+            "set -uo pipefail",
+            _shell_function(run, "command_safe"),
+            'command_safe "$1"',
+        ))
+        proc = subprocess.run(
+            ["bash", "-c", script, "harness", "a%0Ab\nc"],
+            capture_output=True, text=True)
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertEqual("a%250Ab%0Ac", proc.stdout)
 
 
 # ===========================================================================
@@ -1405,21 +2028,49 @@ class TheSiteListIsTheWholeTruth(unittest.TestCase):
 
 class EveryRatifiedScenarioHasATest(unittest.TestCase):
 
+    @staticmethod
+    def _scenarios(delta: pathlib.Path) -> set:
+        return {line.split("#### Scenario:", 1)[1].strip()
+                for line in delta.read_text(encoding="utf-8").splitlines()
+                if line.startswith("#### Scenario:")}
+
     def test_every_ratified_scenario_has_a_test(self) -> None:
         """THE MAPPING IS MEASURED, NOT DECLARED.
 
-        The scenario titles are read out of the ratified delta and matched
+        The scenario titles are read out of the ratified deltas and matched
         against the titles quoted in this file's docstrings. A scenario that no
         test claims fails here, which is the only way a "every scenario is
         covered" claim can be worth anything.
+
+        RE-READ 2026-09-09, NOT RE-PINNED, WHICH IS WHAT THE OLD FAILURE
+        MESSAGE ASKED FOR. `amend-mirror-floor-regeneration-merge-authority`
+        added a SECOND ratified delta over the same capability — one
+        `## MODIFIED` block restating requirement 1 — so this case now reads
+        both files. Reading only the parent would have reported full coverage
+        while seven newly ratified scenarios went unmeasured, which is exactly
+        the failure this case exists to prevent. THE THREE COUNTS ARE STATED
+        SEPARATELY so a change to either delta names itself: 24 in the parent,
+        10 in the amendment, and 31 DISTINCT titles, because the amendment
+        carries three of the parent's titles forward (one with narrowed
+        bullets, two verbatim) rather than inventing new ones.
         """
-        delta = RATIFIED_DELTA.read_text(encoding="utf-8")
-        scenarios = {line.split("#### Scenario:", 1)[1].strip()
-                     for line in delta.splitlines()
-                     if line.startswith("#### Scenario:")}
-        self.assertEqual(24, len(scenarios),
-                         "the ratified delta no longer has 24 scenarios; the "
+        parent = self._scenarios(RATIFIED_DELTA)
+        amended = self._scenarios(AMENDED_DELTA)
+        self.assertEqual(24, len(parent),
+                         "the parent delta no longer has 24 scenarios; the "
                          "mapping in this file must be re-read, not re-pinned")
+        self.assertEqual(10, len(amended),
+                         "the amendment's block no longer has 10 scenarios; "
+                         "the mapping in this file must be re-read, not "
+                         "re-pinned")
+        scenarios = parent | amended
+        self.assertEqual(31, len(scenarios),
+                         "the two ratified deltas no longer carry 31 distinct "
+                         "scenarios; re-read the mapping, do not re-pin it")
+        self.assertEqual(
+            3, len(parent & amended),
+            "the amendment no longer carries exactly three of the parent's "
+            "titles forward; re-read which, do not adjust this by arithmetic")
 
         claimed = set()
         source = pathlib.Path(__file__).read_text(encoding="utf-8")
