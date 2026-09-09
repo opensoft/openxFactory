@@ -435,6 +435,34 @@ fails. Transcripts: `specs/.../evidence/phaseI-recut-v3.6-release-tag-gate.txt`,
 `-verify-commit.txt`, `-invdiff-at-candidate.txt`, `-doc-health.txt`,
 `doc-health-recut-v3.6/`, `-pytest-full.txt`.
 
+### The declaring distance, asked the way CI asks it — 2026-09-09
+
+**MEASURED, BECAUSE #866's CUT SAYS A STACKED BOOKKEEPING COMMIT REFUSES THE
+GATE.** This lane's follow-up evidence-only commit is exactly such a stacked
+commit, so the question was put twice:
+
+- `validate-release-tag-gate.py --head <branch tip 89a7c0de> --base 17167481` →
+  **rc=2, REFUSED**, *"contract-v3.6 is declared and has no published annotated
+  tag, 1 first-parent landing(s) after the commit that declared it"* (a
+  **warning**; `gate-findings` refuses on error OR warning, and only distance
+  ZERO is clean).
+- `validate-release-tag-gate.py --head <SIMULATED PR merge ref 0feaa1ef> --base
+  17167481` → **rc=0**, *"the release-tag obligation holds over the merge tree
+  0feaa1ef4: no error, no warning"*.
+
+**THE SECOND IS THE QUESTION THE REQUIRED CHECK ACTUALLY ASKS.**
+`.github/workflows/release-tag-gate.yml` runs `on: pull_request` and judges the
+GitHub merge ref, whose FIRST parent is the base tip — its own header says the
+gate *"diffs the merge commit against its FIRST PARENT (the base tip)"* — so
+`distance_from_tip()` walks `[merge ref, main tip, …]`, breaks at `main` (which
+declares `contract-v3.5`), and reads ZERO however many commits the BRANCH stacked
+above its own declaration. Both readings are true of what they measure; they do
+not contradict each other, and #866's rule is narrower than its wording: what
+must not sit above the declaration is a commit that lands on **main** above it.
+The safer discipline still held here — every gate that does not address the
+candidate by sha rides the candidate. Transcript:
+`specs/.../evidence/phaseI-recut-v3.6-release-tag-gate-distance.txt`.
+
 ### Still NOT DONE, and still owed elsewhere
 
 Boxes **5.5** (the lane's landing) and **5.6** (the operator's annotated tag at

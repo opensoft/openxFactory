@@ -1,0 +1,82 @@
+THE DECLARING-DISTANCE QUESTION, ASKED THE WAY CI ASKS IT. 2026-09-09.
+
+WHY THIS FILE EXISTS. openxFactory #866's cut commit records that bookkeeping
+must ride the cut "because release-tag-gate grades the DECLARING DISTANCE: the
+family emits no finding only when the earliest first-parent commit declaring the
+bundle is the TIP, and a bookkeeping commit stacked on top of the declaration
+puts it at distance one and refuses the gate. Measured on this branch before the
+squash: '1 first-parent landing(s) after the commit that declared it', REFUSED
+gate-findings." This lane's follow-up EVIDENCE-ONLY commit is exactly such a
+stacked commit, so the question was MEASURED here rather than assumed either way.
+
+THE RULE, from scripts/doc_health/release_tag_publication.py:
+  * DEFAULT_THRESHOLD = 5 ("RULED BY BRETT HEAP, 2026-08-31: five first-parent
+    landings").
+  * distance == 0 -> no finding; 1..5 -> WARNING; > 5 -> ERROR; and
+    `gate-findings` REFUSES on an error OR a warning. So a clean gate needs
+    distance ZERO.
+  * distance_from_tip() walks the FIRST-PARENT chain from `--head` and stops at
+    the first commit whose manifest declares something else. It is the chain
+    below the HEAD IT IS GIVEN that decides the answer.
+
+WHAT CI GIVES IT. .github/workflows/release-tag-gate.yml runs `on: pull_request`
+with actions/checkout@v4 and fetch-depth: 0, and its own header says the gate
+"diffs the merge commit against its FIRST PARENT (the base tip)". That checkout
+is `refs/pull/N/merge`, whose FIRST parent is the base tip and whose SECOND is
+the branch tip. So the first-parent chain CI walks is [merge ref, main tip, ...]
+— the merge ref declares contract-v3.6 and main declares contract-v3.5, the walk
+breaks at index 1, and the distance is ZERO no matter how many commits the
+BRANCH stacked above its own declaration.
+
+TWO READINGS, BOTH TAKEN, rc READ FROM THE TAIL:
+
+----- (1) THE BRANCH TIP: this is NOT the question CI asks -----
+$ python3 scripts/validate-release-tag-gate.py --head 89a7c0de2fb513cac7497c81b0b841a57fb4b235 --base 17167481   # the BRANCH TIP incl. the follow-up evidence commit
+## release-tag-gate
+release surface touched by this pull request (2 path(s)):
+  - contracts/manifest.yaml
+  - contracts/releases/contract-v3.6.digests.yaml
+declared bundle: contract-v3.5 at the base 17167481e -> contract-v3.6 at the head 89a7c0de2
+  [info] contract-v2.6 is declared SPENT: it was cut, has no published annotated tag, and contract-v3.0 — itself cut, itself published and strictly later — superseded it. The record is contracts/CHANGELOG.md § contract-v3.0 — RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. The tag obligation was not met, it was EXTINGUISHED by an owner act at the cost of a version number
+1 blocking finding(s) over the merge tree 89a7c0de2:
+  [warning] contracts/manifest.yaml: contract-v3.6 is declared and has no published annotated tag, 1 first-parent landing(s) after the commit that declared it
+      action: publish the annotated tag at the commit the versioning policy's rule identifies — the earliest first-parent commit on published main that declares the bundle and at which verify-commit passes — never edit the manifest, the changelog or the inventory to match the absence
+
+REFUSED `gate-findings` — the family reports an error or a warning over the merge tree
+::error title=release-tag-gate::gate-findings: the family reports an error or a warning over the merge tree
+rc=2
+
+----- (2) THE SIMULATED PR MERGE REF: this IS the question CI asks -----
+$ TREE=$(git merge-tree --write-tree 17167481 89a7c0de)
+$ MERGE=$(git commit-tree $TREE -p 17167481 -p 89a7c0de -m 'SIMULATED …')   # 0feaa1ef
+$ python3 scripts/validate-release-tag-gate.py --head 0feaa1ef4b42cde5fe5294d411d7f2a7349f5f5d --base 17167481   # SIMULATED PR merge ref: first parent = main tip 17167481, second = branch tip 89a7c0de
+## release-tag-gate
+release surface touched by this pull request (2 path(s)):
+  - contracts/manifest.yaml
+  - contracts/releases/contract-v3.6.digests.yaml
+declared bundle: contract-v3.5 at the base 17167481e -> contract-v3.6 at the head 0feaa1ef4
+  [info] contract-v2.6 is declared SPENT: it was cut, has no published annotated tag, and contract-v3.0 — itself cut, itself published and strictly later — superseded it. The record is contracts/CHANGELOG.md § contract-v3.0 — RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. The tag obligation was not met, it was EXTINGUISHED by an owner act at the cost of a version number
+the release-tag obligation holds over the merge tree 0feaa1ef4: no error, no warning
+
+TAG OWED: `contract-v3.6` has no published annotated tag. Publishing it is an act after this pull request merges, at the merge commit, per the versioning policy's realization order step 5. Until it exists the nightly doc-health run reports this bundle, and the NEXT pull request that touches the release surface will be refused by this gate.
+::notice title=release-tag-gate::TAG OWED: `contract-v3.6` has no published annotated tag. Publishing it is an act after this pull request merges, at the merge commit, per the versioning policy's realization order step 5. Until it exists the nightly doc-health run reports this bundle, and the NEXT pull request that touches the release surface will be refused by this gate.
+rc=0
+
+CONCLUSION, STATED PLAINLY. Both readings are true of what they measure and they
+do not contradict each other. The branch-tip reading is a WARNING at distance 1
+because the branch's own first-parent chain carries the cut AND the evidence
+commit, both declaring contract-v3.6. The merge-ref reading — the one the
+required status check actually performs — is rc=0, "the release-tag obligation
+holds over the merge tree 0feaa1ef4: no error, no warning".
+
+SO THE FOLLOW-UP EVIDENCE-ONLY COMMIT DOES NOT RED THE GATE, and #866's rule is
+narrower than its wording: what must not be stacked above the declaration is a
+commit that would land on MAIN above it, which is what the family grades once the
+cut is on main. It is still true, and still the safer discipline, that everything
+the candidate CAN carry should ride the candidate — which is why every gate that
+does not address the candidate by sha rides it here, and only the three that do
+(--head, --commit, and the full suite) plus their transcripts follow.
+
+WHAT THIS DOES NOT SAY. It does not say the tag obligation is met. TAG OWED is
+the notice at both readings, it is the expected state at a cut, and box 5.6
+leaves it to the operator at the LANDED merge commit.
