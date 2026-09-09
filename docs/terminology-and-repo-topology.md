@@ -204,11 +204,16 @@ inventory is release-gate evidence, not a dependency pin: before a contract
 bundle publishes, it proves that the pinned `stack.yaml` of every supported
 domain repository still validates at its exact published commit, read as
 exact `commit:path` Git objects rather than from any local working tree. It
-currently names `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
-`opensoft/MedxFactory`, `opensoft/OpsxFactory`, and `opensoft/codexFactory`,
+currently names `codeXfactory/codexFactory`, `opensoft/AdxFactory`,
+`opensoft/LedgerxFactory`, `opensoft/MedxFactory`, and `opensoft/OpsxFactory`,
 and records `opensoft/LegalxFactory` as an explicit exclusion until it has a
 canonical `stack.yaml`. It never obliges a domain repo to upgrade, and it
 does not invert the compatibility direction above.
+
+A repository that has MOVED ORGANIZATIONS keeps its recorded former spelling
+wherever that spelling is a dated record, and the former identity is resolved
+BY LOOKUP in `contracts/policies/repository-identity.yaml` — never through a
+provider redirect, which lapses the moment the former owner reuses the name.
 
 ## DomainxFactory Internal Shape
 

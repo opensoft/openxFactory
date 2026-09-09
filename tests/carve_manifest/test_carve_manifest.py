@@ -23,6 +23,17 @@ record of the digest-field divergence — and the script's SOURCE is read once
 more to assert that the closed vocabulary is COMPLETE: those are claims about
 the file's contents rather than about a run.
 
+CHECK 2 IS ANCESTRY, NOT IDENTITY (amended 2026-09-09, before the manifest was
+authored), so most of what used to be one `carve-revision-mismatch` is now a
+NAMED FILE. The tests below are shaped around that: a revision that merely
+descends from the carve commit VERIFIES — that is a pull request's merge ref
+and `main` after the manifest lands, the only two revisions this validator ever
+actually runs at — while a surface file changed, deleted, chmod'd or added
+since the carve refuses one by one. Each of those cases used to be answered by
+the revision check before any file was read, and every test here that pins the
+new answer was PROVEN to fail against `git show
+origin/main:scripts/validate-carve-manifest.py` and to pass against this one.
+
 THE REAL-REPOSITORY TEST IS THE § 8.2 SEAT AND IT DOES NOT SKIP.
 `docs/opendox-carve-manifest.yaml` does not exist yet — the § 6 ceremony
 authors it at the carve commit, AFTER this validator lands — so today the
@@ -235,6 +246,46 @@ def add_paths_utf8_cannot_hold(scratch: Scratch) -> str:
     _git(scratch.repo, "add", "--", "scripts")
     _git(scratch.repo, "commit", "-q", "-m", "names Unicode cannot hold")
     return _git(scratch.repo, "rev-parse", "HEAD").stdout.strip()
+
+
+def commit_since_the_carve(scratch: Scratch, message: str,
+                          *pathspecs: str) -> str:
+    """`main` moves on after the manifest was cut; return the new sha.
+
+    That is the situation this whole amendment is about, and every test below
+    that builds one needs the same three lines. EXPLICIT PATHSPECS and never
+    `git add -A`: the fixture writes the manifest into the scratch tree's
+    `docs/` and it must stay UNTRACKED — a manifest committed into the
+    repository it describes would change the tree it is being validated
+    against. With no pathspecs the already-staged index is committed, which is
+    how the `git rm` and `update-index --chmod` cases arrive here.
+    """
+    if pathspecs:
+        _git(scratch.repo, "add", "--", *pathspecs)
+    _git(scratch.repo, "commit", "-q", "-m", message)
+    return _git(scratch.repo, "rev-parse", "HEAD").stdout.strip()
+
+
+def divergent_line(scratch: Scratch) -> str:
+    """A commit that descends from `scratch.first` and NOT from `scratch.head`.
+
+    The one revision the ancestry check must still refuse: a tree the carve
+    commit is not in the history of, where a file-by-file comparison would be
+    measuring two unrelated lines against each other.
+    """
+    _git(scratch.repo, "checkout", "-q", "-b", "divergent", scratch.first)
+    _write(scratch.repo, "docs/divergent.md", "# a line the carve is not on\n")
+    _git(scratch.repo, "add", "--", "docs/divergent.md")
+    _git(scratch.repo, "commit", "-q", "-m", "a line the carve is not on")
+    sha = _git(scratch.repo, "rev-parse", "HEAD").stdout.strip()
+    _git(scratch.repo, "checkout", "-q", "main")
+    return sha
+
+
+# A 40-lowercase-hex string that passes check 1's grammar and names no object
+# in any repository — the `carve_commit` a re-cut typo produces, and the one
+# case ancestry cannot even ask about.
+UNKNOWN_COMMIT = "deadbeef" * 5
 
 
 @pytest.fixture
@@ -536,9 +587,40 @@ def test_at_verifies_an_earlier_carve_commit(scratch: Scratch) -> None:
     assert scratch.first[:12] in done.stdout, done.stdout
 
 
-def test_an_at_that_resolves_elsewhere_still_refuses(scratch: Scratch) -> None:
-    refuses(scratch, clean_manifest(scratch, scratch.first),
-            "carve-revision-mismatch", "--at", scratch.head)
+def test_at_a_descendant_with_no_surface_change_verifies(
+        scratch: Scratch) -> None:
+    """`--at` A REVISION THE CARVE COMMIT IS AN ANCESTOR OF, with the surface
+    untouched between them — the shape of every real run of this validator.
+
+    Proven against `origin/main`'s validator, which required the tested
+    revision to RESOLVE TO `carve_commit` and therefore refused this with
+    `carve-revision-mismatch`: a pull request's merge ref is a commit no
+    manifest can name, and `main` after the manifest lands is the manifest's
+    own squash, so the landed check could not pass anywhere it would ever run.
+    """
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "docs/later.md", "# outside the carve surface\n")
+    later = commit_since_the_carve(scratch, "main moves on, off the surface",
+                                   "docs/later.md")
+    scratch.write(doc)
+    done = run(scratch, "--at", later)
+    assert done.returncode == 0, done.stdout + done.stderr
+    # BOTH revisions named, because they differ.
+    assert scratch.head[:12] in done.stdout, done.stdout
+    assert f"verified at {later[:12]}" in done.stdout, done.stdout
+
+
+def test_at_a_revision_the_carve_commit_does_not_reach_refuses(
+        scratch: Scratch) -> None:
+    """Ancestry is not "any two commits": a revision on a line the carve commit
+    is not in the history of still refuses, because every comparison below it
+    would be measuring two unrelated trees and reporting the difference as
+    drift."""
+    other = divergent_line(scratch)
+    combined = refuses(scratch, clean_manifest(scratch),
+                       "carve-revision-mismatch", "--at", other)
+    assert "NOT AN ANCESTOR" in combined, combined
+    assert other in combined, combined
 
 
 def test_an_unresolvable_at_refuses(scratch: Scratch) -> None:
@@ -785,19 +867,74 @@ def test_a_non_string_destination_key_refuses(scratch: Scratch) -> None:
 # check 2 — revision
 # --------------------------------------------------------------------------
 
-def test_head_that_is_not_the_carve_commit_refuses(scratch: Scratch) -> None:
-    """The manifest is the LAST thing on the carve tree, so anything merged
-    after it goes red until it is re-cut. That is the ceremony's intended
-    pressure."""
-    doc = clean_manifest(scratch, scratch.first)
+def test_a_head_that_has_moved_past_the_carve_commit_verifies(
+        scratch: Scratch) -> None:
+    """THE CASE THE AMENDMENT EXISTS FOR, at the documented invocation.
+
+    The manifest is cut at the carve commit and `main` moves on — off the
+    surface — and the plain `HEAD` run must pass. `origin/main`'s validator
+    refused this as `carve-revision-mismatch`, which is why the manifest's own
+    pull request could never have been green: CI checks out a merge ref, and
+    after the manifest lands `HEAD` is its own squash. Neither is ever
+    `carve_commit`, and neither ever will be.
+    """
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "docs/later.md", "# outside the carve surface\n")
+    later = commit_since_the_carve(scratch, "main moves on, off the surface",
+                                   "docs/later.md")
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"verified at {later[:12]}" in done.stdout, done.stdout
+
+
+def test_a_carve_commit_the_repository_does_not_carry_refuses(
+        scratch: Scratch) -> None:
+    """A referent nobody can resolve is a claim about nothing — and the
+    reader has to be told THAT, not told that HEAD is some other sha. It is
+    also the finding a checkout too shallow to reach the carve commit
+    produces, which this validator cannot distinguish and does not pretend to.
+    """
+    doc = clean_manifest(scratch)
+    doc["carve_commit"] = UNKNOWN_COMMIT
     combined = refuses(scratch, doc, "carve-revision-mismatch")
+    assert "DOES NOT CARRY" in combined, combined
+    assert UNKNOWN_COMMIT in combined, combined
+
+
+def test_an_annotated_tags_object_id_used_as_the_referent_refuses(
+        scratch: Scratch) -> None:
+    """THE TAG IS A LABEL AND NEVER THE REFERENT — and an annotated tag's
+    OBJECT ID is 40 lowercase hex, so it passes check 1's grammar exactly as a
+    commit id does.
+
+    Every git command below check 2 peels a tag silently: `merge-base`,
+    `ls-tree` and `cat-file` would all have accepted it and verified the whole
+    manifest against a referent the § 6 ceremony forbids. The landed identity
+    check refused this as a SIDE EFFECT — a tag object id can never equal a
+    `rev-parse HEAD^{commit}` — so ancestry has to refuse it deliberately.
+    Copilot review `3972445078`, 2026-09-09.
+    """
+    _git(scratch.repo, "tag", "-a", "opendox-carve-0", "-m", "the label",
+         scratch.head)
+    tag_object = _git(scratch.repo, "rev-parse",
+                      "opendox-carve-0").stdout.strip()
+    assert tag_object != scratch.head, tag_object
+    assert _git(scratch.repo, "cat-file", "-t",
+                tag_object).stdout.strip() == "tag"
+    doc = clean_manifest(scratch)
+    doc["carve_commit"] = tag_object
+    combined = refuses(scratch, doc, "carve-revision-mismatch")
+    assert "PEELS to" in combined, combined
     assert scratch.head in combined, combined
 
 
 def test_the_revision_check_runs_before_the_digests(scratch: Scratch) -> None:
-    """A stale tree is reported as ONE revision mismatch rather than as a pile
-    of digest failures — the ordering is the finding."""
-    doc = clean_manifest(scratch, scratch.first)
+    """A referent this repository cannot resolve is reported as ONE revision
+    mismatch rather than as a pile of digest failures — the ordering is the
+    finding, and the digests could not be recomputed at that commit anyway."""
+    doc = clean_manifest(scratch)
+    doc["carve_commit"] = UNKNOWN_COMMIT
     row_named(doc, "alpha.py")["sha256"] = "0" * 64
     refuses(scratch, doc, "carve-revision-mismatch")
 
@@ -885,6 +1022,84 @@ def test_an_edit_on_the_last_line_of_the_blob_passes(scratch: Scratch) -> None:
     assert row_named(doc, "beta.py")["edits"][1]["lines"] == [3]
     scratch.write(doc)
     assert run(scratch).returncode == 0
+
+
+# --------------------------------------------------------------------------
+# check 3, pass 2 — the tree the carve would actually run against
+# --------------------------------------------------------------------------
+
+def test_a_surface_file_changed_since_the_carve_refuses(
+        scratch: Scratch) -> None:
+    """MEMO § 6 STEP 3, VERBATIM: "a file changed on main between the manifest
+    and the move surfaces as `carve-digest-mismatch` on the next pull request".
+
+    This is where that pressure lives now. `origin/main`'s validator answered
+    the same fixture `carve-revision-mismatch` — the RIGHT outcome for the
+    wrong reason, and one it would have given just as loudly for a revision on
+    which nothing had changed at all.
+    """
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "scripts/pkg/alpha.py", "ALPHA = 99\n")
+    later = commit_since_the_carve(scratch, "alpha moves after the manifest",
+                                   "scripts/pkg/alpha.py")
+    combined = refuses(scratch, doc, "carve-digest-mismatch")
+    assert "CHANGED SINCE THE CARVE" in combined, combined
+    assert "scripts/pkg/alpha.py" in combined, combined
+    # BOTH sides of the comparison are printed, and the second one is the real
+    # sha256 at the tested revision rather than a restatement of the row.
+    assert scratch.head[:12] in combined, combined
+    assert later[:12] in combined, combined
+    assert scratch.digest(later, "scripts/pkg/alpha.py") in combined, combined
+
+
+def test_a_moved_row_whose_file_is_deleted_since_the_carve_refuses(
+        scratch: Scratch) -> None:
+    """A source the tree has dropped since the carve is a move nobody can
+    review at the destination."""
+    doc = clean_manifest(scratch)
+    _git(scratch.repo, "rm", "-q", "--", "scripts/pkg/alpha.py")
+    commit_since_the_carve(scratch, "alpha deleted after the manifest")
+    combined = refuses(scratch, doc, "carve-path-absent")
+    assert "DELETED SINCE THE CARVE" in combined, combined
+    assert "scripts/pkg/alpha.py" in combined, combined
+
+
+def test_a_mode_flip_since_the_carve_refuses(scratch: Scratch) -> None:
+    """The mode is compared at BOTH revisions for the reason it is carried at
+    all: a mode flip is the one change a blob digest cannot see, and one that
+    lands after the carve would travel to the destination unnoticed.
+
+    `update-index --chmod`, not `os.chmod`: the mode is staged directly, so the
+    fixture does not depend on `core.fileMode` being honoured by the
+    filesystem the tests happen to run on.
+    """
+    doc = clean_manifest(scratch)
+    _git(scratch.repo, "update-index", "--chmod=+x", "scripts/pkg/alpha.py")
+    commit_since_the_carve(scratch, "alpha becomes executable after the carve")
+    combined = refuses(scratch, doc, "carve-digest-mismatch")
+    assert "MODE DRIFT SINCE THE CARVE" in combined, combined
+    assert "100755" in combined, combined
+
+
+def test_a_lie_about_the_referent_outranks_a_change_since_the_carve(
+        scratch: Scratch) -> None:
+    """THE TWO-PASS ORDER, PINNED. A manifest that lies about its own referent
+    is a DOCUMENT defect its author fixes by recomputing one digest; a file
+    that moved on `main` afterwards is a TREE fact whose remedy is the § 6
+    re-cut. The reader must be handed the first even when the second is also
+    true — and `alpha.py` sorts BEFORE `gamma.py`, so a single row loop doing
+    both comparisons would report the re-cut and choose the reader's remedy by
+    filename.
+    """
+    doc = clean_manifest(scratch)
+    row_named(doc, "gamma.py")["sha256"] = "0" * 64
+    _write(scratch.repo, "scripts/pkg/alpha.py", "ALPHA = 99\n")
+    commit_since_the_carve(scratch, "alpha moves after the manifest",
+                           "scripts/pkg/alpha.py")
+    combined = refuses(scratch, doc, "carve-digest-mismatch")
+    assert "DIGEST DRIFT" in combined, combined
+    assert "gamma.py" in combined, combined
+    assert "CHANGED SINCE THE CARVE" not in combined, combined
 
 
 # --------------------------------------------------------------------------
@@ -980,6 +1195,52 @@ def test_a_sibling_directory_is_not_swallowed_by_the_prefix(
     scratch.write(doc)
     done = run(scratch)
     assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_file_added_under_the_surface_since_the_carve_refuses(
+        scratch: Scratch) -> None:
+    """The second half of memo § 6 step 3's pressure, and the half no digest
+    can carry: a file ADDED under the surface after the carve is in no row, and
+    a file in no row is an UNDECLARED MOVEMENT (RULING OQ-1). `origin/main`'s
+    validator reached this fixture as `carve-revision-mismatch`, naming a sha
+    instead of the file."""
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "scripts/pkg/epsilon.py", "EPSILON = 5\n")
+    commit_since_the_carve(scratch, "a new module under the carve surface",
+                           "scripts/pkg/epsilon.py")
+    combined = refuses(scratch, doc, "carve-file-undeclared")
+    assert "APPEARED" in combined, combined
+    assert "scripts/pkg/epsilon.py" in combined, combined
+
+
+def test_a_not_moved_row_whose_file_is_deleted_since_the_carve_refuses(
+        scratch: Scratch) -> None:
+    """The digest loop never reads a `not_moved` row, so check 3's pass 2
+    cannot see this one — the surface walk at the tested revision is what
+    catches it, exactly as the referent-side walk already catches a `not_moved`
+    row for a path the carve commit never carried."""
+    doc = clean_manifest(scratch)
+    _git(scratch.repo, "rm", "-q", "--", "scripts/pkg/delta.py")
+    commit_since_the_carve(scratch, "the adapter file deleted after the carve")
+    combined = refuses(scratch, doc, "carve-path-absent")
+    assert "DELETED SINCE THE CARVE" in combined, combined
+    assert "scripts/pkg/delta.py" in combined, combined
+    assert "not_moved" in combined, combined
+
+
+def test_a_file_added_outside_the_surface_since_the_carve_does_not_refuse(
+        scratch: Scratch) -> None:
+    """The second walk is the SURFACE's, not the tree's. `main` growing a file
+    the carve does not touch is not the carve's business, and a gate that could
+    not tell the two apart would be the identity check again under another
+    name."""
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "docs/unrelated.md",
+           "# nothing to do with the carve\n")
+    commit_since_the_carve(scratch, "an unrelated document",
+                           "docs/unrelated.md")
+    scratch.write(doc)
+    assert run(scratch).returncode == 0
 
 
 def test_the_digest_check_runs_before_the_surface_check(
@@ -1078,10 +1339,31 @@ def test_json_reports_the_summary(scratch: Scratch) -> None:
     payload = json.loads(done.stdout)
     assert payload["result"] == "ok"
     assert payload["carve_commit"] == scratch.head
+    # The revision the run was VERIFIED at, always carried — equal to the carve
+    # commit here, because nothing has moved.
+    assert payload["verified_at"] == scratch.head
     assert payload["rows"] == 4
     assert payload["digests_recomputed"] == 3
     assert payload["surface"] == 4
     assert payload["dispositions"]["not_moved"] == 1
+
+
+def test_json_names_the_verified_revision_when_it_differs(
+        scratch: Scratch) -> None:
+    """A caller reading the JSON must be able to tell WHICH revision was
+    verified — on a merge ref the two are never the same commit, and a summary
+    that carried only `carve_commit` would say nothing about what was
+    actually read."""
+    doc = clean_manifest(scratch)
+    _write(scratch.repo, "docs/later.md", "# outside the carve surface\n")
+    later = commit_since_the_carve(scratch, "main moves on, off the surface",
+                                   "docs/later.md")
+    scratch.write(doc)
+    done = run(scratch, "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["carve_commit"] == scratch.head
+    assert payload["verified_at"] == later
 
 
 def test_json_reports_the_refusal_code(scratch: Scratch) -> None:

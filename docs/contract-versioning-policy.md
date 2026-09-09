@@ -445,8 +445,8 @@ implicit "all current domains" scan.
 `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` names
 every supported DomainxFactory repository with an exact published commit,
 `stack.yaml` path, raw-blob digest, and expected contract pin — currently
-`opensoft/AdxFactory`, `opensoft/LedgerxFactory`, `opensoft/MedxFactory`,
-`opensoft/OpsxFactory`, and `opensoft/codexFactory`, with
+`codeXfactory/codexFactory`, `opensoft/AdxFactory`, `opensoft/LedgerxFactory`,
+`opensoft/MedxFactory`, and `opensoft/OpsxFactory`, with
 `opensoft/LegalxFactory` recorded as an explicit exclusion until it carries
 a canonical `stack.yaml`. Before a bundle publishes, every inventoried pin
 must revalidate from exact `commit:path` Git objects resolved through

@@ -189,6 +189,31 @@ jobs:
       # owners rather than guessing — the same refusal as before, moved from
       # "more than one" to "more than the slots this file carries".
       #
+      # THE THIRD OWNER IS THE MOVED DECISION CORE, AND NOTHING HERE NAMES IT
+      # (openxFactory slice B1b of `adopt-codexfactory-repository-identity`;
+      # codeXfactory/codexFactory#279, the 6.5 precheck ruling of
+      # 2026-09-09T15:25Z). `xFactories/codexFactory` left `opensoft` for its
+      # own enterprise organization `codeXfactory` on 2026-09-09; the
+      # aggregation's `.gitmodules` follows in opensoft/xFactory#376, and from
+      # that commit the governed set spans THREE foreign owners — `MedxSoft`,
+      # `ledgerXfactory` and `codeXfactory`. The detection below needed no new
+      # line for it: it reads the owner out of `.gitmodules`, and
+      # `actions/create-github-app-token@v2` resolves the installation from its
+      # own `owner:` input, so the only thing the moved core required was the
+      # installation — which exists. The App behind `XFACTORY_APP_ID` is App
+      # `4253636` (`openxfactory`), and it carries installation `160352673` on
+      # `codeXfactory` (all repositories, created 2026-09-09T10:42-04:00,
+      # `contents: write`), alongside `157085693` on `MedxSoft` and
+      # `160353680` on `ledgerXfactory` — one App, three installations, one per
+      # organization, which is exactly the shape the slot mechanism assumes.
+      # What the flip DOES consume is the SPARE slot: three owners in three
+      # slots leaves none, and the next repoint would then red the nightly in
+      # the refusal below — the #366 failure again, one organization later. So
+      # the slot count moves 3 -> 4 in the same act that admits the third
+      # owner, which keeps the property the spare was chosen for. This is the
+      # procedure the refusal message itself prescribes, carried out ahead of
+      # the `.gitmodules` flip rather than after it.
+      #
       # A NESTED LEG IN A THIRD ORGANIZATION IS OUT OF REACH HERE, and that is
       # bounded rather than silent: this step reads the AGGREGATION's
       # `.gitmodules`, which is all that exists before the init below runs, so
@@ -209,10 +234,11 @@ jobs:
           # output — the rewrite step below, so none of the three can disagree
           # with the others. `tests/doc-health/test_submodule_owner_tokens.py`
           # asserts it equals the number of mint steps actually present, in
-          # BOTH the prepare and finalize jobs. Three today for two owners:
-          # one spare slot so the next repoint is a `.gitmodules` edit and not
-          # a red nightly.
-          FOREIGN_OWNER_SLOTS: "3"
+          # BOTH the prepare and finalize jobs. FOUR, for the THREE owners the
+          # aggregation declares from opensoft/xFactory#376 onward (see the
+          # moved-decision-core note above): one spare slot so the next repoint
+          # is a `.gitmodules` edit and not a red nightly.
+          FOREIGN_OWNER_SLOTS: "4"
         run: |
           set -euo pipefail
           # The SAME governed filter the init step below applies, so the two can
@@ -305,6 +331,15 @@ jobs:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
           owner: ${{ steps.foreign-owner.outputs.owner_3 }}
+      - name: Mint app token for foreign submodule owner 4
+        id: foreign-app-token-4
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_4 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_4 }}
       # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
       # `insteadOf` by the LONGEST matching left-hand side, and
       # `git@github.com:<owner>/` is longer than `git@github.com:` — this
@@ -346,6 +381,8 @@ jobs:
           TOKEN_2: ${{ steps.foreign-app-token-2.outputs.token }}
           OWNER_3: ${{ steps.foreign-owner.outputs.owner_3 }}
           TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
+          OWNER_4: ${{ steps.foreign-owner.outputs.owner_4 }}
+          TOKEN_4: ${{ steps.foreign-app-token-4.outputs.token }}
         run: |
           set -euo pipefail
           # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the
@@ -1286,6 +1323,31 @@ jobs:
       # owners rather than guessing — the same refusal as before, moved from
       # "more than one" to "more than the slots this file carries".
       #
+      # THE THIRD OWNER IS THE MOVED DECISION CORE, AND NOTHING HERE NAMES IT
+      # (openxFactory slice B1b of `adopt-codexfactory-repository-identity`;
+      # codeXfactory/codexFactory#279, the 6.5 precheck ruling of
+      # 2026-09-09T15:25Z). `xFactories/codexFactory` left `opensoft` for its
+      # own enterprise organization `codeXfactory` on 2026-09-09; the
+      # aggregation's `.gitmodules` follows in opensoft/xFactory#376, and from
+      # that commit the governed set spans THREE foreign owners — `MedxSoft`,
+      # `ledgerXfactory` and `codeXfactory`. The detection below needed no new
+      # line for it: it reads the owner out of `.gitmodules`, and
+      # `actions/create-github-app-token@v2` resolves the installation from its
+      # own `owner:` input, so the only thing the moved core required was the
+      # installation — which exists. The App behind `XFACTORY_APP_ID` is App
+      # `4253636` (`openxfactory`), and it carries installation `160352673` on
+      # `codeXfactory` (all repositories, created 2026-09-09T10:42-04:00,
+      # `contents: write`), alongside `157085693` on `MedxSoft` and
+      # `160353680` on `ledgerXfactory` — one App, three installations, one per
+      # organization, which is exactly the shape the slot mechanism assumes.
+      # What the flip DOES consume is the SPARE slot: three owners in three
+      # slots leaves none, and the next repoint would then red the nightly in
+      # the refusal below — the #366 failure again, one organization later. So
+      # the slot count moves 3 -> 4 in the same act that admits the third
+      # owner, which keeps the property the spare was chosen for. This is the
+      # procedure the refusal message itself prescribes, carried out ahead of
+      # the `.gitmodules` flip rather than after it.
+      #
       # A NESTED LEG IN A THIRD ORGANIZATION IS OUT OF REACH HERE, and that is
       # bounded rather than silent: this step reads the AGGREGATION's
       # `.gitmodules`, which is all that exists before the init below runs, so
@@ -1306,10 +1368,11 @@ jobs:
           # output — the rewrite step below, so none of the three can disagree
           # with the others. `tests/doc-health/test_submodule_owner_tokens.py`
           # asserts it equals the number of mint steps actually present, in
-          # BOTH the prepare and finalize jobs. Three today for two owners:
-          # one spare slot so the next repoint is a `.gitmodules` edit and not
-          # a red nightly.
-          FOREIGN_OWNER_SLOTS: "3"
+          # BOTH the prepare and finalize jobs. FOUR, for the THREE owners the
+          # aggregation declares from opensoft/xFactory#376 onward (see the
+          # moved-decision-core note above): one spare slot so the next repoint
+          # is a `.gitmodules` edit and not a red nightly.
+          FOREIGN_OWNER_SLOTS: "4"
         run: |
           set -euo pipefail
           # The SAME governed filter the init step below applies, so the two can
@@ -1402,6 +1465,15 @@ jobs:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
           owner: ${{ steps.foreign-owner.outputs.owner_3 }}
+      - name: Mint app token for foreign submodule owner 4
+        id: foreign-app-token-4
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.owner_4 != ''
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.owner_4 }}
       # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
       # `insteadOf` by the LONGEST matching left-hand side, and
       # `git@github.com:<owner>/` is longer than `git@github.com:` — this
@@ -1443,6 +1515,8 @@ jobs:
           TOKEN_2: ${{ steps.foreign-app-token-2.outputs.token }}
           OWNER_3: ${{ steps.foreign-owner.outputs.owner_3 }}
           TOKEN_3: ${{ steps.foreign-app-token-3.outputs.token }}
+          OWNER_4: ${{ steps.foreign-owner.outputs.owner_4 }}
+          TOKEN_4: ${{ steps.foreign-app-token-4.outputs.token }}
         run: |
           set -euo pipefail
           # A SLOT COUNT THAT DID NOT ARRIVE IS ITS OWN REFUSAL. `SLOTS` is the

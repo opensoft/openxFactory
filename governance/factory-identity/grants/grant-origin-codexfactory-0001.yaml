@@ -14,7 +14,7 @@
 # checked, not intended, by the disjointness rule in
 # `scripts/validate-factory-identity.py`.
 #
-# THE SCOPE IS ONE REPOSITORY. `objects` narrows to `opensoft/codexFactory`, so
+# THE SCOPE IS ONE REPOSITORY. `objects` narrows to `codeXfactory/codexFactory`, so
 # a signature under this grant evidences codexFactory's origination and nothing
 # else. A second originating repository is a NEW wallet, a NEW grant and a NEW
 # row — never a widened `objects` list here, because widening this object
@@ -53,12 +53,12 @@ kind: xfactory_wallet_grant
 grant_id: grant-origin-codexfactory-0001
 audience:
   wallet_ref: wal-origin-codexfactory-0001
-  holder_ref: opensoft/codexFactory
+  holder_ref: codeXfactory/codexFactory
 scope:
   acts:
     - originate
   objects:
-    - opensoft/codexFactory
+    - codeXfactory/codexFactory
   authority_tier: act
   approval_posture:
     hermes_approval_required_before_apply: true

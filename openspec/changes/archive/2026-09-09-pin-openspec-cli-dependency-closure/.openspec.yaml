@@ -32,14 +32,9 @@ origin:
     digest recorded in the pin, the installer and verifier bound to it;
     standard npm mechanism, regenerated per bump.* THE RULING AUTHORIZED THE
     AUTHORING AND NOT THE CONTENT — it settles WHICH of four exits is taken and
-    nothing else. The ruling is recorded on openxFactory PR #667 in this lane's
-    CLAIMED comment at that timestamp. THE SEPARATE ACT THIS FIELD ONCE SAID WAS
-    OWED HAS HAPPENED: Brett Heap ratified the text on 2026-09-09T03:19Z,
-    verbatim **"ratify 813"**, first-hand to lane codexfactory-1 with no relay,
-    and the packet now carries `Status: ratified` with its citation; the record
-    is `review/ratification-2026-09-09.md`. This field still describes the FIRST
-    act, which is what `approved_by` means here — who authorized the AUTHORING —
-    with the second named so the file does not assert a state that has moved.
+    nothing else. This packet carries `Status: draft`, carries no ratification
+    citation, and owes one from a separate act. The ruling is recorded on
+    openxFactory PR #667 in this lane's CLAIMED comment at that timestamp.
   approved_on: 2026-09-08
 related:
   - openxFactory:change:add-openspec-cli-pin              # ACTIVE. #667. Cut the pin, DECLARED this shortfall in the pin's header, and carries it as design OI-1 and task 5.2

@@ -63,7 +63,7 @@ groups:
   - opensoft/xFactory
   observed_repositories:
   - opensoft/xFactory
-  - opensoft/codexFactory
+  - codeXfactory/codexFactory
   clearing_path_admitted: false
   enumerated_members:
   - workflow: council-deliberation-worker.yml
@@ -97,7 +97,7 @@ groups:
       can reach the host that the enumeration does not account for: a SINGLE-DOOR BREACH.'
   - finding_class: widening
     runner_group: xfactory-artifact-workers
-    subject: opensoft/codexFactory
+    subject: codeXfactory/codexFactory
     expected_set: []
     detail: an admitted repository other than the clearing repository — a widening of the
       same class, and the residual the ruling closes. It is why run 33381257642 could queue
