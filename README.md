@@ -519,6 +519,141 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
+  first-hand and with NO RELAY to lane `codexfactory-1` (session name
+  `codeXfactory-1`), verbatim **"ratify 813"** at 2026-09-09T03:19Z, over head
+  `f2f7ee8d` with every check green and 0 unresolved threads; record
+  `openspec/changes/pin-openspec-cli-dependency-closure/review/ratification-2026-09-09.md`).
+  **CLOSES THE OPEN ITEM #667 DECLARED
+  AND DID NOT CLOSE.** `contracts/openspec-cli-pin.yaml` has said since
+  2026-09-04 that its referent addresses the CLI's own bytes and **not** its
+  DEPENDENCY CLOSURE — `@fission-ai/openspec@1.12.0` declares ten runtime
+  dependencies, nine of them caret ranges npm resolved at install time, so two
+  runs of the identical verified artifact could adjudicate this corpus over two
+  different trees. This packet vendors an authored
+  `contracts/openspec-cli-pin.1.12.0.package-lock.json` (80 packages, every one
+  resolved and addressed, its entry for the CLI carrying the pin's own
+  referent), records it in the pin as `lockfile:` / `lockfile_integrity:` /
+  `lockfile_packages:`, and binds the verifier and the installer to it: the
+  committed lockfile is hashed BEFORE any registry round trip, ONE new refusal
+  code `pin-lockfile-mismatch` covers digest drift, a lockfile locking another
+  artifact than the pin, a tree of the wrong size, ANY OTHER locked entry
+  carrying no `resolved`/`integrity` of its own (a `link: true` local directory
+  included — a closure with one unaddressed member is not a closure), and a
+  lockfile ROOT that asks for the pinned package nowhere (the last two added
+  2026-09-08 on Copilot review of PR #813, with a `lockfileVersion` check
+  refusing `pin-unreadable` outside the forms the reader implements), and the
+  install runs
+  `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
+  staging project whose `package.json` is DERIVED from the lockfile's own root
+  entry, INSPECTING the installed tree before the binary is asked what it is,
+  with the reuse cache keyed on the lockfile's digest as well as the
+  artifact's. **ALL THREE CALLERS of `resolve_pinned` are bound to it** — the
+  verifier's own `main`, `scripts/install-pinned-openspec-cli.py` (the install
+  `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through
+  which the ARCHIVE act runs; the third was MISSED on the first pass and this
+  pull request's own required `pytest-suite` caught it, which is why the
+  invariant is now a test that pins the caller list rather than a habit — one
+  that PARSES rather than greps, since Copilot review of this pull request, and
+  sweeps `scripts/`, `.github/` and `tests/` because it can. The
+  archive caller is where the closure matters most: `openspec archive` writes a
+  ratified delta into canon, and until this the tree adjudicating an archive
+  could differ from the tree adjudicating the validation that cleared it. **RULED**, not chosen by the lane: Brett Heap,
+  2026-09-08T14:14:49Z, first-hand, verbatim *"Vendor a lockfile
+  (Recommended)"*, on a four-option packet whose other three exits — enumerate
+  the resolved tree in the pin, vendor the built tree as one artifact by digest,
+  accept the shortfall as declared — are recorded with their reasons in
+  `design.md` § 1. **THAT RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT** —
+  the packet held `Status: draft` and task 5.1 open through FOUR Copilot review
+  rounds (13 threads, 11 taken and 2 cosmetic folded into the ratifying commit)
+  until the SECOND and separate word above ratified the text. Two words, one
+  operator, two days, two decisions, both recorded. **NOTHING NORMATIVE MOVES BY
+  THE RATIFICATION**: the two ADDED requirements are ratified as written, and
+  tasks 5.2 (validation re-run at the gate) and 5.3 (realization evidence)
+  remain OWED — ratification is not an archive. Ticks
+  `add-openspec-cli-pin` task 5.2 and `bump-openspec-cli-pin-to-1.12` task 6.4.
+  Two ADDED requirements in `neutral-product-pin` and nothing MODIFIED,
+  deliberately (`design.md` § 4): #667's own MODIFIED block on the referent rule
+  is still unarchived, and a second unarchived modifier of one requirement is
+  the overwrite this estate's scenario-currency findings are all about. **WHAT
+  STAYS OPEN, named rather than implied:** trust-on-first-use of the 79 registry
+  integrity values captured when the lockfile was generated; the regeneration
+  obligation at every bump — five things now move together, not four, enforced
+  by the verifier's first-run refusal rather than remembered; and the `1.2.0`
+  rollback entry, declared UNCOVERED in the pin itself, so a rollback is a change
+  to author and not a revert to apply. Workflows take NO edit at all, which is
+  the single-source property paying out.
+
+- [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
+  when green, then realize them"*, recorded 2026-09-08T23:51Z on
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
+  [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232), over
+  [#817](https://github.com/opensoft/openxFactory/pull/817); record
+  `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
+  lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
+  `codexFactory:change:relocate-review-authority-floor`
+  ([codexFactory #293](https://github.com/opensoft/codexFactory/pull/293)),
+  which answers MQ-1: the same word, not separately. **THE CONDITION *"when
+  green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
+  smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
+  `## MODIFIED` block carried no sibling-pairing declaration for a requirement
+  ADDED by the still-active `mirror-floor-regeneration-automation`, and the
+  packet had no `tests/sequenced_after/corpus-ledger.yaml` row. Both were fixed
+  IN THE PACKET, never in a test: the block now carries the reserved
+  `Modified over …'s addition by … (…):` marker in the same form the sibling
+  `amend-mirror-floor-regeneration-merge-authority` uses for the OTHER
+  requirement of the same parent, and the row was seeded by the sanctioned tool
+  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
+  row this repository has stamped through issue #790's UTC clock, which is why
+  its `moved_on` reads `2026-09-09`. **RATIFICATION PERFORMS NO REALIZATION** —
+  it ticks `tasks.md` boxes 1.1, 1.2, 5.1 and 5.2 and nothing else; **1.3 (MQ-2)
+  and 1.4 (MQ-3) stay open** and neither blocks realization (1). **M-1 THROUGH
+  M-7 STAND AS RECOMMENDED, no veto entered.** The
+  openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
+  verbatim *"rule shape 1, measure first, this lane realizes it"*
+  ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
+  comment 5586188401, mirrored on
+  [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
+  rules the SHAPE and ratifies no text.** codexFactory is to move
+  `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
+  CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
+  [codexFactory #293](https://github.com/opensoft/codexFactory/pull/293),
+  decision D-7 names this companion and D-2 sequences it FIRST). **THIS
+  REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
+  `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
+  `:301`, with the constant deliberately duplicated in
+  `scripts/review_lane_repin.py:69` and in two `tests/review_lane_pin/`
+  literals, *"for the reason … a value read from the artifact it is used to
+  check makes the check a tautology"* — so on the day codexFactory moves, every
+  firing of this lane becomes `floor_document_unobtainable`. The packet makes
+  `FLOOR_IN_SOURCE` an **ORDERED LIST** of candidate paths, old first,
+  first-obtained-wins, refusing only when EVERY candidate fails and naming every
+  path tried. ONE `## MODIFIED` against `review-lane-floor-mirror` (*"The
+  automated advance re-copies the vendored snapshot and recomputes its witnesses
+  from the bytes it wrote"* — the copy, the byte-witness rule and the refusal
+  are untouched; what changes is what *obtain* means). Decisions **M-1 … M-7**,
+  each vetoable except M-1, the ordering: **(1)** this repository accepts BOTH
+  paths → **(2)** codexFactory moves → **(3)** this repository drops the old
+  path. **M-2's whole point is that realization (1) is observably a NO-OP** —
+  old path first means behaviour is byte-identical until the document actually
+  moves, which is what makes it safe to land ahead of another repository.
+  **M-7: the lane is never taught to SEARCH** for the document — a discovered
+  file is one an author elsewhere can plant, and the byte copy goes into this
+  repository's witnessed snapshot. **M-5: nothing about the snapshot changes** —
+  the document's bytes do not move (`sha256 926d536d…f3c0`), so
+  `contracts/review-lane-floor-snapshot.yaml` is byte-identical throughout, and
+  the realization asserts that rather than assuming it. The measurement the
+  ruling required (*"measure first"*) is the sibling's and is not restated here:
+  codexFactory `openspec/changes/relocate-review-authority-floor/research/automerge-measurement-2026-09-08.md`.
+  `sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor]`.
+  **THIS PULL REQUEST PERFORMS
+  NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
+  in codexFactory is touched. **MQ-1 IS ANSWERED** — the same word as
+  codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
+
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim **"merge 292 when green,
@@ -2915,6 +3050,97 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [refresh-install-repository-enumerations](openspec/changes/archive/2026-09-09-refresh-install-repository-enumerations/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of the same day (in
+  session, ~00:3xZ, verbatim
+  *"archive refresh-install-repository-enumerations"*, recorded and claimed on
+  issue
+  [#591](https://github.com/opensoft/openxFactory/issues/591)) — given directly
+  after his ratifying word *"ratify refresh-install-repository-enumerations"*
+  (~00:24Z, comment 5593837071), so **TWO ACTS ON TWO WORDS**; and on the
+  `release-realization` rule its own front matter names: `code_surface: none`
+  and `target_release: implemented`, so the packet archives **ON LANDING**
+  rather than on merged-plus-green realization evidence. Ratification landed at
+  PR [#822](https://github.com/opensoft/openxFactory/pull/822) → squash
+  `5fb0851b` (2026-09-09T01:30:06Z), which is also the **ratifying commit** the
+  archive's origin gate retained against (`ORIGIN RETAINED`, declaration
+  unchanged); the authoring landed at
+  [#818](https://github.com/opensoft/openxFactory/pull/818) → `6da94302`.
+  **PROMOTED — SIX `## MODIFIED` REQUIREMENTS AND ONE `## ADDED`, ACROSS THREE
+  CAPABILITIES, BYTE-IDENTICAL TO THE ARCHIVED DELTAS.** All seven blocks were
+  extracted programmatically from delta and canon and hashed: identical on both
+  sides (`Install repository scope` 2,879 B; `Canonical workflow authority`
+  2,508 B; `Copy-first migration` 2,178 B; the ADDED *"Install-repository
+  enumerations are an index with a named authority"* 4,344 B; `Contract version
+  pinning` 4,082 B; `Submodule sequencing` 1,952 B; `Contract provenance and
+  compatibility` 1,666 B). **NOT ONE OTHER REQUIREMENT MOVED** — the 19
+  requirements the deltas do not name are byte-identical before and after —
+  and `repo-boundary-governance` goes **10 → 11** requirements while
+  `shared-contract-ownership` (12) and `canonical-contract-migration` (3) hold
+  their counts. **No file is added under `openspec/specs/`, so no codexFactory
+  floor advance is owed.** The eight frozen packet files are **PURE RENAMES**
+  (`git diff -M --numstat` reports `0 0` on each,
+  `review/ratification-2026-09-09.md` included), the one lawful `tasks.md` edit
+  having landed in the commit before
+  the serializer's output. **THE FOUR ENUMERATIONS #796 NAMED ARE ALL CLOSED,
+  AND ITS ITEM 2 IS CORRECTED ON THE RECORD:** enumerations 1 and 3 widened
+  from two and four names to five (with `OmniWorker-Install`'s own admission
+  record — path, remote, opensoft/xFactory#274 → `648c8bd3` — and a third
+  routing scenario appended); enumeration 2's in-scope unit is the *"Contract
+  breaks an adapter"* trigger's **two runtime ADAPTER FAMILIES**, not a
+  repository pair, `canonical-contract-migration` naming `Hermes-Install`
+  nowhere; and enumeration 4, the `## Purpose`, is § 4.1's owed act below.
+  **TWO UNITS #796 DID NOT LIST** were widened as veto point D3 and **not
+  vetoed** — the `WHEN` bullets of *"Canonical workflow authority"* and
+  *"Copy-first migration"*. **ONE WIDENING IS DELIBERATELY OPEN-ENDED** (D5,
+  also unvetoed): *"Submodule sequencing"* takes `… or a later install
+  repository`, because that scenario governs the act of ADMITTING a repository
+  that by definition is not yet indexed.
+  **THE `## Purpose` WAS WIDENED IN THIS ARCHIVE, AND THE PACKET DECLARED IT
+  OWED HERE** (`tasks.md` § 4.1, ratified in #822): the block named
+  `openxFactory`, `Hermes-Install` and `Omnigent-Install` and had not moved
+  since `9ebceeff` (2026-06-26) — 74 days and three repositories behind — while
+  the capability now governs five install-repository boundaries. It now names
+  all six repositories, in **one hunk separate from the promotion and in its own
+  commit AFTER it**, the shape `publish-openspec-cli-pin-as-contract-member`
+  used at its own archive (§ 5.8, promotion `26c2661b` then widening
+  `e0672360`). Measured token by token: **21 tokens → 24**, three names
+  inserted and the conjunction moving to the last item, canon's serial comma
+  before the final `and` preserved, every other token byte-identical, one line
+  removed and two added. No `Removed from canon by` marker is owed — a Purpose
+  carries no SHALL and is not a canon unit — and no promoted requirement's text
+  is edited by it.
+  **§ 3's SIX BOXES ARE STATEMENTS OF WHAT THE PACKET DOES NOT DO, AND EACH IS
+  TICKED AS A CONFIRMED DISPOSITION RATHER THAN AS WORK PERFORMED** — the
+  archive tool refuses any `- [ ]`, so they had to close, and each clause says
+  what was RE-MEASURED and what it read. § 3.2–§ 3.5 hold unqualified: no
+  script, workflow or test; no contract, register, digest inventory, version or
+  tag; no repository created, admitted, renamed, re-pinned or retired and no
+  submodule pointer anywhere in the estate; both named candidate sites
+  (`contracts/README.md` line 18, `docs/repo-boundary-pilot-plan.md` line 100)
+  still unedited **and NO issue filed at this archive at all**. § 3.6 is
+  re-measured inside the file the archive rewrote: *"Install repo scope links"*
+  is one of the seven untouched `repo-boundary-governance` requirements, so
+  D2's one real collision with the ACTIVE `implement-keycloak-install-repo` and
+  `implement-openxpki-install-repo` is never entered. **§ 3.1 IS THE ONE PLACE
+  THE ARCHIVE ACT ITSELF MOVES WHAT A BOX NAMES, AND ITS CLAUSE SAYS SO IN
+  TERMS**: the statement is about the PACKET'S OWN DIFF, which held exactly as
+  written (#818 → `6da94302` names nine files and no file under
+  `openspec/specs/`), and the tick claims that measurement rather than a claim
+  that canon is untouched here.
+  **openxFactory#796 IS NOT CLOSED BY THIS PULL REQUEST AND WAS OPEN AT ITS
+  HEAD.** § 4.2 ticks **ON THE RECORDING** under the ruling of 2026-09-06
+  (*"Tick on the recording"*), for the reason the ratified box itself gives —
+  the closing comment must name the archive commit, whose merge sha does not
+  exist until the merge — so the closing is the landing lane's act and the
+  comment's content is drafted in full inside the tick, item by item, including
+  the item-2 correction. The header paragraph that declared every box unticked
+  carries **two dated dispositions**, the ratification's and this archive's,
+  each quoting in place the one sentence it discharges; **no box's ratified text
+  is rewritten anywhere** — all nine ratified bodies are carried byte-identical
+  beneath their archive-time clauses, extracted programmatically rather than
+  retyped. Lane `openxfactory-3`.
 
 - [implement-omniworker-install-repo](openspec/changes/archive/2026-09-08-implement-omniworker-install-repo/proposal.md)
   — **ARCHIVED 2026-09-08**, on Brett Heap's separate word of the same day (in

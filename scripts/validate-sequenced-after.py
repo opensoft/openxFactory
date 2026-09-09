@@ -45,6 +45,49 @@ Usage:
     ledger is not this arm's finding — `--ledger-diff` owns that class — so the
     arm says it did not run and the verdict is unchanged.
 
+    AND IT GATES ON THE ARCHIVE DATE AGAINST HISTORY (issue #812), which is a
+    DIFFERENT FACT and a second arm — it prints and prefixes its findings
+    `archive-date-vs-commit`, the one token this help, these docs and the
+    output all use, so a log grep finds every line of it. Every directory under
+    `openspec/changes/archive/` matching `ARCHIVE_DIR` is measured against the
+    UTC committer date of the OLDEST commit that added it — one
+    `git log --diff-filter=A --reverse --no-renames --name-only` walk over the
+    archive root, so a batch archive act (many directories, one commit)
+    attributes correctly and the cost is 83ms rather than the 9.3s of 144
+    per-directory calls. A disagreement is reported BY NAME unless
+    `tests/sequenced_after/archive-date-dispositions.yaml` disposes of it, and a
+    disposition that names a directory which does not disagree, no longer
+    exists, or cites a commit history does not carry is reported too — a stale
+    disposition silences a finding on a fact nobody can check. The RECORD
+    carries the severity dial (`enforcement: warning|error`), so a repository
+    can adopt the arm and measure before it gates; `--strict-archive-dates`
+    asks for `error` regardless. A missing or unreadable record is CANNOT RUN
+    (exit 2) — the arm's whole basis for calling a disagreement dispositioned
+    is that file. A checkout that cannot answer the question at all — not a git
+    work-tree root, or SHALLOW, where every directory older than the graft
+    boundary would be attributed to the boundary commit — says it did not run
+    and leaves the verdict unchanged — while git FAILING in a checkout that
+    passed those probes (a partial clone with objects unavailable, a corrupt
+    object store) is CANNOT RUN, because green-with-the-gate-off is the one
+    answer a gate must never give.
+
+    THE ARM MEASURES A NAME AGAINST A COMMIT, AND CANNOT ITSELF JUDGE WHY THEY
+    DIFFER. FOUR causes produce the same shape: the clock defect; a
+    wrapper-made archive whose commit crossed UTC midnight; a change id that
+    arrived carrying its own `YYYY-MM-DD-` prefix (which the pinned CLI
+    preserves DELIBERATELY); and a directory RENAMED INSIDE `archive/` after
+    its archive act, which `--no-renames` attributes to the RENAME commit and
+    which can therefore disagree by any distance, not merely a day — the shape
+    of this corpus's two oldest directories, whose dispositions cite the rename
+    commit AND the archive act it moved. (Rename detection is not the repair:
+    under `-M` the destination never appears as an add and the directory would
+    be silently unmeasured.) That judgement is what a disposition's `fact`
+    records, and why the record is a record rather than an allow-list.
+
+    BOTH ARMS RUN ON ONE PASS. They read different things and want different
+    repairs, so the first one's failure does not return before the second has
+    reported.
+
     --archive-gate CHANGE_DIR --ratified-ref REF
         Parent-declaration retention (freeze) gate. CHANGE_DIR may name either
         the change's ACTIVE or its ARCHIVED directory — the ratified-side
@@ -209,6 +252,48 @@ def _archive_date_arm(repo_root: Path,
                                     require_equal=require_equal), None
 
 
+def _archive_commit_arm(
+    repo_root: Path,
+) -> tuple[list[str], "sa.ArchiveDateDispositions | None",
+           tuple[str, str] | None]:
+    """The `archive-date-vs-commit` findings, the severity the record
+    asks for, or the reason the arm could not run.
+
+    THE ORDER OF THE TWO REFUSALS IS THE POINT. Git is probed FIRST, and a
+    checkout that cannot answer the question — not a work-tree root, or shallow
+    — is `NOT RUN` and leaves the verdict alone, because that is a property of
+    the CHECKOUT and not of the repository: refusing there would red every
+    consumer who validates an exported tree, and inventing findings from a
+    history that does not describe it would be worse. The RECORD is read second,
+    and a missing or unreadable one is `CANNOT RUN` with exit 2, because that IS
+    a property of the repository — the arm's whole basis for calling a
+    disagreement dispositioned is a file that is part of this diff, and reading
+    "no record" as "no dispositions" would turn one bad line into twelve
+    findings whose real cause is the file.
+    """
+    try:
+        added = sa.adding_commits(repo_root)
+    except sa.ArchiveHistoryUnavailable as exc:
+        # THE CHECKOUT DECLINES THE QUESTION — not a work-tree root, nested,
+        # shallow, no git at all. Caught FIRST because it is a SUBCLASS.
+        return [], None, ("NOT RUN", str(exc))
+    except sa.SequencedAfterError as exc:
+        # GIT FAILED, in a checkout that claimed it could answer. Reporting
+        # that as NOT RUN would leave the run green with a gate the record asks
+        # for at `error` silently off (Codex P2, PR #820).
+        return [], None, ("CANNOT RUN", str(exc))
+    path = sa.dispositions_path(repo_root)
+    if not path.is_file():
+        return [], None, ("CANNOT RUN",
+                          f"there is no archive-date disposition record at "
+                          f"{path}")
+    try:
+        record = sa.load_archive_date_dispositions(path)
+    except sa.SequencedAfterError as exc:
+        return [], None, ("CANNOT RUN", str(exc))
+    return sa.archive_commit_problems(repo_root, added, record), record, None
+
+
 def validate_corpus(repo_root: Path, repository: str,
                     strict_archive_dates: bool = False) -> int:
     problems: list[str] = []
@@ -248,19 +333,60 @@ def validate_corpus(repo_root: Path, repository: str,
     # ledger as stale and red the required `pytest-suite` check on rows nobody
     # in flight put there. `--strict-archive-dates` asks for that stronger
     # reading, which is the one issue #790 proposed, and is opt-in.
+    status = 0
     findings, unavailable = _archive_date_arm(repo_root, strict_archive_dates)
     if unavailable is not None:
         print(f"archive-date arm NOT RUN: {unavailable}.")
-        return 0
-    if findings:
+    elif findings:
         print(f"archive-date agreement FAILED ({len(findings)} finding(s)):")
         for problem in findings:
             print(f"  - {problem}")
-        return 1
-    print("archive-date agreement passed (no archived row's moved_on predates "
-          "its directory" + ("; --strict-archive-dates also required equality)."
-                             if strict_archive_dates else ")."))
-    return 0
+        status = 1
+    else:
+        print("archive-date agreement passed (no archived row's moved_on "
+              "predates its directory"
+              + ("; --strict-archive-dates also required equality)."
+                 if strict_archive_dates else ")."))
+
+    # THE SECOND ARCHIVE-DATE ARM, and it RUNS EVEN WHEN THE FIRST FAILED
+    # (issue #812). The two read different things — the first a ledger row
+    # against a directory name, this one a directory name against the UTC date
+    # of the commit that added it — so an early `return 1` above would hide a
+    # whole class of finding behind an unrelated one, and an author repairing
+    # the ledger would then discover the second class only on the next run.
+    # `--strict-archive-dates` asks BOTH arms for their stronger reading.
+    problems, record, note = _archive_commit_arm(repo_root)
+    if note is not None:
+        kind, reason = note
+        print(f"archive-date-vs-commit arm {kind}: {reason}.")
+        if kind == "CANNOT RUN":
+            # EXIT 2 WINS OVER THE FIRST ARM'S EXIT 1. "The run could not do
+            # its job" and "the corpus disagrees" want different repairs, and
+            # the first is the one the author must fix before the second
+            # reading means anything.
+            return 2
+    elif problems:
+        # THE RECORD CARRIES THE DIAL, so a repository can adopt this arm and
+        # measure before it gates; `--strict-archive-dates` overrides it upward
+        # and never downward.
+        severe = (strict_archive_dates
+                  or record.enforcement == sa.ENFORCEMENT_ERROR)
+        print(f"archive-date-vs-commit "
+              f"{'FAILED' if severe else 'WARNING'} ({len(problems)} "
+              f"finding(s)):")
+        for problem in problems:
+            print(f"  - {problem}")
+        print(f"Disposition each measured disagreement once in "
+              f"{sa.DISPOSITIONS_REL}, citing the adding commit, the fact and "
+              f"the ruling; remove any entry reported STALE.")
+        if severe:
+            status = 1
+    else:
+        print(f"archive-date-vs-commit agreement passed (every archived "
+              f"directory is named for the UTC date of the commit that added "
+              f"it, or is dispositioned in place; {len(record.order)} "
+              f"disposition(s) in force, enforcement {record.enforcement}).")
+    return status
 
 
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
@@ -511,8 +637,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--strict-archive-dates", action="store_true",
                         help="ALSO require every archived row's moved_on to "
                              "EQUAL its directory's date, not merely not to "
-                             "predate it; 124 rows legitimately carry a later "
-                             "move date, so this is opt-in")
+                             "predate it (124 rows legitimately carry a later "
+                             "move date, so this is opt-in), AND read the "
+                             "`archive-date-vs-commit` arm at `error` "
+                             "whatever dial its record carries")
     parser.add_argument("--repository", default=sa.DECLARING_REPOSITORY,
                         help="declaring repository token (default: "
                              f"{sa.DECLARING_REPOSITORY})")

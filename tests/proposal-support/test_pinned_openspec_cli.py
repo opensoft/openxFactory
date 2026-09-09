@@ -32,6 +32,7 @@ import ast
 import base64
 import hashlib
 import importlib.util
+import json
 import os
 import subprocess
 import sys
@@ -114,14 +115,54 @@ class Registry:
         self.pin_path.write_text("\n".join(text) + "\n", encoding="utf-8")
 
 
+def synthetic_lockfile(package: str, version: str, cli_integrity: str) -> bytes:
+    """A `lockfileVersion: 3` lockfile naming the synthetic referent.
+
+    The pin's DEPENDENCY CLOSURE is verified before anything is installed
+    (`pin-openspec-cli-dependency-closure`, 2026-09-08), and the lockfile's own
+    entry for the package must carry the pin's integrity — so a synthetic pin
+    needs a synthetic lockfile that agrees with it, exactly as it needs a
+    synthetic tarball that hashes to its referent.
+    """
+    packages = {
+        "": {"name": "openspec-cli-pin-closure", "version": "0.0.0",
+             "dependencies": {package: version}},
+        f"node_modules/{package}": {
+            "version": version,
+            "resolved": (f"https://registry.npmjs.org/{package}/-/"
+                         f"openspec-{version}.tgz"),
+            "integrity": cli_integrity,
+            "bin": {"openspec": "bin/openspec.js"}},
+        "node_modules/a-dependency": {
+            "version": "1.0.0",
+            "resolved": ("https://registry.npmjs.org/a-dependency/-/"
+                         "a-dependency-1.0.0.tgz"),
+            "integrity": _address(b"a-dependency bytes")[0]},
+    }
+    return (json.dumps({"name": "openspec-cli-pin-closure", "version": "0.0.0",
+                        "lockfileVersion": 3, "requires": True,
+                        "packages": packages}, indent=2) + "\n").encode("utf-8")
+
+
 def write_pin(path: Path, real_pin: dict, payload: bytes = PAYLOAD) -> Path:
-    """A well-formed synthetic pin, in the real pin's own grammar.
+    """A well-formed synthetic pin AND the lockfile it names, in the pin's grammar.
 
     Written as TEXT so the narrow reader is exercised rather than bypassed, and
     carrying the REAL package, version and binary name read from the real pin —
-    only the referent is synthetic, because only the referent has to be.
+    only the referent is synthetic, because only the referent has to be. The
+    LOCKFILE is written beside the pin because that is where `lockfile:`
+    resolves, and its recorded address and count are derived from the bytes
+    actually written, so the fixture is self-consistent by construction.
     """
     integrity, shasum = _address(payload)
+    lockfile_name = "synthetic.package-lock.json"
+    lockfile_body = synthetic_lockfile(real_pin["package"], real_pin["version"],
+                                       integrity)
+    (path.parent / lockfile_name).write_bytes(lockfile_body)
+    lockfile_integrity, _ = _address(lockfile_body)
+    lockfile_packages = len(
+        [key for key in json.loads(lockfile_body)["packages"]
+         if key.startswith("node_modules/")])
     path.write_text(
         "# a synthetic pin\n"
         "schema_version: 1\n"
@@ -135,6 +176,9 @@ def write_pin(path: Path, real_pin: dict, payload: bytes = PAYLOAD) -> Path:
         f"integrity: \"{integrity}\"\n"
         f"shasum: \"{shasum}\"\n"
         f"binary: {real_pin['binary']}\n"
+        f"lockfile: {lockfile_name}\n"
+        f"lockfile_integrity: \"{lockfile_integrity}\"\n"
+        f"lockfile_packages: \"{lockfile_packages}\"\n"
         "verify_pin: scripts/validate-openspec-cli-pin.py\n"
         "consumer_entrypoint: scripts/validate-openspec-cli-pin.py\n",
         encoding="utf-8")
@@ -173,10 +217,23 @@ def registry(support, real_pin, tmp_path, monkeypatch):
             destination.mkdir(parents=True, exist_ok=True)
             (destination / "openspec.tgz").write_bytes(served["payload"])
             return subprocess.CompletedProcess(argv, 0, "", "")
-        if argv[1:2] == ["install"]:
-            prefix = Path(argv[argv.index("--prefix") + 1])
-            (prefix / "bin").mkdir(parents=True, exist_ok=True)
-            (prefix / "bin" / binary).write_text("#!/bin/sh\n", encoding="utf-8")
+        if argv[1:2] == ["ci"]:
+            # `npm ci` installs a PROJECT in a working directory, so the double
+            # reads `cwd` the way the real one does, and the executable lands
+            # where a project's does — `node_modules/.bin/<binary>`.
+            prefix = Path(kwargs["cwd"])
+            binaries = prefix / "node_modules" / ".bin"
+            binaries.mkdir(parents=True, exist_ok=True)
+            (binaries / binary).write_text("#!/bin/sh\n", encoding="utf-8")
+            # AND THE PACKAGE ITSELF, since `install_locked` now INSPECTS the
+            # tree it installed rather than believing npm's exit code: a double
+            # that left only a `.bin` shim would be exactly the vacuous install
+            # `assert_installed_package` exists to refuse.
+            installed = prefix / "node_modules" / real_pin["package"]
+            installed.mkdir(parents=True, exist_ok=True)
+            (installed / "package.json").write_text(
+                json.dumps({"name": real_pin["package"], "version": version}),
+                encoding="utf-8")
             return subprocess.CompletedProcess(argv, 0, "", "")
         if argv[1:2] == ["--version"]:
             return subprocess.CompletedProcess(argv, 0, served["reports"] + "\n", "")
@@ -370,7 +427,10 @@ def test_the_archive_runs_the_resolved_binary_and_never_a_bare_name(
     # The artifact was FETCHED and HASHED, not assumed: `resolve_pinned` packs
     # and installs through the (fictional) registry every run.
     assert any(argv[1:2] == ["pack"] for argv in registry.calls)
-    assert any(argv[1:2] == ["install"] for argv in registry.calls)
+    assert any(argv[1:2] == ["ci"] for argv in registry.calls), \
+        ("the archive act installs the PINNED DEPENDENCY CLOSURE with `npm ci` "
+         "since pin-openspec-cli-dependency-closure; `npm install` would "
+         "re-resolve the ranges the lockfile exists to fix")
 
 
 def test_the_strict_validation_goes_through_the_consumer_entrypoint(
