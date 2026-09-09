@@ -643,12 +643,12 @@ a pin arriving with a forward merge is a pin.
   **TICKED 2026-09-08 by this change's realization
   (`govern-archived-record-edits`, lane `opsXfactory-1`).** ACT: the row is
   written and landed with PR #788. UTC DATE:
-  2026-09-08. EVIDENCE: `README.md:515` carries this change's "OpenSpec Records"
+  2026-09-08. EVIDENCE: `README.md:659` carries this change's "OpenSpec Records"
   row on openxFactory `main`. It is not re-authored here; realization appends ONE
   dated superseding sentence at the END of that row, because that row makes the
-  now-false claim TWICE — once at `README.md:527` ("all 28 boxes in `tasks.md`
+  now-false claim TWICE — once at `README.md:671` ("all 28 boxes in `tasks.md`
   stay unticked, § 1's ratification boxes included") and again at
-  `README.md:545-548` ("**NOTHING IS REALIZED** … and **all 28 boxes in
+  `README.md:689-692` ("**NOTHING IS REALIZED** … and **all 28 boxes in
   `tasks.md` stay unticked**") — and this file falsifies BOTH: 19 boxes are
   ticked, and `docs/document-lifecycle.md` IS amended, so "NOTHING IS REALIZED"
   is false in its own right and not only in its box clause. The single appended

@@ -8,6 +8,8 @@ change/add-cpc-clearing-boundary
   ℹ [INFO] clearing-dispatch-boundary/spec.md: Archive would refuse this delta: clearing-dispatch-boundary: target spec does not exist; only ADDED requirements are allowed for new specs. MODIFIED and RENAMED operations require an existing spec.
 change/add-wallet-carried-review-authority
   ℹ [INFO] roles-authority-model/spec.md: Archive would refuse this delta: roles-authority-model MODIFIED failed for header "### Requirement: Pilot repository and reviewing domain" - not found
+change/amend-mirror-floor-regeneration-merge-authority
+  ℹ [INFO] review-lane-floor-mirror/spec.md: Archive would refuse this delta: review-lane-floor-mirror MODIFIED failed for header "### Requirement: An automated pin advance only ever proposes" - not found
 spec/avatar-brokered-call-feasibility
   ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
   ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
@@ -436,7 +438,7 @@ spec/xfactory-semantic-kernel
   ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
   ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
   ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
-Totals: 99 passed, 2 failed (101 items)
+Totals: 101 passed, 2 failed (103 items)
 openspec-cli-pin: DISPOSITIONED FINDINGS in openxFactory (2 applied) — this run is NOT a clean tree:
   ✗→D add-chain-attestation / signed-execution-chain/spec.md
         MODIFIED "A gate validates the short chain as a hash-linked chain" omits scenario(s) the current spec still has: "a tranche-two link does not exist yet". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).

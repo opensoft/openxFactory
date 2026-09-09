@@ -404,6 +404,10 @@ rather than asserted. Across the **40 active openxFactory changes carrying a
   and `add-consent-custody-rederivation-record` (0/46) — the second being the
   very packet this one cites at task 3.3, which is why it was the comparison the
   ratified text reached for.
+- **RE-TAKEN after the forward merge**, at `main` `6da94302`: **43** active
+  changes with a `tasks.md`, **40** carrying at least one ticked box, **3**
+  wholly unticked — main's two new proposals arrive unticked, as new proposals
+  do. The proportion is unchanged and so is the conclusion.
 - Ratios span 50/6 (`prepare-openspec-1.12-readiness`) to 0/46; this packet's
   19/9 sits in the middle of the distribution.
 
@@ -590,6 +594,18 @@ result for a head that no longer exists. **THE WHOLE § 4 SET WAS RE-RUN.**
 No value moved in any direction. SC-002 is 99 / 2 / 0 here too — the ratified
 baseline exactly.
 
+**A SANITIZATION THAT WAS UNDONE AND HAD TO BE RE-APPLIED — DECLARED, NOT
+QUIETLY FIXED.** The two `final-gate-4.1-*` captures were sanitized of
+host-absolute paths after the `539edd28` run, and the `be643e55` RE-RUN THEN
+OVERWROTE THEM with fresh raw output, which was committed unsanitized in
+`5dccfad1`. Two host-absolute paths per file therefore sat in the repository
+between `5dccfad1` and the merged-head commit, against the estate rule that
+committed files carry no host-absolute path. Re-sanitized here, forward-only.
+The lesson is the same one this packet is about: an automated step that rewrites
+a file after a manual correction silently undoes it, and only re-checking the
+invariant at the end catches it. The invariant is now re-checked over BOTH
+evidence directories at the final commit.
+
 **ONE HONEST NOTE ABOUT THE CAPTURE FILES.** The `final-gate-*` captures were
 OVERWRITTEN in place by this re-run rather than written alongside the
 `539edd28` ones, so those files now hold `be643e55`'s output. Nothing is lost:
@@ -612,3 +628,111 @@ gate set was run once more after that commit and every result was unchanged.
 **STILL NO FORWARD MERGE.** `origin/main` remains at `6cc06288` as far as this
 branch is concerned; nothing was merged in, so no gate result here is stale on
 that ground.
+
+---
+
+## THE FORWARD MERGE, AND THE GATE SET RE-RUN ON THE MERGED HEAD
+
+**MERGED HEAD: `a83f2eb19b1b5c079254f7c35d6e79dbb20dcfb9`** (merge parents
+`1a4864d1` and `6da94302`). `origin/main` moved from `68712924` to `6da94302`
+while this branch was open — 19 commits — and FR-011 makes the earlier run stale
+the moment the merge lands, so **the whole § 4 set was re-run here**. The merge
+is `--no-ff` and carries the three trailers; it is the ONE commit FR-014 exempts
+from the authored-commit trailer audit, and it is named as such rather than
+counted as a violation.
+
+**MAIN MOVED THE GATES THEMSELVES**, which is the strongest reason nothing was
+carried forward: `scripts/proposal-support.py`, `scripts/sequenced_after.py` and
+`scripts/validate-sequenced-after.py` all changed substantially, and
+`validate-sequenced-after.py` gained a new arm — `archive-date agreement passed
+(no archived row's moved_on predates its directory)` — that did not exist when
+the earlier results were taken.
+
+### The three shared files, resolved at the UNION by row-id set
+
+| File | ours | main | merged | union | verdict |
+| --- | --- | --- | --- | --- | --- |
+| `README.md` Records rows | 187 | 189 | **189** | **189** | **merged == union** |
+| `tests/sequenced_after/corpus-ledger.yaml` rows | 183 | 185 | **185** | **185** | **merged == union** |
+
+Both merged automatically. Main contributed both new ids in each
+(`amend-mirror-floor-regeneration-merge-authority`,
+`refresh-install-repository-enumerations`) and re-classed
+`mirror-floor-regeneration-automation`; this branch contributed NO row to either
+file, so the union is main's set and nothing of this branch's was dropped. The
+realization amendment at the END of our Records row survives intact.
+`docs/document-lifecycle.md` also merged cleanly — main's addition is in
+§ *Gates In Practice* near line 412, the adopted bullet is at line 138, and they
+do not touch; the byte-exact note form is present and unchanged after the merge.
+
+**THIRTEEN README LINE CITATIONS WERE RE-DERIVED**, because the merge shifted
+them: the row start `515 → 659`, the first assertion `527 → 671`, the second
+`545-548 → 689-692`. Every pointer in `tasks.md`, `spec.md`, `research.md` and
+this file was updated and re-checked to resolve; a line pointer that silently
+goes stale is the same defect class as a stale digest.
+
+### Results on the merged head — every gate re-run, none carried forward
+
+| Gate | rc | Result |
+| --- | --- | --- |
+| 4.1a `--change … --strict` | **0** | `Totals: 1 passed, 0 failed (1 items)` |
+| 4.1b `--all --strict` | **0** | `Totals: 101 passed, 2 failed (103 items)`, **0 UNDISPOSITIONED** |
+| 4.3a `validate-sequenced-after.py .` | **0** | `sequenced_after validation passed (43 active changes, 10 declaring the field).` + `archive-date agreement passed (no archived row's moved_on predates its directory).` |
+| 4.3b `--ledger-diff` | **0** | `per-change sweep ledger consistent with the corpus (187 rows).` |
+| 4.3c `validate-scope-globs.py .` | **0** | `scope_globs validation passed (all active changes conform).` |
+| 4.3d `validate-manifest-digests.py .` | **0** | `OK contracts/manifest.yaml: 189 per-file digest(s) verify` |
+| 4.4 doc-health | 1 (pre-existing) | **finding set IDENTICAL to `main` `6da94302`'s** |
+| 4.5 pytest | **0** | `375 passed, 2 subtests passed` |
+
+**SC-002 ON THE MERGED HEAD, AND THE COMPARISON IS ON THE RIGHT NUMBER.** The
+item TOTAL rose 101 → 103 and the passed count 99 → 101 because MAIN ADDED TWO
+ACTIVE CHANGES, not because anything of this branch's moved. The number SC-002
+compares — the **dispositioned-exception count** — is **2**, exactly the ratified
+baseline, and **UNDISPOSITIONED is 0**. Neither moved in either direction. The
+two exceptions are the same pre-existing pair, in files this branch does not
+touch. Test count 330 → 375 for the same reason: main added tests.
+
+### 4.4 on the merged head, in full
+
+**BASELINE RE-TAKEN AT THE COMMIT THE BRANCH MERGED FROM** (FR-029): `main`
+**`6da94302`**, not the old `68712924`. Both baseline checkouts were moved to that
+commit, both still named `oxf-realize-f3`, and **the recipe was RE-PROVEN
+main-vs-main at the new baseline before it was trusted** — two runs over
+`6da94302` from the two identically-named directories, `diff` → **ZERO
+differences**. `--as-of 2026-09-09` pinned on both sides. `--previous-report`
+never used.
+
+- **Finding-line diff: ZERO differences.** Headline identical both sides: **10
+  critical, 9 error, 57 warning, 16 info** (57 rather than 55 because the aging
+  clock advanced on `main` too — it is identical on both sides, so it is not a
+  difference this branch made).
+- The full-report diff has the SAME TWO non-finding lines and no others: canon
+  and governance word totals +199 (share unchanged at 39.1%) and the `standard`
+  stage word count +199 (document count unchanged at 6). That is the adopted
+  bullet, and it is not a finding.
+
+### 4.2 and the pinned target, re-taken on the merged head
+
+- **4.2**: canon **5,815**; delta **7,209** / **7,186**; **0 canon lines
+  removed** under both bounds. Canon did not move under the block in the merge.
+  **The box stays OPEN.**
+- **Pinned target**: still **no IN-REPO `sha256` pin** names
+  `docs/document-lifecycle.md`, and `health/document-catalog/` still does not
+  exist. The merge brought no pin with it — which is exactly why FR-008a makes
+  this a re-take rather than a citation.
+
+### The `untick` sweep, re-run on the merged head
+
+**29 hits, up from 27, and both new ones are this realization's own** — the § 6.1
+block quote and the sentence naming the sweep that found it. No new
+un-superseded assertion arrived with the merge, which is what the re-run is for.
+The `.openspec.yaml:47-50` finding is unchanged and still deliberately unfixed,
+that file being frozen. The sibling packet's **46 unticked / 0 ticked** was
+re-measured at `6da94302` and still holds.
+
+### Trailer audit on the merged head
+
+**15 commits in `origin/main..HEAD`: 1 merge (exempt) + 14 authored, and 14 of
+14 carry all three trailers.** SC-007 re-checked against the NEW merge base
+`6da94302`: still only the six allowed paths, and nothing under any `archive/`
+path, `scripts/`, `.github/`, `contracts/` or `tests/`.

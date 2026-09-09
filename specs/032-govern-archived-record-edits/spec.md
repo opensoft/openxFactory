@@ -36,7 +36,7 @@ ready for the archive act, which the lane performs.
   canon and is re-measured rather than assumed.
 - **The § 0 and § 5.1 bookkeeping already landed with #788.**
   `tests/sequenced_after/corpus-ledger.yaml:214` carries
-  `moved_by: "#788", moved_on: "2026-09-08"`, and `README.md:515` carries the
+  `moved_by: "#788", moved_on: "2026-09-08"`, and `README.md:659` carries the
   packet's "OpenSpec Records" row. Neither is authored again here.
 - **No in-repo content-address pin names `docs/document-lifecycle.md`**, so the
   § 3.4 edit is not a pinned-target edit. **CORRECTED 2026-09-08 during
@@ -323,9 +323,9 @@ the realization PR body can cite them rather than bury them:
    statement that it is not the authorization.
 4. **The README Records row sentence** (mirror ruling M-A1 → FR-010c) — this
    branch writes `README.md`, which the earlier scope froze. **The row makes the
-   now-false claim TWICE, not once** — at `README.md:527` ("**all 28 boxes in
+   now-false claim TWICE, not once** — at `README.md:671` ("**all 28 boxes in
    `tasks.md` stay unticked**, § 1's ratification boxes included") and again at
-   `README.md:545-548` ("**NOTHING IS REALIZED** — … and **all 28 boxes in
+   `README.md:689-692` ("**NOTHING IS REALIZED** — … and **all 28 boxes in
    `tasks.md` stay unticked**"), where BOTH halves fail: 19 boxes are ticked, and
    `docs/document-lifecycle.md` IS amended, so "NOTHING IS REALIZED" is false in
    its own right. ONE amendment block-quotes both. Declining leaves two false
@@ -509,8 +509,8 @@ performed as the named reversal act.
 - **FR-010c**: This branch ALSO writes `README.md`: ONE dated superseding
   amendment appended at the END of this change's "OpenSpec Records" row. **THE
   ROW ASSERTS THE NOW-FALSE FACT IN TWO PLACES AND THE AMENDMENT MUST QUOTE
-  BOTH**: `README.md:527` "**all 28 boxes in `tasks.md` stay unticked**, § 1's
-  ratification boxes included", and `README.md:545-548` "**NOTHING IS
+  BOTH**: `README.md:671` "**all 28 boxes in `tasks.md` stay unticked**, § 1's
+  ratification boxes included", and `README.md:689-692` "**NOTHING IS
   REALIZED** — no archived byte is edited, no pin is re-derived, no checker is
   written, no repository's convention is amended, and **all 28 boxes in
   `tasks.md` stay unticked**." The second is superseded in BOTH halves — 19
@@ -755,8 +755,8 @@ performed as the named reversal act.
   backed by the promoted `document-lifecycle` spec. The § 3.4 target.
 - **The sweep-ledger row** — `tests/sequenced_after/corpus-ledger.yaml:214`.
   Already correct; read, never rewritten.
-- **The README Records row** — `README.md:515`, whose body asserts "all 28 boxes
-  in `tasks.md` stay unticked" (line 527). The row itself stays; ONE dated
+- **The README Records row** — `README.md:659`, whose body asserts "all 28 boxes
+  in `tasks.md` stay unticked" (line 671). The row itself stays; ONE dated
   superseding sentence is appended at its END (FR-010c).
 - **The twin** — OpsxFactory's `govern-archived-record-edits`, LANDED on that
   repository's `main` as `bbbef015cd394e2de31586b9718356586c413884` (PR #279,

@@ -80,7 +80,7 @@ be the outlier, not the norm.
 `tests/sequenced_after/corpus-ledger.yaml:214` reads
 `govern-archived-record-edits: {state: active, class: co-modifier, declares:
 [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#788",
-moved_on: "2026-09-08"}`; `README.md:515` carries the packet's Records row.
+moved_on: "2026-09-08"}`; `README.md:659` carries the packet's Records row.
 Consequence: those two boxes are ticked as ALREADY DONE and neither file is
 rewritten by this feature.
 
@@ -145,7 +145,7 @@ at task 1.1" at line 60), line 68 (§ 1 heading), line 70 ("GIVEN 2026-09-08, AN
 THE BOXES BELOW STAY UNTICKED"), line 73 ("The heading is left as written because
 it names what the section was raised to hold"), lines 74–78 (the re-assertion),
 line 161 (§ 3 heading). `proposal.md`: lines 17 and 44, each asserting every box
-stays unticked. `README.md`: line 527, "all 28 boxes in `tasks.md` stay unticked",
+stays unticked. `README.md`: line 671, "all 28 boxes in `tasks.md` stay unticked",
 inside this change's Records row.
 
 ## M8a — The doc-adoption precedent is the ONLY one of its kind in this document

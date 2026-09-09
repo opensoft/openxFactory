@@ -512,7 +512,7 @@ and actor for each of the 28 boxes.
 
 - [x] T028a Append ONE dated superseding sentence at the END of this change's
       README "OpenSpec Records" row, which asserts "all 28 boxes in `tasks.md`
-      stay unticked" (README.md line 527). At the row's END, never near the block
+      stay unticked" (README.md line 671). At the row's END, never near the block
       anchor, so a concurrent lane's row edit collides on a different line.
       (FR-010c; veto point 4; mirror ruling M-A1)
       **Done 2026-09-08 as commit `539edd28`, committed SEPARATELY** so this veto too
