@@ -164,6 +164,13 @@ A split commit here is red by construction, which is the mechanism working.
       `tests/review_lane_pin/test_review_lane_caller.py:135` (both
       `PINNED_REPOSITORY`) and `tests/review_lane_pin/test_repin_lane.py`
       (lines 851, 1165).
+      **AMENDED 2026-09-09:** task 3.5 now also covers
+      `contracts/review-lane-repin-binding.template.yaml:103`
+      (`consumer.identity_namespace`), respelled to `github:codeXfactory` by
+      convener ruling (Brett Heap, lane `provenance-autonomous-merge`,
+      2026-09-09) — see `review/addendum-2026-09-08-token-namespace.md` and
+      `review/amendment-2026-09-09-task-3-5.md`. The original wording above,
+      naming only lines 46 and 110, stands unedited.
 - [ ] 3.6 `.github/workflows/merge-master-approval.yml` — TWELVE occurrences at
       108, 473, 513, 522, 533, 599, 604, 617, 623, 630, 1216, 1640: the pinned
       decision-core checkout, the App-installation diagnostics whose message text
