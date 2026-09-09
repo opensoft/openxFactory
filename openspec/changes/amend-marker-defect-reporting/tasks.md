@@ -1,6 +1,7 @@
 # Tasks: amend-marker-defect-reporting
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-defect-reporting — 2026-09-09, Brett Heap, "merge 842 and 846 when green, then ratify the 729 packet" (record `review/ratification-2026-09-09.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -10,32 +11,45 @@ realizes through its own task list rather than through a feature DAG.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 IS NOT TICKED AND NAMES WHY**: ratification has not happened.
+**§ 5 STAYS UNTICKED AND NAMES WHY**: residue and owed successors, not work this
+packet performs.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-09
 
-- [ ] 1.1 **RATIFICATION IS OWED AND NOTHING HERE PERFORMS IT.** Brett Heap's
-      *"author the 729 packet"* (2026-09-09T12:32:46Z) instructs a lane to
-      author this remedy, and his *"merge 842 and 846 when green, then ratify
-      the 729 packet"* (2026-09-09T13:13:41Z) states the intended SEQUENCE. Both
-      are recorded on openxFactory issue **#729** and in `proposal.md` front
-      matter; neither decides a wording and neither takes a design decision.
-      `.openspec.yaml` carries drafting provenance ONLY — no `approved_by`, no
-      `approved_on`, the lawful unapproved shape `add-drafted-proposal-origin`
-      defined — and every document in this packet carries `Status: draft`. When
-      a word is given, this box is ticked with the verbatim utterance, ONE
-      citation line is added to each document's front matter, the approval pair
-      is ADDED beside the drafting provenance (`kind` and `id` never move), and
-      the record is written at capture.
-- [ ] 1.2 **THE VETO POINT IS `design.md` D1** — option **A** (a reason-quoted
-      span is reported only where it matches EXACTLY a promoted unit the block
-      does not carry and no marker declares removed) against option **B** (any
-      code span inside a reason, which is the remedy shape issue #729's own body
-      proposes). A is designed and encoded; B is written out beside it with four
-      costs, the first being that it fires on canon's own blessed form and makes
-      EIGHT correct promoted markers reportable — a share that grew from 2 of 7
-      to 8 of 16 in three days. **A veto of A is a veto of GROUND TWO ONLY**:
-      ground three rests on no predicate choice and stands either way.
+- [x] 1.1 **RATIFIED 2026-09-09 by Brett Heap** (openxFactory operator
+      authority), in session, verbatim *"merge 842 and 846 when green, then
+      ratify the 729 packet"* (2026-09-09T13:13:41Z, recorded on openxFactory
+      issue **#729**). **THE WORD IS ONE UTTERANCE OF THREE CLAUSES IN ORDER,
+      AND THE ORDER WAS KEPT**: PR **#842** merged `4cdadd56` (16:11:57Z) and PR
+      **#846** merged `183d1b43` (16:12:40Z), both green, and this encode is the
+      third clause. The earlier *"author the 729 packet"*
+      (2026-09-09T12:32:46Z) remains recorded as the ORIGIN of the authoring —
+      it instructed a lane to write a remedy and decided no wording.
+      `proposal.md`, `design.md` and this file now carry `Status: ratified` with
+      **ONE** citation line each — `Ratified:` in `proposal.md`'s front matter,
+      `Ratified by:` here and in `design.md` — which is what
+      `ratified-provenance` counts. `.openspec.yaml` gains the approval pair
+      (`approved_by`, `approved_on`) **BESIDE** the drafting provenance it was
+      authored with, `kind` and `id` unmoved, which is the addition-not-rewrite
+      shape `add-drafted-proposal-origin` defined for this transition and the
+      shape the archive gate's origin-retention arm reads. Record:
+      `review/ratification-2026-09-09.md`, with the verification run captured
+      beside it at `review/verification-2026-09-09.md`.
+- [x] 1.2 **THE VETO POINT WAS `design.md` D1 AND IT WAS NOT VETOED** — option
+      **A** (a reason-quoted span is reported only where it matches EXACTLY a
+      unit of the requirement's basis the block does not carry and no marker
+      declares removed) against option **B** (any code span inside a reason,
+      the remedy shape issue #729's own body proposes). It was carried as the
+      veto point in the pull request body, in this file, in the README row and
+      on issue #729, with B written out beside A and its four costs, the first
+      being that it fires on canon's own blessed form and makes EIGHT correct
+      promoted markers reportable — a share that grew from 2 of 7 to 8 of 16 in
+      three days. **A is RATIFIED AS DESIGNED**, ground two included. **A veto
+      of A would have been a veto of GROUND TWO ONLY**: ground three rests on no
+      predicate choice and stood either way. The narrowing `design.md` D5 adds
+      to the ruling's literal wording — *"and that no marker declares removed"*,
+      narrower in the SILENT direction — was disclosed on issue #729 at 14:22Z,
+      before the act this word authorized, and is ratified with A.
 
 ## 2. The measurement, taken before the design
 

@@ -1,6 +1,7 @@
 # Design: amend-marker-defect-reporting
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-defect-reporting — 2026-09-09, Brett Heap, "merge 842 and 846 when green, then ratify the 729 packet" (record `review/ratification-2026-09-09.md`)
 Date: 2026-09-09
 Kind: design
 
@@ -110,12 +111,17 @@ than a straw one.** Report any code span standing inside a marker's reason:
    the span's identity tells them apart. B reports both and calls it a defect
    report.
 
-**The veto is between A and B. A veto of A is a veto of ground TWO ONLY** —
-ground three (a name matching no unit of the requirement or of the block) rests
-on no predicate choice, is the silence `add-modified-block-currency-check`
-recorded as a plausible later ruling, and stands whichever way D1 goes. If B is
-ruled, the delta's second ground is re-authored on the position predicate and
-the eight-marker cost is ratified with it; nothing else in the packet moves.
+**THE VETO WAS BETWEEN A AND B, AND IT WAS NOT TAKEN.** The choice was put
+rather than assumed — carried in the pull request body, in `tasks.md` § 1.2, in
+the README row and on issue #729 — and Brett Heap ratified **A as designed** on
+2026-09-09 (*"merge 842 and 846 when green, then ratify the 729 packet"*; record
+`review/ratification-2026-09-09.md`). **A veto of A would have been a veto of
+ground TWO ONLY** — ground three (a name matching no unit of the requirement's
+basis or of the block) rests on no predicate choice, is the silence
+`add-modified-block-currency-check` recorded as a plausible later ruling, and
+stood whichever way D1 went. Had B been ruled, the delta's second ground would
+have been re-authored on the position predicate with the eight-marker cost
+ratified alongside it, and nothing else in the packet would have moved.
 
 ## D2 — ONE TEMPLATE FOR THREE GROUNDS, not three templates
 
@@ -206,6 +212,15 @@ so ground two has nothing to resolve and the marker parses to exactly one name.
 Verified in the pull request rather than asserted here.
 
 ## D5 — GROUND TWO RUNS IN A SECOND PASS, and it has to
+
+**THE CLAUSE THIS SECTION JUSTIFIES IS A NARROWING OF THE RULING'S LITERAL
+WORDING, AND IT WAS DISCLOSED BEFORE THE WORD WAS ACTED ON.** The ruling of
+2026-09-09T12:32:46Z described option A as *"report a marker only where a
+reason-quoted span exactly matches a canon unit the block does not carry"*; the
+encoded predicate adds *"and that no marker declares removed"*. It is narrower in
+the SILENT direction — strictly fewer findings, never more — and it was stated on
+issue #729 at 14:22Z, before the act the word of 13:13:41Z authorized and before
+the adversarial pass that recorded it as standing (`review/ratification-2026-09-09.md`).
 
 Its predicate asks whether the quoted unit is one NO marker accounts for. A
 sibling marker that properly declares the unit removed makes the quotation

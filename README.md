@@ -520,10 +520,19 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-marker-defect-reporting](openspec/changes/amend-marker-defect-reporting/proposal.md)
-  — authored 2026-09-09, **`Status: draft`** (NOT RATIFIED: Brett Heap's
-  *"author the 729 packet"* instructs a lane to author and decides no wording;
-  `tasks.md` § 1 is unticked and `.openspec.yaml` carries drafting provenance
-  with no approval pair). **THE OWED SUCCESSOR OF
+  — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
+  openxFactory operator authority, in-session, *"merge 842 and 846 when green,
+  then ratify the 729 packet"* — one utterance of three clauses in order, and
+  the order was kept: #842 merged `4cdadd56` and #846 merged `183d1b43`, both
+  green, and the encode is the third clause; records
+  `openspec/changes/amend-marker-defect-reporting/review/ratification-2026-09-09.md`
+  and `verification-2026-09-09.md`). `.openspec.yaml` keeps the drafting
+  provenance it was authored with and the approval pair is ADDED beside it —
+  `kind` and `id` unmoved, the addition-not-rewrite shape
+  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
+  Brett Heap's earlier *"author the 729 packet"*, which instructed a lane to
+  write a remedy and decided no wording, and the ratification is the separate
+  act above. **THE OWED SUCCESSOR OF
   `amend-marker-reason-boundary` § 5.1, filed as issue #729.**
   `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
   gives a marker exactly ONE reporting ground — it names a unit the block still
@@ -547,7 +556,11 @@ Active changes:
   on 2026-09-09, EIGHT quote a code span inside their reason, every one of them
   a PROMOTED marker, and of the 34 spans they quote ZERO is a derived unit — so
   the position predicate is the predicate for canon's own blessed form and its
-  share grew from 2 of 7 to 8 of 16 in three days. Realized in the same pull
+  share grew from 2 of 7 to 8 of 16 in three days. **D1 WAS PUT AND WAS NOT
+  VETOED, and A is ratified AS DESIGNED** — ground two included, together with
+  the narrowing `design.md` D5 adds to the ruling's literal wording (*"and that
+  no marker declares removed"*, narrower in the silent direction), disclosed on
+  issue #729 before the act the word authorized. Realized in the same pull
   request under `release-realization`'s merged-plus-green rule
   (`code_surface: scripts/doc_health/modified_block_currency.py` + its tests):
   `Marker` gains one field for the post-boundary spans `parse_marker` derived
@@ -560,7 +573,15 @@ Active changes:
   FINDINGS ON THIS CORPUS TODAY**, measured: `--family
   modified-block-currency` is identical to `origin/main`'s output line for line,
   this packet's own block included, so the amendment is normative for the next
-  marker written rather than a sweep of the present one.
+  marker written rather than a sweep of the present one. **THE ADVERSARIAL PASS
+  FOUND ONE OVER-CLAIM AND IT WAS FIXED BEFORE THE FLIP**: the replacing
+  sentence had opened *"a marker that declares nothing SHALL itself be
+  reported"*, whose converse is false — a marker carrying NO code span parses to
+  no names and reaches none of the three grounds — so the clause now says what
+  the three grounds report, and the nameless marker is recorded as an unruled
+  fourth case at `tasks.md` § 5.7. Under `release-realization` the packet still
+  archives on merged-plus-green realization evidence rather than on landing, on
+  a separate word, so issue #729 closes at archive.
 
 - [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,

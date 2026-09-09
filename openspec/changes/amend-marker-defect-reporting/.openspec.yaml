@@ -67,6 +67,38 @@ origin:
     form and on eight correct promoted markers. A veto of A is a veto of ground
     two alone; ground three rests on no predicate choice.
   proposed_on: 2026-09-09
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-09,
+    lane `openxfactory-1`, verbatim: "merge 842 and 846 when green, then ratify
+    the 729 packet". THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT
+    SUBSTITUTED. The drafting provenance above is kept exactly as authored and
+    `kind` and `id` never move, which is the shape `add-drafted-proposal-origin`
+    (issue #318) defined for this transition: approval is a pure ADDITION to a
+    fixed origin identity, so the support manifest that repeats `kind` and `id`
+    never comes to disagree with the packet, and the archive gate's
+    origin-retention arm reads the declaration this commit establishes.
+    THE WORD IS ONE UTTERANCE OF THREE CLAUSES IN ORDER, AND THE ORDER WAS
+    KEPT: openxFactory PR #842 merged 4cdadd56 (16:11:57Z) and PR #846 merged
+    183d1b43 (16:12:40Z), both green, and this act is the third clause. The
+    earlier "author the 729 packet" (2026-09-09T12:32:46Z) stays the ORIGIN of
+    the authoring and is not read as an approval.
+    The decision the word reaches is `design.md` D1 — option A, a reason-quoted
+    code span reported only where it matches EXACTLY a unit of the requirement's
+    basis that the block does not carry and that no marker declares removed,
+    against option B, any code span standing inside a reason — which was carried
+    as the packet's veto point in the pull request body, in `tasks.md` § 1.2, in
+    the README row and on issue #729, and was NOT vetoed; A is ratified AS
+    DESIGNED, ground two included, together with the narrowing D5 adds to the
+    ruling's literal wording ("and that no marker declares removed", narrower in
+    the silent direction), disclosed on issue #729 at 14:22Z before the act this
+    word authorized. Ground three rested on no predicate choice and stood either
+    way.
+    Under `release-realization` a non-empty `code_surface` means this packet
+    archives on merged-plus-green realization evidence rather than on landing,
+    on a separate word; this one does not archive it, so openxFactory #729
+    closes at archive and not at this landing.
+    Record: `review/ratification-2026-09-09.md`.
+  approved_on: 2026-09-09
 related:
   - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary          # ARCHIVED (PR #719). Owed this successor at its own tasks.md § 5.1, and created the second of the two silences reported here; its bytes are NOT edited
   - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check     # ARCHIVED. Promoted the requirement this block MODIFIES, wrote the one-ground sentence, and recorded the first silence as "a plausible later ruling"

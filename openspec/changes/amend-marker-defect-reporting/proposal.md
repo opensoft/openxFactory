@@ -1,17 +1,21 @@
 ---
 code_surface: openxFactory — `scripts/doc_health/modified_block_currency.py` and the tests that pin it in `tests/doc-health/test_modified_block_currency.py`. TWO REPORTING GROUNDS ARE ADDED to the marker-defect class and nothing else moves: `Marker` gains one field for the code spans a reason quotes (which `parse_marker` derived and then DISCARDED, so the defect was not mechanically detectable at all), `suppression` resolves those spans and the names that match nothing, and `_arm_marker_defects` renders one finding per ground through the class's EXISTING template — whose opening is unchanged, so the existing `CLASS_MARKERS` probe places every new finding and the seventh class (`unplaced-finding drift`) stays silent. Ground one's rendered text is BYTE-IDENTICAL to the one this class shipped with. NOTHING ELSE MOVES: no parse, no severity, no threshold, no arm, no finding class, no template entry, no path, no disposition rule, no workflow, no contract member and no other family. Eleven tests are ADDED beside the existing ones (`tests/doc-health/test_modified_block_currency.py` 128 → 139) and THREE assertions in three existing tests are FLIPPED rather than loosened — the three tests that BUILD these grounds' shapes and asserted the silence this packet retires, one of them the REAL fixture instance of it. The delta ALSO ADDS TWO SCENARIOS to the MODIFIED block, at its end, one for each ground; no promoted scenario moves, is retitled or loses a bullet.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves and no release tag is owed. Under `release-realization` a non-empty code surface archives on merged-plus-green realization evidence rather than on landing, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` and doc-health runs.
-Status: draft
+Status: ratified
 Proposed: 2026-09-09
-Origin: openxFactory issue **#729** (found by the adversarial review of PR **#685**, which filed **#692**, whose packet `amend-marker-reason-boundary` — PR **#719** — owed this successor at its own `tasks.md` § 5.1); THE ORIGIN IS NOT A RATIFICATION. The issue records two silences and a proposed remedy, and no word of Brett Heap's ratifies this text or its design choice. `.openspec.yaml` carries drafting provenance only — no `approved_by`, no `approved_on` — and every document in the packet carries `Status: draft`. The decision most worth a veto is `design.md` **D1**: option A (the NARROW unit-match predicate) against option B (the BROAD position predicate the issue's own remedy shape proposed).
+Ratified: 2026-09-09 by Brett Heap (openxFactory operator authority) — "merge 842 and 846 when green, then ratify the 729 packet"; record at review/ratification-2026-09-09.md
+Origin: openxFactory issue **#729** (found by the adversarial review of PR **#685**, which filed **#692**, whose packet `amend-marker-reason-boundary` — PR **#719** — owed this successor at its own `tasks.md` § 5.1); THE ORIGIN IS NOT THE RATIFICATION. The issue records two silences and a proposed remedy, and that record is what put this packet in the queue; ratification followed as a SEPARATE act on 2026-09-09, cited ONCE in the line above and recorded at `review/ratification-2026-09-09.md`. `.openspec.yaml` keeps the drafting provenance it was authored with — `kind` and `id` never move — and the approval pair is ADDED beside it, which is the shape `add-drafted-proposal-origin` defined for exactly this transition. The decision the word reaches is `design.md` **D1**: option A (the NARROW unit-match predicate) against option B (the BROAD position predicate the issue's own remedy shape proposed), carried as this packet's veto point in the pull request body, in `tasks.md` § 1.2, in the README row and on issue #729 — **and NOT vetoed**.
 ---
 
 # Proposal: amend-marker-defect-reporting
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-09, in lane `openxfactory-1`.
 Origin: openxFactory issue **#729**. The origin is a defect report, not an
-approval: nothing here is ratified, and § Ratification records what is owed.
+approval; ratification was a SEPARATE act and it has now happened — **ONE
+citation line for this document**, in the front matter, which is what
+`ratified-provenance` counts. § Ratification records the act and what it
+settled; the record is `review/ratification-2026-09-09.md`.
 
 ## Why
 
@@ -252,23 +256,43 @@ MOVEMENT LOG entry is owed.
 
 ## Ratification
 
-**NOT RATIFIED. NO WORD HAS BEEN GIVEN OVER THIS TEXT, and none is implied by
-anything in this packet.** Brett Heap's *"author the 729 packet"*
-(2026-09-09T12:32:46Z) instructs a lane to author it; his *"merge 842 and 846
-when green, then ratify the 729 packet"* (2026-09-09T13:13:41Z) states the
-INTENDED sequence and is recorded on the issue — it names no wording and takes no
-design decision, and the ratification it foresees happens on a later word, when
-this pull request is frozen green. `tasks.md` § 1 is UNTICKED and names
-ratification as owed, `.openspec.yaml` carries drafting provenance with no
-approval pair, and every document here carries `Status: draft`.
+**RATIFIED 2026-09-09 by Brett Heap (openxFactory operator authority), in
+session, verbatim: _"merge 842 and 846 when green, then ratify the 729
+packet"_.** The citation is the front matter's single `Ratified:` line and the
+record is `review/ratification-2026-09-09.md`; the verification run captured
+beside it is `review/verification-2026-09-09.md`. The word is ONE utterance
+carrying THREE clauses in order, and the order was kept: openxFactory PR **#842**
+merged `4cdadd56` (16:11:57Z) and PR **#846** merged `183d1b43` (16:12:40Z), both
+green, and this act is the third clause. The earlier *"author the 729 packet"*
+(2026-09-09T12:32:46Z) is the ORIGIN of the authoring — it instructed a lane to
+write a remedy and decided no wording; this word is the separate act that
+ratifies the text.
 
-**THE VETO POINT IS `design.md` D1 — option A against option B**, and it is put
-rather than assumed: A reports only where a reason-quoted span matches an
-uncarried promoted unit EXACTLY; B reports any code span inside a reason, which
-is the remedy shape issue #729's own body proposes and which fires on canon's
-blessed form. A is designed and encoded; B is written out beside it with its cost
-measured. A veto of A is a veto of ground two, and ground three stands
-independently of it.
+**THE VETO POINT WAS PUT AND WAS NOT TAKEN.** `design.md` **D1** — option A (a
+reason-quoted span reported only where it matches EXACTLY an uncarried unit of
+the requirement's basis that no marker declares removed) against option B (any
+code span standing inside a reason, the remedy shape issue #729's own body
+proposed) — was named as this packet's veto point in the pull request body, in
+`tasks.md` § 1.2, in the README row and on issue #729 at 12:32:46Z and again at
+14:22Z, with B written out beside A and its cost MEASURED. The word ratifies
+**option A as designed**, ground two included, and it ratifies **the narrowing D5
+adds to the ruling's literal wording**: the encoded predicate also requires that
+NO marker in the block declares the quoted unit removed, which is narrower in the
+SILENT direction. The word was uttered at 13:13:41Z and made this act conditional
+on #842 and #846 landing green, which they did at 16:1xZ; the narrowing was
+disclosed on #729 at 14:22Z, in between — before the act the word authorized, and
+before the adversarial pass that recorded it as standing.
+
+**WHAT THE WORD DOES NOT REACH.** It does not archive this packet: `code_surface`
+is non-empty, so under `release-realization` the archive is a separate act on
+merged-plus-green realization evidence and on a separate word (`tasks.md` § 5.6),
+and openxFactory **#729** therefore closes at archive rather than at this
+landing. It does not reach the residue — § 5.2 (a name matching a unit the BLOCK
+adds), § 5.3 (canon's stale *advisory at launch* paragraph), § 5.4
+(`specs/019-modified-block-currency-family/`), § 5.5 (the estate-wide run) or
+§ 5.7 (a marker naming nothing at all, found by the adversarial pass and recorded
+as an unruled fourth case). All of it was present in the text the word was given
+over, and all of it remains owed.
 
 ## What this proposal does NOT claim
 
