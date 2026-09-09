@@ -117,6 +117,30 @@ privileges:
       branch. It writes nothing there, dispatches nothing there, and opens
       nothing there. codexFactory authors its own floor; this repository reads
       it.
+    # WHAT THE LANE READS, ENUMERATED BESIDE THE GRANT THAT AUTHORIZES IT.
+    # `grants: [contents:read]` says WHICH repository may be read; this says
+    # WHAT, so the read surface is reviewable in the same document as the
+    # permission rather than only in a workflow.
+    #
+    # IT IS DOCUMENTATION WITH A LOCKSTEP TEST, NEVER A RUN-TIME INPUT. The
+    # workflow and `scripts/review_lane_repin.py` carry their own literals and
+    # SHALL NOT read this list at run time — a value read from the artifact it
+    # is used to check makes the check a tautology, which is the reason those
+    # two already duplicate each other deliberately. What binds them is an
+    # assertion that every declaration carries the SAME ordered list.
+    #
+    # M-4 OF `relocate-review-authority-floor-mirror`, WHICH IS A RECOMMENDATION
+    # AND NOT A MANDATE. MQ-2 is open: the owner may veto M-4, and vetoing it
+    # deletes this block and nothing else — no workflow step, no script branch
+    # and no refusal depends on its presence. The ratified requirement mandates
+    # the declaration in the lane's own sources and the run-time prohibition;
+    # this is an ADDITIONAL site.
+    #
+    # ORDERED, PATH IN FORCE FIRST, first-obtained-wins, returning to one entry
+    # at M-1 step (3). The lane never searches beyond it (M-7).
+    source_documents:
+      - scripts/merge_master/openxfactory-review-authority-floor.yaml
+      - floor/openxfactory-review-authority-floor.yaml
   floored_repository:
     repository: opensoft/openxFactory
     # `workflows:write` was added on the measurement run 34033398015 made
