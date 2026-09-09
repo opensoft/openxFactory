@@ -213,8 +213,24 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
     assert caught == ["branch_session", "branch_session", "session_git",
                       "workbench", "workbench"], caught
 
-    # Non-vacuity for the two live scans: they must be looking at real files.
+    # Non-vacuity for the two live scans: they must be looking at real files
+    # with real import statements in them, so a scan over a missing, empty or
+    # unparseable file cannot pass as a proof of absence.
+    #
+    # Deliberately NOT "at least one SIBLING import" (Copilot round 1). That
+    # would be a check coupled to an import this arc is already scheduled to
+    # remove: `human_seen.py`'s remaining sibling reach is `.boundary`, the
+    # 62-line re-export memo § 2.3 files as *already solved* — repoint it at
+    # the neutral `output_boundary` and the file legitimately imports no
+    # sibling at all, while the two assertions above go on proving exactly
+    # what they were written to prove. A non-vacuity guard that fails on the
+    # very edit the packet exists to make is a guard that will be deleted.
     for name in ("human_seen", "intent_apply_lane"):
-        assert (PACKAGE / f"{name}.py").is_file()
-        assert list(sibling_imports_of(name)), (
-            f"{name}.py imports no sibling at all — the scan lost its subject")
+        path = PACKAGE / f"{name}.py"
+        assert path.is_file()
+        statements = [node for node in ast.walk(
+            ast.parse(path.read_text(encoding="utf-8"), filename=str(path)))
+            if isinstance(node, (ast.Import, ast.ImportFrom))]
+        assert statements, (
+            f"{name}.py parses to no import statement at all — the scan lost "
+            f"its subject; check the path before trusting the assertions above")
