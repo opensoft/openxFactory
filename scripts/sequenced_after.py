@@ -1634,6 +1634,27 @@ FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 ARCHIVE_REL_POSIX = "openspec/changes/archive"
 
 
+class ArchiveHistoryUnavailable(SequencedAfterError):
+    """The CHECKOUT cannot answer the question — as opposed to git FAILING.
+
+    THE DISTINCTION DECIDES AN EXIT CODE, so it is a type and not a phrase in a
+    message. A tree that is not a git work-tree root, one nested inside some
+    other repository, a SHALLOW clone, or a machine with no git at all are
+    contexts this arm deliberately does not serve: the validator reports NOT RUN
+    and leaves its verdict alone, because refusing there would red every
+    consumer validating an exported tree.
+
+    An OPERATIONAL FAILURE is the opposite fact and must not borrow that answer.
+    A `git log` that exits non-zero — a partial clone with objects unavailable,
+    a corrupt object store, a filter that cannot be applied — means the walk
+    this gate depends on DID NOT HAPPEN, in a checkout that claimed it could.
+    Reporting that as NOT RUN would leave the run green while silently
+    disabling a gate the record asks for at `error`, which is the one failure a
+    gate cannot have. Those raise the plain `SequencedAfterError` and the
+    validator answers CANNOT RUN, exit 2. (Codex P2, PR #820.)
+    """
+
+
 def dispositions_path(repo_root: str | Path) -> Path:
     return Path(repo_root) / DISPOSITIONS_REL
 
@@ -1785,7 +1806,7 @@ def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(["git", "-C", str(repo_root), *args],
                               capture_output=True, text=True)
     except OSError as exc:
-        raise SequencedAfterError(
+        raise ArchiveHistoryUnavailable(
             f"git could not be run ({exc}), so the commit that added each "
             f"archived directory cannot be read") from exc
 
@@ -1827,7 +1848,7 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     probe = _git(root, "rev-parse", "--show-toplevel")
     if probe.returncode != 0:
         detail = probe.stderr.strip() or f"git rev-parse exited {probe.returncode}"
-        raise SequencedAfterError(
+        raise ArchiveHistoryUnavailable(
             f"{str(root)!r} is not inside a git work tree, so the commit that "
             f"added each archived directory cannot be read: {detail}")
     # THE ROOT ITSELF, not merely somewhere inside a work tree. A tree that is
@@ -1837,7 +1858,7 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     # read as having no adding commit. Refusing to run is the honest answer;
     # inventing one from a history that does not describe this tree is not.
     if Path(probe.stdout.strip()).resolve() != root.resolve():
-        raise SequencedAfterError(
+        raise ArchiveHistoryUnavailable(
             f"{str(root)!r} is not the ROOT of a git work tree (the work tree "
             f"containing it is rooted at {probe.stdout.strip()!r}), so this "
             f"tree's archived directories are not the ones that history "
@@ -1845,12 +1866,18 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     shallow = _git(root, "rev-parse", "--is-shallow-repository")
     answer = shallow.stdout.strip()
     if shallow.returncode != 0 or answer not in ("true", "false"):
+        # FAIL CLOSED, not NOT RUN. The probe answers the question that decides
+        # whether the walk can be believed AT ALL, and a probe that cannot
+        # answer it in a tree that just claimed to be a work-tree root is git
+        # failing, not a context this arm declines to serve. Skipping here would
+        # leave the run green with the gate silently off.
         raise SequencedAfterError(
             f"git could not say whether this checkout is shallow "
-            f"({(shallow.stderr.strip() or answer or 'no answer')!r}), and the "
-            f"answer decides whether the walk below can be believed at all")
+            f"({(shallow.stderr.strip() or answer or 'no answer')!r}); the "
+            f"answer decides whether the walk below can be believed at all, so "
+            f"the arm refuses rather than skipping")
     if answer == "true":
-        raise SequencedAfterError(
+        raise ArchiveHistoryUnavailable(
             "this checkout is SHALLOW, so the commit that added an archived "
             "directory is mostly not in it: every directory older than the "
             "graft boundary would be attributed to the boundary commit and "
@@ -1862,8 +1889,14 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
                 "--reverse", "--no-renames", "--format=%x00%H%x09%cI",
                 "--name-only", "--", ARCHIVE_REL_POSIX)
     if walk.returncode != 0:
+        # OPERATIONAL, therefore CANNOT RUN and NOT "not run": this checkout
+        # passed the root and shallow probes and then failed to produce the one
+        # walk the gate is built on — a partial clone with objects unavailable,
+        # a corrupt object store. Green-with-the-gate-off is the answer a gate
+        # must never give (Codex P2, PR #820).
         raise SequencedAfterError(
-            f"the archive history walk failed: "
+            f"the archive history walk failed in a checkout that passed the "
+            f"work-tree and shallow probes: "
             f"{walk.stderr.strip() or f'git log exited {walk.returncode}'}")
 
     found: dict[str, tuple[str, str]] = {}

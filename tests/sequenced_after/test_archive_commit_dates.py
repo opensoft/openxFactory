@@ -562,3 +562,111 @@ def test_NO_GIT_ON_PATH_is_NOT_RUN_rather_than_a_TRACEBACK(tmp_path,
     assert "archive-date-vs-commit arm NOT RUN" in result.stdout
     assert "git could not be run" in result.stdout
     assert "Traceback" not in result.stderr
+
+
+# --- git FAILING is not the same fact as a checkout that declines -----------
+#
+# Codex P2 on PR #820: `adding_commits` raised ONE error class for "this
+# checkout is not one I serve" and for "git just failed", and the CLI mapped
+# both to NOT RUN — so a partial clone with objects unavailable would leave the
+# run GREEN with a gate the record asks for at `error` silently off. The split
+# is now a TYPE (`ArchiveHistoryUnavailable`), and these two assert the halves.
+
+
+def _git_shim(tmp_path: Path, failing_arg: str) -> Path:
+    """A directory holding a `git` that delegates to the real one EXCEPT when
+    `failing_arg` is among its arguments, where it fails the way git fails."""
+    import shutil
+    real = shutil.which("git")
+    assert real, "the real git is needed to build the shim"
+    shim_dir = tmp_path / f"shim-{failing_arg.strip('-')}"
+    shim_dir.mkdir()
+    shim = shim_dir / "git"
+    shim.write_text(
+        "#!/bin/sh\n"
+        "for arg in \"$@\"; do\n"
+        f"  if [ \"$arg\" = \"{failing_arg}\" ]; then\n"
+        "    echo 'fatal: could not read object store' >&2\n"
+        "    exit 128\n"
+        "  fi\n"
+        "done\n"
+        f"exec {real} \"$@\"\n", encoding="utf-8")
+    shim.chmod(0o755)
+    return shim_dir
+
+
+def test_a_FAILING_HISTORY_WALK_is_CANNOT_RUN_not_a_silent_pass(tmp_path):
+    """The gate must not report green because the walk it is built on did not
+    happen. The checkout passed the work-tree and shallow probes and then git
+    failed — that is git failing, not a context this arm declines to serve."""
+    import os
+    root = _repo(tmp_path / "repo")
+    _write(root, "2026-08-04-add-thing")
+    _commit(root, "2026-08-05T00:30:00+00:00")
+    _record(root, [])
+    env = dict(os.environ,
+               PATH=f"{_git_shim(tmp_path, 'log')}{os.pathsep}{os.environ['PATH']}")
+    result = subprocess.run([sys.executable, str(VALIDATOR), str(root)],
+                            capture_output=True, text=True, env=env)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "archive-date-vs-commit arm CANNOT RUN" in result.stdout
+    assert "the archive history walk failed in a checkout that passed the" \
+        in result.stdout
+    # Specifically NOT this arm's decline line — the LEDGER arm legitimately
+    # prints its own "NOT RUN" here, there being no ledger in the fixture.
+    assert "archive-date-vs-commit arm NOT RUN" not in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_an_UNANSWERABLE_SHALLOW_PROBE_FAILS_CLOSED(tmp_path):
+    """The probe answers the question that decides whether the walk can be
+    believed at all; a probe that cannot answer it in a tree that just claimed
+    to be a work-tree root is git failing, and skipping would leave the run
+    green with the gate off."""
+    import os
+    root = _repo(tmp_path / "repo")
+    _write(root, "2026-08-04-add-thing")
+    _commit(root, "2026-08-05T00:30:00+00:00")
+    _record(root, [])
+    shim = _git_shim(tmp_path, "--is-shallow-repository")
+    env = dict(os.environ, PATH=f"{shim}{os.pathsep}{os.environ['PATH']}")
+    result = subprocess.run([sys.executable, str(VALIDATOR), str(root)],
+                            capture_output=True, text=True, env=env)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "archive-date-vs-commit arm CANNOT RUN" in result.stdout
+    assert "could not say whether this checkout is shallow" in result.stdout
+    assert "refuses rather than skipping" in result.stdout
+
+
+def test_THE_DECLINE_CASES_ARE_A_SUBCLASS_so_the_CLI_can_tell_them_apart():
+    assert issubclass(sa.ArchiveHistoryUnavailable, sa.SequencedAfterError)
+
+
+def test_THE_RECORD_NAMES_THE_THREE_CAUSES_and_forbids_only_UNMEASURED_entries():
+    """Codex P2 on PR #820. The arm compares a NAME to a COMMIT and cannot say
+    WHY they differ; a correct archive whose commit crossed UTC midnight, and a
+    change id that arrived carrying its own `YYYY-MM-DD-` prefix (which the
+    pinned CLI preserves deliberately), produce the same shape as the defect.
+    The header's earlier wording forbade EVERY future entry, which left both of
+    those with no lawful repair at `enforcement: error`."""
+    text = sa.dispositions_path(ROOT).read_text(encoding="utf-8")
+    # The leading `# ` of every comment line is stripped BEFORE flattening, so
+    # an assertion may span the file's line wrapping. Flattening the raw text
+    # would leave a `#` sitting inside every wrapped phrase.
+    flat = " ".join(
+        line.lstrip().removeprefix("#").strip()
+        for line in text.splitlines()).replace("  ", " ")
+    flat = " ".join(flat.split())
+    assert "A LOCAL CLOCK BEHIND UTC named the directory" in flat
+    assert "THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS" in flat
+    assert "THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX" in flat
+    assert "CAUSES 2 AND 3 ARE LAWFUL ENTRIES when they are actually measured" \
+        in flat
+    assert "What is forbidden is writing either one BEFORE it is measured." \
+        in flat
+    # …and the doc paragraph carries the same limitation, so a reader of the
+    # lifecycle doc is not told the arm judges a cause it cannot judge.
+    lifecycle = " ".join((ROOT / "docs" / "document-lifecycle.md")
+                         .read_text(encoding="utf-8").split())
+    assert ("THE ARM COMPARES A NAME TO A COMMIT AND CANNOT ITSELF SAY WHY THEY "
+            "DIFFER") in lifecycle

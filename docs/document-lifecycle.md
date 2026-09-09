@@ -446,7 +446,14 @@ its own.>
   adding commit, the fact and the ruling (issue #812, Brett Heap 2026-09-08).
   RENAMING IS NOT THE REMEDY: history is history, every citation stands, and a
   rename would move every record that points at the directory to correct a name
-  whose only defect is that it is one day early.
+  whose only defect is that it is one day early. THE ARM COMPARES A NAME TO A
+  COMMIT AND CANNOT ITSELF SAY WHY THEY DIFFER: besides the clock defect, a
+  correct archive whose commit fell on the next UTC day, and a change id that
+  arrived carrying its own `YYYY-MM-DD-` prefix (which the pinned CLI preserves
+  deliberately, so the directory takes the date IN THE ID), both produce the
+  same shape. Each of those is a lawful disposition once MEASURED, naming its
+  own cause — which is why a disposition carries a `fact` and the ruling that
+  accepted it, and is not merely an allow-list of names.
 - `promoted -> adopted`: consumers re-pin, replace local copies with
   references plus thin overlays, and retire duplicates — see the
   [Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md).

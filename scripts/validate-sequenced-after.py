@@ -64,7 +64,17 @@ Usage:
     is that file. A checkout that cannot answer the question at all — not a git
     work-tree root, or SHALLOW, where every directory older than the graft
     boundary would be attributed to the boundary commit — says it did not run
-    and leaves the verdict unchanged.
+    and leaves the verdict unchanged — while git FAILING in a checkout that
+    passed those probes (a partial clone with objects unavailable, a corrupt
+    object store) is CANNOT RUN, because green-with-the-gate-off is the one
+    answer a gate must never give.
+
+    THE ARM MEASURES A NAME AGAINST A COMMIT, AND CANNOT ITSELF JUDGE WHY THEY
+    DIFFER. A wrapper-made archive whose commit crossed UTC midnight, and a
+    change id that arrived carrying its own `YYYY-MM-DD-` prefix (which the
+    pinned CLI preserves DELIBERATELY), both produce the same shape as the
+    defect. That judgement is what a disposition's `fact` records, and why the
+    record is a record rather than an allow-list.
 
     BOTH ARMS RUN ON ONE PASS. They read different things and want different
     repairs, so the first one's failure does not return before the second has
@@ -255,8 +265,15 @@ def _archive_commit_arm(
     """
     try:
         added = sa.adding_commits(repo_root)
-    except sa.SequencedAfterError as exc:
+    except sa.ArchiveHistoryUnavailable as exc:
+        # THE CHECKOUT DECLINES THE QUESTION — not a work-tree root, nested,
+        # shallow, no git at all. Caught FIRST because it is a SUBCLASS.
         return [], None, ("NOT RUN", str(exc))
+    except sa.SequencedAfterError as exc:
+        # GIT FAILED, in a checkout that claimed it could answer. Reporting
+        # that as NOT RUN would leave the run green with a gate the record asks
+        # for at `error` silently off (Codex P2, PR #820).
+        return [], None, ("CANNOT RUN", str(exc))
     path = sa.dispositions_path(repo_root)
     if not path.is_file():
         return [], None, ("CANNOT RUN",

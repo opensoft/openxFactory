@@ -22,13 +22,40 @@ kind: archive_date_dispositions
 # points at it, to correct a name whose only defect is that it is one day early.
 #
 # ENTRIES ARE ADDED ONLY FOR A MEASURED DISAGREEMENT, AND NEVER IN ADVANCE.
-# An entry for a future archive must not be written: `proposal-support.py
-# archive` now OWNS THE CLOCK (#797, issue #790) - it derives today in UTC once,
-# runs the pinned OpenSpec CLI under `TZ=UTC`, and asserts the directory the CLI
-# left - so an archive made through the wrapper cannot disagree with its adding
-# commit's UTC date by construction, and there is nothing to disposition. A
-# pre-emptive entry would be a disposition of a fact that does not exist; the
+# A pre-emptive entry - one written for an archive that has not happened, or for
+# a directory that agrees - is a disposition of a fact that does not exist; the
 # validator reports it STALE and reds the run, which is the intended answer.
+#
+# WHAT THE MEASUREMENT CAN AND CANNOT SAY. This arm compares a NAME to a COMMIT.
+# It cannot tell you WHY they differ, and three different causes produce the
+# same shape - which is exactly why an entry carries a `fact` and a `ruled_by`
+# rather than merely a directory name:
+#
+#   1. A LOCAL CLOCK BEHIND UTC named the directory. The defect, and the ten
+#      below. `proposal-support.py archive` now OWNS THE CLOCK at the archive
+#      act (#797, issue #790) - it derives today in UTC once, runs the pinned
+#      OpenSpec CLI under `TZ=UTC`, and asserts the directory the CLI left - so
+#      this cause cannot recur through the wrapper.
+#   2. THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS. The wrapper
+#      owns the clock at the ACT; the adding commit is made (and, squash-merged,
+#      dated) later. An archive named just before UTC midnight and merged just
+#      after is a CORRECT archive that this arm reports. 132 of this corpus's
+#      144 directories agree, so it is rare - not impossible.
+#   3. THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX, which the
+#      pinned CLI preserves DELIBERATELY (`archive.js:1119-1124`: re-prefixing
+#      would stutter the name and sort the folder under a day the change did not
+#      happen on), and `archive_directory_name()` computes the expected name by
+#      that same rule. Such a directory carries the date IN THE ID and will
+#      normally disagree with its adding commit. The estate has no such change
+#      today.
+#
+# CAUSES 2 AND 3 ARE LAWFUL ENTRIES when they are actually measured, and their
+# `fact` must say which one it is rather than borrowing the clock sentence
+# below - a disposition's whole value is that it records the judgement the
+# measurement could not make. What is forbidden is writing either one BEFORE it
+# is measured. (Codex P2, PR #820: the earlier wording forbade every future
+# entry, which left a correct archive of shape 2 or 3 with no lawful repair at
+# `enforcement: error`.)
 #
 # A STALE ENTRY IS ITSELF A DEFECT and is reported as one: an entry naming a
 # directory that no longer exists, one whose directory AGREES with its adding
@@ -56,7 +83,8 @@ kind: archive_date_dispositions
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
-#   fact             what happened. Two facts appear below and no others.
+#   fact             what happened, in the vocabulary above. Two appear below;
+#                    a later entry of cause 2 or 3 names its own.
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
