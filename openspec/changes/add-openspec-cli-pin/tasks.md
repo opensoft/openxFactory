@@ -6,10 +6,19 @@ Status: draft
 request and their evidence — command lines and outcomes, measured on the branch —
 is recorded beside each task. Slice 5 is successor work in this repository and
 slice 6 is successor work in five other repositories; neither is ticked and each
-names its owner. **AMENDED 2026-09-05:** 5.1 is now ticked — it landed in its own
-pull request, which is what the task itself demanded — and its evidence is
-recorded beside it in the same form. The rest of slice 5 and all of slice 6 are
-untouched and still owed.
+names its owner. **AMENDED 2026-09-08:** SLICE 5 IS COMPLETE. 5.1 was
+ticked 2026-09-05 (PR #687) and 5.2 is ticked here by
+`pin-openspec-cli-dependency-closure`, each in its own pull request with its own
+green run, which is what those tasks demanded. Slice 6 is ticked for 6.1 and
+6.3–6.5 (four consuming repositories wired), and 3.3 landed the same day (PR
+#810, merge `95e25409`), so `openspec-cli-pin` is an ENFORCED required check on
+`main` — which is why the closure this packet's 5.2 names stopped being a
+tolerable declared gap: a declared gap in a required check is a declared gap in
+the thing that stops merges. 6.2 (OpsxFactory) is what remains of slice 6.
+Was: **AMENDED 2026-09-05:** 5.1 is now ticked — it landed in its own pull
+request, which is what the task itself demanded — and its evidence is recorded
+beside it in the same form. The rest of slice 5 and all of slice 6 are untouched
+and still owed.
 
 **RATIFICATION HAS NOT HAPPENED.** Brett Heap authorized the DRAFT on 2026-09-04
 (*"draft the openxFactory pin change, pinned at 1.2.0"*). Task 7.1 records
@@ -142,9 +151,39 @@ ratification when it happens and nothing below decides it.
       done here — that workflow is this repository's most load-bearing required
       check, and a change to how it obtains the CLI deserves its own diff and its
       own green run.
-- [ ] **5.2** Decide the dependency closure (design OI-1). **Owner:
-      openxFactory.** The referent addresses the CLI's bytes and not its nine
-      caret-ranged dependencies; `--ignore-scripts` mitigates and does not repair.
+- [x] **5.2** **(DONE 2026-09-08, by `pin-openspec-cli-dependency-closure` —
+      its own packet, its own diff and its own green run, on a ruling.)** The
+      four exits were put to Brett Heap in session and he chose one, verbatim
+      *"Vendor a lockfile (Recommended)"* (2026-09-08T14:14:49Z, first-hand;
+      the other three — enumerate the resolved tree in the pin, vendor the built
+      tree as one artifact by digest, accept the shortfall as declared — are
+      recorded with their reasons in that packet's `design.md` § 1).
+      `contracts/openspec-cli-pin.1.12.0.package-lock.json` is committed beside
+      the pin: `lockfileVersion: 3`, 42,613 bytes, **80 packages**, every one
+      carrying a `resolved` URL and an `integrity`, and its entry for
+      `@fission-ai/openspec` carrying this pin's own referent character for
+      character. The pin records it as `lockfile:` (a bare name resolving beside
+      the pin), `lockfile_integrity:` and `lockfile_packages:`;
+      `scripts/validate-openspec-cli-pin.py` hashes the committed file BEFORE any
+      registry round trip, refuses the new `pin-lockfile-mismatch` on digest
+      drift, on a lockfile locking another artifact than the pin, and on a tree
+      of the wrong size, and INSTALLS THROUGH IT with `npm ci --ignore-scripts`
+      in a staging project whose `package.json` is DERIVED from the lockfile's
+      own root entry — never `npm install`. The reuse cache is keyed on the
+      lockfile's digest as well as the artifact's.
+      `scripts/install-pinned-openspec-cli.py` gains the closure by CALLING
+      `pinned_lockfile`/`verify_lockfile` and carries no second copy of anything.
+      Thirty new tests (93 → 123); the gate run is exit 0 through the lockfile
+      path with the installed tree walked and compared entry by entry against the
+      lockfile (80 = 80, zero version mismatches). `--ignore-scripts` stays, now
+      as defence in depth over a KNOWN tree. WHAT STAYS OPEN, named there rather
+      than implied: trust-on-first-use of the 79 registry integrity values, the
+      regeneration obligation at every bump (written into the pin's header and
+      enforced by the verifier's first-run refusal), and the `1.2.0` rollback
+      entry, which is declared UNCOVERED in the pin itself. Was: Decide the
+      dependency closure (design OI-1). **Owner: openxFactory.** The referent
+      addresses the CLI's bytes and not its nine caret-ranged dependencies;
+      `--ignore-scripts` mitigates and does not repair.
 
 ## Slice 6 — successor work in consuming repositories (not this packet)
 

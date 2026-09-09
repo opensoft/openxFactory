@@ -519,6 +519,72 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [pin-openspec-cli-dependency-closure](openspec/changes/pin-openspec-cli-dependency-closure/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-09, Brett Heap,
+  first-hand and with NO RELAY to lane `codexfactory-1` (session name
+  `codeXfactory-1`), verbatim **"ratify 813"** at 2026-09-09T03:19Z, over head
+  `f2f7ee8d` with every check green and 0 unresolved threads; record
+  `openspec/changes/pin-openspec-cli-dependency-closure/review/ratification-2026-09-09.md`).
+  **CLOSES THE OPEN ITEM #667 DECLARED
+  AND DID NOT CLOSE.** `contracts/openspec-cli-pin.yaml` has said since
+  2026-09-04 that its referent addresses the CLI's own bytes and **not** its
+  DEPENDENCY CLOSURE — `@fission-ai/openspec@1.12.0` declares ten runtime
+  dependencies, nine of them caret ranges npm resolved at install time, so two
+  runs of the identical verified artifact could adjudicate this corpus over two
+  different trees. This packet vendors an authored
+  `contracts/openspec-cli-pin.1.12.0.package-lock.json` (80 packages, every one
+  resolved and addressed, its entry for the CLI carrying the pin's own
+  referent), records it in the pin as `lockfile:` / `lockfile_integrity:` /
+  `lockfile_packages:`, and binds the verifier and the installer to it: the
+  committed lockfile is hashed BEFORE any registry round trip, ONE new refusal
+  code `pin-lockfile-mismatch` covers digest drift, a lockfile locking another
+  artifact than the pin, a tree of the wrong size, ANY OTHER locked entry
+  carrying no `resolved`/`integrity` of its own (a `link: true` local directory
+  included — a closure with one unaddressed member is not a closure), and a
+  lockfile ROOT that asks for the pinned package nowhere (the last two added
+  2026-09-08 on Copilot review of PR #813, with a `lockfileVersion` check
+  refusing `pin-unreadable` outside the forms the reader implements), and the
+  install runs
+  `npm ci --ignore-scripts` through the lockfile — never `npm install` — in a
+  staging project whose `package.json` is DERIVED from the lockfile's own root
+  entry, INSPECTING the installed tree before the binary is asked what it is,
+  with the reuse cache keyed on the lockfile's digest as well as the
+  artifact's. **ALL THREE CALLERS of `resolve_pinned` are bound to it** — the
+  verifier's own `main`, `scripts/install-pinned-openspec-cli.py` (the install
+  `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through
+  which the ARCHIVE act runs; the third was MISSED on the first pass and this
+  pull request's own required `pytest-suite` caught it, which is why the
+  invariant is now a test that pins the caller list rather than a habit — one
+  that PARSES rather than greps, since Copilot review of this pull request, and
+  sweeps `scripts/`, `.github/` and `tests/` because it can. The
+  archive caller is where the closure matters most: `openspec archive` writes a
+  ratified delta into canon, and until this the tree adjudicating an archive
+  could differ from the tree adjudicating the validation that cleared it. **RULED**, not chosen by the lane: Brett Heap,
+  2026-09-08T14:14:49Z, first-hand, verbatim *"Vendor a lockfile
+  (Recommended)"*, on a four-option packet whose other three exits — enumerate
+  the resolved tree in the pin, vendor the built tree as one artifact by digest,
+  accept the shortfall as declared — are recorded with their reasons in
+  `design.md` § 1. **THAT RULING AUTHORIZED THE AUTHORING AND NOT THE CONTENT** —
+  the packet held `Status: draft` and task 5.1 open through FOUR Copilot review
+  rounds (13 threads, 11 taken and 2 cosmetic folded into the ratifying commit)
+  until the SECOND and separate word above ratified the text. Two words, one
+  operator, two days, two decisions, both recorded. **NOTHING NORMATIVE MOVES BY
+  THE RATIFICATION**: the two ADDED requirements are ratified as written, and
+  tasks 5.2 (validation re-run at the gate) and 5.3 (realization evidence)
+  remain OWED — ratification is not an archive. Ticks
+  `add-openspec-cli-pin` task 5.2 and `bump-openspec-cli-pin-to-1.12` task 6.4.
+  Two ADDED requirements in `neutral-product-pin` and nothing MODIFIED,
+  deliberately (`design.md` § 4): #667's own MODIFIED block on the referent rule
+  is still unarchived, and a second unarchived modifier of one requirement is
+  the overwrite this estate's scenario-currency findings are all about. **WHAT
+  STAYS OPEN, named rather than implied:** trust-on-first-use of the 79 registry
+  integrity values captured when the lockfile was generated; the regeneration
+  obligation at every bump — five things now move together, not four, enforced
+  by the verifier's first-run refusal rather than remembered; and the `1.2.0`
+  rollback entry, declared UNCOVERED in the pin itself, so a rollback is a change
+  to author and not a revert to apply. Workflows take NO edit at all, which is
+  the single-source property paying out.
+
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817

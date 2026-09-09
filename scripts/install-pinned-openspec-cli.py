@@ -62,6 +62,15 @@ THE TARBALL IS RE-VERIFIED ON EVERY RUN regardless of the cache — that is
 install directory is not a trust shortcut: only the INSTALL is reused, and only
 from a directory named and stamped with the verified content address.
 
+AND SO IS THE DEPENDENCY CLOSURE, since 2026-09-08. The install this script
+performs now runs `npm ci` through the lockfile
+`contracts/openspec-cli-pin.yaml` names, so the `openspec` this job puts on
+`$GITHUB_PATH` runs over the SAME pinned tree the gate's own run does — the two
+were previously free to resolve nine caret ranges differently on the same day.
+Nothing about that is implemented here: `pinned_lockfile` and `verify_lockfile`
+are the verifier's, called below, and the lockfile's digest is written in this
+file exactly as often as the version and the integrity are, which is never.
+
 Exit codes:
   0  the pinned artifact verified, installed, and reported the pinned version
   2  ANY refusal — the verifier's own `PinRefusal`, printed verbatim with its
@@ -145,12 +154,16 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     try:
-        pin = verifier.read_pin(
-            Path(args.pin) if args.pin else verifier.PIN_PATH)
+        pin_path = Path(args.pin) if args.pin else verifier.PIN_PATH
+        pin = verifier.read_pin(pin_path)
         version = verifier.pinned_version(pin)
         integrity, shasum = verifier.pinned_integrity(pin)
         package = verifier.pinned_package(pin)
         binary = verifier.pinned_binary(pin)
+        lockfile, lockfile_integrity, lockfile_packages = (
+            verifier.pinned_lockfile(pin, pin_path))
+        lockfile_bytes = verifier.verify_lockfile(
+            lockfile, lockfile_integrity, lockfile_packages, package, integrity)
 
         cache_root = (Path(args.cache_dir).expanduser() if args.cache_dir
                       else verifier.default_cache_root())
@@ -163,7 +176,7 @@ def main(argv: list[str] | None = None) -> int:
 
         executable = verifier.resolve_pinned(
             package, version, integrity, shasum, binary, workspace, cache_root,
-            npm=args.npm)
+            lockfile_bytes, lockfile_integrity, npm=args.npm)
         reported = verifier.assert_reported_version(executable, version)
     except verifier.PinRefusal as exc:
         # Printed VERBATIM, trailer and all. This script adds no wording of its
@@ -175,8 +188,11 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"install-pinned-openspec-cli: {package}@{reported} verified against "
           f"its content address (integrity {integrity[:23]}…) and installed at "
-          f"{executable}. THIS IS AN INSTALL AND NOT A VERDICT: no delta was "
-          f"read and no corpus was validated.", file=sys.stderr)
+          f"{executable}, over the pinned dependency closure "
+          f"{lockfile.name} ({lockfile_packages} packages, lockfile_integrity "
+          f"{lockfile_integrity[:23]}…, installed with `npm ci "
+          f"--ignore-scripts`). THIS IS AN INSTALL AND NOT A VERDICT: no delta "
+          f"was read and no corpus was validated.", file=sys.stderr)
 
     github_path = os.environ.get("GITHUB_PATH")
     if github_path:
