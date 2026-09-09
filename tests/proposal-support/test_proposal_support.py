@@ -1648,11 +1648,18 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         appearing here means a ratified change has been renamed — which is
         the act this gate exists to stop, not a defect in it."""
         active = REPO_ROOT / "openspec" / "changes"
+        resolved = []
         for directory in sorted(active.iterdir()):
             if not directory.is_dir() or directory.name == "archive":
                 continue
             with self.subTest(change=directory.name):
-                support.ratifying_commit(REPO_ROOT, directory.name)
+                resolved.append(
+                    support.ratifying_commit(REPO_ROOT, directory.name))
+        # ANTI-VACUITY, both halves: the sweep saw changes at all, and it saw
+        # RATIFIED ones — a corpus of drafts alone would never reach the
+        # guard, and "nothing refused" would then mean "nothing was asked".
+        self.assertTrue(resolved)
+        self.assertTrue([sha for sha in resolved if sha is not None])
 
     def test_the_archive_subcommand_offers_no_bypass_flag(self):
         """The requirement's own scenario makes accepting a mutation a
