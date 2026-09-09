@@ -183,9 +183,10 @@ review of PR #813.)
 
 ## 7. The suite
 
-`python3 -m pytest tests/openspec_cli_pin -q` → **`147 passed`** (was 93; 123
-before the Copilot-review round of 2026-09-08 added the `lockfileVersion`,
-malformed-address, root-declaration, installed-tree and `running_lines` cases).
+`python3 -m pytest tests/openspec_cli_pin -q` → **`152 passed`** (was 93; 123
+before the Copilot-review rounds of 2026-09-08, which added the
+`lockfileVersion`, malformed-address, root-declaration, installed-tree and
+`running_lines` cases in round 5 and the entry-address cases in round 6).
 `python3 -m pytest tests/proposal-support -q` → **`95 passed, 2 subtests`**.
 `python3 -m pytest tests/sequenced_after -q` → **`195 passed`**.
 No test skips are added, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
@@ -262,11 +263,13 @@ floors: selected>=7090 (margin 3323) passed>=7070 (margin 3322) skipped==21
 what task 4.2 claims and this is the measurement of it. Both floors only rose.
 All nine checks on the pull request are green.
 
-## 11. THE COPILOT ROUND OF 2026-09-08, AND WHICH OF THE SEVEN WERE REAL
+## 11. THE COPILOT ROUNDS OF 2026-09-08, AND WHICH FINDINGS WERE REAL
 
-Seven review threads stood on PR #813. Recorded here rather than only in the
-threads, because two of them are findings about this verifier's *stated
-contracts* and one is a finding about this file.
+Eight review threads stood on PR #813 across two rounds — seven, then one more on
+the head that fixed them. Recorded here rather than only in the threads, because
+two of them are findings about this verifier's *stated contracts*, one is a
+finding about this file, and one is a gap between what a test guarded and what the
+running code enforced.
 
 | # | Subject | Disposition |
 | - | ------- | ----------- |
@@ -277,6 +280,35 @@ contracts* and one is a finding about this file.
 | 5 | This evidence file embedded host-absolute runner paths | **REAL, fixed.** Both quoted log lines are elided to `…/`; Principle IV of `.specify/memory/constitution.md` forbids a host-absolute path in a committed file. The tails, which are what the lines are quoted for, are byte-exact. (Two host-absolute paths remain in `tests/openspec_cli_pin/fixtures/*.json` — captured CLI output landed on `main` by `bump-openspec-cli-pin-to-1.12`, untouched by this pull request and not this packet's to redact.) |
 | 6 | Duplicate `import os` in `tests/proposal-support/test_proposal_support.py` | **REAL, fixed.** |
 | 7 | `staging_manifest()` may derive a manifest with no dependencies, so `npm ci` installs nothing | **REAL, fixed, and in two places.** `root_dependency_spec()` refuses `pin-lockfile-mismatch` (`LOCKFILE ROOT DECLARES NOTHING TO INSTALL`) from `verify_lockfile` — before the fetch, on the ordering rule the rest of check 3 follows — and from `staging_manifest` itself, which is reachable on its own. `assert_installed_package()` then reads the installed tree before the binary is asked what it is. |
+
+### Round 6, on the head that fixed those seven
+
+| # | Subject | Disposition |
+| - | ------- | ----------- |
+| 8 | `verify_lockfile()` never checks that the OTHER locked entries carry `resolved` and `integrity`, so a regenerated lockfile with an unaddressed entry passes check 3 and `npm ci` fetches unverified bytes | **REAL, fixed.** `assert_every_entry_addressed()` refuses `pin-lockfile-mismatch` (`LOCKFILE ENTRY UNADDRESSED`) unless every `packages` entry other than the root carries BOTH. The finding is exact: the three arms above it address the file, the pin's own entry and the tree's size, and all three pass while one dependency has no integrity to be verified against. |
+
+`resolved` is required BESIDE `integrity`, not instead of it — the integrity says
+which bytes, the resolved URL says where they came from, and an entry with an
+address and no origin is a package `npm ci` must go and find, which is the
+range-resolution this whole change closes, one entry deep. **A `link: true` entry
+is a refusal and not an exemption**: npm writes it for a workspace or a `file:`
+dependency, the entry points at a local directory with no content address and no
+origin, and its contents are whatever is on that disk at install time. Nothing
+generates one here, which is why the rule is written down while it costs nothing.
+The ROOT (`""`) entry is exempt because it DECLARES the tree rather than
+belonging to it, and the exemption is asserted by a test rather than left to the
+loop's shape.
+
+The property was already true of the committed file and asserted by
+`test_the_real_lockfile_locks_the_pinned_artifact_and_resolves_nothing` (80 of 80
+entries carry both). That test guards THIS repository at pytest time; the finding
+was that the VERIFIER did not enforce it, and the verifier is what runs in every
+consuming repository and in the gate, where no pytest does.
+`test_every_locked_entry_of_the_real_lockfile_is_addressed` now asserts the
+verifier's own verdict on the real file, and two parametrized cases (an entry
+missing `integrity`, an entry missing `resolved`) plus a `link: true` case cover
+the refusal — each also asserting that no registry round trip is spent reaching
+it.
 
 `pin-lockfile-mismatch` rather than `pin-unreadable` for thread 7, and
 `pin-unreadable` rather than `pin-lockfile-mismatch` for thread 1, on the ONE

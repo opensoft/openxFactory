@@ -67,8 +67,15 @@ happens; nothing below decides it.
       ONE new refusal code, `pin-lockfile-mismatch`, added to `REFUSAL_CODES`,
       covering `LOCKFILE DIGEST DRIFT`, `LOCKFILE REFERENT DISAGREEMENT` (the
       lockfile locks a different artifact than the pin, or none),
-      `LOCKFILE SIZE DRIFT` and — added 2026-09-08 on Copilot review of PR #813
-      — `LOCKFILE ROOT DECLARES NOTHING TO INSTALL` (`root_dependency_spec()`:
+      `LOCKFILE SIZE DRIFT` and — both added 2026-09-08 on Copilot review of
+      PR #813 — `LOCKFILE ENTRY UNADDRESSED`
+      (`assert_every_entry_addressed()`: every `packages` entry other than the
+      root carries a `resolved` AND an `integrity` of its own, and a
+      `link: true` local-directory entry is a refusal and not an exemption; the
+      three arms above address the file, the pin's own entry and the tree's
+      size, and a lockfile can satisfy all three while ONE dependency is fetched
+      on the registry's word alone) and
+      `LOCKFILE ROOT DECLARES NOTHING TO INSTALL` (`root_dependency_spec()`:
       the root `""` entry must declare the pinned package under `dependencies`
       or `devDependencies`, `optionalDependencies` and `peerDependencies` NOT
       counting because neither reliably installs; the derived manifest is a

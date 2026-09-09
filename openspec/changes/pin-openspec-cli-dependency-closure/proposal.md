@@ -75,16 +75,21 @@ pin, and the install runs through it.**
    **before any registry round trip**, refuses `pin-lockfile-mismatch` on
    disagreement, refuses the same code unless the lockfile's own entry for the
    package carries the pin's `integrity:` — so one pin cannot name two artifacts
-   — and unless the lockfile's ROOT entry actually ASKS FOR that package, without
-   which the derived manifest would ask for nothing and the install would succeed
-   having installed nothing; refuses `pin-unreadable` for a `lockfileVersion`
+   — unless EVERY OTHER locked entry carries a `resolved` and an `integrity` of
+   its own, a `link: true` local directory included, because a closure with one
+   unaddressed member is not a closure and `npm ci` verifies a package against
+   the integrity recorded FOR IT; and unless the lockfile's ROOT entry actually
+   ASKS FOR that package, without which the derived manifest would ask for
+   nothing and the install would succeed having installed nothing; refuses
+   `pin-unreadable` for a `lockfileVersion`
    outside the forms it implements rather than half-reading a shape it has never
    seen; and then installs with `npm ci --ignore-scripts`, never `npm install`,
    INSPECTING the installed tree — the package's own `package.json`, at the
    pinned version — before the binary is asked what it is. The reuse cache is
-   keyed on the lockfile's digest as well as the artifact's. (The root check, the
-   version check and the tree inspection were added 2026-09-08 on Copilot review
-   of this pull request; see `design.md` § 2.3 and § 6.4.)
+   keyed on the lockfile's digest as well as the artifact's. (The entry-address
+   check, the root check, the version check and the tree inspection were all
+   added 2026-09-08 on Copilot review of this pull request; see `design.md`
+   § 2.3 and § 6.4.)
 4. The pin's header stops saying the closure is open. The old paragraph is kept
    as `Was:` history, because the shortfall is the ARGUMENT for the mechanism and
    deleting it would leave the mechanism looking like decoration.

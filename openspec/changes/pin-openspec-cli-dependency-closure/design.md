@@ -149,16 +149,40 @@ pin disagree with each other* — remedy: regenerate the committed lockfile at t
 pinned version. Collapsing them would name the wrong defect in the one message a
 reviewer reads.
 
-**One code covers four disagreements**, in the order of how much each says, and
+**One code covers five disagreements**, in the order of how much each says, and
 that grouping copies `verify_artifact`'s own precedent of reporting INTEGRITY
 DRIFT ahead of SHASUM DRIFT under one code: `LOCKFILE DIGEST DRIFT` (the bytes
 are not the bytes the pin addresses — everything else would be a statement about
 a file this pin does not name), `LOCKFILE REFERENT DISAGREEMENT` (the lockfile
 locks a different `@fission-ai/openspec`, or none), `LOCKFILE SIZE DRIFT` (the
-tree is not the recorded size), and `LOCKFILE ROOT DECLARES NOTHING TO INSTALL`.
+tree is not the recorded size), `LOCKFILE ENTRY UNADDRESSED` and
+`LOCKFILE ROOT DECLARES NOTHING TO INSTALL`.
 
-**The fourth was added 2026-09-08 on review of this pull request** (Copilot, on
-`staging_manifest`), and it is under this code rather than `pin-unreadable`
+**THE FOURTH IS THE CLOSURE'S OWN CLAIM, APPLIED TO THE OTHER 79 ENTRIES**, and
+it was the second round of review on this pull request (Copilot, on
+`verify_lockfile`, after the first seven threads landed). The three arms above it
+address the FILE, the pin's OWN ENTRY inside it, and the tree's SIZE — and a
+lockfile can satisfy all three while ONE dependency carries no `integrity`.
+`npm ci` verifies a package against the integrity recorded FOR IT; where none is
+recorded there is nothing to verify against, and that package is fetched on the
+registry's word alone. A closure with an unaddressed member is not a closure, and
+"the installed tree IS the pinned tree" would be false of exactly the tree this
+change exists to fix. `resolved` is required beside `integrity` rather than
+instead of it: the integrity says WHICH BYTES, the resolved URL says WHERE THEY
+CAME FROM, and an entry with an address and no origin is a package `npm ci` must
+go and find. **A `link: true` entry is a REFUSAL and not an exemption**, said out
+loud because it is the one shape a reader might expect to be waved through: npm
+writes it for a workspace or a `file:` dependency, the entry points at a LOCAL
+DIRECTORY with no content address and no origin, and its contents are whatever is
+on that disk at install time — the unpinned state under another name. Nothing
+generates one here (the staging project has no workspaces), which is why the rule
+is written down while it costs nothing rather than met for the first time by
+somebody wondering whether it counts. The ROOT (`""`) entry is exempt because it
+DECLARES the tree rather than belonging to it, and that exemption is asserted by
+a test rather than left to the loop's shape.
+
+**The fifth was added 2026-09-08 on the first round of review of this pull
+request** (Copilot, on `staging_manifest`), and it is under this code rather than `pin-unreadable`
 because both halves are well-formed and READABLE and they DISAGREE: the pin names
 an artifact, and the lockfile's root entry does not ask for it. `npm ci` installs
 what the ROOT MANIFEST asks for, that manifest is DERIVED from this entry, so a

@@ -1383,6 +1383,94 @@ def test_a_malformed_lockfile_address_is_a_named_refusal_and_not_a_traceback(
     assert exc.value.code == "pin-tag-only"
 
 
+@pytest.mark.parametrize("dropped", ["integrity", "resolved"])
+def test_a_locked_entry_with_no_address_of_its_own_is_refused(
+        mod, tmp_path, fake_npm, dropped):
+    """A CLOSURE WITH ONE UNADDRESSED MEMBER IS NOT A CLOSURE (raised by review
+    of PR #813, on the head that fixed the first seven threads).
+
+    Everything else about this lockfile is right: it hashes to its recorded
+    address, its entry for the pinned package carries the pin's own referent, the
+    count agrees, and the root asks for the package. ONE dependency has lost half
+    its address — and `npm ci` verifies a package against the integrity recorded
+    FOR IT, so that one would be fetched on the registry's word alone while every
+    check above passed. `resolved` is required beside `integrity` for the other
+    half of the same reason: the integrity says WHICH BYTES and the resolved URL
+    says WHERE THEY CAME FROM, and an entry with no origin is a package `npm ci`
+    must go and find, which is the resolution this change exists to close.
+
+    Refused BEFORE the fetch, on the ordering rule the rest of check 3 follows.
+    """
+    calls, _ = fake_npm
+    (tmp_path / "openspec").mkdir()
+    body = _relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"]["node_modules/a-dependency-1"].pop(dropped))
+    path = write_pin(tmp_path, lockfile_body=body)
+    pin = mod.read_pin(path)
+    lockfile, integrity, packages = mod.pinned_lockfile(pin, path)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, integrity, packages, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "LOCKFILE ENTRY UNADDRESSED" in exc.value.detail
+    assert "node_modules/a-dependency-1" in exc.value.detail
+    assert f"no `{dropped}`" in exc.value.detail
+    assert "1 of 4 locked entries" in exc.value.detail
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert not any(call[0] == "npm" for call in calls), \
+        "an unaddressed entry must not spend a registry round trip"
+
+
+def test_a_link_entry_is_a_refusal_and_not_an_exemption(mod, tmp_path):
+    """`link: true` IS THE UNPINNED STATE UNDER ANOTHER NAME.
+
+    npm writes it for a workspace or a `file:` dependency: the entry points at a
+    LOCAL DIRECTORY, which has no content address, no registry origin, and
+    whatever contents that disk holds at install time. Nothing generates one for
+    this pin today — the staging project has no workspaces — which is precisely
+    why the rule is asserted now, while it costs nothing, rather than met for the
+    first time by a reader wondering whether it counts.
+    """
+    body = _relockfile(
+        synthetic_lockfile(_address(PAYLOAD)[0]),
+        lambda doc: doc["packages"].__setitem__(
+            "node_modules/a-dependency-2",
+            {"resolved": "packages/local", "link": True}))
+    lockfile = tmp_path / SYNTHETIC_LOCKFILE_NAME
+    lockfile.write_bytes(body)
+    with pytest.raises(mod.PinRefusal) as exc:
+        mod.verify_lockfile(lockfile, _address(body)[0], 4, PACKAGE,
+                            _address(PAYLOAD)[0])
+    assert exc.value.code == "pin-lockfile-mismatch"
+    assert "`link: true`" in exc.value.detail
+    assert "a local directory, not an artifact" in exc.value.detail
+
+
+def test_every_locked_entry_of_the_real_lockfile_is_addressed(mod, pin):
+    """THE CHECK, RUN AGAINST THE REAL COMMITTED FILE, by the verifier itself.
+
+    `test_the_real_lockfile_locks_the_pinned_artifact_and_resolves_nothing`
+    already asserts this property of the file. That test guards THIS repository
+    at pytest time; this one asserts that the VERIFIER enforces it — which is
+    what runs in every consuming repository and in the gate, where no pytest
+    does. The count returned is the tree the pin records.
+    """
+    document = json.loads((PIN.parent / LOCKFILE_NAME).read_text(encoding="utf-8"))
+    assert mod.assert_every_entry_addressed(document, LOCKFILE_NAME) == \
+        LOCKFILE_PACKAGES
+
+
+def test_the_root_entry_is_exempt_because_it_is_not_a_package(mod):
+    """The root (`""`) declares the tree; it is not a member of it, and it
+    carries no `resolved`/`integrity` in any lockfile npm writes. Exempting it is
+    a decision, so it is asserted rather than left to the loop's shape."""
+    document = json.loads(synthetic_lockfile(_address(PAYLOAD)[0]))
+    assert set(document["packages"][""]) == {"name", "version", "dependencies"}
+    assert mod.assert_every_entry_addressed(document, SYNTHETIC_LOCKFILE_NAME) == 4
+
+
 def test_a_lockfile_whose_root_asks_for_nothing_is_refused_before_the_install(
         mod, tmp_path, fake_npm):
     """THE VACUOUS PASS, AND WHERE IT IS CAUGHT (raised by review of PR #813).

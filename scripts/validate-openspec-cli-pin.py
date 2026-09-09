@@ -56,9 +56,13 @@ bytes, and this tool:
   * refuses the SAME code unless the lockfile's own entry for the pinned package
     carries the pin's `integrity:` — so the two halves of one pin cannot name two
     different artifacts — unless the tree holds exactly `lockfile_packages:`
-    packages, and unless the lockfile's ROOT entry actually ASKS FOR the pinned
-    package, without which the derived manifest would ask for nothing and the
-    install would succeed having installed nothing;
+    packages, unless EVERY OTHER LOCKED ENTRY carries a `resolved` and an
+    `integrity` of its own (a closure with one unaddressed member is not a
+    closure: `npm ci` verifies a package against the integrity recorded FOR IT,
+    and a `link: true` entry is whatever is on the local disk), and unless the
+    lockfile's ROOT entry actually ASKS FOR the pinned package, without which the
+    derived manifest would ask for nothing and the install would succeed having
+    installed nothing;
   * refuses `pin-unreadable` for a `lockfileVersion` outside the forms it
     implements, rather than half-reading a shape whose semantics it has never
     seen;
@@ -319,12 +323,17 @@ REFUSAL_CODES: tuple[str, ...] = (
 #                              or its entry for the pinned package carries an
 #                              integrity other than the pin's referent (or no
 #                              entry at all), or the tree it locks is not the
-#                              size `lockfile_packages:` records, or its ROOT
-#                              entry does not ASK FOR the pinned package at all
-#                              (added 2026-09-08 on review of PR #813: the
-#                              staging manifest is derived from that entry, so a
-#                              root asking for nothing yields an `npm ci` that
-#                              installs nothing and exits 0)
+#                              size `lockfile_packages:` records, or SOME OTHER
+#                              locked entry carries no `resolved`/`integrity` of
+#                              its own (or is a `link: true` local directory), or
+#                              its ROOT entry does not ASK FOR the pinned package
+#                              at all — the last two added 2026-09-08 on review
+#                              of PR #813: the staging manifest is derived from
+#                              the root entry, so a root asking for nothing
+#                              yields an `npm ci` that installs nothing and exits
+#                              0; and a closure with one unaddressed member is
+#                              not a closure, `npm ci` verifying a package
+#                              against the integrity recorded FOR IT
 #
 # A lockfile in a FORM this reader does not implement — a `lockfileVersion`
 # outside `LOCKFILE_VERSIONS` — is NOT this code either: it is `pin-unreadable`,
@@ -1034,6 +1043,86 @@ def root_dependency_spec(document: dict, package: str) -> str:
         "Regenerate the lockfile at the pinned version")
 
 
+# How many offending entries a refusal names before it stops listing. A refusal
+# is read by a person, and a wall of eighty lines is not more informative than a
+# handful and a count — but naming NONE would make the reader go and find them,
+# which is the defect the message exists to spare them.
+UNADDRESSED_ENTRIES_SHOWN = 5
+
+
+def assert_every_entry_addressed(document: dict, lockfile_name: str) -> int:
+    """EVERY non-root `packages` entry carries `resolved` AND `integrity`, or refuse.
+
+    THE CLOSURE IS THE WHOLE TREE, NOT THE PINNED PACKAGE'S OWN ENTRY (added
+    2026-09-08 on review of PR #813). The checks beside this one address the
+    lockfile's bytes, the pin's own entry inside it, and the tree's size — and a
+    lockfile could satisfy all three while holding ONE entry with no `integrity`.
+    `npm ci` verifies a package against the integrity RECORDED FOR IT; where none
+    is recorded there is nothing to verify against, so that one dependency is
+    fetched on the registry's word alone. A closure with an unaddressed member is
+    not a closure, and "the installed tree IS the pinned tree" would be false of
+    exactly the tree this pin exists to fix.
+
+    `resolved` IS REQUIRED BESIDE `integrity` and not instead of it. The integrity
+    says WHICH BYTES; the resolved URL says WHERE THEY CAME FROM. An entry with an
+    integrity and no origin is a package `npm ci` must go and find, which is the
+    range-resolution this whole change closes, one entry deep.
+
+    A `link: true` ENTRY IS A REFUSAL AND NOT AN EXEMPTION, stated rather than
+    left to be discovered. npm writes `link: true` for a workspace or a `file:`
+    dependency: the entry points at a LOCAL DIRECTORY, which has no content
+    address and no registry origin, and whose contents are whatever is on that
+    disk at install time. That is the unpinned state under another name. This
+    pin's product is a published registry artifact and its lockfile is generated
+    in a staging project with no workspaces, so no such entry can arise today —
+    which is exactly why the rule is written down now, while it costs nothing,
+    rather than met for the first time by a reader wondering whether it counts.
+
+    `pin-lockfile-mismatch`, with the three arms above it: the file is readable
+    and well-formed, and it disagrees with what the pin CLAIMS about it, and the
+    remedy is the one they all share — regenerate the lockfile at the pinned
+    version. Returns the number of entries checked, so a caller can say what it
+    verified rather than merely that it did.
+    """
+    unaddressed: list[str] = []
+    linked: list[str] = []
+    checked = 0
+    for key, entry in document["packages"].items():
+        if key == "":
+            continue
+        checked += 1
+        if not isinstance(entry, dict):
+            unaddressed.append(f"{key}: not an object")
+            continue
+        if entry.get("link"):
+            linked.append(key)
+            continue
+        missing = [field for field in ("resolved", "integrity")
+                   if not isinstance(entry.get(field), str)
+                   or not entry[field].strip()]
+        if missing:
+            unaddressed.append(
+                f"{key}: " + ", ".join(f"no `{field}`" for field in missing))
+    offenders = [f"{key}: `link: true` — a local directory, not an artifact"
+                 for key in linked] + unaddressed
+    if not offenders:
+        return checked
+    lines = [f"{lockfile_name}: LOCKFILE ENTRY UNADDRESSED"]
+    lines += [f"  {detail}" for detail in offenders[:UNADDRESSED_ENTRIES_SHOWN]]
+    hidden = len(offenders) - UNADDRESSED_ENTRIES_SHOWN
+    if hidden > 0:
+        lines.append(f"  … and {hidden} more")
+    lines.append(
+        f"{len(offenders)} of {checked} locked entries are not "
+        "content-addressed. `npm ci` verifies a package against the integrity "
+        "recorded FOR IT, so an entry carrying none is fetched on the registry's "
+        "word alone and a `link: true` entry is whatever is on the local disk — "
+        "either way the closure has a member nothing pins, and a closure with an "
+        "unaddressed member is not a closure. Regenerate the lockfile at the "
+        "pinned version")
+    raise PinRefusal("pin-lockfile-mismatch", "\n".join(lines))
+
+
 def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
                     package: str, integrity: str) -> bytes:
     """Check 3, the LOCAL half: the committed closure IS the one the pin names.
@@ -1057,6 +1146,14 @@ def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
                          on `shasum:`'s terms: it is recorded because a reviewer
                          reads a count and not a digest, and it is checked
                          because a recorded value nothing verifies drifts.
+      ENTRY UNADDRESSED  (added 2026-09-08 on review of PR #813) some entry
+                         OTHER than the pinned package's carries no `resolved`
+                         or no `integrity`, or is a `link: true` local
+                         directory. The three arms above address the file, the
+                         pin's own entry in it, and the tree's size, and a
+                         lockfile can satisfy all three while ONE dependency is
+                         fetched on the registry's word alone. See
+                         `assert_every_entry_addressed`.
       ROOT DECLARES NOTHING TO INSTALL
                          (added 2026-09-08 on review of PR #813) the lockfile's
                          ROOT entry does not ask for the pinned package, so the
@@ -1123,6 +1220,7 @@ def verify_lockfile(lockfile: Path, lockfile_integrity: str, packages: int,
             "count is corroboration and the digest is the referent, so this "
             "reports a disagreement the digest could not have survived unless "
             "the count itself was mis-recorded")
+    assert_every_entry_addressed(document, lockfile.name)
     root_dependency_spec(document, package)
     return raw
 
