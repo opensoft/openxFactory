@@ -220,7 +220,7 @@ the refusal ends there. The control that proves the shape is
 and validates clean, because its block is `## ADDED Requirements` — so the
 refusal is about MODIFIED-before-creation and nothing else.
 
-Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+Recorded by `prepare-openspec-1-12-readiness`, which measured this corpus
 under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
 (#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
 written, the finding is `[INFO]` rather than a validation failure, and the

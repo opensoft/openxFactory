@@ -75,7 +75,7 @@ import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 
 from ideation_dashboard.doxbench_hash import utf8_size
-from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
+from ideation_dashboard.doxbench_scope_types import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_threads import (
     DocumentThread, render_state_header, render_thread,
 )
