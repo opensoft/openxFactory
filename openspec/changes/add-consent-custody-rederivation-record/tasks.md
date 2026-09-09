@@ -418,7 +418,7 @@ them. Transcript:
   basenames and one pinned `--as-of`: **ZERO findings added at any severity in
   any family**, and THREE `release-inventory-drift` findings REMOVED — the same
   three registered rows the § 5.2 measurement independently found had moved.
-  The new `withheld/` bucket, the seventeen fixtures and the new test package
+  The new `withheld/` bucket, the eighteen fixtures and the new test package
   trip no family at all. Transcript: `.../evidence/phaseH-T080-doc-health.txt`.
 
 ## 6. The consumer handoff — [OpsxFactory]'s OWED ACT, not this change's
@@ -519,6 +519,54 @@ DELIBERATELY NOT CLOSED.**
   no ratified task names it, and this packet's rule is realize-what-was-ratified.
   **DO NOT add the refusal leg under this change.**
 
+**OWED FINDING #3, 2026-09-09T20:31Z — THE `status`/`custody_rederivations`
+CONFLICT IS UNREFUSED. RECORDED, NOT CLOSED.** Raised by the refutation panel on
+`528c690c`.
+
+- **(a) The defect.** The ratified delta's scenario *A re-derivation does not
+  amend the instrument* ends: *"an instrument transitioned to `amended` solely
+  for a custody re-derivation is nonconformant, because nothing the parties
+  agreed has changed."* **Nothing refuses it.** The scenario is recorded in the
+  feature's traceability table as realized *"as an ABSENCE, asserted by diff"* —
+  which is true of its FIRST half only (this change writes no `amendments` entry
+  and moves no status). The AND-clause is a REFUSAL, and no refusal was built.
+- **(b) The leg it would need, and why it is NEUTRAL.** `status`,
+  `amendments` and `custody_rederivations` are ALL fields of the record, so
+  **design C-7's placement test puts the leg on THIS side of the line** — the
+  same test that placed `path_only` digest equality and the entry-closure legs
+  here. The DERIVABLE form, stated precisely because the ratified wording is
+  not fully derivable: an instrument whose `status` is `amended`, which declares
+  `custody_rederivations`, and whose `amendments` array is absent or empty, has
+  **no recorded amendment to justify the transition** — and that is decidable
+  from the record's own bytes. The literal wording's *"solely"* is NOT decidable
+  in the general case: an instrument may be legitimately `amended` AND carry a
+  re-derivation, and the record does not say which act moved the status. A leg
+  built to the literal wording would over-refuse; the empty-`amendments` form is
+  the honest neutral approximation, and choosing between them is a contract
+  question rather than an implementation one.
+- **(c) Its home.** F.2's custody-digest gate (§ 7.1, OpsxFactory's) or a
+  SUCCESSOR openxFactory change, together with the ruling on (b)'s two forms.
+  **NO LEG WAS ADDED HERE**: no ratified task names one, and this packet's rule
+  is realize-what-was-ratified.
+
+**OWED FINDING #4, 2026-09-09T20:31Z — THE CONSENT SCHEMA IS NOT A RELEASE
+INVENTORY MEMBER, AND THE POLICY SAYS IT SHOULD BE. PRE-EXISTING, NOT THIS
+CUT'S.** Also raised by the panel.
+`contracts/releases/contract-v3.5.digests.yaml` carries **283** entries and
+**none of them is `contracts/schemas/consent-instrument.schema.yaml`** —
+`grep -c consent-instrument` over the built inventory returns 0. The cause is
+STATIC MEMBERSHIP: `scripts/hermes_runtime_validation/release.py` enumerates the
+inventory from fixed tuples (`AUXILIARY_MEMBERS`, `NORMATIVE_DOCS`,
+`RELEASE_SURFACE_PATHS` and the hermes-runtime / intent-compliance families),
+so a normative contract outside those families is never a member however much it
+moves. `docs/contract-versioning-policy.md` speaks of every modified normative
+contract. **THE TWO DIVERGE, AND THEY DIVERGED BEFORE THIS CUT** — the schema
+was equally absent from `contract-v1.30`'s, `contract-v1.33`'s and
+`contract-v3.4`'s inventories, at every bundle that carried it. It is recorded
+as a tool/policy divergence owed to whoever owns that membership list, and it is
+**NOT** repaired here: hand-adding a row to a BUILT inventory is precisely the
+edit the versioning policy forbids.
+
 **BOX ACCOUNTING, 2026-09-09 — AND IT SUMS TO 46.**
 **35 TICKED** (0.1; 1.1–1.3; 2.1–2.5; 3.1–3.5 incl. 3.4b and 3.4c; 4.1–4.9 incl.
 4.1b, 4.1c, 4.3b, 4.3c, 4.8b, 4.8c, 4.8d; 5.2, 5.3, 5.4)
@@ -527,3 +575,7 @@ bookkeeping, 5.6 the `[OPERATOR]` tag)
 **+ 8 NOT-OWED** (6.1, 6.2, 6.2b, 6.3, 6.4; 7.1, 7.2, 7.3)
 **= 46.** Every tick rides the same commit as its evidence, proven from history
 rather than asserted at `.../evidence/phaseH-T083-tick-audit.txt`.
+**THAT AUDIT COVERS THE PACKET'S 46 BOXES.** The Speckit feature tree's own 79
+`T###` boxes are a separate list, ticked 2026-09-09T20:31Z with per-phase dated
+evidence pointers; two of them (T065, T066) carry NOT-OWED-HERE lines because
+they mirror boxes 5.5 and 5.6, which are the lane's and the operator's.

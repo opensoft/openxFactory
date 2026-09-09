@@ -76,3 +76,103 @@ Phase H head: identical counts.
   dedicated App-token step before the suite because openXwallet is a second,
   private org repository. Anyone re-running this gate must do the same, or read
   146 findings that say nothing about the code.
+
+## Refutation panel on `528c690c` — findings taken, 2026-09-09T20:31Z
+
+PASS AFTER FIXES. Every gate was reproduced twice independently by the panel.
+Eight findings, all prose or evidence; the code half is R7. **Two of them are
+counting defects in `contracts/CHANGELOG.md`, which is a `contracts/` byte
+INSIDE the certified candidate `d54d89ca` — they are recorded here and NOT
+edited into it**, because remaking the candidate to fix a prose count would
+invalidate every gate transcript taken against it. The candidate's `contracts/`
+tree is asserted byte-identical after these edits.
+
+### R2 — the bundle count in the v3.5 entry is short by one addition and one modification
+
+**The entry says FOUR additions and FIFTEEN modifications. Measured at the
+candidate it is FIVE and SIXTEEN:**
+
+```
+$ git diff --name-status contract-v3.4 d54d89ca -- contracts/
+      5 A     16 M
+```
+
+**Cause, named exactly:** the count was taken at the INTEGRATION POINT
+`9d658813`, before the cut's own two members existed. The two the entry does not
+attribute are **self-referential** — `M contracts/CHANGELOG.md` (the entry
+itself) and `A contracts/releases/contract-v3.5.digests.yaml` (the inventory the
+entry describes). Nothing substantive is missing: no contract, no schema, no
+pin, no fixture is unnamed.
+
+**THE v3.4 PRECEDENT WAS CHECKED, AND IT DOES NOT EXCUSE THE OMISSION — IT
+CONTRADICTS IT.** `contract-v3.4`'s own entry carries a table row naming exactly
+these two members for itself:
+
+> `| M contracts/CHANGELOG.md, A contracts/releases/contract-v3.4.digests.yaml | **THIS CUT** — this entry and the rebuilt inventory |`
+
+So attributing the self-referential members is the house form, and their absence
+from the v3.5 entry is a DEFECT rather than a convention. Recorded as such
+rather than argued away.
+
+**Disposition: NOT REPAIRED IN THIS CANDIDATE, and the choice is the
+coordinator's.** Either the candidate is REMADE with the corrected count and
+every gate re-runs against the new commit (the packet's own rule — a candidate
+is remade, never patched), or the correction rides the NEXT cut's entry, which
+must then also say why v3.5's numbers read low. This seat took neither on its
+own authority.
+
+### R3 — two release-surface members outside `contracts/` are unattributed
+
+Both moved since `contract-v3.4` and neither is named in the v3.5 entry, which
+scopes itself to `contracts/`:
+
+- **`docs/contract-versioning-policy.md`** — moved by `0083a71d`, *"Move the
+  release-tag zero-findings pin into a gate on the cutting pull request"*. It is
+  a `NORMATIVE_DOCS` **and** a `RELEASE_SURFACE_PATHS` member, so it is inside
+  the release inventory even though it is outside `contracts/`. **It moved on
+  `main` before this cut reached it.**
+- **`tests/intent-compliance/test_release_boundary.py`** — moved by the
+  candidate `d54d89ca` ITSELF: the cut-coupled tripwire edit (T061b). An
+  inventory member, and this cut is what moved it.
+
+Same disposition as R2: recorded here, not edited into the frozen candidate. The
+substantive point is already carried — the entry's additive argument measures
+the intent-compliance member set directly and finds ZERO changed paths, and
+`docs/contract-versioning-policy.md` is one of the three registered rows the
+T060 measurement and the doc-health pair both independently found had moved.
+
+### R1 and R8 — two further owed findings
+
+Recorded in full beside § 7 of the packet's `tasks.md`, and summarized here:
+**#3**, the `status`/`custody_rederivations` conflict the ratified scenario calls
+nonconformant and nothing refuses — a NEUTRAL leg by C-7's placement test, with
+the literal *"solely"* wording not decidable from the record and the
+empty-`amendments` form the honest approximation; **#4**, the consent schema's
+absence from the release digest inventory, a pre-existing static-membership
+divergence between `release.py` and the versioning policy that predates this cut
+at every bundle which carried the schema. **No leg and no inventory row was
+added for either.**
+
+### R5, R6, R7 — taken
+
+- **R5**: the fixture count is **18** (3 positive, 14 negative, 1 withheld),
+  corrected at all three prose sites that said seventeen.
+- **R6**: `release-tag-gate` at the BRANCH HEAD exits 2 with *"3 first-parent
+  landing(s) after the commit that declared it"*, while the candidate and the
+  PR merge tree are green. Both results and the reason — the gate counts
+  landings, not only tree bytes — are recorded at T081's transcript.
+- **R7**: the `bucket` parametrize in `test_no_git_rederivation.py` was
+  decorative (all three cases called `self_test`, which walks all three buckets).
+  Each case now drives `validate_record` over ITS OWN bucket and asserts that
+  bucket's own outcome, so a per-bucket regression fails its own case:
+  positive 9 files / 0 errors, negative 21 / 25 errors, withheld 1 / 0 errors and
+  1 withholding. The open-guard case additionally asserts that a file of its own
+  bucket was actually opened, because a guard that watches nothing cannot refuse
+  anything. `pytest tests/consent_instruments -q`: **34 passed**.
+
+### R4 — the feature tree's own boxes
+
+The T083 audit proves the tick discipline over the PACKET's 46 boxes. The
+Speckit feature tree's 79 `T###` boxes were never ticked; they are ticked now
+with per-phase dated evidence pointers, and T065/T066 carry NOT-OWED-HERE lines
+because they mirror boxes 5.5 and 5.6.

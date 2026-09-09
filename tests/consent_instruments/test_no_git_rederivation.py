@@ -100,9 +100,58 @@ def test_the_only_git_token_is_the_skip_set_entry() -> None:
     )
 
 
+def _bucket_paths(module, bucket: str) -> list[Path]:
+    """The files of ONE bucket, and of no other."""
+    if bucket == "positive":
+        return sorted(module.EXAMPLES_DIR.glob("*.example.yaml"))
+    if bucket == "negative":
+        return sorted(module.NEGATIVE_DIR.glob("*.yaml"))
+    return sorted(module.WITHHELD_DIR.glob("*.yaml"))
+
+
+def _exercise(module, bucket: str):
+    """Validate every file of ONE bucket, so the parametrize is not decorative.
+
+    An earlier form of these two tests parametrized over the buckets and then
+    called ``self_test`` in each case — which walks ALL THREE every time, so the
+    three cases were the same run wearing three names and a per-bucket
+    regression could not fail its own case. Here each case drives
+    ``validate_record`` over exactly its own bucket's paths.
+    """
+    findings = module.Findings()
+    ctx = module.packaged_context(findings)
+    docs = module.load_schemas()
+    paths = _bucket_paths(module, bucket)
+    assert paths, (
+        f"the {bucket} bucket is empty, so this case would prove nothing about "
+        f"it — a bucket that lost its files must fail here, not pass quietly"
+    )
+    for path in paths:
+        module.validate_record(findings, f"{bucket}/{path.name}",
+                               module.load_yaml(path), docs, ctx)
+    return findings, paths
+
+
+def _assert_bucket_was_really_exercised(module, bucket: str, findings) -> None:
+    """Each bucket's OWN outcome, so a no-op run cannot pass as a clean one."""
+    if bucket == "positive":
+        assert not findings.errors, findings.errors
+    elif bucket == "negative":
+        assert findings.errors, (
+            "the negative bucket produced no error — either nothing was "
+            "validated or the refusals stopped firing"
+        )
+    else:
+        assert not findings.errors, findings.errors
+        assert findings.withheld, (
+            "the withheld bucket produced no withholding — the third outcome "
+            "is what this bucket exists to exercise"
+        )
+
+
 @pytest.mark.parametrize("bucket", BUCKETS)
 def test_no_subprocess_is_launched_over_any_bucket(bucket: str, monkeypatch) -> None:
-    """Runtime half, part one: nothing is executed, over all three buckets."""
+    """Runtime half, part one: nothing is executed, PER BUCKET."""
     module = _load_validator()
 
     def refuse(*args, **kwargs):  # pragma: no cover - the point is not reaching it
@@ -114,9 +163,8 @@ def test_no_subprocess_is_launched_over_any_bucket(bucket: str, monkeypatch) -> 
     for name in ("run", "Popen", "check_output", "call", "check_call"):
         monkeypatch.setattr(subprocess, name, refuse, raising=False)
 
-    findings = module.Findings()
-    module.self_test(findings, module.load_schemas())
-    assert not findings.errors, findings.errors
+    findings, _ = _exercise(module, bucket)
+    _assert_bucket_was_really_exercised(module, bucket, findings)
 
 
 @pytest.mark.parametrize("bucket", BUCKETS)
@@ -130,6 +178,7 @@ def test_every_opened_path_stays_under_the_corpus_root(bucket: str, monkeypatch)
     """
     module = _load_validator()
     escapes: list[str] = []
+    opened_paths: list[str] = []
     real_open = builtins.open
     real_path_open = Path.open
 
@@ -138,6 +187,7 @@ def test_every_opened_path_stays_under_the_corpus_root(bucket: str, monkeypatch)
             resolved = Path(path).resolve()
         except (OSError, TypeError, ValueError):
             return
+        opened_paths.append(str(resolved))
         if ROOT not in resolved.parents and resolved != ROOT:
             escapes.append(str(resolved))
 
@@ -152,8 +202,7 @@ def test_every_opened_path_stays_under_the_corpus_root(bucket: str, monkeypatch)
     monkeypatch.setattr(builtins, "open", guarded_open)
     monkeypatch.setattr(Path, "open", guarded_path_open)
 
-    findings = module.Findings()
-    module.self_test(findings, module.load_schemas())
+    findings, paths = _exercise(module, bucket)
 
     monkeypatch.undo()
     assert not escapes, (
@@ -161,4 +210,8 @@ def test_every_opened_path_stays_under_the_corpus_root(bucket: str, monkeypatch)
         f"outside the repository root: {escapes} — a locator target lives in a "
         f"CONSUMING repository, and reading one here would cross the C-7 line"
     )
-    assert not findings.errors, findings.errors
+    assert any(str(p) in opened for p in paths for opened in opened_paths), (
+        f"no file of the {bucket} bucket was opened, so the guard watched "
+        f"nothing — an assertion that never sees a read cannot refuse one"
+    )
+    _assert_bucket_was_really_exercised(module, bucket, findings)

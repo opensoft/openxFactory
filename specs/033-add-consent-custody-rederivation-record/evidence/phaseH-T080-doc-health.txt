@@ -44,7 +44,7 @@ inventory or `contract_bundle_version` as the forbidden repair.
 
 THE CORPUS GROWTH WAS CHECKED FOR TRIPPING A FAMILY, because "expected, the
 corpus grew" is not a disposition. The new `examples/consent-instrument/withheld/`
-directory, the seventeen new fixtures and the new `tests/consent_instruments/`
+directory, the EIGHTEEN new fixtures and the new `tests/consent_instruments/`
 package trip **NO** `location-conformance`, `status-validity`,
 `lifecycle-header` or any other family: no finding names any of those paths at
 either severity in either report. The only headline movement is arithmetic —

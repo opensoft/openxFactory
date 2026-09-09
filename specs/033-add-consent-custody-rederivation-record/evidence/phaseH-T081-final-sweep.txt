@@ -60,3 +60,37 @@ FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pi
   `evidence/doc-health/` trips no `status-validity`,
   `location-conformance` or lifecycle-header family: a report filed as evidence
   is evidence, and the suite agrees.
+
+--------------------------------------------------------------------------------
+AMENDED 2026-09-09T18:5xZ — THE OMISSION OF `release-tag-gate` FROM THIS SWEEP
+WAS RIGHT IN ITS ACT AND WRONG IN ITS STATED REASON. The reason given above is
+that `contracts/` is byte-unchanged since the candidate. That is TRUE, and it is
+the right premise for `verify-commit`, which reads the tree. **It is the wrong
+premise for THIS gate, which does not only read the tree** — it also counts
+FIRST-PARENT LANDINGS after the commit that declared the bundle, and Phase H
+added three. Both results are therefore recorded, neither hidden:
+
+$ python3 scripts/validate-release-tag-gate.py --head <the branch head> --base 587f21a0
+declared bundle: contract-v3.4 at the base -> contract-v3.5 at the head
+1 blocking finding(s):
+  [warning] contracts/manifest.yaml: contract-v3.5 is declared and has no
+  published annotated tag, 3 first-parent landing(s) after the commit that
+  declared it
+REFUSED `gate-findings` — the family reports an error or a warning over the merge tree
+exit 2
+
+$ python3 scripts/validate-release-tag-gate.py --head d54d89ca --base 587f21a0   (the CANDIDATE)
+the release-tag obligation holds over the merge tree d54d89caf: no error, no warning
+rc=0
+
+WHAT THE DIFFERENCE MEANS, and it is not a defect in the cut. The gate escalates
+`TAG OWED` from a notice to a warning once the declaring commit is some
+first-parent landings back — the tag is meant to follow the declaration
+promptly, and a branch that keeps committing after declaring a bundle is exactly
+the drift it watches for. **CI does not evaluate this branch tip**: it evaluates
+the PULL REQUEST'S MERGE TREE, where the declaration and the merge are one
+landing apart, and the panel reproduced that as GREEN on the built merge tree.
+The obligation itself is unchanged and unmet BY DESIGN: publishing the annotated
+tag is realization-order step 5, box 5.6, an [OPERATOR] act at the LANDED MERGE
+COMMIT. Nothing here is repaired by editing the manifest, the changelog or the
+inventory, and the gate's own action line says so.

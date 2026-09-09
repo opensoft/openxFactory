@@ -23,6 +23,17 @@ performs its act, in the same commit as that act's evidence (architect ruling
 `[P]` = parallelizable with its siblings (different files, no ordering
 dependency).
 
+**THIS FILE'S OWN BOXES WERE TICKED 2026-09-09T20:31Z, ON THE REFUTATION PANEL'S
+FINDING R4, AND THEY ARE A SECOND LIST.** The packet's 46 boxes are the GOVERNED
+list and their tick discipline is proven from history at
+`evidence/phaseH-T083-tick-audit.txt`. These 79 `T###` boxes are the EXECUTABLE
+list; realization ticked the packet's and left these standing, which made the
+feature tree read as untouched work. Each is ticked with a dated one-line
+pointer naming its phase, its commit and its evidence transcript — a POINTER,
+not a second proof, since the act each one names is the same act the packet box
+beside it already evidences. **77 ticked + 2 NOT-OWED-HERE (T065, T066, which
+mirror boxes 5.5 and 5.6 — the lane's and the operator's) = 79.**
+
 **TWO DISCIPLINES BIND EVERY TASK BELOW AND ARE NOT REPEATED ON EACH ONE.**
 (1) **Every phase gate files a RAW transcript** to `evidence/` — the command
 line, the summary line and the process's own return code, captured, never
@@ -36,61 +47,61 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ## Phase A — the Speckit tree
 
-- [ ] **T001** `spec.md` written and the twelve clarify answers applied.
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T001** `spec.md` written and the twelve clarify answers applied.
       *(done at STOP A + the answer pass)*
-- [ ] **T002** `clarify-questions.md` carries all twelve answers inline plus
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T002** `clarify-questions.md` carries all twelve answers inline plus
       A1 and A2. *(done)*
-- [ ] **T003** `plan.md` written, **including THE LANDING CONTRACT** (Q1).
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T003** `plan.md` written, **including THE LANDING CONTRACT** (Q1).
       *(done)*
-- [ ] **T004** `research.md` written — R1..R14, every figure with its command.
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T004** `research.md` written — R1..R14, every figure with its command.
       *(done)*
-- [ ] **T005** This file.
-- [ ] **T006** `speckit-checklist` no-arg: one checklist per requirement-quality
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T005** This file.
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T006** `speckit-checklist` no-arg: one checklist per requirement-quality
       domain the feature touches, release-gate rigor, no item cap. Run each and
       tick it.
-- [ ] **T007** `speckit-analyze` loop to ZERO findings, re-running after every
+- [x] **TICKED 2026-09-09 · Phase A, committed before realization; `speckit-analyze` reached ZERO.** **T007** `speckit-analyze` loop to ZERO findings, re-running after every
       fix.
 
 ## Phase B — § 2, the schema
 
 **File**: `contracts/schemas/consent-instrument.schema.yaml`. One commit.
 
-- [ ] **T010** *(box 2.1)* Add the top-level `custody_rederivations` property:
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T010** *(box 2.1)* Add the top-level `custody_rederivations` property:
       `type: array`, items `type: object`, `additionalProperties: false`,
       `required: [at, commit, previous_locator, observed_locator,
       previous_sha256, observed_sha256, diff_class, reason, ruling_ref,
       recorded_by]` — TEN, in that order.
-- [ ] **T011** *(box 2.1)* Field shapes exactly: `at` `type: string,
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T011** *(box 2.1)* Field shapes exactly: `at` `type: string,
       format: date-time`; `commit` `pattern: "^[0-9a-f]{40}$"`; both locators
       `type: string, minLength: 1` with **no path grammar**; both digests
       `pattern: "^[0-9a-f]{64}$"`; `diff_class`
       `enum: [path_only, header_only, content]`; `reason`
       `enum: [lifecycle_header_edit, archive_move, other_ruled_edit]`;
       `ruling_ref` and `recorded_by` `type: string, minLength: 1`.
-- [ ] **T012** *(box 2.3)* `contract_schema_version: 2` → `3`, with an in-file
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T012** *(box 2.3)* `contract_schema_version: 2` → `3`, with an in-file
       comment in the style of the existing `1 -> 2` note: what grew, that it is
       ADDITIVE, and that the record envelope's `schema_version` stays `const: 1`
       because moving it would invalidate every instrument in the estate.
-- [ ] **T013** *(box 2.4)* In-file comment on the new property: WHY it is a
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T013** *(box 2.4)* In-file comment on the new property: WHY it is a
       SIBLING (ruling D9's closure argument, design C-1) and that `ruling_ref`
       is a DECLARED POINTER the validator does not resolve — the
       `dependent_refs.ref` posture.
-- [ ] **T014** *(box 2.5)* In-file comment on the locator pair: `custody.locator`
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T014** *(box 2.5)* In-file comment on the locator pair: `custody.locator`
       is OPAQUE and is NOT a path (C-6a); resolution runs through the consuming
       repository's DECLARED custody store mapping; the two legs are evaluated on
       opposite sides of the commit; an archive move is unadmittable without the
       pair. **Name the measurement** — every OpsxFactory locator carries an
       `opsx:opensoft/` scheme prefix and three of four targets resolve at no ref
       under their literal path.
-- [ ] **T015** *(box 2.2)* **PROVE `custody` IS UNTOUCHED**: `git diff` over the
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T015** *(box 2.2)* **PROVE `custody` IS UNTOUCHED**: `git diff` over the
       file shows ZERO changed lines inside the `custody` object — its two
       properties, its `required`, its `additionalProperties: false` and its
       comment block byte-identical. Transcript to `evidence/`. **A diff touching
       `custody` fails this task.**
-- [ ] **T016** *(Q4)* Confirm by diff that `$id`, the record envelope's
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T016** *(Q4)* Confirm by diff that `$id`, the record envelope's
       `schema_version: const: 1` and the manifest row's `schema_version: 1` are
       all unmoved.
-- [ ] **T017** *(clarify Q5, AS REVISED BY PANEL F2)* **RE-DERIVE the
+- [x] **TICKED 2026-09-09 · Phase B, commit `f59a587d`; evidence/T015-T016-schema-proofs.txt, T017-manifest-digests.txt.** **T017** *(clarify Q5, AS REVISED BY PANEL F2)* **RE-DERIVE the
       `consent-instrument` row's `sha256` in THIS COMMIT**, from the moved file,
       by `sha256sum`. A per-file digest is INTEGRITY BOOKKEEPING FOR THE EDITED
       FILE, not a release surface — policy step 2's atomicity concerns VERSION
@@ -105,7 +116,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 **File**: `scripts/validate-consent-instruments.py`. Codes adopted verbatim
 (Q10).
 
-- [ ] **T020** *(box 3.1)* A new check beside `check_custody` for the chain's
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T020** *(box 3.1)* A new check beside `check_custody` for the chain's
       INTERNAL legs, with DISTINCT codes per leg:
       - `custody-chain-unanchored` — `e₁.previous_sha256 != custody.sha256`
         **OR** `e₁.previous_locator != custody.locator` (BOTH halves);
@@ -114,17 +125,17 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       - `custody-chain-locator-gap` — `eᵢ.previous_locator !=
         eᵢ₋₁.observed_locator`;
       - `custody-chain-out-of-order` — `at` decreasing in declared order.
-- [ ] **T021** *(box 3.2)* `custody-pin-rewritten` — refuse an instrument whose
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T021** *(box 3.2)* `custody-pin-rewritten` — refuse an instrument whose
       `custody.sha256` equals any entry's `observed_sha256` while a LATER entry
       exists, and more generally any state in which the pin has been advanced to
       a value the chain itself records as observed.
-- [ ] **T022** *(box 3.4c)* `custody-path-class-digests-differ` — a `path_only`
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T022** *(box 3.4c)* `custody-path-class-digests-differ` — a `path_only`
       entry whose `previous_sha256 != observed_sha256` is refused.
-- [ ] **T023** *(box 3.4b, Q2)* **MINT THE WITHHELD OUTCOME.** Add
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T023** *(box 3.4b, Q2)* **MINT THE WITHHELD OUTCOME.** Add
       `custody-content-class-withheld` as a DISTINCT outcome on `Findings` —
       not an error, not a warning. A `content`-class entry with sound internal
       legs yields it.
-- [ ] **T024** *(box 3.4b; clarify Q2, RULED)* **THE EXIT STATUS — `3`, on
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T024** *(box 3.4b; clarify Q2, RULED)* **THE EXIT STATUS — `3`, on
       Brett Heap's word.** Define a single module constant
       `EXIT_NEEDS_DECISION = 3` and return it from `report()` when a REAL
       instrument withholds and nothing errors. Extend the module docstring's
@@ -144,19 +155,19 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       it. **The PACKAGED withheld fixture is EXEMPT** — an expected withholding
       is to the third bucket what an expected failure is to a negative — so the
       self-test still exits `0`.
-- [ ] **T025** *(box 3.4)* The report line for a chained instrument states what
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T025** *(box 3.4)* The report line for a chained instrument states what
       was checked and what was NOT, so a neutral pass is unreadable as a
       currency verdict (promoted scenario *The neutral pass is not a currency
       claim*). WITHHELD is named beside the error and warning counts.
-- [ ] **T026** *(box 3.5, Q12)* **EXTEND `walk_strings` OVER THE ENTRY** — the
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T026** *(box 3.5, Q12)* **EXTEND `walk_strings` OVER THE ENTRY** — the
       whole entry MINUS the two digest fields (`previous_sha256`,
       `observed_sha256`), so both locators, `ruling_ref` and `recorded_by` are
       walked and `commit` / `at` / `diff_class` / `reason` ride along already
       bounded. Reuse `BASE64_BLOB_RX`, the `data:` prefix, `PDF_MAGIC_RX`, the
       multi-line predicate and the `embedded-original-content` code.
-- [ ] **T027** *(box 3.3)* **NO GIT RE-DERIVATION IS ADDED.** The module opens no
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T027** *(box 3.3)* **NO GIT RE-DERIVATION IS ADDED.** The module opens no
       repository, shells out to no `git`, and reads no file named by a locator.
-- [ ] **T028** *(box 3.4b)* `self_test` grows the THIRD expectation bucket
+- [x] **TICKED 2026-09-09 · Phase C, commit `f420cd50`; evidence/phaseC-exit-vocabulary.txt.** **T028** *(box 3.4b)* `self_test` grows the THIRD expectation bucket
       (built at T045/T046); `repo_scan` reports WITHHELD as found (Q3b) and needs no
       bucket discipline.
 
@@ -167,12 +178,12 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ### Positives `[P]`
 
-- [ ] **T030** *(box 4.1)* A two-entry unbroken chain, `header_only` /
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T030** *(box 4.1)* A two-entry unbroken chain, `header_only` /
       `lifecycle_header_edit`, admitted by the internal legs.
-- [ ] **T031** *(box 4.1b)* An `archive_move` / `path_only` entry whose locator
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T031** *(box 4.1b)* An `archive_move` / `path_only` entry whose locator
       pair DIFFERS and whose digests are EQUAL on both sides — design C-6a,
       `proposal.md` Example B.
-- [ ] **T032** *(box 4.1c; FR-020's equal-timestamp clause)* The TWO-ENTRY shape
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T032** *(box 4.1c; FR-020's equal-timestamp clause)* The TWO-ENTRY shape
       the real repair needs: e1 `archive_move`/`path_only`, e2
       `lifecycle_header_edit`/`header_only`, modelled on prescription I in
       `design.md` § *The consumer handoff*.
@@ -183,26 +194,26 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       ADMITTED — the requirement says the times *"do not decrease"*, so equality
       is legal and an untested boundary is an untested rule. T036 is its
       negative twin and must strictly DECREASE.
-- [ ] **T033** *(box 4.2)* An EXISTING example left **byte-unchanged** and
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T033** *(box 4.2)* An EXISTING example left **byte-unchanged** and
       re-validated, proving the growth is additive for an instrument declaring
       no array. Evidence: the diff shows the file untouched and the self-test
       still passes it.
 
 ### Negatives, one per named refusal `[P]`
 
-- [ ] **T034** *(box 4.3)* Broken digest link → `custody-chain-broken-link`.
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T034** *(box 4.3)* Broken digest link → `custody-chain-broken-link`.
       **Locator pair sound**, so the fixture tests the digest half alone.
-- [ ] **T035** *(box 4.3b)* Locator gap with digests linking correctly →
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T035** *(box 4.3b)* Locator gap with digests linking correctly →
       `custody-chain-locator-gap`.
-- [ ] **T036** *(box 4.3c)* Entries out of recorded-time order →
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T036** *(box 4.3c)* Entries out of recorded-time order →
       `custody-chain-out-of-order`. **Both digest and locator legs sound**, so
       only the ordering is under test. Equal timestamps are ADMITTED, so the
       fixture must DECREASE, not merely repeat.
-- [ ] **T037** *(box 4.4)* TWO fixtures: a first entry whose `previous_sha256`
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T037** *(box 4.4)* TWO fixtures: a first entry whose `previous_sha256`
       is not the pin, and one whose `previous_locator` is not `custody.locator`
       → `custody-chain-unanchored` both, detail-pinned so each tests its own
       half.
-- [ ] **T038** *(box 4.5)* TWO fixtures: an unknown `diff_class` member and an
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T038** *(box 4.5)* TWO fixtures: an unknown `diff_class` member and an
       unknown `reason` member → `schema`, each detail-pinned on its field.
       **The FIVE `schema`-coded fixtures (T038, T039, T040) must carry MUTUALLY
       EXCLUSIVE detail substrings** — the self-test only checks that a
@@ -210,33 +221,33 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       overlapping substrings would let one fixture satisfy another's assertion.
       Choose the substrings, then prove the exclusivity by cross-checking each
       against every other fixture's error text.
-- [ ] **T039** *(box 4.6)* TWO fixtures: an entry omitting `ruling_ref` and one
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T039** *(box 4.6)* TWO fixtures: an entry omitting `ruling_ref` and one
       omitting `recorded_by` → `schema`, each detail-pinned.
-- [ ] **T040** *(box 4.7)* An entry carrying an **ELEVENTH** property → `schema`,
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T040** *(box 4.7)* An entry carrying an **ELEVENTH** property → `schema`,
       detail-pinned on `additionalProperties`. (Entry closure has TEN required
       fields since C-6a, so a "ninth" would not test closure at all.)
-- [ ] **T041** *(box 4.8)* A rewritten pin — `custody.sha256` advanced to an
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T041** *(box 4.8)* A rewritten pin — `custody.sha256` advanced to an
       observed digest while the chain still claims the original anchor →
       `custody-pin-rewritten`. **MULTI-ENTRY chain, not single**: FR-011's
       sharper form is the pin advanced to an entry's `observed_sha256` *"while a
       LATER entry exists"*, and a one-entry fixture exercises only the general
       form.
-- [ ] **T042** *(box 4.8b)* TWO fixtures: a blob-shaped `ruling_ref` and a
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T042** *(box 4.8b)* TWO fixtures: a blob-shaped `ruling_ref` and a
       blob-shaped `recorded_by` → `embedded-original-content`. **This is the
       fixture pair that proves T026 landed.**
-- [ ] **T043** *(box 4.8d)* A `path_only` entry whose two digests differ →
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T043** *(box 4.8d)* A `path_only` entry whose two digests differ →
       `custody-path-class-digests-differ`.
-- [ ] **T044** Every new negative registered in `EXPECTED_NEGATIVE_FINDINGS`
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T044** Every new negative registered in `EXPECTED_NEGATIVE_FINDINGS`
       with a detail substring wherever the code alone is too coarse (`schema` is
       satisfied by any schema error — the existing rule).
 
 ### The third bucket
 
-- [ ] **T045** *(box 4.8c, Q3a)* Create `examples/consent-instrument/withheld/`
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T045** *(box 4.8c, Q3a)* Create `examples/consent-instrument/withheld/`
       and the WITHHELD fixture: an instrument whose LAST entry declares
       `diff_class: content` and whose internal legs are ALL SOUND. **Asserted as
       WITHHELD — not a pass and not an error.**
-- [ ] **T046** *(box 4.8c, Q3a)* `self_test` grows `EXPECTED_WITHHELD_OUTCOMES`,
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T046** *(box 4.8c, Q3a)* `self_test` grows `EXPECTED_WITHHELD_OUTCOMES`,
       **fail-closed BOTH ways** exactly as `EXPECTED_NEGATIVE_FINDINGS` is: a
       fixture on disk with no table entry and a table entry with no fixture are
       each errors. **AND it must check the OUTCOME, not just the file**: the
@@ -246,7 +257,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ### Corpus counts
 
-- [ ] **T047** *(box 4.9, Q9)* `examples/consent-instrument/README.md`:
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T047** *(box 4.9, Q9)* `examples/consent-instrument/README.md`:
       Layout tree COMPLETE over the grown corpus; *Schema → example map* table
       complete **with a THIRD column for the withheld bucket**; *Named cases
       from the spec* grows **one bullet per refusal code (7) + one positive
@@ -258,11 +269,11 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       `custody-chain-locator-gap`, `custody-chain-out-of-order`,
       `custody-pin-rewritten`, `custody-path-class-digests-differ`) plus
       **`embedded-original-content` under its newly extended reach**.
-- [ ] **T048** *(box 4.9)* `contracts/manifest.yaml`'s `consent-instrument`
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T048** *(box 4.9)* `contracts/manifest.yaml`'s `consent-instrument`
       corpus comment (*"5 valid + 5 invalid + purpose probes"*) RE-MEASURED.
       **It is already false at 6/7 before this feature adds a byte** — do not
       increment it, re-count it.
-- [ ] **T049** *(clarify A1 — named by NO ratified task)* `contracts/README.md`'s
+- [x] **TICKED 2026-09-09 · Phase D, commit `f420cd50`; evidence/phaseD-consent-validator.txt.** **T049** *(clarify A1 — named by NO ratified task)* `contracts/README.md`'s
       row for `scripts/validate-consent-instruments.py` +
       `examples/consent-instrument/` reads *"self-testing over 5 positives, 5
       indexed negatives, and 2 purpose probes"*. RE-MEASURE it over the three
@@ -271,7 +282,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ## Phase E — `tests/consent_instruments/` (Q7)
 
-- [ ] **T050** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Source-level no-git
+- [x] **TICKED 2026-09-09 · Phase E, commit `f420cd50`; evidence/phaseE-pytest-consent-instruments.txt, phaseE-pytest-full.txt.** **T050** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Source-level no-git
       ban**, argument-scoped because the naive form is unimplementable: assert
       the module does NOT `import subprocess`, contains no `subprocess.` /
       `os.system` / `os.popen` call, and contains no `git` COMMAND token.
@@ -280,7 +291,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       a git directory — the opposite of reading one — and a naive `git` grep
       would red forever on it. The allowlist is by exact token, not by
       substring.
-- [ ] **T051** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Runtime assertion**, in
+- [x] **TICKED 2026-09-09 · Phase E, commit `f420cd50`; evidence/phaseE-pytest-consent-instruments.txt, phaseE-pytest-full.txt.** **T051** *(box 3.3, Q7c — SCOPED PER PANEL F3)* **Runtime assertion**, in
       two argument-scoped halves, because "reads no file" is false of a
       validator that must read its own corpus:
       (a) patch `subprocess.run`, `subprocess.Popen` and
@@ -291,10 +302,10 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       repository, so any open resolving outside the corpus root fails.
       Exercised over **ALL THREE buckets** — positive, negative and withheld —
       since the withheld leg is the one most likely to reach for a repository.
-- [ ] **T052** *(box 3.5, Q7b)* **Parametrized blob-walk test** proving the walk
+- [x] **TICKED 2026-09-09 · Phase E, commit `f420cd50`; evidence/phaseE-pytest-consent-instruments.txt, phaseE-pytest-full.txt.** **T052** *(box 3.5, Q7b)* **Parametrized blob-walk test** proving the walk
       reaches each of the four free strings (`previous_locator`,
       `observed_locator`, `ruling_ref`, `recorded_by`).
-- [ ] **T053** *(clarify Q2, RULED; precedence CONFIRMED 2026-09-09)* A test pinning the WITHHELD exit status:
+- [x] **TICKED 2026-09-09 · Phase E, commit `f420cd50`; evidence/phaseE-pytest-consent-instruments.txt, phaseE-pytest-full.txt.** **T053** *(clarify Q2, RULED; precedence CONFIRMED 2026-09-09)* A test pinning the WITHHELD exit status:
       the named constant equals `3`; a REAL withholding instrument exits `3`;
       the PACKAGED self-test exits `0`; and an instrument that both withholds
       AND errors exits `1`. **The precedence is CONFIRMED by the architect
@@ -302,12 +313,12 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       is not a decision for a human to take. All three exits asserted, and the
       assertion NAMES the precedence, so a later reader cannot read exit 1 there
       as a bug.
-- [ ] **T054** `python3 -m pytest tests/consent_instruments -q` green, and then
+- [x] **TICKED 2026-09-09 · Phase E, commit `f420cd50`; evidence/phaseE-pytest-consent-instruments.txt, phaseE-pytest-full.txt.** **T054** `python3 -m pytest tests/consent_instruments -q` green, and then
       the full `python3 -m pytest tests/ -q -m "not postgres"` green.
 
 ## Phase F — Q8's README amendments  ✅ UNBLOCKED 2026-09-09
 
-- [ ] **T055** **RESOLVED 2026-09-09 — PHASE F IS UNBLOCKED.** The lane posted
+- [x] **TICKED 2026-09-09 · Phase F, commit `7c79f524`; evidence/phaseF-readme-amendments.txt.** **T055** **RESOLVED 2026-09-09 — PHASE F IS UNBLOCKED.** The lane posted
       the row-3 substrate note at [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475), covering the
       two SIBLING-row sentences (`README.md:3022`, `README.md:2993`), this
       change's own Records row, AND `contracts/README.md:102`. **Every
@@ -328,19 +339,19 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       `REPORTED, NOT PERFORMED` line naming the block. It arrived, so the live
       instruction is: write all three amendments, each citing the comment above
       in its dated clause.
-- [ ] **T056** *(Q8a-1)* Amend this packet's own OpenSpec Records row —
+- [x] **TICKED 2026-09-09 · Phase F, commit `7c79f524`; evidence/phaseF-readme-amendments.txt.** **T056** *(Q8a-1)* Amend this packet's own OpenSpec Records row —
       *"**all 46 boxes in `tasks.md` stay unticked**"* — in the `3b530009` form:
       block-quote the superseded sentence, name the un-superseded neighbour,
       marker `AMENDED 2026-09-09`.
-- [ ] **T057** *(Q8a-3)* Amend `README.md:3022`'s present-tense box count, same
+- [x] **TICKED 2026-09-09 · Phase F, commit `7c79f524`; evidence/phaseF-readme-amendments.txt.** **T057** *(Q8a-3)* Amend `README.md:3022`'s present-tense box count, same
       form. **KEEP *"the three pins are still broken"*** — that half stays true,
       because the repair is § 6 and § 6 is the consumer's.
-- [ ] **T058** *(Q8a-5, the load-bearing one)* Amend `README.md:2993` inside the
+- [x] **TICKED 2026-09-09 · Phase F, commit `7c79f524`; evidence/phaseF-readme-amendments.txt.** **T058** *(Q8a-5, the load-bearing one)* Amend `README.md:2993` inside the
       `govern-archived-record-edits` row: *"the consent family's is PROPOSED
       only (`contract_schema_version: 2`, no `custody_rederivations` property,
       `contract-v3.4`, 46/46 boxes unticked)"* — **false on all four counts
       after this lands**, and the premise of that rule's TRANSITION CLAUSE.
-- [ ] **T059** *(Q8a-2, Q8a-4)* **LEAVE** the past-tense *"left its 46"*
+- [x] **TICKED 2026-09-09 · Phase F, commit `7c79f524`; evidence/phaseF-readme-amendments.txt.** **T059** *(Q8a-2, Q8a-4)* **LEAVE** the past-tense *"left its 46"*
       (**`README.md:2949–2950`** — the sentence SPANS both lines, which is why
       the ruling said 2949 and the earlier measurement said 2950; both are
       right about their own half) and the dated *"measured 2026-09-09 UTC at
@@ -355,7 +366,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 **One candidate commit** (Q5a, policy step 2). Taken only after Phases B–F.
 
-- [ ] **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
       integrate onto the final integration point, then **RE-MEASURE** the next
       additive minor on all three surfaces (`contracts/manifest.yaml:3`,
       `contracts/releases/`, `git tag -l 'contract-v*'`) — **and RE-MEASURE THE
@@ -367,7 +378,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       never from R6** (FR-032, panel F7). Report both to
       the lane. **Both are re-measured at EVERY merge-from-main.** Do not post
       the claim.
-- [ ] **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
       one commit: `contract_bundle_version` → the allocated version; the
       `consent-instrument` row's `sha256` **re-derived by `sha256sum`** from the
       moved file (closing T017's deliberate staleness); and a NEW
@@ -380,7 +391,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       The v1.33 paragraph sits BETWEEN the registration line and that closing
       sentence; the v3.5 paragraph goes in the same slot, after it.
       **`consent-instrument-class-registry`'s row is untouched.**
-- [ ] **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
       `git show --stat --format='' 807a4f47` — the `contract-v3.4` cut — and
       read what a cut ACTUALLY moves. Measured at this branch: **SIX files**,
       not four — `contracts/CHANGELOG.md`, `contracts/README.md`,
@@ -390,7 +401,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       bundle-version-coupled edit set FOR THIS CANDIDATE from that measurement
       and record it in `evidence/`. **These are DECLARED cut-coupled acts
       attributed to the cut, not invented scope.**
-- [ ] **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
       — the tripwire that would otherwise red T064's full-suite gate.
       `_release_state()` **fails LOUDLY on a bundle the enum does not name**, so
       moving `contract_bundle_version` without this edit reds the required
@@ -405,7 +416,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       **MEASURED against `contract-v3.4`'s inventory, never asserted**, because
       the file's own comment says *"unchanged" is the one fact the library
       cannot tell from "unnoticed"*.
-- [ ] **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
       **MEASURE whether it needs an edit; do not assume either way.** The
       expected answer is NO EDIT, and the reason is recorded in the file itself:
       `807a4f47` REPAIRED its bundle-version equality precisely so it would not
@@ -417,7 +428,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       inventory and leaves the clearing rows alone. **Run it against the
       candidate and record the result**; if it does red, it is a cut-coupled
       edit and belongs in the same candidate commit.
-- [ ] **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
       changed in the BUNDLE, not what this session intended**: all **4 additions
       and 14 modifications** under `contracts/` since `contract-v3.4`
       (`research.md` R6), each attributed to its originating change/PR —
@@ -431,12 +442,12 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       clause. This session's own leg of that argument: one new optional
       property, one `contract_schema_version` bump, nothing removed, no
       enumeration narrowed, every existing instrument valid unchanged.
-- [ ] **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
       **BUILT** by `python3 scripts/validate-contract-release.py build --tag
       <version> --output contracts/releases/<version>.digests.yaml`. **Never
       hand-edited.** Record the entry count and the delta against
       `contract-v3.4`'s 283.
-- [ ] **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
       candidate**, transcripts to `evidence/`:
       `scripts/validate-release-tag-gate.py` **with an EXPLICIT
       `--base <main sha at the integration point>`** — its default resolves
@@ -449,20 +460,20 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       `scripts/validate-manifest-digests.py`;
       `scripts/validate-contract-release.py verify-commit --commit <candidate>`;
       `scripts/validate-consent-instruments.py --strict`.
-- [ ] **T065** *(box 5.5)* **NOT-OWED-HERE.** Landing the exact reviewed commit,
+- [ ] **NOT-OWED-HERE 2026-09-09 — mirrors box 5.5 — the LANE's landing act under `plan.md`'s landing contract.** **T065** *(box 5.5)* **NOT-OWED-HERE.** Landing the exact reviewed commit,
       and the post-merge gate re-run the merge commit forces, are the LANE's
       under the landing contract in `plan.md`. Dated NOT-OWED line, no tick.
-- [ ] **T066** *(box 5.6)* **NOT-OWED-HERE.** The annotated tag and its
+- [ ] **NOT-OWED-HERE 2026-09-09 — mirrors box 5.6 — an [OPERATOR] act at the LANDED MERGE COMMIT.** **T066** *(box 5.6)* **NOT-OWED-HERE.** The annotated tag and its
       independent verification are `[OPERATOR]` acts, targeting the LANDED MERGE
       COMMIT. Dated NOT-OWED line, no tick.
 
 ## Phase H — bookkeeping, evidence and the notes
 
-- [ ] **T070** *(box 0.1)* TICK with evidence: commit `6cfe9ba6` re-stamped the
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T070** *(box 0.1)* TICK with evidence: commit `6cfe9ba6` re-stamped the
       ledger row to the real PR `#774`; the row reads
       `moved_by: "#774", moved_on: "2026-09-07"`; `--ledger-diff` reports the
       corpus consistent at 189 rows.
-- [ ] **T071** *(box 1.1)* TICK with evidence: `review/ratification-2026-09-08.md`
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T071** *(box 1.1)* TICK with evidence: `review/ratification-2026-09-08.md`
       exists; `Status: ratified` on `proposal.md`, `design.md`, `tasks.md`; the
       `Ratified:` line present; the README Records row already flipped
       (`README.md:848`). **The citation states the MEASURED absence of a GitHub
@@ -470,13 +481,13 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       record, Brett Heap's own merge (`merged_by brettheap`,
       `2026-09-08T03:48:44Z`, `543d47a9` over head `0d541576`) and his
       LANDING/LANDED comments.
-- [ ] **T072** *(box 1.2)* TICK with evidence: the ratification record's *"no
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T072** *(box 1.2)* TICK with evidence: the ratification record's *"no
       veto was exercised on any of the eleven"* rules all eleven veto points as
       written. Quote it exactly — never more.
-- [ ] **T073** *(box 1.3)* TICK with evidence: the record's *"Task 1.3's operator
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T073** *(box 1.3)* TICK with evidence: the record's *"Task 1.3's operator
       veto was NOT exercised"* section, and the default that stands (no
       `amendments` entry; the three instruments stay `executed`).
-- [ ] **T074** *(architect rulings **032-Q1**/**032-Q10** form)* Amend the packet `tasks.md`'s
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T074** *(architect rulings **032-Q1**/**032-Q10** form)* Amend the packet `tasks.md`'s
       ratified preamble in the `3b530009` form **in the same commit as the first
       tick**. **Superseded sentence**: *"NOTHING BELOW IS DONE. EVERY BOX IS
       UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER THAN AN OVERSIGHT."*
@@ -495,25 +506,25 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       pins are still broken"*; for `README.md:2993`, *"the register home
       `models/content-address-families.yaml` exists neither on OpsxFactory's
       `main` nor on the branch proposing it"*.
-- [ ] **T075** Dated NOT-OWED lines on §§ 6.1, 6.2, 6.2b, 6.3, 6.4 and 7.1, 7.2,
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T075** Dated NOT-OWED lines on §§ 6.1, 6.2, 6.2b, 6.3, 6.4 and 7.1, 7.2,
       7.3 — named as owed elsewhere, performed nowhere here.
-- [ ] **T076** **Note classes SUM TO 46**: 35 ticked + 3 NOT-OWED-HERE + 8
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T076** **Note classes SUM TO 46**: 35 ticked + 3 NOT-OWED-HERE + 8
       NOT-OWED. Assert the arithmetic in the evidence file.
-- [ ] **T077** *(architect ruling **032-Q10**)* ONE additive dated realization note after
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T077** *(architect ruling **032-Q10**)* ONE additive dated realization note after
       `proposal.md`'s `Lane:` line, correcting any ratified ENUMERATION this
       realization falsifies (the *"every box in `tasks.md` stays unticked"*
       sentence). **`design.md`, `.openspec.yaml` and the delta stay frozen.**
-- [ ] **T078** *(clarify A2 — state it, do not act on it)* A DATED note, in the
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T078** *(clarify A2 — state it, do not act on it)* A DATED note, in the
       realization evidence AND in the neighbourhood of § 7 in the packet's
       `tasks.md`, recording that landing this realization **DECLARES the consent
       family's re-derivation rule**, so under `govern-archived-record-edits`'
       transition clause an edit of a consent pinned target converts from
       **REPORTED** to **REFUSED** for that family **once F.2's gate exists**
       (§ 7.1, OpsxFactory's). **Build nothing, schedule nothing, tick nothing.**
-- [ ] **T079** *(architect ruling **032-Q4**)* Evidence in BOTH trees:
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T079** *(architect ruling **032-Q4**)* Evidence in BOTH trees:
       `specs/033-add-consent-custody-rederivation-record/evidence/` and
       `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md`.
-- [ ] **T080** *(architect ruling **032-Q10**)* **doc-health TWO-REPORT COMPARISON.**
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T080** *(architect ruling **032-Q10**)* **doc-health TWO-REPORT COMPARISON.**
       `python3 scripts/doc-health.py --single-repo <checkout> --as-of <ONE
       pinned date> --report-out <dir>/doc-health.md`, run once against `main`
       and once against this branch. **The two `--report-out` basenames MUST BE
@@ -536,7 +547,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       location-conformance scan reaching the new `withheld/` directory — that is
       a REAL finding this feature caused: fix it, or disposition it with a
       citation. Never wave it through as "expected, the corpus grew".
-- [ ] **T081** Final gate sweep at the branch head: pinned CLI
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T081** Final gate sweep at the branch head: pinned CLI
       `--change … --strict` **and** `--all --strict` (zero UNDISPOSITIONED
       failures); `validate-consent-instruments.py --strict` over the corpus;
       `validate-sequenced-after.py .` and `--ledger-diff`;
@@ -555,7 +566,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       findings: an accepted exception whose finding no longer occurs, usually
       because an unrelated change archived. It is corpus hygiene in a file this
       feature does not touch — REPORT it, do not silently repair it.
-- [ ] **T084** *(architect ruling, 2026-09-09 — RECORD IT, DO NOT CLOSE IT)*
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T084** *(architect ruling, 2026-09-09 — RECORD IT, DO NOT CLOSE IT)*
       **THE IDENTICAL-LOCATORS `path_only` GAP IS AN OWED FINDING**, written in
       TWO places: the realization evidence, and a DATED note beside § 7 in the
       packet's `tasks.md`. **DO NOT ADD A REFUSAL LEG** — no ratified task names
@@ -574,7 +585,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       (c) **its home** — F.2's custody-digest gate (§ 7.1, OpsxFactory's) or a
       SUCCESSOR openxFactory change. It is owed somewhere; it is not owed here.
       **Visible, not silently closed.**
-- [ ] **T083** *(FR-041)* **POST-HOC TICK/EVIDENCE AUDIT.** After every tick has
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T083** *(FR-041)* **POST-HOC TICK/EVIDENCE AUDIT.** After every tick has
       landed, walk the commit history and PROVE — not assert — that no tick's
       commit precedes the commit carrying its evidence:
       `git log --format='%h %s' <base>..HEAD` plus a `git show --stat` per
@@ -582,7 +593,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       commit. The audit transcript is itself evidence. The discipline is
       verified from history, never from the author's memory of the order things
       happened in.
-- [ ] **T082** Push the branch. **No pull request, no comment, no merge, no
+- [x] **TICKED 2026-09-09 · Phase H, commits `c4a364d6`/`1401d512`; evidence/phaseH-T080-doc-health.txt, phaseH-T081-final-sweep.txt, phaseH-T083-tick-audit.txt.** **T082** Push the branch. **No pull request, no comment, no merge, no
       tag** — every one of those is the lane's or Brett's. **The branch merges
       forward and NEVER rebases pushed commits**: no `--force`, no
       `--force-with-lease`, no amend of anything already pushed. Integration
