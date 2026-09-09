@@ -123,9 +123,22 @@ print('canon lines removed:', sum(1 for l in d if l.startswith('-') and not l.st
 PY
 ```
 
-Expected: canon 5,815 characters, delta 7,186, **0 canon lines removed** — the
-1,371-character difference entirely inserted. Box 4.2 stays UNTICKED: the rule
-demands currency continuously until archive, and the archive act re-runs this.
+Expected: canon 5,815 characters, **0 canon lines removed** — the difference
+entirely inserted. Box 4.2 stays UNTICKED: the rule demands currency
+continuously until archive, and the archive act re-runs this.
+
+**CORRECTED 2026-09-08 by this realization (`govern-archived-record-edits`), the
+superseded expectation quoted rather than rewritten.** This paragraph read
+"canon 5,815 characters, delta 7,186, **0 canon lines removed** — the
+1,371-character difference entirely inserted." The canon figure and the
+0-canon-lines-removed result are NOT superseded and were reproduced exactly. The
+delta figure was: the script above terminates a block at `\n### Requirement:`,
+and because the next such heading falls under `## ADDED Requirements`, it returns
+**7,209**, not 7,186. The 23-character gap is exactly
+`len("\n## ADDED Requirements\n")`; 7,186 is the figure obtained by bounding the
+block at `## ADDED Requirements` instead. Both bounds give 0 canon lines removed,
+so the currency result is unaffected. Measured at head `645e88ec` and recorded in
+the packet evidence file.
 
 ## 6. The pinned-target measurement (task 4 note, FR-008)
 

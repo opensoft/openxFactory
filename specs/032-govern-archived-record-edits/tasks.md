@@ -187,30 +187,77 @@ head, because US2's ticks may not land ahead of the evidence they cite (FR-018).
 **Independent test**: from the evidence file alone, re-run each command and
 reproduce each result.
 
-- [ ] T011 [US3] Create `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`
+- [x] T011 [US3] Create `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md`
       with a header naming the head, the branch, the lane and what the file is
       NOT: not a ruling, not a ratification, not a promotion; LOCAL evidence at a
       named head rather than a CI result (FR-023); and a record of edits to an
       ACTIVE packet, which the ratified archived-record requirement does not yet
       bind (FR-022). (FR-013, FR-022, FR-023)
-- [ ] T012 [US3] Take the pinned-target measurement at this head and record it,
+      **Done 2026-09-08** — created `openspec/changes/govern-archived-record-edits/evidence/realization-2026-09-08.md` with a header naming head
+      `645e88ec`, branch, lane `opsXfactory-1`, and the three disclaimers (not a ruling, not
+      a ratification, not a promotion), plus § *What this file is*: LOCAL evidence at a named
+      head rather than CI (FR-023), and a record of edits to an ACTIVE packet which the
+      ratified archived-record requirement does not yet bind (FR-022), with FR-033's
+      after-the-archive statement beside it. The two evidence homes and their different jobs
+      are stated (FR-013b).
+
+- [x] T012 [US3] Take the pinned-target measurement at this head and record it,
       worded exactly: no IN-REPO `sha256` pin names `docs/document-lifecycle.md`,
       measured at base `68712924`; the only pairings are illustrative fixtures
       under `examples/document-cataloging/`. (FR-008)
-- [ ] T013 [US3] Take the MODIFIED-block currency measurement at this head
+      **Done 2026-09-08** — recorded in the packet evidence file § *Measurement 1*, worded
+      as FR-008 requires: no IN-REPO `sha256` pin names `docs/document-lifecycle.md`, measured
+      at base `68712924`. Method named (FR-008a): the two greps, and `contracts/manifest.yaml`
+      PARSED as YAML rather than grepped -> 0 `docs/`-prefixed path values. FIVE files name the
+      path and each was RESOLVED rather than dismissed; the fixture criterion is PROVEN, not
+      asserted — `validate-document-catalog.py` schema-validates shape and never hashes a file
+      on disk, doc-health's catalog families read `health/document-catalog/` WHICH DOES NOT
+      EXIST in this repository, and the fixtures' own README calls them "static reference
+      material, not runtime state". Re-taken at the final head by T029.
+
+- [x] T013 [US3] Take the MODIFIED-block currency measurement at this head
       (canon characters, delta characters, canon lines removed) and record it as
       a measurement with its command. (FR-012, task 4.2 — measured, NOT ticked)
-- [ ] T012a [US3] Re-check the CROSS-CITATIONS on BOTH `main` lines — this
+      **Done 2026-09-08** — packet evidence file § *Measurement 2*, with its command:
+      canon **5,815** chars, delta **7,209** (the quickstart script's own bound) / **7,186**
+      (bounded at `## ADDED Requirements`), **0 canon lines removed**, 17 lines added. The two
+      delta figures are RECONCILED rather than one reported: the 23-character gap is exactly
+      `len("\n## ADDED Requirements\n")`, the discrepancy sits in this feature's own quickstart
+      expectation (corrected forward in the same commit, the superseded sentence quoted), and
+      the load-bearing result — 0 canon lines removed — is identical under both bounds. Box 4.2
+      is MEASURED, NOT TICKED.
+
+- [x] T012a [US3] Re-check the CROSS-CITATIONS on BOTH `main` lines — this
       packet's citations of the twin and the twin's citations of this packet —
       from a read-only clone of OpsxFactory, and record: the two heads, each
       citation, whether it resolves, and the twin's merge sha
       `bbbef015cd394e2de31586b9718356586c413884`. A citation that does not
       resolve STOPS the branch (FR-025), it is not a note. (FR-007a, SC-010)
-- [ ] T012b [US3] CONTINGENCY, and it is a task rather than a hope: if T012's
+      **Done 2026-09-08** — packet evidence file § *Measurement 3*. Read-only clone
+      `<scratchpad>/opsx-citation-archive`, `git fetch origin main` taken first; nothing in
+      OpsxFactory was written. Two heads: openxFactory `origin/main` `6cc06288`, OpsxFactory
+      `origin/main` `bbbef015cd394e2de31586b9718356586c413884` (the twin merge itself, PR #279,
+      2026-09-08T15:28:23Z, `merge-base --is-ancestor` confirms). EVERY CROSS-CITATION RESOLVES
+      IN BOTH DIRECTIONS — seven of this packet's, six of the twin's, each tabulated with its
+      result. Two were worth resolving rather than assuming: `add-content-address-integrity-gate`
+      is ABSENT from OpsxFactory `main` and resolves as PROPOSED on branch
+      `change/add-content-address-integrity-gate` (`cbbe5b48`), which is exactly what the packet
+      asserts; and `add-pre-archive-citation-gate` HAS since archived, so the archive path the
+      packet named as conditional is now present and the live path is gone — the packet named
+      BOTH on purpose, so the citation resolves and only its tense is stale. No citation failed,
+      so FR-025's stop was not triggered on this ground.
+
+- [x] T012b [US3] CONTINGENCY, and it is a task rather than a hope: if T012's
       measurement finds a pin naming any file this feature edits, or a candidate
       pin that cannot be resolved, STOP — record the finding, do not tick, do not
       land the edit, and report at STOP (B). (FR-008c, FR-025)
-- [ ] T014 [US3] Run task 4.1's two pinned-CLI gates THROUGH
+      **NOT TRIGGERED, and checked rather than assumed 2026-09-08** — T012's measurement
+      found no pin naming any file this feature edits, and no candidate pin was left
+      unresolved. The one candidate that needed resolving (`content_hash` beside the path in
+      two `examples/document-cataloging/` fixtures) was resolved against the code that would
+      read it: nothing does. The contingency stands available for the T029 re-take.
+
+- [x] T014 [US3] Run task 4.1's two pinned-CLI gates THROUGH
       `scripts/validate-openspec-cli-pin.py` with the pinned 1.12.0 on `PATH`
       (never PATH's 1.2.0), capture rc and the summary lines to files under the
       feature's `evidence/`, and record in the packet evidence file: the EXACT
@@ -219,9 +266,30 @@ reproduce each result.
       DIRECTIONS against the ratification record's baseline (99 passed / 2 failed,
       0 undispositioned) and explain any movement either way.
       (FR-013a, FR-024, SC-002, panel P7)
-- [ ] T015 [US3] Run task 4.3's four validators, capture rc and summary lines,
+      **Done 2026-09-08** — both runs through `scripts/validate-openspec-cli-pin.py` with
+      the pinned 1.12.0 on `PATH`; PATH's 1.2.0 was never used. `--change
+      govern-archived-record-edits --strict`: **rc 0**, `Totals: 1 passed, 0 failed (1 items)`.
+      `--all --strict`: **rc 0**, `Totals: 99 passed, 2 failed (101 items)`, 0 UNDISPOSITIONED.
+      Pinned CLI provenance recorded: `@fission-ai/openspec@1.12.0` at content address
+      `c844543999f673cdd72445879b86a4abea4c07ef`, integrity `sha512-oFE2Lj7WVSc87nSi…`
+      verified on every run. SC-002 COMPARED IN BOTH DIRECTIONS against the ratification
+      record's 99/2/0 baseline: the count moved in NEITHER direction — not up (a new
+      undispositioned finding this branch could not clear, `contracts/**` being frozen) and not
+      down (a difference too, not a bonus). Captures `evidence/gate-4.1-change-strict.txt` and
+      `evidence/gate-4.1-all-strict.txt`; both carried the pinned CLI's host-absolute banner
+      paths, substituted to `<pinned-cli-cache>`/`<scratchpad>` under the estate rule against
+      host-absolute paths in committed files, with the substitution declared in the evidence
+      file and nothing else altered.
+
+- [x] T015 [US3] Run task 4.3's four validators, capture rc and summary lines,
       record them.
-- [ ] T016 [US3] Run doc-health on the branch with `--report-out` and diff its
+      **Done 2026-09-08** — all four exit **rc 0**, capture
+      `evidence/gate-4.3-validators.txt`: `sequenced_after validation passed (41 active
+      changes, 8 declaring the field).`; `per-change sweep ledger consistent with the corpus
+      (185 rows).`; `scope_globs validation passed (all active changes conform).`; `OK
+      contracts/manifest.yaml: 188 per-file digest(s) verify`.
+
+- [x] T016 [US3] Run doc-health on the branch with `--report-out` and diff its
       FINDING SET against T004's `main` report, using the identity-safe recipe
       T004 proved: TWO INDEPENDENT RUNS from identically-named checkouts, or a
       normalization of all THREE stamped places (`repo=\S+`, the
@@ -231,10 +299,37 @@ reproduce each result.
       verbatim, including "empty" if it is empty, and state separately any COUNT
       that moved only because the document grew (word totals, canon share), which
       is not a finding. A non-empty finding-set diff is a BLOCKER (FR-020).
-- [ ] T017 [US3] Run task 4.5's pytest paths, capture rc and the `N passed` line
+      **Done 2026-09-08; FINDING SET IDENTICAL** — the identity-safe recipe T004 proved,
+      with both baseline checkouts named `oxf-realize-f3`; `--previous-report` never used.
+      A FIRST comparison was taken across the 2026-09-09T00:00Z rollover and is STRUCK, not
+      deleted: every aging finding embeds a day count, so all of them moved and two topics
+      crossed the 30-day threshold (55 -> 57 warnings) for reasons that have nothing to do with
+      this diff. The comparison OF RECORD pins the aging clock on both sides with `--as-of
+      2026-09-09` and RE-PROVES main-vs-main at that same `--as-of` (zero differences) before
+      comparing. Result: `diff` of the `- severity=` finding lines returns **ZERO differences**;
+      headline identical at 10 critical / 9 error / 55 warning / 16 info. The full-report diff
+      is not empty and the two differing lines are NAMED rather than smoothed away — canon and
+      governance word totals +199 each (share unchanged at 38.9%) and the `standard` stage word
+      count +199 (document count unchanged at 6) — counts that moved only because the document
+      GREW, which is not a finding. Both runs exit rc 1 on PRE-EXISTING findings identical on
+      `main` (FR-037). Superseded interim kept at
+      `evidence/doc-health-diff-INTERIM-superseded-clock-rollover.txt`.
+
+- [x] T017 [US3] Run task 4.5's pytest paths, capture rc and the `N passed` line
       to a file, record them.
-- [ ] T018 [US3] Commit S2+S3 (the evidence file and the captured outputs) with
+      **Done 2026-09-08** — `python3 -m pytest tests/sequenced_after tests/proposal-support
+      tests/scope_globs -q`: **rc 0** captured as a return code rather than inferred from a
+      pipeline, summary `330 passed, 2 subtests passed in 26.32s`. Capture
+      `evidence/gate-4.5-pytest.txt`.
+
+- [x] T018 [US3] Commit S2+S3 (the evidence file and the captured outputs) with
       explicit paths and the three trailers.
+      **Done 2026-09-08** — `git diff --cached --stat` read before committing and named no
+      foreign path: the packet evidence file, the eleven captures under the feature's
+      `evidence/`, the forward correction to `quickstart.md` § 5, and this file. Three trailers
+      on this commit. No box in the PACKET's `tasks.md` is ticked yet — that is T027's single
+      commit, and FR-018 is the reason this evidence lands first.
+
 
 **Checkpoint**: every claim US2 will tick against is now recorded at a named head.
 
