@@ -519,6 +519,118 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
+  when green, then realize them"*, recorded 2026-09-08T23:51Z on
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
+  [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232), over
+  [#817](https://github.com/opensoft/openxFactory/pull/817); record
+  `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
+  lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
+  `codexFactory:change:relocate-review-authority-floor`
+  ([codexFactory #293](https://github.com/opensoft/codexFactory/pull/293)),
+  which answers MQ-1: the same word, not separately. **THE CONDITION *"when
+  green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
+  smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
+  `## MODIFIED` block carried no sibling-pairing declaration for a requirement
+  ADDED by the still-active `mirror-floor-regeneration-automation`, and the
+  packet had no `tests/sequenced_after/corpus-ledger.yaml` row. Both were fixed
+  IN THE PACKET, never in a test: the block now carries the reserved
+  `Modified over …'s addition by … (…):` marker in the same form the sibling
+  `amend-mirror-floor-regeneration-merge-authority` uses for the OTHER
+  requirement of the same parent, and the row was seeded by the sanctioned tool
+  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
+  row this repository has stamped through issue #790's UTC clock, which is why
+  its `moved_on` reads `2026-09-09`. **RATIFICATION PERFORMS NO REALIZATION** —
+  it ticks `tasks.md` boxes 1.1, 1.2, 5.1 and 5.2 and nothing else; **1.3 (MQ-2)
+  and 1.4 (MQ-3) stay open** and neither blocks realization (1). **M-1 THROUGH
+  M-7 STAND AS RECOMMENDED, no veto entered.** The
+  openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
+  verbatim *"rule shape 1, measure first, this lane realizes it"*
+  ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
+  comment 5586188401, mirrored on
+  [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
+  rules the SHAPE and ratifies no text.** codexFactory is to move
+  `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
+  CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
+  [codexFactory #293](https://github.com/opensoft/codexFactory/pull/293),
+  decision D-7 names this companion and D-2 sequences it FIRST). **THIS
+  REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
+  `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
+  `:301`, with the constant deliberately duplicated in
+  `scripts/review_lane_repin.py:69` and in two `tests/review_lane_pin/`
+  literals, *"for the reason … a value read from the artifact it is used to
+  check makes the check a tautology"* — so on the day codexFactory moves, every
+  firing of this lane becomes `floor_document_unobtainable`. The packet makes
+  `FLOOR_IN_SOURCE` an **ORDERED LIST** of candidate paths, old first,
+  first-obtained-wins, refusing only when EVERY candidate fails and naming every
+  path tried. ONE `## MODIFIED` against `review-lane-floor-mirror` (*"The
+  automated advance re-copies the vendored snapshot and recomputes its witnesses
+  from the bytes it wrote"* — the copy, the byte-witness rule and the refusal
+  are untouched; what changes is what *obtain* means). Decisions **M-1 … M-7**,
+  each vetoable except M-1, the ordering: **(1)** this repository accepts BOTH
+  paths → **(2)** codexFactory moves → **(3)** this repository drops the old
+  path. **M-2's whole point is that realization (1) is observably a NO-OP** —
+  old path first means behaviour is byte-identical until the document actually
+  moves, which is what makes it safe to land ahead of another repository.
+  **M-7: the lane is never taught to SEARCH** for the document — a discovered
+  file is one an author elsewhere can plant, and the byte copy goes into this
+  repository's witnessed snapshot. **M-5: nothing about the snapshot changes** —
+  the document's bytes do not move (`sha256 926d536d…f3c0`), so
+  `contracts/review-lane-floor-snapshot.yaml` is byte-identical throughout, and
+  the realization asserts that rather than assuming it. The measurement the
+  ruling required (*"measure first"*) is the sibling's and is not restated here:
+  codexFactory `openspec/changes/relocate-review-authority-floor/research/automerge-measurement-2026-09-08.md`.
+  `sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor]`.
+  **THIS PULL REQUEST PERFORMS
+  NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
+  in codexFactory is touched. **MQ-1 IS ANSWERED** — the same word as
+  codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
+
+- [refresh-install-repository-enumerations](openspec/changes/refresh-install-repository-enumerations/proposal.md)
+  — authored 2026-09-08, **`Status: draft`** (no ratification citation, and none
+  is owed: the lawful unapproved shape `add-drafted-proposal-origin` defined,
+  drafting provenance only in `.openspec.yaml`). Origin: openxFactory
+  [#796](https://github.com/opensoft/openxFactory/issues/796) — OQ-9 and task
+  § 8.4 of the archived `implement-omniworker-install-repo`, filed at that
+  packet's archive (`d7fbe933`) and extended the same day by an addendum that
+  raised its scope from three enumerations to FOUR. Admitted to the queue by
+  Brett Heap, 2026-09-08 ~14:3xZ, verbatim *"do 794, 795 and 796"*, recorded on
+  [#591](https://github.com/opensoft/openxFactory/issues/591) — **AN ADMISSION
+  AND AN INSTRUCTION TO AUTHOR, NOT A RATIFICATION**: it chooses neither of
+  #796's two options and decides no requirement wording. Refreshes the FOUR
+  hand-maintained install-repository enumerations a fifth install repository
+  (`opensoft/OmniWorker-Install`, admitted by opensoft/xFactory#274 →
+  `648c8bd3`) made incomplete: **6 `## MODIFIED` requirements** across
+  `repo-boundary-governance` (3), `shared-contract-ownership` (2) and
+  `canonical-contract-migration` (1), each restating the promoted text word for
+  word with a `Removed from canon by` marker naming the replaced unit, plus
+  **1 `## ADDED`** requirement stating that these enumerations are an INDEX
+  whose authority is the aggregation's `installs/` mount list and each
+  repository's own boundary requirement. **THE COLLISION #796 SAID TO CHECK FOR
+  DOES NOT EXIST, MEASURED:** no active change writes the *"Install repository
+  scope"* key (two archived writers only), and the `co-modifier` class on
+  `implement-keycloak-install-repo` / `implement-openxpki-install-repo` comes
+  from each sharing its OWN sibling boundary requirement with an active
+  partner, NOT from the enumeration. This packet's OWN ledger row nonetheless
+  reads `class: co-modifier`, because the ledger's corpus includes ARCHIVED
+  changes and `admit-install-repos-to-aggregation` wrote the same key in
+  August — so the packet DECLARES the sequence it is in,
+  `sequenced_after: [admit-install-repos-to-aggregation]`, resolving at depth 1;
+  `co-modifier` is a fact about history and not a live collision.
+  **#796's SECOND OPTION IS REFUSED, NOT FORECLOSED** (`design.md` D1): a list
+  derived from the aggregation's `installs/` group would carry NINE mounts
+  against an indexed set of FIVE, enrolling three repositories no reviewed act
+  placed under the requirement and duplicating `xFactory-Installer`, which its
+  own requirement already governs. **NO GENERATOR IS BUILT**, no promoted
+  specification byte moves, no contract is cut, `code_surface: none`, and all
+  boxes in `tasks.md` are unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
+  `tasks.md` § 4.1, the `repo-boundary-governance` `## Purpose` widening, which
+  a delta cannot carry and which is taken in the archive commit as a separate
+  hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.
+  Lane `openxfactory-3`.
+
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim **"merge 292 when green,
