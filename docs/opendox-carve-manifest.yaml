@@ -134,6 +134,7 @@ moved_paths:
   - examples/ideation-dashboard/
   - examples/ideation-cross-reference/
   - tests/corpus-adapter/
+  - scripts/corpus_adapter.py
   - scripts/ideation-dashboard-nightly.py
   - scripts/validate-ideation-dashboard-contracts.py
   - scripts/output_boundary.py
@@ -1029,6 +1030,10 @@ rows:
     sha256: "96629b097163d97320c94494dd17c639be5ac2b524f4ac35ff16872cbf81d1ae"
     destination: opendox_spec
     destination_path: examples/ideation-dashboard/workbench-model-catalog-routing-rule.example.yaml
+  - source_path: scripts/corpus_adapter.py
+    disposition: not_moved
+    reason: replicated_at_destination
+    evidence: "RULING Q4 (#656, 2026-09-04T15:34Z) gives the corpus-adapter INTERFACE to openDox, and the file says so of itself (:5-16, 'PROVENANCE, AND IT IS PROVISIONAL'). The § 3.1 surface omitted it; the § 3.2 scout's OQ-Q found the omission and it is repaired here. The disposition is RULED OQ-A's, not a move: openxFactory keeps needing the interface after the carve, because scripts/corpus_adapter_openxfactory/ implements this Protocol and tasks.md § 3.7 (FLOOR PART 3) requires openxFactory's OWN adapter to pass the neutral corpus — the two home-only rows read this exact path (test_no_privileged_route.py:60, and the replicated test_no_home_vocabulary.py:50), and test_conformance.py:51 / test_interface_closure.py:34 import it by name. It is neutral BY TEST (tests/corpus-adapter/test_no_home_vocabulary.py, test_no_privileged_route.py:24 'the interface is neutral'), it imports only the standard library at the carve commit (:79 __future__, :81 dataclasses, :82 typing), and both repositories are Apache-2.0, so openDox gets a replica rather than a shared module across a repository boundary with no pin."
   - source_path: scripts/ideation-dashboard-nightly.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
