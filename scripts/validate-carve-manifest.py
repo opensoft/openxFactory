@@ -222,6 +222,18 @@ REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 MODE_RE = re.compile(r"^(100644|100755|120000)$")
 EDIT_KEYS = {"class", "lines", "note"}
 
+# A `destinations:` KEY is a label, never a referent — a row's own
+# `destination` is always a string (`_require_str` enforces it on every
+# row), so a key this pattern would not match can never be legitimately
+# referenced by any row at all. Copilot review, PRRT_kwDOTAvnrs6guuUN,
+# 2026-09-09: an unquoted numeric key (`1:`) parses under PyYAML as the
+# int 1, not a string, and used to pass this check silently — surviving
+# all the way to `check_vocabularies`' `sorted(destinations)`, where a
+# document mixing an int key with a str key raises `TypeError` (`'<' not
+# supported between instances of 'str' and 'int'`) and the process exits
+# 1, which is not one of the two exit codes this file's docstring promises.
+DESTINATION_KEY_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+
 # A destination entry's key set, CLOSED to exactly these two — an unknown key
 # is a typo the closed grammar the module docstring promises must not admit,
 # and a missing one is caught by `_require_str` naming the same two names.
@@ -504,6 +516,31 @@ def check_shape(doc: dict[str, Any]) -> None:
     # deliberate, and explained in the module docstring (S8) rather than here:
     # it is check 4's question, not this one's.
     for key, entry in destinations.items():
+        # THE KEY'S OWN SHAPE, CHECKED FIRST — before descending into what
+        # its entry carries, on the same first-failure-wins discipline every
+        # other check in this file keeps: a malformed key is a more
+        # fundamental defect than anything inside a well-formed entry, and
+        # reporting it under a code that names the entry's OWN contents
+        # would hide which part of the row actually failed. `not
+        # isinstance(key, str)` is required and not implied by the regex
+        # match below — `DESTINATION_KEY_RE.match` on a non-str argument
+        # raises `TypeError` itself, which is exactly the failure mode this
+        # check exists to keep out of this file.
+        if not isinstance(key, str) or not DESTINATION_KEY_RE.match(key):
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"`destinations` carries the key {key!r}, which is not a "
+                "lowercase label matching `^[a-z][a-z0-9_]*$`. A row's own "
+                "`destination` is always a STRING — `_require_str` enforces "
+                "that on every row — so a key this pattern rejects can never "
+                "be legitimately referenced by any row at all. PyYAML "
+                "parses an unquoted numeric key such as `1:` as the int 1 "
+                "rather than the label its author meant, and that used to "
+                "pass this check in silence and surface only when "
+                "`check_vocabularies`' `sorted(destinations)` met a "
+                "document mixing that int with a str key — a raw "
+                "`TypeError`, exit 1, not one of the two exit codes this "
+                "file's docstring promises")
         if not isinstance(entry, dict):
             raise CarveRefusal(
                 "carve-shape-invalid",

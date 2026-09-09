@@ -46,12 +46,12 @@ git identity and a developer's global config can carry `core.hooksPath` or
 
 from __future__ import annotations
 
+import ast
 import copy
 import hashlib
 import importlib.util
 import json
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -373,13 +373,42 @@ def test_every_code_the_validator_can_emit_is_in_the_vocabulary() -> None:
     closed) meeting a value the vocabulary said did not exist. This scans the
     script's own raise sites, so the tuple cannot drift from them in either
     direction: no code raised but unlisted, and no code listed but never raised.
+
+    THE SCAN IS `ast`, NOT A REGEX (Copilot review, PRRT_kwDOTAvnrs6guuUv,
+    2026-09-09). The regex this replaced — `CarveRefusal\\(\\s*"([^"]+)"` —
+    matched only a DOUBLE-quoted first argument, so a raise site written
+    `CarveRefusal('carve-shape-invalid', ...)` — legal Python, and nothing in
+    this file's own style forbids it — would silently miss the code it
+    raises, which is exactly the blind spot this test exists to close: a code
+    the validator can emit that never reaches the comparison below at all.
+    Walking the parsed module for a `Call` to the bare name `CarveRefusal`
+    whose first argument is a string constant reads the code the way Python
+    itself does — single quotes, double quotes, and unusual whitespace inside
+    the call are all one `ast.Constant` node — rather than the way one
+    particular regex happens to expect it typed. A `CarveRefusal(...)` call
+    whose first argument is NOT a string constant (a variable, an f-string)
+    fails loudly rather than being silently skipped, so a future raise site
+    that stopped being a literal could not go uncounted the same way.
     """
     source = SCRIPT.read_text(encoding="utf-8")
-    raised = sorted(set(re.findall(r'CarveRefusal\(\s*"([^"]+)"', source)))
-    assert len(raised) > 5, \
-        f"the scan found only {raised}, so it is not evidence of anything"
-    assert [c for c in raised if c not in MODULE.REFUSAL_CODES] == []
-    assert sorted(MODULE.REFUSAL_CODES) == raised
+    tree = ast.parse(source, filename=str(SCRIPT))
+    raised: set[str] = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "CarveRefusal"):
+            continue
+        first = node.args[0] if node.args else None
+        assert (isinstance(first, ast.Constant)
+                and isinstance(first.value, str)), (
+            f"{SCRIPT}:{node.lineno}: a CarveRefusal(...) call does not open "
+            "with a string-literal code, so this scan cannot read it as "
+            "evidence of anything")
+        raised.add(first.value)
+    ordered = sorted(raised)
+    assert len(ordered) > 5, \
+        f"the scan found only {ordered}, so it is not evidence of anything"
+    assert [c for c in ordered if c not in MODULE.REFUSAL_CODES] == []
+    assert sorted(MODULE.REFUSAL_CODES) == ordered
 
 
 def test_the_module_records_the_digest_field_divergence() -> None:
@@ -722,6 +751,34 @@ def test_a_destination_entry_with_an_unknown_key_refuses(
     combined = refuses(scratch, doc, "carve-shape-invalid")
     assert "opendox_code" in combined, combined
     assert "branch" in combined, combined
+
+
+def test_a_non_string_destination_key_refuses(scratch: Scratch) -> None:
+    """Copilot round 4, PRRT_kwDOTAvnrs6guuUN: PyYAML parses an unquoted
+    `destinations:` key such as `1:` as the int 1, not the label its author
+    meant. That used to pass `check_shape()` in silence and reach
+    `check_vocabularies`' `sorted(destinations)` the moment any row's
+    (always-string) `destination` failed to match it — a document mixing
+    that int key with a surviving string key raises a raw `TypeError` there,
+    and the process exits 1: not one of the two exit codes this file's
+    docstring promises, and a caller that only knows 0/2 reads it as a
+    crash rather than a refusal.
+
+    PROVED AGAINST THE PRE-FIX VALIDATOR — this round's base commit,
+    `a25a3235`: the fixture below (an int key REPLACING `opendox_code`
+    while every row that named it still does) written under `docs/` in a
+    throwaway repo and run through `git show
+    a25a3235:scripts/validate-carve-manifest.py` saved to a temp path,
+    exits 1 with `TypeError: '<' not supported between instances of 'str'
+    and 'int'` at `check_vocabularies`' `sorted(destinations)`. The fix
+    exits 2 `carve-shape-invalid`, naming the offending key, before
+    `check_vocabularies` — or any check after `check_shape` — ever runs.
+    """
+    doc = clean_manifest(scratch)
+    doc["destinations"][1] = doc["destinations"].pop("opendox_code")
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "the key 1" in combined, combined
+    assert "Traceback" not in combined, combined
 
 
 # --------------------------------------------------------------------------
