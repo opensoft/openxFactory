@@ -1,0 +1,930 @@
+#!/usr/bin/env python3
+"""Verify a CARVE DESTINATION against `docs/opendox-carve-manifest.yaml` — the
+half of FLOOR PART 1 that lives at the destination.
+
+WHY THIS FILE EXISTS. `scripts/validate-carve-manifest.py` validates the
+manifest AGAINST openxFactory: every row's digest at the carve commit, the
+surface's completeness, the closed vocabularies. It says nothing about whether
+anything ARRIVED, and the ruling's sentence — "a file in no row, or an edit in
+no class, is an UNDECLARED MOVEMENT and the carve REFUSES" — is a claim about
+BOTH trees. The moves memo (§ 2.3, 2026-09-09) names the gap in one line:
+"This needs a verifier that does not exist." This is it, and
+`docs/opendox-cutover-runbook.md` is the procedure it serves.
+
+IT LIVES IN openxFactory AND IS NEVER COPIED INTO SIX REPOSITORIES. The
+manifest lives here; a verifier copied six ways is six things to keep in step
+with one document. It runs from here with a destination checkout in hand:
+
+    python3 scripts/verify-carve-arrival.py \\
+        --destination opendox_code --dest-root ../openDox-code \\
+        --source-repo . --phase A
+
+THE TWO PHASES ARE THE TWO COMMITS, and the runbook § 5.5 explains why the leg
+lands as two. Commit A places every row's blob byte-identical to `carve_commit`,
+so `--phase A` can prove EVERY moved row of a destination at its strongest — the
+analogue of the openXwallet extraction's "100/100 at the carve layer". Commit B
+applies that destination's declared edits and nothing else, so `--phase B`
+checks that the arrived blob differs from the carve blob ONLY on lines the row's
+own `edits[].lines` declare. A reviewer then reads the declared lines rather
+than the whole leg.
+
+FIVE FINDINGS AND ONE ENVIRONMENT CODE, closed and ordered by the check that
+raises them, on `validate-carve-manifest.py`'s own idiom:
+
+  `arrival-missing`               a row for this destination has no file at its
+                                  `destination_path`.
+  `arrival-digest-mismatch`       the arrived bytes or the arrived mode are not
+                                  the row's. Every moved row at phase A; every
+                                  `moved_verbatim` row at BOTH phases, because
+                                  verbatim means verbatim in every phase.
+  `arrival-undeclared-edit`       phase B only: the arrived blob differs from
+                                  the carve blob on a line no `edits[].lines`
+                                  declares. The refusal NAMES THE LINES and
+                                  carries a unified-diff excerpt.
+  `arrival-undeclared-file`       a file under one of this destination's
+                                  DECLARED ROOTS that no row places and no
+                                  admission rule admits.
+  `arrival-carved-from-mismatch`  an ASSEMBLY ROOT's `contracts/manifest.yaml`
+                                  carries no `carved_from:`, or one naming
+                                  another repository or another commit
+                                  (RULED OQ-I).
+  `arrival-unreadable`            THE ENVIRONMENT AND THE ENCODING: no git, an
+                                  unreadable or unparseable manifest, an unknown
+                                  `--destination`, a `--dest-root` that is not a
+                                  directory, a `--source-repo` that does not
+                                  carry `carve_commit`, or a source repository
+                                  that disagrees with the manifest about a row's
+                                  digest.
+
+THE SPLIT BETWEEN THIS FILE'S CODES AND THE MANIFEST VALIDATOR'S is ownership,
+not taste. Every `carve-*` code is a manifest that disagrees with openxFactory;
+every `arrival-*` code is a DESTINATION that disagrees with the manifest. So
+this file re-owns nothing: a manifest whose shape is wrong, whose digests do not
+match openxFactory at the carve commit, or whose surface is incomplete is
+`validate-carve-manifest.py`'s finding, and this file refuses such a document as
+`arrival-unreadable` NAMING THAT TOOL rather than inventing a second, weaker
+opinion about the same bytes. Both are run; neither substitutes for the other.
+
+WHAT IT DELIBERATELY DOES NOT PROVE, stated because a floor that overstates its
+reach is worse than one that does not reach.
+
+  * A `replicated_at_destination` row carries NO `destination`, NO
+    `destination_path` and NO digest — by the row grammar, and RULED OQ-C is the
+    reason: "this manifest declares what LEAVES, not what the destination
+    assembles." So a replica's ARRIVAL is undeclared by construction. This file
+    ADMITS a destination file whose bytes still equal a replica's blob at
+    `carve_commit` and reports the count; it CANNOT refuse a replica that
+    drifted. The drift is expected in at least one case the memo names:
+    `tests/corpus-adapter/test_conformance.py`'s implementation-aware block
+    imports the home factory and MUST be rewritten at each destination to that
+    destination's own. A row that is neither verbatim nor declared-edit is not
+    made falsifiable by wishing.
+  * A file CREATED at a destination has no row either (RULED OQ-C) — the import
+    root, `pyproject.toml`, `pytest.ini`, `conftest.py`, and openXdox-code's
+    `openxfactory_surface.py` (RULED OQ-L). Each is named on the command line
+    with `--allow-created`, once, so an unplaced file at a destination is either
+    admitted by a rule that can be read here or written down in the pull request
+    that admits it. There is deliberately no wildcard.
+  * A declared edit that has NOT BEEN APPLIED does not refuse. Its diff touches
+    no undeclared line, which is the only question the ruling's sentence asks,
+    and the destination's own `validate` refuses a leg whose imports still name
+    `ideation_dashboard`. It is COUNTED and PRINTED (`unapplied`) rather than
+    passed over in silence, because a phase-B run reporting 62 rows diffed and a
+    phase-B run reporting 0 are very different events wearing the same `OK`.
+
+THE DECLARED ROOTS are computed from the manifest, never configured: for one
+destination, the MINIMAL set of directories under which every one of its rows
+lands. For `opendox_code` that is `src/opendox/` and `tests/`; for
+`openxdox_code`, `scripts/`, `src/openxdox/` and `tests/`. A destination
+declaring no rows — `opendox_root`, where the release identity is cut (§ 3.8)
+— has no roots and no walk, and the `carved_from:` check is its whole job.
+
+Exit codes:
+  0  the destination verifies, or no destination was named
+  2  ANY refusal, and any environment failure
+
+  There is deliberately NO exit 1, on `validate-carve-manifest.py`'s reasoning:
+  the gate's only question is "did this leg arrive as declared", and the answer
+  is the same for "a digest drifted" and "the bytes could not be read".
+
+THE SEAT-HOLDING PASS. Given NO `--destination`, this prints
+`NO DESTINATION …` and exits 0. That is the same deliberate not-fail-closed
+branch `validate-carve-manifest.py` carries for its default manifest path, and
+it exists for the same reason: this file lands BEFORE the trees it checks. No
+destination checkout exists on any machine until Phase 2 of the runbook runs,
+and the § 8.2 seat in `tests/carve_arrival/` must be able to assert that the
+DOCUMENTED INVOCATION answers, inside openxFactory's own required suite, without
+asserting that a carve has happened. It keys off `--destination` being ABSENT
+and never off a lookup failing: a caller who NAMES a destination and misspells
+it refuses `arrival-unreadable`, because a typo must not be indistinguishable
+from "not yet carved".
+
+Run: `python3 scripts/verify-carve-arrival.py --destination <key> --dest-root
+<dir> --phase A|B`; driven by `tests/carve_arrival/test_verify_carve_arrival.py`.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import difflib
+import hashlib
+import json
+import os
+import re
+import stat
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover - the repository ships PyYAML
+    print("ERROR PyYAML is required", file=sys.stderr)
+    sys.exit(2)
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# The ruled path, shared with `validate-carve-manifest.py` (RULED OQ-E).
+# Relative, so `--source-repo` moves the question to another tree without
+# moving the path.
+MANIFEST_RELPATH = "docs/opendox-carve-manifest.yaml"
+
+# The tool that OWNS the manifest's agreement with openxFactory. Named in every
+# `arrival-unreadable` refusal that is really a manifest defect, so a reader is
+# never left choosing between two opinions about the same bytes.
+MANIFEST_VALIDATOR = "scripts/validate-carve-manifest.py"
+
+MOVED_DISPOSITIONS: tuple[str, ...] = ("moved_verbatim",
+                                       "moved_with_declared_edit")
+REPLICA_REASON = "replicated_at_destination"
+ASSEMBLY_LEG = "assembly"
+PHASES: tuple[str, ...] = ("A", "B")
+
+# FIXED, COMPLETE and ordered by the check that raises it. Other code may branch
+# on the CODE, so no failure path here may invent one, and
+# `tests/carve_arrival/test_verify_carve_arrival.py` scans this file's own
+# `ArrivalRefusal(...)` sites and fails if any code is missing from this tuple.
+REFUSAL_CODES: tuple[str, ...] = (
+    "arrival-missing",
+    "arrival-digest-mismatch",
+    "arrival-undeclared-edit",
+    "arrival-undeclared-file",
+    "arrival-carved-from-mismatch",
+    "arrival-unreadable",
+)
+
+REMEDIATION = (
+    "Remediation: fix the DESTINATION, never the manifest — a manifest edited "
+    "to match a tree that arrived wrong is the floor deleted. Re-place the "
+    "row's blob from the carve commit (`git cat-file blob "
+    "<carve_commit>:<source_path>`) for a phase-A mismatch; move an undeclared "
+    "edit out of commit B, or re-cut the manifest row that should have "
+    "declared it; name a file the destination legitimately assembles with "
+    "`--allow-created <path>` and say why in the pull request. Where the "
+    "manifest itself disagrees with openxFactory, that is "
+    f"`{MANIFEST_VALIDATOR}`'s finding and not this one."
+)
+
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+
+# The scaffold placeholder every `openRepoShape` leg carries in its empty role
+# directories. Admitted by NAME rather than by digest: an empty file's digest is
+# the empty digest, which several replica rows also carry, and admitting a
+# `.gitkeep` as "a replica" would be a true statement about the bytes and a
+# false one about the file.
+GITKEEP = ".gitkeep"
+
+# The leg scaffold's own test module. It lives under `tests/`, which IS a
+# declared root for both `-code` legs, so it must be admitted or every arrived
+# code leg refuses on the file that proves it is a leg.
+LEG_SHAPE_TEST = "tests/test_leg_shape.py"
+
+
+class ArrivalRefusal(Exception):
+    """A named, remediable refusal.
+
+    Carries the machine-readable `code` separately from the human `detail`, so a
+    caller can branch on the code without parsing prose. `render()` is the ONE
+    place the human message is assembled, and `main()` prints exactly that, so
+    the remediation trailer cannot be dropped by a caller that forgot it exists.
+    """
+
+    def __init__(self, code: str, detail: str) -> None:
+        self.code = code
+        self.detail = detail
+        super().__init__(code, detail)
+
+    def render(self, where: str) -> str:
+        """Always printable, even over a path Unicode cannot hold: a
+        `surrogateescape`-decoded name reaches stderr under CPython's pinned
+        `backslashreplace` handler and is escaped rather than raising."""
+        return f"FAIL {where}: {self.code} — {self.detail}\n{REMEDIATION}"
+
+
+# --------------------------------------------------------------------------
+# git and the filesystem
+# --------------------------------------------------------------------------
+
+def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
+    """git, capturing BYTES — blob contents must not go through a decoder."""
+    try:
+        return subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, check=False)
+    except OSError as exc:  # pragma: no cover - no git on the host
+        raise ArrivalRefusal("arrival-unreadable",
+                             f"git could not be run in {repo}: {exc}") from exc
+
+
+def require_commit(repo: Path, commit: str) -> None:
+    """`commit` must name a COMMIT OBJECT this repository carries.
+
+    `^{commit}` and not a bare rev-parse, for `validate-carve-manifest.py`'s
+    reason: an annotated tag's object id is also 40 hex and git would peel it
+    silently, so the referent would be a tag beside the commit rather than the
+    commit. The carve tag is a LABEL and never the referent.
+    """
+    done = _git(repo, "rev-parse", "--verify", "--quiet", f"{commit}^{{commit}}")
+    if done.returncode != 0 or not done.stdout.strip():
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{repo} does not carry the manifest's carve_commit {commit[:12]} "
+            "as a commit object; the declared-edit diff is taken against that "
+            "revision's blobs, so a source repository without it cannot answer "
+            "the question. Point --source-repo at an openxFactory checkout or "
+            "mirror whose history contains it")
+
+
+def blob_at(repo: Path, commit: str, path: str) -> bytes | None:
+    """The RAW bytes of `path` at `commit`, or None where it is not a blob."""
+    done = _git(repo, "cat-file", "blob", f"{commit}:{path}")
+    if done.returncode != 0:
+        return None
+    return done.stdout
+
+
+def read_arrived(target: Path) -> tuple[str, bytes]:
+    """The arrived file as git would see it: `(mode, bytes)`.
+
+    A DESTINATION IS A WORKING TREE AND NOT NECESSARILY A REPOSITORY — the
+    runbook's phase-A run happens on a merge that has not been pushed, and a
+    reviewer may point this at an export — so the mode is derived from the
+    filesystem exactly as git derives it when it stages a file: `120000` for a
+    symlink, whose content is the TARGET PATH's bytes and not the target's
+    content; `100755` when the OWNER execute bit is set (git records no other
+    execute bit); `100644` otherwise.
+    """
+    try:
+        st = os.lstat(target)
+    except OSError as exc:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{target} could not be stat'd: {exc}") from exc
+    if stat.S_ISLNK(st.st_mode):
+        return "120000", os.readlink(target).encode("utf-8", "surrogateescape")
+    if not stat.S_ISREG(st.st_mode):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{target} is not a regular file or a symlink; git carries no mode "
+            "for it and no row can have placed it")
+    try:
+        data = target.read_bytes()
+    except OSError as exc:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{target} could not be read: {exc}") from exc
+    return ("100755" if st.st_mode & stat.S_IXUSR else "100644"), data
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+# --------------------------------------------------------------------------
+# the manifest, read but NOT re-validated
+# --------------------------------------------------------------------------
+
+def read_manifest(path: Path) -> dict[str, Any]:
+    """The manifest as a document.
+
+    EVERY failure here is `arrival-unreadable` and every message names
+    `validate-carve-manifest.py`. This file does not re-own the manifest's
+    shape: two tools with two opinions about one document is how a reader ends
+    up believing the weaker one. What it does own is refusing to proceed on a
+    document it cannot read the fields it needs out of.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    # `ValueError` covers `UnicodeDecodeError`: bytes that never became a
+    # document must reach the reader as this named exit-2 refusal rather than
+    # as a traceback and exit 1.
+    except (OSError, ValueError) as exc:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the manifest at {path} could not be read: {exc}") from exc
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        at = (f" at line {mark.line + 1} column {mark.column + 1}"
+              if mark is not None else "")
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the manifest at {path} is not parseable YAML{at}: {exc}. Its "
+            f"shape is `{MANIFEST_VALIDATOR}`'s finding, not this one") from exc
+    if not isinstance(doc, dict):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the manifest at {path} is not a mapping (parsed as "
+            f"{type(doc).__name__}); run {MANIFEST_VALIDATOR}")
+    for key, kind in (("carve_commit", str), ("source_repository", str),
+                      ("destinations", dict), ("rows", list)):
+        if not isinstance(doc.get(key), kind):
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"the manifest at {path} carries no usable `{key}:`; this "
+                f"verifier reads it and does not repair it — run "
+                f"{MANIFEST_VALIDATOR}")
+    if not COMMIT_RE.match(doc["carve_commit"]):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the manifest's carve_commit {doc['carve_commit']!r} is not 40 "
+            f"lowercase hex; run {MANIFEST_VALIDATOR}")
+    return doc
+
+
+def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
+    """The MOVED rows this destination is owed, in manifest order."""
+    return [row for row in doc["rows"]
+            if isinstance(row, dict)
+            and row.get("disposition") in MOVED_DISPOSITIONS
+            and row.get("destination") == destination]
+
+
+def replica_rows(doc: dict[str, Any]) -> list[dict[str, Any]]:
+    """The `not_moved / replicated_at_destination` rows — every destination's,
+    because a replica row names none."""
+    return [row for row in doc["rows"]
+            if isinstance(row, dict)
+            and row.get("disposition") == "not_moved"
+            and row.get("reason") == REPLICA_REASON]
+
+
+def declared_roots(rows: list[dict[str, Any]]) -> list[str]:
+    """The MINIMAL directories under which every one of `rows` lands.
+
+    Computed from the manifest and never configured, so a destination's walk is
+    a function of the same document the arrivals are. Minimal rather than
+    top-level: `src/opendox` and not `src`, so the walk does not sweep the
+    scaffold's own `src/.gitkeep` into the undeclared set and then need a rule
+    to take it back out.
+    """
+    dirs = sorted({os.path.dirname(row["destination_path"])
+                   for row in rows
+                   if isinstance(row.get("destination_path"), str)})
+    minimal = [d for d in dirs
+               if not any(other != d and d.startswith(other + "/")
+                          for other in dirs)]
+    # A row placed at the top level makes the whole tree the walk's scope; that
+    # is the honest reading and the admission rules below then do the work.
+    return sorted(set(minimal))
+
+
+def under_roots(relpath: str, roots: list[str]) -> bool:
+    """SEGMENT-AWARE, never a bare `startswith`: `tests_helpers/x.py` is not
+    under `tests`, and a prefix test that says it is quietly widens the walk."""
+    for root in roots:
+        if root == "":
+            return True
+        if relpath == root or relpath.startswith(root + "/"):
+            return True
+    return False
+
+
+# --------------------------------------------------------------------------
+# check 1 — arrival, digests and modes
+# --------------------------------------------------------------------------
+
+def check_arrivals(rows: list[dict[str, Any]], dest_root: Path,
+                   source_repo: Path, carve_commit: str,
+                   phase: str) -> dict[str, int]:
+    """Every moved row present, and its bytes what the phase requires."""
+    counts = {"rows": len(rows), "digests_verified": 0, "diffed": 0,
+              "unapplied": 0}
+    for row in rows:
+        relpath = row["destination_path"]
+        target = dest_root / relpath
+        if not os.path.lexists(target):
+            raise ArrivalRefusal(
+                "arrival-missing",
+                f"the row for {row['source_path']} places a file at "
+                f"{relpath} and {target} does not exist. Every moved row of a "
+                "destination is owed at that destination; a leg missing one is "
+                "a leg the manifest does not describe")
+        mode, data = read_arrived(target)
+        if mode != row.get("git_mode"):
+            raise ArrivalRefusal(
+                "arrival-digest-mismatch",
+                f"{relpath} arrived with mode {mode} where the row for "
+                f"{row['source_path']} records {row.get('git_mode')!r}. The "
+                "mode is part of the blob's identity — git records it, the "
+                "manifest declares it, and an executable bit gained or lost in "
+                "transit is a change no digest comparison would name")
+        # `moved_verbatim` is verbatim in EVERY phase; commit B touches only the
+        # rows that declare edits, so a verbatim row that moved at commit B has
+        # moved undeclared and the digest is where that surfaces.
+        verbatim_here = (row["disposition"] == "moved_verbatim"
+                         or phase == "A")
+        if verbatim_here:
+            got = digest(data)
+            if got != row.get("sha256"):
+                raise ArrivalRefusal(
+                    "arrival-digest-mismatch",
+                    f"{relpath} has sha256 {got} where the row for "
+                    f"{row['source_path']} records {row.get('sha256')}"
+                    + ("" if row["disposition"] == "moved_verbatim" else
+                       " and PHASE A requires the carve commit's bytes exactly")
+                    + (". `moved_verbatim` means the destination's bytes equal "
+                       "this digest, in every phase and in every commit"
+                       if row["disposition"] == "moved_verbatim" else
+                       ". Commit A places the blob byte-identical; the declared "
+                       "edits are commit B"))
+            counts["digests_verified"] += 1
+            continue
+        # phase B, `moved_with_declared_edit`
+        carve = _referent_blob(source_repo, carve_commit, row)
+        if carve == data:
+            counts["unapplied"] += 1
+            continue
+        _check_declared_lines(row, carve, data)
+        counts["diffed"] += 1
+    return counts
+
+
+def _referent_blob(source_repo: Path, carve_commit: str,
+                   row: dict[str, Any]) -> bytes:
+    """The row's blob AT THE CARVE COMMIT, guarded against a source repository
+    that disagrees with the manifest about it.
+
+    Without the guard, a phase-B diff taken against the wrong bytes would report
+    undeclared edits that are really the source repository's drift — a refusal
+    naming the destination for the source's fault. The guard's own finding is
+    NOT a `carve-*` code wearing a new name: it is `arrival-unreadable` naming
+    the tool that owns the question, because "this manifest disagrees with
+    openxFactory" is exactly what `validate-carve-manifest.py` exists to say.
+    """
+    data = blob_at(source_repo, carve_commit, row["source_path"])
+    if data is None:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{source_repo} carries no blob at {carve_commit[:12]}:"
+            f"{row['source_path']}, which the phase-B diff is taken against; "
+            f"run {MANIFEST_VALIDATOR}, whose `carve-path-absent` owns this")
+    got = digest(data)
+    if got != row.get("sha256"):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{source_repo} at {carve_commit[:12]} has sha256 {got} for "
+            f"{row['source_path']} where the manifest records "
+            f"{row.get('sha256')}. The source disagrees with the manifest "
+            "about its own referent, so no diff taken here would be about the "
+            f"destination; run {MANIFEST_VALIDATOR}")
+    return data
+
+
+# --------------------------------------------------------------------------
+# check 2 — phase B: the diff touches ONLY declared lines
+# --------------------------------------------------------------------------
+
+def _declared_line_set(row: dict[str, Any]) -> set[int]:
+    declared: set[int] = set()
+    for edit in row.get("edits") or []:
+        if isinstance(edit, dict):
+            for line in edit.get("lines") or []:
+                if isinstance(line, int):
+                    declared.add(line)
+    return declared
+
+
+def _check_declared_lines(row: dict[str, Any], carve: bytes,
+                          arrived: bytes) -> None:
+    """Refuse unless every changed line is one the row declares.
+
+    THE LINE NUMBERS ARE THE CARVE COMMIT'S, which is what makes them
+    falsifiable: a destination-side numbering would move under the very edits it
+    is meant to bound. So the comparison walks `difflib`'s opcodes over the two
+    line lists and asks, for each non-`equal` opcode, which CARVE-SIDE lines it
+    touches:
+
+      * `replace` / `delete` touch carve lines `i1+1 … i2` (1-based) and every
+        one of them must be declared.
+      * `insert` touches NO carve line — a line that did not exist at the carve
+        commit has no number there. An insertion is therefore declared by naming
+        a line it is inserted BESIDE, and the test is that at least one of the
+        two neighbours (`i1`, `i1+1`, clamped into the file) is declared. That
+        is the tightest statement a line-numbered grammar can make about an
+        insertion, and it is stated here rather than left to a reader to infer
+        from a passing run.
+
+    A CHANGE NO LINE NUMBER CAN NAME still refuses. The two blobs are split with
+    `splitlines()`, which is blind to the line TERMINATORS and to a missing
+    final newline; if the bytes differ and the line lists do not, the difference
+    is exactly that, and it refuses rather than passing as "no changed line".
+    """
+    declared = _declared_line_set(row)
+    carve_lines = carve.decode("utf-8", "surrogateescape").splitlines()
+    arrived_lines = arrived.decode("utf-8", "surrogateescape").splitlines()
+    if carve_lines == arrived_lines:
+        raise ArrivalRefusal(
+            "arrival-undeclared-edit",
+            f"{row['destination_path']} differs from the carve commit's blob "
+            "in a way no line number can name — the line terminators, or a "
+            "final newline gained or lost. The declared-edit grammar bounds "
+            "LINES, so a change outside them is undeclared whatever its size")
+    undeclared: list[int] = []
+    matcher = difflib.SequenceMatcher(a=carve_lines, b=arrived_lines,
+                                      autojunk=False)
+    for tag, i1, i2, _j1, _j2 in matcher.get_opcodes():
+        if tag == "equal":
+            continue
+        if tag == "insert":
+            neighbours = {n for n in (i1, i1 + 1) if 1 <= n <= len(carve_lines)}
+            # An insertion into an EMPTY carve blob has no neighbour to name;
+            # `declared` must then be non-empty for the edit to be declared at
+            # all, and the row's own class says what it is.
+            if neighbours and not (neighbours & declared):
+                undeclared.extend(sorted(neighbours))
+            elif not neighbours and not declared:
+                undeclared.append(1)
+            continue
+        undeclared.extend(n for n in range(i1 + 1, i2 + 1)
+                          if n not in declared)
+    if undeclared:
+        shown = sorted(set(undeclared))
+        excerpt = "\n".join(list(difflib.unified_diff(
+            carve_lines, arrived_lines,
+            fromfile=f"carve:{row['source_path']}",
+            tofile=f"arrived:{row['destination_path']}",
+            lineterm="", n=1))[:24])
+        classes = ", ".join(sorted({
+            str(edit.get("class")) for edit in row.get("edits") or []
+            if isinstance(edit, dict)})) or "none"
+        raise ArrivalRefusal(
+            "arrival-undeclared-edit",
+            f"{row['destination_path']} was edited at carve-commit line(s) "
+            f"{shown} which the row for {row['source_path']} does not declare; "
+            f"it declares {sorted(declared)} under class(es) {classes}. "
+            "Commit B applies the declared edits and nothing else — an edit in "
+            "no class is an UNDECLARED MOVEMENT and the carve refuses (RULED "
+            f"OQ-1).\n{excerpt}")
+
+
+# --------------------------------------------------------------------------
+# check 3 — nothing under a declared root that no row places
+# --------------------------------------------------------------------------
+
+def scaffold_allowlist(dest_root: Path) -> set[str]:
+    """The leg scaffold's OWN files, read from the destination rather than
+    hard-coded here.
+
+    `tests/test_leg_shape.py` names them: its `REQUIRED_FILES` list is the
+    bootstrap posture every leg must carry (`tasks.md` § 1.3-1.5), and reading
+    that list is how this verifier learns the scaffold WITHOUT a second copy of
+    it drifting in openxFactory. The module is parsed with `ast.literal_eval`
+    over the assignment, never imported: a destination checkout is untrusted
+    input and importing it would execute it.
+
+    The test module itself is added, because it lives under `tests/` — a
+    declared root for both `-code` legs — and a leg that refused on the file
+    proving it is a leg would be unusable.
+    """
+    allowed = {LEG_SHAPE_TEST}
+    source = dest_root / LEG_SHAPE_TEST
+    try:
+        text = source.read_text(encoding="utf-8")
+    except (OSError, ValueError):
+        # A destination with no leg-shape test is a `-spec` leg's business or an
+        # assembly root's; the walk simply has one fewer admission rule.
+        return allowed
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:  # pragma: no cover - a scaffold that does not parse
+        return allowed
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        names = [t.id for t in node.targets if isinstance(t, ast.Name)]
+        if "REQUIRED_FILES" not in names:
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except ValueError:  # pragma: no cover - a non-literal list
+            continue
+        if isinstance(value, (list, tuple)):
+            allowed.update(str(v) for v in value)
+    return allowed
+
+
+def check_undeclared_files(dest_root: Path, roots: list[str],
+                           placed: set[str], replicas: set[str],
+                           allow_created: set[str]) -> dict[str, int]:
+    """Walk the declared roots; every file is placed, or admitted, or refused.
+
+    THE ADMISSION RULES ARE ORDERED and the order is a claim. A `.gitkeep` is
+    admitted as SCAFFOLD before it can be admitted as a replica, because the
+    empty digest belongs to several replica rows and calling the scaffold's
+    placeholder "a replica" would be true about the bytes and false about the
+    file.
+    """
+    admitted = {"scaffold": 0, "replica": 0, "created": 0}
+    scaffold = scaffold_allowlist(dest_root)
+    walked = 0
+    for root in roots:
+        base = dest_root / root if root else dest_root
+        if not base.is_dir():
+            # A declared root that does not exist is not this check's finding:
+            # every row under it has already refused `arrival-missing`, which is
+            # the more precise statement and the one a reader can act on.
+            continue
+        for dirpath, dirnames, filenames in os.walk(base):
+            dirnames[:] = sorted(d for d in dirnames if d != ".git")
+            for name in sorted(filenames):
+                full = Path(dirpath) / name
+                relpath = os.path.relpath(full, dest_root).replace(os.sep, "/")
+                walked += 1
+                if relpath in placed:
+                    continue
+                if name == GITKEEP or relpath in scaffold:
+                    admitted["scaffold"] += 1
+                    continue
+                if relpath in allow_created:
+                    admitted["created"] += 1
+                    continue
+                _mode, data = read_arrived(full)
+                if digest(data) in replicas:
+                    admitted["replica"] += 1
+                    continue
+                raise ArrivalRefusal(
+                    "arrival-undeclared-file",
+                    f"{relpath} sits under a declared root and no row places "
+                    "it, no scaffold file is named that, and its bytes are no "
+                    "replica's at the carve commit. A file in no row is an "
+                    "UNDECLARED MOVEMENT and the carve refuses (RULED OQ-1). "
+                    "If the destination legitimately assembles it (RULED OQ-C "
+                    "— the import root, a created surface module), name it "
+                    f"with `--allow-created {relpath}` and say why in the pull "
+                    "request")
+    admitted["walked"] = walked
+    return admitted
+
+
+# --------------------------------------------------------------------------
+# check 4 — `carved_from:` at an assembly root (RULED OQ-I)
+# --------------------------------------------------------------------------
+
+def check_carved_from(dest_root: Path, doc: dict[str, Any]) -> dict[str, str]:
+    """The machine-read provenance record, at the object whose one commit names
+    both legs.
+
+    Only the two ASSEMBLY ROOTS carry `contracts/manifest.yaml`; the four legs
+    have no `contracts/` at all, which is why RULED OQ-I places the record here
+    and not in each leg. The file is hand-authored and validated by nothing —
+    `validate-manifest.py` reads `project.yaml`, and it is digest-pinned by
+    `contracts/shape-pin.yaml`, so it must not be edited into reading this — so
+    this check is the only running code that says the record is right.
+    """
+    path = dest_root / "contracts" / "manifest.yaml"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, ValueError) as exc:
+        raise ArrivalRefusal(
+            "arrival-carved-from-mismatch",
+            f"{path} could not be read ({exc}); an assembly root carries "
+            "`contracts/manifest.yaml` and RULED OQ-I puts `carved_from:` "
+            "in it") from exc
+    try:
+        root_doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise ArrivalRefusal(
+            "arrival-carved-from-mismatch",
+            f"{path} is not parseable YAML: {exc}") from exc
+    carved = (root_doc or {}).get("carved_from") if isinstance(root_doc, dict) \
+        else None
+    if not isinstance(carved, dict):
+        raise ArrivalRefusal(
+            "arrival-carved-from-mismatch",
+            f"{path} carries no `carved_from:` mapping. RULED OQ-I: the "
+            "machine-read provenance record is `carved_from: {repository, "
+            "commit}` in each assembly root's contracts/manifest.yaml — the "
+            "wallet extraction's three records, one level down")
+    for key, expected in (("repository", doc["source_repository"]),
+                          ("commit", doc["carve_commit"])):
+        got = carved.get(key)
+        if got != expected:
+            raise ArrivalRefusal(
+                "arrival-carved-from-mismatch",
+                f"{path} declares `carved_from.{key}: {got!r}` where the "
+                f"manifest names {expected!r}. A provenance record that names "
+                "another referent is worse than none: it is read by machines "
+                "and it would send them to the wrong tree")
+    tag = carved.get("carve_tag")
+    declared_tag = doc.get("carve_tag")
+    if tag is not None and declared_tag is not None and tag != declared_tag:
+        raise ArrivalRefusal(
+            "arrival-carved-from-mismatch",
+            f"{path} declares `carved_from.carve_tag: {tag!r}` where the "
+            f"manifest's label is {declared_tag!r}. The tag is a LABEL beside "
+            "the commit and never the referent, but a label that names a "
+            "different carve is a reader sent to the wrong one")
+    return {"repository": str(carved.get("repository")),
+            "commit": str(carved.get("commit"))}
+
+
+# --------------------------------------------------------------------------
+# the run
+# --------------------------------------------------------------------------
+
+def verify(doc: dict[str, Any], destination: str, dest_root: Path,
+           source_repo: Path, phase: str,
+           allow_created: set[str]) -> dict[str, Any]:
+    """The four checks in order, first failure wins."""
+    carve_commit = doc["carve_commit"]
+    rows = rows_for(doc, destination)
+    if rows:
+        require_commit(source_repo, carve_commit)
+    counts = check_arrivals(rows, dest_root, source_repo, carve_commit, phase)
+
+    roots = declared_roots(rows)
+    placed = {row["destination_path"] for row in rows}
+    replicas: set[str] = set()
+    for row in replica_rows(doc):
+        data = blob_at(source_repo, carve_commit, row["source_path"])
+        if data is not None:
+            replicas.add(digest(data))
+    admitted = check_undeclared_files(dest_root, roots, placed, replicas,
+                                      allow_created)
+
+    leg = (doc["destinations"].get(destination) or {}).get("leg")
+    carved_from = (check_carved_from(dest_root, doc)
+                   if leg == ASSEMBLY_LEG else None)
+
+    return {
+        "result": "ok",
+        "destination": destination,
+        "repository": (doc["destinations"].get(destination) or {}).get(
+            "repository"),
+        "leg": leg,
+        "dest_root": str(dest_root),
+        "phase": phase,
+        "carve_commit": carve_commit,
+        "carve_tag": doc.get("carve_tag"),
+        "source_repository": doc["source_repository"],
+        "rows": counts["rows"],
+        "digests_verified": counts["digests_verified"],
+        "declared_edits_diffed": counts["diffed"],
+        "declared_edits_unapplied": counts["unapplied"],
+        "declared_roots": roots,
+        "files_walked": admitted["walked"],
+        "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
+        "carved_from": carved_from,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="verify-carve-arrival.py",
+        description=("Verify a carve DESTINATION against "
+                     "docs/opendox-carve-manifest.yaml — the destination half "
+                     "of FLOOR PART 1 (split-opendox § D6, RULED OQ-1)."),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--manifest", metavar="PATH", default=None,
+        help=f"the manifest to read (default: <source-repo>/{MANIFEST_RELPATH})")
+    parser.add_argument(
+        "--destination", metavar="KEY", default=None,
+        help="a KEY of the manifest's `destinations:` map, e.g. opendox_code")
+    parser.add_argument(
+        "--dest-root", metavar="DIR", default=None,
+        help="the destination checkout to verify")
+    parser.add_argument(
+        "--source-repo", metavar="DIR", default=None,
+        help=("an openxFactory checkout or mirror carrying carve_commit, whose "
+              "blobs the phase-B diff is taken against (default: this one)"))
+    parser.add_argument(
+        "--phase", choices=PHASES, default=None,
+        help=("A: every moved row byte-identical to the carve commit (commit "
+              "A). B: declared-edit rows may differ ONLY on their declared "
+              "lines (commit B)"))
+    parser.add_argument(
+        "--allow-created", metavar="PATH", action="append", default=[],
+        help=("a file the destination legitimately assembles and no row places "
+              "(RULED OQ-C); repeatable, exact destination-relative paths"))
+    parser.add_argument(
+        "--json", action="store_true",
+        help="print one JSON object on stdout instead of the human line")
+    args = parser.parse_args(argv)
+
+    source_repo = (Path(args.source_repo).resolve() if args.source_repo
+                   else ROOT)
+    # A RELATIVE `--manifest` resolves against `--source-repo`, not the
+    # caller's CWD, on `validate-carve-manifest.py`'s reasoning: the help text
+    # says "default: <source-repo>/…", and a relative override that silently
+    # changed referent to CWD would read the wrong file the moment
+    # `--source-repo` names a tree other than the one the caller stands in.
+    if args.manifest:
+        given = Path(args.manifest)
+        manifest_path = (given if given.is_absolute()
+                         else source_repo / given).resolve()
+    else:
+        manifest_path = (source_repo / MANIFEST_RELPATH).resolve()
+
+    # THE SEAT-HOLDING PASS, and the one place here that is not fail-closed.
+    # See the module docstring: it keys off `--destination` being ABSENT, never
+    # off a lookup failing.
+    if args.destination is None:
+        known = ""
+        try:
+            known = ", ".join(sorted(read_manifest(manifest_path)
+                                     ["destinations"]))
+        except ArrivalRefusal:
+            known = "(the manifest could not be read)"
+        if args.json:
+            print(json.dumps({"result": "no-destination",
+                              "manifest": str(manifest_path),
+                              "destinations": known}))
+        else:
+            print(f"NO DESTINATION (nothing to verify; name one of: {known})")
+        return 0
+
+    where = args.dest_root or args.destination
+    try:
+        doc = read_manifest(manifest_path)
+        if args.destination not in doc["destinations"]:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--destination {args.destination!r} is not a key of the "
+                f"manifest's `destinations:` map ({', '.join(sorted(doc['destinations']))}). "
+                "The seat-holding pass covers a run with NO destination, "
+                "before the legs exist; it does not extend to one the caller "
+                "named, because a typo must not be indistinguishable from "
+                "`not yet carved`")
+        if args.phase is None:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                "--phase is required with --destination and has no default. "
+                "The two phases are the two commits a leg lands as (runbook "
+                "§ 5.5), and a run that guessed would prove the weaker claim "
+                "silently")
+        if args.dest_root is None:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                "--dest-root is required with --destination: this verifier "
+                "reads a destination checkout and has no default for one")
+        dest_root = Path(args.dest_root).resolve()
+        if not dest_root.is_dir():
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--dest-root {args.dest_root!r} resolves to {dest_root}, "
+                "which is not a directory")
+        where = str(dest_root)
+        summary = verify(doc, args.destination, dest_root, source_repo,
+                         args.phase, {p.replace(os.sep, "/")
+                                      for p in args.allow_created})
+    except ArrivalRefusal as exc:
+        if args.json:
+            print(json.dumps({"result": "refused", "code": exc.code,
+                              "detail": exc.detail,
+                              "destination": args.destination,
+                              "dest_root": args.dest_root}))
+        else:
+            print(exc.render(where), file=sys.stderr)
+        return 2
+
+    if args.json:
+        print(json.dumps(summary))
+    else:
+        adm = summary["admitted"]
+        roots = ", ".join(summary["declared_roots"]) or "(none declared)"
+        line = (f"OK {summary['dest_root']}: {summary['destination']} "
+                f"({summary['repository']}) at "
+                f"{summary['source_repository']}@"
+                f"{summary['carve_commit'][:12]} ({summary['carve_tag']}), "
+                f"phase {summary['phase']} — {summary['rows']} row(s) arrived, "
+                f"{summary['digests_verified']} digest(s) verified, "
+                f"{summary['declared_edits_diffed']} declared-edit row(s) "
+                f"within their lines, "
+                f"{summary['declared_edits_unapplied']} unapplied; "
+                f"{summary['files_walked']} file(s) under {roots} with none "
+                f"undeclared ({adm['scaffold']} scaffold, {adm['replica']} "
+                f"replica, {adm['created']} created)")
+        if summary["carved_from"] is not None:
+            line += (f"; carved_from {summary['carved_from']['repository']}@"
+                     f"{summary['carved_from']['commit'][:12]}")
+        print(line)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
