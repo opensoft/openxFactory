@@ -385,7 +385,15 @@ as taken care of by an issue whose declared scope does not include it.
         the realization, not merely on a descendant of it.
       **THE SEPARATE WORD IS BRETT HEAP'S**, 2026-09-09, in session, verbatim
       **"do 1, then 2"** — item 1 being the archive of this change and the
-      closure of openxFactory #729. Neither half of the evidence is a local
+      closure of openxFactory #729. **ON THE RECORDING: THIS ARCHIVE PR
+      [#862](https://github.com/opensoft/openxFactory/pull/862)** is the act the
+      box records — the move to
+      `openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/`, the
+      write-back of the delta into `openspec/specs/doc-health/spec.md`, the
+      README row moving from the active list to the archived list, and the
+      corpus-ledger row going `active` → `archived` with `moved_by: "#862"`.
+      Its `closingIssuesReferences` is exactly `[729]`, verified through
+      GraphQL, so #729 closes with this merge and with nothing else. Neither half of the evidence is a local
       assertion: both are references an outside reader resolves — a merge commit
       on `main` and a workflow run id. The ratified text follows unchanged:
       **ARCHIVE.** `code_surface` is non-empty, so under
