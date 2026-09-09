@@ -46,7 +46,9 @@ Usage:
     arm says it did not run and the verdict is unchanged.
 
     AND IT GATES ON THE ARCHIVE DATE AGAINST HISTORY (issue #812), which is a
-    DIFFERENT FACT and a second arm: every directory under
+    DIFFERENT FACT and a second arm — it prints and prefixes its findings
+    `archive-date-vs-commit`, the one token this help, these docs and the
+    output all use, so a log grep finds every line of it. Every directory under
     `openspec/changes/archive/` matching `ARCHIVE_DIR` is measured against the
     UTC committer date of the OLDEST commit that added it — one
     `git log --diff-filter=A --reverse --no-renames --name-only` walk over the
@@ -248,7 +250,7 @@ def _archive_commit_arm(
     repo_root: Path,
 ) -> tuple[list[str], "sa.ArchiveDateDispositions | None",
            tuple[str, str] | None]:
-    """The archive-date-VS-ADDING-COMMIT findings, the severity the record
+    """The `archive-date-vs-commit` findings, the severity the record
     asks for, or the reason the arm could not run.
 
     THE ORDER OF THE TWO REFUSALS IS THE POINT. Git is probed FIRST, and a
@@ -631,7 +633,7 @@ def main(argv: list[str] | None = None) -> int:
                              "EQUAL its directory's date, not merely not to "
                              "predate it (124 rows legitimately carry a later "
                              "move date, so this is opt-in), AND read the "
-                             "archive-date-vs-adding-commit arm at `error` "
+                             "`archive-date-vs-commit` arm at `error` "
                              "whatever dial its record carries")
     parser.add_argument("--repository", default=sa.DECLARING_REPOSITORY,
                         help="declaring repository token (default: "

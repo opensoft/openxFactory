@@ -1587,7 +1587,7 @@ def archive_date_problems(
     return problems
 
 
-# --- the ARCHIVE-DATE-vs-ADDING-COMMIT arm (issue #812) ----------------------
+# --- the `archive-date-vs-commit` arm (issue #812) ----------------------
 #
 # A DIFFERENT FACT FROM `archive_date_problems`, and the two must not be
 # confused. That arm compares a LEDGER ROW to a directory name — provenance
