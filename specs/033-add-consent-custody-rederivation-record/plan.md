@@ -9,14 +9,26 @@ NUMBER parked for Brett Heap)
 
 ## Summary
 
-Realize §§ 0–5 of `add-consent-custody-rederivation-record`: grow
-`contracts/schemas/consent-instrument.schema.yaml` by ONE closed top-level
-sibling array and a `contract_schema_version` bump; grow
-`scripts/validate-consent-instruments.py` by the chain's INTERNAL legs, a
-rewritten-pin refusal, a `path_only` digest-equality refusal, an extended
-blob-shape walk and a THIRD OUTCOME (`custody-content-class-withheld`) with its
-own exit status; grow the packaged corpus by positives, negatives and a third
-WITHHELD bucket; then cut `contract-v3.5` in the SAME pull request. Bookkeeping
+> Realize §§ 0–5 of `add-consent-custody-rederivation-record`: grow
+> `contracts/schemas/consent-instrument.schema.yaml` by ONE closed top-level
+> sibling array and a `contract_schema_version` bump; grow
+> `scripts/validate-consent-instruments.py` by the chain's INTERNAL legs, a
+> rewritten-pin refusal, a `path_only` digest-equality refusal, an extended
+> blob-shape walk and a THIRD OUTCOME (`custody-content-class-withheld`) with its
+> own exit status; grow the packaged corpus by positives, negatives and a third
+> WITHHELD bucket; then cut `contract-v3.5` in the SAME pull request.
+
+**AMENDED 2026-09-09** — what is now true: the bundle cut in the SAME pull
+request is **`contract-v3.6`**. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878).
+**NOT superseded:** every other clause of that sentence, each still describing
+what this branch built — the schema's ONE closed top-level sibling array and the
+`contract_schema_version` bump, the validator's internal legs, the rewritten-pin
+and `path_only` refusals, the extended blob-shape walk, the third outcome
+`custody-content-class-withheld` with its own exit status, the third WITHHELD
+corpus bucket, and the cut riding the SAME pull request — and the sentence below,
+which is untouched:
+
+Bookkeeping
 boxes whose acts are already performed are ticked with evidence; boxes owned by
 the lane or the operator or the consumer take dated NOT-OWED lines.
 
@@ -24,12 +36,22 @@ the lane or the operator or the consumer take dated NOT-OWED lines.
 
 **Language/Runtime**: Python 3 (`pyyaml`, `jsonschema>=4.18`,
 `rfc3339-validator`), YAML contracts, Markdown governance docs.
-**Primary surfaces**: `contracts/schemas/consent-instrument.schema.yaml`;
-`scripts/validate-consent-instruments.py` (862 lines);
-`examples/consent-instrument/` (+ `negative/`, + a NEW `withheld/`);
-`contracts/manifest.yaml`; `contracts/CHANGELOG.md`;
-`contracts/releases/contract-v3.5.digests.yaml`; `contracts/README.md`;
-`README.md`; a NEW `tests/consent_instruments/`.
+> **Primary surfaces**: `contracts/schemas/consent-instrument.schema.yaml`;
+> `scripts/validate-consent-instruments.py` (862 lines);
+> `examples/consent-instrument/` (+ `negative/`, + a NEW `withheld/`);
+> `contracts/manifest.yaml`; `contracts/CHANGELOG.md`;
+> `contracts/releases/contract-v3.5.digests.yaml`; `contracts/README.md`;
+> `README.md`; a NEW `tests/consent_instruments/`.
+
+**AMENDED 2026-09-09** — what is now true: the release-inventory surface this
+feature writes is **`contracts/releases/contract-v3.6.digests.yaml`**. Why:
+Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). **NOT superseded:** every other path in
+that list, each written by this feature exactly as named — the consent schema,
+the validator, the example corpus with its new `withheld/` bucket,
+`contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `contracts/README.md`, the
+root `README.md` and the new `tests/consent_instruments/` package — and the
+**Language/Runtime**, **Test command CI runs**, **Pinned OpenSpec CLI** and
+**Repository** entries around it, none of which names a bundle version.
 **Test command CI runs**: `python3 -m pytest tests/ -q -m "not postgres"`
 (`.github/workflows/pytest-suite.yml:462`).
 **Pinned OpenSpec CLI**: `scripts/validate-openspec-cli-pin.py`
@@ -92,12 +114,36 @@ openspec/changes/add-consent-custody-rederivation-record/proposal.md   # ONE not
 openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md
 ```
 
+**AMENDED 2026-09-09** — the line inside the fenced list above reading
+`contracts/releases/contract-v3.5.digests.yaml      # § 5.2, BUILT not hand-edited`
+is superseded. It is left in place byte-for-byte rather than deleted or
+block-quoted, because a fenced code block renders no `>` marker and editing
+inside the fence would delete ratified text; this note is the amendment, and it
+is the ONE deviation from the block-quote form in this pass. What is now true:
+the file the candidate builds is
+`contracts/releases/contract-v3.6.digests.yaml`, still § 5.2 and still BUILT by
+`validate-contract-release.py build`, never hand-edited. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`.
+Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). **NOT superseded:** every other path in that fenced list,
+each written by this feature as named, and the comment on the superseded line
+itself — `# § 5.2, BUILT not hand-edited` — which still holds of the v3.6
+inventory.
+
 ## Phase 0 — Research (measurements, not options)
 
 Recorded in `research.md`. Every figure was taken on this branch, not carried
 forward from the packet. The load-bearing ones:
 
-- The next additive minor is `contract-v3.5`, free on all three surfaces.
+- > The next additive minor is `contract-v3.5`, free on all three surfaces.
+
+  **AMENDED 2026-09-09** — what is now true: the next additive minor free to this
+  bundle is **`contract-v3.6`**, measured free on all three surfaces at the
+  integration merge `fee36588`. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878).
+  **NOT superseded:** the four Phase 0 findings listed beside it — the consent
+  schema is not a release-inventory member; `contracts/` carried 4 additions and
+  14 modifications since `contract-v3.4`, none of them this session's (a dated
+  branch-point reading, and the v3.6 entry attributes by inventory diff instead);
+  the packaged corpus was 6 valid + 7 negative against three documents saying
+  `5 + 5`; and no caller reads the validator's exit code.
 - The consent schema is NOT a release-inventory member.
 - `contracts/` carries 4 additions and 14 modifications since `contract-v3.4`,
   none of them this session's.
@@ -151,9 +197,23 @@ Nothing below is this plan's invention; each cites its answer.
 
 1. **§§ 2–5 land in ONE pull request.** The manifest, the changelog, the digest
    inventory and the contract files are one atomic release surface.
-2. **`contract-v3.5` is a MEASURED CANDIDATE, never a reservation.** The PR body
-   names it as explicitly provisional. **The orchestrator re-measures at every
-   merge-from-main and reports the result to the lane.**
+2. > **`contract-v3.5` is a MEASURED CANDIDATE, never a reservation.** The PR body
+   > names it as explicitly provisional. **The orchestrator re-measures at every
+   > merge-from-main and reports the result to the lane.**
+
+   **AMENDED 2026-09-09** — what is now true: **`contract-v3.6`** is the measured
+   candidate, and the PR body names it as explicitly provisional. Why:
+   Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). This site is amended although the
+   orchestrator's list held it provisional-and-still-true, because it asserts in
+   the present tense that `contract-v3.5` is THIS branch's candidate, and
+   `contract-v3.5` is now a published bundle belonging to #866. **NOT superseded,
+   and vindicated rather than merely surviving:** the RULE this clause states —
+   a measured candidate, never a reservation, re-measured at every
+   merge-from-main and reported to the lane — is exactly what let the number move
+   forward-only when a sibling lane took it, and it holds unchanged. Items 1, 3
+   and 4 of this landing contract are untouched, as is the risk row *"A sibling
+   lane takes `contract-v3.5`"* under *Risks*, whose named risk MATERIALIZED and
+   whose refusal held as written.
 3. **The LANE claims the number** on openxFactory issue #630 row 4 **at the LAST
    merge-from-main before the merge — at cut time and not before** (task 5.1;
    ratification record lines 109–111; the policy forbids reserving a minor

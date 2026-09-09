@@ -20,14 +20,16 @@ differ, the difference is stated.
 | Inventories | `ls contracts/releases/` | highest `contract-v3.4.digests.yaml`, **283 entries** |
 | Tags | `git tag -l 'contract-v*' \| sort -V \| tail -1` | `contract-v3.4`, annotated, at `807a4f47` |
 
-**`contract-v3.5` is FREE on all three.** `contract-v2.6` is the SPENT number
+**`contract-v3.5` is FREE on all three.** (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) `contract-v2.6` is the SPENT number
 (`docs/contract-versioning-policy.md` § *The SPENT State*), not this one. The
 only occurrences of the literal `contract-v3.5` in the tree are: this packet's
 own "measured, not reserved" sentences; the archived
 `2026-09-08-publish-openspec-cli-pin-as-contract-member` recording that it chose
 **A-defer** over cutting it; two `tests/clearing/` assertions that the string is
 absent from a manifest rule; and one CHANGELOG sentence about a guard. **Nothing
-claims it.**
+claims it.** (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) — this enumeration was true at the branch point
+`6df21737` and lane `provenance-autonomous-merge` claimed and published the
+number on 2026-09-09.
 
 ## R3 — The v3.4 precedent for a cut
 
@@ -111,7 +113,8 @@ modifications**.
 `2026-09-08-publish-openspec-cli-pin-as-contract-member` chose **A-defer**
 (register now, cut later) over **A-cut** (`contract-v3.5` in that PR), and the
 veto was not exercised — so its registration has been waiting for a bundle, and
-**this is the bundle that publishes it**. Task 5.3 and § *Version Identity*
+**this is the bundle that publishes it** (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) — the A-defer choice
+is a historical fact that stands; only the number this bundle carries moved. Task 5.3 and § *Version Identity*
 require the entry to name every one of these; the attribution work is § 5.3's,
 not an optional courtesy.
 

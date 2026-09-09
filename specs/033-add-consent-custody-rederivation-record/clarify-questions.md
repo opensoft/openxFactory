@@ -12,13 +12,13 @@ not settle, each stated with what was MEASURED on branch
 
 ---
 
-## Q1 — `contract-v3.5` is free. How do § 5.2–5.5 land when the merge IS the cut?
+## Q1 — `contract-v3.5` is free. How do § 5.2–5.5 land when the merge IS the cut? (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856))
 
 **Measured.** `contracts/manifest.yaml:3` declares `contract-v3.4`;
 `contracts/releases/` holds `contract-v3.4.digests.yaml` as its highest (283
 entries); `git tag -l 'contract-v*'` tops out at an annotated `contract-v3.4`.
 No surface carries `contract-v3.5`. `contract-v2.6` is the SPENT number, not
-this one. **The next additive minor is `contract-v3.5`** — a measurement, and
+this one. **The next additive minor is `contract-v3.5`** (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) — a measurement, and
 § 5.1's claim on issue #630 row 4 is the LANE's to post, not mine.
 
 **Measured precedent.** `contract-v3.4` was cut by PR #653 and landed as a
@@ -45,7 +45,7 @@ PRs would separate them.
 **The version number is re-measured and CLAIMED BY THE LANE at the LAST
 merge-from-main before the merge** — the ratification record lines 109–111 and
 task 5.1 both say *"at cut time and not before"*, and the policy forbids a
-reservation before merge order is known. The PR body names `contract-v3.5` as
+reservation before merge order is known. The PR body names `contract-v3.5` (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) as
 the MEASURED candidate, explicitly provisional. **The orchestrator re-measures
 at every merge-from-main and reports.**
 
@@ -258,14 +258,14 @@ head**, not at every commit. So the manifest edit — digest re-derivation AND
 SINGLE § 5.2 candidate commit. **§ 2's schema commit leaves the digest stale on
 purpose, and its commit message says so.**
 
-**(b)** APPEND the `contract-v3.5` paragraph in the `contract-v1.33` style —
+**(b)** APPEND the `contract-v3.5` (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)) paragraph in the `contract-v1.33` style —
 what grew, that it is additive, that the envelope stayed.
 
 **(c)** Confirmed: `consent-instrument-class-registry`'s row is untouched.
 
 ---
 
-## Q6 — How much does the `contract-v3.5` CHANGELOG entry have to name?
+## Q6 — How much does the `contract-v3.5` CHANGELOG entry have to name? (re-cut as `contract-v3.6` on 2026-09-09 after #866 took v3.5 — see [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856))
 
 **Measured.** `git diff --name-status contract-v3.4 HEAD -- contracts/` reports
 **4 additions and 14 modifications**, none of them this session's: added

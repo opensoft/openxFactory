@@ -73,7 +73,7 @@ carried forward from the packet.
 | `contract_bundle_version` | `contract-v3.4` (`contracts/manifest.yaml:3`). |
 | Highest release inventory | `contracts/releases/contract-v3.4.digests.yaml`, 283 entries. |
 | Highest `contract-v*` tag | `contract-v3.4`, annotated, at `807a4f47` (squash merge of PR #653, 2026-09-04). |
-| **Next additive minor, MEASURED** | **`contract-v3.5`** — free on all three surfaces. `contract-v2.6` is the SPENT number, not this one. |
+| **Next additive minor, MEASURED** | ~~**`contract-v3.5`** — free on all three surfaces.~~ **`contract-v3.6`** — measured free on all three surfaces at the integration merge `fee36588`, where `contracts/manifest.yaml:3` read `contract-v3.5`, the highest inventory was `contract-v3.5.digests.yaml` and the highest published annotated tag was `contract-v3.5`. `contract-v2.6` is the SPENT number, not this one. **AMENDED 2026-09-09** — what is now true: the next additive minor free to this bundle is `contract-v3.6`, not `contract-v3.5`, and the reading above was superseded at the integration point rather than at this table. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). NOT superseded, and re-verified rather than assumed: the clause *"`contract-v2.6` is the SPENT number, not this one"* still holds (the SPENT state is unaffected by which minor this bundle takes); and the neighbouring row *"The deferred cut this bundle inherits"* still holds — the archived `2026-09-08-publish-openspec-cli-pin-as-contract-member` did choose **A-defer** over cutting `contract-v3.5` in its own pull request, and its registration still rides THIS bundle, now `contract-v3.6`. The three `contract-v3.4` readings above it are dated branch-point measurements and are not falsified by a later act. |
 | Is the consent schema a release-inventory member? | **NO.** `contract-v3.4.digests.yaml` carries five `contracts/schemas/*` paths and `consent-instrument.schema.yaml` is not among them. Membership is closed over what `scripts/hermes_runtime_validation/release.py` `_collect_members` enumerates from the catalog. So the schema edit re-bases the manifest's per-file `sha256` but adds no inventory row. |
 | `contracts/` delta since `contract-v3.4` | **4 additions, 14 modifications** — `openspec-cli-pin.yaml`, `openspec-cli-pin.1.12.0.package-lock.json`, `policies/repository-identity.yaml`, `review-lane-repin-binding.template.yaml` added; `README.md`, `manifest.yaml`, `openreposhape-pin.yaml`, `openxwallet-pin.yaml`, `review-lane-pin.yaml`, `review-lane-floor-snapshot.yaml` and eight `hermes-domain-overlay`/`omnigent` example fixtures modified. **None of these is this session's**, and § 5.3 requires the CHANGELOG entry to name them anyway: a bundle is a commit's whole tree. |
 | The deferred cut this bundle inherits | `2026-09-08-publish-openspec-cli-pin-as-contract-member` chose **A-defer** (register now, cut later) over **A-cut** (`contract-v3.5` in that PR), unvetoed. Its registration therefore rides THIS bundle. |
@@ -169,10 +169,26 @@ counts, and removing any one fixture reddens it.
 
 ### User Story 4 — The bundle is cut on the whole tree, not on this session's intention (Priority: P2)
 
-`contract-v3.5` is allocated at the final integration point, every release
-surface moves in one candidate commit, the CHANGELOG entry names every contract
-added or changed since `contract-v3.4` (including four this session did not
-author), and the annotated tag is left OWED for the operator.
+> `contract-v3.5` is allocated at the final integration point, every release
+> surface moves in one candidate commit, the CHANGELOG entry names every contract
+> added or changed since `contract-v3.4` (including four this session did not
+> author), and the annotated tag is left OWED for the operator.
+
+**AMENDED 2026-09-09** — what is now true: the number allocated at the final
+integration point is **`contract-v3.6`**, and the baseline the CHANGELOG entry
+attributes against is **`contract-v3.5`**, counted as an inventory diff over all
+283 members (4 moved — `contracts/CHANGELOG.md`, `contracts/README.md`,
+`contracts/manifest.yaml` and `tests/intent-compliance/test_release_boundary.py`
+— 0 added, 0 removed) rather than as a `git diff -- contracts/` since
+`contract-v3.4`. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878).
+**NOT superseded, and each re-verified at `d14b514f` rather than assumed:** the
+three clauses beside the number — *"is allocated at the final integration
+point"* (it was, at the merge `fee36588`), *"every release surface moves in one
+candidate commit"* (it does; `d14b514f` is the sole declaring commit and the
+gate's first-parent declaring distance is zero), and *"the annotated tag is left
+OWED for the operator"* (it is; `TAG OWED` is the gate's notice at every reading)
+— and the story's **Why this priority** sentence below, which names
+`release-tag-gate` rather than any version number.
 
 **Why this priority**: the cut is what makes the growth consumable, and
 `release-tag-gate` evaluates any pull request touching the release surface.
@@ -186,12 +202,24 @@ unchanged candidate.
 1. **Given** the final integration point, **When** the version is allocated,
    **Then** availability is RE-CHECKED at that point and not read from this
    file.
-2. **Given** the candidate commit, **When** it is inspected, **Then**
-   `contracts/manifest.yaml` (bundle version and the appended
-   `consumption_rule` paragraph), `contracts/CHANGELOG.md`,
-   `contracts/releases/contract-v3.5.digests.yaml` and every cut-coupled test
-   all moved in it — and the `consent-instrument` row's `sha256` did NOT, having
-   already moved with the schema in § 2.
+2. > **Given** the candidate commit, **When** it is inspected, **Then**
+   > `contracts/manifest.yaml` (bundle version and the appended
+   > `consumption_rule` paragraph), `contracts/CHANGELOG.md`,
+   > `contracts/releases/contract-v3.5.digests.yaml` and every cut-coupled test
+   > all moved in it — and the `consent-instrument` row's `sha256` did NOT, having
+   > already moved with the schema in § 2.
+
+   **AMENDED 2026-09-09** — what is now true: the inventory the candidate carries
+   is `contracts/releases/contract-v3.6.digests.yaml`. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`.
+   Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). **NOT superseded:** every other clause of this
+   scenario, each re-verified at `d14b514f` — the manifest's bundle version and
+   appended `consumption_rule` paragraph, the CHANGELOG entry and every
+   cut-coupled test all moved in that one commit, and the `consent-instrument`
+   row's `sha256` did not, having moved with the schema in § 2 at `f59a587d`.
+   Scenario 1 above (*"availability is RE-CHECKED at that point and not read from
+   this file"*) and scenario 3 (*"BUILT by `validate-contract-release.py build`
+   and never hand-edited"*) are likewise untouched — scenario 1 is precisely the
+   leg that caught the collision.
 3. **Given** the digest inventory, **When** it is produced, **Then** it was
    BUILT by `validate-contract-release.py build` and never hand-edited.
 4. **Given** the landed commit, **When** it differs from the reviewed candidate
@@ -275,12 +303,21 @@ question in
 two additions (A1, A2) the review raised. The binding effects on this
 specification:
 
-- **Q1** — ONE pull request carries §§ 2–5 (§ *Version Identity* requires the
-  manifest and changelog to move atomically with the contract files). The
-  version number is re-measured and CLAIMED BY THE LANE at the last
-  merge-from-main before the merge; the PR body names `contract-v3.5` as a
-  provisional MEASURED candidate. **The landing contract is recorded in
-  `plan.md`.** § 5.5 and § 5.6 are NOT-OWED-HERE.
+- > **Q1** — ONE pull request carries §§ 2–5 (§ *Version Identity* requires the
+  > manifest and changelog to move atomically with the contract files). The
+  > version number is re-measured and CLAIMED BY THE LANE at the last
+  > merge-from-main before the merge; the PR body names `contract-v3.5` as a
+  > provisional MEASURED candidate. **The landing contract is recorded in
+  > `plan.md`.** § 5.5 and § 5.6 are NOT-OWED-HERE.
+
+  **AMENDED 2026-09-09** — what is now true: the PR body names **`contract-v3.6`**
+  as the provisional MEASURED candidate. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878).
+  **NOT superseded, and re-verified rather than assumed:** the rest of Q1's
+  binding effect — ONE pull request carries §§ 2–5; the number is re-measured and
+  CLAIMED BY THE LANE at the last merge-from-main (it was, at `fee36588`, claim
+  `5609660878`); the landing contract is recorded in `plan.md`; § 5.5 and § 5.6
+  remain NOT-OWED-HERE. The provisionality this clause asserts is what let the
+  number move at all, so the mechanism is vindicated and only its instance falls.
 - **Q2** — **RULED by Brett Heap on 2026-09-09**, by multiple-choice selection,
   verbatim *"Exit 3 = needs a human decision (Recommended)"* (declined:
   *"Exit 1, same as findings"*, *"Exit 0, report only"*); relayed to and
@@ -528,20 +565,48 @@ specification:
 
 ### Functional Requirements — § 5, the cut
 
-- **FR-030** *(box 5.1's measurement; clarify Q1a)*: §§ 2–5 MUST land in **ONE pull request** — § *Version Identity*
-  requires the manifest and changelog to be committed atomically with the
-  contract files. The version MUST be allocated at the final integration point
-  after a re-check of availability on all three surfaces (manifest,
-  `contracts/releases/`, tags), never read from this document; the orchestrator
-  **re-measures at every merge-from-main and reports**, and the PR body names
-  `contract-v3.5` as an explicitly PROVISIONAL measured candidate. The CLAIM on
-  issue #630 row 4 is the LANE's, at the last merge-from-main before the merge.
-- **FR-031** *(box 5.2; clarify Q5)*: `contracts/manifest.yaml` (`contract_bundle_version`, the
-  APPENDED `contract-v3.5` `consumption_rule` paragraph in the `contract-v1.33`
-  style), `contracts/CHANGELOG.md`,
-  `contracts/releases/<version>.digests.yaml` **and every cut-coupled test
-  (FR-031a)** MUST move atomically in ONE candidate commit — these are VERSION
-  IDENTITY, which is what policy step 2's atomicity concerns.
+- > **FR-030** *(box 5.1's measurement; clarify Q1a)*: §§ 2–5 MUST land in **ONE pull request** — § *Version Identity*
+  > requires the manifest and changelog to be committed atomically with the
+  > contract files. The version MUST be allocated at the final integration point
+  > after a re-check of availability on all three surfaces (manifest,
+  > `contracts/releases/`, tags), never read from this document; the orchestrator
+  > **re-measures at every merge-from-main and reports**, and the PR body names
+  > `contract-v3.5` as an explicitly PROVISIONAL measured candidate. The CLAIM on
+  > issue #630 row 4 is the LANE's, at the last merge-from-main before the merge.
+
+  **AMENDED 2026-09-09** — what is now true: the PR body names **`contract-v3.6`**
+  as the explicitly PROVISIONAL measured candidate. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`.
+  Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). This site is amended although the orchestrator's list
+  held it provisional-and-still-true, because it states as fact what the PR body
+  names, and the PR body names `contract-v3.6`; it is superseded in exactly the
+  same clause, and for exactly the same reason, as Q1's binding effect above.
+  **NOT superseded, and each re-verified rather than assumed:** the requirement's
+  whole mechanism — ONE pull request; allocation at the final integration point
+  after a re-check on all three surfaces, never read from this document (the
+  re-check is what caught the collision, and its three readings at `fee36588` are
+  filed as `evidence/phaseI-recut-v3.6-number-measurement.txt`); re-measurement at
+  every merge-from-main; and the CLAIM being the LANE's at the last
+  merge-from-main, posted as `5609660878`.
+- > **FR-031** *(box 5.2; clarify Q5)*: `contracts/manifest.yaml` (`contract_bundle_version`, the
+  > APPENDED `contract-v3.5` `consumption_rule` paragraph in the `contract-v1.33`
+  > style), `contracts/CHANGELOG.md`,
+  > `contracts/releases/<version>.digests.yaml` **and every cut-coupled test
+  > (FR-031a)** MUST move atomically in ONE candidate commit — these are VERSION
+  > IDENTITY, which is what policy step 2's atomicity concerns.
+
+  **AMENDED 2026-09-09** — what is now true: the paragraph appended to
+  `consumption_rule` in the `contract-v1.33` style is the **`contract-v3.6`**
+  paragraph. Why: Brett Heap's ordering ruling 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6 (Recommended)"*; #866 → `main` `a37ae0cd` took `contract-v3.5`, tagged `6c602f3c`; this cut is `contract-v3.6` at candidate `d14b514f`. Cite: [#630 comment 5609442856](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856) and the v3.6 claim [#630 comment 5609660878](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878). **NOT superseded, and
+  re-verified at `d14b514f` rather than assumed:** everything else this
+  requirement binds — the `contract_bundle_version` edit, the `contract-v1.33`
+  APPEND style itself, `contracts/CHANGELOG.md`, the version-named
+  `contracts/releases/<version>.digests.yaml` (which is written as a placeholder
+  here and therefore needed no amendment), every cut-coupled test under FR-031a,
+  and the atomicity in ONE candidate commit. FR-031a below is untouched: it names
+  `FEATURE_SUCCESSOR_8 = "contract-v3.4"` as the tripwire's then-highest arm and
+  the `contract-v3.4` precedent's six files, both of which are dated readings that
+  a later cut does not falsify.
+
   **The `consent-instrument` row's `sha256` is NOT among them** (panel F2): a
   per-file digest is INTEGRITY BOOKKEEPING FOR THE EDITED FILE, not a release
   surface, so it is re-derived in the **§ 2 schema commit** — the commit that
