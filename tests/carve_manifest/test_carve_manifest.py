@@ -47,6 +47,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -731,6 +732,37 @@ def test_json_reports_the_absent_manifest(scratch: Scratch) -> None:
     done = run(scratch, "--json")
     assert done.returncode == 0, done.stdout + done.stderr
     assert json.loads(done.stdout)["result"] == "no-manifest"
+
+
+# --------------------------------------------------------------------------
+# the exit-code contract holds for the inputs Unicode cannot hold
+# --------------------------------------------------------------------------
+
+def test_a_manifest_that_is_not_utf8_refuses_rather_than_crashing(
+        scratch: Scratch) -> None:
+    """`UnicodeDecodeError` is a `ValueError`, not an `OSError`, so it used to
+    leave this process as a traceback and exit 1 — the exit code the module
+    docstring says does not exist. It must arrive as the named refusal."""
+    path = scratch.manifest_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"kind: opendox-carve-manifest\nheader: \xff\xfe\n")
+    done = run(scratch)
+    assert done.returncode == 2, done.stdout + done.stderr
+    assert "carve-unreadable" in done.stdout + done.stderr
+    assert "Traceback" not in done.stderr, done.stderr
+
+
+def test_the_path_order_key_survives_a_path_utf8_cannot_hold() -> None:
+    """git names files in BYTES. `tree_at()` decodes them with
+    `surrogateescape`, so the bytewise sort key encodes the same way: a strict
+    `encode('utf-8')` would raise `UnicodeEncodeError` out of the comparison
+    and end the run with a traceback instead of a verdict."""
+    doc = {"rows": [
+        {"source_path": "scripts/pkg/alpha.py", "disposition": "moved_verbatim"},
+        {"source_path": os.fsdecode(b"scripts/pkg/\xffzeta.py"),
+         "disposition": "moved_verbatim"},
+    ]}
+    MODULE.check_disposition_consistency(doc)
 
 
 # --------------------------------------------------------------------------

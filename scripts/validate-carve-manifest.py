@@ -183,11 +183,17 @@ ROW_KEYS = {"source_path", "git_mode", "sha256", "disposition", "destination",
 class CarveRefusal(Exception):
     """A named, remediable refusal.
 
-    Carries the machine-readable `code` separately from the human `detail` so a
-    caller can branch on the code without parsing prose, while `str(exc)`
-    renders the whole message. `main()` prints exactly that; nothing
-    re-assembles it elsewhere, so the remediation trailer cannot be dropped by a
-    caller that forgot it exists.
+    Carries the machine-readable `code` separately from the human `detail`, so a
+    caller can branch on the code without parsing prose.
+
+    `render(manifest)` is the ONE place the human message is assembled — code,
+    detail and the fixed remediation trailer — and `main()` prints exactly that
+    and nothing else, so the trailer cannot be dropped by a caller that forgot
+    it exists. It is a method rather than `__str__` because the message names
+    the manifest that failed, which the exception does not carry: every check
+    below can be raised from a nested helper that has no idea which file it is
+    reading, and threading the path through all of them to satisfy `__str__`
+    would put the same string in several hands.
     """
 
     def __init__(self, code: str, detail: str) -> None:
@@ -276,7 +282,10 @@ def blob_at(repo: Path, commit: str, path: str) -> bytes | None:
 def read_manifest(path: Path) -> dict[str, Any]:
     try:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
+    # `ValueError` covers `UnicodeDecodeError`: a manifest that is not valid
+    # UTF-8 is unreadable, and it must reach the reader as this named exit-2
+    # refusal rather than as a traceback and exit 1.
+    except (OSError, ValueError, yaml.YAMLError) as exc:
         raise CarveRefusal("carve-unreadable",
                            f"the manifest could not be parsed: {exc}") from exc
     if not isinstance(doc, dict):
@@ -686,7 +695,13 @@ def check_disposition_consistency(doc: dict) -> None:
     # Python's code points, because that is what the const names and what git
     # and `sort` agree on.
     paths = [row["source_path"] for row in doc["rows"]]
-    ordered = sorted(paths, key=lambda p: p.encode("utf-8"))
+    # `surrogateescape` on the ENCODE, not only on the decode that produced
+    # these strings: a path is bytes, and a repository carrying a non-UTF-8 one
+    # would otherwise raise `UnicodeEncodeError` out of this comparison and end
+    # the process with a traceback and exit 1 — the exit code this file's
+    # docstring says does not exist. The refusal must stay a refusal even for
+    # the paths git can name and Unicode cannot.
+    ordered = sorted(paths, key=lambda p: p.encode("utf-8", "surrogateescape"))
     if paths != ordered:
         first = next(i for i, (a, b) in enumerate(zip(paths, ordered)) if a != b)
         raise CarveRefusal(
