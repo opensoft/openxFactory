@@ -246,9 +246,12 @@ unchanged candidate.
   record of an event that did not occur"*), but says it about the DIRECT case
   and never states this refusal. The contradiction is derivable from the
   record's own bytes, so by design C-7's placement test the leg WOULD be
-  neutral. **No ratified task names it, so this feature does not add it.** It is
-  recorded here as a measured gap for the architect rather than closed by a leg
-  nobody ratified.
+  neutral. **RULED 2026-09-09: do NOT add a refusal leg** — no ratified task
+  names it and this packet's rule is realize-what-was-ratified — **and RECORD it
+  as an OWED FINDING** in the realization evidence and in a dated note beside
+  § 7 (FR-048, T084), naming the defect, the neutral leg it would need, C-7's
+  placement test that makes that leg neutral, and F.2's gate or a successor
+  change as its home. **Visible, not silently closed.**
 - **A `content`-class fixture must not redden CI — and the constraint turned out
   not to bind.** MEASURED at clarify round 1: **no caller reads this validator's
   exit code today** — not one of the twelve workflows, no pytest, and no
@@ -301,8 +304,9 @@ specification:
 - **Q8** — amend three README sites in the `3b530009` form (this packet's own
   row; `README.md:3022`, keeping *"the three pins are still broken"*; and
   `README.md:2993`, the load-bearing premise of `govern-archived-record-edits`'
-  transition clause). The LANE posts the substrate note for the two sibling-row
-  sentences BEFORE they are written.
+  transition clause). The LANE's substrate note is POSTED —
+  [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475), 2026-09-09 — so **Phase F is UNBLOCKED** and
+  every amendment cites it.
 - **Q9** — tree and table complete, nine new *Named cases* bullets, a third
   table column.
 - **Q10** — all seven finding codes adopted verbatim.
@@ -422,6 +426,10 @@ specification:
   realization evidence. A withheld fixture in the PACKAGED corpus is EXEMPT from
   raising it — an expected withholding is to the third bucket what an expected
   failure is to a negative — so the packaged self-test still exits `0`.
+  **PRECEDENCE, CONFIRMED by the architect 2026-09-09 rather than inferred**: an
+  instrument that both WITHHOLDS and ERRORS exits **`1`** — errors dominate,
+  because a malformed record is not a decision for a human to take. The
+  docstring states the precedence and a test asserts it.
 - **FR-015** *(box 3.4c)*: a `path_only` entry whose `previous_sha256 !=
   observed_sha256` MUST be refused as **`custody-path-class-digests-differ`**.
   **This leg is NEUTRAL for a stated reason that MUST be carried into the code
@@ -616,7 +624,8 @@ specification:
   `examples/consent-instrument/withheld/` directory, say — that is a REAL new
   finding this feature caused, and it MUST be fixed or dispositioned with a
   citation. It is never waved through as "expected, because the corpus grew".
-- **FR-046** *(ruled at Q8)*: THREE `README.md` sites MUST be amended in the
+- **FR-046** *(ruled at Q8; substrate note posted 2026-09-09)*: THREE
+  `README.md` sites MUST be amended in the
   `3b530009` form — this packet's own OpenSpec Records row (*"all 46 boxes …
   stay unticked"*); `README.md:3022`'s present-tense box count, **keeping
   "the three pins are still broken"** because that half stays true (the repair
@@ -626,9 +635,21 @@ specification:
   `contract-v3.4`, 46/46 boxes unticked)"* — false on all four counts after this
   lands and the load-bearing premise of that rule's TRANSITION CLAUSE. The
   past-tense *"left its 46"* and the dated *"measured 2026-09-09 … at `main`
-  `6cc06288`"* are LEFT as true-when-written. **The LANE posts the substrate
-  note for the two sibling-row sentences BEFORE they are written**; this
-  packet's own row rides its standing row-3 claim (`5571680388`).
+  `6cc06288`"* are LEFT as true-when-written. **The substrate note IS POSTED** — [#630 comment
+  5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475), 2026-09-09, covering both sibling-row sentences, this
+  change's own Records row and `contracts/README.md:102` — and **every
+  amendment's dated clause CITES IT**. This packet's own row also rides its
+  standing row-3 claim (`5571680388`).
+- **FR-048** *(architect ruling, 2026-09-09)*: the identical-locators
+  `path_only` gap MUST be recorded as an **OWED FINDING** in the realization
+  evidence AND in a dated note beside § 7 of the packet's `tasks.md`, carrying
+  the defect, the neutral leg it would need, C-7's placement test, and its home
+  (F.2's gate or a successor change). **No refusal leg is added here.**
+- **FR-049** *(architect ruling, 2026-09-09)*: the realization evidence MUST
+  record the Q5a **DECLARED CONSTITUTION DEVIATION** with its REASON — policy
+  § *Bundle Realization Order* step 2's release-surface ATOMICITY outranks
+  intermediate-commit gate cleanliness, and CI gates the HEAD, not every commit
+  on the way to it.
 - **FR-047** *(ruled at clarify A2 — state it, do not act on it)*: the
   realization evidence and the neighbourhood of § 7 in the packet's `tasks.md`
   MUST carry a DATED note recording that landing this realization **DECLARES the

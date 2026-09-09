@@ -47,7 +47,7 @@ named, not generically asserted.
 | --- | --- | --- |
 | **I. Contract-First, Domain-Neutral Core** | PASS | The grown property is domain-neutral; the DOMAIN half — the custody store mapping and the operated re-derivation check — is explicitly the consumer's (§ 6, C-6a/C-7). No domain vocabulary lands here. No consumer file is written. |
 | **II. Governed Change Flow** | PASS | The packet is a ratified OpenSpec change with `code_surface: openxFactory` and `target_release:` declared; this Speckit feature owns the implementation tasks and duplicates no governance decision. Under `release-realization` the change archives only on merged, green realization evidence — which is why § 5 is in scope and the archive is not. |
-| **III. Document Lifecycle and Status Discipline** | PASS | No `Status:` header is edited by this feature except through the ratified packet's own already-completed transition. The three README amendments carry the `3b530009` form with an `AMENDED <date>` marker — a deliberate, reviewable step, never a silent status edit. Phase F is BLOCKED until the lane's substrate note exists. |
+| **III. Document Lifecycle and Status Discipline** | PASS | No `Status:` header is edited by this feature except through the ratified packet's own already-completed transition. The three README amendments carry the `3b530009` form with an `AMENDED <date>` marker — a deliberate, reviewable step, never a silent status edit. Phase F waited on the lane's row-3 substrate note, which is now posted (#630 comment 5603344475, 2026-09-09), and every amendment cites it in its dated clause. |
 | **IV. Schema and Artifact Discipline** | PASS | Every new fixture carries `schema_version` and `kind`; the new fixtures are `.example.yaml` / `negative/*.yaml` / `withheld/*.yaml` instantiation stubs, never live configuration; no credential and no host-absolute path is written; the new `examples/consent-instrument/withheld/` bucket is indexed in that directory's README, and `contracts/README.md`'s row is corrected (clarify A1). |
 | **V. Validation Gates (NON-NEGOTIABLE)** | PASS | T081 runs every affected `scripts/validate-*.py` plus the PINNED `--all --strict`; doc-health is compared as a two-report pair with a pinned `--as-of` (T080); behaviour is proven by fixtures and tests (Phases D and E), never by assertion. |
 | **VI. Versioned, Content-Addressed Releases** | PASS | All five coordinated values move together in ONE candidate commit (T061–T063); the version is allocated at realization and NOT reserved — the PR body names it as provisional and the LANE claims it at the last merge-from-main; the change class is ADDITIVE (minor) with the measurement that justifies it; the tag is left OWED for the operator and targets the LANDED merge commit. |
@@ -166,7 +166,11 @@ Nothing below is this plan's invention; each cites its answer.
    A repeat-integration RETAINS the superseded gate transcripts, struck with a
    dated line naming the head that replaced them; the evidence shows every
    attempt, not only the last.
-8. **§ 5.5 is the lane's tick**, in a follow-up bookkeeping commit while the
+8. **The Q5a DEVIATION IS ACCEPTED AS RULED (architect, 2026-09-09)** and is
+   recorded in the evidence with its reason, not merely its fact: policy step
+   2's release-surface ATOMICITY outranks intermediate-commit gate cleanliness,
+   and CI gates the HEAD.
+9. **§ 5.5 is the lane's tick**, in a follow-up bookkeeping commit while the
    packet is still live. This feature leaves it NOT-OWED-HERE with a dated line.
 
 ## Implementation sequence (dependency order)
@@ -185,17 +189,17 @@ file's.
 | **C** | T020–T028 | § 3 validator legs, the WITHHELD outcome and exit `3`, the extended walk | validator runs clean over the un-grown corpus |
 | **D** | T030–T049 | § 4 fixtures — positives, negatives, the withheld bucket, `self_test`'s third bucket, **and the three corpus-count surfaces (T047–T049)** | `validate-consent-instruments.py --strict` 0/0 with three bucket counts; counts re-measured, never incremented |
 | **E** | T050–T054 | `tests/consent_instruments/` | `pytest tests/consent_instruments -q` green, then the full suite |
-| **F** | T055–T059 | Q8's three README amendments | **BLOCKED on the lane's substrate note for the two sibling-row sentences** |
+| **F** | T055–T059 | Q8's three README amendments | **UNBLOCKED 2026-09-09** — the lane's row-3 substrate note is posted at [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475), covering both sibling-row sentences, this change's own Records row and `contracts/README.md:102`; every amendment cites it in its dated clause |
 | **G** | T060–T066 | § 5.2–5.4 THE CUT: re-measure the number AND the bundle's path list, then manifest + CHANGELOG + built inventory in ONE commit | all five gates green against that exact unchanged candidate |
-| **H** | T070–T083 | Bookkeeping: 46 notes, evidence in both trees, A2's dated note, the post-hoc tick/evidence audit | note classes sum to 46; every tick rides its evidence's commit |
+| **H** | T070–T084 | Bookkeeping: 46 notes, evidence in both trees, A2's dated note, the post-hoc tick/evidence audit | note classes sum to 46; every tick rides its evidence's commit |
 
 **Every phase files a transcript, not only the final ones** (FR-042b): B, C, D
 and E each record the run that satisfied their gate, captured raw with its
 return code — a phase judged complete on an unrecorded local run is a gate that
 was not run.
 
-Phases B–E are strictly ordered. **F may be taken any time after the lane's
-note arrives and MUST NOT block G.** **G is LAST**, so the candidate stands on
+Phases B–E are strictly ordered. **F is takeable — the note arrived on
+2026-09-09 — and still MUST NOT block G.** **G is LAST**, so the candidate stands on
 the final tree.
 
 ## Risks, and how each is refused rather than accepted
@@ -208,8 +212,8 @@ the final tree.
 | The withheld fixture reddens a caller | Measured: no caller reads this exit code. The packaged fixture is exempt in any case. |
 | The exit-code number is wrong | It is not a guess: Brett Heap RULED `3` on 2026-09-09 by explicit selection over two declined alternatives, and the ruling is cited verbatim at the constant, in the design note and in the evidence. It remains a single named constant. |
 | A tick claims an act nobody performed | Every tick's note cites a commit, a record or a transcript, and rides the same commit as its evidence. |
-| A README amendment lands without its substrate claim | **Phase F** is BLOCKED until the lane posts the note. |
-| The substrate note never arrives | T055 reports the block ONCE, and the orchestrator RE-CHECKS at each merge-from-main (the same cadence the version re-measurement already runs on) rather than polling. If the branch reaches T082 with Phase F still blocked, **T056 is still taken** — this packet's own row rides its standing row-3 claim and needs no note — and **T057/T058 take a dated `REPORTED, NOT PERFORMED` line** naming the block, in the same register as §§ 6–7's NOT-OWED lines. They are not left dangling and they are not silently dropped. |
+| A README amendment lands without its substrate claim | Was the Phase F blocker; **DISCHARGED 2026-09-09** — the note is posted ([#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475)) and every amendment cites it. |
+| The substrate note never arrives *(MOOT — it arrived 2026-09-09; retained as the rule)* | T055 reports the block ONCE, and the orchestrator RE-CHECKS at each merge-from-main (the same cadence the version re-measurement already runs on) rather than polling. If the branch reaches T082 with Phase F still blocked, **T056 is still taken** — this packet's own row rides its standing row-3 claim and needs no note — and **T057/T058 take a dated `REPORTED, NOT PERFORMED` line** naming the block, in the same register as §§ 6–7's NOT-OWED lines. They are not left dangling and they are not silently dropped. |
 | A gate reds after the candidate commit is formed | The candidate is **REMADE**, never patched (FR-034a): a fresh single commit, and every gate re-run against it. Amending the reviewed commit's tree while keeping its identity would leave gates certifying a tree that no longer exists. |
 | A repeat-integration orphans the evidence already gathered | The superseded transcripts are **RETAINED and STRUCK with a dated line naming the head that replaced them** — never deleted and never silently overwritten. An evidence directory that shows only the last attempt cannot show that the earlier one was superseded rather than skipped. |
 | Landing arms a cross-repo refusal nobody scheduled | A2 is recorded as a dated note in two places and built nowhere. |

@@ -123,7 +123,10 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       `EXIT_NEEDS_DECISION = 3` and return it from `report()` when a REAL
       instrument withholds and nothing errors. Extend the module docstring's
       line to **`Exit codes: 0 ok, 1 findings, 2 harness error, 3 withheld —
-      needs a human decision`**, **in this script only**. At the constant, cite
+      needs a human decision`**, **in this script only**, and state the
+      PRECEDENCE on the next line: **`errors dominate — an instrument that both
+      withholds and errors exits 1, because a malformed record is not a decision
+      for a human to take`** (architect ruling, 2026-09-09, CONFIRMED). At the constant, cite
       the ruling: Brett Heap, 2026-09-09, in session, first-hand to lane
       `opsXfactory-1`, by multiple-choice selection, verbatim **"Exit 3 = needs
       a human decision (Recommended)"**, over the declined *"Exit 1, same as
@@ -270,20 +273,28 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 - [ ] **T052** *(box 3.5, Q7b)* **Parametrized blob-walk test** proving the walk
       reaches each of the four free strings (`previous_locator`,
       `observed_locator`, `ruling_ref`, `recorded_by`).
-- [ ] **T053** *(clarify Q2, RULED)* A test pinning the WITHHELD exit status:
+- [ ] **T053** *(clarify Q2, RULED; precedence CONFIRMED 2026-09-09)* A test pinning the WITHHELD exit status:
       the named constant equals `3`; a REAL withholding instrument exits `3`;
       the PACKAGED self-test exits `0`; and an instrument that both withholds
-      AND errors exits `1`, because an error is not a decision to be taken by a
-      human — it is a malformed record. All three exits asserted, not just the
-      new one.
+      AND errors exits `1`. **The precedence is CONFIRMED by the architect
+      (2026-09-09), not inferred**: errors dominate, because a malformed record
+      is not a decision for a human to take. All three exits asserted, and the
+      assertion NAMES the precedence, so a later reader cannot read exit 1 there
+      as a bug.
 - [ ] **T054** `python3 -m pytest tests/consent_instruments -q` green, and then
       the full `python3 -m pytest tests/ -q -m "not postgres"` green.
 
-## Phase F — Q8's README amendments  ⛔ BLOCKED
+## Phase F — Q8's README amendments  ✅ UNBLOCKED 2026-09-09
 
-- [ ] **T055** **BLOCKER — the LANE must post the row-3 substrate note** on
-      openxFactory issue #630 for the two SIBLING-row sentences before T057 and
-      T058 are written. This packet's own row (T056) rides its standing row-3
+- [ ] **T055** **RESOLVED 2026-09-09 — PHASE F IS UNBLOCKED.** The lane posted
+      the row-3 substrate note at [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475), covering the
+      two SIBLING-row sentences (`README.md:3022`, `README.md:2993`), this
+      change's own Records row, AND `contracts/README.md:102`. **Every
+      amendment's dated clause CITES THAT COMMENT.** The text below is retained
+      as the record of what was waited on, not as a live condition.
+      *(Historical, discharged.)* The LANE had to post the row-3 substrate note
+      on openxFactory issue #630 for the two SIBLING-row sentences before T057
+      and T058 could be written. This packet's own row (T056) rides its standing row-3
       claim `5571680388` (2026-09-07). **Do not write T057/T058 until the note
       exists; report the block instead.**
       **CHANNEL AND CADENCE, stated rather than left to inference.** Posting is
@@ -291,12 +302,11 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       request and posts no comment. The orchestrator does NOT poll: it RE-CHECKS
       whether the note has arrived at **each merge-from-main**, the same cadence
       the version re-measurement runs on (T060), and reports the state each time.
-      **TERMINAL DISPOSITION if it never arrives.** T056 is taken regardless. If
-      the branch reaches T082 with Phase F still blocked, **T057 and T058 take a
-      dated `REPORTED, NOT PERFORMED` line** naming the block and the note they
-      wait on — the same register as §§ 6–7's NOT-OWED lines. They are neither
-      left dangling nor silently dropped, and the two README sentences stay
-      false-on-main with that fact RECORDED rather than hidden.
+      **TERMINAL DISPOSITION if it had never arrived** *(retained as the rule,
+      now moot)*: T056 taken regardless; T057/T058 taking a dated
+      `REPORTED, NOT PERFORMED` line naming the block. It arrived, so the live
+      instruction is: write all three amendments, each citing the comment above
+      in its dated clause.
 - [ ] **T056** *(Q8a-1)* Amend this packet's own OpenSpec Records row —
       *"**all 46 boxes in `tasks.md` stay unticked**"* — in the `3b530009` form:
       block-quote the superseded sentence, name the un-superseded neighbour,
@@ -410,6 +420,10 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       realization because those are § 6's acts and § 6 is the consumer's.
       Block-quote the superseded sentence, name that neighbour, marker
       `AMENDED 2026-09-09`, tick marker `**TICKED 2026-09-09`.
+      **Each of T056–T058 CITES the substrate note
+      [#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475) in its dated clause**, and so does
+      `contracts/README.md:102`'s correction (T049), which the same note
+      covers.
       **T056–T058 name their own neighbours the same way**: for this packet's
       row, *"no consumer file is edited"*; for `README.md:3022`, *"the three
       pins are still broken"*; for `README.md:2993`, *"the register home
@@ -430,6 +444,17 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       transition clause an edit of a consent pinned target converts from
       **REPORTED** to **REFUSED** for that family **once F.2's gate exists**
       (§ 7.1, OpsxFactory's). **Build nothing, schedule nothing, tick nothing.**
+- [ ] **T079a** *(architect ruling, 2026-09-09 — ACCEPTED AS RULED)* The
+      realization evidence MUST record the **DECLARED CONSTITUTION DEVIATION**
+      and its REASON, not merely the fact of it: Principle V wants the affected
+      validators green before any commit is pushed, and clarify Q5a leaves
+      `contracts/manifest.yaml`'s `consent-instrument` digest stale between
+      § 2's schema commit and § 5.2's candidate. **The reason is a precedence,
+      and it is the ruled one**: `docs/contract-versioning-policy.md`
+      § *Bundle Realization Order* step 2's ATOMICITY of the release surface
+      OUTRANKS intermediate-commit gate cleanliness, and **CI gates the HEAD**,
+      not every commit on the way to it. T017's commit message is the local half
+      of the record; this is the durable half.
 - [ ] **T079** *(architect ruling Q4)* Evidence in BOTH trees:
       `specs/033-add-consent-custody-rederivation-record/evidence/` and
       `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md`.
@@ -475,6 +500,25 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       findings: an accepted exception whose finding no longer occurs, usually
       because an unrelated change archived. It is corpus hygiene in a file this
       feature does not touch — REPORT it, do not silently repair it.
+- [ ] **T084** *(architect ruling, 2026-09-09 — RECORD IT, DO NOT CLOSE IT)*
+      **THE IDENTICAL-LOCATORS `path_only` GAP IS AN OWED FINDING**, written in
+      TWO places: the realization evidence, and a DATED note beside § 7 in the
+      packet's `tasks.md`. **DO NOT ADD A REFUSAL LEG** — no ratified task names
+      it and this packet's rule is realize-what-was-ratified. The note carries
+      all three of:
+      (a) **the defect** — `path_only` means *"only the locator changed"*, so an
+      entry declaring it with `previous_locator == observed_locator` (and
+      therefore equal digests) records an event that did not occur, and nothing
+      in the schema, the validator or the ratified delta refuses it;
+      (b) **the leg it would need, and why that leg is NEUTRAL** — a check that
+      `previous_locator != observed_locator` whenever `diff_class: path_only`.
+      **Design C-7's placement test** puts it on this side of the line: both
+      locators are fields of the record, so the contradiction is derivable from
+      the record's own bytes without opening a repository — the same test that
+      placed `path_only` digest equality (task 3.4c) here;
+      (c) **its home** — F.2's custody-digest gate (§ 7.1, OpsxFactory's) or a
+      SUCCESSOR openxFactory change. It is owed somewhere; it is not owed here.
+      **Visible, not silently closed.**
 - [ ] **T083** *(FR-041)* **POST-HOC TICK/EVIDENCE AUDIT.** After every tick has
       landed, walk the commit history and PROVE — not assert — that no tick's
       commit precedes the commit carrying its evidence:
@@ -534,6 +578,8 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 | FR-045a | T080 | — |
 | FR-046 | T055, T056, T057, T058, T059 | *(none — clarify Q8)* |
 | FR-047 | T078 | *(none — clarify A2)* |
+| FR-048 | T084 | *(none — architect ruling 2026-09-09)* |
+| FR-049 | T079a | *(none — architect ruling 2026-09-09)* |
 
 **Every success criterion has a gate.** SC-001 → T064/T081; SC-002 → T076;
 SC-003 → T015; SC-004 → T064/T081; SC-005 → T064; SC-006 → T081; SC-007 →
@@ -587,7 +633,7 @@ A (T001-T007)
         └─> C (T020-T028)
               └─> D (T030-T049)
                     └─> E (T050-T054)
-                          ├─> F (T055-T059)   BLOCKED on the lane's substrate note
+                          ├─> F (T055-T059)   was blocked; UNBLOCKED 2026-09-09 (#630 c5603344475)
                           └─> G (T060-T066)   LAST; must not wait on F
                                 └─> H (T070-T082)
 ```
