@@ -433,7 +433,7 @@ the block was written into a registry-less tree.
   ` — ` SEPARATOR STANDING OUTSIDE EVERY CODE SPAN: the units named are the
   spans that close before that separator, the reason is everything after it,
   and a code span that falls inside the reason is prose the reason quotes
-  rather than a unit the marker names"
+  rather than a unit the marker names."
   (`openspec/specs/doc-health/spec.md`:1725–1730).
   *(Amended 2026-09-09 to match canon after `amend-marker-reason-boundary`
   (#739); this bullet previously stated the retired last-code-span rule.)*
@@ -610,7 +610,7 @@ it. None is a choice this feature makes freely.
   STANDING OUTSIDE EVERY CODE SPAN: the units named are the spans that close
   before that separator, the reason is everything after it, and a code span
   that falls inside the reason is prose the reason quotes rather than a unit
-  the marker names" (`openspec/specs/doc-health/spec.md`:1725–1730), and the
+  the marker names." (`openspec/specs/doc-health/spec.md`:1725–1730), and the
   delta's own written-out `Merged into` example carries none (:189).
   *(Amended 2026-09-09 to match canon after `amend-marker-reason-boundary`
   (#739); this reading previously cited the retired last-code-span rule at
