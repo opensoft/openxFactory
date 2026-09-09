@@ -1,0 +1,20 @@
+# gate-intent — one human's REQUEST for a gate-console action
+# (gate-intent.schema.yaml). The actor was stamped by the intent inbox
+# from the ingress-authenticated identity; the apply lane revalidated
+# everything server-side before this file gained its terminal status.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-derived-governed-kill-switch-custody-contract
+args:
+  outcome: deferred
+  note: 'Deferred for the live intent-plane dispatch exercise (openxFactory #656 D-2
+    / split-opendox-two-layer-product 2.5) - a reversible disposition, not a substantive
+    judgment on this possible; a real reviewer should decide it normally afterward.'
+requested_at: '2026-09-08T12:44:52Z'
+snapshot_rev_seen: e8021feda4df3be2526f2d5a3865084a1b4b8888
+status: refused
+idempotency_key: 097338553a10f653192f36adde50707adcc5d9ad7cb7b9e2995ef34719e09c9f
+refusal_reason: updated index rejected by the pinned validator

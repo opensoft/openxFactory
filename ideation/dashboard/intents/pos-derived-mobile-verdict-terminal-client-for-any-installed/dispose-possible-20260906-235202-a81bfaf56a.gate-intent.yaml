@@ -1,0 +1,20 @@
+# gate-intent — one human's REQUEST for a gate-console action
+# (gate-intent.schema.yaml). The actor was stamped by the intent inbox
+# from the ingress-authenticated identity; the apply lane revalidated
+# everything server-side before this file gained its terminal status.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-derived-mobile-verdict-terminal-client-for-any-installed
+args:
+  outcome: deferred
+  note: 'REFUSAL half of the live intent-plane dispatch exercise (openxFactory #656
+    D-2) - deliberately views a snapshot_rev_seen that predates the corpus''s ideation
+    register entirely, to exercise the D4 stale-view refusal for real.'
+requested_at: '2026-09-06T23:52:02Z'
+snapshot_rev_seen: 3fd3e33e791789b64d7f2ec27056e2429eeb4e8f
+status: refused
+idempotency_key: a81bfaf56a1ff1c36fb11d1610987dbcc79b76282a048a337867f81489d2ed0b
+refusal_reason: the cross-reference index did not exist at 3fd3e33e791789b64d7f2ec27056e2429eeb4e8f
