@@ -111,7 +111,15 @@ happens; nothing below decides it.
       name or its address in any line that runs, in either. Asserted by
       `test_the_installer_carries_no_copy_of_the_pin_at_all` and by
       `test_every_caller_of_the_resolver_hands_it_the_closure`, which pins the
-      caller list at exactly three.
+      caller list at exactly three. THAT SWEEP PARSES RATHER THAN GREPS
+      (rewritten 2026-09-08 on Copilot review of PR #813): it walks the AST of
+      every `.py` under `scripts/`, `.github/` and `tests/` — 627 modules — and
+      counts only real `Call` nodes, in both spellings (`resolve_pinned(...)`
+      and `<module>.resolve_pinned(...)`). The imprecision was also a CEILING:
+      a substring reader flags four files, the fourth being the test module
+      itself, which names the resolver throughout and calls it never — so the
+      sweep could not have been widened past `scripts/` until it read syntax.
+      Two controls hold it there, one synthetic and one in situ.
       THE ARCHIVE CALLER WAS MISSED ON THE FIRST PASS and this pull request's own
       `pytest-suite` reported it as ten `TypeError`s. Recorded rather than
       quietly repaired, because the miss is also the reason the invariant is now

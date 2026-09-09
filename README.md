@@ -549,7 +549,9 @@ Active changes:
   `pytest-suite` runs) and `scripts/proposal-support.py`, the entrypoint through
   which the ARCHIVE act runs; the third was MISSED on the first pass and this
   pull request's own required `pytest-suite` caught it, which is why the
-  invariant is now a test that pins the caller list rather than a habit. The
+  invariant is now a test that pins the caller list rather than a habit — one
+  that PARSES rather than greps, since Copilot review of this pull request, and
+  sweeps `scripts/`, `.github/` and `tests/` because it can. The
   archive caller is where the closure matters most: `openspec archive` writes a
   ratified delta into canon, and until this the tree adjudicating an archive
   could differ from the tree adjudicating the validation that cleared it. **RULED**, not chosen by the lane: Brett Heap,

@@ -1914,6 +1914,139 @@ def test_running_lines_keeps_an_inline_comment_and_drops_a_whole_line_one():
     assert "return value" in kept
 
 
+RESOLVER = "resolve_pinned"
+
+# Where a caller of the resolver could live. `.github/` holds no `.py` today and
+# is swept anyway: a workflow that grew an inline script would be exactly the
+# caller nobody thought to look for, and a sweep that cannot see it is a sweep
+# reporting "three callers" while there are four.
+CALLER_SEARCH_ROOTS = ("scripts", ".github", "tests")
+
+# The three, repo-relative, in the one order `sorted` produces.
+KNOWN_CALLERS = [
+    "scripts/install-pinned-openspec-cli.py",
+    "scripts/proposal-support.py",
+    "scripts/validate-openspec-cli-pin.py",
+]
+
+# A module that NAMES the resolver and never calls it — the false positive a
+# substring reader cannot tell from a caller. Written here rather than committed
+# as a fixture file because the property under test is a property of the READER,
+# and a reader is tested by handing it source.
+MENTIONS_BUT_NEVER_CALLS = '\n'.join([
+    '"""A module that only NAMES the resolver.',
+    '',
+    'It describes `resolve_pinned(package, version, integrity, ...)` in prose,',
+    'which is the writing the no-second-copy rule protects, and calls nothing.',
+    '"""',
+    '# The comment form too: resolve_pinned(pin) is what the installer reaches for.',
+    'ADVICE = "call resolve_pinned(pin) rather than installing by hand"',
+    '',
+    '',
+    'def explain():',
+    '    return ADVICE',
+])
+
+CALLS_IT_BOTH_WAYS = '\n'.join([
+    'import verifier',
+    '',
+    '',
+    'def go(pin):',
+    '    executable = verifier.resolve_pinned(pin, npm="npm")',
+    '    return resolve_pinned(pin)',
+])
+
+
+def resolver_calls(source: str) -> list[str]:
+    """Every REAL call to `resolve_pinned` in this module, by spelling.
+
+    PARSED, NOT GREPPED, on `tests/import_scan.py`'s own sentence about the
+    scanners that police an import direction: "Modules in this corpus
+    legitimately NAME other packages in prose … A substring grep calls all of
+    those violations, and the pressure to make it green is pressure to delete
+    true documentation." Exactly that is true of this resolver's name, and this
+    repository is full of files that discuss it — the packet's evidence, the
+    installer's docstring, and THIS test module, which writes
+    `resolve_pinned(` several times and calls it never.
+
+    BOTH SPELLINGS, because the estate uses both: the verifier's own `main`
+    calls the bare name it defines, while the two other callers reach it as
+    `verifier.resolve_pinned(...)` through the module they loaded by path. An
+    `ast.Attribute` is matched on its ATTRIBUTE and not on the object before the
+    dot, so a caller that binds the verifier under another name is still seen.
+    The spelling is RETURNED rather than a bare count, so a failure can say which
+    form it found.
+    """
+    calls: list[str] = []
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if ((isinstance(func, ast.Name) and func.id == RESOLVER)
+                or (isinstance(func, ast.Attribute) and func.attr == RESOLVER)):
+            calls.append(ast.unparse(func))
+    return calls
+
+
+def _parsed_source(path: Path) -> str:
+    """The file's text, with an unparseable module REFUSED rather than skipped.
+
+    A file the sweep cannot read is a hole in the invariant, and a hole that
+    reports itself as a pass is the failure mode this whole packet is about.
+    """
+    source = path.read_text(encoding="utf-8")
+    try:
+        ast.parse(source)
+    except SyntaxError as exc:
+        raise AssertionError(
+            f"{path.relative_to(ROOT)} does not parse ({exc}); the caller sweep "
+            "cannot read it, and an unreadable file is a hole in the invariant "
+            "rather than a file with no callers in it") from exc
+    return source
+
+
+def _python_modules_that_could_call_it() -> list[Path]:
+    found: list[Path] = []
+    for name in CALLER_SEARCH_ROOTS:
+        root = ROOT / name
+        assert root.is_dir(), \
+            f"the caller sweep names {name}/, which is not a directory here"
+        found.extend(sorted(root.rglob("*.py")))
+    return found
+
+
+def test_the_caller_sweep_reads_calls_and_not_mentions():
+    """THE NEGATIVE CONTROL, and it is the finding this reader was rewritten for.
+
+    Raised by review of PR #813: the sweep below used to ask whether the TEXT
+    `resolve_pinned(` appeared in a file, which cannot tell a CALL from a
+    docstring, a comment or a string literal — so a script that merely EXPLAINED
+    the resolver would have been required to bind a closure it never resolves,
+    and the cheapest way to make that green would have been to delete the
+    explanation.
+    """
+    assert f"{RESOLVER}(" in MENTIONS_BUT_NEVER_CALLS, \
+        "the control is only a control if a substring reader would flag it"
+    assert resolver_calls(MENTIONS_BUT_NEVER_CALLS) == [], \
+        "a name in a docstring, a comment or a string literal is not a caller"
+    assert resolver_calls(CALLS_IT_BOTH_WAYS) == [
+        f"verifier.{RESOLVER}", RESOLVER], "both spellings must be seen"
+
+
+def test_this_very_module_names_the_resolver_and_is_not_a_caller():
+    """The control again, IN SITU, on a real committed file rather than a string.
+
+    This module writes `resolve_pinned(` — in the constants above, in the prose,
+    and in the assertions below — and calls it nowhere. Under the old substring
+    reader, widening the sweep to `tests/` would have reported THIS FILE as a
+    fourth caller of the resolver and demanded it bind a closure. It is the
+    reason the sweep can be widened at all.
+    """
+    source = Path(__file__).read_text(encoding="utf-8")
+    assert f"{RESOLVER}(" in source
+    assert resolver_calls(source) == []
+
+
 def test_every_caller_of_the_resolver_hands_it_the_closure():
     """THE MISS THIS TEST EXISTS FOR, and it was a real one.
 
@@ -1929,19 +2062,38 @@ def test_every_caller_of_the_resolver_hands_it_the_closure():
     the invariant — every caller of the resolver reaches the closure through the
     verifier's own functions, and none re-implements one — so a FOURTH caller
     added later fails here rather than in someone else's required check.
+
+    THE SWEEP READS SYNTAX, NOT TEXT (rewritten 2026-09-08 on review of PR
+    #813), and that is what let it WIDEN. It used to glob `scripts/*.py` and ask
+    whether `resolve_pinned(` appeared in the text; it now walks the AST of every
+    `.py` under `scripts/`, `.github/` and `tests/` and counts only real `Call`
+    nodes. The two changes are ONE change: a text reader could not have been
+    pointed at `tests/` without immediately reporting this very file as a caller,
+    so the imprecision was also a ceiling on the sweep's reach.
+
+    A caller appearing anywhere in those three trees fails HERE — including a
+    test that decides to drive the resolver directly. That is then a deliberate
+    edit to `KNOWN_CALLERS` with a reason, not a silent fourth caller, which is
+    the discipline this file applies to every other list it pins.
     """
     callers = sorted(
-        path for path in (ROOT / "scripts").glob("*.py")
-        if "resolve_pinned(" in path.read_text(encoding="utf-8"))
-    assert [path.name for path in callers] == [
-        "install-pinned-openspec-cli.py",
-        "proposal-support.py",
-        "validate-openspec-cli-pin.py",
-    ], "a caller of the pinned resolver appeared or vanished; read it"
-    for path in callers:
-        if path.name == "validate-openspec-cli-pin.py":
-            continue        # the resolver's own file, which defines it
+        path.relative_to(ROOT).as_posix()
+        for path in _python_modules_that_could_call_it()
+        if resolver_calls(_parsed_source(path)))
+    assert callers == KNOWN_CALLERS, \
+        "a caller of the pinned resolver appeared or vanished; read it"
+    for relative in callers:
+        path = ROOT / relative
         source = path.read_text(encoding="utf-8")
+        if relative == "scripts/validate-openspec-cli-pin.py":
+            # The resolver's own file, which DEFINES it and calls it by the bare
+            # name. Asserted rather than skipped, so the walk is proved to see
+            # the `Name` form in situ and not only in the synthetic control.
+            assert resolver_calls(source) == [RESOLVER]
+            continue
+        assert resolver_calls(source) == [f"verifier.{RESOLVER}"], (
+            f"{path.name} reaches the resolver by an unexpected spelling; the "
+            "estate's two other callers load the verifier as `verifier`")
         assert "pinned_lockfile" in source and "verify_lockfile" in source, (
             f"{path.name} calls resolve_pinned without reaching the closure "
             "through the verifier's own functions")

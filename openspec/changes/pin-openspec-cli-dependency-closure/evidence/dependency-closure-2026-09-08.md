@@ -183,10 +183,11 @@ review of PR #813.)
 
 ## 7. The suite
 
-`python3 -m pytest tests/openspec_cli_pin -q` → **`152 passed`** (was 93; 123
+`python3 -m pytest tests/openspec_cli_pin -q` → **`154 passed`** (was 93; 123
 before the Copilot-review rounds of 2026-09-08, which added the
 `lockfileVersion`, malformed-address, root-declaration, installed-tree and
-`running_lines` cases in round 5 and the entry-address cases in round 6).
+`running_lines` cases in round 5, the entry-address cases in round 6, and the two
+caller-sweep controls in round 7).
 `python3 -m pytest tests/proposal-support -q` → **`95 passed, 2 subtests`**.
 `python3 -m pytest tests/sequenced_after -q` → **`195 passed`**.
 No test skips are added, so `pytest-suite.yml`'s exact `EXPECT_SKIPPED: "21"` is
@@ -265,11 +266,12 @@ All nine checks on the pull request are green.
 
 ## 11. THE COPILOT ROUNDS OF 2026-09-08, AND WHICH FINDINGS WERE REAL
 
-Eight review threads stood on PR #813 across two rounds — seven, then one more on
-the head that fixed them. Recorded here rather than only in the threads, because
-two of them are findings about this verifier's *stated contracts*, one is a
-finding about this file, and one is a gap between what a test guarded and what the
-running code enforced.
+Nine review threads stood on PR #813 across three rounds — seven, then one on the
+head that fixed them, then one on the head that fixed that. Recorded here rather
+than only in the threads, because two of them are findings about this verifier's
+*stated contracts*, one is a finding about this file, one is a gap between what a
+test guarded and what the running code enforced, and one is a test whose reader
+could not tell a call from a sentence about one.
 
 | # | Subject | Disposition |
 | - | ------- | ----------- |
@@ -309,6 +311,45 @@ verifier's own verdict on the real file, and two parametrized cases (an entry
 missing `integrity`, an entry missing `resolved`) plus a `link: true` case cover
 the refusal — each also asserting that no registry round trip is spent reaching
 it.
+
+### Round 7, on the head that fixed round 6
+
+| # | Subject | Disposition |
+| - | ------- | ----------- |
+| 9 | `test_every_caller_of_the_resolver_hands_it_the_closure` found callers by substring (`"resolve_pinned(" in text`), so a docstring, comment or string-literal mention counted as a caller | **REAL, fixed.** `resolver_calls()` walks the AST and counts only real `ast.Call` nodes, in both spellings — `resolve_pinned(...)` (`ast.Name`) and `<module>.resolve_pinned(...)` (`ast.Attribute`, matched on the attribute, so a verifier bound under another name is still seen). |
+
+**The imprecision was also a CEILING on the sweep's reach, and that is the part
+worth recording.** Measured on the fixed head over `scripts/`, `.github/` and
+`tests/` — **627 Python modules**:
+
+```
+substring would flag: scripts/install-pinned-openspec-cli.py
+                      scripts/proposal-support.py
+                      scripts/validate-openspec-cli-pin.py
+                      tests/openspec_cli_pin/test_openspec_cli_pin.py
+AST finds callers   : scripts/install-pinned-openspec-cli.py
+                      scripts/proposal-support.py
+                      scripts/validate-openspec-cli-pin.py
+```
+
+The fourth is the TEST MODULE ITSELF, which names the resolver throughout and
+calls it never. A text reader could not have been pointed at `tests/` without
+immediately reporting it as a fourth caller and demanding it bind a closure — and
+the cheapest way to make that green would have been to delete the explanation,
+which is `tests/import_scan.py`'s own argument for parsing rather than grepping,
+quoted in the new reader's docstring. So the sweep now reads syntax AND covers
+all three trees; the two changes are one change. `.github/` holds no `.py` today
+and is swept anyway, because a workflow that grew an inline script is exactly the
+caller nobody thinks to look for.
+
+Two controls keep it there: `test_the_caller_sweep_reads_calls_and_not_mentions`
+(a synthetic module that mentions the name in a docstring, a comment and a string
+literal — asserted to be flagged by a substring reader and NOT by this one — plus
+a synthetic module that calls it both ways), and
+`test_this_very_module_names_the_resolver_and_is_not_a_caller`, the same control
+in situ on a real committed file. The sweep also REFUSES an unparseable module
+rather than skipping it, a skipped file being a hole that reports itself as a
+pass.
 
 `pin-lockfile-mismatch` rather than `pin-unreadable` for thread 7, and
 `pin-unreadable` rather than `pin-lockfile-mismatch` for thread 1, on the ONE
