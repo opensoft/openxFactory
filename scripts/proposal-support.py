@@ -495,10 +495,12 @@ class OriginRetentionError(SupportError):
     """The archive gate's origin-retention refusal — ANY arm of it.
 
     Four conditions raise it, and the exception is deliberately one rather
-    than four: the declaration moved after ratification, the PACKET moved (a
-    ratified change renamed after its ratification, so no baseline can be
-    established at all — issue #833), no ratifying commit exists to compare
-    against, or the history that holds the baseline could not be read. What
+    than four: the declaration moved after ratification, the PACKET moved OR
+    WAS COPIED (a ratified change renamed after its ratification — or
+    duplicated to a second id, which git pairs identically and which leaves
+    the baseline just as unestablishable — issue #833), no ratifying commit
+    exists to compare against, or the history that holds the baseline could
+    not be read. What
     they share is the only thing a caller can act on — the packet CANNOT BE
     SHOWN to still carry the origin it was ratified over — and none of them is
     the "fix the tree and retry" shape that `SupportError` means everywhere
@@ -788,17 +790,21 @@ def ratifying_commit(root: Path, change: str) -> str | None:
                 f"origin-retention walk CANNOT RUN. Its baseline is the "
                 f"first commit whose `{rel}` declares `Status: ratified`, "
                 f"and that commit ({short}) is not the ratification but a "
-                f"MOVE: the packet already declared `Status: ratified` at "
-                f"`{former}` as of {short}^, so this change was ratified "
-                f"under a path that is not the one it occupies now "
-                f"(`{rel}`). Taking {short} as the baseline would compare "
-                f"the packet against itself as of the move and wave through "
-                f"every origin mutation made between the real ratification "
-                f"and it — the `ORIGIN RETAINED` measured on issue #777 and "
-                f"the failure issue #833 names. Nothing in this corpus "
-                f"declares a FORMER ID, so the baseline cannot be "
-                f"established from history alone and this walk refuses "
-                f"rather than re-basing onto the move: archive {change} "
+                f"MOVE OR COPY: the packet already declared "
+                f"`Status: ratified` at `{former}` as of {short}^, so this "
+                f"change was ratified under a path that is not the one it "
+                f"occupies now (`{rel}`) — and if `{former}` still stands "
+                f"in the tree then the packet was COPIED to this id rather "
+                f"than moved to it, which git pairs the same way and which "
+                f"leaves the same baseline unestablishable. Taking {short} "
+                f"as the baseline would compare the packet against itself "
+                f"as of that commit and wave through every origin mutation "
+                f"made between the real ratification and it — the "
+                f"`ORIGIN RETAINED` measured on issue #777 and the failure "
+                f"issue #833 names. Nothing in this corpus declares a "
+                f"FORMER ID, so the baseline cannot be established from "
+                f"history alone and this walk refuses rather than "
+                f"re-basing onto that commit: archive {change} "
                 f"under the id it was ratified with, or land the former-id "
                 f"declaration (a later packet) before renaming a ratified "
                 f"change. Renaming a DRAFT change is unaffected.")

@@ -427,10 +427,13 @@ its own.>
   commit — a baseline later than every mutation made in between, which the
   gate used to report as `ORIGIN RETAINED` — and the walk now refuses instead
   (`origin-retention-path-moved`, exit 2, CANNOT RUN), naming both paths and
-  never re-basing onto the move. Renaming a ratified change is therefore
-  blocked until a change declares a FORMER ID (issue #833, a successor
-  packet); renaming a DRAFT change, and a single commit that renames a draft
-  and ratifies it, are unaffected. The nightly `proposal-origin`
+  never re-basing onto the move. COPYING a ratified packet to a second id
+  refuses identically — git pairs a copy the same way it pairs a move, and
+  the duplicate's baseline is just as unestablishable — so the refusal names
+  a MOVE OR COPY rather than only a rename. Renaming a ratified change is
+  therefore blocked until a change declares a FORMER ID (issue #833, a
+  successor packet); renaming a DRAFT change, and a single commit that
+  renames a draft and ratifies it, are unaffected. The nightly `proposal-origin`
   doc-health family
   (the fifteenth) reports drift — including post-ratification mutation, a
   `contested` finding — across active and archived proposals.

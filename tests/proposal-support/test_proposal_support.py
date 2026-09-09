@@ -1535,9 +1535,19 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             copy = root / "openspec" / "changes" / "change-s"
             shutil.copytree(directory, copy)
             commit_all(root, "copy the ratified packet to a second id")
-            with self.assertRaisesRegex(support.OriginRetentionError,
-                                        "origin-retention-path-moved"):
+            with self.assertRaises(support.OriginRetentionError) as caught:
                 support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-path-moved", message)
+            # AND THE MESSAGE SAYS WHAT ACTUALLY HAPPENED. Nothing moved
+            # here — the old id still stands — so a refusal that spoke only
+            # of a MOVE would send an operator looking for a rename that is
+            # not in the history (raised by the review bench on PR #846).
+            self.assertIn("MOVE OR COPY", message)
+            self.assertIn("COPIED", message)
+            self.assertTrue(directory.is_dir())
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("openspec/changes/change-s/proposal.md", message)
 
     def test_renaming_a_draft_and_ratifying_it_afterwards_is_not_refused(self):
         """RENAMING A DRAFT IS LAWFUL AND STAYS LAWFUL. This corpus does it —
