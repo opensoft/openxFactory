@@ -519,6 +519,56 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
+  — authored 2026-09-09, **`Status: draft`** (NOT RATIFIED; ratification and
+  archive are separate acts on Brett Heap's word), lane `openxfactory-1`.
+  Origin: openxFactory
+  [#868](https://github.com/opensoft/openxFactory/issues/868), filed out of
+  **Codex's refused P2 on PR
+  [#780](https://github.com/opensoft/openxFactory/pull/780)** — the archive that
+  promoted `publish-openspec-cli-pin-as-contract-member`'s delta into
+  `openspec/specs/neutral-product-pin/spec.md`. **THE DEFECT IS ONE WORD
+  CARRYING TWO STATUSES.** The promoted requirement *A consumption pin that
+  another repository reads is a PUBLISHED contract member, adopted by pin-sync*
+  says at `:344-345` that *"Declaring the copy … does not make it LAWFUL"* and
+  at `:373` that *"the copy is lawful ONLY as a declared interim"* — the first
+  scoped to the promoted *A required check runs the pinned tool, at the pinned
+  digest*, the second to this requirement's own fallback. The scopes were always
+  distinguishable; what the text lacked was a second word, so a reader reaching
+  the scenario first could certify a declared interim copied gate as compliant.
+  **THE FIX IS VOCABULARY AND NOT RULE**: `LAWFUL` is reserved — *where this
+  requirement speaks of a consumption's status* — to the read a repository
+  carrying an `xfactory:` stack pin performs from its own pinned checkout, and a
+  declared consumption copy becomes **TOLERATED**, admitted on its four terms
+  and never lawful. Two scenario bullets change one word each (declared by one
+  `Removed from canon` marker, both replaced in place), one body paragraph is
+  ADDED to state the reservation in one place, and one scenario is ADDED to
+  assert it; the two body sentences that already used the word the reserved way
+  are carried UNCHANGED. **NO BEHAVIOUR MOVES** — the same copies are admitted
+  on the same four terms and the required-check claim stays unmet for exactly as
+  long as it did before, which is what the refusal on #780 predicted. **THE VETO
+  POINT IS `design.md` D1**: TOLERATED against PERMITTED — the word that refusal
+  itself floated — costed at four words either way. **THE RESERVATION IS
+  DELIBERATELY SCOPED, NOT CAPABILITY-WIDE** (D0a): the specification's fifth use
+  of `lawful` at `:555` is a different requirement on a DISPOSITION's acceptance,
+  and a capability-wide claim would have put ratified text in violation on the
+  day this promoted. `code_surface: none`, MEASURED — `grep -rn "lawful"
+  scripts/ tests/` returns 66 lines across 33 files and every one is prose, and
+  the one line naming this requirement (`scripts/validate-pin-registrations.py:27`)
+  is a docstring quoting its REGISTRATION sentences, which this packet does not
+  touch. `sequenced_after: []`, the positive root claim: the only other active
+  `neutral-product-pin` delta is `split-opendox-two-layer-product`, which
+  modifies two OTHER requirements, so this is the **sole ACTIVE modifier** and no
+  ordering declaration is owed in either direction (the sweep ledger's `class:
+  co-modifier` grades the archived promoter too, and is a different question).
+  **NOT FIXED IN PASSING** (D6): this specification's pre-existing
+  `--strict` failure — `requirements.16.text`, on *A pinned artifact that
+  resolves dependencies at install time carries a vendored lockfile…* at `:645`
+  — is a different requirement and a different sentence, is not inherited by this
+  block, and is named as an available successor rather than taken.
+  **THIS PULL REQUEST PROMOTES NOTHING** — no file under `openspec/specs/`, no
+  script, test, contract or workflow is edited.
+
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817

@@ -1,0 +1,72 @@
+schema: spec-driven
+created: 2026-09-09
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-09-amend-neutral-product-pin-interim-copy-vocabulary
+  reason: >-
+    A DEFECT OF EXPRESSION IN PROMOTED CANON, filed as openxFactory issue #868
+    and found by the review bench of a different act. Codex raised it as a P2 on
+    PR #780 — the archive of `publish-openspec-cli-pin-as-contract-member`, which
+    promoted that packet's delta into `openspec/specs/neutral-product-pin/spec.md`
+    — against the promoted requirement *A consumption pin that another repository
+    reads is a PUBLISHED contract member, adopted by pin-sync*: "For a repository
+    without an `xfactory:` stack pin, this scenario declares a properly documented
+    copy 'lawful,' while [the same requirement] explicitly state[s] that declaring
+    the copy does not make it lawful … distinguish 'permitted as an interim' from
+    'compliant with the required-check requirement', or use one consistent
+    status."
+    THE FINDING WAS REFUSED IN THAT PULL REQUEST, ON THE PULL REQUEST'S LIMIT AND
+    NOT ON THE READING, and the refusal named this packet's shape. The text is
+    PROMOTED, RATIFIED CANON: ratified by Brett Heap on 2026-09-07 as part of
+    `publish-openspec-cli-pin-as-contract-member` (PR #757 -> `a5940811`,
+    ratifying commit `05a9db8b`) and written into the specification byte-for-byte
+    by the archive act, whose own evidence is that the promoted block is
+    byte-identical to the ratified delta (sha256
+    `8d31ffee932339919461da8d69ec4287ad15d14f39f9e64df7c2b13f82bbd902`, 9,462
+    bytes, on both sides). Rewording it in that pull request would have edited
+    ratified text with no word behind it and destroyed the byte-identity that
+    makes the archive auditable. The refusal recorded the remedy instead — "the
+    fix is a vocabulary change … and NOT a change to which behaviours are
+    admitted — no consumer's conformance outcome moves either way" — and left the
+    successor to the owner's word, which working rule 3 requires in general: a
+    ratified requirement changes only by a ratified change.
+    THE PACKET EXISTS ON BRETT HEAP'S WORD OF 2026-09-09, verbatim "R1 'lawful'
+    amendment packet", given in session as one option of several put to him. That
+    word commissions the AUTHORING; it ratifies no wording and takes no design
+    decision, so this packet is a DRAFT and carries no approval pair.
+    WHAT IS CLAIMED IS SMALL AND IS STATED AS SUCH. Two scenario bullets change
+    one word each, one body paragraph is added to state the reservation in one
+    place, and one scenario is added to assert it. No behaviour moves: the same
+    copies are admitted on the same four terms, and the required-check claim stays
+    unmet for exactly as long as it did before. The two body sentences that
+    already used `lawful` correctly are carried unchanged, because under the
+    reserved reading they are right as written.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-09: no topic
+    folder and no INDEX row names the consumption pin, the declared interim copy,
+    the no-stack-pin fallback or this capability's vocabulary. `kind: staged`
+    would claim a staging source that does not resolve. The organized source is
+    issue #868 and the refused review thread on PR #780.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), authoring the remedy issue
+    #868 proposes, on Brett Heap's word of 2026-09-09 "R1 'lawful' amendment
+    packet". NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: that word
+    commissions an authoring and admits no text to canon. The lawful unapproved
+    shape is the one `add-drafted-proposal-origin` (issue #318) added — drafting
+    provenance, no `approved_by`, no `approved_on` — and every document in the
+    packet carries `Status: draft` to match; approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
+    THE DECISION MOST WORTH A VETO is `design.md` D1: the replacement word.
+    TOLERATED is recommended and written; PERMITTED is the alternative, and it is
+    the word the refusal on PR #780 itself floated ("say `PERMITTED as a declared
+    interim` in the scenario"). D1 records why TOLERATED was preferred and what
+    changes if the veto lands — two bullets, one added paragraph and one added
+    scenario, one word each, and nothing else in the packet moves. D2 (state the
+    reservation in the BODY rather than only in the scenario) and D4 (add a
+    scenario rather than rely on the body alone) are the other two, each costed.
+  proposed_on: 2026-09-09
+related:
+  - openxFactory:change:archive/2026-09-08-publish-openspec-cli-pin-as-contract-member  # ARCHIVED (proposal PR #757, archive PR #780). RATIFIED AND PROMOTED the requirement this block MODIFIES; its bytes are NOT edited, and the refused P2 that names this packet's shape stands on its archive pull request
+  - openxFactory:change:split-opendox-two-layer-product                                 # ACTIVE, ratified 2026-09-05. The only other active `neutral-product-pin` delta. It modifies TWO OTHER requirements of the same specification, shares no requirement key with this block, and therefore owes no ordering declaration in either direction
+  - openxFactory:change:archive/2026-09-09-amend-marker-defect-reporting                # ARCHIVED. The amendment shape this packet is authored on, and the source of the marker grammar this block's one `Removed from canon` marker is written to satisfy
+  - openxFactory:change:archive/2026-09-09-refresh-install-repository-enumerations      # ARCHIVED. The nearest precedent for THIS packet's exact edit shape: a bullet replaced in place, one clause wide, declared by a marker placed after the scenarios it names
