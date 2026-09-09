@@ -331,10 +331,15 @@ jobs:
       # it prints is read from the platform and recomputable by anyone with the
       # same command; the lane states no claim only it can make.
       #
-      # IT NEVER FAILS THE RUN. An unavailable listing is reported as unknown
-      # rather than turned into a red advance — and it cannot be
-      # `continue-on-error`, which no step in this lane may carry, so the guard
-      # is in the shell.
+      # IT NEVER FAILS THE RUN, AND UNKNOWN IS NOT "NONE". Both halves of an
+      # unavailable answer — a listing the platform refused, and a program that
+      # stopped parsing one it returned — are reported as UNKNOWN rather than
+      # turned into a red advance, and neither is allowed to render "no
+      # previous advance", which is a claim ABOUT the platform and not the
+      # absence of an answer from it. The step cannot be `continue-on-error`,
+      # which no step in this lane may carry, so the guard is in the shell —
+      # and `TheOutcomeReportIsExecutedNotJustRead` measures both halves by
+      # executing this step's own bytes against a refusing `gh`.
       #
       # THE TWO OPEN BRANCHES ARE WHERE THE RESIDUAL IS DISCLOSED (Codex P1 on
       # openxFactory #844). An open advance is reported as ARMED or as NOT
@@ -350,24 +355,41 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -uo pipefail
-          LAST="$(gh pr list --repo "$GITHUB_REPOSITORY" --state all \
+          # THE LISTING'S EXIT STATUS IS KEPT SEPARATE FROM ITS OUTPUT
+          # (Copilot on openxFactory #844). A `|| echo '[]'` on the read
+          # turned an auth or transient API failure into an EMPTY listing, and
+          # an empty listing renders "no previous automated pin advance has
+          # ever been opened on this branch" — a positive claim about the
+          # platform's state, made on a firing that could not read the
+          # platform, and the opposite of what this step's own header
+          # promises. It is the masking `merge-master-approval.yml`'s gather
+          # refuses in terms ("a `|| echo '[]'` fallback would convert a
+          # failed or rate-limited query into a clean, empty,
+          # apparently-complete fact set"). So ONLY a listing `gh` actually
+          # returned reaches jq; a non-zero exit leaves the outcome empty and
+          # falls through to the unreadable fallback below, which already
+          # existed for the jq half of the same problem. The step still never
+          # fails the run.
+          OUTCOME=""
+          if LAST="$(gh pr list --repo "$GITHUB_REPOSITORY" --state all \
             --head "${BOT_BRANCH}" --limit 1 \
-            --json number,state,mergeCommit,autoMergeRequest 2>/dev/null || echo '[]')"
-          OUTCOME="$(printf '%s' "${LAST}" | jq -r '
-            if length == 0 then
-              "no previous automated pin advance has ever been opened on this branch"
-            else
-              .[0] as $pr
-              | if $pr.state == "MERGED" then
-                  "the last automated pin advance #\($pr.number) MERGED at \($pr.mergeCommit.oid // "an unreadable commit")"
-                elif $pr.state == "OPEN" and $pr.autoMergeRequest then
-                  "the last automated pin advance #\($pr.number) is still OPEN with auto-merge ARMED; no candidate class admits this lane, so it waits for a human merge word"
-                elif $pr.state == "OPEN" then
-                  "the last automated pin advance #\($pr.number) is still OPEN and auto-merge is NOT armed; the arming lives in the delivery step, so this lane re-attempts it only on its next firing that delivers an advance, and that firing moves the head first. No candidate class admits this lane either way, so it waits for a human merge word; openxFactory #745 box 4.4 is the measurement of what the platform does with an arming here, and box 4.3 the enrolment that would let an armed state complete anything"
-                else
-                  "the last automated pin advance #\($pr.number) was CLOSED unmerged"
-                end
-            end' 2>/dev/null || true)"
+            --json number,state,mergeCommit,autoMergeRequest 2>/dev/null)"; then
+            OUTCOME="$(printf '%s' "${LAST}" | jq -r '
+              if length == 0 then
+                "no previous automated pin advance has ever been opened on this branch"
+              else
+                .[0] as $pr
+                | if $pr.state == "MERGED" then
+                    "the last automated pin advance #\($pr.number) MERGED at \($pr.mergeCommit.oid // "an unreadable commit")"
+                  elif $pr.state == "OPEN" and $pr.autoMergeRequest then
+                    "the last automated pin advance #\($pr.number) is still OPEN with auto-merge ARMED; no candidate class admits this lane, so it waits for a human merge word"
+                  elif $pr.state == "OPEN" then
+                    "the last automated pin advance #\($pr.number) is still OPEN and auto-merge is NOT armed; the arming lives in the delivery step, so this lane re-attempts it only on its next firing that delivers an advance, and that firing moves the head first. No candidate class admits this lane either way, so it waits for a human merge word; openxFactory #745 box 4.4 is the measurement of what the platform does with an arming here, and box 4.3 the enrolment that would let an armed state complete anything"
+                  else
+                    "the last automated pin advance #\($pr.number) was CLOSED unmerged"
+                  end
+              end' 2>/dev/null || true)"
+          fi
           [ -n "${OUTCOME}" ] || OUTCOME="the last automated pin advance could not be read from the platform on this firing"
           # A WORKFLOW COMMAND IS A PARSED LINE AND THIS PAYLOAD IS THE
           # PLATFORM'S OWN TEXT, so it is escaped before it is emitted, `%`

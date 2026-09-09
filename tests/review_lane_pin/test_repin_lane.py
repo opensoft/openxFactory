@@ -1140,6 +1140,164 @@ class TheOutcomeReportIsExecutedNotJustRead(unittest.TestCase):
         # ...and the control in the other direction: unmutated, it is accepted.
         self.assertEqual(0, self._render("[]").returncode)
 
+    # -- THE READ ITSELF, not just the program it feeds -----------------------
+    #
+    # A SECOND SILENT FAILURE, ONE LAYER OUT (Copilot on openxFactory #844).
+    # The program above can only render what it is given, and the step used to
+    # give it `[]` whenever `gh pr list` FAILED — so an expired token or a
+    # transient API error rendered "no previous automated pin advance has ever
+    # been opened on this branch": a positive claim about the platform, made on
+    # a firing that could not read the platform. The cases below execute the
+    # step's OWN shell against a `gh` that refuses, so "unreadable" and "none"
+    # are told apart by measurement rather than by reading the source.
+
+    #: The sentence the step falls back to when it has no answer.
+    UNREADABLE = ("the last automated pin advance could not be read from the "
+                  "platform on this firing")
+
+    #: The sentence that is a CLAIM about the platform, and must therefore
+    #: never be reached by a firing that failed to read it.
+    NONE_EVER = ("no previous automated pin advance has ever been opened on "
+                 "this branch")
+
+    def _run_the_step(self, *, listing: str = "[]", gh_fails: bool = False,
+                      script: str = None):
+        """Execute the shipped reporting step, with `gh` stubbed.
+
+        THE BYTES ARE THE STEP'S OWN, taken from the parsed workflow, for
+        `_shell_function`'s reason: a harness carrying its own copy of the
+        guard would keep passing while the lane drifted back to coercing a
+        failed read into an empty one. Only `gh` is replaced, because a test
+        may not call the platform.
+
+        Returns `(proc, summary)`.
+        """
+        self.assertIsNotNone(
+            shutil.which("jq"),
+            "jq is not on PATH; the reporting step needs it at run time and "
+            "this control needs it to measure that step")
+        run = _step(self.STEP)["run"] if script is None else script
+        with tempfile.TemporaryDirectory() as raw:
+            tmp = pathlib.Path(raw)
+            bin_dir = tmp / "bin"
+            bin_dir.mkdir()
+            gh = bin_dir / "gh"
+            gh.write_text(
+                "#!/usr/bin/env bash\n"
+                'if [ -n "${GH_LIST_FAIL:-}" ]; then\n'
+                '  printf "%s\\n" "gh: HTTP 401 Bad credentials" >&2\n'
+                "  exit 1\n"
+                "fi\n"
+                'printf "%s\\n" "$GH_LIST_OUTPUT"\n',
+                encoding="utf-8")
+            gh.chmod(0o755)
+            summary = tmp / "summary.md"
+            summary.write_text("", encoding="utf-8")
+            env = dict(os.environ)
+            env.update({
+                "PATH": f"{bin_dir}:{env['PATH']}",
+                "GITHUB_STEP_SUMMARY": str(summary),
+                "GITHUB_REPOSITORY": "opensoft/openxFactory",
+                "BOT_BRANCH": R.BOT_BRANCH,
+                "GH_LIST_OUTPUT": listing,
+            })
+            if gh_fails:
+                env["GH_LIST_FAIL"] = "1"
+            proc = subprocess.run(["bash", "-c", run],
+                                  capture_output=True, text=True, env=env)
+            return proc, summary.read_text(encoding="utf-8")
+
+    def test_a_listing_the_platform_refused_is_reported_unreadable(self) -> None:
+        """Scenario: The arming is reported where the run is read.
+
+        THE STEP'S HEADER PROMISES THAT AN UNAVAILABLE LISTING IS REPORTED AS
+        UNKNOWN, and until this control nothing held the code to it: the read
+        was `|| echo '[]'`, so a refused listing rendered the NONE_EVER
+        sentence — the same masking `merge-master-approval.yml`'s gather
+        refuses in terms. Measured by running the step's own shell with a `gh`
+        that exits non-zero: the outcome must be the unreadable fallback, on
+        BOTH surfaces, and must not be the claim.
+        """
+        proc, summary = self._run_the_step(gh_fails=True)
+
+        # IT STILL NEVER FAILS THE RUN. That is the other half of the header.
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn(self.UNREADABLE, proc.stdout)
+        self.assertIn(self.UNREADABLE, summary)
+        self.assertNotIn(self.NONE_EVER, proc.stdout)
+        self.assertNotIn(self.NONE_EVER, summary)
+        # ...and the notice is still one escaped workflow command, not the
+        # platform's error body echoed into the log.
+        self.assertEqual(
+            [f"::notice title=review-lane-repin::{self.UNREADABLE}"],
+            self._notice_lines(proc))
+        # A STEP THAT ONLY READS NAMES NO DISPOSAL ACT, on this branch either.
+        for term in DISPOSAL_TERMS:
+            self.assertNotIn(term, proc.stdout)
+
+    def test_a_listing_that_really_is_empty_still_says_so(self) -> None:
+        """ANTI-VACUITY, first direction (task 4.5).
+
+        The fix must distinguish the two cases, not collapse both into
+        "unreadable". The SAME step, the SAME runner, one input flipped: `gh`
+        succeeds and returns a genuinely empty listing, and the claim about the
+        platform is then exactly what should be reported.
+        """
+        proc, summary = self._run_the_step(listing="[]")
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn(self.NONE_EVER, proc.stdout)
+        self.assertIn(self.NONE_EVER, summary)
+        self.assertNotIn(self.UNREADABLE, proc.stdout)
+
+    def test_a_listing_that_reads_is_rendered_end_to_end(self) -> None:
+        """ANTI-VACUITY, second direction, and the whole path at once.
+
+        The cases above could both pass on a step that reported nothing useful
+        at all. A real listing is run through the shipped shell — not just the
+        cut-out program — so the guard is proven to pass a SUCCESSFUL read
+        through to the sentence the platform's answer deserves.
+        """
+        proc, _ = self._run_the_step(
+            listing='[{"number":732,"state":"MERGED",'
+                    '"mergeCommit":{"oid":"9ffc6252"},"autoMergeRequest":null}]')
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn("#732 MERGED at 9ffc6252", proc.stdout)
+        self.assertNotIn(self.UNREADABLE, proc.stdout)
+
+    def test_this_control_can_actually_see_the_masking_come_back(self) -> None:
+        """ANTI-VACUITY for the refusal case, by MUTATION.
+
+        `ca9fafe6` again: a control that cannot observe the defect it names is
+        worth nothing. The shipped script is mutated back into the exact shape
+        the finding was about — the listing's failure coerced with
+        `|| echo '[]'`, which makes the guard's own test succeed on a failed
+        read — and the runner is required to report the NONE_EVER claim from a
+        `gh` that refused. If a future edit reintroduces the coercion, the case
+        above reds; this proves it.
+        """
+        run = _step(self.STEP)["run"]
+        marker = "2>/dev/null)\"; then"
+        self.assertIn(
+            marker, run,
+            "the reporting step no longer guards its listing with `if "
+            "LAST=\"$(gh pr list ... )\"; then`; this mutation has nothing to "
+            "undo and the refusal case above may be measuring nothing")
+        masked = run.replace(marker, "2>/dev/null || echo '[]')\"; then", 1)
+        self.assertNotEqual(run, masked)
+
+        proc, summary = self._run_the_step(gh_fails=True, script=masked)
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertIn(
+            self.NONE_EVER, proc.stdout,
+            "the coerced read did NOT produce the false claim, so the refusal "
+            "case above is not measuring the defect it names")
+        self.assertNotIn(self.UNREADABLE, summary)
+
+    @staticmethod
+    def _notice_lines(proc) -> list:
+        return [line for line in proc.stdout.splitlines()
+                if line.startswith("::notice")]
+
 
 # ===========================================================================
 # Requirement 2 — refusing a core commit the source default branch does not carry
