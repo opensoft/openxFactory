@@ -49,6 +49,39 @@ origin:
     Lane `openxfactory-3` (display `openXfactory-3`), session 60ef3d3f, agent O
     — authoring the successor openxFactory issue
   proposed_on: 2026-09-08
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-09-09
+    (~00:24Z), lane `openxfactory-3`, verbatim: "ratify
+    refresh-install-repository-enumerations", recorded on openxFactory issue
+    #591 as comment 5593837071 at 2026-09-09T00:24:24Z.
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind`, `id` and `reason`
+    never move, which is the shape `add-drafted-proposal-origin` (issue #318)
+    defined for this transition: approval is a pure ADDITION to a fixed origin
+    identity, so nothing that repeats `kind` and `id` comes to disagree with
+    the packet, and the archive gate's origin-retention arm reads the
+    declaration this commit establishes.
+    TWO DIFFERENT WORDS, AND ONLY THE SECOND RATIFIES. The earlier word "do
+    794, 795 and 796" (2026-09-08 ~14:3xZ, same issue) ADMITTED the work and
+    the packet said in terms that it ratified no text; this word reaches the
+    text. It was given over a packet whose THREE veto points were carried
+    verbatim in `tasks.md` § 1.2 and in openxFactory PR #818's body — `design.md`
+    D1 (WIDEN the enumerations and state the index rule, against replacing the
+    hand lists with a list derived from the aggregation's `installs/` mount
+    list, refused on the nine-against-five measurement and recorded NOT TAKEN
+    rather than foreclosed), `design.md` D3 (the SIX-MODIFIED scope, of which
+    exactly TWO widened units are absent from issue #796's list) and
+    `design.md` D5 (the one deliberately OPEN-ENDED widening, "Submodule
+    sequencing") — and NONE of the three was vetoed. The packet is ratified AS
+    AUTHORED.
+    RATIFICATION PERFORMS NO REALIZATION. No promoted specification byte moves,
+    the `## Purpose` widening stays OWED at `tasks.md` § 4.1, no box in
+    `tasks.md` § 3 or § 4 ticks on this word, and openxFactory issue #796 stays
+    open until the archive. Under `release-realization` an EMPTY `code_surface`
+    archives on landing rather than on merged-plus-green realization evidence —
+    on a SEPARATE word, which this one is not.
+    Record: `review/ratification-2026-09-09.md`.
+  approved_on: 2026-09-09
 related:
   - openxFactory:change:archive/2026-09-08-implement-omniworker-install-repo  # ARCHIVED. The packet whose design § D6 OQ-9 and tasks § 8.4 name this successor, and whose ADDED boundary requirement made the fifth repository governed
   - openxFactory:change:archive/2026-08-25-admit-install-repos-to-aggregation  # ARCHIVED. The last widening of *"Install repository scope"*, taken for two of four repositories; the model for this packet's MODIFIED block, and the act that left the `## Purpose` behind
