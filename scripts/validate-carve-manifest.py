@@ -31,13 +31,15 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
      label `carve_tag`, the closed maps and lists, the CLOSED top-level and
      per-disposition key sets, and the per-disposition required keys
      (`carve-shape-invalid`).
-  2. REVISION — `carve_commit` must name a commit THIS REPOSITORY CARRIES and
-     be an ANCESTOR of the REVISION UNDER TEST (`HEAD`, or `--at <sha>`), by
-     `git merge-base --is-ancestor` (`carve-revision-mismatch`). Identity is
-     the trivial ancestor case, so the ceremony's own run at the carve commit
-     still passes. What this refuses is a referent the tested revision does not
-     descend from — another tree's commit, against which every comparison
-     below would be measuring two unrelated histories.
+  2. REVISION — `carve_commit` must name a COMMIT OBJECT THIS REPOSITORY
+     CARRIES (not an annotated tag's object id, which is also 40 hex and which
+     git would peel silently) and be an ANCESTOR of the REVISION UNDER TEST
+     (`HEAD`, or `--at <sha>`), by `git merge-base --is-ancestor`
+     (`carve-revision-mismatch`). Identity is the trivial ancestor case, so
+     the ceremony's own run at the carve commit still passes. What this
+     refuses is a referent the tested revision does not descend from —
+     another tree's commit, against which every comparison below would be
+     measuring two unrelated histories.
   3. DIGEST — TWO comparisons per moved row, in TWO passes over the rows, and
      the order between them is itself a finding. PASS 1, at `carve_commit` (the
      referent the row claims): recompute the sha256 of the RAW GIT BLOB and
@@ -836,7 +838,8 @@ def check_revision(repo: Path, doc: dict, at: str | None) -> str:
     asked = f"--at {at}" if at is not None else "HEAD"
     known = _git(repo, "rev-parse", "--verify", "--quiet",
                  f"{carve_commit}^{{commit}}")
-    if known.returncode != 0 or not known.stdout.strip():
+    peeled = known.stdout.decode("utf-8", "replace").strip()
+    if known.returncode != 0 or not peeled:
         raise CarveRefusal(
             "carve-revision-mismatch",
             f"the manifest names carve_commit {carve_commit}, which {repo} "
@@ -845,6 +848,23 @@ def check_revision(repo: Path, doc: dict, at: str | None) -> str:
             "repository cannot resolve is unverifiable here — whether the "
             "commit is wrong or the checkout is too shallow to reach it, the "
             "answer this validator can give is the same")
+    # THE REFERENT MUST BE THE COMMIT OBJECT ITSELF, not something that peels
+    # to one. `^{commit}` resolves an ANNOTATED TAG's object id too, and a tag
+    # object id is 40 lowercase hex — so it passes check 1's grammar, and
+    # `merge-base`, `ls-tree` and `cat-file` would all peel it silently and
+    # verify the whole manifest against a referent the ceremony forbids: "the
+    # tag is a LABEL, never the referent". The landed identity check refused
+    # this as a side effect (a tag sha can never equal a `rev-parse
+    # HEAD^{commit}`), so ancestry has to refuse it on purpose. Copilot review
+    # `3972445078`, 2026-09-09.
+    if peeled != carve_commit:
+        raise CarveRefusal(
+            "carve-revision-mismatch",
+            f"carve_commit {carve_commit} is not a COMMIT object in {repo}: "
+            f"it PEELS to {peeled}. A 40-hex object id that has to be peeled "
+            "to reach a commit is an annotated tag, and the tag is a human "
+            "LABEL beside the commit and never the referent — `carve_tag:` is "
+            f"where a label belongs. Record the commit id itself: {peeled}")
     ancestor = _git(repo, "merge-base", "--is-ancestor",
                     carve_commit, resolved)
     if ancestor.returncode != 0:

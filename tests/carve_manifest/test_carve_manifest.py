@@ -902,6 +902,33 @@ def test_a_carve_commit_the_repository_does_not_carry_refuses(
     assert UNKNOWN_COMMIT in combined, combined
 
 
+def test_an_annotated_tags_object_id_used_as_the_referent_refuses(
+        scratch: Scratch) -> None:
+    """THE TAG IS A LABEL AND NEVER THE REFERENT — and an annotated tag's
+    OBJECT ID is 40 lowercase hex, so it passes check 1's grammar exactly as a
+    commit id does.
+
+    Every git command below check 2 peels a tag silently: `merge-base`,
+    `ls-tree` and `cat-file` would all have accepted it and verified the whole
+    manifest against a referent the § 6 ceremony forbids. The landed identity
+    check refused this as a SIDE EFFECT — a tag object id can never equal a
+    `rev-parse HEAD^{commit}` — so ancestry has to refuse it deliberately.
+    Copilot review `3972445078`, 2026-09-09.
+    """
+    _git(scratch.repo, "tag", "-a", "opendox-carve-0", "-m", "the label",
+         scratch.head)
+    tag_object = _git(scratch.repo, "rev-parse",
+                      "opendox-carve-0").stdout.strip()
+    assert tag_object != scratch.head, tag_object
+    assert _git(scratch.repo, "cat-file", "-t",
+                tag_object).stdout.strip() == "tag"
+    doc = clean_manifest(scratch)
+    doc["carve_commit"] = tag_object
+    combined = refuses(scratch, doc, "carve-revision-mismatch")
+    assert "PEELS to" in combined, combined
+    assert scratch.head in combined, combined
+
+
 def test_the_revision_check_runs_before_the_digests(scratch: Scratch) -> None:
     """A referent this repository cannot resolve is reported as ONE revision
     mismatch rather than as a pile of digest failures — the ordering is the
