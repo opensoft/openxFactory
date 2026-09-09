@@ -523,7 +523,7 @@ Active changes:
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim **"merge 292 when green,
   then ratify 807"** — the SECOND act of a two-act word whose first act landed
-  codexFactory [#292](https://github.com/opensoft/codexFactory/pull/292) at merge
+  codexFactory [#292](https://github.com/codeXfactory/codexFactory/pull/292) at merge
   commit `406a2afb`; recorded on openxFactory
   [#745](https://github.com/opensoft/openxFactory/issues/745) comment
   5586895152, applied over PR

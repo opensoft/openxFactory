@@ -46,7 +46,7 @@ MedxFactory
 
 ## Completed / Current Engineering Split
 
-The first engineering-domain docs were created in `codeXfactory/codexFactory`:
+The first engineering-domain docs were created in `opensoft/codexFactory`:
 
 ```text
 docs/engineering-xfactory-domain.md
