@@ -1,0 +1,154 @@
+# THROWAWAY PROOF — runbook step 1.6a (codexFactory -> codeXfactory org move).
+#
+# Purpose: prove, end to end, that the openxFactory GitHub App is installed on
+# the `codeXfactory` organization (runbook step 1.6) and can mint a token that
+# reads the moved `codeXfactory/codexFactory` repository, BEFORE any
+# respelled `main` (openxFactory #801/#802/#805/#806) merges and depends on
+# it. See /home/brett/session-prompts/runbook-codexfactory-org-transfer.md
+# steps 1.6, 1.6a, 1.6b, and the "Ceremony merge order" table row 1.
+#
+# THIS IS A THROWAWAY. It lives ONLY on the scratch branch
+# `scratch/proof-1-6a-codexfactory-app-install` and is NEVER to be merged to
+# `main`. Delete the branch (and this file with it) once the proof has run:
+#
+#   git push origin --delete scratch/proof-1-6a-codexfactory-app-install
+#
+# `workflow_dispatch` ONLY — no `push` / `pull_request` trigger, so it never
+# runs on its own and can never become a required check by accident.
+#
+# TO RUN:
+#
+#   gh workflow run proof-1-6a-codexfactory-app-install.yml \
+#     -R opensoft/openxFactory --ref scratch/proof-1-6a-codexfactory-app-install
+#
+# EXPECTED OUTCOME if runbook step 1.6 (the App install on codeXfactory) is
+# DONE: the job succeeds, prints the checked-out HEAD sha and the `core`
+# remote URL (must contain `codeXfactory/codexFactory`), and reports whether
+# the OLD, opensoft-scoped mint can also read the moved repository — it must
+# NOT (expected `OLD-SCOPE READ: 404 ...`). That expected absence is the
+# proof that openxFactory #801's `owner: codeXfactory` fix (four sites) was
+# necessary, not cosmetic.
+#
+# EXPECTED OUTCOME if step 1.6 is NOT yet done: the FIRST step below ("Mint
+# the decision-core read token") fails outright — it deliberately carries no
+# `continue-on-error` — because `GET /orgs/codeXfactory/installation` 404s
+# with no installation to resolve. The job goes red, legibly, naming that
+# step as the cause. That is the required fail-CLOSED behaviour: this proof
+# must never pass, skip green, or silently no-op when the App is not yet
+# installed.
+#
+# No secret or token value is ever printed by any step below.
+
+name: "PROOF (throwaway, 1.6a): codeXfactory App install"
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: proof-1-6a-codexfactory-app-install
+  cancel-in-progress: true
+
+jobs:
+  prove-app-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # STEP 1 — the mint this proof exists to test. Mirrors openxFactory
+      # #801's new second mint in pytest-suite.yml exactly: same secrets,
+      # same action pin, same `owner:` / `repositories:` / `permission-
+      # contents:` inputs. Deliberately NO `continue-on-error`: if the App is
+      # not installed on `codeXfactory` (runbook step 1.6 not yet done),
+      # `GET /orgs/codeXfactory/installation` 404s and this step — and the
+      # job — fails outright. That is the fail-closed behaviour this proof is
+      # required to have.
+      - name: Mint the decision-core read token (codeXfactory installation)
+        id: core-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: codeXfactory
+          repositories: codexFactory
+          permission-contents: read
+
+      # STEP 2 — check out the moved repository with that token, at the same
+      # pinned ref `pytest-suite.yml` (main and openxFactory #801 alike) uses
+      # for the decision-core checkout. Deliberately NO `continue-on-error`:
+      # a checkout failure here means the mint above returned a token that
+      # cannot actually read the repository (wrong `repositories:` scope,
+      # revoked grant, etc.), which is exactly the second failure mode this
+      # proof exists to catch.
+      - name: Check out the moved decision core (codeXfactory/codexFactory)
+        uses: actions/checkout@v4
+        with:
+          repository: codeXfactory/codexFactory
+          ref: "4b12ba83add713666a94129fc45552d8989f8488"
+          path: core
+          persist-credentials: false
+          token: ${{ steps.core-token.outputs.token }}
+
+      # STEP 3 — prove the checkout actually landed the MOVED repository, not
+      # merely something that resolved by name.
+      - name: Prove the checkout is the moved repository
+        run: |
+          set -euo pipefail
+          sha="$(git -C core rev-parse HEAD)"
+          url="$(git -C core remote get-url origin)"
+          echo "core HEAD: ${sha}"
+          echo "core origin: ${url}"
+          case "${url}" in
+            *codeXfactory/codexFactory*)
+              echo "ASSERTION PASSED: origin names codeXfactory/codexFactory."
+              ;;
+            *)
+              echo "ASSERTION FAILED: origin does not name codeXfactory/codexFactory: ${url}" >&2
+              exit 1
+              ;;
+          esac
+
+      # STEP 4a — the OLD (pre-#801) mint shape: `owner:
+      # ${{ github.repository_owner }}`, which resolves to `opensoft` on this
+      # repository — the exact `app-token` step pytest-suite.yml already
+      # carries today. `continue-on-error: true` because this mint is
+      # expected to SUCCEED (the `opensoft` installation is unaffected by the
+      # move); what is under test is what that token can READ, in step 4b,
+      # not whether it can be minted.
+      - name: Mint the OLD-scoped token for comparison (owner = opensoft)
+        id: old-app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      # STEP 4b — record, WITHOUT failing the job, whether the OLD-scoped
+      # token can read the moved repository. Expected: 404 — a GitHub App
+      # installation is per-organization (runbook step 1.6), so the
+      # `opensoft` installation cannot resolve a repository that now lives in
+      # `codeXfactory`. That expected 404 IS the proof that openxFactory
+      # #801's `owner: codeXfactory` fix (four sites) was necessary, not
+      # cosmetic. `if: always()` so this still runs even though step 4a is
+      # `continue-on-error` (its normal outcome) — never skipped for that
+      # reason.
+      - name: Record whether the OLD-scoped token can read the moved repository
+        if: always()
+        env:
+          GH_TOKEN: ${{ steps.old-app-token.outputs.token }}
+        run: |
+          set +e
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "OLD-SCOPE READ: skipped (old-scoped mint produced no token; outcome=${{ steps.old-app-token.outcome }})"
+            exit 0
+          fi
+          result="$(gh api repos/codeXfactory/codexFactory --jq .full_name 2>&1)"
+          status=$?
+          if [ "${status}" -eq 0 ]; then
+            echo "OLD-SCOPE READ: unexpectedly succeeded — full_name=${result}"
+          else
+            echo "OLD-SCOPE READ: ${result}"
+          fi
+          exit 0
