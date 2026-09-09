@@ -1,15 +1,28 @@
 # Tasks: relocate-review-authority-floor-mirror
 
-Status: draft
+Status: ratified
+Ratified by: relocate-review-authority-floor-mirror — 2026-09-08, Brett Heap,
+verbatim "ratify 293 and 817 when green, then realize them" (openxFactory #745,
+mirrored on codexFactory #232; record `review/ratification-2026-09-08.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release:` a code surface — so under
 `release-realization` this packet archives on merged-plus-green realization
 evidence and not on landing.
 
-**THIS PULL REQUEST PERFORMS NOTHING.** No workflow, script, contract, test or
-pin byte is edited, nothing in codexFactory is touched, and every box below is
-unticked. **THE REALIZATION IS IN TWO PARTS THAT BRACKET ANOTHER REPOSITORY'S
+**THIS PULL REQUEST PERFORMS NOTHING BUT THE PROPOSING AND THE RATIFYING.** No
+workflow, script or contract byte of the LANE is edited and nothing in
+codexFactory is touched. Two files outside the packet DO move, and both are
+gate bookkeeping this packet owes rather than behaviour it changes: the
+`## MODIFIED` block's sibling-pairing marker, and the corpus-ledger row seeded
+by `scripts/validate-sequenced-after.py --seed-ledger`.
+
+**RATIFIED 2026-09-08, AND IT TICKS FOUR BOXES AND NO OTHERS: 1.1, 1.2, 5.1 AND
+5.2.** Each names the ratifying word or the ratifying commit as its own tick
+condition. **1.3 (MQ-2) AND 1.4 (MQ-3) STAY OPEN** — each asks for a word
+choosing between named options and the word of 23:51Z chose neither; neither
+blocks realization (1). **§ 2, § 3 and § 4 stay open**, each on the act it
+already names. **THE REALIZATION IS IN TWO PARTS THAT BRACKET ANOTHER REPOSITORY'S
 LANDING** (M-1), and the boxes are grouped that way so a reader cannot mistake
 one for the whole. **THE NUMBERING BELOW IS M-1'S, NOT A SECOND SCHEME**: M-1's
 three steps are (1) this repository accepts both paths, (2) codexFactory moves,
@@ -19,11 +32,11 @@ standing between them as this packet's gate.
 
 ## 1. The word
 
-- [ ] 1.1 Brett Heap ratifies this packet. **Ticks on:** a recorded verbatim
+- [x] 1.1 Brett Heap ratifies this packet. **Ticks on:** a recorded verbatim
       word on openxFactory #745 (mirrored on codexFactory #232) naming this
       packet, over a named head, required checks green, zero unresolved threads,
       and a `review/ratification-<date>.md` record landing with it.
-- [ ] 1.2 MQ-1 answered — same word as codexFactory #293, or separate.
+- [x] 1.2 MQ-1 answered — same word as codexFactory #293, or separate.
       **Ticks on:** the ratifying word saying which.
 - [ ] 1.3 MQ-2 answered — the binding's `source_documents:` read surface (M-4)
       stands or is vetoed. **Ticks on:** the same word.
@@ -80,9 +93,9 @@ standing between them as this packet's gate.
 
 ## 5. Bookkeeping
 
-- [ ] 5.1 This packet is listed in the README's OpenSpec Records block.
+- [x] 5.1 This packet is listed in the README's OpenSpec Records block.
       **Ticks on:** the ratifying commit.
-- [ ] 5.2 `openspec validate relocate-review-authority-floor-mirror --strict`
+- [x] 5.2 `openspec validate relocate-review-authority-floor-mirror --strict`
       and `--all --strict` pass, and the repository's own validators report the
       same failure set as `main`. **Ticks on:** the ratifying commit, over the
       recorded runs.

@@ -6,7 +6,23 @@ sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-re
 
 # Proposal: relocate-review-authority-floor-mirror
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-08, Brett Heap (openxFactory repository owner), in session,
+verbatim **"ratify 293 and 817 when green, then realize them"** — recorded
+2026-09-08T23:51Z on openxFactory issue #745 and mirrored on codexFactory issue
+#232, applied over PR #817 on the condition that its checks be green. **THEY
+WERE NOT WHEN THE WORD WAS GIVEN, AND THAT IS RECORDED RATHER THAN SMOOTHED**:
+`pytest-suite` was red for two causes, both this packet's own — an undeclared
+sibling-pairing on the `## MODIFIED` block, and a missing corpus-ledger row —
+and both were fixed in the packet, never in a test, before this header was
+written. **M-1 THROUGH M-7 STAND AS RECOMMENDED — no veto was entered.**
+**NOTHING IS REALIZED BY THE RATIFICATION**: *"then realize them"* is a SECOND
+act in the same word, and this repository's step (1) is the FIRST realization of
+the pair — codexFactory's move may not be opened before it. **THE SAME WORD
+RATIFIED THE SIBLING** `codexFactory:change:relocate-review-authority-floor`
+(codexFactory #293), which answers MQ-1: the same word, not separately.
+**BOXES 1.3 (MQ-2) AND 1.4 (MQ-3) ARE NOT RULED BY THIS WORD** and neither
+blocks realization (1). Record `review/ratification-2026-09-08.md`.
 Proposed: 2026-09-08
 Origin: codexFactory issue
 [#232](https://github.com/opensoft/codexFactory/issues/232), mirrored on

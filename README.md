@@ -520,7 +520,32 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
-  — authored 2026-09-08, **`Status: draft`**, lane `openxfactory-2`. The
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
+  when green, then realize them"*, recorded 2026-09-08T23:51Z on
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
+  [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232), over
+  [#817](https://github.com/opensoft/openxFactory/pull/817); record
+  `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
+  lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
+  `codexFactory:change:relocate-review-authority-floor`
+  ([codexFactory #293](https://github.com/opensoft/codexFactory/pull/293)),
+  which answers MQ-1: the same word, not separately. **THE CONDITION *"when
+  green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
+  smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
+  `## MODIFIED` block carried no sibling-pairing declaration for a requirement
+  ADDED by the still-active `mirror-floor-regeneration-automation`, and the
+  packet had no `tests/sequenced_after/corpus-ledger.yaml` row. Both were fixed
+  IN THE PACKET, never in a test: the block now carries the reserved
+  `Modified over …'s addition by … (…):` marker in the same form the sibling
+  `amend-mirror-floor-regeneration-merge-authority` uses for the OTHER
+  requirement of the same parent, and the row was seeded by the sanctioned tool
+  (`validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
+  row this repository has stamped through issue #790's UTC clock, which is why
+  its `moved_on` reads `2026-09-09`. **RATIFICATION PERFORMS NO REALIZATION** —
+  it ticks `tasks.md` boxes 1.1, 1.2, 5.1 and 5.2 and nothing else; **1.3 (MQ-2)
+  and 1.4 (MQ-3) stay open** and neither blocks realization (1). **M-1 THROUGH
+  M-7 STAND AS RECOMMENDED, no veto entered.** The
   openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
   verbatim *"rule shape 1, measure first, this lane realizes it"*
   ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
@@ -560,9 +585,8 @@ Active changes:
   `sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor]`.
   **THIS PULL REQUEST PERFORMS
   NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
-  in codexFactory is touched, and every `tasks.md` box is unticked. **OPEN TO
-  BRETT (MQ-1):** does this ratify on the same word as codexFactory #293, or
-  separately?
+  in codexFactory is touched. **MQ-1 IS ANSWERED** — the same word as
+  codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
 
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
