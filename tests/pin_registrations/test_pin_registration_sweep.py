@@ -493,6 +493,51 @@ def test_a_non_string_registered_path_is_refused_rather_than_raising(
     assert "is not a non-empty string path" in captured.out, captured.out
 
 
+def test_a_non_string_entrypoint_is_refused_rather_than_stringified(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The bench's second round: coercing the field with `str()` BEFORE the
+    containment helper turned `consumer_entrypoint: 17` into the string "17"
+    and reported it as a merely-missing file, swallowing the helper's own
+    non-string refusal. The raw YAML value is the claimed path."""
+    module = _load_checker()
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin", "consumption_rule": "CHECK OUT, NEVER COPY."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": 17},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is not a non-empty string path" in captured.out, captured.out
+    # And the rule assertion does NOT also fire: `consumption_rule` is compared
+    # against a PATH, and there is no path to compare against.
+    assert "never names" not in captured.out, captured.out
+    assert "FAIL 1 finding(s) over 1 pin registration(s)" in captured.out, (
+        captured.out)
+
+
+def test_an_empty_entrypoint_is_refused_as_a_non_path(
+        tmp_path, monkeypatch, capsys) -> None:
+    """`Path("")` is `Path(".")`, a directory — so an empty field would have
+    reported as a missing FILE rather than as the absent value it is."""
+    module = _load_checker()
+    manifest = _write_case(
+        tmp_path,
+        row={"id": "scratch-pin", "path": "contracts/scratch-pin.yaml",
+             "type": "pin", "consumption_rule": "CHECK OUT, NEVER COPY."},
+        pin={"kind": "pinned_contract_manifest", "consumer_entrypoint": "   "},
+        pin_relpath="contracts/scratch-pin.yaml")
+
+    exit_code = _run_over(module, monkeypatch, tmp_path, manifest)
+
+    captured = capsys.readouterr()
+    assert exit_code == 1, captured.out
+    assert "is not a non-empty string path" in captured.out, captured.out
+
+
 # --------------------------------------------------------------------------
 # The rule names a WHOLE path — taken from the bench (Codex, P2)
 # --------------------------------------------------------------------------

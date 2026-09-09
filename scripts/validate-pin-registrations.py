@@ -202,7 +202,7 @@ def check_row(row, findings):
     pin_path, refusal = resolve_in_tree(raw_path)
     if refusal is not None:
         findings.append(
-            f"FAIL {row_id}: the row registers `{raw_path}`, which {refusal} — "
+            f"FAIL {row_id}: the row registers `{raw_path!r}`, which {refusal} — "
             f"a register naming a path outside the tree publishes bytes no "
             f"consumer's checkout contains")
         return False
@@ -238,15 +238,24 @@ def check_row(row, findings):
               f"`{ENTRYPOINT_FIELD}:`, so the entrypoint assertions do not apply")
         return True
 
-    entrypoint = str(entrypoint)
+    # NOT coerced with `str()` before the containment helper runs: that would
+    # turn `consumer_entrypoint: 17` into the string "17" and report it as a
+    # merely-missing file, silently swallowing the helper's own non-string
+    # refusal — the bench caught the coercion doing exactly that. The raw YAML
+    # value is the claimed path, and it is a string only once the helper says so.
     entrypoint_path, refusal = resolve_in_tree(entrypoint)
     if refusal is not None:
         findings.append(
-            f"FAIL {row_id}: the pin names `{ENTRYPOINT_FIELD}: {entrypoint}`, "
+            f"FAIL {row_id}: the pin names `{ENTRYPOINT_FIELD}: {entrypoint!r}`, "
             f"which {refusal} — the published recipe invokes the entrypoint FROM "
             f"THE PINNED CHECKOUT, and a path outside it is unreachable there")
-        ok = False
-    elif not entrypoint_path.is_file():
+        # Terminal for this row: `consumption_rule` is compared against a PATH,
+        # and there is no path to compare against. Reporting a second finding
+        # that the rule "never names 17" would be noise, not an assertion.
+        return False
+
+    entrypoint = str(entrypoint)
+    if not entrypoint_path.is_file():
         findings.append(
             f"FAIL {row_id}: the pin names `{ENTRYPOINT_FIELD}: {entrypoint}` but "
             f"no such file is in this tree — a consumer following the published "
