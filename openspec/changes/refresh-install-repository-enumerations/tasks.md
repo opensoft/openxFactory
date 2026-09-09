@@ -51,6 +51,26 @@ of by the archive act, and § 4's are the archive act itself.
       `proposal.md`, `Ratified by:` here and in `design.md` — which is what
       `ratified-provenance` counts. Record:
       `review/ratification-2026-09-09.md`.
+      **THE SURFACE IS DISCLOSED RATHER THAN GLOSSED, BECAUSE THIS BOX'S OWN
+      LIST IS UNDER-INCLUSIVE AND THE BOX'S TEXT DOES NOT MOVE.** The sentence
+      above names two surfaces — *"on the pull request or on
+      openxFactory#796"* — and the word arrived on neither: it was given IN
+      SESSION and recorded on **openxFactory#591**, which is the surface this
+      SAME BOX already names for Brett Heap's word on this packet two sentences
+      later (*"His word of 2026-09-08 … recorded on openxFactory#591"*). So the
+      condition the box exists to enforce — that the word be DURABLY RECORDED
+      and citable rather than asserted from a session — is met, and what is
+      wrong is the enumeration rather than the record. **THE PRECEDENT IS IN
+      THIS PACKET'S OWN FAMILY:** the archived `implement-omniworker-install-repo`
+      took Brett Heap's ruling *"Accept Omni001-XEAON"* (2026-09-05 ~22:50Z) and
+      the approval of its four dated amendments (*"do all 4, they are all
+      approved"*, 2026-09-07 ~22:55Z) on **openxFactory#591** and archived on
+      them. **Raised by `chatgpt-codex-connector` as a P2 on this pull request
+      and TAKEN AS A DISCLOSURE**: a reader who wants the enumeration widened
+      can have it in a successor, and a reader who wants the word on #796
+      instead can have Brett Heap say so — neither is invented here, and the
+      box is not unticked on a surface list that its own third sentence
+      contradicts.
 - [x] 1.2 The three veto points are put to him verbatim in the pull request
       body and stand or fall on their own:
       - **D1** — widen the enumerations and state the index rule

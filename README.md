@@ -567,8 +567,9 @@ Active changes:
   against an indexed set of FIVE, enrolling three repositories no reviewed act
   placed under the requirement and duplicating `xFactory-Installer`, which its
   own requirement already governs. **NO GENERATOR IS BUILT**, no promoted
-  specification byte moves, no contract is cut, `code_surface: none`, and all
-  boxes in `tasks.md` are unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
+  specification byte moves, no contract is cut, `code_surface: none`, and
+  `tasks.md` § 1 and § 2 are ticked (the ratification, and the authoring #818
+  landed) while § 3 and § 4 stay unticked. **ONE ACT IS OWED AT THE ARCHIVE** —
   `tasks.md` § 4.1, the `repo-boundary-governance` `## Purpose` widening, which
   a delta cannot carry and which is taken in the archive commit as a separate
   hunk on the `publish-openspec-cli-pin-as-contract-member` § 5.8 precedent.

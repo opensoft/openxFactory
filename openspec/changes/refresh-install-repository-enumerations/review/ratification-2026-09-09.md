@@ -160,6 +160,21 @@ UNTICKED"*) — and each is carried verbatim under a dated file-forward note or
 disposition, because ratified bytes do not move to tidy a tense and because
 those sentences are the record of the state the packet was reviewed in.
 
+**THE RECORDING SURFACE IS DISCLOSED.** `tasks.md` § 1.1 names two surfaces
+for the ratifying word — the pull request, or openxFactory#796 — and the word
+arrived on **neither**: it was given in session and recorded on
+**openxFactory#591**, the surface that same box already cites for Brett Heap's
+word of 2026-09-08 on this packet. The obligation the box carries is that the
+word be DURABLY RECORDED and citable rather than asserted from a session, and
+it is: issue, comment id and timestamp are all named above. **The precedent is
+in this packet's own family** — the archived
+`implement-omniworker-install-repo` took Brett Heap's *"Accept Omni001-XEAON"*
+ruling and the approval of its four dated amendments on openxFactory#591 and
+archived on them. The enumeration is under-inclusive rather than the record
+being absent, and it is disclosed here rather than edited, because ratified box
+text does not move to fit the act that satisfied it. Raised by
+`chatgpt-codex-connector` as a **P2** and taken as this disclosure.
+
 **APPROVAL IS AN ADDITION.** `.openspec.yaml` gains `approved_by` and
 `approved_on` BESIDE the drafting provenance it was authored with; `kind`, `id`
 and `reason` never move. That is `add-drafted-proposal-origin`'s own rule for
@@ -182,12 +197,33 @@ recommended — the changes are governance/docs-only and internally
 consistent"*. Sourcery's comments were the private-repository upsell stub, not
 a review.
 
+## 5a. The review of THIS recording pull request
+
+**Round 1 — Copilot (1 finding) and Codex (1 P2). BOTH TAKEN; nothing
+declined.**
+
+| Finding | Verdict |
+|---|---|
+| Copilot: this record's § 6 named the lane registry by a **home-directory path** — a workstation-specific location, against the constitution § IV rule that committed files carry no host-absolute paths | **TAKEN.** § 6 now names the lane registry as `LANES.md` at the aggregation workspace root and cites the rule. **THE OFFENDING FORM IS DESCRIBED HERE AND NOT REPRODUCED**, on this lane's own #818 lesson that a sentence quoting the defect verbatim reintroduces it. Disclosed with it: **three archived ratification records in this corpus carry the same form** — a pre-existing class this record does not widen and does not edit, because `record-immutability` forbids editing a captured record |
+| Codex **P2**: § 1.1 names the pull request or openxFactory#796 as the ratifying word's surface, while the evidence cites openxFactory#591 — so ticking it records a ratification whose own location condition is unmet | **TAKEN AS A DISCLOSURE, and the tick STANDS.** § 4 above and § 1.1's evidence now state the surface question in terms: the word is durably recorded (issue, comment id, timestamp), #591 is the surface § 1.1's own third sentence already cites for Brett Heap's word on this packet, and `implement-omniworker-install-repo` archived on two rulings taken there. The enumeration is under-inclusive; the record is not absent |
+
+**One correction was self-found rather than raised, and is disclosed rather
+than smoothed over.** The README row carried the clause *"all boxes in
+`tasks.md` are unticked"*, which this pull request's own § 1/§ 2 ticks falsify.
+It now reads that § 1 and § 2 are ticked while § 3 and § 4 stay unticked. That
+is one clause of the same row whose status wording this act moves, and no other
+byte of README moves with it.
+
+**Sourcery:** the private-repository upsell stub, not a review.
+
 ## 6. The landing obligation
 
 **Rule 6 applies.** This pull request touches `openspec/changes/` and carries a
 README *"OpenSpec Records"* edit, so lane `openxfactory-3` posts
 `LANDING — lane openxfactory-3, session <id>, <UTC>, PR #<n> into openxFactory
-main` on the pull request and in `~/projects/xFactory/LANES.md` before the
-merge, and `LANDED — lane openxfactory-3, <UTC>, PR #<n> → <merge sha>` after
-it. **The landing is the coordinator's act, not this author's**, and this
-author neither merges nor archives.
+main` on the pull request and in the lane registry `LANES.md` at the xFactory
+aggregation workspace root — named repo-relatively rather than by a
+workstation path, on the constitution's § IV rule that committed files carry no
+host-absolute paths — before the merge, and `LANDED — lane openxfactory-3,
+<UTC>, PR #<n> → <merge sha>` after it. **The landing is the coordinator's
+act, not this author's**, and this author neither merges nor archives.
