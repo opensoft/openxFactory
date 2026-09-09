@@ -6,7 +6,7 @@ Status: draft
 
 Engineering-specific worker deployment now lives in:
 
-- `opensoft/codexFactory/docs/engineering-worker-model.md`
+- `codeXfactory/codexFactory/docs/engineering-worker-model.md`
 
 ## Neutral Control/Execution Split
 

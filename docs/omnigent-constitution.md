@@ -37,8 +37,8 @@ diagnostics and can never create authoritative expert context.
 
 Engineering-specific Omnigent rules now live in:
 
-- `opensoft/codexFactory/docs/engineering-omnigent-constitution.md`
-- `opensoft/codexFactory/docs/omnigent-coding-agent-workflow.md`
+- `codeXfactory/codexFactory/docs/engineering-omnigent-constitution.md`
+- `codeXfactory/codexFactory/docs/omnigent-coding-agent-workflow.md`
 
 Medical-specific Omnigent rules live in:
 

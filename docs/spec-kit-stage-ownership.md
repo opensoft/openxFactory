@@ -8,7 +8,7 @@ Spec Kit is a software engineering feature-flow implementation and now belongs i
 
 Canonical engineering-domain documentation:
 
-- `opensoft/codexFactory/docs/spec-kit-engineering-flow.md`
+- `codeXfactory/codexFactory/docs/spec-kit-engineering-flow.md`
 
 ## Neutral openxFactory Rule
 

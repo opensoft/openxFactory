@@ -6,7 +6,7 @@ Status: draft
 
 Engineering-specific Merge Master behavior now lives in:
 
-- `opensoft/codexFactory/docs/pr-admission-merge-readiness.md`
+- `codeXfactory/codexFactory/docs/pr-admission-merge-readiness.md`
 
 ## Neutral Rule
 

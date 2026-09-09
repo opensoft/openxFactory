@@ -234,9 +234,9 @@ engineering clarification routing, branch review, PR admission packet format,
 and merge readiness packet format. The current engineering policy lives in:
 
 ```text
-opensoft/codexFactory/docs/spec-kit-engineering-flow.md
-opensoft/codexFactory/docs/feature-decomposition-traceability.md
-opensoft/codexFactory/docs/pr-admission-merge-readiness.md
+codeXfactory/codexFactory/docs/spec-kit-engineering-flow.md
+codeXfactory/codexFactory/docs/feature-decomposition-traceability.md
+codeXfactory/codexFactory/docs/pr-admission-merge-readiness.md
 ```
 
 Other DomainxFactories use the same neutral gates but specialize them with their

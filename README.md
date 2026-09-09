@@ -313,7 +313,7 @@ Core domain-neutral docs:
   `scripts/validate-capability-steward.py`, MVP corpus completion
   `examples/capability-steward/`)
 
-Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
+Engineering-domain implementation docs now belong in `codeXfactory/codexFactory`.
 
 Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
@@ -406,7 +406,7 @@ changes can legitimately turn the suite red.
 
 ## Domain Implementations
 
-- `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
+- `codeXfactory/codexFactory` — software, code, repo, and engineering xFactory domain stack.
 - `opensoft/MedxFactory` — medical xFactory domain stack for clinical agents and medical workflows.
 - `opensoft/OpsxFactory` — IT operations, sysops, devops, identity, infrastructure, and tenant administration xFactory domain stack.
 - `opensoft/LedgerxFactory` — accounting, finance, and ledger xFactory domain stack.
@@ -524,12 +524,12 @@ Active changes:
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
   when green, then realize them"*, recorded 2026-09-08T23:51Z on
   [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
-  [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232), over
+  [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232), over
   [#817](https://github.com/opensoft/openxFactory/pull/817); record
   `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
   lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
   `codexFactory:change:relocate-review-authority-floor`
-  ([codexFactory #293](https://github.com/opensoft/codexFactory/pull/293)),
+  ([codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293)),
   which answers MQ-1: the same word, not separately. **THE CONDITION *"when
   green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
   smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
@@ -548,13 +548,13 @@ Active changes:
   M-7 STAND AS RECOMMENDED, no veto entered.** The
   openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
   verbatim *"rule shape 1, measure first, this lane realizes it"*
-  ([codexFactory #232](https://github.com/opensoft/codexFactory/issues/232)
+  ([codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232)
   comment 5586188401, mirrored on
   [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
   rules the SHAPE and ratifies no text.** codexFactory is to move
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
   CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
-  [codexFactory #293](https://github.com/opensoft/codexFactory/pull/293),
+  [codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293),
   decision D-7 names this companion and D-2 sequences it FIRST). **THIS
   REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
   `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
@@ -592,7 +592,7 @@ Active changes:
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim **"merge 292 when green,
   then ratify 807"** — the SECOND act of a two-act word whose first act landed
-  codexFactory [#292](https://github.com/opensoft/codexFactory/pull/292) at merge
+  codexFactory [#292](https://github.com/codeXfactory/codexFactory/pull/292) at merge
   commit `406a2afb`; recorded on openxFactory
   [#745](https://github.com/opensoft/openxFactory/issues/745) comment
   5586895152, applied over PR
@@ -941,8 +941,8 @@ Active changes:
   under a human merge word, and alternatives (d) status quo and (e) satisfy-the-
   canon-as-written are recorded as not taken rather than foreclosed. Governing
   issue [#745](https://github.com/opensoft/openxFactory/issues/745), first-cycle
-  record [codexFactory #232](https://github.com/opensoft/codexFactory/issues/232),
-  COMPANION [codexFactory #272](https://github.com/opensoft/codexFactory/pull/272)
+  record [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232),
+  COMPANION [codexFactory #272](https://github.com/codeXfactory/codexFactory/pull/272)
   — the canon narrowing, authored there because the canon lives there.
   Answers § 6.3 of BOTH ratified option-(b) packets — the box they named and
   deliberately left unruled: whether the merge-master low-risk envelope should
@@ -1053,9 +1053,9 @@ Active changes:
   workflow file, no test, NO PIN MOVED, every box in `tasks.md` still unticked;
   decisions **M-1..M-7 stand as recommended**, no veto exercised. Governing
   issue codexFactory
-  [#232](https://github.com/opensoft/codexFactory/issues/232) (no separate
+  [#232](https://github.com/codeXfactory/codexFactory/issues/232) (no separate
   openxFactory issue was filed, by instruction); origin codexFactory
-  [#203](https://github.com/opensoft/codexFactory/issues/203). **THE COMPANION
+  [#203](https://github.com/codeXfactory/codexFactory/issues/203). **THE COMPANION
   HALF, AND NOTHING IS BUILT BY IT.** The primary is codexFactory
   `add-floor-regeneration-automation`
   (option (b) of #203, the one the ruled option (c) left *"not ruled and not

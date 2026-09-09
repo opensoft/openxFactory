@@ -102,7 +102,7 @@ archived
 
 ## Engineering Implementation Pointer
 
-Engineering-specific implementation details live in `opensoft/codexFactory`.
+Engineering-specific implementation details live in `codeXfactory/codexFactory`.
 
 That repo defines coding agents, engineering decomposition, Spec Kit engineering flow, branch review, PR admission, and merge readiness.
 
