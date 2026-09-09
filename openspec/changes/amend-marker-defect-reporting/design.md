@@ -163,6 +163,18 @@ the fault this packet exists to correct, on the same afternoon. It is pinned by
 `test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT` so the silence is a
 decision a later reader can overturn, not a gap they have to rediscover.
 
+**AND A MARKER THAT NAMES NOTHING AT ALL IS SILENT TOO, WHICH IS WHY THE
+SENTENCE CLAIMS THE THREE GROUNDS RATHER THAN THE CONVERSE.** A
+`Removed from canon` marker whose tail carries no code span parses to `names =
+[]` and `quoted = []`, so `suppression`'s per-name loop never runs, `restated`
+stays false, `unmatched` stays empty and the second pass has nothing to resolve
+— it reaches NONE of the three grounds. It is the FOURTH case of a marker that
+declares nothing about the block, and it is unruled: what such a paragraph even
+is (a marker form with no declaration, or prose that merely looks like one) is a
+grammar question this packet does not open. So the delta's sentence is written to
+say what the three grounds report rather than to say that every marker declaring
+nothing is reported, and the case is recorded as residue at `tasks.md` § 5.7.
+
 The same discipline applies to the PAIRING form. Its whole tail is a reason by
 construction and it names no units, so no span in it is a would-be declaration;
 `Marker.quoted` is empty for it and ground two cannot reach it.

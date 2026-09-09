@@ -16,8 +16,8 @@ approval: nothing here is ratified, and § Ratification records what is owed.
 ## Why
 
 **A marker is a declaration, and until now a declaration that described nothing
-was silent about ITSELF in two ways — so its author was pointed at a unit
-instead of at their own paragraph.**
+was silent about ITSELF in the two ways this packet takes — so its author was
+pointed at a unit instead of at their own paragraph.**
 
 `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
 gives a marker exactly ONE reporting ground, in one sentence:
@@ -103,15 +103,19 @@ the end of the block.**
 - **RETIRED:** *"A marker naming a unit the block still carries declares nothing
   and SHALL itself be reported, because a declaration that does not describe the
   block is a declaration no reader can rely on."*
-- **REPLACING IT:** a marker that declares nothing SHALL itself be reported on
-  any of THREE grounds, each one finding at the `info` band the marker-defect
-  class already carries — it names a unit the block still carries; or a code
-  span standing INSIDE its reason matches EXACTLY a unit of the promoted
-  requirement that the block does not carry and that no marker declares removed;
-  or it names something matching no unit of the promoted requirement and no unit
-  of the block — with the second ground read NARROWLY, on the exact match and
-  never on the span's position alone, and never withdrawing the carriage arms
-  from the unit the span would have named.
+- **REPLACING IT:** a marker SHALL itself be reported on any of THREE grounds,
+  each one finding at the `info` band the marker-defect class already carries —
+  it names a unit the block still carries; or a code span standing INSIDE its
+  reason matches EXACTLY a unit of the requirement's basis that the block does
+  not carry and that no marker declares removed; or it names something matching
+  no unit of the requirement's basis and no unit of the block — each of the
+  three being a declaration that does not describe the block, with the second
+  ground read NARROWLY, on the exact match and never on the span's position
+  alone, and never withdrawing the carriage arms from the unit the span would
+  have named. **THE THREE GROUNDS ARE THE WHOLE OF WHAT IS CLAIMED**, and the
+  sentence says so rather than saying that every marker declaring nothing is
+  reported: a marker carrying NO code span at all names nothing, reaches none
+  of the three, and stays silent (`tasks.md` § 5.7).
 
 The retired unit is declared by the reserved marker
 `**Removed from canon by amend-marker-defect-reporting (2026-09-09):**`, naming
@@ -283,5 +287,10 @@ independently of it.
   not.** That is a fourth ground nobody has ruled, and it is left silent
   deliberately (`design.md` D3), pinned by a test so the silence is a decision
   rather than a gap.
+- **It does not report a marker that names NOTHING AT ALL.** A marker whose tail
+  carries no code span parses to no names and no quoted spans, so it reaches
+  none of the three grounds and is silent — the FOURTH case of a marker that
+  declares nothing about the block, unreported and unruled, recorded as residue
+  at `tasks.md` § 5.7.
 - **It does not edit the promoted markers it counts**, nor the archived deltas
   that carry them. They are records of ratified removals.

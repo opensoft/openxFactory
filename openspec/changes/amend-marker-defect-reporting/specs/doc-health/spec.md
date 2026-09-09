@@ -158,18 +158,17 @@ reading it as a named unit would make every valid merge marker report itself
 under the rule below. Only the code spans after the colon name units.
 
 A marker SHALL suppress only the units it names AND that are in fact absent from
-the block. A marker that declares nothing
-SHALL itself be reported, on any of THREE grounds, each of them one finding at
-the `info` band this family's marker-defect class already carries: it names a
-unit the block still carries; or a code span standing INSIDE its reason matches
-EXACTLY a unit of the promoted requirement that the block does not carry and
-that no marker declares removed, the boundary above reading that span as prose
-rather than as a name, so that its author declared nothing about a unit they
-plainly had in mind; or it names something matching no unit of the promoted
-requirement and no unit of the block. A declaration that does not describe the
-block is a declaration no reader can rely on, and a report on the MARKER is what
-points an author at the paragraph they wrote rather than at the unit it failed to
-declare. THE SECOND GROUND SHALL BE READ NARROWLY, on the exact match and never
+the block. A MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of
+them one finding at the `info` band this family's marker-defect class already
+carries: it names a unit the block still carries; or a code span standing INSIDE
+its reason matches EXACTLY a unit of the requirement's basis that the block does
+not carry and that no marker declares removed, the boundary above reading that
+span as prose rather than as a name, so that its author declared nothing about a
+unit they plainly had in mind; or it names something matching no unit of the
+requirement's basis and no unit of the block. Each of the three is a declaration
+that does not describe the block, which is a declaration no reader can rely on,
+and a report on the MARKER is what points an author at the paragraph they wrote
+rather than at the unit it failed to declare. THE SECOND GROUND SHALL BE READ NARROWLY, on the exact match and never
 on the span's position alone: a reason is prose and prose in this corpus quotes,
 so a code span inside a reason matching no unit of the requirement is the NORMAL
 FORM of a reason and SHALL NOT be reported. The second ground SHALL NOT withdraw
@@ -415,12 +414,12 @@ moment at which either silence has ever cost anybody anything.
 - **AND** the marker MUST carry no reason, which is the form the written-out `Merged into` example above is in
 
 #### Scenario: A marker's reason quotes a unit the block does not carry
-- **WHEN** a code span standing after a unit-naming marker's reason separator, and not also named before it, matches a unit of the promoted requirement exactly, and neither the block nor any marker in it accounts for that unit
+- **WHEN** a code span standing after a unit-naming marker's reason separator, and not also named before it, matches a unit of the requirement's basis exactly, and neither the block nor any marker in it accounts for that unit
 - **THEN** the run MUST report the marker itself in the `info` band, the span having been read as prose while the unit it had in mind went undeclared
 - **AND** the unit MUST remain subject to the carriage arms, the report being added beside that carriage rather than in place of it
-- **AND** a code span inside a reason that matches NO unit of the promoted requirement MUST NOT be reported, a reason being prose that quotes and this corpus's markers quoting one routinely
+- **AND** a code span inside a reason that matches NO unit of the requirement's basis MUST NOT be reported, a reason being prose that quotes and this corpus's markers quoting one routinely
 
 #### Scenario: A marker names something no unit matches
-- **WHEN** a marker names a code span matching no unit of the promoted requirement and no unit of the block
+- **WHEN** a marker names a code span matching no unit of the requirement's basis and no unit of the block
 - **THEN** the run MUST report the marker itself in the `info` band, a declaration about nothing being unusable as evidence about the block
 - **AND** the name MUST suppress nothing, which is the reading this family has always taken and is unchanged by the report

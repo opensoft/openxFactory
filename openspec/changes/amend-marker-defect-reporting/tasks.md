@@ -243,3 +243,16 @@ this pull request or a measurement recorded verbatim in the pull request body.
 - [ ] 5.6 **ARCHIVE.** `code_surface` is non-empty, so under
       `release-realization` this packet archives on merged-plus-green
       realization evidence rather than on landing, and on a separate word.
+- [ ] 5.7 **A MARKER THAT NAMES NOTHING AT ALL IS STILL SILENT** — the FOURTH
+      case of a marker that declares nothing about the block, and nobody has
+      ruled it. A `Removed from canon` marker whose tail carries no code span
+      parses to `names = []` and `quoted = []`, so `suppression`'s per-name loop
+      never runs and the second pass has nothing to resolve: it reaches none of
+      the three grounds and no finding is emitted. Found by this packet's
+      adversarial pass, which is why the delta's sentence claims what the three
+      grounds REPORT rather than claiming that every marker declaring nothing is
+      reported (`design.md` D3, `proposal.md` § *What this proposal does NOT
+      claim*). What such a paragraph even is — a marker form carrying no
+      declaration, or prose that merely looks like one — is a grammar question
+      this packet does not open, so no ground is invented here and no successor
+      is named yet — the issue is filed at the archive word rather than here.
