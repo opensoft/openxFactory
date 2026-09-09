@@ -591,7 +591,14 @@ def renamed_from(root: Path, revision: str, rel: str) -> str | None:
     this answers — did this packet exist under another name before this
     commit — has the same answer either way. (`9ec13c1a` above is exactly
     that shape: the pairing git found was a copy, because the commit that
-    added the new name did not remove the old one.)
+    added the new name did not remove the old one.) NO `--find-copies` IS
+    NEEDED for that, which is worth stating because copy detection is
+    normally opt-in: `--follow` turns it on for the followed path, and a
+    copied packet reports `C100` on DEFAULT config, without
+    `--find-renames`, and even under `diff.renames=false` — measured on git
+    2.43.0, and standing proof in
+    `test_a_ratified_packet_copied_to_a_new_id_refuses_too`, which passes on
+    a default-configured runner.
 
     ONE COMMIT IS ASKED ABOUT, not a history: `-1 <revision>` bounds the
     walk to the candidate itself, which is the only commit whose pairing the
@@ -643,6 +650,26 @@ def ratified_under_a_former_path(root: Path, revision: str,
     and the baseline is sound — the corpus does this (`46059b77`, #834,
     renamed a DRAFT change toward the dotless grammar), so this returns None
     for it and nothing refuses.
+
+    ONE COMMIT IS ASKED, WHICH LEAVES ONE SHAPE OUT (issue #849, raised as a
+    P1 on PR #846). The question above is put to the CANDIDATE commit only,
+    so a commit that renames an already-ratified packet AND un-ratifies the
+    destination in the same commit is never a candidate, and a LATER commit
+    that re-ratifies it carries no pairing: the walk takes the
+    re-ratification as its baseline, later than the real ratification. The
+    obvious closure — refuse on any hop in the followed history whose source
+    declared `ratified` at that hop's parent — is a no-op on this corpus
+    today (probed: 4 of 189 packets carry a hop before their baseline, all
+    four with a draft source, 0 refusals) and is STILL NOT TAKEN, because
+    history cannot separate that shape from a NEW packet authored as a copy
+    of a ratified one, entering as a draft and ratified later — ordinary
+    authoring, and identical in git (source ratified at the hop's parent,
+    destination not ratified at the hop). A hop-chain guard refuses both, and
+    this gate has no bypass flag, so a lawful fork-by-copy would become
+    unarchivable. The line therefore stays where the destination enters
+    RATIFIED; the gap is pinned by a fixture rather than left unsaid, and the
+    former-id declaration (#833's option (b)) is what makes the two shapes
+    distinguishable at all.
 
     WHERE THIS CANNOT SEE. When rename detection finds no pairing — a move
     that also rewrote `proposal.md` past git's similarity threshold, or a

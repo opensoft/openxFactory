@@ -1644,6 +1644,54 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("origin-retention-path-moved", result.stderr)
 
+    def test_an_unratifying_rename_escapes_the_guard_a_stated_gap(self):
+        """A STATED GAP, PINNED SO A SUCCESSOR FLIPS IT DELIBERATELY (issue
+        #849, Codex's P1 on PR #846). The guard asks its question of the
+        CANDIDATE commit, so a commit that renames an already-ratified packet
+        AND un-ratifies the destination is never a candidate, and the later
+        re-ratification carries no pairing: the walk takes the
+        re-ratification as its baseline — later than the real ratification,
+        with the mutation this fixture puts in between waved through, which
+        is #833's failure by a longer route.
+
+        WHY IT IS A GAP AND NOT A BUG TO PATCH HERE: refusing on any hop in
+        the followed history whose source was ratified at the hop's parent
+        would also refuse a NEW packet authored as a copy of a ratified one,
+        entering as a draft and ratified later — ordinary authoring, and the
+        same shape in git. This gate has no bypass flag, so that packet would
+        be unarchivable. Separating the two needs the former-id declaration
+        (#833's option (b)); until it lands, this test records what the walk
+        answers today rather than leaving the hole unsaid.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            proposal = moved / "proposal.md"
+            proposal.write_text(
+                proposal.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "rename the ratified packet and un-ratify it")
+            ratify(proposal)
+            commit_all(root, "re-ratify it under the new name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            # NOT refused, and the baseline is the RE-ratification …
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            # … which is why the mutation in between is not reported. The
+            # assertion is the GAP: a successor makes this refuse or re-base.
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
     def test_a_git_config_cannot_switch_the_guard_off(self):
         """NO GIT CONFIG SWITCHES THE GUARD OFF. Rename detection is
         configurable — `diff.renames=false`, `diff.renameLimit=1` — and a
