@@ -86,6 +86,10 @@ and 6.2's are. Nothing is archived by this file: the archive is a separate word.
 
 ## 2. codexFactory's half — NOT DONE HERE
 
+**[2026-09-06 RECORD — SUPERSEDED 2026-09-09, KEPT VERBATIM. Both boxes below
+are now TICKED; the paragraph is retained because it is the honest account of
+why they were open, not because it is still true. Read it in the past tense.]**
+
 **2.1 AND 2.2 STAY OPEN, AND NOT FOR WANT OF WORK HERE.** The packet is
 ratified (codexFactory #235, merge commit `ffc090d0`); its REALIZATION is being
 authored concurrently by a sibling lane on branch
@@ -512,8 +516,10 @@ boxes:
   observe. The count is 1 against `tolerance 3`, so the grace holds and nothing
   is refused; what DISCHARGES the pending path is the re-pin, which is 5.5's
   question and deliberately not this box's.
-  **THE 2026-09-06 RECORD IS KEPT BELOW UNCHANGED**, because it is the honest
-  account of why this box stayed open for three days.
+  **[2026-09-06 RECORD — SUPERSEDED BY THE OBSERVATION ABOVE, KEPT VERBATIM
+  FROM HERE TO THE END OF THIS BOX. The box is now TICKED; what follows is the
+  honest account of why it stayed open for three days, and is to be read in the
+  past tense.]**
   **STAYS OPEN, AND NOT FOR WANT OF A CYCLE.** The first observed cycle carried
   no `openspec/specs/**` promotion at all — see the group note above — so there
   was never a non-zero count to quote. codexFactory bot PR
@@ -629,9 +635,29 @@ boxes:
   the moved floor**, and what it should open is this repository's first
   ARMED-INERT advance (`amend-mirror-floor-regeneration-merge-authority` box
   1.3: the arming is inert by ruling until the enrolment successor lands), which
-  a human then merges. **Half two ticks on the FIRST `main` run after that
-  re-pin lands, quoting `covered-pending: 0` from it, and not before. That is an
-  event, not a judgement, and this record will not simulate it.**
+  a human then merges. **Half two ticks on the first ADVISORY run over a base
+  that includes that re-pin, quoting `covered-pending: 0` from it, and not
+  before. That is an event, not a judgement, and this record will not simulate
+  it.**
+  **WHICH RUN, PRECISELY — because the box's own words "the next `main` run"
+  name a trigger that DOES NOT EXIST, and § 3's finding 3 above already measured
+  that rather than this note discovering it.** `merge-master-approval.yml` is
+  the only workflow that PRINTS a `covered-pending` reading — `grep -ln
+  covered-pending .github/workflows/*.yml` names it and `review-lane-repin.yml`,
+  and the re-pin lane's occurrence is a DESIGN COMMENT (line 94, on the
+  cadence-versus-tolerance argument) rather than output: that lane reports its
+  own `action` and `reason` and renders no floor report at all. Its triggers are
+  `pull_request_target` (opened / reopened / synchronize) and
+  `workflow_dispatch` — it does not run on a push to `main`; `pytest-suite.yml`,
+  which DOES run on `push: branches: [main]`, computes no
+  `pending_floor_extension` report at all. **So the evidence run for half two is
+  an advisory run whose BASE carries the landed re-pin** — exactly how 5.1's own
+  evidence was produced: run 34417309342 is a `pull_request_target` run on the
+  unrelated pull request #874, reading a base that already carried #832. It
+  arrives on the next pull request opened or synchronised after the re-pin
+  lands, or on a hand `workflow_dispatch`. **The box's phrase is READ as "the
+  next advisory run over a base that includes the re-pin", and this note is that
+  reading written down rather than a silent substitution.**
   **THE MERGE WORD FOR THAT RE-PIN IS BRETT HEAP'S AND HAS NOT BEEN GIVEN.**
 - [ ] 5.6 The end-to-end wall time is measured and recorded against the two hand
   cycles in `proposal.md` § Why (55 min and 77 min).
@@ -859,9 +885,16 @@ mechanism rather than struck out.**
 `review-lane-repin` tick opens this repository's first ARMED-INERT advance
 (inert by the 1.3 ruling in `amend-mirror-floor-regeneration-merge-authority`,
 which stays ACTIVE by its own gate and is untouched by this pull request);
-(2) Brett Heap merges it; (3) the first `main` run after that quotes
+(2) Brett Heap merges it; (3) the first ADVISORY run over a base that includes that re-pin quotes
 `covered-pending: 0`, which ticks 5.5, and the completed cycle supplies 5.6's
-end-to-end figure; (4) Brett Heap ticks 6.1, 6.2, 6.4 and rules or ticks 6.3.
+end-to-end figure. **That run is a `merge-master-approval` run on the next pull
+request opened or synchronised after the re-pin lands, or a hand
+`workflow_dispatch` of it — NOT a `main`-push run, because no such run exists**:
+that workflow's triggers are `pull_request_target` and `workflow_dispatch` only,
+and `pytest-suite.yml`, the workflow that does run on `push: branches: [main]`,
+computes no `pending_floor_extension` report (§ 3 finding 3 measured this; 5.5
+(b) carries the same reading). Step (3) therefore rides ordinary pull-request
+traffic, which this repository has continuously, and needs no new surface; (4) Brett Heap ticks 6.1, 6.2, 6.4 and rules or ticks 6.3.
 **Then the archive is a bookkeeping act rather than a claim** — through
 `scripts/proposal-support.py . archive mirror-floor-regeneration-automation`,
 promoting `specs/review-lane-floor-mirror/` into
