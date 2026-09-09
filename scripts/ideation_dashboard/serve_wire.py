@@ -27,33 +27,50 @@ and the core body readers carry `JSON_OBJECT_BODY_REQUIRED` and
 made the CORE depend on the openDox column, which is the carve backwards.
 
 WIDENED BY PR 3 OF 4 for exactly the same reason this module exists, and
-NARROWED AGAIN by pre-carve split S-3 — read the two together, because the
-group described next is no longer all of it. The hosted-plane confinement —
-`HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`, `hosted_index` (FR-048) —
-ARRIVED here as a group, but the three names are not read alike, and that is
-what eventually sent one of them on.
-`hosted_ref_refused` is read by the CORE (`_divergence_headers`, `serve.py`),
-by the openXdox projection column (`serve_projection.py`: the snapshot, index
-and `/source` routes) and by the openxFactory adapter column
-(`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback).
-`HOSTED_SESSION_REFUSAL` is read by both columns only — the core never names
-it. `hosted_index` NO LONGER LIVES HERE: pre-carve split S-3 (§ 3.1 of this
-same change) re-homed it into `serve_projection.py` beside its one in-tree
-reader `_serve_index`, which is what this paragraph asked for before the split
-existed — an openXdox FR-048 index-confinement rule inside a module that goes
-WHOLE to openDox is a file the carve manifest cannot file under one column. So
-the group above is this module's HISTORY and two of the three names are its
-contents; `serve.py` imports `hosted_index` back from `serve_projection`, and
-`serve.hosted_index` resolves exactly as it did. Leaving
-any of the three in `serve.py` would have forced at least one column to
-import `serve` while `serve` imported it, which is the cycle this module
-exists to prevent; filing any of them under a column would have made the core
-(for `hosted_ref_refused`) or the other column (for `HOSTED_SESSION_REFUSAL`)
-depend on a column. It belongs here on this module's own stated remit: pure
-predicates over already-validated inputs, plus fixed refusal prose. `serve.py`
-now takes two of the three wire names from this module — `hosted_index` comes
-from `serve_projection` instead — so `serve.hosted_ref_refused` and
-`serve.hosted_index` still resolve for the suites that call them directly.
+EMPTIED AGAIN by the pre-carve splits — read them together, because the
+hosted-plane group this paragraph used to describe HAS NOW LEFT IN FULL. The
+hosted-plane confinement — `HOSTED_SESSION_REFUSAL`, `hosted_ref_refused`,
+`hosted_index` (FR-048) — ARRIVED here as a group, but the three names are not
+read alike, and that is what eventually sent every one of them on. This
+paragraph is now this module's HISTORY of them, and the record of where each
+went and why:
+
+- `hosted_index` went FIRST, by pre-carve split S-3 (§ 3.1 of this same
+  change), into `serve_projection.py` beside its one in-tree reader
+  `_serve_index` — an openXdox FR-048 index-confinement rule inside a module
+  that goes WHOLE to openDox is a file the carve manifest cannot file under
+  one column.
+- `hosted_ref_refused` FOLLOWED IT, into the same module, beside it, by OQ-B
+  re-plumb B-2 on Brett Heap's ruling of 2026-09-09 (`#656`, "rule B-2 (i')").
+  It was read by the CORE (`_divergence_headers`, `serve.py`), by the openXdox
+  projection column (`serve_projection.py`: the snapshot, index and `/source`
+  routes) and by the openxFactory adapter column
+  (`serve_openxfactory_lanes.py`: the refresh binding reachable off loopback)
+  — and that LAST reader is what settled it. `serve_openxfactory_lanes.py`
+  STAYS in openxFactory, so its import of a name defined here was an
+  openxFactory to openDox edge, which RULING OQ-2 forbids after the carve. The
+  predicate's one dependency, `snapshot_registry.is_publishable_ref`, is the
+  openXdox column and was already imported by `serve_projection.py`, so the
+  move costs no dependency and adds no edge, and three of its four call sites
+  were already in the destination.
+- `HOSTED_SESSION_REFUSAL` went in the SAME re-plumb, but the other way: a
+  `str` literal carries no dependency, so it is neutral by construction and
+  joined `JSON_CTYPE` and `JSON_OBJECT_BODY_REQUIRED` in the neutral
+  `scripts/wire_messages.py` — where it is `not_moved`, reason
+  `replicated_at_destination` (RULED OQ-A/OQ-C), rather than filed under any
+  column at all. It is re-exported here, so it still resolves off this module.
+
+So the group above names nothing this module DEFINES any more. Leaving any of
+the three in `serve.py` would still have forced at least one column to import
+`serve` while `serve` imported it, which is the cycle this module exists to
+prevent — this module was the right first home for all three and the wrong
+last one for each. `serve.py` takes `hosted_index` and `hosted_ref_refused`
+from `serve_projection` and the three strings from this module's re-export, so
+`serve.hosted_ref_refused`, `serve.hosted_index` and `serve.JSON_CTYPE` all
+resolve exactly as they did for the suites that call them directly. What
+remains here is this module's own stated remit: the shared wire vocabulary and
+pure envelope builders over already-validated inputs, plus fixed refusal prose
+BOTH columns read.
 
 NOTHING HERE REACHES A PROVIDER, a socket or a filesystem: it is constants,
 fixed refusal prose, pure envelope builders over already-validated inputs, and
