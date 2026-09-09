@@ -975,6 +975,34 @@ contracts:
       bundle and are interpreted ONLY through this mapping; "customer" and
       "client" never name a layer on new surfaces; domain aliases specialize
       canonical names and never replace them.
+  # ---- repository identity mapping — adopt-codexfactory-repository-identity ----
+  # Registered HERE and not by adopt-medxsoft-repository-identity, because task
+  # 1.1 of adopt-codexfactory-repository-identity was AMENDED on 2026-09-08 to
+  # author the file (record: that change's review/amendment-2026-09-08-task-1-1.md).
+  # Its own task 1.4 said "no second registration is owed … the exemplar's task
+  # 1.3 creates the entry"; the amendment re-derives that, and the entry is
+  # owed here. The exemplar APPENDS its two rows and re-authors nothing.
+  - id: repository-identity
+    path: contracts/policies/repository-identity.yaml
+    source_path: openxFactory/contracts/policies/repository-identity.yaml
+    type: policy
+    schema_version: 1
+    sha256: 04bc5fed882752d6670ca5558a6fcf16ac040527d493b41fdc32bd1dfd75f699  # authored at this change's realization; recomputed by adopt-medxsoft-repository-identity task 1.3 when its rows land
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The estate's former-to-current repository mapping. A FORMER repository
+      identity is READ THROUGH THIS FILE and never through a provider redirect,
+      which lapses the moment the former owner reuses the name; an immutable or
+      dated record — an archived packet, a dated verification table, a
+      signature- or digest-covered artifact — is NEVER respelled to match a row.
+      A transfer moves the OWNER SEGMENT ONLY (`owner_segment_rule`), so bare
+      names, commits, repository-relative paths and blob digests are untouched.
+      A row whose `transfer_state` is `pending` DECLARES a ruled change that has
+      not happened and MUST NOT be used to resolve a live reference
+      (`pending_row_rule`). `redirect_does_not_cover` enumerates the shapes that
+      break outright at the transfer: reusable-workflow `uses:` paths, container
+      package namespaces, and federated-credential subject strings.
   # ---- client-content contract surface — contract-v1.17 realization (add-client-layer-tuning-contracts) ----
   # The neutral tenant-layer set: three content kinds + the seedable
   # hermes_client_overlay. The stricter-only comparability rules are enforced

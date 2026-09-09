@@ -424,6 +424,13 @@ Every DomainxFactory must validate against the canonical contract:
   [contracts/policies/layer-vocabulary.yaml](contracts/policies/layer-vocabulary.yaml)).
 - Validator: `scripts/validate-domain-factory.py <domain-repo> [--strict]`
   — run from the pinned openxFactory checkout, never copied into domain repos.
+- Former repository identities: [contracts/policies/repository-identity.yaml](contracts/policies/repository-identity.yaml)
+  — the former-to-current mapping. A repository that has MOVED ORGANIZATIONS
+  keeps its recorded former spelling wherever that spelling is immutable or
+  dated (an archived packet, a dated verification table, a signature- or
+  digest-covered artifact), and the former identity is resolved BY LOOKUP here,
+  **never** through a provider redirect, which lapses the moment the former
+  owner reuses the name. A transfer moves the OWNER SEGMENT ONLY.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
   credential record kinds under `credentials/` (DTN-004). Registered in
@@ -512,10 +519,143 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-archived-record-edits](openspec/changes/govern-archived-record-edits/proposal.md)
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (reviewer of record), in session, first-hand to lane `opsXfactory-1`, by CLI
+  approval `gh pr review 788 --approve` — GitHub review **5141756427**, state
+  APPROVED, submitted 2026-09-08T12:38:36Z, **with an empty body**, so this
+  record quotes no words and invents none; ratified baseline `8cc76e1b`, carried
+  byte-unchanged into the pre-landing merge `d0f8cccf` (measured: the diff over
+  the packet directory is EMPTY); PR
+  [#788](https://github.com/opensoft/openxFactory/pull/788); record
+  `openspec/changes/govern-archived-record-edits/review/ratification-2026-09-08.md`).
+  **RATIFICATION PERFORMS NO REALIZATION** — no document is amended, no archived
+  byte is edited, no pin is re-derived, no checker is written, no delta is
+  promoted, and **all 28 boxes in `tasks.md` stay unticked**, § 1's ratification
+  boxes included, exactly as the sibling `add-consent-custody-rederivation-record`
+  left its 46. **THE APPROVAL IS THE RATIFICATION; THE LANDING IS THE LANE'S ACT**
+  under Brett Heap's standing authorization to land ruled successors, and is not
+  read out of the approval. **THE THREE VETO POINTS WERE PUT TO HIM VERBATIM
+  IMMEDIATELY BEFORE IT AND NONE WAS EXERCISED**, so the packet stands AS
+  WRITTEN: **every declared family** (not custody pins only), **report-then-refuse**
+  (not refuse-from-landing, not strike), and **TWO `## ADDED` requirements** (not
+  the one his F.3 wording named). Origin: Brett Heap's **F.3** ruling, given on
+  OpsxFactory PR #248 in **TWO comments on two days**, each carrying one of the
+  two verbatim selections: the SHAPE
+  *"Header/bookkeeping edits only + re-derive pins"* in comment
+  [5563099832](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5563099832)
+  (2026-09-06T23:42Z), and the HOME *"Both at once"* in comment
+  [5571629298](https://github.com/opensoft/OpsxFactory/pull/248#issuecomment-5571629298)
+  (2026-09-07T13:51Z), both in session and first-hand to lane `opsXfactory-1`
+  — an ADMISSION TO THE QUEUE, not the approval above. Both comments are named
+  because attributing both selections to the later one would misquote the record
+  this packet exists to protect. **NOTHING IS REALIZED** — no
+  archived byte is edited, no pin is re-derived, no checker is written, no
+  repository's convention is amended, and **all 28 boxes in `tasks.md` stay
+  unticked**. **THE ESTATE-NEUTRAL HALF OF A MATCHED PAIR**: the domain half is
+  OpsxFactory's `govern-archived-record-edits`, same working id, same ruling,
+  and neither is the other's summary. States on the promoted
+  `document-lifecycle` that a file under `openspec/changes/archive/` may be
+  edited ONLY as a lifecycle-header or bookkeeping correction, **under a ruling
+  RECORDED BEFORE THE EDIT**, carrying a bookkeeping note that clears a
+  **NEUTRAL MINIMUM** (a dated `Edited (bookkeeping):` line in the edited file's
+  own lifecycle-header block) — stated here because **openxFactory, the
+  repository promoting this capability, has NO archived-packet convention of its
+  own**, so delegating the note to local conventions left the obligation absent
+  in the loosest repository in the estate; task 3.4 adopts the minimum in
+  `docs/document-lifecycle.md`. The bookkeeping class is defined **BY EFFECT** ("does the edit change what the record ASSERTS?") rather than by
+  a list of filenames, because `proposal.md` carries both classes and a
+  path-keyed rule would license a substantive rewrite inside a file the list
+  called safe. And, as a SEPARATE requirement, that a change editing a **PINNED
+  TARGET — archived OR live** — must re-derive every dependent pin and record it
+  IN THE SAME change, by the rule that pin's family declares. **The split is
+  measured, not stylistic**: of the three custody pins the motivating commit
+  broke, ONE names a target in a change directory that has never been archived,
+  so a rule scoped to `archive/` would have reported itself satisfied while that
+  pin stayed broken. **A TRANSITION CLAUSE KEEPS THE RULE FROM FREEZING THE
+  ESTATE ON LANDING, and it is there because of a measurement**: NO family
+  anywhere has a declared re-derivation rule today — the consent family's is
+  PROPOSED only (`contract_schema_version: 2`, no `custody_rederivations`
+  property, `contract-v3.4`, 46/46 boxes unticked) and the register home
+  `models/content-address-families.yaml` exists neither on OpsxFactory's `main`
+  nor on the branch proposing it — while `code_surface: none` means this change
+  archives ON LANDING with nothing to sequence behind. So an edit whose family
+  has declared no rule is **REPORTED**, naming the family and the register or
+  neutral contract that owes it, and becomes a **REFUSAL for that family the day
+  it declares** — a report, not a warning: it names the owing party, lands as a
+  gate finding, and converts on declaration. The refusal posture survived in
+  four other places through two drafts and is now struck from all of them. The refuse-outright reading is recorded as Brett Heap's veto
+  point (design D-7, task 1.2): coherent, and it stops the estate's corrective
+  work — the routine lifecycle-header discharge and the F.1/F.2 repairs
+  included — until the first family declares. **THE MOTIVATION IS CITED, NOT RE-DERIVED.** OpsxFactory
+  `docs/packet-lifecycle-headers.md` § *Editing an archived packet* (ratified
+  2026-08-24) permitted an archived-packet edit on a BOOKKEEPING NOTE ALONE; on
+  that same day commit `57fd9fd2` ("Discharge all 55 lifecycle-header defects in
+  the OpenSpec scan set", 63 files) wrote **SIXTEEN files** under that
+  repository's archive tree under it, one `Ratified:` line per target, and broke
+  **THREE executed consent instruments' `custody.sha256`** — **thirteen days**
+  unnoticed. The "`FR-072` forbids archive writes" reading two packets cited was
+  feature 010's close-time fence, not a general rule, so **there was no general
+  rule to break** — the permissive convention was the whole of the governance.
+  Register: OpsxFactory's `add-pre-archive-citation-gate` owed-findings
+  register § F.3 — **MID-ARCHIVE, so both paths are named rather than one
+  asserted**: the LIVE path
+  `openspec/changes/add-pre-archive-citation-gate/supporting-docs/owed-findings.md`
+  at that repository's `main` today, filing on merge of its in-flight PR #273 at
+  `openspec/changes/archive/2026-09-07-add-pre-archive-citation-gate/supporting-docs/owed-findings.md` (F.1, the custody half, is ADDRESSED — not discharged — by
+  `add-consent-custody-rederivation-record`, merged 2026-09-08 as `543d47a9`,
+  whose `custody_rederivations[]` this packet NAMES as the consent family's rule
+  and restates none of — that packet is a ratified PROPOSAL with all 46 boxes
+  unticked, so the three pins are still broken and "discharged" would claim a
+  repair nobody has performed). **The delta also carries ONE `## MODIFIED`** on
+  *Proposal packets carry the lifecycle header*, which since 2026-08-24 has ended
+  "Backfilling a header onto an archived packet is an archived-record edit and
+  **takes the route archived-record edits take**" — a forward reference to a
+  route the corpus does not contain, written by the same
+  `govern-openspec-corpus-membership`, whose archive commit `01ff3434` is
+  authored `2026-08-23T23:06:12-04:00` = **`2026-08-24T03:06:12Z`** against
+  `57fd9fd2`'s `2026-08-24T04:08:48-04:00` = **`2026-08-24T08:08:48Z`** — the
+  SAME DAY IN UTC and different days in the authoring clock, five hours apart,
+  and the clock is named rather than left to be discovered. The block carries
+  EVERY canon byte verbatim — **canon's block is 5,815 chars, the delta block
+  7,186, and the 1,371-char difference is entirely INSERTED** — all six promoted
+  scenarios restated, with exactly two hunks of difference, both PURE
+  INSERTIONS: the
+  dangling sentence itself is untouched and a paragraph after it names the
+  route. Nothing is reworded and nothing is deleted, so no
+  ``**Removed from canon by …**`` marker is owed and doc-health's
+  `modified-block-currency` arm reports nothing against it (the first draft DID
+  reword the sentence in place and that arm caught it — its body units are
+  sentence-granular). **ENFORCEMENT IS BY THE
+  GATES, NOT BY THE NOTE**, and this packet builds no checker: OpsxFactory's
+  citation gate (live since its PR #248) and its proposed
+  `add-content-address-integrity-gate` are what make an unrecorded edit visible,
+  and the obligation this packet creates is the RECORDING. `sequenced_after:
+  [govern-openspec-corpus-membership]` — MEASURED, not chosen: a grep of the
+  whole change corpus for the modified requirement's title returns that change's
+  ADDED delta and nothing else, and an explicit `[]` root claim would be refused
+  as contradicted by a co-modifier. `code_surface: none`, so it archives on
+  landing. **Three readings are recorded as NOT taken** in `design.md`: a strict
+  read-only archive, keeping the current convention, and enforcing via the note
+  alone. Claims: object
+  [#630 comment 5578961492](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961492),
+  substrate
+  […#issuecomment-5578961805](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5578961805);
+  and the twin's two on OpsxFactory issue #207, object
+  [5578960955](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578960955)
+  and substrate
+  […#issuecomment-5578961206](https://github.com/opensoft/OpsxFactory/issues/207#issuecomment-5578961206)
+  — FOUR in all, because "Both at once" names two repositories and each carries
+  its own object and its own substrate.
+
 - [adopt-configured-notebook-hosting-identity](openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md)
-  — authored 2026-09-08, **`Status: draft`** (a PROPOSAL awaiting Brett Heap's
-  ratification; it cites none and owes none until its content is ratified as a
-  separate act). Origin: Brett Heap's **Q2[A]** ruling of 2026-09-08T03:36Z on
+  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
+  (convener), verbatim *"Ratify 783 and merge"*, given through the interactive
+  multi-choice walkthrough, ~12:20Z-12:35Z; ratified head `fd7a74fe`,
+  PR [#783](https://github.com/opensoft/openxFactory/pull/783), main
+  `e7c53012`; record
+  `openspec/changes/adopt-configured-notebook-hosting-identity/review/ratification-2026-09-08.md`).
+  Origin: Brett Heap's **Q2[A]** ruling of 2026-09-08T03:36Z on
   the redaction decision sheet
   `~/session-prompts/redaction-outside-ideation-decision-2026-09-07.md`, taken
   through the interactive multi-choice walkthrough — an ADMISSION TO THE QUEUE
@@ -571,8 +711,14 @@ Active changes:
   row `{state: active, class: co-modifier, declares:
   [add-notebook-projection-identity], depth: 1}` at PR
   [#783](https://github.com/opensoft/openxFactory/pull/783) — ONE row, no
-  partner row moved. **FIVE OPEN QUESTIONS,
-  NONE ANSWERED HERE**: OQ-A where the live record lives (recommended
+  partner row moved. **FIVE OPEN QUESTIONS, ALL FIVE RULED 2026-09-08** by the
+  same word, each matching the packet's own recommendation: OQ-A the live
+  record's home is `installs/hermes-install`
+  `config/clients/opensoft/notebook-projection-hosting.yaml`; OQ-B no
+  cross-reference note; OQ-C keep the instance's path and mark
+  `hosting.instance: example` inside the record; OQ-D actor names become role
+  placeholders too; OQ-E the roster moves intact. The reasoning each ruling
+  adopted: OQ-A where the live record lives (recommended
   `installs/hermes-install` `config/clients/opensoft/`, because the record's own
   `custody:` block already names `binding_client: opensoft`, the ratified
   residency rule puts live binding instances in the installs, and the path stays
@@ -583,10 +729,21 @@ Active changes:
   makes this delta the authoritative writer once archived); OQ-C the instance's
   path and marker; OQ-D the actor names; OQ-E whether the roster record moves
   (recommended: it MOVES, intact — it is evidence, not configuration).
-  **NOTHING IS REALIZED BY THIS PACKET**: no promoted byte moves, the committed
-  example is not edited, no test literal changes, no resolver is written, no
-  file is moved into a private tree, and every box in `tasks.md` below 0.1 is
-  unticked.
+  **RATIFICATION PERFORMED NO REALIZATION** — that is the packet's own
+  statement and it held: PR #783 moved no promoted byte, edited no committed
+  example, changed no test literal, wrote no resolver, moved no file into a
+  private tree, and ticked nothing below 0.2. **REALIZATION IS SPECKIT FEATURE
+  `031-configured-notebook-hosting-identity`** (Brett's standing rule: OpenSpec
+  ratifies, Speckit builds), which lands Groups 2, 3, 4 and 6 — the resolver in
+  both readers, the synthetic instance with its `example` marker and role
+  placeholders, the synthetic fixture literals, and these documents. Group 5,
+  the live record's move into its private home, is the OPERATOR ceremony that
+  packet reserves for Brett Heap and is prepared as
+  xFactory-Hermes-Install PR
+  [#73](https://github.com/opensoft/xFactory-Hermes-Install/pull/73). Group 1
+  (the delta reaching canon) and 6.3/6.5/6.6 remain for the ARCHIVE act, which
+  is where this entry moves to archived state and where the last address line
+  in the promoted spec is retired.
 - [add-consent-custody-rederivation-record](openspec/changes/add-consent-custody-rederivation-record/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-08, Brett Heap
   (reviewer of record), in session, first-hand to lane `opsXfactory-1`, verbatim
@@ -893,57 +1050,6 @@ Active changes:
   comment-history paragraph, so eight advances of narrative in the pin file stop
   accruing). `sequenced_after: [codexFactory:add-floor-regeneration-automation,
   mirror-floor-addition-grace]` — the corpus's second cross-repository entry.
-
-- [implement-omniworker-install-repo](openspec/changes/implement-omniworker-install-repo/proposal.md)
-  — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap, in-session,
-  *"ratify 680 and merge 16"*, against head `91866619`; recorded at `176b3104`),
-  on Brett Heap's in-session rulings of the same day: the name **`omniWorker`** covers *"The worker-host
-  product only"*, so the host material SPLITS out of `opensoft/Omnigent-Install`
-  into a NEW repository `OmniWorker-Install` rather than renaming it —
-  **Omnigent remains the orchestrator's name**, and the neutral
-  `contracts/omnigent/` family, the `omnigent-domain-overlay` and
-  `omnigent-install-manifest` specs and the five domain `omnigent/` overlays are
-  UNTOUCHED. **IT PERFORMS NOTHING.** No repository is created, no file moves,
-  no consumer is re-pinned and `Omnigent-Install` is not touched by one byte;
-  every box in `tasks.md` is unchecked. What it authors is ONE
-  `repo-boundary-governance` requirement (*OmniWorker install repository
-  boundary*, in the family style of its four siblings), the naming record
-  `docs/omniworker-naming.md` (`Status: ratified` with the packet; three
-  casings — `omniWorker` brand, `OmniWorker-Install` repository,
-  `omniworker` machine keys, the last already deployed as `svc-omniworker`), a
-  directory-by-directory split table in which **every row is tagged RULED,
-  JUDGED or OPEN** and nothing is guessed, and a copy-first choreography whose
-  only destructive step is LAST. It also carries Brett's machine ruling: the
-  Windows 365 device-name template becomes `CPC-OXF-%USERNAME:7%` →
-  `CPC-OXF-Omni001`, fifteen characters exactly — which is how the
-  measurement found that CloudPC-Install's governed convention
-  `XFACTORY-OMNI001` is **SIXTEEN characters against a fifteen-character
-  Windows limit and was therefore never applied to any machine** (Windows 365
-  silently used its default `CPC-%USERNAME:5%-%RAND:5%`, which is where
-  `CPC-Omni0-P5AJB` and `CPC-brett-TUBV0` come from); that doc fix ships as a
-  sibling PR against CloudPC-Install. **[Amended 2026-09-08 — the machine ruling
-  recorded immediately above was superseded by Brett Heap's own later ruling;
-  the correction lives in `docs/omniworker-naming.md` § Amendments A1, not in a
-  rewrite of this entry. Windows 365 requires a random `%RAND:y%` segment in
-  every device-name template (`%RAND:2%` measured too short, `%RAND:5%`
-  accepted) and does not rename a Cloud PC after provisioning, so
-  `CPC-OXF-%USERNAME:7%` could not be set and `CPC-OXF-Omni001` was never
-  attainable; the template in force is `%USERNAME:7%-%RAND:5%`, omni001
-  rendered `Omni001-XEAON` (Entra device
-  `cf287ce7-7f73-4da7-adfb-c501bd7dd670`), and Brett Heap ruled "Accept
-  Omni001-XEAON" (2026-09-05 ~22:50Z, opensoft/openxFactory#591). The
-  dispositions are recorded in this packet's `tasks.md` § 5 via
-  opensoft/openxFactory#773 → `bd263dca`. The `XFACTORY-OMNI001` finding stands
-  unchanged. The OpsxFactory fleet re-attestation this entry records as OWED has
-  since LANDED — opensoft/OpsxFactory#233 → `83a91c58`.]** TEN open questions are
-  PUT, not answered
-  — among them the in-flight `Omnigent-Install` change
-  `add-worker-enrollment-broker-integration` (PR #40), whose two lawful
-  sequences are stated with their costs and neither chosen, and the live GitHub
-  runner label `omnigent`. Recorded as OWED and NOT done here: the OpsxFactory
-  fleet re-attestation after omni001's reprovision, which destroys Entra device
-  `08829330-2098-461c-a950-0047e163f2b1` — today the only endpoint in that
-  factory's live targeting scope — and issues a new id.
 
 - [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
   — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
@@ -2715,6 +2821,127 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [implement-omniworker-install-repo](openspec/changes/archive/2026-09-08-implement-omniworker-install-repo/proposal.md)
+  — **ARCHIVED 2026-09-08**, on Brett Heap's separate word of the same day (in
+  session, verbatim *"archive implement-omniworker-install-repo"*, ~12:2xZ,
+  recorded and claimed on issue
+  [#591](https://github.com/opensoft/openxFactory/issues/591)) and the
+  `release-realization` rule its own front matter names:
+  `target_release: repository-bootstrap`, on the archived
+  `add-xfactory-installer-repository` (2026-07-10) and
+  `admit-install-repos-to-aggregation` (2026-08-25) precedents for a
+  repository-creation act — **no contract bundle is cut, no contract schema
+  moves, no version is allocated or reserved** — and a code surface spanning
+  **FIVE repositories, two of them operator estates**, so the packet archives on
+  **merged-plus-green realization evidence, never on landing**. Ratified
+  2026-09-05, verbatim *"ratify 680 and merge 16"*, PR
+  [#680](https://github.com/opensoft/openxFactory/pull/680) at head `91866619`;
+  ratifying commit `76434aac`, against which **both origin gates were
+  RETAINED** inside the archive.
+  **THE RULING WAS A SPLIT, NOT A RENAME, AND THAT IS THE WHOLE PACKET.** The
+  name `omniWorker` covers *"The worker-host product only"*, so the host
+  material LEFT `opensoft/Omnigent-Install` for a new repository
+  `opensoft/OmniWorker-Install` — **Omnigent remains the orchestrator's name**,
+  and the neutral `contracts/omnigent/` family, the `omnigent-domain-overlay`
+  and `omnigent-install-manifest` specs and the five domain `omnigent/`
+  overlays are UNTOUCHED, exactly as ratified.
+  **THE EVIDENCE, PER REPOSITORY, CITED RATHER THAN ASSERTED — and every merge
+  state below was re-read with `gh` at the archive, not copied forward.**
+  (1) `opensoft/OmniWorker-Install` — created 2026-09-05T16:15:48Z, PRIVATE,
+  default branch `main`, seed `c5d0f1f6` whose README quotes the ownership
+  boundary verbatim; copy-first migration in PR #1 → `eb0c9675` (72 files) and
+  PR #2 → `d617e68e`; suites green at the new location (HostApp 1027, Deploy
+  256, unittest 76, four Python modules 45, boundary validator 0 findings with
+  its planted-secret cases all caught); `main` green through #3 `33eed467`, #5
+  `54daeb3c`, #6 `322ee4da`, #7 `187d75b6`.
+  (2) `opensoft/Omnigent-Install` — Brett Heap's ruling *"Orchestrator pins
+  OmniWorker-Install"* realized across TWELVE groups (#214 `544c6319` … #235
+  `bbba916d`) and archived (#237 `07bdc9c3`, capability
+  `omniworker-install-pin` promoted there), re-pinned routinely (#246
+  `16963099`), with the retirement in two parts — **Part 1's 70 pin-declared
+  paths `bbba916d`** (2026-09-07T12:12:15Z) and **Part 2's 50 Worker Host App
+  paths #213 → `9c9c9355`** (2026-09-08T13:05:48Z, on Brett Heap's word *"merge
+  213"*).
+  (3) `opensoft/xFactory` — the sibling submodule and the four re-pointed
+  workflow comments (#268 → `2f767ac8`, four checks green) and the **governed
+  aggregation admission record** (#274 → `648c8bd3`), a deliberately SEPARATE
+  reviewed act because the ADDED requirement's own scenario says the creation
+  change MUST NOT be accepted as that record.
+  (4) `opensoft/OpsxFactory` — the closed code-surface vocabulary entry (#228 →
+  `6a0d9467`, landed AFTER the aggregation pin so the registry arm re-derives
+  rather than reports) and the fleet re-attestation binding the new Entra
+  device (#233 → `83a91c58`, ratified #235 → `3e4cd248`).
+  (5) `opensoft/CloudPC-Install` — the `OMNIWORKER_ROOT` seam with a
+  one-release deprecating fallback, proved by a run that does NOT skip (#17 →
+  `bba9da8a`), and the fleet-identity correction (#18 → `349d539d`).
+  **PROMOTED INTO `repo-boundary-governance` CANON — ONE ADDED REQUIREMENT,
+  BYTE-IDENTICAL TO THE ARCHIVED DELTA**: *"OmniWorker install repository
+  boundary"*, **6,391 bytes**, sha256
+  `ad04308bd63ca30de4c1566f5b0a983d2a3ef274af1ff80370b62b9a844ca80a` on both
+  sides, extracted programmatically from delta and canon and hashed. The
+  capability goes **9 → 10 requirements**; `git diff --numstat` and
+  `git diff -w --numstat` are IDENTICAL at 90 added / 0 removed, so no line is
+  whitespace-only and **no existing requirement is touched** — in particular
+  the *"Install repository scope"* enumeration is left alone, on
+  `implement-keycloak-install-repo`'s own reasoning that two changes sharing one
+  requirement collide at archive time. **No file is added under
+  `openspec/specs/`, so no codexFactory floor advance is owed.**
+  **ALL FORTY BOXES ARE `[x]`, AND EACH ONE NAMES WHICH KIND OF CLOSE IT IS**,
+  under Brett Heap's ruling of 2026-09-06 (verbatim *"Tick on the recording"*).
+  On the EVIDENCE: 1.2/7.4 (`docs/omniworker-naming.md` has read
+  `Status: ratified` since this change's own landing squash `76434aac`, and the
+  two 2026-09-08 amendment passes left both header lines untouched), 7.1, 7.2,
+  8.1, 8.2, and 6.1/7.3/8.5 on the retirement's two merges. ANSWERED BY THE ACT
+  — five of the ten open questions the packet PUT and refused to guess: **OQ-2**
+  (the `workers/scaleout/` seam ACCEPTED and mechanized through
+  `${OMNIWORKER_ROOT}`, where a missing value is a named refusal and never a
+  relative fallback), **OQ-3** (a worker host still checks out the ORCHESTRATOR
+  repository, deliberately), **OQ-4** (root `schemas/`, forced by two
+  consumers' hard-coded paths), **OQ-8** (the `archive/` history stays whole —
+  *"an archive is a record of what happened, not an index of what is present"*)
+  and **OQ-10** (PRIVATE, verified live). **OQ-6 and OQ-7 were RULED** by Brett
+  Heap on 2026-09-05 — *"Land it in Omnigent-Install first, then copy"* and
+  *"yes, land it and then move it"* — both carried as dated `design.md` § D5
+  amendments and ratified on PR
+  [#704](https://github.com/opensoft/openxFactory/pull/704). ON NAMED
+  SUCCESSORS, **six issues filed at this archive, all UNCLAIMED**:
+  [#794](https://github.com/opensoft/openxFactory/issues/794) (OQ-1 — the
+  execution-lane-enablement runbook stayed with the orchestrator BY DEFAULT, not
+  by decision, measured present there and absent from the new repository),
+  [#795](https://github.com/opensoft/openxFactory/issues/795) (OQ-5 / § 8.3, the
+  runner label `omnigent`, carrying the corrected measurement that NOTHING in
+  the aggregation selects on it),
+  [#796](https://github.com/opensoft/openxFactory/issues/796) (OQ-9 / § 8.4, the
+  three install-repository enumerations a fifth repository made incomplete),
+  [#800](https://github.com/opensoft/openxFactory/issues/800) (§ 2.3's fourth
+  clause — the App can be MINTED for the repository at `contents: read` but has
+  never AUTHORED there: all six pull requests are human-authored),
+  opensoft/xFactory#346 and opensoft/CloudPC-Install#19 (the two halves of
+  § 6.3's post-retirement re-run, one per repository because neither can perform
+  the other's act).
+  **NO TICK CLAIMS WORK THAT WAS NOT DONE, and three admissions are carried
+  rather than smoothed.** § 6.3's re-run **has not run** and cannot have — the
+  packet sequences it after a Part 2 that landed the same day — so § 7.3 says so
+  in terms. § 2.3 moves `[~]` → `[x]` **as a recording, not a discharge**, its
+  two original OWED notes left standing. And § 5.2's second imperative — the
+  immediately-pre-act confirmation that omni001 was empty — remains **DISPOSED,
+  not discharged**: it never happened, the old device is gone from Entra so it
+  can no longer be evidenced, and § 5's amendment header records that gap rather
+  than curing it. **The OQ-6 hold was SUPERSEDED, not satisfied**: Brett's
+  *"merge 213"* landed the retirement while `add-worker-acr-push` was still
+  active in `Omnigent-Install`, so two of its four declared `code_surface` paths
+  no longer exist in the repository that hosts it — byte-identical to `main` at
+  the merge (tree `7bb94b12`), so nothing was re-homed by side effect, but the
+  `code_surface:` amendment is owed in that change's own repository and this
+  packet neither performs nor discharges it.
+  **THE ARCHIVE MOVES NO REGISTER AND CUTS NOTHING.**
+  `contracts/manifest.yaml`, `contracts/README.md` and `contracts/releases/**`
+  are untouched, `contract_bundle_version` does not move, no version is
+  allocated or reserved and no tag is pushed. The five frozen files are PURE
+  RENAMES (`git diff -M` reports 100% similarity and 0 changed lines on all
+  five); `tasks.md`'s two lawful tick commits land BEFORE the serializer's
+  output so they are separable from it.
 
 - [publish-openspec-cli-pin-as-contract-member](openspec/changes/archive/2026-09-08-publish-openspec-cli-pin-as-contract-member/proposal.md)
   — **ARCHIVED 2026-09-08**, on Brett Heap's separate word (in session,

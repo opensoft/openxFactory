@@ -211,6 +211,7 @@ rows:
   fix-content-resolution-conflation: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-release-reachability-race: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  govern-archived-record-edits: {state: active, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#788", moved_on: "2026-09-08"}
   govern-derived-pin-reachability: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -218,7 +219,7 @@ rows:
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-keycloak-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  implement-omniworker-install-repo: {state: active, class: sole, declares: absent, prose: false, moved_by: "#680", moved_on: "2026-09-05"}
+  implement-omniworker-install-repo: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#803", moved_on: "2026-09-08"}
   implement-openxpki-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   migrate-canonical-policy-to-openxfactory: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   mirror-floor-addition-grace: {state: archived, class: sole, declares: [codexFactory:add-floor-addition-grace], depth: 0, prose: false, moved_by: "#699", moved_on: "2026-09-05"}

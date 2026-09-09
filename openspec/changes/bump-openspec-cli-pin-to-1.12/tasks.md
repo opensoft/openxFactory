@@ -162,10 +162,42 @@ repoint the very tool that judges its own change.
       `tests/proposal-support/` drives a `1.2.0` binary while the gate validates
       at `1.12.0` — which is the two-copies-of-a-pin defect #667 named, now
       visible rather than latent.
-- [ ] 6.3 The remaining consuming repositories (codexFactory, MedxFactory,
-      LedgerxFactory, AdxFactory) still have no wiring to this entrypoint. Named
-      by #667 as per-repository successor work; unchanged by this bump.
-      **AMENDED 2026-09-06:** codexFactory is now wired — codexFactory #227
+- [x] 6.3 **(DONE 2026-09-08, via two landings apiece in three repositories.)**
+      The remaining consuming repositories named by this task — MedxFactory,
+      LedgerxFactory, AdxFactory — are now wired to this entrypoint, and
+      codexFactory already was (see the `AMENDED 2026-09-06` note below), so
+      every repository this task names is wired and the box ticks.
+      MedxSoft/MedxFactory #25 `prepare-openspec-1.12-readiness` (`3d8cef76`,
+      merged) and #28 `adopt-openspec-cli-pin-gate` (`9884668d`, merged) took
+      MedxFactory's gate reading from `9 passed, 4 failed` to `14 passed, 0
+      failed` and then wired `.github/workflows/validate.yml`; CI's gate at
+      the pin: `Totals: 15 passed, 0 failed`. ledgerXfactory/LedgerxFactory
+      #32 `prepare-openspec-1.12-readiness` (`8c2ffe29`, merged while the
+      repository still lived at `opensoft/LedgerxFactory` — it has since
+      moved to `LedgerXcorp/LedgerxFactory` and then to
+      `ledgerXfactory/LedgerxFactory`, both moves on 2026-09-07, both old
+      paths redirecting) and #34 `adopt-openspec-cli-pin-gate` (`0f265d8c`,
+      merged) took LedgerxFactory's gate reading from `5 passed, 11 failed`
+      to `17 passed, 0 failed` and then wired the repository's FIRST
+      workflow; CI's gate at the pin: `18 passed, 0 failed`, all 19 of its
+      validators now running in CI. opensoft/AdxFactory #7
+      `prepare-openspec-1.12-readiness` (`fea04fee`, merged) and #8
+      `adopt-openspec-cli-pin-gate` (`a9deb245`, merged) took AdxFactory's
+      gate reading from `1 passed, 2 failed` to `4 passed, 0 failed` and then
+      wired the repository's FIRST workflow; CI's gate at the pin: `5
+      passed, 0 failed`. Each of the three pins `stack.yaml`'s
+      `xfactory.contract_ref` at `724a2a4fb3dc0fb996bb5f3736634eecc8f829c3`.
+      All six PRs ticked in full at `add-openspec-cli-pin` tasks 6.3, 6.4 and
+      6.5. The three readiness packets were admitted to the queue on Brett
+      Heap's 2026-09-06 word "go" and ratified and merged on his 2026-09-07
+      word "ratify and merge"; the three wiring packets merged on his
+      first-hand 2026-09-08 word "merge all 3" (~13:14Z), heard by lane
+      codeXfactory-1. None of the three owed a disposition in
+      `contracts/openspec-cli-pin.yaml`. Was: The remaining consuming
+      repositories (codexFactory, MedxFactory, LedgerxFactory, AdxFactory)
+      still have no wiring to this entrypoint. Named by #667 as
+      per-repository successor work; unchanged by this bump. **AMENDED
+      2026-09-06:** codexFactory is now wired — codexFactory #227
       `adopt-openspec-cli-pin-gate` (`bb66d85c`), ticked at
       `add-openspec-cli-pin` task 6.1. MedxFactory, LedgerxFactory and
       AdxFactory remain; the box stays UNTICKED for them.

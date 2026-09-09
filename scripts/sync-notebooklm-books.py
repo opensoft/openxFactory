@@ -2351,10 +2351,91 @@ def _session_source_count(row) -> int | None:
 # the projection is created in is contract conformance, not a property of
 # whoever ran `nlm login` first.
 
-HOSTING_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
+# WHERE THE DECLARATION IS NOW RESOLVED FROM, and why this is not a constant any
+# more (adopt-configured-notebook-hosting-identity, ratified 2026-09-08). The
+# record's `account`, its `migration.from_account` and its roster rows are the
+# values `enforce_hosting_profile()` compares against the account a CLI profile
+# is actually signed in as — so they cannot be redacted in place without
+# disarming the guard, and this repository is becoming public. The live record
+# therefore lives in a configured, private home and the file below is a
+# SYNTHETIC FIXTURE.
+EXAMPLE_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
+#: The environment variable that names the live declaration. FIRST in
+#: precedence, because a one-off operator run and a CI job both need to override
+#: without editing a file (D-1).
+HOSTING_ENV = "XFACTORY_NOTEBOOK_HOSTING_DECLARATION"
+#: The durable per-machine answer. Uncommitted and gitignored: it carries a PATH
+#: and never a credential.
+HOSTING_CONFIG_REL = ".xfactory/notebook-hosting.yaml"
 _HOSTING_SCALARS = ("case", "account", "account_type", "domain",
-                    "nlm_profile")
+                    "nlm_profile",
+                    # `instance` is read for ONE reason: without it in this
+                    # tuple the reader cannot see the example marker at all —
+                    # it reads only the keys named here at indent 2 — and the
+                    # fail-closed refusal for "configuration points at the
+                    # shipped fixture" would have nothing to decide on.
+                    "instance")
 _HOSTING_MIGRATION_SCALARS = ("state", "from_account", "from_nlm_profile")
+#: The value of `hosting.instance` that says "this record is a fixture". Read by
+#: the narrow scalar reader rather than compared as a PATH, deliberately:
+#: symlinks, worktrees and copies make a path comparison unreliable, and a
+#: comment is invisible to a reader that has no YAML dependency (design § 2.1).
+HOSTING_EXAMPLE_MARKER = "example"
+
+
+def hosting_declaration_path(root: Path) -> Path | None:
+    """Where this install's hosting declaration is, or None when UNDECLARED.
+
+    ONE resolution order, shared with
+    `scripts/validate-notebook-projection-hosting.py` so the two readers cannot
+    disagree about which file they are talking about:
+
+      1. ``$XFACTORY_NOTEBOOK_HOSTING_DECLARATION`` — absolute, or relative to
+         the workspace root this sync was given;
+      2. ``<workspace>/.xfactory/notebook-hosting.yaml``'s ``declaration_path:``
+         — same two spellings;
+      3. nothing — UNDECLARED, the transition state the ratified requirement
+         already defines.
+
+    THE SHIPPED EXAMPLE IS NOT STEP 3. Defaulting to it would make every fresh
+    clone declare an install it is not: the sync would bind to a profile named
+    in a fixture, or refuse for the wrong reason. A clone with no configuration
+    is undeclared and runs unbound exactly as a pre-requirement install does.
+
+    Standard library only. The one line of YAML this needs is read the same
+    narrow way the declaration itself is, because this script deliberately
+    carries no YAML dependency and this change must not introduce one.
+    """
+    named = os.environ.get(HOSTING_ENV, "").strip()
+    if named:
+        return _resolve_against(root, named)
+    config = root / HOSTING_CONFIG_REL
+    try:
+        text = config.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if len(line) - len(line.lstrip()) != 0:
+            continue
+        key, sep, value = line.strip().partition(":")
+        if sep and key == "declaration_path":
+            value = value.strip().strip('"').strip("'")
+            if value:
+                return _resolve_against(root, value)
+            return None
+    return None
+
+
+def _resolve_against(root: Path, named: str) -> Path:
+    """An absolute path as given; anything else relative to the workspace root.
+
+    Both spellings must reach one file, so an operator can write the short
+    workspace-relative form in the committed-workspace case and an absolute one
+    when the declaration lives outside the tree entirely.
+    """
+    candidate = Path(named).expanduser()
+    return candidate if candidate.is_absolute() else root / candidate
 
 
 NLM_CONFIG = Path.home() / ".notebooklm-mcp-cli" / "config.toml"
@@ -2459,10 +2540,20 @@ def read_hosting_declaration(root: Path) -> dict[str, str] | None:
     `scripts/validate-notebook-projection-hosting.py`. Only the `hosting:`
     block's own scalars and its `migration:` sub-block are read here, which is
     all the sync needs to bind a run to an account.
+
+    THE PATH IS RESOLVED, NOT FIXED (adopt-configured-notebook-hosting-identity).
+    Two states are undeclared and they are undeclared for the same reason — this
+    install has not said where its declaration is, so there is nothing to bind
+    to: configuration names NOTHING, and configuration names a path that IS NOT
+    THERE. The second case is not an oversight in this reader: a checkout whose
+    private submodule is not initialized reads as undeclared, which the ruling's
+    own OQ-A table calls correct and is why that state must stay non-breaking.
+    A file that exists and cannot be PARSED is a different thing entirely and
+    still fails closed below.
     """
-    path = root / HOSTING_REL
-    if not path.is_file():
-        return None          # genuinely undeclared: the only undeclared case
+    path = hosting_declaration_path(root)
+    if path is None or not path.is_file():
+        return None          # genuinely undeclared: the only undeclared cases
     found: dict[str, str] = {}
     in_hosting = in_migration = False
     for raw in path.read_text(encoding="utf-8").splitlines():
@@ -2524,7 +2615,8 @@ _NON_USER_MARKERS = (".iam.gserviceaccount.com", ".gserviceaccount.com")
 _MIGRATION_STATES = (None, "", "pending", "complete")
 
 
-def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
+def _refuse_unusable_declaration(declared: dict[str, str],
+                                 where: str | None = None) -> None:
     """Enforce the declaration rules that must hold ON THE OPERATIONAL PATH.
 
     `scripts/validate-notebook-projection-hosting.py` checks the whole record,
@@ -2533,16 +2625,43 @@ def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
     accepted by an ordinary `--apply`. These few rules are therefore enforced
     here too, inline and dependency-free; the validator remains the authority
     on the parts a sync never reads.
+
+    `where` is the RESOLVED path the record was read from, so a refusal names
+    the file the operator actually configured rather than a constant that is no
+    longer the declaration's home. It defaults to a description rather than to
+    the shipped example, because naming the fixture in a refusal about some
+    other file is how a reader ends up editing the wrong one.
     """
+    found = where or "the resolved hosting declaration"
     if not declared:
         raise SystemExit(
-            f"hosting: {HOSTING_REL} EXISTS but no declaration could be read "
+            f"hosting: {found} EXISTS but no declaration could be read "
             f"from it. The sync reads the `hosting:` block's own two-space "
             f"scalars; flow style, other indentation or tabs parse as valid "
             f"YAML for the validator and as nothing here. Refusing rather than "
             f"running unbound — an unreadable declaration is not an absent "
             f"one. Re-indent it to match "
             f"examples/notebook-projection-hosting.yaml.")
+    # THE FAIL-CLOSED ARM, and it runs before every other rule on purpose: a
+    # record marked as an example fails several of them for uninteresting
+    # reasons, and a message about a missing profile would send the operator to
+    # fix the FIXTURE. The alternative — treating this as UNDECLARED — was
+    # rejected (D-2): the undeclared branch runs the sync unbound under whatever
+    # profile happens to be active, which is the failure this whole capability
+    # exists to retire, and configuration naming a fixture is a mistake somebody
+    # made rather than a state to accommodate.
+    if declared.get("instance") == HOSTING_EXAMPLE_MARKER:
+        raise SystemExit(
+            f"hosting: {found} is the SHIPPED SYNTHETIC EXAMPLE — it carries "
+            f"`hosting.instance: {HOSTING_EXAMPLE_MARKER}` and every identity "
+            f"in it is fictional. Refusing rather than binding: a fixture is "
+            f"no install's declaration, and binding to one would write a "
+            f"governed projection into an account nobody declared.\n"
+            f"  point configuration at this install's OWN declaration:\n"
+            f"    {HOSTING_CONFIG_REL}  ->  declaration_path: <path to it>\n"
+            f"  or, for one run:   {HOSTING_ENV}=<path to it>\n"
+            f"  the live record is not in this repository; see "
+            f"docs/lifecycle-notebook-projection.md § The declaration.")
     case = declared.get("case")
     account = declared.get("account", "")
     state = declared.get("migration_state")
@@ -2559,16 +2678,16 @@ def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
             f"books move, and cannot bind to a profile nobody named.")
     if not declared.get("nlm_profile"):
         raise SystemExit(
-            f"hosting: {HOSTING_REL} names no top-level nlm_profile. It is "
+            f"hosting: {found} names no top-level nlm_profile. It is "
             f"required in every state: it is what the run binds to once a "
             f"migration completes.")
     if case not in ("operator_hosted", "self_hosted"):
         raise SystemExit(
-            f"hosting: {HOSTING_REL} declares case {case!r}; an install "
+            f"hosting: {found} declares case {case!r}; an install "
             f"declares exactly one of operator_hosted or self_hosted")
     if "@" not in account:
         raise SystemExit(
-            f"hosting: {HOSTING_REL} names no usable account address")
+            f"hosting: {found} names no usable account address")
     if any(marker in account for marker in _NON_USER_MARKERS):
         raise SystemExit(
             f"hosting: {account} is a service account. The hosting identity "
@@ -2615,6 +2734,7 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
     reported as unknown rather than treated as a match — this change originally
     claimed the CLI stored no email at all, which review disproved.
     """
+    resolved = hosting_declaration_path(root)
     declared = read_hosting_declaration(root)
     if declared is None:
         bind_profile(None)
@@ -2622,9 +2742,23 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
               "meet the declared-hosting requirement — a transition state, not "
               "a third legitimate case. Running under the CLI's default "
               "profile; this projection is not governed by a declared account.")
+        if resolved is not None:
+            # Configuration NAMED a file and it is not there. Still undeclared —
+            # an uninitialized private submodule is exactly this case and must
+            # not break a run — but silence here would let an operator believe
+            # the record was read.
+            print(f"hosting: configuration names {resolved}, which is not a "
+                  f"readable file. That is why this run is undeclared: the "
+                  f"path is configured and the record is not there.")
+        else:
+            print(f"hosting: nothing is configured. Set "
+                  f"{HOSTING_CONFIG_REL}'s `declaration_path:` or "
+                  f"{HOSTING_ENV} to this install's own declaration; the "
+                  f"committed example is a fixture and is deliberately not a "
+                  f"fallback.")
         return None
 
-    _refuse_unusable_declaration(declared)
+    _refuse_unusable_declaration(declared, str(resolved) if resolved else None)
     account = declared.get("account") or "<unnamed>"
     case = declared.get("case") or "<unstated>"
     target = declared.get("nlm_profile")

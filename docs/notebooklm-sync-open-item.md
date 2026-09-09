@@ -137,10 +137,14 @@ same tool.
 
 Run under the `nlm` **`company`** profile — `<service-account-identity>`, the
 account that has owned the xFactory books since the 2026-08-24 migration and
-the one `examples/notebook-projection-hosting.yaml` declares
-(`hosting.nlm_profile: company`, `migration.state: complete`). This is not a
-preference: the sync reads that declaration and REFUSES a run whose active
-profile is anything else (`enforce_hosting_profile()`,
+the one this install's own live declaration names
+(`hosting.nlm_profile: company`, `migration.state: complete`). That declaration
+is RESOLVED FROM CONFIGURATION and is not the synthetic
+`examples/notebook-projection-hosting.yaml` committed here
+(`adopt-configured-notebook-hosting-identity`, 2026-09-08; the resolution order
+is in [the declaration](lifecycle-notebook-projection.md#the-declaration)).
+This is not a preference: the sync reads that declaration and REFUSES a run
+whose active profile is anything else (`enforce_hosting_profile()`,
 `scripts/sync-notebooklm-books.py:2228`; refusal at :2271-2278).
 
 Identify the account by the **books it shows** (a notebook list containing
@@ -191,9 +195,12 @@ account in `opensoft.one` — but THIS operational item stays open, because
 it closes on the eventual change's realization, not on the rulings.
 
 RATIFIED and REALIZED 2026-08-23 as `add-notebook-projection-identity`, except
-for the migration itself. The declared account is `<service-account-identity>`;
-the declaration lives in `examples/notebook-projection-hosting.yaml`, and the
-sync now refuses to run against an account nobody declared. THIS ITEM STAYS
+for the migration itself. The declared account is
+`<service-account-identity>`; the declaration lives wherever this install's
+configuration resolves it to — `examples/notebook-projection-hosting.yaml` was
+its home until `adopt-configured-notebook-hosting-identity` (2026-09-08) made
+that file a synthetic example — and the sync now refuses to run against an
+account nobody declared. THIS ITEM STAYS
 OPEN by its own terms: it closes on the migration, which is gated on an
 interactive `nlm login --profile company` that only Brett can perform, on a
 host with a browser. The sequencing — re-derive, migrate live sessions, replace
