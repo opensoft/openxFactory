@@ -470,19 +470,39 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
 # NO BYPASS FLAG. The requirement's own scenario says restoring or accepting a
 # mutation is a contested-class act requiring an explicit disposition, and a
 # flag on this gate would be the disposition nobody records.
+#
+# A MOVED PACKET REFUSES RATHER THAN RE-BASING (issue #833). The baseline is
+# resolved by walking ONE path — `openspec/changes/<change>/proposal.md`, the
+# id the tree spells TODAY — and a ratified change whose directory is renamed
+# afterwards has no history under its new name before the rename. The walk's
+# first ratified blob is then the RENAME COMMIT, which is later than every
+# mutation made in between, and the gate printed `ORIGIN RETAINED` over it:
+# measured on issue #777, where a ratified change renamed on a trial branch
+# passed a gate whose baseline had moved four days forward, and named verbatim
+# in `ratifying_commit`'s own docstring as the failure that matters. So the
+# walk now asserts what a ratifying commit IS — a FLIP, and a flip's parent
+# does not already declare `ratified` — and REFUSES, named and exit 2, when
+# the candidate is instead the commit that moved an already-ratified packet.
+# THE REFUSAL IS THE WHOLE OF THE FIX: nothing in this corpus declares a
+# former id, so there is no earlier path this walk could lawfully re-base
+# onto, and inventing one from rename detection alone would be this gate
+# guessing at the identity it exists to hold fixed. Following a ratified
+# change across a declared rename is a later packet.
 # --------------------------------------------------------------------------
 
 
 class OriginRetentionError(SupportError):
     """The archive gate's origin-retention refusal — ANY arm of it.
 
-    Three conditions raise it, and the exception is deliberately one rather
-    than three: the declaration moved after ratification, no ratifying commit
-    exists to compare against, or the history that holds the baseline could
-    not be read. What they share is the only thing a caller can act on — the
-    packet CANNOT BE SHOWN to still carry the origin it was ratified over —
-    and none of them is the "fix the tree and retry" shape that `SupportError`
-    means everywhere else in this script.
+    Four conditions raise it, and the exception is deliberately one rather
+    than four: the declaration moved after ratification, the PACKET moved (a
+    ratified change renamed after its ratification, so no baseline can be
+    established at all — issue #833), no ratifying commit exists to compare
+    against, or the history that holds the baseline could not be read. What
+    they share is the only thing a caller can act on — the packet CANNOT BE
+    SHOWN to still carry the origin it was ratified over — and none of them is
+    the "fix the tree and retry" shape that `SupportError` means everywhere
+    else in this script.
 
     A subclass rather than a message, so the CLI can answer with its own exit
     status (2) and a script can branch on "retention could not be established"
@@ -491,6 +511,13 @@ class OriginRetentionError(SupportError):
     requirement names — restoring or accepting it is a contested-class act
     requiring an explicit disposition — and the finding for that arm says so
     in its own text.
+
+    THE MOVED-PACKET ARM IS RAISED BY THE WALK ITSELF (`ratifying_commit`),
+    not assembled as a finding by `origin_retention_errors` like the other
+    three. It is not a comparison that failed: it is the comparison being
+    IMPOSSIBLE, because the commit the walk would compare against is the move
+    rather than the ratification, so there is nothing to put in a findings
+    list and no arithmetic left to do.
     """
 
 
@@ -533,6 +560,110 @@ def git_show_text(root: Path, revision: str, rel_path: str) -> str | None:
     return result.stdout.decode("utf-8", "replace")
 
 
+def renamed_from(root: Path, revision: str, rel: str) -> str | None:
+    """The path `rel` was RENAMED OR COPIED FROM at `revision`, or None when it
+    came into being there outright (or was merely modified there).
+
+    RENAME DETECTION IS GIT'S OWN, reached through `--follow` — the one mode
+    that pairs a rename for a SINGLE path — and NOT through a pathspec-limited
+    diff, which cannot pair one at all: limiting the diff to the DESTINATION
+    filters the source side out before detection runs, so git reports a plain
+    `A`. Measured on `9ec13c1a`, where the dotless draft id first appears
+    (landed by PR #777): `git show --name-status --find-renames <sha> --
+    <new path>` says `A`, while `git log --follow` over the same commit says
+    `C099` from the old dotted path.
+
+    `--find-renames` is passed EXPLICITLY so that an operator's
+    `diff.renames=false` cannot switch the guard below off from a git config —
+    verified against `git -c diff.renames=false`, which still reports the
+    pairing under `--follow`.
+
+    COPIES COUNT, not only renames. A "rename" that leaves the old directory
+    standing is a DUPLICATED packet rather than a moved one, and the question
+    this answers — did this packet exist under another name before this
+    commit — has the same answer either way. (`9ec13c1a` above is exactly
+    that shape: the pairing git found was a copy, because the commit that
+    added the new name did not remove the old one.)
+
+    ONE COMMIT IS ASKED ABOUT, not a history: `-1 <revision>` bounds the
+    walk to the candidate itself, which is the only commit whose pairing the
+    guard below acts on. `--follow` without it walks the whole followed
+    history of the path — 0.3s per change against this repository, 58s across
+    its 189 packets — for records nothing reads. A pairing is then accepted
+    ONLY when its destination is `rel` itself, so a rename hop belonging to
+    some other name can never be read as the predecessor of the current one.
+    """
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "log", "--follow",
+         "--find-renames", "--name-status", "--format=%x00%H", "-1",
+         revision, "--", rel],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return None
+    for record in listed.stdout.split("\0"):
+        rows = [row for row in record.splitlines() if row.strip()]
+        if not rows or rows[0].strip() != revision:
+            continue
+        for row in rows[1:]:
+            fields = row.split("\t")
+            if (len(fields) == 3 and fields[0][:1] in ("R", "C")
+                    and fields[2] == rel):
+                return fields[1]
+    return None
+
+
+def ratified_under_a_former_path(root: Path, revision: str,
+                                 rel: str) -> str | None:
+    """The path this packet occupied BEFORE `revision` moved it, when it
+    ALREADY declared `Status: ratified` there — the case in which `revision`
+    cannot be the ratification. None otherwise.
+
+    WHAT A RATIFYING COMMIT IS, stated as a test the candidate must pass: a
+    FLIP. The commit that ratifies a packet is the commit at which its header
+    STOPPED saying something else, so the packet as its parent carried it does
+    NOT declare `ratified`. A commit that merely MOVED an already-ratified
+    packet passes the walk's own test (the blob it lands is ratified) and
+    fails this one, which is the whole of the #833 defect.
+
+    THE PARENT IS READ AT THE PACKET'S FORMER PATH, which is the only place it
+    is: after a rename there is nothing at `rel` in the parent to read, and a
+    walk that read `rel` alone would find nothing missing.
+
+    RENAMING A DRAFT IS LAWFUL AND STAYS LAWFUL. When the packet under its
+    former name was still a draft, the flip really did happen at `revision`
+    and the baseline is sound — the corpus does this (`46059b77`, #834,
+    renamed a DRAFT change toward the dotless grammar), so this returns None
+    for it and nothing refuses.
+
+    WHERE THIS CANNOT SEE. When rename detection finds no pairing — a move
+    that also rewrote `proposal.md` past git's similarity threshold, or a
+    move landed as a delete-and-add in separate commits — the predecessor is
+    unnameable and this returns None, leaving the pre-#833 behaviour. Naming
+    a former identity is what a FORMER-ID DECLARATION would do, and that is
+    the successor packet; the guard here closes the shape that was measured,
+    and does not pretend to close identity.
+
+    AND WHERE IT IS DELIBERATELY BLUNT. A packet whose `proposal.md` was
+    authored as a near-verbatim COPY of an already-ratified one, and which
+    entered history ratified, pairs the same way and takes the same refusal —
+    even though its own creation commit would have been a sound baseline.
+    History alone cannot separate "this packet moved" from "this packet was
+    copied from that one", which is the whole of what a former-id declaration
+    would settle, so the ambiguous case answers CANNOT RUN rather than
+    guessing. Zero of the 189 active-plus-archived packets on `main` trip it
+    (measured while authoring the guard), and a proposal that similar to a
+    ratified one is what `add-duplicate-packet-check` exists to notice.
+    """
+    former = renamed_from(root, revision, rel)
+    if former is None:
+        return None
+    before = git_show_text(root, f"{revision}^", former)
+    if before is not None and declares_ratified(before):
+        return former
+    return None
+
+
 def ratifying_commit(root: Path, change: str) -> str | None:
     """The FIRST commit whose `openspec/changes/<change>/proposal.md` declares
     `Status: ratified`, or None when no commit in history does.
@@ -557,6 +688,24 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     The path read is the ACTIVE one even when the packet being gated is an
     archived one: the archive move renames it, and the history before that
     rename is where the ratification lives.
+
+    AND WHEN THE PACKET'S OWN NAME MOVED, THIS REFUSES (issue #833). One path
+    is walked, so a ratified change whose directory was RENAMED afterwards has
+    no history under its new name before the rename — and the first ratified
+    blob the walk finds is then the RENAME COMMIT, which is precisely "a LATER
+    commit as the baseline" named above. Measured on issue #777: a ratified
+    change renamed on a trial branch reported `ORIGIN RETAINED` against a
+    baseline four days later than its ratification, so every mutation in
+    between was waved through, while the two sibling `--archive-gate` arms
+    (`validate-sequenced-after.py`, `validate-scope-globs.py`) refused loudly
+    on the same tree because they resolve BY ID at a ref and say so when the
+    id has no proposal there. This walk now says so too:
+    `ratified_under_a_former_path` asks whether the candidate is a FLIP or a
+    MOVE, and a move raises `OriginRetentionError` — CANNOT RUN, exit 2 — with
+    the change, both paths and the commit named. It never re-bases silently,
+    and there is nothing to re-base ONTO: no former-id declaration exists in
+    this corpus (that is the successor packet), so a baseline under a name the
+    tree no longer spells cannot be established at all.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
         raise SupportError(f"invalid change name: {change}")
@@ -571,7 +720,29 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     for revision in listed.stdout.split():
         blob = git_show_text(root, revision, rel)
         if blob is not None and declares_ratified(blob):
-            return revision
+            former = ratified_under_a_former_path(root, revision, rel)
+            if former is None:
+                return revision
+            short = revision[:12]
+            raise OriginRetentionError(
+                f"REFUSE origin-retention-path-moved: {change}: the "
+                f"origin-retention walk CANNOT RUN. Its baseline is the "
+                f"first commit whose `{rel}` declares `Status: ratified`, "
+                f"and that commit ({short}) is not the ratification but a "
+                f"MOVE: the packet already declared `Status: ratified` at "
+                f"`{former}` as of {short}^, so this change was ratified "
+                f"under a path that is not the one it occupies now "
+                f"(`{rel}`). Taking {short} as the baseline would compare "
+                f"the packet against itself as of the move and wave through "
+                f"every origin mutation made between the real ratification "
+                f"and it — the `ORIGIN RETAINED` measured on issue #777 and "
+                f"the failure issue #833 names. Nothing in this corpus "
+                f"declares a FORMER ID, so the baseline cannot be "
+                f"established from history alone and this walk refuses "
+                f"rather than re-basing onto the move: archive {change} "
+                f"under the id it was ratified with, or land the former-id "
+                f"declaration (a later packet) before renaming a ratified "
+                f"change. Renaming a DRAFT change is unaffected.")
     return None
 
 
@@ -667,6 +838,15 @@ def origin_retention_errors(root: Path, directory: Path,
     `directory` may be the active packet or an archived one (the replay of a
     landed archive reads the archived path); `change` defaults to the packet's
     own id with any archive date prefix stripped.
+
+    RAISES rather than returns for the fourth arm: when the walk finds that
+    its baseline would be the commit that MOVED an already-ratified packet
+    rather than the one that ratified it, `ratifying_commit` refuses with
+    `OriginRetentionError` (issue #833) and that refusal is deliberately NOT
+    caught here. There is no comparison left to report — the baseline itself
+    could not be established — so turning it into one more line in a findings
+    list would file "cannot run" under "ran and found something", which is the
+    conflation the sibling gates' CANNOT RUN status exists to avoid.
     """
     root = root.resolve()
     change = change or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", directory.name)

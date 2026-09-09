@@ -1440,6 +1440,220 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("not ratified", result.stderr)
 
+    # ----------------------------------------------------------------
+    # THE PACKET ITSELF MOVED (issue #833)
+    # ----------------------------------------------------------------
+
+    def rename(self, root: Path, old: str, new: str) -> Path:
+        """Move a change's directory the way a rename lands: `git mv`, one
+        commit, nothing else touched."""
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / old), str(changes / new))
+        commit_all(root, f"rename {old} to {new}")
+        return changes / new
+
+    def test_a_ratified_change_renamed_afterwards_refuses_the_walk(self):
+        """THE #833 DEFECT. The walk reads ONE path — the id the tree spells
+        today — so a ratified change renamed afterwards has no history under
+        its new name before the rename, and the first ratified blob the walk
+        finds is the RENAME. That baseline is later than every mutation made
+        between the real ratification and it, and the gate printed
+        `ORIGIN RETAINED` over exactly that (measured on issue #777).
+
+        THE NEGATIVE CONTROL IS IN THE FIXTURE, so it holds whatever the code
+        does: the origin at the rename commit EQUALS the working tree's (a
+        baseline taken there finds nothing to report) while the origin at the
+        real ratifying commit DIFFERS (there is a mutation to catch). A gate
+        that re-based onto the rename would therefore pass this tree, and one
+        that refuses cannot pass it by accident.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            moved = self.rename(root, "change-r", "change-s")
+            renamed_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+
+            # the negative control, asserted as a property of the history
+            here = support.origin_block_lines(
+                (moved / ".openspec.yaml").read_text(encoding="utf-8"))
+            at_rename = support.origin_block_lines(support.git_show_text(
+                root, renamed_at,
+                "openspec/changes/change-s/.openspec.yaml"))
+            at_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, ratified_at,
+                    "openspec/changes/change-r/.openspec.yaml"))
+            self.assertEqual(here, at_rename)
+            self.assertNotEqual(here, at_ratification)
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("REFUSE origin-retention-path-moved", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("change-s", message)
+            # both paths, so an operator can see WHAT moved WHERE
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("openspec/changes/change-s/proposal.md", message)
+            self.assertIn(renamed_at[:12], message)
+            self.assertIn("FORMER ID", message)
+            self.assertIn("#833", message)
+
+            # the refusal is NOT swallowed into a findings list…
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(root, moved, change="change-s")
+            # …and the archive itself stops
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(root, "change-s", "2026-09-05",
+                                       False, True)
+
+    def test_a_ratified_packet_copied_to_a_new_id_refuses_too(self):
+        """COPIES COUNT. A "rename" that leaves the old directory standing is
+        a duplicated packet rather than a moved one, and the question the
+        guard asks — did this packet exist under another name before this
+        commit — has the same answer either way. It is also the shape actually
+        measured in this corpus: `9ec13c1a` added the new name without
+        removing the old one, and git paired it as `C099` rather than `R`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            copy = root / "openspec" / "changes" / "change-s"
+            shutil.copytree(directory, copy)
+            commit_all(root, "copy the ratified packet to a second id")
+            with self.assertRaisesRegex(support.OriginRetentionError,
+                                        "origin-retention-path-moved"):
+                support.ratifying_commit(root, "change-s")
+
+    def test_renaming_a_draft_and_ratifying_it_afterwards_is_not_refused(self):
+        """RENAMING A DRAFT IS LAWFUL AND STAYS LAWFUL. This corpus does it —
+        `46059b77` (#834) renamed a draft change toward the dotless grammar —
+        and the flip that follows really is the ratification, so the baseline
+        is sound and nothing refuses."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            moved = self.rename(root, "change-r", "change-s")
+            ratify(moved / "proposal.md")
+            commit_all(root, "record the ratification under the new name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_a_rename_that_also_ratifies_is_itself_the_ratification(self):
+        """THE SQUASH SHAPE, and the reason the guard reads the PARENT rather
+        than merely noticing a move. A pull request that renames a draft and
+        ratifies it lands as ONE commit: the candidate IS a move, and it is
+        ALSO the flip — the packet under its former name was still a draft, so
+        the baseline is sound and refusing would make such a change
+        permanently unarchivable. Every commit in this repository's own
+        history arrives squashed, so this is the ordinary case rather than a
+        corner."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            ratify(moved / "proposal.md")
+            commit_all(root, "rename the draft and ratify it in one commit")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            rel = "openspec/changes/change-s/proposal.md"
+            # git DOES pair the move at this commit …
+            self.assertEqual(
+                support.renamed_from(root, head, rel),
+                "openspec/changes/change-r/proposal.md")
+            # … and the packet was a DRAFT under that name, so nothing refuses
+            self.assertIsNone(
+                support.ratified_under_a_former_path(root, head, rel))
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_a_change_that_never_moved_is_untouched_by_the_guard(self):
+        """The guard's own two answers on the ordinary shape: no predecessor
+        pairing at the ratifying commit, and therefore no former path — so the
+        walk returns the flip it always returned."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            rel = "openspec/changes/change-r/proposal.md"
+            self.assertIsNone(support.renamed_from(root, head, rel))
+            self.assertIsNone(
+                support.ratified_under_a_former_path(root, head, rel))
+            self.assertEqual(support.ratifying_commit(root, "change-r"), head)
+
+    def test_a_never_ratified_change_that_moved_is_still_not_ratified(self):
+        """THE DRAFT ARM IS NOT HIJACKED. A change that was never ratified has
+        no baseline to establish and no ratification to have moved away from,
+        so it takes the `not ratified` finding it always took — not the moved
+        packet refusal."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            moved = self.rename(root, "change-r", "change-s")
+            self.assertIsNone(support.ratifying_commit(root, "change-s"))
+            self.assertIn(
+                "not ratified",
+                "\n".join(support.origin_retention_errors(
+                    root, moved, change="change-s")))
+
+    def test_the_cli_refuses_a_moved_packet_with_exit_2_and_no_traceback(self):
+        """The fourth arm answers with the gate's own status, like the other
+        three: 2, the named code on stderr, and no stack trace — a traceback
+        here would read as a crash in the gate rather than a refusal from
+        it."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            self.rename(root, "change-r", "change-s")
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), str(root), "archive",
+                 "change-s", "--yes"],
+                capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("origin-retention-path-moved", result.stderr)
+
+    @unittest.skipUnless((REPO_ROOT / ".git").exists(),
+                         "no git history for this checkout")
+    def test_the_guard_refuses_nothing_on_this_repository_today(self):
+        """THE GUARD IS A NO-OP ON THE LAWFUL CORPUS, measured rather than
+        asserted. Every active change on this branch resolves the baseline it
+        resolved before the guard existed: 35 active packets here, and 189
+        active-plus-archived when the same sweep was run by hand while
+        authoring it, with zero refusals and zero baselines moved. A refusal
+        appearing here means a ratified change has been renamed — which is
+        the act this gate exists to stop, not a defect in it."""
+        active = REPO_ROOT / "openspec" / "changes"
+        for directory in sorted(active.iterdir()):
+            if not directory.is_dir() or directory.name == "archive":
+                continue
+            with self.subTest(change=directory.name):
+                support.ratifying_commit(REPO_ROOT, directory.name)
+
     def test_the_archive_subcommand_offers_no_bypass_flag(self):
         """The requirement's own scenario makes accepting a mutation a
         contested-class act requiring an explicit disposition. A flag on this

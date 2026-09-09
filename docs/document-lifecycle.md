@@ -421,7 +421,16 @@ its own.>
   `proposal.md` declares `Status: ratified` — and refuses the archive (exit 2,
   no bypass flag) when the origin block or the support manifest's repeated
   origin fields have moved since, when no such commit exists, or when the
-  history holding that baseline cannot be read; the nightly `proposal-origin`
+  history holding that baseline cannot be read. AND WHEN THE PACKET ITSELF
+  MOVED: a ratified change whose directory is RENAMED has no history under its
+  new name before the rename, so the walk's first ratified blob is the rename
+  commit — a baseline later than every mutation made in between, which the
+  gate used to report as `ORIGIN RETAINED` — and the walk now refuses instead
+  (`origin-retention-path-moved`, exit 2, CANNOT RUN), naming both paths and
+  never re-basing onto the move. Renaming a ratified change is therefore
+  blocked until a change declares a FORMER ID (issue #833, a successor
+  packet); renaming a DRAFT change, and a single commit that renames a draft
+  and ratifies it, are unaffected. The nightly `proposal-origin`
   doc-health family
   (the fifteenth) reports drift — including post-ratification mutation, a
   `contested` finding — across active and archived proposals.
