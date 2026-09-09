@@ -135,7 +135,30 @@ jobs:
 
     env:
       SOURCE_REPOSITORY: opensoft/codexFactory
-      FLOOR_IN_SOURCE: scripts/merge_master/openxfactory-review-authority-floor.yaml
+      # THE ORDERED CANDIDATE LIST, PATH IN FORCE FIRST, FIRST-OBTAINED-WINS.
+      # Realizes M-1 step (1) of `relocate-review-authority-floor-mirror`
+      # (ratified 2026-09-08, PR #817): codexFactory is relocating this document
+      # off every CODEOWNERS prefix (codexFactory #293), and a two-repository
+      # move cannot be atomic — if codexFactory moved first, every firing of
+      # this lane would refuse `floor_document_unobtainable`.
+      #
+      # OLD FIRST IS THE SAFETY ARGUMENT (M-2), not a formatting choice: until
+      # the document actually moves, candidate one always resolves and this lane
+      # behaves EXACTLY as it did with a single path, so landing this ahead of
+      # another repository's change is an observable no-op.
+      #
+      # THIS LIST IS DUPLICATED, DELIBERATELY, in
+      # `scripts/review_lane_repin.py`'s `FLOOR_IN_SOURCE_CANDIDATES` and in the
+      # `tests/review_lane_pin/` literals — "a value read from the artifact it
+      # is used to check makes the check a tautology". The duplication is held
+      # honest by an assertion that every declaration carries the SAME ordered
+      # list, not by anyone remembering.
+      #
+      # IT RETURNS TO ONE ENTRY at M-1 step (3), once one advance has been
+      # observed against the successor. The lane never SEARCHES beyond it (M-7).
+      FLOOR_IN_SOURCE_CANDIDATES: |
+        scripts/merge_master/openxfactory-review-authority-floor.yaml
+        floor/openxfactory-review-authority-floor.yaml
       BOT_BRANCH: bot/review-lane-repin
       BINDING: contracts/review-lane-repin-binding.template.yaml
       # A hand firing defaults to an inspection; a scheduled or dispatched
@@ -296,17 +319,54 @@ jobs:
           GH_TOKEN: ${{ steps.source-token.outputs.token }}
           BRANCH_SHA: ${{ steps.source.outputs.sha }}
         run: |
+          # `-e` IS KEPT. Every failure this step tolerates is tolerated by an
+          # explicit construct — the `gh api` call sits in an `if` condition and
+          # the two guards are `||` compounds — so the strictness the step
+          # shipped with is unchanged, and an unexpected failure still aborts
+          # rather than being read as "no candidate resolved".
           set -euo pipefail
           OUT="${RUNNER_TEMP}/floor-at-source.yaml"
-          if gh api "repos/${SOURCE_REPOSITORY}/contents/${FLOOR_IN_SOURCE}?ref=${BRANCH_SHA}" \
-               -H "Accept: application/vnd.github.raw" > "${OUT}"; then
+          FIRST=""
+          OBTAINED=""
+          TRIED=""
+          # FIRST-OBTAINED-WINS over the declared list, IN ORDER. Each miss is
+          # recorded so a refusal names the whole set that was tried, and the
+          # loop stops at the first hit — it never keeps looking for a "better"
+          # path, because a second copy is a fact about codexFactory this lane
+          # is not entitled to arbitrate.
+          while IFS= read -r CANDIDATE; do
+            [ -n "${CANDIDATE}" ] || continue
+            [ -n "${FIRST}" ] || FIRST="${CANDIDATE}"
+            TRIED="${TRIED:+${TRIED}, }${CANDIDATE}"
+            if gh api "repos/${SOURCE_REPOSITORY}/contents/${CANDIDATE}?ref=${BRANCH_SHA}" \
+                 -H "Accept: application/vnd.github.raw" > "${OUT}" 2>/dev/null; then
+              OBTAINED="${CANDIDATE}"
+              break
+            fi
+          done <<< "${FLOOR_IN_SOURCE_CANDIDATES}"
+
+          if [ -n "${OBTAINED}" ]; then
             echo "path=${OUT}" >> "$GITHUB_OUTPUT"
-            echo "fetched ${FLOOR_IN_SOURCE} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes)"
+            echo "source_path=${OBTAINED}" >> "$GITHUB_OUTPUT"
+            # THE WITNESS LINE. It names WHICH declared path answered, and says
+            # in words whether that is the path in force or a migration in
+            # progress — so a reader of the run learns the state of a
+            # two-repository move without opening either diff.
+            if [ "${OBTAINED}" = "${FIRST}" ]; then
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — candidate 1 of the declared list, the path in force; no migration in progress"
+            else
+              WITNESS="fetched ${OBTAINED} at ${BRANCH_SHA} ($(wc -c < "${OUT}") bytes) — NOT the first declared candidate: ${FIRST} did not resolve, so the relocation ruled by relocate-review-authority-floor has landed in codexFactory and M-1 step (3) is now owed here"
+            fi
+            echo "${WITNESS}"
+            echo "${WITNESS}" >> "$GITHUB_STEP_SUMMARY"
           else
             # The decision module turns an absent document into a refusal that
-            # names itself; leaving `path` empty is how it is told.
+            # names itself; leaving `path` empty is how it is told. It fires
+            # ONLY when no declared candidate resolved.
+            rm -f "${OUT}"
             echo "path=" >> "$GITHUB_OUTPUT"
-            echo "::warning title=review-lane-repin::could not fetch ${FLOOR_IN_SOURCE} at ${BRANCH_SHA}; the lane will refuse."
+            echo "source_path=" >> "$GITHUB_OUTPUT"
+            echo "::warning title=review-lane-repin::no declared candidate resolved at ${BRANCH_SHA} (tried: ${TRIED}); the lane will refuse."
           fi
 
       # ---- 4. Measure, decide, write, and RE-READ ----------------------------
@@ -328,6 +388,7 @@ jobs:
           REACHABLE: ${{ steps.source.outputs.reachable }}
           EVIDENCE: ${{ steps.source.outputs.evidence }}
           FLOOR_PATH: ${{ steps.floor.outputs.path }}
+          FLOOR_SOURCE_PATH: ${{ steps.floor.outputs.source_path }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -338,6 +399,7 @@ jobs:
             --candidate-reachable "${REACHABLE}" \
             --reachability-evidence "${EVIDENCE}" \
             --floor-document "${FLOOR_PATH}" \
+            --floor-source-path "${FLOOR_SOURCE_PATH}" \
             --run-url "${RUN_URL}" \
             --plan-out "${RUNNER_TEMP}/plan.json" \
             --body-out "${RUNNER_TEMP}/pr-body.md" \
