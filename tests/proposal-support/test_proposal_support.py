@@ -1505,6 +1505,9 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIn("openspec/changes/change-s/proposal.md", message)
             self.assertIn(renamed_at[:12], message)
             self.assertIn("FORMER ID", message)
+            # …and says WHY it refuses rather than re-basing: the baseline is
+            # not merely wrong, it cannot be established at all from history
+            self.assertIn("baseline cannot be established", message)
             self.assertIn("#833", message)
 
             # the refusal is NOT swallowed into a findings list…
@@ -1604,6 +1607,10 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIsNone(
                 support.ratified_under_a_former_path(root, head, rel))
             self.assertEqual(support.ratifying_commit(root, "change-r"), head)
+            # end to end, not only at the walk: the gate still passes it
+            self.assertEqual(
+                support.origin_retention_errors(
+                    root, root / "openspec" / "changes" / "change-r"), [])
 
     def test_a_never_ratified_change_that_moved_is_still_not_ratified(self):
         """THE DRAFT ARM IS NOT HIJACKED. A change that was never ratified has
@@ -1637,16 +1644,41 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("origin-retention-path-moved", result.stderr)
 
+    def test_a_git_config_cannot_switch_the_guard_off(self):
+        """NO GIT CONFIG SWITCHES THE GUARD OFF. Rename detection is
+        configurable — `diff.renames=false`, `diff.renameLimit=1` — and a
+        guard that read the pairing from a plain diff could be turned off,
+        with the #833 defect back, from outside the repository's own rules.
+        The gate's arms are not configurable by design (#690: no bypass
+        flag), so neither is this one: `--follow` FORCES detection, which is
+        the mechanism rather than the explicit `--find-renames` beside it
+        (dropping that flag breaks nothing — measured). So this asserts the
+        PROPERTY over the hostile config, set in the fixture's own
+        `.git/config`, and not the flag."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            git(root, "config", "diff.renames", "false")
+            git(root, "config", "diff.renameLimit", "1")
+            self.rename(root, "change-r", "change-s")
+            with self.assertRaisesRegex(support.OriginRetentionError,
+                                        "origin-retention-path-moved"):
+                support.ratifying_commit(root, "change-s")
+
     @unittest.skipUnless((REPO_ROOT / ".git").exists(),
                          "no git history for this checkout")
     def test_the_guard_refuses_nothing_on_this_repository_today(self):
         """THE GUARD IS A NO-OP ON THE LAWFUL CORPUS, measured rather than
-        asserted. Every active change on this branch resolves the baseline it
-        resolved before the guard existed: 35 active packets here, and 189
-        active-plus-archived when the same sweep was run by hand while
-        authoring it, with zero refusals and zero baselines moved. A refusal
-        appearing here means a ratified change has been renamed — which is
-        the act this gate exists to stop, not a defect in it."""
+        asserted: every active change resolves the baseline it resolved
+        before the guard existed. NO COUNT IS WRITTEN DOWN, because the
+        corpus gains and loses packets with every landing and a number here
+        is stale by the next one — the invariant is zero refusals over
+        WHATEVER is active, one subtest per change, and the same sweep run by
+        hand over the active AND archived packets (comparing each resolved
+        baseline against the pre-guard module's) found zero refusals and zero
+        baselines moved. A refusal appearing here means a ratified change has
+        been renamed — which is the act this gate exists to stop, not a
+        defect in it."""
         active = REPO_ROOT / "openspec" / "changes"
         resolved = []
         for directory in sorted(active.iterdir()):

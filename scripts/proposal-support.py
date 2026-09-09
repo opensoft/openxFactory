@@ -573,10 +573,18 @@ def renamed_from(root: Path, revision: str, rel: str) -> str | None:
     <new path>` says `A`, while `git log --follow` over the same commit says
     `C099` from the old dotted path.
 
-    `--find-renames` is passed EXPLICITLY so that an operator's
-    `diff.renames=false` cannot switch the guard below off from a git config —
-    verified against `git -c diff.renames=false`, which still reports the
-    pairing under `--follow`.
+    A GIT CONFIG CANNOT SWITCH THE GUARD BELOW OFF, and `--follow` is what
+    makes that true rather than the flag beside it: `--follow` FORCES rename
+    detection, so `diff.renames=false` — and `diff.renameLimit=1` next to it,
+    the other knob that can make detection give up — still reports the
+    pairing (measured on git 2.43.0, with the flag and without it).
+    `--find-renames` is passed anyway as a BELT, not the mechanism: it states
+    the request at the call site, and it is the flag that would matter if a
+    pairing were ever read from a plain diff instead. Dropping it therefore
+    breaks no test, which is stated here because the property that does
+    matter is pinned by a fixture carrying the hostile config in its own
+    `.git/config` (`test_a_git_config_cannot_switch_the_guard_off`) rather
+    than by this note.
 
     COPIES COUNT, not only renames. A "rename" that leaves the old directory
     standing is a DUPLICATED packet rather than a moved one, and the question
