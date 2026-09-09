@@ -473,6 +473,31 @@ def test_a_named_manifest_that_does_not_exist_refuses_in_json(
     assert payload["code"] in RATIFIED_CODES
 
 
+def test_a_relative_manifest_resolves_against_repo_not_cwd(
+        scratch: Scratch, tmp_path: Path) -> None:
+    """Copilot round 3: the help text says `--manifest`'s default is
+    `<repo>/…`, but a RELATIVE override used to resolve against the caller's
+    CWD instead — `--repo <other-tree> --manifest docs/….yaml` pointed at
+    whatever sat under wherever the caller happened to be standing, the wrong
+    file unless CWD and `--repo` coincide. `scratch.repo` carries the manifest;
+    the subprocess is launched from `tmp_path`, its EMPTY parent, which holds
+    no `docs/` at all — so the old resolution finds nothing there and the new
+    one finds it under `--repo`."""
+    scratch.write(clean_manifest(scratch))
+    assert tmp_path != scratch.repo
+    assert not (tmp_path / MODULE.MANIFEST_RELPATH).exists()
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--repo", str(scratch.repo),
+         "--manifest", MODULE.MANIFEST_RELPATH],
+        cwd=tmp_path, capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "OK " in done.stdout, done.stdout
+    # The resolved ABSOLUTE path is what the reader sees, not the relative
+    # fragment the caller typed.
+    assert str(scratch.repo / MODULE.MANIFEST_RELPATH) in done.stdout, \
+        done.stdout
+
+
 def test_at_verifies_an_earlier_carve_commit(scratch: Scratch) -> None:
     """The manifest is cut at the carve commit and `main` moves on; `--at`
     asks the question the manifest actually answers."""
@@ -683,6 +708,20 @@ def test_a_row_with_an_unknown_key_refuses(scratch: Scratch) -> None:
     doc = clean_manifest(scratch)
     row_named(doc, "alpha.py")["destination_branch"] = "main"
     refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_a_destination_entry_with_an_unknown_key_refuses(
+        scratch: Scratch) -> None:
+    """Copilot round 3: the module docstring claims `destinations.<key>` is a
+    closed map like the rows, but an extra key inside one used to be admitted
+    in silence — the closed-grammar guarantee the docstring states was true of
+    the rows and not of the destinations beside them. A stray field here must
+    refuse exactly as a stray field on a row does."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_code"]["branch"] = "main"
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "opendox_code" in combined, combined
+    assert "branch" in combined, combined
 
 
 # --------------------------------------------------------------------------

@@ -203,6 +203,17 @@ REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 MODE_RE = re.compile(r"^(100644|100755|120000)$")
 EDIT_KEYS = {"class", "lines", "note"}
 
+# A destination entry's key set, CLOSED to exactly these two — an unknown key
+# is a typo the closed grammar the module docstring promises must not admit,
+# and a missing one is caught by `_require_str` naming the same two names.
+DESTINATION_KEYS = frozenset({"repository", "leg"})
+
+# The three legs of the `openRepoShape` project shape this carve targets
+# (split-opendox-two-layer-product, "AMENDED 2026-09-05 (repository shape)":
+# each layer is an assembly root plus a `-spec` and a `-code` leg). A
+# destination is exactly one of them.
+LEGS: tuple[str, ...] = ("code", "spec", "assembly")
+
 # The DOCUMENT's key set, CLOSED. `header:` is optional prose — it is where
 # RULED OQ-E's convention break is recorded — and every other key here is
 # required by check 1. Closed because the schema the three consts are borrowed
@@ -465,8 +476,26 @@ def check_shape(doc: dict[str, Any]) -> None:
             raise CarveRefusal(
                 "carve-shape-invalid",
                 f"`destinations.{key}` is not a mapping ({entry!r})")
-        _require_str(entry, "repository", f"`destinations.{key}`")
-        _require_str(entry, "leg", f"`destinations.{key}`")
+        stray = sorted(set(entry) - DESTINATION_KEYS, key=repr)
+        if stray:
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"`destinations.{key}` carries the unknown key(s) {stray!r}; "
+                "an entry is closed to exactly `repository` and `leg`, which "
+                "is what makes the module docstring's \"closed maps\" true of "
+                "the destinations too, not only of the rows")
+        repository = _require_str(entry, "repository", f"`destinations.{key}`")
+        if not REPO_RE.match(repository):
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"`destinations.{key}.repository: {repository!r}` is not "
+                "`owner/name`")
+        leg = _require_str(entry, "leg", f"`destinations.{key}`")
+        if leg not in LEGS:
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"`destinations.{key}.leg: {leg!r}` is not one of "
+                f"{list(LEGS)!r}")
 
     classes = doc.get("edit_classes")
     if not isinstance(classes, list) or tuple(classes) != EDIT_CLASSES:
@@ -939,8 +968,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo = Path(args.repo).resolve() if args.repo else ROOT
-    manifest_path = (Path(args.manifest).resolve() if args.manifest
-                     else repo / MANIFEST_RELPATH)
+    # A RELATIVE `--manifest` is resolved against `--repo`, not the caller's
+    # CWD: the help text already says "default: <repo>/…", and a relative
+    # override that silently changed referent to CWD would point at the wrong
+    # file the moment `--repo` names a tree other than the one the caller is
+    # standing in. An ABSOLUTE `--manifest` is untouched — there is no `repo`
+    # to resolve it against. Either way the result is `.resolve()`d, so every
+    # message below — `NO MANIFEST`, `OK`, a refusal's render, `--json` —
+    # prints the one absolute path that was actually read, not a caller-typed
+    # fragment a reader would have to re-derive the CWD to interpret.
+    if args.manifest:
+        manifest_arg = Path(args.manifest)
+        manifest_path = (manifest_arg if manifest_arg.is_absolute()
+                         else repo / manifest_arg).resolve()
+    else:
+        manifest_path = (repo / MANIFEST_RELPATH).resolve()
 
     # THE SEAT-HOLDING PASS, and the one place here that is not fail-closed.
     # See the module docstring: this validator lands BEFORE its subject.
