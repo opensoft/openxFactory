@@ -1,0 +1,6 @@
+$ python3 scripts/validate-consent-instruments.py <a real withholding instrument>
+(the exit-status vocabulary, all four paths, measured)
+real instrument WITHHOLDS, nothing errors -> exit 3
+packaged self-test (fixture EXEMPT)  -> exit 0
+WITHHOLDS **and** ERRORS            -> exit 1  (errors dominate)
+errors only                          -> exit 1

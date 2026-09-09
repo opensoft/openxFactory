@@ -135,7 +135,7 @@ and `.../evidence/T017-manifest-digests.txt`.
 
 ## 3. The canonical validator — internal legs only
 
-- [ ] 3.1 `scripts/validate-consent-instruments.py`: a new check beside
+- [x] **TICKED 2026-09-09.** 3.1 `scripts/validate-consent-instruments.py`: a new check beside
   `check_custody` for the chain's INTERNAL legs — anchor in BOTH halves
   (`e₁.previous_sha256 == custody.sha256` AND `e₁.previous_locator ==
   custody.locator`), linkage in BOTH halves (`eᵢ.previous_sha256 ==
@@ -144,19 +144,19 @@ and `.../evidence/T017-manifest-digests.txt`.
   layer. Distinct finding codes per leg, in the file's existing naming style
   (candidates: `custody-chain-unanchored`, `custody-chain-broken-link`,
   `custody-chain-locator-gap`, `custody-chain-out-of-order`).
-- [ ] 3.2 The rewritten-pin leg: refuse an instrument whose `custody.sha256`
+- [x] **TICKED 2026-09-09.** 3.2 The rewritten-pin leg: refuse an instrument whose `custody.sha256`
   equals any entry's `observed_sha256` while a LATER entry exists, and more
   generally any state in which the pin has been advanced to a value the chain
   itself records as observed. Finding code candidate: `custody-pin-rewritten`.
-- [ ] 3.3 **NO GIT RE-DERIVATION IS ADDED** (design C-7). Assert the absence:
+- [x] **TICKED 2026-09-09.** 3.3 **NO GIT RE-DERIVATION IS ADDED** (design C-7). Assert the absence:
   the validator opens no repository, shells out to no `git`, and reads no file
   named by `custody.locator`. A test pins that absence so a helpful later edit
   fails on the developer's machine first.
-- [ ] 3.4 The neutral pass MUST NOT report itself as a currency verdict. The
+- [x] **TICKED 2026-09-09.** 3.4 The neutral pass MUST NOT report itself as a currency verdict. The
   validator's report line for a chained instrument says what it checked and
   what it did not, per the promoted scenario *The neutral pass is not a currency
   claim*.
-- [ ] 3.4b **MINT THE WITHHELD OUTCOME — it is mandated by the requirement and
+- [x] **TICKED 2026-09-09.** 3.4b **MINT THE WITHHELD OUTCOME — it is mandated by the requirement and
   represented by nothing today.** `Findings` carries `error` / `warning` / `note`
   only, so a `content`-class entry with sound internal legs would silently pass.
   Add `custody-content-class-withheld` as a DISTINCT OUTCOME, not an error and
@@ -168,12 +168,12 @@ and `.../evidence/T017-manifest-digests.txt`.
   than "is malformed". **Task 3.3's no-git assertion is untouched**: the class is
   a field of the record, so the withholding is computed without opening a
   repository.
-- [ ] 3.4c A `path_only` entry whose `previous_sha256 != observed_sha256` is
+- [x] **TICKED 2026-09-09.** 3.4c A `path_only` entry whose `previous_sha256 != observed_sha256` is
   refused (finding code candidate `custody-path-class-digests-differ`). This leg
   is neutral because both digests are fields of the record; CONFIRMING a class
   against the measured diff needs the repository and belongs to the consumer's
   gate.
-- [ ] 3.5 **EXTEND `walk_strings` OVER THE NEW FIELDS** (design C-1 as
+- [x] **TICKED 2026-09-09.** 3.5 **EXTEND `walk_strings` OVER THE NEW FIELDS** (design C-1 as
   corrected). `check_custody`'s blob-shape walk is the family's only
   "wherever it hides" guard, and siting the array outside `custody` leaves
   `custody_rederivations[].ruling_ref` and `.recorded_by` — the two unbounded
@@ -184,52 +184,113 @@ and `.../evidence/T017-manifest-digests.txt`.
 
 ## 4. Fixtures — positive and negative, one per named refusal
 
-- [ ] 4.1 POSITIVE: `examples/consent-instrument/` gains an instrument carrying
+- [x] **TICKED 2026-09-09.** 4.1 POSITIVE: `examples/consent-instrument/` gains an instrument carrying
   a two-entry unbroken chain (`header_only` / `lifecycle_header_edit`), admitted
   by the internal legs.
-- [ ] 4.2 POSITIVE: an existing example is left UNCHANGED and re-validated, to
+- [x] **TICKED 2026-09-09.** 4.2 POSITIVE: an existing example is left UNCHANGED and re-validated, to
   prove the growth is additive for an instrument that declares no array.
-- [ ] 4.1b POSITIVE: an instrument carrying an `archive_move` /
+- [x] **TICKED 2026-09-09.** 4.1b POSITIVE: an instrument carrying an `archive_move` /
   `diff_class: path_only` entry whose locator pair DIFFERS and whose digests are
   EQUAL on both sides — the case a single-locator rule can never admit (design
   C-6a, `proposal.md` Example B).
-- [ ] 4.1c POSITIVE: the TWO-ENTRY chain shape the real repair needs — e1
+- [x] **TICKED 2026-09-09.** 4.1c POSITIVE: the TWO-ENTRY chain shape the real repair needs — e1
   `archive_move`/`path_only`, e2 `lifecycle_header_edit`/`header_only` — modelled
   on prescription I in `design.md` § *The consumer handoff*. No fixture in the
   corpus exercises a multi-entry chain today.
-- [ ] 4.3 NEGATIVE `examples/consent-instrument/negative/`: a broken link
+- [x] **TICKED 2026-09-09.** 4.3 NEGATIVE `examples/consent-instrument/negative/`: a broken link
   (`eᵢ.previous_sha256 != eᵢ₋₁.observed_sha256`).
-- [ ] 4.3b NEGATIVE: a locator gap (`eᵢ.previous_locator !=
+- [x] **TICKED 2026-09-09.** 4.3b NEGATIVE: a locator gap (`eᵢ.previous_locator !=
   eᵢ₋₁.observed_locator`) with the digests linking correctly — the half of the
   chain an earlier draft could not express.
-- [ ] 4.3c NEGATIVE: entries out of recorded-time order
+- [x] **TICKED 2026-09-09.** 4.3c NEGATIVE: entries out of recorded-time order
   (`custody-chain-out-of-order`), so § 4's "one per named refusal" is true of
   that refusal too.
-- [ ] 4.4 NEGATIVE: a first entry whose `previous_sha256` is not the pin, and
+- [x] **TICKED 2026-09-09.** 4.4 NEGATIVE: a first entry whose `previous_sha256` is not the pin, and
   one whose `previous_locator` is not `custody.locator`.
-- [ ] 4.5 NEGATIVE: an unknown `diff_class` member, and an unknown `reason`
+- [x] **TICKED 2026-09-09.** 4.5 NEGATIVE: an unknown `diff_class` member, and an unknown `reason`
   member (schema-layer refusals).
-- [ ] 4.6 NEGATIVE: an entry omitting `ruling_ref`, and one omitting
+- [x] **TICKED 2026-09-09.** 4.6 NEGATIVE: an entry omitting `ruling_ref`, and one omitting
   `recorded_by`.
-- [ ] 4.7 NEGATIVE: an entry carrying an ELEVENTH property (entry closure —
+- [x] **TICKED 2026-09-09.** 4.7 NEGATIVE: an entry carrying an ELEVENTH property (entry closure —
   the entry has TEN required fields since C-6a, so a "ninth" would not test the
   closure at all).
-- [ ] 4.8 NEGATIVE: a rewritten pin — `custody.sha256` advanced to an observed
+- [x] **TICKED 2026-09-09.** 4.8 NEGATIVE: a rewritten pin — `custody.sha256` advanced to an observed
   digest while the chain still claims the original anchor.
-- [ ] 4.8b NEGATIVE: a blob-shaped `ruling_ref` and a blob-shaped `recorded_by`
+- [x] **TICKED 2026-09-09.** 4.8b NEGATIVE: a blob-shaped `ruling_ref` and a blob-shaped `recorded_by`
   (base64 run, `data:` URI, PDF magic or a multi-line body), each refused as
   `embedded-original-content` — the fixture that proves task 3.5 landed.
-- [ ] 4.8c **WITHHELD (neither positive nor negative — the third outcome):** an
+- [x] **TICKED 2026-09-09.** 4.8c **WITHHELD (neither positive nor negative — the third outcome):** an
   instrument whose last entry declares `diff_class: content` and whose internal
   legs are ALL SOUND, asserted to yield WITHHELD — **not a pass and not an
   error**. This is the fixture that proves task 3.4b landed, and the self-test
   harness needs a third expectation bucket to hold it, since today it can only
   say "valid" or "invalid for its intended finding".
-- [ ] 4.8d NEGATIVE: a `path_only` entry whose two digests differ.
-- [ ] 4.9 `examples/consent-instrument/README.md` updated with the new corpus
+- [x] **TICKED 2026-09-09.** 4.8d NEGATIVE: a `path_only` entry whose two digests differ.
+- [x] **TICKED 2026-09-09.** 4.9 `examples/consent-instrument/README.md` updated with the new corpus
   counts, and the corpus count in `contracts/manifest.yaml`'s
   `consent-instrument` comment (*"5 valid + 5 invalid + purpose probes"*)
   re-measured rather than adjusted by arithmetic.
+
+**§ 3 AND § 4 EVIDENCE, 2026-09-09.** Landed in ONE commit on branch
+`033-add-consent-custody-rederivation-record` — **and the
+`tests/consent_instruments/` package rides that SAME commit, because box 3.3
+asks for a TEST that pins the absence, so its tick cannot precede the test that
+is its evidence.** Transcripts under
+`specs/033-add-consent-custody-rederivation-record/evidence/`:
+`phaseD-consent-validator.txt`, `phaseC-exit-vocabulary.txt`,
+`phaseE-pytest-consent-instruments.txt`, `phaseE-pytest-full.txt`,
+`phaseE-baseline-preexisting-failures.txt`, `phaseD-manifest-digests.txt`,
+`phaseD-scope-globs.txt`.
+
+- **THE CORPUS, MEASURED by listing the directories** rather than by arithmetic:
+  **9 valid** examples (7 instruments, 1 class registry, 1 purpose model),
+  **21 indexed negatives**, **1 WITHHELD fixture** in the new third bucket, and
+  2 purpose probes. `validate-consent-instruments.py --strict`: **0 errors, 0
+  warnings, rc=0**.
+- **The seven finding codes are adopted verbatim** and each has a fixture:
+  `custody-chain-unanchored` (TWO fixtures, one per anchor half),
+  `custody-chain-broken-link`, `custody-chain-locator-gap`,
+  `custody-chain-out-of-order`, `custody-pin-rewritten` (multi-entry),
+  `custody-path-class-digests-differ`, `custody-content-class-withheld`.
+- **THE EXIT VOCABULARY IS MEASURED ON ALL FOUR PATHS**: a real instrument that
+  withholds exits **3**; the packaged self-test exits **0** (the fixture is
+  EXEMPT — an expected withholding is to the third bucket what an expected
+  failure is to a negative); an instrument that withholds AND errors exits
+  **1**, errors dominating; errors alone exit **1**. `3` is Brett Heap's ruling
+  of 2026-09-09, verbatim *"Exit 3 = needs a human decision (Recommended)"*,
+  held in ONE named constant.
+- **§ 3.3's absence is pinned by 11 tests**, argument-scoped both ways: the
+  source ban allowlists `SKIP_DIR_NAMES`' `".git"` by EXACT TOKEN (a
+  directory-name exclusion is the opposite of reading a repository), and the
+  runtime half patches `subprocess.run/Popen/check_output` and wraps
+  `Path.open`/`open` to assert every opened path resolves UNDER the repository
+  root — over all THREE buckets. `pytest tests/consent_instruments -q`: **34
+  passed, rc=0**.
+- **THE FULL SUITE WAS RUN, NOT ASSUMED**: `pytest tests/ -q -m "not postgres"`
+  — **10512 passed, 36 skipped, 2 failed, rc=1**. **Neither failure names a
+  consent surface, and BOTH are proven pre-existing by a BASELINE rather than by
+  assertion**: the same two node ids fail identically in a separate clone at
+  pristine `origin/main` (`e86eca35`), which carries none of this branch's
+  bytes. One is a 30-second subprocess ceiling on a loaded workstation; the
+  other resolves a pinned checkout that exists only in an aggregation workspace
+  layout — a developer-worktree/runner divergence `pytest-suite.yml` itself
+  records as expected rather than as a regression. **An uninitialized
+  `openXwallet` gitlink is an ENVIRONMENT prerequisite of this gate**: it made a
+  first attempt report 146 failures and errors that were entirely its absence,
+  and CI initializes it in a dedicated App-token step before the suite.
+- **§ 3.5's walk is proven over all four free strings × four blob predicates**,
+  and proven NOT to fire on the two digests.
+
+**ONE DEFECT IN A RATIFIED TASK'S PARAPHRASE WAS FOUND AND IS RECORDED, NOT
+CODED AROUND.** Task 3.2's shorthand — *"custody.sha256 equals any entry's
+observed_sha256 while a LATER entry exists"* — refuses `design.md` prescription
+I, the estate's own measured repair, because a `path_only` move changes zero
+bytes and so makes the pin equal e1's observed digest BY CONSTRUCTION. Applied
+literally it would make `reason: archive_move` unusable by any conforming
+record — the exact failure C-6a was raised to fix. The delta governs: it speaks
+of a digest *"written back into custody.sha256"* and of leaving the pin
+*"verbatim"*, so the implemented leg is ANCHOR-RELATIVE. Full write-up:
+`specs/033-add-consent-custody-rederivation-record/evidence/FINDING-pin-leg-contradiction-2026-09-09.md`.
 
 ## 5. The contract cut
 

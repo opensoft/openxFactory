@@ -1,0 +1,59 @@
+# INVALID: a LOCATOR gap with the digests linking correctly — the half of the
+# chain an earlier draft of this contract could not express at all. Entry 1
+# starts at a path entry 0 never observed, so the move is unre-derivable even
+# though the bytes line up.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-neg-0004"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+  sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-21T15:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+data_consent:
+  mapping: none
+custody_rederivations:
+  - at: "2026-09-01T10:00:00Z"
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    previous_locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+    observed_locator: "opaque:demo-advisory/changes/archive/2026-08-21-add-demo-capability/review/ratification-2026-07-10.md"
+    previous_sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+    observed_sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+    diff_class: path_only
+    reason: archive_move
+    ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
+    recorded_by: "lane opsXfactory-1, demo record"
+  - at: "2026-09-02T10:00:00Z"
+    commit: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    previous_locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+    observed_locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+    previous_sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+    observed_sha256: "a29a69fa02d8720de5426f2d37a6c88987ca24d3bacc1e82acd2ff18b9fb3237"
+    diff_class: header_only
+    reason: lifecycle_header_edit
+    ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
+    recorded_by: "lane opsXfactory-1, demo record"

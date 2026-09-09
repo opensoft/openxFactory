@@ -1,0 +1,4 @@
+$ python3 -m pytest tests/consent_instruments -q
+..................................                                       [100%]
+34 passed in 1.96s
+rc=0

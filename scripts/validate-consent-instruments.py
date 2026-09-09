@@ -68,6 +68,22 @@ The rules the shapes cannot express:
       consent_profile` requires the derived profile to be declared as a
       consent_profile dependent reference (the Medx derivation pattern);
       `mapping: none` must not coexist with one.
+  (h) THE CUSTODY RE-DERIVATION CHAIN'S INTERNAL LEGS (spec "Custody Currency
+      Is Re-Derived From Git History Or Refused",
+      add-consent-custody-rederivation-record design C-6/C-7). The chain is
+      anchored to the executed pin AND to the pin's locator; each later entry
+      starts where its predecessor was observed, in BOTH the digest and the
+      locator; recorded times do not decrease; no entry's observed digest has
+      been written back into `custody.sha256`; a `path_only` entry's two
+      digests are equal; and a `content`-class entry WITHHOLDS the verdict.
+      These are the legs derivable from the RECORD'S OWN BYTES. The GIT legs —
+      re-deriving each side at `commit^` and `commit`, the ancestry chain, and
+      termination at HEAD — are NOT performed here (design C-7): this validator
+      is network-free and reads ONE repository, while an instrument's
+      `custody.locator` target lives in the CONSUMING repository. The
+      consuming repository SHALL operate a custody-digest check that performs
+      them, and a pass here is therefore NOT a statement that a pin is
+      current.
 
 WHAT THIS VALIDATOR DELIBERATELY DOES NOT DO (ruling D4; spec R7 scenario
 "One enforcement truth per concern"): it NEVER inspects the technical access
@@ -77,13 +93,29 @@ clause's `access` block is carried free-shape and passed over untouched, so a
 disagreement between a clause and a credential grant is a credential-contracts
 finding, not a consent-instrument finding.
 
-Exit codes: 0 ok, 1 findings, 2 dependency/harness error.
+Exit codes: 0 ok, 1 findings, 2 dependency/harness error, 3 withheld — needs a
+human decision. Exit 3 is the outcome minted by
+add-consent-custody-rederivation-record for a `content`-class custody
+re-derivation whose internal legs are all sound: the record is CORRECT and the
+INSTRUMENT is what needs attention, so it is neither a pass nor a malformed
+record. The number is Brett Heap's ruling of 2026-09-09, given in session by
+multiple-choice selection, verbatim "Exit 3 = needs a human decision
+(Recommended)" over the declined "Exit 1, same as findings" and "Exit 0, report
+only"; before it this repository had ruled no status for "needs a human
+decision" at all, which is what the ratified task asked for.
+
+PRECEDENCE: errors dominate. An instrument that both WITHHOLDS and ERRORS exits
+1, because a malformed record is not a decision for a human to take. The
+packaged withheld fixture is EXEMPT and the self-test still exits 0 — an
+expected withholding is to the third bucket what an expected failure is to a
+negative.
 """
 from __future__ import annotations
 
 import argparse
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -103,6 +135,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "contracts" / "schemas"
 EXAMPLES_DIR = ROOT / "examples" / "consent-instrument"
 NEGATIVE_DIR = EXAMPLES_DIR / "negative"
+# The THIRD expectation bucket (add-consent-custody-rederivation-record § 4.8c).
+# A withheld fixture is neither a positive nor a negative: it is CORRECT and it
+# withholds, so neither existing loop can hold it without lying about it.
+WITHHELD_DIR = EXAMPLES_DIR / "withheld"
+
+# Exit status for "needs a human decision" — Brett Heap's ruling of 2026-09-09,
+# in session, by multiple-choice selection, verbatim "Exit 3 = needs a human
+# decision (Recommended)" over the declined "Exit 1, same as findings" and
+# "Exit 0, report only". Recorded on openxFactory issue #630. ONE CONSTANT: if
+# the number is ever re-ruled, this line moves and nothing else does.
+EXIT_NEEDS_DECISION = 3
 
 KIND_TO_SCHEMA = {
     "xfactory_consent_instrument": "consent-instrument.schema.yaml",
@@ -166,6 +209,43 @@ EXPECTED_NEGATIVE_FINDINGS: dict[str, tuple[str, str | None]] = {
         ("identity-cascade-incomplete", "a terminated instrument"),
     "identity-cascade-incomplete-on-withdrawn.yaml":
         ("identity-cascade-incomplete", "a withdrawn instrument"),
+    # add-consent-custody-rederivation-record: one fixture per NAMED refusal of
+    # the custody re-derivation chain. The five `schema`-coded rows are
+    # detail-pinned on MUTUALLY EXCLUSIVE substrings — two on the jsonschema
+    # instance path, two on a required-property message naming a different
+    # field each, one on the additionalProperties message — so no fixture's
+    # expected detail can be satisfied by another fixture's error text.
+    "custody-chain-unanchored-digest.yaml":
+        ("custody-chain-unanchored", "the DIGEST half"),
+    "custody-chain-unanchored-locator.yaml":
+        ("custody-chain-unanchored", "the LOCATOR half"),
+    "custody-chain-broken-link.yaml": ("custody-chain-broken-link", None),
+    "custody-chain-locator-gap.yaml": ("custody-chain-locator-gap", None),
+    "custody-chain-out-of-order.yaml": ("custody-chain-out-of-order", None),
+    "custody-pin-rewritten.yaml": ("custody-pin-rewritten", None),
+    "custody-path-class-digests-differ.yaml":
+        ("custody-path-class-digests-differ", None),
+    "custody-diff-class-unknown.yaml":
+        ("schema", "custody_rederivations/0/diff_class"),
+    "custody-reason-unknown.yaml": ("schema", "custody_rederivations/0/reason"),
+    "custody-entry-missing-ruling-ref.yaml":
+        ("schema", "'ruling_ref' is a required property"),
+    "custody-entry-missing-recorded-by.yaml":
+        ("schema", "'recorded_by' is a required property"),
+    "custody-entry-eleventh-property.yaml":
+        ("schema", "Additional properties are not allowed"),
+    "custody-ruling-ref-blob.yaml":
+        ("embedded-original-content", "custody_rederivations[0].ruling_ref"),
+    "custody-recorded-by-blob.yaml":
+        ("embedded-original-content", "custody_rederivations[0].recorded_by"),
+}
+
+# Layer-1 WITHHELD corpus: filename -> expected withheld outcome code. The
+# third bucket, minted by add-consent-custody-rederivation-record § 4.8c,
+# because the harness could previously say only "valid" or "invalid for its
+# intended finding" and a withholding is neither.
+EXPECTED_WITHHELD_OUTCOMES: dict[str, str] = {
+    "custody-content-class-withheld.yaml": "custody-content-class-withheld",
 }
 
 # Self-test purpose probes (spec R7 scenario "Purpose resolution passes and
@@ -183,12 +263,22 @@ class Findings:
         self.errors: list[str] = []
         self.warnings: list[str] = []
         self.notes: list[str] = []
+        # A THIRD OUTCOME, not a severity between the others. A withholding
+        # says the evidence re-derived perfectly and shows the referent moved:
+        # the RECORD is correct and the INSTRUMENT needs attention. Collapsing
+        # it into `errors` would send a re-execution to whoever maintains the
+        # chain; collapsing it into a pass would buy currency for a moved
+        # referent, which is the one thing the record must not do.
+        self.withheld: list[str] = []
 
     def error(self, code: str, msg: str) -> None:
         self.errors.append(f"ERROR [{code}] {msg}")
 
     def warn(self, code: str, msg: str) -> None:
         self.warnings.append(f"WARN  [{code}] {msg}")
+
+    def withhold(self, code: str, msg: str) -> None:
+        self.withheld.append(f"WITHHELD [{code}] {msg}")
 
     def note(self, msg: str) -> None:
         line = f"note  {msg}"
@@ -384,6 +474,26 @@ def walk_strings(node: Any, path: str) -> Iterator[tuple[str, str]]:
         yield path, node
 
 
+def blob_shapes(value: str) -> list[str]:
+    """Name every blob shape a string carries, or return an empty list.
+
+    Factored out of ``check_custody`` so the custody re-derivation entries are
+    walked by THE SAME predicates rather than by a second, drifting copy: the
+    guard follows the custody facts to their new home
+    (add-consent-custody-rederivation-record § 3.5).
+    """
+    blob = []
+    if BASE64_BLOB_RX.search(value):
+        blob.append("a base64-alphabet run of 200+ characters")
+    if value.startswith("data:"):
+        blob.append("a data: payload URI")
+    if PDF_MAGIC_RX.search(value):
+        blob.append("PDF magic (raw or base64)")
+    if "\n" in value:
+        blob.append("an embedded multi-line body")
+    return blob
+
+
 def check_custody(f: Findings, label: str, doc: dict) -> None:
     custody = doc.get("custody")
     if not isinstance(custody, dict):
@@ -404,21 +514,217 @@ def check_custody(f: Findings, label: str, doc: dict) -> None:
     for loc, value in walk_strings(custody, "custody"):
         if loc == "custody.sha256":
             continue  # a digest is the one long opaque value custody DOES carry
-        blob = []
-        if BASE64_BLOB_RX.search(value):
-            blob.append("a base64-alphabet run of 200+ characters")
-        if value.startswith("data:"):
-            blob.append("a data: payload URI")
-        if PDF_MAGIC_RX.search(value):
-            blob.append("PDF magic (raw or base64)")
-        if "\n" in value:
-            blob.append("an embedded multi-line body")
+        blob = blob_shapes(value)
         if blob:
             f.error("embedded-original-content",
                     f"{label}: {loc}: value carries {', '.join(blob)} — "
                     f"custody is a pointer, not a payload; original content "
                     f"in a product repo is nonconformant wherever it hides "
                     f"(spec R9, D9)")
+
+
+# --------------------------- rule (h): the custody re-derivation chain ---------------------------
+# INTERNAL LEGS ONLY, and the split is a consequence rather than a preference
+# (design C-7). Every leg below is derivable from the RECORD'S OWN BYTES. The
+# git legs — each side re-derived at `commit^` and `commit` through the
+# consumer's DECLARED custody store mapping, the ancestry chain, and
+# termination at HEAD — need the target's bytes and its history, which live in
+# the CONSUMING repository. This validator opens no repository, so it does not
+# attempt them, and its pass is NOT a currency verdict.
+
+CHAIN_DIGEST_FIELDS = ("previous_sha256", "observed_sha256")
+
+
+def _recorded_at(value: Any) -> Any:
+    """Parse an RFC 3339 timestamp, or return None when it is unparseable.
+
+    The schema layer already refuses a malformed `at`; this returns None so the
+    ORDER leg skips a value it cannot compare rather than inventing one.
+    """
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def check_custody_rederivations(f: Findings, label: str, doc: dict) -> None:
+    entries = doc.get("custody_rederivations")
+    if entries is None:
+        return  # the overwhelmingly common case: no chain, nothing to check
+    if not isinstance(entries, list) or not all(
+        isinstance(entry, dict) for entry in entries
+    ):
+        return  # shape failure; the schema layer reports it
+    custody = doc.get("custody")
+    pin = custody.get("sha256") if isinstance(custody, dict) else None
+    pin_locator = custody.get("locator") if isinstance(custody, dict) else None
+
+    # The blob-shape guard FOLLOWS THE CUSTODY FACTS to their new home (§ 3.5).
+    # Siting the array outside `custody` put `ruling_ref` and `recorded_by` —
+    # the two unbounded free strings in the entry — beyond the only "wherever it
+    # hides" guard this family has. The walk covers the WHOLE ENTRY minus the
+    # two digests, which are the only long opaque values an entry legitimately
+    # carries; `commit`, `at`, `diff_class` and `reason` ride along already
+    # bounded by a pattern, a format or a closed enumeration.
+    for index, entry in enumerate(entries):
+        for loc, value in walk_strings(entry, f"custody_rederivations[{index}]"):
+            if loc.rsplit(".", 1)[-1] in CHAIN_DIGEST_FIELDS:
+                continue
+            blob = blob_shapes(value)
+            if blob:
+                f.error("embedded-original-content",
+                        f"{label}: {loc}: value carries {', '.join(blob)} — a "
+                        f"re-derivation entry is an INDEX INTO EVIDENCE, never "
+                        f"the evidence itself; original content in a product "
+                        f"repo is nonconformant wherever it hides (spec R9, D9)")
+
+    chain = Findings()
+
+    # ANCHOR, in BOTH halves. One code, because an unanchored chain is one
+    # defect however it fails — but the message names WHICH half broke, because
+    # the two send a reader to different evidence.
+    first = entries[0] if entries else None
+    if first is not None:
+        broken = []
+        if pin is not None and first.get("previous_sha256") != pin:
+            broken.append(
+                f"the DIGEST half: previous_sha256 "
+                f"{first.get('previous_sha256')!r} is not custody.sha256 {pin!r}")
+        if pin_locator is not None and first.get("previous_locator") != pin_locator:
+            broken.append(
+                f"the LOCATOR half: previous_locator "
+                f"{first.get('previous_locator')!r} is not custody.locator "
+                f"{pin_locator!r}")
+        if broken:
+            chain.error("custody-chain-unanchored",
+                        f"{label}: custody_rederivations[0] does not anchor to "
+                        f"the executed pin — {'; and '.join(broken)}. An "
+                        f"instrument cannot acquire a new anchor, in bytes or "
+                        f"in path, by declaring one")
+
+    # LINKAGE, in BOTH halves, and BOTH codes fire when both break: suppressing
+    # either would hide half the defect from whoever repairs the chain.
+    for index in range(1, len(entries)):
+        previous, entry = entries[index - 1], entries[index]
+        if entry.get("previous_sha256") != previous.get("observed_sha256"):
+            chain.error("custody-chain-broken-link",
+                        f"{label}: custody_rederivations[{index}]: "
+                        f"previous_sha256 {entry.get('previous_sha256')!r} does "
+                        f"not equal entry {index - 1}'s observed_sha256 "
+                        f"{previous.get('observed_sha256')!r} — a chain whose "
+                        f"middle is fiction is not evidence of anything, and "
+                        f"the check does not fall back to comparing HEAD")
+        if entry.get("previous_locator") != previous.get("observed_locator"):
+            chain.error("custody-chain-locator-gap",
+                        f"{label}: custody_rederivations[{index}]: "
+                        f"previous_locator {entry.get('previous_locator')!r} "
+                        f"does not equal entry {index - 1}'s observed_locator "
+                        f"{previous.get('observed_locator')!r} — the chain has "
+                        f"a gap in the PATH even where the digests link, and a "
+                        f"move re-derives at both paths or not at all")
+
+    # ORDER. Non-decreasing, so EQUAL timestamps are legal: two entries written
+    # in one repair session share a recording moment, and the requirement says
+    # the times "do not decrease" rather than that they increase.
+    for index in range(1, len(entries)):
+        earlier = _recorded_at(entries[index - 1].get("at"))
+        later = _recorded_at(entries[index].get("at"))
+        if earlier is not None and later is not None and later < earlier:
+            chain.error("custody-chain-out-of-order",
+                        f"{label}: custody_rederivations[{index}].at "
+                        f"{entries[index].get('at')!r} precedes entry "
+                        f"{index - 1}'s {entries[index - 1].get('at')!r} — the "
+                        f"declared order is the chain's order, so a record "
+                        f"whose own timestamps contradict it cannot be read as "
+                        f"evidence of a sequence")
+
+    # THE PIN WAS NEVER WRITTEN BACK. The ratified scenario is "the repair
+    # records the divergence and LEAVES custody.sha256 VERBATIM", so the defect
+    # is the pin having been CHANGED to a digest the chain observed — not the
+    # pin merely coinciding with one.
+    #
+    # THE CONDITION IS ANCHOR-RELATIVE, AND THAT IS LOAD-BEARING RATHER THAN
+    # CAUTIOUS. Task 3.2's shorthand reads "custody.sha256 equals any entry's
+    # observed_sha256 while a LATER entry exists". Implemented literally it
+    # refuses design.md's own prescription I — the estate's MEASURED repair —
+    # because a `path_only` archive move changes ZERO bytes, so e1.observed
+    # EQUALS e1.previous EQUALS the pin by construction, and a following
+    # header edit supplies the "later entry". That would make `archive_move`
+    # unadmittable by construction: the very failure C-6a was raised to fix,
+    # reappearing in a different leg. The delta arbitrates, and it speaks of a
+    # digest "written back into custody.sha256".
+    #
+    # So: the pin is REWRITTEN when it no longer anchors the chain AND it
+    # matches something the chain observed. If it still equals e1.previous_sha256
+    # it is verbatim, and nothing was written back.
+    anchored_by_pin = (
+        first is not None and pin is not None
+        and first.get("previous_sha256") == pin
+    )
+    if pin is not None and not anchored_by_pin:
+        for index, entry in enumerate(entries):
+            if entry.get("observed_sha256") == pin:
+                chain.error("custody-pin-rewritten",
+                            f"{label}: custody.sha256 {pin!r} does not anchor "
+                            f"the chain (custody_rederivations[0]"
+                            f".previous_sha256 is "
+                            f"{first.get('previous_sha256')!r}) and EQUALS "
+                            f"custody_rederivations[{index}].observed_sha256 — "
+                            f"the executed pin has been WRITTEN BACK to a "
+                            f"digest the chain records as observed. The repair "
+                            f"records the divergence and leaves custody.sha256 "
+                            f"verbatim; a pin rewritten to the observed digest "
+                            f"is nonconformant even though it now verifies, "
+                            f"because it destroys the only evidence that a "
+                            f"divergence ever occurred")
+                break
+
+    # `path_only` MEANS ZERO BYTES CHANGED. Neutral because both digests are
+    # fields of the record; CONFIRMING the class against the measured diff needs
+    # the repository and belongs to the consumer's gate.
+    for index, entry in enumerate(entries):
+        if entry.get("diff_class") != "path_only":
+            continue
+        if entry.get("previous_sha256") != entry.get("observed_sha256"):
+            chain.error("custody-path-class-digests-differ",
+                        f"{label}: custody_rederivations[{index}] declares "
+                        f"diff_class: path_only and its two digests differ "
+                        f"({entry.get('previous_sha256')!r} -> "
+                        f"{entry.get('observed_sha256')!r}) — bytes changed and "
+                        f"the class says none did. The entry is not silently "
+                        f"re-classified, because the class a record declares is "
+                        f"the claim under review")
+
+    f.errors.extend(chain.errors)
+
+    # THE THIRD OUTCOME. Only when every INTERNAL leg is sound: a `content`
+    # entry on a broken chain is a broken chain, and the reader needs that first.
+    if not chain.errors:
+        for index, entry in enumerate(entries):
+            if entry.get("diff_class") == "content":
+                f.withhold("custody-content-class-withheld",
+                           f"{label}: custody_rederivations[{index}] declares "
+                           f"diff_class: content and every internal leg is "
+                           f"sound — the RECORD is correct and the INSTRUMENT "
+                           f"is what needs attention. A content divergence "
+                           f"means the referent of a signed original moved, "
+                           f"which is grounds for RE-EXECUTION rather than for "
+                           f"recording, so the currency verdict is WITHHELD "
+                           f"rather than granted")
+                break
+
+    # THE PASS IS NOT A CURRENCY CLAIM, and the report line says so in the
+    # requirement's own terms rather than leaving a reader to infer it.
+    f.note(f"{label}: custody chain of {len(entries)} entry(s) checked for "
+           f"anchoring, linkage in digest AND locator, declared order, closed "
+           f"enumerations, entry closure, the unmoved pin, path_only digest "
+           f"equality and any withheld outcome — and for NOTHING about the "
+           f"target's bytes. This validator opens no repository (design C-7); "
+           f"the currency verdict belongs to the consuming repository's "
+           f"custody-digest check, which a repository declaring "
+           f"custody_rederivations is obliged to operate")
 
 
 # --------------------------- rule (e): purpose resolution ---------------------------
@@ -607,6 +913,7 @@ def validate_record(f: Findings, label: str, doc: Any,
     if kind == "xfactory_consent_instrument":
         check_class(f, label, doc, ctx.registries.get(domain))
         check_custody(f, label, doc)
+        check_custody_rederivations(f, label, doc)
         check_purposes(f, label, doc, ctx.purpose_models.get(domain))
         check_termination_cascade(f, label, doc)
         check_data_consent(f, label, doc)
@@ -619,8 +926,12 @@ def validate_record(f: Findings, label: str, doc: Any,
 # --------------------------- layer 1: packaged examples ---------------------------
 
 def codes_of(findings: list[str]) -> set[str]:
+    # Reads ERROR and WITHHELD lines alike: the third bucket's expectation
+    # table pins an outcome CODE exactly as the negative table pins a finding
+    # code, and one parser keeps the two disciplines from drifting apart.
     return {m.group(1) for m in
-            (re.match(r"ERROR \[([^]]+)]", line) for line in findings) if m}
+            (re.match(r"(?:ERROR|WITHHELD) \[([^]]+)]", line)
+             for line in findings) if m}
 
 
 def lines_for(findings: list[str], code: str) -> list[str]:
@@ -703,6 +1014,51 @@ def self_test(f: Findings, docs: dict[str, dict]) -> None:
             else:
                 neg_ok += 1
 
+    # THE THIRD BUCKET (§ 4.8c). Fail-closed FOUR ways, not two: the
+    # disk/table symmetry the negatives already have, PLUS the outcome itself,
+    # because "the fixture exists" is not "the fixture withholds".
+    withheld_ok = 0
+    if not WITHHELD_DIR.is_dir():
+        f.error("examples-missing", f"{WITHHELD_DIR} not found")
+    else:
+        on_disk = {p.name for p in WITHHELD_DIR.glob("*.yaml")}
+        for name in sorted(EXPECTED_WITHHELD_OUTCOMES.keys() - on_disk):
+            f.error("withheld-missing",
+                    f"withheld/{name} is declared in "
+                    f"EXPECTED_WITHHELD_OUTCOMES but absent on disk")
+        for path in sorted(WITHHELD_DIR.glob("*.yaml")):
+            expected = EXPECTED_WITHHELD_OUTCOMES.get(path.name)
+            if expected is None:
+                f.error("withheld-unregistered",
+                        f"withheld/{path.name} has no entry in "
+                        f"EXPECTED_WITHHELD_OUTCOMES — every withheld fixture "
+                        f"declares the outcome it exists to provoke")
+                continue
+            local = Findings()
+            validate_record(local, f"examples/withheld/{path.name}",
+                            load_yaml(path), docs, ctx)
+            if local.errors:
+                f.error("withheld-wrong-outcome",
+                        f"withheld/{path.name}: expected WITHHELD, got "
+                        f"error(s) {sorted(codes_of(local.errors))} — a "
+                        f"withheld fixture must be CORRECT in every internal "
+                        f"leg; that is the whole point of the third bucket")
+            elif not local.withheld:
+                f.error("withheld-should-withhold",
+                        f"withheld/{path.name}: expected WITHHELD, validated "
+                        f"cleanly — the fixture no longer provokes the outcome "
+                        f"it is named for")
+            elif expected not in codes_of(local.withheld):
+                f.error("withheld-wrong-outcome",
+                        f"withheld/{path.name}: expected withheld outcome "
+                        f"{expected!r}, got {sorted(codes_of(local.withheld))}")
+            else:
+                withheld_ok += 1
+            # DELIBERATELY NOT PROPAGATED. An EXPECTED withholding is to this
+            # bucket what an expected failure is to a negative, so the packaged
+            # self-test still exits 0 and no caller is reddened by a fixture
+            # that is doing exactly what it exists to do.
+
     probe_ok = 0
     for example, requested, must_resolve in PURPOSE_PROBES:
         path = EXAMPLES_DIR / example
@@ -726,8 +1082,9 @@ def self_test(f: Findings, docs: dict[str, dict]) -> None:
     f.note(f"self-test: {valid_ok} valid example(s) confirmed valid, "
            f"{neg_ok} negative example(s) confirmed invalid for their "
            f"intended finding (detail-pinned where the code alone is too "
-           f"coarse), {probe_ok} purpose probe(s) confirmed (one resolution, "
-           f"one refusal)")
+           f"coarse), {withheld_ok} withheld example(s) confirmed WITHHELD "
+           f"(neither a pass nor an error), {probe_ok} purpose probe(s) "
+           f"confirmed (one resolution, one refusal)")
 
 
 # --------------------------- layer 2: real artifacts ---------------------------
@@ -797,11 +1154,26 @@ def report(f: Findings, strict: bool) -> int:
         print(line)
     for line in f.warnings:
         print(line)
+    for line in f.withheld:
+        print(line)
     for line in f.errors:
         print(line)
     print(f"\nvalidate-consent-instruments: {len(f.errors)} error(s), "
-          f"{len(f.warnings)} warning(s)")
-    return 1 if f.errors or (strict and f.warnings) else 0
+          f"{len(f.warnings)} warning(s), {len(f.withheld)} withheld")
+    # PRECEDENCE: errors dominate. An instrument that both withholds and errors
+    # exits 1, because a malformed record is not a decision for a human to take
+    # — it is a record to fix, and the fix belongs to whoever maintains the
+    # chain rather than to whoever would re-execute the instrument.
+    if f.errors or (strict and f.warnings):
+        return 1
+    if f.withheld:
+        print("\nWITHHELD: the record is correct and the INSTRUMENT needs "
+              "attention. A content-class divergence means the referent of a "
+              "signed original moved, which is grounds for RE-EXECUTION rather "
+              f"than for recording. Exiting {EXIT_NEEDS_DECISION} — needs a "
+              "human decision, not a malformed-record failure.")
+        return EXIT_NEEDS_DECISION
+    return 0
 
 
 def main() -> int:

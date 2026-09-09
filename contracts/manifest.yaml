@@ -2031,9 +2031,14 @@ contracts:
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- consent-instrument family — contract-v1.30 registration (add-consent-instrument task 1.6; DTN-016) ----
-  # The packaged corpus (examples/consent-instrument/, 5 valid + 5 invalid + purpose
-  # probes) and the canonical validator (scripts/validate-consent-instruments.py)
-  # are content-addressed by commit; no per-file digest.
+  # The packaged corpus (examples/consent-instrument/) and the canonical
+  # validator (scripts/validate-consent-instruments.py) are content-addressed by
+  # commit; no per-file digest. Corpus RE-MEASURED at contract-v3.5 by listing
+  # the directories rather than by arithmetic on the previous figure, which had
+  # gone stale: 9 valid examples (7 instruments, 1 class registry, 1 purpose
+  # model), 21 indexed negatives, 1 WITHHELD fixture in the third bucket, and
+  # 2 purpose probes. The earlier "5 valid + 5 invalid" was already false before
+  # this cut touched it.
   - id: consent-instrument
     path: contracts/schemas/consent-instrument.schema.yaml
     source_path: openxFactory/contracts/schemas/consent-instrument.schema.yaml
