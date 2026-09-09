@@ -138,7 +138,7 @@ def test_cluster_is_all_context_and_session_created_material_is_context_and_edit
     # the dual-membership the turn guard reads, stated as a set relation rather
     # than re-listing the paths (data-model.md Section 2 validation rule)
     assert set(projection["editable_paths"]) <= set(projection["context_paths"])
-    # PIN CORRECTED (T104 F2, P1 doxbench_scope.py:398). This assertion used to
+    # PIN CORRECTED (T104 F2, P1 doxbench_scope.py:326). This assertion used to
     # read `candidates == context_paths`, which pinned the DEFECT as intent: it
     # made every readable path a candidate while `doxbench_turns.
     # _require_in_scope_and_editable` requires membership in context_paths AND
@@ -185,7 +185,7 @@ def test_possible_keeps_cited_and_inherited_disjoint_and_read_only(tmp_path):
 
 
 def test_a_picked_possibles_out_of_scope_outline_is_withheld_not_published(tmp_path):
-    """PIN CORRECTED (T104 F2, P1 doxbench_scope.py:384 /
+    """PIN CORRECTED (T104 F2, P1 doxbench_scope.py:312 /
     staging-workbench-model.js:379). This test used to be named
     `..._outline_is_declared_context_not_edit_authority` and asserted that the
     PICKED topic's fragment is published as this possible's `outline_path`

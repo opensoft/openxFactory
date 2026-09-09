@@ -612,8 +612,8 @@ DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES = "abstract-too-long"
 # One statement covering BOTH ways a subject can fail eligibility -- outside this
 # scope entirely, and inside it but readable-only -- and deliberately not an
 # oracle about which: `editable_paths` is fed only from sections flagged `owned`
-# (doxbench_scope.py:356-358), and the standing rule is that disclosure requires
-# edit authority (doxbench_scope.py:390, enforced at doxbench_turns.py:585-591).
+# (doxbench_scope.py:284-286), and the standing rule is that disclosure requires
+# edit authority (doxbench_scope.py:318, enforced at doxbench_turns.py:585-591).
 _ABSTRACT_REASON_NOT_ELIGIBLE = (
     "this document is not one of this scope's editable documents, and on this "
     "surface disclosure requires edit authority, so no distillation is "
