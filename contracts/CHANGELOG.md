@@ -9,6 +9,260 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.6 — 2026-09-09 (additive; the consent instrument gains a re-derivable custody record — `contract_schema_version` 2 → 3 for ONE closed optional array — RE-CUT at the next minor after a sibling lane took `contract-v3.5`)
+
+Cut under § 5 of the RATIFIED change
+[`add-consent-custody-rederivation-record`](../openspec/changes/add-consent-custody-rederivation-record/proposal.md)
+(ratified 2026-09-08 by Brett Heap, reviewer of record, verbatim *"ratify 774,
+merge it and land it"*; the ratification PR is **#774**, merged by him at
+2026-09-08T03:48:44Z as `543d47a9`), realized by lane `opsXfactory-1` under
+issue **#630** row-4 realization claim
+[`5602971301`](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5602971301).
+**The version number is claimed on row 4 AT CUT TIME and not before**, which is
+row 4's own rule (*"Claim the version number, not the files"*) and
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ *Bundle Realization Order* step 1: the claim for THIS number is
+[`5609660878`](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878),
+posted 2026-09-09T22:34:39Z at the integration point below.
+
+**THE WHOLE RELEASE SURFACE MOVES IN ONE CANDIDATE COMMIT OVER ONE INTEGRATION
+POINT**, per § *Bundle Realization Order* step 2. The integration point is the
+merge commit `fee36588` — `origin/main` at **`17167481`** merged INTO the
+cutting branch, never a rebase, because opensoft org ruleset **8981805** forbids
+non-fast-forward updates and a candidate therefore only ever advances forward.
+The candidate is its own DECLARING commit and the branch tip, so the release-tag
+gate's first-parent declaring distance is **zero**.
+
+### Why this bundle is `contract-v3.6` and not `contract-v3.5`
+
+Two lanes held cut candidates for the same number on 2026-09-09. Lane
+`provenance-autonomous-merge` cut `contract-v3.5` for
+`adopt-codexfactory-repository-identity` (**#866**), and the repository owner
+ORDERED the sequence. Brett Heap, 2026-09-09T22:11Z, selected option verbatim:
+
+> *"#866 first, I re-cut as v3.6 (Recommended)"*
+
+**#866 landed on `main` as `a37ae0cd` at 21:47:48Z and Brett Heap published the
+annotated tag `contract-v3.5` (`6c602f3c` → `a37ae0cd`).** That number is
+therefore SPENT by another bundle, this lane's `contract-v3.5` claim was
+RELEASED on the ordering ruling's own record (issue #630 comments
+[`5609050869`](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609050869)
+and
+[`5609442856`](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609442856)),
+and this cut is re-taken at the next free minor.
+
+**THE TWO EARLIER CANDIDATES DECLARED `contract-v3.5`, WERE NEVER PUBLISHED, AND
+ARE WITHDRAWN.** `d54d89ca` (the first cut) and `e9a688d3` (its forward-only
+remake) carried a `## contract-v3.5` entry that never reached `main` and never
+reached a tag; both are superseded by this entry, and a later audit found THREE
+defects in the remake, each recorded here rather than left to the branch's
+history: **(a)** `scripts/validate-release-tag-gate.py` exited **2, REFUSED**
+over that tree — *"contract-v3.5 is declared and has no published annotated tag
+more than 5 first-parent landings after the commit that declared it — under the
+versioning policy it is NOT PUBLISHED, and its presence in the manifest is not a
+release"* — because the DECLARING commit was `d54d89ca`, by then six to seven
+first-parent landings back, and the readings that had called the gate green were
+misreads of a transcript whose header looks clean and whose exit code sits at
+the tail; **(b)** its § *What moved OUTSIDE `contracts/`* claimed *"Two inventory
+members live outside `contracts/`"* when FOUR had moved, leaving
+`docs/terminology-and-repo-topology.md` and `docs/xfactory-domain-factory-model.md`
+(both moved by `44fc8063`) unattributed; **(c)** it carried only
+`contracts/CHANGELOG.md` and the rebuilt inventory while `contracts/manifest.yaml`,
+`contracts/README.md` and the cut-coupled tripwire stayed behind at `d54d89ca`,
+which is not the ONE atomic candidate that § *Bundle Realization Order* step 2
+and this packet's **FR-034a** require. **All three are moot at this candidate
+rather than argued away**: the declaring distance is zero, the attribution below
+is taken from an inventory diff over all 283 members, and every release surface
+moves in this one commit.
+
+### What forced the cut, and what moved: the INVENTORY DIFF over all 283 members
+
+**Counted from the DIGEST INVENTORY, not from `git diff -- contracts/`.** A cut's
+subject is the release inventory's 283 members wherever they live, and a diff
+scoped to `contracts/` cannot see the 91 members that do not. Measured with
+[`releases/contract-v3.5.digests.yaml`](releases/contract-v3.5.digests.yaml)
+against this candidate's own bytes: **283 entries at both ends, ZERO added, ZERO
+removed, no `git_mode` and no non-digest field changed, and FOUR digests
+re-baselined.** Every one of the four, by exact path, with what moved it:
+
+| member | `contract-v3.5` digest | `contract-v3.6` digest | moved by |
+| --- | --- | --- | --- |
+| `contracts/manifest.yaml` | `sha256:93564e191379…` | *(this candidate)* | `f59a587d` — § 2's own commit, which re-derived the `consent-instrument` row's `sha256` `13b0fe46…` → `2b834492…` in the same act that moved the schema, so no commit on this branch was ever left carrying a stale digest; `fee36588` — the merge, which re-applied that ONE key onto `main`'s manifest; and **THIS CUT** (the `contract_bundle_version` line, the row's new `contract-v3.6` `consumption_rule` paragraph, and the family comment's re-measured corpus counts) |
+| `contracts/README.md` | `sha256:f3a959fa223d…` | *(this candidate)* | `f420cd50` — §§ 3–4, the validator-and-corpus row rewritten for THREE buckets; `d54d89ca` — the consent-schema row's amendment sentence, authored at the withdrawn candidate and carried forward on this branch; and **THIS CUT** (both rows respelled `contract-v3.5` → `contract-v3.6`) |
+| `contracts/CHANGELOG.md` | `sha256:a2b65ff30b9c…` | *(this candidate)* | **THIS CUT** — this entry |
+| `tests/intent-compliance/test_release_boundary.py` | `sha256:a235e1c55947…` | *(this candidate)* | **THIS CUT** — the cut-coupled tripwire |
+
+The three `contract-v3.6` columns above read *(this candidate)* rather than a
+literal digest for the reason `contract-v3.4`'s entry gives when it names its own
+self-referential members as *"THIS CUT — this entry and the rebuilt inventory"*:
+this file is itself an inventory member, so its digest is fixed only by the build
+that runs AFTER this sentence is final, and quoting a value here would be quoting
+a byte this text had not yet produced. The authoritative values are in
+[`releases/contract-v3.6.digests.yaml`](releases/contract-v3.6.digests.yaml),
+which is built by the tool from the candidate's own bytes and never hand-edited.
+
+**ONE OF THE FOUR LIVES OUTSIDE `contracts/`, AND IT IS NAMED RATHER THAN LEFT TO
+THE DIFF**: `tests/intent-compliance/test_release_boundary.py`, this cut's own
+tripwire. Ninety-one inventory members live outside `contracts/` in total — the
+three `NORMATIVE_DOCS`, the two hash-locked `requirements/` files, the PostgreSQL
+image lock, the four `NAMED_VALIDATORS`, the `scripts/hermes_runtime_validation/`
+and `scripts/intent_compliance/` implementation and the
+`tests/intent-compliance/` suite — and **ninety of them are byte-unchanged
+between `contract-v3.5` and this candidate**, measured by exact path. In
+particular all three normative documents
+(`docs/contract-versioning-policy.md`, `docs/terminology-and-repo-topology.md`,
+`docs/xfactory-domain-factory-model.md`) were re-baselined by `contract-v3.5`
+itself and move nothing here — which is the direct repair of defect **(b)**
+above.
+
+`tests/intent-compliance/test_release_boundary.py` moves because
+`_release_state()` FAILS LOUDLY on a bundle its enum does not name, so a
+`contract_bundle_version` that advanced without it would red the required suite.
+Three edits, the pattern `contract-v3.4` and `contract-v3.5` both used:
+`FEATURE_SUCCESSOR_10 = "contract-v3.6"`, the member added to **BOTH** match arms
+(there are two, and missing either hits `assert_never`), and the hand-written
+boundary paragraph that every cut past the intent-compliance floor owes. That
+paragraph's claim is MEASURED: `git diff --name-status contract-v3.5 <candidate>`
+over `contracts/intent-compliance/`, `scripts/intent_compliance/`,
+`tests/intent-compliance/` and `scripts/validate-intent-compliance.py` reports
+exactly ONE path — that file, for this advance and nothing else — so no other
+member of the family moved a byte between the two cuts and the membership the
+file asserts is again UNCHANGED.
+
+`tests/clearing/test_clearing_manifest_rows.py` takes **NO EDIT**, and that is a
+measurement too rather than an assumption: run at the candidate it passes, and
+its only failure before the build was the ABSENT inventory, which `build` then
+created. `807a4f47` engineered exactly that outcome when it repaired the file's
+bundle-version equality instead of re-pinning a number that would fail again at
+the next cut.
+
+### The substance is ONE SCHEMA; every other moved member is cut bookkeeping
+
+**`contracts/schemas/consent-instrument.schema.yaml`** (`f59a587d`) grows ONE
+closed optional top-level array, `custody_rederivations[]`, a **SIBLING of
+`custody` rather than a member of it**, and its `contract_schema_version` moves
+**2 → 3**. Each entry is closed at TEN REQUIRED FIELDS — `at`, `commit`,
+`previous_locator`, `observed_locator`, `previous_sha256`, `observed_sha256`,
+`diff_class`, `reason`, `ruling_ref`, `recorded_by` — under TWO CLOSED
+ENUMERATIONS: `diff_class` `[path_only, header_only, content]` and `reason`
+`[lifecycle_header_edit, archive_move, other_ruled_edit]`. It makes an
+AUTHORIZED act that moves a pinned custody target's bytes or its path
+RECORDABLE, so a custody pin that no longer resolves can be RE-DERIVED from the
+record rather than rewritten to match whatever it now finds.
+
+**That schema is a registered manifest row and NOT a release-inventory member**,
+so it moves no digest of its own here — membership is closed over the surface
+[`scripts/hermes_runtime_validation/release.py`](../scripts/hermes_runtime_validation/release.py)
+enumerates, and `contracts/schemas/` is not in it. Its identity travels by the
+manifest row's per-file `sha256`, verified by
+`scripts/validate-manifest-digests.py` (189 rows, green at this candidate). The
+divergence between that membership surface and the policy's *"every modified
+normative contract"* is PRE-EXISTING — it held at every earlier bundle that
+carried this schema — and is **NOT repaired here**, because hand-adding a row to
+a BUILT inventory is precisely the edit the policy forbids; it is recorded as an
+owed finding beside the packet's § 7.
+
+The bundle also carries, since `contract-v3.5`, the change's other realization
+bytes, none of which is an inventory member:
+`scripts/validate-consent-instruments.py` (`f420cd50`) with the chain's internal
+legs and the third outcome; EIGHTEEN new fixtures under
+`examples/consent-instrument/` (`f420cd50`), including the new `withheld/`
+bucket; and the new `tests/consent_instruments/` package (`f420cd50`, hardened
+by `0cbd022a`'s refutation-panel finding R7).
+
+### Change class: ADDITIVE (minor), argued over the WHOLE bundle
+
+The additions are additive by construction — a member that did not exist cannot
+have narrowed. Each MODIFICATION is checked individually, because "the bundle is
+additive" is a claim about every row in it:
+
+* **The consent schema is the ONLY `*.schema.yaml` this bundle moves** —
+  measured, not assumed: `git diff --name-status contract-v3.5 <candidate> --
+  contracts/` returns five paths and exactly one ends in `.schema.yaml`. Its
+  growth adds one OPTIONAL top-level property. Nothing is removed, no
+  enumeration is narrowed, no existing property becomes required, and the RECORD
+  envelope's `schema_version` stays `const: 1` for the same reason it did at
+  `contract-v1.33`. Every instrument already in the estate validates unchanged
+  and none declares the new array — proven by the packaged corpus, where all six
+  pre-existing valid examples are byte-unedited and still pass.
+* **`contracts/manifest.yaml` and `contracts/README.md` are EDITORIAL members** —
+  rows, digests and prose, carrying no consumer-visible shape, and moved by every
+  cut. So are this entry and the built inventory, this cut's own two.
+* **`tests/intent-compliance/test_release_boundary.py` is a TRIPWIRE**, not a
+  contract: it names the bundle so that a version bump cannot pass unnoticed.
+
+**NOTHING IN THIS BUNDLE IS BREAKING, AND NOTHING IS DEPRECATED.** There is no
+command-line migration and no shape work.
+
+### The bundle number, FRESH-COUNTED at the candidate
+
+Measured at the integration point rather than trusted, and re-measured after
+`contract-v3.5` landed and was tagged:
+
+- [`manifest.yaml`](manifest.yaml) declared `contract_bundle_version:
+  contract-v3.5` before this edit.
+- [`releases/`](releases/) held inventories through
+  [`contract-v3.5.digests.yaml`](releases/contract-v3.5.digests.yaml); there was
+  no `contract-v3.6.digests.yaml`.
+- `git ls-remote --tags origin 'contract-v*'` publishes annotated tags through
+  `contract-v3.5`, and `refs/tags/contract-v3.6` is ABSENT — so no earlier
+  bundle owes a tag, and this number is not a reuse.
+- There is no `Unreleased` block pending in this file.
+
+`contract-v3.6` is taken HERE and was reserved nowhere: the packet's own task
+5.1 measures the number and says in terms that the CLAIM is the lane's act at
+cut time, which is § *Version Identity*'s rule that a proposed change MUST NOT
+reserve a minor before merge order is known. **The measurement recorded in that
+task's text — `contract-v3.4` on all three surfaces — is stale by two bundles and
+is superseded by this section**, which is exactly why the rule says re-measure.
+
+### What this bundle does NOT do
+
+The consent family's re-derivation rule is DECLARED here and ENFORCED nowhere.
+The neutral validator published with this bundle takes only the legs derivable
+from a record's own bytes — anchor and linkage in both digest and locator,
+declared order, the unrewritten pin, `path_only` digest equality, closed
+enumerations and entry closure — and a pass by it is **NOT a currency claim**. A
+`content`-class divergence yields a THIRD OUTCOME, `WITHHELD`, and exit `3`,
+"needs a human decision", rather than a pass. The GIT re-derivation legs, the
+declared custody-store mapping that resolves an OPAQUE locator, and the operated
+custody-digest check are the CONSUMING repository's; no consumer file is written
+by this release, no consumer pin advances, and **no custody pin is repaired by
+this bundle**.
+
+### `contract-v3.5` remains valid provenance
+
+Its tag and [its inventory](releases/contract-v3.5.digests.yaml) are untouched by
+this cut and stay exactly as published. A consumer pinned at `contract-v3.5`
+remains conformant without changes, that number is never reused, and this bundle
+supersedes nothing and declares nothing spent.
+
+### Migration guidance
+
+* **A consumer pinned at `contract-v3.5` re-pins to `contract-v3.6`** by moving
+  `xfactory.contract_ref` to this bundle's published commit, recording the tag,
+  and re-running the per-file digest checks under § *Domain Upgrade Runbook*.
+  **There is no shape work**: nothing here refuses a record `contract-v3.5`
+  accepted.
+* **A consumer that intends to WRITE a custody re-derivation reads THIS bundle.**
+  The ten fields are all required together, the two enumerations are closed, and
+  an entry whose locators or digests do not chain to the one before it is
+  refused.
+* **A consumer must not read a neutral pass as a currency claim.** The GIT legs
+  and the custody-store mapping are the consuming repository's own, and the
+  neutral validator says so by withholding rather than by passing.
+
+### The annotated tag is published at the LANDED commit, not from this branch
+
+§ *Bundle Realization Order* step 4: *"Land the exact reviewed commit on
+published `main`. If promotion creates a different commit, that commit becomes
+the new candidate and every gate and review reruns before tagging."* Step 5 then
+publishes the tag at that exact published commit. **SKIPPING THE RE-VERIFICATION
+AT STEP 4 IS WHAT MADE `contract-v3.1` DEFECTIVE** — a squash merge ALWAYS
+creates a different commit. Box 5.6 is an **[OPERATOR]** act at the landed merge
+commit and is NOT performed by this cutting session; `TAG OWED` is the expected
+state at this candidate, not a finding.
+
 ## contract-v3.5 — 2026-09-09 (additive; the eight inventoried members are re-issued under `codeXfactory/codexFactory`, so the release surface stops describing a repository identity that no longer resolves)
 
 Cut as task **7.2–7.3** of the RATIFIED change

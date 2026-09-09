@@ -1,0 +1,26 @@
+### READING 1 — contracts/manifest.yaml line 3 (the declared bundle)
+$ sed -n 3p contracts/manifest.yaml
+contract_bundle_version: contract-v3.5
+
+### READING 2 — the highest inventory under contracts/releases/
+$ ls contracts/releases/ | sort -V | tail -4
+contract-v3.3.digests.yaml
+contract-v3.4.digests.yaml
+contract-v3.5.digests.yaml
+release-digest-inventory.schema.yaml
+
+### READING 3 — the highest published annotated contract-v* tag
+$ git ls-remote --tags origin 'contract-v*' | grep -v '\^{}' | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -4
+contract-v3.2
+contract-v3.3
+contract-v3.4
+contract-v3.5
+
+### contract-v3.6 absent from all three
+$ git ls-remote --tags origin 'contract-v3.6'
+(no output above = the tag is ABSENT)
+$ ls contracts/releases/contract-v3.6.digests.yaml
+ls: cannot access 'contracts/releases/contract-v3.6.digests.yaml': No such file or directory
+
+### Unreleased block in contracts/CHANGELOG.md
+(none — no Unreleased block pending)

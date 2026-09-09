@@ -113,6 +113,30 @@ class ReleaseState(StrEnum):
     from "unnoticed" — and worth stating here because an identity cut is exactly
     the kind a reader assumes swept every path in the repository, when what it
     actually moved is one owner segment inside a small measured set.
+    Advanced again at the ``contract-v3.6`` cut, which is the RE-CUT of a bundle
+    whose number another lane took first: ``contract-v3.5`` was claimed, cut and
+    tagged by lane ``provenance-autonomous-merge`` while this one held a
+    candidate declaring the same number, so the repository owner ordered that
+    cut first and this one re-cut at the next minor. What ``contract-v3.6``
+    carries is ``add-consent-custody-rederivation-record``: ONE schema,
+    ``contracts/schemas/consent-instrument.schema.yaml``, growing one optional
+    top-level array with ``contract_schema_version`` 2 -> 3. That schema is a
+    registered manifest row and NOT a release-inventory member, so it moves no
+    digest here. MEASURED against ``contract-v3.5``'s 283-entry inventory rather
+    than assumed: the inventory members whose bytes differ at this candidate are
+    ``contracts/manifest.yaml``, ``contracts/README.md``,
+    ``contracts/CHANGELOG.md`` and THIS FILE — the first three EDITORIAL, the
+    fourth the cut-coupled tripwire itself. ``git diff --name-status
+    contract-v3.5 HEAD`` over ``contracts/intent-compliance/``,
+    ``scripts/intent_compliance/``, ``tests/intent-compliance/`` and
+    ``scripts/validate-intent-compliance.py`` reports exactly ONE path — this
+    file, and only for this advance — so no other member of the family moved a
+    byte between the two cuts, and the membership this file asserts is again
+    UNCHANGED. Stated by hand, like every advance above it, because "unchanged"
+    is the one fact the library cannot tell from "unnoticed", and worth stating
+    here because two bundles cut hours apart by two different lanes is exactly
+    the kind of sequence in which a reader assumes one of them must have swept
+    this family without saying so.
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -130,6 +154,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_7 = "contract-v3.3"
     FEATURE_SUCCESSOR_8 = "contract-v3.4"
     FEATURE_SUCCESSOR_9 = "contract-v3.5"
+    FEATURE_SUCCESSOR_10 = "contract-v3.6"
 
 
 def _release_state() -> ReleaseState:
@@ -223,6 +248,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_7
             | ReleaseState.FEATURE_SUCCESSOR_8
             | ReleaseState.FEATURE_SUCCESSOR_9
+            | ReleaseState.FEATURE_SUCCESSOR_10
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -261,6 +287,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_7
             | ReleaseState.FEATURE_SUCCESSOR_8
             | ReleaseState.FEATURE_SUCCESSOR_9
+            | ReleaseState.FEATURE_SUCCESSOR_10
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")

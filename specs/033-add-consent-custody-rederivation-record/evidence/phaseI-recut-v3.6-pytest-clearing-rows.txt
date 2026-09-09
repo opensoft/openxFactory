@@ -1,0 +1,4 @@
+$ python3 -m pytest tests/clearing/test_clearing_manifest_rows.py -q
+....................                                                     [100%]
+20 passed in 1.01s
+rc=0

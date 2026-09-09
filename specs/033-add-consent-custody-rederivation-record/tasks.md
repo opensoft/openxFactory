@@ -364,9 +364,26 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 
 ## Phase G — § 5, THE CUT (LAST)
 
+**RE-CUT 2026-09-09 AS `contract-v3.6`. EVERY `contract-v3.5` SPELLING IN THIS
+PHASE IS THE WITHDRAWN RECORD, KEPT IN PLACE RATHER THAN DELETED.** Brett Heap
+ruled 2026-09-09T22:11Z, selected option verbatim *"#866 first, I re-cut as v3.6
+(Recommended)"*; openxFactory PR #866 landed as `a37ae0cd` at 21:47:48Z and he
+published the annotated tag `contract-v3.5`. Candidates `d54d89ca` and its remake
+`e9a688d3` declared `contract-v3.5`, were never published, and are WITHDRAWN — an
+audit also found three defects in the remake (a RED `release-tag-gate` misread
+from a transcript header, two unattributed `NORMATIVE_DOCS` inventory members, and
+a candidate that was not atomic). So read every box below against these live
+values: the number is **`contract-v3.6`**; the integration point is **`fee36588`**
+(`origin/main@17167481` merged in); the enum member is **`FEATURE_SUCCESSOR_10 =
+"contract-v3.6"`**; the built inventory is
+**`contracts/releases/contract-v3.6.digests.yaml`**, 283 entries; and the
+attribution is an INVENTORY DIFF over all 283 members (four moved, one of them
+outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
+`evidence/phaseI-recut-v3.6-*.txt`.
+
 **One candidate commit** (Q5a, policy step 2). Taken only after Phases B–F.
 
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
       integrate onto the final integration point, then **RE-MEASURE** the next
       additive minor on all three surfaces (`contracts/manifest.yaml:3`,
       `contracts/releases/`, `git tag -l 'contract-v*'`) — **and RE-MEASURE THE
@@ -378,7 +395,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       never from R6** (FR-032, panel F7). Report both to
       the lane. **Both are re-measured at EVERY merge-from-main.** Do not post
       the claim.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
       one commit: `contract_bundle_version` → the allocated version; the
       `consent-instrument` row's `sha256` **re-derived by `sha256sum`** from the
       moved file (closing T017's deliberate staleness); and a NEW
@@ -391,7 +408,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       The v1.33 paragraph sits BETWEEN the registration line and that closing
       sentence; the v3.5 paragraph goes in the same slot, after it.
       **`consent-instrument-class-registry`'s row is untouched.**
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
       `git show --stat --format='' 807a4f47` — the `contract-v3.4` cut — and
       read what a cut ACTUALLY moves. Measured at this branch: **SIX files**,
       not four — `contracts/CHANGELOG.md`, `contracts/README.md`,
@@ -401,7 +418,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       bundle-version-coupled edit set FOR THIS CANDIDATE from that measurement
       and record it in `evidence/`. **These are DECLARED cut-coupled acts
       attributed to the cut, not invented scope.**
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
       — the tripwire that would otherwise red T064's full-suite gate.
       `_release_state()` **fails LOUDLY on a bundle the enum does not name**, so
       moving `contract_bundle_version` without this edit reds the required
@@ -416,7 +433,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       **MEASURED against `contract-v3.4`'s inventory, never asserted**, because
       the file's own comment says *"unchanged" is the one fact the library
       cannot tell from "unnoticed"*.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
       **MEASURE whether it needs an edit; do not assume either way.** The
       expected answer is NO EDIT, and the reason is recorded in the file itself:
       `807a4f47` REPAIRED its bundle-version equality precisely so it would not
@@ -428,7 +445,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       inventory and leaves the clearing rows alone. **Run it against the
       candidate and record the result**; if it does red, it is a cut-coupled
       edit and belongs in the same candidate commit.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
       changed in the BUNDLE, not what this session intended**: all **4 additions
       and 14 modifications** under `contracts/` since `contract-v3.4`
       (`research.md` R6), each attributed to its originating change/PR —
@@ -442,12 +459,12 @@ the expected code to be PRESENT, not exclusive (FR-021a).
       clause. This session's own leg of that argument: one new optional
       property, one `contract_schema_version` bump, nothing removed, no
       enumeration narrowed, every existing instrument valid unchanged.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
       **BUILT** by `python3 scripts/validate-contract-release.py build --tag
       <version> --output contracts/releases/<version>.digests.yaml`. **Never
       hand-edited.** Record the entry count and the delta against
       `contract-v3.4`'s 283.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt.** **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate (THIS COMMIT; sha filed by the follow-up evidence commit) over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
       candidate**, transcripts to `evidence/`:
       `scripts/validate-release-tag-gate.py` **with an EXPLICIT
       `--base <main sha at the integration point>`** — its default resolves

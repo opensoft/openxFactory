@@ -1,0 +1,16 @@
+INVENTORY DIFF — contract-v3.5 (published, tag 6c602f3c -> a37ae0cd) vs the contract-v3.6 candidate
+Measured over ALL 283 inventory members, not by 'git diff -- contracts/'.
+
+$ python3 - <<PY  # yaml compare of the two built inventories
+v3.5 entries: 283   v3.6 entries: 283
+ADDED: []
+REMOVED: []
+DIGEST-CHANGED (4):
+member                                                       v3.5           v3.6           outside contracts/
+  contracts/CHANGELOG.md                                     a2b65ff30b9c -> d3e4ddbfba4c  no
+  contracts/README.md                                        f3a959fa223d -> a8f1ac59abf8  no
+  contracts/manifest.yaml                                    93564e191379 -> db09218b28b9  no
+  tests/intent-compliance/test_release_boundary.py           a235e1c55947 -> 3ad36da5ca35  YES
+NON-DIGEST FIELD CHANGES: []
+inventory members outside contracts/: 91; MOVED at this candidate: 1 -> ['tests/intent-compliance/test_release_boundary.py']
+rc=0

@@ -319,7 +319,7 @@ of a digest *"written back into custody.sha256"* and of leaving the pin
 
 ## 5. The contract cut
 
-- [ ] **NOT-OWED-HERE 2026-09-09 — the LANE's act, reported not performed.** 5.1 **[OPERATOR-adjacent] CLAIM THE VERSION NUMBER on openxFactory issue
+- [x] **TICKED 2026-09-09 — the LANE made the claim at cut time; the evidence is the claim itself.** 5.1 **[OPERATOR-adjacent] CLAIM THE VERSION NUMBER on openxFactory issue
   #630, row 4 (Contract cuts), AT CUT TIME AND NOT BEFORE.** Row 4's rule is
   *"Claim the **version number**, not the files"*, and `docs/contract-versioning-policy.md`
   § *Bundle Realization Order* step 1 allocates it at the final integration
@@ -337,6 +337,14 @@ of a digest *"written back into custody.sha256"* and of leaving the pin
   session intended: § *Version Identity* requires one entry per release listing
   every contract added, changed or deprecated, and a bundle is a commit's whole
   tree.
+**§ 5.2 AND § 5.3 EVIDENCE, 2026-09-09 — SUPERSEDED 2026-09-09 BY THE RE-CUT
+BELOW, and kept in place rather than deleted because it is the record of what
+was done.** It describes the candidate `d54d89ca` and the bundle number
+`contract-v3.5`. BOTH ARE WITHDRAWN: Brett Heap ruled 2026-09-09T22:11Z, verbatim
+*"#866 first, I re-cut as v3.6 (Recommended)"*, openxFactory PR #866 landed as
+`a37ae0cd` and was tagged `contract-v3.5`, and this packet re-cut at
+`contract-v3.6`. Read the RE-CUT block below for the live record.
+
 **§ 5.2 AND § 5.3 EVIDENCE, 2026-09-09.** The candidate is ONE commit on branch
 `033-add-consent-custody-rederivation-record`, taken after Phases B–F, over the
 integration point `9d658813` (a MERGE of `origin/main@587f21a0`, never a
@@ -391,6 +399,13 @@ and `.../phaseG-T061a-T061c-coupling.txt`.
   gate records the tag as OWED and does not require it before step 4; the
   obligation is on whoever lands step 4.
 
+**§ 5.4 EVIDENCE, 2026-09-09 — SUPERSEDED 2026-09-09 BY THE RE-CUT BELOW**, and
+kept in place for the same reason: these transcripts certify the WITHDRAWN
+candidate `d54d89ca`, and one of its readings was wrong — `validate-release-tag-gate.py`
+was later measured at exit **2, REFUSED** over the branch tree, because the
+declaring commit had fallen more than five first-parent landings back and the
+"green" reading came from a transcript header rather than from its tail.
+
 **§ 5.4 EVIDENCE, 2026-09-09.** All five gates were run against the EXACT
 UNCHANGED candidate `d54d89ca`, nothing edited between forming it and running
 them. Transcript:
@@ -420,6 +435,92 @@ them. Transcript:
   three registered rows the § 5.2 measurement independently found had moved.
   The new `withheld/` bucket, the eighteen fixtures and the new test package
   trip no family at all. Transcript: `.../evidence/phaseH-T080-doc-health.txt`.
+
+**§ 5.1–5.4 EVIDENCE — THE CUT RE-MADE AS `contract-v3.6`, 2026-09-09. THIS IS
+THE LIVE RECORD; the two blocks above are the withdrawn one.**
+
+- **THE ORDERING RULING.** Brett Heap, 2026-09-09T22:11Z, selected option
+  verbatim: *"#866 first, I re-cut as v3.6 (Recommended)"*. openxFactory PR
+  **#866** (lane `provenance-autonomous-merge`) landed on `main` as `a37ae0cd`
+  at 21:47:48Z and Brett Heap published the annotated tag `contract-v3.5`
+  (`6c602f3c` → `a37ae0cd`). The ruling and the release of this lane's own v3.5
+  claim are recorded on issue **#630**, comments `5609050869` (claim) and
+  `5609442856` (release + correction).
+- **BOX 5.1 — THE CLAIM IS MADE, AT CUT TIME.** The lane posted the row-4
+  SUBSTRATE CLAIM for `contract-v3.6` at 2026-09-09T22:34:39Z:
+  <https://github.com/opensoft/openxFactory/issues/630#issuecomment-5609660878>.
+  It names the number, not the files; it records the three-surface measurement
+  and the HOLD request; and it states that `d54d89ca` and `e9a688d3` remain
+  WITHDRAWN. That comment IS this box's evidence.
+- **THE NUMBER, RE-MEASURED AT THE NEW INTEGRATION POINT.** `contract-v3.5` on
+  all three surfaces — `contracts/manifest.yaml:3`, the highest
+  `contracts/releases/` inventory (`contract-v3.5.digests.yaml`), and the highest
+  published annotated tag (`contract-v3.5`) — and `contract-v3.6` ABSENT from all
+  three, with no `Unreleased` block pending. Transcript:
+  `specs/033-add-consent-custody-rederivation-record/evidence/phaseI-recut-v3.6-number-measurement.txt`.
+  **The box text above measures `contract-v3.4`; that reading is stale by two
+  bundles and is superseded here**, which is precisely why the rule says
+  re-measure at the cut.
+- **THE INTEGRATION POINT.** `fee36588` — a MERGE of `origin/main@17167481` INTO
+  this branch, never a rebase (org ruleset 8981805). Four conflicts, each resolved
+  toward the published record: `contracts/CHANGELOG.md`,
+  `contracts/releases/contract-v3.5.digests.yaml` and
+  `tests/intent-compliance/test_release_boundary.py` TAKE MAIN entirely;
+  `contracts/manifest.yaml` takes main plus ONE re-applied key, the
+  `consent-instrument` row's `sha256`, so no commit on this branch is ever left
+  carrying a stale digest.
+- **THE CANDIDATE IS ONE COMMIT AND IT IS ITS OWN DECLARING COMMIT.** THIS COMMIT
+  (its sha is filed by the follow-up evidence commit) carries the whole release
+  surface: `contracts/manifest.yaml` (`contract_bundle_version` → `contract-v3.6`,
+  the `contract-v3.6` `consumption_rule` paragraph in the `contract-v1.33` slot
+  before the closing sentence, and the family comment's re-measured corpus
+  counts), `contracts/CHANGELOG.md` (the `## contract-v3.6` entry),
+  `contracts/releases/contract-v3.6.digests.yaml` (BUILT by the tool, never
+  hand-edited — 283 entries), `contracts/README.md` (both consent rows respelled
+  to `contract-v3.6`) and `tests/intent-compliance/test_release_boundary.py`
+  (`FEATURE_SUCCESSOR_10`, BOTH match arms, and the hand-written boundary
+  paragraph). Its first-parent declaring distance is **zero**, which is the state
+  `validate-release-tag-gate.py` grades and the state the withdrawn candidate had
+  lost.
+- **THE ATTRIBUTION IS AN INVENTORY DIFF OVER ALL 283 MEMBERS**, not a
+  `git diff -- contracts/`: 283 entries at both ends, ZERO added, ZERO removed,
+  no `git_mode` and no non-digest field changed, **FOUR digests re-baselined** —
+  `contracts/manifest.yaml` (`f59a587d`, `fee36588`, THIS CUT),
+  `contracts/README.md` (`f420cd50`, `d54d89ca`, THIS CUT),
+  `contracts/CHANGELOG.md` (THIS CUT) and
+  `tests/intent-compliance/test_release_boundary.py` (THIS CUT). **Exactly ONE of
+  the four lives outside `contracts/`** — the tripwire — out of the ninety-one
+  members that do; the other ninety are byte-unchanged, including all three
+  `NORMATIVE_DOCS`, which `contract-v3.5` itself re-baselined. Every one of the
+  four is named by exact path in the `## contract-v3.6` entry: **zero
+  unattributed**. Transcript: `.../evidence/phaseI-recut-v3.6-inventory-diff.txt`.
+- **`tests/clearing/test_clearing_manifest_rows.py` takes NO EDIT**, re-measured
+  rather than assumed: it reds before the build on the ABSENT inventory and
+  passes at the candidate, 20 passed. Transcript:
+  `.../evidence/phaseI-recut-v3.6-pytest-clearing-rows.txt`.
+- **BOX 5.4 — THE GATES THAT RIDE THIS COMMIT** were run at the exact tree this
+  commit records, before it was formed, and their transcripts are filed in it:
+  `validate-manifest-digests.py` rc=0, *"OK contracts/manifest.yaml: 189 per-file
+  digest(s) verify"*; `validate-consent-instruments.py --strict` rc=0, *"0
+  error(s), 0 warning(s), 0 withheld"* over 9 valid / 21 negative / 1 withheld /
+  2 purpose probes; `validate-openspec-cli-pin.py --change … --strict` rc=0,
+  *"Totals: 1 passed, 0 failed (1 items)"*, and `--all --strict` rc=0 with the two
+  standing ACCEPTED EXCEPTIONS named; `validate-sequenced-after.py .` rc=0 and
+  `--ledger-diff` rc=0 (190 ledger rows); `validate-scope-globs.py` rc=0;
+  `pytest tests/consent_instruments tests/intent-compliance/test_release_boundary.py`
+  47 passed rc=0. Transcripts: `.../evidence/phaseI-recut-v3.6-*.txt`.
+- **THE COMMIT-ADDRESSED GATES AND THE FULL SUITE CANNOT RIDE THIS COMMIT**, and
+  that is stated rather than glossed: `validate-release-tag-gate.py --head
+  <candidate>`, `validate-contract-release.py verify-commit --commit <candidate>`
+  and `pytest tests/ -q -m "not postgres"` all address the candidate BY SHA, which
+  does not exist until this commit is formed. They run immediately after it
+  against the EXACT UNCHANGED candidate, and their transcripts and the candidate's
+  sha are filed by a FOLLOW-UP EVIDENCE-ONLY commit that touches no release
+  surface — so the declaring commit stays the tip's release-surface act and the
+  gate's first-parent distance is unaffected by bookkeeping.
+- **BOXES 5.5 AND 5.6 STAY UNTICKED.** 5.5 is the lane's landing act and 5.6 is
+  the operator's annotated tag at the LANDED merge commit. `TAG OWED` is the
+  expected state at this candidate, not a finding.
 
 ## 6. The consumer handoff — [OpsxFactory]'s OWED ACT, not this change's
 
