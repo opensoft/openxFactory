@@ -161,9 +161,17 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 - [ ] **T031** *(box 4.1b)* An `archive_move` / `path_only` entry whose locator
       pair DIFFERS and whose digests are EQUAL on both sides — design C-6a,
       `proposal.md` Example B.
-- [ ] **T032** *(box 4.1c)* The TWO-ENTRY shape the real repair needs: e1
-      `archive_move`/`path_only`, e2 `lifecycle_header_edit`/`header_only`,
-      modelled on prescription I in `design.md` § *The consumer handoff*.
+- [ ] **T032** *(box 4.1c; FR-020's equal-timestamp clause)* The TWO-ENTRY shape
+      the real repair needs: e1 `archive_move`/`path_only`, e2
+      `lifecycle_header_edit`/`header_only`, modelled on prescription I in
+      `design.md` § *The consumer handoff*.
+      **THIS FIXTURE CARRIES THE EQUAL-TIMESTAMP BOUNDARY**, and it is the right
+      one to carry it: the two entries record ONE repair session, so an author
+      writing both at the same recording moment is the realistic case rather
+      than a contrivance. Give `e1.at == e2.at` and assert the instrument is
+      ADMITTED — the requirement says the times *"do not decrease"*, so equality
+      is legal and an untested boundary is an untested rule. T036 is its
+      negative twin and must strictly DECREASE.
 - [ ] **T033** *(box 4.2)* An EXISTING example left **byte-unchanged** and
       re-validated, proving the growth is additive for an instrument declaring
       no array. Evidence: the diff shows the file untouched and the self-test
@@ -501,7 +509,7 @@ the expected code to be PRESENT, not exclusive (FR-021a).
 | FR-014 | T023, T024, T053 | 3.4b |
 | FR-015 | T022 | 3.4c |
 | FR-016 | T026, T042, T052 | 3.5 |
-| FR-020 | T030, T031, T032, T033 | 4.1, 4.1b, 4.1c, 4.2 |
+| FR-020 | T030, T031, T032 *(equal-timestamp boundary)*, T033 | 4.1, 4.1b, 4.1c, 4.2 |
 | FR-021a | T034, T036, T038, T039, T040, T041 | *(none — checklist finding)* |
 | FR-021 | T034–T043, T044 | 4.3, 4.3b, 4.3c, 4.4, 4.5, 4.6, 4.7, 4.8, 4.8b, 4.8d |
 | FR-022 | T028, T045, T046 | 4.8c |

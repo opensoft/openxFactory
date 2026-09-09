@@ -38,12 +38,12 @@ and its 15 scenarios; `clarify-questions.md` Q2, Q7, Q10, Q12.
 
 - [x] CHK009 Does FR-010 require the DIGEST anchor check for `e₁` (not present in the current, unmodified `check_custody`, which has no chain awareness at all — confirmed by reading `scripts/validate-consent-instruments.py` in full: no `custody_rederivations` reference exists anywhere in the 862-line file today)? [Conformance, Spec FR-010, Validator baseline]
 - [x] CHK010 Does FR-010 require the LOCATOR anchor check for `e₁` as an independent conjunct (not merely inferred from the digest anchor holding), matching the ratified delta's explicit "AND to the executed pointer" clause? [Conformance, Spec FR-010, Ratified delta line 120]
-- [ ] CHK011 Does FR-010 (or any Acceptance Scenario) specify what the validator reports when an entry fails BOTH linkage halves simultaneously (its `previous_sha256` breaks from the predecessor's `observed_sha256` AND its `previous_locator` breaks from the predecessor's `observed_locator` at once) — does it raise both `custody-chain-broken-link` and `custody-chain-locator-gap`, or only one, and if only one, which? [Gap, Spec FR-010, US2 Acceptance 1–2] — **FINDING:** neither FR-010 nor the ratified delta nor the ratified packet's task 3.1 addresses the simultaneous-failure case; both are legitimate, independently-conditioned checks, so an implementer could reasonably raise either both codes or only the first one checked, and nothing in spec.md pins the choice. This is a "silently passes differently" risk: two conformant implementations could disagree on the reported code set for the identical malformed fixture.
+- [x] CHK011 Does FR-010 (or any Acceptance Scenario) specify what the validator reports when an entry fails BOTH linkage halves simultaneously (its `previous_sha256` breaks from the predecessor's `observed_sha256` AND its `previous_locator` breaks from the predecessor's `observed_locator` at once) — does it raise both `custody-chain-broken-link` and `custody-chain-locator-gap`, or only one? [Gap, Spec FR-010, US2 Acceptance 1–2] — resolved: FR-010 now rules it explicitly: "When an entry fails BOTH linkage halves at once, BOTH codes MUST fire — suppressing either would hide half the defect from whoever repairs the chain."
 
 ## Non-Decreasing `at`
 
 - [x] CHK012 Is "non-decreasing" (FR-010) — as opposed to "strictly increasing" — the correct reading of the ratified delta's "do not decrease" (delta line 138), so two entries recorded at the identical instant are correctly ADMITTED rather than refused? [Clarity, Spec FR-010, Ratified delta line 138]
-- [ ] CHK013 Is the equal-timestamp boundary (two consecutive entries with an IDENTICAL `at` value, which FR-010's "non-decreasing" wording admits) exercised by any POSITIVE fixture FR-020 requires, or do FR-020's four named positives and FR-021's "out of order" negative test only the interior of the range (increasing) and the refused boundary (decreasing), leaving the admitted boundary (equal) untested? [Boundary, Spec FR-020/021] — **FINDING:** FR-020 names four positive shapes (two-entry `header_only` chain, an unchanged existing example, an `archive_move`/`path_only` entry, and the two-entry `archive_move`→`lifecycle_header_edit` shape) and FR-021 names the out-of-order NEGATIVE; none of the named fixtures is described as exercising two entries recorded at the SAME instant, so the boundary FR-010's own "non-decreasing" (as opposed to "strictly increasing") wording opens is not proven admitted by any named fixture.
+- [x] CHK013 Is the equal-timestamp boundary (two consecutive entries with an IDENTICAL `at` value, which FR-010's "non-decreasing" wording admits) exercised by any POSITIVE fixture FR-020 requires? [Boundary, Spec FR-020/021] — resolved: FR-020 now requires it explicitly: "One positive MUST exercise the EQUAL-TIMESTAMP boundary of the non-decreasing rule, since 'does not decrease' admits equality and an untested boundary is an untested rule."
 
 ## The Rewritten-Pin Leg
 
@@ -52,7 +52,7 @@ and its 15 scenarios; `clarify-questions.md` Q2, Q7, Q10, Q12.
 ## `path_only` Digest Equality
 
 - [x] CHK015 Is FR-015 correctly scoped to `path_only` alone, with no analogous neutral digest-equality check asserted for `header_only` or `content` (whose classification correctness requires measuring the actual diff, which is git-based and out of scope per FR-012)? [Scope, Spec FR-015/FR-012]
-- [ ] CHK016 Does FR-015 (or any nearby FR) carry forward ratified task 3.4c's own stated RATIONALE for why this ONE leg is neutrally checkable while the others are not — "This leg is neutral because both digests are fields of the record; CONFIRMING a class against the measured diff needs the repository and belongs to the consumer's gate" — or does FR-015 state the refusal condition with no explanation of why it, uniquely among the three classes, gets a neutral digest check? [Completeness, Spec FR-015, OpenSpec tasks.md 3.4c] — **FINDING:** FR-015 states only "a `path_only` entry whose `previous_sha256 != observed_sha256` MUST be refused" — the rationale distinguishing this leg from `header_only`/`content` (both digests are already record-resident fields, so no repository read is needed) lives only in the ratified packet's task 3.4c, not in spec.md. A reader of FR-015 in isolation could reasonably ask why an analogous check is not required for `header_only`.
+- [x] CHK016 Does FR-015 (or any nearby FR) carry forward ratified task 3.4c's own stated RATIONALE for why this ONE leg is neutrally checkable while the others are not? [Completeness, Spec FR-015, OpenSpec tasks.md 3.4c] — resolved: FR-015 now states "This leg is NEUTRAL for a stated reason that MUST be carried into the code comment: both digests are already fields of the record, so the contradiction is derivable from the record's own bytes — whereas CONFIRMING a class against the measured diff needs the repository and belongs to the consumer's gate."
 
 ## The WITHHELD Third Outcome
 
@@ -70,7 +70,7 @@ and its 15 scenarios; `clarify-questions.md` Q2, Q7, Q10, Q12.
 ## The Report Line ("What Was Not Checked")
 
 - [x] CHK024 Does FR-013's "for a chained instrument" scoping correctly imply a PER-INSTRUMENT report line (matching the existing `f"{label}: ..."` labeling pattern used throughout the file, e.g. `scripts/validate-consent-instruments.py:469`), rather than one aggregate line for the whole run? [Clarity, Spec FR-013, Validator line 469]
-- [ ] CHK025 Does FR-013 restate the ratified delta's own eight-item enumeration of what a neutral pass has checked (anchoring, linkage in digest AND locator, order, enumerations, entry closure, the unmoved pin, `path_only` digest equality, any withheld outcome) and what it has NOT (anything about the target's bytes) — delta lines 280–284 — or does FR-013's "states what it checked and what it did not" leave the exact content of that line to the implementer's judgment? [Completeness, Spec FR-013, Ratified delta lines 280–284] — **FINDING:** identical defect to `requirements.md` CHK009, recorded here under its validator-behaviour aspect: FR-013 does not carry the ratified scenario's itemized list into the requirement text, so the report line's completeness (all eight items named) is not independently checkable from FR-013 alone.
+- [x] CHK025 Does FR-013 restate the ratified delta's own eight-item enumeration of what a neutral pass has checked (anchoring, linkage in digest AND locator, order, enumerations, entry closure, the unmoved pin, `path_only` digest equality, any withheld outcome) and what it has NOT (anything about the target's bytes)? [Completeness, Spec FR-013, Ratified delta lines 280–284] — resolved alongside `requirements.md` CHK009: FR-013 now enumerates all eight items verbatim, states "nothing about the target's bytes", and adds "A report line that says less than the requirement enumerates is a weaker claim than the one that was ratified."
 
 ## The Extended `walk_strings` Scope
 
@@ -90,7 +90,7 @@ and its 15 scenarios; `clarify-questions.md` Q2, Q7, Q10, Q12.
 ## Silently-Passes Boundary Checks
 
 - [x] CHK035 Is it correctly the case that NO FR requires the neutral validator to refuse a `header_only` or `content` entry whose two digests happen to be EQUAL (a possible but unflagged "claimed edit, no byte changed" record) — confirmed as a deliberate architecture boundary (FR-012 forbids the git-based diff measurement that alone could confirm such a claim is suspicious), rather than an overlooked gap in FR-010–FR-016? [Boundary, Spec FR-012/FR-015, Ratified delta lines 160–169]
-- [ ] CHK036 Does any FR (or the ratified delta) require refusing a `path_only` entry whose `previous_locator` EQUALS its `observed_locator` (i.e., a "move" record for a target that did not move, differing from an ordinary unchanged file only by the presence of a needless entry) — or does the schema plus FR-010–FR-016 SILENTLY ADMIT a vacuous `path_only` entry with identical locators and identical digests, recording an authorized "divergence" that never occurred? [Gap, Spec FR-002/FR-010–016, Ratified delta lines 208–213] — **FINDING:** the ratified delta's own rationale for `path_only` is "only the locator changed" (delta line 154), and its worked scenario ("A path move is re-derived at both paths") explicitly requires the two locators to DIFFER, but neither the ratified delta's ADDED requirement, the seven finding codes, nor any FR in spec.md refuses a `path_only` entry whose locator pair is identical — such an entry would validate cleanly today under FR-001/002's shape rules and pass every § 3 leg, recording a no-op re-derivation with no code objecting to it.
+- [x] CHK036 Is the vacuous-`path_only` gap (a `previous_locator` == `observed_locator` entry that validates cleanly and passes every § 3 leg, with no ratified task naming a refusal for it) either CLOSED by a new leg, or — if left open — is it converted from a SILENT gap into an explicitly documented, deliberately-not-closed one, so a future reader finds it stated rather than rediscovers it? [Gap, Spec Edge Cases, Ratified delta lines 208–213] — resolved by disposition, not by closure: spec.md's Edge Cases now carries "A `path_only` entry whose two locators are IDENTICAL is not refused by anything, and that is MEASURED rather than designed... No ratified task names it, so this feature does not add it. It is recorded here as a measured gap for the architect rather than closed by a leg nobody ratified." The underlying leg is still not built — that is a legitimate scope choice, matching this feature's own FR-047/A2 "state it, do not act on it" discipline — but the item as phrased asked whether the gap is silent; it no longer is.
 
 ---
 
@@ -110,3 +110,22 @@ CHK025 restates a defect also recorded in `requirements.md` (CHK009) and, from
 the schema-adjacent angle, is distinct from `contract-schema-conformance.md`'s
 findings, which concern § 2 only. CHK011, CHK013 and CHK036 are new findings
 specific to validator behaviour not raised in the other two checklists.
+
+## Re-evaluation — 2026-09-09 (after fix pass)
+
+Re-read the updated `spec.md`, `research.md`, `tasks.md` and
+`clarify-questions.md` in full and re-checked all 5 previously unticked items.
+
+**Tally**: 36 passed / 0 unticked / 0 dispositioned (total 36).
+
+**Resolved (5)**: CHK011 (FR-010 now rules both linkage codes fire on a
+simultaneous failure), CHK013 (FR-020 now requires an equal-timestamp
+positive fixture), CHK016 (FR-015 now carries task 3.4c's neutrality
+rationale verbatim), CHK025 (FR-013 now enumerates the ratified eight items),
+CHK036 (the vacuous-`path_only` gap is now explicitly recorded in spec.md's
+Edge Cases as a measured, deliberately-unclosed gap for the architect, rather
+than a silent one — the leg itself is still not built, which is a legitimate
+scope choice given no ratified task names it, not a defect in the written
+requirements this checklist audits).
+
+No items remain open in this checklist.

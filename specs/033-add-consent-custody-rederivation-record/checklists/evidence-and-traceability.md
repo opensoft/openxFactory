@@ -49,17 +49,18 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
 - [x] CHK005 Is "a box MUST be ticked in the same commit as its evidence, or
       in neither" (FR-041) stated as a rule about COMMIT boundaries rather
       than about ordering within a working tree? [Ambiguity, spec.md FR-041]
-- [ ] CHK006 Is a verification method named for FR-041 — inspectable from
+- [x] CHK006 Is a verification method named for FR-041 — inspectable from
       `git log`/`git show` after the fact — rather than left to depend on the
-      author's own account of the order events happened in? MEASURED: no
-      task explicitly names a post-hoc `git log` verification step for
-      FR-041 the way the sibling feature's checklist required one (compare
-      `specs/032-govern-archived-record-edits/checklists/evidence-and-traceability.md`
-      CHK015's closure). — **FINDING:** neither `tasks.md` nor `plan.md`
-      names a post-hoc commit-history check that verifies, after all ticks
-      land, that no tick's commit precedes the commit that recorded its
-      evidence; the discipline relies on author care at commit time only.
-      [Gap, spec.md FR-041]
+      author's own account of the order events happened in? **RE-VERIFIED,
+      RESOLVED.** FR-041 now reads "...the discipline MUST be VERIFIED AFTER
+      THE FACT FROM THE COMMIT HISTORY, not merely intended at commit time. A
+      post-hoc `git log` pass MUST show, for every tick, that the commit
+      carrying the tick is the same commit carrying its evidence, and the
+      pass itself is evidence." A new task, T083 ("POST-HOC TICK/EVIDENCE
+      AUDIT"), names the exact commands (`git log --format='%h %s'
+      <base>..HEAD` plus `git show --stat` per tick-bearing commit) and
+      requires the audit transcript itself be filed as evidence. [Gap-closure,
+      spec.md FR-041, tasks.md T083]
 - [x] CHK007 Is FR-041 read consistently with FR-042 (evidence is a WRITTEN
       artifact created at tick time) so that ticking box 0.1 or 1.1–1.3 in a
       commit later than the underlying act's own historical commit
@@ -82,22 +83,18 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
 - [x] CHK010 Is each of the five gates' transcript required to be a
       SEPARATELY named file under `evidence/`, so no gate's result can be
       inferred from another's absence of complaint? [Coverage, tasks.md T064]
-- [ ] CHK011 Does the FINAL branch-head gate sweep (T081 — pinned CLI,
-      `validate-consent-instruments.py --strict`,
-      `validate-sequenced-after.py`/`--ledger-diff`, `validate-scope-globs.py`,
-      `validate-manifest-digests.py`, `pytest`) include EVERY gate T064 ran
-      against the candidate, or does it silently drop `release-tag-gate`/
+- [x] CHK011 Does the FINAL branch-head gate sweep (T081) either include every
+      gate T064 ran against the candidate or STATE why it is narrower?
+      **RE-VERIFIED, RESOLVED.** T081 now carries "WHY THIS SWEEP IS NARROWER
+      THAN T064's, stated so it reads as a choice. It omits
       `validate-release-tag-gate.py` and `validate-contract-release.py
-      verify-commit`? MEASURED: T081's list omits both. — **FINDING:**
-      Phase H (T070–T082) lands strictly after Phase G (the cut) per the
-      Dependencies graph, so "the branch head" T081 sweeps is a LATER commit
-      than "the exact unchanged candidate" T064 validated; T081's omission of
-      `validate-release-tag-gate.py` and `validate-contract-release.py
-      verify-commit` is plausible (Phase H does not touch `contracts/`) but
-      that premise — that no Phase H commit touches any path either gate
-      inspects — is nowhere stated as the reason for the narrower final
-      sweep, so a reader cannot tell an intentional narrowing from an
-      oversight. [Gap, tasks.md T064 vs T081]
+      verify-commit` because Phase H touches no path under `contracts/`...
+      **VERIFY that premise rather than assume it** (`git diff --name-only
+      <candidate>..HEAD -- contracts/` must be empty); if any Phase H commit
+      did reach `contracts/`, the candidate is no longer the certified tree
+      and BOTH release gates re-run here too." The premise is now stated AND
+      independently checked, not merely assumed. [Gap-closure, tasks.md
+      T081]
 - [x] CHK012 Is the pinned CLI's own gate command required as PART of the
       reproducible transcript (`@fission-ai/openspec@1.12.0`,
       `OPENSPEC_TELEMETRY=0`), rather than left to be inferred from the
@@ -127,17 +124,16 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
       EVERY severity) distinguished from a weaker outcome (no NEW findings,
       or no findings above a threshold), so a partial match could not be
       read as satisfying SC-008? [Precision, spec.md SC-008, tasks.md T080]
-- [ ] CHK017 Is a rule stated for distinguishing, in the comparison, a
-      finding-count change that occurred only because the corpus grew
-      (new fixtures, a new schema property) from a genuine new or resolved
-      doc-health finding — analogous to the sibling feature's CHK025 concern?
-      — **FINDING:** neither `spec.md` nor `tasks.md` states such a rule;
-      T080 and SC-008 require the finding SET to be diff-identical, which by
-      construction would already surface a spurious new finding caused by
-      corpus growth as a diff, but nothing tells the implementer how to
-      DISPOSITION such a diff if the growth itself trips a doc-health rule
-      (e.g., a lifecycle-header scan over the new `withheld/` directory).
-      [Gap, spec.md SC-008, tasks.md T080]
+- [x] CHK017 Is a rule stated for distinguishing, in the comparison, a
+      finding-count change that occurred only because the corpus grew from a
+      genuine new or resolved doc-health finding? **RE-VERIFIED, RESOLVED.**
+      New FR-045a: "the comparison rule is the FINDING SET at every severity.
+      If the corpus growth itself trips a doc-health family... that is a REAL
+      new finding this feature caused, and it MUST be fixed or dispositioned
+      with a citation. It is never waved through as 'expected, because the
+      corpus grew'." T080 carries the identical instruction verbatim. There
+      is no longer a silent "growth excuses it" reading available. [Gap-closure,
+      spec.md FR-045a, tasks.md T080]
 
 ## Measured-Figure-to-Command Traceability
 
@@ -149,21 +145,15 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
       repos/opensoft/openxFactory/pulls/774/reviews`, and the per-gate
       command lines are each given verbatim. [Measurability, research.md
       R1/R2/R6/R7/R12/R13]
-- [ ] CHK019 Do R3 (the `contract-v3.4` squash-merge precedent), R9 (no
+- [x] CHK019 Do R3 (the `contract-v3.4` squash-merge precedent), R9 (no
       caller reads the validator's exit code) and R10 (test-package naming
       survey) each name a literal, re-runnable command the way R1/R2/R6/R7/
-      R12 do? MEASURED: R3 states "landed as `807a4f47` — ONE parent,
-      committer `GitHub`, subject ending `(#653)`" with no shown command
-      (e.g. `git show -s --format='%P %cn %s' contract-v3.4`); R9 states
-      "Grepped across `.github/workflows/*.yml` (twelve files), `tests/`,
-      and the OpsxFactory consumption path" with no literal grep invocation;
-      R10 states "No `tests/consent*` directory exists" with no shown `ls`/
-      `find` command. — **FINDING:** R3, R9 and R10 report measured
-      conclusions without the literal command line the file's own
-      convention (R1, R2, R6, R7, R12, R13) otherwise uses throughout,
-      so a reader cannot re-run "the command" for these three without
-      first reconstructing what it must have been. [Measurability,
-      research.md R3/R9/R10]
+      R12 do? **RE-VERIFIED, RESOLVED.** All three now carry fenced ```bash```
+      blocks: R3 — `git show -s --format='%H %P | %cn | %s' contract-v3.4`;
+      R9 — a `grep -rn 'validate-consent-instruments' --include=... .` plus
+      `ls .github/workflows/*.yml | wc -l`; R10 — `ls tests/ | grep -i
+      consent` plus `ls tests/`. Each is now re-runnable verbatim.
+      [Measurability, research.md R3/R9/R10]
 - [x] CHK020 Is R5's claim that the manifest digest is CURRENT today backed
       by a command AND its exact returned value? MEASURED: `sha256sum
       contracts/schemas/consent-instrument.schema.yaml` returns
@@ -215,23 +205,20 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
 
 ## Scenario-to-Task Traceability
 
-- [ ] CHK027 Does any document in the Speckit tree provide an explicit
-      scenario-by-scenario mapping from the ratified delta's 22 `#### Scenario:`
-      blocks (7 in the `## MODIFIED` requirement, 15 in the `## ADDED`
-      requirement) to the `T###` task(s) that realize or deliberately do not
-      realize each one? MEASURED: no such table exists in `spec.md`,
-      `plan.md`, `tasks.md` or `research.md` — `spec.md`'s own "User
-      Scenarios & Testing" section defines four NEW User Stories with their
-      own Acceptance criteria, none titled after or cross-referencing the
-      ratified delta's 22 scenario titles verbatim. — **FINDING:** there is
-      no scenario-to-task traceability matrix; the mapping from (for example)
-      the delta's "A chain that does not anchor to the pin is refused" to
-      task T020/T037 must be reconstructed by a reader rather than read off
-      a table, and nothing distinguishes, scenario-by-scenario, which of the
-      22 are THIS feature's to satisfy versus which are inherently
-      git-dependent and therefore F.2/OpsxFactory's (§7.1, NOT-OWED) even
-      though the ratified delta states all 22 as one requirement's scenarios.
-      [Gap, spec.md/tasks.md, ratified delta]
+- [x] CHK027 Does any document in the Speckit tree provide an explicit
+      scenario-by-scenario mapping from the ratified delta's 22
+      `#### Scenario:` blocks to the `T###` task(s) that realize or
+      deliberately do not realize each one? **RE-VERIFIED, RESOLVED.**
+      `tasks.md` now carries "Traceability — the ratified delta's 22
+      scenarios, one row each" — a 22-row table (7 MODIFIED + 15 ADDED,
+      matching the measured count exactly), each row naming its realizing
+      `T###`(s) or stating "NOT-OWED (§ 7.1)" with the C-7 git-dependency
+      reason. Independently re-derived the same classification before
+      reading this table (scenarios 12, 13, 15, 18, 19, 21 are the
+      git-dependent ones) and it matches the table's own closing line — "Six
+      of 22 are NOT-OWED here, and all six are git-dependent (12, 13, 15, 18,
+      19, 21)" — exactly. [Gap-closure, tasks.md "Traceability — the ratified
+      delta's 22 scenarios"]
 - [x] CHK028 Is the SPLIT between validator-internal scenarios (checkable
       from the record's own bytes) and git-dependent scenarios (requiring
       repository resolution — e.g. "A header_only claim contradicted by the
@@ -268,21 +255,18 @@ the packet's `tasks.md`; `contracts/manifest.yaml`; `contracts/releases/`;
 
 ## False-Record / Transcript-Authenticity Class
 
-- [ ] CHK031 Is it required anywhere that a gate transcript filed to
-      `evidence/` be the RAW, unedited command output (return code plus the
-      summary line, captured to a file) rather than a hand-composed
-      description of what the command reportedly showed — the discipline
-      the sibling feature's evidence checklist required (its CHK021/CHK023,
-      "capture the return code AND the summary line," "recorded verbatim")?
-      — **FINDING:** `spec.md` and `tasks.md` require transcripts to exist
-      and be named (T064, T081) but neither states that a transcript must be
-      the literal captured output rather than a paraphrase, and neither
-      names the piped-`tail`-masks-`make`'s-exit-code failure mode the
-      sibling feature's evidence checklist calls out by name; a
-      hand-composed "gate X passed" line would satisfy the letter of T064/
-      T081 as written. [Gap, tasks.md T064/T081, cf.
-      specs/032-govern-archived-record-edits/checklists/evidence-and-traceability.md
-      CHK021-023]
+- [x] CHK031 Is it required anywhere that a gate transcript filed to
+      `evidence/` be the RAW, unedited command output rather than a
+      hand-composed description? **RE-VERIFIED, RESOLVED.** New FR-042a:
+      "every gate transcript filed to `evidence/` MUST be the RAW CAPTURED
+      OUTPUT — the command line, the summary line and the process's own
+      return code, never a hand-composed description... piping a run through
+      `tail` returns `tail`'s exit code and pushes the summary line out of
+      the window, so a run captured that way proves nothing" — naming the
+      exact failure mode the sibling checklist called out. `tasks.md`'s
+      header restates the same rule once for every task rather than leaving
+      it to be repeated per-task. [Gap-closure, spec.md FR-042a, tasks.md
+      header discipline block]
 - [x] CHK032 Is the box-arithmetic assertion (CHK041 of the governance
       checklist) itself required to be evidence-backed in the SAME file the
       note classes are counted in, rather than trusted as a planning-time

@@ -51,19 +51,19 @@ true today.
       triple, a veto-list citation, an operator-veto-section citation), rather
       than one generic "cite a record" instruction applied uniformly with no
       per-box specificity? [Completeness, tasks.md T070-T073]
-- [ ] CHK006 Does the Speckit tree's own execution-order documentation agree on
+- [x] CHK006 Does the Speckit tree's own execution-order documentation agree on
       WHEN §0.1/§1.1–1.3 are ticked relative to the rest of the realization?
-      `spec.md`'s "Primary flow, in one ordered narrative" states as step 1
-      "§ 0.1 and § 1.1–1.3 are TICKED with evidence" — BEFORE step 2 (the
-      schema grows) — while `tasks.md`'s Dependencies graph places Phase H
-      (T070–T074, which perform those exact ticks) strictly AFTER Phase G
-      (T060–T066, the cut), the last phase in the chain. — **FINDING:**
-      `spec.md`'s Primary Flow step 1 and `tasks.md`'s Dependencies graph
-      disagree on whether §0.1/§1.1–1.3 are ticked before or after §§2–5 are
-      realized; an implementer following the numbered narrative would tick
-      early, one following the phase graph would tick last, and nothing
-      reconciles the two orderings. [Consistency, spec.md "Primary flow"
-      step 1 / tasks.md Dependencies graph]
+      **RE-VERIFIED, RESOLVED.** `spec.md`'s "Primary flow" step 1 now states
+      explicitly: "§ 0.1 and § 1.1–1.3 are ALREADY PERFORMED and verifiable...
+      They are nevertheless TICKED LAST, with every other tick, and the
+      ordering is deliberate: architect ruling Q5 binds a tick to the same
+      commit as its evidence, and the evidence file those notes cite is the
+      one written in the final bookkeeping phase... Read this list as the
+      order the ACTS were or will be performed in, and the `tasks.md`
+      Dependencies graph as the order the COMMITS land in; where they appear
+      to differ, the graph governs." This reconciles the narrative order with
+      the phase graph explicitly and states a tie-break rule. [Consistency,
+      spec.md "Primary flow" step 1 / tasks.md Dependencies graph]
 - [x] CHK007 Is a box's evidence permitted to be a citation of an act performed
       in an EARLIER commit (6cfe9ba6 for 0.1; the ratification record's own
       commit for 1.1–1.3) while the tick itself lands in a LATER commit,
@@ -232,15 +232,19 @@ true today.
       PROPOSAL. No schema byte moves..."*) by mistake? MEASURED: T074 quotes
       the opening clause verbatim. [Precision, tasks.md T074, packet
       tasks.md line 7-8]
-- [ ] CHK032 Is the "un-superseded neighbour" for the packet preamble amendment
+- [x] CHK032 Is the "un-superseded neighbour" for the packet preamble amendment
       itself named anywhere in the Speckit tree, the way `3b530009` named
-      *"NOTHING IS TICKED THAT DID NOT LAND"* as its neighbour? — **FINDING:**
-      neither `spec.md` nor `tasks.md` names which sentence of the packet
-      preamble (the "This is a PROPOSAL..." sentence, or some clause within
-      it) is the un-superseded neighbour for T074's amendment; T074 restates
-      the FORM's requirement ("name the un-superseded neighbour") but does
-      not itself do the naming, leaving that judgment call for execution
-      time. [Gap, tasks.md T074]
+      *"NOTHING IS TICKED THAT DID NOT LAND"* as its neighbour? **RE-VERIFIED,
+      RESOLVED.** `tasks.md` T074 now names it directly: "Un-superseded
+      neighbour — NAMED HERE rather than left to execution-time judgement:
+      the same paragraph's closing clause 'no consumer pin advances, and no
+      instrument takes an entry', which stays TRUE after this realization
+      because those are § 6's acts and § 6 is the consumer's" — verified
+      against the packet's own preamble text, which does end with exactly
+      that clause. T074 also now names the neighbours for T056–T058's
+      README amendments by the same discipline ("no consumer file is
+      edited"; "the three pins are still broken"; the register-home
+      sentence). [Gap-closure, tasks.md T074]
 
 ## Frozen Ratified Prose and the One Permitted Note
 

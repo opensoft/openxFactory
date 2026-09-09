@@ -47,25 +47,26 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       it explicitly state the digests link CORRECTLY (isolating the locator
       leg from the digest leg) so a reader cannot mistake it for a
       broken-link duplicate? [Isolation, tasks.md T035]
-- [ ] CHK005 Is the SAME isolation discipline T035 states for itself
+- [x] CHK005 Is the SAME isolation discipline T035 states for itself
       ("digests linking correctly") also stated for T034 (does the broken-link
       fixture keep its locator pair sound?) and T036 (does the out-of-order
       fixture keep both digest and locator legs sound?) — or is fixture
       isolation a rule applied ad hoc to one fixture rather than a stated
       general discipline for the negative corpus? [Consistency, tasks.md
-      T034, T036] — **FINDING:** T035 alone states its isolation condition
-      ("digests linking correctly"); T034 and T036 give no equivalent
-      assurance, and `self_test`'s `codes_of()` check (validator line 692,
-      `elif code not in codes_of(local.errors)`) only requires the expected
-      code to be PRESENT among findings, not that it be the ONLY one — so an
-      insufficiently isolated fixture (e.g., one that is simultaneously
-      out-of-order AND locator-gapped) would still pass self-test without
-      testing the invariant its filename claims.
+      T034, T036] — **RESOLVED**: new `spec.md` FR-021a states fixture
+      isolation as a GENERAL discipline ("every negative fixture MUST be
+      sound in every leg EXCEPT the one it is named for"), `tasks.md`'s
+      header now states it as one of two disciplines binding every task
+      ("Every negative fixture is ISOLATED... FR-021a"), and T034 now reads
+      "**Locator pair sound**, so the fixture tests the digest half alone"
+      while T036 reads "**Both digest and locator legs sound**, so only the
+      ordering is under test." All three fixtures now carry an explicit
+      isolation condition.
 - [x] CHK006 `custody-chain-out-of-order` — exactly one fixture, T036, mapped
       to the packet's own box 4.3c ("so § 4's 'one per named refusal' is true
       of that refusal too")? [Traceability, tasks.md T036, packet tasks.md
       4.3c]
-- [ ] CHK007 `custody-pin-rewritten` (T041) — FR-011 names TWO forms: (i)
+- [x] CHK007 `custody-pin-rewritten` (T041) — FR-011 names TWO forms: (i)
       `custody.sha256` equal to an entry's `observed_sha256` **while a later
       entry exists**, and (ii) "more generally any state in which the pin has
       been advanced to a value the chain itself records as observed." Does
@@ -73,11 +74,14 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       (i) — the rewrite masked by a still-later entry — is actually exercised,
       or does the task leave the entry count unstated and risk a
       single-entry fixture that only tests form (ii)? [Ambiguity, spec.md
-      FR-011, tasks.md T041] — **FINDING:** T041 ("`custody.sha256` advanced
-      to an observed digest while the chain still claims the original
-      anchor") does not state the fixture's entry count; FR-011's "while a
-      LATER entry exists" clause is the harder, more specific case and is not
-      pinned to the fixture design.
+      FR-011, tasks.md T041] — **RESOLVED**: T041 now reads "**MULTI-ENTRY
+      chain, not single**: FR-011's sharper form is the pin advanced to an
+      entry's `observed_sha256` *'while a LATER entry exists'*, and a
+      one-entry fixture exercises only the general form," and new FR-021a
+      restates the same requirement. T053 additionally now asserts all three
+      exit paths (a real withholding instrument exits `3`; the packaged
+      corpus exits `0`; an instrument that both withholds and errors exits
+      `1`).
 - [x] CHK008 `custody-path-class-digests-differ` — exactly one fixture, T043
       (box 4.8d), and is it kept distinct from the SCHEMA-layer `path_only`
       checks (FR-002's pattern/enum constraints) by asserting the schema
@@ -183,19 +187,18 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       it," no registration required — consistent with its existing exclusion
       of `EXAMPLES_DIR` (validator line 747)? [Consistency, clarify-questions.md
       Q3b, tasks.md T028]
-- [ ] CHK027 Is it stated what happens if the withheld fixture is
+- [x] CHK027 Is it stated what happens if the withheld fixture is
       ACCIDENTALLY also schema-invalid or internal-leg-broken (e.g., a typo
       breaks the anchor) — does the plan require the self-test to distinguish
       "yielded WITHHELD" from "yielded an unrelated ERROR" for the withheld
       bucket, the way `EXPECTED_NEGATIVE_FINDINGS` distinguishes
       "negative-should-fail" from "negative-wrong-reason"? [Gap, tasks.md T046]
-      — **FINDING:** T046 says the withheld table is "fail-closed BOTH ways
-      exactly as `EXPECTED_NEGATIVE_FINDINGS` is," but names only the
-      disk/table-entry symmetry, not an outcome-mismatch check analogous to
-      `negative-wrong-reason` (validator lines 692–702) — nothing in
-      `tasks.md` commits to asserting that a withheld fixture actually
-      WITHHELDS (as opposed to erroring or passing) the way a negative
-      fixture's finding CODE is checked, not merely its failure.
+      — **RESOLVED**: `spec.md` FR-022 now requires the table to "also check
+      the OUTCOME, not merely the file's presence — the analogue of
+      `negative-wrong-reason`: a withheld fixture that ERRORS, or that passes
+      cleanly, is a self-test failure, because 'the fixture exists' is not
+      'the fixture withholds'." T046 restates the identical requirement
+      verbatim.
 
 ## D. Detail-pinning where the code alone is too coarse
 
@@ -209,18 +212,18 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       ("each detail-pinned on its field" / "detail-pinned on
       `additionalProperties`"), rather than only some of the five? [Coverage,
       tasks.md T038, T039, T040]
-- [ ] CHK030 Is there a stated rule that the FIVE `schema`-coded fixtures'
+- [x] CHK030 Is there a stated rule that the FIVE `schema`-coded fixtures'
       detail substrings must be MUTUALLY EXCLUSIVE — so that, for instance, the
       missing-`ruling_ref` fixture's error message cannot also satisfy the
       eleventh-property fixture's expected detail by coincidence — or is
       cross-fixture substring collision left unaddressed? [Gap, tasks.md
-      T038–T040, validator lines 696–702] — **FINDING:** neither `tasks.md`
-      nor `spec.md` states a uniqueness rule across the five `schema`-detail
-      substrings; the self-test's own detail check (validator line 696,
-      `elif detail and not any(detail in line ...)`) only verifies the
-      registered detail appears SOMEWHERE in the errors for that one
-      fixture — it does not guard against two fixtures whose chosen
-      substrings happen to overlap.
+      T038–T040, validator lines 696–702] — **RESOLVED**: new `spec.md`
+      FR-021a requires "The FIVE `schema`-coded fixtures' detail substrings
+      MUST be MUTUALLY EXCLUSIVE, so no fixture's expected detail can be
+      satisfied by another fixture's error text," and T038 now carries the
+      same requirement plus an explicit verification step: "Choose the
+      substrings, then prove the exclusivity by cross-checking each against
+      every other fixture's error text."
 - [x] CHK031 Is `embedded-original-content`'s detail-pinning need addressed —
       given the code is REUSED (already fires for custody-block blobs), do
       the two new blob fixtures (T042) need a detail substring distinguishing
@@ -328,23 +331,21 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       bullets, and is the composition of those nine stated as "one bullet per
       refusal code (7) + one positive chain-shapes bullet + one withheld
       bullet"? [Measurability, clarify-questions.md Q9]
-- [ ] CHK047 Does the "(7)" in Q9's "one bullet per refusal code (7)"
+- [x] CHK047 Does the "(7)" in Q9's "one bullet per refusal code (7)"
       reconcile against Q10's list of SEVEN adopted codes — which INCLUDES
       `custody-content-class-withheld` — given Q9 ALSO calls for a separate
       "one withheld bullet" on top of the seven? If withheld is one of the
       seven, the sum double-counts it; if it is not, the seven must be a
       DIFFERENT set (the six chain/pin/path codes plus one more) that no
       document names. [Ambiguity, clarify-questions.md Q9 vs Q10] —
-      **FINDING:** Q10 lists exactly seven codes, one of which is
-      `custody-content-class-withheld`; Q9's arithmetic (7 + 1 positive + 1
-      withheld = 9) only reconciles if the withheld code is EXCLUDED from
-      the "(7)" and a seventh NON-withheld code is substituted in its place
-      — the most likely candidate being `embedded-original-content` under
-      its newly-extended reach (T026/T042) — but no document states this
-      substitution; a builder following Q9 literally could read "(7)" as
-      Q10's seven codes verbatim and produce a Named-cases section with
-      withheld represented twice and `embedded-original-content` not
-      represented at all.
+      **RESOLVED**: `spec.md` FR-023 now states the reconciliation explicitly
+      — "**THE SEVEN REFUSAL CODES ARE NOT Q10's SEVEN ADOPTED CODES**...
+      Q10's list includes `custody-content-class-withheld`, which Q9 already
+      gives its own bullet, so counting it among the seven would double-count
+      it... The seven refusals are the six that refuse... plus
+      `embedded-original-content` under its newly extended reach (FR-016)" —
+      confirming exactly the substitution this checklist's finding
+      hypothesized. T047 restates the identical resolution.
 - [x] CHK048 Is the *Validating locally* section left untouched (Q9 answers
       "tree and table complete" for growth, naming only those two sections
       plus Named cases — not *Validating locally*), so the plan does not
@@ -385,21 +386,19 @@ the ratified packet's own `tasks.md` §§ 4, the canonical validator
       shape (e.g., a fourth bucket, or withheld folded into negatives)?
       [Consistency]
 
-## Evaluation — 2026-09-09
+## M. Newly discovered during re-verification (round 2, 2026-09-09)
 
-**State of the underlying corpus at evaluation time**: PRE-IMPLEMENTATION.
-`contracts/schemas/consent-instrument.schema.yaml` still declares
-`contract_schema_version: 2` with no `custody_rederivations` property;
-`examples/consent-instrument/withheld/` does not exist;
-`examples/consent-instrument/negative/` holds the original 7 files only. This
-checklist evaluates the PLAN's completeness and internal consistency, not
-whether the corpus has been built — the items above are checked against
-`spec.md`, `tasks.md`, `research.md`, `clarify-questions.md`, the ratified
-packet, the current validator source, and the current corpus/README bytes,
-each cited individually.
-
-**Tally**: 48 passed / 5 open (unticked) / 0 dispositioned (53 total).
-
-**Open findings**: CHK005, CHK007, CHK027, CHK030, CHK047 (5 findings; CHK047
-is the load-bearing one — the Named-cases bullet arithmetic in Q9 does not
-close against Q10's code list without an unstated substitution).
+- [x] CHK054 `spec.md` FR-020 was amended (round 2) to add: "One positive MUST
+      exercise the **EQUAL-TIMESTAMP boundary** of the non-decreasing rule,
+      since 'does not decrease' admits equality and an untested boundary is
+      an untested rule." Is this new clause assigned to a `T###` among the
+      four positive-shape tasks (T030-T033)? [Gap, spec.md FR-020, tasks.md
+      T030-T033, Traceability table] — CLOSED 2026-09-09 (round 3). **T032**
+      now carries it explicitly and its tag reads
+      *(box 4.1c; FR-020's equal-timestamp clause)*. T032 is the right
+      carrier rather than an arbitrary one: its two entries record ONE repair
+      session, so `e1.at == e2.at` is the realistic case and not a
+      contrivance. The task requires the instrument be ADMITTED at equality,
+      and names T036 as its negative twin, which must strictly DECREASE. The
+      Traceability table's FR-020 row now reads
+      "T030, T031, T032 *(equal-timestamp boundary)*, T033".

@@ -230,20 +230,16 @@ worktree status.
       with F annotated "BLOCKED on the lane's substrate note" and G
       annotated "LAST; must not wait on F" — H depends only on G.
       [Consistency, tasks.md Dependencies graph]
-- [ ] CHK029 Is a CHANNEL or MECHANISM named by which "the LANE... post[s]
-      the row-3 substrate note" while this feature's own Constitution Check
-      states "no PR, no comment, no merge, no tag from this seat" — i.e., is
-      it stated explicitly that the substrate note is a LANE-level act
-      (analogous to § 5.1's version-number claim, also "the LANE's" and also
-      posted outside this feature's own task execution) rather than an act
-      this feature's own execution could ever perform, and is there a
-      stated cadence for RE-CHECKING whether the note has arrived once T055
-      reports the block? — **FINDING:** T055 says "report the block instead"
-      but neither `tasks.md` nor `plan.md` names how or when execution
-      resumes after the block is reported — no polling cadence, no
-      resumption trigger, and no cross-reference to the mechanism §5.1 uses
-      for its own "the LANE's act, posted separately" pattern, leaving the
-      reader to infer the parallel rather than read it stated. [Gap, tasks.md
+- [x] CHK029 Is a CHANNEL or MECHANISM named by which "the LANE... post[s]
+      the row-3 substrate note," and a stated cadence for RE-CHECKING whether
+      it has arrived? **RE-VERIFIED, RESOLVED.** T055 now carries "CHANNEL
+      AND CADENCE, stated rather than left to inference. Posting is a LANE
+      act, exactly as § 5.1's version claim is — this seat opens no pull
+      request and posts no comment. The orchestrator does NOT poll: it
+      RE-CHECKS whether the note has arrived at **each merge-from-main**, the
+      same cadence the version re-measurement runs on (T060), and reports the
+      state each time." This draws the exact §5.1 parallel this item asked
+      for, explicitly rather than by inference. [Gap-closure, tasks.md
       T055, spec.md FR-046/Out of scope]
 - [x] CHK030 Is it explicit that Phase F's non-arrival does NOT gate the
       feature's "Definition of done"? MEASURED: `tasks.md`'s Definition of

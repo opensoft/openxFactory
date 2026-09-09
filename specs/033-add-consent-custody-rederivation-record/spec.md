@@ -344,6 +344,19 @@ specification:
 - **FR-004** *(box 2.3)*: `contract_schema_version` MUST move `2` → `3` with an in-file
   comment in the style of the existing `1 -> 2` note: what grew, that it is
   ADDITIVE, and that the record envelope's `schema_version` stays `const: 1`.
+- **FR-005** *(boxes 2.4, 2.5)*: in-file comments MUST record (a) why the array
+  is a SIBLING — **ruling D9's closure argument AND design C-1**, both cited as
+  ratified task 2.4 names them, (b) that `ruling_ref` is a DECLARED POINTER
+  the validator does not resolve, and (c) that `custody.locator` is OPAQUE and
+  not a path, that resolution runs through the consuming repository's DECLARED
+  custody store mapping, that the two legs are evaluated on opposite sides of
+  the commit, and that an archive move is unadmittable without the pair —
+  naming the measurement (every OpsxFactory locator carries an `opsx:opensoft/`
+  scheme prefix; three of four targets resolve at no ref under their literal
+  path).
+
+### Functional Requirements — § 3, the canonical validator
+
 - **FR-006** *(clarify Q4)*: **THREE identity fields MUST NOT MOVE**, and the
   diff MUST prove it: the schema's `$id: "consent-instrument.schema.yaml"`
   (line 7); the record property `schema_version: const: 1`; and the
@@ -358,19 +371,6 @@ specification:
   not an amendment and does not transition status (design C-10, ratified with
   the veto not exercised), so the realization of that scenario is the ABSENCE of
   code, and the absence MUST be asserted by diff rather than assumed.
-- **FR-005** *(boxes 2.4, 2.5)*: in-file comments MUST record (a) why the array
-  is a SIBLING — **ruling D9's closure argument AND design C-1**, both cited as
-  ratified task 2.4 names them, (b) that `ruling_ref` is a DECLARED POINTER
-  the validator does not resolve, and (c) that `custody.locator` is OPAQUE and
-  not a path, that resolution runs through the consuming repository's DECLARED
-  custody store mapping, that the two legs are evaluated on opposite sides of
-  the commit, and that an archive move is unadmittable without the pair —
-  naming the measurement (every OpsxFactory locator carries an `opsx:opensoft/`
-  scheme prefix; three of four targets resolve at no ref under their literal
-  path).
-
-### Functional Requirements — § 3, the canonical validator
-
 - **FR-010** *(box 3.1)*: a new check beside `check_custody` MUST verify the
   chain's INTERNAL legs, with these codes:
   - **`custody-chain-unanchored`** — ONE code covering BOTH anchor halves
@@ -464,7 +464,7 @@ specification:
   entry exists"* form and not only the general one. The FIVE `schema`-coded
   fixtures' detail substrings MUST be MUTUALLY EXCLUSIVE, so no fixture's
   expected detail can be satisfied by another fixture's error text.
-- **FR-022**: a WITHHELD fixture MUST live in a THIRD directory
+- **FR-022** *(box 4.8c; clarify Q3)*: a WITHHELD fixture MUST live in a THIRD directory
   `examples/consent-instrument/withheld/` and MUST be asserted as WITHHELD —
   neither positive nor negative. `self_test` MUST grow an
   `EXPECTED_WITHHELD_OUTCOMES` table that is **fail-closed both ways**, exactly
@@ -554,7 +554,7 @@ specification:
   commit is never amended in place: FR-031 makes the candidate one atomic
   commit and FR-034 certifies "the exact unchanged candidate", so a candidate
   edited after a gate ran is no longer the thing that gate certified.
-- **FR-035**: the annotated tag MUST be left OWED. This feature does not tag.
+- **FR-035** *(box 5.6)*: the annotated tag MUST be left OWED. This feature does not tag.
 - **FR-036** *(the landing contract, ruled at Q1 and recorded in `plan.md`)*:
   landing is a **MERGE COMMIT** — there is no linear-history rule on this
   repository. The LANE performs the final merge-from-main inside its Rule 6
@@ -565,7 +565,7 @@ specification:
 
 ### Functional Requirements — bookkeeping and evidence
 
-- **FR-040**: every box in §§ 0–5 whose act is verifiably DONE MUST be ticked
+- **FR-040** *(boxes 0.1, 1.1–1.3, 5.1, 5.5, 5.6, 6.1–6.4, 7.1–7.3; architect ruling Q1)*: every box in §§ 0–5 whose act is verifiably DONE MUST be ticked
   with a note citing the record and the timestamp. **Every box NOT ticked MUST
   carry a dated line, and this enumeration is EXHAUSTIVE rather than
   illustrative**: § 5.1 (the lane claims the number; this feature only measures
@@ -573,35 +573,35 @@ specification:
   `[OPERATOR]` tag) take **NOT-OWED-HERE** lines; §§ 6.1, 6.2, 6.2b, 6.3, 6.4,
   7.1, 7.2 and 7.3 take **NOT-OWED** lines. Note classes MUST sum to 46 —
   **35 ticked + 3 NOT-OWED-HERE + 8 NOT-OWED**.
-- **FR-041**: a box MUST be ticked in the same commit as its evidence, or in
+- **FR-041** *(architect ruling Q5)*: a box MUST be ticked in the same commit as its evidence, or in
   neither — **and the discipline MUST be VERIFIED AFTER THE FACT FROM THE COMMIT
   HISTORY, not merely intended at commit time**. A post-hoc `git log` pass MUST
   show, for every tick, that the commit carrying the tick is the same commit
   carrying its evidence, and the pass itself is evidence.
-- **FR-042a**: every gate transcript filed to `evidence/` MUST be the RAW
+- **FR-042a** *(checklist finding, evidence CHK031)*: every gate transcript filed to `evidence/` MUST be the RAW
   CAPTURED OUTPUT — the command line, the summary line and the process's own
   return code — never a hand-composed description of what a run reportedly
   showed. **The known failure mode is named so it is refused rather than
   rediscovered**: piping a run through `tail` returns `tail`'s exit code and
   pushes the summary line out of the window, so a run captured that way proves
   nothing.
-- **FR-042b**: the FOUR intermediate phase gates in `plan.md`'s implementation
+- **FR-042b** *(checklist finding, tooling CHK042)*: the FOUR intermediate phase gates in `plan.md`'s implementation
   sequence (the schema self-validation, the clean validator run over the
   un-grown corpus, the 0/0 with three bucket counts, and
   `pytest tests/consent_instruments`) MUST each file a transcript too. A phase
   judged complete on an unrecorded local run is a gate that was not run.
-- **FR-042**: evidence MUST be written to BOTH
+- **FR-042** *(architect ruling Q4)*: evidence MUST be written to BOTH
   `specs/033-add-consent-custody-rederivation-record/evidence/` and
   `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-<date>.md`.
-- **FR-043**: ratified prose — `proposal.md`, `design.md`, `.openspec.yaml` and
+- **FR-043** *(architect ruling Q10)*: ratified prose — `proposal.md`, `design.md`, `.openspec.yaml` and
   the delta — MUST stay frozen. `tasks.md`, the evidence file, and ONE additive
   dated realization note after the `Lane:` line in `proposal.md` correcting any
   ratified enumeration this realization falsifies are the only permitted edits.
-- **FR-044**: any ratified "stays unticked" sentence amended by a tick MUST be
+- **FR-044** *(architect ruling Q1, the `3b530009` form)*: any ratified "stays unticked" sentence amended by a tick MUST be
   amended in the SAME commit in the `3b530009` form — block-quote the
   superseded sentence, name the un-superseded neighbour, marker
   `AMENDED <UTC date>`, tick marker `**TICKED <UTC date>`.
-- **FR-045**: doc-health MUST be compared as two reports whose **`--report-out`
+- **FR-045** *(architect ruling Q10; tooling CHK036/CHK037)*: doc-health MUST be compared as two reports whose **`--report-out`
   BASENAMES are identical** (differing only in directory, so the report's own
   self-reference cannot appear as a diff line) and whose **CHECKOUT DIRECTORY
   basenames are also identical** (so a path fragment cannot differ between the
@@ -610,7 +610,7 @@ specification:
   before the final comparison the baseline MUST BE RE-TAKEN** at the commit this
   branch last merged from, with both shas recorded. A diff-identical comparison
   against a stale baseline is not a comparison.
-- **FR-045a**: the comparison rule is the FINDING SET at every severity. If the
+- **FR-045a** *(checklist finding, evidence CHK017)*: the comparison rule is the FINDING SET at every severity. If the
   corpus growth itself trips a doc-health family — a lifecycle-header or
   location-conformance scan reaching the new
   `examples/consent-instrument/withheld/` directory, say — that is a REAL new

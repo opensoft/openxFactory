@@ -61,26 +61,21 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       passed / 0 failed) kept DISTINCT from the `--all` run's pass condition
       ("zero UNDISPOSITIONED failures," SC-006) — two different bars, not
       one conflated requirement? [Ambiguity, spec.md SC-006, research.md R13]
-- [ ] CHK007 Is "zero UNDISPOSITIONED failures" (SC-006) the WHOLE of the
+- [x] CHK007 Is "zero UNDISPOSITIONED failures" (SC-006) the WHOLE of the
       `--all --strict` pass condition, or does the gate script's own
       `reconcile()` function name a THIRD outcome — a STALE disposition (an
       accepted exception whose condition no longer occurs) — that raises
       `PinRefusal("pin-disposition-stale", ...)` and exits 2, distinct from
       both a clean pass and an undispositioned-findings failure (exit 1)?
       [Gap, spec.md SC-006, script lines 1706–1780, 2043–2049] —
-      **FINDING:** `validate-openspec-cli-pin.py`'s `reconcile()` returns
-      `(applied, undispositioned, stale)` and the `--all` path in `main()`
-      raises a hard `PinRefusal` (exit 2) when `stale` is non-empty — a THIRD
-      failure mode SC-006 does not name. A stale disposition is unrelated to
-      this feature's own correctness (it means some OTHER accepted exception
-      in `contracts/openspec-cli-pin.yaml`'s `dispositions:` list no longer
-      matches any finding, typically because an unrelated change archived) —
-      but a builder who sees `--all --strict` exit 2 and checks only SC-006
-      ("zero undispositioned failures") would not find language covering
-      this exit code, and could misdiagnose it as a harness/dependency error
-      (this script's OTHER documented use of exit 2) rather than a
-      corpus-hygiene refusal requiring an edit to a file this feature does
-      not otherwise touch.
+      **RESOLVED**: `spec.md` SC-006 now names the third outcome explicitly —
+      "`--all --strict` has a THIRD failure mode SC-006 must not be read as
+      excluding: `reconcile()` returns `(applied, undispositioned, stale)`
+      and a STALE disposition... raises `pin-disposition-stale` and exits
+      `2`. That is a corpus-hygiene refusal, NOT this feature's defect...
+      it is reported, not silently repaired" — and gives a measured baseline
+      (100 passed / 2 DISPOSITIONED). T081 restates the same disposition
+      ("REPORT it, do not silently repair it").
 - [x] CHK008 Is the ban on PATH's unpinned OpenSpec CLI (`1.2.0`, per the
       script's own docstring history) stated as a prohibition with a
       DETECTION method — no `T###` in this feature invokes `--path-mode`, and
@@ -229,7 +224,7 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       offline reproduction from the GitHub Actions `pull_request`-triggered
       run this feature never observes (Q11)? [Consistency, clarify-questions.md
       Q11, script docstring]
-- [ ] CHK029 Is the EXACT `--head` / `--base` pair for the LOCAL run
+- [x] CHK029 Is the EXACT `--head` / `--base` pair for the LOCAL run
       specified, given the script's own default (`--base` defaults to "the
       head's first parent, which is the base branch tip") is designed for a
       GitHub `pull_request` MERGE COMMIT (whose first parent is conventionally
@@ -238,18 +233,15 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       integration point" — a MERGE OF MAIN INTO THE FEATURE BRANCH (`R3`,
       per opensoft ruleset 8981805) — whose first parent is the FEATURE
       BRANCH'S OWN PRIOR TIP, not `main`? [Gap, script `main()` `--base`
-      help text, research.md R3, tasks.md T064] — **FINDING:** neither
-      `tasks.md` T064 nor `plan.md` names an explicit `--base` override for
-      the local `validate-release-tag-gate.py` run. Relying on the script's
-      default would resolve `--base` to the candidate commit's first parent
-      — under a main-into-branch integration merge, that is the FEATURE
-      BRANCH's own previous commit, not `main` — which diffs the candidate
-      against the wrong tree and could report a near-empty (or wrong) result
-      that LOOKS like a clean pass without having evaluated the same
-      comparison the real PR-triggered gate performs. The local run needs an
-      explicit `--base <main-sha-at-integration>` to reproduce the intended
-      comparison; this is exactly the "gate not actually run" class this
-      checklist is charged with catching.
+      help text, research.md R3, tasks.md T064] — **RESOLVED**: `spec.md`
+      FR-034 now requires "`validate-release-tag-gate.py` MUST be given an
+      EXPLICIT `--base`. Its default resolves `--base` to the head's FIRST
+      PARENT, which is right for a GitHub `pull_request` merge commit and
+      WRONG here... a near-empty result that LOOKS like a pass without
+      evaluating what the real gate evaluates." T064 restates the identical
+      reasoning and requires "an EXPLICIT `--base <main sha at the
+      integration point>`" — this checklist's own hypothesis, confirmed
+      verbatim.
 - [x] CHK030 Is it stated that this gate's SILENCE about the new bundle's own
       tag (`contract-v3.5`) is EXPECTED and not a defect — "a bundle whose
       EARLIEST DECLARING COMMIT IS THE TIP is at distance zero and emits NO
@@ -288,41 +280,33 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
 
 ## J. doc-health two-report comparison
 
-- [ ] CHK036 Does "two reports with identical basenames" (FR-045, T080) name
+- [x] CHK036 Does "two reports with identical basenames" (FR-045, T080) name
       WHICH basename must be identical — the OUTPUT REPORT FILES' own
       basenames (e.g., both named `doc-health.md` in separate directories),
       or the CHECKOUT DIRECTORIES' basenames (the identity trap this
       family's `repo=<basename>` stamp actually keys on, per the sibling
       feature's own `docs/032` precedent)? [Ambiguity, spec.md FR-045,
-      tasks.md T080] — **FINDING:** `doc-health.py --single-repo <dir>`
-      stamps the CHECKOUT'S DIRECTORY BASENAME into every finding line
-      (`repo=<basename>`), the `Repo-Identity:` header, and the "scope
-      limited to single repo" line — a fact this feature's own sibling
-      (`specs/032-govern-archived-record-edits` FR-028) discovered and
-      resolved by requiring the BASELINE CHECKOUT to carry the SAME
-      directory basename as the branch checkout (or, failing that,
-      normalizing all three stamped places before diffing). `spec.md` FR-045
-      and `tasks.md` T080 in THIS feature say only "identical basenames"
-      with no object named — a builder could satisfy the literal words by
-      giving the two REPORT FILES the same name while running
-      `--single-repo` against two DIFFERENT-basename checkout directories,
-      which would reproduce exactly the identity-mismatch defect FR-028 was
-      written to prevent.
-- [ ] CHK037 Is the doc-health baseline required to NAME the `main` COMMIT
+      tasks.md T080] — **RESOLVED**: `spec.md` FR-045 now requires BOTH —
+      "two reports whose `--report-out` BASENAMES are identical (differing
+      only in directory...) and whose CHECKOUT DIRECTORY basenames are also
+      identical (so a path fragment cannot differ between the two runs
+      either)." T080 restates both requirements with the same reasoning,
+      closing the ambiguity by requiring the stricter of the two readings
+      rather than choosing between them.
+- [x] CHK037 Is the doc-health baseline required to NAME the `main` COMMIT
       SHA it was taken at, and to be RE-TAKEN if `main` moves before the
       final comparison — the discipline the sibling feature's FR-029 states
       in as many words ("If `main` moves between the baseline and the final
       comparison, the baseline is RE-TAKEN at the commit the branch was last
       merged from, and the evidence records both shas") — or does this
       feature's FR-045/T080 omit that discipline entirely? [Gap, spec.md
-      FR-045, tasks.md T080] — **FINDING:** neither `spec.md` nor `tasks.md`
-      in this feature requires recording which `main` SHA the doc-health
-      baseline was captured at, nor requires re-capturing it if `main`
-      advances before the final comparison. This is precisely the gap
-      `specs/032-govern-archived-record-edits`' own FR-029 exists to close
-      for its sibling feature; this feature's evidence could record a
-      diff-identical comparison against a baseline that has since gone
-      stale, with nothing in the plan requiring a check for that.
+      FR-045, tasks.md T080] — **RESOLVED**: `spec.md` FR-045 now requires
+      "The evidence MUST NAME THE `main` SHA the baseline was taken at, and
+      if `main` moves before the final comparison the baseline MUST BE
+      RE-TAKEN at the commit this branch last merged from, with both shas
+      recorded. A diff-identical comparison against a stale baseline is not
+      a comparison." T080 restates the identical requirement, closing the
+      gap relative to the sibling feature's FR-029.
 - [x] CHK038 Is the `--as-of` flag required to be PINNED to ONE date across
       BOTH the `main` and branch runs (T080), rather than each run taking
       its own default (today's date), which would make the two reports
@@ -353,7 +337,7 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       `specs/033-.../evidence/` AND
       `openspec/changes/.../evidence/realization-<date>.md`? [Completeness,
       tasks.md T064, T081, spec.md FR-042]
-- [ ] CHK042 Are the INTERMEDIATE phase gates in `plan.md`'s Implementation
+- [x] CHK042 Are the INTERMEDIATE phase gates in `plan.md`'s Implementation
       Sequence table — Phase B ("schema self-validates"), Phase C ("validator
       runs clean over the un-grown corpus"), Phase D
       ("`validate-consent-instruments.py --strict` 0/0 with three bucket
@@ -362,17 +346,19 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       (the § 2 custody-diff proof) and T064/T081 explicitly are, or do they
       exist only as "gates before moving on" with no `T###` requiring a
       written record of the run? [Gap, plan.md Implementation sequence table,
-      tasks.md T015, T054, T064, T081] — **FINDING:** only T015 (custody
-      byte-diff), T054 (the `tests/consent_instruments` pytest run, though
-      T054's own text does not itself say "transcript to `evidence/`" — only
-      that it must be "green") and T064/T081 explicitly instruct writing a
-      transcript. The Phase table names four OTHER checkpoint gates (B, C, D,
-      E) as conditions for "moving on," but no `T###` in Phase B–E requires
-      capturing a transcript of the run that satisfied that condition — so a
-      phase could be judged complete on an unrecorded, unreproducible local
-      run, which is exactly the "gate not actually run" scenario class this
-      checklist is charged with catching, applied to intermediate
-      checkpoints rather than only the final ones.
+      tasks.md T015, T054, T064, T081] — **RESOLVED**: new `spec.md` FR-042b
+      requires "the FOUR intermediate phase gates in `plan.md`'s
+      implementation sequence (the schema self-validation, the clean
+      validator run over the un-grown corpus, the 0/0 with three bucket
+      counts, and `pytest tests/consent_instruments`) MUST each file a
+      transcript too. A phase judged complete on an unrecorded local run is a
+      gate that was not run." `plan.md`'s sequence table now carries the
+      matching line "Every phase files a transcript, not only the final ones
+      (FR-042b): B, C, D and E each record the run that satisfied their
+      gate, captured raw with its return code," and `tasks.md`'s header
+      states the general raw-capture rule (including the piped-`tail`
+      failure mode, FR-042a) that now applies to every phase gate, not only
+      T015/T064/T081.
 - [x] CHK043 Is FR-042's "BOTH trees" requirement satisfied by a SINGLE
       transcript-writing act per gate (write once, copy or symlink to the
       second location), or does the plan require the transcript to be
@@ -403,8 +389,10 @@ table, the Risks table), `tasks.md` (T006–T007, T015, T054, T064, T080–T081)
       risk), CHK029 (release-tag-gate's default `--base` silently diffing
       the wrong tree), CHK036/CHK037 (doc-health basename/baseline-SHA
       identity traps that make two DIFFERENT comparisons look like the same
-      one). Four distinct instances found across five gates; the remaining
-      gates (`validate-consent-instruments.py`, `validate-sequenced-after.py`,
+      one). Four distinct instances found across five gates in round 1, and
+      all four are now RESOLVED in round 2 (`spec.md` FR-034, FR-045; `tasks.md`
+      T064, T080) rather than merely noted. The remaining gates
+      (`validate-consent-instruments.py`, `validate-sequenced-after.py`,
       `validate-scope-globs.py`, `validate-manifest-digests.py`, pytest) have
       no comparable trap identified — each fails closed on a straightforward
       exit-code/count check with no default-argument or identity-stamp
@@ -438,16 +426,17 @@ readers, and independently verifies several of the cited facts (the
 `reconcile()`/`PinRefusal` three-way outcome) against the live scripts —
 each cited individually above.
 
-**Tally**: 42 passed / 5 open (unticked) / 0 dispositioned (47 total).
+**Round 2 (2026-09-09, same day)**: `spec.md`, `plan.md` and `tasks.md` were
+all re-read after being updated to address this checklist's round-1
+findings. All FIVE round-1 findings (CHK007, CHK029, CHK036, CHK037, CHK042)
+are independently verified RESOLVED against the updated text — each ticked
+above with a citation to the exact new FR/task language that closes it.
+CHK045's summary item was updated to reflect that the four load-bearing
+"gate not actually run" instances it found are now fixed rather than merely
+documented. No new gaps were found in this file's domain during
+re-verification (the other new requirement introduced in round 2, FR-042a's
+raw-capture rule, strengthens rather than reopens CHK041/CHK042).
 
-**Open findings**: CHK007 (stale-disposition exit 2 not named by SC-006),
-CHK029 (no explicit `--base` for the local `release-tag-gate` run, risking a
-wrong-tree diff under this repository's main-into-branch integration
-direction), CHK036 (doc-health "identical basenames" does not say whether it
-means the report files' or the checkouts' basenames), CHK037 (no requirement
-to name or re-take the doc-health baseline's `main` SHA, unlike the sibling
-feature's FR-029), CHK042 (intermediate Phase B–E gates have no transcript
-requirement, only the § 2 diff proof and the § 5.4/final sweeps do). Five
-findings total; CHK029 and CHK036/CHK037 are the load-bearing ones — each
-describes a way a gate can be run, exit cleanly, and still not have checked
-the comparison it exists to make.
+**Tally**: 47 passed / 0 open (unticked) / 0 dispositioned (47 total).
+
+**Open findings**: none. All five round-1 findings are closed.

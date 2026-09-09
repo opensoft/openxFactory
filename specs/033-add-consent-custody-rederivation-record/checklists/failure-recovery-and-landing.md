@@ -148,33 +148,32 @@ SPENT State*.
       reading limited only to `contracts/schemas/`? [Ambiguity, plan.md step
       6 / spec.md FR-036 — both say "under `contracts/`" without narrowing
       to a subpath, so the broader reading governs]
-- [ ] CHK018 Is it stated what happens to evidence ALREADY GATHERED against
-      the pre-repeat candidate when the integration repeats — is it
-      discarded, superseded-and-retained with a dated line, or silently
-      overwritten? — **FINDING:** neither `plan.md` nor `spec.md` nor
-      `tasks.md` states the disposition of prior gate transcripts once a
-      repeat-integration is triggered; FR-036/step 6 require the RE-RUN but
-      not what becomes of the SUPERSEDED run's evidence file, unlike the
-      sibling feature's explicit "struck with a dated line naming the
-      replacing head, never deleted" rule for its own interim/final-head
-      case. [Gap, spec.md FR-036, plan.md step 6, cf.
-      specs/032-govern-archived-record-edits/checklists/evidence-and-traceability.md
-      CHK017]
+- [x] CHK018 Is it stated what happens to evidence ALREADY GATHERED against
+      the pre-repeat candidate when the integration repeats? **RE-VERIFIED,
+      RESOLVED.** Landing Contract step 7 now reads "A repeat-integration
+      RETAINS the superseded gate transcripts, struck with a dated line
+      naming the head that replaced them; the evidence shows every attempt,
+      not only the last." A matching new risk-table row: "A repeat-integration
+      orphans the evidence already gathered | The superseded transcripts are
+      RETAINED and STRUCK with a dated line naming the head that replaced
+      them — never deleted and never silently overwritten." This is the same
+      discipline the sibling feature's checklist required, now stated
+      in-feature. [Gap-closure, plan.md THE LANDING CONTRACT step 7, Risks
+      table]
 
 ## Force-Push Ban
 
-- [ ] CHK019 Is a ban on force-pushing this branch stated anywhere in this
-      feature's own `spec.md`, `plan.md` or `tasks.md`? MEASURED: `grep -in
-      "force.push\|force push\|--force\|rebase"` over all three Speckit-tree
-      files for this feature returns NOTHING. — **FINDING:** this feature
-      states no in-document force-push or rebase prohibition; the ban exists
-      only in the global harness/CLAUDE.md git-safety protocol, external to
-      this feature's own artifacts, whereas the SIBLING feature states the
-      discipline explicitly in its own `spec.md` twice ("the branch merges
-      forward and never rebases pushed commits," `specs/032-govern-archived-record-edits/spec.md`
-      lines 267 and 875) — this feature has no equivalent in-document
-      statement. [Gap, spec.md/plan.md/tasks.md (absence); cf.
-      specs/032-govern-archived-record-edits/spec.md:267,875]
+- [x] CHK019 Is a ban on force-pushing this branch stated anywhere in this
+      feature's own `spec.md`, `plan.md` or `tasks.md`? **RE-VERIFIED,
+      RESOLVED.** `spec.md` Edge Cases now carries: "THE BRANCH MERGES
+      FORWARD AND NEVER REBASES PUSHED COMMITS. No `--force`, no
+      `--force-with-lease`, no rebase of anything already pushed, and no
+      amend of a commit another party may have read. Integration with `main`
+      is always a MERGE — opensoft org ruleset 8981805 forbids
+      non-fast-forward updates... This is stated here, in this feature's own
+      documents, rather than left to the global harness rule." `tasks.md`
+      T082 restates the identical discipline with the same ruleset citation.
+      [Gap-closure, spec.md Edge Cases, tasks.md T082]
 - [x] CHK020 Is the CONSEQUENCE of the missing in-document statement actually
       material, given the Landing Contract's own step 6 ("repeats the
       integration" via a forward merge, never a rebase) already implies the
@@ -206,41 +205,33 @@ SPENT State*.
 
 ## Phase-Lettering and Ordering Consistency Between `plan.md` and `tasks.md`
 
-- [ ] CHK024 Does `plan.md`'s "Implementation sequence" table use the SAME
+- [x] CHK024 Does `plan.md`'s "Implementation sequence" table use the SAME
       phase-letter assignments as `tasks.md`'s own `## Phase X` headers and
-      Dependencies graph? MEASURED: `plan.md`'s table (lines 156-166) assigns
-      **F** to "§ 4.9 + A1 corpus counts," **G** to "Q8's three README
-      amendments" (the BLOCKED phase), **H** to "§ 5.2–5.4 THE CUT," and
-      **I** to "Bookkeeping." `tasks.md`'s actual `## Phase` headers assign
-      corpus-count tasks (T047-T049) as a subsection WITHIN **Phase D**
-      (fixtures), then **Phase E** = `tests/consent_instruments/`, **Phase
-      F** = Q8's README amendments (the BLOCKED phase), **Phase G** = § 5,
-      THE CUT (marked LAST), and **Phase H** = bookkeeping. — **FINDING:**
-      the two documents use DIFFERENT phase-letter schemes for the same work
-      from "corpus counts" onward: `plan.md`'s Phase G (BLOCKED, README
-      amendments) is `tasks.md`'s Phase F; `plan.md`'s Phase H (the cut) is
-      `tasks.md`'s Phase G; `plan.md`'s Phase I (bookkeeping) is `tasks.md`'s
-      Phase H. A reader who reads plan.md's risk-table row "Phase G is
-      BLOCKED until the lane posts the note" and then looks for "Phase G" in
-      `tasks.md` finds THE CUT, not the README amendments — the opposite of
-      what is blocked. [Consistency, plan.md Implementation sequence table /
-      tasks.md `## Phase` headers]
-- [ ] CHK025 Does `plan.md`'s Implementation sequence table order "tests/
-      consent_instruments/" (its Phase E) BEFORE "§4.9 + A1 corpus counts"
-      (its Phase F), while `tasks.md` places the corpus-count tasks
-      (T047-T049, "### Corpus counts") as the LAST subsection of Phase D —
-      strictly BEFORE Phase E (`tests/consent_instruments/`, T050-T054)? —
-      **FINDING:** the two documents disagree on whether corpus-count
-      re-measurement (README/manifest-comment counts) happens before or
-      after the `tests/consent_instruments/` package is written:
-      `tasks.md`'s own task numbering and phase structure puts it BEFORE
-      (T047-T049 precede T050-T054), while `plan.md`'s sequence table puts
-      it AFTER (E before F). This is a second, independent consequence of
-      the same root cause as CHK024 (plan.md treats corpus counts as their
-      own phase; tasks.md folds them into Phase D), and it changes the
-      answer to "what must be done before the tests package is written."
-      [Consistency, plan.md Implementation sequence table rows E/F /
-      tasks.md Phase D "Corpus counts" subsection / Phase E]
+      Dependencies graph? **RE-VERIFIED, RESOLVED — this was the LOAD-BEARING
+      finding.** `plan.md`'s table now opens with an explicit self-correction:
+      "THE PHASE LETTERS HERE ARE `tasks.md`'s LETTERS, EXACTLY. An earlier
+      draft of this table used its own scheme, in which corpus counts were a
+      separate phase and every letter after it was offset by one — so this
+      table's 'Phase G' named the cut while `tasks.md`'s Phase G named the
+      README amendments, and the risk row below pointed at the wrong phase.
+      One scheme, and it is the executable file's." The table itself now
+      reads A–H (8 phases) with corpus counts (T047–T049) folded into Phase
+      D, matching `tasks.md` exactly row for row, and the risk-table row now
+      reads "**Phase F** is BLOCKED until the lane posts the note" — the
+      correct letter under the now-shared scheme. [Consistency, plan.md
+      Implementation sequence table / tasks.md `## Phase` headers — now
+      identical]
+- [x] CHK025 Does `plan.md`'s Implementation sequence table order corpus
+      counts consistently with `tasks.md`? **RE-VERIFIED, RESOLVED by the same
+      fix as CHK024.** `plan.md`'s Phase D content now explicitly reads "§ 4
+      fixtures — positives, negatives, the withheld bucket, `self_test`'s
+      third bucket, **and the three corpus-count surfaces (T047–T049)**,"
+      placing corpus-count re-measurement inside Phase D, strictly before
+      Phase E (`tests/consent_instruments/`, T050–T054) — matching
+      `tasks.md`'s own task numbering and phase structure exactly. The
+      cross-document sequencing disagreement no longer exists. [Consistency,
+      plan.md Implementation sequence table Phase D / tasks.md Phase D
+      "Corpus counts" subsection / Phase E — now aligned]
 - [x] CHK026 Despite CHK024/CHK025's lettering and ordering divergence, is
       the SUBSTANTIVE recovery rule the task prompt asks after — "Phase F
       blocked, Phase G must not wait on it" — actually TRUE under
@@ -289,34 +280,36 @@ SPENT State*.
       branch pushed) contains no item that depends on T055-T059, since the
       README sites are additional realization acts (FR-046/A1) outside the
       packet's 46-box count. [Consistency, tasks.md Definition of done]
-- [ ] CHK032 Is a TERMINAL disposition stated for T057/T058 if the note never
-      arrives before the branch is pushed (T082) — do they stay open FOREVER
-      as a dangling task, get carried to a follow-up change, or get a dated
-      "reported, not performed" line analogous to §§6-7's NOT-OWED lines? —
-      **FINDING:** neither `plan.md` nor `tasks.md` states what becomes of
-      T057/T058 if the branch is pushed (T082) while Phase F is still
-      blocked; T055 says "report the block instead" but nothing describes
-      the END STATE of an indefinitely-blocked Phase F once the rest of the
-      feature is otherwise complete and pushed. [Gap, tasks.md T055/T082/
-      Definition of done]
+- [x] CHK032 Is a TERMINAL disposition stated for T057/T058 if the note never
+      arrives before the branch is pushed (T082)? **RE-VERIFIED, RESOLVED.**
+      T055 now carries "TERMINAL DISPOSITION if it never arrives. T056 is
+      taken regardless. If the branch reaches T082 with Phase F still
+      blocked, **T057 and T058 take a dated `REPORTED, NOT PERFORMED` line**
+      naming the block and the note they wait on — the same register as
+      §§ 6–7's NOT-OWED lines. They are neither left dangling nor silently
+      dropped, and the two README sentences stay false-on-main with that
+      fact RECORDED rather than hidden." `plan.md`'s matching risk row states
+      the identical disposition. [Gap-closure, tasks.md T055, plan.md Risks
+      table]
 
 ## Recovery — a Gate Reds After the Candidate Commit Is Formed
 
-- [ ] CHK033 Is it stated anywhere that a gate failure discovered AFTER the
+- [x] CHK033 Is it stated anywhere that a gate failure discovered AFTER the
       § 5.2 candidate commit is formed requires FORMING A NEW CANDIDATE
       COMMIT (remaking it) rather than amending/patching the existing one in
-      place? — **FINDING:** no sentence in `spec.md`, `plan.md` or `tasks.md`
-      says this explicitly; it is only INFERABLE from two other rules taken
-      together — FR-031's "all three manifest edits included, with NO
-      split" (the candidate must be one atomic commit) and FR-034's "every
-      gate MUST run against the exact unchanged candidate" (a candidate that
-      has been edited after a gate run is no longer "the exact unchanged
-      candidate" that gate certified) — which together imply that fixing a
-      red gate can only be done by producing a fresh single commit and
-      re-running every gate against IT, never by amending the reviewed
-      commit's tree while keeping its identity. No task names this
-      inference as a rule an implementer should follow. [Gap, spec.md
-      FR-031/FR-034, tasks.md T061-T064]
+      place? **RE-VERIFIED, RESOLVED.** New FR-034a states it explicitly:
+      "a gate that reds after the § 5.2 candidate commit is formed MUST be
+      repaired by producing a FRESH single candidate commit and re-running
+      EVERY gate against it. The reviewed commit is never amended in place:
+      FR-031 makes the candidate one atomic commit and FR-034 certifies 'the
+      exact unchanged candidate', so a candidate edited after a gate ran is
+      no longer the thing that gate certified." A matching risk-table row
+      ("A gate reds after the candidate commit is formed | The candidate is
+      REMADE, never patched (FR-034a)...") and a traceability-table row
+      ("FR-034a | T061–T064 (the rule the phase follows)") both carry it
+      forward. What was previously only an inference is now a named rule.
+      [Gap-closure, spec.md FR-034a, plan.md Risks table, tasks.md
+      traceability table]
 - [x] CHK034 Is the ONE narrow exception to "remake, don't patch" — the
       squash/merge-produced "different commit" the Landing Contract already
       contemplates (step 5/FR-036) — correctly distinguished from an

@@ -157,40 +157,38 @@ ratified packet's `tasks.md` § 5, and `contracts/CHANGELOG.md`'s
       finally publishes" (T062, R6), rather than silently folded in as an
       undistinguished modification among the fourteen? [Completeness, spec.md
       line 79, tasks.md T062]
-- [ ] CHK019 Is the CHANGELOG discipline required to RE-MEASURE the 18-path
+- [x] CHK019 Is the CHANGELOG discipline required to RE-MEASURE the 18-path
       diff (`git diff --name-status contract-v3.4 HEAD -- contracts/`) AT CUT
       TIME — the same discipline FR-030/T060 impose on the VERSION NUMBER —
       given the Landing Contract itself anticipates `main` moving under
       `contracts/` between integration and merge ("If `main` advanced under
       `contracts/` between integration and merge, the lane REPEATS the
       integration")? [Gap, spec.md FR-032, tasks.md T062, plan.md landing
-      contract point 6] — **FINDING:** FR-032 and T062 both state the figure
-      as a fact ("the four `contracts/` additions and fourteen modifications
-      since `contract-v3.4`") taken from `research.md` R6, itself measured at
-      branch creation (`main` `6df21737`). Nothing in `tasks.md` T060–T062
-      instructs re-running the `git diff --name-status` sweep at the FINAL
-      integration point the way the version-number surfaces are explicitly
-      re-measured; if `main` gains further `contracts/` commits before this
-      cut lands, the 18-path list named in the CHANGELOG could be stale by
-      the time T062 is executed, and nothing in the plan catches that drift
-      the way it catches a version-number collision.
-- [ ] CHK020 Does the plan require the CHANGELOG entry to argue additivity
+      contract point 6] — **RESOLVED**: `spec.md` FR-032 now reads "**THE
+      PATH LIST MUST BE RE-MEASURED AT THE FINAL INTEGRATION POINT**, by
+      `git diff --name-status contract-v3.4 HEAD -- contracts/` at that
+      commit — never read from `research.md` R6... The version number is
+      re-measured for exactly this reason; so is the bundle's contents." T060
+      now performs this re-measurement explicitly ("RE-MEASURE THE BUNDLE'S
+      OWN CONTENTS... T062 is written from THIS measurement, never from
+      R6... Both are re-measured at EVERY merge-from-main"), and T062 itself
+      no longer treats R6's figure as final.
+- [x] CHK020 Does the plan require the CHANGELOG entry to argue additivity
       for the FULL bundle (all 18 paths), the way the `contract-v3.4`
       precedent's own entry does ("every edit to a schema that WAS published
       at `contract-v3.3` was checked for narrowing individually"), or only
       for the consent-instrument schema this session authored? [Coverage,
       tasks.md T062, CHANGELOG.md `contract-v3.4` entry "Change class"
-      section] — **FINDING:** T062's stated justification ("one new optional
-      property, one `contract_schema_version` bump, nothing removed, no
-      enumeration narrowed, every existing instrument valid unchanged")
-      addresses ONLY the consent-instrument schema growth. The four ADDED
-      files are additive by construction (new contracts) and need no
-      argument, but the plan does not require re-checking the FOURTEEN
-      pre-existing modifications (e.g., the `hermes-domain-overlay` and
-      `omnigent` fixture edits) for narrowing before asserting the BUNDLE's
-      overall class is ADDITIVE — the precedent this feature is meant to
-      match performed that check "clause by clause" across its own full
-      diff.
+      section] — **RESOLVED**: `spec.md` FR-032 now requires "**The
+      ADDITIVE-minor claim MUST be argued over the WHOLE bundle**, not only
+      over the schema this session grew... EACH modification to an
+      already-published contract MUST be checked individually for a removed
+      field, a narrowed enumeration or a newly required property, which is
+      what the `contract-v3.4` precedent did clause by clause." T062 restates
+      the same requirement and explicitly scopes the session's own
+      pre-existing justification as "This session's own leg of that
+      argument" — one component of the now-required whole-bundle case, not
+      the whole case itself.
 - [x] CHK021 Is the CHANGELOG entry's required SHAPE (a heading naming the
       bundle date and theme, a "Change class" subsection with a per-path
       attribution table, an inventory note on which members re-baseline)
@@ -349,37 +347,29 @@ ratified packet's `tasks.md` § 5, and `contracts/CHANGELOG.md`'s
       the EIGHT §§ 6–7 boxes classified as NOT-OWED, matching the Measured
       Baseline table in `spec.md` (line 65: "3 NOT-OWED-HERE... ; 8
       NOT-OWED...")? [Consistency, tasks.md line 18–20, spec.md line 65]
-- [ ] CHK043 Does `spec.md` FR-040 — the requirement governing which boxes get
+- [x] CHK043 Does `spec.md` FR-040 — the requirement governing which boxes get
       ticked vs. take a NOT-OWED line — correctly enumerate ALL of 5.1, 5.5
       and 5.6 among "boxes owned elsewhere," or does its parenthetical list
-      omit some of them? [Consistency, spec.md FR-040] — **FINDING:** FR-040
-      reads: *"every box in §§ 0–5 whose act is verifiably DONE MUST be
-      ticked... boxes owned elsewhere (§§ 6, 7 and § 5.6) MUST take dated
-      NOT-OWED lines."* The parenthetical names only §§ 6, 7 and § 5.6 — it
-      OMITS § 5.1 and § 5.5, even though both are boxes in the §§ 0–5 range
-      that are NOT verifiably done (this feature only measures/reports for
-      5.1, and only the lane ticks 5.5 later) and are NOT ticked by this
-      feature. As written, FR-040 supplies no explicit disposition for 5.1
-      or 5.5: they are neither "verifiably done" (so the first clause does
-      not tick them) nor named in the "owned elsewhere" parenthetical (so the
-      second clause does not require a NOT-OWED line for them either). Every
-      OTHER part of `spec.md` (the Measured Baseline table, the Out of scope
-      section, SC-002) and all of `tasks.md` (T060, T065, T066, the box
-      accounting table) correctly treat 5.1 and 5.5 as NOT-OWED-HERE — so the
-      plan's OPERATIVE behavior is correct, but FR-040's own requirement text
-      has an internal gap relative to the rest of the same document, and a
-      builder implementing FR-040 literally (rather than cross-referencing
-      the rest of `spec.md`) could miss writing the NOT-OWED-HERE lines for
-      5.1 and 5.5.
+      omit some of them? [Consistency, spec.md FR-040] — **RESOLVED**: FR-040
+      now reads "Every box NOT ticked MUST carry a dated line, and this
+      enumeration is EXHAUSTIVE rather than illustrative: § 5.1 (the lane
+      claims the number; this feature only measures and reports), § 5.5 (the
+      lane's landing bookkeeping) and § 5.6 (the `[OPERATOR]` tag) take
+      **NOT-OWED-HERE** lines; §§ 6.1, 6.2, 6.2b, 6.3, 6.4, 7.1, 7.2 and 7.3
+      take **NOT-OWED** lines." The FR's own text now names all three
+      NOT-OWED-HERE boxes explicitly and distinguishes the class from the
+      eight NOT-OWED boxes, closing the internal gap this checklist found.
 - [x] CHK044 Do T060, T065 and T066 each independently supply the dated
-      NOT-OWED-HERE disposition FR-040's gap (CHK043) leaves unstated for
-      5.1/5.5, and the explicit NOT-OWED-HERE disposition for 5.6 — so the
-      TASK LIST closes the gap even though the FR text does not? [Gap
+      NOT-OWED-HERE disposition for 5.1/5.5/5.6, matching FR-040's (now
+      resolved, per CHK043) explicit enumeration — so the TASK LIST and the
+      FR TEXT agree rather than one merely compensating for the other? [Gap
       mitigation, tasks.md T060, T065, T066] — confirmed: T065 and T066 are
       each headed "**NOT-OWED-HERE.**" with an explicit instruction to write
       "Dated NOT-OWED line, no tick," and T060 is scoped to measurement/
       reporting only ("Do not post the claim"), so all three boxes receive a
-      disposition in practice regardless of FR-040's own incompleteness.
+      disposition in the task list, and FR-040 now names the same three
+      boxes by the same class — the two documents are consistent with each
+      other, not merely each independently sufficient.
 - [x] CHK045 Is the terminology used in the TASK TEXT for T065/T066
       ("**NOT-OWED-HERE**" as the heading, "Dated NOT-OWED line" as the note
       text to write) internally consistent — i.e., is the NOTE ITSELF meant
@@ -407,11 +397,19 @@ fidelity — not whether the cut has been taken — against `spec.md`, `plan.md`
 live `docs/contract-versioning-policy.md`, and the `contract-v3.4` CHANGELOG
 entry as precedent, each cited individually above.
 
-**Tally**: 42 passed / 3 open (unticked) / 0 dispositioned (45 total).
+**Round 2 (2026-09-09, same day)**: `spec.md`, `plan.md`, `tasks.md` and
+`research.md` were all re-read after being updated to address this
+checklist's round-1 findings. All THREE round-1 findings (CHK019, CHK020,
+CHK043) are independently verified RESOLVED against the updated text —
+CHK019 by FR-032's new re-measurement clause and T060's matching update,
+CHK020 by FR-032's new whole-bundle argument requirement and T062's matching
+update, CHK043 by FR-040's now-exhaustive enumeration naming 5.1/5.5/5.6 as
+NOT-OWED-HERE explicitly. CHK044's wording was lightly revised to reflect
+that FR-040 and the task list are now mutually consistent rather than one
+compensating for the other's gap. No new gaps were found during this pass
+(the other new requirement introduced in round 2, FR-034a, is fully realized
+by the existing task sequence with no unaddressed clause).
 
-**Open findings**: CHK019, CHK020, CHK043. CHK043's gap (FR-040's text omits
-5.1/5.5 from its "owned elsewhere" parenthetical) is functionally mitigated
-in practice by T060/T065/T066 (see CHK044) — the plan's OPERATIVE behavior is
-correct — but FR-040 is the artifact under test for CHK043 and its own text
-carries the gap, so it is left unticked rather than credited by proximity to
-a task list that happens to compensate for it.
+**Tally**: 45 passed / 0 open (unticked) / 0 dispositioned (45 total).
+
+**Open findings**: none. All three round-1 findings are closed.
