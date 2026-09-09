@@ -10,6 +10,43 @@ PR #788 → main `3504287a`; record
 `openspec/changes/govern-archived-record-edits/review/ratification-2026-09-08.md`)
 **Lane**: opsXfactory-1
 
+**ARCHIVE NOTE, DATED 2026-09-09 AND ADDED BY `archive-govern-archived-record-edits`
+(lane `opsXfactory-1`).** The packet this feature realizes was ARCHIVED on
+2026-09-09, on Brett Heap's separate archive word of `2026-09-09T12:15:01Z` (in
+session, first-hand to the lane, verbatim *"archive both"*), and now lives at
+`openspec/changes/archive/2026-09-09-govern-archived-record-edits/`. **THE
+LIVE-PATH CITATIONS THROUGHOUT THIS FEATURE DIRECTORY ARE LEFT AS AUTHORED, AND
+THAT IS A MEASURED DECISION RATHER THAN AN OMISSION.** Read
+`openspec/changes/govern-archived-record-edits/<file>` anywhere below as
+`openspec/changes/archive/2026-09-09-govern-archived-record-edits/<file>`. Three
+reasons, in order of weight:
+
+1. **THE CORPUS'S CONVENTION IS MEASURED, NOT ASSUMED.** Twelve Speckit feature
+   directories in this repository realize packets that have since archived —
+   `002`, `003`, `004`, `007`, `016`, `018`, `019`, `020`, `022`, `023`, `024`
+   and `026` — and they carry **98 live-path occurrences of their own packet's
+   id and ZERO archive-path occurrences** between them, counted by regular
+   expression over every file in each tree. Not one was repointed at its
+   packet's archive. The one repoint in the tree's history (`3d7b8f3b`,
+   `specs/029`) moved a SINGLE pointer to a ratification record, in a file whose
+   only other citation was already authored in archive form; it is a pointer
+   fix, not a sweep.
+2. **MOST OF THESE CITATIONS ARE NOT POINTERS AT ALL.** Several sit inside git
+   commands whose PATHSPEC is evaluated over a commit range that PREDATES the
+   move (`git log 3504287a..68712924 -- openspec/changes/govern-archived-record-edits`),
+   where the live path is the CORRECT one and the archive path matches nothing.
+   Others sit inside dated `**Done 2026-09-08**` records of acts performed at
+   that path on that day. Rewriting either would turn a true record false —
+   which is the same test the requirement this feature realizes applies to an
+   archived record, applied here to a living one.
+3. **openxFactory HAS NO CITATION GATE.** OpsxFactory's pre-archive citation
+   gate, which would refuse a live-path citation of an archived packet, is that
+   repository's and is not in force here — so no gate is being worked around,
+   and this note records the reasoning a gate would otherwise have forced.
+
+One assertion in `tasks.md` (T033) DID become false at the move and carries its
+own dated correction there rather than being covered by this note.
+
 **THE RATIFIED PACKET IS THE AUTHORITY, NOT THIS FILE.** Every requirement below
 is a REALIZATION act. Nothing here restates, narrows or widens the three
 ratified requirement blocks in

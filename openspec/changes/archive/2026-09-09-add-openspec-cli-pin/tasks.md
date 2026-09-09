@@ -1,6 +1,8 @@
 # Tasks: add-openspec-cli-pin
 
-Status: draft
+Status: ratified
+Ratified by: add-openspec-cli-pin — 2026-09-04, Brett Heap, "ratify 667" (record `review/ratification-2026-09-04.md`)
+Kind: tasks
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Slices 1–4 landed in the proposing pull
 request and their evidence — command lines and outcomes, measured on the branch —
@@ -20,9 +22,37 @@ request, which is what the task itself demanded — and its evidence is recorded
 beside it in the same form. The rest of slice 5 and all of slice 6 are untouched
 and still owed.
 
-**RATIFICATION HAS NOT HAPPENED.** Brett Heap authorized the DRAFT on 2026-09-04
-(*"draft the openxFactory pin change, pinned at 1.2.0"*). Task 7.1 records
-ratification when it happens and nothing below decides it.
+**AMENDED 2026-09-09, AT THE ARCHIVE — AND THIS IS THAT ACT.** Brett Heap
+ruled first-hand to lane `codexfactory-1` (session name `codeXfactory-1`,
+`session_01KU9sXSmC78QxYF6C8kqfqo`) at 2026-09-09T11:54Z, verbatim: **"archive
+the pin change"**.
+Slice 7's two remaining boxes tick HERE, on evidence re-run at the archive gate
+rather than inherited from authoring: **7.2** the pinned entrypoint's gate and
+`validate add-openspec-cli-pin --strict`, both run on this branch; **7.3** the
+realization evidence `release-realization` owes for a non-empty
+`code_surface` — merged, plus the `openspec-cli-pin` check green on later pull
+requests. **6.2 IS NOT TICKED AND IS NOT CLAIMED.** OpsxFactory's wiring has not
+happened; it is lane opsXfactory-1's successor work, tracked as that lane's
+feature 012, and by this packet's own slice-6 text ("successor work in consuming
+repositories (not this packet)") it never gated this archive. It carries the
+reserved DEFERRED marker `- [~]` — the form
+`archive/2026-08-21-add-doxbench-editing-phase-a` § 5.3 uses for the same
+situation — rather than `- [x]`: `scripts/proposal-support.py … archive` refuses
+any packet whose `tasks.md` still matches `^- \[ \]` ("change has incomplete
+tasks") with no bypass flag, and ticking a box whose work did not happen would
+buy that refusal off with a false claim. The marker says the box is open and
+says why; it does not say the work is done.
+
+**RATIFICATION HAS NOT HAPPENED.** *(TRUE AT AUTHORING, AND SUPERSEDED — kept
+as the record of what this file claimed rather than deleted, exactly as
+`proposal.md` keeps its own copy of this paragraph. RATIFIED 2026-09-04, verbatim
+"ratify 667"; the lifecycle header at the top of this file now reads `Status:
+ratified` and names that ratification on its citation line, and task 7.1 below
+is ticked with the record. Read the present tense below as the authoring
+session's, not as a claim about this file at the archive.)* Brett Heap authorized
+the DRAFT on 2026-09-04 (*"draft the openxFactory pin change, pinned at
+1.2.0"*). Task 7.1 records ratification when it happens and nothing below
+decides it.
 
 ---
 
@@ -211,9 +241,20 @@ validator conventions and its own `stack.yaml`.
       `openspec-cli-pin: @fission-ai/openspec@1.12.0 … verified`,
       `DISPOSITIONED FINDINGS in codexFactory (2 applied)`,
       `0 UNDISPOSITIONED failures`.
-- [ ] **6.2** `OpsxFactory` — same. Its corpus is the one measured at
-      `34 passed, 10 failed (44 items)` under 1.12.0, so it is where the pin's
-      value is felt first.
+- [~] **6.2** **DEFERRED 2026-09-09, AT THE ARCHIVE — OPEN, OWNED, AND NOT
+      CLAIMED.** `OpsxFactory` has NOT been wired and nothing below reads as
+      saying it has. The work is lane **opsXfactory-1's**, carried as that
+      lane's **feature 012** (the OpenSpec 1.2.0→1.12 fleet-pin wiring slice),
+      and it does not gate this archive: slice 6's own heading says its boxes
+      are "successor work in consuming repositories (not this packet)", each "a
+      change in that repository, because each has its own CI, its own validator
+      conventions and its own `stack.yaml`". The `- [~]` marker is the house's
+      reserved DEFERRED form
+      (`openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md`
+      § 5.3) and is used here in preference to a tick precisely because a tick
+      would claim a landing that has not happened. Was: `OpsxFactory` — same.
+      Its corpus is the one measured at `34 passed, 10 failed (44 items)` under
+      1.12.0, so it is where the pin's value is felt first.
 - [x] **6.3** **(DONE 2026-09-08, via two landings.)** `MedxFactory` — same;
       it has no workflows at all today, so this would be its first OpenSpec
       gate. MedxSoft/MedxFactory #25 `prepare-openspec-1.12-readiness`
@@ -295,9 +336,59 @@ validator conventions and its own `stack.yaml`.
       `review/ratification-2026-09-04.md` — verbatim "ratify 667", heard
       first-hand by session opsxfactory-fb, relay path recorded. Was: recorded in
       `review/ratification-<date>.md`. Not sought by this packet's landing.
-- [ ] **7.2** `OPENSPEC_TELEMETRY=0 openspec validate add-openspec-cli-pin
-      --strict` and `--all --strict` green at the archive gate, re-run at that
-      time rather than trusted from authoring.
-- [ ] **7.3** Realization evidence per `release-realization`: merged, with the
-      `openspec-cli-pin-gate` check green on a pull request. `target_release` is
-      `none`, so no bundle cut is owed.
+- [x] **7.2** **(DONE 2026-09-09, AT THE ARCHIVE GATE, RE-RUN AND NOT
+      INHERITED.)** Both halves were run on this branch, through the pinned
+      entrypoint rather than through a bare `openspec` — the pin's own rule,
+      and the reason the commands below name the entrypoint and not the CLI.
+      The resolved tool reported
+      `@fission-ai/openspec@1.12.0 from pinned artifact … integrity
+      sha512-oFE2Lj7WVSc87nSi… verified` and
+      `dependency closure openspec-cli-pin.1.12.0.package-lock.json (80
+      packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified;
+      installed with 'npm ci --ignore-scripts'` on both runs.
+      **THE CHANGE:** `python3 scripts/validate-openspec-cli-pin.py --repo .
+      --change add-openspec-cli-pin --strict --no-cache` → `Totals: 1 passed,
+      0 failed (1 items)`, **exit 0**.
+      **THE CORPUS:** `python3 scripts/validate-openspec-cli-pin.py --repo .
+      --all --no-cache` → `Totals: 102 passed, 2 failed (104 items)`,
+      **exit 0**, `0 UNDISPOSITIONED failures`. The two failures are the
+      estate's TWO STANDING ACCEPTED EXCEPTIONS and neither is this packet's:
+      `add-chain-attestation / signed-execution-chain/spec.md` and
+      `add-composed-view-authoring / ideation-dashboard/spec.md`, both
+      dispositioned in `contracts/openspec-cli-pin.yaml` on Brett Heap's
+      2026-09-05 ruling *"take exit 2"*, both pre-dating this act, and the run
+      names them rather than swallowing them —
+      *"THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named
+      above."* Was: `OPENSPEC_TELEMETRY=0 openspec validate
+      add-openspec-cli-pin --strict` and `--all --strict` green at the archive
+      gate, re-run at that time rather than trusted from authoring.
+- [x] **7.3** **(DONE — BOTH HALVES MEASURED 2026-09-09, NEITHER ASSERTED.)**
+      `code_surface` is NON-EMPTY (four new artifacts), so under
+      `release-realization` this packet archives on MERGED-PLUS-GREEN
+      realization evidence rather than on landing, and both halves exist.
+      **MERGED:** openxFactory
+      [#667](https://github.com/opensoft/openxFactory/pull/667) *"Pin the
+      OpenSpec CLI fleet-wide at 1.2.0, by content address"*, state `MERGED`,
+      merged **2026-09-05T00:05:14Z**, merge commit
+      **`7499338920534d7ceac4611ac9df891e00cd2887`** — every artifact slices
+      1–4 name is on `main` at that commit and has been ever since.
+      **GREEN, ON THE GATE THIS PACKET ADDED, ON LATER PULL REQUESTS:** the
+      workflow is `.github/workflows/openspec-cli-pin-gate.yml` and the CHECK
+      IT REPORTS UNDER is named **`openspec-cli-pin`** (the box above says
+      `openspec-cli-pin-gate`, which is the WORKFLOW file's name; the two are
+      recorded here together so no reader has to guess which string to look
+      for). Conclusion `success` on each, read from
+      `repos/opensoft/openxFactory/commits/<sha>/check-runs`:
+      **#813** head `1921e96a9bd61d696fbb54a63b967e0892d60a83`, run
+      [34308880435](https://github.com/opensoft/openxFactory/actions/runs/34308880435);
+      **#810** head `7606bffb68d189b59d12955d8966359af44b999e`, run
+      [34237607404](https://github.com/opensoft/openxFactory/actions/runs/34237607404);
+      **#804** head `170be22a26650ce6adf990d4143e7a147aadd6db`, run
+      [34231495606](https://github.com/opensoft/openxFactory/actions/runs/34231495606).
+      Since 3.3 (2026-09-08, org ruleset `22551797`) that check is REQUIRED on
+      `openxFactory` `main`, so those greens are the required gate reporting
+      and not an advisory run. **`target_release` is `none`, so NO BUNDLE CUT
+      IS OWED** — no digest set moves, no `contract_bundle_version` is spent,
+      no release tag. Was: Realization evidence per `release-realization`:
+      merged, with the `openspec-cli-pin-gate` check green on a pull request.
+      `target_release` is `none`, so no bundle cut is owed.

@@ -415,7 +415,7 @@ together: one pattern — an install-repository boundary requirement promoted
 by the change that establishes the product, consumed by the change that
 builds the repository.
 
-Recorded by `prepare-openspec-1.12-readiness`, which measured this corpus
+Recorded by `prepare-openspec-1-12-readiness`, which measured this corpus
 under `@fission-ai/openspec@1.12.0` while the fleet pin stays at `1.2.0`
 (#667). **NOTHING IN THIS PACKET WAS CHANGED:** the delta is correct as
 written, the finding is `[INFO]` rather than a validation failure, and the

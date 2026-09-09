@@ -9,11 +9,27 @@ and explicitly recorded session-created documents are editable.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 
-SCOPE_KINDS = ("cluster", "possible", "staged")
+# THE FIVE FROZEN SCOPE TYPES, and their validation tuple, RE-IMPORTED from the
+# column module they moved to (`split-opendox-two-layer-product` § 3.1, pre-carve
+# split S-1). They are openDox value types; everything below is the openXdox
+# OWNERSHIP AUTHORITY that produces them, and § 3.1's manifest cannot file one
+# path under two columns. The names below are the SAME OBJECTS as
+# `doxbench_scope_types`' — not copies — so `isinstance` checks,
+# `except ScopeConfinementError` handlers and `ScopeKey` equality behave
+# identically whichever path a caller imports by, and every landed
+# `from ideation_dashboard.doxbench_scope import ScopeKey` still resolves.
+from ideation_dashboard.doxbench_scope_types import (  # noqa: F401  (re-export)
+    SCOPE_KINDS,
+    ScopeConfinementError,
+    ScopeDocument,
+    ScopeKey,
+    ScopeProjection,
+    ScopeSection,
+)
+
 _SERVED_DOTFILE_SUFFIXES = frozenset({".yaml", ".yml", ".md", ".json"})
 
 _SECTION_META = {
@@ -56,94 +72,6 @@ _SECTION_META = {
         "inherited": True,
     },
 }
-
-
-class ScopeConfinementError(ValueError):
-    """Raised when snapshot or session state names an unsafe source path."""
-
-
-@dataclass(frozen=True, slots=True)
-class ScopeKey:
-    repository: str
-    ref: str
-    tile_kind: str
-    tile_id: str
-
-    def __post_init__(self) -> None:
-        for field_name in ("repository", "ref", "tile_id"):
-            value = getattr(self, field_name)
-            if not isinstance(value, str) or not value:
-                raise ValueError(f"{field_name} must be a non-empty string")
-        if self.tile_kind not in SCOPE_KINDS:
-            raise ValueError(
-                f"tile_kind must be one of {', '.join(SCOPE_KINDS)}"
-            )
-
-    def as_dict(self) -> dict[str, str]:
-        return {
-            "repository": self.repository,
-            "ref": self.ref,
-            "tile_kind": self.tile_kind,
-            "tile_id": self.tile_id,
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class ScopeDocument:
-    id: str
-    path: str
-    resolved: bool
-
-    def as_dict(self) -> dict[str, Any]:
-        return {"id": self.id, "path": self.path, "resolved": self.resolved}
-
-
-@dataclass(frozen=True, slots=True)
-class ScopeSection:
-    key: str
-    label: str
-    note: str
-    inherited: bool
-    owned: bool
-    documents: tuple[ScopeDocument, ...]
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "key": self.key,
-            "label": self.label,
-            "note": self.note,
-            "inherited": self.inherited,
-            "owned": self.owned,
-            "documents": [row.as_dict() for row in self.documents],
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class ScopeProjection:
-    key: ScopeKey
-    title: str
-    keywords: tuple[str, ...]
-    source_revision: str
-    sections: tuple[ScopeSection, ...]
-    context_paths: tuple[str, ...]
-    editable_paths: tuple[str, ...]
-    outline_path: str | None
-    active_document_candidates: tuple[str, ...]
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "key": self.key.as_dict(),
-            "title": self.title,
-            "keywords": list(self.keywords),
-            "source_revision": self.source_revision,
-            "sections": [section.as_dict() for section in self.sections],
-            "context_paths": list(self.context_paths),
-            "editable_paths": list(self.editable_paths),
-            "outline_path": self.outline_path,
-            "active_document_candidates": list(
-                self.active_document_candidates
-            ),
-        }
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:

@@ -111,7 +111,7 @@ rows:
   add-hermes-domain-overlay-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ideation-cross-reference-readiness: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ideation-dashboard: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-ideation-intent-plane: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-ideation-intent-plane: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#832", moved_on: "2026-09-09"}
   add-identity-brokering: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lens-document-selection: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-lens-gate-verbs: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
@@ -130,7 +130,7 @@ rows:
   add-ontology-stewardship-hardening: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-ontology-term-lifecycle-enforcement: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-opendox-project-header: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-openspec-cli-pin: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#667", moved_on: "2026-09-04"}
+  add-openspec-cli-pin: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#841", moved_on: "2026-09-09"}
   add-openxwallet: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-pattern-ledger: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-per-change-sweep-ledger: {state: archived, class: sole, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#632", moved_on: "2026-09-04"}
@@ -218,7 +218,7 @@ rows:
   fix-content-resolution-conflation: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-release-reachability-race: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  govern-archived-record-edits: {state: active, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#788", moved_on: "2026-09-08"}
+  govern-archived-record-edits: {state: archived, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#845", moved_on: "2026-09-09"}
   govern-derived-pin-reachability: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -233,7 +233,7 @@ rows:
   mirror-floor-regeneration-automation: {state: active, class: co-modifier, declares: [codexFactory:add-floor-regeneration-automation, mirror-floor-addition-grace], depth: 1, prose: false, moved_by: "#807", moved_on: "2026-09-08"}
   neutralize-job-envelope: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   pin-openspec-cli-dependency-closure: {state: active, class: sole, declares: absent, prose: false, moved_by: "#813", moved_on: "2026-09-08"}
-  prepare-openspec-1.12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#673", moved_on: "2026-09-05"}
+  prepare-openspec-1-12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#834", moved_on: "2026-09-09"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   promote-workflow-gate-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   publish-openspec-cli-pin-as-contract-member: {state: archived, class: sole, declares: [add-openspec-cli-pin], depth: 1, prose: false, moved_by: "#780", moved_on: "2026-09-08"}
