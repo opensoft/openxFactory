@@ -35,6 +35,7 @@ property of git and not of this file."""
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -199,6 +200,24 @@ def test_the_two_jobs_carry_the_identical_owner_token_block():
 
 # --- behavioral: the two shell steps actually run --------------------------
 
+def clean_env(**overrides):
+    """The ambient environment, minus anything that would let the host's git
+    identity or config leak into a step under test.
+
+    Inherited rather than replaced: `tests/hermeticity.py` works by PATH, so
+    a hardcoded PATH here would step around it, and a hardcoded one is also
+    how a suite that passes on a runner fails on a developer's machine."""
+    env = dict(os.environ)
+    for leak in ("GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_COUNT",
+                 "SELF_OWNER", "FOREIGN_OWNER_SLOTS", "GITHUB_OUTPUT",
+                 "SLOTS", "OWNER_1", "OWNER_2", "OWNER_3",
+                 "TOKEN_1", "TOKEN_2", "TOKEN_3"):
+        env.pop(leak, None)
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env.update(overrides)
+    return env
+
+
 def gitmodules(tmp_path, entries):
     text = "".join(
         f'[submodule "{path}"]\n\tpath = {path}\n\turl = {url}\n'
@@ -214,10 +233,9 @@ def run_detect(tmp_path, entries, slot_count=3, self_owner="opensoft"):
     done = subprocess.run(
         ["bash", "-c", step("prepare", DETECT)["run"]],
         cwd=root, capture_output=True, text=True,
-        env={"PATH": "/usr/bin:/bin:/usr/local/bin",
-             "SELF_OWNER": self_owner,
-             "FOREIGN_OWNER_SLOTS": str(slot_count),
-             "GITHUB_OUTPUT": str(out)})
+        env=clean_env(SELF_OWNER=self_owner,
+                      FOREIGN_OWNER_SLOTS=str(slot_count),
+                      GITHUB_OUTPUT=str(out)))
     outputs = dict(
         line.split("=", 1)
         for line in out.read_text(encoding="utf-8").splitlines() if line)
@@ -283,13 +301,17 @@ def test_more_owners_than_slots_still_refuses_and_names_them(tmp_path):
     assert "3 mint slots" in done.stdout
 
 
+# THE PLACEHOLDER TOKENS ARE DELIBERATELY NOT TOKEN-SHAPED. A `ghs_`-prefixed
+# literal reads as a real installation token to a secret scanner and to a
+# reader, and both of those cost more than the realism buys (Copilot, PR #831).
+# The full rewritten URL IS still asserted verbatim, because "longest prefix
+# wins" is precisely a claim about the WHOLE resolved string — a substring
+# check would pass for a rewrite that routed the right owner to the wrong
+# token, which is the failure this file exists to catch.
 def run_rewrite(tmp_path, pairs, slot_count=3, broad_token=None):
     config = tmp_path / "gitconfig"
     config.write_text("", encoding="utf-8")
-    env = {"PATH": "/usr/bin:/bin:/usr/local/bin",
-           "GIT_CONFIG_GLOBAL": str(config),
-           "GIT_CONFIG_NOSYSTEM": "1",
-           "SLOTS": str(slot_count)}
+    env = clean_env(GIT_CONFIG_GLOBAL=str(config), SLOTS=str(slot_count))
     # A malformed slot count is a case under test, so the env is still built
     # with as many pairs as the caller passed pairs for.
     declared = slot_count if isinstance(slot_count, int) else max(pairs, default=0)
@@ -317,35 +339,35 @@ def run_rewrite(tmp_path, pairs, slot_count=3, broad_token=None):
 
 def test_both_forms_resolve_to_the_owners_own_token(tmp_path):
     done, resolve = run_rewrite(tmp_path, {
-        1: ("MedxSoft", "ghs_medx"),
-        2: ("ledgerXfactory", "ghs_ledger"),
+        1: ("MedxSoft", "medx-installation-token"),
+        2: ("ledgerXfactory", "ledger-installation-token"),
     })
     assert done.returncode == 0, done.stdout + done.stderr
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:ghs_medx@github.com/MedxSoft/MedxEHR.git"
+        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
     # The form that reddened 2026-09-05..07: MedxEHR's nested legs.
     assert resolve("https://github.com/MedxSoft/MedxEHR-spec.git") == \
-        "https://x-access-token:ghs_medx@github.com/MedxSoft/MedxEHR-spec.git"
+        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR-spec.git"
     assert resolve("git@github.com:ledgerXfactory/LedgerxFactory.git") == \
-        ("https://x-access-token:ghs_ledger@github.com/"
+        ("https://x-access-token:ledger-installation-token@github.com/"
          "ledgerXfactory/LedgerxFactory.git")
 
 
 def test_the_broad_rewrite_still_serves_every_other_owner(tmp_path):
     done, resolve = run_rewrite(
-        tmp_path, {1: ("MedxSoft", "ghs_medx")}, broad_token="ghs_self")
+        tmp_path, {1: ("MedxSoft", "medx-installation-token")}, broad_token="caller-org-token")
     assert done.returncode == 0, done.stdout + done.stderr
     # Longest prefix wins in BOTH directions: the narrow key takes MedxSoft,
     # the broad one keeps everything else.
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:ghs_medx@github.com/MedxSoft/MedxEHR.git"
+        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
     assert resolve("git@github.com:opensoft/codexFactory.git") == \
-        "https://x-access-token:ghs_self@github.com/opensoft/codexFactory.git"
+        "https://x-access-token:caller-org-token@github.com/opensoft/codexFactory.git"
 
 
 def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
     done, resolve = run_rewrite(tmp_path, {
-        1: ("MedxSoft", "ghs_medx"),
+        1: ("MedxSoft", "medx-installation-token"),
         2: ("ledgerXfactory", ""),
     })
     assert done.returncode == 1
@@ -355,7 +377,7 @@ def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
     # The owner that COULD be served still was, so the failure names one
     # organization rather than hiding behind the first one to break.
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
-        "https://x-access-token:ghs_medx@github.com/MedxSoft/MedxEHR.git"
+        "https://x-access-token:medx-installation-token@github.com/MedxSoft/MedxEHR.git"
     assert resolve("git@github.com:ledgerXfactory/LedgerxFactory.git") == \
         "git@github.com:ledgerXfactory/LedgerxFactory.git"
 
@@ -366,7 +388,7 @@ def test_a_slot_count_that_did_not_arrive_is_its_own_refusal(tmp_path):
     # is a silent pass on exactly the path #366 is about.
     for bad in ("", "0", "three"):
         done, _ = run_rewrite(
-            tmp_path, {1: ("MedxSoft", "ghs_medx")}, slot_count=bad)
+            tmp_path, {1: ("MedxSoft", "medx-installation-token")}, slot_count=bad)
         assert done.returncode == 1, f"SLOTS={bad!r} did not refuse"
         assert "no usable slot count" in done.stdout
 
