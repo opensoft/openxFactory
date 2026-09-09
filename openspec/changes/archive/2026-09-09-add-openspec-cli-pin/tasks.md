@@ -23,8 +23,9 @@ beside it in the same form. The rest of slice 5 and all of slice 6 are untouched
 and still owed.
 
 **AMENDED 2026-09-09, AT THE ARCHIVE — AND THIS IS THAT ACT.** Brett Heap
-ruled first-hand to lane codeXfactory-1 at 2026-09-09T11:54Z (session
-`session_01KU9sXSmC78QxYF6C8kqfqo`), verbatim: **"archive the pin change"**.
+ruled first-hand to lane `codexfactory-1` (session name `codeXfactory-1`,
+`session_01KU9sXSmC78QxYF6C8kqfqo`) at 2026-09-09T11:54Z, verbatim: **"archive
+the pin change"**.
 Slice 7's two remaining boxes tick HERE, on evidence re-run at the archive gate
 rather than inherited from authoring: **7.2** the pinned entrypoint's gate and
 `validate add-openspec-cli-pin --strict`, both run on this branch; **7.3** the
@@ -42,9 +43,16 @@ tasks") with no bypass flag, and ticking a box whose work did not happen would
 buy that refusal off with a false claim. The marker says the box is open and
 says why; it does not say the work is done.
 
-**RATIFICATION HAS NOT HAPPENED.** Brett Heap authorized the DRAFT on 2026-09-04
-(*"draft the openxFactory pin change, pinned at 1.2.0"*). Task 7.1 records
-ratification when it happens and nothing below decides it.
+**RATIFICATION HAS NOT HAPPENED.** *(TRUE AT AUTHORING, AND SUPERSEDED — kept
+as the record of what this file claimed rather than deleted, exactly as
+`proposal.md` keeps its own copy of this paragraph. RATIFIED 2026-09-04, verbatim
+"ratify 667"; the lifecycle header at the top of this file now reads `Status:
+ratified` and names that ratification on its citation line, and task 7.1 below
+is ticked with the record. Read the present tense below as the authoring
+session's, not as a claim about this file at the archive.)* Brett Heap authorized
+the DRAFT on 2026-09-04 (*"draft the openxFactory pin change, pinned at
+1.2.0"*). Task 7.1 records ratification when it happens and nothing below
+decides it.
 
 ---
 

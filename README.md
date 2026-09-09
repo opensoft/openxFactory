@@ -3019,8 +3019,8 @@ Archived changes:
 
 - [add-openspec-cli-pin](openspec/changes/archive/2026-09-09-add-openspec-cli-pin/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
-  session, first-hand to lane `codeXfactory-1` at 11:54Z, verbatim *"archive the
-  pin change"*). Ratified 2026-09-04, verbatim *"ratify 667"*, record
+  session, first-hand to lane `codexfactory-1` (session name `codeXfactory-1`)
+  at 11:54Z, verbatim *"archive the pin change"*). Ratified 2026-09-04, verbatim *"ratify 667"*, record
   `review/ratification-2026-09-04.md`. `code_surface` is NON-EMPTY — four new
   artifacts — so under `release-realization` this packet archived on
   **merged-plus-green realization evidence, not on landing**, and both halves are
