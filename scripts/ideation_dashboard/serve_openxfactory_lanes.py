@@ -53,8 +53,14 @@ from ideation_dashboard.serve_wire import (  # noqa: E402
     HOSTED_SESSION_REFUSAL,
     JSON_CTYPE,
     JSON_OBJECT_BODY_REQUIRED,
-    hosted_ref_refused,
 )
+# The hosted-plane ref confinement, at its own home rather than through the
+# wire module (openDox under design D3): this column is openxFactory's own
+# engineering adapter and STAYS, so the import it used to make is the edge
+# RULING OQ-2 forbids. `serve_projection` is openXdox, which is the allowed
+# direction and the one OQ-B B-3 already took for the sessions reach.
+# OQ-B re-plumb B-2, ruled on `#656` 2026-09-09 ("rule B-2 (i')").
+from ideation_dashboard.serve_projection import hosted_ref_refused  # noqa: E402
 
 # add-ideation-intent-plane task 4.4 (Brett Heap's ruling D-1, openxFactory
 # #656): the COMMITTED half of the hosted intent feed — the applied/refused

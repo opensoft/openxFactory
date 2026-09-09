@@ -70,10 +70,6 @@ import json
 from ideation_dashboard import doxbench_knowledge
 from ideation_dashboard import doxbench_packet
 from ideation_dashboard import doxbench_threads
-# The ONE definition of "a ref a hosted plane may see" (`is_publishable_ref`),
-# reached by the two hosted-plane predicates below. No cycle: `snapshot_registry`
-# imports no module of the serve split.
-from ideation_dashboard import snapshot_registry as registry_mod
 # The family's NON-BLANK rule (issue #263), imported rather than
 # restated: the type gate and this server boundary share one
 # implementation so they cannot drift into two spellings of one rule.
@@ -1354,40 +1350,3 @@ AGENT_INVOCATION_REFUSAL = (
 # already keeps for the notebook action).
 HOSTED_SESSION_REFUSAL = ("a ref other than 'main' is session-local data and is "
                           "not available on this plane")
-
-
-def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
-    """Whether a request naming `ref` must be REFUSED because this is the hosted
-    plane (007-workbench-branch-sessions T083, FR-048).
-
-    FR-048: "The hosted dashboard MUST expose NONE of this capability — no session,
-    no branch-ref selection, no session verb, no worktree, no non-`main` snapshot —
-    and a hosted request naming a non-`main` ref MUST refuse."
-
-    The test is the BIND, not the advertised capability. A capability dict is a
-    startup verdict a handler could in principle be constructed with by hand; the
-    bind is what makes a plane hosted, and the confinement has to hold for any
-    handler that is not on loopback. `None` / blank means `main` (the registry's own
-    `normalize_ref` default), so every pre-existing ref-less request is untouched,
-    and the LOCAL plane is untouched entirely — confining the hosted plane must not
-    confine the plane this whole feature lives on.
-
-    Why the hosted plane cannot simply have sessions: the session's remote-write
-    identity is the invoking engineer's OWN `gh` authentication (FR-034, D22) — a
-    personal credential, which a hosted plane must never hold or borrow — and the
-    worktree a session reads through is a per-machine directory beside a real
-    checkout, which a served image does not have (research R7).
-
-    THE ARRIVAL PATH, RECORDED AND DELIBERATELY NOT BUILT (FR-048, chg 7.2). A
-    hosted session becomes possible by binding the INTENT PLANE's apply-lane ref
-    (openxFactory `add-ideation-intent-plane` §4) through the EXISTING
-    (repository, ref) seam this function guards: the intent plane's lane already
-    owns an identity that is not anybody's personal credential, and a lane ref is
-    already a (repository, ref) pair, so the session would arrive as another row in
-    the same registry — no new seam, no second write chokepoint, and the openxfactory
-    App as the ruled hosted identity (D22). That binding is a SEPARATE change with
-    its own gate: nothing in this module reaches for a lane, and this refusal is
-    where the next reader will be standing when they ask why."""
-    if loopback:
-        return False
-    return not registry_mod.is_publishable_ref(ref)
