@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A pin's REGISTRATION is checked: path, consumer entrypoint and rule agree.
+"""A pin's REGISTRATION is checked: path, entrypoint, rule — and its citations.
 
 THE GAP THIS CLOSES (issue #776, second assertion).
 `publish-openspec-cli-pin-as-contract-member` registered one consumption pin in
@@ -74,14 +74,55 @@ substring test reports `scripts/tool.py.old` as naming `scripts/tool.py` — the
 exact rename drift this lane exists to catch, passing; `rule_names_entrypoint`
 requires a delimited path token.
 
+AND THEN THE SAME DEFECT CLASS ARRIVED INSIDE THE PIN (issue #840, the fourth
+assertion). A `dispositions[]` entry ACCEPTS one ERROR-level finding of the
+pinned tool, and the pin's header rests the whole mechanism on one sentence:
+"A DISPOSITION WITHOUT A CITATION IS REFUSED, not ignored … `cited_to:` is
+required and must be non-empty", because "an uncited exception is the thing this
+estate refuses everywhere else it appears". `validate-openspec-cli-pin.py`
+enforces that the field is a non-empty list, PRINTS its members in the
+disposition report a reviewer reads — and never opens one. PR #834 renamed a
+change directory; two citations in the live pin went on naming
+`prepare-openspec-1.12-readiness`; `--all --no-cache` exited 0 before and after;
+and the drift was caught by a human reading a diff. That is this file's own
+failure mode one level down — a value the register publishes and nothing
+compares — so it is this file's fourth assertion rather than a new checker.
+`check_citations` and `read_citation` carry the reasoning, the grammar the
+pin actually documents, and the four things the arm deliberately does not assert.
+
+A THIRD BENCH ROUND, ON THE ARM ITSELF, AND IT WAS THE SAME DEFECT CLASS AGAIN.
+The arm's first version read the LAST TOKEN of a citation's referent region as
+its referent. Codex found both halves of what that costs: a citation whose line
+continues past its path (`openspec/missing.md: gone`, or the same line after a
+YAML reconstruction that turned `false` into `False`) classified as PROSE, so the
+path was never opened and the run exited 0 — this arm's own silence, in the shape
+it exists to end; and a citation with ordinary prose before its path (`the packet
+at openspec/…`) was called another repository's on the strength of having more
+than one token, so it went unresolved too. Both were one root, and it ran deeper
+than the token rule: the arm was classifying `yaml.safe_load`'s VALUE
+where the pin's grammar, its own reader and its own printed report all carry the
+LINE. A general YAML parser does not give that line back — measured on the live
+pin, two citations come back single-key MAPPINGS and three come back TRUNCATED at
+the ` #` of a forge reference. So `citation_lines_in` reads the `cited_to:` lines
+from the pin's bytes, `check_citations` aligns them one-to-one against the parsed
+structure (and refuses the field outright if the two counts disagree, rather than
+attach a finding to the wrong item), and `read_citation` reads EVERY token of the
+line's referent region, deciding the kind by form (`://`, then `#`, then `/`) and
+reserving "another repository's" for a path immediately preceded by a repository
+name the pin ITSELF declares in its `repo:` fields. The readers' disagreement is
+still measured and named for a successor, but no verdict rests on it any more.
+
 Run: python3 scripts/validate-pin-registrations.py (also exercised by
 tests/pin_registrations/test_pin_registration_sweep.py on every required-suite
 pass, the same lane `tests/manifest_digests/` gives the estate-wide digest
 sweep, so the checker IS run rather than merely runnable).
 Exit codes: 0 every registered pin coheres, 1 named findings, 2 harness error.
+`WARN` lines report a thing MEASURED that this file may not repair — they name
+it, and they do not move the exit code.
 """
 from __future__ import annotations
 
+import re
 import string
 import sys
 from pathlib import Path
@@ -98,6 +139,46 @@ MANIFEST = ROOT / "contracts" / "manifest.yaml"
 PIN_TYPE = "pin"
 ENTRYPOINT_FIELD = "consumer_entrypoint"
 RULE_FIELD = "consumption_rule"
+DISPOSITIONS_FIELD = "dispositions"
+CITATION_FIELD = "cited_to"
+
+# The citation grammar this arm reads: what the pin's header DOCUMENTS, what its
+# own reader ADMITS, and — stated as such — what this corpus's citations are
+# observed to do. NOT one character more. See `read_citation`.
+#
+# `—` (EM DASH) separates a citation's REFERENT from the prose gloss that says
+# why it is cited; every citation in the live pin is written that way.
+# `§` introduces a section inside the referent's document.
+# A trailing parenthetical is an aside about the referent (`codexFactory PR #216
+# (prepare-openspec-1.12-readiness, head b2a6af34)`), never part of it.
+CITATION_GLOSS = "\u2014"
+CITATION_SECTION = "\u00a7"
+_TRAILING_PAREN = re.compile(r"\((?:[^()]*)\)\s*$")
+_LINE_SUFFIX = re.compile(r"^(?P<path>.+?)(?::(?P<line>\d+))?$")
+_URL_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
+
+# A citation's tokens carry the corpus's own emphasis and punctuation around
+# their referent (```openspec/…```, `(…)`, a trailing comma); none of it is part
+# of the path. `:` is NOT trimmed here — the `:<line>` suffix is read and
+# stripped by `_LINE_SUFFIX`, which is the only place a colon means anything.
+_TOKEN_DECORATION = "`'\"\u201c\u201d()[]{}<>,;" + CITATION_SECTION
+
+# The `cited_to:` block, read from the pin's own bytes. The pin's verifier reads
+# its items as `^      - (\S.*)$`; the indentation is matched RELATIVE to the
+# key here rather than fixed at six spaces, because `yaml.safe_dump` writes a
+# sequence at its key's own column and the tests' fixtures are written that way.
+# See `citation_lines_in`.
+_CITED_TO_KEY = re.compile(r"^(?P<indent> *)(?P<dash>- )?" + CITATION_FIELD
+                           + r":\s*$")
+_LIST_ITEM = re.compile(r"^(?P<indent> *)- (?P<text>\S.*?)\s*$")
+
+# The spellings that mean THIS repository where a citation qualifies a path with
+# a repository name. Restated from `scripts/doc_health/pin_class.py`'s
+# `OWN_REPOSITORY_SPELLINGS` rather than imported — that module is a doc-health
+# package member that reaches for git, and this checker is a standalone script —
+# and `tests/pin_registrations/` pins the two sets equal so a divergence reds
+# rather than drifts.
+OWN_REPOSITORY_SPELLINGS = frozenset({"openxfactory", "opensoft/openxfactory"})
 
 # A path token continues across these; a delimited occurrence of the entrypoint
 # is one that neither of them runs into. See `rule_names_entrypoint` below.
@@ -166,6 +247,408 @@ def rule_names_entrypoint(rule: str, entrypoint: str) -> bool:
         start = index + 1
 
 
+def citation_lines_in(text: str) -> list[str]:
+    """Every `cited_to:` list-item LINE the pin's bytes carry, in file order.
+
+    THE CITATION IS THE LINE, AND THAT IS THE FIELD'S DOCUMENTED GRAMMAR. The
+    pin's header says of `cited_to:` only that it "is required and must be
+    non-empty"; the whole of the rest is its own reader's production —
+    `^      - (\\S.*)$`, the remainder of the line, verbatim, one citation per
+    line, whose members it deliberately never parses because flattening them
+    "would make the reader guess a delimiter that a citation could itself
+    contain". That line is also exactly what its disposition report PRINTS for a
+    human to open. So the line is what this arm classifies.
+
+    AND A GENERAL YAML PARSER DOES NOT GIVE THAT LINE BACK — measured, twice, on
+    the live pin. Two citations quote the tool's own output (```Totals: 23
+    passed, 2 failed (25 items)```), and a bare `: ` in a plain scalar makes the
+    line a single-key MAPPING to `yaml.safe_load`. Three more contain `PR #444` /
+    `codexFactory PR #216`, and a ` #` in a plain scalar is a COMMENT, so the
+    parser hands back `"PR"` and `"codexFactory PR"` with the referent cut off.
+    An arm that classified the parser's value would read those three as prose —
+    and a citation whose path sat after a `#` would never be opened at all, which
+    is the silence this whole arm exists to end. `yaml.safe_load` stays the
+    reader of the pin's STRUCTURE (which entry, which item, in what order); the
+    citation itself is read from the bytes.
+
+    A list item is admitted at or below the key's own indentation because that is
+    where both writers put one: the live pin indents its items under
+    `cited_to:`, and `yaml.safe_dump` (which the tests' fixtures use) writes a
+    sequence at the key's own column — and writes the key itself as `- cited_to:`
+    where it is the first key of a sequence entry, whose items then sit two
+    columns in.
+    """
+    lines = text.splitlines()
+    found: list[str] = []
+    index = 0
+    while index < len(lines):
+        key = _CITED_TO_KEY.match(lines[index])
+        index += 1
+        if key is None:
+            continue
+        # A `- cited_to:` line is the field as the FIRST key of a sequence
+        # entry, which is what `yaml.safe_dump` writes; its items sit two columns
+        # in, past the dash.
+        depth = len(key.group("indent")) + (2 if key.group("dash") else 0)
+        while index < len(lines):
+            item = _LIST_ITEM.match(lines[index])
+            if item is None or len(item.group("indent")) < depth:
+                break
+            found.append(item.group("text"))
+            index += 1
+    return found
+
+
+def yaml_reading_of(citation):
+    """What `yaml.safe_load` made of one citation line, as text, or `None`.
+
+    Used ONLY to report the divergence between the two readers — never to decide
+    what a citation names. A single-key mapping is rejoined as `<key>: <value>`
+    so the comparison is against the line the parser would have had to produce;
+    anything else (a list, a number, a boolean, a null, a multi-key mapping) has
+    no line to compare and comes back `None`.
+    """
+    if isinstance(citation, str):
+        return citation
+    if isinstance(citation, dict) and len(citation) == 1:
+        (key, value), = citation.items()
+        if isinstance(key, str):
+            return f"{key}: {value}"
+    return None
+
+
+def repository_qualifiers(pin) -> frozenset[str]:
+    """The repository names THIS pin declares, lowercased.
+
+    READ FROM THE PIN AND NOT INVENTED HERE. The header holds that dispositions
+    are "SCOPED BY REPOSITORY, because one pin governs the whole estate", every
+    entry carries `repo:`, and the pin's own verifier admits exactly the entries
+    whose `repo:` equals the validated tree's identity — which it reads from
+    `git config --get remote.origin.url`, "AND NOT FROM THE DIRECTORY NAME". So
+    the set of repository NAMES this mechanism speaks about is declared, in the
+    file, in a field with a documented meaning; that declared set is the
+    vocabulary a citation's qualifier is read against, and a word outside it is
+    not a repository name to this arm. See `read_citation`.
+    """
+    dispositions = pin.get(DISPOSITIONS_FIELD)
+    if not isinstance(dispositions, list):
+        return frozenset()
+    return frozenset(entry["repo"].strip().lower()
+                     for entry in dispositions
+                     if isinstance(entry, dict)
+                     and isinstance(entry.get("repo"), str)
+                     and entry["repo"].strip())
+
+
+def referent_region(citation: str) -> str:
+    """The part of a citation line that names its referent, gloss removed.
+
+    `—` (EM DASH) separates a citation's REFERENT from the prose gloss that says
+    why it is cited; every citation in the live pin is written that way. `§`
+    introduces a section inside the referent's document, and a trailing
+    parenthetical is an aside about it (`codexFactory PR #216
+    (prepare-openspec-1.12-readiness, head b2a6af34)`) — neither is part of the
+    referent. All three are observed conventions of this corpus, stated as such:
+    the pin's header documents no citation punctuation at all.
+
+    THE GLOSS IS NOT SCANNED, deliberately. A gloss is prose about the referent,
+    and prose carries slashes that are not paths (`and/or`, a date, `§5.1/§12.0`,
+    the quoted `Totals: 23 passed, 2 failed (25 items)`); reading those as paths
+    would report findings against citations that are perfectly sound. The cost is
+    stated where it falls: a referent written after the em dash is not resolved,
+    and no citation in this corpus is written that way.
+    """
+    head = citation.split(CITATION_GLOSS, 1)[0]
+    head = head.split(CITATION_SECTION, 1)[0]
+    return _TRAILING_PAREN.sub("", head).strip()
+
+
+def read_citation(citation: str, declared=frozenset()):
+    """Every machine referent ONE `cited_to:` line names, in its own order.
+
+    Returns a list of `(kind, referent)` pairs, where `kind` is one of:
+
+      * `"tree-path"`   — an UNQUALIFIED repo-relative path; this tree resolves it
+      * `"url"`         — an absolute URL, resolved by the network and not here
+      * `"reference"`   — `#N` or `owner/repo#N`, resolved by a forge and not here
+      * `"qualified"`   — a path a DECLARED repository name puts in another tree;
+                          this tree is not the tree it names, so it is not resolved
+
+    An EMPTY list means the line names no machine referent at all (`council
+    LA-A1`, `1.12.0`, a bare gloss) — recognised, counted, never a finding.
+
+    EVERY TOKEN OF THE REFERENT REGION IS READ, AND THE LAST-TOKEN RULE IS GONE.
+    The arm's first version took the region's LAST token as the referent, and the
+    review bench found both halves of what that costs. A citation whose line
+    continues past its path — `openspec/missing.md: gone` — classified as PROSE,
+    so the path was never opened and the run exited 0: this arm's own silence, in
+    the shape it exists to end. And a citation with ordinary prose in front of
+    its path — `the packet at openspec/changes/foo/tasks.md` — was called another
+    repository's on the strength of having more than one token, so it went
+    unresolved too. Reading every token answers both, and it answers them the way
+    the field's own grammar reads: the pin admits a citation as one line that may
+    CONTAIN a referent, and never says where in the line it sits.
+
+    THE FORM DECIDES THE KIND, in this order, because the three forms are
+    mutually exclusive and only one of them is this tree's to resolve. A `://`
+    means a URL. A `#` means a forge reference — `PR #444`, `#673`,
+    `owner/repo#12` — and it is tested BEFORE the path rule because
+    `owner/repo#12` carries a slash too. A `/` then means a repo-relative path;
+    a token with no `/` names no directory and is not read as one, because a bare
+    dotted token is as likely a version (`1.12.0`) or a change id
+    (`prepare-openspec-1-12-readiness`) as a filename.
+
+    A QUALIFIER IS A DECLARED REPOSITORY NAME AND NOTHING ELSE. `codexFactory
+    openspec/changes/…` is codexFactory's path and this tree may not report it
+    missing; `the packet at openspec/changes/…` is this tree's, with prose in
+    front of it. The two are told apart by `repository_qualifiers` — the `repo:`
+    vocabulary the pin itself declares — read on the token IMMEDIATELY before the
+    path, and a qualifier naming THIS repository (`OWN_REPOSITORY_SPELLINGS`, the
+    spelling set `scripts/doc_health/pin_class.py` already committed for this
+    question) leaves the path this tree's. Two boundaries, stated: a qualifier
+    that is not immediately adjacent to its path is not read as one, and a
+    repository the pin never declares is not in the vocabulary — so a citation
+    naming one gets its path resolved here and reported missing. That direction
+    is chosen: a loud finding a reader answers by declaring the repository, over
+    a silent pass on a path nobody opened.
+
+    The `:<line>` suffix is a READING AID and the FILE is the referent: it is
+    stripped and NOT checked, because a line number drifts with every edit above
+    it, and a checker that failed on that would report a finding on unrelated
+    insertions while the citation still names the right document. The pin's
+    header documents no line grammar to enforce either way.
+    """
+    tokens = [token for token in referent_region(citation).split() if token]
+    readings: list[tuple[str, str]] = []
+    for index, token in enumerate(tokens):
+        bare = token.strip(_TOKEN_DECORATION)
+        if not bare:
+            continue
+        if _URL_SCHEME.match(bare):
+            readings.append(("url", bare))
+            continue
+        if "#" in bare:
+            readings.append(("reference", bare))
+            continue
+        if "/" not in bare:
+            continue
+        match = _LINE_SUFFIX.match(bare)
+        # `,;` end a clause and `:` ends a token whose remainder the line
+        # continues past (`openspec/foo.md: gone`, the shape the last-token rule
+        # used to read as prose); none of the three is part of a path, and a
+        # `:<line>` suffix has already been read off by `_LINE_SUFFIX`.
+        claimed = (match.group("path") if match else bare).rstrip(",;:")
+        if not claimed:
+            continue
+        previous = (tokens[index - 1].strip(_TOKEN_DECORATION).lower()
+                    if index else "")
+        if previous in declared and previous not in OWN_REPOSITORY_SPELLINGS:
+            readings.append(("qualified", claimed))
+        else:
+            readings.append(("tree-path", claimed))
+    return readings
+
+
+def parsed_citations_of(dispositions):
+    """`(entry index, item, citation)` for every parsed citation, in file order.
+
+    The order `citation_lines_in` is aligned against. A disposition that carries
+    no `cited_to:` list contributes nothing and is counted as uncited by the
+    caller: the pin's own verifier owns that refusal.
+    """
+    for index, entry in enumerate(dispositions, start=1):
+        if not isinstance(entry, dict):
+            continue
+        citations = entry.get(CITATION_FIELD)
+        if not isinstance(citations, list) or not citations:
+            continue
+        item = str(entry.get("item", "unnamed"))
+        for citation in citations:
+            yield index, item, citation
+
+
+def check_citations(row_id, raw_path, pin, pin_text, findings):
+    """Every `dispositions[].cited_to` path resolves; return True if all do.
+
+    THE GAP THIS CLOSES (issue #840). A disposition is an ACCEPTED EXCEPTION to a
+    pinned tool's judgment, and the pin's header states the whole of what makes
+    one lawful: "A DISPOSITION WITHOUT A CITATION IS REFUSED, not ignored …
+    `cited_to:` is required and must be non-empty", on the ground that "an
+    uncited exception is the thing this estate refuses everywhere else it
+    appears". `scripts/validate-openspec-cli-pin.py` enforces that the field is
+    a non-empty list and PRINTS its members in the disposition report a reviewer
+    reads — and it never opens one. So a citation could name a path that no
+    longer exists and every run would still exit 0, which is the state PR #834
+    produced by renaming a change directory: two citations in the live pin went
+    on naming `prepare-openspec-1.12-readiness`, the entrypoint's `--all
+    --no-cache` run exited 0 before and after, and the drift was found by a
+    reviewer reading a diff rather than by anything that asks. A citation nobody
+    can open is a suppression with a footnote, and the footnote is the only
+    difference the header rests the mechanism on.
+
+    WHAT IT ASSERTS. The pin's `cited_to:` LINES are read from its bytes
+    (`citation_lines_in`) and ALIGNED one-to-one, in file order, against the
+    citations `yaml.safe_load` parsed — so a finding can name the entry and the
+    item it belongs to while the text it classifies is the line the pin's own
+    reader admits. Every machine referent of every line is then read by
+    `read_citation`; the referents that name an UNQUALIFIED repo-relative path
+    are resolved inside this tree with the same containment helper the registered
+    `path` and `consumer_entrypoint:` go through; and a path that is absent — or
+    absolute, or `..`-escaping — is a named finding and exit 1. `.exists()` and
+    not `.is_file()`, because a citation legitimately names a change packet's
+    directory. The counts are printed so a pass cannot be vacuous: a reader is
+    told how many referents were read, how many of them this tree owns, and how
+    many were recognised and left to a forge, a network or another repository.
+
+    THE ALIGNMENT IS PROVED, NOT ASSUMED. If the bytes yield a different NUMBER
+    of citation lines than the structure does, this arm refuses the whole field
+    with one finding instead of classifying anything: an off-by-one would attach
+    every finding to the wrong item, and a citation written in a flow sequence
+    (`cited_to: [a, b]`) or spread over two lines is a form the pin's own
+    line-based reader does not admit either. Refusing loudly is the one behaviour
+    that cannot mislead.
+
+    WHAT IT DELIBERATELY DOES NOT ASSERT. Not the `:<line>` suffix, the gloss, or
+    a qualifier's adjacency (`read_citation`). Not a URL's reachability, a forge
+    reference's existence, or another repository's path: this checker reads one
+    tree and says so, and a network or a sibling checkout is not in it. Not
+    `cited_to:`'s presence or shape — the pin's own verifier refuses that as
+    `pin-disposition-malformed`, in its own words, and restating another
+    checker's refusal in different words is what § 5.4 refused when it kept these
+    questions in separate families. Not `dispositions[].path`, which the
+    entrypoint reconciles against the tool's report and which this checker has no
+    report to compare against. And not the two readers' DISAGREEMENT itself: it
+    is measured and named for a successor (`WARN`), because the obvious repair —
+    quoting the scalar — changes what that line-based reader CAPTURES in a file
+    vendored byte-identical into three sibling repositories, which is a governed
+    act with a re-vendor cost and not a path a plain fix may take.
+    """
+    dispositions = pin.get(DISPOSITIONS_FIELD)
+    if dispositions is None:
+        print(f"OK {row_id}: `{raw_path}` carries no `{DISPOSITIONS_FIELD}:`, so "
+              f"the citation assertion does not apply")
+        return True
+    if not isinstance(dispositions, list) or not dispositions:
+        print(f"OK {row_id}: `{raw_path}` records "
+              f"`{DISPOSITIONS_FIELD}: {dispositions!r}`, which carries no entry "
+              f"to read a citation from; the pin's own verifier owns that "
+              f"refusal (`pin-disposition-malformed`) and it is not restated here")
+        return True
+
+    declared = repository_qualifiers(pin)
+    parsed = list(parsed_citations_of(dispositions))
+    lines = citation_lines_in(pin_text)
+    uncited = sum(1 for entry in dispositions
+                  if not isinstance(entry, dict)
+                  or not isinstance(entry.get(CITATION_FIELD), list)
+                  or not entry[CITATION_FIELD])
+
+    if len(lines) != len(parsed):
+        findings.append(
+            f"FAIL {row_id}: `{raw_path}` carries {len(lines)} "
+            f"`{CITATION_FIELD}:` line(s) in its bytes and {len(parsed)} parsed "
+            f"citation(s) in its structure, so this arm cannot say WHICH "
+            f"disposition a line belongs to — it refuses the whole field rather "
+            f"than attach findings to the wrong entry. A citation is one line "
+            f"(`^      - (\\S.*)$` is the pin's own production); a flow sequence "
+            f"or a citation spread over two lines is a form the pin's own reader "
+            f"does not admit either")
+        print(f"MEASURED {row_id}: the citation bytes and the parsed structure "
+              f"disagree about how many citations there are; nothing classified")
+        return False
+
+    ok = True
+    counts = {"tree-path": 0, "url": 0, "reference": 0, "qualified": 0}
+    referents = 0
+    unreferenced = 0
+    truncated = 0
+    mapped = 0
+    for (index, item, citation), line in zip(parsed, lines):
+        where = f"{DISPOSITIONS_FIELD}[{index}]"
+        # NEVER A FINDING, AND NEVER A VERDICT EITHER. In the pin's OWN grammar
+        # each of these lines is a well-formed citation — its reader takes the
+        # whole line, and its report prints the whole line — so what is measured
+        # here is that the same bytes mean two different things to two readers.
+        # The classification below reads the LINE, so no verdict rests on the
+        # divergence; it is REPORTED because a successor with a re-vendor budget
+        # should see it, and silently passing a measured disagreement is the
+        # habit this lane exists to break.
+        reading = yaml_reading_of(citation)
+        if isinstance(citation, dict):
+            mapped += 1
+            exact = " (rejoined byte for byte)" if reading == line else ""
+            print(f"WARN {row_id}: {where} ({item}) — `yaml.safe_load` reads "
+                  f"this citation as a single-key MAPPING{exact}, because the "
+                  f"bare `: ` inside its quoted tool output is a key/value "
+                  f"separator to a general YAML parser")
+        elif reading != line:
+            truncated += 1
+            how = (f"TRUNCATES it to {citation!r} at the ` #` it reads as a "
+                   f"comment" if isinstance(citation, str)
+                   and line.startswith(citation)
+                   else f"reads it as {citation!r}, which is not the line")
+            print(f"WARN {row_id}: {where} ({item}) — `yaml.safe_load` {how}; "
+                  f"the pin's own reader takes the whole line, and this arm "
+                  f"classifies the LINE")
+        readings = read_citation(line, declared)
+        if not readings:
+            unreferenced += 1
+            continue
+        for kind, referent in readings:
+            referents += 1
+            counts[kind] += 1
+            if kind != "tree-path":
+                continue
+            target, refusal = resolve_in_tree(referent)
+            if refusal is not None:
+                findings.append(
+                    f"FAIL {row_id}: {where} ({item}) cites `{referent}`, which "
+                    f"{refusal} — a citation is opened from the pinned checkout, "
+                    f"and a path outside it is unreadable there")
+                ok = False
+                continue
+            if not target.exists():
+                findings.append(
+                    f"FAIL {row_id}: {where} ({item}) cites `{referent}`, but no "
+                    f"such path is in this tree — a disposition rests on its "
+                    f"citation, and a citation a reader cannot open is a "
+                    f"suppression with a footnote")
+                ok = False
+
+    measured = (f"{counts['tree-path']} name a path in this tree, "
+                f"{counts['url']} a URL, {counts['reference']} a forge "
+                f"reference, {counts['qualified']} a path qualified to another "
+                f"repository")
+    if unreferenced:
+        measured += f"; {unreferenced} citation(s) name no machine referent"
+    diverged = truncated + mapped
+    if diverged:
+        measured += (f"; {diverged} line(s) the two readers read differently "
+                     f"({truncated} truncated at a `#`, {mapped} read as a "
+                     f"single-key mapping), classified from the line")
+    if uncited:
+        measured += (f"; {uncited} disposition(s) carry no `{CITATION_FIELD}:` "
+                     f"list, which the pin's own verifier refuses as "
+                     f"`pin-disposition-malformed`")
+    if diverged:
+        print(f"WARN {row_id}: {diverged} of {len(parsed)} citation line(s) mean "
+              f"one thing to `yaml.safe_load` and another to the pin's own "
+              f"line-based reader. QUOTING THEM IS A GOVERNED REPAIR, NOT THIS "
+              f"ARM'S: that reader captures the whole line INCLUDING the quotes, "
+              f"and it is vendored byte-identical into three sibling "
+              f"repositories, so the fix carries a re-vendor cost. Named here "
+              f"for a successor rather than silently passed or silently forced")
+    if ok:
+        print(f"OK {row_id}: {len(dispositions)} disposition(s) carry "
+              f"{len(parsed)} citation(s) naming {referents} referent(s) — "
+              f"{measured}; every in-tree path resolves")
+    else:
+        print(f"MEASURED {row_id}: {len(dispositions)} disposition(s) carry "
+              f"{len(parsed)} citation(s) naming {referents} referent(s) — "
+              f"{measured}")
+    return ok
+
+
 def iter_pin_rows(node):
     """Every mapping registering `type: pin`, wherever it sits in the manifest.
 
@@ -214,7 +697,8 @@ def check_row(row, findings):
         return False
 
     try:
-        pin = yaml.safe_load(pin_path.read_text(encoding="utf-8"))
+        pin_text = pin_path.read_text(encoding="utf-8")
+        pin = yaml.safe_load(pin_text)
     except (OSError, yaml.YAMLError) as exc:
         findings.append(
             f"FAIL {row_id}: the pin at `{raw_path}` is registered but does not "
@@ -228,6 +712,13 @@ def check_row(row, findings):
             f"YAML mapping, so it names no `{ENTRYPOINT_FIELD}:` to compare")
         return False
 
+    # THE CITATION ARM RUNS FIRST, and unconditionally, because the entrypoint
+    # assertions below are terminal for a row on their own refusals: reaching
+    # this question afterwards would mean a pin whose `consumer_entrypoint:` is
+    # unreadable hides every dangling citation it carries behind that one
+    # finding, and a reader told only the first has to re-run to learn the rest.
+    citations_ok = check_citations(row_id, raw_path, pin, pin_text, findings)
+
     entrypoint = pin.get(ENTRYPOINT_FIELD)
     if entrypoint is None:
         # A pin that names no entrypoint reaches neither of the two assertions
@@ -236,7 +727,7 @@ def check_row(row, findings):
         # inapplicable assertion from an unmade one.
         print(f"OK {row_id}: `{raw_path}` is registered and present; it names no "
               f"`{ENTRYPOINT_FIELD}:`, so the entrypoint assertions do not apply")
-        return True
+        return citations_ok
 
     # NOT coerced with `str()` before the containment helper runs: that would
     # turn `consumer_entrypoint: 17` into the string "17" and report it as a
@@ -282,11 +773,11 @@ def check_row(row, findings):
             f"published for")
         ok = False
 
-    if ok:
+    if ok and citations_ok:
         print(f"OK {row_id}: `{raw_path}` is present, its "
               f"`{ENTRYPOINT_FIELD}: {entrypoint}` resolves, and the row's "
               f"`{RULE_FIELD}` names that same path")
-    return ok
+    return ok and citations_ok
 
 
 def main() -> int:

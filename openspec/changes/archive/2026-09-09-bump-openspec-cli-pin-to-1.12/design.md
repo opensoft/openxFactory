@@ -1,6 +1,7 @@
 # Design: bump-openspec-cli-pin-to-1.12
 
-Status: draft
+Status: ratified
+Ratified by: bump-openspec-cli-pin-to-1.12 — 2026-09-05, Brett Heap, "ratify 677" (record `review/ratification-2026-09-05.md`)
 Date: 2026-09-05
 
 The bump itself is four scalars. Everything worth designing is the DISPOSITION

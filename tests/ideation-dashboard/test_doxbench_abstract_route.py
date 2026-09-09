@@ -13,7 +13,7 @@ WHAT THIS FILE PINS (tasks 5.1, 5.2, 5.4, 5.6):
     and none of them reaches a provider;
   * 5.2 — a subject outside `projection.editable_paths` is refused with a STATED
     reason and reaches NO provider (ruling 7(a): disclosure requires edit
-    authority, `doxbench_scope.py:390`, enforced at `doxbench_turns.py:585-591`);
+    authority, `doxbench_scope.py:318`, enforced at `doxbench_turns.py:585-591`);
   * 5.4 — abstract churn over a scope larger than the cache bound MUST NOT evict
     the chat surface's turn-idempotency records, asserted against the served
     process's own `TurnStore` contents;
@@ -374,9 +374,9 @@ def test_a_get_is_not_a_route(tmp_path):
 
 def test_a_readable_but_not_editable_subject_is_refused_before_any_provider(tmp_path):
     """Ruling 7(a). `editable_paths` is fed only from sections flagged `owned`
-    (`doxbench_scope.py:356-358`), so a brainstorm document this tile can READ is
+    (`doxbench_scope.py:284-286`), so a brainstorm document this tile can READ is
     not a subject it may distil, and the standing rule — disclosure requires edit
-    authority (`doxbench_scope.py:390`) — refuses it before any disclosure."""
+    authority (`doxbench_scope.py:318`) — refuses it before any disclosure."""
     # THE PRECONDITION, asserted rather than assumed (adversarial review
     # 2026-08-25): this path must really be READABLE-BUT-NOT-EDITABLE in this
     # scope's own projection, or the refusal below would be pinning "a path

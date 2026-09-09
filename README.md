@@ -1151,56 +1151,6 @@ Active changes:
   accruing). `sequenced_after: [codexFactory:add-floor-regeneration-automation,
   mirror-floor-addition-grace]` — the corpus's second cross-repository entry.
 
-- [bump-openspec-cli-pin-to-1.12](openspec/changes/bump-openspec-cli-pin-to-1.12/proposal.md)
-  — authored 2026-09-05, **`Status: draft`**, on Brett Heap's ruling *"take exit
-  2"* — a decision among the three exits #673 enumerated, **not** a ratification
-  of this text. **THIS IS THE BUMP #667 NAMED.**
-  `contracts/openspec-cli-pin.yaml` moves `@fission-ai/openspec` from `1.2.0`
-  to **`1.12.0`** by CONTENT ADDRESS: both hashes recomputed in-lane over the
-  real 477,381-byte / 389-file tarball
-  (`sha512-oFE2Lj7WVSc87nSi…`, shasum `c844543999…`), the previous referent kept
-  as a `rollback:` block in the pin's own grammar. **THE PRECONDITION IS MET AND
-  MEASURED:** #673 here and #220 in OpsxFactory cleared the pre-existing
-  conditions, and on 2026-09-05 OpsxFactory reads **47 passed / 0 failed** at
-  `1.12.0` outright while openxFactory reads **88 passed / 2 failed of 90**.
-  **THE TWO ARE NOT DEFECTS AND ARE NOT HIDDEN.** Both are deliberate scenario
-  narrowings declared with the reserved
-  ``**Merged into `<destination>` by <change> (<date>):**`` marker (council
-  LA-A1; #444), and `doc-health`'s promoted marker requirement uses the
-  composed-view pair as its **worked example** at
-  `openspec/specs/doc-health/spec.md:1770` — so 1.12.0's marker-blind
-  scenario-currency check re-reports as ERRORs exactly what canon holds up as
-  correct, and the only satisfying edit would revert two ratified decisions.
-  **So the packet adds a cited DISPOSITION mechanism** to
-  `scripts/validate-openspec-cli-pin.py` (check 6) and to the pin: an exception
-  names one repository, one item, one delta path and the finding's text matched
-  WHOLE, carries a non-empty `cited_to:` and a `ratified_by:`, and is PRINTED BY
-  NAME on every run so a pass cannot be mistaken for a clean tree. **A
-  disposition matched by NO finding in a WHOLE-CORPUS run REFUSES**
-  (`pin-disposition-stale`, exit 2; a narrowed `--change` run applies its
-  dispositions, decides no staleness and says so):
-  `add-composed-view-authoring` has one open box left, and the day it archives
-  this pin fails until its entry is deleted — the archive forcing the re-reading,
-  by design. Dispositions are scoped by repository (identity read from the git
-  remote, never the directory name, because every change is authored in a
-  worktree named for its branch), so OpsxFactory's run through the same pin
-  applies neither and is correctly reported *clean*. **A pin with no
-  `dispositions:` takes the original streaming path** — no `--json`, no parsing,
-  no git call — so the 1.2.0-era behaviour is a branch rather than a promise.
-  Tests 41 → **81**, including both `--json` array shapes parsed from CAPTURED
-  REAL 1.12.0 bytes and an offline reconciliation of the pin's own `finding:`
-  strings against them. **The old binary on PATH is now REFUSED**
-  (`pin-version-mismatch`), demonstrated in the record. **Exit 3 WAS FILED
-  2026-09-05 as `Fission-AI/OpenSpec#1793`** on Brett Heap's word *"file the
-  upstream issue"*, and #682 (`ff31fc7f`) corrected
-  `evidence/upstream-issue-draft-merged-into-marker.md` from NOT FILED to FILED;
-  this entry said DRAFTED AND NOT FILED until #697 caught the leftover. If
-  upstream lands a way to declare a rename, the dispositions go stale at the next
-  bump and the mechanism removes them. **HUMAN-ONLY**, not clearable by a council.
-  Evidence, with the raw `2 failed` shown verbatim beside the reconciled
-  `0 undispositioned`:
-  `openspec/changes/bump-openspec-cli-pin-to-1.12/evidence/pin-bump-1.12-2026-09-05.md`.
-
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
   first-hand to lane codexfactory-1, verbatim *"ratify 697"*, against head
@@ -2851,6 +2801,54 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [bump-openspec-cli-pin-to-1.12](openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
+  session, first-hand to lane `codexfactory-1` (session name `codeXfactory-1`)
+  at 12:59Z, verbatim *"archive the bump change"*). Ratified 2026-09-05, verbatim
+  *"ratify 677"*, heard first-hand by session `opsXfactory-1`, record
+  `review/ratification-2026-09-05.md` (task 6.1) — which also records that the
+  merge (`92005d70`, 2026-09-05T16:00:22Z) preceded the record on Brett's word in
+  the authoring lane. `code_surface` is NON-EMPTY — three artifacts moved in
+  substance plus a fixture pair — so under `release-realization` this packet
+  archived on **merged-plus-green realization evidence, not on landing**, and
+  both halves are cited rather than asserted: **MERGED** at
+  [#677](https://github.com/opensoft/openxFactory/pull/677) → merge commit
+  `92005d70025561a85625dc34b8172c9eb95b2987`; **GREEN** on the `openspec-cli-pin`
+  check — REQUIRED on `main` since 2026-09-08 (org ruleset `22551797`) — which
+  has been the gate on every openxFactory pull request since, conclusion
+  `success` on [#841](https://github.com/opensoft/openxFactory/pull/841) head
+  `5f275d6a` ([run 34351162201](https://github.com/opensoft/openxFactory/actions/runs/34351162201),
+  2026-09-09T12:28Z) and on
+  [#813](https://github.com/opensoft/openxFactory/pull/813) head `1921e96a`
+  ([run 34308880435](https://github.com/opensoft/openxFactory/actions/runs/34308880435)).
+  **THE DOWNSTREAM REALIZATION THIS BUMP NAMED AS OWED IS ALSO IN:** the four
+  consuming repositories are wired — codexFactory
+  [#227](https://github.com/opensoft/codexFactory/pull/227) (`bb66d85c`),
+  MedxFactory [#28](https://github.com/MedxSoft/MedxFactory/pull/28)
+  (`9884668d`), LedgerxFactory
+  [#34](https://github.com/ledgerXfactory/LedgerxFactory/pull/34) (`0f265d8c`)
+  and AdxFactory [#8](https://github.com/opensoft/AdxFactory/pull/8)
+  (`a9deb245`), ticked at task 6.3 by
+  [#804](https://github.com/opensoft/openxFactory/pull/804) — and the dependency
+  closure the pin's header declared open is CLOSED, ticked at task 6.4 by
+  [#813](https://github.com/opensoft/openxFactory/pull/813) → `4c08a7a2`.
+  **EVERY ONE OF THE PACKET'S 26 BOXES WAS ALREADY `[x]` BEFORE THIS ACT** — no
+  box was ticked at the archive and none carries the deferred marker, which is
+  the difference between this packet and its predecessor's task 6.2.
+  **PROMOTED INTO CANON — ONE ADDED REQUIREMENT, BYTE-IDENTICAL TO THE ARCHIVED
+  DELTA** (both blocks extracted programmatically and hashed: 6,384 bytes,
+  `sha256 775f1c5ce6d84deb…`, 8 scenarios, on both sides):
+  `neutral-product-pin` goes **15 → 16** — *A dispositioned finding is cited,
+  upgrade-coupled, and refused when stale*, the mechanism that lets one pin file
+  carry a named, cited exception for a finding a repository declines to fix, go
+  stale the day its change archives, and refuse rather than skip. The promotion
+  diff reads **91 added, 0 removed**, so the serializer normalized nothing: the
+  fifteen pre-existing requirements and the `## Purpose` block (1,548 bytes) are
+  byte-identical before and after, and the Purpose is still true —
+  `neutral-product-pin` already existed, so no placeholder was written and none
+  was owed. **THE MECHANISM'S OWN TWO DISPOSITIONS ARE STILL IN FORCE AND STILL
+  NOT THIS PACKET'S:** `add-chain-attestation` and `add-composed-view-authoring`,
+  named on every run of the gate.
 - [govern-archived-record-edits](openspec/changes/archive/2026-09-09-govern-archived-record-edits/proposal.md)
   — **ARCHIVED 2026-09-09** by `archive-govern-archived-record-edits` (lane
   `opsXfactory-1`), **ON BRETT HEAP'S SEPARATE ARCHIVE WORD OF THE SAME DAY** —
