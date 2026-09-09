@@ -194,10 +194,15 @@ ticked on THIS PERFORMED CHECK, not on the merge alone.
 2026-09-07); its `tasks.md` at `origin/main` `6cc06288` carries **46 unticked
 boxes and 0 ticked**, counted 2026-09-09 UTC.
 
-## § 4 gate results
+## § 4 gate results — INTERIM, at head `645e88ec`
 
-All runs at head `645e88ec41c271b002376017e810540f5e1912b1` unless a later
-final-head section supersedes them. `PIN` is `<scratchpad>/cli-pin-prefix`.
+**THESE ARE THE INTERIM RESULTS.** They were taken at head `645e88ec`, which
+carries the `docs/document-lifecycle.md` adoption but NOT the `tasks.md`,
+`proposal.md` or `README.md` edits that followed. They are SUPERSEDED BY THE
+FINAL-HEAD SECTION AT THE END OF THIS FILE and are kept rather than deleted, so
+a reader can see what was measured when. Every result below was reproduced at
+the final head; none was replaced by a different value. `PIN` is
+`<scratchpad>/cli-pin-prefix`.
 
 ### 4.1 — the pinned OpenSpec CLI (FR-024, SC-002)
 
@@ -365,3 +370,105 @@ with one.
 The two rc 1 values under 4.4 are doc-health reporting PRE-EXISTING findings that
 are byte-identical on `main`; they are not this branch's and no tick rests on
 their absence.
+
+---
+
+## FINAL-HEAD RESULTS — head `539edd282dd3e16c0cba6c0e5395d3b2882a618f`
+
+**THIS SECTION IS THE ONE THE ARCHIVE ACT READS.** The interim section above was
+taken at `645e88ec`; the commits after it — the task record, the `proposal.md`
+realization note and the `README.md` row sentence — all touch paths the pinned
+CLI and doc-health scan, so the whole § 4 set was re-run here. **Every gate was
+re-run; NONE was carried forward.** No superseded result was deleted; the interim
+section is struck by name above.
+
+**NO FORWARD MERGE WAS TAKEN.** `origin/main` moved to `6cc06288` while this
+branch was open and no task called for merging it, so these results are not
+stale on that ground. A forward merge taken after this run would make this run
+stale and the set would have to be re-run at the new head.
+
+### Preconditions, re-taken at this head
+
+- **Ancestry / packet currency (T002's check).**
+  `git merge-base --is-ancestor 3504287a HEAD` still succeeds.
+  `git log --oneline 3504287a..main` over the packet, `openspec/specs/document-lifecycle`
+  and `docs/document-lifecycle.md` is still **EMPTY** — the ratified bytes, promoted
+  canon and the § 3.4 target have not moved on `main`. The same log against `HEAD`
+  now lists exactly this branch's four content commits (`645e88ec`, `31704f0a`,
+  `0e7a67f3`, `1b9b66c7`) and nothing else, which is the expected difference and
+  not a movement of canon.
+- **Pinned target, re-taken (FR-008a).** Still **no IN-REPO `sha256` pin names
+  `docs/document-lifecycle.md`** — the grep returns nothing and
+  `health/document-catalog/` still does not exist. A pin arriving with a forward
+  merge would be a pin; none arrived, because no merge was taken. The finding is
+  recorded beside the earlier one rather than over it: both readings agree.
+
+### The gates at the final head
+
+| Gate | Command | rc | Result |
+| --- | --- | --- | --- |
+| 4.1a | `validate-openspec-cli-pin.py --change govern-archived-record-edits --strict` | **0** | `Totals: 1 passed, 0 failed (1 items)` |
+| 4.1b | `validate-openspec-cli-pin.py --all --strict` | **0** | `Totals: 99 passed, 2 failed (101 items)`, **0 UNDISPOSITIONED** |
+| 4.3a | `validate-sequenced-after.py .` | **0** | `sequenced_after validation passed (41 active changes, 8 declaring the field).` |
+| 4.3b | `validate-sequenced-after.py . --ledger-diff` | **0** | `per-change sweep ledger consistent with the corpus (185 rows).` |
+| 4.3c | `validate-scope-globs.py .` | **0** | `scope_globs validation passed (all active changes conform).` |
+| 4.3d | `validate-manifest-digests.py .` | **0** | `OK contracts/manifest.yaml: 188 per-file digest(s) verify` |
+| 4.4 | `doc-health.py --single-repo . --as-of 2026-09-09 --fail-on error` | 1 (pre-existing) | **finding set IDENTICAL to `main`'s** |
+| 4.5 | `pytest tests/sequenced_after tests/proposal-support tests/scope_globs -q` | **0** | `330 passed, 2 subtests passed` |
+
+Both 4.1 runs go through `scripts/validate-openspec-cli-pin.py` with
+`@fission-ai/openspec@1.12.0` on `PATH`, verified against content address
+`c844543999f673cdd72445879b86a4abea4c07ef` on every run; PATH's 1.2.0 was never
+used. **SC-002 at the final head: 99 / 2 / 0 — the ratified baseline exactly,
+moved in NEITHER direction.**
+
+Captures: `final-gate-4.1-change-strict.txt`, `final-gate-4.1-all-strict.txt`,
+`final-gate-4.3-validators.txt`, `final-gate-4.5-pytest.txt`,
+`final-doc-health-branch-539edd28.md`, `final-doc-health-diff-main-vs-branch.txt`,
+`final-modified-block-currency.txt`, all under
+`specs/032-govern-archived-record-edits/evidence/`.
+
+### 4.4 at the final head, in full
+
+Baseline unchanged: `main` `68712924`, same identically-named checkout, same
+`--as-of 2026-09-09` on both sides, `--previous-report` never used.
+
+- **Finding-line diff: ZERO differences.** Headline identical both sides: **10
+  critical, 9 error, 55 warning, 16 info.**
+- The full-report diff has the SAME TWO non-finding lines as the interim run and
+  no others — canon/governance word totals +199 (share unchanged at 38.9%) and
+  the `standard` stage word count +199 (document count unchanged at 6). The
+  `tasks.md`, `proposal.md` and `README.md` commits added no finding: `README.md`
+  is outside doc-health's governed roots, `tasks.md` is a packet working file the
+  rules do not reach, and `proposal.md` IS in the lifecycle scan set and still
+  parses `Status: ratified` — checked directly against the repository's own
+  `corpus.parse_status`, which returns `ratified` for the file both before and
+  after the realization note.
+- **IDEMPOTENCE (FR-024a), demonstrated rather than assumed**: the baseline was
+  re-run a third time at the same head and the same `--as-of`, and the report was
+  **byte-identical** to the stored baseline. No result here was obtained by
+  re-running until green.
+
+### 4.2 at the final head — re-taken, still NOT ticked
+
+canon **5,815** characters; delta **7,209** (script bound) / **7,186** (bounded
+at `## ADDED Requirements`); **0 canon lines removed** under both bounds. Canon
+did not move under the block, and no forward merge was taken that could have
+moved it. **The box remains deliberately OPEN for the archive act.**
+
+### Failures at the final head
+
+**NONE.** No § 4 gate failed at this head, so no tick rests on a failed gate and
+nothing in `tasks.md` is struck on that ground. Had one failed, the tick it
+supported would have been struck by a dated line naming the failing head rather
+than removed. The two rc 1 values are doc-health reporting pre-existing findings
+identical on `main`.
+
+### Standing note on a later veto
+
+Any of the five rulings open to veto, exercised after this run, RE-OPENS it for
+the paths that ruling touches: the reversal is a forward-only act and the gate
+set is re-run at the head that carries it. Two of the five are already isolated
+for exactly that — the `proposal.md` note is commit `1b9b66c7` alone and the
+`README.md` row sentence is commit `539edd28` alone, so each reverts as one
+named act without disturbing anything else.

@@ -343,32 +343,80 @@ box, what was done, by whom, and what is owed elsewhere.
 **Independent test**: read that file alone and name the responsible repository
 and actor for each of the 28 boxes.
 
-- [ ] T019 [US2] Amend, in the packet's `tasks.md` and in commit `3b530009`'s
+- [x] T019 [US2] Amend, in the packet's `tasks.md` and in commit `3b530009`'s
       FORM — a BLOCK QUOTE of the superseded sentence plus the neighbouring clause
       NAMED as not superseded, dated and attributed to this change: the preamble
       (line 7), § 0.1's "THE BOX STAYS UNTICKED" paragraph (lines 58–66), § 1's
       "GIVEN 2026-09-08, AND THE BOXES BELOW STAY UNTICKED" (line 70) and its
       re-assertion (lines 74–78). Same commit as the ticks. (FR-017, FR-017a)
-- [ ] T019a [US2] Amend the TWO HEADINGS with whole-token markers, each naming the
+      **Done 2026-09-08 in commit `0e7a67f3`** (ticked here in the following commit, so no
+      tick precedes its evidence). Four passages amended in commit `3b530009`'s form — block
+      quote of the superseded sentence plus the neighbouring clause NAMED as not superseded,
+      dated and attributed to this change: the preamble, § 0.1's "THE BOX STAYS UNTICKED"
+      paragraph, § 1's "GIVEN 2026-09-08, AND THE BOXES BELOW STAY UNTICKED" and its
+      re-assertion. Same commit as the ticks. Nothing rewritten in place: the packet
+      `tasks.md` diff deletes exactly 21 lines — the 19 tick markers and the 2 headings — and
+      nothing else.
+
+- [x] T019a [US2] Amend the TWO HEADINGS with whole-token markers, each naming the
       ratified clause it supersedes: § 1 "Ratification — OWED, NOT GIVEN" (line
       68), whose own line 73 says the heading is left as written on purpose, and
       § 3 "Composition — named here; 3.4 alone is this packet's own act" (line
       161), which 3.1's tick falsifies. (FR-017b; veto point 5)
-- [ ] T019b [US2] Write the dated CORRECTED block for § 0.1's PERFORMED note,
+      **Done 2026-09-08 in commit `0e7a67f3`.** § 1 now reads `## 1. Ratification — OWED,
+      NOT GIVEN [SUPERSEDED 2026-09-08: GIVEN]` and § 3 `## 3. Composition — named here; 3.4
+      alone is this packet's own act [SUPERSEDED 2026-09-08: 3.1 IS ALSO PERFORMED]` —
+      whole-token markers, not bare parentheticals, with the original words kept in front of
+      each. § 1's amendment NAMES the ratified clause it supersedes ("The heading is left as
+      written because it names what the section was raised to hold") and says that superseding
+      a deliberate decision is why that clause is named; it is VETO POINT 5. § 3's names the
+      superseded clause "3.4 alone is this packet's own act" and keeps "Composition — named
+      here" as not superseded.
+
+- [x] T019b [US2] Write the dated CORRECTED block for § 0.1's PERFORMED note,
       QUOTING its stale words "this packet is `Status: draft` awaiting
       ratification at task 1.1" (line 60) — true when written, false now — and
       never rewriting them in place. (FR-017c)
-- [ ] T020 [US2] Tick § 0.1 with a dated note: the row on `main` reads
+      **Done 2026-09-08 in commit `0e7a67f3`.** A dated CORRECTED block under § 0.1 quotes
+      the stale words "this packet is `Status: draft` awaiting ratification at task 1.1" and
+      says they were TRUE WHEN WRITTEN and are false now, citing the file's own `Status:
+      ratified` header and the ratification record. Never rewritten in place. The neighbouring
+      corpus-precedent sentence about `add-consent-custody-rederivation-record` is explicitly
+      NOT corrected, because re-measurement (46 unticked / 0 ticked at `main` `6cc06288`,
+      2026-09-09 UTC) shows it still true as written.
+
+- [x] T020 [US2] Tick § 0.1 with a dated note: the row on `main` reads
       `moved_by: "#788"` (`corpus-ledger.yaml:214`); the file is not rewritten
       here.
-- [ ] T021 [US2] Tick § 1.1–1.5 with dated notes citing the record as the record
+      **Done 2026-09-08 in commit `0e7a67f3`.** § 0.1 ticked with a dated note: the row on
+      `main` reads `moved_by: "#788", moved_on: "2026-09-08"` at
+      `tests/sequenced_after/corpus-ledger.yaml:214`, and `--ledger-diff` reports the corpus
+      consistent at this head. The ledger file is READ and NOT rewritten by this branch.
+
+- [x] T021 [US2] Tick § 1.1–1.5 with dated notes citing the record as the record
       does — GitHub review `5141756427`, APPROVED `2026-09-08T12:38:36Z`, record
       `review/ratification-2026-09-08.md` — and NO quotation: the approval body
       is empty. 1.2a/1.2b/1.2c note that the veto was not exercised and the
       default stands; 1.3 and 1.4 note the same. (FR-006)
-- [ ] T022 [US2] Tick § 2.1–2.3 with dated notes naming the ratified baseline
+      **Done 2026-09-08 in commit `0e7a67f3`.** § 1.1-1.5 ticked, every note citing the
+      record as the record does — GitHub review `5141756427`, APPROVED `2026-09-08T12:38:36Z`,
+      record `review/ratification-2026-09-08.md` — and NO WORD QUOTED anywhere, because the
+      approval body is EMPTY. 1.2a/1.2b/1.2c each note that the veto was NOT exercised and name
+      the default that therefore stands (wide pin scope; report-then-refuse; TWO `## ADDED`
+      requirements); 1.3 and 1.4 note the same for D-3 and the strict read-only reading. 1.5 is
+      ticked on the record EXISTING, with the box's "the word verbatim" phrase addressed
+      head-on: the record states there are no words to quote, and inventing one to satisfy the
+      box would be the defect this packet exists to refuse.
+
+- [x] T022 [US2] Tick § 2.1–2.3 with dated notes naming the ratified baseline
       `8cc76e1b` and the delta's shape (1 MODIFIED + 2 ADDED, 18 scenarios).
-- [ ] T023 [US2] Tick § 3.4 with a dated note naming the doc commit and the
+      **Done 2026-09-08 in commit `0e7a67f3`.** § 2.1-2.3 ticked, each naming the ratified
+      baseline `8cc76e1b` and the delta's measured shape — 1 `## MODIFIED` + 2 `## ADDED`
+      blocks, 18 scenarios. 2.3's note also carries the one figure this realization corrects
+      (the 7,186/7,209 block-bound reconciliation) and states that ticking 2.3 is NOT ticking
+      4.2.
+
+- [x] T023 [US2] Tick § 3.4 with a dated note naming the doc commit and the
       bullet's location. TICK § 3.1 TOO, on T012a's performed cross-citation
       check: the twin LANDED as OpsxFactory `main`
       `bbbef015cd394e2de31586b9718356586c413884` (PR #279, 2026-09-08T15:28:23Z),
@@ -376,25 +424,68 @@ and actor for each of the 28 boxes.
       Leave § 3.2, 3.3 and 3.5 UNTICKED, each with ONE dated NOT-OWED line — 3.3
       naming `add-consent-custody-rederivation-record` (merged `543d47a9`, 46
       boxes unticked). (FR-007, FR-007a, panel P2)
-- [ ] T024 [US2] Tick § 4.1, 4.3, 4.4, 4.5 with dated notes citing the evidence
+      **Done 2026-09-08 in commit `0e7a67f3`.** 3.4 ticked, naming commit `645e88ec` and the
+      bullet's location (end of § *Status Claim Rules*, line 138, two sub-bullets). 3.1 ticked
+      on T012a's PERFORMED cross-citation check, not on the merge alone, citing the sha
+      `bbbef015cd394e2de31586b9718356586c413884`, PR #279, both heads checked and the evidence
+      file. 3.2, 3.5 and 3.3 left UNTICKED, each with ONE dated NOT-OWED line; 3.3 names
+      `add-consent-custody-rederivation-record` (merged `543d47a9`, 46 boxes unticked measured
+      2026-09-09 UTC); 3.2 names OpsxFactory's `add-content-address-integrity-gate` and the
+      register file `models/content-address-families.yaml` it proposes; 3.5 names every other
+      DomainxFactory as a CLASS and states that no survey was performed and none is implied.
+
+- [x] T024 [US2] Tick § 4.1, 4.3, 4.4, 4.5 with dated notes citing the evidence
       file's recorded results; leave § 4.2 UNTICKED with a dated note saying the
       measurement was taken and the box is deliberately open for the archive
       act. (FR-012)
-- [ ] T025 [US2] Add the § 4 pinned-target note (FR-008 wording) beside the § 4
+      **Done 2026-09-08 in commit `0e7a67f3`.** 4.1, 4.3, 4.4 and 4.5 ticked, each citing
+      the evidence file's recorded result rather than restating it. 4.2 left UNTICKED with a
+      dated note saying the measurement was taken, recording where it lives, and stating why
+      the box is deliberately open — a realization tick would retire the clearance signal the
+      archive act is meant to re-take.
+
+- [x] T025 [US2] Add the § 4 pinned-target note (FR-008 wording) beside the § 4
       boxes.
-- [ ] T026 [US2] Tick § 5.1 (README row on `main` since #788); leave § 5.2 and
+      **Done 2026-09-08 in commit `0e7a67f3`.** The pinned-target note sits at the head of
+      § 4, beside the § 4 boxes, in FR-008's wording: no IN-REPO `sha256` pin names
+      `docs/document-lifecycle.md`, measured at base `68712924`, with "in-repo" flagged as
+      load-bearing and the full working referred to the evidence file.
+
+- [x] T026 [US2] Tick § 5.1 (README row on `main` since #788); leave § 5.2 and
       5.3 UNTICKED with dated NOT-OWED lines naming the lane; leave § 6.1, 6.2
       and 6.3 UNTICKED with dated lines naming the archive act and, for 6.1, the
       fact that its gating box 3.4 is now ticked.
-- [ ] T026a [US2] AUDIT THE NOTE CLASSES before committing: every one of the 28
+      **Done 2026-09-08 in commit `0e7a67f3`.** 5.1 ticked (README row on `main` since
+      #788, not re-authored here, with the Rule 7 union re-derivation named as the lane's).
+      5.2 and 5.3 left UNTICKED with dated NOT-OWED lines naming lane `opsXfactory-1`. 6.1,
+      6.2 and 6.3 left UNTICKED with dated lines naming the archive act; 6.1's records that
+      its gating box 3.4 IS NOW TICKED, so the condition it waits on is met.
+
+- [x] T026a [US2] AUDIT THE NOTE CLASSES before committing: every one of the 28
       boxes carries exactly one of ticked-with-evidence / NOT-OWED /
       RUN-RECORDED-LEFT-OPEN, the three counts SUM TO 28, and every § 4 note cites
       the evidence file rather than restating a result. Record the three numbers.
       (FR-026, SC-006)
-- [ ] T027 [US2] Commit T019–T026a as ONE commit — ticks and their notes together,
+      **Done 2026-09-08, audited mechanically before the commit.** Every one of the 28
+      boxes carries EXACTLY ONE class; no box carries two or none; every note carries its UTC
+      date; the tick state matches the class on every box; and all five § 4 notes CITE the
+      evidence file rather than restating a result. **THE THREE NUMBERS:
+      ticked-with-evidence 19, NOT-OWED 8, RUN-RECORDED-LEFT-OPEN 1 — sum 28.** Recorded in
+      the packet evidence file § *The note classes, and they sum to 28*, with the boxes
+      enumerated per class.
+
+- [x] T027 [US2] Commit T019–T026a as ONE commit — ticks and their notes together,
       never a tick ahead of its evidence; evidence without a tick is permitted and
       box 4.2 is that case. (FR-018)
-- [ ] T028 [US2] Add the ONE additive dated realization note to the packet's
+      **Done 2026-09-08 as commit `0e7a67f3`** — ONE commit carrying T019-T026a together:
+      the ticks, their notes, the NOT-OWED lines, the § 4 pinned-target note, the four sentence
+      amendments, the two heading amendments and the CORRECTED block. No tick landed ahead of
+      its evidence: every gate result it cites was recorded in `31704f0a`, the commit before.
+      Evidence without a tick is permitted and box 4.2 is that case. Quotation check run before
+      committing: 7 block quotes and 4 inline quotations, all 11 verbatim in the pre-edit
+      bytes, 0 invented.
+
+- [x] T028 [US2] Add the ONE additive dated realization note to the packet's
       `proposal.md`, placed immediately AFTER the `Lane: opsXfactory-1` line and
       NOWHERE ABOVE `Status:`, recording that realization adds the evidence file
       and the `docs/document-lifecycle.md` edit task 3.4 names, and QUOTING the
@@ -406,11 +497,30 @@ and actor for each of the 28 boxes.
       Commit separately with the superseded-enumeration reason stated. The note
       MUST also quote the two sentences at lines 17 and 44 that assert every box
       stays unticked. (FR-010, FR-010a, FR-010b, panel P5)
-- [ ] T028a Append ONE dated superseding sentence at the END of this change's
+      **Done 2026-09-08 as commit `1b9b66c7`, committed SEPARATELY** so the veto reverts as
+      one named act. The note sits immediately after the `Lane: opsXfactory-1` line and nothing
+      is inserted above `Status:`; the YAML front matter is BYTE-IDENTICAL either side
+      (sha256 of lines 1-5 unchanged) and the folded `code_surface:` scalar is untouched. The
+      repository's own `corpus.parse_status` returns `ratified` for the file both before and
+      after. It QUOTES the front-matter enumeration sentence and names the three ways
+      realization makes it incomplete, and it also quotes the two sentences at lines 17 and 44
+      that assert every box stays unticked, each as a whole sentence with the neighbouring
+      unsuperseded clause named. The superseded-enumeration reason is stated in the commit
+      message.
+
+- [x] T028a Append ONE dated superseding sentence at the END of this change's
       README "OpenSpec Records" row, which asserts "all 28 boxes in `tasks.md`
       stay unticked" (README.md line 527). At the row's END, never near the block
       anchor, so a concurrent lane's row edit collides on a different line.
       (FR-010c; veto point 4; mirror ruling M-A1)
+      **Done 2026-09-08 as commit `539edd28`, committed SEPARATELY** so this veto too
+      reverts as one named act. ONE dated superseding amendment appended at the END of this
+      change's README "OpenSpec Records" row — at line 643, the row's last line, 128 lines
+      BELOW the "Active changes:" block anchor, so a concurrent lane's row edit collides on a
+      different line. It block-quotes the superseded clause "all 28 boxes in `tasks.md` stay
+      unticked, § 1's ratification boxes included" and names what is NOT superseded, including
+      the one assertion realization did perform rather than dropping it silently.
+
 
 **Checkpoint**: the packet reads truthfully and the branch is archive-ready.
 
@@ -418,7 +528,7 @@ and actor for each of the 28 boxes.
 
 ## Phase 6: Gates and polish
 
-- [ ] T029 Re-run the FULL § 4 gate set at the final head (T027/T028 touched
+- [x] T029 Re-run the FULL § 4 gate set at the final head (T027/T028 touched
       `openspec/changes/**`, which the pinned CLI scans) and update the evidence
       file with the final-head results, marking clearly which results are
       final-head and which were interim. A superseded interim result is STRUCK
@@ -430,6 +540,22 @@ and actor for each of the 28 boxes.
       RE-TAKE at this head, because a forward merge can move either: the
       pinned-target measurement (FR-008a) and the ancestry check of T002. Record
       both results beside their earlier ones rather than over them.
+      **Done 2026-09-08 at final head `539edd282dd3e16c0cba6c0e5395d3b2882a618f`.** The FULL
+      § 4 set was re-run — none carried forward — and the evidence file gained a FINAL-HEAD
+      RESULTS section; the earlier section is STRUCK by name as INTERIM (taken at `645e88ec`)
+      and kept rather than deleted. Results at the final head: 4.1a rc 0 (1/0); 4.1b rc 0
+      (99 passed / 2 failed / **0 UNDISPOSITIONED** — the ratified baseline exactly, moved in
+      neither direction); all four 4.3 validators rc 0; 4.5 rc 0 `330 passed, 2 subtests
+      passed`; 4.4 finding set **IDENTICAL** to `main`'s, same two non-finding word-count
+      lines and no others. **NO GATE FAILED, so no tick is struck.** RE-TAKEN at this head as
+      required: the pinned-target measurement (still no in-repo pin; `health/document-catalog/`
+      still absent) and T002's ancestry check (`3504287a` still an ancestor; the log against
+      `main` still EMPTY), both recorded BESIDE their earlier readings rather than over them.
+      Idempotence demonstrated rather than assumed: a third baseline run at the same head and
+      `--as-of` was BYTE-IDENTICAL. NO forward merge was taken, so this run is not stale on
+      that ground; a veto exercised after it re-opens it for the paths it touches, and the two
+      veto-bearing commits are isolated for exactly that.
+
 - [ ] T030 [P] Verify SC-007: `git diff main...HEAD --name-only` contains only
       the SIX allowed paths — the feature directory, `docs/document-lifecycle.md`,
       the packet's `tasks.md`, its new `evidence/` file, its `proposal.md`, and
