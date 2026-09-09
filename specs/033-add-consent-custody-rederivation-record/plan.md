@@ -117,9 +117,12 @@ Nothing below is this plan's invention; each cites its answer.
 
 1. **ONE pull request carries §§ 2–5** (Q1a) — § *Version Identity* requires the
    manifest and changelog to move atomically with the contract files.
-2. **WITHHELD gets a new exit status behind a single named constant** (Q2),
-   provisionally `3`, docstring vocabulary extended in this script only, the
-   packaged withheld fixture exempt, the NUMBER parked for Brett Heap.
+2. **WITHHELD gets exit status `3`, "needs a human decision"** — Brett Heap's
+   ruling of 2026-09-09 (Q2), by multiple-choice selection, verbatim *"Exit 3 =
+   needs a human decision (Recommended)"*. Behind a single named constant;
+   docstring vocabulary extended in this script only; the packaged withheld
+   fixture exempt. **It is the repository rule task 3.4b asked for**, and the
+   lane records it on #630.
 3. **A third fixture directory** `examples/consent-instrument/withheld/` with a
    fail-closed-both-ways `EXPECTED_WITHHELD_OUTCOMES` table (Q3a).
 4. **Only `contract_schema_version` moves** (Q4).
@@ -160,25 +163,39 @@ Nothing below is this plan's invention; each cites its answer.
    lane REPEATS the integration.** A bundle measured against a tree that has
    since moved is not a measurement.
 7. **The annotated tag (§ 5.6, Brett's act) targets the LANDED MERGE COMMIT.**
+   A repeat-integration RETAINS the superseded gate transcripts, struck with a
+   dated line naming the head that replaced them; the evidence shows every
+   attempt, not only the last.
 8. **§ 5.5 is the lane's tick**, in a follow-up bookkeeping commit while the
    packet is still live. This feature leaves it NOT-OWED-HERE with a dated line.
 
 ## Implementation sequence (dependency order)
 
-| Phase | Content | Gate before moving on |
-| --- | --- | --- |
-| **A** | Speckit tree: research, plan, tasks, checklists | analyze clean |
-| **B** | § 2 schema growth | schema self-validates; `git diff` shows zero lines inside `custody`; digest KNOWINGLY stale |
-| **C** | § 3 validator legs, WITHHELD outcome, extended walk | validator runs clean over the un-grown corpus |
-| **D** | § 4 fixtures — positives, negatives, the withheld bucket, `self_test`'s third bucket | `validate-consent-instruments.py --strict` 0/0 with three bucket counts |
-| **E** | `tests/consent_instruments/` | `pytest tests/consent_instruments -q` green |
-| **F** | § 4.9 + A1 corpus counts (README, manifest comment, `contracts/README.md`) | counts re-measured, never incremented |
-| **G** | Q8's three README amendments | **BLOCKED on the lane's substrate note for the two sibling-row sentences** |
-| **H** | § 5.2–5.4 THE CUT: re-measure the number, then manifest + CHANGELOG + built inventory in ONE commit | all five gates green against that exact unchanged candidate |
-| **I** | Bookkeeping: 46 notes, evidence in both trees, A2's dated note | note classes sum to 46; every tick has evidence in its own commit |
+**THE PHASE LETTERS HERE ARE `tasks.md`'s LETTERS, EXACTLY.** An earlier draft
+of this table used its own scheme, in which corpus counts were a separate phase
+and every letter after it was offset by one — so this table's "Phase G" named
+the cut while `tasks.md`'s Phase G named the README amendments, and the risk
+row below pointed at the wrong phase. One scheme, and it is the executable
+file's.
 
-Phases B–F are strictly ordered. **G may be taken any time after the lane's
-note arrives and MUST NOT block H.** **H is LAST**, so the candidate stands on
+| Phase | Tasks | Content | Gate before moving on |
+| --- | --- | --- | --- |
+| **A** | T001–T007 | Speckit tree: spec, clarify answers, plan, research, tasks, checklists | analyze clean |
+| **B** | T010–T017 | § 2 schema growth | schema self-validates; `git diff` shows zero lines inside `custody`; the manifest digest is KNOWINGLY stale and the commit message says so |
+| **C** | T020–T028 | § 3 validator legs, the WITHHELD outcome and exit `3`, the extended walk | validator runs clean over the un-grown corpus |
+| **D** | T030–T049 | § 4 fixtures — positives, negatives, the withheld bucket, `self_test`'s third bucket, **and the three corpus-count surfaces (T047–T049)** | `validate-consent-instruments.py --strict` 0/0 with three bucket counts; counts re-measured, never incremented |
+| **E** | T050–T054 | `tests/consent_instruments/` | `pytest tests/consent_instruments -q` green, then the full suite |
+| **F** | T055–T059 | Q8's three README amendments | **BLOCKED on the lane's substrate note for the two sibling-row sentences** |
+| **G** | T060–T066 | § 5.2–5.4 THE CUT: re-measure the number AND the bundle's path list, then manifest + CHANGELOG + built inventory in ONE commit | all five gates green against that exact unchanged candidate |
+| **H** | T070–T083 | Bookkeeping: 46 notes, evidence in both trees, A2's dated note, the post-hoc tick/evidence audit | note classes sum to 46; every tick rides its evidence's commit |
+
+**Every phase files a transcript, not only the final ones** (FR-042b): B, C, D
+and E each record the run that satisfied their gate, captured raw with its
+return code — a phase judged complete on an unrecorded local run is a gate that
+was not run.
+
+Phases B–E are strictly ordered. **F may be taken any time after the lane's
+note arrives and MUST NOT block G.** **G is LAST**, so the candidate stands on
 the final tree.
 
 ## Risks, and how each is refused rather than accepted
@@ -189,7 +206,10 @@ the final tree.
 | The digest inventory drifts from the tree | It is BUILT by `validate-contract-release.py build`, never hand-edited, and `verify-commit` re-derives it against the exact candidate. |
 | The stale manifest digest between § 2 and § 5.2 is read as a defect | § 2's commit message states the staleness and names the commit that closes it. CI runs at the PR head, where it is closed. |
 | The withheld fixture reddens a caller | Measured: no caller reads this exit code. The packaged fixture is exempt in any case. |
-| The exit-code number is wrong | It is a single named constant, and Q2 records that the number is Brett's ruling. |
+| The exit-code number is wrong | It is not a guess: Brett Heap RULED `3` on 2026-09-09 by explicit selection over two declined alternatives, and the ruling is cited verbatim at the constant, in the design note and in the evidence. It remains a single named constant. |
 | A tick claims an act nobody performed | Every tick's note cites a commit, a record or a transcript, and rides the same commit as its evidence. |
-| A README amendment lands without its substrate claim | Phase G is BLOCKED until the lane posts the note. |
+| A README amendment lands without its substrate claim | **Phase F** is BLOCKED until the lane posts the note. |
+| The substrate note never arrives | T055 reports the block ONCE, and the orchestrator RE-CHECKS at each merge-from-main (the same cadence the version re-measurement already runs on) rather than polling. If the branch reaches T082 with Phase F still blocked, **T056 is still taken** — this packet's own row rides its standing row-3 claim and needs no note — and **T057/T058 take a dated `REPORTED, NOT PERFORMED` line** naming the block, in the same register as §§ 6–7's NOT-OWED lines. They are not left dangling and they are not silently dropped. |
+| A gate reds after the candidate commit is formed | The candidate is **REMADE**, never patched (FR-034a): a fresh single commit, and every gate re-run against it. Amending the reviewed commit's tree while keeping its identity would leave gates certifying a tree that no longer exists. |
+| A repeat-integration orphans the evidence already gathered | The superseded transcripts are **RETAINED and STRUCK with a dated line naming the head that replaced them** — never deleted and never silently overwritten. An evidence directory that shows only the last attempt cannot show that the earlier one was superseded rather than skipped. |
 | Landing arms a cross-repo refusal nobody scheduled | A2 is recorded as a dated note in two places and built nowhere. |

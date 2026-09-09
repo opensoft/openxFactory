@@ -23,6 +23,15 @@ Q5). Where this file and the packet differ, the packet governs.
 `[P]` = parallelizable with its siblings (different files, no ordering
 dependency).
 
+**TWO DISCIPLINES BIND EVERY TASK BELOW AND ARE NOT REPEATED ON EACH ONE.**
+(1) **Every phase gate files a RAW transcript** to `evidence/` — the command
+line, the summary line and the process's own return code, captured, never
+paraphrased. Piping a run through `tail` returns `tail`'s exit code and pushes
+the summary line out of the window, so a run captured that way proves nothing
+(FR-042a/b). (2) **Every negative fixture is ISOLATED**: sound in every leg
+except the one it is named for, because `self_test`'s `codes_of()` only requires
+the expected code to be PRESENT, not exclusive (FR-021a).
+
 ---
 
 ## Phase A — the Speckit tree
@@ -109,15 +118,21 @@ dependency).
       `custody-content-class-withheld` as a DISTINCT outcome on `Findings` —
       not an error, not a warning. A `content`-class entry with sound internal
       legs yields it.
-- [ ] **T024** *(box 3.4b, Q2)* **THE EXIT STATUS, behind ONE named constant.**
-      Define a single module constant (provisionally `EXIT_NEEDS_DECISION = 3`),
-      return it from `report()` when a REAL instrument withholds and nothing
-      errors, extend the module docstring's `Exit codes:` line **in this script
-      only**, and write a comment recording that **the NUMBER is Brett Heap's
-      ruling to make** (clarify Q2 is PARKED) so a different ruling moves the
-      constant and nothing else. **The PACKAGED withheld fixture is EXEMPT** —
-      an expected withholding is to the third bucket what an expected failure is
-      to a negative — so the self-test still exits 0.
+- [ ] **T024** *(box 3.4b; clarify Q2, RULED)* **THE EXIT STATUS — `3`, on
+      Brett Heap's word.** Define a single module constant
+      `EXIT_NEEDS_DECISION = 3` and return it from `report()` when a REAL
+      instrument withholds and nothing errors. Extend the module docstring's
+      line to **`Exit codes: 0 ok, 1 findings, 2 harness error, 3 withheld —
+      needs a human decision`**, **in this script only**. At the constant, cite
+      the ruling: Brett Heap, 2026-09-09, in session, first-hand to lane
+      `opsXfactory-1`, by multiple-choice selection, verbatim **"Exit 3 = needs
+      a human decision (Recommended)"**, over the declined *"Exit 1, same as
+      findings"* and *"Exit 0, report only"*; recorded by this lane at
+      `2026-09-09T14:40:16Z`. **Say in the comment that this IS the repository
+      rule ratified task 3.4b asked for** — the repository had ruled none before
+      it. **The PACKAGED withheld fixture is EXEMPT** — an expected withholding
+      is to the third bucket what an expected failure is to a negative — so the
+      self-test still exits `0`.
 - [ ] **T025** *(box 3.4)* The report line for a chained instrument states what
       was checked and what was NOT, so a neutral pass is unreadable as a
       currency verdict (promoted scenario *The neutral pass is not a currency
@@ -157,16 +172,25 @@ dependency).
 ### Negatives, one per named refusal `[P]`
 
 - [ ] **T034** *(box 4.3)* Broken digest link → `custody-chain-broken-link`.
+      **Locator pair sound**, so the fixture tests the digest half alone.
 - [ ] **T035** *(box 4.3b)* Locator gap with digests linking correctly →
       `custody-chain-locator-gap`.
 - [ ] **T036** *(box 4.3c)* Entries out of recorded-time order →
-      `custody-chain-out-of-order`.
+      `custody-chain-out-of-order`. **Both digest and locator legs sound**, so
+      only the ordering is under test. Equal timestamps are ADMITTED, so the
+      fixture must DECREASE, not merely repeat.
 - [ ] **T037** *(box 4.4)* TWO fixtures: a first entry whose `previous_sha256`
       is not the pin, and one whose `previous_locator` is not `custody.locator`
       → `custody-chain-unanchored` both, detail-pinned so each tests its own
       half.
 - [ ] **T038** *(box 4.5)* TWO fixtures: an unknown `diff_class` member and an
       unknown `reason` member → `schema`, each detail-pinned on its field.
+      **The FIVE `schema`-coded fixtures (T038, T039, T040) must carry MUTUALLY
+      EXCLUSIVE detail substrings** — the self-test only checks that a
+      registered detail appears somewhere in that fixture's errors, so two
+      overlapping substrings would let one fixture satisfy another's assertion.
+      Choose the substrings, then prove the exclusivity by cross-checking each
+      against every other fixture's error text.
 - [ ] **T039** *(box 4.6)* TWO fixtures: an entry omitting `ruling_ref` and one
       omitting `recorded_by` → `schema`, each detail-pinned.
 - [ ] **T040** *(box 4.7)* An entry carrying an **ELEVENTH** property → `schema`,
@@ -174,7 +198,10 @@ dependency).
       fields since C-6a, so a "ninth" would not test closure at all.)
 - [ ] **T041** *(box 4.8)* A rewritten pin — `custody.sha256` advanced to an
       observed digest while the chain still claims the original anchor →
-      `custody-pin-rewritten`.
+      `custody-pin-rewritten`. **MULTI-ENTRY chain, not single**: FR-011's
+      sharper form is the pin advanced to an entry's `observed_sha256` *"while a
+      LATER entry exists"*, and a one-entry fixture exercises only the general
+      form.
 - [ ] **T042** *(box 4.8b)* TWO fixtures: a blob-shaped `ruling_ref` and a
       blob-shaped `recorded_by` → `embedded-original-content`. **This is the
       fixture pair that proves T026 landed.**
@@ -193,7 +220,10 @@ dependency).
 - [ ] **T046** *(box 4.8c, Q3a)* `self_test` grows `EXPECTED_WITHHELD_OUTCOMES`,
       **fail-closed BOTH ways** exactly as `EXPECTED_NEGATIVE_FINDINGS` is: a
       fixture on disk with no table entry and a table entry with no fixture are
-      each errors. The self-test note reports THREE bucket counts.
+      each errors. **AND it must check the OUTCOME, not just the file**: the
+      analogue of `negative-wrong-reason`. A withheld fixture that ERRORS, or
+      that passes cleanly, is a self-test failure — "the fixture exists" is not
+      "the fixture withholds". The self-test note reports THREE bucket counts.
 
 ### Corpus counts
 
@@ -202,7 +232,13 @@ dependency).
       complete **with a THIRD column for the withheld bucket**; *Named cases
       from the spec* grows **one bullet per refusal code (7) + one positive
       chain-shapes bullet + one withheld bullet**; counts RE-MEASURED by
-      listing the directories, never by arithmetic.
+      listing the directories, never by arithmetic. **THE SEVEN REFUSALS ARE NOT
+      Q10's SEVEN CODES** — Q10's list contains `custody-content-class-withheld`,
+      which already has its own bullet, so the seven are the six that refuse
+      (`custody-chain-unanchored`, `custody-chain-broken-link`,
+      `custody-chain-locator-gap`, `custody-chain-out-of-order`,
+      `custody-pin-rewritten`, `custody-path-class-digests-differ`) plus
+      **`embedded-original-content` under its newly extended reach**.
 - [ ] **T048** *(box 4.9)* `contracts/manifest.yaml`'s `consent-instrument`
       corpus comment (*"5 valid + 5 invalid + purpose probes"*) RE-MEASURED.
       **It is already false at 6/7 before this feature adds a byte** — do not
@@ -226,9 +262,12 @@ dependency).
 - [ ] **T052** *(box 3.5, Q7b)* **Parametrized blob-walk test** proving the walk
       reaches each of the four free strings (`previous_locator`,
       `observed_locator`, `ruling_ref`, `recorded_by`).
-- [ ] **T053** *(Q2)* A test pinning the WITHHELD exit status to the single
-      named constant, so a change to the number is a one-line test edit and
-      never a silent drift.
+- [ ] **T053** *(clarify Q2, RULED)* A test pinning the WITHHELD exit status:
+      the named constant equals `3`; a REAL withholding instrument exits `3`;
+      the PACKAGED self-test exits `0`; and an instrument that both withholds
+      AND errors exits `1`, because an error is not a decision to be taken by a
+      human — it is a malformed record. All three exits asserted, not just the
+      new one.
 - [ ] **T054** `python3 -m pytest tests/consent_instruments -q` green, and then
       the full `python3 -m pytest tests/ -q -m "not postgres"` green.
 
@@ -239,6 +278,17 @@ dependency).
       T058 are written. This packet's own row (T056) rides its standing row-3
       claim `5571680388` (2026-09-07). **Do not write T057/T058 until the note
       exists; report the block instead.**
+      **CHANNEL AND CADENCE, stated rather than left to inference.** Posting is
+      a LANE act, exactly as § 5.1's version claim is — this seat opens no pull
+      request and posts no comment. The orchestrator does NOT poll: it RE-CHECKS
+      whether the note has arrived at **each merge-from-main**, the same cadence
+      the version re-measurement runs on (T060), and reports the state each time.
+      **TERMINAL DISPOSITION if it never arrives.** T056 is taken regardless. If
+      the branch reaches T082 with Phase F still blocked, **T057 and T058 take a
+      dated `REPORTED, NOT PERFORMED` line** naming the block and the note they
+      wait on — the same register as §§ 6–7's NOT-OWED lines. They are neither
+      left dangling nor silently dropped, and the two README sentences stay
+      false-on-main with that fact RECORDED rather than hidden.
 - [ ] **T056** *(Q8a-1)* Amend this packet's own OpenSpec Records row —
       *"**all 46 boxes in `tasks.md` stay unticked**"* — in the `3b530009` form:
       block-quote the superseded sentence, name the un-superseded neighbour,
@@ -263,14 +313,25 @@ dependency).
 - [ ] **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
       integrate onto the final integration point, then **RE-MEASURE** the next
       additive minor on all three surfaces (`contracts/manifest.yaml:3`,
-      `contracts/releases/`, `git tag -l 'contract-v*'`). Report the result to
-      the lane. **Re-measure at EVERY merge-from-main.** Do not post the claim.
+      `contracts/releases/`, `git tag -l 'contract-v*'`) — **and RE-MEASURE THE
+      BUNDLE'S OWN CONTENTS**, `git diff --name-status contract-v3.4 HEAD --
+      contracts/` at that commit. `research.md` R6's 4-added/14-modified list
+      was measured at branch creation and moves every time another lane lands,
+      so T062 is written from THIS measurement, never from R6. Report both to
+      the lane. **Both are re-measured at EVERY merge-from-main.** Do not post
+      the claim.
 - [ ] **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
       one commit: `contract_bundle_version` → the allocated version; the
       `consent-instrument` row's `sha256` **re-derived by `sha256sum`** from the
-      moved file (closing T017's deliberate staleness); and an APPENDED
+      moved file (closing T017's deliberate staleness); and a NEW
       `consumption_rule` paragraph in the `contract-v1.33` style — what grew,
       that it is ADDITIVE, that the envelope stayed `const: 1`.
+      **INSERT IT BEFORE THE CLOSING SENTENCE, not after.** The rule's shape is
+      [summary] → [`Registered at contract-v1.30; digest refreshed at
+      contract-v1.33 …`] → [*"Consumed through the pinned openxFactory checkout
+      with per-file sha256 verified before any copy is treated as current."*].
+      The v1.33 paragraph sits BETWEEN the registration line and that closing
+      sentence; the v3.5 paragraph goes in the same slot, after it.
       **`consent-instrument-class-registry`'s row is untouched.**
 - [ ] **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
       changed in the BUNDLE, not what this session intended**: all **4 additions
@@ -278,9 +339,14 @@ dependency).
       (`research.md` R6), each attributed to its originating change/PR —
       including the `publish-openspec-cli-pin-as-contract-member` **A-defer**
       registration that this bundle is what finally publishes. **Change class:
-      ADDITIVE (minor)**, with the measurement that justifies it (one new
-      optional property, one `contract_schema_version` bump, nothing removed,
-      no enumeration narrowed, every existing instrument valid unchanged).
+      ADDITIVE (minor)** — and **argue it over the WHOLE bundle, not only this
+      session's schema.** The additions are additive by construction; **each
+      MODIFICATION to an already-published contract must be checked
+      INDIVIDUALLY** for a removed field, a narrowed enumeration or a newly
+      required property, which is what the `contract-v3.4` entry did clause by
+      clause. This session's own leg of that argument: one new optional
+      property, one `contract_schema_version` bump, nothing removed, no
+      enumeration narrowed, every existing instrument valid unchanged.
 - [ ] **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
       **BUILT** by `python3 scripts/validate-contract-release.py build --tag
       <version> --output contracts/releases/<version>.digests.yaml`. **Never
@@ -288,7 +354,13 @@ dependency).
       `contract-v3.4`'s 283.
 - [ ] **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
       candidate**, transcripts to `evidence/`:
-      `scripts/validate-release-tag-gate.py`;
+      `scripts/validate-release-tag-gate.py` **with an EXPLICIT
+      `--base <main sha at the integration point>`** — its default resolves
+      `--base` to the head's FIRST PARENT, right for a GitHub `pull_request`
+      merge commit and WRONG for a candidate on a branch that integrated by
+      merging `main` INTO it, where the first parent is this branch's own prior
+      tip. The default would diff against the wrong tree and return a
+      near-empty result that LOOKS like a pass;
       `python3 -m pytest tests/ -q -m "not postgres"`;
       `scripts/validate-manifest-digests.py`;
       `scripts/validate-contract-release.py verify-commit --commit <candidate>`;
@@ -321,10 +393,20 @@ dependency).
       veto was NOT exercised"* section, and the default that stands (no
       `amendments` entry; the three instruments stay `executed`).
 - [ ] **T074** *(architect ruling Q1/Q10 form)* Amend the packet `tasks.md`'s
-      ratified *"NOTHING BELOW IS DONE. EVERY BOX IS UNTICKED…"* preamble in the
-      `3b530009` form **in the same commit as the first tick**: block-quote the
-      superseded sentence, name the un-superseded neighbour, marker
+      ratified preamble in the `3b530009` form **in the same commit as the first
+      tick**. **Superseded sentence**: *"NOTHING BELOW IS DONE. EVERY BOX IS
+      UNTICKED, AND THAT IS THE STATE OF THE PACKET RATHER THAN AN OVERSIGHT."*
+      **Un-superseded neighbour — NAMED HERE rather than left to execution-time
+      judgement**: the same paragraph's closing clause *"no consumer pin
+      advances, and no instrument takes an entry"*, which stays TRUE after this
+      realization because those are § 6's acts and § 6 is the consumer's.
+      Block-quote the superseded sentence, name that neighbour, marker
       `AMENDED 2026-09-09`, tick marker `**TICKED 2026-09-09`.
+      **T056–T058 name their own neighbours the same way**: for this packet's
+      row, *"no consumer file is edited"*; for `README.md:3022`, *"the three
+      pins are still broken"*; for `README.md:2993`, *"the register home
+      `models/content-address-families.yaml` exists neither on OpsxFactory's
+      `main` nor on the branch proposing it"*.
 - [ ] **T075** Dated NOT-OWED lines on §§ 6.1, 6.2, 6.2b, 6.3, 6.4 and 7.1, 7.2,
       7.3 — named as owed elsewhere, performed nowhere here.
 - [ ] **T076** **Note classes SUM TO 46**: 35 ticked + 3 NOT-OWED-HERE + 8
@@ -343,17 +425,63 @@ dependency).
 - [ ] **T079** *(architect ruling Q4)* Evidence in BOTH trees:
       `specs/033-add-consent-custody-rederivation-record/evidence/` and
       `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md`.
-- [ ] **T080** *(architect ruling Q10)* **doc-health TWO-REPORT COMPARISON** —
-      identical basenames, `--as-of` pinned to one date on both, `main` and this
-      branch, finding sets diff-identical at every severity.
+- [ ] **T080** *(architect ruling Q10)* **doc-health TWO-REPORT COMPARISON.**
+      `python3 scripts/doc-health.py --single-repo <checkout> --as-of <ONE
+      pinned date> --report-out <dir>/doc-health.md`, run once against `main`
+      and once against this branch. **The two `--report-out` basenames MUST BE
+      IDENTICAL** and differ only in their directory, so the report's own
+      self-reference cannot show up as a diff line and manufacture a finding
+      difference that is really a filename difference. `--as-of` pinned to the
+      same date on both, so a clock rollover between the runs cannot move an
+      aging-class finding (the failure `specs/032`'s
+      `doc-health-diff-INTERIM-superseded-clock-rollover.txt` records). The
+      finding sets must be diff-identical at EVERY severity; both reports and
+      the diff go to `evidence/`.
+      **NAME THE BASELINE'S `main` SHA, and RE-TAKE IT IF `main` MOVES** before
+      the final comparison — re-captured at the commit this branch last merged
+      from, with BOTH shas recorded. A diff-identical comparison against a stale
+      baseline is not a comparison.
+      **The CHECKOUT DIRECTORY basenames must match too**, not only the report
+      basenames: a path fragment differing between the two runs is a filename
+      difference wearing a finding's clothes.
+      **If the corpus growth itself trips a family** — a lifecycle-header or
+      location-conformance scan reaching the new `withheld/` directory — that is
+      a REAL finding this feature caused: fix it, or disposition it with a
+      citation. Never wave it through as "expected, the corpus grew".
 - [ ] **T081** Final gate sweep at the branch head: pinned CLI
       `--change … --strict` **and** `--all --strict` (zero UNDISPOSITIONED
       failures); `validate-consent-instruments.py --strict` over the corpus;
       `validate-sequenced-after.py .` and `--ledger-diff`;
       `validate-scope-globs.py`; `validate-manifest-digests.py`;
       `pytest tests/ -q -m "not postgres"`. Transcripts to `evidence/`.
+      **WHY THIS SWEEP IS NARROWER THAN T064's, stated so it reads as a choice.**
+      It omits `validate-release-tag-gate.py` and
+      `validate-contract-release.py verify-commit` because Phase H touches no
+      path under `contracts/` — only `tasks.md`, `proposal.md`, `README.md` and
+      `evidence/`. **VERIFY that premise rather than assume it**
+      (`git diff --name-only <candidate>..HEAD -- contracts/` must be empty); if
+      any Phase H commit did reach `contracts/`, the candidate is no longer the
+      certified tree and BOTH release gates re-run here too.
+      **A `pin-disposition-stale` refusal (exit 2) from `--all --strict` is a
+      THIRD outcome**, distinct from a clean pass and from undispositioned
+      findings: an accepted exception whose finding no longer occurs, usually
+      because an unrelated change archived. It is corpus hygiene in a file this
+      feature does not touch — REPORT it, do not silently repair it.
+- [ ] **T083** *(FR-041)* **POST-HOC TICK/EVIDENCE AUDIT.** After every tick has
+      landed, walk the commit history and PROVE — not assert — that no tick's
+      commit precedes the commit carrying its evidence:
+      `git log --format='%h %s' <base>..HEAD` plus a `git show --stat` per
+      tick-bearing commit, each showing the tick and its evidence in the SAME
+      commit. The audit transcript is itself evidence. The discipline is
+      verified from history, never from the author's memory of the order things
+      happened in.
 - [ ] **T082** Push the branch. **No pull request, no comment, no merge, no
-      tag** — every one of those is the lane's or Brett's.
+      tag** — every one of those is the lane's or Brett's. **The branch merges
+      forward and NEVER rebases pushed commits**: no `--force`, no
+      `--force-with-lease`, no amend of anything already pushed. Integration
+      with `main` is always a merge; opensoft ruleset 8981805 forbids
+      non-fast-forward updates, so a rewrite is refused at the remote and a
+      local one only produces a branch that cannot land.
 
 ## Traceability — every `spec.md` requirement to the tasks that discharge it
 
@@ -364,6 +492,8 @@ dependency).
 | FR-003 | T015 | 2.2 |
 | FR-004 | T012 | 2.3 |
 | FR-005 | T013, T014 | 2.4, 2.5 |
+| FR-006 | T016 | *(none — clarify Q4)* |
+| FR-007 | T015, T016 | *(none — ratified delta scenario 3)* |
 | FR-010 | T020 | 3.1 |
 | FR-011 | T021 | 3.2 |
 | FR-012 | T027, T050, T051 | 3.3 |
@@ -372,6 +502,7 @@ dependency).
 | FR-015 | T022 | 3.4c |
 | FR-016 | T026, T042, T052 | 3.5 |
 | FR-020 | T030, T031, T032, T033 | 4.1, 4.1b, 4.1c, 4.2 |
+| FR-021a | T034, T036, T038, T039, T040, T041 | *(none — checklist finding)* |
 | FR-021 | T034–T043, T044 | 4.3, 4.3b, 4.3c, 4.4, 4.5, 4.6, 4.7, 4.8, 4.8b, 4.8d |
 | FR-022 | T028, T045, T046 | 4.8c |
 | FR-023 | T047, T048 | 4.9 |
@@ -381,33 +512,64 @@ dependency).
 | FR-032 | T062 | 5.3 |
 | FR-033 | T063 | 5.2 |
 | FR-034 | T064 | 5.4 |
+| FR-034a | T061–T064 (the rule the phase follows) | *(none — checklist finding)* |
 | FR-035 | T066 | 5.6 |
 | FR-036 | T003 (recorded), T065, T066 | 5.5, 5.6 |
 | FR-040 | T070, T071, T072, T073, T075, T076 | 0.1, 1.1, 1.2, 1.3, 6.x, 7.x |
-| FR-041 | the tick discipline stated in this file's header; enforced at T070–T074 | — |
+| FR-041 | the tick discipline stated in this file's header; enforced at T070–T074; **AUDITED at T083** | — |
 | FR-042 | T079 | — |
+| FR-042a | every gate task; stated once in this file's header | — |
+| FR-042b | the Phase B/C/D/E gates in `plan.md`'s sequence table | — |
 | FR-043 | T077 | — |
 | FR-044 | T074 | — |
 | FR-045 | T080 | — |
+| FR-045a | T080 | — |
 | FR-046 | T055, T056, T057, T058, T059 | *(none — clarify Q8)* |
 | FR-047 | T078 | *(none — clarify A2)* |
 
 **Every success criterion has a gate.** SC-001 → T064/T081; SC-002 → T076;
 SC-003 → T015; SC-004 → T064/T081; SC-005 → T064; SC-006 → T081; SC-007 →
-T054/T081; SC-008 → T080; SC-009 → T081; SC-010 → T053 and T064.
+T054/T081; SC-008 → T080; SC-009 → T081; SC-010 → T053.
 
-**Every ratified delta scenario has a realizing task.** The MODIFIED
-requirement's seven scenarios land in Phase B and Phase D (the sibling siting
-T010; the untouched `custody` T015; the no-amendment carve-out — realized by
-writing NO `amendments` machinery at all, asserted at T015/T016; the
-never-rewritten pin T021/T041; the unattributed-acceptance refusal T010/T039;
-the unknown class or reason T011/T038; the additive no-array case T033). The
-ADDED requirement's fifteen scenarios split by the C-7 line: the INTERNAL legs
-land at T020–T028 with fixtures T030–T046, and the GIT legs (re-derivation at
-`commit^`/`commit`, ancestry, HEAD termination, `header_only` contradicted by
-the measured diff, an unresolvable locator pair) are the CONSUMER's under
-§ 7.1 and are realized nowhere here — which is the split the requirement itself
-states, not a gap.
+## Traceability — the ratified delta's 22 scenarios, one row each
+
+**MEASURED: 7 scenarios on the `## MODIFIED` requirement, 15 on the `## ADDED`
+one.** Every row says which tasks realize it, or says plainly that it is the
+CONSUMER's and why. **A scenario marked NOT-OWED is not a gap** — it is the
+C-7 split the requirement itself states: the neutral validator takes what is
+derivable from the record's own bytes, and the git re-derivation runs where the
+target's bytes are, in the consuming repository under § 7.1.
+
+| # | Requirement | Scenario | Realized by | Note |
+| --- | --- | --- | --- | --- |
+| 1 | MODIFIED | Custody is a pointer, not a payload | T015, T016 | Pre-existing and PRESERVED; realized as the proof that `custody` did not move |
+| 2 | MODIFIED | A re-derivation is recorded beside custody, never inside it | T010, T013, T015 | The sibling siting, its D9/C-1 comment, and the byte-identity proof |
+| 3 | MODIFIED | A re-derivation does not amend the instrument | **FR-007** — T015, T016 | Realized as an ABSENCE: no `amendments` machinery is added anywhere, asserted by diff |
+| 4 | MODIFIED | The executed pin is never rewritten to match the moved target | T021, T041 | `custody-pin-rewritten`, with a MULTI-ENTRY fixture |
+| 5 | MODIFIED | An unattributed or uncited acceptance is refused | T010, T039 | `ruling_ref` + `recorded_by` in `required`; two negatives |
+| 6 | MODIFIED | An unknown class or reason is refused at the contract | T011, T038 | Closed enums; two detail-pinned negatives |
+| 7 | MODIFIED | An instrument that declares no re-derivations is unaffected | T033, FR-001's `required` ban | A byte-unchanged existing example, re-validated |
+| 8 | ADDED | A direct pin verifies with no chain | T033 | The no-array case; the HEAD hash itself is the consumer's |
+| 9 | ADDED | An unbroken chain is admitted, link by link | T020, T030, T032 | Internal legs only; the per-commit re-derivation is the consumer's |
+| 10 | ADDED | A path move is re-derived at both paths | T031, T014 | The locator pair and its comment; the resolution at `commit^`/`commit` is the consumer's |
+| 11 | ADDED | A `path_only` entry whose digests differ is refused | T022, T043 | `custody-path-class-digests-differ` — NEUTRAL, both digests are record fields |
+| 12 | ADDED | A `header_only` claim contradicted by the diff is refused | — | **NOT-OWED (§ 7.1).** Needs the measured diff, so it needs the repository |
+| 13 | ADDED | A locator pair that resolves at neither path is refused | T014 (comment only) | **NOT-OWED (§ 7.1).** Resolution runs through the consumer's DECLARED mapping |
+| 14 | ADDED | A content-class divergence withholds the verdict | T023, T024, T045, T046, T053 | The WITHHELD outcome and exit `3` — Brett Heap's ruling of 2026-09-09 |
+| 15 | ADDED | A consumer gate propagates a withheld verdict and never upgrades it | — | **NOT-OWED (§ 6.2b).** It is the consumer's gate by construction |
+| 16 | ADDED | A broken link is refused, not repaired | T020, T034 | `custody-chain-broken-link` |
+| 17 | ADDED | A chain that does not anchor to the pin is refused | T020, T037 | `custody-chain-unanchored`, one fixture per anchor half |
+| 18 | ADDED | A chain on a commit that is not an ancestor of HEAD is refused | — | **NOT-OWED (§ 7.1).** The ancestry leg needs git history |
+| 19 | ADDED | A HEAD digest matching no terminus is refused | — | **NOT-OWED (§ 7.1).** Needs the target's bytes at HEAD |
+| 20 | ADDED | Entries out of recorded-time order are refused | T020, T036 | `custody-chain-out-of-order`; equal timestamps ADMITTED |
+| 21 | ADDED | A chain that cannot be re-derived is refused, never admitted | — | **NOT-OWED (§ 7.1).** "Cannot re-derive" is a statement about a repository |
+| 22 | ADDED | The neutral pass is not a currency claim | T025 | The eight-item report line — the scenario that makes the split legible |
+
+**Six of 22 are NOT-OWED here, and all six are git-dependent** (12, 13, 15, 18,
+19, 21). The locator-gap leg the ratified delta names in its refusal list but
+gives no scenario of its own is realized anyway at T020/T035
+(`custody-chain-locator-gap`), because the requirement's chained condition
+states it in the body.
 
 ## Dependencies
 

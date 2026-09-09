@@ -198,8 +198,15 @@ unchanged candidate.
 
 ## Primary flow, in one ordered narrative
 
-1. § 0.1 and § 1.1–1.3 are TICKED with evidence — their acts are already
-   performed and verifiable; nothing is re-performed to tick them.
+1. § 0.1 and § 1.1–1.3 are ALREADY PERFORMED and verifiable — nothing is
+   re-performed to tick them. **They are nevertheless TICKED LAST, with every
+   other tick, and the ordering is deliberate**: architect ruling Q5 binds a
+   tick to the same commit as its evidence, and the evidence file those notes
+   cite is the one written in the final bookkeeping phase. Ticking them first
+   would either split a tick from its evidence or force a second evidence file.
+   Read this list as the order the ACTS were or will be performed in, and the
+   `tasks.md` Dependencies graph as the order the COMMITS land in; where they
+   appear to differ, the graph governs.
 2. The schema grows (§ 2), `custody` proven byte-identical by diff.
 3. The validator grows its internal legs, the WITHHELD outcome and the extended
    blob walk (§ 3), with the no-git absence pinned by a test.
@@ -224,15 +231,34 @@ unchanged candidate.
   packet's `code_surface` says so in as many words; the CHANGELOG entry records
   it as a consumer-visible behaviour change of the validator.
 - **The manifest corpus comment is already stale.** Re-measure, do not increment.
+- **THE BRANCH MERGES FORWARD AND NEVER REBASES PUSHED COMMITS.** No
+  `--force`, no `--force-with-lease`, no rebase of anything already pushed, and
+  no amend of a commit another party may have read. Integration with `main` is
+  always a MERGE — opensoft org ruleset 8981805 forbids non-fast-forward updates
+  on every branch, so a rewrite would be refused at the remote anyway, and a
+  local rewrite only produces a branch that cannot land. This is stated here, in
+  this feature's own documents, rather than left to the global harness rule.
+- **A `path_only` entry whose two locators are IDENTICAL is not refused by
+  anything, and that is MEASURED rather than designed.** `path_only` is defined
+  as *"only the locator changed"*, so an entry declaring it with equal locators
+  AND equal digests records an event that did not occur — and the ratified delta
+  says exactly that about the analogous case (*"writing one would be a false
+  record of an event that did not occur"*), but says it about the DIRECT case
+  and never states this refusal. The contradiction is derivable from the
+  record's own bytes, so by design C-7's placement test the leg WOULD be
+  neutral. **No ratified task names it, so this feature does not add it.** It is
+  recorded here as a measured gap for the architect rather than closed by a leg
+  nobody ratified.
 - **A `content`-class fixture must not redden CI — and the constraint turned out
   not to bind.** MEASURED at clarify round 1: **no caller reads this validator's
   exit code today** — not one of the twelve workflows, no pytest, and no
   OpsxFactory leg. So a new nonzero status for WITHHELD reddens nothing, and the
   PACKAGED withheld fixture is exempt from it in any case (an expected
   withholding is to the third bucket what an expected failure is to a negative).
-- **The exit-code NUMBER is not this feature's to rule.** It is planned on `3`
-  behind a single named constant, parked for Brett Heap. A different ruling
-  moves the constant and nothing else.
+- **The exit-code NUMBER was not this feature's to rule, and it has since been
+  ruled.** Brett Heap selected *"Exit 3 = needs a human decision (Recommended)"*
+  on 2026-09-09 over two declined alternatives. It still sits behind a single
+  named constant — that is good practice, not a hedge against a pending word.
 
 ## Clarifications
 
@@ -250,11 +276,16 @@ specification:
   merge-from-main before the merge; the PR body names `contract-v3.5` as a
   provisional MEASURED candidate. **The landing contract is recorded in
   `plan.md`.** § 5.5 and § 5.6 are NOT-OWED-HERE.
-- **Q2** — **PARKED FOR BRETT**, planned on a new exit code for "needs a human
-  decision", provisionally `3`, behind a single named constant. The refutation
-  of the exit-0 reading is accepted: task 3.4b requires *"the exit status the
-  repository rules"* and the delta says WITHHELD is *"never a pass"*, and the
-  supposed CI constraint does not bind because no caller reads the code.
+- **Q2** — **RULED by Brett Heap on 2026-09-09**, by multiple-choice selection,
+  verbatim *"Exit 3 = needs a human decision (Recommended)"* (declined:
+  *"Exit 1, same as findings"*, *"Exit 0, report only"*); relayed to and
+  recorded by this orchestrator at `2026-09-09T14:40:16Z`. **This IS the
+  repository rule task 3.4b asked for** — none existed before it. The earlier
+  refutation of the exit-0 reading stands as the reasoning behind the
+  recommendation: task 3.4b requires *"the exit status the repository rules"*,
+  the delta says WITHHELD is *"never a pass"*, and no caller reads this
+  validator's exit code, so the supposed CI constraint never bound. The lane
+  posts the ruling on #630 as the repository-level record.
 - **Q3** — `examples/consent-instrument/withheld/` +
   `EXPECTED_WITHHELD_OUTCOMES`, fail-closed both ways; `repo_scan` reports
   WITHHELD as found.
@@ -288,27 +319,48 @@ specification:
 
 ### Functional Requirements — § 2, the schema
 
-- **FR-001**: `contracts/schemas/consent-instrument.schema.yaml` MUST gain ONE
+- **FR-001** *(box 2.1)*: `contracts/schemas/consent-instrument.schema.yaml` MUST gain ONE
   top-level property `custody_rederivations`: `type: array`, items
   `type: object` with `additionalProperties: false` and `required` naming
   exactly the TEN fields `at`, `commit`, `previous_locator`,
   `observed_locator`, `previous_sha256`, `observed_sha256`, `diff_class`,
-  `reason`, `ruling_ref`, `recorded_by`.
-- **FR-002**: field shapes MUST be `at` `type: string, format: date-time`;
+  `reason`, `ruling_ref`, `recorded_by`. **`custody_rederivations` MUST NOT be
+  added to the record object's own top-level `required:` array** — an instrument
+  that declares no array stays valid, and putting it there would make the growth
+  breaking rather than additive.
+- **FR-002** *(box 2.1)*: field shapes MUST be `at` `type: string, format: date-time`;
   `commit` `pattern: "^[0-9a-f]{40}$"`; both locators `type: string,
   minLength: 1` with NO path grammar imposed; both digests
   `pattern: "^[0-9a-f]{64}$"`; `diff_class`
   `enum: [path_only, header_only, content]`; `reason`
   `enum: [lifecycle_header_edit, archive_move, other_ruled_edit]`;
-  `ruling_ref` and `recorded_by` `type: string, minLength: 1`.
-- **FR-003**: the `custody` object MUST be byte-identical after the change — its
+  `ruling_ref` and `recorded_by` `type: string, minLength: 1`. **Both
+  enumerations are CLOSED and a novel member is a CONTRACT CHANGE, never a value
+  an author may coin** — the ratified delta's own words; the schema comment MUST
+  say so, so a future reader reaches for a change rather than for a string.
+- **FR-003** *(box 2.2)*: the `custody` object MUST be byte-identical after the change — its
   two properties, its `required`, its `additionalProperties: false` and its
   comment block. A diff touching `custody` fails this requirement.
-- **FR-004**: `contract_schema_version` MUST move `2` → `3` with an in-file
+- **FR-004** *(box 2.3)*: `contract_schema_version` MUST move `2` → `3` with an in-file
   comment in the style of the existing `1 -> 2` note: what grew, that it is
   ADDITIVE, and that the record envelope's `schema_version` stays `const: 1`.
-- **FR-005**: in-file comments MUST record (a) why the array is a SIBLING
-  (ruling D9's closure argument), (b) that `ruling_ref` is a DECLARED POINTER
+- **FR-006** *(clarify Q4)*: **THREE identity fields MUST NOT MOVE**, and the
+  diff MUST prove it: the schema's `$id: "consent-instrument.schema.yaml"`
+  (line 7); the record property `schema_version: const: 1`; and the
+  `contracts/manifest.yaml` `consent-instrument` row's own `schema_version: 1`
+  (line 2041) — which the manifest itself explains is *"mirror[ing] that const,
+  not the schema file's contract_schema_version"*. The `contract-v1.33`
+  precedent moved none of the three.
+- **FR-007** *(ratified delta, MODIFIED requirement, scenario "A re-derivation
+  does not amend the instrument")*: the growth MUST add **no `amendments`
+  machinery of any kind** — no field, no cross-reference, no validator leg that
+  reads or writes `amendments` for a re-derivation. A custody re-derivation is
+  not an amendment and does not transition status (design C-10, ratified with
+  the veto not exercised), so the realization of that scenario is the ABSENCE of
+  code, and the absence MUST be asserted by diff rather than assumed.
+- **FR-005** *(boxes 2.4, 2.5)*: in-file comments MUST record (a) why the array
+  is a SIBLING — **ruling D9's closure argument AND design C-1**, both cited as
+  ratified task 2.4 names them, (b) that `ruling_ref` is a DECLARED POINTER
   the validator does not resolve, and (c) that `custody.locator` is OPAQUE and
   not a path, that resolution runs through the consuming repository's DECLARED
   custody store mapping, that the two legs are evaluated on opposite sides of
@@ -319,38 +371,65 @@ specification:
 
 ### Functional Requirements — § 3, the canonical validator
 
-- **FR-010**: a new check beside `check_custody` MUST verify the chain's
-  INTERNAL legs: anchor in BOTH halves (`e₁.previous_sha256 == custody.sha256`
-  AND `e₁.previous_locator == custody.locator`), linkage in BOTH halves,
-  non-decreasing `at` in declared order, with DISTINCT finding codes per leg in
-  the file's existing naming style.
-- **FR-011**: the validator MUST refuse a rewritten pin — `custody.sha256`
-  equal to any entry's `observed_sha256` while a later entry exists, and more
-  generally any state in which the pin has been advanced to a value the chain
-  records as observed.
-- **FR-012**: the validator MUST NOT open a repository, shell out to `git`, or
+- **FR-010** *(box 3.1)*: a new check beside `check_custody` MUST verify the
+  chain's INTERNAL legs, with these codes:
+  - **`custody-chain-unanchored`** — ONE code covering BOTH anchor halves
+    (`e₁.previous_sha256 != custody.sha256` OR `e₁.previous_locator !=
+    custody.locator`), because an unanchored chain is one defect however it
+    fails; the finding text MUST name WHICH half broke, and a fixture MUST exist
+    for each half (FR-021).
+  - **`custody-chain-broken-link`** and **`custody-chain-locator-gap`** — TWO
+    codes, because the linkage halves are independently meaningful: a digest gap
+    and a path gap send a reader to different evidence. **When an entry fails
+    BOTH linkage halves at once, BOTH codes MUST fire** — suppressing either
+    would hide half the defect from whoever repairs the chain.
+  - **`custody-chain-out-of-order`** — `at` decreasing in declared order.
+    **Equal timestamps are ADMITTED**, because the requirement says the times
+    "do not decrease", not that they increase.
+- **FR-011** *(box 3.2)*: the validator MUST refuse a rewritten pin as
+  **`custody-pin-rewritten`** — `custody.sha256` equal to any entry's
+  `observed_sha256` while a later entry exists, and more generally any state in
+  which the pin has been advanced to a value the chain records as observed.
+- **FR-012** *(box 3.3; clarify Q7c)*: the validator MUST NOT open a repository, shell out to `git`, or
   read a file named by a locator. **TWO assertions pin the absence** (Q7c), both
   in `tests/consent_instruments/`: a SOURCE-LEVEL ban (no `subprocess` import,
   no `git` token, no locator-named file read anywhere in the module) AND a
   RUNTIME patch of `subprocess.run` and `Path.open` exercised over **all three
   buckets** — positive, negative and withheld — since the withheld leg is the
   one most likely to reach for a repository.
-- **FR-013**: the validator's report line for a chained instrument MUST state
-  what it checked and what it did not, so a neutral pass is not readable as a
-  currency verdict.
-- **FR-014**: a `content`-class entry with sound internal legs MUST yield
-  `custody-content-class-withheld` as a NAMED OUTCOME distinct from error and
-  from warning — reported beside the error and warning counts, with a **NEW exit
-  status meaning "needs a human decision"**. The status MUST be a **single named
-  module constant** (provisionally `3`; the NUMBER is parked for Brett Heap, so
-  a different ruling moves the constant and nothing else), the script's
-  `Exit codes:` docstring MUST be extended **in this script only**, and the
-  design note MUST record that the number is his ruling. A withheld fixture in
-  the PACKAGED corpus is EXEMPT from raising it — an expected withholding is to
-  the third bucket what an expected failure is to a negative.
-- **FR-015**: a `path_only` entry whose `previous_sha256 != observed_sha256`
-  MUST be refused.
-- **FR-016**: `walk_strings` MUST be extended over **the whole entry minus the
+- **FR-013** *(box 3.4; ratified delta scenario "The neutral pass is not a
+  currency claim")*: the validator's report line for a chained instrument MUST
+  enumerate the EIGHT things it checked, in the requirement's own terms —
+  **anchoring, linkage in digest AND locator, order, enumerations, entry
+  closure, the unmoved pin, `path_only` digest equality, and any withheld
+  outcome** — and MUST state that it checked **nothing about the target's
+  bytes**, naming the consuming repository's custody-digest check as the owner
+  of the currency verdict. A report line that says less than the requirement
+  enumerates is a weaker claim than the one that was ratified.
+- **FR-014** *(box 3.4b; clarify Q2, RULED)*: a `content`-class entry with sound
+  internal legs MUST yield `custody-content-class-withheld` as a NAMED OUTCOME
+  distinct from error and from warning — reported beside the error and warning
+  counts — and MUST return **exit status `3`, "needs a human decision"**, for a
+  REAL instrument. The number is **Brett Heap's ruling of 2026-09-09**, given by
+  multiple-choice selection, verbatim *"Exit 3 = needs a human decision
+  (Recommended)"* over the offered-and-declined *"Exit 1, same as findings"* and
+  *"Exit 0, report only"*; **it is the repository rule ratified task 3.4b asked
+  for, and until that selection the repository had ruled none.** The status MUST
+  sit behind a **single named module constant**; the script's `Exit codes:`
+  docstring MUST become `0 ok, 1 findings, 2 harness error, 3 withheld — needs a
+  human decision`, extended **in this script only**; and the ruling MUST be cited
+  verbatim, with its channel, at the constant, in the design note and in the
+  realization evidence. A withheld fixture in the PACKAGED corpus is EXEMPT from
+  raising it — an expected withholding is to the third bucket what an expected
+  failure is to a negative — so the packaged self-test still exits `0`.
+- **FR-015** *(box 3.4c)*: a `path_only` entry whose `previous_sha256 !=
+  observed_sha256` MUST be refused as **`custody-path-class-digests-differ`**.
+  **This leg is NEUTRAL for a stated reason that MUST be carried into the code
+  comment**: both digests are already fields of the record, so the contradiction
+  is derivable from the record's own bytes — whereas CONFIRMING a class against
+  the measured diff needs the repository and belongs to the consumer's gate
+  (ratified task 3.4c; design C-7's placement test).
+- **FR-016** *(box 3.5; clarify Q12, Q7b)*: `walk_strings` MUST be extended over **the whole entry minus the
   two digest fields** (`previous_sha256`, `observed_sha256`) — so both locators,
   `ruling_ref` and `recorded_by` are walked, and `commit` / `at` / `diff_class` /
   `reason` ride along already bounded by a pattern, a format or a closed
@@ -361,11 +440,14 @@ specification:
 
 ### Functional Requirements — § 4, the fixtures
 
-- **FR-020**: POSITIVE fixtures MUST cover a two-entry `header_only` chain; an
+- **FR-020** *(boxes 4.1, 4.1b, 4.1c, 4.2)*: POSITIVE fixtures MUST cover a two-entry `header_only` chain; an
   unchanged existing example re-validated; an `archive_move` / `path_only`
   entry with differing locators and equal digests; and the two-entry
-  `archive_move` → `lifecycle_header_edit` shape the real repair needs.
-- **FR-021**: NEGATIVE fixtures MUST cover, one per named refusal: a broken
+  `archive_move` → `lifecycle_header_edit` shape the real repair needs. One
+  positive MUST exercise the **EQUAL-TIMESTAMP boundary** of the non-decreasing
+  rule, since "does not decrease" admits equality and an untested boundary is an
+  untested rule.
+- **FR-021** *(boxes 4.3–4.8d)*: NEGATIVE fixtures MUST cover, one per named refusal: a broken
   digest link; a locator gap with digests linking; entries out of recorded-time
   order; a first entry whose `previous_sha256` is not the pin AND one whose
   `previous_locator` is not `custody.locator`; an unknown `diff_class` member
@@ -373,20 +455,42 @@ specification:
   omitting `recorded_by`; an entry carrying an ELEVENTH property; a rewritten
   pin; a blob-shaped `ruling_ref` AND a blob-shaped `recorded_by`; and a
   `path_only` entry whose two digests differ.
+- **FR-021a** *(fixture ISOLATION — a general discipline, not an ad-hoc note)*:
+  every negative fixture MUST be sound in every leg EXCEPT the one it is named
+  for. The self-test's `codes_of()` check only requires the expected code to be
+  PRESENT, so a fixture that is simultaneously out-of-order AND locator-gapped
+  would pass while testing neither invariant. The rewritten-pin fixture MUST
+  carry a MULTI-ENTRY chain, so it exercises FR-011's sharper *"while a LATER
+  entry exists"* form and not only the general one. The FIVE `schema`-coded
+  fixtures' detail substrings MUST be MUTUALLY EXCLUSIVE, so no fixture's
+  expected detail can be satisfied by another fixture's error text.
 - **FR-022**: a WITHHELD fixture MUST live in a THIRD directory
   `examples/consent-instrument/withheld/` and MUST be asserted as WITHHELD —
   neither positive nor negative. `self_test` MUST grow an
   `EXPECTED_WITHHELD_OUTCOMES` table that is **fail-closed both ways**, exactly
   as `EXPECTED_NEGATIVE_FINDINGS` is: a fixture on disk with no table entry and
-  a table entry with no fixture are each errors. `repo_scan` (layer 2) needs no
-  bucket discipline — it reports WITHHELD as it finds it.
-- **FR-023**: `examples/consent-instrument/README.md` and the
+  a table entry with no fixture are each errors. **It MUST also check the
+  OUTCOME, not merely the file's presence** — the analogue of
+  `negative-wrong-reason`: a withheld fixture that ERRORS, or that passes
+  cleanly, is a self-test failure, because "the fixture exists" is not "the
+  fixture withholds". `repo_scan` (layer 2) needs no bucket discipline — it
+  reports WITHHELD as it finds it.
+- **FR-023** *(box 4.9; clarify Q9)*: `examples/consent-instrument/README.md` and the
   `consent-instrument` corpus comment in `contracts/manifest.yaml` MUST carry
   RE-MEASURED counts, not arithmetic on the stale figures. The README's Layout
   tree and *Schema → example map* table MUST be COMPLETE over the grown corpus,
   the table MUST gain a **third column** for the withheld bucket, and *Named
-  cases from the spec* MUST gain **one bullet per refusal code (7) + one
-  positive chain-shapes bullet + one withheld bullet**.
+  cases from the spec* MUST gain **nine bullets: one per REFUSAL code (7) + one
+  positive chain-shapes bullet + one withheld bullet**. **THE SEVEN REFUSAL
+  CODES ARE NOT Q10's SEVEN ADOPTED CODES**, and the difference is arithmetic
+  rather than taste: Q10's list includes `custody-content-class-withheld`, which
+  Q9 already gives its own bullet, so counting it among the seven would
+  double-count it and leave one refusal unnamed. The seven refusals are the six
+  that refuse — `custody-chain-unanchored`, `custody-chain-broken-link`,
+  `custody-chain-locator-gap`, `custody-chain-out-of-order`,
+  `custody-pin-rewritten`, `custody-path-class-digests-differ` — plus
+  **`embedded-original-content` under its newly extended reach** (FR-016), which
+  is a refusal this feature newly causes and would otherwise go unnamed.
 - **FR-024** *(added at clarify A1, and NOT named by any ratified task)*:
   `contracts/README.md`'s row for `scripts/validate-consent-instruments.py` +
   `examples/consent-instrument/` MUST carry the RE-MEASURED counts. It reads
@@ -397,7 +501,7 @@ specification:
 
 ### Functional Requirements — § 5, the cut
 
-- **FR-030**: §§ 2–5 MUST land in **ONE pull request** — § *Version Identity*
+- **FR-030** *(box 5.1's measurement; clarify Q1a)*: §§ 2–5 MUST land in **ONE pull request** — § *Version Identity*
   requires the manifest and changelog to be committed atomically with the
   contract files. The version MUST be allocated at the final integration point
   after a re-check of availability on all three surfaces (manifest,
@@ -405,7 +509,7 @@ specification:
   **re-measures at every merge-from-main and reports**, and the PR body names
   `contract-v3.5` as an explicitly PROVISIONAL measured candidate. The CLAIM on
   issue #630 row 4 is the LANE's, at the last merge-from-main before the merge.
-- **FR-031**: `contracts/manifest.yaml` (`contract_bundle_version`, the
+- **FR-031** *(box 5.2; clarify Q5)*: `contracts/manifest.yaml` (`contract_bundle_version`, the
   `consent-instrument` row's `sha256` re-derived from the moved file, and an
   APPENDED `contract-v3.5` `consumption_rule` paragraph in the `contract-v1.33`
   style), `contracts/CHANGELOG.md` and
@@ -415,18 +519,41 @@ specification:
   commit message MUST say so; intermediate branch commits are ungated because CI
   runs at the PR head. `consent-instrument-class-registry`'s row MUST be
   untouched.
-- **FR-032**: the CHANGELOG entry MUST list every contract added, changed or
-  deprecated in the bundle — including the four `contracts/` additions and
-  fourteen modifications since `contract-v3.4` that this session did not author
-  — each attributed to the change that made it.
-- **FR-033**: the digest inventory MUST be BUILT by
+- **FR-032** *(box 5.3; clarify Q6)*: the CHANGELOG entry MUST list every
+  contract added, changed or deprecated in the bundle, each attributed to the
+  change that made it. **THE PATH LIST MUST BE RE-MEASURED AT THE FINAL
+  INTEGRATION POINT**, by `git diff --name-status contract-v3.4 HEAD --
+  contracts/` at that commit — never read from `research.md` R6, whose 4-added /
+  14-modified count was measured at branch creation and moves every time another
+  lane lands. The version number is re-measured for exactly this reason; so is
+  the bundle's contents. **The ADDITIVE-minor claim MUST be argued over the
+  WHOLE bundle**, not only over the schema this session grew: the additions are
+  additive by construction, but EACH modification to an already-published
+  contract MUST be checked individually for a removed field, a narrowed
+  enumeration or a newly required property, which is what the `contract-v3.4`
+  precedent did clause by clause.
+- **FR-033** *(box 5.2)*: the digest inventory MUST be BUILT by
   `scripts/validate-contract-release.py build --tag <version> --output
   contracts/releases/<version>.digests.yaml`, never hand-edited.
-- **FR-034**: every gate MUST run against the exact unchanged candidate:
+- **FR-034** *(box 5.4; clarify Q11)*: every gate MUST run against the exact unchanged candidate:
   `release-tag-gate` (`scripts/validate-release-tag-gate.py`), the pytest set CI
   runs, `scripts/validate-manifest-digests.py`,
   `scripts/validate-contract-release.py`, and
   `scripts/validate-consent-instruments.py`.
+  **`validate-release-tag-gate.py` MUST be given an EXPLICIT `--base`.** Its
+  default resolves `--base` to the head's FIRST PARENT, which is right for a
+  GitHub `pull_request` merge commit and WRONG here: the candidate sits on a
+  branch integrated by merging `main` INTO it (opensoft ruleset 8981805 forbids
+  non-fast-forward updates), so the first parent is this branch's own prior tip,
+  and the default would diff the candidate against the wrong tree — a
+  near-empty result that LOOKS like a pass without evaluating what the real gate
+  evaluates.
+- **FR-034a** *(the candidate is REMADE, never patched)*: a gate that reds after
+  the § 5.2 candidate commit is formed MUST be repaired by producing a FRESH
+  single candidate commit and re-running EVERY gate against it. The reviewed
+  commit is never amended in place: FR-031 makes the candidate one atomic
+  commit and FR-034 certifies "the exact unchanged candidate", so a candidate
+  edited after a gate ran is no longer the thing that gate certified.
 - **FR-035**: the annotated tag MUST be left OWED. This feature does not tag.
 - **FR-036** *(the landing contract, ruled at Q1 and recorded in `plan.md`)*:
   landing is a **MERGE COMMIT** — there is no linear-history rule on this
@@ -439,10 +566,30 @@ specification:
 ### Functional Requirements — bookkeeping and evidence
 
 - **FR-040**: every box in §§ 0–5 whose act is verifiably DONE MUST be ticked
-  with a note citing the record and the timestamp; boxes owned elsewhere (§§ 6,
-  7 and § 5.6) MUST take dated NOT-OWED lines; note classes MUST sum to 46.
+  with a note citing the record and the timestamp. **Every box NOT ticked MUST
+  carry a dated line, and this enumeration is EXHAUSTIVE rather than
+  illustrative**: § 5.1 (the lane claims the number; this feature only measures
+  and reports), § 5.5 (the lane's landing bookkeeping) and § 5.6 (the
+  `[OPERATOR]` tag) take **NOT-OWED-HERE** lines; §§ 6.1, 6.2, 6.2b, 6.3, 6.4,
+  7.1, 7.2 and 7.3 take **NOT-OWED** lines. Note classes MUST sum to 46 —
+  **35 ticked + 3 NOT-OWED-HERE + 8 NOT-OWED**.
 - **FR-041**: a box MUST be ticked in the same commit as its evidence, or in
-  neither.
+  neither — **and the discipline MUST be VERIFIED AFTER THE FACT FROM THE COMMIT
+  HISTORY, not merely intended at commit time**. A post-hoc `git log` pass MUST
+  show, for every tick, that the commit carrying the tick is the same commit
+  carrying its evidence, and the pass itself is evidence.
+- **FR-042a**: every gate transcript filed to `evidence/` MUST be the RAW
+  CAPTURED OUTPUT — the command line, the summary line and the process's own
+  return code — never a hand-composed description of what a run reportedly
+  showed. **The known failure mode is named so it is refused rather than
+  rediscovered**: piping a run through `tail` returns `tail`'s exit code and
+  pushes the summary line out of the window, so a run captured that way proves
+  nothing.
+- **FR-042b**: the FOUR intermediate phase gates in `plan.md`'s implementation
+  sequence (the schema self-validation, the clean validator run over the
+  un-grown corpus, the 0/0 with three bucket counts, and
+  `pytest tests/consent_instruments`) MUST each file a transcript too. A phase
+  judged complete on an unrecorded local run is a gate that was not run.
 - **FR-042**: evidence MUST be written to BOTH
   `specs/033-add-consent-custody-rederivation-record/evidence/` and
   `openspec/changes/add-consent-custody-rederivation-record/evidence/realization-<date>.md`.
@@ -454,8 +601,21 @@ specification:
   amended in the SAME commit in the `3b530009` form — block-quote the
   superseded sentence, name the un-superseded neighbour, marker
   `AMENDED <UTC date>`, tick marker `**TICKED <UTC date>`.
-- **FR-045**: doc-health MUST be compared as two reports with identical
-  basenames and a pinned `--as-of`.
+- **FR-045**: doc-health MUST be compared as two reports whose **`--report-out`
+  BASENAMES are identical** (differing only in directory, so the report's own
+  self-reference cannot appear as a diff line) and whose **CHECKOUT DIRECTORY
+  basenames are also identical** (so a path fragment cannot differ between the
+  two runs either), with a **pinned `--as-of` identical on both**. The evidence
+  MUST NAME THE `main` SHA the baseline was taken at, and **if `main` moves
+  before the final comparison the baseline MUST BE RE-TAKEN** at the commit this
+  branch last merged from, with both shas recorded. A diff-identical comparison
+  against a stale baseline is not a comparison.
+- **FR-045a**: the comparison rule is the FINDING SET at every severity. If the
+  corpus growth itself trips a doc-health family — a lifecycle-header or
+  location-conformance scan reaching the new
+  `examples/consent-instrument/withheld/` directory, say — that is a REAL new
+  finding this feature caused, and it MUST be fixed or dispositioned with a
+  citation. It is never waved through as "expected, because the corpus grew".
 - **FR-046** *(ruled at Q8)*: THREE `README.md` sites MUST be amended in the
   `3b530009` form — this packet's own OpenSpec Records row (*"all 46 boxes …
   stay unticked"*); `README.md:3022`'s present-tense box count, **keeping
@@ -505,19 +665,28 @@ specification:
   including the re-derived `consent-instrument` row.
 - **SC-005**: `scripts/validate-contract-release.py verify-commit --commit
   <candidate>` passes on the exact candidate.
-- **SC-006**: the pinned CLI reports `--change … --strict` 1 passed / 0 failed
-  and `--all --strict` with zero UNDISPOSITIONED failures.
+- **SC-006**: the pinned CLI reports `--change … --strict` 1 passed / 0 failed,
+  and `--all --strict` exits **0** with zero UNDISPOSITIONED failures against a
+  measured baseline of **100 passed / 2 DISPOSITIONED**. **`--all --strict` has
+  a THIRD failure mode SC-006 must not be read as excluding**: `reconcile()`
+  returns `(applied, undispositioned, stale)` and a STALE disposition — an
+  accepted exception whose finding no longer occurs, usually because an
+  unrelated change archived — raises `pin-disposition-stale` and exits **2**.
+  That is a corpus-hygiene refusal, NOT this feature's defect and NOT the
+  harness error exit 2 otherwise means; it is reported, not silently repaired,
+  because the file it would edit is one this feature does not touch.
 - **SC-007**: `python3 -m pytest tests/ -q -m "not postgres"` is green,
   including the new `tests/consent_instruments/` package — the source-level
   no-git ban, the runtime patch over all three buckets, and the parametrized
   blob-walk test.
-- **SC-010**: `scripts/validate-consent-instruments.py` over an instrument that
-  WITHHOLDS exits in the new named status class, and the packaged corpus exits
-  0 — the two are distinguishable from the command line.
 - **SC-008**: doc-health's finding set on this branch is diff-identical to
   `main`'s at every severity, both reports taken with the same `--as-of`.
 - **SC-009**: `scripts/validate-sequenced-after.py .` and `--ledger-diff` are
   consistent, and `scripts/validate-scope-globs.py` passes.
+- **SC-010**: `scripts/validate-consent-instruments.py` over a REAL instrument
+  that WITHHOLDS exits **3**, the packaged corpus exits **0**, and an instrument
+  that both withholds and errors exits **1** — the three are distinguishable
+  from the command line without reading the report.
 
 ## Assumptions
 

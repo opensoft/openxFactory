@@ -93,7 +93,46 @@ in September.
 If (a) or (c), name the code — I will not invent an exit-status vocabulary for
 this repository.
 
-**ANSWER — PARKED FOR BRETT, and PLANNED ON (a).**
+**ANSWER — first PARKED FOR BRETT and planned on (a); now RULED. Both halves
+are kept, because the reasoning that produced the default is what the ruling
+confirms.**
+
+**RULED 2026-09-09 BY BRETT HEAP — NO LONGER PARKED.**
+
+Given in session, first-hand to lane `opsXfactory-1`, by MULTIPLE-CHOICE
+SELECTION at approximately **2026-09-09T14:2xZ**; relayed to and recorded by
+this orchestrator at **2026-09-09T14:40:16Z** (`date -u`, measured at the
+receipt rather than reconstructed). **Option text selected, verbatim:**
+
+> **"Exit 3 = needs a human decision (Recommended)"**
+
+The alternatives offered and **NOT** chosen, recorded so the ruling reads as a
+choice rather than a default: *"Exit 1, same as findings"* and *"Exit 0, report
+only"*.
+
+**THIS IS THE REPOSITORY RULE task 3.4b ASKED FOR.** The task required *"the
+exit status the repository rules for 'needs a human decision'"*, and until this
+selection the repository had ruled none — every `Exit codes:` docstring in
+`scripts/` read `0 / 1 / 2`. It now has one. The lane posts the RULING on
+openxFactory issue #630 as the repository-level record.
+
+**What is applied:**
+
+- **Exit `3` = "needs a human decision"**, returned for a REAL instrument that
+  WITHHOLDS with no error present.
+- **The PACKAGED withheld fixture is EXEMPT** — an expected withholding is to
+  the third bucket what an expected failure is to a negative — so the packaged
+  self-test still exits `0`.
+- The script's docstring becomes
+  **`Exit codes: 0 ok, 1 findings, 2 harness error, 3 withheld — needs a human
+  decision`**, extended in THIS SCRIPT ONLY.
+- **A single named constant** still carries the number, and the ruling is cited
+  at that constant, in the design note and in the realization evidence — with
+  the verbatim option text and the channel.
+
+---
+
+**THE DRAFT ANSWER THIS RULING CONFIRMS (kept as authored, 2026-09-09):**
 
 The cross-model reviewer REFUTED option (b) on two measured grounds, and the
 refutation is accepted:
@@ -396,9 +435,10 @@ closed enumeration, so the walk costs nothing there.
 
 ---
 
-**ROUND 1 IS RULED.** Eleven answers are binding; **Q2's exit-code NUMBER is
-parked for Brett Heap** and is planned on `3` behind a single named constant, so
-a different ruling moves the constant and nothing else. Two additions from the
+**ROUND 1 IS RULED, ALL TWELVE.** Q2's exit-code NUMBER was parked for Brett
+Heap and was RULED by him on 2026-09-09 — **exit `3`, "needs a human decision"**
+— so nothing in this round is now open. The constant stays a single named
+constant regardless, because that is good practice and not a hedge. Two additions from the
 review (A1, A2) are carried above.
 
 

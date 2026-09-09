@@ -31,6 +31,10 @@ claims it.**
 
 ## R3 — The v3.4 precedent for a cut
 
+```bash
+git show -s --format='%H %P | %cn | %s' contract-v3.4
+```
+
 `contract-v3.4` landed as `807a4f47` — ONE parent, committer `GitHub`, subject
 ending `(#653)`: a **squash merge**. Its message records the discipline this
 feature follows: one candidate commit over one integration point; the
@@ -61,6 +65,12 @@ that value — **the pin is CURRENT today**. `python3
 scripts/validate-manifest-digests.py` verifies **189 per-file digests** and is
 driven inside `pytest-suite` by
 `tests/manifest_digests/test_manifest_digest_sweep.py`.
+
+**The row's own `schema_version: 1` is EXPLICITLY not the schema file's
+version**, and the manifest says so in its own words: *"the per-row
+schema_version below mirrors that const, not the schema file's
+contract_schema_version"*. That sentence is the measured backing for Q4's
+ruling that the row field stays put.
 
 **Ruled at Q5:** this does NOT force a split. Intermediate branch commits are
 ungated — CI runs at the PR head — so the re-derivation rides the § 5.2
@@ -137,17 +147,38 @@ only `custody.sha256`, and refuses `BASE64_BLOB_RX` (200+ base64 chars), a
 
 ## R9 — Nobody reads this validator's exit code
 
-Grepped across `.github/workflows/*.yml` (twelve files), `tests/`, and the
-OpsxFactory consumption path: **`validate-consent-instruments.py` is invoked by
-no workflow, no pytest and no consumer leg.** This is the measurement that
+```bash
+grep -rn 'validate-consent-instruments' \
+  --include='*.yml' --include='*.yaml' --include='*.py' \
+  --include='*.sh' --include='Makefile' . \
+  | grep -v '^./.git' | grep -v '^./openspec/changes' | grep -v '^./specs/03'
+ls .github/workflows/*.yml | wc -l     # 12
+```
+
+Every hit is a MENTION — the script's own usage line and print, four schema and
+manifest comments naming it as the canonical validator, and three
+`specs/007-client-identity-roster/traceability.yaml` rows. **Not one is an
+INVOCATION**: `validate-consent-instruments.py` is run by no workflow, no
+pytest, no Makefile and no consumer leg. This is the measurement that
 refuted the "a withheld fixture would redden CI" premise of clarify Q2, and it
 is why a new nonzero exit status is affordable. Existing `Exit codes:`
 docstrings across `scripts/` are uniformly `0 / 1 / 2`; the only `3` in the tree
 is `scripts/avatar-metering-alert.py`'s *"nothing crossed a paging threshold"*,
-a different meaning. **The repository has ruled no status class for "needs a
-human decision" — which is why Q2's NUMBER is parked for Brett.**
+a different meaning. **The repository had ruled no status class for "needs a
+human decision" — which is exactly what ratified task 3.4b asked for, and why
+the question went to Brett Heap. HE RULED IT ON 2026-09-09**, by
+multiple-choice selection, verbatim *"Exit 3 = needs a human decision
+(Recommended)"*, declining *"Exit 1, same as findings"* and *"Exit 0, report
+only"*; recorded by this lane at `2026-09-09T14:40:16Z`. **`3` is therefore the
+repository's rule, established by this packet's realization**, and the lane
+records it on issue #630.
 
 ## R10 — Test-package naming
+
+```bash
+ls tests/ | grep -i consent            # (no output)
+ls tests/
+```
 
 No `tests/consent*` directory exists. Sibling packages mix conventions —
 `tests/client-identity-roster`, `tests/doc-health`, `tests/intent-compliance`
@@ -193,6 +224,7 @@ approval that was never given would be a false record.
 | Gate | Result |
 | --- | --- |
 | `validate-openspec-cli-pin.py --change … --strict` | 1 passed, 0 failed |
+| `validate-openspec-cli-pin.py --all --strict` | **100 passed, 2 failed — both DISPOSITIONED**, `0 UNDISPOSITIONED failures`. The two are the pre-existing `Merged into`-marker exceptions on `add-chain-attestation` and `add-composed-view-authoring`, accepted by Brett Heap 2026-09-05 (*"take exit 2"*). The ratification record measured the same pair at 98 passed; the count moved because other changes landed, the exceptions did not. **A third failure appearing is this feature's defect.** |
 | `validate-consent-instruments.py --strict` | 0 errors, 0 warnings; 6 valid / 7 negative / 2 probes |
 | `validate-manifest-digests.py` | 189 digests verify |
 | `validate-sequenced-after.py . --ledger-diff` | consistent, 189 rows |
