@@ -1,0 +1,146 @@
+# ============================================================================
+# repository-identity.yaml — the estate's former-to-current repository mapping.
+#
+# WHY THIS FILE EXISTS. A governed repository that moves organizations leaves
+# its former address written across the corpus, and much of that writing MUST
+# NOT be respelled: an archived packet is immutable, a dated verification table
+# records what was read at a stated moment, and 34 signed-execution-chain
+# examples carry the former spelling INSIDE bytes covered by an ed25519
+# signature whose private half exists nowhere in this repository. Those
+# spellings stay. This file is what keeps them INTERPRETABLE rather than merely
+# stale: a frozen former identity is resolved BY LOOKUP HERE, never through a
+# provider redirect.
+#
+# THE PROVIDER REDIRECT IS A GRACE PERIOD, NOT AN IDENTITY. GitHub redirects a
+# former owner to the current one and STOPS the moment the former owner reuses
+# the name. Governed content whose correctness depends on nobody creating a
+# repository is not content a contract may rest on. Three reference shapes get
+# no grace period at all; each row enumerates them in
+# `redirect_does_not_cover`.
+#
+# Ratified by: adopt-codexfactory-repository-identity (2026-09-07, Brett Heap,
+# convener, verbatim "accept all [A] and ratify 763").
+#
+# AUTHORSHIP, AND WHY IT IS NOT THE EXEMPLAR'S. `adopt-medxsoft-repository-identity`
+# specified this file first, at its task 1.1, and this change's task 1.1
+# originally said "Do not create the file here." That task was AMENDED on
+# 2026-09-08 by Brett Heap (convener), verbatim "Amend task 1.1: this change
+# creates the file (Recommended)", because the exemplar is still unrealized and
+# the codexFactory row cannot wait on it. Record:
+# `openspec/changes/adopt-codexfactory-repository-identity/review/amendment-2026-09-08-task-1-1.md`.
+# The exemplar APPENDS its two 2026-08-26 rows (opensoft/MedxFactory ->
+# MedxSoft/MedxFactory and opensoft/MedxEHR -> MedxSoft/MedxEHR) to `transfers:`
+# when it realizes; the schema below already accommodates them and the
+# file-level rules are written to its task 1.2's wording, so it re-authors
+# nothing.
+#
+# Pending bundle registration per the contract versioning policy — the same
+# holding-area state `policies/layer-vocabulary.yaml` carried when it landed.
+# ============================================================================
+schema_version: 1
+kind: repository_identity
+policy_id: repository-identity-v1
+
+# ── WHAT A TRANSFER MOVES, AND WHAT IT DOES NOT ─────────────────────────────
+# The single most useful fact about a repository transfer, and the one that
+# keeps a well-meaning corpus-wide substitution from breaking things it was
+# never meant to touch.
+owner_segment_rule: >-
+  A repository transfer moves the OWNER SEGMENT ONLY. Bare repository names,
+  commit SHAs, repository-relative paths, blob digests, directory names,
+  submodule paths, wallet/grant/attestation identifiers and aggregate-member
+  lists are UNCHANGED by a transfer, so surfaces carrying only those are not
+  edited. An edit to a bare name is a defect, not a rename.
+
+# ── HOW A ROW IS READ ───────────────────────────────────────────────────────
+field_rules:
+  former: >-
+    The `<owner>/<repo>` address as it was written before the transfer. This is
+    the LOOKUP KEY: a frozen or dated surface carrying this spelling is
+    resolved through this row and is never respelled to match `current`.
+  current: >-
+    The `<owner>/<repo>` address after the transfer, spelled as this estate
+    spells it. Compared CASE-SENSITIVELY here even where the provider compares
+    case-insensitively; see each row's `owner_case`.
+  transferred_on: >-
+    The date the transfer was CONFIRMED, and nothing else. It records a
+    completed act, so it is `null` until the act has happened and has been
+    verified against the provider. A DATE WRITTEN BEFORE THE ACT WOULD BE A
+    FALSEHOOD in the one file whose whole purpose is that a frozen spelling
+    stays trustworthy.
+  transfer_state: >-
+    `pending` while `transferred_on` is `null`; `complete` once it is set. The
+    two fields move together and a reader MUST treat any disagreement between
+    them as a malformed row.
+  redirect: >-
+    What the provider redirect does for this row and when it lapses.
+  owner_case: >-
+    The estate-canonical spelling of the owner segment, and the spellings that
+    resolve at the provider but are NOT this estate's spelling.
+  derived_container_namespace: >-
+    A container namespace derived from `current` by a tool that imposes its own
+    case or shape. A DERIVED, TOOL-IMPOSED SPELLING OF THE SAME IDENTITY — never
+    a second identity, and never a second row.
+  redirect_does_not_cover: >-
+    Reference shapes that the provider redirect does not carry. A reference of
+    one of these shapes is an OUTRIGHT BREAK at the moment of transfer and must
+    be repointed inside the transfer window rather than left to a redirect.
+
+# ── HOW A PENDING ROW MUST BE USED ──────────────────────────────────────────
+# This clause is what makes it safe to publish a row BEFORE its transfer, which
+# is the state the codexFactory row lands in.
+pending_row_rule: >-
+  A row whose `transfer_state` is `pending` DECLARES a ruled identity change
+  that HAS NOT HAPPENED. It is a record of intent and of the estate-canonical
+  spelling; it is NOT a resolution instruction. A reader MUST NOT resolve
+  `former` -> `current` for any LIVE reference while the row is `pending` — at
+  that point `former` is still the only address that exists, and `current`
+  resolves to nothing. Live repointing begins when `transferred_on` is set.
+
+transfers:
+  # ── opensoft/codexFactory -> codeXfactory/codexFactory ────────────────────
+  # Ratified by: adopt-codexfactory-repository-identity (2026-09-07, Brett Heap,
+  # convener, verbatim "accept all [A] and ratify 763"). Canonical spelling
+  # ruled by OQ-6 at 2026-09-08T03:51Z: codeXfactory/codexFactory, matching the
+  # GitHub organization and repository exactly.
+  - former: opensoft/codexFactory
+    current: codeXfactory/codexFactory
+    # UNSET BY DESIGN. See `field_rules.transferred_on` and `pending_row_rule`.
+    # The transfer is an OPERATOR ceremony and is unperformed: it is confirmed
+    # at step 1.2 of ~/session-prompts/runbook-codexfactory-org-transfer.md
+    # (`gh api repos/codeXfactory/codexFactory --jq '{full_name,private,visibility}'`),
+    # and that step's date is what fills this field.
+    transferred_on: null
+    transfer_state: pending
+    redirect: >-
+      GitHub redirects the former owner to the current one, and STOPS the moment
+      `opensoft` reuses the name. It may: `opensoft` remains an active
+      organization and still holds the `opensoft/xFactory` aggregation
+      repository, which names this repository in eight workflow `uses:` paths.
+      A frozen former spelling is therefore resolved BY LOOKUP IN THIS FILE and
+      never by the provider redirect.
+    owner_case: >-
+      This estate compares the owner segment CASE-SENSITIVELY. GitHub does not.
+      `codeXfactory` is the canonical spelling (OQ-6); `codexfactory` and
+      `CodeXFactory` resolve at the provider but are not this estate's spelling
+      and MUST NOT be written into governed content.
+    derived_container_namespace: >-
+      ghcr.io/codexfactory/codexfactory — GHCR LOWERCASES the owner segment, so
+      the container namespace derived from this identity is spelled
+      `codexfactory` regardless of the organization's display case. This is a
+      DERIVED, TOOL-IMPOSED spelling of the SAME identity, recorded here rather
+      than left for a fail-closed resolver to discover (OQ-6, ruled
+      2026-09-08T03:51Z).
+    redirect_does_not_cover:
+      - >-
+        reusable-workflow `uses:` paths — a cross-organization call to a PRIVATE
+        repository's reusable workflow is not covered by any redirect and is an
+        outright break (OQ-1; mitigated by Enterprise membership at access level
+        `enterprise`, verified `plan=enterprise` 2026-09-07T16:41:04Z).
+      - >-
+        container package namespaces — `ghcr.io/<org>/...` is per-organization
+        and does not redirect at all (OQ-4).
+      - >-
+        federated-credential subject strings — e.g.
+        `repo:<owner>/<repo>:environment:<name>`; an OIDC subject is matched
+        literally and no redirect applies.
