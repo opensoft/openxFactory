@@ -27,6 +27,28 @@ silently and neither of them visible in a green run:
     matched, and that alone reddened the three nightlies of 2026-09-05..07
     with `fatal: could not read Username for 'https://github.com'`.
 
+A THIRD OWNER ARRIVED WITH THE ORG MOVE, and this file is where that is
+measured (slice B1b of `adopt-codexfactory-repository-identity`;
+codeXfactory/codexFactory#279, the 6.5 precheck ruling of 2026-09-09T15:25Z).
+`xFactories/codexFactory` left `opensoft` for its own enterprise organization
+`codeXfactory`, so the repository these fixtures used as the SAME-ORG,
+not-foreign, needs-no-slot control is now the very thing that DEMANDS a slot.
+Respelling the string alone would have made three tests assert something now
+false, which is why the ruling classes it a rename that is not a `sed`:
+
+  * the same-org controls moved to submodules that genuinely stayed in
+    `opensoft` — `xFactories/OpsxFactory` and `openxFactory` itself.
+    `xFactories/MedxFactory` cannot serve: it lives in `MedxSoft`;
+  * `codeXfactory` is asserted as a foreign owner that fills a slot and is
+    credentialed from its OWN installation (App `4253636` `openxfactory`, the
+    App behind `XFACTORY_APP_ID`, installation `160352673` on `codeXfactory`),
+    NOT from the caller-org token the broad rewrite hands every same-org
+    submodule;
+  * and the slot count is measured, never assumed: the behavioral cases read
+    `FOREIGN_OWNER_SLOTS` out of the workflow rather than typing a literal, so
+    the day the aggregation declares a fourth owner these tests move with the
+    file instead of passing against a number nobody re-derived.
+
 The structural assertions read the workflow; the behavioral ones RUN the two
 shell steps against synthetic `.gitmodules` trees and read the git config they
 produce back through `git ls-remote --get-url`, because prefix resolution
@@ -68,6 +90,17 @@ def step(job, name):
 
 def slots(job):
     return int(step(job, DETECT)["env"]["FOREIGN_OWNER_SLOTS"])
+
+
+def declared_slots():
+    """The slot count the workflow itself carries, for the behavioral cases.
+
+    Read rather than typed (slice B1b): a literal `3` in a fixture is a second
+    place the count lives, and the whole point of `FOREIGN_OWNER_SLOTS` is that
+    there is exactly one. `test_both_jobs_declare_the_same_slot_count` proves
+    the two jobs agree, so either job answers for both.
+    """
+    return slots("prepare")
 
 
 # --- the slot count is one number -----------------------------------------
@@ -208,10 +241,17 @@ def clean_env(**overrides):
     a hardcoded PATH here would step around it, and a hardcoded one is also
     how a suite that passes on a runner fails on a developer's machine."""
     env = dict(os.environ)
-    for leak in ("GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_COUNT",
+    # The per-slot names are DERIVED from the declared count, not listed: a
+    # hand-written list silently stops covering the newest slot the moment the
+    # count rises, which is how an inherited `OWNER_4` would have leaked into a
+    # case that meant to leave slot 4 empty. One past the count, so a stray
+    # variable for a slot the workflow does not carry is cleared too.
+    per_slot = [f"{name}_{index}"
+                for index in range(1, declared_slots() + 2)
+                for name in ("OWNER", "TOKEN")]
+    for leak in ["GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_COUNT",
                  "SELF_OWNER", "FOREIGN_OWNER_SLOTS", "GITHUB_OUTPUT",
-                 "SLOTS", "OWNER_1", "OWNER_2", "OWNER_3",
-                 "TOKEN_1", "TOKEN_2", "TOKEN_3"):
+                 "SLOTS"] + per_slot:
         env.pop(leak, None)
     env["GIT_CONFIG_NOSYSTEM"] = "1"
     env.update(overrides)
@@ -226,7 +266,9 @@ def gitmodules(tmp_path, entries):
     return tmp_path
 
 
-def run_detect(tmp_path, entries, slot_count=3, self_owner="opensoft"):
+def run_detect(tmp_path, entries, slot_count=None, self_owner="opensoft"):
+    if slot_count is None:
+        slot_count = declared_slots()
     root = gitmodules(tmp_path, entries)
     out = tmp_path / "github_output"
     out.write_text("", encoding="utf-8")
@@ -252,27 +294,43 @@ def test_two_foreign_owners_now_fill_two_slots(tmp_path):
     ])
     assert done.returncode == 0, done.stdout + done.stderr
     assert outputs["count"] == "2"
-    assert outputs["slots"] == "3"
+    assert outputs["slots"] == str(declared_slots())
+    # A SET, not positions: the owners come out of `sort -u`, whose ordering of
+    # `MedxSoft` against `ledgerXfactory` is a property of the runner's locale
+    # rather than of this workflow.
     assert {outputs["owner_1"], outputs["owner_2"]} == \
         {"MedxSoft", "ledgerXfactory"}
-    assert outputs["owner_3"] == ""
+    for index in range(3, declared_slots() + 1):
+        assert outputs[f"owner_{index}"] == "", \
+            f"slot {index} should be spare with two owners declared"
 
 
 def test_one_foreign_owner_still_behaves_as_before(tmp_path):
+    # THE SAME-ORG CONTROL IS `OpsxFactory`, NOT A Medx MEMBER AND NO LONGER
+    # `codexFactory` (slice B1b). `xFactories/MedxFactory` lives in `MedxSoft`
+    # and `xFactories/codexFactory` now lives in `codeXfactory`; either one
+    # here would make this a TWO-owner tree and the test would assert the
+    # opposite of its own name. `OpsxFactory` is a governed `xFactories/`
+    # member that stayed in `opensoft`.
     done, outputs = run_detect(tmp_path, [
         ("xFactories/MedxFactory", "git@github.com:MedxSoft/MedxFactory.git"),
-        ("xFactories/codexFactory", "git@github.com:opensoft/codexFactory.git"),
+        ("xFactories/OpsxFactory", "git@github.com:opensoft/OpsxFactory.git"),
     ])
     assert done.returncode == 0, done.stdout + done.stderr
     assert outputs["count"] == "1"
     assert outputs["owner_1"] == "MedxSoft"
-    assert outputs["owner_2"] == "" and outputs["owner_3"] == ""
+    for index in range(2, declared_slots() + 1):
+        assert outputs[f"owner_{index}"] == ""
 
 
 def test_no_foreign_owner_leaves_the_broad_rewrite_alone(tmp_path):
+    # Both rows are genuinely `opensoft` AFTER the org move (slice B1b): the
+    # reusable workflow's own repository and a governed `xFactories/` member
+    # that stayed. `codexFactory` used to be the second row and can no longer
+    # stand for "no foreign owner" at all.
     done, outputs = run_detect(tmp_path, [
         ("openxFactory", "git@github.com:opensoft/openxFactory.git"),
-        ("xFactories/codexFactory", "git@github.com:opensoft/codexFactory.git"),
+        ("xFactories/OpsxFactory", "git@github.com:opensoft/OpsxFactory.git"),
     ])
     assert done.returncode == 0, done.stdout + done.stderr
     assert outputs["count"] == "0"
@@ -280,25 +338,100 @@ def test_no_foreign_owner_leaves_the_broad_rewrite_alone(tmp_path):
 
 
 def test_installs_are_not_governed_and_do_not_demand_a_slot(tmp_path):
+    # The pair is deliberate (slice B1b): an `installs/` submodule in a foreign
+    # organization NEXT TO a governed one in a foreign organization. Only the
+    # governed one may reach a slot, so the filter is proved by the DIFFERENCE
+    # between the two rows rather than by a tree in which nothing is foreign —
+    # which is what the old same-org `codexFactory` row made it.
     done, outputs = run_detect(tmp_path, [
         ("installs/hermes-install",
          "git@github.com:elsewhere/xFactory-Hermes-Install.git"),
-        ("xFactories/codexFactory", "git@github.com:opensoft/codexFactory.git"),
+        ("xFactories/codexFactory",
+         "git@github.com:codeXfactory/codexFactory.git"),
     ])
     assert done.returncode == 0, done.stdout + done.stderr
-    assert outputs["count"] == "0"
+    assert outputs["count"] == "1"
+    assert outputs["owner_1"] == "codeXfactory"
+    # `elsewhere` reaches neither a slot nor the fallback step's owner list.
+    assert "elsewhere" not in outputs["owners_all"]
+    assert outputs["owners_all"].split() == ["codeXfactory"]
+
+
+def test_the_moved_core_becomes_a_foreign_owner_and_gets_a_slot(tmp_path):
+    """The invariant slice B1b exists for (codeXfactory/codexFactory#279).
+
+    The tree is the aggregation's own governed shape AS OF
+    opensoft/xFactory#376 — the commit that flips `xFactories/codexFactory`
+    from `opensoft` to `codeXfactory` and lands AFTER this pull request. Three
+    foreign owners then, and the third has to be SERVED rather than refused.
+
+    Nothing in the workflow names `codeXfactory`, which is why the readiness
+    can be proved before the flip: the owner comes out of `.gitmodules` and
+    `actions/create-github-app-token@v2` resolves the installation from its own
+    `owner:` input (App `4253636` `openxfactory`, installation `160352673` on
+    `codeXfactory`, created 2026-09-09). So what is asserted here is that the
+    DETECTION admits the owner, that the file carries a mint step for whatever
+    slot it lands in, and that a spare slot survives — the reason the count
+    moved 3 -> 4 in the same commit, since three owners in three slots would
+    leave the NEXT repoint to red the nightly in the refusal below (#366
+    again, one organization later).
+
+    THE PRE-FLIP SHAPE IS NOT REPEATED HERE, and deliberately: today's
+    aggregation `.gitmodules` is exactly the tree
+    `test_two_foreign_owners_now_fill_two_slots` already runs — `MedxSoft`
+    twice, `ledgerXfactory` once — so that test is the proof that this change
+    is a no-op until #376 lands, and this one carries no pre-move URL
+    literal for the identity sweep to have to disposition.
+    """
+    done, outputs = run_detect(tmp_path, [
+        ("openxFactory", "git@github.com:opensoft/openxFactory.git"),
+        ("xFactories/OpsxFactory", "git@github.com:opensoft/OpsxFactory.git"),
+        ("xFactories/MedxFactory", "git@github.com:MedxSoft/MedxFactory.git"),
+        ("xFactories/MedxEHR", "git@github.com:MedxSoft/MedxEHR.git"),
+        ("xFactories/LedgerxFactory",
+         "git@github.com:ledgerXfactory/LedgerxFactory.git"),
+        ("xFactories/codexFactory",
+         "git@github.com:codeXfactory/codexFactory.git"),
+    ])
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert outputs["count"] == "3", \
+        "the moved core must be DETECTED as a third foreign owner"
+    filled = {index: outputs[f"owner_{index}"]
+              for index in range(1, declared_slots() + 1)
+              if outputs[f"owner_{index}"]}
+    assert set(filled.values()) == \
+        {"MedxSoft", "ledgerXfactory", "codeXfactory"}
+    assert "codeXfactory" in outputs["owners_all"].split()
+
+    # The slot it lands in has a mint step, in BOTH jobs — the position comes
+    # out of `sort -u` and is locale-dependent, so it is looked up rather than
+    # assumed.
+    core_slot = next(index for index, owner in filled.items()
+                     if owner == "codeXfactory")
+    for job in JOBS:
+        mint = step(job, MINT.format(core_slot))
+        assert mint["with"]["app-id"] == "${{ secrets.XFACTORY_APP_ID }}", \
+            "the moved core is minted from the same App as every other owner"
+
+    # And a spare remains, so the NEXT repoint is a `.gitmodules` edit.
+    assert declared_slots() > 3
+    assert outputs[f"owner_{declared_slots()}"] == ""
 
 
 def test_more_owners_than_slots_still_refuses_and_names_them(tmp_path):
+    # ONE MORE OWNER THAN THE FILE DECLARES, derived from the declared count
+    # rather than typed: with a literal 4 this stopped being an
+    # over-the-limit tree the moment the fourth slot landed.
+    over = declared_slots() + 1
     done, _ = run_detect(tmp_path, [
         (f"xFactories/R{n}", f"git@github.com:Org{n}/R{n}.git")
-        for n in range(1, 5)
+        for n in range(1, over + 1)
     ])
     assert done.returncode == 1
-    assert "span 4 foreign owners" in done.stdout
-    for n in range(1, 5):
+    assert f"span {over} foreign owners" in done.stdout
+    for n in range(1, over + 1):
         assert f"Org{n}" in done.stdout
-    assert "3 mint slots" in done.stdout
+    assert f"{declared_slots()} mint slots" in done.stdout
 
 
 def credentialed(token, owner, repo):
@@ -322,7 +455,9 @@ def credentialed(token, owner, repo):
 # wins" is precisely a claim about the WHOLE resolved string — a substring
 # check would pass for a rewrite that routed the right owner to the wrong
 # token, which is the failure this file exists to catch.
-def run_rewrite(tmp_path, pairs, slot_count=3, broad_token=None):
+def run_rewrite(tmp_path, pairs, slot_count=None, broad_token=None):
+    if slot_count is None:
+        slot_count = declared_slots()
     config = tmp_path / "gitconfig"
     config.write_text("", encoding="utf-8")
     env = clean_env(GIT_CONFIG_GLOBAL=str(config), SLOTS=str(slot_count))
@@ -368,15 +503,28 @@ def test_both_forms_resolve_to_the_owners_own_token(tmp_path):
 
 
 def test_the_broad_rewrite_still_serves_every_other_owner(tmp_path):
-    done, resolve = run_rewrite(
-        tmp_path, {1: ("MedxSoft", "medx-installation-token")}, broad_token="caller-org-token")
+    done, resolve = run_rewrite(tmp_path, {
+        1: ("MedxSoft", "medx-installation-token"),
+        2: ("codeXfactory", "codexfactory-installation-token"),
+    }, broad_token="caller-org-token")
     assert done.returncode == 0, done.stdout + done.stderr
-    # Longest prefix wins in BOTH directions: the narrow key takes MedxSoft,
-    # the broad one keeps everything else.
+    # Longest prefix wins in BOTH directions: the narrow keys take their own
+    # owners, the broad one keeps everything else.
     assert resolve("git@github.com:MedxSoft/MedxEHR.git") == \
         credentialed("medx-installation-token", "MedxSoft", "MedxEHR")
-    assert resolve("git@github.com:opensoft/codexFactory.git") == \
-        credentialed("caller-org-token", "opensoft", "codexFactory")
+    # THE MOVED CORE ROUTES TO ITS OWN INSTALLATION (slice B1b). Before the org
+    # move this line read `credentialed("caller-org-token", "opensoft",
+    # "codexFactory")` — the broad key served it because it was same-org. It is
+    # foreign now, and a broad-key resolution here would mean the nightly
+    # cloning it with a token minted for `opensoft`, which is the 422 the
+    # transfer's own precheck measured.
+    assert resolve("git@github.com:codeXfactory/codexFactory.git") == \
+        credentialed("codexfactory-installation-token", "codeXfactory",
+                     "codexFactory")
+    # A submodule that STAYED in `opensoft` is what proves the broad key is
+    # still doing its job.
+    assert resolve("git@github.com:opensoft/OpsxFactory.git") == \
+        credentialed("caller-org-token", "opensoft", "OpsxFactory")
 
 
 def test_an_unmintable_owner_fails_the_run_naming_the_owner(tmp_path):
