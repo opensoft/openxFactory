@@ -327,22 +327,59 @@ carrying this group needs a human merge word.**
       `scripts/validate-signed-execution-chain.py`,
       `scripts/validate-omnigent-contracts.py`,
       `scripts/validate-hermes-domain-overlay.py`.
-- [ ] 7.2 Follow `docs/contract-versioning-policy.md` § Bundle Realization Order:
+- [x] 7.2 Follow `docs/contract-versioning-policy.md` § Bundle Realization Order:
       rebase onto the final integration point, recheck availability, and allocate
       the next available additive minor after `contract-v3.4` THEN — no number is
       reserved by this packet, and this packet has a live ordering dependency
       besides.
-- [ ] 7.3 In one atomic candidate commit: `contracts/manifest.yaml`
+      **DONE 2026-09-09 (lane `provenance-autonomous-merge`).** Integration point
+      `origin/main` at `95e67ab0` — the merge of #806, the LAST of the four gated
+      realization slices, committed 2026-09-09T20:44:00Z. The candidate was first
+      derived at `00d368a4` (#805, 20:00:16Z) and RE-DERIVED at `95e67ab0` when
+      `main` moved, per step 1; neither #806 nor #864 touches a release-inventory
+      member, so the re-derivation moved no digest the first derivation had not.
+      Availability RE-CHECKED at the final tip, not carried
+      forward: `git ls-remote --tags origin 'refs/tags/contract-v*'` publishes
+      annotated tags through `contract-v3.4` (`807a4f47`),
+      `refs/tags/contract-v3.5` is ABSENT, `contracts/releases/` held inventories
+      through `contract-v3.4.digests.yaml`, and there is no `Unreleased` block in
+      `contracts/CHANGELOG.md`. **`contract-v3.5` allocated** — additive minor,
+      no earlier bundle owing a tag, no number reused.
+- [x] 7.3 In one atomic candidate commit: `contracts/manifest.yaml`
       (`contract_bundle_version`), `contracts/CHANGELOG.md` (one entry naming the
       transfer, the EIGHT moved members, the mapping row, the origin re-issuance,
       and the `--domain-repo` key migration note), and the realized
       `contracts/releases/<bundle-tag>.digests.yaml` built by
       `scripts/validate-contract-release.py build --tag <tag>`. **Never hand-edit
       an existing inventory to make a comparison pass.**
+      **DONE 2026-09-09 (lane `provenance-autonomous-merge`).** One candidate
+      commit on `release/contract-v3.4-bundle-cut`:
+      `contracts/manifest.yaml` (`contract-v3.4` → `contract-v3.5`),
+      `contracts/CHANGELOG.md` (the `contract-v3.5` entry, which names all five
+      required things and adds the measured "also carried" attribution — four
+      `contracts/` additions and twenty-seven modifications between the two
+      cuts), `contracts/releases/contract-v3.5.digests.yaml` built by the tool
+      and never hand-edited, and `tests/intent-compliance/test_release_boundary.py`
+      (`FEATURE_SUCCESSOR_9`, both match arms, and the by-hand statement every
+      cut past the intent-compliance floor owes — measured at ZERO
+      intent-compliance paths moved). Inventory: 283 members, membership
+      UNCHANGED, no `git_mode` change, TWELVE digests re-baselined. NO existing
+      inventory row was touched: `contract-v3.4.digests.yaml` is byte-unchanged.
 - [ ] 7.4 `scripts/validate-contract-release.py verify-commit --commit <sha>`
       clean at the candidate; `verify-promotion` before tagging; publish the
       annotated tag at the exact published commit and `verify-tag` from a fresh
       checkout.
+      **OPERATOR ACT — NOT the cutting lane's.** `verify-promotion` and the
+      annotated tag are RELEASE SURFACES and the ceremony runbook's ownership
+      legend does not cover them; row 5 of its merge order assigns them to the
+      operator. The exact four-command sequence, to be run from a freshly
+      refreshed openxFactory checkout AFTER the cut lands on `main`, is recorded
+      in the `contract-v3.5` changelog entry § *The annotated tag is published at
+      the LANDED commit, not from this branch*. `verify-commit` at the CANDIDATE
+      is recorded on the cutting pull request; the re-run at the LANDED commit is
+      step 1 of that sequence, because a squash merge always creates a different
+      commit and skipping the re-verification is what made `contract-v3.1`
+      defective.
 - [ ] 7.5 Re-run doc-health and record `release-inventory-drift` at **0 findings**
       after the cut. Record the transient too: between Group 3 and 7.3 the family
       reports EIGHT `ERROR` findings (the eight non-editorial members), which is the
