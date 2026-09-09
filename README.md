@@ -1568,60 +1568,6 @@ Active changes:
   this packet adds and removes no path under `openspec/specs/`.
   `Refs #656`.
 
-- [add-openspec-cli-pin](openspec/changes/add-openspec-cli-pin/proposal.md)
-  — authored 2026-09-04, **`Status: draft`**, on Brett Heap's word
-  *"draft the openxFactory pin change, pinned at 1.2.0"*. **Not ratified, not
-  merged.**
-  **THE TOOL THAT DECIDES WHAT CANON IS HAS NEVER BEEN PINNED.**
-  `openspec validate --strict` is the gate every spec delta passes before it may
-  archive and `openspec archive` is the act that writes a ratified delta into
-  canon, yet the OpenSpec CLI is UNPINNED fleet-wide: the only pin anywhere is one
-  literal line in `.github/workflows/pytest-suite.yml:400`
-  (`npm install -g @fission-ai/openspec@1.2.0`), installed so
-  `tests/proposal-support/` can drive the binary — read by no consuming
-  repository, verified by nothing, refusing nothing. OpenSpec offers no
-  project-level version field to lean on instead (`openspec/config.yaml` carries
-  only `schema:`; `openspec config` is global-scope). And
-  `openspec validate --all --strict` runs in **NO repository's CI at all**:
-  OpsxFactory and codexFactory have zero workflows mentioning it, and
-  MedxFactory/LedgerxFactory/AdxFactory have no workflows. The estate's archive
-  gate has been running on laptops at whatever version was installed there.
-  **THE COST IS MEASURED, NOT HYPOTHETICAL** (2026-09-04): the same trees that are
-  clean at 1.2.0 fail under 1.12.0 — openxFactory `48 passed, 41 failed (89)`,
-  OpsxFactory `34 passed, 10 failed (44)` — every failure a PRE-EXISTING
-  condition (placeholder `## Purpose` sections the `archive` command itself
-  writes, a duplicate task id, and at least four deltas the newer `archive` would
-  REFUSE), so an unpinned upgrade reds two repositories and stalls every archive
-  in the name of whoever ran `npm install -g`. So the pin is set where the estate
-  is GREEN. **THE REFERENT IS THE TARBALL'S SHA-512**
-  (`sha512-2XDmPZ…`, shasum `0fd53335…`) and the version string `1.2.0` is a
-  **LABEL** — `contracts/openreposhape-pin.yaml`'s tag-versus-commit argument
-  transposed to a registry, because npm's refusal to republish a version is a
-  REGISTRY POLICY with an operator and an unpublish window, and a policy is not a
-  content address. `contracts/openspec-cli-pin.yaml` reuses
-  `kind: pinned_contract_manifest` unchanged;
-  `scripts/validate-openspec-cli-pin.py` is BOTH the pin's verifier AND the one
-  consumer entrypoint (separating them would leave a verifier nobody must call
-  beside a bare `openspec` that answers with whatever is on `PATH`) — stdlib-only,
-  five ordered checks, five refusal codes, one fixed remediation trailer; it
-  fetches and re-hashes the artifact BEFORE installing or invoking it rather than
-  trusting `npx`, its default mode **never reads `PATH`**, and it has no
-  `--verify-only` because a target-less mode is the green-check-that-verified-
-  nothing the grammar forbids. `.github/workflows/openspec-cli-pin-gate.yml`
-  makes this the **FIRST repository in the estate whose archive gate actually
-  runs in CI**, with the version read out of the pin and never restated in the
-  workflow (the sibling gate's "fourth copy of the pin" argument, asserted by a
-  test). FOUR ADDED requirements plus **ONE MODIFIED** — required, because the
-  ratified grammar is COMMIT-ONLY and an npm package has no commit and no
-  per-file surface, so the delta admits a published-artifact referent minimally
-  (every existing clause and all three scenarios restated, nothing deleted, no
-  deletion marker owed) and argues that one digest over a tarball discharges the
-  completeness obligation the two member lists exist to make checkable rather
-  than waiving it. **DOES NOT BUMP THE VERSION** — the upgrade is a separate,
-  human-only governed change that must land its target-version `--all --strict`
-  evidence in the same change. Consuming-repository wiring is successor work,
-  one change per repository.
-
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
   in-session at 12:37Z, on the recorded word *"D10 A, D13 A, ratify #645"*;
@@ -3070,6 +3016,77 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-openspec-cli-pin](openspec/changes/archive/2026-09-09-add-openspec-cli-pin/proposal.md)
+  — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in
+  session, first-hand to lane `codexfactory-1` (session name `codeXfactory-1`)
+  at 11:54Z, verbatim *"archive the pin change"*). Ratified 2026-09-04, verbatim *"ratify 667"*, record
+  `review/ratification-2026-09-04.md`. `code_surface` is NON-EMPTY — four new
+  artifacts — so under `release-realization` this packet archived on
+  **merged-plus-green realization evidence, not on landing**, and both halves are
+  cited rather than asserted (task 7.3): **MERGED** at
+  [#667](https://github.com/opensoft/openxFactory/pull/667) → merge commit
+  `7499338920534d7ceac4611ac9df891e00cd2887`, 2026-09-05T00:05:14Z; **GREEN** on
+  the `openspec-cli-pin` check this packet's own workflow reports under —
+  conclusion `success` on
+  [#813](https://github.com/opensoft/openxFactory/pull/813) run
+  [34308880435](https://github.com/opensoft/openxFactory/actions/runs/34308880435),
+  [#810](https://github.com/opensoft/openxFactory/pull/810) run
+  [34237607404](https://github.com/opensoft/openxFactory/actions/runs/34237607404)
+  and [#804](https://github.com/opensoft/openxFactory/pull/804) run
+  [34231495606](https://github.com/opensoft/openxFactory/actions/runs/34231495606)
+  — a REQUIRED check on `main` since task 3.3 (org ruleset `22551797`).
+  `target_release: none`, so no bundle cut was owed and none was taken.
+  **THE TOOL THAT DECIDES WHAT CANON IS HAD NEVER BEEN PINNED**, which is what
+  this change ended. `openspec validate --strict` is the gate every spec delta
+  passes before it may archive and `openspec archive` is the act that writes a
+  ratified delta into canon, yet at authoring the CLI was UNPINNED fleet-wide:
+  the only pin anywhere was one literal line in
+  `.github/workflows/pytest-suite.yml` (`npm install -g
+  @fission-ai/openspec@1.2.0`), installed so `tests/proposal-support/` could
+  drive the binary — read by no consuming repository, verified by nothing,
+  refusing nothing — and `openspec validate --all --strict` ran in **NO
+  repository's CI at all**. **THE COST WAS MEASURED, NOT HYPOTHETICAL**
+  (2026-09-04): the same trees clean at 1.2.0 failed under 1.12.0 — openxFactory
+  `48 passed, 41 failed (89)`, OpsxFactory `34 passed, 10 failed (44)` — every
+  failure a PRE-EXISTING condition, so an unpinned upgrade would red two
+  repositories in the name of whoever ran `npm install -g`. **THE REFERENT IS THE
+  TARBALL'S SHA-512** and the version string is a **LABEL** —
+  `contracts/openreposhape-pin.yaml`'s tag-versus-commit argument transposed to a
+  registry, because npm's refusal to republish a version is a REGISTRY POLICY
+  with an operator and an unpublish window, and a policy is not a content
+  address. `contracts/openspec-cli-pin.yaml` reuses `kind:
+  pinned_contract_manifest` unchanged; `scripts/validate-openspec-cli-pin.py` is
+  BOTH the pin's verifier AND the one consumer entrypoint (separating them would
+  leave a verifier nobody must call beside a bare `openspec` that answers with
+  whatever is on `PATH`) — stdlib-only, five ordered checks, five refusal codes,
+  one fixed remediation trailer; it re-hashes the artifact BEFORE installing or
+  invoking it rather than trusting `npx`, its default mode **never reads
+  `PATH`**, and it has no `--verify-only` because a target-less mode is the
+  green-check-that-verified-nothing the grammar forbids.
+  `.github/workflows/openspec-cli-pin-gate.yml` made this the **FIRST repository
+  in the estate whose archive gate actually runs in CI**, with the version read
+  out of the pin and never restated in the workflow.
+  **PROMOTED INTO CANON — FOUR ADDED REQUIREMENTS AND ONE MODIFIED, ALL FIVE
+  BYTE-IDENTICAL TO THE ARCHIVED DELTA** (each block extracted programmatically
+  from delta and canon and hashed): `neutral-product-pin` goes **11 → 15** —
+  *The OpenSpec CLI is a pinned neutral product, and every strict validation and
+  every archive runs at the pin*; *A consuming repository runs OpenSpec
+  validation only through the pinned entrypoint, so a PATH binary cannot affect
+  the gate*; *A pinned CLI version bump is one human-only act that lands its
+  target-version evidence in the same change*; *A pin whose content address
+  cannot be verified refuses, and the refusal names its remedy* — and the
+  MODIFIED *An external neutral product is pinned by commit and digest, never by
+  tag* now admits a published-artifact referent MINIMALLY, every existing clause
+  and all three existing scenarios restated unchanged (proved by a promotion diff
+  of **159 added, 0 removed**) beside two new ones. The other TEN requirements
+  and the `## Purpose` block are byte-identical before and after; the capability
+  already existed, so no placeholder Purpose was written.
+  **THIS CHANGE DID NOT BUMP THE VERSION** — the upgrade is
+  `bump-openspec-cli-pin-to-1.12`, still active. **ONE BOX IS OPEN AND IS NOT
+  CLAIMED:** task **6.2**, `OpsxFactory`'s wiring, carries the reserved DEFERRED
+  marker `- [~]` — it is lane `opsXfactory-1`'s successor work (that lane's
+  feature 012) and by slice 6's own heading it never gated this archive.
 
 - [add-ideation-intent-plane](openspec/changes/archive/2026-09-09-add-ideation-intent-plane/proposal.md)
   — **ARCHIVED 2026-09-09**, under Brett Heap's ruling of 2026-09-05T23:38Z (in
