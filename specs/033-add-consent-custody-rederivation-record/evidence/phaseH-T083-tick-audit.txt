@@ -1,0 +1,211 @@
+T083 — THE POST-HOC TICK / EVIDENCE AUDIT. 2026-09-09.
+
+THE DISCIPLINE IS VERIFIED FROM HISTORY, NEVER FROM THE AUTHOR'S MEMORY OF THE
+ORDER THINGS HAPPENED IN. The rule (FR-041, architect ruling 032-Q5): a packet
+box is ticked ONLY in the same commit as the evidence that proves its act. This
+file PROVES it rather than asserting it, by walking every commit from the last
+pre-realization commit to the branch head, extracting the boxes each commit
+TICKS from the added `- [x]` lines of the packet's own `tasks.md`, and listing
+the evidence files that commit adds.
+
+METHOD, so it can be re-run: for each commit in `2d09dcd3..HEAD`,
+  git show --format= -U0 <sha> -- openspec/changes/.../tasks.md  | added '- [x]'
+  git show --stat=200 --format= <sha>                            | paths under evidence/
+A tick with no evidence in its own commit would print
+"*** NONE - VIOLATION ***". NO SUCH LINE APPEARS BELOW.
+
+VERDICT: 35 ticks, in FOUR tick-bearing commits, each carrying its own evidence.
+ZERO violations. The count matches the box accounting independently: 35 ticked
++ 3 NOT-OWED-HERE + 8 NOT-OWED = 46.
+
+  f59a587d  §2       5 ticks  (2.1-2.5)          3 evidence files
+  f420cd50  §3, §4  23 ticks  (3.1-3.5, 4.1-4.9) 8 evidence files
+  d54d89ca  §5 cut   2 ticks  (5.2, 5.3)         2 evidence files
+  c4a364d6  §H       5 ticks  (0.1, 1.1-1.3, 5.4) 7 evidence files
+
+The commits with "ticks: none" below are either this branch's own non-ticking
+acts (the Phase F README amendments, the merge that formed the integration
+point) or `main`'s work carried in by those merges — the walk covers the merged
+history rather than a filtered view of it, because a filtered view is one the
+reader would have to trust.
+
+NOTE ON THIS FILE'S OWN COMMIT: it is written AFTER the last tick landed, which
+is what "post-hoc" requires, and its commit TICKS NOTHING — so it cannot itself
+be a tick whose evidence arrives late.
+
+--------------------------------------------------------------------------------
+BASE (last commit before realization): 2d09dcd3 Take the consistency panel's ten findings on 489be604
+
+4f69a545  Slice B1 (GATED at runbook step 1.2): the decision-core pin, the workflows, th
+    ticks: none
+
+7256a83e  Merge remote-tracking branch 'origin/main' into realize/codexfactory-identity-
+    ticks: none
+
+f3180a69  Merge remote-tracking branch 'origin/main' into realize/codexfactory-identity-
+    ticks: none
+    evidence added anyway (2): codexfactory-identity-sweep-2026-09-08.md, realization-2026-09-08.md
+
+22125ea1  The credential follows the target: every mint that reads the decision core is 
+    ticks: none
+
+570cc6e3  Merge remote-tracking branch 'origin/main' into realize/codexfactory-identity-
+    ticks: none
+    evidence added anyway (1): codexfactory-identity-sweep-2026-09-08.md
+
+245eac63  The preconditions an operator pastes from, and the number that proves the tran
+    ticks: none
+
+917c73bd  Merge remote-tracking branch 'origin/main' into realize/codexfactory-identity-
+    ticks: none
+
+2911ca7b  Ruling 1(a): record the convener's choice on identity_namespace
+    ticks: none
+
+e2bcdbd3  Ruling 1(b): amend task 3.5 to cover identity_namespace (line 103)
+    ticks: none
+
+8c7a1fca  Ruling 1(c): respell identity_namespace to github:codeXfactory
+    ticks: none
+
+c3b30655  Ruling 1(e): sweep evidence addendum for line 103's reclassification
+    ticks: none
+    evidence added anyway (1): codexfactory-identity-sweep-2026-09-08.md
+
+d76298ce  Ruling 2(g): task 6.5 precondition adopted
+    ticks: none
+
+a1f08c39  Merge origin/main into slice B1: the relocated floor-mirror candidate list kee
+    ticks: none
+    evidence added anyway (1): dependency-closure-2026-09-08.md
+
+e9d2d56d  Merge origin/main@9a67d42c into slice B1: main moved again, clean this time, a
+    ticks: none
+    evidence added anyway (36): realization-2026-09-08.md, doc-health-branch-645e88ec-asof-2026-09-09.md, doc-health-branch-645e88ec-asof-2026-09-09.stdout.txt, doc-health-branch-645e88ec.md, doc-health-branch-645e88ec.stdout.txt, doc-health-diff-INTERIM-superseded-clock-rollover.txt, doc-health-diff-main-vs-branch.txt, doc-health-main-68712924-A.md, doc-health-main-68712924-A.stdout.txt, doc-health-main-68712924-B.md, doc-health-main-68712924-B.stdout.txt, doc-health-main-68712924-asof-2026-09-09-A.md, doc-health-main-68712924-asof-2026-09-09-B.md, final-doc-health-branch-be643e55.md, final-doc-health-branch-be643e55.stdout.txt, final-doc-health-diff-main-vs-branch.txt, final-gate-4.1-all-strict.txt, final-gate-4.1-change-strict.txt, final-gate-4.3-validators.txt, final-gate-4.5-pytest.txt, final-modified-block-currency.txt, gate-4.1-all-strict.txt, gate-4.1-change-strict.txt, gate-4.3-validators.txt, gate-4.5-pytest.txt, merged-doc-health-branch-a83f2eb1.md, merged-doc-health-branch-a83f2eb1.stdout.txt, merged-doc-health-diff-main-vs-branch.txt, merged-doc-health-main-6da94302-A.md, merged-doc-health-main-6da94302-B.md, merged-gate-4.1-all-strict.txt, merged-gate-4.1-change-strict.txt, merged-gate-4.3-validators.txt, merged-gate-4.5-pytest.txt, merged-modified-block-currency.txt, modified-block-currency.txt
+
+eeaab1ee  Merge origin/main@82c9f059 into slice B1: step (3) closed the migration window
+    ticks: none
+
+c8d047e9  Merge origin/main@7681e409 into slice B1: #830 named the moved repository in a
+    ticks: none
+
+c599c904  A disposition's cited_to path must resolve, and the two #834 left dangling are
+    ticks: none
+
+4099cd49  The origin-retention walk refuses a moved path instead of re-basing to the ren
+    ticks: none
+
+62bea179  Pin the corpus sweep against vacuity: it saw changes, and ratified ones
+    ticks: none
+
+98081b34  Merge remote-tracking branch 'origin/main' into fix/origin-retention-refuses-a
+    ticks: none
+
+d7afdc1a  Archive bump-openspec-cli-pin-to-1.12 on met realization evidence: the disposi
+    ticks: none
+    evidence added anyway (2): pin-bump-1.12-2026-09-05.md, upstream-issue-draft-merged-into-marker.md
+
+42385004  Flip the corpus-ledger row for bump-openspec-cli-pin-to-1.12 to archived (#847
+    ticks: none
+
+fa785ff5  Pin the guard's config-independence, and stop the sweep quoting a count
+    ticks: none
+
+5ab762ca  Read the citation LINE, and every token of it: the bench's two findings, one r
+    ticks: none
+
+6f691527  Answer both bench findings with measurement: the copy pairing, and the gap
+    ticks: none
+
+f62126c3  The moved-packet guard reads any spelling of the candidate commit
+    ticks: none
+
+ea61cfae  Say MOVE OR COPY, because the guard refuses a copied packet too
+    ticks: none
+
+f59a587d  Execute § 2: the consent instrument grows its custody re-derivation sibling
+    TICKS (5): 2.1, 2.2, 2.3, 2.4, 2.5
+    EVIDENCE IN THE SAME COMMIT (3):
+        specs/033-add-consent-custody-rederivation-record/evidence/T015-T016-schema-proofs.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/T017-manifest-digests.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseB-consent-validator.txt
+
+e86eca35  Merge pull request #801 from opensoft/realize/codexfactory-identity-b1
+    ticks: none
+    evidence added anyway (1): codexfactory-identity-sweep-2026-09-08.md
+
+d142ea5a  Merge main (#801 workflow repoint) into fix/cited-to-paths-resolve
+    ticks: none
+    evidence added anyway (2): codexfactory-identity-sweep-2026-09-08.md, realization-2026-09-08.md
+
+d29b6db6  Merge main (#801 workflow repoint) into fix/origin-retention-refuses-a-moved-p
+    ticks: none
+    evidence added anyway (2): codexfactory-identity-sweep-2026-09-08.md, realization-2026-09-08.md
+
+98776fcf  Merge origin/main (peer #801 respelled the pinned-core mints for org codeXfact
+    ticks: none
+    evidence added anyway (2): codexfactory-identity-sweep-2026-09-08.md, realization-2026-09-08.md
+
+c6ae684d  OQ-B re-plumb 1: slug into a neutral module beside output_boundary; intent_app
+    ticks: none
+
+256b1950  Refresh the eight doxbench_scope/serve_wire line citations staled by S-1/S-3, 
+    ticks: none
+
+4cdadd56  A disposition's cited_to path must resolve: the pin-registration check gains t
+    ticks: none
+
+19c8d5a4  Merge pull request #847 from opensoft/change/archive-bump-openspec-cli-pin-to-
+    ticks: none
+    evidence added anyway (2): pin-bump-1.12-2026-09-05.md, upstream-issue-draft-merged-into-marker.md
+
+183d1b43  The origin-retention walk refuses a moved path instead of silently re-basing t
+    ticks: none
+
+6ef5d02d  Add validate-carve-manifest.py: six ordered checks over the § 3.1 carve manife
+    ticks: none
+
+07165db8  Add amendment A3: omnigent retired from registration material and docs (#854)
+    ticks: none
+
+f420cd50  Execute §§ 3 and 4: the chain's internal legs, a third outcome, and the corpus
+    TICKS (23): 3.1, 3.2, 3.3, 3.4, 3.4b, 3.4c, 3.5, 4.1, 4.2, 4.1b, 4.1c, 4.3, 4.3b, 4.3c, 4.4, 4.5, 4.6, 4.7, 4.8, 4.8b, 4.8c, 4.8d, 4.9
+    EVIDENCE IN THE SAME COMMIT (8):
+        specs/033-add-consent-custody-rederivation-record/evidence/FINDING-pin-leg-contradiction-2026-09-09.md
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseC-exit-vocabulary.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseD-consent-validator.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseD-manifest-digests.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseD-scope-globs.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseE-baseline-preexisting-failures.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseE-pytest-consent-instruments.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseE-pytest-full.txt
+
+587f21a0  Arm the re-pin lane's auto-merge, inert and saying so (amend-mirror-floor-rege
+    ticks: none
+
+7c79f524  Amend the three README sentences realization falsifies, and name the four it d
+    ticks: none
+    evidence added anyway (1): phaseF-readme-amendments.txt
+
+9d658813  Merge origin/main (587f21a0) into 033-add-consent-custody-rederivation-record:
+    ticks: none
+    evidence added anyway (3): codexfactory-identity-sweep-2026-09-08.md, pin-bump-1.12-2026-09-05.md, upstream-issue-draft-merged-into-marker.md
+
+d54d89ca  Cut contract-v3.5: the consent instrument's re-derivable custody record reache
+    TICKS (2): 5.2, 5.3
+    EVIDENCE IN THE SAME COMMIT (2):
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseG-T060-measurement.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseG-T061a-T061c-coupling.txt
+
+c4a364d6  Close the packet's books: 35 ticked, 11 named as owed elsewhere, and two findi
+    TICKS (5): 0.1, 1.1, 1.2, 1.3, 5.4
+    EVIDENCE IN THE SAME COMMIT (7):
+        openspec/changes/add-consent-custody-rederivation-record/evidence/realization-2026-09-09.md
+        specs/033-add-consent-custody-rederivation-record/evidence/doc-health/base/doc-health.md
+        specs/033-add-consent-custody-rederivation-record/evidence/doc-health/doc-health-diff.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/doc-health/head/doc-health.md
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseG-T064-gates.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseH-T080-doc-health.txt
+        specs/033-add-consent-custody-rederivation-record/evidence/phaseH-T081-final-sweep.txt
+
+TOTAL TICKS ACROSS HISTORY: 35
