@@ -220,6 +220,7 @@ jobs:
           GOVERNED='^(openxFactory|xFactories/)'
           MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
           FOREIGN=""
+          ALL=""
           while read -r key path; do
             [ -n "${path:-}" ] || continue
             printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
@@ -234,6 +235,7 @@ jobs:
               continue
             fi
             echo "governed submodule ${path} -> owner ${owner}"
+            ALL="${ALL}${owner}"$'\n'
             if [ "$owner" != "$SELF_OWNER" ]; then
               FOREIGN="${FOREIGN}${owner}"$'\n'
             fi
@@ -246,6 +248,10 @@ jobs:
           fi
           echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
           echo "slots=${FOREIGN_OWNER_SLOTS}" >> "$GITHUB_OUTPUT"
+          # EVERY governed owner, self included, space separated. Only the
+          # fallback-token step below reads it: a PAT is not per-installation,
+          # so it needs the owner list rather than a slot.
+          echo "owners_all=$(printf '%s' "$ALL" | sed '/^$/d' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
           # Every slot is written, filled or empty, because each mint step
           # reads its own slot and an unset output would read as the literal
           # string of an unresolved expression rather than as "empty".
@@ -372,6 +378,32 @@ jobs:
             echo "governed submodule owner ${owner} credentialed from its own installation (slot ${slot})"
           done
           exit "$rc"
+      # THE DOCUMENTED PAT FALLBACK NEEDS THE https FORM TOO (Codex, PR #831).
+      # With no App key configured every per-owner mint above is skipped, and
+      # `SUBMODULE_TOKEN` is a PAT rather than an installation token — one
+      # credential for every organization it can read — so it needs no slot,
+      # only the owner list. Without this step a caller that supplies the
+      # documented fallback still failed the init on a private https leg such
+      # as MedxEHR's `spec`, because the pre-checkout rewrite above gives the
+      # PAT the ssh form ONLY.
+      #
+      # SCOPED TO THE OWNERS `.gitmodules` DECLARES, not to `https://github.com/`
+      # at large, and that is the whole reason this is a separate step rather
+      # than a second line up there: a broad https key would also capture the
+      # checked-out repository's OWN origin URL, which the report-delivery
+      # lanes push through. Per-owner keys cannot reach it — and `.gitmodules`
+      # is not readable before the checkout anyway.
+      - name: Rewrite governed submodule https URLs for the fallback token
+        if: env.HAS_APP_KEY != 'true'
+        env:
+          TOKEN: ${{ secrets.SUBMODULE_TOKEN || github.token }}
+          OWNERS: ${{ steps.foreign-owner.outputs.owners_all }}
+        run: |
+          set -euo pipefail
+          for owner in $OWNERS; do
+            git config --global --add url."https://x-access-token:${TOKEN}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} https URLs credentialed from the fallback token"
+          done
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
@@ -1285,6 +1317,7 @@ jobs:
           GOVERNED='^(openxFactory|xFactories/)'
           MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
           FOREIGN=""
+          ALL=""
           while read -r key path; do
             [ -n "${path:-}" ] || continue
             printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
@@ -1299,6 +1332,7 @@ jobs:
               continue
             fi
             echo "governed submodule ${path} -> owner ${owner}"
+            ALL="${ALL}${owner}"$'\n'
             if [ "$owner" != "$SELF_OWNER" ]; then
               FOREIGN="${FOREIGN}${owner}"$'\n'
             fi
@@ -1311,6 +1345,10 @@ jobs:
           fi
           echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
           echo "slots=${FOREIGN_OWNER_SLOTS}" >> "$GITHUB_OUTPUT"
+          # EVERY governed owner, self included, space separated. Only the
+          # fallback-token step below reads it: a PAT is not per-installation,
+          # so it needs the owner list rather than a slot.
+          echo "owners_all=$(printf '%s' "$ALL" | sed '/^$/d' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
           # Every slot is written, filled or empty, because each mint step
           # reads its own slot and an unset output would read as the literal
           # string of an unresolved expression rather than as "empty".
@@ -1437,6 +1475,32 @@ jobs:
             echo "governed submodule owner ${owner} credentialed from its own installation (slot ${slot})"
           done
           exit "$rc"
+      # THE DOCUMENTED PAT FALLBACK NEEDS THE https FORM TOO (Codex, PR #831).
+      # With no App key configured every per-owner mint above is skipped, and
+      # `SUBMODULE_TOKEN` is a PAT rather than an installation token — one
+      # credential for every organization it can read — so it needs no slot,
+      # only the owner list. Without this step a caller that supplies the
+      # documented fallback still failed the init on a private https leg such
+      # as MedxEHR's `spec`, because the pre-checkout rewrite above gives the
+      # PAT the ssh form ONLY.
+      #
+      # SCOPED TO THE OWNERS `.gitmodules` DECLARES, not to `https://github.com/`
+      # at large, and that is the whole reason this is a separate step rather
+      # than a second line up there: a broad https key would also capture the
+      # checked-out repository's OWN origin URL, which the report-delivery
+      # lanes push through. Per-owner keys cannot reach it — and `.gitmodules`
+      # is not readable before the checkout anyway.
+      - name: Rewrite governed submodule https URLs for the fallback token
+        if: env.HAS_APP_KEY != 'true'
+        env:
+          TOKEN: ${{ secrets.SUBMODULE_TOKEN || github.token }}
+          OWNERS: ${{ steps.foreign-owner.outputs.owners_all }}
+        run: |
+          set -euo pipefail
+          for owner in $OWNERS; do
+            git config --global --add url."https://x-access-token:${TOKEN}@github.com/${owner}/".insteadOf "https://github.com/${owner}/"
+            echo "governed submodule owner ${owner} https URLs credentialed from the fallback token"
+          done
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \

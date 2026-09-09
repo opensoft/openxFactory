@@ -411,3 +411,92 @@ def test_the_slot_guard_is_in_both_jobs():
     for job in JOBS:
         script = step(job, REWRITE)["run"]
         assert "grep -qE '^[1-9][0-9]*$'" in script
+
+
+# --- the documented PAT fallback (Codex, PR #831) ---------------------------
+
+FALLBACK = "Rewrite governed submodule https URLs for the fallback token"
+
+
+def test_the_fallback_step_runs_exactly_when_there_is_no_app_key():
+    for job in JOBS:
+        fallback = step(job, FALLBACK)
+        assert fallback["if"] == "env.HAS_APP_KEY != 'true'"
+        # The App path and the fallback path are mutually exclusive, and the
+        # per-owner mints are the App path.
+        assert step(job, REWRITE)["if"].startswith("env.HAS_APP_KEY == 'true'")
+        assert fallback["env"]["TOKEN"] == \
+            "${{ secrets.SUBMODULE_TOKEN || github.token }}"
+        assert fallback["env"]["OWNERS"] == \
+            "${{ steps.foreign-owner.outputs.owners_all }}"
+
+
+def test_the_fallback_rewrite_is_scoped_to_declared_owners():
+    # A broad `https://github.com/` key would also capture the checked-out
+    # repository's own origin URL, which the delivery lanes push through.
+    for job in JOBS:
+        script = step(job, FALLBACK)["run"]
+        assert 'insteadOf "https://github.com/${owner}/"' in script
+        assert 'insteadOf "https://github.com/"' not in script
+
+
+def test_the_detection_reports_every_governed_owner_for_the_fallback():
+    for job in JOBS:
+        script = step(job, DETECT)["run"]
+        assert 'echo "owners_all=' in script
+
+
+def test_owners_all_carries_self_and_foreign_owners(tmp_path):
+    _, outputs = run_detect(tmp_path, [
+        ("openxFactory", "git@github.com:opensoft/openxFactory.git"),
+        ("xFactories/MedxEHR", "git@github.com:MedxSoft/MedxEHR.git"),
+        ("xFactories/LedgerxFactory",
+         "git@github.com:ledgerXfactory/LedgerxFactory.git"),
+        # Not governed: it must not reach the fallback rewrite either.
+        ("installs/hermes-install",
+         "git@github.com:elsewhere/xFactory-Hermes-Install.git"),
+    ])
+    assert set(outputs["owners_all"].split()) == \
+        {"opensoft", "MedxSoft", "ledgerXfactory"}
+
+
+def run_fallback(tmp_path, owners, token):
+    config = tmp_path / "gitconfig"
+    config.write_text("", encoding="utf-8")
+    env = clean_env(GIT_CONFIG_GLOBAL=str(config), TOKEN=token,
+                    OWNERS=" ".join(owners))
+    done = subprocess.run(
+        ["bash", "-c", step("prepare", FALLBACK)["run"]],
+        cwd=tmp_path, capture_output=True, text=True, env=env)
+
+    def resolve(url):
+        return subprocess.run(
+            ["git", "ls-remote", "--get-url", url],
+            cwd=tmp_path, capture_output=True, text=True,
+            env=env, check=True).stdout.strip()
+
+    return done, resolve
+
+
+def test_the_fallback_token_reaches_a_private_https_leg(tmp_path):
+    # The exact URL `Init governed submodules only` failed on, 2026-09-05..07.
+    done, resolve = run_fallback(
+        tmp_path, ["opensoft", "MedxSoft"], "fallback-pat")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert resolve("https://github.com/MedxSoft/MedxEHR-spec.git") == \
+        credentialed("fallback-pat", "MedxSoft", "MedxEHR-spec")
+    assert resolve("https://github.com/opensoft/openXwallet.git") == \
+        credentialed("fallback-pat", "opensoft", "openXwallet")
+
+
+def test_the_fallback_never_captures_the_repositorys_own_origin(tmp_path):
+    done, resolve = run_fallback(tmp_path, ["MedxSoft"], "fallback-pat")
+    assert done.returncode == 0, done.stdout + done.stderr
+    # An owner nobody declared is left exactly as it was.
+    assert resolve("https://github.com/opensoft/xFactory") == \
+        "https://github.com/opensoft/xFactory"
+
+
+def test_an_empty_owner_list_is_a_no_op_not_a_failure(tmp_path):
+    done, _ = run_fallback(tmp_path, [], "fallback-pat")
+    assert done.returncode == 0, done.stdout + done.stderr
