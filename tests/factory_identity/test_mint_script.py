@@ -676,7 +676,7 @@ def test_the_whole_mint(mint, tree, capsys) -> None:
 
     # -- and the operator is handed the two merge commands
     assert "gh pr merge 610 --squash --repo opensoft/openxFactory" in out
-    assert "gh pr merge 182 --squash --repo opensoft/codexFactory" in out
+    assert "gh pr merge 182 --squash --repo codeXfactory/codexFactory" in out
     for value in (ref["did"], ref["key_fingerprint"],
                   ref["public_key_multibase"]):
         assert value in out, "the public values are not printed on success"
