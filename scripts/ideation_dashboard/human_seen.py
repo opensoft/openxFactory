@@ -43,7 +43,11 @@ from typing import Any, Mapping, Sequence
 import yaml
 
 from .boundary import OutputBoundary
-from .workbench import slug
+# The neutral path slug, at its own home rather than through `workbench`
+# (openDox under design D3): this module is openxFactory's own engineering
+# adapter and STAYS, so the import it used to make is the edge RULING OQ-2
+# forbids. OQ-B re-plumb B-1, ruled on `#656` 2026-09-09.
+from path_slug import slug
 
 # The pinned cross-reference index validator (add-ideation-cross-reference-
 # readiness task 2.3), reached by walking up to the aggregation checkout — the

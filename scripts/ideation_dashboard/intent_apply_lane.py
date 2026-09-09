@@ -469,11 +469,16 @@ def _live_session_registry(root: Path, repository: str):
     """The rehydrated session registry, mirroring `cli._session_registry`:
     live sessions derive from the worktrees and branches beside the
     checkout; half-signals are reported on stderr and never repaired."""
-    from ideation_dashboard import branch_session as branch_session_mod
+    # Sessions are reached THROUGH openXdox, never from openDox directly:
+    # `bootstrap_sessions` lives in `branch_session` (openDox under design D3)
+    # and this lane is openxFactory's own adapter, which RULING OQ-2 forbids
+    # from importing openDox at all. OQ-B re-plumb B-3, ruled on `#656`
+    # 2026-09-09. Same object, same call, same behaviour.
+    from ideation_dashboard.openxdox_surface import bootstrap_sessions
     from ideation_dashboard.snapshot_registry import SnapshotRegistry
 
     registry = SnapshotRegistry()
-    report = branch_session_mod.bootstrap_sessions(
+    report = bootstrap_sessions(
         registry, repository=repository or "", checkout_root=root)
     for note in report.stale:
         print(f"  session note ({note.kind}): {note.reason}", file=sys.stderr)
