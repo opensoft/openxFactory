@@ -130,16 +130,34 @@ promoted requirement of this capability's `accept-sequenced-after-header-line`
 delta, "One parent declaration across both sites, and its retention," is
 untouched and is not restated here.
 
-**Sibling search, taken 2026-09-10 before authoring.** No other ACTIVE
-change carries a `release-realization` spec delta at all
-(`find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
-returns nothing), and no OTHER open pull request on `opensoft/openxFactory`
-touches `release-realization` or `frontmatter_strict` (checked, before this
-pull request was filed, via `gh pr list --json number,title,files`; this
-pull request itself necessarily touches `release-realization` and is
-excluded by construction, not by a filter applied after the fact). No
-active change collides with this delta, so `modified-block-currency`'s
-two-writers ordering rule owes no `Modified over` marker.
+**Sibling search, corrected 2026-09-10 — Copilot found that the first
+version's `find` command could not reach what it claimed to check.** The
+claim that matters is narrower than "no other active change touches
+`release-realization` at all": it is that no OTHER active change writes
+THIS requirement key, "Equivalent declaration sites for the ordered-delta
+parent declaration."
+`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
+(corrected depth — a delta file sits at
+`openspec/changes/<id>/specs/release-realization/spec.md`, four path
+segments below `openspec/changes`, one deeper than the original command's
+`-maxdepth 3` could reach, so that command returned nothing regardless of
+whether siblings existed) finds TWO other active changes with a
+`release-realization` delta:
+`add-sequenced-after-substrate` (`## ADDED Requirements` only) and
+`add-structured-scope-substrate` (`## MODIFIED` on "Realization axis
+declaration" and five other requirements).
+A `grep -n "^### Requirement:"` over both files shows neither declares one
+named "Equivalent declaration sites for the ordered-delta parent
+declaration", so neither collides with this delta's requirement key. No
+OTHER open pull request on `opensoft/openxFactory` touches
+`release-realization` or `frontmatter_strict`
+(checked, before this pull request was filed, via
+`gh pr list --json number,title,files`; this pull request itself
+necessarily touches `release-realization` and is excluded by construction,
+not by a filter applied after the fact — re-checked 2026-09-10 at head
+`5252c37b`, still empty). No active change writes this requirement key, so
+`modified-block-currency`'s two-writers ordering rule owes no
+`Modified over` marker.
 
 **The ledger's own `class` field reads `co-modifier`, not `sole`, and that
 is correct rather than a defect.** This change's `## MODIFIED` block writes

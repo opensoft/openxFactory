@@ -4,17 +4,25 @@
 is written OVER CANON — `openspec/specs/release-realization/spec.md` as
 `main` states it — targeting the requirement `accept-sequenced-after-header-line`
 promoted at its own archive (PR #906): "Equivalent declaration sites for the
-ordered-delta parent declaration." Measured 2026-09-10 over every active
-change directory: no other active change carries a `release-realization`
-delta at all
-(`find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
-returns nothing), and no OTHER open pull request touches `release-realization`
+ordered-delta parent declaration." Corrected 2026-09-10 — Copilot found the
+first version's sibling search used a `find -maxdepth 3` that could not
+reach a delta file four segments below `openspec/changes` and so returned
+nothing regardless of whether siblings existed. The claim that matters is
+narrower than "no other active change touches `release-realization`":
+`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
+finds TWO other active changes with a `release-realization` delta
+(`add-sequenced-after-substrate`, `## ADDED Requirements` only; and
+`add-structured-scope-substrate`, `## MODIFIED` on "Realization axis
+declaration" and five other requirements), and a `grep -n "^### Requirement:"`
+over both shows neither declares one named "Equivalent declaration sites for
+the ordered-delta parent declaration" — so no other active change writes
+THIS requirement key. No OTHER open pull request touches `release-realization`
 or `frontmatter_strict`
 (`gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`,
 checked before this pull request was filed, returns nothing — this pull
 request itself necessarily touches `release-realization` and is excluded by
-construction). No
-ACTIVE change collides with this delta, so `modified-block-currency`'s
+construction; re-checked 2026-09-10 at head `5252c37b`, still empty). No
+active change writes this requirement key, so `modified-block-currency`'s
 two-writers ordering rule owes no `Modified over` marker in either
 direction. (The per-change sweep ledger's own `class` field reads
 `co-modifier` rather than `sole` for this change's row, because it shares

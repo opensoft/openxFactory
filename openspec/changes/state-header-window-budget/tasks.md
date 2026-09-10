@@ -44,14 +44,29 @@ gate and is the only task here a human must perform.**
   removed).
 - [x] 1.4 Author `design.md` — § 0 convener brief, context, decisions D1–D4,
   risks, no open questions.
-- [x] 1.5 **Sibling search, checked rather than assumed.**
+- [x] 1.5 **Sibling search, checked rather than assumed — CORRECTED
+  2026-09-10 after Copilot found the original `find` command's depth bug.**
+  The first pass ran
   `find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
-  → no other active change.
+  and read its empty result as "no other active change"; that command
+  cannot reach `openspec/changes/<id>/specs/release-realization/spec.md`
+  (four segments deep) at `-maxdepth 3`, so the empty result proved nothing.
+  Re-run at the correct depth,
+  `find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
+  → TWO other active changes DO carry a `release-realization` delta
+  (`add-sequenced-after-substrate`, `add-structured-scope-substrate`), but a
+  `grep -n "^### Requirement:"` over both shows neither declares "Equivalent
+  declaration sites for the ordered-delta parent declaration" — the
+  requirement key this change writes — so the relevant claim (no OTHER
+  active change writes THIS requirement key) still holds; the broader claim
+  the first pass made ("no other active change carries a
+  `release-realization` delta at all") did not, and is retracted.
   `gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`
   → empty, checked BEFORE this pull request was filed (this pull request
   itself necessarily touches `release-realization`, so "no OTHER open pull
-  request" is the claim, not "no open pull request" read literally). No
-  ACTIVE-change collision, so no `Modified over` marker is
+  request" is the claim, not "no open pull request" read literally;
+  re-checked 2026-09-10 at head `5252c37b`, still empty). No ACTIVE-change
+  collision on the requirement key, so no `Modified over` marker is
   owed. Ledger row `class: co-modifier`, partnered with
   `accept-sequenced-after-header-line` (its own row flips `sole` →
   `co-modifier` in the same re-seed, task 1.7) — correct, since both write
