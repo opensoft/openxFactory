@@ -1,6 +1,6 @@
 # Proposal Ratification: amend-neutral-product-pin-interim-copy-vocabulary
 
-Status: record
+Status: ratified
 Kind: report
 Decision date: 2026-09-09
 Ratifier: Brett Heap (openxFactory operator authority)
@@ -15,16 +15,35 @@ refusal on PR #780 itself floated) — with the alternative written out beside t
 recommendation and the full cost of taking it ENUMERATED line by line. **D1 IS
 RESOLVED AS TOLERATED, WHICH IS THE OPTION THE PACKET ALREADY ENCODED, SO THE
 DELTA'S WORDING STANDS UNCHANGED AND NO SUBSTITUTION WAS PERFORMED.**
-Ratified baseline: this change as committed in the ratification commit carrying
-this record — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and
-`specs/neutral-product-pin/spec.md` (**ONE `## MODIFIED` requirement**, *"A
-consumption pin that another repository reads is a PUBLISHED contract member,
-adopted by pin-sync"*, restated over canon byte-faithfully with **TWO scenario
-bullets replaced in place, one word each**, **ONE body paragraph added** stating
-the reservation in one place, and **ONE scenario added** at the end of the block
-asserting the record obligation).
 
-## 1. The word, and exactly what it decided
+**THIS RECORD IS RE-DERIVED AND IT SUPERSEDES THE ONE WRITTEN AT `d0ddb126`.**
+Two things about the earlier writing were wrong and Brett Heap ruled on both at
+**2026-09-10T00:20Z** (§ 1.2): it carried `Status: record` where
+`document-lifecycle` requires `Status: ratified` of a review record whose
+subject IS the ratification, and it repeated the packet's *"one word each"*
+accounting of the two replaced bullets, which is false of the `THEN` bullet.
+Neither correction moves a normative unit of the delta, and the ratified word
+itself is untouched: `Decision date:` stays **2026-09-09**, this file keeps its
+2026-09-09 name, and the citation above is the one the ruling of 2026-09-09
+produced. What is re-derived is the RECORD, on the corrected tree, on
+2026-09-10.
+
+Ratified baseline: this change as committed on the branch
+`change/amend-neutral-product-pin-interim-copy-vocabulary` — `proposal.md`,
+`design.md`, `tasks.md`, `.openspec.yaml` and `specs/neutral-product-pin/spec.md`
+(**ONE `## MODIFIED` requirement**, *"A consumption pin that another repository
+reads is a PUBLISHED contract member, adopted by pin-sync"*, restated over canon
+byte-faithfully with **TWO scenario bullets replaced in place**, **ONE body
+paragraph added** stating the reservation in one place, and **ONE scenario
+added** at the end of the block asserting the record obligation). The delta's
+normative units are byte-identical to the tree Brett Heap ruled on at
+`d0ddb126`; the ONLY edit inside `specs/` since that commit is the `Removed from
+canon` marker's REASON text, which is a declaration about the edit and not one
+of the units it declares (§ 3).
+
+## 1. The words, and exactly what each decided
+
+### 1.1 The ratifying word — 2026-09-09T23:31:12Z
 
 Brett Heap, 2026-09-09, verbatim:
 
@@ -51,6 +70,53 @@ WRITE this remedy. It ratified no wording and took no design decision, which is
 why the packet was authored as a draft with no approval pair. That word stays
 recorded as the origin in `proposal.md`'s `Proposed:` line, in `.openspec.yaml`'s
 `proposed_by`, and in `tasks.md` § 1.1.
+
+### 1.2 The two corrective rulings — 2026-09-10T00:20:16Z
+
+Both were given as multiple choice over the bench standing on the ratified head
+`d0ddb126`, and both are recorded verbatim on PR #870 at **2026-09-10T00:20:16Z**
+(comment `5610667992`). **NEITHER RE-OPENS D1 AND NEITHER TOUCHES THE RATIFIED
+WORDING.**
+
+**Ruling (1), verbatim:**
+
+> Keep the clause, fix the accounting
+
+**What it decided.** Codex's P2 on `specs/neutral-product-pin/spec.md:188`
+measured that the replaced `THEN` bullet does more than substitute a word: it
+also APPENDS *"and is never LAWFUL, which this requirement spends on a
+stack-pinned read alone"*. Codex offered two remedies — remove the added
+normative clause, or record it explicitly as part of the ratified change surface.
+**THE CLAUSE STAYS.** It is ratified text, it is the reason the reservation is
+stated where the fallback is ADMITTED rather than only in the body paragraph
+below, and removing it would be a wording change with no word behind it. What
+was wrong was the ACCOUNTING — *"one word each"* — which described the `AND`
+bullet's edit and applied it silently to the `THEN` bullet's. Corrected in every
+place it appeared: the marker's reason text, `proposal.md`, `tasks.md` § 2.2, the
+README row, and § 3 of this record. `.openspec.yaml` is FROZEN by the origin
+shape and keeps its drafting-time count; **this record supersedes that count**
+and § 3 states the correct one.
+
+**Ruling (2), verbatim:**
+
+> Follow canon: Status: ratified
+
+**What it decided.** Codex's P1 on this file's line 3 read
+`openspec/specs/document-lifecycle/spec.md`, scenario *A review record records a
+ratification*: a `review/` document whose subject IS the change's ratification
+**MUST carry `Status: ratified` and one ratification citation in a sanctioned
+spelling**, and a `Ratifier:` or `Decision date:` header **MAY accompany the
+citation but MUST NOT stand in place of it**. This file carried `Status: record`.
+The ruling is to follow canon rather than the local precedent: the header above
+is now `Status: ratified` with **exactly one** citation line — the `Ratified:`
+line the earlier writing already carried, unchanged in substance — accompanied by
+`Ratifier:` and `Decision date:`, which the scenario expressly permits. The
+sibling `review/verification-2026-09-09.md` keeps `Status: record`, correctly: its
+subject is the GATE RUN, not the ratification, and the scenario *A review record
+is not about a ratification* is the one that governs it. The ruling also records
+that the two archived precedents carrying `Status: record` over a ratification
+subject, and the doc-health family gap that let this pass, are filed as UNCLAIMED
+issues rather than fixed by this lane.
 
 ## 2. D1 as it was put, and D1 as it is resolved
 
@@ -84,27 +150,9 @@ case-preserving substitution D1 described — an upper-case occurrence to
 occurrences D1 enumerated inside the `## MODIFIED Requirements` block
 (`specs/neutral-product-pin/spec.md` lines 121, 133, 134 in the added body
 paragraph; 170 and 171 in the two replaced canon bullets; 185 and 186 in the
-added scenario) are ratified **exactly as written**.
-
-**The two sentences the packet encodes, and which this ruling ratifies**, are
-the fallback scenario's replaced bullets:
-
-> **THEN** the copy is TOLERATED ONLY as a declared interim naming the
-> `openxFactory` commit it was taken from, the digest of what it copied, and the
-> divergence it accepts, and is never LAWFUL, which this requirement spends on a
-> stack-pinned read alone
-
-> **AND** it is retired when that repository adopts a stack pin, an undeclared
-> duplicate never becoming tolerated by being useful
-
-So `lawful` is now spent on a stack-pinned consumption and on nothing else, the
-declared interim copy is TOLERATED on the **same four terms** it was always
-admitted on, and **an undeclared duplicate never becomes tolerated by being
-useful** — the admission attaches to the DECLARATION, not to the copy's
-usefulness. The added body paragraph states the same reservation in one place and
-adds the record obligation: *"a gate record SHALL NOT describe a tolerated
-interim as lawful or as compliant, and SHALL say TOLERATED where it means
-admitted-as-an-interim"*.
+added scenario) are ratified **exactly as written**, and they are still at those
+lines: the corrective commit changed one line of that file, line 188, and it is
+the marker.
 
 **Why the enumeration mattered even though nothing moved.** D1's list of seven
 was not decoration: it is what made the choice mechanical rather than a judgment
@@ -122,7 +170,119 @@ alone), together with D3, D5 and D6, were carried beside D1 in the pull request
 body, in `tasks.md` § 1.2–1.3 and in the README row. **None was vetoed**, and
 each stands as designed. `tasks.md` § 1.3 records that.
 
-## 3. Why the packet exists: a refused finding, not a fix
+## 3. THE RATIFIED SURFACE, ACCOUNTED FOR CORRECTLY
+
+**THE TWO REPLACED BULLETS ARE NOT THE SAME SIZE, AND THE PACKET USED TO SAY
+THEY WERE.** This section replaces the *"two scenario bullets replaced in place,
+one word each"* claim the record written at `d0ddb126` carried, and it is the
+accounting ruling (1) required. The two bullets sit under the scenario *A
+repository with no stack pin adopts the gate anyway*, both are declared by ONE
+`Removed from canon` marker, and neither is dropped:
+
+| bullet | canon (removed) | ratified (replaced in place) | the edit |
+| --- | --- | --- | --- |
+| `THEN` | *"the copy is **lawful** ONLY as a declared interim naming the `openxFactory` commit it was taken from, the digest of what it copied, and the divergence it accepts"* | *"the copy is **TOLERATED** ONLY as a declared interim naming … the divergence it accepts, **and is never LAWFUL, which this requirement spends on a stack-pinned read alone**"* | **ONE WORD REPLACED *AND* A RESERVATION CLAUSE APPENDED** |
+| `AND` | *"it is retired when that repository adopts a stack pin, an undeclared duplicate never becoming **lawful** by being useful"* | *"…an undeclared duplicate never becoming **tolerated** by being useful"* | one word replaced, and nothing else |
+
+**THE APPENDED CLAUSE IS RATIFIED SURFACE AND IT STAYS** (ruling 1). It is not
+an oversight and it is not a second rule: it states, inside the bullet that
+ADMITS the fallback, the same reservation the added body paragraph states in one
+place — so a reader who meets the scenario before the body still learns that
+LAWFUL is spent on a stack-pinned read alone. **NOTHING THE REQUIREMENT ADMITS OR
+REFUSES MOVES BECAUSE OF IT**: the same copies are admitted on the same four
+terms, and the required-check claim stays unmet for exactly as long as it did
+before, which is what the refusal on #780 predicted of this remedy.
+
+**WHERE THE CORRECTION LANDED.** `specs/neutral-product-pin/spec.md` (the
+marker's REASON text only — no unit the marker names, no scenario title, no
+`WHEN`/`THEN`/`AND` bullet and no body paragraph moves), `proposal.md`,
+`tasks.md` § 2.2, the README row, and this record. **`.openspec.yaml` IS NOT
+CORRECTED AND MUST NOT BE**: its `reason` and `proposed_by` are the packet's
+frozen DRAFTING-TIME provenance, held byte-stable by the
+`add-drafted-proposal-origin` shape and read by the archive gate's
+origin-retention arm. Its *"one word each"* is what the authoring lane believed
+on 2026-09-09; **this record is where that count is superseded**, and a reader
+who meets the origin block reads it as drafting-time provenance rather than as a
+current claim.
+
+## 4. The bench
+
+### 4.1 The rounds
+
+| bench | commit | verdict |
+| --- | --- | --- |
+| Copilot round 1 | `9c26a97c` (2026-09-09T21:55:37Z) | 🟢 **Approval recommended** — *"limited to documentation/spec artifacts and ledger bookkeeping, with only minor Markdown inline-code formatting issues noted in README.md"* |
+| Codex round 1 | `9c26a97c` (2026-09-09T21:59:45Z) | one **P2** on `design.md`; TAKEN |
+| Copilot round 2 | `d42dbf6b` (2026-09-09T22:12:59Z) | 🟢 **Approval recommended** — 7/7 files reviewed, **0 new comments**, *"no functional code changes and no review-blocking issues found"* |
+| Copilot round 3 | `d0ddb126` (the ratification encode) | **three findings** — T1, T2, T3 below |
+| Codex round 2 | `d0ddb126` | **one P1, two P2** — T4, T5, T6 below |
+| Sourcery | `947eec04` | ABSENT — upsell stub (*"Your private repo does not have access to Sourcery"*), not a review |
+
+### 4.2 The two findings taken before the ratification encode
+
+1. **Codex P2 on `design.md`: "Count every replacement required by the veto."**
+   Codex measured that the normative block carries **SEVEN**
+   `TOLERATED`/`tolerated` occurrences, not the four the packet had claimed a
+   veto would cost, and named the consequence that makes it a defect rather than
+   an arithmetic slip: *"Replacing only one word in each named unit leaves both
+   status terms active, while replacing all occurrences changes more text than
+   the stated ratification surface."* **TAKEN at `d42dbf6b`.** D1 now ENUMERATES
+   the replacement set line by line rather than counting it.
+2. **Copilot on `README.md`: two broken inline code spans.** **TAKEN as an edit
+   at `d42dbf6b`, with the stated defect corrected on the record**: CommonMark
+   converts a line ending inside a code span to a space, so both spans render and
+   copy whole — but a command a reader is invited to re-run should be copyable
+   without depending on that conversion.
+
+### 4.3 The six findings on the ratified head `d0ddb126`, and their disposition
+
+Five TAKEN, one REFUSED with the reason recorded. All six are dispositioned on
+the re-derived head.
+
+| # | bench | site | finding | disposition |
+| --- | --- | --- | --- | --- |
+| T1 | Copilot | `README.md:533` | the verification record is cited as a bare `verification-2026-09-09.md` beside a full-path citation of the ratification record | **TAKEN** — both records now cited at full path |
+| T2 | Copilot | `.openspec.yaml:36`, `:55` | `origin.reason` says the packet *"is a DRAFT and carries no approval pair"* while the same file now carries `approved_by`/`approved_on` | **REFUSED** — § 4.4 |
+| T3 | Copilot | `proposal.md:238` | the closing bullet still read *"It ratifies nothing. `Status: draft`"* under a `Status: ratified` header | **TAKEN** — reworded to the point it was making |
+| T4 | Codex **P1** | `review/ratification-2026-09-09.md:3` | `Status: record` where `document-lifecycle` requires `Status: ratified` plus one citation of a review record whose subject is the ratification | **TAKEN** on Brett Heap's ruling (2) — this file's header |
+| T5 | Codex P2 | `proposal.md:238` | same site as T3, same defect, stated as a contradiction with the authoritative lifecycle header | **TAKEN** with T3 |
+| T6 | Codex P2 | `specs/neutral-product-pin/spec.md:188` | the marker says the bullets' only edit is the vocabulary replacement, but the `THEN` bullet also appends the reservation clause, so the repeated *"one word each"* accounting is false | **TAKEN** on Brett Heap's ruling (1) — the clause STAYS, the accounting is corrected (§ 3) |
+
+### 4.4 T2 REFUSED, and why the origin prose stays in the present tense
+
+Copilot asks that `origin.reason`'s *"this packet is a DRAFT and carries no
+approval pair"* be switched to the past tense now that `approved_by` and
+`approved_on` exist. **REFUSED, and the refusal is the shape of the origin block
+rather than a preference about tense.**
+
+- **The origin block is DRAFTING-TIME PROVENANCE and it is frozen.**
+  `add-drafted-proposal-origin` (issue #318) defined exactly this transition:
+  the lawful unapproved shape is drafting provenance with no `approved_by` and no
+  `approved_on`, and approval, when it comes, is a **pure ADDITION beside a fixed
+  `kind` and `id`** — never a rewrite of what the drafting lane declared. Editing
+  `reason` or `proposed_by` to read as though the packet had always been approved
+  would destroy the record of what was true when the packet was proposed, which
+  is the one thing the block exists to preserve.
+- **The archive gates hold it byte-stable.** `scripts/proposal-support.py`'s
+  origin-retention arm (`--archive-gate … --ratified-ref`) reads the declaration
+  this branch establishes and compares it across the ratification; a tense edit
+  is a byte change to a field the gate is written to find unchanged.
+- **The precedent is this lane's own, one packet back.** `#850` —
+  `openspec/changes/archive/2026-09-09-amend-marker-defect-reporting/.openspec.yaml`
+  — carries the same drafting-time tense in `proposed_by` through ratification
+  AND through archive, unedited. A reader who meets either block reads it the
+  same way in both.
+- **There is no contradiction to remove.** The two halves of the file are dated
+  by their own keys: `proposed_on: 2026-09-09` governs the origin prose,
+  `approved_on` governs the approval prose, and the approval prose says in as
+  many words that it **IS ADDED, NOT SUBSTITUTED**. Nothing on the page claims the
+  packet is a draft TODAY.
+
+The one thing the origin block does carry that is now known to be wrong is its
+*"one word each"* count, and **that is superseded by § 3 of this record rather
+than by an edit to the frozen field** — for the same reason.
+
+## 5. Why the packet exists: a refused finding, not a fix
 
 **The origin is a review finding on a DIFFERENT act.** Codex raised it as a
 **P2 on PR [#780](https://github.com/opensoft/openxFactory/pull/780)** — the
@@ -156,55 +316,9 @@ The successor was filed by this lane as openxFactory issue
 [#868](https://github.com/opensoft/openxFactory/issues/868) and authored on
 Brett Heap's *"R1 'lawful' amendment packet"*. **This record is the word that
 closes that loop at the RATIFICATION step; it does not close #868**, which
-closes at the archive (§ 6).
+closes at the archive (§ 7).
 
-## 4. The bench
-
-Four bench passes stand on this pull request. **Two rounds of Copilot, both
-"Approval recommended"; one Codex round, whose two findings were TAKEN.**
-
-| bench | commit | verdict |
-| --- | --- | --- |
-| Copilot round 1 | `9c26a97c` (2026-09-09T21:55:37Z) | 🟢 **Approval recommended** — *"limited to documentation/spec artifacts and ledger bookkeeping, with only minor Markdown inline-code formatting issues noted in README.md"* |
-| Codex round | `9c26a97c` (2026-09-09T21:59:45Z) | one **P2**; taken (below) |
-| Copilot round 2 | `d42dbf6b` (2026-09-09T22:12:59Z) | 🟢 **Approval recommended** — 7/7 files reviewed, **0 new comments**, *"no functional code changes and no review-blocking issues found"* |
-| Sourcery | `947eec04` | ABSENT — upsell stub (*"Your private repo does not have access to Sourcery"*), not a review |
-
-**TWO FINDINGS WERE TAKEN, AND BOTH ARE FIXED AT `d42dbf6b`** — the frozen head
-this ratification is encoded on:
-
-1. **Codex P2 on `design.md`: "Count every replacement required by the veto."**
-   Codex measured that the normative block carries **SEVEN**
-   `TOLERATED`/`tolerated` occurrences, not the four the packet had claimed a
-   veto would cost, and named the consequence that makes it a defect rather than
-   an arithmetic slip: *"Replacing only one word in each named unit leaves both
-   status terms active, while replacing all occurrences changes more text than
-   the stated ratification surface."* **TAKEN.** D1 now ENUMERATES the
-   replacement set line by line rather than counting it, and records what each of
-   the seven does — so the set is deliberately NOT reduced, because a scenario
-   whose whole subject is the word cannot assert it without naming it, and
-   shrinking a hypothetical veto's diff would weaken the requirement. This
-   finding is the reason a PERMITTED ruling would have been applicable
-   faithfully, and it is directly upstream of § 2's confidence that TOLERATED
-   changes nothing.
-2. **Copilot on `README.md`: two broken inline code spans.** The `grep`
-   measurement and a `class:`/`co-modifier` span were split across a line break.
-   **TAKEN as an edit, with the stated defect corrected on the record**: the
-   rendering claim as given is not right — CommonMark converts a line ending
-   inside a code span to a space, so both spans render and copy whole — but the
-   edit is worth making for a different reason, namely that a command a reader is
-   invited to re-run (this one is the `code_surface: none` measurement's own
-   evidence) should be copyable without depending on that conversion.
-
-**CODEX HAS NOT REVIEWED `d42dbf6b`. As of this record, the only Codex pass on
-this pull request is the round on `9c26a97c`, and the fixes for its P2 have not
-been re-reviewed by it.** A fresh `@codex review` is requested on the
-ratification-encoded head in the same comment that announces this record, and
-its outcome is a freeze obligation on the landing lane rather than a claim this
-record makes. Copilot round 2 DID read the fixed tree and returned zero comments
-over all seven files.
-
-## 5. What is NOT ratified, and the residue this word does not reach
+## 6. What is NOT ratified, and the residue this word does not reach
 
 - **NOTHING IS PROMOTED.** This ratification edits no file under
   `openspec/specs/`, no script, no test, no contract, no schema and no workflow.
@@ -217,12 +331,10 @@ over all seven files.
   keyword, which is the parser's documented limit. It is **unrelated to this
   packet's subject**: requirement 16 is not the requirement this block modifies,
   the defect is structural rather than vocabulary, and no edit in this packet
-  touches it. This packet's own delta validates clean (`verification-2026-09-09.md`
-  § 1), and the repository-wide failure SET is byte-identical to `origin/main`'s
-  (§ 2 there) — this change adds nothing to it and removes nothing from it.
-  `tasks.md` § 5.2 records the strict failure as an OWED SUCCESSOR and not as
-  this packet's work; fixing a promoted requirement's first line is itself an
-  amendment of ratified canon and needs its own word.
+  touches it. This packet's own delta validates clean
+  (`verification-2026-09-09.md` § 1), and the repository-wide failure SET is
+  byte-identical to `origin/main`'s (§ 2 there). `tasks.md` § 5.2 records the
+  strict failure as an OWED SUCCESSOR and not as this packet's work.
 - **Issue #775 is a different defect on the same requirement** and is untouched
   (`tasks.md` § 5.3).
 - **The estate's one live declared copy is unaffected in both directions**
@@ -230,8 +342,13 @@ over all seven files.
   what the refusal on #780 promised of this remedy.
 - **`tasks.md` § 4 (archive) STAYS OPEN**, and § 5.2–§ 5.4 stay open as measured
   residue rather than work performed.
+- **THE TWO ARCHIVED `Status: record` PRECEDENTS AND THE DOC-HEALTH FAMILY GAP
+  ARE NOT FIXED HERE.** Ruling (2) files them as unclaimed issues: `Status:
+  ratified` on this record follows canon, and correcting archived records or
+  widening `ratified-provenance` to catch a review record whose SUBJECT is a
+  ratification are separate acts on separate words.
 
-## 6. Ordering against the sibling delta, and the landing obligation
+## 7. Ordering against the sibling delta, and the landing obligation
 
 **There is exactly one other active `neutral-product-pin` delta, it is another
 lane's, and NO ORDERING DECLARATION IS OWED IN EITHER DIRECTION.** The pull
@@ -265,4 +382,4 @@ which is what keeps the origin issue open through this landing.
 of 2026-09-09, recorded on PR #870 at 2026-09-09T23:33:18Z — *"land 870 when
 green"* — is the landing authority, and it is conditioned on green: the Rule 6
 LANDING/LANDED post belongs to the landing lane once the bench is dispositioned
-and the required checks are green on the ratification-encoded head.
+and the required checks are green on the re-derived head.

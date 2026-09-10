@@ -28,9 +28,18 @@ landing. § 5 records what was measured and deliberately not taken.
       'lawful' amendment packet"*, stays recorded as the ORIGIN of the
       AUTHORING — it commissioned a lane to write the remedy, ratified no
       wording and took no design decision, and it is not read as an approval.
-      `proposal.md`, `design.md` and this file now carry `Status: ratified` with
-      **ONE** citation line each (`Ratified:` in `proposal.md`, `Ratified by:`
-      here and in `design.md`), which is what `ratified-provenance` counts.
+      `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-09.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md` and in the
+      ratification record, `Ratified by:` here and in `design.md`), which is
+      what `ratified-provenance` counts. The ratification record's
+      `Status: ratified` is Brett Heap's ruling of 2026-09-10T00:20Z —
+      *"Follow canon: Status: ratified"* — applying `document-lifecycle`'s
+      *A review record records a ratification*, whose `MAY accompany` clause is
+      what keeps `Ratifier:` and `Decision date:` beside the citation.
+      `review/verification-2026-09-09.md` stays `Status: record`: its subject is
+      the GATE RUN and not the ratification, so the sibling scenario
+      *A review record is not about a ratification* governs it.
       `.openspec.yaml` gains `approved_by`/`approved_on` **BESIDE** the drafting
       provenance with `kind` and `id` unmoved — the addition-not-rewrite shape
       `add-drafted-proposal-origin` (issue #318) defined for this transition and
@@ -57,8 +66,11 @@ landing. § 5 records what was measured and deliberately not taken.
       own header prose at line 25 and the packet's prose, neither of which is
       ratification surface. **Replacing only some would leave both status words
       live in one requirement**, which is the defect this packet closes, so the
-      set is enumerated rather than counted. The marker's reason names no status
-      word and does not move; nothing else in the packet moves either. **The
+      set is enumerated rather than counted. The marker's reason carries NONE of
+      the seven, so a PERMITTED veto would not move it and nothing else in the
+      packet would move either — its accounting sentence was separately corrected
+      on 2026-09-10 under Brett Heap's *"Keep the clause, fix the accounting"*,
+      which is an edit to the marker's REASON and never to a unit it names. **The
       seven are NOT redundant and are deliberately not reduced** — D1 records
       what each does.
 - [x] 1.3 **`design.md` D2 and D4 STOOD — neither was vetoed.** The ruling of

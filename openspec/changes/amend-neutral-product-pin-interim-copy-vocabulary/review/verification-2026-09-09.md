@@ -5,38 +5,40 @@ Kind: report
 Date: 2026-09-09
 Ratified by: amend-neutral-product-pin-interim-copy-vocabulary — 2026-09-09, Brett Heap, "Ratify with TOLERATED" (record `review/ratification-2026-09-09.md`)
 
-**EVERY FIGURE BELOW IS RE-DERIVED ON THE RATIFIED TREE**, after the status
-flips, the citation lines, the approval pair, the README row and BOTH records
-were written — so both of these records are inside the lifecycle scan set the
-doc-health figures are taken over. Nothing is carried forward from the
-pre-ratification measurement in the pull request body.
+**RE-RUN 2026-09-10T00:35Z ON `5525a40e` PLUS THE RE-DERIVE COMMIT THAT CARRIES
+THIS RECORD.** Every figure below was taken again, from zero, on the corrected
+tree — after the bench fixes of `feeba1aa`, after `origin/main` was merged at
+`5525a40e`, and after BOTH records were rewritten, so both are inside the
+lifecycle scan set the doc-health figures are taken over. **NOTHING IS CARRIED
+FORWARD** from the run recorded at `d0ddb126`; where a figure is unchanged from
+that run it is unchanged because it was measured again and came out the same.
+
+**THE DECISION DATE IS STILL 2026-09-09; THE RE-RUN IS 2026-09-10.** Brett
+Heap's ratifying word was recorded on PR #870 at 2026-09-09T23:31:12Z, so the
+`Decision date:`, `approved_on`, and both record file names stay 2026-09-09. The
+two CORRECTIVE rulings — *"Keep the clause, fix the accounting"* and *"Follow
+canon: Status: ratified"* — were given at 2026-09-10T00:20:16Z, and this re-run
+is their evidence. The UTC day boundary is crossed by the CORRECTION, never by
+the ratification.
 
 ## 0. Scope, tree and provenance of the numbers
 
 | item | value |
 | --- | --- |
 | clone | fresh `https://github.com/opensoft/openxFactory.git`, isolated from the shared checkout |
-| frozen head the ratification was authorized on | `d42dbf6b` |
-| `origin/main` at verification | `8480378a` |
-| merge taken BEFORE the ratification commit | `ce35a098` (`Merge origin/main into change/amend-neutral-product-pin-interim-copy-vocabulary`) |
+| head the ratification was authorized on | `d42dbf6b` (word), encoded at `d0ddb126` |
+| bench-fix commit | `feeba1aa` — *"Say what the two bullets actually change, and drop the stale draft wording from the ratified proposal (#870 bench)"* |
+| merge taken BEFORE the re-derive | `5525a40e` (`Merge origin/main into change/amend-neutral-product-pin-interim-copy-vocabulary`) |
+| `origin/main` at this verification | `9c0e2cda` (was `8480378a` at the `d0ddb126` run) |
+| doc-health control tree | `5525a40e` — the SAME tree minus the re-derived records |
 | lane | `openxfactory-1` (display `openXfactory-1`) |
 | environment | `OPENSPEC_TELEMETRY=0`, `TZ=UTC`, `openspec` CLI **1.2.0** |
 
-**THE MERGE WAS TAKEN FIRST, ON PURPOSE.** `origin/main` had moved past the
-branch's previous merge, so `origin/main` was merged at `ce35a098` BEFORE the
-ratification encode. Every figure in this record is therefore derived on a tree
-that already carries current `main`, and **no merge-and-re-measure is owed at
-landing** — which is the one obligation the comparable record of
-`amend-marker-defect-reporting` had to carry forward.
-
-**A NOTE ON THE DATE, STATED RATHER THAN LEFT TO BE FOUND.** The ratification
-date, both record file names and `approved_on` are all **2026-09-09**, and so is
-the encode: Brett Heap's word was recorded on PR #870 at **2026-09-09T23:31:12Z**
-and the ratification commit's own author timestamp is **2026-09-09T23:47:07Z**.
-The word, the encode and every date written into the packet therefore fall on
-ONE UTC day, with no boundary crossed and nothing to reconcile — consistent
-across `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, the README row
-and both record file names.
+**THE MERGE WAS TAKEN FIRST, ON PURPOSE, AND FOR THE SECOND TIME.**
+`origin/main` had moved from `8480378a` to `9c0e2cda` while the bench ran, so it
+was merged at `5525a40e` BEFORE the records were re-derived. Every figure here
+is therefore derived on a tree that already carries current `main`, and **no
+merge-and-re-measure is owed at landing**.
 
 ## 1. `openspec validate amend-neutral-product-pin-interim-copy-vocabulary --strict`
 
@@ -44,7 +46,11 @@ and both record file names.
 Change 'amend-neutral-product-pin-interim-copy-vocabulary' is valid
 ```
 
-**Exit code 0.** The packet's own delta is strict-valid on the ratified tree.
+**Exit code 0.** The packet's own delta is strict-valid on the corrected tree.
+The corrective commit `feeba1aa` touched ONE line of
+`specs/neutral-product-pin/spec.md` — line 188, the `Removed from canon`
+marker's REASON text — and no scenario title, no `WHEN`/`THEN`/`AND` bullet, no
+requirement body paragraph and no requirement header moved.
 
 ## 2. `openspec validate --all --strict`
 
@@ -55,14 +61,14 @@ Totals: 98 passed, 3 failed (101 items)
 **Exit code 1**, and **the failure SET is byte-identical to `origin/main`'s**.
 The three failures, on both sides:
 
-| failing item | on `origin/main` `8480378a` | on the ratified tree |
+| failing item | on `origin/main` `9c0e2cda` | on the re-derived tree |
 | --- | --- | --- |
 | `change/disposition-codexfactory-declared-renames` | ✗ | ✗ |
 | `spec/neutral-product-pin` | ✗ | ✗ |
 | `spec/repo-boundary-governance` | ✗ | ✗ |
 
-The `origin/main` control, run in a separate worktree of `8480378a`, reports
-`Totals: 97 passed, 3 failed (100 items)`. **The ratified tree differs by
+The `origin/main` control, run in a separate worktree of `9c0e2cda`, reports
+`Totals: 97 passed, 3 failed (100 items)`. **The re-derived tree differs by
 exactly ONE item and that item PASSES** — this change itself, which is the 101st
 item and is counted in the 98. **This packet adds nothing to the failure set and
 removes nothing from it.**
@@ -97,7 +103,8 @@ specification and the coincidence would otherwise be read as inheritance:
 - **NOT FIXED, AND DELIBERATELY SO.** Repairing requirement 16's first line
   would edit promoted, ratified canon, which needs its own word under working
   rule 3. `tasks.md` § 5.2 records it as an OWED SUCCESSOR and leaves the box
-  OPEN. Brett Heap's *"Ratify with TOLERATED"* does not reach it.
+  OPEN. Neither *"Ratify with TOLERATED"* nor either corrective ruling of
+  2026-09-10 reaches it.
 
 ## 3. `python3 scripts/proposal-support.py . verify amend-neutral-product-pin-interim-copy-vocabulary`
 
@@ -110,10 +117,14 @@ the gate that confirms the approval pair was ADDED beside the drafting
 provenance rather than substituted for it: `kind: ad_hoc` and
 `id: openxFactory:adhoc:2026-09-09-amend-neutral-product-pin-interim-copy-vocabulary`
 are unmoved, `reason`/`proposed_by`/`proposed_on` are byte-unchanged, and
-`approved_by`/`approved_on` are new keys following `proposed_on`. The support
-manifest that repeats `kind` and `id` therefore does not come to disagree with
-the packet, and the archive gate's origin-retention arm reads the declaration
-this commit establishes.
+`approved_by`/`approved_on` are new keys following `proposed_on`.
+
+**THIS GATE IS THE MECHANICAL HALF OF THE T2 REFUSAL** (`ratification-2026-09-09.md`
+§ 4.4). Copilot asked for `origin.reason`'s drafting-time tense to be rewritten
+now that the approval pair exists; the origin-retention arm this gate runs is
+written to find those three fields BYTE-UNCHANGED across the ratification, so a
+tense edit is a change to a field a gate exists to hold still. `feeba1aa` leaves
+`.openspec.yaml` untouched and this gate passes on the corrected tree.
 
 `proposal-support`'s refuse-any-open-box rule applies **at archive**, not here;
 `tasks.md` § 4 and § 5.2–§ 5.4 are open by design and this gate passes with them
@@ -127,12 +138,7 @@ archive-date agreement passed (no archived row's moved_on predates its directory
 archive-date-vs-commit agreement passed (every archived directory is named for the UTC date of the commit that added it, or is dispositioned in place; 12 disposition(s) in force, enforcement error).
 ```
 
-**Exit code 0.** `sequenced_after: []` stands as a POSITIVE root claim, which is
-the machine-readable form of the ordering measurement quoted in
-`ratification-2026-09-09.md` § 6: `split-opendox-two-layer-product` is the only
-other active `neutral-product-pin` delta, it modifies two OTHER requirements of
-the same specification, the two blocks share a spec FILE and no requirement key,
-and no ordering declaration is owed in either direction.
+**Exit code 0.**
 
 ### `--ledger-diff`
 
@@ -150,9 +156,10 @@ per-change sweep ledger consistent with the corpus (191 rows).
 ```
 
 **Exit code 0.** The ledger is consistent at **191 rows** and **ZERO rows moved
-in this commit** — a sweep-ledger row's derived keys read no lifecycle status, so
-a draft→ratified flip moves no row. This change is the corpus's **one** explicit
-`[]` root claim.
+in the corrective or re-derive commits** — a sweep-ledger row's derived keys read
+neither a lifecycle status nor a marker's reason text, so neither a draft→ratified
+flip nor the accounting correction moves a row. This change is the corpus's
+**one** explicit `[]` root claim.
 
 ## 5. `python3 scripts/validate-scope-globs.py .`
 
@@ -170,101 +177,175 @@ Findings: 10 critical, 6 error, 47 warning, 14 info. New regressions vs previous
 
 **Exit code 0.** **NO FINDING NAMES THIS CHANGE** —
 `grep -c 'amend-neutral-product-pin-interim-copy-vocabulary'` over the full
-report returns **0**, with both new records inside the scan set.
+report returns **0**, with both re-derived records inside the scan set.
 
-### The control that matters: the finding-line diff against the PRE-RATIFICATION tree
+### The control that matters: the finding-line diff against the PRE-RE-DERIVE tree
 
-`doc-health --single-repo` was run again on a separate worktree of `ce35a098` —
-the SAME tree minus the ratification encode — and the two reports' finding lines
-were normalized for the worktree name and diffed:
+`doc-health --single-repo` was run again on a separate worktree of `5525a40e` —
+the SAME tree minus the re-derived records and the `tasks.md` alignment — and the
+two reports' finding lines were normalized for the worktree name and diffed:
 
 ```
 Findings: 10 critical, 6 error, 47 warning, 14 info. New regressions vs previous report: 0.
---- diff pre vs post (ratified) ---
-IDENTICAL
+--- diff pre vs post (re-derived) ---
+IDENTICAL   (77 finding lines on both sides)
 ```
 
-**THE FINDING-LINE DIFF IS EMPTY.** The status flips, the five citation lines,
-the approval pair, the README row and both new records add **ZERO** findings and
-remove **ZERO** findings. A ratification is exactly the kind of edit that can
-introduce a `ratified-provenance` critical or a missing-status-header finding by
-accident; this one introduces neither, and the proof is a byte-level diff rather
-than a matching total.
+**THE FINDING-LINE DIFF IS EMPTY.** Flipping this record's sibling from
+`Status: record` to `Status: ratified` adds **ZERO** findings and removes
+**ZERO**. That is the measurement Codex's P1 asked for, taken the other way
+round: the earlier `Status: record` header did not merely look wrong, it kept
+the ratification record OUT of the `ratified-provenance` arm entirely, and the
+corrected header now puts it IN — at no cost, because the citation it already
+carried clears the floor.
 
-### The `ratified-provenance` family — the family this act could have broken
+### The `ratified-provenance` family — the family Codex's P1 named
 
 `python3 scripts/doc-health.py --single-repo . --family ratified-provenance`,
 **exit code 0**: **6 critical, and NONE of them this change** (named 0 times).
-The family's rule is *"ratified header carries no citation in either sanctioned
-spelling"*, and the six criticals it reports belong to other packets
-(`archive/2026-09-05-mirror-floor-addition-grace` and
-`mirror-floor-regeneration-automation` among them) and are pre-existing.
+The six, verbatim from the report:
 
-**This is the arm that scores the encode**, because a `Status: ratified` header
-with no citation, or with more than the sanctioned one, is exactly what a
-careless ratification produces. Five documents in this packet now carry a
-ratified-or-record header and each carries **EXACTLY ONE** citation line:
+```
+- [critical] openspec/changes/add-sequenced-after-substrate/proposal.md — Ratified by: missing or does not resolve to an OpenSpec change
+- [critical] openspec/changes/add-structured-scope-substrate/proposal.md — ratified header carries no citation in either sanctioned spelling
+- [critical] openspec/changes/adopt-configured-notebook-hosting-identity/proposal.md — Ratified: names none of an approver, a date, or a resolvable record path
+- [critical] openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/proposal.md — ratified header carries no citation in either sanctioned spelling
+- [critical] openspec/changes/archive/2026-09-05-mirror-floor-addition-grace/review/ratification-2026-09-05.md — ratified header carries no citation in either sanctioned spelling
+- [critical] openspec/changes/mirror-floor-regeneration-automation/proposal.md — ratified header carries no citation in either sanctioned spelling
+```
+
+All six are pre-existing and belong to other packets; the count is unchanged
+from the `d0ddb126` run.
+
+**THE ARM NOW SCORES THIS RECORD'S SIBLING, WHICH IS THE POINT OF RULING (2).**
+Six documents in this packet carry a ratified-or-record header, and each carries
+**EXACTLY ONE** citation line — which is what the family counts, one total across
+both sanctioned spellings:
 
 | document | header | citation |
 | --- | --- | --- |
 | `proposal.md` | `Status: ratified` | `Ratified:` (approver, date, verbatim word, record path) |
 | `design.md` | `Status: ratified` | `Ratified by:` (change id, date, approver, word, record) |
 | `tasks.md` | `Status: ratified` | `Ratified by:` (change id, date, approver, word, record) |
-| `review/ratification-2026-09-09.md` | `Status: record` | `Ratified:` |
-| `review/verification-2026-09-09.md` | `Status: record` | `Ratified by:` |
+| `review/ratification-2026-09-09.md` | **`Status: ratified`** (was `record`) | `Ratified:` — one line, inside the 15-line header window, with `Ratifier:` and `Decision date:` accompanying it as `document-lifecycle` expressly permits |
+| `review/verification-2026-09-09.md` (this file) | `Status: record` | `Ratified by:` |
+| the README row | — | full paths to BOTH records (T1) |
+
+### The `record-immutability` family — measured, and it does not reach these records
+
+`python3 scripts/doc-health.py --single-repo . --family record-immutability`,
+**exit code 0**: **4 critical, and NONE of them this change** (named 0 times):
+
+```
+- [critical] docs/archive-record-discrepancies.md — record document changed after capture
+- [critical] docs/domain-ontology-adoption-handoff.md — record document changed after capture
+- [critical] docs/domain-ontology-pilot-report.md — record document changed after capture
+- [critical] docs/notebook-projection-migration-evidence-2026-08-24.md — record document changed after capture
+```
+
+**REWRITING THIS `Status: record` FILE RAISES NO FINDING, AND THE REASON IS
+STRUCTURAL RATHER THAN LUCKY.** `govern-openspec-corpus-membership` declares two
+document sets. `fam_record_immutability` iterates `ctx.docs`, the GOVERNED CORPUS
+— `contracts/`, `docs/`, `examples/`, `ideation/`, `templates/` — while a
+`review/` record under an OpenSpec change packet lives in the LIFECYCLE SCAN SET
+(`openspec/changes/**/proposal.md` and `openspec/changes/**/review/*.md`), which
+`scripts/doc_health/families.py`'s `_lifecycle_scope` serves to exactly four
+families: status validity, standard backing, ratified provenance and succession
+integrity. Record immutability is not one of them. All four criticals above are
+`docs/` documents, and the measurement was taken directly as well as read off the
+source: a probe line appended to this file before the re-derive produced no
+finding.
 
 ## 7. `python3 -m pytest tests/sequenced_after tests/scope_globs tests/doc-health -q`
 
 ```
-1968 passed, 7 warnings in 388.78s (0:06:28)
+1979 passed, 7 warnings in 412.75s (0:06:52)
 ```
 
-**Exit code 0.** All three suites green on the ratified tree: `tests/doc-health`
-(which owns `ratified-provenance` and `modified-block-currency`),
-`tests/sequenced_after` (the `[]` root claim and the sweep ledger) and
-`tests/scope_globs`. **No test was added, changed, skipped or xfailed by this
-ratification** — `code_surface: none`, and § 8 shows the commit touches no file
-under `scripts/` or `tests/`.
+**Exit code 0.** All three suites green on the re-derived
+tree: `tests/doc-health` (which owns `ratified-provenance`,
+`record-immutability` and `modified-block-currency`), `tests/sequenced_after`
+(the `[]` root claim and the sweep ledger) and `tests/scope_globs`. **No test was
+added, changed, skipped or xfailed by this ratification or by its correction** —
+`code_surface: none`, and § 9 shows neither commit touches a file under
+`scripts/` or `tests/`.
 
-## 8. What this commit does NOT move — verified by diff, not by assertion
+## 8. `modified-block-currency` — the family that reads the marker
 
-Diffed against the frozen head `d42dbf6b` the word was given on:
+`python3 scripts/doc-health.py --single-repo . --family modified-block-currency`,
+**exit code 0**, with the class counts the family prints:
+
+```
+- scenario-title completeness: 0 (`error` — the arm carrying this family's gate)
+- carriage ledger: 9 (`info` — editorial, and the arm says so in every finding)
+- title resolution and ordering: 0 (`warning`)
+- marker defects: 0 (`info`)
+- sibling-pairing declaration: 0 (`warning`)
+- added-over-canon collision: 0 (`warning`)
+- unplaced-finding drift: 0 (`warning`)
+```
+
+**`marker defects: 0`, and this change is named 0 times in the whole family
+report** — none of the nine `carriage ledger` info rows is this packet's. The
+corrected reason still carries **NO CODE SPAN**: `parse_marker` splits a
+unit-naming marker at the FIRST ` — ` standing outside a code span, reads every
+span BEFORE the cut as a named unit and reports every span AFTER it under the
+marker-defect class's second ground (`amend-marker-defect-reporting`, issue
+#729). Measured on the corrected line: **8 backticks before the cut** — the two
+named units, one of them fenced with a doubled run because it contains
+`` `openxFactory` `` — and **0 backticks after it**. The marker therefore still
+names exactly two units, which is what `tasks.md` § 2.2 claims.
+
+## 9. What these commits do NOT move — verified by diff, not by assertion
+
+Diffed against `d0ddb126`, the head Brett Heap's word of 2026-09-09 was encoded
+on:
 
 | surface | command | result |
 | --- | --- | --- |
-| the ratified DELTA's wording | `git diff d42dbf6b -- openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/specs/` | **EMPTY** |
-| promoted canon | `git diff d42dbf6b -- openspec/specs/` | **EMPTY** |
+| the ratified delta's NORMATIVE units | `git diff d0ddb126 -- …/specs/` | **ONE LINE: 188, the marker's REASON** |
+| promoted canon | `git diff d0ddb126 -- openspec/specs/` | **EMPTY** |
+| `.openspec.yaml` (frozen origin + approval pair) | `git diff d0ddb126 -- …/.openspec.yaml` | **EMPTY** |
+| `scripts/` and `tests/` | `git diff d0ddb126 --stat -- scripts/ tests/` | **EMPTY** apart from what `5525a40e` merged FROM `origin/main` |
 
-**THE DELTA'S BYTES ARE UNTOUCHED, WHICH IS WHAT THE RULING REQUIRED.** D1 was
-resolved as TOLERATED — the option already encoded — so the ruling is applied by
-leaving the requirement text exactly as the bench reviewed it. The seven
-enumerated occurrences at `specs/neutral-product-pin/spec.md` lines 121, 133,
-134, 170, 171, 185 and 186 stand as written. **No promoted canon, no script, no
-test, no contract, no schema and no workflow is edited by this ratification.**
+**NO NORMATIVE UNIT OF THE DELTA MOVED.** Ruling (1) was *"Keep the clause, fix
+the accounting"*, and that is exactly the shape of the diff: the appended
+reservation clause in the `THEN` bullet stands as ratified, and the only edit
+inside `specs/` is the marker's reason — a DECLARATION ABOUT the edit, not one of
+the units it declares. The seven `TOLERATED`/`tolerated` occurrences D1
+enumerated are still at lines 121, 133, 134, 170, 171, 185 and 186.
 
-The commit's complete file set is five modified files and two new records:
+The corrective commit `feeba1aa` touches four files:
 
 ```
 README.md
-openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/.openspec.yaml
-openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/design.md
 openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/proposal.md
+openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/tasks.md
+openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/specs/neutral-product-pin/spec.md
+```
+
+The re-derive commit carrying this record touches three:
+
+```
 openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/tasks.md
 openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md
 openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-09.md
 ```
 
-No archived change is touched and no other active change's files are touched.
+No archived change is touched, no promoted specification is touched, and no
+other active change's files are touched.
 
-## 9. Independent review
+## 10. Independent review
 
-The bench standing on this pull request is recorded in
-`ratification-2026-09-09.md` § 4: **Copilot "Approval recommended" twice**
-(`9c26a97c` at 21:55:37Z and `d42dbf6b` at 22:12:59Z, the second over 7/7 files
-with 0 new comments), and **one Codex round on `9c26a97c`** whose two findings
-were TAKEN at `d42dbf6b` — the README code-span edit and the D1 replacement-set
-count. **As of this record Codex has NOT reviewed `d42dbf6b`**, so no Codex pass
-stands on the tree that carries its own fixes; a fresh `@codex review` is
-requested on the ratification-encoded head, and dispositioning it is a freeze
-obligation rather than a claim this record makes. Sourcery is an upsell stub on
-this repository and its comment is an ABSENCE, not a review.
+Six review threads stood on the ratified head `d0ddb126` — three from Copilot,
+three from Codex (one P1, two P2). **FIVE ARE TAKEN AND ONE IS REFUSED**, and the
+full table with each disposition is `ratification-2026-09-09.md` § 4.3, with the
+refusal argued at § 4.4. The earlier rounds — Copilot "Approval recommended"
+twice (`9c26a97c`, `d42dbf6b`) and one Codex round on `9c26a97c` whose two
+findings were taken at `d42dbf6b` — are recorded at § 4.1–4.2. Sourcery is an
+upsell stub on this repository and its comment is an ABSENCE, not a review.
+
+**A FRESH `@codex review` IS REQUESTED ON THE RE-DERIVED HEAD** in the same
+comment that announces these records, and dispositioning it is a freeze
+obligation on this lane rather than a claim this record makes. **This lane
+encodes, corrects and freezes; it does not merge.**
