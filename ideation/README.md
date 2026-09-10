@@ -270,6 +270,22 @@ below with its lifecycle notes.
   `opensoft/openxFactory` issue #656; staged topic
   [`opendox-two-layer-product`](staging/opendox-two-layer-product/opendox-two-layer-product.md)
   (2026-09-04).
+- [The § 5.2 Shed's Blocking Prerequisite — Exit (a) Measured](brainstorm/opendox-shed-exit-a-post-shed-mode-measured.md)
+  — measures `split-opendox-two-layer-product`'s § 5.2 shed prerequisite in a
+  throwaway clone: exit (a) POST-SHED MODE works (one optional manifest
+  `phase:` key, no CLI flag; the validator answers `OK` over the full
+  319-row shed tree, both carve suites green at `209 passed`, zero rows
+  change disposition, digests frozen at `b075fd91`/`opendox-carve-0`); exits
+  (b) RE-CUT and (c) RETIREMENT are costed against the same tree; and the
+  shed exposes an unbudgeted adapter re-point (104 import sites across 32
+  files, 17 modules with no reachable home in openxFactory's CI) and a
+  six-schema `contracts/schemas/` fallout 127 tracked files still name.
+  Eight open questions for Brett Heap. Governing record:
+  `opensoft/openxFactory` issue #656 comments
+  [5624521801](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5624521801)
+  (ruling request) and
+  [5625144570](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5625144570)
+  (addendum) (2026-09-10).
 - [Omni Unattended Worker Overview](brainstorm/omni-unattended-worker-overview.md)
   — entry point for the eighteen-document Omni packet (fourteen atomic docs,
   three syntheses, one overview): one signed host manager that lets a personal
