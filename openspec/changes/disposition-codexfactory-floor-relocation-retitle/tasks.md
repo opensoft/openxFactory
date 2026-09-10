@@ -132,6 +132,21 @@ separate act and is NOT ticked anywhere in this file.
       is owed. **AND THE ORDER IS FIXED BY MEASUREMENT**: the advance must
       follow codexFactory PR #318's merge, or codexFactory `main` refuses
       `pin-disposition-stale` on this entry (evidence § 3).
+      **DONE 2026-09-10T16:54:36Z — codexFactory PR #318 → main `5650e183`
+      (`5650e1834040f8441cf903b52ce82398452f622a`), `stack.yaml`
+      `xfactory.contract_ref: f5a41d18972d015baaa4818164836e3d4771ef73`** —
+      this change's own merge commit (openxFactory PR #898, merged
+      2026-09-10T16:10:13Z): AT it, which the order this box fixes by
+      measurement also holds (#318 merged ~44m AFTER #898). The aggregation
+      `opensoft/xFactory` PR #415 → `ddd9c2f7108beb5a52985efed5c8caa6f5011fad`
+      (2026-09-10T17:12:00Z) synced the gitlink in the SAME commit as the
+      `.github/workflows/review-lane.yml` caller ref and the
+      `tests/test_review_lane_workflow.py` PIN literal — the three-thing
+      lockstep this repo's own CLAUDE.md names. Landed in codexFactory's and
+      the aggregation's own pull requests, not this one, so this box stays
+      UNTICKED under this file's own rule. Verified against GitHub
+      2026-09-10 by lane `openxfactory-2` (openXfactory-2); claimed on
+      openxFactory #745 (comment 5622848416, item 1).
 - [ ] 5.2 **The reserved `Merged into` marker on the relocate block.**
       **DONE 2026-09-10T14:33:55Z — codexFactory PR #339 → main `9b1b0a21`**, at
       `openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md:15`,
@@ -143,6 +158,21 @@ separate act and is NOT ticked anywhere in this file.
 - [ ] 5.3 **codexFactory #318's archive going green** is a codexFactory
       verdict, not this one. This packet removes ONE of the reasons its
       `validate` is red and claims nothing about the others.
+      **DONE — measured 2026-09-10 by lane `openxfactory-2`:** on PR #318's
+      head `0a0df32bee5346033ae79c474d6932660944a28c`, the **`validate` JOB**
+      inside the `validate` workflow run (run 34504547526, job 102963349987)
+      is **SUCCESS**; its `openspec-cli-pin` step reads `Totals: 28 passed,
+      3 failed (31 items)` and lists `✗→D relocate-review-authority-floor /
+      repository-gate-floor/spec.md` — DISPOSITIONED, not undispositioned —
+      closing `every target validated --strict with 0 UNDISPOSITIONED
+      failures. THIS IS NOT A CLEAN TREE: 3 finding(s) are ACCEPTED
+      EXCEPTIONS, named above.` The `validate` WORKFLOW RUN's own overall
+      conclusion is `failure` — but from the unrelated `browser-ui-repair`
+      job (`Gate the positive fixture pilot` step), never from
+      `openspec-cli-pin` or this entry — exactly the ONE-reason-not-all-
+      reasons claim this box makes and no more. Landed in codexFactory's own
+      tree and CI, not this one, so this box stays UNTICKED under this
+      file's own rule.
 - [x] 5.4 (2026-09-10) **Ratified.** Brett Heap, first-hand to lane
       `openxfactory-2`, verbatim **"go A, ratify the disposition entry as
       encoded"**, recorded on openxFactory #745 (comment 5619833296) and
@@ -157,3 +187,10 @@ separate act and is NOT ticked anywhere in this file.
       INTENDED RETIREMENT PATH and not a regression. Nobody owns noticing it
       yet; this box says so, exactly as the precedent's 5.5 does, and does not
       claim the precedent's box as discharged.
+      **Checked 2026-09-10 by lane `openxfactory-2` (openXfactory-2):**
+      `gh issue view 1793 -R Fission-AI/OpenSpec --json state,title,closedAt`
+      reads `"state": "OPEN"`, `"closedAt": null` — still filed, still not
+      fixed. Per this box's own text, this is the WATCH and not the filing,
+      and nobody owns noticing it yet, so this box stays OPEN on that basis —
+      exactly as the precedent's 5.5 does. Claimed on openxFactory #745
+      (comment 5622848416, item 1).
