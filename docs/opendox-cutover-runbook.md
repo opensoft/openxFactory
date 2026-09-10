@@ -232,6 +232,29 @@ Its five findings and one environment code:
 manifest lives here; a verifier copied six ways is six things to keep in step
 with one document.
 
+**WHAT A LINE IS, for the whole floor (RULED Q-L8 (c), 2026-09-10).** Wherever
+the floor names a line — `edits[].lines` in the manifest, the bound
+`validate-carve-manifest.py` holds them to, the numbers a
+`verify-carve-arrival.py` refusal prints — **a line is a `\n`-terminated record
+of the raw bytes, line N is the Nth such record counting from 1, a trailing
+newline closes the last record without opening another, and `\r` is content and
+not a terminator.** The definition lives in `scripts/carve_lines.py` and both
+tools import it; neither carries a second one. It is `git diff`'s numbering,
+`grep -n`'s, and the one the manifest's 794 declared lines were written in.
+Before the ruling the arrival verifier numbered with `str.splitlines()`, which
+also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
+three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
+lines long to one half of the floor and 521 / 2364 / 734 to the other, so six
+declared lines over the two `moved_with_declared_edit` rows among them
+(`test_gate_console.py` 870, 1627, 1785, 1786, 1810 and `test_round_trip.py`
+728) could not be applied at `openxdox_code` — carve leg 3's finding 5,
+confirmed by its independent verification. **No row was re-declared:** measured
+line by line at `carve_commit`, all six already named exactly the `import
+rewrites` / `path constants` text their classes describe under this definition,
+so the numbering moved and the document did not. The one difference this
+definition cannot express is a final newline gained or lost, and the verifier
+keeps a refusal for it.
+
 **What it deliberately does NOT prove, and what the operator can make it
 prove.** A `replicated_at_destination` row carries no `destination`, no
 `destination_path` and no digest — by the row grammar, because the manifest

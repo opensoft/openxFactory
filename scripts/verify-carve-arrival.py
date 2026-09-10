@@ -84,6 +84,19 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 `arrival-unreadable` NAMING THAT TOOL rather than inventing a second, weaker
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
+WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
+manifest declares 794 edit lines BY NUMBER, this file decides whether a diff
+touches only them, and `validate-carve-manifest.py` bounds them against the
+carve blob — so a number must mean the same thing in both tools, and it did
+not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
+disagree on any file carrying `U+2028`, `U+2029`, `\\v`, `\\f`, `\\x1c`-`\\x1e`
+or `\\x85` inside a line. Three rows of the landed manifest do, and six
+declared lines over two of them were unappliable at the destination as a
+result — carve leg 3 measured it and reported it rather than narrowing around
+it. `scripts/carve_lines.py` now holds the ONE definition and both tools import
+it: a line is a `\\n`-terminated record of the raw bytes, which is what `git
+diff`, `grep -n` and the manifest's authors already counted.
+
 WHAT IT DELIBERATELY DOES NOT PROVE, stated because a floor that overstates its
 reach is worse than one that does not reach.
 
@@ -244,6 +257,22 @@ try:
 except ImportError:  # pragma: no cover - the repository ships PyYAML
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
+
+# THE FLOOR'S ONE DEFINITION OF A LINE (RULED Q-L8 (c)), shared with
+# `validate-carve-manifest.py` so that a declared line number means the same
+# thing where it is BOUNDED and where it is CHECKED. `scripts/` goes on the
+# path because both tools are hyphenated entry points their own tests load by
+# `spec_from_file_location`, where Python inserts nothing; GUARDED and therefore
+# idempotent, on `scripts/proposal-support.py`'s idiom and for its stated
+# reason — `tests/carve_arrival/` loads this file at import and
+# `tests/carve_manifest/` loads it again in four cases, so an unguarded insert
+# would prepend a duplicate entry per load and move import precedence under
+# everything else in the session.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+import carve_lines  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -755,9 +784,18 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
 
     THE LINE NUMBERS ARE THE CARVE COMMIT'S, which is what makes them
     falsifiable: a destination-side numbering would move under the very edits it
-    is meant to bound. So the comparison walks `difflib`'s opcodes over the two
-    line lists and asks, for each non-`equal` opcode, which CARVE-SIDE lines it
-    touches:
+    is meant to bound. AND THEY ARE THE MANIFEST VALIDATOR'S NUMBERING — both
+    tools split lines with `scripts/carve_lines.py` (RULED Q-L8 (c)), so the
+    number this check reads is the number `validate-carve-manifest.py` bounded
+    and the manifest's author counted. It did not use to be: this function used
+    `str.splitlines()`, which also breaks on `\\v`, `\\f`, `\\x1c`-`\\x1e`,
+    `\\x85`, `U+2028` and `U+2029`, so on the three landed rows carrying
+    `U+2028` inside a line it read line numbers the validator had never issued
+    and six declared lines over two `openxdox_code` rows were unappliable at
+    the destination. One definition, in one module, imported by both.
+
+    So the comparison walks `difflib`'s opcodes over the two line lists and
+    asks, for each non-`equal` opcode, which CARVE-SIDE lines it touches:
 
       * `replace` / `delete` touch carve lines `i1+1 … i2` (1-based) and every
         one of them must be declared.
@@ -769,30 +807,37 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
         insertion, and it is stated here rather than left to a reader to infer
         from a passing run.
 
-    A CHANGE NO LINE NUMBER CAN NAME still refuses. The two blobs are split with
-    `splitlines()`, which is blind to the line TERMINATORS and to a missing
-    final newline; if the bytes differ and the line lists do not, the difference
-    is exactly that, and it refuses rather than passing as "no changed line".
+    A CHANGE NO LINE NUMBER CAN NAME still refuses, and under the floor's
+    definition there is exactly ONE such change: a FINAL NEWLINE gained or lost
+    (`b"a\\nb\\n"` and `b"a\\nb"` have the same records). If the bytes differ
+    and the record lists do not, the difference is that, and it refuses rather
+    than passing as "no changed line". A CRLF/LF flip is no longer in this
+    class and is no longer answered this way: `\\r` is CONTENT under
+    `carve_lines.records()`, so a flipped terminator is a change AT a line
+    number, named and held to the row's declaration like any other.
     """
     declared = _declared_line_set(row)
     arrived_at = at if at is not None else row.get("destination_path")
-    carve_lines = carve.decode("utf-8", "surrogateescape").splitlines()
-    arrived_lines = arrived.decode("utf-8", "surrogateescape").splitlines()
-    if carve_lines == arrived_lines:
+    carve_records = carve_lines.text_records(carve)
+    arrived_records = carve_lines.text_records(arrived)
+    if carve_records == arrived_records:
         raise ArrivalRefusal(
             "arrival-undeclared-edit",
             f"{arrived_at} differs from the carve commit's blob "
-            "in a way no line number can name — the line terminators, or a "
-            "final newline gained or lost. The declared-edit grammar bounds "
-            "LINES, so a change outside them is undeclared whatever its size")
+            "in a way no line number can name — a final newline gained or "
+            "lost, the one difference the floor's line definition cannot "
+            f"express ({carve_lines.DEFINITION}). The declared-edit grammar "
+            "bounds LINES, so a change outside them is undeclared whatever "
+            "its size")
     undeclared: list[int] = []
-    matcher = difflib.SequenceMatcher(a=carve_lines, b=arrived_lines,
+    matcher = difflib.SequenceMatcher(a=carve_records, b=arrived_records,
                                       autojunk=False)
     for tag, i1, i2, _j1, _j2 in matcher.get_opcodes():
         if tag == "equal":
             continue
         if tag == "insert":
-            neighbours = {n for n in (i1, i1 + 1) if 1 <= n <= len(carve_lines)}
+            neighbours = {n for n in (i1, i1 + 1)
+                          if 1 <= n <= len(carve_records)}
             # An insertion into an EMPTY carve blob has no neighbour to name;
             # `declared` must then be non-empty for the edit to be declared at
             # all, and the row's own class says what it is.
@@ -806,7 +851,7 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
     if undeclared:
         shown = sorted(set(undeclared))
         excerpt = "\n".join(list(difflib.unified_diff(
-            carve_lines, arrived_lines,
+            carve_records, arrived_records,
             fromfile=f"carve:{row['source_path']}",
             tofile=f"arrived:{arrived_at}",
             lineterm="", n=1))[:24])

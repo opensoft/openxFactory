@@ -238,6 +238,21 @@ except ImportError:  # pragma: no cover - the repository ships PyYAML
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+# THE FLOOR'S ONE DEFINITION OF A LINE (RULED Q-L8 (c)), shared with
+# `verify-carve-arrival.py` so that a declared line number means the same thing
+# where it is BOUNDED and where it is CHECKED. `scripts/` goes on the path
+# because both tools are hyphenated entry points their own tests load by
+# `spec_from_file_location`, where Python inserts nothing; GUARDED and therefore
+# idempotent, on `scripts/proposal-support.py`'s idiom and for its stated
+# reason — a test module that loads this file more than once in one process
+# would otherwise prepend a duplicate entry each time and move import
+# precedence under everything else in the session.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+import carve_lines  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 
 # The ruled path, § 3.1 and design.md § D6 verbatim (RULED OQ-E). Relative, so
@@ -1168,9 +1183,17 @@ def _check_edit_lines(index: int, path: str, row: dict[str, Any],
     the bound that the document alone cannot, and the reader's action is
     identical to every other malformed edits entry. A second code for the same
     action would ask a caller to learn a distinction that changes nothing it does.
+
+    THE BOUND IS COUNTED BY `scripts/carve_lines.py` (RULED Q-L8 (c)) and no
+    longer by an expression spelled out here. The count is UNCHANGED — the
+    module's `records()` is the same arithmetic, pinned as equal to the old
+    expression by `tests/carve_manifest/test_carve_manifest.py` — but it is now
+    the SAME implementation `verify-carve-arrival.py` numbers the destination
+    with, which is the whole point: this tool issued line numbers in one
+    numbering and that one read them in another, and six declared lines over
+    two `U+2028`-bearing rows were unappliable at the destination as a result.
     """
-    total = content.count(b"\n") + (0 if not content or content.endswith(b"\n")
-                                    else 1)
+    total = carve_lines.count(content)
     for position, edit in enumerate(row.get("edits") or []):
         for line in edit["lines"]:
             if line > total:
