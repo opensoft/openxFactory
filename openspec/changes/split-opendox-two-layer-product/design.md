@@ -554,14 +554,21 @@ carve REFUSES. This is the intent the ratified text was reaching for, stated
 directly instead of inferred from an arithmetic identity.
 
 **(b) DECLARED MULTIPLICITY.** A row dispositioned
-`not_moved / replicated_at_destination` DECLARES the set of repositories its
+`not_moved / replicated_at_destination` **THAT CARRIES TESTS** — at least one
+`def test_` at `carve_commit` — DECLARES the set of repositories its
 replica lands in, INCLUDING the retained `openxFactory` copy; its multiplicity
-`m` is that set's size. **The set is NAMED, not left to be read off § 3.7: for
-this carve every one of the three test-carrying replicated rows declares the same
-three homes — `openxFactory` (retained), `opensoft/openDox-code` and
+`m` is that set's size. **The clause binds TEST-BEARING replicated rows only,
+because those are the only rows that enter (c)'s Σ**: the landed manifest carries
+18 `replicated_at_destination` rows and 3 of them carry tests, and a zero-test
+replica contributes `(m − 1) × 0 = 0` whatever its set — it can neither move the
+sum nor make it uncomputable, so its replica set is an obligation on FLOOR PART 1
+and not a term of this floor. **The set is NAMED, not left to be read off § 3.7:
+for this carve every one of the three test-carrying replicated rows declares the
+same three homes — `openxFactory` (retained), `opensoft/openDox-code` and
 `opensoft/openXdox-code` — so `m = 3` for each**, and that enumeration is the
 declaration until the manifest's row grammar carries the field. Multiplicity is
-declared IN THE ROW and never inferred at arrival: an undeclared replica set
+declared IN THE ROW and never inferred at arrival: an undeclared replica set on a
+test-bearing row
 makes the check uncomputable, which is a refusal and not a pass. This is one obligation on FLOOR PART 1, carried at
 `tasks.md` § 5.4a as the input part 2 reads — the manifest edit lands in its own
 pull request, not in this amendment.

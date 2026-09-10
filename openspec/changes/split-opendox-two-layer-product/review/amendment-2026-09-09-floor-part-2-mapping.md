@@ -48,8 +48,13 @@ neither is available:
   `2026-09-06-amend-marker-reason-boundary`,
   `2026-09-07-amend-absent-changelog-is-an-answer`,
   `2026-09-09-amend-marker-defect-reporting` — amends a PROMOTED capability under
-  `openspec/specs/` through a `## MODIFIED Requirements` delta on that capability,
-  and each carries its own ratification record. There is no promoted requirement
+  `openspec/specs/`, and each carries its own ratification record. SIX of the
+  seven do it through a `## MODIFIED Requirements` delta on that capability; the
+  seventh, `2026-09-05-amend-chain-anchoring-readiness-and-durability`, amends
+  `chain-anchoring` through a `## ADDED Requirements` delta. The delta VERB is
+  not what makes them unavailable here — the promoted capability is: ADDED and
+  MODIFIED alike need a `specs/<capability>/` to write into. There is no
+  promoted requirement
   here to amend, so such a packet would have an empty `specs/` and would not pass
   `openspec validate --strict`. The precedent for correcting an ACTIVE, ratified,
   unarchived packet mid-flight on a #656 ruling is this packet's OWN
@@ -108,11 +113,17 @@ The full restated text is what now stands at `design.md` § D6 (2) and
   carve REFUSES. This is the intent of the ratified rule, unchanged and now
   stated directly rather than inferred from an arithmetic identity.
 - **(b) DECLARED MULTIPLICITY.** A row dispositioned
-  `not_moved / replicated_at_destination` DECLARES the set of repositories its
+  `not_moved / replicated_at_destination` **THAT CARRIES TESTS** (at least one
+  `def test_` at `carve_commit`) DECLARES the set of repositories its
   replica lands in, including the retained `openxFactory` copy; its multiplicity
   `m` is the size of that set. Multiplicity is DECLARED IN THE ROW, never
-  inferred at arrival — an undeclared replica set makes the check uncomputable,
-  which is a refusal and not a pass.
+  inferred at arrival — an undeclared replica set on such a row makes the check
+  uncomputable, which is a refusal and not a pass. **The clause binds
+  test-bearing replicated rows ONLY**, because those are the only rows that enter
+  (c)'s Σ: the landed manifest carries 18 `replicated_at_destination` rows and 3
+  of them carry tests, and a zero-test replica contributes `(m − 1) × 0 = 0`
+  whatever its set — it can neither move the sum nor make it uncomputable, so its
+  replica set is owed to FLOOR PART 1 rather than to this floor.
 - **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES.**
   `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
   — the Σ ranges over the REPLICATED ROWS ONLY; a row that is not replicated
@@ -133,7 +144,7 @@ carve operator reads them:
 | a file under the surface carries `def test_` and its row names no home (no `destination`, and no `not_moved` reason that constitutes one) | REFUSE `test-home-missing` — and a `deleted_at_carve` row carrying tests is the same refusal under its own name, because deleting tests is a decision to be RULED. Measured at `carve_commit`: zero such rows |
 | a destination's collected `def test_` falls BELOW the total its own rows declare | REFUSE `destination-test-shortfall` — the silent drop, the part whose absence Brett named when he rejected snapshot-equivalence alone |
 | a `replicated_at_destination` row declares `m = 3` and carries 20 `def test_` (`tests/corpus-adapter/test_conformance.py`) | **PASS** — counted once in `source_count`, three times across the homes, excess exactly `(3 − 1) × 20 = 40`; **and deleting a replica to make a raw equality hold is itself a refusal**, because § 3.7 requires every destination to carry that corpus. This is the case the ratified equality could not express and would have failed on |
-| a `replicated_at_destination` row names no homes | REFUSE `replica-multiplicity-undeclared` — the multiplicity is unknown, the sum term is UNCOMPUTABLE, and an uncomputable check is never a pass. This is what clause (b)'s obligation on FLOOR PART 1 is owed for |
+| a `replicated_at_destination` row **that carries `def test_`** names no homes | REFUSE `replica-multiplicity-undeclared` — the multiplicity is unknown, the sum term is UNCOMPUTABLE, and an uncomputable check is never a pass. This is what clause (b)'s obligation on FLOOR PART 1 is owed for. A ZERO-TEST replicated row is outside the case: its term is `(m − 1) × 0 = 0` whatever its set. Measured at `carve_commit`: this case does not fire today — of the 18 `replicated_at_destination` rows the 15 zero-test ones are outside the clause's domain and each of the 3 test-bearing ones has declared homes |
 
 The first two are the ratified rule's own cases kept in intent; the last two are
 RULING OQ-K's, and they exist because a mapping can fail in ways an equality

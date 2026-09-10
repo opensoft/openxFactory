@@ -892,16 +892,23 @@ the bookkeeping that ticks this group.
   at least one `def test_` has at least ONE post-split home named by its own row;
   a file with tests and no home is a LOST TEST and the carve REFUSES.
   **(b) DECLARED MULTIPLICITY** — each `not_moved / replicated_at_destination`
-  row DECLARES the repository set its replica lands in, the retained
-  `openxFactory` copy included, and `m` is that set's size. **For this carve the
-  declared set is, for all three test-carrying replicated rows, `openxFactory`
+  row **THAT CARRIES TESTS** (at least one `def test_` at `carve_commit`)
+  DECLARES the repository set its replica lands in, the retained `openxFactory`
+  copy included, and `m` is that set's size. **The clause binds TEST-BEARING
+  replicated rows only, because those are the only rows that enter (c)'s Σ:** the
+  landed manifest carries 18 `replicated_at_destination` rows and 3 of them carry
+  tests; a zero-test replica contributes `(m − 1) × 0 = 0` whatever its set, so it
+  can neither move the sum nor make it uncomputable, and its replica set is FLOOR
+  PART 1's business rather than part 2's. **For this carve the declared set is,
+  for all three test-carrying replicated rows, `openxFactory`
   (retained) · `opensoft/openDox-code` · `opensoft/openXdox-code` — so `m = 3`**,
   and it is written out here rather than left to be read off § 3.7. This is one
   obligation ON FLOOR PART 1 and it is the input this part reads: the row grammar
   of `docs/opendox-carve-manifest.yaml` gains the field in FLOOR PART 1's OWN
   successor pull request (the manifest is not this packet's file), and until it
-  lands the enumeration below IS the declaration. An undeclared replica set makes
-  the check uncomputable, which is a REFUSAL and not a pass.
+  lands the enumeration below IS the declaration. An undeclared replica set ON A
+  TEST-BEARING ROW makes the check uncomputable, which is a REFUSAL and not a
+  pass.
   **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES** —
   `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
   row_test_count` — the Σ ranges over the REPLICATED ROWS ONLY, and a row that is
@@ -918,7 +925,7 @@ the bookkeeping that ticks this group.
   RULING DQ-1 includes the adapter's own tests), the way `pytest-suite.yml`
   already pins this repository's collection triple — SKIPPED exactly, SELECTED
   and PASSED as FLOORS, failures and errors zero. Per destination, never as one
-  cross-repository equality: an equality pin on a sum reds on merge refs that add
+  cross-repository equality: an equality pin on a sum goes RED on merge refs that add
   tests for reasons the candidate cannot fix, which is the deadlock class that
   file already refuses by name.
 
@@ -960,10 +967,18 @@ the bookkeeping that ticks this group.
     destination to carry that corpus. The ratified equality had no way to state
     this and would have failed on it, on its first run, forever.
   - **AN UNDECLARED REPLICA SET (NEW, RULING OQ-K).** WHEN a
-    `replicated_at_destination` row names no homes, THEN its multiplicity is
-    unknown, the Σ over replicated rows of `(m − 1) × row_test_count` is
+    `replicated_at_destination` row **THAT CARRIES `def test_`** names no homes,
+    THEN its multiplicity is unknown, the Σ over replicated rows of
+    `(m − 1) × row_test_count` is
     UNCOMPUTABLE, and the carve REFUSES
     `replica-multiplicity-undeclared` — an uncomputable check is never a pass.
+    A ZERO-TEST replicated row is OUTSIDE this case: its term is
+    `(m − 1) × 0 = 0` whatever its set, so it can make nothing uncomputable and
+    it does not refuse here — its replica set is owed to FLOOR PART 1, not to
+    this floor. Measured at `carve_commit`: **this case does not fire today** —
+    of the manifest's 18 `replicated_at_destination` rows the 15 zero-test ones
+    are outside the clause's domain, and each of the 3 test-bearing ones has its
+    homes declared above.
     This is what clause (b)'s obligation on FLOOR PART 1 is owed FOR.
 
   > Amended 2026-09-09. This item first read: *"**FLOOR PART 2 (RULED OQ-1) —
