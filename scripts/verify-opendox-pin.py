@@ -29,11 +29,15 @@ SECOND, independent declaration — this file — recreates precisely the defect
 `neutral-product-pin`'s chain clause exists to end: two answers to "which
 bytes are pinned" is no answer, UNLESS something holds them equal. Check 5
 below is that something: it reads `openXdox/contracts/opendox-pin.yaml`'s own
-`commit` from the openXdox submodule's checked-out working tree — a local
-disk read inside a submodule this same repository already mounts, never a
-network read — and refuses `opendox-pin-lockstep-mismatch` the moment it
-disagrees with this pin's own `commit`. This is what makes two direct
-upstreams of the same product safe rather than a second, driftable answer.
+`commit` as a git BLOB, from the openXdox submodule's own object store, AT THE
+COMMIT THE SUPERPROJECT'S `openXdox` GITLINK RECORDS — `git show
+<oid>:contracts/opendox-pin.yaml`, never the submodule's mutable working tree
+— and refuses `opendox-pin-lockstep-mismatch` the moment it disagrees with
+this pin's own `commit`. Reading the working tree would let an operator edit
+that file, without moving the `openXdox` gitlink or its own commit, into
+momentary agreement with a stale direct pin; reading the blob the gitlink
+itself names is what makes two direct upstreams of the same product safe
+rather than a second, driftable answer that a dirty checkout can silence.
 
 SIX CODES, NOT FIVE: THE FIRST FIVE ARE `openxdox-pin-*`'s SHAPE RENAMED, THE
 SIXTH IS NEW. `opendox-pin-tag-only`, `opendox-pin-submodule-uninitialized`,
@@ -53,20 +57,22 @@ more strongly.
 OFFLINE LAW, WITH ONE NAMED EXTENSION. Checks 1-4 read this pin file, the
 `openDox` gitlink, and the `openDox/` submodule's own object store — never the
 network, and never `openDox`'s own `contracts/manifest.yaml`. Check 5 ALSO
-reads `openXdox/contracts/opendox-pin.yaml` — a committed file inside the
-SECOND submodule this repository already mounts, at whatever revision is
-checked out. That is a local disk read, not a network one, so the offline
-property holds for the whole verifier, not only for its first four checks.
+reads a blob out of the SECOND submodule this repository already mounts —
+`openXdox`'s own object store, at whatever commit the superproject's `openXdox`
+gitlink records (HEAD, falling back to the index exactly as check 2 does) —
+never the `openXdox` working tree and never the network. That is a local
+`git show` against an object store already on disk, so the offline property
+holds for the whole verifier, not only for its first four checks.
 
 `pin-unreadable` IS NOT IN THE VOCABULARY, on `verify-openxdox-pin.py`'s own
 reasoning. The six describe a TREE that disagrees with a well-formed pin, or
 two well-formed pins that disagree with EACH OTHER — each a governed finding a
 reviewer can act on. `pin-unreadable` describes an ENVIRONMENT in which no
-finding can be reached at all: this pin absent or malformed, OR openXdox's own
-`contracts/opendox-pin.yaml` absent or malformed (submodule not initialized,
-or too old a commit to carry the key) — in either case the LOCKSTEP question
-cannot be ASKED, so it is not one of the six. It still exits 2 like everything
-else.
+finding can be reached at all: the `openXdox` gitlink recorded nowhere, that
+submodule not initialized, the gitlinked commit's blob missing from its object
+store, or openXdox's own `contracts/opendox-pin.yaml` malformed (too old a
+commit to carry the key) — in every case the LOCKSTEP question cannot be
+ASKED, so it is not one of the six. It still exits 2 like everything else.
 
 WHAT THIS TOOL IS NOT. It is not wired into any required check — wiring a
 consumer gate is Phase 5's task 5.3, on `verify-openxdox-pin.py`'s own
@@ -101,9 +107,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PIN_PATH = ROOT / "contracts" / "opendox-pin.yaml"
 
-# Where openXdox's OWN pin of openDox lives, read from the openXdox
-# submodule's checked-out working tree — never re-declared, only READ, on
-# this file's own "two answers" reasoning.
+# Where openXdox's OWN pin of openDox lives — the path a reader would find it
+# at in a normal checkout, used here only to LABEL the value check 5 reads
+# (the read itself is a `git show <oid>:contracts/opendox-pin.yaml` against
+# the openXdox submodule's own object store, never a `Path` open against this
+# relative path; see `_openxdox_derived_commit`). Never re-declared, only
+# READ, on this file's own "two answers" reasoning.
 OPENXDOX_DERIVED_PIN_RELPATH = Path("openXdox") / "contracts" / "opendox-pin.yaml"
 
 # The ONE fixed remediation trailer for every fail-closed refusal in this
@@ -187,7 +196,7 @@ def load_pin(pin_path: Path = PIN_PATH) -> dict:
             "unpinned pass but an unanswerable question")
     try:
         loaded = yaml.safe_load(pin_path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
+    except (OSError, yaml.YAMLError, UnicodeDecodeError) as exc:
         raise PinRefusal(
             "pin-unreadable",
             f"the pin file {pin_path} could not be read as YAML: {exc}") from exc
@@ -346,41 +355,75 @@ def tree_digest(sub_root: Path, revision: str) -> str:
 # --------------------------------------------------------------------------
 
 def _openxdox_derived_commit(root: Path) -> str:
-    """The openDox commit openXdox's OWN pin derives, read from disk.
+    """The openDox commit openXdox's OWN pin derives, read from the COMMIT the
+    superproject's `openXdox` gitlink names — never the mutable working tree.
 
-    Reads `openXdox/contracts/opendox-pin.yaml` from the openXdox submodule's
-    checked-out working tree — not `git show`, not the network: a plain file
-    read of a committed artifact this repository already mounts. Every
-    failure to read or parse it is `pin-unreadable`: the LOCKSTEP question
-    cannot be asked without it, so an absent or malformed derived pin is an
-    environment fact rather than a finding that the two commits disagree.
+    An operator can edit `openXdox/contracts/opendox-pin.yaml` ON DISK without
+    moving the `openXdox` gitlink or the commit that submodule is actually
+    pinned to; a check that read that working-tree file would report lockstep
+    agreement even though the openXdox commit this repository is PINNED TO
+    still disagrees. So this reads a git BLOB instead: `_recorded_gitlink`
+    finds the `openXdox` gitlink exactly as check 2 finds `openDox`'s own (HEAD
+    first, then the index), and `git -C openXdox show <oid>:contracts/opendox-
+    pin.yaml` reads the pin file's bytes out of the openXdox submodule's own
+    object store AT THAT COMMIT — a local read of an object this repository
+    already has (the commit it is pinned to), never the network and never
+    whatever happens to be checked out on disk.
+
+    Every failure to locate the gitlink or to read or parse the blob it names
+    is `pin-unreadable`: the LOCKSTEP question cannot be asked without it, so
+    an absent or malformed derived pin is an environment fact rather than a
+    finding that the two commits disagree.
     """
-    derived_path = root / OPENXDOX_DERIVED_PIN_RELPATH
-    if not derived_path.is_file():
+    openxdox_root = root / "openXdox"
+    if not (openxdox_root / ".git").exists():
         raise PinRefusal(
             "pin-unreadable",
-            f"{derived_path} does not exist: the LOCKSTEP check reads "
-            "openXdox's own derived reading of openDox's commit, which "
-            "requires the openXdox submodule to be initialized "
-            "(`git submodule update --init openXdox`)")
+            f"{openxdox_root}/.git does not exist: the LOCKSTEP check reads "
+            "openXdox's own derived reading of openDox's commit from the "
+            "openXdox submodule's object store, which requires openXdox to "
+            "be initialized (`git submodule update --init openXdox`)")
+
+    oid, source = _recorded_gitlink(root, "openXdox")
+    if oid is None:
+        raise PinRefusal(
+            "pin-unreadable",
+            f"{root} records no {GITLINK_MODE} gitlink for openXdox in HEAD "
+            "or in the index: the LOCKSTEP check has no openXdox commit to "
+            "read openDox's derived pin from")
+
+    blob_ref = f"{oid}:contracts/opendox-pin.yaml"
+    show = _git_bytes(openxdox_root, "show", blob_ref)
+    if show.returncode != 0:
+        raise PinRefusal(
+            "pin-unreadable",
+            f"`git -C {openxdox_root} show {blob_ref}` failed (openXdox "
+            f"gitlink {oid} read from {source}): "
+            f"{show.stderr.decode('utf-8', 'replace').strip() or 'no error output'}; "
+            "the openXdox object store may be missing this commit — run "
+            "`git submodule update --init openXdox`")
+
     try:
-        loaded = yaml.safe_load(derived_path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
+        text = show.stdout.decode("utf-8")
+        loaded = yaml.safe_load(text)
+    except (UnicodeDecodeError, yaml.YAMLError) as exc:
         raise PinRefusal(
             "pin-unreadable",
-            f"{derived_path} could not be read as YAML: {exc}") from exc
+            f"openXdox@{oid}:contracts/opendox-pin.yaml could not be read as "
+            f"YAML: {exc}") from exc
     if not isinstance(loaded, dict):
         raise PinRefusal(
             "pin-unreadable",
-            f"{derived_path} is not a mapping (parsed as "
-            f"{type(loaded).__name__})")
+            f"openXdox@{oid}:contracts/opendox-pin.yaml is not a mapping "
+            f"(parsed as {type(loaded).__name__})")
     commit = loaded.get("commit")
     if not isinstance(commit, str) or not COMMIT_RE.match(commit.strip()):
         raise PinRefusal(
             "pin-unreadable",
-            f"{derived_path} records commit {commit!r}, which is not exactly "
-            "40 hex characters; the LOCKSTEP comparison cannot be made "
-            "against a value that is not one")
+            f"openXdox@{oid}:contracts/opendox-pin.yaml records commit "
+            f"{commit!r}, which is not exactly 40 hex characters; the "
+            "LOCKSTEP comparison cannot be made against a value that is not "
+            "one")
     return commit.strip().lower()
 
 

@@ -418,23 +418,68 @@ def test_the_real_submodule_dot_git_is_a_file_not_a_directory() -> None:
     assert not dot_git.is_dir()
 
 
-def test_ruling_f_is_checkable_no_opendox_pin_and_no_second_gitlink() -> None:
-    """RULING F (#656, 2026-09-05, "rule F openXdox only"), as a test.
+def test_ruling_q7_two_direct_upstreams_in_lockstep() -> None:
+    """RULING F, SUPERSEDED FOR OPENDOX ONLY BY RULED Q7 — as a test.
 
-    openxFactory pins openXdox and NOTHING ELSE: openDox's commit is a DERIVED
-    value read through openXdox's own `contracts/opendox-pin.yaml`, never
-    separately declared here. Prose in three files says so; this is the check
-    that would fail if someone added the second declaration anyway.
+    This test used to be `test_ruling_f_is_checkable_no_opendox_pin_and_no_
+    second_gitlink`, asserting RULING F (Brett Heap, `opensoft/openxFactory
+    #656`, 2026-09-05, "rule F openXdox only"): that openxFactory pinned
+    openXdox and NOTHING ELSE, carrying no `contracts/opendox-pin.yaml` and no
+    second gitlink, with openDox's commit read only as a value DERIVED through
+    openXdox's own pin. Brett Heap's Q7 ruling (`#656` comment `5626248666`,
+    2026-09-10) supersedes that sentence FOR OPENDOX ONLY, verbatim: *"RULED
+    (i): SECOND SUBMODULE — openxFactory mounts the openDox assembly root
+    (gitlink → opensoft/openDox main `49a99df2…` + `contracts/opendox-
+    pin.yaml`, mirroring the openXdox pin of #917) … openxFactory then
+    declares two direct upstreams (openDox, openXdox)."* Landed as its own
+    pull request (#932; placement ruled by `#656` comment `5626260214`,
+    "OWN PR FIRST, MERGE WHEN GREEN").
+
+    `contracts/openxdox-pin.yaml` and `scripts/verify-openxdox-pin.py` (this
+    file's own MODULE) are UNCHANGED by that ruling — RULING F still governs
+    THIS pin, openXdox pins openXdox and nothing about openDox, and this test
+    moves accordingly: from "no second declaration exists" to "the two
+    declarations exist and agree". It asserts the Q7 SHAPE: exactly TWO
+    product gitlinks in `.gitmodules` (`openDox`, `openXdox`, never a leg of
+    either), and the LOCKSTEP equality between `contracts/opendox-pin.yaml`'s
+    own `commit` and the commit `openXdox/contracts/opendox-pin.yaml` names —
+    read as a git BLOB at the commit the `openXdox` gitlink itself records,
+    never the openXdox WORKING TREE, on `scripts/verify-opendox-pin.py`'s own
+    lockstep reasoning (PR #932 thread review, 2026-09-10): an on-disk edit to
+    that file which does not move the gitlink must not be able to satisfy this
+    assertion, so this test reads the same way the shipped verifier's sixth
+    check does rather than through `Path.read_text` on the submodule mount.
     """
-    assert not (REPO_ROOT / "contracts" / "opendox-pin.yaml").exists()
     gitmodules = (REPO_ROOT / ".gitmodules").read_text(encoding="utf-8")
     paths = [line.split("=", 1)[1].strip()
              for line in gitmodules.splitlines()
              if line.strip().startswith("path")]
-    assert "openXdox" in paths
-    for forbidden in ("openDox", "openDox-code", "openDox-spec",
+    assert sorted(p for p in paths if p in ("openDox", "openXdox")) == \
+        ["openDox", "openXdox"]
+    for forbidden in ("openDox-code", "openDox-spec",
                       "openXdox-code", "openXdox-spec"):
         assert forbidden not in paths
+
+    opendox_pin = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "opendox-pin.yaml").read_text(
+            encoding="utf-8"))
+
+    # A SECOND, INDEPENDENT implementation of the lockstep read — this test
+    # does not import `scripts/verify-opendox-pin.py` at all, on the same
+    # "a mechanism proving itself against itself proves nothing" reasoning as
+    # `test_the_shipped_digest_is_recomputed_by_an_independent_implementation`
+    # above. `MODULE` here is `verify-openxdox-pin.py`, which already exposes
+    # `_recorded_gitlink` (reused by `test_the_gitlink_the_tree_records_
+    # equals_the_pin` above); the blob read is plain `git show`.
+    openxdox_oid, source = MODULE._recorded_gitlink(REPO_ROOT, "openXdox")
+    assert openxdox_oid is not None, "the openXdox gitlink must be recorded"
+    assert source == "HEAD"
+    derived_blob = _git(REPO_ROOT / "openXdox", "show",
+                        f"{openxdox_oid}:contracts/opendox-pin.yaml").stdout
+    derived_pin = yaml.safe_load(derived_blob)
+
+    assert opendox_pin["commit"] == derived_pin["commit"]
+    assert opendox_pin["commit"] == "49a99df2561bf70e49337c999d79b36836718349"
 
 
 def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:
