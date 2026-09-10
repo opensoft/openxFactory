@@ -565,6 +565,27 @@ def replica_rows(doc: dict[str, Any]) -> list[dict[str, Any]]:
             and row.get("reason") == REPLICA_REASON]
 
 
+def _also_replicated_labels(row: dict[str, Any]) -> list[str]:
+    """A row's `also_replicated_to:` read as A LIST OF STRINGS OR NOTHING.
+
+    GUARDED AT EVERY LEVEL, exactly as `_declared_line_set` guards
+    `edits[].lines`, and for the same reason: this file READS the manifest and
+    does not revalidate it — a mis-shaped `also_replicated_to:` is
+    `validate-carve-manifest.py`'s `carve-shape-invalid`, tested there, and not
+    this file's finding — but it must not ACT on the mis-shape either. A bare
+    STRING is the case that matters, because a string is an iterable of
+    characters: a plain `in` test against one admits every destination key that
+    is a SUBSTRING of it, which would let a hand-edited document be read as
+    replicating a file at a leg it never named. Anything that is not a list
+    declares nothing here, and a non-string entry inside a list is dropped
+    rather than compared.
+    """
+    value = row.get("also_replicated_to")
+    if not isinstance(value, list):
+        return []
+    return [entry for entry in value if isinstance(entry, str)]
+
+
 def also_replicated_rows(doc: dict[str, Any],
                          destination: str) -> list[dict[str, Any]]:
     """The MOVED rows this destination receives as a REPLICA rather than as a
@@ -582,7 +603,7 @@ def also_replicated_rows(doc: dict[str, Any],
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
             and row.get("destination") != destination
-            and destination in (row.get("also_replicated_to") or [])]
+            and destination in _also_replicated_labels(row)]
 
 
 def declared_roots(rows: list[dict[str, Any]]) -> list[str]:

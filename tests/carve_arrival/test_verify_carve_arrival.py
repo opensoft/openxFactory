@@ -1438,6 +1438,55 @@ def test_the_real_manifest_carries_the_ruled_q_l7_rows(carve: Carve) -> None:
         "tests/ideation-dashboard/conftest.py": "tests/conftest.py"}, placements
 
 
+def test_a_string_also_replicated_to_admits_no_destination(
+        carve: Carve) -> None:
+    """A BARE STRING IS NOT A LIST OF ONE (Copilot round, 2026-09-10).
+
+    `validate-carve-manifest.py` refuses `also_replicated_to: "<label>"` as
+    `carve-shape-invalid`, and `test_a_malformed_also_replicated_to_refuses`
+    pins that. But THIS file reads the manifest and does not revalidate it, so
+    it must not ACT on a shape it did not check: a string is an iterable of
+    CHARACTERS, and a plain `in` test against one admits every destination key
+    that is a SUBSTRING of it. `'scratch_spec' in 'not_scratch_spec_at_all'` is
+    True, which without the guard reads a hand-edited document as replicating a
+    file at a leg it never named — and then `--replica-at` may re-point it.
+    Guarded the way `_declared_line_set` guards `edits[].lines`.
+    """
+    doc = copy.deepcopy(carve.manifest_doc())
+    for row in doc["rows"]:
+        if row["source_path"] == "scripts/pkg/alpha.py":
+            row["also_replicated_to"] = "not_scratch_spec_at_all"
+            break
+    else:  # pragma: no cover - the fixture always carries the row
+        raise AssertionError("no row for scripts/pkg/alpha.py")
+
+    # the reader itself: nothing, not the characters of the string
+    assert MODULE.also_replicated_rows(doc, "scratch_spec") == []
+    assert MODULE._also_replicated_labels(doc["rows"][0]) == []
+
+    # and end to end: the flag is refused and the copy is not admitted
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=examples/alpha.py")
+    assert refusal(done) == "arrival-unreadable"
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+
+
+def test_a_non_string_entry_in_also_replicated_to_admits_nothing(
+        carve: Carve) -> None:
+    """The same guard one level in: a list whose entry is not a string names no
+    destination, and is dropped rather than compared."""
+    doc = copy.deepcopy(carve.manifest_doc())
+    doc["rows"][0]["also_replicated_to"] = [None, ["scratch_spec"], 7]
+    assert MODULE._also_replicated_labels(doc["rows"][0]) == []
+    assert MODULE.also_replicated_rows(doc, "scratch_spec") == []
+
+
 # --------------------------------------------------------------------------
 # ROUND 1 — the corrections the independent verification owed
 #
