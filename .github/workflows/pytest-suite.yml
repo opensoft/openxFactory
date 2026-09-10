@@ -304,7 +304,7 @@ jobs:
       # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth`
       # → `Init governed submodules only`) is therefore used — mint an App
       # token, rewrite the SSH URL with `insteadOf` BEFORE checkout, then init
-      # the one gitlink by name. The secret names are
+      # the consumed gitlinks by name. The secret names are
       # this repository's own content App (App 4253636, installation 145372182,
       # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
       # is visibility-`selected` and openxFactory is not among its repositories.
@@ -335,8 +335,29 @@ jobs:
           path: openxFactory
           fetch-depth: 0
 
-      - name: Init the openXwallet gitlink only
-        run: git submodule update --init openXwallet
+      # TWO GITLINKS BY NAME, AND STILL NOT `submodules: true`. `openXdox`
+      # joins `openXwallet` here because `tests/openxdox_pin/` adjudicates its
+      # positive case against the REAL checkout — it recomputes the shipped
+      # `sorted-ls-tree-r-v1` digest over the pinned tree with a second
+      # implementation, which is the assertion that makes the pin a measured
+      # fact rather than a self-consistent one — and a suite that cannot see
+      # the submodule cannot make it. The alternative was to weaken those
+      # cases to a `pytest.skip`, which this gate's own design rejects: a skip
+      # reports as a green bar, indistinguishable from a pass, and
+      # `EXPECT_SKIPPED` below is pinned as an exact SUM for that reason.
+      #
+      # THIS IS NOT THE TASK 5.3 CONSUMER GATE. Materializing a submodule so
+      # the test suite can read it is a different act from wiring
+      # `scripts/verify-openxdox-pin.py` as its own required check; that gate
+      # is Phase 5's, is unwritten, and stays named as owed.
+      #
+      # `installs/omnigent-install` still stays out — no test here reads it —
+      # and `--recursive` is still rejected one level down, so openXdox's own
+      # `code`/`spec` legs are NOT fetched: `ls-tree -r` reads a nested
+      # gitlink as an opaque `160000` record, so the whole-tree digest needs
+      # no leg materialized to be correct.
+      - name: Init the openXwallet and openXdox gitlinks only
+        run: git submodule update --init openXwallet openXdox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the
