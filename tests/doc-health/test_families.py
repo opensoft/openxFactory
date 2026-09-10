@@ -768,18 +768,22 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
 
 
 def test_every_action_string_the_ratified_provenance_family_can_emit_is_pinned_verbatim():
-    """`fam_ratified_provenance` raises FOUR distinct finding classes.
-    `#448` pinned one (`test_ratified_provenance` above). All four are
-    pinned BEHAVIOURALLY here: three tiny, self-contained `Doc`/`Context`
+    """`fam_ratified_provenance` raises FIVE distinct finding classes.
+    `#448` pinned one (`test_ratified_provenance` above). All five are
+    pinned BEHAVIOURALLY here: four tiny, self-contained `Doc`/`Context`
     scenarios (mirroring `test_ratified_citation_spellings.py`'s own `_run`
     helper, which builds a `Context` directly rather than through
     `conftest.make_ctx` because what is under test is exact header content)
     plus the existing read-only `fixtures/ratified-provenance/` corpus for
     the dangling `Ratified by:` case `test_ratified_provenance` already
     reads. No branch here needs a static fallback.
+
+    The FIFTH is the subject arm (#878), whose scenario reaches a `review/`
+    record under a change packet — so its behavioral case carries a packet
+    path rather than the `docs/subject.md` the other four use.
     """
-    def run(text):
-        doc = Doc("alpha", "docs/subject.md", text,
+    def run(text, path="docs/subject.md"):
+        doc = Doc("alpha", path, text,
                   corpus.parse_status(text), corpus.parse_kind(text))
         ctx = Context(repo_paths={"alpha": Path("/nonexistent")}, docs=[doc],
                       capabilities={}, change_ids={"alpha": {"real-change"}},
@@ -794,6 +798,10 @@ def test_every_action_string_the_ratified_provenance_family_can_emit_is_pinned_v
             "Ratified: 2026-01-01\n",
             "# Subject\n\nStatus: ratified\n\nRatified: nothing here\n"):
         behavioral |= frozenset(f.action for f in run(text))
+    behavioral |= frozenset(f.action for f in run(
+        "# Proposal Ratification: real-change\n\nStatus: record\n\n"
+        "Ratified: 2026-09-09 by Brett Heap\n",
+        path="openspec/changes/real-change/review/ratification-2026-09-09.md"))
     static = harvest_static(families,
                             functions=frozenset({"fam_ratified_provenance"}))
 
@@ -806,6 +814,10 @@ def test_every_action_string_the_ratified_provenance_family_can_emit_is_pinned_v
         "name at least one of an approver, a date, or a resolvable record "
         "path — or cite the approving change with Ratified by: if one exists",
         "point Ratified by: at an existing active or archived change",
+        "set Status: ratified and add one ratification citation in a "
+        "sanctioned spelling (Ratified by: <change>, otherwise Ratified: "
+        "naming an approver, a date, or a resolvable record path); on an "
+        "archived record the repair takes the archived-record edit route",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="ratified-provenance")
