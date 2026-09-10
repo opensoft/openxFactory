@@ -1,0 +1,97 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-amend-neutral-product-pin-lockfile-first-line
+  reason: >-
+    A DEFECT OF EXPRESSION IN PROMOTED CANON, filed as openxFactory issue #882
+    and NAMED IN ADVANCE by the packet that declined it. `neutral-product-pin`'s
+    promoted requirement *A pinned artifact that resolves dependencies at
+    install time carries a vendored lockfile, and the install runs through it*
+    (`openspec/specs/neutral-product-pin/spec.md:668` on `main` `ea34f22a`)
+    opens its body with a CONDITION — "Where a pinned external neutral product
+    is distributed as a published artifact", at `:669` — and defers its SUBJECT
+    and its `SHALL` to `:670`. The requirement is not short of obligation: it
+    carries `SHALL` eight times below that line. But the OpenSpec CLI at 1.2.0
+    reads only the FIRST LINE of a requirement's body when it checks for the
+    keyword, so on that CLI the specification fails strict validation with
+    "requirements.16.text: Requirement must contain SHALL or MUST keyword".
+    AND THE PINNED CLI DOES NOT REPORT IT, WHICH IS MEASURED HERE RATHER THAN
+    LEFT FOR A READER TO DISCOVER. `contracts/openspec-cli-pin.yaml` pins
+    `@fission-ai/openspec@1.12.0`, the gate
+    `.github/workflows/openspec-cli-pin-gate.yml` runs
+    `scripts/validate-openspec-cli-pin.py --all --no-cache` through the verified
+    artifact, and this specification PASSES there. The failure is real on the
+    1.2.0 binary an engineer or an agent has on PATH and is absent from every
+    required check. `design.md` D6 carries the controlled measurement of both
+    binaries on one fixture and puts the consequence — whether the amendment is
+    still wanted — for the owner's word.
+    THE TEXT IS PROMOTED, RATIFIED CANON. The requirement was ratified by Brett
+    Heap on 2026-09-09, verbatim "ratify 813", as part of
+    `pin-openspec-cli-dependency-closure`, and written into the specification by
+    that packet's archive act at `fa58a1a3`. The defect entered at AUTHORING and
+    was promoted faithfully: the archived delta's own first body line, at
+    `openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/specs/neutral-product-pin/spec.md:6`,
+    is the same "Where a pinned external neutral product is distributed as a
+    published artifact". A ratified requirement changes only by a ratified
+    change (working rule 3), which is the ground on which the vocabulary defect
+    #868 was refused as a plain fix on PR #780 and became its own packet.
+    THIS PACKET IS THE NAMED SUCCESSOR OF THAT ONE. Its predecessor,
+    `amend-neutral-product-pin-interim-copy-vocabulary`, measured this failure,
+    declined it deliberately and named the successor in two places — `tasks.md`
+    5.2, "THE `requirements.16` STRICT FAILURE IS A SUCCESSOR, NOT THIS PACKET
+    … it is named here as available rather than taken: it needs its own issue
+    and its own word", and `design.md` D6, "one sentence, moving `SHALL` onto
+    the first line of that requirement's body, on its own issue and its own
+    word". Issue #882 is that name, filed UNCLAIMED at that packet's archive.
+    THE PACKET EXISTS ON BRETT HEAP'S WORD OF 2026-09-10, verbatim "do 882
+    packet", given in session to lane `openxfactory-1` and recorded in that
+    lane's CLAIMED comment on openxFactory #882 at 2026-09-10T18:29:31Z. That
+    word commissions the AUTHORING; it ratifies no wording and takes no design
+    decision, so this packet is a DRAFT and carries no approval pair.
+    WHAT IS CLAIMED IS SMALL AND IS STATED AS SUCH. ONE sentence of ONE
+    requirement is re-ordered so that its subject and its modal open the first
+    body line. No word is added and no word is removed — measured
+    case-sensitively, the retired sentence's tokens minus the new sentence's are
+    `Where`, `ranges,` and `the`, and the reverse is `The`, `where` and
+    `ranges`, which is two case flips and one comma. The obligation's bearer is
+    still THE PIN. No obligation, no field, no scenario and no consumer's
+    conformance outcome moves in either direction.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-10 — 30 topic folders — and
+    `INDEX.md` read: no topic folder and no INDEX row names the vendored
+    lockfile, this requirement, the first-body-line shape or the strict keyword
+    rule, and `grep -rli "vendored lockfile|first body line|SHALL or MUST"
+    ideation/staging/` returns nothing. `kind: staged` would claim a staging
+    source that does not resolve. The organized source is issue #882 and the two
+    passages of its predecessor's packet that named it.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), authoring the remedy issue
+    #882 proposes, on Brett Heap's word of 2026-09-10 "do 882 packet". NO
+    APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: that word commissions an
+    authoring and admits no text to canon. The lawful unapproved shape is the
+    one `add-drafted-proposal-origin` (issue #318) added — drafting provenance,
+    no `approved_by`, no `approved_on` — and every document in the packet
+    carries `Status: draft` to match; approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
+    THE DECISION MOST WORTH A VETO is `design.md` D1: the wording of the first
+    sentence. Three options are written out with their costs and the recommended
+    one is ENCODED — re-order canon's own words so the subject and the modal open
+    the sentence, adding and removing none. The alternatives are (2) change not
+    one word and re-flow the paragraph so canon's own sentence carries through
+    `SHALL` on a single long first line, which owes no marker at all because
+    canon holds that a re-wrapped paragraph compares equal to the same paragraph
+    wrapped differently; and (3) the wording issue #882 itself floats, which
+    makes the PRODUCT rather than the pin the bearer of the `SHALL` and is
+    refused for that reason. D2 records the marker decision and proves both
+    branches with the family's own derivation. **D6 CARRIES A SECOND QUESTION
+    AND IT IS PUT BEFORE D1**: the pinned CLI does not report this failure at
+    all, so whether promoted canon should be amended for a binary no required
+    check runs is the owner's call and not this lane's.
+  proposed_on: 2026-09-10
+related:
+  - openxFactory:change:archive/2026-09-09-pin-openspec-cli-dependency-closure     # ARCHIVED 2026-09-09 at `fa58a1a3`. The change that RATIFIED AND PROMOTED the requirement this block MODIFIES, and whose own delta already carried the deferred first line — so the defect entered at authoring and was promoted faithfully
+  - openxFactory:change:archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary  # ARCHIVED 2026-09-10 at `88cc12b5`, the LAST WRITER of `openspec/specs/neutral-product-pin/spec.md`. It measured this failure, declined it (`tasks.md` 5.2, `design.md` D6) and named this packet's shape and this issue; this packet is its named successor
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing  # ARCHIVED. The CONSTRUCTION METHOD this packet's delta is built by — `tasks.md` 2.1's slice-and-substitute with the family's own `derive_units` run as the proof — and the amendment shape it is authored on
+  - openxFactory:change:split-opendox-two-layer-product                            # ACTIVE, ratified 2026-09-05, another lane's. The ONLY other active change carrying a `neutral-product-pin` delta. It modifies *An external neutral product is pinned by commit and digest, never by tag* and *The consuming repository's pin is authoritative among reachable checkouts* — neither of them this requirement — so it shares no requirement key with this block and owes no ordering declaration in either direction
+  - openxFactory:change:amend-marker-declaring-nothing                             # ACTIVE, `Status: draft` (PR #908), a `doc-health` delta that ADDS two reporting grounds to the marker-defect class. Named as the measured neighbour whose grammar this block's one marker is written to survive: the marker names one unit and carries no code span in its reason, so neither the existing second ground nor either added ground can fire on it. A DIFFERENT capability, no shared requirement key, and not ratified, so the two-writers rule does not reach the pair

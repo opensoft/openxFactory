@@ -529,6 +529,68 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-neutral-product-pin-lockfile-first-line](openspec/changes/amend-neutral-product-pin-lockfile-first-line/proposal.md)
+  — authored 2026-09-10, **`Status: draft`** (NOT RATIFIED; ratification,
+  promotion and archive are three separate acts on Brett Heap's word), lane
+  `openxfactory-1`. Origin: openxFactory
+  [#882](https://github.com/opensoft/openxFactory/issues/882), filed by this
+  lane at the archive of `amend-neutral-product-pin-interim-copy-vocabulary` as
+  the NAMED SUCCESSOR of that packet's `tasks.md` § 5.2 and `design.md` D6.
+  **THE DEFECT IS WHERE THE OBLIGATION STANDS IN ONE SENTENCE.** The promoted
+  requirement *A pinned artifact that resolves dependencies at install time
+  carries a vendored lockfile, and the install runs through it* (`:668`) opens
+  its body at `:669` with a CONDITION — *"Where a pinned external neutral
+  product is distributed as a published artifact"* — and defers its subject and
+  its `SHALL` to `:670`. It is not short of obligation (`SHALL` occurs eight
+  times below that line), but the OpenSpec CLI at 1.2.0 reads only the FIRST
+  LINE when it checks for the keyword, so on that binary the specification
+  fails `--strict` with `requirements.16.text`. **MEASURED: 17 OF THIS FILE'S
+  18 REQUIREMENTS ALREADY OPEN WITH THE KEYWORD ON LINE ONE**, and across all
+  62 promoted spec files and 641 requirements exactly TWO do not — index 16 here
+  and `repo-boundary-governance:34`, which is named as residue and NOT taken.
+  **AND THE PINNED CLI DOES NOT REPORT THIS AT ALL, WHICH IS WHY `design.md` D6
+  IS PUT BEFORE THE WORDING**: `contracts/openspec-cli-pin.yaml` pins 1.12.0,
+  the gate runs `scripts/validate-openspec-cli-pin.py --all --no-cache`, and on
+  that binary this specification PASSES (exit 0) — measured on both this branch
+  and an `origin/main` `ea34f22a` control, with a three-requirement probe
+  fixture showing 1.12.0 reads the WHOLE body and warns only when the keyword
+  is missing altogether. **So the motive is legibility and convention, not a red
+  required check, and the packet says so rather than letting the issue's framing
+  stand.** **THE DELTA IS ONE SENTENCE RE-ORDERED OUT OF CANON'S OWN WORDS**:
+  *"The pin SHALL carry a VENDORED RESOLUTION where a pinned external neutral
+  product is distributed as a published artifact whose installation RESOLVES
+  dependency ranges — …"*, every following word unchanged. **NOT ONE WORD ADDED
+  AND NOT ONE REMOVED**, measured case-sensitively: the retired sentence's
+  tokens minus the new one's are `Where`, `ranges,`, `the`; the reverse is
+  `The`, `where`, `ranges` — two case flips and one comma, 374 characters
+  becoming 373. **BYTE-FAITHFUL BY CONSTRUCTION**, not transcription: the block
+  is `openspec/specs/neutral-product-pin/spec.md:668-721` sliced (sha256
+  `a33ceb10…`, 4,319 bytes), one single-occurrence substitution applied, that
+  paragraph alone re-wrapped at 79 — generator output and committed block
+  identical at sha256 `bb8a1937…`, 4,318 bytes. **THE MARKER DECISION IS READ
+  OFF A MEASUREMENT** (`design.md` D2): `derive_units` gives 25 units both
+  sides, 1 uncarried, 1 added, 1 suppressed, 0 marker defects — so ONE `Removed
+  from canon` marker with ONE name and no code span in its reason is owed and
+  written; a counterfactual block moving only the LINE BREAKS measures 0
+  uncarried and 0 added, so option 2 would owe no marker at all, and that is
+  option 2's cost rather than its virtue. **NO BEHAVIOUR MOVES** — the same
+  pins, the same four fields recorded in the same place, the same refusal
+  ground, the same clean-install verb, all four scenarios and both trailing
+  paragraphs canon's own bytes. `code_surface: none`, MEASURED: `grep` over
+  `scripts/ tests/ .github/ contracts/` for any part of the sentence returns
+  NOTHING. `sequenced_after: []`, the positive root claim: the only other active
+  `neutral-product-pin` delta is `split-opendox-two-layer-product`, which
+  modifies two OTHER requirements, so this is the **sole ACTIVE modifier** and
+  no ordering declaration is owed in either direction (the sweep ledger's
+  `class: co-modifier` grades the ARCHIVED promoter
+  `pin-openspec-cli-dependency-closure` too, and is a different question).
+  **THE TWO VETO POINTS, IN ORDER: D6 (amend at all, or close #882 on the
+  measurement — a veto withdraws the packet) then D1 (three wordings, one
+  encoded; option 3, the wording #882 itself floats, is REFUSED because it moves
+  the obligation's bearer from the pin to the product).**
+  **THIS PULL REQUEST PROMOTES NOTHING** — no file under `openspec/specs/`, no
+  script, test, contract or workflow is edited, `tasks.md` § 1 and § 5 stay
+  OPEN, and openxFactory #882 closes at the ARCHIVE rather than at this landing.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,
