@@ -1,0 +1,2 @@
+OK contracts/manifest.yaml: 189 per-file digest(s) verify
+rc=0

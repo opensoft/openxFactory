@@ -491,12 +491,12 @@ and the CHANGELOG's own digest in the rebuilt inventory. Live transcripts:
       `scripts/validate-manifest-digests.py`;
       `scripts/validate-contract-release.py verify-commit --commit <candidate>`;
       `scripts/validate-consent-instruments.py --strict`.
-- [ ] **NOT-OWED-HERE 2026-09-09 — mirrors box 5.5 — the LANE's landing act under `plan.md`'s landing contract.** **T065** *(box 5.5)* **NOT-OWED-HERE.** Landing the exact reviewed commit,
-      and the post-merge gate re-run the merge commit forces, are the LANE's
-      under the landing contract in `plan.md`. Dated NOT-OWED line, no tick.
-- [ ] **NOT-OWED-HERE 2026-09-09 — mirrors box 5.6 — an [OPERATOR] act at the LANDED MERGE COMMIT.** **T066** *(box 5.6)* **NOT-OWED-HERE.** The annotated tag and its
-      independent verification are `[OPERATOR]` acts, targeting the LANDED MERGE
-      COMMIT. Dated NOT-OWED line, no tick.
+- [x] **TICKED 2026-09-10 · Phase K, PR #881 merge `539cb563` under Rule 6 (LANDING 5611549408, LANDED 5611551237), Brett Heap's CLI approval on `a2ab9952`; step-4 gates comment 5611577023; evidence/phaseK-reverify-6301e00a/, phaseK-reverify-a2ab9952/; openspec/changes/add-consent-custody-rederivation-record/tasks.md § 5.5 AND 5.6 EVIDENCE.** **T065** *(box 5.5)* Landed the exact reviewed commit,
+      and the post-merge gate re-run the merge commit forces, as the LANE's act
+      under the landing contract in `plan.md`.
+- [x] **TICKED 2026-09-10 · Phase K, tag `contract-v3.6` object `d2d210d2` → merge `539cb563`, published 2026-09-10T02:30:39Z by lane openXfactory-3 under Brett Heap's delegation (issue #630 comments 5611667165/5611746072/5611762282/5611773448); evidence/phaseK-reverify-6301e00a/, phaseK-reverify-a2ab9952/; openspec/changes/add-consent-custody-rederivation-record/tasks.md § 5.5 AND 5.6 EVIDENCE.** **T066** *(box 5.6)* The annotated tag and its
+      independent verification, `[OPERATOR]` acts targeting the LANDED MERGE
+      COMMIT, are DONE.
 
 ## Phase H — bookkeeping, evidence and the notes
 
