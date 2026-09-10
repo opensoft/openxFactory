@@ -1056,7 +1056,9 @@ class AcceptedOriginMutation:
 
 
 def _commit_exists(root: Path, revision: str) -> bool:
-    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+    # argv is allowlisted and `shell` is disabled; the bare marker below is
+    # the syntax the analyser actually reads (Sonar S7632, PR #891).
+    result = subprocess.run(  # NOSONAR
         ["git", "-C", str(root.resolve()), "rev-parse", "--verify",
          "--end-of-options", f"{revision}^{{commit}}"],
         capture_output=True, check=False)
@@ -1064,7 +1066,8 @@ def _commit_exists(root: Path, revision: str) -> bool:
 
 
 def _is_ancestor(root: Path, older: str, newer: str) -> bool:
-    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+    # argv is allowlisted and `shell` is disabled; bare marker, as above.
+    result = subprocess.run(  # NOSONAR
         ["git", "-C", str(root.resolve()), "merge-base", "--is-ancestor",
          "--end-of-options", older, newer],
         capture_output=True, check=False)
@@ -1119,77 +1122,97 @@ def load_origin_dispositions(path: Path) -> list[object]:
     return entries
 
 
-def _entry_shape_problems(entry: dict, change: str) -> list[str]:
-    """Everything wrong with ONE entry's SHAPE, before history is consulted."""
-    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
-    problems: list[str] = []
+def _unknown_key_problems(entry: dict, where: str) -> list[str]:
+    """Keys this gate does not read. A key it does not read cannot narrow
+    what the entry accepts, so a typo is refused rather than ignored."""
     unknown = sorted(set(entry)
                      - set(ORIGIN_DISPOSITION_KEYS)
                      - set(ORIGIN_DISPOSITION_OPTIONAL_KEYS))
-    if unknown:
-        # THE TWO NEAR-MISSES, NAMED. Both are real spellings elsewhere in
-        # this estate, so an author reaching for one has not made a typo so
-        # much as picked the sibling record's word.
-        hints = []
-        if "recorded_at" in unknown:
-            hints.append("this record spells the citation `cited_to`, and "
-                         "`_at` keys in an entry here name COMMITS")
-        if "why" in unknown:
-            hints.append("this record spells the narrative `fact`, as "
-                         "`archive-date-dispositions.yaml` does "
-                         "(`openspec-cli-pin.yaml` spells it `why`)")
-        hint = (" — " + "; ".join(hints)) if hints else ""
-        problems.append(
-            f"{where} carries unknown key(s) {', '.join(unknown)}{hint}. A "
+    if not unknown:
+        return []
+    # THE TWO NEAR-MISSES, NAMED. Both are real spellings ELSEWHERE in this
+    # estate, so an author reaching for one has picked a sibling record's word
+    # rather than mistyped.
+    hints = []
+    if "recorded_at" in unknown:
+        hints.append("this record spells the citation `cited_to`, and `_at` "
+                     "keys in an entry here name COMMITS")
+    if "why" in unknown:
+        hints.append("this record spells the narrative `fact`, as "
+                     "`archive-date-dispositions.yaml` does "
+                     "(`openspec-cli-pin.yaml` spells it `why`)")
+    hint = (" — " + "; ".join(hints)) if hints else ""
+    return [f"{where} carries unknown key(s) {', '.join(unknown)}{hint}. A "
             f"key this gate does not read cannot narrow what the entry "
-            f"accepts, so a typo is refused rather than ignored")
-    missing = [key for key in ORIGIN_DISPOSITION_KEYS if key not in entry]
-    if missing:
-        problems.append(f"{where} is missing {', '.join(missing)}")
+            f"accepts, so a typo is refused rather than ignored"]
+
+
+def _string_field_problems(entry: dict, where: str) -> list[str]:
+    """The fields that must be non-empty strings, and the date's own shape.
+
+    THE UNQUOTED-SCALAR TRAP IS NAMED rather than left to be guessed: YAML
+    reads a bare `2026-09-10` as a DATE and a bare all-digit object name as an
+    INT, which is why the sibling record's header says every scalar in an
+    entry is quoted.
+    """
+    problems: list[str] = []
     for key in ("disposition", "disposed_by", "disposed_on", "word",
                 "ratified_at", "mutation_at"):
-        value = entry.get(key)
-        if key in entry and (not isinstance(value, str) or not value.strip()):
-            # THE UNQUOTED-SCALAR TRAP, named rather than left to be guessed.
-            # YAML reads a bare `2026-09-10` as a DATE and a bare all-digit
-            # object name as an INT, which is why the sibling record's header
-            # says every scalar in an entry is quoted.
-            hint = ("" if isinstance(value, str) else
-                    " — quote it: YAML reads a bare date as a date and a bare "
-                    "all-digit object name as an integer")
-            problems.append(
-                f"{where}: `{key}` must be a non-empty string, not "
-                f"{value!r}{hint}")
+        if key not in entry:
+            continue
+        value = entry[key]
+        if isinstance(value, str) and value.strip():
+            continue
+        hint = ("" if isinstance(value, str) else
+                " — quote it: YAML reads a bare date as a date and a bare "
+                "all-digit object name as an integer")
+        problems.append(f"{where}: `{key}` must be a non-empty string, not "
+                        f"{value!r}{hint}")
     stamp = entry.get("disposed_on")
     if isinstance(stamp, str) and not _ISO_DATE_RE.fullmatch(stamp):
         problems.append(
             f"{where}: `disposed_on` is {stamp!r}, not a YYYY-MM-DD date")
-    # A DISPOSITION WITHOUT A CITATION IS REFUSED, NOT IGNORED — the rule
-    # `openspec-cli-pin.yaml` states in those words, and doc-health's
-    # uncited-resolution rule states in its own. WHAT the citation points at
-    # is not pattern-matched: the sibling records cite issues, pull requests,
-    # spec lines and council rulings, and a gate demanding a URL would refuse
-    # three of those four. A STRING OR A LIST OF THEM, as the pin's does.
-    cited = entry.get("cited_to")
-    if "cited_to" in entry:
-        rows = cited if isinstance(cited, list) else [cited]
-        if (not rows or not all(isinstance(row, str) and row.strip()
-                                for row in rows)):
-            problems.append(
-                f"{where}: `cited_to` must be a non-empty string, or a "
-                f"non-empty list of them, naming where the ruling and this "
-                f"measurement are recorded — not {cited!r}")
-    for key in ("ratified_at", "mutation_at"):
-        value = entry.get(key)
-        if isinstance(value, str) and not _FULL_SHA_RE.fullmatch(value):
-            problems.append(
-                f"{where}: `{key}` is {value!r} — a FULL 40-hex object name "
-                f"is required, an abbreviation being ambiguous by "
-                f"construction")
+    return problems
+
+
+def _citation_problems(entry: dict, where: str) -> list[str]:
+    """A DISPOSITION WITHOUT A CITATION IS REFUSED, NOT IGNORED — the rule
+    `openspec-cli-pin.yaml` states in those words, and doc-health's
+    uncited-resolution rule states in its own.
+
+    WHAT the citation points at is not pattern-matched: the sibling records
+    cite issues, pull requests, spec lines and council rulings, and a gate
+    demanding a URL would refuse three of those four. A STRING OR A LIST OF
+    THEM, as the pin manifest's `cited_to:` takes.
+    """
+    if "cited_to" not in entry:
+        return []
+    cited = entry["cited_to"]
+    rows = cited if isinstance(cited, list) else [cited]
+    if rows and all(isinstance(row, str) and row.strip() for row in rows):
+        return []
+    return [f"{where}: `cited_to` must be a non-empty string, or a non-empty "
+            f"list of them, naming where the ruling and this measurement are "
+            f"recorded — not {cited!r}"]
+
+
+def _object_name_problems(entry: dict, where: str) -> list[str]:
+    """FULL object names only: an abbreviation is ambiguous by construction
+    and this record is a citation."""
+    return [f"{where}: `{key}` is {entry[key]!r} — a FULL 40-hex object name "
+            f"is required, an abbreviation being ambiguous by construction"
+            for key in ("ratified_at", "mutation_at")
+            if isinstance(entry.get(key), str)
+            and not _FULL_SHA_RE.fullmatch(entry[key])]
+
+
+def _accept_value_problems(entry: dict, where: str) -> list[str]:
+    """`changed_keys`'s own shape, and the one disposition this gate reads."""
+    problems: list[str] = []
     keys = entry.get("changed_keys")
     if "changed_keys" in entry and (
             not isinstance(keys, list)
-            or not all(isinstance(k, str) for k in keys)):
+            or not all(isinstance(key, str) for key in keys)):
         problems.append(
             f"{where}: `changed_keys` must be a list of strings (write `[]` "
             f"for a mutation that moved no scalar), not {keys!r}")
@@ -1203,23 +1226,33 @@ def _entry_shape_problems(entry: dict, change: str) -> list[str]:
     return problems
 
 
-def accepted_origin_mutation(
-        root: Path, change: str, ratifying: str,
-        now_lines: list[str]) -> tuple["AcceptedOriginMutation | None",
-                                       list[str]]:
-    """The record's answer for ONE change: `(accepted, problems)`.
+def _entry_shape_problems(entry: dict, change: str) -> list[str]:
+    """Everything wrong with ONE entry's SHAPE, before history is consulted.
 
-    `accepted` is set when a SINGLE well-formed entry accepts EXACTLY the
-    mutation the working tree carries. `problems` are the named reasons a
-    record that exists does not apply. Both empty means no entry names this
-    change at all — the ordinary case, answered by the caller's channel
-    guidance rather than as a defect of the record.
+    ONE CHECK PER HELPER, and every helper reports EVERY problem it finds
+    rather than the first: an operator repairing a hand-written entry should
+    see the whole list once, not discover it a line at a time across five
+    refusals. (Split out of one function on Sonar's cognitive-complexity
+    finding for PR #891; the assertions did not move.)
+    """
+    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
+    missing = [key for key in ORIGIN_DISPOSITION_KEYS if key not in entry]
+    return ([*_unknown_key_problems(entry, where)]
+            + ([f"{where} is missing {', '.join(missing)}"] if missing else [])
+            + _string_field_problems(entry, where)
+            + _citation_problems(entry, where)
+            + _object_name_problems(entry, where)
+            + _accept_value_problems(entry, where))
 
-    EVERY CONDITION IS MEASURED AGAINST HISTORY, not taken from the entry: the
-    entry says which commits it is about, and this function reads those
-    commits. An entry can therefore be wrong, and being wrong refuses while
-    NAMING WHAT DID NOT MATCH — which is the difference between a disposition
-    and an allow-list.
+
+def _selected_disposition_entry(
+        root: Path, change: str) -> tuple[dict | None, list[str]]:
+    """THE ONE entry that names `change`, or the reason there is not one.
+
+    `(None, [])` means no entry names this change at all — the ordinary case,
+    and not a defect of the record. Entries naming OTHER change ids are never
+    even looked at, so one change's malformed entry cannot block another
+    change's archive.
     """
     path = origin_dispositions_path(root)
     if not path.is_file():
@@ -1240,66 +1273,116 @@ def accepted_origin_mutation(
             f"declaration; a later accepted mutation REPLACES it, moving "
             f"`mutation_at` forward and widening `changed_keys` to the whole "
             f"diff from the ratifying commit"]
-    entry = mine[0]
-    problems = _entry_shape_problems(entry, change)
-    if problems:
-        return None, problems
-    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
+    return mine[0], []
+
+
+def _accept_commit_problems(root: Path, entry: dict, ratifying: str,
+                            where: str) -> list[str]:
+    """THE COMMITS THE ENTRY NAMES, put to history rather than believed.
+
+    Five questions, and the first NO answers: is this the baseline the gate
+    itself resolved; is the named mutation a commit at all; is it a DIFFERENT
+    commit; does it DESCEND from the ratification (a post-ratification
+    mutation is one that comes after it); and is it in the history being
+    archived.
+    """
     ratified_at, mutation_at = entry["ratified_at"], entry["mutation_at"]
     if ratified_at != ratifying:
-        return None, [
-            f"{where} names `ratified_at` {ratified_at[:12]}, but this "
-            f"change's ratifying commit is {ratifying[:12]} — the entry "
-            f"disposes a mutation of some other baseline"]
+        return [f"{where} names `ratified_at` {ratified_at[:12]}, but this "
+                f"change's ratifying commit is {ratifying[:12]} — the entry "
+                f"disposes a mutation of some other baseline"]
     if not _commit_exists(root, mutation_at):
-        return None, [
-            f"{where} names `mutation_at` {mutation_at[:12]}, which is not a "
-            f"commit in this repository"]
+        return [f"{where} names `mutation_at` {mutation_at[:12]}, which is "
+                f"not a commit in this repository"]
     if mutation_at == ratified_at:
-        return None, [
-            f"{where} names the ratifying commit as its own `mutation_at`; "
-            f"there is no mutation there to accept"]
+        return [f"{where} names the ratifying commit as its own "
+                f"`mutation_at`; there is no mutation there to accept"]
     if not _is_ancestor(root, ratified_at, mutation_at):
-        return None, [
-            f"{where} names a `mutation_at` ({mutation_at[:12]}) that does "
-            f"not DESCEND from the ratifying commit ({ratified_at[:12]}) — a "
-            f"post-ratification mutation is one that comes after it"]
+        return [f"{where} names a `mutation_at` ({mutation_at[:12]}) that "
+                f"does not DESCEND from the ratifying commit "
+                f"({ratified_at[:12]}) — a post-ratification mutation is one "
+                f"that comes after it"]
     if not _is_ancestor(root, mutation_at, "HEAD"):
-        return None, [
-            f"{where} names a `mutation_at` ({mutation_at[:12]}) that this "
-            f"checkout's HEAD does not reach; the accepted declaration must "
-            f"be in the history being archived"]
+        return [f"{where} names a `mutation_at` ({mutation_at[:12]}) that "
+                f"this checkout's HEAD does not reach; the accepted "
+                f"declaration must be in the history being archived"]
+    return []
+
+
+def _accept_declaration_problems(root: Path, change: str, entry: dict,
+                                 now_lines: list[str],
+                                 where: str) -> list[str]:
+    """THE DECLARATIONS THEMSELVES: does the named mutation carry one, does it
+    DIFFER from the ratified one (an entry that disposes nothing refuses),
+    does it move exactly the keys the entry names, and does the packet being
+    archived carry it."""
+    ratified_at, mutation_at = entry["ratified_at"], entry["mutation_at"]
     rel = f"openspec/changes/{change}/.openspec.yaml"
     at_mutation_text = git_show_text(root, mutation_at, rel)
     at_mutation = origin_block_lines(at_mutation_text)
     if at_mutation is None:
-        return None, [
-            f"{where} names a `mutation_at` ({mutation_at[:12]}) at which "
-            f"{rel} declares no origin, so there is no declaration to accept"]
+        return [f"{where} names a `mutation_at` ({mutation_at[:12]}) at "
+                f"which {rel} declares no origin, so there is no declaration "
+                f"to accept"]
     at_ratification_text = git_show_text(root, ratified_at, rel)
     if origin_block_lines(at_ratification_text) == at_mutation:
-        return None, [
-            f"{where} accepts {mutation_at[:12]}, whose origin declaration is "
-            f"IDENTICAL to the ratified one; the entry disposes nothing"]
+        return [f"{where} accepts {mutation_at[:12]}, whose origin "
+                f"declaration is IDENTICAL to the ratified one; the entry "
+                f"disposes nothing"]
     measured = _changed_keys(_origin_mapping(at_ratification_text),
                              _origin_mapping(at_mutation_text))
     declared = sorted(entry["changed_keys"])
     if declared != measured:
-        return None, [
-            f"{where} declares `changed_keys` "
-            f"{declared or '[]'}, but the diff from {ratified_at[:12]} to "
-            f"{mutation_at[:12]} touches {measured or '[]'} — an acceptance "
-            f"covers exactly the keys it names"]
+        return [f"{where} declares `changed_keys` {declared or '[]'}, but "
+                f"the diff from {ratified_at[:12]} to {mutation_at[:12]} "
+                f"touches {measured or '[]'} — an acceptance covers exactly "
+                f"the keys it names"]
     if now_lines != at_mutation:
         detail = "\n".join(difflib.unified_diff(
             at_mutation, now_lines,
             fromfile=f"{mutation_at[:12]}:{rel}",
             tofile="the packet being archived", lineterm="", n=1))
-        return None, [
-            f"{where} accepts the declaration at {mutation_at[:12]}, and the "
-            f"packet being archived does not carry it — a SECOND, "
-            f"undispositioned mutation sits on top of the accepted one\n"
-            f"{detail}"]
+        return [f"{where} accepts the declaration at {mutation_at[:12]}, and "
+                f"the packet being archived does not carry it — a SECOND, "
+                f"undispositioned mutation sits on top of the accepted one\n"
+                f"{detail}"]
+    return []
+
+
+def accepted_origin_mutation(
+        root: Path, change: str, ratifying: str,
+        now_lines: list[str]) -> tuple["AcceptedOriginMutation | None",
+                                       list[str]]:
+    """The record's answer for ONE change: `(accepted, problems)`.
+
+    `accepted` is set when a SINGLE well-formed entry accepts EXACTLY the
+    mutation the working tree carries. `problems` are the named reasons a
+    record that exists does not apply. Both empty means no entry names this
+    change at all — the ordinary case, answered by the caller's channel
+    guidance rather than as a defect of the record.
+
+    EVERY CONDITION IS MEASURED AGAINST HISTORY, not taken from the entry: the
+    entry says which commits it is about, and this function reads those
+    commits. An entry can therefore be wrong, and being wrong refuses while
+    NAMING WHAT DID NOT MATCH — which is the difference between a disposition
+    and an allow-list.
+
+    THREE STAGES, IN THIS ORDER, and each one is what the next presumes:
+    SELECT the entry, check its SHAPE (so the commit names below are strings
+    and `changed_keys` is a list), then put its claims to HISTORY.
+    """
+    entry, problems = _selected_disposition_entry(root, change)
+    if entry is None:
+        return None, problems
+    problems = _entry_shape_problems(entry, change)
+    if problems:
+        return None, problems
+    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
+    problems = (_accept_commit_problems(root, entry, ratifying, where)
+                or _accept_declaration_problems(root, change, entry,
+                                                now_lines, where))
+    if problems:
+        return None, problems
     return AcceptedOriginMutation(entry), []
 
 
