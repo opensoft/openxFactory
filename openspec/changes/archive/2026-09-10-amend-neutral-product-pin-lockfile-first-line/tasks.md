@@ -33,6 +33,36 @@ canon should be amended for a binary no required check runs was the owner's
 call, § 1.2 is the box that records it, and **HE RULED AMEND** with that
 measurement in front of him.
 
+**AMENDED AT THE ARCHIVE, 2026-09-10 — EXACTLY THREE CLAUSES ABOVE ARE
+SUPERSEDED, THEY ARE NAMED, AND THEY ARE QUOTED IN PLACE RATHER THAN DELETED.**
+The superseded clauses are these three and no others:
+
+> **§ 5 (archive) STAYS ENTIRELY OPEN**
+
+> and that word has NOT been given
+
+> and stays open where the work is owed
+
+Both § 5 boxes and § 6.1 are now ticked, on Brett Heap's separate word of
+**2026-09-10T21:1xZ**, verbatim **"archive 923 and close 882 when landed"**,
+whose condition is MET: PR **#923** landed on `main` as merge commit
+**`6889b183873d68c5c4b12b7b100c56152d171286`** at **2026-09-10T22:19:18Z**.
+**THE REST OF THAT FIRST SENTENCE IS NOT SUPERSEDED AND IS EXACTLY WHAT THIS
+ARCHIVE DOES** — *"promotion is a separate act on a separate word … so
+openxFactory #882 closes AT THE ARCHIVE and not at this landing, and `Closes
+#882` appears on the archive pull request and on nothing else"*: this is that
+separate act, on that separate word, and `Closes #882` is on the archive pull
+request and on nothing else — no commit message on that branch carries a
+closing keyword in any form. **THE SENTENCE THAT OPENS THIS BLOCK — *"NOTHING
+IS TICKED THAT DID NOT LAND"* — IS LIKEWISE NOT SUPERSEDED**: § 5's ticks
+record an act performed in the archive pull request itself, and § 6.1's records
+the NAMING of a successor, never its doing. That successor was filed
+**UNCLAIMED** at this archive — **[#931](https://github.com/opensoft/openxFactory/issues/931)**,
+the corpus's one other first-body-line instance,
+`openspec/specs/repo-boundary-governance/spec.md:34`. The full disposition is at
+the head of § 5 and § 6, and every box's ratified text is carried verbatim
+beneath its tick clause.
+
 ## 1. Ratification — GIVEN 2026-09-10
 
 - [x] 1.1 **RATIFIED 2026-09-10 by Brett Heap** (openxFactory operator
@@ -458,7 +488,73 @@ with no bypass flag: `scripts/proposal-support.py` refuses any change whose
 why every box in this file must be ticked in the commit BEFORE the move rather
 than after it.
 
-- [ ] 5.1 **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word
+**DISPOSITION 2026-09-10 — THE HEADING ABOVE IS RETAINED AS HISTORICAL
+SURFACE, NOT SUPERSEDED, AND THE THREE CLAUSES NAMED ABOVE REMAIN THE ONLY
+SUPERSEDED TEXT IN THIS FILE.**
+*"OWED, NOT GIVEN"* was true from ratification
+until **2026-09-10T21:1xZ**, when Brett Heap gave the separate word this section
+waits on, verbatim **"archive 923 and close 882 when landed"** — a word with a
+CONDITION, and the condition is met: PR
+[#923](https://github.com/opensoft/openxFactory/pull/923) landed on `main` as
+merge commit **`6889b183873d68c5c4b12b7b100c56152d171286`** at
+**2026-09-10T22:19:18Z**. The archive is GIVEN, and the heading is left standing
+because it is ratified surface and because it records what was true when it was
+written; this disposition is what a later reader reads beside it.
+`review/ratification-2026-09-10.md` § 6 and `.openspec.yaml`'s approval block
+both say the same in advance — *"THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE
+WORD, AND THAT WORD HAS NOT BEEN GIVEN"* — and neither is edited by this
+archive, both being frozen records that name this act in advance rather than
+contradict it.
+
+**NO REALIZATION EVIDENCE IS OWED, AND THE RULE IS QUOTED RATHER THAN
+PARAPHRASED.** `code_surface: none` and `target_release: none`, and
+`release-realization`'s scenario *A doc-only change is proposed* reads
+*"**THEN** its code_surface is `none` and it archives when its artifacts land,
+as before"*, while its *Realization archive gate* binds only *"A change with a
+non-empty code surface"*. So the LANDING itself is the evidence this archive
+cites, and no run on the merge commit is owed for a `none` surface. PR #923's
+own green `pytest-suite` run on branch head `841df854` is named as a courtesy
+beside it and is not the ground.
+
+- [x] 5.1 **DONE IN THE ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED AND THE
+      PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T21:1xZ,
+      verbatim *"archive 923 and close 882 when landed"*.** Performed with
+      `TZ=UTC python3 scripts/proposal-support.py . archive
+      amend-neutral-product-pin-lockfile-first-line --date 2026-09-10 --yes`
+      through the pinned `@fission-ai/openspec@1.12.0` artifact — never a bare
+      `openspec archive` — which moved the packet to
+      `openspec/changes/archive/2026-09-10-amend-neutral-product-pin-lockfile-first-line/`
+      and wrote the `## MODIFIED` block back into
+      `openspec/specs/neutral-product-pin/spec.md`. The origin-retention gate
+      fires INSIDE the wrapper and passed: **ORIGIN RETAINED**, the declaration
+      unchanged since the ratifying commit **`d6877c00`**. The byte-identity
+      this box requires is MEASURED — extracted programmatically from both
+      sides and hashed — and recorded in the pull request body, not asserted.
+      **THE LANDING IS THE EVIDENCE AND NO REALIZATION RUN IS OWED**:
+      `code_surface: none` and `target_release: none`, so under
+      `release-realization` the archive follows LANDING plus this task list;
+      the landing is PR **#923** →
+      **`6889b183873d68c5c4b12b7b100c56152d171286`** on `main`,
+      2026-09-10T22:19:18Z, and PR #923's green `pytest-suite` run on its head
+      `841df854` is named as courtesy rather than as the ground. **AND § 4.2's
+      `spec/neutral-product-pin` FAILURE IS CLEARED HERE — THE WHOLE POINT OF
+      #882** — measured before and after on the 1.2.0 binary and pasted in the
+      pull request body rather than claimed: `openspec validate
+      neutral-product-pin --strict --type spec` goes from *"has issues"* /
+      `✗ [ERROR] requirements.16.text` / exit 1 on `main` `6889b183` to
+      *"Specification 'neutral-product-pin' is valid"* / exit 0 here.
+      **ON THE RECORDING: THIS ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933)** is the act the
+      box records — the move to
+      `openspec/changes/archive/2026-09-10-amend-neutral-product-pin-lockfile-first-line/`,
+      the write-back into `openspec/specs/neutral-product-pin/spec.md`
+      (byte-identical to the delta, 5,957 bytes, sha256 `dcd44bfe9a6fbe…` on
+      both sides; the block minus its marker declaration is the generator's own
+      4,318-byte output at sha256 `bb8a1937c8bc26…`), the README row going from
+      the active list to the archived list, and the corpus-ledger row going
+      `active` → `archived` with `moved_by: "#933"`. The ratified text follows
+      unchanged:
+      **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word
       and never on this lane's judgment, through `python3
       scripts/proposal-support.py . archive
       amend-neutral-product-pin-lockfile-first-line --date <YYYY-MM-DD> --yes`
@@ -469,7 +565,23 @@ than after it.
       **AND THE ARCHIVE IS WHAT CLEARS § 4.2's `spec/neutral-product-pin`
       FAILURE ON THE 1.2.0 BINARY**, which is the one gate figure this packet
       changes and it changes it THERE and not here.
-- [ ] 5.2 **CLOSE openxFactory issue #882 AT THE ARCHIVE, not at this
+- [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #882` IS ON ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933) AND ON NOTHING
+      ELSE.** Its `closingIssuesReferences` is exactly `[882]`, verified through
+      GraphQL, and no commit message on the branch carries a closing keyword at
+      all, so openxFactory #882 closes with that merge and with nothing else.
+      It is that pull request's ONE closing
+      line; every other issue number in its body, in this file and in these
+      commits is a `refs`-style naming that closes nothing, and **NO COMMIT
+      MESSAGE ON THE ARCHIVE BRANCH CARRIES A CLOSING KEYWORD IN ANY FORM** —
+      not `Closes`, not `Fixes`, not `Resolves`, in any case or tense, quoted or
+      unquoted. The proposal pull request #923 carried `refs #882` and no
+      closing keyword, which is what kept the origin issue open through that
+      landing — exactly as this box, `review/ratification-2026-09-10.md` § 6 and
+      `.openspec.yaml`'s approval block all required — and openxFactory #882 was
+      verified **OPEN** at the moment the archive pull request was opened. The
+      ratified text follows unchanged:
+      **CLOSE openxFactory issue #882 AT THE ARCHIVE, not at this
       landing.** This pull request's body says `refs #882` and carries **no
       closing keyword**, and no commit message on this branch carries one
       either, so `closingIssuesReferences` on this pull request is `[]` —
@@ -478,7 +590,70 @@ than after it.
 
 ## 6. Measured, and deliberately NOT taken here
 
-- [ ] 6.1 **THE CORPUS'S ONE OTHER FIRST-LINE INSTANCE IS NAMED AS RESIDUE AND
+**DISPOSITION 2026-09-10 — WHY THE ONE OPEN BOX BELOW IS TICKED WHEN ITS OWN
+RATIFIED TEXT SAYS NO SUCCESSOR IS NAMED YET.** The box states the CONDITION of
+its own tick — *"THIS BOX IS OPEN BECAUSE NO SUCCESSOR IS NAMED YET … an owed
+successor's box ticks once the successor is NAMED, and naming it means filing
+its issue"* — and that condition is now MET rather than waived: the successor is
+filed, UNCLAIMED, as openxFactory
+[#931](https://github.com/opensoft/openxFactory/issues/931). Nothing below
+contradicts the ratified reading; § 6.2 through § 6.5 were already ticked at the
+ratification and not one of them moves here.
+
+**THE SHAPE IS A RULING AND NOT A WORKAROUND.** Brett Heap, **2026-09-06T23:10Z**,
+in session, by multiple choice, recorded on openxFactory
+[#692](https://github.com/opensoft/openxFactory/issues/692), chose the option
+labelled verbatim **"Tick on the recording"** — *an owed successor's task box
+ticks once the successor is NAMED (issue filed), the box text saying the tick
+records the naming, not the doing.*
+
+**AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no bypass flag:
+`scripts/proposal-support.py` refuses any change whose `tasks.md` still matches
+`^- \[ \]` (*"change has incomplete tasks"*).
+
+**THE WORK IS NOT DONE AND THE TICK DOES NOT SAY IT IS.**
+`openspec/specs/repo-boundary-governance/spec.md:34` still fails `--strict` on
+the 1.2.0 binary at this commit; this packet neither takes it nor forecloses it,
+and #931 is filed unclaimed for whoever does.
+
+**§ 6.1 WAS SEARCHED FOR AN EXISTING ISSUE BEFORE A NEW ONE WAS FILED.**
+`gh issue list --state all` over `repo-boundary-governance`, `Install repository
+scope`, `requirements.1.text`, `first body line`, `SHALL or MUST` and `strict
+keyword` returned no issue reporting that requirement's first-line shape — #882
+is THIS packet's requirement and #868 the vocabulary defect on a third — so #931
+was filed rather than an existing name reused. The sibling search was taken over
+the CORPUS as well as the issue tracker: `ls -d
+openspec/changes/*/specs/repo-boundary-governance` returns five active deltas
+(`add-identity-brokering`, `add-trust-anchor`, `implement-keycloak-install-repo`,
+`implement-openxpki-install-repo`, `qualify-avatar-live-voice`) and not one of
+them names *Install repository scope*, and `grep -rln "Install repository scope"
+openspec/changes/ --include=spec.md` excluding `archive/` returns nothing.
+
+- [x] 6.1 **TICKED ON THE RECORDING — THE SUCCESSOR IS NAMED AS openxFactory
+      [#931](https://github.com/opensoft/openxFactory/issues/931), IT IS
+      UNCLAIMED, AND THE WORK IS NOT DONE HERE.** Per the ruling of
+      2026-09-06T23:10Z, verbatim *"Tick on the recording"*: the box ticks once
+      the successor is NAMED, and this sentence is the box text saying the tick
+      records the naming, not the doing. **THE FAILURE IS STILL THERE AT THIS
+      COMMIT AND THIS BOX DOES NOT SAY OTHERWISE** — re-measured on `main`
+      `6889b183`, 2026-09-10: `✗ [ERROR] requirements.1.text: Requirement must
+      contain SHALL or MUST keyword`, exit **1**, on
+      `openspec/specs/repo-boundary-governance/spec.md:34` whose first body line
+      `:35` reads *"`Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`,
+      `OpenXPKI-Install`,"* and whose `SHALL` arrives at `:36`. **AND THE
+      RE-MEASUREMENT ADDS THE ONE FIGURE THIS BOX DID NOT CARRY**, disclosed
+      rather than left to be found: on the PINNED **1.12.0** binary — the one
+      the required gate runs — that same specification is `valid`, exit **0**,
+      INFO notes only, so this residue sits in exactly the posture #882's
+      requirement sat in and `design.md` D6's question is open for it too and is
+      NOT decided by the ruling this packet carries, which was given over one
+      requirement of one specification. #931 carries the verbatim error, both
+      binaries' runs, the lines and the smallest remedy with its two costs. The
+      **ON THE RECORDING: #931 WAS FILED FROM ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933)**, unclaimed and
+      before that pull request was opened, which is the act this tick records.
+      The ratified text follows unchanged:
+      **THE CORPUS'S ONE OTHER FIRST-LINE INSTANCE IS NAMED AS RESIDUE AND
       IS NOT TAKEN.** `openspec/specs/repo-boundary-governance/spec.md:34`
       (*Install repository scope*), whose first body line `:35` is a list of
       repository names in code spans, fails the 1.2.0 check on the identical
