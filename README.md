@@ -554,10 +554,12 @@ Active changes:
   (`Fence lines consume the header window budget`), every existing sentence
   and scenario carried verbatim** — machine-diffed against the promoted spec
   with the two additions stripped out, clean. `code_surface: none`; archives
-  on landing once ratified. No ACTIVE change collides and no OTHER open pull
-  request touches `release-realization` or `frontmatter_strict` (checked
-  2026-09-10, excluding this PR itself), so no `Modified over` marker is
-  owed; the per-change sweep
+  on landing once ratified. Two other active changes carry a
+  `release-realization` delta (`add-sequenced-after-substrate`,
+  `add-structured-scope-substrate`), but neither writes THIS requirement
+  key, and no OTHER open pull request touches `release-realization` or
+  `frontmatter_strict` (checked 2026-09-10, excluding this PR itself), so no
+  `Modified over` marker is owed; the per-change sweep
   ledger's `class` field reads `co-modifier`, partnered with the archived
   `accept-sequenced-after-header-line` (its own row flips to match) —
   correct, since both write the same requirement key. Lane `codexfactory-1`.

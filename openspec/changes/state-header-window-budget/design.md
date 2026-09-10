@@ -21,9 +21,14 @@
    the branch (§ D1 below) rather than trusting the docstring's word for it.
    The only decision left to the convener is whether the added sentences say
    it well.
-4. **Blast radius: zero, measured.** No script, test or contract reads this
-   requirement's prose; `code_surface: none`. No consumer re-vendors; no pin
-   moves. `proposal.md` § Impact.
+4. **Blast radius: zero, measured, at the level that matters: runtime
+   behavior.** No script, test or contract EXECUTES any differently because
+   of this requirement's prose; `code_surface: none`. This is narrower than
+   "no script reads the prose" — `scripts/doc_health/modified_block_currency.py`'s
+   own currency gate mechanically parses every active `## MODIFIED` block,
+   this one included, to diff it against canon, and that parse IS Group 2's
+   validation gate this packet passes, not a behavioral consumer the zero-blast-radius
+   claim is about. No consumer re-vendors; no pin moves. `proposal.md` § Impact.
 
 ## Context
 

@@ -5,7 +5,11 @@
 code-surface change owes one: this packet's only obligations are authoring,
 the standing validation gates, and — once ratified — an archive that is a
 SEPARATE act this packet does not perform. **Group 0 is the ratification
-gate and is the only task here a human must perform.**
+gate, and putting the wording in front of Brett Heap for a ruling is the
+only task here that needs his own hand.** (Group 3.1's archive also needs
+Brett Heap's ratifying WORD, but — unlike Group 0 — is carried out
+afterward by whichever lane holds that word, not performed by Brett
+himself; the two are both human-gated, only one is human-performed.)
 
 ## Group 0 — RATIFICATION GATE (human; OPEN)
 
@@ -105,7 +109,22 @@ gate and is the only task here a human must perform.**
   same 2 pre-existing failures on both sides
   (`change/add-chain-attestation`, `change/add-composed-view-authoring` —
   the two known ERROR-level marker-blind findings `prepare-openspec-1-12-readiness`
-  already named), zero new failures introduced.
+  already named), zero new failures introduced. **THIS COUNT IS A SNAPSHOT AT
+  THIS TASK'S OWN AUTHORING HEAD, NOT A PINNED NUMBER, AND DRIFTS AS
+  `origin/main` GROWS** — exactly as task 2.6 documents for the ledger row
+  count; the invariant that is the actual gate is the relationship (branch =
+  main + 1 item, the same two pre-existing failures, zero new ones), checked
+  by a JSON diff of the two failing-item sets and not by the totals matching
+  some fixed pair of numbers. Re-measured at head `8088d01e` (after merging
+  `origin/main` `52e42be9`): **100 passed, 2 failed (102 items)** vs main's
+  **99 passed, 2 failed (101 items)**. Re-measured again after this
+  verification pass's own merge of `origin/main` `6f95ff57` (merge commit
+  `3a7b3757`): branch **100 passed, 2 failed (102 items)**, a fresh
+  `origin/main` clone at `6f95ff57` **99 passed, 2 failed (101 items)** —
+  the two failing-item sets, taken from `validate --all --strict --json` and
+  diffed by item id rather than eyeballed, are byte-identical
+  (`{add-chain-attestation, add-composed-view-authoring}`) on both sides
+  every time: zero new failures, at every head this packet has carried.
 - [x] 2.4 `python3 -m pytest tests -q -k "sequenced or frontmatter or
   release_realization"` → **278 passed, 0 failed**, identical total to a
   clean `origin/main` worktree's 278 passed. (Before 1.7's seed this read
