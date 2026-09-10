@@ -245,7 +245,32 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
         if family in FAMILY_NOTES:
             result.notes[family] = FAMILY_NOTES[family](ctx)
         if isinstance(out, Skip):
+            # A SKIP IS STILL A SKIP HERE — it goes on the `skips` list exactly
+            # as it always did, so every consumer that fails closed on one is
+            # untouched (`validate-release-tag-gate.py` refuses at
+            # `gate-unaskable` on `isinstance(outcome, Skip)`, and reads only
+            # `.reason`).
+            #
+            # AND A SKIP THAT CARRIES FINDINGS NO LONGER LOSES THEM AT THIS
+            # LINE (#766, Codex on PR #871 P1). A family may stop being able to
+            # ask its question AFTER some of its repositories have already
+            # established something —
+            # `release_tag_publication._PartialSkip` is the one shape in the
+            # estate that says so, carrying the findings on the skip — and
+            # appending the skip while extending nothing abandoned them one
+            # layer above the loop that had just been repaired to keep them.
+            # The condition that produces such a skip is common, not exotic:
+            # `--single-repo` puts ONE repository in scope, and on the
+            # aggregation nightly nine of the ten governed repositories skip
+            # for carrying no `contracts/manifest.yaml`, so a single flaky ref
+            # read on the tenth used to erase that family's whole report.
+            #
+            # `getattr` RATHER THAN AN ATTRIBUTE, DELIBERATELY: the base `Skip`
+            # has `family` and `reason` and nothing else, so every other
+            # family's skip contributes an empty tuple BY CONSTRUCTION and this
+            # line cannot change what any of them reports.
             result.skips.append(out)
+            result.findings.extend(getattr(out, "findings", ()))
         else:
             result.findings.extend(out)
     result.findings.sort(key=Finding.sort_key)
