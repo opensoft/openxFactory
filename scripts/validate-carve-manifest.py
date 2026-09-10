@@ -474,12 +474,13 @@ DESTINATION_KEYS = frozenset({"repository", "leg"})
 # destination is exactly one of them.
 LEGS: tuple[str, ...] = ("code", "spec", "assembly")
 
-# The DOCUMENT's key set, CLOSED. `header:` is optional prose — it is where
-# RULED OQ-E's convention break is recorded — and every other key here is
-# required by check 1. Closed because the schema the three consts are borrowed
-# from is `additionalProperties: false`, and because an open top level means a
-# mistyped `moved_path:` is ignored in silence while the key it failed to be is
-# the one that carries the whole surface.
+# The DOCUMENT's key set, CLOSED. `header:` and `phase:` are the two optional
+# keys: `header:` is prose recording RULED OQ-E's convention break, and
+# `phase:` absent means `carve` (see "THE TWO PHASES" above) — every other
+# key here is required by check 1. Closed because the schema the three consts
+# are borrowed from is `additionalProperties: false`, and because an open top
+# level means a mistyped `moved_path:` is ignored in silence while the key it
+# failed to be is the one that carries the whole surface.
 TOP_LEVEL_KEYS = frozenset({
     "schema_version", "kind", "header", "phase", "carve_commit", "carve_tag",
     "source_repository", "digest_algorithm", "digest_source", "path_order",
@@ -730,10 +731,11 @@ def check_shape(doc: dict[str, Any]) -> None:
         raise CarveRefusal(
             "carve-shape-invalid",
             f"the manifest carries the unknown top-level key(s) {stray!r}; the "
-            "document grammar is closed (`header:` is the one optional key), so "
-            "a mistyped `moved_path:` refuses here rather than being ignored in "
-            "silence — and it is the surface list that a stray key is most "
-            "likely to be a misspelling of")
+            "document grammar is closed (`header:` and `phase:` are its two "
+            "optional keys; every other key is required), so a mistyped "
+            "`moved_path:` refuses here rather than being ignored in silence — "
+            "and it is the surface list that a stray key is most likely to be "
+            "a misspelling of")
     for key, expected in CONSTS.items():
         if doc.get(key) != expected:
             raise CarveRefusal(
