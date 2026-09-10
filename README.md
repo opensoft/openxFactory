@@ -530,13 +530,23 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-modified-block-currency-standing](openspec/changes/amend-modified-block-currency-standing/proposal.md)
-  — authored 2026-09-10, **`Status: draft`** (NOT RATIFIED; ratification,
-  promotion and archive are three later acts on three later words). Lane
-  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's word of
-  2026-09-10, verbatim *"do 1, then 2"*, which commissions a packet and decides
-  no wording. `.openspec.yaml` carries drafting provenance alone — no
-  `approved_by`, no `approved_on` — the lawful unapproved shape
-  `add-drafted-proposal-origin` defined. Origins: openxFactory
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
+  openxFactory operator authority, verbatim *"Ratify as encoded, all four
+  sites"* — a MULTIPLE-CHOICE ruling given in session ~04:5xZ and recorded on PR
+  [#887](https://github.com/opensoft/openxFactory/pull/887) at
+  2026-09-10T11:35:59Z, which reaches `design.md` **D1** and resolves it as
+  **ALL FOUR SITES** rather than the ONE paragraph #857 quotes; because all four
+  is the option the packet already encoded, **THE WORDING STANDS UNCHANGED** and
+  no canon unit was restored. Records
+  `openspec/changes/amend-modified-block-currency-standing/review/ratification-2026-09-10.md`
+  and
+  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10.md`).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind` and `id` unmoved — the
+  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
+  2026-09-10, verbatim *"do 1, then 2"*, which commissioned a packet and decided
+  no wording. Origins: openxFactory
   [#857](https://github.com/opensoft/openxFactory/issues/857) and
   [#858](https://github.com/opensoft/openxFactory/issues/858), both filed by
   this lane at the archive of `amend-marker-defect-reporting`
@@ -563,11 +573,13 @@ Active changes:
   class the family emits — the `info` carriage ledger included — and none
   exercised that. **THE PARAGRAPH'S THIRD SENTENCE IS CARRIED UNCHANGED**
   (*"No flip is proposed for the carriage ledger in this change"*), because it
-  is still true. **THE VETO POINT IS `design.md` D1 — THE SCOPE**: all four
-  sites (recommended and encoded) against the ONE paragraph #857 quotes, whose
-  cost is written out there — a promoted requirement left contradicting itself
-  about a gate, and a third successor owed for the same flip. **AND `design.md`
-  D0 CORRECTS THE ISSUE'S OWN PROPOSED WORDING**: #857 asks canon to say
+  is still true. **THE VETO POINT WAS `design.md` D1 — THE SCOPE, AND IT IS
+  RULED**: all four sites (recommended and encoded) against the ONE paragraph
+  #857 quotes, whose cost is written out there — a promoted requirement left
+  contradicting itself about a gate, and a third successor owed for the same
+  flip. The ruling of 2026-09-10 took all four, so no canon unit was restored
+  and the added scenario stands. **AND `design.md` D0 CORRECTS THE ISSUE'S OWN
+  PROPOSED WORDING**: #857 asks canon to say
   `error` for the title-resolution arm too, and that arm's constant is
   `warning` — deliberately not dragged by the flip, per orchestrator decision
   O8 and PR #529's own body — so the delta states the arm-by-arm truth instead.

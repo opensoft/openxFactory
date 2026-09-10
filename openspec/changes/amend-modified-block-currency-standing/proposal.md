@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-modified-block-currency-standing
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-10 by Brett Heap (openxFactory operator authority) — "Ratify as encoded, all four sites"; record at review/ratification-2026-09-10.md
 Proposed: 2026-09-10, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-10, verbatim **"do 1, then 2"**, given in session
 with item 2 naming openxFactory issues #857 and #858 as one amendment packet.
@@ -16,13 +17,26 @@ Origin: openxFactory
 lane at the archive of `amend-marker-defect-reporting`
 ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`), which
 owed them as residue `tasks.md` § 5.3 and § 5.4.
-**THAT WORD AUTHORIZES THE AUTHORING, NOT THE CONTENT.** It commissions a
-packet; it ratifies no wording and takes no design decision. This proposal is
-therefore a **DRAFT** and carries **NO APPROVAL PAIR** — `.openspec.yaml` keeps
-drafting provenance alone (`proposed_by` + `proposed_on`, no `approved_by`, no
-`approved_on`), which is the lawful unapproved shape `add-drafted-proposal-origin`
-defined, and every document in the packet carries `Status: draft` to match.
-Ratification, promotion and archive are three later acts on three later words.
+**THAT WORD AUTHORIZED THE AUTHORING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Brett Heap ruled on this packet itself
+on 2026-09-10, verbatim **"Ratify as encoded, all four sites"** — a
+multiple-choice ruling that reaches `design.md` **D1**, the packet's declared
+veto point, and resolves it as **ALL FOUR SITES**, which is the option the
+packet already encoded, so the delta's wording stands UNCHANGED and no
+restoration is owed. The citation is the single `Ratified:` line above, which is
+what `ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-10.md` and the gate run captured beside it at
+`review/verification-2026-09-10.md`. `.openspec.yaml` now carries
+`approved_by` + `approved_on` **ADDED BESIDE** the drafting provenance it was
+authored with, `kind` and `id` unmoved — the addition-not-rewrite shape
+`add-drafted-proposal-origin` defined. **NOTHING IS PROMOTED BY THIS
+RATIFICATION**: this pull request still edits no file under `openspec/specs/`,
+no script, no test, no contract and no workflow — promotion happens at the
+ARCHIVE, which is a separate act on a separate word, and openxFactory #857 and
+#858 close there and not at this landing. The decisions this packet put for veto
+are `design.md` **D0 through D7**: **D1 was RULED — all four sites**, D0's
+arm-by-arm reading STANDS, and D2 through D7 were carried beside them and none
+was vetoed.
 
 ## Why
 

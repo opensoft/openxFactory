@@ -79,6 +79,43 @@ origin:
     (orchestrator decision O8, and PR #529's own body says so). The delta states
     the arm-by-arm truth instead.
   proposed_on: 2026-09-10
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-10, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "Ratify as encoded,
+    all four sites", given in session (~04:5xZ) and recorded on openxFactory PR
+    #887 at 2026-09-10T11:35:59Z. THIS IS THE RATIFICATION ACT AND IT IS ADDED,
+    NOT SUBSTITUTED. The drafting provenance above is kept exactly as authored
+    and `kind` and `id` never move, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition:
+    approval is a pure ADDITION beside a fixed origin identity, so the support
+    manifest that repeats `kind` and `id` never comes to disagree with the
+    packet, and the archive gate's origin-retention arm reads the declaration
+    this commit establishes. The earlier word of 2026-09-10, verbatim "do 1,
+    then 2", stays the ORIGIN of the AUTHORING and is not read as an approval.
+    THE WORD IS A MULTIPLE-CHOICE RULING AND IT REACHES `design.md` D1, the
+    packet's declared veto point: ALL FOUR SITES of the 2026-08-31 flip inside
+    the one requirement (recommended and encoded) against the ONE paragraph
+    issue #857 quotes. It is resolved as ALL FOUR SITES, which is the option the
+    packet already encoded, so THE PACKET'S WORDING STANDS UNCHANGED — no canon
+    unit is restored, the marker keeps its five names, the added scenario stays,
+    and the veto D1 costed (three names off the marker, three canon units
+    restored verbatim, the added scenario deleted) was NOT performed. D0's
+    arm-by-arm severity reading stands with it, the title-resolution arm being
+    `warning` rather than the `error` issue #857's own proposed remedy asked
+    for; D2 through D7 were carried beside them and none was vetoed.
+    NO SEVERITY MOVES AND NO ROW IS ADDED BY THIS RATIFICATION. What is ratified
+    is canon catching up with a module that has read the post-flip state since
+    2026-08-31; every band and the resolution row the delta states are read out
+    of the module as it stands.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD. `code_surface: none`
+    means this packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization evidence,
+    but that archive is not performed here: nothing under `openspec/specs/` is
+    edited by this ratification, `tasks.md` § 5 stays OPEN, and openxFactory
+    #857 and #858 therefore close AT THE ARCHIVE and not at this landing.
+    Record: `review/ratification-2026-09-10.md`, with the gate run re-derived on
+    the ratified tree at `review/verification-2026-09-10.md`.
+  approved_on: 2026-09-10
 related:
   - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check      # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the *advisory at launch* paragraph; its § 7.2 RESERVED the flip that made the paragraph false. Its bytes are NOT edited
   - openxFactory:change:archive/2026-09-02-govern-sibling-added-modified-deltas   # ARCHIVED. The change under whose id the flip landed (`7f656980`, PR #529), and the author of the catch-up this packet copies: a `Removed from canon` marker naming one body sentence and one scenario bullet, replaced in place

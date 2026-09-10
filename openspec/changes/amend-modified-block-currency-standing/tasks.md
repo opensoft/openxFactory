@@ -1,6 +1,7 @@
 # Tasks: amend-modified-block-currency-standing
 
-Status: draft
+Status: ratified
+Ratified by: amend-modified-block-currency-standing — 2026-09-10, Brett Heap, "Ratify as encoded, all four sites" (record `review/ratification-2026-09-10.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: none`. There is no realization group,
@@ -13,34 +14,63 @@ archive.**
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in its body. **§ 1
-(ratification) IS ENTIRELY OPEN**: Brett Heap's *"do 1, then 2"* commissions the
-authoring and admits no text to canon. **§ 5 (archive) IS ENTIRELY OPEN**:
-promotion is a separate act on a separate word, so openxFactory #857 and #858
-close at the archive and not at this landing. § 6 records what was measured and
-deliberately not taken.
+(ratification) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT** — Brett Heap's
+*"Ratify as encoded, all four sites"* of 2026-09-10, which is his act and not
+the authoring lane's; his earlier *"do 1, then 2"* stays recorded as the ORIGIN
+of the authoring, which admitted no text to canon. **§ 5 (archive) STAYS
+ENTIRELY OPEN**: promotion is a separate act on a separate word, so openxFactory
+#857 and #858 close at the archive and not at this landing. § 6 records what was
+measured and deliberately not taken, and stays open where the work is owed.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-10
 
-- [ ] 1.1 **RATIFY THE PACKET.** Brett Heap's word of 2026-09-10, verbatim *"do
-      1, then 2"*, is the ORIGIN of the authoring and is NOT a ratification: it
-      commissions a packet against two named issues and decides no wording. At
-      ratification the approval pair is ADDED to `.openspec.yaml` beside a fixed
-      `kind` and `id` — the addition-not-rewrite shape
-      `add-drafted-proposal-origin` defined — every document's `Status:` moves
-      from `draft` to `ratified`, the proposal gains ONE `Ratified:` line (which
-      is what `ratified-provenance` counts), and the act is recorded at
-      `review/ratification-<date>.md`.
-- [ ] 1.2 **RULE `design.md` D1 — THE SCOPE.** All four sites of the same flip
-      (recommended and encoded) against the ONE paragraph issue #857 quotes. A
-      veto removes three names from the marker, restores three canon units
-      verbatim, deletes the added scenario, and leaves the first scenario
-      asserting a `warning` the checker has not emitted since 2026-08-31.
-- [ ] 1.3 **NOTE `design.md` D0, D3, D4, D5 and D6**, each carried for veto in
-      the pull request body: the arm-by-arm severity reading that corrects
-      #857's own proposed wording (D0); carrying the ledger sentence unchanged
-      (D3); the one added scenario (D4); the marker's shape and the deliberate
-      non-restatement of the predecessor's marker (D5); and the FR-018 commit
-      riding this pull request rather than a second one (D6).
+- [x] 1.1 **RATIFIED 2026-09-10 by Brett Heap** (openxFactory operator
+      authority), verbatim *"Ratify as encoded, all four sites"*, given in
+      session as a MULTIPLE-CHOICE ruling (~04:5xZ) and recorded on PR **#887**
+      at 2026-09-10T11:35:59Z. The earlier word of 2026-09-10, verbatim *"do 1,
+      then 2"*, stays recorded as the ORIGIN of the AUTHORING — it commissioned
+      a packet against two named issues, decided no wording, and is not read as
+      an approval. `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-10.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md` and in the
+      ratification record, `Ratified by:` here and in `design.md`), which is
+      what `ratified-provenance` counts — one total across both sanctioned
+      spellings, and now also under that family's SUBJECT arm, which since
+      `804a9170` (#878) reads a `review/ratification-*` record whatever status
+      it carries. `review/verification-2026-09-10.md` keeps `Status: record`:
+      its subject is the GATE RUN and not the ratification, so the sibling
+      scenario *A review record is not about a ratification* governs it.
+      `.openspec.yaml` gains `approved_by`/`approved_on` **BESIDE** the
+      drafting provenance, with `kind`, `id`, `reason` and `proposed_by`
+      unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
+      (issue #318) defined for this transition and the shape the archive gate's
+      origin-retention arm reads, which is why the status flip and the approval
+      pair move in ONE commit. Records: `review/ratification-2026-09-10.md`,
+      with the gate run captured beside it at
+      `review/verification-2026-09-10.md`.
+- [x] 1.2 **`design.md` D1 IS RULED — ALL FOUR SITES, NOT THE ONE PARAGRAPH
+      #857 QUOTES.** The veto point was put and the recommendation was TAKEN,
+      so **the encoded delta stands UNCHANGED and nothing is restored**: the
+      five units retired at the four sites stay retired, the marker keeps its
+      five names, and the added scenario stays. A veto would have removed three
+      names from the marker, restored three canon units verbatim, deleted the
+      added scenario, and left the first scenario asserting a `warning` the
+      checker has not emitted since 2026-08-31 — a promoted requirement
+      contradicting itself about a gate, and a third successor owed for the same
+      flip. **IT DID NOT LAND**, and the alternative stays written out in
+      `design.md` D1 as the record of what was put and declined.
+- [x] 1.3 **`design.md` D0 STANDS AND D2–D7 WERE CARRIED — none was vetoed.**
+      The ruling reached D1 and left the rest as designed, and the recording
+      names them one by one: the arm-by-arm severity reading that corrects
+      #857's own proposed wording STANDS (D0 — the title-resolution arm is
+      `warning`, not `error`); the ledger sentence is carried unchanged (D3);
+      the one added scenario stands, at the `(family, repository, path)` grain
+      (D4); the marker's shape and the deliberate non-restatement of the
+      predecessor's marker stand (D5); and #858's `specs/019` FR-018
+      restatement rides this pull request as the severable commit `2f384fd1`
+      rather than a second pull request (D6). D2 (the replacement wording
+      copied from promoted canon) and D7 (what is measured and deliberately not
+      taken) were carried beside them and neither was vetoed.
 
 ## 2. The delta — DONE IN THIS PULL REQUEST
 
@@ -126,6 +156,14 @@ deliberately not taken.
       canon and declares its five removals.
 - [x] 4.7 `python3 -m pytest tests/sequenced_after tests/scope_globs
       tests/doc-health -q` — PASSES.
+- [x] 4.8 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10, after
+      the ratification encode — capture at `review/verification-2026-09-10.md`,
+      the packet's first and only gate capture, written at its own dated path
+      because a dated run report is a one-shot `record` and a second run of it
+      would write a second path rather than rewrite this one. `--all --strict`
+      is measured there against an `origin/main` `804a9170` control run in a
+      separate worktree, and `doc-health`'s finding-line diff against the
+      PRE-RATIFICATION tree `ab8247fa` is recorded beside it.
 
 ## 5. Archive — OWED, NOT GIVEN
 

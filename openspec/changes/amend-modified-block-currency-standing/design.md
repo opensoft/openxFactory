@@ -1,6 +1,7 @@
 # Design: amend-modified-block-currency-standing
 
-Status: draft
+Status: ratified
+Ratified by: amend-modified-block-currency-standing — 2026-09-10, Brett Heap, "Ratify as encoded, all four sites" (record `review/ratification-2026-09-10.md`)
 Date: 2026-09-10
 Kind: design
 
@@ -15,10 +16,15 @@ Two owed residues of one flip, filed by the lane that archived
 - openxFactory [#858](https://github.com/opensoft/openxFactory/issues/858)
   (§ 5.4) — `specs/019` FR-018 still states the ONE-ground marker rule.
 
-Brett Heap's word of 2026-09-10, verbatim **"do 1, then 2"**, commissions the
-authoring of both as one packet. It ratifies nothing. This document records what
-was measured, what is proposed, and — for the two decisions where a reasonable
-owner could rule the other way — what the alternative costs.
+Brett Heap's word of 2026-09-10, verbatim **"do 1, then 2"**, commissioned the
+authoring of both as one packet. It ratified nothing, and it stays recorded as
+the ORIGIN of the AUTHORING. **THE PACKET HAS SINCE BEEN RATIFIED**, by a second
+word of 2026-09-10 — verbatim **"Ratify as encoded, all four sites"**, recorded
+on PR [#887](https://github.com/opensoft/openxFactory/pull/887) at
+2026-09-10T11:35:59Z, record `review/ratification-2026-09-10.md` — which reaches
+**D1** below and resolves it. This document records what was measured, what was
+proposed, and — for the two decisions where a reasonable owner could have ruled
+the other way — what the alternative would have cost.
 
 ## D0 — the measurement, taken before the design, and the correction it forces
 
@@ -62,7 +68,17 @@ finding* states it as canon at `:2300-2303`. So the classification reaches the
 `info` carriage ledger as surely as the `error` scenario arm — which is why D4
 adds a scenario for it.
 
-## D1 — THE VETO POINT: four sites, or the one paragraph #857 quotes
+## D1 — THE VETO POINT: RULED ALL FOUR SITES, not the one paragraph #857 quotes
+
+**RULED 2026-09-10 by Brett Heap, verbatim *"Ratify as encoded, all four
+sites"*, as a MULTIPLE-CHOICE ruling over this decision** (given in session
+~04:5xZ and recorded on PR #887 at 2026-09-10T11:35:59Z; record
+`review/ratification-2026-09-10.md`). **THE RECOMMENDATION WAS TAKEN, SO
+NOTHING IN THE DELTA MOVES**: all five units retired at the four sites stay
+retired, the marker keeps its five names, the added scenario stays, and no
+canon unit is restored. The narrow alternative is retained on this page as the
+record of what was put and declined rather than as work owed — and it is what
+made the choice a choice rather than an author's preference.
 
 **RECOMMENDED AND ENCODED: all four.** The flip is misstated in FOUR places
 inside ONE requirement, and the packet corrects all of them:
@@ -84,9 +100,11 @@ contradicting itself about a gate**, in the specification of the family whose
 whole job is to report blocks that do not match canon. And it would owe a third
 successor issue for the same flip, four days after the second one was filed.
 
-**A VETO IS CHEAP AND IS SCOPED.** Dropping sites 1, 3 and 4 removes three names
-from the marker, restores three canon units verbatim, and deletes the added
-scenario; site 2's replacement paragraphs stand unchanged either way.
+**A VETO WAS CHEAP AND WAS SCOPED, AND IT DID NOT LAND.** Dropping sites 1, 3
+and 4 would have removed three names from the marker, restored three canon units
+verbatim, and deleted the added scenario; site 2's replacement paragraphs would
+have stood unchanged either way. The ruling of 2026-09-10 took all four, so none
+of that was performed.
 
 ## D2 — the replacement wording is COPIED, not invented
 
@@ -219,8 +237,9 @@ second record for work already claimed here.
 
 **AND WHY THAT COSTS NOTHING IF THE PACKET STALLS.** The FR-018 commit depends
 on no part of this delta. It catches up with canon PROMOTED AT `250d93d7` on
-2026-09-09 — it would be correct even if this packet were vetoed outright — so
-it is a self-contained commit that can be cherry-picked and landed alone. It is
+2026-09-09 — it would have been correct even had D1 been vetoed outright, and
+the ruling of 2026-09-10 vetoed nothing — so it is a self-contained commit that
+can be cherry-picked and landed alone. It is
 recorded as taken in `tasks.md` § 3, not as a realization of the delta, because
 there is nothing in the delta for it to realize.
 
