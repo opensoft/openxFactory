@@ -548,6 +548,20 @@ def read_header_line(
     """
     lines = split_real_lines(source_text(source))
     closing = fence_span(lines)
+    if closing is None and lines and lines[0].strip() == _FENCE:
+        # AN OPENED-BUT-NEVER-CLOSED LEADING FENCE DECLARES NOTHING ON EITHER
+        # PATH. `fence_span` returns None for it, so without this the scan would
+        # start at line 0 and read a `field:` line from INSIDE a span the author
+        # plainly meant as front matter — showing a reviewer fenced front matter
+        # while the reader took a header line out of it, one document apart. It
+        # would also flip this module's existing, deliberate posture (see the
+        # docstring): a document with no well-formed fence "still reads as NO
+        # FRONT MATTER — which is fail-CLOSED here". The header-line site keeps
+        # that posture rather than becoming the one way a malformed fence starts
+        # declaring. Silent rather than refused, exactly as the fenced reader is
+        # silent about the same malformation: a new refusal for a form the
+        # shipped reader tolerates is not in this change's set.
+        return NO_HEADER_LINE
     start = 0 if closing is None else closing + 1
     pattern = re.compile(rf"^{re.escape(field)}:(.*)$")
 

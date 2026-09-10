@@ -238,6 +238,34 @@ def test_a_field_inside_the_fence_is_not_counted_a_second_time():
     assert sa.read_declaration(_fenced("sequenced_after: [parent]")) == ["parent"]
 
 
+def test_an_opened_but_unclosed_fence_declares_nothing_on_EITHER_path():
+    """Copilot's finding on PR #886, taken as a real defect and fixed.
+
+    `fence_span` returns None for a fence that opens and never closes, so a naive
+    scan would start at line 0 and take a header line out of a span the author
+    plainly meant as FRONT MATTER — showing a reviewer fenced front matter while
+    the reader read a header line out of it. It would also flip this module's
+    existing, deliberate posture that a document with no well-formed fence "still
+    reads as NO FRONT MATTER — which is fail-CLOSED here". Both paths now agree:
+    the malformed document declares nothing, exactly as it did before this
+    change. Measured at the time of the fix: ZERO of the 375 `proposal.md` files
+    in both clones carries such a fence, so the corpus is unmoved either way —
+    the fix is for the form, not for a document.
+    """
+    unclosed = ("---\n"
+                "code_surface: openxFactory\n"
+                "sequenced_after: [parent]\n"
+                "\n# Proposal\n\nbody\n")
+    assert fms.fence_span(fms.split_real_lines(unclosed)) is None
+    assert fms.read_header_line(unclosed, "sequenced_after") is fms.NO_HEADER_LINE
+    assert sa.read_declaration(unclosed) is sa.ABSENT
+    # And the SAME bytes with the fence closed declare, on the fenced path, so
+    # the refusal is about the malformation and not about the content.
+    closed = unclosed.replace("sequenced_after: [parent]\n",
+                              "sequenced_after: [parent]\n---\n", 1)
+    assert sa.read_declaration(closed) == ["parent"]
+
+
 def test_fence_lines_count_toward_the_window():
     """One window rule — the first N lines OF THE DOCUMENT — rather than a second
     window measured from wherever a fence happens to end."""
