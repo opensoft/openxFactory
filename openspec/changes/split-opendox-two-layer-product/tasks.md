@@ -937,7 +937,7 @@ the bookkeeping that ticks this group.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
-- [ ] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
+- [x] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
   file and gitlink moving in the SAME commit. **Names the ASSEMBLY ROOT**
   (amended 2026-09-05; corrected 2026-09-05 per RULING F — `opensoft/openxFactory`
   issue #656, Brett Heap, "rule F openXdox only, then do the corrections PR":
@@ -946,7 +946,19 @@ the bookkeeping that ticks this group.
   never pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
-  all, as a DERIVED value.
+  all, as a DERIVED value. **TICKED — #917 → `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`**,
+  the § 5-remainder lane's own live re-verification (2026-09-10, on this packet's
+  tick standard, PR #897 → `021c3d3607a626730ae8d2027ca68c58ed14a3b6`): at that
+  commit the `openXdox` gitlink reads `db58fffa58d49d92f58db40bd7e63cad3205052f`,
+  `.gitmodules` names the assembly root (`git@github.com:opensoft/openXdox.git`,
+  not a leg), `contracts/openxdox-pin.yaml` carries that same commit, and both
+  moved in PR #917's one commit (`contracts/openxdox-pin.yaml` +121 and the
+  `openXdox` gitlink, nothing else in that diff). No `contracts/opendox-pin.yaml`
+  and no second gitlink exist anywhere in the tree. `python3
+  scripts/verify-openxdox-pin.py` passes live at that commit: `OK openxdox-pin
+  verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from
+  HEAD, sorted-ls-tree-r-v1 tree digest recomputed
+  (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
