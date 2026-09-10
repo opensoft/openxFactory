@@ -126,10 +126,11 @@ mapping manifest. Measured in the landed file:
 | --- | ---: | --- |
 | `moved_verbatim` | **172** | the arrived blob's `sha256` and mode EQUAL the row's |
 | `moved_with_declared_edit` | **146** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
-| `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here |
+| `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 793 declared edit lines**: `import rewrites` 636, `path
-constants` 131, `adapter calls` 26.
+**318 rows move. 794 declared edit lines**: `import rewrites` 636, `path
+constants` 132, `adapter calls` 26. **147 rows carry `edits:`** — the 146
+`moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 
 The row and line totals above are the file AS AMENDED on 2026-09-10 under
 RULING Q-L1 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
@@ -138,6 +139,41 @@ joined the `replicated_at_destination` rows, and eleven lines over seven
 the edit their row's own note described, plus the seam file's own path
 constant. The digest total does not move with them — a `not_moved` row carries
 none.
+
+**And AS AMENDED the same day under RULED Q-L7 (a)** (`#656`, comment
+`5618683833`, verbatim *"rule Q-L7 (a)"*), which moved the line total by one and
+the row total by none. Two grammar additions, both about the same pair of
+test-layout files that carve leg 1 measured:
+
+* `tests/ideation-dashboard/session_fixtures.py` — a `moved_with_declared_edit`
+  row to `opendox_code` — gains **`also_replicated_to: [openxdox_code]`**. The
+  replicated `tests/ideation-dashboard/conftest.py` imports it unconditionally
+  at `:106`, so collecting `tests/` at openXdox-code would have failed at
+  import on a file no row placed there. It stays ONE row with ONE destination;
+  the list adds a REPLICA, whose placement is the leg's and is declared with
+  `--replica-at`. Its four `import rewrites` lines are the correct text at both
+  legs: the three modules they name all arrive at `src/opendox/`, so
+  `opendox.X` is right at openDox-code (its own package) and at openXdox-code
+  (which pins openDox), and `openxdox.X` would name modules openXdox does not
+  own.
+* `tests/ideation-dashboard/conftest.py` gains the first **`edits:` any replica
+  row has carried** — `path constants`, line 25. `REPO_ROOT =
+  HERE.parent.parent` resolves outside the destination repository once the copy
+  lands one directory shallower at `tests/conftest.py`, and must read
+  `HERE.parent`. It is applied identically at every replica, which is a bound on
+  the LINE: `verify-carve-arrival.py` verifies one destination per run and
+  compares no two legs' copies with each other.
+
+The **794th line belongs to a replica row and therefore to no destination
+column below**: a replica row names no destination at all, so the per-leg
+declared-line figures still sum to 793, and the extra line is owed by every leg
+that places that conftest — both `-code` legs. **Under every other `not_moved`
+reason `edits:` is still a refusal**: RULING OQ-B's three
+`stays_openxfactory_governance` rows stay here and take their import rewrite in
+openxFactory, so they go on recording it in `evidence:`. And this is **not**
+RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
+test-bearing replica row for the multiplicity sum, and both files here carry
+zero `def test_` at the carve commit.
 
 Per destination, and these are the numbers each leg's arrival run must report:
 
@@ -200,7 +236,7 @@ with one document.
 prove.** A `replicated_at_destination` row carries no `destination`, no
 `destination_path` and no digest — by the row grammar, because the manifest
 declares what LEAVES and a replica is a copy the destination assembles.
-Measured over the landed manifest, all **18** such rows carry none of the four.
+Measured over the landed manifest, all **20** such rows carry none of the four.
 So nothing in the document says where a replica landed, and the verifier does
 not guess: a derivation like `src/<pkg>/<basename>` would be inventing the
 answer it then checked.
@@ -210,7 +246,7 @@ Two readings, both available, and the choice is per replica:
 * **Undeclared** — the verifier ADMITS a destination file whose bytes equal a
   replica's **non-empty** blob at `carve_commit` and reports the count. It
   cannot say whether the replica is there at all, and it cannot refuse one that
-  drifted. **Empty bytes identify nothing and admit nothing**: two of the 18
+  drifted. **Empty bytes identify nothing and admit nothing**: two of the 20
   rows are `fixtures/empty/*/.gitkeep`, so an empty-digest admission would let
   any empty created file — an `__init__.py`, a truncated module — in as "a
   replica", which is true of the bytes and false of the file. An empty replica
@@ -227,6 +263,34 @@ The one replica that must NOT be declared is
 (`:72-84`) imports the home factory and MUST be rewritten at each destination
 to that destination's own, so it is neither verbatim nor declared-edit by
 construction. Leaving it undeclared leaves it exactly where it was.
+
+**The two shapes RULED Q-L7 (a) added, and exactly what a run proves about
+them.** Both reach the arrival verifier, and neither adds a refusal code:
+
+| the shape | `--replica-at` | phase A | phase B | undeclared in the walk |
+| --- | --- | --- | --- | --- |
+| a `replicated_at_destination` row with **no** `edits:` (19 rows) | may name it, at any destination | byte-identical to the carve blob | byte-identical | admitted by identity with its non-empty carve blob |
+| a `replicated_at_destination` row **declaring lines** (1 row: the conftest's `:25`) | may name it, at any destination | byte-identical — commit A places the copy | the diff against the carve blob touches ONLY the declared lines, else `arrival-undeclared-edit` naming them | its APPLIED bytes are no replica's, so it **refuses** `arrival-undeclared-file` — an edited replica must be declared |
+| a **moved** row with `also_replicated_to:` (1 row: `session_fixtures.py`) | may name it **iff** the destination being verified is in that list and is not the row's own — else `arrival-unreadable` | byte-identical, and its `git_mode` is compared (a moved row declares one) | its own declared lines, exactly as at the destination it moves to | admitted by identity with its carve blob, at the listed destinations only |
+
+**An UNAPPLIED declared edit on a replica does not refuse**, and that is
+deliberate rather than an oversight: its diff touches no undeclared line, which
+is the only question RULING OQ-1's sentence asks, and it is the same rule a
+moved row's unapplied edit has always had. It is COUNTED — in
+`declared_edits_unapplied`, beside the moved rows' — because a phase-B run in
+which the conftest's depth line was applied and one in which it was not are
+very different events wearing the same `OK`. **What refuses an unapplied
+`REPO_ROOT = HERE.parent.parent` is the destination's own suite**, where a root
+pointing outside the repository is hundreds of setup errors and not an opinion,
+so read the `unapplied` figure before reading the leg as done.
+
+**"Applied identically at every replica" is a bound on LINES.** One destination
+is verified per run — that is what `--destination` means — so two legs that
+edited the same declared line differently would BOTH pass here. The identity of
+the applied text is the placing pull request's claim plus each leg's own
+`validate`; the verifier's own docstring says so, and
+`tests/carve_arrival/test_verify_carve_arrival.py::test_two_legs_may_apply_one_replicas_line_differently`
+records the limit rather than leaving a reader to discover it.
 
 Files CREATED at a destination (RULED OQ-C — `pyproject.toml`, `conftest.py`,
 `pytest.ini`, openXdox-code's `openxfactory_surface.py`) have no row either,
@@ -533,8 +597,20 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
     --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
 # expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
-# replica(s) byte-identical
+# replica(s) verified (byte-identical, or — where the row declares lines —
+# differing only on them)
 ```
+
+The human line says `verified (byte-identical, or …)` and not
+`byte-identical` since RULED Q-L7 (a), because one replica row now declares a
+line and a copy that arrived carrying it is not byte-identical. **A leg that
+places `tests/ideation-dashboard/conftest.py` declares it too** —
+`--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` — and at
+phase B the run then reports it as a declared-edit row: `diffed` where the `:25`
+depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6,
+merge `ce53b489`) landed BEFORE that grammar existed and is **not re-cut** for
+it: openDox-code takes the depth fix in a later declared act, which is the
+ruling's own sequencing.
 
 **§ 5.2-5.5 PROVED END TO END, 2026-09-09**, against the landed manifest and a
 fresh mirror: the `opendox_spec` leg's 112-line path file carved `carve-src`
@@ -546,9 +622,12 @@ steps run as this section printed them before this round produced, in order: a
 refusal to start, a rewrite no ref pointed at, and a tree still holding all
 5,404 files.
 
-One `--replica-at` per replica this leg places as a pure copy, at the path it
-was placed. The three neutral modules above are permanent replicas (RULED
-OQ-A); `scripts/corpus_adapter.py` is a replica now and is retired after the
+One `--replica-at` per replica this leg places, at the path it was placed —
+every pure copy, and (since RULED Q-L7 (a)) every copy whose ROW declares the
+lines it must differ on, which is the only way such a copy can be read as a
+replica at all: its applied bytes match no blob at the carve commit, so
+undeclared it refuses `arrival-undeclared-file`. The three neutral modules
+above are permanent replicas (RULED OQ-A); `scripts/corpus_adapter.py` is a replica now and is retired after the
 OQ-L pin lands (RULED OQ-Q, 2026-09-09 ~22:3xZ), so it is declared while it is
 one. **RULING Q-L1 (2026-09-10) added two more permanent replicas** —
 `scripts/route_extension.py` and `scripts/subcommand_extension.py`, the § 2.4
@@ -588,6 +667,19 @@ the verifier with `--allow-created`, and the pull request says why:
   its bytes checkable; leave `tests/corpus-adapter/test_conformance.py`
   undeclared, because its implementation-aware block is rewritten here by
   design, and name it with `--allow-created` once that rewrite has begun;
+* **the two RULED Q-L7 (a) placements, which BOTH `-code` legs owe** —
+  `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` (the
+  replica whose row declares `:25`, so its copy must read
+  `REPO_ROOT = HERE.parent`, and it is `arrival-undeclared-file` if placed
+  edited and left undeclared) and, **at openXdox-code only**,
+  `--replica-at tests/ideation-dashboard/session_fixtures.py=tests/session_fixtures.py`
+  (the moved row `also_replicated_to: [openxdox_code]`, with the same four
+  `ideation_dashboard.X` → `opendox.X` rewrites its `opendox_code` arrival
+  takes — `opendox`, not `openxdox`, because openXdox pins openDox). Neither is
+  an `--allow-created`: the carve ships both files, and `--allow-created` would
+  record that the destination assembled them. At openDox-code the second is the
+  row's own move and arrives as `tests/session_fixtures.py` with no flag at
+  all;
 * **`openxdox-code/src/openxdox/openxfactory_surface.py`** — the mirror of
   `openxdox_surface.py`, the re-export surface openxFactory's own adapter
   reaches after the shed (RULED OQ-L). One line plus its reason per name, on
@@ -749,9 +841,14 @@ openDox-spec's own OpenSpec instance. Nothing in § 4 or § 5 waits on the build
 
 **FLOOR PART 2, as RULED OQ-K restates it.** § 5.4's *"openDox + openXdox + the
 openxFactory remainder SHALL equal the pre-split count"* is arithmetically false
-as written: the 18 `replicated_at_destination` rows carry test functions that
+as written: the `replicated_at_destination` rows carry test functions that
 exist at two or three destinations at once, so the post-split sum EXCEEDS the
-pre-split count by design. The floor is **a source→destination mapping plus a
+pre-split count by design. (Re-measured 2026-09-10 against the amended
+manifest: **20** such rows — 18 when RULING OQ-K was measured, plus RULING
+Q-L1's two § 2.4 seams — of which **three** are test-bearing and carry the same
+**30** `def test_` between them, so every figure in OQ-K's arithmetic stands
+and only the row total moved. RULED Q-L7 (a)'s two amended rows are zero-test
+and enter no term.) The floor is **a source→destination mapping plus a
 declared replica multiplicity** — every pre-split test function has ≥1
 post-split home, no home is lost, and the replica set is enumerated with its
 multiplicity — pinned with `pytest-suite.yml`'s existing triple idiom at each
