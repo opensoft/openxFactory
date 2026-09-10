@@ -878,55 +878,6 @@ Active changes:
   [5571680388](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680388)
   (row-3 README substrate), lane `opsXfactory-1`.
 
-- [adopt-codexfactory-repository-identity](openspec/changes/adopt-codexfactory-repository-identity/proposal.md)
-  — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
-  (convener), verbatim *"accept all [A] and ratify 763"*, posted
-  2026-09-07T22:21:44Z on
-  [PR #763](https://github.com/opensoft/openxFactory/pull/763#issuecomment-5576174434);
-  ratified head `5bfdcf3c06478167bd7509f1576db3528ce4ede1`; record
-  `openspec/changes/adopt-codexfactory-repository-identity/review/ratification-2026-09-07.md`),
-  lane `provenance-autonomous-merge`,
-  `sequenced_after: [adopt-medxsoft-repository-identity]`. The GOVERNED HALF of
-  the convener's ruling of 2026-09-07 — *"move codeXfactory to the new org.
-  openXfactory should be public and codeXfactory private."* **RATIFICATION
-  PERFORMS NO REALIZATION** — nothing is transferred, no row is added to
-  `contracts/policies/repository-identity.yaml`, and every realization box in
-  `tasks.md` Groups 1-9 stays unticked; the operational ceremony is still an
-  operator runbook and a codexFactory tracking issue, and this packet is still
-  only the part OpenSpec owns, `opensoft/codexFactory` as repository identity
-  inside governed contract content. Measured at `origin/main` `64aad02e`: **281
-  occurrences across 150 files** — 123/60 RENAME, 78/54 FROZEN, 80/36 NOT SWEPT
-  (other lanes' in-flight packets and `ideation/`, a disposition distinct from
-  freezing and recorded separately). Three findings drive the design: **44
-  occurrences across 34 files cannot be respelled at all**, sitting inside
-  `signed_ratification` blocks covered by an ed25519 signature and an
-  `xfc-jcs-sha256-1` chain identity whose private key exists nowhere in this
-  repository; the **bytewise-sorted supported-domain regression denominator
-  reorders**, and how far depends on whether the MedxSoft exemplar lands first,
-  which is the load-bearing reason for the `sequenced_after` declaration; and
-  the **factory-origin identity is an authorization scope**, so the transfer
-  revokes codexFactory's clearing dispatch until `governance/factory-identity/`
-  is re-issued — on a PERMANENTLY HUMAN-ONLY surface, meaning the realizing
-  pull request cannot be cleared autonomously. Four ADDED requirements on
-  `repository-identity` (cryptographic freeze; identity-as-authorization-scope;
-  disposition-by-rule-plus-recorded-sweep; cross-organization reachability), no
-  MODIFIED block anywhere, no new capability, no check family. EIGHT renamed
-  files are `contract-v3.4` inventory members, so a cut is owed and sequenced
-  inside the change. **OQ-1 (add `codeXfactory` to the Opensoft GitHub
-  Enterprise, VERIFIED `plan=enterprise` 2026-09-07T16:41:04Z), OQ-2
-  (Apache-2.0 for openxFactory and openXwallet, authored by a separate lane,
-  landed [openxFactory #762](https://github.com/opensoft/openxFactory/pull/762)
-  / [openXwallet #22](https://github.com/opensoft/openXwallet/pull/22)), OQ-3
-  (what becomes public — **RULED** via the ideation-split decision sheet:
-  redact the two sensitive files, editorially split `treatment-options-engine`
-  between openxFactory and MedxFactory, delete the stale `campaign-marketing`
-  stub, and run three receiving pull requests plus one openxFactory removal
-  pull request; **accept publication, GATED on those four moves landing
-  first**) and OQ-5 (exercise the `MIGRATION_PIN` re-point ceremony rather than
-  riding GitHub's redirect) are RULED; OQ-4 (GHCR sequencing) and OQ-6
-  (canonical case spelling) remain OPEN and owe a convener word before any task
-  box is ticked.**
-
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
   (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
@@ -2735,6 +2686,118 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [adopt-codexfactory-repository-identity](openspec/changes/archive/2026-09-10-adopt-codexfactory-repository-identity/proposal.md)
+  — **ARCHIVED 2026-09-10**, on Brett Heap's standing word via lane
+  `provenance-autonomous-merge`, and the `release-realization` rule that a
+  change with a NON-EMPTY code surface archives on **merged-plus-green
+  realization evidence, not on landing**. Ratified 2026-09-07, Brett Heap
+  (convener), verbatim *"accept all [A] and ratify 763"* at 2026-09-07T22:21:44Z
+  on [PR #763](https://github.com/opensoft/openxFactory/pull/763#issuecomment-5576174434)
+  over ratified head `5bfdcf3c`; records
+  `openspec/changes/archive/2026-09-10-adopt-codexfactory-repository-identity/review/ratification-2026-09-07.md`
+  and `archive-2026-09-10.md`. The proposal merged as #763 → `eb30db7a`. The
+  GOVERNED HALF of the convener's ruling of 2026-09-07 — *"move codeXfactory to
+  the new org. openXfactory should be public and codeXfactory private."*
+  **THE ORG MOVE IS REALIZED END TO END, AND EVERY HALF IS CITED RATHER THAN
+  ASSERTED.** MERGED, all on 2026-09-09: **B1**
+  [#801](https://github.com/opensoft/openxFactory/pull/801) → `e86eca35` (the
+  review-lane decision-core pin, four workflows, the operator tools — 42
+  occurrences / 15 files); **B1b**
+  [#853](https://github.com/opensoft/openxFactory/pull/853) → `4d6796ef` (the
+  doc-health nightly's owner slot: codexFactory is a FOREIGN owner, reached
+  through the openxfactory App); **B2**
+  [#802](https://github.com/opensoft/openxFactory/pull/802) → `20298c64`
+  (re-issue of the factory-origin identity — register row, wallet, grant,
+  custody attestation — 37/15, **merged on Brett Heap's own word** because the
+  surface is PERMANENTLY HUMAN-ONLY, per runbook 10.3); **B3**
+  [#805](https://github.com/opensoft/openxFactory/pull/805) → `00d368a4` (the
+  eight `contract-v3.4` inventoried members, the supported-domain denominator
+  re-sorted — 12/9); **B4**
+  [#806](https://github.com/opensoft/openxFactory/pull/806) → `95e67ab0` (the
+  remaining live documents and `README.md`, per line — 34/15, 30 respelled and
+  4 frozen); the **BUNDLE CUT**
+  [#866](https://github.com/opensoft/openxFactory/pull/866) → `a37ae0cd`
+  (**`contract-v3.5`**, 283 members, membership UNCHANGED, twelve digests
+  re-baselined); **B4b**
+  [#867](https://github.com/opensoft/openxFactory/pull/867) → `111a5034` (the
+  two post-reconciliation stragglers); and the TICKS
+  [#873](https://github.com/opensoft/openxFactory/pull/873) → `8480378a`. The
+  other two halves are in the repositories that own them:
+  [xFactory #376](https://github.com/opensoft/xFactory/pull/376) → `376275c4`,
+  the **Phase 2 lockstep** (`.gitmodules`, the gitlink, seven council/lane
+  workflows and the two pin tests — fifteen files, ONE commit, **no sha
+  moved**), and
+  [codexFactory #308](https://github.com/codeXfactory/codexFactory/pull/308) →
+  `373410bc`, **Org move Phase 4** (49 files plus its own 710-line sweep
+  record). GREEN: **`pytest-suite` run
+  [34418435909](https://github.com/opensoft/openxFactory/actions/runs/34418435909)
+  `success` on `main` at `9c0e2cda`**, a descendant of all eight openxFactory
+  merges, and green ON THE MERGE COMMIT ITSELF for four of them
+  (`e86eca35`/34371838117, `00d368a4`/34398421372, `95e67ab0`/34402819203,
+  `111a5034`/34408911110); the other four had their own `main`-push run
+  **CANCELLED** by the next push's concurrency group and their green is the
+  named descendant's — **a cancelled run is not counted as green here.**
+  **THE ANNOTATED TAG IS PUBLISHED AND VERIFIED:** `contract-v3.5` tag object
+  `6c602f3c` dereferences to `a37ae0cd`, #866's merge commit exactly, published
+  by the operator at 2026-09-09T22:31:05Z at the LANDED commit (never from the
+  cutting branch — that is what made `contract-v3.1` defective).
+  `verify-commit` and `verify-tag` both **pass** today; `verify-promotion`
+  reports `HGR-RELEASE-TAG-EXISTS`, which is **EXPECTED and not a defect** —
+  it is the PRE-publication readiness arm, it passed before the tag existed,
+  and it must refuse afterwards or it would assert nothing.
+  **TASK 6.5 CLOSED AT ZERO UNASSIGNED OCCURRENCES**, ruled on
+  `codeXfactory/codexFactory`
+  [issue #279](https://github.com/codeXfactory/codexFactory/issues/279) by this
+  lane in two comments of 2026-09-09 (*"6.5 FINAL re-derivation at
+  openxFactory@111a5034"*, 21:54:58Z; *"6.5 FINAL ruling (lane)"*, 21:55:37Z):
+  at `origin/main@111a5034` the whole tree carries **319 occurrences across 125
+  files**, closing exactly as RENAME-pathspec remainder 11/5 + FROZEN 117/62 +
+  NOT-SWEPT 191/58, with **every one of the 11 frozen by a cited rule** — the
+  mapping's own `former:` lookup key, dated realization narration, and a
+  validator-rejection sentence whose meaning would INVERT if respelled.
+  **PROMOTED: `repository-identity` is CREATED, spec count 61 → 62**, four
+  ADDED requirements and twelve scenarios (cryptographic freeze;
+  identity-as-authorization-scope; disposition-by-rule-plus-recorded-sweep;
+  cross-organization reachability), no `MODIFIED` block anywhere. The delta's
+  ADDED block and the promoted canon are **BYTE-IDENTICAL**, extracted
+  programmatically and hashed: 8,251 bytes, sha256 `eeccc1be6c11421cee07a5c5…`
+  on both sides. **THE CAPABILITY IS WRITTEN BY THE SEQUENCED-AFTER PACKET, NOT
+  BY ITS ANTECEDENT, AND THAT IS SAID PLAINLY:** this change declares
+  `sequenced_after: [adopt-medxsoft-repository-identity]` and that exemplar is
+  still ACTIVE and `Status: draft`, so canon's `## Purpose` is authored here and
+  explicitly leaves the transfer MAPPING itself to the exemplar. The ordering is
+  not refused — `validate-sequenced-after.py` resolves entries against the
+  ACTIVE and ARCHIVED corpora both and gates on malformed, dangling and cyclic
+  declarations, never on archive ORDER — and
+  `adopt-configured-notebook-hosting-identity`, which declares `sequenced_after`
+  on THIS packet, stays resolvable against the archived corpus. Creating
+  `openspec/specs/repository-identity/spec.md` **OWES A FLOOR REGENERATION AFTER
+  THIS LANDS and is graced before it**, under `review-lane-floor-mirror`'s
+  scenario written for exactly this shape, *"The candidate that promotes a
+  capability creates its own spec path"*: the path is COVERED-PENDING, the
+  REQUIRED coverage assertion does not fail, and neither lane adds it to the
+  floor. **FIFTY OF THE FIFTY-EIGHT TASK BOXES WERE ALREADY `[x]` AND NO BOX IS
+  TICKED BY THE ARCHIVE.** The remaining **EIGHT** carry the house's reserved
+  DEFERRED marker `- [~]` with a per-box note naming the holder: **5.7** (the
+  operator's custody check of codexFactory's `worker-credentials` and
+  `FACTORY_ORIGIN_SIGNING_KEY` — NOT PERFORMED, and its subject is not readable
+  from this corpus, living inside the private repository that moved); **8.4**
+  (the NotebookLM projection sync — NO EVIDENCE IT RAN, and doc-health's
+  `notebook-projection-drift` family is SKIPPED on every run of this corpus for
+  the same reason); and **9.1–9.6**, the ratified *Named follow-ons — NOT
+  performed here* — the ceremony's remainder including the GHCR window and the
+  SonarCloud rebind (9.1, and the openxFactory visibility flip still gates on
+  OQ-3's four ideation-split moves landing FIRST), `installs/hermes-install`'s
+  **181 occurrences across 84 files, NOTHING HAS SWEPT IT** (9.2), the
+  aggregation (9.3, LARGELY PERFORMED at #376), OpsxFactory's 16/13 where
+  amending the plan REVOKES task 4.2's standing approval over digest
+  `4e1a4b76…` and owes a re-approval (9.4, NOT TRIGGERED), codexFactory's own
+  532/211 (9.5, LARGELY PERFORMED at #308), and whether a deterministic check
+  family should verify that no live surface names a mapped former identity (9.6,
+  **UNRULED**). **OQ-4** (GHCR sequencing) and **OQ-6** (canonical case
+  spelling) were NOT answered by the ratifying word and are NOT answered by this
+  archive; OQ-1, OQ-2, OQ-3 and OQ-5 are ruled.
 
 - [pin-openspec-cli-dependency-closure](openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in

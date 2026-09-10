@@ -10,6 +10,25 @@ namespaces and the SonarCloud rebind are an OPERATOR ceremony ordered in
 `~/session-prompts/runbook-codexfactory-org-transfer.md`. Group 9 names the
 handoff points; it does not own them.
 
+**ARCHIVED 2026-09-10, AND FIFTY OF THE FIFTY-EIGHT BOXES WERE ALREADY `[x]`
+BEFORE THE ACT.** **NO BOX IS TICKED BY THIS ARCHIVE.** The remaining EIGHT —
+**5.7**, **8.4** and **9.1 through 9.6** — carry the house's reserved DEFERRED
+marker `- [~]`, each with its own appended note naming the holder, what has and
+has not happened, and why it never gated this archive. The marker is used in
+preference to a tick for a stated reason:
+`scripts/proposal-support.py … archive` refuses any packet whose `tasks.md`
+still matches `^- \[ \]` (*"change has incomplete tasks"*) and carries **no
+bypass flag**, so ticking a box whose work did not happen would buy that
+refusal off with a false claim. **THE MARKER SAYS THE BOX IS OPEN AND SAYS WHY;
+IT DOES NOT SAY THE WORK IS DONE.**
+
+**WHAT THIS ARCHIVE RESTS ON** is `release-realization`'s *Realization archive
+gate* — merged-plus-green evidence for a NON-EMPTY `code_surface` — cited rather
+than asserted. The citations are `review/archive-2026-09-10.md` and this
+repository's README "OpenSpec Records" block, beside the `contract-v3.5` cut,
+its annotated tag, the closure of 6.5 at zero unassigned occurrences, and the
+eight open follow-ons above.
+
 ## 0. Ratification gate
 
 - [x] 0.1 (2026-09-07) Convener read of `design.md` § 0 and § 8. **OQ-1, OQ-2,
@@ -444,11 +463,29 @@ carrying this group needs a human merge word.**
       either way). `validate-clearing-dispatch.py`: 0 errors, 0 warnings, 28
       negative fixtures refused, 26/26 closed refusal codes red-proven. No
       `key_id`, `did` or fingerprint moved (5.2's one-line diff).
-- [ ] 5.7 **OPERATOR HANDOFF, not performed here:** verify that codexFactory's
+- [~] 5.7 **OPERATOR HANDOFF, not performed here:** verify that codexFactory's
       `worker-credentials` environment and its `FACTORY_ORIGIN_SIGNING_KEY`
       secret survived the repository transfer, and re-attest custody if they did
       not. Runbook step, recorded here so the dependency is visible from the
       packet.
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+      **Owner: the operator**, as a step of
+      `~/session-prompts/runbook-codexfactory-org-transfer.md`. It did not gate
+      this archive and nothing here reads as saying the custody check happened:
+      the box's OWN FIRST WORDS are *"OPERATOR HANDOFF, not performed here"*,
+      authored that way at ratification. Its subject is **not readable from
+      this corpus at all** — codexFactory's `worker-credentials` environment
+      and the `FACTORY_ORIGIN_SIGNING_KEY` secret inside it live in the
+      repository that moved (`codeXfactory/codexFactory`, private), so no
+      evidence for it could be filed here even had it been performed. The
+      `- [~]` marker is the house's reserved DEFERRED form
+      (`openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md`
+      § 5.3; most recently
+      `archive/2026-09-09-add-openspec-cli-pin/tasks.md` § 6.2 and
+      `archive/2026-09-09-pin-openspec-cli-dependency-closure/tasks.md`
+      §§ 6.1/6.2) and is used in preference to a tick precisely because a tick
+      would claim a custody verification this lane did not perform and cannot
+      read. **THE MARKER SAYS THE BOX IS OPEN AND SAYS WHY.**
 
 ## 6. Verify the freeze
 
@@ -699,16 +736,31 @@ carrying this group needs a human merge word.**
       head.** `sequenced_after validation passed (39 active changes, 9
       declaring the field)`; archive-date and archive-date-vs-commit agreement
       both passed (12 dispositions in force). No cycle introduced.
-- [ ] 8.4 Run `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply`
+- [~] 8.4 Run `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply`
       after the doc changes land, per the projection workflow.
       **NOT TICKED — no evidence found that this sync was run after this
       change's doc updates.** Left unticked rather than assumed; the
       NotebookLM projection state is external to this repository and not
       verifiable from the corpus alone.
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED, on
+      the reading the box already carried.** **Owner: whoever next runs the
+      projection sync**; the workflow and its auth runbook are
+      `docs/lifecycle-notebook-projection.md`. The archive moves the MARKER and
+      nothing else: the box was authored `- [ ]` and its own body already says
+      the NotebookLM projection state is *"external to this repository and not
+      verifiable from the corpus alone"*. `- [~]` is used because
+      `scripts/proposal-support.py … archive` refuses any packet whose
+      `tasks.md` still matches `^- \[ \]` (*"change has incomplete tasks"*) and
+      carries NO bypass flag — so ticking a box whose work did not happen would
+      buy that refusal off with a false claim. The doc-health family that would
+      measure the drift, `notebook-projection-drift`, is itself SKIPPED on every
+      run of this corpus (*"nlm unauthenticated or sync unavailable; family runs
+      in operator-triggered runs only"*), which is the same fact from the
+      checker's side.
 
 ## 9. Named follow-ons — NOT performed here
 
-- [ ] 9.1 **The operator ceremony**, in full, is
+- [~] 9.1 **The operator ceremony**, in full, is
       `~/session-prompts/runbook-codexfactory-org-transfer.md`: the Enterprise
       membership check, the transfer, the two visibility flips, the aggregation's
       lockstep commit, the App installations, the environment and secret
@@ -722,7 +774,18 @@ carrying this group needs a human merge word.**
       pull request (with the cross-reference bootstrap re-run and the
       README/INDEX pointers updated) — must land BEFORE this flip, not after
       it.
-- [ ] 9.2 **`installs/hermes-install` — 181 occurrences across 84 files**,
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+      **Owner: the operator.** Group 9's own heading is *Named follow-ons — NOT
+      performed here*, ratified in that form, so no box in it gated this
+      archive. PARTLY PERFORMED and named as such rather than left to be found:
+      the transfer itself, the two visibility flips and the lockstep commit are
+      DONE (see 9.3), and the openxFactory visibility flip **still gates on
+      OQ-3's four ideation-split moves landing first**, which this archive does
+      not assert have landed. The remainder of the ceremony — the App
+      installations, the environment and secret inventory (see 5.7), the GHCR
+      dual-publish window and prefix flip (OQ-4, still UNRULED), the SonarCloud
+      rebind — is the operator's, on the runbook, and is not claimed here.
+- [~] 9.2 **`installs/hermes-install` — 181 occurrences across 84 files**,
       including `config/clients/opensoft/overlay.yaml` (5) and
       `tests/unit/test_subject_pin_guard.py` (36). A separate act in that
       repository. **This packet DECLINES the exemplar's "at its next pin bump"
@@ -730,10 +793,31 @@ carrying this group needs a human merge word.**
       of the ceremony with its own test-count proof, because at 181 occurrences
       including a live client overlay, an unbounded deferral leaves a live
       install naming a dead identity.
-- [ ] 9.3 **`opensoft/xFactory` (aggregation) — 25 across 14.** No
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+      **Owner: `installs/hermes-install`** (`opensoft/xFactory-Hermes-Install`),
+      as its own act in its own repository. NOTHING HAS SWEPT IT: the 181
+      occurrences across 84 files stand, `config/clients/opensoft/overlay.yaml`
+      and `tests/unit/test_subject_pin_guard.py` included, and this marker says
+      so rather than letting an archive imply otherwise. The box's ratified text
+      DECLINES the exemplar's *"at its next pin bump"* deferral for this
+      repository and asks for a scheduled ceremony step with its own test-count
+      proof; that request is carried forward by this marker, unanswered.
+- [~] 9.3 **`opensoft/xFactory` (aggregation) — 25 across 14.** No
       aggregation-level OpenSpec act is owed; the lockstep commit is a runbook
       step and a hard ordering constraint.
-- [ ] 9.4 **`opensoft/OpsxFactory` — 16 across 13**, including the MCP hosting
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — LARGELY PERFORMED, AND THE PART
+      THAT IS NOT IS NAMED.** **Owner: the operator, on the runbook.** The
+      lockstep commit this box calls a hard ordering constraint HAS LANDED:
+      [xFactory #376](https://github.com/opensoft/xFactory/pull/376) →
+      `376275c4` (2026-09-09T19:29:34Z), fifteen files in one commit —
+      `.gitmodules`, the `xFactories/codexFactory` gitlink, `README.md`, seven
+      council/lane workflows, `.github/merge-approval-envelope.yml`,
+      `docs/council-lane-app-registration.md` and the two workflow pin tests —
+      with NO sha moved, as its title states. The box stays open rather than
+      ticked because it is a Group 9 follow-on whose scope is the aggregation's
+      whole 25-across-14 measurement and no aggregation-side re-count was filed
+      here; the marker records what landed and does not claim the residue.
+- [~] 9.4 **`opensoft/OpsxFactory` — 16 across 13**, including the MCP hosting
       plan amendment. **Task 4.2 is APPROVED** (Brett Heap, `2026-09-05T23:06Z`,
       *"approve 4.2, merge #221"*, digest `4e1a4b76…`, recorded on OpsxFactory
       PR #229), so amending the plan for the new identity **REVOKES that approval
@@ -742,10 +826,44 @@ carrying this group needs a human merge word.**
       the new digest → 4.4/4.5 → 5.1 pin → the edge act**. See `design.md`
       § 7.2.1, which also records that this packet read the plan file's `status:`
       field and got this wrong once.
-- [ ] 9.5 **`opensoft/codexFactory` itself — 532 across 211.** Its own governed
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+      **Owner: `opensoft/OpsxFactory`**, as its own act in its own repository.
+      NOTHING HAS AMENDED THE PLAN, so the consequence this box exists to record
+      has NOT been triggered: task 4.2's approval (Brett Heap,
+      `2026-09-05T23:06Z`, *"approve 4.2, merge #221"*, digest `4e1a4b76…`, on
+      OpsxFactory PR #229) still stands over the OLD digest, and the moment the
+      plan's GitHub references are amended for the new identity that approval is
+      REVOKED and a re-approval is owed under the plan's requirement 2. The
+      sequence the box names — move → amend → re-approve over the new digest →
+      4.4/4.5 → 5.1 pin → the edge act — is carried forward intact.
+- [~] 9.5 **`opensoft/codexFactory` itself — 532 across 211.** Its own governed
       content is its own act in its own repository.
-- [ ] 9.6 **Whether a deterministic check family should verify that no live
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — LARGELY PERFORMED, AND THE PART
+      THAT IS NOT IS NAMED.** **Owner: `codeXfactory/codexFactory`**, as its own
+      act in its own repository, which is what the box says. Phase 4 of the
+      ceremony HAS LANDED there:
+      [codexFactory #308](https://github.com/codeXfactory/codexFactory/pull/308)
+      → `373410bc` (2026-09-09T19:16:31Z), *"Org move Phase 4: codexFactory
+      self-references follow the repository to codeXfactory"* — 49 files,
+      carrying its own 710-line sweep record
+      `docs/org-move-phase4-self-reference-sweep-2026-09-09.md`, which is where
+      the disposition of the residue of the 532-across-211 measurement is
+      recorded. The box stays open rather than ticked because that record, not
+      this packet, is the authority on what remains, and no re-count was filed
+      here.
+- [~] 9.6 **Whether a deterministic check family should verify that no live
       surface names a mapped former identity.** The exemplar left this open at
       its task 7.2. The mapping is one input such a family needs; this change's
       recorded sweep is a second. Building it here would be a second change
       riding a first.
+      **DEFERRED 2026-09-10, AT THE ARCHIVE — UNRULED, AND DELIBERATELY NOT
+      DECIDED HERE.** **Owner: a future change**, if a convener rules one is
+      owed. NO SUCH CHECK FAMILY EXISTS and none was authored: the box's own
+      closing words are *"Building it here would be a second change riding a
+      first"*, and the exemplar `adopt-medxsoft-repository-identity` left the
+      same question open at its task 7.2. The two inputs such a family would
+      need are now both on record — the transfer mapping in
+      `contracts/policies/repository-identity.yaml` and this change's recorded
+      sweep at `evidence/codexfactory-identity-sweep-2026-09-08.md` — so the
+      question is better posed after this archive than before it, which is the
+      only thing this marker claims.

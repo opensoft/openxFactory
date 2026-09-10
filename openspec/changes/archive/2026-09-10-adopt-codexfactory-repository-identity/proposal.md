@@ -1,4 +1,5 @@
 ---
+Status: ratified
 code_surface: >-
   openxFactory (RENAME at realization, `opensoft/codexFactory` ->
   `codeXfactory/codexFactory`: 123 occurrences across 60 files, measured at
@@ -55,7 +56,6 @@ target_release: >-
   consumer of `contract-v3.4` keeps resolving byte-identically because a
   published bundle is never rewritten.
 sequenced_after: [adopt-medxsoft-repository-identity]
-Status: ratified
 Proposed: 2026-09-07
 Ratified: >-
   2026-09-07, Brett Heap (convener), verbatim "accept all [A] and ratify 763",
@@ -78,6 +78,8 @@ Origin: >-
 ---
 
 # Proposal: adopt-codexfactory-repository-identity
+
+Status: ratified
 
 ## Why
 
