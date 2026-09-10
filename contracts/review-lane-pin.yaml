@@ -811,6 +811,20 @@ lockstep:
     pin owner's or the ceremony's own follow-up
     (`repoint-aggregation-migration-pin` design.md Section 6.1, tasks.md box
     5.3), recorded here rather than asserted ahead of the fact it depends on.
+
+    LANDED 2026-09-10T19:15:29Z, TWO MINUTES SEVENTEEN SECONDS AFTER THE
+    PARAGRAPH ABOVE WAS WRITTEN (19:13:12Z) — an addendum recording the
+    fact, not an edit of that paragraph. The aggregation ceremony it
+    anticipated has happened: `opensoft/xFactory` PR #423 merged as commit
+    `67c0b159`, advancing `MIGRATION_PIN` from `f4702f64` to `1f131a23` on
+    aggregation `main` — codexFactory commit `d340cb4c`'s own message is
+    the record of that advance. This companion pull request's five sites
+    therefore now name the SAME commit the aggregation dispatches.
+    `lockstep.status` is left UNCHANGED by this addendum, still `diverged`
+    as written above: the flip to a converged state remains the pin
+    owner's or the ceremony's own follow-up
+    (`repoint-aggregation-migration-pin` design.md Section 6.1, tasks.md box
+    5.3), not asserted here.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
