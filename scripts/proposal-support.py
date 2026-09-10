@@ -471,6 +471,15 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
 # mutation is a contested-class act requiring an explicit disposition, and a
 # flag on this gate would be the disposition nobody records.
 #
+# THE ACCEPTING HALF OF THAT SCENARIO IS A RECORD, NOT A FLAG (issue #745).
+# `openspec/origin-dispositions.yaml`, read from the ROOT THIS GATE WAS GIVEN,
+# carries an owner-attributed entry naming the ratifying commit, the accepted
+# mutating commit, the keys that moved and the verbatim word; a valid entry
+# moves the comparison baseline to the ACCEPTED declaration and every arm here
+# then runs against that. The full reasoning, the entry's shape and every
+# condition an acceptance must satisfy are stated at
+# `accepted_origin_mutation` further down. The subcommand still grows no flag.
+#
 # A MOVED PACKET REFUSES RATHER THAN RE-BASING (issue #833). The baseline is
 # resolved by walking ONE path — `openspec/changes/<change>/proposal.md`, the
 # id the tree spells TODAY — and a ratified change whose directory is renamed
@@ -872,6 +881,440 @@ def _changed_keys(was: dict | None, now: dict | None) -> list[str]:
                   if was.get(key) != now.get(key))
 
 
+# --------------------------------------------------------------------------
+# THE EXPLICIT DISPOSITION THE REQUIREMENT ALREADY PROMISES (issue #745)
+#
+# THE REQUIREMENT'S OWN SCENARIO ENDS "restoring or accepting the mutation is
+# a contested-class act requiring an explicit disposition", and until this
+# block existed the gate could read the RESTORING half and nothing else: an
+# owner's ACCEPTED mutation and an unnoticed one produced the identical
+# refusal, so an acceptance was recordable as governance and unrepresentable
+# as a tree state. Measured rather than argued — codeXfactory/codexFactory
+# #318 recorded Brett Heap's "accept the mutation, this lane re-runs the
+# archives" over `add-floor-regeneration-automation` (ratifying commit
+# ec286270b10f; mutating commit 76758a1b, `changed keys: approved_by`, the
+# tense of one sentence rewritten fourteen minutes later in the SAME pull
+# request) and the re-run refused byte-identically.
+#
+# STILL NO BYPASS FLAG, AND THAT IS WHY THE CHANNEL IS A RECORD. This module's
+# own reason for refusing a flag — "a flag on this gate would be the
+# disposition nobody records" — is an argument against UNRECORDED acceptance,
+# not against acceptance. A record is the disposition somebody records: it is
+# committed, it is in the diff a reviewer reads, it names the authority, the
+# date and the verbatim word, and every fact in it is re-measurable by anyone
+# against the same history this gate reads. The subcommand grows no flag and
+# `test_the_archive_subcommand_offers_no_bypass_flag` stays true.
+#
+# AN ACCEPTANCE MOVES THE BASELINE; IT DOES NOT SKIP THE COMPARISON. That is
+# the whole of the mechanism and the reason it cannot decay into a bypass. On
+# a valid `accept` the declaration AT THE ACCEPTED MUTATION becomes the origin
+# of record, and every arm of this gate then runs against IT: the working
+# tree's block must equal it EXACTLY, and the support manifest's repeated
+# origin fields are compared to it rather than to the ratification (the
+# accepted declaration is the one the manifest must now agree with — comparing
+# to the superseded one would refuse a manifest that is correct). A second,
+# undispositioned edit on top of an accepted one therefore refuses exactly as
+# the first one did, and a record that accepts a commit the tree does not
+# carry accepts nothing.
+#
+# THE SHAPE IS THE ESTATE'S EXISTING ONE, deliberately, so the corpus has ONE
+# idea of a disposition. Three records already carry it and this is the
+# fourth: `tests/sequenced_after/archive-date-dispositions.yaml` (a
+# `schema_version` + `kind` header over a `dispositions:` list, FULL 40-hex
+# object names because "this is a citation, and an abbreviation is ambiguous
+# by construction", a `fact`, a `ruled_by` and a `cited_to`);
+# `contracts/openspec-cli-pin.yaml`'s own `dispositions:` list, whose rule is
+# the one this gate follows most closely — "Each entry ACCEPTS exactly one
+# ERROR-level finding … matched on the tuple … compared WHOLE", with
+# `cited_to:` REQUIRED and non-empty and an authority named, refusing
+# `pin-disposition-malformed` when either is missing or when two entries would
+# cover the same finding; and `health/dispositions.yaml`, whose `cite` is what
+# lets doc-health's own `contested` findings — including the nightly
+# `proposal-origin` family's post-ratification-mutation class, the very same
+# fact seen from the report side — be answered at all.
+#
+# TWO DEPARTURES, both stated rather than silent. (1) The siblings' single
+# `ruled_by` / `ratified_by` string is split here into `disposed_by`,
+# `disposed_on` and `word`, because this is the first of the four to CHECK
+# that a disposition is dated and quoted rather than only to print it. (2)
+# `cited_to` rather than `recorded_at`: every other `_at` key in an entry here
+# names a COMMIT, and the estate already has one spelling for "where the
+# ruling is recorded". `cited_to` takes a string or a LIST of them, as the pin
+# manifest's does, and its CONTENT is not pattern-matched — the sibling
+# records cite issues, pull requests, spec lines and council rulings, and a
+# gate that demanded a URL would refuse three of those four.
+#
+# READ FROM THE ROOT THE GATE WAS GIVEN, which is what makes it work in a
+# CONSUMER: `proposal-support.py <consumer-root> archive <id>` runs this
+# repository's script against somebody else's tree, so the record is
+# `<consumer-root>/openspec/origin-dispositions.yaml` — beside the
+# `openspec/changes/` it disposes — and openxFactory's own archives read
+# openxFactory's own file at that same relative path. A consumer needs no
+# change beyond writing the record.
+#
+# NO STALENESS ARM, AND THIS IS THE ONE PLACE THE SIBLINGS ARE NOT COPIED.
+# Both of them refuse a stale entry — `archive-date-dispositions.yaml` reports
+# one whose directory now agrees, the pin manifest refuses
+# `pin-disposition-stale` "so an exception cannot outlive its condition" — and
+# both are right, because THEIR conditions are transient: a directory can be
+# re-measured on every run and a pin's findings are re-derived at every bump.
+# AN ORIGIN DISPOSITION IS NOT TRANSIENT. Its subject archives, and the
+# archived packet then carries, permanently, an origin that differs from the
+# one at its ratifying commit; the entry is the only thing in the tree that
+# says WHY, on whose word. A staleness rule would demand the deletion of that
+# explanation on the day it starts mattering most — the day the packet lands
+# in `openspec/changes/archive/` and nobody can ask the author any more. So
+# entries are kept, and the honest cost is stated: an entry whose mutation was
+# afterwards RESTORED in the bytes silences nothing (the gate never reads the
+# record on a tree it is about to pass) and is not reported either.
+#
+# THE OTHER TWO PLACES THIS DELIBERATELY DOES NOT LOOK. The file is consulted
+# ONLY when a mutation has already been found, so a malformed record sits
+# unread until somebody needs it — at which point the refusal names the
+# malformation instead of reporting "no record". And entries naming OTHER
+# change ids are never validated, so one change's bad entry cannot block
+# another change's archive. Neither is a corpus-wide audit of the record;
+# auditing it is a doc-health family's job and not an archive gate's.
+# --------------------------------------------------------------------------
+
+#: The disposition record, RELATIVE TO THE ROOT THE GATE WAS GIVEN.
+ORIGIN_DISPOSITIONS_REL = "openspec/origin-dispositions.yaml"
+ORIGIN_DISPOSITIONS_SCHEMA_VERSION = 1
+ORIGIN_DISPOSITIONS_KIND = "origin_dispositions"
+
+#: Every key an entry MUST carry. An entry missing the commit it accepts, the
+#: keys that moved, the authority, the date, the word or the citation is a
+#: change id on a list: it would silence a finding and record nothing.
+ORIGIN_DISPOSITION_KEYS = (
+    "change_id", "ratified_at", "mutation_at", "changed_keys", "disposition",
+    "disposed_by", "disposed_on", "word", "cited_to")
+
+#: `fact` is the free-prose judgement the measurement could not make — the same
+#: key and the same purpose as in `archive-date-dispositions.yaml`. OPTIONAL,
+#: and never read by this gate; it is listed so that writing it is not an
+#: unknown-key refusal.
+ORIGIN_DISPOSITION_OPTIONAL_KEYS = ("fact",)
+
+#: THE ONLY DISPOSITION THAT NEEDS A RECORD. A RESTORATION is the bytes: put
+#: the ratified declaration back and this gate passes with nothing to read.
+ORIGIN_DISPOSITION_ACCEPT = "accept"
+
+#: A FULL object name, never an abbreviation — the rule
+#: `archive-date-dispositions.yaml` states and for the same reason.
+_FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def origin_dispositions_path(root: Path) -> Path:
+    """`<root>/openspec/origin-dispositions.yaml` — the consumer's record."""
+    return root.resolve().joinpath(*ORIGIN_DISPOSITIONS_REL.split("/"))
+
+
+class AcceptedOriginMutation:
+    """A VALIDATED `accept` entry: the declaration this gate now compares
+    against, and the record that authorized the move."""
+
+    def __init__(self, entry: dict) -> None:
+        self.change_id = entry["change_id"]
+        self.ratified_at = entry["ratified_at"]
+        self.mutation_at = entry["mutation_at"]
+        self.changed_keys = list(entry["changed_keys"])
+        self.disposed_by = entry["disposed_by"]
+        self.disposed_on = entry["disposed_on"]
+        self.word = entry["word"]
+        self.cited_to = entry["cited_to"]
+
+    def note(self) -> str:
+        """The acceptance, ANNOUNCED. An accepted mutation is never silent:
+        the run says which declaration became the origin of record, on whose
+        word, and where that word is written down."""
+        keys = (", ".join(f"`{key}`" for key in self.changed_keys)
+                or "no scalar key at all — the block's LINES alone")
+        return (
+            f"ORIGIN DISPOSITION ACCEPTED {self.change_id}: the declaration "
+            f"at {self.mutation_at[:12]} is the ORIGIN OF RECORD — a "
+            f"post-ratification mutation of {keys}, accepted by "
+            f"{self.disposed_by} on {self.disposed_on} "
+            f"(\"{self.word}\"), recorded at {self.cited_to}. The comparison "
+            f"baseline moves from the ratifying commit "
+            f"{self.ratified_at[:12]} to {self.mutation_at[:12]}; every arm "
+            f"of this gate still runs, now against that declaration.")
+
+
+def _commit_exists(root: Path, revision: str) -> bool:
+    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "rev-parse", "--verify",
+         "--end-of-options", f"{revision}^{{commit}}"],
+        capture_output=True, check=False)
+    return result.returncode == 0
+
+
+def _is_ancestor(root: Path, older: str, newer: str) -> bool:
+    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "merge-base", "--is-ancestor",
+         "--end-of-options", older, newer],
+        capture_output=True, check=False)
+    return result.returncode == 0
+
+
+def load_origin_dispositions(path: Path) -> list[dict]:
+    """The record's `dispositions:` list, header checked, entries unchecked.
+
+    Raises `SupportError` naming the file when the header is not this record's
+    — a file at this path that is not this record cannot be read as an empty
+    one, because "no dispositions" and "the wrong file" are different answers
+    and only one of them is the operator's to fix.
+    """
+    if yaml is None:  # pragma: no cover - PyYAML is a hard dependency here
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: PyYAML is not installed, so the "
+            "disposition record cannot be read")
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: cannot be read ({exc})") from exc
+    if not isinstance(data, dict):
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: the record must be a mapping "
+            f"carrying `schema_version`, `kind` and `dispositions`")
+    if data.get("schema_version") != ORIGIN_DISPOSITIONS_SCHEMA_VERSION:
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: `schema_version` is "
+            f"{data.get('schema_version')!r}, not the integer "
+            f"{ORIGIN_DISPOSITIONS_SCHEMA_VERSION} this gate reads")
+    if data.get("kind") != ORIGIN_DISPOSITIONS_KIND:
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: `kind` is {data.get('kind')!r}, not "
+            f"`{ORIGIN_DISPOSITIONS_KIND}`")
+    entries = data.get("dispositions")
+    if entries is None:
+        entries = []
+    if not isinstance(entries, list):
+        raise SupportError(
+            f"{ORIGIN_DISPOSITIONS_REL}: `dispositions` must be a list")
+    return entries
+
+
+def _entry_shape_problems(entry: dict, change: str) -> list[str]:
+    """Everything wrong with ONE entry's SHAPE, before history is consulted."""
+    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
+    problems: list[str] = []
+    unknown = sorted(set(entry)
+                     - set(ORIGIN_DISPOSITION_KEYS)
+                     - set(ORIGIN_DISPOSITION_OPTIONAL_KEYS))
+    if unknown:
+        # THE TWO NEAR-MISSES, NAMED. Both are real spellings elsewhere in
+        # this estate, so an author reaching for one has not made a typo so
+        # much as picked the sibling record's word.
+        hints = []
+        if "recorded_at" in unknown:
+            hints.append("this record spells the citation `cited_to`, and "
+                         "`_at` keys in an entry here name COMMITS")
+        if "why" in unknown:
+            hints.append("this record spells the narrative `fact`, as "
+                         "`archive-date-dispositions.yaml` does "
+                         "(`openspec-cli-pin.yaml` spells it `why`)")
+        hint = (" — " + "; ".join(hints)) if hints else ""
+        problems.append(
+            f"{where} carries unknown key(s) {', '.join(unknown)}{hint}. A "
+            f"key this gate does not read cannot narrow what the entry "
+            f"accepts, so a typo is refused rather than ignored")
+    missing = [key for key in ORIGIN_DISPOSITION_KEYS if key not in entry]
+    if missing:
+        problems.append(f"{where} is missing {', '.join(missing)}")
+    for key in ("disposition", "disposed_by", "disposed_on", "word",
+                "ratified_at", "mutation_at"):
+        value = entry.get(key)
+        if key in entry and (not isinstance(value, str) or not value.strip()):
+            # THE UNQUOTED-SCALAR TRAP, named rather than left to be guessed.
+            # YAML reads a bare `2026-09-10` as a DATE and a bare all-digit
+            # object name as an INT, which is why the sibling record's header
+            # says every scalar in an entry is quoted.
+            hint = ("" if isinstance(value, str) else
+                    " — quote it: YAML reads a bare date as a date and a bare "
+                    "all-digit object name as an integer")
+            problems.append(
+                f"{where}: `{key}` must be a non-empty string, not "
+                f"{value!r}{hint}")
+    stamp = entry.get("disposed_on")
+    if isinstance(stamp, str) and not _ISO_DATE_RE.fullmatch(stamp):
+        problems.append(
+            f"{where}: `disposed_on` is {stamp!r}, not a YYYY-MM-DD date")
+    # A DISPOSITION WITHOUT A CITATION IS REFUSED, NOT IGNORED — the rule
+    # `openspec-cli-pin.yaml` states in those words, and doc-health's
+    # uncited-resolution rule states in its own. WHAT the citation points at
+    # is not pattern-matched: the sibling records cite issues, pull requests,
+    # spec lines and council rulings, and a gate demanding a URL would refuse
+    # three of those four. A STRING OR A LIST OF THEM, as the pin's does.
+    cited = entry.get("cited_to")
+    if "cited_to" in entry:
+        rows = cited if isinstance(cited, list) else [cited]
+        if (not rows or not all(isinstance(row, str) and row.strip()
+                                for row in rows)):
+            problems.append(
+                f"{where}: `cited_to` must be a non-empty string, or a "
+                f"non-empty list of them, naming where the ruling and this "
+                f"measurement are recorded — not {cited!r}")
+    for key in ("ratified_at", "mutation_at"):
+        value = entry.get(key)
+        if isinstance(value, str) and not _FULL_SHA_RE.fullmatch(value):
+            problems.append(
+                f"{where}: `{key}` is {value!r} — a FULL 40-hex object name "
+                f"is required, an abbreviation being ambiguous by "
+                f"construction")
+    keys = entry.get("changed_keys")
+    if "changed_keys" in entry and (
+            not isinstance(keys, list)
+            or not all(isinstance(k, str) for k in keys)):
+        problems.append(
+            f"{where}: `changed_keys` must be a list of strings (write `[]` "
+            f"for a mutation that moved no scalar), not {keys!r}")
+    disposition = entry.get("disposition")
+    if (isinstance(disposition, str)
+            and disposition != ORIGIN_DISPOSITION_ACCEPT):
+        problems.append(
+            f"{where}: `disposition` is {disposition!r}; the only disposition "
+            f"this gate reads is `{ORIGIN_DISPOSITION_ACCEPT}`. RESTORING the "
+            f"ratified declaration needs no record — it is the bytes")
+    return problems
+
+
+def accepted_origin_mutation(
+        root: Path, change: str, ratifying: str,
+        now_lines: list[str]) -> tuple["AcceptedOriginMutation | None",
+                                       list[str]]:
+    """The record's answer for ONE change: `(accepted, problems)`.
+
+    `accepted` is set when a SINGLE well-formed entry accepts EXACTLY the
+    mutation the working tree carries. `problems` are the named reasons a
+    record that exists does not apply. Both empty means no entry names this
+    change at all — the ordinary case, answered by the caller's channel
+    guidance rather than as a defect of the record.
+
+    EVERY CONDITION IS MEASURED AGAINST HISTORY, not taken from the entry: the
+    entry says which commits it is about, and this function reads those
+    commits. An entry can therefore be wrong, and being wrong refuses while
+    NAMING WHAT DID NOT MATCH — which is the difference between a disposition
+    and an allow-list.
+    """
+    path = origin_dispositions_path(root)
+    if not path.is_file():
+        return None, []
+    try:
+        entries = load_origin_dispositions(path)
+    except SupportError as exc:
+        return None, [str(exc)]
+    mine = [entry for entry in entries
+            if isinstance(entry, dict) and entry.get("change_id") == change]
+    if not mine:
+        return None, []
+    if len(mine) > 1:
+        named = ", ".join(str(entry.get("mutation_at")) for entry in mine)
+        return None, [
+            f"{ORIGIN_DISPOSITIONS_REL}: {len(mine)} entries name {change} "
+            f"(mutation_at: {named}). ONE entry names the accepted "
+            f"declaration; a later accepted mutation REPLACES it, moving "
+            f"`mutation_at` forward and widening `changed_keys` to the whole "
+            f"diff from the ratifying commit"]
+    entry = mine[0]
+    problems = _entry_shape_problems(entry, change)
+    if problems:
+        return None, problems
+    where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
+    ratified_at, mutation_at = entry["ratified_at"], entry["mutation_at"]
+    if ratified_at != ratifying:
+        return None, [
+            f"{where} names `ratified_at` {ratified_at[:12]}, but this "
+            f"change's ratifying commit is {ratifying[:12]} — the entry "
+            f"disposes a mutation of some other baseline"]
+    if not _commit_exists(root, mutation_at):
+        return None, [
+            f"{where} names `mutation_at` {mutation_at[:12]}, which is not a "
+            f"commit in this repository"]
+    if mutation_at == ratified_at:
+        return None, [
+            f"{where} names the ratifying commit as its own `mutation_at`; "
+            f"there is no mutation there to accept"]
+    if not _is_ancestor(root, ratified_at, mutation_at):
+        return None, [
+            f"{where} names a `mutation_at` ({mutation_at[:12]}) that does "
+            f"not DESCEND from the ratifying commit ({ratified_at[:12]}) — a "
+            f"post-ratification mutation is one that comes after it"]
+    if not _is_ancestor(root, mutation_at, "HEAD"):
+        return None, [
+            f"{where} names a `mutation_at` ({mutation_at[:12]}) that this "
+            f"checkout's HEAD does not reach; the accepted declaration must "
+            f"be in the history being archived"]
+    rel = f"openspec/changes/{change}/.openspec.yaml"
+    at_mutation_text = git_show_text(root, mutation_at, rel)
+    at_mutation = origin_block_lines(at_mutation_text)
+    if at_mutation is None:
+        return None, [
+            f"{where} names a `mutation_at` ({mutation_at[:12]}) at which "
+            f"{rel} declares no origin, so there is no declaration to accept"]
+    at_ratification_text = git_show_text(root, ratified_at, rel)
+    if origin_block_lines(at_ratification_text) == at_mutation:
+        return None, [
+            f"{where} accepts {mutation_at[:12]}, whose origin declaration is "
+            f"IDENTICAL to the ratified one; the entry disposes nothing"]
+    measured = _changed_keys(_origin_mapping(at_ratification_text),
+                             _origin_mapping(at_mutation_text))
+    declared = sorted(entry["changed_keys"])
+    if declared != measured:
+        return None, [
+            f"{where} declares `changed_keys` "
+            f"{declared or '[]'}, but the diff from {ratified_at[:12]} to "
+            f"{mutation_at[:12]} touches {measured or '[]'} — an acceptance "
+            f"covers exactly the keys it names"]
+    if now_lines != at_mutation:
+        detail = "\n".join(difflib.unified_diff(
+            at_mutation, now_lines,
+            fromfile=f"{mutation_at[:12]}:{rel}",
+            tofile="the packet being archived", lineterm="", n=1))
+        return None, [
+            f"{where} accepts the declaration at {mutation_at[:12]}, and the "
+            f"packet being archived does not carry it — a SECOND, "
+            f"undispositioned mutation sits on top of the accepted one\n"
+            f"{detail}"]
+    return AcceptedOriginMutation(entry), []
+
+
+def origin_disposition_channel(root: Path, change: str,
+                               ratifying: str) -> str:
+    """HOW to disposition, named at the point of refusal.
+
+    The gate used to end at "this gate has no bypass flag", which is true and
+    which told an operator holding a RECORDED acceptance nothing they could
+    act on (codeXfactory/codexFactory #318). It still has no flag; what it
+    reads instead is spelled out here, with this change's own ratifying commit
+    in it so the entry can be written from the refusal.
+    """
+    return (
+        "restoring or accepting a post-ratification origin mutation is a "
+        "contested-class act requiring an explicit disposition "
+        "(`release-realization` § \"Origin retention at archive\"); this "
+        "gate has no bypass flag — what it reads instead is a RECORD.\n"
+        f"  RESTORE: put the declaration at {ratifying[:12]} back in the "
+        "packet and this gate passes with nothing to read.\n"
+        f"  ACCEPT: write {origin_dispositions_path(root)} with "
+        f"`schema_version: {ORIGIN_DISPOSITIONS_SCHEMA_VERSION}`, "
+        f"`kind: {ORIGIN_DISPOSITIONS_KIND}` and ONE entry under "
+        "`dispositions:` carrying "
+        f"change_id: {change}; "
+        f"ratified_at: {ratifying} (the FULL 40-hex ratifying commit); "
+        "mutation_at: the FULL 40-hex commit whose declaration is accepted; "
+        "changed_keys: exactly the origin keys the diff between those two "
+        "commits touches; "
+        f"disposition: {ORIGIN_DISPOSITION_ACCEPT}; "
+        "disposed_by; disposed_on (YYYY-MM-DD); word (the verbatim ruling); "
+        "cited_to (where that ruling and this measurement are recorded).\n"
+        "  The accepted declaration then becomes the ORIGIN OF RECORD and "
+        "this gate compares the packet against IT — a later mutation, a "
+        "different key set, a missing field or another change id still "
+        "refuses.")
+
+
 def support_manifest(directory: Path) -> Path | None:
     """The packet's readable support manifest, active or archived shape.
 
@@ -911,6 +1354,15 @@ def origin_retention_errors(root: Path, directory: Path,
     could not be established — so turning it into one more line in a findings
     list would file "cannot run" under "ran and found something", which is the
     conflation the sibling gates' CANNOT RUN status exists to avoid.
+
+    AND THE BASELINE MOVES ON A RECORDED ACCEPTANCE (issue #745). Where the
+    declaration HAS moved since ratification, `<root>/openspec/origin-
+    dispositions.yaml` is consulted for the explicit disposition the
+    requirement's own scenario names; a valid `accept` makes the accepted
+    declaration the origin of record and EVERY arm below then compares against
+    it. Nothing is skipped: the tree must equal the accepted declaration
+    exactly, and a record that does not apply is reported as its own finding
+    naming what did not match.
     """
     root = root.resolve()
     change = change or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", directory.name)
@@ -951,7 +1403,28 @@ def origin_retention_errors(root: Path, directory: Path,
               f"ratifying commit {short} declares no origin (pre-contract "
               "packet); presence and shape are still gated")
         return []
+    ratifying = revision
     errors: list[str] = []
+    channel: list[str] = []
+    accepted: AcceptedOriginMutation | None = None
+    if now is not None and now != was:
+        # THE RECORD IS CONSULTED ONLY WHERE THERE IS A MUTATION TO DISPOSE,
+        # and an acceptance MOVES THE BASELINE rather than switching the
+        # comparison off: `was` becomes the ACCEPTED declaration and every arm
+        # below — the packet's own block, and the support manifest's repeated
+        # origin fields — runs against that instead. `accepted_origin_mutation`
+        # has already established that the accepted commit carries an origin
+        # block and that the tree equals it, so the re-read below cannot come
+        # back None.
+        accepted, channel = accepted_origin_mutation(
+            root, change, ratifying, now)
+        if accepted is not None:
+            print(accepted.note())
+            revision = accepted.mutation_at
+            short = revision[:12]
+            was_text = git_show_text(
+                root, revision, f"openspec/changes/{change}/.openspec.yaml")
+            was = origin_block_lines(was_text)
     if now is None:
         errors.append(
             f"origin retention: {change}: the origin declaration present at "
@@ -973,9 +1446,14 @@ def origin_retention_errors(root: Path, directory: Path,
     # THE MANIFEST IS THE SECOND COPY THE REQUIREMENT NAMES — "the compressed
     # supporting-document manifest SHALL retain the same origin id and path".
     # `origin_errors` already compares it to the PACKET; comparing it to the
-    # RATIFYING DECLARATION is what catches the lockstep edit that moves both
+    # DECLARATION OF RECORD is what catches the lockstep edit that moves both
     # copies together and leaves them agreeing with each other about the wrong
-    # thing.
+    # thing. The declaration of record is the RATIFYING one, or — where a
+    # disposition accepted a mutation above — the ACCEPTED one, because that
+    # is the declaration the manifest must now agree with; measuring against
+    # the superseded ratified declaration would refuse a manifest that is
+    # correct, and not measuring at all would drop an arm the requirement
+    # names.
     was_map = _origin_mapping(was_text) or {}
     manifest_path = support_manifest(directory)
     if manifest_path is not None:
@@ -987,19 +1465,26 @@ def origin_retention_errors(root: Path, directory: Path,
             fields = ["kind", "id"]
             if was_map.get("kind") == "staged":
                 fields.append("path")
+            baseline = ("the ACCEPTED declaration at " + short
+                        if accepted is not None else "ratification")
             for field in fields:
                 if field in was_map and m_origin.get(field) != was_map[field]:
                     errors.append(
                         f"origin retention: {change}: support manifest origin "
                         f"`{field}` ({m_origin.get(field)!r}) is not the one "
-                        f"declared at ratification ({was_map[field]!r}) — "
+                        f"declared at {baseline} ({was_map[field]!r}) — "
                         f"{manifest_path.name}")
     if errors:
-        errors.append(
-            "restoring or accepting a post-ratification origin mutation is a "
-            "contested-class act requiring an explicit disposition "
-            "(`release-realization` § \"Origin retention at archive\"); this "
-            "gate has no bypass flag")
+        # A RECORD THAT EXISTS AND DOES NOT APPLY IS ITS OWN FINDING, named
+        # before the channel text: an operator who wrote an entry needs to be
+        # told WHAT DID NOT MATCH, not re-told how to write one.
+        errors.extend(f"origin disposition: {problem}" for problem in channel)
+        errors.append(origin_disposition_channel(root, change, ratifying))
+    elif accepted is not None:
+        print(f"ORIGIN RETAINED {change} (declaration unchanged since the "
+              f"ACCEPTED mutation {short}, dispositioned `accept` by "
+              f"{accepted.disposed_by} on {accepted.disposed_on}; ratifying "
+              f"commit {ratifying[:12]})")
     else:
         print(f"ORIGIN RETAINED {change} (declaration unchanged since the "
               f"ratifying commit {short})")
@@ -2593,7 +3078,28 @@ def parser() -> argparse.ArgumentParser:
     adhoc.add_argument("--proposed-on")
     adhoc.add_argument("--slug")
 
-    archive = sub.add_parser("archive")
+    # THE ORIGIN-RETENTION REFUSAL, ON THE HELP SURFACE. An operator holding
+    # an owner's acceptance found nothing here and nothing in the refusal but
+    # "no bypass flag" (codeXfactory/codexFactory #318). Deliberately NAMES NO
+    # FLAG, because there is none to name and
+    # `test_the_archive_subcommand_offers_no_bypass_flag` reads this text.
+    archive = sub.add_parser(
+        "archive",
+        epilog=(
+            "ORIGIN RETENTION: a packet whose `origin:` block moved after its "
+            "ratifying commit is REFUSED (exit 2), and the requirement makes "
+            "restoring or accepting that mutation a contested-class act "
+            "requiring an explicit disposition. There is no flag for it. The "
+            "two repairs are (1) RESTORE the ratified declaration in the "
+            "packet, which needs no record, and (2) ACCEPT it with an "
+            f"owner-attributed entry in {ORIGIN_DISPOSITIONS_REL} "
+            f"(schema_version: {ORIGIN_DISPOSITIONS_SCHEMA_VERSION}, "
+            f"kind: {ORIGIN_DISPOSITIONS_KIND}) naming the ratifying commit, "
+            "the accepted mutating commit, the keys that moved, the "
+            "authority, the date, the verbatim word and the citation — after "
+            "which the accepted declaration is the one this gate compares "
+            "against. The refusal itself prints the record's path and every "
+            "field an entry needs."))
     archive.add_argument("change")
     # DEFAULT `None`, resolved in `main` — not `utc_today()` here — so that
     # "the operator named a date" and "the operator named nothing" are
