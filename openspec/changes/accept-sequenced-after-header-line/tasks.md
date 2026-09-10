@@ -9,32 +9,63 @@ put the requirement and its only evidence in two different pull requests.
 **NOTHING IS MERGED BY THIS CHANGE**, and nothing in codexFactory is touched:
 its re-vendor and pin advance are Group 4, unticked, owned elsewhere.
 
-## Group 0 — RATIFICATION GATE (human; OWED)
+## Group 0 — RATIFICATION GATE (human; CLOSED)
 
-**OPEN. RATIFICATION IS OWED AND IS BRETT HEAP'S ACT.** Brett Heap's ruling of
+**CLOSED. RATIFIED 2026-09-10T11:31:31Z.** Brett Heap's earlier ruling of
 2026-09-10 ~02:10Z, verbatim **"do door b"**, chose the DOOR between two named
-alternatives on codexFactory #268. It did not ratify any text in this packet.
+alternatives on codexFactory #268 and did not ratify any text in this packet.
+Ratification followed as a separate act: Brett Heap, repository owner,
+first-hand, in session, to lane codexfactory-1, verbatim **"ratify 886, 0.2 as
+narrowed, 0.3 pure moves"**, over head `f36d2bc2`. Record:
+`review/ratification-2026-09-10.md`.
 
-- [ ] 0.1 **Convener read of `design.md` § 0** (the ten-line brief).
-- [ ] 0.2 **Rule the narrowing of the ratified sentence.**
+- [x] 0.1 **Convener read of `design.md` § 0** (the ten-line brief). DONE —
+  evidenced by the ruling itself: 0.2, 0.3, 0.4 and 0.5 were all ruled at the
+  same 2026-09-10T11:31:31Z sitting, which the § 0 read precedes. See
+  `review/ratification-2026-09-10.md`.
+- [x] 0.2 **Rule the narrowing of the ratified sentence.**
   `add-sequenced-after-substrate`'s ADDED requirement says a "prose
   `Sequenced-after:` header … SHALL NOT constitute a machine-readable parent
   declaration". `proposal.md` § The ratified sentence this change narrows quotes
   it in full and answers its three reasons. **This is the packet's load-bearing
   ask: refuse it and nothing else here survives, and door (a) is the remaining
   door.**
-- [ ] 0.3 **Rule OQ-H1 — the five carriers beyond the window** (codexFactory
+  **RULED 2026-09-10T11:31:31Z** — Brett Heap, first-hand, in session, to lane
+  codexfactory-1, verbatim **"ratify 886, 0.2 as narrowed, 0.3 pure moves"**:
+  AS NARROWED. The substrate's sentence stands, narrowed to the legacy prose
+  `Sequenced-after:` spelling; the strict, schema-validated `sequenced_after:`
+  header line inside the fifteen-line window DOES declare — exactly the
+  reading this proposal admits. See `review/ratification-2026-09-10.md`.
+- [x] 0.3 **Rule OQ-H1 — the five carriers beyond the window** (codexFactory
   lines 20, 24, 33, 36, 38). Widen the window, or leave the bound?
   Recommendation: LEAVE THE BOUND.
+  **RULED 2026-09-10T11:31:31Z** — same word as 0.2, verbatim **"…0.3 pure
+  moves"**: PURE LINE MOVES. The bound stands (the window is not widened); the
+  five out-of-window carriers are resolved by pure line moves of their
+  existing `sequenced_after:` line into the window (the codexFactory #323
+  shape — pre-image and post-image are the same multiset of lines), no text
+  change, no fencing. Successor: task 4.3, owner lane codeXfactory-1 in
+  codexFactory, after the re-pin (task 4.1). See
+  `review/ratification-2026-09-10.md`.
 - [ ] 0.4 **Confirm or veto OQ-H2** — `scope_globs:` stays untaught the
   header-line form. Recommendation: LEAVE IT OUT.
+  (ratified as they stand by 'ratify 886', 2026-09-10 — no separate word)
 - [ ] 0.5 **Confirm or veto authoring decisions H-1 … H-7** (`design.md`
   § Decisions), including H-2's extension of the promoted real-lines rule's
   language-boundary escape clause to a VENDORING boundary.
-- [ ] 0.6 On ratification: `Status: ratified` + a `Ratified by:` line + a
+  (ratified as they stand by 'ratify 886', 2026-09-10 — no separate word)
+- [x] 0.6 On ratification: `Status: ratified` + a `Ratified by:` line + a
   `## Ratification record` section recording the dispositions land in
   `proposal.md`, and the README "OpenSpec Records" entry moves from DRAFT to
   RATIFIED.
+  **DONE 2026-09-10T11:31:31Z.** `proposal.md` carries `Status: ratified` and a
+  `Ratified:` line — not `Ratified by:`, because no approving OpenSpec change
+  exists to name; the ratifier is a first-hand human ruling, the second of
+  `document-lifecycle`'s two sanctioned citation spellings — citing this
+  record in a separate file, `review/ratification-2026-09-10.md` (the
+  `pin-openspec-cli-dependency-closure` shape), rather than an inline
+  `## Ratification record` section. The README "OpenSpec Records" entry is
+  moved DRAFT → RATIFIED.
 
 ## Group 1 — openxFactory doctrine authoring (THIS change)
 

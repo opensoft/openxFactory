@@ -6,10 +6,13 @@ sequenced_after: [add-sequenced-after-substrate]
 
 # Proposal: accept-sequenced-after-header-line
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-10, Brett Heap (repository owner), first-hand, in session,
+to lane codexfactory-1, verbatim **"ratify 886, 0.2 as narrowed, 0.3 pure
+moves"**, over head `f36d2bc2` — record
+`review/ratification-2026-09-10.md`.
 Authored: 2026-09-10, lane codexfactory-1, on Brett Heap's ruling "do door b"
-(chose the door, did not ratify this text). RATIFICATION IS OWED and is Brett
-Heap's act.
+(chose the door, did not ratify this text).
 Directed by: Brett Heap's ruling of 2026-09-10 ~02:10Z, first-hand and in
 session, verbatim **"do door b"**, on codexFactory issue
 [#268](https://github.com/codeXfactory/codexFactory/issues/268) — door (b) being

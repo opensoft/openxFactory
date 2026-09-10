@@ -530,8 +530,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [accept-sequenced-after-header-line](openspec/changes/accept-sequenced-after-header-line/proposal.md)
-  — authored 2026-09-10, **`Status: draft` — RATIFICATION IS OWED** and is Brett
-  Heap's act. Lane `codexfactory-1`. **ALL-ADDED delta on `release-realization`**
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10T11:31:31Z, Brett
+  Heap, repository owner, first-hand, in session, verbatim ***"ratify 886,
+  0.2 as narrowed, 0.3 pure moves"***, over head `f36d2bc2`) — records
+  [`review/ratification-2026-09-10.md`](openspec/changes/accept-sequenced-after-header-line/review/ratification-2026-09-10.md).
+  Lane `codexfactory-1`. **ALL-ADDED delta on `release-realization`**
   (two requirements, seven scenarios): a `sequenced_after:` line inside the
   BOUNDED LIFECYCLE HEADER WINDOW declares exactly what the `---`-fenced
   front-matter key declares — one loader, one shape, one grammar, one resolution
@@ -540,8 +543,9 @@ Active changes:
   ~02:10Z, first-hand and in session, verbatim ***"do door b"***, on codexFactory
   issue [#268](https://github.com/codeXfactory/codexFactory/issues/268): door (b)
   is "openxFactory teaches the reader the unfenced header form", as against door
-  (a) "fence the whole codexFactory corpus". **THE WORD CHOSE THE DOOR AND
-  RATIFIED NO TEXT.** The defect is measured, not argued: on codexFactory main
+  (a) "fence the whole codexFactory corpus". **THAT WORD CHOSE THE DOOR AND
+  RATIFIED NO TEXT; RATIFICATION FOLLOWED SEPARATELY** (above). The defect is
+  measured, not argued: on codexFactory main
   `2ade133`, 49 of 50 proposals carry no fence, EIGHT carry a `sequenced_after:`
   header line their authors wrote, and the shipped reader reports
   `declaring = 0`. BEFORE/AFTER over that corpus: `declaring` **0 → 3**, deepest
