@@ -33,6 +33,20 @@ NOT ENROLLED and stays under a human merge word — decision N-1 standing as
 recommended, asserted in
 `tests/review_lane_pin/test_floor_bot_lane_enrolment.py`.
 
+**SUPERSEDED IN PART, 2026-09-10 — APPENDED, NOT A REWRITE.** The paragraph
+above is the 2026-09-07 state and is kept as written. Three of its four clauses
+no longer hold, and the fourth holds for a reason it did not name: the
+Gate-Rules Council record is **SIGNED** (`review/gate-rules-council-admitting-record-2026-09-10.md`,
+Brett Heap 2026-09-10, verdict ADMIT); **two bot pull requests HAVE been
+approved by the envelope** and merged (codexFactory #314 -> `b08958ae`, #325 ->
+`df42f803`, the second with no human act at all); and `Require Code Owner
+Review` **still has no bypass actor in either repository AND needs none** — the
+admitted artifact was relocated off every CODEOWNERS prefix, so the requirement
+is vacuous over it. What is still true is the sentence's spirit for THIS
+repository: **the openxFactory re-pin lane is not enrolled and still waits for a
+human merge word.** The whole measurement is the ADDENDUM at the foot of this
+file.
+
 Groups 2 through 4 are written for the RECOMMENDED scope of decision N-1 —
 the codexFactory regeneration lane alone. Where a veto to N-1 (b) would add work,
 the addition is named in the task rather than left to be discovered, and § 2.9
@@ -253,6 +267,18 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   **Or, more cheaply, decision N-1 (e)** — moving the machine-generated block
   off the code-owner-gated surface — after which the ordinary gate merges it and
   no narrowing is needed at all.
+  **2026-09-10 — THE SUCCESSOR EXISTS AND BOTH ROUTES WERE TAKEN; THIS BOX STAYS
+  UNTICKED AND THE REFUSAL ABOVE STANDS AS WRITTEN.** The arming successor is
+  codexFactory `amend-floor-regeneration-merge-authority` (ratified 2026-09-08,
+  merge `93f0f0d7`), which narrowed the requirement to *"SHALL NOT merge BY ITS
+  OWN ACT"* and admits the lane arming the platform's auto-merge on its own pull
+  request; `.github/workflows/floor-regeneration.yml` now arms it, and this
+  repository's lockstep mirror is `amend-mirror-floor-regeneration-merge-authority`
+  (ratified 2026-09-08). **N-1 (e) was ALSO taken**, separately —
+  codexFactory `relocate-review-authority-floor` (#293) with its mirror
+  `relocate-review-authority-floor-mirror` (#817), landed at codexFactory
+  `d1f8bf1b` 2026-09-09. **This packet performed neither**, which is why the box
+  is not ticked: a box ticks on the act this packet took, not on a successor's.
 - [x] 2.8 Extend the approval record the lane already posts to carry the measured
   changed path set, the floor-matched count and the check names quantified over
   (decision N-4). Do not add a second record surface.
@@ -355,17 +381,82 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   concluding `skipped` for a Bot author (see § 2.2). This box needs a real bot
   pull request approved by the envelope AFTER all three are resolved, and no
   earlier. § 3.2's unattended merge additionally waits on § 2.7.
-- [ ] 3.2 Observe that same pull request MERGE with no human click — no review
+  **2026-09-10 — THE THREE OBSTACLES ARE GONE AND THE APPROVAL IS OBSERVED, BUT
+  THE BOX STAYS OPEN ON ONE CLAUSE OF ITS OWN TEXT.** Observed twice:
+  codexFactory [#314](https://github.com/codeXfactory/codexFactory/pull/314)
+  (review 5160667178, `codexfactory[bot]` APPROVED 2026-09-09T22:49:36Z) and
+  [#325](https://github.com/codeXfactory/codexFactory/pull/325) (review
+  5161853361, APPROVED 2026-09-10T01:54:56Z, `commit_id` = head `c4e40f33`;
+  merge-master runs
+  [34425922954](https://github.com/codeXfactory/codexFactory/actions/runs/34425922954)
+  and
+  [34427337240](https://github.com/codeXfactory/codexFactory/actions/runs/34427337240)).
+  The obstacles: (1) the council record is now SIGNED
+  (`review/gate-rules-council-admitting-record-2026-09-10.md`); (2) the bypass
+  actor was never needed — the relocation took the artifact off every CODEOWNERS
+  prefix (record § 3.2, § 4); (3) the `lane-line` park was ruled (a) and realized
+  2026-09-08. **WHAT IS NOT SATISFIED:** this box requires the approval "with the
+  approval record NAMING the candidate class", and both approval records render
+  `Candidate class: unrecorded` — the class id is populated on the PARK path and
+  not on the APPROVE path. That is a defect against this packet's own ratified
+  `review-lane-floor-mirror` § *An autonomous approval of a floor bot lane
+  records the facts it measured*; it is codexFactory's surface, it is recorded at
+  § 3.5 (a) of the council record, and this box stays OPEN on it and on nothing
+  else.
+- [x] 3.2 Observe that same pull request MERGE with no human click — no review
   submitted by a person, no merge button pressed, no admin bypass exercised.
   Record the merge commit and the actor GitHub reports for the merge.
+  **2026-09-10 — OBSERVED, AND EVERY CLAUSE OF THIS BOX IS SATISFIED ON ONE PULL
+  REQUEST.** codexFactory
+  [#325](https://github.com/codeXfactory/codexFactory/pull/325), head
+  `c4e40f33a941c0d67f35c7d3008029f1a8d815b3`: opened 2026-09-10T01:32:58Z,
+  **merge commit `df42f8033a2dee3fd6f49d435912e7f30eac24ec`**, merged
+  2026-09-10T01:55:14Z, and the **actor GitHub reports for the merge is
+  `openxfactory[bot]`** — the platform completing the auto-merge the lane armed,
+  not a person. **22 minutes 16 seconds open to merge.** No review was submitted
+  by a person: the only review on the pull request is 5161853361,
+  `codexfactory[bot]`, APPROVED. No merge button was pressed and no admin bypass
+  was exercised — both org rulesets' bypass lists are `OrganizationAdmin /
+  always` and nothing else, and no organization admin acted on this pull request.
+  It is the same pull request § 3.1 observes reaching `approve`; § 3.1 stays open
+  only on its class-naming clause, which says nothing about the merge. Recorded
+  on openxFactory #745 (comment 5611865800) and codexFactory #232.
 - [ ] 3.3 Observe a park on a candidate that should NOT be approved, and confirm
   it parks for the stated reason rather than by accident. A negative control that
   measures nothing proves nothing — construct it so the SAME inputs the shipped
   condition reads are the ones the control varies.
+  **2026-09-10 — TWO REAL PARKS ARE NOW ON THE RECORD AND NEITHER IS THIS BOX'S
+  CONTROL, WHICH IS WHY IT STAYS OPEN.** (i) codexFactory
+  [#302](https://github.com/codeXfactory/codexFactory/pull/302) parked with
+  `gate_integrity_path: changed path(s) inside the never-clearable class:
+  ['tests/merge-master/test_repository_gate_floor.py']`, outcome
+  `parked_never_clearable`, and was closed by hand — but that is a park of a pull
+  request whose paths this class EXPLICITLY ADMITS, refused by codexFactory's
+  tier-2 never-clearable class before the tier-1 envelope is reached, so it is a
+  finding about the class's real reach (council record § 3.5 (b)) rather than a
+  control over a candidate that should not be approved. (ii) #325's FIRST
+  evaluation, before its checks completed, parked with *"no per-repo gate rule
+  declares applies_to.candidate_id for surface 'openxfactory-floor-regeneration';
+  tier-1 evaluation alone"* — a real fail-closed park of the admitted class, but
+  its rendered reason names the tier-2 fall-through rather than the tier-1
+  condition that was actually unmet, so it does not confirm a park "for the
+  stated reason". **The box asks for a CONSTRUCTED control and neither of these
+  was constructed.** Both are recorded so the next author starts from evidence.
 - [ ] 3.4 Confirm the openxFactory re-pin pull request of that same cycle still
   waits for a human word under the recommended scope, and that its
   merge-master-approval run reports the floor refusal rather than an envelope
   verdict — the property § 2.1 of `design.md` measured, observed live.
+  **2026-09-10 — THE FIRST HALF IS CONFIRMED; THE SECOND HAS NO ARTIFACT IN THAT
+  CYCLE, SO THE BOX STAYS OPEN.** The re-pin lane's last pull request is
+  openxFactory [#764](https://github.com/opensoft/openxFactory/pull/764) (head
+  `bot/review-lane-repin`, author `openxfactory[bot]`), and it was **merged by
+  `brettheap` — a human — at 2026-09-07T16:52:54Z**, merge `8d92bfaf`. That is the
+  human word the recommended scope leaves in place, measured rather than assumed.
+  **But no `bot/review-lane-repin` pull request has been opened since**, so the
+  2026-09-09/10 cycles have no re-pin artifact of "that same cycle" to read a
+  merge-master-approval run off. The floor refusal itself is asserted in code
+  (`tests/review_lane_pin/test_floor_bot_lane_enrolment.py`), not observed live,
+  which is exactly the distinction this box exists to close.
 - [ ] 3.5 ONLY UNDER A VETO TOWARD (b): the same three observations for one
   openxFactory `bot/review-lane-repin` pull request.
 - [ ] 3.6 Exercise the kill switch once, deliberately, on a scheduled cycle:
@@ -383,6 +474,17 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   the before figure was measured — merges per advance of the pinned core, read
   from the API over at least three consecutive cycles — so the benefit claimed is
   a measurement and not an expectation.
+  **2026-09-10 — TWO CYCLES MEASURED, NOT THREE, SO THE BOX STAYS OPEN AND THE
+  FIGURE SO FAR IS RECORDED RATHER THAN ROUNDED UP.** Read from the API:
+  codexFactory #314 -> `b08958ae` (2026-09-09T23:27:22Z; merged by
+  `openxfactory[bot]`, one hand dispatch of the approval leg) and #325 ->
+  `df42f803` (2026-09-10T01:55:14Z; merged by `openxfactory[bot]`, **no human act
+  at all**). The BEFORE figure was two human merges per advance of the pinned
+  core, one per repository; on #325's cycle the AFTER figure is **one** —
+  openxFactory's re-pin half only, and that half is measured at § 3.4. A third
+  consecutive cycle is what this box's own text requires before the benefit is a
+  measurement, and codexFactory #302 is not it: it parked and was closed rather
+  than merged (§ 3.3).
 - [x] 4.3 Confirm no floor path was removed from
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` by any act of
   this packet, and that `contracts/review-lane-pin.yaml` is still a declared
@@ -452,6 +554,29 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   N-1 does not admit the re-pin lane; its act is § 2.9(e) and § 2.9 is not live.
   **UNTIL THE codexFactory ACT IS TAKEN THE ENROLMENT LANDS NOTHING**, which is
   stated in the envelope file beside the candidate. The box stays UNTICKED.
+  **2026-09-10 — THE ACT WAS NEVER PERFORMED AND IS NOW MOOT: IT WAS NOT NEEDED.
+  THE ENROLMENT LANDED SOMETHING ANYWAY, TWICE.** Shape (b) of this box —
+  "remove the paths from CODEOWNERS", which the packet recommended REFUSING — was
+  not taken either. What was taken is decision **N-1 (e)**, which the packet
+  recorded as not foreclosed: codexFactory `relocate-review-authority-floor`
+  (#293) with its mirror `relocate-review-authority-floor-mirror` (#817) moved the
+  artifact from `scripts/merge_master/openxfactory-review-authority-floor.yaml` to
+  **`floor/openxfactory-review-authority-floor.yaml`** (codexFactory `d1f8bf1b`,
+  2026-09-09), and codexFactory `.github/CODEOWNERS` carries **no `/floor/`
+  entry** — so `require_code_owner_review` is vacuous over the admitted path and
+  no bypass actor is needed to clear it. **THE ids IN THIS BOX ARE ALSO STALE:**
+  `18834180` was the `opensoft` org's; after the repository's move the active org
+  rulesets are `Require Code Owner Review` **22655341**
+  (`require_code_owner_review: true`, `required_approving_review_count: 0`) and
+  `xFactory Tier-1 main protection` **22655338**
+  (`required_approving_review_count: 1`, `require_code_owner_review: false`) —
+  and it is 22655338 that the merge-master App's APPROVE review satisfied. Both
+  bypass lists remain `OrganizationAdmin / always` and nothing else; **no ruleset
+  was changed by anyone.** Evidence: council record
+  `review/gate-rules-council-admitting-record-2026-09-10.md` § 3.2, § 4, R-3.
+  **THE BOX STAYS UNTICKED** for the reason 5.1's and 5.2's do — ticking an
+  owner's-act box is a claim an agent may not make about the owner — and this
+  dated note is how the act is recorded instead.
 - [ ] 5.4 Answer OQ-1 (is the bypass shape acceptable at all), OQ-2 (word or
   Gate-Rules Council record for the second codexFactory candidate — **this packet
   recommends the COUNCIL**, because § 2.2a of `design.md` shows the act is not a
@@ -469,6 +594,24 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   § 2.7). So the live answer is that the pull request waits for a human merge,
   and a real ruling on OQ-3 is now owed alongside the successor § 2.7 names.
   **OQ-1 IS UNANSWERED** and is § 5.3's. The box stays UNTICKED.
+  **2026-09-10 — OQ-2's INSTRUMENT IS NOW SIGNED, AND OQ-3 IS ANSWERED BY A
+  SUCCESSOR.** The Gate-Rules Council admitting record is reconciled against the
+  live tree and **SIGNED, verdict ADMIT**, at
+  `review/gate-rules-council-admitting-record-2026-09-10.md` — Brett Heap,
+  2026-09-10, in session to lane `openxfactory-2`, verbatim *"do 1 and 2, sign,
+  file it, do 744"*, recorded on openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5622848416)
+  (comment 5622848416, item 3). **HIS ACT, THE LANE'S PEN.** It is a direct
+  convener disposition — **no seat was run** — on the precedent of codexFactory
+  `records/2026-09-04-gate-rules-packaged-contract-floor-widening.md` § 0, and it
+  **ratifies an act already taken**: the enrolment merged at codexFactory
+  `4c0053c3` on 2026-09-07, before the record was signed, which the record states
+  at its § 0.2 rather than smoothing. **OQ-3** ("lanes arm auto-merge, versus
+  teaching the merge-master lane to merge") is answered by the FORMER, through
+  the successor `amend-floor-regeneration-merge-authority` and its mirror, not by
+  this packet — see the 2026-09-10 note under § 2.7. **OQ-1 is moot**: the bypass
+  shape was never exercised (§ 5.3). **The box stays UNTICKED** for the reason
+  5.1's does.
 - [ ] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
   written by moving the machine-generated floor block off the code-owner-gated
   surface, instead of narrowing the requirement. It is the only option on the
@@ -484,3 +627,75 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   what the ticks above rest on. It did NOT give § 5.3's ruleset act or the
   Gate-Rules Council record OQ-2 names, both of which remain the owner's and
   remain untaken. The box stays UNTICKED for the same reason 5.1's does.
+
+## ADDENDUM 2026-09-10 — the live cycles, the SIGNED council record, and the boxes they move
+
+**APPENDED, NOT A REWRITE.** Everything above stands as written on its own date,
+including the 2026-09-07 tenses and the 2026-09-08 addendum; where a clause of
+the header paragraph no longer holds, the dated supersession note beneath it
+says so and the original text is kept. **No box is un-ticked by this addendum.
+ONE box is ticked — § 3.2 — and every other box it touches is left open with the
+clause of its own text that is not yet met named out loud.**
+
+**THE WORD.** Brett Heap, 2026-09-10 ~17:2xZ, in session to lane
+`openxfactory-2` (display `openXfactory-2`), verbatim **"do 1 and 2, sign, file
+it, do 744"**, recorded on openxFactory
+[#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5622848416)
+(comment 5622848416). Item 3 of that comment is this work: *"§ 6.3 Gate-Rules
+Council record in `extend-merge-master-envelope-to-floor-bot-lanes` — reconcile
+box 4.2 against the live tree … then SIGN on his word 'sign'; the record's own
+form governs how the signature is written."*
+
+**THE RECORD.** `review/gate-rules-council-admitting-record-2026-09-10.md` —
+`Status: record`, verdict **ADMIT**, signed by Brett Heap, a **direct convener
+disposition with no seat run**, reconciling the DRAFT at codexFactory
+`openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/review/gate-rules-council-admitting-record-DRAFT.md`
+in **eight** named places (its § 7). The two the estate most needs:
+
+1. **NO GOVERNANCE GROUND WAS SPENT.** The draft priced the admission at one —
+   narrowing codexFactory's promoted `Bounded autonomous surface`. Decision
+   **N-1 (e)** was taken instead: `relocate-review-authority-floor` (#293) and
+   its mirror `relocate-review-authority-floor-mirror` (#817) moved the artifact
+   to `floor/openxfactory-review-authority-floor.yaml` (codexFactory `d1f8bf1b`,
+   2026-09-09), codexFactory `.github/CODEOWNERS` has **no `/floor/` entry**, and
+   the promoted requirement is **unnarrowed on `main`** — so the live approvals
+   are lawful under canon **as written**.
+2. **THE SIGNATURE RATIFIES AN ACT ALREADY TAKEN.** The enrolment merged at
+   codexFactory `4c0053c3` on 2026-09-07T21:16:37Z, before the record was signed,
+   against the envelope file's own instruction that the merge "must not happen
+   before that record is signed". The record says so at its § 0.2.
+
+**THE BOXES, AND WHY EACH MOVED OR DID NOT.**
+
+| Box | State | The clause that decided it |
+|---|---|---|
+| § 2.7 arm auto-merge | OPEN | this packet performed nothing; the successor `amend-floor-regeneration-merge-authority` (merge `93f0f0d7`) did, and is now named beneath the box |
+| § 3.1 approval observed | OPEN | approve observed twice, but the approval record renders `Candidate class: unrecorded` — the box requires it to NAME the class |
+| § 3.2 unattended merge | **TICKED** | #325 -> `df42f803`, merged by `openxfactory[bot]` 22 min 16 s after opening; no person reviewed, no button, no admin bypass |
+| § 3.3 negative control | OPEN | two real parks recorded (#302's `gate_integrity_path`; #325's pre-greenness tier-2 fall-through) and neither is the CONSTRUCTED control the box asks for |
+| § 3.4 re-pin still human | OPEN | #764 merged by `brettheap` confirms the human word, but no re-pin pull request exists in the 2026-09-09/10 cycles to read a run off |
+| § 3.6 kill switch | OPEN | never thrown |
+| § 4.1 archive evidence | OPEN | 3.1, 3.3 and 3.6 are open, so the set is not assembled |
+| § 4.2 human cost after | OPEN | **two** consecutive cycles measured; the box requires **three** |
+| § 5.3 enabling act | UNTICKED, DISCHARGED | never performed, and NOT NEEDED — the relocation made `require_code_owner_review` vacuous over the admitted path; ruleset ids corrected |
+| § 5.4 OQ-2 instrument | UNTICKED, DISCHARGED | the council record is signed; OQ-3 answered by a successor; OQ-1 moot |
+
+**TWO OWNER'S-ACT BOXES ARE DISCHARGED AND AN AGENT MAY NOT TICK THEM.** § 5.3
+and § 5.4 are both satisfied on the evidence above, and this file's own rule —
+stated at its head and honoured at 5.1, 5.2 and 5.5 — is that *"an agent may not
+tick an owner's-act box at all"*, because ticking one is a claim an agent may not
+make about the owner. **The ask, in one line: "tick 5.3 and 5.4".** Until that
+word the dated notes beneath them carry the acts.
+
+**TWO DEFECTS WERE FOUND BY RUNNING, NOT BY READING**, and both are codexFactory's
+surface and are carried at § 8 of the record rather than fixed here: the approval
+record's `Candidate class: unrecorded` (§ 3.1 above), and the fact that a cycle
+in which floored membership changes still parks, because the class's SECOND
+enumerated path sits inside codexFactory's tier-2 never-clearable class — so the
+autonomy this class actually holds is over ONE of its two admitted paths
+(codexFactory #302, closed by hand).
+
+**WHAT IS OWED IN codexFactory, named rather than performed** (this lane holds no
+write authority there): mirror the signed record into
+`hermes/domain/review-councils/records/`, supersede the DRAFT, repair the
+`unrecorded` rendering, and rule on the second enumerated path. Record § 8.
