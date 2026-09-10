@@ -596,50 +596,6 @@ Active changes:
   #318's promotion has not landed. The `cited to:` line in the transcript is
   the line the committed YAML renders.
 
-- [accept-sequenced-after-header-line](openspec/changes/accept-sequenced-after-header-line/proposal.md)
-  — authored 2026-09-10, **`Status: ratified`** (2026-09-10T11:31:31Z, Brett
-  Heap, repository owner, first-hand, in session, verbatim ***"ratify 886,
-  0.2 as narrowed, 0.3 pure moves"***, over head `f36d2bc2`) — records
-  [`review/ratification-2026-09-10.md`](openspec/changes/accept-sequenced-after-header-line/review/ratification-2026-09-10.md).
-  Lane `codexfactory-1`. **ALL-ADDED delta on `release-realization`**
-  (two requirements, seven scenarios): a `sequenced_after:` line inside the
-  BOUNDED LIFECYCLE HEADER WINDOW declares exactly what the `---`-fenced
-  front-matter key declares — one loader, one shape, one grammar, one resolution
-  rule, one cycle rule, one freeze — **and beyond that window the same bytes are
-  PROSE and declare nothing**. Directed by Brett Heap's ruling of 2026-09-10
-  ~02:10Z, first-hand and in session, verbatim ***"do door b"***, on codexFactory
-  issue [#268](https://github.com/codeXfactory/codexFactory/issues/268): door (b)
-  is "openxFactory teaches the reader the unfenced header form", as against door
-  (a) "fence the whole codexFactory corpus". **THAT WORD CHOSE THE DOOR AND
-  RATIFIED NO TEXT; RATIFICATION FOLLOWED SEPARATELY** (above). The defect is
-  measured, not argued: on codexFactory main
-  `2ade133`, 49 of 50 proposals carry no fence, EIGHT carry a `sequenced_after:`
-  header line their authors wrote, and the shipped reader reports
-  `declaring = 0`. BEFORE/AFTER over that corpus: `declaring` **0 → 3**, deepest
-  declared chain **0 → 2 hops**; the other five carriers sit at lines 20–38,
-  BEYOND the window, and are reported by name rather than quietly dropped
-  (**OQ-H1**). **DOOR (b) TRIPS NO FREEZE, AND THAT IS THE MEASUREMENT THAT
-  CHOSE IT**: read through the new reader against each carrier's own ratified
-  head, all three admitted carriers report RETAINED — where fencing would have
-  turned ABSENT into a declaration on ratified packets, the contested-class
-  mutation `retention_problem` names by that word. **THE PACKET NARROWS ONE
-  SENTENCE OF A RATIFIED SIBLING** — `add-sequenced-after-substrate`'s "a prose
-  `Sequenced-after:` header … SHALL NOT constitute a machine-readable parent
-  declaration" — quoted in full with its three reasons answered in the proposal's
-  § The ratified sentence this change narrows, and it is task 0.2's ruling. The
-  delta is ALL-ADDED because that sibling is ratified-and-ACTIVE, so its
-  requirements are NOT promoted and a MODIFIED block over them is unavailable;
-  the relation is declared MECHANICALLY instead, by this change's own
-  `sequenced_after: [add-sequenced-after-substrate]` — the substrate's mechanism
-  used by its first successor, on the substrate itself. The legacy free-text
-  `Sequenced-after:` header keeps the non-declaring standing the sibling gave it,
-  and **`scope_globs:` is deliberately NOT taught the form** (**OQ-H2**): making a
-  POSITION declaration legible authorizes nothing, while a second place to declare
-  a PATH GRANT is a second place to widen one. Realized IN THE SAME PULL REQUEST
-  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
-  `tests/sequenced_after/test_header_line.py`); **NOTHING in codexFactory is
-  touched** — its re-vendor and pin advance are successors in `tasks.md` § 4,
-  owned by lane codeXfactory-1.
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
@@ -2802,6 +2758,103 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [accept-sequenced-after-header-line](openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/proposal.md)
+  — **ARCHIVED 2026-09-10** on **MET REALIZATION EVIDENCE**, per
+  `release-realization`'s rule that a change with a NON-EMPTY `code_surface`
+  archives on **merged-plus-green evidence rather than on landing** — and this
+  packet's own `target_release` adds the second arm in its § Impact: *"The
+  corpus that moves is codexFactory's, and it moves at ITS re-pin, not at this
+  landing."* **BOTH ARMS CITED RATHER THAN ASSERTED**, and the decisive one
+  re-run at the gate rather than inherited (record
+  [`evidence/realization-2026-09-10.md`](openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/evidence/realization-2026-09-10.md),
+  `Status: record`): **MERGED** as PR
+  [#886](https://github.com/opensoft/openxFactory/pull/886) →
+  `b91af6eab605021118e625a013961123ac9796e2` on `main`, 2026-09-10T12:33:38Z
+  (ratifying commit `208f88d4`, against which the archive gate reports **ORIGIN
+  RETAINED**); **GREEN** at 10 of 10 required checks, `pytest-suite` 20m43s (run
+  `34475351186`), the suite that carries this change's only proof
+  `tests/sequenced_after/test_header_line.py`; **AND READ BY A CONSUMER** —
+  codexFactory
+  [#333](https://github.com/codeXfactory/codexFactory/pull/333) →
+  `8be1a855`, 2026-09-10T16:09:02Z, `stack.yaml` `contract_ref` `724a2a4f` →
+  `b91af6ea` with all four vendored rows re-copied byte-for-byte. **THE
+  BYTE-EQUALITY ARM WAS GIVEN AN openxFactory CHECKOUT AND RUN**, because it
+  SKIPS without one:
+  `OPENXFACTORY_ROOT=… pytest tests/merge-master/test_vendored_sequenced_after.py
+  tests/merge-master/test_vendored_scope_globs.py -q` → **84 passed, exit 0, 0
+  skipped**, where the same file without it reports `19 passed, 1 skipped` and
+  the skip IS that test — so codexFactory's vendored reader is openxFactory's
+  bytes at `b91af6ea`, not merely a copy that hashes to itself. **THE
+  REALIZATION IS A CORPUS READING, AND IT IS MEASURED ON ONE TREE WITH TWO
+  READERS**: codexFactory `main` `8be1a855` swept by
+  `scripts/validate-sequenced-after.py --sweep` reads `declaring
+  sequenced_after:` **0** at the old pin `724a2a4f` (deepest chain 0 hops, *"no
+  honest chain has ever bound one"*) and **8** at the new pin `b91af6ea`
+  (deepest chain **4 hops**, from `relocate-review-authority-floor`) — three
+  admitted by this change's window, **four brought inside it by the ruled 0.3
+  PURE LINE MOVES** (codexFactory
+  [#331](https://github.com/codeXfactory/codexFactory/pull/331) →
+  `36ecb9bc`, each pre-image and post-image the same multiset of lines; a FIFTH
+  move on the archived carrier `add-floor-addition-grace` was **REVERTED
+  byte-for-byte** at `cd3eb14` on Brett Heap's word *"merge 401, revert the
+  archived line in 331"*), and one the re-pin packet's own declaration through
+  the grammar it vendored. **PROMOTED: both ADDED requirements reach
+  `openspec/specs/release-realization/spec.md`** (8 → 10 requirements), verified
+  BYTE-IDENTICAL to the archived delta by sha256 over each extracted block —
+  *Equivalent declaration sites for the ordered-delta parent declaration* 4,313 B
+  `85894b71…` and *One parent declaration across both sites, and its retention*
+  2,719 B `5c824838…` — the promotion diff reading **102 added, 0 removed**
+  (100 appended lines plus two blank lines the serializer inserted around
+  `## Requirements`), with the `## Purpose` block (1,012 B, `5f73d316…`) and all
+  eight pre-existing requirements byte-unchanged. **`tasks.md` closes 0.4 and
+  0.5** on the packet-level ratification already recorded (no disposition
+  invented), **ticks 4.1/4.2/4.3 on landed acts** and carries **4.4 DEFERRED
+  `- [~]`, owner each consuming repository's own lane** — the requirement is
+  realized once ANY consumer reads the site, and no other repository's pin
+  cadence is this packet's to advance. Records move as pure renames.
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10T11:31:31Z, Brett
+  Heap, repository owner, first-hand, in session, verbatim ***"ratify 886,
+  0.2 as narrowed, 0.3 pure moves"***, over head `f36d2bc2`) — records
+  [`review/ratification-2026-09-10.md`](openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/review/ratification-2026-09-10.md).
+  Lane `codexfactory-1`. **ALL-ADDED delta on `release-realization`**
+  (two requirements, seven scenarios): a `sequenced_after:` line inside the
+  BOUNDED LIFECYCLE HEADER WINDOW declares exactly what the `---`-fenced
+  front-matter key declares — one loader, one shape, one grammar, one resolution
+  rule, one cycle rule, one freeze — **and beyond that window the same bytes are
+  PROSE and declare nothing**. Directed by Brett Heap's ruling of 2026-09-10
+  ~02:10Z, first-hand and in session, verbatim ***"do door b"***, on codexFactory
+  issue [#268](https://github.com/codeXfactory/codexFactory/issues/268): door (b)
+  is "openxFactory teaches the reader the unfenced header form", as against door
+  (a) "fence the whole codexFactory corpus". **THAT WORD CHOSE THE DOOR AND
+  RATIFIED NO TEXT; RATIFICATION FOLLOWED SEPARATELY** (above). The defect is
+  measured, not argued: on codexFactory main
+  `2ade133`, 49 of 50 proposals carry no fence, EIGHT carry a `sequenced_after:`
+  header line their authors wrote, and the shipped reader reports
+  `declaring = 0`. BEFORE/AFTER over that corpus: `declaring` **0 → 3**, deepest
+  declared chain **0 → 2 hops**; the other five carriers sit at lines 20–38,
+  BEYOND the window, and are reported by name rather than quietly dropped
+  (**OQ-H1**). **DOOR (b) TRIPS NO FREEZE, AND THAT IS THE MEASUREMENT THAT
+  CHOSE IT**: read through the new reader against each carrier's own ratified
+  head, all three admitted carriers report RETAINED — where fencing would have
+  turned ABSENT into a declaration on ratified packets, the contested-class
+  mutation `retention_problem` names by that word. **THE PACKET NARROWS ONE
+  SENTENCE OF A RATIFIED SIBLING** — `add-sequenced-after-substrate`'s "a prose
+  `Sequenced-after:` header … SHALL NOT constitute a machine-readable parent
+  declaration" — quoted in full with its three reasons answered in the proposal's
+  § The ratified sentence this change narrows, and it is task 0.2's ruling. The
+  delta is ALL-ADDED because that sibling is ratified-and-ACTIVE, so its
+  requirements are NOT promoted and a MODIFIED block over them is unavailable;
+  the relation is declared MECHANICALLY instead, by this change's own
+  `sequenced_after: [add-sequenced-after-substrate]` — the substrate's mechanism
+  used by its first successor, on the substrate itself. The legacy free-text
+  `Sequenced-after:` header keeps the non-declaring standing the sibling gave it,
+  and **`scope_globs:` is deliberately NOT taught the form** (**OQ-H2**): making a
+  POSITION declaration legible authorizes nothing, while a second place to declare
+  a PATH GRANT is a second place to widen one. Realized IN THE SAME PULL REQUEST
+  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
+  `tests/sequenced_after/test_header_line.py`); **NOTHING in codexFactory is
+  touched** — its re-vendor and pin advance are successors in `tasks.md` § 4,
+  owned by lane codeXfactory-1.
 - [amend-modified-block-currency-standing](openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/proposal.md)
   — **ARCHIVED 2026-09-10** by
   [PR #899](https://github.com/opensoft/openxFactory/pull/899), on
