@@ -77,8 +77,8 @@ Core domain-neutral docs:
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
 - [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires a random `%RAND:y%` segment in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
-- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`)
+- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 794 declared edit lines over 147 rows, and 20 replica rows of which one declares a line)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
@@ -2735,6 +2735,81 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-modified-block-currency-standing](openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/proposal.md)
+  — **ARCHIVED 2026-09-10** by
+  [PR #899](https://github.com/opensoft/openxFactory/pull/899), on
+  Brett Heap's separate word of **2026-09-10T13:06Z**, verbatim *"archive 887
+  and close 857 858 when landed"* (recorded on
+  [PR #887](https://github.com/opensoft/openxFactory/pull/887) and on both
+  origin issues), and the `release-realization` rule that a change with an
+  EMPTY code surface archives **ON LANDING plus its own task list**, waiting on
+  no realization evidence. **THE EVIDENCE, CITED RATHER THAN ASSERTED:**
+  ratified and landed by **PR
+  [#887](https://github.com/opensoft/openxFactory/pull/887) →
+  `3b45c037a3ed3db5c04c65ea50f9dd8c38d83d57`** on `main`, 2026-09-10T13:51:31Z
+  (ratifying commit `c95b9e50`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/review/ratification-2026-09-10.md`
+  `Status: ratified`, plus the two gate captures `verification-2026-09-10.md`
+  and `verification-2026-09-10-post-merge.md`, both `Status: record` and all
+  three MOVED BY THIS ARCHIVE AND NOT EDITED BY IT), with `code_surface: none`
+  and `target_release: none`. The origin-retention arm of the archive gate
+  reports **ORIGIN RETAINED** against `c95b9e50`, and both standalone archive
+  gates pass against the archived path with BOTH candidate refs — `c95b9e50`
+  and the later record commit `e65aed15` — because `.openspec.yaml` is
+  byte-identical at both.
+  Origins: openxFactory
+  [#857](https://github.com/opensoft/openxFactory/issues/857) and
+  [#858](https://github.com/opensoft/openxFactory/issues/858), **BOTH CLOSED at
+  this archive act and not at that landing** — which is what the proposal pull
+  request's `refs #857` / `refs #858`, carrying no closing keyword, was for.
+  **WHAT IS NOW CANON.** The `## MODIFIED` block is promoted BYTE-IDENTICAL
+  into `openspec/specs/doc-health/spec.md` (39,754 bytes, sha256
+  `9fc757f0ff86ab39cdfd30c5e66a33c4557d20a79e62b86e125e9e33575d8194`, extracted
+  programmatically on both sides), amending *Currency of an active change's
+  MODIFIED requirement blocks*: the `modified-block-currency` family is
+  **ENFORCING IN ONE ARM AND CLASSIFIED `contested` WHOLE** — the scenario-title
+  completeness arm carries `error`, the title-resolution and ordering arm keeps
+  `warning`, the carriage ledger and marker defects keep `info`, and the
+  family's `FAMILY_RESOLUTION` row is PRESENT — with the disappearance that
+  owes a citation read at the `(family, repository, path)` grain the
+  uncited-resolution rule keys on and at no finer one. **FIVE UNITS REPLACED IN
+  PLACE AT FOUR SITES** under one `Removed from canon by
+  amend-modified-block-currency-standing (2026-09-10):` marker — the
+  lifecycle-standing sentence carrying *"the arms below are advisory"*, the
+  *advisory at launch* paragraph's first two sentences, and the first
+  scenario's `THEN` and `AND` bullets — plus one body paragraph telling the
+  flip's history as a sequence, and one scenario, *This family stops reporting
+  a path without a citation*, added at the end of the block. **NO SEVERITY
+  MOVES AND NO ROW IS ADDED BY THIS PROMOTION**: `_LAUNCH_SEVERITY = ERROR`
+  (`scripts/doc_health/modified_block_currency.py:229`) and
+  `"modified-block-currency": CONTESTED` (`scripts/doc_health/families.py:117`)
+  have been the module's real state since the flip of 2026-08-31 (issue
+  [#357](https://github.com/opensoft/openxFactory/issues/357), PR
+  [#529](https://github.com/opensoft/openxFactory/pull/529), `7f656980`), and
+  this is promoted canon catching up with running code. The paragraph's third
+  sentence, *"No flip is proposed for the carriage ledger in this change"*, is
+  carried unchanged because it is still true. Spec count 62 → 62, so no
+  codexFactory floor advance is owed. #858's half needed no promotion: its
+  `specs/019` FR-018 restatement rode PR #887 as the severable commit
+  `2f384fd1` and is already on `main`.
+  **THE RESIDUE IS NAMED, NOT DISCHARGED.** `tasks.md` § 5.3's successor is
+  filed UNCLAIMED as
+  [#893](https://github.com/opensoft/openxFactory/issues/893) — whether
+  `report.uncited_resolutions` should track disappearance at finding-class
+  grain rather than at `(family, repository, path)`, a CODE decision this
+  `code_surface: none` packet refused as a widening; § 6.1's is filed UNCLAIMED
+  as [#896](https://github.com/opensoft/openxFactory/issues/896) — `specs/019`
+  FR-024 and FR-026, which still state the launch severities and the family's
+  absence from `FAMILY_RESOLUTION` and, unlike FR-018, foresee the flip in
+  their own words; and § 6.2 names none because its own ratified text says
+  nothing is owed and no arm moved. **ONE ACCOUNTING CLAUSE OF § 4.9 IS
+  CORRECTED ON THE RECORDING AND NO RECORD IS TOUCHED**: as ratified it called
+  the first capture *"preserved unedited"*, which is true of the tree it
+  measures (`2e84325a`) and false of `e65aed15`, where the same commit appended
+  a 23-line self-disclosing `## Addendum` to it — `23 0`, additions only, no
+  original line edited, moved or deleted. The ratified wording is quoted in
+  place rather than deleted.
 - [mirror-floor-regeneration-automation](openspec/changes/archive/2026-09-10-mirror-floor-regeneration-automation/proposal.md)
   — **ARCHIVED 2026-09-10** by
   [PR #894](https://github.com/opensoft/openxFactory/pull/894), on Brett Heap's

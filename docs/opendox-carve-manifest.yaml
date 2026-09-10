@@ -44,7 +44,9 @@
 # `sha256: "<64 hex>"` rather than `digest: sha256:<hex>`, and `edits:` carries
 # `{class, lines[]}` rather than a bare class string — the line numbers at the
 # carve commit are what make `moved_with_declared_edit` falsifiable at the
-# destination instead of a label.
+# destination instead of a label. A moved row may additionally carry
+# `also_replicated_to:` and a `replicated_at_destination` row may carry
+# `edits:`, both RULED Q-L7 (a) and both explained below.
 #
 # THE THREE JUDGEMENTS THAT DECIDE MOST ROWS, all ruled on `#656` 2026-09-09:
 #
@@ -75,6 +77,51 @@
 #     never a shared module across a repository boundary with no pin. A file
 #     CREATED at a destination gets no row at all:
 #     this manifest declares what LEAVES, not what the destination assembles.
+#     RULED Q-L7 (a) (2026-09-10) adds the two shapes the three dispositions
+#     could not spell — a MOVED row that is also replicated somewhere, and a
+#     replica that must differ on a declared line — WITHOUT touching the
+#     disposition list, which stays three: `also_replicated_to:` is a field on a
+#     moved row and `edits:` on a replica row, neither of them a fourth
+#     disposition and neither of them a placement.
+#
+# TWO GRAMMAR EXTENSIONS, RULED Q-L7 (a) (Brett Heap, 2026-09-10, verbatim
+# "rule Q-L7 (a)"; `#656` comment `5618683833`). Carve leg 1 landed and measured
+# two facts the row grammar could not hold — a row was either MOVED or
+# REPLICATED, and a replica was byte-identical and declared no line — and both
+# are about the SAME pair of test-layout files, so the ruling amends the grammar
+# once:
+#
+#   * `also_replicated_to: [<destination key>, …]` ON A MOVED ROW. The row's
+#     bytes MOVE to its `destination` and are ALSO replicated, on RULED OQ-A's
+#     terms, at every destination the list names. It carries NO arrival path:
+#     placement is the leg's (RULED OQ-C) and is declared to
+#     `scripts/verify-carve-arrival.py` with `--replica-at`, which is why the
+#     completeness check's arrivals map is untouched by it. The row here is
+#     `tests/ideation-dashboard/session_fixtures.py`, a moved row to
+#     `opendox_code` that the replicated `tests/ideation-dashboard/conftest.py`
+#     imports UNCONDITIONALLY at `:106` — so collecting `tests/` at openXdox-code
+#     would have failed at import, on a file no row placed there.
+#   * `edits:` ON A `replicated_at_destination` ROW, applied identically at
+#     every replica, with the lines bounded by the SOURCE BLOB at the carve
+#     commit exactly as a moved row's are. The row here is that same
+#     `conftest.py`, whose `:25` `REPO_ROOT = HERE.parent.parent` must read
+#     `HERE.parent` because the replica arrives one directory shallower. Under
+#     every OTHER `not_moved` reason `edits:` is still the refusal it was: the
+#     bytes arrive nowhere, so there is no replica for a line to be applied at,
+#     which is why RULING OQ-B's three `stays_openxfactory_governance` rows go
+#     on recording their import rewrite in `evidence:`.
+#
+# THIS IS NOT RULING OQ-K'S OWED FLOOR PART 2 FIELD, and the two must not be
+# read as one. Design § D6 (2) clause (b) owes FLOOR PART 1 a field on a
+# TEST-BEARING replica row naming the set of REPOSITORIES its copies land in
+# — including the retained openxFactory one — so that
+# `Σ over replicated rows of (m − 1) × row_test_count` is computable; the packet
+# spells no name for it and its enumeration currently lives in the amendment
+# record's prose. Both files this ruling touches carry ZERO `def test_` at the
+# carve commit (measured), so neither enters that Σ and this amendment realizes
+# neither clause. `also_replicated_to:` names `destinations:` KEYS for arrival
+# admission; the owed field names repositories for an arithmetic. One row could
+# carry both without either meaning the other.
 #
 # `not_moved_reasons:` declares FOUR of the validator's known five.
 # `superseded_by_split` is absent because it is unused: measured at the carve
@@ -175,7 +222,13 @@ moved_paths:
 # 456 rows, bytewise-UTF-8 by `source_path`. The count is the validator's own
 # (`454 row(s)` before RULING Q-L1's two rows landed); as first written this
 # comment said 453, an off-by-one against its own file at `17167481` that is
-# corrected here rather than carried.
+# corrected here rather than carried. RULED Q-L7 (a) (2026-09-10) leaves it at
+# 456 and leaves the disposition counts at 172 / 146 / 138: it adds one FIELD to
+# one moved row and one declared LINE to one replica row, so the only count it
+# moves is the declared-line total (793 → 794, `path constants` 131 → 132) and
+# the number of rows carrying `edits:` (146 → 147, the extra one being a
+# replica). The 20 `replicated_at_destination` rows stay 20 — a row that is also
+# replicated is still a moved row.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1889,7 +1942,11 @@ rows:
   - source_path: tests/ideation-dashboard/conftest.py
     disposition: not_moved
     reason: replicated_at_destination
-    evidence: "RULED OQ-C (#656, 2026-09-09): the disposition list stays three and the reason carries the nuance. The pytest conftest is per-directory harness — it imports tests/hermeticity.py, staging_shapes and scripts/wire_messages and builds the base-repo world — and both destinations' suites need one, so it is replicated rather than moved."
+    evidence: "RULED OQ-C (#656, 2026-09-09): the disposition list stays three and the reason carries the nuance. The pytest conftest is per-directory harness — it imports tests/hermeticity.py, staging_shapes and scripts/wire_messages and builds the base-repo world — and both destinations' suites need one, so it is replicated rather than moved. AMENDED under RULING Q-L7 (a) (Brett Heap, 2026-09-10, `#656` comment `5618683833`, verbatim \"rule Q-L7 (a)\") to declare ONE line, which is the first `edits:` any replica row has carried: the replica arrives at `tests/conftest.py`, ONE DIRECTORY SHALLOWER than this source, so `:23`'s `HERE` is the destination's `tests/` and `:25`'s `REPO_ROOT = HERE.parent.parent` resolves OUTSIDE the destination repository — it must read `HERE.parent`. Measured in carve leg 1's own tree (openDox-code #6, merge `ce53b489`), and the record's own two figures for it are carried here rather than re-derived: **391 node-gated errors**, which is RULING Q-L7 (a)'s own citation, and **405 conftest-depth setup errors** in the leg-1 landing census (`#656` comment `5618797424`, which splits that leg's 982 setup errors into 577 openXdox reaches plus 405 conftest-depth). The reaches this line feeds are `:26`'s `sys.path.insert(0, str(REPO_ROOT / \"scripts\"))`, `:46`'s validator walk and `:245`'s `REPO_ROOT / \"scripts\" / \"ideation_dashboard\"`. LEG 1 IS NOT RE-CUT FOR IT (the ruling's own sequencing): the fix arrives with the next leg that places the replica, and openDox-code takes it in a later declared act. `:24`'s `TESTS_ROOT = HERE.parent` is DELIBERATELY NOT DECLARED and needs no edit: measured under pytest's default prepend import mode, pytest itself puts the arrived conftest's own directory (`tests/`) on `sys.path` before the module body runs, so `:106`'s `from session_fixtures import …` and `:94`'s `from staging_shapes import …` resolve at the destination while `:27`'s own insert adds the repository root — harmless there, and declaring a line no destination needs edited would be a claim the arrival verifier then has to be told to ignore. THE ROW THIS AMENDMENT PAIRS WITH is `tests/ideation-dashboard/session_fixtures.py`, whose `also_replicated_to: [openxdox_code]` exists because `:106` imports it UNCONDITIONALLY and it was a moved row to `opendox_code` alone — collecting `tests/` at openXdox-code would have failed at import, on a file no row placed there."
+    edits:
+      - class: path constants
+        lines: [25]
+        note: "`path constants` and not `adapter calls` under RULING OQ-1's own reservation of that class for PACKAGE-INTERNAL asset and module paths: `gate_console.py:567`'s `parents[2]` arithmetic is the ruling's own example and this is the same shape — the depth of this file's own home, not a corpus-shaped literal being resolved. APPLIED IDENTICALLY AT EVERY REPLICA (RULED Q-L7 (a)): both `-code` legs place this file at `tests/conftest.py`, at the same depth, so the same one-line edit is the correct text at both. The grammar bounds the LINE; the identity of the applied text is the placing pull request's claim and each leg's own suite, because `verify-carve-arrival.py` verifies one destination per run and compares no two legs' copies with each other."
   - source_path: tests/ideation-dashboard/fixtures/base-repo/ideation/brainstorm/avatar-client-lab.md
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -1978,10 +2035,11 @@ rows:
     sha256: "61cf18d029504e4d48cb613bfc1b786b45aebaa81b4d9caa70e456e56d789757"
     destination: opendox_code
     destination_path: tests/session_fixtures.py
+    also_replicated_to: [openxdox_code]
     edits:
       - class: import rewrites
         lines: [43, 390, 413, 440]
-        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone. AMENDED under RULING Q-L7 (a) (Brett Heap, 2026-09-10, `#656` comment `5618683833`, verbatim \"rule Q-L7 (a)\"): the SAME four rewrites are the correct text at BOTH code legs, which is what makes one row's declared edit lawful at its `also_replicated_to:` replica. Measured at the carve commit, the three modules these lines name — `ideation_dashboard.session_pr` (:43), `ideation_dashboard.cli` (:390, :413) and `ideation_dashboard.actor_identity` (:440) — are all `opendox_code` rows arriving at `src/opendox/`, so the destination-local spelling is `opendox.X` at openDox-code (its own package) AND at openXdox-code (the layer that PINS openDox — runbook § 5.1's \"two pin moves per hop\", the levelling round 2 git dependency). It is NOT `openxdox.X` at the second leg: that would name modules openXdox does not own."
   - source_path: tests/ideation-dashboard/smoke_signals.py
     disposition: moved_verbatim
     git_mode: '100644'

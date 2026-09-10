@@ -440,11 +440,27 @@ the block was written into a registry-less tree.
   A marker MUST remain of marker form when no reason is present.
 - **FR-017**: The `Merged into` destination MUST NOT be read as a named unit.
 - **FR-018**: A marker MUST suppress only units it names AND that are in fact
-  absent from the block. A marker naming a unit the block still carries MUST be
-  reported itself, as a FOURTH finding class — "marker defects" — carrying the
-  ledger's `info` severity and never `error`. Producing the defect without
-  emitting it would leave the delta's "SHALL itself be reported" unrealized in
-  a function nothing calls.
+  absent from the block. A marker MUST itself be reported, as a FOURTH finding
+  class — "marker defects" — carrying the ledger's `info` severity and never
+  `error`, on ANY OF THREE GROUNDS — canon's own wording:
+  "A MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of them
+  one finding at the `info` band this family's marker-defect class already
+  carries: it names a unit the block still carries; or a code span standing
+  INSIDE its reason matches EXACTLY a unit of the requirement's basis that
+  the block does not carry and that no marker declares removed, the boundary
+  above reading that span as prose rather than as a name, so that its author
+  declared nothing about a unit they plainly had in mind; or it names
+  something matching no unit of the requirement's basis and no unit of the
+  block."
+  (`openspec/specs/doc-health/spec.md`:1744–1751). The second ground MUST be
+  read narrowly, on the exact match and never on the span's position alone, and
+  MUST NOT withdraw the carriage arms from the unit the span would have named
+  (:1754–1760).
+  *(Amended 2026-09-10 to match canon after `amend-marker-defect-reporting`
+  (#850); this bullet previously stated the ONE-ground rule — a marker naming a
+  unit the block still carries — which is now the first of the three.)*
+  Producing the defect without emitting it would leave the delta's "SHALL
+  itself be reported" unrealized in a function nothing calls.
 - **FR-019**: Where a `Removed from canon` marker names a scenario title AND
   the block adds no scenario title canon does not already carry, the bullets
   that scenario carried in canon MUST also be treated as declared removed —
