@@ -5,3 +5,6 @@
 [submodule "openXwallet"]
 	path = openXwallet
 	url = git@github.com:opensoft/openXwallet.git
+[submodule "openXdox"]
+	path = openXdox
+	url = git@github.com:opensoft/openXdox.git
