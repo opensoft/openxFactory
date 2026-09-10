@@ -31,6 +31,7 @@ from pathlib import Path
 
 import pytest
 
+from conftest import NO_SUCH_REPO_ROOT
 from doc_health import CRITICAL
 from doc_health import corpus
 from doc_health.corpus import Doc
@@ -47,7 +48,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PACKET_RECORD = "openspec/changes/real-change/review/ratification-2026-09-09.md"
 
 
-def _run(*docs, repo=Path("/nonexistent"), change_ids=("real-change",)):
+def _run(*docs, repo=NO_SUCH_REPO_ROOT, change_ids=("real-change",)):
     ctx = Context(repo_paths={REPO: repo}, docs=list(docs), capabilities={},
                   change_ids={REPO: set(change_ids)}, git=None, thresholds={},
                   as_of=AS_OF, agg_root=None)

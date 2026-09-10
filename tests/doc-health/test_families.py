@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import tarfile
 
-from conftest import AS_OF, FakeGit, make_ctx
+from conftest import AS_OF, NO_SUCH_REPO_ROOT, FakeGit, make_ctx
 
 import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
@@ -785,7 +785,7 @@ def test_every_action_string_the_ratified_provenance_family_can_emit_is_pinned_v
     def run(text, path="docs/subject.md"):
         doc = Doc("alpha", path, text,
                   corpus.parse_status(text), corpus.parse_kind(text))
-        ctx = Context(repo_paths={"alpha": Path("/nonexistent")}, docs=[doc],
+        ctx = Context(repo_paths={"alpha": NO_SUCH_REPO_ROOT}, docs=[doc],
                       capabilities={}, change_ids={"alpha": {"real-change"}},
                       git=None, thresholds={}, as_of=AS_OF, agg_root=None)
         return families.fam_ratified_provenance(ctx)

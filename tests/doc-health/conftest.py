@@ -33,6 +33,20 @@ from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
 FIXTURES = HERE / "fixtures"
 AS_OF = date(2026, 7, 9)
 
+#: A repository root that DOES NOT EXIST, for the `Context`s a test builds by
+#: hand when what is under test is exact header content rather than a fixture
+#: tree. Resolved at runtime, never written as an absolute literal: the
+#: constitution's § IV forbids a committed file to carry a host-absolute path
+#: and names runtime resolution as one of its two sanctioned alternatives
+#: (Copilot, PR #890).
+#:
+#: NON-EXISTENCE IS THE POINT, not an accident. A family given this root may
+#: not reach the filesystem at all, so a root that cannot resolve is how that
+#: is asserted rather than assumed — which is also why `tmp_path` is the wrong
+#: tool for these cases: it exists. ONE definition rather than one per file, so
+#: a second copy cannot quietly become a real directory.
+NO_SUCH_REPO_ROOT = HERE / "no-such-repo-root"
+
 
 class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
