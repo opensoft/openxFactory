@@ -401,7 +401,7 @@ standing between them as this packet's gate.
       and `--all --strict` pass, and the repository's own validators report the
       same failure set as `main`. **Ticks on:** the ratifying commit, over the
       recorded runs.
-- [ ] 5.3 Archive, once § 2, § 3 and § 4 are all ticked. **Ticks on:** the
+- [x] 5.3 Archive, once § 2, § 3 and § 4 are all ticked. **Ticks on:** the
       archive pull request. § 2, § 3 and 4.1/4.2 are now complete; **§ 4 holds
       it on 4.3 ALONE** — the first hourly `review-lane-repin` firing after the
       4.2 merge, printing the one-candidate sentence and `"action": "noop"`.
@@ -414,3 +414,10 @@ standing between them as this packet's gate.
       and PR #325) and 4.2 is discharged, so the instruction is narrowed to the
       one trigger that is still outstanding rather than left telling an
       operator to wait for a thing that has happened.
+      **TICKED 2026-09-10 — THIS PULL REQUEST IS THE ARCHIVE ACT ITSELF.** § 2,
+      § 3 and § 4 are now all complete, the last box being 4.3 (run
+      **34477749947**, 2026-09-10T12:37:16Z); this pull request performs the
+      archive — `scripts/proposal-support.py . archive
+      relocate-review-authority-floor-mirror --yes` — moving the packet to
+      `openspec/changes/archive/` and updating the README OpenSpec Records
+      block. Cited on the recording, openxFactory #745.
