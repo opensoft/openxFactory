@@ -1,0 +1,153 @@
+# Doc-Health Report — 2026-09-10
+
+Status: record
+Kind: report
+Repo-Identity: 033-add-consent-custody-rederivation-record
+
+## Headline
+
+Canon share by words: 39.8% (362025 canon words / 909913 governance words, promoted specs included).
+Findings: 0 critical, 0 error, 0 warning, 0 info. New regressions vs previous report: 0.
+
+Non-default configuration (cross-run comparisons must account for this):
+- scope limited to single repo 033-add-consent-custody-rederivation-record
+- scope limited to family location-conformance
+
+## Per-Stage Counts
+
+| Status | Docs | Words |
+| --- | --- | --- |
+| brainstorm | 185 | 154065 |
+| draft | 70 | 152175 |
+| projection | 1 | 37693 |
+| ratified | 33 | 82996 |
+| record | 29 | 38680 |
+| retired | 1 | 1273 |
+| staged | 66 | 153828 |
+| standard | 6 | 17057 |
+| superseded | 5 | 10174 |
+| (promoted specs) | — | 261972 |
+
+## Preflight
+
+
+## Findings By Family
+
+### status-validity
+
+No findings.
+
+### staged-topic-template
+
+No findings.
+
+### standard-backing
+
+No findings.
+
+### ratified-provenance
+
+No findings.
+
+### succession-integrity
+
+No findings.
+
+### location-conformance
+
+No findings.
+
+### record-immutability
+
+No findings.
+
+### staged-candidate-aging
+
+No findings.
+
+### register-lifecycle-consistency
+
+No findings.
+
+### tag-hygiene
+
+No findings.
+
+### submodule-pin-drift
+
+No findings.
+
+### contract-copy-drift
+
+No findings.
+
+### notebook-projection-drift
+
+No findings.
+
+### document-catalog
+
+No findings.
+
+### ideation-routing
+
+No findings.
+
+### proposal-origin
+
+No findings.
+
+### client-identity-composition
+
+No findings.
+
+### promotion-fidelity
+
+No findings.
+
+### release-inventory-drift
+
+No findings.
+
+### duplicate-packet
+
+No findings.
+
+### family-enumeration
+
+No findings.
+
+### modified-block-currency
+
+Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
+- scenario-title completeness: 0 (`error` — the arm carrying this family's gate)
+- carriage ledger: 0 (`info` — editorial, and the arm says so in every finding)
+- title resolution and ordering: 0 (`warning`)
+- marker defects: 0 (`info`)
+- sibling-pairing declaration: 0 (`warning`)
+- added-over-canon collision: 0 (`warning`)
+- unplaced-finding drift: 0 (`warning`)
+
+No findings.
+
+### release-tag-publication
+
+No findings.
+
+### semantic-normative-prose
+
+No findings.
+
+### semantic-contradiction
+
+No findings.
+
+### preflight
+
+No findings.
+
+## Ranked Plan
+
+No findings — nothing to stage.
+
+rc=0
