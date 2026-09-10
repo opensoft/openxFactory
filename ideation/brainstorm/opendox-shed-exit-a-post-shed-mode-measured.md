@@ -786,6 +786,20 @@ git rm -q $(tr '\n' ' ' < /tmp/shed-paths.txt) && git commit -q -m probe
 python3 scripts/validate-carve-manifest.py            # carve-path-absent, exit 2
 ```
 
+> **Editor's note (filing, 2026-09-10):** This recipe clones whatever commit
+> is current on `main` when run; it does not check out the pinned commit
+> this note measures against, `main`
+> `52e42be98c9e5bb4a5b1fc5cf89e235d5a349c5b` (see the header `Summary:` and
+> § 3's environment line). Run
+> `git checkout 52e42be98c9e5bb4a5b1fc5cf89e235d5a349c5b` immediately after
+> the `clone`/`cd` line and before deriving `/tmp/shed-paths.txt`, or the
+> manifest, the shed list and the validator's refusal can all differ from
+> what is reported here — `main` has moved since (PR #917 →
+> `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd` alone added a submodule; see
+> the § 4.3(iii) note above). Raised by a Copilot review comment on pull
+> request #929 against the fix-round commit that added the other two
+> notes.
+
 The exit-(a) spike lives on the local branch `spike/exit-a`
 (`05ef9236` → `88caf62e` → `b27f0555`) in the throwaway clone only. **It is not
 pushed and is not proposed for landing as it stands.**
