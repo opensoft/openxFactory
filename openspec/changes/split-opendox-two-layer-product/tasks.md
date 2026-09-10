@@ -108,7 +108,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   2026-09-09T07:49:06Z** (head `1e1b1aa9`, Rule 6 window): `add-ideation-intent-plane`
   ARCHIVED WITH PROMOTION (`openspec/changes/archive/2026-09-09-add-ideation-intent-plane/`),
   § 4.4/§ 5.1/§ 5.2 ticked on the D-2 live-exercise evidence, § 4.5 kept as the
-  deferred successor exactly as #714 encoded it. `#656` comment `5598218564`:
+  deferred successor exactly as openxFactory #714 encoded it. `#656` comment `5598218564`:
   "**→ § 0.6 is MET. Path A is COMPLETE**". Independent verification (Opus, own
   worktrees): PASS WITH NOTES, 13/13 items; CI 11/11 green.
 - [x] 0.7 `[oxF]` Amendment 3's text is DRAFTED at `design.md` § D8 and is NOT
@@ -707,7 +707,7 @@ else in the arc can start while the two packages import each other.**
   both established. **PRECONDITION of § 3, not a follow-up.**
   **DONE — D-2 live exercise COMPLETE 2026-09-09T06:37:45Z** (`#656` comment
   `5597232065`): a real dispatch (act A — intent applied at `e970dfec`,
-  `codexfactory[bot]` APPROVED, auto-merged into `intents/rolling` as PR #176 →
+  `codexfactory[bot]` APPROVED, auto-merged into `intents/rolling` as openxFactory PR #176 →
   `7681e409890a64027018edd46593f2973ada4c86`) and a real refusal (act B — the D4
   stale-view rung, commit `36d07ecf`, run 34229563533; recorded live
   2026-09-08T13:30Z, comment `5585923935`), not a dry run. Eight defects found
