@@ -1332,6 +1332,12 @@ def test_a_replica_at_may_not_reach_outside_the_dest_root(
     hostiles = ["scripts/pkg/neutral.py=/etc/passwd",
                 "scripts/pkg/neutral.py=../outside.py",
                 "scripts/pkg/neutral.py=src/./pkg/neutral.py",
+                # A DRIVE and a UNC root: `posixpath.isabs` sees neither, and
+                # on Windows `Path(dest) / "C:/x"` leaves the root. Asserted on
+                # every platform, because `ntpath.splitdrive` names them on
+                # every platform.
+                "scripts/pkg/neutral.py=C:/pkg/neutral.py",
+                "scripts/pkg/neutral.py=//server/share/neutral.py",
                 "scripts/pkg/neutral.py="]
     if os.sep == "/":
         # A BACKSLASH THIS HOST DOES NOT TREAT AS A SEPARATOR. `os.sep` is `/`
@@ -1356,7 +1362,8 @@ def test_allow_created_may_not_reach_outside_the_dest_root(
     doc = carve.manifest_doc()
     manifest = carve.write_manifest(doc)
     dest = carve.materialise(doc, "scratch_code")
-    hostiles = ["/etc/passwd", "../outside.py", "src/../src/pkg/x.py"]
+    hostiles = ["/etc/passwd", "../outside.py", "src/../src/pkg/x.py",
+                "C:/pkg/x.py", "//server/share/x.py"]
     if os.sep == "/":
         hostiles.append("src\\pkg\\x.py")
     for hostile in hostiles:

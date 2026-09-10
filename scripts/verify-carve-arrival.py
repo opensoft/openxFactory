@@ -193,6 +193,7 @@ import ast
 import difflib
 import hashlib
 import json
+import ntpath
 import os
 import posixpath
 import re
@@ -432,17 +433,25 @@ def dest_relative(value: str, flag: str) -> str:
     matched nothing, because the walk joins with `/`. The replacement runs
     FIRST, so on a Windows host a backslash path is converted as intended; what
     is refused is a backslash that SURVIVES it.
+
+    A DRIVE OR UNC PREFIX IS REFUSED TOO, and `posixpath.isabs` does not see
+    one: `C:/x` is not POSIX-absolute, but on Windows `Path(dest) / "C:/x"`
+    leaves the destination root, and on POSIX it is a filename with a colon in
+    it that can never match a walked path. `ntpath.splitdrive` names both forms
+    — a drive letter and a `//server/share` UNC root — on every platform, which
+    is why the check does not depend on where this runs.
     """
     relpath = value.replace(os.sep, "/")
     normalised = posixpath.normpath(relpath) if relpath else ""
     if (not relpath or "\\" in relpath or posixpath.isabs(relpath)
-            or relpath != normalised
+            or ntpath.splitdrive(relpath)[0] or relpath != normalised
             or normalised in (".", "..") or normalised.startswith("../")):
         raise ArrivalRefusal(
             "arrival-unreadable",
             f"{flag} {value!r} is not a plain path inside --dest-root: it is "
-            "empty, absolute, or carries `.`/`..` segments or a `\\` this "
-            "host does not treat as a separator. An absolute "
+            "empty, absolute (POSIX-absolute, or carrying a `C:` drive or a "
+            "`//server/share` UNC prefix), or carries `.`/`..` segments or a "
+            "`\\` this host does not treat as a separator. An absolute "
             "right-hand side REPLACES the destination root when it is joined, "
             "and `..` walks out of it, so such a value would answer a "
             "question about a file this run is not about. Give the path "
