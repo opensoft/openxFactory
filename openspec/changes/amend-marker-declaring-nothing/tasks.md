@@ -185,7 +185,15 @@ residue, measured and deliberately not taken.
       comment, the `_WHY_*` block's heading comment, `_MarkerDefect`'s docstring,
       `suppression`'s docstring (both the third resolution's retired silence and
       a new paragraph for ground five), the per-marker order comment, and
-      `_arm_marker_defects`' docstring.
+      `_arm_marker_defects`' docstring. **AND THE TWO COUNTS THAT DOCSTRING
+      CARRIES ARE MAPPED RATHER THAN LEFT TO BE INFERRED** — bench round 1,
+      Copilot: its ordinals count RESOLUTIONS and the amended sentence counts
+      GROUNDS, and adding grounds four and five made the two collide on the page
+      (*"AND A FIFTH …"* standing above *"AND A FOURTH RESOLUTION"*). The
+      ground-five paragraph is MOVED below the fourth resolution, both are
+      labelled with the ground they carry, and the mapping is written out: the
+      three-way resolution carries grounds ONE, THREE and FOUR, the fourth
+      carries ground TWO, the fifth carries ground FIVE.
 
 ## 4. The delta
 

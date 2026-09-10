@@ -1405,17 +1405,9 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
       rule was unwritten (`design.md` D3 there); it is written now, and the
       sentence states FIVE grounds.
 
-    AND A FIFTH, OVER THE MARKER THAT DECLARES NOTHING AT ALL (openxFactory
-    issue #860). A `Removed from canon` marker whose tail carries no code span
-    parses to no names and no quoted spans, so it reaches none of the four
-    grounds above while the reserved-marker rule exempts its paragraph from
-    carriage — a marker of correct form declaring nothing, which is exactly the
-    fault the grounds exist to report. It is read on THAT FORM ALONE: the
-    pairing form names no units by construction, and a `Merged into` marker
-    whose tail names no superseded title is a question nobody has ruled.
-
-    AND A FOURTH RESOLUTION, over the spans the reason QUOTES rather than the
-    names, added by the same amendment and NARROW BY DESIGN (`design.md` D1,
+    AND A FOURTH RESOLUTION, WHICH IS GROUND TWO, over the spans the reason
+    QUOTES rather than the names, added by the same amendment and NARROW BY
+    DESIGN (`design.md` D1,
     option A): a span after the reason boundary is reported only where it
     EXACTLY MATCHES a promoted unit that the block does not carry and that no
     marker declares removed — a would-be declaration the boundary reads as
@@ -1423,6 +1415,22 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
     and 8 of this corpus's 16 unit-naming markers quote a code span in their
     reason) and is SILENT. That predicate, and not the span's mere position, is
     what separates the defect from the normal form.
+
+    AND A FIFTH RESOLUTION, CARRYING GROUND FIVE, OVER THE MARKER THAT
+    DECLARES NOTHING AT ALL (`amend-marker-declaring-nothing`, 2026-09-10,
+    openxFactory issue #860). THE ORDINALS IN THIS DOCSTRING COUNT RESOLUTIONS
+    AND THE AMENDED SENTENCE COUNTS GROUNDS, AND THE TWO DO NOT LINE UP, so they
+    are mapped here rather than left to be inferred: the three-way resolution
+    above carries grounds ONE, THREE and FOUR, the fourth resolution carries
+    ground TWO, and this fifth carries ground FIVE. A `Removed from canon`
+    marker whose tail carries no code span parses to no names and no quoted
+    spans, so every one of the other four grounds is reached through a list that
+    is empty here and none of them can fire, while the reserved-marker rule
+    exempts its paragraph from carriage — a marker of correct form declaring
+    nothing, which is exactly the fault the grounds exist to report. It is read
+    on THAT FORM ALONE: the pairing form names no units by construction, and a
+    `Merged into` marker whose tail names no superseded title is a question
+    nobody has ruled.
 
     THEN THE SCENARIO-TITLE EXTENSION, and it is gated. Where a `Removed from
     canon` marker names an absent scenario TITLE **and the block adds no
