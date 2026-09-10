@@ -254,9 +254,16 @@ that is #325, whose review `commit_id` **is** its head `c4e40f33`.
 
 **#325 is the unattended cycle.** Opened 01:32:58Z, merged 01:55:14Z — **22
 minutes 16 seconds**, no human actor anywhere in the timeline: auto-merge armed
-by the lane, merge-master evaluated on `pull_request_target` (run
+by the lane (`auto_merge_enabled`, actor `openxfactory[bot]`, 01:33:02Z — four
+seconds after opening), merge-master evaluated on `pull_request_target` (run
 `34425922954`) and again on `check_suite` (run `34427337240`), approval by the
-App, merge by the platform under the arming. The before figure the packet
+App, merge by the platform under the arming. **The timeline is enumerated
+rather than characterized**, because "no human actor" is a claim about an
+absence: the only actors between opening and merge are `openxfactory[bot]`,
+`github-actions[bot]`, `sonarqubecloud[bot]` and `codexfactory[bot]`, and the
+one human login on the pull request — `brettheap` — first appears at 02:13:57Z,
+eighteen minutes AFTER the merge, and only in `referenced` / `cross-referenced`
+events. The full read-out is under § 3.2 of `tasks.md`. The before figure the packet
 measured was TWO human merges per advance of the pinned core, one per
 repository. The after figure, on this cycle, is **ONE** — openxFactory's re-pin
 half only.

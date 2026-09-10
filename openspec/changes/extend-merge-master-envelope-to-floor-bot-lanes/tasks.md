@@ -426,8 +426,31 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   not a person. **22 minutes 16 seconds open to merge.** No review was submitted
   by a person: the only review on the pull request is 5161853361,
   `codexfactory[bot]`, APPROVED. No merge button was pressed and no admin bypass
-  was exercised — both org rulesets' bypass lists are `OrganizationAdmin /
-  always` and nothing else, and no organization admin acted on this pull request.
+  was exercised — both approval-bearing org rulesets' bypass lists are
+  `OrganizationAdmin / always` and nothing else, and no organization admin acted
+  on this pull request.
+  **THE WHOLE TIMELINE IS READ OUT, BECAUSE "NO HUMAN CLICK" IS A CLAIM ABOUT AN
+  ABSENCE AND AN ABSENCE IS ONLY PROVEN BY ENUMERATING WHAT IS THERE.** Every
+  event on #325 between opening and merge, from the timeline API: `committed`;
+  `auto_merge_enabled` by **`openxfactory[bot]`** at 01:33:02Z; `commented` by
+  `github-actions[bot]` at 01:33:22Z; `commented` by `sonarqubecloud[bot]` at
+  01:54:32Z; `reviewed` (5161853361, `codexfactory[bot]`, APPROVED, 01:54:56Z);
+  `merged` and `closed` by **`openxfactory[bot]`** at 01:55:14Z. **Four actors,
+  every one of them a Bot, and no human login appears anywhere in that window.**
+  The one human login on the pull request at all is `brettheap`, whose earliest
+  event is 02:13:57Z — **eighteen minutes AFTER the merge** — and every one of
+  his is `referenced` or `cross-referenced`, the side effect of linking the pull
+  request from elsewhere rather than an act upon it.
+  **AND THAT SAME TIMELINE SETTLES THIS BOX'S ONE STATED PRECONDITION.** § 3.1's
+  2026-09-07 note says *"§ 3.2's unattended merge additionally waits on § 2.7"*,
+  and § 2.7 is UNTICKED — so the dependency is answered rather than passed over:
+  what § 2.7 asks for is that auto-merge BE ARMED, and it was, by
+  `openxfactory[bot]` four seconds after the pull request opened, under the
+  successor `amend-floor-regeneration-merge-authority` named in § 2.7's own
+  2026-09-10 note. The arming is a fact about the world; § 2.7's box is a claim
+  about what THIS packet performed, and it performed none of it. **The box stays
+  unticked because the act was a successor's, not because the arming is absent**
+  — and this box's observation was possible precisely because the arming is not.
   It is the same pull request § 3.1 observes reaching `approve`; § 3.1 stays open
   only on its class-naming clause, which says nothing about the merge. Recorded
   on openxFactory #745 (comment 5611865800) and codexFactory #232.
