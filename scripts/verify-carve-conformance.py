@@ -208,23 +208,37 @@ def resolve_factory(spec: str, dest_root: Path,
                     extra_paths: list[str]) -> Any:
     """Import `<module>:<factory>` with the destination's roots on the path.
 
-    THE PATH IS RESTORED AFTERWARDS, AND SO IS THE MODULE CACHE. This process
-    may run several destinations in a session — the tests do — and a root
-    left on `sys.path` would let the SECOND destination import the FIRST
-    one's modules and pass on them. That is the privileged route again,
-    arriving by accident, so the insertion is undone in a `finally`.
-    `sys.path` is not the only cache a second destination can inherit from
-    the first, though: `importlib.import_module` also caches by name in
-    `sys.modules`, and restoring `sys.path` alone does not undo that — the
-    plausible case is exact, since `home_factory.py` is documented as "the
-    worked example a destination copies" and a destination that copies the
-    file keeps its name too. So any prior `sys.modules` entry for this name
-    (or a submodule of it) is evicted before the import, forcing a fresh read
-    off the roots just inserted, and whatever the import leaves behind is
-    evicted again in the `finally` and the prior entry (if any) restored —
-    the same discipline `sys.path` already gets, so the module really is
-    "held by reference rather than by name" once this call returns rather
-    than merely being described that way.
+    THE PATH IS RESTORED AFTERWARDS, AND SO IS THE MODULE CACHE — THE WHOLE
+    CHAIN OF IT. This process may run several destinations in a session — the
+    tests do — and a root left on `sys.path` would let the SECOND destination
+    import the FIRST one's modules and pass on them. That is the privileged
+    route again, arriving by accident, so the insertion is undone in a
+    `finally`. `sys.path` is not the only cache a second destination can
+    inherit from the first, though: `importlib.import_module` also caches by
+    name in `sys.modules`, and restoring `sys.path` alone does not undo that
+    — the plausible case is exact, since `home_factory.py` is documented as
+    "the worked example a destination copies" and a destination that copies
+    the file keeps its name too. So any prior `sys.modules` entry OWNED by
+    this import is evicted before the import, forcing a fresh read off the
+    roots just inserted, and whatever the import leaves behind is evicted
+    again in the `finally` and the prior entries (if any) restored — the same
+    discipline `sys.path` already gets.
+
+    OWNED IS THE WHOLE CHAIN, NOT ONLY THE LEAF. A first pass here evicted
+    `module_name` and its submodules and missed its PARENT PACKAGES: a
+    dotted `--adapter opendox.reader:factory` imports `opendox` before it can
+    import `opendox.reader`, and importing it caches `opendox` in
+    `sys.modules` too — a package object whose `__path__` was resolved off
+    THIS destination's roots. A second destination also declaring
+    `opendox.reader` would then inherit the FIRST destination's cached
+    `opendox` package unchanged, and Python would search for `.reader` inside
+    it rather than under the second destination's own roots — the identical
+    failure one level up, and restoring `sys.path` would not touch it either,
+    for the same reason it does not touch the leaf. So every ancestor
+    package of `module_name` is owned too, evicted and restored exactly as
+    the leaf and its submodules are, and the module really is "held by
+    reference rather than by name" once this call returns rather than merely
+    being described that way.
     """
     if ":" not in spec:
         raise ConformanceRefusal(
@@ -246,8 +260,16 @@ def resolve_factory(spec: str, dest_root: Path,
     for root in reversed(added):
         sys.path.insert(0, root)
 
+    #: `module_name` itself, every package it is nested in ("a" and "a.b"
+    #: for "a.b.c"), and every submodule importing it might leave behind —
+    #: the whole chain `importlib.import_module` can populate or consult,
+    #: not only the leaf.
+    _parts = module_name.split(".")
+    _ancestors = {".".join(_parts[:i]) for i in range(1, len(_parts))}
+
     def _owned(name: str) -> bool:
-        return name == module_name or name.startswith(module_name + ".")
+        return (name == module_name or name.startswith(module_name + ".")
+                or name in _ancestors)
 
     stale = {name: mod for name, mod in sys.modules.items() if _owned(name)}
     for name in stale:

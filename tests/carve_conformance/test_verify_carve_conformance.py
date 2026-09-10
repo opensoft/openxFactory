@@ -735,3 +735,39 @@ def test_a_second_destinations_module_is_not_reused_from_sys_modules(
     assert sys.modules.get("home_factory") is before, (
         "a resolve_factory call must leave sys.modules exactly as it found "
         "it, the same restraint already held for sys.path")
+
+
+def test_a_dotted_adapters_parent_package_is_not_reused_either(tmp_path):
+    """Eviction by name alone is not enough for a DOTTED `--adapter`: a
+    Copilot follow-up on this same fix named the gap precisely. Importing
+    `pkg.reader` caches `pkg` in `sys.modules` on the way, and evicting only
+    `module_name` and its submodules leaves that PARENT untouched — a second
+    destination also declaring `pkg.reader` would then import against the
+    FIRST destination's already-cached `pkg` package (whose `__path__` still
+    points at the first destination's tree) rather than resolving `pkg`
+    fresh off the second destination's roots. Two directories here each
+    declare their own `pkg/__init__.py` and `pkg/reader.py`, so the failure
+    mode this reproduces is the leaf test above one level up the chain.
+    """
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    for root, tag in ((first, "first"), (second, "second")):
+        pkg = root / "pkg"
+        pkg.mkdir(parents=True)
+        (pkg / "__init__.py").write_text("", encoding="utf-8")
+        (pkg / "reader.py").write_text(
+            f"def factory(name, location):\n    return {tag!r}\n",
+            encoding="utf-8")
+    before_pkg = sys.modules.get("pkg")
+    before_reader = sys.modules.get("pkg.reader")
+
+    factory_one = MODULE.resolve_factory("pkg.reader:factory", first, [])
+    assert factory_one("irrelevant", "irrelevant") == "first"
+    factory_two = MODULE.resolve_factory("pkg.reader:factory", second, [])
+    assert factory_two("irrelevant", "irrelevant") == "second", (
+        "the second destination's resolve_factory call imported against "
+        "the FIRST destination's cached PARENT PACKAGE — evicting the leaf "
+        "module alone does not undo that")
+
+    assert sys.modules.get("pkg") is before_pkg
+    assert sys.modules.get("pkg.reader") is before_reader
