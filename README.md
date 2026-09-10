@@ -664,9 +664,13 @@ Active changes:
   and resolves them as **AMEND** (the ballot's arm A, D6's option 1), **OPTION
   1** and **IT STANDS**; because each is the option the packet already encoded,
   **THE WORDING STANDS UNCHANGED** and no byte of the delta moved. Records
-  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/ratification-2026-09-10.md`
-  and
-  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10.md`).
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/ratification-2026-09-10.md`,
+  with the gate run captured beside it at
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10.md`
+  and RE-RUN in full after a third merge from `main` at
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10-post-merge.md`
+  — a second run at its own path, the first capture preserved unedited and NOT
+  superseded).
   `.openspec.yaml` keeps the drafting provenance it was authored with and the
   approval pair is ADDED beside it, `kind` and `id` unmoved — the
   addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane

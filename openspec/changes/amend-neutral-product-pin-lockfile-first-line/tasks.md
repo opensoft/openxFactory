@@ -259,7 +259,9 @@ means something against `main` the CONTROL is a second worktree rather than a
 remembered number. **§ 4.1–4.9 WERE TAKEN AGAINST `origin/main` `05c706d6`**,
 the base this branch was merged up to when those runs were taken; **§ 4.10's
 re-run on the RATIFIED tree was taken against `origin/main` `52e42be9`**, the
-base the branch was merged up to at the ratification, and both controls are
+base the branch was merged up to at the ratification; and **§ 4.11's second
+re-run, on the MERGED tree, was taken against `origin/main` `17a3b816`**, the
+base the branch was merged up to after the encode. All three controls are
 named where they are used rather than left to be inferred. **THE PROMOTED SENTENCE IS BYTE-IDENTICAL AT THE
 AUTHORING BASIS `ea34f22a` AND AT `05c706d6`** (`git diff` over
 `openspec/specs/neutral-product-pin/spec.md` between the two is empty), so the
@@ -367,15 +369,82 @@ block written over `ea34f22a` is written over the current `main` too, and the
 - [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10,
       after `origin/main` `52e42be9` was merged in at `45b02e31` and after the
       ratification encode — capture at `review/verification-2026-09-10.md`,
-      this packet's first and only gate capture, written at its own dated path
+      this packet's FIRST gate capture, written at its own dated path
       because a dated run report is a one-shot `record` and a second run of it
-      writes a second path rather than rewriting this one. It carries BOTH
+      writes a second path rather than rewriting this one. **THAT MERGE COMES
+      BEFORE THE CAPTURE**, so no re-measure was owed for it — a THIRD merge
+      landed after this capture was committed and § 4.11 is its re-measure, at
+      its own path. It carries BOTH
       BINARIES the packet's D6 measured — the 1.2.0 on `PATH`, where
       `spec/neutral-product-pin` STILL FAILS because a delta does not edit the
       promoted specification and the ARCHIVE is what clears it, and the pinned
       1.12.0 through `scripts/validate-openspec-cli-pin.py --all --no-cache`,
       where it passes — each against a `52e42be9` control run in a separate
       worktree, with every command line, tail and exit code pasted.
+- [x] 4.11 **AND RE-RUN A SECOND TIME AFTER A THIRD MERGE FROM `main`**, in a
+      SECOND capture at its own path,
+      `review/verification-2026-09-10-post-merge.md`. `origin/main` advanced
+      `52e42be9` → `17a3b816` AFTER the ratification encode `d6877c00` was
+      committed and the pull request went `mergeable: CONFLICTING` — `edf0e24f`
+      (#917 mounts `openXdox` as a submodule), `90beb006` (#912 signs the
+      Gate-Rules Council admitting record), `d32509d3` (#908 merges
+      `amend-marker-declaring-nothing` **with its realization**) and `17a3b816`
+      (#925 archives `relocate-review-authority-floor-mirror`) — and the merge
+      was taken as its own commit, `ec3612fa`. **ONE CONFLICT, IN THE README
+      `## OpenSpec Records` BLOCK, RESOLVED AS A UNION**: main's ratified
+      `amend-marker-declaring-nothing` row keeps the position `main` gave it,
+      this packet's row sits directly below it, no byte of either is edited
+      (rows hash `40a679e7…` and `c127e8a3…`, each identical to its own side),
+      and the resolution with this packet's 84 lines removed is BYTE-EQUAL to
+      `origin/main`'s README at 9,214 lines.
+      `tests/sequenced_after/corpus-ledger.yaml` auto-merged as the same union,
+      both sides' rows kept. **THE SECOND CAPTURE IS AT ITS OWN PATH BECAUSE A
+      DATED RUN REPORT IS A ONE-SHOT `record` AND A SECOND RUN WRITES A
+      DIFFERENT PATH RATHER THAN REWRITING THE FIRST** — both runs fall on
+      2026-09-10, so the paths are distinguished by SUFFIX, exactly as PR #908
+      did at `60a3b23e` and PR #887 at `e65aed15`.
+      `review/verification-2026-09-10.md` is **PRESERVED UNEDITED**, keeps
+      `Status: record`, is NOT superseded and gains not even a pointer, editing
+      a committed `review/*.md` being a reserved act in this lane; its
+      forward-looking sentences were true of the tree they were written on and
+      are answered in the second capture's § 0 instead, as are the TWO figures
+      it got wrong — a merge count (the branch carried TWO merges at that point,
+      not one, `git log --merges` naming `acecc773` and `45b02e31`) and the
+      pinned run's INFO count on `spec/neutral-product-pin` (**17**, not
+      nineteen, on both trees, of a specification whose blob is one identical
+      object across all five trees). **THE MERGE MOVES NO BYTE OF THIS PACKET** —
+      `git diff --stat d6877c00 ec3612fa --
+      openspec/changes/amend-neutral-product-pin-lockfile-first-line` is EMPTY,
+      `review/` included and `.openspec.yaml` included — so the re-measure is
+      owed for the CORPUS, not for the delta. **BUT IT IS NOT A FORMALITY:
+      `d32509d3` LANDS THE FAMILY THAT READS THIS VERY BLOCK**, grounds FOUR and
+      FIVE now the SHIPPING predicate (+122 lines of
+      `scripts/doc_health/modified_block_currency.py`, its arm's docstring
+      reading *"FIVE GROUNDS, ONE CLASS, ONE ACTION"*), so § 3.6's claim —
+      made against a DRAFT, because that packet might land first — is re-derived
+      against the shipped code: **0 marker defects on this block and 0 across
+      all 31 active MODIFIED blocks**, 25/25 units, 1 uncarried, 1 added, 1
+      suppressed, one name, an empty `quoted` list, 0 code spans in a 1,167-char
+      reason, `_ARM_TEMPLATES` still **8** and the four scenario titles equal in
+      order. Every other gate green on `ec3612fa`: `--all --strict` **exit 1** at
+      `98 passed, 4 failed (102 items)` with the failure set STILL identical to
+      `main` `17a3b816`'s `97 passed, 4 failed (101 items)` and
+      `spec/neutral-product-pin` still ✗ on both, as it stays until the archive
+      promotes the block; the pinned **1.12.0** exit 0 at `100 passed, 2 failed
+      (102 items)` against a control's `99 passed, 2 failed (101 items)`, the
+      same two pre-existing accepted exceptions and `spec/neutral-product-pin`
+      among the passes; `proposal-support verify` exit 0 both whole-corpus and
+      named; `validate-sequenced-after` exit 0 (**40** active, **10** declaring)
+      and `--ledger-diff` exit 0 at **197** rows, the three moved rows all
+      main's (`moved_by: "#908"`, `moved_by: "#925"`) and this packet's two
+      byte-identical; `validate-scope-globs` exit 0; `doc-health` **exit 0**,
+      **348 lines and `md5` `22f7ead9d784ecc4cf5feee1d7120218` BYTE-IDENTICAL to
+      the `origin/main` `17a3b816` control**, 0 findings naming this change and
+      marker defects 0; `pytest tests/sequenced_after tests/scope_globs
+      tests/proposal-support` **489 passed, 67 subtests passed** and
+      `pytest tests/doc-health` **1689 passed** (1684 → 1689 and
+      `test_modified_block_currency.py` 139 → 144, all of it `d32509d3`'s). No
+      box of § 5 or § 6 moves.
 
 ## 5. Archive — OWED, NOT GIVEN
 
