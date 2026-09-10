@@ -32,6 +32,7 @@ does not define.
 
 from __future__ import annotations
 
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -39,7 +40,18 @@ from doc_health import DEFAULT_THRESHOLDS, corpus as dh_corpus
 from doc_health.families import FAMILIES
 from doc_health.runner import Context, run_suite
 
-from corpus_adapter import Finding, ResolvedCorpus
+# #872 (RULED OQ-Q): pinned openDox copy, not the local replica — see
+# `adapter.py`'s header for the reach and the manifest reason it stays in tree.
+_OPENDOX_SRC = Path(__file__).resolve().parents[2] / "openDox" / "code" / "src"
+if not (_OPENDOX_SRC / "opendox" / "corpus_adapter.py").is_file():
+    raise ImportError(
+        "corpus_adapter_openxfactory.check: the pinned openDox corpus-adapter "
+        f"interface is not at {_OPENDOX_SRC / 'opendox' / 'corpus_adapter.py'}. "
+        "Run `git submodule update --init --recursive openDox` from the "
+        "repository root.")
+sys.path.insert(0, str(_OPENDOX_SRC))
+
+from opendox.corpus_adapter import Finding, ResolvedCorpus
 
 from .shape import Verdict
 

@@ -357,3 +357,16 @@ class CorpusAdapter(Protocol):
         An implementation that writes the corpus tree here is not conformant,
         even where it would produce identical bytes.
         """
+
+
+# NOTE (#872, RULED OQ-Q): openxFactory's executable readers of this module now
+# import the pinned copy at `openDox/code/src/opendox/corpus_adapter.py` once
+# that submodule is initialized (see `corpus_adapter_openxfactory/adapter.py`'s
+# header). This file remains in place because the carve manifest's row for this
+# path is `not_moved / replicated_at_destination`, and deleting a retained
+# row's path is refused by `validate-carve-manifest.py` (`carve-path-absent`)
+# — only Brett Heap can flip that row's disposition to allow removal. Until
+# then this copy is inert at run time: the two neutrality tests
+# (`tests/corpus-adapter/test_no_privileged_route.py`,
+# `tests/corpus-adapter/test_no_home_vocabulary.py`) keep checking it, and
+# nothing else reads it.
