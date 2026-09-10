@@ -529,6 +529,50 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [accept-sequenced-after-header-line](openspec/changes/accept-sequenced-after-header-line/proposal.md)
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10T11:31:31Z, Brett
+  Heap, repository owner, first-hand, in session, verbatim ***"ratify 886,
+  0.2 as narrowed, 0.3 pure moves"***, over head `f36d2bc2`) — records
+  [`review/ratification-2026-09-10.md`](openspec/changes/accept-sequenced-after-header-line/review/ratification-2026-09-10.md).
+  Lane `codexfactory-1`. **ALL-ADDED delta on `release-realization`**
+  (two requirements, seven scenarios): a `sequenced_after:` line inside the
+  BOUNDED LIFECYCLE HEADER WINDOW declares exactly what the `---`-fenced
+  front-matter key declares — one loader, one shape, one grammar, one resolution
+  rule, one cycle rule, one freeze — **and beyond that window the same bytes are
+  PROSE and declare nothing**. Directed by Brett Heap's ruling of 2026-09-10
+  ~02:10Z, first-hand and in session, verbatim ***"do door b"***, on codexFactory
+  issue [#268](https://github.com/codeXfactory/codexFactory/issues/268): door (b)
+  is "openxFactory teaches the reader the unfenced header form", as against door
+  (a) "fence the whole codexFactory corpus". **THAT WORD CHOSE THE DOOR AND
+  RATIFIED NO TEXT; RATIFICATION FOLLOWED SEPARATELY** (above). The defect is
+  measured, not argued: on codexFactory main
+  `2ade133`, 49 of 50 proposals carry no fence, EIGHT carry a `sequenced_after:`
+  header line their authors wrote, and the shipped reader reports
+  `declaring = 0`. BEFORE/AFTER over that corpus: `declaring` **0 → 3**, deepest
+  declared chain **0 → 2 hops**; the other five carriers sit at lines 20–38,
+  BEYOND the window, and are reported by name rather than quietly dropped
+  (**OQ-H1**). **DOOR (b) TRIPS NO FREEZE, AND THAT IS THE MEASUREMENT THAT
+  CHOSE IT**: read through the new reader against each carrier's own ratified
+  head, all three admitted carriers report RETAINED — where fencing would have
+  turned ABSENT into a declaration on ratified packets, the contested-class
+  mutation `retention_problem` names by that word. **THE PACKET NARROWS ONE
+  SENTENCE OF A RATIFIED SIBLING** — `add-sequenced-after-substrate`'s "a prose
+  `Sequenced-after:` header … SHALL NOT constitute a machine-readable parent
+  declaration" — quoted in full with its three reasons answered in the proposal's
+  § The ratified sentence this change narrows, and it is task 0.2's ruling. The
+  delta is ALL-ADDED because that sibling is ratified-and-ACTIVE, so its
+  requirements are NOT promoted and a MODIFIED block over them is unavailable;
+  the relation is declared MECHANICALLY instead, by this change's own
+  `sequenced_after: [add-sequenced-after-substrate]` — the substrate's mechanism
+  used by its first successor, on the substrate itself. The legacy free-text
+  `Sequenced-after:` header keeps the non-declaring standing the sibling gave it,
+  and **`scope_globs:` is deliberately NOT taught the form** (**OQ-H2**): making a
+  POSITION declaration legible authorizes nothing, while a second place to declare
+  a PATH GRANT is a second place to widen one. Realized IN THE SAME PULL REQUEST
+  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
+  `tests/sequenced_after/test_header_line.py`); **NOTHING in codexFactory is
+  touched** — its re-vendor and pin advance are successors in `tasks.md` § 4,
+  owned by lane codeXfactory-1.
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817

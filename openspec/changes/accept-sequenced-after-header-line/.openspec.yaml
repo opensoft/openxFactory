@@ -1,0 +1,62 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-accept-sequenced-after-header-line
+  reason: >-
+    A FIRST-HAND RULING NAMED THE DOOR, IN THIS REPOSITORY, ON A DEFECT
+    MEASURED IN ANOTHER. codexFactory issue
+    https://github.com/codeXfactory/codexFactory/issues/268 records that
+    `sequenced_after:` declarations written by codexFactory authors are
+    INVISIBLE to the reader this repository ships, because codexFactory writes
+    its lifecycle headers UNFENCED — measured on codexFactory main `2ade133`:
+    49 of 50 proposals carry no `---` front matter, EIGHT proposals carry a
+    `sequenced_after:` header line, and `sequenced_after.corpus_sweep` still
+    reports `declaring = 0`. That issue put TWO doors to Brett Heap: (a) fence
+    the whole codexFactory corpus, which moves ratified proposal bytes and
+    turns ABSENT into a declaration on already-ratified packets — the
+    contested-class retention mutation `sequenced_after.retention_problem`
+    names by that word; or (b) openxFactory teaches the reader the unfenced
+    header form, after which codexFactory re-vendors and advances its pin and
+    NO proposal byte moves. Brett Heap ruled, first-hand and in session on
+    2026-09-10 at approximately 02:10Z, verbatim: **"do door b"**.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was listed in full and `INDEX.md` read on 2026-09-10:
+    no topic folder names declaration sites, unfenced front matter, lifecycle
+    header windows, or the legibility of `sequenced_after:` in a corpus that
+    does not fence. The organized source is a recorded in-session ruling on
+    another repository's issue, which is the shape `ad_hoc` exists for — the
+    same shape `add-consent-custody-rederivation-record` (2026-09-07) filed
+    under for an OpsxFactory ruling.
+    NOTHING IN codexFactory IS TOUCHED BY THIS PACKET, and no proposal byte
+    moves in ANY repository. The realization is confined to this repository's
+    reader (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`) and
+    its suite (`tests/sequenced_after/`). codexFactory's re-vendor and pin
+    advance are a SUCCESSOR act owned by lane codeXfactory-1, tracked unticked
+    in `tasks.md` § 4.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority; repository owner) — the
+    ruling of 2026-09-10 ~02:10Z, first-hand and in session, verbatim
+    **"do door b"**, on codexFactory issue #268.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT,
+    AND MUST NOT BE READ AS ONE. The ruling chose the DOOR between two named
+    alternatives; it decided no requirement text, no window number, no
+    conflict rule, and no field asymmetry. Every one of those is the authoring
+    session's and is flagged for veto as design decisions H-1 through H-7 in
+    `design.md`, with open questions OQ-H1 and OQ-H2 carrying recommendations
+    and no decision. At the time this field is written the packet is
+    `Status: draft`, carries no ratification citation, and owes one:
+    ratification is a separate act of Brett Heap's, tracked as task 0.1.
+    AND THE RULING WAS GIVEN OVER A KNOWN RATIFIED CONFLICT, WHICH IS WHY THE
+    DOOR WAS PUT TO HIM AT ALL: the #268 comment that framed the doors states
+    in terms that "it needs Brett Heap's word on which door, because E-8 is
+    ratified and this reverses its recommendation". A SECOND ratified sentence,
+    in THIS repository, was NOT in front of him and is quoted in full in
+    `proposal.md` § The ratified sentence this change narrows — it is the one
+    thing in this packet that most needs his eye.
+  approved_on: 2026-09-10
+related:
+  - openxFactory:change:add-sequenced-after-substrate   # RATIFIED 2026-09-01, ACTIVE, and THIS CHANGE'S DECLARED PARENT (`sequenced_after: [add-sequenced-after-substrate]`). It authored the field, the strict loader and the reader this change extends; its Groups 2-5 are realized, so the modules edited here are its shipped code and NOT its ratified text
+  - openxFactory:change:add-structured-scope-substrate  # the substrate's own parent, and the owner of `scope_globs:` — the sibling field this change deliberately does NOT teach the header-line form (design H-4)
+  - codexFactory:issue:268                              # the measured defect and the two doors; Brett Heap's "do door b" is recorded there
+  - codexFactory:change:add-floor-regeneration-automation # its ratified § E-8 refused to fence one packet for one packet's benefit and named the two corpus-scale remedies; door (b) is the third it did not consider
