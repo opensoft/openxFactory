@@ -39,14 +39,16 @@ same day in comment
 (2026-09-10T19:48:51Z). Measured in a throwaway clone; the spike branches were
 never pushed.
 
-**Nothing here is pushed, committed to any remote, or proposed as landed.**
-Verified at the end of the run: the only clone with a GitHub `origin` carries
-`main` at `origin/main` and no other branch; the spike branches exist only in
-clones whose `origin` is a local path; the shared checkout at
-`~/projects/xFactory/openxFactory` is byte-for-byte as this session found it.
-**It decides nothing** — the choice among exits (a), (b) and (c) is
-Brett Heap's, and this note exists only so that the ruling has measured
-numbers under it rather than three descriptions.
+**The measured spike implementation itself is not pushed, committed to any
+remote, or proposed as landed** — only this design note describing it is,
+which is this pull request's own act of filing it. Verified at the end of
+the measurement run: the only clone with a GitHub `origin` carried `main` at
+`origin/main` and no other branch; the spike branches existed only in clones
+whose `origin` was a local path; the lane's long-lived shared checkout was
+byte-for-byte as that session found it. **It decides nothing** — the choice
+among exits (a), (b) and (c) is Brett Heap's, and this note exists only so
+that the ruling has measured numbers under it rather than three
+descriptions.
 
 **Every figure below was produced by a command in a disposable clone of
 `opensoft/openxFactory` at `main` = `52e42be98c9e5bb4a5b1fc5cf89e235d5a349c5b`.**
