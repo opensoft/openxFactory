@@ -35,8 +35,11 @@ REST OF THAT § 6 SENTENCE IS NOT SUPERSEDED AND IS EXACTLY WHAT THIS ARCHIVE
 DOES** — *"`code_surface` is non-empty, so the archive is a separate act on
 merged-plus-green realization evidence and a separate word, and openxFactory
 #856 and #860 close there and not at this landing"*: this is that separate act,
-on that separate word, taken on that evidence, and `Closes #856` / `Closes #860`
-are on the archive pull request's BODY and on nothing else. **THE SENTENCE THAT
+on that separate word, taken on that evidence, and the two closing lines for
+#856 and #860 stand in the archive pull request's BODY, which with a commit
+message is the only surface GitHub's closing parser reads — the precise claim is
+§ 6.2's, and the wider *"and nowhere else"* it once made here is withdrawn,
+those strings occurring in this file too. **THE SENTENCE THAT
 OPENS THIS BLOCK — *"NOTHING IS TICKED THAT DID NOT LAND"* — IS LIKEWISE NOT
 SUPERSEDED**: § 6's ticks record acts performed in the archive pull request
 itself, and § 7's record the NAMING of successors and the RECORDING of a

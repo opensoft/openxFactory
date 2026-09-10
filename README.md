@@ -2769,7 +2769,20 @@ Archived changes:
   doc-health arm of the proposal's own evidence sentence rests on `tasks.md`
   § 5.11's capture instead — exit 0, the report byte-identical at
   `md5 4e25037a656543b76727afc9a7c00e13`, 350 lines, on all three trees, marker
-  defects **0** on every one. The origin-retention arm of the archive gate
+  defects **0** on every one. **SO THE ARTIFACT § 6.1's RATIFIED SENTENCE NAMES
+  LITERALLY DOES NOT EXIST, AND THIS ENTRY DOES NOT CLAIM THE ARM SATISFIED
+  WITHOUT SAYING SO.** What stands in its place is weaker in exactly ONE
+  respect, the head sha of the run rather than the content it ran: `d32509d3` is
+  the CLEAN merge of `90beb006` and `60a3b23e` (`git merge-tree --write-tree`
+  over those two reproduces its tree `201c675d…` exactly), the merge-preview run
+  tested that tree, and the base parent carries its own green `push` run
+  [`34525126090`](https://github.com/opensoft/openxFactory/actions/runs/34525126090).
+  Whether that substitution satisfies `release-realization` was a JUDGMENT
+  RESERVED TO THE LANDING AUTHORITY, put on the archive pull request rather than
+  decided by the authoring lane — which also declined to re-run the workflow on
+  `main` to manufacture the artifact, that run sharing a `cancel-in-progress`
+  concurrency group with whatever another lane had in flight. The
+  origin-retention arm of the archive gate
   reports **ORIGIN RETAINED** against `705cecef`, and both standalone archive
   gates pass against the archived path with BOTH candidate refs — `705cecef`
   and the later record-only commit `60a3b23e` — because `.openspec.yaml` is
