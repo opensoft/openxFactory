@@ -882,11 +882,12 @@ PIN_CLASS: tuple[PinMember, ...] = (
     # would have made whichever value it did not declare either a false orphan
     # or an unverified pin.
     #
-    # DECLARED IN THE COMMIT THAT ADDS THE PIN, rather than after the fact. The
-    # openRepoShape member below-but-one records that its own site "announced
-    # itself" as UNCOVERED on the CI run of the pull request that added it;
-    # measured here before the push (0 uncovered sites before, 2 after), that
-    # announcement is a finding this commit can simply not raise.
+    # DECLARED IN THE COMMIT THAT ADDS THE PIN, rather than after the fact.
+    # The member IMMEDIATELY ABOVE this one, `openreposhape-pin-product-
+    # commit`, records that its own site "announced itself" as UNCOVERED on
+    # the CI run of the pull request that added it; measured here before the
+    # push (0 uncovered sites before, 2 after), that announcement is a
+    # finding this commit can simply not raise.
     PinMember(
         id="openxdox-pin-carve-commit",
         paths=("contracts/openxdox-pin.yaml",),
