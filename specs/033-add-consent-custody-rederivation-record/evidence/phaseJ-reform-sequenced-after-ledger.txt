@@ -1,0 +1,14 @@
+$ python3 scripts/validate-sequenced-after.py . --ledger-diff
+sequenced_after corpus sweep
+----------------------------
+change ids (39 active + 151 archived): 190
+co-modified at requirement granularity (each would owe a declaration): 137
+sole modifiers (each would declare `sequenced_after: []`): 53
+ACTIVE changes: co-modified / sole: 25 / 14
+declaring `sequenced_after:`: 15 (add-consent-custody-rederivation-record, add-per-change-sweep-ledger, add-sequenced-after-substrate, adopt-codexfactory-repository-identity, adopt-configured-notebook-hosting-identity, amend-chain-anchoring-readiness-and-durability, amend-mirror-floor-regeneration-merge-authority, extend-merge-master-envelope-to-floor-bot-lanes, govern-archived-record-edits, mirror-floor-addition-grace, mirror-floor-regeneration-automation, publish-openspec-cli-pin-as-contract-member, refresh-install-repository-enumerations, register-gate-rules-council-seats, relocate-review-authority-floor-mirror)
+declaring an explicit `[]` root claim: 0
+prose `Sequenced-after:` headers: 3 (3 archived)
+DEEPEST DECLARED CHAIN RESOLVED: 3 hop(s), from amend-mirror-floor-regeneration-merge-authority
+
+per-change sweep ledger consistent with the corpus (190 rows).
+rc=0

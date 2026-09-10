@@ -11,7 +11,15 @@ title: "xFactory consent instrument: the neutral rung-1<->rung-2 authority-chain
 # siblings. Both are ADDITIVE — the RECORD envelope's `schema_version` stays
 # `const: 1`, because changing it would invalidate every instrument in the
 # estate, which is the opposite of additive.
-contract_schema_version: 2
+# 2 -> 3 (add-consent-custody-rederivation-record): ONE new top-level property,
+# `custody_rederivations` — an ordered array of closed ten-field entries
+# recording that an AUTHORIZED act moved the bytes or the path of the target
+# `custody.locator` names. ADDITIVE, on the same terms as the 1 -> 2 growth:
+# the property is optional, it is absent from every instrument in the estate
+# today, and an instrument that declares no array validates unchanged. The
+# RECORD envelope's `schema_version` again stays `const: 1`, because moving it
+# would invalidate every instrument in the estate — the opposite of additive.
+contract_schema_version: 3
 type: object
 description: >-
   Every domain's rung-1<->rung-2 consent instrument — the engagement letter,
@@ -352,3 +360,118 @@ properties:
       terminated_on:
         type: string
         format: date
+  custody_rederivations:
+    type: array
+    # A SIBLING of `custody`, never a member of it (design C-1). Ruling D9
+    # closed `custody` so that NO PROPERTY EXISTS in which the signed
+    # original's content could sit; that promise is made about `custody`
+    # ITSELF, so a history array inside it would falsify the sentence
+    # directly. The growth goes beside it and leaves the promise as it was
+    # made — and it keeps the failure modes apart: a malformed custody
+    # pointer and a malformed re-derivation chain are different defects with
+    # different owners.
+    #
+    # WHAT AN ENTRY IS. The record that an AUTHORIZED act moved the bytes or
+    # the path of the target `custody.locator` names, while `custody.sha256`
+    # — the pin — stays verbatim. The record is an INDEX INTO EVIDENCE, never
+    # a substitute for it: every leg is re-derivable by anyone holding the
+    # consuming repository.
+    #
+    # `ruling_ref` IS A DECLARED POINTER, NOT A RESOLVED ONE — the posture
+    # `dependent_refs.ref` already takes in this schema, and for the same
+    # reason: the canonical validator opens no fragment and crosses no
+    # repository boundary.
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - at
+        - commit
+        - previous_locator
+        - observed_locator
+        - previous_sha256
+        - observed_sha256
+        - diff_class
+        - reason
+        - ruling_ref
+        - recorded_by
+      properties:
+        at:
+          type: string
+          format: date-time
+          # When the divergence was RECORDED, which is not when it happened.
+          # The `amendments[].at` shape, reused verbatim.
+        commit:
+          type: string
+          pattern: "^[0-9a-f]{40}$"
+          # The commit at which the target changed. Without it no leg is
+          # re-derivable and the entry is a claim rather than a record.
+        previous_locator:
+          type: string
+          minLength: 1
+          # OPAQUE, and NOT A PATH. `custody.locator` is a pointer into the
+          # consuming repository's DECLARED CUSTODY STORE, and this contract
+          # imposes no path grammar on either locator (design C-6a). The
+          # measurement that forced the pair: every OpsxFactory locator
+          # carries an `opsx:opensoft/` scheme prefix, and THREE OF FOUR
+          # targets resolve at NO ref under their literal path, because they
+          # moved when their packets archived. A checker resolves a locator
+          # only through the declared mapping; one that INFERS an undefined
+          # rewrite is nonconformant, because an inferred rewrite can
+          # manufacture agreement between a pin and a file nobody pinned.
+          #
+          # THE PAIR IS EVALUATED ON OPPOSITE SIDES OF THE COMMIT: this
+          # locator at `commit^`, `observed_locator` at `commit`. Without the
+          # pair an archive move is UNADMITTABLE BY CONSTRUCTION — the target
+          # is absent at the new path before the commit and absent at the old
+          # path after it, so a single-locator rule refuses every one.
+        observed_locator:
+          type: string
+          minLength: 1
+          # The locator the target is at AFTER `commit`; evaluated at
+          # `commit`. EQUAL to `previous_locator` when the target did not
+          # move. See the comment above for the resolution rule.
+        previous_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          # The digest this link starts from. The FIRST entry's must equal
+          # `custody.sha256` — the chain anchors to the executed pin and to
+          # nothing else.
+        observed_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          # The target's digest AT `commit`. Never written back into
+          # `custody.sha256`: rewriting the pin destroys the only evidence
+          # that a divergence occurred while producing a record that verifies.
+        diff_class:
+          type: string
+          enum: [path_only, header_only, content]
+          # CLOSED at THREE, each carrying a currency consequence.
+          # `path_only` — zero bytes changed, only the locator did; its two
+          # digests MUST be equal. `header_only` — lifecycle-header lines
+          # only. `content` — anything else, and it WITHHOLDS the currency
+          # verdict rather than buying it, because a moved referent is
+          # grounds for RE-EXECUTION. `path_only` exists because a pure
+          # relocation is not `header_only` (no header line moved) and
+          # calling it `content` would withhold forever on a target nobody
+          # edited.
+          # A NOVEL MEMBER IS A CONTRACT CHANGE, never a value an author may
+          # coin: an unknown member is refused here so a new class arrives as
+          # a question rather than as a silently admitted string.
+        reason:
+          type: string
+          enum: [lifecycle_header_edit, archive_move, other_ruled_edit]
+          # CLOSED at three. `other_ruled_edit` is NOT a bare escape hatch —
+          # every member carries the same `ruling_ref` obligation, which is
+          # `dependent_refs.kind`'s `other`-plus-`note` pattern transposed.
+          # A novel member is a contract change, as above.
+        ruling_ref:
+          type: string
+          minLength: 1
+          # The record that authorized ACCEPTING the divergence. An entry
+          # without one is an unauthorized re-pin in a record's clothing.
+          # DECLARED, never resolved: no checker at either level opens it.
+        recorded_by:
+          type: string
+          minLength: 1
+          # Who recorded it. An anonymous acceptance is not an acceptance.

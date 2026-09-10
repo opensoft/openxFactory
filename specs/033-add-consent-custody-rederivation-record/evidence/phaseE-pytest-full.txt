@@ -1,0 +1,49 @@
+$ python3 -m pytest tests/ -q -m "not postgres"
+(Phase E gate, T054 — the FULL suite, the exact command
+.github/workflows/pytest-suite.yml:462 runs. Captured raw with its own return
+code: this file records the summary line and rc, never a run piped through
+`tail`, whose exit status is tail's.)
+
+2 failed, 10512 passed, 36 skipped, 338 deselected, 9 warnings, 90 subtests passed in 2134.42s (0:35:34)
+rc=1
+
+FAILED tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository[--require-realization-realization]
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+
+BOTH FAILURES ARE PROVEN PRE-EXISTING AND ARE NOT THIS FEATURE'S. The proof is
+a BASELINE, not an assertion: the same two node ids were run in a SEPARATE,
+INDEPENDENTLY CHECKED-OUT clone at pristine `origin/main` (`e86eca35`), carrying
+none of this branch's bytes, and they failed there identically. Transcript:
+`phaseE-baseline-preexisting-failures.txt`. ZERO failures name a consent
+surface — no test under `tests/consent_instruments/`, none touching
+`examples/consent-instrument/`, `scripts/validate-consent-instruments.py`,
+`contracts/schemas/consent-instrument.schema.yaml` or `contracts/manifest.yaml`.
+
+Their causes, named rather than waved through:
+  * `test_release_mode_field_is_preserved_on_the_real_repository` — a
+    `subprocess.TimeoutExpired` at the test's own 30-second ceiling while
+    shelling `scripts/validate-hermes-runtime-contracts.py` over the real
+    repository. A wall-clock ceiling on a loaded workstation; the runner's
+    budget is not this machine's.
+  * `test_find_validator_locates_pinned_checkout` — resolves a PINNED
+    CHECKOUT that exists only in an aggregation workspace layout. A linked
+    worktree under `../openxFactory-worktrees/` is not one, and
+    `.github/workflows/pytest-suite.yml` records this class of
+    developer-worktree/runner divergence as EXPECTED, not a regression
+    (its `EXPECT_SKIPPED` note, lines 94-103).
+
+A PREREQUISITE THIS SEAT HAD TO SATISFY, RECORDED BECAUSE IT SILENTLY COSTS AN
+ENTIRE RUN. The FIRST attempt at this gate reported **96 failed, 50 errors** —
+and every one of them was the UNINITIALIZED `openXwallet` GITLINK, not a defect.
+`tests/clearing/conftest.py` refuses rather than skipping when the pinned
+openXwallet reader is absent ("This does NOT degrade to a skip ... deliberate"),
+and `tests/trust-anchor/`, `tests/openxwallet_pin/` and
+`tests/signed_execution_chain/` read the same gitlink. CI initializes it in a
+dedicated App-token step before the suite (pytest-suite.yml:301-308) because
+openXwallet is a SECOND, PRIVATE org repository. After
+`git submodule update --init openXwallet` the same modules went from
+146 failures/errors to 2. The submodule is an ENVIRONMENT prerequisite of this
+gate and no byte of this branch is implicated.
+That first attempt was also KILLED mid-run by a lost session at roughly 45%, so
+it never produced a summary line or a return code — it is struck here rather
+than filed as a result, because a run without its rc proves nothing (FR-042a).

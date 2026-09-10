@@ -1,0 +1,49 @@
+# INVALID (schema layer): the entry carries an ELEVENTH property. The entry is
+# closed at TEN required fields since C-6a added the locator pair, so a "ninth"
+# would not test the closure at all — the fixture has to exceed TEN.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-neg-0012"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+  sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-21T15:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+data_consent:
+  mapping: none
+custody_rederivations:
+  - at: "2026-09-01T10:00:00Z"
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    previous_locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+    observed_locator: "opaque:demo-advisory/changes/add-demo-capability/review/ratification-2026-07-10.md"
+    previous_sha256: "64f46a7526a186d2346552453ae478ca51244674f5b21ba150bd483b39f7c812"
+    observed_sha256: "dcb229817486f995e507b3135b2ca0fc3406453c27c69c05c2dec959276847c7"
+    diff_class: header_only
+    reason: lifecycle_header_edit
+    ruling_ref: "docs/packet-lifecycle-headers.md § Editing an archived packet"
+    recorded_by: "lane opsXfactory-1, demo record"
+    confidence: "high"

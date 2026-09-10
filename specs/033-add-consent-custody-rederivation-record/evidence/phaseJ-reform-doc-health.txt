@@ -1,0 +1,57 @@
+THE doc-health TWO-REPORT COMPARISON FOR THE RE-FORMED contract-v3.6 CANDIDATE.
+2026-09-09. Re-taken from scratch at the re-formed candidate; it does not reuse
+the withdrawn d14b514f pair in doc-health-recut-v3.6/.
+
+BOTH RUNS ARE MADE COMPARABLE BY CONSTRUCTION, on the T080 precedent:
+  * IDENTICAL report basenames — `doc-health.md` in both, differing only in
+    their directory, so the report's own self-reference cannot appear as a diff
+    line and manufacture a finding difference that is really a filename one.
+  * IDENTICAL checkout-directory basenames — `openxFactory` under `base/` and
+    `head/` — for the same reason.
+  * ONE PINNED `--as-of 2026-09-09` on both, so a clock rollover between the two
+    runs cannot move an aging-class finding.
+
+THE TWO SHAS:
+  BASE  fee36588af269f720f2879c974669c7ed86efa1a   (the merge of origin/main@17167481 — the SAME base the withdrawn pair used)
+  HEAD  be77cb34bf3c1361a28f5f70bbef6a738f392c3e   (the RE-FORMED contract-v3.6 candidate)
+
+$ python3 scripts/doc-health.py --single-repo <dir>/openxFactory \
+      --as-of 2026-09-09 --report-out <dir>/doc-health.md
+  base rc=0     head rc=0
+
+  BASE  Findings: 10 critical, 6 error, 57 warning, 15 info.  New regressions vs previous report: 0.
+  HEAD  Findings: 10 critical, 6 error, 57 warning, 13 info.  New regressions vs previous report: 0.
+
+ZERO FINDINGS ARE ADDED AT ANY SEVERITY IN ANY FAMILY — measured over the diff
+rather than eyeballed: `grep '^+' doc-health-diff.txt | grep 'severity='`
+returns NOTHING.
+
+TWO ARE REMOVED, both `release-inventory-drift`, and the cut is exactly what
+removes them:
+
+  [info] contracts/README.md   — bytes differ from the digest 'contract-v3.5' records
+                                 (editorial member — expected between cuts)
+  [info] contracts/manifest.yaml — same
+
+Those are the SAME TWO members the independent inventory diff found had moved at
+the merge commit, the same two `verify-commit --commit fee36588` reports, and
+the same two `verify-commit --commit 31772616` still reports at the WITHDRAW
+commit — which is the proof that the withdrawal really did return the release
+surface to the integration point's bytes. `release-inventory-drift` count at
+HEAD: ZERO.
+
+THE NEWLY DECLARED, UNTAGGED BUNDLE TRIPS NOTHING YET, MEASURED RATHER THAN
+ASSUMED. `family=release-tag-publication` appears exactly ONCE in BOTH reports
+and it is the identical `contract-v2.6` SPENT `info` line; the string
+`contract-v3.6` appears in NEITHER report's findings. The obligation is real and
+the gate says so ("TAG OWED"), but the family's landing-distance grace has not
+elapsed at a candidate that is its own declaring commit.
+
+THE ONLY OTHER MOVEMENT IS ARITHMETIC: canon share 39.8% -> 39.7% on a
+governance-word denominator that grew by 2,397 draft words (this re-form's own
+CHANGELOG hunks, the superseded/live task blocks and the realization section),
+with the canon numerator unchanged at 360,528.
+
+ARTEFACTS: `doc-health-reform/base/doc-health.md`,
+`doc-health-reform/head/doc-health.md`,
+`doc-health-reform/doc-health-diff.txt`.

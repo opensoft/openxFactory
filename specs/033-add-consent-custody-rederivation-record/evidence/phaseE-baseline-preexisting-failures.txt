@@ -1,0 +1,20 @@
+$ cd <a SEPARATE clone>/oxf-realize-consent && git checkout --detach origin/main
+e86eca35 Merge pull request #801 from opensoft/realize/codexfactory-identity-b1
+
+$ python3 -m pytest \
+    tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout \
+    tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository \
+    -q -m "not postgres"
+
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+FAILED tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository[--require-realization-realization]
+2 failed, 1 passed in 54.05s
+rc=1
+
+THE POINT OF THIS FILE. The two failures the Phase E full-suite gate reports are
+measured HERE against a tree that contains none of this branch's work — a
+different checkout, at `main`, at a named sha. They fail identically. So they are
+the ESTATE's, or the WORKSTATION's, and they are not this feature's; the gate is
+read as green FOR THIS CHANGE, and the two are reported rather than absorbed.
+Re-take this baseline if `main` moves before the final sweep: a baseline at a
+stale sha is not a baseline.

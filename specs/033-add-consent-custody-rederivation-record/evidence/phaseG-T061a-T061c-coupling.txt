@@ -1,0 +1,83 @@
+T061a — WHAT A CUT ACTUALLY MOVES, MEASURED FROM THE LAST ONE. 2026-09-09.
+
+$ git show --stat --format='' 807a4f47     (the contract-v3.4 cut)
+ contracts/CHANGELOG.md                           |  446 +++++++
+ contracts/README.md                              |    2 +
+ contracts/manifest.yaml                          |    2 +-
+ contracts/releases/contract-v3.4.digests.yaml    | 1521 ++++++++++++++++++++++
+ tests/clearing/test_clearing_manifest_rows.py    |   62 +-
+ tests/intent-compliance/test_release_boundary.py |   25 +
+ 6 files changed, 2049 insertions(+), 9 deletions(-)
+
+SIX files, not four. THE EDIT SET DERIVED FOR THIS CANDIDATE, from that
+measurement rather than copied from it:
+
+  contracts/CHANGELOG.md                        YES — the v3.5 entry
+  contracts/manifest.yaml                       YES — bundle version, the
+                                                consent row's digest, the new
+                                                consumption_rule paragraph
+  contracts/releases/contract-v3.5.digests.yaml YES — BUILT, never hand-edited
+  contracts/README.md                           YES — and the reason is read
+                                                off 807a4f47 rather than
+                                                assumed: that cut's two README
+                                                lines were REGISTRATION-STATE
+                                                rows for the family it
+                                                published. This cut's
+                                                registration state also moves —
+                                                the consent schema's
+                                                contract_schema_version goes
+                                                2 -> 3 — so its row gains the
+                                                amendment note, in the same
+                                                slot and the same register.
+  tests/intent-compliance/test_release_boundary.py  YES — see T061b below
+  tests/clearing/test_clearing_manifest_rows.py     NO — see T061c below
+
+T061b — THE TRIPWIRE, and the three edits it takes.
+`_release_state()` fails LOUDLY on a bundle its enum does not name, so moving
+`contract_bundle_version` without this edit reds the required suite.
+  (i)   FEATURE_SUCCESSOR_9 = "contract-v3.5", beside FEATURE_SUCCESSOR_8
+  (ii)  the member added to BOTH match arms — there are TWO, and missing
+        either hits assert_never
+  (iii) the hand-written paragraph in the enum's docstring, MEASURED:
+        * against contract-v3.4's 283-entry inventory, exactly THREE registered
+          rows differ at this candidate — contracts/manifest.yaml,
+          contracts/README.md and docs/contract-versioning-policy.md. The first
+          two are EDITORIAL members this cut moves itself; the third moved on
+          main before the cut reached it.
+        * measured DIRECTLY as well, over the member set itself:
+          $ git diff --name-status contract-v3.4 HEAD -- \
+              contracts/intent-compliance scripts/intent_compliance \
+              tests/intent-compliance scripts/validate-intent-compliance.py
+          returns ZERO paths.
+        So the membership this file asserts is UNCHANGED — stated by hand,
+        because "unchanged" is the one fact the library cannot tell from
+        "unnoticed".
+
+T061c — MEASURED, NOT ASSUMED, AND THE ANSWER IS NO EDIT.
+$ python3 -m pytest tests/clearing/test_clearing_manifest_rows.py \
+      tests/intent-compliance/test_release_boundary.py -q -m "not postgres"
+1 failed, 32 passed
+FAILED ...::test_the_declared_bundle_has_an_inventory_and_is_not_behind_the_rows
+  AssertionError: contract-v3.5 has no release inventory beside it
+
+THE ONE FAILURE IS THE MISSING INVENTORY, WHICH T063 CREATES — not a stale pin.
+That is exactly the outcome 807a4f47 engineered: it REPAIRED this file's
+bundle-version equality "rather than re-pinned to a number that would fail again
+at contract-v3.5". Its three live assertions all hold for a v3.5 cut — the
+declared bundle is not behind the rows' registering release, both have an
+inventory beside them once T063 runs, and no clearing row's consumption_rule
+mentions contract-v3.5 (line 95 tests the `clearing-deliberation-return` row,
+which this cut does not touch; the new paragraph is on `consent-instrument`).
+Re-run after T063 is in the T064 full-suite transcript.
+
+T063 — THE INVENTORY IS BUILT, NEVER HAND-EDITED.
+$ python3 scripts/validate-contract-release.py build --tag contract-v3.5 \
+      --output contracts/releases/contract-v3.5.digests.yaml
+release build: pass
+  bundle_tag=contract-v3.5
+  entries=283
+rc=0
+ENTRY COUNT 283. DELTA AGAINST contract-v3.4's 283: ZERO. The nineteen paths
+this bundle moves under contracts/ are registered rows of NEITHER inventory
+except manifest.yaml and README.md, which are members of both and whose digests
+move with the cut.

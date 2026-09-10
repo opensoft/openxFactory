@@ -1,0 +1,24 @@
+T060 — THE RE-MEASUREMENT AT THE INTEGRATION POINT. 2026-09-09.
+
+Integration: `git merge origin/main` at `587f21a0` into the branch, producing
+`9d658813`. A MERGE and never a rebase — opensoft org ruleset 8981805 forbids
+non-fast-forward updates, so a candidate advances only forward. Main had moved
+39 commits since the previous measurement, SEVEN of them under `contracts/`, so
+this re-measurement is the one that counts and the earlier one is superseded.
+
+THE NUMBER, ON ALL THREE SURFACES, AT THE INTEGRATION POINT:
+  contracts/manifest.yaml:3        contract_bundle_version: contract-v3.4
+  contracts/releases/ (highest)    contract-v3.4.digests.yaml
+  git tag -l 'contract-v*'         contract-v3.4
+=> contract-v3.5 is FREE. A MEASUREMENT, NOT A RESERVATION. Nothing on this
+   branch claims it; the LANE claims it on issue #630 row 4 at cut time.
+
+THE BUNDLE'S OWN CONTENTS, re-measured at the candidate rather than carried
+forward from research.md R6 (which said 4 added / 14 modified at BRANCH
+CREATION and has since moved, exactly as panel F7 warned):
+$ git diff --name-status contract-v3.4 HEAD -- contracts/
+  4 A, 15 M  (nineteen paths; the full list with per-path attribution is the
+  contract-v3.5 CHANGELOG entry, which is written FROM this measurement)
+
+R6 IS SUPERSEDED FOR T062'S PURPOSES. The modification count moved 14 -> 15.
+T062 is written from the measurement above.

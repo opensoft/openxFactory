@@ -1,0 +1,5 @@
+$ python3 scripts/validate-consent-instruments.py --strict
+note  self-test: 6 valid example(s) confirmed valid, 7 negative example(s) confirmed invalid for their intended finding (detail-pinned where the code alone is too coarse), 2 purpose probe(s) confirmed (one resolution, one refusal)
+
+validate-consent-instruments: 0 error(s), 0 warning(s)
+rc=0

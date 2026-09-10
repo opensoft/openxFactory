@@ -1,0 +1,57 @@
+THE doc-health TWO-REPORT COMPARISON FOR THE contract-v3.6 RE-CUT. 2026-09-09.
+
+BOTH RUNS ARE MADE COMPARABLE BY CONSTRUCTION, on the T080 precedent:
+  * IDENTICAL report basenames — `doc-health.md` in both, differing only in
+    their directory, so the report's own self-reference cannot appear as a diff
+    line and manufacture a finding difference that is really a filename one.
+  * IDENTICAL checkout-directory basenames — `openxFactory` under `base/` and
+    `head/` — for the same reason.
+  * ONE PINNED `--as-of 2026-09-09` on both, so a clock rollover between the two
+    runs cannot move an aging-class finding.
+
+THE TWO SHAS, THE BASELINE RE-TAKEN AT THIS BRANCH'S CURRENT INTEGRATION POINT:
+  BASE  fee36588af269f720f2879c974669c7ed86efa1a   (the merge of origin/main@17167481)
+  HEAD  d14b514f412e915dd45fe66f1149969598d8a91c   (the contract-v3.6 candidate)
+
+$ python3 scripts/doc-health.py --single-repo <dir>/openxFactory \
+      --as-of 2026-09-09 --report-out <dir>/doc-health.md
+  base rc=0     head rc=0
+
+  BASE  Findings: 10 critical, 6 error, 57 warning, 15 info.  New regressions vs previous report: 0.
+  HEAD  Findings: 10 critical, 6 error, 57 warning, 13 info.  New regressions vs previous report: 0.
+
+ZERO FINDINGS ARE ADDED AT ANY SEVERITY IN ANY FAMILY — measured over the diff
+rather than eyeballed: `grep '^+' doc-health-diff.txt | grep 'severity='`
+returns NOTHING.
+
+TWO ARE REMOVED, both `release-inventory-drift`, and the cut is exactly what
+removes them:
+
+  [info] contracts/README.md   — bytes differ from the digest 'contract-v3.5' records
+                                 (editorial member — expected between cuts)
+  [info] contracts/manifest.yaml — same
+
+Those are the SAME TWO members the independent inventory diff found had moved at
+the merge commit, and the same two `verify-commit --commit fee36588` reported.
+Three measurements agree without being told to. Building
+`contract-v3.6.digests.yaml` at this tree is what closes them — the drift check
+working rather than being silenced: nothing was hand-edited to make the
+comparison pass, and the versioning policy names hand-editing an inventory or
+`contract_bundle_version` as the forbidden repair. `release-inventory-drift`
+count at HEAD: ZERO.
+
+THE NEWLY DECLARED, UNTAGGED BUNDLE TRIPS NOTHING YET, AND THAT IS MEASURED
+RATHER THAN ASSUMED. `family=release-tag-publication` appears exactly ONCE in
+BOTH reports and it is the identical `contract-v2.6` SPENT `info` line; no
+finding names `contract-v3.6`. The obligation is real and the gate says so
+("TAG OWED"), but the family's landing-distance grace has not elapsed at a
+candidate that is its own declaring commit.
+
+THE ONLY OTHER MOVEMENT IS ARITHMETIC: canon share 39.8% -> 39.7% on a
+governance-word denominator that grew by 2,265 draft words (this re-cut's own
+CHANGELOG entry and evidence prose), with the canon numerator unchanged at
+360,528.
+
+ARTEFACTS: `doc-health-recut-v3.6/base/doc-health.md`,
+`doc-health-recut-v3.6/head/doc-health.md`,
+`doc-health-recut-v3.6/doc-health-diff.txt`.

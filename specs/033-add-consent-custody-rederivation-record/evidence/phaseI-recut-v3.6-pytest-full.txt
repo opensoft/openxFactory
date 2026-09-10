@@ -1,0 +1,18 @@
+THE FULL SUITE AT THE EXACT UNCHANGED contract-v3.6 CANDIDATE d14b514f412e915dd45fe66f1149969598d8a91c
+2026-09-09. openXwallet submodule initialized at its pinned f3eb929b (wallet-v1.5) first;
+without it ~96 clearing tests fail on the uninitialized gitlink, which is environment, not a defect.
+
+$ python3 -m pytest tests/ -q -m "not postgres" -p no:cacheprovider
+
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+1 failed, 10713 passed, 36 skipped, 338 deselected, 9 warnings, 139 subtests passed in 2044.37s (0:34:04)
+rc=1
+
+THE ONE FAILURE IS THE BASELINED, ENVIRONMENT-SHAPED ONE and no other test fails.
+tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+resolves a pinned checkout that exists only in an aggregation workspace layout; it is
+proven pre-existing at pristine origin/main by phaseE-baseline-preexisting-failures.txt.
+Both cut-coupled tests PASS at this candidate: tests/intent-compliance/test_release_boundary.py
+with its three v3.6 edits, and tests/clearing/test_clearing_manifest_rows.py with NONE.

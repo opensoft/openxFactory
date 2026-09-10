@@ -970,6 +970,35 @@ Active changes:
   [5571680388](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680388)
   (row-3 README substrate), lane `opsXfactory-1`.
 
+  **AMENDED 2026-09-09 by this change's own realization (lane `opsXfactory-1`),
+  under this packet's standing row-3 substrate claim
+  [5571680388](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5571680388)
+  (2026-09-07) and the lane's row-3 note of 2026-09-09
+  ([#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475)).
+  ONE NAMED SENTENCE ABOVE IS SUPERSEDED, AND IT IS QUOTED IN PLACE RATHER THAN
+  DELETED. The superseded sentence is exactly this one, and no other:**
+
+  > **RATIFICATION PERFORMS NO REALIZATION** — no schema byte moves, no contract
+  > version is cut, no consumer file is edited, and **all 46 boxes in `tasks.md`
+  > stay unticked**.
+
+  **It was true of the RATIFICATION and is false of the REALIZATION that began
+  2026-09-09 on branch `033-add-consent-custody-rederivation-record` (Speckit
+  feature `specs/033-add-consent-custody-rederivation-record`, lane
+  `opsXfactory-1`). Three of its four clauses fall.** Schema bytes MOVED —
+  `contracts/schemas/consent-instrument.schema.yaml` grew the closed
+  `custody_rederivations[]` sibling and `contract_schema_version: 2` became `3`.
+  A contract version IS cut, in this same pull request, because § *Version
+  Identity* requires a bundle's manifest and changelog to move atomically with
+  its contract files; the number is a MEASURED CANDIDATE, re-measured at every
+  merge-from-main and CLAIMED by the lane at cut time, so this row names none
+  and reserves none. And the boxes are ticked as their acts land, each in the
+  same commit as its evidence, so `tasks.md` carries the running tally rather
+  than this row. **NOT superseded, and re-verified rather than assumed: NO
+  CONSUMER FILE IS EDITED.** That clause is § 6's, § 6 is OpsxFactory's, and
+  nothing in this realization reaches an OpsxFactory file — so the three broken
+  custody pins stay broken until the consumer acts.
+
 - [extend-merge-master-envelope-to-floor-bot-lanes](openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/proposal.md)
   — authored 2026-09-07, **`Status: ratified`** (2026-09-07, Brett Heap
   (repository owner), in session at 2026-09-07T12:32:44Z, verbatim *"ratify 746
@@ -3339,6 +3368,60 @@ Archived changes:
   `645e88ec`. The comparison with `add-consent-custody-rederivation-record` also
   stands: measured 2026-09-09 UTC at `main` `6cc06288`, that packet still carries
   all 46 boxes unticked.
+
+  **AMENDED 2026-09-09 by the realization of
+  `add-consent-custody-rederivation-record` (lane `opsXfactory-1`), under the
+  lane's row-3 substrate note of that day
+  ([#630 comment 5603344475](https://github.com/opensoft/openxFactory/issues/630#issuecomment-5603344475)),
+  which covers this row. TWO NAMED SENTENCES ABOVE ARE SUPERSEDED — each in
+  part, each quoted in place rather than deleted — and TWO MORE ARE
+  DELIBERATELY LEFT STANDING. The first is the TRANSITION CLAUSE'S OWN
+  PREMISE:**
+
+  > NO family anywhere has a declared re-derivation rule today — the consent
+  > family's is PROPOSED only (`contract_schema_version: 2`, no
+  > `custody_rederivations` property, `contract-v3.4`, 46/46 boxes unticked)
+
+  **False on all four counts once that realization lands:** the schema carries
+  `custody_rederivations[]`, `contract_schema_version` is `3`, the bundle is cut
+  past `contract-v3.4`, and boxes are ticked as their acts land.
+  **THE CONSEQUENCE IS RECORDED HERE, NOT ARMED.** Under the transition clause
+  above, the consent family's re-derivation rule is now DECLARED, so an edit of
+  a consent pinned target converts from REPORTED to REFUSED **for that family
+  the day a gate exists to refuse it** — and that gate is F.2's custody-digest
+  gate, which is OpsxFactory's own (§ 7.1 of the consent packet, named as owed
+  elsewhere and performed nowhere here). Nothing in this realization builds it,
+  schedules it or arms it. **NOT superseded, and re-verified rather than
+  assumed:** the register home `models/content-address-families.yaml` still
+  exists neither on OpsxFactory's `main` nor on the branch proposing it —
+  re-measured 2026-09-09 by a read-only API fetch of that path at that
+  repository's default branch, which returns **404**.
+
+  **The second superseded sentence is the F.1 disposition's parenthesis, and it
+  is superseded in its FIRST CLAUSE ONLY:**
+
+  > that packet is a ratified PROPOSAL with all 46 boxes unticked, so the three
+  > pins are still broken and "discharged" would claim a repair nobody has
+  > performed
+
+  It is no longer a proposal with all 46 boxes unticked; realization ticks them
+  as their acts land. **NOT superseded, and re-verified rather than assumed:
+  THE THREE PINS ARE STILL BROKEN**, and *"discharged"* would still claim a
+  repair nobody has performed — the repair is § 6 of that packet, § 6 is
+  OpsxFactory's, and the realization writes no OpsxFactory file. F.1 therefore
+  stays **ADDRESSED** rather than discharged, exactly as this row says.
+
+  **TWO NEIGHBOURING SENTENCES ARE LEFT EXACTLY AS WRITTEN, and that is a
+  decision rather than an omission.** Both are identified by their QUOTED
+  WORDS, and the line numbers beside them are the ones they carried BEFORE this
+  amendment inserted lines above them — a coordinate that moves is not an
+  identifier. The past-tense *"left its 46"* (`README.md:2949–2950`
+  pre-amendment) records what the RATIFICATION left and stays true of it. The
+  dated *"measured 2026-09-09 UTC at `main` `6cc06288`, that packet still
+  carries all 46 boxes unticked"* (`README.md:3098–3100` pre-amendment) is a
+  MEASUREMENT AT A NAMED COMMIT: true when written and still true of that
+  commit. A dated measurement is not falsified by a later act, and overwriting
+  it would destroy the record it exists to be.
 
 - [add-openspec-cli-pin](openspec/changes/archive/2026-09-09-add-openspec-cli-pin/proposal.md)
   — **ARCHIVED 2026-09-09**, on Brett Heap's separate word of that day (in

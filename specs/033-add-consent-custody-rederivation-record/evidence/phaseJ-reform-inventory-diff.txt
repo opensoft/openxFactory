@@ -1,0 +1,24 @@
+$ python3 - <<inventory-diff  # contracts/releases/contract-v3.5.digests.yaml vs the RE-FORMED candidate's freshly built contract-v3.6.digests.yaml
+OLD  contract-v3.5  inventory contract-v3.5: 283 entries
+NEW  <re-formed candidate, working tree>  contract-v3.6: 283 entries
+
+ADDED (0):
+
+REMOVED (0):
+
+DIGEST-CHANGED (4):
+  M | contracts/CHANGELOG.md | a2b65ff30b9c | e609d3c7e13a
+  M | contracts/README.md | f3a959fa223d | a8f1ac59abf8
+  M | contracts/manifest.yaml | 93564e191379 | db09218b28b9
+  M | tests/intent-compliance/test_release_boundary.py | a235e1c55947 | 3ad36da5ca35
+
+NON-DIGEST FIELD CHANGES (0):
+
+INVENTORY MEMBERS OUTSIDE contracts/ (91): 1 moved, 90 byte-unchanged
+  moved     tests/intent-compliance/test_release_boundary.py
+
+DELTA vs the WITHDRAWN candidate d14b514f: the same four members move, and
+the ONLY digest that differs from d14b514f's inventory is contracts/CHANGELOG.md's
+own (d3e4ddbfba4c -> e609d3c7e13a), because the entry's three prose hunks are the
+only bytes that changed.
+rc=0

@@ -1,0 +1,26 @@
+THE FULL SUITE AT THE EXACT UNCHANGED RE-FORMED contract-v3.6 CANDIDATE
+be77cb34bf3c1361a28f5f70bbef6a738f392c3e
+2026-09-10. Run in the branch worktree with the openXwallet submodule already
+initialized at its pinned f3eb929b (wallet-v1.5); without it ~96 clearing tests
+fail on the uninitialized gitlink, which is environment, not a defect.
+`git status --porcelain` carried only UNTRACKED evidence files throughout — no
+tracked path moved while the suite ran, so the tree under test is the candidate's.
+
+$ python3 -m pytest tests/ -q -m "not postgres" -p no:cacheprovider
+
+=========================== short test summary info ============================
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+1 failed, 10713 passed, 36 skipped, 338 deselected, 9 warnings, 139 subtests passed in 2188.35s (0:36:28)
+rc=1
+
+THE ONE FAILURE IS THE BASELINED, ENVIRONMENT-SHAPED ONE and no other test fails.
+tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+resolves a pinned checkout that exists only in an aggregation workspace layout; it is
+proven pre-existing at pristine origin/main by phaseE-baseline-preexisting-failures.txt.
+
+THE COUNTS ARE IDENTICAL TO THE WITHDRAWN CANDIDATE'S RUN — 1 failed, 10713
+passed, 36 skipped, 338 deselected, 139 subtests — which is the expected reading:
+the re-form moved three prose hunks in contracts/CHANGELOG.md and the ONE
+inventory digest that records them, and no test reads either.
+Both cut-coupled tests PASS at this candidate: tests/intent-compliance/test_release_boundary.py
+with its three v3.6 edits, and tests/clearing/test_clearing_manifest_rows.py with NONE.
