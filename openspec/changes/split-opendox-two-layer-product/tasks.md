@@ -886,6 +886,45 @@ the bookkeeping that ticks this group.
   ruling's own word: openDox, openXdox's adapter implementation, AND
   `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
   proof that the home corpus has no privileged route.
+  **NOT TICKED — the machine is built and the answer it returns is NO, at
+  openxFactory #920, 2026-09-10.** The box asks for two things and only one of
+  them was ever missing. The CORPUS exists: RULED OQ-3 (2026-09-06) seeded it
+  at `tests/corpus-adapter/fixtures/` — three documents in two roots of their
+  own under a two-field header vocabulary belonging to no governed repository,
+  plus an empty sibling and a non-directory — and eleven manifest rows name
+  those exact paths `not_moved / replicated_at_destination`, so it is not
+  relocated and no second copy is authored. What did not exist is a way to run
+  it against a reader `openxFactory` did not author, the seed being
+  `pytest`-bound to a factory named in the file. That lands here:
+  `scripts/carve_conformance.py`, the corpus as a closed set of **17 checks**
+  (10 positives, 7 negative confirmations) over any reader, stdlib plus
+  `corpus_adapter` only and held to the interface's own no-home-vocabulary
+  scan; `scripts/verify-carve-conformance.py`, the runner in
+  `verify-carve-arrival.py`'s idiom (`--destination`/`--dest-root`, exit 0 or
+  2, five refusal codes, a `--json` seat, the seat-holding pass); and
+  `tests/carve_conformance/` (34 tests; six non-conformant readers each
+  failing the check that catches it, three live mutations of the corpus each
+  turning its own case red, and one reader raising its OWN refusal class —
+  every destination holds a replica of the interface — asserted to PASS).
+  **Measured at each destination's then-current main, 2026-09-10:**
+  `openxfactory` (§ 2.2a) **OK — 17 of 17**; `opendox_code` `8e9ffa62`,
+  `openxdox_code` `59600412`, `opendox_spec` `41d570e9` and `openxdox_spec`
+  `03eacc61` each `conformance-adapter-undeclared`. openDox-code holds the
+  INTERFACE replica at `src/opendox/corpus_adapter.py` — byte-identical to the
+  carve blob at `b075fd91` (`a0d971d6…`) and a `runtime_checkable Protocol`
+  whose six methods are docstring-only, so pointing the runner at it returns
+  `TypeError: Protocols cannot be instantiated` — and no implementation of it;
+  an AST census over all four legs (91 / 1 / 98 / 1 `.py` files) finds no
+  class defining the six operations anywhere but that Protocol, which
+  independently reproduces the corpus-adapter non-placement leg 3 recorded and
+  its verifier confirmed (`#656` comments `5621296616`, `5621719657`).
+  **ONE of the three named destinations passes, so the box stays open**: the
+  missing readers are § 3.6's "trivial conformant adapter implementation" for
+  openDox and § 4's mapping core for openXdox, and they are build tasks at
+  those destinations rather than findings against the corpus — narrowing the
+  corpus to what the legs pass today would be FLOOR PART 3 deleted to tick
+  FLOOR PART 3. § 3.8's tag waits on it. Runbook § 2.2 carries the runner, the
+  refusal table and the same verdicts.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
@@ -937,7 +976,7 @@ the bookkeeping that ticks this group.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
-- [ ] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
+- [x] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
   file and gitlink moving in the SAME commit. **Names the ASSEMBLY ROOT**
   (amended 2026-09-05; corrected 2026-09-05 per RULING F — `opensoft/openxFactory`
   issue #656, Brett Heap, "rule F openXdox only, then do the corrections PR":
@@ -946,7 +985,17 @@ the bookkeeping that ticks this group.
   never pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
-  all, as a DERIVED value.
+  all, as a DERIVED value. **TICKED — #917 → `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`**,
+  the § 5-remainder lane's own live re-verification (2026-09-10, on this packet's
+  tick standard, PR #897 → `021c3d3607a626730ae8d2027ca68c58ed14a3b6`): at that
+  commit the `openXdox` gitlink reads `db58fffa58d49d92f58db40bd7e63cad3205052f`,
+  `.gitmodules` names the assembly root (`git@github.com:opensoft/openXdox.git`,
+  not a leg), `contracts/openxdox-pin.yaml` carries that same commit, and both
+  moved in PR #917's one commit (`contracts/openxdox-pin.yaml` +121 and the
+  `openXdox` gitlink, nothing else in that diff). No `contracts/opendox-pin.yaml`
+  and no second gitlink exist anywhere in the tree.
+  `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
+  `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
