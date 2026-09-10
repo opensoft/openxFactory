@@ -591,7 +591,7 @@ boxes:
   decision core (freshness verifier only)` fetched at
   `19f2ab0c9f04d4cf24af11c2551cb1a19263e41b`. The other seven checks were green;
   `lane-line` skipped by design for a bot author.
-- [ ] 5.5 Both merge on a human word, and `covered-pending` returns to zero on
+- [x] 5.5 Both merge on a human word, and `covered-pending` returns to zero on
   the next main run — quoted verbatim from that run.
   **HALF OBSERVED, HALF NOT OBSERVABLE ON THIS CYCLE — STAYS OPEN.** Both halves
   merged on a human word: codexFactory #248 → `7f147070a8497038e96040ced403ee84d4044bd1`
@@ -659,7 +659,66 @@ boxes:
   next advisory run over a base that includes the re-pin", and this note is that
   reading written down rather than a silent substitution.**
   **THE MERGE WORD FOR THAT RE-PIN IS BRETT HEAP'S AND HAS NOT BEEN GIVEN.**
-- [ ] 5.6 The end-to-end wall time is measured and recorded against the two hand
+  **2026-09-10 — TICKED, AND THE TICK IS THE LANE'S RULING ON BRETT HEAP'S
+  DELEGATION, verbatim: "same word for the mirror's six on #745" (extending
+  "tick 6.1, 6.2, 6.4 and 6.3; rule on the rest")
+  ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  Four of the six boxes his word reaches are owner's acts in § 6 and this one is
+  not: it is one of the two he delegated with *"rule on the rest"*, and what
+  follows is the ruling, with the run and merge citations it rests on read back
+  from the API rather than restated. **BOTH CLAUSES ARE OBSERVED ON CYCLE
+  THREE**, the first cycle that ran with a non-zero starting count (5.1).
+  **CLAUSE (a) — *"both merge on a human word"*.** This repository's half
+  merged on his word *"merge both"*:
+  [#883](https://github.com/opensoft/openxFactory/pull/883) →
+  `e916f0ea89265223c2f00c11395b90a41f376920`, `mergedBy: brettheap`. The
+  codexFactory half's human word is SUPERSEDED — not unmet, and recorded here
+  rather than the clause being deleted — by the ratified
+  `amend-floor-regeneration-merge-authority`: codexFactory
+  [#325](https://github.com/codeXfactory/codexFactory/pull/325) (*"Regenerate
+  the openxFactory review-authority floor block at `e32d580a` (61 -> 62
+  entries)"*) merged at `df42f8033a2dee3fd6f49d435912e7f30eac24ec` at
+  2026-09-10T01:55:14Z with `mergedBy: app/openxfactory`, **and by that
+  amendment no human word was owed on it**. This is the same supersession the
+  2026-09-09 note above recorded on cycle two, carried unchanged and instanced
+  again; nothing in that note is withdrawn.
+  **CLAUSE (b) — `covered-pending` returns to zero — UNDER THE BOX'S OWN
+  RECORDED READING and not a silent substitution.** The 2026-09-09 note above
+  already measured that this box's literal phrase *"the next `main` run"* names
+  a trigger that DOES NOT EXIST (§ 3 finding 3: `merge-master-approval.yml` is
+  the only workflow that prints the reading and it runs on
+  `pull_request_target` / `workflow_dispatch`; `pytest-suite.yml`, which does
+  run on `push: branches: [main]`, computes no `pending_floor_extension` report
+  at all), and READ the phrase as *"the next advisory run over a base that
+  includes the re-pin"*. That run is
+  [34475347536](https://github.com/opensoft/openxFactory/actions/runs/34475347536)
+  — `merge-master-approval`, event `pull_request_target`, created
+  **2026-09-10T12:11:42Z**, the FIRST advisory run after the 11:57:17Z merge,
+  its step `Checkout decision core (codeXfactory/codexFactory, pinned)` reading
+  `ref: b594ef2ad86ebdefffc497c571c8a84044f6ec10`, which is the pin #883
+  landed. Its step `Evaluate the openxFactory repository gate floor` prints,
+  verbatim:
+
+  ```
+  covered-pending:       0 (tolerance 3, pin measured)
+  ```
+
+  Runs
+  [34475672967](https://github.com/opensoft/openxFactory/actions/runs/34475672967)
+  (12:15:07Z) and
+  [34477475011](https://github.com/opensoft/openxFactory/actions/runs/34477475011)
+  (12:34:19Z) print that line byte for byte. It is `pin measured`, not the B1
+  fail-safe, and the count is `0` on a base whose predecessor read `1`.
+  **5.1's non-zero reading → #883 → 0 IS THE ROUND TRIP THIS BOX ASKS FOR, and
+  it is closed in this repository.** What the box refused to tick on in
+  2026-09-06 — a `0` that had never left `0` — is not what is ticked here.
+  **ONE FIGURE IN THE RULING IS CORRECTED BY RE-READING RATHER THAN CARRIED:**
+  the #745 comment gives the #883 merge as 11:57:22Z; `mergedAt`,
+  `mergeCommit.committedDate` and the `MergedEvent` all read
+  **2026-09-10T11:57:17Z**, five seconds earlier. Nothing in either clause turns
+  on it — 12:11:42Z is after both — and the correction is recorded here rather
+  than by editing the ruling.
+- [x] 5.6 The end-to-end wall time is measured and recorded against the two hand
   cycles in `proposal.md` § Why (55 min and 77 min).
   **MEASURED AND RECORDED — NOT YET THE FIGURE THE BOX ASKS FOR, SO IT STAYS
   OPEN.** From the regeneration lane's first firing (run 34024535671,
@@ -690,6 +749,77 @@ boxes:
   — was again ZERO, which is the packet's actual claim**; the comparable
   UNATTENDED wall time remains owed on the first cycle that runs clean end to
   end in both repositories.
+  **2026-09-10 — TICKED ON THE RECORDING, AND THE FIGURE THIS BOX ASKS FOR IS
+  NAMED AS STRUCTURALLY OWED ELSEWHERE. The tick is the lane's ruling on Brett
+  Heap's delegation, verbatim: "same word for the mirror's six on #745"
+  (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the rest")
+  ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  **WHAT WAS MEASURED, on cycle three, every timestamp read back from the API.**
+  End to end: promotion `62935437fc59436f92b919654b42df9a0f0cbd9f`
+  (`openspec/specs/repository-identity/spec.md`, 2026-09-10T00:38:27Z) → last
+  merge `e916f0ea` (11:57:17Z) = **11 h 18 min 50 s**. On § Why's own measure —
+  *first open to last merge* — codexFactory #325 opened 01:32:58Z → 11:57:17Z =
+  **10 h 24 min 19 s**. Against the two HAND cycles in `proposal.md` § Why,
+  **55 min** (cxF #212 → oxF #689) and **77 min** (cxF #226 → oxF #702). (The
+  #745 ruling states these as 11 h 18 min 55 s and 10 h 24 min 24 s off an
+  11:57:22Z merge; the merge reads 11:57:17Z on `mergedAt`,
+  `mergeCommit.committedDate` and the `MergedEvent` alike, so the two spans are
+  five seconds shorter. The correction is recorded, not edited into the ruling,
+  and it moves no conclusion.)
+  **THAT IS NOT THE REPAIR-FREE UNATTENDED FIGURE, AND THIS NOTE SAYS WHY
+  RATHER THAN OFFERING IT AS ONE.** The two halves behaved differently and the
+  average of them would describe neither.
+  **(a) THE REGENERATION HALF WAS UNATTENDED END TO END.** codexFactory #325
+  opened 01:32:58Z by `app/openxfactory` and merged 01:55:14Z by
+  `app/openxfactory` — **22 min 16 s, with no human actor anywhere in it**.
+  **(b) THE RE-PIN HALF WAS STRUCTURALLY REFUSED FOR ROUGHLY TEN HOURS, on a
+  ONE-TIME step this packet does not own.** Twelve consecutive `review-lane-repin`
+  firings failed at the step `Submit the advance to the checks that will judge
+  it` —
+  [34423536950](https://github.com/opensoft/openxFactory/actions/runs/34423536950)
+  (00:58:18Z), 34425967673, 34429979539, 34433600395, 34437425134, 34441038243,
+  34446277741, 34450161402, 34455871542, 34460859575, 34466086328 and
+  [34471122863](https://github.com/opensoft/openxFactory/actions/runs/34471122863)
+  (11:24:25Z) — every one on the same assertion,
+  `tests/review_lane_pin/test_repin_lane.py::TheDeclaredCandidateList::test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`,
+  whose own message names the cause: *"If `core_commit` has just advanced past
+  codexFactory's relocation (`8165d1f3`), this is M-1 step (3) box 4.2 falling
+  due"* — `relocate-review-authority-floor-mirror` box 4.2, the one-time
+  relocation of the floor document from `scripts/merge_master/` to `floor/`.
+  (The #745 ruling counts eleven of these; the run list counts **twelve**,
+  00:58:18Z through 11:24:25Z inclusive, and the twelve ids are given above so
+  the count can be re-taken rather than believed.) The advance was then
+  **driver-produced BY HAND** as #883 and merged on a human word. The tick
+  after it — run
+  [34477749947](https://github.com/opensoft/openxFactory/actions/runs/34477749947),
+  schedule, 12:37:16Z, success — was a clean named no-op, verbatim from its
+  step `Report a clean no-op`:
+
+  ```
+  nothing is owed: `contracts/review-lane-floor-snapshot.yaml` is byte-identical to `floor/openxfactory-review-authority-floor.yaml` at codeXfactory/codexFactory@main (34fc5a8fd1d94e21da11bf1dc9a4b933651c61ef); the pin stays at b594ef2ad86ebdefffc497c571c8a84044f6ec10
+  ```
+
+  So the lane was healthy the moment the one-time relocation was carried, which
+  is what makes the ten hours a property of that step and not of this one.
+  **LANE TIME — AN OPERATOR AUTHORING THE ADVANCE — REMAINS ZERO ON A ROUTINE
+  ADVANCE, WHICH IS THIS PACKET'S ACTUAL CLAIM**, and cycle one measured it:
+  sweep 23:21:43Z → pull request 23:22:06Z, **23 s** (recorded above and not
+  re-derived here). Cycle three's re-pin was not a routine advance; it was a
+  schema relocation the lane is designed to refuse until a human carries it.
+  **AND THE FIGURE THE BOX LITERALLY ASKS FOR DOES NOT EXIST YET — SAID PLAINLY
+  RATHER THAN APPROXIMATED.** **No repair-free, unattended, two-repository
+  end-to-end wall time has been observed on any of the three cycles run**, and
+  none can be while THIS repository's merge is a human act by ruling (6.3): the
+  clock would be measuring how long Brett Heap took to type *"merge both"*,
+  which is not a property of the automation. **It is therefore STRUCTURALLY
+  OWED ELSEWHERE, and the successor is named:** the enrolment successor
+  `admit-review-lane-repin-to-merge-approval-envelope`
+  (`amend-mirror-floor-regeneration-merge-authority` box 4.3, UNFILED and
+  needing Brett Heap's own word). The first cycle after that lane's merge stops
+  being human is the first cycle that can produce the figure. **It is owed to
+  that successor and not to this box**, and this box is ticked on the recording
+  of everything it could measure plus the named owing of what it could not —
+  not on a substitute figure presented as the one asked for.
 - [x] 5.7 ONE observed refusal on a real run, of any kind (non-landed core, a
   site that did not move, an unresolved binding), quoted verbatim — or the box
   stays OPEN and says so rather than being ticked on a test-only observation.
@@ -731,7 +861,7 @@ boxes:
 
 ## 6. Owner's acts (not an agent's)
 
-- [ ] 6.1 Ratify or refuse this packet. The 2026-09-05 word authorized the
+- [x] 6.1 Ratify or refuse this packet. The 2026-09-05 word authorized the
   PROPOSING, not the content.
   **2026-09-06 — TAKEN. Brett Heap ratified it in session, verbatim "ratify both
   when green, then land them" — a PAIR word over this companion and codexFactory
@@ -745,7 +875,20 @@ boxes:
   ratification happened on 2026-09-06 and is cited above with its word, its head
   and its record. Carried into the archive ledger below as NEEDS-BRETT (tick
   only), not as unfinished realization.
-- [ ] 6.2 Rule on the authoring decisions M-1 through M-7, and in particular on
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim: "same word for the
+  mirror's six on #745" (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the
+  rest") ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  The act this box names happened on 2026-09-06 and is cited three lines above
+  with its word, its head and its record — *"ratify both when green, then land
+  them"*, recorded 2026-09-06T01:18Z on PR
+  [#708](https://github.com/opensoft/openxFactory/pull/708) over head
+  `e4ef8ade` with its `pytest-suite` condition met, record
+  `review/ratification-2026-09-06.md` — and what was owed was only the tick.
+  **THE `[x]` IS LANE `openxfactory-2`'S PEN AND THE ACT IS HIS**: the § 6
+  convention that an agent may not tick an owner's-act box is not waived here,
+  it is SATISFIED — the owner gave the tick, in the words quoted above, and the
+  lane wrote the character he authorized. Nothing else about this box moved.
+- [x] 6.2 Rule on the authoring decisions M-1 through M-7, and in particular on
   M-7 (the lane writes no comment-history paragraph, so eight advances of
   narrative in `contracts/review-lane-pin.yaml` stop accruing) and on M-1's
   schedule location.
@@ -757,7 +900,19 @@ boxes:
   tick since 2026-09-06 with no operator dispatch. The act is done and only the
   tick is owed; carried into the archive ledger below as NEEDS-BRETT (tick
   only).**
-- [ ] 6.3 SEPARATE AND NOT ASKED FOR HERE: whether the merge-master low-risk
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim: "same word for the
+  mirror's six on #745" (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the
+  rest") ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  M-1 through M-7 STOOD — they stood as recommended under the 2026-09-06
+  ratification word, no veto has been exercised on any of the seven in the four
+  days since (M-7 included, the one that names a real loss), and M-1's schedule
+  location has been exercised on every hourly firing since 2026-09-06 with no
+  operator dispatch, including the twelve refusals and the clean no-op recorded
+  at 5.6 above, so the decision is not merely unvetoed but observed working.
+  **THE `[x]` IS THE LANE'S PEN AND THE RULING IS HIS**; the box records his
+  act, not the lane's judgement of it, and each of M-1..M-7 remains one edit
+  away exactly as the 2026-09-06 note said.
+- [x] 6.3 SEPARATE AND NOT ASKED FOR HERE: whether the merge-master low-risk
   envelope — live today only for the doc-health nightly lane — should ever be
   extended to this lane. The default is a human merge word, and it holds until
   this box is ruled. Named so the question is not silently assumed either way,
@@ -784,7 +939,35 @@ boxes:
   is UNFILED and needs its own word. **So the default this box names — a human
   merge word on the re-pin pull request — still holds, and holds until this box
   is ruled.**
-- [ ] 6.4 Install or extend the App grant the binding in 3.8 names, if M-6 stands.
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim: "same word for the
+  mirror's six on #745" (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the
+  rest") ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  **THE TICK IS ON THE NAMING, AND THE DEFAULT THIS BOX NAMES IS NOT
+  DISTURBED BY IT — both halves of that sentence are load-bearing.** The
+  successor is NAMED AND FILED:
+  `openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/` is an
+  ACTIVE change in this repository, governed by
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and opened on his
+  2026-09-07 word *"Propose the extension now"*, so under the 2026-09-06
+  owed-successor ruling — an owed successor's box ticks when the successor is
+  NAMED — this box is discharged by that filing and by nothing else. **AND THE
+  DEFAULT HOLDS FOR THIS LANE.** A human merge word on the re-pin pull request
+  remains the rule here: `amend-mirror-floor-regeneration-merge-authority`
+  realized the arming **INERT BY RULING** (its box 1.3), and it stays inert
+  until the enrolment successor
+  `admit-review-lane-repin-to-merge-approval-envelope` (that packet's box 4.3,
+  **UNFILED**, needing his own word) is filed AND realized. The tick therefore
+  records that the question has a named forum, not that the envelope has been
+  extended to this lane — it has not — and 5.5 (a) and 5.6 both depend on that
+  reading: #883 merged on his word *"merge both"* precisely because this
+  default was in force on 2026-09-10, and the unattended two-repository wall
+  time 5.6 cannot supply is owed to that same enrolment successor. codexFactory's
+  side is separately enrolled and proven (candidate class
+  `openxfactory-floor-regeneration`, codexFactory #282/#308; the App approval
+  satisfied the count-1 rulesets on #314 and again on #325), which is what makes
+  the asymmetry deliberate rather than an oversight.
+  **THE `[x]` IS THE LANE'S PEN AND THE RULING IS HIS.**
+- [x] 6.4 Install or extend the App grant the binding in 3.8 names, if M-6 stands.
   **BRETT'S ACT, AND IT IS THE ONE THING BETWEEN THIS LANE AND A FIRST FIRING.**
   The lane refuses loudly until it resolves, so nothing silently half-works. The
   App is the one already installed in both repositories
@@ -829,6 +1012,21 @@ boxes:
   (16:28:48Z, success). **THE ACT IS DONE — three times over — AND ONLY THE TICK
   IS OWED**, which is Brett Heap's; carried into the archive ledger below as
   NEEDS-BRETT (tick only).
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim: "same word for the
+  mirror's six on #745" (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the
+  rest") ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  The App grant this box names is INSTALLED AND PROVEN BY USE, not by an API
+  read: the three parts recorded above — the original installation, the
+  `workflows: write` addition of 2026-09-06T20:25:29Z, and the
+  `codeXfactory` installation `160352673` of 2026-09-09T14:42:32Z after the
+  organization move — are each evidenced by a MINT that succeeded and a run
+  that went on to do its work, and the proof continued after the ruling: run
+  [34477749947](https://github.com/opensoft/openxFactory/actions/runs/34477749947)
+  (2026-09-10T12:37:16Z) minted both tokens and reported a clean named no-op,
+  so the binding at 3.8 is resolving on the live lane on the day of this tick.
+  **THE `[x]` IS THE LANE'S PEN AND THE INSTALLATION IS HIS ACT** — three
+  times over, as the note above records — and the box is ticked on his word
+  rather than on the lane's own reading of the installation.
 
 ## Archive assessment — 2026-09-09, NOT ARCHIVED, and the ledger that says why
 
@@ -900,3 +1098,55 @@ traffic, which this repository has continuously, and needs no new surface; (4) B
 promoting `specs/review-lane-floor-mirror/` into
 `openspec/specs/review-lane-floor-mirror/spec.md`, on the precedent of PR
 [#699](https://github.com/opensoft/openxFactory/pull/699) (`b5eddaa3`).
+
+## Archive taken — 2026-09-10, and what changed in the ledger above
+
+**THE SECTION ABOVE IS THE RECORD OF 2026-09-09 AND IS KEPT UNCHANGED, HEADING
+INCLUDED.** It says `NOT ARCHIVED` and it was right on the day it was written;
+what follows is the state now, appended rather than substituted, which is the
+same shape every earlier disposition in this file took.
+
+**ALL SIX OPEN BOXES ARE CLOSED, AND NONE OF THEM ON A CLAIM THIS LANE MADE FOR
+ITSELF.** Four are owner's acts ticked on Brett Heap's word of 2026-09-10,
+verbatim **"same word for the mirror's six on #745"**, extending his **"tick
+6.1, 6.2, 6.4 and 6.3; rule on the rest"** ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)):
+6.1, 6.2, 6.3 and 6.4. Two — 5.5 and 5.6 — are the lane's rulings on the
+delegation contained in *"rule on the rest"*, and each is written above with
+the runs, merges and timestamps it rests on. **THE `[x]` IS THIS LANE'S PEN IN
+ALL SIX CASES; the acts behind four of them are his.**
+
+**THE FOUR-STEP CONDITION THE 2026-09-09 LEDGER SET FOR ITSELF IS MET, IN ITS
+OWN ORDER.** (1) This repository's advance was produced — not by the `17 * * * *`
+tick, which refused twelve times on the one-time floor relocation
+(`relocate-review-authority-floor-mirror` box 4.2, measured at 5.6), but BY
+HAND as [#883](https://github.com/opensoft/openxFactory/pull/883), and that
+difference is recorded at 5.6 rather than smoothed over. (2) Brett Heap merged
+it on his word *"merge both"* → `e916f0ea`, 2026-09-10T11:57:17Z. (3) The
+first advisory run over a base carrying that re-pin —
+[34475347536](https://github.com/opensoft/openxFactory/actions/runs/34475347536),
+12:11:42Z — read `covered-pending:       0 (tolerance 3, pin measured)`,
+repeated on two later runs, which ticks 5.5; and the completed cycle supplied
+5.6 with every figure it could measure plus the named owing of the one it could
+not. (4) He ticked 6.1, 6.2, 6.4 and ruled 6.3.
+
+**WHAT THIS ARCHIVE DOES NOT CLAIM.** It does not claim a repair-free
+unattended two-repository wall time — 5.6 says in its own words that none
+exists yet and names the successor it is owed to. It does not claim this lane
+is enrolled in the merge-master low-risk envelope — 6.3 says the arming is
+INERT by ruling and the default human merge word HOLDS. It does not touch
+`amend-mirror-floor-regeneration-merge-authority`, which stays ACTIVE on its
+own gate with its box 4.1 waiting on the enrolment successor
+`admit-review-lane-repin-to-merge-approval-envelope`, still unfiled and still
+needing his word. And it deletes nothing: the superseded human-word clause at
+5.5 (a), the `NOT ARCHIVED` heading above, and every earlier dated note stay
+exactly as they were written.
+
+**THE ACT ITSELF** is `python3 scripts/proposal-support.py . archive
+mirror-floor-regeneration-automation --yes` from the repository root — never a
+bare `openspec archive` — promoting the eight `## ADDED Requirements` in
+`specs/review-lane-floor-mirror/` into
+`openspec/specs/review-lane-floor-mirror/spec.md` and moving this packet to
+`openspec/changes/archive/2026-09-10-mirror-floor-regeneration-automation/`,
+on the precedent of PR
+[#699](https://github.com/opensoft/openxFactory/pull/699) (`b5eddaa3`) that
+the ledger above already named.
