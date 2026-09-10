@@ -513,10 +513,11 @@ pull request's own number does not exist until that pull request does, so it is
 appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the precedent
 (PR #884, `eceeaa58`) appended its own.
 
-- [x] 6.1 **DONE IN THE ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED AND THE
-      PACKET IS ARCHIVED, ON MERGED-PLUS-GREEN REALIZATION EVIDENCE AND ON
-      BRETT HEAP'S SEPARATE WORD OF 2026-09-10T18:09Z, verbatim *"archive 908
-      and close 856 860 when landed"*.** **THE EVIDENCE IS CITED RATHER THAN
+- [x] 6.1 **DONE IN THE ARCHIVE PULL REQUEST
+      [#926](https://github.com/opensoft/openxFactory/pull/926) — THE BLOCK IS
+      PROMOTED AND THE PACKET IS ARCHIVED, ON MERGED-PLUS-GREEN REALIZATION
+      EVIDENCE AND ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T18:09Z, verbatim
+      *"archive 908 and close 856 860 when landed"*.** **THE EVIDENCE IS CITED RATHER THAN
       ASSERTED, AND THE ONE FIGURE THAT DID NOT GO GREEN IS DISCLOSED RATHER
       THAN LEFT TO BE FOUND.** **MERGED:** PR
       [#908](https://github.com/opensoft/openxFactory/pull/908) →
@@ -573,12 +574,14 @@ appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the preceden
       `openspec/changes/archive/<date>-amend-marker-declaring-nothing/` and
       writes the `## MODIFIED` block back into
       `openspec/specs/doc-health/spec.md`.
-- [x] 6.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #856` AND `Closes #860`
-      ARE ON THAT PULL REQUEST'S BODY AND ON NOTHING ELSE**, each on its own
-      line. Every other issue number in that body, in this file and in every
-      commit message on that branch is a `refs`-style naming that closes
-      nothing, and the pull request's `closingIssuesReferences` is verified
-      through GraphQL to be exactly `[856, 860]`. **AND ONE THING WENT WRONG AT
+- [x] 6.2 **DONE IN THE ARCHIVE PULL REQUEST
+      [#926](https://github.com/opensoft/openxFactory/pull/926) — `Closes #856`
+      AND `Closes #860` ARE ON THAT PULL REQUEST'S BODY AND ON NOTHING ELSE**,
+      each on its own line. Every other issue number in that body, in this file
+      and in every commit message on that branch is a `refs`-style naming that
+      closes nothing, and the pull request's `closingIssuesReferences` is
+      verified through GraphQL to be exactly `[856, 860]` — `totalCount 2`, both
+      nodes reading `state: OPEN` at the check. **AND ONE THING WENT WRONG AT
       THE LANDING; IT IS NAMED HERE RATHER THAN LEFT IN A TIMELINE, AND IT IS
       REPAIRED.** openxFactory **#856 WAS AUTO-CLOSED AT #908's MERGE**, at
       2026-09-10T20:54:25Z, attributed by GitHub's own timeline to commit

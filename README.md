@@ -2733,7 +2733,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-marker-declaring-nothing](openspec/changes/archive/2026-09-10-amend-marker-declaring-nothing/proposal.md)
-  — **ARCHIVED 2026-09-10**, on Brett Heap's separate word of
+  — **ARCHIVED 2026-09-10** by
+  [PR #926](https://github.com/opensoft/openxFactory/pull/926), on Brett Heap's
+  separate word of
   **2026-09-10T18:09Z**, verbatim *"archive 908 and close 856 860 when landed"*
   (recorded on [PR #908](https://github.com/opensoft/openxFactory/pull/908) and
   on both origin issues), and on **MET REALIZATION EVIDENCE** — `code_surface`
