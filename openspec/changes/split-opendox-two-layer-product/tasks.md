@@ -910,8 +910,8 @@ the bookkeeping that ticks this group.
   TEST-BEARING ROW makes the check uncomputable, which is a REFUSAL and not a
   pass.
   **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES** —
-  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
-  row_test_count` — the Σ ranges over the REPLICATED ROWS ONLY, and a row that is
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
+  — the Σ ranges over the REPLICATED ROWS ONLY, and a row that is
   not replicated contributes nothing to it —
   every term read from the manifest at the carve commit. Measured against the
   LANDED 454-row manifest (#865 → `17167481`) at `carve_commit b075fd91`:
@@ -926,8 +926,8 @@ the bookkeeping that ticks this group.
   already pins this repository's collection triple — SKIPPED exactly, SELECTED
   and PASSED as FLOORS, failures and errors zero. Per destination, never as one
   cross-repository equality: an equality pin on a sum goes RED on merge refs that add
-  tests for reasons the candidate cannot fix, which is the deadlock class that
-  file already refuses by name.
+  tests for reasons the candidate cannot fix, which is the deadlock class
+  `pytest-suite.yml` already refuses by name.
 
   **THE CASES THIS CHECK OWES, EACH OF THEM A REFUSAL.** The floor carries no
   `#### Scenario:` blocks because it has no spec delta to host them (§ D6, *"WHY
@@ -1142,8 +1142,7 @@ realization evidence, never on landing. Each line is its own evidence.
   of the three closed classes; the source→destination TEST MAPPING closing on
   § 5.4's ledger — every test function with at least one home, the replicated
   set enumerated with its multiplicity, and
-  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) ×
-  row_test_count`
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
   (amended 2026-09-09 — RULING OQ-K; this first said *"the collection counts
   SUMMING across the three repositories"*, which the replicas make false as an
   equality); the neutral conformance corpus green in EVERY destination
