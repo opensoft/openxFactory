@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       64aad02e74dbd68d545ec3a1fd20e972b98035c3
-    # entry_count:        60
+    # generated_at:       e32d580aea6bb2ddcfd91231107490b1abd6e43f
+    # entry_count:        62
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref 64aad02e74dbd68d545ec3a1fd20e972b98035c3 --write
+    #     --ref e32d580aea6bb2ddcfd91231107490b1abd6e43f --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -224,6 +224,7 @@ floor:
     - openspec/specs/hermes-governed-record-integrity/spec.md
     - openspec/specs/ideation-cross-reference/spec.md
     - openspec/specs/ideation-dashboard/spec.md
+    - openspec/specs/ideation-intent-plane/spec.md
     - openspec/specs/ideation-routing/spec.md
     - openspec/specs/layer-vocabulary/spec.md
     - openspec/specs/lifecycle-notebook-projection/spec.md
@@ -240,6 +241,7 @@ floor:
     - openspec/specs/release-realization/spec.md
     - openspec/specs/release-surface-integrity/spec.md
     - openspec/specs/repo-boundary-governance/spec.md
+    - openspec/specs/repository-identity/spec.md
     - openspec/specs/review-lane-floor-mirror/spec.md
     - openspec/specs/roles-authority-model/spec.md
     - openspec/specs/shared-contract-ownership/spec.md
