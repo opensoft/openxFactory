@@ -78,7 +78,9 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import ipaddress
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -96,6 +98,19 @@ VERIFIER = ROOT / "scripts" / "validate-openspec-cli-pin.py"
 DEFAULT_REGISTRY = "https://registry.npmjs.org"
 KEYS_PATH = "/-/npm/v1/keys"
 TIMEOUT = 60
+
+# A REGISTRY HOST, as a shape rather than as a list. Two or more DNS labels,
+# each 1-63 characters of letters, digits and hyphens and never starting or
+# ending with one. An allowlist would be wrong here — § 6.1's second named
+# mechanism is a MIRRORED registry, whose host is the operator's to choose and
+# cannot be enumerated in advance — but a SHAPE still excludes the requests this
+# tool must never be talked into making: an IP literal (checked separately,
+# since a dotted-quad matches this pattern) and a bare single-label name are the
+# two forms that reach a link-local metadata endpoint or a loopback service, and
+# neither is a registry an attestation may be read from.
+HOSTNAME_RE = re.compile(
+    r"(?!-)[A-Za-z0-9-]{1,63}(?<!-)(?:\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))+\Z")
+HOSTNAME_MAX = 253
 
 # The packet whose § 6.1 this module answers, at its ARCHIVED path. Cited in the
 # record so a reader lands on the deferral rather than on this file's claim about
@@ -135,8 +150,36 @@ def checked_registry(raw: str) -> str:
     if parsed.path or parsed.query or parsed.fragment or parsed.username:
         raise Refusal("--registry takes a bare origin — no path, query, "
                       f"fragment or credentials: {raw!r}")
+    host = checked_hostname(parsed.hostname)
     port = f":{parsed.port}" if parsed.port else ""
-    return f"https://{parsed.hostname}{port}"
+    return f"https://{host}{port}"
+
+
+def checked_hostname(raw: str) -> str:
+    """A registry hostname, REFUSED unless it matches the declared shape.
+
+    The value is returned only after `HOSTNAME_RE` has matched the WHOLE of it,
+    so what reaches a request is a string this module has proved the shape of
+    rather than a string it merely inspected. An IP literal is refused
+    explicitly because a dotted quad satisfies the pattern, and a single-label
+    name because `localhost` and its neighbours are not registries — those two
+    forms are how an argument gets a fetching tool to read a loopback service or
+    a cloud metadata endpoint and report the answer as a registry's.
+    """
+    host = raw.strip().rstrip(".").lower()
+    if len(host) > HOSTNAME_MAX:
+        raise Refusal(f"--registry host is longer than {HOSTNAME_MAX} "
+                      f"characters: {raw!r}")
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        pass
+    else:
+        raise Refusal(f"--registry must name a host, not an IP literal: {raw!r}")
+    if not HOSTNAME_RE.match(host):
+        raise Refusal("--registry host must be a dotted DNS name of 1-63 "
+                      f"character labels: {raw!r}")
+    return HOSTNAME_RE.match(host).group(0)
 
 
 def checked_npm(raw: str) -> str:
