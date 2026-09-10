@@ -41,9 +41,17 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
                                   the carve blob on a line no `edits[].lines`
                                   declares. The refusal NAMES THE LINES and
                                   carries a unified-diff excerpt.
-  `arrival-undeclared-file`       a file under one of this destination's
+  `arrival-undeclared-file`       an ENTRY under one of this destination's
                                   DECLARED ROOTS that no row places and no
-                                  admission rule admits.
+                                  admission rule admits — a file, a symlink,
+                                  or a symlink to a DIRECTORY, which git
+                                  stores as a `120000` blob and which
+                                  `os.walk` would otherwise hand to
+                                  `dirnames` and never read. A file admitted
+                                  as SCAFFOLD whose bytes are not the
+                                  destination's own at `--dest-base` refuses
+                                  here too: the admission is by name, and a
+                                  name is not a licence to carry content.
   `arrival-carved-from-mismatch`  an ASSEMBLY ROOT's `contracts/manifest.yaml`
                                   carries no `carved_from:`, or one naming
                                   another repository or another commit
@@ -51,10 +59,15 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
   `arrival-unreadable`            THE ENVIRONMENT AND THE ENCODING: no git, an
                                   unreadable or unparseable manifest, an unknown
                                   `--destination`, a `--dest-root` that is not a
-                                  directory, a `--source-repo` that does not
+                                  directory, a `--dest-base` that resolves to no
+                                  commit, `--destination` and `--assembly-root`
+                                  together, a `--source-repo` that does not
                                   carry `carve_commit`, or a source repository
                                   that disagrees with the manifest about a row's
-                                  digest.
+                                  digest. It is also the CATCH-ALL that holds
+                                  the exit contract: any exception this file did
+                                  not name reaches the caller as this code and
+                                  exit 2, never as a traceback and exit 1.
 
 THE SPLIT BETWEEN THIS FILE'S CODES AND THE MANIFEST VALIDATOR'S is ownership,
 not taste. Every `carve-*` code is a manifest that disagrees with openxFactory;
@@ -75,7 +88,11 @@ reach is worse than one that does not reach.
     nothing here derives it: a guess at `src/<pkg>/<basename>` would be
     inventing the answer it then checked. Two readings, and both are offered.
     UNDECLARED, this file ADMITS a destination file whose bytes still equal a
-    replica's blob at `carve_commit` and reports the count; it cannot say
+    replica's NON-EMPTY blob at `carve_commit` and reports the count — empty
+    bytes identify no file, and two of the landed manifest's 18 replica rows
+    are `fixtures/empty/*/.gitkeep`, so an empty-digest admission would let any
+    empty created file ride in as "a replica"; such a replica is admitted only
+    by `--replica-at`, which admits by name; it cannot say
     whether the replica is there at all, and it cannot refuse one that drifted.
     DECLARED with `--replica-at <source>=<destpath>` — the runbook's per-leg
     table in machine form, restated in the pull request that places it — the
@@ -101,6 +118,35 @@ reach is worse than one that does not reach.
     passed over in silence, because a phase-B run reporting 62 rows diffed and a
     phase-B run reporting 0 are very different events wearing the same `OK`.
 
+ADDRESSING AN ASSEMBLY ROOT THE MANIFEST GIVES NO KEY. `destinations:` is a map
+of the places ROWS GO. RULED OQ-I puts `carved_from:` in EACH assembly root's
+`contracts/manifest.yaml`, and the runbook writes one at § 6 and another at § 7
+— but the landed manifest declares `opendox_root` and NO `openxdox_root`,
+because openXdox's assembly root receives no row and so has no key. Addressed
+only by key, half the provenance the ruling requires would be uncheckable by the
+tool that checks the other half. So `--assembly-root <owner>/<name>` addresses a
+root BY THE REPOSITORY IT IS, runs the `carved_from:` check and nothing else,
+and reports the `destinations:` key beside it where there is one. The check does
+not depend on which root is read — it compares `carved_from` with the manifest's
+`source_repository` and `carve_commit` — which is exactly why a root the
+manifest never names can still be held to it.
+
+THE SCAFFOLD ADMISSIONS ARE BY NAME, AND `--dest-base` IS WHAT MAKES A NAME
+SAFE. A leg's own files sit under declared roots — `.gitkeep` in every empty
+role directory, `tests/test_leg_shape.py` and everything its `REQUIRED_FILES`
+lists, `docs/branch-protection.md` — and each is admitted by NAME, because
+`--allow-created` would record in the pull request that the destination
+ASSEMBLED a file the scaffold shipped. A name alone, though, admits whatever is
+written at it: a payload at `docs/branch-protection.md`, a `.gitkeep` with
+content, a path added to the destination's own `REQUIRED_FILES` in the arrival
+commit — a check taking its allowlist from the tree it is checking. So the
+allowlist is read from `--dest-base` (default `origin/main` where the
+destination is a git repository carrying it) and every scaffold admission's
+BYTES must equal the destination's own copy at that revision. Where there is no
+baseline — an export, an unpushed tree — the name alone is still the admission,
+and both the summary and the human line SAY SO rather than letting the weaker
+claim pass for the stronger.
+
 THE DECLARED ROOTS are computed from the manifest, never configured: for one
 destination, the MINIMAL set of directories under which every one of its rows
 lands. For `opendox_code` that is `src/opendox/` and `tests/`; for
@@ -114,7 +160,13 @@ Exit codes:
 
   There is deliberately NO exit 1, on `validate-carve-manifest.py`'s reasoning:
   the gate's only question is "did this leg arrive as declared", and the answer
-  is the same for "a digest drifted" and "the bytes could not be read".
+  is the same for "a digest drifted" and "the bytes could not be read". That is
+  ENFORCED and not merely intended: `main()` catches every `Exception` its own
+  checks did not name — a `KeyError` from a manifest row missing
+  `destination_path:` is the measured case — and renders it as
+  `arrival-unreadable`, so the contract does not depend on a reader auditing
+  every raise site. `KeyboardInterrupt` and `SystemExit` are the operator's
+  acts and are left alone.
 
 THE SEAT-HOLDING PASS. Given NO `--destination`, this prints
 `NO DESTINATION …` and exits 0. That is the same deliberate not-fail-closed
@@ -129,7 +181,9 @@ it refuses `arrival-unreadable`, because a typo must not be indistinguishable
 from "not yet carved".
 
 Run: `python3 scripts/verify-carve-arrival.py --destination <key> --dest-root
-<dir> --phase A|B`; driven by `tests/carve_arrival/test_verify_carve_arrival.py`.
+<dir> --phase A|B [--dest-base <ref>]`, or
+`--assembly-root <owner>/<name> --dest-root <dir>` for a root's `carved_from:`;
+driven by `tests/carve_arrival/test_verify_carve_arrival.py`.
 """
 
 from __future__ import annotations
@@ -205,6 +259,22 @@ COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 # `.gitkeep` as "a replica" would be a true statement about the bytes and a
 # false one about the file.
 GITKEEP = ".gitkeep"
+
+# The destination's PRE-CARVE baseline, read when the destination is a git
+# repository and `--dest-base` names nothing else. Every SCAFFOLD admission is
+# by NAME — `.gitkeep`, the leg-shape test's `REQUIRED_FILES`, the posture
+# document — and a name is not a licence to carry content: without a baseline
+# to compare against, a payload written to `docs/branch-protection.md`, to any
+# `.gitkeep`, or to any path a destination's own `REQUIRED_FILES` happens to
+# name is admitted on the strength of its filename. Compared against this ref
+# the admission says what it means: this file is the destination's own, byte
+# for byte, from before the carve began.
+DEST_BASE_DEFAULT = "origin/main"
+
+# `--assembly-root <owner>/<name>`. Shape only: an assembly root the manifest
+# does not declare has nothing here to be checked against, which is the whole
+# reason the flag exists.
+REPOSITORY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$")
 
 # The leg scaffold's own test module. It lives under `tests/`, which IS a
 # declared root for both `-code` legs, so it must be admitted or every arrived
@@ -720,7 +790,35 @@ def check_replicas(placements: dict[str, str], dest_root: Path,
 # check 3 — nothing under a declared root that no row places
 # --------------------------------------------------------------------------
 
-def scaffold_allowlist(dest_root: Path) -> set[str]:
+def resolve_dest_base(dest_root: Path, dest_base: str | None) -> str | None:
+    """The destination's PRE-CARVE baseline revision, or None where the
+    destination cannot supply one.
+
+    A NAMED `--dest-base` that does not resolve REFUSES: an operator who asked
+    for the strong admission must not silently get the weak one. The DEFAULT
+    (`origin/main`) is allowed to be absent, because a destination is a working
+    tree and not necessarily a repository — the runbook's phase-A run happens on
+    an unpushed merge, and a reviewer may point this at an export. The summary
+    then carries `dest_base: null` and the human line says so, so the weaker
+    claim is never mistaken for the stronger one.
+    """
+    ref = dest_base or DEST_BASE_DEFAULT
+    done = _git(dest_root, "rev-parse", "--verify", "--quiet",
+                f"{ref}^{{commit}}")
+    if done.returncode == 0 and done.stdout.strip():
+        return done.stdout.decode("ascii", "replace").strip()
+    if dest_base is not None:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"--dest-base {dest_base!r} does not resolve to a commit in "
+            f"{dest_root}. It names the destination's own pre-carve revision — "
+            "the one every SCAFFOLD admission is checked against — and a run "
+            "that fell back to admitting scaffold names on trust would answer "
+            "a weaker question than the one it was asked")
+    return None
+
+
+def scaffold_allowlist(dest_root: Path, dest_base: str | None) -> set[str]:
     """The leg scaffold's OWN files, read from the destination rather than
     hard-coded here.
 
@@ -731,21 +829,37 @@ def scaffold_allowlist(dest_root: Path) -> set[str]:
     over the assignment, never imported: a destination checkout is untrusted
     input and importing it would execute it.
 
+    READ FROM `dest_base` AND NOT FROM THE WORKING TREE where a baseline exists.
+    The allowlist is otherwise taken from the very tree being checked: adding a
+    path to the destination's own `tests/test_leg_shape.py` in the arrival
+    commit admits that path, which is a check consulting its subject for its own
+    rules. At the baseline the list is the scaffold's, from before the carve.
+
     The test module itself is added, because it lives under `tests/` — a
     declared root for both `-code` legs — and a leg that refused on the file
     proving it is a leg would be unusable. `SCAFFOLD_DOCS` is added for the
     same reason one level over: `docs/branch-protection.md` is under
     `opendox_spec`'s declared `docs/` root and is in no leg's
-    `REQUIRED_FILES`.
+    `REQUIRED_FILES`. Both are NAMES only: `check_undeclared_files` still
+    compares the bytes against `dest_base`.
     """
     allowed = {LEG_SHAPE_TEST} | set(SCAFFOLD_DOCS)
-    source = dest_root / LEG_SHAPE_TEST
-    try:
-        text = source.read_text(encoding="utf-8")
-    except (OSError, ValueError):
-        # A destination with no leg-shape test is a `-spec` leg's business or an
-        # assembly root's; the walk simply has one fewer admission rule.
-        return allowed
+    if dest_base is not None:
+        blob = blob_at(dest_root, dest_base, LEG_SHAPE_TEST)
+        if blob is None:
+            # A baseline with no leg-shape test is a `-spec` leg's business or
+            # an assembly root's; the walk simply has one fewer admission rule.
+            return allowed
+        try:
+            text = blob.decode("utf-8")
+        except ValueError:  # pragma: no cover - a scaffold that is not text
+            return allowed
+    else:
+        source = dest_root / LEG_SHAPE_TEST
+        try:
+            text = source.read_text(encoding="utf-8")
+        except (OSError, ValueError):
+            return allowed
     try:
         tree = ast.parse(text)
     except SyntaxError:  # pragma: no cover - a scaffold that does not parse
@@ -758,7 +872,13 @@ def scaffold_allowlist(dest_root: Path) -> set[str]:
             continue
         try:
             value = ast.literal_eval(node.value)
-        except ValueError:  # pragma: no cover - a non-literal list
+        # `ast.literal_eval` raises `SyntaxError` as well as `ValueError` — and
+        # `TypeError`, `MemoryError` and `RecursionError` over a hostile
+        # literal. A destination checkout is untrusted input, so every one of
+        # them is "this scaffold declares no readable list" and none of them is
+        # a traceback and exit 1.
+        except (ValueError, SyntaxError, TypeError, MemoryError,
+                RecursionError):  # pragma: no cover - a non-literal list
             continue
         if isinstance(value, (list, tuple)):
             allowed.update(str(v) for v in value)
@@ -767,17 +887,33 @@ def scaffold_allowlist(dest_root: Path) -> set[str]:
 
 def check_undeclared_files(dest_root: Path, roots: list[str],
                            placed: set[str], replicas: set[str],
-                           allow_created: set[str]) -> dict[str, int]:
-    """Walk the declared roots; every file is placed, or admitted, or refused.
+                           allow_created: set[str],
+                           dest_base: str | None) -> dict[str, int]:
+    """Walk the declared roots; every entry is placed, or admitted, or refused.
 
     THE ADMISSION RULES ARE ORDERED and the order is a claim. A `.gitkeep` is
     admitted as SCAFFOLD before it can be admitted as a replica, because the
     empty digest belongs to several replica rows and calling the scaffold's
     placeholder "a replica" would be true about the bytes and false about the
     file.
+
+    EVERY ENTRY, AND NOT EVERY FILE. A symlink pointing at a DIRECTORY lands in
+    `os.walk`'s `dirnames`, is not descended into, and would never be read or
+    counted — so an undeclared tracked directory symlink under a declared root
+    would return `OK` while carrying a whole tree of undeclared content behind
+    one name. git stores such a link as a BLOB of mode `120000` whose content is
+    the target path, so it is pulled out of `dirnames` and answered here exactly
+    as any other entry is.
+
+    A SCAFFOLD ADMISSION IS BY NAME AND ITS BYTES ARE CHECKED. Where
+    `dest_base` gives a baseline, an admitted scaffold file must equal the
+    destination's own copy at that revision. Without it the name alone is the
+    admission — `docs/branch-protection.md`, any `.gitkeep`, anything the
+    destination's own `REQUIRED_FILES` lists — and a payload written at one of
+    those names rides in.
     """
     admitted = {"scaffold": 0, "replica": 0, "created": 0}
-    scaffold = scaffold_allowlist(dest_root)
+    scaffold = scaffold_allowlist(dest_root, dest_base)
     walked = 0
     for root in roots:
         base = dest_root / root if root else dest_root
@@ -787,28 +923,62 @@ def check_undeclared_files(dest_root: Path, roots: list[str],
             # the more precise statement and the one a reader can act on.
             continue
         for dirpath, dirnames, filenames in os.walk(base):
-            dirnames[:] = sorted(d for d in dirnames if d != ".git")
-            for name in sorted(filenames):
+            linked_dirs = [d for d in dirnames
+                           if d != ".git"
+                           and os.path.islink(os.path.join(dirpath, d))]
+            skip = set(linked_dirs) | {".git"}
+            dirnames[:] = sorted(d for d in dirnames if d not in skip)
+            for name in sorted([*filenames, *linked_dirs]):
                 full = Path(dirpath) / name
                 relpath = os.path.relpath(full, dest_root).replace(os.sep, "/")
                 walked += 1
                 if relpath in placed:
                     continue
+                _mode, data = read_arrived(full)
                 if name == GITKEEP or relpath in scaffold:
+                    if dest_base is not None:
+                        was = blob_at(dest_root, dest_base, relpath)
+                        if was != data:
+                            raise ArrivalRefusal(
+                                "arrival-undeclared-file",
+                                f"{relpath} is admitted as SCAFFOLD by name, "
+                                "and its bytes are not the destination's own "
+                                f"copy at {dest_base[:12]} "
+                                + ("(no such path there)" if was is None else
+                                   f"(sha256 {digest(data)} here, "
+                                   f"{digest(was)} there)")
+                                + ". Every scaffold admission is by NAME — a "
+                                "`.gitkeep`, the leg-shape test's "
+                                "`REQUIRED_FILES`, the posture document — and "
+                                "a name is not a licence to carry content: a "
+                                "file arriving at a scaffold's name with other "
+                                "bytes is an UNDECLARED MOVEMENT wearing that "
+                                "name. Restore the destination's own copy, or "
+                                f"name the change with `--allow-created "
+                                f"{relpath}` and say why in the pull request")
                     admitted["scaffold"] += 1
                     continue
                 if relpath in allow_created:
                     admitted["created"] += 1
                     continue
-                _mode, data = read_arrived(full)
-                if digest(data) in replicas:
+                # EMPTY BYTES IDENTIFY NOTHING, so they admit nothing: the
+                # empty digest is excluded from `replicas` upstream (see
+                # `verify`), and an empty arrived file falls through to the
+                # refusal rather than being recorded as a replica it cannot be.
+                if data and digest(data) in replicas:
                     admitted["replica"] += 1
                     continue
                 raise ArrivalRefusal(
                     "arrival-undeclared-file",
                     f"{relpath} sits under a declared root and no row places "
                     "it, no scaffold file is named that, and its bytes are no "
-                    "replica's at the carve commit. A file in no row is an "
+                    "replica's at the carve commit"
+                    + (" — it is EMPTY, and empty bytes identify no file, so "
+                       "no replica row admits it however many replicas are "
+                       "themselves empty; declare it with `--replica-at "
+                       "<source_path>=<path>` if it IS one" if not data
+                       else "")
+                    + ". A file in no row is an "
                     "UNDECLARED MOVEMENT and the carve refuses (RULED OQ-1). "
                     "If the destination legitimately assembles it (RULED OQ-C "
                     "— the import root, a created surface module), name it "
@@ -884,9 +1054,71 @@ def check_carved_from(dest_root: Path, doc: dict[str, Any]) -> dict[str, str]:
 # the run
 # --------------------------------------------------------------------------
 
+def verify_assembly_root(doc: dict[str, Any], repository: str,
+                         dest_root: Path) -> dict[str, Any]:
+    """An ASSEMBLY ROOT's `carved_from:` record, addressed BY THE REPOSITORY IT
+    IS rather than by a manifest `destinations:` key.
+
+    WHY THIS MODE EXISTS. RULED OQ-I puts the machine-read provenance record in
+    EACH assembly root's `contracts/manifest.yaml`, and the runbook's § 6 and
+    § 7 both write one. But `destinations:` is a map of the places ROWS GO, and
+    the landed manifest declares `opendox_root` and no `openxdox_root` —
+    openXdox's assembly root receives no row, so it has no key. Addressed only
+    by key, half of the provenance the ruling requires would be uncheckable by
+    the tool that checks the other half, and § 7's record would rest on a
+    reading of the file by eye.
+
+    The check itself is the same one: `carved_from.repository` and
+    `carved_from.commit` name the manifest's source and carve commit. It does
+    not depend on WHICH root is being read, which is exactly why a root the
+    manifest never names can still be held to it. Where the repository IS a
+    declared destination the key is reported beside it, so the two addressing
+    modes agree on the roots they both reach.
+    """
+    if not REPOSITORY_RE.match(repository):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"--assembly-root {repository!r} is not an `<owner>/<name>` "
+            "repository. This mode names the ASSEMBLY ROOT REPOSITORY rather "
+            "than a `destinations:` key, because an assembly root that "
+            "receives no row has no key — `opensoft/openXdox` is the measured "
+            "case (RULED OQ-L, runbook § 7)")
+    key = None
+    for name, entry in (doc["destinations"] or {}).items():
+        if not isinstance(entry, dict) or entry.get("repository") != repository:
+            continue
+        if entry.get("leg") != ASSEMBLY_LEG:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--assembly-root {repository!r} is destination {name!r}, "
+                f"whose leg is {entry.get('leg')!r} and not "
+                f"{ASSEMBLY_LEG!r}. RULED OQ-I puts `carved_from:` in the "
+                "ASSEMBLY ROOTS and the four legs carry no `contracts/` at "
+                f"all; verify a leg with `--destination {name}`")
+        key = name
+        break
+    carved_from = check_carved_from(dest_root, doc)
+    return {
+        "result": "ok",
+        "mode": "assembly-root",
+        "assembly_root": repository,
+        "destination": key,
+        "repository": repository,
+        "leg": ASSEMBLY_LEG,
+        "dest_root": str(dest_root),
+        "phase": None,
+        "carve_commit": doc["carve_commit"],
+        "carve_tag": doc.get("carve_tag"),
+        "source_repository": doc["source_repository"],
+        "declared_by_the_manifest": key is not None,
+        "carved_from": carved_from,
+    }
+
+
 def verify(doc: dict[str, Any], destination: str, dest_root: Path,
            source_repo: Path, phase: str, allow_created: set[str],
-           replica_placements: dict[str, str]) -> dict[str, Any]:
+           replica_placements: dict[str, str],
+           dest_base: str | None) -> dict[str, Any]:
     """The checks in order, first failure wins."""
     carve_commit = doc["carve_commit"]
     rows = rows_for(doc, destination)
@@ -902,13 +1134,22 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # path is the one admitted.
     placed = {row["destination_path"] for row in rows}
     placed.update(replica_placements.values())
+    # EMPTY REPLICA BLOBS ADMIT NOTHING. Two of the landed manifest's 18
+    # replica rows are `fixtures/empty/*/.gitkeep`, whose blob is empty, so an
+    # admission by byte-identity would let ANY empty file under a declared root
+    # — a created `__init__.py`, a truncated module — in as "a replica", which
+    # is a true statement about the bytes and a false one about the file. The
+    # `.gitkeep`-by-name rule already refused to call the scaffold's
+    # placeholder a replica for the same reason; this is the rest of it.
+    # A replica whose carve blob is empty is admitted only by `--replica-at`,
+    # which admits BY NAME and is the stronger claim anyway.
     replicas: set[str] = set()
     for row in replica_rows(doc):
         data = blob_at(source_repo, carve_commit, row["source_path"])
-        if data is not None:
+        if data:
             replicas.add(digest(data))
     admitted = check_undeclared_files(dest_root, roots, placed, replicas,
-                                      allow_created)
+                                      allow_created, dest_base)
 
     leg = (doc["destinations"].get(destination) or {}).get("leg")
     carved_from = (check_carved_from(dest_root, doc)
@@ -916,12 +1157,14 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
 
     return {
         "result": "ok",
+        "mode": "destination",
         "destination": destination,
         "repository": (doc["destinations"].get(destination) or {}).get(
             "repository"),
         "leg": leg,
         "dest_root": str(dest_root),
         "phase": phase,
+        "dest_base": dest_base,
         "carve_commit": carve_commit,
         "carve_tag": doc.get("carve_tag"),
         "source_repository": doc["source_repository"],
@@ -952,12 +1195,24 @@ def main(argv: list[str] | None = None) -> int:
         "--destination", metavar="KEY", default=None,
         help="a KEY of the manifest's `destinations:` map, e.g. opendox_code")
     parser.add_argument(
+        "--assembly-root", metavar="REPOSITORY", default=None,
+        help=("verify an ASSEMBLY ROOT's `carved_from:` by the repository it "
+              "is, e.g. opensoft/openXdox — the root that receives no row and "
+              "therefore has no `destinations:` key (RULED OQ-I, OQ-L)"))
+    parser.add_argument(
         "--dest-root", metavar="DIR", default=None,
         help="the destination checkout to verify")
     parser.add_argument(
         "--source-repo", metavar="DIR", default=None,
         help=("an openxFactory checkout or mirror carrying carve_commit, whose "
               "blobs the phase-B diff is taken against (default: this one)"))
+    parser.add_argument(
+        "--dest-base", metavar="REF", default=None,
+        help=("the destination's PRE-CARVE revision, against which every "
+              f"SCAFFOLD admission's bytes are checked (default: "
+              f"{DEST_BASE_DEFAULT} where the destination is a git repository "
+              "carrying it; without one the scaffold admissions are by name "
+              "alone and the summary says so)"))
     parser.add_argument(
         "--phase", choices=PHASES, default=None,
         help=("A: every moved row byte-identical to the carve commit (commit "
@@ -994,24 +1249,56 @@ def main(argv: list[str] | None = None) -> int:
     # THE SEAT-HOLDING PASS, and the one place here that is not fail-closed.
     # See the module docstring: it keys off `--destination` being ABSENT, never
     # off a lookup failing.
-    if args.destination is None:
-        known = ""
+    if args.destination is None and args.assembly_root is None:
+        known: list[str] = []
+        unreadable = False
         try:
-            known = ", ".join(sorted(read_manifest(manifest_path)
-                                     ["destinations"]))
+            known = sorted(read_manifest(manifest_path)["destinations"])
         except ArrivalRefusal:
-            known = "(the manifest could not be read)"
+            unreadable = True
         if args.json:
+            # A LIST and never the human sentence: `--json` is consumed by
+            # machines, and a field that is sometimes comma-joined prose and
+            # sometimes an apology is a field every consumer has to parse twice.
             print(json.dumps({"result": "no-destination",
                               "manifest": str(manifest_path),
-                              "destinations": known}))
+                              "destinations": known,
+                              "destinations_unreadable": unreadable}))
         else:
-            print(f"NO DESTINATION (nothing to verify; name one of: {known})")
+            names = ("(the manifest could not be read)" if unreadable
+                     else ", ".join(known))
+            print(f"NO DESTINATION (nothing to verify; name one of: {names})")
         return 0
 
-    where = args.dest_root or args.destination
+    where = args.dest_root or args.destination or args.assembly_root or "-"
     try:
+        if args.destination is not None and args.assembly_root is not None:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                "--destination and --assembly-root name a destination two "
+                "ways and this run would have to choose between them. "
+                "`--destination` is a `destinations:` key and walks that "
+                "destination's rows; `--assembly-root` is a repository and "
+                "checks only `carved_from:`, for the root the manifest gives "
+                "no key")
         doc = read_manifest(manifest_path)
+        if args.dest_root is None:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                "--dest-root is required with --destination or "
+                "--assembly-root: this verifier reads a destination checkout "
+                "and has no default for one")
+        dest_root = Path(args.dest_root).resolve()
+        if not dest_root.is_dir():
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"--dest-root {args.dest_root!r} resolves to {dest_root}, "
+                "which is not a directory")
+        where = str(dest_root)
+        if args.assembly_root is not None:
+            summary = verify_assembly_root(doc, args.assembly_root, dest_root)
+            _print_ok(summary, args.json)
+            return 0
         if args.destination not in doc["destinations"]:
             raise ArrivalRefusal(
                 "arrival-unreadable",
@@ -1028,57 +1315,89 @@ def main(argv: list[str] | None = None) -> int:
                 "The two phases are the two commits a leg lands as (runbook "
                 "§ 5.5), and a run that guessed would prove the weaker claim "
                 "silently")
-        if args.dest_root is None:
-            raise ArrivalRefusal(
-                "arrival-unreadable",
-                "--dest-root is required with --destination: this verifier "
-                "reads a destination checkout and has no default for one")
-        dest_root = Path(args.dest_root).resolve()
-        if not dest_root.is_dir():
-            raise ArrivalRefusal(
-                "arrival-unreadable",
-                f"--dest-root {args.dest_root!r} resolves to {dest_root}, "
-                "which is not a directory")
-        where = str(dest_root)
         summary = verify(doc, args.destination, dest_root, source_repo,
                          args.phase,
                          {p.replace(os.sep, "/") for p in args.allow_created},
-                         parse_replica_placements(args.replica_at, doc))
+                         parse_replica_placements(args.replica_at, doc),
+                         resolve_dest_base(dest_root, args.dest_base))
     except ArrivalRefusal as exc:
-        if args.json:
-            print(json.dumps({"result": "refused", "code": exc.code,
-                              "detail": exc.detail,
-                              "destination": args.destination,
-                              "dest_root": args.dest_root}))
-        else:
-            print(exc.render(where), file=sys.stderr)
-        return 2
+        return _refused(exc, args, where)
+    # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
+    # refuses in this file's own vocabulary; anything that does not — a
+    # `KeyError` from a manifest row missing `destination_path:`, an `OSError`
+    # the checks did not name, a bug here — would otherwise leave `main()` as a
+    # traceback and EXIT 1, which the module docstring says does not exist.
+    # A guarantee a reader has to audit every raise site to believe is not a
+    # guarantee, so it is enforced at the one place that owns the exit status.
+    # It is `Exception` and not `BaseException`: a `KeyboardInterrupt` or a
+    # `SystemExit` is the operator's act and must not be re-labelled a finding.
+    except Exception as exc:  # noqa: BLE001 - see above
+        return _refused(ArrivalRefusal(
+            "arrival-unreadable",
+            f"the run raised {type(exc).__name__}: {exc}. This verifier READS "
+            "the manifest and does not repair it, so a document whose shape it "
+            f"cannot follow is `{MANIFEST_VALIDATOR}`'s finding; anything else "
+            "here is a defect in this file. Either way the answer is exit 2 — "
+            "there is deliberately no exit 1"), args, where)
 
-    if args.json:
-        print(json.dumps(summary))
-    else:
-        adm = summary["admitted"]
-        roots = ", ".join(summary["declared_roots"]) or "(none declared)"
-        line = (f"OK {summary['dest_root']}: {summary['destination']} "
-                f"({summary['repository']}) at "
-                f"{summary['source_repository']}@"
-                f"{summary['carve_commit'][:12]} ({summary['carve_tag']}), "
-                f"phase {summary['phase']} — {summary['rows']} row(s) arrived, "
-                f"{summary['digests_verified']} digest(s) verified, "
-                f"{summary['declared_edits_diffed']} declared-edit row(s) "
-                f"within their lines, "
-                f"{summary['declared_edits_unapplied']} unapplied; "
-                f"{summary['replicas_verified']} of "
-                f"{summary['replicas_declared']} declared replica(s) "
-                f"byte-identical; "
-                f"{summary['files_walked']} file(s) under {roots} with none "
-                f"undeclared ({adm['scaffold']} scaffold, {adm['replica']} "
-                f"replica, {adm['created']} created)")
-        if summary["carved_from"] is not None:
-            line += (f"; carved_from {summary['carved_from']['repository']}@"
-                     f"{summary['carved_from']['commit'][:12]}")
-        print(line)
+    _print_ok(summary, args.json)
     return 0
+
+
+def _refused(exc: ArrivalRefusal, args: argparse.Namespace, where: str) -> int:
+    """The ONE refusal exit: `--json` object or the rendered human message."""
+    if args.json:
+        print(json.dumps({"result": "refused", "code": exc.code,
+                          "detail": exc.detail,
+                          "destination": args.destination,
+                          "assembly_root": args.assembly_root,
+                          "dest_root": args.dest_root}))
+    else:
+        print(exc.render(where), file=sys.stderr)
+    return 2
+
+
+def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(summary))
+        return
+    if summary["mode"] == "assembly-root":
+        declared = ("destination " + str(summary["destination"])
+                    if summary["declared_by_the_manifest"]
+                    else "no `destinations:` key — the root receives no row")
+        print(f"OK {summary['dest_root']}: assembly root "
+              f"{summary['assembly_root']} ({declared}) — carved_from "
+              f"{summary['carved_from']['repository']}@"
+              f"{summary['carved_from']['commit'][:12]}, which is "
+              f"{summary['source_repository']}@"
+              f"{summary['carve_commit'][:12]} ({summary['carve_tag']})")
+        return
+    adm = summary["admitted"]
+    roots = ", ".join(summary["declared_roots"]) or "(none declared)"
+    line = (f"OK {summary['dest_root']}: {summary['destination']} "
+            f"({summary['repository']}) at "
+            f"{summary['source_repository']}@"
+            f"{summary['carve_commit'][:12]} ({summary['carve_tag']}), "
+            f"phase {summary['phase']} — {summary['rows']} row(s) arrived, "
+            f"{summary['digests_verified']} digest(s) verified, "
+            f"{summary['declared_edits_diffed']} declared-edit row(s) "
+            f"within their lines, "
+            f"{summary['declared_edits_unapplied']} unapplied; "
+            f"{summary['replicas_verified']} of "
+            f"{summary['replicas_declared']} declared replica(s) "
+            f"byte-identical; "
+            f"{summary['files_walked']} file(s) under {roots} with none "
+            f"undeclared ({adm['scaffold']} scaffold, {adm['replica']} "
+            f"replica, {adm['created']} created)")
+    line += ("; scaffold admissions checked against "
+             f"{summary['dest_base'][:12]}"
+             if summary["dest_base"] is not None else
+             "; scaffold admissions by NAME ONLY (no --dest-base and no "
+             f"{DEST_BASE_DEFAULT} at the destination)")
+    if summary["carved_from"] is not None:
+        line += (f"; carved_from {summary['carved_from']['repository']}@"
+                 f"{summary['carved_from']['commit'][:12]}")
+    print(line)
 
 
 if __name__ == "__main__":

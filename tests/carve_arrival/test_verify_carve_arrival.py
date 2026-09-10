@@ -87,6 +87,11 @@ SURFACE_FILES: dict[str, str] = {
     "scripts/pkg/beta.py": "import ideation_dashboard.alpha\nBETA = 2\nCALL = 3\n",
     "scripts/pkg/gamma.py": "GAMMA = 3\n",
     "scripts/pkg/neutral.py": "NEUTRAL = 4\n",
+    # An EMPTY replica blob, because the landed manifest has two
+    # (`fixtures/empty/{notes,papers}/.gitkeep`) and they are what makes an
+    # admission by byte-identity dangerous: every empty file in the world
+    # matches them.
+    "scripts/pkg/empty.py": "",
     "docs/outside.md": "# outside every row\n",
 }
 
@@ -220,6 +225,11 @@ class Carve:
                  "reason": "replicated_at_destination",
                  "evidence": "neutral by test; a replica at each destination "
                              "and retained here (RULED OQ-A)"},
+                {"source_path": "scripts/pkg/empty.py",
+                 "disposition": "not_moved",
+                 "reason": "replicated_at_destination",
+                 "evidence": "an EMPTY replica blob, the shape the landed "
+                             "manifest carries twice"},
             ],
         }
 
@@ -1079,3 +1089,352 @@ def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
     for destination, roots in expected.items():
         rows = MODULE.rows_for(doc, destination)
         assert MODULE.declared_roots(rows) == roots, destination
+
+
+# --------------------------------------------------------------------------
+# ROUND 1 — the corrections the independent verification owed
+#
+# Each case below reproduced a real hole first, against the file as it stood at
+# `8aa6f92e`, and each fails against that revision. They are grouped here rather
+# than filed under their codes because what they have in common is the round,
+# and a reader chasing the round wants them together.
+# --------------------------------------------------------------------------
+
+def _scaffolded_dest(carve: Carve, doc: dict[str, Any], destination: str,
+                     scaffold: dict[str, str], name: str) -> Path:
+    """A destination that is a GIT REPOSITORY with a pre-carve baseline.
+
+    `origin/main` is written directly with `update-ref`: the baseline is a
+    revision, not a remote, and a fixture that had to clone to get one would be
+    testing git's transport rather than the admission rule.
+    """
+    dest = carve.tmp / name
+    dest.mkdir(parents=True, exist_ok=True)
+    _git(dest, "init", "-q", "-b", "main")
+    _git(dest, "config", "user.name", "carve-arrival-test")
+    _git(dest, "config", "user.email", "carve-arrival@example.invalid")
+    for rel, text in scaffold.items():
+        _write(dest, rel, text)
+    _git(dest, "add", "--", *scaffold)
+    _git(dest, "commit", "-q", "-m", "the leg scaffold, before the carve")
+    _git(dest, "update-ref", "refs/remotes/origin/main", "HEAD")
+    carve.materialise(doc, destination, name=name)
+    return dest
+
+
+def test_a_row_shape_this_file_cannot_read_refuses_rather_than_exiting_1(
+        carve: Carve) -> None:
+    """THE EXIT CONTRACT, ASSERTED. The module docstring says exit 0 or 2 and
+    never 1, and before this round a manifest row missing `destination_path:`
+    escaped `main()` as a `KeyError` traceback and exit 1 — the one exit the
+    file says does not exist. A guarantee that depends on a reader auditing
+    every raise site is not a guarantee, so `main()` now owns it.
+    """
+    doc = copy.deepcopy(carve.manifest_doc())
+    del doc["rows"][0]["destination_path"]
+    manifest = carve.write_manifest(doc, "manifest-shapeless.yaml")
+    dest = carve.tmp / "dest-shapeless"
+    dest.mkdir()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 2, (done.returncode, done.stdout, done.stderr)
+    assert "Traceback" not in done.stderr, done.stderr
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "KeyError" in detail and "no exit 1" in detail, detail
+
+
+def test_the_scaffold_list_reader_survives_more_than_a_value_error() -> None:
+    """`ast.literal_eval` raises `SyntaxError` — and `TypeError`,
+    `MemoryError`, `RecursionError` over a hostile literal — as well as
+    `ValueError`. A destination checkout is untrusted input, so a claim about
+    the SOURCE is the honest pin here: the handler names them, and `main()`'s
+    catch-all is the second line of the same defence."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    handlers = [h for node in ast.walk(tree)
+                if isinstance(node, ast.Try)
+                for h in node.handlers
+                if any(isinstance(c, ast.Call)
+                       and isinstance(c.func, ast.Attribute)
+                       and c.func.attr == "literal_eval"
+                       for c in ast.walk(node))]
+    assert handlers, "no `literal_eval` call is guarded at all"
+    named = {n.id for h in handlers for n in ast.walk(h.type or ast.Pass())
+             if isinstance(n, ast.Name)}
+    assert {"ValueError", "SyntaxError"} <= named, named
+
+
+def test_an_undeclared_directory_symlink_is_not_invisible(
+        carve: Carve) -> None:
+    """`os.walk` puts a symlink to a DIRECTORY in `dirnames`, does not descend
+    into it and never reads it, so before this round a destination could carry a
+    whole tree of undeclared content behind one name and still return `OK`. git
+    stores such a link as a `120000` blob whose content is the target path, so
+    it is answered exactly as any other entry is."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    hidden = carve.tmp / "smuggled"
+    (hidden / "deep").mkdir(parents=True)
+    (hidden / "deep" / "payload.py").write_text("PAYLOAD = 1\n",
+                                                encoding="utf-8")
+    os.symlink(hidden, dest / "src" / "pkg" / "vendor")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    assert "src/pkg/vendor" in json.loads(done.stdout)["detail"]
+
+
+def test_a_file_symlink_is_still_refused(carve: Carve) -> None:
+    """The half that already worked, kept beside the half that did not, so a
+    later change cannot fix one by breaking the other."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    os.symlink(carve.tmp / "nowhere.py", dest / "src" / "pkg" / "link.py")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+
+
+def test_an_empty_created_file_is_not_admitted_as_a_replica(
+        carve: Carve) -> None:
+    """EMPTY BYTES IDENTIFY NOTHING. Two of the landed manifest's 18 replica
+    rows carry the empty digest (`fixtures/empty/*/.gitkeep`), so before this
+    round ANY empty file under a declared root — a created `__init__.py`, a
+    truncated module — was admitted as "a replica" and counted as one: a true
+    statement about the bytes and a false one about the file. The
+    `.gitkeep`-by-name rule already refused to call the scaffold's placeholder a
+    replica for the same reason; this is the rest of it."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/__init__.py", "")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    detail = json.loads(done.stdout)["detail"]
+    assert "EMPTY" in detail and "--replica-at" in detail, detail
+
+
+def test_an_empty_replica_may_still_be_declared_by_name(carve: Carve) -> None:
+    """The admission the rule leaves standing, and the stronger one: what an
+    empty replica cannot be admitted BY IDENTITY it can always be admitted BY
+    NAME, which is what `--replica-at` was for."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/empty.py", "")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/empty.py=src/pkg/empty.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_verified"] == 1
+    assert payload["admitted"]["replica"] == 0
+
+
+def test_a_payload_at_the_posture_documents_name_is_refused(
+        carve: Carve) -> None:
+    """The smuggling the independent verification demonstrated: `SECRET CARVE
+    PAYLOAD` written to `docs/branch-protection.md`, which is admitted BY NAME
+    under a declared `docs/` root, returned `OK`. The admission stays — a
+    document whose whole subject is provenance may not arrive under
+    `--allow-created`, which would record that the destination assembled it —
+    but the bytes are now the destination's own at `--dest-base`."""
+    doc = copy.deepcopy(carve.manifest_doc())
+    doc["rows"][0]["destination_path"] = "docs/alpha.md"
+    manifest = carve.write_manifest(doc, "manifest-posture.yaml")
+    dest = _scaffolded_dest(carve, doc, "scratch_code",
+                            {"docs/branch-protection.md": "# posture\n"},
+                            "dest-posture")
+    ok = run(carve, manifest, "--destination", "scratch_code",
+             "--dest-root", str(dest), "--phase", "A", "--json")
+    assert ok.returncode == 0, ok.stdout + ok.stderr
+    assert json.loads(ok.stdout)["admitted"]["scaffold"] == 1
+    assert json.loads(ok.stdout)["dest_base"] is not None
+
+    _write(dest, "docs/branch-protection.md", "SECRET CARVE PAYLOAD\n")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    detail = json.loads(done.stdout)["detail"]
+    assert "SCAFFOLD by name" in detail, detail
+
+
+def test_a_gitkeep_with_content_is_refused(carve: Carve) -> None:
+    """`.gitkeep` is admitted by NAME anywhere under a root, which is right for
+    the scaffold's placeholder and wrong for a file carrying content at that
+    name."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = _scaffolded_dest(carve, doc, "scratch_code",
+                            {"src/pkg/.gitkeep": ""}, "dest-gitkeep")
+    ok = run(carve, manifest, "--destination", "scratch_code",
+             "--dest-root", str(dest), "--phase", "A", "--json")
+    assert ok.returncode == 0, ok.stdout + ok.stderr
+
+    _write(dest, "src/pkg/.gitkeep", "PAYLOAD = 1\n")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+
+
+def test_the_required_files_list_is_read_from_the_baseline_not_the_arrival(
+        carve: Carve) -> None:
+    """The check must not take its allowlist from the thing it is checking.
+    Before this round `REQUIRED_FILES` was parsed out of the destination's
+    WORKING TREE, so an arrival commit that added a path to its own
+    `tests/test_leg_shape.py` admitted that path."""
+    doc = copy.deepcopy(carve.manifest_doc())
+    doc["rows"][0]["destination_path"] = "tests/test_alpha.py"
+    manifest = carve.write_manifest(doc, "manifest-legshape.yaml")
+    dest = _scaffolded_dest(
+        carve, doc, "scratch_code",
+        {"tests/test_leg_shape.py": 'REQUIRED_FILES = ["README.md"]\n'},
+        "dest-legshape")
+    _write(dest, "tests/test_leg_shape.py",
+           'REQUIRED_FILES = ["README.md", "tests/payload.py"]\n')
+    _write(dest, "tests/payload.py", "PAYLOAD = 1\n")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    # BOTH files are now undeclared — the rewritten leg-shape module itself is
+    # the first one the ordered walk reaches — and either is the right refusal.
+    assert "tests/" in json.loads(done.stdout)["detail"]
+
+
+def test_a_dest_base_that_names_no_commit_refuses(carve: Carve) -> None:
+    """A NAMED `--dest-base` that does not resolve refuses: an operator who
+    asked for the strong admission must not silently be given the weak one. The
+    DEFAULT is allowed to be absent — a destination is a working tree and not
+    necessarily a repository."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--dest-base", "refs/heads/no-such-thing")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_without_a_baseline_the_weaker_claim_is_printed_as_the_weaker_one(
+        carve: Carve) -> None:
+    """The fallback is honest rather than silent: a destination with no
+    `origin/main` still verifies, and both the summary and the human line say
+    the scaffold admissions were by name alone."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "scaffold admissions by NAME ONLY" in done.stdout, done.stdout
+
+
+def test_an_assembly_root_is_reachable_by_the_repository_it_is(
+        carve: Carve) -> None:
+    """RULED OQ-I puts `carved_from:` in EACH assembly root, and the landed
+    manifest declares `opendox_root` and NO `openxdox_root` — openXdox's root
+    receives no row, so it has no `destinations:` key. Addressed only by key,
+    half the provenance the ruling requires would be uncheckable by the tool
+    that checks the other half."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    root = _assembly_root(carve, {"repository": SOURCE_REPOSITORY,
+                                  "commit": carve.carve_commit,
+                                  "carve_tag": CARVE_TAG})
+    undeclared = run(carve, manifest, "--assembly-root", "opensoft/openXdox",
+                     "--dest-root", str(root), "--json")
+    assert undeclared.returncode == 0, undeclared.stdout + undeclared.stderr
+    payload = json.loads(undeclared.stdout)
+    assert payload["mode"] == "assembly-root"
+    assert payload["declared_by_the_manifest"] is False
+    assert payload["destination"] is None
+    assert payload["carved_from"]["commit"] == carve.carve_commit
+
+    declared = run(carve, manifest, "--assembly-root", "opensoft/scratch",
+                   "--dest-root", str(root), "--json")
+    assert declared.returncode == 0, declared.stdout + declared.stderr
+    assert json.loads(declared.stdout)["destination"] == "scratch_root"
+
+
+def test_an_assembly_root_addressed_by_repository_still_refuses(
+        carve: Carve) -> None:
+    """The mode adds an ADDRESS, not an exemption: the check it runs is the
+    same one."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    root = _assembly_root(carve, {"repository": SOURCE_REPOSITORY,
+                                  "commit": "deadbeef" * 5})
+    done = run(carve, manifest, "--assembly-root", "opensoft/openXdox",
+               "--dest-root", str(root), "--json")
+    assert refusal(done) == "arrival-carved-from-mismatch"
+
+
+def test_assembly_root_refuses_a_leg_and_a_malformed_repository(
+        carve: Carve) -> None:
+    """A leg carries no `contracts/` at all (RULED OQ-I, measured), so naming
+    one here is a caller reaching for `--destination`; and the flag takes a
+    repository, so a key typed into it is refused rather than read as one."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    root = _assembly_root(carve, {"repository": SOURCE_REPOSITORY,
+                                  "commit": carve.carve_commit})
+    leg = run(carve, manifest, "--assembly-root", "opensoft/scratch-code",
+              "--dest-root", str(root), "--json")
+    assert refusal(leg) == "arrival-unreadable"
+    assert "--destination scratch_code" in json.loads(leg.stdout)["detail"]
+
+    shape = run(carve, manifest, "--assembly-root", "openxdox_root",
+                "--dest-root", str(root), "--json")
+    assert refusal(shape) == "arrival-unreadable"
+
+
+def test_destination_and_assembly_root_together_refuse(carve: Carve) -> None:
+    """Two addresses for one run, and the file does not choose between them."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    root = _assembly_root(carve, {"repository": SOURCE_REPOSITORY,
+                                  "commit": carve.carve_commit})
+    done = run(carve, manifest, "--destination", "scratch_root",
+               "--assembly-root", "opensoft/scratch", "--phase", "A",
+               "--dest-root", str(root), "--json")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_the_no_destination_json_names_the_destinations_as_a_list(
+        carve: Carve) -> None:
+    """`--json` is consumed by machines. Before this round the seat's
+    `destinations` field was a comma-joined sentence, or an apology sentence
+    when the manifest could not be read — a field every consumer had to parse
+    twice."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    done = run(carve, manifest, "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["destinations"] == ["scratch_code", "scratch_root",
+                                       "scratch_spec"]
+    assert payload["destinations_unreadable"] is False
+
+    missing = run(carve, carve.tmp / "not-there.yaml", "--json")
+    assert missing.returncode == 0, missing.stdout + missing.stderr
+    gone = json.loads(missing.stdout)
+    assert gone["destinations"] == [] and gone["destinations_unreadable"]
+
+
+def test_the_landed_manifest_gives_the_openxdox_root_no_key() -> None:
+    """The measured fact the `--assembly-root` mode exists for, asserted
+    against the LANDED manifest so that a re-cut which ADDS the key reds here
+    and the runbook's § 7 can go back to a `--destination`."""
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    assert "opendox_root" in doc["destinations"]
+    assert "openxdox_root" not in doc["destinations"]
+    repositories = {entry["repository"] for entry in doc["destinations"].values()}
+    assert "opensoft/openXdox" not in repositories

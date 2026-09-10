@@ -157,6 +157,15 @@ python3 scripts/verify-carve-arrival.py \
     --phase A
 ```
 
+An ASSEMBLY ROOT is addressed by the repository it is, because `destinations:`
+is a map of the places rows GO and openXdox's root receives none:
+
+```sh
+python3 scripts/verify-carve-arrival.py \
+    --assembly-root opensoft/openXdox \
+    --dest-root     /path/to/openXdox
+```
+
 Its five findings and one environment code:
 
 | code | what it refuses |
@@ -164,9 +173,9 @@ Its five findings and one environment code:
 | `arrival-missing` | a row for this destination has no file at `destination_path` |
 | `arrival-digest-mismatch` | the arrived bytes or mode are not the row's (phase A for every moved row; both phases for `moved_verbatim`) |
 | `arrival-undeclared-edit` | phase B: the arrived blob differs from the carve blob on a line no `edits[].lines` declares — **the refusal names the lines** |
-| `arrival-undeclared-file` | a file under a declared root that no row places and no admission rule admits |
+| `arrival-undeclared-file` | an ENTRY under a declared root that no row places and no admission rule admits — a file, a symlink, or a **symlink to a directory** (git stores it as a `120000` blob, and `os.walk` would hand it to `dirnames` and never read it); also a file admitted as SCAFFOLD whose bytes are not the destination's own at `--dest-base` |
 | `arrival-carved-from-mismatch` | an assembly root's `contracts/manifest.yaml` carries no `carved_from`, or one naming another repository or another commit |
-| `arrival-unreadable` | the environment and the encoding: no git, an unreadable manifest, an unknown `--destination`, a `--dest-root` that is not a directory, a source repository that does not carry `carve_commit` |
+| `arrival-unreadable` | the environment and the encoding: no git, an unreadable manifest, an unknown `--destination`, a `--dest-root` that is not a directory, a `--dest-base` that resolves to no commit, `--destination` and `--assembly-root` together, a source repository that does not carry `carve_commit`. It is also the CATCH-ALL that holds the exit contract: any exception the checks did not name arrives as this code and exit 2, never as a traceback and exit 1 |
 
 **It lives in openxFactory and is never copied into six repositories.** The
 manifest lives here; a verifier copied six ways is six things to keep in step
@@ -184,8 +193,13 @@ answer it then checked.
 Two readings, both available, and the choice is per replica:
 
 * **Undeclared** — the verifier ADMITS a destination file whose bytes equal a
-  replica's blob at `carve_commit` and reports the count. It cannot say whether
-  the replica is there at all, and it cannot refuse one that drifted.
+  replica's **non-empty** blob at `carve_commit` and reports the count. It
+  cannot say whether the replica is there at all, and it cannot refuse one that
+  drifted. **Empty bytes identify nothing and admit nothing**: two of the 18
+  rows are `fixtures/empty/*/.gitkeep`, so an empty-digest admission would let
+  any empty created file — an `__init__.py`, a truncated module — in as "a
+  replica", which is true of the bytes and false of the file. An empty replica
+  is admitted only by declaring it.
 * **Declared**, with `--replica-at <source_path>=<destination path>` — the
   per-leg table below in machine form, restated in the pull request that places
   it. A declared replica is answered with the two codes a ROW is answered with,
@@ -217,6 +231,21 @@ root for `opendox_spec` — it receives `docs/ideation-dashboard-session-runbook
 — so before that admission a perfectly arrived openDox-spec leg refused
 `arrival-undeclared-file` on the scaffold's own posture document. Measured
 against the landed manifest, not reasoned about.
+
+**A name is not a licence to carry content, and `--dest-base` is what makes the
+name safe.** Every scaffold admission is by NAME, so the name alone would admit
+whatever is written at it: `SECRET CARVE PAYLOAD` at
+`docs/branch-protection.md` returned `OK`; a `.gitkeep` with content is
+admitted anywhere under a root; and `REQUIRED_FILES` was read from the
+destination's own WORKING TREE, so an arrival commit that added a path to its
+own `tests/test_leg_shape.py` admitted that path — a check taking its allowlist
+from the thing it is checking. All three were demonstrated on 2026-09-09. So
+the allowlist is read from `--dest-base` (default `origin/main` where the
+destination is a git repository carrying it) and every scaffold admission's
+BYTES must equal the destination's own copy at that revision. Where there is no
+baseline the run still passes, and BOTH the summary and the human line say
+`scaffold admissions by NAME ONLY` — the weaker claim never passes for the
+stronger one.
 
 ---
 
@@ -327,24 +356,50 @@ must be up to date with `main` before it can merge.
 
 ### 5.2 The mirror, and the control
 
-A **fresh** mirror, never the shared checkout and never a worktree of it: a
-carve must read a tree nobody else is editing, and `git filter-repo` refuses an
-unfresh clone by design.
+A **fresh MIRROR**, never the shared checkout and never a worktree of it: a
+carve must read a tree nobody else is editing, and `git filter-repo` REFUSES a
+clone that is not fresh. Measured against `git-filter-repo ed61b405`, the
+installed one:
+
+> Aborting: Refusing to destructively overwrite repo history since this does
+> not look like a fresh clone. (expected at most one entry in the reflog for
+> HEAD) … If you want to proceed anyway, use `--force`.
+
+`git clone` followed by `git checkout "$CARVE_COMMIT"` leaves TWO HEAD reflog
+entries and is exactly that case, so the carve stops before it starts — the
+sequence an earlier draft of this section printed does not run. A `--mirror`
+clone has no working tree to check out, leaves one reflog entry, and is the
+shape filter-repo documents; it needs no `--force`. **`--force` is the
+fallback and not the default**: the freshness check exists to stop a rewrite
+landing in a repository somebody is working in, so it may be overridden only in
+a throwaway clone made for this carve — a re-run in a clone already used — and
+never in a checkout anyone else can reach.
 
 ```sh
 CARVE_COMMIT=b075fd91dc8fced8e1373825ba80220c33536bae
 DEST=opendox_code                       # one destination per pass
+OXF=$PWD                                # the openxFactory checkout you stand in
 
-git clone https://github.com/opensoft/openxFactory.git oxf-carve-src
-git -C oxf-carve-src checkout "$CARVE_COMMIT"
+git clone --mirror https://github.com/opensoft/openxFactory.git oxf-carve-src.git
 ```
 
 **The control, before the carve.** Re-verify the manifest against the mirror at
 the carve commit. Without this control a post-carve match proves the manifest
 stale rather than the carve faithful.
 
+**`--manifest` is NOT optional here, and leaving it off is a control that goes
+green having checked nothing.** `validate-carve-manifest.py` defaults its
+manifest to `<repo>/docs/opendox-carve-manifest.yaml` and holds a seat when
+that path is not a file: it prints `NO MANIFEST … (nothing to validate)` and
+exits **0**. A mirror has no working tree, and the manifest does not exist at
+the carve commit in any case — it landed at `17167481`, AFTER `b075fd91` — so
+the bare invocation selects that branch. Name the manifest in the checkout you
+are standing in, absolutely:
+
 ```sh
-python3 scripts/validate-carve-manifest.py --repo oxf-carve-src --at "$CARVE_COMMIT"
+python3 "$OXF/scripts/validate-carve-manifest.py" \
+    --repo oxf-carve-src.git --at "$CARVE_COMMIT" \
+    --manifest "$OXF/docs/opendox-carve-manifest.yaml"
 # expect: OK … 454 row(s) … 318 digest(s) recomputed
 ```
 
@@ -352,31 +407,60 @@ python3 scripts/validate-carve-manifest.py --repo oxf-carve-src --at "$CARVE_COM
 
 The destination tree must be a function of the document, which is the whole
 difference between this carve and the wallet's twelve hand-listed path sets.
-`--paths-from-file` takes one literal path per line and `old==>new` renames;
-**0 rows change a basename**, so every directive here is a relocation.
+
+**TWO LINES PER ROW, and the rename line alone is not enough.**
+`--paths-from-file` reads a plain line as a path SELECTOR and a line containing
+`==>` as a path RENAME. `git filter-repo -h` describes `==>` as a renaming
+directive rather than a selector, and a file of rename directives renames what
+it names and **keeps everything else**. Measured on a scratch repository of
+three files with one listed: the rename-only file kept all three; the file
+carrying the bare path beside the rename kept exactly one. Against openxFactory
+that is the difference between publishing 123 files and publishing the
+repository — `openspec/`, `contracts/`, `.github/` and every other path would
+ride into a PUBLIC destination, and the arrival verifier would not catch them,
+because its walk is scoped to that destination's declared roots. So emit BOTH:
+the bare `source_path` to SELECT it, and the rename to PLACE it. **0 rows
+change a basename**, so every rename here is a relocation.
 
 ```sh
-python3 - "$DEST" <<'PY' > paths-$DEST.txt
+python3 - "$DEST" "$OXF/docs/opendox-carve-manifest.yaml" > paths-$DEST.txt <<'PY'
 import sys, yaml
 dest = sys.argv[1]
-doc = yaml.safe_load(open("docs/opendox-carve-manifest.yaml"))
+doc = yaml.safe_load(open(sys.argv[2]))
 for row in doc["rows"]:
     if row.get("destination") == dest:
-        print(f'{row["source_path"]}==>{row["destination_path"]}')
+        print(row["source_path"])                                   # SELECT
+        print(f'{row["source_path"]}==>{row["destination_path"]}')  # PLACE
 PY
-wc -l paths-$DEST.txt        # 123 for opendox_code; see § 2's table
+wc -l paths-$DEST.txt        # 2 x 123 = 246 for opendox_code; see § 2's table
 ```
 
-### 5.4 The carve
+### 5.4 The carve, onto a NAMED ref
+
+**`--refs` takes REFS, and a raw object id is not one.** `--refs
+"$CARVE_COMMIT"` rewrites the history reachable from that commit into new
+objects and then has no ref to update, so `refs/heads/main` keeps the
+UNFILTERED tree and § 5.5's merge takes unfiltered history. Reproduced on a
+scratch repository: after the run, `main` was byte-for-byte the source and **no
+ref carried the rewrite at all**. Create a branch AT the carve commit and
+rewrite THAT.
 
 ```sh
-git -C oxf-carve-src filter-repo --paths-from-file ../paths-$DEST.txt --refs "$CARVE_COMMIT"
+git -C oxf-carve-src.git branch carve-src "$CARVE_COMMIT"
+git -C oxf-carve-src.git filter-repo \
+    --paths-from-file ../paths-$DEST.txt --refs carve-src
+
+# the control on the carve itself, before anything is fetched from it
+git -C oxf-carve-src.git ls-tree -r --name-only carve-src | wc -l   # = the row count
 ```
 
-`--refs "$CARVE_COMMIT"` keeps the rewrite anchored on the carve commit's own
-history rather than on whatever `main` has become. filter-repo removes `origin`
-when it finishes; that is the tool refusing to let a rewritten history be pushed
-back over its source, and it must not be worked around.
+`--refs` implies filter-repo's PARTIAL mode, and two of its consequences bite at
+§ 5.5. The mirror's OTHER refs are left alone — `main`, every branch and every
+backup ref a mirror carries, all still unfiltered — so the destination must
+fetch ONE ref by refspec rather than `git fetch carved`. And **`origin` is NOT
+removed**: an earlier draft of this section said filter-repo removes it when it
+finishes, and that did not hold in any run made for this document; the claim is
+withdrawn, and the mirror is disposable rather than de-fanged.
 
 ### 5.5 The two commits, and why they are two
 
@@ -394,25 +478,41 @@ back over its source, and it must not be worked around.
 git clone https://github.com/opensoft/openDox-code.git dest-openDox-code
 cd dest-openDox-code || exit 1
 git checkout -b carve/opendox-code-arrival
-git remote add carved ../oxf-carve-src
-git fetch carved
-git merge --allow-unrelated-histories carved/main \
+git remote add carved ../oxf-carve-src.git
+# ONE REF, BY REFSPEC. The mirror still carries the unfiltered `main` and every
+# other ref (§ 5.4), and a bare `git fetch carved` brings all of them within
+# reach of a mistyped merge.
+git fetch carved carve-src:refs/remotes/carved/carve-src
+git merge --allow-unrelated-histories carved/carve-src \
     -m "Commit A — the openDox-code arrival at opendox-carve-0 (123 rows, byte-identical)"
 ```
 
-Then, in openxFactory, with the destination checkout in hand:
+Then, in openxFactory, with the destination checkout in hand. `--manifest` is
+named for § 5.2's reason — `--source-repo` is a MIRROR and carries no working
+tree, so the default `<source-repo>/docs/…` path is not a file — and unlike the
+manifest validator this verifier is fail-closed about it and refuses
+`arrival-unreadable` rather than holding a seat:
 
 ```sh
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
-    --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src --phase A
-# expect exit 0: 123 row(s) arrived … 123 digest(s) verified
+    --manifest "$OXF/docs/opendox-carve-manifest.yaml" \
+    --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src.git --phase A
+# expect exit 0: 123 row(s) arrived … 123 digest(s) verified …
+#                scaffold admissions checked against <origin/main>
 ```
+
+`--dest-base` defaults to the destination's own `origin/main`, which after the
+clone above is its PRE-CARVE main, and every SCAFFOLD admission's bytes are
+checked against it. If the line says `scaffold admissions by NAME ONLY` the
+destination had no such ref and the run made the weaker claim: name the
+baseline explicitly (`--dest-base <sha>`) before reading the result as proof.
 
 **Only then** apply the declared edits as commit B, and re-verify at phase B:
 
 ```sh
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
-    --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src --phase B \
+    --manifest "$OXF/docs/opendox-carve-manifest.yaml" \
+    --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src.git --phase B \
     --allow-created pytest.ini --allow-created conftest.py \
     --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
@@ -420,6 +520,16 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
 # expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
 # replica(s) byte-identical
 ```
+
+**§ 5.2-5.5 PROVED END TO END, 2026-09-09**, against the landed manifest and a
+fresh mirror: the `opendox_spec` leg's 112-line path file carved `carve-src`
+down to exactly its **56** files under `contracts/`, `docs/` and `examples/`
+and nothing else; the single-refspec fetch and the unrelated-histories merge
+placed them on a scaffold branch; and phase A reported **56 row(s) arrived, 56
+digest(s) verified, 57 file(s) … none undeclared (1 scaffold)**. The same three
+steps run as this section printed them before this round produced, in order: a
+refusal to start, a rewrite no ref pointed at, and a tree still holding all
+5,404 files.
 
 One `--replica-at` per replica this leg places as a pure copy, at the path it
 was placed. The three neutral modules above are permanent replicas (RULED
@@ -495,10 +605,24 @@ of § 1). Today it pins `bad2d2ad4c93c2d0cc3ed82ec56de3e5eecbc2fe`.
 `validate-pins.py`, `validate-repository-naming.py`), plus
 
 ```sh
+# openDox's root HAS a destinations: key, because rows point at it
 python3 scripts/verify-carve-arrival.py --destination opendox_root \
     --dest-root ../dest-openDox --source-repo . --phase A
 # the carved_from check is this destination's whole job: it declares 0 rows
+
+# openXdox's root has NO key — the manifest declares opendox_code, opendox_root,
+# opendox_spec, openxdox_code, openxdox_spec and nothing else, because no row
+# lands in openXdox's assembly root. It is addressed by the repository it is,
+# so BOTH of RULED OQ-I's records are machine-checked rather than one of them:
+python3 scripts/verify-carve-arrival.py --assembly-root opensoft/openXdox \
+    --dest-root ../dest-openXdox --source-repo .
 ```
+
+**Both roots, or the ruling is half kept.** RULED OQ-I puts `carved_from:` in
+EACH assembly root. A manifest key exists only where rows land, so a
+key-addressed check reaches openDox's record and not openXdox's; the
+`--assembly-root` mode is why § 7's record is verified by running code rather
+than read by eye.
 
 **Brett's acts:** the pin is a pin act and the estate hand-bumps pins; the pull
 request is admin-merged on his word.
@@ -518,7 +642,10 @@ and is never separately declared, pinned or mounted here.
 
 The gitlink IS the commit pin RULING F requires. `contracts/openxdox-pin.yaml`
 is § 5.1's new file and carries `carve_commit:` (record 2 of § 1) beside the
-commit and tree digest. **The estate's submodule discipline applies unchanged**:
+commit and tree digest. **openXdox's own `carved_from:` record is verified with
+`--assembly-root opensoft/openXdox`** (§ 6): its assembly root receives no row
+and therefore has no `destinations:` key, so that is the only address the
+verifier has for it. **The estate's submodule discipline applies unchanged**:
 the gitlink, the pin file and every workflow reference of the form
 `<org>/<repo>/…@<sha>` move in ONE commit, and `git cat-file -t <sha>` inside
 the submodule is what says the pin names a real object.
