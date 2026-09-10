@@ -55,8 +55,12 @@ himself; the two are both human-gated, only one is human-performed.)
   and read its empty result as "no other active change"; that command
   cannot reach `openspec/changes/<id>/specs/release-realization/spec.md`
   (four segments deep) at `-maxdepth 3`, so the empty result proved nothing.
-  Re-run at the correct depth,
-  `find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
+  Re-run at the correct depth AND, after a second Copilot pass found this
+  depth-corrected command also matched this packet's OWN delta file when
+  run against this packet's own worktree (three paths, not two — a `find`
+  has no "before filing" moment to self-exclude with, so the exclusion is
+  an explicit path term instead),
+  `find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*" -not -path "*/state-header-window-budget/*"`
   → TWO other active changes DO carry a `release-realization` delta
   (`add-sequenced-after-substrate`, `add-structured-scope-substrate`), but a
   `grep -n "^### Requirement:"` over both shows neither declares "Equivalent
@@ -68,10 +72,14 @@ himself; the two are both human-gated, only one is human-performed.)
   `gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`
   → empty, checked BEFORE this pull request was filed (this pull request
   itself necessarily touches `release-realization`, so "no OTHER open pull
-  request" is the claim, not "no open pull request" read literally;
-  re-checked 2026-09-10 at head `5252c37b`, still empty). No ACTIVE-change
-  collision on the requirement key, so no `Modified over` marker is
-  owed. Ledger row `class: co-modifier`, partnered with
+  request" is the claim, not "no open pull request" read literally).
+  **Corrected 2026-09-10:** the earlier "re-checked at head `5252c37b`,
+  still empty" was wrong — that bare command has no term excluding this
+  pull request's own number, so a re-check taken AFTER filing necessarily
+  matches #921 itself. Reproduced at head `7e31b2df`: exactly one match,
+  #921 itself; excluded BY NUMBER, zero OTHER open pull requests remain.
+  No ACTIVE-change collision on the requirement key, so no `Modified over`
+  marker is owed. Ledger row `class: co-modifier`, partnered with
   `accept-sequenced-after-header-line` (its own row flips `sole` →
   `co-modifier` in the same re-seed, task 1.7) — correct, since both write
   the same requirement key; this is the ledger's documented partner-flip

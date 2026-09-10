@@ -9,8 +9,13 @@ first version's sibling search used a `find -maxdepth 3` that could not
 reach a delta file four segments below `openspec/changes` and so returned
 nothing regardless of whether siblings existed. The claim that matters is
 narrower than "no other active change touches `release-realization`":
-`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
-finds TWO other active changes with a `release-realization` delta
+`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*" -not -path "*/state-header-window-budget/*"`
+— the final `-not -path` term added 2026-09-10 after a second Copilot pass
+found the depth-corrected command, run against this packet's own worktree,
+also matched this packet's own delta file (three paths, not two); a `find`
+over a live tree has no "before filing" moment to exclude itself with, so
+the exclusion is an explicit path term instead — finds TWO other active
+changes with a `release-realization` delta
 (`add-sequenced-after-substrate`, `## ADDED Requirements` only; and
 `add-structured-scope-substrate`, `## MODIFIED` on "Realization axis
 declaration" and five other requirements), and a `grep -n "^### Requirement:"`
@@ -19,10 +24,13 @@ the ordered-delta parent declaration" — so no other active change writes
 THIS requirement key. No OTHER open pull request touches `release-realization`
 or `frontmatter_strict`
 (`gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`,
-checked before this pull request was filed, returns nothing — this pull
-request itself necessarily touches `release-realization` and is excluded by
-construction; re-checked 2026-09-10 at head `5252c37b`, still empty). No
-active change writes this requirement key, so `modified-block-currency`'s
+checked before this pull request was filed, returns nothing — the pull
+request did not yet exist to match. A re-check taken AFTER filing is NOT
+"still empty": the same command, unmodified, necessarily also matches this
+pull request once #921 is open; reproduced 2026-09-10 at head `7e31b2df`,
+exactly one match, #921 itself. Excluding it BY NUMBER leaves zero OTHER
+open pull requests — the earlier "still empty" wording is corrected here.)
+No active change writes this requirement key, so `modified-block-currency`'s
 two-writers ordering rule owes no `Modified over` marker in either
 direction. (The per-change sweep ledger's own `class` field reads
 `co-modifier` rather than `sole` for this change's row, because it shares

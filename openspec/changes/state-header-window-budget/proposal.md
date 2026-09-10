@@ -136,13 +136,18 @@ claim that matters is narrower than "no other active change touches
 `release-realization` at all": it is that no OTHER active change writes
 THIS requirement key, "Equivalent declaration sites for the ordered-delta
 parent declaration."
-`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*"`
-(corrected depth — a delta file sits at
+`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*" -not -path "*/state-header-window-budget/*"`
+(corrected TWICE by Copilot review: first the depth — a delta file sits at
 `openspec/changes/<id>/specs/release-realization/spec.md`, four path
 segments below `openspec/changes`, one deeper than the original command's
 `-maxdepth 3` could reach, so that command returned nothing regardless of
-whether siblings existed) finds TWO other active changes with a
-`release-realization` delta:
+whether siblings existed; then the final `-not -path` term — without it,
+this command, run against THIS packet's own worktree, also matches this
+packet's own delta file, three paths and not two. Unlike the `gh pr list`
+check below, a `find` over a live worktree has no "before this pull request
+existed" moment to rely on, so the self-exclusion has to be an explicit
+path term.) Reproduced 2026-09-10, finds exactly TWO other active changes
+with a `release-realization` delta:
 `add-sequenced-after-substrate` (`## ADDED Requirements` only) and
 `add-structured-scope-substrate` (`## MODIFIED` on "Realization axis
 declaration" and five other requirements).
@@ -151,11 +156,15 @@ named "Equivalent declaration sites for the ordered-delta parent
 declaration", so neither collides with this delta's requirement key. No
 OTHER open pull request on `opensoft/openxFactory` touches
 `release-realization` or `frontmatter_strict`
-(checked, before this pull request was filed, via
-`gh pr list --json number,title,files`; this pull request itself
-necessarily touches `release-realization` and is excluded by construction,
-not by a filter applied after the fact — re-checked 2026-09-10 at head
-`5252c37b`, still empty). No active change writes this requirement key, so
+(checked before this pull request was filed, via
+`gh pr list --json number,title,files` — empty, because the pull request
+did not yet exist to match. **Correction:** the earlier claim that a
+re-check taken AFTER this pull request existed also came back "still
+empty" was wrong and is retracted — that bare command has no term
+excluding this pull request's own number, so once #921 is open it
+necessarily matches itself. Reproduced 2026-09-10 at head `7e31b2df`: the
+command returns exactly one match, #921 itself; excluding it BY NUMBER
+leaves zero OTHER open pull requests). No active change writes this requirement key, so
 `modified-block-currency`'s two-writers ordering rule owes no
 `Modified over` marker.
 
