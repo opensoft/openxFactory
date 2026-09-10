@@ -65,6 +65,46 @@ leading blank line), still reads as NO FRONT MATTER — which is fail-CLOSED her
 refuses a BOM outright on its own path. Tightening that is not in this
 requirement's refused set and is not done here.
 
+THE HEADER-LINE FORM (`accept-sequenced-after-header-line`, ADDED requirement
+"Equivalent declaration sites for the ordered-delta parent declaration"; ruled by
+Brett Heap 2026-09-10, verbatim "do door b", on codexFactory issue #268). A
+governed corpus may carry its lifecycle headers UNFENCED — codexFactory's does,
+49 of its 50 proposals, the one exception being an archived 2026-08 packet — and
+there a `sequenced_after:` line is a declaration its author wrote and this reader
+could not see (measured on codexFactory main `2ade133`: EIGHT proposals carry
+one, and `sequenced_after.corpus_sweep` still reported `declaring = 0`).
+`read_header_line` reads ONE named field from a
+BOUNDED LIFECYCLE HEADER WINDOW: the first `HEADER_WINDOW_LINES` REAL lines of
+the document, the same window and the same line rule `doc_health.corpus`'s
+`parse_status`/`parse_kind` already apply to the same document set. It is
+offered to `sequenced_after:` ALONE and is NOT wired to `scope_globs:` — see
+`read_header_line`'s own note for why widening a path-authorization surface is a
+different act from making a position declaration legible.
+
+THE WINDOW IS THE BOUND, AND THE BOUND IS THE POINT. Front matter was chosen for
+these fields because a fence delimits; the alternative it refused was UNBOUNDED
+PROSE PARSING, where a `sequenced_after:` written inside a paragraph on line 400
+would authorize as loudly as one written in a header. A line-bounded window keeps
+that refusal — beyond it, the same bytes are prose and declare nothing — while
+letting an unfenced corpus's real headers be read.
+
+THE LINE RULE IS DEFINED HERE RATHER THAN IMPORTED, AND THAT IS HELD BY AN
+AGREEMENT TEST RATHER THAN BY CONVENTION. `doc_health.lines.split_keepends` owns
+the corpus's real-line rule and `doc_health.corpus.STATUS_SCAN_LINES` owns the
+window number, but THIS FILE IS VENDORED BYTE-FOR-BYTE into codexFactory
+(`scripts/merge_master/frontmatter_strict.py`, pinned at `stack.yaml`'s
+`contract_ref`), where no `doc_health` package exists — so an import of it would
+break the vendored copy at load time. `align-status-reader-to-real-lines`'s
+ratified requirement names the remedy for exactly this case: "Where the corpus
+cannot share an implementation across language boundaries, the divergence SHALL
+be held by an explicit agreement test rather than by convention." The boundary
+here is a VENDORING boundary rather than a language one and takes the same
+remedy: `tests/sequenced_after/test_header_line.py` asserts, over the corpus and
+over exotic-separator fixtures, that `split_real_lines` agrees with
+`doc_health.lines.split_keepends` and that `HEADER_WINDOW_LINES` EQUALS
+`doc_health.corpus.STATUS_SCAN_LINES`. A drift in either is a test failure, not
+a convention nobody re-checks.
+
 Deterministic: text/YAML reads only, no model calls, no writes, no network.
 """
 
@@ -93,8 +133,27 @@ CEILING_BYTES = 65_536
 #: the strict loader. Every other front-matter field is a prose header.
 STRUCTURED_FIELDS = ("scope_globs", "sequenced_after")
 
+#: The BOUNDED LIFECYCLE HEADER WINDOW, in REAL lines of the document, within
+#: which a header-line field declaration is read.
+#:
+#: THE SAME NUMBER `doc_health.corpus.STATUS_SCAN_LINES` DECLARES, and it is
+#: restated here rather than imported because this file is vendored into a
+#: repository with no `doc_health` package (see the module docstring). Equality
+#: with that constant is asserted by `tests/sequenced_after/test_header_line.py`
+#: — a drift is a test failure. One window for every lifecycle header of a
+#: document, so `Status:` and `sequenced_after:` are found or missed together
+#: and no reader has a private idea of where a document's header ends.
+HEADER_WINDOW_LINES = 15
+
 _FENCE = "---"
 _TOP_LEVEL = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
+
+#: Only the three REAL line endings separate lines: CR, LF, CRLF. NOT
+#: `str.splitlines()`, which also breaks on \x0b, \x0c, \x1c-\x1e, \x85, U+2028
+#: and U+2029 — so a document carrying one of those would have its 15-line
+#: window counted in FRAGMENTS rather than in lines, and a header the writer
+#: plainly wrote could go unfound. Mirror of `doc_health.lines._EOL`.
+_EOL = re.compile(r"\r\n|\r|\n")
 
 
 class StrictFrontMatterError(Exception):
@@ -286,19 +345,63 @@ def source_text(source: str | bytes | Path) -> str:
     return source
 
 
-def fenced_lines(source: str | bytes | Path) -> list[str] | None:
-    """The lines inside the leading `---`-fenced front-matter block, or None when
-    the document carries no well-formed (opened AND closed) fence."""
-    text = source_text(source)
-    lines = text.splitlines()
+def split_real_lines(text: str) -> list[str]:
+    """`text` as a list of REAL lines — CR, LF and CRLF only.
+
+    The corpus's shared line rule, restated here because this file is vendored
+    into a repository with no `doc_health` package to import it from; equality
+    with `doc_health.lines.split_keepends` is held by an explicit agreement test
+    (see the module docstring). A reader that splits more aggressively than the
+    writer can fail to find a header the writer just wrote correctly, and then
+    reports a document as lacking a declaration it plainly carries — a FALSE
+    finding, which costs more trust than a crash.
+    """
+    rows: list[str] = []
+    at, size = 0, len(text)
+    while at < size:
+        match = _EOL.search(text, at)
+        if match is None:
+            rows.append(text[at:])
+            break
+        rows.append(text[at:match.start()])
+        at = match.end()
+    return rows
+
+
+def fence_span(lines: list[str]) -> int | None:
+    """The index of the CLOSING `---` of a leading front-matter fence, or None
+    when the document carries no well-formed (opened AND closed) fence.
+
+    ONE fence rule for both readers. `fenced_lines` takes the lines INSIDE the
+    span and the header-line reader SKIPS them, so a field declared in the fence
+    is read once, by the front-matter reader, and never counted a second time as
+    a header line of the same document.
+    """
     if not lines or lines[0].strip() != _FENCE:
         return None
-    body: list[str] = []
-    for line in lines[1:]:
-        if line.strip() == _FENCE:
-            return body
-        body.append(line)
+    for index in range(1, len(lines)):
+        if lines[index].strip() == _FENCE:
+            return index
     return None  # no closing fence
+
+
+def fenced_lines(source: str | bytes | Path) -> list[str] | None:
+    """The lines inside the leading `---`-fenced front-matter block, or None when
+    the document carries no well-formed (opened AND closed) fence.
+
+    Split on REAL lines (`split_real_lines`) rather than `str.splitlines()`, so
+    the fence span and the lifecycle header window agree about where this
+    document's lines are. Measured before the conversion over every `proposal.md`
+    in both clones — the openxFactory (191) and codexFactory (50) corpora plus
+    the 131 test fixtures carrying their own `openspec/changes/` trees, 372 files
+    in all: the two splittings return an IDENTICAL block for every one, so the
+    change costs a zero baseline diff and buys one line rule instead of two.
+    """
+    lines = split_real_lines(source_text(source))
+    closing = fence_span(lines)
+    if closing is None:
+        return None
+    return lines[1:closing]
 
 
 def field_blocks(lines: list[str]) -> dict[str, list[str]]:
@@ -362,3 +465,122 @@ def read_front_matter(
             rest = [first.group(2)] + block[1:] if first else block
             result[field] = "\n".join(rest).strip()
     return result
+
+
+# --- the header-line form -----------------------------------------------------
+
+
+class _NoHeaderLine:
+    """The sentinel for A FIELD NOT DECLARED AS A HEADER LINE.
+
+    Distinct from `None`, which is what a header line WITH NO VALUE
+    (`sequenced_after:` alone) reads as — present-but-null, refused downstream by
+    the field's own shape validation. Presence is decided by the KEY, never by
+    the value, on both reading paths.
+    """
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __bool__(self) -> bool:
+        return False
+
+    def __repr__(self) -> str:  # pragma: no cover - diagnostics only
+        return "<no header-line declaration>"
+
+
+#: No header-line declaration. Never equal to `None` or to `[]`.
+NO_HEADER_LINE = _NoHeaderLine()
+
+
+def read_header_line(
+    source: str | bytes | Path,
+    field: str,
+    window: int = HEADER_WINDOW_LINES,
+) -> object:
+    """Read `field` declared as a LIFECYCLE HEADER LINE, or `NO_HEADER_LINE`.
+
+    A header-line declaration is a line matching ``^<field>:`` — the field's OWN
+    name, at column 0, case-sensitively — that sits within the first `window`
+    REAL lines of the document and OUTSIDE any leading `---` fence. Its value is
+    everything after the colon ON THAT ONE LINE, loaded through `strict_load`,
+    so the header-line form and the front-matter form are read by ONE loader and
+    refuse the same constructs.
+
+    OFFERED TO `sequenced_after:` ALONE, AND THE ASYMMETRY IS THE DECISION. This
+    function is generic, but the only caller is `sequenced_after.read_declaration`
+    and `scripts/scope_globs.py` is deliberately UNCHANGED. `scope_globs:`
+    authorizes WHICH PATHS an autonomous merge may write, so a new place to
+    declare it is a new place to widen a path grant; `sequenced_after:` declares
+    WHERE IN A CHAIN a change sits, and its consumer applies its own root proof,
+    its own co-modifier cross-check and its own refusals on top — so making an
+    author's existing declaration legible authorizes nothing that absence did
+    not already refuse. Widening the path field is a separate act needing its own
+    ruling, and this change does not take it.
+
+    THE DECLARATION IS ONE LINE, AND THAT IS A CONSEQUENCE OF BEING UNFENCED. A
+    fence supplies a closing delimiter; an unfenced document has none, so a
+    multi-line value's END is undefined and a window boundary falling inside it
+    would show a reviewer three parents and authorize two — the same
+    show-one-authorize-another defect the strict loader exists to refuse. A flow
+    value (`field: [a, b]`) is self-delimiting on its line and is therefore the
+    only unfenced form admitted. A `field:` line whose value is EMPTY and whose
+    next line is an INDENTED continuation is a block-sequence attempt and is
+    REFUSED BY NAME rather than silently read as null, because the author of
+    those bytes declared parents and is owed the reason the reader will not take
+    them.
+
+    TWO header lines for one field are REFUSED as the duplicate key they are:
+    both matched lines are handed to `strict_load` together, so the refusal is
+    the loader's own duplicate-key message and no second rule is written.
+
+    FENCE LINES ARE SKIPPED BUT STILL COUNT toward the window: the window is the
+    first `window` lines OF THE DOCUMENT — one window rule, the one
+    `doc_health.corpus.parse_status` already applies to the same document set —
+    rather than a second window measured from wherever a fence happens to end.
+    A fenced document declares in its front matter and needs no header line.
+
+    Raises `StrictFrontMatterError` for every refused form.
+    """
+    lines = split_real_lines(source_text(source))
+    closing = fence_span(lines)
+    start = 0 if closing is None else closing + 1
+    pattern = re.compile(rf"^{re.escape(field)}:(.*)$")
+
+    matched: list[tuple[int, str]] = []
+    for index in range(start, min(window, len(lines))):
+        match = pattern.match(lines[index])
+        if match:
+            matched.append((index, lines[index]))
+    if not matched:
+        return NO_HEADER_LINE
+
+    for index, line in matched:
+        value = pattern.match(line).group(1)
+        if value.strip():
+            continue
+        following = lines[index + 1] if index + 1 < len(lines) else ""
+        if following.strip() and following[:1].isspace():
+            raise StrictFrontMatterError(
+                f"the `{field}` header line at line {index + 1} carries no value "
+                f"on its own line and is followed by an indented continuation: "
+                f"the header-line form is a SINGLE LINE, because an unfenced "
+                f"document supplies no closing delimiter and a value the header "
+                f"window cuts in half would show a reader one declaration and "
+                f"authorize another. Declare a block value inside a `---` fence, "
+                f"or write the flow form `{field}: [...]` on one line")
+
+    block = "\n".join(line for _index, line in matched)
+    check_ceiling(block, f"the `{field}` header line")
+    parsed = strict_load(block, what=f"the `{field}` header line")
+    if isinstance(parsed, dict):
+        if field not in parsed:  # pragma: no cover - defensive
+            raise StrictFrontMatterError(
+                f"the `{field}` header line does not declare `{field}` at its "
+                f"top level")
+        return parsed[field]
+    return parsed

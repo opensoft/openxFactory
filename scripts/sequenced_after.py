@@ -149,6 +149,19 @@ def read_front_matter(source: str | bytes | Path) -> dict:
         raise SequencedAfterError(str(exc)) from exc
 
 
+def read_header_line(proposal: str | bytes | Path) -> object:
+    """The `sequenced_after` declared as a LIFECYCLE HEADER LINE, or the
+    `NO_HEADER_LINE` sentinel.
+
+    Raises `SequencedAfterError` for any strict-loader refusal, preserving the
+    loader's message (which names the construct and its line).
+    """
+    try:
+        return fms.read_header_line(proposal, FIELD)
+    except fms.StrictFrontMatterError as exc:
+        raise SequencedAfterError(str(exc)) from exc
+
+
 def read_declaration(proposal: str | bytes | Path) -> object:
     """Return the RAW `sequenced_after` value from a proposal.
 
@@ -156,11 +169,58 @@ def read_declaration(proposal: str | bytes | Path) -> object:
     otherwise — INCLUDING `None` for a `sequenced_after:` line with no value,
     which is PRESENT-but-malformed and is refused by `validate_shape`, not
     silently read as absence. Presence is decided by the KEY, never by the value.
+
+    TWO EQUIVALENT DECLARATION SITES (`accept-sequenced-after-header-line`,
+    ruled by Brett Heap 2026-09-10 on codexFactory issue #268). The field may be
+    declared in the `---`-fenced realization-axis front matter, OR as a
+    LIFECYCLE HEADER LINE inside the bounded header window an unfenced corpus
+    writes its `Status:` in. The two forms are ONE declaration read two ways, so
+    neither is preferred and neither is a fallback of lesser standing: a corpus
+    whose proposals carry no fence is not a corpus whose authors declared
+    nothing.
+
+    BEYOND THE WINDOW THE SAME BYTES ARE PROSE AND DECLARE NOTHING. That bound
+    is what front matter was chosen FOR — a fence delimits, and the alternative
+    it refused was parsing an entire document for anything that looked like a
+    field. A `sequenced_after:` written in a body paragraph is a MENTION, and
+    this capability's own text already refuses a mention as a parent link.
+
+    BOTH FORMS PRESENT AND AGREEING IS ONE DECLARATION, NOT A CONFLICT — the
+    canonical comparison `_canonical` already uses for the retention gate, so
+    entry ORDER and NFC spelling are compared exactly as the frozen declaration
+    is. BOTH PRESENT AND DIFFERING IS REFUSED: a reader that preferred one site
+    would show a reviewer the other, which is the same
+    show-one-authorize-another defect the strict loader's duplicate-key refusal
+    exists to close, one file apart.
+
+    ONE FAIL-CLOSED EDGE, NAMED RATHER THAN HIDDEN (design H-5). `_canonical`
+    resolves a SELF-QUALIFIED entry to its bare form against
+    `DECLARING_REPOSITORY`, which in a VENDORED copy of this module still reads
+    `openxFactory`. So in such a copy a proposal spelling one site
+    `<its-own-repo>:parent` and the other `parent` REFUSES as a disagreement
+    rather than resolving the two to one reference. That is fail-CLOSED — it
+    over-refuses, never over-accepts — and the remedy is to spell both sites
+    alike. Threading a repository through this reader would also move the
+    retention gate's comparison, which is a separate act.
     """
     front = read_front_matter(proposal)
-    if FIELD not in front:
-        return ABSENT
-    return front[FIELD]
+    header = read_header_line(proposal)
+    in_front = FIELD in front
+    in_header = header is not fms.NO_HEADER_LINE
+    if in_front and in_header:
+        if _canonical(front[FIELD]) != _canonical(header):
+            raise SequencedAfterError(
+                f"{FIELD} is declared TWICE and the two declarations DIFFER "
+                f"(front matter: {front[FIELD]!r}; header line: {header!r}); one "
+                f"field has one value, and a reader that preferred either site "
+                f"would show a reviewer the other. Delete the declaration that "
+                f"is not the true one")
+        return front[FIELD]
+    if in_front:
+        return front[FIELD]
+    if in_header:
+        return header
+    return ABSENT
 
 
 # --- the reference grammar ---------------------------------------------------
