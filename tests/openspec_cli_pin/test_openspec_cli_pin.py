@@ -872,7 +872,7 @@ def test_the_installers_options_are_exactly_the_three_it_needs(installer):
 # its condition REFUSES.
 
 
-def test_the_real_pin_declares_exactly_the_four_dispositions_two_repos_carry(
+def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
         mod, pin):
     """The pin's own entries, read through the pin's own reader.
 
@@ -881,14 +881,19 @@ def test_the_real_pin_declares_exactly_the_four_dispositions_two_repos_carry(
     silently grew one more exception would still be a change nobody read. It
     fired on exactly that account for `disposition-codexfactory-declared-renames`
     (2 → 4), which is the test working; the growth is READ in that packet's
-    `design.md` § 3 and the assertion is TIGHTENED here rather than merely
-    renumbered.
+    `design.md` § 3 and the assertion was TIGHTENED there rather than merely
+    renumbered. It fired again for
+    `disposition-codexfactory-floor-relocation-retitle` (4 → 5), whose
+    `design.md` § 4 reads that growth in turn: a THIRD codexFactory entry, the
+    first raised by an ARCHIVE (codexFactory PR #318 promoted the requirement
+    the active `relocate-review-authority-floor` retitles a scenario of) rather
+    than by a readiness sweep.
 
-    WHY THE SPLIT AND NOT A COUNT. The predecessor asserted
+    WHY THE SPLIT AND NOT A COUNT. The first version asserted
     `{repo} == {"openxFactory"}`, which a growing fleet loosens once and then
     forever. Pinning WHICH item belongs to WHICH repository keeps the fleet
-    property this list depends on — that the two pairs never mix — inside the
-    assertion, and makes a third repository fire this test too.
+    property this list depends on — that the two repositories' groups never mix
+    — inside the assertion, and makes a third repository fire this test too.
     """
     entries = mod.pinned_dispositions(pin)
     assert [(entry["repo"], entry["item"], entry["path"]) for entry in entries] == [
@@ -900,6 +905,8 @@ def test_the_real_pin_declares_exactly_the_four_dispositions_two_repos_carry(
          "merge-master-approval/spec.md"),
         ("codexFactory", "amend-composition-selector-labelling",
          "domain-hermes-content/spec.md"),
+        ("codexFactory", "relocate-review-authority-floor",
+         "repository-gate-floor/spec.md"),
     ]
 
 
@@ -932,17 +939,53 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
         "openxFactory's own gate would refuse on a consumer's corpus")
 
 
+#: THE MEASUREMENT EACH ENTRY RESTS ON, per item rather than one shared literal.
+#: The first four were measured by the 1.12 readiness sweeps of 2026-09-05 and
+#: cite that evidence file; the fifth was measured by its own packet on
+#: 2026-09-10, over codexFactory PR #318's tree AND over codexFactory main, and
+#: cites that. A PER-ITEM MAP rather than a widened substring on purpose
+#: (`disposition-codexfactory-floor-relocation-retitle` `design.md` § 4): the
+#: weak repair for an entry granted on a second day is to drop the literal, and
+#: a dropped literal never fires again. This one fires on the sixth entry.
+DISPOSITION_MEASUREMENT = {
+    "add-chain-attestation": "openspec-1.12-readiness-2026-09-05.md",
+    "add-composed-view-authoring": "openspec-1.12-readiness-2026-09-05.md",
+    "add-regular-pr-council-clearance": "openspec-1.12-readiness-2026-09-05.md",
+    "amend-composition-selector-labelling": "openspec-1.12-readiness-2026-09-05.md",
+    "relocate-review-authority-floor": "codexfactory-floor-relocation-2026-09-10.md",
+}
+
+#: The WORD each entry was granted by, to the day. Same reasoning: four entries
+#: carry "take exit 2" / "use recommended name, go on 3 repo shape" + "ratify
+#: 697" from 2026-09-05, and the fifth carries "go A, ratify the disposition
+#: entry as encoded" from 2026-09-10.
+DISPOSITION_AUTHORITY_PREFIX = {
+    "add-chain-attestation": "Brett Heap, 2026-09-05",
+    "add-composed-view-authoring": "Brett Heap, 2026-09-05",
+    "add-regular-pr-council-clearance": "Brett Heap, 2026-09-05",
+    "amend-composition-selector-labelling": "Brett Heap, 2026-09-05",
+    "relocate-review-authority-floor": "Brett Heap, 2026-09-10",
+}
+
+
 def test_every_real_disposition_cites_canon_and_names_who_granted_it(mod, pin):
     """The property that separates an accepted exception from a suppression."""
-    for entry in mod.pinned_dispositions(pin):
-        assert entry["cited_to"], entry["item"]
+    entries = mod.pinned_dispositions(pin)
+    assert {entry["item"] for entry in entries} == set(DISPOSITION_MEASUREMENT), \
+        "an entry was added or removed without reading its measurement into " \
+        "DISPOSITION_MEASUREMENT — which is what this map exists to force"
+    assert set(DISPOSITION_MEASUREMENT) == set(DISPOSITION_AUTHORITY_PREFIX)
+    for entry in entries:
+        item = entry["item"]
+        assert entry["cited_to"], item
         assert any("doc-health/spec.md" in citation
                    for citation in entry["cited_to"]), \
-            f"{entry['item']} does not cite the promoted marker requirement"
-        assert any("openspec-1.12-readiness-2026-09-05.md" in citation
+            f"{item} does not cite the promoted marker requirement"
+        assert any(DISPOSITION_MEASUREMENT[item] in citation
                    for citation in entry["cited_to"]), \
-            f"{entry['item']} does not cite the measurement it rests on"
-        assert entry["ratified_by"].startswith("Brett Heap, 2026-09-05")
+            f"{item} does not cite the measurement it rests on"
+        assert entry["ratified_by"].startswith(
+            DISPOSITION_AUTHORITY_PREFIX[item]), item
         assert entry["why"].strip()
         assert entry["retires_when"].strip()
 
