@@ -237,15 +237,14 @@ def _governed_repo_ids(ctx) -> set[str]:
     check.
 
     WHY THE ROOT PRODUCTS ARE ADMITTED UNCONDITIONALLY, not derived from
-    `ctx.repo_paths` like the other two. `discover_repos` enumerates
-    `openxFactory` plus `xFactories/*` and nothing else, so a root-level product
-    can never appear in `repo_paths` — deriving membership from it would leave
-    this set permanently narrow and every reference into `openXwallet` classed
-    EXTERNAL, which is the defect this widening exists to close
-    (`council-systems-architect.md` concern 4). The allowlist is a statement
-    about the aggregation's TOPOLOGY, which is true whether or not this
-    particular run has the product checked out; the materialization question is
-    asked separately and by a different check.
+    `ctx.repo_paths` like the other two. `discover_repos` widened at `804a9170`
+    (PR #890, closing #869) to enumerate every materialized product on
+    `ROOT_LEVEL_GOVERNED_PRODUCTS`, so a root-level product now DOES appear in
+    `repo_paths` whenever this run has it checked out — but membership is still
+    sourced from the allowlist, not derived from that fact. The allowlist is a
+    statement about the aggregation's TOPOLOGY, which is true whether or not
+    this particular run has the product checked out; the materialization
+    question is asked separately and by a different check.
 
     The `repo_paths` loop tolerates an allowlisted name defensively rather than
     prefixing it `xFactories/`: if `discover_repos` is ever widened to sweep a
