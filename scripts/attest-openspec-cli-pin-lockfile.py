@@ -79,6 +79,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -88,7 +89,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFIER = ROOT / "scripts" / "validate-openspec-cli-pin.py"
@@ -105,6 +106,76 @@ CLOSURE = ("openspec/changes/archive/"
 
 class Refusal(Exception):
     """A question this run cannot answer, raised rather than reported as a pass."""
+
+
+def checked_registry(raw: str) -> str:
+    """The origin to re-capture from, REFUSED unless it is a bare https origin.
+
+    THE SCHEME IS A CHECK AND NOT A PREFERENCE HERE, which is why this refuses
+    rather than warns. An attestation is worth exactly what the channel that
+    delivered it is worth: values re-captured over plaintext attest nothing a
+    network position could not have written, and this tool exists precisely to
+    stop trusting a value on the strength of having once received it. § 6.1's
+    second named mechanism is a MIRRORED REGISTRY, so the host stays the
+    operator's to choose — the scheme does not.
+
+    The flag is narrowed to an ORIGIN for the same reason: a path, a query or
+    embedded credentials would send the request somewhere the printed record
+    does not name, and a record that misstates where it read from is worse than
+    no record. What comes back is rebuilt from the parsed host and port, so
+    nothing but a validated origin reaches a request.
+    """
+    parsed = urlsplit(raw.strip().rstrip("/"))
+    if parsed.scheme != "https":
+        raise Refusal(f"--registry must be https, not {parsed.scheme or raw!r}: "
+                      "an attestation re-captured over plaintext attests "
+                      "nothing the channel could not have written")
+    if not parsed.hostname:
+        raise Refusal(f"--registry names no host: {raw!r}")
+    if parsed.path or parsed.query or parsed.fragment or parsed.username:
+        raise Refusal("--registry takes a bare origin — no path, query, "
+                      f"fragment or credentials: {raw!r}")
+    port = f":{parsed.port}" if parsed.port else ""
+    return f"https://{parsed.hostname}{port}"
+
+
+def checked_npm(raw: str) -> str:
+    """The npm executable, RESOLVED to an absolute path or refused.
+
+    Resolved rather than passed through so the record's provenance names the
+    binary that actually ran, and so a typo refuses with its own cause instead
+    of surfacing as a bare `FileNotFoundError` from the first install. `shell`
+    is never used and every argument list is a literal, so nothing here is
+    parsed by a shell.
+    """
+    resolved = shutil.which(raw)
+    if resolved is None:
+        raise Refusal(f"npm executable not found: {raw!r}")
+    path = Path(resolved)
+    if not path.is_file():
+        raise Refusal(f"npm executable is not a file: {path}")
+    return str(path.resolve())
+
+
+def checked_destination(raw: str, default: Path) -> Path:
+    """Where the record lands, REFUSED outside this repository.
+
+    A record is a governed artifact of THIS repository — reviewed in its diff
+    and indexed in its README — so a destination outside the tree is a record
+    nothing reviews. The parent must already exist: creating directories on the
+    way to writing a record would invent a home for it rather than land it in
+    the one the convention names.
+    """
+    if not raw:
+        return default
+    destination = Path(raw).expanduser().resolve()
+    root = ROOT.resolve()
+    if root != destination and root not in destination.parents:
+        raise Refusal(f"--write must land inside {root}, not {destination}")
+    if not destination.parent.is_dir():
+        raise Refusal(f"--write parent directory does not exist: "
+                      f"{destination.parent}")
+    return destination
 
 
 def load_verifier() -> ModuleType:
@@ -130,7 +201,10 @@ def fetch_json(url: str) -> dict:
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
             return json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as error:
+    # `HTTPError` is a SUBCLASS of `URLError` and naming both would be a
+    # redundant arm, not a second case. `TimeoutError` is not: `urlopen`'s
+    # socket timeout surfaces as the builtin.
+    except (urllib.error.URLError, TimeoutError) as error:
         raise Refusal(f"{url} could not be read: {error}") from error
     except json.JSONDecodeError as error:
         raise Refusal(f"{url} did not answer with JSON: {error}") from error
@@ -267,18 +341,21 @@ def audit_signatures(verifier: ModuleType, lockfile_bytes: bytes, package: str,
         (staging / "package.json").write_text(
             json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         (staging / "package-lock.json").write_bytes(lockfile_bytes)
+        # `npm` is the absolute path `checked_npm` resolved and the rest are
+        # literals, passed as an ARGUMENT LIST with no shell: the verbs cannot
+        # be rewritten by anything the caller supplies.
         install = subprocess.run(
             [npm, "ci", "--ignore-scripts"], cwd=staging, text=True,
-            capture_output=True, check=False)
+            capture_output=True, check=False, shell=False)
         if install.returncode != 0:
             raise Refusal("`npm ci --ignore-scripts` through the committed "
                           f"lockfile failed:\n{install.stderr.strip()}")
         human = subprocess.run(
             [npm, "audit", "signatures"], cwd=staging, text=True,
-            capture_output=True, check=False)
+            capture_output=True, check=False, shell=False)
         machine = subprocess.run(
             [npm, "audit", "signatures", "--json"], cwd=staging, text=True,
-            capture_output=True, check=False)
+            capture_output=True, check=False, shell=False)
     # THE HUMAN RUN'S EXIT CODE IS THE VERDICT, and the JSON run carries the
     # lists it counted. `--json` reports only `invalid` and `missing`, so the
     # counts a reader wants live in the text output and are recorded verbatim.
@@ -430,9 +507,14 @@ def command_output(argv: list[str]) -> str:
     the revision the attestation was taken at — so a fault here must refuse
     rather than let a record claim a provenance it could not read.
     """
-    result = subprocess.run(argv, text=True, capture_output=True, check=False)
+    # ARGUMENT LIST, NEVER A SHELL STRING, and every element is either a literal
+    # or a path already resolved by `checked_npm` / `shutil.which`, so there is
+    # no string a shell parses and no unresolved name to be found on a PATH the
+    # run does not control.
+    result = subprocess.run(argv, text=True, capture_output=True, check=False,
+                            shell=False)
     if result.returncode != 0:
-        raise Refusal(f"{' '.join(argv)} failed: {result.stderr.strip()}")
+        raise Refusal(f"{argv[0]} failed: {result.stderr.strip()}")
     return result.stdout.strip()
 
 
@@ -448,9 +530,12 @@ def build_parser() -> argparse.ArgumentParser:
                               "docs/openspec-cli-pin-lockfile-attestation-"
                               "<YYYY-MM-DD>.md"))
     parser.add_argument("--registry", default=DEFAULT_REGISTRY,
-                        help="the registry to re-capture from")
+                        help=("the https ORIGIN to re-capture from (a mirrored "
+                              "registry is § 6.1's second mechanism); a "
+                              "non-https or non-bare origin is refused"))
     parser.add_argument("--npm", metavar="BIN", default="npm",
-                        help="the npm executable to install and audit with")
+                        help=("the npm executable to install and audit with, "
+                              "resolved to an absolute path or refused"))
     parser.add_argument("--pin", metavar="PATH", default=None,
                         help="an alternative pin file (tests)")
     parser.add_argument("--skip-audit", action="store_true",
@@ -460,8 +545,24 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Return 0 attested, 1 a disagreement, 2 a refusal.
+
+    EVERY ARGUMENT IS CHECKED BEFORE A ROUND TRIP IS SPENT, on the same
+    reasoning the pin's own entrypoint settles its shape checks before it
+    fetches: this run costs seventy-one registry reads and a clean install, and
+    learning only afterwards that the record has nowhere to land tells a reader
+    nothing the question had already told them. So the destination is resolved
+    up front and discarded, even though it is not used until the end.
+    """
     args = build_parser().parse_args(argv)
+    now = datetime.now(timezone.utc)
     try:
+        registry = checked_registry(args.registry)
+        npm = checked_npm(args.npm)
+        destination = None if args.write is None else checked_destination(
+            args.write,
+            ROOT / "docs" /
+            f"openspec-cli-pin-lockfile-attestation-{now:%Y-%m-%d}.md")
         verifier = load_verifier()
         pin_path = Path(args.pin) if args.pin else verifier.PIN_PATH
         pin = verifier.read_pin(pin_path)
@@ -478,21 +579,22 @@ def main(argv: list[str] | None = None) -> int:
         document = verifier.read_lockfile(lockfile_bytes)
         entries = lockfile_entries(document)
 
-        keys = registry_keys(args.registry)
-        rows, disagreements = recapture(args.registry, entries, keys)
+        keys = registry_keys(registry)
+        rows, disagreements = recapture(registry, entries, keys)
         print(f"LINK A — {len(rows)} recorded integrity values re-captured from "
-              f"{args.registry}: {len(rows) - len(disagreements)} agree, "
+              f"{registry}: {len(rows) - len(disagreements)} agree, "
               f"{len(disagreements)} do not")
         for line in disagreements:
             print(f"  DISAGREEMENT {line}")
 
         if args.skip_audit:
-            print("LINK B — SKIPPED by --skip-audit. No record is written: a "
-                  "re-capture with no signature verification behind it attests "
-                  "nothing, and a file saying otherwise would be worse than none.")
+            print("LINK B — SKIPPED by --skip-audit. No record is written"
+                  f"{' (--write ignored)' if destination else ''}: a re-capture "
+                  "with no signature verification behind it attests nothing, "
+                  "and a file saying otherwise would be worse than none.")
             return 1 if disagreements else 0
 
-        audit = audit_signatures(verifier, lockfile_bytes, package, args.npm)
+        audit = audit_signatures(verifier, lockfile_bytes, package, npm)
         print(audit["text"])
         print(f"LINK B — npm audit signatures exit={audit['text_exit']} "
               f"invalid={len(audit['invalid'])} missing={len(audit['missing'])}")
@@ -507,7 +609,6 @@ def main(argv: list[str] | None = None) -> int:
                   "record is written.")
             return 1
 
-        now = datetime.now(timezone.utc)
         revision = command_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"])
         record = render({
             "rows": rows,
@@ -516,9 +617,9 @@ def main(argv: list[str] | None = None) -> int:
             "distinct": len({(r["name"], r["version"]) for r in rows}),
             "date": now.strftime("%Y-%m-%d"),
             "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "registry": args.registry.rstrip("/"),
-            "npm_version": command_output([args.npm, "--version"]),
-            "node_version": command_output(["node", "--version"]),
+            "registry": registry,
+            "npm_version": command_output([npm, "--version"]),
+            "node_version": command_output([checked_npm("node"), "--version"]),
             "revision": revision,
             "pin_path": pin_path.relative_to(ROOT).as_posix()
             if pin_path.is_absolute() else str(pin_path),
@@ -528,10 +629,7 @@ def main(argv: list[str] | None = None) -> int:
         })
         print(f"\nATTESTED: {len(rows)} values, {len(rows)} agreeing with the "
               f"registry and every signature verified.")
-        if args.write is not None:
-            destination = Path(args.write) if args.write else (
-                ROOT / "docs" /
-                f"openspec-cli-pin-lockfile-attestation-{now:%Y-%m-%d}.md")
+        if destination is not None:
             destination.write_text(record, encoding="utf-8")
             print(f"record written: {destination}")
         return 0
