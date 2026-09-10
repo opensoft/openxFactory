@@ -197,16 +197,30 @@ def test_the_existing_status_value_logic_is_untouched():
 # --- the standing population, measured on this repository ---------------------
 
 
-def _archived_ratification_records_not_ratified():
-    """Every archived `review/` ratification record on THIS tree whose status
-    is not `ratified`, derived independently of the family under test."""
+def _packet_ratification_records_not_ratified():
+    """Every `review/` ratification record under a change packet on THIS tree —
+    ACTIVE AND ARCHIVED ALIKE — whose status is not `ratified`, derived
+    independently of the family under test.
+
+    The scenario reaches "a `review/` document under a change packet" and draws
+    no line at the archive boundary, so neither does this walk. It restates the
+    subject rule in its own code rather than calling the family's
+    `_records_a_ratification`, which is the independence that matters; the
+    fifteen-line header window is not an implementation detail it could
+    honestly vary — `_h1`'s docstring makes the window part of the rule, on
+    `align-status-reader-to-real-lines`' wide ruling — so it is mirrored
+    exactly, splitting on the same real-line rule the status beside it is read
+    with.
+    """
     out = {}
-    base = REPO_ROOT / "openspec" / "changes" / "archive"
-    for path in sorted(base.glob("*/review/*.md")):
+    base = REPO_ROOT / "openspec" / "changes"
+    for path in sorted(base.glob("*/review/*.md")) + sorted(
+            base.glob("archive/*/review/*.md")):
         rel = path.relative_to(REPO_ROOT).as_posix()
         text = path.read_text(encoding="utf-8", errors="replace")
-        title = next((line for line in text.splitlines()
-                      if line.startswith("# ")), "")
+        title = next((body for body, _ending
+                      in corpus.split_keepends(text)[:corpus.STATUS_SCAN_LINES]
+                      if body.startswith("# ")), "")
         subject = (path.name.startswith("ratification-")
                    or title.startswith("# Proposal Ratification:"))
         if subject and corpus.parse_status(text) != "ratified":
@@ -251,14 +265,22 @@ def real_repo_subject_findings():
             if f.rule == _RATIFICATION_RECORD_RULE]
 
 
-def test_the_subject_arm_reports_exactly_the_archived_population_this_tree_carries(
+def test_the_subject_arm_reports_exactly_the_packet_population_this_tree_carries(
         real_repo_subject_findings):
-    """The family's reach over the real archive equals an independent walk of
-    it — so the arm is measured against the tree, not against a number somebody
-    typed."""
-    reported = {f.path for f in real_repo_subject_findings
-                if f.path.startswith("openspec/changes/archive/")}
-    assert reported == set(_archived_ratification_records_not_ratified())
+    """The family's reach over the real packet corpus — active packets and the
+    archive together — equals an independent walk of it, so the arm is measured
+    against the tree rather than against a number somebody typed.
+
+    A BICONDITIONAL AGAINST THE TREE, never an equality against a frozen list,
+    for the reason `ISSUE_877_FOURTEEN` states below: the population moves
+    under this test on somebody else's merge (a packet archived, a record
+    repaired, a new record written), and `pytest-suite` is a REQUIRED check on
+    every pull request in this repository. A measurement that has to be edited
+    whenever the corpus moves is a measurement that reds `main` for a reason
+    the person who reads the failure did not cause.
+    """
+    reported = {f.path for f in real_repo_subject_findings}
+    assert reported == set(_packet_ratification_records_not_ratified())
 
 
 def test_every_record_issue_877_named_is_reported_while_it_still_carries_its_status(
@@ -279,14 +301,31 @@ def test_every_record_issue_877_named_is_reported_while_it_still_carries_its_sta
             f"{'reported' if rel in reported else 'not reported'}")
 
 
-def test_the_subject_arm_reaches_active_packets_as_well_as_archived_ones(
-        real_repo_subject_findings):
+def test_the_subject_arm_draws_no_line_at_the_archive_boundary():
     """The scenario says "a `review/` document under a change packet" and draws
-    no line at the archive boundary, so neither does the family. This matters
-    for the remedy rather than for the rule: an ACTIVE packet's record is
-    repaired by editing it, while an archived one takes the archived-record
-    edit route (`record-immutability`, `govern-archived-record-edits`)."""
-    paths = {f.path for f in real_repo_subject_findings}
-    assert any(not p.startswith("openspec/changes/archive/") for p in paths), (
-        "no active-packet record is reported; if the active population has "
-        "been discharged, this test has served its purpose and can be retired")
+    no line at the archive boundary, so neither does the family.
+
+    PINNED SYNTHETICALLY — one record's exact text at an active packet path and
+    at an archived one, both reported — because the POPULATION IS NOT THE CLAIM.
+    An assertion that the real tree still carries an unrepaired ACTIVE record
+    would pass today (six do) and red `main` on the day that population is
+    discharged, which is the whole trap `ISSUE_877_FOURTEEN`'s biconditional
+    exists to avoid, sprung on a REQUIRED check by the test standing beside it.
+    The real-tree reach over both halves is measured by the equality above; the
+    rule itself is pinned here, where no merge can move it.
+
+    The distinction the boundary DOES draw is the remedy, not the rule: an
+    active packet's record is repaired by editing it, while an archived one
+    takes the archived-record edit route (`record-immutability`,
+    `govern-archived-record-edits`) — which is why one shared action string
+    names both routes rather than two findings splitting them.
+    """
+    text = ("# Proposal Ratification: real-change\n\n"
+            "Status: record\n"
+            "Ratified: 2026-09-09 by Brett Heap\n")
+    archived = ("openspec/changes/archive/2026-09-09-real-change/review/"
+                "ratification-2026-09-09.md")
+    assert not PACKET_RECORD.startswith("openspec/changes/archive/"), \
+        "fixture is broken: PACKET_RECORD must be an ACTIVE packet path"
+    assert [f.path for f in _run(_doc(PACKET_RECORD, text))] == [PACKET_RECORD]
+    assert [f.path for f in _run(_doc(archived, text))] == [archived]
