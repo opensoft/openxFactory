@@ -1612,11 +1612,12 @@ ADDED requirement offsets what its MODIFIED block drops.
 
 **The family SHALL read every active change regardless of its lifecycle
 standing.** A `draft` packet's block is as capable of restating stale canon as
-a `ratified` one, the arms below are advisory, and a finding against a draft
-costs its author one line. This is a reading rule for the check and is
-deliberately WIDER than the two-writers obligation below, which
-`release-realization` scopes to an active RATIFIED change and which this
-requirement does not widen.
+a `ratified` one, and a finding against a draft costs its author one line —
+which is the cheapest moment to pay it, the scenario-title arm below now
+carrying an `error` that reds any run configured to fail on it. This is a
+reading rule for the check and is deliberately WIDER than the two-writers
+obligation below, which `release-realization` scopes to an active RATIFIED
+change and which this requirement does not widen.
 
 The family SHALL implement three comparison arms over one document pair, and
 SHALL report them as distinct finding classes so that a precise signal is never
@@ -1813,21 +1814,57 @@ be actively wrong here: an active change lives on a branch, so a family reading
 `main` would measure a delta `main` does not carry against canon the branch may
 have moved.
 
-**This family SHALL be advisory at launch, in both halves of what that means.**
-Every finding carries `warning` severity for the scenario-completeness and
-title-resolution arms and `info` for the carriage ledger, so no `--fail-on`
-configuration reds on it; and the family is deliberately absent from
-`FAMILY_RESOLUTION`, so its findings are not classified `contested` — a
-contested finding that resolves without a citation becomes an `error` under
-this capability's uncited-resolution rule, which would gate the family through
-the back door on the first block anyone corrected. Raising the
-scenario-completeness arm to `error` and adding the contested classification
-are ONE later decision taken together by ruling, and SHALL follow the discharge
-of the standing population rather than precede it. **No flip is proposed for
-the carriage ledger in this change**, whose population is standing by
-construction — every legitimate MODIFIED block edits something — so an
-editorial band is the honest launch state; a later flip remains available and
-is a ruling like any other.
+**This family SHALL be ENFORCING IN ONE ARM AND CLASSIFIED `contested` WHOLE,
+which is what the flip of 2026-08-31 left behind.** Every finding of the
+scenario-title completeness arm — the arm that carries this family's gate —
+SHALL carry `error` severity, so a run configured to fail on `error` fails on a
+MODIFIED block that drops a scenario canon still carries; every other class the
+family emits SHALL keep the band its own rule states, the title-resolution and
+ordering arm at `warning` and the carriage ledger and the marker defects at
+`info`, so no `--fail-on` configuration reds on those; and the family SHALL be
+classified `contested`, so a finding of ANY of its classes is a contested
+finding, and a session working a report's ranked plan SHALL NOT apply a
+state-changing edit for one, escalating it to a change proposal or a recorded
+disposition instead. THE DISAPPEARANCE THAT OWES A CITATION IS READ AT THE
+GRAIN THE UNCITED-RESOLUTION RULE KEYS ON, WHICH IS `(family, repository,
+path)` AND NOT THE CLASS: where this family stops reporting at a repository and
+path the previous report carried, the resolution is uncited without a recorded
+citation and SHALL be the `error` that rule defines; where a finding of ONE
+class stops being reported while ANY other finding of this family is still
+emitted at that same repository and path, the key never leaves the current
+report and the rule does not fire — which the promoted *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* already states of this family's key, and this requirement neither
+widens nor narrows it. THE RESOLUTION TABLE HAS NO PER-CLASS GRAIN — it is
+applied by finding FAMILY alone, one string every arm and every class of this
+module shares — so the classification reaches every class the family emits, and
+neither this requirement nor any other can hold one class out of it.
+
+THE FAMILY SHIPPED ADVISORY IN BOTH HALVES AND WAS FLIPPED IN BOTH BY ONE
+RULING, WHICH RAISED EXACTLY ONE SEVERITY ARM AND LEFT EVERY OTHER BAND WHERE
+IT STOOD, which is the sequence this requirement records rather than a history
+it has replaced. At launch every finding carried `warning` or `info` and the
+family was deliberately absent from `FAMILY_RESOLUTION`, because no run had yet
+measured what the governed repositories' active changes would say and a
+`contested` advisory family would have gated through the back door on the first
+block anyone corrected. The flip SHALL be taken as ONE decision by ruling,
+never as a judgement call inside an implementation, and SHALL follow the
+discharge of the standing population rather than precede it — a gate that goes
+red on the commit introducing it teaches everyone to route around the gate. IT
+WAS TAKEN THAT WAY: the ruling of 2026-08-27 was "MEASURE FIRST, THEN FLIP",
+the nightly aggregation runs of 2026-08-30 and 2026-08-31 read the
+scenario-title arm's population at ZERO across every governed repository, and
+the flip was ordered on 2026-08-31 and landed as ONE COMMIT that raised the
+scenario-title arm's severity constant to `error` and added the family's
+`contested` row together (openxFactory issue #357, pull request #529). THE TWO
+HALVES MOVE TOGETHER AND MUST NOT BE TAKEN APART: severity alone gates the
+family without the disposition discipline that makes a disappearing finding
+accountable, and the contested class alone gates it through
+`uncited-resolution` under a family name that does not say what happened. **No
+flip is proposed for the carriage ledger in this change**, whose population is
+standing by construction — every legitimate MODIFIED block edits something — so
+an editorial band is the honest launch state; a later flip remains available
+and is a ruling like any other.
 
 **AMENDED BY `amend-marker-reason-boundary` (2026-09-06).** Every paragraph and
 every scenario above this note stands exactly as promoted, and the only change
@@ -1915,12 +1952,74 @@ neither quoting a code span in a reason. A ground whose population is zero at
 landing is a ground that reports the NEXT marker written, which is the only
 moment at which either silence has ever cost anybody anything.
 
-**Removed from canon by amend-marker-defect-reporting (2026-09-09):** `A marker naming a unit the block still carries declares nothing and SHALL itself be reported, because a declaration that does not describe the block is a declaration no reader can rely on.` — the sentence gives a marker exactly ONE reporting ground, and the two silences openxFactory issue #729 reports fall outside it: a reason that quotes a unit the block leaves out declares nothing about that unit, and a name matching no unit anywhere declares nothing at all. The unit is REPLACED rather than deleted, by the sentences above that state three grounds, read the second one narrowly, and keep the carriage arms over a unit a reason only quoted. Nothing else in this requirement is dropped, and this reason carries no code span so that the marker names exactly one unit under the grammar it is written in.
+**AMENDED BY `amend-modified-block-currency-standing` (2026-09-10).** Every
+paragraph and every scenario above this note stands exactly as promoted —
+`amend-marker-reason-boundary`'s and `amend-marker-defect-reporting`'s own
+notes and their narratives included — and the only promoted text this block
+changes is what the flip of 2026-08-31 made untrue: ONE sentence of the
+lifecycle-standing paragraph, TWO sentences of the *advisory at launch*
+paragraph, and TWO bullets of the first scenario. ONE SCENARIO IS ADDED, at the
+END of the block, because the resolution row reaches every class this family
+emits and no scenario exercised that — stated at the `(family, repository,
+path)` grain the uncited-resolution rule keys on, never at finding-class grain,
+which is the grain that rule has always read and is not moved here. No arm is
+added or removed, no threshold moves, no disposition rule changes, no parse and
+no marker grammar moves, and the set of trees over which this family speaks is
+not altered by one line. THIS BLOCK MOVES NO SEVERITY AND ADDS NO ROW: the
+scenario-title arm's severity constant has read `error` and
+`families.FAMILY_RESOLUTION` has carried `"modified-block-currency": CONTESTED`
+since 2026-08-31, so this is promoted canon catching up with running code
+rather than a new decision — the same catch-up the promoted *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* performed for its own sentence on the day that flip landed. THE
+SENTENCE ABOVE STATING THAT NO FLIP IS PROPOSED FOR THE CARRIAGE LEDGER IS
+CARRIED UNCHANGED AND IS STILL TRUE: its "this change" names
+`add-modified-block-currency-check`, which promoted this requirement, no flip
+has been ruled for that arm since, and its band is `info` today. AND
+`amend-marker-defect-reporting`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE, on this requirement's own rule that a marker is
+not a carriage unit in either direction: restating it would declare a removal
+this change did not perform, and its named unit — a sentence canon no longer
+carries because that change removed it — matches no unit of the requirement or
+of this block, which is the third ground above reporting this block for copying
+a predecessor's declaration forward.
+
+**Removed from canon by amend-modified-block-currency-standing (2026-09-10):**
+``**The family SHALL read every active change regardless of its lifecycle
+standing.** A `draft` packet's block is as capable of restating stale canon as
+a `ratified` one, the arms below are advisory, and a finding against a draft
+costs its author one line.``; ``**This family SHALL be advisory at launch, in
+both halves of what that means.** Every finding carries `warning` severity for
+the scenario-completeness and title-resolution arms and `info` for the carriage
+ledger, so no `--fail-on` configuration reds on it; and the family is
+deliberately absent from `FAMILY_RESOLUTION`, so its findings are not
+classified `contested` — a contested finding that resolves without a citation
+becomes an `error` under this capability's uncited-resolution rule, which would
+gate the family through the back door on the first block anyone corrected.``;
+``Raising the scenario-completeness arm to `error` and adding the contested
+classification are ONE later decision taken together by ruling, and SHALL
+follow the discharge of the standing population rather than precede it.``;
+``**THEN** the run MUST emit a `warning` finding against the active delta's own
+path, naming each omitted scenario title and the promoted spec it was read
+from``; ``**AND** the finding MUST NOT cause a run configured `--fail-on error`
+or `--fail-on critical` to fail`` — the flip of 2026-08-31 (openxFactory issue
+#357, pull request #529) took the scenario-title arm to error and added the
+family's contested row, so each of these five units asserts a standing the
+running checker has not had since that day: three say the arms are advisory and
+the family unclassified, one says the raising is a decision still to be taken,
+and two are the first scenario's assertion of the advisory band in bullet form.
+Every one is REPLACED rather than dropped — the two paragraphs above state the
+post-flip standing and the history that produced it, the lifecycle-standing
+sentence is restated with its rationale corrected, and the two bullets are
+replaced in place by three that mirror the promoted promotion fidelity and
+duplicate packet scenarios. This reason carries no code span, so the marker
+names exactly the five units listed before the separator.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
-- **THEN** the run MUST emit a `warning` finding against the active delta's own path, naming each omitted scenario title and the promoted spec it was read from
-- **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
+- **THEN** the run MUST emit an `error` finding against the active delta's own path, naming each omitted scenario title and the promoted spec it was read from
+- **AND** the finding MUST cause a run configured `--fail-on error` to fail, and MUST NOT cause a run configured `--fail-on critical` to fail
+- **AND** the finding MUST carry the `contested` resolution class
 
 #### Scenario: A deletion is declared by marker
 - **WHEN** the MODIFIED block carries a `Removed from canon by` or `Merged into` marker naming a unit as a code span, and that unit is absent from the block
@@ -2006,6 +2105,12 @@ moment at which either silence has ever cost anybody anything.
 - **WHEN** a marker names a code span matching no unit of the requirement's basis and no unit of the block
 - **THEN** the run MUST report the marker itself in the `info` band, a declaration about nothing being unusable as evidence about the block
 - **AND** the name MUST suppress nothing, which is the reading this family has always taken and is unchanged by the report
+
+#### Scenario: This family stops reporting a path without a citation
+- **WHEN** this family emitted one or more findings — of ANY class, the `info` carriage ledger included — at a repository and delta path the previous report carried, the next report carries NO finding of this family at that repository and path, and no OpenSpec change or recorded disposition cites the resolution
+- **THEN** the run MUST emit the uncited-resolution `error` this capability's contested-finding rule defines, the family's resolution row having no per-class grain to hold one class out of it
+- **AND** a finding of ONE class that stops being reported while ANY other finding of this family is still emitted at that same repository and path MUST NOT raise that error, the rule keying on `(family, repository, path)` alone, so the key never leaves the current report
+- **AND** the disappeared finding's own severity MUST NOT be read as moved by that classification, the resolution class and the severity being separate fields
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long

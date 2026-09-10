@@ -573,76 +573,6 @@ Active changes:
   `tests/sequenced_after/test_header_line.py`); **NOTHING in codexFactory is
   touched** — its re-vendor and pin advance are successors in `tasks.md` § 4,
   owned by lane codeXfactory-1.
-- [amend-modified-block-currency-standing](openspec/changes/amend-modified-block-currency-standing/proposal.md)
-  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
-  openxFactory operator authority, verbatim *"Ratify as encoded, all four
-  sites"* — a MULTIPLE-CHOICE ruling given in session ~04:5xZ and recorded on PR
-  [#887](https://github.com/opensoft/openxFactory/pull/887) at
-  2026-09-10T11:35:59Z, which reaches `design.md` **D1** and resolves it as
-  **ALL FOUR SITES** rather than the ONE paragraph #857 quotes; because all four
-  is the option the packet already encoded, **THE WORDING STANDS UNCHANGED** and
-  no canon unit was restored. Records
-  `openspec/changes/amend-modified-block-currency-standing/review/ratification-2026-09-10.md`,
-  with the gate run captured beside it at
-  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10.md`
-  and RE-RUN in full after the merge from `main` at
-  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10-post-merge.md`
-  — a second run at its own path, the first capture preserved unedited and NOT
-  superseded).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind` and `id` unmoved — the
-  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
-  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
-  2026-09-10, verbatim *"do 1, then 2"*, which commissioned a packet and decided
-  no wording. Origins: openxFactory
-  [#857](https://github.com/opensoft/openxFactory/issues/857) and
-  [#858](https://github.com/opensoft/openxFactory/issues/858), both filed by
-  this lane at the archive of `amend-marker-defect-reporting`
-  ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`),
-  which owed them as residue `tasks.md` § 5.3 and § 5.4. **THE DEFECT IS TEN
-  DAYS OF CANON DESCRIBING A PRE-FLIP CHECKER.** `openspec/specs/doc-health/spec.md`,
-  inside *Currency of an active change's MODIFIED requirement blocks*, still
-  says at `:1816` that the family *"SHALL be advisory at launch, in both halves
-  of what that means"* — `warning` severities, and *"deliberately absent from
-  `FAMILY_RESOLUTION`"* — while `scripts/doc_health/modified_block_currency.py:229`
-  has read `_LAUNCH_SEVERITY = ERROR` and `scripts/doc_health/families.py:117`
-  has carried `"modified-block-currency": CONTESTED` since the flip of
-  2026-08-31 (issue [#357](https://github.com/opensoft/openxFactory/issues/357),
-  PR [#529](https://github.com/opensoft/openxFactory/pull/529), `7f656980`).
-  That landing amended no specification, and canon has since contradicted
-  ITSELF: the promoted *A modified-block-currency finding its own class map
-  cannot place is itself a finding* records at `:2292` that **THE FAMILY IS
-  PRESENT IN `FAMILY_RESOLUTION`**. **FOUR SITES, ONE REQUIREMENT, FIVE UNITS
-  REPLACED IN PLACE** under one `Removed from canon` marker: the *advisory at
-  launch* paragraph's first two sentences (`:1816-1826`), the clause *"the arms
-  below are advisory"* (`:1615`), and the first scenario's `warning` and
-  *"MUST NOT cause a run configured `--fail-on error` ... to fail"* bullets
-  (`:1922-1923`). ONE SCENARIO IS ADDED, because the resolution row reaches every
-  class the family emits — the `info` carriage ledger included — and none
-  exercised that. **THE PARAGRAPH'S THIRD SENTENCE IS CARRIED UNCHANGED**
-  (*"No flip is proposed for the carriage ledger in this change"*), because it
-  is still true. **THE VETO POINT WAS `design.md` D1 — THE SCOPE, AND IT IS
-  RULED**: all four sites (recommended and encoded) against the ONE paragraph
-  #857 quotes, whose cost is written out there — a promoted requirement left
-  contradicting itself about a gate, and a third successor owed for the same
-  flip. The ruling of 2026-09-10 took all four, so no canon unit was restored
-  and the added scenario stands. **AND `design.md` D0 CORRECTS THE ISSUE'S OWN
-  PROPOSED WORDING**: #857 asks canon to say
-  `error` for the title-resolution arm too, and that arm's constant is
-  `warning` — deliberately not dragged by the flip, per orchestrator decision
-  O8 and PR #529's own body — so the delta states the arm-by-arm truth instead.
-  **NO SEVERITY MOVES AND NO ROW IS ADDED**: this is promoted canon catching up
-  with running code, `code_surface: none` MEASURED
-  (`grep -rn "advisory at launch\|deliberately absent" scripts tests` returns 13
-  lines, none of them this requirement). **#858 RIDES THE SAME PULL REQUEST AS A
-  SEVERABLE COMMIT** (`design.md` D6): `specs/019-modified-block-currency-family/`
-  FR-018 is restated to canon's three grounds with a dated amendment note, in
-  the exact form PR [#827](https://github.com/opensoft/openxFactory/pull/827)
-  established for the predecessor's identical residue (#730) — a Speckit build
-  record catching up with canon promoted at `250d93d7`, depending on no part of
-  this delta and landable alone. **THE ARCHIVE IS A SEPARATE ACT**: `tasks.md`
-  § 5 stays open, nothing under `openspec/specs/` is edited yet, and openxFactory
-  #857 and #858 close at the archive rather than at this landing.
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
@@ -2848,6 +2778,81 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-modified-block-currency-standing](openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/proposal.md)
+  — **ARCHIVED 2026-09-10** by the archive pull request of the same day, on
+  Brett Heap's separate word of **2026-09-10T13:06Z**, verbatim *"archive 887
+  and close 857 858 when landed"* (recorded on
+  [PR #887](https://github.com/opensoft/openxFactory/pull/887) and on both
+  origin issues), and the `release-realization` rule that a change with an
+  EMPTY code surface archives **ON LANDING plus its own task list**, waiting on
+  no realization evidence. **THE EVIDENCE, CITED RATHER THAN ASSERTED:**
+  ratified and landed by **PR
+  [#887](https://github.com/opensoft/openxFactory/pull/887) →
+  `3b45c037a3ed3db5c04c65ea50f9dd8c38d83d57`** on `main`, 2026-09-10T13:51:31Z
+  (ratifying commit `c95b9e50`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/review/ratification-2026-09-10.md`
+  `Status: ratified`, plus the two gate captures `verification-2026-09-10.md`
+  and `verification-2026-09-10-post-merge.md`, both `Status: record` and all
+  three MOVED BY THIS ARCHIVE AND NOT EDITED BY IT), with `code_surface: none`
+  and `target_release: none`. The origin-retention arm of the archive gate
+  reports **ORIGIN RETAINED** against `c95b9e50`, and both standalone archive
+  gates pass against the archived path with BOTH candidate refs — `c95b9e50`
+  and the later record commit `e65aed15` — because `.openspec.yaml` is
+  byte-identical at both.
+  Origins: openxFactory
+  [#857](https://github.com/opensoft/openxFactory/issues/857) and
+  [#858](https://github.com/opensoft/openxFactory/issues/858), **BOTH CLOSED at
+  this archive act and not at that landing** — which is what the proposal pull
+  request's `refs #857` / `refs #858`, carrying no closing keyword, was for.
+  **WHAT IS NOW CANON.** The `## MODIFIED` block is promoted BYTE-IDENTICAL
+  into `openspec/specs/doc-health/spec.md` (39,754 bytes, sha256
+  `9fc757f0ff86ab39cdfd30c5e66a33c4557d20a79e62b86e125e9e33575d8194`, extracted
+  programmatically on both sides), amending *Currency of an active change's
+  MODIFIED requirement blocks*: the `modified-block-currency` family is
+  **ENFORCING IN ONE ARM AND CLASSIFIED `contested` WHOLE** — the scenario-title
+  completeness arm carries `error`, the title-resolution and ordering arm keeps
+  `warning`, the carriage ledger and marker defects keep `info`, and the
+  family's `FAMILY_RESOLUTION` row is PRESENT — with the disappearance that
+  owes a citation read at the `(family, repository, path)` grain the
+  uncited-resolution rule keys on and at no finer one. **FIVE UNITS REPLACED IN
+  PLACE AT FOUR SITES** under one `Removed from canon by
+  amend-modified-block-currency-standing (2026-09-10):` marker — the
+  lifecycle-standing sentence carrying *"the arms below are advisory"*, the
+  *advisory at launch* paragraph's first two sentences, and the first
+  scenario's `THEN` and `AND` bullets — plus one body paragraph telling the
+  flip's history as a sequence, and one scenario, *This family stops reporting
+  a path without a citation*, added at the end of the block. **NO SEVERITY
+  MOVES AND NO ROW IS ADDED BY THIS PROMOTION**: `_LAUNCH_SEVERITY = ERROR`
+  (`scripts/doc_health/modified_block_currency.py:229`) and
+  `"modified-block-currency": CONTESTED` (`scripts/doc_health/families.py:117`)
+  have been the module's real state since the flip of 2026-08-31 (issue
+  [#357](https://github.com/opensoft/openxFactory/issues/357), PR
+  [#529](https://github.com/opensoft/openxFactory/pull/529), `7f656980`), and
+  this is promoted canon catching up with running code. The paragraph's third
+  sentence, *"No flip is proposed for the carriage ledger in this change"*, is
+  carried unchanged because it is still true. Spec count 62 → 62, so no
+  codexFactory floor advance is owed. #858's half needed no promotion: its
+  `specs/019` FR-018 restatement rode PR #887 as the severable commit
+  `2f384fd1` and is already on `main`.
+  **THE RESIDUE IS NAMED, NOT DISCHARGED.** `tasks.md` § 5.3's successor is
+  filed UNCLAIMED as
+  [#893](https://github.com/opensoft/openxFactory/issues/893) — whether
+  `report.uncited_resolutions` should track disappearance at finding-class
+  grain rather than at `(family, repository, path)`, a CODE decision this
+  `code_surface: none` packet refused as a widening; § 6.1's is filed UNCLAIMED
+  as [#896](https://github.com/opensoft/openxFactory/issues/896) — `specs/019`
+  FR-024 and FR-026, which still state the launch severities and the family's
+  absence from `FAMILY_RESOLUTION` and, unlike FR-018, foresee the flip in
+  their own words; and § 6.2 names none because its own ratified text says
+  nothing is owed and no arm moved. **ONE ACCOUNTING CLAUSE OF § 4.9 IS
+  CORRECTED ON THE RECORDING AND NO RECORD IS TOUCHED**: as ratified it called
+  the first capture *"preserved unedited"*, which is true of the tree it
+  measures (`2e84325a`) and false of `e65aed15`, where the same commit appended
+  a 23-line self-disclosing `## Addendum` to it — `23 0`, additions only, no
+  original line edited, moved or deleted. The ratified wording is quoted in
+  place rather than deleted.
 
 - [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
   — **ARCHIVED 2026-09-10** by
