@@ -244,6 +244,9 @@ below with its lifecycle notes.
 - [Avatar Live Voice](brainstorm/avatar-live-voice-overview.md) — visible
   client states, privacy, brokered-call evidence, qualification, and hardening
   boundaries.
+- [Usage-Controlled Evidence Chain](brainstorm/usage-controlled-evidence-chain-overview.md)
+  — opaque owner-local evidence, Kaspa-first operational witnessing, and
+  complete 24-hour Bitcoin/OpenTimestamps durability batches.
 
 - [doxBench Overview](brainstorm/doxbench-overview.md) — entry point for the
   three-tier doxBench packet: six atomic documents describe surface/scope,
