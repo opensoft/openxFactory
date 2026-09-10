@@ -488,8 +488,10 @@ with no bypass flag: `scripts/proposal-support.py` refuses any change whose
 why every box in this file must be ticked in the commit BEFORE the move rather
 than after it.
 
-**DISPOSITION 2026-09-10 — THE HEADING ABOVE IS SUPERSEDED BY THIS ACT AND IS
-KEPT RATHER THAN REWRITTEN.** *"OWED, NOT GIVEN"* was true from ratification
+**DISPOSITION 2026-09-10 — THE HEADING ABOVE IS RETAINED AS HISTORICAL
+SURFACE, NOT SUPERSEDED, AND THE THREE CLAUSES NAMED ABOVE REMAIN THE ONLY
+SUPERSEDED TEXT IN THIS FILE.**
+*"OWED, NOT GIVEN"* was true from ratification
 until **2026-09-10T21:1xZ**, when Brett Heap gave the separate word this section
 waits on, verbatim **"archive 923 and close 882 when landed"** — a word with a
 CONDITION, and the condition is met: PR
