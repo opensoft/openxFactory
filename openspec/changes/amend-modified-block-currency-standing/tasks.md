@@ -157,13 +157,28 @@ measured and deliberately not taken, and stays open where the work is owed.
 - [x] 4.7 `python3 -m pytest tests/sequenced_after tests/scope_globs
       tests/doc-health -q` — PASSES.
 - [x] 4.8 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10, after
-      the ratification encode — capture at `review/verification-2026-09-10.md`,
-      the packet's first and only gate capture, written at its own dated path
-      because a dated run report is a one-shot `record` and a second run of it
-      would write a second path rather than rewrite this one. `--all --strict`
-      is measured there against an `origin/main` `804a9170` control run in a
-      separate worktree, and `doc-health`'s finding-line diff against the
-      PRE-RATIFICATION tree `ab8247fa` is recorded beside it.
+      the ratification encode — capture at `review/verification-2026-09-10.md`.
+      `--all --strict` is measured there against an `origin/main` `804a9170`
+      control run in a separate worktree, and `doc-health`'s finding-line diff
+      against the PRE-RATIFICATION tree `ab8247fa` is recorded beside it.
+- [x] 4.9 **AND RE-RUN A SECOND TIME AFTER THE MERGE FROM `main`**, because
+      `origin/main` moved `804a9170` → `b91af6ea` while the encode was being
+      verified and the pull request went CONFLICTING on the README
+      `## OpenSpec Records` block. The merge is `2e84325a` and it moves NO byte
+      of this packet; the second capture is
+      `review/verification-2026-09-10-post-merge.md`, **at its own path because
+      a dated run report is a one-shot `record` and a second run of such a
+      generator writes a different path rather than rewriting the first** — the
+      2026-09-10 capture is preserved unedited, keeps `Status: record`, and is
+      NOT superseded. The re-measure was not a formality: `b91af6ea` brought
+      #890's `ratified-provenance` SUBJECT arm (#878), which the first capture's
+      tree did not have, plus #886's rewritten `scripts/proposal-support.py`,
+      `scripts/sequenced_after.py` and `scripts/frontmatter_strict.py`. Every
+      gate is green on the merged tree, the `--all --strict` failure set is
+      still IDENTICAL to `main`'s, and `doc-health`'s finding-line diff against
+      the DRAFT packet on the SAME `main` is IDENTICAL at 98 lines — this
+      packet's ratification record clearing the new subject arm that
+      twenty-one other records fail.
 
 ## 5. Archive — OWED, NOT GIVEN
 

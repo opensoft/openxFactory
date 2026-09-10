@@ -582,9 +582,13 @@ Active changes:
   **ALL FOUR SITES** rather than the ONE paragraph #857 quotes; because all four
   is the option the packet already encoded, **THE WORDING STANDS UNCHANGED** and
   no canon unit was restored. Records
-  `openspec/changes/amend-modified-block-currency-standing/review/ratification-2026-09-10.md`
-  and
-  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10.md`).
+  `openspec/changes/amend-modified-block-currency-standing/review/ratification-2026-09-10.md`,
+  with the gate run captured beside it at
+  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10.md`
+  and RE-RUN in full after the merge from `main` at
+  `openspec/changes/amend-modified-block-currency-standing/review/verification-2026-09-10-post-merge.md`
+  — a second run at its own path, the first capture preserved unedited and NOT
+  superseded).
   `.openspec.yaml` keeps the drafting provenance it was authored with and the
   approval pair is ADDED beside it, `kind` and `id` unmoved — the
   addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane

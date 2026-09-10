@@ -324,3 +324,26 @@ that is recorded as an ABSENCE rather than as approval
 
 **THIS LANE ENCODES AND FREEZES; IT DOES NOT MERGE.** The Rule 6 LANDING/LANDED
 post belongs to the landing lane on a separate landing word.
+
+## Addendum — 2026-09-10, after the merge: this capture is the PRE-MERGE run
+
+**EVERY FIGURE ABOVE IS PRESERVED AND NOT ONE OF THEM IS EDITED BY THIS
+ADDENDUM.** They are the measurement of the tree that carried the ratification
+encode `c95b9e50` over `origin/main` `804a9170`, and they are true of it.
+
+**`origin/main` MOVED TO `b91af6ea` AFTER THEY WERE TAKEN**, so § 0's row *"merge
+from main: NONE OWED"* — a claim about what landing would owe — is ANSWERED
+rather than left standing. The merge was taken at `2e84325a` and every gate was
+re-run from zero on the merged tree. **THE SECOND RUN IS AT ITS OWN PATH**, as a
+one-shot capture requires: `review/verification-2026-09-10-post-merge.md`. That
+file is the CURRENT measurement; this file remains the record of the pre-merge
+tree, keeps `Status: record`, and is neither superseded nor deleted.
+
+**THE RE-MEASURE MATTERED**: `b91af6ea` brought #890's `ratified-provenance`
+SUBJECT arm (#878) — which the tree measured above did not have — together with
+#886's rewritten `scripts/proposal-support.py`, `scripts/sequenced_after.py` and
+`scripts/frontmatter_strict.py`. The second capture records the outcome: every
+gate green, the `--all --strict` failure set still identical to `main`'s, and the
+finding-line diff against the DRAFT packet on the same `main` IDENTICAL at 98
+lines, with this packet's ratification record clearing the new subject arm that
+twenty-one other records fail.
