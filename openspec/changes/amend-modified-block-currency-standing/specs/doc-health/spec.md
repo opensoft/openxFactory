@@ -427,7 +427,36 @@ carries because that change removed it — matches no unit of the requirement or
 of this block, which is the third ground above reporting this block for copying
 a predecessor's declaration forward.
 
-**Removed from canon by amend-modified-block-currency-standing (2026-09-10):** ``**The family SHALL read every active change regardless of its lifecycle standing.** A `draft` packet's block is as capable of restating stale canon as a `ratified` one, the arms below are advisory, and a finding against a draft costs its author one line.``; ``**This family SHALL be advisory at launch, in both halves of what that means.** Every finding carries `warning` severity for the scenario-completeness and title-resolution arms and `info` for the carriage ledger, so no `--fail-on` configuration reds on it; and the family is deliberately absent from `FAMILY_RESOLUTION`, so its findings are not classified `contested` — a contested finding that resolves without a citation becomes an `error` under this capability's uncited-resolution rule, which would gate the family through the back door on the first block anyone corrected.``; ``Raising the scenario-completeness arm to `error` and adding the contested classification are ONE later decision taken together by ruling, and SHALL follow the discharge of the standing population rather than precede it.``; ``**THEN** the run MUST emit a `warning` finding against the active delta's own path, naming each omitted scenario title and the promoted spec it was read from``; ``**AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail`` — the flip of 2026-08-31 (openxFactory issue #357, pull request #529) took the scenario-title arm to error and added the family's contested row, so each of these five units asserts a standing the running checker has not had since that day: three say the arms are advisory and the family unclassified, one says the raising is a decision still to be taken, and two are the first scenario's assertion of the advisory band in bullet form. Every one is REPLACED rather than dropped — the two paragraphs above state the post-flip standing and the history that produced it, the lifecycle-standing sentence is restated with its rationale corrected, and the two bullets are replaced in place by three that mirror the promoted promotion fidelity and duplicate packet scenarios. This reason carries no code span, so the marker names exactly the five units listed before the separator.
+**Removed from canon by amend-modified-block-currency-standing (2026-09-10):**
+``**The family SHALL read every active change regardless of its lifecycle
+standing.** A `draft` packet's block is as capable of restating stale canon as
+a `ratified` one, the arms below are advisory, and a finding against a draft
+costs its author one line.``; ``**This family SHALL be advisory at launch, in
+both halves of what that means.** Every finding carries `warning` severity for
+the scenario-completeness and title-resolution arms and `info` for the carriage
+ledger, so no `--fail-on` configuration reds on it; and the family is
+deliberately absent from `FAMILY_RESOLUTION`, so its findings are not
+classified `contested` — a contested finding that resolves without a citation
+becomes an `error` under this capability's uncited-resolution rule, which would
+gate the family through the back door on the first block anyone corrected.``;
+``Raising the scenario-completeness arm to `error` and adding the contested
+classification are ONE later decision taken together by ruling, and SHALL
+follow the discharge of the standing population rather than precede it.``;
+``**THEN** the run MUST emit a `warning` finding against the active delta's own
+path, naming each omitted scenario title and the promoted spec it was read
+from``; ``**AND** the finding MUST NOT cause a run configured `--fail-on error`
+or `--fail-on critical` to fail`` — the flip of 2026-08-31 (openxFactory issue
+#357, pull request #529) took the scenario-title arm to error and added the
+family's contested row, so each of these five units asserts a standing the
+running checker has not had since that day: three say the arms are advisory and
+the family unclassified, one says the raising is a decision still to be taken,
+and two are the first scenario's assertion of the advisory band in bullet form.
+Every one is REPLACED rather than dropped — the two paragraphs above state the
+post-flip standing and the history that produced it, the lifecycle-standing
+sentence is restated with its rationale corrected, and the two bullets are
+replaced in place by three that mirror the promoted promotion fidelity and
+duplicate packet scenarios. This reason carries no code span, so the marker
+names exactly the five units listed before the separator.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
