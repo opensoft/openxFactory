@@ -677,9 +677,16 @@ def test_a_skip_that_carries_findings_carries_the_block_too():
     what is proved here is what the renderer does when handed one.
     """
     result = _suite(TREE_MARKERS)
-    assert result.findings and not result.skips, (
-        "the findings are this family's real ones over a real tree; only the "
-        "skip standing beside them is injected")
+    # TWO PRECONDITIONS, ASSERTED APART. They fail for different reasons — an
+    # empty tree, and a tree that skips — and one `and` over the pair reports
+    # neither of them (SonarCloud `python:S9073`, taken on this PR).
+    assert result.findings, (
+        "the findings are this family's real ones over a real tree, so an "
+        "empty result makes the rendering below a rendering of nothing")
+    assert not result.skips, (
+        "the only skip in the rendering below is the one injected beside "
+        "those findings; a tree that skips on its own would prove nothing "
+        "about the state under test")
     section = _section(report.render(
         AS_OF, result.findings, [Skip(mbc.FAMILY, _CARRYING_SKIP_REASON)],
         [], [], 0, [], [], family_notes=result.notes))
