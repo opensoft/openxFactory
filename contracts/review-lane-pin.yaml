@@ -825,6 +825,13 @@ lockstep:
     owner's or the ceremony's own follow-up
     (`repoint-aggregation-migration-pin` design.md Section 6.1, tasks.md box
     5.3), not asserted here.
+
+    CORRECTION 2026-09-10, TO THE ADDENDUM DIRECTLY ABOVE — an appended
+    fix, not an edit of it, per this field's own append-only convention.
+    That paragraph's clause "codexFactory commit `d340cb4c`" named the
+    wrong repository: `d340cb4c` is an `opensoft/xFactory` commit, the
+    sole commit of that repository's PR #423, landed into `main` via
+    merge commit `67c0b159`. Nothing else in the addendum changes.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
