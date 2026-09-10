@@ -208,12 +208,23 @@ def resolve_factory(spec: str, dest_root: Path,
                     extra_paths: list[str]) -> Any:
     """Import `<module>:<factory>` with the destination's roots on the path.
 
-    THE PATH IS RESTORED AFTERWARDS. This process may run several
-    destinations in a session — the tests do — and a root left on `sys.path`
-    would let the SECOND destination import the FIRST one's modules and pass
-    on them. That is the privileged route again, arriving by accident, so the
-    insertion is undone in a `finally` and the imported module is held by
-    reference rather than by name.
+    THE PATH IS RESTORED AFTERWARDS, AND SO IS THE MODULE CACHE. This process
+    may run several destinations in a session — the tests do — and a root
+    left on `sys.path` would let the SECOND destination import the FIRST
+    one's modules and pass on them. That is the privileged route again,
+    arriving by accident, so the insertion is undone in a `finally`.
+    `sys.path` is not the only cache a second destination can inherit from
+    the first, though: `importlib.import_module` also caches by name in
+    `sys.modules`, and restoring `sys.path` alone does not undo that — the
+    plausible case is exact, since `home_factory.py` is documented as "the
+    worked example a destination copies" and a destination that copies the
+    file keeps its name too. So any prior `sys.modules` entry for this name
+    (or a submodule of it) is evicted before the import, forcing a fresh read
+    off the roots just inserted, and whatever the import leaves behind is
+    evicted again in the `finally` and the prior entry (if any) restored —
+    the same discipline `sys.path` already gets, so the module really is
+    "held by reference rather than by name" once this call returns rather
+    than merely being described that way.
     """
     if ":" not in spec:
         raise ConformanceRefusal(
@@ -234,6 +245,13 @@ def resolve_factory(spec: str, dest_root: Path,
     added = [r for r in roots if r not in sys.path and Path(r).is_dir()]
     for root in reversed(added):
         sys.path.insert(0, root)
+
+    def _owned(name: str) -> bool:
+        return name == module_name or name.startswith(module_name + ".")
+
+    stale = {name: mod for name, mod in sys.modules.items() if _owned(name)}
+    for name in stale:
+        del sys.modules[name]
     try:
         try:
             module = importlib.import_module(module_name)
@@ -262,6 +280,9 @@ def resolve_factory(spec: str, dest_root: Path,
                 sys.path.remove(root)
             except ValueError:  # pragma: no cover - defensive
                 pass
+        for name in [n for n in sys.modules if _owned(n)]:
+            del sys.modules[name]
+        sys.modules.update(stale)
 
 
 def corpus_locations(corpus_root: Path) -> dict[str, str]:

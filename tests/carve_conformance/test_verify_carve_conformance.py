@@ -692,3 +692,46 @@ def test_an_import_root_is_not_left_on_the_path_for_the_next_destination():
     MODULE.resolve_factory("home_factory:neutral_reader", REPO_ROOT,
                            ["tests/carve_conformance"])
     assert sys.path == before
+
+
+def test_a_second_destinations_module_is_not_reused_from_sys_modules(
+        tmp_path):
+    """`sys.path` is not the only cache a second destination can inherit
+    from the first in one session. `importlib.import_module` also caches by
+    NAME in `sys.modules`, and restoring `sys.path` alone does not undo
+    that. The plausible case is exact rather than contrived:
+    `home_factory.py` is documented as "the worked example a destination
+    copies", and a destination that copies the file keeps its module name
+    too — so two destinations resolved in one process, each declaring
+    `--adapter home_factory:neutral_reader`, are exactly the collision this
+    test builds by hand.
+
+    Two directories here each declare a DIFFERENT `home_factory.py`. The
+    second resolution must read the SECOND destination's bytes; if it
+    instead returns the first destination's already-imported module object,
+    a destination under test would silently be measured against some other
+    destination's reader.
+    """
+    before = sys.modules.get("home_factory")
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+    (first / "home_factory.py").write_text(
+        "def neutral_reader(name, location):\n    return 'first'\n",
+        encoding="utf-8")
+    (second / "home_factory.py").write_text(
+        "def neutral_reader(name, location):\n    return 'second'\n",
+        encoding="utf-8")
+    factory_one = MODULE.resolve_factory("home_factory:neutral_reader",
+                                         first, [])
+    assert factory_one("irrelevant", "irrelevant") == "first"
+    factory_two = MODULE.resolve_factory("home_factory:neutral_reader",
+                                         second, [])
+    assert factory_two("irrelevant", "irrelevant") == "second", (
+        "the second destination's resolve_factory call returned the FIRST "
+        "destination's cached module — sys.modules leaked across the "
+        "session the same way an unrestored sys.path would have")
+    assert sys.modules.get("home_factory") is before, (
+        "a resolve_factory call must leave sys.modules exactly as it found "
+        "it, the same restraint already held for sys.path")
