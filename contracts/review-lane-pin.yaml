@@ -711,7 +711,7 @@ floor_snapshot:
 # openxFactory's and codexFactory's — but the obligation below is why the state
 # is written down as diverged rather than left to be inferred.
 lockstep:
-  status: diverged
+  status: converged
   reason: >-
     Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
@@ -863,6 +863,12 @@ lockstep:
     inferred: the next paragraph in this field should be the one commit that
     moves the assertion and this value together, the way both prior transitions
     did.
+
+    STATUS FLIPPED TO `converged`, 2026-09-10, in the same commit that moves
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`'s
+    literal from `diverged` to `converged` — the two-file act both prior
+    transitions (PR #483 / `d118bc79`, PR #569 / `47f90080`) performed;
+    measured state unchanged from the paragraph above.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
