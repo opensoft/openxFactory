@@ -421,7 +421,30 @@ its own.>
   `proposal.md` declares `Status: ratified` — and refuses the archive (exit 2,
   no bypass flag) when the origin block or the support manifest's repeated
   origin fields have moved since, when no such commit exists, or when the
-  history holding that baseline cannot be read. AND WHEN THE PACKET ITSELF
+  history holding that baseline cannot be read. THE ACCEPTING HALF OF THE
+  REQUIREMENT'S OWN SCENARIO IS A RECORD, NOT A FLAG: "restoring or accepting
+  the mutation is a contested-class act requiring an explicit disposition", so
+  a mutation is repaired EITHER by restoring the ratified bytes — which needs
+  no record, it IS the bytes — OR by an entry in
+  `openspec/origin-dispositions.yaml`, read from the ROOT THE GATE WAS GIVEN
+  so a consumer's record is the consumer's own (`schema_version: 1`,
+  `kind: origin_dispositions`, one entry under `dispositions:` per change
+  carrying `change_id`, `ratified_at`, `mutation_at` — both FULL 40-hex object
+  names — `changed_keys`, `disposition: accept`, `disposed_by`, `disposed_on`,
+  the verbatim `word`, and `cited_to`; an optional `fact` carries the
+  judgement the measurement could not make, as in
+  `tests/sequenced_after/archive-date-dispositions.yaml`). A valid entry MOVES
+  THE COMPARISON BASELINE to the accepted declaration and switches nothing
+  off: the packet must then equal that declaration exactly and the support
+  manifest is measured against it, so a second undispositioned edit on top of
+  an accepted one refuses exactly as the first did, and an entry naming a
+  different mutating commit, a wider key set, another change id, or a
+  baseline that is not this change's ratifying commit refuses while naming
+  what did not match. The subcommand still offers NO bypass flag. Consumers
+  need no change beyond writing the record; the nightly `proposal-origin`
+  family's own `contested` finding for the same mutation is dispositioned
+  where every doc-health finding is, in `health/dispositions.yaml`. AND WHEN
+  THE PACKET ITSELF
   MOVED: a ratified change whose directory is RENAMED has no history under its
   new name before the rename, so the walk's first ratified blob is the rename
   commit — a baseline later than every mutation made in between, which the
