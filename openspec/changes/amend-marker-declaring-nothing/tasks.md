@@ -243,15 +243,16 @@ residue, measured and deliberately not taken.
 - [x] 4.7 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
       style, naming the draft standing, both origin issues, both veto points and
       the zero population.
-- [ ] 4.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
-      never hand-written — and it is OWED UNTIL THE PULL REQUEST EXISTS, the
-      tool stamping `moved_by` with a number this commit cannot know:
-      `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<PR>'`, in the commit that follows the opening
-      of the draft pull request. ONE row is added,
-      `amend-marker-declaring-nothing: {state: active, class: co-modifier,
-      declares: [], depth: 0, prose: false}`, and NO other row's provenance
-      moves: the change classes `co-modifier` on ARCHIVED partners only (the
+- [x] 4.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
+      never hand-written: `python3 scripts/validate-sequenced-after.py .
+      --seed-ledger --moved-by '#908'` — *"wrote
+      tests/sequenced_after/corpus-ledger.yaml (195 rows, 1 moved by #908)"*,
+      run after the draft pull request existed because the tool stamps
+      `moved_by` with its number. **THE DIFF IS ONE LINE**, which is the whole
+      claim measured rather than asserted: `amend-marker-declaring-nothing:
+      {state: active, class: co-modifier, declares: [], depth: 0, prose: false,
+      moved_by: "#908", moved_on: "2026-09-10"}`. NO other row's provenance
+      moves — the change classes `co-modifier` on ARCHIVED partners only (the
       three archived changes carrying a `## MODIFIED` block for this
       requirement), so no partner flips and no MOVEMENT LOG entry is owed.
 
@@ -284,10 +285,11 @@ residue, measured and deliberately not taken.
       verification ok"*.
 - [x] 5.5 `python3 scripts/validate-sequenced-after.py .` — **exit 0**,
       *"sequenced_after validation passed (39 active changes, 9 declaring the
-      field)"*, both archive-date arms passing. `--ledger-diff` reports the
-      ledger STALE by exactly ONE missing row — this change's own — until § 4.8
-      seeds it, which is the tool's own instruction and not a defect; the run
-      after the seed is recorded here.
+      field)"*, both archive-date arms passing; and `--ledger-diff` — **exit 0**,
+      *"per-change sweep ledger consistent with the corpus (195 rows)"*, after
+      the seed of § 4.8. Before that seed it reported the ledger STALE by exactly
+      ONE missing row — this change's own — which is the tool's own instruction
+      and not a defect.
 - [x] 5.6 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 5.7 `python3 scripts/doc-health.py --single-repo .` — **exit 0**. The
@@ -303,12 +305,16 @@ residue, measured and deliberately not taken.
       `tests/doc-health` goes **1684 → 1689** (collected on this tree and on
       `origin/main` in the same shell) and
       `tests/doc-health/test_modified_block_currency.py` **139 → 144**. Before
-      the ledger seed of § 4.8 the run is `4 failed, 2169 passed`, and ALL FOUR
-      are the same fact stated four ways —
+      the ledger seed of § 4.8 the run was `4 failed, 2169 passed`, and ALL FOUR
+      were the same fact stated four ways —
       `tests/sequenced_after/test_sweep.py`'s row-by-row, one-row-per-change and
-      two totals assertions, each reporting the ONE row this change has not yet
-      added. The seed is what turns them green, and the run after it is recorded
-      here.
+      two totals assertions, each reporting the ONE row this change had not yet
+      added. **AFTER THE SEED `tests/sequenced_after` is `271 passed`** and the
+      whole selection is green; the full re-run on the final tree is § 5.9.
+- [ ] 5.9 **EVERY GATE RE-RUN IN FULL ON THE FINAL TREE**, after the ledger seed
+      and after every bench round this pull request takes, with the whole
+      selection green and the `--all --strict` failure set re-measured against
+      `origin/main`. Ticked when the pull request is FROZEN, not before.
 
 ## 6. Archive — OWED, NOT GIVEN
 
