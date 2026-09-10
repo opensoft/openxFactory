@@ -954,11 +954,9 @@ the bookkeeping that ticks this group.
   not a leg), `contracts/openxdox-pin.yaml` carries that same commit, and both
   moved in PR #917's one commit (`contracts/openxdox-pin.yaml` +121 and the
   `openXdox` gitlink, nothing else in that diff). No `contracts/opendox-pin.yaml`
-  and no second gitlink exist anywhere in the tree. `python3
-  scripts/verify-openxdox-pin.py` passes live at that commit: `OK openxdox-pin
-  verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from
-  HEAD, sorted-ls-tree-r-v1 tree digest recomputed
-  (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
+  and no second gitlink exist anywhere in the tree.
+  `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
+  `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
