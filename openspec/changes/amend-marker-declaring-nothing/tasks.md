@@ -400,11 +400,13 @@ UNTICKED**: residue, measured and deliberately not taken.
       selection **`2173 passed, 66 subtests passed`**.
 - [x] 5.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10, after
       the ratification encode and after TWO merges from `main` — capture at
-      `review/verification-2026-09-10.md`, the packet's FIRST and only gate
-      capture, written at its own dated path because a dated run report is a
-      one-shot `record` and a second run of it would write a second path rather
-      than rewrite this one. **BOTH MERGES COME BEFORE THE CAPTURE, SO NO
-      POST-MERGE RE-MEASURE IS OWED**: `origin/main` advanced from `e0638f11`
+      `review/verification-2026-09-10.md`, the packet's FIRST gate capture,
+      written at its own dated path because a dated run report is a one-shot
+      `record` and a second run of it writes a second path rather than
+      rewriting this one. **BOTH OF THOSE MERGES COME BEFORE THE CAPTURE**, so
+      no re-measure was owed for either of them — a THIRD merge landed after
+      this capture was committed and § 5.11 is its re-measure, at its own path:
+      `origin/main` advanced from `e0638f11`
       (the tree § 2 and § 5 were measured on) by THREE commits while the branch
       sat frozen at `5dd724f5` — `40d2f821` and `bd1c54c6`, merged as
       `480fb996`, then `ea34f22a`, merged as `6aebb296` — and the ratification
@@ -421,6 +423,45 @@ UNTICKED**: residue, measured and deliberately not taken.
       measured in the capture against an `origin/main` `ea34f22a` control run in
       a separate worktree, and `doc-health`'s finding-line diff against the
       PRE-RATIFICATION tree is recorded beside it.
+
+- [x] 5.11 **AND RE-RUN A SECOND TIME AFTER A THIRD MERGE FROM `main`**, in a
+      SECOND capture at its own path, `review/verification-2026-09-10-post-merge.md`.
+      `origin/main` advanced `ea34f22a` → `52e42be9` AFTER the ratification
+      encode `705cecef` was committed — `9149301c` (#913 bookkeeping),
+      `05c706d6` (#910 files `admit-review-lane-repin-to-merge-approval-envelope`
+      as a `Status: draft` PROPOSAL) and `52e42be9` (#916 bookkeeping) — and the
+      merge was taken as its own commit, `ff44d3bc`, cleanly, the README
+      `## OpenSpec Records` block taking a pure ADDITION of another lane's row.
+      **THE SECOND CAPTURE IS AT ITS OWN PATH BECAUSE A DATED RUN REPORT IS A
+      ONE-SHOT `record` AND A SECOND RUN WRITES A DIFFERENT PATH RATHER THAN
+      REWRITING THE FIRST** — both runs fall on 2026-09-10, so the paths are
+      distinguished by SUFFIX, exactly as the predecessor did at `e65aed15`.
+      `review/verification-2026-09-10.md` is **PRESERVED UNEDITED**, keeps
+      `Status: record`, is NOT superseded and gains not even a pointer, a
+      committed `review/*.md` being a reserved act in this lane; its
+      forward-looking sentences were true of the tree they were written on and
+      are answered in the second capture's § 0 instead. **THE MERGE MOVES NO
+      BYTE OF THIS PACKET** — `git diff --stat 705cecef ff44d3bc --
+      openspec/changes/amend-marker-declaring-nothing scripts/doc_health
+      tests/doc-health` is EMPTY and this packet's README row hashes identically
+      across it — so the re-measure is owed for the CORPUS, not for the delta.
+      Every gate is green on `ff44d3bc`: `--all --strict` **exit 1** at
+      `98 passed, 4 failed (102 items)` with the failure set STILL identical to
+      `main` `52e42be9`'s `97 passed, 4 failed (101 items)`; the pinned CLI
+      **1.12.0** exit 0 on both arms with the same two pre-existing accepted
+      exceptions; `proposal-support verify` exit 0; `validate-sequenced-after`
+      exit 0 (**40** active, **10** declaring) and `--ledger-diff` exit 0 at
+      **196** rows; `validate-scope-globs` exit 0; and the four-directory pytest
+      selection **2178 passed, 67 subtests passed**. **THE THREE FIGURES THAT
+      MOVED ARE ALL MAIN'S**: the item count, the ledger row and the subtest
+      count each rose by exactly one because `05c706d6` filed one new active
+      change, and the one added ledger row reads `moved_by: "#910"`.
+      `doc-health` **exit 0** and its report is **BYTE-IDENTICAL — same `md5`,
+      `4e25037a656543b76727afc9a7c00e13`, 350 lines — ON ALL THREE TREES**: this
+      one, `origin/main` `52e42be9`, and the PRE-MERGE ratified tree `705cecef`,
+      each control run in a worktree whose directory basename matches this
+      clone's so the `Repo-Identity` label matches and the diff is LITERAL.
+      Marker defects **0** on every one of them. No box of § 6 or § 7 moves.
 
 ## 6. Archive — OWED, NOT GIVEN
 

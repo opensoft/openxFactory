@@ -582,9 +582,13 @@ Active changes:
   the packet already encoded in each case, **THE WORDING STANDS UNCHANGED** —
   neither ground was withdrawn, neither added scenario was deleted and the
   flipped assertion stays flipped. Records
-  [`review/ratification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/ratification-2026-09-10.md)
-  and
-  [`review/verification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10.md)).
+  [`review/ratification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/ratification-2026-09-10.md),
+  with the gate run captured beside it at
+  [`review/verification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10.md)
+  and RE-RUN in full after a third merge from `main` at
+  [`review/verification-2026-09-10-post-merge.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10-post-merge.md)
+  — a second run at its own path, the first capture preserved unedited and NOT
+  superseded).
   `.openspec.yaml` keeps the drafting provenance it was authored with and the
   approval pair is ADDED beside it, `kind` and `id` unmoved — the
   addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
