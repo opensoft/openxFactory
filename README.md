@@ -571,90 +571,6 @@ Active changes:
   REALIZED BY THE FILING** — no envelope byte, no workflow, no test, no ruleset,
   no floor, no pin byte — and three of the four refusals measured on 2026-09-08
   are untouched by it (`design.md` § 1).
-- [amend-marker-declaring-nothing](openspec/changes/amend-marker-declaring-nothing/proposal.md)
-  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
-  openxFactory operator authority, verbatim *"ratify as encoded"* — a
-  MULTIPLE-CHOICE ruling given in session and recorded on PR
-  [#908](https://github.com/opensoft/openxFactory/pull/908#issuecomment-5623230781)
-  at 2026-09-10T18:06:52Z, which reaches BOTH declared veto points, `design.md`
-  **D1** (#860) and **D2** (#856), and resolves each as **OPTION A**: report
-  both shapes, at `info`, through the existing template. Because A is the option
-  the packet already encoded in each case, **THE WORDING STANDS UNCHANGED** —
-  neither ground was withdrawn, neither added scenario was deleted and the
-  flipped assertion stays flipped. Records
-  [`review/ratification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/ratification-2026-09-10.md),
-  with the gate run captured beside it at
-  [`review/verification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10.md)
-  and RE-RUN in full after a third merge from `main` at
-  [`review/verification-2026-09-10-post-merge.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10-post-merge.md)
-  — a second run at its own path, the first capture preserved unedited and NOT
-  superseded).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind` and `id` unmoved — the
-  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
-  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
-  2026-09-10, verbatim *"do the 860 856 batch, land each when green"*, which
-  named a batch and a landing condition and decided no wording. Origins:
-  openxFactory [#856](https://github.com/opensoft/openxFactory/issues/856) and
-  [#860](https://github.com/opensoft/openxFactory/issues/860), both filed by
-  this lane at the archive of `amend-marker-defect-reporting`
-  ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`),
-  which owed them as residue `tasks.md` § 5.2 and § 5.7. **THE DEFECT WAS TWO
-  MARKERS THAT DECLARED NOTHING AND WERE REPORTED AS NOTHING** — the state of
-  `main` @ `e0638f11`, the tree this packet was authored and measured on, and
-  the state THIS BRANCH'S REALIZATION CLOSES.
-  `openspec/specs/doc-health/spec.md`, inside *Currency of an active change's
-  MODIFIED requirement blocks*, STILL states that a marker is reported on any of
-  **THREE** grounds and counts them in the next sentence — promoted canon is
-  unedited here and the `## MODIFIED` block writes over it AT THE ARCHIVE — and
-  two shapes fell outside all three. **#856:** a name matching NO canon unit but
-  matching a unit the MODIFIED BLOCK ITSELF ADDS fell through `suppression`'s
-  `if name not in block_texts:` guard, so a block declared removed from canon a
-  unit canon never carried and nobody was told — a silence the predecessor
-  PINNED with a test rather than fixed, because *"inventing a fourth ground here
-  would repeat on the same afternoon the fault this packet corrects"*. **#860:**
-  a `Removed from canon` marker whose tail carries no code span parses to
-  `names = []` and `quoted = []`, reached none of the three grounds, AND was
-  exempt from carriage for being of marker form — a paragraph that neither
-  declared nor was carried. **ON THIS BRANCH BOTH SHAPES ARE REPORTED**, as
-  ground FOUR and ground FIVE, by the realization that rides this pull request.
-  **TWO SENTENCES REPLACED IN PLACE, TWO ADDED BESIDE THEM, TWO SCENARIOS
-  ADDED** under one `Removed from canon` marker: the block states FIVE grounds,
-  scopes the fourth to the block's own addition (and says it changes no
-  suppression) and the fifth to the `Removed from canon` form ALONE — **the
-  PAIRING form's silence stays ruled correct**, it naming no units by
-  construction. **THE TWO VETO POINTS WERE `design.md` D1 AND D2, ONE PER
-  ISSUE AND INDEPENDENT, AND BOTH ARE RULED A.** D1 (#860): report it in
-  `doc-health` (recommended and encoded) against a `document-lifecycle` GRAMMAR
-  rule that such a paragraph is not of marker form — cheaper to encode, LARGER
-  in effect, because the paragraph then becomes prose, becomes a carriage UNIT
-  of the block and of canon after promotion, and the rule moves to a capability
-  carrying no reporting rule at all. D2 (#856): report it (recommended and
-  encoded) against ruling the silence CORRECT in canon in one sentence. A veto
-  of either would have been a veto of ONE ground alone; **neither landed**, so
-  `document-lifecycle` is unamended and the predecessor's pinned silence is
-  overturned rather than confirmed. D0's measurement stands and D3–D9 were
-  carried, none vetoed. **REALIZED IN THE SAME PULL REQUEST**
-  (`code_surface` non-empty, so it archives on merged-plus-green evidence, not
-  on landing): `scripts/doc_health/modified_block_currency.py` gains the `else`
-  half of a guard that already reports and one predicate over three fields the
-  parser already derives — **no parse moves, no `Marker` field is added,
-  `TEMPLATE_MARKERS`' text is not edited at all** and `_ARM_TEMPLATES` stays at
-  eight. Tests **139 → 144** with ONE assertion FLIPPED (the pin on #856's
-  silence, its fixture unchanged) and one test RENAMED. **BOTH GROUNDS HAVE A
-  POPULATION OF ZERO, MEASURED** — on `main` @ `e0638f11`, the corpus AS IT
-  STOOD BEFORE THIS PACKET: of 26 markers not one is of removal form with an
-  empty tail, and of the THIRTY active MODIFIED blocks this family read exactly
-  two carried a unit-naming marker, both sound. Re-derived on the ratified tree
-  the family reads 31 blocks and THREE unit-naming markers, this block's among
-  them — and **the marker-defect class still raises ZERO findings on the whole
-  corpus**, so both ratified grounds have a population of zero at landing. `sequenced_after: []`.
-  **THE ARCHIVE IS A SEPARATE ACT ON MERGED-PLUS-GREEN REALIZATION EVIDENCE AND
-  A SEPARATE WORD**: `tasks.md` § 1 is ticked and names the word that ticked it,
-  § 6 (archive) and § 7 (residue) stay OPEN, nothing under `openspec/specs/` is
-  edited yet, and openxFactory #856 and #860 close at the archive rather than at
-  this landing — which is why this pull request carries `refs #856, refs #860`
-  and no closing keyword.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,
@@ -2815,6 +2731,110 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-marker-declaring-nothing](openspec/changes/archive/2026-09-10-amend-marker-declaring-nothing/proposal.md)
+  — **ARCHIVED 2026-09-10**, on Brett Heap's separate word of
+  **2026-09-10T18:09Z**, verbatim *"archive 908 and close 856 860 when landed"*
+  (recorded on [PR #908](https://github.com/opensoft/openxFactory/pull/908) and
+  on both origin issues), and on **MET REALIZATION EVIDENCE** — `code_surface`
+  is non-empty (`scripts/doc_health/modified_block_currency.py` and the tests
+  that pin it), so under `release-realization` this packet archives on
+  **merged-plus-green realization evidence rather than on landing**, unlike its
+  three predecessors in this family. **THE EVIDENCE, CITED RATHER THAN
+  ASSERTED:** ratified and landed by **PR
+  [#908](https://github.com/opensoft/openxFactory/pull/908) →
+  `d32509d3fa2b82d7d32dc01a08173a5010e16ef4`** on `main`, 2026-09-10T20:54:22Z
+  (ratifying commit `705cecef`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-10-amend-marker-declaring-nothing/review/ratification-2026-09-10.md`
+  `Status: ratified`, plus the two gate captures `verification-2026-09-10.md`
+  and `verification-2026-09-10-post-merge.md`, both `Status: record` and all
+  three MOVED BY THIS ARCHIVE AND NOT EDITED BY IT), and **GREEN** at the
+  `pytest-suite` run over `refs/pull/908/merge` —
+  [`34526282328`](https://github.com/opensoft/openxFactory/actions/runs/34526282328),
+  conclusion success, the run carrying this packet's own proof
+  `tests/doc-health/test_modified_block_currency.py` at **139 → 144** — which
+  is the event class the precedent realization-evidence archive (PR #906) cites
+  for its own. **AND THE ONE FIGURE THAT DID NOT GO GREEN IS DISCLOSED RATHER
+  THAN LEFT TO BE FOUND:** the `push`-event `pytest-suite` on the merge commit
+  ITSELF
+  ([`34529127322`](https://github.com/opensoft/openxFactory/actions/runs/34529127322))
+  was **CANCELLED** fifteen minutes in — not failed, and reporting no failing
+  test — by that workflow's own `cancel-in-progress` concurrency group when the
+  next push to `main` superseded it; and this repository runs **no `doc-health`
+  check on a pull request at all** (`.github/workflows/doc-health-reusable.yml`
+  is `on: workflow_call`, the aggregation's nightly being its caller), so the
+  doc-health arm of the proposal's own evidence sentence rests on `tasks.md`
+  § 5.11's capture instead — exit 0, the report byte-identical at
+  `md5 4e25037a656543b76727afc9a7c00e13`, 350 lines, on all three trees, marker
+  defects **0** on every one. The origin-retention arm of the archive gate
+  reports **ORIGIN RETAINED** against `705cecef`, and both standalone archive
+  gates pass against the archived path with BOTH candidate refs — `705cecef`
+  and the later record-only commit `60a3b23e` — because `.openspec.yaml` is
+  byte-identical at both (`sha256 d617b2a0…`).
+  Origins: openxFactory
+  [#856](https://github.com/opensoft/openxFactory/issues/856) and
+  [#860](https://github.com/opensoft/openxFactory/issues/860), **BOTH CLOSED at
+  this archive act and not at that landing** — which is what the proposal pull
+  request's `refs #856` / `refs #860`, carrying no closing keyword, was for.
+  **#856 HAD TO BE REOPENED TO GET HERE**: it was auto-closed at that merge by
+  a closing keyword standing inside a QUOTED refusal in commit `705cecef`'s
+  MESSAGE — GitHub reads such a keyword in ANY commit message merged into the
+  default branch, while `closingIssuesReferences`, which that pull request
+  verified empty, covers the body alone — and it was reopened at
+  2026-09-10T20:56:23Z so that the word is honoured where it was given.
+  **WHAT IS NOW CANON.** The `## MODIFIED` block is promoted BYTE-IDENTICAL
+  into `openspec/specs/doc-health/spec.md` (44,148 bytes, sha256
+  `55ad784f693f8e8f66eec0e827347362de9534ffdba9ad670772f59e06c6323c`, extracted
+  programmatically on both sides), amending *Currency of an active change's
+  MODIFIED requirement blocks*: **A MARKER IS NOW REPORTED ON ANY OF FIVE
+  GROUNDS, NOT THREE.** Ground **FOUR** is a name matching no unit of the
+  requirement's basis and matching a unit THE BLOCK ITSELF STATES — declaring
+  removed from canon a unit canon never carried (#856) — and ground **FIVE** is
+  a marker of `Removed from canon` form whose tail carries NO code span at all,
+  so that it names nothing, quotes nothing and declares nothing while occupying
+  the one paragraph shape this requirement exempts from carriage (#860). Both
+  land at the marker-defect class's existing `info` band. **TWO UNITS REPLACED
+  IN PLACE AND TWO SENTENCES ADDED BESIDE THEM**, under one
+  `Removed from canon by amend-marker-declaring-nothing (2026-09-10):` marker —
+  the sentence stating THREE grounds and enumerating them, and the sentence
+  counting them — one added sentence resting ground four on the block's own
+  addition and saying it changes no suppression, one reading ground five on the
+  `Removed from canon` form ALONE, plus **TWO SCENARIOS ADDED AT THE END OF THE
+  BLOCK**, *A marker names a unit the block itself adds* and *A marker of
+  removal form declares nothing at all*. **THE PAIRING FORM'S SILENCE STAYS
+  RULED CORRECT** by `amend-marker-defect-reporting`, and the `Merged into`
+  form with an empty tail stays UNDECIDED. **NO SEVERITY MOVES, NO CLASS IS
+  ADDED, NO PARSE MOVES, AND `TEMPLATE_MARKERS`' TEXT IS NOT EDITED AT ALL** —
+  `_ARM_TEMPLATES` stays at eight, the existing `CLASS_MARKERS` probe places
+  every new finding, and the family's `contested` resolution row is inherited
+  rather than claimed an exemption from. Spec count **62 → 62**, so no
+  codexFactory floor advance is owed. `git diff -w --numstat` equals
+  `git diff --numstat` at **103 added / 48 removed** over three hunks, so **ZERO
+  lines change by whitespace only**, and all eight packet files move as `R100`
+  pure renames with 0 changed lines, the old directory gone from both the
+  working tree and the index. **BOTH NEW GROUNDS HAVE A POPULATION OF ZERO, AND
+  IT WAS MEASURED ESTATE-WIDE BEFORE THE LANDING** — `tasks.md` § 7.2's owed
+  run, recorded on PR #908 as
+  [comment 5624678818](https://github.com/opensoft/openxFactory/pull/908#issuecomment-5624678818):
+  twelve of twelve governed repositories, each at its own live `main` (before)
+  or at this packet's head (after), from fresh top-level clones rather than the
+  aggregation's pinned gitlinks, **0 rows BEFORE and 0 rows AFTER in every one
+  of them**, with the `modified-block-currency` family reading 46 findings
+  byte-identical either way and the estate's only census movement being
+  openxFactory's own `+1`, this packet's delta file entering the corpus.
+  **THE RESIDUE IS NAMED, NOT DISCHARGED.** `tasks.md` § 7.1's successor is
+  [#914](https://github.com/opensoft/openxFactory/issues/914) — a `Merged into`
+  marker whose tail names no superseded title, still silent, still pinned by
+  `test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`; § 7.3's is
+  [#915](https://github.com/opensoft/openxFactory/issues/915) —
+  `specs/019-modified-block-currency-family` FR-018 stating THREE grounds after
+  this promotion makes them five; and § 7.4 reuses
+  [#893](https://github.com/opensoft/openxFactory/issues/893), filed by this
+  packet's predecessor at its own archive, the uncited-resolution rule keeping
+  its `(family, repository, path)` grain here. All three are **OPEN and
+  UNCLAIMED**, nothing is filed by this archive, and every § 6 and § 7 tick
+  names the recording it ticks on with the ratified box text carried verbatim
+  beneath it.
 - [relocate-review-authority-floor-mirror](openspec/changes/archive/2026-09-10-relocate-review-authority-floor-mirror/proposal.md)
   — **ARCHIVED 2026-09-10** by
   [PR #925](https://github.com/opensoft/openxFactory/pull/925), on Brett Heap's
