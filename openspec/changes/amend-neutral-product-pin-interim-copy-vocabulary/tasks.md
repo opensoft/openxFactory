@@ -37,15 +37,20 @@ landing. § 5 records what was measured and deliberately not taken.
       *"Follow canon: Status: ratified"* — applying `document-lifecycle`'s
       *A review record records a ratification*, whose `MAY accompany` clause is
       what keeps `Ratifier:` and `Decision date:` beside the citation.
-      `review/verification-2026-09-09.md` stays `Status: record`: its subject is
-      the GATE RUN and not the ratification, so the sibling scenario
-      *A review record is not about a ratification* governs it.
+      Both gate captures stay `Status: record`: their subject is the GATE RUN and
+      not the ratification, so the sibling scenario *A review record is not about
+      a ratification* governs them. **THE 2026-09-09 CAPTURE IS PRESERVED
+      UNEDITED and the 2026-09-10 RE-RUN WRITES A SECOND PATH**
+      (`review/verification-2026-09-10.md`) — `document-lifecycle` holds that a
+      dated run report is a one-shot capture and *"a second run of such a
+      generator writes a different path rather than rewriting the same one"*.
       `.openspec.yaml` gains `approved_by`/`approved_on` **BESIDE** the drafting
       provenance with `kind` and `id` unmoved — the addition-not-rewrite shape
       `add-drafted-proposal-origin` (issue #318) defined for this transition and
       the shape the archive gate's origin-retention arm reads. Records:
-      `review/ratification-2026-09-09.md`, with the gate run re-derived on the
-      ratified tree beside it at `review/verification-2026-09-09.md`.
+      `review/ratification-2026-09-09.md`, with the gate run captured beside it at
+      `review/verification-2026-09-09.md` (2026-09-09) and RE-RUN in full on the
+      corrected tree at `review/verification-2026-09-10.md`.
 - [x] 1.2 **`design.md` D1 IS RULED — TOLERATED, NOT PERMITTED.** The veto point
       was put and the recommendation was TAKEN, so **the encoded wording stands
       UNCHANGED and no substitution was performed**: the seven occurrences
@@ -164,6 +169,13 @@ landing. § 5 records what was measured and deliberately not taken.
       this change.**
 - [x] 3.7 `python3 -m pytest tests/sequenced_after tests/scope_globs
       tests/doc-health -q` — PASSES.
+- [x] 3.8 **ALL SEVEN GATES RE-RUN IN FULL ON THE CORRECTED TREE**, 2026-09-10,
+      after the bench fixes and the record re-derivation — capture at
+      `review/verification-2026-09-10.md`, which supersedes the 2026-09-09
+      capture's figures without editing it. `--all --strict` is measured against
+      an `origin/main` `9c0e2cda` control run in a separate worktree, and
+      `doc-health`'s finding-line diff against the pre-re-derive tree is
+      IDENTICAL.
 
 ## 4. Archive — OWED, NOT GIVEN
 

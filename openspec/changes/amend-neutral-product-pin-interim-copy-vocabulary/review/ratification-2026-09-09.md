@@ -26,7 +26,9 @@ Neither correction moves a normative unit of the delta, and the ratified word
 itself is untouched: `Decision date:` stays **2026-09-09**, this file keeps its
 2026-09-09 name, and the citation above is the one the ruling of 2026-09-09
 produced. What is re-derived is the RECORD, on the corrected tree, on
-2026-09-10.
+2026-09-10. The gate run beside it is a SECOND RUN and therefore writes a
+SECOND PATH — `review/verification-2026-09-10.md` — with the 2026-09-09 capture
+preserved unedited (§ 4.5, T7).
 
 Ratified baseline: this change as committed on the branch
 `change/amend-neutral-product-pin-interim-copy-vocabulary` — `proposal.md`,
@@ -247,6 +249,8 @@ the re-derived head.
 | T4 | Codex **P1** | `review/ratification-2026-09-09.md:3` | `Status: record` where `document-lifecycle` requires `Status: ratified` plus one citation of a review record whose subject is the ratification | **TAKEN** on Brett Heap's ruling (2) — this file's header |
 | T5 | Codex P2 | `proposal.md:238` | same site as T3, same defect, stated as a contradiction with the authoritative lifecycle header | **TAKEN** with T3 |
 | T6 | Codex P2 | `specs/neutral-product-pin/spec.md:188` | the marker says the bullets' only edit is the vocabulary replacement, but the `THEN` bullet also appends the reservation clause, so the repeated *"one word each"* accounting is false | **TAKEN** on Brett Heap's ruling (1) — the clause STAYS, the accounting is corrected (§ 3) |
+| T7 | Codex **P1** (on `27b31718`) | `review/verification-2026-09-09.md:11` | a dated run report is a one-shot `record`; a SECOND run must write a different path rather than rewrite the first capture | **TAKEN** — § 4.5 |
+| T8 | Codex **P1** (on `27b31718`) | `specs/neutral-product-pin/spec.md:129` | reserving LAWFUL to the entrypoint-invoking read is said to make the sanctioned resolver-backed ARCHIVE path unlawful, so the amendment would change behaviour | **REFUSED** — § 4.5 |
 
 ### 4.4 T2 REFUSED, and why the origin prose stays in the present tense
 
@@ -281,6 +285,76 @@ rather than a preference about tense.**
 The one thing the origin block does carry that is now known to be wrong is its
 *"one word each"* count, and **that is superseded by § 3 of this record rather
 than by an edit to the frozen field** — for the same reason.
+
+### 4.5 T7 TAKEN and T8 REFUSED — the two P1s on the re-derived head
+
+**T7 — "Write the rerun to a new verification record". TAKEN, and Codex is right
+on the contract.** `openspec/specs/document-lifecycle/spec.md`, under *Controlled
+document status taxonomy*: a one-shot capture — *"a simulation report, an audit
+output, **a dated run report**, a byte-exact evidence snapshot"* — is NOT a
+projection, keeps `record`, and **"a second run of such a generator writes a
+different path rather than rewriting the same one"**. The 2026-09-10 gate run is
+a SECOND run of the same report, and the first draft of it rewrote
+`review/verification-2026-09-09.md` in place. Codex also named the right reason
+the rewrite looked clean: `record-immutability` does not scan `review/` — its
+family iterates the GOVERNED corpus while a `review/` record lives in the
+LIFECYCLE scan set — and **a checker-coverage gap is not a licence**. Fixed:
+`review/verification-2026-09-09.md` is RESTORED byte-for-byte to its `d0ddb126`
+bytes (`git diff d0ddb126 -- …/review/verification-2026-09-09.md` is EMPTY), and
+the re-run is written at `review/verification-2026-09-10.md`, which names what it
+supersedes in its own header. The family gap is filed rather than relied on.
+
+**T8 — "Keep the sanctioned archive path lawful". REFUSED, on the merits AND on
+authority, in that order.**
+
+Codex reads the added paragraph's *"LAWFUL names … the read a repository carrying
+an `xfactory:` stack pin performs by checking `openxFactory` out at its own
+`stack.yaml` `xfactory.contract_ref` and invoking the entrypoint the registered
+pin names FROM THAT CHECKOUT"* as excluding `scripts/proposal-support.py`'s
+archive path, which resolves the pin and invokes the resolved binary directly
+because the entrypoint rejects the `archive` verb — and concludes the amendment
+changes behaviour.
+
+1. **THE SENTENCE IS CANON'S OWN, WORD FOR WORD, AND THIS PACKET DID NOT NARROW
+   ANYTHING.** `openspec/specs/neutral-product-pin/spec.md:294-297` already
+   states, as promoted canon: *"A repository that carries an `xfactory:` stack pin
+   SHALL, where it gates on the pinned product, check `openxFactory` out at its
+   own `stack.yaml` `xfactory.contract_ref` and invoke the entrypoint the
+   registered pin names FROM THAT CHECKOUT."* The added paragraph names the
+   lawful consumption by QUOTING that sentence. If the phrase excluded the
+   resolver-backed archive, it excluded it before this packet was written, and
+   the defect would be canon's rather than the amendment's.
+2. **THE SAME REQUIREMENT ALREADY RECONCILES IT, FOUR PARAGRAPHS UP, AND THE
+   BLOCK CARRIES THAT TEXT UNCHANGED.** *"WHERE THE TWO GOVERNED ACTS ARE REACHED
+   BY TWO DIFFERENT COMMANDS, THE REGISTER SHALL NAME BOTH … Where an act is
+   reached through a second tool that resolves the pin rather than through the
+   entrypoint itself, that tool SHALL be named, with the fact that it verifies
+   the content address before invoking the resolved binary"*, asserted by the
+   carried scenario *The published instructions name a verb the entrypoint
+   rejects*. **"The entrypoint the registered pin names" is read against the
+   REGISTER**, and `contracts/manifest.yaml`'s own `consumption_rule` for this pin
+   names BOTH commands in as many words — the validating entrypoint, and
+   *"the ARCHIVE act runs through `scripts/proposal-support.py <root> archive
+   <change-id>` in the SAME pinned checkout"*. The sanctioned archive is a
+   registered command performed from the repository's own stack-pinned checkout;
+   it is on the LAWFUL side of this reservation, not outside it.
+3. **THE RESERVATION'S SUBJECT IS COPY-VERSUS-PINNED-READ, NOT
+   ENTRYPOINT-VERSUS-RESOLVER.** It is scoped *"WHERE THIS REQUIREMENT SPEAKS OF
+   A CONSUMPTION'S STATUS"*, and the two statuses it separates are a DECLARED
+   CONSUMPTION COPY in a repository with no stack pin (TOLERATED) and the read a
+   stack-pinned repository performs from its own checkout (LAWFUL).
+   `proposal-support.py` is not a declared consumption copy under any reading.
+4. **AND THE TEXT IS RATIFIED.** Brett Heap ruled D1 over exactly this wording at
+   2026-09-09T23:31:12Z. Working rule 3 — a ratified requirement changes only by
+   a ratified change — is the limit the refusal on PR #780 respected, and it is
+   the reason this packet exists at all. Editing the added paragraph now, on a
+   review finding and with no word, would repeat the error #780 declined to make.
+
+**IF THE READING IS STILL THOUGHT TOO NARROW, THE REMEDY IS A SUCCESSOR WITH ITS
+OWN WORD**, not an edit here — and it would be an amendment about the
+ENTRYPOINT/RESOLVER pair, which is a different subject from this packet's
+vocabulary reconciliation. It is named here as an available successor rather
+than taken.
 
 ## 5. Why the packet exists: a refused finding, not a fix
 
@@ -332,8 +406,8 @@ closes at the archive (§ 7).
   packet's subject**: requirement 16 is not the requirement this block modifies,
   the defect is structural rather than vocabulary, and no edit in this packet
   touches it. This packet's own delta validates clean
-  (`verification-2026-09-09.md` § 1), and the repository-wide failure SET is
-  byte-identical to `origin/main`'s (§ 2 there). `tasks.md` § 5.2 records the
+  (`verification-2026-09-10.md` § 1, the re-run capture), and the repository-wide
+  failure SET is byte-identical to `origin/main`'s (§ 2 there). `tasks.md` § 5.2 records the
   strict failure as an OWED SUCCESSOR and not as this packet's work.
 - **Issue #775 is a different defect on the same requirement** and is untouched
   (`tasks.md` § 5.3).
@@ -369,7 +443,7 @@ here verbatim as the claim this ratification rests on:
 
 `sequenced_after: []` is therefore a POSITIVE root claim and not an omission, and
 `scripts/validate-sequenced-after.py` passes on it
-(`verification-2026-09-09.md` § 5).
+(`verification-2026-09-10.md` § 4).
 
 **THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD, AND #868 CLOSES THERE.**
 Under `release-realization` an empty `code_surface` archives ON LANDING plus its
