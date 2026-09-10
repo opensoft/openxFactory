@@ -336,6 +336,22 @@ in the sense the paragraph above means. A copy that declares none of this is not
 this fallback; it is the undeclared duplicate the fallback is written to
 distinguish itself from.
 
+**ONE WORD FOR ONE STATUS, AND THE TWO STATUSES ARE NOT THE SAME.** A declared
+consumption copy is TOLERATED: this requirement admits carrying it, on the four
+terms above — the `openxFactory` commit it was taken from, the digest of what it
+copied, the divergence it accepts, and its retirement when a stack pin is
+adopted — and on no others. It is NOT LAWFUL, and the two words SHALL NOT be
+traded for one another. WHERE THIS REQUIREMENT SPEAKS OF A CONSUMPTION'S STATUS,
+LAWFUL names exactly ONE consumption and SHALL NOT be spent on any other: the
+read a repository carrying an `xfactory:` stack pin performs by checking
+`openxFactory` out at its own `stack.yaml` `xfactory.contract_ref` and invoking
+the entrypoint the registered pin names FROM THAT CHECKOUT. Nothing promotes a
+copy across that line — declaring it does not, being current on the day it was
+taken does not, and being useful does not — and adopting a stack pin does so
+only by ENDING the copy rather than by blessing it. A packet, a review record or
+a gate record SHALL NOT describe a tolerated interim as lawful or as compliant,
+and SHALL say TOLERATED where it means admitted-as-an-interim.
+
 **AND THE FALLBACK DOES NOT DISCHARGE THE ENFORCEMENT CLAIM, WHICH SHALL BE
 STATED RATHER THAN LEFT TO A READER TO RECONCILE.** This capability's promoted
 requirement *A required check runs the pinned tool, at the pinned digest* holds
@@ -370,8 +386,8 @@ the copy is retired for a stack pin.
 
 #### Scenario: A repository with no stack pin adopts the gate anyway
 - **WHEN** a repository that carries no `xfactory:` stack pin wires the gate from a copy
-- **THEN** the copy is lawful ONLY as a declared interim naming the `openxFactory` commit it was taken from, the digest of what it copied, and the divergence it accepts
-- **AND** it is retired when that repository adopts a stack pin, an undeclared duplicate never becoming lawful by being useful
+- **THEN** the copy is TOLERATED ONLY as a declared interim naming the `openxFactory` commit it was taken from, the digest of what it copied, and the divergence it accepts, and is never LAWFUL, which this requirement spends on a stack-pinned read alone
+- **AND** it is retired when that repository adopts a stack pin, an undeclared duplicate never becoming tolerated by being useful
 
 #### Scenario: The consumer's pinned ref predates the entrypoint
 - **WHEN** a consuming repository's `stack.yaml` `xfactory.contract_ref` names an `openxFactory` commit at which the registered entrypoint does not yet exist
@@ -382,6 +398,13 @@ the copy is retired for a stack pin.
 - **WHEN** a repository carrying no stack pin makes a REQUIRED check invoke the entrypoint from its own declared consumption copy
 - **THEN** the declaration makes WHICH BYTES RAN auditable, and the promoted requirement *A required check runs the pinned tool, at the pinned digest* — which forbids invoking an in-tree copy, a vendored duplicate or an unpinned installation — has its enforcement claim UNMET for as long as the copy stands
 - **AND** the interim is not described as satisfying that requirement, the claim being discharged only when the copy is retired for a stack pin
+
+#### Scenario: A record describes a declared interim copy as lawful
+- **WHEN** a packet, a review record or a gate record describes a repository's DECLARED consumption copy as lawful, or as compliant with the required-check requirement, on the strength of its declaration
+- **THEN** the description is wrong on this requirement's own vocabulary: a declared consumption copy is TOLERATED as an interim and is never LAWFUL, which names only the read performed from the checkout that repository's own `stack.yaml` `xfactory.contract_ref` fixes
+- **AND** the interim's status moves only by the copy being RETIRED for a stack pin, so the reader is owed the word TOLERATED wherever the record means admitted-as-an-interim, and never a word that would let the required-check claim be read as discharged
+
+**Removed from canon by amend-neutral-product-pin-interim-copy-vocabulary (2026-09-09):** ``**THEN** the copy is lawful ONLY as a declared interim naming the `openxFactory` commit it was taken from, the digest of what it copied, and the divergence it accepts``; `**AND** it is retired when that repository adopts a stack pin, an undeclared duplicate never becoming lawful by being useful` — both bullets are REPLACED IN PLACE by the two above them and neither is dropped, and THE TWO EDITS ARE NOT THE SAME SIZE: the AND bullet replaces ONE WORD and nothing else, while the THEN bullet replaces one word AND APPENDS a reservation clause, “and is never LAWFUL, which this requirement spends on a stack-pinned read alone”, so the reservation is stated where the fallback is ADMITTED and a reader meeting this scenario first does not have to reach the added body paragraph to learn it. That appended clause is ratified surface and is declared here rather than left to be found in the diff. This requirement already spends LAWFUL on the required-check claim, twice and unambiguously, while these two bullets spent it on the requirement's OWN admission of the fallback, so one word carried two statuses and a reader reaching the scenario first could certify a declared interim copied gate as compliant — which the body forbids in the next paragraph. Nothing this requirement admits or refuses moves: the same copies are admitted, on the same four terms, and the required-check claim stays unmet for exactly as long as it did before. This reason carries no code span, so the marker names exactly two units under the grammar it is written in.
 
 ### Requirement: Registering a pin in the consumption register is not a bundle cut unless it moves the release membership
 Publishing a consumption pin as a contract member SHALL be treated as an act on
