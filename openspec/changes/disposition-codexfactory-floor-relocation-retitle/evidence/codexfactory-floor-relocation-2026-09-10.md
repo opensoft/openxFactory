@@ -442,7 +442,7 @@ no cache:
 
 ```
 $ python3 scripts/validate-openspec-cli-pin.py --all --no-cache
-openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (/tmp/openspec-cli-pin-…/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (<…>/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
 …
 Totals: 101 passed, 2 failed (103 items)
 openspec-cli-pin: DISPOSITIONED FINDINGS in openxFactory (2 applied) — this run is NOT a clean tree:
