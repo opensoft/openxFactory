@@ -133,8 +133,8 @@ separate act and is NOT ticked anywhere in this file.
       follow codexFactory PR #318's merge, or codexFactory `main` refuses
       `pin-disposition-stale` on this entry (evidence § 3).
       **DONE 2026-09-10T16:54:36Z — codexFactory PR #318 → main `5650e183`
-      (`5650e1834040f8441cf903b52ce82398452f622a`), `stack.yaml`
-      `xfactory.contract_ref: f5a41d18972d015baaa4818164836e3d4771ef73`** —
+      (`5650e1834040f8441cf903b52ce82398452f622a`), `stack.yaml`'s nested
+      `xfactory:` block, field `contract_ref: f5a41d18972d015baaa4818164836e3d4771ef73`** —
       this change's own merge commit (openxFactory PR #898, merged
       2026-09-10T16:10:13Z): AT it, which the order this box fixes by
       measurement also holds (#318 merged ~44m AFTER #898). The aggregation
