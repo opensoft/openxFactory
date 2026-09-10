@@ -571,6 +571,90 @@ Active changes:
   REALIZED BY THE FILING** — no envelope byte, no workflow, no test, no ruleset,
   no floor, no pin byte — and three of the four refusals measured on 2026-09-08
   are untouched by it (`design.md` § 1).
+- [amend-marker-declaring-nothing](openspec/changes/amend-marker-declaring-nothing/proposal.md)
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
+  openxFactory operator authority, verbatim *"ratify as encoded"* — a
+  MULTIPLE-CHOICE ruling given in session and recorded on PR
+  [#908](https://github.com/opensoft/openxFactory/pull/908#issuecomment-5623230781)
+  at 2026-09-10T18:06:52Z, which reaches BOTH declared veto points, `design.md`
+  **D1** (#860) and **D2** (#856), and resolves each as **OPTION A**: report
+  both shapes, at `info`, through the existing template. Because A is the option
+  the packet already encoded in each case, **THE WORDING STANDS UNCHANGED** —
+  neither ground was withdrawn, neither added scenario was deleted and the
+  flipped assertion stays flipped. Records
+  [`review/ratification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/ratification-2026-09-10.md),
+  with the gate run captured beside it at
+  [`review/verification-2026-09-10.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10.md)
+  and RE-RUN in full after a third merge from `main` at
+  [`review/verification-2026-09-10-post-merge.md`](openspec/changes/amend-marker-declaring-nothing/review/verification-2026-09-10-post-merge.md)
+  — a second run at its own path, the first capture preserved unedited and NOT
+  superseded).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind` and `id` unmoved — the
+  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
+  2026-09-10, verbatim *"do the 860 856 batch, land each when green"*, which
+  named a batch and a landing condition and decided no wording. Origins:
+  openxFactory [#856](https://github.com/opensoft/openxFactory/issues/856) and
+  [#860](https://github.com/opensoft/openxFactory/issues/860), both filed by
+  this lane at the archive of `amend-marker-defect-reporting`
+  ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`),
+  which owed them as residue `tasks.md` § 5.2 and § 5.7. **THE DEFECT WAS TWO
+  MARKERS THAT DECLARED NOTHING AND WERE REPORTED AS NOTHING** — the state of
+  `main` @ `e0638f11`, the tree this packet was authored and measured on, and
+  the state THIS BRANCH'S REALIZATION CLOSES.
+  `openspec/specs/doc-health/spec.md`, inside *Currency of an active change's
+  MODIFIED requirement blocks*, STILL states that a marker is reported on any of
+  **THREE** grounds and counts them in the next sentence — promoted canon is
+  unedited here and the `## MODIFIED` block writes over it AT THE ARCHIVE — and
+  two shapes fell outside all three. **#856:** a name matching NO canon unit but
+  matching a unit the MODIFIED BLOCK ITSELF ADDS fell through `suppression`'s
+  `if name not in block_texts:` guard, so a block declared removed from canon a
+  unit canon never carried and nobody was told — a silence the predecessor
+  PINNED with a test rather than fixed, because *"inventing a fourth ground here
+  would repeat on the same afternoon the fault this packet corrects"*. **#860:**
+  a `Removed from canon` marker whose tail carries no code span parses to
+  `names = []` and `quoted = []`, reached none of the three grounds, AND was
+  exempt from carriage for being of marker form — a paragraph that neither
+  declared nor was carried. **ON THIS BRANCH BOTH SHAPES ARE REPORTED**, as
+  ground FOUR and ground FIVE, by the realization that rides this pull request.
+  **TWO SENTENCES REPLACED IN PLACE, TWO ADDED BESIDE THEM, TWO SCENARIOS
+  ADDED** under one `Removed from canon` marker: the block states FIVE grounds,
+  scopes the fourth to the block's own addition (and says it changes no
+  suppression) and the fifth to the `Removed from canon` form ALONE — **the
+  PAIRING form's silence stays ruled correct**, it naming no units by
+  construction. **THE TWO VETO POINTS WERE `design.md` D1 AND D2, ONE PER
+  ISSUE AND INDEPENDENT, AND BOTH ARE RULED A.** D1 (#860): report it in
+  `doc-health` (recommended and encoded) against a `document-lifecycle` GRAMMAR
+  rule that such a paragraph is not of marker form — cheaper to encode, LARGER
+  in effect, because the paragraph then becomes prose, becomes a carriage UNIT
+  of the block and of canon after promotion, and the rule moves to a capability
+  carrying no reporting rule at all. D2 (#856): report it (recommended and
+  encoded) against ruling the silence CORRECT in canon in one sentence. A veto
+  of either would have been a veto of ONE ground alone; **neither landed**, so
+  `document-lifecycle` is unamended and the predecessor's pinned silence is
+  overturned rather than confirmed. D0's measurement stands and D3–D9 were
+  carried, none vetoed. **REALIZED IN THE SAME PULL REQUEST**
+  (`code_surface` non-empty, so it archives on merged-plus-green evidence, not
+  on landing): `scripts/doc_health/modified_block_currency.py` gains the `else`
+  half of a guard that already reports and one predicate over three fields the
+  parser already derives — **no parse moves, no `Marker` field is added,
+  `TEMPLATE_MARKERS`' text is not edited at all** and `_ARM_TEMPLATES` stays at
+  eight. Tests **139 → 144** with ONE assertion FLIPPED (the pin on #856's
+  silence, its fixture unchanged) and one test RENAMED. **BOTH GROUNDS HAVE A
+  POPULATION OF ZERO, MEASURED** — on `main` @ `e0638f11`, the corpus AS IT
+  STOOD BEFORE THIS PACKET: of 26 markers not one is of removal form with an
+  empty tail, and of the THIRTY active MODIFIED blocks this family read exactly
+  two carried a unit-naming marker, both sound. Re-derived on the ratified tree
+  the family reads 31 blocks and THREE unit-naming markers, this block's among
+  them — and **the marker-defect class still raises ZERO findings on the whole
+  corpus**, so both ratified grounds have a population of zero at landing. `sequenced_after: []`.
+  **THE ARCHIVE IS A SEPARATE ACT ON MERGED-PLUS-GREEN REALIZATION EVIDENCE AND
+  A SEPARATE WORD**: `tasks.md` § 1 is ticked and names the word that ticked it,
+  § 6 (archive) and § 7 (residue) stay OPEN, nothing under `openspec/specs/` is
+  edited yet, and openxFactory #856 and #860 close at the archive rather than at
+  this landing — which is why this pull request carries `refs #856, refs #860`
+  and no closing keyword.
 - [amend-neutral-product-pin-lockfile-first-line](openspec/changes/amend-neutral-product-pin-lockfile-first-line/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
   openxFactory operator authority, verbatim *"ratify as encoded"* — a
@@ -721,75 +805,6 @@ Active changes:
   tool reporting that same item `"valid": true` with an INFO there because
   #318's promotion has not landed. The `cited to:` line in the transcript is
   the line the committed YAML renders.
-
-- [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
-  — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
-  (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
-  when green, then realize them"*, recorded 2026-09-08T23:51Z on
-  [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
-  [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232), over
-  [#817](https://github.com/opensoft/openxFactory/pull/817); record
-  `openspec/changes/relocate-review-authority-floor-mirror/review/ratification-2026-09-08.md`),
-  lane `openxfactory-2`. **THE SAME WORD RATIFIED THE SIBLING**
-  `codexFactory:change:relocate-review-authority-floor`
-  ([codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293)),
-  which answers MQ-1: the same word, not separately. **THE CONDITION *"when
-  green"* WAS NOT MET WHEN THE WORD WAS GIVEN, and it is recorded rather than
-  smoothed**: `pytest-suite` was red for two causes, both this packet's own — the
-  `## MODIFIED` block carried no sibling-pairing declaration for a requirement
-  ADDED by the still-active `mirror-floor-regeneration-automation`, and the
-  packet had no `tests/sequenced_after/corpus-ledger.yaml` row. Both were fixed
-  IN THE PACKET, never in a test: the block now carries the reserved
-  `Modified over …'s addition by … (…):` marker in the same form the sibling
-  `amend-mirror-floor-regeneration-merge-authority` uses for the OTHER
-  requirement of the same parent, and the row was seeded by the sanctioned tool
-  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#817'`) — the first
-  row this repository has stamped through issue #790's UTC clock, which is why
-  its `moved_on` reads `2026-09-09`. **RATIFICATION PERFORMS NO REALIZATION** —
-  it ticks `tasks.md` boxes 1.1, 1.2, 5.1 and 5.2 and nothing else; **1.3 (MQ-2)
-  and 1.4 (MQ-3) stay open** and neither blocks realization (1). **M-1 THROUGH
-  M-7 STAND AS RECOMMENDED, no veto entered.** The
-  openxFactory half of Brett Heap's shape-1 ruling of 2026-09-08T13:49:30Z,
-  verbatim *"rule shape 1, measure first, this lane realizes it"*
-  ([codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232)
-  comment 5586188401, mirrored on
-  [#745](https://github.com/opensoft/openxFactory/issues/745)) — **the word
-  rules the SHAPE and ratifies no text.** codexFactory is to move
-  `scripts/merge_master/openxfactory-review-authority-floor.yaml` off every
-  CODEOWNERS prefix (its packet `relocate-review-authority-floor`, DRAFT at
-  [codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293),
-  decision D-7 names this companion and D-2 sequences it FIRST). **THIS
-  REPOSITORY'S RE-PIN LANE FETCHES THAT DOCUMENT BY PATH** —
-  `.github/workflows/review-lane-repin.yml:138` `FLOOR_IN_SOURCE`, fetched at
-  `:301`, with the constant deliberately duplicated in
-  `scripts/review_lane_repin.py:69` and in two `tests/review_lane_pin/`
-  literals, *"for the reason … a value read from the artifact it is used to
-  check makes the check a tautology"* — so on the day codexFactory moves, every
-  firing of this lane becomes `floor_document_unobtainable`. The packet makes
-  `FLOOR_IN_SOURCE` an **ORDERED LIST** of candidate paths, old first,
-  first-obtained-wins, refusing only when EVERY candidate fails and naming every
-  path tried. ONE `## MODIFIED` against `review-lane-floor-mirror` (*"The
-  automated advance re-copies the vendored snapshot and recomputes its witnesses
-  from the bytes it wrote"* — the copy, the byte-witness rule and the refusal
-  are untouched; what changes is what *obtain* means). Decisions **M-1 … M-7**,
-  each vetoable except M-1, the ordering: **(1)** this repository accepts BOTH
-  paths → **(2)** codexFactory moves → **(3)** this repository drops the old
-  path. **M-2's whole point is that realization (1) is observably a NO-OP** —
-  old path first means behaviour is byte-identical until the document actually
-  moves, which is what makes it safe to land ahead of another repository.
-  **M-7: the lane is never taught to SEARCH** for the document — a discovered
-  file is one an author elsewhere can plant, and the byte copy goes into this
-  repository's witnessed snapshot. **M-5: nothing about the snapshot changes** —
-  the document's bytes do not move (`sha256 926d536d…f3c0`), so
-  `contracts/review-lane-floor-snapshot.yaml` is byte-identical throughout, and
-  the realization asserts that rather than assuming it. The measurement the
-  ruling required (*"measure first"*) is the sibling's and is not restated here:
-  codexFactory `openspec/changes/relocate-review-authority-floor/research/automerge-measurement-2026-09-08.md`.
-  `sequenced_after: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor]`.
-  **THIS PULL REQUEST PERFORMS
-  NOTHING** — no workflow, script, contract, test or pin byte is edited, nothing
-  in codexFactory is touched. **MQ-1 IS ANSWERED** — the same word as
-  codexFactory #293 — and MQ-2/MQ-3 remain open to Brett.
 
 - [amend-mirror-floor-regeneration-merge-authority](openspec/changes/amend-mirror-floor-regeneration-merge-authority/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
@@ -2883,6 +2898,62 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [relocate-review-authority-floor-mirror](openspec/changes/archive/2026-09-10-relocate-review-authority-floor-mirror/proposal.md)
+  — **ARCHIVED 2026-09-10** by
+  [PR #925](https://github.com/opensoft/openxFactory/pull/925), on Brett Heap's
+  standing word, verbatim *"land the relocate-mirror archive when green"*
+  (2026-09-10T19:06Z, to lane `openxfactory-2`), and the `release-realization`
+  rule that a change with a NON-EMPTY code surface (openxFactory) archives on
+  **merged-plus-green realization evidence, not on landing**. Ratified
+  2026-09-08, Brett Heap (openxFactory repository owner), in session, verbatim
+  *"ratify 293 and 817 when green, then realize them"*, recorded
+  2026-09-08T23:51Z on
+  [#745](https://github.com/opensoft/openxFactory/issues/745) and mirrored on
+  [codexFactory #232](https://github.com/codeXfactory/codexFactory/issues/232),
+  over [#817](https://github.com/opensoft/openxFactory/pull/817); record
+  `review/ratification-2026-09-08.md`. **THE SAME WORD RATIFIED THE SIBLING**
+  `codexFactory:change:relocate-review-authority-floor`
+  ([codexFactory #293](https://github.com/codeXfactory/codexFactory/pull/293))
+  — MQ-1's answer.
+  **REALIZATION IS THE M-1 THREE-STEP MOVE, ALL THREE CITED:** **(1)** this
+  repository's dual-path acceptance landed IN the ratifying commit itself
+  (tasks 2.1–2.6, 2026-09-09); **(2)** codexFactory's move — **#297 →
+  `8165d1f3`**, 2026-09-09T04:28:55Z, witnessed by re-pin run **34311220954**
+  (04:30:18Z, reporting the migration) and by M-5's byte comparison (old path
+  at `4b12ba83`, new path at `8165d1f3`, vendored snapshot on `main`: all three
+  **15456 bytes**, sha256 `926d536d…abf3c0`, **68** entries — comment
+  [5595953451](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5595953451));
+  **(3)** this repository's second realization — the pin advance to
+  `b594ef2a` (codexFactory's post-regeneration head), taken by hand once
+  because the lane's own driver cannot move the pin's `floor_snapshot.of`, its
+  `pinned_members` entry, or the two single-path test literals, landing as
+  **PR [#883](https://github.com/opensoft/openxFactory/pull/883) →
+  `e916f0ea`**, 2026-09-10T11:57:22Z, Brett Heap verbatim *"merge both"*.
+  **GREEN ON THE SINGLE-CANDIDATE PATH:** the first hourly `review-lane-repin`
+  firing after that merge, run
+  [34477749947](https://github.com/opensoft/openxFactory/actions/runs/34477749947)
+  (2026-09-10T12:37:16Z, `conclusion: success`), resolved candidate 1 of 1 and
+  reported `"action": "noop"`. **A CONSUMER THE ENUMERATION MISSED, FOUND AND
+  REPAIRED IN THE SAME PACKET (task 3.4):** `merge-master-approval.yml`'s step
+  8 sweeps `scripts/merge_master/` for a governance document by directory
+  rather than by name, so codexFactory's relocation parked every openxFactory
+  merge-master evaluation (`no_floor`, fail-closed) until this packet's fix
+  made the step check both the old and new directories. MQ-2 and MQ-3 both
+  answered 2026-09-10 — MQ-2 *"yes, source_documents wanted"*
+  ([comment 5623654548](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5623654548)),
+  MQ-3 on its own stated default, corroborated by the PR #883 advance
+  ([comment 5623443392](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5623443392)).
+  **THE ARCHIVE ACT ITSELF (task 5.3, the packet's last box):** this pull
+  request ticks 5.3, runs `scripts/proposal-support.py . archive
+  relocate-review-authority-floor-mirror --yes` (origin retained since the
+  ratifying commit `c98a0544147e`), and promotes ONE `## MODIFIED Requirements`
+  block into `review-lane-floor-mirror` — the ordered-candidate-list shape for
+  "The automated advance re-copies the vendored snapshot and recomputes its
+  witnesses from the bytes it wrote" (five new scenarios, plus the
+  pre-existing "A missing copy refuses the whole advance" scenario's WHEN/AND
+  widened to the multi-candidate case; nothing else in the requirement
+  touched). Refs [#745](https://github.com/opensoft/openxFactory/issues/745).
 
 - [accept-sequenced-after-header-line](openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/proposal.md)
   — **ARCHIVED 2026-09-10** by

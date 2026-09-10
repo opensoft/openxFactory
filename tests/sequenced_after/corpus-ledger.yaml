@@ -193,6 +193,7 @@ rows:
   align-status-reader-to-real-lines: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
+  amend-marker-declaring-nothing: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#908", moved_on: "2026-09-10"}
   amend-marker-defect-reporting: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#862", moved_on: "2026-09-09"}
   amend-marker-reason-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#739", moved_on: "2026-09-06"}
   amend-mirror-floor-regeneration-merge-authority: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, extend-merge-master-envelope-to-floor-bot-lanes, codexFactory:amend-floor-regeneration-merge-authority], depth: 3, prose: false, moved_by: "#807", moved_on: "2026-09-08"}
@@ -254,7 +255,7 @@ rows:
   refine-promotion-provenance: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   refresh-install-repository-enumerations: {state: archived, class: co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1, prose: false, moved_by: "#825", moved_on: "2026-09-09"}
   register-gate-rules-council-seats: {state: active, class: sole, declares: [add-wallet-carried-review-authority, openXwallet:widen-register-reader-for-a-second-council], depth: 1, prose: false, moved_by: "#717", moved_on: "2026-09-06"}
-  relocate-review-authority-floor-mirror: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#817", moved_on: "2026-09-09"}
+  relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
