@@ -209,32 +209,134 @@ standing between them as this packet's gate.
       The module's `floor_source_path` parameter went out with the entry it
       served, returning `plan_advance`'s closed-interface pin to SEVEN, exactly
       as the step-(1) comment said it would.
-- [ ] 4.2 `contracts/review-lane-pin.yaml`'s `sources:` entry advances to the
+- [x] 4.2 `contracts/review-lane-pin.yaml`'s `sources:` entry advances to the
       new path (M-6); its narrative mentions of the old path are LEFT.
       **Ticks on:** the same commit, and a diff showing the narrative untouched.
-      **NOT THIS COMMIT, AND THE PACKET'S EXPECTATION IS NOT MET — DISCLOSED
-      RATHER THAN SILENTLY DIVERGED FROM.** M-6's own criterion is that the pin
+      **TICKED 2026-09-10 ON THIS COMMIT — the condition the disclosure below
+      named came true, exactly as it was written.** codexFactory's floor
+      regenerations landed — its **#314** (merge `b08958ae`,
+      2026-09-09T23:27:22Z: generated block 60 -> 61, gaining
+      `openspec/specs/ideation-intent-plane/spec.md`, generated at openxFactory
+      `17167481`) and, while this commit was being authored, its **#325** (merge
+      `df42f803`, 2026-09-10T01:55:14Z: 61 -> 62, gaining
+      `openspec/specs/repository-identity/spec.md`, generated at openxFactory
+      `e32d580a`) — and the hourly lane's next two firings each found the
+      advance owed and each FAILED at *Submit the advance to the checks that
+      will judge it*: run **34423536950** (2026-09-10T00:58Z) and run
+      **34425967673** (2026-09-10T01:33Z), both fetching
+      `floor/openxfactory-review-authority-floor.yaml` at
+      `aa0dced6132113ea07d3cfe6754fe440a4d9ca83` (15507 bytes), both deciding
+      `"action": "advance"`, both red on
+      `test_repin_lane.py::TheDeclaredCandidateList::test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`
+      (*1 failed, 197 passed, 2 skipped*) — the red this box predicted, naming
+      this box. THIS COMMIT IS THAT ADVANCE, TAKEN BY HAND ONCE, because the
+      lane's own judging step refuses it until the four declarations move in the
+      same diff and the lane may not move them.
+      **THE ADVANCE**, produced by the lane's own driver
+      (`scripts/review_lane_repin.py --write`, not by hand-editing the five
+      sites), against the codexFactory head resolved at authoring time —
+      `b594ef2a`, which carries BOTH regenerations, the lane having refused
+      twice in the interval: `core_commit` `4b12ba83` -> `b594ef2a`; snapshot
+      `sha256` `926d536d…abf3c0` -> `77611b0e…f53de`; snapshot bytes 15456 ->
+      15556; floor total (`entry_count`) 68 -> 70; generated block
+      `generated_at` `64aad02e` -> `e32d580a` and its counted entries 60 -> 62;
+      the two covered-pending paths the advisory lane was deferring BOTH
+      cleared. `b594ef2a` is codexFactory's #323 merge and changes no floor
+      byte: the document there is the #325 output, digest for digest.
+      **THE FOUR DECLARATIONS,
+      IN THIS SAME DIFF:** the pin's `floor_snapshot.of` and its `pinned_members`
+      entry (the `sources:` entry M-6 names — the pin carries no literal
+      `sources:` key; design § 2 names it at `contracts/review-lane-pin.yaml:517`,
+      which is that entry), `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and
+      `test_review_lane_caller.py`'s literal, all four to
+      `floor/openxfactory-review-authority-floor.yaml`. **THE NARRATIVE IS
+      UNTOUCHED, PROVEN BY DIFF RATHER THAN CLAIMED:** the pin's five prose
+      mentions of the superseded path (lines 333, 370, 421, 435 and the
+      `refresh:` field) are byte-identical to `main`, and the pin's whole
+      advance-history block is unchanged — the same shape the lane's own bot
+      advance `8d92bfaf` shipped, which touched four value lines and no prose.
+      M-6's criterion is met at last: measured 2026-09-10, the new path resolves
+      at `b594ef2a` (15556 bytes, `77611b0e…f53de`, the digest the pin now
+      declares) and `scripts/merge_master/…` is **HTTP 404** there, while at
+      `4b12ba83` it is the exact inverse (`floor/…` 404, the old path 15456
+      bytes) — which is why the box could not tick on 2026-09-09 and can now.
+      The `locate_pinned_core()` hazard is discharged rather
+      than inherited: with a real `b594ef2a` checkout on disk,
+      `tests/review_lane_pin` reports 200 passed / 0 skipped, so the freshness
+      verifier and the vector replay both RAN and PASSED.
+      **SUPERSEDED, NOT DELETED — the disclosure that stood from 2026-09-09
+      until this commit, kept because it is the reason for the one-day gap:**
+      *NOT THIS COMMIT, AND THE PACKET'S EXPECTATION IS NOT MET — DISCLOSED
+      RATHER THAN SILENTLY DIVERGED FROM. M-6's own criterion is that the pin
       "must name a path that exists"; the pin names the document AT
       `core_commit`, `core_commit` is the PRE-relocation `4b12ba83`, and the new
-      path is **HTTP 404** there (measured 2026-09-09). Advancing it now would
-      point a live pin at a file its own commit does not carry AND would skip
-      the freshness verifier, which `pytest-suite`'s named-verdict gate turns
-      into a red job. **WHAT TICKS IT:** the first re-pin advance that carries
-      `core_commit` past `8165d1f3` — codexFactory's next floor regeneration,
-      the lane having had nothing to advance since the move because D-3 fixed
-      the bytes — in one diff with `test_floor_snapshot.py`'s `FLOOR_IN_CORE`
-      and `test_review_lane_caller.py`'s literal.
+      path is HTTP 404 there (measured 2026-09-09). Advancing it now would point
+      a live pin at a file its own commit does not carry AND would skip the
+      freshness verifier, which `pytest-suite`'s named-verdict gate turns into a
+      red job. WHAT TICKS IT: the first re-pin advance that carries `core_commit`
+      past `8165d1f3` — codexFactory's next floor regeneration, the lane having
+      had nothing to advance since the move because D-3 fixed the bytes — in one
+      diff with `test_floor_snapshot.py`'s `FLOOR_IN_CORE` and
+      `test_review_lane_caller.py`'s literal.
       `test_repin_lane.py::TheDeclaredCandidateList::test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`
       reds from that advance until they move, and names this box in its failure
-      message. **codexFactory's box 5.1 is therefore satisfied IN PART by this
-      merge** — the old path is dropped from the lane; the pin advance is
-      owed — and it ticks there, not here.
+      message. codexFactory's box 5.1 is therefore satisfied IN PART by this
+      merge — the old path is dropped from the lane; the pin advance is owed —
+      and it ticks there, not here.*
+      **codexFactory's box 5.1 IS NOW SATISFIED IN FULL by this merge**, the
+      owed pin advance being this commit; it still ticks there, not here.
+      **TWO FINDINGS, RECORDED RATHER THAN FIXED HERE.** (a) The driver moves the
+      five pinned sites and the snapshot's two witnesses, and it does NOT move
+      `floor_snapshot.of`, the `pinned_members` entry, or the two test literals —
+      which is why this advance needed a hand. That is correct for every advance
+      but a relocation-crossing one, and no packet yet owes the driver a
+      path-moving act; naming it here is the disclosure, not a change to
+      `scripts/review_lane_repin.py`, which this commit does not touch.
+      (b) FOUR PIECES OF LEFT NARRATIVE NOW READ AGAINST THE FILE'S OWN DATA,
+      and they are left because this box's tick condition says to leave the
+      narrative — not because they are right, and not by this author's choice:
+      the driver CANNOT reach prose (`_commit_line`'s leading `\s*` cannot
+      reach a `#`, so every advance-history comment is unreachable by every
+      rewrite it performs), so the first automated advance that changes
+      `entry_count` leaves exactly these behind too. Counted at
+      `contracts/review-lane-pin.yaml`: line 519, the `pinned_members` `why:`
+      prose, still says "SIXTY-EIGHT never-clearable paths as of this advance"
+      where `floor_snapshot.entry_count` now says 70; line 543, the same
+      paragraph's PLUS ONE sentence, still says the generated block carries
+      "SIXTY" tracked paths where it now carries 62; line 692, in the
+      divergence paragraph, still contrasts xFactory's four against
+      "SIXTY-EIGHT" — and that one the file ALREADY FORGIVES BY NAME, its own
+      2026-09-05 note recording that the sentence "had read 64 … and was
+      carried stale through" three later advances and that "the live figure is
+      this file's own `floor_snapshot.entry_count` above"; and line 676, the
+      `refresh:` field, still instructs a future re-point to "re-copy the file
+      from `scripts/merge_master/…`", a path that is HTTP 404 at the commit
+      this pin now names. THE LAST IS THE SHARP ONE — a live procedure rather
+      than a count, and the only one a reader could act on wrongly — and all
+      four are owed to whichever act next edits the pin's prose. The dated
+      advance-history figure at line 763 (`ad15a898` "carrying a SIXTY-EIGHT-
+      entry floor") is NOT in this list: it is true as written of the advance
+      it records.
 - [ ] 4.3 One re-pin run observed green with the single new path.
       **Ticks on:** that run — the first hourly `review-lane-repin` firing after
       this merge, which should print *"fetched
       floor/openxfactory-review-authority-floor.yaml at <codexFactory main>
       (15456 bytes) — candidate 1 of 1 in the declared list, the path in force;
       no migration in progress"* and `"action": "noop"`.
+      **THE EVIDENCE EXISTS AND IS NAMED HERE, BUT THIS BOX IS NOT TICKED BY THE
+      4.2 COMMIT** — its act is a RUN, not this diff, and an author moving a box
+      on somebody else's act is the thing the packet discipline forbids. Run
+      **34416680260** (2026-09-09T23:22:59Z, `conclusion: success`) printed the
+      sentence above verbatim — *"fetched
+      floor/openxfactory-review-authority-floor.yaml at
+      cb242dc28767cefddc49cd9d7282ec4fd4ad6302 (15456 bytes) — candidate 1 of 1
+      in the declared list, the path in force; no migration in progress"* — and
+      `"action": "noop"`, and every green firing from 34324088114 (07:29Z)
+      onward did the same. Whoever ticks this box cites that run. NOTE FOR
+      WHOEVER DOES: after 4.2 lands, the byte count in the quoted sentence is
+      15556, not 15456 — the TWO regenerations that made 4.2 fall due
+      (codexFactory #314 and #325) changed it, and the quotation above is of a
+      PRE-regeneration run.
 
 ## 5. Bookkeeping
 

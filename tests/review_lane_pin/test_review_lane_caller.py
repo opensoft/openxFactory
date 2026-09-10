@@ -586,7 +586,7 @@ class TheRealFiles(unittest.TestCase):
             "re-exported through `repository_floor`, so the import site does "
             "not name it and a re-point ceremony would not know to re-verify it")
         self.assertIn(
-            "scripts/merge_master/openxfactory-review-authority-floor.yaml",
+            "floor/openxfactory-review-authority-floor.yaml",
             paths,
             "the pin must name the floor document, so a re-point ceremony "
             "knows what to re-verify")
@@ -1301,9 +1301,20 @@ class TheRealFiles(unittest.TestCase):
 # repository's tidy-up.
 #
 # `relocate-review-authority-floor-mirror` M-1 step (3) therefore reads BOTH
-# directories, tolerating the absence of `floor/` at pins older than the move —
-# and the pin IS older: `4b12ba83`, where `floor/` is `HTTP 404` (measured
-# 2026-09-09).
+# directories, tolerating the absence of `floor/` at pins older than the move.
+#
+# SUPERSEDED, NOT DELETED — the sentence that closed this block until
+# 2026-09-10, true when written and false the moment box 4.2 landed: *"and the
+# pin IS older: `4b12ba83`, where `floor/` is `HTTP 404` (measured
+# 2026-09-09)."* THE PIN IS NO LONGER OLDER. Box 4.2 advanced `core_commit` to
+# `b594ef2a` on 2026-09-10, where the measurement inverts: `floor/…` resolves
+# (15556 bytes) and `scripts/merge_master/…` is `HTTP 404`. THE LIST AND ITS
+# ORDER DO NOT MOVE WITH THE PIN AND THAT IS THE DESIGN — reading both
+# directories is what makes this step survive a pin on EITHER side of the
+# relocation, and the tolerance simply now covers the other direction.
+# `test_a_pre_relocation_checkout_evaluates_without_the_new_directory` below
+# keeps proving it against a `4b12ba83`-shaped layout, which is a claim about
+# that commit and stays true.
 # ═══════════════════════════════════════════════════════════════════════════
 
 #: The two directories, restated as LITERALS for this module's standing reason:

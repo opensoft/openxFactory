@@ -2645,20 +2645,32 @@ EXPECTED_CANDIDATES = (
     "floor/openxfactory-review-authority-floor.yaml",
 )
 
-#: WHERE THE DOCUMENT LIVED BEFORE THE RELOCATION, and it is still where it
-#: lives AT THE PINNED COMMIT. Not a candidate: the lane must never resolve it
-#: again, because codexFactory's default branch no longer carries it (measured
-#: 2026-09-09: `HTTP 404` at `8165d1f3`). It is here because the PIN still names
-#: it, truthfully — see the last test in this class.
+#: WHERE THE DOCUMENT LIVED BEFORE THE RELOCATION. Not a candidate: the lane
+#: must never resolve it again, because codexFactory's default branch no longer
+#: carries it (measured 2026-09-09: `HTTP 404` at `8165d1f3`).
+#:
+#: NO LONGER WHERE IT LIVES AT THE PINNED COMMIT EITHER, as of 2026-09-10: box
+#: 4.2 fell due when `core_commit` advanced to `b594ef2a` and the four pinned-core
+#: declarations moved to `EXPECTED_CANDIDATES[0]` in that same diff. This literal
+#: STAYS, unchanged, because it is what makes the last test in this class
+#: self-clearing at the boundary rather than a value that has to be maintained:
+#: it names the path a PRE-relocation `core_commit` carries, and the next re-point
+#: onto such a commit would need it again.
 FLOOR_BEFORE_RELOCATION = (
     "scripts/merge_master/openxfactory-review-authority-floor.yaml")
 
-#: The `core_commit` this repository is pinned to, which PREDATES codexFactory's
-#: relocation. Measured 2026-09-09: the successor path is `HTTP 404` at this
-#: commit, and `FLOOR_BEFORE_RELOCATION` resolves there (15456 bytes, sha256
-#: `926d536d…abf3c0` — the digest the pin declares). Restated as a literal so
-#: the case below can tell "the pin has not advanced yet" from "the pin has
-#: advanced and its document path was left behind".
+#: The `core_commit` this repository WAS pinned to until 2026-09-10, and which
+#: PREDATES codexFactory's relocation. Measured 2026-09-09: the successor path is
+#: `HTTP 404` at this commit, and `FLOOR_BEFORE_RELOCATION` resolves there
+#: (15456 bytes, sha256 `926d536d…abf3c0` — the digest the pin declared then).
+#: Restated as a literal so the case below can tell "the pin has not advanced
+#: yet" from "the pin has advanced and its document path was left behind".
+#:
+#: THE PIN HAS NOW ADVANCED OFF IT (`b594ef2a`, carrying codexFactory's #314 and
+#: #325 floor regenerations) and the four declarations moved with it, so this
+#: literal is now the BRANCH NO LONGER TAKEN rather than the state of the tree.
+#: It stays for the reason above: it is the only thing that lets one case cover
+#: both sides of the boundary without being edited at each crossing.
 PRE_RELOCATION_CORE = "4b12ba83add713666a94129fc45552d8989f8488"
 
 #: How the two SINGLE-PATH declarations are read back out of the two test files
@@ -2917,10 +2929,14 @@ class TheDeclaredCandidateList(unittest.TestCase):
         return None, the verifier would skip, and `pytest-suite`'s named-verdict
         gate would red for a reason that reads like a failed checkout.
 
-        WHY `core_commit` HAS NOT MOVED, and it is not neglect: codexFactory
-        D-3 fixed the document's bytes across the relocation, so every firing
-        since has been a NO-OP and the lane has had nothing to advance. The pin
-        moves at codexFactory's next floor REGENERATION.
+        WHY `core_commit` HAD NOT MOVED FOR A DAY, and it was not neglect:
+        codexFactory D-3 fixed the document's bytes across the relocation, so
+        every firing between the move and the regeneration was a NO-OP and the
+        lane had nothing to advance. IT HAS NOW MOVED, at exactly the moment
+        this paragraph predicted — codexFactory's next floor REGENERATIONS (its
+        #314, merge `b08958ae`, the generated block 60 -> 61, and its #325,
+        merge `df42f803`, 61 -> 62) — and the four declarations moved with it
+        on 2026-09-10, to `b594ef2a`.
 
         WHAT THIS CASE THEREFORE ASSERTS is the invariant that is true in both
         states and self-clearing at the boundary: while the pin sits at the

@@ -78,22 +78,47 @@ FLOOR_REPOSITORY = "opensoft/openxFactory"
 # rather than read from the pin, for the reason `test_review_lane_caller.py`
 # states about the job id: asserting the file equals itself is a tautology.
 #
-# NOT WHERE THE RE-PIN LANE FETCHES IT ANY MORE, AND THAT IS NOT A STALE VALUE.
-# codexFactory relocated the document to `floor/…` (its #297 -> `8165d1f3`), and
-# `relocate-review-authority-floor-mirror` M-1 step (3) pointed the lane's
-# candidate list there. THIS constant names the PINNED core's copy, and the pin
-# is still at `4b12ba83`, which predates the move: measured 2026-09-09, `floor/…`
-# is `HTTP 404` at that commit and this path resolves there (15456 bytes, sha256
-# `926d536d…abf3c0`). `locate_pinned_core()` below finds the checkout BY this
-# path, so a premature edit here does not fail loudly — it makes the freshness
-# verifier SKIP, which `pytest-suite`'s named-verdict gate then reds. It moves
-# with `contracts/review-lane-pin.yaml`'s `floor_snapshot.of`, the pin's
-# `pinned_members` entry and `test_review_lane_caller.py`'s literal, in ONE diff,
-# on the first advance that carries `core_commit` past the relocation —
-# `test_repin_lane.py::TheDeclaredCandidateList::
-# test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`
-# reds until they do, and that red is the packet's box 4.2 falling due.
-FLOOR_IN_CORE = "scripts/merge_master/openxfactory-review-authority-floor.yaml"
+# MOVED 2026-09-10 WITH `core_commit`, WHICH IS BOX 4.2 OF
+# `relocate-review-authority-floor-mirror` FALLING DUE AND BEING DISCHARGED.
+# codexFactory's floor regenerations (its #314, merge `b08958ae`, block 60 ->
+# 61, and its #325, merge `df42f803`, 61 -> 62) gave the lane its first thing to
+# advance since the relocation, `core_commit` moved `4b12ba83` -> `b594ef2a`,
+# and this constant moved WITH it in ONE diff together with
+# `contracts/review-lane-pin.yaml`'s `floor_snapshot.of`, that file's
+# `pinned_members` entry and `test_review_lane_caller.py`'s literal. MEASURED at
+# the advance, not argued: `floor/…` at `b594ef2a` is 15556 bytes, sha256
+# `77611b0e…f53de` — the digest the pin now declares — and
+# `scripts/merge_master/…` is `HTTP 404` there.
+#
+# THE HAZARD THE SUPERSEDED PARAGRAPH BELOW NAMES IS DISCHARGED RATHER THAN
+# INHERITED, and it is the only thing that tells a correct move from the
+# premature edit it warns about: `locate_pinned_core()` finds the checkout BY
+# this path, so at this advance the freshness verifier and the vector replay
+# were RUN against a real `b594ef2a` checkout and PASSED — `tests/review_lane_pin`
+# reports 200 passed, 0 skipped with `PINNED_CORE_CHECKOUT` set, where the same
+# suite skips both without it.
+#
+# SUPERSEDED, NOT DELETED — a comment that keeps asserting a state the file no
+# longer has is a false witness, and this one was true until 2026-09-10 and is
+# why the constant sat at the old path for a day:
+#
+#   NOT WHERE THE RE-PIN LANE FETCHES IT ANY MORE, AND THAT IS NOT A STALE
+#   VALUE. codexFactory relocated the document to `floor/…` (its #297 ->
+#   `8165d1f3`), and `relocate-review-authority-floor-mirror` M-1 step (3)
+#   pointed the lane's candidate list there. THIS constant names the PINNED
+#   core's copy, and the pin is still at `4b12ba83`, which predates the move:
+#   measured 2026-09-09, `floor/…` is `HTTP 404` at that commit and this path
+#   resolves there (15456 bytes, sha256 `926d536d…abf3c0`).
+#   `locate_pinned_core()` below finds the checkout BY this path, so a premature
+#   edit here does not fail loudly — it makes the freshness verifier SKIP, which
+#   `pytest-suite`'s named-verdict gate then reds. It moves with
+#   `contracts/review-lane-pin.yaml`'s `floor_snapshot.of`, the pin's
+#   `pinned_members` entry and `test_review_lane_caller.py`'s literal, in ONE
+#   diff, on the first advance that carries `core_commit` past the relocation —
+#   `test_repin_lane.py::TheDeclaredCandidateList::
+#   test_the_pinned_core_declarations_name_the_document_at_the_pinned_commit`
+#   reds until they do, and that red is the packet's box 4.2 falling due.
+FLOOR_IN_CORE = "floor/openxfactory-review-authority-floor.yaml"
 
 # THE FLOORED SURFACE. `openspec/specs` is what the (b′) act enumerated (record
 # §8, "THE EXTENSION — ALL 53, PINNED AND REGENERATED"), and it is a CODE
