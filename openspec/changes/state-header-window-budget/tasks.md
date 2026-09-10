@@ -143,7 +143,13 @@ himself; the two are both human-gated, only one is human-performed.)
   ratified-provenance` (run separately — `--family` takes one choice, not a
   list) — all three exit 0; zero findings name any path under
   `openspec/changes/state-header-window-budget/` (`grep -c
-  state-header-window-budget` on each family's output → 0).
+  state-header-window-budget` on each family's output → 0). Extended
+  2026-09-10 during re-verification: added `--family modified-block-currency`
+  (the family that actually parses an active `## MODIFIED` block's prose,
+  `design.md` § Risks) — exit 0, zero findings naming this packet, all four
+  families; and, separately, a full `python3 scripts/doc-health.py
+  --single-repo .` with NO `--family` filter — every family in one run —
+  exit 0, zero findings naming this packet there either.
 - [x] 2.6 `python3 scripts/validate-sequenced-after.py . --ledger-diff` →
   "per-change sweep ledger consistent with the corpus", exit 0, at this
   task's own authoring head (`13a7ee64`: 195 rows). THE ROW COUNT IS NOT
@@ -151,8 +157,26 @@ himself; the two are both human-gated, only one is human-performed.)
   independent of this packet — the exit code and the word "consistent" are
   the gate, not the number. Re-measured 2026-09-10 after the `origin/main`
   merge to `d32509d3` (head `d3f73dde`): 197 rows, still exit 0, still
-  consistent; the PR's own re-verification comments carry the count as of
-  whichever head they were taken at.
+  consistent; re-measured again after two further `origin/main` merges
+  (heads `3a7b3757` then `6e80b7aa`, main at `6f95ff57` then `0e76e789`):
+  198 rows, still exit 0, still consistent; the PR's own re-verification
+  comments carry the count as of whichever head they were taken at.
+- [x] 2.6a **Movement log entry, added 2026-09-10 on a Copilot finding**
+  (review comment on THIS pull request, not on #906). Seeding this change's
+  ledger row (task 1.7) flips `accept-sequenced-after-header-line` from
+  `sole` to `co-modifier` — a PARTNER'S row moving because of this change's
+  own delta, the reason not legible from the two rows alone — which
+  `tests/sequenced_after/test_sweep.py`'s own MOVEMENT LOG rule (restated
+  2026-09-03, quoted in that file) says an entry is owed for. Appended one,
+  matching the file's own established narrative style (the 2026-09-03
+  "PARTNER FLIP" and 2026-09-04 "TEN ROWS MOVED" entries): named the shared
+  requirement key and the exact arithmetic (`co_modified` 143 -> 145,
+  `sole_modifiers` 54 -> 53, `change_ids` 197 -> 198, `active` 40 -> 41,
+  `active_co_modified` 25 -> 26, `active_sole` holds at 15), measured on
+  both `origin/main` at `0e76e789` and this branch via
+  `python3 scripts/validate-sequenced-after.py . --sweep`, not adjusted by
+  hand. A docstring addition inside an existing test function: asserts
+  nothing and changes no test's outcome — `proposal.md` § Impact.
 
 ## Group 3 — Archive (NOT this change's act — owed on ratification)
 

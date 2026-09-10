@@ -195,11 +195,14 @@ flip" mechanic, not a hand edit.
   one body paragraph added, one scenario added (now five), nothing removed.
 - **Affected code:** none. `scripts/frontmatter_strict.py` already implements
   the stated rule; this packet changes no script, no EXECUTABLE test logic,
-  no workflow and no contract. (It DOES touch one data file,
-  `tests/sequenced_after/corpus-ledger.yaml` — a per-change sweep-ledger
-  bookkeeping row, task 1.7 — which is not test logic and asserts nothing;
-  distinguished here because the diff otherwise reads as touching
-  `tests/`.)
+  no workflow and no contract. (It DOES touch two files under `tests/`, and
+  neither is test logic: `tests/sequenced_after/corpus-ledger.yaml` — a
+  per-change sweep-ledger bookkeeping row, task 1.7 — asserts nothing; and
+  `tests/sequenced_after/test_sweep.py` gets one dated entry appended to the
+  hand-written MOVEMENT LOG inside an existing test's docstring, task 2.6a —
+  prose documenting why this change's partner-flip row move is owed a
+  narrative, not a changed assertion, changed fixture or changed test
+  outcome.)
 - **Affected consumers:** none. codexFactory's vendored copy already carries
   the behaviour this packet states in words; no re-vendor, no pin advance,
   no re-pin ceremony is owed by this change.
