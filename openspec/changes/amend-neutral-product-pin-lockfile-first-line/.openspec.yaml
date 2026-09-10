@@ -61,8 +61,10 @@ origin:
     `ideation/staging/` was enumerated on 2026-09-10 — 30 topic folders — and
     `INDEX.md` read: no topic folder and no INDEX row names the vendored
     lockfile, this requirement, the first-body-line shape or the strict keyword
-    rule, and `grep -rli "vendored lockfile|first body line|SHALL or MUST"
-    ideation/staging/` returns nothing. `kind: staged` would claim a staging
+    rule, and `grep -rliE "vendored lockfile|first body line|SHALL or MUST"
+    ideation/staging/` returns nothing — `-E`, because without it `|` is a
+    literal in a basic regular expression and the command would not test the
+    alternation the sentence claims. `kind: staged` would claim a staging
     source that does not resolve. The organized source is issue #882 and the two
     passages of its predecessor's packet that named it.
   proposed_by: >-

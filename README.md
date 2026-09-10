@@ -594,7 +594,9 @@ Active changes:
   IS PUT BEFORE THE WORDING**: `contracts/openspec-cli-pin.yaml` pins 1.12.0,
   the gate runs `scripts/validate-openspec-cli-pin.py --all --no-cache`, and on
   that binary this specification PASSES (exit 0) — measured on both this branch
-  and an `origin/main` `ea34f22a` control, with a three-requirement probe
+  and an `origin/main` **`05c706d6`** control (the base this branch is merged up
+  to; `ea34f22a` is the AUTHORING BASIS, and the requirement's bytes are
+  identical at the two), with a three-requirement probe
   fixture showing 1.12.0 reads the WHOLE body and warns only when the keyword
   is missing altogether. **So the motive is legibility and convention, not a red
   required check, and the packet says so rather than letting the issue's framing
