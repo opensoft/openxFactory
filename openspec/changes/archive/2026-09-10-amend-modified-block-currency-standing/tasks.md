@@ -384,17 +384,40 @@ commit before the move rather than after it.
       by NAMING a filed successor issue, or by the owner's word that a build
       record needs no annotation. It is NOT ticked here and the work is not
       done.
-- [x] 6.2 **TICKED ON THE RECORDING — NO SUCCESSOR IS NAMED, BECAUSE THE BOX'S
-      OWN RATIFIED TEXT SAYS NONE IS OWED.** Its condition is *"if a successor
-      is ever named"* and its closing clause is *"nothing is owed by this
-      packet"*; no successor was named at this archive, nothing is owed, and the
-      tick records that disposition and nothing else. **NO SEVERITY MOVED IN
-      THIS PULL REQUEST OR IN #887**: the title-resolution and ordering arm is
-      still `warning`, the drift, pairing and collision classes are still
-      `warning`, the carriage ledger is still `info`, and the promoted block
-      states exactly that arm-by-arm reading. A later flip of any of them
-      remains one ruling after a measurement, exactly as the delta's sequence
-      paragraph keeps in force. The ratified text follows unchanged:
+- [x] 6.2 **TICKED ON THE MEASUREMENT, AND THE UNMET CONDITIONAL IS DISCLOSED
+      RATHER THAN GLOSSED.** **NO SUCCESSOR WAS NAMED AND THIS TICK CLAIMS
+      NONE**: the box's clause *"if a successor is ever named"* is NOT
+      satisfied, and it is not satisfiable, because no flip of any remaining arm
+      was ever proposed — which is the box's own statement. What discharges the
+      box is its SUBSTANCE, and the substance is a MEASUREMENT, in a section
+      titled *"Measured, and deliberately NOT taken here"*, beside § 6.3 and
+      § 6.4 — two measurement boxes the RATIFICATION itself ticked on exactly
+      that ground. **THE MEASUREMENT IS RE-TAKEN AT THE ARCHIVE ACT RATHER THAN
+      RESTATED**, and it holds arm by arm:
+      `scripts/doc_health/modified_block_currency.py` reads
+      `_RESOLUTION_SEVERITY = WARNING` (`:230`), `_LEDGER_SEVERITY = INFO`
+      (`:231`), `_DRIFT_SEVERITY = WARNING` (`:232`),
+      `_PAIRING_SEVERITY = WARNING` (`:253`) and
+      `_COLLISION_SEVERITY = WARNING` (`:254`), and
+      `git diff origin/main..HEAD -- scripts/doc_health/` is EMPTY — no arm
+      moved in PR #887 or in this archive, and the promoted block states exactly
+      that arm-by-arm reading. A later flip of any of them remains one ruling
+      after a measurement, exactly as the delta's sequence paragraph keeps in
+      force. **THE READING IS DECLARED, ITS ALTERNATIVES ARE NAMED, AND THE
+      RULE QUESTION IS ROUTED TO THE OWNER RATHER THAN SETTLED HERE.** Read as a
+      PRECONDITION the clause can never be met, so the box could never be
+      discharged and the ratified § 5.1 — *"PROMOTE THE BLOCK AND ARCHIVE THE
+      PACKET"*, on the owner's word — would be permanently unperformable; read
+      as a PERMISSION it is an ADDITIONAL way the box may tick should a
+      successor ever arise, and this act takes the second reading. Both other
+      exits were refused with reasons: leaving the box open is not available
+      (`scripts/proposal-support.py`'s `archive_change()` refuses `^- \[ \]`
+      with no bypass flag, and the word of 2026-09-10T13:06Z commissions the
+      archive), and naming a successor for a flip nobody proposed would assert
+      owed work this same ratified sentence denies. Raised as Codex P1 on PR
+      #899 (2026-09-10T14:27:54Z) and filed for the owner as openxFactory
+      **#900**, with the PERMISSION reading as option 1 — **the lane did not
+      amend the rule and cannot.** The ratified text follows unchanged:
       **NO FLIP OF ANY REMAINING ARM IS PROPOSED.** The title-resolution and
       ordering arm keeps `warning`, the drift, pairing and collision classes
       keep `warning`, and the carriage ledger keeps `info`. A later flip of any
