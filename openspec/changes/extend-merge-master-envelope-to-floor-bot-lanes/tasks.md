@@ -755,3 +755,17 @@ autonomy this class actually holds is over ONE of its two admitted paths
 write authority there): mirror the signed record into
 `hermes/domain/review-councils/records/`, supersede the DRAFT, repair the
 `unrecorded` rendering, and rule on the second enumerated path. Record § 8.
+
+**2026-09-10 ~22:1xZ — SUPERSEDING STATUS (PR #927).** The addendum above
+predates Brett Heap's word "tick 5.3 and 5.4" (2026-09-10 ~21:15Z, in session
+to lane openxfactory-2; recorded on openxFactory #745
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5625582236).
+Boxes 5.3 and 5.4 are now TICKED on that word by this PR; the addendum's table
+entries above ("UNTICKED, DISCHARGED") and its closing line ("Until that word
+the dated notes beneath them carry the acts") read as history, not current
+state. **The checklist state after PR #927:** ticked 1.1 through 1.7, 2.1,
+2.1a, 2.1b, 2.2 through 2.6, 2.8, 3.2, 4.3, 5.3, 5.4; open by their own text
+2.7, 2.9, 3.1, 3.3, 3.4, 3.5, 3.6, 4.1, 4.2; owner's-act boxes 5.1, 5.2, 5.5a
+and 5.5 carry dated notes and stay untaken. **The packet is NOT archived** —
+§ 4.4 (archive through `proposal-support`) is separately open by its own text
+and this PR does not touch it.
