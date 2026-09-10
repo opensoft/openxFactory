@@ -2817,7 +2817,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-neutral-product-pin-lockfile-first-line](openspec/changes/archive/2026-09-10-amend-neutral-product-pin-lockfile-first-line/proposal.md)
-  — **ARCHIVED 2026-09-10**, on Brett Heap's separate word of the same day (in
+  — **ARCHIVED 2026-09-10** by
+  [PR #933](https://github.com/opensoft/openxFactory/pull/933), on Brett Heap's
+  separate word of the same day (in
   session at 2026-09-10T21:1xZ, verbatim *"archive 923 and close 882 when
   landed"*) and the `release-realization` rule that a change with an EMPTY code
   surface archives **ON LANDING plus its own task list**, waiting on no

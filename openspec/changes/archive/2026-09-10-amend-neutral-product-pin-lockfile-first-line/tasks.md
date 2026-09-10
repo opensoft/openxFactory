@@ -537,7 +537,20 @@ beside it and is not the ground.
       `841df854` is named as courtesy rather than as the ground. **AND § 4.2's
       `spec/neutral-product-pin` FAILURE IS CLEARED HERE — THE WHOLE POINT OF
       #882** — measured before and after on the 1.2.0 binary and pasted in the
-      pull request body rather than claimed. The ratified text follows
+      pull request body rather than claimed: `openspec validate
+      neutral-product-pin --strict --type spec` goes from *"has issues"* /
+      `✗ [ERROR] requirements.16.text` / exit 1 on `main` `6889b183` to
+      *"Specification 'neutral-product-pin' is valid"* / exit 0 here.
+      **ON THE RECORDING: THIS ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933)** is the act the
+      box records — the move to
+      `openspec/changes/archive/2026-09-10-amend-neutral-product-pin-lockfile-first-line/`,
+      the write-back into `openspec/specs/neutral-product-pin/spec.md`
+      (byte-identical to the delta, 5,957 bytes, sha256 `dcd44bfe9a6fbe…` on
+      both sides; the block minus its marker declaration is the generator's own
+      4,318-byte output at sha256 `bb8a1937c8bc26…`), the README row going from
+      the active list to the archived list, and the corpus-ledger row going
+      `active` → `archived` with `moved_by: "#933"`. The ratified text follows
       unchanged:
       **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word
       and never on this lane's judgment, through `python3
@@ -550,8 +563,12 @@ beside it and is not the ground.
       **AND THE ARCHIVE IS WHAT CLEARS § 4.2's `spec/neutral-product-pin`
       FAILURE ON THE 1.2.0 BINARY**, which is the one gate figure this packet
       changes and it changes it THERE and not here.
-- [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #882` IS ON THE ARCHIVE
-      PULL REQUEST AND ON NOTHING ELSE.** It is that pull request's ONE closing
+- [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #882` IS ON ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933) AND ON NOTHING
+      ELSE.** Its `closingIssuesReferences` is exactly `[882]`, verified through
+      GraphQL, and no commit message on the branch carries a closing keyword at
+      all, so openxFactory #882 closes with that merge and with nothing else.
+      It is that pull request's ONE closing
       line; every other issue number in its body, in this file and in these
       commits is a `refs`-style naming that closes nothing, and **NO COMMIT
       MESSAGE ON THE ARCHIVE BRANCH CARRIES A CLOSING KEYWORD IN ANY FORM** —
@@ -630,7 +647,10 @@ openspec/changes/ --include=spec.md` excluding `archive/` returns nothing.
       NOT decided by the ruling this packet carries, which was given over one
       requirement of one specification. #931 carries the verbatim error, both
       binaries' runs, the lines and the smallest remedy with its two costs. The
-      ratified text follows unchanged:
+      **ON THE RECORDING: #931 WAS FILED FROM ARCHIVE PR
+      [#933](https://github.com/opensoft/openxFactory/pull/933)**, unclaimed and
+      before that pull request was opened, which is the act this tick records.
+      The ratified text follows unchanged:
       **THE CORPUS'S ONE OTHER FIRST-LINE INSTANCE IS NAMED AS RESIDUE AND
       IS NOT TAKEN.** `openspec/specs/repo-boundary-governance/spec.md:34`
       (*Install repository scope*), whose first body line `:35` is a list of
