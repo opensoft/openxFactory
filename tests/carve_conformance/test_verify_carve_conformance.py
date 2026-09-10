@@ -83,6 +83,32 @@ RATIFIED_CODES = (
     "conformance-unreadable",
 )
 
+#: The check set, restated as a LITERAL for `RATIFIED_CODES`' reason and not
+#: imported: `CC.CHECKS == CC.CHECKS` is a tautology, and these identifiers
+#: leave the process — they are the `--json` payload's `outcomes[].check` and
+#: the names a refusal lists — so a silent rename or reorder has to fail
+#: somewhere. `test_every_declared_check_actually_runs` proves the tuple is
+#: what a RUN emits; this proves the tuple is what was agreed.
+RATIFIED_CHECKS = (
+    "structural-conformance",
+    "resolve-populated",
+    "list-population",
+    "list-stable",
+    "read-round-trip",
+    "classify-population",
+    "classify-reports-unrecognizable",
+    "check-severities",
+    "empty-is-an-answer",
+    "read-only-declared-at-resolution",
+    "absent-refuses",
+    "unreadable-refuses",
+    "unknown-scope-refuses",
+    "unknown-document-refuses",
+    "unknown-revision-refuses",
+    "write-back-refuses-read-only",
+    "write-back-leaves-the-tree",
+)
+
 #: § 3.7's own words for what the corpus must not carry, and the lifecycle
 #: header word `document-lifecycle.md` defines. Named HERE, on the home side,
 #: for the reason the module docstring gives.
@@ -136,11 +162,20 @@ def _failed(factory, root: Path = CORPUS) -> set[str]:
 
 
 def test_the_corpus_carries_no_governed_directory_anywhere_in_its_paths():
-    """"no `openspec/`, no `contracts/`" — read off the tree, not asserted."""
+    """No `openspec/` and no `contracts/` — read off the tree, not asserted.
+
+    The scan is over paths RELATIVE to the corpus. An absolute one would
+    carry every parent directory of the checkout, so a clone under a
+    directory that happened to be called `contracts` would fail a test about
+    the corpus for a reason that has nothing to do with it — and the offender
+    list this reports is relative already, so the two would disagree about
+    what was even being examined.
+    """
     offenders = [
         p.relative_to(CORPUS).as_posix()
         for p in CORPUS.rglob("*")
-        if any(part in FORBIDDEN_PATH_PARTS for part in p.parts)]
+        if any(part in FORBIDDEN_PATH_PARTS
+               for part in p.relative_to(CORPUS).parts)]
     assert offenders == [], (
         "the neutral conformance corpus carries a governed directory: "
         f"{offenders}. § 3.7's corpus is one 'with no openspec/, no "
@@ -259,6 +294,13 @@ def test_the_home_run_reports_every_declared_check_as_json():
     assert payload["failed"] == []
     assert payload["checks_run"] == payload["checks_declared"] == len(CC.CHECKS)
     assert [o["check"] for o in payload["outcomes"]] == list(CC.CHECKS)
+
+
+def test_the_check_set_is_exactly_the_ratified_one():
+    """The tuple is what was AGREED. Its sibling below proves the tuple is
+    what a run EMITS, and the pair is what makes a silent rename fail: either
+    alone lets a coordinated edit through."""
+    assert CC.CHECKS == RATIFIED_CHECKS
 
 
 def test_every_declared_check_actually_runs():
@@ -489,6 +531,23 @@ def test_a_reader_whose_corpus_does_not_resolve_reports_the_rest_as_unreached():
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
+
+
+def test_a_code_outside_the_vocabulary_cannot_be_raised_at_all():
+    """The vocabulary is ENFORCED and not merely declared.
+
+    Copilot's finding on this pull request: `REFUSAL_CODES` was declared and
+    never read, the same shape `verify-carve-arrival.py` and
+    `validate-carve-manifest.py` both carry. Pinning the constant by a test
+    catches a rename of the CONSTANT; it does not catch a raise site that
+    invented a code the tuple never held. This runner takes the stronger
+    guarantee at the one place every refusal passes through.
+    """
+    with pytest.raises(ValueError) as caught:
+        MODULE.ConformanceRefusal("conformance-invented", "no such code")
+    assert "ratified refusal codes" in str(caught.value)
+    for code in RATIFIED_CODES:
+        assert MODULE.ConformanceRefusal(code, "d").code == code
 
 
 def test_every_refusal_code_appears_in_the_script_source():

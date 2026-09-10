@@ -166,6 +166,20 @@ class ConformanceRefusal(Exception):
     """
 
     def __init__(self, code: str, detail: str) -> None:
+        # THE VOCABULARY IS ENFORCED HERE AND NOT ONLY DECLARED ABOVE.
+        # `verify-carve-arrival.py` and `validate-carve-manifest.py` both
+        # declare their code tuple and let a test pin it, which catches a
+        # rename of the CONSTANT and not a raise site that invented a code
+        # the tuple never carried. An operator's runbook and a caller's
+        # branch both read these strings, so the cheaper guarantee is taken
+        # here: a code outside the ratified set cannot be raised at all. The
+        # exit contract is unaffected — this `ValueError` is raised inside
+        # `main()`'s try and arrives as `conformance-unreadable`, exit 2.
+        if code not in REFUSAL_CODES:
+            raise ValueError(
+                f"{code!r} is not one of this runner's ratified refusal "
+                f"codes ({', '.join(REFUSAL_CODES)}); a caller branching on "
+                "the vocabulary would never see it")
         self.code = code
         self.detail = detail
         super().__init__(code, detail)
