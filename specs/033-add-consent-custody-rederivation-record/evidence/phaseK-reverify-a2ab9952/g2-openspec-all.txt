@@ -1,0 +1,473 @@
+openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (/home/brett/.cache/openxfactory/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef-6b0e6520de39b50a/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+openspec-cli-pin: dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed with `npm ci --ignore-scripts`
+-> /home/brett/.cache/openxfactory/openspec-cli-pin/@fission-ai__openspec-1.12.0-c844543999f673cdd72445879b86a4abea4c07ef-6b0e6520de39b50a/node_modules/.bin/openspec validate --all --strict --json  (in /tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/ee808615-4d8a-475f-bcb3-6f92a89909f0/scratchpad/openxFactory-worktrees/033-add-consent-custody-rederivation-record)
+change/add-chain-attestation
+  ✗ [ERROR] signed-execution-chain/spec.md: MODIFIED "A gate validates the short chain as a hash-linked chain" omits scenario(s) the current spec still has: "a tranche-two link does not exist yet". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
+change/add-composed-view-authoring
+  ✗ [ERROR] ideation-dashboard/spec.md: MODIFIED "Composed views are read-only with a repository jump" omits scenario(s) the current spec still has: "Gate verbs hide on a composed view". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
+change/add-cpc-clearing-boundary
+  ℹ [INFO] clearing-dispatch-boundary/spec.md: Archive would refuse this delta: clearing-dispatch-boundary: target spec does not exist; only ADDED requirements are allowed for new specs. MODIFIED and RENAMED operations require an existing spec.
+change/add-wallet-carried-review-authority
+  ℹ [INFO] roles-authority-model/spec.md: Archive would refuse this delta: roles-authority-model MODIFIED failed for header "### Requirement: Pilot repository and reviewing domain" - not found
+change/amend-mirror-floor-regeneration-merge-authority
+  ℹ [INFO] review-lane-floor-mirror/spec.md: Archive would refuse this delta: review-lane-floor-mirror MODIFIED failed for header "### Requirement: An automated pin advance only ever proposes" - not found
+spec/avatar-brokered-call-feasibility
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/avatar-client-lab
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/avatar-client-runtime
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/avatar-first-ui
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/avatar-lab-evidence
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/chain-anchoring
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/client-identity-roster
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/client-infrastructure-liaison
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/client-infrastructure-request
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/consent-instrument
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/credential-contracts
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/deployment-handoff-boundary
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+change/disposition-codexfactory-declared-renames
+  ℹ [INFO] file: skip_specs is set in .openspec.yaml: change declares no spec-level behavior changes, zero deltas accepted
+spec/doc-health
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[13]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[18]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[19]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[21]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[22]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[23]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[24]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[25]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[26]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[27]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[28]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[29]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[30]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[31]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[32]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[33]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[34]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[35]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[36]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[37]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[38]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[39]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[40]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[41]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[42]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/document-cataloging
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/document-lifecycle
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[12]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[13]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[14]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[18]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[19]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[20]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/domain-conformance-checks
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/domain-descendant-boundary
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/domain-ontology-lifecycle
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/hermes-customer-subject-runtime
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/hermes-domain-overlay
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[12]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/hermes-governed-record-integrity
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/ideation-cross-reference
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[14]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/ideation-dashboard
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[100]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[101]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[14]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[18]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[19]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[20]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[21]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[22]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[23]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[24]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[25]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[26]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[27]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[28]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[29]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[30]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[31]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[32]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[33]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[34]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[35]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[36]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[37]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[38]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[39]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[40]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[41]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[42]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[43]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[44]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[45]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[46]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[47]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[48]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[49]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[50]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[51]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[55]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[56]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[60]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[61]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[62]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[63]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[64]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[65]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[66]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[67]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[68]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[69]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[70]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[71]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[72]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[73]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[74]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[75]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[76]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[78]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[79]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[80]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[81]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[82]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[83]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[84]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[85]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[86]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[87]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[88]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[89]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[90]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[91]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[92]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[93]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[94]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[95]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[96]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[97]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[98]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[99]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/ideation-routing
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+change/implement-keycloak-install-repo
+  ℹ [INFO] repo-boundary-governance/spec.md: Archive would refuse this delta: repo-boundary-governance MODIFIED failed for header "### Requirement: Keycloak install repository boundary" - not found
+change/implement-openxpki-install-repo
+  ℹ [INFO] repo-boundary-governance/spec.md: Archive would refuse this delta: repo-boundary-governance MODIFIED failed for header "### Requirement: OpenXPKI install repository boundary" - not found
+spec/layer-vocabulary
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/lifecycle-notebook-projection
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[12]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[13]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[14]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/medxchart-overlay-boundary
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/medxpractice-overlay-boundary
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/memory-gateway
+  ℹ [INFO] requirements[19]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[20]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[21]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/neutral-product-pin
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[12]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[13]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[14]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[15]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[16]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[17]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/omnigent-domain-overlay
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/omnigent-install-manifest
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/pattern-ledger
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/project-repo-schema
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/release-realization
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/release-surface-integrity
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+change/relocate-review-authority-floor-mirror
+  ℹ [INFO] review-lane-floor-mirror/spec.md: Archive would refuse this delta: review-lane-floor-mirror MODIFIED failed for header "### Requirement: The automated advance re-copies the vendored snapshot and recomputes its witnesses from the bytes it wrote" - not found
+spec/repo-boundary-governance
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/repository-identity
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/review-lane-floor-mirror
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/roles-authority-model
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/shared-contract-ownership
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[11]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/signed-execution-chain
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[2]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/standards-body-registry
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/subject-establishment
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[10]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[6]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[7]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[8]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[9]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/workflow-gate-contract
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/workflow-visualization
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+spec/xfactory-semantic-kernel
+  ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[1]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[3]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[4]: Requirement text is very long (>500 characters). Consider breaking it down.
+  ℹ [INFO] requirements[5]: Requirement text is very long (>500 characters). Consider breaking it down.
+Totals: 98 passed, 2 failed (100 items)
+openspec-cli-pin: DISPOSITIONED FINDINGS in openxFactory (2 applied) — this run is NOT a clean tree:
+  ✗→D add-chain-attestation / signed-execution-chain/spec.md
+        MODIFIED "A gate validates the short chain as a hash-linked chain" omits scenario(s) the current spec still has: "a tranche-two link does not exist yet". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
+        why: The scenario is RENAMED AND RE-CONDITIONED, not dropped, and the rename is declared in the block itself with the reserved `Merged into` marker; restoring the old title would reinstate the very permission council LA-A1 was raised to close.
+        cited to: openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose two written forms this block uses; council LA-A1 — the contradiction the tranche's re-conditioning was raised to close; openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673; openspec/changes/add-chain-attestation/specs/signed-execution-chain/spec.md — the marker, in the block the finding names
+        accepted by: Brett Heap, 2026-09-05, "take exit 2"
+  ✗→D add-composed-view-authoring / ideation-dashboard/spec.md
+        MODIFIED "Composed views are read-only with a repository jump" omits scenario(s) the current spec still has: "Gate verbs hide on a composed view". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).
+        why: "Gate verbs hide on a composed view" became "Tile-bound gate verbs hide on a composed view" because the same change deliberately ADMITS document creation there; this exact pair is the worked example canon uses to define the marker, so restoring the old title contradicts both the sibling scenario and the requirement that governs the form.
+        cited to: openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte; PR #444 — the landed change that declared the rename with the `Merged into` marker; council LA-A1 — the ruling that reserved the marker forms; openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
+        accepted by: Brett Heap, 2026-09-05, "take exit 2"
+OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures. THIS IS NOT A CLEAN TREE: 2 finding(s) are ACCEPTED EXCEPTIONS, named above.
+rc=0

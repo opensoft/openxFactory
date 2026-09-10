@@ -627,3 +627,49 @@ Transcripts: `specs/.../evidence/phaseJ-reform-release-tag-gate.txt`,
 `phaseJ-reform-doc-health.txt`, `doc-health-reform/`,
 `phaseJ-reform-fullsuite.txt`, and the commit-riding
 `phaseJ-reform-*.txt` set filed with the candidate itself.
+
+## Landed and tagged (2026-09-10)
+
+PR #881 (realization of `add-consent-custody-rederivation-record`, Speckit 033,
+the `contract-v3.6` cut; atomic candidate `be77cb34`) LANDED on openxFactory
+`main` as merge commit `539cb5639ffb32b5531ae9940ccb86f824504a7b` at
+2026-09-10T02:02:58Z under Rule 6 — LANDING comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611549408>,
+LANDED comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611551237> —
+after Brett Heap's CLI approval, 2026-09-10T02:02:14Z, on `a2ab9952`. Step 4 at
+the merge sha (PR #881 comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611577023>),
+verbatim: `validate-contract-release.py verify-commit` **PASS** on
+`contracts/releases/contract-v3.6.digests.yaml`; the release-tag gate — *"the
+release-tag obligation holds over the merge tree 539cb5639: no error, no
+warning"*; 189 manifest digests verify.
+
+The annotated tag `contract-v3.6`, object
+`d2d210d2027c6c3c1249a2bc0dc385d6e71e854d` →
+`539cb5639ffb32b5531ae9940ccb86f824504a7b`, was published 2026-09-10T02:30:39Z
+by lane `openXfactory-3` under Brett Heap's delegation — his word, 2026-09-10
+~02:1xZ, verbatim *"send this to lane openXfactory-1 to perform"* (request
+registered as issue #630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611667165>;
+lane `openXfactory-3` CLAIMED it in comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611746072>
+and reported DONE in comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611762282>
+with `release verify-promotion: pass` and `release verify-tag: pass`); tagger
+line `Brett Heap <1513478+brettheap@users.noreply.github.com>`.
+
+Row-4 SUBSTRATE LANDED for `contract-v3.6` (claim `5609660878` discharged, hold
+released): issue #630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611773448>.
+Realization claim `5602971301` discharged: issue #630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611552183>.
+
+The `phaseK-reverify-6301e00a/` and `phaseK-reverify-a2ab9952/` gate
+transcripts filed in this commit under
+`specs/033-add-consent-custody-rederivation-record/evidence/` are a
+re-verification of the release surface at the merged tips `6301e00a` (under
+main's pre-merge `#871` change scripts) and `a2ab9952` (Brett Heap's approved
+commit) — filed here as the record of that re-verification, not as a
+substitute for the § above's step-4 evidence, which addresses the LANDED merge
+commit `539cb5639` itself.

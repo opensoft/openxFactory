@@ -1,0 +1,4 @@
+sequenced_after validation passed (38 active changes, 8 declaring the field).
+archive-date agreement passed (no archived row's moved_on predates its directory).
+archive-date-vs-commit agreement passed (every archived directory is named for the UTC date of the commit that added it, or is dispositioned in place; 12 disposition(s) in force, enforcement error).
+rc=0

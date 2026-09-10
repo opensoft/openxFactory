@@ -1,0 +1,14 @@
+$ python3 scripts/validate-release-tag-gate.py --head 6301e00a976a582bba78bc5512579eef5fe96525 --base bf803b5575a17c79dc4d1c1d965ce420cb149a6f   # hand form: branch tip vs origin/main — NOT what CI evaluates
+## release-tag-gate
+release surface touched by this pull request (2 path(s)):
+  - contracts/manifest.yaml
+  - contracts/releases/contract-v3.6.digests.yaml
+declared bundle: contract-v3.5 at the base bf803b557 -> contract-v3.6 at the head 6301e00a9
+  [info] contract-v2.6 is declared SPENT: it was cut, has no published annotated tag, and contract-v3.0 — itself cut, itself published and strictly later — superseded it. The record is contracts/CHANGELOG.md § contract-v3.0 — RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. The tag obligation was not met, it was EXTINGUISHED by an owner act at the cost of a version number
+1 blocking finding(s) over the merge tree 6301e00a9:
+  [warning] contracts/manifest.yaml: contract-v3.6 is declared and has no published annotated tag, 2 first-parent landing(s) after the commit that declared it
+      action: publish the annotated tag at the commit the versioning policy's rule identifies — the earliest first-parent commit on published main that declares the bundle and at which verify-commit passes — never edit the manifest, the changelog or the inventory to match the absence
+
+REFUSED `gate-findings` — the family reports an error or a warning over the merge tree
+::error title=release-tag-gate::gate-findings: the family reports an error or a warning over the merge tree
+rc=2
