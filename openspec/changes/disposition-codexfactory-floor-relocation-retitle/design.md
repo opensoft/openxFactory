@@ -49,9 +49,11 @@ corpus ratified.
 
 ## 2. Why the marker is a CITATION here and not a PRECONDITION
 
-A sibling lane adds the reserved `Merged into` marker to the relocate block in
-codexFactory (PR #333). This packet **cites** that marker and does not **wait**
-for it, and the distinction is deliberate.
+A sibling lane added the reserved `Merged into` marker to the relocate block in
+codexFactory — PR #339, LANDED on main `9b1b0a21` at 2026-09-10T14:33:55Z. This
+packet **cites** that marker and never **waited** for it, and the distinction is
+deliberate — and now measured, because the marker landed mid-authoring and gave
+the argument a falsification test it passed.
 
 The marker is `doc-health`'s instrument, not the pinned CLI's. 1.12.0 is blind
 to it — that blindness is the entire reason `dispositions:` exists — so adding
@@ -60,11 +62,20 @@ changes is where a HUMAN reading that block learns that the omission is
 declared. The disposition's `why:` states the retitle; the marker states it in
 the corpus's own grammar, in the block itself, at the place a reviewer looks.
 
-Sequencing this packet behind that pull request would therefore buy nothing and
-cost the thing that matters: codexFactory's `validate` stays red on #318's tree
-until this entry exists, and #318 is an ARCHIVE — the act that promoted the
-requirement in the first place. The honest shape is to land the acceptance now
-and cite the marker at its path, which is what the entry does.
+**MEASURED, NOT ARGUED.** The marker landed while this packet was being
+authored, so the claim was re-run rather than left as reasoning: over #318's head
+merged with the marker-carrying main (`89ee5e84`), the pinned CLI's message is
+**BYTE-IDENTICAL** to the pre-marker run on `32743fb7` — requirement title,
+scenario title and remedy sentence all — and the pre-edit pin still exits 1 on
+that tree with the finding UNDISPOSITIONED. The marker changed the corpus and
+changed nothing about the tool, which is the whole premise of `dispositions:`
+demonstrated on a live pair of trees.
+
+Sequencing this packet behind that pull request would therefore have bought
+nothing and cost the thing that matters: codexFactory's `validate` stays red on
+#318's tree until this entry exists, and #318 is an ARCHIVE — the act that
+promoted the requirement in the first place. The honest shape is to land the
+acceptance and cite the marker at its path, which is what the entry does.
 
 ---
 
@@ -159,10 +170,12 @@ the test, which is what the test is for.
   change wrote it. That comment is a dated record of what arrived that day and
   it stays true of those two entries; a later count belongs in a later
   paragraph, which is where it is.
-* **It does not touch codexFactory.** The `Merged into` marker (PR #333) and the
-  declared pin advance are codexFactory's own acts, in codexFactory's own pull
-  requests. The measurement runs were issued from an openxFactory checkout with
-  `--repo` over a READ-ONLY clone, which is how a consuming tree is measured.
+* **It does not touch codexFactory.** The `Merged into` marker (PR #339, landed)
+  and the declared pin advance are codexFactory's own acts, in codexFactory's
+  own pull requests. Every measurement run was issued from an openxFactory
+  checkout with `--repo` over a READ-ONLY clone — including the merged tree,
+  which is a LOCAL clone of that clone merged with `origin/main` and pushed
+  nowhere — which is how a consuming tree is measured without writing to it.
 * **It does not tick any other packet's task box.** In particular it ticks
   nothing in `relocate-review-authority-floor-mirror` or
   `mirror-floor-regeneration-automation`, whose boxes are theirs.

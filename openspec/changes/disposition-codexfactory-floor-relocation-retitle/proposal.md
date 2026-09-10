@@ -75,10 +75,17 @@ about the same gate at once. Promoted `doc-health` already holds that a block
 which adds a scenario title canon does not carry "is a retitle, whatever the
 marker calls it" (`openspec/specs/doc-health/spec.md:1773`) and names
 `Merged into` as the author's instrument for that shape, writing the form out
-at `:1793`. A sibling lane adds that marker to the block in codexFactory
-(PR #333) — which makes the retitle DECLARED in the corpus's own grammar and
-leaves this as what it is: a pinned tool that cannot read a marker this corpus
-ratified.
+at `:1793`. **A sibling lane LANDED that marker while this packet was being
+authored** — codexFactory PR #339 → main `9b1b0a21` (2026-09-10T14:33:55Z), the
+marker at
+`openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md:15`
+with its dated note at that packet's `tasks.md:384` — which makes the retitle
+DECLARED in the corpus's own grammar and leaves this as what it is: a pinned
+tool that cannot read a marker this corpus ratified. **AND THAT LAST CLAIM IS
+NOW MEASURED RATHER THAN ASSERTED.** Re-run over #318's head merged with the
+marker-carrying main (`89ee5e84`), the finding is **BYTE-IDENTICAL** to the
+pre-marker run — same requirement title, same scenario title, same remedy
+sentence — so the marker changes the corpus and changes nothing about the tool.
 
 `bump-openspec-cli-pin-to-1.12` settled what to do about that class — cited,
 per finding, per repository. Brett Heap ruled the same exit a third time.
@@ -164,14 +171,23 @@ criterion and the reading.
 * **Still owed after this lands** — named so nobody reads it as done:
   * **codexFactory's declared pin advance**, to an openxFactory commit AT OR
     AFTER this change's merge. An earlier pin resolves a pin file without this
-    entry and `validate` stays red. Coordinated on codexFactory #333; it is
-    codexFactory's act, in codexFactory's own pull request, and is not ridden
-    on this diff.
-  * **The `Merged into` marker on the relocate block** (codexFactory PR #333).
-    The disposition is lawful without it — the retitle is real either way, and
-    canon's marker rule is `doc-health`'s, not the pinned CLI's — but the
-    marker is what makes the retitle DECLARED where a reader of that block
-    will look, and this packet cites it.
+    entry and `validate` stays red. Coordinated on codexFactory #333
+    (`change/advance-openxfactory-pin-b91af6ea`), which as it stands moves
+    `contract_ref` `724a2a4f` -> `b91af6ea` for openxFactory #886 — a commit
+    BEFORE this change, so #333 as written does NOT deliver this entry and a
+    further advance is owed. **AND IT MUST NOT RUN EARLY**: measured, an advance
+    that reaches this entry while codexFactory PR #318 is still open REFUSES
+    `pin-disposition-stale` on codexFactory `main` (evidence § 3). The order is
+    #318 first, the advance second. It is codexFactory's act, in codexFactory's
+    own pull request, and is not ridden on this diff.
+  * ~~The `Merged into` marker on the relocate block~~ — **LANDED
+    2026-09-10T14:33:55Z, codexFactory PR #339 → main `9b1b0a21`**, at
+    `openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md:15`.
+    Recorded here rather than deleted because it was owed when this packet
+    opened. It was never a precondition: the disposition is lawful without it,
+    canon's marker rule being `doc-health`'s and not the pinned CLI's — and the
+    re-measurement over the merged tree proves the point, the finding being
+    byte-identical with the marker in place.
   * **The watch on `Fission-AI/OpenSpec#1793`.** Filed 2026-09-05, not fixed.
     When a release honours a declared rename, the next pin bump re-derives the
     list against it, ALL FIVE entries are matched by nothing, and the pin

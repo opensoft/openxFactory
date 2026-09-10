@@ -85,14 +85,41 @@ separate act and is NOT ticked anywhere in this file.
       `Totals: 26 passed, 3 failed (29 items)` UNCHANGED, `DISPOSITIONED
       FINDINGS in codexFactory (3 applied)`, and the honest trailer `THIS IS
       NOT A CLEAN TREE`.
-- [x] 4.3 (2026-09-10) On codexFactory `main`: the new entry is neither applied
-      nor stale, because the finding does not occur there — measured, not
-      assumed.
+- [x] 4.3 (2026-09-10) On codexFactory `main`: the new entry is **STALE and the
+      run REFUSES** `pin-disposition-stale` (exit 2) — measured, not assumed,
+      and NOT the "neither applied nor stale" an earlier draft of this box
+      claimed. The entry is IN SCOPE there (the repository is codexFactory) and
+      in scope with no matching finding is the definition of stale; the pinned
+      CLI reports the item `"valid": true` with an INFO on `main` and
+      `"valid": false` with an ERROR on #318's merged tree, and only a BLOCKING
+      finding is reconciled. This is the live coupling of evidence § 3/§ 3b and
+      it fixes an ORDER — #318 first, codexFactory's pin advance second — not a
+      defect in this entry.
 - [x] 4.4 (2026-09-10) AFTER, on openxFactory's own tree — the gate's literal
       invocation, `--all --no-cache`: exit 0, its own two applied, all three
       codexFactory entries neither applied nor stale.
 - [x] 4.5 (2026-09-10) The pinned CLI validates THIS packet `--strict` with
       `skip_specs: true` and no `specs/` directory.
+- [x] 4.6 (2026-09-10) **THE MARKER'S IRRELEVANCE TO THE TOOL, FALSIFIED AND
+      SURVIVED.** codexFactory PR #339 landed the reserved `Merged into` marker
+      mid-authoring (main `9b1b0a21`), so the claim was re-run rather than
+      argued: over #318's head merged with that main (`89ee5e84`), the finding
+      is BYTE-IDENTICAL to the pre-marker run, the pre-edit pin still exits 1
+      with it UNDISPOSITIONED, and this pin exits 0 with `Totals: 27 passed,
+      3 failed (30 items)` and 3 applied. The entry's recorded `finding:` also
+      normalizes EQUAL to the measured message, checked in code.
+- [x] 4.7 (2026-09-10) **THE WHOLE PAIR RE-TAKEN AT COMMIT TIME, BECAUSE `main`
+      MOVED AGAIN.** A second author in this lane re-ran all four measurements
+      against codexFactory `main` `2e744d4b` and #318's head merged with THAT
+      main (`8effa57a`, one declared `README.md` conflict resolved `--ours`,
+      nothing under `openspec/` conflicting): merged tree, pre-edit pin →
+      exit 1 UNDISPOSITIONED; merged tree, this pin, in the gate's own CI form
+      `--repo … --all --no-cache` → exit 0, `Totals: 26 passed, 3 failed
+      (29 items)`, 3 applied, 0 undispositioned; `main`, pre-edit pin → exit 0;
+      `main`, this pin → exit 2 `REFUSE pin-disposition-stale`. The `cited to:`
+      line printed by the AFTER run is the line the COMMITTED pin renders, so
+      the transcript in evidence § 2/§ 3b and the YAML are the same text — the
+      one check a re-worded citation would have failed.
 
 ## 5. Owed, and not this packet's to tick
 
@@ -100,11 +127,19 @@ separate act and is NOT ticked anywhere in this file.
       OR AFTER this change's merge. An earlier pin resolves a pin file without
       this entry and codexFactory `validate` stays red on #318's tree. It is
       codexFactory's act, in codexFactory's own pull request, coordinated on
-      codexFactory #333.
-- [ ] 5.2 **The reserved `Merged into` marker on the relocate block**
-      (codexFactory PR #333, sibling lane). The disposition is lawful without
-      it and cites it at its path; the marker is what puts the declaration where
-      a reader of that block looks. Not this repository's file to edit.
+      codexFactory #333 (`change/advance-openxfactory-pin-b91af6ea`), which as
+      it stands targets `b91af6ea` — BEFORE this change — so a further advance
+      is owed. **AND THE ORDER IS FIXED BY MEASUREMENT**: the advance must
+      follow codexFactory PR #318's merge, or codexFactory `main` refuses
+      `pin-disposition-stale` on this entry (evidence § 3).
+- [ ] 5.2 **The reserved `Merged into` marker on the relocate block.**
+      **DONE 2026-09-10T14:33:55Z — codexFactory PR #339 → main `9b1b0a21`**, at
+      `openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md:15`,
+      dated note at that packet's `tasks.md:384`. Landed in codexFactory's own
+      pull request, not this one, so this box stays UNTICKED under this file's
+      own rule. The disposition was lawful without it and cites it at its path;
+      the marker is what puts the declaration where a reader of that block
+      looks. **And it changed nothing about the tool, measured** — box 4.6.
 - [ ] 5.3 **codexFactory #318's archive going green** is a codexFactory
       verdict, not this one. This packet removes ONE of the reasons its
       `validate` is red and claims nothing about the others.

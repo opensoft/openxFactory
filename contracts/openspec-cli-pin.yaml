@@ -523,7 +523,11 @@ dispositions:
   # made a declared retitle visible to the check, and 1.12.0, blind to the
   # `Merged into` marker as ever, reads it as an omission. Measured on #318's tree
   # at head `32743fb7`: `Totals: 26 passed, 3 failed (29 items)`, the pair above
-  # APPLIED and this finding UNDISPOSITIONED, exit 1. Brett Heap ruled on
+  # APPLIED and this finding UNDISPOSITIONED, exit 1. THE MARKER'S IRRELEVANCE TO
+  # THE TOOL IS MEASURED AND NOT ASSERTED: codexFactory PR 339 landed the reserved
+  # `Merged into` marker on that block (main 9b1b0a21), and the finding is
+  # BYTE-IDENTICAL before and after it — which is the marker-blindness this whole
+  # mechanism exists for, shown rather than claimed. Brett Heap ruled on
   # 2026-09-10: "go A, ratify the disposition entry as encoded".
   - repo: codexFactory
     item: relocate-review-authority-floor
@@ -534,7 +538,8 @@ dispositions:
       The scenario is RETITLED AND RE-CONDITIONED, not dropped — canon's "The
       human gate is unchanged" becomes "The human gate is whatever the
       document's path routes to" — and the retitle is declared in the block
-      itself with the reserved `Merged into` marker (codexFactory PR #333).
+      itself with the reserved `Merged into` marker, LANDED on codexFactory
+      main at 9b1b0a21 by codexFactory PR #339.
       `relocate-review-authority-floor` was ratified to make the floor
       document's review routing whatever ITS PATH routes to, so restoring the
       old title would reinstate the fixed human gate that relocation was
@@ -547,7 +552,7 @@ dispositions:
       - codexFactory PR #318 (change/archive-floor-regeneration-option-b, head 32743fb7) — the archive that promoted the requirement and thereby raised this finding
       - codexFactory PR #318 validate run 34481981940 (head 32743fb7, conclusion failure) — the consuming repository's own gate reading this finding at the pinned CLI
       - openspec/changes/disposition-codexfactory-floor-relocation-retitle/evidence/codexfactory-floor-relocation-2026-09-10.md — the measurement this entry rests on, before and after, on PR 318's tree and on codexFactory main
-      - codexFactory openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md — the `Merged into` marker itself, in the block the finding names
+      - codexFactory openspec/changes/relocate-review-authority-floor/specs/repository-gate-floor/spec.md:15 — the reserved `Merged into` marker itself, in the block the finding names, LANDED on codexFactory main at 9b1b0a21 by codexFactory PR 339; the dated note is at that packet's tasks.md:384
       - codexFactory #232 (comment 5619832944) — the same ruling recorded on the consuming repository's own governing issue
     ratified_by: 'Brett Heap, 2026-09-10, "go A, ratify the disposition entry as encoded" (https://github.com/opensoft/openxFactory/issues/745#issuecomment-5619833296)'
     retires_when: >-

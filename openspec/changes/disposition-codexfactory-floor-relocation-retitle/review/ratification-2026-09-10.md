@@ -78,9 +78,11 @@ Rule 6.
 ## Limits — what this word does NOT ratify
 
 * **Any codexFactory act.** Not the reserved `Merged into` marker on the
-  relocate block (codexFactory PR #333), not the advance of codexFactory's
-  declared openxFactory pin to this change's merge commit, and not the archive
-  of `relocate-review-authority-floor` or of anything in #318. Each is
+  relocate block — which LANDED separately as codexFactory PR #339 → main
+  `9b1b0a21`, on this same word, in codexFactory's own pull request and not by
+  this ratification — not the advance of codexFactory's declared openxFactory
+  pin to this change's merge commit, and not the archive of
+  `relocate-review-authority-floor` or of anything in #318. Each is
   codexFactory's, in codexFactory's own pull request.
 * **codexFactory #318's `validate` going green.** This entry removes ONE
   reason that gate is red. Whether others remain is codexFactory's verdict.
