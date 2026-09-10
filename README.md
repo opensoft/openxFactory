@@ -281,6 +281,14 @@ Core domain-neutral docs:
 - [Archived-Change Record Discrepancies — Open Bookkeeping Register](docs/archive-record-discrepancies.md)
   (the re-derived sweep of all 86 archived changes: one `Status:` header
   corrected with its citation, seven classes recorded open)
+- [Pinned CLI Lockfile Integrity — Attestation (2026-09-10)](docs/openspec-cli-pin-lockfile-attestation-2026-09-10.md)
+  (task 6.1 of the archived `pin-openspec-cli-dependency-closure`: the 80
+  content-addressed entries in `contracts/openspec-cli-pin.1.12.0.package-lock.json`
+  re-captured from the registry and compared, and npm's signatures over them
+  verified — 31 with Sigstore provenance. Reproduced by
+  `scripts/attest-openspec-cli-pin-lockfile.py`, whose header states what the
+  two links do and do not prove; the pin's declared shortfall is untouched,
+  amending it being an OpenSpec act)
 - [Ideation Work Area](ideation/README.md) (ratified convention; see
   [Document Lifecycle](docs/document-lifecycle.md))
 - [Workflow Contract](docs/workflow-contract.md)
