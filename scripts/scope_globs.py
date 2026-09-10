@@ -479,16 +479,31 @@ def _git_toplevel(path: Path) -> Path:
     """The work-tree root containing `path`.
 
     Raises `ScopeGlobsResolutionError` — never a `CalledProcessError`
-    traceback — when `path` is not inside a git work tree at all. A mistyped
-    or non-existent CHANGE_DIR is the SAME CLASS of operator error #705 filed,
-    and it must arrive at the CLI as a named "could not run" finding (exit 2)
-    rather than as a stack trace.
+    traceback, and never an `OSError` traceback either — when `path` is not
+    inside a git work tree at all, OR when `git` itself could not be run (not
+    on PATH, not executable, or any other OS-level failure launching the
+    subprocess). A mistyped or non-existent CHANGE_DIR is the SAME CLASS of
+    operator error #705 filed, and it must arrive at the CLI as a named
+    "could not run" finding (exit 2) rather than as a stack trace — and an
+    environment that cannot launch `git` at all is the same fact by a
+    different cause.
     """
     directory = path if path.is_dir() else path.parent
-    out = subprocess.run(
-        ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True,
-    )
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        # `subprocess.run` itself can fail before ever producing a
+        # `CompletedProcess` — `git` missing from PATH or not executable
+        # raises `OSError` (a `FileNotFoundError`/`PermissionError`), and any
+        # other OS-level launch failure is undocumented territory this
+        # function's own contract does not carve an exception out for: EVERY
+        # reason the gate cannot run is a named finding, never a traceback.
+        raise ScopeGlobsResolutionError(
+            f"git could not be run to resolve the work tree containing "
+            f"{str(directory)!r}: {exc}") from exc
     if out.returncode != 0:
         detail = out.stderr.strip() or f"git rev-parse exited {out.returncode}"
         raise ScopeGlobsResolutionError(
@@ -557,10 +572,24 @@ def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str
 
     Raises `ScopeGlobsResolutionError` (never a traceback) when the change id
     has no `proposal.md` at `ratified_ref`, when `ratified_ref` does not name a
-    commit, when `change_dir` is not inside a git work tree at all, or when
+    commit, when `change_dir` is not inside a git work tree at all, when
     `change_dir` carries no `proposal.md` IN THE WORKING TREE — the current-side
-    declaration cannot be read, so the gate cannot run."""
-    change_path = Path(change_dir).resolve()
+    declaration cannot be read, so the gate cannot run — or when `change_dir`
+    cannot be resolved to an absolute path at all (an OS-level failure, not a
+    shape the corpus can even present as a well-formed CHANGE_DIR)."""
+    try:
+        change_path = Path(change_dir).resolve()
+    except (OSError, ValueError) as exc:
+        # `Path.resolve()` walks the filesystem (and, on POSIX, follows
+        # symlinks) and can fail for reasons that have nothing to do with the
+        # change directory being wrong: a broken/looping symlink, a path
+        # component that is not a directory, or another OS-level refusal.
+        # None of that is documented as this gate's business — it is
+        # "cannot run", the same fact `_git_toplevel` reports below for a
+        # missing work tree, never a bare traceback out of a merge gate.
+        raise ScopeGlobsResolutionError(
+            f"{str(change_dir)!r} could not be resolved to an absolute path: "
+            f"{exc}") from exc
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
     if not _ref_names_a_commit(repo_root, ratified_ref):
