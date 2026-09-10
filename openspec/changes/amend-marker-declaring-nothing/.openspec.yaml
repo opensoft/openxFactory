@@ -1,0 +1,86 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-amend-marker-declaring-nothing
+  reason: >-
+    TWO OWED SUCCESSORS, filed as openxFactory issues #856 and #860 by the
+    packet that owed them. `amend-marker-defect-reporting` (PR #850, origin
+    #729) took a marker's reporting rule from ONE ground to THREE and recorded,
+    in the same act, the two cases it reached neither of. Its `tasks.md` § 5.2
+    is #856: a name matching a unit the MODIFIED BLOCK ITSELF ADDS and canon
+    does not, left silent because *"whether a block may declare its own
+    additions removed, and against what, is a rule nobody has written, and
+    inventing a fourth ground here would repeat on the same afternoon the fault
+    this packet corrects"* — and PINNED by a test so the silence was a decision
+    a later act could overturn. Its § 5.7 is #860, found by that packet's own
+    adversarial pass: a `Removed from canon` marker whose tail carries no code
+    span parses to `names = []` and `quoted = []`, reaches none of the three
+    grounds, and declares nothing while the reserved-marker rule exempts its
+    paragraph from carriage. § 5.7's own ratified text deferred the filing to
+    the archive act; both issues were filed there, both UNCLAIMED, and both
+    are claimed by this packet.
+    ONE PACKET FOR TWO ISSUES, AND THE REASON IS MECHANICAL. Both amend the
+    SAME SENTENCE of the same promoted requirement — *Currency of an active
+    change's MODIFIED requirement blocks* in `openspec/specs/doc-health/spec.md`
+    — and two active changes carrying a `## MODIFIED` block over one
+    requirement is the two-writers shape this very requirement reports and
+    `release-realization` requires a declaration for. Splitting them would
+    manufacture that collision over a sentence neither could state alone.
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT
+    A PATCH. The promoted requirement states exactly THREE reporting grounds and
+    `suppression` conforms to it exactly, its own docstring recording the
+    block-adds case as *"left silent deliberately … a fourth ground nobody has
+    ruled"* and the delta's sentence deliberately claiming what the three
+    grounds REPORT rather than that every marker declaring nothing is reported.
+    A fourth and a fifth obligation over the same facts is an amendment of the
+    requirement, so the remedy is a `## MODIFIED` block with the realization in
+    the same pull request under `release-realization`'s merged-plus-green rule
+    — the shape `amend-marker-defect-reporting` itself was authored on.
+    BOTH NEW GROUNDS HAVE A POPULATION OF ZERO TODAY, measured rather than
+    assumed on 2026-09-10 over `main` @ `e0638f11` — the tree the design was
+    taken on, and the scope every figure in this packet is stated at. The corpus
+    carries 26 markers, 17 of the two unit-naming forms and 9 of the pairing
+    form; NOT ONE is of `Removed from canon` form with an empty tail; and of the
+    THIRTY active MODIFIED blocks this family reads, exactly TWO carry a
+    unit-naming marker at all — `add-chain-attestation` and
+    `add-composed-view-authoring`, both `Merged into`, each naming one unit that
+    matches its resolved basis. A run reports no marker defect before this
+    packet and none after it.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-10: its
+    33 topics carry no marker grammar, no marker-defect reporting and no
+    doc-health carriage arm. The one `INDEX.md` line matching "marker" is the
+    `xspec:candidate`/`xspec:supersedes` PROSE-TAGGING grammar, which is a
+    different form in a different capability. `kind: staged` would claim a
+    staging source that does not resolve. The organized source is issues #856
+    and #860 and the archived § 5.2 and § 5.7 that scoped them.
+  proposed_by: >-
+    Lane `openxfactory-1` (session `62ba300c`), authoring the remedy issues #856
+    and #860 propose. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: Brett
+    Heap's word of 2026-09-10, verbatim *"do the 860 856 batch, land each when
+    green"*, COMMISSIONS THE AUTHORING and ratifies no wording — it names a
+    batch and a landing condition, and it takes neither of the two design
+    decisions this packet carries. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` added — drafting provenance, no `approved_by`,
+    no `approved_on` — and every document in the packet carries `Status: draft`
+    to match. Ratification, promotion and archive are three later acts on three
+    later words.
+    THE DECISIONS MOST WORTH A VETO ARE `design.md` D1 AND D2, ONE PER ISSUE,
+    each carrying its alternative with the alternative's cost written out. D1
+    (#860): report a `Removed from canon` marker with no code span as a fifth
+    ground in `doc-health`, against a `document-lifecycle` GRAMMAR rule that
+    such a paragraph is not of marker form at all — cheaper to encode and a
+    LARGER semantic change, because the paragraph then becomes prose, becomes a
+    carriage UNIT of the block, is read by the carriage arms, and the rule moves
+    to another capability. D2 (#856): report a name matching a unit the block
+    itself adds as a fourth ground, against ruling the silence CORRECT and
+    saying so in canon in one sentence. A veto of D1 is a veto of ground five
+    alone and a veto of D2 is a veto of ground four alone; the two rest on no
+    shared predicate and either stands whichever way the other goes.
+  proposed_on: 2026-09-10
+related:
+  - openxFactory:change:archive/2026-09-09-amend-marker-defect-reporting        # ARCHIVED (PR #850). Owed BOTH successors — its tasks.md § 5.2 is #856 and § 5.7 is #860 — and is the shape this packet is authored on: an amend of the same requirement realized in the same pull request. Its bytes are NOT edited
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing # ARCHIVED (PR #887 -> archive PR #899). THE LAST WRITER of the requirement this block MODIFIES: its promoted text is what this block writes over, and its own `Removed from canon` marker is deliberately NOT restated here
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary          # ARCHIVED (PR #719). Put the reason boundary that makes `Marker.quoted` meaningful, so that a marker with no code span in its tail is mechanically distinguishable at all
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check     # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the one-ground sentence its successors have been amending since

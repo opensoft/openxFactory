@@ -529,6 +529,60 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-marker-declaring-nothing](openspec/changes/amend-marker-declaring-nothing/proposal.md)
+  — authored 2026-09-10, **`Status: draft`** (NOT RATIFIED; ratification,
+  promotion and archive are three later acts on three later words). Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's word of
+  2026-09-10, verbatim *"do the 860 856 batch, land each when green"*, which
+  names a batch and a landing condition and decides no wording. `.openspec.yaml`
+  carries drafting provenance alone — no `approved_by`, no `approved_on` — the
+  lawful unapproved shape `add-drafted-proposal-origin` defined. Origins:
+  openxFactory [#856](https://github.com/opensoft/openxFactory/issues/856) and
+  [#860](https://github.com/opensoft/openxFactory/issues/860), both filed by
+  this lane at the archive of `amend-marker-defect-reporting`
+  ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`),
+  which owed them as residue `tasks.md` § 5.2 and § 5.7. **THE DEFECT IS TWO
+  MARKERS THAT DECLARE NOTHING AND ARE REPORTED AS NOTHING.**
+  `openspec/specs/doc-health/spec.md`, inside *Currency of an active change's
+  MODIFIED requirement blocks*, states that a marker is reported on any of
+  **THREE** grounds and counts them in the next sentence — and two shapes fall
+  outside all three. **#856:** a name matching NO canon unit but matching a unit
+  the MODIFIED BLOCK ITSELF ADDS falls through `suppression`'s
+  `if name not in block_texts:` guard, so a block declares removed from canon a
+  unit canon never carried and nobody is told — a silence the predecessor
+  PINNED with a test rather than fixed, because *"inventing a fourth ground here
+  would repeat on the same afternoon the fault this packet corrects"*. **#860:**
+  a `Removed from canon` marker whose tail carries no code span parses to
+  `names = []` and `quoted = []`, reaches none of the three grounds, AND is
+  exempt from carriage for being of marker form — a paragraph that neither
+  declares nor is carried. **TWO SENTENCES REPLACED IN PLACE, TWO ADDED BESIDE
+  THEM, TWO SCENARIOS ADDED** under one `Removed from canon` marker: canon now
+  states FIVE grounds, scopes the fourth to the block's own addition (and says
+  it changes no suppression) and the fifth to the `Removed from canon` form
+  ALONE — **the PAIRING form's silence stays ruled correct**, it naming no units
+  by construction. **THE TWO VETO POINTS ARE `design.md` D1 AND D2, ONE PER
+  ISSUE AND INDEPENDENT.** D1 (#860): report it in `doc-health` (recommended and
+  encoded) against a `document-lifecycle` GRAMMAR rule that such a paragraph is
+  not of marker form — cheaper to encode, LARGER in effect, because the
+  paragraph then becomes prose, becomes a carriage UNIT of the block and of
+  canon after promotion, and the rule moves to a capability carrying no
+  reporting rule at all. D2 (#856): report it (recommended and encoded) against
+  ruling the silence CORRECT in canon in one sentence. A veto of either is a
+  veto of ONE ground alone. **REALIZED IN THE SAME PULL REQUEST**
+  (`code_surface` non-empty, so it archives on merged-plus-green evidence, not
+  on landing): `scripts/doc_health/modified_block_currency.py` gains the `else`
+  half of a guard that already reports and one predicate over three fields the
+  parser already derives — **no parse moves, no `Marker` field is added,
+  `TEMPLATE_MARKERS`' text is not edited at all** and `_ARM_TEMPLATES` stays at
+  eight. Tests **139 → 144** with ONE assertion FLIPPED (the pin on #856's
+  silence, its fixture unchanged) and one test RENAMED. **BOTH GROUNDS HAVE A
+  POPULATION OF ZERO, MEASURED**: of 26 markers in the corpus not one is of
+  removal form with an empty tail, and of the THIRTY active MODIFIED blocks this
+  family reads exactly two carry a unit-naming marker, both sound — so the
+  marker-defect class raises nothing before or after. `sequenced_after: []`.
+  **THE ARCHIVE IS A SEPARATE ACT**: `tasks.md` § 1, § 6 and § 7 stay open,
+  nothing under `openspec/specs/` is edited yet, and openxFactory #856 and #860
+  close at the archive rather than at this landing.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,

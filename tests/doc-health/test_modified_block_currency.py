@@ -2591,14 +2591,23 @@ def test_a_name_matching_no_unit_of_canon_or_of_the_block_reports_the_marker():
     assert "'A unit.'" not in both[0].rule
 
 
-def test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT():
-    """`design.md` D3, THE RESIDUE, PINNED SO IT IS A DECISION AND NOT A GAP.
+def test_a_name_matching_a_unit_the_BLOCK_adds_reports_the_marker():
+    """GROUND FOUR FIRES — THE FLIP OF THE SILENCE THIS FILE USED TO PIN.
+
+    Until `amend-marker-declaring-nothing` (2026-09-10, openxFactory issue
+    #856) this test was `test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT`
+    and asserted `findings == []`. THE FIXTURE IS UNCHANGED — the same canon
+    unit, the same block addition, the same marker — and only the assertion
+    moves, because only the rule moved: the predecessor left the case silent
+    with the reason written where the assertion stood (*"whether a marker may
+    declare a unit of the block's own addition removed is a fourth ground
+    nobody has ruled"*), pinned it so the silence was a decision a later act
+    could overturn, and filed #856 to overturn it. This is that act.
 
     A name matching no canon unit but matching a unit the BLOCK states is text
-    the block ADDS. The amended sentence reports a name matching neither side,
-    so this is silent — deliberately: whether a marker may declare a unit of the
-    block's own addition removed is a fourth ground nobody has ruled, and this
-    packet does not invent it.
+    the block ADDS, so the marker declares removed from canon a unit canon
+    never carried. The SUPPRESSION half does not move and is still
+    fail-closed: the name suppresses nothing, exactly as before.
     """
     canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
     block_units = [mbc.Unit(mbc.BODY, "An added unit.")]
@@ -2607,16 +2616,123 @@ def test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT():
         "`An added unit.` — names something only the block states")
     suppressed, findings = _defect_findings(canon_units, block_units, [m])
     assert suppressed == set()
+    assert len(findings) == 1, [f.rule for f in findings]
+    assert "'An added unit.'" in findings[0].rule
+    assert "is text the block itself adds" in findings[0].rule
+    assert findings[0].severity == INFO
+    assert findings[0].action == mbc._MARKER_ACTION
+    assert mbc.classify(findings[0]) == mbc.CLASS_MARKERS
+
+    # AND IT IS DISJOINT FROM GROUND THREE, WHICH IS WHY IT IS A SEPARATE ROW.
+    # A marker with one name of each shape reports TWO findings, because they
+    # are two different edits: correct the name that matches nothing, and drop
+    # the declaration over the block's own addition.
+    both = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`An added unit.`; `A unti.` — one of each shape")
+    _sup, two = _defect_findings(canon_units, block_units, [both])
+    assert len(two) == 2, [f.rule for f in two]
+    assert "matches no unit of the promoted requirement or of the block" in two[0].rule
+    assert "'A unti.'" in two[0].rule and "'An added unit.'" not in two[0].rule
+    assert "is text the block itself adds" in two[1].rule
+    assert "'An added unit.'" in two[1].rule and "'A unti.'" not in two[1].rule
+
+
+def test_a_removal_marker_carrying_no_code_span_at_all_reports_the_marker():
+    """GROUND FIVE FIRES — the case `amend-marker-defect-reporting`'s own
+    adversarial pass found and could not reach (its `tasks.md` § 5.7,
+    openxFactory issue #860).
+
+    A `Removed from canon` marker whose tail carries no code span parses to no
+    names and no quoted spans, so the per-name loop never runs, `restated` stays
+    false, `unmatched` and `block_added` stay empty and the second pass has
+    nothing to resolve: it reached NONE of the four other grounds. And the
+    reserved-marker rule exempts the paragraph from being a unit of the block,
+    so it is neither a declaration nor carriage — a marker of correct form
+    declaring nothing, which is exactly the fault the grounds exist to report.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    m = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** the "
+        "clause about composed views is gone")
+    assert m is not None and m.form == "removed"
+    assert m.names == [] and m.quoted == []
+    suppressed, findings = _defect_findings(canon_units, [], [m])
+    assert suppressed == set()
+    assert len(findings) == 1, [f.rule for f in findings]
+    assert "names no unit and quotes no span" in findings[0].rule
+    assert findings[0].severity == INFO
+    assert findings[0].action == mbc._MARKER_ACTION
+    assert mbc.classify(findings[0]) == mbc.CLASS_MARKERS
+
+    # ONE ROW, NEVER TWO. Ground five is exclusive of the other four by
+    # construction — every one of them is reached through `names` or `quoted`,
+    # and both are empty here — so this cannot double-report whatever else the
+    # block contains.
+    block_units = [mbc.Unit(mbc.BODY, "An added unit.")]
+    _sup, one = _defect_findings(canon_units, block_units, [m])
+    assert len(one) == 1, [f.rule for f in one]
+
+
+def test_the_PAIRING_form_carrying_no_code_span_stays_SILENT():
+    """THE EXCLUSION GROUND FIVE IS WRITTEN AROUND, HELD AS A TEST.
+
+    The pairing form names no units BY CONSTRUCTION — its whole tail is a
+    reason — so a pairing marker with no code span in its tail declares exactly
+    what that form declares and nothing is missing from it. That silence was
+    ruled correct by `amend-marker-defect-reporting` (`design.md` D3, last
+    paragraph) and ground five does not disturb it: the ground is read on the
+    `Removed from canon` form alone.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    m = mbc.parse_marker(
+        "**Modified over `add-a-basis`'s addition by add-a-carrier "
+        "(2026-09-01):** — written over the sibling's addition")
+    assert m is not None and m.form == mbc._PAIRING_FORM
+    assert m.names == [] and m.quoted == []
+    _sup, findings = _defect_findings(canon_units, [], [m])
     assert findings == [], [f.rule for f in findings]
 
 
-def test_a_well_formed_marker_is_silent_on_all_three_grounds():
+def test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT():
+    """THE RESIDUE OF THIS PACKET, PINNED SO IT IS A DECISION AND NOT A GAP —
+    the same discipline `design.md` D3 used on the case this packet's ground
+    four now retires.
+
+    A `Merged into` marker whose tail carries no code span names no superseded
+    title, but its DESTINATION stands in the prefix, where that form's
+    declaration has always been read — so whether such a paragraph declares
+    nothing, or declares a destination that absorbed nothing named here, is a
+    question nobody has ruled. openxFactory issue #860 scopes itself to the
+    `Removed from canon` form, and inventing a sixth ground here would repeat
+    the fault the predecessor packet exists to correct. Population zero, like
+    the two grounds this packet does take.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    m = mbc.parse_marker(
+        "**Merged into `A destination scenario` by add-example-change "
+        "(2026-08-27):**")
+    assert m is not None and m.form == "merged"
+    assert m.destination == "A destination scenario"
+    assert m.names == [] and m.quoted == []
+    _sup, findings = _defect_findings(canon_units, [], [m])
+    assert findings == [], [f.rule for f in findings]
+
+
+def test_a_well_formed_marker_is_silent_on_all_five_grounds():
     """THE DIRECTION THAT MATTERS MOST: the shape every legitimate marker in
     this corpus is written in raises nothing.
 
     One name, matching a canon unit the block does not carry; a reason after the
     boundary; and — because a reason quotes — a code span inside that reason
     which is not a unit of anything.
+
+    RENAMED BY `amend-marker-declaring-nothing` (2026-09-10) AND NOT OTHERWISE
+    EDITED — no assertion and no fixture moves, because none needed to. The
+    fourth ground is vacuous here (the one name matches a canon unit, so it
+    never reaches the block's texts) and the fifth is vacuous by construction
+    (the marker carries a name), and a test title still claiming three grounds
+    would tell the next reader the class had three.
     """
     canon_units = [mbc.Unit(mbc.BODY, "A unit."),
                    mbc.Unit(mbc.BODY, "A kept unit.")]
@@ -2728,3 +2844,81 @@ def test_no_marker_in_this_corpus_raises_either_NEW_ground_today():
         real = {u.text for u in units}
         for span in marker.quoted:
             assert span not in real or span in marker.names, (rel, span)
+
+
+def test_each_ground_added_here_matches_exactly_one_arm_template():
+    """THE PARTITION THE SHAPE MASK RESTS ON, HELD FOR THE FOURTH AND FIFTH
+    GROUNDS TOO — the sibling of
+    `test_each_new_marker_defect_ground_matches_exactly_one_arm_template`,
+    written for the two grounds `amend-marker-declaring-nothing` adds.
+
+    Both new WHY clauses land inside `TEMPLATE_MARKERS`' own `(?s:.*?)` gap, so
+    a clause carrying another template's fixed prose IN ORDER — the ledger's
+    " does not carry " … " of the " … " body units and scenario bullets ", say —
+    could make one rule text match two templates and red the partition `_shape`
+    and `classify` both rest on. `TEMPLATE_MARKERS`' own opening is unmoved by
+    this packet, which is what keeps the existing `CLASS_MARKERS` probe placing
+    every new finding and the seventh class (`unplaced-finding drift`) silent;
+    this is what checks the WORDING of the two clauses that opening now carries.
+    """
+    canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
+    block_units = [mbc.Unit(mbc.BODY, "An added unit.")]
+    block_adds = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** "
+        "`An added unit.` — names something only the block states")
+    nothing = mbc.parse_marker(
+        "**Removed from canon by add-example-change (2026-08-27):** the "
+        "clause about composed views is gone")
+    _sup, findings = _defect_findings(canon_units, block_units,
+                                      [block_adds, nothing])
+    assert len(findings) == 2, [f.rule for f in findings]
+    for f in findings:
+        masked = mbc._mask_repr_spans(f.rule)
+        hits = [t.id for t in mbc._ARM_TEMPLATES if t.matches(masked)]
+        assert hits == ["template:marker-defects"], (hits, f.rule)
+        assert mbc._shape(f.rule) == "template:marker-defects"
+        assert mbc.classify(f) == mbc.CLASS_MARKERS
+    assert len(mbc._ARM_TEMPLATES) == 8
+
+
+def test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today():
+    """D0 OF `amend-marker-declaring-nothing`, RE-DERIVED AS A TEST RATHER THAN
+    QUOTED FROM THE PACKET.
+
+    Both grounds added by that packet have a population of ZERO on this corpus,
+    which is what makes the amendment inert at landing and normative for the
+    next marker written.
+
+    TWO CEILINGS RATHER THAN TWO EXACT COUNTS, so that an unrelated marker
+    landing later is not read as a regression of these grounds:
+
+    - GROUND FIVE — no marker of `Removed from canon` form anywhere in the
+      corpus carries an empty tail. Measured over `_corpus_markers`' own walk,
+      which drops fenced regions first, so this requirement's written-out
+      examples are never offered.
+    - GROUND FOUR — for every active MODIFIED block the family actually reads,
+      no unit-naming marker names a text the BLOCK ITSELF states. That is
+      ground four's precondition and a STRICTLY WIDER assertion than the ground:
+      the ground additionally requires the name to match no unit of the promoted
+      requirement, which this test does not resolve. Said so rather than
+      implied, exactly as the sibling corpus tests say it of themselves.
+    """
+    from pathlib import Path
+
+    from conftest import REPO_ROOT
+
+    markers = _corpus_markers()
+    assert len(markers) >= 8, [str(p) for p, _m, _u in markers]
+    empty = [(rel, m) for rel, m, _u in markers
+             if m.form == "removed" and not m.names and not m.quoted]
+    assert empty == [], [(str(r), m.paragraph) for r, m in empty]
+
+    blocks = mbc.active_blocks(Path(REPO_ROOT))
+    assert blocks, "no active MODIFIED block in the corpus"
+    for block in blocks:
+        texts = {u.text for u in block.units}
+        for marker in block.markers:
+            if marker.form == mbc._PAIRING_FORM:
+                continue
+            for name in marker.names:
+                assert name not in texts, (block.change, block.title, name)
