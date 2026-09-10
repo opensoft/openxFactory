@@ -285,7 +285,7 @@ standing between them as this packet's gate.
       and it ticks there, not here.*
       **codexFactory's box 5.1 IS NOW SATISFIED IN FULL by this merge**, the
       owed pin advance being this commit; it still ticks there, not here.
-      **TWO FINDINGS, RECORDED RATHER THAN FIXED HERE.** (a) The driver moves the
+      **THREE FINDINGS, RECORDED RATHER THAN FIXED HERE.** (a) The driver moves the
       five pinned sites and the snapshot's two witnesses, and it does NOT move
       `floor_snapshot.of`, the `pinned_members` entry, or the two test literals —
       which is why this advance needed a hand. That is correct for every advance
@@ -317,6 +317,25 @@ standing between them as this packet's gate.
       advance-history figure at line 763 (`ad15a898` "carrying a SIXTY-EIGHT-
       entry floor") is NOT in this list: it is true as written of the advance
       it records.
+      (c) **A THIRD FINDING, RAISED BY THE CODEX REVIEW OF THE 4.2 PULL REQUEST
+      AND RECORDED HERE BECAUSE ITS REPAIR IS NOT THIS ACT'S TO MAKE.** Two
+      LIVE OPERATIONAL comment blocks — `.github/workflows/review-lane-repin.yml`
+      lines 196-203 and `scripts/review_lane_repin.py` lines 92-98 — say in the
+      present tense that `core_commit` "is still the PRE-relocation `4b12ba83`"
+      and that "the pin and the two single-path test declarations still name
+      the old path", both of which this commit falsifies. The finding is
+      CORRECT and is not disputed. It is not repaired here because those two
+      files are THE LANE'S OWN WORKFLOW AND DRIVER, and this pull request's
+      central claim — that the advance is the driver's own output and nothing
+      else, provable by re-running it in a pristine clone — is only falsifiable
+      while the diff leaves both byte-untouched. A commit that advanced the pin
+      AND edited the driver in the same act could not be checked that way. The
+      repair is also owed once rather than per-advance: the driver cannot reach
+      a comment at all, so every future automated advance leaves the same two
+      blocks stale. The owed act therefore restates both in the
+      superseded-not-deleted idiom AND makes them self-clearing (naming the
+      invariant rather than the commit), and it belongs in a successor change
+      against the lane's own files.
 - [ ] 4.3 One re-pin run observed green with the single new path.
       **Ticks on:** that run — the first hourly `review-lane-repin` firing after
       this merge, which should print *"fetched
@@ -347,8 +366,15 @@ standing between them as this packet's gate.
       same failure set as `main`. **Ticks on:** the ratifying commit, over the
       recorded runs.
 - [ ] 5.3 Archive, once § 2, § 3 and § 4 are all ticked. **Ticks on:** the
-      archive pull request. § 2 and § 3 are now complete; § 4 holds it — 4.3 on
-      the next hourly run, and **4.2 on codexFactory's next floor
-      regeneration**, which is not this lane's act to schedule. The packet
-      therefore stays ACTIVE across that wait rather than archiving with an open
-      box, which `proposal-support` would refuse in any case.
+      archive pull request. § 2, § 3 and 4.1/4.2 are now complete; **§ 4 holds
+      it on 4.3 ALONE** — the first hourly `review-lane-repin` firing after the
+      4.2 merge, printing the one-candidate sentence and `"action": "noop"`.
+      The packet therefore stays ACTIVE across that one wait rather than
+      archiving with an open box, which `proposal-support` would refuse in any
+      case. **SUPERSEDED, NOT DELETED — this box read, until the 4.2 commit:**
+      *"§ 2 and § 3 are now complete; § 4 holds it — 4.3 on the next hourly
+      run, and 4.2 on codexFactory's next floor regeneration, which is not this
+      lane's act to schedule."* That regeneration arrived (codexFactory PR #314
+      and PR #325) and 4.2 is discharged, so the instruction is narrowed to the
+      one trigger that is still outstanding rather than left telling an
+      operator to wait for a thing that has happened.
