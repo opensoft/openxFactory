@@ -487,9 +487,10 @@ the block was written into a registry-less tree.
   MUST NOT be reported as skipped.
 - **FR-024**: Every finding of the scenario-title completeness arm MUST
   carry `error` severity; every other class the family emits MUST keep the
-  band its own rule states, the title-resolution arm at `warning` and the
-  carriage ledger at `info`; and the family MUST be PRESENT in
-  `FAMILY_RESOLUTION`, classified `contested` — canon's own wording: "Every
+  band its own rule states, the title-resolution and ordering arm at `warning`
+  and the carriage ledger and the marker defects at `info`; and the family MUST
+  be PRESENT in `FAMILY_RESOLUTION`, classified `contested` — canon's own
+  wording: "Every
   finding of the scenario-title completeness arm — the arm that carries
   this family's gate — SHALL carry `error` severity, so a run configured to
   fail on `error` fails on a MODIFIED block that drops a scenario canon
