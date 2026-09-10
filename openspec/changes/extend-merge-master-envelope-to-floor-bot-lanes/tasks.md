@@ -564,7 +564,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   than foreclosed. OQ-2 is answered as recommended: the admitting act is a
   Gate-Rules Council record, and it has NOT been performed. Each remains one edit
   away. The box stays UNTICKED for the same reason 5.1's does.**
-- [ ] 5.3 **THE ENABLING ACT, AND WITHOUT IT NOTHING HERE CHANGES ANYTHING.**
+- [x] 5.3 **THE ENABLING ACT, AND WITHOUT IT NOTHING HERE CHANGES ANYTHING.**
   Ruleset `Require Code Owner Review` is ACTIVE on both repositories with
   `require_code_owner_review=true`, and every path either bot lane writes is
   code-owner gated to a single human. A GitHub App cannot be named in CODEOWNERS,
@@ -610,7 +610,19 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   **THE BOX STAYS UNTICKED** for the reason 5.1's and 5.2's do — ticking an
   owner's-act box is a claim an agent may not make about the owner — and this
   dated note is how the act is recorded instead.
-- [ ] 5.4 Answer OQ-1 (is the bypass shape acceptable at all), OQ-2 (word or
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim "tick 5.3 and 5.4"
+  (2026-09-10, in session to lane openxfactory-2; his act, the lane's pen;
+  recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5625582236).
+  Discharged as the signed record states (§ 4, R-3, § 8 item 5): the enabling
+  act was never performed and was never needed — the relocation of the
+  admitted artifact off every CODEOWNERS-scoped path made `Require Code Owner
+  Review` vacuous over it, and the App's approval was satisfied instead by
+  ruleset 22655338, not the code-owner-review ruleset this box named; the
+  stale `opensoft`-org ruleset id `18834180` this box's 2026-09-07 note cites
+  is corrected in the record to the `codeXfactory`-org ids 22655341/22655338.
+  Ticked by this PR.**
+- [x] 5.4 Answer OQ-1 (is the bypass shape acceptable at all), OQ-2 (word or
   Gate-Rules Council record for the second codexFactory candidate — **this packet
   recommends the COUNCIL**, because § 2.2a of `design.md` shows the act is not a
   grant inside the rules but a `## MODIFIED` to a promoted requirement canon calls
@@ -645,6 +657,17 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   this packet — see the 2026-09-10 note under § 2.7. **OQ-1 is moot**: the bypass
   shape was never exercised (§ 5.3). **The box stays UNTICKED** for the reason
   5.1's does.
+  **2026-09-10 — TICKED on Brett Heap's word, verbatim "tick 5.3 and 5.4"
+  (2026-09-10, in session to lane openxfactory-2; his act, the lane's pen;
+  recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5625582236).
+  Discharged as the signed record states (§ 5.1, § 8 item 5): OQ-2's
+  instrument, the Gate-Rules Council record, is now SIGNED with verdict ADMIT
+  at `review/gate-rules-council-admitting-record-2026-09-10.md`; OQ-3 (lanes
+  arm auto-merge versus teaching merge-master to merge) is answered by the
+  former, through the successor `amend-floor-regeneration-merge-authority`;
+  OQ-1 (is the bypass shape acceptable) is moot because no bypass shape was
+  ever exercised (§ 5.3). Ticked by this PR.**
 - [ ] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
   written by moving the machine-generated floor block off the code-owner-gated
   surface, instead of narrowing the requirement. It is the only option on the
