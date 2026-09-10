@@ -48,7 +48,10 @@ gate and is the only task here a human must perform.**
   `find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
   → no other active change.
   `gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`
-  → empty. No ACTIVE-change collision, so no `Modified over` marker is
+  → empty, checked BEFORE this pull request was filed (this pull request
+  itself necessarily touches `release-realization`, so "no OTHER open pull
+  request" is the claim, not "no open pull request" read literally). No
+  ACTIVE-change collision, so no `Modified over` marker is
   owed. Ledger row `class: co-modifier`, partnered with
   `accept-sequenced-after-header-line` (its own row flips `sole` →
   `co-modifier` in the same re-seed, task 1.7) — correct, since both write

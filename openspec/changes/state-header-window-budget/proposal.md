@@ -133,11 +133,13 @@ untouched and is not restated here.
 **Sibling search, taken 2026-09-10 before authoring.** No other ACTIVE
 change carries a `release-realization` spec delta at all
 (`find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
-returns nothing), and no open pull request on `opensoft/openxFactory` touches
-`release-realization` or `frontmatter_strict` (checked via
-`gh pr list --json number,title,files`). No active change collides with this
-delta, so `modified-block-currency`'s two-writers ordering rule owes no
-`Modified over` marker.
+returns nothing), and no OTHER open pull request on `opensoft/openxFactory`
+touches `release-realization` or `frontmatter_strict` (checked, before this
+pull request was filed, via `gh pr list --json number,title,files`; this
+pull request itself necessarily touches `release-realization` and is
+excluded by construction, not by a filter applied after the fact). No
+active change collides with this delta, so `modified-block-currency`'s
+two-writers ordering rule owes no `Modified over` marker.
 
 **The ledger's own `class` field reads `co-modifier`, not `sole`, and that
 is correct rather than a defect.** This change's `## MODIFIED` block writes

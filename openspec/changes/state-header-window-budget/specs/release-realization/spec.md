@@ -8,10 +8,12 @@ ordered-delta parent declaration." Measured 2026-09-10 over every active
 change directory: no other active change carries a `release-realization`
 delta at all
 (`find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
-returns nothing), and no open pull request touches `release-realization` or
-`frontmatter_strict`
-(`gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`
-returns nothing). No
+returns nothing), and no OTHER open pull request touches `release-realization`
+or `frontmatter_strict`
+(`gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`,
+checked before this pull request was filed, returns nothing — this pull
+request itself necessarily touches `release-realization` and is excluded by
+construction). No
 ACTIVE change collides with this delta, so `modified-block-currency`'s
 two-writers ordering rule owes no `Modified over` marker in either
 direction. (The per-change sweep ledger's own `class` field reads
