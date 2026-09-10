@@ -234,7 +234,7 @@ rows:
   implement-openxpki-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   migrate-canonical-policy-to-openxfactory: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   mirror-floor-addition-grace: {state: archived, class: sole, declares: [codexFactory:add-floor-addition-grace], depth: 0, prose: false, moved_by: "#699", moved_on: "2026-09-05"}
-  mirror-floor-regeneration-automation: {state: active, class: co-modifier, declares: [codexFactory:add-floor-regeneration-automation, mirror-floor-addition-grace], depth: 1, prose: false, moved_by: "#807", moved_on: "2026-09-08"}
+  mirror-floor-regeneration-automation: {state: archived, class: co-modifier, declares: [codexFactory:add-floor-regeneration-automation, mirror-floor-addition-grace], depth: 1, prose: false, moved_by: "#894", moved_on: "2026-09-10"}
   neutralize-job-envelope: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   pin-openspec-cli-dependency-closure: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#861", moved_on: "2026-09-09"}
   prepare-openspec-1-12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#834", moved_on: "2026-09-09"}

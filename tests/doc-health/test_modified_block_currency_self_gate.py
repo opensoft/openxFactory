@@ -752,6 +752,50 @@ _LEDGER_SUBJECTS = {
     ("adopt-configured-notebook-hosting-identity",
      "lifecycle-notebook-projection",
      "The projection's hosting identity is declared at install"),
+    # ADDED 2026-09-10 BY THIS REPOSITORY'S OWN ARCHIVE ACT — TWO ROWS, from
+    # the two SIBLING packets whose `## MODIFIED` blocks restate requirements
+    # `mirror-floor-regeneration-automation` added. `mirror-floor-regeneration-
+    # automation` archived to `openspec/changes/archive/2026-09-10-mirror-
+    # floor-regeneration-automation/` (openxFactory PR #894) and its block was
+    # PROMOTED, so both siblings — each of which already declared in its own
+    # header that its basis was "a sibling's addition rather than a promoted
+    # specification" — are now compared against CANON for the first time
+    # rather than against nothing. That is the mechanism, not a new edit to
+    # either sibling: neither block moved on this day, canon did.
+    #
+    # `amend-mirror-floor-regeneration-merge-authority` (PR #807, ratified and
+    # landed 2026-09-08 at `6cc06288`, the D-6 lockstep mirror of codexFactory's
+    # own amendment ratified the same day) REWRITES *An automated pin advance
+    # only ever proposes* to let the lane ARM the platform's auto-merge on its
+    # own pull request instead of holding an absolute no-merge rule. 3 of 12
+    # body units and scenario bullets are uncarried, all for the one reason:
+    # the body sentence "MUST NOT dispose of it: it SHALL NOT merge, SHALL NOT
+    # approve, SHALL NOT push…" and the THEN/AND bullets of *The lane opens a
+    # pull request and stops there* are each narrowed by the same clause —
+    # disposal stays forbidden, arming is newly admitted. This arm cannot
+    # distinguish a ratified narrowing from drift and does not claim to; the
+    # finding is INFO. Retires when this packet archives and its block is
+    # promoted.
+    ("amend-mirror-floor-regeneration-merge-authority",
+     "review-lane-floor-mirror",
+     "An automated pin advance only ever proposes"),
+    # `relocate-review-authority-floor-mirror` (PR #817, ratified 2026-09-08,
+    # landed at `c98a0544`, the openxFactory half of a cross-repository
+    # relocation ruled the same day) REWRITES *The automated advance re-copies
+    # the vendored snapshot and recomputes its witnesses from the bytes it
+    # wrote* so the lane resolves the authoritative document through an
+    # ORDERED candidate-path list rather than one fixed path, for a governed
+    # relocation neither repository can land atomically. 2 of 13 body units
+    # and scenario bullets are uncarried, both bullets of *A missing copy
+    # refuses the whole advance*: the WHEN gains "from any declared candidate
+    # path" and the AND gains "and the refusal names every path it tried" —
+    # the THEN bullet ("the lane refuses and opens no pull request") is
+    # carried verbatim. This arm cannot distinguish a ratified rewording from
+    # drift and does not claim to; the finding is INFO. Retires when this
+    # packet archives and its block is promoted.
+    ("relocate-review-authority-floor-mirror", "review-lane-floor-mirror",
+     "The automated advance re-copies the vendored snapshot and recomputes "
+     "its witnesses from the bytes it wrote"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1081,7 +1125,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of eleven named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1127,7 +1171,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "line of the promoted corpus that stated a real identity as a "
         "normative example, and the one row in this ledger that CANNOT be "
         "retired by the reserved marker, because the marker names the retired "
-        "unit by its exact text and that text is the value being removed)",
+        "unit by its exact text and that text is the value being removed; "
+        "11 SINCE 2026-09-10, when THIS repository's own archive act (PR #894) "
+        "promoted `review-lane-floor-mirror` into canon and made two SIBLING "
+        "packets' MODIFIED blocks — amend-mirror-floor-regeneration-merge-"
+        "authority's and relocate-review-authority-floor-mirror's, neither "
+        "edited that day — comparable against canon for the first time rather "
+        "than against nothing, opening both their rows at once)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

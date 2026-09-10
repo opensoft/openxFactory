@@ -1075,50 +1075,6 @@ Active changes:
   openXwallet:widen-register-reader-for-a-second-council]`; `code_surface` is
   NOT `none`, so it archives only on merged, green realization evidence.
 
-- [mirror-floor-regeneration-automation](openspec/changes/mirror-floor-regeneration-automation/proposal.md)
-  — authored 2026-09-06, **`Status: ratified`** (2026-09-06, Brett Heap
-  (repository owner), in session, verbatim *"ratify both when green, then land
-  them"* — a PAIR word over this companion and codexFactory #235 together,
-  recorded 2026-09-06T01:18Z on PR #708 over head `e4ef8ade`, its
-  `pytest-suite` condition met; record
-  `openspec/changes/mirror-floor-regeneration-automation/review/ratification-2026-09-06.md`),
-  lane `openxfactory-2`, authored on his earlier word *"merge 231 when green,
-  then propose option (b)"*. **RATIFICATION PERFORMS NO REALIZATION** — no
-  workflow file, no test, NO PIN MOVED, every box in `tasks.md` still unticked;
-  decisions **M-1..M-7 stand as recommended**, no veto exercised. Governing
-  issue codexFactory
-  [#232](https://github.com/codeXfactory/codexFactory/issues/232) (no separate
-  openxFactory issue was filed, by instruction); origin codexFactory
-  [#203](https://github.com/codeXfactory/codexFactory/issues/203). **THE COMPANION
-  HALF, AND NOTHING IS BUILT BY IT.** The primary is codexFactory
-  `add-floor-regeneration-automation`
-  (option (b) of #203, the one the ruled option (c) left *"not ruled and not
-  designed"*): there, a lane that runs the shipped generator at a LANDED
-  openxFactory `main` commit; **here, the RE-PIN half** — a lane that, on the
-  codexFactory floor document moving, advances the FIVE sites in one commit
-  (`contracts/review-lane-pin.yaml` `core_commit`, `merge-master-approval.yml`'s
-  `PINNED_CORE_COMMIT` and its checkout `ref:`, `pytest-suite.yml`'s checkout
-  `ref:`, and the re-copied `contracts/review-lane-floor-snapshot.yaml` with its
-  `sha256`/`entry_count` recomputed) and opens a pull request. **The measured
-  cost it answers**: the ruled tolerance of `3` (codexFactory #231,
-  `8a406b10`) bounds the grace's deferral at three paths, and discharging it took
-  **55 min** (cxF #212 → #689) and **77 min** (cxF #226 → #702) on the two cycles
-  actually run. Eight `## ADDED Requirements` on `review-lane-floor-mirror`, no
-  `## MODIFIED` and no `## REMOVED`: proposal-only authority, a landed-core
-  refusal, all-five-or-nothing proved by RE-READING each site after the write,
-  the snapshot re-copied with its witnesses recomputed from the bytes written,
-  **judgment by the freshness checks that already exist with NO exemption of any
-  kind**, the witness set the pull request must carry, sweep-as-mechanism
-  triggering, and a template-only credential binding that FAILS LOUD rather than
-  falling back. **The judge is deliberately untouched**: LQ-A7, its two negative
-  controls, the byte-identity verifier, its named-testcase watch and
-  `EXPECT_SKIPPED` are out of scope — automating the author while adjusting the
-  judge would be marking one's own homework. Seven authoring decisions M-1..M-7
-  are put for veto, M-7 among them naming a real loss (the lane writes no
-  comment-history paragraph, so eight advances of narrative in the pin file stop
-  accruing). `sequenced_after: [codexFactory:add-floor-regeneration-automation,
-  mirror-floor-addition-grace]` — the corpus's second cross-repository entry.
-
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
   first-hand to lane codexfactory-1, verbatim *"ratify 697"*, against head
@@ -2854,6 +2810,76 @@ Archived changes:
   a 23-line self-disclosing `## Addendum` to it — `23 0`, additions only, no
   original line edited, moved or deleted. The ratified wording is quoted in
   place rather than deleted.
+- [mirror-floor-regeneration-automation](openspec/changes/archive/2026-09-10-mirror-floor-regeneration-automation/proposal.md)
+  — **ARCHIVED 2026-09-10** by
+  [PR #894](https://github.com/opensoft/openxFactory/pull/894), on Brett Heap's
+  word of 2026-09-10, verbatim *"same word for the mirror's six on #745"* —
+  extending his *"tick 6.1, 6.2, 6.4 and 6.3; rule on the rest"*
+  ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586))
+  — over his earlier *"archive the option-(b) packets, this lane authors it"*
+  (2026-09-09 ~23:3xZ), and on the `release-realization` rule that a change
+  with a NON-EMPTY code surface archives on **merged-plus-green realization
+  evidence, not on landing**. Ratified 2026-09-06, Brett Heap (repository
+  owner), verbatim *"ratify both when green, then land them"* — a PAIR word
+  over this companion and codexFactory #235 together — recorded
+  2026-09-06T01:18Z on [PR #708](https://github.com/opensoft/openxFactory/pull/708)
+  over head `e4ef8ade`; record
+  `openspec/changes/archive/2026-09-10-mirror-floor-regeneration-automation/review/ratification-2026-09-06.md`.
+  Realization landed as [#715](https://github.com/opensoft/openxFactory/pull/715)
+  and the box ledger as [#876](https://github.com/opensoft/openxFactory/pull/876)
+  → `ef10c049`. Governing issue codexFactory
+  [#232](https://github.com/codeXfactory/codexFactory/issues/232) (no separate
+  openxFactory issue was filed, by instruction); **#745 is REFS, not closed
+  here** — it governs the still-active successor
+  `extend-merge-master-envelope-to-floor-bot-lanes`.
+  **THE EVIDENCE `target_release:` DEMANDED, WHICH #876 REFUSED TO ARCHIVE
+  WITHOUT.** It asked for *"ONE COMPLETE CYCLE OBSERVED UNATTENDED — a real
+  `openspec/specs/**` promotion here, followed by a bot-opened codexFactory
+  regeneration pull request **and a bot-opened re-pin pull request in this
+  repository**, both carrying their witnesses, both merged"*. Cycle three
+  supplied it, with one departure recorded rather than smoothed over:
+  promotion `62935437` (`openspec/specs/repository-identity/spec.md`,
+  2026-09-10T00:38:27Z) → codexFactory
+  [#325](https://github.com/codeXfactory/codexFactory/pull/325) opened by
+  `app/openxfactory` 01:32:58Z and merged `df42f803` by `app/openxfactory`
+  01:55:14Z (**22 min 16 s, no human actor**, no human word owed under the
+  ratified `amend-floor-regeneration-merge-authority`) → this repository's
+  advance, which the `17 * * * *` lane refused TWELVE times (00:58:18Z →
+  11:24:25Z) on the one-time floor relocation
+  (`relocate-review-authority-floor-mirror` box 4.2) and which was therefore
+  **hand-produced** as [#883](https://github.com/opensoft/openxFactory/pull/883)
+  and merged on Brett Heap's word *"merge both"* → `e916f0ea`, 11:57:17Z →
+  advisory run
+  [34475347536](https://github.com/opensoft/openxFactory/actions/runs/34475347536)
+  (12:11:42Z, pinned core `b594ef2a`) reading, verbatim, `covered-pending:
+  0 (tolerance 3, pin measured)`, repeated on runs 34475672967 and 34477475011.
+  The next scheduled tick, 34477749947 (12:37:16Z), was a clean named no-op.
+  **WHAT IS NOW CANON.** The eight `## ADDED Requirements` promote
+  byte-identically into `openspec/specs/review-lane-floor-mirror/spec.md`,
+  taking it from **7 requirements / 28 scenarios to 15 / 52** with **zero
+  deletions**: proposal-only authority (the lane opens a pull request and never
+  writes to the default branch), a landed-core refusal with the source default
+  branch resolved by the lane itself, all-five-sites-or-nothing proved by
+  RE-READING each site after the write, the vendored snapshot re-copied with
+  its `sha256` and `entry_count` recomputed from the bytes written, judgment by
+  the freshness checks that already exist **with no author-keyed exemption**,
+  the witness set the pull request must carry, sweep-as-mechanism triggering
+  with idempotent firings, and a template-only least-privilege credential
+  binding that FAILS LOUD rather than degrading.
+  **WHAT THE ARCHIVE DOES NOT CLAIM, each named in `tasks.md` rather than left
+  to be inferred.** § 5.6 is ticked **on the recording**: no repair-free
+  unattended two-repository wall time exists on any of the three cycles, and
+  none can while this lane's merge is a human act by ruling, so the figure is
+  owed to the enrolment successor
+  `admit-review-lane-repin-to-merge-approval-envelope`
+  (`amend-mirror-floor-regeneration-merge-authority` box 4.3, **unfiled**). § 6.3
+  ticks **on the naming** of `extend-merge-master-envelope-to-floor-bot-lanes`
+  and leaves the default it names — a human merge word on the re-pin pull
+  request — in force; this lane's arming is realized **INERT BY RULING**.
+  `amend-mirror-floor-regeneration-merge-authority` is **NOT TOUCHED** and stays
+  ACTIVE on its own gate. Nothing is deleted: the superseded human-word clause
+  at § 5.5 (a) and the 2026-09-09 `NOT ARCHIVED` ledger stand as written, with
+  the archive recorded beneath them.
 
 - [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
   — **ARCHIVED 2026-09-10** by
