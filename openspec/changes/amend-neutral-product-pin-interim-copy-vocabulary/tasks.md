@@ -171,8 +171,9 @@ landing. § 5 records what was measured and deliberately not taken.
       tests/doc-health -q` — PASSES.
 - [x] 3.8 **ALL SEVEN GATES RE-RUN IN FULL ON THE CORRECTED TREE**, 2026-09-10,
       after the bench fixes and the record re-derivation — capture at
-      `review/verification-2026-09-10.md`, which supersedes the 2026-09-09
-      capture's figures without editing it. `--all --strict` is measured against
+      `review/verification-2026-09-10.md`, which is a LATER RUN at its own path
+      and NOT a supersession: the 2026-09-09 capture keeps `Status: record`, is
+      not moved to `superseded` and is not edited. `--all --strict` is measured against
       an `origin/main` `9c0e2cda` control run in a separate worktree, and
       `doc-health`'s finding-line diff against the pre-re-derive tree is
       IDENTICAL.

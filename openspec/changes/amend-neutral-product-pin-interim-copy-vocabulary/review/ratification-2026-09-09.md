@@ -16,7 +16,8 @@ recommendation and the full cost of taking it ENUMERATED line by line. **D1 IS
 RESOLVED AS TOLERATED, WHICH IS THE OPTION THE PACKET ALREADY ENCODED, SO THE
 DELTA'S WORDING STANDS UNCHANGED AND NO SUBSTITUTION WAS PERFORMED.**
 
-**THIS RECORD IS RE-DERIVED AND IT SUPERSEDES THE ONE WRITTEN AT `d0ddb126`.**
+**THIS RECORD IS RE-DERIVED AND IT REPLACES THE TEXT WRITTEN AT THIS SAME PATH
+AT `d0ddb126`.**
 Two things about the earlier writing were wrong and Brett Heap ruled on both at
 **2026-09-10T00:20Z** (§ 1.2): it carried `Status: record` where
 `document-lifecycle` requires `Status: ratified` of a review record whose
@@ -251,6 +252,7 @@ the re-derived head.
 | T6 | Codex P2 | `specs/neutral-product-pin/spec.md:188` | the marker says the bullets' only edit is the vocabulary replacement, but the `THEN` bullet also appends the reservation clause, so the repeated *"one word each"* accounting is false | **TAKEN** on Brett Heap's ruling (1) — the clause STAYS, the accounting is corrected (§ 3) |
 | T7 | Codex **P1** (on `27b31718`) | `review/verification-2026-09-09.md:11` | a dated run report is a one-shot `record`; a SECOND run must write a different path rather than rewrite the first capture | **TAKEN** — § 4.5 |
 | T8 | Codex **P1** (on `27b31718`) | `specs/neutral-product-pin/spec.md:129` | reserving LAWFUL to the entrypoint-invoking read is said to make the sanctioned resolver-backed ARCHIVE path unlawful, so the amendment would change behaviour | **REFUSED** — § 4.5 |
+| T9 | Codex **P1** (on `8a46d144`) | `review/verification-2026-09-10.md:6` | the re-run's `Supersedes:` header owes the PREDECESSOR a move to `superseded`, which T7 forbids — the two claims cannot both stand | **TAKEN** — § 4.5 |
 
 ### 4.4 T2 REFUSED, and why the origin prose stays in the present tense
 
@@ -301,8 +303,9 @@ family iterates the GOVERNED corpus while a `review/` record lives in the
 LIFECYCLE scan set — and **a checker-coverage gap is not a licence**. Fixed:
 `review/verification-2026-09-09.md` is RESTORED byte-for-byte to its `d0ddb126`
 bytes (`git diff d0ddb126 -- …/review/verification-2026-09-09.md` is EMPTY), and
-the re-run is written at `review/verification-2026-09-10.md`, which names what it
-supersedes in its own header. The family gap is filed rather than relied on.
+the re-run is written at `review/verification-2026-09-10.md`, which names the
+earlier capture it FOLLOWS in its own header. The family gap is filed rather than
+relied on.
 
 **T8 — "Keep the sanctioned archive path lawful". REFUSED, on the merits AND on
 authority, in that order.**
@@ -355,6 +358,24 @@ OWN WORD**, not an edit here — and it would be an amendment about the
 ENTRYPOINT/RESOLVER pair, which is a different subject from this packet's
 vocabulary reconciliation. It is named here as an available successor rather
 than taken.
+
+**T9 — "Stop declaring the preserved capture superseded". TAKEN, and it is the
+correct reading of the pair of rules.** The first draft of the re-run carried a
+`Supersedes:` header naming `review/verification-2026-09-09.md`. But
+`document-lifecycle`'s *A document is superseded* puts the obligation on the
+PREDECESSOR — *"the replaced document MUST move to `superseded` status naming its
+successor, or be deleted with the successor recording provenance"* — and T7's
+rule orders that same predecessor preserved unedited as a one-shot capture. A
+document cannot be both. Codex also named, correctly again, that
+`succession-integrity` would not have caught it: that family only reads a
+document ALREADY marked `superseded`, so a supersession claimed from the
+successor's side is invisible to it — the same shape of checker-coverage
+argument as T7, and it is right for the same reason. **Fixed by dropping the
+claim, not by editing the predecessor**: the header now reads `Rerun of:`, and
+the record states that the 2026-09-09 capture keeps `Status: record`, is not
+moved to `superseded` and is not deleted. The later run is the CURRENT
+measurement; the earlier is the record of the earlier tree; both are true of
+their own moments.
 
 ## 5. Why the packet exists: a refused finding, not a fix
 

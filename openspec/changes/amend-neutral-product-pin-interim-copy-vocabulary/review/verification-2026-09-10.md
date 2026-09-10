@@ -3,7 +3,7 @@
 Status: record
 Kind: report
 Date: 2026-09-10
-Supersedes: `review/verification-2026-09-09.md` (the 2026-09-09 capture, preserved unedited)
+Rerun of: `review/verification-2026-09-09.md` (the 2026-09-09 capture, preserved unedited and NOT superseded)
 Ratified by: amend-neutral-product-pin-interim-copy-vocabulary — 2026-09-09, Brett Heap, "Ratify with TOLERATED" (record `review/ratification-2026-09-09.md`)
 
 **A SECOND RUN WRITES A DIFFERENT PATH, AND THIS IS THAT PATH.**
@@ -12,13 +12,28 @@ audit output, a dated run report, a byte-exact evidence snapshot"* — keeps
 `record`, and that **"a second run of such a generator writes a different path
 rather than rewriting the same one"**. The 2026-09-09 capture at
 `review/verification-2026-09-09.md` is therefore PRESERVED BYTE-FOR-BYTE as it
-was committed at `d0ddb126`; this file is the SECOND run, and it supersedes that
-capture's figures without editing them. Taken on Codex's P1 of 2026-09-10
-(**T7**, `ratification-2026-09-09.md` § 4.5), which is correct on the contract:
-an earlier draft of this re-run rewrote the 09-09 path, and `record-immutability`
-staying silent about it is a checker-coverage gap rather than a licence.
+was committed at `d0ddb126`; this file is the SECOND run, at its own path.
 
-**RE-RUN 2026-09-10T01:05Z ON THE CORRECTED TREE.** Every figure below was taken
+**AND IT IS A LATER RUN, NOT A SUPERSESSION — THE DISTINCTION IS LOAD-BEARING.**
+`document-lifecycle`'s *A document is superseded* holds that *"the replaced
+document MUST move to `superseded` status naming its successor, or be deleted
+with the successor recording provenance"* — an obligation on the PREDECESSOR,
+and one that would require editing the very capture the rule above orders
+preserved. The two rules are only in tension if this file claims supersession,
+so it does not. **`review/verification-2026-09-09.md` keeps `Status: record`, is
+not moved to `superseded`, and is not deleted.** What this file carries is the
+CURRENT measurement; what that file carries is what was measured on 2026-09-09,
+and both are true of their own moments. Where the two disagree, the later run is
+the current figure and the earlier remains the record of the earlier tree.
+
+Both points are taken from Codex P1s of 2026-09-10 (**T7** and **T9**,
+`ratification-2026-09-09.md` § 4.5), and both are correct on the contract: an
+earlier draft of this re-run rewrote the 09-09 path, and `record-immutability`
+staying silent about it is a checker-coverage gap rather than a licence; a later
+draft then claimed supersession, which `succession-integrity` also would not have
+caught, and which would have owed an edit to the preserved capture.
+
+**RE-RUN 2026-09-10T01:21Z ON THE CORRECTED TREE.** Every figure below was taken
 again, from zero — after the bench fixes of `feeba1aa`, after `origin/main` was
 merged at `5525a40e`, after the records were re-derived at `27b31718`, and after
 the T7/T8 disposition commit that carries this file. **NOTHING IS CARRIED
@@ -44,7 +59,7 @@ CORRECTION, never by the ratification.
 | `origin/main` at this verification | `9c0e2cda` (was `8480378a` at the `d0ddb126` run) |
 | doc-health control tree | `5525a40e` — the SAME tree minus the re-derived records |
 | re-derive commit | `27b31718` — the records rewritten on Brett Heap's two rulings |
-| the 2026-09-09 capture this run supersedes | `review/verification-2026-09-09.md`, preserved byte-identical to `d0ddb126` |
+| the earlier run this one follows | `review/verification-2026-09-09.md`, preserved byte-identical to `d0ddb126`, `Status: record`, NOT superseded |
 | lane | `openxfactory-1` (display `openXfactory-1`) |
 | environment | `OPENSPEC_TELEMETRY=0`, `TZ=UTC`, `openspec` CLI **1.2.0** |
 
@@ -281,7 +296,7 @@ gap is filed rather than relied on.
 ## 7. `python3 -m pytest tests/sequenced_after tests/scope_globs tests/doc-health -q`
 
 ```
-1979 passed, 7 warnings in 380.28s (0:06:20)
+1979 passed, 7 warnings in 382.77s (0:06:22)
 ```
 
 **Exit code 0.** All three suites green on the re-derived
@@ -370,14 +385,16 @@ other active change's files are touched.
 
 ## 10. Independent review
 
-**TEN FINDINGS ACROSS SIX ROUNDS, EIGHT TAKEN AND TWO REFUSED.** Six threads
+**ELEVEN FINDINGS ACROSS SEVEN ROUNDS, NINE TAKEN AND TWO REFUSED.** Six threads
 stood on the ratified head `d0ddb126` (three Copilot, three Codex: one P1, two
 P2) — **T1–T6**, five taken and T2 refused. Two further **P1s** arrived from
 Codex on the re-derived head `27b31718` — **T7** (this record's path: TAKEN, and
 it is the reason this file exists) and **T8** (widen the LAWFUL reservation to
-name the resolver-backed archive path: REFUSED). The full table with each
-disposition is `ratification-2026-09-09.md` § 4.3, the T2 refusal is argued at
-§ 4.4, and T7/T8 at § 4.5. The earlier rounds — Copilot "Approval recommended"
+name the resolver-backed archive path: REFUSED). One more **P1** arrived on
+`8a46d144` — **T9** (this file must not claim to SUPERSEDE the capture T7 orders
+preserved: TAKEN). The full table with each disposition is
+`ratification-2026-09-09.md` § 4.3, the T2 refusal is argued at § 4.4, and
+T7/T8/T9 at § 4.5. The earlier rounds — Copilot "Approval recommended"
 twice (`9c26a97c`, `d42dbf6b`) and one Codex round on `9c26a97c` whose two
 findings were taken at `d42dbf6b` — are at § 4.1–4.2. Sourcery is an upsell stub
 on this repository and its comment is an ABSENCE, not a review.

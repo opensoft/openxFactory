@@ -534,8 +534,9 @@ Active changes:
   `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-09.md`
   (the 09-09 run, preserved unedited) and
   `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-10.md`
-  (the 2026-09-10 RE-RUN, which supersedes its figures — a dated run report being
-  a one-shot `record`, so a second run writes a second path)).
+  (the 2026-09-10 RE-RUN — a dated run report being a one-shot `record`, a second
+  run writes a SECOND PATH and does NOT supersede the first, which keeps
+  `Status: record` and is not edited)).
   `.openspec.yaml` keeps the drafting
   provenance it was authored with and the approval pair is ADDED beside it,
   `kind` and `id` unmoved — the addition-not-rewrite shape
