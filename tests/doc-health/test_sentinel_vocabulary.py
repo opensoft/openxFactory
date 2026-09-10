@@ -912,11 +912,15 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     without anything having drifted (ruling D-8(a); the last paragraph
     below measures both readings)."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 70, not the 66 this census landed with, and every step is kept apart
-    # because each was taken by a different packet: two on 2026-08-28 and two
-    # more that arrived from `main` in the 2026-09-03 merge. Read the four
-    # paragraphs below in order; the assertion at the end of them is the only
-    # number this test enforces.
+    # 73, not the 66 this census landed with, and every step is kept apart
+    # because each was taken by a different packet: of the first four, two on
+    # 2026-08-28 and two more that arrived from `main` in the 2026-09-03
+    # merge. Read the seven paragraphs below in order; the assertion at the
+    # end of them is the only number this test enforces. (This line still read
+    # "70" and "four paragraphs" after the 2026-09-08 step took the census to
+    # 71 and the paragraph count to six — a header going stale while the
+    # assertion below stayed true, which is precisely the drift this file's own
+    # 70 -> 70 paragraph says to correct rather than leave to be found.)
     #
     # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
     # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
@@ -1010,8 +1014,30 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # intents from `origin/intents/rolling` it reads 75 results / 25 members
     # and the SAME standing census of (71, 24). The frozen pair is the one that
     # did not move.
+    #
+    # 71 -> 73, AND THE MEMBER COUNT MOVES BY TWO FOR THE FIRST TIME
+    # (`split-opendox-two-layer-product` task 5.1, RULED OQ-L, 2026-09-10).
+    # `contracts/openxdox-pin.yaml` is the THIRD neutral-product pin, and the
+    # first artifact in this census to declare TWO members at once, because one
+    # file carries two values with two different localities: `carve_commit` is
+    # an openxFactory commit that must stay reachable HERE (REPO_LOCAL, RULED
+    # OQ-I's record 2), and `commit` is `opensoft/openXdox`'s, answered against
+    # another remote by another authority (CROSS_REPOSITORY). Contrast the
+    # 67 -> 69 step above, which also moved the SITE count by two but the MEMBER
+    # count by one: only one of its two sites was new in kind. Both sites here
+    # are `population=CURRENT`, so unlike the rolling gate intents they belong
+    # inside the frozen pair rather than beside it.
+    #
+    # DECLARED BY THE SAME COMMIT THAT ADDS THE PIN, so unlike the 69th this one
+    # never announced itself as `uncovered`: the coverage half was satisfied
+    # before the push instead of by CI, and `report.uncovered == ()` below holds
+    # unchanged rather than being repaired afterwards. ENUMERATED WITH
+    # `pin_class.verify()` ON THE COMMITTED TREE — 79 results / 27 members,
+    # standing census (73, 26) — and measured the same way against `main` at
+    # `ea34f22a`, which reads 77 / 25 and a standing census of (71, 24). Never
+    # by arithmetic. `lost` stays 1, and `vanished` / `arrived` are untouched.
     standing_sites, standing_members = pc.standing_census(report.results)
-    assert (standing_sites, standing_members) == (71, 24)
+    assert (standing_sites, standing_members) == (73, 26)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]
