@@ -621,7 +621,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   ruleset 22655338, not the code-owner-review ruleset this box named; the
   stale `opensoft`-org ruleset id `18834180` this box's 2026-09-07 note cites
   is corrected in the record to the `codeXfactory`-org ids 22655341/22655338.
-  Ticked by this PR.**
+  Ticked by PR #927.**
 - [x] 5.4 Answer OQ-1 (is the bypass shape acceptable at all), OQ-2 (word or
   Gate-Rules Council record for the second codexFactory candidate — **this packet
   recommends the COUNCIL**, because § 2.2a of `design.md` shows the act is not a
@@ -667,7 +667,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   arm auto-merge versus teaching merge-master to merge) is answered by the
   former, through the successor `amend-floor-regeneration-merge-authority`;
   OQ-1 (is the bypass shape acceptable) is moot because no bypass shape was
-  ever exercised (§ 5.3). Ticked by this PR.**
+  ever exercised (§ 5.3). Ticked by PR #927.**
 - [ ] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
   written by moving the machine-generated floor block off the code-owner-gated
   surface, instead of narrowing the requirement. It is the only option on the
