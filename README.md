@@ -553,9 +553,12 @@ Active changes:
   (`Fence lines consume the header window budget`), every existing sentence
   and scenario carried verbatim** — machine-diffed against the promoted spec
   with the two additions stripped out, clean. `code_surface: none`; archives
-  on landing once ratified. Ledger `class: sole` — no other active change
-  and no open pull request touches `release-realization` or
-  `frontmatter_strict` (checked 2026-09-10). Lane `codexfactory-1`.
+  on landing once ratified. No ACTIVE change collides and no open pull
+  request touches `release-realization` or `frontmatter_strict` (checked
+  2026-09-10), so no `Modified over` marker is owed; the per-change sweep
+  ledger's `class` field reads `co-modifier`, partnered with the archived
+  `accept-sequenced-after-header-line` (its own row flips to match) —
+  correct, since both write the same requirement key. Lane `codexfactory-1`.
 
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,

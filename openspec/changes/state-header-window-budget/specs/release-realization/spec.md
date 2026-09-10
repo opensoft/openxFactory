@@ -11,10 +11,14 @@ delta at all (`find openspec/changes -maxdepth 3 -path
 and no open pull request touches `release-realization` or
 `frontmatter_strict` (`gh pr list -R opensoft/openxFactory --state open
 --json number,title,files --jq '.[] | select(.files[].path |
-test("release-realization|frontmatter_strict"))'` returns nothing). This
-change's row in the per-change sweep ledger is therefore `class: sole`, and
-`modified-block-currency`'s two-writers rule owes no ordering declaration in
-either direction.
+test("release-realization|frontmatter_strict"))'` returns nothing). No
+ACTIVE change collides with this delta, so `modified-block-currency`'s
+two-writers ordering rule owes no `Modified over` marker in either
+direction. (The per-change sweep ledger's own `class` field reads
+`co-modifier` rather than `sole` for this change's row, because it shares
+its requirement key with `accept-sequenced-after-header-line`'s own
+ARCHIVED `## ADDED Requirements` block — the ledger's documented
+partner-flip mechanic, not an active-change collision.)
 
 **WHAT MOVES: ONE BODY PARAGRAPH ADDED, ONE SCENARIO ADDED. EVERY EXISTING
 SENTENCE, BULLET AND SCENARIO OF THE REQUIREMENT IS CANON'S OWN, CARRIED

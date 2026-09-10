@@ -130,13 +130,27 @@ promoted requirement of this capability's `accept-sequenced-after-header-line`
 delta, "One parent declaration across both sites, and its retention," is
 untouched and is not restated here.
 
-**Sibling search, taken 2026-09-10 before authoring.** No other active
+**Sibling search, taken 2026-09-10 before authoring.** No other ACTIVE
 change carries a `release-realization` spec delta at all
 (`find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
 returns nothing), and no open pull request on `opensoft/openxFactory` touches
 `release-realization` or `frontmatter_strict` (checked via
-`gh pr list --json number,title,files`). This change's ledger row is
-therefore `class: sole`.
+`gh pr list --json number,title,files`). No active change collides with this
+delta, so `modified-block-currency`'s two-writers ordering rule owes no
+`Modified over` marker.
+
+**The ledger's own `class` field reads `co-modifier`, not `sole`, and that
+is correct rather than a defect.** This change's `## MODIFIED` block writes
+the same requirement key — `release-realization` / "Equivalent declaration
+sites for the ordered-delta parent declaration" — that
+`accept-sequenced-after-header-line`'s own `## ADDED Requirements` block
+wrote, and the per-change sweep ledger counts that ARCHIVED adder as the
+partner regardless of the active-collision question above, which is
+narrower and answered separately. Seeding this change's row
+(`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+'#921'`) flips `accept-sequenced-after-header-line`'s own row from `sole` to
+`co-modifier` in the same re-seed — the ledger's own documented "partner
+flip" mechanic, not a hand edit.
 
 ## Impact
 

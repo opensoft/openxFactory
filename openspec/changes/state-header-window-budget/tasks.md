@@ -49,36 +49,59 @@ gate and is the only task here a human must perform.**
   -not -path "*/archive/*"` → no other active change. `gh pr list -R
   opensoft/openxFactory --state open --json number,title,files --jq '.[] |
   select(.files[].path | test("release-realization|frontmatter_strict"))'`
-  → empty. Ledger row `class: sole`.
+  → empty. No ACTIVE-change collision, so no `Modified over` marker is
+  owed. Ledger row `class: co-modifier`, partnered with
+  `accept-sequenced-after-header-line` (its own row flips `sole` →
+  `co-modifier` in the same re-seed, task 1.7) — correct, since both write
+  the same requirement key; this is the ledger's documented partner-flip
+  mechanic, not an active-change collision.
 - [x] 1.6 List the change in the openxFactory README "OpenSpec Records"
   ACTIVE block, marked **DRAFT — RATIFICATION OWED**.
-- [ ] 1.7 Seed this change's row in the per-change sweep ledger
-  (`tests/sequenced_after/corpus-ledger.yaml`) via the sanctioned tool
+- [x] 1.7 **DONE, PR #921.** Seeded this change's row in the per-change
+  sweep ledger via the sanctioned tool
   (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
-  '#<this PR>'`), never hand-authored. **Deferred until the pull request
-  exists**, on `accept-sequenced-after-header-line` task 4.5's own
-  precedent: "taken AFTER the pull request existed, because the real number
-  does not exist until it does."
+  '#921'` → "wrote tests/sequenced_after/corpus-ledger.yaml (195 rows, 2
+  moved by #921)"), taken AFTER the pull request existed, on
+  `accept-sequenced-after-header-line` task 4.5's own precedent. TWO rows
+  moved, both correctly: this change's own new row
+  (`state: active, class: co-modifier, declares:
+  [accept-sequenced-after-header-line], depth: 3`), and
+  `accept-sequenced-after-header-line`'s row flipping `sole` →
+  `co-modifier` in the same commit — the ledger's own documented
+  partner-flip mechanic, because that archived change's `## ADDED
+  Requirements` block wrote the same requirement key this change's
+  `## MODIFIED` block now also writes.
 
 ## Group 2 — Gates
 
-- [ ] 2.1 Machine diff: strip this delta's two additions from
-  `specs/release-realization/spec.md` and diff the remainder against the
-  promoted requirement in `openspec/specs/release-realization/spec.md` —
-  MUST be clean (verified once already during authoring; re-run at the
-  ratified head before archive).
-- [ ] 2.2 `OPENSPEC_TELEMETRY=0 <pinned openspec> validate
-  state-header-window-budget --strict` — exit 0.
-- [ ] 2.3 `OPENSPEC_TELEMETRY=0 <pinned openspec> validate --all --strict` —
-  totals compared against a clean `origin/main` worktree, no new failure.
-- [ ] 2.4 `python3 -m pytest tests -q -k "sequenced or frontmatter or
-  release_realization"` — exit 0, identical to a clean `origin/main`
-  worktree (this packet changes no code any of those tests exercise).
-- [ ] 2.5 `python3 scripts/doc-health.py --single-repo . --family
-  status-validity,record-immutability,ratified-provenance` — 0 findings on
-  this packet.
-- [ ] 2.6 `python3 scripts/validate-sequenced-after.py . --ledger-diff` —
-  clean after 1.7's seed.
+- [x] 2.1 Machine diff: this delta's two additions stripped from
+  `specs/release-realization/spec.md` and diffed against the promoted
+  requirement in `openspec/specs/release-realization/spec.md` — CLEAN (one
+  harmless trailing-blank-line artifact of the extraction method, no
+  content difference).
+- [x] 2.2 `OPENSPEC_TELEMETRY=0 <pinned openspec> validate
+  state-header-window-budget --strict` → "Change 'state-header-window-budget'
+  is valid", exit 0.
+- [x] 2.3 `OPENSPEC_TELEMETRY=0 <pinned openspec> validate --all --strict` →
+  **99 passed, 2 failed (101 items)**, exit 1 — vs a clean `origin/main`
+  worktree's **98 passed, 2 failed (100 items)**, exit 1: exactly +1 passed,
+  same 2 pre-existing failures on both sides
+  (`change/add-chain-attestation`, `change/add-composed-view-authoring` —
+  the two known ERROR-level marker-blind findings `prepare-openspec-1-12-readiness`
+  already named), zero new failures introduced.
+- [x] 2.4 `python3 -m pytest tests -q -k "sequenced or frontmatter or
+  release_realization"` → **278 passed, 0 failed**, identical total to a
+  clean `origin/main` worktree's 278 passed. (Before 1.7's seed this read
+  274 passed / 4 failed — the four ledger-consistency tests, because this
+  change's row did not yet exist; expected and resolved by the seed.)
+- [x] 2.5 `python3 scripts/doc-health.py --single-repo . --family
+  status-validity`, `--family record-immutability`, `--family
+  ratified-provenance` (run separately — `--family` takes one choice, not a
+  list) — all three exit 0; zero findings name any path under
+  `openspec/changes/state-header-window-budget/` (`grep -c
+  state-header-window-budget` on each family's output → 0).
+- [x] 2.6 `python3 scripts/validate-sequenced-after.py . --ledger-diff` →
+  "per-change sweep ledger consistent with the corpus (195 rows)", exit 0.
 
 ## Group 3 — Archive (NOT this change's act — owed on ratification)
 
