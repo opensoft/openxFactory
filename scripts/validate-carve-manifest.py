@@ -76,10 +76,55 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
      `reason` are each membership-tested against a closed list
      (`carve-vocabulary-unknown`).
   6. DISPOSITION CONSISTENCY — `moved_with_declared_edit` with no `edits:` is
-     `moved_verbatim` mislabelled; `moved_verbatim` or `not_moved` with `edits:`
-     is a contradiction (`carve-disposition-inconsistent`). Then the rows'
-     file order must equal their bytewise-UTF-8 sort, which is what the const
+     `moved_verbatim` mislabelled; `moved_verbatim` with `edits:`, or
+     `not_moved` with `edits:` under any reason but
+     `replicated_at_destination`, is a contradiction
+     (`carve-disposition-inconsistent`); so is a moved row that lists its OWN
+     `destination` in `also_replicated_to:`. Then the rows' file order must
+     equal their bytewise-UTF-8 sort, which is what the const
      `path_order: bytewise_utf8` claims (`carve-path-order-violation`).
+
+TWO GRAMMAR EXTENSIONS, RULED Q-L7 (a) (Brett Heap, 2026-09-10, verbatim "rule
+Q-L7 (a)"; `#656` comment `5618683833`). Carve leg 1 landed and measured two
+facts the grammar as first written could not hold, both about the SAME pair of
+test-layout files, and the ruling amends the grammar once rather than twice:
+
+  * `also_replicated_to: [<destination key>, …]` ON A MOVED ROW. A row was
+    either MOVED (to exactly one destination) or REPLICATED (at every
+    destination, naming none). `tests/ideation-dashboard/conftest.py` is one of
+    the replica rows and arrives at BOTH `-code` legs; it imports
+    `session_fixtures` unconditionally (`:106`), and
+    `tests/ideation-dashboard/session_fixtures.py` is a MOVED row to
+    `opendox_code` alone — so collecting `tests/` at openXdox-code would fail
+    at import, on a file no row placed there. The optional list says the row's
+    bytes ALSO arrive, as a replica on RULED OQ-A's terms, at the destinations
+    it names. It adds NO arrival path: a replica's placement is the leg's
+    (RULED OQ-C — "this manifest declares what LEAVES, not what the destination
+    assembles") and is declared to `verify-carve-arrival.py` with
+    `--replica-at`, which is why check 4's arrivals map is untouched by it.
+  * `edits:` ON A `replicated_at_destination` ROW. A replica was byte-identical
+    by construction and declared no line. The same conftest replica arrives at
+    `tests/conftest.py`, ONE DIRECTORY SHALLOWER than its source, so its `:25`
+    `REPO_ROOT = HERE.parent.parent` points outside the destination repository
+    (391 node-gated errors, measured in leg 1's full suite) and must read
+    `HERE.parent` at every replica. The lines are the carve commit's, bounded
+    by the source blob at `carve_commit` in check 3 exactly as a moved row's
+    are, and the class vocabulary is the same closed three. The edit is
+    APPLIED IDENTICALLY AT EVERY REPLICA — a claim about lines, which is what
+    this grammar can bound; see `verify-carve-arrival.py`'s own docstring for
+    what that does and does not prove at the destination.
+
+  It is NOT the FLOOR PART 2 field. RULING OQ-K's clause (b)
+  (`split-opendox-two-layer-product` design § D6 (2)) owes FLOOR PART 1 a field
+  on a TEST-BEARING replica row naming the set of REPOSITORIES its copies land
+  in, including the retained openxFactory one, so that
+  `Σ over replicated rows of (m − 1) × row_test_count` is computable. The
+  packet names no spelling for it and this amendment does not author it: both
+  files here carry ZERO `def test_` at `carve_commit` (measured), so neither
+  enters that Σ and neither clause is realized by this act. `also_replicated_to`
+  names `destinations:` KEYS for arrival admission; the owed field names
+  repositories for an arithmetic. They can coexist on one row without either
+  meaning the other.
 
 WHY CHECK 2 IS ANCESTRY AND NOT IDENTITY (AMENDED 2026-09-09, before the
 manifest was authored). As landed, check 2 required the revision under test to
@@ -220,6 +265,17 @@ DISPOSITIONS: tuple[str, ...] = ("moved_verbatim", "moved_with_declared_edit",
 MOVED_DISPOSITIONS: tuple[str, ...] = ("moved_verbatim",
                                        "moved_with_declared_edit")
 
+# The ONE `not_moved` reason that means the bytes DO arrive somewhere — a copy
+# at each destination, retained here (RULED OQ-A/OQ-C). It is the only reason
+# under which check 6 admits `edits:` on a `not_moved` row (RULED Q-L7 (a)):
+# every other reason describes a file that arrives nowhere, and a carve edit to
+# a file that arrives nowhere is the contradiction check 6 exists to name. The
+# three `stays_openxfactory_governance` rows that record an import rewrite in
+# their EVIDENCE prose (RULING OQ-B's `tests/notebooklm/*`) are unchanged by
+# this: they stay HERE and take their rewrite in openxFactory, so they have no
+# replica for a declared line to be applied at.
+REPLICA_REASON = "replicated_at_destination"
+
 # RULED OQ-C. The manifest declares its own subset of these; it may not declare
 # a reason that is not here.
 KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
@@ -323,14 +379,24 @@ TOP_LEVEL_KEYS = frozenset({
 # `edits` is grammatically legal on EVERY disposition, deliberately: whether an
 # edit list AGREES with the disposition is check 6's question, and check 6
 # answers it as `carve-disposition-inconsistent` — a more precise finding, for a
-# row all of whose keys are real ones, than "unknown key".
+# row all of whose keys are real ones, than "unknown key". Under RULED Q-L7 (a)
+# check 6 now ADMITS it on a `not_moved / replicated_at_destination` row, which
+# is a change in that check and not in this grammar.
+#
+# `also_replicated_to` is on the MOVED dispositions ONLY (RULED Q-L7 (a)). A
+# `not_moved` row declares no destination at all, so it cannot declare an
+# ADDITIONAL one: a replica row is already replicated at every destination that
+# needs it and names none of them, and a `stays_*` or `deleted_at_carve` row's
+# bytes arrive nowhere. That refusal is a shape finding with its own arm in
+# `_check_row_shape`, not the generic "carries a destination" message, because
+# the key it names is a different claim from `destination:`.
 ROW_KEYS_BY_DISPOSITION: dict[str, frozenset[str]] = {
     "moved_verbatim": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits"}),
+        "destination_path", "edits", "also_replicated_to"}),
     "moved_with_declared_edit": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits"}),
+        "destination_path", "edits", "also_replicated_to"}),
     "not_moved": frozenset({
         "source_path", "disposition", "reason", "evidence", "edits"}),
 }
@@ -729,6 +795,9 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                 "is not 64 lowercase hex characters")
         _require_str(row, "destination", f"{where} ({source_path})")
         _require_str(row, "destination_path", f"{where} ({source_path})")
+        if "also_replicated_to" in row:
+            _check_also_replicated_shape(where, source_path,
+                                         row["also_replicated_to"])
         for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION[disposition]):
             if key in row:
                 raise CarveRefusal(
@@ -739,6 +808,23 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
     elif disposition == "not_moved":
         _require_str(row, "reason", f"{where} ({source_path})")
         _require_str(row, "evidence", f"{where} ({source_path})")
+        # ITS OWN ARM, ahead of the generic loop below (which would reach it
+        # first, `also_replicated_to` sorting before `destination`): the key is
+        # a DIFFERENT claim from `destination:` and the generic message —
+        # "nothing arrives" — is false of a replica row, whose bytes do arrive
+        # at every destination that needs them. Reported precisely instead.
+        if "also_replicated_to" in row:
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"{where} ({source_path}) is `not_moved` and carries "
+                "`also_replicated_to:`. RULED Q-L7 (a) puts that key on a "
+                "MOVED row, to say that bytes which move to one destination "
+                "are ALSO replicated at another; a `not_moved` row declares no "
+                "destination at all, so it cannot declare an additional one. A "
+                f"`{REPLICA_REASON}` row is already replicated at every "
+                "destination that needs it and names none of them — placement "
+                "is the leg's (RULED OQ-C) — and a row that stays, or was "
+                "deleted at the carve, arrives nowhere to be replicated")
         for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION["not_moved"]):
             if key in row:
                 raise CarveRefusal(
@@ -797,6 +883,51 @@ def _check_edits_shape(where: str, source_path: str, edits: Any) -> None:
                 "carve-shape-invalid",
                 f"{at} declares `note: {edit['note']!r}`; a note is prose or "
                 "it is absent")
+
+
+def _check_also_replicated_shape(where: str, source_path: str,
+                                 value: Any) -> None:
+    """`also_replicated_to:` is a NON-EMPTY list of distinct destination labels.
+
+    Shape only. WHETHER each label is a key of `destinations:` is check 5's
+    question — the same check that owns `destination` — and whether the row
+    lists its OWN destination is check 6's, because that is a row contradicting
+    itself rather than a document mis-shaped. Reported in three places on
+    purpose: a reader of a refusal should be able to tell a typo from an
+    unknown destination from a self-reference without reading this file.
+
+    AN EMPTY LIST REFUSES. `also_replicated_to: []` declares no replica while
+    looking in review like a row that declares one, and the absent key says
+    the same thing unambiguously — `moved_paths:`' own reasoning, one level
+    down. A REPEATED label refuses for the reason `--replica-at`'s repeated key
+    does at the destination: one replica lands once per destination, and a
+    duplicate is either a typo for a second destination or a claim made twice.
+    """
+    if not isinstance(value, list) or not value:
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `also_replicated_to: {value!r}`;"
+            " a non-empty list of `destinations:` labels is required. An empty "
+            "list declares no replica while reading in a diff like a row that "
+            "declares one, and the absent key says that unambiguously")
+    seen: set[str] = set()
+    for position, entry in enumerate(value):
+        if not isinstance(entry, str) or not entry.strip():
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"{where}.also_replicated_to[{position}] ({source_path}) is "
+                f"{entry!r}; a destination label is a non-empty string, and a "
+                "row's replica destinations are KEYS of `destinations:` for the "
+                "reason its own `destination` is one — one typo otherwise "
+                "replicates a file to a repository nobody declared")
+        if entry in seen:
+            raise CarveRefusal(
+                "carve-shape-invalid",
+                f"{where} ({source_path}) lists {entry!r} twice in "
+                "`also_replicated_to:`; one replica lands once per "
+                "destination, so a repeat is either a typo for a second "
+                "destination or the same claim made twice")
+        seen.add(entry)
 
 
 def in_surface(path: str, moved_paths: list[str]) -> bool:
@@ -900,6 +1031,12 @@ def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
     recomputed = 0
     for index, row in enumerate(doc["rows"]):
         if row.get("disposition") not in MOVED_DISPOSITIONS:
+            # A REPLICA ROW MAY NOW DECLARE LINES (RULED Q-L7 (a)) and they are
+            # bounded here, where every other declared line is bounded. It
+            # costs one `cat-file` per such row — one, in the landed manifest —
+            # because a `not_moved` row carries no digest for pass 1 to have
+            # read the blob for.
+            _check_replica_edit_lines(repo, index, row, referent, commit)
             continue
         path = row["source_path"]
         if path not in referent:
@@ -981,6 +1118,39 @@ def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
             "and not a defect in it: re-cut the manifest at a new carve "
             "commit and recompute every digest")
     return recomputed
+
+
+def _check_replica_edit_lines(repo: Path, index: int, row: dict[str, Any],
+                              referent: dict[str, TreeEntry],
+                              commit: str) -> None:
+    """A `replicated_at_destination` row's declared lines, bounded by the SOURCE
+    BLOB at `carve_commit` (RULED Q-L7 (a)).
+
+    THE SAME BOUND AS A MOVED ROW'S, from the same bytes, under the same code.
+    A replica carries no `sha256` — the row grammar gives a `not_moved` row
+    none — so nothing above has read its blob and the read happens here.
+
+    IT KEYS ON THE REASON, not merely on `not_moved` with `edits:`. Under any
+    OTHER reason an edit list is check 6's `carve-disposition-inconsistent` —
+    a file that arrives nowhere takes no carve edit — and bounding its lines
+    here first would report the wrong finding for the same row.
+
+    A PATH THE REFERENT DOES NOT CARRY RETURNS. That is check 4's
+    `carve-path-absent` (the surface walk is what reads a `not_moved` row's
+    path at all), and a second refusal for it here would depend on which check
+    ran first for its code.
+    """
+    if (row.get("disposition") != "not_moved"
+            or row.get("reason") != REPLICA_REASON
+            or not row.get("edits")):
+        return
+    path = row["source_path"]
+    if path not in referent:
+        return
+    content = blob_at(repo, commit, path)
+    if content is None:  # pragma: no cover - ls-tree already said blob
+        return
+    _check_edit_lines(index, path, row, content, commit)
 
 
 def _check_edit_lines(index: int, path: str, row: dict[str, Any],
@@ -1171,6 +1341,20 @@ def check_vocabularies(doc: dict) -> None:
                 "carve-vocabulary-unknown",
                 f"{where} declares `destination: {destination!r}`, which is "
                 f"not a key of `destinations:` ({sorted(destinations)!r})")
+        # THE SAME MEMBERSHIP TEST, for the same reason, on the row's replica
+        # destinations (RULED Q-L7 (a)): `destinations:` is closed because one
+        # typo otherwise ships a file to a repository nobody declared, and a
+        # replica of a moved row is shipped by exactly the same act.
+        for position, key in enumerate(row.get("also_replicated_to") or []):
+            if key not in destinations:
+                raise CarveRefusal(
+                    "carve-vocabulary-unknown",
+                    f"{where}.also_replicated_to[{position}] declares "
+                    f"{key!r}, which is not a key of `destinations:` "
+                    f"({sorted(destinations)!r}). The row says these bytes "
+                    "ALSO arrive there as a replica, and an arrival at a "
+                    "destination nobody declared is the typo the closed map "
+                    "exists to refuse")
         for position, edit in enumerate(row.get("edits") or []):
             if edit["class"] not in declared_classes:
                 raise CarveRefusal(
@@ -1193,6 +1377,7 @@ def check_disposition_consistency(doc: dict) -> None:
         where = f"rows[{index}] ({row['source_path']})"
         disposition = row["disposition"]
         edits = row.get("edits") or []
+        reason = row.get("reason")
         if disposition == "moved_with_declared_edit" and not edits:
             raise CarveRefusal(
                 "carve-disposition-inconsistent",
@@ -1206,11 +1391,38 @@ def check_disposition_consistency(doc: dict) -> None:
                 f"{where} is `moved_verbatim` and declares {len(edits)} "
                 "edit(s); verbatim means the destination's bytes equal this "
                 "digest, which a declared edit contradicts")
-        if disposition == "not_moved" and edits:
+        # RULED Q-L7 (a): the ONE reason under which a `not_moved` row's edits
+        # are not a contradiction. A replica's bytes DO arrive — a copy at each
+        # destination, retained here — so a line the copy must differ on is a
+        # declarable carve edit, applied identically at every replica. Under
+        # every other reason the bytes arrive nowhere and the old finding
+        # stands, which is what keeps RULING OQ-B's three
+        # `stays_openxfactory_governance` rows recording their rewrite in
+        # EVIDENCE rather than in `edits:`.
+        if disposition == "not_moved" and edits and reason != REPLICA_REASON:
             raise CarveRefusal(
                 "carve-disposition-inconsistent",
-                f"{where} is `not_moved` and declares {len(edits)} edit(s); a "
-                "file that does not move takes no carve edit")
+                f"{where} is `not_moved / {reason}` and declares {len(edits)} "
+                "edit(s); a file that arrives nowhere takes no carve edit. "
+                f"RULED Q-L7 (a) admits `edits:` on a `{REPLICA_REASON}` row "
+                "ONLY, because that is the one reason whose bytes do arrive — "
+                "a copy at each destination, where a declared line is applied "
+                "identically. A file that STAYS and is rewritten HERE records "
+                "the rewrite in its `evidence:` (RULING OQ-B's "
+                "`tests/notebooklm/*` rows), because openxFactory's own tree "
+                "is not a carve destination")
+        own = row.get("destination")
+        for key in row.get("also_replicated_to") or []:
+            if key == own:
+                raise CarveRefusal(
+                    "carve-disposition-inconsistent",
+                    f"{where} moves to `destination: {own!r}` and lists that "
+                    "same key in `also_replicated_to:`. The row already places "
+                    "the file there, at its own `destination_path` — ALSO "
+                    "means somewhere else, and a row replicating a file at the "
+                    "destination it moves to would let `--replica-at` re-point "
+                    "an arrival the manifest has already declared, which is "
+                    "the one thing the manifest is for")
 
     # `path_order: bytewise_utf8` is a claim about THIS document, and a const
     # nothing enforces is a comment. Bytewise on the UTF-8 encoding, not on
