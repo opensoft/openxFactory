@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-marker-declaring-nothing
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-10 by Brett Heap (openxFactory operator authority) — "ratify as encoded"; record at review/ratification-2026-09-10.md
 Proposed: 2026-09-10, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-10, verbatim **"do the 860 856 batch, land each
 when green"**, given in session.
@@ -16,14 +17,29 @@ Origin: openxFactory
 lane at the archive of `amend-marker-defect-reporting`
 ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`), which
 owed them as residue `tasks.md` § 5.2 and § 5.7.
-**THAT WORD AUTHORIZES THE AUTHORING, NOT THE CONTENT.** It names a batch and a
-landing condition; it ratifies no wording and takes neither of the two design
-decisions this packet carries. This proposal is therefore a **DRAFT** and
-carries **NO APPROVAL PAIR** — `.openspec.yaml` keeps drafting provenance alone
-(`proposed_by` + `proposed_on`, no `approved_by`, no `approved_on`), which is
-the lawful unapproved shape `add-drafted-proposal-origin` defined, and every
-document in the packet carries `Status: draft` to match. Ratification,
-promotion and archive are three later acts on three later words.
+**THAT WORD AUTHORIZED THE AUTHORING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Brett Heap ruled on this packet itself
+on 2026-09-10, verbatim **"ratify as encoded"** — a MULTIPLE-CHOICE ruling over
+`design.md` **D1** (#860) and **D2** (#856), the packet's two declared veto
+points, put to him with the recommendation first and each alternative's cost
+written out beside it. **BOTH ARE RESOLVED AS OPTION A**: a `Removed from canon`
+marker whose tail carries no code span is REPORTED as ground FIVE, and a name
+matching a unit the block itself adds is REPORTED as ground FOUR — both at the
+`info` band the marker-defect class already carries. Both are the options the
+packet already encoded, so **THE DELTA'S WORDING STANDS UNCHANGED**: no
+substitution was performed, neither ground was withdrawn, neither scenario was
+deleted and no test flipped back. D3 through D9 were carried beside them and
+none was vetoed. The citation is the single `Ratified:` line above, which is
+what `ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-10.md` and the gate run captured beside it at
+`review/verification-2026-09-10.md`. `.openspec.yaml` now carries `approved_by`
++ `approved_on` **ADDED BESIDE** the drafting provenance it was authored with,
+`kind` and `id` unmoved — the addition-not-rewrite shape
+`add-drafted-proposal-origin` defined. **NOTHING IS PROMOTED BY THIS
+RATIFICATION**: this pull request still edits no file under `openspec/specs/`.
+`code_surface` is non-empty, so under `release-realization` the archive is a
+separate act on merged-plus-green realization evidence and on a separate word,
+and openxFactory #856 and #860 close there and not at this landing.
 
 ## Why
 
@@ -289,17 +305,24 @@ no partner row flips and no MOVEMENT LOG entry is owed.
 
 ## Ratification
 
-**NOT RATIFIED.** Brett Heap's word of 2026-09-10, verbatim *"do the 860 856
-batch, land each when green"*, is the ORIGIN of the authoring: it names the
-batch and a landing condition and decides no wording. No approval pair is
-declared in `.openspec.yaml` and none is implied. **The two decisions most worth
-a veto are `design.md` D1 (#860) and D2 (#856)**, each carried with the
-recommended encoding first and the alternative with its cost written out beside
-it, in the pull request body, in `tasks.md` § 1 and on both origin issues. A
-veto of D1 is a veto of ground FIVE alone; a veto of D2 is a veto of ground FOUR
-alone; the two rest on no shared predicate.
+**RATIFIED 2026-09-10 BY BRETT HEAP** (openxFactory operator authority), lane
+`openxfactory-1`, verbatim *"ratify as encoded"* — given in session and recorded
+on openxFactory PR
+[#908](https://github.com/opensoft/openxFactory/pull/908#issuecomment-5623230781)
+at **2026-09-10T18:06:52Z**. The earlier word of 2026-09-10, verbatim *"do the
+860 856 batch, land each when green"*, stays recorded as the ORIGIN of the
+AUTHORING: it named the batch and a landing condition and decided no wording.
+**The two decisions most worth a veto were `design.md` D1 (#860) and D2
+(#856)**, each carried with the recommended encoding first and the alternative
+with its cost written out beside it, in the pull request body, in `tasks.md` § 1
+and on both origin issues — **AND BOTH ARE RULED A**. A veto of D1 would have
+been a veto of ground FIVE alone and a veto of D2 a veto of ground FOUR alone;
+neither landed, so both grounds stand, both scenarios stand, both new test
+groups stand and the flipped assertion stays flipped. Record:
+`review/ratification-2026-09-10.md`, with the gate run re-derived on the
+ratified tree at `review/verification-2026-09-10.md`.
 
-**WHAT A RATIFICATION WOULD NOT REACH.** `code_surface` is non-empty, so under
+**WHAT THE RATIFICATION DOES NOT REACH.** `code_surface` is non-empty, so under
 `release-realization` the archive is a separate act on merged-plus-green
 realization evidence and on a separate word (`tasks.md` § 6), and openxFactory
 **#856** and **#860** therefore close at archive rather than at this landing.

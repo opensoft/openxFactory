@@ -1,6 +1,7 @@
 # Design: amend-marker-declaring-nothing
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-declaring-nothing — 2026-09-10, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-10.md`)
 Date: 2026-09-10
 Kind: design
 
@@ -10,14 +11,23 @@ openxFactory issues **#856** and **#860**, filed for the queue on 2026-09-09 at
 the archive of `amend-marker-defect-reporting` (PR #850 → `250d93d7`), which
 owed them at its own `tasks.md` § 5.2 and § 5.7. Brett Heap's word of
 2026-09-10, verbatim **"do the 860 856 batch, land each when green"**,
-commissions this authoring and ratifies nothing.
+commissioned this authoring and ratified nothing — it stays recorded as the
+ORIGIN of the AUTHORING.
 
-Each issue offers TWO encodings and asks for a ruling first. This document takes
-one of each, writes the other out beside it with its cost, and names the choice
-as that issue's veto point. **D1 IS #860's AND D2 IS #856's, AND THEY ARE
-INDEPENDENT**: a veto of D1 is a veto of ground FIVE alone and a veto of D2 is a
-veto of ground FOUR alone, because the two grounds share no predicate, no field
-and no branch.
+**THE PACKET HAS SINCE BEEN RATIFIED**, by a second word of 2026-09-10 —
+verbatim **"ratify as encoded"**, recorded on PR
+[#908](https://github.com/opensoft/openxFactory/pull/908#issuecomment-5623230781)
+at 2026-09-10T18:06:52Z, record `review/ratification-2026-09-10.md` — which
+reaches **D1** and **D2** below and resolves BOTH as **A**.
+
+Each issue offered TWO encodings and asked for a ruling first. This document
+took one of each, wrote the other out beside it with its cost, and named the
+choice as that issue's veto point. **D1 IS #860's AND D2 IS #856's, AND THEY
+WERE INDEPENDENT**: a veto of D1 would have been a veto of ground FIVE alone and
+a veto of D2 a veto of ground FOUR alone, because the two grounds share no
+predicate, no field and no branch. **NEITHER VETO LANDED**, so both grounds
+stand exactly as encoded and this page's alternatives are the record of what was
+put and declined.
 
 ## D0 — the measurement, taken before the design
 
@@ -51,7 +61,16 @@ measured rather than assumed, and neither silence has yet cost anybody a row.
 CEILINGS rather than exact counts so that an unrelated marker landing later is
 not read as a regression of these grounds.
 
-## D1 — THE VETO POINT FOR #860: report it (doc-health) against un-form it (document-lifecycle)
+## D1 — RULED A (#860): report it (doc-health), NOT un-form it (document-lifecycle)
+
+**RULED 2026-09-10 by Brett Heap, verbatim *"ratify as encoded"*, as a
+MULTIPLE-CHOICE ruling over this decision** (given in session and recorded on PR
+#908 at 2026-09-10T18:06:52Z; record `review/ratification-2026-09-10.md`).
+**THE RECOMMENDATION WAS TAKEN, SO NOTHING IN THE DELTA MOVES**: ground five
+stands as encoded, its scenario stands, its two tests stand, and
+`document-lifecycle` is not amended. Option B is retained on this page as the
+record of what was put and declined rather than as work owed — and it is what
+made the choice a choice rather than an author's preference.
 
 **A — RECOMMENDED, AND WHAT THE DELTA ENCODES.** A paragraph of
 `Removed from canon` form whose tail carries no code span stays a MARKER and is
@@ -106,16 +125,27 @@ is why it needs the ruling first"*, and that is exactly right:
    retiring a UNIT from canon, with a marker, in another `## MODIFIED` block
    over the same requirement.
 
-**THE COST OF VETOING A.** Ground five is withdrawn from the delta and from
-`suppression`; the two `Removed from canon`-with-no-span tests come out; canon
-keeps FOUR grounds and the sentence is re-authored to say so; the case is filed
-back as an unruled grammar question against `document-lifecycle`, where it needs
-its own packet, its own scenarios and a migration story for any paragraph the
-new grammar reclassifies. **NOTHING ELSE IN THIS PACKET MOVES**: ground four,
-its scenario, its test and its measurement are untouched, because D1 and D2
-share no predicate.
+**THE COST OF VETOING A, AND IT DID NOT LAND.** A veto would have withdrawn
+ground five from the delta and from `suppression`; the two `Removed from
+canon`-with-no-span tests would have come out; canon would have kept FOUR
+grounds with the sentence re-authored to say so; and the case would have been
+filed back as an unruled grammar question against `document-lifecycle`, where it
+needs its own packet, its own scenarios and a migration story for any paragraph
+the new grammar reclassifies. **NOTHING ELSE IN THIS PACKET WOULD HAVE MOVED**:
+ground four, its scenario, its test and its measurement were untouched either
+way, because D1 and D2 share no predicate. The ruling of 2026-09-10 took A, so
+none of that was performed.
 
-## D2 — THE VETO POINT FOR #856: report it against ruling the silence correct
+## D2 — RULED A (#856): report it, NOT rule the silence correct
+
+**RULED 2026-09-10 by Brett Heap, verbatim *"ratify as encoded"*, as a
+MULTIPLE-CHOICE ruling over this decision** (given in session and recorded on PR
+#908 at 2026-09-10T18:06:52Z; record `review/ratification-2026-09-10.md`).
+**THE RECOMMENDATION WAS TAKEN, SO NOTHING IN THE DELTA MOVES**: ground four
+stands as encoded, its scenario stands, and the assertion this packet flipped
+STAYS FLIPPED — the silence the predecessor pinned is overturned, which is what
+the pin was written for. Option B is retained on this page as the record of what
+was put and declined.
 
 **A — RECOMMENDED, AND WHAT THE DELTA ENCODES.** A name matching NO unit of the
 requirement's basis and matching a unit THE BLOCK ITSELF ADDS is REPORTED, as a
@@ -155,13 +185,15 @@ ADDS is out of scope"*. Its cost, written out:
    ratified permission; withdrawing it later means retiring a unit from canon
    under a marker, in a third amendment of this sentence in five days.
 
-**THE COST OF VETOING A.** Ground four is withdrawn; the flipped test flips
-back to its ratified silence and keeps its old name;
+**THE COST OF VETOING A, AND IT DID NOT LAND.** A veto would have withdrawn
+ground four; the flipped test would have flipped back to its ratified silence
+and kept its old name;
 `test_a_name_matching_a_unit_the_BLOCK_adds_reports_the_marker`'s
-two-shapes-in-one-marker half comes out; and canon gains, instead, the one
-sentence B asks for, so that the next reader finds a decision rather than a gap.
-**NOTHING ELSE IN THIS PACKET MOVES**: ground five, its scenario, its tests and
-its exclusions are untouched.
+two-shapes-in-one-marker half would have come out; and canon would have gained,
+instead, the one sentence B asks for, so that the next reader found a decision
+rather than a gap. **NOTHING ELSE IN THIS PACKET WOULD HAVE MOVED**: ground
+five, its scenario, its tests and its exclusions were untouched either way. The
+ruling of 2026-09-10 took A, so none of that was performed.
 
 ## D3 — the band: `info`, the same as grounds two and three, and why not `warning`
 

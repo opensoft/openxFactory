@@ -79,6 +79,52 @@ origin:
     alone and a veto of D2 is a veto of ground four alone; the two rest on no
     shared predicate and either stands whichever way the other goes.
   proposed_on: 2026-09-10
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-10, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "ratify as encoded",
+    given in session and recorded on openxFactory PR #908 at
+    2026-09-10T18:06:52Z (comment 5623230781). THIS IS THE RATIFICATION ACT AND
+    IT IS ADDED, NOT SUBSTITUTED. The drafting provenance above is kept exactly
+    as authored and `kind` and `id` never move, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition:
+    approval is a pure ADDITION beside a fixed origin identity, so the support
+    manifest that repeats `kind` and `id` never comes to disagree with the
+    packet, and the archive gate's origin-retention arm reads the declaration
+    this commit establishes. The earlier word of 2026-09-10, verbatim "do the
+    860 856 batch, land each when green", stays the ORIGIN of the AUTHORING and
+    is not read as an approval: it named a batch and a landing condition and
+    decided no wording.
+    THE WORD IS A MULTIPLE-CHOICE RULING AND IT REACHES BOTH OF THE PACKET'S
+    DECLARED VETO POINTS, `design.md` D1 (#860) and D2 (#856), each put with the
+    recommendation first and the alternative's cost written out beside it. BOTH
+    ARE RESOLVED AS OPTION A. D1: a `Removed from canon` marker whose tail
+    carries no code span stays a MARKER and is REPORTED, as marker-defect ground
+    FIVE at `info`, rather than being un-formed by a `document-lifecycle`
+    GRAMMAR rule — so `document-lifecycle` is NOT amended and the paragraph does
+    not become a carriage unit. D2: a name matching no unit of the requirement's
+    basis and matching a unit THE BLOCK ITSELF ADDS is REPORTED, as ground FOUR
+    at `info`, rather than the silence being ruled correct in canon. BOTH ARE
+    THE OPTIONS THE PACKET ALREADY ENCODED, SO THE PACKET'S WORDING STANDS
+    UNCHANGED — no ground is withdrawn, neither added scenario is deleted, the
+    assertion this packet flipped stays flipped, and the veto costs D1 and D2
+    tabulated were NOT performed. D0's measurement stands with them, both new
+    grounds having a population of ZERO on `main` @ `e0638f11`; D3 through D9
+    were carried beside them and none was vetoed.
+    NO SEVERITY MOVES, NO CLASS IS ADDED AND NO ROW IS ADDED BY THIS
+    RATIFICATION. Both new findings carry the marker-defect class's existing
+    `info` band and its existing action, `TEMPLATE_MARKERS`' text is not edited
+    at all, `_ARM_TEMPLATES` stays at EIGHT, and the family's `contested`
+    resolution row is inherited rather than claimed an exemption from.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD, AND IT IS NOT PERFORMED
+    HERE. `code_surface` is non-empty, so under `release-realization` this
+    packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on
+    landing — this pull request merged into `main` and a green `pytest-suite`
+    run on that merge commit. Nothing under `openspec/specs/` is edited by this
+    ratification, `tasks.md` § 6 stays OPEN, § 7 stays OPEN as measured residue,
+    and openxFactory #856 and #860 therefore close AT THE ARCHIVE and not at
+    this landing. Record: `review/ratification-2026-09-10.md`, with the gate run
+    re-derived on the ratified tree at `review/verification-2026-09-10.md`.
+  approved_on: 2026-09-10
 related:
   - openxFactory:change:archive/2026-09-09-amend-marker-defect-reporting        # ARCHIVED (PR #850). Owed BOTH successors — its tasks.md § 5.2 is #856 and § 5.7 is #860 — and is the shape this packet is authored on: an amend of the same requirement realized in the same pull request. Its bytes are NOT edited
   - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing # ARCHIVED (PR #887 -> archive PR #899). THE LAST WRITER of the requirement this block MODIFIES: its promoted text is what this block writes over, and its own `Removed from canon` marker is deliberately NOT restated here

@@ -1,6 +1,7 @@
 # Tasks: amend-marker-declaring-nothing
 
-Status: draft
+Status: ratified
+Ratified by: amend-marker-declaring-nothing — 2026-09-10, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-10.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -10,28 +11,49 @@ realizes through its own task list rather than through a feature DAG.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 (RATIFICATION) AND § 6 (ARCHIVE) STAY OPEN AND NAME WHY**: Brett Heap's
-word of 2026-09-10, verbatim *"do the 860 856 batch, land each when green"*,
-commissions this authoring and ratifies no wording — ratification, promotion and
-archive are three later acts on three later words. **§ 7 STAYS UNTICKED**:
-residue, measured and deliberately not taken.
+**§ 1 (RATIFICATION) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT** — Brett
+Heap's *"ratify as encoded"* of 2026-09-10, which is his act and not the
+authoring lane's; his earlier *"do the 860 856 batch, land each when green"*
+stays recorded as the ORIGIN of the authoring, which decided no wording. **§ 6
+(ARCHIVE) STAYS ENTIRELY OPEN**: `code_surface` is non-empty, so the archive is
+a separate act on merged-plus-green realization evidence and a separate word,
+and openxFactory #856 and #860 close there and not at this landing. **§ 7 STAYS
+UNTICKED**: residue, measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-10
 
-- [ ] 1.1 **RATIFY THE TEXT.** No approval pair is declared in `.openspec.yaml`
-      and none is implied. The word this packet is authored on —
-      *"do the 860 856 batch, land each when green"* (2026-09-10, in session,
-      recorded on openxFactory #856 and #860) — names a batch and a landing
-      condition and decides no wording. On ratification: `proposal.md`,
-      `design.md` and this file take `Status: ratified` with ONE citation line
-      each (`Ratified:` in the proposal's front matter, `Ratified by:` here and
-      in `design.md`), which is what `ratified-provenance` counts;
-      `.openspec.yaml` gains `approved_by` and `approved_on` **BESIDE** the
-      drafting provenance, `kind` and `id` unmoved, which is the
-      addition-not-rewrite shape `add-drafted-proposal-origin` defined; and a
-      `review/ratification-<date>.md` record is written carrying
-      `Status: ratified` and one citation.
-- [ ] 1.2 **RULE `design.md` D1 — openxFactory #860.** Option **A**
+- [x] 1.1 **RATIFIED 2026-09-10 by Brett Heap** (openxFactory operator
+      authority), verbatim *"ratify as encoded"*, given in session as a
+      MULTIPLE-CHOICE ruling over `design.md` D1 and D2 and recorded on PR
+      **#908** at 2026-09-10T18:06:52Z (comment `5623230781`). The word this
+      packet was AUTHORED on — *"do the 860 856 batch, land each when green"*
+      (2026-09-10, in session, recorded on openxFactory #856 and #860) — stays
+      recorded as the ORIGIN of the AUTHORING: it named a batch and a landing
+      condition, decided no wording, and is not read as an approval.
+      `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-10.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in the proposal's front matter
+      and in the ratification record, `Ratified by:` here and in `design.md`),
+      which is what `ratified-provenance` counts — one total across both
+      sanctioned spellings, and now also under that family's SUBJECT arm, which
+      since `804a9170` (#878) reads a `review/ratification-*` record whatever
+      status it carries. `review/verification-2026-09-10.md` keeps
+      `Status: record`: its subject is the GATE RUN and not the ratification, so
+      the sibling scenario *A review record is not about a ratification* governs
+      it. `.openspec.yaml` gains `approved_by`/`approved_on` **BESIDE** the
+      drafting provenance, with `kind`, `id`, `reason` and `proposed_by`
+      unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
+      (issue #318) defined for this transition and the shape the archive gate's
+      origin-retention arm reads, which is why the status flip and the approval
+      pair move in ONE commit.
+- [x] 1.2 **`design.md` D1 IS RULED — OPTION A, openxFactory #860.** The veto
+      point was put and the recommendation was TAKEN, so **ground five stands
+      as encoded and nothing is withdrawn**: a `Removed from canon` marker whose
+      tail carries no code span stays a MARKER and is REPORTED at `info`, its
+      scenario stands, its two tests stand, and `document-lifecycle` is not
+      amended. The alternative stays written out in `design.md` D1 as the record
+      of what was put and declined. **THE OPTIONS AS THEY WERE PUT, CARRIED
+      HERE IN THE DRAFT'S OWN WORDS:** Option **A**
       (RECOMMENDED, and what the delta encodes): a `Removed from canon` marker
       whose tail carries no code span stays a MARKER and is REPORTED, as a fifth
       ground of the marker-defect class at `info`. Option **B** (the issue's own
@@ -44,7 +66,14 @@ residue, measured and deliberately not taken.
       rule at all. **A VETO OF A IS A VETO OF GROUND FIVE ALONE** — ground four,
       its scenario, its test and its measurement are untouched, D1 and D2
       sharing no predicate, no field and no branch.
-- [ ] 1.3 **RULE `design.md` D2 — openxFactory #856.** Option **A**
+- [x] 1.3 **`design.md` D2 IS RULED — OPTION A, openxFactory #856.** The veto
+      point was put and the recommendation was TAKEN, so **ground four stands as
+      encoded**: a name matching no unit of the requirement's basis and matching
+      a unit THE BLOCK ITSELF ADDS is REPORTED at `info`, its scenario stands,
+      and the assertion this packet flipped **STAYS FLIPPED** — the silence
+      `amend-marker-defect-reporting` pinned is overturned, which is exactly
+      what the pin was written for. **THE OPTIONS AS THEY WERE PUT, CARRIED
+      HERE IN THE DRAFT'S OWN WORDS:** Option **A**
       (RECOMMENDED, and what the delta encodes): a name matching no unit of the
       requirement's basis and matching a unit THE BLOCK ITSELF ADDS is REPORTED,
       as a fourth ground at `info` — a block cannot declare removed from canon a
@@ -55,8 +84,14 @@ residue, measured and deliberately not taken.
       marker, none for the addition), costs the same amendment, and is the
       harder rule to retire. **A VETO OF A IS A VETO OF GROUND FOUR ALONE**, and
       the flipped test flips back to its ratified silence.
-- [ ] 1.4 **NOTE `design.md` D3 AND AFTER, WHICH ARE NOT VETO POINTS BUT ARE
-      DECISIONS.** D3 the band (`info`, the class's existing one; `warning`
+- [x] 1.4 **`design.md` D0 STANDS AND D3 THROUGH D9 WERE CARRIED — none was
+      vetoed.** The ruling reached D1 and D2 and left the rest as designed, and
+      the recording says so in as many words (*"D3–D9 carried, none vetoed"*).
+      D0's measurement — 26 markers, ZERO of `Removed from canon` form with an
+      empty tail, THIRTY active MODIFIED blocks of which TWO carry a
+      unit-naming marker, a population of ZERO for both new grounds on `main`
+      @ `e0638f11` — stands as taken. **THE DECISIONS CARRIED, AS THEY WERE
+      PUT:** D3 the band (`info`, the class's existing one; `warning`
       refused on this family's own "MEASURE FIRST, THEN FLIP" ruling of
       2026-08-27) and the `contested` row this packet claims no exemption from.
       D4 one template for five grounds, `TEMPLATE_MARKERS`' text UNMOVED so the
@@ -65,7 +100,10 @@ residue, measured and deliberately not taken.
       two exclusions ground five is written around — the PAIRING form (silence
       ruled correct 2026-09-09) and the `Merged into` form with an empty tail
       (residue, § 7.1). D7 why ONE packet for two issues. D8 why the realization
-      rides this pull request.
+      rides this pull request. D9 what is deliberately NOT taken — the promoted
+      markers unedited, `document-lifecycle` unamended, no parse moved, no
+      severity moved, the action string unreworded and the uncited-resolution
+      rule not widened to finding-class grain (#893).
 
 ## 2. The measurement, taken before the design
 
@@ -263,8 +301,19 @@ residue, measured and deliberately not taken.
       cascade — which has nothing to withhold here, this packet's marker naming
       BODY units only.
 - [x] 4.7 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
-      style, naming the draft standing, both origin issues, both veto points and
-      the zero population.
+      style, naming both origin issues, both veto points and the zero
+      population. **AUTHORED AT THE DRAFT STANDING AND MOVED TO THE RATIFIED
+      STANDING BY THE RATIFICATION COMMIT**, which is where the word, its
+      recording timestamp, the resolution of D1 and D2 and both record paths
+      enter the row. **AND THE ROW'S DEFECT PARAGRAPH IS SCOPED TO THE TREE IT
+      DESCRIBES** — bench round 6, Copilot: the sentence *"THE DEFECT IS TWO
+      MARKERS THAT DECLARE NOTHING AND ARE REPORTED AS NOTHING"* read as a live
+      defect of THIS branch, which realizes both grounds. It is now past tense
+      and named to `main` @ `e0638f11`, and so are the two per-issue sentences
+      under it; the promoted-canon sentence says STILL and names the archive as
+      where the block writes over it; and *"canon now states FIVE grounds"*
+      becomes *"the block states FIVE grounds"*, canon being unedited until the
+      archive.
 - [x] 4.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#908'` — *"wrote
@@ -349,6 +398,29 @@ residue, measured and deliberately not taken.
       **exit 0**; `doc-health.py --single-repo .` **exit 0** with the finding set
       IDENTICAL to `origin/main`'s line for line; and the four-directory pytest
       selection **`2173 passed, 66 subtests passed`**.
+- [x] 5.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10, after
+      the ratification encode and after TWO merges from `main` — capture at
+      `review/verification-2026-09-10.md`, the packet's FIRST and only gate
+      capture, written at its own dated path because a dated run report is a
+      one-shot `record` and a second run of it would write a second path rather
+      than rewrite this one. **BOTH MERGES COME BEFORE THE CAPTURE, SO NO
+      POST-MERGE RE-MEASURE IS OWED**: `origin/main` advanced from `e0638f11`
+      (the tree § 2 and § 5 were measured on) by THREE commits while the branch
+      sat frozen at `5dd724f5` — `40d2f821` and `bd1c54c6`, merged as
+      `480fb996`, then `ea34f22a`, merged as `6aebb296` — and the ratification
+      commit lands on top of both, so every figure in the capture is taken on a
+      tree carrying `main` @ `ea34f22a`. Those three commits touch the carve
+      scripts and their tests, the cutover runbook, the `lane-line` workflow and
+      three merge-master scripts with their tests; nothing under `openspec/`,
+      nothing under `scripts/doc_health/`, nothing under `tests/doc-health/` and
+      not `README.md`, so the delta is byte-unmoved and the corpus this packet
+      measures is unchanged by either merge. Two of the gates the capture runs —
+      `validate-sequenced-after.py` and `validate-scope-globs.py` — are the ones
+      `ea34f22a` hardened, so they are exercised at their current `main`
+      implementation rather than at the pre-#911 one. `--all --strict` is
+      measured in the capture against an `origin/main` `ea34f22a` control run in
+      a separate worktree, and `doc-health`'s finding-line diff against the
+      PRE-RATIFICATION tree is recorded beside it.
 
 ## 6. Archive — OWED, NOT GIVEN
 
