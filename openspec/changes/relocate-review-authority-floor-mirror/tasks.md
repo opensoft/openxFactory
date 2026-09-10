@@ -94,11 +94,28 @@ standing between them as this packet's gate.
       and a `review/ratification-<date>.md` record landing with it.
 - [x] 1.2 MQ-1 answered — same word as codexFactory #293, or separate.
       **Ticks on:** the ratifying word saying which.
-- [ ] 1.3 MQ-2 answered — the binding's `source_documents:` read surface (M-4)
+- [x] 1.3 MQ-2 answered — the binding's `source_documents:` read surface (M-4)
       stands or is vetoed. **Ticks on:** the same word.
-- [ ] 1.4 MQ-3 answered — what triggers M-1 step (3), this repository's second realization. **Ticks on:** the same
+      **TICKED 2026-09-10 — Brett Heap answered MQ-2, verbatim: "MQ-2 yes,
+      source_documents wanted"** (~18:5xZ). M-4's binding
+      `source_documents:` read surface STANDS; no veto entered. His act,
+      the lane's pen. Cited on the recording, openxFactory #745:
+      https://github.com/opensoft/openxFactory/issues/745#issuecomment-5623654548.
+- [x] 1.4 MQ-3 answered — what triggers M-1 step (3), this repository's second realization. **Ticks on:** the same
       word; the default if none is given is M-1's "one advance observed against
       the successor path".
+      **TICKED 2026-09-10 ON THE BOX'S OWN DEFAULT CLAUSE, NO WORD GIVEN.**
+      No answer to MQ-3 was given naming a different trigger, so this ticks
+      on the stated default: "one advance observed against the successor
+      path". That advance is **PR #883 -> `e916f0ea`** (merged
+      2026-09-10T11:57:22Z, Brett Heap verbatim "merge both") — the lane
+      driver's own (`scripts/review_lane_repin.py --write`) advance of
+      `core_commit` past codexFactory's relocation, moving
+      `floor_snapshot.of` and the `pinned_members` entry to
+      `floor/openxfactory-review-authority-floor.yaml` — corroborated by
+      the subsequent green run cited at box 4.3 (run **34477749947**,
+      2026-09-10T12:37:16Z). Cited on the recording, openxFactory #745:
+      https://github.com/opensoft/openxFactory/issues/745#issuecomment-5623443392.
 
 ## 2. M-1 step (1) — this repository's FIRST realization: dual-path acceptance, landing BEFORE codexFactory moves
 
@@ -336,7 +353,7 @@ standing between them as this packet's gate.
       superseded-not-deleted idiom AND makes them self-clearing (naming the
       invariant rather than the commit), and it belongs in a successor change
       against the lane's own files.
-- [ ] 4.3 One re-pin run observed green with the single new path.
+- [x] 4.3 One re-pin run observed green with the single new path.
       **Ticks on:** that run — the first hourly `review-lane-repin` firing after
       this merge, which should print *"fetched
       floor/openxfactory-review-authority-floor.yaml at <codexFactory main>
@@ -356,6 +373,25 @@ standing between them as this packet's gate.
       15556, not 15456 — the TWO regenerations that made 4.2 fall due
       (codexFactory #314 and #325) changed it, and the quotation above is of a
       PRE-regeneration run.
+      **TICKED 2026-09-10 ON RUN 34477749947** (2026-09-10T12:37:16Z,
+      `schedule`, `conclusion: success`) — the first hourly
+      `review-lane-repin` firing after box 4.2 landed as **PR #883 ->
+      `e916f0ea`** (2026-09-10T11:57:22Z, Brett Heap verbatim "merge
+      both"). The fetch step resolved the single declared candidate and
+      printed exactly the sentence this box named, at the byte count its
+      own NOTE above predicted: *"fetched
+      floor/openxfactory-review-authority-floor.yaml at
+      34fc5a8fd1d94e21da11bf1dc9a4b933651c61ef (15556 bytes) — candidate 1
+      of 1 in the declared list, the path in force; no migration in
+      progress"*. The measurement step agreed, `"action": "noop"`:
+      *"nothing is owed: `contracts/review-lane-floor-snapshot.yaml` is
+      byte-identical to `floor/openxfactory-review-authority-floor.yaml`
+      at codeXfactory/codexFactory@main
+      (34fc5a8fd1d94e21da11bf1dc9a4b933651c61ef); the pin stays at
+      b594ef2ad86ebdefffc497c571c8a84044f6ec10"*. Verified against the
+      run's own log (`gh run view 34477749947 -R opensoft/openxFactory
+      --log`). Cited on the recording, openxFactory #745:
+      https://github.com/opensoft/openxFactory/issues/745#issuecomment-5623443392.
 
 ## 5. Bookkeeping
 
