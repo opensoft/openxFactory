@@ -832,6 +832,37 @@ lockstep:
     wrong repository: `d340cb4c` is an `opensoft/xFactory` commit, the
     sole commit of that repository's PR #423, landed into `main` via
     merge commit `67c0b159`. Nothing else in the addendum changes.
+
+    CONVERGENCE MEASURED, 2026-09-10 — RE-MEASURED at this edit, fresh, the
+    same way every measurement in this field has been taken: on
+    `opensoft/xFactory` `main`, `merge-master-approval.yml` line 152 and
+    `council-convening-lane.yml` line 308 both now return `1f131a23…` verbatim
+    (short here for this file's own guard), matching the aggregation's own
+    `MIGRATION_PIN` test constant (`tests/test_merge_master_workflows.py` line
+    66). The third re-point ceremony (`opensoft/xFactory` PR #423, merge
+    `67c0b159`, 2026-09-10T19:15:29Z, codexFactory change
+    `repoint-aggregation-migration-pin`, OQ-1 ruled C) moved all three. This
+    file's own `core_commit` above has named that same `1f131a23` since PR #922
+    (merge `6f95ff57`, 2026-09-10T21:55:20Z). Four sites, one commit — Gate 5
+    after-check PASS (codeXfactory/codexFactory #279, issuecomment-5624344272).
+
+    `status` STAYS `diverged` HERE, DELIBERATELY — not because a converged
+    value is undefined, but because flipping it correctly is a two-file act and
+    this pull request's mandate is one file. `converged` IS this field's own
+    established word: it named this exact state from the 2026-08-28 re-point
+    ceremony (PR #483, commit `d118bc79`) until the 2026-09-02 re-divergence
+    (PR #569, commit `47f90080`) — and BOTH of those commits moved the pin's
+    `status` and `tests/review_lane_pin/test_review_lane_caller.py`'s
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`
+    assertion together, in the same commit, never the data alone. That
+    assertion (line 608, on this file's `main` parent) still reads
+    `self.assertEqual(lockstep.get("status"), "diverged")` — a literal
+    equality, not a membership test — so flipping the word here without its
+    companion edit would turn a green pytest-suite red. The flip stays
+    undischarged, named against its exact blocker rather than left to be
+    inferred: the next paragraph in this field should be the one commit that
+    moves the assertion and this value together, the way both prior transitions
+    did.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
