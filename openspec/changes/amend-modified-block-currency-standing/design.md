@@ -252,5 +252,14 @@ document, and the front matter says so.
   pairing and collision classes keep `warning` and the ledger keeps `info`. A
   later flip of any of them remains one ruling, after a measurement, exactly as
   the delta's sequence paragraph keeps in force.
-- **The severity-to-band rendering, the class map, the report and the ranked
-  plan** are untouched: nothing this packet writes changes what any run emits.
+- **The severity-to-band rendering, the class map, the finding set and the
+  ranked plan** are untouched: nothing this packet writes changes what any run
+  EMITS. **The one thing promotion does move is the report's HEADLINE**, and it
+  is arithmetic rather than rule: `runner.main` sums the words of every promoted
+  specification into `spec_words` (`scripts/doc_health/runner.py:807-810`) and
+  `report.render` folds that into the canon-share line (`report.py:474,
+  496-498`), so replacing a 5,348-word requirement with a 6,564-word one moves
+  `openspec/specs/doc-health/spec.md` by +1,216 words (44,684 → 45,900) at the
+  ARCHIVE act. Every promotion of prose does this; `proposal.md` § Impact states
+  it rather than claiming a report-wide invariance the machinery does not give
+  (bench round 2, PR #887 thread T5).

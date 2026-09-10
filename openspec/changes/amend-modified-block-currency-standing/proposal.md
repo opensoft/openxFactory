@@ -162,9 +162,24 @@ delayed or its delta vetoed (`design.md` D6).
   severities and the resolution row this delta describes are the ones the module
   has carried since 2026-08-31 and are not touched.
 - **Contracts, bundles, digests, tags:** none.
-- **Runs and reports:** unchanged. No finding changes severity, class, path or
-  text because of this packet; a report taken before promotion and one taken
-  after are identical.
+- **Findings:** unchanged. No finding changes severity, class, path or text
+  because of this packet, and no finding appears or disappears: a report's
+  FINDING LIST taken before promotion and one taken after are identical, which
+  a control run of `doc-health --single-repo . --family
+  modified-block-currency` over `main` confirms by rendering byte-identically
+  to the branch's.
+- **The report's HEADLINE moves at promotion, and only there.**
+  `runner.main` recomputes `spec_words` by summing the words of every promoted
+  specification (`scripts/doc_health/runner.py:807-810`) and `report.render`
+  folds it into the canon-share line through `canon_stats`
+  (`scripts/doc_health/report.py:474, 496-498`). Promotion replaces a 5,348-word
+  requirement with a 6,564-word one, so `openspec/specs/doc-health/spec.md`
+  grows by **1,216 words** (44,684 → 45,900) and the *"Canon share by words"*
+  headline moves with it. That is arithmetic on promoted canon rather than an
+  effect of this packet's rules, it happens at the ARCHIVE and not at this
+  landing, and it is what every promotion of prose does. **NOTHING ELSE IN A RUN
+  MOVES**: no severity, no resolution class, no band, no path, no rule text, no
+  skip and no ranked-plan row.
 - **Readers:** a reader of *Currency of an active change's MODIFIED requirement
   blocks* stops being told the family is advisory and unclassified. Nothing
   already written is invalidated: the archived deltas that carried the paragraph
