@@ -19,6 +19,27 @@ lane's. **§ 4 (archive) STAYS ENTIRELY OPEN**: promotion is a separate act on a
 separate word, so openxFactory #868 closes at the archive and not at this
 landing. § 5 records what was measured and deliberately not taken.
 
+**AMENDED AT THE ARCHIVE, 2026-09-10 — EXACTLY ONE CLAUSE ABOVE IS SUPERSEDED,
+IT IS NAMED, AND IT IS QUOTED IN PLACE RATHER THAN DELETED.** The superseded
+clause is this one and no other:
+
+> **§ 4 (archive) STAYS ENTIRELY OPEN**
+
+Both § 4 boxes are now ticked, on Brett Heap's separate word of
+2026-09-10T02:03Z, verbatim **"archive 870 and close 868"**. **THE REST OF THAT
+SENTENCE IS NOT SUPERSEDED AND IS EXACTLY WHAT THIS ARCHIVE DOES** — *"promotion
+is a separate act on a separate word, so openxFactory #868 closes at the archive
+and not at this landing"*: this is that separate act, on that separate word, and
+`Closes #868` is on the archive pull request and on nothing else. **THE SENTENCE
+THAT OPENS THIS BLOCK — *"NOTHING IS TICKED THAT DID NOT LAND"* — IS LIKEWISE NOT
+SUPERSEDED**: § 4's ticks record an act performed in the archive pull request
+itself, and § 5's record the NAMING of successors, never their doing. One
+successor was filed **UNCLAIMED** at this archive — **#882** (§ 5.2) — § 5.3
+names the already-open **#775**, and § 5.4 is a measurement claim that was
+RE-MEASURED at this archive rather than restated. The full disposition is at the
+head of § 4 and § 5, and every box's ratified text is carried verbatim beneath
+its tick clause.
+
 ## 1. Ratification — GIVEN 2026-09-09
 
 - [x] 1.1 **RATIFIED 2026-09-09 by Brett Heap** (openxFactory operator
@@ -180,18 +201,104 @@ landing. § 5 records what was measured and deliberately not taken.
 
 ## 4. Archive — OWED, NOT GIVEN
 
-- [ ] 4.1 **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word and
+**DISPOSITION 2026-09-10 — THE HEADING ABOVE IS SUPERSEDED BY THIS ACT AND IS
+KEPT RATHER THAN REWRITTEN.** *"OWED, NOT GIVEN"* was true from ratification
+until 2026-09-10T02:03Z, when Brett Heap gave the separate word this section
+waits on, verbatim **"archive 870 and close 868"**. The archive is GIVEN, and the
+heading is left standing because it is ratified surface and because it records
+what was true when it was written; this disposition is what a later reader reads
+beside it. `review/ratification-2026-09-09.md` § 6 says the same in advance —
+*"`tasks.md` § 4 (archive) STAYS OPEN"* and *"THE ARCHIVE IS A SEPARATE ACT ON A
+SEPARATE WORD, AND #868 CLOSES THERE"* — and that record is `Status: ratified`,
+is **NOT edited by this archive**, and does not contradict this act, having named
+it in advance.
+
+**AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, which is why every box
+in this file is ticked in the commit BEFORE the move rather than after it:
+`scripts/proposal-support.py` refuses any change whose `tasks.md` still matches
+`^- \[ \]` — *"change has incomplete tasks"* — and there is no bypass flag.
+
+- [x] 4.1 **DONE IN THE ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED AND THE
+      PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T02:03Z,
+      verbatim *"archive 870 and close 868"*.** Performed with `TZ=UTC python3
+      scripts/proposal-support.py . archive
+      amend-neutral-product-pin-interim-copy-vocabulary --date 2026-09-10 --yes`
+      through the pinned OpenSpec CLI — never a bare `openspec archive` — which
+      moved the packet to
+      `openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/`
+      and wrote the `## MODIFIED` block back into
+      `openspec/specs/neutral-product-pin/spec.md`. The byte-identity this box
+      requires is MEASURED and recorded in the pull request body, not asserted.
+      `code_surface: none` and `target_release: none`, so under
+      `release-realization` the archive follows LANDING plus this task list and
+      waits on no realization evidence; the landing is PR **#870** →
+      **`1ea752b6`** on `main`, 2026-09-10T02:01Z. **ON THE RECORDING: THIS
+      ARCHIVE PR [#884](https://github.com/opensoft/openxFactory/pull/884)** is
+      the act the box records — the move, the write-back into
+      `openspec/specs/neutral-product-pin/spec.md` (byte-identical to the delta,
+      13,162 bytes, sha256 `79068868ec2dd1b9…` on both sides), the README row
+      going from the active list to the archived list, and the corpus-ledger row
+      going `active` → `archived` with `moved_by: "#884"`. The ratified text
+      follows unchanged:
+      **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word and
       never on this lane's judgment, through `scripts/proposal-support.py`
       rather than through a bare `openspec` call. `code_surface: none`, so under
       `release-realization` the archive follows LANDING plus this task list and
       waits on no realization evidence. The promoted block must be
       **byte-identical** to the delta, which is the property the refusal on
       #780 was protecting when it declined to reword canon in an archive.
-- [ ] 4.2 **CLOSE openxFactory issue #868 AT THE ARCHIVE, not at this landing.**
+- [x] 4.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #868` IS ON ARCHIVE PR
+      [#884](https://github.com/opensoft/openxFactory/pull/884) AND ON NOTHING
+      ELSE.** Its `closingIssuesReferences` is exactly `[868]`, verified through
+      GraphQL, and no commit message on the branch carries a closing keyword at
+      all, so openxFactory #868 closes with this merge and with nothing else. It is that pull request's ONE closing
+      line; every other issue number in its body, in this file and in these
+      commits is a `refs`-style naming that closes nothing. The proposal pull
+      request #870 carried `refs #868` and no closing keyword, which is what kept
+      the origin issue open through that landing — exactly as this box and
+      `review/ratification-2026-09-09.md` § 6 both required. The ratified text
+      follows unchanged:
+      **CLOSE openxFactory issue #868 AT THE ARCHIVE, not at this landing.**
       The pull request body says `refs #868` and carries no closing keyword for
       exactly this reason.
 
 ## 5. Measured, and deliberately NOT taken here
+
+**DISPOSITION 2026-09-10 — WHY EVERY BOX BELOW IS TICKED WHEN THE RATIFICATION
+RECORD SAYS THREE OF THEM ARE OPEN.** `review/ratification-2026-09-09.md` § 6
+says *"§ 5.2–§ 5.4 stay open as measured residue rather than work performed"*.
+That document is `Status: ratified`: it is **NOT edited by this archive** and it
+stands exactly as written. Nothing below contradicts it — it describes the state
+at ratification, and this is the later, separate archive act it named.
+
+**THE SHAPE IS A RULING AND NOT A WORKAROUND.** Brett Heap, **2026-09-06T23:10Z**,
+in session, by multiple choice, recorded on openxFactory
+[#692](https://github.com/opensoft/openxFactory/issues/692), chose the option
+labelled verbatim **"Tick on the recording"** — *an owed successor's task box
+ticks once the successor is NAMED (issue filed), the box text saying the tick
+records the naming, not the doing.* A box whose statement is a MEASUREMENT ticks
+on the measurement being TAKEN and recorded, which is § 5.1's shape and § 5.4's.
+
+**AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no bypass flag:
+`scripts/proposal-support.py` refuses any change whose `tasks.md` still matches
+`^- \[ \]` (*"change has incomplete tasks"*).
+
+**THE WORK IN § 5.2 AND § 5.3 IS NOT DONE, AND NEITHER TICK SAYS IT IS.** § 5.2
+names **[#882](https://github.com/opensoft/openxFactory/issues/882)**, filed
+UNCLAIMED at this archive; § 5.3 names the already-open, unclaimed
+**[#775](https://github.com/opensoft/openxFactory/issues/775)**. **§ 5.4 IS A
+MEASUREMENT CLAIM AND IT WAS RE-MEASURED AT THIS ARCHIVE RATHER THAN RESTATED**,
+and the re-measurement corrects one figure in it — recorded in the tick clause
+below, and on openxFactory #754 where the owed item already lives, rather than by
+editing the ratified sentence, which is carried verbatim like every other. Every
+ratified sentence of § 5.2 through § 5.4 is carried below **verbatim** beneath its
+tick clause; nothing of the ratified reading is deleted.
+
+**§ 5.2 WAS SEARCHED FOR AN EXISTING ISSUE BEFORE A NEW ONE WAS FILED.**
+`gh issue list --state all` over `requirements.16`, `vendored lockfile`,
+`SHALL or MUST strict` and `neutral-product-pin` returned no issue reporting this
+strict failure — #868 is the vocabulary defect (this packet) and #775 is the
+register defect — so #882 was filed rather than an existing name reused.
 
 - [x] 5.1 **THE SOLE-MODIFIER MEASUREMENT, taken before the claim** (2026-09-09,
       recorded on issue #868). `ls openspec/changes/*/specs/neutral-product-pin/`
@@ -208,7 +315,22 @@ landing. § 5 records what was measured and deliberately not taken.
       `gh pr list --state open --search "neutral-product-pin"` returned #865,
       #866 and #867, and `gh pr view --json files` on each showed none touches a
       `neutral-product-pin` path.
-- [ ] 5.2 **THE `requirements.16` STRICT FAILURE IS A SUCCESSOR, NOT THIS
+- [x] 5.2 **TICKED ON THE RECORDING — THE SUCCESSOR IS NAMED AS openxFactory
+      [#882](https://github.com/opensoft/openxFactory/issues/882), IT IS
+      UNCLAIMED, AND THE WORK IS NOT DONE HERE.** Per the ruling of
+      2026-09-06T23:10Z, verbatim *"Tick on the recording"*: the box ticks once
+      the successor is NAMED, and this sentence is the box text saying the tick
+      records the naming, not the doing. **THE FAILURE IS STILL THERE AT THIS
+      COMMIT AND THIS BOX DOES NOT SAY OTHERWISE** — re-measured on `main`
+      `539cb563`, 2026-09-10: `✗ [ERROR] requirements.16.text: Requirement must
+      contain SHALL or MUST keyword`, on
+      `openspec/specs/neutral-product-pin/spec.md:645` whose first body line
+      `:646` reads *"Where a pinned external neutral product is distributed as a
+      published artifact"*. #882 carries that error text, the line, and the
+      smallest remedy (`design.md` D6's one sentence, moving `SHALL` onto the
+      first body line), and it is open and unclaimed. The ratified text follows
+      unchanged:
+      **THE `requirements.16` STRICT FAILURE IS A SUCCESSOR, NOT THIS
       PACKET.** *A pinned artifact that resolves dependencies at install time
       carries a vendored lockfile, and the install runs through it*
       (`:645`) fails `--strict` on `main` because its first body line carries no
@@ -217,12 +339,63 @@ landing. § 5 records what was measured and deliberately not taken.
       taken: it needs its own issue and its own word. **This box is not ticked
       by this packet, and this packet does not owe it** — the successor is named
       so a later reader does not mistake the untouched failure for an oversight.
-- [ ] 5.3 **ISSUE #775 IS A DIFFERENT DEFECT ON THE SAME REQUIREMENT** — the two
+- [x] 5.3 **TICKED ON THE RECORDING — THE SUCCESSOR IS ALREADY NAMED AND IT IS
+      openxFactory [#775](https://github.com/opensoft/openxFactory/issues/775),
+      OPEN AND UNCLAIMED AT THIS COMMIT.** This box named its successor when it
+      was written, so this archive files nothing for it and reuses no other
+      name: #775 is verified OPEN and unclaimed on 2026-09-10. **NOTHING IS OWED
+      TO #775 BY THIS ARCHIVE AND NONE IS POSTED** — this box's own ratified text
+      says this packet *"neither answers nor forecloses it"*, and the amendment
+      moves no word of #775's subject: its remedy is `contracts/manifest.yaml`
+      rows for `contracts/openxwallet-pin.yaml` and
+      `contracts/openreposhape-pin.yaml`, which the reserved vocabulary does not
+      touch. Per the ruling of 2026-09-06T23:10Z, verbatim *"Tick on the
+      recording"*, the tick records the naming and not the doing: the two pins
+      are still unregistered at this commit. The ratified text follows unchanged:
+      **ISSUE #775 IS A DIFFERENT DEFECT ON THE SAME REQUIREMENT** — the two
       sibling consumption pins (`contracts/openxwallet-pin.yaml`,
       `contracts/openreposhape-pin.yaml`) carry no `contracts/manifest.yaml`
       row. That is a live conformance defect fixed by REGISTERING rows, not by
       amending text, and this packet neither answers nor forecloses it.
-- [ ] 5.4 **THE ESTATE'S ONE LIVE DECLARED COPY IS UNAFFECTED IN BOTH
+- [x] 5.4 **TICKED ON THE MEASUREMENT, RE-TAKEN AT THIS ARCHIVE — AND THE
+      RE-MEASUREMENT CORRECTS ONE FIGURE IN THE RATIFIED SENTENCE, WHICH IS
+      RECORDED HERE RATHER THAN EDITED THERE.** This box is a measurement claim,
+      not an owed successor, so it ticks on the measurement being TAKEN and
+      recorded. Re-measured 2026-09-10 against the three repositories' live
+      default branches, not from memory:
+      **(a) THE CLAIM'S SUBSTANCE HOLDS.** `xFactory-Hermes-Install` #72 →
+      `06c9083d` is live, still names `openxFactory@44d8fbaf…` in a vendoring
+      header on each of its three copied files, still declares its divergence in
+      `docs/openspec-cli-pin.md`, and **still records NO digest of what it
+      copied** (`grep -ci sha256` over that document returns **0**; the only
+      digests it names are the npm artifact's own `integrity`/`shasum`, which are
+      the pin's referent and not this requirement's second field). The repository
+      carries **no `stack.yaml`** (HTTP 404), so the retirement trigger has not
+      fired. It was not compliant before and is not compliant now; the owed digest
+      stays owed.
+      **(b) THE COUNT "ONE" IS NOW THREE, MEASURED.** All three rollout-B
+      repositories carry the same declared copy wiring the same gate:
+      `xFactory-Hermes-Install` #72 → `06c9083d`, `openXwallet` #21 →
+      `b7c6e0b8` and `Omnigent-Install` #241 → `47454e0a`. Each has the
+      byte-identical `# VENDORED from opensoft/openxFactory@44d8fbaf…` header,
+      the same 73,113-byte `scripts/validate-openspec-cli-pin.py`, its own
+      `.github/workflows/openspec-cli-pin-gate.yml`, a `docs/openspec-cli-pin.md`
+      declaring its divergence, **no recorded digest of the copy** and **no
+      `stack.yaml`**. The ratified sentence's *"ONE"* was already an undercount
+      when it was written — the other two landed 2026-09-07 at 16:37 and 16:57,
+      two hours after Hermes — and it is **NOT edited**: ratified text is carried
+      verbatim below, and the correction is recorded here and on openxFactory
+      [#754](https://github.com/opensoft/openxFactory/issues/754), the open
+      governing rollout record that already owns *"the Hermes copy's per-file
+      digest"* as owed and unclaimed.
+      **(c) THE DIRECTION-OF-EFFECT CLAIM IS UNCHANGED BY THE CORRECTION.** The
+      amendment leaves all three unaffected in both directions: the same copies
+      are admitted on the same terms, and each one's *A required check runs the
+      pinned tool, at the pinned digest* enforcement claim stays UNMET for exactly
+      as long as it did before. **NOTHING IS RE-CHARACTERIZED AND NOTHING NEW IS
+      OWED BY THIS PACKET** — the widened scope is #754's item, on its own word,
+      and this archive claims no part of it. The ratified text follows unchanged:
+      **THE ESTATE'S ONE LIVE DECLARED COPY IS UNAFFECTED IN BOTH
       DIRECTIONS** — `xFactory-Hermes-Install` #72 → `06c9083d`, recorded by
       #780's archived `tasks.md` § 5.1 as still owing this requirement's third
       field, the per-file digest. It was not compliant before and is not
