@@ -529,6 +529,60 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-modified-block-currency-standing](openspec/changes/amend-modified-block-currency-standing/proposal.md)
+  — authored 2026-09-10, **`Status: draft`** (NOT RATIFIED; ratification,
+  promotion and archive are three later acts on three later words). Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's word of
+  2026-09-10, verbatim *"do 1, then 2"*, which commissions a packet and decides
+  no wording. `.openspec.yaml` carries drafting provenance alone — no
+  `approved_by`, no `approved_on` — the lawful unapproved shape
+  `add-drafted-proposal-origin` defined. Origins: openxFactory
+  [#857](https://github.com/opensoft/openxFactory/issues/857) and
+  [#858](https://github.com/opensoft/openxFactory/issues/858), both filed by
+  this lane at the archive of `amend-marker-defect-reporting`
+  ([#850](https://github.com/opensoft/openxFactory/pull/850) → `250d93d7`),
+  which owed them as residue `tasks.md` § 5.3 and § 5.4. **THE DEFECT IS TEN
+  DAYS OF CANON DESCRIBING A PRE-FLIP CHECKER.** `openspec/specs/doc-health/spec.md`,
+  inside *Currency of an active change's MODIFIED requirement blocks*, still
+  says at `:1816` that the family *"SHALL be advisory at launch, in both halves
+  of what that means"* — `warning` severities, and *"deliberately absent from
+  `FAMILY_RESOLUTION`"* — while `scripts/doc_health/modified_block_currency.py:229`
+  has read `_LAUNCH_SEVERITY = ERROR` and `scripts/doc_health/families.py:117`
+  has carried `"modified-block-currency": CONTESTED` since the flip of
+  2026-08-31 (issue [#357](https://github.com/opensoft/openxFactory/issues/357),
+  PR [#529](https://github.com/opensoft/openxFactory/pull/529), `7f656980`).
+  That landing amended no specification, and canon has since contradicted
+  ITSELF: the promoted *A modified-block-currency finding its own class map
+  cannot place is itself a finding* records at `:2292` that **THE FAMILY IS
+  PRESENT IN `FAMILY_RESOLUTION`**. **FOUR SITES, ONE REQUIREMENT, FIVE UNITS
+  REPLACED IN PLACE** under one `Removed from canon` marker: the *advisory at
+  launch* paragraph's first two sentences (`:1816-1826`), the clause *"the arms
+  below are advisory"* (`:1615`), and the first scenario's `warning` and
+  *"MUST NOT cause a run configured `--fail-on error` ... to fail"* bullets
+  (`:1922-1923`). ONE SCENARIO IS ADDED, because the resolution row reaches every
+  class the family emits — the `info` carriage ledger included — and none
+  exercised that. **THE PARAGRAPH'S THIRD SENTENCE IS CARRIED UNCHANGED**
+  (*"No flip is proposed for the carriage ledger in this change"*), because it
+  is still true. **THE VETO POINT IS `design.md` D1 — THE SCOPE**: all four
+  sites (recommended and encoded) against the ONE paragraph #857 quotes, whose
+  cost is written out there — a promoted requirement left contradicting itself
+  about a gate, and a third successor owed for the same flip. **AND `design.md`
+  D0 CORRECTS THE ISSUE'S OWN PROPOSED WORDING**: #857 asks canon to say
+  `error` for the title-resolution arm too, and that arm's constant is
+  `warning` — deliberately not dragged by the flip, per orchestrator decision
+  O8 and PR #529's own body — so the delta states the arm-by-arm truth instead.
+  **NO SEVERITY MOVES AND NO ROW IS ADDED**: this is promoted canon catching up
+  with running code, `code_surface: none` MEASURED
+  (`grep -rn "advisory at launch\|deliberately absent" scripts tests` returns 13
+  lines, none of them this requirement). **#858 RIDES THE SAME PULL REQUEST AS A
+  SEVERABLE COMMIT** (`design.md` D6): `specs/019-modified-block-currency-family/`
+  FR-018 is restated to canon's three grounds with a dated amendment note, in
+  the exact form PR [#827](https://github.com/opensoft/openxFactory/pull/827)
+  established for the predecessor's identical residue (#730) — a Speckit build
+  record catching up with canon promoted at `250d93d7`, depending on no part of
+  this delta and landable alone. **THE ARCHIVE IS A SEPARATE ACT**: `tasks.md`
+  § 5 stays open, nothing under `openspec/specs/` is edited yet, and openxFactory
+  #857 and #858 close at the archive rather than at this landing.
 - [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
   — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
   openxFactory operator authority, verbatim *"Ratify with TOLERATED"* — a

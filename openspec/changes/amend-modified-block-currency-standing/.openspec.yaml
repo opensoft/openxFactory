@@ -1,0 +1,87 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-amend-modified-block-currency-standing
+  reason: >-
+    TWO PIECES OF STALE CANON LEFT BY ONE FLIP, filed as openxFactory issues
+    #857 and #858 by the lane that archived `amend-marker-defect-reporting`
+    (PR #850, `250d93d7`), which owed them as residue § 5.3 and § 5.4 and named
+    them there rather than correcting them.
+    #857 IS THE PROMOTED HALF. `openspec/specs/doc-health/spec.md`, inside
+    *Currency of an active change's MODIFIED requirement blocks*, still says the
+    family "SHALL be advisory at launch, in both halves of what that means" —
+    `warning` severities and "deliberately absent from `FAMILY_RESOLUTION`" —
+    while the checker has read the opposite since 2026-08-31: the
+    scenario-title arm's severity constant is `error` and
+    `scripts/doc_health/families.py` carries
+    `"modified-block-currency": CONTESTED`. That flip landed at `7f656980`
+    (PR #529, openxFactory issue #357) and AMENDED NO SPECIFICATION, which is
+    why promoted canon has contradicted running code for ten days — and
+    contradicted ITSELF, the promoted *A modified-block-currency finding its own
+    class map cannot place is itself a finding* having already recorded the same
+    row as present ("THE FAMILY IS PRESENT IN `FAMILY_RESOLUTION`, AND THIS
+    REQUIREMENT RECORDS THAT ROW RATHER THAN CONTRADICTING IT") on the day the
+    flip landed.
+    #858 IS THE BUILD-RECORD HALF. `specs/019-modified-block-currency-family/`
+    FR-018 still states the ONE reporting ground a marker had before
+    `amend-marker-defect-reporting` made it three. That file is a Speckit
+    feature record, not promoted canon, pinned by no test and by no gate, and
+    the remedy shape is settled by its own most recent precedent: the
+    predecessor's identical residue (#730) was taken at PR #827, which restated
+    FR-016 and left a dated amendment note beside it. That form is followed here
+    exactly; the DIFFERENCE from #827 is only its vehicle, and `design.md` D6
+    states it — the edit rides this packet's pull request as a SEVERABLE commit
+    of its own rather than a second pull request, because one lane claimed both
+    issues as one act, and it depends on NOTHING in this delta: FR-018 catches
+    up with canon that has been promoted since `250d93d7`.
+    WHY AN OPENSPEC CHANGE FOR THE FIRST HALF AND NOT A PATCH. The stale
+    sentences are PROMOTED, RATIFIED canon. Working rule 3 and this corpus's own
+    document lifecycle admit exactly one instrument for changing a promoted
+    requirement — a ratified change carrying a `## MODIFIED` block — and the
+    family whose standing is misstated is the one that reads MODIFIED blocks for
+    a living. Editing the promoted file directly would be the defect this
+    capability exists to report.
+    NOTHING IN THE FIRST HALF IS A DECISION. No severity moves, no row is added,
+    no arm is added or removed, no threshold, disposition rule, parse or marker
+    grammar changes. The delta states what the code has done since 2026-08-31
+    and records the ruling that made it so.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-10: no
+    topic folder and no INDEX row names this family, its severities, the
+    resolution table or the marker grammar. `kind: staged` would claim a staging
+    source that does not resolve. The organized sources are issues #857 and #858
+    and the archived § 5.3 / § 5.4 that scoped them.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), authoring the remedy issues
+    #857 and #858 propose, on Brett Heap's word of 2026-09-10, verbatim "do 1,
+    then 2", given in session with item 2 naming this pair as one amendment
+    packet. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: that word
+    commissions an authoring and admits no text to canon. The lawful unapproved
+    shape is the one `add-drafted-proposal-origin` (issue #318) added — drafting
+    provenance, no `approved_by`, no `approved_on` — and every document in the
+    packet carries `Status: draft` to match; approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
+    THE DECISION MOST WORTH A VETO is `design.md` D1: the SCOPE. Issue #857
+    names ONE paragraph; measurement found the same flip misstated in FOUR
+    places inside the SAME requirement — the paragraph's first two sentences, a
+    clause of the lifecycle-standing paragraph ("the arms below are advisory"),
+    and two bullets of the first scenario (`warning`, and "MUST NOT cause a run
+    ... to fail"). This packet takes all four, because correcting one and
+    leaving three would make canon contradict itself inside one requirement and
+    would owe a third successor for the same fact. The narrow option — the
+    paragraph alone — is written out in D1 with its cost, and a veto of the
+    widening costs three of the five retired units and one added scenario.
+    AND ONE MEASURED CORRECTION TO THE ISSUE'S OWN PROPOSED WORDING, `design.md`
+    D0: #857 asks for "`error` for the scenario-completeness and
+    title-resolution arms". THAT WOULD BE FALSE. The title-resolution arm's
+    severity constant is `warning` and was deliberately NOT dragged by the flip
+    (orchestrator decision O8, and PR #529's own body says so). The delta states
+    the arm-by-arm truth instead.
+  proposed_on: 2026-09-10
+related:
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check      # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the *advisory at launch* paragraph; its § 7.2 RESERVED the flip that made the paragraph false. Its bytes are NOT edited
+  - openxFactory:change:archive/2026-09-02-govern-sibling-added-modified-deltas   # ARCHIVED. The change under whose id the flip landed (`7f656980`, PR #529), and the author of the catch-up this packet copies: a `Removed from canon` marker naming one body sentence and one scenario bullet, replaced in place
+  - openxFactory:change:archive/2026-09-09-amend-marker-defect-reporting          # ARCHIVED (PR #850). Owed BOTH issues as residue § 5.3 and § 5.4, stated the contested row plainly in `design.md` D7 rather than claiming an exemption, and is the last writer of this requirement — its promoted text is what this block is written over
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary           # ARCHIVED (PR #719). The amend shape both packets follow, and the source of the `specs/019` precedent (#730 -> PR #827) this packet's FR-018 commit copies
+  - openxFactory:change:archive/2026-08-25-add-promotion-fidelity-check           # ARCHIVED. The promoted wording this delta's replacement paragraphs follow — "This family SHALL be enforcing, in both halves of what that means", the flip history kept as a sequence, and the three scenario bullets a flipped family's scenario carries
