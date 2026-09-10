@@ -271,6 +271,16 @@ GITKEEP = ".gitkeep"
 # for byte, from before the carve began.
 DEST_BASE_DEFAULT = "origin/main"
 
+# `--dest-base` is the ONE value here that reaches git having come from the
+# command line rather than from the manifest, so it is validated at the
+# boundary before any process is started. Conservative on purpose: a revision
+# git would accept can carry far more than this, and nothing this tool needs to
+# name does. It excludes whitespace, shell metacharacters and — the one that is
+# an actual attack rather than a nuisance — a LEADING DASH, which `git
+# rev-parse` would read as an option rather than a revision. `--end-of-options`
+# is passed as well, so the two defences are independent.
+DEST_BASE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/@^~{}-]{0,255}$")
+
 # `--assembly-root <owner>/<name>`. Shape only: an assembly root the manifest
 # does not declare has nothing here to be checked against, which is the whole
 # reason the flag exists.
@@ -803,8 +813,17 @@ def resolve_dest_base(dest_root: Path, dest_base: str | None) -> str | None:
     claim is never mistaken for the stronger one.
     """
     ref = dest_base or DEST_BASE_DEFAULT
+    if not DEST_BASE_RE.fullmatch(ref):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"--dest-base {dest_base!r} is not a plain revision name. It is "
+            "the one value this tool passes to git that came from the command "
+            "line rather than from the manifest, so it is validated before a "
+            "process is started: letters, digits, `.`, `_`, `/`, `@`, `^`, "
+            "`~`, `{`, `}` and `-`, and never a LEADING dash, which "
+            "`git rev-parse` would read as an option and not a revision")
     done = _git(dest_root, "rev-parse", "--verify", "--quiet",
-                f"{ref}^{{commit}}")
+                "--end-of-options", f"{ref}^{{commit}}")
     if done.returncode == 0 and done.stdout.strip():
         return done.stdout.decode("ascii", "replace").strip()
     if dest_base is not None:

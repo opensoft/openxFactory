@@ -1319,6 +1319,30 @@ def test_a_dest_base_that_names_no_commit_refuses(carve: Carve) -> None:
     assert refusal(done) == "arrival-unreadable"
 
 
+def test_a_dest_base_is_validated_before_a_process_is_started(
+        carve: Carve) -> None:
+    """`--dest-base` is the ONE value this tool hands to git that came from the
+    command line rather than from the manifest, so it is validated at the
+    boundary. The refusal that matters is a LEADING DASH — `git rev-parse`
+    would read `--upload-pack=…^{commit}` as an OPTION and not a revision —
+    and `--end-of-options` is passed as well, so the two defences are
+    independent."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    for hostile in ("--dest-base=--upload-pack=/bin/sh",
+                    "--dest-base=-x",
+                    "--dest-base=origin/main; rm -rf /",
+                    "--dest-base=$(id)"):
+        done = run(carve, manifest, "--destination", "scratch_code",
+                   "--dest-root", str(dest), "--phase", "A", "--json",
+                   hostile)
+        assert refusal(done) == "arrival-unreadable", hostile
+    assert MODULE.DEST_BASE_RE.fullmatch("origin/main")
+    assert MODULE.DEST_BASE_RE.fullmatch("HEAD^{commit}")
+    assert not MODULE.DEST_BASE_RE.fullmatch("-x")
+
+
 def test_without_a_baseline_the_weaker_claim_is_printed_as_the_weaker_one(
         carve: Carve) -> None:
     """The fallback is honest rather than silent: a destination with no
