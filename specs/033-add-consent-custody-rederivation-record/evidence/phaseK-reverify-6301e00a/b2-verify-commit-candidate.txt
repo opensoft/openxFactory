@@ -1,0 +1,4 @@
+$ python3 scripts/validate-contract-release.py verify-commit --commit be77cb34bf3c1361a28f5f70bbef6a738f392c3e   # the EXACT candidate
+release verify-commit: pass
+  inventory=contracts/releases/contract-v3.6.digests.yaml
+rc=0

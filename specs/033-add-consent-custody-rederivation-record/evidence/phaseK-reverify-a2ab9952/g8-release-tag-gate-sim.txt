@@ -1,0 +1,12 @@
+SIM=6b8f2d8f96c44a99171ccbc7b37dd4dfa9be9d8c
+## release-tag-gate
+release surface touched by this pull request (2 path(s)):
+  - contracts/manifest.yaml
+  - contracts/releases/contract-v3.6.digests.yaml
+declared bundle: contract-v3.5 at the base e32d580ae -> contract-v3.6 at the head 6b8f2d8f9
+  [info] contract-v2.6 is declared SPENT: it was cut, has no published annotated tag, and contract-v3.0 — itself cut, itself published and strictly later — superseded it. The record is contracts/CHANGELOG.md § contract-v3.0 — RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. The tag obligation was not met, it was EXTINGUISHED by an owner act at the cost of a version number
+the release-tag obligation holds over the merge tree 6b8f2d8f9: no error, no warning
+
+TAG OWED: `contract-v3.6` has no published annotated tag. Publishing it is an act after this pull request merges, at the merge commit, per the versioning policy's realization order step 5. Until it exists the nightly doc-health run reports this bundle, and the NEXT pull request that touches the release surface will be refused by this gate.
+::notice title=release-tag-gate::TAG OWED: `contract-v3.6` has no published annotated tag. Publishing it is an act after this pull request merges, at the merge commit, per the versioning policy's realization order step 5. Until it exists the nightly doc-health run reports this bundle, and the NEXT pull request that touches the release surface will be refused by this gate.
+rc=0

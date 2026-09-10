@@ -392,12 +392,46 @@ and `.../phaseG-T061a-T061c-coupling.txt`.
   `release-tag-gate` (which evaluates any PR touching `contracts/manifest.yaml`
   or `contracts/releases/`), `pytest-suite`, `scripts/validate-manifest-digests.py`,
   `scripts/validate-contract-release.py`, `scripts/validate-consent-instruments.py`.
-- [ ] **NOT-OWED-HERE 2026-09-09 — the LANE's act under `plan.md`'s landing contract.** 5.5 Step 4: land the exact reviewed commit. If promotion creates a
+- [x] **TICKED 2026-09-10 — PR #881 landed as the exact reviewed commit, no promotion diff.** 5.5 Step 4: land the exact reviewed commit. If promotion creates a
   different commit, that commit becomes the candidate and every gate reruns.
-- [ ] **NOT-OWED-HERE 2026-09-09 — an [OPERATOR] act at the LANDED MERGE COMMIT.** 5.6 **[OPERATOR]** Step 5: publish the annotated tag at the exact
+- [x] **TICKED 2026-09-10 — the annotated tag was published at the landed merge commit and independently verified.** 5.6 **[OPERATOR]** Step 5: publish the annotated tag at the exact
   published commit and verify it from an independently refreshed checkout. The
   gate records the tag as OWED and does not require it before step 4; the
   obligation is on whoever lands step 4.
+
+**§ 5.5 AND 5.6 EVIDENCE, 2026-09-10.** PR #881 (realization of this change,
+the `contract-v3.6` cut; atomic candidate `be77cb34`) LANDED on openxFactory
+`main` as merge commit `539cb5639ffb32b5531ae9940ccb86f824504a7b` at
+2026-09-10T02:02:58Z under Rule 6 — LANDING comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611549408>,
+LANDED comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611551237> —
+after Brett Heap's CLI approval at 2026-09-10T02:02:14Z on `a2ab9952`. Step 4
+at the merge sha (PR #881 comment
+<https://github.com/opensoft/openxFactory/pull/881#issuecomment-5611577023>):
+`validate-contract-release.py verify-commit` **PASS** on
+`contracts/releases/contract-v3.6.digests.yaml`; the release-tag gate —
+*"the release-tag obligation holds over the merge tree 539cb5639: no error, no
+warning"*; 189 manifest digests verify.
+
+The annotated tag `contract-v3.6`, object
+`d2d210d2027c6c3c1249a2bc0dc385d6e71e854d` →
+`539cb5639ffb32b5531ae9940ccb86f824504a7b`, was published 2026-09-10T02:30:39Z
+by lane `openXfactory-3` under Brett Heap's delegation — his word, 2026-09-10
+~02:1xZ, verbatim *"send this to lane openXfactory-1 to perform"* (request
+registered as issue #630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611667165>;
+lane `openXfactory-3` CLAIMED it in comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611746072>
+and reported DONE in comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611762282>
+with `release verify-promotion: pass` and `release verify-tag: pass`); tagger
+line `Brett Heap <1513478+brettheap@users.noreply.github.com>`. Row-4 SUBSTRATE
+LANDED for `contract-v3.6` (claim `5609660878` discharged, hold released): issue
+#630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611773448>.
+Realization claim `5602971301` discharged: issue #630 comment
+<https://github.com/opensoft/openxFactory/issues/630#issuecomment-5611552183>.
 
 **§ 5.4 EVIDENCE, 2026-09-09 — SUPERSEDED 2026-09-09 BY THE RE-CUT BELOW**, and
 kept in place for the same reason: these transcripts certify the WITHDRAWN
