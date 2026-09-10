@@ -720,20 +720,31 @@ def retention_problem(ratified: object, current: object) -> str | None:
 def _git_toplevel(path: Path) -> Path:
     """The work-tree root containing `path`.
 
-    Raises `SequencedAfterError` — never a `CalledProcessError` traceback —
-    when `path` is not inside a git work tree at all. A mistyped or
-    non-existent CHANGE_DIR is the SAME CLASS of operator error #705 filed on
-    the sibling gate, and it must arrive at the CLI as a named "cannot run"
-    finding (exit 2) rather than as a stack trace. The sibling
-    `scope_globs._git_toplevel` converts this case in exactly this shape
-    (#723); this is the mirror of that arm, so the two archive gates refuse the
-    same input the same way.
+    Raises `SequencedAfterError` — never a `CalledProcessError` traceback,
+    and never an `OSError` traceback either — when `path` is not inside a git
+    work tree at all, OR when `git` itself could not be run (not on PATH, not
+    executable, or any other OS-level failure launching the subprocess). A
+    mistyped or non-existent CHANGE_DIR is the SAME CLASS of operator error
+    #705 filed on the sibling gate, and it must arrive at the CLI as a named
+    "cannot run" finding (exit 2) rather than as a stack trace — and an
+    environment that cannot launch `git` at all is the same fact by a
+    different cause. The sibling `scope_globs._git_toplevel` converts both
+    cases in exactly this shape (#723); this is the mirror of that arm, so the
+    two archive gates refuse the same input the same way.
     """
     directory = path if path.is_dir() else path.parent
-    out = subprocess.run(
-        ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True,
-    )
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        # Mirrors `scope_globs._git_toplevel`: `subprocess.run` itself can
+        # fail before producing a `CompletedProcess` at all, and that is
+        # still "cannot run", never a traceback out of a merge gate.
+        raise SequencedAfterError(
+            f"git could not be run to resolve the work tree containing "
+            f"{str(directory)!r}: {exc}") from exc
     if out.returncode != 0:
         detail = out.stderr.strip() or f"git rev-parse exited {out.returncode}"
         raise SequencedAfterError(
@@ -879,14 +890,28 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     when `ratified_ref` does not name a commit, when `change_id` has no
     proposal.md at `ratified_ref`, when `change_dir` carries no `proposal.md`
     IN THE WORKING TREE — the CURRENT declaration cannot be read, so the gate
-    cannot run — and when the front matter on EITHER side is malformed or
-    unparseable (`read_declaration` refuses it). Every one of those arms is
-    also refused, in the same order and with the same exit code, by the sibling
-    `scope_globs.scope_retention_at_archive`: the two archive gates read the
-    same corpus over the same trees, so they refuse the same inputs alike
-    (#749, mirroring #723).
+    cannot run — when the front matter on EITHER side is malformed or
+    unparseable (`read_declaration` refuses it), or when `change_dir` cannot
+    be resolved to an absolute path at all (an OS-level failure, not a shape
+    the corpus can even present as a well-formed CHANGE_DIR). Every one of
+    those arms is also refused, in the same order and with the same exit
+    code, by the sibling `scope_globs.scope_retention_at_archive`: the two
+    archive gates read the same corpus over the same trees, so they refuse
+    the same inputs alike (#749, mirroring #723).
     """
-    change_path = Path(change_dir).resolve()
+    try:
+        change_path = Path(change_dir).resolve()
+    except (OSError, ValueError) as exc:
+        # Mirrors `scope_globs.scope_retention_at_archive`: `Path.resolve()`
+        # walks the filesystem (and, on POSIX, follows symlinks) and can fail
+        # for reasons that have nothing to do with the change directory being
+        # wrong — a broken/looping symlink, a path component that is not a
+        # directory, or another OS-level refusal. That is "cannot run", the
+        # same fact `_git_toplevel` reports below for a missing work tree,
+        # never a bare traceback out of a merge gate.
+        raise SequencedAfterError(
+            f"{str(change_dir)!r} could not be resolved to an absolute path: "
+            f"{exc}") from exc
     proposal = change_path / "proposal.md"
     repo_root = _git_toplevel(change_path)
     if not _ref_names_a_commit(repo_root, ratified_ref):

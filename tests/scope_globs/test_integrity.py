@@ -374,6 +374,89 @@ def test_a_CHANGE_DIR_OUTSIDE_A_WORK_TREE_is_a_finding_not_a_CalledProcessError(
     assert change.is_dir()
 
 
+# --- undocumented OS-level failures are ALSO "cannot run" (codeXfactory/codexFactory#333) -
+#
+# Neither `ValueError`/`OSError` from `Path.resolve()` nor `OSError` from
+# `subprocess.run` itself (as opposed to a nonzero exit code it captures and
+# reports as a finding already) was documented anywhere above as a reason this
+# gate cannot run — yet both are real ways the process can fail before the
+# gate ever gets to read a proposal: a broken/looping symlink, or an
+# environment where `git` is not on PATH at all. Monkeypatched rather than
+# fixture-driven, because there is no portable way to make a real filesystem
+# or a real `git` binary fail this way on demand.
+
+
+def test_a_PATH_RESOLVE_FAILURE_is_a_finding_not_a_traceback(tmp_path, monkeypatch):
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+
+    def _boom(self, *a, **k):
+        raise OSError("simulated: too many levels of symbolic links")
+
+    monkeypatch.setattr(Path, "resolve", _boom)
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(change, ratified_ref)
+    message = str(excinfo.value)
+    assert "simulated: too many levels of symbolic links" in message, message
+    assert str(change) in message, message
+
+
+def test_a_GIT_TOPLEVEL_LAUNCH_FAILURE_is_a_finding_not_a_traceback(tmp_path, monkeypatch):
+    # `subprocess.run` itself can fail before ever producing a
+    # `CompletedProcess` (the realistic case: `git` missing from PATH raises
+    # `FileNotFoundError`, an `OSError` subclass) — distinct from the
+    # already-tested case of git running and reporting a non-zero exit.
+    change = _init_change(tmp_path, _SCOPE)
+    ratified_ref = _head(tmp_path)
+
+    def _boom(*a, **k):
+        raise FileNotFoundError("simulated: git not found on PATH")
+
+    monkeypatch.setattr(sg.subprocess, "run", _boom)
+    with pytest.raises(sg.ScopeGlobsResolutionError) as excinfo:
+        sg.scope_retention_at_archive(change, ratified_ref)
+    assert "simulated: git not found on PATH" in str(excinfo.value)
+
+
+def _load_validator_module():
+    """Load `validate-scope-globs.py` BY LOCATION under its own module name, so
+    `_archive_gate` can be called and its dependency monkeypatched IN-PROCESS.
+
+    Every other CLI test in this file shells out to a child process (the real,
+    end-to-end route) — but a child process cannot be monkeypatched at all, so
+    the CLI's OWN `except` backstop (`OSError`, `ValueError`, added beside
+    `scope_retention_at_archive`'s own hardening, for defense in depth) is
+    exercised here instead, the same way `sg` above is loaded by location.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "validate_scope_globs_cli", VALIDATOR)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+vsg = _load_validator_module()
+
+
+def test_the_CLI_BACKSTOP_reports_a_raw_OSError_as_CANNOT_RUN(monkeypatch, capsys):
+    # Even if some future call site inside `scope_retention_at_archive` were to
+    # escape as a raw OSError/ValueError instead of the documented
+    # `ScopeGlobsResolutionError`, this CLI's own module docstring promises
+    # every failure to run is a named finding (exit 2), never a traceback —
+    # independent of which layer catches it.
+    def _boom(change_dir, ratified_ref):
+        raise OSError("simulated OS-level failure with no documented arm")
+
+    monkeypatch.setattr(vsg.sg, "scope_retention_at_archive", _boom)
+    exit_code = vsg._archive_gate(Path("/irrelevant"), "HEAD")
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "CANNOT RUN" in captured.out, captured.out
+    assert "simulated OS-level failure with no documented arm" in captured.out, captured.out
+
+
 def test_an_UNRESOLVABLE_RATIFIED_REF_is_named_as_such_not_as_an_absent_change(tmp_path):
     # The by-id probes swallow git's exit status, so without a commit check a
     # bad ref is reported in the wording of a change that is absent at a good
