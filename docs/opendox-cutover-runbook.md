@@ -128,20 +128,22 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **146** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here |
 
-**318 rows move. 792 declared edit lines**: `import rewrites` 636, `path
-constants` 130, `adapter calls` 26.
+**318 rows move. 793 declared edit lines**: `import rewrites` 636, `path
+constants` 131, `adapter calls` 26.
 
 The row and line totals above are the file AS AMENDED on 2026-09-10 under
 RULING Q-L1 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
-joined the `replicated_at_destination` rows, and ten short-citation lines over
-six `opendox_code` rows were declared. The digest total does not move with
-them — a `not_moved` row carries none.
+joined the `replicated_at_destination` rows, and eleven lines over seven
+`opendox_code` rows were declared — ten of them citations too short to express
+the edit their row's own note described, plus the seam file's own path
+constant. The digest total does not move with them — a `not_moved` row carries
+none.
 
 Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 61 / 62 | 249 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 61 / 62 | 250 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 6 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 537 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 47 / 0 | 0 | `contracts/schemas`, `examples/ideation-dashboard` |
@@ -552,7 +554,12 @@ one. **RULING Q-L1 (2026-09-10) added two more permanent replicas** —
 `scripts/route_extension.py` and `scripts/subcommand_extension.py`, the § 2.4
 extension-point seams — after carve leg 1 found them imported at module level by
 arrived rows with no row of their own; both `-code` legs place them and declare
-the placement the same way. Their arrival needs no import rewrite: every
+the placement the same way. **Place each ON the `src/` import root and BESIDE
+the package** — `src/route_extension.py`, `src/subcommand_extension.py`, the
+mirror of `scripts/*.py` beside `scripts/ideation_dashboard/` here — and never
+inside `src/<pkg>/`: every importer is a bare top-level `import` on a line no
+row declares, so a copy inside the package would need an import rewrite the
+manifest does not authorize while a copy on the import root resolves unedited. Their arrival needs no import rewrite: every
 importer spells a BARE top-level `import route_extension` /
 `import subcommand_extension`, which is what the modules' own docstrings ask for.
 
