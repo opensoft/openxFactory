@@ -25,6 +25,8 @@ file is the branch a typo selects and a mistyped path is green forever.
 Everything after the manifest appears is fail-closed.
 
 SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
+Two of them read the revision under test and therefore read `phase:` — see
+"THE TWO PHASES" below; the other four are phase-blind.
 
   1. SHAPE — `schema_version` (the INTEGER 1, so neither `true` nor `1.0`
      passes), `kind`, the three consts, a 40-lowercase-hex `carve_commit`, a
@@ -83,6 +85,57 @@ SIX ORDERED CHECKS, FIRST FAILURE WINS (the scout memo § 1.3, 2026-09-08).
      `destination` in `also_replicated_to:`. Then the rows' file order must
      equal their bytewise-UTF-8 sort, which is what the const
      `path_order: bytewise_utf8` claims (`carve-path-order-violation`).
+
+THE TWO PHASES, AND WHY THE DECLARATION IS IN THE MANIFEST (`phase:`). This
+document outlives the tree it describes by exactly one act: § 5.2, the shed,
+deletes every MOVED row's source path and the one `deleted_at_carve` row — 319
+paths of the 456 — and from that commit onward checks 3 and 4 are asking a
+question the tree can no longer answer. As written they REFUSE it, twice and by
+name (`carve-path-absent` from check 3 pass 2 for the 318 moved rows, and from
+check 4's `vanished` arm for all 319), which is correct while the shed has not
+been ruled and useless the moment it is.
+
+`phase:` is the OPTIONAL top-level key that says which of the two questions
+this manifest is asking. Absent, or `carve`, is the file as landed: every row's
+source path is still here. `post-shed` says § 5.2 has run, and it changes
+EXACTLY two arms:
+
+  * check 3 pass 2, for a MOVED row: absence is the declared outcome, and
+    PRESENCE is the finding (`carve-shed-incomplete`).
+  * check 4, for the whole surface: the shed set — derived from the rows
+    themselves, never from a second list — is excluded from `vanished` and
+    required to be absent by its own mirror arm.
+
+EVERYTHING ELSE IS UNTOUCHED IN BOTH PHASES, and that is the point of putting
+the switch this narrow. Check 2 still requires `carve_commit` to be a commit
+object this repository carries and an ANCESTOR of the revision under test — the
+shed deletes files from a tree, it does not delete a commit from a history, so
+`git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
+Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
+real bytes and still bounds all 794 declared lines against them; check 4 still
+walks the referent for completeness, still refuses a file that has APPEARED
+under the surface, and still requires every `stays_*` and
+`replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
+tree at all. The manifest keeps `carve_commit: b075fd91…` and `carve_tag:
+opendox-carve-0`, every `sha256` and every disposition: `post-shed` is not a
+re-cut and moves no digest.
+
+WHAT `post-shed` GIVES UP, STATED PLAINLY, because a floor that overstates its
+reach is worse than one that does not reach. For the 318 MOVED rows only, it
+stops asking "has this file drifted on `main` since the carve" — the memo's § 6
+step 3 pressure. It cannot be asked of a deleted file by any tool, and the
+answer it was buying is discharged once and elsewhere: at the four
+destinations, by `verify-carve-arrival.py`, against blobs read at
+`carve_commit` from this repository's own history — which the shed does not
+touch. The 137 rows that stay keep every guarantee they had.
+
+AND THE DECLARATION IS SYMMETRIC, which is what makes it a floor rather than a
+mute. A `post-shed` manifest over a tree that still carries a moved row refuses
+`carve-shed-incomplete`. So the phase cannot be flipped ahead of the deletions
+to buy quiet, and the deletions cannot land ahead of the phase without
+refusing: runbook § 8's "no ordering of two commits leaves a green
+intermediate" stops being a discipline the lane is asked to keep and becomes
+the thing this file checks.
 
 TWO GRAMMAR EXTENSIONS, RULED Q-L7 (a) (Brett Heap, 2026-09-10, verbatim "rule
 Q-L7 (a)"; `#656` comment `5618683833`). Carve leg 1 landed and measured two
@@ -275,6 +328,39 @@ CONSTS: dict[str, str] = {
 EDIT_CLASSES: tuple[str, ...] = ("import rewrites", "path constants",
                                  "adapter calls")
 
+# THE TWO PHASES OF THIS DOCUMENT'S OWN LIFE, declared IN the manifest and not
+# on a command line. The manifest is the floor's referent, and a phase passed
+# by a caller would mean the same tree verifies or refuses depending on which
+# job invoked the tool — the one property a floor may not have. Declared here,
+# the check is self-describing: the file says which semantics it is asking for,
+# every caller of every kind reads the same answer, and the flip is a reviewable
+# line in the same diff as the deletions it licenses (runbook § 8's "one atomic
+# pull request", enforced rather than asked for).
+#
+#   `carve` (the DEFAULT, and what an absent key means) — the tree still
+#   carries every row's source path. This is the file as landed at #865.
+#
+#   `post-shed` — § 5.2 has run. Every MOVED row's source path, and the one
+#   `deleted_at_carve` row's, is ABSENT at the revision under test BY
+#   DECLARATION; every `stays_*` and `replicated_at_destination` row's is still
+#   PRESENT, and still checked exactly as before.
+#
+# IT IS SYMMETRIC, WHICH IS WHY IT IS A FLOOR AND NOT A MUTE. Under `post-shed`
+# a moved row whose file is STILL THERE refuses `carve-shed-incomplete`, so the
+# declaration cannot be flipped ahead of the deletions to buy silence: a
+# half-shed tree refuses in exactly the way a pre-shed tree with a post-shed
+# manifest does. Pass 1 of check 3 is untouched in both phases — the carve
+# commit is still in this repository's history after the shed, so all 318
+# digests are still recomputed from the referent's real bytes and the manifest
+# is still held to the tree it NAMES. What `post-shed` gives up is precisely
+# what deleting the files makes unaskable: "the source has not drifted since
+# the carve", for the moved rows only. That guarantee is discharged elsewhere
+# and once — at the four destinations, by `verify-carve-arrival.py`, before the
+# shed may be declared at all.
+PHASE_CARVE = "carve"
+PHASE_POST_SHED = "post-shed"
+PHASES: tuple[str, ...] = (PHASE_CARVE, PHASE_POST_SHED)
+
 DISPOSITIONS: tuple[str, ...] = ("moved_verbatim", "moved_with_declared_edit",
                                  "not_moved")
 MOVED_DISPOSITIONS: tuple[str, ...] = ("moved_verbatim",
@@ -318,6 +404,18 @@ KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
 # carries: `carve-unreadable` is the ENVIRONMENT and the ENCODING — the bytes
 # never became a document — and every other code is a manifest that disagrees
 # with the tree it claims.
+#
+# ONE MEMBER HAS BEEN ADDED SINCE, AND DELIBERATELY. `carve-shed-incomplete`
+# joined this tuple with the manifest's `phase:` key (RULED (a), Brett Heap,
+# 2026-09-10, `#656` comment `5625573095`). The post-shed phase asserts an
+# ABSENCE, and a tree that still carries the file is a finding no existing code
+# named: `carve-path-absent` is its exact opposite, and `carve-digest-mismatch`
+# would be a claim about bytes nobody compared. "FIXED, COMPLETE" is a statement
+# about what this vocabulary owes a caller — every code a check can raise is in
+# it, and nothing raises a code outside it — and not a promise never to extend
+# it. Extending it is a ruled act, it is visible in the diff that does it, and
+# `RATIFIED_CODES` in `tests/carve_manifest/test_carve_manifest.py` restates the
+# tuple as a literal, so no member can be added, removed or reordered in silence.
 REFUSAL_CODES: tuple[str, ...] = (
     "carve-shape-invalid",
     "carve-revision-mismatch",
@@ -329,6 +427,7 @@ REFUSAL_CODES: tuple[str, ...] = (
     "carve-vocabulary-unknown",
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
+    "carve-shed-incomplete",
     "carve-unreadable",
 )
 
@@ -338,7 +437,11 @@ REMEDIATION = (
     "sha256sum`), never edit a digest to make this pass — or, where the tree "
     "has moved since, name a NEW carve_commit and recompute the whole file: "
     "the § 6 ceremony re-cuts, it never carries digests forward. Verify at a "
-    "specific revision with `--at <sha>`."
+    "specific revision with `--at <sha>`. Under `phase: post-shed` the "
+    "remedy for `carve-shed-incomplete` is the opposite one: the manifest "
+    "declares the shed DONE and the tree still carries the file, so either "
+    "the deletion is missing from this commit or the phase was flipped "
+    "early — the shed and the flip land together or not at all."
 )
 
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -378,7 +481,7 @@ LEGS: tuple[str, ...] = ("code", "spec", "assembly")
 # mistyped `moved_path:` is ignored in silence while the key it failed to be is
 # the one that carries the whole surface.
 TOP_LEVEL_KEYS = frozenset({
-    "schema_version", "kind", "header", "carve_commit", "carve_tag",
+    "schema_version", "kind", "header", "phase", "carve_commit", "carve_tag",
     "source_repository", "digest_algorithm", "digest_source", "path_order",
     "destinations", "edit_classes", "not_moved_reasons", "moved_paths", "rows",
 })
@@ -638,6 +741,24 @@ def check_shape(doc: dict[str, Any]) -> None:
                 f"`{key}: {doc.get(key)!r}` is not the const {expected!r}; "
                 "the row grammar is the release-digest inventory's and its "
                 "consts are not a per-manifest choice")
+
+    # `phase:` IS CHECK 1'S, not check 5's. Check 5 owns the closed vocabularies
+    # of a ROW — `disposition`, `edits[].class`, `destination`, `reason` — and
+    # this is a document-level const in the same family as `digest_algorithm`,
+    # answerable before any git call. Reporting it under check 5 would also mean
+    # a mistyped phase reached checks 3 and 4 first and refused there, under a
+    # code naming a file, for a defect in one word of the header.
+    phase = doc.get("phase", PHASE_CARVE)
+    if phase not in PHASES:
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"`phase: {phase!r}` is not one of {list(PHASES)!r}. The key is "
+            f"OPTIONAL and its absence means {PHASE_CARVE!r} — the phase this "
+            "file was authored in — so a manifest that never mentions it reads "
+            "exactly as it did before the key existed; a manifest that does "
+            "mention it must name a phase this validator implements, because "
+            "the phase decides whether a deleted source path is a refusal or "
+            "the declared outcome")
 
     commit = doc.get("carve_commit")
     if not isinstance(commit, str) or not COMMIT_RE.match(commit):
@@ -1027,7 +1148,8 @@ def check_revision(repo: Path, doc: dict, at: str | None) -> str:
 
 
 def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
-                  tested: dict[str, TreeEntry], verified_at: str) -> int:
+                  tested: dict[str, TreeEntry], verified_at: str,
+                  phase: str = PHASE_CARVE) -> int:
     """Check 3's two comparisons, in TWO PASSES, and in that order.
 
     PASS 1 asks whether the manifest is true about the tree it NAMES. PASS 2
@@ -1096,6 +1218,26 @@ def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
         path = row["source_path"]
+        # THE ONE PLACE THE PHASE CHANGES WHAT A MOVED ROW MEANS. Under
+        # `post-shed` the absence IS the declaration and the presence is the
+        # finding, which is this arm read in the mirror; everything above —
+        # pass 1's digest, mode and declared-line bound at the carve commit —
+        # ran unchanged for this same row moments ago.
+        if phase == PHASE_POST_SHED:
+            if path in tested:
+                raise CarveRefusal(
+                    "carve-shed-incomplete",
+                    f"{path}: STILL PRESENT UNDER A POST-SHED MANIFEST — "
+                    f"rows[{index}] declares it `{row['disposition']}` at "
+                    f"{commit[:12]}, the manifest declares "
+                    f"`phase: {PHASE_POST_SHED}`, and {verified_at[:12]} "
+                    "still carries it as a file. A moved row's bytes left for "
+                    "the destination; the phase says openxFactory has let go "
+                    "of them. Either this commit is missing the deletion, or "
+                    "the phase was flipped ahead of the shed — and a phase "
+                    "that could be flipped early would buy silence for every "
+                    "row at once, which is why it refuses here instead")
+            continue
         if path not in tested:
             raise CarveRefusal(
                 "carve-path-absent",
@@ -1104,7 +1246,9 @@ def check_digests(repo: Path, doc: dict, referent: dict[str, TreeEntry],
                 f"{verified_at[:12]} no longer carries it as a file. The "
                 "carve ships the bytes at the carve commit, so a source the "
                 "tree has since dropped is a move nobody can review at the "
-                "destination: re-cut the manifest at a new carve commit")
+                "destination: re-cut the manifest at a new carve commit, or — "
+                f"if this is § 5.2 — declare `phase: {PHASE_POST_SHED}` in the "
+                "SAME commit as the deletions")
         if tested[path].mode != referent[path].mode:
             raise CarveRefusal(
                 "carve-digest-mismatch",
@@ -1207,7 +1351,8 @@ def _check_edit_lines(index: int, path: str, row: dict[str, Any],
 
 
 def check_surface(doc: dict, referent: dict[str, TreeEntry],
-                  tested: dict[str, TreeEntry], verified_at: str) -> int:
+                  tested: dict[str, TreeEntry], verified_at: str,
+                  phase: str = PHASE_CARVE) -> int:
     """Every file under the declared prefixes appears in EXACTLY one row — at
     the referent AND at the revision under test.
 
@@ -1330,7 +1475,19 @@ def check_surface(doc: dict, referent: dict[str, TreeEntry],
             + " — a file in no row is an UNDECLARED MOVEMENT and the carve "
               "refuses (RULING OQ-1). The manifest describes a surface the "
               "tree has grown past: re-cut it at a new carve commit")
-    vanished = sorted(surface - tested_surface)
+    # THE SHED SET, derived from the rows and never from a second list. Under
+    # `post-shed` these paths are the ones the § 5.2 shed deletes BY
+    # CONSTRUCTION — every moved row, plus the one `deleted_at_carve` row — so
+    # the manifest computes its own expected absence set and nothing has to be
+    # kept in step with it by hand. Under `carve` the set is empty and both
+    # arms below read exactly as they did.
+    shed_set: set[str] = set()
+    if phase == PHASE_POST_SHED:
+        shed_set = {row["source_path"] for row in doc["rows"]
+                    if row.get("disposition") in MOVED_DISPOSITIONS
+                    or row.get("reason") == "deleted_at_carve"}
+
+    vanished = sorted((surface - tested_surface) - shed_set)
     if vanished:
         raise CarveRefusal(
             "carve-path-absent",
@@ -1341,7 +1498,30 @@ def check_surface(doc: dict, referent: dict[str, TreeEntry],
             + (" …" if len(vanished) > 10 else "")
             + ". Check 3 reports this for a MOVED row, with its digest; this "
               "is what reports it for a `not_moved` row, which the digest "
-              "loop never reads at all")
+              "loop never reads at all"
+            + (". Under `phase: post-shed` a MOVED row and the "
+               "`deleted_at_carve` row are EXPECTED to be gone and are not "
+               "counted here — every row named above is a row that STAYS, and "
+               "the shed does not reach it"
+               if phase == PHASE_POST_SHED else ""))
+
+    # THE MIRROR ARM, and it exists for the `deleted_at_carve` row alone —
+    # check 3's own post-shed arm has already refused every MOVED row that is
+    # still present, and it runs first. That is the same split this check
+    # already keeps in the other direction: the digest loop never reads a
+    # `not_moved` row, so its absence, and now its presence, is reported here.
+    if phase == PHASE_POST_SHED:
+        still_here = sorted(shed_set & tested_surface)
+        if still_here:
+            raise CarveRefusal(
+                "carve-shed-incomplete",
+                f"the manifest declares `phase: {PHASE_POST_SHED}` and "
+                f"{verified_at[:12]} still carries {len(still_here)} of the "
+                "path(s) the shed removes: "
+                + ", ".join(still_here[:10])
+                + (" …" if len(still_here) > 10 else "")
+                + ". The phase and the deletions are one act (runbook § 8) "
+                  "and this is that sentence as running code")
     return len(surface)
 
 
@@ -1482,6 +1662,10 @@ def validate(manifest_path: Path, repo: Path,
     """
     doc = read_manifest(manifest_path)
     check_shape(doc)
+    # READ AFTER CHECK 1 and never before it: check 1 is what has just proved
+    # this is one of the two phases, and a value read ahead of its own
+    # validation is the branch a typo selects.
+    phase = doc.get("phase", PHASE_CARVE)
     verified_at = check_revision(repo, doc, at)
     commit = doc["carve_commit"]
     referent = tree_at(repo, commit)
@@ -1490,17 +1674,22 @@ def validate(manifest_path: Path, repo: Path,
     # would be the first, record for record, and sharing the object makes every
     # comparison against it an identity rather than a branch to be trusted.
     tested = referent if verified_at == commit else tree_at(repo, verified_at)
-    recomputed = check_digests(repo, doc, referent, tested, verified_at)
-    surface = check_surface(doc, referent, tested, verified_at)
+    recomputed = check_digests(repo, doc, referent, tested, verified_at, phase)
+    surface = check_surface(doc, referent, tested, verified_at, phase)
     check_vocabularies(doc)
     check_disposition_consistency(doc)
 
     counts = {d: 0 for d in DISPOSITIONS}
     for row in doc["rows"]:
         counts[row["disposition"]] += 1
+    shed = sum(1 for row in doc["rows"]
+               if row.get("disposition") in MOVED_DISPOSITIONS
+               or row.get("reason") == "deleted_at_carve")
     return {
         "result": "ok",
         "manifest": str(manifest_path),
+        "phase": phase,
+        "shed_rows": shed if phase == PHASE_POST_SHED else 0,
         "carve_commit": commit,
         "verified_at": verified_at,
         "carve_tag": doc["carve_tag"],
@@ -1600,14 +1789,25 @@ def main(argv: list[str] | None = None) -> int:
                  f"{summary['carve_commit'][:12]} ({summary['carve_tag']})")
         if summary["verified_at"] != summary["carve_commit"]:
             where += f", verified at {summary['verified_at'][:12]}"
-        print(f"OK {manifest_path}: {summary['rows']} row(s) at "
+        # THE PHASE IS PRINTED ON EVERY RUN, in both phases and not only in
+        # the new one. A reader of a CI log must be able to tell WHICH
+        # semantics answered `OK` without opening the manifest, and a line
+        # that says nothing under the default would make the default the one
+        # state no log records. It is also what lets the § 8.2 seat assert
+        # that the run took the branch the file declares rather than merely
+        # exiting 0.
+        shed_note = (f"; {summary['shed_rows']} shed row(s) absent at source "
+                     "as declared"
+                     if summary["phase"] == PHASE_POST_SHED else "")
+        print(f"OK {manifest_path}: phase {summary['phase']}, "
+              f"{summary['rows']} row(s) at "
               f"{where} — "
               f"{counts['moved_verbatim']} moved_verbatim, "
               f"{counts['moved_with_declared_edit']} moved_with_declared_edit, "
               f"{counts['not_moved']} not_moved; "
               f"{summary['digests_recomputed']} digest(s) recomputed; "
               f"{summary['surface']} file(s) in the declared surface with none "
-              "undeclared")
+              "undeclared" + shed_note)
     return 0
 
 
