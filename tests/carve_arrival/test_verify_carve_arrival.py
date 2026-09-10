@@ -1319,6 +1319,41 @@ def test_a_dest_base_that_names_no_commit_refuses(carve: Carve) -> None:
     assert refusal(done) == "arrival-unreadable"
 
 
+def test_a_replica_at_may_not_reach_outside_the_dest_root(
+        carve: Carve) -> None:
+    """`Path("/dest") / "/etc/passwd"` is `/etc/passwd`: an absolute right-hand
+    side REPLACES the root, and `..` walks out of it. Before this guard both
+    were read, and the answer was reported as the destination's."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    outside = carve.tmp / "outside.py"
+    outside.write_text("OUTSIDE = 1\n", encoding="utf-8")
+    for hostile in ("scripts/pkg/neutral.py=/etc/passwd",
+                    "scripts/pkg/neutral.py=../outside.py",
+                    "scripts/pkg/neutral.py=src/./pkg/neutral.py",
+                    "scripts/pkg/neutral.py="):
+        done = run(carve, manifest, "--destination", "scratch_code",
+                   "--dest-root", str(dest), "--phase", "A", "--json",
+                   "--replica-at", hostile)
+        assert refusal(done) == "arrival-unreadable", hostile
+
+
+def test_allow_created_may_not_reach_outside_the_dest_root(
+        carve: Carve) -> None:
+    """The same guard on the other flag that takes a destination path. It is
+    fail-fast rather than harmless-because-it-never-matches: a value that can
+    never match is a silent admission the operator believes they made."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    for hostile in ("/etc/passwd", "../outside.py", "src/../src/pkg/x.py"):
+        done = run(carve, manifest, "--destination", "scratch_code",
+                   "--dest-root", str(dest), "--phase", "A", "--json",
+                   "--allow-created", hostile)
+        assert refusal(done) == "arrival-unreadable", hostile
+
+
 def test_a_dest_base_is_validated_before_a_process_is_started(
         carve: Carve) -> None:
     """`--dest-base` is the ONE value this tool hands to git that came from the

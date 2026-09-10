@@ -194,6 +194,7 @@ import difflib
 import hashlib
 import json
 import os
+import posixpath
 import re
 import stat
 import subprocess
@@ -407,6 +408,37 @@ def read_arrived(target: Path) -> tuple[str, bytes]:
 
 def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def dest_relative(value: str, flag: str) -> str:
+    """A path INSIDE `--dest-root`, or a refusal.
+
+    `--replica-at`'s right-hand side and every `--allow-created` value come
+    from the command line and are joined to `--dest-root` or compared with a
+    path the walk produced. `Path("/dest") / "/etc/passwd"` is `/etc/passwd` —
+    an absolute right-hand operand REPLACES the root — and `..` segments walk
+    out of it, so a typo reads a file the run is not about and reports it as
+    the destination's. The estate already treats this as a hard requirement
+    rather than a nicety (`scripts/proposal-support.py` rejects absolute and
+    `..` paths after normalisation), and this is the same guard.
+
+    NON-CANONICAL FORMS ARE REFUSED RATHER THAN NORMALISED. The value has to
+    EQUAL a path the walk produced, and the walk produces canonical ones, so
+    `src/./pkg/x.py` would silently never match; refusing says so.
+    """
+    relpath = value.replace(os.sep, "/")
+    normalised = posixpath.normpath(relpath) if relpath else ""
+    if (not relpath or posixpath.isabs(relpath) or relpath != normalised
+            or normalised in (".", "..") or normalised.startswith("../")):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"{flag} {value!r} is not a plain path inside --dest-root: it is "
+            "empty, absolute, or carries `.`/`..` segments. An absolute "
+            "right-hand side REPLACES the destination root when it is joined, "
+            "and `..` walks out of it, so such a value would answer a "
+            "question about a file this run is not about. Give the path "
+            "relative to --dest-root, in the canonical form the walk reports")
+    return relpath
 
 
 # --------------------------------------------------------------------------
@@ -734,7 +766,7 @@ def parse_replica_placements(values: list[str],
                 f"--replica-at {value!r} is not SOURCE=DESTPATH: the left side "
                 "is a replica row's source_path in openxFactory and the right "
                 "is where it landed, relative to --dest-root")
-        relpath = relpath.replace(os.sep, "/")
+        relpath = dest_relative(relpath, "--replica-at")
         if source_path not in replicas:
             raise ArrivalRefusal(
                 "arrival-unreadable",
@@ -1336,7 +1368,8 @@ def main(argv: list[str] | None = None) -> int:
                 "silently")
         summary = verify(doc, args.destination, dest_root, source_repo,
                          args.phase,
-                         {p.replace(os.sep, "/") for p in args.allow_created},
+                         {dest_relative(p, "--allow-created")
+                          for p in args.allow_created},
                          parse_replica_placements(args.replica_at, doc),
                          resolve_dest_base(dest_root, args.dest_base))
     except ArrivalRefusal as exc:

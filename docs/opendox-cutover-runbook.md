@@ -135,11 +135,18 @@ Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 61 / 62 | 239 | `src/opendox/`, `tests/` |
-| `opendox_spec` | 56 | 55 / 1 | 6 | `contracts/schemas/`, `docs/`, `examples/ideation-dashboard/` |
-| `openxdox_code` | 92 | 9 / 83 | 537 | `scripts/`, `src/openxdox/`, `tests/` |
-| `openxdox_spec` | 47 | 47 / 0 | 0 | `contracts/schemas/`, `examples/ideation-dashboard/` |
+| `opendox_code` | 123 | 61 / 62 | 239 | `src/opendox`, `tests` |
+| `opendox_spec` | 56 | 55 / 1 | 6 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
+| `openxdox_code` | 92 | 9 / 83 | 537 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_spec` | 47 | 47 / 0 | 0 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
+
+The declared-roots column is spelled **exactly as a run prints it** — no
+trailing slash — because an operator's first act after a leg lands is to read
+`… file(s) under <roots> …` off the verifier's own line and compare it with
+this table. `tests/carve_arrival/test_verify_carve_arrival.py::test_the_real_manifest_declares_the_roots_the_runbook_names`
+asserts these five cells against the landed manifest, so the table is checked
+rather than described.
 
 ### 2.1 The arrival verifier
 
