@@ -1,0 +1,74 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-state-header-window-budget
+  reason: >-
+    A DOCUMENTARY GAP NAMED BY A COPILOT REVIEW AND ANSWERED, ON THE RECORD,
+    BY THE PACKET IT WAS FOUND ON — routed here rather than fixed there,
+    because that packet was an archive and editing ratified text with no
+    ruling behind the edit would have broken the byte-identity its own
+    archive gate exists to prove.
+    On openxFactory PR #906 (the archive of `accept-sequenced-after-header-line`,
+    merged 2026-09-10T16:51:51Z at `92d0367c`),
+    `copilot-pull-request-reviewer` found, at
+    `openspec/specs/release-realization/spec.md:440`
+    (https://github.com/opensoft/openxFactory/pull/906#discussion_r3981305715):
+    "The requirement defines the header-line site as being within the first
+    15 real lines and outside any leading `---` fence, but it doesn't
+    explicitly state whether fence lines still count toward the 15-line
+    window. The implementation (`scripts/frontmatter_strict.py:541-545`)
+    treats fence lines as non-declaration lines that still count toward the
+    window, so spelling that out here would reduce the risk of divergent
+    consumer implementations."
+    Brett Heap answered on that thread, AS LANE codexfactory-1 AND NOT AS A
+    RULING
+    (https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763,
+    2026-09-10T16:33:45Z): "The reading is correct," quoted the packet's own
+    `tasks.md` § 2.3 verbatim ("Fence lines still COUNT toward the window —
+    one window rule, the document's own"), and declined to fix it on that
+    pull request because it is an ARCHIVE whose central claim, asserted with
+    sha256 on both sides, is that the two promoted requirements are
+    byte-identical to the ratified delta. The reply named the remedy in its
+    own words: "a one-clause MODIFIED on this requirement making the
+    window-budget rule explicit, which is exactly the kind of narrow
+    amendment the corpus takes routinely (`amend-marker-reason-boundary`,
+    `amend-neutral-product-pin-interim-copy-vocabulary`)." THIS PACKET IS
+    THAT AMENDMENT, and no other.
+    THE AUTHORING MANDATE IS BRETT HEAP'S RESUME RULING OF 2026-09-10,
+    VERBATIM "fan out wide", given first-hand and in session, which
+    commissioned lane codexfactory-1 to pursue the routed work items the
+    prior session had queued at its own discretion. Lane codexfactory-1's
+    own PR #906 reply — quoted above — is THIS LANE'S WORD, not Brett
+    Heap's, and settles no wording of this packet; it only names the vehicle.
+    Ratification of what this packet actually says is a separate, later act
+    and is owed (see `approved_by` below, and `proposal.md`'s `Status`
+    line).
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was listed in full and `INDEX.md` read on
+    2026-09-10: no topic folder and no INDEX row names the lifecycle header
+    window, front-matter fences, or the `sequenced_after:` header-line form
+    (`grep -in "header.window\|lifecycle header\|fence"
+    ideation/staging/INDEX.md` returns seven lines, all of them a DIFFERENT
+    "fence" — the staging-document `xspec:` markup fence, an unrelated
+    convention). The organized source is a pull-request review thread on an
+    already-merged archive, which is the shape `ad_hoc` exists for.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — the resume ruling of
+    2026-09-10, first-hand, in session, verbatim "fan out wide". THIS FIELD
+    RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT, AND MUST
+    NOT BE READ AS ONE — exactly the disclaimer `accept-sequenced-after-header-line`'s
+    own `.openspec.yaml` carried for its own "do door b" ruling, and exactly
+    the shape `prepare-openspec-1-12-readiness` used for an admission that
+    was not a content ratification either. "Fan out wide" is a general
+    mandate over several routed items, not a reading of this packet's
+    paragraph or its scenario; those are this lane's authoring and are
+    flagged for veto in `design.md`. At the time this field is written the
+    packet is `Status: draft`, carries no ratification citation, and owes
+    one: ratification is a separate act of Brett Heap's, tracked as task
+    0.2.
+  approved_on: 2026-09-10
+related:
+  - openxFactory:change:archive/2026-09-10-accept-sequenced-after-header-line          # ARCHIVED (PR #886, archive PR #906). RATIFIED AND PROMOTED the requirement this block MODIFIES; its bytes are NOT edited, and the Copilot finding this packet answers stands on its archive pull request as a reply rather than a fix
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary                # ARCHIVED. One of the two narrow-amendment precedents Brett Heap's own PR #906 reply named as the shape this packet should take
+  - openxFactory:change:archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary  # ARCHIVED. The other precedent Brett Heap's own PR #906 reply named, and the closer structural template: ad_hoc, code_surface: none, one `## MODIFIED` requirement, additions declared without a `Removed from canon` marker where nothing existing is dropped
