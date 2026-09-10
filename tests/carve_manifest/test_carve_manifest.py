@@ -1682,3 +1682,305 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
+
+
+# --------------------------------------------------------------------------
+# ONE DEFINITION OF A LINE, SHARED WITH THE ARRIVAL VERIFIER
+# (RULED Q-L8 (c), Brett Heap 2026-09-10)
+# --------------------------------------------------------------------------
+
+ARRIVAL_SCRIPT = REPO_ROOT / "scripts" / "verify-carve-arrival.py"
+SHARED_LINES = REPO_ROOT / "scripts" / "carve_lines.py"
+
+# A line carrying U+2028 — FIVE lines to the floor, SIX to `str.splitlines()`.
+# The shape of the two landed `openxdox_code` rows the ruling is about, in
+# miniature; `tests/carve_arrival/test_verify_carve_arrival.py` drives the same
+# shape through the arrival half of the floor.
+EXOTIC_SOURCE = (
+    "import alpha\n"
+    "SEPARATOR = \"one line\u2028with U+2028 inside it\"\n"
+    "KEEP = 3\n"
+    "PATH = \"scripts/pkg/web\"\n"
+    "TAIL = 5\n")
+
+# Every byte string whose line count the two spellings must agree on, INCLUDING
+# each separator `splitlines()` adds. `\r\n` and a lone `\r` are here because
+# `\r` is CONTENT to this floor and a terminator to `splitlines()`, and the
+# empty blob is here because the validator's old expression guarded it by hand.
+LINE_COUNT_CORPUS = (
+    b"", b"\n", b"\n\n", b"a", b"a\n", b"a\nb", b"a\nb\n",
+    b"a\r\nb\r\n", b"a\rb", b"a\rb\n",
+    "x\u2028y\n".encode("utf-8"), "x\u2028y".encode("utf-8"),
+    b"x\x0by\n", b"x\x0cy\n", b"x\x1cy\n", b"x\x1dy\n", b"x\x1ey\n",
+    "x\x85y\n".encode("utf-8"), "x\u2029y\n".encode("utf-8"),
+    b"\xff\xfe not utf-8 at all\n",
+    EXOTIC_SOURCE.encode("utf-8"),
+)
+
+
+def _load_arrival():
+    """The ARRIVAL verifier as a module, by path, for the agreement tests.
+
+    Loaded inside the cases that need it and not at import: this file's subject
+    is the manifest validator, and the other tool is read only by the four
+    cases below that are ABOUT the two agreeing.
+    """
+    spec = importlib.util.spec_from_file_location("verify_carve_arrival",
+                                                  ARRIVAL_SCRIPT)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _u2028_manifest(scratch: Scratch) -> tuple[dict[str, Any], str]:
+    """Commit `exotic.py` into the carve surface; generate a manifest at it."""
+    _write(scratch.repo, "scripts/pkg/exotic.py", EXOTIC_SOURCE)
+    commit = commit_since_the_carve(scratch, "a line carrying U+2028",
+                                    "scripts")
+    doc = clean_manifest(scratch, commit)
+    row = row_named(doc, "exotic.py")
+    row["disposition"] = "moved_with_declared_edit"
+    row["destination"] = "openxdox_code"
+    row["destination_path"] = "src/openxdox/exotic.py"
+    return doc, commit
+
+
+def test_the_line_count_is_exactly_the_expression_the_validator_carried(
+        ) -> None:
+    """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
+
+    The manifest's 794 line numbers were written in the numbering this
+    validator already used — `content.count(b"\\n")`, plus one for a file with
+    no final newline — so the shared module had to adopt THAT definition rather
+    than invent a third, or every declared line in the landed document would
+    have needed re-declaring. The old expression is pinned here verbatim
+    against the module, over a corpus that includes every separator
+    `splitlines()` would have added, which is what makes "the numbering is
+    unchanged" a measurement instead of a claim.
+    """
+    for content in LINE_COUNT_CORPUS:
+        expected = (content.count(b"\n")
+                    + (0 if not content or content.endswith(b"\n") else 1))
+        assert MODULE.carve_lines.count(content) == expected, content
+        assert len(MODULE.carve_lines.records(content)) == expected, content
+
+
+def test_both_tools_reach_one_definition_of_a_line() -> None:
+    """ONE MODULE OBJECT, not two implementations that agree today.
+
+    The defect RULED Q-L8 (c) closes was not a disagreement anybody could see
+    in review — `content.count(b"\\n")` and `str.splitlines()` both look
+    correct in isolation and disagree only on files nobody reads by eye. So the
+    fix is not "the two spellings now match", which the next edit undoes; it is
+    that there is ONE implementation and both tools import it.
+    """
+    arrival = _load_arrival()
+    assert MODULE.carve_lines is arrival.carve_lines
+    assert MODULE.carve_lines.__name__ == "carve_lines"
+    assert MODULE.carve_lines.count(EXOTIC_SOURCE.encode("utf-8")) == 5
+    assert "`\\n`-terminated record" in MODULE.carve_lines.DEFINITION
+
+
+def test_neither_tool_splits_lines_by_any_other_route() -> None:
+    """The drift guard, read as SYNTAX and not as text.
+
+    A second numbering added later — a `splitlines()` in a new refusal message,
+    a `count(b"\\n")` in a new bound — is the defect coming back, and it would
+    come back GREEN: every test above would still pass while the new site
+    answered a different question. So both scripts are walked for any call that
+    splits or counts lines, and the only file allowed to hold one is
+    `scripts/carve_lines.py`. An AST walk and not a `grep`, on this file's own
+    precedent for the refusal vocabulary: both docstrings NAME `splitlines()` —
+    they must, because they explain what was wrong with it — and a text scan
+    cannot tell prose from a call.
+    """
+    def line_splitters(path):
+        found = []
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"),
+                                       filename=str(path))):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if not isinstance(func, ast.Attribute):
+                continue
+            first = node.args[0] if node.args else None
+            literal = first.value if isinstance(first, ast.Constant) else None
+            if func.attr == "splitlines":
+                found.append(f"{path.name}:{node.lineno} .splitlines()")
+            elif (func.attr in ("split", "rsplit", "count")
+                  and literal in ("\n", b"\n", "\r\n", b"\r\n")):
+                found.append(f"{path.name}:{node.lineno} "
+                             f".{func.attr}({literal!r})")
+        return found
+
+    assert line_splitters(SCRIPT) == [], \
+        "the manifest validator splits or counts lines outside carve_lines.py"
+    assert line_splitters(ARRIVAL_SCRIPT) == [], \
+        "the arrival verifier splits or counts lines outside carve_lines.py"
+    # NON-VACUITY: the walk must see the definition where it IS.
+    assert [entry.split(" ", 1)[1] for entry in line_splitters(SHARED_LINES)] \
+        == [".split(b'\\n')"], line_splitters(SHARED_LINES)
+    # And both tools must IMPORT it, rather than each having grown a private
+    # helper spelled some way this walk would not object to.
+    for path in (SCRIPT, ARRIVAL_SCRIPT):
+        imported = {alias.name
+                    for node in ast.walk(ast.parse(
+                        path.read_text(encoding="utf-8")))
+                    if isinstance(node, ast.Import)
+                    for alias in node.names}
+        assert "carve_lines" in imported, path
+
+
+def test_the_bound_is_the_floors_line_count_on_a_u2028_bearing_blob(
+        scratch: Scratch) -> None:
+    """The validator's END of the agreement, through the documented invocation.
+
+    `exotic.py` is five lines to the floor and six to `splitlines()`. A row
+    declaring line 5 verifies; a row declaring line 6 — the number a
+    `splitlines()`-numbered author would have written for `TAIL` — refuses as
+    past the end of the file, NAMING the count. That refusal is what keeps the
+    document and the destination in one numbering: a line the floor cannot
+    express never reaches a leg as a declaration.
+    """
+    doc, commit = _u2028_manifest(scratch)
+    row_named(doc, "exotic.py")["edits"] = [
+        {"class": "path constants", "lines": [5],
+         "note": "TAIL, the last line of a five-line file"}]
+    scratch.write(doc)
+    done = run(scratch, "--at", commit)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+
+    row_named(doc, "exotic.py")["edits"] = [
+        {"class": "path constants", "lines": [6],
+         "note": "what `splitlines()` calls TAIL"}]
+    combined = refuses(scratch, doc, "carve-shape-invalid", "--at", commit)
+    assert "names line 6" in combined, combined
+    assert "carries 5 line(s)" in combined, combined
+
+
+def test_the_two_tools_number_a_u2028_bearing_blob_identically(
+        ) -> None:
+    """THE AGREEMENT, asserted line by line on one blob.
+
+    For every 1-based line of a U+2028-bearing file the arrival verifier's
+    record N is the text between the Nth pair of `\\n`s and the validator's
+    bound is the same N. The last two assertions are the NON-VACUITY: an
+    agreement test on a file the two spellings already agreed about would pass
+    against the very defect it exists to catch.
+    """
+    arrival = _load_arrival()
+    raw = EXOTIC_SOURCE.encode("utf-8")
+    records = arrival.carve_lines.text_records(raw)
+    assert len(records) == MODULE.carve_lines.count(raw) == 5
+    assert records == [
+        "import alpha",
+        "SEPARATOR = \"one line\u2028with U+2028 inside it\"",
+        "KEEP = 3",
+        "PATH = \"scripts/pkg/web\"",
+        "TAIL = 5",
+    ]
+    # The reading the verifier used to take, and what it did to line 4.
+    old = EXOTIC_SOURCE.splitlines()
+    assert len(old) == 6
+    assert old[3] == "KEEP = 3"
+    assert records[3] == "PATH = \"scripts/pkg/web\""
+
+
+def test_the_real_manifests_declared_lines_are_the_floors_lines() -> None:
+    """RULED Q-L8 (c) against the LANDED manifest: NO ROW NEEDED RE-DECLARING.
+
+    The ruling allows for the two U+2028 rows being "re-declared so their 6
+    lines are appliable", and the measurement says they do not need to be:
+    every declared line of both rows names, under the floor's definition,
+    exactly the `import rewrites` or `path constants` text its class describes
+    at `carve_commit`. It was the `splitlines()` reading that named unrelated
+    text — so the numbering moved and the document did not.
+
+    Read as a CENSUS and not as two spot checks: every row is measured, and the
+    set whose two numberings disagree must be exactly the three the leg-3 memo
+    names — one of which declares no line and so owed no leg anything. A fourth
+    would be a row whose declarations nobody has checked. A BRANCH and never a
+    skip, on the module docstring's reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    commit = doc["carve_commit"]
+
+    def blob(path: str) -> bytes:
+        done = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "cat-file", "blob",
+             f"{commit}:{path}"], capture_output=True, check=False)
+        assert done.returncode == 0, \
+            f"{path} is not readable at {commit[:12]}: {done.stderr!r}"
+        return done.stdout
+
+    disagreeing = {}
+    for row in doc["rows"]:
+        raw = blob(row["source_path"])
+        floor = MODULE.carve_lines.count(raw)
+        unicode_reading = len(raw.decode("utf-8", "surrogateescape")
+                              .splitlines())
+        if floor != unicode_reading:
+            disagreeing[row["source_path"]] = (floor, unicode_reading)
+    assert disagreeing == {
+        # `not_moved / stays_openxfactory_adapter` — declares no line, so no
+        # leg ever asked it a line-numbered question.
+        "tests/corpus-adapter/test_openxfactory_adapter.py": (521, 522),
+        # The two `openxdox_code` rows carve leg 3 measured.
+        "tests/ideation-dashboard/test_gate_console.py": (2364, 2367),
+        "tests/ideation-dashboard/test_round_trip.py": (734, 738),
+    }, disagreeing
+
+    # The six lines, one by one: the class the row declares them under, and the
+    # text at that line number under the floor's definition.
+    expected = {
+        ("tests/ideation-dashboard/test_gate_console.py", 870):
+            ("import rewrites", "from ideation_dashboard import cli"),
+        ("tests/ideation-dashboard/test_gate_console.py", 1627):
+            ("path constants", "scripts/ideation_dashboard/cli.py gate"),
+        ("tests/ideation-dashboard/test_gate_console.py", 1785):
+            ("path constants", "scripts/ideation_dashboard/cli.py"),
+        ("tests/ideation-dashboard/test_gate_console.py", 1786):
+            ("path constants", "scripts/ideation_dashboard/cli.py"),
+        ("tests/ideation-dashboard/test_gate_console.py", 1810):
+            ("import rewrites", "from ideation_dashboard import cli"),
+        ("tests/ideation-dashboard/test_round_trip.py", 728):
+            ("path constants", "scripts/ideation_dashboard/round_trip.py"),
+    }
+    rows = {row["source_path"]: row for row in doc["rows"]}
+    for (path, line), (edit_class, text) in expected.items():
+        row = rows[path]
+        classes = [edit["class"] for edit in row["edits"]
+                   if line in edit["lines"]]
+        assert classes == [edit_class], (path, line, classes)
+        records = MODULE.carve_lines.text_records(blob(path))
+        assert text in records[line - 1], (path, line, records[line - 1])
+        # And the reading that used to be the destination's: a different line.
+        old = blob(path).decode("utf-8", "surrogateescape").splitlines()
+        assert text not in old[line - 1], (path, line, old[line - 1])
+
+
+def test_loading_either_tool_by_path_twice_does_not_grow_sys_path() -> None:
+    """The shared-module import is GUARDED, and stays guarded (#907 review).
+
+    Both tools are hyphenated entry points, so both are loaded by
+    `spec_from_file_location` rather than imported — this file loads the
+    validator at import and the arrival verifier in four cases, and
+    `tests/carve_arrival/` loads the verifier again. An unguarded
+    `sys.path.insert(0, <scripts>)` prepends one entry PER LOAD, and a
+    duplicated leading entry moves import precedence for everything that runs
+    after it in the session. The fix is one `if`; this is the assertion that
+    keeps it, on `scripts/proposal-support.py`'s idiom.
+    """
+    scripts_dir = str((REPO_ROOT / "scripts").resolve())
+    before = sys.path.count(scripts_dir)
+    assert before >= 1, "loading the validator should have put scripts/ on the path"
+    _load()
+    _load_arrival()
+    _load()
+    assert sys.path.count(scripts_dir) == before, sys.path[:5]
