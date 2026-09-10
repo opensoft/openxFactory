@@ -572,6 +572,94 @@ Active changes:
   REALIZED BY THE FILING** — no envelope byte, no workflow, no test, no ruleset,
   no floor, no pin byte — and three of the four refusals measured on 2026-09-08
   are untouched by it (`design.md` § 1).
+- [amend-neutral-product-pin-lockfile-first-line](openspec/changes/amend-neutral-product-pin-lockfile-first-line/proposal.md)
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
+  openxFactory operator authority, verbatim *"ratify as encoded"* — a
+  MULTIPLE-CHOICE ruling given in session ~19:53Z and recorded on PR
+  [#923](https://github.com/opensoft/openxFactory/pull/923#issuecomment-5624573662)
+  at 2026-09-10T19:53:02Z, which reaches `design.md` **D6**, **D1** and **D2**
+  and resolves them as **AMEND** (the ballot's arm A, D6's option 1), **OPTION
+  1** and **IT STANDS**; because each is the option the packet already encoded,
+  **THE WORDING STANDS UNCHANGED** and no byte of the delta moved. Records
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/ratification-2026-09-10.md`,
+  with the gate run captured beside it at
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10.md`
+  and RE-RUN in full after a third merge from `main` at
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10-post-merge.md`
+  — a second run at its own path, the first capture preserved unedited and NOT
+  superseded).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind` and `id` unmoved — the
+  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
+  2026-09-10, verbatim *"do 882 packet"*, which commissioned a packet and
+  decided no wording. Origin: openxFactory
+  [#882](https://github.com/opensoft/openxFactory/issues/882), filed by this
+  lane at the archive of `amend-neutral-product-pin-interim-copy-vocabulary` as
+  the NAMED SUCCESSOR of that packet's `tasks.md` § 5.2 and `design.md` D6.
+  **THE DEFECT IS WHERE THE OBLIGATION STANDS IN ONE SENTENCE.** The promoted
+  requirement *A pinned artifact that resolves dependencies at install time
+  carries a vendored lockfile, and the install runs through it* (`:668`) opens
+  its body at `:669` with a CONDITION — *"Where a pinned external neutral
+  product is distributed as a published artifact"* — and defers its subject and
+  its `SHALL` to `:670`. It is not short of obligation (`SHALL` occurs eight
+  times below that line), but the OpenSpec CLI at 1.2.0 reads only the FIRST
+  LINE when it checks for the keyword, so on that binary the specification
+  fails `--strict` with `requirements.16.text`. **MEASURED: 17 OF THIS FILE'S
+  18 REQUIREMENTS ALREADY OPEN WITH THE KEYWORD ON LINE ONE**, and across all
+  62 promoted spec files and 641 requirements exactly TWO do not — index 16 here
+  and `repo-boundary-governance:34`, which is named as residue and NOT taken.
+  **AND THE PINNED CLI DOES NOT REPORT THIS AT ALL, WHICH IS WHY `design.md` D6
+  IS PUT BEFORE THE WORDING**: `contracts/openspec-cli-pin.yaml` pins 1.12.0,
+  the gate runs `scripts/validate-openspec-cli-pin.py --all --no-cache`, and on
+  that binary this specification PASSES (exit 0) — measured on both this branch
+  and an `origin/main` **`05c706d6`** control (the base the branch was merged up
+  to when those runs were taken; `ea34f22a` is the AUTHORING BASIS, and the
+  requirement's bytes are identical at the two; the ratified tree's re-run is
+  captured against a `52e42be9` control), with a three-requirement probe
+  fixture showing 1.12.0 reads the WHOLE body and warns only when the keyword
+  is missing altogether. **So the motive is legibility and convention, not a red
+  required check, and the packet says so rather than letting the issue's framing
+  stand.** **THE DELTA IS ONE SENTENCE RE-ORDERED OUT OF CANON'S OWN WORDS**:
+  *"The pin SHALL carry a VENDORED RESOLUTION where a pinned external neutral
+  product is distributed as a published artifact whose installation RESOLVES
+  dependency ranges — …"*, every following word unchanged. **NOT ONE WORD ADDED
+  AND NOT ONE REMOVED**, measured case-sensitively: the retired sentence's
+  tokens minus the new one's are `Where`, `ranges,`, `the`; the reverse is
+  `The`, `where`, `ranges` — two case flips and one comma, 374 characters
+  becoming 373. **BYTE-FAITHFUL BY CONSTRUCTION**, not transcription: the block
+  is `openspec/specs/neutral-product-pin/spec.md:668-721` sliced (sha256
+  `a33ceb10…`, 4,319 bytes), one single-occurrence substitution applied, that
+  paragraph alone re-wrapped at 79 — generator output and committed block
+  identical at sha256 `bb8a1937…`, 4,318 bytes. **THE MARKER DECISION IS READ
+  OFF A MEASUREMENT** (`design.md` D2): `derive_units` gives 25 units both
+  sides, 1 uncarried, 1 added, 1 suppressed, 0 marker defects — so ONE `Removed
+  from canon` marker with ONE name and no code span in its reason is owed and
+  written; a counterfactual block moving only the LINE BREAKS measures 0
+  uncarried and 0 added, so option 2 would owe no marker at all, and that is
+  option 2's cost rather than its virtue. **NO BEHAVIOUR MOVES** — the same
+  pins, the same four fields recorded in the same place, the same refusal
+  ground, the same clean-install verb, all four scenarios and both trailing
+  paragraphs canon's own bytes. `code_surface: none`, MEASURED: `grep` over
+  `scripts/ tests/ .github/ contracts/` for any part of the sentence returns
+  NOTHING. `sequenced_after: []`, the positive root claim: the only other active
+  `neutral-product-pin` delta is `split-opendox-two-layer-product`, which
+  modifies two OTHER requirements, so this is the **sole ACTIVE modifier** and
+  no ordering declaration is owed in either direction (the sweep ledger's
+  `class: co-modifier` grades the ARCHIVED promoter
+  `pin-openspec-cli-dependency-closure` too, and is a different question).
+  **THE TWO VETO POINTS WERE PUT IN ORDER AND BOTH ARE RULED: D6** (amend at
+  all, or close #882 on the measurement — a veto would have withdrawn the
+  packet) **RULED AMEND, with the measurement in front of the owner**; then
+  **D1** (three wordings, one encoded) **RULED OPTION 1**, so option 2's
+  line-break-only re-flow was not substituted and option 3 — the wording #882
+  itself floats — stays REFUSED because it moves the obligation's bearer from
+  the pin to the product. **D2 stands**; D0, D3, D4, D5 and D7 were carried and
+  none was vetoed.
+  **THIS PULL REQUEST STILL PROMOTES NOTHING** — no file under
+  `openspec/specs/`, no script, test, contract or workflow is edited,
+  `tasks.md` § 5 (archive) stays OPEN on a word not yet given, and openxFactory
+  #882 closes at the ARCHIVE rather than at this landing.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,

@@ -602,10 +602,16 @@ class TheRealFiles(unittest.TestCase):
         calls do not exist — so the converged commit cannot evaluate the object
         the advance exists to make operative. The divergence is forced by the
         feature for the second time, and the obligation to re-converge stands.
+
+        CONVERGED AGAIN on 2026-09-10, at the third re-point ceremony:
+        `opensoft/xFactory` PR #423 (merge `67c0b159`) moved both judging surfaces
+        and the `MIGRATION_PIN` test constant to `1f131a23`, the commit this
+        repository's `core_commit` has named since PR #922 — codexFactory change
+        `repoint-aggregation-migration-pin`, OQ-1 ruled C.
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "diverged")
+        self.assertEqual(lockstep.get("status"), "converged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
                         "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),

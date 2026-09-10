@@ -94,6 +94,7 @@ RATIFIED_CODES = (
     "carve-vocabulary-unknown",
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
+    "carve-shed-incomplete",
     "carve-unreadable",
 )
 
@@ -1620,6 +1621,224 @@ def test_the_grammar_extension_names_the_ruling_and_not_the_owed_field(
 
 
 # --------------------------------------------------------------------------
+# `phase: post-shed` — the § 5.2 shed, declared IN the manifest
+#
+# The shed deletes every MOVED row's source path and the one
+# `deleted_at_carve` row. Under the default phase that refuses twice by name
+# (check 3 pass 2, then check 4's `vanished` arm) and it is right to; under
+# `post-shed` it is the declared outcome. Every case below is built the same
+# way as every other case in this file — a real tree, a real deletion, and
+# the validator run as a subprocess — so nothing here is a claim about a
+# branch that was never taken.
+# --------------------------------------------------------------------------
+
+def shed(scratch: Scratch, doc: dict[str, Any], *extra: str) -> str:
+    """Delete every path the manifest's own rows say the shed removes.
+
+    DERIVED FROM THE DOCUMENT, never from a hand-written list — the same rule
+    the validator's own `shed_set` follows, and the reason a test that
+    listed the paths would stop being evidence the moment a row changed
+    disposition. Returns the deleting commit's sha.
+    """
+    paths = [row["source_path"] for row in doc["rows"]
+             if row["disposition"] in MODULE.MOVED_DISPOSITIONS
+             or row.get("reason") == "deleted_at_carve"]
+    assert paths, "the fixture manifest declares nothing the shed would remove"
+    _git(scratch.repo, "rm", "-q", "--", *paths, *extra)
+    return commit_since_the_carve(scratch, "the shed")
+
+
+def test_the_shed_refuses_under_the_default_phase(scratch: Scratch) -> None:
+    """The finding this whole phase exists to answer, pinned FIRST.
+
+    A manifest that says nothing about a phase is the file as landed, and over
+    a shed tree it refuses at check 3 pass 2 — `carve-path-absent`, naming
+    rows[0]. That is the measured behaviour the post-shed mode is a deliberate
+    departure from, and it must stay true or the departure is from nothing.
+    """
+    doc = clean_manifest(scratch)
+    assert "phase" not in doc
+    shed(scratch, doc)
+    combined = refuses(scratch, doc, "carve-path-absent")
+    assert "DELETED SINCE THE CARVE" in combined, combined
+
+
+def test_a_post_shed_manifest_verifies_over_a_shed_tree(
+        scratch: Scratch) -> None:
+    """The whole of exit (a) in one case: the same document, the same carve
+    commit, the same digests — one declared word — over the tree § 5.2
+    leaves."""
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    doc["rows"] = [dict(row) for row in doc["rows"]]
+    # One `deleted_at_carve` row, as the real manifest has: the shed takes it
+    # too, and check 4 rather than check 3 is what reads it.
+    gamma = row_named(doc, "gamma.py")
+    for key in ("git_mode", "sha256", "destination", "destination_path"):
+        gamma.pop(key, None)
+    gamma["disposition"] = "not_moved"
+    gamma["reason"] = "deleted_at_carve"
+    gamma["evidence"] = "the profile module openXdox declares for itself"
+
+    head = shed(scratch, doc)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "phase post-shed," in done.stdout, done.stdout
+    # 2 moved rows + the one `deleted_at_carve` row.
+    assert "3 shed row(s) absent at source as declared" in done.stdout, \
+        done.stdout
+    # PASS 1 IS UNTOUCHED: both moved rows' digests are still recomputed from
+    # the referent's real bytes, which the shed does not reach.
+    assert "2 digest(s) recomputed" in done.stdout, done.stdout
+    assert f"verified at {head[:12]}" in done.stdout, done.stdout
+
+
+def test_a_post_shed_manifest_over_an_unshed_tree_refuses(
+        scratch: Scratch) -> None:
+    """THE SYMMETRY, and the reason this is a floor and not a mute.
+
+    Flipping the phase ahead of the deletions would buy silence for all 319
+    rows at once. It refuses instead, at check 3, naming the first moved row
+    the tree still carries.
+    """
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    combined = refuses(scratch, doc, "carve-shed-incomplete")
+    assert "STILL PRESENT UNDER A POST-SHED MANIFEST" in combined, combined
+
+
+def test_a_post_shed_deleted_at_carve_row_still_present_refuses(
+        scratch: Scratch) -> None:
+    """The mirror arm's own case — a `not_moved` row, which the digest loop
+    never reads, so only check 4 can report it."""
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    doc["rows"] = [dict(row) for row in doc["rows"]]
+    gamma = row_named(doc, "gamma.py")
+    for key in ("git_mode", "sha256", "destination", "destination_path"):
+        gamma.pop(key, None)
+    gamma["disposition"] = "not_moved"
+    gamma["reason"] = "deleted_at_carve"
+    gamma["evidence"] = "the profile module openXdox declares for itself"
+    # The MOVED rows are shed; the `deleted_at_carve` row is left behind, so
+    # check 3's arm passes and check 4's is the one that must speak.
+    moved = [row["source_path"] for row in doc["rows"]
+             if row["disposition"] in MODULE.MOVED_DISPOSITIONS]
+    _git(scratch.repo, "rm", "-q", "--", *moved)
+    commit_since_the_carve(scratch, "a half shed")
+    combined = refuses(scratch, doc, "carve-shed-incomplete")
+    assert "gamma.py" in combined, combined
+    assert "the phase and the deletions are one act" in combined.lower(), \
+        combined
+
+
+def test_a_row_that_stays_may_not_be_deleted_by_the_shed(
+        scratch: Scratch) -> None:
+    """`stays_openxfactory_adapter` is NOT in the shed set, so its deletion is
+    still the `carve-path-absent` it always was — the guarantee post-shed mode
+    must not quietly widen."""
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    combined_paths = [row["source_path"] for row in doc["rows"]
+                      if row["disposition"] in MODULE.MOVED_DISPOSITIONS]
+    _git(scratch.repo, "rm", "-q", "--", *combined_paths,
+         "scripts/pkg/delta.py")
+    commit_since_the_carve(scratch, "the shed, plus one row that stays")
+    combined = refuses(scratch, doc, "carve-path-absent")
+    assert "delta.py" in combined, combined
+    assert "every row named above is a row that STAYS" in combined, combined
+
+
+def test_a_file_appearing_under_the_surface_still_refuses_post_shed(
+        scratch: Scratch) -> None:
+    """Post-shed does not open the surface. A new file under a shed prefix is
+    still an UNDECLARED MOVEMENT — the constraint pre-dates the shed and the
+    phase does not touch it."""
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    shed(scratch, doc)
+    _write(scratch.repo, "scripts/pkg/epsilon.py", "EPSILON = 5\n")
+    commit_since_the_carve(scratch, "a new file under the surface",
+                           "scripts/pkg/epsilon.py")
+    combined = refuses(scratch, doc, "carve-file-undeclared")
+    assert "epsilon.py" in combined, combined
+
+
+def test_the_carve_commits_own_line_refuses_under_a_post_shed_manifest(
+        scratch: Scratch) -> None:
+    """`--at <carve_commit>` STOPS ANSWERING once the phase flips, and this
+    pins that cost rather than hiding it.
+
+    At the carve commit every source path IS present, which is exactly what a
+    post-shed manifest refuses — so the ceremony's own documented second
+    invocation refuses `carve-shed-incomplete` from the shed commit onward.
+    It is deliberately NOT special-cased: a phase that could be satisfied two
+    ways is a phase that says less, and admitting `--at` at a pre-shed
+    revision would be the one hole through which the symmetry above leaks.
+    The cost is documented instead, in the manifest's own header block and in
+    runbook § 0.4, both of which name the two remaining ways to ask about the
+    carve's own line — check out a pre-shed revision, or read the digests
+    straight out of git.
+    """
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    shed(scratch, doc)
+    scratch.write(doc)
+    done = run(scratch, "--at", scratch.head)
+    assert done.returncode == 2, done.stdout + done.stderr
+    assert "carve-shed-incomplete" in done.stdout + done.stderr, \
+        done.stdout + done.stderr
+
+
+def test_an_unknown_phase_refuses(scratch: Scratch) -> None:
+    doc = clean_manifest(scratch)
+    doc["phase"] = "shed"
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "'shed'" in combined, combined
+
+
+def test_an_absent_phase_is_the_carve_phase(scratch: Scratch) -> None:
+    """Backward compatibility, ASSERTED. A manifest that never mentions the
+    key must read exactly as it did before the key existed — including in the
+    JSON, where a consumer reads the phase rather than inferring it."""
+    doc = clean_manifest(scratch)
+    assert "phase" not in doc
+    scratch.write(doc)
+    done = run(scratch, "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["phase"] == "carve"
+    assert payload["shed_rows"] == 0
+
+
+def test_json_reports_the_post_shed_phase(scratch: Scratch) -> None:
+    doc = clean_manifest(scratch)
+    doc["phase"] = "post-shed"
+    shed(scratch, doc)
+    scratch.write(doc)
+    done = run(scratch, "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["phase"] == "post-shed"
+    # The fixture's three MOVED rows; all three digests are still recomputed
+    # at the referent, which is pass 1 surviving the shed intact.
+    assert payload["shed_rows"] == 3
+    assert payload["digests_recomputed"] == 3
+
+
+def test_the_phase_is_the_manifests_and_not_a_command_line_flag() -> None:
+    """No `--phase`. A tree that verifies or refuses depending on which job
+    invoked the tool is the one property a floor may not have, and the flag
+    would also let the shed land in one commit and the declaration in
+    another."""
+    done = subprocess.run([sys.executable, str(SCRIPT), "--help"],
+                          capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "--phase" not in done.stdout, done.stdout
+
+
+# --------------------------------------------------------------------------
 # the real repository — the § 8.2 seat
 # --------------------------------------------------------------------------
 
@@ -1634,11 +1853,36 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
                           capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if manifest.is_file():
-        assert done.stdout.startswith("OK "), done.stdout
-    else:
+    if not manifest.is_file():
         assert done.stdout.startswith("NO MANIFEST "), done.stdout
         assert "(nothing to validate)" in done.stdout, done.stdout
+        return
+
+    assert done.stdout.startswith("OK "), done.stdout
+
+    # AND THE SEAT NAMES THE PHASE, in BOTH phases. Exit 0 alone cannot tell
+    # "the tree still carries every source path" from "the shed has run and
+    # the manifest declares it": those are two different floors, and after
+    # § 5.2 the difference is the whole question. The declared phase is read
+    # out of the file and required to be the phase the run REPORTS, so the
+    # seat can only pass if the validator took the branch the document asks
+    # for — a phase-blind run, or a run that silently fell back to the
+    # default, fails here rather than reading as green.
+    declared = yaml.safe_load(manifest.read_text(encoding="utf-8")).get(
+        "phase", MODULE.PHASE_CARVE)
+    assert declared in MODULE.PHASES, declared
+    assert f"phase {declared}," in done.stdout, done.stdout
+
+    # The two phases owe DIFFERENT evidence on the same line, and neither
+    # sentence is producible by the other's code path.
+    if declared == MODULE.PHASE_POST_SHED:
+        # A shed count is only printed after check 3's post-shed arm has
+        # proved every one of those rows ABSENT, so the number is a claim
+        # about the tree and not a row count copied out of the document.
+        assert "shed row(s) absent at source as declared" in done.stdout, \
+            done.stdout
+    else:
+        assert "shed row(s)" not in done.stdout, done.stdout
 
 
 def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:

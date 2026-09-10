@@ -57,7 +57,7 @@ repository: codeXfactory/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "b594ef2ad86ebdefffc497c571c8a84044f6ec10"
+core_commit: "1f131a236ceea9cfc17d88d7ecbfee516d0aabfe"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -711,7 +711,7 @@ floor_snapshot:
 # openxFactory's and codexFactory's — but the obligation below is why the state
 # is written down as diverged rather than left to be inferred.
 lockstep:
-  status: diverged
+  status: converged
   reason: >-
     Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
@@ -772,6 +772,103 @@ lockstep:
     re-read from the local aggregation checkout without fetching or writing
     to it, both still naming `f4702f64` verbatim — and the obligation above
     is carried forward undischarged, now against a sixty-eight-entry floor.
+
+    STAGED 2026-09-10, targeting `1f131a23` (written short here on purpose,
+    same reason as above: this file's own guard permits exactly ONE 40-hex
+    token, and that one is `core_commit`):
+    OQ-1 of codexFactory's `repoint-aggregation-migration-pin` was RULED C by
+    Brett Heap, 2026-09-10T18:03:59Z, verbatim "C — main 1f131a23 paired with
+    openxFactory's five-site advance" (codeXfactory/codexFactory #279, comment
+    5623193909). This pull request is that pairing's openxFactory half,
+    opened as a DRAFT held for the SAME WINDOW as the aggregation's own
+    ceremony (branch `ceremony/repoint-migration-pin-1f131a23`) rather than
+    merged ahead of it. It is also the FIRST advance in this file's history
+    that moves `core_commit` without moving the floor: `1f131a23` is 70
+    commits behind codexFactory `main` (`compare/main...1f131a23` answers
+    `behind`, `ahead_by: 0` — a pure ancestor, not live `main`) and its
+    `floor/openxfactory-review-authority-floor.yaml` is BYTE-IDENTICAL to the
+    one already vendored here — same `77611b0e…f53de`, same 70 entries, same
+    62-entry generated block at `generated_at: e32d580a…` — so nothing
+    floored changes and zero covered-pending paths clear. (Between the tenth
+    advance above and this one, `core_commit` moved four more times with no
+    new paragraph here — PR #732 on 2026-09-06, PR #747 and PR #764 on
+    2026-09-07, PR #883 on 2026-09-10 — each a value-only or
+    relocation-following move the driver's own witnesses covered without
+    prose; this is the first since the tenth to bear on the lockstep
+    obligation itself, hence the return to this field.) xFactory's two
+    judging surfaces were RE-MEASURED at THIS advance, fresh, by reading both
+    `ref:` literals through the GitHub API rather than any earlier reading:
+    `merge-master-approval.yml` line 152 and `council-convening-lane.yml`
+    line 308 on `opensoft/xFactory` `main` both still return `f4702f64…`
+    verbatim (short here for the same guard), as does the
+    aggregation's own `MIGRATION_PIN` test constant
+    (`tests/test_merge_master_workflows.py` line 62). So THIS act alone
+    converges nothing: `status` stays `diverged` here, honestly, because the
+    aggregation ceremony that retargets those three has not landed as this
+    paragraph is written. Once it does — and this pull request merges in the
+    same window, per its own body — all three surfaces will name `1f131a23`
+    and `status` becomes ripe to move to a converged state; that flip is the
+    pin owner's or the ceremony's own follow-up
+    (`repoint-aggregation-migration-pin` design.md Section 6.1, tasks.md box
+    5.3), recorded here rather than asserted ahead of the fact it depends on.
+
+    LANDED 2026-09-10T19:15:29Z, TWO MINUTES SEVENTEEN SECONDS AFTER THE
+    PARAGRAPH ABOVE WAS WRITTEN (19:13:12Z) — an addendum recording the
+    fact, not an edit of that paragraph. The aggregation ceremony it
+    anticipated has happened: `opensoft/xFactory` PR #423 merged as commit
+    `67c0b159`, advancing `MIGRATION_PIN` from `f4702f64` to `1f131a23` on
+    aggregation `main` — codexFactory commit `d340cb4c`'s own message is
+    the record of that advance. This companion pull request's five sites
+    therefore now name the SAME commit the aggregation dispatches.
+    `lockstep.status` is left UNCHANGED by this addendum, still `diverged`
+    as written above: the flip to a converged state remains the pin
+    owner's or the ceremony's own follow-up
+    (`repoint-aggregation-migration-pin` design.md Section 6.1, tasks.md box
+    5.3), not asserted here.
+
+    CORRECTION 2026-09-10, TO THE ADDENDUM DIRECTLY ABOVE — an appended
+    fix, not an edit of it, per this field's own append-only convention.
+    That paragraph's clause "codexFactory commit `d340cb4c`" named the
+    wrong repository: `d340cb4c` is an `opensoft/xFactory` commit, the
+    sole commit of that repository's PR #423, landed into `main` via
+    merge commit `67c0b159`. Nothing else in the addendum changes.
+
+    CONVERGENCE MEASURED, 2026-09-10 — RE-MEASURED at this edit, fresh, the
+    same way every measurement in this field has been taken: on
+    `opensoft/xFactory` `main`, `merge-master-approval.yml` line 152 and
+    `council-convening-lane.yml` line 308 both now return `1f131a23…` verbatim
+    (short here for this file's own guard), matching the aggregation's own
+    `MIGRATION_PIN` test constant (`tests/test_merge_master_workflows.py` line
+    66). The third re-point ceremony (`opensoft/xFactory` PR #423, merge
+    `67c0b159`, 2026-09-10T19:15:29Z, codexFactory change
+    `repoint-aggregation-migration-pin`, OQ-1 ruled C) moved all three. This
+    file's own `core_commit` above has named that same `1f131a23` since PR #922
+    (merge `6f95ff57`, 2026-09-10T21:55:20Z). Four sites, one commit — Gate 5
+    after-check PASS (codeXfactory/codexFactory #279, issuecomment-5624344272).
+
+    `status` STAYS `diverged` HERE, DELIBERATELY — not because a converged
+    value is undefined, but because flipping it correctly is a two-file act and
+    this pull request's mandate is one file. `converged` IS this field's own
+    established word: it named this exact state from the 2026-08-28 re-point
+    ceremony (PR #483, commit `d118bc79`) until the 2026-09-02 re-divergence
+    (PR #569, commit `47f90080`) — and BOTH of those commits moved the pin's
+    `status` and `tests/review_lane_pin/test_review_lane_caller.py`'s
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`
+    assertion together, in the same commit, never the data alone. That
+    assertion (line 608, on this file's `main` parent) still reads
+    `self.assertEqual(lockstep.get("status"), "diverged")` — a literal
+    equality, not a membership test — so flipping the word here without its
+    companion edit would turn a green pytest-suite red. The flip stays
+    undischarged, named against its exact blocker rather than left to be
+    inferred: the next paragraph in this field should be the one commit that
+    moves the assertion and this value together, the way both prior transitions
+    did.
+
+    STATUS FLIPPED TO `converged`, 2026-09-10, in the same commit that moves
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`'s
+    literal from `diverged` to `converged` — the two-file act both prior
+    transitions (PR #483 / `d118bc79`, PR #569 / `47f90080`) performed;
+    measured state unchanged from the paragraph above.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
