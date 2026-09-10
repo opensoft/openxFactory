@@ -10,7 +10,7 @@ schema_version: 1
 kind: ideation-cross-reference
 repository: openxFactory
 generation:
-  source_revision: 50959c1831362d1f36dcc6bad19642bb5af5149f
+  source_revision: 46059b775207b82f0f5012065a751923516f798c
   generator_version: ideation-xref-scorer-0.1.0
 topic_entries:
 - id: cl-accessibility
@@ -34,17 +34,77 @@ topic_entries:
     matched_tags:
     - accessibility
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: avatar-client-lab
+    how_extends: 'The staged avatar-pilot-hardening document explicitly builds on the promoted avatar-client-lab
+      (and avatar-live-voice) capabilities: it replaces the lab''s static fixture-based authority stub
+      with real Hermes-backed adapters behind the same frozen ports, upgrades the lab''s accessibility
+      baseline into an audited WCAG 2.2 AA evidence artifact, and gates a live pilot on both avatar-client-lab
+      landing and avatar-live-voice qualifying a live profile. The other two member documents (spec-safety
+      and legal-compliance brainstorms) show no citation to any promoted spec in the provided list.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-accessibility'
+      unscored_reason: no owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-accessibility'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-assisted-app-testing-spec-safety.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: document header / Topics metadata
+          passage_sha256: 22b7e02deebb189b9dee25129928c2b5db64ff9a40ce1ffaec6d0ff68cf341f9
+          repository: openxFactory
+        rationale: 'The cluster is assembled around a shared ''accessibility'' tag, but in every member
+          document accessibility is one minor topic among many unrelated primary concerns rather than
+          the substantive subject: the spec-safety brainstorm''s topic list above shows accessibility
+          alongside five other, largely disconnected concepts (spec-validation, change-safety, override-consent);
+          the legal-compliance brainstorm lists accessibility as one of fourteen topics, subordinate to
+          its real subject (a new Legal & Compliance Counsel persona); and the avatar-pilot-hardening
+          staged doc lists accessibility/wcag-audit as one of fifteen topics within a much larger pilot-hardening
+          effort (Hermes integration, telemetry, SBOM, rollback). A ratify authority reviewing this as
+          one coherent accessibility proposal would find three documents about three largely unrelated
+          efforts that happen to mention accessibility in passing — not a single, coherent, valuable proposal
+          candidate. This is a weak, tag-driven conflation rather than a substantively unified cluster,
+          which caps company-tier readiness low.'
+        confidence: 0.7
+        alternatives:
+        - The shared tag could be read as early evidence of a genuine cross-cutting accessibility concern
+          worth consolidating into a company-level accessibility policy, but nothing in the documents
+          argues for that consolidation explicitly — it would require inventing a synthesis not present
+          in the source material.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-accessibility'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Exit'
+          passage_sha256: 278fe58d69cf66105cbd501a50158d89213c0e3ee422f756224ed14aa5debfed
+          repository: openxFactory
+        rationale: 'None of the three member documents is currently decomposable into a buildable Spec
+          Kit feature DAG. The avatar-pilot-hardening doc is explicit that it ''cannot propose'' until
+          two external prerequisites land, and lists six additional blocking open questions (Hermes call-site
+          timing, overlay-contract shape, accessibility scope, first cohort, kill-switch custody, provider/residency
+          ownership) that must be resolved first. The two brainstorm documents are earlier-stage still:
+          the spec-safety brainstorm closes with five open questions about which constraints are blocking
+          versus advisory and who owns component specs, and the legal-compliance brainstorm closes with
+          five open questions including whether to have one Counsel or a legal bench and how licensing-scan
+          ownership is assigned. With every member either explicitly blocked-from-proposal or carrying
+          unresolved foundational design forks, engineering cannot decompose this cluster into buildable
+          features today.'
+        confidence: 0.75
+        alternatives:
+        - Taken in isolation, avatar-pilot-hardening's numbered claims read as fairly concrete engineering
+          commitments and might individually score higher on buildability; but as delivered in this cluster
+          alongside two much earlier-stage brainstorms, and given its own explicit propose-blocking dependency,
+          the cluster as a whole cannot be scored higher.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-accounting
   name: Accounting
   topics:
@@ -72,11 +132,14 @@ topic_entries:
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-accounting'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-accounting'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-accounting'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
 - id: cl-adxdox
   name: Adxdox
   topics:
@@ -100,17 +163,100 @@ topic_entries:
     - domain-mappings
     - ledgerxdox
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: corpus-adapter-seam
+    how_extends: 'The cluster''s design work (Q4''s ruling that openDox declares and openXdox implements
+      the corpus-adapter interface, and sequencing constraint 2 requiring its operation signatures be
+      named before any repository is created) is squarely about extending/implementing a corpus-adapter-seam
+      capability. Flagging a discrepancy for reviewers: the member documents (captured 2026-09-04) explicitly
+      describe ''corpus-adapter-seam'' and ''domain-mapping-declaration'' as capabilities that do NOT
+      yet exist in openspec/specs/ (''neither exists ... so fencing them would emit tag-hygiene unresolved-target
+      findings''), yet the cluster''s own promoted_capabilities list already contains both names. This
+      may reflect promotion that occurred in the six days since the documents were captured (today is
+      2026-09-10), or it may indicate the packet is stale. Either way, it should be verified before treating
+      this as a clean ''no promoted fit'' or a clean extension case.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-adxdox'
+      unscored_reason: 'No single owning domain resolves for this cluster despite its own topic tags (adxdox,
+        ledgerxdox). The cluster''s subject is explicitly cross-domain architecture (openDox/openXdox
+        layering), and the descendants named by its own topics — AdxDox and LedgerxDox — are hypothetical:
+        the staged document states plainly that ''Neither exists today'' for the sibling repositories
+        and that descendants are ''created lazily'' only once a domain factory stands up an instance.
+        AdxFactory and LedgerxFactory appear only as one of three illustrative mappings alongside MedxFactory,
+        with no descendant profile, database, or instance actually provisioned for either. Worse, the
+        documents record an explicit, only partially-resolved internal contradiction over whether the
+        true owning layer is openxFactory-as-a-domain (engineering) or openxFactory-as-neutral-cross-domain-infrastructure
+        — RULING C2 narrows this but the cluster itself flags the underlying naming tension as still ''worth
+        surfacing before a repository is created.'' With no descendant instantiated and the owning-layer
+        question only recently and partially ruled, no Domain Hermes authority can be identified as the
+        accountable owner today.'
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-adxdox'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Why'
+          passage_sha256: ba1fdf34bebda159ce92cf7eda12009b9ad2689f566316bd680b03a906ad0286
+          repository: openxFactory
+        rationale: 'The cluster documents a real, named problem from the product owner, backed by measured
+          inventory (LOC, coupling counts, test counts, spec size) and eight explicit in-session rulings
+          (Q1-Q7, C1-C3) from Brett Heap recorded on a governing issue, each with a disposition and rationale.
+          That level of decision-making activity and evidentiary grounding is exactly what a neutral ratify
+          authority looks for: a coherent problem statement, a resolved topology, and a scoped exit plan
+          referencing the org''s own precedent (split-openxwallet-repo). It falls short of a top score
+          because several secondary questions (Q8, Q9, Q10) still travel into the eventual change unresolved,
+          a genuine unresolved departure from the wallet precedent''s seam rule is flagged rather than
+          settled, and the promoted_capabilities registry appears to already contain ''corpus-adapter-seam''
+          and ''domain-mapping-declaration'' — capabilities the documents describe as not-yet-existing
+          ADDED targets — suggesting the packet''s currency should be re-verified before ratification.'
+        confidence: 0.7
+        alternatives:
+        - Could be scored higher (8-9) purely on the density and explicitness of Brett's rulings, treating
+          the remaining open questions as normal pre-proposal residue rather than a coherence deficiency.
+        - Could be scored lower (4-5) if the corpus-adapter-seam/domain-mapping-declaration discrepancy
+          is read as evidence the cluster's factual premises have already drifted from the current registry
+          state, undermining confidence in the rest of its measured claims.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-adxdox'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/staging/opendox-two-layer-product/opendox-two-layer-product.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Design work carried under the Q5 direction'
+          passage_sha256: f6b9320e01f280621eb596d25c11361f0d02044510cac55ce694effacb2879b4
+          repository: openxFactory
+        rationale: Buildability into a Spec Kit feature DAG requires settled interfaces and boundaries;
+          this cluster explicitly defers those. The module-by-module boundary between openDox/openXdox/descendants
+          is stated to be unruled design work, itself contested; the corpus-adapter's operation signatures
+          are listed as a precondition still to be done ('named before any repository is created'); the
+          model/scenario workbench, called the 'largest genuinely missing piece,' 'does not exist anywhere
+          in the 80K lines'; and three of four secondary open questions (Q8, Q9, Q10) still travel unresolved
+          into the eventual change. codexFactory's feature decomposition needs stable contracts to decompose
+          against, not a first-pass design still open to contest.
+        confidence: 0.75
+        alternatives:
+        - Could score higher (4-5) since four concrete 'preparatory slices' (the one-way dependency fix,
+          apply-lane hardening, etc.) are independently well-specified and buildable today regardless
+          of the larger unresolved design.
+        - Could score lower (1-2) given the scale of unbuilt greenfield work (a three-repository, database-backed
+          extraction with no established behavioural safety floor yet built) relative to any existing
+          precedent in the org.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+  conflict_flags:
+  - kind: tier-spread
+    tiers:
+    - company
+    - project
+    spread: 4
+    detail: 'scored-tier spread is 4 (>= 4): company 7 vs project 3 — recorded as signal, not averaged
+      away'
 - id: cl-agent-assisted-app-testing
   name: Agent Assisted App Testing
   topics:
@@ -201,16 +347,91 @@ topic_entries:
     - agent-assisted-app-testing
   extension_fit:
     has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    statement: No promoted capability in the supplied list addresses agent-assisted UI/browser testing,
+      visual-regression baselines, render manifests, or experience admission councils. The closest adjacent
+      promoted items (e.g., roles-authority-model, workflow-gate-contract, hermes-domain-overlay, omnigent-domain-overlay,
+      review-authority-intake) govern generic Hermes/workflow/authority mechanics rather than this cluster's
+      specific UI-testing and visual-evidence subject matter, so no genuine extension fit is claimed;
+      this is a 'no fit' rather than 'not checked' determination.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-assisted-app-testing'
+      unscored_reason: no owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-assisted-app-testing'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-assisted-app-testing-overview.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## How it fits'
+          passage_sha256: 355c20855e5431a8c0a105f221a40105153ff162d8630658ea359e132d6e0ec6
+          repository: openxFactory
+        rationale: 'The cluster is unusually mature for brainstorm-stage material: 20 tightly cross-referenced
+          documents (atomic mechanisms plus three explicit synthesis documents) construct a coherent authority
+          model spanning intent capture, scope routing, spec safety, layered verification, baseline governance,
+          specialist separation, an admission council, and a conjunctive autonomy envelope, each with
+          alternatives/tensions and open questions sections showing deliberate rigor. The cluster is self-aware
+          about its place in the ideation lifecycle, explicitly deferring ratification (''this packet
+          does not ratify a contract or authorize implementation'') while stating it is a neutral, reusable
+          xFactory concept rather than a single-project change — exactly the framing a neutral company
+          ratify gate would want to see before entertaining a formal proposal. This combination of coherence,
+          cross-factory framing, and demonstrated value (a durable, non-trivial capability: autonomous
+          UI experience management under bounded Hermes authority) supports a fairly high but not maximal
+          score, since it remains uniformly brainstorm-status with substantial unresolved policy choices
+          (e.g., which UI change classes enter the v1 autonomy envelope) that a ratify gate would still
+          want narrowed before granting a full proposal.'
+        confidence: 0.6
+        alternatives:
+        - 'A lower score could be justified purely on lifecycle grounds: every member document is still
+          ''brainstorm'' status, none have been promoted to staging, which is normally a precondition
+          for ratify-gate engagement.'
+        - A higher score could be justified given the exceptional density of cross-referencing and syntheses,
+          which is rare among brainstorm clusters and suggests the ideas have already been substantially
+          pressure-tested.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-assisted-app-testing'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-assisted-app-testing-chromium-render-manifest.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Proposed model'
+          passage_sha256: 4bc0034c1a3b2d1a139e2504b7a96525929c326e608a23dc986eb81d54cdd8c1
+          repository: openxFactory
+        rationale: 'Nearly every atomic document in the cluster explicitly labels its core artifacts as
+          illustrative, exploratory, or open rather than fixed: render-manifest and intent schemas are
+          called ''illustrative'' and ''exploratory,'' the overview''s closing section lists over a dozen
+          ''largest unresolved choices'' (canonical Chromium version, annotation schema, autonomy envelope
+          scope, reviewer qualification evidence, transport protocol, etc.), and multiple documents defer
+          concrete decisions to future policy or ratification paths. codexFactory''s feature decomposition
+          needs settled interfaces, data contracts, and acceptance criteria to build a Spec Kit feature
+          DAG; here the foundational identity schemas (render manifest, intent envelope, baseline profile)
+          are all marked as subject to change, and authority boundaries (e.g., which findings may auto-clear)
+          are stated as open policy questions rather than decided rules. This makes the cluster valuable
+          as an architecture but not yet buildable as a concrete engineering backlog today.'
+        confidence: 0.55
+        alternatives:
+        - 'A higher score is plausible if scoped narrowly: some atomic mechanisms (e.g., the V1 SDLC Session
+          Protocol''s event vocabulary and envelope, or the render-manifest''s JSON Schema draft) are
+          concrete enough that a first feature slice could be decomposed even while surrounding policy
+          remains open.'
+        - A lower score is plausible given how many cross-cutting authority decisions (autonomy envelope
+          conditions, specialist independence rules) are prerequisites for almost every other mechanism
+          in the cluster, meaning even the 'concrete' schemas may need revision once those open questions
+          are resolved.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+  conflict_flags:
+  - kind: tier-spread
+    tiers:
+    - company
+    - project
+    spread: 4
+    detail: 'scored-tier spread is 4 (>= 4): company 7 vs project 3 — recorded as signal, not averaged
+      away'
 - id: cl-agent-certification
   name: Agent Certification
   topics:
@@ -241,16 +462,80 @@ topic_entries:
     - agent-certification
   extension_fit:
     has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    statement: 'No promoted spec is extended by this cluster. The cluster''s own Exit section names composition
+      with the promoted capabilities credential-contracts, roles-authority-model, and omnigent-install-manifest,
+      but composing-with is not extending: no promoted capability named agent-certification, openxWallet,
+      or identity-brokering-equivalent already exists for this cluster to build onto. identity-custody-principal-and-agent-binding.md
+      also treats Keycloak Identity Brokering (a related but non-member, non-promoted document) as a sibling
+      input rather than something this cluster extends. This is fit-not-checked-and-absent, i.e. genuinely
+      no fit found, distinct from fit-not-checked.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
+      unscored_reason: no owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-certification-wallets.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Exit'
+          passage_sha256: 315792afbb4be2782f2496c1883134fcf2bcfb4fd9af48d2f94a455b1322cbc9
+          repository: openxFactory
+        rationale: 'The cluster is unusually coherent for brainstorm-stage material: five documents converge
+          on one trust-plane concept (a synthesis doc explicitly joins the two atomic explorations, and
+          the overview doc gives a single system-model diagram), several load-bearing decisions are already
+          recorded rather than merely proposed (the hermes-persona doc''s 2026-07-22 decisions on trait
+          vocabulary, authoring authority, and drift policy are direct applications of this cluster''s
+          certification idea), and the lead document states a concrete exit path composing with named
+          existing capabilities (roles-authority-model, credential-contracts, omnigent-install) rather
+          than floating in the abstract. That combination of cross-document coherence, a stated composition
+          surface, and genuine (if partial) convergence is enough that a neutral company-level ratify
+          gate would plausibly entertain a formal proposal, though it is not yet a finished one.'
+        confidence: 0.6
+        alternatives:
+        - Score lower (4-5) on the view that five brainstorm docs with many unresolved open questions
+          each are too raw for ratify regardless of coherence
+        - Score higher (8-9) on the view that the hermes-persona doc's concrete decided trait framework
+          already demonstrates the idea works in practice
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-certification'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-certification-wallets.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Open questions'
+          passage_sha256: 76110611c629f5ff513cc13cb4aee4f246b44c9acafb9d94fa26791ed2eb5195
+          repository: openxFactory
+        rationale: 'Nearly every document ends in a substantial open-questions list that blocks decomposition
+          into buildable work: battery design/authorship, tolerance calibration per qualification level,
+          recert cadence, cert-issuance authority, and provider-opacity handling are all unresolved in
+          agent-certification-wallets.md; the identity-custody docs separately flag unresolved wallet-issuer
+          trust, offline verification, and custody-tier placement. These are not implementation details
+          but design decisions that change the shape of the schemas and gates themselves (e.g., ''a changed
+          battery changes what "same agent" means''). A feature DAG built today would have to guess at
+          these, so buildability is low, though the presence of some resolved sub-decisions (e.g., in
+          the sibling hermes-persona doc) shows the cluster is not entirely undecomposable.'
+        confidence: 0.65
+        alternatives:
+        - Score slightly higher (4-5) since the config-hash/declared-change trigger is concrete enough
+          to spec immediately even while the measured-drift battery remains open
+        - Score lower (1-2) given the sheer number of cross-cutting open questions across all five documents,
+          not just one
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
+  conflict_flags:
+  - kind: tier-spread
+    tiers:
+    - company
+    - project
+    spread: 4
+    detail: 'scored-tier spread is 4 (>= 4): company 7 vs project 3 — recorded as signal, not averaged
+      away'
 - id: cl-agent-identity
   name: Agent Identity
   topics:
@@ -274,17 +559,70 @@ topic_entries:
     - did
     - verifiable-credentials
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: credential-contracts
+    how_extends: 'Extends the promoted credential-contracts capability to a new subject type: today''s
+      credentials cover practitioner/patient subjects, and this cluster''s verifiable-credential design
+      adds agent DIDs as a credential subject bearing qualification level, authority scope, and (in the
+      deferred wave) certified configuration hash and battery scores — explicitly named in the staging
+      doc as composing with, not replacing, credential-contracts.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-identity'
+      unscored_reason: no owning DomainxFactory resolves for this cluster
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-identity'
+      score: 7
+      evidence:
+        source_ref:
+          path: ideation/staging/agent-wallet-identity/agent-wallet-identity.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: agent-wallet-identity.md — Why this is staged now
+          passage_sha256: f0b8cd44c65b61eb18d04e8a40ab4bf4f38785a3c3f9d2ebbec92cca6f320e81
+          repository: openxFactory
+        rationale: 'The cluster shows the coherence and grounding a neutral ratify gate would want to
+          see: a brainstorm that sat idle until a real consumer forced it, a deliberately narrowed first-exit
+          scope (identity record, proof-of-control, authority binding, declared-change decert) with everything
+          unresolved explicitly deferred, and claims anchored against two already-promoted/ratified specs
+          (MedxFactory''s patient-identity-and-assembly and patient-snapshot-ledger-custody) rather than
+          asserted from scratch. That is a materially stronger posture than a raw brainstorm, though it
+          has not yet cleared its own gating open questions (key custody, proof-vs-asserted), which caps
+          the score short of a near-certain ratify.'
+        confidence: 0.7
+        alternatives:
+        - Score lower (4-5) on the view that a proposal still gated on its own unresolved open questions
+          (key custody, proof-required vs asserted) is not yet coherent enough to entertain formally
+        - Score higher (8-9) on the view that the disciplined scope-narrowing and grounding in ratified
+          sibling specs is itself the signal a ratify gate looks for, independent of remaining OQs
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-agent-identity'
+      score: 4
+      evidence:
+        source_ref:
+          path: ideation/staging/agent-wallet-identity/agent-wallet-identity.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: agent-wallet-identity.md — Exit path
+          passage_sha256: 0a57b2929918a77d745cf555fcdc0bc4f9441b2ec89767156d59def0cae486e6
+          repository: openxFactory
+        rationale: 'The document itself states the exit path is gated on unresolved design questions before
+          the named consumer can even ship: where the signing key lives and whether proof-of-control is
+          mandatory or an asserted interim is permitted. Those aren''t implementation details a Spec Kit
+          DAG could paper over — the custody model determines what the signature proves at all, and the
+          proof-vs-assertion decision determines whether the whole authority-binding mechanism is real
+          or a comment doing a rule''s work. A feature DAG built today would either have to guess these
+          or stub the core mechanism, so it isn''t buildable as-is, though the declared-change decert
+          (a hash comparison against facts Omnigent heartbeats already attest) is concretely scoped and
+          could decompose cleanly on its own.'
+        confidence: 0.6
+        alternatives:
+        - 'Score lower (2-3) since even the ''cheap'' declared-change decert depends on an unresolved
+          composition-hash scope (OQ3: does it include the retrieval corpus?)'
+        - Score higher (5-6) by decomposing only the declared-change decertification slice, which is independently
+          well-specified and buildable regardless of the key-custody and proof-vs-assertion OQs
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-aggregate-budget
   name: Aggregate Budget
   topics:
@@ -303,16 +641,74 @@ topic_entries:
     - aggregate-budget
   extension_fit:
     has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    statement: No promoted capability in the supplied list corresponds to this cluster's aggregate host
+      budget, owner-controls durability, or sandboxed-execution synthesis; the nearest-sounding entries
+      (e.g. omnigent-install-manifest, omnigent-domain-overlay, worker-enrollment-broker, capability-health)
+      address install manifests, domain overlays, enrollment brokering, and health checks respectively,
+      not the host-wide contribution budget or durable-pause guarantees described here. The cluster's
+      own cited relationships (executor ladder, host manager topology, heartbeat batch envelope) are sibling
+      brainstorm/staging documents, not promoted specs, so they do not satisfy the citation either.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-aggregate-budget'
+      unscored_reason: No single owning domain resolves for this cluster. The brainstorm's own repository
+        context splits ownership three ways ("Omnigent-Install owns the host manager and its enforcement;
+        xFactory-Installer owns the owner-facing surface; openxFactory owns the neutral resource and consent
+        contracts"), and the documents live in openxFactory's neutral ideation tree rather than in any
+        single DomainxFactory's Hermes layer.
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-aggregate-budget'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Focus'
+          passage_sha256: 987b48dcdde532cb017dd16ec776163f6e5de8eddd1c86f6b9f755f5cf92faa1
+          repository: openxFactory
+        rationale: The cluster states a coherent, product-relevant value proposition (honest enforce-vs-measure
+          distinction, durable owner pause, one aggregate budget) that a neutral ratify gate could plausibly
+          entertain as a cross-factory contract. It is well cross-referenced to sibling brainstorm docs
+          and grounded in a recorded defect class (pause being undone by reconciliation), which gives
+          it more weight than a purely speculative idea. It is held back from a higher score by its own
+          admitted unresolved tension between personal-owner authority and fleet/managed-Cloud-PC authority,
+          which the documents say "is not fully drawn here" — a boundary a ratify authority would need
+          settled before treating this as coherent enough to formalize.
+        confidence: 0.6
+        alternatives:
+        - Score higher (8+) given the depth of cross-document synthesis and the recorded real-world defect
+          motivating durable pause
+        - Score lower (3-4) treating the unresolved owner-vs-fleet authority boundary as disqualifying
+          rather than merely a gap
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-aggregate-budget'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/omni-unattended-worker-aggregate-budget-and-owner-controls.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Open questions'
+          passage_sha256: 0f21521d2fe9da47aa612d3c7de3649c1e00ddbab67ce895bf1788df74bbb4e1
+          repository: openxFactory
+        rationale: Feature decomposition into a buildable Spec Kit DAG needs concrete, closed parameters.
+          This cluster instead lists open questions that are prerequisites to any implementation task
+          list — default allocations, the visible drain bound and what happens when an attempt exceeds
+          it, and which limits each executor genuinely enforces (explicitly called "the measurement that
+          turns this from design into a matrix"). The synthesis document separately states the architecture
+          is settled by pinned source while "the product is gated on measurements nobody has taken." These
+          are measurement/decision gaps, not implementation tasks, so a DAG built today would have unresolved
+          inputs at its root.
+        confidence: 0.65
+        alternatives:
+        - Score higher (5-6) since the durable-state machine (available/draining/paused/stopped/repairing/enrollment-required)
+          and removal semantics are concrete enough to decompose into features independent of the open
+          measurement questions
+        - Score lower (1-2) given the additional unresolved owner-vs-fleet authority split, which affects
+          almost every control surface in the cluster
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-approved-ui-source
   name: Approved Ui Source
   topics:
@@ -331,16 +727,62 @@ topic_entries:
     - approved-ui-source
   extension_fit:
     has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    statement: No promoted capability in the provided list relates to approved UI baselines, visual-diff
+      review, or render-manifest authority (e.g. nothing resembling 'ui-baseline' or 'visual-review' appears
+      among the promoted capabilities); this is a genuine no-fit, not an unchecked one.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-approved-ui-source'
+      unscored_reason: No owning DomainxFactory resolves for this cluster; it is explicitly framed as
+        a cross-factory concept rather than a domain-owned capability.
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-approved-ui-source'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-assisted-app-testing-overview.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: How it fits
+          passage_sha256: 47c5b1954f854b590796881c90d2f026a28405370204c7588182b151492e8ba2
+          repository: openxFactory
+        rationale: The cluster is coherent and clearly valuable in concept — a well-organized authority
+          split for UI baselines, a cross-referenced document map, and explicit alternatives/tensions
+          analysis — but it self-identifies as brainstorm-stage, non-normative material that has not yet
+          passed through staging, and it lists over a dozen unresolved open questions (schema ownership,
+          threshold policy, session transport, Flutter mapping, etc.) that a ratify gate would need answered
+          first. That combination signals real but early promise rather than proposal-ready coherence.
+        confidence: 0.65
+        alternatives:
+        - A higher score (5-6) could be justified by the unusually thorough authority-split table and
+          cross-document relationships, which exceed typical brainstorm rigor.
+        - A lower score (1-2) could be justified since the source material explicitly disclaims ratification
+          and enumerates open questions as unresolved rather than merely illustrative.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-approved-ui-source'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/agent-assisted-app-testing-overview.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: Non-goals
+          passage_sha256: ce594b7b4384293a0d055ff5205f795d05f165eafe47edd5564580cb22a3c9aa
+          repository: openxFactory
+        rationale: The cluster explicitly disclaims defining any implementation contract, and the repo-first
+          bundle, manifest schema, and baseline-identity tuple are offered as 'illustrative' rather than
+          committed interfaces. Key buildability inputs — the annotation/session schema, the render-manifest
+          hash format, storage backend (Git vs LFS vs artifact store), and integration points with Loki/Playwright
+          — are all listed as open questions rather than settled decisions. A feature DAG could not be
+          decomposed today without first resolving these; at best this is groundwork for a future spec.
+        confidence: 0.7
+        alternatives:
+        - A slightly higher score (3-4) is plausible since the 'Repo-first bundle' section does provide
+          a concrete illustrative directory layout and identity tuple that could seed a first feature.
+        - A much lower score (1) could be argued since even the illustrative bundle is explicitly non-binding
+          and every adjacent adapter (Loki, Playwright, Figma MCP) is still undesigned.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-audit
   name: Audit
   topics:
@@ -371,16 +813,80 @@ topic_entries:
     - audit
   extension_fit:
     has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    statement: No promoted capability in the provided list corresponds to this cluster's subject matter
+      (episode ledgers for crystallization, or recursive-inference evidence/coverage/trajectory). The
+      cluster's episode-ledger document references memory-gateway (M3 metering, M1 promotion ports) and
+      the cluster's recursive-inference documents reference memory-gateway's context-packet model, but
+      in both cases memory-gateway is cited as infrastructure the cluster would build atop or reuse, not
+      a promoted spec that this cluster itself extends. Likewise 'pattern-ledger', 'crystallization-build/consent/decision/dispatch',
+      and 'governed-derived-model' are named as related promoted concepts in the source docs but none
+      is the specific capability this cluster proposes to extend. This is a 'no fit' rather than 'fit
+      not checked' finding.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-audit'
+      unscored_reason: No owning DomainxFactory resolves for this cluster. Every member document is scoped
+        explicitly to openxFactory as neutral, cross-factory material, and domain adoption is described
+        as unstarted future work.
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-audit'
+      score: 4
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/crystallization-episode-ledger.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: Document header (Status/Captured/Organized block)
+          passage_sha256: 7a9b837f0ae89ca748a668cd3d0d1343d65293b2debd4d795382a48f54d29425
+          repository: openxFactory
+        rationale: 'This cluster bundles two topic packets whose only visible link is the shared ''audit''
+          tag, not a shared value proposition: the episode-ledger document explicitly states it has already
+          been organized into a *different* staged topic (recurrence-crystallization) and is retained
+          here only ''as design history,'' while the other four members (governed-recursive-inference-*)
+          remain live, unstaged brainstorm-status documents pursuing a distinct architecture (RLM-based
+          recursive inference). A neutral ratify gate would need a coherent single proposal; instead it
+          would find one archived-elsewhere artifact mixed with an active four-document packet that is
+          internally coherent on its own but unrelated in subject to the fifth. The recursive-inference
+          sub-packet itself is well cross-referenced and addresses a real, articulated problem (auditable
+          evidence and coverage for adaptive-context inference), which keeps the score from being lower,
+          but the cluster as assembled needs recuration before it is a single ratify-ready proposal.'
+        confidence: 0.6
+        alternatives:
+        - If judged only on the four governed-recursive-inference documents (ignoring the episode-ledger
+          outlier), coherence and value would likely score higher, closer to 6-7, since those four are
+          tightly cross-referenced around one evidence/safety/trajectory model.
+        - If judged strictly by the shared 'audit' keyword as the intended unifying thread, the grouping
+          could be read as intentional metadata-level cross-referencing rather than a defect, which would
+          raise the score slightly.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-audit'
+      score: 2
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/governed-recursive-inference-overview.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Non-goals'
+          passage_sha256: 6ef7dc5116b6ba7e73d0fc42f25fb6c405bf411c72abc9ba63d958c0d337ea2d
+          repository: openxFactory
+        rationale: 'The cluster''s own governing document explicitly forbids treating it as implementation-ready,
+          and every recursive-inference member is still tagged ''Status: brainstorm'' (only the unrelated
+          episode-ledger doc is ''staged''). Each atomic document ends with a substantial, unresolved
+          ''Open questions'' list touching core buildability decisions (e.g., evidence-coverage.md asks
+          ''What is the neutral coverage unit: shard, record, semantic section, or task-declared item?''
+          and trajectory-and-replay.md asks ''Which trajectory fields belong in canonical audit events
+          versus referenced execution artifacts?''). A Spec Kit feature DAG needs settled contracts and
+          boundaries; here even the capability''s name and record shape are undecided (''Is the neutral
+          capability adaptive-context-runtime, governed-context-computation, or a name explicitly containing
+          RLM?''). This is pre-formalization design exploration, not a buildable feature set today.'
+        confidence: 0.7
+        alternatives:
+        - The documents do contain fairly detailed candidate data models (coverage ledger dispositions,
+          trajectory record fields, episode schema) that a decomposition worker could use as a strong
+          starting draft, which could support a slightly higher score (3-4) if 'buildable today' is read
+          loosely as 'good raw material for a first draft DAG' rather than 'ready as-is.'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-audit-continuity
   name: Audit Continuity
   topics:
@@ -398,17 +904,74 @@ topic_entries:
     matched_tags:
     - audit-continuity
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: crystallization-dispatch
+    how_extends: crystallization-dispatch-and-fences.md specifies the admission-time junction (fingerprint
+      → registry lookup → deterministic fence check → execute → post-conditions) and a fallback-cause
+      taxonomy that the already-promoted crystallization-dispatch capability would need to enforce end-to-end;
+      crystallization-authority-and-consent.md complements this by extending the related promoted crystallization-consent
+      and credential-contracts capabilities with a three-tier consent model (episode_use/automation/pooling,
+      default-deny) and an authority-conservation invariant binding permissions to the replaced AI configuration.
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-audit-continuity'
+      unscored_reason: No owning DomainxFactory resolves for this cluster. Both documents' repository
+        context is the neutral openxFactory platform layer (they extend omnigent-domain-overlay, credential-contracts,
+        and roles-authority-model, which are cross-domain/company-level contracts), and the material explicitly
+        defers domain-specific policy to individual domain overlays rather than being owned by one itself.
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-audit-continuity'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/crystallization-authority-and-consent.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Authority conservation'
+          passage_sha256: 155f953298f33d862ab8acadc124ffe3a853b94122170dd6aa6eabd0ac230605
+          repository: openxFactory
+        rationale: 'The cluster is coherent and constitutionally framed: it states a hard invariant (authority
+          can only shrink, never widen, when crystallizing an AI path into code) with mechanical enforceability,
+          and pairs it with a three-tier default-deny consent model and a cross-layer approval braid (Domain/Tenant/Subject).
+          This is exactly the shape a neutral ratify gate would want — a risk story plus a mechanical
+          safeguard — and both member documents carry formal, numbered claims (AU-C1..C5, DS-C1..C5).
+          It is held back from a higher score by ten open questions spanning legal/regulatory classification,
+          who signs bindings, matrix granularity, and conditional consent, which a ratify gate would likely
+          require narrowed before treating this as proposal-ready.'
+        confidence: 0.6
+        alternatives:
+        - Could score higher (8+) given the rigor of the constitutional claims and their direct extension
+          of already-promoted contracts (credential-contracts, roles-authority-model, omnigent-domain-overlay).
+        - Could score lower (3-4) since both documents are marked 'kept as design history' after being
+          organized into a staging topic — rejected because the staged status and dense cross-referencing
+          to sibling packet documents indicate active, not archived, design.
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-audit-continuity'
+      score: 5
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/crystallization-dispatch-and-fences.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Open questions'
+          passage_sha256: 5080bdc7081f076aa32111bd79c312dacfa8654da32b5580b1e1d64a318c1ac9
+          repository: openxFactory
+        rationale: Both documents name concrete candidate feats (crystallized-executor profile class,
+          authority-conservation validator, three-tier consent contract, dispatch junction contract, fallback
+          episode tagging, frontier queue) and the dispatch document even gives a pseudocode-level control-flow
+          diagram, which is a good sign for decomposability. However, a foundational engineering question
+          — where the dispatch junction physically lives — is still open, and both documents lean heavily
+          on sibling packet members (capability registry, task-family matcher, drift/lifecycle, requirements
+          mining) that are not part of this cluster, so a Spec Kit DAG built from only these two documents
+          would have unresolved external dependencies and an unresolved runtime seat.
+        confidence: 0.55
+        alternatives:
+        - Could score higher if the excluded sibling documents (registry, task-families) are assumed available
+          and stable, since the feats lists here are already fairly concrete.
+        - Could score lower given DS-Q1 leaves even the runtime home of the dispatch junction unresolved,
+          which blocks any concrete implementation plan.
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-authority-conservation
   name: Authority Conservation
   topics:
@@ -442,17 +1005,81 @@ topic_entries:
     matched_tags:
     - authority-conservation
   extension_fit:
-    has_promoted_fit: false
-    statement: Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the
-      worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
+    has_promoted_fit: true
+    promoted_spec: governed-derived-model
+    how_extends: 'The polyglot-graph-memory-projection-authority.md member document explicitly states:
+      ''Projection authority composes with: the governed-derived-model principle that derivative artifacts
+      identify their canonical inputs'' — it extends that promoted capability by applying its provenance-identification
+      requirement specifically to graph-provider output (extracted/inferred/asserted/reviewed/canonical
+      edge classes), so rebuildable graph projections cannot silently acquire authority their source material
+      lacks.'
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-conservation'
+      unscored_reason: 'No owning DomainxFactory resolves for this cluster. All six member documents carry
+        ''Repository context: openxFactory'' (neutral cross-cutting governance material spanning crystallization,
+        recursive inference, and graph memory subsystems) rather than any vertical DomainxFactory. Domain-Hermes-owned
+        material in this packet (e.g. rung ceilings, regulatory posture) is explicitly deferred to ''Domain
+        overlays'' as future work, not claimed by an actual domain here.'
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-conservation'
+      score: 6
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/crystallization-authority-and-consent.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Authority conservation'
+          passage_sha256: 155f953298f33d862ab8acadc124ffe3a853b94122170dd6aa6eabd0ac230605
+          repository: openxFactory
+        rationale: 'The cluster articulates a single, consistently-restated constitutional invariant (authority
+          never widens) that recurs verbatim in spirit across crystallization (AU-C1, cited by the Crystallizer
+          synthesis as ''the floor: authority conservation (AU-C1) is constitutional at every level of
+          the recursion''), recursive inference (''unable to widen authority through recursion'', ''never
+          auto-expand''), and graph projection (''An inferred edge does not become extracted through repetition'').
+          That cross-packet consistency is exactly the kind of neutral, company-level governance principle
+          the ratify gate exists to entertain. The score is held at 6 rather than higher because the cluster
+          mixes maturity levels (two docs already organized into a staged topic, four still at brainstorm
+          status) and spans three largely independent subsystems rather than presenting one crisp, self-contained
+          proposal.'
+        confidence: 0.6
+        alternatives:
+        - 'Score 8: the recurrence of the same constitutional rule across five-plus independently-authored
+          documents, each restating it without contradiction, could be read as unusually strong convergent
+          evidence of company-level coherence.'
+        - 'Score 4: because the cluster is really a cross-cutting principle appearing inside several unrelated
+          feature packets rather than a single proposal, the ratify gate may see this as not-yet-a-proposal
+          at all, just a shared design constraint.'
+        disposition: pending_review
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-conservation'
+      score: 3
+      evidence:
+        source_ref:
+          path: ideation/brainstorm/governed-recursive-inference-safety-and-data-boundaries.md
+          revision: 46059b775207b82f0f5012065a751923516f798c
+          section: '## Open questions'
+          passage_sha256: ca697f98fdaf043c17c74ac00e0d0b07a5a724f4de3eeddf3392285d897575e3
+          repository: openxFactory
+        rationale: 'Foundational questions remain unresolved in nearly every member document: whether
+          instruction/data separation is enforceable through protocol alone, which providers/sandboxes
+          are allowed per domain, how many matrix classes ''crystallized executor'' should be (AU-Q3),
+          whether T2 automation consent can be conditional (AU-Q4), and where the not-yet ledger lives
+          (SYB-Q1). None of the five ''Possible feats'' sections across the cluster have an accompanying
+          acceptance corpus or scope fence, and the cluster spans three structurally separate subsystems
+          (crystallization, recursive inference, graph projection) glued only by a shared principle rather
+          than shared interfaces. codexFactory cannot decompose this into one buildable Spec Kit feature
+          DAG today; individual mature sub-pieces (e.g. the mechanical subset check in authority-and-consent)
+          are closer to buildable than the cluster as a whole.'
+        confidence: 0.65
+        alternatives:
+        - 'Score 5: the authority-and-consent document alone is specific enough (a mechanical binding-subset
+          check, a three-tier consent contract) that a narrower feature slice could arguably be decomposed
+          today, even if the full cluster cannot.'
+        - 'Score 2: given how many ''-Q'' items are open across every single member document, even a narrow
+          slice may be premature to spec until the domain/tenant/subject approval braid is settled.'
+        disposition: pending_review
+    recommendation:
+      flagged: false
+      disposition: pending_review
+      summary: 'gate not fired — tier(s) not scored: [''domain'']'
 - id: cl-authority-object-lifetimes
   name: Authority Object Lifetimes
   topics:
@@ -476,11 +1103,14 @@ topic_entries:
   readiness:
     tiers:
     - tier: domain
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-object-lifetimes'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: company
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-object-lifetimes'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
     - tier: project
-      unscored_reason: 'worker failed: no remote result collected for cl-authority-object-lifetimes'
+      unscored_reason: 'output rejected: tier ''company'': grounding passage is not found verbatim in
+        any cluster member document (a cited passage must be real)'
 - id: cl-authority-personas
   name: Authority Personas
   topics:
@@ -12379,3 +13009,783 @@ possibles_register:
     audit output as the source of the practice_effectiveness memory signal and describes the Lead-accepted
     path it would ride, but neither document builds the actual mechanism connecting audit findings to
     catalog updates — a concrete cross-member connection worth staging as its own feat.
+- id: pos-derived-unified-suggestion-and-candidate-rail
+  title: Unified suggestion-and-candidate rail
+  claim: The cluster's crystallization Pattern Ledger, the practice-adoption loop, and ontology maintenance
+    queues could converge on one shared suggestion-record contract (idempotency, evidence, suppression,
+    rationale) instead of three parallel reimplementations of the same domain-suggests/tenant-clears/realize-through-front-door
+    shape.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-synthesis-pattern-ledger.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-249622190bd7
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-synthesis-pattern-ledger.md
+    section: '## The output contract: candidates on the suggestion rails'
+    passage_sha256: 798152c773f8fcc2fe0f9d201818da7d0dd3efc61e6c18b2d26824e4c19f39cf
+  rationale: The Pattern Ledger explicitly models its `crystallization_candidate` on the practice_adoption_suggestion
+    shape, the practice-adoption synthesis says its loop may feed stable recurrence into the crystallization
+    packet, and the ontology lifecycle synthesis says it can reuse the practice-adoption packet's suggest/clear/realize
+    states. Three independently authored members converging on the same reusable record grammar is a genuine
+    cross-member pattern worth registering as one durable capability rather than three separate notes.
+- id: pos-derived-cross-subsystem-authority-conservation-conforman
+  title: Cross-subsystem authority-conservation conformance check
+  claim: A shared audit pattern proving that every autonomy-granting mechanism across this cluster expands
+    what is automated without ever expanding what is authorized could become one reusable conformance
+    check, rather than being independently re-derived inside UI autonomy, crystallization, recursive-inference,
+    and unattended-worker synthesis material.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-synthesis-crystallizer.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-249622190bd7
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-synthesis-crystallizer.md
+    section: '## Members and their joints — Recursion with a floor (BP-C1)'
+    passage_sha256: d037fcaf0b8cf04a857ea67d5c9d40e162a1b972fe47474c87236591dfc34d69
+  rationale: 'Multiple unrelated members in this cluster independently state the same constitutional rule
+    in their own vocabulary: the Crystallizer names ''authority conservation (AU-C1)'' as constitutional
+    at every level of recursion, the UI autonomy/human-control synthesis insists the ordinary lane cannot
+    weaken the constraints it is judged by, the recursive-inference runtime-and-authority synthesis says
+    recursion is ''unable to widen authority,'' and the unattended-worker dispatch synthesis demotes the
+    credential to mere launch material rather than authority. That convergence across four independently
+    written members is the kind of cross-cluster connection worth lifting into one checkable pattern.'
+- id: pos-derived-unified-device-agent-identity-trust-plane
+  title: Unified device/agent identity trust plane
+  claim: The identity-and-custody trust plane could be extended so an Omni unattended-worker installation
+    is treated as just another principal class, letting device identity, worker enrollment, and human/agent
+    identity brokering share one authorization decision surface instead of parallel identity schemes.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-249622190bd7
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-synthesis-device-trust-plane.md
+    section: '## Recombination opportunities'
+    passage_sha256: 4605a0ad41a4246e57ea1b35a2ac339ea577af46eb711d4d2578be7a459cfa9f
+  rationale: The device-trust-plane synthesis explicitly proposes folding an Omni installation into the
+    existing identity-and-custody trust plane rather than building a private scheme, and the worker-execution
+    governed-lane synthesis separately states its lane can consume that same trust plane. Two independently
+    written members reaching for the same extension point is a concrete cross-member signal worth registering
+    as its own possible.
+- id: pos-derived-shared-authority-conservation-invariant-across-c
+  title: Shared authority-conservation invariant across crystallization and recursive inference
+  claim: This cluster's crystallization-authority-and-consent material and its governed-recursive-inference
+    material could converge into one shared neutral 'authority can only narrow, never widen' contract,
+    rather than remaining two independently specified versions of the same rule under different vocabularies.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d1693107984
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: '## Monotone authority'
+    passage_sha256: 946b1cc363fe0e3e29181ed7998c5c3b71d3b508c6e5e84b5834187c52cce63c
+  rationale: 'crystallization-authority-and-consent.md states that a crystallized capability''s effective
+    permissions must be a subset of the AI configuration it replaces, with constitutional falses persisting
+    at every rung. governed-recursive-inference-task-family.md independently arrives at the identical
+    shape of rule for recursive child tasks: authority can only narrow from parent to child to Hermes-approved
+    job. Both documents are proposing the same cross-cutting Omnigent invariant for two different transformations
+    (AI-to-crystallized-code, and parent-task-to-child-task), which suggests a single reusable contract
+    rather than two parallel inventions of it.'
+- id: pos-derived-lens-feature-set-re-scoped-across-the-opendox-op
+  title: Lens feature set re-scoped across the openDox/openXdox split
+  claim: The cluster's three lens feat-request documents (keyword search and ad-hoc keywords, ring-combination
+    explorer, brainstorm-session-launch) all plan to land as one MODIFIED ideation-dashboard OpenSpec
+    delta, but this same cluster's opendox-two-layer-product staging document proposes removing ideation-dashboard
+    from openxFactory and splitting it across openDox, openXdox, and domain descendants -- so this cluster
+    could become a re-scoped lens-enhancements proposal that assigns the lens set-builder to openDox (already
+    flagged elsewhere as a pull-up candidate) and the lifecycle/staged-topic-dependent ring-combination
+    and brainstorm-launch mechanics to openXdox or a descendant, instead of a single ideation-dashboard
+    delta the split would immediately orphan.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d1693107984
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: '## Exit'
+    passage_sha256: 454593f84c06d7af0af81525427ca365294a71d539db34f051d6aba68a1eed25
+  rationale: All three lens documents share the identical exit line committing their possibles to one
+    staged lens-enhancements topic realized as a MODIFIED ideation-dashboard delta. The cluster's own
+    opendox-two-layer-product document proposes REMOVING ideation-dashboard entirely, with a per-requirement
+    successor map across openDox/openXdox/descendants, and separately names the lens set-builder specifically
+    as a pull-up candidate for openDox. That is a direct, concrete conflict-and-connection across cluster
+    members that none of the individual documents surface on their own.
+- id: pos-derived-unified-task-envelope-contract-for-micro-agents
+  title: Unified task-envelope contract for micro-agents and recursive task families
+  claim: The omnigent-micro-agent profile/task-envelope/result record model and the governed-recursive-inference
+    task-family's child-task lineage model could converge into one shared neutral task-envelope-and-result
+    contract family serving both ordinary Omnigent micro-agents and recursive task families, resolving
+    the open question the task-family document itself raises about whether these should be separate or
+    unified records.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d1693107984
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: '## Relationship to existing micro-task ideas'
+    passage_sha256: d98b592973aabf9f9c85a68ab3b4512d4a57380eae25eeddb5264be5a3723a1f
+  rationale: governed-recursive-inference-task-family.md explicitly says recursive inference does not
+    need a competing record family and that it may only need small extensions (root/parent/depth, capsule-view
+    identity, budget refs) to the existing micro-agent profile/task-envelope/result triad, but leaves
+    whether these are extensions or companion records as an open question. That is a direct structural
+    connection between two document families in this cluster (omnigent-micro-agent-task-contract.md and
+    the governed-recursive-inference set) that points toward one consolidated contract rather than two
+    parallel task-record designs.
+- id: pos-derived-baseline-migration-explainability-trail
+  title: Baseline migration explainability trail
+  claim: The cluster's render-manifest, OS baseline lifecycle, and visual-diff material could become a
+    single explainability service that lets a human or agent ask why a specific pixel changed across a
+    browser, OS, or font migration and get back the full lineage from superseded profile through raw diff
+    to approved replacement.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-os-baseline-lifecycle.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-67fe3239d48d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-os-baseline-lifecycle.md
+    section: Update triggers and migration classes
+    passage_sha256: a14d8cafb4b3e050861e143c21e00cbda5c22231f4e6e13971acfc14fc10e4a8
+  rationale: Three members each define a piece of this trail (chromium-render-manifest.md pins the environment
+    identity, os-baseline-lifecycle.md tracks profile migration lineage, visual-diff-review.md keeps raw
+    evidence and derivatives distinct); combined, they describe more than isolated bookkeeping rules -
+    they describe a coherent explainability capability that none of the individual documents names as
+    a deliverable on its own.
+- id: pos-derived-unified-intent-lineage-ledger
+  title: Unified intent lineage ledger
+  claim: The cluster's intent envelope, autonomous UI observatory, and SDLC session material could become
+    one durable ledger that stores every user annotation, Hermes-originated observation, and detected
+    regression as intents sharing a common lifecycle, evidence trail, and admission record, queryable
+    regardless of origin.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-intent.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-67fe3239d48d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-intent.md
+    section: Proposed model
+    passage_sha256: 7cce6ae95e96a7864a936f69e1066befa8ba65237c1d4f5c7259d12e18f5ce32
+  rationale: agent-assisted-app-testing-intent.md explicitly states that Hermes-originated and user-originated
+    intents share the same rules, autonomous-ui-observatory.md shows observations becoming intents with
+    an explicit non-human origin, and v1-sdlc-session.md defines the event vocabulary (observation.created,
+    intent.created) that would drive such a ledger; together they point to a concrete cross-origin backlog
+    artifact none of them individually proposes as a deliverable.
+- id: pos-derived-human-exception-console
+  title: Human exception console
+  claim: The cluster's autonomy envelope, spec safety, experience admission council, and SDLC session
+    material could become a single console that aggregates every park, block, or route decision produced
+    across the pipeline into one queue, so the few required human or professional touchpoints are found
+    in one place instead of scattered across separate mechanisms.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-ui-autonomy-envelope.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-67fe3239d48d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-ui-autonomy-envelope.md
+    section: Interfaces and boundaries
+    passage_sha256: b1f13c0450bf65a70834babebd308b179db6f35dff868a46747250b61b421554
+  rationale: Multiple members each independently define a 'park at existing gate' or 'route to human/professional
+    authority' escape hatch (spec-safety.md, ui-autonomy-envelope.md, experience-admission-council.md,
+    preview-approval.md, v1-sdlc-session.md); no single document proposes consolidating these into one
+    exception-handling surface, which is the connective opportunity across the cluster.
+- id: pos-derived-shared-heartbeat-capability-extension-mechanism
+  title: Shared heartbeat capability-extension mechanism for benches and containment classes
+  claim: This cluster could become a single neutral heartbeat-extension pattern (schema delta + publisher
+    + readiness evaluator landed together) that serves both the omni-unattended-worker's executor_class/containment_class
+    fields and the tech-stack-benches' bench-inventory fields, instead of two independently designed heartbeat
+    changes solving the same problem twice.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/tech-stack-benches.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2cc24af9f6bf
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/tech-stack-benches.md
+    section: Contract fit (the slot already exists), item 4
+    passage_sha256: 10551e231e3a5935617dd34b295dac364aa7f950b49061014e81a8b176d70b89
+  rationale: heartbeat-batch-envelope.md proposes adding executor_class and containment_class to the heartbeat
+    schema and warns the change touches 'the schema, its publishers, the forwarding hop, the readiness
+    store's projection'; tech-stack-benches.md proposes adding bench-inventory fields to the same heartbeat/readiness
+    pipeline and explicitly names it 'the same pattern as profiles/labels', citing a prior lesson that
+    contract deltas must land in the publisher, the readiness service field spec, and the evaluator together.
+    The two documents are describing one recurring mechanism, not two unrelated features, making a unified
+    extension approach a genuine cross-cluster possible.
+- id: pos-derived-omni-attempt-authorization-design-as-the-answer
+  title: Omni attempt-authorization design as the answer to the omnigent lane's open credential-issuance
+    question
+  claim: The cluster could produce a proposal that generalizes the omni-unattended-worker's attempt-authorization
+    record and five nested authority objects into the answer for the omnigent-lane-activation-path's still-open
+    P3 credential-issuance question, rather than solving short-lived worker credential issuance separately
+    for governed and volunteer hosts.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omnigent-lane-activation-path.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2cc24af9f6bf
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/omnigent-lane-activation-path.md
+    section: Open questions
+    passage_sha256: da6d0b22ecf65718ebbe125ce1d4a5c9f5e477f73164e36bc8421fe00deb5fbf
+  rationale: omnigent-lane-activation-path.md leaves 'does the runtime issue/attenuate short-lived worker
+    credentials itself, or broker to an external vault' as an open question for the general omnigent run
+    loop, while the same cluster's ephemeral-runner-attempt-grant.md and authority-object-lifetimes.md
+    already specify a concrete server-side attempt-authorization record and just-in-time credential precisely
+    for that problem on volunteer hardware — a connection worth surfacing rather than re-deriving independently.
+- id: pos-derived-executor-qualification-records-as-the-concrete-f
+  title: Executor qualification records as the concrete fill for the neutral worker-host contract's isolation
+    field
+  claim: The cluster could converge the neutral worker-execution-host-contract's abstract 'supported isolation
+    and credential-broker features' inventory field with the omni-unattended-worker's concrete, versioned,
+    per-configuration containment-class qualification records, turning an unfilled neutral slot into a
+    proven design rather than two parallel unlinked host-capability models.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/worker-execution-host-contract.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2cc24af9f6bf
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/worker-execution-host-contract.md
+    section: Proposed model
+    passage_sha256: 864d2175f209e7e75a0b9377a21885d87dcac76b99f89a16231ee9619e0f3688
+  rationale: worker-execution-host-contract.md lists 'supported isolation and credential-broker features'
+    as an abstract item a host publishes, with no worked example, while executor-ladder.md (in the same
+    cluster) already defines exactly that as a versioned qualification record per containment class (hyperv_vm,
+    wsl2, native_service_account) matched against a job's declared requirement — a direct fill for the
+    neutral contract's placeholder.
+- id: pos-derived-unified-micro-task-contract-for-recursive-and-mi
+  title: Unified micro-task contract for recursive and micro-agent workers
+  claim: This cluster's recursive-inference and micro-agent material could converge into one reusable
+    typed profile/task/result contract that both recursive child calls and the general Omnigent micro-agent
+    fleet bind to, instead of maintaining two structurally similar but separately specified contracts.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-overview.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a969ad2857da
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-overview.md
+    section: How it fits > Reuses worker archetypes and micro-agent ideas
+    passage_sha256: 695be6dac980ec5b7bc6f2eeb9214c92ae5d08f3e770e002cddf52c0233c14e5
+  rationale: governed-recursive-inference-overview.md explicitly proposes reusing the micro-agent packet's
+    profile/task/result separation for recursive child calls, while omnigent-micro-agent-task-contract.md
+    independently specifies that same three-record shape (profile, task envelope, result) for the general
+    micro-agent fleet. The cluster documents these as parallel designs rather than one shared contract,
+    which is exactly the kind of cross-document connection a staged topic could resolve.
+- id: pos-derived-graph-provider-informed-semantic-pre-router
+  title: Graph-provider-informed semantic pre-router
+  claim: The cluster's deterministic semantic-routing idea for micro-agents could become a concrete capability
+    by feeding code-graph provider signals (CodeGraph, codebase-memory-mcp, GitNexus role bindings) into
+    the deterministic pre-router's compatibility query, letting graph-derived artifact and relationship
+    types route code-intelligence micro-tasks without invoking a planner.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/ontology-grounded-micro-agent-routing.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a969ad2857da
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/ontology-grounded-micro-agent-routing.md
+    section: The central idea
+    passage_sha256: ad7ef6a0ef9fe7e3d7b4ac37f31119a8ac35c5688d74276190cbd53b08aaee95
+  rationale: 'ontology-grounded-micro-agent-routing.md proposes a deterministic router that matches declared
+    semantic types to worker signatures instead of invoking an LLM planner, while polyglot-graph-memory-omnigent-code-intelligence.md
+    separately proposes selecting graph providers by worker archetype, artifact/validation type, and independence
+    requirement. No document in the cluster connects the two: using graph-provider output as the semantic-type
+    source for the deterministic router is a concrete synthesis neither document states on its own.'
+- id: pos-derived-cross-domain-independence-authenticity-check
+  title: Cross-domain independence-authenticity check
+  claim: The cluster's recurring worry that multiple reviewers or providers may look independent without
+    truly being independent could become one shared independence-authenticity contract applied uniformly
+    across UI specialist review councils and code-intelligence graph verifiers, rather than being re-litigated
+    per domain.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-ui-specialist-separation.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a969ad2857da
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-ui-specialist-separation.md
+    section: Assignment record
+    passage_sha256: bec68150d50dd6b557a575082ae486d68ea3e26126e91e1dcc26d2ca829f4a48
+  rationale: agent-assisted-app-testing-ui-specialist-separation.md states that a multi-model council
+    should not be treated as independent merely because provider names differ, and polyglot-graph-memory-omnigent-code-intelligence.md
+    raises the same unresolved question for graph providers ('Does provider independence require distinct
+    parsers/resolvers, or is a distinct query and worker sufficient?'). Both documents identify the identical
+    underlying problem — superficial diversity mistaken for genuine independence — in different specialist
+    domains, suggesting one shared check could serve both.
+- id: pos-derived-fragment-to-micro-agent-crystallization-pipeline
+  title: Fragment-to-micro-agent crystallization pipeline
+  claim: This cluster's material could become a pipeline that promotes mined step-fragment families directly
+    into governed micro-agent profiles at the automation ladder's L4 specialist rung, turning fragment-mining
+    output into typed, executable worker capabilities rather than leaving the connection as prose.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-task-families.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d4f1bac5b8c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-task-families.md
+    section: '## Fragment mining: the granularity insight'
+    passage_sha256: 2ef3113cd54b5f4a03ef6dc26f7fdabe060bcf5074dc5eb884be91251281c285
+  rationale: crystallization-task-families.md explicitly identifies fragment families as 'exactly micro-agent-shaped'
+    and points to the micro-agent task contract and the automation ladder's L4 rung, while crystallization-automation-ladder.md
+    independently states that L4 is where micro-agents plug in because 'a playbook step with typed I/O
+    is exactly a micro-agent task.' The cluster holds both halves of this pipeline (fragment mining and
+    micro-agent contract/foundations) but no member proposes the concrete promotion mechanism connecting
+    them.
+- id: pos-derived-unified-micro-task-record-family-for-ordinary-an
+  title: Unified micro-task record family for ordinary and recursive execution
+  claim: The cluster's material could become one shared profile/task-envelope/result record family used
+    both by ordinary Omnigent micro-agents and by recursive-inference child tasks, instead of maintaining
+    two parallel task-contract lineages.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d4f1bac5b8c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: '## Relationship to existing micro-task ideas'
+    passage_sha256: 7693fc56f4270e37e1e04f8fc3b908e75bbbae70c60396f28367e535ca5aca82
+  rationale: governed-recursive-inference-task-family.md states that the recursive packet 'does not need
+    a competing record family' against the micro-agent packet's reusable profile, immutable task envelope,
+    and immutable result, and only needs narrow extensions such as root/parent/depth and capsule-view
+    identity. This is a direct, named convergence point across two otherwise separate document families
+    in the cluster (governed-recursive-inference vs. omnigent-micro-agent) that a staged topic could formalize
+    as one contract.
+- id: pos-derived-task-fingerprint-and-worker-signature-convergenc
+  title: Task-fingerprint and worker-signature convergence on ontology terms
+  claim: This cluster's material could become a single governed-vocabulary layer where task-family fingerprints
+    and micro-agent semantic routing signatures are keyed by the same ontology concept and relation terms,
+    replacing separately maintained embeddings and signature declarations with one shared identity source.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-task-families.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3d4f1bac5b8c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-task-families.md
+    section: '## The fingerprint'
+    passage_sha256: b10908e1b7ac2c1f31de39562119a47f0a0dc86eb140234a052e446fdcc096c2
+  rationale: crystallization-task-families.md's fingerprint design names ontology-grounded routing's semantic
+    task and artifact types as 'the better long-term key' over raw embeddings, while ontology-grounded-micro-agent-routing.md
+    separately defines worker semantic signatures keyed on that same concept/relation vocabulary for compatibility
+    matching. No member document currently proposes unifying these two ontology-keyed matching mechanisms
+    into one shared identity layer, though both independently name the same convergence target.
+- id: pos-derived-unified-containment-qualification-record-registr
+  title: Unified Containment Qualification-Record Registry
+  claim: This cluster's executor-ladder, WSL2 ownership, and rootless-Docker hardening material could
+    become a single versioned qualification-record schema/registry — one artifact per (executor class,
+    host configuration) pair combining the Windows-side and Linux-side evidence — that dispatch's containment
+    gate and the owner-facing 'profile unavailable' messaging both read as their single source of truth.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-75801e1635cc
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-synthesis-sandboxed-execution.md
+    section: Members and their joints > The boundary is split across two owners, and neither half is sufficient
+    passage_sha256: fcdb4c701a77d3f43f0f5c0704b997b991107bf4a5250a1eb1193f4692d4fac5
+  rationale: Three separate atomics (executor-ladder, wsl2-worker-owned-distro, rootless-docker-hardening)
+    each describe half of what a 'qualification record' must certify, and the sandboxed-execution synthesis
+    explicitly names the record — not any single atomic — as the class's real definition because it is
+    where both halves are asserted together. Building that registry as one deliverable would resolve open
+    questions raised in multiple documents at once (what a record must contain, who signs it, what expires
+    it).
+- id: pos-derived-server-side-attempt-authorization-record-service
+  title: Server-Side Attempt-Authorization Record Service
+  claim: 'The dispatch material in this cluster could become a concrete new service/schema: a small, durable,
+    server-side attempt-authorization record (installation + generation + worker + attempt + policy epoch
+    + permitted inputs + authorized workflow revision + expiry) that the enrollment broker mints and updates
+    as attempts proceed, distinct from and governing the disposable just-in-time runner credential.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-75801e1635cc
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md
+    section: Proposed model > The correction that matters
+    passage_sha256: ebe781483ba40bda8cf152195e6ceeb300d6d25b5176563bd50b2bd967f292c7
+  rationale: The ephemeral-runner-attempt-grant document identifies this record as explicitly missing
+    from today's minting interface and calls the broker extension needed to add it 'new work'; the authority-object-lifetimes
+    document defines the job attempt grant as a nested authority object; and the governed-dispatch synthesis
+    calls this record 'the authority' that turns reruns, duplicate delivery, and orphan cleanup into state
+    transitions of one object rather than ad hoc handling — a connection across three documents pointing
+    at one buildable artifact.
+- id: pos-derived-cross-component-freshness-and-cadence-policy-con
+  title: Cross-Component Freshness and Cadence Policy Contract
+  claim: The cluster's scattered numeric policy dials — certificate status freshness limit, heartbeat
+    batch interval, readiness staleness threshold, participation-session renewal cadence, bounded disconnection
+    window, and drain bound — could become one owned, reconciled freshness/cadence contract, rather than
+    independent values set by different components that can silently disagree.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-75801e1635cc
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-synthesis-governed-dispatch.md
+    section: Members and their joints > Freshness has to agree across three cadences
+    passage_sha256: 6b20f1ca389a7ff0744a0ffc0a9598e8436c6bcd9e8069608036623bbd27da29
+  rationale: The governed-dispatch synthesis states plainly that these cadences are owned by different
+    components and that dispatch depends on all of them agreeing, warning that mismatched values make
+    workers flap or churn, and notes no single atomic owns this reconciliation. The overview document's
+    open questions list the same numbers as still unset across the whole packet, and the device-trust-plane
+    synthesis separately names the freshness limit as the dial that decides plane behavior during an outage
+    — three documents converging on one missing cross-cutting artifact.
+- id: pos-derived-unified-cross-layer-consent-gate-contract
+  title: Unified cross-layer consent gate contract
+  claim: The cluster's material could converge into a single neutral consent-gate contract — evaluating
+    purpose, requester, subject state, and revocation at the moment of use — that ingestion adapters,
+    retrieval primitives, subject recall, and crystallized-capability automation all compose instead of
+    each re-deriving its own fail-closed, per-operation consent logic.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/memory-retrieval-consent-enforcement.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3bfac29bc530
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/memory-retrieval-consent-enforcement.md
+    section: '## Focus'
+    passage_sha256: aabb5ec0d3757662dc2c2016d0be24d32736ea36599b64d724918f0268e94d38
+  rationale: 'Multiple cluster members independently converge on the same ''check consent at time of use,
+    not just at grant'' pattern across otherwise unrelated domains: client-ingestion-adapter-contract.md
+    gates both ingest and retrieval on a consent-profile; hermes-retrieval-primitives-contract.md checks
+    consent ''per query''; memory-retrieval-consent-enforcement.md re-evaluates consent at every recall
+    because a stored grant is not sufficient once purpose, requester, or revocation may have changed;
+    and crystallization-authority-and-consent.md gates automation via consent tiers. The repetition of
+    this exact motif across ingestion, retrieval, subject recall, and crystallized-capability governance
+    suggests a shared kernel rather than four parallel designs.'
+- id: pos-derived-subject-session-visible-consent-decision-ledger
+  title: Subject/session-visible consent-decision ledger
+  claim: The cluster's repeated, separately-invented proposals for a human-visible record of consent decisions
+    — a subject-visible recall/transparency log, and a session-scoped 'continue for all' consent record
+    — could become one neutral consent-decision ledger artifact that both persistent subject consent grants
+    and ephemeral session-scoped consents render into.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/subject-recall-and-consent-path.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3bfac29bc530
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/subject-recall-and-consent-path.md
+    section: '## The governed recall path'
+    passage_sha256: d868c1bf10835165f02e3416df5af499cbafb0af835d07f348a4d533cf748574
+  rationale: subject-recall-and-consent-path.md proposes a subject-visible transparency log so the subject
+    can see who recalled what and why; memory-retrieval-consent-enforcement.md separately proposes a 'subject-visible
+    recall log'; and doxchat-auto-fit-routing.md's Q4 disposition independently designs a recorded, scoped
+    session consent ('continue for all following size issues') modeled on gate-action records with its
+    own subject/scope/expiry shape. These are the same underlying artifact — a durable, human-visible
+    record of a consent decision with subject, scope, and disposition — proposed three times in different
+    corners of the cluster without being connected to each other.
+- id: pos-derived-shared-tiered-consent-grant-kernel
+  title: Shared tiered consent-grant kernel
+  claim: Crystallization's three separately-grantable, default-deny consent tiers (episode use, automation,
+    pooling) and the subject-recall path's per-category, per-purpose consent grants are structurally the
+    same pattern; the cluster could factor out one neutral tiered/categorical consent-grant schema that
+    both crystallization authority-and-consent and subject recall compose rather than each defining its
+    own grant shape.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-authority-and-consent.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-3bfac29bc530
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-authority-and-consent.md
+    section: '## Three consent tiers'
+    passage_sha256: 6a8124cb289eac39cb5baf00a483768e34f3beb9d41cb309ce2116498518c4f0
+  rationale: crystallization-authority-and-consent.md's AU-C2 claim states consent is three separately-grantable
+    tiers defaulting to deny, gated per category of work; subject-recall-and-consent-path.md's subject_consent_model
+    independently defines grants that are granular per-category (not all-or-nothing), purpose-bound, and
+    default deny. Two unrelated documents — crystallized-capability governance and person-subject memory
+    recall — reinvent the same default-deny, categorical, separately-grantable consent shape, which suggests
+    one reusable kernel rather than two parallel schemas.
+- id: pos-derived-shared-hermes-control-and-execution-boundary-ker
+  title: Shared Hermes control-and-execution boundary kernel
+  claim: The cluster's UI experience-management material and its recursive subject-establishment material
+    could converge into one reusable 'Subject Hermes owns purpose, bounded workers execute' kernel contract,
+    usable identically for UI audit campaigns and for evidence-establishment episodes.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a2102d9da11a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: Relationships
+    passage_sha256: a06e5e129340b56fbd6e2b297a1536292b33c6e29de273cc45f8049d88d9c7cc
+  rationale: The autonomous-UI-observatory document explicitly cites the recursive-subject-establishment
+    control/execution boundary document as the source of its own authority pattern, showing the two otherwise
+    separate sub-groups in this cluster (UI/experience governance vs. subject-establishment governance)
+    already share one control primitive in prose. Extracting that shared primitive into its own contract
+    would let both lineages (and any future Subject Hermes domain) reuse one execution-boundary definition
+    instead of re-describing it per domain.
+- id: pos-derived-unified-per-boundary-consent-enforcement-contrac
+  title: Unified per-boundary consent-enforcement contract
+  claim: The cluster's authority/consent material for recursive subject establishment, the memory-retrieval
+    consent gate, and the person-subject recall path could converge into one shared 'evaluate authority
+    separately at each boundary' enforcement capability applied uniformly wherever Subject Hermes discovers,
+    retrieves, discloses, retains, infers, admits, promotes, or acts on subject material.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-recursive-subject-establishment-authority-consent-and-subject-rights.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a2102d9da11a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-recursive-subject-establishment-authority-consent-and-subject-rights.md
+    section: Proposed model
+    passage_sha256: efc152d3a296d8986aadcd8b79e724a13c744429215b38539f6a351eb790d0da
+  rationale: This document lays out an explicit boundary-by-boundary authority chain (discover/retrieve/disclose/retain/infer/admit/promote/act)
+    that is conceptually the same per-query, fail-closed, purpose-bound check the cluster's memory-retrieval-consent-enforcement
+    and subject-recall-and-consent-path documents each re-derive independently for different contexts
+    (private-memory recall and person-subject recall). Naming and building this as one shared contract
+    would prevent three parallel, drifting consent-check implementations across the same Subject Hermes
+    concern.
+- id: pos-derived-ontology-pinned-subject-hermes-knowledge-graph-c
+  title: Ontology-pinned Subject Hermes knowledge graph contract
+  claim: The cluster's ontology-layer material and its Hermes graph-placement material could converge
+    into one concrete contract that requires every Subject Hermes graph instance (whatever provider it
+    uses) to be interpreted under an exact, pinned ontology version, closing the gap between 'what a subject
+    graph contains' and 'what it means'.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/ontology-layer-foundations.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-a2102d9da11a
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/ontology-layer-foundations.md
+    section: Four strata
+    passage_sha256: 6788c425417ff88690a2e5c6e3734a7639f9102671853015d04ff2e3fecac478
+  rationale: Ontology Layer Foundations names a subject knowledge graph as one of its four strata and
+    requires it be interpreted under exact ontology pins, while Hermes Layer Graph Placement independently
+    specifies what a Subject Hermes graph holds (evidence, claims, state, timelines) and which providers
+    may host it, without referencing ontology pinning at all. Joining the two would give Subject Hermes
+    graphs a defined semantic-versioning discipline instead of leaving meaning and storage placement as
+    separately evolving concerns.
