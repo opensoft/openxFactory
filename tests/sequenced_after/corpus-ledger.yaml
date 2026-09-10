@@ -70,7 +70,7 @@ kind: sequenced_after_corpus_ledger
 seeded_from: "995c0ad5713dc2a22d35a00b083e3445e711b30c"
 
 rows:
-  accept-sequenced-after-header-line: {state: active, class: sole, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#886", moved_on: "2026-09-10"}
+  accept-sequenced-after-header-line: {state: archived, class: sole, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#906", moved_on: "2026-09-10"}
   add-binding-consumer-identity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-capability-steward: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-chain-anchoring: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#669", moved_on: "2026-09-04"}

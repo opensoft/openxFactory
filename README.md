@@ -2759,7 +2759,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [accept-sequenced-after-header-line](openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/proposal.md)
-  — **ARCHIVED 2026-09-10** on **MET REALIZATION EVIDENCE**, per
+  — **ARCHIVED 2026-09-10** by
+  [PR #906](https://github.com/opensoft/openxFactory/pull/906), on **MET
+  REALIZATION EVIDENCE**, per
   `release-realization`'s rule that a change with a NON-EMPTY `code_surface`
   archives on **merged-plus-green evidence rather than on landing** — and this
   packet's own `target_release` adds the second arm in its § Impact: *"The

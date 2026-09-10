@@ -268,7 +268,8 @@ run here rather than quoted.
   realization evidence per `release-realization`, after Group 0 closes. The two
   ADDED requirements promote to `openspec/specs/release-realization/spec.md` at
   that archive and not before.
-  **DONE 2026-09-10 — THIS ACT.** Group 0 closed at 2026-09-10T11:31:31Z; the
+  **DONE 2026-09-10 — THIS ACT, archive PR
+  [#906](https://github.com/opensoft/openxFactory/pull/906).** Group 0 closed at 2026-09-10T11:31:31Z; the
   realization gate's two arms are recorded in
   `evidence/realization-2026-09-10.md`. Performed through the house entrypoint
   `python3 scripts/proposal-support.py . archive accept-sequenced-after-header-line`
@@ -280,4 +281,8 @@ run here rather than quoted.
   archived delta by sha256 over each extracted block, with the promoted
   `## Purpose` untouched. README's "OpenSpec Records" row moves ACTIVE →
   ARCHIVED and the per-change sweep ledger row moves `state: active` →
-  `archived`.
+  `archived` with `moved_by: "#906"` — seeded by the sanctioned tool
+  (`validate-sequenced-after.py . --seed-ledger --moved-by '#906'`, ONE row
+  moved, `class: sole` held so no partner flips and no MOVEMENT LOG entry is
+  owed) and taken AFTER the pull request existed, because the real number does
+  not exist until it does.
