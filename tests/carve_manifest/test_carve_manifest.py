@@ -1314,6 +1314,15 @@ def test_verbatim_with_edits_refuses(scratch: Scratch) -> None:
 
 
 def test_not_moved_with_edits_refuses(scratch: Scratch) -> None:
+    """Under every reason but `replicated_at_destination` (RULED Q-L7 (a)).
+
+    `delta.py` is the fixture's `stays_openxfactory_adapter` row, which is the
+    shape that must keep refusing: it is RULING OQ-B's three
+    `tests/notebooklm/*` rows, which STAY here and take their import rewrite in
+    openxFactory, and whose evidence says in as many words that "a not_moved
+    row cannot carry an edit". They have no replica for a declared line to be
+    applied at, so nothing about the amendment reaches them.
+    """
     doc = clean_manifest(scratch)
     row_named(doc, "delta.py")["edits"] = [{"class": "adapter calls",
                                             "lines": [1]}]
@@ -1450,6 +1459,167 @@ def test_the_row_order_is_bytewise_and_not_by_code_point(
     refuses(scratch, doc, "carve-path-order-violation")
 
 
+
+# --------------------------------------------------------------------------
+# RULED Q-L7 (a) — the two grammar extensions
+#
+# Brett Heap, 2026-09-10, verbatim "rule Q-L7 (a)" (`#656` comment
+# `5618683833`), after carve leg 1 measured two facts the grammar could not
+# hold: a row was either MOVED or REPLICATED, and a replica was byte-identical
+# and declared no line. Both halves are exercised HERE against a generated
+# manifest, and once against the real one in the § 8.2 seat below.
+# --------------------------------------------------------------------------
+
+def _as_replica(doc: dict[str, Any], name: str = "delta.py"
+                ) -> dict[str, Any]:
+    """Turn the fixture's `not_moved` row into a REPLICA row and return it.
+
+    The fixture generates a `stays_openxfactory_adapter` row, which is the one
+    reason under which `edits:` must keep refusing — so the positive cases have
+    to move it to `replicated_at_destination` explicitly rather than inheriting
+    it, and the two reasons stay visibly different in every test below.
+    """
+    row = row_named(doc, name)
+    row["reason"] = "replicated_at_destination"
+    row["evidence"] = ("a replica at each destination, retained here "
+                       "(RULED OQ-A/OQ-C)")
+    return row
+
+
+def test_a_moved_row_may_also_be_replicated_at_another_destination(
+        scratch: Scratch) -> None:
+    """The first half of the ruling: `tests/…/session_fixtures.py` moves to
+    `opendox_code` and is ALSO replicated at `openxdox_code`, because the
+    replicated conftest imports it unconditionally at both legs."""
+    doc = clean_manifest(scratch)
+    row = row_named(doc, "beta.py")
+    assert row["destination"] == "openxdox_code", row
+    row["also_replicated_to"] = ["opendox_code"]
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+
+
+def test_a_verbatim_row_may_also_be_replicated(scratch: Scratch) -> None:
+    """`also_replicated_to:` is on BOTH moved dispositions. A verbatim row
+    replicated elsewhere is coherent — the same bytes at both places — and
+    refusing it would be a rule nothing in the ruling asks for."""
+    doc = clean_manifest(scratch)
+    row_named(doc, "alpha.py")["also_replicated_to"] = ["openxdox_code"]
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_an_also_replicated_destination_the_manifest_does_not_declare_refuses(
+        scratch: Scratch) -> None:
+    """The same membership test `destination` gets, for the same reason: one
+    typo otherwise replicates a file to a repository nobody declared."""
+    doc = clean_manifest(scratch)
+    row_named(doc, "beta.py")["also_replicated_to"] = ["opendox_kode"]
+    refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
+def test_a_row_may_not_be_also_replicated_at_its_own_destination(
+        scratch: Scratch) -> None:
+    """ALSO means somewhere else. A row replicating a file at the destination
+    it already moves to would let `--replica-at` re-point an arrival the
+    manifest declared, which is the one thing the manifest is for."""
+    doc = clean_manifest(scratch)
+    row = row_named(doc, "beta.py")
+    row["also_replicated_to"] = [row["destination"]]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "also_replicated_to" in combined, combined
+
+
+def test_a_malformed_also_replicated_to_refuses(scratch: Scratch) -> None:
+    """Shape, in check 1: a NON-EMPTY list of distinct non-empty labels.
+
+    The empty list is refused rather than ignored on `moved_paths:`' own
+    reasoning one level down — it declares no replica while reading in a diff
+    like a row that declares one — and a repeated label is refused for the
+    reason `--replica-at`'s repeated key is at the destination.
+    """
+    for value in ([], "opendox_code", [""], ["opendox_code", "opendox_code"],
+                  [None], [["opendox_code"]]):
+        doc = clean_manifest(scratch)
+        row_named(doc, "beta.py")["also_replicated_to"] = value
+        refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_a_not_moved_row_may_not_carry_also_replicated_to(
+        scratch: Scratch) -> None:
+    """A `not_moved` row declares no destination, so it cannot declare an
+    ADDITIONAL one — and the refusal is its own arm rather than the generic
+    "nothing arrives" message, which is false of a replica row."""
+    doc = clean_manifest(scratch)
+    _as_replica(doc)["also_replicated_to"] = ["opendox_code"]
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "also_replicated_to" in combined, combined
+    assert "cannot declare an additional one" in combined, combined
+
+
+def test_a_replica_row_may_declare_edits(scratch: Scratch) -> None:
+    """The second half of the ruling: the conftest replica's `:25`
+    `REPO_ROOT = HERE.parent.parent`, which must read one level shallower at
+    every replica because the copy lands one directory up."""
+    doc = clean_manifest(scratch)
+    _as_replica(doc)["edits"] = [
+        {"class": "path constants", "lines": [1],
+         "note": "the replica lands one directory shallower"}]
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+
+
+def test_a_replica_rows_declared_line_past_the_end_of_the_blob_refuses(
+        scratch: Scratch) -> None:
+    """The line bound is the SOURCE BLOB at the carve commit, exactly as a
+    moved row's is — and a replica carries no `sha256`, so nothing had read its
+    blob before this check. `delta.py` is one line long."""
+    doc = clean_manifest(scratch)
+    _as_replica(doc)["edits"] = [{"class": "path constants", "lines": [2]}]
+    combined = refuses(scratch, doc, "carve-shape-invalid")
+    assert "names line 2" in combined, combined
+
+
+def test_a_replica_rows_edit_class_is_still_closed(scratch: Scratch) -> None:
+    """An edit in no class is an UNDECLARED MOVEMENT wherever it is declared:
+    the replica grammar widens the rows that may carry `edits:` and widens no
+    vocabulary."""
+    doc = clean_manifest(scratch)
+    _as_replica(doc)["edits"] = [{"class": "depth arithmetic", "lines": [1]}]
+    refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
+def test_a_replica_row_with_an_empty_edits_list_is_not_a_declaration(
+        scratch: Scratch) -> None:
+    """`edits: []` on a replica is the empty-list case check 1 owns for every
+    row, and it stays that: a list is required to hold at least one entry
+    before check 6 is asked whether the row may hold one at all."""
+    doc = clean_manifest(scratch)
+    _as_replica(doc)["edits"] = [{"class": "path constants", "lines": []}]
+    refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_the_grammar_extension_names_the_ruling_and_not_the_owed_field(
+        scratch: Scratch) -> None:
+    """The disclosure, asserted in the file that carries it.
+
+    RULING OQ-K owes FLOOR PART 1 a field naming the REPOSITORIES a
+    test-bearing replica's copies land in, for the multiplicity sum. This
+    amendment does not author it — different subject, different consumer — and
+    a reader must be able to find that said rather than infer it from silence.
+    """
+    doc = MODULE.__doc__ or ""
+    assert "also_replicated_to" in doc, doc
+    assert "RULED Q-L7 (a)" in doc, doc
+    assert "FLOOR PART 2" in doc, doc
+    assert MODULE.REPLICA_REASON == "replicated_at_destination"
+
+
 # --------------------------------------------------------------------------
 # the real repository — the § 8.2 seat
 # --------------------------------------------------------------------------
@@ -1470,3 +1640,46 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
     else:
         assert done.stdout.startswith("NO MANIFEST "), done.stdout
         assert "(nothing to validate)" in done.stdout, done.stdout
+
+
+def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
+    """RULED Q-L7 (a) against the LANDED manifest, not a generated one.
+
+    The two rows the ruling names, read out of the real document: a moved row
+    that is ALSO replicated at `openxdox_code`, and a replica row declaring the
+    one line its copies must differ on. A BRANCH and never a skip, on the
+    module docstring's reasoning — before the § 6 ceremony there is no manifest
+    to read.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    rows = {row["source_path"]: row for row in doc["rows"]}
+
+    moved = rows["tests/ideation-dashboard/session_fixtures.py"]
+    assert moved["disposition"] == "moved_with_declared_edit", moved
+    assert moved["destination"] == "opendox_code", moved
+    assert moved["also_replicated_to"] == ["openxdox_code"], moved
+
+    replica = rows["tests/ideation-dashboard/conftest.py"]
+    assert replica["disposition"] == "not_moved", replica
+    assert replica["reason"] == MODULE.REPLICA_REASON, replica
+    assert [(edit["class"], edit["lines"]) for edit in replica["edits"]] == \
+        [("path constants", [25])], replica
+
+    # The ruling's own pairing: the replica IMPORTS the moved row's module
+    # unconditionally, which is why one amendment carries both.
+    assert "session_fixtures" in replica["evidence"], replica
+
+    # And the counts this amendment moved, re-derived from the file rather than
+    # transcribed: one more declared line than the 793 the runbook's § 2 table
+    # carried before it, on one more row than the 146 that carried edits.
+    lines = sum(len(edit["lines"]) for row in doc["rows"]
+                for edit in row.get("edits") or [])
+    carrying = sum(1 for row in doc["rows"] if row.get("edits"))
+    assert (lines, carrying) == (794, 147), (lines, carrying)
+    replicas = [row for row in doc["rows"]
+                if row.get("reason") == MODULE.REPLICA_REASON]
+    assert len(replicas) == 20, len(replicas)

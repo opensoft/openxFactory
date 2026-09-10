@@ -87,6 +87,15 @@ SURFACE_FILES: dict[str, str] = {
     "scripts/pkg/beta.py": "import ideation_dashboard.alpha\nBETA = 2\nCALL = 3\n",
     "scripts/pkg/gamma.py": "GAMMA = 3\n",
     "scripts/pkg/neutral.py": "NEUTRAL = 4\n",
+    # A MULTI-LINE REPLICA, added for RULED Q-L7 (a): the landed manifest's
+    # replica that declares a line is a 271-line conftest whose `:25` depth
+    # arithmetic must change and whose other 270 lines must not, and a
+    # one-line replica cannot express "changed a line the row does not
+    # declare" — every insertion into it is adjacent to its only line.
+    "scripts/pkg/harness.py": ("HARNESS = 1\n"
+                               "DEPTH = \"parents[2]\"\n"
+                               "KEEP = 3\n"
+                               "TAIL = 4\n"),
     # An EMPTY replica blob, because the landed manifest has two
     # (`fixtures/empty/{notes,papers}/.gitkeep`) and they are what makes an
     # admission by byte-identity dangerous: every empty file in the world
@@ -99,6 +108,17 @@ SURFACE_FILES: dict[str, str] = {
 # rewrites` class's dominant shape, `ideation_dashboard.X` -> `opendox.X`.
 BETA_DECLARED_LINE = 1
 BETA_REWRITTEN = "import opendox.alpha\nBETA = 2\nCALL = 3\n"
+
+# `harness.py`'s depth line and its two arrived forms — the conftest replica's
+# `:25` in miniature (RULED Q-L7 (a)). `HARNESS_ELSEWHERE` changes a line the
+# row does NOT declare, which is the refusal the extension must keep.
+HARNESS_DECLARED_LINE = 2
+HARNESS_APPLIED = ("HARNESS = 1\nDEPTH = \"parents[1]\"\nKEEP = 3\n"
+                   "TAIL = 4\n")
+HARNESS_APPLIED_OTHERWISE = ("HARNESS = 1\nDEPTH = \"parents[0]\"\n"
+                             "KEEP = 3\nTAIL = 4\n")
+HARNESS_ELSEWHERE = ("HARNESS = 1\nDEPTH = \"parents[2]\"\nKEEP = 3\n"
+                     "TAIL = 5\n")
 
 
 def _load():
@@ -230,6 +250,18 @@ class Carve:
                  "reason": "replicated_at_destination",
                  "evidence": "an EMPTY replica blob, the shape the landed "
                              "manifest carries twice"},
+                # APPENDED, and the row order here is the fixture's own rather
+                # than bytewise: several tests below mutate `doc["rows"][0]`
+                # and `[1]` by position, and this manifest is read by the
+                # ARRIVAL verifier, whose questions are all about the
+                # destination. `path_order:` is
+                # `validate-carve-manifest.py`'s check and has its own tests.
+                {"source_path": "scripts/pkg/harness.py",
+                 "disposition": "not_moved",
+                 "reason": "replicated_at_destination",
+                 "evidence": "a replica whose copies must differ from the "
+                             "carve blob on ONE declared line (RULED Q-L7 "
+                             "(a)) — the conftest replica's depth arithmetic"},
             ],
         }
 
@@ -348,6 +380,11 @@ def test_the_module_records_what_it_does_not_prove() -> None:
     assert "replicated_at_destination" in doc, doc
     assert "WHAT IT DELIBERATELY DOES NOT PROVE" in doc, doc
     assert "--allow-created" in doc, doc
+    # RULED Q-L7 (a): "applied identically at every replica" is a bound on
+    # LINES, and one destination is verified per run — so the file must SAY
+    # that it compares no two legs' copies with each other.
+    assert "also_replicated_to" in doc, doc
+    assert "NOT A\n    CROSS-DESTINATION COMPARISON" in doc, doc
 
 
 # --------------------------------------------------------------------------
@@ -1089,6 +1126,316 @@ def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
     for destination, roots in expected.items():
         rows = MODULE.rows_for(doc, destination)
         assert MODULE.declared_roots(rows) == roots, destination
+
+
+# --------------------------------------------------------------------------
+# RULED Q-L7 (a) — a moved row also replicated, and a replica that declares
+# lines
+#
+# Brett Heap, 2026-09-10, verbatim "rule Q-L7 (a)" (`#656` comment
+# `5618683833`). Carve leg 1 measured both halves: the replicated conftest
+# imports `session_fixtures` unconditionally at a leg no row placed it at, and
+# the same conftest's `:25` depth arithmetic points outside the destination
+# once the copy lands one directory shallower.
+# --------------------------------------------------------------------------
+
+def _also_replicated(carve: Carve, destination: str,
+                     source: str = "scripts/pkg/alpha.py"
+                     ) -> dict[str, Any]:
+    """A manifest in which one MOVED row is also replicated at `destination`."""
+    doc = copy.deepcopy(carve.manifest_doc())
+    for row in doc["rows"]:
+        if row["source_path"] == source:
+            row["also_replicated_to"] = [destination]
+            return doc
+    raise AssertionError(f"no row for {source}")
+
+
+def _declares_a_line(carve: Carve, source: str = "scripts/pkg/harness.py",
+                     line: int = HARNESS_DECLARED_LINE) -> dict[str, Any]:
+    """A manifest in which one REPLICA row declares one line."""
+    doc = copy.deepcopy(carve.manifest_doc())
+    for row in doc["rows"]:
+        if row["source_path"] == source:
+            row["edits"] = [{"class": "path constants", "lines": [line],
+                             "note": "the copy lands one directory shallower"}]
+            return doc
+    raise AssertionError(f"no row for {source}")
+
+
+def test_replica_at_may_name_a_moved_row_the_manifest_also_replicates(
+        carve: Carve) -> None:
+    """The admission the ruling buys. `alpha.py` MOVES to `scratch_code` and is
+    ALSO replicated at `scratch_spec`, so at `scratch_spec` — and only there —
+    the flag may name it, and the copy is answered with the two codes a row is
+    answered with."""
+    doc = _also_replicated(carve, "scratch_spec")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=examples/alpha.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_declared"] == 1, payload
+    assert payload["replicas_verified"] == 1, payload
+    # ADMITTED BY NAME: the byte-identity admission never runs for a declared
+    # path, exactly as for a `replicated_at_destination` row.
+    assert payload["admitted"]["replica"] == 0, payload
+    # and the row is still the OTHER destination's move, not this one's
+    assert payload["rows"] == 1, payload
+
+
+def test_replica_at_may_not_name_the_destination_a_row_moves_to(
+        carve: Carve) -> None:
+    """The `iff`, and the narrowing it preserves: at the destination the row
+    MOVES to, the arrival is declared by its own `destination_path:`, and a
+    flag that could name it would re-point an arrival the manifest declared."""
+    doc = _also_replicated(carve, "scratch_spec")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/elsewhere.py",
+           SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=src/pkg/elsewhere.py")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_replica_at_may_not_name_a_moved_row_replicated_at_another_leg(
+        carve: Carve) -> None:
+    """A row replicated at `scratch_root` says nothing about `scratch_spec`.
+    The manifest names the destinations; the flag does not widen them."""
+    doc = _also_replicated(carve, "scratch_root")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=examples/alpha.py")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_an_also_replicated_row_is_admitted_by_its_bytes_when_undeclared(
+        carve: Carve) -> None:
+    """The weaker reading, unchanged and now reaching one row further: the
+    manifest says these bytes arrive here as a copy, so a file carrying exactly
+    them is no more undeclared than any other replica's."""
+    doc = _also_replicated(carve, "scratch_spec")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["admitted"]["replica"] == 1, payload
+    assert payload["replicas_declared"] == 0, payload
+
+
+def test_an_also_replicated_row_is_not_admitted_at_a_leg_it_does_not_name(
+        carve: Carve) -> None:
+    """The other half of the same sentence: the admission follows the manifest's
+    list, so at a destination the row does not name, its bytes are no
+    replica's."""
+    doc = _also_replicated(carve, "scratch_root")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+
+
+def test_an_also_replicated_replica_arriving_with_another_mode_refuses(
+        carve: Carve) -> None:
+    """A MOVED row declares `git_mode:`, so its replica's mode is compared —
+    the one change a digest comparison cannot see. A
+    `replicated_at_destination` row declares none and its replica's mode stays
+    unchecked, which is why the mode check keys on the row and not on the
+    flag."""
+    doc = _also_replicated(carve, "scratch_spec")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    _write(dest, "examples/alpha.py", SURFACE_FILES["scripts/pkg/alpha.py"])
+    target = dest / "examples/alpha.py"
+    target.chmod(target.stat().st_mode | stat.S_IXUSR)
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/alpha.py=examples/alpha.py")
+    assert refusal(done) == "arrival-digest-mismatch"
+
+
+def test_a_replica_that_declares_a_line_is_verified_at_phase_b_like_a_row(
+        carve: Carve) -> None:
+    """The second half of the ruling. The copy differs from the carve blob on
+    the ONE line the row declares, and it is counted where a moved row's
+    declared edit is counted."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/beta.py").write_text(BETA_REWRITTEN, encoding="utf-8")
+    _write(dest, "src/pkg/harness.py", HARNESS_APPLIED)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "B", "--json",
+               "--replica-at", "scripts/pkg/harness.py=src/pkg/harness.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_verified"] == 1, payload
+    # the moved row's edit AND the replica's, in the counter a reader of a
+    # phase-B log already knows how to read
+    assert payload["declared_edits_diffed"] == 2, payload
+    assert payload["declared_edits_unapplied"] == 0, payload
+
+
+def test_a_replica_edited_outside_its_declared_lines_refuses_and_names_them(
+        carve: Carve) -> None:
+    """The fence, at a replica. `TAIL = 4` -> `TAIL = 5` is line 4 and the row
+    declares line 2 — an edit in no class is an UNDECLARED MOVEMENT wherever it
+    is applied, and the refusal names the line and the PLACED path rather than
+    a `destination_path:` a replica row does not carry."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/harness.py", HARNESS_ELSEWHERE)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "B", "--json",
+               "--replica-at", "scripts/pkg/harness.py=src/pkg/harness.py")
+    assert refusal(done) == "arrival-undeclared-edit"
+    detail = json.loads(done.stdout)["detail"]
+    assert "[4]" in detail, detail
+    assert "src/pkg/harness.py" in detail, detail
+
+
+def test_a_replica_that_declares_a_line_is_byte_identical_at_phase_a(
+        carve: Carve) -> None:
+    """Commit A places the copy and commit B applies the edit, at a replica
+    exactly as at a moved row — so the applied form REFUSES at phase A."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/harness.py", HARNESS_APPLIED)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", "scripts/pkg/harness.py=src/pkg/harness.py")
+    assert refusal(done) == "arrival-digest-mismatch"
+
+
+def test_an_unapplied_replica_edit_is_lawful_and_counted(
+        carve: Carve) -> None:
+    """DECIDED, and it follows the moved row's own rule rather than inventing a
+    second one: an unapplied declared edit touches no undeclared line, which is
+    the only question the ruling's sentence asks. It is COUNTED — a phase-B run
+    in which the replica's depth line was applied and one in which it was not
+    are very different events wearing the same `OK` — and what refuses an
+    unapplied `REPO_ROOT = HERE.parent.parent` is the destination's own suite,
+    where a root pointing outside the repository is hundreds of setup errors
+    and not an opinion."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/harness.py", SURFACE_FILES["scripts/pkg/harness.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "B", "--json",
+               "--replica-at", "scripts/pkg/harness.py=src/pkg/harness.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_verified"] == 1, payload
+    # beta.py's unapplied edit and the replica's, together
+    assert payload["declared_edits_unapplied"] == 2, payload
+    assert payload["declared_edits_diffed"] == 0, payload
+
+
+def test_an_undeclared_replica_that_was_edited_must_be_declared(
+        carve: Carve) -> None:
+    """The edited copy's bytes are no replica's at the carve commit, so
+    UNDECLARED it refuses — which is the honest outcome and the reason the
+    runbook tells every leg to declare the replicas it edits."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/harness.py", HARNESS_APPLIED)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    assert "--replica-at" in json.loads(done.stdout)["detail"]
+
+
+def test_two_legs_may_apply_one_replicas_line_differently(
+        carve: Carve) -> None:
+    """THE LIMIT, RECORDED BY TEST rather than by prose alone.
+
+    "Applied identically at every replica" is a bound on LINES: one destination
+    is verified per run — that is what `--destination` means — so two legs that
+    edit the same declared line differently both pass here, and the identity of
+    the applied TEXT is the placing pull request's claim plus each leg's own
+    `validate`. A floor that overstated this would be worse than one that says
+    where it stops.
+    """
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    code = carve.materialise(doc, "scratch_code")
+    _write(code, "src/pkg/harness.py", HARNESS_APPLIED)
+    spec = carve.materialise(doc, "scratch_spec")
+    _write(spec, "examples/harness.py", HARNESS_APPLIED_OTHERWISE)
+    for destination, dest, relpath in (("scratch_code", code,
+                                        "src/pkg/harness.py"),
+                                       ("scratch_spec", spec,
+                                        "examples/harness.py")):
+        done = run(carve, manifest, "--destination", destination,
+                   "--dest-root", str(dest), "--phase", "B", "--json",
+                   "--replica-at", f"scripts/pkg/harness.py={relpath}")
+        assert done.returncode == 0, done.stdout + done.stderr
+        assert json.loads(done.stdout)["replicas_verified"] == 1, destination
+
+
+def test_the_human_line_no_longer_calls_an_edited_replica_byte_identical(
+        carve: Carve) -> None:
+    """The one-line summary is read off a pull-request log by a person, and
+    `1 of 1 declared replica(s) byte-identical` would be false of a replica
+    that arrived carrying its declared edit."""
+    doc = _declares_a_line(carve)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, "src/pkg/harness.py", HARNESS_APPLIED)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "B",
+               "--replica-at", "scripts/pkg/harness.py=src/pkg/harness.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 of 1 declared replica(s) verified" in done.stdout, done.stdout
+    assert "byte-identical, or" in done.stdout, done.stdout
+
+
+def test_the_real_manifest_carries_the_ruled_q_l7_rows(carve: Carve) -> None:
+    """The LANDED manifest read through this verifier's own row readers, so the
+    grammar the leg-3 run will depend on is asserted here and not only in the
+    manifest validator's suite. A BRANCH and never a skip."""
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    also = MODULE.also_replicated_rows(doc, "openxdox_code")
+    assert [row["source_path"] for row in also] == \
+        ["tests/ideation-dashboard/session_fixtures.py"], also
+    # and NOT at the destination it moves to, however the document reads
+    assert MODULE.also_replicated_rows(doc, "opendox_code") == []
+    replicas = MODULE.replica_rows(doc)
+    assert len(replicas) == 20, len(replicas)
+    with_lines = {row["source_path"] for row in replicas if row.get("edits")}
+    assert with_lines == {"tests/ideation-dashboard/conftest.py"}, with_lines
+    # `--replica-at` admits both of them at openXdox-code, which is the pair
+    # LEG 3 places: the moved row's replica and the replica that declares a
+    # line.
+    placements = MODULE.parse_replica_placements(
+        ["tests/ideation-dashboard/session_fixtures.py=tests/session_fixtures.py",
+         "tests/ideation-dashboard/conftest.py=tests/conftest.py"],
+        doc, "openxdox_code")
+    assert placements == {
+        "tests/ideation-dashboard/session_fixtures.py":
+            "tests/session_fixtures.py",
+        "tests/ideation-dashboard/conftest.py": "tests/conftest.py"}, placements
 
 
 # --------------------------------------------------------------------------

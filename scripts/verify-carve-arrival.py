@@ -1172,14 +1172,18 @@ def check_undeclared_files(dest_root: Path, roots: list[str],
                     "replica's at the carve commit"
                     + (" — it is EMPTY, and empty bytes identify no file, so "
                        "no replica row admits it however many replicas are "
-                       "themselves empty; declare it with `--replica-at "
-                       "<source_path>=<path>` if it IS one" if not data
-                       else "")
+                       "themselves empty" if not data else "")
                     + ". A file in no row is an "
                     "UNDECLARED MOVEMENT and the carve refuses (RULED OQ-1). "
-                    "If the destination legitimately assembles it (RULED OQ-C "
-                    "— the import root, a created surface module), name it "
-                    f"with `--allow-created {relpath}` and say why in the pull "
+                    "If it IS a replica this destination places, declare it "
+                    f"with `--replica-at <source_path>={relpath}` — which is "
+                    "also the ONLY way a replica whose row declares lines "
+                    "(RULED Q-L7 (a)) can be read as one, because its edited "
+                    "bytes match no blob at the carve commit and the "
+                    "byte-identity admission cannot see it. If instead the "
+                    "destination legitimately assembles it (RULED OQ-C — the "
+                    "import root, a created surface module), name it with "
+                    f"`--allow-created {relpath}` and say why in the pull "
                     "request")
     admitted["walked"] = walked
     return admitted
