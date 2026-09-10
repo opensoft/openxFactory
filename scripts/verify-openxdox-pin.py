@@ -70,12 +70,27 @@ wallet refusal to any consumer that branches on the string, so this tool
 declares its own five and prefixes them. The tuple is imported from nowhere and
 imports nothing: two products, two vocabularies, no shared mutable list.
 
-`pin-member-missing` HAS NO ANALOGUE HERE, and its absence is a consequence of
-the shape above rather than an omission. The wallet's fifth code exists to
-report a `files:` or `pinned_by_commit_only:` member absent from the checkout;
-this pin enumerates no members, so there is no such finding to name. A file
-deleted from the working tree after checkout changes the recomputed tree digest
-and is reported as `openxdox-pin-digest-mismatch`, which is what it is.
+`pin-member-missing` HAS NO ANALOGUE HERE, and the reason is narrower than it
+first looks. The wallet's fifth code exists to report a `files:` or
+`pinned_by_commit_only:` member absent from the checkout; this pin enumerates no
+members, so there is no such finding to name.
+
+WHAT THAT LEAVES UNCHECKED, STATED PLAINLY RATHER THAN GLOSSED. `tree_digest`
+runs `git ls-tree -r -z <commit>`, which reads the COMMIT'S TREE OBJECT — so
+this verifier answers "does the commit this repository consumes contain the
+bytes the pin says it contains", and it does NOT answer "is the working tree
+below the gitlink still those bytes". A file deleted or edited under `openXdox/`
+after checkout leaves every check here passing, and
+`tests/openxdox_pin/test_openxdox_pin_verifier.py::
+test_a_working_tree_deletion_is_deliberately_not_drift` pins that behaviour so
+the claim cannot rot back into the overclaim it replaced. This is a REAL
+NARROWING against `verify-openxwallet-pin.py`, whose `pin-member-missing` does
+catch a working-tree deletion, and it is recorded as OWED rather than argued
+away: whether the consumer gate wired in task 5.3 (Phase 5) also needs a
+dirty-checkout refusal is that task's call to make, with this paragraph as the
+input. In CI the question is close to moot — the checkout is materialized from
+the gitlink on every run — so the exposure is a local run, which is exactly
+where a reader most needs the tool to say what it did and did not check.
 
 `pin-unreadable` IS NOT IN THE VOCABULARY, on the wallet verifier's own
 reasoning. The five describe a TREE that disagrees with a well-formed pin —
