@@ -886,6 +886,45 @@ the bookkeeping that ticks this group.
   ruling's own word: openDox, openXdox's adapter implementation, AND
   `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
   proof that the home corpus has no privileged route.
+  **NOT TICKED — the machine is built and the answer it returns is NO, at
+  openxFactory #920, 2026-09-10.** The box asks for two things and only one of
+  them was ever missing. The CORPUS exists: RULED OQ-3 (2026-09-06) seeded it
+  at `tests/corpus-adapter/fixtures/` — three documents in two roots of their
+  own under a two-field header vocabulary belonging to no governed repository,
+  plus an empty sibling and a non-directory — and eleven manifest rows name
+  those exact paths `not_moved / replicated_at_destination`, so it is not
+  relocated and no second copy is authored. What did not exist is a way to run
+  it against a reader `openxFactory` did not author, the seed being
+  `pytest`-bound to a factory named in the file. That lands here:
+  `scripts/carve_conformance.py`, the corpus as a closed set of **17 checks**
+  (10 positives, 7 negative confirmations) over any reader, stdlib plus
+  `corpus_adapter` only and held to the interface's own no-home-vocabulary
+  scan; `scripts/verify-carve-conformance.py`, the runner in
+  `verify-carve-arrival.py`'s idiom (`--destination`/`--dest-root`, exit 0 or
+  2, five refusal codes, a `--json` seat, the seat-holding pass); and
+  `tests/carve_conformance/` (34 tests; six non-conformant readers each
+  failing the check that catches it, three live mutations of the corpus each
+  turning its own case red, and one reader raising its OWN refusal class —
+  every destination holds a replica of the interface — asserted to PASS).
+  **Measured at each destination's then-current main, 2026-09-10:**
+  `openxfactory` (§ 2.2a) **OK — 17 of 17**; `opendox_code` `8e9ffa62`,
+  `openxdox_code` `59600412`, `opendox_spec` `41d570e9` and `openxdox_spec`
+  `03eacc61` each `conformance-adapter-undeclared`. openDox-code holds the
+  INTERFACE replica at `src/opendox/corpus_adapter.py` — byte-identical to the
+  carve blob at `b075fd91` (`a0d971d6…`) and a `runtime_checkable Protocol`
+  whose six methods are docstring-only, so pointing the runner at it returns
+  `TypeError: Protocols cannot be instantiated` — and no implementation of it;
+  an AST census over all four legs (91 / 1 / 98 / 1 `.py` files) finds no
+  class defining the six operations anywhere but that Protocol, which
+  independently reproduces the corpus-adapter non-placement leg 3 recorded and
+  its verifier confirmed (`#656` comments `5621296616`, `5621719657`).
+  **ONE of the three named destinations passes, so the box stays open**: the
+  missing readers are § 3.6's "trivial conformant adapter implementation" for
+  openDox and § 4's mapping core for openXdox, and they are build tasks at
+  those destinations rather than findings against the corpus — narrowing the
+  corpus to what the legs pass today would be FLOOR PART 3 deleted to tick
+  FLOOR PART 3. § 3.8's tag waits on it. Runbook § 2.2 carries the runner, the
+  refusal table and the same verdicts.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
