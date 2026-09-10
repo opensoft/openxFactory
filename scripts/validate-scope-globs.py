@@ -96,7 +96,8 @@ def validate_corpus(repo_root: Path) -> int:
 def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
     try:
         problem = sg.scope_retention_at_archive(change_dir, ratified_ref)
-    except (sg.ScopeGlobsError, subprocess.CalledProcessError) as exc:
+    except (sg.ScopeGlobsError, subprocess.CalledProcessError,
+            OSError, ValueError) as exc:
         # UNRUNNABLE IS NOT A MUTATION FINDING (exit 1) AND NOT A TRACEBACK: the
         # id names no proposal.md at `ratified_ref`, `ratified_ref` names no
         # commit, CHANGE_DIR is not inside a work tree, or a proposal on either
@@ -110,7 +111,11 @@ def _archive_gate(change_dir: Path, ratified_ref: str) -> int:
         # it raised out of `main()` as a traceback (exit 1). `CalledProcessError`
         # is caught beside it as a backstop: no git call on this path is
         # expected to reach the caller unhandled, and if one ever does it is
-        # still reported rather than traced.
+        # still reported rather than traced. `OSError` and `ValueError` are a
+        # SECOND backstop, alongside `scope_retention_at_archive`'s own
+        # `Path.resolve()`/`subprocess.run` hardening: this module's own
+        # docstring promises every failure to run is a named finding, never a
+        # traceback, independent of which layer catches it.
         print("scope_globs SCOPE-RETENTION gate CANNOT RUN:")
         print(f"  - {exc}")
         return 2
