@@ -2736,7 +2736,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
-  — **ARCHIVED 2026-09-10**, on Brett Heap's separate word of the same day (in
+  — **ARCHIVED 2026-09-10** by
+  [PR #884](https://github.com/opensoft/openxFactory/pull/884), on Brett Heap's
+  separate word of the same day (in
   session at 2026-09-10T02:03Z, verbatim *"archive 870 and close 868"*) and the
   `release-realization` rule that a change with an EMPTY code surface archives
   **ON LANDING plus its own task list**, waiting on no realization evidence.

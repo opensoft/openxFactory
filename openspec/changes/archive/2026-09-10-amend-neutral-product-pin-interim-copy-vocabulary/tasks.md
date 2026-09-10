@@ -232,8 +232,14 @@ in this file is ticked in the commit BEFORE the move rather than after it:
       `code_surface: none` and `target_release: none`, so under
       `release-realization` the archive follows LANDING plus this task list and
       waits on no realization evidence; the landing is PR **#870** →
-      **`1ea752b6`** on `main`, 2026-09-10T02:01Z. The ratified text follows
-      unchanged:
+      **`1ea752b6`** on `main`, 2026-09-10T02:01Z. **ON THE RECORDING: THIS
+      ARCHIVE PR [#884](https://github.com/opensoft/openxFactory/pull/884)** is
+      the act the box records — the move, the write-back into
+      `openspec/specs/neutral-product-pin/spec.md` (byte-identical to the delta,
+      13,162 bytes, sha256 `79068868ec2dd1b9…` on both sides), the README row
+      going from the active list to the archived list, and the corpus-ledger row
+      going `active` → `archived` with `moved_by: "#884"`. The ratified text
+      follows unchanged:
       **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word and
       never on this lane's judgment, through `scripts/proposal-support.py`
       rather than through a bare `openspec` call. `code_surface: none`, so under
@@ -241,8 +247,11 @@ in this file is ticked in the commit BEFORE the move rather than after it:
       waits on no realization evidence. The promoted block must be
       **byte-identical** to the delta, which is the property the refusal on
       #780 was protecting when it declined to reword canon in an archive.
-- [x] 4.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #868` IS ON THE ARCHIVE
-      PULL REQUEST AND ON NOTHING ELSE.** It is that pull request's ONE closing
+- [x] 4.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #868` IS ON ARCHIVE PR
+      [#884](https://github.com/opensoft/openxFactory/pull/884) AND ON NOTHING
+      ELSE.** Its `closingIssuesReferences` is exactly `[868]`, verified through
+      GraphQL, and no commit message on the branch carries a closing keyword at
+      all, so openxFactory #868 closes with this merge and with nothing else. It is that pull request's ONE closing
       line; every other issue number in its body, in this file and in these
       commits is a `refs`-style naming that closes nothing. The proposal pull
       request #870 carried `refs #868` and no closing keyword, which is what kept
