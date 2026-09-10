@@ -260,11 +260,17 @@ except ImportError:  # pragma: no cover - the repository ships PyYAML
 
 # THE FLOOR'S ONE DEFINITION OF A LINE (RULED Q-L8 (c)), shared with
 # `validate-carve-manifest.py` so that a declared line number means the same
-# thing where it is BOUNDED and where it is CHECKED. `scripts/` on the path
-# because both tools are hyphenated entry points loaded by path in their own
-# tests, on `tests/conftest.py`'s idiom; the import is otherwise
-# side-effect-free.
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# thing where it is BOUNDED and where it is CHECKED. `scripts/` goes on the
+# path because both tools are hyphenated entry points their own tests load by
+# `spec_from_file_location`, where Python inserts nothing; GUARDED and therefore
+# idempotent, on `scripts/proposal-support.py`'s idiom and for its stated
+# reason — `tests/carve_arrival/` loads this file at import and
+# `tests/carve_manifest/` loads it again in four cases, so an unguarded insert
+# would prepend a duplicate entry per load and move import precedence under
+# everything else in the session.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
 
 import carve_lines  # noqa: E402
 

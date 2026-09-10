@@ -1963,3 +1963,24 @@ def test_the_real_manifests_declared_lines_are_the_floors_lines() -> None:
         # And the reading that used to be the destination's: a different line.
         old = blob(path).decode("utf-8", "surrogateescape").splitlines()
         assert text not in old[line - 1], (path, line, old[line - 1])
+
+
+def test_loading_either_tool_by_path_twice_does_not_grow_sys_path() -> None:
+    """The shared-module import is GUARDED, and stays guarded (#907 review).
+
+    Both tools are hyphenated entry points, so both are loaded by
+    `spec_from_file_location` rather than imported — this file loads the
+    validator at import and the arrival verifier in four cases, and
+    `tests/carve_arrival/` loads the verifier again. An unguarded
+    `sys.path.insert(0, <scripts>)` prepends one entry PER LOAD, and a
+    duplicated leading entry moves import precedence for everything that runs
+    after it in the session. The fix is one `if`; this is the assertion that
+    keeps it, on `scripts/proposal-support.py`'s idiom.
+    """
+    scripts_dir = str((REPO_ROOT / "scripts").resolve())
+    before = sys.path.count(scripts_dir)
+    assert before >= 1, "loading the validator should have put scripts/ on the path"
+    _load()
+    _load_arrival()
+    _load()
+    assert sys.path.count(scripts_dir) == before, sys.path[:5]
