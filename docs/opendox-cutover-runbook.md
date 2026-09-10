@@ -349,6 +349,106 @@ baseline the run still passes, and BOTH the summary and the human line say
 `scaffold admissions by NAME ONLY` — the weaker claim never passes for the
 stronger one.
 
+### 2.2 FLOOR PART 3 — the conformance runner
+
+FLOOR PART 1 is a claim about BYTES and § 2.1 is what proves it. **FLOOR
+PART 3 is a claim about a READER** — design § D6 (3), "A NEUTRAL CONFORMANCE
+CORPUS EVERY DESTINATION PASSES ... a corpus with no `openspec/`, no
+`contracts/`, no lifecycle headers" — and the ruling's word is EVERY:
+`tasks.md` § 3.7 names three destinations, openDox, openXdox's adapter
+implementation, and **openxFactory's own adapter from § 2.2a**, that last one
+being "the only mechanical proof that the home corpus has no privileged
+route".
+
+**The corpus's DOCUMENTS already existed and do not move.** RULED OQ-3
+(2026-09-06) seeded them beside the § 2.2a suite —
+`tests/corpus-adapter/fixtures/`: three documents in two roots of their own
+(`notes/`, `papers/`) under a two-field header vocabulary (`Type:`, `Title:`)
+belonging to no governed repository, one of them classifying completely, one
+missing a field its kind obliges and one carrying no kind at all; plus an
+`empty/` sibling and a `not-a-directory` file. Eleven manifest rows name those
+exact paths `not_moved / replicated_at_destination`, so the corpus is NOT
+relocated and no second copy is authored: a floor with two corpora cannot
+answer "every destination passes IT".
+
+**What § 3.7 adds is the way to put a reader openxFactory did not author
+through them**, because the seed runs under `pytest` against a factory named
+in the file — one reader, in one checkout, chosen at author time. Two files:
+
+* `scripts/carve_conformance.py` — the corpus as a closed set of **17 checks**,
+  10 positives and 7 negative confirmations, over any reader. Standard library
+  plus `corpus_adapter` and nothing else, and no home vocabulary anywhere in
+  its source text: the same scan the interface itself is held to, because
+  every destination runs this module and two of them hold nothing else of
+  openxFactory's. A destination that would rather run the checks inside its
+  own suite imports THIS and never the runner.
+* `scripts/verify-carve-conformance.py` — the operator's way in, in § 2.1's
+  idiom: exit 0 or 2 and nothing else, named refusal codes with a remediation
+  trailer, a `--json` seat, and the same seat-holding pass (no
+  `--destination` prints `NO DESTINATION` and exits 0). **It lives in
+  openxFactory and is never copied into six repositories**, for § 2.1's
+  reason.
+
+```sh
+python3 scripts/verify-carve-conformance.py \
+    --destination openxfactory \
+    --dest-root   .            \
+    --adapter     home_factory:neutral_reader \
+    --sys-path    tests/carve_conformance
+```
+
+**`--destination` takes a manifest key, plus `openxfactory`** — § 3.7's third
+destination, which the manifest gives no key because it RECEIVES no row and
+retains its own reader instead. That is the escape § 2.1 cuts for an assembly
+root, for the same reason: the document is a map of where rows GO.
+
+**THE READER IS DECLARED, NEVER DISCOVERED**, on `--allow-created`'s and
+`--replica-at`'s reasoning — the operator names it and the pull request
+records what was run. `--adapter <module>:<factory>`, where a factory is a
+callable of `(name, location)` returning a reader pointed at it; four
+locations get pointed at because three of the negative confirmations are about
+what happens at RESOLUTION time. A convention this runner went looking for
+instead would be openxFactory deciding how another repository lays its reader
+out, which is `corpus-adapter-seam` requirement 4's privileged route wearing a
+helpful face — and it could not be satisfied by a destination not yet written.
+openxFactory's own declaration is `tests/carve_conformance/home_factory.py`,
+nine lines, and it is the worked example a destination copies.
+
+Its five refusal codes:
+
+| code | what it refuses |
+| --- | --- |
+| `conformance-adapter-undeclared` | no `--adapter`: FLOOR PART 3 is a claim about a reader, and a run with none named has nothing to put through the corpus. **Silence must never read as a pass** |
+| `conformance-adapter-unresolvable` | the module or the factory cannot be imported, is not `<module>:<factory>`, or is not callable — the refusal names the import roots searched |
+| `conformance-corpus-missing` | the corpus is absent or PARTIAL, refused before any reader is blamed: a run over three of the four states would report checks that were never put |
+| `conformance-check-failed` | one or more of the 17 did not pass — **the refusal names each one and what came back** |
+| `conformance-unreadable` | the environment, an unknown `--destination`, a `--dest-root` that is not a directory; also the CATCH-ALL holding the exit contract, so any unnamed exception arrives as this code and exit 2 rather than as a traceback and exit 1 |
+
+**Remediation is FIXED IN ONE DIRECTION: fix the reader, never the corpus.** A
+corpus edited to match a reader that answered wrong is FLOOR PART 3 deleted,
+because the ruling's word is that every destination passes THE SAME corpus.
+Where a destination has authored no reader at all, that is that destination's
+build task and not a finding against the corpus.
+
+**Measured 2026-09-10 at each destination's then-current main**, and this is
+the state of part 3 rather than a worked example:
+
+| destination | main | verdict |
+| --- | --- | --- |
+| `openxfactory` (§ 2.2a) | this branch | **OK — 17 of 17** |
+| `opendox_code` | `8e9ffa62` | `conformance-adapter-undeclared` — it holds the INTERFACE replica at `src/opendox/corpus_adapter.py`, byte-identical to the carve blob, and no implementation of it |
+| `openxdox_code` | `59600412` | `conformance-adapter-undeclared` — the corpus-adapter non-placement leg 3 recorded and its verifier confirmed |
+| `opendox_spec` | `41d570e9` | `conformance-adapter-undeclared` — a documentation leg, no Python |
+| `openxdox_spec` | `03eacc61` | `conformance-adapter-undeclared` — a documentation leg, no Python |
+
+**So FLOOR PART 3 is NOT green, and § 3.7 is not ticked.** One of its three
+destinations passes; the other two have authored no reader for the corpus to
+be run against — openDox's is `tasks.md` § 3.6's "trivial conformant adapter
+implementation" and openXdox's is the § 4 mapping core's. The runner is what
+makes that a MEASURED statement with a date on it instead of a reading, and it
+is what those two build tasks report against when they land. § 3.8's tag waits
+on all four parts.
+
 ---
 
 ## 3. Phase 0 — the manifest. **DONE.**
