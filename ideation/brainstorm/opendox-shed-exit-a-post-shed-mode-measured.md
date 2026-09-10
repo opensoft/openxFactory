@@ -324,6 +324,24 @@ $ python3 scripts/validate-carve-manifest.py --json
 {"result": "ok", "manifest": "…/docs/opendox-carve-manifest.yaml", "phase": "post-shed", "shed_rows": 319, "carve_commit": "b075fd91dc8fced8e1373825ba80220c33536bae", "verified_at": "88caf62ecfe4fb16e78024a2dd99300a6f79a93f", "carve_tag": "opendox-carve-0", "source_repository": "opensoft/openxFactory", "rows": 456, "dispositions": {"moved_verbatim": 172, "moved_with_declared_edit": 146, "not_moved": 138}, "digests_recomputed": 318, "surface": 456}
 ```
 
+> **Editor's note (filing, 2026-09-10):** The plain-text run's "verified at
+> `b27f05558ef7`" and the `--json` run's `"verified_at":
+> "88caf62ecfe4fb16e78024a2dd99300a6f79a93f"` name two different commits on
+> the same `spike/exit-a` chain, not one disputed tree:
+> `88caf62ecfe4fb16e78024a2dd99300a6f79a93f` is the shed + `phase: post-shed`
+> declaration commit, and `b27f05558ef773e2aea2ee29bd095d721a0aecce` is the
+> later, docs-only commit (runbook + manifest-header prose; see Provenance).
+> `git show --stat` on both, in the spike's throwaway clone, confirms
+> `b27f0555` touches only `docs/opendox-carve-manifest.yaml` and
+> `docs/opendox-cutover-runbook.md` — not the shed set, the carve commit, or
+> any disposition — so the JSON block's row counts, dispositions and digest
+> count hold at either commit. `verified_at` should read
+> `b27f05558ef773e2aea2ee29bd095d721a0aecce` to match the plain-text run
+> captured in the same block; the field is left as measured here rather than
+> silently corrected, per the "leaving this thread open for that follow-up"
+> reply already on this pull request's review thread. Raised by a Copilot
+> review comment on pull request #929.
+
 **One cost, measured and not designed around.** The ceremony's own documented
 invocation stops answering once the phase flips:
 
@@ -519,6 +537,22 @@ back into the pre-carve package (37 `ideation_dashboard` references and 22
 is `git submodule update --init openXwallet` and names no other gitlink. Until
 a step inits `openXdox` **recursively**, `openXdox/code/` is empty on the
 runner. (Unchanged from PR #924's finding.)
+
+> **Editor's note (filing, 2026-09-10):** True at the spike's base, `main`
+> `52e42be98c9e5bb4a5b1fc5cf89e235d5a349c5b` — at that commit,
+> `.github/workflows/pytest-suite.yml`'s init step (there at lines 338–339)
+> is `git submodule update --init openXwallet` and names no other gitlink,
+> exactly as measured. PR #917 →
+> `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`, one commit later on `main`,
+> mounted the `openXdox` submodule and widened that same step (now at
+> `pytest-suite.yml:359–360`) to
+> `git submodule update --init openXwallet openXdox`. The two-level
+> `openXdox/code/src` reach (§ 4.3(i)–(ii)) and the `doc_health` import
+> failures stay open regardless — a non-recursive init of `openXdox` does
+> not check out its own `code`/`spec` legs, so § 4.5's collection-error
+> count is unaffected by this correction. Raised by a Copilot review
+> comment on pull request #929 against current `main`, which had by then
+> moved past the commit this note is pinned to.
 
 ### 4.4 The conftest, which is new since PR #924's probe
 
