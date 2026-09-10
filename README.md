@@ -530,7 +530,9 @@ Active changes:
   packet already encoded, **THE WORDING STANDS UNCHANGED** and no substitution
   was performed. Records
   `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md`
-  and `verification-2026-09-09.md`). `.openspec.yaml` keeps the drafting
+  and
+  `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-09.md`).
+  `.openspec.yaml` keeps the drafting
   provenance it was authored with and the approval pair is ADDED beside it,
   `kind` and `id` unmoved — the addition-not-rewrite shape
   `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
@@ -556,11 +558,17 @@ Active changes:
   requirement speaks of a consumption's status* — to the read a repository
   carrying an `xfactory:` stack pin performs from its own pinned checkout, and a
   declared consumption copy becomes **TOLERATED**, admitted on its four terms
-  and never lawful. Two scenario bullets change one word each (declared by one
-  `Removed from canon` marker, both replaced in place), one body paragraph is
-  ADDED to state the reservation in one place, and one scenario is ADDED to
-  assert it; the two body sentences that already used the word the reserved way
-  are carried UNCHANGED. **NO BEHAVIOUR MOVES** — the same copies are admitted
+  and never lawful. Two scenario bullets are REPLACED IN PLACE under one
+  `Removed from canon` marker, and **THE TWO EDITS ARE NOT THE SAME SIZE**: the
+  `AND` bullet replaces ONE WORD and nothing else, while the `THEN` bullet
+  replaces one word **AND APPENDS the reservation clause** — *"and is never
+  LAWFUL, which this requirement spends on a stack-pinned read alone"* — so the
+  reservation is stated where the fallback is ADMITTED rather than only in the
+  body paragraph below it, and that appended clause is ratified surface counted
+  here rather than left to be found in the diff. One body paragraph is ADDED to
+  state the reservation in one place, and one scenario is ADDED to assert it;
+  the two body sentences that already used the word the reserved way are
+  carried UNCHANGED. **NO BEHAVIOUR MOVES** — the same copies are admitted
   on the same four terms and the required-check claim stays unmet for exactly as
   long as it did before, which is what the refusal on #780 predicted. **THE VETO
   POINT IS `design.md` D1**: TOLERATED against PERMITTED — the word that refusal

@@ -79,10 +79,15 @@ landing. § 5 records what was measured and deliberately not taken.
       line carries SHALL (*"A consumption pin SHALL be a PUBLISHED contract
       member…"*), and every one of its eight scenarios — the seven canon carries
       plus the one added — has at least one `WHEN`/`THEN` bullet.
-- [x] 2.2 **TWO SCENARIO BULLETS REPLACED IN PLACE, one word each**, under
-      *A repository with no stack pin adopts the gate anyway*: `lawful` →
-      `TOLERATED` in the `THEN`, with the reserved reading named in the same
-      bullet; `lawful` → `tolerated` in the `AND`. Declared by ONE
+- [x] 2.2 **TWO SCENARIO BULLETS REPLACED IN PLACE, AND THE TWO EDITS ARE NOT
+      THE SAME SIZE**, under *A repository with no stack pin adopts the gate
+      anyway*: the `THEN` replaces `lawful` → `TOLERATED` **AND APPENDS the
+      reservation clause** *"and is never LAWFUL, which this requirement spends
+      on a stack-pinned read alone"*, so the reservation is stated where the
+      fallback is ADMITTED; the `AND` replaces `lawful` → `tolerated` and
+      nothing else. The appended clause is RATIFIED SURFACE and is accounted for
+      here, in `proposal.md`, in the README row and in the marker's own reason.
+      Declared by ONE
       `Removed from canon by amend-neutral-product-pin-interim-copy-vocabulary
       (2026-09-09):` marker placed after the scenarios it names — the placement
       `refresh-install-repository-enumerations` used for the same edit shape.

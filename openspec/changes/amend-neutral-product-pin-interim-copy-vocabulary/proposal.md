@@ -134,13 +134,19 @@ canon's own.**
   was taken from, the digest of what it copied, the divergence it accepts, and
   its retirement when a stack pin is adopted) and on no others — and is never
   LAWFUL.
-- **THE TWO BULLETS, one word each:** `:373` *"the copy is **lawful** ONLY as a
-  declared interim…"* becomes *"the copy is **TOLERATED** ONLY as a declared
-  interim…, and is never LAWFUL, which this requirement spends on a stack-pinned
-  read alone"*; `:374` *"an undeclared duplicate never becoming **lawful** by
-  being useful"* becomes *"…never becoming **tolerated** by being useful"*. Both
-  are declared by one `Removed from canon` marker and replaced in place; neither
-  is dropped.
+- **THE TWO BULLETS, AND THE TWO EDITS ARE NOT THE SAME SIZE — the `AND` bullet
+  replaces one word; the `THEN` bullet replaces one word AND APPENDS the
+  reservation clause:** `:373` *"the copy is **lawful** ONLY as a declared
+  interim…"* becomes *"the copy is **TOLERATED** ONLY as a declared interim…,
+  **and is never LAWFUL, which this requirement spends on a stack-pinned read
+  alone**"* — a one-word substitution PLUS an appended clause, so the
+  reservation is stated where the fallback is ADMITTED and a reader meeting the
+  scenario first does not have to reach the added body paragraph to learn it;
+  `:374` *"an undeclared duplicate never becoming **lawful** by being useful"*
+  becomes *"…never becoming **tolerated** by being useful"*, a one-word
+  replacement and nothing else. Both are declared by one `Removed from canon`
+  marker and replaced in place; neither is dropped, and the appended clause is
+  RATIFIED SURFACE, counted here rather than left to be found in the diff.
 - **THE ADDED PARAGRAPH** states the reservation in ONE place, so a later reader
   does not have to re-derive the two scopes from two paragraphs eighty lines
   apart, and forbids the substitution in records: *"A packet, a review record or
@@ -234,5 +240,9 @@ record that the requirement sets are disjoint.
   a different sentence, this block does not inherit it, and no word has been
   given for it — `design.md` D6 records the measurement and names it as an
   available successor rather than taking it.
-- It ratifies nothing. `Status: draft`; ratification and archive are separate
-  acts on Brett Heap's word.
+- **This document ratifies nothing by itself.** Ratification came on Brett
+  Heap's word of 2026-09-09 — cited in this document's own `Ratified:` header
+  line and recorded at `review/ratification-2026-09-09.md` — and PROMOTION and
+  ARCHIVE remain separate acts on a separate word: no file under
+  `openspec/specs/` is edited by this pull request, `tasks.md` § 4 stays open,
+  and openxFactory #868 closes at the archive rather than at this landing.
