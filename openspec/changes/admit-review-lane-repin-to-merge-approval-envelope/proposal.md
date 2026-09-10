@@ -123,7 +123,7 @@ a sentence already running in production.**
 
 **The ground that refuses this enrolment is not a preference. It is a comment in
 codexFactory's floor document, at
-`scripts/merge_master/openxfactory-review-authority-floor.yaml:108-111`,
+`floor/openxfactory-review-authority-floor.yaml:108-111`,
 attached to the entry `contracts/review-lane-pin.yaml`:**
 
 > A fourth, separately grounded entry (not part of the wallet-register trio

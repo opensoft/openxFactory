@@ -49,7 +49,7 @@ origin:
     reason this is a packet with a design.md and not an envelope edit.
     `contracts/review-lane-pin.yaml` is a never-clearable floor member whose
     ground, in codexFactory
-    `scripts/merge_master/openxfactory-review-authority-floor.yaml:108-111`, is
+    `floor/openxfactory-review-authority-floor.yaml:108-111`, is
     that a clearable pin "would let a pull request choose its own judge" — and
     the floor is composed OVER the envelope in running code at this
     repository's `.github/workflows/merge-master-approval.yml:1603`. The answer

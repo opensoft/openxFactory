@@ -57,9 +57,27 @@ inherited numbers are left alone in the packets that carry them** — they were
 true when written and those packets are dated records — and nothing in this
 one repeats a number it did not read back.
 
+**A FOURTH CITATION HAD MOVED, AND THIS RE-MEASUREMENT MISSED IT: THE FLOOR
+DOCUMENT'S OWN PATH.** Found at verification, not at authoring — this
+packet's own first two commits cited the floor document as
+`scripts/merge_master/openxfactory-review-authority-floor.yaml` throughout
+(`proposal.md` § *The design problem*, this section, and `.openspec.yaml`
+`origin.reason`), and that path was already stale the day this packet was
+proposed: codexFactory commit `d1f8bf1b`, *"Relocate the openxFactory gate
+floor to floor/, with every live reference"* (2026-09-09T03:51:09Z — one full
+day before this packet's 2026-09-10 filing), moved it to
+`floor/openxfactory-review-authority-floor.yaml`, where it lives on
+codexFactory `main` today. The line numbers this section verified — the
+comment at `:108-111` attached to the entry at `:112` — are UNCHANGED by the
+relocation and read identically at the new path; only the directory prefix
+was wrong. All three citations are corrected to
+`floor/openxfactory-review-authority-floor.yaml` as of this fix. **Nothing in
+the ground text, the four safeguards, or the residual-risk argument changes**
+— the correction is the path token, not the reasoning built on it.
+
 ### 2.1 The ground, quoted
 
-codexFactory `scripts/merge_master/openxfactory-review-authority-floor.yaml`,
+codexFactory `floor/openxfactory-review-authority-floor.yaml`,
 the comment at `:108-111` attached to the entry at `:112`:
 
 > A fourth, separately grounded entry (not part of the wallet-register trio
