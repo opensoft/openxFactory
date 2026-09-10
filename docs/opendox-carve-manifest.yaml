@@ -67,12 +67,13 @@
 #     exist at no destination, so they carry `not_moved` rows.
 #   * WHAT "REPLICATED" MEANS (RULED OQ-A and OQ-C). The disposition list stays
 #     three; the `not_moved` REASON carries the nuance. A neutral module
-#     (`scripts/output_boundary.py`, `path_slug.py`, `wire_messages.py`), the two
-#     § 2.4 EXTENSION-POINT SEAMS (`scripts/route_extension.py`,
-#     `scripts/subcommand_extension.py`, added under RULING Q-L1 on 2026-09-10)
-#     and the § 3.7 conformance corpus are `not_moved /
-#     replicated_at_destination` — a replica at each destination, never a shared
-#     module across a repository boundary with no pin. A file CREATED at a destination gets no row at all:
+#     (`scripts/output_boundary.py`, `scripts/path_slug.py`,
+#     `scripts/wire_messages.py`), the two § 2.4 EXTENSION-POINT SEAMS
+#     (`scripts/route_extension.py`, `scripts/subcommand_extension.py`, added
+#     under RULING Q-L1 on 2026-09-10) and the § 3.7 conformance corpus are
+#     `not_moved / replicated_at_destination` — a replica at each destination,
+#     never a shared module across a repository boundary with no pin. A file
+#     CREATED at a destination gets no row at all:
 #     this manifest declares what LEAVES, not what the destination assembles.
 #
 # `not_moved_reasons:` declares FOUR of the validator's known five.
@@ -3238,10 +3239,10 @@ rows:
     edits:
       - class: import rewrites
         lines: [41]
+        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
       - class: path constants
         lines: [43]
         note: "DECLARED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`): `:43`'s `MODULE = REPO_ROOT / \"scripts\" / \"subcommand_extension.py\"` names the SEAM FILE ITSELF by openxFactory path, and `:99-109` read it with `imported_modules(MODULE)` — so at a destination with no `scripts/` directory the constant points at nothing and the import-hygiene assertions cannot run. It is declarable here, and only here, because THIS amendment gives `scripts/subcommand_extension.py` its `replicated_at_destination` row and recommends the placement that fixes the line: rewrite it to the replica's placed path, `REPO_ROOT / \"src\" / \"subcommand_extension.py\"` under the recommendation. It is deliberately NOT part of the wider family of undeclared `REPO_ROOT / \"scripts\" / …` reaches leg 1 measured across the `opendox_code` rows — those name files whose rows declare no such edit, and declaring them would be a new line census over the whole surface rather than a consequence of this act. `:38`'s bare `import subcommand_extension` stays undeclared and needs no edit under the recommendation."
-        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
   - source_path: tests/ideation-dashboard/test_trust_gaps.py
     disposition: moved_with_declared_edit
     git_mode: '100644'

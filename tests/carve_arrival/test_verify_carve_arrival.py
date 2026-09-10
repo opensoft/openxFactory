@@ -342,8 +342,8 @@ def test_the_module_names_the_tool_that_owns_the_manifest() -> None:
 def test_the_module_records_what_it_does_not_prove() -> None:
     """A floor that overstates its reach is worse than one that does not reach.
     The replica limit and the created-file rule must be findable in the file,
-    because a reader's first question about `318 rows verified` is what the
-    other 138 mean."""
+    because a reader's first question about `318 digest(s) verified` — the
+    verifier's own words — is what the other 138 rows mean."""
     doc = MODULE.__doc__ or ""
     assert "replicated_at_destination" in doc, doc
     assert "WHAT IT DELIBERATELY DOES NOT PROVE" in doc, doc
