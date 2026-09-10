@@ -2780,7 +2780,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-modified-block-currency-standing](openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/proposal.md)
-  — **ARCHIVED 2026-09-10** by the archive pull request of the same day, on
+  — **ARCHIVED 2026-09-10** by
+  [PR #899](https://github.com/opensoft/openxFactory/pull/899), on
   Brett Heap's separate word of **2026-09-10T13:06Z**, verbatim *"archive 887
   and close 857 858 when landed"* (recorded on
   [PR #887](https://github.com/opensoft/openxFactory/pull/887) and on both

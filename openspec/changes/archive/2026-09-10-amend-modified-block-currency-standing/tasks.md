@@ -254,8 +254,8 @@ in this file is ticked in the commit BEFORE the move rather than after it:
 `^- \[ \]` — *"change has incomplete tasks"*, `archive_change()` — and there is
 no bypass flag. The tick order is the tool's, not this lane's preference.
 
-- [x] 5.1 **DONE IN THE ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED AND THE
-      PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T13:06Z,
+- [x] 5.1 **DONE IN THE ARCHIVE PULL REQUEST #899 — THE BLOCK IS PROMOTED AND
+      THE PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T13:06Z,
       verbatim *"archive 887 and close 857 858 when landed"*.** Performed with
       `TZ=UTC python3 scripts/proposal-support.py . archive
       amend-modified-block-currency-standing --date 2026-09-10 --yes` through
@@ -264,7 +264,7 @@ no bypass flag. The tick order is the tool's, not this lane's preference.
       `openspec/changes/archive/2026-09-10-amend-modified-block-currency-standing/`
       and wrote the `## MODIFIED` block back into
       `openspec/specs/doc-health/spec.md`. The byte-identity this box requires
-      is MEASURED and recorded in the pull request body, not asserted, and the
+      is MEASURED and recorded in PR #899's body, not asserted, and the
       origin-retention arm of the archive gate reports ORIGIN RETAINED against
       the ratifying commit `c95b9e50`. `code_surface: none` and
       `target_release: none`, so under `release-realization` the archive follows
@@ -276,11 +276,11 @@ no bypass flag. The tick order is the tool's, not this lane's preference.
       command. Under `release-realization` an empty code surface archives on
       landing plus this task list; that archive is NOT performed at this
       landing, and nothing under `openspec/specs/` is edited by it.
-- [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST — `Closes #857` AND `Closes #858`
-      ARE ON THE ARCHIVE PULL REQUEST AND ON NOTHING ELSE.** They are that pull
-      request's ONLY closing lines, each on a line of its own, and its
+- [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST #899 — `Closes #857` AND
+      `Closes #858` ARE ON PR #899's BODY AND ON NOTHING ELSE.** They are that
+      pull request's ONLY closing lines, each on a line of its own, and its
       `closingIssuesReferences` is verified through GraphQL to be exactly
-      `[857, 858]`; every other issue number in its body, in this file and in
+      `[857, 858]` (`totalCount: 2`, nodes 857 and 858, both OPEN at the check); every other issue number in its body, in this file and in
       these commits is a `refs`-style naming that closes nothing, and no commit
       message on the branch carries a closing keyword. The proposal pull request
       #887 carried `refs #857`/`refs #858` and no closing keyword, which is what
@@ -303,8 +303,12 @@ no bypass flag. The tick order is the tool's, not this lane's preference.
       archive act after a sibling search over `match_key`, `uncited_resolution`,
       `modified-block-currency` and `per-class`: no open issue reported this
       gap, so a new one was filed rather than an existing name reused. **NO
-      CODE MOVES IN THIS PULL REQUEST**, and the widening stays refused for the
-      reason the box gives. The ratified text follows unchanged:
+      CODE MOVES IN PR #899**, and the widening stays refused for the reason the
+      box gives. The one ledger row this archive moves is seeded by the
+      sanctioned tool at that pull request — `--seed-ledger --moved-by '#899'`,
+      one line, `state: active` -> `archived` with `class: co-modifier` HELD, so
+      no partner flips and no MOVEMENT LOG entry is owed. The ratified text
+      follows unchanged:
       **THE PER-CLASS DISAPPEARANCE GAP IS NAMED AS RESIDUE AND IS
       DELIBERATELY NOT TAKEN HERE.** `report.uncited_resolutions` keys a
       resolution on `(family, repository, path)` — `Finding.match_key()`,
