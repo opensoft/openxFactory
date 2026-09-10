@@ -50,6 +50,22 @@ under the carve surface that has CHANGED on `main` since the carve refuses
 `carve-path-absent`. **Any of the three means the carve commit is stale and
 § 11 (re-cutting) applies** — it does not mean the validator is wrong.
 
+**AFTER PHASE 5 THE THIRD ONE INVERTS, and the manifest says so itself.** The
+shed deletes 319 of the 456 rows' source paths by construction, so a
+`carve`-phase manifest refuses every run from the shed commit onward. § 5.2
+therefore flips `phase: post-shed` in the manifest **in the same commit as the
+deletions**: a MOVED row and the one `deleted_at_carve` row are then EXPECTED
+to be absent, and one that is STILL PRESENT refuses `carve-shed-incomplete`.
+Nothing else moves — `carve_commit` stays `b075fd91`, `carve_tag` stays
+`opendox-carve-0`, all 318 digests are still recomputed from the referent's
+own bytes on every run, and every `stays_*` and `replicated_at_destination`
+row is still required to be present. The declaration is symmetric in both
+directions, which is what makes § 8's "no ordering of two commits leaves a
+green intermediate" a thing this floor CHECKS rather than a thing the lane is
+asked to remember. **`--at <carve_commit>` stops answering once the phase
+flips** — at that revision every source path is present, which a post-shed
+manifest refuses — so the second invocation below is the pre-shed one.
+
 ```sh
 python3 scripts/validate-carve-manifest.py                 # from any descendant
 python3 scripts/validate-carve-manifest.py --at b075fd91dc8fced8e1373825ba80220c33536bae
@@ -913,11 +929,34 @@ commits leaves a green intermediate* — so the pin, the gitlink, the shed, the
 floor re-cut and the workflow conversion land together:
 
 * `contracts/openxdox-pin.yaml` + the gitlink;
-* the shed of the carve surface's stays-nothing half;
+* the shed of the carve surface's stays-nothing half — **and, in the same
+  commit, `phase: post-shed` in `docs/opendox-carve-manifest.yaml`**, which is
+  what keeps FLOOR PART 1 green over the tree the shed leaves. It is not a
+  re-cut: no digest, no disposition, no `carve_commit` and no `carve_tag`
+  moves, and the label stays `opendox-carve-0`;
 * **the floors, re-cut as a deliberate act with its own evidence row.**
   `.github/workflows/pytest-suite.yml` carries `MIN_SELECTED: "7090"` and
   `MIN_PASSED: "7070"` (floors that may only rise) and `EXPECT_SKIPPED: "21"`
-  (pinned EXACTLY, and a SUM). The shed removes 3,426 `def test_`, so both
+  (pinned EXACTLY, and a SUM). The shed removes **3,404** `def test_` — this
+  section said 3,426 until it was MEASURED, over the 319 paths the manifest's
+  own rows derive, at `main` `554536f6`; the count below supersedes the older
+  figure and is never to be carried by hand:
+
+  ```sh
+  python3 - <<'PY'
+  import pathlib, re, yaml
+  doc = yaml.safe_load(pathlib.Path("docs/opendox-carve-manifest.yaml").read_text())
+  shed = [r["source_path"] for r in doc["rows"]
+          if r["disposition"] in ("moved_verbatim", "moved_with_declared_edit")
+          or r.get("reason") == "deleted_at_carve"]
+  n = sum(len(re.findall(r"^\s*def test_",
+                         pathlib.Path(p).read_text(errors="replace"), re.M))
+          for p in shed)
+  print(f"{len(shed)} shed paths, {n} def test_")   # 319 shed paths, 3404 def test_
+  PY
+  ```
+
+  So both
   floors fail by construction and `EXPECT_SKIPPED` moves twice — the
   `find_spec`-guarded skips in `tests/notebooklm/` and `tests/hermeticity.py`
   APPEAR while the dashboard suite's own skips VANISH. Re-cut downward with the
@@ -1004,7 +1043,9 @@ source repository nothing at all.
 ## 11. Re-cutting `carve_commit`
 
 If `main` moves under the carve — precondition 0.4 refuses with
-`carve-digest-mismatch`, `carve-file-undeclared` or `carve-path-absent` — the
+`carve-digest-mismatch`, `carve-file-undeclared` or `carve-path-absent`
+(a `carve-shed-incomplete` is NOT this: it says the manifest's declared phase
+and the tree disagree, and its remedy is inside § 5.2, never a re-cut) — the
 manifest is **re-cut at a NEW `carve_commit` and every digest is RECOMPUTED,
 never carried forward**. That sentence is `contracts/openxwallet-pin.yaml`'s
 own, and the manifest's header repeats it.

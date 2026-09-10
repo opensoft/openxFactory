@@ -13,6 +13,13 @@
 #     python3 scripts/validate-carve-manifest.py
 #     python3 scripts/validate-carve-manifest.py --at b075fd91dc8fced8e1373825ba80220c33536bae
 #
+# THE SECOND ONE STOPS ANSWERING THE DAY `phase:` BELOW FLIPS TO `post-shed`:
+# at the carve commit every source path is PRESENT, which is exactly what a
+# post-shed manifest refuses (`carve-shed-incomplete`). From that commit on,
+# ask about the carve's own line by checking out a pre-shed revision, or read
+# the digests straight out of git
+# (`git cat-file blob b075fd91:<path> | sha256sum`).
+#
 # As first landed, check 2 asked whether the tested revision RESOLVES TO
 # `carve_commit`, so only a checkout of the carve commit itself could pass and
 # every other revision — a branch carrying the manifest, `main` after this
@@ -135,6 +142,33 @@
 
 schema_version: 1
 kind: opendox-carve-manifest
+
+# WHICH SIDE OF THE SHED THIS REPOSITORY IS ON. `phase:` is OPTIONAL and closed
+# to two values — `carve` (what an ABSENT key means) and `post-shed`. The
+# validator takes these semantics from HERE and from nowhere else: there is
+# deliberately no `--phase` flag, because the § 8.2 required-suite seat runs
+# the tool with no arguments and a flag could never reach it, and because the
+# declaration and the deletions must then land in ONE reviewable diff.
+#
+# Under `carve` — where this file is now, and stays until runbook § 5.2 runs —
+# every one of the 456 rows' source paths must be PRESENT in this repository,
+# and every MOVED row's blob here must still match its `sha256` below.
+#
+# Under `post-shed` the 318 MOVED rows and the one `deleted_at_carve` row — 319
+# of the 456 — are EXPECTED ABSENT at the source, and the validator CHECKS that
+# absence rather than refusing it. Nothing else moves: `carve_commit` stays
+# `b075fd91…`, `carve_tag` stays `opendox-carve-0`, every `sha256` below is
+# still recomputed on every run out of this repository's own history — which
+# the shed does not touch — and every `stays_*` and `replicated_at_destination`
+# row is still required PRESENT. It is not a re-cut, and no row changes
+# disposition.
+#
+# The declaration is SYMMETRIC, which is what makes it a floor and not a mute:
+# under `post-shed` a moved row this tree STILL CARRIES refuses
+# `carve-shed-incomplete`. So the flip cannot land ahead of the deletions to
+# buy silence for 319 rows at once, and the deletions cannot land ahead of the
+# flip without refusing — they are ONE ACT (runbook § 8).
+phase: carve
 
 header: >-
   The openDox/openXdox carve manifest, authored AT the carve commit as the last
