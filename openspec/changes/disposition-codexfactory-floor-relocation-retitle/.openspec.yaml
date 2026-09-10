@@ -11,13 +11,21 @@ created: 2026-09-10
 # consuming repository runs the same pin over its own tree" is this situation.
 # So this packet ADDS NO RULE: it is the THIRD application of that rule to the
 # same consuming repository, and the honest shape for that is zero deltas
-# declared. A `## MODIFIED` delta against that requirement is refused on
-# ordering grounds and was not written: the requirement is not yet promoted, the
-# bump having archived into `openspec/specs/neutral-product-pin/spec.md` only if
-# it archived — checked, 2026-09-10: `bump-openspec-cli-pin-to-1.12` IS archived
-# (`openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12`) and its
-# requirement IS promoted, so a MODIFIED block is now REACHABLE. It is still not
-# written, and `design.md` § 3 says why: there is nothing in the rule to modify.
+# declared.
+#
+# AND THE REASON IS NOT THE PRECEDENT'S. `disposition-codexfactory-declared-renames`
+# could not write a `## MODIFIED` delta against that requirement even if it had
+# wanted one: on 2026-09-05 `bump-openspec-cli-pin-to-1.12` was still an ACTIVE
+# change, so the requirement was unpromoted and there was no promoted text to
+# modify. THAT ORDERING OBJECTION HAS EXPIRED AND IS NOT REUSED HERE — checked,
+# 2026-09-10: the bump IS archived
+# (`openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12`), its
+# requirement IS promoted into `openspec/specs/neutral-product-pin/spec.md`, and
+# a `## MODIFIED` block against it is therefore REACHABLE TODAY. It is still not
+# written, for a different and simpler reason: there is nothing in the rule to
+# modify. `design.md` § 3 sets that out. Recorded this way so the refusal is
+# read as CURRENT and substantive rather than inherited from a precedent whose
+# ground has moved.
 skip_specs: true
 
 origin:
