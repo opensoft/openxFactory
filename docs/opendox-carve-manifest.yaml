@@ -67,10 +67,12 @@
 #     exist at no destination, so they carry `not_moved` rows.
 #   * WHAT "REPLICATED" MEANS (RULED OQ-A and OQ-C). The disposition list stays
 #     three; the `not_moved` REASON carries the nuance. A neutral module
-#     (`scripts/output_boundary.py`, `path_slug.py`, `wire_messages.py`) and the
-#     § 3.7 conformance corpus are `not_moved / replicated_at_destination` — a
-#     replica at each destination, never a shared module across a repository
-#     boundary with no pin. A file CREATED at a destination gets no row at all:
+#     (`scripts/output_boundary.py`, `path_slug.py`, `wire_messages.py`), the two
+#     § 2.4 EXTENSION-POINT SEAMS (`scripts/route_extension.py`,
+#     `scripts/subcommand_extension.py`, added under RULING Q-L1 on 2026-09-10)
+#     and the § 3.7 conformance corpus are `not_moved /
+#     replicated_at_destination` — a replica at each destination, never a shared
+#     module across a repository boundary with no pin. A file CREATED at a destination gets no row at all:
 #     this manifest declares what LEAVES, not what the destination assembles.
 #
 # `not_moved_reasons:` declares FOUR of the validator's known five.
@@ -125,7 +127,8 @@ not_moved_reasons:
 # appears in EXACTLY one row below, or the carve refuses. The tree prefixes are
 # `tasks.md` § 5.2's deletion set; the exact paths are the files a RULING names
 # individually (OQ-A's three neutral modules, OQ-C's shared conformance tooling,
-# OQ-B's three NotebookLM tests, the dashboard contract schemas and the
+# OQ-B's three NotebookLM tests, OQ-Q's corpus-adapter interface, RULING Q-L1's
+# two § 2.4 extension-point seams, the dashboard contract schemas and the
 # dashboard governance documents).
 moved_paths:
   - scripts/ideation_dashboard/
@@ -139,6 +142,8 @@ moved_paths:
   - scripts/validate-ideation-dashboard-contracts.py
   - scripts/output_boundary.py
   - scripts/path_slug.py
+  - scripts/route_extension.py
+  - scripts/subcommand_extension.py
   - scripts/wire_messages.py
   - tests/import_scan.py
   - tests/hermeticity.py
@@ -166,7 +171,10 @@ moved_paths:
   - docs/openxdox-naming.md
   - docs/project-repo-schema.md
 
-# 453 rows, bytewise-UTF-8 by `source_path`.
+# 456 rows, bytewise-UTF-8 by `source_path`. The count is the validator's own
+# (`454 row(s)` before RULING Q-L1's two rows landed); as first written this
+# comment said 453, an off-by-one against its own file at `17167481` that is
+# corrected here rather than carried.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1799,6 +1807,14 @@ rows:
     disposition: not_moved
     reason: replicated_at_destination
     evidence: "RULED OQ-A/OQ-C: the second neutral module, created by OQ-B part 1 (#843) so human_seen.py could stop importing slug from openDox's workbench.py. Its own docstring records this disposition verbatim (:28-30)."
+  - source_path: scripts/route_extension.py
+    disposition: not_moved
+    reason: replicated_at_destination
+    evidence: "RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\") on the manifest act carve leg 1 asked for: the ROUTE EXTENSION POINT of `split-opendox-two-layer-product` § 2.4 / design § D2 had no row at all, so `--replica-at` refused to place it and `--allow-created` would have called an openxFactory blob a destination's own creation — an undeclared movement wearing RULED OQ-C's name. THIS IS OQ-Q'S SHAPE EXACTLY (`scripts/corpus_adapter.py`, ruled 2026-09-09 ~22:3xZ): the § 3.1 surface omitted a neutral module at the top of `scripts/` that both sides of the carve consume, and the repair is the row, not an edit to the leg. The disposition is RULED OQ-A's and not a move, because openxFactory keeps needing the seam after the carve: measured at the carve commit its importers are `scripts/ideation_dashboard/serve.py:120` (this manifest's `opendox_code` row), `serve_gate.py:44` and `serve_projection.py:51` (`openxdox_code` rows), and `serve_openxfactory_lanes.py:49`, `tests/ideation-dashboard/test_route_extension.py:51` and `test_serve_column_split.py:56` (three `not_moved / stays_openxfactory_adapter` rows that stay here) — three destinations plus the home column, so no single destination can own it. Every one of those is a BARE top-level `import route_extension` on a line no row declares, which is the spelling the module's own docstring asks for (:19, \"it travels with the carve\") and the reason its arrival needs no import rewrite. It is neutral BY CONSTRUCTION at the carve commit — 555 lines importing only the standard library (:141 `__future__`, :143 `dataclasses`, :144 `typing`) — and both repositories are Apache-2.0, so each destination gets a replica rather than a shared module across a repository boundary with no pin. Its blob at `carve_commit` is `34802071d5b9e417f6c29c6929db69f518f91cce`, 30,017 bytes, mode 100644, sha256 `a39a6489b4421ce08ef41e918aea21fc35779ee4da5e932182b4d731bc99566f`; a `replicated_at_destination` row carries no digest field by the row grammar, so the figure is recorded here and re-derivable with `git cat-file blob b075fd91dc8fced8e1373825ba80220c33536bae:scripts/route_extension.py | sha256sum`. Inverting the openDox -> openXdox import direction so this seam replaces the cross-column reach is the BUILD arc's (§ 3.5/3.6), not this row's."
+  - source_path: scripts/subcommand_extension.py
+    disposition: not_moved
+    reason: replicated_at_destination
+    evidence: "RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"), the route extension point's twin and the same act: the SUBCOMMAND EXTENSION POINT of § 2.4 / design § D2 had no row, so carve leg 1 could place it neither as a replica nor lawfully as a creation. OQ-Q's shape, and RULED OQ-A's disposition for OQ-A's reason: measured at the carve commit its importers are `scripts/ideation_dashboard/cli.py:65` and `tests/ideation-dashboard/test_subcommand_extension.py:38` (both `opendox_code` rows) and `tests/ideation-dashboard/test_cli_column_split.py:71` (a `not_moved / stays_openxfactory_adapter` row that stays here), so the destination and the home column both consume it. Each is a BARE top-level `import subcommand_extension` on an undeclared line — the spelling the module's own docstring asks for (:16, \"it travels with the carve\") and the reason the arrival needs no import rewrite. Neutral BY CONSTRUCTION at the carve commit: 101 lines importing only the standard library (:54 `__future__`, :56 `typing`); both repositories are Apache-2.0. Its blob at `carve_commit` is `1d4833b2c2820fbc4a45e38c2e49e65089e5ef2f`, 5,059 bytes, mode 100644, sha256 `96d4e64e3835aeee6c455cde31006b5ccf63ecc5f83be6af53467a07ef9ca0a9`, recorded here because the row grammar gives a replica no digest field and re-derivable with `git cat-file blob b075fd91dc8fced8e1373825ba80220c33536bae:scripts/subcommand_extension.py | sha256sum`. NOT declared by this row: where each leg PLACES the copy — RULED OQ-C, this manifest declares what LEAVES, never what a destination assembles, and the leg names the placement with `--replica-at`. `test_subcommand_extension.py:43`'s `REPO_ROOT / \"scripts\" / \"subcommand_extension.py\"` is therefore left undeclared and unedited, byte-identical at the destination, with the rest of the undeclared `scripts/` reaches leg 1 measured."
   - source_path: scripts/validate-ideation-dashboard-contracts.py
     disposition: moved_with_declared_edit
     git_mode: '100755'
@@ -2021,8 +2037,8 @@ rows:
     destination_path: tests/test_boundary.py
     edits:
       - class: import rewrites
-        lines: [22, 23]
-        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+        lines: [14, 22, 23]
+        note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): `:14` is a BARE `import output_boundary` — the neutral module's top-of-`scripts/` spelling, not an `ideation_dashboard.X` one — so the original citation of `:22-23` could not carry the file's own openxFactory reach and leg 1 reported the row as unable to express it. `scripts/output_boundary.py` is a `replicated_at_destination` row (RULED OQ-A) that each leg places inside its own package, so the destination-local form is `from opendox import output_boundary` and the rewrite is available at the carve; the two spellings of the same guard are the point of `:16-21`'s note and both must arrive rewritten."
   - source_path: tests/ideation-dashboard/test_branch_session.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2294,8 +2310,8 @@ rows:
         lines: [19]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
       - class: path constants
-        lines: [34]
-        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+        lines: [32, 33, 34]
+        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): leg 1 (`opensoft/openDox-code#4`, head `cfabe3c4`) reported this citation as a SHORT CITATION — `:34` is the bare `/ \"web\"` continuation of the multi-line `STATE_JS` `Path` expression whose `\"scripts\"` and `\"ideation_dashboard\"` segments sit on `:32-33` — so the note above described an edit its own line numbers could not express and the row arrived byte-identical instead. The missing line(s) are declared here; the edit itself is destination-local and available at the carve, needing nothing from the openXdox-code leg or the BUILD arc."
   - source_path: tests/ideation-dashboard/test_doxbench_knowledge.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2457,8 +2473,8 @@ rows:
     destination_path: tests/test_doxbench_state.py
     edits:
       - class: path constants
-        lines: [25]
-        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+        lines: [23, 24, 25]
+        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): leg 1 (`opensoft/openDox-code#4`, head `cfabe3c4`) reported this citation as a SHORT CITATION — `:25` is the bare `/ \"web\"` continuation of the multi-line `STATE_JS` `Path` expression whose `\"scripts\"` and `\"ideation_dashboard\"` segments sit on `:23-24`; the row was one of the leg's two `2 unapplied` — so the note above described an edit its own line numbers could not express and the row arrived byte-identical instead. The missing line(s) are declared here; the edit itself is destination-local and available at the carve, needing nothing from the openXdox-code leg or the BUILD arc."
   - source_path: tests/ideation-dashboard/test_doxbench_status_exemption.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -2550,8 +2566,8 @@ rows:
     destination_path: tests/test_doxbench_view.py
     edits:
       - class: path constants
-        lines: [18, 293, 298, 301, 2860]
-        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+        lines: [16, 17, 18, 291, 292, 293, 298, 301, 2860]
+        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): leg 1 (`opensoft/openDox-code#4`, head `cfabe3c4`) reported this citation as a SHORT CITATION — `:18` and `:293` are bare `/ \"web\"` continuations of the `STATE_JS` and `EDITOR_JS` `Path` expressions whose `\"scripts\"` and `\"ideation_dashboard\"` segments sit on `:16-17` and `:291-292`; `:298`, `:301` and `:2860` are single-line statements that already carried the whole spelling and were rewritten by the leg — so the note above described an edit its own line numbers could not express and the row arrived byte-identical instead. The missing line(s) are declared here; the edit itself is destination-local and available at the carve, needing nothing from the openXdox-code leg or the BUILD arc."
   - source_path: tests/ideation-dashboard/test_doxbench_workspace.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2877,8 +2893,8 @@ rows:
         lines: [54]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
       - class: path constants
-        lines: [57]
-        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+        lines: [56, 57]
+        note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): leg 1 (`opensoft/openDox-code#4`, head `cfabe3c4`) reported this citation as a SHORT CITATION — `:57` is `WEB = PACKAGE / \"web\"` and `PACKAGE = REPO_ROOT / \"scripts\" / \"ideation_dashboard\"` is defined on `:56` — so the note above described an edit its own line numbers could not express and the row arrived byte-identical instead. The missing line(s) are declared here; the edit itself is destination-local and available at the carve, needing nothing from the openXdox-code leg or the BUILD arc."
   - source_path: tests/ideation-dashboard/test_readiness_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
