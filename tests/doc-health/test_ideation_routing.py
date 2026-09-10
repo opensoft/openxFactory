@@ -857,11 +857,20 @@ def test_runner_config_discloses_non_default_routing_thresholds(tmp_path):
 #
 # `_governed_repo_ids` decides which repository ids are resolvable WITHOUT
 # materialization. Before P4b it derived the whole set from `ctx.repo_paths`,
-# which `corpus.discover_repos` fills with `openxFactory` plus `xFactories/*` and
-# nothing else — so `openXwallet`, pinned at the aggregation ROOT, was classed
-# `external` and fell under the nightly-skip / strict-materialization path. The
-# openAvatar precedent is the empirical proof (council concern 4): a root-level
-# repository derives nothing automatically.
+# which `corpus.discover_repos` then filled with `openxFactory` plus
+# `xFactories/*` and nothing else — so `openXwallet`, pinned at the aggregation
+# ROOT, was classed `external` and fell under the nightly-skip /
+# strict-materialization path. The openAvatar precedent is the empirical proof
+# (council concern 4): a root-level repository derives nothing automatically.
+#
+# `discover_repos` HAS SINCE BEEN WIDENED (#869) to enumerate the same
+# allowlist, so a materialized root product now does reach `repo_paths`. That
+# closes a second, separate hole — the enumerator never MEASURED those
+# repositories — and it does not make this set derivable from `repo_paths`
+# after all: the allowlist is a claim about the aggregation's topology, true of
+# a single-repo self-gate whose `repo_paths` has one entry and of a checkout
+# that has not materialized the product. The two sites and the two questions
+# stay distinct; what they must agree on is the product's ID, pinned below.
 
 def test_governed_repo_ids_admit_the_root_level_product_allowlist():
     ids = ideation_routing._governed_repo_ids(
@@ -874,19 +883,26 @@ def test_governed_repo_ids_admit_the_root_level_product_allowlist():
 def test_governed_repo_ids_admit_root_products_with_no_checkout_in_scope():
     """The allowlist is a claim about TOPOLOGY, not about this run's checkout.
 
-    `discover_repos` can never place a root-level product in `repo_paths`, so a
-    set derived from it alone would stay permanently narrow — which is the whole
-    defect. A single-repo self-gate has one entry and must still resolve a
-    reference into `openXwallet`."""
+    A set derived from `ctx.repo_paths` alone stays narrow exactly when it must
+    not: a single-repo self-gate has ONE entry and must still resolve a
+    reference into `openXwallet`, and an aggregation that has not materialized
+    the product must resolve one too. #869 widened `discover_repos` to
+    enumerate a MATERIALIZED root product, which is a different question asked
+    by a different check — it does not make this set derivable from
+    `repo_paths`, and this case is the proof."""
     ids = ideation_routing._governed_repo_ids(
         SimpleNamespace(repo_paths={"openxFactory": None}))
     assert {"openAvatar", "openXwallet"} <= ids
 
 
 def test_governed_repo_ids_never_prefix_a_root_product_with_xfactories():
-    """Defensive: if `discover_repos` is ever widened to sweep a root product's
-    own documents, the two sites must not disagree about that product's id —
-    `xFactories/openXwallet` is a repository that exists nowhere."""
+    """The two sites must not disagree about a root product's id —
+    `xFactories/openXwallet` is a repository that exists nowhere. Written
+    defensively before the widening and REALIZED by it: #869 taught
+    `discover_repos` to sweep a root product's own documents, so `repo_paths`
+    now really does carry the bare name this asserts on, and
+    `tests/doc-health/test_corpus_discovery.py` pins the round trip from the
+    other end."""
     ids = ideation_routing._governed_repo_ids(
         SimpleNamespace(repo_paths={"openxFactory": None, "openXwallet": None}))
     assert "openXwallet" in ids
