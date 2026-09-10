@@ -4,6 +4,7 @@ Status: ratified
 Ratified by: split-opendox-two-layer-product — 2026-09-05, Brett Heap, "ratify #666" (record `review/ratification-2026-09-05.md`)
 Amended: 2026-09-05 — repository shape, by Brett Heap in session, verbatim "elect the shape for both, follow the pin chain, no family yet" (`opensoft/openxFactory`#656 comment `5552614170`); record `review/amendment-2026-09-05-repository-shape.md`. § D12 records the decision; § D8's drafted Amendment 3 text and the R-index below carry it.
 Amended: 2026-09-09 — FLOOR PART 2 restated as a source→destination mapping with declared multiplicity, by Brett Heap by click-through in session `openXfactory-4`, verbatim "OQ-K → FLOOR PART 2 restated as a source→destination mapping with declared multiplicity for replicated files (a small amendment PR to the change)" (`opensoft/openxFactory`#656 comment `5609526215`); record `review/amendment-2026-09-09-floor-part-2-mapping.md`. § D6 (2) carries the restated text; RULING OQ-1 is not reopened and the floor still has four parts.
+Amended: 2026-09-10 — the § 5.2 shed's own prerequisite, resolved as exit (a) POST-SHED MODE, by Brett Heap in session, verbatim "rule (a) post-shed mode, merge 924 when green" (`opensoft/openxFactory`#656 comment `5625573095`); record `review/amendment-2026-09-10-shed-exit-post-shed-mode.md`. § D6 (1) carries the decision; PR-1 (openxFactory #928) is the capability, PR-2 is the shed itself and stays gated on three sub-questions carried at `tasks.md` § 5.2.
 
 Companion to `proposal.md`. The proposal argues the doctrine, carries the eleven
 2026-09-04 acts as LOCKED constraints and names the wave; this document records
@@ -542,6 +543,57 @@ destination.
 RULING DQ-1 they do not move repository at all; the only edit they take is
 re-expressing the reader's path literals as `adapter calls` — one of the three,
 by name.
+
+> Amended 2026-09-10 — the shed's own prerequisite (RULING (a)). Measured when
+> the § 5 remainder was started (`review/reality-check-2026-09-10-section-4-and-the-shed.md`,
+> `Status: record`, § 2): `validate-carve-manifest.py`, unmodified, refuses ANY
+> tree in which a manifest row's declared source path has been deleted —
+> `carve-path-absent` — because check 3 pass 2 and check 4 read the row's source
+> path at the revision under test, and a row does not stop naming that path just
+> because its bytes already arrived at their destination. The § 5.2 shed deletes
+> 319 of the manifest's rows BY CONSTRUCTION, so the unmodified validator cannot
+> pass a single post-shed tree; two throwaway probes (one row alone, then all
+> 319) reproduced the identical refusal. **RULED — 2026-09-10T21:1xZ, Brett
+> Heap, verbatim: "rule (a) post-shed mode, merge 924 when green"** (`#656`
+> comment `5625573095`).
+>
+> **Exit (a), POST-SHED MODE, is what the validator gains.** One optional
+> manifest key, `phase: carve | post-shed` — no CLI flag, no `shed_commit`.
+> Under `phase: post-shed` a moved row's source path is EXPECTED absent — the
+> arm that used to refuse `carve-path-absent` for that row now requires
+> absence instead — while the row's destination stays verified exactly as
+> before, by `verify-carve-arrival.py`. A moved row still PRESENT at its
+> source under `post-shed` refuses under a new code, `carve-shed-incomplete`,
+> so the phase flip and the 319 deletions are ONE ACT and cannot land apart.
+> `carve_commit` stays `b075fd91dc8fced8e1373825ba80220c33536bae` (tag
+> `opendox-carve-0`) and every digest recorded at it is unchanged; **zero rows
+> change disposition**. Checks 1, 2 (ANCESTOR), 5, 6 and the digest/line-bound
+> checks are unaffected by the phase — only the two arms of `carve-path-absent`
+> that read a row's source path change what they expect there.
+>
+> **Exits (b) and (c) were costed in the same addendum and NOT taken.** (b), a
+> re-cut AT the shed, produces a degenerate mapping — 137 files, 0 moved rows,
+> 0 declared lines, 9 of 39 `moved_paths:` prefixes vacuous — because the
+> mapping is thereby DELETED, not re-cut. (c), declaring the manifest retired,
+> is the validator's own not-fail-closed branch (`NO MANIFEST … (nothing to
+> validate)`) and drops the floor's own instrument exactly when the shed needs
+> it most — the 318 referent digests, the 794 line bounds, the 456-file
+> completeness walk, the frozen-surface `appeared` guard and the 137 retained
+> rows' presence requirement all go with it, and `verify-carve-arrival.py`
+> becomes unrunnable at every destination (`arrival-unreadable`).
+>
+> **Realization is two pull requests, not one.** PR-1 (openxFactory #928) is
+> the post-shed mode CAPABILITY alone — the `phase:` key, the
+> `carve-shed-incomplete` refusal, their tests, the manifest's own documented
+> `phase:` field (staying `carve` until the shed actually flips it), and the
+> runbook § 8 text — against the measured 482/17-line, 4-file diff, with
+> `verify-carve-arrival.py`, `carve_lines.py`, `tests/carve_arrival/` and
+> `pytest-suite.yml` untouched. PR-2 is the shed itself: the phase flip to
+> `post-shed`, the 319 deletions, and whatever the three still-open
+> sub-questions at `tasks.md` § 5.2 decide — ONE atomic pull request, per Rule
+> 6. Design note of record for the measurement behind this amendment:
+> `ideation/brainstorm/opendox-shed-exit-a-post-shed-mode-measured.md`
+> (openxFactory #929, landing at the time of this amendment).
 
 **(2) A SOURCE→DESTINATION TEST MAPPING WITH DECLARED MULTIPLICITY.** Every file
 in the carve manifest's declared surface that carries at least one `def test_`
