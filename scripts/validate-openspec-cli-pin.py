@@ -84,7 +84,8 @@ rather than a guard against the unknown. A pinned dependency carrying a hostile
 lifecycle script is still a dependency carrying one.
 
 WHY A LOCKFILE AND NOT THE THREE ALTERNATIVES, in one line each, with the full
-reading in `openspec/changes/pin-openspec-cli-dependency-closure/design.md`:
+reading in
+`openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/design.md`:
 enumerating the resolved tree IN the pin would re-implement a lockfile in a
 grammar no installer reads; vendoring the built tree as one artifact by digest
 would make this repository the redistributor of 80 packages it does not own; and
