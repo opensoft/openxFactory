@@ -18,7 +18,7 @@ restatement of the parent's.
 | # | the refusal | what this packet does about it |
 |---|---|---|
 | 1 | **No candidate class admits the lane.** `.github/merge-approval-envelope.yml` enrols exactly one candidate, `intent-rolling-custody`; the lane's head is `bot/review-lane-repin` and its four writable files are none of that class's three paths. | **RETIRED BY THIS PACKET'S REALIZATION**, and by nothing else it does. § 3.1 of `tasks.md`. |
-| 2 | **The floor is composed OVER the envelope.** `.github/workflows/merge-master-approval.yml:1504` parks when `FLOOR_MATCHED != 0`, *"whatever the envelope says"*, and `contracts/review-lane-pin.yaml` is a never-clearable floor member. | **NOT RETIRED HERE.** The N-1b (ii) carve is codexFactory's decision core to author; `tasks.md` box 4.1. The enrolment lands INERT behind it. |
+| 2 | **The floor is composed OVER the envelope.** `.github/workflows/merge-master-approval.yml:1603` parks when `FLOOR_MATCHED != 0`, *"whatever the envelope says"*, and `contracts/review-lane-pin.yaml` is a never-clearable floor member. | **NOT RETIRED HERE.** The N-1b (ii) carve is codexFactory's decision core to author; `tasks.md` box 4.1. The enrolment lands INERT behind it. |
 | 3 | **Code-owner review is required on `main`** by ORGANIZATION ruleset `18834180` over `~ALL` / `~DEFAULT_BRANCH`; all four sites are CODEOWNERS-routed (`.github/CODEOWNERS:2`, `:20`, `:27`); a GitHub App cannot be named in CODEOWNERS. | **NOT RETIRED HERE, AND NO BYPASS IS PROPOSED.** `tasks.md` box 4.4 holds it for a word. |
 | 4 | **codexFactory's promoted `Bounded autonomous surface`** forbids autonomously approving any CODEOWNERS-scoped path; `extend-merge-master-envelope-to-floor-bot-lanes` narrowed it under N-1 for the codexFactory regeneration lane ONLY. | **NOT RETIRED HERE.** It is codexFactory's text; `tasks.md` box 4.2. |
 
@@ -30,6 +30,32 @@ packet may not give itself. A reader who expects the enrolment to make the lane
 autonomous on merge should read that sentence twice.
 
 ## 2. The never-clearable ground, and why an enrolment is not what it forbids
+
+### 2.0 Every line number below was RE-MEASURED, and three of the inherited ones had moved
+
+**The citations this packet inherited from its two source packets no longer
+pointed where they said.** `extend-merge-master-envelope-to-floor-bot-lanes`
+(2026-09-07) and `amend-mirror-floor-regeneration-merge-authority` (2026-09-08)
+cite the floor park at `.github/workflows/merge-master-approval.yml:1494-1501` /
+`:1499-1506` / `:1504` and the lane's run-time resolution at
+`.github/workflows/review-lane-repin.yml:259-267` with its header at `:41-43`.
+**On this branch's tree those are wrong**, because both workflows have moved
+since — `merge-master-approval.yml` most recently at the #883 re-pin. Measured
+here rather than copied:
+
+| what | inherited citation | **measured on this tree** |
+|---|---|---|
+| the floor park, composed OVER the envelope | `merge-master-approval.yml:1504` | **`:1602-1603`** — `if [ "${FLOOR_MATCHED:-}" != "0" ]` at `:1602`, the `park "…a never-clearable path is never autonomously approvable, whatever the envelope says"` at `:1603` |
+| the run-time default-branch resolution | `review-lane-repin.yml:259-267` | **`:424-441`** — step *"Resolve codexFactory's default branch and head, at run time"* at `:433`, `gh api "repos/${SOURCE_REPOSITORY}" --jq .default_branch` at `:439`, the refusal at `:441` |
+| the header recording that the trigger payload is ignored | `review-lane-repin.yml:41-43` | **`:67-69`** |
+
+Verified UNMOVED and cited as they stand: `.github/CODEOWNERS:2` / `:20` /
+`:27`; `scripts/review_lane_repin.py:28`, `:35` and `:153-156`;
+`.github/workflows/review-lane-repin.yml:783-788`, `:789` and `:850`;
+codexFactory `openxfactory-review-authority-floor.yaml:108-112`. **The
+inherited numbers are left alone in the packets that carry them** — they were
+true when written and those packets are dated records — and nothing in this
+one repeats a number it did not read back.
 
 ### 2.1 The ground, quoted
 
@@ -67,9 +93,9 @@ bindings that make that true are each running code rather than a promise:
    writes nothing outside the five sites"*. The five sites are four files
    (`:153-156`), and `path_allowlist` names all four EXACTLY, so a fifth path
    parks the candidate whatever else is true.
-3. **The value is not the lane's to pick.** `.github/workflows/review-lane-repin.yml:259-267`
+3. **The value is not the lane's to pick.** `.github/workflows/review-lane-repin.yml:424-441`
    resolves codexFactory's default branch AT RUN TIME and refuses to pin at any
-   other reference; the header at `:41-43` records that the lane *"ignores any
+   other reference; the header at `:67-69` records that the lane *"ignores any
    commit, branch or reference named by its trigger"* and that the payload is
    never read. The only value this lane can ever propose is codexFactory's own
    default-branch head.

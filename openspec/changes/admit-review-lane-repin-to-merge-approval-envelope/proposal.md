@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory, and it is THREE FILES at realization and not one. (1) `.github/merge-approval-envelope.yml` gains a SECOND candidate class, `openxfactory-review-lane-repin`, whose every condition is a value MEASURED off this lane's own observed pull requests rather than asserted; (2) `tests/review_lane_pin/test_review_lane_caller.py` — its `sole_candidate()` helper refuses anything but exactly one candidate today, in terms ("a second entry is a NEW GRANT rather than a configuration change"), so admitting a second class means REPLACING that helper with a per-class shape assertion that pins BOTH classes exactly, and the replacement is the load-bearing edit of the realization rather than a consequence of it; (3) `.github/workflows/review-lane-repin.yml` — the `ARMED_TAIL` witness at `:789` carries a second sentence the file's own comment at `:783-788` says "MUST BE DROPPED THE DAY IT STOPS BEING TRUE", and dropping exactly that sentence and nothing else is this packet's realization act on the workflow. NOT THIS CHANGE'S SURFACE, each for a stated reason: `.github/workflows/merge-master-approval.yml` is untouched — the floor composition at `:1499-1506` is the pinned decision core's caller and the N-1b (ii) carve it needs is codexFactory's decision core to author, consumed here at a later re-pin; `contracts/review-lane-pin.yaml` is untouched and STAYS ON THE NEVER-CLEARABLE FLOOR — this packet proposes a CARVE, never a removal, and authors neither; `scripts/review_lane_repin.py` is untouched — the driver's five-site discipline is a SAFEGUARD this enrolment relies on, so editing it would edit the ground the enrolment stands on; codexFactory's promoted `Bounded autonomous surface` is untouched here — the `## MODIFIED` it needs is codexFactory's text to move, exactly as `extend-merge-master-envelope-to-floor-bot-lanes` split it; NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED ANYWHERE; and no schema, credential, contract member, pin byte or digest set moves.
+code_surface: openxFactory, and it is THREE FILES at realization and not one. (1) `.github/merge-approval-envelope.yml` gains a SECOND candidate class, `openxfactory-review-lane-repin`, whose every condition is a value MEASURED off this lane's own observed pull requests rather than asserted; (2) `tests/review_lane_pin/test_review_lane_caller.py` — its `sole_candidate()` helper refuses anything but exactly one candidate today, in terms ("a second entry is a NEW GRANT rather than a configuration change"), so admitting a second class means REPLACING that helper with a per-class shape assertion that pins BOTH classes exactly, and the replacement is the load-bearing edit of the realization rather than a consequence of it; (3) `.github/workflows/review-lane-repin.yml` — the `ARMED_TAIL` witness at `:789` carries a second sentence the file's own comment at `:783-788` says "MUST BE DROPPED THE DAY IT STOPS BEING TRUE", and dropping exactly that sentence and nothing else is this packet's realization act on the workflow. NOT THIS CHANGE'S SURFACE, each for a stated reason: `.github/workflows/merge-master-approval.yml` is untouched — the floor composition at `:1602-1603` is the pinned decision core's caller and the N-1b (ii) carve it needs is codexFactory's decision core to author, consumed here at a later re-pin; `contracts/review-lane-pin.yaml` is untouched and STAYS ON THE NEVER-CLEARABLE FLOOR — this packet proposes a CARVE, never a removal, and authors neither; `scripts/review_lane_repin.py` is untouched — the driver's five-site discipline is a SAFEGUARD this enrolment relies on, so editing it would edit the ground the enrolment stands on; codexFactory's promoted `Bounded autonomous surface` is untouched here — the `## MODIFIED` it needs is codexFactory's text to move, exactly as `extend-merge-master-envelope-to-floor-bot-lanes` split it; NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED ANYWHERE; and no schema, credential, contract member, pin byte or digest set moves.
 target_release: a code surface, so per `release-realization` it archives only on merged + green realization evidence, and the evidence has TWO halves of which the second is NOT MANUFACTURABLE BY THIS REPOSITORY ALONE. Half one: the second candidate class landed with `tests/review_lane_pin/` green against a shape assertion that pins both classes, and `python3 scripts/validate-omnigent-contracts.py`-class validators unaffected. Half two: ONE real `bot/review-lane-repin` pull request observed reaching an autonomous approval and MERGING with no human click — which requires the codexFactory carve (N-1b (ii)), the codexFactory `Bounded autonomous surface` narrowing, and Brett Heap's word on the completion path, NONE of which this packet may take. **THE ENROLMENT IS THEREFORE EXPECTED TO LAND INERT, exactly as `amend-mirror-floor-regeneration-merge-authority`'s arming did**, and that is stated here rather than discovered at the archive gate. No contract bundle is cut, no `contract_bundle_version` is spent and no release tag is owed.
 sequenced_after: [amend-mirror-floor-regeneration-merge-authority, extend-merge-master-envelope-to-floor-bot-lanes]
 ---
@@ -132,7 +132,7 @@ attached to the entry `contracts/review-lane-pin.yaml`:**
 > judge.
 
 **and it is composed OVER the envelope, in running code**, at this repository's
-`.github/workflows/merge-master-approval.yml:1504`: `park "the candidate touches
+`.github/workflows/merge-master-approval.yml:1603`: `park "the candidate touches
 the repository gate floor (matched=…); a never-clearable path is never
 autonomously approvable, whatever the envelope says"`. It fires BEFORE the
 envelope is consulted. It is also promoted-adjacent canon: the ratified
@@ -158,9 +158,9 @@ of freedom over, and each is a measurement rather than a promise:
    by reading it back, and writes nothing outside them. `path_allowlist` names
    those four files EXACTLY — not a directory pattern — so a fifth path in the
    diff parks the candidate whatever else is true.
-3. **The value.** `.github/workflows/review-lane-repin.yml:259-267` resolves
+3. **The value.** `.github/workflows/review-lane-repin.yml:424-441` resolves
    codexFactory's default branch AT RUN TIME and refuses to pin at any other
-   reference; the header at `:41-43` records that the lane "ignores any commit,
+   reference; the header at `:67-69` records that the lane "ignores any commit,
    branch or reference named by its trigger" and that the payload is never read.
    **So the only value this lane can ever propose is codexFactory's own
    default-branch head.**
@@ -240,7 +240,7 @@ the trusted thing.** A reader who disagrees should refuse this packet, and
   packet proposes a CARVE and refuses a removal by name, in a requirement and in
   a scenario. The ground at `:108-111` is not weakened; it is satisfied by
   showing the pull request has no choice to make.
-* **The floor composition at `merge-master-approval.yml:1499-1506` is not
+* **The floor composition at `merge-master-approval.yml:1602-1603` is not
   edited here.** The N-1b (ii) carve is codexFactory's decision core to author
   and this repository consumes it at a later re-pin. This packet asks for it and
   does not write it.

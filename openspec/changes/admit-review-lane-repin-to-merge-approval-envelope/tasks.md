@@ -68,7 +68,7 @@ is the RIGHT text and nothing here is proven by being written.
       ratified.
 - [ ] 2.3 **The never-clearable ground is confronted, not routed around**:
       `proposal.md` § *The design problem* quotes the floor comment verbatim,
-      quotes the running park at `merge-master-approval.yml:1504`, and answers
+      quotes the running park at `merge-master-approval.yml:1603`, and answers
       it with four measured safeguards plus a stated residual risk.
 - [ ] 2.4 **Every admission condition is a MEASUREMENT with its command
       recorded**, not an assertion: `expected_author: openxfactory[bot]`
@@ -128,7 +128,7 @@ before the word that authorizes it.**
 
 - [ ] 4.1 **THE CARVE, in codexFactory's decision core** — the **N-1b (ii)**
       shape of `extend-merge-master-envelope-to-floor-bot-lanes`: the floor
-      composition at this repository's `.github/workflows/merge-master-approval.yml:1504`
+      composition at this repository's `.github/workflows/merge-master-approval.yml:1603`
       stops refusing for ONE named enrolled candidate whose floor-matched set is
       exactly `{contracts/review-lane-pin.yaml}`, with the path staying
       never-clearable for every other candidate and every other author.

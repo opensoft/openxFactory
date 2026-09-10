@@ -52,13 +52,13 @@ origin:
     `scripts/merge_master/openxfactory-review-authority-floor.yaml:108-111`, is
     that a clearable pin "would let a pull request choose its own judge" — and
     the floor is composed OVER the envelope in running code at this
-    repository's `.github/workflows/merge-master-approval.yml:1504`. The answer
+    repository's `.github/workflows/merge-master-approval.yml:1603`. The answer
     offered is that the enrolment gives the pull request no degree of freedom
     over the judge: the author, head and base are measured off PR #732; the diff
     is written by `scripts/review_lane_repin.py`, which moves all five sites or
     opens nothing and writes nothing outside them; the value is codexFactory's
     default-branch head resolved AT RUN TIME with any trigger-named reference
-    refused (`review-lane-repin.yml:259-267`, header `:41-43`); and LQ-A7 runs
+    refused (`review-lane-repin.yml:424-441`, header `:67-69`); and LQ-A7 runs
     against the PROPOSED core as a required check that `require_all_checks:
     true` conjuncts in. The residual — that an autonomous approval of such a
     delivery is the envelope approving a change to its own NEXT judge — is
