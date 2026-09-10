@@ -36,11 +36,17 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
   `arrival-digest-mismatch`       the arrived bytes or the arrived mode are not
                                   the row's. Every moved row at phase A; every
                                   `moved_verbatim` row at BOTH phases, because
-                                  verbatim means verbatim in every phase.
+                                  verbatim means verbatim in every phase; and
+                                  every DECLARED replica — in both phases where
+                                  its row declares no line, at phase A where it
+                                  does (RULED Q-L7 (a)).
   `arrival-undeclared-edit`       phase B only: the arrived blob differs from
                                   the carve blob on a line no `edits[].lines`
                                   declares. The refusal NAMES THE LINES and
-                                  carries a unified-diff excerpt.
+                                  carries a unified-diff excerpt. A declared
+                                  replica whose row declares lines is held to
+                                  the same bound at the path `--replica-at`
+                                  names.
   `arrival-undeclared-file`       an ENTRY under one of this destination's
                                   DECLARED ROOTS that no row places and no
                                   admission rule admits — a file, a symlink,
@@ -89,7 +95,7 @@ reach is worse than one that does not reach.
     inventing the answer it then checked. Two readings, and both are offered.
     UNDECLARED, this file ADMITS a destination file whose bytes still equal a
     replica's NON-EMPTY blob at `carve_commit` and reports the count — empty
-    bytes identify no file, and two of the landed manifest's 18 replica rows
+    bytes identify no file, and two of the landed manifest's 20 replica rows
     are `fixtures/empty/*/.gitkeep`, so an empty-digest admission would let any
     empty created file ride in as "a replica"; such a replica is admitted only
     by `--replica-at`, which admits by name; it cannot say
@@ -105,6 +111,36 @@ reach is worse than one that does not reach.
     that copy is simply not declared, which leaves it exactly where it was. A
     row that is neither verbatim nor declared-edit is not made falsifiable by
     wishing; it is made falsifiable by somebody declaring where it went.
+  * "APPLIED IDENTICALLY AT EVERY REPLICA" IS A BOUND ON LINES, NOT A
+    CROSS-DESTINATION COMPARISON (RULED Q-L7 (a)). A replica row may now
+    declare `edits:`, and this file verifies the declaration exactly as it
+    verifies a moved row's: byte-identical at phase A, and at phase B a diff
+    against the carve blob that touches only the row's own
+    `edits[].lines`. ONE DESTINATION IS VERIFIED PER RUN — that is what
+    `--destination` means — so two legs placing the same replica are two runs,
+    and nothing here compares their two copies with each other. Two replicas
+    edited DIFFERENTLY on the same declared line therefore both pass, and the
+    identity of the applied text is the operator's claim in the pull request
+    plus each leg's own `validate`. An UNAPPLIED declared edit on a replica
+    does not refuse either, on the same reasoning as a moved row's (below):
+    its diff touches no undeclared line, which is the only question the
+    ruling's sentence asks. It is COUNTED in `declared_edits_unapplied`
+    alongside the moved rows', and what refuses an unapplied
+    `REPO_ROOT = HERE.parent.parent` is the destination's own suite, where a
+    root pointing outside the repository is 391 setup errors and not an
+    opinion.
+  * A MOVED ROW THE MANIFEST ALSO REPLICATES ELSEWHERE
+    (`also_replicated_to:`, RULED Q-L7 (a)) is a MOVE at the destination its
+    `destination:` names and a REPLICA at each destination the list names. At
+    the listed destination it is answered exactly as a replica is: undeclared,
+    admitted by identity with its blob at `carve_commit`; declared with
+    `--replica-at`, present and within its bound. `--replica-at` admits such a
+    row ONLY when the destination being verified is in that list AND is not
+    the row's own — so the flag still cannot re-point an arrival the manifest
+    declared, which is what it was narrowed for. The row's `git_mode` IS
+    compared at such a replica, because a moved row declares one; a
+    `replicated_at_destination` row declares none and its replica's mode is
+    still unchecked.
   * A file CREATED at a destination has no row either (RULED OQ-C) — the import
     root, `pyproject.toml`, `pytest.ini`, `conftest.py`, and openXdox-code's
     `openxfactory_surface.py` (RULED OQ-L). Each is named on the command line
@@ -529,6 +565,26 @@ def replica_rows(doc: dict[str, Any]) -> list[dict[str, Any]]:
             and row.get("reason") == REPLICA_REASON]
 
 
+def also_replicated_rows(doc: dict[str, Any],
+                         destination: str) -> list[dict[str, Any]]:
+    """The MOVED rows this destination receives as a REPLICA rather than as a
+    move — `also_replicated_to:` listing it (RULED Q-L7 (a)).
+
+    THE ROW'S OWN DESTINATION IS EXCLUDED, even where a document lists it.
+    Such a manifest is `validate-carve-manifest.py`'s
+    `carve-disposition-inconsistent` and this file does not re-own its shape;
+    what it must not do is ACT on it, because at that one destination the row
+    already declares an arrival by `destination_path:` and admitting it here as
+    a replica would let `--replica-at` re-point it — the single thing that flag
+    was narrowed to prevent.
+    """
+    return [row for row in doc["rows"]
+            if isinstance(row, dict)
+            and row.get("disposition") in MOVED_DISPOSITIONS
+            and row.get("destination") != destination
+            and destination in (row.get("also_replicated_to") or [])]
+
+
 def declared_roots(rows: list[dict[str, Any]]) -> list[str]:
     """The MINIMAL directories under which every one of `rows` lands.
 
@@ -666,8 +722,15 @@ def _declared_line_set(row: dict[str, Any]) -> set[int]:
 
 
 def _check_declared_lines(row: dict[str, Any], carve: bytes,
-                          arrived: bytes) -> None:
+                          arrived: bytes, at: str | None = None) -> None:
     """Refuse unless every changed line is one the row declares.
+
+    `at` is the ARRIVED PATH the refusal names, defaulting to the row's own
+    `destination_path`. It is a parameter because a REPLICA of this row (RULED
+    Q-L7 (a)) arrives at a path `--replica-at` names and not at any path the
+    row carries — and a `replicated_at_destination` row carries no
+    `destination_path` at all, so a message that read one would raise a
+    `KeyError` where it meant to report a finding.
 
     THE LINE NUMBERS ARE THE CARVE COMMIT'S, which is what makes them
     falsifiable: a destination-side numbering would move under the very edits it
@@ -691,12 +754,13 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
     is exactly that, and it refuses rather than passing as "no changed line".
     """
     declared = _declared_line_set(row)
+    arrived_at = at if at is not None else row.get("destination_path")
     carve_lines = carve.decode("utf-8", "surrogateescape").splitlines()
     arrived_lines = arrived.decode("utf-8", "surrogateescape").splitlines()
     if carve_lines == arrived_lines:
         raise ArrivalRefusal(
             "arrival-undeclared-edit",
-            f"{row['destination_path']} differs from the carve commit's blob "
+            f"{arrived_at} differs from the carve commit's blob "
             "in a way no line number can name — the line terminators, or a "
             "final newline gained or lost. The declared-edit grammar bounds "
             "LINES, so a change outside them is undeclared whatever its size")
@@ -723,14 +787,14 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
         excerpt = "\n".join(list(difflib.unified_diff(
             carve_lines, arrived_lines,
             fromfile=f"carve:{row['source_path']}",
-            tofile=f"arrived:{row['destination_path']}",
+            tofile=f"arrived:{arrived_at}",
             lineterm="", n=1))[:24])
         classes = ", ".join(sorted({
             str(edit.get("class")) for edit in row.get("edits") or []
             if isinstance(edit, dict)})) or "none"
         raise ArrivalRefusal(
             "arrival-undeclared-edit",
-            f"{row['destination_path']} was edited at carve-commit line(s) "
+            f"{arrived_at} was edited at carve-commit line(s) "
             f"{shown} which the row for {row['source_path']} does not declare; "
             f"it declares {sorted(declared)} under class(es) {classes}. "
             "Commit B applies the declared edits and nothing else — an edit in "
@@ -742,12 +806,22 @@ def _check_declared_lines(row: dict[str, Any], carve: bytes,
 # check 2b — replicas the OPERATOR declares (the manifest cannot)
 # --------------------------------------------------------------------------
 
-def parse_replica_placements(values: list[str],
-                             doc: dict[str, Any]) -> dict[str, str]:
+def parse_replica_placements(values: list[str], doc: dict[str, Any],
+                             destination: str) -> dict[str, str]:
     """`--replica-at SOURCE=DESTPATH`, parsed against the manifest's replicas.
 
+    THE LEFT SIDE IS A REPLICA ROW'S `source_path`, OR — RULED Q-L7 (a) — a
+    MOVED row's, IFF the manifest lists the destination being verified in that
+    row's `also_replicated_to:` and that destination is not the row's own. The
+    `destination` argument is what makes the second half an `iff` rather than
+    a widening: the same flag naming the same row is admitted at the leg the
+    manifest replicates it to and REFUSED at every other leg, including the one
+    the row already moves to. A flag that could name any moved row would let a
+    caller re-point an arrival the manifest declared, which is the one thing
+    the manifest is for.
+
     WHY A COMMAND-LINE DECLARATION AND NOT A DERIVATION. Measured over the
-    landed manifest, all 18 `not_moved / replicated_at_destination` rows carry
+    landed manifest, all 20 `not_moved / replicated_at_destination` rows carry
     NO `destination`, NO `destination_path`, NO `sha256` and NO `git_mode` —
     the row grammar gives a `not_moved` row none of them, and RULED OQ-C is the
     reason ("this manifest declares what LEAVES, not what the destination
@@ -775,6 +849,8 @@ def parse_replica_placements(values: list[str],
     thing.
     """
     replicas = {row["source_path"] for row in replica_rows(doc)}
+    also = {row["source_path"]
+            for row in also_replicated_rows(doc, destination)}
     placements: dict[str, str] = {}
     for value in values:
         source_path, sep, relpath = value.partition("=")
@@ -785,14 +861,19 @@ def parse_replica_placements(values: list[str],
                 "is a replica row's source_path in openxFactory and the right "
                 "is where it landed, relative to --dest-root")
         relpath = dest_relative(relpath, "--replica-at")
-        if source_path not in replicas:
+        if source_path not in replicas and source_path not in also:
             raise ArrivalRefusal(
                 "arrival-unreadable",
-                f"--replica-at names {source_path!r}, which is not a "
-                f"`not_moved / {REPLICA_REASON}` row of this manifest. A "
-                "moved row's arrival is declared by its own "
+                f"--replica-at names {source_path!r}, which at destination "
+                f"{destination!r} is neither a `not_moved / {REPLICA_REASON}` "
+                "row of this manifest nor a moved row whose "
+                "`also_replicated_to:` lists this destination (RULED Q-L7 "
+                "(a)). A moved row's arrival is declared by its own "
                 "`destination_path:`, and a flag that could name one would let "
-                "a caller re-point a row the manifest already placed")
+                "a caller re-point a row the manifest already placed — so a "
+                "moved row is admitted here only where the manifest itself "
+                "says these bytes are ALSO replicated at the destination being "
+                "verified, and never at the destination the row moves to")
         if source_path in placements:
             raise ArrivalRefusal(
                 "arrival-unreadable",
@@ -805,10 +886,30 @@ def parse_replica_placements(values: list[str],
 
 
 def check_replicas(placements: dict[str, str], dest_root: Path,
-                   source_repo: Path, carve_commit: str) -> int:
-    """Every DECLARED replica present, and byte-identical to the carve blob."""
-    verified = 0
+                   source_repo: Path, carve_commit: str,
+                   doc: dict[str, Any], phase: str) -> dict[str, int]:
+    """Every DECLARED replica present, and its bytes what the phase requires.
+
+    BYTE-IDENTICAL TO THE CARVE BLOB, except where the replica's ROW DECLARES
+    LINES (RULED Q-L7 (a)) and the phase is B — the two phases being the two
+    commits, at a replica exactly as at a moved row: commit A places the copy,
+    commit B applies the declared edit. So the answer is the same code path a
+    moved row's is, `_check_declared_lines` included, with the arrived path
+    coming from `--replica-at` rather than from a `destination_path:` the row
+    may not have.
+
+    THE MODE IS COMPARED ONLY WHERE THE ROW DECLARES ONE. A moved row also
+    replicated here carries `git_mode:`; a `replicated_at_destination` row
+    carries none, and inventing an expectation for it would be this file
+    deriving a claim the manifest does not make — the same reason it does not
+    derive the replica's PATH.
+    """
+    counts = {"verified": 0, "diffed": 0, "unapplied": 0}
+    rows = {row["source_path"]: row for row in doc["rows"]
+            if isinstance(row, dict) and isinstance(row.get("source_path"), str)}
     for source_path, relpath in sorted(placements.items()):
+        row = rows.get(source_path, {})
+        declared = _declared_line_set(row)
         target = dest_root / relpath
         if not os.path.lexists(target):
             raise ArrivalRefusal(
@@ -819,7 +920,17 @@ def check_replicas(placements: dict[str, str], dest_root: Path,
                 "that never arrived leaves the leg importing a module that is "
                 "not there, which its own `validate` finds later and less "
                 "clearly")
-        _mode, data = read_arrived(target)
+        mode, data = read_arrived(target)
+        expected_mode = row.get("git_mode")
+        if isinstance(expected_mode, str) and mode != expected_mode:
+            raise ArrivalRefusal(
+                "arrival-digest-mismatch",
+                f"the replica of {source_path} at {relpath} arrived with mode "
+                f"{mode} where its row records {expected_mode!r}. This row "
+                "MOVES to another destination and is ALSO replicated here "
+                "(RULED Q-L7 (a)), so it declares a mode — and an executable "
+                "bit gained or lost in transit is a change no digest "
+                "comparison would name")
         carve = blob_at(source_repo, carve_commit, source_path)
         if carve is None:
             raise ArrivalRefusal(
@@ -827,6 +938,19 @@ def check_replicas(placements: dict[str, str], dest_root: Path,
                 f"{source_repo} carries no blob at {carve_commit[:12]}:"
                 f"{source_path}, which the declared replica is compared "
                 f"against; run {MANIFEST_VALIDATOR}")
+        if declared and phase == "B":
+            if data == carve:
+                # UNAPPLIED, AND LAWFUL, on the moved row's own reasoning: the
+                # diff touches no undeclared line. Counted with the moved
+                # rows' unapplied edits, because a phase-B run in which the
+                # replica's declared line was applied and one in which it was
+                # not are very different events wearing the same `OK`.
+                counts["unapplied"] += 1
+            else:
+                _check_declared_lines(row, carve, data, at=relpath)
+                counts["diffed"] += 1
+            counts["verified"] += 1
+            continue
         if data != carve:
             raise ArrivalRefusal(
                 "arrival-digest-mismatch",
@@ -835,15 +959,19 @@ def check_replicas(placements: dict[str, str], dest_root: Path,
                 f"{digest(carve)}. A replica is a COPY (RULED OQ-A) and the "
                 "manifest records no digest for one, so DECLARING it is what "
                 "makes the copy checkable — a declared replica that drifted is "
-                "a claim withdrawn, not a fidelity this file never had. Where "
-                "the copy MUST differ at this destination — "
-                "`tests/corpus-adapter/test_conformance.py`'s "
+                "a claim withdrawn, not a fidelity this file never had."
+                + (" Its row DECLARES lines (RULED Q-L7 (a)) and PHASE A "
+                   "requires the carve commit's bytes exactly: commit A places "
+                   "the copy, commit B applies the declared edit, at a replica "
+                   "exactly as at a moved row." if declared else "")
+                + " Where the copy MUST differ at this destination and no line "
+                "declares it — `tests/corpus-adapter/test_conformance.py`'s "
                 "implementation-aware block names the home factory and is "
                 "rewritten at each destination — do not declare it with "
                 "--replica-at; it is then admitted, uncounted as verified, on "
                 "the same terms as before")
-        verified += 1
-    return verified
+        counts["verified"] += 1
+    return counts
 
 
 # --------------------------------------------------------------------------
@@ -1194,8 +1322,16 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     if rows or replica_placements:
         require_commit(source_repo, carve_commit)
     counts = check_arrivals(rows, dest_root, source_repo, carve_commit, phase)
-    replicas_verified = check_replicas(replica_placements, dest_root,
-                                       source_repo, carve_commit)
+    replica_counts = check_replicas(replica_placements, dest_root,
+                                    source_repo, carve_commit, doc, phase)
+    # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
+    # (a)), in the two counters a reader already knows how to read, rather than
+    # in two new summary fields that would ask every consumer to learn a second
+    # accounting for the same event. `replicas_verified` keeps its own meaning:
+    # the declared replicas whose presence and bytes were answered.
+    counts["diffed"] += replica_counts["diffed"]
+    counts["unapplied"] += replica_counts["unapplied"]
+    replicas_verified = replica_counts["verified"]
 
     roots = declared_roots(rows)
     # A DECLARED replica is admitted BY NAME, so it no longer rides into the
@@ -1203,7 +1339,7 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # path is the one admitted.
     placed = {row["destination_path"] for row in rows}
     placed.update(replica_placements.values())
-    # EMPTY REPLICA BLOBS ADMIT NOTHING. Two of the landed manifest's 18
+    # EMPTY REPLICA BLOBS ADMIT NOTHING. Two of the landed manifest's 20
     # replica rows are `fixtures/empty/*/.gitkeep`, whose blob is empty, so an
     # admission by byte-identity would let ANY empty file under a declared root
     # — a created `__init__.py`, a truncated module — in as "a replica", which
@@ -1212,8 +1348,16 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # placeholder a replica for the same reason; this is the rest of it.
     # A replica whose carve blob is empty is admitted only by `--replica-at`,
     # which admits BY NAME and is the stronger claim anyway.
+    # A MOVED ROW THE MANIFEST ALSO REPLICATES HERE is admitted in the walk on
+    # a replica's terms too (RULED Q-L7 (a)): the manifest says these bytes
+    # arrive at this destination as a copy, so a file carrying exactly them is
+    # no more undeclared than any other replica's. Where such a row DECLARES
+    # LINES the arrived copy is edited and its bytes match nothing here, which
+    # is the honest outcome — an edited replica must be DECLARED with
+    # `--replica-at` to be read as one, and undeclared it refuses
+    # `arrival-undeclared-file` naming that flag.
     replicas: set[str] = set()
-    for row in replica_rows(doc):
+    for row in [*replica_rows(doc), *also_replicated_rows(doc, destination)]:
         data = blob_at(source_repo, carve_commit, row["source_path"])
         if data:
             replicas.add(digest(data))
@@ -1294,8 +1438,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--replica-at", metavar="SOURCE=PATH", action="append", default=[],
         help=("where a `not_moved / replicated_at_destination` row landed at "
-              "this destination; the manifest declares no path or digest for "
-              "a replica, so declaring one here makes the copy checkable"))
+              "this destination — or a MOVED row whose `also_replicated_to:` "
+              "lists this destination (RULED Q-L7 (a)); the manifest declares "
+              "no path for a replica, so declaring one here makes the copy "
+              "checkable"))
     parser.add_argument(
         "--json", action="store_true",
         help="print one JSON object on stdout instead of the human line")
@@ -1388,7 +1534,8 @@ def main(argv: list[str] | None = None) -> int:
                          args.phase,
                          {dest_relative(p, "--allow-created")
                           for p in args.allow_created},
-                         parse_replica_placements(args.replica_at, doc),
+                         parse_replica_placements(args.replica_at, doc,
+                                                  args.destination),
                          resolve_dest_base(dest_root, args.dest_base))
     except ArrivalRefusal as exc:
         return _refused(exc, args, where)
@@ -1454,8 +1601,9 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
             f"within their lines, "
             f"{summary['declared_edits_unapplied']} unapplied; "
             f"{summary['replicas_verified']} of "
-            f"{summary['replicas_declared']} declared replica(s) "
-            f"byte-identical; "
+            f"{summary['replicas_declared']} declared replica(s) verified "
+            f"(byte-identical, or — where the row declares lines — differing "
+            f"only on them); "
             f"{summary['files_walked']} file(s) under {roots} with none "
             f"undeclared ({adm['scaffold']} scaffold, {adm['replica']} "
             f"replica, {adm['created']} created)")
