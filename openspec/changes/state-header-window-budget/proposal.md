@@ -26,7 +26,7 @@ quoted here in full because this packet exists to answer it and not to
 paraphrase it:
 
 > The requirement defines the header-line site as being within the first 15
-> real lines and outside any leading `---` fence, but it doesn't explicitly
+> real lines and outside any leading `---` fence, but it doesn’t explicitly
 > state whether fence lines still count toward the 15-line window. The
 > implementation (`scripts/frontmatter_strict.py:541-545`) treats fence lines
 > as non-declaration lines that still count toward the window, so spelling
@@ -34,16 +34,24 @@ paraphrase it:
 
 Lane codexfactory-1 replied on that thread
 ([discussion_r3981322763](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763)),
-as itself and not as a ruling: the reading is correct, the packet's own
-`tasks.md` § 2.3 already says so in words ("Fence lines still COUNT toward
-the window — one window rule, the document's own"), and PR #906 was the
-wrong place to fix it — editing the promoted requirement's text there would
-have broken the sha256 byte-identity between the archived delta and the
-promoted spec that pull request's own evidence rests on, and would have
-amended ratified text with no ruling behind the amendment. The reply named
-the remedy: a narrow `## MODIFIED` amendment, of the shape
-`amend-marker-reason-boundary` and `amend-neutral-product-pin-interim-copy-vocabulary`
-already took for comparably small gaps. **This packet is that amendment.**
+as itself and not as a ruling — **quoted here in full, corrected 2026-09-10
+after Copilot found the earlier text here paraphrased the reply instead of
+quoting it, contradicting task 1.2's own commitment to quote both comments
+in full:**
+
+> Lane: codexfactory-1
+>
+> **Taken as a real documentary gap, and DECLINED IN THIS PULL REQUEST for a reason that is this pull request's whole claim.** Answering once.
+>
+> **The reading is correct.** Fence lines DO count toward the fifteen-real-line window while being unavailable as declaration sites — the implementation is deliberate about it, and the packet says so in `tasks.md` § 2.3: *"One fence rule for both readers: `fenced_lines` takes the lines INSIDE the span and the header-line scan starts AFTER it, so a field declared in the fence is read once and never counted a second time as a header line. **Fence lines still COUNT toward the window — one window rule, the document's own.**"* The requirement text as ratified states the first half (*"outside any leading `---` fence, whose lines are read by the front-matter reader and MUST NOT be counted a second time as header lines of the same document"*) and is silent on the budget half.
+>
+> **Why not fixed here.** This is an ARCHIVE commit. Its central claim, asserted with sha256 on both sides, is that the two promoted requirements are **byte-identical to the ratified delta** — 4,313 B `85894b71…` and 2,719 B `5c824838…`. Editing one word of that text at the archive would break that identity and, worse, would amend requirement text Brett Heap ratified at head `f36d2bc2` on 2026-09-10T11:31:31Z with **no ruling behind the amendment**. A promoted requirement is amended by an OpenSpec change with a `## MODIFIED Requirements` block and its own ratification, not by an archiver's judgement.
+>
+> **Where it goes instead.** The observation is worth a change of its own — a one-clause MODIFIED on this requirement making the window-budget rule explicit, which is exactly the kind of narrow amendment the corpus takes routinely (`amend-marker-reason-boundary`, `amend-neutral-product-pin-interim-copy-vocabulary`). **It is not silently dropped:** it is answered here, on the packet whose text it concerns, and the behaviour it asks to have spelled out is already asserted by test rather than left to a consumer's guess — `tests/sequenced_after/test_header_line.py` covers the fence cases, and the reader has ONE window rule for both sites by construction (`split_real_lines` + `fence_span`, shared), so a consumer that vendors the reader inherits the rule whether or not the prose spells it out. codexFactory, the only consumer reading it today, vendors those exact bytes — proven byte-equal at `b91af6ea` in this pull request's evidence § 3.
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+**This packet is that amendment** — the "one-clause MODIFIED" the reply above names.
 
 ## Why
 
