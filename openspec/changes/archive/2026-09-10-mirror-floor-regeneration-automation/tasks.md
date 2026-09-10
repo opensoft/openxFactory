@@ -666,7 +666,15 @@ boxes:
   Four of the six boxes his word reaches are owner's acts in § 6 and this one is
   not: it is one of the two he delegated with *"rule on the rest"*, and what
   follows is the ruling, with the run and merge citations it rests on read back
-  from the API rather than restated. **BOTH CLAUSES ARE OBSERVED ON CYCLE
+  from the API rather than restated.
+  **EVERYTHING ABOVE THIS DATED NOTE IS THE RECORD OF 2026-09-06 AND
+  2026-09-09, KEPT VERBATIM, AND EXACTLY TWO OF ITS SENTENCES ARE SUPERSEDED —
+  named here rather than struck out, which is how every earlier disposition in
+  this file was written.** They are *"HALF OBSERVED, HALF NOT OBSERVABLE ON
+  THIS CYCLE — STAYS OPEN"* and *"THE BOX STAYS OPEN"*: both were true of the
+  cycle each was written about, and neither is true of cycle three. Every other
+  sentence above stands, the supersession of the human-word clause at (a)
+  included. **BOTH CLAUSES ARE OBSERVED ON CYCLE
   THREE**, the first cycle that ran with a non-zero starting count (5.1).
   **CLAUSE (a) — *"both merge on a human word"*.** This repository's half
   merged on his word *"merge both"*:
@@ -754,6 +762,13 @@ boxes:
   Heap's delegation, verbatim: "same word for the mirror's six on #745"
   (extending "tick 6.1, 6.2, 6.4 and 6.3; rule on the rest")
   ([#745, comment 5618883586](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)).**
+  **EVERYTHING ABOVE THIS DATED NOTE IS THE RECORD OF 2026-09-06 AND
+  2026-09-09, KEPT VERBATIM, AND EXACTLY TWO OF ITS SENTENCES ARE SUPERSEDED —
+  named here rather than struck out.** They are *"MEASURED AND RECORDED — NOT
+  YET THE FIGURE THE BOX ASKS FOR, SO IT STAYS OPEN"* and *"THE BOX STAYS
+  OPEN"*. Everything else above stands, and the central finding of both earlier
+  notes — that the figure asked for is still owed — is not superseded but
+  CARRIED: it is restated below, with the successor it is owed to named.
   **WHAT WAS MEASURED, on cycle three, every timestamp read back from the API.**
   End to end: promotion `62935437fc59436f92b919654b42df9a0f0cbd9f`
   (`openspec/specs/repository-identity/spec.md`, 2026-09-10T00:38:27Z) → last
