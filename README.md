@@ -529,6 +529,34 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [state-header-window-budget](openspec/changes/state-header-window-budget/proposal.md)
+  — authored 2026-09-10, lane `codexfactory-1`, **`Status: draft` —
+  RATIFICATION OWED (Brett Heap)**, on the resume ruling **"fan out wide"**
+  (authorization to author, not content ratification). Routed from a Copilot
+  review on openxFactory PR
+  [#906](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981305715)
+  (the archive of `accept-sequenced-after-header-line`): the promoted
+  requirement "Equivalent declaration sites for the ordered-delta parent
+  declaration" states that a header-line declaration sits within the bounded
+  lifecycle header window and outside any leading `---` fence, but does not
+  say whether the fence's own lines still occupy part of the window's
+  fifteen-line budget. They do — `scripts/frontmatter_strict.py` already
+  counts the window from the document's own line 1, fence included, and this
+  packet was re-verified empirically on the branch rather than trusted from
+  the docstring's word alone (`proposal.md` § Why). Brett Heap answered on
+  that thread as lane `codexfactory-1`, agreed the reading was correct, and
+  DECLINED to edit the archive's promoted text there — doing so would have
+  broken the sha256 byte-identity PR #906's own evidence rests on — naming
+  this packet's shape instead:
+  [discussion_r3981322763](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763).
+  **ONE `## MODIFIED` requirement, one paragraph added, one scenario added
+  (`Fence lines consume the header window budget`), every existing sentence
+  and scenario carried verbatim** — machine-diffed against the promoted spec
+  with the two additions stripped out, clean. `code_surface: none`; archives
+  on landing once ratified. Ledger `class: sole` — no other active change
+  and no open pull request touches `release-realization` or
+  `frontmatter_strict` (checked 2026-09-10). Lane `codexfactory-1`.
+
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,
