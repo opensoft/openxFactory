@@ -1,6 +1,17 @@
-# Ratification — 2026-09-10
+# Proposal Ratification: accept-sequenced-after-header-line
 
-Status: record
+Status: ratified
+Kind: report
+Decision date: 2026-09-10
+Ratifier: Brett Heap (repository owner)
+Ratified: 2026-09-10T11:31:31Z by Brett Heap (repository owner) — first-hand,
+in session, to lane `codexfactory-1` (window `codeXfactory-1`), verbatim:
+*"ratify 886, 0.2 as narrowed, 0.3 pure moves"*, over head `f36d2bc2`, on
+openxFactory draft PR
+[#886](https://github.com/opensoft/openxFactory/pull/886). This header block
+is per `document-lifecycle`'s *A review record records a ratification*
+(promoted, landed on `main` at `804a9170`/#890 while this record was being
+written — see the Addendum below); the prose sections keep the fuller account.
 
 ## Decision
 
@@ -182,3 +193,62 @@ repository's pin, does not perform the codexFactory pure-line-move
 disposition (task 4.3), and does not close codexFactory issue #268. A merge
 follows on a **SEPARATE word** — this repository's Rule 6 landing-window
 protocol applies, because this change touches `openspec/changes/`.
+
+## Addendum — three corrections found re-verifying this record, all self-caught
+
+**1. The `--all --strict` exit code in ratification commit `208f88d4`'s own
+message is WRONG, and this addendum names the error rather than leaving it
+uncorrected in the one place that still can be.** That message says
+`--all --strict` exited 0. It did not: the command's real exit code was
+swallowed by piping through `tail` before reading `$?`, which reports the
+pipe's last command, not `openspec`'s. Re-run without that bug, directly on
+`origin/main` tip `823ee6ce` (no diff from this change at all): `Totals: 97
+passed, 3 failed (100 items)`, **exit 1** — this repository's standing
+baseline, not a regression. On this branch: `Totals: 98 passed, 3 failed (101
+items)`, **exit 1** — exactly one more passing item (this change) than the
+baseline, the same three pre-existing, unrelated failures
+(`disposition-codexfactory-declared-renames`: no deltas;
+`neutral-product-pin` and `repo-boundary-governance`: a requirement missing
+SHALL/MUST on its first line). The single-change command's own exit code —
+`openspec validate accept-sequenced-after-header-line --strict` → exit 0 — was
+never piped and was always correctly reported.
+
+**2. Between this ratification and this addendum, `main` advanced 16 commits**
+and archived the immediately-adjacent README row,
+`amend-neutral-product-pin-interim-copy-vocabulary` (PR #884), producing a
+line-adjacency conflict in `README.md`'s "OpenSpec Records" block against this
+change's own ratified row directly above it. Resolved by merge commit
+`c5c2e5e7` (`Merge origin/main into
+change/accept-sequenced-after-header-line`) — a MERGE, not a rebase, so
+ratification commit `208f88d4` is unchanged and every citation to it above
+remains correct. The resolution kept this change's ratified row exactly as
+committed and took `main`'s removal of the neighboring row (whose content
+survives, byte-identical, under "Archived changes"); no other file needed
+manual resolution. Re-verified post-merge: `accept-sequenced-after-header-line
+--strict` exit 0; `tests/sequenced_after tests/scope_globs` still 356 passed.
+
+**3. This record's own header block was wrong when first written, against a
+rule that landed under it while it was being written.** The same merge that
+produced correction 2 also carried PR #890 (merged to `main` at `804a9170`,
+2026-09-10T04:43:17Z) — `document-lifecycle`'s *A review record records a
+ratification*, now PROMOTED: "a `review/` document under a change packet
+[that] records that the change was ratified... MUST carry `Status: ratified`
+and one ratification citation." This record was first written `Status:
+record`, following the OLDER convention of its own stated model
+(`pin-openspec-cli-dependency-closure/review/ratification-2026-09-09.md`,
+itself still `Status: record` and still uncorrected — one of the "fourteen
+archived ratification records... out of contract" PR #890's own commit
+message names as pre-existing backlog, left alone here as not this packet's
+to fix). Caught by re-running `doc-health --family ratified-provenance` after
+the merge, which found exactly this record: *"a review record that records a
+ratification must carry Status: ratified and one citation."* Fixed in place,
+in the SAME shape a sibling packet's ratification record was independently
+corrected into a few hours earlier that same morning
+(`openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md`,
+re-derived 2026-09-10T00:20Z on Brett Heap's own ruling of the identical
+defect): `Status: ratified`, `Kind: report`, `Decision date:`, `Ratifier:`,
+`Ratified:` — the header block now above. Nothing normative moves: the
+ratifier, the word, the head, and everything ratified are unchanged: only
+this record's OWN standing metadata is corrected. Re-verified:
+`doc-health --family ratified-provenance` no longer names this file (or
+anything else in this packet).
