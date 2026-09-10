@@ -517,9 +517,9 @@ appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the preceden
       [#926](https://github.com/opensoft/openxFactory/pull/926) — THE BLOCK IS
       PROMOTED AND THE PACKET IS ARCHIVED, ON MERGED-PLUS-GREEN REALIZATION
       EVIDENCE AND ON BRETT HEAP'S SEPARATE WORD OF 2026-09-10T18:09Z, verbatim
-      *"archive 908 and close 856 860 when landed"*.** **THE EVIDENCE IS CITED RATHER THAN
-      ASSERTED, AND THE ONE FIGURE THAT DID NOT GO GREEN IS DISCLOSED RATHER
-      THAN LEFT TO BE FOUND.** **MERGED:** PR
+      *"archive 908 and close 856 860 when landed"*.** **THE EVIDENCE IS CITED
+      RATHER THAN ASSERTED, AND THE ONE FIGURE THAT DID NOT GO GREEN IS
+      DISCLOSED RATHER THAN LEFT TO BE FOUND.** **MERGED:** PR
       [#908](https://github.com/opensoft/openxFactory/pull/908) →
       **`d32509d3fa2b82d7d32dc01a08173a5010e16ef4`** on `main`,
       2026-09-10T20:54:22Z. **GREEN:** every one of the twelve check-rollup
@@ -541,16 +541,49 @@ appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the preceden
       lane's archive PR #925) superseded it. The green evidence above is the
       pull request's own required run; the successor `push` run on the `main`
       commit that CONTAINS this merge is named in the archive pull request's
-      body with its outcome as measured there. **AND THE doc-health ARM OF THE
-      PROPOSAL'S EVIDENCE SENTENCE IS ANSWERED WHERE IT ACTUALLY LIVES:** this
-      repository runs NO `doc-health` check on a pull request —
-      `.github/workflows/doc-health-reusable.yml` is `on: workflow_call` only,
-      called by the aggregation repository's nightly — so there is no such run
-      on that head to cite, and the recorded doc-health evidence is § 5.11's
-      capture instead (`review/verification-2026-09-10-post-merge.md`: exit 0,
-      the report BYTE-IDENTICAL at `md5 4e25037a656543b76727afc9a7c00e13`, 350
-      lines, on all three trees, marker defects 0 on every one), with
-      `tests/doc-health` itself inside the green `pytest-suite`. Performed with
+      body with its outcome as measured there — and it was CANCELLED the same
+      way, as was the one after it, `main` having taken four landings in
+      fifty minutes while the suite needs twenty to twenty-seven.
+      **WHAT THIS BOX'S RATIFIED SENTENCE NAMES LITERALLY DOES NOT EXIST, AND
+      THE TICK DOES NOT PRETEND OTHERWISE.** The sentence asks for *"a green
+      `pytest-suite` run ON that merge commit"*; no run with head `d32509d3`
+      reached a verdict. What is offered in its place is named exactly and is
+      weaker in ONE respect only — the head sha of the run, not the content it
+      ran: `d32509d3` is the CLEAN merge of `90beb006` and `60a3b23e`
+      (`git merge-tree --write-tree` over those two reproduces its tree
+      `201c675dd71695dd7c0560602761241acde05120` exactly, so no hand resolution
+      intervened), the merge-preview run tested that tree, and the base parent
+      `90beb006` carries its own green `push` run `34525126090`. **WHETHER THAT
+      SUBSTITUTION SATISFIES `release-realization` IS A JUDGMENT RESERVED TO THE
+      LANDING AUTHORITY AND IS NOT TAKEN BY THIS LANE.** It is put plainly on
+      the archive pull request rather than buried here, and if the standard is
+      read literally the remedy is to HOLD THE MERGE until a green run on a
+      `main` commit carrying this change exists — never to edit this record, and
+      never to re-run the workflow on `main` from this lane, which shares the
+      `pytest-suite-${{ github.ref }}` concurrency group with whatever another
+      lane has in flight and would cancel it. That refusal is deliberate.
+      **AND THE doc-health ARM OF THE PROPOSAL'S EVIDENCE SENTENCE IS ANSWERED
+      WHERE IT ACTUALLY LIVES:** this repository runs NO `doc-health` check on a
+      pull request — `.github/workflows/doc-health-reusable.yml` is
+      `on: workflow_call` only, called by the aggregation repository's nightly —
+      so there is no such run on that head to cite, and the recorded doc-health
+      evidence is § 5.11's capture instead
+      (`review/verification-2026-09-10-post-merge.md`: exit 0, the report
+      BYTE-IDENTICAL at `md5 4e25037a656543b76727afc9a7c00e13`, 350 lines, on
+      all three trees, marker defects 0 on every one), with `tests/doc-health`
+      itself inside the green `pytest-suite`. **THE PROPOSAL'S SENTENCE IS
+      THEREFORE MARKED HISTORICAL AND IS NOT CORRECTED**, on a review's point
+      that the archived packet would otherwise preserve an account of its own
+      evidence that does not resolve: `proposal.md`'s `target_release` says the
+      evidence *"is that pull request's green `pytest-suite` and doc-health
+      runs"*, written before anyone had looked for a doc-health check this
+      repository does not run on a pull request. It is **NOT EDITED** — it is
+      ratified surface and a frozen record, and editing it here would be a
+      second amendment with no word behind it — so it is answered in the box
+      that discharges it: the `pytest-suite` half resolves to run
+      `34526282328`, and the doc-health half to § 5.11's capture and to
+      `tests/doc-health` inside that same run. **This clause is where a later
+      reader should look, not the proposal's front matter.** Performed with
       `TZ=UTC python3 scripts/proposal-support.py . archive
       amend-marker-declaring-nothing --date 2026-09-10 --yes` through the pinned
       `@fission-ai/openspec@1.12.0` artifact — never a bare `openspec archive` —
@@ -575,29 +608,47 @@ appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the preceden
       writes the `## MODIFIED` block back into
       `openspec/specs/doc-health/spec.md`.
 - [x] 6.2 **DONE IN THE ARCHIVE PULL REQUEST
-      [#926](https://github.com/opensoft/openxFactory/pull/926) — `Closes #856`
-      AND `Closes #860` ARE ON THAT PULL REQUEST'S BODY AND ON NOTHING ELSE**,
-      each on its own line. Every other issue number in that body, in this file
-      and in every commit message on that branch is a `refs`-style naming that
-      closes nothing, and the pull request's `closingIssuesReferences` is
-      verified through GraphQL to be exactly `[856, 860]` — `totalCount 2`, both
-      nodes reading `state: OPEN` at the check. **AND ONE THING WENT WRONG AT
-      THE LANDING; IT IS NAMED HERE RATHER THAN LEFT IN A TIMELINE, AND IT IS
-      REPAIRED.** openxFactory **#856 WAS AUTO-CLOSED AT #908's MERGE**, at
-      2026-09-10T20:54:25Z, attributed by GitHub's own timeline to commit
-      `705cecef` — the ratification encode, whose MESSAGE carries the sentence
-      *"openxFactory #856 and #860 close AT THE ARCHIVE and not at this
-      landing"*. GitHub reads a closing keyword in ANY commit message merged into
-      the default branch, while `closingIssuesReferences` — the field #908's own
-      § 6.2 verified as `[]`, correctly — covers only the pull request BODY. The
-      body was clean; the commit message was not, and #860 escaped only because
-      the keyword fell next to #856. **#856 WAS REOPENED** at
+      [#926](https://github.com/opensoft/openxFactory/pull/926) — THE ONLY
+      OPERATIVE `Closes` REFERENCES TO #856 AND #860 ANYWHERE ARE THE TWO LINES
+      IN THAT PULL REQUEST'S BODY**, each on its own line. **THE CLAIM IS STATED
+      AT THE GRAIN THAT ACTUALLY DECIDES ANYTHING, WHICH IS NARROWER THAN "AND
+      NOWHERE ELSE"** — a review of this record on the archive pull request was
+      right that the two strings also occur in this file, in this clause and in
+      the ratified text beneath it, so the wider claim would be false as
+      written. What GitHub's closing parser reads is a pull request BODY and a
+      COMMIT MESSAGE; it does not read a tracked file's contents. In the body
+      those two lines are the only closing keywords, and the pull request's
+      `closingIssuesReferences` is verified through GraphQL to be exactly
+      `[856, 860]` — `totalCount 2`, both nodes reading `state: OPEN` at the
+      check. In the commit messages there is no closing keyword at all, in any
+      case or tense, asserted by a guard run over every message on the branch
+      rather than by eye. Every other issue number in the body and in this file
+      is a `refs`-style naming that closes nothing.
+      **AND ONE THING WENT WRONG AT THE LANDING; IT IS NAMED HERE RATHER THAN
+      LEFT IN A TIMELINE, AND IT IS REPAIRED.** openxFactory **#856 WAS
+      AUTO-CLOSED AT #908's MERGE**, at 2026-09-10T20:54:25Z, attributed by
+      GitHub's own timeline to commit `705cecef` — the ratification encode.
+      **THE TRIGGERING TEXT WAS FOUND RATHER THAN GUESSED, AND IT IS NOT THE
+      SENTENCE A READER WOULD SUSPECT:** scanning that message for a keyword
+      standing immediately before a reference returns exactly one hit, and it is
+      a QUOTED CLAIM THE MESSAGE EXISTS TO REFUSE — *"Sourcery's `directly
+      resolves #856/#860` reading is REFUSED"*. The message's own prose about
+      the issues closing at the archive puts its references BEFORE the verb and
+      triggers nothing. So the trap is not loose phrasing but QUOTATION: GitHub
+      reads a closing keyword in ANY commit message merged into the default
+      branch, quotation marks and refusals included, while
+      `closingIssuesReferences` — the field #908's own § 6.2 verified as `[]`,
+      correctly — covers only the pull request BODY. The body was clean; the
+      quoted words were not, and #860 escaped only because the keyword fell next
+      to #856 alone. **#856 WAS REOPENED** at
       2026-09-10T20:56:23Z so that it closes on THIS archive as the word
       requires, and **both #856 and #860 are verified OPEN at the moment the
       archive pull request is opened**, which its body states. The lesson is
       recorded where the next author meets it: **no commit message on the archive
       branch carries a closing keyword in any case or tense**, quoted or
-      otherwise — `refs #N` and prose only. The ratified text follows unchanged:
+      otherwise — `refs #N` and prose only — and it is enforced by a guard that
+      was self-tested against the exact string that closed #856 before it was
+      trusted on anything else. The ratified text follows unchanged:
       **CLOSE openxFactory #856 AND #860 AT THE ARCHIVE**, not at this
       landing. This pull request's body carries `refs #856` and `refs #860` and
       **no closing keyword**, and its `closingIssuesReferences` is verified
