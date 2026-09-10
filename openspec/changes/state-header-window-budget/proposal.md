@@ -164,7 +164,7 @@ empty" was wrong and is retracted — that bare command has no term
 excluding this pull request's own number, so once #921 is open it
 necessarily matches itself. Reproduced 2026-09-10 at head `7e31b2df`: the
 command returns exactly one match, #921 itself; excluding it BY NUMBER
-leaves zero OTHER open pull requests). No active change writes this requirement key, so
+leaves zero OTHER open pull requests). No OTHER active change writes this requirement key (this packet's own `## MODIFIED` block does, and is not the collision the check is for), so
 `modified-block-currency`'s two-writers ordering rule owes no
 `Modified over` marker.
 
@@ -186,8 +186,12 @@ flip" mechanic, not a hand edit.
 - **Affected spec:** `release-realization` — ONE `## MODIFIED` requirement,
   one body paragraph added, one scenario added (now five), nothing removed.
 - **Affected code:** none. `scripts/frontmatter_strict.py` already implements
-  the stated rule; this packet changes no script, test, workflow or
-  contract.
+  the stated rule; this packet changes no script, no EXECUTABLE test logic,
+  no workflow and no contract. (It DOES touch one data file,
+  `tests/sequenced_after/corpus-ledger.yaml` — a per-change sweep-ledger
+  bookkeeping row, task 1.7 — which is not test logic and asserts nothing;
+  distinguished here because the diff otherwise reads as touching
+  `tests/`.)
 - **Affected consumers:** none. codexFactory's vendored copy already carries
   the behaviour this packet states in words; no re-vendor, no pin advance,
   no re-pin ceremony is owed by this change.
@@ -197,6 +201,15 @@ flip" mechanic, not a hand edit.
 
 ## Open questions
 
-None. The fact this packet states is settled by the code, by the archived
-packet's own task record, and by Brett Heap's own reply on PR #906; the only
-thing owed is the wording ratification itself (task 0.2).
+None about the FACT this packet states — that is settled by the code, by
+the archived packet's own task record, and by Brett Heap's own reply on
+PR #906. One narrower item about test coverage, found by Copilot review and
+checked rather than deferred to on faith (`design.md` § Risks / trade-offs
+has the full account): `test_fence_lines_count_toward_the_window` already
+regression-tests that a long-enough fence excludes a following header line,
+but no test pins the EXACT boundary line a fence produces (line 15 read,
+line 16 refused) the way the unfenced boundary tests do. `code_surface:
+none` disclaims adding test logic here, so this packet leaves the gap on
+the record rather than closing it unilaterally; a convener may rule it a
+small follow-up to that same test file (task 0.2). The only thing owed by
+THIS packet is the wording ratification itself.

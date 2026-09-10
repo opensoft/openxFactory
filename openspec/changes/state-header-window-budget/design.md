@@ -105,6 +105,21 @@ where the code does not.
   (intended) or as if it were correcting it (not intended, and not true —
   the existing sentence was never wrong, only incomplete on an adjacent
   question)?
+- **A real, narrower test-coverage gap, found by Copilot review and checked
+  rather than deferred to on faith.** `tests/sequenced_after/test_header_line.py::test_fence_lines_count_toward_the_window`
+  already regression-tests the property this scenario states — a fence long
+  enough to consume the whole window excludes a header line that follows it
+  — so this is NOT an untested behavior. What it does not test is the EXACT
+  boundary a fence produces: a header at the window's own last real line
+  read, and the same header one line later refused, the way
+  `test_the_header_line_form_is_read_at_the_last_line_of_the_window` and
+  `test_the_first_line_beyond_the_window_does_not_declare` already do for
+  the UNFENCED case. `code_surface: none` disclaims adding test logic (see
+  `proposal.md` § Impact), so none is added here; this bullet exists so the
+  gap is on the record rather than silently absent, and so the convener can
+  rule on it as a follow-up (a small addition to that same test file, no
+  production-code change) rather than discover it later. `proposal.md` §
+  Open questions carries the same pointer.
 
 ## Open questions
 

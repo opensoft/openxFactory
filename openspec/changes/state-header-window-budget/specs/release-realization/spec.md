@@ -30,7 +30,9 @@ request did not yet exist to match. A re-check taken AFTER filing is NOT
 pull request once #921 is open; reproduced 2026-09-10 at head `7e31b2df`,
 exactly one match, #921 itself. Excluding it BY NUMBER leaves zero OTHER
 open pull requests — the earlier "still empty" wording is corrected here.)
-No active change writes this requirement key, so `modified-block-currency`'s
+No OTHER active change writes this requirement key (this packet's own
+`## MODIFIED` block does, and is not the collision the check is for), so
+`modified-block-currency`'s
 two-writers ordering rule owes no `Modified over` marker in either
 direction. (The per-change sweep ledger's own `class` field reads
 `co-modifier` rather than `sole` for this change's row, because it shares
