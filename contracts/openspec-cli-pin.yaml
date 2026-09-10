@@ -75,9 +75,10 @@ kind: pinned_contract_manifest
 # completeness question the two lists answer is answered here by construction and
 # more strongly: there is no file inside the artifact that the referent does not
 # address, and no file can be added to it without changing the referent. The
-# `## MODIFIED Requirements` delta in `openspec/changes/add-openspec-cli-pin/`
-# states this in the grammar's own words rather than leaving this file to assert
-# a licence the ratified requirement does not give it.
+# `## MODIFIED Requirements` delta in
+# `openspec/changes/archive/2026-09-09-add-openspec-cli-pin/` states this in the
+# grammar's own words rather than leaving this file to assert a licence the
+# ratified requirement does not give it.
 #
 # THE DEPENDENCY CLOSURE, CLOSED 2026-09-08 by
 # `pin-openspec-cli-dependency-closure` — the paragraph below used to declare it
