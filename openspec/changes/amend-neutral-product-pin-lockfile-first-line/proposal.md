@@ -69,10 +69,10 @@ Measured on the same tree, 2026-09-10:
 
 | tree | binary | result |
 | --- | --- | --- |
-| control `ea34f22a` | 1.2.0 on `PATH` | `Totals: 96 passed, 4 failed (100 items)`, exit 1, `spec/neutral-product-pin` among the four |
-| this branch | 1.2.0 on `PATH` | `Totals: 97 passed, 4 failed (101 items)`, exit 1, the SAME four, plus one passing item — this packet's change |
-| control `ea34f22a` | 1.12.0, pinned | `Totals: 98 passed, 2 failed (100 items)`, exit 0, `spec/neutral-product-pin` PASSES; the two failures are the two DISPOSITIONED scenario-omission findings |
-| this branch | 1.12.0, pinned | `Totals: 99 passed, 2 failed (101 items)`, exit 0, same two |
+| control `05c706d6` | 1.2.0 on `PATH` | `Totals: 97 passed, 4 failed (101 items)`, exit 1, `spec/neutral-product-pin` among the four |
+| this branch | 1.2.0 on `PATH` | `Totals: 98 passed, 4 failed (102 items)`, exit 1, the SAME four, plus one passing item — this packet's change |
+| control `05c706d6` | 1.12.0, pinned | `Totals: 99 passed, 2 failed (101 items)`, exit 0, `spec/neutral-product-pin` PASSES; the two failures are the two DISPOSITIONED scenario-omission findings |
+| this branch | 1.12.0, pinned | `Totals: 100 passed, 2 failed (102 items)`, exit 0, same two |
 
 The mechanism is measured on a controlled three-requirement fixture in
 `design.md` **D6**: 1.2.0 reads only the first body line and ERRORS when the

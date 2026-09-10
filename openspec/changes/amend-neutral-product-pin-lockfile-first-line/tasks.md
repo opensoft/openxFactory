@@ -232,8 +232,13 @@ is the box that records it.
 ## 4. Gates — RUN IN FULL, WITH EXIT CODES, ON THIS PULL REQUEST'S TREE
 
 **EVERY FIGURE BELOW IS A RUN, NOT A RECOLLECTION**, and where a figure only
-means something against `main` the CONTROL is a second worktree at
-`origin/main` `ea34f22a` rather than a remembered number.
+means something against `main` the CONTROL is a second worktree checked out at
+`origin/main` **`05c706d6`** — the base this branch was merged up to — rather
+than a remembered number. **THE PROMOTED SENTENCE IS BYTE-IDENTICAL AT THE
+AUTHORING BASIS `ea34f22a` AND AT `05c706d6`** (`git diff` over
+`openspec/specs/neutral-product-pin/spec.md` between the two is empty), so the
+block written over `ea34f22a` is written over the current `main` too, and the
+`:668`/`:669`/`:721`/`:723` line numbers the packet cites are the current ones.
 
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
       amend-neutral-product-pin-lockfile-first-line --strict` — **`Change
@@ -244,60 +249,81 @@ means something against `main` the CONTROL is a second worktree at
       `change/disposition-codexfactory-floor-relocation-retitle`,
       `spec/neutral-product-pin`, `spec/repo-boundary-governance`. `diff` over
       the sorted `✗` lines of the two runs is EMPTY. Totals move by exactly one
-      PASSING item — this packet's own change: control `96 passed, 4 failed
-      (100 items)`, this branch `97 passed, 4 failed (101 items)`, with
-      `✓ change/amend-neutral-product-pin-lockfile-first-line` in the branch
-      run. **`spec/neutral-product-pin` STILL FAILS AND THAT IS CORRECT**: a
-      delta does not edit the promoted specification, so the failure this
-      packet answers is still there at this head. **THE ARCHIVE ACT IS WHAT
-      CLEARS IT**, and the archive is § 5.
+      PASSING item — this packet's own change: control `Totals: 97 passed, 4
+      failed (101 items)`, this branch `Totals: 98 passed, 4 failed (102
+      items)`, with `✓ change/amend-neutral-product-pin-lockfile-first-line` in
+      the branch run. **`spec/neutral-product-pin` STILL FAILS AND THAT IS
+      CORRECT**: a delta does not edit the promoted specification, so the
+      failure this packet answers is still there at this head, with the same
+      error text issue #882 quotes — `openspec validate neutral-product-pin
+      --strict --type spec` gives `Specification 'neutral-product-pin' has
+      issues` / `✗ [ERROR] requirements.16.text: Requirement must contain SHALL
+      or MUST keyword`, exit 1. **THE ARCHIVE ACT IS WHAT CLEARS IT**, and the
+      archive is § 5.
 - [x] 4.3 `python3 scripts/validate-openspec-cli-pin.py --all --strict` (the
       pinned 1.12.0, content-verified) — **exit 0** on both trees: control
-      `Totals: 98 passed, 2 failed (100 items)`, this branch `Totals: 99
-      passed, 2 failed (101 items)`. The two failures are the two DISPOSITIONED
+      `Totals: 99 passed, 2 failed (101 items)`, this branch `Totals: 100
+      passed, 2 failed (102 items)`. The two failures are the two DISPOSITIONED
       scenario-omission findings accepted on Brett Heap's word of 2026-09-05
       *"take exit 2"* (`add-chain-attestation` / `signed-execution-chain`,
       `add-composed-view-authoring` / `ideation-dashboard`), and
-      `spec/neutral-product-pin` carries INFO notes only. The run reports
-      `@fission-ai/openspec@1.12.0 verified against its content address` and
-      the 80-package dependency closure installed with `npm ci
-      --ignore-scripts`.
+      `spec/neutral-product-pin` carries INFO notes only. Both runs report
+      `@fission-ai/openspec@1.12.0 verified against its content address` and the
+      80-package dependency closure installed with `npm ci --ignore-scripts`,
+      closing with `every target validated --strict with 0 UNDISPOSITIONED
+      failures`.
 - [x] 4.4 `python3 scripts/proposal-support.py . verify
       amend-neutral-product-pin-lockfile-first-line` — **`proposal support
       verification ok`, exit 0.**
 - [x] 4.5 `python3 scripts/validate-sequenced-after.py .` — **exit 0**:
-      `sequenced_after validation passed (39 active changes, 9 declaring the
-      field)`, plus both archive-date arms passing. And
+      `sequenced_after validation passed (40 active changes, 10 declaring the
+      field)`, plus `archive-date agreement passed` and
+      `archive-date-vs-commit agreement passed`. And
       `python3 scripts/validate-sequenced-after.py . --ledger-diff` — **exit
-      0** after § 3.9's seed. **BEFORE the seed it exited 1 and named exactly
-      what the seed then moved**, which is recorded rather than hidden:
-      `missing row: amend-neutral-product-pin-lockfile-first-line`, `stale row:
+      0**, `per-change sweep ledger consistent with the corpus (196 rows)`,
+      after § 3.9's seed. **BEFORE the seed it exited 1 and named exactly what
+      the seed then moved**, which is recorded rather than hidden: `missing
+      row: amend-neutral-product-pin-lockfile-first-line`, `stale row:
       pin-openspec-cli-dependency-closure: class: ledger 'sole', live
-      'co-modifier'`, and eight derived-total mismatches — the archived
-      promoter's flip that § 3.9 predicts, observed.
+      'co-modifier'`, and eight derived-total mismatches. The seed wrote
+      `196 rows, 2 moved by #923` and named them: this change and that archived
+      promoter — the flip § 3.9 predicts, observed rather than argued.
 - [x] 4.6 `python3 scripts/validate-scope-globs.py .` — **`scope_globs
       validation passed (all active changes conform).`, exit 0.**
 - [x] 4.7 `python3 scripts/doc-health.py --single-repo .` — **exit 1** on both
       trees (its ordinary state on this corpus, which reports findings rather
       than gating on zero), `Findings: 32 critical, 5 error, 47 warning, 16
-      info. New regressions vs previous report: 0` on BOTH, canon share 39.7%
-      on BOTH — and **NO FINDING NAMES THIS CHANGE** (`grep -c
-      amend-neutral-product-pin-lockfile-first-line` over the report = **0**).
-      The finding-line diff between the control tree and this branch is
+      info. New regressions vs previous report: 0` on BOTH — and **NO FINDING
+      NAMES THIS CHANGE** (`grep -c
+      amend-neutral-product-pin-lockfile-first-line` over the branch report =
+      **0**). The finding-line diff between the control tree and this branch is
       **EMPTY**: 100 findings each, byte-identical once the repository label is
       normalized. In particular the `modified-block-currency` family — which
-      reads every active block by construction and reports nine other active
-      changes in this same run — reports NOTHING about this block, which is the
-      marker working in the real gate rather than only in § 3.3's derivation.
+      reads every active block by construction and reports 11 findings across
+      NINE other active changes in this same run — reports NOTHING about this
+      block, which is the marker working in the real gate rather than only in
+      § 3.3's derivation.
 - [x] 4.8 `python3 -m pytest tests/sequenced_after tests/scope_globs
-      tests/proposal-support -q` — **PASSES, exit 0.** Before § 3.9's seed the
-      same command exited 1 with exactly four failures, all four the ledger's
-      staleness and none of them about this packet's content
+      tests/proposal-support -q` — **`489 passed, 67 subtests passed`, exit
+      0.** Before § 3.9's seed the same command exited 1 with exactly four
+      failures, all four the ledger's staleness and none of them about this
+      packet's content
       (`test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row`,
       `test_every_corpus_change_has_EXACTLY_ONE_row_and_every_row_a_change`,
       `test_the_totals_DERIVED_FROM_THE_LEDGER_equal_the_MEASURED_sweep`,
       `test_the_live_ledger_reports_the_SAME_totals_the_sweep_MEASURES`); the
       seed cleared all four.
+- [x] 4.9 **BOTH PROOFS WERE RE-RUN ON THE MERGED TREE**, after `origin/main`
+      `05c706d6` was merged in, and both are unchanged: the generator still
+      reports slice `668..721`, 54 lines, sha256 `a33ceb10…`, and generator
+      output identical to the committed block at sha256 `bb8a1937…`, 4,318
+      bytes; `derive_units` still reports 25/25 units, 1 uncarried, 1 added, 1
+      suppressed, 0 marker defects, an empty undeclared set and the four
+      scenario titles equal in order. The merge resolved ONE conflict, in
+      `README.md`'s `## OpenSpec Records` active list, where PR #910's row and
+      this packet's row were both inserted at the head; the resolution is
+      PURELY ADDITIVE — #910's row keeps the position `main` gave it and this
+      packet's row follows it — and no other lane's bytes moved.
 
 ## 5. Archive — OWED, NOT GIVEN
 

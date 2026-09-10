@@ -25,6 +25,10 @@ measurement the issue did not have — which is why **D6 is put first**.
 ## D0 — the measurement, taken before the design
 
 On the clone of `main` `ea34f22a` this packet was authored against, 2026-09-10.
+Re-measured unchanged after the branch was merged up to `origin/main`
+`05c706d6`: `git diff` over `openspec/specs/neutral-product-pin/spec.md`
+between the two commits is empty, so every line number below is the current
+one.
 
 | measure | value |
 | --- | --- |
@@ -80,16 +84,18 @@ version answers"*. openxFactory obeys it:
 
 **ON THAT BINARY THIS SPECIFICATION PASSES.** Four runs — two binaries over two
 trees, each tree named rather than left to be inferred — 2026-09-10. The
-CONTROL tree is `origin/main` `ea34f22a` in its own worktree; the PACKET tree is
-this change's branch, which differs from the control by this packet's directory
-and nothing else:
+CONTROL tree is `origin/main` `05c706d6` — the base this branch is merged up to
+— in its own worktree; the PACKET tree is this change's branch, which differs
+from the control by this packet's directory, its README row and its two ledger
+rows and nothing else. The promoted sentence is BYTE-IDENTICAL at the authoring
+basis `ea34f22a` and at `05c706d6`:
 
 | tree | binary | totals | exit | `spec/neutral-product-pin` |
 | --- | --- | --- | --- | --- |
-| control `ea34f22a` | 1.2.0 on `PATH` | `96 passed, 4 failed (100 items)` | 1 | **✗** |
-| this branch | 1.2.0 on `PATH` | `97 passed, 4 failed (101 items)` | 1 | **✗** |
-| control `ea34f22a` | 1.12.0, pinned, content-verified | `98 passed, 2 failed (100 items)` | 0 | **✓** |
-| this branch | 1.12.0, pinned, content-verified | `99 passed, 2 failed (101 items)` | 0 | **✓** |
+| control `05c706d6` | 1.2.0 on `PATH` | `97 passed, 4 failed (101 items)` | 1 | **✗** |
+| this branch | 1.2.0 on `PATH` | `98 passed, 4 failed (102 items)` | 1 | **✗** |
+| control `05c706d6` | 1.12.0, pinned, content-verified | `99 passed, 2 failed (101 items)` | 0 | **✓** |
+| this branch | 1.12.0, pinned, content-verified | `100 passed, 2 failed (102 items)` | 0 | **✓** |
 
 The failure SET is byte-identical across the two 1.2.0 runs — `diff` over the
 sorted `✗` lines is empty — and the one extra passing item on the branch is
