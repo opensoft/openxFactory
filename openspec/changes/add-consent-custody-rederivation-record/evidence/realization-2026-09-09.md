@@ -553,11 +553,14 @@ today, to `d54d89ca` and to `e9a688d3`.
   commit carrying only the corrected CHANGELOG and its rebuilt inventory would
   have left the manifest, the README and the tripwire behind at `d14b514f`,
   which is defect (c) of the withdrawn `e9a688d3` repeated.
-- **THE RE-FORMED CANDIDATE IS THIS COMMIT** (sha filed by the follow-up
-  evidence-only commit). It carries the same five release-surface paths, and the
-  only bytes differing from `d14b514f` are `contracts/CHANGELOG.md` — three prose
-  hunks — and `contracts/releases/contract-v3.6.digests.yaml`, in which exactly
-  ONE entry's digest moves: the CHANGELOG's own.
+- **THE RE-FORMED CANDIDATE IS `be77cb34bf3c1361a28f5f70bbef6a738f392c3e`** —
+  filed here by THIS follow-up evidence-only commit, as the candidate itself
+  promised, and no longer as "this commit": the sentence that named a moving
+  target is the whole reason the previous candidate was withdrawn. It carries the
+  same five release-surface paths, and the only bytes differing from `d14b514f`
+  are `contracts/CHANGELOG.md` — three prose hunks — and
+  `contracts/releases/contract-v3.6.digests.yaml`, in which exactly ONE entry's
+  digest moves: the CHANGELOG's own.
 - **THE THREE HUNKS.** (a) The false sentence is replaced by one that states what
   the gate actually grades and what a hand run at the branch tip does instead.
   (b) `d14b514f` is named among the withdrawn candidates, with its reason.
@@ -569,3 +572,58 @@ today, to `d54d89ca` and to `e9a688d3`.
   `contracts/README.md`, `contracts/CHANGELOG.md` and
   `tests/intent-compliance/test_release_boundary.py` — 283 entries at both ends,
   0 added, 0 removed.
+
+### Gates at the RE-FORMED candidate `be77cb34` — command, rc, summary line
+
+**EVERY GATE WAS RE-RUN AT THE RE-FORMED CANDIDATE FROM SCRATCH. Not one result
+is carried over from `d14b514f`** — a candidate an audit falsified certifies
+nothing, and FR-034a's *"a candidate edited after a gate ran is no longer the
+thing that gate certified"* reads the same way in reverse. Each rc is read from
+its transcript's TAIL, never from its header.
+
+| gate | rc | summary, verbatim |
+| --- | --- | --- |
+| `validate-manifest-digests.py` | 0 | `OK contracts/manifest.yaml: 189 per-file digest(s) verify` |
+| `validate-consent-instruments.py --strict` | 0 | `validate-consent-instruments: 0 error(s), 0 warning(s), 0 withheld` (9 valid / 21 negative / 1 withheld / 2 purpose probes) |
+| `validate-openspec-cli-pin.py --change add-consent-custody-rederivation-record --strict` | 0 | `Totals: 1 passed, 0 failed (1 items)` |
+| `validate-openspec-cli-pin.py --all --strict` | 0 | `every target validated --strict with 0 UNDISPOSITIONED failures … 2 finding(s) are ACCEPTED EXCEPTIONS, named above` |
+| `validate-sequenced-after.py .` | 0 | `sequenced_after validation passed (39 active changes, 9 declaring the field).` |
+| `validate-sequenced-after.py . --ledger-diff` | 0 | `per-change sweep ledger consistent with the corpus (190 rows).` |
+| `validate-scope-globs.py` | 0 | `scope_globs validation passed (all active changes conform).` |
+| `pytest tests/consent_instruments tests/intent-compliance/test_release_boundary.py tests/clearing/test_clearing_manifest_rows.py -q` | 0 | `67 passed in 2.58s` — both cut-coupled tests in ONE run |
+| `validate-contract-release.py build --tag contract-v3.6` | 0 | `release build: pass … entries=283` — the inventory is REBUILT, never checked out |
+
+**Addressed to the candidate BY SHA, and therefore filed by this follow-up
+evidence-only commit** — run against the EXACT UNCHANGED `be77cb34`, with
+`git status --porcelain` carrying nothing but untracked evidence throughout:
+
+| gate | rc | summary, verbatim |
+| --- | --- | --- |
+| `validate-release-tag-gate.py --head be77cb34 --base 31772616` (first parent, the withdraw commit) | 0 | `the release-tag obligation holds over the merge tree be77cb34b: no error, no warning` |
+| `validate-release-tag-gate.py --head be77cb34 --base 9c0e2cda` (`origin/main` tip) | 0 | `declared bundle: contract-v3.5 at the base 9c0e2cda4 -> contract-v3.6 at the head be77cb34b` / `no error, no warning` |
+| `validate-release-tag-gate.py --head 415eddca` (SIMULATED `refs/pull/N/merge`, default base — **the form CI evaluates**) | 0 | `the release-tag obligation holds over the merge tree 415eddca5: no error, no warning` |
+| `validate-contract-release.py verify-commit --commit be77cb34` | 0 | `release verify-commit: pass` / `inventory=contracts/releases/contract-v3.6.digests.yaml` |
+| `invdiff.py contract-v3.5 be77cb34` + exact-path attribution check | 0 | 283 entries at both ends, 0 added, 0 removed, **4 digest-changed**, 0 non-digest field changes, 91 members outside `contracts/` of which ONE moved; **MOVED: 4   UNATTRIBUTED: 0** |
+| doc-health TWO-REPORT PAIR (`--as-of 2026-09-09`, base `fee36588`, head `be77cb34`) | 0 / 0 | **ZERO findings added at any severity in any family** (measured over the diff: `grep '^+' … \| grep 'severity='` returns nothing); TWO `release-inventory-drift` `info` findings REMOVED (`contracts/README.md`, `contracts/manifest.yaml`) and the count at HEAD is ZERO |
+| `pytest tests/ -q -m "not postgres" -p no:cacheprovider` (THE FULL SUITE) | 1 | `1 failed, 10713 passed, 36 skipped, 338 deselected, 9 warnings, 139 subtests passed in 2188.35s (0:36:28)` |
+
+**THE ONE FAILURE IS THE BASELINED, ENVIRONMENT-SHAPED ONE** —
+`tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout`,
+which resolves a pinned checkout that exists only in an aggregation workspace
+layout, proven pre-existing at pristine `origin/main` by
+`specs/.../evidence/phaseE-baseline-preexisting-failures.txt`. No other test
+fails. **The counts are identical to the withdrawn candidate's run** — same 1 /
+10713 / 36 / 338 / 139 — which is the expected reading of a re-form that moved
+three prose hunks in `contracts/CHANGELOG.md` and the one inventory digest that
+records them: no test reads either.
+
+`TAG OWED` is emitted by all three release-tag-gate runs as a `::notice`, and it
+is the EXPECTED state at a candidate whose tag is published after the merge, at
+the merge commit, per the versioning policy's realization order step 5 — not a
+finding, and not a warning.
+
+Transcripts: `specs/.../evidence/phaseJ-reform-release-tag-gate.txt`,
+`phaseJ-reform-verify-commit.txt`, `phaseJ-reform-invdiff-at-candidate.txt`,
+`phaseJ-reform-doc-health.txt`, `doc-health-reform/`,
+`phaseJ-reform-fullsuite.txt`, and the commit-riding
+`phaseJ-reform-*.txt` set filed with the candidate itself.

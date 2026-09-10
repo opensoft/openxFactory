@@ -1,0 +1,118 @@
+$ python3 $S/AUDIT/invdiff.py contract-v3.5 be77cb34bf3c1361a28f5f70bbef6a738f392c3e
+OLD  contract-v3.5  inventory contract-v3.5: 283 entries
+NEW  be77cb34bf3c1361a28f5f70bbef6a738f392c3e  contract-v3.6: 283 entries
+
+ADDED (0):
+
+REMOVED (0):
+
+DIGEST-CHANGED (4):
+  M | contracts/CHANGELOG.md | a2b65ff30b9c | e609d3c7e13a | be77cb34 Cut contract-v3.6 (re-formed): the consent custody re-derivation record (schema 2 → 3); the entry no longer calls its candidate the branch tip; 31772616 Withdraw the contract-v3.6 candidate d14b514f: one sentence in its CHANGELOG entry called the candidate "the branch tip", which stopped being true when evidence commits stacked above it; d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5
+  M | contracts/README.md | f3a959fa223d | a8f1ac59abf8 | be77cb34 Cut contract-v3.6 (re-formed): the consent custody re-derivation record (schema 2 → 3); the entry no longer calls its candidate the branch tip; 31772616 Withdraw the contract-v3.6 candidate d14b514f: one sentence in its CHANGELOG entry called the candidate "the branch tip", which stopped being true when evidence commits stacked above it; d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5; d54d89ca Cut contract-v3.5: the consent instrument's re-derivable custody record reaches a bundle; f420cd50 Execute §§ 3 and 4: the chain's internal legs, a third outcome, and the corpus that proves them
+  M | contracts/manifest.yaml | 93564e191379 | db09218b28b9 | be77cb34 Cut contract-v3.6 (re-formed): the consent custody re-derivation record (schema 2 → 3); the entry no longer calls its candidate the branch tip; 31772616 Withdraw the contract-v3.6 candidate d14b514f: one sentence in its CHANGELOG entry called the candidate "the branch tip", which stopped being true when evidence commits stacked above it; d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5; fee36588 Merge origin/main (17167481) into 033-add-consent-custody-rederivation-record: integrate the published contract-v3.5 (#866 → a37ae0cd, tagged) before re-cutting as contract-v3.6; d54d89ca Cut contract-v3.5: the consent instrument's re-derivable custody record reaches a bundle; f420cd50 Execute §§ 3 and 4: the chain's internal legs, a third outcome, and the corpus that proves them; f59a587d Execute § 2: the consent instrument grows its custody re-derivation sibling
+  M | tests/intent-compliance/test_release_boundary.py | a235e1c55947 | 3ad36da5ca35 | be77cb34 Cut contract-v3.6 (re-formed): the consent custody re-derivation record (schema 2 → 3); the entry no longer calls its candidate the branch tip; 31772616 Withdraw the contract-v3.6 candidate d14b514f: one sentence in its CHANGELOG entry called the candidate "the branch tip", which stopped being true when evidence commits stacked above it; d14b514f Cut contract-v3.6: the consent custody re-derivation record (schema 2 → 3), re-cut after #866 took contract-v3.5
+
+NON-DIGEST FIELD CHANGES (0):
+
+INVENTORY MEMBERS OUTSIDE contracts/ (91):
+  unchanged docs/contract-versioning-policy.md
+  unchanged docs/terminology-and-repo-topology.md
+  unchanged docs/xfactory-domain-factory-model.md
+  unchanged requirements/hermes-runtime-contracts.in
+  unchanged requirements/hermes-runtime-contracts.lock
+  unchanged scripts/__init__.py
+  unchanged scripts/hermes-runtime-dataset-digest.py
+  unchanged scripts/hermes_runtime_validation/__init__.py
+  unchanged scripts/hermes_runtime_validation/acceptance.py
+  unchanged scripts/hermes_runtime_validation/catalog.py
+  unchanged scripts/hermes_runtime_validation/consumer_handoff.py
+  unchanged scripts/hermes_runtime_validation/content.py
+  unchanged scripts/hermes_runtime_validation/domain_regression.py
+  unchanged scripts/hermes_runtime_validation/fixtures.py
+  unchanged scripts/hermes_runtime_validation/loader.py
+  unchanged scripts/hermes_runtime_validation/migration.py
+  unchanged scripts/hermes_runtime_validation/pytest_bindings.py
+  unchanged scripts/hermes_runtime_validation/pytest_config.py
+  unchanged scripts/hermes_runtime_validation/pytest_count.py
+  unchanged scripts/hermes_runtime_validation/pytest_execution_report.py
+  unchanged scripts/hermes_runtime_validation/pytest_execution_validation.py
+  unchanged scripts/hermes_runtime_validation/pytest_fixtures.py
+  unchanged scripts/hermes_runtime_validation/pytest_inventory.py
+  unchanged scripts/hermes_runtime_validation/pytest_inventory_proof.py
+  unchanged scripts/hermes_runtime_validation/pytest_parameter_ids.py
+  unchanged scripts/hermes_runtime_validation/pytest_parameter_variants.py
+  unchanged scripts/hermes_runtime_validation/pytest_paths.py
+  unchanged scripts/hermes_runtime_validation/pytest_source.py
+  unchanged scripts/hermes_runtime_validation/pytest_static_values.py
+  unchanged scripts/hermes_runtime_validation/pytest_support.py
+  unchanged scripts/hermes_runtime_validation/pytest_targets.py
+  unchanged scripts/hermes_runtime_validation/release.py
+  unchanged scripts/hermes_runtime_validation/schema_registry.py
+  unchanged scripts/hermes_runtime_validation/semantics/__init__.py
+  unchanged scripts/hermes_runtime_validation/semantics/authority.py
+  unchanged scripts/hermes_runtime_validation/semantics/evidence.py
+  unchanged scripts/hermes_runtime_validation/semantics/jobs.py
+  unchanged scripts/hermes_runtime_validation/semantics/overlays.py
+  unchanged scripts/hermes_runtime_validation/semantics/references.py
+  unchanged scripts/hermes_runtime_validation/semantics/topology.py
+  unchanged scripts/intent_compliance/__init__.py
+  unchanged scripts/intent_compliance/allowance_resolution.py
+  unchanged scripts/intent_compliance/authority_repository.py
+  unchanged scripts/intent_compliance/authority_source.py
+  unchanged scripts/intent_compliance/authority_validation.py
+  unchanged scripts/intent_compliance/canonical.py
+  unchanged scripts/intent_compliance/classifier_validation.py
+  unchanged scripts/intent_compliance/decision_validation.py
+  unchanged scripts/intent_compliance/discovery.py
+  unchanged scripts/intent_compliance/enforcement_validation.py
+  unchanged scripts/intent_compliance/evidence_validation.py
+  unchanged scripts/intent_compliance/fixture_metadata.py
+  unchanged scripts/intent_compliance/input_io.py
+  unchanged scripts/intent_compliance/model.py
+  unchanged scripts/intent_compliance/negative_corpus.py
+  unchanged scripts/intent_compliance/negative_state.py
+  unchanged scripts/intent_compliance/pipeline.py
+  unchanged scripts/intent_compliance/records.py
+  unchanged scripts/intent_compliance/registry_state.py
+  unchanged scripts/intent_compliance/registry_validation.py
+  unchanged scripts/intent_compliance/resolution_validation.py
+  unchanged scripts/intent_compliance/revocation_validation.py
+  unchanged scripts/intent_compliance/schema_validation.py
+  unchanged scripts/intent_compliance/semantic_validation.py
+  unchanged scripts/intent_compliance/state_validation.py
+  unchanged scripts/intent_compliance/temporal.py
+  unchanged scripts/intent_compliance/validator.py
+  unchanged scripts/intent_compliance/yaml_discovery.py
+  unchanged scripts/validate-contract-release.py
+  unchanged scripts/validate-hermes-runtime-contracts.py
+  unchanged scripts/validate-ideation-dashboard-contracts.py
+  unchanged scripts/validate-intent-compliance.py
+  unchanged tests/hermes_runtime_contracts/postgres/images.lock.yaml
+  unchanged tests/intent-compliance/test_authoritative_resolution.py
+  unchanged tests/intent-compliance/test_authority_content_binding.py
+  unchanged tests/intent-compliance/test_classifier_coherence.py
+  unchanged tests/intent-compliance/test_cli_success.py
+  unchanged tests/intent-compliance/test_decision_hardening.py
+  unchanged tests/intent-compliance/test_enforcement_security.py
+  unchanged tests/intent-compliance/test_evidence_integrity.py
+  unchanged tests/intent-compliance/test_input_limits.py
+  unchanged tests/intent-compliance/test_intent_compliance_negative_corpus.py
+  unchanged tests/intent-compliance/test_intent_compliance_security.py
+  unchanged tests/intent-compliance/test_intent_compliance_validator_gate.py
+  unchanged tests/intent-compliance/test_outcome_scenarios.py
+  unchanged tests/intent-compliance/test_redaction_boundaries.py
+  unchanged tests/intent-compliance/test_registry_hardening.py
+  unchanged tests/intent-compliance/test_registry_outcome_contract.py
+  MOVED     tests/intent-compliance/test_release_boundary.py
+  unchanged tests/intent-compliance/test_temporal.py
+  unchanged tests/intent-compliance/test_trusted_snapshot.py
+rc=0
+
+### ATTRIBUTION CHECK — every moved member named by EXACT PATH in the ## contract-v3.6 entry
+  NAMED     contracts/CHANGELOG.md
+  NAMED     contracts/README.md
+  NAMED     contracts/manifest.yaml
+  NAMED     tests/intent-compliance/test_release_boundary.py
+
+MOVED: 4   UNATTRIBUTED: 0
+rc=0
