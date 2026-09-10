@@ -565,6 +565,94 @@ appended to § 6.1 and § 6.2 in the ledger-seed commit, exactly as the preceden
       never to re-run the workflow on `main` from this lane, which shares the
       `pytest-suite-${{ github.ref }}` concurrency group with whatever another
       lane has in flight and would cancel it. That refusal is deliberate.
+      **DISPOSITION 2026-09-10T22:35Z — THE JUDGMENT THE PARAGRAPH ABOVE
+      RESERVES IS NOW TAKEN, AND THE REMEDY IT NAMES IS REFUSED.** Its own
+      sentence — *"WHETHER THAT SUBSTITUTION SATISFIES `release-realization`
+      IS A JUDGMENT RESERVED TO THE LANDING AUTHORITY AND IS NOT TAKEN BY
+      THIS LANE"* — is SUPERSEDED BY THIS DISPOSITION and is kept, quoted
+      rather than rewritten, the same way this section already treats its
+      two earlier superseded clauses. Two Copilot review threads on this
+      pull request pressed exactly this point (README.md line 2765,
+      `tests/sequenced_after/corpus-ledger.yaml` line 196) and both are
+      answered by this same disposition.
+      **CANON, QUOTED VERBATIM WITH LINE NUMBERS, NAMES A DIFFERENT GRAIN
+      THAN THIS BOX'S OWN RATIFIED SENTENCE DOES.**
+      `openspec/specs/release-realization/spec.md`, *Realization archive
+      gate* (heading line 39, requirement lines 40-43): *"A change with a
+      non-empty code surface SHALL NOT archive until realization evidence
+      exists: its code merged on the implemented target through the owning
+      domain's engineering gates, and — where the surface is runnable — a
+      green run of that surface."* Its Scenario *Realization completes*
+      (lines 56-58): *"**WHEN** merge evidence and a green run exist on the
+      implemented target"* / *"**THEN** the change archives and its deltas
+      promote, exactly as doc-only changes do on landing."* Canon conditions
+      archival on merge evidence AND a green run of the surface, read
+      against the implemented target — it names no requirement that the
+      run's own triggering head sha equal the merge commit's. That stricter
+      reading belongs to THIS box's ratified sentence below (*"a green
+      `pytest-suite` run ON that merge commit"*), a packet-local promise
+      written at ratification, tighter than the specification this packet
+      archives under.
+      **MEASURED AT CANON'S OWN GRAIN, BOTH ARMS ARE MET.** Merge evidence:
+      PR #908 → `d32509d3` on `main`, 2026-09-10T20:54:22Z, through the
+      owning domain's engineering gates. A green run of the surface:
+      `pytest-suite` run
+      [`34526282328`](https://github.com/opensoft/openxFactory/actions/runs/34526282328),
+      conclusion **success**. That run tested the SAME tree `d32509d3`
+      carries, proved independently rather than assumed: `d32509d3`'s own
+      parents, read directly (`git log -1 --format=%P d32509d3`), are
+      `90beb006` and `60a3b23e`; the green run's own job log (job
+      `103035857966`, step "Checking out the ref") reads verbatim *"HEAD is
+      now at `928146c8` Merge `60a3b23eda05e76b12ff97f91d30fc78207f271f`
+      into `90beb006a3295f585ad5279f9acfc63831360c63`"* — GitHub's OWN
+      merge-preview commit for that run names the identical two parents
+      `d32509d3` has; and `git merge-tree --write-tree 90beb006 60a3b23e`,
+      RE-RUN for this disposition rather than taken on the earlier round's
+      word, again reproduces `201c675dd71695dd7c0560602761241acde05120` —
+      `d32509d3^{tree}`, confirmed the same way
+      (`git rev-parse d32509d3^{tree}`), exactly. The tree the green run
+      tested and the tree the merge commit carries are THE SAME TREE, so
+      canon's *"green run of that surface"* condition is met on the
+      implemented target at the grain canon itself states.
+      **THE BOX'S OWN STRICTER PHRASE IS NOT MET LITERALLY, AND HERE IS WHY,
+      MEASURED RATHER THAN LEFT AT "CANCELLED":** run
+      [`34529127322`](https://github.com/opensoft/openxFactory/actions/runs/34529127322)
+      (head `d32509d3`, `push`) never reached a verdict in either attempt.
+      Attempt 1 completed **CANCELLED** 2026-09-10T21:09:44Z; attempt 2
+      completed **CANCELLED** 2026-09-10T22:20:08Z. Both attempts' GitHub
+      check-run annotations (`103045244939`, `103066344104`) read the
+      IDENTICAL line: *"Canceling since a higher priority waiting request
+      for pytest-suite-refs/heads/main exists"* — a concurrency preemption,
+      not a test failure, per `.github/workflows/pytest-suite.yml` lines
+      284-286 (`concurrency: group: pytest-suite-${{ github.ref }}`,
+      `cancel-in-progress: true`). This is not particular to this packet:
+      since `90beb006`'s own green run at 20:13:57Z, `main` has advanced SIX
+      more times — `d32509d3`, `17a3b816`, `554536f6`, `75db2034`,
+      `6f95ff57`, and `6889b183` (in progress at this writing) — and every
+      `push`-triggered `pytest-suite` run on those six was cancelled the
+      same way, or has not yet had the chance to be. Zero have gone green in
+      the more than two hours since. Of the fifteen most recent `push` runs
+      on `main` overall (2026-09-10T17:04Z–22:19Z), ten were cancelled, four
+      went green, and one is in progress. A third rerun of `34529127322`
+      would itself enter that same concurrency group and could cancel
+      whatever landing is in flight on `main` right now.
+      **SO THE REMEDY NAMED ABOVE IS REFUSED, AND THE ACCOUNTING IS TAKEN
+      RATHER THAN ESCALATED FURTHER.** Holding this merge — or any future
+      code-surface archive — until a `push`-triggered run keyed literally to
+      the merge commit's own sha goes green would hold every such archive on
+      this repository hostage to `main`'s landing cadence: on the evidence
+      just measured, NO `push` run on `main` has gone green in over two
+      hours, cancelled every time by the next landing, while `main` is
+      landing roughly every fifteen minutes tonight. Manufacturing the
+      artifact by rerunning `34529127322` stays refused for the reason the
+      superseded sentence already gave — it would cancel another lane's
+      in-flight run — and is now ALSO unnecessary: canon's own evidence
+      requirement is independently met above. This box's realization
+      evidence therefore stands MET at canon's grain; the one respect in
+      which the packet's own stricter sentence is not literally satisfied is
+      disclosed here rather than corrected, and the ratified sentence below
+      stays verbatim, per the archive gate's own rule against mutating a
+      ratified record.
       **AND THE doc-health ARM OF THE PROPOSAL'S EVIDENCE SENTENCE IS ANSWERED
       WHERE IT ACTUALLY LIVES:** this repository runs NO `doc-health` check on a
       pull request — `.github/workflows/doc-health-reusable.yml` is

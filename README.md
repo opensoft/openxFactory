@@ -2781,7 +2781,20 @@ Archived changes:
   RESERVED TO THE LANDING AUTHORITY, put on the archive pull request rather than
   decided by the authoring lane — which also declined to re-run the workflow on
   `main` to manufacture the artifact, that run sharing a `cancel-in-progress`
-  concurrency group with whatever another lane had in flight. The
+  concurrency group with whatever another lane had in flight. **THAT
+  RESERVATION IS NOW SUPERSEDED** (`tasks.md` § 6.1, disposition
+  2026-09-10T22:35Z, kept and quoted rather than rewritten): `release-realization`'s
+  own archive gate (`openspec/specs/release-realization/spec.md`, lines 39-43
+  and 56-58) conditions archival on merge evidence and a green run of the
+  surface on the implemented target, not on a run keyed to the merge
+  commit's own sha, both arms are met here on tree-verified-identical
+  content (`d32509d3`'s own parents, and the tree GitHub's merge-preview
+  commit for run `34526282328` carried, both independently confirmed), and
+  the remedy of holding the merge is REFUSED because zero `push`-triggered
+  `pytest-suite` runs on `main` have gone green in the two-plus hours since
+  `90beb006`, across six further landings — which would hold every
+  code-surface archive on this repository hostage to `main`'s landing
+  cadence. The
   origin-retention arm of the archive gate
   reports **ORIGIN RETAINED** against `705cecef`, and both standalone archive
   gates pass against the archived path with BOTH candidate refs — `705cecef`
