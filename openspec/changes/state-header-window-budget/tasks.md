@@ -45,10 +45,9 @@ gate and is the only task here a human must perform.**
 - [x] 1.4 Author `design.md` — § 0 convener brief, context, decisions D1–D4,
   risks, no open questions.
 - [x] 1.5 **Sibling search, checked rather than assumed.**
-  `find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*"
-  -not -path "*/archive/*"` → no other active change. `gh pr list -R
-  opensoft/openxFactory --state open --json number,title,files --jq '.[] |
-  select(.files[].path | test("release-realization|frontmatter_strict"))'`
+  `find openspec/changes -maxdepth 3 -path "*/specs/release-realization/*" -not -path "*/archive/*"`
+  → no other active change.
+  `gh pr list -R opensoft/openxFactory --state open --json number,title,files --jq '.[] | select(.files[].path | test("release-realization|frontmatter_strict"))'`
   → empty. No ACTIVE-change collision, so no `Modified over` marker is
   owed. Ledger row `class: co-modifier`, partnered with
   `accept-sequenced-after-header-line` (its own row flips `sole` →
@@ -59,8 +58,8 @@ gate and is the only task here a human must perform.**
   ACTIVE block, marked **DRAFT — RATIFICATION OWED**.
 - [x] 1.7 **DONE, PR #921.** Seeded this change's row in the per-change
   sweep ledger via the sanctioned tool
-  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
-  '#921'` → "wrote tests/sequenced_after/corpus-ledger.yaml (195 rows, 2
+  (`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#921'`
+  → "wrote tests/sequenced_after/corpus-ledger.yaml (195 rows, 2
   moved by #921)"), taken AFTER the pull request existed, on
   `accept-sequenced-after-header-line` task 4.5's own precedent. TWO rows
   moved, both correctly: this change's own new row

@@ -147,8 +147,8 @@ sites for the ordered-delta parent declaration" — that
 wrote, and the per-change sweep ledger counts that ARCHIVED adder as the
 partner regardless of the active-collision question above, which is
 narrower and answered separately. Seeding this change's row
-(`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
-'#921'`) flips `accept-sequenced-after-header-line`'s own row from `sole` to
+(`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#921'`)
+flips `accept-sequenced-after-header-line`'s own row from `sole` to
 `co-modifier` in the same re-seed — the ledger's own documented "partner
 flip" mechanic, not a hand edit.
 
