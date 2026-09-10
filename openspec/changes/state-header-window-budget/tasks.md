@@ -118,7 +118,14 @@ gate and is the only task here a human must perform.**
   `openspec/changes/state-header-window-budget/` (`grep -c
   state-header-window-budget` on each family's output → 0).
 - [x] 2.6 `python3 scripts/validate-sequenced-after.py . --ledger-diff` →
-  "per-change sweep ledger consistent with the corpus (195 rows)", exit 0.
+  "per-change sweep ledger consistent with the corpus", exit 0, at this
+  task's own authoring head (`13a7ee64`: 195 rows). THE ROW COUNT IS NOT
+  PINNED AND DRIFTS as other lanes add or archive changes corpus-wide,
+  independent of this packet — the exit code and the word "consistent" are
+  the gate, not the number. Re-measured 2026-09-10 after the `origin/main`
+  merge to `d32509d3` (head `d3f73dde`): 197 rows, still exit 0, still
+  consistent; the PR's own re-verification comments carry the count as of
+  whichever head they were taken at.
 
 ## Group 3 — Archive (NOT this change's act — owed on ratification)
 
