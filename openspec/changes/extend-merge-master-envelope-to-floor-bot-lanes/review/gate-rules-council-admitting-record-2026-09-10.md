@@ -75,6 +75,40 @@ set, because no seat amended anything; and every measurement in § 3 was taken b
 the lane from the tree and the API, and is checkable line by line by re-reading
 the artifacts named in the header.
 
+**`missing_required_seat: refused` IS NOT EVADED BY THIS, and this record says
+so rather than being silent.** The charter carries that clause beside the
+disposition one — `failure_semantics.missing_required_seat: refused`, read at
+`gate-rules.yaml` on 2026-09-10, annotated there *"a gate-rules council without
+its client seat cannot set rules for that repo"* — and it is the strongest thing
+a reader can put against a record with no seats in it. The precedent answered it
+in terms this record reproduces rather than paraphrases: *"with no convening run
+there was no seat to be missing from one. A future act that needs seats is not
+licensed by this record to skip them."* The clause governs a CONVENING whose
+roster is incomplete; it is not a licence for a direct disposition, and no such
+licence is claimed here. That this body does run seats when the act calls for
+them is on its own record: it *"convened on 2026-08-28 and REFUSED,
+unanimously, the candidate class put to it"* (openxFactory
+`.github/merge-approval-envelope.yml`), and the 2026-09-03 seated convening
+remains the form for an act that needs seats.
+
+**The grounds for disposing THIS act directly — recorded for this act and NOT
+offered as a general precedent**, which is the form the 2026-09-04 record's
+§ 7.4 put them in:
+
+- The act admits **ONE class, already enrolled and already exercised twice**,
+  over an artifact whose content is DERIVED from a source of truth in another
+  repository — custody of a decision taken elsewhere rather than a decision
+  (§ 1, and the envelope entry's own description).
+- **Nothing is spent** (§ 3.2). The surface was moved out from under the bar
+  instead of the bar being narrowed for it, so there is no governance ground
+  left for a seat to weigh — which is a materially smaller question than the
+  one the draft put to this body on 2026-09-07.
+- The convener is the repository owner and the accountable human, and
+  `output_disposition` places the disposition with him.
+- Every figure the disposition rests on is a MEASUREMENT of what the class did
+  in production (§ 3), re-readable at the artifacts the header names, rather
+  than a projection a seat would have had to judge.
+
 ### 0.2 THE ORDER DID NOT HOLD, AND IT IS RECORDED RATHER THAN SMOOTHED
 
 The draft said, in its own words: *"merging the pull request that carries the
@@ -420,7 +454,9 @@ Instrument:      Gate-Rules Council record — OQ-2 of
                  under the ratification word and unchanged since (§ 2)
 Seats:           NONE. No seat return exists and none is claimed.
 Verdict:         ADMIT
-Signed:          Brett Heap, 2026-09-10 ~17:2xZ, in session to lane
+Signed:          Brett Heap — openxFactory repository owner, the convener of
+                 this body, and the accountable human the charter declares —
+                 2026-09-10 ~17:2xZ, in session to lane
                  `openxfactory-2` (display `openXfactory-2`), verbatim
                  "do 1 and 2, sign, file it, do 744" — item 3 of that comment
                  names this record and says "then SIGN on his word 'sign'".
@@ -437,14 +473,34 @@ Applied at:      ALREADY APPLIED (§ 0.2) — codexFactory
                  `df42f803`).
 ```
 
+### 5.1 The verdict, and the dispositions NOT taken
+
+The precedent enumerates the branches it did not take rather than only the one
+it did, so that a reader can see the verdict was chosen and not merely reached.
+The same four branches, against this act:
+
+- **ADMIT — TAKEN.** The one class of § 1, on its landed conditions, in the one
+  repository, retrospectively on the evidence of § 3 (§ 0.2).
+- **ADMIT AS AMENDED — NOT TAKEN.** No amendment was proposed by anyone and the
+  convener added none; with no seat run there was no return to amend from
+  (§ 0.1). An amendment would in any case be an edit to a base-branch file in
+  codexFactory, which this lane may not make (§ 0.3, § 8).
+- **REFUSE — NOT TAKEN**, and what it would have cost is recorded below rather
+  than left as a hypothetical.
+- **PARK FOR LIAISON — NOT REACHED.** The charter's
+  `failure_semantics.split_vote: park_for_liaison` requires a split, and with no
+  seat returns there is none — the same reading the 2026-09-04 precedent
+  recorded for the same reason.
+
 **ON ADMIT** the draft directed: *"tick `tasks.md` § 4.2 … and merge the
 enrolment pull request — that merge is the admitting act."* The merge is done
 (§ 0.2). The box that answer belongs to in THIS repository is `tasks.md` § 5.4,
 an **owner's-act box**, and this packet's own rule is that *"an agent may not
 tick an owner's-act box at all"* — so the box is left UNTICKED and the act is
-recorded beneath it in the dated form 5.1, 5.2 and 5.5 already use. **The one
-thing left that only Brett Heap can do about this record is say the word that
-ticks 5.3 and 5.4**, and § 8 states it as a one-line ask.
+recorded beneath it in the dated form `tasks.md`'s own § 5.1, § 5.2 and § 5.5
+already use (those are that file's boxes, not this record's § 5.1 above). **The
+one thing left that only Brett Heap can do about this record is say the word
+that ticks `tasks.md` § 5.3 and § 5.4**, and § 8 states it as a one-line ask.
 
 **ON REFUSE** the draft directed a ruling on its § 4.4: file N-1 (e) as the
 successor, or record that the two human merges per cycle stand. **That branch is
