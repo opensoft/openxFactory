@@ -573,89 +573,6 @@ Active changes:
   `tests/sequenced_after/test_header_line.py`); **NOTHING in codexFactory is
   touched** — its re-vendor and pin advance are successors in `tasks.md` § 4,
   owned by lane codeXfactory-1.
-- [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
-  — authored 2026-09-09, **`Status: ratified`** (2026-09-09, Brett Heap,
-  openxFactory operator authority, verbatim *"Ratify with TOLERATED"* — a
-  MULTIPLE-CHOICE ruling recorded on PR
-  [#870](https://github.com/opensoft/openxFactory/pull/870) at
-  2026-09-09T23:31:12Z, which reaches `design.md` **D1** and resolves it as
-  **TOLERATED** rather than PERMITTED; because TOLERATED is the option the
-  packet already encoded, **THE WORDING STANDS UNCHANGED** and no substitution
-  was performed. Records
-  `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md`
-  and TWO gate captures,
-  `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-09.md`
-  (the 09-09 run, preserved unedited) and
-  `openspec/changes/amend-neutral-product-pin-interim-copy-vocabulary/review/verification-2026-09-10.md`
-  (the 2026-09-10 RE-RUN — a dated run report being a one-shot `record`, a second
-  run writes a SECOND PATH and does NOT supersede the first, which keeps
-  `Status: record` and is not edited)).
-  `.openspec.yaml` keeps the drafting
-  provenance it was authored with and the approval pair is ADDED beside it,
-  `kind` and `id` unmoved — the addition-not-rewrite shape
-  `add-drafted-proposal-origin` defined. Lane `openxfactory-1`; the ORIGIN is
-  Brett Heap's earlier *"R1 'lawful' amendment packet"*, which commissioned the
-  authoring and decided no wording. **THE ARCHIVE IS A SEPARATE ACT**:
-  `tasks.md` § 4 stays open, nothing under `openspec/specs/` is edited yet, and
-  openxFactory #868 closes at the archive rather than at this landing.
-  Origin: openxFactory
-  [#868](https://github.com/opensoft/openxFactory/issues/868), filed out of
-  **Codex's refused P2 on PR
-  [#780](https://github.com/opensoft/openxFactory/pull/780)** — the archive that
-  promoted `publish-openspec-cli-pin-as-contract-member`'s delta into
-  `openspec/specs/neutral-product-pin/spec.md`. **THE DEFECT IS ONE WORD
-  CARRYING TWO STATUSES.** The promoted requirement *A consumption pin that
-  another repository reads is a PUBLISHED contract member, adopted by pin-sync*
-  says at `:344-345` that *"Declaring the copy … does not make it LAWFUL"* and
-  at `:373` that *"the copy is lawful ONLY as a declared interim"* — the first
-  scoped to the promoted *A required check runs the pinned tool, at the pinned
-  digest*, the second to this requirement's own fallback. The scopes were always
-  distinguishable; what the text lacked was a second word, so a reader reaching
-  the scenario first could certify a declared interim copied gate as compliant.
-  **THE FIX IS VOCABULARY AND NOT RULE**: `LAWFUL` is reserved — *where this
-  requirement speaks of a consumption's status* — to the read a repository
-  carrying an `xfactory:` stack pin performs from its own pinned checkout, and a
-  declared consumption copy becomes **TOLERATED**, admitted on its four terms
-  and never lawful. Two scenario bullets are REPLACED IN PLACE under one
-  `Removed from canon` marker, and **THE TWO EDITS ARE NOT THE SAME SIZE**: the
-  `AND` bullet replaces ONE WORD and nothing else, while the `THEN` bullet
-  replaces one word **AND APPENDS the reservation clause** — *"and is never
-  LAWFUL, which this requirement spends on a stack-pinned read alone"* — so the
-  reservation is stated where the fallback is ADMITTED rather than only in the
-  body paragraph below it, and that appended clause is ratified surface counted
-  here rather than left to be found in the diff. One body paragraph is ADDED to
-  state the reservation in one place, and one scenario is ADDED to assert it;
-  the two body sentences that already used the word the reserved way are
-  carried UNCHANGED. **NO BEHAVIOUR MOVES** — the same copies are admitted
-  on the same four terms and the required-check claim stays unmet for exactly as
-  long as it did before, which is what the refusal on #780 predicted. **THE VETO
-  POINT IS `design.md` D1**: TOLERATED against PERMITTED — the word that refusal
-  itself floated — a case-preserving substitution over an ENUMERATED seven
-  occurrences in the `## MODIFIED` block, listed line by line in D1 (replacing
-  only some would leave both status words live in one requirement, which is the
-  defect this packet closes). **THE RESERVATION IS
-  DELIBERATELY SCOPED, NOT CAPABILITY-WIDE** (D0a): the specification's fifth use
-  of `lawful` at `:555` is a different requirement on a DISPOSITION's acceptance,
-  and a capability-wide claim would have put ratified text in violation on the
-  day this promoted. `code_surface: none`, MEASURED:
-  `grep -rn "lawful" scripts/ tests/` returns 66 lines across 33 files
-  and every one is prose, and the one line naming this requirement
-  (`scripts/validate-pin-registrations.py:27`)
-  is a docstring quoting its REGISTRATION sentences, which this packet does not
-  touch. `sequenced_after: []`, the positive root claim: the only other active
-  `neutral-product-pin` delta is `split-opendox-two-layer-product`, which
-  modifies two OTHER requirements, so this is the **sole ACTIVE modifier** and no
-  ordering declaration is owed in either direction (the sweep ledger's
-  `class: co-modifier` grades the archived promoter too, which is a different
-  question).
-  **NOT FIXED IN PASSING** (D6): this specification's pre-existing
-  `--strict` failure — `requirements.16.text`, on *A pinned artifact that
-  resolves dependencies at install time carries a vendored lockfile…* at `:645`
-  — is a different requirement and a different sentence, is not inherited by this
-  block, and is named as an available successor rather than taken.
-  **THIS PULL REQUEST PROMOTES NOTHING** — no file under `openspec/specs/`, no
-  script, test, contract or workflow is edited.
-
 - [relocate-review-authority-floor-mirror](openspec/changes/relocate-review-authority-floor-mirror/proposal.md)
   — authored 2026-09-08, **`Status: ratified`** (2026-09-08, Brett Heap
   (openxFactory repository owner), in session, verbatim *"ratify 293 and 817
@@ -2861,6 +2778,62 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-neutral-product-pin-interim-copy-vocabulary](openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/proposal.md)
+  — **ARCHIVED 2026-09-10** by
+  [PR #884](https://github.com/opensoft/openxFactory/pull/884), on Brett Heap's
+  separate word of the same day (in
+  session at 2026-09-10T02:03Z, verbatim *"archive 870 and close 868"*) and the
+  `release-realization` rule that a change with an EMPTY code surface archives
+  **ON LANDING plus its own task list**, waiting on no realization evidence.
+  **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#870](https://github.com/opensoft/openxFactory/pull/870) → `1ea752b6`** on
+  `main`, 2026-09-10T02:01Z (ratifying commit `d0ddb126`, records
+  `openspec/changes/archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary/review/ratification-2026-09-09.md`
+  `Status: ratified`, plus the two gate captures `verification-2026-09-09.md`
+  and `verification-2026-09-10.md`, both `Status: record` and both untouched by
+  this archive), with `code_surface: none` and `target_release: none`.
+  Origin: openxFactory
+  [#868](https://github.com/opensoft/openxFactory/issues/868), **CLOSED at this
+  archive act and not at that landing** — which is what the proposal pull
+  request's `refs #868`, carrying no closing keyword, was for.
+  **WHAT IS NOW CANON.** The `## MODIFIED` block is promoted BYTE-IDENTICAL into
+  `openspec/specs/neutral-product-pin/spec.md`, amending *A consumption pin that
+  another repository reads is a PUBLISHED contract member, adopted by pin-sync*:
+  `LAWFUL` is reserved — *where this requirement speaks of a consumption's
+  status* — to the read a repository carrying an `xfactory:` stack pin performs
+  from its own pinned checkout, and a declared consumption copy is **TOLERATED**,
+  admitted on its four terms and never lawful. Two scenario bullets are replaced
+  in place under one `Removed from canon by
+  amend-neutral-product-pin-interim-copy-vocabulary (2026-09-09):` marker — the
+  `AND` bullet one word, the `THEN` bullet one word **plus the appended
+  reservation clause** *"and is never LAWFUL, which this requirement spends on a
+  stack-pinned read alone"* — one body paragraph is added stating the
+  reservation in one place, and one scenario, *A record describes a declared
+  interim copy as lawful*, is added at the end of the block. **NO BEHAVIOUR
+  MOVES**: the same copies are admitted on the same four terms, and the
+  required-check enforcement claim stays unmet for exactly as long as it did
+  before. The two body sentences that already used the word the reserved way are
+  carried unchanged, and the reservation is scoped rather than capability-wide,
+  so the fifth use at `:555` — a different requirement, on a DISPOSITION's
+  acceptance — is untouched.
+  **THE RESIDUE IS NAMED, NOT DISCHARGED.** `tasks.md` § 5.2's successor is
+  filed UNCLAIMED as
+  [#882](https://github.com/opensoft/openxFactory/issues/882) — this
+  specification's OTHER, pre-existing `--strict` failure, `requirements.16.text`
+  on *A pinned artifact that resolves dependencies at install time carries a
+  vendored lockfile…* at `:645`, whose first body line carries no SHALL or MUST;
+  § 5.3 names the already-open
+  [#775](https://github.com/opensoft/openxFactory/issues/775), a different defect
+  on the same requirement; and § 5.4's measurement was RE-TAKEN at this archive:
+  its substance holds — `xFactory-Hermes-Install` #72 → `06c9083d` still records
+  no digest of what it copied and still carries no stack pin — while its count
+  does not, the estate having **THREE** live declared copies (adding `openXwallet`
+  #21 → `b7c6e0b8` and `Omnigent-Install` #241 → `47454e0a`, both in the
+  identical posture). The ratified sentence is carried verbatim and the
+  correction is recorded on the tick and on
+  [#754](https://github.com/opensoft/openxFactory/issues/754) rather than by
+  editing it.
 
 - [adopt-codexfactory-repository-identity](openspec/changes/archive/2026-09-10-adopt-codexfactory-repository-identity/proposal.md)
   — **ARCHIVED 2026-09-10** by

@@ -213,6 +213,108 @@ _CITATION_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 # guess — the invention the floor exists to prevent.
 _CITATION_APPROVER = re.compile(r"\bby\s+[A-Z][\w.'-]*")
 
+# --- the SUBJECT test (`document-lifecycle`, *A review record records a
+# --- ratification*) ------------------------------------------------------
+#
+# WHY A SUBJECT TEST AT ALL. `fam_ratified_provenance` below scopes itself on
+# `doc.status != "ratified": continue` — the header's VALUE. The scenario it
+# enforces binds on the document's SUBJECT: "WHEN a `review/` document under a
+# change packet records that the change was ratified, THEN it MUST carry
+# `Status: ratified` and one ratification citation in a sanctioned spelling".
+# A ratification record filed `Status: record` is therefore EXACTLY the
+# document the scenario governs and exactly the document a value-scoped family
+# never inspects (#878). Measured: fourteen archived ratification records were
+# out of contract with zero findings (#877), and PR #870's first encode
+# reproduced the drift while doc-health reported clean — a reviewer, not the
+# family, caught it.
+#
+# The NEIGHBOURING scenario is what keeps this narrow: *A review record is not
+# about a ratification* exempts a `review/` record whose subject is a finding,
+# a disposition or a captured review round from the citation rule entirely. So
+# the test below must recognize the ratification SUBJECT and nothing wider — a
+# `record`-status review of any other subject is sound and must stay silent.
+#
+# TWO RECOGNIZERS, disjunctive, because the corpus writes the subject two ways
+# and neither alone reaches all of it:
+#
+#   * THE PATH. Every ratification record in the corpus is named
+#     `review/ratification-<date>.md`, which is the convention the packet
+#     template writes and the one an author follows without thinking. It is
+#     the load-bearing arm today.
+#   * THE H1. `# Proposal Ratification: <change>` is the title the same
+#     template writes, and it is what a record carries when somebody names the
+#     file something else. Deliberately NOT the only arm: five of the records
+#     measured on #877 open `# Ratification — <date>` or `# Ratification
+#     record — <change>` instead, so a title-only test would miss a third of
+#     the standing population.
+#
+# NOT a `Ratified:`-line test, which would be circular: the defect class this
+# closes includes records that carry a `Ratified:` line and the wrong status,
+# and a record that carries neither is the worst case, not an exempt one.
+_RATIFICATION_RECORD_NAME_PREFIX = "ratification-"
+_RATIFICATION_RECORD_TITLE_PREFIX = "# Proposal Ratification:"
+
+
+def _h1(doc) -> str | None:
+    """The document's first `# ` heading REAL line within the header window.
+
+    The same window and the same real-line rule every other reader of these
+    documents uses (`corpus.parse_status`, `_header_lines` —
+    `align-status-reader-to-real-lines`'s wide ruling governs every reader of
+    the header, and a title read on a different splitting rule than the status
+    beside it is the divergence that ruling exists to prevent). Bounded rather
+    than a whole-document scan on purpose: a `# Proposal Ratification:` line
+    quoted in prose or inside a fence far below the header is not this
+    document's title, and a family that read it as one would fire on a record
+    ABOUT ratification records.
+    """
+    for body, _ending in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]:
+        if body.startswith("# "):
+            return body
+    return None
+
+
+def _is_change_review_record(path: str) -> bool:
+    """`openspec/changes/**/review/<file>` — a review record under a change
+    packet, active or archived, and nothing else.
+
+    `_lifecycle_scope` concatenates the lifecycle scan set with the GOVERNED
+    CORPUS, so a `docs/ratification-policy.md` is in scope for this family too.
+    The scenario reaches `review/` documents under a change packet only, so the
+    path shape is checked rather than the file name alone.
+    """
+    parts = path.split("/")
+    return (len(parts) >= 5 and parts[0] == "openspec"
+            and parts[1] == "changes" and parts[-2] == "review")
+
+
+def _records_a_ratification(doc) -> bool:
+    """Does this document's SUBJECT make it a ratification record?
+
+    True for a `review/` record under a change packet whose file name opens
+    `ratification-` or whose H1 opens `# Proposal Ratification:`. False for
+    every other review record — the neighbouring scenario's population — and
+    for every document outside a change packet's `review/` directory.
+    """
+    if not _is_change_review_record(doc.path):
+        return False
+    if doc.path.rsplit("/", 1)[-1].startswith(_RATIFICATION_RECORD_NAME_PREFIX):
+        return True
+    return (_h1(doc) or "").startswith(_RATIFICATION_RECORD_TITLE_PREFIX)
+
+
+# The rule string quotes the scenario it enforces, because the remedy is a
+# governance act and a reader who cannot find the rule cannot perform it.
+_RATIFICATION_RECORD_RULE = (
+    "a review record that records a ratification must carry Status: ratified "
+    "and one citation — document-lifecycle, *A review record records a "
+    "ratification*")
+_RATIFICATION_RECORD_ACTION = (
+    "set Status: ratified and add one ratification citation in a sanctioned "
+    "spelling (Ratified by: <change>, otherwise Ratified: naming an approver, "
+    "a date, or a resolvable record path); on an archived record the repair "
+    "takes the archived-record edit route")
+
 
 def _lifecycle_scope(ctx):
     """The document scope of the FOUR lifecycle families, and of no others.
@@ -505,10 +607,40 @@ def fam_ratified_provenance(ctx):
     current — so the count, not the pair, is what fires: one shared,
     count-based rule string for every shape of duplicate, mixed-spelling
     pair or same-spelling repeat alike.
+
+    THE FAMILY READS A SUBJECT AS WELL AS A VALUE (#878). Everything above
+    scopes on `doc.status == "ratified"` — the header's VALUE — which is the
+    right scope for a citation rule and the wrong one for *A review record
+    records a ratification*, whose WHEN is the document's SUBJECT. A
+    ratification record filed `Status: record` is the document that scenario
+    governs and the document a value-scoped family never opens, so it drifted
+    unreported into fourteen archived records (#877). `_records_a_ratification`
+    is the subject test; the neighbouring scenario (*A review record is not
+    about a ratification*) is what keeps it narrow enough that a `record`-status
+    review of any other subject stays silent.
     """
     findings = []
     for doc in _lifecycle_scope(ctx):
         if doc.status != "ratified":
+            # THE SUBJECT ARM (#878). A `review/` record whose subject IS the
+            # ratification is governed by *A review record records a
+            # ratification* whatever status it happens to carry, and the
+            # status it happens to carry is precisely what is wrong with it.
+            # Scoping the whole family on the header value made that document
+            # unreachable: fourteen archived records were out of contract with
+            # zero findings (#877).
+            #
+            # A missing header reaches this arm too (`doc.status is None` is
+            # not `"ratified"`), and deliberately: the scenario's THEN is
+            # "MUST carry `Status: ratified`", which an absent header fails as
+            # squarely as a wrong value. Such a document also draws a
+            # `status-validity` finding, and the two say different things —
+            # that family asks for A taxonomy value, this one names WHICH.
+            if _records_a_ratification(doc):
+                findings.append(Finding(
+                    CRITICAL, "ratified-provenance", doc.repo, doc.path,
+                    _RATIFICATION_RECORD_RULE,
+                    _RATIFICATION_RECORD_ACTION))
             continue
         by_lines = _header_lines(doc, _RATIFIED_BY_PREFIX)
         record_lines = _header_lines(doc, _RATIFIED_RECORD_PREFIX)

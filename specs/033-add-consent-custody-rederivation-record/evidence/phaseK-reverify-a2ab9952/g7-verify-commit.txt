@@ -1,0 +1,3 @@
+release verify-commit: pass
+  inventory=contracts/releases/contract-v3.6.digests.yaml
+rc=0

@@ -1,0 +1,39 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+
+[pipeline proof] 295 clusters scored, index validates clean; 39 flagged, 106 spread-conflict, 145 ideation-readiness findings; wrote ['evidence', 'index'] to a tmp root (shared checkout untouched)
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 67%]
+........................................................................ [ 71%]
+........................................................................ [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+..................................................                       [100%]
+=============================== warnings summary ===============================
+tests/doc-health/test_ideation_readiness.py::test_derivation_reproduces_the_real_bootstrap_clusters
+tests/doc-health/test_pin_reachability.py::test_a_hand_moved_pin_whose_body_does_not_reproduce_is_refused
+tests/doc-health/test_pin_reachability.py::test_a_hand_moved_pin_whose_body_does_not_reproduce_is_refused
+tests/doc-health/test_pin_reachability.py::test_the_landed_index_reproduces_from_the_corpus_at_its_own_pin
+tests/doc-health/test_readiness_proof_resolution.py::test_a_working_tree_edit_cannot_move_the_verdict
+tests/doc-health/test_readiness_proof_resolution.py::test_a_working_tree_edit_cannot_move_the_verdict
+tests/doc-health/test_readiness_proof_resolution.py::test_a_resolvable_pin_runs_the_comparison
+  /usr/lib/python3.12/tarfile.py:2274: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1706 passed, 7 warnings in 347.78s (0:05:47)
