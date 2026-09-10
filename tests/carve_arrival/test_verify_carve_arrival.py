@@ -1329,10 +1329,19 @@ def test_a_replica_at_may_not_reach_outside_the_dest_root(
     dest = carve.materialise(doc, "scratch_code")
     outside = carve.tmp / "outside.py"
     outside.write_text("OUTSIDE = 1\n", encoding="utf-8")
-    for hostile in ("scripts/pkg/neutral.py=/etc/passwd",
-                    "scripts/pkg/neutral.py=../outside.py",
-                    "scripts/pkg/neutral.py=src/./pkg/neutral.py",
-                    "scripts/pkg/neutral.py="):
+    hostiles = ["scripts/pkg/neutral.py=/etc/passwd",
+                "scripts/pkg/neutral.py=../outside.py",
+                "scripts/pkg/neutral.py=src/./pkg/neutral.py",
+                "scripts/pkg/neutral.py="]
+    if os.sep == "/":
+        # A BACKSLASH THIS HOST DOES NOT TREAT AS A SEPARATOR. `os.sep` is `/`
+        # here, so the replacement is a no-op and this passed the canonicality
+        # test as one long filename — then matched nothing, because the walk
+        # joins with `/`. On a Windows host the same value IS a path and is
+        # converted, which is why the case is platform-guarded rather than
+        # asserted everywhere.
+        hostiles.append("scripts/pkg/neutral.py=src\\pkg\\neutral.py")
+    for hostile in hostiles:
         done = run(carve, manifest, "--destination", "scratch_code",
                    "--dest-root", str(dest), "--phase", "A", "--json",
                    "--replica-at", hostile)
@@ -1347,7 +1356,10 @@ def test_allow_created_may_not_reach_outside_the_dest_root(
     doc = carve.manifest_doc()
     manifest = carve.write_manifest(doc)
     dest = carve.materialise(doc, "scratch_code")
-    for hostile in ("/etc/passwd", "../outside.py", "src/../src/pkg/x.py"):
+    hostiles = ["/etc/passwd", "../outside.py", "src/../src/pkg/x.py"]
+    if os.sep == "/":
+        hostiles.append("src\\pkg\\x.py")
+    for hostile in hostiles:
         done = run(carve, manifest, "--destination", "scratch_code",
                    "--dest-root", str(dest), "--phase", "A", "--json",
                    "--allow-created", hostile)
