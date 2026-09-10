@@ -208,6 +208,7 @@ The draft claimed *"one human merge per cycle"* prospectively. The live figure:
 | Cycle | PR | Approving review | Merge | Merged by | Human acts |
 |---|---|---|---|---|---|
 | 2026-09-09 | codexFactory **#314** | `codexfactory[bot]` APPROVED 22:49:36Z (review 5160667178) | `b08958ae`, 2026-09-09T23:27:22Z | `openxfactory[bot]` | **one hand dispatch** of the approval leg |
+| 2026-09-10 | codexFactory **#325** | `codexfactory[bot]` APPROVED 01:54:56Z (review 5161853361) | `df42f803`, 2026-09-10T01:55:14Z | `openxfactory[bot]` | **NONE** |
 
 **#314's heads are written out rather than compressed, because they do not tell
 one story.** Its commits are `17cd5886` (21:32:22Z), `e27d64ff` and `fcb2bd13`
@@ -216,7 +217,6 @@ one story.** Its commits are `17cd5886` (21:32:22Z), `e27d64ff` and `fcb2bd13`
 `commit_id` as `2d8bf35c`. Both readings are recorded and neither is resolved
 here — what the box in § 3.1 of `tasks.md` needs is the unattended cycle, and
 that is #325, whose review `commit_id` **is** its head `c4e40f33`.
-| 2026-09-10 | codexFactory **#325** | `codexfactory[bot]` APPROVED 01:54:56Z (review 5161853361) | `df42f803`, 2026-09-10T01:55:14Z | `openxfactory[bot]` | **NONE** |
 
 **#325 is the unattended cycle.** Opened 01:32:58Z, merged 01:55:14Z — **22
 minutes 16 seconds**, no human actor anywhere in the timeline: auto-merge armed
@@ -366,11 +366,19 @@ repository — and, per § 0.2, ratifies the approvals it has already given.
     `require_code_owner_review: true`, `required_approving_review_count: 0`,
     bypass list `OrganizationAdmin / always` and nothing else. **Vacuous over a
     changed path no CODEOWNERS entry matches** (§ 3.2).
-  - org ruleset **22655338** `xFactory Tier-1 main protection` — active,
-    `required_approving_review_count: 1`, `require_code_owner_review: false`,
-    `require_last_push_approval: true`. **This is the rule the App's APPROVE
-    review satisfied**, and on #325 the review's `commit_id` is the head, which
-    is what `require_last_push_approval` demands.
+  - org ruleset **22655338** `xFactory Tier-1 main protection (require PR + 1
+    approval)` — active, `required_approving_review_count: 1`,
+    `require_code_owner_review: false`, `require_last_push_approval: true`,
+    bypass list `OrganizationAdmin / always` and nothing else. **This is the
+    rule the App's APPROVE review satisfied**, and on #325 the review's
+    `commit_id` is the head, which is what `require_last_push_approval`
+    demands.
+  - **those two are the whole of the approval bar, and the enumeration is
+    complete rather than selective.** The `codeXfactory` org carries exactly
+    THREE active rulesets on 2026-09-10 and the third, **22655344** `Copilot
+    Auto-Review All PRs`, declares only `non_fast_forward` and
+    `copilot_code_review` and no `pull_request` rule at all — so it requires no
+    approving review and bears on nothing here.
   - the ruleset ids in the draft and in `tasks.md` § 5.3 (`18834180`) are stale:
     they were the `opensoft` org's, and the ids moved with the repository.
 - **arm any merge — THE ARMING IS ALREADY LAWFUL, BY A SUCCESSOR PACKET

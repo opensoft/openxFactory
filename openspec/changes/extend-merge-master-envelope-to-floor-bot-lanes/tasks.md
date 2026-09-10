@@ -391,8 +391,18 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   [34425922954](https://github.com/codeXfactory/codexFactory/actions/runs/34425922954)
   and
   [34427337240](https://github.com/codeXfactory/codexFactory/actions/runs/34427337240)).
+  **THE ORDER, SAID OUT LOUD SO NO READER HAS TO INFER IT: BOTH APPROVALS
+  PREDATE THE SIGNATURE.** The approvals above are 2026-09-09T22:49:36Z and
+  2026-09-10T01:54:56Z; the signature is Brett Heap's word of 2026-09-10
+  ~17:2xZ; and the enrolment that made the approvals possible merged earlier
+  still, at codexFactory `4c0053c3` on 2026-09-07T21:16:37Z. **The signature
+  therefore RATIFIES APPROVALS ALREADY GIVEN — it did not authorize them in
+  advance**, and nothing in this note should be read as putting the signing
+  before the approving. The council record states the same inversion at its
+  § 0.2 rather than smoothing it.
   The obstacles: (1) the council record is now SIGNED
-  (`review/gate-rules-council-admitting-record-2026-09-10.md`); (2) the bypass
+  (`review/gate-rules-council-admitting-record-2026-09-10.md`) — signed AFTER
+  these approvals, per the paragraph immediately above; (2) the bypass
   actor was never needed — the relocation took the artifact off every CODEOWNERS
   prefix (record § 3.2, § 4); (3) the `lane-line` park was ruled (a) and realized
   2026-09-08. **WHAT IS NOT SATISFIED:** this box requires the approval "with the
@@ -568,7 +578,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   `18834180` was the `opensoft` org's; after the repository's move the active org
   rulesets are `Require Code Owner Review` **22655341**
   (`require_code_owner_review: true`, `required_approving_review_count: 0`) and
-  `xFactory Tier-1 main protection` **22655338**
+  `xFactory Tier-1 main protection (require PR + 1 approval)` **22655338**
   (`required_approving_review_count: 1`, `require_code_owner_review: false`) —
   and it is 22655338 that the merge-master App's APPROVE review satisfied. Both
   bypass lists remain `OrganizationAdmin / always` and nothing else; **no ruleset
