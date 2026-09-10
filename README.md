@@ -529,6 +529,48 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
+  — filed 2026-09-10, **`Status: draft`** — a PROPOSAL, and **filing is not
+  ratifying**. Lane `openxfactory-2`. Filed on Brett Heap's word in session,
+  2026-09-10 ~17:2xZ, verbatim ***"do 1 and 2, sign, file it, do 744"***
+  (openxFactory [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5622848416),
+  comment 5622848416), whose third clause commissions exactly this filing and
+  calls it *"a PROPOSAL (filing ≠ ratifying)"*. **THE ENROLMENT SUCCESSOR
+  `amend-mirror-floor-regeneration-merge-authority` § *The realization gate*
+  NAMES AND WRITES THE MEASURED SHAPE OF**, and whose box **4.3** — *"the
+  successor being NAMED — its openxFactory issue or packet id recorded here"* —
+  this pull request ticks on the tick-on-the-recording rule of 2026-09-06, the
+  only box it ticks anywhere. **IT RE-OPENS A RATIFIED DECISION AND SAYS SO IN
+  ITS OWN SECOND HEADING:** decision **N-1** of
+  `extend-merge-master-envelope-to-floor-bot-lanes` (ratified 2026-09-07) admits
+  the codexFactory REGENERATION lane ONLY and leaves this repository's
+  `review-lane-repin` lane on a human merge word; this packet asks for that
+  decision's own recorded alternative **N-1 (b)** with its condition **N-1b
+  (ii)**, the named carve. **Brett Heap's § 6.3 rulings of 2026-09-10 STAND
+  until it is ratified** and are quoted verbatim from codexFactory
+  [#232](https://github.com/codeXfactory/codexFactory/issues/232#issuecomment-5618469628)
+  (*"openxFactory re-pin lane NOT extended, INERT by ruling"*) and openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586).
+  **THE DESIGN PROBLEM IS CONFRONTED RATHER THAN ROUTED AROUND:**
+  `contracts/review-lane-pin.yaml` is a never-clearable floor member whose
+  ground is that a clearable pin *"would let a pull request choose its own
+  judge"* — and the answer offered is that the enrolment gives the pull request
+  **no degree of freedom over the judge** (author, head and base measured off PR
+  #732; the diff written by a driver that moves all five sites or opens nothing;
+  the value codexFactory's default-branch head resolved AT RUN TIME with any
+  trigger-named reference refused; and LQ-A7 exercising the PROPOSED core as a
+  required check `require_all_checks: true` conjuncts in), so the judge is
+  chosen by the source floor and this repository's pull request is the delivery.
+  The residual — an autonomous approval of such a delivery is the envelope
+  approving a change to its own NEXT judge — is **stated with its bounds rather
+  than argued away**. **NARROWEST-SAFE BY CONSTRUCTION:** it asks for a CARVE
+  naming one candidate and one member, **never a removal**, and **refuses a
+  ruleset bypass actor in any form**, so it lands INERT until codexFactory
+  carves. Four `## ADDED` requirements in `review-lane-floor-mirror` and **no
+  `## MODIFIED` block**, so no sibling-pairing declaration is owed. **NOTHING IS
+  REALIZED BY THE FILING** — no envelope byte, no workflow, no test, no ruleset,
+  no floor, no pin byte — and three of the four refusals measured on 2026-09-08
+  are untouched by it (`design.md` § 1).
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,
