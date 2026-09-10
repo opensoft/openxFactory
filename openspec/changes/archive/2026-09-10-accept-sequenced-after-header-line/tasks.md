@@ -9,6 +9,24 @@ put the requirement and its only evidence in two different pull requests.
 **NOTHING IS MERGED BY THIS CHANGE**, and nothing in codexFactory is touched:
 its re-vendor and pin advance are Group 4, unticked, owned elsewhere.
 
+*(The paragraph above was TRUE AS AUTHORED AND AT RATIFICATION, and is kept as
+the record of what this file claimed rather than rewritten: this change merged
+as openxFactory PR #886 → `b91af6ea` on 2026-09-10T12:33:38Z, and Group 4's
+successors have since landed in codexFactory. Read the paragraph below.)*
+
+**AMENDED 2026-09-10, AT THE ARCHIVE — AND THIS IS THAT ACT.** Group 0 closed
+at ratification; **0.4 and 0.5 close HERE** on the ruling already given, because
+the archive gate refuses any `^- [ ]` box and the record's note-rather-than-tick
+treatment cannot survive an archive (see each box for the citation, and that
+neither closure invents a disposition). **Group 4 closes with THREE TICKS on
+acts that landed in another repository** — codexFactory #333 → `8be1a855` (the
+re-pin, 4.1), #268's disposition comment (4.2) and #331 → `36ecb9bc` (the four
+pure moves, 4.3) — **ONE `- [~]` DEFERRED** with its owner named (4.4, other
+consumers' re-pins) **and 4.5 ticked as this archive itself**. The realization
+`release-realization` owes for a non-empty `code_surface` is recorded in
+`evidence/realization-2026-09-10.md`, `Status: record`, with the decisive
+byte-equality arm RE-RUN at this gate rather than quoted from #333.
+
 ## Group 0 — RATIFICATION GATE (human; CLOSED)
 
 **CLOSED. RATIFIED 2026-09-10T11:31:31Z.** Brett Heap's earlier ruling of
@@ -47,13 +65,30 @@ narrowed, 0.3 pure moves"**, over head `f36d2bc2`. Record:
   change, no fencing. Successor: task 4.3, owner lane codeXfactory-1 in
   codexFactory, after the re-pin (task 4.1). See
   `review/ratification-2026-09-10.md`.
-- [ ] 0.4 **Confirm or veto OQ-H2** — `scope_globs:` stays untaught the
+- [x] 0.4 **Confirm or veto OQ-H2** — `scope_globs:` stays untaught the
   header-line form. Recommendation: LEAVE IT OUT.
-  (ratified as they stand by 'ratify 886', 2026-09-10 — no separate word)
-- [ ] 0.5 **Confirm or veto authoring decisions H-1 … H-7** (`design.md`
+  **CONFIRMED AS THE PACKET STATES IT, ratified 2026-09-10T11:31:31Z by
+  "ratify 886"; box CLOSED AT THE ARCHIVE 2026-09-10.** No separate word was
+  given and none is invented: `review/ratification-2026-09-10.md` § "0.4 and 0.5
+  — ratified as they stand, not separately ruled" records that *"ratify 886"
+  ratifies the packet at head `f36d2bc2` as a whole, including the two open
+  questions and seven decisions the packet itself already resolved with a stated
+  recommendation and no dissent recorded against them*. The box asked for a
+  CONFIRM-OR-VETO; the packet-level ratification is the confirmation, and no
+  veto was entered. The recommendation is what shipped —
+  `scripts/scope_globs.py` is untouched and the asymmetry is ASSERTED in the
+  suite (task 2.6). The record says tasks.md marks this with a note "rather than
+  a tick"; that treatment was right while the packet was active and cannot
+  survive the archive, whose gate refuses any `^- [ ]` box with no bypass flag
+  (`scripts/proposal-support.py … archive`). Closing it here changes no
+  disposition and adds no ruling — it records the one already given.
+- [x] 0.5 **Confirm or veto authoring decisions H-1 … H-7** (`design.md`
   § Decisions), including H-2's extension of the promoted real-lines rule's
   language-boundary escape clause to a VENDORING boundary.
-  (ratified as they stand by 'ratify 886', 2026-09-10 — no separate word)
+  **CONFIRMED AS THE PACKET STATES THEM, ratified 2026-09-10T11:31:31Z by
+  "ratify 886"; box CLOSED AT THE ARCHIVE 2026-09-10**, on the same record
+  section and for the same reason as 0.4 immediately above. H-1 … H-7 stand as
+  written in `design.md` § Decisions, no veto entered against any of them.
 - [x] 0.6 On ratification: `Status: ratified` + a `Ratified by:` line + a
   `## Ratification record` section recording the dispositions land in
   `proposal.md`, and the README "OpenSpec Records" entry moves from DRAFT to
@@ -148,9 +183,19 @@ narrowed, 0.3 pure moves"**, over head `f36d2bc2`. Record:
   measurement: it was taken through the fence-only reader, which returns ABSENT
   on both sides.
 
-## Group 4 — SUCCESSORS (NOT this change's code surface; unticked with owners)
+## Group 4 — SUCCESSORS (NOT this change's code surface)
 
-- [ ] 4.1 **codexFactory re-vendor + pin advance — lane codeXfactory-1.** In ONE
+**CLOSED AT THE ARCHIVE, 2026-09-10, AND THE EVIDENCE IS RE-RUN RATHER THAN
+INHERITED.** Three of these five boxes are ticked on acts that LANDED in another
+repository, each cited by pull request and merge commit; one is `- [~]`
+DEFERRED with its owner named; the last is this archive itself. The realization
+this packet's `target_release` owes is recorded in
+`evidence/realization-2026-09-10.md` (`Status: record`) — merged
+(openxFactory #886 → `b91af6ea`), green (10 of 10 required checks), and READ BY
+A CONSUMER (codexFactory #333 → `8be1a855`), with the decisive byte-equality arm
+run here rather than quoted.
+
+- [x] 4.1 **codexFactory re-vendor + pin advance — lane codeXfactory-1.** In ONE
   commit: re-copy openxFactory `scripts/frontmatter_strict.py` and
   `scripts/sequenced_after.py` into `scripts/merge_master/`, refresh their
   entries in `VENDORED_SHA256` / `VENDORED_SOURCE_PATHS`, and advance
@@ -158,16 +203,86 @@ narrowed, 0.3 pure moves"**, over head `f36d2bc2`. Record:
   Advancing the pin without re-copying reds
   `test_the_vendored_bytes_equal_the_source_at_the_pinned_contract_version`
   BY DESIGN.
-- [ ] 4.2 **The #268 disposition — lane codeXfactory-1**, posted AFTER 4.1: the
+  **DONE 2026-09-10T16:09:02Z** — codexFactory
+  [#333](https://github.com/codeXfactory/codexFactory/pull/333) →
+  `8be1a855325e89b6b0ea943db130ba4724089580` on that repository's `main`.
+  `stack.yaml` `xfactory.contract_ref` `724a2a4f` → `b91af6ea`,
+  `contract_declared_at` `"2026-09-10"`, and **all four** vendored rows
+  re-copied byte-for-byte in the same commit (one `source_contract_ref` covers
+  all four captures, so a partial advance reds three rows by design). The arm
+  this box warns about was RE-RUN AT THIS GATE with an openxFactory checkout
+  supplied — `OPENXFACTORY_ROOT=… pytest tests/merge-master/test_vendored_sequenced_after.py
+  tests/merge-master/test_vendored_scope_globs.py -q` → **84 passed, exit 0, 0
+  skipped** — where the same file without that checkout reports `19 passed, 1
+  skipped`, the skip being that very test. Evidence § 3.
+- [x] 4.2 **The #268 disposition — lane codeXfactory-1**, posted AFTER 4.1: the
   three admitted carriers with their RETAINED retention readings, and the five
   beyond the window named with their line numbers and left to an explicit act.
-- [ ] 4.3 **The five beyond-window carriers — codexFactory, owner TBD at 0.3.**
+  **DONE 2026-09-10T16:20Z** — posted on codexFactory
+  [#268](https://github.com/codeXfactory/codexFactory/issues/268)
+  ([comment 5621865823](https://github.com/codeXfactory/codexFactory/issues/268#issuecomment-5621865823)),
+  after #333 merged. It carries the three carriers' RETAINED readings against
+  their own ratified heads, all five beyond-window carriers with their real line
+  numbers and what became of each (four moved, one reverted), and the one-corpus
+  two-reader sweep. The issue itself closed **COMPLETED at
+  2026-09-10T16:09:04Z** with #333's merge, two seconds after the merge commit —
+  so the disposition was posted to a closed issue deliberately, because a
+  closure is not a record of why.
+- [x] 4.3 **The five beyond-window carriers — codexFactory, owner TBD at 0.3.**
   Only if OQ-H1 is ruled LEAVE THE BOUND. Moving a declaration INTO the window is
   a retention-gate mutation on a ratified packet and needs the same explicit
   recorded disposition door (a) would have needed; it is not a reformat.
-- [ ] 4.4 **Other consumers' re-pins — their own lanes.** Any repository
-  vendoring either module advances its own pin; none is advanced from here.
-- [ ] 4.5 **Archive this change — lane codeXfactory-1**, on merged + green
+  **DONE 2026-09-10T13:49:20Z, AND ITS CONDITION WAS MET** — OQ-H1 was ruled
+  LEAVE THE BOUND with the remedy PURE LINE MOVES (task 0.3), so this box became
+  live; owner resolved at that ruling to lane codeXfactory-1. codexFactory
+  [#331](https://github.com/codeXfactory/codexFactory/pull/331) →
+  `36ecb9bcca97c87e280a24ad5b8b57a1d7826c6f` moved **FOUR** of the five
+  (`amend-floor-regeneration-merge-authority` 24→3,
+  `relocate-review-authority-floor` 33→3,
+  `admit-hosted-artifact-to-contract-manifest` 36→3,
+  `add-mcp-transport-adapters` 38→3), each a pure move whose pre-image and
+  post-image are the same multiset of lines — no text change, no fencing — under
+  the explicit disposition this box demands, Brett Heap's *"0.3 pure moves"*.
+  **THE FIFTH WAS RULED AND THEN REVERTED, and this box reports that rather than
+  rounding to five**: `archive/2026-09-05-add-floor-addition-grace` (line 20) was
+  restored byte-for-byte at `cd3eb14` on Brett Heap's word, first-hand, in
+  session, 2026-09-10, verbatim **"merge 401, revert the archived line in 331"** —
+  an archived packet is a record, and a parent proposal does not need to declare
+  against one to stay valid. Net effect, measured: the sweep over codexFactory
+  `main` `8be1a855` reads **8** declaring where the old pin read **0**
+  (evidence § 4).
+- [~] 4.4 **DEFERRED 2026-09-10, AT THE ARCHIVE — OPEN, OWNED ELSEWHERE, AND NOT
+  CLAIMED.** *Other consumers' re-pins — their own lanes. Any repository
+  vendoring either module advances its own pin; none is advanced from here.*
+  **Owner: each consuming repository's own lane** (Medx / Ledgerx / Adx / Ops),
+  on its own pin cadence. **Why deferral is honest and not a shortcut:** the
+  requirement is realized once ANY consumer reads the site, and one does —
+  codexFactory, at `b91af6ea`, proven in evidence § 3 and § 4; no other
+  repository's clock is this packet's to advance, and none has been asked to.
+  The marker says the box is OPEN and says who owns it; it does not say the work
+  is done. It takes the reserved `- [~]` rather than `- [x]` because
+  `scripts/proposal-support.py … archive` refuses any packet whose `tasks.md`
+  still matches `^- [ ]` with no bypass flag, and buying that refusal off with a
+  false tick is the one thing an archive must not do.
+- [x] 4.5 **Archive this change — lane codeXfactory-1**, on merged + green
   realization evidence per `release-realization`, after Group 0 closes. The two
   ADDED requirements promote to `openspec/specs/release-realization/spec.md` at
   that archive and not before.
+  **DONE 2026-09-10 — THIS ACT, archive PR
+  [#906](https://github.com/opensoft/openxFactory/pull/906).** Group 0 closed at 2026-09-10T11:31:31Z; the
+  realization gate's two arms are recorded in
+  `evidence/realization-2026-09-10.md`. Performed through the house entrypoint
+  `python3 scripts/proposal-support.py . archive accept-sequenced-after-header-line`
+  (origin-retention arm, ratified-proposal arm and the pinned CLI, no bypass
+  flag), moving the packet to
+  `openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/` and
+  writing BOTH ADDED requirements into
+  `openspec/specs/release-realization/spec.md` — verified byte-identical to the
+  archived delta by sha256 over each extracted block, with the promoted
+  `## Purpose` untouched. README's "OpenSpec Records" row moves ACTIVE →
+  ARCHIVED and the per-change sweep ledger row moves `state: active` →
+  `archived` with `moved_by: "#906"` — seeded by the sanctioned tool
+  (`validate-sequenced-after.py . --seed-ledger --moved-by '#906'`, ONE row
+  moved, `class: sole` held so no partner flips and no MOVEMENT LOG entry is
+  owed) and taken AFTER the pull request existed, because the real number does
+  not exist until it does.
