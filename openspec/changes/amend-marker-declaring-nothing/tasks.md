@@ -91,11 +91,17 @@ residue, measured and deliberately not taken.
       `doc-health` finding set is identical to `origin/main`'s LINE FOR LINE,
       and **the marker-defect class raises NOTHING on either tree**.
 - [x] 2.3 **THE ZEROS ARE ASSERTED AS A TEST, NOT ONLY AS A FIGURE** (§ 3.6):
-      `test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today`,
-      written as two CEILINGS rather than two exact counts so that an unrelated
-      marker landing later is not read as a regression of these grounds, and
-      saying of its ground-four half that it is STRICTLY WIDER than the ground
-      (it does not resolve names against the promoted requirement).
+      `test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today`, at
+      TWO GRAINS. Ground five as a CEILING over the WHOLE corpus — no
+      `Removed from canon` marker anywhere carries an empty tail — which is
+      wider than the shipping path and unambiguous, no other ground being able
+      to fire on a marker with no names and no quoted spans. And BOTH grounds
+      EXACTLY over the shipping path: every active MODIFIED block is resolved to
+      its promoted basis the way `main` resolves it and handed to `suppression`,
+      and no `_MarkerDefect` it returns carries either new ground's WHY clause,
+      with a floor on how many blocks were actually compared so the assertion
+      cannot pass by resolving nothing. **BENCH ROUND 2 NARROWED THIS** (see
+      § 3.6).
 - [x] 2.4 **THE SENTENCE IS PROMOTED IN ONE PLACE, CHECKED IN BOTH
       DIRECTIONS.** `document-lifecycle`'s marker grammar says how a deleted
       unit is NAMED and carries no reporting rule at all, so it needs no
@@ -161,7 +167,16 @@ residue, measured and deliberately not taken.
       SILENT; a `Merged into` marker whose tail names nothing stays SILENT
       (§ 7.1's pin); each ground added here matches exactly ONE arm template and
       classifies as `marker-defects`, with `_ARM_TEMPLATES` still at eight; and
-      no marker in this corpus raises either ground today, as two ceilings.
+      no marker in this corpus raises either ground today. **THE LAST OF THOSE
+      WAS NARROWED IN BENCH ROUND 2, ON COPILOT'S FINDING, AND THE FINDING WAS
+      RIGHT.** As first written its ground-four half asserted `name not in
+      block_texts` over every marker name — which is the precondition of ground
+      ONE as much as of ground four, so a future ground-one regression would
+      have failed a test named for ground four and pointed the next reader at
+      the wrong rule. It now resolves each active block to its promoted basis
+      and asserts on `suppression`'s OWN OUTPUT, which is narrower AND stronger:
+      it cannot misattribute, and it measures the exact population instead of a
+      bound on it.
 - [x] 3.7 **ONE EXISTING ASSERTION IS FLIPPED RATHER THAN LOOSENED, AND NAMED
       HERE RATHER THAN LEFT IN THE DIFF.**
       `test_a_name_matching_a_unit_the_BLOCK_adds_stays_SILENT` asserted

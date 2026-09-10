@@ -2889,19 +2889,28 @@ def test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today():
     which is what makes the amendment inert at landing and normative for the
     next marker written.
 
-    TWO CEILINGS RATHER THAN TWO EXACT COUNTS, so that an unrelated marker
-    landing later is not read as a regression of these grounds:
+    TWO ASSERTIONS, AT TWO DIFFERENT GRAINS AND FOR DIFFERENT REASONS:
 
-    - GROUND FIVE — no marker of `Removed from canon` form anywhere in the
-      corpus carries an empty tail. Measured over `_corpus_markers`' own walk,
-      which drops fenced regions first, so this requirement's written-out
-      examples are never offered.
-    - GROUND FOUR — for every active MODIFIED block the family actually reads,
-      no unit-naming marker names a text the BLOCK ITSELF states. That is
-      ground four's precondition and a STRICTLY WIDER assertion than the ground:
-      the ground additionally requires the name to match no unit of the promoted
-      requirement, which this test does not resolve. Said so rather than
-      implied, exactly as the sibling corpus tests say it of themselves.
+    - GROUND FIVE, AS A CEILING over the WHOLE corpus — no marker of
+      `Removed from canon` form anywhere in it carries an empty tail. Measured
+      over `_corpus_markers`' own walk, which drops fenced regions first, so
+      this requirement's written-out examples are never offered. It is a ceiling
+      because it is WIDER than the shipping path (which reads markers only
+      inside active MODIFIED blocks) and it is unambiguous because no other
+      ground can fire on a marker with no names and no quoted spans.
+    - BOTH GROUNDS, EXACTLY, over the shipping path — every active MODIFIED
+      block is resolved to its promoted basis exactly as `main` resolves it and
+      handed to `suppression`, and no `_MarkerDefect` it returns carries either
+      new ground's WHY clause. **THE PREDICATE IS THE SHIPPING ONE**, so a
+      failure here is this ground firing and nothing else.
+
+    BENCH ROUND 2, PR #908, Copilot: the ground-four half of this test used to
+    assert `name not in block_texts` over every marker name, which is the
+    precondition of ground ONE as much as of ground four — so a future ground-one
+    regression would have failed a test named for ground four and pointed the
+    next reader at the wrong rule. Resolving the basis and asserting on
+    `suppression`'s own output is narrower AND stronger: it cannot misattribute,
+    and it measures the exact population rather than a bound on it.
     """
     from pathlib import Path
 
@@ -2913,12 +2922,31 @@ def test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today():
              if m.form == "removed" and not m.names and not m.quoted]
     assert empty == [], [(str(r), m.paragraph) for r, m in empty]
 
-    blocks = mbc.active_blocks(Path(REPO_ROOT))
+    root = Path(REPO_ROOT)
+    blocks = mbc.active_blocks(root)
     assert blocks, "no active MODIFIED block in the corpus"
+    siblings = mbc.sibling_titles(root)
+    canon: dict[str, object] = {}
+    reported: list[tuple[str, str, str]] = []
+    # A FLOOR ON WHAT WAS ACTUALLY WALKED, so this can never pass by resolving
+    # nothing: a block whose title resolves to no basis is skipped below, which
+    # is what `main` does too, and a corpus where every block skipped would make
+    # the assertion vacuous rather than green.
+    compared = 0
     for block in blocks:
-        texts = {u.text for u in block.units}
-        for marker in block.markers:
-            if marker.form == mbc._PAIRING_FORM:
-                continue
-            for name in marker.names:
-                assert name not in texts, (block.change, block.title, name)
+        if block.capability not in canon:
+            canon[block.capability] = mbc.promoted(root, block.capability)
+        basis, _status = mbc.resolve(block, canon[block.capability], siblings)
+        if basis is None:
+            # PENDING OR UNRESOLVED: the comparison arms do not run against such
+            # a block on `main` either, so neither ground can reach it.
+            continue
+        compared += 1
+        _sup, defective = mbc.suppression(block.markers, basis.units,
+                                          block.units)
+        for defect in defective:
+            if ("is text the block itself adds" in defect.why
+                    or "names no unit and quotes no span" in defect.why):
+                reported.append((block.change, block.title, defect.why))
+    assert compared >= 10, compared
+    assert reported == [], reported
