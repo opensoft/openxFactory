@@ -485,22 +485,49 @@ the block was written into a registry-less tree.
   repository in scope has an `openspec/changes/` directory it can read. A scope
   carrying active changes but no `## MODIFIED Requirements` block among them
   MUST NOT be reported as skipped.
-- **FR-024**: Every finding MUST carry `warning` severity for the
-  scenario-completeness and title-resolution arms and `info` for the carriage
-  ledger; the family MUST be ABSENT from `FAMILY_RESOLUTION`. The
-  scenario-completeness arm's severity MUST be a named module constant DISTINCT
-  from the other arms' constants, so that the later flip — which moves that arm
-  alone, together with a `FAMILY_RESOLUTION` row — is one line beside one row
-  and cannot drag another arm with it.
+- **FR-024**: Every finding of the scenario-title completeness arm MUST
+  carry `error` severity; every other class the family emits MUST keep the
+  band its own rule states, the title-resolution arm at `warning` and the
+  carriage ledger at `info`; and the family MUST be PRESENT in
+  `FAMILY_RESOLUTION`, classified `contested` — canon's own wording: "Every
+  finding of the scenario-title completeness arm — the arm that carries
+  this family's gate — SHALL carry `error` severity, so a run configured to
+  fail on `error` fails on a MODIFIED block that drops a scenario canon
+  still carries; every other class the family emits SHALL keep the band its
+  own rule states, the title-resolution and ordering arm at `warning` and
+  the carriage ledger and the marker defects at `info`, so no `--fail-on`
+  configuration reds on those; and the family SHALL be classified
+  `contested`, so a finding of ANY of its classes is a contested finding,
+  and a session working a report's ranked plan SHALL NOT apply a
+  state-changing edit for one, escalating it to a change proposal or a
+  recorded disposition instead."
+  (`openspec/specs/doc-health/spec.md`:1818–1828).
+  *(Amended 2026-09-10 to match canon after the flip of 2026-08-31 (#357, PR
+  #529, `7f656980`) and its canon correction
+  `amend-modified-block-currency-standing` (#857; ratified PR #887 →
+  `3b45c037`; archived PR #899 → `8d2acbe8`); this requirement previously
+  stated the launch severities and the family's absence from
+  `FAMILY_RESOLUTION`.)* The scenario-completeness arm's severity MUST be a
+  named module constant DISTINCT from the other arms' constants, so that the
+  later flip — which moves that arm alone, together with a
+  `FAMILY_RESOLUTION` row — is one line beside one row and cannot drag
+  another arm with it.
 - **FR-025**: Two runs over one unchanged tree MUST produce byte-identical
   findings, ordering included.
 
 **Registration and the owed enumeration block**
 
 - **FR-026**: The family MUST be registered in `families.FAMILIES` and in
-  `doc_health.FAMILY_IDS`, with a comment recording why it is deliberately
-  absent from `FAMILY_RESOLUTION`, and `families.py`'s module docstring owner
-  list MUST name the new module.
+  `doc_health.FAMILY_IDS`, with a comment recording its `FAMILY_RESOLUTION`
+  row — `"modified-block-currency": CONTESTED,`
+  (`scripts/doc_health/families.py`:117).
+  *(Amended 2026-09-10 to match canon after the flip of 2026-08-31 (#357, PR
+  #529, `7f656980`) and its canon correction
+  `amend-modified-block-currency-standing` (#857; ratified PR #887 →
+  `3b45c037`; archived PR #899 → `8d2acbe8`); this requirement previously
+  stated the launch severities and the family's absence from
+  `FAMILY_RESOLUTION`.)* `families.py`'s module docstring owner list MUST
+  name the new module.
 - **FR-027**: The family MUST be classified a NON-reader of the lifecycle scan
   set in the test that exists to fail loudly when a new family is not
   classified, and the non-reader count assertion MUST move with the registry
