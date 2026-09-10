@@ -1,0 +1,85 @@
+schema: spec-driven
+created: 2026-09-10
+
+# NO SPEC DELTA, DECLARED RATHER THAN OMITTED, on exactly the reading
+# `disposition-codexfactory-declared-renames` recorded for the same act one
+# repository and five days earlier. `bump-openspec-cli-pin-to-1.12` already
+# states every rule this packet exercises — a disposition is scoped to one
+# repository, an entry naming another repository is neither applied nor stale on
+# this tree, an entry goes stale on the tree it names when its change archives,
+# and an entry carries a citation and an authority — and its scenario "A
+# consuming repository runs the same pin over its own tree" is this situation.
+# So this packet ADDS NO RULE: it is the THIRD application of that rule to the
+# same consuming repository, and the honest shape for that is zero deltas
+# declared.
+#
+# AND THE REASON IS NOT THE PRECEDENT'S. `disposition-codexfactory-declared-renames`
+# could not write a `## MODIFIED` delta against that requirement even if it had
+# wanted one: on 2026-09-05 `bump-openspec-cli-pin-to-1.12` was still an ACTIVE
+# change, so the requirement was unpromoted and there was no promoted text to
+# modify. THAT ORDERING OBJECTION HAS EXPIRED AND IS NOT REUSED HERE — checked,
+# 2026-09-10: the bump IS archived
+# (`openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12`), its
+# requirement IS promoted into `openspec/specs/neutral-product-pin/spec.md`, and
+# a `## MODIFIED` block against it is therefore REACHABLE TODAY. It is still not
+# written, for a different and simpler reason: there is nothing in the rule to
+# modify. `design.md` § 3 sets that out. Recorded this way so the refusal is
+# read as CURRENT and substantive rather than inherited from a precedent whose
+# ground has moved.
+skip_specs: true
+
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-disposition-codexfactory-floor-relocation-retitle
+  reason: >-
+    A THIRD FINDING OF THE SAME MARKER-BLINDNESS IN THE SAME CONSUMING
+    REPOSITORY, AND THE FIRST ONE AN ARCHIVE RAISED. codeXfactory/codexFactory
+    PR #318 (`change/archive-floor-regeneration-option-b`, head `32743fb7`)
+    archived `add-floor-regeneration-automation` and PROMOTED its requirement
+    "An automated floor regeneration only ever proposes" into that repository's
+    `openspec/specs/repository-gate-floor/spec.md`, carrying canon's scenario
+    "The human gate is unchanged" in with it. The ratified, still-ACTIVE
+    `relocate-review-authority-floor` holds a `## MODIFIED` block for that same
+    requirement which RETITLES that scenario to "The human gate is whatever the
+    document's path routes to" — the whole point of the relocation. 1.12.0's
+    scenario-currency check, blind as ever to this estate's reserved
+    ``**Merged into `<destination>` by <change-id> (<date>):**`` marker, reads
+    the retitle as an omission and reds codexFactory's `validate`. Measured
+    through this repository's pinned entrypoint over #318's tree on 2026-09-10:
+    `Totals: 26 passed, 3 failed (29 items)` — the two standing codexFactory
+    entries APPLIED and this finding UNDISPOSITIONED, exit 1; the same finding
+    is the one red in codexFactory `validate` run 34481981940. THE ONLY EDIT
+    THAT SATISFIES THE TOOL RESTORES A SCENARIO A RATIFIED CHANGE REPLACED, so
+    it is an exception to ACCEPT rather than a defect to fix, and the
+    disposition mechanism lives in THIS repository's pin file, which is why the
+    acceptance has to be written HERE. Nothing else in the pin moves.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-10: no
+    topic folder and no INDEX row names the OpenSpec CLI pin, a consuming
+    repository's findings, or a finding-disposition. `kind: staged` would claim
+    a staging source that does not resolve. The organized sources are
+    openxFactory issue #745 and codexFactory issue #232, on which the
+    measurement and the ruling are both recorded.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-09-10 at approximately 14:0xZ,
+    first-hand to lane `openxfactory-2` (display `openXfactory-2`), session
+    504bd370, verbatim: "go A, ratify the disposition entry as encoded". THE
+    WORD IS BOTH HALVES AT ONCE AND IT SAYS SO — "go A" chooses the exit
+    (disposition the residual finding, over restoring the scenario or holding
+    #318's archive), and "ratify the disposition entry as encoded" ratifies THIS
+    PACKET'S TEXT against the entry as this packet encodes it. That differs
+    deliberately from `disposition-codexfactory-declared-renames`, which needed
+    two words on the same day ("use recommended name, go on 3 repo shape" for
+    the plan, then "ratify 697" for the text); here one sentence carries both,
+    so every document in this packet lands `Status: ratified` rather than
+    `draft`. Recorded on openxFactory
+    #745 (comment 5619833296) and on codexFactory #232 (comment 5619832944).
+    THE MERGE IS A SEPARATE ACT AND THIS WORD IS NOT IT: the orchestrator lands
+    the pull request under lane-collision Rule 6 on its own word.
+  approved_on: 2026-09-10
+related:
+  - openxFactory:change:archive/2026-09-09-add-openspec-cli-pin              # ARCHIVED. Cut the pin (#667) and carries task 6.1, the consumer-wiring obligation whose third application this packet is
+  - openxFactory:change:archive/2026-09-09-bump-openspec-cli-pin-to-1.12     # ARCHIVED. #677. Moved the pin to 1.12.0 and ADDED the disposition mechanism and its rule; this packet applies that rule and does not touch it
+  - openxFactory:change:disposition-codexfactory-declared-renames            # ACTIVE. The precedent this packet copies in shape: the first two codexFactory entries, their two-word ratification, and the out-of-scope property measured both ways
+  - openxFactory:change:relocate-review-authority-floor-mirror               # ACTIVE. openxFactory's mirror of the codexFactory relocation; it declares `codexFactory:relocate-review-authority-floor` as a sequenced-after parent, which is where the retitle this entry accepts comes from
+  - openxFactory:change:mirror-floor-regeneration-automation                 # ACTIVE. The mirror of the codexFactory automation whose archive (#318) promoted the requirement and thereby raised the finding

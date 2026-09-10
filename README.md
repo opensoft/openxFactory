@@ -529,6 +529,73 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
+  openxFactory convener, first-hand, in session to lane `openxfactory-2`,
+  verbatim ***"go A, ratify the disposition entry as encoded"***, recorded on
+  openxFactory [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5619833296)
+  and codexFactory [#232](https://github.com/codeXfactory/codexFactory/issues/232#issuecomment-5619832944))
+  — record
+  [`review/ratification-2026-09-10.md`](openspec/changes/disposition-codexfactory-floor-relocation-retitle/review/ratification-2026-09-10.md).
+  Lane `openxfactory-2`. **ONE SENTENCE CARRIED BOTH HALVES** — *"go A"* chose
+  the exit and *"ratify … as encoded"* ratified the text — which is why every
+  document in the packet lands `ratified` rather than passing through `draft`,
+  unlike its precedent's two words on one day. **THE THIRD `repo: codexFactory`
+  DISPOSITION IN THE FLEET OPENSPEC-CLI PIN, AND THE FIRST AN ARCHIVE RAISED.**
+  codeXfactory/codexFactory PR #318 (`change/archive-floor-regeneration-option-b`,
+  head `32743fb7`) archived `add-floor-regeneration-automation` and PROMOTED its
+  requirement *"An automated floor regeneration only ever proposes"* into that
+  repository's `openspec/specs/repository-gate-floor/spec.md`, carrying canon's
+  scenario *"The human gate is unchanged"* in with it — and the ratified,
+  still-ACTIVE `relocate-review-authority-floor` holds a `## MODIFIED` block for
+  that same requirement which RETITLES the scenario to *"The human gate is
+  whatever the document's path routes to"*, the whole point of the relocation.
+  **Nothing in either change moved: a PROMOTION made a declared retitle visible
+  to a marker-blind check.** `contracts/openspec-cli-pin.yaml` gains ONE entry —
+  `item: relocate-review-authority-floor`,
+  `path: repository-gate-floor/spec.md`, `level: ERROR`, the finding quoted
+  WHOLE from the tool's own JSON report, eight citations, and Brett's word — and
+  NO other field of the pin and NO existing entry moves. **MEASURED THREE WAYS,
+  AND ONE OF THEM IS A REFUSAL THAT FIXES AN ORDER**
+  ([`evidence/codexfactory-floor-relocation-2026-09-10.md`](openspec/changes/disposition-codexfactory-floor-relocation-retitle/evidence/codexfactory-floor-relocation-2026-09-10.md)):
+  on #318's tree, exit 1 → exit 0 with `Totals: 26 passed, 3 failed
+  (29 items)` UNCHANGED and three named exceptions; on openxFactory's own tree,
+  the gate's literal `--all --no-cache`, exit 0 with all three codexFactory
+  entries neither applied nor stale; and on codexFactory `main` (`0dfed9a4`),
+  where #318 is still OPEN, the entry is STALE and the run REFUSES
+  `pin-disposition-stale` (exit 2) — the pre-edit pin exits 0 on that same tree
+  — because the requirement is not promoted there. **So codexFactory's declared
+  openxFactory pin MUST NOT advance to this change's merge commit before #318
+  merges**; the entry's own `retires_when:` says so, and codexFactory #333
+  (`change/advance-openxfactory-pin-b91af6ea`) as written targets `b91af6ea`,
+  BEFORE this change. **NO SPEC DELTA, DECLARED** (`skip_specs: true`, the
+  corpus's second use): promoted `neutral-product-pin` already states that a
+  disposition is scoped to one repository, that an entry naming another is
+  neither applied nor stale, and that an entry refuses when its change
+  archives. **The precedent's ORDERING objection has expired and is not
+  reused** — the bump archived 2026-09-09, so a `## MODIFIED` block is now
+  reachable and is still not written, because there is nothing in the rule to
+  modify. Two tests move deliberately: the count-pinning test **4 → 5** keeping
+  its per-repository split, and the per-entry citation test TIGHTENED from two
+  shared literals to PER-ITEM maps of the measurement each entry rests on and
+  the word each was granted by. `sequenced_after: []`. **THE RESERVED
+  `Merged into` MARKER LANDED MID-AUTHORING and turned the packet's central
+  claim into a measurement**: codexFactory PR #339 → main `9b1b0a21`
+  (2026-09-10T14:33:55Z) put the marker at that block's `:15`, and re-run over
+  #318's head merged with that main the finding is **BYTE-IDENTICAL** — so the
+  marker changed the corpus and changed nothing about the tool, which is the
+  whole premise of `dispositions:` shown rather than asserted. The marker was
+  cited, never waited on. **AND THE WHOLE PAIR WAS RE-TAKEN AT COMMIT TIME**
+  (evidence § 3b), because `main` moved three times in an afternoon and a
+  transcript nobody can reproduce is half a record: at `main` `2e744d4b` and
+  at #318's head merged with THAT main (`8effa57a`), the pre-edit pin still
+  exits 1 with the finding undispositioned and this pin exits 0 with
+  `Totals: 26 passed, 3 failed (29 items)` UNCHANGED across the pair and three
+  applied — while `main` itself still REFUSES `pin-disposition-stale`, the
+  tool reporting that same item `"valid": true` with an INFO there because
+  #318's promotion has not landed. The `cited to:` line in the transcript is
+  the line the committed YAML renders.
+
 - [accept-sequenced-after-header-line](openspec/changes/accept-sequenced-after-header-line/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10T11:31:31Z, Brett
   Heap, repository owner, first-hand, in session, verbatim ***"ratify 886,
