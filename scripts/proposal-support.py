@@ -1024,6 +1024,20 @@ class AcceptedOriginMutation:
         self.word = entry["word"]
         self.cited_to = entry["cited_to"]
 
+    def citation(self) -> str:
+        """`cited_to` as ONE readable string.
+
+        It may be a LIST — the shape `contracts/openspec-cli-pin.yaml`'s own
+        `cited_to:` takes, and the shape an entry citing an issue, a pull
+        request and a ruling naturally wants. Interpolating a list into
+        operator output prints a Python repr, brackets and quotes and all
+        (Copilot, round 1 on PR #891), so it is joined here rather than at
+        four call sites.
+        """
+        if isinstance(self.cited_to, list):
+            return "; ".join(self.cited_to)
+        return self.cited_to
+
     def note(self) -> str:
         """The acceptance, ANNOUNCED. An accepted mutation is never silent:
         the run says which declaration became the origin of record, on whose
@@ -1035,7 +1049,7 @@ class AcceptedOriginMutation:
             f"at {self.mutation_at[:12]} is the ORIGIN OF RECORD — a "
             f"post-ratification mutation of {keys}, accepted by "
             f"{self.disposed_by} on {self.disposed_on} "
-            f"(\"{self.word}\"), recorded at {self.cited_to}. The comparison "
+            f"(\"{self.word}\"), recorded at {self.citation()}. The comparison "
             f"baseline moves from the ratifying commit "
             f"{self.ratified_at[:12]} to {self.mutation_at[:12]}; every arm "
             f"of this gate still runs, now against that declaration.")
@@ -1057,8 +1071,17 @@ def _is_ancestor(root: Path, older: str, newer: str) -> bool:
     return result.returncode == 0
 
 
-def load_origin_dispositions(path: Path) -> list[dict]:
-    """The record's `dispositions:` list, header checked, entries unchecked.
+def load_origin_dispositions(path: Path) -> list[object]:
+    """The record's `dispositions:` list, header checked, ENTRIES UNCHECKED.
+
+    `list[object]` and not `list[dict]`, because that is what this returns:
+    the header is verified here and the entries are not, so a hand-written
+    record can put a string or a list where a mapping belongs. The caller
+    selects with `isinstance(entry, dict)` before it reads a key, and the
+    annotation says so rather than promising a shape this function never
+    established (Copilot, round 1 on PR #891). Entry SHAPE is checked by
+    `_entry_shape_problems`, and only for the entry that names the change
+    being archived — one change's malformed entry must not block another's.
 
     Raises `SupportError` naming the file when the header is not this record's
     — a file at this path that is not this record cannot be read as an empty

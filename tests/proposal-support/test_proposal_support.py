@@ -2200,8 +2200,16 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                 "codeXfactory/codexFactory#318 — the ledger and both refusals",
                 "opensoft/openxFactory#745 — the channel this entry uses"]
             self.write_record(root, entry)
-            self.assertEqual(
-                support.origin_retention_errors(root, directory), [])
+            with mock.patch("builtins.print") as printed:
+                self.assertEqual(
+                    support.origin_retention_errors(root, directory), [])
+            said = "\n".join(str(call.args[0])
+                             for call in printed.call_args_list)
+            # …and the ANNOUNCEMENT reads it out as prose, not as a Python
+            # list repr (Copilot, round 1): brackets and quotes in operator
+            # output are noise, and the three citations are one sentence
+            self.assertIn("; ".join(entry["cited_to"]), said)
+            self.assertNotIn("['" + self.CITED_TO, said)
 
             for empty in ([], "", "   ", [self.CITED_TO, ""]):
                 with self.subTest(cited_to=empty):
