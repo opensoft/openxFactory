@@ -91,6 +91,54 @@ origin:
     all, so whether promoted canon should be amended for a binary no required
     check runs is the owner's call and not this lane's.
   proposed_on: 2026-09-10
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-10, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "ratify as encoded",
+    given in session at approximately 19:53Z and recorded on openxFactory PR
+    #923 at 2026-09-10T19:53:02Z (comment 5624573662). THIS IS THE
+    RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting provenance
+    above is kept exactly as authored and `kind`, `id`, `reason` and
+    `proposed_by` never move, which is the shape `add-drafted-proposal-origin`
+    (issue #318) defined for this transition: approval is a pure ADDITION
+    beside a fixed origin identity, so the support manifest that repeats `kind`
+    and `id` never comes to disagree with the packet, and the archive gate's
+    origin-retention arm reads the declaration this commit establishes. The
+    earlier word of 2026-09-10, verbatim "do 882 packet", stays the ORIGIN of
+    the AUTHORING and is not read as an approval.
+    THE WORD IS A MULTIPLE-CHOICE RULING AND IT REACHES THREE DECISIONS, PUT
+    WITH THE RECOMMENDATION FIRST AND `design.md` D6 FIRST OF ALL. D6 — amend
+    promoted canon at all, or close issue #882 on the measurement — is resolved
+    as AMEND, the ballot's arm A and D6's own option 1, taken WITH the
+    measurement in front of the owner: the pinned 1.12.0 binary the required
+    gate runs does NOT report the first-line failure that the 1.2.0 binary on
+    PATH reports, and the amendment was ruled anyway, on the seventeen-to-one
+    convention inside the one file, the unfinished 1.12 migration, and a cost
+    of two case flips and one comma. D1 — the wording — is resolved as OPTION
+    1, the re-ordering of canon's own words so that the subject and the modal
+    open the first body line, adding no word and removing none; option 2 (move
+    only the line breaks) and option 3 (the wording issue #882 itself floats,
+    which moves the obligation's bearer from the pin to the product) were put
+    with their costs and were NOT taken. D2 — the marker — STANDS: one `Removed
+    from canon` marker, one name, no code span in its reason. D0, D3, D4, D5
+    and D7 were carried beside them and none was vetoed.
+    EVERY RULED ARM IS THE ARM THE PACKET ALREADY ENCODED, SO THE WORDING
+    STANDS UNCHANGED AND THAT IS VERIFIED BY DIFF RATHER THAN ASSERTED. `git
+    diff 0125741d -- openspec/changes/amend-neutral-product-pin-lockfile-first-line/specs/`
+    is EMPTY at this ratification: the one retired sentence, its replacement,
+    the single marker and all four carried scenarios are ratified exactly as
+    the bench reviewed them at the frozen head.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD, AND THAT WORD HAS NOT
+    BEEN GIVEN. `code_surface: none` and `target_release: none` mean this
+    packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization
+    evidence — there is no code surface for evidence to be about — but that
+    archive is not performed here: nothing under `openspec/specs/` is edited by
+    this ratification, `tasks.md` § 5 stays OPEN, and openxFactory #882
+    therefore closes AT THE ARCHIVE and not at this landing, which is why this
+    pull request carries no closing keyword.
+    Record: `review/ratification-2026-09-10.md`, with the gate run re-derived
+    on the ratified tree at `review/verification-2026-09-10.md`.
+  approved_on: 2026-09-10
 related:
   - openxFactory:change:archive/2026-09-09-pin-openspec-cli-dependency-closure     # ARCHIVED 2026-09-09 at `fa58a1a3`. The change that RATIFIED AND PROMOTED the requirement this block MODIFIES, and whose own delta already carried the deferred first line — so the defect entered at authoring and was promoted faithfully
   - openxFactory:change:archive/2026-09-10-amend-neutral-product-pin-interim-copy-vocabulary  # ARCHIVED 2026-09-10 at `88cc12b5`, the LAST WRITER of `openspec/specs/neutral-product-pin/spec.md`. It measured this failure, declined it (`tasks.md` 5.2, `design.md` D6) and named this packet's shape and this issue; this packet is its named successor

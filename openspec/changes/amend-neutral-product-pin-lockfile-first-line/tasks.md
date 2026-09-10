@@ -1,6 +1,7 @@
 # Tasks: amend-neutral-product-pin-lockfile-first-line
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-lockfile-first-line — 2026-09-10, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-10.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: none`. There is no realization group,
@@ -13,47 +14,59 @@ archive.**
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in its body, with the
-command and the exit code. **§ 1 (ratification) IS ENTIRELY OPEN**: Brett
-Heap's word of 2026-09-10, verbatim *"do 882 packet"*, commissioned the
-AUTHORING and ratified no wording — so every document in this packet reads
-`Status: draft`, `.openspec.yaml` carries drafting provenance with NO
-`approved_by` and NO `approved_on`, and nothing here is admitted to canon.
-**§ 5 (archive) IS ENTIRELY OPEN**: promotion is a separate act on a separate
-word, so openxFactory #882 closes AT THE ARCHIVE and not at this landing, and
-`Closes #882` appears on the archive pull request and on nothing else. § 6
-records what was measured and deliberately not taken.
+command and the exit code. **§ 1 (ratification) IS NOW TICKED AND NAMES THE
+WORD THAT TICKED IT** — Brett Heap's *"ratify as encoded"* of 2026-09-10,
+which is his act and not the authoring lane's; his earlier *"do 882 packet"*
+stays recorded as the ORIGIN of the AUTHORING, which admitted no text to canon.
+**§ 5 (archive) STAYS ENTIRELY OPEN**: promotion is a separate act on a
+separate word and that word has NOT been given, so openxFactory #882 closes AT
+THE ARCHIVE and not at this landing, and `Closes #882` appears on the archive
+pull request and on nothing else. § 6 records what was measured and
+deliberately not taken, and stays open where the work is owed.
 
-**AND THE ORDER OF THE DECISIONS IS NOT THE ORDER OF THE SECTIONS.**
-`design.md` **D6 is put FIRST** and it can end the packet: the failure this
-amendment answers is REAL on the OpenSpec CLI at 1.2.0 and is reported by NO
-REQUIRED CHECK, because openxFactory validates through the pinned 1.12.0
-artifact and this specification PASSES there. Whether promoted canon should be
-amended for a binary no required check runs is the owner's call, and § 1.2
-is the box that records it.
+**AND THE ORDER OF THE DECISIONS WAS NOT THE ORDER OF THE SECTIONS.**
+`design.md` **D6 was put FIRST** and it could have ended the packet: the
+failure this amendment answers is REAL on the OpenSpec CLI at 1.2.0 and is
+reported by NO REQUIRED CHECK, because openxFactory validates through the
+pinned 1.12.0 artifact and this specification PASSES there. Whether promoted
+canon should be amended for a binary no required check runs was the owner's
+call, § 1.2 is the box that records it, and **HE RULED AMEND** with that
+measurement in front of him.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-10
 
-- [ ] 1.1 **RATIFY OR REFUSE THE PACKET, on Brett Heap's word** (openxFactory
-      operator authority). The word behind this authoring — 2026-09-10,
-      verbatim *"do 882 packet"*, recorded in this lane's CLAIMED comment on
-      openxFactory [#882](https://github.com/opensoft/openxFactory/issues/882#issuecomment-5623510674)
-      at 2026-09-10T18:29:31Z — commissioned a lane to write the remedy issue
-      #882 proposes. **IT DECIDES NO WORDING AND IS NOT READ AS AN APPROVAL.**
-      On ratification, and only then: `proposal.md`, `design.md` and this file
-      go `Status: ratified` with **ONE** citation line each (`Ratified:` in
-      `proposal.md`, `Ratified by:` here and in `design.md`), which is what
-      `ratified-provenance` counts; `.openspec.yaml` GAINS
-      `approved_by`/`approved_on` **BESIDE** the drafting provenance with
-      `kind`, `id`, `reason` and `proposed_by` unmoved — the
+- [x] 1.1 **RATIFIED 2026-09-10 by Brett Heap** (openxFactory operator
+      authority), verbatim *"ratify as encoded"*, given in session as a
+      MULTIPLE-CHOICE ruling at approximately 19:53Z and recorded on PR **#923**
+      at 2026-09-10T19:53:02Z (comment `5624573662`). The word behind the
+      AUTHORING — 2026-09-10, verbatim *"do 882 packet"*, recorded in this
+      lane's CLAIMED comment on openxFactory
+      [#882](https://github.com/opensoft/openxFactory/issues/882#issuecomment-5623510674)
+      at 2026-09-10T18:29:31Z — stays recorded as the ORIGIN: it commissioned a
+      lane to write the remedy issue #882 proposes, decided no wording, and is
+      NOT read as an approval. `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-10.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md` and in the
+      ratification record, `Ratified by:` here and in `design.md`), which is
+      what `ratified-provenance` counts across both sanctioned spellings.
+      `review/verification-2026-09-10.md` keeps `Status: record`: its subject is
+      the GATE RUN and not the ratification, so `document-lifecycle`'s sibling
+      scenario *A review record is not about a ratification* governs it.
+      `.openspec.yaml` GAINS `approved_by`/`approved_on` **BESIDE** the drafting
+      provenance with `kind`, `id`, `reason` and `proposed_by` unmoved — the
       addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318)
       defined for this transition and the shape the archive gate's
-      origin-retention arm reads; and a `review/ratification-<date>.md` record
-      carries `Status: ratified` with its own citation, while any gate capture
-      beside it stays `Status: record` because its subject is the RUN and not
-      the ratification.
-- [ ] 1.2 **RULE `design.md` D6 FIRST — AMEND, OR CLOSE #882 ON THE
-      MEASUREMENT.** This is put before the wording because it can end the
-      packet. The failure is real on the 1.2.0 binary on PATH
+      origin-retention arm reads, which is why the status flip and the approval
+      pair move in ONE commit.
+- [x] 1.2 **`design.md` D6 IS RULED — AMEND**, the ballot's arm **A**, which is
+      D6's option 1. It was put before the wording because it could have ended
+      the packet, and it was ruled with the measurement in front of the owner
+      rather than without it: the pinned 1.12.0 binary the required gate runs
+      does NOT report this failure, and the amendment was taken anyway on the
+      three grounds that are not the red gate. **A VETO HERE WOULD HAVE
+      WITHDRAWN THE PACKET; IT DID NOT LAND**, and D6's alternative stays
+      written out as the record of what was put and declined. As put: the
+      failure is real on the 1.2.0 binary on PATH
       (`✗ [ERROR] requirements.16.text: Requirement must contain SHALL or MUST
       keyword`, exit 1) and ABSENT from the pinned 1.12.0 the required gate
       runs (exit 0, `spec/neutral-product-pin` among the passes). D6
@@ -63,9 +76,12 @@ is the box that records it.
       repository's own notes tell them to type meets a red specification, and a
       cost of two case flips and one comma — and writes the alternative out
       beside it: publish the two runs, leave ratified text alone, close #882
-      with the measurement. **A veto here withdraws the packet rather than
-      re-wiring it.**
-- [ ] 1.3 **RULE `design.md` D1 — THE WORDING, three options, one encoded.**
+      with the measurement.
+- [x] 1.3 **`design.md` D1 IS RULED — OPTION 1, THE WORDING.** Three options
+      were put with their costs and the recommended one was ENCODED; the
+      recommendation was TAKEN, so **the delta's sentence stands byte-for-byte
+      as the bench reviewed it**, option 2's re-flow was not substituted and
+      option 3 stays refused. As put:
       Option 1 (RECOMMENDED and written) re-orders canon's own words so the
       subject and the modal open the sentence: *"The pin SHALL carry a VENDORED
       RESOLUTION where a pinned external neutral product is distributed as a
@@ -78,16 +94,20 @@ is the box that records it.
       obligation's bearer from the pin to the product, which four sites this
       packet does not touch contradict. A veto to option 2 replaces the block
       with the re-flow-only block, DELETES the marker and re-runs the gates; a
-      veto to option 3 is a larger amendment than this word commissions, because
-      the honest form of it also re-words the heading and those four sites.
-- [ ] 1.4 **RULE `design.md` D2 — the marker.** ONE `Removed from canon`
-      marker, ONE name, no code span in its reason, is owed under option 1 and
-      is written; under option 2 NONE is owed. Both branches are proven with the
-      family's own `derive_units` in § 3.3, so the decision is read off a
-      measurement rather than argued. D3 (why an OpenSpec change and not a
-      patch), D4 (`code_surface: none`) and D5 (sequencing) are carried beside
-      them and are separately vetoable; D7 records what is deliberately not
-      taken.
+      veto to option 3 would have been a larger amendment than that word
+      commissioned, because the honest form of it also re-words the heading and
+      those four sites.
+- [x] 1.4 **`design.md` D2 IS RULED — IT STANDS**, and D0, D3, D4, D5 and D7
+      WERE CARRIED, none of them vetoed. ONE `Removed from canon` marker, ONE
+      name, no code span in its reason, is owed under option 1 and is written;
+      under the option 2 that was declined NONE would have been owed. Both
+      branches are proven with the family's own `derive_units` in § 3.3, so the
+      decision was read off a measurement rather than argued, and the ruling
+      followed D1: the marker is owed BECAUSE option 1 was taken. Carried
+      beside them and separately vetoable, and not vetoed: D0 (the corpus
+      measurement and the correction of #882's own scenario count), D3 (why an
+      OpenSpec change and not a patch), D4 (`code_surface: none`) and D5
+      (sequencing); D7 records what is deliberately not taken.
 
 ## 2. The measurement — TAKEN BEFORE THE DESIGN, DONE IN THIS PULL REQUEST
 
@@ -214,10 +234,13 @@ is the box that records it.
       either. The promoted specification still states the sentence as ratified;
       the ARCHIVE act is what would write this block into it.
 - [x] 3.8 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
-      style, at the head of the active list: authored 2026-09-10,
-      **`Status: draft`** (NOT RATIFIED), lane `openxfactory-1`, naming the
-      origin issue, the two-question veto shape (D6 before D1), the accounting,
-      the marker decision and what the pull request does not do.
+      style, at the head of the active list, lane `openxfactory-1`, naming the
+      origin issue, the accounting, the marker decision and what the pull
+      request does not do. It was written at authoring as **`Status: draft`**
+      (NOT RATIFIED) and the ratification commit FLIPS IT to
+      **`Status: ratified`**, naming the word, its recording and the three
+      ruled decisions; the two-question veto shape the row recorded — D6 before
+      D1 — is the shape the ruling was taken in.
 - [x] 3.9 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#<PR>'`. The row reads `declares: []` — the
@@ -232,9 +255,12 @@ is the box that records it.
 ## 4. Gates — RUN IN FULL, WITH EXIT CODES, ON THIS PULL REQUEST'S TREE
 
 **EVERY FIGURE BELOW IS A RUN, NOT A RECOLLECTION**, and where a figure only
-means something against `main` the CONTROL is a second worktree checked out at
-`origin/main` **`05c706d6`** — the base this branch was merged up to — rather
-than a remembered number. **THE PROMOTED SENTENCE IS BYTE-IDENTICAL AT THE
+means something against `main` the CONTROL is a second worktree rather than a
+remembered number. **§ 4.1–4.9 WERE TAKEN AGAINST `origin/main` `05c706d6`**,
+the base this branch was merged up to when those runs were taken; **§ 4.10's
+re-run on the RATIFIED tree was taken against `origin/main` `52e42be9`**, the
+base the branch was merged up to at the ratification, and both controls are
+named where they are used rather than left to be inferred. **THE PROMOTED SENTENCE IS BYTE-IDENTICAL AT THE
 AUTHORING BASIS `ea34f22a` AND AT `05c706d6`** (`git diff` over
 `openspec/specs/neutral-product-pin/spec.md` between the two is empty), so the
 block written over `ea34f22a` is written over the current `main` too, and the
@@ -290,9 +316,8 @@ block written over `ea34f22a` is written over the current `main` too, and the
       promoter — the flip § 3.9 predicts, observed rather than argued.
 - [x] 4.6 `python3 scripts/validate-scope-globs.py .` — **`scope_globs
       validation passed (all active changes conform).`, exit 0.**
-- [x] 4.7 `python3 scripts/doc-health.py --single-repo .` — **exit 1** on both
-      trees (its ordinary state on this corpus, which reports findings rather
-      than gating on zero), `Findings: 32 critical, 5 error, 47 warning, 16
+- [x] 4.7 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on both
+      trees, `Findings: 32 critical, 5 error, 47 warning, 16
       info. New regressions vs previous report: 0` on BOTH — and **NO FINDING
       NAMES THIS CHANGE** (`grep -c
       amend-neutral-product-pin-lockfile-first-line` over the branch report =
@@ -303,6 +328,21 @@ block written over `ea34f22a` is written over the current `main` too, and the
       NINE other active changes in this same run — reports NOTHING about this
       block, which is the marker working in the real gate rather than only in
       § 3.3's derivation.
+      **ONE ACCOUNTING FIGURE OF THIS BOX IS CORRECTED AT THE RATIFICATION,
+      2026-09-10, AND THE SUPERSEDED CLAUSE IS QUOTED IN PLACE RATHER THAN
+      DELETED.** As authored the box opened *"**exit 1** on both trees (its
+      ordinary state on this corpus, which reports findings rather than gating
+      on zero)"*, and **THE EXIT CODE WAS MISREAD**: `scripts/doc_health/runner.py`
+      returns 1 only under `--fail-on` and returns 0 otherwise, so this command
+      exits **0**. Re-measured 2026-09-10 on the ratified tree and on the
+      pre-ratification tree `45b02e31`: exit **0** on both. **EVERY OTHER FIGURE
+      IN THIS BOX IS CORRECT AND UNCHANGED** — the four severity counts, the
+      zero new regressions, the zero findings naming this change, the 100
+      byte-identical finding lines, and the eleven `modified-block-currency`
+      findings across nine other active changes were each re-measured and each
+      came out the same. The correction is recorded with its command lines in
+      `review/verification-2026-09-10.md` § 7, and it moves no delta byte and no
+      decision.
 - [x] 4.8 `python3 -m pytest tests/sequenced_after tests/scope_globs
       tests/proposal-support -q` — **`489 passed, 67 subtests passed`, exit
       0.** Before § 3.9's seed the same command exited 1 with exactly four
@@ -324,6 +364,18 @@ block written over `ea34f22a` is written over the current `main` too, and the
       this packet's row were both inserted at the head; the resolution is
       PURELY ADDITIVE — #910's row keeps the position `main` gave it and this
       packet's row follows it — and no other lane's bytes moved.
+- [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-10,
+      after `origin/main` `52e42be9` was merged in at `45b02e31` and after the
+      ratification encode — capture at `review/verification-2026-09-10.md`,
+      this packet's first and only gate capture, written at its own dated path
+      because a dated run report is a one-shot `record` and a second run of it
+      writes a second path rather than rewriting this one. It carries BOTH
+      BINARIES the packet's D6 measured — the 1.2.0 on `PATH`, where
+      `spec/neutral-product-pin` STILL FAILS because a delta does not edit the
+      promoted specification and the ARCHIVE is what clears it, and the pinned
+      1.12.0 through `scripts/validate-openspec-cli-pin.py --all --no-cache`,
+      where it passes — each against a `52e42be9` control run in a separate
+      worktree, with every command line, tail and exit code pasted.
 
 ## 5. Archive — OWED, NOT GIVEN
 

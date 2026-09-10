@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-neutral-product-pin-lockfile-first-line
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-10 by Brett Heap (openxFactory operator authority) — "ratify as encoded"; record at review/ratification-2026-09-10.md
 Proposed: 2026-09-10, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-10, verbatim **"do 882 packet"**, given in session
 and recorded in this lane's CLAIMED comment on openxFactory
@@ -16,15 +17,33 @@ Origin: openxFactory issue
 [#882](https://github.com/opensoft/openxFactory/issues/882), filed by this lane
 at the archive of `amend-neutral-product-pin-interim-copy-vocabulary` as the
 named successor of that packet's `tasks.md` 5.2 and `design.md` D6.
-**THAT WORD AUTHORIZES THE PROPOSING, NOT THE CONTENT.** It commissions an
-authoring; it ratifies no wording, takes no design decision and admits no text
-to canon. **THIS PACKET IS A DRAFT AND CARRIES NO APPROVAL PAIR**: every
-document in it reads `Status: draft`, `.openspec.yaml` carries drafting
-provenance with no `approved_by` and no `approved_on`, nothing under
-`openspec/specs/` is edited by this pull request, `tasks.md` § 1 (ratification)
-and § 5 (archive) stay OPEN, and openxFactory #882 closes AT THE ARCHIVE and not
-at this landing. The judgments put for veto are `design.md` **D1 through D6**,
-and **D6 is put FIRST** because it can end the packet.
+**THAT WORD AUTHORIZED THE PROPOSING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Brett Heap ruled on this packet itself
+on 2026-09-10, verbatim **"ratify as encoded"** — a MULTIPLE-CHOICE ruling over
+`design.md` **D6**, **D1** and **D2**, put to him with the recommendation
+presented first, given in session at approximately 19:53Z and recorded on
+openxFactory PR [#923](https://github.com/opensoft/openxFactory/pull/923#issuecomment-5624573662)
+at 2026-09-10T19:53:02Z. **D6 IS RESOLVED AS AMEND** — the ballot's arm **A**,
+which is D6's option 1 — although the pinned 1.12.0 binary does not report the
+failure; **D1 IS RESOLVED AS OPTION 1**, the re-ordering of canon's own words;
+and **D2 STANDS** — one `Removed from canon` marker, one name, no code span in
+its reason. Every one of the three is the option this packet ALREADY ENCODED,
+so **THE WORDING STANDS UNCHANGED**: not one byte of
+`specs/neutral-product-pin/spec.md` moves at this ratification and nothing is
+withdrawn or re-written. D0, D3, D4, D5 and D7 were carried beside them and
+none was vetoed. The citation is the single `Ratified:` line above, which is
+what `ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-10.md`, with the gate run re-derived on the
+ratified tree beside it at `review/verification-2026-09-10.md`.
+`.openspec.yaml` now carries `approved_by` + `approved_on` **ADDED BESIDE** the
+drafting provenance it was authored with, `kind`, `id`, `reason` and
+`proposed_by` unmoved — the addition-not-rewrite shape
+`add-drafted-proposal-origin` (issue #318) defined. **NOTHING IS PROMOTED BY
+THIS RATIFICATION**: this pull request still edits no file under
+`openspec/specs/`, no script, no test, no contract, no schema and no workflow —
+promotion happens at the ARCHIVE, which is a separate act on a separate word
+that has NOT been given, so `tasks.md` § 5 stays OPEN and openxFactory #882
+closes there and not at this landing.
 
 ## Why
 
@@ -84,9 +103,12 @@ best practice for English specs)"* — and never an error.
 SAYS SO RATHER THAN LETTING THE ISSUE'S FRAMING STAND.** Issue #882 was written
 against the 1.2.0 reading and is correct about it. It does not say that the
 pinned gate is green, because that had not been measured. It has now.
-`design.md` **D6** puts the consequence as the first question for the owner:
+`design.md` **D6** put the consequence as the first question for the owner:
 amend promoted canon so its first line reads as its seventeen siblings do, or
-close the issue with the measurement and leave ratified text alone.
+close the issue with the measurement and leave ratified text alone. **IT IS
+RULED — AMEND**, on Brett Heap's word of 2026-09-10, verbatim *"ratify as
+encoded"*, taken with that measurement in front of him rather than without
+it.
 
 ## Why this is NOT a plain fix
 
@@ -121,8 +143,10 @@ THIS PACKET … it is named here as available rather than taken: it needs its ow
 issue and its own word"*, and its `design.md` D6 names the remedy in one line:
 *"one sentence, moving `SHALL` onto the first line of that requirement's body,
 on its own issue and its own word"*. Issue #882 is the issue. Brett Heap's *"do
-882 packet"* is the word for the AUTHORING. The word for the CONTENT has not
-been given and this document does not pretend otherwise.
+882 packet"* is the word for the AUTHORING. **THE WORD FOR THE CONTENT HAS
+SINCE BEEN GIVEN** — *"ratify as encoded"*, 2026-09-10, recorded on PR #923 at
+19:53:02Z — and it is a second word on a second act, which is why this document
+records both rather than collapsing them into one.
 
 ## What Changes
 
@@ -240,7 +264,10 @@ sets are disjoint.
   keyword — measured across all 62 promoted spec files and 641 requirements. It
   is a different capability and needs its own issue and its own word;
   `tasks.md` § 6 names it as residue.
-- **It does not ratify anything.** Ratification, promotion and archive are three
-  later acts on later words: no file under `openspec/specs/` is edited by this
-  pull request, `tasks.md` § 1 and § 5 stay open, and openxFactory #882 closes
-  at the archive rather than at this landing.
+- **IT DID NOT RATIFY ITSELF, AND THE RATIFICATION HAS SINCE BEEN GIVEN
+  SEPARATELY.** Ratification, promotion and archive are three acts on three
+  words. The FIRST has now happened — Brett Heap, 2026-09-10, *"ratify as
+  encoded"* — and it moved no wording, because every arm it resolved was the
+  arm this packet already encoded. The other two have not: no file under
+  `openspec/specs/` is edited by this pull request, `tasks.md` § 5 stays open,
+  and openxFactory #882 closes at the archive rather than at this landing.

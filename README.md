@@ -572,9 +572,23 @@ Active changes:
   no floor, no pin byte — and three of the four refusals measured on 2026-09-08
   are untouched by it (`design.md` § 1).
 - [amend-neutral-product-pin-lockfile-first-line](openspec/changes/amend-neutral-product-pin-lockfile-first-line/proposal.md)
-  — authored 2026-09-10, **`Status: draft`** (NOT RATIFIED; ratification,
-  promotion and archive are three separate acts on Brett Heap's word), lane
-  `openxfactory-1`. Origin: openxFactory
+  — authored 2026-09-10, **`Status: ratified`** (2026-09-10, Brett Heap,
+  openxFactory operator authority, verbatim *"ratify as encoded"* — a
+  MULTIPLE-CHOICE ruling given in session ~19:53Z and recorded on PR
+  [#923](https://github.com/opensoft/openxFactory/pull/923#issuecomment-5624573662)
+  at 2026-09-10T19:53:02Z, which reaches `design.md` **D6**, **D1** and **D2**
+  and resolves them as **AMEND** (the ballot's arm A, D6's option 1), **OPTION
+  1** and **IT STANDS**; because each is the option the packet already encoded,
+  **THE WORDING STANDS UNCHANGED** and no byte of the delta moved. Records
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/ratification-2026-09-10.md`
+  and
+  `openspec/changes/amend-neutral-product-pin-lockfile-first-line/review/verification-2026-09-10.md`).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind` and `id` unmoved — the
+  addition-not-rewrite shape `add-drafted-proposal-origin` defined. Lane
+  `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's earlier word of
+  2026-09-10, verbatim *"do 882 packet"*, which commissioned a packet and
+  decided no wording. Origin: openxFactory
   [#882](https://github.com/opensoft/openxFactory/issues/882), filed by this
   lane at the archive of `amend-neutral-product-pin-interim-copy-vocabulary` as
   the NAMED SUCCESSOR of that packet's `tasks.md` § 5.2 and `design.md` D6.
@@ -594,9 +608,10 @@ Active changes:
   IS PUT BEFORE THE WORDING**: `contracts/openspec-cli-pin.yaml` pins 1.12.0,
   the gate runs `scripts/validate-openspec-cli-pin.py --all --no-cache`, and on
   that binary this specification PASSES (exit 0) — measured on both this branch
-  and an `origin/main` **`05c706d6`** control (the base this branch is merged up
-  to; `ea34f22a` is the AUTHORING BASIS, and the requirement's bytes are
-  identical at the two), with a three-requirement probe
+  and an `origin/main` **`05c706d6`** control (the base the branch was merged up
+  to when those runs were taken; `ea34f22a` is the AUTHORING BASIS, and the
+  requirement's bytes are identical at the two; the ratified tree's re-run is
+  captured against a `52e42be9` control), with a three-requirement probe
   fixture showing 1.12.0 reads the WHOLE body and warns only when the keyword
   is missing altogether. **So the motive is legibility and convention, not a red
   required check, and the packet says so rather than letting the issue's framing
@@ -628,13 +643,18 @@ Active changes:
   no ordering declaration is owed in either direction (the sweep ledger's
   `class: co-modifier` grades the ARCHIVED promoter
   `pin-openspec-cli-dependency-closure` too, and is a different question).
-  **THE TWO VETO POINTS, IN ORDER: D6 (amend at all, or close #882 on the
-  measurement — a veto withdraws the packet) then D1 (three wordings, one
-  encoded; option 3, the wording #882 itself floats, is REFUSED because it moves
-  the obligation's bearer from the pin to the product).**
-  **THIS PULL REQUEST PROMOTES NOTHING** — no file under `openspec/specs/`, no
-  script, test, contract or workflow is edited, `tasks.md` § 1 and § 5 stay
-  OPEN, and openxFactory #882 closes at the ARCHIVE rather than at this landing.
+  **THE TWO VETO POINTS WERE PUT IN ORDER AND BOTH ARE RULED: D6** (amend at
+  all, or close #882 on the measurement — a veto would have withdrawn the
+  packet) **RULED AMEND, with the measurement in front of the owner**; then
+  **D1** (three wordings, one encoded) **RULED OPTION 1**, so option 2's
+  line-break-only re-flow was not substituted and option 3 — the wording #882
+  itself floats — stays REFUSED because it moves the obligation's bearer from
+  the pin to the product. **D2 stands**; D0, D3, D4, D5 and D7 were carried and
+  none was vetoed.
+  **THIS PULL REQUEST STILL PROMOTES NOTHING** — no file under
+  `openspec/specs/`, no script, test, contract or workflow is edited,
+  `tasks.md` § 5 (archive) stays OPEN on a word not yet given, and openxFactory
+  #882 closes at the ARCHIVE rather than at this landing.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,

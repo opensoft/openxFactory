@@ -1,6 +1,7 @@
 # Design: amend-neutral-product-pin-lockfile-first-line
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-lockfile-first-line — 2026-09-10, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-10.md`)
 Date: 2026-09-10
 Kind: design
 
@@ -21,6 +22,21 @@ that packet's `tasks.md` 5.2 and `design.md` D6:
 The issue names one remedy and one example wording. This document takes the
 remedy, writes THREE candidate wordings out with their costs, and records one
 measurement the issue did not have — which is why **D6 is put first**.
+
+**AND THIS DOCUMENT HAS SINCE BEEN RULED ON.** Brett Heap's word of 2026-09-10,
+verbatim **"ratify as encoded"** — given in session at approximately 19:53Z and
+recorded on openxFactory PR
+[#923](https://github.com/opensoft/openxFactory/pull/923#issuecomment-5624573662)
+at 2026-09-10T19:53:02Z, record `review/ratification-2026-09-10.md` — is a
+MULTIPLE-CHOICE ruling over **D6**, **D1** and **D2**, the three decisions this
+lane put to him with the recommendation presented first and D6 first of all.
+**D6 = AMEND** (the ballot's arm **A**, which is D6's option 1 below), **D1 =
+OPTION 1**, **D2 STANDS**. D0, D3, D4, D5 and D7 were carried beside them and
+none was vetoed. Each ruled arm is the option this document already recommends
+and the packet already encodes, so **NOTHING IN THE DELTA MOVES**: the
+alternatives written out below are retained as the record of what was PUT AND
+DECLINED, not as work owed. Each ruled section carries the ruling at its head
+and its original recommendation beneath it, unedited.
 
 ## D0 — the measurement, taken before the design
 
@@ -67,10 +83,21 @@ was not built for* — and two trailing body paragraphs, which is right. The
 correction is recorded here rather than by editing the issue's prose, and it
 changes nothing about the remedy: all four are carried, byte for byte.
 
-## D6 — PUT FIRST, BECAUSE IT CAN END THE PACKET: the pinned CLI does not report this failure
+## D6 — PUT FIRST, BECAUSE IT COULD HAVE ENDED THE PACKET: RULED AMEND, and the pinned CLI still does not report this failure
 
-**RECOMMENDATION: AMEND ANYWAY. THE DECISION IS THE OWNER'S AND IT IS PUT
-BEFORE THE WORDING.**
+**RULED 2026-09-10 BY BRETT HEAP — AMEND.** Verbatim *"ratify as encoded"*,
+given in session at approximately 19:53Z and recorded on PR #923 at
+2026-09-10T19:53:02Z; record `review/ratification-2026-09-10.md`. The ruling
+was taken as a multiple choice whose two arms were lettered **A** (AMEND) and
+**B** (CLOSE #882 ON THE MEASUREMENT); **A** is this section's option 1 and it
+is what he took. **THE MEASUREMENT WAS IN FRONT OF HIM AND DID NOT CHANGE THE
+ANSWER**: the pinned 1.12.0 binary the required gate runs does NOT report this
+failure, and the amendment was ruled anyway, on the three grounds below that
+are not the red gate. So **THE PACKET STANDS AND NOTHING IN IT MOVES**, and the
+alternative is retained here as the record of what was put and declined.
+
+**RECOMMENDATION AS PUT: AMEND ANYWAY. THE DECISION WAS THE OWNER'S AND IT WAS
+PUT BEFORE THE WORDING.**
 
 `neutral-product-pin`'s own promoted requirement *A consuming repository runs
 OpenSpec validation only through the pinned entrypoint, so a PATH binary cannot
@@ -152,12 +179,21 @@ offered to it rather than claimed by this packet.)
    that way, and the next reader who runs the on-PATH binary re-opens the
    question from scratch.
 
-**WHAT A VETO HERE COSTS: the whole packet.** If D6 resolves to option 2, no
-delta is written, no marker is owed, this packet is withdrawn rather than
-re-wired, and #882 closes with the measurement as its answer. That is why it is
-asked before the wording.
+**WHAT A VETO HERE WOULD HAVE COST: the whole packet — AND IT DID NOT LAND.**
+Had D6 resolved to option 2, no delta would have been written, no marker would
+have been owed, this packet would have been withdrawn rather than re-wired, and
+#882 would have closed with the measurement as its answer. That is why it was
+asked before the wording. The ruling of 2026-09-10 took option 1.
 
-## D1 — THE VETO POINT: the wording of the first sentence
+## D1 — THE VETO POINT: RULED OPTION 1, the wording of the first sentence
+
+**RULED 2026-09-10 BY BRETT HEAP — OPTION 1.** Verbatim *"ratify as encoded"*,
+recorded on PR #923 at 2026-09-10T19:53:02Z; record
+`review/ratification-2026-09-10.md`. **THE RECOMMENDATION WAS TAKEN, SO THE
+SENTENCE BELOW IS RATIFIED EXACTLY AS THE BENCH REVIEWED IT** — option 2's
+re-flow was not substituted, option 3 stays refused, and no byte of the delta
+moves at this ratification. Options 2 and 3 are retained as the record of what
+was put and declined.
 
 **Recommended: OPTION 1. Written that way.** All three options put the subject
 and the modal on line one; they differ in what they cost.
@@ -253,7 +289,14 @@ by this packet**, and if the owner prefers option 3 the honest form of it would
 also re-word the heading and the four sites above, which is a larger amendment
 than this word commissions.
 
-## D2 — the marker: ONE is owed, ONE is written, and BOTH branches are proven
+## D2 — the marker: RULED — ONE is owed, ONE is written, and BOTH branches are proven
+
+**RULED 2026-09-10 BY BRETT HEAP — IT STANDS.** Verbatim *"ratify as encoded"*,
+recorded on PR #923 at 2026-09-10T19:53:02Z; record
+`review/ratification-2026-09-10.md`. One `Removed from canon` marker, one name,
+no code span in its reason. It follows D1: the marker is owed BECAUSE option 1
+was taken, and under the option 2 that was declined none would have been owed
+at all — which is why the two decisions were put together and ruled together.
 
 **Recommended and written: one `Removed from canon` marker, one name, no code
 span in its reason, placed at the END of the block.**
