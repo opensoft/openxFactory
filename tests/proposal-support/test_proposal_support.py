@@ -2051,7 +2051,15 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         """ANTI-VACUITY, AND THE REASON THIS IS NOT A BYPASS. An acceptance
         MOVES the baseline to the accepted declaration; it does not switch the
         comparison off. A second, undispositioned edit on top of an accepted
-        one refuses exactly as the first one did."""
+        one refuses exactly as the first one did.
+
+        AND THE REFUSAL SUBTRACTS FOR THE OPERATOR (Copilot, round 2 on PR
+        #891). The headline finding compares the tree to the RATIFICATION and
+        so names the UNION — the accepted key and the new one — because the
+        baseline does not move on a record whose predicate failed. The
+        record's own finding names the difference that is actually
+        undispositioned, and diffs against the accepted declaration rather
+        than against the ratified one."""
         with TemporaryDirectory() as td:
             root = Path(td)
             directory, ratified_at, mutation_at = self.mutated_packet(root)
@@ -2066,6 +2074,12 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIn(mutation_at[:12], refused)
             self.assertIn("-  approved_on: '2026-09-05'", refused)
             self.assertIn("+  approved_on: '2026-09-08'", refused)
+            # the SUBTRACTION: only the undispositioned key, and the headline
+            # above it still names the union it measured against ratification
+            self.assertIn(
+                "keys moved BEYOND the accepted declaration: approved_on",
+                refused)
+            self.assertIn("changed keys: approved_by, approved_on", refused)
 
     def test_a_record_naming_a_mutation_that_is_not_a_commit_refuses(self):
         with TemporaryDirectory() as td:

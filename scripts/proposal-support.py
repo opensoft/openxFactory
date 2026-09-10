@@ -1310,7 +1310,7 @@ def _accept_commit_problems(root: Path, entry: dict, ratifying: str,
 
 
 def _accept_declaration_problems(root: Path, change: str, entry: dict,
-                                 now_lines: list[str],
+                                 now_lines: list[str], now_text: str | None,
                                  where: str) -> list[str]:
     """THE DECLARATIONS THEMSELVES: does the named mutation carry one, does it
     DIFFER from the ratified one (an entry that disposes nothing refuses),
@@ -1338,20 +1338,31 @@ def _accept_declaration_problems(root: Path, change: str, entry: dict,
                 f"touches {measured or '[]'} — an acceptance covers exactly "
                 f"the keys it names"]
     if now_lines != at_mutation:
+        # THE KEYS BEYOND THE ACCEPTED DECLARATION, NAMED HERE AND NOT ONLY
+        # DIFFED (Copilot, round 2 on PR #891). The headline finding above
+        # this one compares the tree to the RATIFICATION and so names the
+        # union — the accepted keys AND the new ones — because the baseline
+        # does NOT move on a record whose predicate failed. This line is the
+        # subtraction the operator actually needs: what this packet moves
+        # that no disposition covers.
+        beyond = _changed_keys(_origin_mapping(at_mutation_text),
+                               _origin_mapping(now_text))
         detail = "\n".join(difflib.unified_diff(
             at_mutation, now_lines,
             fromfile=f"{mutation_at[:12]}:{rel}",
             tofile="the packet being archived", lineterm="", n=1))
         return [f"{where} accepts the declaration at {mutation_at[:12]}, and "
                 f"the packet being archived does not carry it — a SECOND, "
-                f"undispositioned mutation sits on top of the accepted one\n"
-                f"{detail}"]
+                f"undispositioned mutation sits on top of the accepted one"
+                + (f"\n  keys moved BEYOND the accepted declaration: "
+                   f"{', '.join(beyond)}" if beyond else "")
+                + f"\n{detail}"]
     return []
 
 
 def accepted_origin_mutation(
-        root: Path, change: str, ratifying: str,
-        now_lines: list[str]) -> tuple["AcceptedOriginMutation | None",
+        root: Path, change: str, ratifying: str, now_lines: list[str],
+        now_text: str | None) -> tuple["AcceptedOriginMutation | None",
                                        list[str]]:
     """The record's answer for ONE change: `(accepted, problems)`.
 
@@ -1370,6 +1381,22 @@ def accepted_origin_mutation(
     THREE STAGES, IN THIS ORDER, and each one is what the next presumes:
     SELECT the entry, check its SHAPE (so the commit names below are strings
     and `changed_keys` is a list), then put its claims to HISTORY.
+
+    ACCEPTANCE IS ALL OR NOTHING, and the baseline does NOT move on a record
+    whose predicate failed — including the near miss where every condition
+    holds but the tree has moved on again (Copilot, round 2 on PR #891,
+    which proposed moving it anyway so the headline diff would be smaller).
+    It is refused instead, for two reasons. A record that accepts a
+    declaration THE TREE DOES NOT CARRY has accepted nothing, so treating its
+    commit as the origin of record would name a declaration nobody is
+    archiving; and the headline finding would then have to say the packet
+    differs from "the ratifying commit <a commit that is not the
+    ratification>", which is false. The actionability the proposal is after
+    is delivered where it belongs — inside the record's own finding, which
+    names the keys the packet moves BEYOND the accepted declaration and
+    diffs against it. When a second mutation is itself accepted, the entry is
+    REPLACED rather than joined by another, which the ambiguity refusal in
+    `_selected_disposition_entry` says in terms.
     """
     entry, problems = _selected_disposition_entry(root, change)
     if entry is None:
@@ -1380,7 +1407,7 @@ def accepted_origin_mutation(
     where = f"{ORIGIN_DISPOSITIONS_REL}: the entry for {change}"
     problems = (_accept_commit_problems(root, entry, ratifying, where)
                 or _accept_declaration_problems(root, change, entry,
-                                                now_lines, where))
+                                                now_lines, now_text, where))
     if problems:
         return None, problems
     return AcceptedOriginMutation(entry), []
@@ -1523,7 +1550,7 @@ def origin_retention_errors(root: Path, directory: Path,
         # block and that the tree equals it, so the re-read below cannot come
         # back None.
         accepted, channel = accepted_origin_mutation(
-            root, change, ratifying, now)
+            root, change, ratifying, now, now_text)
         if accepted is not None:
             print(accepted.note())
             revision = accepted.mutation_at
