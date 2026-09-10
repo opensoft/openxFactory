@@ -178,6 +178,7 @@ rows:
   add-xfactory-installer-repository: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   admit-deliberation-clearing-operation: {state: active, class: sole, declares: absent, prose: false, moved_by: "#645", moved_on: "2026-09-04"}
   admit-install-repos-to-aggregation: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  admit-review-lane-repin-to-merge-approval-envelope: {state: active, class: sole, declares: [amend-mirror-floor-regeneration-merge-authority, extend-merge-master-envelope-to-floor-bot-lanes], depth: 4, prose: false, moved_by: "#910", moved_on: "2026-09-10"}
   adopt-avatar-client-lab-candidates: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   adopt-codexfactory-repository-identity: {state: archived, class: sole, declares: [adopt-medxsoft-repository-identity], depth: 1, prose: false, moved_by: "#879", moved_on: "2026-09-10"}
   adopt-configured-notebook-hosting-identity: {state: active, class: co-modifier, declares: [add-notebook-projection-identity], depth: 1, prose: false, moved_by: "#783", moved_on: "2026-09-08"}

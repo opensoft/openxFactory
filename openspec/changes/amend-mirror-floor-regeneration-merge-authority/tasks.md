@@ -50,6 +50,20 @@ box names: two rulings recorded on #745 and in `review/ratification-2026-09-08.m
 and a diff that lands green. **It ticks NOTHING in § 4 or § 5**, files no
 successor, merges nothing, and enrols nothing.
 
+**AMENDED A THIRD TIME 2026-09-10, BY THE FILING OF THE ENROLMENT SUCCESSOR, AND
+THE THREE PARAGRAPHS ABOVE ARE LEFT STANDING BECAUSE THEY ARE TRUE OF THE PULL
+REQUESTS THEY DESCRIBE.** A THIRD pull request now exists — openxFactory
+[#910](https://github.com/opensoft/openxFactory/pull/910), lane
+`openxfactory-2`, on Brett Heap's word *"do 1 and 2, sign, file it, do 744"*
+(#745 comment 5622848416) — which FILES
+`admit-review-lane-repin-to-merge-approval-envelope` as a PROPOSAL and therefore
+ticks **exactly one box in this file: 4.3**, on the tick-on-the-recording rule
+of 2026-09-06 and on that box's own stated condition, the successor being NAMED.
+**It ticks nothing else in § 4, nothing in § 5, and nothing in § 1, § 2 or § 3.**
+It ratifies nothing, re-opens decision N-1 by nothing (that is the successor's
+own box 1.1), enrols no candidate, moves no envelope byte, carves no floor and
+leaves this packet's realization INERT exactly as box 1.3 ruled.
+
 ## 1. Ratification — Brett Heap's acts
 
 - [x] 1.1 **Ratify or refuse this packet.** The word of 2026-09-08T13:22:40Z
@@ -533,7 +547,7 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
 - [ ] 4.2 **A deliberate park observed to NOT merge while armed**, constructed so
       it varies the same inputs the shipped condition reads. **What ticks it:**
       the recorded park with its reason and the pull request still open after it.
-- [ ] 4.3 **THE ENROLMENT SUCCESSOR IS FILED** —
+- [x] 4.3 **THE ENROLMENT SUCCESSOR IS FILED** —
       `admit-review-lane-repin-to-merge-approval-envelope`, whose measured shape
       is written out in `proposal.md` § The realization gate. **What ticks it:**
       the successor being NAMED — its openxFactory issue or packet id recorded
@@ -541,6 +555,37 @@ box 1.3's ruling asks for the successor to be named in it — see 3.5.
       not author it**, and filing it re-opens a question ratified decision **N-1**
       answered the other way (this lane stays on a human merge word), so the
       filing itself needs Brett Heap's word.
+      **2026-09-10 — TICKED ON THE RECORDING: THE SUCCESSOR IS NAMED AND FILED.**
+      Packet id `admit-review-lane-repin-to-merge-approval-envelope`, filed as a
+      PROPOSAL (`Status: draft` throughout, no `Ratified by:` line) at
+      openxFactory PR
+      [#910](https://github.com/opensoft/openxFactory/pull/910), branch
+      `change/admit-review-lane-repin-to-merge-approval-envelope`, in lane
+      `openxfactory-2` (display `openXfactory-2`). **Brett Heap's word is the
+      filing's authority and not its ratification**: 2026-09-10 at approximately
+      17:2xZ, in session, verbatim **"do 1 and 2, sign, file it, do 744"** — the
+      third clause over item 4 of the lane's ranked queue, recorded on
+      openxFactory
+      [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5622848416)
+      (comment 5622848416), which states the scope in its own terms: *"a PROPOSAL
+      (filing ≠ ratifying); it re-opens ratified decision N-1 and says so; the 4.3
+      box ticks on the recording (successor NAMED)"*. **The box's own condition is
+      met exactly** — it ticks on "the successor being NAMED — its openxFactory
+      issue or packet id recorded here", which the id and the pull request number
+      above are.
+      **WHAT DID NOT HAPPEN, SO THE TICK CANNOT BE MISREAD.** The successor is
+      NOT ratified; **decision N-1 is NOT re-opened by the filing** — that is the
+      successor's own box 1.1 and it needs a further word; no candidate class is
+      enrolled and no byte of `.github/merge-approval-envelope.yml` has moved; the
+      floor carve is not authored; and **this packet's own realization stays
+      INERT** exactly as box 1.3 ruled on 2026-09-09. Brett Heap's § 6.3 rulings
+      of 2026-09-10 — codexFactory
+      [#232](https://github.com/codeXfactory/codexFactory/issues/232#issuecomment-5618469628)
+      (*"openxFactory re-pin lane NOT extended, INERT by ruling"*) and openxFactory
+      [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586)
+      (the human merge word *"HOLDS for this lane"*) — **STAND**, and the
+      successor quotes both verbatim and says so. Boxes 4.1, 4.2, 4.4, 4.5 and 4.6
+      are untouched by this tick.
 - [ ] 4.4 **THE PRECONDITION MEASUREMENT: does auto-merge fire at all on a
       rulesets-only `main`?** `GET /repos/opensoft/openxFactory/branches/main/protection`
       returns `404 "Branch not protected"`, and **zero** of the last 60 closed
