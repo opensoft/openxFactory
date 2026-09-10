@@ -1,0 +1,105 @@
+schema: spec-driven
+created: 2026-09-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-10-admit-review-lane-repin-to-merge-approval-envelope
+  reason: >-
+    THE ENROLMENT SUCCESSOR `amend-mirror-floor-regeneration-merge-authority`
+    NAMES AS OWED. That packet was ratified 2026-09-08 and realized 2026-09-09
+    (INERT, by the ruling at its own box 1.3); its `proposal.md` § *The
+    realization gate, stated rather than buried* NAMES this packet, writes out
+    its measured shape — the candidate id, `expected_head_ref:
+    bot/review-lane-repin`, `expected_author: openxfactory[bot]` (measured, not
+    assumed), `expected_base_ref: main`, a `path_allowlist` naming exactly the
+    four files the lane writes, `require_all_checks: true` and
+    `check_exclusions` at least `[merge-master-approval, lane-line]` — and
+    expressly does not author it; and its `tasks.md` box 4.3 records the filing
+    as owed with the tick condition "the successor being NAMED — its
+    openxFactory issue or packet id recorded here".
+    THE WORD THAT AUTHORIZED THE FILING. Brett Heap, 2026-09-10 at
+    approximately 17:2xZ, in session to lane `openxfactory-2`, verbatim "do 1
+    and 2, sign, file it, do 744"; the third clause covers item 4 of the lane's
+    ranked queue, recorded on openxFactory #745 comment 5622848416
+    (2026-09-10T17:35:50Z): "File the enrolment successor
+    `admit-review-lane-repin-to-merge-approval-envelope` … on his word 'file
+    it' — a PROPOSAL (filing ≠ ratifying); it re-opens ratified decision N-1 and
+    says so; the 4.3 box ticks on the recording (successor NAMED)."
+    WHY NOW, AND IT IS A MEASURED FIGURE RATHER THAN A PREFERENCE. Cycle three
+    of the two-repository floor mechanism, recorded on openxFactory #745 comment
+    5618883586: the codexFactory regeneration half ran 22 min 16 s unattended
+    end to end with no human actor (#325 -> `df42f803`), while this
+    repository's re-pin half was driver-produced by hand and merged on a human
+    word (#883 -> `e916f0ea`). The same recording states the consequence this
+    packet exists to answer: "A fully unattended two-repository figure is
+    UNOBTAINABLE while this lane's merge is human by ruling (6.3), so it is owed
+    to the enrolment successor".
+    IT RE-OPENS A RATIFIED DECISION AND SAYS SO IN ITS OWN SECOND HEADING.
+    Decision N-1 of `extend-merge-master-envelope-to-floor-bot-lanes` (ratified
+    2026-09-07, "ratify 746 and 272 as recommended when green, then land them")
+    admits the codexFactory REGENERATION lane ONLY and leaves this lane on a
+    human merge word; this packet asks for that decision's own recorded
+    alternative N-1 (b) with its condition N-1b (ii), the named carve. Brett
+    Heap's § 6.3 rulings of 2026-09-10 (codexFactory #232 comment 5618469628 —
+    "openxFactory re-pin lane NOT extended, INERT by ruling"; openxFactory #745
+    comment 5618883586 — the human merge word "HOLDS for this lane, whose arming
+    is INERT by ruling until the enrolment successor … is filed and realized")
+    STAND until this proposal is ratified, and are quoted verbatim in
+    `proposal.md`.
+    THE DESIGN PROBLEM IS CONFRONTED RATHER THAN ROUTED AROUND, and it is the
+    reason this is a packet with a design.md and not an envelope edit.
+    `contracts/review-lane-pin.yaml` is a never-clearable floor member whose
+    ground, in codexFactory
+    `scripts/merge_master/openxfactory-review-authority-floor.yaml:108-111`, is
+    that a clearable pin "would let a pull request choose its own judge" — and
+    the floor is composed OVER the envelope in running code at this
+    repository's `.github/workflows/merge-master-approval.yml:1504`. The answer
+    offered is that the enrolment gives the pull request no degree of freedom
+    over the judge: the author, head and base are measured off PR #732; the diff
+    is written by `scripts/review_lane_repin.py`, which moves all five sites or
+    opens nothing and writes nothing outside them; the value is codexFactory's
+    default-branch head resolved AT RUN TIME with any trigger-named reference
+    refused (`review-lane-repin.yml:259-267`, header `:41-43`); and LQ-A7 runs
+    against the PROPOSED core as a required check that `require_all_checks:
+    true` conjuncts in. The residual — that an autonomous approval of such a
+    delivery is the envelope approving a change to its own NEXT judge — is
+    STATED, with its bounds, rather than argued away. AND THE ENROLMENT IS
+    NARROWEST-SAFE BY CONSTRUCTION: it asks for a CARVE naming one candidate and
+    one member, never a removal, and it refuses a ruleset bypass actor in any
+    form, so it lands INERT until codexFactory carves.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-10: no
+    topic folder and no INDEX row names the merge-approval envelope, the
+    review-lane pin, the re-pin lane, the repository gate floor or bot merge
+    authority. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is `amend-mirror-floor-regeneration-merge-authority`
+    § The realization gate, openxFactory issue #745 and codexFactory issue #232.
+  proposed_by: >-
+    Lane `openxfactory-2` (display `openXfactory-2`), session `a25e6327`, on
+    Brett Heap's word of 2026-09-10 ~17:2xZ ("file it"). NO APPROVAL PAIR IS
+    DECLARED AND NONE IS IMPLIED: that word commissioned the FILING and
+    expressly called it "a PROPOSAL (filing ≠ ratifying)". It admits no text
+    here to canon, ratifies no design decision, and does not itself re-open
+    decision N-1 — `tasks.md` box 1.1 is that separate ask. The lawful
+    unapproved shape is the one `add-drafted-proposal-origin` (issue #318)
+    added — drafting provenance, no `approved_by`, no `approved_on` — and every
+    document in the packet carries `Status: draft` to match; approval, when it
+    comes, is a pure ADDITION beside a fixed `kind` and `id`.
+    THE DECISIONS MOST WORTH A VETO are D-1 (whether to ask at all, whose
+    alternative (d) "leave it human" costs nothing already spent and is written
+    as a serious contender rather than a courtesy one), D-3 (the enrolment is
+    NARROWEST-SAFE and lands inert rather than waiting for codexFactory's carve
+    first), D-4 (merge method — this repository permits merge, squash AND
+    rebase, so unlike codexFactory the method is a choice; squash recommended on
+    PR #732's one-parent precedent) and D-7 (the `sole_candidate()` helper is
+    REPLACED by a per-class assertion rather than relaxed, so a THIRD class
+    still fails).
+    NOTHING IS REALIZED BY THE FILING — no envelope byte, no workflow, no test,
+    no ruleset, no floor, no pin byte — and the ONLY box this pull request ticks
+    anywhere is `amend-mirror-floor-regeneration-merge-authority` box 4.3, on
+    the tick-on-the-recording rule of 2026-09-06.
+  proposed_on: 2026-09-10
+related:
+  - openxFactory:change:amend-mirror-floor-regeneration-merge-authority             # ACTIVE, ratified 2026-09-08, realized INERT 2026-09-09. THE PARENT: its § The realization gate names this packet and writes out its measured shape, and its box 4.3 is the one box this pull request ticks
+  - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes             # ACTIVE, ratified 2026-09-07 (PR #746). The § 6.3 packet: its N-1 admitted the codexFactory regeneration lane ONLY, its N-1 (b) and N-1b (ii) are what this packet asks for, and its ADDED roles-authority-model requirements are the canon this enrolment must satisfy
+  - openxFactory:change:archive/2026-09-10-mirror-floor-regeneration-automation     # ARCHIVED 2026-09-10. Promoted the requirement "An automated pin advance only ever proposes" that the parent amends, and its § 6.3 is where the enrolment question was first named and expressly left unruled
+  - openxFactory:change:add-substantive-review-lane                                 # ACTIVE. Its task 3.2 — the Gate-Rules Council's general grant of an operable candidate class for this repository — REMAINS OPEN beyond the two candidates this packet would leave enrolled
