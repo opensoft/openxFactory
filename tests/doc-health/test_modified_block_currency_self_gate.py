@@ -781,21 +781,34 @@ _LEDGER_SUBJECTS = {
      "An automated pin advance only ever proposes"),
     # `relocate-review-authority-floor-mirror` (PR #817, ratified 2026-09-08,
     # landed at `c98a0544`, the openxFactory half of a cross-repository
-    # relocation ruled the same day) REWRITES *The automated advance re-copies
+    # relocation ruled the same day) REWROTE *The automated advance re-copies
     # the vendored snapshot and recomputes its witnesses from the bytes it
     # wrote* so the lane resolves the authoritative document through an
     # ORDERED candidate-path list rather than one fixed path, for a governed
     # relocation neither repository can land atomically. 2 of 13 body units
-    # and scenario bullets are uncarried, both bullets of *A missing copy
-    # refuses the whole advance*: the WHEN gains "from any declared candidate
-    # path" and the AND gains "and the refusal names every path it tried" —
-    # the THEN bullet ("the lane refuses and opens no pull request") is
-    # carried verbatim. This arm cannot distinguish a ratified rewording from
-    # drift and does not claim to; the finding is INFO. Retires when this
-    # packet archives and its block is promoted.
-    ("relocate-review-authority-floor-mirror", "review-lane-floor-mirror",
-     "The automated advance re-copies the vendored snapshot and recomputes "
-     "its witnesses from the bytes it wrote"),
+    # and scenario bullets were uncarried, both bullets of *A missing copy
+    # refuses the whole advance*: the WHEN gained "from any declared
+    # candidate path" and the AND gained "and the refusal names every path it
+    # tried" — the THEN bullet ("the lane refuses and opens no pull request")
+    # was carried verbatim. This arm could not distinguish a ratified
+    # rewording from drift and did not claim to; the finding was INFO.
+    #
+    # THE STATED RETIREMENT CONDITION WAS "when this packet archives and its
+    # block is promoted", AND BOTH HALVES WERE VERIFIED BEFORE THE ROW WAS
+    # DELETED, not after. The packet archived to
+    # `openspec/changes/archive/2026-09-10-relocate-review-authority-floor-
+    # mirror/` (openxFactory PR #925), and its block WAS promoted
+    # BYTE-IDENTICALLY: canon's "The automated advance re-copies the vendored
+    # snapshot and recomputes its witnesses from the bytes it wrote" now
+    # equals the delta body under
+    # `sha256:43cc7a7e5152f883f2a8285382a2af6b003c7796817f31e73d7285b4976bfd2f`
+    # (6680 bytes both sides, all eight scenario titles in order), so the two
+    # units the finding named as uncarried are carried by construction
+    # rather than by argument. The family reads no archived path by
+    # construction, so no finding can name either path this packet ever had
+    # — measured, not assumed: a `--family modified-block-currency` run over
+    # this tree after the act returns ZERO lines mentioning the change id,
+    # at any path.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1125,7 +1138,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of eleven named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1177,7 +1190,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "packets' MODIFIED blocks — amend-mirror-floor-regeneration-merge-"
         "authority's and relocate-review-authority-floor-mirror's, neither "
         "edited that day — comparable against canon for the first time rather "
-        "than against nothing, opening both their rows at once)",
+        "than against nothing, opening both their rows at once; 10 LATER THE "
+        "SAME DAY, when relocate-review-authority-floor-mirror itself "
+        "archived (PR #925) on its own merged-plus-green realization "
+        "evidence and its MODIFIED block promoted byte-identically, "
+        "retiring the row PR #894 had just opened for it — the sibling row "
+        "(amend-mirror-floor-regeneration-merge-authority's) stays open, "
+        "that packet still active and unarchived)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
