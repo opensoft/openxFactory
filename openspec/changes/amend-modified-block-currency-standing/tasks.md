@@ -67,7 +67,11 @@ deliberately not taken.
       facts force — this family is enforcing in ONE arm and advisory in the
       rest, so the standing paragraph is arm-by-arm.
 - [x] 2.5 **ONE SCENARIO ADDED, AT THE END OF THE BLOCK** (`design.md` D4), for
-      the reach of the resolution row across every class the family emits.
+      the reach of the resolution row across every class the family emits —
+      written at the `(family, repository, path)` grain the uncited-resolution
+      rule keys on, and carrying the negative case in its own bullet, so canon
+      promises only the disappearance the checker detects (bench round 1, PR
+      #887 thread T2).
 - [x] 2.6 **ONE `Removed from canon` MARKER, FIVE NAMES, NO CODE SPAN IN ITS
       REASON** (`design.md` D5), and `amend-marker-defect-reporting`'s own
       marker deliberately NOT restated, on this requirement's rule that a marker
@@ -133,6 +137,26 @@ deliberately not taken.
 - [ ] 5.2 **CLOSE openxFactory #857 AND #858 AT THE ARCHIVE**, not at this
       landing. The pull request body carries `refs`, never a closing keyword,
       for exactly that reason.
+- [ ] 5.3 **THE PER-CLASS DISAPPEARANCE GAP IS NAMED AS RESIDUE AND IS
+      DELIBERATELY NOT TAKEN HERE.** `report.uncited_resolutions` keys a
+      resolution on `(family, repository, path)` — `Finding.match_key()`,
+      `scripts/doc_health/__init__.py:187` — and skips a prior contested key
+      whenever ANY current finding carries it, so a finding of ONE class of this
+      family that stops being reported while another finding of the family is
+      still emitted at that path owes no citation and raises nothing. That is the
+      SHIPPED behaviour and promoted canon already records it — *A
+      modified-block-currency finding its own class map cannot place is itself a
+      finding*, `openspec/specs/doc-health/spec.md:2334-2341`, and its scenario at
+      `:2379` — so the delta's standing paragraph and its added scenario are
+      written to it rather than past it (bench round 1, PR #887 thread T2).
+      **WHETHER THE CHECKER SHOULD TRACK DISAPPEARANCE AT FINDING-CLASS GRAIN IS
+      A CODE DECISION, NOT A WORDING ONE**: it would move `match_key`, the
+      ranked-plan grammar `parse_previous` reads and writes, and every family
+      keyed on it, and this packet is `code_surface: none` by measurement. It is
+      REFUSED as a widening and owed as a successor. **THE BOX TICKS ON THE
+      RECORDING** (ruling of 2026-09-06T23:10Z): at the archive act it ticks by
+      NAMING a filed successor issue, or by the owner's word that the grain is
+      correct as it stands and nothing is owed. It is NOT ticked here.
 
 ## 6. Measured, and deliberately NOT taken here
 

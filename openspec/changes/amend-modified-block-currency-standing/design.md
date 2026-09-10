@@ -136,7 +136,7 @@ than editing a true sentence to remove an ambiguity that predates this packet.
 
 ## D4 — ONE scenario added, at the END of the block
 
-> #### Scenario: A finding of any class of this family disappears without a citation
+> #### Scenario: This family stops reporting a path without a citation
 
 The `contested` row reaches every class the family emits, the `info` carriage
 ledger included, and **no scenario exercised that**. The added scenario states
@@ -145,6 +145,24 @@ the thing most easily misread beside it — that the resolution class does NOT
 move the finding's own severity, the two being separate fields. A normative rule
 no scenario exercises is a rule the next author re-deriving this family has
 nothing to test against.
+
+**IT IS STATED AT THE GRAIN THE RULE ACTUALLY KEYS ON, WHICH IS NOT THE CLASS**
+(bench round 1, PR #887 thread T2). `report.uncited_resolutions` iterates the
+previous report's contested keys and skips any key a current finding still
+carries; the key is `Finding.match_key()` — `(family, repository, path)`,
+`scripts/doc_health/__init__.py:187` — so a finding of ONE class ceasing while
+another finding of this family is still emitted at that path raises NOTHING. An
+earlier draft of this scenario promised the error for any class's disappearance
+and would have put a promise in canon that the checker does not keep. Both the
+scenario and the standing paragraph now say what the machinery does, and they say
+it in the words promoted canon already uses for this family's key — *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* at `openspec/specs/doc-health/spec.md:2334-2341` and its scenario at
+`:2379`. **WHETHER THE CHECKER SHOULD TRACK DISAPPEARANCE PER CLASS IS A CODE
+DECISION AND IS REFUSED HERE**, named as residue at `tasks.md` § 5.3: it would
+move `match_key`, the ranked-plan grammar `parse_previous` reads, and every
+family keyed on it, and this packet's charter is canon truthfulness about
+shipped behaviour.
 
 **ADDING A SCENARIO DOES NOT WEAKEN THE MARKER.** The rule that a `Removed from
 canon` marker stops carrying a removed TITLE's bullets when the block adds a new

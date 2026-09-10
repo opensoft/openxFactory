@@ -257,47 +257,57 @@ be actively wrong here: an active change lives on a branch, so a family reading
 `main` would measure a delta `main` does not carry against canon the branch may
 have moved.
 
-**This family SHALL be ENFORCING IN ONE ARM AND CLASSIFIED `contested`
-WHOLE, which is what the flip of 2026-08-31 left behind.** Every finding of the
-scenario-title-completeness arm — the arm that carries this family's gate —
+**This family SHALL be ENFORCING IN ONE ARM AND CLASSIFIED `contested` WHOLE,
+which is what the flip of 2026-08-31 left behind.** Every finding of the
+scenario-title completeness arm — the arm that carries this family's gate —
 SHALL carry `error` severity, so a run configured to fail on `error` fails on a
 MODIFIED block that drops a scenario canon still carries; every other class the
 family emits SHALL keep the band its own rule states, the title-resolution and
 ordering arm at `warning` and the carriage ledger and the marker defects at
 `info`, so no `--fail-on` configuration reds on those; and the family SHALL be
-classified `contested`, so a finding of ANY of its classes that stops being
-reported without a recorded citation becomes an `error` under this capability's
-uncited-resolution rule, and a session working a report's ranked plan SHALL NOT
-apply a state-changing edit for one, escalating it to a change proposal or a
-recorded disposition instead. THE RESOLUTION TABLE HAS NO PER-CLASS GRAIN — it
-is applied by finding FAMILY alone, one string every arm and every class of this
+classified `contested`, so a finding of ANY of its classes is a contested
+finding, and a session working a report's ranked plan SHALL NOT apply a
+state-changing edit for one, escalating it to a change proposal or a recorded
+disposition instead. THE DISAPPEARANCE THAT OWES A CITATION IS READ AT THE
+GRAIN THE UNCITED-RESOLUTION RULE KEYS ON, WHICH IS `(family, repository,
+path)` AND NOT THE CLASS: where this family stops reporting at a repository and
+path the previous report carried, the resolution is uncited without a recorded
+citation and SHALL be the `error` that rule defines; where a finding of ONE
+class stops being reported while ANY other finding of this family is still
+emitted at that same repository and path, the key never leaves the current
+report and the rule does not fire — which the promoted *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* already states of this family's key, and this requirement neither
+widens nor narrows it. THE RESOLUTION TABLE HAS NO PER-CLASS GRAIN — it is
+applied by finding FAMILY alone, one string every arm and every class of this
 module shares — so the classification reaches every class the family emits, and
 neither this requirement nor any other can hold one class out of it.
 
-THE FAMILY SHIPPED ADVISORY IN BOTH HALVES AND EXACTLY ONE HALF WAS FLIPPED,
-which is the sequence this requirement records rather than a history it has
-replaced. At launch every finding carried `warning` or `info` and the family was
-deliberately absent from `FAMILY_RESOLUTION`, because no run had yet measured
-what the governed repositories' active changes would say and a `contested`
-advisory family would have gated through the back door on the first block anyone
-corrected. The flip SHALL be taken as ONE decision by ruling, never as a
-judgement call inside an implementation, and SHALL follow the discharge of the
-standing population rather than precede it — a gate that goes red on the commit
-introducing it teaches everyone to route around the gate. IT WAS TAKEN THAT WAY:
-the ruling of 2026-08-27 was "MEASURE FIRST, THEN FLIP", the nightly aggregation
-runs of 2026-08-30 and 2026-08-31 read the scenario-title arm's population at
-ZERO across every governed repository, and the flip was ordered on 2026-08-31
-and landed as ONE COMMIT that raised the scenario-title arm's severity constant
-to `error` and added the family's `contested` row together (openxFactory issue
-#357, pull request #529). THE TWO HALVES MOVE TOGETHER AND MUST NOT BE TAKEN
-APART: severity alone gates the family without the disposition discipline that
-makes a disappearing finding accountable, and the contested class alone gates it
-through `uncited-resolution` under a family name that does not say what
-happened. **No flip is proposed for
-the carriage ledger in this change**, whose population is standing by
-construction — every legitimate MODIFIED block edits something — so an
-editorial band is the honest launch state; a later flip remains available and
-is a ruling like any other.
+THE FAMILY SHIPPED ADVISORY IN BOTH HALVES AND WAS FLIPPED IN BOTH BY ONE
+RULING, WHICH RAISED EXACTLY ONE SEVERITY ARM AND LEFT EVERY OTHER BAND WHERE
+IT STOOD, which is the sequence this requirement records rather than a history
+it has replaced. At launch every finding carried `warning` or `info` and the
+family was deliberately absent from `FAMILY_RESOLUTION`, because no run had yet
+measured what the governed repositories' active changes would say and a
+`contested` advisory family would have gated through the back door on the first
+block anyone corrected. The flip SHALL be taken as ONE decision by ruling,
+never as a judgement call inside an implementation, and SHALL follow the
+discharge of the standing population rather than precede it — a gate that goes
+red on the commit introducing it teaches everyone to route around the gate. IT
+WAS TAKEN THAT WAY: the ruling of 2026-08-27 was "MEASURE FIRST, THEN FLIP",
+the nightly aggregation runs of 2026-08-30 and 2026-08-31 read the
+scenario-title arm's population at ZERO across every governed repository, and
+the flip was ordered on 2026-08-31 and landed as ONE COMMIT that raised the
+scenario-title arm's severity constant to `error` and added the family's
+`contested` row together (openxFactory issue #357, pull request #529). THE TWO
+HALVES MOVE TOGETHER AND MUST NOT BE TAKEN APART: severity alone gates the
+family without the disposition discipline that makes a disappearing finding
+accountable, and the contested class alone gates it through
+`uncited-resolution` under a family name that does not say what happened. **No
+flip is proposed for the carriage ledger in this change**, whose population is
+standing by construction — every legitimate MODIFIED block edits something — so
+an editorial band is the honest launch state; a later flip remains available
+and is a ruling like any other.
 
 **AMENDED BY `amend-marker-reason-boundary` (2026-09-06).** Every paragraph and
 every scenario above this note stands exactly as promoted, and the only change
@@ -393,7 +403,9 @@ what the flip of 2026-08-31 made untrue: ONE sentence of the
 lifecycle-standing paragraph, TWO sentences of the *advisory at launch*
 paragraph, and TWO bullets of the first scenario. ONE SCENARIO IS ADDED, at the
 END of the block, because the resolution row reaches every class this family
-emits and no scenario exercised that. No arm is added or removed, no threshold
+emits and no scenario exercised that — stated at the `(family, repository,
+path)` grain the uncited-resolution rule keys on, never at finding-class grain,
+which is the grain that rule has always read and is not moved here. No arm is added or removed, no threshold
 moves, no disposition rule changes, no parse and no marker grammar moves, and the
 set of trees over which this family speaks is not altered by one line. THIS BLOCK
 MOVES NO SEVERITY AND ADDS NO ROW: the scenario-title arm's severity constant has
@@ -507,7 +519,8 @@ declaration forward.
 - **THEN** the run MUST report the marker itself in the `info` band, a declaration about nothing being unusable as evidence about the block
 - **AND** the name MUST suppress nothing, which is the reading this family has always taken and is unchanged by the report
 
-#### Scenario: A finding of any class of this family disappears without a citation
-- **WHEN** a finding this family emitted in the previous report — of ANY class, the `info` carriage ledger included — is absent from the next report, and no OpenSpec change or recorded disposition cites its finding id
+#### Scenario: This family stops reporting a path without a citation
+- **WHEN** this family emitted one or more findings — of ANY class, the `info` carriage ledger included — at a repository and delta path the previous report carried, the next report carries NO finding of this family at that repository and path, and no OpenSpec change or recorded disposition cites the resolution
 - **THEN** the run MUST emit the uncited-resolution `error` this capability's contested-finding rule defines, the family's resolution row having no per-class grain to hold one class out of it
+- **AND** a finding of ONE class that stops being reported while ANY other finding of this family is still emitted at that same repository and path MUST NOT raise that error, the rule keying on `(family, repository, path)` alone, so the key never leaves the current report
 - **AND** the disappeared finding's own severity MUST NOT be read as moved by that classification, the resolution class and the severity being separate fields

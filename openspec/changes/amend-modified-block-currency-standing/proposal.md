@@ -128,7 +128,12 @@ ONE SCENARIO ADDED. NOTHING ELSE.**
    `--fail-on critical` does not, and the `contested` resolution class.
 5. **One scenario is ADDED at the end of the block**, because the classification
    reaches EVERY class this family emits — the `info` carriage ledger included —
-   and no scenario exercised that (`design.md` D4).
+   and no scenario exercised that (`design.md` D4). It is stated at the
+   `(family, repository, path)` grain the uncited-resolution rule keys on, and
+   states in its own bullet that one class ceasing while another finding of the
+   family is still emitted at that path raises nothing, which is what
+   `report.uncited_resolutions` does and what promoted canon already records at
+   `:2334-2341`.
 6. **One `Removed from canon` marker** names the five retired units as code
    spans and carries no code span in its reason, so that under the grammar this
    requirement itself defines it names exactly five units and reports on none of
