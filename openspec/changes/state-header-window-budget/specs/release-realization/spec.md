@@ -64,9 +64,12 @@ here.
 capability is modified, added, renamed or removed — in particular the
 sibling requirement this same archived packet promoted, "One parent
 declaration across both sites, and its retention," is untouched and is not
-restated here. No number is written into the requirement text: neither the
-existing prose nor this addition states "fifteen" or any other literal —
-the window is referred to by what it is ("the same window … that this
+restated here. No WINDOW-SIZE literal is hardcoded into the requirement
+text: neither the existing prose nor this addition states "fifteen" or any
+other window-size number — the new paragraph's own "line 1" names where
+counting starts, true of any document and not a magic constant, which is a
+different thing from stating how many lines the window holds. The window's
+SIZE is referred to by what it is ("the same window … that this
 corpus already reads a document's `Status:` header in"), exactly as the
 promoted `doc-health` real-lines requirement does for the same window, so
 this delta follows the capability's own convention rather than hardcoding a
