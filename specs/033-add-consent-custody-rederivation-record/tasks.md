@@ -378,12 +378,26 @@ values: the number is **`contract-v3.6`**; the integration point is **`fee36588`
 "contract-v3.6"`**; the built inventory is
 **`contracts/releases/contract-v3.6.digests.yaml`**, 283 entries; and the
 attribution is an INVENTORY DIFF over all 283 members (four moved, one of them
-outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
-`evidence/phaseI-recut-v3.6-*.txt`.
+outside `contracts/`), not a `git diff -- contracts/`.
+
+**RE-FORMED 2026-09-09 AFTER AN ADVERSARIAL AUDIT. `d14b514f` IS ALSO WITHDRAWN,
+AND `evidence/phaseI-recut-v3.6-*.txt` IS ITS RECORD, NOT THE LIVE ONE.** An Opus
+adversarial audit (lane `opsXfactory-1`) read that candidate on twelve items and
+failed exactly one: `contracts/CHANGELOG.md:33` said *"The candidate is its own
+DECLARING commit and the branch tip, so the release-tag gate's first-parent
+declaring distance is **zero**."* — true when written, false once `89a7c0de`,
+`e6da37fa` and `3119f9ae` stacked above it, and shipped INSIDE the bundle because
+`contracts/CHANGELOG.md` is a pinned inventory member. `31772616` withdrew the
+release surface to `fee36588`'s exact bytes and the candidate was RE-FORMED, not
+patched (**FR-034a**). The bundle number, the integration point, the enum member,
+the built inventory and the attribution above are all UNCHANGED by the re-form;
+the only bytes that moved are three prose hunks in the `## contract-v3.6` entry
+and the CHANGELOG's own digest in the rebuilt inventory. Live transcripts:
+`evidence/phaseJ-reform-*.txt`.
 
 **One candidate commit** (Q5a, policy step 2). Taken only after Phases B–F.
 
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T060** *(box 5.1's MEASUREMENT — the CLAIM is the lane's)* Fetch,
       integrate onto the final integration point, then **RE-MEASURE** the next
       additive minor on all three surfaces (`contracts/manifest.yaml:3`,
       `contracts/releases/`, `git tag -l 'contract-v*'`) — **and RE-MEASURE THE
@@ -395,7 +409,7 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       never from R6** (FR-032, panel F7). Report both to
       the lane. **Both are re-measured at EVERY merge-from-main.** Do not post
       the claim.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T061** *(box 5.2)* `contracts/manifest.yaml`, ALL THREE edits in this
       one commit: `contract_bundle_version` → the allocated version; the
       `consent-instrument` row's `sha256` **re-derived by `sha256sum`** from the
       moved file (closing T017's deliberate staleness); and a NEW
@@ -408,7 +422,7 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       The v1.33 paragraph sits BETWEEN the registration line and that closing
       sentence; the v3.5 paragraph goes in the same slot, after it.
       **`consent-instrument-class-registry`'s row is untouched.**
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T061a** *(panel F1 — RE-MEASURE THE COUPLING, do not copy it)* Take
       `git show --stat --format='' 807a4f47` — the `contract-v3.4` cut — and
       read what a cut ACTUALLY moves. Measured at this branch: **SIX files**,
       not four — `contracts/CHANGELOG.md`, `contracts/README.md`,
@@ -418,7 +432,7 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       bundle-version-coupled edit set FOR THIS CANDIDATE from that measurement
       and record it in `evidence/`. **These are DECLARED cut-coupled acts
       attributed to the cut, not invented scope.**
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T061b** *(panel F1)* `tests/intent-compliance/test_release_boundary.py`
       — the tripwire that would otherwise red T064's full-suite gate.
       `_release_state()` **fails LOUDLY on a bundle the enum does not name**, so
       moving `contract_bundle_version` without this edit reds the required
@@ -433,7 +447,7 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       **MEASURED against `contract-v3.4`'s inventory, never asserted**, because
       the file's own comment says *"unchanged" is the one fact the library
       cannot tell from "unnoticed"*.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T061c** *(panel F1)* `tests/clearing/test_clearing_manifest_rows.py` —
       **MEASURE whether it needs an edit; do not assume either way.** The
       expected answer is NO EDIT, and the reason is recorded in the file itself:
       `807a4f47` REPAIRED its bundle-version equality precisely so it would not
@@ -445,7 +459,7 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       inventory and leaves the clearing rows alone. **Run it against the
       candidate and record the result**; if it does red, it is a cut-coupled
       edit and belongs in the same candidate commit.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T062** *(box 5.3, Q6)* `contracts/CHANGELOG.md` entry naming **what
       changed in the BUNDLE, not what this session intended**: all **4 additions
       and 14 modifications** under `contracts/` since `contract-v3.4`
       (`research.md` R6), each attributed to its originating change/PR —
@@ -459,12 +473,12 @@ outside `contracts/`), not a `git diff -- contracts/`. Live transcripts:
       clause. This session's own leg of that argument: one new optional
       property, one `contract_schema_version` bump, nothing removed, no
       enumeration narrowed, every existing instrument valid unchanged.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T063** *(box 5.2)* `contracts/releases/<version>.digests.yaml`
       **BUILT** by `python3 scripts/validate-contract-release.py build --tag
       <version> --output contracts/releases/<version>.digests.yaml`. **Never
       hand-edited.** Record the entry count and the delta against
       `contract-v3.4`'s 283.
-- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (withdrawn record) and evidence/phaseI-recut-v3.6-*.txt (live record).** **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
+- [x] **TICKED 2026-09-09 · Phase G, candidate `d54d89ca` — WITHDRAWN; RE-TAKEN 2026-09-09 at the `contract-v3.6` candidate `d14b514f` over the integration point `fee36588`, then RE-FORMED 2026-09-09 after the adversarial audit as **THIS COMMIT** (sha filed by the follow-up evidence commit) over the SAME integration point; evidence/phaseG-T060-measurement.txt, phaseG-T061a-T061c-coupling.txt, phaseG-T064-gates.txt (the withdrawn `d54d89ca` record), evidence/phaseI-recut-v3.6-*.txt (the withdrawn `d14b514f` record) and evidence/phaseJ-reform-*.txt (live record).** **T064** *(box 5.4, Q11)* Run **all five gates against the exact unchanged
       candidate**, transcripts to `evidence/`:
       `scripts/validate-release-tag-gate.py` **with an EXPLICIT
       `--base <main sha at the integration point>`** — its default resolves

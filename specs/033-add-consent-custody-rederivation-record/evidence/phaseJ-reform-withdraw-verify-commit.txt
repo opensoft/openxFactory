@@ -1,0 +1,4 @@
+$ python3 scripts/validate-contract-release.py verify-commit --commit 31772616db9af1b4e2a5d950ff1295f344cb9711   # the WITHDRAW commit
+HGR-RELEASE-DIGEST-MISMATCH error path=contracts/README.md: digest does not match the raw Git blob at the pinned commit
+HGR-RELEASE-DIGEST-MISMATCH error path=contracts/manifest.yaml: digest does not match the raw Git blob at the pinned commit
+rc=1

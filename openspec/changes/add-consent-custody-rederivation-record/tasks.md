@@ -436,8 +436,19 @@ them. Transcript:
   The new `withheld/` bucket, the eighteen fixtures and the new test package
   trip no family at all. Transcript: `.../evidence/phaseH-T080-doc-health.txt`.
 
-**§ 5.1–5.4 EVIDENCE — THE CUT RE-MADE AS `contract-v3.6`, 2026-09-09. THIS IS
-THE LIVE RECORD; the two blocks above are the withdrawn one.**
+**§ 5.1–5.4 EVIDENCE — THE CUT RE-MADE AS `contract-v3.6`, 2026-09-09 —
+SUPERSEDED 2026-09-09 BY THE RE-FORMED CANDIDATE BELOW**, and kept in place
+rather than deleted because it is the record of what was done. It certifies the
+candidate `d14b514f`, which is WITHDRAWN for ONE sentence in its
+`## contract-v3.6` entry — *"The candidate is its own DECLARING commit and the
+branch tip, so the release-tag gate's first-parent declaring distance is
+**zero**."* — true when it was written and false once `89a7c0de`, `e6da37fa`
+and `3119f9ae` stacked above it. `contracts/CHANGELOG.md` is itself a pinned
+inventory member, so the sentence did not sit beside the bundle: it SHIPPED
+INSIDE it. `31772616` withdrew the release surface back to `fee36588`'s exact
+bytes and the candidate was RE-FORMED rather than patched (**FR-034a**). Every
+other reading in this block was re-measured at the re-formed candidate and holds.
+Read the RE-FORMED block below for the live record.
 
 - **THE ORDERING RULING.** Brett Heap, 2026-09-09T22:11Z, selected option
   verbatim: *"#866 first, I re-cut as v3.6 (Recommended)"*. openxFactory PR
@@ -516,8 +527,15 @@ THE LIVE RECORD; the two blocks above are the withdrawn one.**
   does not exist until this commit is formed. They run immediately after it
   against the EXACT UNCHANGED candidate, and their transcripts and the candidate's
   sha are filed by a FOLLOW-UP EVIDENCE-ONLY commit that touches no release
-  surface — so the declaring commit stays the tip's release-surface act and the
-  gate's first-parent distance is unaffected by bookkeeping.
+  surface — so the candidate stays the only commit on this branch that declares
+  the bundle, and the first-parent distance the gate grades over the pull
+  request's MERGE TREE stays zero however many bookkeeping commits stack above
+  it on the branch. *(Corrected 2026-09-09: this sentence first said the
+  declaring commit "stays the tip's release-surface act", which reads as a claim
+  that the candidate remains the branch tip. It does not, and `e6da37fa`
+  measured what actually happens — a hand run of the gate at the branch tip
+  counts the stacked commits and refuses, while the form CI evaluates reads
+  zero.)*
 - **BOXES 5.5 AND 5.6 STAY UNTICKED.** 5.5 is the lane's landing act and 5.6 is
   the operator's annotated tag at the LANDED merge commit. `TAG OWED` is the
   expected state at this candidate, not a finding.
@@ -538,6 +556,73 @@ THE LIVE RECORD; the two blocks above are the withdrawn one.**
   `test_find_validator_locates_pinned_checkout`. Transcripts:
   `specs/033-add-consent-custody-rederivation-record/evidence/phaseI-recut-v3.6-*.txt`
   and `.../evidence/doc-health-recut-v3.6/`.
+
+**§ 5.1–5.4 EVIDENCE — THE CANDIDATE RE-FORMED AFTER THE ADVERSARIAL AUDIT,
+2026-09-09. THIS IS THE LIVE RECORD; every block above it is a withdrawn one.**
+
+- **THE FINDING.** An Opus adversarial audit (lane `opsXfactory-1`, 2026-09-09)
+  read the candidate `d14b514f` on twelve items and failed exactly one:
+  `contracts/CHANGELOG.md:33` said *"The candidate is its own DECLARING commit
+  and the branch tip, so the release-tag gate's first-parent declaring distance
+  is **zero**."* That was true at the instant it was written and FALSE by the
+  time the bundle shipped, because `89a7c0de`, `e6da37fa` and `3119f9ae` stacked
+  above it — and `contracts/CHANGELOG.md` is a pinned inventory member, so the
+  sentence travels INSIDE the bundle at a digest the inventory records.
+- **THE OTHER ELEVEN PASSED.** Atomicity (the whole release surface in one
+  commit); the inventory diff over all 283 members (4 moved, 0 added, 0 removed,
+  0 unattributed against the entry's exact-path table); a byte-reproducible
+  build; every gate rc 0 at `d14b514f`; the declaring distance measured in BOTH
+  forms — CI's merge-ref form green by simulation, the branch-tip form refusing,
+  and only the first is what CI evaluates; the entry truthful in every other
+  respect; the manifest's three intended hunks; the tripwire following #866's
+  pattern; ticks riding their evidence (36 of them, 10 boxes); no leftovers; the
+  entry's own self-digest verifying.
+- **THE REMEDY IS THE PACKET'S OWN RULE: REMADE, NEVER PATCHED (FR-034a).**
+  `31772616` WITHDREW the release surface to `fee36588`'s exact bytes —
+  `git diff fee36588 31772616 -- contracts/ tests/` is EMPTY — so that the next
+  commit could carry the whole surface again rather than leave the manifest, the
+  README and the tripwire behind at `d14b514f`, which is defect (c) of the
+  withdrawn `e9a688d3` repeated.
+- **THE RE-FORMED CANDIDATE IS THIS COMMIT** (sha filed by the follow-up
+  evidence-only commit). It carries the SAME five release-surface paths as
+  `d14b514f`, and the only bytes that differ from it are
+  **`contracts/CHANGELOG.md` (three prose hunks) and
+  `contracts/releases/contract-v3.6.digests.yaml` (exactly ONE entry's digest —
+  the CHANGELOG's own)**. No count, no other digest, no attribution row and no
+  date moved. The three hunks: the false sentence replaced by one that states
+  what the gate actually grades and what a hand run at the branch tip does
+  instead; `d14b514f` named among the withdrawn candidates with its reason; and
+  the entry's second, unqualified *"the declaring distance is zero"* qualified
+  to *"the declaring distance the gate grades is zero"*.
+- **THE INVENTORY IS REBUILT, NOT CHECKED OUT**, and the moved-member set is
+  UNCHANGED: `contract-v3.5` → this candidate reads **283 entries at both ends,
+  0 added, 0 removed, 4 digests re-baselined, 0 non-digest field changes** — the
+  same four members, with the same attribution, that the entry names by exact
+  path. Transcripts: `.../evidence/phaseJ-reform-inventory-build.txt` and
+  `.../evidence/phaseJ-reform-inventory-diff.txt`.
+- **BOX 5.4 — THE GATES THAT RIDE THIS COMMIT**, run at the exact tree this
+  commit records and filed in it: `validate-manifest-digests.py` rc=0, *"OK
+  contracts/manifest.yaml: 189 per-file digest(s) verify"*;
+  `validate-consent-instruments.py --strict` rc=0, *"0 error(s), 0 warning(s), 0
+  withheld"* over 9 valid / 21 negative / 1 withheld / 2 purpose probes;
+  `validate-openspec-cli-pin.py --change … --strict` rc=0, *"Totals: 1 passed, 0
+  failed (1 items)"*, and `--all --strict` rc=0 with the two standing ACCEPTED
+  EXCEPTIONS named; `validate-sequenced-after.py .` rc=0 and `--ledger-diff` rc=0
+  (190 ledger rows); `validate-scope-globs.py` rc=0; and
+  `pytest tests/consent_instruments tests/intent-compliance/test_release_boundary.py tests/clearing/test_clearing_manifest_rows.py`
+  **67 passed** rc=0 — both cut-coupled tests in one run.
+  Transcripts: `.../evidence/phaseJ-reform-*.txt`.
+- **THE COMMIT-ADDRESSED GATES AND THE FULL SUITE CANNOT RIDE THIS COMMIT**, for
+  the same reason they could not ride `d14b514f`: `validate-release-tag-gate.py
+  --head <candidate>`, `verify-commit --commit <candidate>`, the doc-health
+  two-report pair and `pytest tests/ -q -m "not postgres"` all address a sha this
+  commit does not yet have. **They run immediately after it against the EXACT
+  UNCHANGED candidate, and their transcripts — including the full suite's — are
+  filed by a FOLLOW-UP EVIDENCE-ONLY commit** that touches no release-surface and
+  no inventory path.
+- **BOXES 5.5 AND 5.6 STAY UNTICKED.** 5.5 is the lane's landing act and 5.6 is
+  the operator's annotated tag at the LANDED merge commit. `TAG OWED` remains the
+  expected state at this candidate, not a finding.
 
 ## 6. The consumer handoff — [OpsxFactory]'s OWED ACT, not this change's
 

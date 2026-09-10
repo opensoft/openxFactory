@@ -319,7 +319,12 @@ away:
    first-parent landings back. The readings that had called the gate green came
    from a transcript whose header looks clean while its exit code sits at the
    tail. Raw: `AUDIT/gate-f04f8f4d.txt`. **At the new candidate the declaring
-   distance is ZERO**, because the candidate is the branch tip.
+   distance the gate grades is ZERO**, because the candidate is its own
+   DECLARING commit and the gate grades that distance over the pull request's
+   MERGE TREE. *(Corrected 2026-09-09: this line first read "because the
+   candidate is the branch tip" — the sentence the adversarial audit failed, see
+   § "Candidate re-formed after the adversarial audit" below. It stopped being
+   true the moment an evidence commit stacked above the candidate.)*
 2. **Two inventory members outside `contracts/` were unattributed.** The entry
    said *"Two inventory members live outside `contracts/`"* while FOUR had moved;
    `docs/terminology-and-repo-topology.md` and
@@ -469,3 +474,98 @@ Boxes **5.5** (the lane's landing) and **5.6** (the operator's annotated tag at
 the LANDED merge commit) stay UNTICKED. `TAG OWED` is the expected state at this
 candidate, not a finding. Everything in § *THREE THINGS ARE RECORDED HERE AND
 DELIBERATELY NOT DONE* above is unchanged by the re-cut.
+
+## Candidate re-formed after the adversarial audit — recorded 2026-09-09
+
+**AN OPUS ADVERSARIAL AUDIT (lane `opsXfactory-1`, 2026-09-09) READ THE
+CANDIDATE `d14b514f` ON TWELVE ITEMS AND FAILED EXACTLY ONE.** The verdict was
+APPROVABLE WITH NOTES; the one defect is cured here rather than noted away.
+
+### The finding, verbatim
+
+`contracts/CHANGELOG.md:33` at `d14b514f`:
+
+> *"The candidate is its own DECLARING commit and the branch tip, so the
+> release-tag gate's first-parent declaring distance is **zero**."*
+
+It was TRUE WHEN IT WAS WRITTEN and FALSE ONCE THE EVIDENCE COMMITS STACKED
+ABOVE IT — `89a7c0de` (the commit-addressed gates), `e6da37fa` (the declaring
+distance measured the way CI asks it) and `3119f9ae` (the ratified-prose
+amendments). `contracts/CHANGELOG.md` is a PINNED INVENTORY MEMBER, so the
+sentence does not sit beside the bundle: it ships INSIDE it, at a digest
+`contracts/releases/contract-v3.6.digests.yaml` records. A reader verifying the
+published bundle would have read a false statement about the bundle's own
+provenance out of the bundle's own bytes.
+
+### The eleven items that PASSED
+
+1. **Atomicity** — the whole release surface moves in the one candidate commit;
+   `git diff --name-only fee36588 d14b514f -- contracts/ tests/` returns exactly
+   the five release-surface paths and nothing else.
+2. **Inventory diff, recomputed independently** — `contract-v3.5` → the
+   candidate reads 283 entries at both ends, 0 added, 0 removed, 4 digests
+   re-baselined, 0 non-digest field changes, and the exact-path attribution check
+   against the `## contract-v3.6` entry reports **0 UNATTRIBUTED**.
+3. **The build is byte-reproducible** — re-running
+   `validate-contract-release.py build` over the candidate's own bytes reproduces
+   `contracts/releases/contract-v3.6.digests.yaml` exactly.
+4. **The declaring distance, in BOTH forms** — CI's form (the pull request's
+   merge ref, first parent `main`) reads distance ZERO and returns rc=0 with
+   `TAG OWED` as a `::notice`, verified by simulating the merge ref; a hand run
+   with `--head <branch tip>` returns rc=2 with an *"N first-parent landing(s)"*
+   warning, and that form is NOT what CI evaluates.
+5. **The gates** — every gate returned rc 0 at `d14b514f`, each rc read from its
+   transcript's tail rather than its header.
+6. **Entry truthfulness** — every other measurable claim in the
+   `## contract-v3.6` entry checks out against the tree: the counts, the four
+   attribution rows, the 91 members outside `contracts/`, the ninety unchanged,
+   the additive argument row by row.
+7. **The manifest carries its three intended hunks** — `contract_bundle_version`,
+   the `contract-v3.6` `consumption_rule` paragraph in the `contract-v1.33` slot,
+   and the family comment's re-measured corpus counts (9 / 21 / 1 / 2). No fourth.
+8. **The tripwire follows #866's pattern exactly** — `FEATURE_SUCCESSOR_10`, the
+   member added to BOTH match arms, and the hand-written boundary paragraph.
+9. **The ticks ride their evidence** — 36 ticks across 10 boxes, every one of
+   them either evidenced in the same commit or explicitly deferred.
+10. **No leftovers** — nothing stale, nothing half-edited, no orphan file, no
+    placeholder left unfilled anywhere in the candidate's tree.
+11. **The entry's own self-digest verifies** — the inventory's
+    `contracts/CHANGELOG.md` digest equals `sha256sum contracts/CHANGELOG.md`,
+    which is only true if the build ran AFTER the entry text was final.
+
+### The cure — WITHDRAW, then RE-FORM
+
+**FR-034a: the candidate is REMADE, NEVER PATCHED** — *"a candidate edited after
+a gate ran is no longer the thing that gate certified"* — and the same reasoning
+governs a candidate an audit falsifies. This branch had already applied it twice
+today, to `d54d89ca` and to `e9a688d3`.
+
+- **THE WITHDRAWAL IS `31772616`.** It returns
+  `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `contracts/README.md` and
+  `tests/intent-compliance/test_release_boundary.py` to `fee36588`'s exact bytes
+  and removes `contracts/releases/contract-v3.6.digests.yaml`;
+  `git diff fee36588 31772616 -- contracts/ tests/` is EMPTY. It touches nothing
+  else. `verify-commit --commit 31772616` reports the same two EDITORIAL
+  mismatches the integration point itself carries —
+  `HGR-RELEASE-DIGEST-MISMATCH error path=contracts/README.md` and
+  `… path=contracts/manifest.yaml`, rc=1 — and no others.
+  Withdrawing the WHOLE surface first is what lets the next commit be atomic; a
+  commit carrying only the corrected CHANGELOG and its rebuilt inventory would
+  have left the manifest, the README and the tripwire behind at `d14b514f`,
+  which is defect (c) of the withdrawn `e9a688d3` repeated.
+- **THE RE-FORMED CANDIDATE IS THIS COMMIT** (sha filed by the follow-up
+  evidence-only commit). It carries the same five release-surface paths, and the
+  only bytes differing from `d14b514f` are `contracts/CHANGELOG.md` — three prose
+  hunks — and `contracts/releases/contract-v3.6.digests.yaml`, in which exactly
+  ONE entry's digest moves: the CHANGELOG's own.
+- **THE THREE HUNKS.** (a) The false sentence is replaced by one that states what
+  the gate actually grades and what a hand run at the branch tip does instead.
+  (b) `d14b514f` is named among the withdrawn candidates, with its reason.
+  (c) The entry's second, unqualified *"the declaring distance is zero"* is
+  qualified to *"the declaring distance the gate grades is zero"*, and *"All
+  three are moot"* is disambiguated to *"All three defects are moot"*.
+- **NOTHING ELSE MOVED**: no count, no other digest, no attribution row, no date.
+  The moved-member set is still exactly `contracts/manifest.yaml`,
+  `contracts/README.md`, `contracts/CHANGELOG.md` and
+  `tests/intent-compliance/test_release_boundary.py` — 283 entries at both ends,
+  0 added, 0 removed.
