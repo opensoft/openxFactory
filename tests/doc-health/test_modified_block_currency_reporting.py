@@ -605,6 +605,11 @@ def test_a_family_skipped_by_run_configuration_carries_no_block():
     answers "which tree WOULD this family have measured", which is still true of
     a skipped run, so promotion fidelity's note renders beside its skip line. A
     tally has no such reading.
+
+    AN EMPTY SKIP IS WHAT THIS TESTS, and since issue #902 that is a
+    distinction rather than a redundancy: `--skip-family` returns BEFORE the
+    family runs, so nothing can have been established and there is nothing a
+    tally could be of. A skip that CARRIES findings is the third state, below.
     """
     result = _suite(TREE_MARKERS, skip=True)
     assert [s.family for s in result.skips] == [mbc.FAMILY]
@@ -623,7 +628,11 @@ def test_the_family_s_own_scope_skip_carries_no_block_either():
     """The SECOND skip shape, and it is a different code path with a different
     reason string: a scope carrying no `openspec/changes/` directory at all. Two
     tests because canon distinguishes them and because one guard covering both is
-    a claim worth checking rather than assuming."""
+    a claim worth checking rather than assuming.
+
+    ALSO AN EMPTY SKIP (issue #902): this family's scope guard returns a plain
+    `Skip`, so both of its skip shapes carry nothing and the rule above holds
+    for both. The carrying state is the test below."""
     result = _suite(TREE_NOSCOPE)
     assert len(result.skips) == 1
     assert "openspec/changes/" in result.skips[0].reason
@@ -632,6 +641,77 @@ def test_the_family_s_own_scope_skip_carries_no_block_either():
     assert _LEAD not in section
     # POSITIVE CONTROL — same reason as the test above.
     assert _LEAD in _section(_render(_suite(TREE_MARKERS)))
+
+
+# THIS FAMILY'S OWN SCOPE-SKIP WORDING, used to render a skip beside real
+# findings. The reason text is immaterial to what is asserted; taking the
+# family's own keeps the fixture honest about what such a line looks like.
+_CARRYING_SKIP_REASON = ("no repository in scope carries an "
+                         "`openspec/changes/` directory this family can read")
+
+
+def test_a_skip_that_carries_findings_carries_the_block_too():
+    """THE THIRD SKIP STATE, WHICH DID NOT EXIST WHEN THE RULE ABOVE WAS
+    WRITTEN (issue #902).
+
+    Since #766 (PR #871) a family may answer with a `Skip` that CARRIES the
+    findings its repositories had established before its question stopped being
+    askable, and `runner.run_suite` extends `result.findings` with them while
+    still recording the skip — so `report.render` meets a skipped family WITH
+    findings. The two tests above are untouched and still right about the state
+    they test: an EMPTY skip tallies nothing, because zeros beside it would
+    claim a measurement nobody took. This is the other state, and the rule does
+    not reach it. These findings ARE the measurement — counted in the headline,
+    ranked in the plan, diffed against the previous report — so a tally of them
+    claims nothing unmeasured, and withholding it leaves this section the flat
+    list § 5.1 exists to abolish.
+
+    THE PAIR IS BUILT RATHER THAN RUN, and the reason is worth stating plainly:
+    no family in the estate today both has a `FAMILY_SUMMARIES` entry and can
+    produce a carrying skip. This family's two skip shapes are both plain
+    `Skip`s (the two tests above), and the one carrying shape —
+    `release_tag_publication._PartialSkip` — belongs to a family with no tally.
+    `render` is a function of `(findings, skips)`; that the SUITE produces such
+    a pair is proved over the real carrying shape in `test_suite.py`, under
+    `test_a_carrying_family_skip_contributes_the_skip_AND_its_findings`, and
+    what is proved here is what the renderer does when handed one.
+    """
+    result = _suite(TREE_MARKERS)
+    # TWO PRECONDITIONS, ASSERTED APART. They fail for different reasons — an
+    # empty tree, and a tree that skips — and one `and` over the pair reports
+    # neither of them (SonarCloud `python:S9073`, taken on this PR).
+    assert result.findings, (
+        "the findings are this family's real ones over a real tree, so an "
+        "empty result makes the rendering below a rendering of nothing")
+    assert not result.skips, (
+        "the only skip in the rendering below is the one injected beside "
+        "those findings; a tree that skips on its own would prove nothing "
+        "about the state under test")
+    section = _section(report.render(
+        AS_OF, result.findings, [Skip(mbc.FAMILY, _CARRYING_SKIP_REASON)],
+        [], [], 0, [], [], family_notes=result.notes))
+
+    assert f"Skipped: {_CARRYING_SKIP_REASON}" in section
+    assert _LEAD in section
+    assert "- marker defects: 1 (`info`)" in section
+    assert "No findings." not in section, (
+        "a skip is not a finding of nothing, and two verdicts about one "
+        "section is worse than either of them"
+    )
+    # THE TALLY KEEPS THE NOTES POSITION — above the section's content,
+    # where it sits for a family that ran (§ 5.1: the split is stated before
+    # the rows) — and the rows sit beneath the skip line, which is the reason
+    # they are not the whole answer.
+    assert section.index(_LEAD) < section.index("Skipped:") \
+        < section.index("- [info] ")
+    # AND THE COUNTS STILL EQUAL THE ROWS, the SC-001 invariant the test
+    # below states for a family that ran: a skip line interposed between the
+    # tally and its rows must not cost the tally its subject.
+    stated = sum(int(m.group(1)) for line in section.splitlines()
+                 for m in [re.search(r": (\d+) \(`", line)] if m)
+    rows = len([line for line in section.splitlines()
+                if line.startswith("- [")])
+    assert stated == rows, (stated, rows, section)
 
 
 def test_the_rendered_counts_equal_the_rendered_rows():

@@ -649,26 +649,53 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         # answer different questions — a note is a fact about the RUN (which tree
         # was measured), a summary is a fact about the FINDINGS (how they split
         # across the family's classes) — and they differ on the skip: a skipped
-        # family still HAS a basis, and has no tally, because zeros beside a skip
-        # line would claim a measurement nobody took.
+        # family still HAS a basis to state.
+        #
+        # AND "SKIPPED" IS TWO STATES, NOT ONE (issue #902), so the tally now
+        # turns on the FINDINGS rather than on the skip:
+        #
+        #   an EMPTY skip still has no tally, unchanged — `0 · 0 · 0 · 0 · 0`
+        #   beside that line would claim a measurement nobody took, which is
+        #   what canon's skip rule exists to prevent ("cannot run", not "found
+        #   nothing");
+        #
+        #   a CARRYING skip has one. Since #766 (PR #871) a `Skip` may carry
+        #   the findings its repositories HAD established before the question
+        #   stopped being askable (`release_tag_publication._PartialSkip`), and
+        #   `runner.run_suite` extends `findings` with them — so they are
+        #   already in the headline counts, the ranked plan and the
+        #   previous-report diff. A tally of those states what somebody
+        #   measured; it does not claim what nobody did.
         #
         # ADDITIVE, AND BYTE-IDENTICAL FOR EVERY FAMILY WITH NO ENTRY: `notes`
         # is empty for those, so the emit-and-blank-line condition below is the
         # same one this code already applied to `family_notes` alone.
+        empty_skip = bool(skipped) and not fam_findings
         notes = list((family_notes or {}).get(family, ()))
-        if not skipped and family in FAMILY_SUMMARIES:
+        if not empty_skip and family in FAMILY_SUMMARIES:
             notes += FAMILY_SUMMARIES[family](fam_findings)
         for note in notes:
             out.append(note)
         if notes:
             out.append("")
+        # THE SKIP LINE IS THE HEADLINE FACT ABOUT THIS FAMILY AND NEVER THE
+        # WHOLE OF ITS SECTION (issue #902). The row loop below is
+        # unconditional — a family with no findings runs it zero times — so
+        # three of the four states render exactly the bytes they always did
+        # (the rows; `No findings.`; an EMPTY skip's reason alone), and the
+        # fourth, which used to render its reason and stop, now renders the
+        # rows the skip carried beneath it.
+        #
+        # Withholding them left the one section a reader opens to see what the
+        # counts are counting empty of the findings those counts are of, which
+        # is the inverse of the headline's own promise that a skipped family is
+        # "never silently omitted": the family named, its findings not.
         if skipped:
             out.append(f"Skipped: {skipped.reason}")
         elif not fam_findings:
             out.append("No findings.")
-        else:
-            for f in fam_findings:
-                out.append(f"- [{f.severity}] {f.repo}:{f.path} — {f.rule}")
+        for f in fam_findings:
+            out.append(f"- [{f.severity}] {f.repo}:{f.path} — {f.rule}")
     out.append("")
     out.append("## Ranked Plan")
     out.append("")
