@@ -12,8 +12,10 @@ import pytest
 
 from conftest import AS_OF, FIXTURES, REPO_ROOT, FakeGit, make_ctx
 
-from doc_health import CRITICAL, ERROR, WARNING, DEFAULT_THRESHOLDS, Finding
+from doc_health import (CRITICAL, ERROR, INFO, WARNING, DEFAULT_THRESHOLDS, Finding,
+                        Skip)
 from doc_health import catalog_dispatch, corpus, report, runner
+from doc_health import release_tag_publication as rtp
 from doc_health.families import FAMILIES
 
 
@@ -1028,3 +1030,83 @@ def test_runner_superset_baseline_suppresses_resolution_for_uncovered_repo(
     # "other" is outside this run's scope entirely -> MUST NOT read as
     # resolved.
     assert "repo=other" not in text
+
+
+# --------------------------------------------------------------------------
+# Issue #766: A FAMILY-LEVEL SKIP THAT CARRIES FINDINGS MUST NOT LOSE THEM AT
+# THE SUITE LOOP (Codex P1 on PR #871).
+#
+# `release_tag_publication` can stop being able to ask its question AFTER some
+# of its repositories have established something, and answers with a `Skip`
+# that CARRIES those findings (`_PartialSkip`). `run_suite` appended the skip
+# and extended nothing, so the carried set died one layer above the loop that
+# had just been repaired to keep it. Both halves are asserted here — the skip
+# still lands in `skips` (every consumer that fails closed on one is
+# untouched) and the findings now land in `findings` — plus the control that
+# says a plain `Skip`, which is what EVERY other family produces, still
+# contributes nothing at all.
+
+_CARRIED_REASON = ("alpha: the published refs for contract-v2.0 could not be "
+                   "consulted")
+
+
+def _carried_findings():
+    return [
+        Finding(WARNING, rtp.FAMILY, "alpha", "contracts/manifest.yaml",
+                "contract-v2.0 is declared and has no published annotated tag",
+                "publish the annotated tag"),
+        Finding(INFO, rtp.FAMILY, "alpha",
+                "contracts/releases/contract-v1.9.digests.yaml",
+                "contract-v1.9 is declared SPENT",
+                "no action — the record says which"),
+    ]
+
+
+def _one_family_run(monkeypatch, outcome):
+    """`run_suite` over a single stubbed family, returning that outcome."""
+    monkeypatch.setattr(runner, "FAMILIES", {rtp.FAMILY: lambda ctx: outcome})
+    return runner.run_suite(object(), rtp.FAMILY, set())
+
+
+def test_a_carrying_family_skip_contributes_the_skip_AND_its_findings(
+        monkeypatch):
+    """BOTH HALVES, WHICH IS THE WHOLE OF THE P1: the family answered with a
+    skip AND with what its repositories had established, and the suite records
+    both rather than only the first."""
+    carried = _carried_findings()
+    result = _one_family_run(
+        monkeypatch, rtp._skip(_CARRIED_REASON, carried))
+
+    assert [(s.family, s.reason) for s in result.skips] == \
+        [(rtp.FAMILY, _CARRIED_REASON)], (
+            "the skip state must be recorded exactly as it always was — "
+            "`validate-release-tag-gate.py` refuses at `gate-unaskable` on "
+            "`isinstance(outcome, Skip)` and reads only `.reason`")
+    assert [(f.severity, f.path) for f in result.findings] == \
+        [(WARNING, "contracts/manifest.yaml"),
+         (INFO, "contracts/releases/contract-v1.9.digests.yaml")], (
+            "and the findings the repositories established reach the run "
+            "result instead of being abandoned at the append above")
+
+    # AND THEY REACH THE RENDERER, which is what "erased from the report"
+    # meant: both carried rows are in the Ranked Plan the report ends with,
+    # beside the skip line that is still stated.
+    text = report.render(AS_OF, result.findings, result.skips, [], [], 0, [],
+                         [])
+    assert f"`{rtp.FAMILY}` — {_CARRIED_REASON}" in text
+    assert "path=contracts/manifest.yaml" in text
+    assert "path=contracts/releases/contract-v1.9.digests.yaml" in text
+
+
+def test_a_plain_family_skip_still_contributes_nothing_but_the_skip(
+        monkeypatch):
+    """THE CONTROL, and it covers every family but one: the base `Skip` has
+    `family` and `reason` and no findings at all, so the new `getattr` reads an
+    empty tuple and no family whose skip carries nothing can report anything
+    new because of this change."""
+    result = _one_family_run(
+        monkeypatch, Skip(rtp.FAMILY, "no contract bundle declared"))
+
+    assert [(s.family, s.reason) for s in result.skips] == \
+        [(rtp.FAMILY, "no contract bundle declared")]
+    assert result.findings == []

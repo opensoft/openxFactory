@@ -1217,7 +1217,17 @@ Active changes:
   ruling on `opensoft/openxFactory` issue #656), **amended 2026-09-05
   (repository shape)** — Brett Heap, in-session, verbatim *"elect the shape for
   both, follow the pin chain, no family yet"* at 14:52Z; record
-  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-05-repository-shape.md`.
+  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-05-repository-shape.md`;
+  **amended 2026-09-09 (FLOOR PART 2 restated as a source→destination mapping
+  with declared multiplicity)** — Brett Heap, by click-through in session
+  `openXfactory-4`, verbatim *"OQ-K → FLOOR PART 2 restated as a
+  source→destination mapping with declared multiplicity for replicated files (a
+  small amendment PR to the change)"* at 22:19:57Z; record
+  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-09-floor-part-2-mapping.md`.
+  RULING OQ-1 is not reopened by it: the floor still has four parts and only part
+  2's TEST moved, because the landed carve manifest's replicated rows put the
+  same 30 test functions at three homes each and an equality could only have been
+  satisfied by deleting replicas FLOOR PART 3 requires.
   **IT STILL PERFORMS NOTHING.**
   No repository is created, no code moves, no capability is
   promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet
