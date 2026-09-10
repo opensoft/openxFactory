@@ -1,0 +1,121 @@
+schema_version: 1
+kind: pinned_contract_manifest
+
+# ============================================================================
+# openxdox-pin.yaml — content-addressed consumption of opensoft/openXdox.
+#
+# openxFactory does not OWN openXdox; it MOUNTS the assembly root as a
+# submodule and CONSUMES it at a commit and a whole-tree digest. This file is
+# the whole of that claim, and `scripts/verify-openxdox-pin.py` is the running
+# code that checks it.
+#
+# RULING F (Brett Heap, `opensoft/openxFactory#656`, 2026-09-05, "rule F
+# openXdox only"): openxFactory pins openXdox and NOTHING ELSE. openDox's
+# commit is a DERIVED value, read through openXdox's own
+# `contracts/opendox-pin.yaml` at the commit named below, and it is never
+# separately declared, pinned or mounted here. There is deliberately no
+# `contracts/opendox-pin.yaml` in this repository and no second gitlink:
+# `neutral-product-pin`'s chain clause makes each level declare its OWN direct
+# upstream and forbids re-declaring a transitive one, because two levels free
+# to declare the same product's commit is two answers to "which bytes are
+# pinned", which is no answer.
+#
+# RULED OQ-L (Brett Heap, #656, 2026-09-09): a GIT SUBMODULE of the openXdox
+# ASSEMBLY ROOT, chosen over the memo's recommended installable package. THE
+# GITLINK IS THE COMMIT PIN — this file and the gitlink at `submodule_path`
+# are halves of ONE invariant and move in ONE commit, on the estate's standing
+# submodule discipline (`docs/opendox-cutover-runbook.md` § 7).
+#
+# WHY THERE IS NO `files:` AND NO `pinned_by_commit_only:`, unlike
+# `contracts/openxwallet-pin.yaml`. Three reasons, and none of them is economy:
+#
+#   1. openXdox's own `contracts/manifest.yaml` declares
+#      `contract_bundle_version: none` and `entries: []`. `neutral-product-pin`
+#      keys the per-file obligation to "every artifact the product's own
+#      manifest digests per file", and that set is EMPTY. The list has no
+#      members to carry rather than members left out.
+#   2. The whole-tree digest discharges the completeness obligation those two
+#      lists exist to serve, and discharges it MORE STRONGLY. The capability's
+#      own words for the published-artifact medium reach a whole-tree digest
+#      over a source tree unchanged: "ONE digest addresses EVERY byte inside
+#      it, so no member can be undeclared and none can be added or altered
+#      without changing the referent."
+#   3. It is the shape this carve's own pin family already uses.
+#      `openXdox/contracts/code-pin.yaml`, `spec-pin.yaml` and
+#      `opendox-pin.yaml` each carry `digest_definition: sorted-ls-tree-r-v1`
+#      and `digests.tree_sha256` and no per-file list at all, and runbook § 7
+#      names what this file carries as "`carve_commit:` … beside the commit and
+#      tree digest". The wallet's eight `sha256`s exist for a migration history
+#      this consumption has no analogue of — they are the rows openxFactory's
+#      own manifest carried before the wallet carve — and inventing an
+#      enumeration here would add rows the publisher never published.
+#
+# NO `contract_bundle_tag:`. openXdox has cut no bundle: `xdox-v1.0` is Phase 6
+# (runbook § 9), strictly after this phase and after Phase 5, and is Brett
+# Heap's own act. A label recorded before the thing it labels exists would be a
+# claim, not a label, so the key is ABSENT rather than present-and-empty.
+#
+# OFFLINE LAW. The verifier reads this file, the gitlink, and the submodule's
+# own object store. It never reads the network, never reads an upstream tree,
+# and never reads openXdox's own `contracts/manifest.yaml`. A gate that reaches
+# the network to decide whether it passes is a gate whose answer depends on the
+# network.
+# ============================================================================
+
+source_repository: opensoft/openXdox
+
+# The gitlink this pin governs, at the aggregation-neutral root beside
+# `openXwallet` — a neutral product pins at the neutral root (DTN-022), never
+# under `xFactories/`. A pin with no path cannot be checked against a gitlink.
+submodule_path: openXdox
+
+# The openXdox ASSEMBLY ROOT's commit — the one object whose single commit
+# names both legs. Exactly 40 hex characters. NEVER a leg: `openXdox-code` and
+# `openXdox-spec` are the assembly root's own job to pin, and openxFactory
+# never pins or mounts a leg (split-opendox-two-layer-product task 5.1).
+commit: "db58fffa58d49d92f58db40bd7e63cad3205052f"
+revision_kind: commit
+
+digest_algorithm: sha256
+
+# WHAT IS DIGESTED, exactly. `sorted-ls-tree-r-v1`:
+#   records = `git ls-tree -r -z <commit>` split on NUL, empties dropped
+#   each record is `<mode> SP <type> SP <oid> TAB <path>`, path UNQUOTED
+#   sort the records bytewise ascending
+#   digest  = sha256(b"".join(record + b"\n" for record in records))
+# Reproduced verbatim from `openXdox/contracts/code-pin.yaml`'s own comment
+# block so the two spellings can be diffed by eye. Mode is included, so a
+# permission change is drift; the oid is included, so any content change is
+# drift; a nested submodule appears as `160000 commit <oid>`, so openXdox's own
+# `code` or `spec` pin moving is drift too — which is what lets this ONE digest
+# cover a three-repository product without mounting the other two.
+digest_definition: sorted-ls-tree-r-v1
+digests:
+  tree_sha256: "43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209"
+
+# The BYTE-IDENTITY REFERENT, and record 2 of the three RULED OQ-I requires
+# (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1). In the
+# FILE and not only in the runbook, because the referent must survive into the
+# tree the gate reads — "HEAD" is no referent across a multi-pull-request wave,
+# and this one spans at least eleven. This is the openxFactory commit openDox
+# and openXdox were carved out of: `main` at the merge of the last pre-carve
+# split (#855), with its `pytest-suite` green. `opendox-carve-0` is a LABEL
+# beside it and never the referent.
+carve_commit: "b075fd91dc8fced8e1373825ba80220c33536bae"
+
+# openXdox carries NO `docs/pin-resync-runbook.md` of its own — unlike
+# openXwallet, whose pin names one. Its `## The lockstep invariant` section is
+# the procedure that exists and is what openXdox's OWN leg pins point at
+# (`contracts/code-pin.yaml`, `contracts/spec-pin.yaml`, both
+# `README.md#the-lockstep-invariant`), reached here through the mount exactly
+# as the wallet pin reaches `openXwallet/docs/pin-resync-runbook.md`. The
+# CARVE-time procedure — how this pin came to exist at all — is
+# `docs/opendox-cutover-runbook.md` § 7. A resync runbook written for THIS
+# consumption is owed and does not yet exist; naming a document that does not
+# exist would be worse than naming the gap.
+resync_runbook: "openXdox/README.md#the-lockstep-invariant"
+
+# NAMED here so the pin is running code rather than an obligation stated in
+# prose, matching the sibling pins' own `verify_pin:` key. Not yet wired into
+# any required check: a consumer gate that runs it is task 5.3, Phase 5.
+verify_pin: scripts/verify-openxdox-pin.py

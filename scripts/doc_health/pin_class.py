@@ -867,6 +867,74 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "path is UNCOVERED — which is exactly how this one announced "
              "itself, on the CI run of the pull request that added the pin.",
     ),
+    # ---- the third neutral-product pin: ONE artifact, TWO localities ------
+    # `contracts/openxdox-pin.yaml` (split-opendox-two-layer-product task 5.1,
+    # RULED OQ-L) pins `opensoft/openXdox`, the mapping core carved out of this
+    # repository, mounted as a submodule at the neutral root.
+    #
+    # TWO MEMBERS, ON THE WALLET PIN'S SPLIT AND NOT THE openRepoShape PIN'S.
+    # The asymmetry the openRepoShape note draws is exactly the test, and this
+    # artifact falls on the wallet's side of it: openxFactory authored none of
+    # openRepoShape's bytes, so that pin has no `carve_commit` and cannot have
+    # one — whereas openXdox's bytes were carved OUT OF THIS REPOSITORY, so this
+    # pin names both the product's commit and the openxFactory commit it was
+    # taken at, and the two have different localities. Declaring one member
+    # would have made whichever value it did not declare either a false orphan
+    # or an unverified pin.
+    #
+    # DECLARED IN THE COMMIT THAT ADDS THE PIN, rather than after the fact. The
+    # openRepoShape member below-but-one records that its own site "announced
+    # itself" as UNCOVERED on the CI run of the pull request that added it;
+    # measured here before the push (0 uncovered sites before, 2 after), that
+    # announcement is a finding this commit can simply not raise.
+    PinMember(
+        id="openxdox-pin-carve-commit",
+        paths=("contracts/openxdox-pin.yaml",),
+        key="carve_commit",
+        key_form="field",
+        generator="authored with the pin (split-opendox-two-layer-product "
+                  "task 5.1, RULED OQ-L)",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        note="THE NAMED CARVE COMMIT — an openxFactory commit, and the one "
+             "value in this file that MUST stay reachable here. RULED OQ-I "
+             "(#656, 2026-09-09) places the carve's byte-identity referent in "
+             "three records, and `carve_commit:` in the pin files is the one "
+             "that survives into the tree a gate reads; the claim that the "
+             "openDox/openXdox carve was byte-identical is checkable only "
+             "while `b075fd91` can be reconstructed. Same key and same reason "
+             "as `openxwallet-pin-carve-commit`, one extraction later — what "
+             "makes this a distinct member is the PATH.",
+    ),
+    PinMember(
+        id="openxdox-pin-product-commit",
+        paths=("contracts/openxdox-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (split-opendox-two-layer-product "
+                  "task 5.1, RULED OQ-L)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openXdox` — the PINNED PRODUCT'S "
+             "commit, naming the ASSEMBLY ROOT and never a leg (RULING F, "
+             "#656, 2026-09-05, \"rule F openXdox only\"). It does not resolve "
+             "in this repository and must not be reported as an orphan; "
+             "openXdox answers for it, and locally "
+             "`scripts/verify-openxdox-pin.py` compares it against BOTH the "
+             "recorded gitlink and the checked-out revision of the `openXdox/` "
+             "submodule and recomputes the whole-tree `sorted-ls-tree-r-v1` "
+             "digest. That verifier is a stronger reachability guarantee than "
+             "a ref here could give. It differs from the wallet verifier in "
+             "having ONE tree digest rather than eight per-file `sha256`s: "
+             "openXdox's own `contracts/manifest.yaml` digests no artifact per "
+             "file (`entries: []`), and one digest over every `ls-tree -r` "
+             "record leaves no member undeclared. openDox's commit is NOT a "
+             "site here and must never become one — it is read through "
+             "openXdox's own `contracts/opendox-pin.yaml` as a DERIVED value, "
+             "which is what keeps the chain to one authority per hop.",
+    ),
     # ---- the pinned decision core: executable governance, not a bundle -----
     # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
     # pins the codexFactory commit whose Merge Master decision core judges this
