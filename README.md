@@ -2688,8 +2688,10 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [adopt-codexfactory-repository-identity](openspec/changes/archive/2026-09-10-adopt-codexfactory-repository-identity/proposal.md)
-  — **ARCHIVED 2026-09-10**, on Brett Heap's standing word via lane
-  `provenance-autonomous-merge`, and the `release-realization` rule that a
+  — **ARCHIVED 2026-09-10** by
+  [PR #879](https://github.com/opensoft/openxFactory/pull/879), on Brett Heap's
+  standing word via lane `provenance-autonomous-merge`, and the
+  `release-realization` rule that a
   change with a NON-EMPTY code surface archives on **merged-plus-green
   realization evidence, not on landing**. Ratified 2026-09-07, Brett Heap
   (convener), verbatim *"accept all [A] and ratify 763"* at 2026-09-07T22:21:44Z
