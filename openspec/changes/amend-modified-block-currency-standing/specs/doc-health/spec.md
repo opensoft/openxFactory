@@ -57,10 +57,10 @@ ADDED requirement offsets what its MODIFIED block drops.
 standing.** A `draft` packet's block is as capable of restating stale canon as
 a `ratified` one, and a finding against a draft costs its author one line —
 which is the cheapest moment to pay it, the scenario-title arm below now
-carrying an `error` that reds any run configured to fail on it. This is a reading rule for the check and is
-deliberately WIDER than the two-writers obligation below, which
-`release-realization` scopes to an active RATIFIED change and which this
-requirement does not widen.
+carrying an `error` that reds any run configured to fail on it. This is a
+reading rule for the check and is deliberately WIDER than the two-writers
+obligation below, which `release-realization` scopes to an active RATIFIED
+change and which this requirement does not widen.
 
 The family SHALL implement three comparison arms over one document pair, and
 SHALL report them as distinct finding classes so that a precise signal is never
@@ -395,36 +395,37 @@ neither quoting a code span in a reason. A ground whose population is zero at
 landing is a ground that reports the NEXT marker written, which is the only
 moment at which either silence has ever cost anybody anything.
 
-**AMENDED BY `amend-modified-block-currency-standing` (2026-09-10).** Every paragraph and
-every scenario above this note stands exactly as promoted —
-`amend-marker-reason-boundary`'s and `amend-marker-defect-reporting`'s own notes
-and their narratives included — and the only promoted text this block changes is
-what the flip of 2026-08-31 made untrue: ONE sentence of the
+**AMENDED BY `amend-modified-block-currency-standing` (2026-09-10).** Every
+paragraph and every scenario above this note stands exactly as promoted —
+`amend-marker-reason-boundary`'s and `amend-marker-defect-reporting`'s own
+notes and their narratives included — and the only promoted text this block
+changes is what the flip of 2026-08-31 made untrue: ONE sentence of the
 lifecycle-standing paragraph, TWO sentences of the *advisory at launch*
 paragraph, and TWO bullets of the first scenario. ONE SCENARIO IS ADDED, at the
 END of the block, because the resolution row reaches every class this family
 emits and no scenario exercised that — stated at the `(family, repository,
 path)` grain the uncited-resolution rule keys on, never at finding-class grain,
-which is the grain that rule has always read and is not moved here. No arm is added or removed, no threshold
-moves, no disposition rule changes, no parse and no marker grammar moves, and the
-set of trees over which this family speaks is not altered by one line. THIS BLOCK
-MOVES NO SEVERITY AND ADDS NO ROW: the scenario-title arm's severity constant has
-read `error` and `families.FAMILY_RESOLUTION` has carried
-`"modified-block-currency": CONTESTED` since 2026-08-31, so this is promoted
-canon catching up with running code rather than a new decision — the same
-catch-up the promoted *A modified-block-currency finding its own class map cannot
-place is itself a finding* performed for its own sentence on the day that flip
-landed. THE SENTENCE ABOVE STATING THAT NO FLIP IS PROPOSED FOR THE CARRIAGE
-LEDGER IS CARRIED UNCHANGED AND IS STILL TRUE: its "this change" names
-`add-modified-block-currency-check`, which promoted this requirement, no flip has
-been ruled for that arm since, and its band is `info` today. AND
-`amend-marker-defect-reporting`'S OWN `Removed from canon` MARKER IS DELIBERATELY
-NOT RESTATED HERE, on this requirement's own rule that a marker is not a carriage
-unit in either direction: restating it would declare a removal this change did
-not perform, and its named unit — a sentence canon no longer carries because that
-change removed it — matches no unit of the requirement or of this block, which is
-the third ground above reporting this block for copying a predecessor's
-declaration forward.
+which is the grain that rule has always read and is not moved here. No arm is
+added or removed, no threshold moves, no disposition rule changes, no parse and
+no marker grammar moves, and the set of trees over which this family speaks is
+not altered by one line. THIS BLOCK MOVES NO SEVERITY AND ADDS NO ROW: the
+scenario-title arm's severity constant has read `error` and
+`families.FAMILY_RESOLUTION` has carried `"modified-block-currency": CONTESTED`
+since 2026-08-31, so this is promoted canon catching up with running code
+rather than a new decision — the same catch-up the promoted *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* performed for its own sentence on the day that flip landed. THE
+SENTENCE ABOVE STATING THAT NO FLIP IS PROPOSED FOR THE CARRIAGE LEDGER IS
+CARRIED UNCHANGED AND IS STILL TRUE: its "this change" names
+`add-modified-block-currency-check`, which promoted this requirement, no flip
+has been ruled for that arm since, and its band is `info` today. AND
+`amend-marker-defect-reporting`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE, on this requirement's own rule that a marker is
+not a carriage unit in either direction: restating it would declare a removal
+this change did not perform, and its named unit — a sentence canon no longer
+carries because that change removed it — matches no unit of the requirement or
+of this block, which is the third ground above reporting this block for copying
+a predecessor's declaration forward.
 
 **Removed from canon by amend-modified-block-currency-standing (2026-09-10):** ``**The family SHALL read every active change regardless of its lifecycle standing.** A `draft` packet's block is as capable of restating stale canon as a `ratified` one, the arms below are advisory, and a finding against a draft costs its author one line.``; ``**This family SHALL be advisory at launch, in both halves of what that means.** Every finding carries `warning` severity for the scenario-completeness and title-resolution arms and `info` for the carriage ledger, so no `--fail-on` configuration reds on it; and the family is deliberately absent from `FAMILY_RESOLUTION`, so its findings are not classified `contested` — a contested finding that resolves without a citation becomes an `error` under this capability's uncited-resolution rule, which would gate the family through the back door on the first block anyone corrected.``; ``Raising the scenario-completeness arm to `error` and adding the contested classification are ONE later decision taken together by ruling, and SHALL follow the discharge of the standing population rather than precede it.``; ``**THEN** the run MUST emit a `warning` finding against the active delta's own path, naming each omitted scenario title and the promoted spec it was read from``; ``**AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail`` — the flip of 2026-08-31 (openxFactory issue #357, pull request #529) took the scenario-title arm to error and added the family's contested row, so each of these five units asserts a standing the running checker has not had since that day: three say the arms are advisory and the family unclassified, one says the raising is a decision still to be taken, and two are the first scenario's assertion of the advisory band in bullet form. Every one is REPLACED rather than dropped — the two paragraphs above state the post-flip standing and the history that produced it, the lifecycle-standing sentence is restated with its rationale corrected, and the two bullets are replaced in place by three that mirror the promoted promotion fidelity and duplicate packet scenarios. This reason carries no code span, so the marker names exactly the five units listed before the separator.
 
