@@ -703,7 +703,7 @@ def test_a_drifted_replica_is_not_admitted_and_the_limit_is_the_manifests(
 def test_a_declared_replica_is_verified_against_the_carve_blob(
         carve: Carve) -> None:
     """The stronger claim `--replica-at` buys. The manifest declares no path
-    and no digest for a replica (RULED OQ-C, and measured: all 18 rows carry
+    and no digest for a replica (RULED OQ-C, and measured: all 20 rows carry
     neither), so the OPERATOR declares where it landed — the runbook's per-leg
     table in machine form — and the copy becomes as falsifiable as a row."""
     doc = carve.manifest_doc()

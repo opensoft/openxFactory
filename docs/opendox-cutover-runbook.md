@@ -627,9 +627,10 @@ every pure copy, and (since RULED Q-L7 (a)) every copy whose ROW declares the
 lines it must differ on, which is the only way such a copy can be read as a
 replica at all: its applied bytes match no blob at the carve commit, so
 undeclared it refuses `arrival-undeclared-file`. The three neutral modules
-above are permanent replicas (RULED OQ-A); `scripts/corpus_adapter.py` is a replica now and is retired after the
-OQ-L pin lands (RULED OQ-Q, 2026-09-09 ~22:3xZ), so it is declared while it is
-one. **RULING Q-L1 (2026-09-10) added two more permanent replicas** —
+above are permanent replicas (RULED OQ-A); `scripts/corpus_adapter.py` is a
+replica now and is retired after the OQ-L pin lands (RULED OQ-Q, 2026-09-09
+~22:3xZ), so it is declared while it is one.
+**RULING Q-L1 (2026-09-10) added two more permanent replicas** —
 `scripts/route_extension.py` and `scripts/subcommand_extension.py`, the § 2.4
 extension-point seams — after carve leg 1 found them imported at module level by
 arrived rows with no row of their own; both `-code` legs place them and declare

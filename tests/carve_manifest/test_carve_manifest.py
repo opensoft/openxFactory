@@ -1459,7 +1459,6 @@ def test_the_row_order_is_bytewise_and_not_by_code_point(
     refuses(scratch, doc, "carve-path-order-violation")
 
 
-
 # --------------------------------------------------------------------------
 # RULED Q-L7 (a) — the two grammar extensions
 #
