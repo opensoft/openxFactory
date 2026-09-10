@@ -208,9 +208,10 @@ retire have never yet cost anybody a row.
 ## Impact
 
 **Behaviour: none observable on this corpus today, by measurement.**
-`python3 scripts/doc-health.py --single-repo .` returns a finding set IDENTICAL
-to `origin/main`'s apart from this packet's own rows — this block included, which
-raises ZERO findings from its own family. Both new grounds have a population of
+`python3 scripts/doc-health.py --single-repo .` returns a finding set **IDENTICAL
+to `origin/main`'s, LINE FOR LINE** — 350 lines on both trees, the two
+`- severity=` sets differing in nothing, this packet's own block included, which
+raises ZERO findings from any family and adds no row of its own. Both new grounds have a population of
 zero at landing, which is what makes them normative for the next marker written
 rather than a sweep of the present one.
 

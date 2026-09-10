@@ -88,9 +88,8 @@ residue, measured and deliberately not taken.
       `add-composed-view-authoring`, both `Merged into`, one name each matching
       its resolved basis, neither quoting a code span in a reason and neither
       naming a unit its own block adds. Measured, not assumed: the branch's
-      `doc-health` finding set is identical to `origin/main`'s apart from this
-      packet's own rows, and **the marker-defect class raises NOTHING on either
-      tree**.
+      `doc-health` finding set is identical to `origin/main`'s LINE FOR LINE,
+      and **the marker-defect class raises NOTHING on either tree**.
 - [x] 2.3 **THE ZEROS ARE ASSERTED AS A TEST, NOT ONLY AS A FIGURE** (§ 3.6):
       `test_no_marker_in_this_corpus_raises_either_ground_ADDED_HERE_today`,
       written as two CEILINGS rather than two exact counts so that an unrelated
@@ -301,9 +300,10 @@ residue, measured and deliberately not taken.
 - [x] 5.6 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 5.7 `python3 scripts/doc-health.py --single-repo .` — **exit 0**. The
-      finding set is IDENTICAL to `origin/main`'s except for this packet's own
-      rows, and **the modified-block-currency family reports NOTHING on this
-      block**: the arm that would catch a stale restatement is the one this
+      finding set is **IDENTICAL to `origin/main`'s LINE FOR LINE** — 350 lines
+      on both trees, the two `- severity=` sets differing in nothing, so this
+      packet adds NO row of its own — and **the modified-block-currency family
+      reports NOTHING on this block**: the arm that would catch a stale restatement is the one this
       packet is written under, and it is silent because the block carries canon
       and declares its two removals. The marker-defect class — including both
       grounds this packet adds — raises ZERO findings on the whole corpus, before
@@ -317,12 +317,23 @@ residue, measured and deliberately not taken.
       were the same fact stated four ways —
       `tests/sequenced_after/test_sweep.py`'s row-by-row, one-row-per-change and
       two totals assertions, each reporting the ONE row this change had not yet
-      added. **AFTER THE SEED `tests/sequenced_after` is `271 passed`** and the
-      whole selection is green; the full re-run on the final tree is § 5.9.
-- [ ] 5.9 **EVERY GATE RE-RUN IN FULL ON THE FINAL TREE**, after the ledger seed
-      and after every bench round this pull request takes, with the whole
-      selection green and the `--all --strict` failure set re-measured against
-      `origin/main`. Ticked when the pull request is FROZEN, not before.
+      added. **AFTER THE SEED THE WHOLE SELECTION IS `2173 passed, 66 subtests
+      passed`**, `tests/sequenced_after` alone `271 passed`; the full re-run on
+      the frozen tree is § 5.9.
+- [x] 5.9 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE** (`f59a462b` plus this
+      bookkeeping commit), after the ledger seed and after bench round 1, and
+      every one of them holds: `openspec validate <change> --strict` **exit 0**;
+      `openspec validate --all --strict` **exit 1** with `Totals: 97 passed, 4
+      failed (101 items)` and the failure set STILL byte-identical to
+      `origin/main`'s, re-measured rather than carried forward;
+      `validate-openspec-cli-pin.py --change … --no-cache` **exit 0** and
+      `--all --no-cache` **exit 0** with 0 undispositioned failures and the same
+      two pre-existing accepted exceptions; `proposal-support verify` **exit 0**;
+      `validate-sequenced-after.py .` **exit 0** and `--ledger-diff` **exit 0**
+      (*"consistent with the corpus (195 rows)"*); `validate-scope-globs.py .`
+      **exit 0**; `doc-health.py --single-repo .` **exit 0** with the finding set
+      IDENTICAL to `origin/main`'s line for line; and the four-directory pytest
+      selection **`2173 passed, 66 subtests passed`**.
 
 ## 6. Archive — OWED, NOT GIVEN
 
