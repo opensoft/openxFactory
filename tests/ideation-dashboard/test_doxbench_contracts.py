@@ -31,13 +31,18 @@ was launched, its exit code was returned) and nothing about how it decides.
 
 from __future__ import annotations
 
+import fnmatch
+import functools
 import hashlib
 import os
 import shutil
+import tempfile
 from pathlib import Path
 
 import pytest
 import yaml
+
+from carved_reach import shed_destination, sources_under
 
 from ideation_dashboard import doxbench_contracts as contracts
 
@@ -748,9 +753,12 @@ sys.exit({code})
 
 
 def _install_stub_validator(root: Path, code: int = 0) -> Path:
-    scripts = root / "scripts"
-    scripts.mkdir(parents=True, exist_ok=True)
-    path = scripts / "validate-ideation-dashboard-contracts.py"
+    # POST-SHED (§ 5.2, RULED (a)): the stub goes where the delegation LOOKS,
+    # and that is `contracts.VALIDATOR_IN_CHECKOUT` — derived from the moved
+    # row, so this fake checkout follows the real one the day the row changes
+    # rather than pinning the pre-shed `scripts/` spelling by hand.
+    path = root / contracts.VALIDATOR_IN_CHECKOUT
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(STUB_VALIDATOR.format(code=code), encoding="utf-8")
     return path
 
@@ -812,14 +820,64 @@ def released_root() -> Path:
     return root
 
 
+# ---------------------------------------------------------------------------
+# THE § 5.2 SHED, AT THE RELEASE RUNG (RULED (a), `#656` comment `5625573095`)
+#
+# The released bytes this rung reads are the publisher's OWN, and the shed moved
+# many of them to the two legs this repository pins — the wire schemas to
+# openDox-spec, the delegated validator to openXdox-code, and the packaged
+# example corpus ACROSS BOTH, with 44 of its 140 files staying here. That split
+# is why neither helper below joins a directory constant: a per-DIRECTORY answer
+# is exactly the bug `conftest.dashboard_web_root()`'s docstring records, and
+# `examples/ideation-dashboard/` is the sharpest case of it in the repository.
+# Every answer here is per FILE, from that file's own manifest row.
+#
+# Both helpers are identity for a root that is NOT this repository — the
+# `OPENXFACTORY_ROOT` integration rung against some other released checkout
+# reads that checkout exactly as it always did.
+# ---------------------------------------------------------------------------
+
+
+def _released(root: Path, relpath: str) -> Path:
+    """`relpath` inside the released checkout `root`, wherever the shed left it."""
+    target = root / relpath
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
+def _released_glob(root: Path, subdir: str, pattern: str) -> list[Path]:
+    """Every released file under `subdir` matching `pattern`, stayed or moved.
+
+    The on-disk listing answers for the members that stayed; the manifest
+    answers for the members that left. A member cannot be both, so the union is
+    the corpus — and it is still keyed by NAME, which is what every count pin
+    and name-set assertion in this file compares.
+    """
+    found: dict[str, Path] = {}
+    base = root / subdir
+    if base.is_dir():
+        for path in base.glob(pattern):
+            found[path.name] = path
+    for key, path in _shed_rows_under(subdir).items():
+        name = key.rsplit("/", 1)[-1]
+        if key == f"{subdir}/{name}" and fnmatch.fnmatch(name, pattern):
+            found[name] = path
+    return [found[name] for name in sorted(found)]
+
+
+def _shed_rows_under(subdir: str) -> dict[str, Path]:
+    """Every manifest row under `subdir`, mapped to where its file is today."""
+    return sources_under(subdir)
+
+
 def _packaged_positives(root: Path) -> list[Path]:
-    return sorted((root / "examples" / "ideation-dashboard")
-                  .glob("workbench-*.example.yaml"))
+    return _released_glob(root, "examples/ideation-dashboard",
+                          "workbench-*.example.yaml")
 
 
 def test_released_bytes_match_the_pinned_digests(released_root):
     for name, digest in contracts.SCHEMA_DIGESTS.items():
-        path = released_root / "contracts" / "schemas" / name
+        path = _released(released_root, f"contracts/schemas/{name}")
         assert _sha256_file(path) == digest, name
 
 
@@ -946,7 +1004,7 @@ def test_the_types_catalog_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
     reason `MAX_ROUTING_TARGETS` is and pinned the same way (contract-v2.2)."""
     from opendox.doxbench_model import MAX_CATALOG_ENTRIES
     schema = yaml.safe_load(
-        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        _released(released_root, f"contracts/schemas/{CATALOG_SCHEMA_FILE}")
         .read_text(encoding="utf-8"))
     assert schema["properties"]["models"]["maxItems"] == MAX_CATALOG_ENTRIES
 
@@ -1058,7 +1116,7 @@ def _assert_the_entry_count_cap_is_enforced(released_root):
     from opendox.doxbench_model import (
         CatalogEntryCountError, ModelCatalog, ModelCatalogEntry)
     schema = yaml.safe_load(
-        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        _released(released_root, f"contracts/schemas/{CATALOG_SCHEMA_FILE}")
         .read_text(encoding="utf-8"))
     cap = schema["properties"]["models"]["maxItems"]
     entries = tuple(
@@ -1074,7 +1132,7 @@ def _assert_the_entry_count_cap_is_enforced(released_root):
 
 def _model_entry_subschema(released_root):
     schema = yaml.safe_load(
-        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        _released(released_root, f"contracts/schemas/{CATALOG_SCHEMA_FILE}")
         .read_text(encoding="utf-8"))
     return schema["$defs"]["model_entry"]
 
@@ -1241,8 +1299,9 @@ def test_the_widened_family_is_the_only_one_the_file_declares(released_root):
 
     The v1 envelopes' own bytes are a separate question with a separate test,
     which is where the retirement of the byte guard belongs."""
-    schema = (released_root / "contracts" / "schemas"
-              / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
+    schema = _released(
+        released_root,
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}").read_text(encoding="utf-8")
     blocks = _defs_blocks(schema)
     for envelope in ("request_v2", "success_v2", "failure_v2"):
         assert envelope in blocks, envelope
@@ -1277,8 +1336,8 @@ def test_no_deprecation_record_outlives_the_envelopes_it_named(released_root):
     next family to be deprecated will declare one, and a reader deleted with its
     only current input is a reader somebody re-derives from scratch."""
     document = yaml.safe_load(
-        (released_root / "contracts" / "schemas"
-         / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8"))
+        _released(released_root, f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}")
+        .read_text(encoding="utf-8"))
     assert "deprecated_envelopes" not in document
 
 
@@ -1310,13 +1369,44 @@ def _type_gate_refuses(doc) -> bool:
     return False
 
 
+@functools.lru_cache(maxsize=None)
+def _composed_schemas_dir() -> Path:
+    """One directory holding every released schema, composed from the rows.
+
+    THE DELEGATED VALIDATOR IS ITSELF A MOVED ROW, and where it landed is not
+    where its schemas landed: the script is at the openXdox-CODE leg and derives
+    `SCHEMAS_DIR` from its own `__file__`, while the schemas it co-loads are
+    split across openXdox-SPEC, openDox-SPEC and the rows that stayed here. No
+    single checkout carries all of them at one path any more, so this composes
+    the directory the script expects — a symlink per schema, each resolved from
+    its OWN row — exactly as the serve entrypoint composes the dashboard's web
+    root from the manifest. Nothing is copied and nothing is written into the
+    tree; the farm is a scratch directory of links to the pinned bytes.
+
+    Composing this is the openxFactory half of § 4.3, standing in until the
+    legs' own composition point is built — the same posture
+    `carved_reach.bind_composition_point()` takes for the profile.
+    """
+    farm = Path(tempfile.mkdtemp(prefix="doxbench-released-schemas-"))
+    for key, resolved in sources_under("contracts/schemas").items():
+        name = key.rsplit("/", 1)[-1]
+        if key == f"contracts/schemas/{name}":
+            (farm / name).symlink_to(resolved)
+    # Schemas the carve surface never covered stay where they always were.
+    for path in (contracts.REPO_ROOT / "contracts" / "schemas").glob("*.yaml"):
+        if not (farm / path.name).exists():
+            (farm / path.name).symlink_to(path)
+    return farm
+
+
 def _file_gate_errors(root: Path, path: Path) -> list:
     import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "vidc_gate_parity", root / "scripts"
-        / "validate-ideation-dashboard-contracts.py")
+    validator = _released(root, "scripts/validate-ideation-dashboard-contracts.py")
+    spec = importlib.util.spec_from_file_location("vidc_gate_parity", validator)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    if validator != root / "scripts/validate-ideation-dashboard-contracts.py":
+        module.SCHEMAS_DIR = _composed_schemas_dir()
     registry, docs = module.build_registry()
     findings = module.Findings()
     module.validate_instance(findings, path.name, module.load_yaml(path),
@@ -1325,8 +1415,9 @@ def _file_gate_errors(root: Path, path: Path) -> list:
 
 
 def test_every_packaged_routing_negative_is_refused_by_BOTH_gates(released_root):
-    negatives = sorted((released_root / "examples" / "ideation-dashboard"
-                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    negatives = _released_glob(
+        released_root, "examples/ideation-dashboard/negative",
+        _ROUTING_NEGATIVE_GLOB)
     # The exact count IS the pin, so it advances with the corpus rather than
     # being loosened to an inequality. TEN at contract-v1.38: the five rules'
     # own negatives (badge-gap, dangling-target, chained, unavailable-resolution,
@@ -1364,8 +1455,9 @@ _EXPECTED_FINDING_CODE = {
 
 
 def test_each_routing_negative_is_refused_for_its_OWN_named_reason(released_root):
-    negatives = sorted((released_root / "examples" / "ideation-dashboard"
-                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    negatives = _released_glob(
+        released_root, "examples/ideation-dashboard/negative",
+        _ROUTING_NEGATIVE_GLOB)
     assert {p.name.replace(".negative.yaml", "") for p in negatives} == set(
         _EXPECTED_FINDING_CODE)
     for path in negatives:
@@ -1381,14 +1473,18 @@ def test_the_separator_collision_and_self_reference_name_their_real_cause(
     arms could be deleted and every other test would stay green, because the
     covering rule and the chained-rule rule respectively refuse the same
     catalogs under different names."""
-    base = released_root / "examples" / "ideation-dashboard" / "negative"
+    def base(stem: str) -> Path:
+        return _released(
+            released_root,
+            f"examples/ideation-dashboard/negative/{stem}.negative.yaml")
+
     separator = _file_gate_errors(
         released_root,
-        base / "workbench-model-catalog-routing-badge-holds-the-separator.negative.yaml")
+        base("workbench-model-catalog-routing-badge-holds-the-separator"))
     assert any("segment separator" in e for e in separator), separator
     self_ref = _file_gate_errors(
         released_root,
-        base / "workbench-model-catalog-routing-self-reference.negative.yaml")
+        base("workbench-model-catalog-routing-self-reference"))
     assert any("names ITSELF in routes_to" in e for e in self_ref), self_ref
 
 
@@ -1406,7 +1502,7 @@ _ROUTING_POSITIVES = (
 @pytest.mark.parametrize("filename", _ROUTING_POSITIVES)
 def test_the_packaged_routing_positives_are_accepted_by_BOTH_gates(
         released_root, filename):
-    path = released_root / "examples" / "ideation-dashboard" / filename
+    path = _released(released_root, f"examples/ideation-dashboard/{filename}")
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert contracts.validate_instance(doc, released_root) == []
     assert _file_gate_errors(released_root, path) == []
@@ -1417,8 +1513,9 @@ def test_every_packaged_routing_positive_is_covered_by_that_pin(released_root):
     """The table above is a list, so a positive added later could miss it. The
     corpus is the authority: every packaged `workbench-model-catalog-routing-*`
     positive must appear in `_ROUTING_POSITIVES`."""
-    on_disk = {p.name for p in (released_root / "examples" / "ideation-dashboard")
-               .glob("workbench-model-catalog-routing-*.example.yaml")}
+    on_disk = {p.name for p in _released_glob(
+        released_root, "examples/ideation-dashboard",
+        "workbench-model-catalog-routing-*.example.yaml")}
     assert on_disk == set(_ROUTING_POSITIVES)
 
 
@@ -1535,7 +1632,7 @@ def test_each_conditional_guards_a_case_THE_OTHER_ONE_DOES_NOT(released_root):
     refused by the `enum` underneath them. A conditional guard cannot stand in
     for the value constraint it sits on top of."""
     schema = yaml.safe_load(
-        (released_root / "contracts" / "schemas" / CHAT_TURN_SCHEMA_FILE)
+        _released(released_root, f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}")
         .read_text(encoding="utf-8"))
     definition = schema["$defs"]["context_packet"]
     # The two conditionals exist, and each names its own posture.
@@ -1646,9 +1743,9 @@ _POSTURE_NEGATIVE_GATES = {
 
 def test_every_packaged_posture_negative_is_covered_by_that_pin(released_root):
     """The table above is a list, so a negative added later could miss it."""
-    on_disk = {p.stem.replace(".negative", "") for p in
-               (released_root / "examples" / "ideation-dashboard" / "negative")
-               .glob(_POSTURE_NEGATIVE_GLOB)}
+    on_disk = {p.stem.replace(".negative", "") for p in _released_glob(
+        released_root, "examples/ideation-dashboard/negative",
+        _POSTURE_NEGATIVE_GLOB)}
     assert on_disk == set(_POSTURE_NEGATIVE_GATES)
 
 
@@ -1657,8 +1754,9 @@ def test_every_packaged_posture_negative_is_covered_by_that_pin(released_root):
     for stem, (shape, code) in _POSTURE_NEGATIVE_GATES.items()))
 def test_each_packaged_posture_negative_is_refused_where_it_should_be(
         released_root, stem, shape_refuses, code):
-    path = (released_root / "examples" / "ideation-dashboard" / "negative"
-            / f"{stem}.negative.yaml")
+    path = _released(
+        released_root,
+        f"examples/ideation-dashboard/negative/{stem}.negative.yaml")
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert bool(contracts.validate_instance(doc, released_root)) is shape_refuses, (
         f"{stem}: SHAPE expectation {shape_refuses!r}")

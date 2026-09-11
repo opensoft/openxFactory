@@ -382,6 +382,27 @@ def module(path: str | Path):
     return importlib.import_module(relative[:-3].replace("/", "."))
 
 
+def shed_relpath(path: str | Path) -> str | None:
+    """The REPOSITORY-RELATIVE path a moved row's file has in this checkout
+    today — or `None` when the row stayed, or there is no row.
+
+    `shed_destination()` without the leg. The one reader that needs this rather
+    than an absolute answer is a MARKER: `doxbench_contracts` decides whether a
+    directory is a release by asking whether three files are present in it, and
+    the question is asked about OTHER checkouts as well as this one, so what it
+    needs is the relative spelling. Deriving it must not require the leg to be
+    materialized — the marker is consulted at import time by lanes that
+    initialise no gitlinks at all — so this reads the row and stops, and the
+    caller's own `exists()` decides presence exactly as it always did.
+    """
+    key = str(path).replace("\\", "/")
+    row = _rows().get(key)
+    if row is None or row["disposition"] == "not_moved":
+        return None
+    mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
+    return (mount / row["destination_path"]).as_posix()
+
+
 def shed_destination(path: str | Path) -> Path | None:
     """Where an ABSOLUTE path INSIDE THIS REPOSITORY is today — or `None`.
 
