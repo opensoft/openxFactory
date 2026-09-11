@@ -76,6 +76,7 @@ import importlib
 import importlib.abc
 import importlib.machinery
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -522,16 +523,64 @@ def shed_destination(path: str | Path) -> Path | None:
     return source(key)
 
 
+#: Ambient environment that would let `git rev-parse <revision>:<path>` below
+#: resolve from a DIFFERENT object store than the one `repo` names — the same
+#: list `scripts/hermes_runtime_validation/content.py`'s exact-content helper
+#: scrubs. Duplicated rather than imported: every OTHER caller of that helper
+#: is loaded dotted (`scripts.hermes_runtime_validation....`), a context that
+#: guarantees the repository root is on `sys.path`; this module is loaded bare
+#: (`import carved_reach`) with only `scripts/` on `sys.path` at some call
+#: sites (`scripts/ideation-dashboard-serve.py`), where that dotted import
+#: would fail. Keep the two lists equal if either changes.
+_INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
+_SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_WORK_TREE",
+)
+
+
+def _sanitized_git_environment() -> dict[str, str]:
+    environment = {
+        name: value
+        for name, value in os.environ.items()
+        if name not in _SCRUBBED_GIT_ENVIRONMENT
+        and _INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None
+    }
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
+
+
 def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
     """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
     there. `None` is an ANSWER here, not a swallowed error: the one caller uses
     it to mean "that commit's tree carries no such entry", which is exactly the
     case of a commit from BEFORE the § 5.2 shed — where the file is still in
     this repository's own tree and the caller's ordinary read already found it.
+
+    Runs with `--no-replace-objects` and a sanitized environment (Copilot,
+    `PRRT_kwDOTAvnrs6hjE-c`): `<revision>:<path>` otherwise resolves through
+    ambient `GIT_DIR`/alternate-object-directory/replace-ref configuration,
+    which could make this read a leg commit the root commit does not actually
+    name.
     """
     try:
-        done = subprocess.run(["git", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
-                              capture_output=True, text=True, check=False)
+        done = subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
+            capture_output=True,
+            text=True,
+            check=False,
+            env=_sanitized_git_environment(),
+        )
     except OSError:  # pragma: no cover - no git on PATH is the caller's problem
         return None
     value = done.stdout.strip()
