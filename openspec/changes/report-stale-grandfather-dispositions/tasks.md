@@ -389,9 +389,9 @@ re-run's, not the first authoring's.
       so 23 − 1 + 18 = **40**, and `grep -c '^def test_'` returns 23 at
       `origin/main` `0805c3bb` and 40 here.
 - [x] 5.11 **THE WHOLE CODE SURFACE IS TWO FILES.** `git diff --stat
-      origin/main...HEAD -- scripts tests/doc-health` → *"2 files changed, 694
+      origin/main...HEAD -- scripts tests/doc-health` → *"2 files changed, 683
       insertions(+), 22 deletions(-)"*, and `--numstat` splits it exactly:
-      `scripts/doc_health/families.py` **145 added / 1 removed** (the one
+      `scripts/doc_health/families.py` **134 added / 1 removed** (the one
       removed line is the family's old one-line `return`; the rest is the
       passes' prose) and
       `tests/doc-health/test_grandfather_dispositions.py` **549 added / 21
