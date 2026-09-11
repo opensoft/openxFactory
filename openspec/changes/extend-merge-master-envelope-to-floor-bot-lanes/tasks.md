@@ -719,11 +719,14 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   multi-choice; recorded on openxFactory #745
   https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
   Option (e) of N-1 STANDS AS TAKEN: codexFactory
-  `relocate-review-authority-floor` (#293, artifact moved to
-  `floor/openxfactory-review-authority-floor.yaml`, landed at codexFactory
-  `d1f8bf1b`, 2026-09-09) and this repository's
-  `relocate-review-authority-floor-mirror` (#817 → `c98a0544`; archived by
-  #925 → `17a3b816`) are the ruling's named evidence. Ticked by PR #944.**
+  `relocate-review-authority-floor` (#293, ratified 2026-09-08; the move it
+  ratified was realized at codexFactory #297 → `8165d1f3`,
+  2026-09-09T04:28:48Z, moving the artifact to
+  `floor/openxfactory-review-authority-floor.yaml`) and this repository's
+  `relocate-review-authority-floor-mirror` (#817, ratified alongside #293;
+  realized in two steps, openxFactory #823 → `5c782f29` before the move and
+  #829 → `82c9f059` after it; archived by #925 → `17a3b816`) are the ruling's
+  named evidence. Ticked by PR #944.**
 - [x] 5.5 Give the realization word, separately, after 5.1 and 5.2. Ratification
   performs no realization: it ratifies the PROPOSAL, and every act in groups 2
   through 4 waits on its own word.
