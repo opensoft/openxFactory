@@ -351,6 +351,24 @@ _GRANDFATHERED_ACTION = (
     "and immutable, and removing its health/dispositions.yaml entry re-opens "
     "this finding at critical. Cite: ")
 
+#: THE AGGREGATION'S OWN REPOSITORY ID, for a finding whose subject is a file at
+#: the AGGREGATION ROOT rather than in any repository the run enumerates. This is
+#: the estate's EXISTING spelling and not a new one: `fam_submodule_pin_drift`
+#: and `fam_notebook_projection_drift` already report under it, and
+#: `ideation_routing` already resolves it as a known repository id.
+_AGGREGATION_REPO = "xFactory"
+
+#: The dispositions file, aggregation-relative — the one path
+#: `promotion_fidelity.load_dispositions` and `_grandfather_cites` read, spelled
+#: here once for the finding that names it as its subject.
+_DISPOSITIONS_REL = "health/dispositions.yaml"
+
+_STALE_RULE_PREFIX = "STALE grandfather disposition — "
+_STALE_ACTION = (
+    "prune the entry, or re-point it at the record that still carries the "
+    "defect: the grandfather it records reaches no finding this run raises, "
+    "so it disposes nothing and cannot be read back from the report. Cite: ")
+
 
 def _cite_excerpt(cite: str) -> str:
     """One bounded LINE of a recorded citation, for a ranked-plan row.
@@ -533,6 +551,84 @@ def _honour_grandfather_dispositions(ctx, findings):
             severity=INFO,
             rule=_GRANDFATHERED_RULE_PREFIX + finding.rule,
             action=_GRANDFATHERED_ACTION + _cite_excerpt(cite)))
+    return out
+
+
+def _stale_grandfather_dispositions(ctx, findings):
+    """Report a recorded disposition that no longer names a finding (#965).
+
+    THE CONVERSE OF THE PASS ABOVE, AND THE OTHER HALF OF ONE SET EQUALITY.
+    `_honour_grandfather_dispositions` reads the file and downgrades what it
+    MATCHES; nothing reads what it matched NOTHING. An entry naming a record
+    that has since been REPAIRED, or a path that has since VANISHED, draws no
+    finding, moves no severity and appears in no report — it simply stops
+    doing anything, silently, and the file keeps it for as long as nobody
+    re-reads it by hand. This pass is the report of that residue: the entries
+    this family honours, minus the findings this family raised.
+
+    THE DIFFERENCE IS TAKEN AFTER THE DOWNGRADE, WHICH IS SAFE BECAUSE OF WHAT
+    THE DOWNGRADE PRESERVES. The promoted scenario requires a grandfathered
+    finding to keep "its family, its repository and its path", so the key set
+    of `findings` is identical before and after the pass above and this
+    difference reads the same either way. Taking it AFTER is what makes the
+    two passes compose rather than race: the matched entries are exactly the
+    keys the downgrade reached, and this pass never has to re-derive them.
+
+    A REPOSITORY THIS RUN DID NOT ENUMERATE IS NOT EVIDENCE OF ANYTHING, and
+    that is the one narrowing here. An aggregation checkout with a submodule
+    unmaterialized reports nothing for that repository, so every entry naming
+    it would fall out of the difference and be reported STALE on the strength
+    of a repository nobody read. `ctx.repo_paths` is the set the run actually
+    enumerated (`corpus.discover_repos`), and an entry outside it is passed
+    over in silence rather than reported on a measurement that was never
+    taken.
+
+    THE SUBJECT IS THE ENTRY, SO THE FINDING IS REPORTED AGAINST THE FILE.
+    The record the entry names is fine — that is the whole point — so a row
+    against the record's path would name a document with nothing wrong with
+    it. The defect is a line in the AGGREGATION's `health/dispositions.yaml`,
+    and that is where the row lands, under the aggregation's own repository id,
+    the way `fam_submodule_pin_drift` already reports a fact about the
+    aggregation's own tree. The entry's target and the ruling it records are
+    carried in the rule and the action, so the row says which line to prune
+    without the reader opening the file.
+
+    `warning`, NOT `critical` AND NOT `info`. Canon's own severity vocabulary
+    calls `warning` "drift", and a disposition whose subject has been repaired
+    is exactly drift: true when it was written, no longer true, nobody's
+    governance broken. It reds no `--fail-on critical` or `--fail-on error`
+    gate, it is not a `critical`/`error` row so it never enters the regression
+    key set, and this family carries no `contested` class so it never enters
+    the uncited-resolution comparison either — which is deliberate, because a
+    `contested` stale-entry row would emit an ERROR the moment the owner did
+    the very thing it asked for.
+
+    A `--single-repo` RUN REPORTS NOTHING HERE, inherited exactly as the pass
+    above inherits it: `_grandfather_cites` returns `{}` where there is no
+    aggregation root, so the file that carries the entries is not in scope and
+    neither are the entries.
+    """
+    cites = _grandfather_cites(ctx)
+    if not cites:
+        return []
+    reported = {(f.repo, f.path) for f in findings}
+    in_scope = set(ctx.repo_paths)
+    out = []
+    for repo, path in sorted(cites):
+        if repo not in in_scope or (repo, path) in reported:
+            continue
+        # ONE LINE, AS THE PASS ABOVE COLLAPSES A CITE. `report.PLAN_RE` is
+        # anchored and read one line at a time, and `repo`/`path` here are
+        # whatever a hand-edited YAML string holds — `escape_field` quotes a
+        # `"` and a `\` and does not touch a newline, so the collapse is this
+        # row's own guard and not a tidiness.
+        target = " ".join(f"{repo} {path}".split())
+        out.append(Finding(
+            WARNING, "ratified-provenance", _AGGREGATION_REPO,
+            _DISPOSITIONS_REL,
+            f"{_STALE_RULE_PREFIX}the entry naming {target} matches no "
+            f"finding this family raises",
+            _STALE_ACTION + _cite_excerpt(cites[(repo, path)])))
     return out
 
 
@@ -852,6 +948,17 @@ def fam_ratified_provenance(ctx):
     quoted. It is a downgrade rather than a suppression on purpose — see that
     function — and it changes nothing about which documents this family opens
     or what it finds in them.
+
+    AND IT READS THE OTHER HALF OF THE SAME EQUALITY (#965).
+    `_stale_grandfather_dispositions` is the second last pass, taken after the
+    first: a recorded entry whose target draws no finding from this family —
+    the record REPAIRED, or the path VANISHED — matched nothing, moved nothing
+    and was reported nowhere, so the file kept it and no artifact a reader
+    reads ever said so. That residue is reported at `warning` against the
+    AGGREGATION's `health/dispositions.yaml`, the file the entry is a line of,
+    naming the entry's target and quoting the ruling it records. It reads no
+    document this family did not already open and grades no finding this
+    family already built.
     """
     findings = []
     for doc in _lifecycle_scope(ctx):
@@ -947,7 +1054,8 @@ def fam_ratified_provenance(ctx):
             "add Ratified by: <change> where an approving OpenSpec change "
             "exists, otherwise Ratified: naming an approver, a date, or a "
             "resolvable record path"))
-    return _honour_grandfather_dispositions(ctx, findings)
+    graded = _honour_grandfather_dispositions(ctx, findings)
+    return graded + _stale_grandfather_dispositions(ctx, graded)
 
 
 def fam_succession_integrity(ctx):
