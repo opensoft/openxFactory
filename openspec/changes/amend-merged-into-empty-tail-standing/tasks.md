@@ -346,7 +346,28 @@ comparison is a LITERAL diff rather than a normalized one.
       precede a further capture, `review/verification-2026-09-11-final.md`,
       which supersedes the post-merge capture's over-broad "every gate"
       sentence: it re-runs BOTH binaries in full on the later tree, not the
-      PATH binary alone.
+      PATH binary alone. **THIS PARAGRAPH IS HISTORICAL BEYOND THIS POINT**:
+      `review/verification-2026-09-11-final.md` was itself superseded (its
+      § 2a decomposition line was an arithmetic slip), and two further merges
+      and captures followed it, below.
+      **A SIXTH merge**, `a8235295` of main `34bb5c71` (PR #945's landing,
+      keeping both README rows), answered two Copilot threads opened on
+      `review/verification-2026-09-11-final.md` — its impossible "97 clean"
+      decomposition, and its measuring an earlier head than the one
+      submitted — with a further capture, `review/verification-2026-09-11-final-2.md`
+      (commit `3db8762c`), which re-runs both binaries in full on `a8235295`
+      with the decomposition shown correctly (branch = 2 dispositioned + 100
+      clean = 102 items; control = 2 dispositioned + 99 clean = 101 items)
+      and does not edit the superseded capture.
+      **A SEVENTH merge**, `596eb05f` of main `ac688c40` (PR #960's landing,
+      keeping both README rows), resolved a further CONFLICTING state; a
+      short addendum capture, `review/verification-2026-09-11-final-3.md`
+      (commit `ab415afd`), records the merge and re-verifies only the two
+      gates it touches (`validate-sequenced-after --ledger-diff`,
+      `validate-scope-globs`, both clean), since PR #960's diff touches
+      nothing the four gates in `-final-2` already certified read. **THE
+      CURRENT HEAD IS `ab415afd`; THE CURRENT EVIDENCE IS
+      `review/verification-2026-09-11-final-3.md`.**
 
 ## 5. Archive — OWED, NOT GIVEN
 
