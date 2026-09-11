@@ -1308,14 +1308,27 @@ def _render_markdown(index: dict):
     falling back to the ancestor walk to a sibling `openxFactory/`
     (aggregation-workspace layout). Returns the Markdown text, or None when the
     renderer is unreachable (the `.md` is then skipped; the yaml stays the
-    source of truth)."""
+    source of truth).
+
+    THE `Status:` HEADER IS NOT THE RESOLVED RENDERER'S TO DECIDE (#793). This
+    lookup can only ever reach whichever snapshot of that script is on disk —
+    a consuming repository pinned before `fc788825` (2026-08-28,
+    `declare-generated-projection-status`) still returns the superseded
+    `Status: record`, which is the disagreement #785 hit and hand-corrected. So
+    the delegate's output is stamped with `projection_header.STATUS_LINE`, the
+    one place the value is declared and the same constant the in-tree renderer
+    appends — the two cannot disagree whichever copy resolves. Imported
+    function-locally from `scripts/`, exactly as `make_boundary` imports
+    `output_boundary` from there, so `doc_health` still depends on no package."""
     import importlib.util
+
+    from projection_header import apply_status_line
 
     def _load(path):
         spec = importlib.util.spec_from_file_location("_xref_renderer", path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        return mod.render_markdown(index)
+        return apply_status_line(mod.render_markdown(index))
 
     env_root = os.environ.get("OPENXFACTORY_ROOT")
     if env_root:
