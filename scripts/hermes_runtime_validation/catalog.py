@@ -121,6 +121,20 @@ def _normalized_member_path(value: Any, context: str) -> str:
     return path
 
 
+def _shed_destination(candidate: Path) -> Path | None:
+    """`carved_reach.shed_destination()`, imported lazily and never required.
+
+    Lazily because this package is imported by lanes that run over checkouts
+    with no carve manifest at all (a domain mirror, a consumer's pinned copy);
+    `None` on ImportError keeps every one of those answering exactly as before.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:
+        return None
+    return shed_destination(candidate)
+
+
 def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
     parts = PurePosixPath(member_path).parts
     candidate = root.joinpath(*parts)
@@ -138,6 +152,19 @@ def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
     else:
         boundary = root
         escape_message = "member escapes the family root"
+    # THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`). Two of this
+    # family's members — the workbench model-catalog and chat-turn schemas —
+    # are `moved_verbatim` manifest rows: their bytes left for the openDox-spec
+    # leg this repository pins, and a member row that names the pre-shed path is
+    # a RETAINED CONSUMER of a moved file, which reads it from the leg. Nothing
+    # is transcribed here and nothing is restored into this tree: the row says
+    # where it went. `shed_destination()` answers `None` for every other root,
+    # so a candidate-mode run over a domain mirror still reports the mirror's
+    # own missing member as its own finding.
+    if not candidate.exists():
+        moved = _shed_destination(candidate)
+        if moved is not None:
+            candidate = moved
     try:
         resolved = candidate.resolve(strict=True)
     except OSError as exc:

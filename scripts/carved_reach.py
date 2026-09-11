@@ -75,6 +75,7 @@ import functools
 import importlib
 import importlib.abc
 import importlib.machinery
+import os
 import sys
 from pathlib import Path
 
@@ -379,6 +380,46 @@ def module(path: str | Path):
             f"{key} resolves to {relative}, which is not a Python module — "
             f"ask `source()` for it instead.")
     return importlib.import_module(relative[:-3].replace("/", "."))
+
+
+def shed_destination(path: str | Path) -> Path | None:
+    """Where an ABSOLUTE path INSIDE THIS REPOSITORY is today — or `None`.
+
+    `source()` in the direction the readers that take a ROOT need it. The
+    hermes-runtime catalog and release sources, the estate-wide manifest-digest
+    sweep and the doc-health schema loader do not name a module: they join a
+    path onto a root they were handed and read whatever is there. Post-shed
+    five of those joins name a file that MOVED (`contracts/schemas/
+    {ideation-dashboard-snapshot,ideation-dashboard-snapshot-index,gate-action-
+    record,xfactory-workbench-chat-turn,xfactory-workbench-model-catalog}
+    .schema.yaml`), and every one of the five arrived at its destination BYTE
+    FOR BYTE — measured 2026-09-11, each leg copy's sha256 equal to the digest
+    `contracts/manifest.yaml` already records. So the published contract surface
+    does not move at all: the bytes this repository pins are the bytes it always
+    pinned, at the path the pinned leg now holds them, and this function is the
+    one place that says so.
+
+    It answers `None` — and the caller's own answer stands — for:
+
+      * a root that is NOT this repository (`hermes_runtime_validation` runs in
+        candidate mode over domain mirrors, and a mirror's own missing file is
+        its own finding, never a silent read out of openxFactory's legs);
+      * a path in no manifest row, or one still under this tree;
+      * a `not_moved` row.
+
+    It RAISES `CarveReachUnavailable` — it does not answer `None` — when the row
+    moved and its leg is not materialized, for the reason the module docstring
+    gives: a reader that quietly found nothing reports as a green bar.
+    """
+    candidate = Path(os.path.normpath(str(path)))
+    try:
+        key = candidate.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return None
+    row = _rows().get(key)
+    if row is None or row["disposition"] == "not_moved":
+        return None
+    return source(key)
 
 
 def sources_under(prefix: str) -> dict[str, Path]:

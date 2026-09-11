@@ -110,6 +110,30 @@ RELEASE_SURFACE_PATHS = (
 )
 
 
+
+def _shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`). Three release
+    members of this repository's own registration — `gate-action-record`,
+    `xfactory-workbench-chat-turn` and `xfactory-workbench-model-catalog` — are
+    `moved_verbatim` manifest rows, and every byte of them arrived unchanged, so
+    the digest this source computes is the digest it has always computed. The
+    containment check below is unaffected: a pinned leg is mounted INSIDE this
+    repository, so a resolved destination is still under `self.root`.
+
+    Answers `target` unchanged for any other repository, any path in no row, and
+    any `not_moved` row — so a candidate-mode release run over a domain mirror
+    is untouched.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
 class ReleaseDependencyError(RuntimeError):
     """An unavailable or unsafe release dependency (CLI exit code 2)."""
 
@@ -399,7 +423,7 @@ class _WorkingTreeSource:
         return yaml.safe_load(text)
 
     def exists(self, path: str) -> bool:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         return target.is_file() and not target.is_symlink()
 
     def list_python(self, package: str) -> list[str]:
@@ -426,7 +450,7 @@ class _WorkingTreeSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         # Defense in depth beneath the membership guard: a normalized path
         # outside the repository root is refused here too, so no caller of
         # this source can ever digest bytes from beyond the tree.
