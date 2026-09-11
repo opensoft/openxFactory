@@ -2436,6 +2436,67 @@ def test_an_empty_admissions_file_refuses_rather_than_reads_as_absent(
     assert "NoneType" in json.loads(done.stdout)["detail"]
 
 
+def test_an_admissions_file_with_a_duplicate_destination_key_refuses(
+        carve: Carve) -> None:
+    """`yaml.safe_load` applies last-duplicate-key-wins SILENTLY (Copilot
+    review, PR #979): a `destinations:` block naming `scratch_code` twice
+    would show a reviewer reading the diff the FIRST block (`created: []`,
+    nothing admitted) while the plain loader would resolve the document to
+    the SECOND (a real admission) — the same show-one-admit-another defect
+    the admissions file exists to prevent, now inside the admission
+    document itself. Written as raw text, not through `write_admissions`'s
+    dict helper: a Python `dict` cannot itself hold a duplicate key, so only
+    a hand-written document can produce the YAML this reader must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created: []\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/sneaky.py\n"
+        f"        reason: shown-one-admitted-another\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "duplicate" in detail
+    assert "scratch_code" in detail
+
+
+def test_an_admissions_entry_with_a_duplicate_field_key_refuses(
+        carve: Carve) -> None:
+    """The same last-duplicate-key-wins silence (Copilot review, PR #979),
+    one level down: a `created[]` entry repeating `reason:` would show a
+    reviewer the FIRST reason while the plain loader admits the file on the
+    SECOND, unread. Raw text for the same reason as the sibling test above —
+    a Python `dict` cannot hold the duplicate key this must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/created.py\n"
+        "        reason: the reviewed reason\n"
+        f"        reason: a second, unreviewed reason\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "duplicate" in json.loads(done.stdout)["detail"]
+
+
 def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
     ) -> None:
     """The measured defect this slice repairs (RULED — the arrival-admission
