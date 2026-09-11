@@ -530,6 +530,30 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [decide-disposition-reading-per-family](openspec/changes/decide-disposition-reading-per-family/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: draft`**, on Brett Heap's commissioning word of 2026-09-11 ~18:20Z
+  (verbatim *"usage reset, resume all. read handoff and resume and fan out wide
+  and do as much as possible in parallel"*), which COMMISSIONS THE AUTHORING and
+  ratifies nothing. Carries § 7.2 of the archived
+  `honour-grandfather-dispositions-in-ratified-provenance` and openxFactory
+  [#966](https://github.com/opensoft/openxFactory/issues/966): what the
+  aggregation's `health/dispositions.yaml` MEANS for the **31 entries** — measured
+  at `opensoft/xFactory` `0ecb370e`, blob `9458d6c2` — belonging to the EIGHT
+  families the parent did not take. **THE MEASUREMENT MOVED THE ANSWER**: not one
+  of the thirty-one names a path under `openspec/changes/archive/`, so the
+  parent's immutability ground is absent; 30 of them are read only by
+  `report.uncited_resolutions`; the 31st (`uncited-resolution`'s own) can never be
+  looked up; and a control run with the file emptied moves ZERO rows. The eight
+  families are grouped into FOUR CLASSES so the ruling is taken four times, each
+  put as a multiple-choice question with the recommendation first, and the
+  recommendation is NO family-side reading anywhere. One `## MODIFIED` block over
+  *Finding severity and regression handling*; `code_surface: none`;
+  `sequenced_after: []`. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
+  scopes what a veto would commission and every box is open. **FILING ≠
+  RATIFYING** — ratification and archive are two separate acts on Brett Heap's
+  word; neither has been given, and #966 closes at the ARCHIVE.
+
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: draft`**, on Brett Heap's SELECTION ***"Accept the finding; file a

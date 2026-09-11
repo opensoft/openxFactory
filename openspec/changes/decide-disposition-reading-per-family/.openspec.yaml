@@ -1,0 +1,91 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-decide-disposition-reading-per-family
+  reason: >-
+    THIRTY-ONE ENTRIES IN THE AGGREGATION'S `health/dispositions.yaml` BELONG TO
+    EIGHT FAMILIES THAT WERE NEVER TOLD WHAT AN ENTRY OF THEIRS MEANS.
+    `honour-grandfather-dispositions-in-ratified-provenance` (#939, archived
+    2026-09-11) answered the question for the ninth family — `ratified-provenance`
+    — and its own `design.md` D6 and `tasks.md` § 7.2 named this as a separate
+    question about a different subject, filing openxFactory #966 for it.
+    THE MEASUREMENT WAS TAKEN BEFORE THE DESIGN, over the REAL aggregation file
+    at `opensoft/xFactory` `main` `0ecb370e8fec2c1ac78498adf8f6a4ea3ca1c9bb`
+    (blob `9458d6c2794f0c0a937a82f7f58b802ab4b4027b`, 49 entries) against an
+    aggregation-shaped checkout carrying `openxFactory` `8015d45f`,
+    `codexFactory` `dc67ad82`, `OpsxFactory` `7368cb49` and `MedxFactory`
+    `9f125a6a`, and it moved the answer. NOT ONE of the thirty-one names a path
+    under `openspec/changes/archive/`, so the parent's ground — an IMMUTABLE
+    record with no repair available to anyone — is absent from this whole
+    population and its downgrade-to-`info` reading has nothing here to apply to.
+    THIRTY of the thirty-one are read today by exactly one arm,
+    `report.uncited_resolutions`, which keys on `(family, repo, path)` for every
+    family and silences the `uncited resolution` error when a contested finding
+    stops being reported. The THIRTY-FIRST is a dead letter: `parse_previous`
+    never admits an `uncited-resolution` row to the contested set (the anti-echo
+    of issue #515), so that entry's key can never reach the lookup. And a CONTROL
+    RUN with the file replaced by `[]` reports byte-identical row sets for all
+    five deterministic families that hold entries, so the thirty-one move nothing
+    a reader sees.
+    THE REMEDY IS THEREFORE A BOUNDARY WRITTEN INTO CANON AND NOT AN ARM. Four of
+    the entries already reason about the mechanism correctly in their own
+    `rationale` field — "nothing is suppressed by this entry", "the CRITICAL is
+    NOT suppressible and is reported live either way", "only the spurious
+    uncited-resolution ERROR is disposed here" — which is a lane deriving from
+    the code what the contract does not state, in a different repository. The
+    `## MODIFIED` block states it where severity, resolution class and the
+    contested-resolution rule already live.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-11 (30 topic folders) and
+    `INDEX.md` read: no topic names doc-health severity policy, the disposition
+    mechanism, or what an entry means for a family that reads nothing. The one
+    adjacent-sounding folder, `proposal-origin-contract`, carries no mention of a
+    disposition at all. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is openxFactory issue #966, filed by this lane
+    at the parent's archive.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), session `c44b04`, on Brett
+    Heap's word of 2026-09-11 at approximately 18:20Z, verbatim **"usage reset,
+    resume all. read handoff and resume and fan out wide and do as much as
+    possible in parallel"**.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. That word COMMISSIONS THE
+    AUTHORING and ratifies no wording: it admits no text here to canon, takes
+    none of the four decisions this packet carries, and is not read as an
+    approval of any of them. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in this packet carries
+    `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
+    a fixed `kind` and `id`. Ratification, promotion and archive are three later
+    acts on later words.
+    THE DECISIONS ARE FOUR AND EVERY ONE IS PUT AS A MULTIPLE-CHOICE QUESTION
+    WITH THE RECOMMENDATION FIRST, in `design.md` D1 and on the pull request —
+    one per CLASS of family rather than one per family, so the ruling is taken
+    four times and not eight. Class A (`modified-block-currency`, 4 entries):
+    RECOMMEND no change, canon's own *A finding is dispositioned* already rules
+    it. Class B (`location-conformance` + `document-catalog`, 11 entries):
+    RECOMMEND deliberately ignore — the entries are disappearance citations and a
+    reading arm would have a population of zero. Class C (`proposal-origin`,
+    `record-immutability`, `semantic-contradiction`, `semantic-normative-prose`,
+    15 entries): RECOMMEND deliberately ignore — the findings are LIVE and
+    REPAIRABLE, ten of them are reported today, none is archived, and four of the
+    entries record in terms that the row was meant to stay visible. Class D
+    (`uncited-resolution`, 1 entry): RECOMMEND record that it is inert and leave
+    it. Beside them `design.md` D3 puts the packet's own shape — decision only,
+    `code_surface: none` — with its trade-off written out.
+    NO ARM IS BUILT AHEAD OF THE WORD. `tasks.md` § 4 scopes what each veto would
+    commission and every box in it is open.
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS FILING. This pull request
+    edits no file under `openspec/specs/`; `code_surface` is `none`, so under
+    `release-realization` the archive is a separate act on a separate word and
+    openxFactory #966 closes there and not at this landing.
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:issue:966                                                     # THE ORIGIN. Filed by this lane at the parent's archive, carrying its § 7.2. Closes at the ARCHIVE, never at this landing
+  - openxFactory:change:archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance  # THE PARENT. Settled `ratified-provenance`'s 18 entries; its D6 and § 7.2 filed this question; its D1/D2 are the reading this packet measures against and departs from
+  - openxFactory:issue:939                                                     # The parent's origin. Named here because this packet's scenario must not move anything that one settled
+  - openxFactory:issue:965                                                     # The STALE-ENTRY sibling (the parent's § 7.1). D5 hands it a re-measured population: 11 of the 31 name a vanished path, 7 more a present path drawing no finding
+  - openxFactory:issue:967                                                     # The `docs/doc-health.md` documentation sweep (the parent's § 7.3). This packet edits that file not at all and says why
+  - openxFactory:issue:968                                                     # The `--single-repo` asymmetry (the parent's § 7.4). D4 leaves it there and writes the added scenario so it says nothing about scope
+  - openxFactory:change:archive/2026-08-24-add-promotion-fidelity-check        # ARCHIVED. Wrote `promotion_fidelity.load_dispositions`, the estate's one reader of the file, and the first *A finding is dispositioned* scenario — one of the three SUPPRESSING declarations this packet counts
+  - openxFactory:change:archive/2026-09-09-govern-archived-record-edits        # ARCHIVED. With `record-immutability` it is the ground the parent's downgrade rests on — and the ground D0.2 measures ABSENT from all thirty-one entries

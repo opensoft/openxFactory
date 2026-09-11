@@ -1,0 +1,324 @@
+# Design: decide-disposition-reading-per-family
+
+Status: draft
+Kind: design
+
+**EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVES AND
+EACH ALTERNATIVE'S COST.** Brett Heap's word of 2026-09-11 — verbatim **"usage
+reset, resume all. read handoff and resume and fan out wide and do as much as
+possible in parallel"** — commissioned the authoring and took none of them.
+
+**D1 IS FOUR MULTIPLE-CHOICE QUESTIONS, ONE PER CLASS, AND EVERY ONE IS OPEN.**
+The eight families are grouped into four classes by the SHAPE of their finding
+and of their entry, so the decision is taken four times rather than eight. The
+recommendation is stated first in each. **NO ARM IS BUILT AHEAD OF THE WORD**:
+`tasks.md` § 4 scopes what each veto would commission and leaves every box open.
+
+## 0. The brief
+
+openxFactory [#966](https://github.com/opensoft/openxFactory/issues/966),
+carrying § 7.2 of the ratified `tasks.md` of
+`honour-grandfather-dispositions-in-ratified-provenance` (#939, archived
+2026-09-11). That packet taught ONE family — `ratified-provenance` — to read a
+dated, cited entry in the aggregation's `health/dispositions.yaml` and report a
+matching ARCHIVED finding at `info` with its citation quoted. Every other
+family's entries in that same file were untouched by it, deliberately (its
+`design.md` D6), and what they mean is undecided.
+
+## D0 — the measurement, taken before the design
+
+**NOTHING BELOW RESTS ON A NUMBER ANYBODY TYPED, AND NO FIGURE IS CARRIED FROM
+THE ISSUE.** The issue's 49/18/31 table was taken at `opensoft/xFactory`
+`ecb0cade`; every figure here is re-measured at the shas named below.
+
+**THE FILE.** `opensoft/xFactory` `main`
+`0ecb370e8fec2c1ac78498adf8f6a4ea3ca1c9bb`, `health/dispositions.yaml`, blob
+`9458d6c2794f0c0a937a82f7f58b802ab4b4027b`, sha256
+`4d9034e34f4189ddf1d08c9a9cffbe467747357ac28cfdc3906701d9577a1c60`, 1701 lines,
+**49 entries**, root a list. **18** carry `family: ratified-provenance` — the
+population the parent packet settled — and the other **31** belong to eight
+families.
+
+**THE RIG.** An aggregation-shaped checkout: `openxFactory`
+`8015d45fdf68b7bf60abb79dd152585d1a4330fd` (this branch's base),
+`codexFactory` `dc67ad82cf4dd522e6fe033b1e56424bb1086630` under
+`xFactories/`, `OpsxFactory` `7368cb49830cb332f9afce33c404671c6b92f8bb`,
+`MedxFactory` `9f125a6ae2f12669e10822dd1123f824aedcae36`, and the real
+dispositions file above at `health/`. Each family run as
+`python3 scripts/doc-health.py --repo-root <rig> --family <f>`, exit 0 in every
+case. Those four repositories are the only ones the thirty-one entries name.
+
+### D0.1 — the population, per family
+
+| entries | family | rows the rig reports for that family | canon declares a reading? |
+| ---: | --- | ---: | --- |
+| 10 | `location-conformance` | 7 | no |
+| 8 | `proposal-origin` | 130 | no |
+| 5 | `record-immutability` | 16 | no |
+| 4 | `modified-block-currency` | 48 | **YES** — *A finding is dispositioned*, `openspec/specs/doc-health/spec.md` line 2177 |
+| 1 | `document-catalog` | 1 | no |
+| 1 | `semantic-contradiction` | — (LLM sweep; no deterministic run emits it) | no |
+| 1 | `semantic-normative-prose` | — (LLM sweep; no deterministic run emits it) | no |
+| 1 | `uncited-resolution` | — (emitted by `report.uncited_resolutions`, not by a family module) | no |
+| **31** | **eight families** | | |
+
+Canon declares a disposition reading for exactly **four** families and names
+them in their own requirements: `promotion-fidelity` (spec line 1174),
+`duplicate-packet` (1289), `modified-block-currency` (2177) — three scenarios
+all titled *A finding is dispositioned*, all three SUPPRESSING — and
+`ratified-provenance` (938), *A finding is grandfathered by a recorded
+disposition*, the parent's DOWNGRADE. A fifth scenario, at *A
+modified-block-currency finding its own class map cannot place is itself a
+finding* (2602), reads a disposition as suppressing for that same family.
+**OF THE EIGHT FAMILIES HOLDING ENTRIES, EXACTLY ONE IS AMONG THE FOUR.**
+
+### D0.2 — does each entry's `(repo, path)` draw a finding of its family today?
+
+Thirty-one entries, one row each, collapsed by outcome:
+
+| outcome | entries | which |
+| ---: | --- | --- |
+| **matched** — the path draws a live finding of that family | **10** | `proposal-origin` 7 (5 `warning`, 2 `error`), `record-immutability` 3 (all `critical`) |
+| **unmatched**, target present — the path exists and draws no finding of that family | **7** | `location-conformance` 3, `modified-block-currency` 2, `record-immutability` 2 |
+| **target vanished** — the path does not exist in the repository named | **11** | `location-conformance` 7, `modified-block-currency` 2, `proposal-origin` 1, `document-catalog` 1 |
+| **not deterministically measurable** — no deterministic run emits this family | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1, `uncited-resolution` 1 (all three targets present) |
+
+**NOT ONE OF THE THIRTY-ONE NAMES A PATH UNDER `openspec/changes/archive/`.**
+A set test over the thirty-one, not a count: zero. The parent's ground —
+`record-immutability` and `govern-archived-record-edits` put an archived
+packet's bytes beyond a plain fix, so the owner rules because the owner cannot
+edit — **does not reach this population at all**.
+
+### D0.3 — the control: what would change if the file were empty?
+
+The real file was replaced by `[]` and every deterministic family that holds
+entries re-run at the same rig:
+
+| family | plan rows, real file | plan rows, `[]` | `diff` of the row sets |
+| --- | ---: | ---: | --- |
+| `location-conformance` | 7 | 7 | empty |
+| `proposal-origin` | 130 | 130 | empty |
+| `record-immutability` | 16 | 16 | empty |
+| `modified-block-currency` | 48 | 48 | empty |
+| `document-catalog` | 1 | 1 | empty |
+
+**THIRTY-ONE ENTRIES, ZERO ROWS MOVED.** `modified-block-currency` — the one of
+the eight whose module DOES read the file under its own name, through
+`promotion_fidelity.load_dispositions(ctx, FAMILY)` — suppresses nothing today
+either, because its four entries match no finding it currently raises. The file
+was restored to its measured sha256 after the control.
+
+### D0.4 — the one arm that does read all of them, and the one entry it cannot
+
+`report.uncited_resolutions` keys on `(family, repo, path)` for EVERY family,
+so an entry of ANY family silences the `uncited resolution` error that would
+otherwise be raised when its CONTESTED finding stops being reported. Measured
+by building a synthetic previous report carrying one `class="contested"` ranked-plan
+row per entry and running `report.parse_previous` and
+`report.uncited_resolutions` over it:
+
+- 31 rows written; **30 admitted** to the contested set.
+- `uncited_resolutions` with an EMPTY disposition set: **30** findings.
+- `uncited_resolutions` with the real file: **0** findings.
+- The ONE row refused admission is the `uncited-resolution` entry itself:
+  `parse_previous` never admits an `uncited-resolution` row to `contested`
+  (`report.UNCITED_RESOLUTION_FAMILY`, the anti-echo of issue #515), so that
+  key can never reach the lookup. **It disposes nothing, now or ever.**
+
+### D0.5 — what the entries say about themselves
+
+Four of the thirty-one state their own effect in their `rationale`, correctly,
+in prose, in another repository, because canon does not state it:
+
+> nothing is suppressed by this entry. Its purpose is the permanent audit trail
+> of the 2026-09-11T11:02Z ruling, and to pre-empt a future uncited-resolution
+> ERROR if the finding ever stops being reported — `proposal-origin` ×8
+
+> the CRITICAL is NOT suppressible and is reported live either way (measured — a
+> run with this entry present is byte-identical to a run without it)
+> — `record-immutability`, `openxFactory docs/archive-record-discrepancies.md`
+
+> The finding remains visible as a warning; only the spurious uncited-resolution
+> ERROR is disposed here. — `semantic-contradiction`
+
+**THE WRITERS' RECORDED INTENT IS THAT THE STANDING ROW STAYS.** That is
+evidence about what the mechanism is FOR, and it is why the recommendation below
+is not the parent's.
+
+## D1 — THE DECISION: four classes, four questions, recommendation first
+
+### Class A — ALREADY RULED BY CANON: `modified-block-currency` (4 entries)
+
+Canon's *A finding is dispositioned* (spec line 2177) already tells this family
+what an entry means: *findings on that path MUST be suppressed, or only the
+named requirement's findings where the entry carries a `requirement` key*.
+Measured: all four entries suppress nothing today (D0.3), two targets have
+vanished and two are present but draw no finding of this family.
+
+**RECOMMENDED — (A1) NO CHANGE.** The question was answered when the family's
+requirement was promoted; re-deciding it here would be a second rule about the
+same entries, and two readers of one file that can disagree is the drift this
+estate has written about repeatedly.
+
+- **(A2) Narrow it** — restate the reading as `info`-with-citation to match the
+  parent. Cost: a `## MODIFIED` over a promoted scenario, a code change in
+  `modified_block_currency.py`, and a family whose contract now disagrees with
+  its two suppressing neighbours for no measured reason — the population it
+  would change is ZERO.
+- **(A3) Widen it** — admit archived delta paths as well as active ones. Cost:
+  the same distinction D2 of the parent refused, in the family where an active
+  delta is one commit from correct.
+
+### Class B — DISAPPEARANCE CITATIONS: `location-conformance` (10), `document-catalog` (1) — 11 entries
+
+Every one of these was written because a contested finding DISAPPEARED for a
+cited reason: a change workspace archived, a promotion that moved the document,
+a detector repair (PR #505), a lifecycle reclassification. Measured: 8 of the 11
+targets no longer exist in the repository at all; the other 3 exist and draw no
+finding of their family. The entry is doing the file's ORIGINAL job — it is the
+citation the contested-resolution rule asks for — and it is doing it today.
+
+**RECOMMENDED — (B1) DELIBERATELY IGNORE: no family-side reading; the entry
+stays a resolution citation and nothing else.** The finding is already gone; a
+downgrade arm would have a population of ZERO and a suppression arm would have
+nothing to suppress. The entry is not a governance record ABOUT a standing
+defect, it is the record of why a defect stopped being reported.
+
+- **(B2) Read and downgrade** (the parent's reading). Cost: an arm in two family
+  modules, its tests, and a `## MODIFIED` over two promoted requirements, for a
+  set of findings that do not exist. The first entry that ever matched would be
+  one where the finding came BACK — and downgrading it to `info` would hide a
+  regression behind a citation written for its disappearance.
+- **(B3) Read and suppress** (the three siblings' reading). Cost: the same arm,
+  plus the standing risk that a re-appearing finding is silenced by an entry
+  written about a different event. `location-conformance` is CONTESTED and its
+  findings are repairable: suppression here buys nothing and can hide a defect.
+
+### Class C — AUDIT TRAIL BESIDE A STANDING, REPAIRABLE FINDING: `proposal-origin` (8), `record-immutability` (5), `semantic-contradiction` (1), `semantic-normative-prose` (1) — 15 entries
+
+Measured: **10 of the 15 draw a live finding today** — 7 `proposal-origin` (5
+`warning`, 2 `error`) and 3 `record-immutability` (all `critical`). Two more
+name a present target that draws nothing, one names a vanished target, and the
+two semantic entries name findings only the LLM sweep emits. **None names an
+archived path**, so the parent's ground is absent: every one of these subjects
+is repairable by somebody, and four of the entries say in their own `rationale`
+that nothing is suppressed and the row stays visible.
+
+**RECOMMENDED — (C1) DELIBERATELY IGNORE: no family-side reading; the entry is a
+governance record and the finding keeps its band.** This is the decision the
+entries were written under, it is what the nightly does today, and it keeps the
+one distinction the parent's D2 bought at the cost of an `and` in a predicate:
+a ruling is recorded on something nobody can repair, and a deferral is recorded
+on something nobody has repaired yet. An arm here would turn every one of these
+fifteen into the second.
+
+- **(C2) Read and downgrade to `info` with the citation** (the parent's
+  reading). Cost: an arm reaching four family modules and the semantic lane,
+  tests, and a `## MODIFIED` over each family's requirement. It would move **10
+  measured rows** — including three `critical` record-immutability rows — and it
+  would extend a remedy built for immutable records to records somebody can
+  edit this afternoon. A reader who then repairs the document gets no signal
+  that the entry is now stale (`#965`'s subject, at ten times the population).
+- **(C3) Read and suppress** (the three siblings' reading). Cost: the same arm,
+  and the ten rows vanish from the report entirely. Two of the entries state in
+  terms that their authors did NOT intend this; adopting it would silence
+  findings their own disposers expected to stay visible, and would make the
+  count of dispositioned-but-live defects unreadable from the artifact.
+
+### Class D — THE DEAD LETTER: `uncited-resolution` (1 entry)
+
+`openxFactory :: openspec/specs/shared-contract-ownership/spec.md`, recorded
+2026-08-14. Measured (D0.4): `report.parse_previous` never admits an
+`uncited-resolution` row to the contested set, so this key can never be looked
+up by the only arm that reads the file, and no family module reads it either.
+**It disposes nothing and can never dispose anything.**
+
+**RECOMMENDED — (D1a) RECORD THAT IT IS INERT AND LEAVE IT.** It costs a reader
+nothing, it is the governance record of the 2026-08-13/14 triage, and retiring
+an entry is an act in `opensoft/xFactory`, not here.
+
+- **(D1b) Teach the arm to read its own family's entries.** Cost: it re-opens
+  exactly the infinite echo issue #515 closed. Refused on that ground unless
+  Brett rules otherwise.
+- **(D1c) Retire the entry in the aggregation.** Cost: a pull request in another
+  repository and a judgement about a 2026-08-14 triage nobody here witnessed;
+  it belongs with the stale-entry successor
+  [#965](https://github.com/opensoft/openxFactory/issues/965), which is where
+  every question of this shape is being gathered.
+
+### The class the brief anticipated and the measurement emptied
+
+The commissioning brief and the issue both anticipated a class of families whose
+findings are about ARCHIVED records frozen by `record-immutability` /
+`govern-archived-record-edits`, for which the parent's downgrade-with-citation
+reading would apply unchanged. **THAT CLASS HAS NO MEMBERS**: zero of the
+thirty-one entries names a path under `openspec/changes/archive/` (D0.2). It is
+recorded here rather than quietly dropped, because the next lane to read the
+issue will look for it.
+
+## D2 — the arm the recommended rows imply: NONE, and the seam is named anyway
+
+**UNDER THE FOUR RECOMMENDATIONS NO ARM IS OWED**, which is why `code_surface`
+is `none`. Should a class be VETOED toward (B2)/(B3)/(C2)/(C3), the seam is
+already cut and `tasks.md` § 4 scopes it without building it: the parent wired
+`ratified-provenance` as a LAST PASS over the family's returned findings
+(`families.fam_ratified_provenance` returns
+`_honour_grandfather_dispositions(ctx, findings)`), delegating the admission
+rule to `promotion_fidelity.load_dispositions(ctx, <family>)` — the estate's one
+reader — and supplying only the citation text that reader does not return. A
+vetoed class would take the same shape ONE LEVEL UP: one shared helper, called
+by each opting-in family with its own family name, so a second admission rule is
+never written. Per-family opt-in is the whole point — an entry naming one family
+has never disposed another's findings, and one reader is how that stays true.
+
+## D3 — RECOMMENDED: this packet ratifies the DECISION ONLY, `code_surface: none`
+
+**RECOMMENDED: the decision is the deliverable; any arm a veto commissions is a
+per-family successor with its own packet.**
+
+Under the four recommendations there is no arm at all, so the choice is only
+about what a VETO would do. Carrying a non-empty `code_surface` speculatively
+would mean declaring a realization surface for work nobody has commissioned, and
+under `release-realization` it would hold the archive on merged-plus-green
+evidence for a diff of pure governance text.
+
+- **The alternative** — declare `scripts/doc_health/` + `tests/doc-health/` now
+  and add at least a regression test pinning "an entry of an unreading family
+  moves nothing". Cost: it builds the first inch of an arm ahead of the word,
+  and the control run in D0.3 already proves the property at the rig, on demand,
+  with no test to maintain. **The trade-off, stated plainly:** the recommended
+  route leaves the boundary unpinned by any test, so a future refactor could
+  break it silently; the alternative pins it but commissions code the ruling has
+  not asked for. The recommendation takes the first and names the test as owed
+  residue in `tasks.md` § 7, where a successor can pick it up under its own word.
+- **If Brett vetoes a class toward an arm**, `code_surface` changes AT THAT
+  RULING to name the modules and tests § 4 scopes, and the archive moves to
+  merged-plus-green for that reason. That is an addition beside a fixed `kind`
+  and `id`, exactly as `add-drafted-proposal-origin` (#318) defined.
+
+## D4 — the `--single-repo` asymmetry is NOT taken here
+
+`health/dispositions.yaml` lives at the AGGREGATION root and a `--single-repo`
+run has `Context.agg_root is None`, so no disposition of any family applies in
+that scope — this repository's own gate reports every one of these findings at
+its own severity, and will continue to whatever Brett rules above. Whether a run
+whose job is to report THIS repository's defects should consult another
+repository's disposition file at all is
+[#968](https://github.com/opensoft/openxFactory/issues/968), filed by the
+parent's § 7.4, and it is left there rather than answered by a packet about a
+different question. The added scenario is written so that it says nothing about
+scope: it constrains what an entry MEANS, not where the file is found.
+
+## D5 — the LIMIT of this packet, stated so no reader has to infer it
+
+- **`ratified-provenance`'s eighteen entries are settled by the parent and are
+  not re-opened.** This packet's scenario applies only where this capability
+  declares no reading, and for that family it now declares one.
+- **STALE ENTRIES ARE NOT THIS PACKET'S SUBJECT.**
+  [#965](https://github.com/opensoft/openxFactory/issues/965) is the
+  stale-disposition successor, filed by the parent's § 7.1 for the
+  `ratified-provenance` population. The measurement here shows that population
+  is far larger outside it — **eleven of the thirty-one name a path that no
+  longer exists**, and seven more name a present path that draws no finding —
+  and that figure is recorded here for #965 to carry rather than acted on. No
+  finding class is graded and no severity is chosen by this packet.
