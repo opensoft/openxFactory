@@ -2331,6 +2331,26 @@ def test_an_absent_admissions_file_is_not_a_refusal(carve: Carve) -> None:
     assert payload["declared_admissions_unused"] == []
 
 
+def test_an_unreadable_admissions_file_refuses_rather_than_reads_as_absent(
+        carve: Carve) -> None:
+    """A path that EXISTS but cannot be read as the admissions file — a
+    directory sitting where the file would be, standing in for any non-absence
+    `OSError` (permission failure, I/O error) — is not the same finding as "no
+    admissions file adopted yet" (Copilot review, PR #979). Catching every
+    `OSError` and returning as if absent would silently disable the governed
+    admissions and let the run fall through to an unrelated undeclared-file
+    result instead of naming the real cause; only `FileNotFoundError` may mean
+    ABSENT."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).mkdir()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "could not be read" in json.loads(done.stdout)["detail"]
+
+
 def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
     ) -> None:
     """The measured defect this slice repairs (RULED — the arrival-admission

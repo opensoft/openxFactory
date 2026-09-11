@@ -708,8 +708,19 @@ def read_admissions(path: Path, doc: dict[str, Any]
     """
     try:
         text = path.read_text(encoding="utf-8")
-    except OSError:
+    except FileNotFoundError:
         return {}
+    except OSError as exc:
+        # Anything other than "does not exist" — a permission failure, an
+        # I/O error, `path` naming a directory — is NOT the same finding as
+        # "no admissions file adopted yet" (Copilot review, PR #979): treating
+        # every OSError as absence would silently disable the governed
+        # admissions and let the run fall through to an unrelated
+        # undeclared-file result instead of naming the real cause.
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} could not be read: {exc}"
+        ) from exc
     except ValueError as exc:  # pragma: no cover - undecodable bytes
         raise ArrivalRefusal(
             "arrival-unreadable",
