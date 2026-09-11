@@ -1613,7 +1613,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c
+    sha256: 054259fe96686e3cace3269a09740b9cd8846fbc2f88e52dd0c93f8974aeab3b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1982,7 +1982,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 43acf0bb92abf95fc09b3705338b0fb68cfd0319a00bfc44d25811a6e2290000
+    sha256: 7fd9b797730e25f7a97c6acc3fb728ccce1b688643e950e7384eb0f9e9a0e296
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
