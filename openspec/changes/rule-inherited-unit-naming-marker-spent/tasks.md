@@ -332,6 +332,22 @@ UNTICKED**: residue, measured and deliberately not taken.
       53,818 bytes before and after, and the proof re-runs at 186 units /
       0 markers / 0 parent units missing / 14 added / titles 22 → 24 / 0-0-0
       against the parent's outcome.
+- [x] 3.15 **COPILOT'S SIXTH ROUND: THE INVENTORY SENTENCES ARE MADE TRUE
+      RATHER THAN NARROWED AWAY.** TAKEN. `proposal.md`'s *What Changes* closed
+      with "no line of `scripts/doc_health/` or `tests/doc-health/`", which
+      § 3.13 had falsified in the same pull request; it is now TWO bullets —
+      **NOT CHANGED (behaviour)**, which keeps every negative and still says no
+      line of `scripts/doc_health/`, and **CHANGED (bookkeeping)**, which names
+      the self-gate row, says why the `==` comparison obliges it of every lane,
+      and states that no assertion, predicate or threshold in that module
+      moves. `design.md`'s two "no test" phrases are scoped to **no NEW test**
+      for the same reason. The other half of the round — the pull request
+      description still presenting `38c076d1`, 29 blocks and 100/99 — is TAKEN
+      in the body itself, which now carries the `ac688c40` base, 31 blocks and
+      101/100 throughout, and says which merge moved which figure. **NO BYTE OF
+      THE BLOCK MOVES**: sha256
+      `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
+      53,818 bytes, unchanged.
 
 ## 4. Verification — IN THIS PULL REQUEST
 

@@ -169,9 +169,13 @@ Plus `#### Scenario: A later block drops an inherited unit-naming marker` and
 `#### Scenario: A later block carries an inherited unit-naming marker forward`,
 one per half of the rule.
 
-**COST: NOTHING BUT THE WORDS.** `code_surface: none`, measured; no predicate,
-no template, no finding class, no test; the packet archives ON LANDING plus its
-own task list.
+**COST: NOTHING BUT THE WORDS, PLUS ONE ROW OF BOOKKEEPING.**
+`code_surface: none`, measured; **no predicate, no template, no finding class,
+and no NEW test** — the one test file the diff touches is the
+modified-block-currency self-gate's named-subject list, whose row this draft
+opens and whose `==` comparison obliges every lane to name it (D4 below,
+`tasks.md` § 3.13); no assertion in that module moves. The packet archives ON
+LANDING plus its own task list.
 
 **WHY IT IS RECOMMENDED, in four reasons and not in one.**
 
@@ -471,8 +475,11 @@ REACHES IT".
 - **THE SIXTEEN SPENT MARKERS IN PROMOTED CANON ARE NOT SWEPT.** They are
   correct records of ratified removals, every one of them, and no promoted byte
   is edited by this packet. The rule speaks to what a LATER BLOCK owes.
-- **NO PREDICATE, NO TEMPLATE, NO TEST.** Option 2's machinery is written out
-  in D1 and is not built. If it is ruled, it is a re-authoring.
+- **NO PREDICATE, NO TEMPLATE, NO NEW TEST.** Option 2's machinery is written
+  out in D1 and is not built. If it is ruled, it is a re-authoring. (The one
+  test file this packet does touch carries no assertion of option 2's and no
+  assertion at all that this packet wrote — it is the self-gate's corpus row,
+  § 3.13.)
 - **`scripts/doc_health/modified_block_currency.py` IS NOT EDITED**, and no
   comment in it goes stale at this promotion: `suppression()`'s third-ground
   branch already describes the behaviour this packet rules correct, in its own
