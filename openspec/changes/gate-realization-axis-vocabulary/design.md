@@ -550,3 +550,59 @@ this round. The lesson is § 3.8's and is now stated as a rule rather than a
 habit: the figure moves in ALL THREE places in the same commit, every time,
 because a count carried in one document and re-measured in another is the
 brief-wording defect this house has already paid for once.
+
+### D8d — the bench's fourth round: five threads, all five TAKEN
+
+**(h) THE SHAPE-ONLY FALLBACK CONTRADICTED THE REQUIREMENT'S OWN MUST** (two
+threads: the scenario at `specs/release-realization/spec.md` and the code at
+`scripts/target_release.py`). The scenario said *"a release-shaped name the
+registry does not carry MUST be refused"*, and `resolves_as_release` accepts
+the SHAPE where the scanned tree carries no registry at all — so by the letter
+of the scenario, `contract-v999.999` passed in a tree that defines no releases.
+
+The fallback is not an accident. The module has documented it from the first
+draft: a gate that refused every release name in a tree that cannot define one
+would be unusable in every consuming repository, and `tasks.md` § 6.5 already
+names those repositories as unswept by design. **What was missing is that canon
+never said it.** A behaviour a reader can only discover by reading the
+implementation is the same defect as a vocabulary only prose asserts.
+
+Of the two remedies the bench named, the fallback is **ENCODED** rather than
+removed:
+- the requirement gains a paragraph — resolution is against the registry THE
+  SCANNED TREE defines; where it defines none the shape is the whole test; the
+  weaker judgment SHALL NOT be silent; and the shape itself SHALL be the one
+  the estate defines rather than one the gate invents (which is D8c (f)'s fix,
+  now stated in canon too);
+- the existing scenario's MUST is qualified to a tree that HAS a registry;
+- a new scenario, *The scanned tree defines no release registry at all*, states
+  the fallback and the obligation to say so;
+- and the loudness is TESTED, not merely intended: the run prints *"no
+  contracts/releases in this tree, so a release name is accepted on its SHAPE
+  alone"* with no registry, and must NOT print it with one.
+
+Fail-closed was the alternative and is recorded as refused with its reason: it
+would make the gate refuse a lawful declaration in every repository but this
+one, and it would do so silently from the consuming repository's point of view
+— trading a stated weaker judgment for an unstated stricter one.
+
+**(i) THE REPEAT GUARD WAS OVER-BROAD, AND IT CAUGHT THE PROSE IT WAS WRITTEN
+TO PROTECT** (`scripts/target_release.py`). `_REPEATED_HEADER_RE` allowed
+leading whitespace. An INDENTED line inside a front-matter block is a
+CONTINUATION of the gloss — that is exactly how the loader joins a multi-line
+declaration — so a gloss reading `  target_release: the main line` was refused
+as a duplicate declaration. Measured: it was. That contradicts the requirement's
+own rule to judge the token and never the gloss, and it is a good reminder that
+a guard added in one round is new code and gets the next round's scrutiny like
+anything else. The pattern is now anchored at column 0, which is the shared
+loader's own notion of a header line (`frontmatter_strict._TOP_LEVEL`,
+`^([A-Za-z_][A-Za-z0-9_-]*):`), so the guard and the loader agree on what a
+declaration IS rather than each having a private idea.
+
+**(j) THE INVENTORIES WERE STALE** (two threads). `proposal.md` still reported
+seven scenarios and omitted the two the bench added; the pull-request
+description still said 32 tests and seven scenarios. The description had been
+rewritten before those threads were read. The proposal's inventory now names
+all TEN and marks which four the bench added. Same lesson as D8c (g), now
+paid for twice: **a count or an inventory moves in ALL of its sites in the SAME
+commit.**

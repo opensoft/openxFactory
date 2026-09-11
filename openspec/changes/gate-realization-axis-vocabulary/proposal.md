@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `scripts/target_release.py` (NEW, the reader and judge), `scripts/validate-target-release.py` (NEW, the house validator CLI), `scripts/target-release-register.yaml` (NEW, the closed grandfather register) and `tests/target_release/test_target_release_gate.py` (NEW, 59 tests) that pin them. NOTHING EXISTING IS EDITED IN THE CODE SURFACE: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema and no report field. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. Beside the code, the SAME pull request corrects FIVE active proposals' `target_release:` VALUE TOKEN (`none` → `implemented`, every prose gloss preserved verbatim, one line per file, five lines in all) — see `design.md` D2.
+code_surface: openxFactory — `scripts/target_release.py` (NEW, the reader and judge), `scripts/validate-target-release.py` (NEW, the house validator CLI), `scripts/target-release-register.yaml` (NEW, the closed grandfather register) and `tests/target_release/test_target_release_gate.py` (NEW, 62 tests) that pin them. NOTHING EXISTING IS EDITED IN THE CODE SURFACE: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema and no report field. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. Beside the code, the SAME pull request corrects FIVE active proposals' `target_release:` VALUE TOKEN (`none` → `implemented`, every prose gloss preserved verbatim, one line per file, five lines in all) — see `design.md` D2.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed — deliberately, and the register says so in its own header: an exception file that could not be edited without cutting a contract release would be edited late or not at all. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` run at the tree the merge carries.
 sequenced_after: []
 ---
@@ -92,9 +92,11 @@ FIVE-LINE CORRECTION.**
    admits — `implemented`, or a release identifier that resolves to a release
    this estate defines — and a house validator SHALL REFUSE any other value on
    an active proposal, naming the proposal's path and the value it carries."*
-   Seven scenarios: the refusal, `implemented`, a resolving release, an
-   archived record, a registered declaration, a stale entry, and an absent
-   declaration.
+   TEN scenarios: the refusal, `implemented`, a resolving release, **a tree
+   that defines no release registry at all**, an archived record, a registered
+   declaration, **a repeated declaration**, **an entry appended to the closed
+   register**, a stale entry, and an absent declaration. (The four in bold
+   were added by the bot bench — `design.md` D8b/D8c/D8d.)
 2. **`scripts/validate-target-release.py`** + **`scripts/target_release.py`** —
    the house realization, in the shape every other `scripts/validate-*.py`
    contract validator uses, run over the live corpus on every pull request by

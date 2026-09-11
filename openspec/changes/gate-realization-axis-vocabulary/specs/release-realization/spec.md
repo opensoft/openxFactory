@@ -60,6 +60,18 @@ that declares nothing declares the default. Only a PRESENT declaration is
 judged — and a declaration present with no value SHALL be refused, because the
 author wrote the key and the default is available by omitting it.
 
+A RELEASE IDENTIFIER SHALL RESOLVE AGAINST THE REGISTRY THE SCANNED TREE
+DEFINES, AND WHERE THE TREE DEFINES NONE THE SHAPE SHALL BE THE WHOLE TEST AND
+THE RUN SHALL SAY SO. Where the tree carries a release registry, a name that
+resolves to nothing in it is NOT a named release and SHALL be refused. Where
+the tree carries no registry at all — every consuming repository that defines
+no releases of its own — refusing every release name would make the gate
+unusable outside the repository that defines them, so the identifier's SHAPE is
+accepted on its own; that is a WEAKER judgment and SHALL NOT be silent, so the
+run SHALL report that it judged on shape alone. The identifier's shape SHALL be
+the shape this estate DEFINES for a release tag rather than one the gate
+invents, so the gate cannot refuse a release the estate's own inventory admits.
+
 AN ARCHIVED PROPOSAL SHALL BE READ AND NEVER JUDGED. An archived packet's front
 matter is frozen record — `record-immutability` and `govern-archived-record-edits`
 put it beyond a plain fix — so the gate SHALL count what the archive carries and
@@ -103,9 +115,14 @@ forces the re-examination.
 - **THEN** the validator passes, the gloss being explanation and not declaration
 
 #### Scenario: An active proposal names a release the estate defines
-- **WHEN** an active change declares a release identifier and the estate's release registry carries that release
+- **WHEN** an active change declares a release identifier and the scanned tree's release registry carries that release
 - **THEN** the validator passes
-- **AND** a release-shaped name the registry does not carry MUST be refused, because a name that resolves to nothing is not a named release
+- **AND** where that tree HAS a registry, a release-shaped name the registry does not carry MUST be refused, because a name that resolves to nothing is not a named release
+
+#### Scenario: The scanned tree defines no release registry at all
+- **WHEN** the tree carries no release registry, so no name in it could resolve, and an active change declares a release-shaped identifier
+- **THEN** the identifier's shape MUST be the whole test and the declaration passes, because refusing every release name in a tree that cannot define one would make the gate unusable outside the repository that defines them
+- **AND** the run MUST report that it judged on shape alone, the weaker judgment never being silent
 
 #### Scenario: An archived proposal carries an off-vocabulary value
 - **WHEN** the scan reaches a proposal under `openspec/changes/archive/` whose declaration is outside the vocabulary

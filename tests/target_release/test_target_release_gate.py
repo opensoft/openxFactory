@@ -154,6 +154,17 @@ def test_a_repeated_declaration_is_a_finding_not_a_crash(tmp_path):
     assert "Traceback" not in result.stderr
 
 
+def test_an_indented_gloss_line_is_a_gloss_and_not_a_repeat(tmp_path):
+    """An INDENTED line is a continuation of the gloss, never a declaration —
+    the loader's own `_TOP_LEVEL` anchors a header at column 0, and the
+    requirement says judge the token and never the gloss."""
+    path = _proposal(
+        tmp_path, "c",
+        "code_surface: R\ntarget_release: implemented\n"
+        "  target_release: the main line, spelled out")
+    assert tr.declaration(path) == (True, "implemented")
+
+
 def test_one_declaration_with_a_multi_line_gloss_is_still_fine(tmp_path):
     path = _proposal(
         tmp_path, "c",
@@ -233,6 +244,25 @@ def test_an_active_three_component_release_passes(tmp_path):
 def test_with_no_registry_the_shape_is_accepted(tmp_path):
     assert tr.resolves_as_release("contract-v9.9", tmp_path) == (True, False)
     assert tr.resolves_as_release("none", tmp_path) == (False, False)
+
+
+def test_a_tree_with_no_registry_SAYS_it_is_judging_on_shape_alone(tmp_path):
+    """The shape-only fallback is a WEAKER judgment and the run must not hide
+    it: `registry_present` is False and the report says so in words, so a green
+    run in a tree with no `contracts/releases/` cannot be read as evidence that
+    the estate defines the release."""
+    _proposal(tmp_path, "cut", "code_surface: R\ntarget_release: contract-v9.9")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "accepted on its SHAPE alone" in result.stdout
+
+
+def test_a_tree_with_a_registry_does_not_print_the_shape_note(tmp_path):
+    (tmp_path / "contracts" / "releases").mkdir(parents=True)
+    _proposal(tmp_path, "doc", "code_surface: none")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "SHAPE alone" not in result.stdout
 
 
 # --- the token is shape-checked BEFORE it can become a path -------------------

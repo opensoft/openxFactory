@@ -133,13 +133,14 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **59 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **62 tests**,
       counted last from a collected run of the file) — the token rule (5),
-      reading the declaration including a strict-loader refusal and **a
-      repeated declaration refused rather than half-read** (7), release
+      reading the declaration including a strict-loader refusal, **a
+      repeated declaration refused rather than half-read, and an INDENTED
+      gloss line that is a gloss and not a repeat** (8), release
       resolution with and without a registry, **including the estate schema's
-      three-component form and the assertion that the shape IS the schema's**
-      (8), **the token shape-checked
+      three-component form, the assertion that the shape IS the schema's, and
+      the shape-only fallback saying so out loud** (10), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
       swept (3)**, **the register removable and never addable (5)**, the gate
@@ -150,8 +151,8 @@ and openxFactory #956 closes THERE and not at this landing.
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
       EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
-      added by § 3.7, the eight added by § 3.9 and the five added by § 3.10
-      join the file, `_entry()`
+      added by § 3.7, the eight added by § 3.9, the five added by § 3.10 and
+      the three added by § 3.11 join the file, `_entry()`
       gains the citation the loader now requires, and
       `test_an_entry_missing_a_required_key_refuses` keeps its subject by
       carrying every key but the one it is about.
@@ -189,8 +190,9 @@ and openxFactory #956 closes THERE and not at this landing.
       refusing a consuming tree's register for a field the requirement never
       asks for would exceed it.
 - [x] 3.8 **THE TEST FIGURE IN § 3.5 AND IN `proposal.md`'s `code_surface:` WAS
-      RE-MEASURED AFTER § 3.7, § 3.9 AND § 3.10 AND NOT CARRIED FORWARD.** `python3 -m
-      pytest tests/target_release -q` — **exit 0**, *"59 passed in 3.83s"*; the
+      RE-MEASURED AFTER § 3.7, § 3.9, § 3.10 AND § 3.11 AND NOT CARRIED
+      FORWARD.** `python3 -m
+      pytest tests/target_release -q` — **exit 0**, *"62 passed in 2.92s"*; the
       per-section breakdown in § 3.5 is a count of `def test_` under each
       banner in the file, taken from the file itself.
 
@@ -244,6 +246,32 @@ and openxFactory #956 closes THERE and not at this landing.
       Already corrected in `989c7059` and re-measured again here; the figure
       now moves in all three places in the same commit, every time, which is
       § 3.8's whole point.
+- [x] 3.11 **THE BENCH'S FOURTH ROUND, FIVE THREADS, ALL FIVE TAKEN**
+      (`design.md` D8d). (a) **THE SHAPE-ONLY FALLBACK CONTRADICTED THE
+      REQUIREMENT'S OWN MUST** (two threads, the scenario and the code). The
+      scenario said a release-shaped name the registry does not carry MUST be
+      refused, while `resolves_as_release` accepts the SHAPE where the tree
+      carries no registry at all — a deliberate, reasoned choice the module has
+      always documented (a gate that refused every release name in a tree that
+      cannot define one is unusable outside the repository that defines them)
+      and one CANON DID NOT SAY. Of the bench's two options — fail closed, or
+      encode the fallback — the fallback is ENCODED: the requirement gains the
+      paragraph and the scenario *The scanned tree defines no release registry
+      at all*, the existing scenario's MUST is qualified to a tree that HAS a
+      registry, and the weaker judgment is required to be LOUD (the run already
+      printed the note; two tests now pin that it prints with no registry and
+      does NOT print with one). (b) **THE REPEAT GUARD WAS OVER-BROAD.**
+      `_REPEATED_HEADER_RE` allowed leading whitespace, so an INDENTED gloss
+      line reading `  target_release: the main line` — a CONTINUATION, not a
+      declaration — was refused, contradicting "judge the token and never the
+      gloss". Measured: that gloss WAS refused. The pattern is now anchored at
+      column 0, which is the loader's own notion of a header line
+      (`frontmatter_strict._TOP_LEVEL`), with a test for the indented gloss.
+      (c) **THE PROPOSAL'S SCENARIO INVENTORY AND THE PULL-REQUEST DESCRIPTION
+      WERE STALE** (two threads) — the proposal still said seven scenarios and
+      the description still said 32 tests and seven scenarios. The description
+      had already been rewritten before the threads were read; the proposal's
+      inventory now names all TEN and marks which the bench added.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 

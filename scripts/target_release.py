@@ -156,7 +156,15 @@ _TRAILING = ".,;:"
 #: loader's returned value has its own leading header stripped, so a match here
 #: can only be a REPEAT — the check is on the value the loader returned and is
 #: not a second front-matter parser.
-_REPEATED_HEADER_RE = re.compile(rf"(?m)^[ \t]*{FIELD}[ \t]*:")
+#:
+#: ANCHORED AT COLUMN 0, WHICH IS THE LOADER'S OWN NOTION OF A HEADER LINE
+#: (`frontmatter_strict._TOP_LEVEL`, `^([A-Za-z_][A-Za-z0-9_-]*):`). An INDENTED
+#: line is a CONTINUATION of the gloss, not a declaration, so a gloss line that
+#: happened to read `  target_release: the main line` must pass — the
+#: requirement says judge the token and NEVER the gloss, and a guard that
+#: allowed leading whitespace would have refused exactly the prose the
+#: requirement protects.
+_REPEATED_HEADER_RE = re.compile(rf"(?m)^{FIELD}[ \t]*:")
 
 #: THE REGISTER'S CLOSED BASELINE — the `(change, token)` pairs the register
 #: carries at this gate's landing, and the whole of what it may ever carry.
