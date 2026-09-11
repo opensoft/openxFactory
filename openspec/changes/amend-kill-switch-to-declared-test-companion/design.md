@@ -190,6 +190,21 @@ change picks ONE placement and the checker reads that one — one line per entry
   enrolment's companion. Supplying the missing identifier, and the reviewed
   table row that resolves it, is the realizing companion change's work.
 
+**AND `<repo-relative path>` IS A NORMALIZED POSIX REPOSITORY-RELATIVE PATH
+CONTAINED IN THE CHECKOUT — THE GRAMMAR ADMITS NOTHING ELSE.** The envelope is a
+PULL-REQUEST-EDITABLE file and the procedure below reads the declared path from
+disk, so an unconstrained path would let a proposed declaration name a location
+outside the repository or be compared in a non-canonical spelling. It cannot, by
+construction: the declared path is POSIX (forward slashes only), relative to the
+repository root, and ALREADY NORMALIZED — no leading `/`, no `..` segment, no
+backslash, no empty or `.` segment, no trailing slash. Step 1 REFUSES ANYTHING
+ELSE AT CAPTURE: absolute paths, any `..` segment, backslashes, empty segments,
+and any path whose realpath AFTER NORMALIZATION is not under the repository root.
+The containment check is made after normalization and BEFORE ANY FILESYSTEM
+READ, so no existence check ever follows a declaration out of the checkout; a
+refused path FAILS THE CONFORMANCE CHECK, NAMING THE REFUSAL CLASS AND THE
+OFFENDING DECLARATION.
+
 **THE `regenerate:` FIELD IS AN ALLOWLISTED IDENTIFIER, NEVER A COMMAND, AND THE
 DECLARATION THEREFORE CANNOT INTRODUCE EXECUTION.** The envelope is a
 PULL-REQUEST-EDITABLE file and the conformance test (D-2b) runs inside a
@@ -232,7 +247,13 @@ what an earlier step captured or committed.**
    `# companion-artefact:` set as (path, regeneration-identifier) pairs; and
    resolve every declared identifier against the trusted module's table in this
    same step, so an identifier absent from the table fails HERE rather than
-   being looked up elsewhere or executed. The reason this is FIRST is mechanical:
+   being looked up elsewhere or executed; and NORMALIZE AND CONTAINMENT-CHECK
+   EVERY DECLARED PATH in this same step, so that an absolute path, any `..`
+   segment, a backslash, an empty segment, or any path whose realpath after
+   normalization is not under the repository root is REFUSED HERE — before any
+   filesystem read, the refusal naming the refusal class and the offending
+   declaration — rather than being existence-checked outside the checkout. The
+   reason this is FIRST is mechanical:
    step 2 removes those very comment lines from the tree being measured, so a
    test that has not already captured them has no declaration left to compare
    against — the expected values are the CAPTURED ones, never re-read from the
@@ -241,7 +262,24 @@ what an earlier step captured or committed.**
    CAN NEVER HOLD.** In the scratch tree, APPLY THE WITHDRAWAL — that class's
    candidate mapping and its companion comment lines removed, and nothing else —
    and **COMMIT IT AS THE BASELINE COMMIT**. Every measurement below is taken in
-   that committed tree and against that commit. The reason is mechanical too:
+   that committed tree and against that commit.
+   **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY, NEVER IN AN INHERITED
+   GIT ENVIRONMENT.** The scratch tree is a repository OF ITS OWN — `git init`-ed
+   there, or a `git worktree` with a PRIVATE `GIT_DIR` — carrying
+   repository-LOCAL `user.name` and `user.email` set to FIXED TEST CONSTANTS,
+   with `GIT_CONFIG_GLOBAL=/dev/null` and `GIT_CONFIG_SYSTEM=/dev/null`
+   (equivalently `GIT_CONFIG_NOSYSTEM=1`), `core.hooksPath` pointed at an EMPTY
+   DIRECTORY, and `commit.gpgsign=false` and `tag.gpgsign=false`; and THE SAME
+   ENVIRONMENT GOVERNS the `git diff --name-only <baseline>` measurements of
+   step 4. This repository already records why, and the precedent is cited rather
+   than paraphrased: a CI runner carries no ambient git identity, so an un-pinned
+   scratch commit dies there with `Author identity unknown` while passing on a
+   developer's machine, and a developer's GLOBAL config can carry `core.hooksPath`
+   (husky, lefthook, `pre-commit`) or `commit.gpgsign`, either of which then runs
+   or refuses inside the throwaway repository — both directions the same defect,
+   that the ambient installation must not change the answer
+   (`tests/openxwallet_pin/test_verify_pin.py`, the `_hermetic_git` account at
+   lines 32–42). The reason the COMMIT itself belongs here is mechanical too:
    the tree in which the measurement happens already carries the withdrawal
    edit, so a diff taken against the pre-withdrawal state would report
    `.github/merge-approval-envelope.yml` itself, and a set containing the
@@ -262,35 +300,53 @@ what an earlier step captured or committed.**
    AND IS NEVER ITSELF MEASURED** — self-invocation is prevented by that
    exclusion, not by narrowing the run; a declared node id naming the conformance
    module is refused at step 1 for the same reason.
-4. **REGENERATE EVERY ALLOWLISTED ARTEFACT, AND DIFF AGAINST THE BASELINE
-   COMMIT.** THEN, in that same tree and with the baseline commit already made,
+4. **REGENERATE EVERY ALLOWLISTED ARTEFACT ONE TOOL AT A TIME, AND ATTRIBUTE
+   EACH CHANGED PATH TO THE IDENTIFIER THAT PRODUCED IT.** THEN, in that same
+   tree and with the baseline commit already made,
    **EVERY REGENERATION IN THE TRUSTED MODULE'S ALLOWLIST TABLE — the whole
    table, not only the identifiers this class declared** — is run, each resolved
    to fixed argv in that module (D-2c) and run as a list with no shell from a
-   fixed cwd of the repository root, and the set of paths **`git diff --name-only
-   <baseline-commit>`** reports is compared to that class's CAPTURED
-   `# companion-artefact:` path set. **The inventory is INDEPENDENT OF THE
-   DECLARATION here too**: an artefact that moves on this withdrawal but which no
-   `# companion-artefact:` line names is regenerated anyway and appears in the
-   delta, so the omission BREAKS the equality instead of hiding inside it.
-   Because the withdrawal is already IN the baseline, that delta contains **ONLY
-   paths the regenerations changed**, and an allowlisted regeneration with
-   nothing to do with this withdrawal writes nothing and so adds nothing to it.
-   The test asserts the two sets are **equal — no more, no less** — in both
-   directions and order-free.
+   fixed cwd of the repository root. **THEY ARE RUN ONE AT A TIME AND EACH RUN IS
+   MEASURED ALONE**: after each identifier's run, the paths **`git diff
+   --name-only <baseline-commit>`** reports — in step 2's hermetic environment —
+   are the paths THAT IDENTIFIER produced, and the tree is RESTORED TO THE
+   BASELINE (`git checkout -- .` and `git clean -fd`) before the next identifier
+   runs. The measured value is therefore a set of **`{(identifier, path)}`
+   PAIRS**, and the test asserts THAT PAIR SET EQUALS that class's CAPTURED
+   `# companion-artefact:` PAIR SET — path AND identifier, exactly as declared —
+   **no more, no less**, in both directions and order-free.
+   **THE IDENTIFIER IS PART OF THE EQUALITY BECAUSE THE DECLARATION BINDS IT**: a
+   DECLARED pair whose identifier did NOT produce that path FAILS, even when some
+   OTHER allowlisted tool did produce it, so an artefact bound to the WRONG
+   recording tool is caught instead of being absorbed; and an UNDECLARED pair
+   produced by ANY allowlisted tool FAILS for the same reason. **The union of the
+   changed paths is retained only as a CONSEQUENCE of that pair equality, never
+   as the check** — equal pair sets have equal path sets, and it was the
+   path-set-only comparison that let a mis-bound identifier pass. **The inventory
+   is INDEPENDENT OF THE DECLARATION here too**: an artefact that moves on this
+   withdrawal but which no `# companion-artefact:` line names is regenerated
+   anyway and appears in ITS OWN identifier's delta, so the omission BREAKS the
+   equality instead of hiding inside it. Because the withdrawal is already IN the
+   baseline, each delta contains **ONLY paths that identifier's regeneration
+   changed**, and an allowlisted regeneration with nothing to do with this
+   withdrawal writes nothing and so contributes no pair at all.
 5. **RECORD THE RESULT.** Both equalities and the non-emptiness result are
-   reported per class, and any failure NAMES THE CLASS AND THE STEP, so the red
-   check says which enrolment failed and where rather than only that the
-   conformance test failed.
+   reported per class, and any failure NAMES THE CLASS AND THE STEP — a step-1
+   refusal naming its refusal class and the offending declaration, a step-4
+   inequality naming the offending `(identifier, path)` pairs — so the red check
+   says which enrolment failed and where rather than only that the conformance
+   test failed.
 
 **A PATH-SCOPED DIFF IS DELIBERATELY NOT USED, AND THE REASON IS THE FAILURE IT
 WOULD HIDE.** Restricting the diff to the declared paths would make the equality
 trivially satisfiable in one direction and would conceal exactly the failure most
 worth catching — a regeneration that writes a path NOBODY DECLARED. The
-whole-tree diff *against the baseline commit* keeps that detection: an unexpected
-generated path appears in the delta, is absent from the declared set, and the
-check fails. The baseline removes the false positive; the whole-tree grain keeps
-the true one.
+whole-tree diff *against the baseline commit*, taken after EACH identifier's own
+run, keeps that detection: an unexpected generated path appears in that
+identifier's delta, the `(identifier, path)` pair it forms is absent from the
+declared set, and the check fails. The baseline removes the false positive; the
+whole-tree grain keeps the true one; the per-identifier grain is what makes the
+pair, rather than the bare path, the thing compared.
 
 **AND NEITHER MEASUREMENT IS DERIVED FROM THE DECLARATION IT IS COMPARED
 AGAINST, WHICH IS WHAT MAKES THIS A COMPLETENESS CHECK.** An earlier formulation
@@ -308,9 +364,9 @@ check, and the baseline tree differs from that tree BY THE WITHDRAWAL AND NOTHIN
 ELSE, so every failure in **A** is attributable to the withdrawal — and a failure
 that is not is a red suite on `main`, a finding in its own right that must not be
 hidden by narrowing the run. The artefact half takes the same treatment for the
-same reason: EVERY allowlisted regeneration runs, so an artefact that moves
-undeclared appears in the delta and breaks the equality rather than being passed
-over unregenerated.
+same reason: EVERY allowlisted regeneration runs, one at a time, so an artefact
+that moves undeclared appears in ITS OWN identifier's delta and breaks the pair
+equality rather than being passed over unregenerated.
 
 **AND THE MEASURED ASSERTION SET MAY NOT BE EMPTY.** Both equalities pass
 VACUOUSLY on an enrolment that nothing pins: withdraw the class, no assertion
@@ -334,7 +390,8 @@ declared node id naming it. So the artefact half is now measured the way the
 assertion half always was — by running something and reading what it reports.
 The objection that a pytest run "does not report moved paths" is answered by NOT
 ASKING IT TO: the allowlisted regenerations rewrite the artefacts and `git diff
---name-only <baseline-commit>` reports the paths.
+--name-only <baseline-commit>`, taken after each identifier's own run, reports
+the paths AND the identifier that produced each of them.
 
 **The consequence, stated rather than left implicit:** an artefact with NO
 declared regeneration identifier — or with one absent from the trusted module's

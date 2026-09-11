@@ -125,11 +125,14 @@ codexFactory**, authored there, exactly as
       as comment lines: `# companion: <pytest node id>` for every assertion
       that pins that enrolment, and `# companion-artefact: <repo-relative path>
       regenerate: <identifier>` for every golden/snapshot file whose recorded
-      value moves with it — **the `regenerate:` FIELD IS AN ALLOWLISTED
-      IDENTIFIER AND NEVER A COMMAND**. The envelope is a pull-request-editable
-      file and 3.2 runs inside a REQUIRED check, so the declaration carries a
-      BARE TOKEN and nothing executable. This task therefore also adds, IN THE
-      TRUSTED CONFORMANCE TEST MODULE under codexFactory's `tests/merge-master/`
+      value moves with it — where `<repo-relative path>` is a **NORMALIZED
+      REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT** and anything
+      else is refused at capture (3.2 step 1), and **the `regenerate:` FIELD IS
+      AN ALLOWLISTED IDENTIFIER AND NEVER A COMMAND**. The envelope is a
+      pull-request-editable file and 3.2 runs inside a REQUIRED check, so the
+      declaration carries a BARE TOKEN and nothing executable. This task
+      therefore also adds, IN THE TRUSTED CONFORMANCE TEST MODULE under
+      codexFactory's `tests/merge-master/`
       (code-owner-reviewed test code — a module EXCLUDED BY ITS OWN PATH from
       every measurement and never itself measured, 3.2 steps 1 and 3), the fixed
       `identifier -> argv` TABLE that resolves each declared identifier — an
@@ -173,6 +176,17 @@ codexFactory**, authored there, exactly as
       naming the conformance module itself is REFUSED HERE: that module is
       EXCLUDED BY ITS OWN PATH from the step-3 run, so such a node id could never
       enter the measured set and would break the equality by construction.
+      **AND EVERY DECLARED PATH IS NORMALIZED AND CONTAINMENT-CHECKED HERE, IN
+      THIS SAME STEP.** A `# companion-artefact:` path is a NORMALIZED
+      REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT (D-2c's grammar),
+      and step 1 REFUSES anything else: an ABSOLUTE path, ANY `..` segment, a
+      BACKSLASH, an EMPTY segment, and any path whose REALPATH AFTER
+      NORMALIZATION is not under the repository root. The normalization and the
+      containment check are performed BEFORE ANY FILESYSTEM READ, so the
+      existence check that follows can never read outside the checkout and no
+      comparison is ever made on a non-canonical spelling; a refused path FAILS
+      THE CHECK, NAMING THE REFUSAL CLASS AND THE OFFENDING DECLARATION, exactly
+      as an unresolvable identifier does.
       The captured sets are the expected values every later step compares
       against: step 2 removes those very comment lines from the tree being
       measured, so a test that has not captured them first has no declaration
@@ -181,7 +195,28 @@ codexFactory**, authored there, exactly as
       scratch tree remove THAT class's candidate mapping and its companion
       comment lines and **nothing else**, and `git commit` that withdrawal as the
       **BASELINE COMMIT**. EVERY measurement below is taken in that committed
-      tree and against that commit. Without the baseline the measuring tree
+      tree and against that commit.
+      **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY WITH A FIXED
+      IDENTITY AND NO INHERITED CONFIGURATION, HOOKS OR SIGNING.** The scratch
+      tree is a repository OF ITS OWN — `git init`-ed there, or a `git worktree`
+      with a PRIVATE `GIT_DIR` — with repository-LOCAL `user.name` and
+      `user.email` set to FIXED TEST CONSTANTS, `GIT_CONFIG_GLOBAL=/dev/null`
+      and `GIT_CONFIG_SYSTEM=/dev/null` (equivalently `GIT_CONFIG_NOSYSTEM=1`),
+      `core.hooksPath` pointed at an EMPTY DIRECTORY, and `commit.gpgsign=false`
+      and `tag.gpgsign=false`; and **THE SAME ENVIRONMENT GOVERNS the
+      `git diff --name-only <baseline-commit>` measurements of step 4**. This is
+      not a precaution in the abstract — this repository already records the
+      failure: a CI runner carries NO ambient git identity, so an un-pinned
+      scratch commit dies there with `Author identity unknown` while passing on a
+      developer's machine, and a developer's GLOBAL config can carry
+      `core.hooksPath` (husky, lefthook, `pre-commit`) or `commit.gpgsign`,
+      either of which then runs or refuses inside the throwaway repository. Both
+      directions are the same defect — the ambient installation must not change
+      the answer — and the precedent to follow is
+      `tests/openxwallet_pin/test_verify_pin.py` (its `_hermetic_git` account,
+      lines 32–42). Without it this procedure passes locally and fails in the
+      REQUIRED check, which is the one place it may not fail.
+      Without the baseline the measuring tree
       already carries the withdrawal edit, so a whole-tree diff would report
       `.github/merge-approval-envelope.yml` itself and the artefact equality
       could never hold however correct the regeneration was.
@@ -210,30 +245,48 @@ codexFactory**, authored there, exactly as
       recorded against THE ENROLMENT AND ITS DECLARATION — never against the suite
       that caught it (the `## MODIFIED` scenario "An undeclared companion is a
       finding against the enrolment").
-      **STEP 4 — REGENERATE EVERY ALLOWLISTED ARTEFACT, AND DIFF AGAINST THE
-      BASELINE COMMIT.** THEN run **EVERY REGENERATION IN THE TRUSTED MODULE'S
-      ALLOWLIST TABLE — THE WHOLE TABLE, not only the identifiers this class
-      declared** — each resolved to fixed argv by that table (argv list, no shell,
-      fixed cwd of the repository root; a DECLARED identifier absent from the
-      table has already failed at step 1 rather than being executed), and assert
-      that the set of paths **`git diff --name-only <baseline-commit>`** reports
-      changed EQUALS that class's captured `# companion-artefact:` PATH set
-      exactly — **no more, no less** — both directions, order-free. **The
-      INVENTORY IS INDEPENDENT OF THE DECLARATION on this half too**: an artefact
-      that MOVES on this withdrawal but which no `# companion-artefact:` line
-      names is regenerated anyway, appears in the changed-path set, is absent from
-      the declared set, and breaks the equality — the same finding against the
-      same enrolment, rather than an omission hiding inside its own measurement.
-      Because the withdrawal is already IN the baseline, that delta holds ONLY
-      what the regenerations wrote, and an allowlisted regeneration with nothing
-      to do with this withdrawal writes nothing and so adds nothing to it. **The
-      diff is NOT path-scoped to the declared set**, precisely so that a
-      regeneration writing a path NOBODY DECLARED still fails the check.
+      **STEP 4 — REGENERATE EVERY ALLOWLISTED ARTEFACT ONE TOOL AT A TIME, AND
+      COMPARE (IDENTIFIER, PATH) PAIRS AGAINST THE BASELINE COMMIT.** THEN run
+      **EVERY REGENERATION IN THE TRUSTED MODULE'S ALLOWLIST TABLE — THE WHOLE
+      TABLE, not only the identifiers this class declared** — each resolved to
+      fixed argv by that table (argv list, no shell, fixed cwd of the repository
+      root; a DECLARED identifier absent from the table has already failed at
+      step 1 rather than being executed). **RUN THEM ONE AT A TIME AND MEASURE
+      EACH RUN ALONE**: for each identifier, run it from the committed baseline,
+      record the paths **`git diff --name-only <baseline-commit>`** reports — in
+      step 2's hermetic git environment — as THE PATHS THAT IDENTIFIER PRODUCED,
+      then RESTORE the tree to the baseline (`git checkout -- .` and
+      `git clean -fd`) before the next identifier runs. Assert that the resulting
+      set of **`{(identifier, path)}` PAIRS EQUALS that class's captured
+      `# companion-artefact:` PAIR SET** exactly — path AND identifier, **no
+      more, no less** — both directions, order-free. **THE IDENTIFIER IS PART OF
+      THE EQUALITY BECAUSE THE DECLARATION BINDS IT**: a DECLARED pair whose
+      identifier did NOT produce that path FAILS — even when some OTHER
+      allowlisted tool did produce it — so an artefact bound to the WRONG
+      recording tool is a finding rather than something the comparison absorbs;
+      and an UNDECLARED pair produced by ANY allowlisted tool FAILS for the same
+      reason. **The union of the changed paths is retained ONLY AS A CONSEQUENCE
+      of that pair equality and is never itself the check**: equal pair sets have
+      equal path sets, and it was comparing the path union alone — after running
+      the whole allowlist together — that let a mis-bound identifier pass.
+      **The INVENTORY IS INDEPENDENT OF THE DECLARATION on this half too**: an
+      artefact that MOVES on this withdrawal but which no `# companion-artefact:`
+      line names is regenerated anyway, appears in ITS OWN identifier's changed
+      paths, forms a pair absent from the declared set, and breaks the equality —
+      the same finding against the same enrolment, rather than an omission hiding
+      inside its own measurement. Because the withdrawal is already IN the
+      baseline, each identifier's delta holds ONLY what THAT regeneration wrote,
+      and an allowlisted regeneration with nothing to do with this withdrawal
+      writes nothing and so contributes no pair at all. **The diff is NOT
+      path-scoped to the declared set**, precisely so that a regeneration writing
+      a path NOBODY DECLARED still fails the check.
       **STEP 5 — RECORD THE RESULT.** Report, per class, BOTH equalities and the
       non-emptiness result, and NAME THE CLASS AND THE STEP in any failure (step
-      1 an unresolvable identifier or a self-naming node id, step 3 an
-      assertion-set inequality or an empty measured set, step 4 an artefact-set
-      inequality), so a red check says WHICH enrolment failed and WHERE rather
+      1 an unresolvable identifier, a self-naming node id, or a REFUSED ARTEFACT
+      PATH — naming the refusal class and the offending declaration; step 3 an
+      assertion-set inequality or an empty measured set; step 4 an
+      artefact-PAIR-set inequality, naming the offending `(identifier, path)`
+      pairs), so a red check says WHICH enrolment failed and WHERE rather
       than only that the conformance test failed.
       The artefact's movement is therefore MEASURED BY THAT REGENERATION DIFF
       and is NOT inferred: an existence check does not prove the declared path
