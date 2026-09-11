@@ -2372,3 +2372,68 @@ def test_the_SEEDER_GUARD_APPLIES_TO_A_FLIPS_DIRECTORY_DATE_TOO(tmp_path):
     assert result.returncode == 2, result.stdout + result.stderr
     assert "add-a" in result.stderr
     assert "2026-01-10" in result.stderr and "2026-06-01" in result.stderr
+
+
+def test_a_PRESENT_packet_with_NO_created_field_is_NOT_gated(tmp_path):
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\norigin:\n  kind: staged\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_a_MALFORMED_packet_is_NOT_gated(tmp_path):
+    directory = _change(tmp_path, "add-a")
+    # Unbalanced flow-sequence: a `yaml.YAMLError` the strict loader turns
+    # into `StrictFrontMatterError`, not a `created:` this guard can compare.
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: [2026-01-01\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_an_INVALID_created_VALUE_is_NOT_gated(tmp_path):
+    """Neither a non-date string nor a timestamp-with-time-of-day is a shape
+    this guard reads (it wants the plain calendar date every packet in this
+    corpus actually carries), so seeding proceeds rather than comparing
+    against a value it cannot place."""
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: not-a-date\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    directory2 = _change(tmp_path, "add-b")
+    (directory2 / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: 2099-01-01T10:00:00\n", encoding="utf-8")
+    result2 = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result2.returncode == 0, result2.stdout + result2.stderr
+
+
+def test_the_CREATED_GUARD_skips_an_id_with_AMBIGUOUS_corpus_dirs(tmp_path):
+    """Two archived directories for one id is the ambiguity `resolve()`
+    reports elsewhere, and the one `archive_dates` already skips (issue
+    #790's `if len(dirs) != 1: continue`); this guard's own packet read must
+    not pick one arbitrarily and gate — or refuse — on it. One directory
+    here carries a `created:` far enough in the future to refuse a seed on
+    its own, and the seed passes anyway because the id is ambiguous, not
+    because that date lost a tie-break (Copilot round 2, PR #990)."""
+    _change(tmp_path, "add-a", archived="2026-01-01", created="2099-01-01")
+    _change(tmp_path, "add-a", archived="2026-06-01", created="2020-01-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr

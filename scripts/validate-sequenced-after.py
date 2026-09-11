@@ -221,10 +221,22 @@ def _utc_today() -> str:
 
 def _created_dates(repo_root: Path) -> dict[str, str]:
     """Change id -> its `.openspec.yaml` `created:` date, over the ACTIVE and
-    ARCHIVED corpora both (built on `sa.corpus_change_dirs`, `sa.fms` and
-    `sa.is_moved_on`, all already public on the sibling library module — this
-    stays a CLI-side read rather than a new library function, since the seeder
-    is this file's own mode and no other caller needs it yet).
+    ARCHIVED corpora both (built on `sa.active_change_dirs`,
+    `sa.archived_change_dirs`, `sa.fms` and `sa.is_moved_on`, all already
+    public on the sibling library module — this stays a CLI-side read rather
+    than a new library function, since the seeder is this file's own mode and
+    no other caller needs it yet).
+
+    AN ID THAT DOES NOT RESOLVE TO EXACTLY ONE DIRECTORY IS NOT READ, the same
+    way `archive_dates` above skips an id with more than one archived
+    directory (issue #790): `sa.corpus_change_dirs` is EXPLICITLY documented
+    to pick an arbitrary candidate for ids ambiguous across active+archived or
+    within archived alone, because it exists for population COUNTS, not for a
+    write-blocking source. This function is the latter, so it enumerates
+    candidates itself rather than taking `corpus_change_dirs`'s pick — an
+    active+archived duplicate, or two archive directories with disagreeing
+    `.openspec.yaml` metadata, must not let a seed's exit code depend on which
+    directory happened to sort first (Copilot round 2, PR #990).
 
     A missing `.openspec.yaml`, one the strict loader refuses, one declaring no
     `created:` field, or a `created:` value that is not a real calendar date is
@@ -238,9 +250,15 @@ def _created_dates(repo_root: Path) -> dict[str, str]:
     `datetime.datetime`) is not a shape this corpus uses and is left unread
     rather than guessed at.
     """
+    active = sa.active_change_dirs(repo_root)
+    archived = sa.archived_change_dirs(repo_root)
     found: dict[str, str] = {}
-    for change_id, directory in sa.corpus_change_dirs(repo_root).items():
-        packet = directory / ".openspec.yaml"
+    for change_id in set(active) | set(archived):
+        candidates = ([active[change_id]] if change_id in active else []) \
+            + archived.get(change_id, [])
+        if len(candidates) != 1:
+            continue
+        packet = candidates[0] / ".openspec.yaml"
         if not packet.is_file():
             continue
         try:
