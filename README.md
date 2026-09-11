@@ -578,81 +578,6 @@ Active changes:
   `tasks.md` §3, after ratification. The realization evidence for `code_surface:
   none` is landing plus the task list, and the task list includes them.
 
-- [amend-repo-boundary-governance-scope-first-line](openspec/changes/amend-repo-boundary-governance-scope-first-line/proposal.md)
-  — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
-  openxFactory operator authority, verbatim *"ratify as encoded"* — a
-  MULTIPLE-CHOICE ruling over `design.md` **D6**, **D1** and **D2** with the
-  recommendation presented first, given in session and recorded on PR
-  [#937](https://github.com/opensoft/openxFactory/pull/937#issuecomment-5628461153)
-  at 2026-09-11T02:18:13Z. **D6 = A (AMEND)**, so the packet is not withdrawn;
-  **D1 = option 1**, the recommended and encoded wording; **D2 stands** in both
-  halves. Each is the option the packet already encoded, so **THE WORDING
-  STANDS UNCHANGED** and no delta byte was re-written, restored or deleted.
-  Records
-  `openspec/changes/amend-repo-boundary-governance-scope-first-line/review/ratification-2026-09-11.md`
-  and
-  `openspec/changes/amend-repo-boundary-governance-scope-first-line/review/verification-2026-09-11.md`).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
-  unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
-  defined. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
-  earlier word in session, 2026-09-11T00:42Z, verbatim ***"do 915 and 931, land
-  each when green"***, recorded in this lane's CLAIMED comment on openxFactory
-  [#931](https://github.com/opensoft/openxFactory/issues/931), which
-  commissioned the authoring, pre-gave the LANDING word for a ratified head and
-  **RATIFIED NOTHING**. **ONE `## MODIFIED` REQUIREMENT** —
-  *Install repository scope*
-  (`openspec/specs/repo-boundary-governance/spec.md:34`) — whose first body
-  line is an enumeration of five repository names and whose `SHALL` arrives on
-  line two, so the OpenSpec CLI at **1.2.0** fails the specification with
-  `✗ [ERROR] requirements.1.text: Requirement must contain SHALL or MUST
-  keyword` (exit 1). **RE-MEASURED, IT IS THE CORPUS'S LAST INSTANCE**: 62
-  promoted spec files, 641 `### Requirement:` headings, exactly ONE first body
-  line without the keyword. **AND THE PINNED 1.12.0 THE REQUIRED GATE RUNS
-  DOES NOT REPORT IT AT ALL** — `Specification 'repo-boundary-governance' is
-  valid`, exit 0, six INFO notes — which is why `design.md` **D6 WAS PUT FIRST
-  AND COULD HAVE ENDED THE PACKET**: whether promoted canon should be amended
-  for a binary no required check runs was the owner's call, and **it was asked
-  FRESH**, the 2026-09-10 ruling on the sibling requirement #882 being quoted as
-  PRECEDENT ONLY. **IT IS RULED AMEND**, so the amendment proceeds for a failure
-  no required check reports, which is stated rather than glossed. **THE EDIT IS FOUR WORDS ADDED AND NONE REMOVED** — *"The
-  following install repositories SHALL be scoped to …: `Hermes-Install`, …"* —
-  the five names keeping canon's order, spelling and serial comma, which is
-  LARGER than its predecessor's zero-word re-order and the packet says so:
-  this sentence's subject IS the list, so no zero-word re-order of it exists.
-  `design.md` **D1 WAS THE VETO POINT AND IT IS RULED OPTION 1**, the
-  recommended and encoded wording, so not one byte of the delta moves. It writes
-  all three candidates out with their costs —
-  option 2 moves only the line breaks and owes no marker at all (proven: 13
-  units, 0 uncarried, 0 added) at the cost of a 108-character first line in a
-  file whose ten compliant first lines are all 79 or fewer; option 3 is the
-  counted subject issue #931 floats, REFUSED because it copies the count FIVE
-  into a second requirement when the sibling index requirement already states
-  it. **TWO MARKER DECISIONS, BOTH READ OFF MEASUREMENTS AND BOTH RULED AS
-  WRITTEN** (`design.md` D2):
-  ONE `Removed from canon` marker is owed and written, assembled from
-  `derive_units`' own output with an empty `quoted` list and no code span in
-  its reason; and the marker this requirement INHERITS from
-  `refresh-install-repository-enumerations` (2026-09-08) is NOT carried
-  forward, on canon's own *"A marker is NOT a carriage unit, in either
-  direction … The durable record of a deletion is the archived delta"*
-  (`openspec/specs/doc-health/spec.md:1801-1805`) and on a four-times-repeated
-  precedent — carrying it would draw a ground-three marker-defect finding on
-  either wording, measured both ways. Byte-faithful by CONSTRUCTION: the block
-  is a slice of `:34-66` (33 lines, sha256 `24f6479c…`) with ONE
-  single-occurrence substitution and one paragraph re-wrapped at 79, generator
-  output and committed block ONE STRING at sha256 `50ced1fa…`. **WHAT THIS
-  PULL REQUEST DOES NOT DO:** it edits no file under `openspec/specs/`, no
-  script, contract, schema or workflow, and the ONE file it touches under
-  `tests/` is `tests/sequenced_after/corpus-ledger.yaml`, a GENERATED REGISTRY
-  gaining this change's own sweep row by the sanctioned seed rather than
-  executable test code; `spec/repo-boundary-governance`
-  still fails the 1.2.0 binary at its head and the ARCHIVE is what clears it.
-  **`tasks.md` § 1 IS NOW TICKED** against the word of 2026-09-11 and **§ 5
-  (archive) STAYS ENTIRELY OPEN**: promotion is a third act on a third word that
-  has not been given, openxFactory #931 closes at the archive, and the pull
-  request carries `refs #931` and no closing keyword.
-
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a
@@ -2883,6 +2808,93 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-repo-boundary-governance-scope-first-line](openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/proposal.md)
+  — **ARCHIVED 2026-09-11** by
+  [PR #958](https://github.com/opensoft/openxFactory/pull/958), on Brett Heap's
+  separate word of the same day (in
+  session at **2026-09-11T10:11Z**, verbatim *"Archive 937 and close 931 when
+  landed"*, recorded on
+  [#931](https://github.com/opensoft/openxFactory/issues/931#issuecomment-5632912613))
+  and the `release-realization` rule that a change with an EMPTY code surface
+  archives **ON LANDING plus its own task list**, waiting on no realization
+  evidence — *"its code_surface is `none` and it archives when its artifacts
+  land, as before"*, that capability's realization gate binding only *"A change
+  with a **non-empty** code surface"*.
+  **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#937](https://github.com/opensoft/openxFactory/pull/937) →
+  `61cee60d85ec53a1107033fe0aea55ffe8987fa0`** on `main`, 2026-09-11T03:43:30Z
+  (ratifying commit `54bb36b3`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/review/ratification-2026-09-11.md`
+  `Status: ratified` and the gate capture `verification-2026-09-11.md`
+  `Status: record`, both MOVED and untouched by this archive), with
+  `code_surface: none` and `target_release: implemented`. PR #937's green
+  `pytest-suite` run
+  [34557680707](https://github.com/opensoft/openxFactory/actions/runs/34557680707)
+  on its head `54bb36b3` is named as a courtesy; **no run on the merge commit is
+  owed for an empty code surface**. The word's condition — *"when landed"* — was
+  ALREADY MET when the word was given, the landing preceding it by some six and
+  a half hours.
+  Origin: openxFactory
+  [#931](https://github.com/opensoft/openxFactory/issues/931), **CLOSED at this
+  archive act and not at that landing** — which is what the proposal pull
+  request's `refs #931`, carrying no closing keyword in its body or in any
+  commit message on its branch, was for; its `closingIssuesReferences` was `[]`
+  at the merge.
+  **WHAT IS NOW CANON.** The `## MODIFIED` block is promoted BYTE-IDENTICAL into
+  `openspec/specs/repo-boundary-governance/spec.md` — **34 lines, 3,404 bytes,
+  sha256 `50ced1fa72901a62…`**, extracted programmatically from both sides and
+  equal; and that hash is the GENERATOR'S OWN OUTPUT, the string the delta's
+  header recorded before the ratification and the bench reviewed, so canon
+  carries the produced string and not a transcription of it. It amends *Install
+  repository scope*: the first body line now opens *"The following install
+  repositories SHALL be scoped to subsystem install, operations, backup,
+  restore, upgrade, verification, and disaster recovery:"* where canon opened
+  with the enumeration *"`Hermes-Install`, `Omnigent-Install`,
+  `Keycloak-Install`, `OpenXPKI-Install`,"* and deferred its verb and its `SHALL`
+  to line two. **FOUR WORDS ARE ADDED AND NONE IS REMOVED** — the five
+  repository names keep canon's order, canon's spelling and canon's serial
+  comma, 215 characters becoming 251 — and **NO BEHAVIOUR MOVES**: the same five
+  repositories are scoped to the same seven activities, and the admission
+  sentence, the index sentence and all three routing scenarios are canon's own
+  bytes.
+  **AND THE INHERITED MARKER LEAVES THE PROMOTED FILE HERE, STATED RATHER THAN
+  LEFT IN THE DIFF** (`design.md` **D2b**): the `Removed from canon by
+  refresh-install-repository-enumerations (2026-09-08):` marker that stood at
+  `:66` of this requirement is not restated by the block and so is not written
+  back — canon's own *"A marker is NOT a carriage unit, in either direction …
+  The durable record of a deletion is the archived delta"*
+  (`openspec/specs/doc-health/spec.md:1801-1805`), that durable record being
+  `openspec/changes/archive/2026-09-09-refresh-install-repository-enumerations/specs/repo-boundary-governance/spec.md:37`.
+  That predecessor's two OTHER markers in this file, at `:32` and `:87`, are
+  untouched (three → two), and this packet's own marker takes the retired
+  sentence's place. `git diff -w --numstat` equals `git diff --numstat` at 4/3,
+  so **ZERO lines changed by whitespace only**; spec count **62 → 62**, so no
+  codexFactory floor advance is owed.
+  **AND THE FAILURE #931 REPORTS IS CLEARED HERE, MEASURED ON BOTH SIDES RATHER
+  THAN PREDICTED:** `openspec validate repo-boundary-governance --strict --type
+  spec` on the 1.2.0 binary goes from *"Specification 'repo-boundary-governance'
+  has issues"* / `✗ [ERROR] requirements.1.text: Requirement must contain SHALL
+  or MUST keyword` / exit **1** on `main` `22efcbe8` to ***"Specification
+  'repo-boundary-governance' is valid"*** / exit **0** here, and `--all
+  --strict` drops `spec/repo-boundary-governance` from its failure set (`99
+  passed, 3 failed (102 items)` → `99 passed, 2 failed (101 items)`; that
+  removed line is the only difference between the two sorted failure sets). On
+  the PINNED **1.12.0** — the binary the required gate runs, which never
+  reported this at all — the failure set is UNCHANGED either side, the two
+  entries being the dispositioned exceptions `tasks.md` § 6.5 names.
+  **THE RESIDUES ARE NAMED, NOT DISCHARGED.** `tasks.md` § 6.1's successor is
+  filed UNCLAIMED as
+  [#955](https://github.com/opensoft/openxFactory/issues/955) — a later
+  amendment of a requirement whose promoted text already carries a UNIT-NAMING
+  marker has exactly two options, drop it or accept a ground-three
+  marker-defect finding, with no third today FOR THAT FORM and the PAIRING form
+  deliberately not reached — and § 6.8's as
+  [#956](https://github.com/opensoft/openxFactory/issues/956) — `target_release:
+  none` is outside `release-realization`'s ratified vocabulary, carried by 33 of
+  the 181 proposals that declare the field, 6 of them still active, and reported
+  by no gate.
 
 - [state-header-window-budget](openspec/changes/archive/2026-09-11-state-header-window-budget/proposal.md)
   — **ARCHIVED 2026-09-11** by
