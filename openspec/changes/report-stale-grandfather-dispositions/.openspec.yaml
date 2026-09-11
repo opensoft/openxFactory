@@ -24,7 +24,7 @@ origin:
     against that file with each repository materialized at the pin the
     aggregation holds (`openxFactory` `b91af6ea`, `codexFactory` `2dd4e5a3`),
     the family reports 35 rows, `20 critical / 15 info`: FIFTEEN entries match a
-    live finding and THREE match nothing. All three are codexFactory's, and all
+    live finding and THREE match nothing. All three are from codexFactory, and all
     three are stale by REPAIR — each record now carries `Status: ratified` with
     a `Ratified:` line naming an approver and a date, so no arm of this family
     opens a finding against it and the entry that grandfathered it reaches

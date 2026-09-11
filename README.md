@@ -542,7 +542,7 @@ Active changes:
   matched NOTHING**. Re-measured at authoring against the real aggregation file
   (`opensoft/xFactory` `main` `0ecb370e`, 49 entries, **18** of them
   `family: ratified-provenance`): **15 match a live finding and 3 match
-  nothing** — all three codexFactory's, all three stale BY REPAIR (the record
+  nothing** — all three from codexFactory, all three stale BY REPAIR (the record
   now carries `Status: ratified` with a `Ratified:` line naming an approver and
   a date), ZERO by a vanished path; the same 15/3 split at the aggregation's own
   pins, at `openxFactory` `8015d45f` / `codexFactory` `dc67ad82`, and again at

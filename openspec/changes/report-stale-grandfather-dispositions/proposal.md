@@ -80,7 +80,7 @@ aggregation checkout at the pin that aggregation holds (`openxFactory`
 | --- | ---: | ---: | ---: |
 | `family: ratified-provenance` | 18 | 15 | **3** |
 
-All **three** are codexFactory's, and all three are stale **by repair**: each
+All **three** are from codexFactory, and all three are stale **by repair**: each
 record now carries `Status: ratified` with a `Ratified:` line naming an
 approver and a date, so no arm of this family opens a finding against it and
 the entry that grandfathered it reaches nothing. **Zero are stale by a vanished

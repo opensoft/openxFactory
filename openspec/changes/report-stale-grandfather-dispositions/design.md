@@ -71,7 +71,7 @@ a second pair of tips. The aggregation itself is byte-unmoved: `opensoft/xFactor
 `main` is still **`0ecb370e`** at the encode.
 
 **WHY EACH OF THE THREE IS STALE, READ OFF THE RECORD RATHER THAN INFERRED.**
-All three are codexFactory's, and all three are stale **by repair** — each
+All three are from codexFactory, and all three are stale **by repair** — each
 names a `review/ratification-2026-09-05.md` that EXISTS and now carries
 `Status: ratified` with a `Ratified:` line naming an approver and a date, so
 the citation arm is satisfied and no arm of this family opens a finding
@@ -230,7 +230,7 @@ the parent's D3 refused, one level down.
    aggregation checkout with a submodule unmaterialized reports nothing for
    that repository, so every entry naming it would fall out of the difference
    and be reported stale on the strength of a measurement nobody took. Today
-   that is not hypothetical: the three stale entries are codexFactory's, and a
+   that is not hypothetical: the three stale entries are from codexFactory, and a
    run that did not materialize codexFactory would report them stale for the
    wrong reason and the fifteen openxFactory ones as well. **The set is
    `{doc.repo for doc in _lifecycle_scope(ctx)}` and NOT `ctx.repo_paths`** —
