@@ -343,14 +343,20 @@ and none is marked `[~]` because nothing is being deferred.
   | **MERGE WORD** | Brett Heap, first-hand, in session, verbatim *"merge 921"*, recorded in the lane handoff's § 32 `WORD —` line and acted on with the Rule 6 `LANDING` post on PR #921 ([comment 5629118605](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629118605)) | 2026-09-11T03:00:53Z |
   | **MERGED** | PR [#921](https://github.com/opensoft/openxFactory/pull/921) → `3ccfd6c3957bd49ef28e70ef984f13c3dc9d2c03` on `main`; `LANDED` posted at [comment 5629341902](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629341902) | 2026-09-11T04:11:24Z |
   | **ORIGIN RETAINED** | `origin_errors(strict=True)` → `[]` and `origin_retention_errors` → `[]`, printing *"ORIGIN RETAINED state-header-window-budget (declaration unchanged since the ratifying commit `8d5fb17e0eee`)"* — run on the landed packet BEFORE the move and again on the archived copy AFTER it | both clean |
-  | **ARCHIVE WORD** | **NOT GIVEN.** Brett Heap's *"archive 921"* is owed; PR [#953](https://github.com/opensoft/openxFactory/pull/953) is a DRAFT until it comes. | — |
+  | **ARCHIVE WORD** | **GIVEN.** Brett Heap, first-hand, in session, to lane `codexfactory-1` (window `codeXfactory-1`), verbatim ***"archive 921"***. PR [#953](https://github.com/opensoft/openxFactory/pull/953) is the archiving act and lands on it. | **2026-09-11T10:21:39Z** |
 
-  **AND THAT LAST ROW IS WHY THIS PULL REQUEST IS A DRAFT.** The archive act
-  is prepared, proved and frozen here; it is **not landed**. The pull request
-  does not flip READY, does not merge itself, and posts no Rule 6 `LANDING` —
-  each of those waits on Brett Heap's separate word *"archive 921"*, exactly
-  as the ratification waited on *"ratify 921"* and the merge on *"merge
-  921"*. Three acts, three words, and only two have been given.
+  **THAT LAST ROW WAS BLANK WHEN THIS ACT WAS PREPARED, AND THE PREPARATION
+  IS THE POINT.** The archive was performed, proved and frozen in a DRAFT
+  pull request that did not flip READY, did not merge itself and posted no
+  Rule 6 `LANDING`, because none of those was authorized yet. **The third
+  word has since been given** — 2026-09-11T10:21:39Z, verbatim *"archive
+  921"* — so this pull request now flips READY and lands on it, exactly as
+  the ratification landed on *"ratify 921"* and the merge on *"merge 921"*.
+  **Three acts, three separate words, each recorded before the act it
+  authorizes rather than after it.** Nothing about the archive's content
+  changed when the word arrived: the wrapper had already run, the promotion
+  was already byte-proved, and the word authorized the LANDING and nothing
+  else.
 
   **THE README RECORDS COLLISION OF 2026-09-11T03:43Z DID NOT REACH THIS
   PACKET'S BYTES, and is named here only so a reader need not re-derive it.**

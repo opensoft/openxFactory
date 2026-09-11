@@ -2827,10 +2827,12 @@ Archived changes:
   as PR [#921](https://github.com/opensoft/openxFactory/pull/921) →
   **`3ccfd6c3957bd49ef28e70ef984f13c3dc9d2c03`** on `main` at
   **2026-09-11T04:11:24Z** (Rule 6 `LANDING` 03:43:28Z, `LANDED` 04:11:32Z).
-  **AND THE THIRD WORD IS NOT GIVEN: THE ARCHIVE ITSELF IS PRE-STAGED AS A
-  DRAFT AND LANDS ONLY ON BRETT HEAP'S ***"archive 921"***.** Ratification,
-  merge and archive are three separate acts on three separate words; two have
-  been given. **WHAT IS NOW CANON:** the promoted `release-realization`
+  **AND ARCHIVED ON HIS THIRD SEPARATE WORD, ***"archive 921"***, of
+  2026-09-11T10:21:39Z** — first-hand, in session, to lane `codexfactory-1`
+  — by PR [#953](https://github.com/opensoft/openxFactory/pull/953), which
+  was prepared, proved and frozen as a DRAFT *before* that word and flipped
+  READY only on it. **Ratification, merge and archive are three separate acts
+  on three separate words, each recorded before the act it authorizes.** **WHAT IS NOW CANON:** the promoted `release-realization`
   requirement "Equivalent declaration sites for the ordered-delta parent
   declaration" states, in its own text rather than only in
   `scripts/frontmatter_strict.py`'s docstring, that the bounded lifecycle
