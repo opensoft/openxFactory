@@ -362,11 +362,22 @@ class CorpusAdapter(Protocol):
 # NOTE (#872, RULED OQ-Q): openxFactory's executable readers of this module now
 # import the pinned copy at `openDox/code/src/opendox/corpus_adapter.py` once
 # that submodule is initialized (see `corpus_adapter_openxfactory/adapter.py`'s
-# header). This file remains in place because the carve manifest's row for this
+# header). This file stays in tree because the carve manifest's row for this
 # path is `not_moved / replicated_at_destination`, and deleting a retained
-# row's path is refused by `validate-carve-manifest.py` (`carve-path-absent`)
-# — only Brett Heap can flip that row's disposition to allow removal. Until
-# then this copy is inert at run time: the two neutrality tests
-# (`tests/corpus-adapter/test_no_privileged_route.py`,
-# `tests/corpus-adapter/test_no_home_vocabulary.py`) keep checking it, and
-# nothing else reads it.
+# row's path is refused by `validate-carve-manifest.py` (`carve-path-absent`):
+# only flipping that row's disposition (Brett Heap's act) or folding this path
+# into a follow-up shed PR makes removal lawful.
+#
+# NO APPLICATION CONSUMER reads this copy any more -- every executable reader
+# of the interface's dataclasses was re-pointed above. What still reads this
+# exact path, by design, is structural test tooling comparing shapes or
+# refusals rather than nominal class identity, for which a second,
+# separately-loaded copy of the interface is the point, not a defect:
+#   - by import: `scripts/carve_conformance.py`,
+#     `tests/carve_conformance/home_factory.py` and
+#     `tests/carve_conformance/test_verify_carve_conformance.py` (see that
+#     file's own docstring on why a distinct class object here must PASS),
+#     `tests/corpus-adapter/test_interface_closure.py`, and two dashboard
+#     test modules, `test_authoring_classify_derivation.py` and
+#     `test_doxbench_status_exemption.py`
+#   - by path, never imported: the two neutrality scans named above

@@ -314,20 +314,7 @@ def _classify_proposal(text: str):
     read exactly as it was written and one that cannot be encoded is read the
     way this corpus would read it rather than raising inside a gate.
     """
-    import sys as _sys
-
-    # #872 (RULED OQ-Q): pinned openDox copy, not the local replica.
-    _opendox_src = Path(__file__).resolve().parents[2] / "openDox" / "code" / "src"
-    if not (_opendox_src / "opendox" / "corpus_adapter.py").is_file():
-        raise ImportError(
-            "ideation_dashboard.authoring: the pinned openDox corpus-adapter "
-            f"interface is not at {_opendox_src / 'opendox' / 'corpus_adapter.py'}. "
-            "Run `git submodule update --init --recursive openDox` from the "
-            "repository root.")
-    if str(_opendox_src) not in _sys.path:
-        _sys.path.insert(0, str(_opendox_src))
-
-    from opendox.corpus_adapter import DocumentId
+    from corpus_adapter import DocumentId
     from corpus_adapter_openxfactory import home_corpus
 
     with tempfile.TemporaryDirectory(prefix="xf-proposal-") as staged:
