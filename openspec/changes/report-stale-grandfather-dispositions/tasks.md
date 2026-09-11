@@ -130,7 +130,8 @@ ARCHIVE pull request and nowhere else.
       re-run pasted). **STILL NO COLLISION.** Nine pull requests are open;
       #966's own packet now exists —
       [#978](https://github.com/opensoft/openxFactory/pull/978) DRAFT,
-      `change/decide-disposition-reading-per-family` at `59fb2047` — and its
+      `change/decide-disposition-reading-per-family` at `59fb2047`, **`ee243dd2`
+      when the head was re-read in the PR #981 bench round** — and its
       `## MODIFIED` block writes *Finding severity and regression handling*
       (canon line 198), NOT this packet's *Governed corpus membership and the
       lifecycle scan set* (canon line 878). The two deltas write disjoint bytes
@@ -510,7 +511,9 @@ re-run's, not the first authoring's.
       **#966 IS NOW CLAIMED AND ITS PACKET IS OPEN** —
       `decide-disposition-reading-per-family`,
       [#978](https://github.com/opensoft/openxFactory/pull/978), DRAFT at
-      `59fb2047` — and it writes a DIFFERENT requirement, so it collides with
+      `ee243dd2` (`59fb2047` at this packet's encode; the head was RE-READ in
+      the PR #981 bench round and both halves of the non-collision re-proved
+      against it) — and it writes a DIFFERENT requirement, so it collides with
       nothing here (`design.md` D5, `tasks.md` § 2.9). The arm here is narrow by CONSTRUCTION and
       not by convention: `_grandfather_cites` asks the shared reader for this
       family's key set alone, so an entry naming another family is not in the

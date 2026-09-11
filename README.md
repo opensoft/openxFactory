@@ -556,8 +556,9 @@ Active changes:
   packet, DRAFT PR
   [#978](https://github.com/opensoft/openxFactory/pull/978), writes a DIFFERENT
   requirement and a branch-only parent is never declared). **THE CODE SURFACE
-  RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one second
-  last pass (`_stale_grandfather_dispositions`) and
+  RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one SECOND
+  AND FINAL grandfather-disposition pass (`_stale_grandfather_dispositions`,
+  appended to the downgrade's result by the family's own `return`) and
   `tests/doc-health/test_grandfather_dispositions.py` goes **23 → 40** test
   functions (`grep -c '^def test_'`, the before-figure read at `origin/main`
   `0805c3bb`; it read 22 → 34 at the first authoring, before `main` added one
