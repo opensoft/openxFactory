@@ -98,9 +98,12 @@
 # CI is expected, not a regression. MEASURED 2026-08-27 on this suite: 18 in a
 # developer worktree, 21 on a runner (a three-skip difference; it was two before
 # `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
-# guard, which resolves and RUNS in a worktree beside `xFactories/`). The exact
-# runner number is pinned in `EXPECT_SKIPPED` below, where the reason for each
-# move is recorded.
+# guard, which resolves and RUNS in a worktree beside `xFactories/`). SINCE THE
+# § 5.2 SHED (2026-09-11) the runner number is 6, because one of the two files
+# that carried those guard strings — `tests/ideation-dashboard/
+# test_session_harness.py` — is one of the 111 test files the shed moved to the
+# legs; the other stays and still skips. The exact runner number is pinned in
+# `EXPECT_SKIPPED` below, where the reason for each move is recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -629,9 +632,33 @@ jobs:
           # message. Measured at run 33111235491 (PR #431, 2026-08-27), the
           # LOWER of the two runs, so the floor is a number this suite has
           # actually met rather than the high-water mark of one run.
-          MIN_SELECTED: "7090"
-          MIN_PASSED: "7070"
-          # EXACT — the anti-vacuity pin. 21 on a runner. A developer worktree
+          #
+          # THE ONE LOWERING, AND WHY IT IS NOT THE THING THE FLOOR GUARDS
+          # AGAINST (§ 5.2 SHED, RULED (a) `#656` comment `5625573095`). The
+          # shed removed 319 declared paths from this repository, and 111 of
+          # them are `test_*.py` files — 71 to openXdox-code, 40 to
+          # openDox-code — that now run in THOSE repositories' own suites at
+          # the commits this one pins. So the tests did not stop being
+          # collected, which is the failure this floor exists to catch; they
+          # stopped being THIS suite's tests, by a declared act whose every
+          # path is a manifest row (`docs/opendox-carve-manifest.yaml`,
+          # `scripts/validate-carve-manifest.py` re-derives the 319).
+          # `git diff --name-only origin/main...HEAD` carries no test deletion
+          # that is not one of those rows, which is the check a reader should
+          # redo rather than take on trust.
+          #
+          # RE-MEASURED, not estimated: run 34607968174 on this branch (§ 5.2
+          # shed PR #940, 2026-09-11) printed `selected=7053 passed=7047
+          # skipped=6 failures=0 errors=0`, its own summary line `6876 passed,
+          # 6 skipped, 338 deselected, 171 subtests passed`. The floors are
+          # pinned AT those numbers, the same discipline as the 2026-08-27 cut:
+          # a number this suite has actually met, on a runner, with the
+          # subtest arithmetic already in it (6876 + 6 + 171 = 7053). They may
+          # only rise from here.
+          MIN_SELECTED: "7053"
+          MIN_PASSED: "7047"
+          # EXACT — the anti-vacuity pin. 6 on a runner since the § 5.2 shed
+          # (21 before it; the move is recorded below). A developer worktree
           # inside the aggregation checkout measures a DIFFERENT number, because
           # the self-skip guards ("no sibling openxFactory checkout", "no
           # aggregation checkout reachable from this tree", "no sibling
@@ -700,25 +727,46 @@ jobs:
           #   * BEFORE the transfer completes (Phase 1, step 1.6 INCLUDED),
           #     the mint and the checkout both fail, `locate_pinned_core()`
           #     stands both watched tests down, and this job reports
-          #     `skipped=23` against the pinned 21 with `TheFreshnessVerifier`
+          #     TWO skips above the pin — `skipped=23` against 21 when that
+          #     entry was written, `skipped=8` against the 6 pinned since the
+          #     § 5.2 shed — with `TheFreshnessVerifier`
           #     and `TheVectorReplay` both `skipped`. **That red is by design
           #     and it is the only red this branch is allowed to carry.** It is
           #     also why the pull request realizing this change is a DRAFT that
           #     no green can clear early.
           #   * AFTER 1.6, the mint resolves, the checkout succeeds, both
-          #     watched tests RUN, and the job reports `skipped=21` with both
+          #     watched tests RUN, and the job reports the pinned number
+          #     exactly (21 when this entry was written, 6 since the § 5.2
+          #     shed) with both
           #     named verdicts `passed`. **That reading is the merge-time proof
           #     for the branch, and the only one that counts** — a green on any
           #     other check says nothing about the cross-organization read,
           #     because no other check performs it.
           #
-          # A 23 SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
+          # THE PIN-PLUS-TWO SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
           # installation, the App's repository access, or the reusable-workflow
           # access policy is wrong, and the fix is that configuration — NEVER
-          # this pin and never a wider token. Moving the pin to 23 would
-          # convert exactly the failure this design exists to surface into the
-          # expected state, permanently.
-          EXPECT_SKIPPED: "21"
+          # this pin and never a wider token. Moving the pin UP BY THOSE TWO
+          # would convert exactly the failure this design exists to surface
+          # into the expected state, permanently.
+          #
+          # MOVED 21 -> 6 BY THE § 5.2 SHED, WITH THE REASON, WHICH IS WHAT
+          # THIS PIN ASKS FOR. Of the 21 skips a runner measured on `main`, 15
+          # lived in the 111 `test_*.py` files the shed moved to the two legs
+          # and left this repository with them — including the "no aggregation
+          # checkout reachable from this tree" guard in
+          # `tests/ideation-dashboard/test_session_harness.py`, one of the two
+          # files that carried the guard strings named above. The other,
+          # `tests/domain_pin_setter/test_set_domain_openxfactory_pin.py`
+          # ("no sibling LedgerxFactory checkout reachable from this tree"),
+          # STAYS and still skips, which is why the number falls rather than
+          # going to zero. Nothing turned into a skip: run 34607968174 measured
+          # `skipped=6` with `failures=0 errors=0` and both named verdicts
+          # `passed`, and the shed's OWN 27 conditional skips — the validator
+          # and corpus readers that pointed at moved files between `dd0f307a`
+          # and `20cfd0b9` — were re-pointed at the pinned legs rather than
+          # left standing down, which is the move this pin exists to force.
+          EXPECT_SKIPPED: "6"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #
