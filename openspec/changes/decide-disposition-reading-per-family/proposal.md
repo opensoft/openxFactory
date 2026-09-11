@@ -36,7 +36,8 @@ MEANS.**
 scenario (`openspec/specs/doc-health/spec.md` line 2177) and its module already
 reads the file under its own name —
 `dispositions = promotion_fidelity.load_dispositions(ctx, FAMILY)` at
-`scripts/doc_health/modified_block_currency.py:2230`. Its **four** entries are
+`scripts/doc_health/modified_block_currency.py` (`fam_modified_block_currency`,
+line 2236 at `origin/main` `d4d96cca`). Its **four** entries are
 therefore governed today by that family's own declaration, which is exactly why
 they are Class A and why Class A's recommendation is NO CHANGE. **THE
 UNDECIDED POPULATION IS THE SEVEN FAMILIES WITH NO DECLARED READING — 27 of the
@@ -107,7 +108,9 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   real file. It is the only arm that reads ALL thirty — **not** the only arm that
   reads every one of them: `modified-block-currency`'s four entries are also read
   by that family's own module
-  (`modified_block_currency.py:2230` → `promotion_fidelity.load_dispositions(ctx, FAMILY)`),
+  (`modified_block_currency.py`, `fam_modified_block_currency` →
+  `promotion_fidelity.load_dispositions(ctx, FAMILY)`, line 2236 at `origin/main`
+  `d4d96cca`),
   and that second reading is a promoted declaration rather than a gap (D0.1,
   Class A).
 - **THE THIRTY-FIRST IS A DEAD LETTER.** The single `uncited-resolution` entry

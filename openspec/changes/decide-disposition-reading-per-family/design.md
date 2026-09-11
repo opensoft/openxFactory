@@ -379,8 +379,9 @@ scope: it constrains what an entry MEANS, not where the file is found.
 - **NO ACTIVE SIBLING DELTA COLLIDES WITH THE HEADING THIS PACKET MODIFIES, AND
   THE COORDINATION WAS TAKEN LATE ON PURPOSE.** #965's packet would be the one
   that could: `gh pr list --repo opensoft/openxFactory --search 965 --state open`
-  was run on 2026-09-11 after this branch merged `origin/main` `c521504c`, and
-  **no `report-stale-grandfather-dispositions` pull request exists** — #965 is
+  was run on 2026-09-11 after this branch merged `origin/main` `c521504c` and
+  again after it merged `d4d96cca`, and **no
+  `report-stale-grandfather-dispositions` pull request exists** — #965 is
   unclaimed and has no branch. The whole open set was listed as the control
   (#979, #977, #976, #963, #962, #888, #594, #518 and this one), and the
   repository-wide search
