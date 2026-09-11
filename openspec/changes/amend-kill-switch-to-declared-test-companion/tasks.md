@@ -126,8 +126,9 @@ codexFactory**, authored there, exactly as
       that pins that enrolment, and `# companion-artefact: <repo-relative path>
       regenerate: <identifier>` for every golden/snapshot file whose recorded
       value moves with it — where `<repo-relative path>` is a **NORMALIZED
-      REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT** and anything
-      else is refused at capture (3.2 step 1), and **the `regenerate:` FIELD IS
+      REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT AND TRACKED AT
+      THE CONTROL BASELINE** and anything else is refused at capture (3.2
+      step 1), and **the `regenerate:` FIELD IS
       AN ALLOWLISTED IDENTIFIER AND NEVER A COMMAND**. The envelope is a
       pull-request-editable file and 3.2 runs inside a REQUIRED check, so the
       declaration carries a BARE TOKEN and nothing executable. This task
@@ -203,6 +204,20 @@ codexFactory**, authored there, exactly as
       checkout and no comparison is ever made on a non-canonical spelling.
       A refusal at EITHER stage FAILS THE CHECK, NAMING THE REFUSAL CLASS AND THE
       OFFENDING DECLARATION, exactly as an unresolvable identifier does.
+      **AND (c) THE DECLARED PATH MUST BE TRACKED AT THE CONTROL BASELINE.** A
+      `# companion-artefact:` names a RECORDED VALUE, and a recorded value lives
+      in the tree by definition — the golden digest is tracked — so a declared
+      path that version control DOES NOT TRACK is REFUSED HERE TOO, as a
+      CONFORMANCE FAILURE AGAINST THE CLASS: `git ls-files --error-unmatch
+      <path>` issued in step 2's hermetic scratch repository on the
+      PRE-WITHDRAWAL tree this step parsed — the tree step 2a commits UNCHANGED
+      as the CONTROL BASELINE — so the refusal is decided before any withdrawal
+      is applied, naming the refusal class and the offending declaration.
+      **AN IGNORED OR UNTRACKED PATH IS THEREFORE NEVER DECLARABLE**, and the
+      equalities below have no ignored member to accommodate: the barrier's
+      `git clean -fdx` can never delete a DECLARED artefact, and an ignored path
+      appearing in any inventory is an ACCIDENTAL output that fails step 4
+      rather than a correctly declared one the check could never pass.
       The captured sets are the expected values every later step compares
       against: step 2b removes those very comment lines from the tree being
       measured, so a test that has not captured them first has no declaration
@@ -228,6 +243,15 @@ codexFactory**, authored there, exactly as
       class exactly as it attributes a real movement, so the declaration would
       pin an artefact the withdrawal never moved. With it, **EVERY ATTRIBUTED
       PATH IS ONE THE WITHDRAWAL CAUSED**.
+      **AND EVERY ALLOWLISTED INVOCATION — IN THIS CONTROL LOOP AND IN STEP 4
+      ALIKE — RUNS WITH INTERPRETER CACHES SUPPRESSED**: `PYTHONDONTWRITEBYTECODE=1`,
+      and `PYTHONPYCACHEPREFIX` pointed at a directory OUTSIDE the scratch tree,
+      the companion change's design NAMING THE EQUIVALENT for any non-Python
+      runtime it allowlists. **DETERMINISM IS BYTE-IDENTITY OF THE WHOLE TREE,
+      IGNORED AND UNTRACKED PATHS INCLUDED** — a tool that leaves a cache or a
+      scratch file behind is NON-CONFORMANT, never excused — and suppressing the
+      interpreter's own caches is what keeps that demand about THE TOOL rather
+      than about the runtime that happened to execute it.
       **STEP 2b — WITHDRAW THAT CLASS ALONE AND COMMIT THE MEASUREMENT
       BASELINE.** In the same
       scratch tree remove THAT class's candidate mapping and its companion
@@ -355,13 +379,15 @@ codexFactory**, authored there, exactly as
       that identifier's run and BEFORE the next iteration's barrier.
       **`git diff --name-only` IS NOT THE INVENTORY, AND WOULD NOT BE SUFFICIENT
       AS ONE**: it reports only changes to TRACKED content, so a generator that
-      writes a NEW file — above all one the repository IGNORES, and this procedure
-      expressly contemplates tools that write ignored outputs — produces an
-      artefact the equality never sees, which is exactly the UNDECLARED output
-      this check exists to catch. **AN IGNORED PATH A TOOL PRODUCES COUNTS AS
-      PRODUCED**, enters that identifier's pair set, and FAILS the equality when
-      undeclared precisely as a tracked one does; being ignored by `git` is a
-      statement about version control, never about whether the tool wrote it.
+      writes a NEW file — above all one the repository IGNORES, which NO
+      DECLARATION MAY NAME (step 1) and which is therefore always an ACCIDENTAL
+      output — produces an artefact the equality never sees, which is exactly
+      the UNDECLARED output this check exists to catch. **AN IGNORED PATH A TOOL
+      PRODUCES COUNTS AS PRODUCED**, enters that identifier's pair set, and
+      FAILS the equality — ALWAYS, since a declared artefact is a TRACKED path
+      and no ignored path can be declared — precisely as an undeclared tracked
+      one does; being ignored by `git` is a statement about version control,
+      never about whether the tool wrote it.
       Assert that the resulting
       set of **`{(identifier, path)}` PAIRS EQUALS that class's captured
       `# companion-artefact:` PAIR SET** exactly — path AND identifier, **no

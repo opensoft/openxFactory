@@ -191,7 +191,8 @@ change picks ONE placement and the checker reads that one — one line per entry
   table row that resolves it, is the realizing companion change's work.
 
 **AND `<repo-relative path>` IS A NORMALIZED POSIX REPOSITORY-RELATIVE PATH
-CONTAINED IN THE CHECKOUT — THE GRAMMAR ADMITS NOTHING ELSE.** The envelope is a
+CONTAINED IN THE CHECKOUT AND TRACKED AT THE CONTROL BASELINE — THE GRAMMAR
+ADMITS NOTHING ELSE.** The envelope is a
 PULL-REQUEST-EDITABLE file and the procedure below reads the declared path from
 disk, so an unconstrained path would let a proposed declaration name a location
 outside the repository or be compared in a non-canonical spelling. It cannot, by
@@ -220,6 +221,18 @@ declaration the checker and the specification disagree about.
 
 A refusal at EITHER stage FAILS THE CONFORMANCE CHECK, NAMING THE REFUSAL CLASS
 AND THE OFFENDING DECLARATION.
+
+**AND (c) THE PATH IS TRACKED AT THE CONTROL BASELINE, WHICH IS WHY AN IGNORED
+OUTPUT IS NOT A DECLARABLE ARTEFACT.** A `# companion-artefact:` names a RECORDED
+VALUE — the golden digest is the case in point — and a recorded value lives in
+the tree. Step 1 therefore ALSO refuses a declared path that version control does
+not TRACK at the control baseline (`git ls-files --error-unmatch <path>` in the
+hermetic scratch repository), as a conformance failure against the class. The
+consequence is deliberate and is the reason the rule is stated: a tool whose
+output the repository IGNORES cannot have that output DECLARED, so the barrier's
+`git clean -fdx` can never delete a declared artefact, and an ignored path
+appearing in any inventory is an ACCIDENTAL output that fails step 4 — never a
+correctly declared one the control run could never pass.
 
 **THE `regenerate:` FIELD IS AN ALLOWLISTED IDENTIFIER, NEVER A COMMAND, AND THE
 DECLARATION THEREFORE CANNOT INTRODUCE EXECUTION.** The envelope is a
@@ -274,7 +287,13 @@ later step consumes what an earlier step captured or committed.**
    DOES NOT OPEN OR READ THE ARTEFACT BEFORE CONTAINMENT HOLDS. A refusal at
    either stage happens HERE, naming the refusal class and the offending
    declaration, rather than the declaration being read or existence-checked
-   outside the checkout. The
+   outside the checkout. **AND THE DECLARED PATH MUST BE TRACKED AT THE CONTROL
+   BASELINE** — `git ls-files --error-unmatch <path>` in the hermetic scratch
+   repository, on the pre-withdrawal tree 2a commits unchanged as that baseline
+   — so AN IGNORED OR UNTRACKED PATH IS NEVER DECLARABLE: a recorded value lives
+   in the tree by definition, and a declaration naming a path version control
+   does not track is a conformance failure against the class, refused here
+   rather than discovered at step 4 as an equality that could never hold. The
    reason this is FIRST is mechanical:
    step 2b removes those very comment lines from the tree being measured, so a
    test that has not already captured them has no declaration left to compare
@@ -299,7 +318,15 @@ later step consumes what an earlier step captured or committed.**
    EVERY run — a recorded timestamp, a nonce, an unordered map — produces its
    delta whatever the tree holds, and step 4 would attribute that delta to the
    class exactly as it attributes a real movement. With it, every attributed path
-   is one THE WITHDRAWAL CAUSED.
+   is one THE WITHDRAWAL CAUSED. **AND EVERY ALLOWLISTED INVOCATION — HERE AND
+   IN STEP 4 — RUNS WITH INTERPRETER CACHES SUPPRESSED**: `PYTHONDONTWRITEBYTECODE=1`
+   and `PYTHONPYCACHEPREFIX` pointed OUTSIDE the scratch tree, the companion
+   design naming the equivalent for any non-Python runtime it allowlists.
+   Determinism is BYTE-IDENTITY OF THE WHOLE TREE, ignored and untracked paths
+   included: a tool that leaves a cache or a scratch file behind is
+   non-conformant rather than excused, and suppressing the interpreter's own
+   caches keeps that demand about THE TOOL rather than about the runtime that
+   ran it.
    **2b — THE WITHDRAWAL AND ITS BASELINE.** In the scratch tree, APPLY THE WITHDRAWAL — that class's
    candidate mapping and its companion comment lines removed, and nothing else —
    and **COMMIT IT AS THE BASELINE COMMIT**. Every measurement below is taken in
@@ -404,10 +431,11 @@ later step consumes what an earlier step captured or committed.**
    IMMEDIATELY AFTER the run and BEFORE the next iteration's barrier.
    **`git diff --name-only` IS NOT THE INVENTORY**: it reports only changes to
    TRACKED content, so a generator that writes a NEW file — above all one the
-   repository IGNORES, and this procedure expressly contemplates tools that write
-   ignored outputs — produces an artefact the equality never sees, which is the
-   undeclared output the check exists to catch. **AN IGNORED PATH A TOOL PRODUCES
-   COUNTS AS PRODUCED** and fails the equality when undeclared exactly as a
+   repository IGNORES, which NO DECLARATION MAY NAME (step 1) and which is
+   therefore always an accidental output — produces an artefact the equality
+   never sees, which is the undeclared output the check exists to catch. **AN
+   IGNORED PATH A TOOL PRODUCES COUNTS AS PRODUCED** and fails the equality —
+   always, a declared artefact being a tracked path — exactly as an undeclared
    tracked one does: being ignored by `git` says something about version control,
    nothing about whether the tool wrote it.
    The measured value is therefore a set of **`{(identifier, path)}`
@@ -568,10 +596,13 @@ capture before withdrawal; a committed hermetic baseline; a complete INDEPENDENT
 inventory with the conformance module excluded BY PATH; per-identifier
 attribution as (identifier, path) PAIRS over the FULL working-tree delta, ignored
 and untracked paths included; allowlisted identifiers resolved ONLY in
-trusted test code; artefact paths refused LEXICALLY and then CONTAINED; index AND
+trusted test code; artefact paths refused LEXICALLY and then CONTAINED; DECLARED
+ARTEFACTS ARE TRACKED PATHS at the control baseline, an ignored or untracked path
+never being declarable; index AND
 worktree reset between tools; THE DETERMINISM AND IDEMPOTENCE OF EVERY
-ALLOWLISTED RECORDING TOOL, PROVED BY A CONTROL RUN ON THE COMMITTED
-PRE-WITHDRAWAL TREE WHOSE INVENTORIES MUST BE EMPTY — **AN INVARIANT, NOT A
+ALLOWLISTED RECORDING TOOL — A BYTE-IDENTICAL NO-OP, IGNORED AND UNTRACKED PATHS
+INCLUDED, WITH INTERPRETER CACHES SUPPRESSED — PROVED BY A CONTROL RUN ON THE
+COMMITTED PRE-WITHDRAWAL TREE WHOSE INVENTORIES MUST BE EMPTY — **AN INVARIANT, NOT A
 MECHANIC**: what the control run must ESTABLISH is fixed here, while HOW it is
 issued is the companion's to specify, and without it no post-withdrawal delta is
 attributable to the withdrawal at all; NON-EMPTINESS; and the two equalities with
