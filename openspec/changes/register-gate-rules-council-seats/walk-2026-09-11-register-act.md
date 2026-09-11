@@ -1276,3 +1276,97 @@ a ruling:
 
 **NOTHING IS AMENDED BY THIS SECTION.** `design.md` § D4 reads today exactly as
 it was ratified. This is a disposition entry and a queue marker.
+
+---
+
+## 15. Proof convening — result (2026-09-11T09:58:00Z)
+
+**Appended by lane `hermes-wallet-exercise`, on Brett Heap's ruling (multi-choice,
+2026-09-11T09:51:53Z): "Re-dispatch once on a clean candidate."** §14.3 recorded run
+`34561266626`'s refusal (`council.self_review_refused`, against #349) and the ruling that
+followed named the remedy: re-dispatch once, on a candidate the FR-021 assessment
+(`brief-part-C-executor.md`, appended section `## FR-021 self-review reach — assessment
+(2026-09-11T09:52:51Z)`) actually names as clean. This section records that one re-dispatch.
+Nothing above this line is rewritten, per this document's own lifecycle rule
+(`docs/document-lifecycle.md`).
+
+### 15.1 Candidate selection and cleanliness
+
+The FR-021 assessment's §(5) named codexFactory **#389** as the recommended candidate
+(merge-base `77537d7d` ≥ T1 `02e14c08`; zero `agent-mixes.yaml`/`gate-rules.yaml`
+occurrences in its then-current head's commit-API enumeration), with **#363** as fallback.
+Both were re-verified fresh at dispatch time, not reused from the assessment's snapshot:
+
+| | Value |
+|---|---|
+| Chosen candidate | codexFactory PR **#389** (open, non-draft, `mergeable: MERGEABLE`) |
+| Head sha (`subject_pin`) at dispatch | `ba83adc8983b34a2a92e872f00da8a44156b3613` — a 2-parent merge commit (parents `6bfeb0439…`, #389's own prior tip per the assessment table, and `9433796e4…`), re-read immediately before dispatch and unchanged |
+| Commit-API enumeration | 18 files (`gh api repos/codeXfactory/codexFactory/commits/ba83adc8… --jq '[.files[].filename]'`) — **no** `hermes/domain/agent-mixes.yaml`, **no** `hermes/domain/review-councils/gate-rules.yaml` |
+| Fallback considered | codexFactory PR #363 — merged in the same window, at `2026-09-11T09:52:07Z` (head `bdf1b886…`); independently re-verified clean (3 files, no council-machinery names) — **not needed**, #389 passed |
+
+### 15.2 Dispatch and outcome
+
+```sh
+gh workflow run gate-rules-convening-trigger.yml -R codeXfactory/codexFactory --ref main \
+  -f rule_packet_ref=hermes/domain/review-councils/convening-packets/2026-09-09-openxfactory-substantive-candidate-class-re-put.md \
+  -f subject_pin=ba83adc8983b34a2a92e872f00da8a44156b3613 \
+  -f candidate_pull_number=389
+```
+
+**RUN [`34586762846`](https://github.com/codeXfactory/codexFactory/actions/runs/34586762846)**
+— `workflow_dispatch`, created **2026-09-11T09:56:58Z**, **conclusion `success`**.
+
+**VERDICT: ADMITTED.** The `claim` job succeeded through all six steps, including "Verify the
+domain-content projection carries this council" and "Claim the convening from the runtime."
+The `convene / convene` job succeeded (17s), sealing and publishing the bounded request.
+
+- `subject_pin_source`: `codeXfactory/codexFactory#389`
+- `subject_pin_verified_at`: `2026-09-11T09:57:05.742914+00:00`
+- Runtime notice, verbatim: *"convening GRC-CONVENE-ba83adc8983b-34586762846 admitted for
+  ba83adc8983b34a2a92e872f00da8a44156b3613; the producer is called next."*
+- **GRC id: `GRC-CONVENE-ba83adc8983b-34586762846`**
+- Materialized `review_council` content carries `gate_rules_council` at overlay revision
+  `8931ee2e18948d7e61418a3f84c94180f283eccf`.
+- Resolved bench (4 seats): `lead-architect`, `lead-security`, `lead-quality`,
+  `company-policy-lead` (`intent_owner_role_slot` excluded as `symbolic_until_project_roster`,
+  the same roster rule the earlier run also observed).
+- Sealed artifact `sealed-gate-rules-convening-request` published, 9928 bytes, one-day
+  retention.
+
+**No refusal of any code** — not `council.self_review_refused` (§14.3's cause on the prior
+candidate), not `review_authority.register_stale`, not `review_authority.grant_revoked`, not
+`council.convening_exists`. **One dispatch, one admission, stop** — not re-dispatched again,
+per the ruling.
+
+Posted in full at codexFactory
+[#279 comment 5632761595](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5632761595).
+
+### 15.3 FR-021 self-review reach — assessment summary
+
+Full assessment: `~/session-prompts/stage-361-clarify-gate-rules-decline-position/brief-part-C-executor.md`,
+appended section `## FR-021 self-review reach — assessment (2026-09-11T09:52:51Z)`.
+
+**Verdict: a real, narrow defect, filed against `hermes-install`** (owner of the derivation),
+not against codexFactory's wrapper —
+[`opensoft/xFactory-Hermes-Install#89`](https://github.com/opensoft/xFactory-Hermes-Install/issues/89).
+`guard_convening` (hermes-install `src/hermes_install/domain/touched_objects.py:264-326`)
+derives the touched-object set via `HttpCommitTouchedObjectResolver.resolve`
+(`review_authority/resolvers.py:381-391`), which reads GitHub's **single-commit**
+`commits/{sha}` endpoint. For an ordinary commit this is that commit's own changed files; for
+a **merge commit**, GitHub reports the diff against the **first parent only** — so when a
+candidate's head is itself a "merge `main` in" commit, the derived touched set becomes
+"everything `main` gained since the branch point," not "what the candidate itself changed."
+Since T1 put `hermes/domain/agent-mixes.yaml` onto codexFactory `main`, any such merge-forward
+commit's first-parent diff sweeps that file in, and `gate_rules_council` refuses it
+`council.self_review_refused` regardless of the candidate's own substantive diff — #349
+(refused at run `34561266626`, §14.3) is the proof: its own three files touch no council
+machinery at all. Measured blast radius (2026-09-11T09:52:51Z): **zero** of the 5 then-open
+codexFactory PRs actually carried `agent-mixes.yaml` in their commit-API enumeration, and
+30/30 `merge-master-approval` runs plus 23/23 `council-convening-lane` runs since T1 were
+unaffected — the guard only bites the rare, manual, operator-dispatched gate-rules-council
+proof-convening path, never ordinary tier-1/tier-2 PR merging. **Not urgent**; avoidable by
+candidate choice, which is exactly what §15.1 did. Proposed fix direction (filed in the
+issue): derive the touched set against the merge-base with the base branch instead of a
+single-commit read, or exclude a merge commit's second-parent reach from the enumeration.
+
+**This record stays `Status: record`.**

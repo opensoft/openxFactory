@@ -98,6 +98,26 @@ origin:
     anywhere is `amend-mirror-floor-regeneration-merge-authority` box 4.3, on
     the tick-on-the-recording rule of 2026-09-06.
   proposed_on: 2026-09-10
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — 2026-09-11T01:15Z (approx.),
+    first-hand, in session. A SELECTION, NOT A TYPED SENTENCE: presented with
+    the lane's multi-choice question, he chose the option "Ratify with
+    amendment", whose text read: "Ratify the text now; hold realization until
+    the third unattended codexFactory cycle is measured and the
+    unrecorded-class fix is observed on a live approval."
+    THE SELECTION RATIFIES THE TEXT AND AMENDS TASK 1.5 / D-3 IN ONE ACT: the
+    enrolment, the four safeguards and decision N-1's re-opening toward N-1
+    (b) are ratified AS WRITTEN; realization (tasks.md § 3) is HELD beyond
+    this packet's own § 4 preconditions until the two preconditions named at
+    task 1.5 are met (design.md § Amended at ratification). Recorded on
+    openxFactory #745 (the CLAIMED comment,
+    https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628376484);
+    THE SELECTION WAS GIVEN IN SESSION AND HAS NO SEPARATE CODEXFACTORY
+    POSTING, unlike the earlier filing word. Recorded in
+    `review/ratification-2026-09-11.md`. THIS APPROVAL DOES NOT PERFORM
+    REALIZATION: no envelope byte, no workflow, no test, no ruleset, no
+    floor, no pin byte moves by this word alone.
+  approved_on: 2026-09-11
 related:
   - openxFactory:change:amend-mirror-floor-regeneration-merge-authority             # ACTIVE, ratified 2026-09-08, realized INERT 2026-09-09. THE PARENT: its § The realization gate names this packet and writes out its measured shape, and its box 4.3 is the one box this pull request ticks
   - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes             # ACTIVE, ratified 2026-09-07 (PR #746). The § 6.3 packet: its N-1 admitted the codexFactory regeneration lane ONLY, its N-1 (b) and N-1b (ii) are what this packet asks for, and its ADDED roles-authority-model requirements are the canon this enrolment must satisfy
