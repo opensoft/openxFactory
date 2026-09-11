@@ -543,8 +543,13 @@ Active changes:
   already encoded, so **THE WORDING STANDS UNCHANGED** and no delta byte was
   re-written, restored or deleted. Records
   `openspec/changes/amend-merged-into-empty-tail-standing/review/ratification-2026-09-11.md`
-  and
-  `openspec/changes/amend-merged-into-empty-tail-standing/review/verification-2026-09-11.md`.
+  (`Status: ratified`), plus the three gate captures
+  `review/verification-2026-09-11.md`,
+  `review/verification-2026-09-11-post-merge.md` and
+  `review/verification-2026-09-11-final.md` (all `Status: record`, each a
+  one-shot capture at its own dated path and none editing an earlier one —
+  the FINAL capture is the current evidence, superseding the post-merge
+  capture's own over-broad claim).
   `.openspec.yaml` keeps the drafting provenance it was authored with and the
   approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
   unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
