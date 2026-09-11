@@ -18,7 +18,9 @@ canon"**, by multiple choice in session (~01:3xZ), recorded on #914 at
 2026-09-11T02:06:38Z (comment
 [`5628349929`](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5628349929)).
 A `Merged into` marker declares its DESTINATION in its PREFIX and owes no tail;
-the silence is correct and canon says so.
+the silence is correct and canon IS TO SAY SO — which this packet proposes and
+does not perform, promoted canon still carrying the undecided clause until the
+archive act.
 
 **THAT RULING REACHES D1's DIRECTION AND NOTHING ELSE ON THIS PAGE.** It was
 given before a sentence existed, so it cannot have approved one. **D1 IS
@@ -279,8 +281,8 @@ SIBLINGS:**
 
 **NO OTHER ACTIVE CHANGE CARRIES A `## MODIFIED` BLOCK FOR THIS REQUIREMENT**,
 so the two-writers ordering this very requirement reports is not in play and
-`sequenced_after: []` is declared as an explicit root claim. The three active
-changes that name the requirement at all mention it in PROSE —
+`sequenced_after: []` is declared as an explicit root claim. The three OTHER
+active changes that name the requirement at all mention it in PROSE —
 `prepare-openspec-1-12-readiness/tasks.md`,
 `disposition-codexfactory-floor-relocation-retitle/design.md`,
 `disposition-codexfactory-declared-renames/design.md` — and carry no delta over
@@ -297,17 +299,23 @@ and not one touches `openspec/specs/doc-health/spec.md`,
 `scripts/doc_health/modified_block_currency.py` or
 `tests/doc-health/test_modified_block_currency.py`.
 
-**OPEN ISSUES NAMING A MARKER — ONE, AND IT IS #914 ITSELF.** The three
+**OPEN ISSUES NAMING A MARKER — ONE, AND IT IS #914 ITSELF.** The TWO OTHER
 issues this family's recent packets left open are #893 (the uncited-resolution
 rule's per-class grain, filed by `amend-modified-block-currency-standing`) and
 #915 (`specs/019` FR-018's three-grounds restatement, filed by
 `amend-marker-declaring-nothing`), neither of which this packet touches or
-forecloses — see D6.
+forecloses — see D6. Two, and #914 itself, is the three this family is carrying.
 
 **THE CLAIM.** It stands on #914 at 2026-09-11T02:06:38Z — the ruling comment
 itself carries it — naming lane `openxfactory-1` and session `a9c24afc` and its
 own sibling-search line (*"no open PR or active change names the pairing form's
-empty tail"*). The table above is THIS AUTHORING'S re-derivation of that search,
+empty tail"*). **THAT LINE'S "pairing form" IS #914'S COLLOQUIAL WORDING AND NOT
+THIS PACKET'S TERM**, quoted as the record has it rather than silently repaired:
+the shape searched for, and the shape ruled on, is the `Merged into` form, while
+"pairing form" elsewhere in this packet and in `parse_marker` means the distinct
+``**Modified over `<basis>`'s addition by …**`` form whose whole tail is a
+reason. D0 corrects the same conflation where it reaches a FIGURE. The table
+above is THIS AUTHORING'S re-derivation of that search,
 taken against the tree and the live pull-request list before a byte of the delta
 was written, so the claim rests on a search that was performed twice rather than
 on one that was recited.

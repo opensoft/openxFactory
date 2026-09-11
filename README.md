@@ -537,7 +537,11 @@ Active changes:
   ***"Rule the silence correct in canon"***, recorded on openxFactory
   [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5628349929)
   at 2026-09-11T02:06:38Z: a `Merged into` marker declares its DESTINATION in
-  its PREFIX and owes no tail, so the silence is correct and canon says so. That
+  its PREFIX and owes no tail, so the silence is correct and canon IS TO SAY SO.
+  **CANON DOES NOT SAY IT YET, AND THIS PULL REQUEST DOES NOT MAKE IT SAY IT**:
+  `openspec/specs/doc-health/spec.md` still carries the clause calling the
+  question undecided, and it carries it until the ARCHIVE act promotes this
+  block. That
   word was given before a sentence existed, so it **commissions the authoring
   and approves no wording** — `.openspec.yaml` carries drafting provenance with
   no approval pair, every document says `Status: draft`, and ratification,

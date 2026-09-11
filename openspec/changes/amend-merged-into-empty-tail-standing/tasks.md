@@ -113,8 +113,9 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       whitespace normalization this requirement itself defines, both the whole
       sentence and the clause the ruling contradicts occur exactly 1 time in
       `openspec/specs/doc-health/spec.md`.
-- [x] 2.5 **NO ACTIVE CHANGE CARRIES A `## MODIFIED` BLOCK FOR THIS
-      REQUIREMENT.** Measured rather than recited (`design.md` D5): of the
+- [x] 2.5 **NO OTHER ACTIVE CHANGE CARRIES A `## MODIFIED` BLOCK FOR THIS
+      REQUIREMENT** — this packet carries one, which is the delta itself rather
+      than a co-writer of it. Measured rather than recited (`design.md` D5): of the
       three active changes carrying a `doc-health` delta at all, one is this
       packet, `add-nightly-dashboard-refresh` is seven `## ADDED` requirements
       of the refresh lane, and `settle-aging-staging-topics` modifies *Aging

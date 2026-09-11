@@ -154,8 +154,9 @@ basis.
 ## Sequencing
 
 `sequenced_after: []`, an explicit root claim, MEASURED rather than assumed: no
-active change carries a `## MODIFIED` block for this requirement. The three
-active changes that name it at all mention it in prose
+OTHER active change carries a `## MODIFIED` block for this requirement — this
+packet carries one, which is the delta itself and not a co-writer of it. The
+three OTHER active changes that name it at all mention it in prose
 (`prepare-openspec-1-12-readiness/tasks.md`,
 `disposition-codexfactory-floor-relocation-retitle/design.md`,
 `disposition-codexfactory-declared-renames/design.md`) and carry no delta over
