@@ -938,7 +938,7 @@ riding inside § 8's atomic PR.
 `contracts/opendox-pin.yaml` names, at whatever commit the `openXdox` gitlink
 here records. Two independent, direct declarations of one product's bytes are
 exactly the defect `neutral-product-pin`'s chain clause exists to end, unless
-something holds them equal: `scripts/verify-opendox-pin.py`'s sixth check is
+something holds them equal: `scripts/verify-opendox-pin.py`'s fifth check is
 that something. It reads openXdox's own derived pin as a git blob out of the
 mounted `openXdox/` submodule's own object store, AT THE COMMIT THE `openXdox`
 GITLINK RECORDS — never openXdox's mutable working tree, so an operator

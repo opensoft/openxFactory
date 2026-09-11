@@ -960,7 +960,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
     # commit` site above. This member is a SECOND, independent declaration of
     # the same commit — which is exactly the shape `neutral-product-pin`'s
     # chain clause exists to forbid UNLESS something holds the two equal.
-    # `scripts/verify-opendox-pin.py`'s sixth check is that something: it reads
+    # `scripts/verify-opendox-pin.py`'s fifth check is that something: it reads
     # openXdox's own derived pin as a git blob out of the openXdox submodule's
     # object store, AT THE COMMIT THE `openXdox` GITLINK RECORDS — never the
     # openXdox working tree, so an edited-but-not-repinned checkout cannot fool
@@ -1012,7 +1012,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "opendox-pin.py` compares it against BOTH the recorded gitlink "
              "and the checked-out revision of the `openDox/` submodule, "
              "recomputes the whole-tree `sorted-ls-tree-r-v1` digest, AND (its "
-             "sixth check, with no analogue in the pair above) confirms "
+             "fifth check, with no analogue in the pair above) confirms "
              "LOCKSTEP with openXdox's own derived reading of this same "
              "commit — the one new obligation a SECOND direct declaration of "
              "one product's bytes adds. RULING F (#656, 2026-09-05, \"rule F "

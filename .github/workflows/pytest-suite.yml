@@ -344,7 +344,7 @@ jobs:
       # implementation, which is the assertion that makes the pin a measured
       # fact rather than a self-consistent one — and a suite that cannot see
       # the submodule cannot make it. `openDox`'s presence ALSO lets
-      # `tests/opendox_pin/`'s sixth (LOCKSTEP) check run for real: it reads
+      # `tests/opendox_pin/`'s fifth (LOCKSTEP) check run for real: it reads
       # openXdox's own derived pin as a git blob out of the already-mounted
       # `openXdox/` submodule's object store, so both gitlinks have to be
       # initialized for that positive case to be reachable rather than

@@ -59,10 +59,11 @@ OFFLINE LAW, WITH ONE NAMED EXTENSION. Checks 1-4 read this pin file, the
 network, and never `openDox`'s own `contracts/manifest.yaml`. Check 5 ALSO
 reads a blob out of the SECOND submodule this repository already mounts —
 `openXdox`'s own object store, at whatever commit the superproject's `openXdox`
-gitlink records (HEAD, falling back to the index exactly as check 2 does) —
-never the `openXdox` working tree and never the network. That is a local
-`git show` against an object store already on disk, so the offline property
-holds for the whole verifier, not only for its first four checks.
+gitlink records (the index when it has moved the entry, HEAD otherwise,
+exactly as check 2 does) — never the `openXdox` working tree and never the
+network. That is a local `git show` against an object store already on disk,
+so the offline property holds for the whole verifier, not only for its first
+four checks.
 
 `pin-unreadable` IS NOT IN THE VOCABULARY, on `verify-openxdox-pin.py`'s own
 reasoning. The six describe a TREE that disagrees with a well-formed pin, or
@@ -309,17 +310,38 @@ def _gitlink_from(output: str, submodule_path: str) -> str | None:
 
 def _recorded_gitlink(repo_root: Path,
                       submodule_path: str) -> tuple[str | None, str]:
-    """(oid, source) for the RECORDED gitlink: HEAD first, then the index."""
+    """(oid, source) for the RECORDED gitlink: the index when it has moved
+    the entry, HEAD otherwise.
+
+    A ONE-COMMIT RESYNC MUST BE CHECKABLE BEFORE IT IS COMMITTED, not only
+    for a BRAND NEW gitlink (`git submodule add`, nothing in HEAD yet) but
+    also for an EXISTING one being moved to a new commit (`git -C openDox
+    checkout <new>` then `git add openDox`, which stages the new oid over an
+    old one HEAD still names). A HEAD-first read answers for the commit
+    being REPLACED in that second case — `ls-tree HEAD` still finds the OLD
+    160000 entry and returns it without ever consulting the index — which can
+    falsely REJECT a fresh, correct re-pin (checks 2 and 3 compare the new
+    checkout against the stale HEAD oid) or, for check 5's `openXdox` read via
+    this same helper, falsely VALIDATE against the derived commit the pin is
+    being moved away from. So both records are read, and the index wins
+    whenever it disagrees with HEAD (new-and-staged, or replaced-and-staged
+    alike); only when the index agrees with HEAD — the ordinary clean tree —
+    or has no entry at all does HEAD's own oid answer, which is what keeps
+    the success message's "read from HEAD" true for the common case instead
+    of manufacturing a spurious "staged" label for bytes nothing has staged.
+    """
     head = _git(repo_root, "ls-tree", "HEAD", "--", submodule_path)
-    if head.returncode == 0:
-        oid = _gitlink_from(head.stdout, submodule_path)
-        if oid is not None:
-            return oid, "HEAD"
+    head_oid = (_gitlink_from(head.stdout, submodule_path)
+               if head.returncode == 0 else None)
     index = _git(repo_root, "ls-files", "-s", "--", submodule_path)
-    if index.returncode == 0:
-        oid = _gitlink_from(index.stdout, submodule_path)
-        if oid is not None:
-            return oid, "the index (staged, not yet committed)"
+    index_oid = (_gitlink_from(index.stdout, submodule_path)
+                if index.returncode == 0 else None)
+    if index_oid is not None and index_oid != head_oid:
+        return index_oid, "the index (staged, not yet committed)"
+    if head_oid is not None:
+        return head_oid, "HEAD"
+    if index_oid is not None:
+        return index_oid, "the index (staged, not yet committed)"
     return None, "nowhere"
 
 
@@ -363,12 +385,12 @@ def _openxdox_derived_commit(root: Path) -> str:
     pinned to; a check that read that working-tree file would report lockstep
     agreement even though the openXdox commit this repository is PINNED TO
     still disagrees. So this reads a git BLOB instead: `_recorded_gitlink`
-    finds the `openXdox` gitlink exactly as check 2 finds `openDox`'s own (HEAD
-    first, then the index), and `git -C openXdox show <oid>:contracts/opendox-
-    pin.yaml` reads the pin file's bytes out of the openXdox submodule's own
-    object store AT THAT COMMIT — a local read of an object this repository
-    already has (the commit it is pinned to), never the network and never
-    whatever happens to be checked out on disk.
+    finds the `openXdox` gitlink exactly as check 2 finds `openDox`'s own (the
+    index when it has moved the entry, HEAD otherwise), and `git -C openXdox
+    show <oid>:contracts/opendox-pin.yaml` reads the pin file's bytes out of
+    the openXdox submodule's own object store AT THAT COMMIT — a local read of
+    an object this repository already has (the commit it is pinned to), never
+    the network and never whatever happens to be checked out on disk.
 
     Every failure to locate the gitlink or to read or parse the blob it names
     is `pin-unreadable`: the LOCKSTEP question cannot be asked without it, so

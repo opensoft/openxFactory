@@ -4,7 +4,7 @@ LOCKSTEP cross-check the sibling openXdox suite has no analogue of.
 Modelled on `tests/openxdox_pin/test_openxdox_pin_verifier.py`, which this
 file mirrors check-for-check for the first four checks and departs from only
 where the artifact departs: `opendox-pin-*`-prefixed codes instead of
-`openxdox-pin-*`, and a SIXTH check — LOCKSTEP against openXdox's own derived
+`openxdox-pin-*`, and a FIFTH check — LOCKSTEP against openXdox's own derived
 reading of the same commit — with no analogue in that file at all.
 
 THE POSITIVE IS ADJUDICATED AGAINST THE REAL REPOSITORY ROOT, on the same
@@ -560,6 +560,40 @@ def test_a_committed_gitlink_is_read_from_head(tmp_path: Path) -> None:
     oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
     assert oid == scratch.commit
     assert source == "HEAD"
+
+
+def test_a_replaced_gitlink_is_read_from_the_index_not_stale_head(
+        tmp_path: Path) -> None:
+    """THE ONE-COMMIT RESYNC REGRESSION (PR #932 thread review). A HEAD-first
+    read of an EXISTING, already-committed gitlink answers for the commit
+    being REPLACED the moment a resync stages a new one: `ls-tree HEAD` still
+    finds the OLD 160000 entry and a HEAD-first check returns it without ever
+    consulting the index, so a caller mid-resync sees the commit it is
+    leaving rather than the one it is moving to.
+
+    Simulates `git -C openDox checkout <new>` then `git add openDox` on a
+    submodule already committed at a DIFFERENT commit: HEAD still names
+    `scratch.commit` (the committed gitlink), the index is re-staged to
+    `scratch.parent_commit` (a second, real, already-existing commit in the
+    same nested repository) WITHOUT a new commit, and `_recorded_gitlink`
+    must answer with the INDEX's value — the one about to be committed — not
+    HEAD's stale one.
+    """
+    scratch = _scratch(tmp_path, record="head")
+    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert head_oid == scratch.commit
+    assert head_source == "HEAD"
+
+    scratch.record_gitlink("openDox", scratch.parent_commit, commit=False)
+
+    # HEAD is unmoved: the resync is staged, not yet committed.
+    still_head = _git_raw(scratch.root, "ls-tree", "HEAD", "--", "openDox")
+    assert MODULE._gitlink_from(still_head.stdout, "openDox") == scratch.commit
+
+    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert oid == scratch.parent_commit
+    assert oid != scratch.commit
+    assert "index" in source
 
 
 def test_a_regular_file_at_the_submodule_path_does_not_satisfy_the_gitlink(

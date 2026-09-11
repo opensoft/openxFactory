@@ -36,12 +36,15 @@ kind: pinned_contract_manifest
 # Two declarations of one product's bytes is exactly the defect
 # `neutral-product-pin`'s chain clause exists to end UNLESS they are held
 # equal by a running check: `scripts/verify-opendox-pin.py` reads
-# `openXdox/contracts/opendox-pin.yaml`'s `commit` from the checked-out
-# `openXdox/` submodule and refuses `opendox-pin-lockstep-mismatch` the moment
-# it disagrees with `commit:` below. That is what makes two direct upstreams
-# of the same bytes safe rather than a second, driftable answer to "which
-# bytes are pinned" — a resync moves this pin, openXdox's own pin, or both, in
-# whichever commit made them disagree, and the lockstep check is what notices.
+# `openXdox/contracts/opendox-pin.yaml`'s `commit` as a git BLOB, from the
+# `openXdox/` submodule's own object store, AT THE COMMIT THE `openXdox`
+# GITLINK RECORDS — never the openXdox working tree, so an operator editing
+# that file on disk without moving the gitlink cannot fool the check — and
+# refuses `opendox-pin-lockstep-mismatch` the moment it disagrees with
+# `commit:` below. That is what makes two direct upstreams of the same bytes
+# safe rather than a second, driftable answer to "which bytes are pinned" — a
+# resync moves this pin, openXdox's own pin, or both, in whichever commit made
+# them disagree, and the lockstep check is what notices.
 #
 # WHY THERE IS NO `files:` AND NO `pinned_by_commit_only:`, unchanged from
 # `contracts/openxdox-pin.yaml`'s own reasoning:
@@ -67,10 +70,11 @@ kind: pinned_contract_manifest
 # OFFLINE LAW, WITH ONE NAMED EXTENSION. The four mirrored checks read this
 # pin file, the `openDox` gitlink, and the `openDox/` submodule's own object
 # store — never the network. The lockstep check ALSO reads
-# `openXdox/contracts/opendox-pin.yaml` — a committed file inside the SECOND
-# submodule this same repository already mounts, at whatever revision is
-# checked out — which is a local disk read, not a network one; the offline
-# property holds for the whole verifier, not only for its first four checks.
+# `openXdox/contracts/opendox-pin.yaml` as a git BLOB — out of the SECOND
+# submodule this same repository already mounts, AT THE COMMIT THE `openXdox`
+# GITLINK RECORDS, never the openXdox working tree — which is a local disk
+# read, not a network one; the offline property holds for the whole verifier,
+# not only for its first four checks.
 # ============================================================================
 
 source_repository: opensoft/openDox

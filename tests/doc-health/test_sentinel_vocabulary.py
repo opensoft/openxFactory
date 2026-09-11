@@ -1050,7 +1050,7 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # openXdox only", #656, 2026-09-05) is SUPERSEDED for openDox alone by
     # RULED Q7 (`#656` comment `5626248666`, 2026-09-10): this is a SECOND,
     # independent direct pin of a product already reachable through openXdox's
-    # own pin, held equal to it by `scripts/verify-opendox-pin.py`'s sixth
+    # own pin, held equal to it by `scripts/verify-opendox-pin.py`'s fifth
     # (LOCKSTEP) check — a runtime cross-check this census does not itself
     # perform, and does not need to: both new sites are `population=CURRENT`,
     # so like the 73rd/74th they join the frozen pair rather than sit beside it.

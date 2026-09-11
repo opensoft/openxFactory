@@ -447,7 +447,7 @@ def test_ruling_q7_two_direct_upstreams_in_lockstep() -> None:
     never the openXdox WORKING TREE, on `scripts/verify-opendox-pin.py`'s own
     lockstep reasoning (PR #932 thread review, 2026-09-10): an on-disk edit to
     that file which does not move the gitlink must not be able to satisfy this
-    assertion, so this test reads the same way the shipped verifier's sixth
+    assertion, so this test reads the same way the shipped verifier's fifth
     check does rather than through `Path.read_text` on the submodule mount.
     """
     gitmodules = (REPO_ROOT / ".gitmodules").read_text(encoding="utf-8")
