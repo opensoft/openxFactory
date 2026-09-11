@@ -20,12 +20,15 @@ it used to do happens by itself any more:
     `openxdox.serve_projection` are openXdox's — so one `src/` on the path is
     not enough and a single-leg install fails on the seventeenth import
     (measured: `ideation/brainstorm/opendox-shed-exit-a-post-shed-mode-measured.md`);
-  * `build_server` names `profile_openxfactory` as a BARE GLOBAL with no
-    import anywhere, so the profile has to be REGISTERED with it — § 4.3's
-    hole, answered by RULED ASK-2 option (2) (`#656` `5628886636`).
+  * `build_server` reads `profile_openxfactory` through openDox-code's LAZY
+    PROXY, which REFUSES — naming the registration call — unless a host has
+    registered a profile at process start. That is § 4.3, RULED ASK-2 option
+    (2) (`#656` `5628886636`), and the host side is
+    `opendox_host.register_openxfactory()`: the one call below, which also
+    carries § 4.4's `DomainProfile` to openXdox's engine by delegation.
 
-`carved_reach` does all three, and this file is the one place a person or a
-service unit runs to get them. It is what `scripts/reserve-dashboard.sh`
+`carved_reach` does the first two and `opendox_host` the third, and this file
+is the one place a person or a service unit runs to get them. It is what `scripts/reserve-dashboard.sh`
 executes; the Copilot finding that prompted it (`PRRT_kwDOTAvnrs6hbVwB`) is
 exactly that a registration performed only by two pytest conftests is not a
 registration a real server process ever receives.
@@ -100,7 +103,10 @@ def _argv_with_web_root(argv: list[str]) -> list[str]:
 
 carved_reach.require()
 carved_reach.install()
-carved_reach.bind_composition_point()
+
+import opendox_host  # noqa: E402
+
+opendox_host.register_openxfactory()
 
 from opendox.serve import main  # noqa: E402
 

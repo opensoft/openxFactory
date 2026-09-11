@@ -1385,7 +1385,7 @@ def _composed_schemas_dir() -> Path:
 
     Composing this is the openxFactory half of § 4.3, standing in until the
     legs' own composition point is built — the same posture
-    `carved_reach.bind_composition_point()` takes for the profile.
+    `opendox_host.register_openxfactory()` takes for the profile.
     """
     farm = Path(tempfile.mkdtemp(prefix="doxbench-released-schemas-"))
     for key, resolved in sources_under("contracts/schemas").items():

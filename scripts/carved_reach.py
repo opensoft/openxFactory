@@ -53,9 +53,13 @@ which exists at NO destination by construction. Asking for it through the shed's
 old dotted name gets a named refusal from `_ShedGone` below rather than a bare
 `ModuleNotFoundError` that reads like a typo. Its POST-SHED home is
 `scripts/profile_openxfactory.py` (importable as the plain top-level
-`profile_openxfactory`), and `bind_composition_point()` below registers it with
-the two consumers that still name it as a bare global — the openxFactory half of
-RULED ASK-2 option (2), standing in for openDox-code's not-yet-built lazy proxy.
+`profile_openxfactory`), and `scripts/opendox_host.py` is what REGISTERS it —
+the openxFactory half of RULED ASK-2 option (2), now that openDox-code's lazy
+proxy has landed (#11, `a99eba03`). This module carried the stand-in for it
+until then: `bind_composition_point()`, an import hook that bound the module
+into `opendox.serve` and `opendox.cli` as they loaded, which its own docstring
+said would "become the single `register(profile)` call the ruling describes"
+the day the proxy landed. It has, and it did.
 
 AND THE PATHS, NOT ONLY THE MODULES. `source()` below answers "where is the file
 that used to be at <repository-relative path>" by READING THE MANIFEST ROW, so a
@@ -74,7 +78,6 @@ from __future__ import annotations
 import functools
 import importlib
 import importlib.abc
-import importlib.machinery
 import os
 import re
 import subprocess
@@ -148,11 +151,11 @@ NO_DESTINATION: dict[str, str] = {
         "DESTINATION to re-point this import at. There IS a post-shed home: "
         "`scripts/profile_openxfactory.py`, importable as the plain top-level "
         "`profile_openxfactory`, carrying the same two tuples re-spelled for "
-        "the pinned legs — import THAT. What is still owed is § 4.3's lazy "
-        "proxy at openDox-code (RULED ASK-2 option (2), `#656` comment "
-        "`5628886636`), which is why `carved_reach.bind_composition_point()` "
-        "registers the module with `opendox.serve` and `opendox.cli` rather "
-        "than those two importing it themselves."),
+        "the pinned legs — import THAT. Both consumers now reach it through "
+        "openDox-code's own lazy proxy (§ 4.3, RULED ASK-2 option (2), `#656` "
+        "comment `5628886636`; openDox-code #11 `a99eba03`), which resolves "
+        "whatever profile the host registered at process start — here, "
+        "`scripts/opendox_host.py`'s `register_openxfactory()`."),
 }
 
 
@@ -218,25 +221,23 @@ def _require(gitlink: str, leg: str, src: Path, package: str) -> None:
 
 def install(*, tests: bool = False) -> None:
     """Put both pinned legs' `src/` — and this repository's `scripts/` — on the
-    path, or arrange for the carved NAMES to refuse when a leg is missing, and
-    register openxFactory's composition point with the two consumers that name
-    it.
+    path, or arrange for the carved NAMES to refuse when a leg is missing.
 
     Idempotent: safe to call from a conftest, from a script's module body and
     from a test that re-enters it. `tests=True` additionally APPENDS the two
     legs' own `tests/` trees, for the helper modules that moved there.
 
-    IT DELIBERATELY DOES NOT BIND THE COMPOSITION POINT, and the reason is a
-    cycle rather than a preference. `bind_composition_point()` below reaches
+    IT DELIBERATELY DOES NOT REGISTER THE DOMAIN PROFILE, and the reason is a
+    cycle rather than a preference. `scripts/opendox_host.py` reaches
     `scripts/profile_openxfactory.py`, which imports
     `ideation_dashboard.serve_openxfactory_lanes` — a module whose own body
-    calls THIS function. Folding the binding in here makes that column's import
-    re-enter the profile while the column is still half-executed
+    calls THIS function. Folding the registration in here makes that column's
+    import re-enter the profile while the column is still half-executed
     (`AttributeError: partially initialized module … has no attribute
     'LaneRoutesExtension'`, measured). The division that falls out is the right
-    one anyway: a COLUMN installs the reach, an ASSEMBLY POINT also binds the
-    profile, and the assembly points are named in `bind_composition_point()`'s
-    own docstring.
+    one anyway: a COLUMN installs the reach, an ASSEMBLY POINT also calls
+    `opendox_host.register_openxfactory()`, and the assembly points are named
+    in that function's own docstring.
     """
     missing = []
     for gitlink, leg, src, package in LEGS:
@@ -699,108 +700,30 @@ def sources_under(prefix: str) -> dict[str, Path]:
 
 
 # --------------------------------------------------------------------------
-# THE COMPOSITION POINT — RULED ASK-2 (2), openxFactory's half
+# THE COMPOSITION POINT — RULED ASK-2 (2): NOT HERE ANY MORE
 # --------------------------------------------------------------------------
-
-#: The two modules at the pinned openDox leg that still name
-#: `profile_openxfactory` as a BARE GLOBAL with no import anywhere
-#: (`serve.py:1377`'s `build_server`, `cli.py:915`'s `build_parser`). Those two
-#: lines are the § 4.3 hole; RULED ASK-2 option (2) (`#656` comment
-#: `5628886636`) closes it with a lazy proxy AT openDox-code that openxFactory
-#: registers the real module with. The proxy is not built yet, so until it is
-#: the registration binds the module into each consumer's own globals, which is
-#: where an unqualified name is looked up first.
-COMPOSITION_CONSUMERS: tuple[str, ...] = ("opendox.serve", "opendox.cli")
-
-#: The name those two modules spell.
-COMPOSITION_NAME = "profile_openxfactory"
-
-
-class _BindProfileAfterExec(importlib.abc.Loader):
-    """Wraps a consumer's real loader and binds the profile once it has run."""
-
-    def __init__(self, inner) -> None:
-        self._inner = inner
-
-    def create_module(self, spec):  # noqa: D102
-        return self._inner.create_module(spec)
-
-    def exec_module(self, module):  # noqa: D102
-        self._inner.exec_module(module)
-        setattr(module, COMPOSITION_NAME,
-                importlib.import_module(COMPOSITION_NAME))
-
-    def __getattr__(self, name):  # everything else (get_source, is_package, …)
-        return getattr(self._inner, name)
-
-
-class _ProfileRegistrar(importlib.abc.MetaPathFinder):
-    """Registers openxFactory's profile with each consumer AS IT LOADS.
-
-    FIRST in `sys.meta_path`, because it has to see the import before the path
-    finder resolves it; it delegates the actual finding straight to
-    `PathFinder` (both consumers are ordinary files under a pinned leg) and
-    only decorates the loader, so it shadows nothing and changes no resolution.
-    Binding AFTER `exec_module` rather than before is what keeps the import
-    graph honest: `profile_openxfactory` imports `openxdox.serve_gate` and
-    `openxdox.serve_projection`, which `serve.py` has already imported by then
-    as `DashboardHandler`'s mixin bases, so the registration adds no module to
-    a server process that did not already carry it — and `cli_gate`, the one
-    dependency a server must not pay for, stays behind the profile's PEP 562
-    `__getattr__`.
-    """
-
-    _busy = False
-
-    def find_spec(self, fullname, path=None, target=None):  # noqa: D102
-        if fullname not in COMPOSITION_CONSUMERS or _ProfileRegistrar._busy:
-            return None
-        _ProfileRegistrar._busy = True
-        try:
-            spec = importlib.machinery.PathFinder.find_spec(fullname, path, target)
-        finally:
-            _ProfileRegistrar._busy = False
-        if spec is None or spec.loader is None:
-            return None
-        spec.loader = _BindProfileAfterExec(spec.loader)
-        return spec
-
-
-def bind_composition_point() -> None:
-    """Register `scripts/profile_openxfactory.py` with the two consumers.
-
-    Idempotent, and it covers both directions in time: a consumer ALREADY
-    imported is bound now, and one imported later is bound as it loads. Calling
-    it costs no import of either consumer — which matters, because importing
-    `opendox.cli` pulls the CLI column's whole dependency chain and a server
-    process must not pay for it.
-
-    WHO CALLS IT, AND WHY THAT IS NOT ONLY THE TESTS (Copilot
-    `PRRT_kwDOTAvnrs6hbVwB`). Every ASSEMBLY POINT — a process that is going to
-    call `build_server()` or `build_parser()` — and nothing else:
-
-      * `scripts/ideation-dashboard-serve.py`, the serve entrypoint
-        `scripts/reserve-dashboard.sh` executes. It is the production caller,
-        and its absence was the finding: without this call a real server
-        process reaches `NameError: name 'profile_openxfactory' is not
-        defined` the moment it builds, which is measured rather than supposed.
-      * `tests/conftest.py` and `tests/ideation-dashboard/conftest.py`, for the
-        suites that build servers and parsers in-process.
-
-    A COLUMN must NOT call it: `ideation_dashboard/serve_openxfactory_lanes.py`
-    is imported BY the profile, so a column that bound the composition point
-    would re-enter its own half-executed module. That is why `install()` does
-    not fold this in — see its docstring.
-
-    THE DAY THIS SHRINKS. When openDox-code's lazy proxy lands (§ 4.3, RULED
-    ASK-2 (2)), the consumers will import the proxy themselves and this becomes
-    the single `register(profile)` call the ruling describes; the finder below
-    goes away with the hole it covers.
-    """
-    for name in COMPOSITION_CONSUMERS:
-        module = sys.modules.get(name)
-        if module is not None and not hasattr(module, COMPOSITION_NAME):
-            setattr(module, COMPOSITION_NAME,
-                    importlib.import_module(COMPOSITION_NAME))
-    if not any(isinstance(f, _ProfileRegistrar) for f in sys.meta_path):
-        sys.meta_path.insert(0, _ProfileRegistrar())
+#
+# `opendox.serve.build_server` and `opendox.cli.build_parser` read
+# `profile_openxfactory` through openDox-code's OWN lazy proxy
+# (`opendox.profile_proxy`, § 4.3, openDox-code #11 `a99eba03`), which resolves
+# the profile the host registered at process start. So this module no longer
+# carries a composition point at all: `bind_composition_point()` and the
+# `_ProfileRegistrar` meta-path finder under it are DELETED, exactly as that
+# function's own docstring said they would be — *"THE DAY THIS SHRINKS. When
+# openDox-code's lazy proxy lands (§ 4.3, RULED ASK-2 (2)), the consumers will
+# import the proxy themselves and this becomes the single `register(profile)`
+# call the ruling describes; the finder below goes away with the hole it
+# covers."*
+#
+# The single call is `scripts/opendox_host.py`'s `register_openxfactory()`, and
+# it is made by every assembly point that builds an openDox parser or server.
+# It is NOT folded into `install()`, for the reason `install()`'s own docstring
+# gives: `profile_openxfactory` imports
+# `ideation_dashboard.serve_openxfactory_lanes`, a column whose own body calls
+# `install()`, so a column that composed the profile would re-enter its own
+# half-executed module. A COLUMN installs the reach; an ASSEMBLY POINT also
+# registers the profile.
+#
+# `bind_openxdox_column()` above is a DIFFERENT hole of the same shape (the
+# three declared import rewrites the carve could not express) and is untouched:
+# it is recorded as owed against a leg act plus a pin bump, not against § 4.3.

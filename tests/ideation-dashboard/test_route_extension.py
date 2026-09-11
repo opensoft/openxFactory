@@ -56,10 +56,10 @@ from opendox import action_errors  # noqa: E402
 # The composition point, at its POST-SHED home. `scripts/
 # ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
 # `deleted_at_carve` row and the shed removed it; openxFactory's profile now
-# lives at `scripts/profile_openxfactory.py` (plain top-level spelling) and is
-# registered with `opendox.serve`/`opendox.cli` by
-# `carved_reach.bind_composition_point()` from the conftest — the openxFactory
-# half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling), and
+# `opendox_host.register_openxfactory()` — called from the conftest — hands it
+# to `opendox.domain_profile` for both consumers' lazy proxy to resolve: the
+# openxFactory half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
 import profile_openxfactory  # noqa: E402
 from opendox import serve as serve_mod  # noqa: E402
 from openxdox.generator import generate_snapshot  # noqa: E402
