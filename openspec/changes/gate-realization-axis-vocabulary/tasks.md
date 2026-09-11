@@ -133,7 +133,7 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_validate.py` (NEW, **32 tests**) — the
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **32 tests**) — the
       token rule (5), reading the declaration including a strict-loader refusal
       (4), release resolution with and without a registry (3), the register's
       shape refusals (4), the gate end to end (13: the refusal, `implemented`,

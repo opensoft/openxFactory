@@ -257,7 +257,7 @@ that document rather than as a traceback.
 rules (`scripts/target_release.py`), a thin CLI
 (`scripts/validate-target-release.py [REPO_ROOT]`), and a corpus test that runs
 the CLI over the live tree on every pull request
-(`tests/target_release/test_validate.py::test_corpus_target_release_validates`),
+(`tests/target_release/test_target_release_gate.py::test_corpus_target_release_validates`),
 which is how the required `pytest-suite` check —
 `python3 -m pytest tests/ -q -m "not postgres"`, which runs everything under
 `tests/` — comes to gate the corpus with no workflow edit. **Confirmed by

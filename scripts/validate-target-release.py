@@ -6,7 +6,7 @@
 so — exactly as the other `scripts/validate-*.py` contract validators do — this
 script is the house realization of the ADDED requirement *Realization axis
 vocabulary is gated*, and the pytest gate
-(`tests/target_release/test_validate.py::test_corpus_target_release_validates`)
+(`tests/target_release/test_target_release_gate.py::test_corpus_target_release_validates`)
 runs it over every active change on every pull request, so a declaration
 outside the ratified vocabulary reds the required `pytest-suite` check.
 
