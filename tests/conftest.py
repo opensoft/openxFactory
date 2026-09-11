@@ -36,9 +36,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from carved_reach import install as install_carved_reach  # noqa: E402
+from carved_reach import (  # noqa: E402
+    bind_composition_point,
+    install as install_carved_reach,
+)
 
 install_carved_reach(tests=True)
+
+# --------------------------------------------------------------------------
+# THE COMPOSITION POINT (§ 4.3, RULED ASK-2 option (2), `#656` comment
+# `5628886636`). `opendox.serve.build_server` and `opendox.cli.build_parser`
+# still name `profile_openxfactory` as a BARE GLOBAL with no import anywhere —
+# the line the § 3 carve deleted rather than moved. openxFactory owns the real
+# module (`scripts/profile_openxfactory.py`) and REGISTERS it, which is the
+# openxFactory half of the ruling; openDox-code's lazy proxy, the other half,
+# is not built yet, so `bind_composition_point()` binds the module into each
+# consumer as it loads. Registered for the whole suite rather than per test
+# module, for the same reason the reach above is: one place to read, one place
+# to delete the day the proxy lands.
+# --------------------------------------------------------------------------
+
+bind_composition_point()
 
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
     hermetic_binary_path,

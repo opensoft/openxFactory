@@ -26,6 +26,26 @@ REPO_ROOT = HERE.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(TESTS_ROOT))
 
+# --------------------------------------------------------------------------
+# THE § 5.2 SHED REACH, INSTALLED HERE TOO — for the same reason the hermeticity
+# guard is registered twice (see the module docstring): a targeted
+# `pytest tests/ideation-dashboard` makes THIS directory the rootdir and
+# `confcutdir` then excludes `tests/conftest.py`, where the reach and the
+# composition-point registration otherwise live. Without it this file's own
+# `session_fixtures` import below — a MOVED row read from the pinned openDox
+# leg — fails during collection, and so does every `build_server()` in the
+# directory (Copilot, `PRRT_kwDOTAvnrs6hUpud`). Idempotent, so the ordinary
+# whole-suite run that already installed it pays nothing.
+# --------------------------------------------------------------------------
+
+from carved_reach import (  # noqa: E402
+    bind_composition_point,
+    install as install_carved_reach,
+)
+
+install_carved_reach(tests=True)
+bind_composition_point()
+
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
     claim_conftest_slot,
     hermetic_binary_path,

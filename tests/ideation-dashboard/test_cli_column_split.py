@@ -72,7 +72,14 @@ import subcommand_extension
 from opendox import cli as cli_mod
 from opendox import cli_model_binding, cli_project
 from openxdox import cli_gate
-from ideation_dashboard import profile_openxfactory
+# The composition point, at its POST-SHED home. `scripts/
+# ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
+# `deleted_at_carve` row and the shed removed it; openxFactory's profile now
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling) and is
+# registered with `opendox.serve`/`opendox.cli` by
+# `carved_reach.bind_composition_point()` from the conftest — the openxFactory
+# half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+import profile_openxfactory
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
 
