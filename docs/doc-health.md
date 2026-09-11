@@ -45,19 +45,27 @@ oversight here.
 
 | # | Family | What it verifies |
 | --- | --- | --- |
-| 1 | Status validity | Every governance doc carries a `Status:` header from the controlled taxonomy |
-| 2 | Standard backing | Every `standard` claim (header or prose) is backed by a promoted spec or canonical contract |
-| 3 | Ratified provenance | Every `Ratified by:` resolves to an existing OpenSpec change |
-| 4 | Succession integrity | `superseded` docs name successors; `retired` docs name reasons |
-| 5 | Location conformance | Lifecycle locations, proposal-support manifests/statuses, archive bundle checksums, and no historical bundles under canonical specs |
+| 1 | Status validity | Every governance doc carries a `Status:` header, and carries one drawn from the controlled taxonomy — a missing header and a free-form value are separate `error` findings, because they name different repairs. One of the four families that read the declared lifecycle scan set as well as the governed corpus |
+| 2 | Standard backing | Every `Status: standard` header carries a `Backed by:` line, in the lifecycle header, resolving to a promoted spec or canonical contract — `critical` where it does not. The deterministic arm reads the HEADER; the prose half of `document-lifecycle`'s status-claim rule is not what this family measures. One of the four families that read the declared lifecycle scan set as well as the governed corpus |
+| 3 | Ratified provenance | Five arms across both sanctioned citation spellings, each `critical`: a `ratified` header carrying more than one citation line, counted as one total across the two spellings; a `Ratified by:` naming no existing active or archived change and resolving to no path; a record-citing `Ratified:` naming none of an approver, a date, or a resolvable record path; a `ratified` header carrying no citation in either spelling; and a `review/` record whose SUBJECT is a ratification while its status is not `ratified`. A LAST PASS then downgrades to `info`, quoting the citation, any finding whose family/repo/path carries a dated, cited entry in the aggregation's `health/dispositions.yaml` AND whose path is under `openspec/changes/archive/` — a downgrade rather than a suppression, because an archived record is beyond the plain repair every other arm asks for. One of the four families that read the declared lifecycle scan set as well as the governed corpus |
+| 4 | Succession integrity | `superseded` docs carry a `Superseded by:` line that RESOLVES to the successor; `retired` docs carry a `Retired:` or `Reason:` line naming the reason or decision record — each an `error`. One of the four families that read the declared lifecycle scan set as well as the governed corpus |
+| 5 | Location conformance | Lifecycle locations (a `brainstorm` doc outside `ideation/brainstorm/`; a `staged` doc outside `ideation/` that is not a candidate register); staged material that already cites an ACTIVE proposal, the move being the remedy; active proposal support without a valid `manifest.yaml`, carrying `staged` status below it (`source-snapshots/` excepted, those being byte-exact copies the manifest proves), or disagreeing with its manifest's per-file checksums; archived support missing its readable manifest or its bundle, failing the bundle checksum, or disagreeing with the member inventory the manifest records; and no historical bundle under `openspec/specs/`. Every arm `error` |
 | 6 | Record immutability | `record` docs unchanged after capture (link fixes excepted) |
-| 7 | Staged/candidate aging | Staged topics, candidate blocks, unmarked supersedes refs, and draft ages against the thresholds below |
-| 8 | Register-lifecycle consistency | Candidate register aliases map to lifecycle states; `adopted` entries have no surviving near-duplicates |
+| 7 | Staged/candidate aging | Staged topics, open candidate blocks, `xspec:supersedes` markers still without `change=`, and draft ages against the thresholds below, plus one `info` draft-age distribution per repo. A staged topic carrying a RECORDED OUTCOME does not age at all — its primary fragment `superseded` or `retired`, or an `Exit taken:` line in that fragment or in the repository's staging INDEX naming a change that has ARCHIVED; a citation of an ACTIVE change silences nothing, that topic's staged material being the move another family is already reporting |
+| 8 | Register-lifecycle consistency | Every `DTN-` row of the candidate register keeps its six-column shape and carries a status from the documented alias set — each an `error` — and an `adopted` entry points at an artifact that resolves (`warning`) |
 | 9 | Tag hygiene | Live `xspec:` markers obey the canonical grammar — as defined by [Document Lifecycle](document-lifecycle.md#prose-tagging-markers), which owns every syntactic detail; this contract never restates it |
-| 10 | Submodule pin drift | Aggregation-repo pins vs each submodule's remote main |
-| 11 | Contract-copy drift | Domain-local copies vs their canonical openxFactory sources |
+| 10 | Submodule pin drift | Aggregation-repo gitlink pins vs each submodule's remote main — `warning` where they differ, and `info` naming the pin whose remote could not be read, so a pin that was not checked is never reported as a clean one |
+| 11 | Contract-copy drift | Each pinned consumer's `stack.yaml` `contract_ref:` against openxFactory's own HEAD — `warning` where the declared pin lags the canonical source. What it compares is the DECLARED PIN; the token-set comparison of the copies themselves is this family generalized, and it belongs to the neutrality-drift lane below |
 | 12 | Notebook projection drift | The lifecycle notebook sync dry-run reports zero add/update/delete operations |
-| 18 | Promotion fidelity | Every archived spec delta reached the promoted spec it was ratified to reach — the requirement title and every scenario stated under it, and a ratified removal actually removed. The most recent archived delta is the authority; only a packet whose own `proposal.md` declares `draft` or a lower standing is exempt. Findings are `error`, classified `contested`, and reported against the archived delta's own path |
+| 18 | Promotion fidelity | Every archived spec delta reached the promoted spec it was ratified to reach — the requirement title, every scenario stated under it, a ratified removal actually removed, and a target capability carrying a promoted spec to reach at all. The most recent archived delta is the authority, a later `RENAMED` writer legitimately retires the earlier title and is checked no further, and only a packet whose own `proposal.md` declares `draft` or a lower standing is exempt. Findings are `error`, classified `contested`, and reported against the archived delta's own path |
+
+**Rows re-derived at** `8015d45fdf68` (2026-09-11, issue #967). Every row above
+states its family's arms as `scripts/doc_health/` and the promoted
+[`doc-health` spec](../openspec/specs/doc-health/spec.md) carry them at that commit,
+rather than the one arm several of them were first summarised by; rows 6, 9 and 12
+already did and are unchanged. This refreshes no ROSTER — the table stays knowingly
+incomplete for the reason given above — and a later sweep refreshes this line with the
+commit it measured at.
 
 The archived `add-document-cataloging` change added a thirteenth
 deterministic family, `document-catalog`, plus a separate, non-deterministic
