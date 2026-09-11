@@ -169,6 +169,8 @@ and enter no other.
   record carries `Status: ratified` is unchanged and unweakened; what changes is
   how `doc-health` REPORTS a violation nobody may repair (`design.md` D4).
 - **It does not promote anything.** No file under `openspec/specs/` is edited.
-- **It does not close #939.** `code_surface` is non-empty, so the archive is a
-  separate act on merged-plus-green realization evidence and a separate word,
-  and #939 closes there.
+- **It does not close the origin issue.** `code_surface` is non-empty, so the
+  archive is a separate act on merged-plus-green realization evidence and a
+  separate word, and openxFactory issue 939 is closed THERE, by a closing
+  keyword written in the archive pull request and in no commit message on this
+  branch.

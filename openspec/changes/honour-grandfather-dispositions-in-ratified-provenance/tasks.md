@@ -226,9 +226,12 @@ and openxFactory #939 closes THERE and not at this landing.
       evidence this packet's `target_release` names: this pull request merged
       into `main` and a green `pytest-suite` run at the tree that merge carries
       (`release-realization`'s merged-plus-green rule, at canon's grain).
-- [ ] 6.2 **CLOSE #939 AT THE ARCHIVE PULL REQUEST AND NOWHERE ELSE.** No
-      closing keyword appears in this pull request's body or in any commit
-      message on this branch, in any form, quoted or otherwise.
+- [ ] 6.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND
+      NOWHERE ELSE**, by a closing keyword written THERE against openxFactory
+      issue 939. No closing keyword appears in this pull request's body or in
+      any commit message on this branch, in any form, quoted or otherwise — a
+      commit message auto-closes exactly as a body does, so the guard greps
+      both.
 
 ## 7. Measured, and deliberately NOT taken here
 
