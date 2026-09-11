@@ -335,29 +335,40 @@ jobs:
           path: openxFactory
           fetch-depth: 0
 
-      # TWO GITLINKS BY NAME, AND STILL NOT `submodules: true`. `openXdox`
-      # joins `openXwallet` here because `tests/openxdox_pin/` adjudicates its
-      # positive case against the REAL checkout — it recomputes the shipped
-      # `sorted-ls-tree-r-v1` digest over the pinned tree with a second
+      # THREE GITLINKS BY NAME, AND STILL NOT `submodules: true`. `openDox`
+      # joins `openXwallet` and `openXdox` here (RULED Q7, `#656` comment
+      # `5626248666`, 2026-09-10; PR #932) because `tests/opendox_pin/`
+      # adjudicates its own positive case against the REAL checkout, exactly
+      # as `tests/openxdox_pin/` already does for openXdox — it recomputes the
+      # shipped `sorted-ls-tree-r-v1` digest over the pinned tree with a second
       # implementation, which is the assertion that makes the pin a measured
       # fact rather than a self-consistent one — and a suite that cannot see
-      # the submodule cannot make it. The alternative was to weaken those
-      # cases to a `pytest.skip`, which this gate's own design rejects: a skip
-      # reports as a green bar, indistinguishable from a pass, and
-      # `EXPECT_SKIPPED` below is pinned as an exact SUM for that reason.
+      # the submodule cannot make it. `openDox`'s presence ALSO lets
+      # `tests/opendox_pin/`'s fifth (LOCKSTEP) check run for real: it reads
+      # openXdox's own derived pin as a git blob out of the already-mounted
+      # `openXdox/` submodule's object store, so both gitlinks have to be
+      # initialized for that positive case to be reachable rather than
+      # `pin-unreadable`. The alternative was to weaken those cases to a
+      # `pytest.skip`, which this gate's own design rejects: a skip reports as
+      # a green bar, indistinguishable from a pass, and `EXPECT_SKIPPED` below
+      # is pinned as an exact SUM for that reason.
       #
       # THIS IS NOT THE TASK 5.3 CONSUMER GATE. Materializing a submodule so
       # the test suite can read it is a different act from wiring
-      # `scripts/verify-openxdox-pin.py` as its own required check; that gate
-      # is Phase 5's, is unwritten, and stays named as owed.
+      # `scripts/verify-openxdox-pin.py` or `scripts/verify-opendox-pin.py` as
+      # its own required check; that gate is Phase 5's, is unwritten, and
+      # stays named as owed.
       #
       # `installs/omnigent-install` still stays out — no test here reads it —
-      # and `--recursive` is still rejected one level down, so openXdox's own
-      # `code`/`spec` legs are NOT fetched: `ls-tree -r` reads a nested
-      # gitlink as an opaque `160000` record, so the whole-tree digest needs
-      # no leg materialized to be correct.
-      - name: Init the openXwallet and openXdox gitlinks only
-        run: git submodule update --init openXwallet openXdox
+      # and `--recursive` is still rejected one level down, so neither
+      # product's own `code`/`spec` legs are fetched: `ls-tree -r` reads a
+      # nested gitlink as an opaque `160000` record, so the whole-tree digest
+      # needs no leg materialized to be correct, for openDox any more than for
+      # openXdox. `openDox/code` in particular is NOT needed for anything in
+      # this pull request — the adapter re-point that reaches into it is a
+      # BUILD-arc PR-2 job (RULED Q7), not this one's.
+      - name: Init the openXwallet, openXdox and openDox gitlinks only
+        run: git submodule update --init openXwallet openXdox openDox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the

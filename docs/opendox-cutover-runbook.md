@@ -916,6 +916,48 @@ sites into travelling modules resolve `openxdox` through **the mounted leg's
 discovered file by file. openXdox-code owes the re-export surface module
 (§ 5.6) or there is nothing lawful to import.
 
+**AMENDMENT, 2026-09-10 — RULED Q7 SUPERSEDES RULING F FOR OPENDOX ONLY.**
+The paragraph above's *"openxFactory pins openXdox and nothing else … openDox's
+commit is a DERIVED value read through openXdox's own `contracts/opendox-
+pin.yaml` and is never separately declared, pinned or mounted here"* no longer
+holds for openDox. Brett Heap's Q7 ruling (`opensoft/openxFactory#656` comment
+[5626248666](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5626248666),
+2026-09-10), verbatim: *"RULED (i): SECOND SUBMODULE — openxFactory mounts the
+openDox assembly root (gitlink → opensoft/openDox main `49a99df2…` +
+`contracts/opendox-pin.yaml`, mirroring the openXdox pin of #917); both legs'
+`src/` become reachable and the re-point rides in PR-2. openxFactory then
+declares two direct upstreams (openDox, openXdox)."* Placement was ruled
+separately (`#656` comment
+[5626260214](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5626260214)):
+*"OWN PR FIRST, MERGE WHEN GREEN … plain gate unless it touches
+`openspec/changes/`"* — landed as its own pull request, PR #932, rather than
+riding inside § 8's atomic PR.
+
+**THE LOCKSTEP INVARIANT this second direct pin adds.** openxFactory's own
+`contracts/opendox-pin.yaml` `commit:` MUST EQUAL the commit openXdox's own
+`contracts/opendox-pin.yaml` names, at whatever commit the `openXdox` gitlink
+here records. Two independent, direct declarations of one product's bytes are
+exactly the defect `neutral-product-pin`'s chain clause exists to end, unless
+something holds them equal: `scripts/verify-opendox-pin.py`'s fifth check is
+that something. It reads openXdox's own derived pin as a git blob out of the
+mounted `openXdox/` submodule's own object store, AT THE COMMIT THE `openXdox`
+GITLINK RECORDS — never openXdox's mutable working tree, so an operator
+editing that file on disk without moving the gitlink cannot fool the check —
+and refuses `opendox-pin-lockstep-mismatch` the moment the two commits
+disagree. `contracts/openxdox-pin.yaml` and `scripts/verify-openxdox-pin.py`
+are UNCHANGED by this amendment: RULING F still governs THAT pin (openXdox
+pins openXdox and nothing about openDox); the second, independent pin is
+openxFactory's own new declaration, not an edit to the first.
+
+`openspec/changes/split-opendox-two-layer-product/design.md`'s matching
+sentence (§ D-pin: *"openxFactory's ONE pin file — `contracts/openxdox-
+pin.yaml` — also names \[openDox] for openXdox (RULING F …): openxFactory
+carries no `contracts/opendox-pin.yaml` of its own, and openDox's commit there
+is a DERIVED value read through openXdox's own pin"*) is amended by PR-2's
+packet patch, **not here** — this paragraph is the runbook's own record of the
+ruling, and the design document's own text is a separate, later edit under its
+own change control.
+
 ---
 
 ## 8. Phase 5 — openxFactory § 5, ONE ATOMIC PULL REQUEST
