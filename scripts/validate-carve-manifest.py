@@ -305,6 +305,12 @@ if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
 import carve_lines  # noqa: E402
+# `_git()` below reuses `carved_reach._sanitized_git_environment()` — safe to
+# import bare for the same reason `carve_lines` is: both live directly in
+# `scripts/`, which the block above already guarantees is on `sys.path` in
+# every context this file is loaded from, invoked-as-script or
+# `spec_from_file_location`.
+import carved_reach  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -566,10 +572,27 @@ class CarveRefusal(Exception):
 # --------------------------------------------------------------------------
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
-    """git, capturing BYTES — blob contents must not go through a decoder."""
+    """git, capturing BYTES — blob contents must not go through a decoder.
+
+    Runs `--no-replace-objects` against a SANITIZED environment (register
+    item, `#656` comment `5638315691`): every `resolve_revision`, `tree_at`
+    and `cat-file blob <commit>:<path>` read below goes through this one
+    helper, and without this an ambient `GIT_DIR`, alternate object
+    directory, indexed `GIT_CONFIG_KEY/VALUE_N`, or replace-ref could resolve
+    a read from a DIFFERENT object store than the one `repo` names — reading
+    a commit the tested revision does not actually carry. Same fix, same
+    reason, as `scripts/carved_reach.py`'s `_git_object_id` (commit
+    `c7d290da`) and `scripts/hermes_runtime_validation/content.py`'s `_git`;
+    `carved_reach._sanitized_git_environment()` is REUSED rather than a third
+    copy of its scrub list — see the `import carved_reach` comment above for
+    why that import is safe here.
+    """
     try:
-        return subprocess.run(["git", "-C", str(repo), *args],
-                              capture_output=True, check=False)
+        return subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *args],
+            capture_output=True, check=False,
+            env=carved_reach._sanitized_git_environment(),
+        )
     except OSError as exc:  # pragma: no cover - no git on the host
         raise CarveRefusal("carve-unreadable",
                            f"git could not be run in {repo}: {exc}") from exc
