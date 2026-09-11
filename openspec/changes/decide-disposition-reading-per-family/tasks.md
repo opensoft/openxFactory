@@ -139,11 +139,15 @@ each open box below states the event that closes it:
       admissible by key and unreachable on today's classes; the remaining 2
       (`semantic-contradiction`, `semantic-normative-prose`) are admitted by
       that same synthetic forcing (19+9+2=**30**, the figure this box opens
-      with) but unreachable for a THIRD reason, deeper than a wrong class:
-      neither family is ever emitted by any deterministic pass at all,
-      semantic-sweep-only, so a real previous report could never carry a
-      `contested` row naming them, leaving the 31st (`uncited-resolution`'s
-      own) as the only entry excluded from ADMISSION itself rather than reach.
+      with) but their reach is UNMEASURED here for a THIRD reason, deeper
+      than a wrong class: this rig never exercises `semantic.enforce_contract`,
+      which DOES emit a WARNING/CONTESTED finding for either family when a
+      real semantic sweep runs, merged into `result.findings` before render
+      (`runner.py:574`) — a real previous report CAN carry a `contested` row
+      for them (§ 7.6(b) below measures exactly that gap), just not from a
+      plain deterministic-only rig like this one, leaving the 31st
+      (`uncited-resolution`'s own) as the only entry excluded from ADMISSION
+      itself rather than reach.
 - [x] 2.6 Every reader of the file enumerated by grep across
       `scripts/doc_health/` — `promotion_fidelity.load_dispositions` and its
       **FOUR** call sites, counted rather than summarised:
@@ -189,12 +193,12 @@ each open box below states the event that closes it:
       report's rows (`report.py:374-383`) and not from the later run's
       resolution classes, so a key recorded `contested` once stays eligible even
       if the family's later rows are `auto-fixable` — AND the later run
-      actually EVALUATED the named family and repository (a fifth bullet states
-      the RECORDED-unavailable case, and a sixth refuses to ratify the gaps
-      § 7.6 measures, where a run's scope excludes a family or repository
+      actually EVALUATED the named family and repository (`spec.md:42` states
+      the RECORDED-unavailable case, and `spec.md:43` refuses to ratify the
+      gaps § 7.6 measures, where a run's scope excludes a family or repository
       without RECORDING it — measured at `report.uncited_resolutions`'
       `unavailable_families` / `unavailable_repos` guards, `report.py:424-427`,
-      fed by `runner.py` 792-830 — `unavailable_families` built at 792 and
+      fed by `runner.main` 792-830 — `unavailable_families` built at 792 and
       extended at 807/809/811/823/830, `unavailable_repos` at 749 — and passed
       at the call site, `runner.py:831`); and an entry naming `uncited-resolution`
       itself changes nothing at all.
@@ -202,17 +206,23 @@ each open box below states the event that closes it:
       reading* — such an entry is read OVER THAT FAMILY'S OWN FINDINGS exactly as
       that family's own declaration says and by that declaration alone, the
       family-neutral contested-resolution rule still reaching it WHEREVER THAT
-      RULE'S OWN EVALUATION SCOPE REACHES the named family and repository (a
-      third bullet says so in terms, so "by that declaration alone" cannot be
-      read as displacing that rule, and a FOURTH says the entry reaches nothing
-      through that rule where its scope excludes the named family — measured at
+      RULE'S OWN EVALUATION SCOPE REACHES the named family and repository
+      (`spec.md:50` says so in terms, so "by that declaration alone" cannot be
+      read as displacing that rule; `spec.md:51`, added in the review round of
+      2026-09-11, says a CITED entry missing a further family-specific key — a
+      string `content_sha256`, for `neutrality-drift` — is still admitted by
+      this same family-neutral reader, which tests only the cite, not that
+      further key; and `spec.md:52` says the entry reaches nothing through
+      that rule where its scope excludes the named family — measured at
       `runner.py:823` and `runner.py:830`, which add the ideation-readiness and
       neutrality-drift lanes to `unavailable_families` unconditionally because
       their findings are folded in AFTER the deterministic render, so those
-      lanes' prior contested rows never enter the pass at all), and scenario (i)
-      neither widens nor narrows it.
-      No body paragraph is added, edited or removed; no promoted scenario moves,
-      is retitled or loses a bullet.
+      lanes' prior contested rows never enter the pass at all), and
+      `spec.md:53` neither widens nor narrows it.
+      No body paragraph is added, edited or removed; no promoted scenario moves
+      or is retitled; scenario (ii) gained the one bullet named above
+      (`spec.md:51`) since first authored, recorded here rather than left
+      implicit, and no bullet is lost from either.
 - [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the
       committed tree after `origin/main` `c521504c` was merged, and scoped so it
       cannot match this packet's own files:
@@ -408,17 +418,20 @@ no successor and say so.
       `runner.FAMILIES` — verified by import — so `set(FAMILIES) - {args.family}`
       never contains them, and `runner.py:810-811` adds them only when a sweep
       was requested AND skipped; a `--family X` run whose baseline carried a
-      contested semantic row can therefore emit against it; (c) `run_suite`
-      (`runner.py:224-277`) adds a family to `unavailable_families` only via
-      `args.skip_family` (line 234) or `args.family` exclusivity
-      (`runner.py:808-809`) — NOT when the family's own `fn(ctx)` returns an
-      ordinary `Skip` result on its own initiative (`runner.py:247-273`: the
-      returned `Skip` is appended to `result.skips` and nothing more), e.g.
-      `fam_modified_block_currency` returning `Skip(FAMILY, "no repository in
-      scope carries an `openspec/changes/` directory this family can read")` at
-      `modified_block_currency.py:2232-2234` — so a family whose check simply
-      found nothing TO run against this time can have a prior contested row
-      read as resolved without citation, the same shape as (a) and (b) one
+      contested semantic row can therefore emit against it; (c)
+      `unavailable_families` is built ENTIRELY in `runner.main`
+      (`runner.py:792-811`, `823`, `830`) from `args.skip_family`,
+      `args.family` exclusivity and the two always-on lane additions — NEVER
+      from `run_suite`'s OWN, entirely separate bookkeeping of a family's
+      returned `Skip` result (`runner.py:224-277`, appended only to
+      `result.skips` at line 272 and never read back by `runner.main`): a
+      family whose `fn(ctx)` returns an ordinary `Skip` on its own initiative
+      (e.g. `fam_modified_block_currency` returning `Skip(FAMILY, "no
+      repository in scope carries an `openspec/changes/` directory this
+      family can read")` at `modified_block_currency.py:2232-2234`) leaves
+      `unavailable_families` untouched, so a family whose check simply found
+      nothing TO run against this time can have a prior contested row read as
+      resolved without citation, the same shape as (a) and (b) one
       guard-condition over. **NONE OF THE THREE IS REPAIRED HERE**: all three
       are runtime defects in `scripts/doc_health/`, this packet declares
       `code_surface: none`, and building any of the three arms before the

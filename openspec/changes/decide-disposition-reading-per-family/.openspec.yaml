@@ -49,9 +49,13 @@ origin:
     131 rows are all `auto-fixable` — admissible by key, unreachable on today's
     classes; the remaining 2 (`semantic-contradiction`, `semantic-normative-prose`)
     are admitted by that SAME synthetic forcing (19+9+2 make the THIRTY above)
-    but unreachable for a THIRD, deeper reason than the nine: neither family is
-    ever emitted by any deterministic pass at all, semantic-sweep-only, so a
-    REAL previous report could never carry a `contested` row naming them.
+    but their reach is UNMEASURED here for a THIRD, deeper reason than the
+    nine: this rig never exercises `semantic.enforce_contract`, which DOES
+    emit a WARNING/CONTESTED finding for either family when a real semantic
+    sweep runs, merged into `result.findings` before render (`runner.py:574`)
+    — a REAL previous report CAN carry a `contested` row for them (`tasks.md`
+    § 7.6(b) measures exactly that gap), just not from a plain
+    deterministic-only rig like this one.
     CANON DECLARES A READING FOR FIVE FAMILIES, not four:
     `promotion-fidelity`, `duplicate-packet`, `modified-block-currency`,
     `ratified-provenance` and `neutrality-drift`, the last suppressing on

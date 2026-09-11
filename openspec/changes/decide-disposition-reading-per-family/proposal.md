@@ -125,11 +125,15 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   today's classes (`design.md` D0.4); the remaining **2**
   (`semantic-contradiction`, `semantic-normative-prose`) are admitted by that
   SAME synthetic forcing — 19 + 9 + 2 make the **30** admitted above — but
-  unreachable for a THIRD, deeper reason than the nine: neither family is ever
-  emitted by any deterministic pass at all, semantic-sweep-only, so a REAL
-  previous report could never carry a `contested` row naming them, distinct
-  from the 31st (`uncited-resolution`'s own, excluded from ADMISSION itself,
-  below). It is the only arm that reads ALL thirty —
+  their reach is UNMEASURED here for a THIRD, deeper reason than the nine:
+  this rig never exercises `semantic.enforce_contract`, which DOES emit a
+  WARNING/CONTESTED finding for either family when a real semantic sweep
+  runs, merged into `result.findings` before render (`runner.py:574`) — a
+  REAL previous report CAN carry a `contested` row for them (`tasks.md`
+  § 7.6(b) measures exactly that gap), just not from a plain
+  deterministic-only rig like this one, distinct from the 31st
+  (`uncited-resolution`'s own, excluded from ADMISSION itself, below). It is
+  the only arm that reads ALL thirty —
   **not** the only arm that
   reads every one of them: `modified-block-currency`'s four entries are also read
   by that family's own module
