@@ -117,8 +117,9 @@ codexFactory**, authored there, exactly as
       PROCEDURE OF 3.2 BELOW, IN THAT ORDER**, which is this packet's single
       statement of it and is not restated here: capture the declarations from
       the pre-withdrawal envelope, commit the withdrawal as the baseline,
-      measure the assertions over the captured node list, regenerate and diff
-      against the baseline commit, record. Each companion is declared using
+      measure the assertions over the whole pinning suite with the conformance
+      module excluded by its own path, regenerate every allowlisted artefact and
+      diff against the baseline commit, record. Each companion is declared using
       design.md D-2c's grammar, **IN the envelope beside the candidate it
       belongs to**,
       as comment lines: `# companion: <pytest node id>` for every assertion
@@ -129,8 +130,8 @@ codexFactory**, authored there, exactly as
       file and 3.2 runs inside a REQUIRED check, so the declaration carries a
       BARE TOKEN and nothing executable. This task therefore also adds, IN THE
       TRUSTED CONFORMANCE TEST MODULE under codexFactory's `tests/merge-master/`
-      (code-owner-reviewed test code — a module that is never itself a member of
-      any class's pinning node list, 3.2 steps 1 and 3), the fixed
+      (code-owner-reviewed test code — a module EXCLUDED BY ITS OWN PATH from
+      every measurement and never itself measured, 3.2 steps 1 and 3), the fixed
       `identifier -> argv` TABLE that resolves each declared identifier — an
       argv list, no shell, a fixed cwd of
       the repository root — so that an identifier ABSENT FROM THE TABLE fails the
@@ -169,7 +170,9 @@ codexFactory**, authored there, exactly as
       against the allowlist table in the trusted test module in this same step —
       an identifier absent from that table FAILS HERE, before a byte is edited,
       rather than being looked up elsewhere or executed, and a declared node id
-      naming the conformance module itself is REFUSED HERE for the same reason.
+      naming the conformance module itself is REFUSED HERE: that module is
+      EXCLUDED BY ITS OWN PATH from the step-3 run, so such a node id could never
+      enter the measured set and would break the equality by construction.
       The captured sets are the expected values every later step compares
       against: step 2 removes those very comment lines from the tree being
       measured, so a test that has not captured them first has no declaration
@@ -182,30 +185,50 @@ codexFactory**, authored there, exactly as
       already carries the withdrawal edit, so a whole-tree diff would report
       `.github/merge-approval-envelope.yml` itself and the artefact equality
       could never hold however correct the regeneration was.
-      **STEP 3 — MEASURE THE ASSERTIONS, OVER THE CAPTURED NODE LIST AND NEVER A
-      DIRECTORY SWEEP.** Run the pinning suite ON EXACTLY THE NODE IDS CAPTURED
-      IN STEP 1 and on no others — the captured node list is passed explicitly,
-      and the run is **NOT** a sweep of `tests/merge-master/` or of any other
-      directory, so the conformance module never discovers and invokes itself and
-      no unrelated failure contaminates the measured set. Assert that the set of
-      FAILING node ids EQUALS that class's captured `# companion:` set exactly,
-      both directions, order-free, **and that the set is NOT EMPTY**: an
-      enrolment whose withdrawal fails no assertion is exactly the one that could
-      leave unnoticed, so an empty measured set is a FAILING check and the
-      enrolment is recorded as non-conformant for lacking a pinning assertion —
-      never a vacuous pass on two empty sets.
-      **STEP 4 — REGENERATE, AND DIFF AGAINST THE BASELINE COMMIT.** THEN
-      regenerate each artefact CAPTURED IN STEP 1 by ITS OWN declared
-      `regenerate:` IDENTIFIER, resolved to fixed argv by the trusted module's
-      table (argv list, no shell, fixed cwd of the repository root; an unknown
-      identifier has already failed at step 1 rather than being executed), and
-      assert that the set of paths **`git diff --name-only <baseline-commit>`**
-      reports changed EQUALS that class's captured `# companion-artefact:` PATH
-      set exactly — **no more, no less** — both directions, order-free. Because
-      the withdrawal is already IN the baseline, that delta holds ONLY what the
-      regeneration wrote. **The diff is NOT path-scoped to the declared set**,
-      precisely so that a regeneration writing a path NOBODY DECLARED still fails
-      the check.
+      **STEP 3 — MEASURE THE ASSERTIONS OVER AN INDEPENDENT, COMPLETE PINNING
+      INVENTORY, WITH THE CONFORMANCE MODULE EXCLUDED BY ITS OWN PATH.** Run the
+      WHOLE pinning suite — `tests/merge-master/` in the committed baseline tree —
+      with the conformance module itself EXCLUDED BY PATH (`pytest
+      --ignore=<conformance module path>`), and let the set of FAILING node ids be
+      the MEASURED SET. **WHAT IS RUN IS NOT TAKEN FROM THE DECLARATION**: the
+      captured `# companion:` set is the EXPECTED value and nothing else, so a
+      pinning assertion the declaration OMITS is still run, still fails, and still
+      enters the measured set — which is exactly how an INCOMPLETE declaration is
+      detected, and why the measured set may not be drawn from the declared one.
+      Self-invocation is prevented by THE EXPLICIT EXCLUSION — the conformance
+      module's own path, a CONSTANT IN TRUSTED TEST CODE and never a value read
+      from any declaration — and NOT by narrowing the run: narrowing makes the
+      equality circular, because a test that is never run can never enter the
+      measured set. Assert that the MEASURED set EQUALS that class's captured
+      `# companion:` set exactly, both directions, order-free, **and that the set
+      is NOT EMPTY**: an enrolment whose withdrawal fails no assertion is exactly
+      the one that could leave unnoticed, so an empty measured set is a FAILING
+      check and the enrolment is recorded as non-conformant for lacking a pinning
+      assertion — never a vacuous pass on two empty sets. An UNDECLARED pinning
+      assertion that fails on this withdrawal is therefore IN the measured set and
+      ABSENT from the declared one, the equality breaks, and the finding is
+      recorded against THE ENROLMENT AND ITS DECLARATION — never against the suite
+      that caught it (the `## MODIFIED` scenario "An undeclared companion is a
+      finding against the enrolment").
+      **STEP 4 — REGENERATE EVERY ALLOWLISTED ARTEFACT, AND DIFF AGAINST THE
+      BASELINE COMMIT.** THEN run **EVERY REGENERATION IN THE TRUSTED MODULE'S
+      ALLOWLIST TABLE — THE WHOLE TABLE, not only the identifiers this class
+      declared** — each resolved to fixed argv by that table (argv list, no shell,
+      fixed cwd of the repository root; a DECLARED identifier absent from the
+      table has already failed at step 1 rather than being executed), and assert
+      that the set of paths **`git diff --name-only <baseline-commit>`** reports
+      changed EQUALS that class's captured `# companion-artefact:` PATH set
+      exactly — **no more, no less** — both directions, order-free. **The
+      INVENTORY IS INDEPENDENT OF THE DECLARATION on this half too**: an artefact
+      that MOVES on this withdrawal but which no `# companion-artefact:` line
+      names is regenerated anyway, appears in the changed-path set, is absent from
+      the declared set, and breaks the equality — the same finding against the
+      same enrolment, rather than an omission hiding inside its own measurement.
+      Because the withdrawal is already IN the baseline, that delta holds ONLY
+      what the regenerations wrote, and an allowlisted regeneration with nothing
+      to do with this withdrawal writes nothing and so adds nothing to it. **The
+      diff is NOT path-scoped to the declared set**, precisely so that a
+      regeneration writing a path NOBODY DECLARED still fails the check.
       **STEP 5 — RECORD THE RESULT.** Report, per class, BOTH equalities and the
       non-emptiness result, and NAME THE CLASS AND THE STEP in any failure (step
       1 an unresolvable identifier or a self-naming node id, step 3 an
@@ -262,9 +285,22 @@ codexFactory**, authored there, exactly as
       that would fail is one this pull request re-targets, and every artefact
       that would move is one it regenerates, so codexFactory's required
       `validate` check passes ON THE THROW'S OWN TREE.
-      **THE RESTORE IS THE REVERT OF THAT PULL REQUEST** (4.3): the mapping, the
-      comment lines, the assertions' expectations and the artefacts return
-      TOGETHER, in one act.
+      **THE RESTORE IS A FORWARD CHANGE PRODUCED BY THIS SAME PROCEDURE — NEVER
+      A REVERT** (4.3). It is ONE pull request carrying exactly the same three
+      kinds of change IN THE OPPOSITE DIRECTION and nothing else: (i) the
+      candidate mapping AND its companion comment lines RE-ADDED BYTE-IDENTICAL
+      to the pre-throw declaration; (ii) each declared `# companion:` assertion's
+      EXPECTATION re-targeted BACK to the enrolled tree, by the same minimal
+      reviewed edit and never by deletion, skipping or weakening; (iii) each
+      declared `# companion-artefact:` REGENERATED BY ITS OWN ALLOWLISTED TOOL in
+      the RESTORED tree — which is what APPENDS THE RESTORE MOVEMENT to the golden
+      digest's history (`design.md` D-3's second movement), exactly as the throw
+      appended the first. The "AND NOTHING ELSE" measurable bound and the
+      landability consequence are IDENTICAL to the throw's, because the act is the
+      same act pointed the other way. **A `git revert` of the throw is REFUSED as
+      the restore**: it DELETES the throw's recorded movement instead of RECORDING
+      a restore, leaving the behaviour history with no trace that the switch was
+      ever thrown — the opposite of the ledger this observation exists to produce.
       **The figures this makes declared rather than hidden.** At today's head the
       companion for `openxfactory-floor-regeneration` measures 29 assertions
       across FIVE test files plus the golden digest — the RESULT posted on
@@ -292,8 +328,14 @@ successor.
       (`_EXIT_NOT_CANDIDATE`), `decision=skip`, **no sticky comment** (the
       "Explain park or block" step is gated on `decision == 'park'`) — and stays
       at the human merge gate.
-- [ ] **4.3 Restore by revert** of that same pull request, so the entry and the
-      companion assertions return in one act.
+- [ ] **4.3 Restore — a FORWARD change by the same procedure as the throw, NEVER
+      a revert**, as **3.6** defines it: ONE pull request re-adding that class's
+      candidate mapping and its companion comment lines byte-identical to the
+      pre-throw declaration, re-targeting each declared assertion's expectation
+      back to the enrolled tree, and REGENERATING each declared artefact by its
+      allowlisted tool — so the entry and the companion assertions return in one
+      act AND the golden digest records the RESTORE as its own movement beside the
+      throw's, rather than losing the throw's movement to a reverted patch.
 - [ ] **4.4 Observe approval resume** on the following real bot cycle.
 - [ ] **4.5 Record it** on openxFactory #745 and codexFactory #232, and tick the
       parent's box 3.6 **THERE, on the parent's packet** — never here.
