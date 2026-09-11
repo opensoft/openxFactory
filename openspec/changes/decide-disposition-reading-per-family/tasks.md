@@ -137,10 +137,13 @@ each open box below states the event that closes it:
       48/48, while `proposal-origin` is **`auto-fixable` 130/130** and
       `document-catalog` **1/1**. 19 of the 31 belong to a contested family; 9 are
       admissible by key and unreachable on today's classes; the remaining 2
-      (`semantic-contradiction`, `semantic-normative-prose`) are not
-      deterministically emitted by ANY run and are admissible to this arm by no
-      measurement at all, leaving the 31st (`uncited-resolution`'s own) as the
-      only entry excluded by construction rather than by class.
+      (`semantic-contradiction`, `semantic-normative-prose`) are admitted by
+      that same synthetic forcing (19+9+2=**30**, the figure this box opens
+      with) but unreachable for a THIRD reason, deeper than a wrong class:
+      neither family is ever emitted by any deterministic pass at all,
+      semantic-sweep-only, so a real previous report could never carry a
+      `contested` row naming them, leaving the 31st (`uncited-resolution`'s
+      own) as the only entry excluded from ADMISSION itself rather than reach.
 - [x] 2.6 Every reader of the file enumerated by grep across
       `scripts/doc_health/` — `promotion_fidelity.load_dispositions` and its
       **FOUR** call sites, counted rather than summarised:

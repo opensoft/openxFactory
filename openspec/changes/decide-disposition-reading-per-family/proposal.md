@@ -123,10 +123,13 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   families whose 131 rows are ALL `auto-fixable`** (`proposal-origin` 130,
   `document-catalog` 1) — so those nine are admissible by key and unreachable on
   today's classes (`design.md` D0.4); the remaining **2**
-  (`semantic-contradiction`, `semantic-normative-prose`) are emitted by no
-  deterministic run at all and are admissible to this arm by no measurement,
-  distinct from the nine and from the 31st (`uncited-resolution`'s own,
-  excluded by construction, below). It is the only arm that reads ALL thirty —
+  (`semantic-contradiction`, `semantic-normative-prose`) are admitted by that
+  SAME synthetic forcing — 19 + 9 + 2 make the **30** admitted above — but
+  unreachable for a THIRD, deeper reason than the nine: neither family is ever
+  emitted by any deterministic pass at all, semantic-sweep-only, so a REAL
+  previous report could never carry a `contested` row naming them, distinct
+  from the 31st (`uncited-resolution`'s own, excluded from ADMISSION itself,
+  below). It is the only arm that reads ALL thirty —
   **not** the only arm that
   reads every one of them: `modified-block-currency`'s four entries are also read
   by that family's own module
