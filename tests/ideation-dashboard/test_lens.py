@@ -40,12 +40,12 @@ import pytest
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxfactory_validator
 
 from ideation_dashboard import human_seen as hs
-from ideation_dashboard import lens
+from opendox import lens
 from ideation_dashboard import lens_submission   # add-as-cluster: pre-carve split S-2
-from ideation_dashboard import workbench as wb
-from ideation_dashboard.boundary import OutputBoundary
-from ideation_dashboard.generator import generate_snapshot
-from ideation_dashboard.workbench import WorkbenchError
+from opendox import workbench as wb
+from opendox.boundary import OutputBoundary
+from openxdox.generator import generate_snapshot
+from opendox.workbench import WorkbenchError
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 LENS_MODEL_JS = WEB / "views" / "lens-model.js"
@@ -560,7 +560,7 @@ def test_add_as_cluster_queue_stays_on_the_declared_allowlist(tmp_path):
     # so the submission has NO route to any off-allowlist path.
     boundary = _boundary(tmp_path)
     lens_submission.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
-    from ideation_dashboard.boundary import BoundaryViolation
+    from opendox.boundary import BoundaryViolation
     with pytest.raises(BoundaryViolation):
         boundary.write_output("ideation/staging/human-seen.yaml", "x: 1")
     assert boundary.refusals and boundary.refusals[-1].kind == "outside-allowlist"

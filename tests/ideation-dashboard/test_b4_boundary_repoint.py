@@ -47,7 +47,7 @@ import ast
 from conftest import REPO_ROOT
 
 import output_boundary
-from ideation_dashboard import boundary as boundary_shim
+from opendox import boundary as boundary_shim
 from ideation_dashboard import dashboard_refresh_lane, human_seen, nightly_lane
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"

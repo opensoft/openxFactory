@@ -62,7 +62,7 @@ from import_scan import (  # noqa: E402
     names_a_forbidden_package,
 )
 
-from ideation_dashboard import doxbench_packet as pk  # noqa: E402
+from opendox import doxbench_packet as pk  # noqa: E402
 from ideation_dashboard import doxbench_status_exemption as rail  # noqa: E402
 
 # The fixture corpus and the packet-construction helpers are the ones the

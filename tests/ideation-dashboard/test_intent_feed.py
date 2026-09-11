@@ -37,7 +37,7 @@ import yaml
 
 from ideation_dashboard import intent_apply_lane as lane
 from ideation_dashboard import intent_feed
-from ideation_dashboard import serve as serve_mod
+from opendox import serve as serve_mod
 
 from test_gate_routes import _get, _serving
 from test_intent_apply_lane import _apply, _corpus, _intent

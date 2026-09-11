@@ -359,16 +359,30 @@ jobs:
       # its own required check; that gate is Phase 5's, is unwritten, and
       # stays named as owed.
       #
-      # `installs/omnigent-install` still stays out — no test here reads it —
-      # and `--recursive` is still rejected one level down, so neither
-      # product's own `code`/`spec` legs are fetched: `ls-tree -r` reads a
-      # nested gitlink as an opaque `160000` record, so the whole-tree digest
-      # needs no leg materialized to be correct, for openDox any more than for
-      # openXdox. `openDox/code` in particular is NOT needed for anything in
-      # this pull request — the adapter re-point that reaches into it is a
-      # BUILD-arc PR-2 job (RULED Q7), not this one's.
-      - name: Init the openXwallet, openXdox and openDox gitlinks only
-        run: git submodule update --init openXwallet openXdox openDox
+      # `installs/omnigent-install` still stays out — no test here reads it.
+      #
+      # `--recursive` WAS REJECTED ONE LEVEL DOWN AND IS NOW REQUIRED, and the
+      # sentence it replaces is kept here because the reason it changed is the
+      # whole point. That sentence read: "neither product's own `code`/`spec`
+      # legs are fetched: `ls-tree -r` reads a nested gitlink as an opaque
+      # `160000` record, so the whole-tree digest needs no leg materialized to
+      # be correct … `openDox/code` in particular is NOT needed for anything
+      # in this pull request — the adapter re-point that reaches into it is a
+      # BUILD-arc PR-2 job (RULED Q7), not this one's." Both halves were true
+      # of #932. THIS IS THAT PR-2. The § 5.2 shed removed 319 declared paths
+      # from this repository and 36 files that STAY read 38 of those modules
+      # from `openDox/code/src` and `openXdox/code/src` through
+      # `scripts/carved_reach.py`. A non-recursive init leaves both `code`
+      # legs EMPTY on the runner, `carved_reach.install()` refuses by name,
+      # and every one of those files fails at import. The pin digests are
+      # unaffected either way — `ls-tree -r` still reads the nested gitlinks
+      # as opaque `160000` records, so `tests/opendox_pin/` and
+      # `tests/openxdox_pin/` measure exactly what they measured before.
+      # Recursion only ADDS trees; it changes no assertion that already ran.
+      - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY — § 5.2 reads their code legs)
+        run: |
+          git submodule update --init openXwallet
+          git submodule update --init --recursive openXdox openDox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the

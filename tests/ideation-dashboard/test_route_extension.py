@@ -51,10 +51,10 @@ sys.path.insert(0, str(REPO_ROOT / "tests"))
 import route_extension  # noqa: E402
 from import_scan import imported_modules, names_a_forbidden_package  # noqa: E402
 
-from ideation_dashboard import action_errors  # noqa: E402
+from opendox import action_errors  # noqa: E402
 from ideation_dashboard import profile_openxfactory  # noqa: E402
-from ideation_dashboard import serve as serve_mod  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from opendox import serve as serve_mod  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 MODULE = REPO_ROOT / "scripts" / "route_extension.py"

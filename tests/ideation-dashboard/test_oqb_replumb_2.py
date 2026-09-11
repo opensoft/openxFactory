@@ -67,8 +67,10 @@ import pytest
 from conftest import REPO_ROOT
 
 import wire_messages
-from ideation_dashboard import serve as serve_mod
-from ideation_dashboard import serve_openxfactory_lanes, serve_projection, serve_wire
+from opendox import serve as serve_mod
+from ideation_dashboard import serve_openxfactory_lanes
+from opendox import serve_wire
+from openxdox import serve_projection
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
 NEUTRAL_WIRE_MESSAGES = REPO_ROOT / "scripts" / "wire_messages.py"

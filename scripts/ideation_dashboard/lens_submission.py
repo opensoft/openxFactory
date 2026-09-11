@@ -48,14 +48,26 @@ same refusals.
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
-from . import human_seen
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
+if str(_SCRIPTS_DIR) not in sys.path:  # plain-script parity with serve.py
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+# § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): `lens` and `workbench` left
+# openxFactory at the carve and are read from the PINNED openDox leg through
+# the ONE resolver. See `scripts/carved_reach.py`.
+from carved_reach import install as _install_carved_reach  # noqa: E402
+
+_install_carved_reach()
+
+from . import human_seen  # noqa: E402
 from .human_seen import HumanSeenSubmission, SubmissionRefused  # noqa: F401 (re-export)
-from .lens import PENDING_PROPOSAL_NOTE
-from .workbench import ACTION_ADD_AS_CLUSTER, OutputBoundary, Workbench, save
+from opendox.lens import PENDING_PROPOSAL_NOTE
+from opendox.workbench import ACTION_ADD_AS_CLUSTER, OutputBoundary, Workbench, save
 
 
 @dataclass

@@ -38,7 +38,9 @@ import ast
 from conftest import REPO_ROOT
 
 import path_slug
-from ideation_dashboard import branch_session, human_seen, openxdox_surface, workbench
+from ideation_dashboard import human_seen
+from opendox import branch_session, workbench
+from openxdox import openxdox_surface
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
 

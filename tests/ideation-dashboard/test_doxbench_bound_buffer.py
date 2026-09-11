@@ -29,7 +29,8 @@ import pytest
 import yaml
 
 from conftest import REPO_ROOT, serve_surface_paths, serve_surface_source
-from ideation_dashboard import doxbench_contracts, doxbench_turns
+from ideation_dashboard import doxbench_contracts
+from opendox import doxbench_turns
 
 RUNTIME = REPO_ROOT / "scripts" / "ideation_dashboard"
 TURNS_PY = RUNTIME / "doxbench_turns.py"

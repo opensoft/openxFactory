@@ -476,8 +476,8 @@ def runner_seams():
     if not dashboard_ready:
         return ()
 
-    from ideation_dashboard import session_pr as session_pr_mod
-    from ideation_dashboard import workbench as workbench_mod
+    from opendox import session_pr as session_pr_mod
+    from opendox import workbench as workbench_mod
 
     return (
         (workbench_mod, "_default_runner", refuse_nlm),

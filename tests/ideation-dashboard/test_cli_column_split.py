@@ -69,8 +69,9 @@ import pytest
 from conftest import REPO_ROOT
 
 import subcommand_extension
-from ideation_dashboard import cli as cli_mod
-from ideation_dashboard import cli_gate, cli_model_binding, cli_project
+from opendox import cli as cli_mod
+from opendox import cli_model_binding, cli_project
+from openxdox import cli_gate
 from ideation_dashboard import profile_openxfactory
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"

@@ -30,7 +30,8 @@ import ast
 
 from conftest import REPO_ROOT
 
-from ideation_dashboard import lens, lens_submission
+from ideation_dashboard import lens_submission
+from opendox import lens
 
 PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
 LENS = PACKAGE / "lens.py"

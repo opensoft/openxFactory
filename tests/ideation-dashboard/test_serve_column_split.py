@@ -56,10 +56,12 @@ from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
 import route_extension  # noqa: E402
 
 from ideation_dashboard import profile_openxfactory  # noqa: E402
-from ideation_dashboard import serve as serve_mod  # noqa: E402
-from ideation_dashboard import serve_gate, serve_openxfactory_lanes  # noqa: E402
-from ideation_dashboard import serve_projection, serve_wire  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from opendox import serve as serve_mod  # noqa: E402
+from ideation_dashboard import serve_openxfactory_lanes  # noqa: E402
+from openxdox import serve_gate  # noqa: E402
+from opendox import serve_wire  # noqa: E402
+from openxdox import serve_projection  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 

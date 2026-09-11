@@ -23,6 +23,23 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# --------------------------------------------------------------------------
+# § 5.2 SHED REACH (RULED (a), `#656` comment `5625573095`; RULED Q7,
+# `5626248666`). The shed removed 319 declared paths from this repository, and
+# 36 files that STAY still name 38 of those modules. They are read from the two
+# PINNED legs — `openDox/code/src` and `openXdox/code/src` — through the ONE
+# resolver, `scripts/carved_reach.py`, which refuses by name rather than
+# degrading to a skip when a gitlink is not materialized. Installed HERE, in
+# the suite-wide conftest `pytest.ini`'s rootdir anchor guarantees is in every
+# run's conftest chain, so no test module carries its own copy of the reach.
+# --------------------------------------------------------------------------
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+
+from carved_reach import install as install_carved_reach  # noqa: E402
+
+install_carved_reach(tests=True)
+
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
     hermetic_binary_path,
     hermetic_external_runners,

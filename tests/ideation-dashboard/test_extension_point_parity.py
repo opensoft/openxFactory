@@ -48,7 +48,7 @@ import pytest
 
 from conftest import FIXTURES, REPO_ROOT
 
-from ideation_dashboard import cli as cli_mod
+from opendox import cli as cli_mod
 
 SERVE = REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py"
 
@@ -368,10 +368,10 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
     mixin must still precede `SimpleHTTPRequestHandler`, and now the ORDER OF
     ALL FIVE is pinned rather than of two.
     """
-    from ideation_dashboard import serve as serve_mod
-    from ideation_dashboard import (serve_gate, serve_openxfactory_lanes,
-                                    serve_project, serve_projection,
-                                    serve_workbench)
+    from opendox import serve as serve_mod
+    from ideation_dashboard import serve_openxfactory_lanes
+    from opendox import serve_project, serve_workbench
+    from openxdox import serve_gate, serve_projection
 
     mro = serve_mod.DashboardHandler.__mro__
     assert mro[:7] == (
@@ -418,9 +418,9 @@ def test_the_mixins_share_no_member_name_with_the_http_server_chain():
     and therefore safe. A future member added to either mixin that collides
     with the chain must fail HERE, not resolve silently to the wrong method.
     """
-    from ideation_dashboard import (serve_gate, serve_openxfactory_lanes,
-                                    serve_project, serve_projection,
-                                    serve_workbench)
+    from ideation_dashboard import serve_openxfactory_lanes
+    from opendox import serve_project, serve_workbench
+    from openxdox import serve_gate, serve_projection
 
     # WIDENED by § 2.4 PR 3 of 4 with the three columns it added: the sweep
     # follows the mixins, so a member added to any of the five is checked.

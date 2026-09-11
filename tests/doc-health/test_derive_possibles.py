@@ -596,7 +596,7 @@ def test_persist_writes_only_allowlisted_paths_through_the_boundary(
 
 
 def test_any_other_write_path_is_refused_recorded_and_raised(tmp_path):
-    from ideation_dashboard.boundary import BoundaryViolation
+    from opendox.boundary import BoundaryViolation
     boundary = dp.make_boundary(tmp_path)
     with pytest.raises(BoundaryViolation):
         boundary.write_output("ideation/brainstorm/alpha-1.md", "MUTATED")

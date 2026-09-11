@@ -1680,7 +1680,14 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
     try:
-        from ideation_dashboard import workbench as wb
+        # § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): `workbench` left
+        # openxFactory at the carve. The reach install stays INSIDE this try —
+        # an uninitialized leg must present as the same additive SKIP this
+        # sweep already takes for an unavailable workbench, never as a crash
+        # in a sync that is not about the workbench at all.
+        from carved_reach import install as install_carved_reach
+        install_carved_reach()
+        from opendox import workbench as wb
     except Exception as exc:  # sweep is additive; never break the sync
         print(f"[workbench] orphan sweep SKIPPED (ideation_dashboard "
               f"unavailable: {exc})")

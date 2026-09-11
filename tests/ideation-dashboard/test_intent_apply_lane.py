@@ -16,7 +16,7 @@ from pathlib import Path
 
 import yaml
 
-from ideation_dashboard import gate_console as gc
+from openxdox import gate_console as gc
 from ideation_dashboard import intent_apply_lane as lane
 
 from test_gate_console import _accepting_validator, _derived_entry, _dispose_root

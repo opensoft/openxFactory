@@ -103,6 +103,22 @@ from staging_shapes import (  # noqa: E402,F401  (re-export, one definition)
 # builds its world in tmp_path and never touches a real checkout (research R10).
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# RULED Q6 (§ 5.2, `#656` comment `5626248666`) — THE RETAINED CONFTEST'S OWN
+# IMPORT, RE-POINTED. `session_fixtures.py` is a MOVED row
+# (`tests/ideation-dashboard/session_fixtures.py` -> openDox-code
+# `tests/session_fixtures.py`, `also_replicated_to: [openxdox_code]`) and the
+# shed deleted it here, while THIS file is a RETAINED
+# (`replicated_at_destination`) row that imports it UNCONDITIONALLY. Editing a
+# retained row is lawful in BOTH phases — nothing in the manifest holds a
+# retained row's bytes — so the repair is here rather than in the row's
+# disposition. The name below is unchanged: `scripts/carved_reach.py`, which
+# `tests/conftest.py` installs for every run, APPENDS both legs' own `tests/`
+# trees to `sys.path`, so `session_fixtures` resolves at the pinned openDox
+# leg. Appended and not prepended, so the 20 `replicated_at_destination` rows
+# whose basenames exist on both sides still resolve HERE first.
+# --------------------------------------------------------------------------
+
 from session_fixtures import (  # noqa: E402,F401  (fixture registration)
     declared_gate_principals,
     declared_human_console,

@@ -1003,7 +1003,7 @@ def test_persist_writes_only_allowlisted_paths_through_the_boundary(
 
 
 def test_any_other_write_path_is_refused_recorded_and_raised(tmp_path):
-    from ideation_dashboard.boundary import BoundaryViolation
+    from opendox.boundary import BoundaryViolation
     boundary = ir.make_boundary(tmp_path)
     # a source-document write is outside the allowlist -> refused
     with pytest.raises(BoundaryViolation):

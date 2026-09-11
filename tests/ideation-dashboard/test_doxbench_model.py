@@ -24,7 +24,7 @@ import pytest
 
 from conftest import REPO_ROOT
 
-from ideation_dashboard.doxbench_model import (
+from opendox.doxbench_model import (
     CATALOG_WIRE_KIND,
     CATALOG_WIRE_SCHEMA_VERSION,
     MAX_ADAPTER_TIMEOUT_SECONDS,
@@ -60,8 +60,8 @@ from ideation_dashboard.doxbench_model import (
     validated_timeout_seconds,
 )
 from ideation_dashboard import doxbench_contracts
-from ideation_dashboard import doxbench_model
-from ideation_dashboard import serve
+from opendox import doxbench_model
+from opendox import serve
 
 MODULE_PATH = REPO_ROOT / "scripts" / "ideation_dashboard" / "doxbench_model.py"
 
@@ -1129,7 +1129,7 @@ def test_fixed_diagnostics_are_a_closed_set_of_plain_fixed_strings():
 
 
 def test_assistant_prose_cap_matches_doxbench_turns_no_drift():
-    from ideation_dashboard import doxbench_turns
+    from opendox import doxbench_turns
     assert (doxbench_model.MAX_ASSISTANT_PROSE_BYTES
             == doxbench_turns.MAX_ASSISTANT_PROSE_BYTES == 65_536)
 

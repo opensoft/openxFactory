@@ -87,8 +87,8 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
         if find_spec("ideation_dashboard.workbench") is None:
             self.skipTest("ideation_dashboard arrives with "
                           "adopt-neutral-tooling-home tranche B")
-        from ideation_dashboard import session_pr as session_pr_mod
-        from ideation_dashboard import workbench as workbench_mod
+        from opendox import session_pr as session_pr_mod
+        from opendox import workbench as workbench_mod
 
         self.assertIs(workbench_mod._default_runner, hermeticity.refuse_nlm,
                       "workbench._default_runner is the real `nlm` subprocess: a "

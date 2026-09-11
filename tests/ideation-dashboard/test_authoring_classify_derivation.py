@@ -52,7 +52,7 @@ from corpus_adapter import CorpusRef  # noqa: E402
 from corpus_adapter_openxfactory import OpenxFactoryCorpusAdapter  # noqa: E402
 from corpus_adapter_openxfactory.home import HOME_SHAPE  # noqa: E402
 from doc_health import corpus  # noqa: E402
-from ideation_dashboard import authoring  # noqa: E402
+from opendox import authoring  # noqa: E402
 
 AUTHORING = REPO_ROOT / "scripts" / "ideation_dashboard" / "authoring.py"
 

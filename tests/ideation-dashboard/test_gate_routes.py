@@ -24,12 +24,12 @@ from conftest import (  # noqa: F401 (sys.path side effect)
 )
 
 from ideation_dashboard import human_seen as hs
-from ideation_dashboard import serve as serve_mod
-from ideation_dashboard.boundary import BoundaryViolation, OutputBoundary
-from ideation_dashboard.generator import generate_snapshot
-from ideation_dashboard import gate_routes as gate_routes_mod
-from ideation_dashboard import authoring as authoring_mod
-from ideation_dashboard import workbench as wb_mod
+from opendox import serve as serve_mod
+from opendox.boundary import BoundaryViolation, OutputBoundary
+from openxdox.generator import generate_snapshot
+from openxdox import gate_routes as gate_routes_mod
+from opendox import authoring as authoring_mod
+from opendox import workbench as wb_mod
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 VALIDATOR = find_openxfactory_validator()
@@ -896,7 +896,7 @@ def test_demote_route_exposes_no_execution_switch(tmp_path):
         assert status == 200
         assert not (root / "ideation" / "staging" / "topic-x" / "proposal.md").exists()
         import inspect
-        from ideation_dashboard import gate_console as gc_mod
+        from openxdox import gate_console as gc_mod
         assert "execute" not in inspect.signature(gc_mod.demote).parameters
 
 

@@ -914,7 +914,7 @@ def test_the_types_target_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
     and pinned equal, so the two cannot drift into two caps (the hazard §12.2
     recorded for its own duplicated list, and the reason Codex's P2 asked for
     the bound by reference rather than a second literal)."""
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         MAX_ROUTING_TARGETS, MODEL_REFERENCE_MAX_LENGTH, MODEL_REFERENCE_PATTERN)
     entry = _model_entry_subschema(released_root)
     routes_to = entry["properties"]["routes_to"]
@@ -944,7 +944,7 @@ def test_the_types_catalog_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
         released_root):
     """`MAX_CATALOG_ENTRIES` mirrors `models.maxItems`, restated for the same
     reason `MAX_ROUTING_TARGETS` is and pinned the same way (contract-v2.2)."""
-    from ideation_dashboard.doxbench_model import MAX_CATALOG_ENTRIES
+    from opendox.doxbench_model import MAX_CATALOG_ENTRIES
     schema = yaml.safe_load(
         (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
         .read_text(encoding="utf-8"))
@@ -959,7 +959,7 @@ def test_the_types_descriptive_string_bounds_are_pinned_to_the_RELEASED_schema(
     out of the RELEASED BYTES here and pinned equal — the same discipline
     `MAX_ROUTING_TARGETS` got, applied to the three fields that carried a
     `maxLength` in the schema and a blankness check in the type."""
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         DATA_HANDLING_MAX_LENGTH, LABEL_MAX_LENGTH, PROVIDER_CLASS_MAX_LENGTH)
     properties = _model_entry_subschema(released_root)["properties"]
     assert properties["label"]["maxLength"] == LABEL_MAX_LENGTH
@@ -979,7 +979,7 @@ def test_the_closed_modality_vocabulary_is_pinned_to_the_RELEASED_schema(
     restates no modality rule, so it refuses that instance by applying these
     very bytes. This clause is the whole file-side refusal, which is why it is
     pinned rather than assumed."""
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         CATALOG_MODALITIES, REQUIRED_MODALITY)
     modalities = _model_entry_subschema(released_root)["properties"]["modalities"]
     assert tuple(modalities["items"]["enum"]) == CATALOG_MODALITIES
@@ -1017,7 +1017,7 @@ def test_EVERY_string_bound_the_released_schema_declares_is_enforced_at_construc
     so it is driven through one; every other bounded string is driven on a plain
     entry. Its refusal is raised BEFORE the `resolved_model_id not in
     routes_to` membership check, so this drives the bound and not that rule."""
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         InvalidCatalogEntryError, ModelCatalogEntry)
 
     entry_schema = _model_entry_subschema(released_root)
@@ -1055,7 +1055,7 @@ def test_EVERY_string_bound_the_released_schema_declares_is_enforced_at_construc
 
 
 def _assert_the_entry_count_cap_is_enforced(released_root):
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         CatalogEntryCountError, ModelCatalog, ModelCatalogEntry)
     schema = yaml.safe_load(
         (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
@@ -1299,7 +1299,7 @@ _ROUTING_NEGATIVE_GLOB = "workbench-model-catalog-routing-*.negative.yaml"
 
 def _type_gate_refuses(doc) -> bool:
     """Construct the catalog through the real type. True when it refuses."""
-    from ideation_dashboard.doxbench_model import (
+    from opendox.doxbench_model import (
         ModelCatalog, ModelCatalogEntry, ModelCatalogError,
     )
     try:
@@ -1723,8 +1723,8 @@ def test_the_pairing_negatives_are_refused_by_the_PACKET_TYPE_TOO(stem):
     the type owns is the PRESENCE rule over the inputs it can actually receive,
     and `test_the_construction_gate_and_the_derivation_agree_on_PRESENCE` is the
     faithful pin for it."""
-    from ideation_dashboard import doxbench_packet as pk
-    from ideation_dashboard.doxbench_scope import ScopeKey
+    from opendox import doxbench_packet as pk
+    from openxdox.doxbench_scope import ScopeKey
 
     posture, reason, refuses = _TYPE_GATE_INSTANCE[stem]
     scope = ScopeKey(repository="fixture-repo", ref="main",

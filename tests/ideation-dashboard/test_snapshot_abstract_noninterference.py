@@ -53,9 +53,9 @@ from pathlib import Path
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
 
 from ideation_dashboard import nightly_lane
-from ideation_dashboard import serve as serve_mod
-from ideation_dashboard import snapshot as snapshot_mod
-from ideation_dashboard.doxbench_model import (
+from opendox import serve as serve_mod
+from openxdox import snapshot as snapshot_mod
+from opendox.doxbench_model import (
     DISPATCH_ERR_MODEL_FAILED,
     DISPATCH_ERR_MODEL_TIMEOUT,
     FakeWorkbenchModelPort,
@@ -65,7 +65,7 @@ from ideation_dashboard.doxbench_model import (
     TurnDispatchSuccess,
     dispatch_turn,
 )
-from ideation_dashboard.generator import generate_snapshot
+from openxdox.generator import generate_snapshot
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
 
