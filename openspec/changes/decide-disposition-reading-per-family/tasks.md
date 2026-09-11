@@ -188,7 +188,11 @@ each open box below states the event that closes it:
       none this one) and `settle-aging-staging-topics` (1 MODIFIED, *Aging
       threshold defaults*). No two-writers collision; `sequenced_after: []`
       stands on that measurement. The LATE re-check for #965's packet is
-      `design.md` D5.
+      `design.md` D5, and it caught the change it was taken late to catch: PR
+      #981 (`report-stale-grandfather-dispositions`) opened at 20:40Z and its
+      delta's single heading, read off the branch, is *Governed corpus membership
+      and the lifecycle scan set* — a DIFFERENT requirement, so neither packet
+      owes `sequenced_after:` to the other.
 
 ## 4. The arms a VETO would commission — SCOPED, NOT BUILT
 

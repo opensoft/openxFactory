@@ -430,12 +430,28 @@ scope: it constrains what an entry MEANS, not where the file is found.
   and that figure is recorded here for #965 to carry rather than acted on. No
   finding class is graded and no severity is chosen by this packet.
 - **NO ACTIVE SIBLING DELTA COLLIDES WITH THE HEADING THIS PACKET MODIFIES, AND
-  THE COORDINATION WAS TAKEN LATE ON PURPOSE.** #965's packet would be the one
-  that could: `gh pr list --repo opensoft/openxFactory --search 965 --state open`
-  was run on 2026-09-11 after this branch merged `origin/main` `c521504c` and
-  again after it merged `d4d96cca`, and **no
-  `report-stale-grandfather-dispositions` pull request exists** — #965 is
-  unclaimed and has no branch. The whole open set was listed as the control
+  THE COORDINATION WAS TAKEN LATE ON PURPOSE — LATE ENOUGH THAT THE ANSWER
+  CHANGED UNDER IT.** #965's packet is the one that could collide, and it now
+  EXISTS: **PR [#981](https://github.com/opensoft/openxFactory/pull/981),
+  `report-stale-grandfather-dispositions`, DRAFT, opened 2026-09-11T20:40Z** on
+  `change/report-stale-grandfather-dispositions` — after the two earlier runs of
+  `gh pr list --repo opensoft/openxFactory --search 965 --state open` (taken
+  after this branch merged `origin/main` `c521504c` and again after `d4d96cca`)
+  had both returned only this pull request. **MEASURED RATHER THAN ASSUMED**:
+  `git show origin/change/report-stale-grandfather-dispositions:openspec/changes/report-stale-grandfather-dispositions/specs/doc-health/spec.md
+  | grep '^### Requirement'` returns exactly one heading, *Governed corpus
+  membership and the lifecycle scan set*, under a single `## MODIFIED
+  Requirements` block. **THAT IS NOT THIS PACKET'S HEADING**, so the two deltas
+  touch disjoint requirements of the same capability and **NEITHER OWES
+  `sequenced_after:` TO THE OTHER**. #981's own `.openspec.yaml` `related:`
+  records this pull request and reaches the same conclusion in the same terms,
+  which is the two lanes agreeing rather than one lane deciding for both. Two
+  differences are recorded here so a later reader does not have to re-derive
+  them: #981 carries a CODE SURFACE (`scripts/doc_health/families.py` and
+  `tests/doc-health/test_grandfather_dispositions.py`) where this packet carries
+  none, and both branches seed a row in `tests/sequenced_after/corpus-ledger.yaml`
+  — a textual merge matter for whichever lands second, never a sequencing one.
+  The whole open set was listed as the control
   (#979, #977, #976, #963, #962, #888, #594, #518 and this one), and the
   repository-wide search
   `grep -rn "Finding severity and regression handling" openspec/changes/ |
@@ -445,9 +461,10 @@ scope: it constrains what an entry MEANS, not where the file is found.
   packet's own — `proposal.md`, `specs/doc-health/spec.md`, `tasks.md` and this
   `design.md`, the last two because each QUOTES the command it is reporting on —
   which is the self-match `tasks.md` § 3.4 records in the same terms. `sequenced_after:` therefore stays
-  `[]`. **IF #965'S PACKET LANDS A DELTA OVER THIS SAME HEADING, THE
+  `[]`. **IF EITHER PACKET LATER MOVES A DELTA ONTO THE OTHER'S HEADING, THE
   LATER-LANDING PACKET DECLARES `sequenced_after:` AT ITS ENCODE** — that is the
-  sequencing plan, and neither packet declares a branch-only parent.
+  sequencing plan, and neither packet declares a branch-only parent, #981 being
+  a DRAFT branch and not an archived act.
 - **ONE ACTIVE SIBLING TOUCHES THIS PACKET'S FRONT MATTER RATHER THAN ITS
   HEADING**, and is named so the next reader does not rediscover it:
   `gate-realization-axis-vocabulary` (PR #963, issue #956) adds a gate over
