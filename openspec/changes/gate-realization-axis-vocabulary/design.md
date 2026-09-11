@@ -216,9 +216,12 @@ exists.** A value token counts as a named release when
 `contracts/releases/<token>.digests.yaml` is present in the scanned tree. Where
 the scanned tree carries no `contracts/releases/` at all — a consuming
 repository that defines no releases of its own — the release-identifier SHAPE
-`^contract-v\d+\.\d+$` is accepted on its own and the run SAYS SO in its output,
-because refusing every release name in a tree that cannot define one would make
-the validator unusable outside this repository.
+`^contract-v[0-9]+(?:\.[0-9]+){1,2}$` (`RELEASE_ID_RE`, TWO or THREE
+components — `contract-v1.45` or `contract-v1.2.3` — restating this estate's
+own `release-digest-inventory.schema.yaml` `$defs.bundle_tag` pattern, D8c)
+is accepted on its own and the run SAYS SO in its output, because refusing
+every release name in a tree that cannot define one would make the validator
+unusable outside this repository.
 *Cost:* the gate resolves a phrase against a place the promoted sentence does
 not name. That divergence is **recorded as a successor and not repaired here**
 (`tasks.md` § 6), because repairing it means editing the promoted sentence —
@@ -752,3 +755,48 @@ same five carriers D2 already swept here (`add-composed-view-authoring`,
 `add-substantive-review-lane`, `register-gate-rules-council-seats`) —
 unmoved, because main never received this packet's sweep and never will
 until this packet lands.
+
+### D8h — the bench's eighth round, on the D8g fix's own push: two threads, both TAKEN, and neither a re-litigation of D1–D3
+
+A Copilot pass on the D8g merge-and-fix push (`08c4f5b9`) opened two more
+threads, both stale prose rather than code, and neither reopens which OPTION
+D1/D2/D3 recommends — the design is the owner's question and stays exactly as
+it stood.
+
+**(p) D3's RECORDED RELEASE-ID SHAPE WAS THE PRE-D8c PATTERN.** D3's own text
+still read `^contract-v\d+\.\d+$` — two components only — while `RELEASE_ID_RE`
+and the requirement's own scenario have admitted two OR three
+(`^contract-v[0-9]+(?:\.[0-9]+){1,2}$`) since D8c (round 3), which fixed the
+CODE and left D3's PROSE unfixed beside it. D3 now quotes the current pattern,
+names it as `RELEASE_ID_RE`, and cites D8c for why it is two-or-three rather
+than the narrower form it first read.
+
+**(q) THE VALIDATOR'S BEFORE/AFTER RECORD IN `tasks.md` § 4.1 (AND ITS TWIN IN
+`proposal.md`) HAD STOPPED MOVING.** Both pinned "before" to a frozen
+`origin/main` `38c076d1` checkout and "after" to a count taken several rounds
+ago (`39 active … 15 implemented`), while the packet's OWN authored
+`design.md` D0 and the bench's own later rounds had long since moved past
+that sha, and `origin/main` itself has since moved twice more (to `34bb5c71`,
+then to `ac688c40`, D8g). Re-measured now, on THIS tree against a FRESH
+`origin/main ac688c40` checkout: **41 active / 17 `implemented` / 0 outside**
+here, **40 active / 11 `implemented` / 5 outside** there. **The lesson is the
+same one D8e (l) already drew and this round re-learns: a before/after table
+is a claim about TWO LIVE TREES, and pinning it to a sha is how it goes stale
+the next time either tree moves.** Both `tasks.md` § 4.1 and `proposal.md`'s
+own table are corrected to the current pair, with the delta now explained in
+full: **+1** active is this packet's own `proposal.md` (`implemented`); **+6**
+`implemented` is that same `+1` plus **+5** from the sweep (D2) — the five
+carriers this pull request corrects are still `none`, and so still counted
+`refused`, on `origin/main`, which has not received this packet's sweep and
+will not until this packet lands. (This also corrects an inaccuracy in the
+PREVIOUS freeze's own prose, carried since D8e: it described the delta
+between its two rows as "`+1` active and `+1` `implemented`" while its own
+table read 10 → 16 implemented, a `+6` — the same sweep contribution, unnamed.
+Not a thread on this round; caught while re-deriving the explanation now
+required to be correct.)
+
+Neither thread touches `scripts/target_release.py`, the register, or any
+test; `pytest tests/target_release -q` is unaffected (68 passed, unchanged).
+Re-validated after both corrections: `openspec validate
+gate-realization-axis-vocabulary --strict` exit 0; `validate-sequenced-after.py
+. --ledger-diff` exit 0 (202 rows).

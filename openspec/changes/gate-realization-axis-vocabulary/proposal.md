@@ -124,15 +124,18 @@ novel title owes none of it and edits no promoted byte.
 
 | tree | exit | active | `implemented` | named release | registered | **refused** |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `origin/main` `38c076d1`, before the correction | **1** | 38 | 9 | 3 | 21 | **5** |
-| THIS tree, after | **0** | 39 | 15 | 3 | 21 | **0** |
+| `origin/main` `ac688c40`, no gate present | **1** | 40 | 11 | 3 | 21 | **5** |
+| THIS tree, after | **0** | 41 | 17 | 3 | 21 | **0** |
 
-Both rows are the SAME validator pointed at two trees, so the only difference
-between them is the tree, and the `after` row is reproducible by running the
-command above here. The `+1` active and `+1` `implemented` are **this packet's
-own `proposal.md`**, which declares `target_release: implemented` and is judged
-by its own gate like every other active change. `tasks.md` § 4.1 carries the
-same two rows.
+Both rows are the SAME validator pointed at two trees, re-measured last at
+this packet's head, so the only difference between them is the tree, and the
+`after` row is reproducible by running the command above here. **The `+1`
+active is this packet's own `proposal.md`**, which declares
+`target_release: implemented` and is judged by its own gate like every other
+active change. **The `+6` `implemented`** is that same `+1` plus **`+5`**: the
+five `none` carriers this pull request corrects to `implemented` (D2) are
+still `none` — and so still counted `refused` — on `origin/main`, which never
+received this packet's sweep. `tasks.md` § 4.1 carries the same two rows.
 
 The five refused before are exactly the five corrected: `add-composed-view-authoring`,
 `add-cpc-clearing-boundary`, `add-lens-document-selection`,

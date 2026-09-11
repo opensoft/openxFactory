@@ -374,24 +374,56 @@ and openxFactory #956 closes THERE and not at this landing.
       (65 → 68). Validator re-run: this tree exit 0 (41 active, 17
       `implemented`, 3 release, 21 registered, 0 outside); `origin/main
       ac688c40` exit 1 (40 active, 5 outside, the same five carriers named).
+- [x] 3.16 **THE BENCH'S EIGHTH ROUND, ON THE § 3.15 FIX'S OWN PUSH, TWO
+      THREADS, BOTH TAKEN** (`design.md` D8h). Neither reopens D1/D2/D3's
+      recommended option; both are stale prose. (a) **D3 STILL QUOTED THE
+      PRE-D8c RELEASE-ID SHAPE** — `^contract-v\d+\.\d+$`, two components
+      only — three rounds after D8c (§ 3.10) widened `RELEASE_ID_RE` to two OR
+      three. D3 now quotes `^contract-v[0-9]+(?:\.[0-9]+){1,2}$`, names it
+      `RELEASE_ID_RE`, and cites D8c. (b) **§ 4.1 AND `proposal.md`'S OWN
+      BEFORE/AFTER TABLE HAD STOPPED MOVING**, pinned to `origin/main`
+      `38c076d1` and a count several rounds stale, while `origin/main` itself
+      had since moved twice more. Re-measured against a FRESH `origin/main
+      ac688c40`: 40 active / 11 `implemented` / 5 outside there, 41 active /
+      17 `implemented` / 0 outside on this tree. Both tables corrected, with
+      the delta now explained IN FULL — `+1` active (this packet's own
+      `proposal.md`) and `+6` `implemented` (that same `+1`, plus `+5` from
+      the D2 sweep, which `origin/main` has not received). **The previous
+      freeze's own prose (carried from D8e) is ALSO corrected in passing**:
+      it described its own table's delta as "`+1`/`+1`" while the table it
+      sat beside read 10 → 16 `implemented` — a `+6`, the same unnamed sweep
+      contribution. Not a thread on this round; found while re-deriving the
+      explanation this round's own correctness now requires. Neither item
+      touches code, the register or a test; `pytest tests/target_release -q`
+      unaffected (68 passed). `openspec validate
+      gate-realization-axis-vocabulary --strict` exit 0;
+      `validate-sequenced-after.py . --ledger-diff` exit 0 (202 rows).
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
 **EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
 and its own output quoted.
 
-- [x] 4.1 **THE VALIDATOR, BEFORE AND AFTER, ON THE REAL CORPUS.** Before the
-      correction: **exit 1** — *"38 active proposals, 38 declaring — 9
-      `implemented`, 3 a named release, 21 named by the register, 5 outside the
-      vocabulary"*, the five named by path. After, RE-MEASURED ON THE TREE AS
-      IT NOW STANDS (§ 3.7 landed, and this packet's own `proposal.md` is the
-      39th active change and the 15th `implemented`): **exit 0** — *"39 active
-      proposals, 39 declaring — 15 `implemented`, 3 a named release, 21 named
-      by the register, 0 outside the vocabulary"*, with *"archive (read, never
-      judged): 161 proposals, 61 of them outside the vocabulary"* on both
-      sides. The before-run is the same validator pointed at an `origin/main`
-      `38c076d1` checkout, so the only difference between the two runs is the
-      tree.
+- [x] 4.1 **THE VALIDATOR, BEFORE AND AFTER, ON THE REAL CORPUS — RE-RECORDED
+      AGAINST THE TREE AS IT NOW STANDS (Copilot round 7, thread
+      `PRRT_kwDOTAvnrs6hhb5a`; a prior version of this task pinned the
+      "before" tree to `origin/main` `38c076d1` and the "after" figures to an
+      earlier commit's count, both stale the moment either tree moved — the
+      REMEDY IS NOT TO FREEZE A SHA HERE BUT TO RE-MEASURE AT EACH
+      RE-RECORDING, which this entry now does).** Before: **exit 1** against a
+      fresh `origin/main` `ac688c40` checkout — *"40 active proposals, 40
+      declaring — 11 `implemented`, 3 a named release, 21 named by the
+      register, 5 outside the vocabulary"*, the five named by path (the same
+      five D2 corrects). After, on THIS tree at its own head: **exit 0** —
+      *"41 active proposals, 41 declaring — 17 `implemented`, 3 a named
+      release, 21 named by the register, 0 outside the vocabulary"*, with
+      *"archive (read, never judged): 161 proposals, 61 of them outside the
+      vocabulary"* on both sides. Both runs are the SAME validator pointed at
+      two trees, so the only difference between them is the tree. The `+1`
+      active is this packet's own `proposal.md` (`implemented`); the `+6`
+      `implemented` is that same `+1` plus the `+5` from the sweep (D2) —
+      `origin/main` never received it, so the five carriers still count
+      `refused` there.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate
       gate-realization-axis-vocabulary --strict` (PATH CLI **1.2.0**) —
       **exit 0**, *"Change 'gate-realization-axis-vocabulary' is valid"*.
