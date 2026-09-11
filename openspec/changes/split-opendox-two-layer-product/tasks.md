@@ -942,7 +942,34 @@ the bookkeeping that ticks this group.
   implementation and projection mechanism, the gate-and-commission loop, and
   `doxbench_scope`. The 23 outbound `doc_health` imports become the adapter's
   IMPLEMENTATION SURFACE here, where importing doc-health is lawful.
-- [ ] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
+  **STATUS — 2026-09-11, tick NOT YET DUE (partially met), verified against
+  `openXdox-code` main (`af15f71207797214ffd6340267b5cb2ecb40bf6a`, the pin
+  landed at `#656` comment `5640535165`).** MET: all thirteen named modules
+  are present in `src/openxdox/` — the seven "adapter implementation and
+  projection mechanism" modules (`corpus_root.py`, `generator.py`,
+  `snapshot.py`, `snapshot_registry.py`, `register.py`, `completeness.py`,
+  `round_trip.py`), the five "gate and commission loop" modules
+  (`gate_console.py`, `gate_routes.py`, `kickoff.py`, `record_binding.py`,
+  `register_edit_lane.py`), and `doxbench_scope.py`. NOT MET: the second
+  sentence's own claim, that all 23 outbound `doc_health` imports `design.md`
+  § D3 counts (12 modules: `authoring` 2, `cli` 1, `completeness` 1,
+  `corpus_root` 1, `doxbench_packet` 1, `gate_console` 4, `gate_routes` 1,
+  `generator` 3, `round_trip` 1, `serve` 3, `snapshot_registry` 1, `workbench`
+  4) become the adapter's implementation surface HERE. Live count in
+  `openXdox-code`'s `src/`: 12 of the 23 (`completeness` 1, `corpus_root` 1,
+  `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1,
+  `snapshot_registry` 1 — exactly the seven landed adapter/projection
+  modules). The other 11 do not relocate here today: `doxbench_packet`'s 1 is
+  RULED (DQ-1) to stay in `openxFactory`'s own engineering adapter and never
+  comes here; `authoring` (2), `cli` (1), `serve` (3) and `workbench` (4) are
+  the residue that splits BY FUNCTION between openDox and openXdox, owed to
+  § 3.4 / 3.5 / 3.6, which the RECOUNT (`#656` comment `5638391057`) still
+  lists open. `openXdox-code` also carries one further live `doc_health`
+  import outside the original 23 — `cli_gate.py:251` — a new site from the
+  § 4.3 routes/subcommands build, not one of `design.md`'s inventoried twelve
+  modules. Box stays open until the residue carve resolves where the
+  remaining imports land.
+- [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
   writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
   and the migration range/reversibility/runbook the MODIFIED `neutral-product-pin`
@@ -960,17 +987,71 @@ the bookkeeping that ticks this group.
   `openRepoShape` and `openXwallet` pins); what the shape election ADDS is the
   first move, the assembly root's own leg lockstep. *(reality check 2026-09-05,
   second run, claims C27/C41.)*
+  **STATUS — 2026-09-11, tick JUDGED MET, verified live against `openXdox`
+  root main (`eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`, #656 comment
+  `5640651561`).** `contracts/opendox-pin.yaml` at that commit names
+  `product: openDox`, `source_repository: opensoft/openDox`,
+  `commit: "8ec3036ce496a90a3c92a89c4907e57941901b51"` (the openDox ASSEMBLY
+  ROOT's own commit, #656 comment `5640527633` — not a leg commit),
+  `revision_kind: commit`, and `digests.tree_sha256` under
+  `digest_definition: sorted-ls-tree-r-v1`. The per-file `sha256` /
+  `pinned_by_commit_only:` HAND ACT is the recorded judgment that both lists
+  are empty because `opensoft/openDox`'s own `contracts/manifest.yaml`
+  carries `contract_bundle_version: none` and `entries: []` — verified live
+  at openDox root main `8ec3036c` — the identical judgment already accepted
+  for openxFactory's own openXdox pin (5.1). The migration `range` /
+  `reversible` / `runbook` triple is present, each `not_yet_deployed`, on
+  **RULED ASK-1** (Brett Heap, `#656` comment `5628886636`: "the three fields
+  are added now with an explicit `not_yet_deployed` sentinel, proving the
+  schema shape before it is needed"). Every field the MODIFIED
+  `neutral-product-pin` requirement and this task's own text name is present
+  or is a documented, ruled HAND-ACT judgment — none silently omitted.
 - [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
   extension points, **from `openXdox-code`**. No fork of the server.
+  **STATUS — 2026-09-11.** The CODE half is landed: `opensoft/openDox-code`
+  **#11 → `a99eba03e31a0aee1cc15a061fdf718cc88a2c44`**, 2026-09-11 19:04Z
+  (#656 comment `5639351854`) — the lazy proxy `profile_openxfactory` (RULED
+  ASK-2 → 2, `5628886636`), with `cli.build_parser()` / `serve.build_server()`
+  resolving the profile through it and refusing without a host. The
+  openxFactory HALF — the real engineering `profile_openxfactory` and the one
+  process-start registration (CLAIMED `5640395709`) — plus the pin lockstep is
+  **`opensoft/openxFactory` #984** (open, draft). This box ticks when #984
+  lands.
 - [ ] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
   The lifecycle engine reads its status vocabulary, transitions, authorities and
   immutability point from a domain profile. A hardcoded status word is a defect
   under `domain-mapping-declaration`.
-- [ ] 4.5 `[oXd]` **BUILD what does not exist**, named as three separate features
+  **STATUS — 2026-09-11.** The CODE half is landed: `opensoft/openXdox-code`
+  **#14 → `3840c1670771e2dc7bcd64eaafbc43169e0f383d`**, 2026-09-11 20:41Z
+  (#656 comment `5640381252`) — on RULING C2 and ASK-4 (`5634195861`): the
+  engine reads its status vocabulary, per-kind terminal statuses, immutability
+  point and declared-only transitions/authorities from a registered
+  `DomainProfile`, `register()` the one process-start call, `current()`
+  refusing loudly when nothing is registered. The openxFactory HALF — the
+  real engineering `DomainProfile` YAML and the same process-start
+  registration — plus the pin lockstep is **`opensoft/openxFactory` #984**
+  (open, draft; the same PR as 4.3's half). This box ticks when #984 lands.
+- [x] 4.5 `[oXd]` **BUILD what does not exist**, named as three separate features
   rather than folded into a carve: the model/scenario workbench for
   `governed-derived-model` families (openXdox's centre of gravity and absent from
   all 80,000 lines), the evidence-and-provenance surface (invariant 2's evidence
   traces and assumption registers), and the role-and-authority projection.
+  **STATUS — 2026-09-11, tick JUDGED DUE at the RECOUNT (#656 comment
+  `5638391057`).** All three features landed at `openXdox-code`, in RULING
+  ASK-3's order (`5628886636`): slice 1, the role-and-authority projection,
+  **#10 → `4f98e77c7985f786af2ec295c38b6b06a7f5fce6`** (2026-09-11 03:51Z);
+  slice 2, the evidence-and-provenance surface, **#11 →
+  `427230c340cdb1f5d114d3868073cd156fa33ada`** (2026-09-11 10:39Z); slice 3,
+  the model/scenario workbench, **#12 →
+  `5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d`** (2026-09-11 11:24Z). The
+  requirement row for all three landed as the change
+  `add-openxdox-projection-surfaces` at `openXdox-spec`: proposed **#9 →
+  `8557fc1912834491a8e97743376cf877601dbcae`**, ratified and archived **#10 →
+  `0dd7621a983867806eb5fd93f164d4e5da189943`**, corrected **#11 →
+  `d6b71aa31b21a39a90b7b6095b03fd8e083d41ba`** (the `projection` row + the
+  out-of-band status allowance), and erratum'd **#12 →
+  `6b92bdc40863b017926718ee314e9ca87e49ff09`** (ASK-5, the workbench
+  scenario's four existing route-extension columns).
 - [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
 
@@ -1224,6 +1305,14 @@ the bookkeeping that ticks this group.
   The NUMBER is allocated AT THE CUT by merge order, never reserved here. Owes its
   own `contracts/releases/<tag>.digests.yaml` under `release-surface-integrity`,
   and a published annotated tag verified from an independently refreshed checkout.
+  **STATUS — 2026-09-11.** Precondition met: the DEPRECATING minor
+  `contract-v3.7` landed **`opensoft/openxFactory` #970 →
+  `45bd9ee250ad1125f9227ad511bee0fec2b16306`** and is published as the
+  annotated tag **`contract-v3.7` → `ec3c17292c6dc2ca6004d158d6cc26bf5e6523e2`**
+  (verify-tag pass, #656 comment `5639092895`). The cut itself is
+  **`opensoft/openxFactory` #983** (open, ready for review; CLAIMED
+  `5639135734`). This box ticks when the annotated `contract-v4.0` tag is
+  published and verified (Brett Heap tags, RULED ASK-9a → 1, `5635150678`).
 - [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
   `project-register.yaml` — **including § 1.9's two derived election rows**
   (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
@@ -1245,6 +1334,15 @@ the bookkeeping that ticks this group.
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
   the highest-volume bookkeeping in the realization.
+  **STATUS — 2026-09-11.** RULED (Brett Heap, #656 comments `5640246046`,
+  `5640938010`): one dated bookkeeping section per archived packet, naming
+  split-opendox § 5.2's shed and the § 5.7 contract-v4.0 departure, plus a
+  companion disposition per packet in the aggregation's
+  `health/dispositions.yaml`. Realized: **`opensoft/openxFactory` #982**
+  (open, draft, 30 of 30 packets annotated, checks green) and
+  **`opensoft/xFactory` #445** (dispositions, 30 entries, open, draft). Both
+  held in draft for the contract-v4.0 cut (§ 5.7); this box ticks when #982
+  lands.
 
 ## 6. Re-home the five frozen changes (RULING Q6)
 
