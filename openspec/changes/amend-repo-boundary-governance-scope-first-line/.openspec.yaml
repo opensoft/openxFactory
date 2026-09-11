@@ -65,8 +65,14 @@ origin:
     subject to promote and this one does not: its subject IS the list.
     `design.md` D1 writes that difference out rather than glossing it, and
     offers the zero-word alternative — move only the line breaks — as a real
-    option with a real cost. No obligation, no field, no scenario and no
-    consumer's conformance outcome moves in either direction.
+    option with a real cost. No obligation, no field and no scenario moves, and
+    no install repository's conformance with this requirement changes in either
+    direction. THE ONE OUTCOME THAT DOES CHANGE IS NAMED RATHER THAN COVERED BY
+    A BROADER SENTENCE: at the ARCHIVE, and on purpose, the 1.2.0 CLI's verdict
+    on the specification goes from an error to valid. That is the packet's whole
+    purpose and the subject of design.md D6; it does not move at the landing,
+    because a delta does not edit the promoted specification, and it does not
+    move at all on the pinned 1.12.0, where the specification already passes.
     WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
     `ideation/staging/` was enumerated on 2026-09-11 — 30 topic folders — and
     `INDEX.md` read: no topic folder and no INDEX row names this requirement,

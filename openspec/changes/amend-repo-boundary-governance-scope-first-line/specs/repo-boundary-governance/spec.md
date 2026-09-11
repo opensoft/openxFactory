@@ -86,8 +86,15 @@ returns **13 units, 0 uncarried, 0 added**. This block changes the sentence, so
 the sentence is a REPLACED unit and one marker is owed and written.
 
 **WHAT IS DELIBERATELY NOT TOUCHED.** No other requirement of this capability
-is modified, added, renamed or removed. No obligation, no scenario, no field
-and no consumer's conformance outcome moves in either direction. The
+is modified, added, renamed or removed. No obligation, no scenario and no field
+moves, and no install repository's conformance with this requirement changes in
+either direction. **THE ONE OUTCOME THAT DOES CHANGE IS NAMED HERE RATHER THAN
+COVERED BY A BROADER SENTENCE:** at the ARCHIVE, and on purpose, the 1.2.0
+CLI's verdict on the promoted specification goes from
+`requirements.1.text: Requirement must contain SHALL or MUST keyword` to valid
+— the packet's whole purpose, and `design.md` D6's subject. It does not move at
+the landing, a delta not editing the promoted specification, and it does not
+move at all on the pinned 1.12.0, where the specification already passes. The
 enumeration stays an INDEX of five admitted install repositories and does not
 become a claim about which install repositories exist — the distinction this
 capability's own *Install-repository enumerations are an index with a named

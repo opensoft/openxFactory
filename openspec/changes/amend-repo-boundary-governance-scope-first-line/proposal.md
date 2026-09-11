@@ -193,9 +193,21 @@ NONE REMOVED, AND EVERY OTHER BYTE OF THE REQUIREMENT IS CANON'S OWN.**
   `derive_units` returns 13 units on both sides; exactly one is not carried and
   exactly one is new.
 
-**NO BEHAVIOUR MOVES.** The same five repositories are scoped to the same seven
-activities, the same three routing scenarios fire on the same triggers, and no
-consumer's conformance outcome changes in either direction.
+**NO OBLIGATION MOVES, AND THE ONE OUTCOME THAT DOES CHANGE IS NAMED RATHER
+THAN COVERED BY A BROADER SENTENCE** — Copilot's finding on this pull request,
+taken. The same five repositories are scoped to the same seven activities, the
+same three routing scenarios fire on the same triggers, and **no install
+repository's conformance with this requirement changes in either direction**:
+a repository that satisfied *Install repository scope* before satisfies it
+after, on the same terms, and one that did not still does not. **WHAT DOES
+CHANGE — AT THE ARCHIVE, AND ON PURPOSE — IS THE PARSER'S VERDICT ON THE
+SPECIFICATION ITSELF.** Once the block is promoted, a reader running the 1.2.0
+CLI goes from `✗ [ERROR] requirements.1.text: Requirement must contain SHALL
+or MUST keyword`, exit 1, to a valid specification at exit 0. **That is the
+whole point of the packet and the subject of `design.md` D6**, so it would be
+wrong to fold it under a blanket "nothing moves". It does not move at THIS
+landing — a delta does not edit the promoted specification — and it does not
+move at all on the pinned 1.12.0, where the specification already passes.
 
 ## Impact
 
