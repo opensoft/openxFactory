@@ -143,7 +143,13 @@ entries re-run at the same rig:
 | `modified-block-currency` | 48 | 48 | empty |
 | `document-catalog` | 1 | 1 | empty |
 
-**THIRTY-ONE ENTRIES, ZERO ROWS MOVED.** `modified-block-currency` — the one of
+**THIRTY-ONE ENTRIES, ZERO STANDING DETERMINISTIC-FAMILY ROWS MOVED — AND THE
+HEADLINE IS SCOPED TO WHAT THE CONTROL MEASURED AND NOT ONE STEP WIDER.** This
+table compares the STANDING plan rows of the five deterministic families that
+hold entries and nothing else. The separate, derived effect — 30
+`uncited resolution` findings without the file and 0 with it — is D0.4's
+measurement, not this one, and the two must never be read as one figure.
+`modified-block-currency` — the one of
 the eight whose module DOES read the file under its own name, through
 `promotion_fidelity.load_dispositions(ctx, FAMILY)` — suppresses nothing today
 either, because its four entries match no finding it currently raises. The file
@@ -378,7 +384,9 @@ has never disposed another's findings, and one reader is how that stays true.
 **RECOMMENDED: the decision is the deliverable; any arm a veto commissions is a
 per-family successor with its own packet.**
 
-Under the four recommendations there is no arm at all, so the choice is only
+Under the four recommendations NO ADDITIONAL ARM IS COMMISSIONED — not "no arm
+exists": `modified-block-currency` already carries a family-side reader of its
+own (D0.1, D0.3), and (A1) deliberately keeps it. The choice is therefore only
 about what a VETO would do. Carrying a non-empty `code_surface` speculatively
 would mean declaring a realization surface for work nobody has commissioned, and
 under `release-realization` it would hold the archive on merged-plus-green
@@ -386,7 +394,10 @@ evidence for a diff of pure governance text.
 
 - **The alternative** — declare `scripts/doc_health/` + `tests/doc-health/` now
   and add at least a regression test pinning "an entry of an unreading family
-  moves nothing". Cost: it builds the first inch of an arm ahead of the word,
+  moves no STANDING FINDING OF THE FAMILY IT NAMES" — scoped that way and not to
+  "moves nothing", because D0.4 measures a deliberate 30-to-0 change in the
+  DERIVED `uncited resolution` findings and a test written the wider way would
+  encode the opposite of the first added scenario. Cost: it builds the first inch of an arm ahead of the word,
   and the control run in D0.3 already proves the property at the rig, on demand,
   with no test to maintain. **The trade-off, stated plainly:** the recommended
   route leaves the boundary unpinned by any test, so a future refactor could

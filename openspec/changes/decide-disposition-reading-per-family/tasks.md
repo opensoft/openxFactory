@@ -82,7 +82,10 @@ each open box below states the event that closes it:
       DECISION ONLY with `code_surface: none` (**RECOMMENDED**) and declaring a
       code surface now for a regression test pinning the boundary. A veto of any
       of 1.1–1.4 toward a reading arm changes `code_surface` at that ruling.
-- [ ] 1.6 On the ruling, and only then: every document in this packet takes
+- [ ] 1.6 On the ruling, and only then: every LIFECYCLE-BEARING document in this
+      packet — `proposal.md`, `design.md` and `tasks.md`, and those three alone,
+      `.openspec.yaml` and the spec delta carrying no lifecycle header by their
+      own shape and taking none at ratification — takes
       `Status: ratified` with exactly one citation line, `.openspec.yaml` gains
       `approved_by`/`approved_on` **ADDED BESIDE** the byte-unmoved drafting
       provenance, and a `review/ratification-<date>.md` record is written
@@ -131,9 +134,12 @@ each open box below states the event that closes it:
       admissible by key and unreachable on today's classes.
 - [x] 2.6 Every reader of the file enumerated by grep across
       `scripts/doc_health/` — `promotion_fidelity.load_dispositions` and its
-      three callers (`promotion_fidelity`, `duplicate_packet`,
-      `modified_block_currency`), `families.fam_ratified_provenance`'s
-      grandfather pass, `neutrality.disposition_suppressions` reached through
+      **FOUR** call sites, counted rather than summarised:
+      `promotion_fidelity.py:813` (its own family), `duplicate_packet.py:410`,
+      `modified_block_currency.py:2236` and `families.py:419`, the last being
+      `fam_ratified_provenance`'s grandfather pass — so the parent's family is a
+      caller of that same helper and not a separate mechanism;
+      `neutrality.disposition_suppressions` reached through
       `runner._neutrality_scope` → `neutrality_dispatch`, and `runner.main`'s own
       unconditional read feeding `report.uncited_resolutions` — and the **FIVE**
       families for which CANON declares a reading located by heading and line:
@@ -169,9 +175,12 @@ each open box below states the event that closes it:
       where that family's findings are classified `contested`; and an entry
       naming `uncited-resolution` itself changes nothing at all.
       (ii) *A recorded disposition names a family this capability does give a
-      reading* — such an entry is read exactly as that family's own declaration
-      says and by that declaration alone, and scenario (i) neither widens nor
-      narrows it.
+      reading* — such an entry is read OVER THAT FAMILY'S OWN FINDINGS exactly as
+      that family's own declaration says and by that declaration alone, the
+      family-neutral contested-resolution rule still reaching it as it reaches
+      any other (a third bullet says so in terms, so "by that declaration alone"
+      cannot be read as displacing that rule), and scenario (i) neither widens
+      nor narrows it.
       No body paragraph is added, edited or removed; no promoted scenario moves,
       is retitled or loses a bullet.
 - [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the

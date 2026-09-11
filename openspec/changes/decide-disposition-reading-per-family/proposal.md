@@ -18,8 +18,11 @@ carrying **§ 7.2** of that packet's ratified `tasks.md`.
 
 **THAT WORD COMMISSIONS THE AUTHORING AND RATIFIES NOTHING.** It admits no text
 here to canon, takes none of the four decisions this packet carries, and is not
-read as an approval of any of them. Every document in this packet carries
-`Status: draft`; `.openspec.yaml` carries the drafting provenance alone, with no
+read as an approval of any of them. Every LIFECYCLE-BEARING document in this packet
+carries `Status: draft` — `proposal.md`, `design.md` and `tasks.md`, the three
+that carry a lifecycle header at all; `.openspec.yaml` and the spec delta carry
+none by their own shape and are named here so the claim is exact.
+`.openspec.yaml` carries the drafting provenance alone, with no
 `approved_by` and no `approved_on`. **NO APPROVAL PAIR IS DECLARED AND NONE IS
 IMPLIED.** The CLASS decisions are put to Brett Heap as FOUR multiple-choice
 questions, one per class, in `design.md` D1 and on the pull request, with the
@@ -102,8 +105,9 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   THEREFORE NOT EMPTY BUT WEAKER THAN THE PARENT'S**, and `design.md` D1 Class C
   puts the split it implies to Brett Heap as an explicit option (C4) rather than
   taking it here.
-- **THIRTY OF THE THIRTY-ONE ARE READ BY ONE ESTATE-WIDE ARM; FOUR OF THOSE
-  THIRTY ARE READ BY A SECOND, FAMILY-SIDE ONE AS WELL.**
+- **THIRTY OF THE THIRTY-ONE ARE ADMISSIBLE BY KEY TO ONE ESTATE-WIDE ARM —
+  NINETEEN OF THEM REACHABLE BY IT ON TODAY'S CLASSES — AND FOUR OF THOSE THIRTY
+  ARE READ BY A SECOND, FAMILY-SIDE ONE AS WELL.**
   `report.uncited_resolutions` keys on `(family, repo, path)` for EVERY family,
   so each of the thirty silences the `uncited resolution` error that would
   otherwise be raised when its contested finding stops being reported. Measured
@@ -147,7 +151,7 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
 
 ## What changes
 
-**ONE `## MODIFIED` REQUIREMENT, ONE SCENARIO ADDED AT ITS END, AND NOT ONE
+**ONE `## MODIFIED` REQUIREMENT, TWO SCENARIOS ADDED AT ITS END, AND NOT ONE
 BYTE OF PROMOTED TEXT EDITED.** The block is canon's own bytes — lines
 **198–229** of `openspec/specs/doc-health/spec.md` at `8015d45f`, sliced rather
 than transcribed, sha256
@@ -171,7 +175,10 @@ the rejected content is unchanged. No entry in the measured population carries
 `family: neutrality-drift`, so that lane moves no figure here and is named so
 that "the file has one reader" is not inherited as an estate-wide claim. These
 scenarios state what an entry means for every family that declares nothing, and
-say in terms that they neither widen nor narrow any of the five.
+say in terms that they neither widen nor narrow any of the five — the second one
+scoping a declared reading to that family's OWN findings and saying, in its own
+bullet, that the family-neutral contested-resolution rule still reaches the entry
+as it reaches any other.
 
 ## What this proposal does NOT do
 

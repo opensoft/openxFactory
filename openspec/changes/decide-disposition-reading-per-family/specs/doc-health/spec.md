@@ -37,12 +37,13 @@ single issue per run in the aggregation repo listing the new findings.
 
 #### Scenario: A recorded disposition names a family this capability gives no reading
 - **WHEN** the aggregation's `health/dispositions.yaml` carries a dated, cited entry naming a check family, a repository and a path, and this capability declares no disposition reading for that family
-- **THEN** the entry MUST change no finding OF THE FAMILY IT NAMES — not its severity, not its action, not whether that finding is reported at all — because a disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has no arm to read it
+- **THEN** the entry MUST change no finding OF THE FAMILY IT NAMES — not its severity, not its action, not whether that finding is reported at all — because a family-side disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has NO FAMILY-SIDE ARM to read it, which is a statement about that family's own arm and not about the family-neutral rule below
 - **AND** the entry MUST still be read by the contested-resolution rule above, which reaches a DERIVED finding and never the named family's own row: where a finding the entry names was reported `contested` and later stops being reported, the derived `uncited resolution` error MUST NOT be emitted against it — the one effect an entry of such a family has ever had
 - **AND** where the named family's findings are not classified `contested`, the entry MUST reach nothing at all, that rule iterating only the previous report's contested rows
 - **AND** an entry naming the `uncited-resolution` family itself MUST change nothing at all, that family's rows never entering the contested set the rule above iterates
 
 #### Scenario: A recorded disposition names a family this capability does give a reading
 - **WHEN** the aggregation's `health/dispositions.yaml` carries an entry naming a check family for which this capability DOES declare a disposition reading in that family's own requirement
-- **THEN** the entry MUST be read exactly as that family's own declaration says and by that declaration alone, whether it suppresses or downgrades
+- **THEN** the entry MUST be read over THAT FAMILY'S OWN FINDINGS exactly as that family's own declaration says and by that declaration alone, whether it suppresses or downgrades
+- **AND** the family-neutral contested-resolution rule above MUST still reach the entry as it reaches any other, the words "by that declaration alone" governing the family-side effect and never displacing that rule
 - **AND** the preceding scenario MUST neither widen nor narrow any such declaration, its condition being the ABSENCE of one

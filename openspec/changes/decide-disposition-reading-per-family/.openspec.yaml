@@ -34,10 +34,12 @@ origin:
     new record") and no archive rule forbids it here. The anticipated class is
     therefore weaker rather than empty, and the split it implies is put to the
     owner as Class C option (C4) rather than taken.
-    THIRTY of the thirty-one are read today by one ESTATE-WIDE arm,
+    THIRTY of the thirty-one are ADMISSIBLE BY KEY to one ESTATE-WIDE arm,
     `report.uncited_resolutions`, which keys on `(family, repo, path)` for every
     family and silences the `uncited resolution` error when a contested finding
-    stops being reported. It is the only arm that reads ALL thirty and NOT the
+    stops being reported; NINETEEN of those thirty are reachable by it on
+    today's resolution classes, and the distinction between admission and reach
+    is measured below rather than elided. It is the only arm that reads ALL thirty and NOT the
     only arm that reads every one of them: the four `modified-block-currency`
     entries are also read by that family's own module, which is a promoted
     declaration rather than a gap. THE READING IS CONDITIONAL AND THE CONDITION
@@ -53,8 +55,11 @@ origin:
     never admits an `uncited-resolution` row to the contested set (the anti-echo
     of issue #515), so that entry's key can never reach the lookup. And a CONTROL
     RUN with the file replaced by `[]` reports byte-identical row sets for all
-    five deterministic families that hold entries, so the thirty-one move nothing
-    a reader sees.
+    five deterministic families that hold entries, so the thirty-one move NO
+    STANDING DETERMINISTIC-FAMILY ROW. THAT CONTROL IS ABOUT STANDING ROWS AND
+    NOTHING ELSE and is not read wider than it was taken: the derived
+    `uncited resolution` effect measured just above — 30 findings without the
+    file, 0 with it — is a separate figure and the two are never added together.
     THE REMEDY IS THEREFORE A BOUNDARY WRITTEN INTO CANON AND NOT AN ARM. TEN of
     the entries already reason about the mechanism correctly in their own
     `rationale` field, in THREE distinct wordings (`proposal-origin` x8 share
@@ -82,7 +87,9 @@ origin:
     none of the four decisions this packet carries, and is not read as an
     approval of any of them. The lawful unapproved shape is the one
     `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
-    `approved_by`, no `approved_on` — and every document in this packet carries
+    `approved_by`, no `approved_on` — and every LIFECYCLE-BEARING document in
+    this packet (`proposal.md`, `design.md`, `tasks.md`; `.openspec.yaml` and the
+    spec delta carry no lifecycle header by their own shape) carries
     `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
     a fixed `kind` and `id`. Ratification, promotion and archive are three later
     acts on later words.
