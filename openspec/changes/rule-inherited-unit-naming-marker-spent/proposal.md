@@ -123,13 +123,14 @@ three exact single-occurrence edits, never transcribed (`tasks.md` § 3).
 ## The corpus measurement
 
 Taken 2026-09-11 on the clone of `main` @ `38c076d1` this packet was authored
-against and **RE-TAKEN UNCHANGED AFTER THE MERGE FROM `main` @ `34bb5c71`**,
+against and **RE-TAKEN AFTER EACH OF THE TWO MERGES FROM `main`, the second
+at `ac688c40`**,
 through the family's own `derive_units` so that fenced example markers are
 never offered — exactly as they are never offered to a run. The scope is the
 corpus **before** this packet. **EVERY MARKER FIGURE HELD ACROSS THE MERGE**;
 the one that moved is the ACTIVE-BLOCK count, 29 → 31, PR #945's landing
-bringing two more blocks the family reads, and the table below states the
-re-taken value.
+bringing two more blocks the family reads; the second merge moved no figure at
+all. The table below states the re-taken values.
 
 | measure | count |
 | --- | --- |
@@ -142,7 +143,7 @@ re-taken value.
 | **of those, SPENT — every unit they name absent from the requirement carrying them** | **16** |
 | promoted requirements carrying at least one spent marker | **13** |
 | promoted specifications carrying at least one | 7 |
-| active MODIFIED blocks the family reads | 31 |
+| active MODIFIED blocks the family reads | **31** |
 | of those, blocks carrying a unit-naming marker | 2 |
 | marker-defect findings a run raises | **0** |
 

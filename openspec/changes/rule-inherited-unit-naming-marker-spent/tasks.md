@@ -341,11 +341,13 @@ is the entrypoint `pytest-suite` installs through; the `openspec` on PATH here
 is the superseded **`1.2.0`**, and the two binaries do not agree about this
 corpus. Both are reported, neither is substituted for the other.
 
-**BASELINE.** `origin/main` @ **`34bb5c71`**, which is the base this branch
-has MERGED (PR #945's landing plus #961; the earlier cut point `38c076d1` is
-superseded and every figure below is re-taken against the new one). The
-`doc-health` control is a clone of that commit, so its `Repo-Identity` label
-matches and the comparison is a LITERAL diff.
+**BASELINE.** `origin/main` @ **`ac688c40`**, which is the base this branch
+has MERGED — TWICE in this round, `main` having moved under the pull request
+while it was being fixed: first to `34bb5c71` (PR #945's landing plus #961),
+then to `ac688c40` (`amend-register-act-5b-projection-proof`, PR #960). The
+authoring cut point `38c076d1` is superseded and **every figure below is
+re-taken against `ac688c40`**, in a control clone of that commit, so its
+`Repo-Identity` label matches and the comparison is a LITERAL diff.
 
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
       rule-inherited-unit-naming-marker-spent --strict` (PATH `1.2.0`) —
@@ -355,8 +357,8 @@ matches and the comparison is a LITERAL diff.
       content address verified before use) — **exit 0**, `Totals: 1 passed, 0
       failed (1 items)`.
 - [x] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` (PATH
-      `1.2.0`) — **exit 1**, `Totals: 100 passed, 2 failed (102 items)`,
-      against `origin/main` @ `34bb5c71`'s `Totals: 99 passed, 2 failed (101
+      `1.2.0`) — **exit 1**, `Totals: 101 passed, 2 failed (103 items)`,
+      against `origin/main` @ `ac688c40`'s `Totals: 100 passed, 2 failed (102
       items)` in a control clone. **THE FAILURE SET IS IDENTICAL**, `diff` of the two
       sorted `✗` lists returning empty: `change/disposition-codexfactory-declared-renames`
       and `change/disposition-codexfactory-floor-relocation-retitle`, neither
@@ -383,9 +385,10 @@ matches and the comparison is a LITERAL diff.
       because the ledger records the SAME unresolved reading the corpus gives
       today; that is the row agreeing with a corpus that is about to move, not
       the gate cleared. § 3.9 says what re-seeding it costs. **RE-RUN AFTER THE
-      MERGE FROM `main` @ `34bb5c71`**, which brought PR #945's own ledger row:
-      `per-change sweep ledger consistent with the corpus (201 rows)`, exit 0,
-      both rows present and NO re-seed owed by that merge.) The declared parent
+      TWO MERGES FROM `main`**, the second at `ac688c40`, which between them
+      brought PR #945's and PR #960's own ledger rows: `per-change sweep ledger
+      consistent with the corpus (**202 rows**)`, exit 0, all three rows
+      present and NO re-seed owed by either merge.) The declared parent
       `amend-merged-into-empty-tail-standing`
       is an OPEN pull request (#947, `mergeStateStatus BLOCKED` at the time of
       this run) and its change directory is on no branch
@@ -399,7 +402,7 @@ matches and the comparison is a LITERAL diff.
       marker-defect count, re-taken on the frozen tree. **RE-TAKEN ON THE
       MERGED TREE** (the box stays open because § 4.10 re-takes every gate
       after the parent lands and the row is re-seeded): **exit 0**,
-      **101 findings** against the `origin/main` @ `34bb5c71` control's
+      **101 findings** against the `origin/main` @ `ac688c40` control's
       **100**, and the difference is EXACTLY ONE LINE — a `diff` of the two
       ranked-plan finding lists, with the repo label normalized, returns a
       single `>` and it is this delta's own transient `info` carriage-ledger
@@ -409,12 +412,15 @@ matches and the comparison is a LITERAL diff.
       not describe the block* — so the count this packet's own subject is
       measured by is UNCHANGED by the packet.
 - [ ] 4.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` —
-      **RE-TAKEN ON THE MERGED TREE WITH THE SELF-GATE ROW NAMED: `2 failed,
-      1982 passed, 7 warnings` in 507s**, and the self-gate is now GREEN. A
-      `tests/doc-health`-only run over the same tree reads **`1711 passed`**,
-      zero failures — so the modified-block-currency self-gate, its EXACT-SET
-      assertion included, passes on the ten named subjects of § 3.13 (`0 named
-      subject(s) NO LONGER reported` confirms no other row moved).
+      **TAKEN TWICE, ONCE AFTER EACH MERGE, WITH THE SELF-GATE ROW NAMED, AND
+      BOTH RUNS READ `2 failed, 1982 passed, 7 warnings`** (507 s on the
+      `34bb5c71` tree, 642 s on the `ac688c40` tree). **THE SELF-GATE IS
+      GREEN** in both: a `tests/doc-health`-only run on the first merged tree
+      reads **`1711 passed`, ZERO failures**, and on the second the module
+      contributes no `FAILED` line at all — so the modified-block-currency
+      self-gate, its EXACT-SET assertion included, passes on the ten named
+      subjects of § 3.13 (`0 named subject(s) NO LONGER reported` confirms no
+      other row moved).
       **THE TWO REMAINING FAILURES ARE THE DANGLING PARENT OF § 4.7 AND
       NOTHING ELSE**:
       `tests/sequenced_after/test_validate.py::test_corpus_sequenced_after_all_validate`

@@ -29,15 +29,16 @@ an edit.
 
 ## D0 — the measurement, taken before the design
 
-Taken 2026-09-11 on this clone of `main` @ `38c076d1` and **RE-TAKEN AFTER THE
-MERGE FROM `main` @ `34bb5c71`**, through the family's own `derive_units` so
+Taken 2026-09-11 on this clone of `main` @ `38c076d1` and **RE-TAKEN AFTER
+EACH OF THE TWO MERGES FROM `main`, the second at `ac688c40`**, through the family's own `derive_units` so
 that fenced example markers are never offered — exactly as they are never
 offered to a run. Scope: the corpus BEFORE this packet. **EVERY MARKER FIGURE
 HELD ACROSS THE MERGE** — 18 markers, 16 unit-naming, 16 spent, 0 partially
 spent, 13 requirements, 7 specifications, 641 requirements in 62 promoted
 specifications — and the ONE figure that moved is the active-block count,
 **29 → 31**, PR #945's landing bringing two further blocks the family reads,
-neither of them carrying a marker. The table states the re-taken values.
+neither of them carrying a marker; the second merge (PR #960's landing) moved
+no figure at all, 31 re-measured as 31. The table states the re-taken values.
 
 **THE POPULATION OF THE SHAPE #955 REPORTS:**
 

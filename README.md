@@ -577,7 +577,7 @@ Active changes:
   NAMED there, as that assertion's own message directs. It records which
   subjects the corpus reports and retires on ratification or on the parent's
   archive; `design.md` D4 offers that reading for veto.
-  **THE MEASUREMENT, RE-TAKEN ON THE MERGED TREE (`main` @ `34bb5c71`)**: of
+  **THE MEASUREMENT, RE-TAKEN ON THE MERGED TREE (`main` @ `ac688c40`)**: of
   the 18 markers
   promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
   — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT** (every unit every one of
