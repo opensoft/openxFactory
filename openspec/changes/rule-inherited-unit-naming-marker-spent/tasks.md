@@ -310,6 +310,28 @@ UNTICKED**: residue, measured and deliberately not taken.
       house style requires. **NO OTHER ROW MOVES** and the `==` discipline is
       not loosened — measured in § 4.9: `0 named subject(s) NO LONGER
       reported`.
+- [x] 3.14 **COPILOT'S FIFTH ROUND: ALL THREE FINDINGS TAKEN, AND TWO OF THEM
+      ARE THE SAME DEFECT IN TWO PLACES — A RECORD LEFT BEHIND BY A FIX.**
+      (a) `design.md` D1's numbered design listed FOUR entries beside a heading
+      claiming five sentences and five units, item 1 having combined the
+      condition with the explanation the block now splits after *LAWFUL
+      CARRIAGE*; the list is re-cut as **FIVE ENTRIES FOR FIVE UNITS**, one per
+      added sentence in the order the block adds them, each labelled with what
+      it does, so D1, § 3.6 and the generated block enumerate the same five
+      things. (b) `.openspec.yaml`'s `proposed_by` — DURABLE PACKET METADATA
+      that outlives the pull request — still summarized the encoded option as
+      spent *"once the unit it names"* has left canon, the SINGULAR reading
+      that permits exactly the mixed-name marker the delta excludes; it now
+      reads EVERY UNIT IT NAMES, and says the condition is all-names and not
+      one-name in terms, with the same correction made to its `option 2`
+      sentence. (c) The pull request body still carried the pre-emphasis
+      figures (185 units / 13 added / 4 body sentences / 53,552 bytes); it is
+      re-written to the measured ones. **NO BYTE OF THE BLOCK MOVES IN THIS
+      ROUND** — proven, not asserted: the delta's sha256 is
+      `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5` at
+      53,818 bytes before and after, and the proof re-runs at 186 units /
+      0 markers / 0 parent units missing / 14 added / titles 22 → 24 / 0-0-0
+      against the parent's outcome.
 
 ## 4. Verification — IN THIS PULL REQUEST
 

@@ -74,15 +74,20 @@ origin:
     THE DECISION MOST WORTH A VETO IS `design.md` D1, AND IT CAN END THE PACKET.
     It is put as a MULTIPLE CHOICE with the recommendation first. OPTION 1
     (RECOMMENDED, and what this packet encodes): RULE THE TWO-OPTION STATE
-    CORRECT — five sentences added to the paragraph that already rules a marker
-    no carriage unit, saying that a unit-naming marker is SPENT once the unit it
-    names has left canon by a declared act, so DROPPING it is the lawful
-    carriage and a third-ground report on a carried one is the class working as
-    written; with TWO scenarios, one per half of the rule. No ground is added,
+    CORRECT — five sentences, deriving as five carriage units, added to the
+    paragraph that already rules a marker no carriage unit, saying that a
+    unit-naming marker is SPENT once EVERY UNIT IT NAMES has left canon by a
+    declared act, so DROPPING it is the lawful carriage and a third-ground
+    report on a carried one is the class working as written; with TWO
+    scenarios, one per half of the rule. THE CONDITION IS ALL-NAMES AND NOT
+    ONE-NAME: a marker names units in the PLURAL, and a marker one of whose
+    names the requirement's basis still carries is NOT spent and is outside
+    what these sentences are read on. No ground is added,
     no suppression moves, no code moves, and the packet archives on landing.
     OPTION 2 (written out in D1 with its cost, and NOT encoded): ADD A THIRD
-    OPTION — a suppression for an inherited marker whose named unit left canon
-    by a DECLARED act, resolvable against the archived delta that declared it.
+    OPTION — a suppression for an inherited marker EVERY ONE of whose named
+    units left canon by a DECLARED act, resolvable against the archived delta
+    that declared it.
     One predicate, one `_WHY_*` template, its own scenario, and a CODE SURFACE:
     `scripts/doc_health/` plus `tests/doc-health/`, which changes this packet's
     archive rule from on-landing to merged-plus-green realization evidence and

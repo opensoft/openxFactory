@@ -121,27 +121,35 @@ coincidence: `split_sentences()` breaks at a terminator followed by WHITESPACE,
 so a bold lead-in that closes its emphasis AFTER the period derives together
 with the explanation that follows it. The lead-in here closes BEFORE the
 period, so the sentence boundary this packet claims is the unit boundary the
-family derives — `tasks.md` § 3.11.) In the family's
-own voice, beside the carriage sentence rather than in the grounds paragraph,
-because this is a carriage rule and a READING of the third ground, not a sixth
-ground:
+family derives — `tasks.md` § 3.11.) In the family's own voice, beside the
+carriage sentence rather than in the grounds paragraph, because this is a
+carriage rule and a READING of the third ground, not a sixth ground.
 
-1. A unit-naming marker is SPENT once EVERY unit it names has left canon by a
-   declared act, and dropping it is therefore the LAWFUL carriage: a later
-   block SHALL NOT be required to restate it, SHALL NOT be reported for
-   omitting it, and loses no record by dropping it, the archived delta being
-   where that record is read.
-2. Where a later block carries a spent marker forward instead, the THIRD
-   ground reports that marker, and the report is THIS CLASS WORKING AS WRITTEN
-   rather than a defect of the later author's care — its names matching no unit
-   of the basis (the act removed them) and no unit of the block (a block does
-   not restate a retired unit).
-3. NO ground is added, NONE is withdrawn and NO suppression moves: the count
-   stays at FIVE, a spent name suppresses nothing and never has, and both
-   carriage arms are untouched.
-4. It is read on a marker EVERY ONE of whose named units has left canon and on
-   no other; the third ground being resolved BY NAME, a marker that names
-   nothing never reaches it — the limit, D6.
+**FIVE ENTRIES FOR FIVE UNITS, one per sentence the block adds and in the
+order the block adds them**, so that this record, `tasks.md` § 3.6 and the
+generated block all enumerate the same five things:
+
+1. **The condition** — a unit-naming marker is SPENT once EVERY unit it names
+   has left canon by a declared act, and dropping it is therefore the LAWFUL
+   carriage. (Its emphasis closes before its terminator, which is why it
+   derives as its own unit rather than merging with 2 — § 3.11.)
+2. **What the condition buys the later block** — the act the marker declares
+   is complete and every unit it names is gone from the promoted text, so a
+   later block SHALL NOT be required to restate it, SHALL NOT be reported for
+   omitting it, and loses no record by dropping it, the archived delta named
+   above being where that record is read.
+3. **The other half of the two-option state** — where a later block carries a
+   spent marker forward instead, the THIRD ground reports that marker, and the
+   report is THIS CLASS WORKING AS WRITTEN rather than a defect of the later
+   author's care, its names matching no unit of the basis (the act removed
+   them) and no unit of the block (a block does not restate a retired unit).
+4. **What does NOT move** — NO ground is added, NONE is withdrawn and NO
+   suppression moves: the count stays at FIVE, a spent name suppresses nothing
+   and never has, and both carriage arms are untouched.
+5. **The limit** — it is read on a marker EVERY ONE of whose named units has
+   left canon and on no other; the third ground being resolved BY NAME, a
+   marker that names nothing NEVER REACHES IT, and a marker one of whose names
+   the basis still carries is not spent — D6.
 
 **THE CONDITION IS ALL-NAMES AND NOT ONE-NAME, AND THAT IS THE WHOLE OF WHAT
 COPILOT'S ROUND ON [#962](https://github.com/opensoft/openxFactory/pull/962)
