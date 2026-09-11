@@ -506,3 +506,47 @@ active row and the sweep-ledger row both landed in `13ff6162` while § 4.11 and
 is that the task list is the record: a completion ledger that disagrees with the
 diff is worth less than no ledger. Both are ticked, each on the output it was
 ticked for, and each says which commit did the work.
+
+### D8c — the bench's third round: two threads, both TAKEN, and one of them a regression this packet's own fix introduced
+
+**(f) THE RELEASE-ID SHAPE WAS NARROWER THAN THE ESTATE'S OWN, AND § 3.7 MADE
+THAT MATTER** (`scripts/target_release.py:114`). `RELEASE_ID_RE` was
+`^contract-v\d+\.\d+$` — two components. The estate DEFINES the shape of a
+release tag in `contracts/releases/release-digest-inventory.schema.yaml`
+`$defs.bundle_tag`, as `^contract-v[0-9]+(?:\.[0-9]+){1,2}$` — two OR three. So
+the gate's idea of a release name was narrower than the inventory contract's,
+and a three-component release WITH ITS INVENTORY ON DISK would have been
+refused.
+
+**THE HONEST PART: this was latent until the round-1 fix, and the round-1 fix
+is what made it live.** Before § 3.7 the shape was consulted only where no
+registry exists, and the registry branch resolved a token by looking for its
+file — so `contract-v1.2.3.digests.yaml` would have resolved. Making the shape
+the FIRST test in EVERY branch closed the traversal and, in the same stroke,
+imposed a narrower vocabulary than the estate's own on the branch that
+previously had none. That is the cost of a shape-first guard and it is the
+reason the guard's shape has to come from the estate rather than from the
+author of the guard. Measured 2026-09-11: 47 inventories under
+`contracts/releases/`, all two-component, so nothing in the corpus was refused
+and the defect was latent rather than standing — but the next three-component
+cut would have met it at the gate, which is the worst possible time.
+
+THE FIX makes the pattern the schema's, RESTATED rather than imported, with the
+equality asserted by a test that READS the schema
+(`test_the_release_id_shape_is_the_estates_own`). Restated, because this module
+must judge a consuming tree that carries no `contracts/` at all and a reader
+that needed the schema present would refuse such a tree for the wrong reason;
+asserted, because a restatement nobody checks is the defect this entire packet
+is about. It is the same device `frontmatter_strict` uses for the lifecycle
+window it restates from `doc_health`. Four more cases pin the edges: a
+three-component release resolving against a registry, its shape accepted where
+no registry exists, a FOUR-component name still refused, and a three-component
+declaration passing end to end.
+
+**(g) THE README ROW'S TEST FIGURE WAS STALE** (`README.md`). It still read 32
+while `proposal.md` and `tasks.md` § 3.5 had been re-measured to 46. Already
+corrected in `989c7059`, before the thread was read, and re-measured again with
+this round. The lesson is § 3.8's and is now stated as a rule rather than a
+habit: the figure moves in ALL THREE places in the same commit, every time,
+because a count carried in one document and re-measured in another is the
+brief-wording defect this house has already paid for once.

@@ -111,7 +111,28 @@ RELEASE_REGISTRY_DIR = Path("contracts") / "releases"
 #: `../../elsewhere/thing` escape `contracts/releases/`, or let a non-release
 #: word resolve because somebody planted `<word>.digests.yaml` beside the
 #: inventories: either way the registry boundary is the thing that stops holding.
-RELEASE_ID_RE = re.compile(r"^contract-v\d+\.\d+$")
+#:
+#: THE PATTERN IS THE ESTATE'S OWN, RESTATED RATHER THAN INVENTED.
+#: `contracts/releases/release-digest-inventory.schema.yaml` `$defs.bundle_tag`
+#: is where this estate DEFINES the shape of a release tag, and this literal is
+#: that pattern; `test_the_release_id_shape_is_the_estates_own` reads the schema
+#: and asserts the two are equal, so a drift is a test failure. It is restated
+#: rather than read at import because this module must judge a consuming tree
+#: that carries no `contracts/` at all, and a reader that needed the schema to
+#: be present would refuse such a tree for the wrong reason.
+#:
+#: IT ADMITS TWO AND THREE COMPONENTS (`contract-v1.45`, `contract-v1.2.3`).
+#: The two-component-only form this module first carried was harmless while the
+#: shape was consulted ONLY where no registry exists — and became a live
+#: refusal of a release the estate's own schema admits the moment the shape
+#: became the first test in EVERY branch. Measured 2026-09-11: no
+#: three-component inventory is on disk today, so the defect was latent rather
+#: than standing; the next one cut would have found it at the gate.
+RELEASE_ID_RE = re.compile(r"^contract-v[0-9]+(?:\.[0-9]+){1,2}$")
+
+#: Where that pattern is DEFINED, for the test that keeps the two equal.
+RELEASE_ID_SCHEMA = (
+    Path("contracts") / "releases" / "release-digest-inventory.schema.yaml")
 
 #: A register entry's `change:` IS A DIRECTORY NAME AND NEVER A PATH. It is
 #: resolved under `openspec/changes/` by every consumer of the register (the

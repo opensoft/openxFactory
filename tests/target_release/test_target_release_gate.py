@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "scripts" / "target_release.py"
@@ -184,6 +185,49 @@ def test_a_release_resolves_against_the_registry(tmp_path):
 def test_a_release_shaped_name_with_no_inventory_does_not_resolve(tmp_path):
     (tmp_path / "contracts" / "releases").mkdir(parents=True)
     assert tr.resolves_as_release("contract-v9.9", tmp_path) == (False, True)
+
+
+# Copilot's round 3 on #963 (thread `PRRT_kwDOTAvnrs6heq2s`): the shape was
+# two-component only, while the estate's own inventory schema admits two OR
+# three — latent while the shape was consulted only where no registry exists,
+# and a live refusal once it became the first test in every branch.
+
+
+def test_the_release_id_shape_is_the_estates_own():
+    """`RELEASE_ID_RE` is the inventory schema's `bundle_tag` pattern, restated
+    (this module must judge a tree with no `contracts/`). A drift here is this
+    test, not a release refused at a gate."""
+    schema = yaml.safe_load(
+        (ROOT / tr.RELEASE_ID_SCHEMA).read_text(encoding="utf-8"))
+    assert tr.RELEASE_ID_RE.pattern == schema["$defs"]["bundle_tag"]["pattern"]
+
+
+def test_a_three_component_release_resolves_against_the_registry(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (releases / "contract-v1.2.3.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    assert tr.resolves_as_release("contract-v1.2.3", tmp_path) == (True, True)
+
+
+def test_a_three_component_release_shape_is_accepted_with_no_registry(tmp_path):
+    assert tr.resolves_as_release("contract-v1.2.3", tmp_path) == (True, False)
+
+
+def test_a_four_component_release_name_is_still_refused(tmp_path):
+    (tmp_path / "contracts" / "releases").mkdir(parents=True)
+    assert tr.resolves_as_release("contract-v1.2.3.4", tmp_path) == (False, True)
+
+
+def test_an_active_three_component_release_passes(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (releases / "contract-v1.2.3.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    _proposal(tmp_path, "cut", "code_surface: R\ntarget_release: contract-v1.2.3")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 a named release" in result.stdout
 
 
 def test_with_no_registry_the_shape_is_accepted(tmp_path):

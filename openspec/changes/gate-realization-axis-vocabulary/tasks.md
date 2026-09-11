@@ -133,11 +133,13 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **54 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **59 tests**,
       counted last from a collected run of the file) — the token rule (5),
       reading the declaration including a strict-loader refusal and **a
       repeated declaration refused rather than half-read** (7), release
-      resolution with and without a registry (3), **the token shape-checked
+      resolution with and without a registry, **including the estate schema's
+      three-component form and the assertion that the shape IS the schema's**
+      (8), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
       swept (3)**, **the register removable and never addable (5)**, the gate
@@ -148,7 +150,8 @@ and openxFactory #956 closes THERE and not at this landing.
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
       EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
-      added by § 3.7 and the eight added by § 3.9 join the file, `_entry()`
+      added by § 3.7, the eight added by § 3.9 and the five added by § 3.10
+      join the file, `_entry()`
       gains the citation the loader now requires, and
       `test_an_entry_missing_a_required_key_refuses` keeps its subject by
       carrying every key but the one it is about.
@@ -186,8 +189,8 @@ and openxFactory #956 closes THERE and not at this landing.
       refusing a consuming tree's register for a field the requirement never
       asks for would exceed it.
 - [x] 3.8 **THE TEST FIGURE IN § 3.5 AND IN `proposal.md`'s `code_surface:` WAS
-      RE-MEASURED AFTER § 3.7 AND § 3.9 AND NOT CARRIED FORWARD.** `python3 -m
-      pytest tests/target_release -q` — **exit 0**, *"54 passed in 3.46s"*; the
+      RE-MEASURED AFTER § 3.7, § 3.9 AND § 3.10 AND NOT CARRIED FORWARD.** `python3 -m
+      pytest tests/target_release -q` — **exit 0**, *"59 passed in 3.83s"*; the
       per-section breakdown in § 3.5 is a count of `def test_` under each
       banner in the file, taken from the file itself.
 
@@ -216,7 +219,32 @@ and openxFactory #956 closes THERE and not at this landing.
       consuming tree, whose closure is that repository's own record. The
       requirement gains the enforcement sentence and a scenario. (c) **§ 4.9
       AND § 4.11 WERE DONE AND LEFT UNTICKED** — the bookkeeping defect is
-      real and is corrected below, with the output each was ticked on.
+      real and is corrected below, with the output each was ticked on.- [x] 3.10 **THE BENCH'S THIRD ROUND, TWO THREADS, BOTH TAKEN, AND ONE OF THEM
+      A REGRESSION § 3.7 INTRODUCED** (`design.md` D8c). (a) **THE RELEASE-ID
+      SHAPE WAS NARROWER THAN THE ESTATE'S OWN.**
+      `contracts/releases/release-digest-inventory.schema.yaml`
+      `$defs.bundle_tag` defines a release tag as
+      `^contract-v[0-9]+(?:\.[0-9]+){1,2}$` — two OR three components — and
+      `RELEASE_ID_RE` admitted two only. While the shape was consulted only on
+      the NO-REGISTRY branch this was latent; § 3.7 made the shape the first
+      test in EVERY branch, so from that commit a three-component release with
+      an inventory ON DISK would have been REFUSED by the gate. Measured: no
+      three-component inventory exists today (47 two-component inventories
+      under `contracts/releases/`), so the defect was latent and not standing —
+      the next such cut would have found it at the gate. `RELEASE_ID_RE` is now
+      the schema's pattern, restated rather than imported (the module must
+      judge a tree with no `contracts/`), and
+      `test_the_release_id_shape_is_the_estates_own` READS the schema and
+      asserts the two are equal, so a drift is a test failure rather than a
+      release refused. Four more cases: a three-component release resolving
+      against a registry, its shape accepted with no registry, a
+      FOUR-component name still refused, and a three-component declaration
+      passing end to end. (b) **THE README ROW'S TEST FIGURE WAS STALE** — it
+      still said 32 while `proposal.md` and § 3.5 had been re-measured to 46.
+      Already corrected in `989c7059` and re-measured again here; the figure
+      now moves in all three places in the same commit, every time, which is
+      § 3.8's whole point.
+
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
 **EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
