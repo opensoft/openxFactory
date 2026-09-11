@@ -533,19 +533,19 @@ class _CommitSource:
         machine.
         """
 
-        try:
-            resolve_git_object(self.root, self.commit, path)
-        except ContentResolutionError as exc:
-            _resolution_established_absence(exc, self.commit, path)
-            moved = _shed_aware_commit(self.root, self.commit, path)
-            if moved is None:
-                return False
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
             try:
                 resolve_git_object(*moved)
             except ContentResolutionError as leg_exc:
                 _resolution_established_absence(leg_exc, moved[1], moved[2])
                 return False
             return True
+        try:
+            resolve_git_object(self.root, self.commit, path)
+        except ContentResolutionError as exc:
+            _resolution_established_absence(exc, self.commit, path)
+            return False
         return True
 
     def list_python(self, package: str) -> list[str]:
@@ -562,13 +562,25 @@ class _CommitSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        try:
-            resolved = resolve_git_object(self.root, self.commit, path)
-        except ContentResolutionError:
-            moved = _shed_aware_commit(self.root, self.commit, path)
-            if moved is None:
-                raise
+        """The member's bytes AT THE PINNED COMMIT, from the leg when the shed
+        moved it.
+
+        THE LEG IS ASKED FIRST, not as a fallback (Copilot
+        `PRRT_kwDOTAvnrs6hfEoe`). A post-shed commit whose tree still carries a
+        stale file at the pre-shed source path would satisfy the ordinary read,
+        and a fallback-shaped order would then hash THOSE bytes and call the
+        release verified. For a MOVED row the destination is what this
+        repository publishes, so it is the only answer; `_shed_aware_commit`
+        answers `None` for every row that stayed, for a path in no row, for a
+        root that is not this repository and for a commit from before the shed
+        (its tree records no such gitlink), which is what keeps the ordinary
+        read the answer everywhere else.
+        """
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
             resolved = resolve_git_object(*moved)
+        else:
+            resolved = resolve_git_object(self.root, self.commit, path)
         return resolved.data, resolved.git_mode, resolved.digest
 
 

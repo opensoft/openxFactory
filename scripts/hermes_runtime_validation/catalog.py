@@ -161,10 +161,19 @@ def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
     # where it went. `shed_destination()` answers `None` for every other root,
     # so a candidate-mode run over a domain mirror still reports the mirror's
     # own missing member as its own finding.
-    if not candidate.exists():
-        moved = _shed_destination(candidate)
-        if moved is not None:
-            candidate = moved
+    #
+    # ASKED UNCONDITIONALLY, not only when the local path is missing (Copilot
+    # `PRRT_kwDOTAvnrs6hfEn7`): for a MOVED row the pinned leg holds the bytes
+    # this repository publishes, so a file reintroduced or left stale at the
+    # pre-shed path must never win over the destination the manifest declares —
+    # under a "missing first" test it would be validated instead, silently. The
+    # resolver already answers `None` for every path that stayed (`not_moved`,
+    # including the replica and `deleted_at_carve` rows), for a path in no row
+    # and for any root that is not this repository, so asking first narrows the
+    # answer to exactly the rows whose destination IS authoritative.
+    moved = _shed_destination(candidate)
+    if moved is not None:
+        candidate = moved
     try:
         resolved = candidate.resolve(strict=True)
     except OSError as exc:
