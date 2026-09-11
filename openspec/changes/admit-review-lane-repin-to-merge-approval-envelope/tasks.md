@@ -109,20 +109,27 @@ one word applied to each box; none is invented beyond what the word names.
           `workflow_dispatch`, no click, no admin merge. **#314 counts
           toward box 4.2's three but does NOT itself satisfy this box's
           unattended condition**, on its one hand dispatch; **#325 does**,
-          carrying no human act at all. **What counts as a cycle:** one
-          advance of the pinned core — one codexFactory regeneration pull
-          request merging, paired with its openxFactory re-pin half.
-          **Currently OPEN, two of three measured and neither yet the
-          qualifying third** (box 4.2's own 2026-09-10 note): codexFactory
-          #314 → `b08958ae`, one hand dispatch of the approval leg;
-          codexFactory #325 → `df42f803`, no human act at all. **Evidence
-          needed to tick:** the third cycle's codexFactory PR number, its
-          merge sha, the merge actor read from the API, the approval URL
-          for that cycle's re-pin advance, AND the absence of any human
-          event — dispatch, click, or admin merge — on that cycle's own
-          timeline, recorded here and on #745, with box 4.2 itself ticked
-          at the same time (it is the same underlying measurement, this
-          box's unattended condition layered on top of it).
+          carrying no human act at all. **What counts as a cycle:** the same
+          unit box 4.2 counts, no more and no less — one codexFactory
+          regeneration pull request merging, one advance of the pinned core.
+          **No paired openxFactory re-pin pull request is required**: box
+          4.2 counts #314 and #325 as its first two on the codexFactory
+          merge alone, and the parent's own box 3.4 records that no
+          `bot/review-lane-repin` pull request has been opened since #764
+          (merged 2026-09-07) — the #314 and #325 dates carry no re-pin
+          artifact at all. A pairing requirement would retroactively
+          disqualify the two cycles box 4.2 already counts. **Currently
+          OPEN, two of three measured and neither yet the qualifying third**
+          (box 4.2's own 2026-09-10 note): codexFactory #314 → `b08958ae`,
+          one hand dispatch of the approval leg; codexFactory #325 →
+          `df42f803`, no human act at all. **Evidence needed to tick:** the
+          third cycle's codexFactory PR number, its merge sha, the merge
+          actor read from the API, the merge-master App's approval URL on
+          that same pull request, AND the absence of any human event —
+          dispatch, click, or admin merge — on that cycle's own timeline,
+          recorded here and on #745, with box 4.2 itself ticked at the same
+          time (it is the same underlying measurement, this box's unattended
+          condition layered on top of it).
     - [ ] 1.5.b **The `Candidate class: unrecorded` rendering defect is fixed
           upstream AND observed fixed on a live approval**, per
           `extend-merge-master-envelope-to-floor-bot-lanes`
