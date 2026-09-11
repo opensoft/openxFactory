@@ -202,7 +202,8 @@ rows:
   amend-neutral-product-pin-lockfile-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#933", moved_on: "2026-09-10"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-published-tip-unreadable-scenario: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#685", moved_on: "2026-09-05"}
-  amend-repo-boundary-governance-scope-first-line: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#937", moved_on: "2026-09-11"}
+  amend-register-act-5b-projection-proof: {state: active, class: sole, declares: [add-wallet-carried-review-authority, register-gate-rules-council-seats], depth: 2, prose: false, moved_by: "#960", moved_on: "2026-09-11"}
+  amend-repo-boundary-governance-scope-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#958", moved_on: "2026-09-11"}
   amend-unreadable-read-sibling-scenarios: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#703", moved_on: "2026-09-05"}
   apply-branch-sessions-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   bump-openspec-cli-pin-to-1.12: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#847", moved_on: "2026-09-09"}
@@ -232,6 +233,7 @@ rows:
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   harden-ideation-readiness-check: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  honour-grandfather-dispositions-in-ratified-provenance: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#969", moved_on: "2026-09-11"}
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-keycloak-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -266,6 +268,6 @@ rows:
   split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   split-openxwallet-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-roles-authority: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  state-header-window-budget: {state: active, class: co-modifier, declares: [accept-sequenced-after-header-line], depth: 3, prose: false, moved_by: "#921", moved_on: "2026-09-10"}
+  state-header-window-budget: {state: archived, class: co-modifier, declares: [accept-sequenced-after-header-line], depth: 3, prose: false, moved_by: "#953", moved_on: "2026-09-11"}
   supersede-lost-pin-baseline: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   update-standards-body-current-publications: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

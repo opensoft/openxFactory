@@ -105,13 +105,24 @@ transfers:
   # GitHub organization and repository exactly.
   - former: opensoft/codexFactory
     current: codeXfactory/codexFactory
-    # UNSET BY DESIGN. See `field_rules.transferred_on` and `pending_row_rule`.
-    # The transfer is an OPERATOR ceremony and is unperformed: it is confirmed
-    # at step 1.2 of ~/session-prompts/runbook-codexfactory-org-transfer.md
-    # (`gh api repos/codeXfactory/codexFactory --jq '{full_name,private,visibility}'`),
-    # and that step's date is what fills this field.
-    transferred_on: null
-    transfer_state: pending
+    # SET BY THE ACT, at the source this row named in advance. The transfer is
+    # an OPERATOR ceremony and it has been PERFORMED and VERIFIED against the
+    # provider at step 1.2 of ~/session-prompts/runbook-codexfactory-org-transfer.md
+    # (`gh api repos/codeXfactory/codexFactory --jq '{full_name,private,visibility}'`)
+    # — confirmed 2026-09-09T13:15Z: `codeXfactory/codexFactory`,
+    # `private: true`, repository id 1281785369. The field carries the DATE of
+    # that confirmation and nothing else, per `field_rules.transferred_on` and
+    # matching the exemplar's two 2026-08-26 rows; the instant sits in this
+    # comment because the field is a date.
+    #
+    # `pending_row_rule` NO LONGER HOLDS THIS ROW, and that is what the flip
+    # means: live repointing of `opensoft/codexFactory` ->
+    # `codeXfactory/codexFactory` is open. It is also already performed — the
+    # rename slices (#801, #802, #805, #806), the aggregation `MIGRATION_PIN`
+    # re-point and the origin-identity re-issuance all landed after the
+    # confirmation above. This row was the last surface still saying otherwise.
+    transferred_on: 2026-09-09
+    transfer_state: complete
     redirect: >-
       GitHub redirects the former owner to the current one, and STOPS the moment
       `opensoft` reuses the name. It may: `opensoft` remains an active

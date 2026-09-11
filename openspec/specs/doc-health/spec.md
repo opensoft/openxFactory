@@ -935,6 +935,15 @@ scope rather than the corpus.
 - **WHEN** a change packet holds a byte-exact snapshot of a staged fragment, illustrative malformed markers, or other evidence whose content is fixed by what it records
 - **THEN** it MUST NOT be in the lifecycle scan set, because reporting a frozen record for the state it preserves is a false finding
 
+#### Scenario: A finding is grandfathered by a recorded disposition
+- **WHEN** a finding this family raises against a document under `openspec/changes/archive/` is named by an entry in the aggregation's `health/dispositions.yaml` carrying this family, that repository, that path, a date, and a non-empty `cite`
+- **THEN** the run MUST report that finding at `info` rather than at the severity its own arm assigned, and MUST quote the recorded citation in the finding, because the record is IMMUTABLE and no repair is available to anyone — a permanent defect reported at `critical` teaches a reader to disbelieve the band, and a defect withheld altogether hides a standing population behind a file nobody opens
+- **AND** the finding MUST keep its family, its repository and its path, so the population stays countable in the report and in every comparison between two reports
+- **AND** the citation MAY be quoted as a bounded single-line excerpt, a ranked-plan row being one line and the entry's own key being the lookup into the file it was taken from
+- **AND** a finding against a document under an ACTIVE change packet MUST NOT be downgraded by such an entry, an active record's header being a plain fix rather than a ruling's subject
+- **AND** an entry carrying no `cite` MUST change nothing, an entry that records no decision having disposed nothing under every other reader of this file
+- **AND** a run that has no aggregation checkout in scope MUST report every finding of this family at its own severity, the dispositions file living at the aggregation root and a single-repository run having none
+
 ### Requirement: Release-inventory drift
 The release-inventory drift family SHALL compare, for every repository in
 scope that declares a contract bundle, each member of that bundle's release

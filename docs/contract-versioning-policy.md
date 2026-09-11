@@ -818,6 +818,114 @@ retroactively invalidate an old pin.
   publishing cut and the declared removal target collided on one bundle, and a
   warning that is first served at the bundle that refuses is not a window.
 
+- **The FIVE ideation-dashboard contract schemas and their conformance
+  validator — RELOCATING out of this repository to the openDox / openXdox spec
+  and code legs, and the warning is served by RUNNING CODE rather than
+  declared.** Nothing is refused and nothing changes shape. Every one of the
+  five keeps the exact bytes it had at `contract-v3.6`, keeps its per-file
+  `sha256` in [`manifest.yaml`](../contracts/manifest.yaml), keeps
+  `schema_version: 1`, and keeps validating. What is deprecated is this
+  repository as their HOME.
+
+  | manifest `id` | path | canonical home becomes | leg commit (`at:`) |
+  | --- | --- | --- | --- |
+  | `gate-action-record` | `contracts/schemas/gate-action-record.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
+  | `ideation-dashboard-snapshot-index` | `contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
+  | `ideation-dashboard-snapshot` | `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
+  | `xfactory-workbench-chat-turn` | `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` |
+  | `xfactory-workbench-model-catalog` | `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` |
+
+  **THE CONFORMANCE VALIDATOR MOVES WITH THEM, AND THE MOVE IS THE UPDATE.**
+  `scripts/validate-ideation-dashboard-contracts.py` — named by all five rows'
+  own `consumption_rule` as "the family's delegated owner", the code that
+  enforces every rule the shapes cannot express — relocates to
+  `opensoft/openXdox-code` (`docs/opendox-carve-manifest.yaml`,
+  `moved_with_declared_edit`, destination commit `5da58ee2`). That is how the
+  Breaking class's third requirement, "an update to the conformance validator",
+  is discharged at the major FOR THESE FIVE: not by editing a validator that
+  stays, but by the validator leaving with the shapes it validates. It is named
+  here, in the deprecation entry, so the discharge is checkable at the removal
+  rather than asserted then.
+
+  **AND THE DISCHARGE IS NOT YET COMPLETE, WHICH IS RECORDED HERE RATHER THAN
+  LEFT FOR THE MAJOR TO DISCOVER.** That script is named by the
+  `consumption_rule` of EIGHT manifest rows, not five. The three that are NOT
+  relocating and are NOT leaving are `ideation-possibles-register`,
+  `gate-intent` (both `disposition: not_moved`, `stays_openxfactory_adapter`, in
+  `docs/opendox-carve-manifest.yaml`) and `demotion-execution-receipt` (named in
+  no carve row at all, though its packaged examples move). When the validator
+  departs, those three retained contracts are left naming a delegated owner this
+  repository no longer contains. **That is an obligation on the MAJOR, not on
+  this minor** — this minor removes nothing and every one of the eight keeps its
+  documented validator at `contract-v3.7` — but the major may not treat § Change
+  Classes' conformance-validator clause as discharged until it says what
+  validates those three. Raised by the review of the pull request that cut this
+  minor, recorded here so the question survives to the cut that must answer it.
+
+  The leg commits are not guessed: they are the `spec` and `code` gitlinks of
+  the assembly-root commits this repository's own pins already name —
+  [`contracts/openxdox-pin.yaml`](../contracts/openxdox-pin.yaml) `commit:
+  84056415…` and [`contracts/opendox-pin.yaml`](../contracts/opendox-pin.yaml)
+  `commit: 44679fa7…`. The destination TAGS (`dox-v1.0`, `xdox-v1.0`) are Phase
+  6 and are not cut, so each row's `relocating.tag` carries the sentinel
+  `not_yet_cut` and `relocating.at` carries the commit that does exist. A label
+  recorded before the thing it labels exists would be a claim, not a label —
+  `contracts/opendox-pin.yaml`'s own reasoning, and its RULED ASK-1
+  `not_yet_deployed` sentinel is the shape borrowed here.
+
+  **THE WARNING IS SERVED, AND THAT IS MEASURED RATHER THAN PREFERRED.**
+  `scripts/check-openxfactory-pin.py` — the one domain-pin checker with a
+  warning tier — reads `relocating:` and emits a WARN-tier notice naming all
+  five artifacts with their target repositories, and STAYS GREEN (WARN exits
+  0). It required no edit for this deprecation: the emitter was built for the
+  openxWallet relocation at `contract-v1.47` and is generic over the marker.
+  The sibling `scripts/validate-domain-openxfactory-pins.py` is deliberately
+  not the emitter — it has no warning tier, so a notice there would be an ERROR
+  and would red every domain that pinned this perfectly legal bundle.
+
+  **WHAT WAS MEASURED OF THE SUPPORTED CONSUMERS, stated plainly and without
+  rounding up.** Measured 2026-09-11 against fresh clones of all five supported
+  consumers, for the five ids and the validator's name. Before this bundle, NO
+  supported consumer had ever been served a warning for these shapes, because
+  no marker existed to serve one — that absence is the whole reason this entry
+  exists. Of the five: **codexFactory** is the one real reader (its `stack.yaml`
+  pins `xfactory-workbench-model-catalog.schema.yaml` and
+  `xfactory-workbench-chat-turn.schema.yaml` by digest, and its
+  `scripts/validate-docs.sh` runs `check-openxfactory-pin` from the pinned
+  checkout, so it sees the notice at its next re-pin at or after this bundle);
+  **AdxFactory** and **LedgerxFactory** run that checker and will see the
+  notice but read none of the five ids in code (Adx carries one prose mention
+  of `gate-action-record`); **MedxFactory** and **OpsxFactory** read none of
+  the five and reference the checker nowhere.
+
+  **HOW THIS ENTRY DIFFERS FROM THE `hermes` FLAT-KEY ENTRY ABOVE, which is the
+  precedent that could have sunk it.** That entry's warning branch fired only
+  when `hermes.layers` was ABSENT, and all five supported consumers declare it,
+  so the branch was dead code for the entire supported population and the
+  policy refused the removal: "a warning that cannot fire is not a warning
+  served." The distinction here is not that a consumer happens to read these
+  shapes — it is that the notice is **unconditional on consumer shape**. It
+  fires on the BUNDLE, for every consumer that runs the checker at a pin at or
+  after `contract-v3.7`, whatever that consumer's own files contain. There is
+  no branch for the population to sit outside of.
+
+  Migration, available now and unforced: read the artifacts from
+  `opensoft/openXdox-spec` / `opensoft/openDox-spec` at the commits above, and
+  run the pinned reader at the destination rather than a local copy. **No
+  supported consumer is required to act before the major.** A consumer that
+  pins this bundle keeps consuming the five from here exactly as before; the
+  full migration path is in
+  [`contracts/CHANGELOG.md`](../contracts/CHANGELOG.md) at `contract-v3.7`,
+  which is where this document puts the removal version and the migration path
+  for a DEPRECATING minor.
+
+  Warned since contract-v3.7; removal target **the next MAJOR, allocated at the
+  cut** (`split-opendox-two-layer-product` task 5.7). Naming the next major is
+  permitted where naming the next minor is not — § Version Identity forbids
+  reserving a minor before merge order is known, and there is exactly one next
+  major. Ratified by Brett Heap's ASK-10 ruling, `opensoft/openxFactory` issue
+  #656 comment `5635524078`.
+
 ## Deprecations Executed
 
 A deprecation leaves the list above when the removal it announced actually

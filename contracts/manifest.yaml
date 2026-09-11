@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v3.6
+contract_bundle_version: contract-v3.7
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -987,7 +987,7 @@ contracts:
     source_path: openxFactory/contracts/policies/repository-identity.yaml
     type: policy
     schema_version: 1
-    sha256: 04bc5fed882752d6670ca5558a6fcf16ac040527d493b41fdc32bd1dfd75f699  # authored at this change's realization; recomputed by adopt-medxsoft-repository-identity task 1.3 when its rows land
+    sha256: 037b0cc5d3bc8a2eb9bc8d133a12f7326844e33b264683e75ea7fbdf3e758688  # RECOMPUTED, never hand-edited (adopt-codexfactory-repository-identity task 1.4): the codexFactory row's transfer was CONFIRMED 2026-09-09 and the row now carries transferred_on/transfer_state: complete; recomputed again by adopt-medxsoft-repository-identity task 1.3 when its rows land
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1625,6 +1625,11 @@ contracts:
       cannot express are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+    relocating:
+      to: opensoft/openXdox-spec
+      at: 481a07f90167bb7c27cebead830b5e2f86475deb
+      tag: not_yet_cut
+      since: contract-v3.7
   - id: xfactory-workbench-model-catalog
     path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
     source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
@@ -1670,6 +1675,11 @@ contracts:
       delegated owner), never re-implemented by consumers; the three modality
       refusals are NOT among them, being expressible in the shape and therefore
       enforced by these bytes.
+    relocating:
+      to: opensoft/openDox-spec
+      at: 1a216ea413cdcc14791aa3939712e2e459cfa6b6
+      tag: not_yet_cut
+      since: contract-v3.7
   # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
   # RELEASE CUT (issue #263). Read this before editing it again.
   #
@@ -1813,6 +1823,11 @@ contracts:
       context-posture pairing, and failure-pairing rules are enforced by
       scripts/validate-ideation-dashboard-contracts.py, never
       re-implemented by consumers.
+    relocating:
+      to: opensoft/openDox-spec
+      at: 1a216ea413cdcc14791aa3939712e2e459cfa6b6
+      tag: not_yet_cut
+      since: contract-v3.7
   # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----
   # Registers add-ideation-intent-plane 2.4, add-wheel-action-verbs 1.5,
   # and add-worker-enrollment-broker 1.11 in one additive bundle. The
@@ -1864,6 +1879,11 @@ contracts:
       and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
       family's delegated owner), never re-implemented by consumers.
+    relocating:
+      to: opensoft/openXdox-spec
+      at: 481a07f90167bb7c27cebead830b5e2f86475deb
+      tag: not_yet_cut
+      since: contract-v3.7
   - id: demotion-execution-receipt
     path: contracts/schemas/demotion-execution-receipt.schema.yaml
     source_path: openxFactory/contracts/schemas/demotion-execution-receipt.schema.yaml
@@ -1974,6 +1994,11 @@ contracts:
       sha256 verified before any copy is treated as current. Locator-side rules the shape cannot express are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+    relocating:
+      to: opensoft/openXdox-spec
+      at: 481a07f90167bb7c27cebead830b5e2f86475deb
+      tag: not_yet_cut
+      since: contract-v3.7
   # ---- cross-factory ideation routing — contract-v1.30 registration (add-cross-factory-ideation-routing task 2.4) ----
   # The packaged corpus (examples/ideation-routing/, 8 valid + 8 invalid) and the
   # strict validator (scripts/validate-ideation-routing.py) are content-addressed

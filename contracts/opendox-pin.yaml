@@ -89,7 +89,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "49a99df2561bf70e49337c999d79b36836718349"
+commit: "44679fa732780862230c7446a8f7f2e2bb032e88"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -107,7 +107,26 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "96655ad2d2b2b70e5d23b613d5f0e73232e39c75069959044b665313f2c76ee4"
+  tree_sha256: "f7e2c3001365493f87c7c8fda2659cbdb11db9b783dce43e3301d80ba1a4b26c"
+
+# MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
+# bump crosses a migration" scenario (`split-opendox-two-layer-product`
+# design.md § D4 / task 4.2). RULED ASK-1 (Brett Heap,
+# `opensoft/openxFactory#656` comment 5628886636, 2026-09-11): the three
+# fields below are added NOW with an explicit `not_yet_deployed` sentinel,
+# proving the schema shape before a real migration exists to fill it —
+# RULING Q2's FastAPI+Postgres runtime is itself unbuilt and
+# `opensoft/openDox-code` carries no migrations directory yet (checked at
+# `da8aae96`, the `code` leg commit openDox's own assembly-root commit
+# `44679fa7` names). Update these at the FIRST real migration a bump of this
+# pin crosses, not before. Rendered identically at
+# `openXdox/contracts/opendox-pin.yaml` (lockstep chain step 2, landed as
+# `opensoft/openXdox#7`) — both direct pins of the same product carry the
+# same sentinel, so neither reads as a claim the other is silent on.
+migration:
+  range: not_yet_deployed
+  reversible: not_yet_deployed
+  runbook: not_yet_deployed
 
 # The BYTE-IDENTITY REFERENT, record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1) — the
