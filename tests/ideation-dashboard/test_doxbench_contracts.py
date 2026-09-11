@@ -633,6 +633,41 @@ def test_the_inventory_answers_only_for_the_paths_the_removal_took(fake_root):
         f"contracts/releases/{REMOVAL_TAG}.digests.yaml")
 
 
+@pytest.mark.parametrize("target", ["outside", "inside"])
+def test_a_symlinked_inventory_refuses(fake_root, pinned_repo, tmp_path,
+                                       target):
+    """`Path.is_file()` FOLLOWS symlinks, so a link planted at the inventory
+    path would otherwise let bytes from anywhere answer for the release. The
+    canonical reader refuses any non-regular file before digesting
+    (`release.py::read_member`), and so does this one — and it REFUSES rather
+    than contributing nothing, because an absent inventory is an old checkout
+    while a linked one is a tampered checkout. Both link targets are pinned: the
+    outside one is the bypass, and the inside one shows the rule is "not a
+    regular file" rather than "not contained"."""
+    valid = {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }
+    if target == "outside":
+        linked = _write_inventory(tmp_path, "elsewhere.digests.yaml", valid,
+                                  bundle_tag=REMOVAL_TAG)
+    else:
+        linked = _write_inventory(fake_root, "real.digests.yaml", valid,
+                                  bundle_tag=REMOVAL_TAG)
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    planted = fake_root / "contracts" / "releases" / f"{REMOVAL_TAG}.digests.yaml"
+    planted.parent.mkdir(parents=True, exist_ok=True)
+    planted.symlink_to(linked)
+    # The link RESOLVES: without the refusal these bytes would be read and would
+    # satisfy the record, so the test proves a refusal rather than a failure to
+    # find anything.
+    assert planted.is_file()
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    assert "regular file" in str(excinfo.value)
+
+
 def test_the_removed_row_set_is_the_five_the_cut_removed():
     """The set is a RECORD of what `contract-v4.0` removed, so it is pinned by
     name here: a sixth path added to it would widen the substitution past the

@@ -790,6 +790,21 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
     if (int(parsed.group(1)), int(parsed.group(2))) < REMOVAL_BUNDLE:
         return {}
     path = root / RELEASES_RELDIR / f"{bundle}.digests.yaml"
+    # A SYMLINK AT THIS PATH IS NOT THIS CHECKOUT'S RECORD, and `is_file()`
+    # alone would not say so — it follows the link. The canonical release
+    # reader refuses the same way before it digests anything
+    # (`scripts/hermes_runtime_validation/release.py::read_member`: "release
+    # member is not a regular file"), and it must refuse rather than contribute
+    # nothing: an ABSENT inventory is an old checkout, while a linked one is a
+    # tampered checkout, and reading it would let bytes from outside the tree
+    # answer for the release. The other half of that reader's pair — a path that
+    # escapes the root — cannot arise here, because the token reaching this line
+    # has already matched the release-tag grammar and so carries neither a
+    # leading separator nor a `..` segment.
+    if path.is_symlink():
+        raise ContractPinError(
+            f"{path}: release inventory is not a regular file (symlink), so it "
+            f"is not this checkout's release record")
     if not path.is_file():
         return {}
     try:
