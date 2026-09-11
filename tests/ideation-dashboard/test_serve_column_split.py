@@ -51,7 +51,8 @@ from contextlib import contextmanager
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      dashboard_web_root)
 
 import route_extension  # noqa: E402
 
@@ -70,7 +71,13 @@ from opendox import serve_wire  # noqa: E402
 from openxdox import serve_projection  # noqa: E402
 from openxdox.generator import generate_snapshot  # noqa: E402
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
+# (§ 5.2, RULED (a), `#656` `5625573095`). The assets moved to openDox-code
+# with the serve and `dashboard_web_root()` reads where from the row rather
+# than spelling the destination here; its docstring records the one
+# `not_moved` asset — openxFactory's own intent-feed view — and why a merged
+# asset root is § 4.3 composition work rather than this constant's job.
+WEB = dashboard_web_root()
 
 #: The handlers PR 3 moved out of `serve.py`, with the module each landed in.
 #: `_serve_snapshot` is here too although its ARM stayed core: the method moved,

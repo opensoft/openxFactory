@@ -44,7 +44,8 @@ from contextlib import contextmanager
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      dashboard_web_root)
 
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
@@ -63,7 +64,13 @@ import profile_openxfactory  # noqa: E402
 from opendox import serve as serve_mod  # noqa: E402
 from openxdox.generator import generate_snapshot  # noqa: E402
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
+# (§ 5.2, RULED (a), `#656` `5625573095`). The assets moved to openDox-code
+# with the serve and `dashboard_web_root()` reads where from the row rather
+# than spelling the destination here; its docstring records the one
+# `not_moved` asset — openxFactory's own intent-feed view — and why a merged
+# asset root is § 4.3 composition work rather than this constant's job.
+WEB = dashboard_web_root()
 MODULE = REPO_ROOT / "scripts" / "route_extension.py"
 
 #: The probe handler names. Deliberately not `_handle_*`: nothing about the seam
