@@ -13,9 +13,20 @@ Three things are verified before a schema is trusted, and each one refuses rathe
 than warns (a schema copy that is not the released bytes is not the contract):
 
   1. the file's sha256 equals the pinned digest in `SCHEMA_DIGESTS`;
-  2. the checkout's OWN `contracts/manifest.yaml` entry for that file records the
-     same digest — manifest parity, so a coherent release is distinguished from a
-     directory that merely contains a file with the right name; and
+  2. the checkout's OWN release record for that file records the same digest, so
+     a coherent release is distinguished from a directory that merely contains a
+     file with the right name. That record is `contracts/manifest.yaml`'s entry
+     for the file — EXCEPT for the five ideation-dashboard paths whose rows
+     `contract-v4.0` REMOVED (`split-opendox-two-layer-product` § 5.7:
+     openxFactory stopped OWNING those shapes and now consumes them at the
+     openDox / openXdox legs), where it is the bundle's published
+     `contracts/releases/<bundle>.digests.yaml` entry for the same path at the
+     same digest. So manifest parity is NOT required for those five from
+     `contract-v4.0` onward, and inferring that their removed rows must still be
+     present is the one wrong reading of this list; the substitution is bounded
+     to exactly those paths and that bundle floor by `REMOVED_MANIFEST_ROWS` and
+     `REMOVAL_BUNDLE`, and the chain stays at TWO independent records either
+     way; and
   3. `stack.yaml`'s `xfactory.contract_ref` still equals `CONTRACT_REF`, so a
      CONSUMER can never read one release while its repository declares another.
 
@@ -49,6 +60,7 @@ from __future__ import annotations
 import functools
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -518,6 +530,33 @@ SCHEMAS_RELPATH = Path("contracts") / "schemas"
 MANIFEST_RELPATH = Path("contracts") / "manifest.yaml"
 RELEASES_RELDIR = Path("contracts") / "releases"
 
+# THE SECOND RECORD'S BOUNDS (`split-opendox-two-layer-product` § 5.7). The
+# published inventory answers for a pinned path ONLY where all three hold, and
+# each bound closes a way the substitution could have been wider than the
+# removal that motivated it:
+#
+#   * the path is one of the FIVE manifest rows `contract-v4.0` REMOVED. Every
+#     other path is answered by the manifest or by nothing, exactly as before;
+#     a row deleted by accident still fails closed rather than being rescued.
+#   * the checkout's DECLARED bundle is `contract-v4.0` or later. A historical
+#     bundle still carried these rows, so in a `contract-v3.7` checkout their
+#     absence is a defect and not a removal, and it refuses as it always did.
+#   * the bundle token parses as a release tag. It is interpolated into a
+#     filesystem path, and an absolute or traversing value (`/tmp/x`, `../../x`)
+#     would otherwise make `Path` discard or escape `contracts/releases/` and
+#     read an inventory from outside the checkout. The grammar is the one the
+#     canonical builder writes and reads
+#     (`scripts/hermes_runtime_validation/release.py`).
+REMOVED_MANIFEST_ROWS = frozenset({
+    "contracts/schemas/gate-action-record.schema.yaml",
+    "contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml",
+    "contracts/schemas/ideation-dashboard-snapshot.schema.yaml",
+    "contracts/schemas/xfactory-workbench-chat-turn.schema.yaml",
+    "contracts/schemas/xfactory-workbench-model-catalog.schema.yaml",
+})
+BUNDLE_TAG_GRAMMAR = re.compile(r"contract-v(\d+)\.(\d+)")
+REMOVAL_BUNDLE = (4, 0)
+
 # What makes a directory a RELEASE rather than a consumer of one. All three are
 # required together: any single marker is satisfied by a tree that merely
 # contains a similarly named file, which is the same distinction manifest parity
@@ -729,8 +768,26 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
     contributes nothing rather than raising, because a consumer's pinned
     checkout may predate the inventory's own introduction; a PRESENT inventory
     that cannot be read is a fail-closed condition and refuses, exactly as an
-    unreadable manifest does."""
+    unreadable manifest does.
+
+    WHAT IS REFUSED HERE RATHER THAN TRUSTED. The bundle token names a file this
+    function opens, so it is checked against the release-tag grammar before it is
+    joined to a path: a value that does not parse contributes nothing, which is
+    what keeps `Path` from being handed an absolute or traversing string and
+    reading an inventory outside the checkout. A bundle OLDER than the removal
+    contributes nothing either — those releases carried the rows, so their
+    absence there is a defect rather than a removal. And an inventory that
+    declares a `bundle_tag` OTHER than the one the manifest declares REFUSES: a
+    file saved under one bundle's name that records another is exactly the
+    mismatch `validate-contract-release.py verify-tag` rejects, and accepting it
+    here would let a stale inventory supply a digest this checkout's release
+    never published."""
     if not isinstance(bundle, str) or not bundle or bundle == "none":
+        return {}
+    parsed = BUNDLE_TAG_GRAMMAR.fullmatch(bundle)
+    if parsed is None:
+        return {}
+    if (int(parsed.group(1)), int(parsed.group(2))) < REMOVAL_BUNDLE:
         return {}
     path = root / RELEASES_RELDIR / f"{bundle}.digests.yaml"
     if not path.is_file():
@@ -741,6 +798,12 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
         raise ContractPinError(
             f"{path}: unreadable release inventory ({error})") from error
     doc = _parsed_yaml(path, raw, what="release inventory")
+    declared = doc.get("bundle_tag") if isinstance(doc, dict) else None
+    if declared != bundle:
+        raise ContractPinError(
+            f"{path}: release inventory declares bundle_tag {declared!r}, but "
+            f"the checkout's manifest declares {bundle!r}, so this file is not "
+            f"this checkout's release record")
     entries = doc.get("entries") if isinstance(doc, dict) else None
     if not isinstance(entries, list):
         raise ContractPinError(
@@ -766,7 +829,13 @@ def _release_records(root: Path) -> dict[str, tuple[Any, str]]:
     The manifest WINS wherever it carries the path: it is the ownership
     register, it is what a pre-`contract-v4.0` checkout carries for every schema
     here, and a row that disagrees with the bytes must still refuse rather than
-    be talked out of it by a second document."""
+    be talked out of it by a second document.
+
+    The inventory answers only for `REMOVED_MANIFEST_ROWS` — the five paths
+    `contract-v4.0` actually removed — and only from that bundle forward. The
+    substitution is therefore exactly as wide as the removal that caused it: any
+    OTHER path missing from the manifest is still a path in no record, and still
+    refuses."""
     manifest, bundle = _manifest_digests(root)
     records: dict[str, tuple[Any, str]] = {
         relpath: (digest, MANIFEST_RELPATH.as_posix())
@@ -775,7 +844,8 @@ def _release_records(root: Path) -> dict[str, tuple[Any, str]]:
         (RELEASES_RELDIR / f"{bundle}.digests.yaml").as_posix()
         if isinstance(bundle, str) and bundle else "the release inventory")
     for relpath, digest in _inventory_digests(root, bundle).items():
-        records.setdefault(relpath, (digest, inventory_relpath))
+        if relpath in REMOVED_MANIFEST_ROWS:
+            records.setdefault(relpath, (digest, inventory_relpath))
     return records
 
 
@@ -787,9 +857,10 @@ def _verified_bytes(root: Path, name: str,
     parse — so the validator cache's per-request re-verification (T104 final
     queue Q-2) runs exactly these refusals, never a restatement of them.
 
-    `records` is `_release_records`: the manifest's rows, and — for a path the
-    manifest no longer owns after `contract-v4.0` — the published inventory's
-    entry for the same path. Two records, one question, unchanged."""
+    `records` is `_release_records`: the manifest's rows, and — for one of the
+    five paths `contract-v4.0` removed the row for, in a checkout declaring that
+    bundle or later — the published inventory's entry for the same path. Two
+    records, one question, unchanged."""
     # THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`). Two of this
     # family's three wire schemas are `moved_verbatim` rows at the openDox-spec
     # leg. They arrived BYTE FOR BYTE, so the digest chain below — the pinned

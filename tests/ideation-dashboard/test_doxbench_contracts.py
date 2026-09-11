@@ -219,13 +219,19 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _write_manifest(root: Path, digests: dict[str, str]) -> Path:
+def _write_manifest(root: Path, digests: dict[str, str],
+                    bundle: str = RELEASED_TAG) -> Path:
     """The released checkout's self-description, in the shape the real
     `contracts/manifest.yaml` uses: a `contracts` list whose entries carry the
-    repository-relative `path` and the per-file `sha256`."""
+    repository-relative `path` and the per-file `sha256`.
+
+    `bundle` is the declared `contract_bundle_version`. It defaults to the
+    pinned release so every caller written before `contract-v4.0` reads
+    unchanged; the removed-row cases below pass the bundle whose behaviour they
+    are pinning."""
     manifest = {
         "schema_version": 1,
-        "contract_bundle_version": RELEASED_TAG,
+        "contract_bundle_version": bundle,
         "contracts": [
             {
                 "id": Path(name).stem,
@@ -448,6 +454,197 @@ def test_absent_manifest_fails_closed(fake_root, pinned_repo):
 
     with pytest.raises(contracts.ContractPinError):
         contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+
+
+# ---------------------------------------------------------------------------
+# the SECOND record after `contract-v4.0` removed the five rows
+# ---------------------------------------------------------------------------
+#
+# `split-opendox-two-layer-product` § 5.7 REMOVED five `contracts/manifest.yaml`
+# rows — openxFactory consumes those shapes at the openDox / openXdox legs
+# rather than owning them — and two of them are the schemas this module pins.
+# The row's disappearance must not drop the fail-closed chain from two records
+# to one, and the replacement record must not be WIDER than the removal that
+# caused it. These pin both halves: the substitution works, and each of its
+# three bounds refuses when it is crossed.
+
+REMOVAL_TAG = "contract-v4.0"
+PRE_REMOVAL_TAG = "contract-v3.7"
+
+
+def _write_inventory(root: Path, filename: str, digests: dict[str, str], *,
+                     bundle_tag: str) -> Path:
+    """A published release inventory, in the shape
+    `validate-contract-release.py build` writes: a declared `bundle_tag` and an
+    `entries` list of repository-relative paths with `sha256:`-prefixed
+    digests."""
+    path = root / "contracts" / "releases" / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump({
+        "schema_version": 1,
+        "kind": "openxfactory-contract-release-digest-inventory",
+        "bundle_tag": bundle_tag,
+        "digest_algorithm": "sha256",
+        "entries": [
+            {"path": relpath, "digest": f"sha256:{digest}"}
+            for relpath, digest in sorted(digests.items())
+        ],
+    }, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def _manifest_without_the_chat_turn_row(root: Path, bundle: str) -> None:
+    """The post-removal manifest: the catalog row stays, the chat-turn row is
+    gone, exactly as `contract-v4.0` leaves them."""
+    _write_manifest(root, {
+        CATALOG_SCHEMA_FILE: contracts.SCHEMA_DIGESTS[CATALOG_SCHEMA_FILE],
+    }, bundle=bundle)
+
+
+def test_the_inventory_answers_for_a_row_the_removal_took(fake_root,
+                                                          pinned_repo):
+    """The load that would have failed closed on the missing row succeeds, and
+    it succeeds on a RECORD — the bundle's own published inventory — not on a
+    relaxation."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    _write_inventory(fake_root, f"{REMOVAL_TAG}.digests.yaml", {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }, bundle_tag=REMOVAL_TAG)
+
+    schemas = contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+
+    assert set(schemas) == set(contracts.WIRE_KINDS)
+    assert contracts._release_records(fake_root)[
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}"] == (
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+            f"contracts/releases/{REMOVAL_TAG}.digests.yaml")
+
+
+def test_the_inventory_record_must_still_agree_with_the_bytes(fake_root,
+                                                              pinned_repo):
+    """Parity is not waived with the row: the second record answers the same
+    question, so an inventory that disagrees with the bytes refuses — and the
+    refusal names the inventory file rather than the manifest, because that is
+    the document a reader must open."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    _write_inventory(fake_root, f"{REMOVAL_TAG}.digests.yaml", {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}": "0" * 64,
+    }, bundle_tag=REMOVAL_TAG)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    message = str(excinfo.value)
+    assert f"contracts/releases/{REMOVAL_TAG}.digests.yaml" in message
+    assert CHAT_TURN_SCHEMA_FILE in message
+
+
+def test_a_pre_removal_bundle_still_requires_its_manifest_row(fake_root,
+                                                              pinned_repo):
+    """The bound that keeps HISTORY fail-closed. `contract-v3.7` CARRIED these
+    rows, so a row missing there is a deleted row, not a removed one — and an
+    inventory of that bundle must not rescue it."""
+    _manifest_without_the_chat_turn_row(fake_root, PRE_REMOVAL_TAG)
+    _write_inventory(fake_root, f"{PRE_REMOVAL_TAG}.digests.yaml", {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }, bundle_tag=PRE_REMOVAL_TAG)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    assert CHAT_TURN_SCHEMA_FILE in str(excinfo.value)
+
+
+def test_an_inventory_declaring_another_bundle_refuses(fake_root, pinned_repo):
+    """A stale inventory copied from another bundle and saved under this one's
+    name is the mismatch `validate-contract-release.py verify-tag` rejects. It
+    is rejected here too, rather than being read for its digests."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    _write_inventory(fake_root, f"{REMOVAL_TAG}.digests.yaml", {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }, bundle_tag="contract-v4.1")
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    message = str(excinfo.value)
+    assert "contract-v4.1" in message
+    assert REMOVAL_TAG in message
+
+
+@pytest.mark.parametrize("shape", ["absolute", "traversing"])
+def test_a_bundle_token_that_is_not_a_release_tag_reads_no_file(fake_root,
+                                                                pinned_repo,
+                                                                tmp_path,
+                                                                shape):
+    """The bundle token is interpolated into a path, so a value that absolutizes
+    or escapes must never be joined to one: `Path("a/b") / "/tmp/x"` DISCARDS the
+    base, and `..` walks out of the checkout. The planted inventory sits exactly
+    where each shape lands, carries the right digest, and would satisfy the
+    record if it were read — it is not, and the load refuses on the missing
+    record instead."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    planted = outside / "planted.digests.yaml"
+    planted.write_text(yaml.safe_dump({
+        "bundle_tag": "contract-v4.0",
+        "entries": [{
+            "path": f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}",
+            "digest":
+                f"sha256:{contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]}",
+        }],
+    }, sort_keys=True), encoding="utf-8")
+    # Both spellings name `planted` once `f"{bundle}.digests.yaml"` is applied
+    # and the join is resolved from `<fake_root>/contracts/releases`.
+    stem = str(outside / "planted")
+    base = fake_root / "contracts" / "releases"
+    # The directory must EXIST, or a `..` walk dies on a missing intermediate
+    # and the traversal case could not fail even with the guard removed.
+    base.mkdir(parents=True, exist_ok=True)
+    bundle = stem if shape == "absolute" else (
+        "../" * (len(base.parts) - 1) + stem.lstrip("/"))
+    assert (base / f"{bundle}.digests.yaml").resolve() == planted.resolve()
+    _manifest_without_the_chat_turn_row(fake_root, bundle)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    assert CHAT_TURN_SCHEMA_FILE in str(excinfo.value)
+
+
+def test_the_inventory_answers_only_for_the_paths_the_removal_took(fake_root):
+    """The substitution is exactly as wide as the removal. An inventory entry
+    for any OTHER path contributes no record, so a manifest row deleted by
+    accident anywhere else still leaves that path in no record at all."""
+    _write_manifest(fake_root, {
+        CATALOG_SCHEMA_FILE: contracts.SCHEMA_DIGESTS[CATALOG_SCHEMA_FILE],
+    }, bundle=REMOVAL_TAG)
+    other = "contracts/schemas/some-other-neutral.schema.yaml"
+    chat_turn = f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}"
+    _write_inventory(fake_root, f"{REMOVAL_TAG}.digests.yaml", {
+        other: "1" * 64,
+        chat_turn: contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }, bundle_tag=REMOVAL_TAG)
+
+    records = contracts._release_records(fake_root)
+
+    assert other not in records
+    assert records[chat_turn] == (
+        contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+        f"contracts/releases/{REMOVAL_TAG}.digests.yaml")
+
+
+def test_the_removed_row_set_is_the_five_the_cut_removed():
+    """The set is a RECORD of what `contract-v4.0` removed, so it is pinned by
+    name here: a sixth path added to it would widen the substitution past the
+    removal without any test noticing."""
+    assert contracts.REMOVED_MANIFEST_ROWS == frozenset({
+        "contracts/schemas/gate-action-record.schema.yaml",
+        "contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml",
+        "contracts/schemas/ideation-dashboard-snapshot.schema.yaml",
+        "contracts/schemas/xfactory-workbench-chat-turn.schema.yaml",
+        "contracts/schemas/xfactory-workbench-model-catalog.schema.yaml",
+    })
+    assert contracts.REMOVAL_BUNDLE == (4, 0)
 
 
 # ---------------------------------------------------------------------------
