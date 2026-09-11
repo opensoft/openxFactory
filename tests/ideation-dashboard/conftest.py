@@ -41,6 +41,7 @@ sys.path.insert(0, str(TESTS_ROOT))
 from carved_reach import (  # noqa: E402
     bind_composition_point,
     install as install_carved_reach,
+    source as carved_source,
 )
 
 install_carved_reach(tests=True)
@@ -277,9 +278,21 @@ def serve_surface_paths() -> tuple[Path, ...]:
     below is a per-file loop, a `.read_text()` join checked for
     substring/absence, or a `.index()` search that resolves within a single
     file's own content) — only the docstring claim above does.
+
+    POST-SHED, RESOLVED PER FILE AND NOT PER DIRECTORY (§ 5.2, RULED (a);
+    Copilot `PRRT_kwDOTAvnrs6hUpuM`). Six of these seven modules left for
+    openDox-code and `serve_openxfactory_lanes.py` STAYED — a
+    `stays_openxfactory_adapter` row — so `scripts/ideation_dashboard/` is no
+    longer one directory that either did or did not move, and the constant this
+    function used to join names onto was exactly the bug: it read six deleted
+    paths and one live one and reported `FileNotFoundError` for the six.
+    `carved_reach.source()` answers each name from ITS OWN manifest row, so the
+    tuple above stays the declaration it was — a list of module NAMES, in
+    import-graph order — and nothing here has to know which leg any of them
+    went to, or notice the day one of them moves again.
     """
-    runtime = REPO_ROOT / "scripts" / "ideation_dashboard"
-    return tuple(runtime / name for name in SERVE_SURFACE_MODULES)
+    return tuple(carved_source(f"scripts/ideation_dashboard/{name}")
+                 for name in SERVE_SURFACE_MODULES)
 
 
 def serve_surface_source() -> str:
@@ -294,6 +307,28 @@ def serve_surface_source() -> str:
     """
     return "\n".join(path.read_text(encoding="utf-8")
                      for path in serve_surface_paths())
+
+
+def dashboard_web_root() -> Path:
+    """The directory `build_server()` serves the dashboard's assets from.
+
+    DERIVED from the manifest row of a file that is unambiguously in it —
+    `index.html`, the document the server hands out at `/` — rather than
+    transcribed as `openDox/code/src/opendox/web`, so this answer follows the
+    row the day it changes and there is one fewer destination path spelled by
+    hand in this repository (§ 5.2, RULED (a); Copilot
+    `PRRT_kwDOTAvnrs6hUpwc` / `PRRT_kwDOTAvnrs6hUpxG` / `PRRT_kwDOTAvnrs6hUpw5`).
+
+    THE ONE FILE THAT STAYED, AND WHY IT DOES NOT MAKE THIS TWO ROOTS.
+    `web/views/intent-feed.js` is a `not_moved` row: the intent-feed view is
+    openxFactory's own adapter column, exactly as `intent_feed.py` beside it is.
+    It is loaded by `index.html`'s view registry at RUNTIME from a served path,
+    not read off disk by any assertion here, and composing a merged asset root
+    for it is § 4.3's composition work (the same box the profile's lazy proxy
+    sits in) — not this function's. What every caller below needs is the root
+    the moved assets are AT, and that is what this returns.
+    """
+    return carved_source("scripts/ideation_dashboard/web/index.html").parent
 
 
 FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")
