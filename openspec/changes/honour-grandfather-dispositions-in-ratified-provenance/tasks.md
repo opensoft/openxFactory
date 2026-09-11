@@ -32,6 +32,66 @@ and openxFactory #939 closes THERE and not at this landing.
 
 **§ 7 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
 
+**AMENDED AT THE ARCHIVE, 2026-09-11 — EXACTLY TWO CLAUSES IN THIS FILE ARE
+SUPERSEDED, THEY ARE NAMED WITH THEIR LOCATIONS, AND THEY ARE QUOTED IN PLACE
+RATHER THAN DELETED.** Both are PRESENT-TENSE claims that a section stood open.
+These two and no others:
+
+> **§ 6 (ARCHIVE) IS ENTIRELY OPEN.** — the paragraph above
+
+> **§ 7 IS UNTICKED ON PURPOSE** — the paragraph above
+
+§ 6.1, § 6.2, § 7.1, § 7.2, § 7.3 and § 7.4 are now ticked, on Brett Heap's
+separate word of **2026-09-11T12:08Z**, verbatim **"land each when green,
+archive both when landed, claim 955 and 956"**, recorded on
+[#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632)
+— a word given in advance and CONDITIONALLY, and the condition is met: PR
+[#945](https://github.com/opensoft/openxFactory/pull/945) merged into `main` as
+**`34bb5c7158b42a45e4a4eddd2681ca9b7c3f550f`** at **2026-09-11T13:25:33Z**, and
+`main`'s own `pytest-suite` run
+[**34604231434**](https://github.com/opensoft/openxFactory/actions/runs/34604231434)
+on that very commit concluded **`success`** at 13:51:03Z. They are ticked in the
+commit BEFORE the move, because `scripts/proposal-support.py` refuses any change
+whose `tasks.md` still matches `^- \[ \]` — *"change has incomplete tasks"* —
+with no bypass flag; the archive pull request's number is appended to § 6.1 and
+§ 6.2 in the ledger-seed commit, once the number exists.
+
+**THREE SENTENCES A READER MIGHT TAKE FOR SUPERSEDED ARE NOT, DECLARED HERE
+RATHER THAN LEFT TO BE INFERRED.** (1) ***"NOTHING IS TICKED THAT DID NOT
+LAND"*** STANDS: § 6's two ticks record acts performed in the archive pull
+request itself, and § 7's four record the NAMING of a successor, never its
+doing. (2) *"the archive is a separate act on merged-plus-green realization
+evidence and a separate word, and openxFactory #939 closes THERE and not at this
+landing"* STANDS, and is exactly what this archive does — this is that separate
+act, on that separate word, on that realization evidence, and the one closing
+keyword is in the archive pull request's BODY and nowhere else. (3) *"residue,
+measured and deliberately not taken"* in § 7's own heading and preamble STANDS:
+the four residues are still not taken here, and ticking them names a successor
+rather than discharging the work.
+
+**THE FIVE OWED SUCCESSORS ARE FILED, UNCLAIMED, AND NAMED HERE.**
+[#965](https://github.com/opensoft/openxFactory/issues/965) takes § 7.1 (the
+stale-disposition check), [#966](https://github.com/opensoft/openxFactory/issues/966)
+§ 7.2 (the other eight families' entries),
+[#967](https://github.com/opensoft/openxFactory/issues/967) § 7.3 (the
+`docs/doc-health.md` family-table row) and
+[#968](https://github.com/opensoft/openxFactory/issues/968) § 7.4 (`design.md`
+D6's `--single-repo` route). A FIFTH,
+[#964](https://github.com/opensoft/openxFactory/issues/964), carries a residue
+this file could not have named because it was found at the bench AFTER
+ratification: Copilot's SUPPRESSED item of 2026-09-11T12:47:41Z (review
+`5178781132`) that no `runner.main` end-to-end test covers § 3.9's scalar-root
+FILE guard at `scripts/doc_health/runner.py:768`, landed in `5a8bba3e`. A
+coverage gap on a LANDED code surface is a successor and not an archive edit:
+`record-immutability` and `govern-archived-record-edits` put this packet's bytes
+beyond a plain fix, so no test is added here. None of the five is claimed by
+this lane.
+
+**THE § 6 HEADING *"OWED, NOT GIVEN"* AND THE § 7 HEADING *"Measured, and
+deliberately NOT taken here"* ARE RETAINED AS HISTORICAL SURFACE, NOT
+SUPERSEDED** — stated at the outset rather than corrected afterwards. § 6's was
+true from ratification until 2026-09-11T12:08Z; § 7's is true still.
+
 ## 1. Ratification — GIVEN 2026-09-11
 
 - [x] 1.1 **THE PACKET IS RATIFIED.** Brett Heap (openxFactory operator
@@ -573,12 +633,62 @@ record of what was measured when, which is what makes the two comparable.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [ ] 6.1 **PROMOTE THE BLOCK INTO CANON**, byte-for-byte, in a SEPARATE pull
+- [x] 6.1 **DONE IN THIS ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED INTO
+      CANON AND THE PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF
+      2026-09-11T12:08Z**, verbatim *"land each when green, archive both when
+      landed, claim 955 and 956"*, recorded on
+      [#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632).
+      A word given in advance and CONDITIONALLY, and **the condition is met**:
+      PR [#945](https://github.com/opensoft/openxFactory/pull/945) merged into
+      `main` as **`34bb5c7158b42a45e4a4eddd2681ca9b7c3f550f`** at
+      **2026-09-11T13:25:33Z**, and this box's own words — *"a green
+      `pytest-suite` run at the tree that merge carries
+      (`release-realization`'s merged-plus-green rule, at canon's grain)"* —
+      are satisfied by `main`'s OWN run
+      [**34604231434**](https://github.com/opensoft/openxFactory/actions/runs/34604231434),
+      workflow `pytest-suite`, event `push`, head **`34bb5c71`** — the merge
+      commit ITSELF, not a test-merge of it — **conclusion `success`**,
+      13:25:41Z to 13:51:03Z. **NO TREE-EQUALITY ARGUMENT IS NEEDED AND NONE IS
+      MADE**: the tested tree IS the merge commit's tree, because the run's head
+      IS the merge commit. **THE PULL REQUEST'S OWN GREEN RUN IS NOT THE GROUND
+      AND IS NAMED AS COURTESY ONLY** — run 34600369729 on head `f50b3fc8`
+      tested a test-merge onto `main` as it stood at 12:43:09Z (`38c076d1`), and
+      `git merge-tree --write-tree 38c076d1 f50b3fc8` is
+      `086ec4429380c46fe9596203a886e2c245737d0d`, which is NOT the merge commit's
+      tree `91a3675a7fc0d586abeda2210999261f04d89391`; the base moved to
+      `2cdaf06a` mid-run, so that run never tested this tree and the archive does
+      not rest on it. Performed with `TZ=UTC python3 scripts/proposal-support.py
+      . archive honour-grandfather-dispositions-in-ratified-provenance --date
+      2026-09-11 --yes` through the pinned `@fission-ai/openspec@1.12.0`
+      artifact — never a bare `openspec archive` — which moved the packet to
+      `openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/`
+      and wrote the `## MODIFIED` block back into
+      `openspec/specs/doc-health/spec.md`. The origin-retention gate fires INSIDE
+      the wrapper and passed: **ORIGIN RETAINED**, the declaration unchanged
+      since the ratifying commit **`e60ad2ff`**. The byte-for-byte identity this
+      box requires is MEASURED — both sides sliced programmatically and hashed —
+      and recorded in the pull request body rather than asserted here. The
+      ratified text follows unchanged:
+      **PROMOTE THE BLOCK INTO CANON**, byte-for-byte, in a SEPARATE pull
       request on a separate word, after § 1 is ruled and after the realization
       evidence this packet's `target_release` names: this pull request merged
       into `main` and a green `pytest-suite` run at the tree that merge carries
       (`release-realization`'s merged-plus-green rule, at canon's grain).
-- [ ] 6.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND
+- [x] 6.2 **DONE — THE ONE CLOSING KEYWORD IS IN THIS ARCHIVE PULL REQUEST'S
+      BODY AND NOWHERE ELSE.** The closing keyword against openxFactory issue
+      939 is written ONCE, on its own line, in the BODY of the archive pull
+      request and in no other place on this branch — not in this file, whose
+      quotation of it here is deliberately written out of the live form so that
+      no carrier but that body can ever be read as closing it. openxFactory #939
+      was verified OPEN
+      at the moment that pull request was opened, and its
+      `closingIssuesReferences` is verified to be exactly `[939]`. **AND THIS
+      BOX'S CLAIM ABOUT PR #945 HELD**: no closing keyword appeared in #945's
+      body or in any commit message on its branch, in any form, case or tense,
+      quoted or otherwise, so #939 survived that landing and closes here. No
+      commit message on THIS branch carries one either — the same grep over all
+      three messages. The ratified text follows unchanged:
+      **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND
       NOWHERE ELSE**, by a closing keyword written THERE against openxFactory
       issue 939. No closing keyword appears in this pull request's body or in
       any commit message on this branch, in any form, quoted or otherwise — a
@@ -587,7 +697,20 @@ record of what was measured when, which is what makes the two comparable.
 
 ## 7. Measured, and deliberately NOT taken here
 
-- [ ] 7.1 **A STALE-DISPOSITION CHECK.** An entry naming a path that no longer
+- [x] 7.1 **NOT TAKEN, AND NOW CARRIED BY A FILED SUCCESSOR:
+      [#965](https://github.com/opensoft/openxFactory/issues/965)**, UNCLAIMED.
+      This box ticks by NAMING its successor and by nothing else — no
+      stale-disposition check is written here, no finding class is graded, and
+      no severity is chosen. **THE POPULATION IS RE-MEASURED AT THIS ARCHIVE
+      RATHER THAN CARRIED**: at `opensoft/xFactory` `main`
+      **`ecb0cade4573c2b1fea3c4d779cb3ad3afff1b14`**, `health/dispositions.yaml`
+      is a **49**-entry list of which **18** carry `family: ratified-provenance`
+      — **15 `openxFactory`, 3 `codexFactory`** — every one of the eighteen
+      carrying a `cite`, a `date`, and a path under `openspec/changes/archive/`.
+      The box's own `15 reported / 3 stale` split at the § 5.13 rig is the
+      figure #965 records as its starting population. The ratified text follows
+      unchanged:
+      **A STALE-DISPOSITION CHECK.** An entry naming a path that no longer
       exists, or a record since repaired, matches nothing and is reported
       nowhere. Measured at the § 2.1 rig (`opensoft/xFactory` `bc84d325`,
       `codexFactory` `a67fb0ae`): all 18 entries matched a live finding, so
@@ -603,14 +726,48 @@ record of what was measured when, which is what makes the two comparable.
       honours neither a stale entry nor an unrecorded finding. It is a new
       finding class with its own severity and its own population and belongs
       to its own act.
-- [ ] 7.2 **THE OTHER SEVEN FAMILIES' ENTRIES** — 22 of the 40 at the § 2.1
+- [x] 7.2 **NOT TAKEN, AND NOW CARRIED BY A FILED SUCCESSOR:
+      [#966](https://github.com/opensoft/openxFactory/issues/966)**, UNCLAIMED.
+      No other family is taught to read that file here, none is downgraded, and
+      none is suppressed. **THE COUNT IS RE-MEASURED AT THIS ARCHIVE**: at
+      `opensoft/xFactory` `main` **`ecb0cade`**, **31 of the 49** entries belong
+      to the other EIGHT families — `location-conformance` 10, `proposal-origin`
+      8, `record-immutability` 5, `modified-block-currency` 4, and one each of
+      `semantic-contradiction`, `semantic-normative-prose`,
+      `uncited-resolution` and `document-catalog` — where this box recorded 22
+      of 40 at the § 2.1 rig and 23 of 41 at the § 5.13 rig. The file has grown
+      since; the re-measured figure is the one #966 carries. The ratified text
+      follows unchanged:
+      **THE OTHER SEVEN FAMILIES' ENTRIES** — 22 of the 40 at the § 2.1
       rig, 23 of the 41 at the § 5.13 rig. Whether any of them should
       be downgraded rather than suppressed — or read at all, for the families
       that read nothing — is a separate question about a different subject.
-- [ ] 7.3 **`docs/doc-health.md`'s FAMILY TABLE ROW 3** still reads *"Every
+- [x] 7.3 **NOT TAKEN, AND NOW CARRIED BY A FILED SUCCESSOR:
+      [#967](https://github.com/opensoft/openxFactory/issues/967)**, UNCLAIMED.
+      `docs/doc-health.md` IS NOT EDITED BY THIS ARCHIVE. **THE ROW IS
+      RE-READ AT THIS ARCHIVE AND STILL READS AS THIS BOX SAYS** — at `main`
+      `34bb5c71`, `docs/doc-health.md` line **50** is the row
+      *"3 | Ratified provenance | Every Ratified by: resolves to an existing
+      OpenSpec change"*, which describes ONE of that family's five arms and none
+      of the pass this packet added. A
+      documentation sweep of that table is #967's act, not this one's. The
+      ratified text follows unchanged:
+      **`docs/doc-health.md`'s FAMILY TABLE ROW 3** still reads *"Every
       `Ratified by:` resolves to an existing OpenSpec change"*, which has been
       incomplete since the two-spelling ruling and is more incomplete now. A
       documentation sweep of that table, not this packet's act.
-- [ ] 7.4 **A `--single-repo` ROUTE TO AN AGGREGATION DISPOSITIONS FILE.** A CLI
+- [x] 7.4 **NOT TAKEN, AND NOW CARRIED BY A FILED SUCCESSOR:
+      [#968](https://github.com/opensoft/openxFactory/issues/968)**, UNCLAIMED.
+      No CLI surface, argument, contract line or test matrix is added here, and
+      `design.md` D6's question — whether a run whose job is to report THIS
+      repository's own defects should consult another repository's disposition
+      file at all — is left open for #968 to answer rather than answered by an
+      archive. **THE ASYMMETRY IS RE-MEASURED AT THIS ARCHIVE**: `python3
+      scripts/doc-health.py --single-repo .` on `main` `34bb5c71` reports **28
+      `ratified-provenance` rows, all `critical`, 0 `info`**, the grandfather
+      pass being unreachable with `Context.agg_root is None` — the behaviour
+      `test_a_single_repo_run_has_no_aggregation_root_and_nothing_moves` pins
+      deliberately. The ratified text follows unchanged:
+      **A `--single-repo` ROUTE TO AN AGGREGATION DISPOSITIONS FILE.** A CLI
       surface, an argument, a contract line and a test matrix, for a gate whose
       job is to report this repository's own defects (`design.md` D6).
