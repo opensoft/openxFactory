@@ -13,9 +13,20 @@ Three things are verified before a schema is trusted, and each one refuses rathe
 than warns (a schema copy that is not the released bytes is not the contract):
 
   1. the file's sha256 equals the pinned digest in `SCHEMA_DIGESTS`;
-  2. the checkout's OWN `contracts/manifest.yaml` entry for that file records the
-     same digest — manifest parity, so a coherent release is distinguished from a
-     directory that merely contains a file with the right name; and
+  2. the checkout's OWN release record for that file records the same digest, so
+     a coherent release is distinguished from a directory that merely contains a
+     file with the right name. That record is `contracts/manifest.yaml`'s entry
+     for the file — EXCEPT for the five ideation-dashboard paths whose rows
+     `contract-v4.0` REMOVED (`split-opendox-two-layer-product` § 5.7:
+     openxFactory stopped OWNING those shapes and now consumes them at the
+     openDox / openXdox legs), where it is the bundle's published
+     `contracts/releases/<bundle>.digests.yaml` entry for the same path at the
+     same digest. So manifest parity is NOT required for those five from
+     `contract-v4.0` onward, and inferring that their removed rows must still be
+     present is the one wrong reading of this list; the substitution is bounded
+     to exactly those paths and that bundle floor by `REMOVED_MANIFEST_ROWS` and
+     `REMOVAL_BUNDLE`, and the chain stays at TWO independent records either
+     way; and
   3. `stack.yaml`'s `xfactory.contract_ref` still equals `CONTRACT_REF`, so a
      CONSUMER can never read one release while its repository declares another.
 
@@ -49,6 +60,7 @@ from __future__ import annotations
 import functools
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -516,6 +528,34 @@ VALIDATOR_IN_CHECKOUT = _validator_in_checkout()
 VALIDATOR_RELPATH = CHECKOUT_RELPATH / VALIDATOR_IN_CHECKOUT
 SCHEMAS_RELPATH = Path("contracts") / "schemas"
 MANIFEST_RELPATH = Path("contracts") / "manifest.yaml"
+RELEASES_RELDIR = Path("contracts") / "releases"
+
+# THE SECOND RECORD'S BOUNDS (`split-opendox-two-layer-product` § 5.7). The
+# published inventory answers for a pinned path ONLY where all three hold, and
+# each bound closes a way the substitution could have been wider than the
+# removal that motivated it:
+#
+#   * the path is one of the FIVE manifest rows `contract-v4.0` REMOVED. Every
+#     other path is answered by the manifest or by nothing, exactly as before;
+#     a row deleted by accident still fails closed rather than being rescued.
+#   * the checkout's DECLARED bundle is `contract-v4.0` or later. A historical
+#     bundle still carried these rows, so in a `contract-v3.7` checkout their
+#     absence is a defect and not a removal, and it refuses as it always did.
+#   * the bundle token parses as a release tag. It is interpolated into a
+#     filesystem path, and an absolute or traversing value (`/tmp/x`, `../../x`)
+#     would otherwise make `Path` discard or escape `contracts/releases/` and
+#     read an inventory from outside the checkout. The grammar is the one the
+#     canonical builder writes and reads
+#     (`scripts/hermes_runtime_validation/release.py`).
+REMOVED_MANIFEST_ROWS = frozenset({
+    "contracts/schemas/gate-action-record.schema.yaml",
+    "contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml",
+    "contracts/schemas/ideation-dashboard-snapshot.schema.yaml",
+    "contracts/schemas/xfactory-workbench-chat-turn.schema.yaml",
+    "contracts/schemas/xfactory-workbench-model-catalog.schema.yaml",
+})
+BUNDLE_TAG_GRAMMAR = re.compile(r"contract-v(\d+)\.(\d+)")
+REMOVAL_BUNDLE = (4, 0)
 
 # What makes a directory a RELEASE rather than a consumer of one. All three are
 # required together: any single marker is satisfied by a tree that merely
@@ -675,9 +715,14 @@ class ReleasedSchemas:
     schemas: dict[str, dict]
 
 
-def _manifest_digests(root: Path) -> dict[str, Any]:
+def _manifest_digests(root: Path) -> tuple[dict[str, Any], Any]:
     """The checkout's own per-file digests, keyed by the repository-relative
-    `path` its manifest records."""
+    `path` its manifest records, and the bundle version that manifest declares.
+
+    The bundle version comes back because it NAMES the second record
+    `_release_records` reads — the published inventory for exactly this
+    bundle — and reading it from anywhere else would let a checkout be checked
+    against an inventory it does not declare."""
     path = root / MANIFEST_RELPATH
     if not path.is_file():
         raise ContractPinError(
@@ -691,17 +736,182 @@ def _manifest_digests(root: Path) -> dict[str, Any]:
     entries = doc.get("contracts") if isinstance(doc, dict) else None
     if not isinstance(entries, list):
         raise ContractPinError(f"{path}: manifest declares no contracts list")
-    return {entry["path"]: entry.get("sha256")
-            for entry in entries
-            if isinstance(entry, dict) and isinstance(entry.get("path"), str)}
+    bundle = doc.get("contract_bundle_version") if isinstance(doc, dict) else None
+    return ({entry["path"]: entry.get("sha256")
+             for entry in entries
+             if isinstance(entry, dict) and isinstance(entry.get("path"), str)},
+            bundle)
 
 
-def _verified_bytes(root: Path, name: str, manifest: dict[str, Any]) -> bytes:
+def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
+    """The digests the checkout's PUBLISHED release inventory records for the
+    bundle its manifest declares, keyed by repository-relative path.
+
+    THE SECOND RECORD, AND WHY IT EXISTS FROM `contract-v4.0`
+    (`split-opendox-two-layer-product` § 5.7). Until that major,
+    `contracts/manifest.yaml` carried a row for every schema this module pins,
+    and that row was the only cross-check `_verified_bytes` needed. The major
+    REMOVED the five ideation-dashboard rows: openxFactory stopped OWNING those
+    shapes and now CONSUMES them at the openDox / openXdox spec legs. NO BYTE
+    AND NO DIGEST MOVED — the PUBLISHER did — so the question `_verified_bytes`
+    asks, "does this checkout's release describe these bytes?", still has an
+    honest answer, and it is the bundle's own inventory: `gate-action-record`,
+    `xfactory-workbench-chat-turn` and `xfactory-workbench-model-catalog` are
+    catalog release members, they STAY members across the removal, and the
+    inventory digests them at the pinned legs through `scripts/carved_reach.py`.
+    Reading it here keeps the fail-closed chain at TWO independent records
+    rather than letting the removal quietly drop it to one.
+
+    A checkout that still carries the manifest row never reaches this result for
+    that path — `_release_records` lets the manifest win — so a consumer pinned
+    at or before `contract-v3.7` reads exactly as it did. An absent inventory
+    contributes nothing rather than raising, because a consumer's pinned
+    checkout may predate the inventory's own introduction; a PRESENT inventory
+    that cannot be read is a fail-closed condition and refuses, exactly as an
+    unreadable manifest does.
+
+    WHAT IS REFUSED HERE RATHER THAN TRUSTED. The bundle token names a file this
+    function opens, so it is checked against the release-tag grammar before it is
+    joined to a path: a value that does not parse contributes nothing, which is
+    what keeps `Path` from being handed an absolute or traversing string and
+    reading an inventory outside the checkout. A bundle OLDER than the removal
+    contributes nothing either — those releases carried the rows, so their
+    absence there is a defect rather than a removal. And an inventory that
+    declares a `bundle_tag` OTHER than the one the manifest declares REFUSES: a
+    file saved under one bundle's name that records another is exactly the
+    mismatch `validate-contract-release.py verify-tag` rejects, and accepting it
+    here would let a stale inventory supply a digest this checkout's release
+    never published."""
+    if not isinstance(bundle, str) or not bundle or bundle == "none":
+        return {}
+    parsed = BUNDLE_TAG_GRAMMAR.fullmatch(bundle)
+    if parsed is None:
+        return {}
+    if (int(parsed.group(1)), int(parsed.group(2))) < REMOVAL_BUNDLE:
+        return {}
+    path = root / RELEASES_RELDIR / f"{bundle}.digests.yaml"
+    # THE READ MUST LAND INSIDE THE CHECKOUT, and neither the grammar above nor
+    # the symlink check below is enough on its own to say that it does. The
+    # grammar rules out a token that absolutizes or carries `..`, and
+    # `is_symlink()` answers for the FINAL component only — but `is_file()`
+    # follows symlinked PARENTS, so a `contracts/releases` (or `contracts`)
+    # linked out of the tree would still be read. Resolving the whole path and
+    # requiring it under the root is the canonical reader's own defense in depth
+    # (`scripts/hermes_runtime_validation/release.py::read_member`, which
+    # refuses `HGR-RELEASE-MEMBER-ESCAPES` on exactly this test) and it closes
+    # every spelling of "outside" at once.
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError:
+        raise ContractPinError(
+            f"{path}: release inventory resolves outside the checkout at "
+            f"{root}, so it is not this checkout's release record") from None
+    # A SYMLINK AT THIS PATH IS NOT THIS CHECKOUT'S RECORD EITHER, even when it
+    # points back inside: the canonical reader refuses any non-regular file
+    # before it digests anything (`read_member`: "release member is not a
+    # regular file"), and this must refuse rather than contribute nothing — an
+    # ABSENT inventory is an old checkout, while a linked one is a tampered one.
+    if path.is_symlink():
+        raise ContractPinError(
+            f"{path}: release inventory is not a regular file (symlink), so it "
+            f"is not this checkout's release record")
+    if not path.is_file():
+        return {}
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise ContractPinError(
+            f"{path}: unreadable release inventory ({error})") from error
+    doc = _parsed_yaml(path, raw, what="release inventory")
+    declared = doc.get("bundle_tag") if isinstance(doc, dict) else None
+    if declared != bundle:
+        raise ContractPinError(
+            f"{path}: release inventory declares bundle_tag {declared!r}, but "
+            f"the checkout's manifest declares {bundle!r}, so this file is not "
+            f"this checkout's release record")
+    entries = doc.get("entries") if isinstance(doc, dict) else None
+    if not isinstance(entries, list):
+        raise ContractPinError(
+            f"{path}: release inventory declares no entries list")
+    digests: dict[str, str] = {}
+    # A DUPLICATE PATH HAS NO ANSWER, so it must not be given one. Assigning
+    # would silently make the LAST entry authoritative, which is how a tampered
+    # inventory gets a conflicting digest accepted; the canonical verifier names
+    # the same condition `HGR-RELEASE-PATH-DUPLICATE` rather than picking a
+    # winner, and so does this. `seen` is kept separately from `digests` on
+    # purpose: the canonical rule reads EVERY declared entry path, so a first
+    # occurrence that carried an unusable digest must still make the second a
+    # duplicate rather than letting it through.
+    seen: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        relpath = entry.get("path")
+        digest = entry.get("digest")
+        if not isinstance(relpath, str):
+            continue
+        # SEEN IS RECORDED BEFORE THE DIGEST IS VALIDATED, not folded into the
+        # same `or` as the digest-type check: the duplicate rule answers for
+        # the PATH, and a path is declared twice whether or not either of its
+        # entries carries a usable digest. Checking digest type first let a
+        # first occurrence with an unusable digest fall through this `continue`
+        # WITHOUT joining `seen`, so a second, well-formed entry for the same
+        # path then found `relpath in seen` false and slipped through as if it
+        # were the only entry — silently returning a digest computed from a
+        # file that in fact declared the path twice, exactly the shape
+        # `HGR-RELEASE-PATH-DUPLICATE` exists to catch.
+        if relpath in seen:
+            raise ContractPinError(
+                f"{path}: release inventory carries more than one entry for "
+                f"{relpath}, so it does not record a single digest for it")
+        seen.add(relpath)
+        if not isinstance(digest, str):
+            continue
+        algorithm, _, hexdigest = digest.partition(":")
+        if algorithm == "sha256" and hexdigest:
+            digests[relpath] = hexdigest
+    return digests
+
+
+def _release_records(root: Path) -> dict[str, tuple[Any, str]]:
+    """Every digest the checkout's release records for a path, paired with the
+    document that recorded it — so a refusal names the file a reader must open.
+
+    The manifest WINS wherever it carries the path: it is the ownership
+    register, it is what a pre-`contract-v4.0` checkout carries for every schema
+    here, and a row that disagrees with the bytes must still refuse rather than
+    be talked out of it by a second document.
+
+    The inventory answers only for `REMOVED_MANIFEST_ROWS` — the five paths
+    `contract-v4.0` actually removed — and only from that bundle forward. The
+    substitution is therefore exactly as wide as the removal that caused it: any
+    OTHER path missing from the manifest is still a path in no record, and still
+    refuses."""
+    manifest, bundle = _manifest_digests(root)
+    records: dict[str, tuple[Any, str]] = {
+        relpath: (digest, MANIFEST_RELPATH.as_posix())
+        for relpath, digest in manifest.items()}
+    inventory_relpath = (
+        (RELEASES_RELDIR / f"{bundle}.digests.yaml").as_posix()
+        if isinstance(bundle, str) and bundle else "the release inventory")
+    for relpath, digest in _inventory_digests(root, bundle).items():
+        if relpath in REMOVED_MANIFEST_ROWS:
+            records.setdefault(relpath, (digest, inventory_relpath))
+    return records
+
+
+def _verified_bytes(root: Path, name: str,
+                    records: dict[str, tuple[Any, str]]) -> bytes:
     """Read one pinned schema's BYTES, refusing unless they hash to the pinned
-    digest AND the checkout's manifest records that same digest. The whole
-    fail-closed chain lives here — `_verified_document` adds only the parse —
-    so the validator cache's per-request re-verification (T104 final queue
-    Q-2) runs exactly these refusals, never a restatement of them."""
+    digest AND the checkout's own release record carries that same digest. The
+    whole fail-closed chain lives here — `_verified_document` adds only the
+    parse — so the validator cache's per-request re-verification (T104 final
+    queue Q-2) runs exactly these refusals, never a restatement of them.
+
+    `records` is `_release_records`: the manifest's rows, and — for one of the
+    five paths `contract-v4.0` removed the row for, in a checkout declaring that
+    bundle or later — the published inventory's entry for the same path. Two
+    records, one question, unchanged."""
     # THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`). Two of this
     # family's three wire schemas are `moved_verbatim` rows at the openDox-spec
     # leg. They arrived BYTE FOR BYTE, so the digest chain below — the pinned
@@ -723,22 +933,24 @@ def _verified_bytes(root: Path, name: str, manifest: dict[str, Any]) -> bytes:
             f"{name}: sha256 {actual} does not match the pinned {expected} "
             f"({CONTRACT_TAG}) — these are not the released bytes")
     relpath = (SCHEMAS_RELPATH / name).as_posix()
-    if relpath not in manifest:
+    if relpath not in records:
         raise ContractPinError(
-            f"{name}: the checkout's contracts/manifest.yaml carries no entry "
-            f"for {relpath}, so the release does not describe this schema")
-    recorded = manifest[relpath]
+            f"{name}: neither the checkout's contracts/manifest.yaml nor the "
+            f"release inventory it declares carries an entry for {relpath}, so "
+            f"the release does not describe this schema")
+    recorded, recorded_in = records[relpath]
     if recorded != actual:
         raise ContractPinError(
-            f"{name}: the checkout's contracts/manifest.yaml records sha256 "
+            f"{name}: the checkout's {recorded_in} records sha256 "
             f"{recorded} but the bytes hash to {actual} — the checkout is not a "
             f"coherent {CONTRACT_TAG} release")
     return raw
 
 
-def _verified_document(root: Path, name: str, manifest: dict[str, Any]) -> dict:
+def _verified_document(root: Path, name: str,
+                       records: dict[str, tuple[Any, str]]) -> dict:
     """One pinned schema, parsed — every refusal is `_verified_bytes`'s."""
-    raw = _verified_bytes(root, name, manifest)
+    raw = _verified_bytes(root, name, records)
     try:
         doc = yaml.safe_load(raw.decode("utf-8"))
     except (UnicodeDecodeError, yaml.YAMLError) as error:
@@ -757,8 +969,8 @@ def load_release(root: Path | str | None = None, *,
     `stack.yaml` makes every digest question moot), then the bytes."""
     verify_stack_pin(repo_root)
     checkout = resolve_root(root)
-    manifest = _manifest_digests(checkout)
-    documents = {name: _verified_document(checkout, name, manifest)
+    records = _release_records(checkout)
+    documents = {name: _verified_document(checkout, name, records)
                  for name in sorted(SCHEMA_DIGESTS)}
     registry = Registry().with_resources([
         (doc["$id"], Resource.from_contents(doc, default_specification=DRAFT202012))
@@ -808,9 +1020,9 @@ def validators(root: Path | str | None = None, *,
     the cache); the VALIDATOR objects are shared once their bytes verify."""
     verify_stack_pin(repo_root)
     checkout = resolve_root(root)
-    manifest = _manifest_digests(checkout)
+    records = _release_records(checkout)
     for name in sorted(SCHEMA_DIGESTS):
-        _verified_bytes(checkout, name, manifest)
+        _verified_bytes(checkout, name, records)
     key = (str(Path(checkout).resolve()), tuple(sorted(SCHEMA_DIGESTS.items())))
     cached = _VALIDATOR_CACHE.get(key)
     if cached is not None:

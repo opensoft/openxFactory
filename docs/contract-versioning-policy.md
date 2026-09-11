@@ -556,11 +556,18 @@ retroactively invalidate an old pin.
   nothing reads them while `hermes.layers` is present, and no supported consumer
   is required to act before the deprecating minor lands.
 
-  Warned since contract-v1.1; removal target RESTATED to contract-v4.0 — the
-  co-resident shape has never been warned, so the removal is unphased and owes
-  the deprecating minor named above first. If that minor has not been cut when
-  contract-v4.0 is reached, this entry is RESTATED AGAIN rather than the removal
-  taken unphased.
+  Warned since contract-v1.1; removal target RESTATED to contract-v5.0, a
+  SECOND restatement of this entry —
+  `contract-v4.0` was CUT on 2026-09-11 (`split-opendox-two-layer-product`
+  § 5.7, the ideation-dashboard removal) and the deprecating minor this entry
+  owes STILL HAS NOT BEEN CUT: the co-resident shape is warned by nothing, so
+  the removal would be unphased today exactly as it was at `contract-v3.0`.
+  This is the restatement the previous sentence of this entry pre-authorized —
+  *"If that minor has not been cut when contract-v4.0 is reached, this entry is
+  RESTATED AGAIN rather than the removal taken unphased"* — taken, not waived,
+  and the cut executed NONE of these acts. If the deprecating minor has still
+  not been cut when contract-v5.0 is reached, this entry is RESTATED AGAIN on
+  the same reading.
 - **The undeclared `consumer:` block on a credential binding — and EIGHT acts
   that land together with it (`add-binding-consumer-identity`, extended by
   `add-consumer-identity-namespace`).** Each entry of
@@ -572,11 +579,12 @@ retroactively invalidate an old pin.
   optionally a qualified `requirement_ref`
   (`requirement_id` + `requirements_document_ref`), and the const-true
   `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
-  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v4.0** — the target
+  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v5.0** — the target
   read `contract-v3.0` until that major was CUT without any of the eight acts
-  and the entry was restated at that cut, per the tail of this bullet; from
-  contract-v2.4 through contract-v3.0 the schema imposes no type, no member
-  grammar, no requiredness and no closure on it, and
+  and the entry was restated at that cut, and read `contract-v4.0` until THAT
+  major was cut the same way on 2026-09-11 and the entry was restated again, per
+  the tail of this bullet; from contract-v2.4 through contract-v4.0 the schema
+  imposes no type, no member grammar, no requiredness and no closure on it, and
   `scripts/validate-credential-contracts.py` emits WARNINGS instead.
 
   **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR, because a reader
@@ -603,7 +611,7 @@ retroactively invalidate an old pin.
   The two entries share ONE deprecation window and ONE major, so a consumer
   still upgrades once.
 
-  | act, at contract-v4.0 (target restated from contract-v3.0) | the code that warns until then |
+  | act, at contract-v5.0 (target restated from contract-v3.0, then from contract-v4.0) | the code that warns until then |
   | --- | --- |
   | a binding declares no `consumer:` block (requiredness) | `consumer-identity-undeclared` |
   | a block exists and omits `holder_ref` or `fetch_identity`, or is not an object | `consumer-block-incomplete` |
@@ -622,8 +630,12 @@ retroactively invalidate an old pin.
   opens at the additive minor that DECLARES the member, and § Change Classes,
   *Breaking (major)* requires at least one FULL minor of warnings BEFORE the
   major that refuses — so if that minor turns out to be the last before
-  `contract-v4.0`, this row waits for the one after rather than riding a window
-  it did not serve. An entry warned and refused at the same bundle serves no
+  `contract-v5.0`, this row waits for the one after rather than riding a window
+  it did not serve. It is not the last before it: the member was DECLARED at
+  `contract-v3.3`, and `contract-v3.4`, `contract-v3.5`, `contract-v3.6` and
+  `contract-v3.7` are four full minors of warnings between that declaration and
+  the `contract-v4.0` this entry is restated past, so this row has served its
+  window and rides the restated major with the other eight. An entry warned and refused at the same bundle serves no
   window at all. Every other row above keeps `contract-v2.4` as its warned-since
   release; this one carries its own, and the two share the major without sharing
   the window.
@@ -702,17 +714,27 @@ retroactively invalidate an old pin.
   than leaving a spent target standing or, worse, executing eight unauthored
   acts to make a sentence true.
 
-  Warned since contract-v2.4; removal target RESTATED to contract-v4.0 — the
-  eight acts were not authored by the time `contract-v3.0` was cut, and an entry
-  may not survive its own removal target unchanged. If they have still not
-  landed when contract-v4.0 is reached, this entry is RESTATED AGAIN rather than
-  the removal taken on text nobody wrote.
+  Warned since contract-v2.4; removal target RESTATED to contract-v5.0, a
+  SECOND restatement of this entry —
+  the eight acts were not authored by the time `contract-v3.0` was cut, and
+  still had not been authored when `contract-v4.0` was cut on 2026-09-11 for a
+  removal in a different family entirely (`split-opendox-two-layer-product`
+  § 5.7). `scripts/validate-credential-contracts.py` emits all nine
+  `consumer-*` codes as WARNINGS at this cut, measured rather than assumed, and
+  the schema still imposes no type, no member grammar, no requiredness and no
+  closure on the block. An entry may not survive its own removal target
+  unchanged, and this is the restatement the previous sentence of this entry
+  pre-authorized. The phasing remains intact and no new deprecation window is
+  owed; the requiredness row alone still carries its own unmet precondition, the
+  degraded fetch-identity mode above. If the acts have still not landed when
+  contract-v5.0 is reached, this entry is RESTATED AGAIN rather than the removal
+  taken on text nobody wrote.
 - **A `requirement_ref` that RESOLVES TO NOTHING, or to more than one requirement
   of the document it names (`add-requirement-ref-resolution-integrity`).**
   A `consumer.requirement_ref` on a credential binding is a
   QUALIFIED reference — `requirement_id` plus `requirements_document_ref` — and
   the entry above governs its SHAPE. This entry governs whether it ANSWERS. At
-  contract-v4.0 a declared reference that resolves to ZERO requirements, or to
+  contract-v5.0 a declared reference that resolves to ZERO requirements, or to
   MORE THAN ONE requirement OF THE ONE DOCUMENT IT NAMES, is REFUSED; until
   then `scripts/validate-credential-contracts.py` emits a WARNING and the
   record stays VALID. **THE TARGET READ `contract-v3.0` WHEN THIS ENTRY WAS
@@ -735,7 +757,7 @@ retroactively invalidate an old pin.
   would come to carry a record whose values match every pattern this family
   declares.
 
-  | act, at contract-v4.0 (target restated from contract-v3.0 by the publishing cut) | the code that warns until then |
+  | act, at contract-v5.0 (target restated from contract-v3.0 by the publishing cut, then from contract-v4.0 by the cut that reached it) | the code that warns until then |
   | --- | --- |
   | a declared `requirement_ref` matches NO requirement record in the repository under validation | `requirement-ref-unresolved` |
   | a declared `requirement_ref` matches MORE THAN ONE requirement record of the ONE DOCUMENT IT NAMES | `requirement-ref-ambiguous` |
@@ -807,124 +829,27 @@ retroactively invalidate an old pin.
   `contract-v3.0` — the codes landed on `main` at `e01561c5` some ninety minutes
   after that cut's branch point and hours before its merge — so warning and
   refusal would have fallen on one bundle. The ONE-WINDOW property is preserved
-  by moving BOTH entries together rather than by abandoning it: the consumer
-  block's acts are restated to `contract-v4.0` above (none of them was authored
-  by the time `contract-v3.0` was cut), and these two are restated to
-  `contract-v4.0` here, so a consumer still serves ONE window and still upgrades
+  by moving BOTH entries together rather than by abandoning it: at that cut the
+  consumer block's acts were restated to `contract-v4.0` above (none of them was
+  authored by the time `contract-v3.0` was cut) and these two were restated to
+  `contract-v4.0` here, so a consumer still served ONE window and still upgraded
   once — one bundle later than either entry expected, and with the window
-  actually served rather than merely declared.
+  actually served rather than merely declared. **That paired move was made a
+  SECOND time at `contract-v4.0`**, which arrived on 2026-09-11 carrying an
+  unrelated removal and none of these acts: both entries are restated together
+  again, to `contract-v5.0`, and the property the first restatement protected is
+  protected by the second for the same reason.
 
-  Warned since contract-v3.0; removal target RESTATED to contract-v4.0 — the
-  publishing cut and the declared removal target collided on one bundle, and a
-  warning that is first served at the bundle that refuses is not a window.
-
-- **The FIVE ideation-dashboard contract schemas and their conformance
-  validator — RELOCATING out of this repository to the openDox / openXdox spec
-  and code legs, and the warning is served by RUNNING CODE rather than
-  declared.** Nothing is refused and nothing changes shape. Every one of the
-  five keeps the exact bytes it had at `contract-v3.6`, keeps its per-file
-  `sha256` in [`manifest.yaml`](../contracts/manifest.yaml), keeps
-  `schema_version: 1`, and keeps validating. What is deprecated is this
-  repository as their HOME.
-
-  | manifest `id` | path | canonical home becomes | leg commit (`at:`) |
-  | --- | --- | --- | --- |
-  | `gate-action-record` | `contracts/schemas/gate-action-record.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
-  | `ideation-dashboard-snapshot-index` | `contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
-  | `ideation-dashboard-snapshot` | `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` |
-  | `xfactory-workbench-chat-turn` | `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` |
-  | `xfactory-workbench-model-catalog` | `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` |
-
-  **THE CONFORMANCE VALIDATOR MOVES WITH THEM, AND THE MOVE IS THE UPDATE.**
-  `scripts/validate-ideation-dashboard-contracts.py` — named by all five rows'
-  own `consumption_rule` as "the family's delegated owner", the code that
-  enforces every rule the shapes cannot express — relocates to
-  `opensoft/openXdox-code` (`docs/opendox-carve-manifest.yaml`,
-  `moved_with_declared_edit`, destination commit `5da58ee2`). That is how the
-  Breaking class's third requirement, "an update to the conformance validator",
-  is discharged at the major FOR THESE FIVE: not by editing a validator that
-  stays, but by the validator leaving with the shapes it validates. It is named
-  here, in the deprecation entry, so the discharge is checkable at the removal
-  rather than asserted then.
-
-  **AND THE DISCHARGE IS NOT YET COMPLETE, WHICH IS RECORDED HERE RATHER THAN
-  LEFT FOR THE MAJOR TO DISCOVER.** That script is named by the
-  `consumption_rule` of EIGHT manifest rows, not five. The three that are NOT
-  relocating and are NOT leaving are `ideation-possibles-register`,
-  `gate-intent` (both `disposition: not_moved`, `stays_openxfactory_adapter`, in
-  `docs/opendox-carve-manifest.yaml`) and `demotion-execution-receipt` (named in
-  no carve row at all, though its packaged examples move). When the validator
-  departs, those three retained contracts are left naming a delegated owner this
-  repository no longer contains. **That is an obligation on the MAJOR, not on
-  this minor** — this minor removes nothing and every one of the eight keeps its
-  documented validator at `contract-v3.7` — but the major may not treat § Change
-  Classes' conformance-validator clause as discharged until it says what
-  validates those three. Raised by the review of the pull request that cut this
-  minor, recorded here so the question survives to the cut that must answer it.
-
-  The leg commits are not guessed: they are the `spec` and `code` gitlinks of
-  the assembly-root commits this repository's own pins already name —
-  [`contracts/openxdox-pin.yaml`](../contracts/openxdox-pin.yaml) `commit:
-  84056415…` and [`contracts/opendox-pin.yaml`](../contracts/opendox-pin.yaml)
-  `commit: 44679fa7…`. The destination TAGS (`dox-v1.0`, `xdox-v1.0`) are Phase
-  6 and are not cut, so each row's `relocating.tag` carries the sentinel
-  `not_yet_cut` and `relocating.at` carries the commit that does exist. A label
-  recorded before the thing it labels exists would be a claim, not a label —
-  `contracts/opendox-pin.yaml`'s own reasoning, and its RULED ASK-1
-  `not_yet_deployed` sentinel is the shape borrowed here.
-
-  **THE WARNING IS SERVED, AND THAT IS MEASURED RATHER THAN PREFERRED.**
-  `scripts/check-openxfactory-pin.py` — the one domain-pin checker with a
-  warning tier — reads `relocating:` and emits a WARN-tier notice naming all
-  five artifacts with their target repositories, and STAYS GREEN (WARN exits
-  0). It required no edit for this deprecation: the emitter was built for the
-  openxWallet relocation at `contract-v1.47` and is generic over the marker.
-  The sibling `scripts/validate-domain-openxfactory-pins.py` is deliberately
-  not the emitter — it has no warning tier, so a notice there would be an ERROR
-  and would red every domain that pinned this perfectly legal bundle.
-
-  **WHAT WAS MEASURED OF THE SUPPORTED CONSUMERS, stated plainly and without
-  rounding up.** Measured 2026-09-11 against fresh clones of all five supported
-  consumers, for the five ids and the validator's name. Before this bundle, NO
-  supported consumer had ever been served a warning for these shapes, because
-  no marker existed to serve one — that absence is the whole reason this entry
-  exists. Of the five: **codexFactory** is the one real reader (its `stack.yaml`
-  pins `xfactory-workbench-model-catalog.schema.yaml` and
-  `xfactory-workbench-chat-turn.schema.yaml` by digest, and its
-  `scripts/validate-docs.sh` runs `check-openxfactory-pin` from the pinned
-  checkout, so it sees the notice at its next re-pin at or after this bundle);
-  **AdxFactory** and **LedgerxFactory** run that checker and will see the
-  notice but read none of the five ids in code (Adx carries one prose mention
-  of `gate-action-record`); **MedxFactory** and **OpsxFactory** read none of
-  the five and reference the checker nowhere.
-
-  **HOW THIS ENTRY DIFFERS FROM THE `hermes` FLAT-KEY ENTRY ABOVE, which is the
-  precedent that could have sunk it.** That entry's warning branch fired only
-  when `hermes.layers` was ABSENT, and all five supported consumers declare it,
-  so the branch was dead code for the entire supported population and the
-  policy refused the removal: "a warning that cannot fire is not a warning
-  served." The distinction here is not that a consumer happens to read these
-  shapes — it is that the notice is **unconditional on consumer shape**. It
-  fires on the BUNDLE, for every consumer that runs the checker at a pin at or
-  after `contract-v3.7`, whatever that consumer's own files contain. There is
-  no branch for the population to sit outside of.
-
-  Migration, available now and unforced: read the artifacts from
-  `opensoft/openXdox-spec` / `opensoft/openDox-spec` at the commits above, and
-  run the pinned reader at the destination rather than a local copy. **No
-  supported consumer is required to act before the major.** A consumer that
-  pins this bundle keeps consuming the five from here exactly as before; the
-  full migration path is in
-  [`contracts/CHANGELOG.md`](../contracts/CHANGELOG.md) at `contract-v3.7`,
-  which is where this document puts the removal version and the migration path
-  for a DEPRECATING minor.
-
-  Warned since contract-v3.7; removal target **the next MAJOR, allocated at the
-  cut** (`split-opendox-two-layer-product` task 5.7). Naming the next major is
-  permitted where naming the next minor is not — § Version Identity forbids
-  reserving a minor before merge order is known, and there is exactly one next
-  major. Ratified by Brett Heap's ASK-10 ruling, `opensoft/openxFactory` issue
-  #656 comment `5635524078`.
+  Warned since contract-v3.0; removal target RESTATED to contract-v5.0, a
+  SECOND restatement of this entry —
+  the publishing cut and the first declared removal target collided on one
+  bundle, and a warning that is first served at the bundle that refuses is not a
+  window; the second target, `contract-v4.0`, was then reached on 2026-09-11 by
+  a cut in a different family (`split-opendox-two-layer-product` § 5.7) that
+  executed neither of these two acts. Both codes still emit as WARNINGS at this
+  cut. The ONE-WINDOW property this entry shares with the consumer block above is
+  preserved the same way it was the first time — by moving BOTH entries together
+  — so a consumer still serves ONE window and still upgrades once.
 
 ## Deprecations Executed
 
@@ -1009,7 +934,7 @@ is indistinguishable from one that was never honoured.
   contract-v3.0.**
 
   **THIS ROW IS SCOPED TO THE READ. THE KEYS ARE NOT REFUSED** and their entry
-  stays in § Deprecations Currently In Force above, restated to contract-v4.0
+  stays in § Deprecations Currently In Force above, restated to contract-v5.0
   with the measurement behind it. An entry sitting in both sections would be a
   defect; these are two different shapes, and only one of them was removed.
 
@@ -1108,3 +1033,78 @@ is indistinguishable from one that was never honoured.
   target to be executed or restated. This row is the first execution taken under
   that rule; the restatements taken beside it are in § Deprecations Currently In
   Force above.
+- **The FIVE ideation-dashboard contract schemas and their conformance
+  validator** — `gate-action-record`, `ideation-dashboard-snapshot-index`,
+  `ideation-dashboard-snapshot`, `xfactory-workbench-chat-turn` and
+  `xfactory-workbench-model-catalog`, together with the manifest registration
+  that made this repository their HOME. **REMOVED at `contract-v4.0`**
+  (`split-opendox-two-layer-product` § 5.7). Nothing about the SHAPES changed:
+  each of the five carries at its destination exactly the `sha256`
+  `contracts/manifest.yaml` recorded for it at `contract-v3.7`, measured against
+  the pinned legs at this cut rather than assumed. What was removed is
+  openxFactory's OWNERSHIP of them.
+
+  | manifest `id` | canonical home | leg commit | `sha256`, unchanged |
+  | --- | --- | --- | --- |
+  | `gate-action-record` | `opensoft/openXdox-spec` | `481a07f9` | `6a6cf13c…` |
+  | `ideation-dashboard-snapshot-index` | `opensoft/openXdox-spec` | `481a07f9` | `43acf0bb…` |
+  | `ideation-dashboard-snapshot` | `opensoft/openXdox-spec` | `481a07f9` | `9c44da23…` |
+  | `xfactory-workbench-chat-turn` | `opensoft/openDox-spec` | `1a216ea4` | `350bfedc…` |
+  | `xfactory-workbench-model-catalog` | `opensoft/openDox-spec` | `1a216ea4` | `e563cc9f…` |
+
+  The full minor of deprecation warnings required by § Change Classes,
+  *Breaking (major)* was served by **`contract-v3.7`** (`opensoft/openxFactory`
+  pull request #970, landed `45bd9ee2`, annotated tag `ec3c1729`), whose five
+  `relocating:` rows and `scripts/check-openxfactory-pin.py` WARN-tier notice
+  existed for exactly this purpose. The refused shape is exactly the warned
+  shape: the notice named these five ids and nothing else, and these five rows
+  are precisely what is now gone. The warning was UNCONDITIONAL on consumer
+  shape — it fires on the BUNDLE for every consumer that runs the checker at a
+  pin at or after `contract-v3.7` — so the `hermes` flat-key entry's "a warning
+  that cannot fire is not a warning served" does not reach it.
+
+  **The conformance-validator clause of that section is discharged by the MOVE
+  ITSELF, and the question the deprecating minor left open is ANSWERED HERE.**
+  `scripts/validate-ideation-dashboard-contracts.py` relocated to
+  `opensoft/openXdox-code` (leg `5da58ee2`) with the shapes it validates, so from
+  this major forward this family's conformance validator IS that pinned file.
+  `contract-v3.7`'s entry recorded that the discharge was **not yet complete**:
+  the same script is named by the `consumption_rule` of EIGHT manifest rows, and
+  three of them — `ideation-possibles-register`, `gate-intent` and
+  `demotion-execution-receipt` — neither relocated nor left, so the major "may
+  not treat § Change Classes' conformance-validator clause as discharged until it
+  says what validates those three." **It says so: the SAME validator, read at the
+  pinned leg.** `scripts/carved_reach.py` resolves
+  `scripts/validate-ideation-dashboard-contracts.py` to
+  `openXdox/code/scripts/validate-ideation-dashboard-contracts.py`;
+  `scripts/hermes_runtime_validation/release.py` keeps it a RELEASE MEMBER
+  through that resolution, so this cut's own inventory digests the pinned bytes;
+  and `scripts/ideation_dashboard/doxbench_contracts.py` runs it from there over
+  this repository's tree. The pinned file still carries
+  `ideation-possibles-register.schema.yaml`, `gate-intent.schema.yaml` and
+  `demotion-execution-receipt.schema.yaml` in its own schema table and still
+  dispatches `possibles-register-section`, `gate-intent` and
+  `demotion-execution-receipt` — verified at `5da58ee2` at this cut. The three
+  retained rows therefore keep the delegated owner their `consumption_rule`
+  names; what changed is that openxFactory CONSUMES that owner at a pin instead
+  of shipping it. No row was left naming a validator this repository cannot
+  reach.
+
+  Migration: read the artifacts from `opensoft/openXdox-spec` /
+  `opensoft/openDox-spec` at the leg commits above, reachable through
+  [`contracts/openxdox-pin.yaml`](../contracts/openxdox-pin.yaml) (`commit:
+  84056415…`) and [`contracts/opendox-pin.yaml`](../contracts/opendox-pin.yaml)
+  (`commit: 44679fa7…`), and run the pinned reader at the destination rather
+  than a local copy. **`dox-v1.0` and `xdox-v1.0` DO NOT EXIST at this cut** —
+  they are Phase 6 and Brett Heap's own act — so a consumer pins the commits,
+  not tags; no consumer-facing pin file for this family is owed by this release
+  and none is added by it. The full note is
+  [`contracts/CHANGELOG.md`](../contracts/CHANGELOG.md) § `contract-v4.0`.
+  Deprecated at contract-v3.7, removed at contract-v4.0.
+
+  **THIS ENTRY REACHED ITS TARGET AND WAS EXECUTED AT IT**, which is the
+  `contract-deprecation-execution` rule's first arm and the opposite outcome from
+  the three restatements taken beside it in § Deprecations Currently In Force
+  above. Those three name `contract-v5.0` now because nothing authored their
+  acts; this one names a removal that landed, at the first major that could
+  legally take it.
