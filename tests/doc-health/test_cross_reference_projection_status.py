@@ -31,8 +31,10 @@ for the rest:
 from __future__ import annotations
 
 import ast
+import importlib
 import importlib.util
 import re
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -264,6 +266,32 @@ def test_persist_writes_the_declared_status_through_a_stale_renderer(
     md = (root / ir.INDEX_MD_REL).read_text(encoding="utf-8")
     assert _status_line_of(md) == ph.STATUS_LINE
     assert SUPERSEDED_STATUS_LINE not in md
+
+
+def test_the_stamp_resolves_with_the_declaration_off_sys_path(
+        tmp_path, monkeypatch):
+    """`doc_health` is VENDORED, and a tree whose `scripts/` is not on
+    `sys.path` must still stamp rather than raise before writing anything
+    (Copilot, `PRRT_kwDOTAvnrs6hq2is`).
+
+    The suite's own conftest puts this checkout's `scripts/` on the path, which
+    is exactly what would MASK that case, so the import is made to fail here —
+    a `None` entry in `sys.modules` is how the interpreter itself reports a
+    module that cannot be imported — and the fallback is proven to reach the
+    declaration beside this module's own tree. Not the renderer's tree: that
+    one is resolved from `OPENXFACTORY_ROOT` and may be any vintage, which is
+    the defect, so the fixture below leaves a STALE renderer in place and the
+    stamp must still come out canonical."""
+    monkeypatch.setitem(sys.modules, "projection_header", None)
+    with pytest.raises(ImportError):  # the masking route really is closed
+        importlib.import_module("projection_header")
+
+    monkeypatch.setenv(
+        "OPENXFACTORY_ROOT", str(_write_stale_pin(tmp_path / "stale-pin")))
+    stamped = ir._render_markdown({"topic_entries": [{"id": "cl-alpha"}]})
+
+    assert _status_line_of(stamped) == ph.STATUS_LINE
+    assert SUPERSEDED_STATUS_LINE not in stamped
 
 
 # --- the stamp itself -------------------------------------------------------
