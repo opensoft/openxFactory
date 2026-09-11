@@ -232,7 +232,7 @@ rows:
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   harden-ideation-readiness-check: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  honour-grandfather-dispositions-in-ratified-provenance: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#945", moved_on: "2026-09-11"}
+  honour-grandfather-dispositions-in-ratified-provenance: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#969", moved_on: "2026-09-11"}
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-keycloak-install-repo: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

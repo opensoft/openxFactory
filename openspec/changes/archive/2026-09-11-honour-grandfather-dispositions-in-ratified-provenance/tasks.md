@@ -633,8 +633,9 @@ record of what was measured when, which is what makes the two comparable.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [x] 6.1 **DONE IN THIS ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED INTO
-      CANON AND THE PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF
+- [x] 6.1 **DONE IN THIS ARCHIVE PULL REQUEST,
+      [#969](https://github.com/opensoft/openxFactory/pull/969) — THE BLOCK IS
+      PROMOTED INTO CANON AND THE PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF
       2026-09-11T12:08Z**, verbatim *"land each when green, archive both when
       landed, claim 955 and 956"*, recorded on
       [#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632).
@@ -667,20 +668,28 @@ record of what was measured when, which is what makes the two comparable.
       the wrapper and passed: **ORIGIN RETAINED**, the declaration unchanged
       since the ratifying commit **`e60ad2ff`**. The byte-for-byte identity this
       box requires is MEASURED — both sides sliced programmatically and hashed —
-      and recorded in the pull request body rather than asserted here. The
-      ratified text follows unchanged:
+      and recorded in PR #969's body rather than asserted here — 68 lines,
+      5,782 bytes, `sha256 138a0d51…` on both sides, `diff` empty, and the
+      promotion a PURE ADDITION of nine lines (`git diff --numstat` 9/0,
+      identical under `-w`), so no `Removed from canon` marker is owed and none
+      is written. The corpus-ledger row this archive moves is seeded in PR
+      #969's third commit, `--moved-by '#969'`. The ratified text follows
+      unchanged:
       **PROMOTE THE BLOCK INTO CANON**, byte-for-byte, in a SEPARATE pull
       request on a separate word, after § 1 is ruled and after the realization
       evidence this packet's `target_release` names: this pull request merged
       into `main` and a green `pytest-suite` run at the tree that merge carries
       (`release-realization`'s merged-plus-green rule, at canon's grain).
-- [x] 6.2 **DONE — THE ONE CLOSING KEYWORD IS IN THIS ARCHIVE PULL REQUEST'S
-      BODY AND NOWHERE ELSE.** The closing keyword against openxFactory issue
+- [x] 6.2 **DONE — THE ONE CLOSING KEYWORD IS IN ARCHIVE PULL REQUEST
+      [#969](https://github.com/opensoft/openxFactory/pull/969)'s BODY AND
+      NOWHERE ELSE.** The closing keyword against openxFactory issue
       939 is written ONCE, on its own line, in the BODY of the archive pull
       request and in no other place on this branch — not in this file, whose
       quotation of it here is deliberately written out of the live form so that
       no carrier but that body can ever be read as closing it. openxFactory #939
-      was verified OPEN
+      was verified OPEN at the moment #969 was opened, and #969's
+      `closingIssuesReferences` is exactly `[939]`, measured through GraphQL
+      rather than assumed. It was verified OPEN
       at the moment that pull request was opened, and its
       `closingIssuesReferences` is verified to be exactly `[939]`. **AND THIS
       BOX'S CLAIM ABOUT PR #945 HELD**: no closing keyword appeared in #945's

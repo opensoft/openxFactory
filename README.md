@@ -2762,7 +2762,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
-  — **ARCHIVED 2026-09-11**, on Brett Heap's separate word of the same day (in
+  — **ARCHIVED 2026-09-11** by
+  [PR #969](https://github.com/opensoft/openxFactory/pull/969), on Brett Heap's
+  separate word of the same day (in
   session at **2026-09-11T12:08Z**, verbatim *"land each when green, archive
   both when landed, claim 955 and 956"*, recorded on
   [#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632))
