@@ -2379,9 +2379,18 @@ def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
     in either one fails this rather than only a scratch fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
     admissions_path = MODULE.default_admissions_path(manifest_path)
-    if not manifest_path.is_file() or not admissions_path.is_file():
-        assert True
-        return
+    # Hard assertions, not a skip-guard (Copilot review, PR #979): this test
+    # exists to protect the GOVERNED SEED, so the committed manifest and
+    # admissions file disappearing or being renamed out from under it must
+    # fail here, not silently report a pass that never examined anything.
+    assert manifest_path.is_file(), (
+        f"the committed manifest at {manifest_path} is missing; this test "
+        "guards the governed admissions seed and must not pass silently "
+        "when the file it reads disappears")
+    assert admissions_path.is_file(), (
+        f"the committed admissions file at {admissions_path} is missing; "
+        "this test guards the governed admissions seed and must not pass "
+        "silently when the file it reads disappears")
     manifest_doc = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     admissions = MODULE.read_admissions(admissions_path, manifest_doc)
     assert set(admissions) <= set(manifest_doc["destinations"])
