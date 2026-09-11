@@ -343,13 +343,44 @@ what an earlier step captured or committed.**
    table, not only the identifiers this class declared** — is run, each resolved
    to fixed argv in that module (D-2c) and run as a list with no shell from a
    fixed cwd of the repository root. **THEY ARE RUN ONE AT A TIME AND EACH RUN IS
-   MEASURED ALONE**: after each identifier's run, the paths THAT IDENTIFIER
-   produced are **THE FULL WORKING-TREE DELTA AGAINST THE BASELINE COMMIT —
-   TRACKED MODIFICATIONS AND DELETIONS, UNTRACKED FILES, AND IGNORED FILES
-   ALIKE** — read in step 2's hermetic environment as **`git status
+   MEASURED ALONE, AND EVERY ITERATION OF THAT LOOP OPENS WITH A RESET BARRIER —
+   THE FIRST ITERATION INCLUDED**: per identifier the loop is BARRIER, then RUN,
+   then INVENTORY, in that order.
+   **THE BARRIER RESETS BOTH THE INDEX AND THE WORKTREE TO THE BASELINE COMMIT** —
+   `git reset --hard <baseline-commit>` followed by `git clean -fdx`, the `-x`
+   being what removes ignored files — issued in step 2's hermetic environment with
+   its explicit `--git-dir`/`--work-tree`, and then VERIFIES THE TREE EMPTY with
+   **THE SAME `git status --porcelain=v1 --untracked-files=all
+   --ignored=matching` CALL REPORTING NOTHING**, and only then does that
+   identifier run. Stating the barrier at the HEAD of the loop is what puts it
+   before the FIRST run as well as every later one, and it therefore SUBSUMES the
+   reset between consecutive tools: one barrier, stated once, does both jobs.
+   **STEP 3'S OWN BY-PRODUCTS ARE THEREFORE NEVER PART OF ANY INVENTORY** — step 3
+   runs the whole pinning suite in this same tree and leaves untracked and ignored
+   test caches behind it (`__pycache__`, `.pytest_cache`), and the barrier removes
+   them before the first regeneration, so no inventory sees them and no identifier
+   is charged with them; without it the first full `--ignored` inventory would
+   attribute all of them to whichever tool ran first and break the pair equality
+   on artefacts no tool produced. A worktree-only restore is
+   NOT enough, and the distinction is the whole attribution: `git checkout -- .`
+   restores from the INDEX, so a regeneration tool that STAGES what it writes
+   leaves that content in the index, where it survives into the NEXT identifier's
+   delta and attributes one tool's artefact to another — precisely the mis-binding
+   the pair equality exists to catch; and `-fdx` rather than `-fd` because an
+   IGNORED file a tool writes is still a difference the next run can trip over.
+   **THEN THE RUN, WHICH MUST SUCCEED**: every allowlisted invocation is REQUIRED
+   TO EXIT ZERO, and its exit status is checked BEFORE any delta is read — a
+   non-zero exit, or a timeout, is a CONFORMANCE FAILURE recorded against that
+   identifier, and that identifier's delta is not recorded and forms no pairs.
+   Without that check a generator that writes exactly its declared paths and then
+   dies still satisfies the pair equality and is reported healthy.
+   **THEN THE INVENTORY**: the paths
+   THAT IDENTIFIER produced are **THE FULL WORKING-TREE DELTA AGAINST THE BASELINE
+   COMMIT — TRACKED MODIFICATIONS AND DELETIONS, UNTRACKED FILES, AND IGNORED
+   FILES ALIKE** — read in the same hermetic environment as **`git status
    --porcelain=v1 --untracked-files=all --ignored=matching`**, the path taken
    from EVERY status line, a RENAME counted as BOTH paths, and the call made
-   IMMEDIATELY AFTER the run and BEFORE the reset.
+   IMMEDIATELY AFTER the run and BEFORE the next iteration's barrier.
    **`git diff --name-only` IS NOT THE INVENTORY**: it reports only changes to
    TRACKED content, so a generator that writes a NEW file — above all one the
    repository IGNORES, and this procedure expressly contemplates tools that write
@@ -357,18 +388,7 @@ what an earlier step captured or committed.**
    undeclared output the check exists to catch. **AN IGNORED PATH A TOOL PRODUCES
    COUNTS AS PRODUCED** and fails the equality when undeclared exactly as a
    tracked one does: being ignored by `git` says something about version control,
-   nothing about whether the tool wrote it. Then **BOTH THE INDEX AND THE
-   WORKTREE ARE RESET TO THE BASELINE COMMIT** — `git reset --hard
-   <baseline-commit>` followed by `git clean -fdx`, the `-x` being what removes
-   the ignored outputs the inventory has just counted, with **THE SAME
-   `git status --porcelain=v1 --untracked-files=all --ignored=matching` CALL
-   VERIFIED TO REPORT NOTHING** — before the next identifier runs. A worktree-only restore is
-   NOT enough, and the distinction is the whole attribution: `git checkout -- .`
-   restores from the INDEX, so a regeneration tool that STAGES what it writes
-   leaves that content in the index, where it survives into the NEXT identifier's
-   delta and attributes one tool's artefact to another — precisely the mis-binding
-   the pair equality exists to catch; and `-fdx` rather than `-fd` because an
-   IGNORED file a tool writes is still a difference the next run can trip over.
+   nothing about whether the tool wrote it.
    The measured value is therefore a set of **`{(identifier, path)}`
    PAIRS**, and the test asserts THAT PAIR SET EQUALS that class's CAPTURED
    `# companion-artefact:` PAIR SET — path AND identifier, exactly as declared —

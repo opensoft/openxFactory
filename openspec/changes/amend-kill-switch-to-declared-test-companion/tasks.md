@@ -285,14 +285,50 @@ codexFactory**, authored there, exactly as
       fixed argv by that table (argv list, no shell, fixed cwd of the repository
       root; a DECLARED identifier absent from the table has already failed at
       step 1 rather than being executed). **RUN THEM ONE AT A TIME AND MEASURE
-      EACH RUN ALONE**: for each identifier, run it from the committed baseline
-      and record, as THE PATHS THAT IDENTIFIER PRODUCED, **THE FULL WORKING-TREE
-      DELTA AGAINST THE BASELINE COMMIT — TRACKED MODIFICATIONS AND DELETIONS,
-      UNTRACKED FILES, AND IGNORED FILES ALIKE** — read in step 2's hermetic git
-      environment as **`git status --porcelain=v1 --untracked-files=all
-      --ignored=matching`**, taking the path from EVERY status line, counting a
-      RENAME as BOTH paths, and taken IMMEDIATELY AFTER that identifier's run and
-      BEFORE the reset.
+      EACH RUN ALONE, AND BEGIN EVERY ITERATION OF THAT LOOP WITH A RESET
+      BARRIER — THE FIRST ITERATION INCLUDED.** For each identifier the loop is
+      BARRIER, then RUN, then INVENTORY, in that order.
+      **THE BARRIER** resets **BOTH THE INDEX AND THE WORKTREE** to the baseline
+      commit — `git reset --hard <baseline-commit>` followed by `git clean -fdx`,
+      the `-x` being what removes IGNORED files — issued in step 2's hermetic git
+      environment with its explicit `--git-dir`/`--work-tree`, and then VERIFIES
+      THE TREE EMPTY: **THE SAME `git status --porcelain=v1
+      --untracked-files=all --ignored=matching` CALL MUST REPORT NOTHING** — the
+      same call that measures, so the barrier is checked against the same notion
+      of "changed" the measurement uses — and only then does that identifier run.
+      **STATING THE BARRIER AT THE HEAD OF THE LOOP IS WHAT PUTS IT BEFORE THE
+      FIRST RUN AS WELL AS EVERY LATER ONE**, and it therefore SUBSUMES the reset
+      that separates consecutive tools: ONE barrier, stated ONCE, does both jobs.
+      **STEP 3'S OWN BY-PRODUCTS ARE THEREFORE NEVER PART OF ANY INVENTORY**:
+      step 3 runs the whole pinning suite in this same tree and leaves untracked
+      and ignored test caches behind it (`__pycache__`, `.pytest_cache`), and the
+      barrier removes them BEFORE the first regeneration, so no inventory ever
+      sees them and no identifier is ever charged with them — without it the
+      first full `--ignored` inventory would attribute every one of them to
+      whichever tool happened to run first and break the pair equality on
+      artefacts no tool produced.
+      A worktree-only restore is NOT enough, and the distinction is the whole
+      attribution: `git checkout -- .` restores from the INDEX, so a regeneration
+      tool that STAGES what it writes leaves that content in the index, where it
+      survives into the NEXT identifier's delta and attributes one tool's
+      artefact to another — precisely the mis-binding the pair equality exists to
+      catch; and `-fdx` rather than `-fd` because an IGNORED file a tool writes is
+      still a difference the next run can trip over.
+      **THEN THE RUN — WHICH MUST SUCCEED.** EVERY ALLOWLISTED INVOCATION SHALL
+      EXIT ZERO, and the exit status is CHECKED BEFORE ANY DELTA IS READ: a
+      NON-ZERO EXIT, or a TIMEOUT, is a CONFORMANCE FAILURE RECORDED AGAINST
+      THAT IDENTIFIER, and that identifier's delta is NOT RECORDED AT ALL and
+      enters no pair set. Otherwise a generator that writes exactly its declared
+      paths and then dies would still satisfy the `(identifier, path)` equality
+      and be reported HEALTHY — a broken recording tool passing itself off as a
+      conformant one, which is the failure this check exists to surface.
+      **THEN THE INVENTORY**: record, as THE PATHS THAT IDENTIFIER PRODUCED, **THE FULL
+      WORKING-TREE DELTA AGAINST THE BASELINE COMMIT — TRACKED MODIFICATIONS AND
+      DELETIONS, UNTRACKED FILES, AND IGNORED FILES ALIKE** — read in the same
+      hermetic git environment as **`git status --porcelain=v1
+      --untracked-files=all --ignored=matching`**, taking the path from EVERY
+      status line, counting a RENAME as BOTH paths, and taken IMMEDIATELY AFTER
+      that identifier's run and BEFORE the next iteration's barrier.
       **`git diff --name-only` IS NOT THE INVENTORY, AND WOULD NOT BE SUFFICIENT
       AS ONE**: it reports only changes to TRACKED content, so a generator that
       writes a NEW file — above all one the repository IGNORES, and this procedure
@@ -302,20 +338,6 @@ codexFactory**, authored there, exactly as
       PRODUCED**, enters that identifier's pair set, and FAILS the equality when
       undeclared precisely as a tracked one does; being ignored by `git` is a
       statement about version control, never about whether the tool wrote it.
-      THEN RESET **BOTH THE INDEX AND THE WORKTREE** to the baseline commit —
-      `git reset --hard <baseline-commit>` followed by `git clean -fdx`, the `-x`
-      being what removes the IGNORED outputs the inventory has just counted, with
-      **THE SAME `git status --porcelain=v1 --untracked-files=all
-      --ignored=matching` CALL VERIFIED TO REPORT NOTHING** — the same call that
-      measures, so the reset is checked against the same notion of "changed" the
-      measurement uses — before the next identifier runs.
-      A worktree-only restore is NOT enough, and the distinction is the whole
-      attribution: `git checkout -- .` restores from the INDEX, so a regeneration
-      tool that STAGES what it writes leaves that content in the index, where it
-      survives into the NEXT identifier's delta and attributes one tool's
-      artefact to another — precisely the mis-binding the pair equality exists to
-      catch; and `-fdx` rather than `-fd` because an IGNORED file a tool writes is
-      still a difference the next run can trip over.
       Assert that the resulting
       set of **`{(identifier, path)}` PAIRS EQUALS that class's captured
       `# companion-artefact:` PAIR SET** exactly — path AND identifier, **no
@@ -428,6 +450,10 @@ codexFactory**, authored there, exactly as
 THIS PULL REQUEST.** It is an OBSERVATION box: it owes a throw, an observation
 and a restore on a real bot cycle. None of those is performed by naming a
 successor.
+**EVERY BOX IN THIS SECTION TICKS ON THE RECORDING OF ITS STEP on openxFactory
+#745 and codexFactory #232, and on nothing this pull request does** — each box
+states that condition for itself below, so what an open box means here is
+"not yet observed and recorded", never "overlooked".
 
 - [ ] **4.1 The throw is ONE pull request.** In codexFactory: the
       `openxfactory-floor-regeneration` candidate entry's removal **together
@@ -435,12 +461,12 @@ successor.
       nothing else — 3.6 is the single definition of that act and states the
       measurable bound that "nothing else" carries — landable against the
       repository's required checks, and taken on a real bot cycle rather than on
-      a manufactured one.
+      a manufactured one. **Ticks on the RECORDING of that step on openxFactory #745 and codexFactory #232 (the parent's box 3.6 observation), never on this pull request.**
 - [ ] **4.2 Observe the withdrawal.** The next real `floor/bot-regeneration` pull
       request reaches **no envelope decision** — `is_candidate: false`, exit 11
       (`_EXIT_NOT_CANDIDATE`), `decision=skip`, **no sticky comment** (the
       "Explain park or block" step is gated on `decision == 'park'`) — and stays
-      at the human merge gate.
+      at the human merge gate. **Ticks on the RECORDING of that step on openxFactory #745 and codexFactory #232 (the parent's box 3.6 observation), never on this pull request.**
 - [ ] **4.3 Restore — a FORWARD change by the same procedure as the throw, NEVER
       a revert**, as **3.6** defines it: ONE pull request re-adding that class's
       candidate mapping and its companion comment lines byte-identical to the
@@ -449,9 +475,12 @@ successor.
       allowlisted tool — so the entry and the companion assertions return in one
       act AND the golden digest records the RESTORE as its own movement beside the
       throw's, rather than losing the throw's movement to a reverted patch.
-- [ ] **4.4 Observe approval resume** on the following real bot cycle.
+      **Ticks on the RECORDING of that step on openxFactory #745 and codexFactory #232 (the parent's box 3.6 observation), never on this pull request.**
+- [ ] **4.4 Observe approval resume** on the following real bot cycle. **Ticks on the RECORDING of that step on openxFactory #745 and codexFactory #232 (the parent's box 3.6 observation), never on this pull request.**
 - [ ] **4.5 Record it** on openxFactory #745 and codexFactory #232, and tick the
-      parent's box 3.6 **THERE, on the parent's packet** — never here.
+      parent's box 3.6 **THERE, on the parent's packet** — never here. **Ticks on
+      that recording being posted on openxFactory #745 and codexFactory #232 (the
+      parent's box 3.6 observation), never on this pull request.**
 
 **A real bot cycle is required and does not exist today.** Hourly
 floor-regeneration has reported "nothing owed" since 2026-09-10T17:22Z, and an
@@ -466,8 +495,10 @@ exists.
       (a) this pull request merged, (b) green realization evidence from the
       codexFactory companion (3.4), (c) the parent
       `extend-merge-master-envelope-to-floor-bot-lanes` PROMOTED — because this
-      packet's `## MODIFIED` targets that change's own unarchived addition — and
-      (d) Brett Heap's word. **THIS PACKET IS NOT ARCHIVABLE WHILE ANY ENROLLED
+      packet's `## MODIFIED` targets that change's own unarchived addition,
+      (d) Brett Heap's word, and (e) **EVERY § 4 BOX TICKED ON ITS RECORDING —
+      the archive tool gates on every literal `- [ ]`, so an unticked
+      observation is an unarchivable packet by construction, not an oversight.** **THIS PACKET IS NOT ARCHIVABLE WHILE ANY ENROLLED
       CANDIDATE CLASS LACKS A DECLARED COMPANION AND A PASSING CONFORMANCE TEST
       OVER BOTH EQUALITIES.**
       The condition is PER CLASS, not per packet: green evidence for
