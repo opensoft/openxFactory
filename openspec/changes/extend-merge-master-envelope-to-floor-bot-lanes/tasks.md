@@ -235,7 +235,7 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   enumeration test that PROVES the refused `scripts/merge_master/**` spelling
   would have admitted `envelope.py`. One pre-existing test was repaired and
   TIGHTENED in the same commit.
-- [ ] 2.7 Arm auto-merge in `.github/workflows/floor-regeneration.yml` on the
+- [x] 2.7 Arm auto-merge in `.github/workflows/floor-regeneration.yml` on the
   pull request the lane opens. **This is not optional and it is not implied by
   the enrolment**: the merge-master lane submits a review and merges nothing
   (`merge-master-approval.yml` "NO MERGE, EVER"), so without this step an
@@ -279,6 +279,15 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   `relocate-review-authority-floor-mirror` (#817), landed at codexFactory
   `d1f8bf1b` 2026-09-09. **This packet performed neither**, which is why the box
   is not ticked: a box ticks on the act this packet took, not on a successor's.
+  **2026-09-11 — TICKED on Brett Heap's selection "Successor's arming
+  discharges 2.7; tick it" (2026-09-11 ~02:20Z, in session to lane
+  openxfactory-2 via multi-choice; recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  The act this box asks for was taken by the named successor codexFactory
+  `amend-floor-regeneration-merge-authority` (merge `93f0f0d7`), already named
+  in the note above; this selection is the word treating the successor's
+  arming as discharging this packet's own box rather than leaving it open on
+  the ground that the act was a successor's and not this packet's. Ticked by PR #944.**
 - [x] 2.8 Extend the approval record the lane already posts to carry the measured
   changed path set, the floor-matched count and the check names quantified over
   (decision N-4). Do not add a second record surface.
@@ -291,7 +300,7 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   added. The floor-matched count is rendered as NOT COMPOSED rather than as `0`,
   because codexFactory composes no floor over its envelope (design § 2.3,
   re-grepped) and a `0` would assert a measurement nobody took.
-- [ ] 2.9 ONLY UNDER A VETO OF N-1 TOWARD (b) — the whole of the wider scope, in
+- [x] 2.9 ONLY UNDER A VETO OF N-1 TOWARD (b) — the whole of the wider scope, in
   one place so its cost is legible: (a) the codexFactory decision-core carve of
   N-1b(ii), naming the enrolled re-pin class and the exact floor member set
   `{contracts/review-lane-pin.yaml}` it may touch, with its own tests, and NOT a
@@ -311,6 +320,14 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   `tests/review_lane_pin/test_floor_bot_lane_enrolment.py` reads the envelope
   and requires its candidate list to be exactly `['intent-rolling-custody']`,
   and reads the caller's floor refusal and requires it to name no candidate.
+  **2026-09-11 — N/A UNDER THE STANDING SCOPE, on Brett Heap's selection "Yes,
+  tick all five" (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via
+  multi-choice; recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  N-1 stood as recommended (§ 5.2) and no veto toward (b) was ever exercised,
+  so this box's own precondition — "ONLY UNDER A VETO OF N-1 TOWARD (b)" —
+  never obtained; none of (a) through (f) is owed under the recommended
+  scope. Ticked N/A by PR #944.**
 
 ### ADDENDUM 2026-09-08 — finding (1) of § 2.2 RULED (a), realized in codexFactory
 
@@ -490,8 +507,16 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   merge-master-approval run off. The floor refusal itself is asserted in code
   (`tests/review_lane_pin/test_floor_bot_lane_enrolment.py`), not observed live,
   which is exactly the distinction this box exists to close.
-- [ ] 3.5 ONLY UNDER A VETO TOWARD (b): the same three observations for one
+- [x] 3.5 ONLY UNDER A VETO TOWARD (b): the same three observations for one
   openxFactory `bot/review-lane-repin` pull request.
+  **2026-09-11 — N/A UNDER THE STANDING SCOPE, on Brett Heap's selection "Yes,
+  tick all five" (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via
+  multi-choice; recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  N-1 stood as recommended and no veto toward (b) occurred — § 3.4 confirms
+  the openxFactory re-pin lane still waits for a human word under the
+  recommended scope — so this box's own precondition, "ONLY UNDER A VETO
+  TOWARD (b)", never obtained. Ticked N/A by PR #944.**
 - [ ] 3.6 Exercise the kill switch once, deliberately, on a scheduled cycle:
   remove the candidate entry, confirm the next bot pull request parks for a
   human, restore it, confirm approval resumes. A switch never thrown is a switch
@@ -543,7 +568,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
 
 ## 5. Owner's acts (not an agent's)
 
-- [ ] 5.1 Ratify or refuse this packet. The 2026-09-07 ~02:05Z word authorized the
+- [x] 5.1 Ratify or refuse this packet. The 2026-09-07 ~02:05Z word authorized the
   PROPOSING, not the content.
   **2026-09-07 — TAKEN. Brett Heap ratified it in session at 2026-09-07T12:32:44Z,
   verbatim "ratify 746 and 272 as recommended when green, then land them" — a PAIR
@@ -553,7 +578,15 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   `review/ratification-2026-09-07.md`. The box is left UNTICKED deliberately —
   ticking an owner's-act box is a claim an agent may not make about the owner, and
   this dated note is how the act is recorded instead.**
-- [ ] 5.2 Rule on N-1 (scope), N-1b (the carve, live only if N-1 goes to (b)),
+  **2026-09-11 — TICKED on Brett Heap's selection "Yes, tick all five"
+  (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via multi-choice;
+  recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  The ratifying act is already recorded in this box's own 2026-09-07 note
+  (verbatim "ratify 746 and 272 as recommended when green, then land them",
+  applied at head `6ebd7b24`); this selection is the word authorizing the box
+  itself, not only the note beneath it, to be ticked. Ticked by PR #944.**
+- [x] 5.2 Rule on N-1 (scope), N-1b (the carve, live only if N-1 goes to (b)),
   N-2 (admission conditions), N-3 (ordering), N-4 (observability and kill
   switch) and N-5 (realization surface). N-1 is the one that changes the shape of
   everything below it; the rest stand as recommended unless vetoed.
@@ -564,6 +597,13 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   than foreclosed. OQ-2 is answered as recommended: the admitting act is a
   Gate-Rules Council record, and it has NOT been performed. Each remains one edit
   away. The box stays UNTICKED for the same reason 5.1's does.**
+  **2026-09-11 — TICKED on Brett Heap's selection "Yes, tick all five"
+  (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via multi-choice;
+  recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  The ruling is already recorded in this box's own 2026-09-07 note (N-1
+  through N-5 stand as recommended, no veto exercised); this selection
+  authorizes the box itself to be ticked. Ticked by PR #944.**
 - [x] 5.3 **THE ENABLING ACT, AND WITHOUT IT NOTHING HERE CHANGES ANYTHING.**
   Ruleset `Require Code Owner Review` is ACTIVE on both repositories with
   `require_code_owner_review=true`, and every path either bot lane writes is
@@ -668,13 +708,26 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   former, through the successor `amend-floor-regeneration-merge-authority`;
   OQ-1 (is the bypass shape acceptable) is moot because no bypass shape was
   ever exercised (§ 5.3). Ticked by PR #927.**
-- [ ] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
+- [x] 5.5a Rule on option (e) of N-1 — satisfy `Bounded autonomous surface` as
   written by moving the machine-generated floor block off the code-owner-gated
   surface, instead of narrowing the requirement. It is the only option on the
   page that buys the click without weakening a governance ground, it is
   codexFactory's architecture to decide, and if N-1 is refused on § 2.2a grounds
   it is the successor to file.
-- [ ] 5.5 Give the realization word, separately, after 5.1 and 5.2. Ratification
+  **2026-09-11 — TICKED on Brett Heap's selection "(e) stands as taken; tick
+  5.5a" (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via
+  multi-choice; recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  Option (e) of N-1 STANDS AS TAKEN: codexFactory
+  `relocate-review-authority-floor` (#293, ratified 2026-09-08; the move it
+  ratified was realized at codexFactory #297 → `8165d1f3`,
+  2026-09-09T04:28:48Z, moving the artifact to
+  `floor/openxfactory-review-authority-floor.yaml`) and this repository's
+  `relocate-review-authority-floor-mirror` (#817, ratified alongside #293;
+  realized in two steps, openxFactory #823 → `5c782f29` before the move and
+  #829 → `82c9f059` after it; archived by #925 → `17a3b816`) are the ruling's
+  named evidence. Ticked by PR #944.**
+- [x] 5.5 Give the realization word, separately, after 5.1 and 5.2. Ratification
   performs no realization: it ratifies the PROPOSAL, and every act in groups 2
   through 4 waits on its own word.
   **2026-09-07 — GIVEN. Brett Heap, in session at 2026-09-07T19:19Z, verbatim
@@ -683,6 +736,13 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   what the ticks above rest on. It did NOT give § 5.3's ruleset act or the
   Gate-Rules Council record OQ-2 names, both of which remain the owner's and
   remain untaken. The box stays UNTICKED for the same reason 5.1's does.
+  **2026-09-11 — TICKED on Brett Heap's selection "Yes, tick all five"
+  (2026-09-11 ~02:20Z, in session to lane openxfactory-2 via multi-choice;
+  recorded on openxFactory #745
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
+  The realization word is already recorded in this box's own 2026-09-07 note
+  (verbatim "tick 5.0 in the amendment, then realize 6.3"); this selection
+  authorizes the box itself to be ticked. Ticked by PR #944.**
 
 ## ADDENDUM 2026-09-10 — the live cycles, the SIGNED council record, and the boxes they move
 
@@ -769,3 +829,27 @@ state. **The checklist state after PR #927:** ticked 1.1 through 1.7, 2.1,
 and 5.5 carry dated notes and stay untaken. **The packet is NOT archived** —
 § 4.4 (archive through `proposal-support`) is separately open by its own text
 and this PR does not touch it.
+
+### 2026-09-11 — Brett Heap's three-selection ruling ticks the four remaining owner's-act boxes, both scope-gated boxes, and the successor-discharged box
+
+**APPENDED, NOT A REWRITE.** PR #927's superseding status paragraph above
+stands as written; it predates Brett Heap's three selections given
+2026-09-11 ~02:20Z, in session to lane openxfactory-2 (openXfactory-2), on a
+multi-choice question, recorded on openxFactory #745
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104
+(comment 5628477104): (R1) **"Yes, tick all five"** — ticking 5.1, 5.2 and
+5.5 as already recorded, and marking 2.9 and 3.5 N/A under the standing
+scope (they apply only under a veto of N-1 toward (b), which did not
+happen); (R2) **"(e) stands as taken; tick 5.5a"**; (R3) **"Successor's
+arming discharges 2.7; tick it"**. Boxes 2.7, 2.9, 3.5, 5.1, 5.2, 5.5 and
+5.5a are now TICKED on those three selections by this PR; the dated note
+beneath each box carries its ruling and evidence in full.
+
+**THE CHECKLIST STATE AFTER THIS PR:** ticked 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
+1.7, 2.1, 2.1a, 2.1b, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.2, 3.5, 4.3,
+5.1, 5.2, 5.3, 5.4, 5.5, 5.5a (27 of 34, grep-confirmed); open by their own
+text 3.1, 3.3, 3.4, 3.6, 4.1, 4.2, 4.4 (7 of 34) — 3.3 and 3.6 have a live
+exercise in flight under a sibling lane pull request on this same file.
+Group 5 (owner's acts) is now entirely ticked. **The packet is NOT
+archived** — § 4.4 (archive through `proposal-support`) is separately open
+by its own text and this PR does not touch it.

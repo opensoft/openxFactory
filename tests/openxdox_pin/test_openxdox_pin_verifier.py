@@ -540,6 +540,121 @@ def test_a_committed_gitlink_is_read_from_head(tmp_path: Path) -> None:
     assert source == "HEAD"
 
 
+def _assert_the_mutated_index_wins_over_stale_head(
+        scratch: "Scratch", *, mutate, expected_oid: str | None) -> None:
+    """Shared tail for the three PR #932 round-2 one-commit-resync
+    regressions below (ported from `verify-opendox-pin.py`'s own suite, on
+    the shared owed follow-up: `#656` comment `5628145815`). Each names a
+    different way an ALREADY-COMMITTED `openXdox` gitlink is mutated in the
+    INDEX ONLY — replaced, staged for deletion, or replaced by a regular
+    file — and each must make `_recorded_gitlink` answer from that mutated
+    index, never from HEAD's now-stale oid, even where the index's own
+    answer is `None`.
+
+    `mutate` performs the scenario's own staging, plus whatever assertion
+    that scenario makes about the state it just staged (each caller below
+    defines a small nested function for this); this helper asserts the two
+    ends every scenario shares: the gitlink is still, and only, HEAD BEFORE
+    `mutate` runs, and the INDEX wins — disagreeing with `scratch.commit` —
+    after it does.
+    """
+    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openXdox")
+    assert head_oid == scratch.commit
+    assert head_source == "HEAD"
+
+    mutate()
+
+    oid, source = MODULE._recorded_gitlink(scratch.root, "openXdox")
+    assert oid == expected_oid
+    assert oid != scratch.commit
+    assert "index" in source
+
+
+def test_a_replaced_gitlink_is_read_from_the_index_not_stale_head(
+        tmp_path: Path) -> None:
+    """THE ONE-COMMIT RESYNC REGRESSION (mirrors `tests/opendox_pin/test_
+    opendox_pin_verifier.py`'s own regression, PR #932 thread review). A
+    HEAD-first read of an EXISTING, already-committed gitlink answers for
+    the commit being REPLACED the moment a resync stages a new one:
+    `ls-tree HEAD` still finds the OLD 160000 entry and a HEAD-first check
+    returns it without ever consulting the index, so a caller mid-resync
+    sees the commit it is leaving rather than the one it is moving to.
+
+    Simulates `git -C openXdox checkout <new>` then `git add openXdox` on a
+    submodule already committed at a DIFFERENT commit: HEAD still names
+    `scratch.commit` (the committed gitlink), the index is re-staged to
+    `scratch.parent_commit` (a second, real, already-existing commit in the
+    same nested repository) WITHOUT a new commit, and `_recorded_gitlink`
+    must answer with the INDEX's value — the one about to be committed — not
+    HEAD's stale one.
+    """
+    scratch = _scratch(tmp_path, record="head")
+
+    def _stage_the_resync() -> None:
+        scratch.record_gitlink(scratch.parent_commit, commit=False)
+        # HEAD is unmoved: the resync is staged, not yet committed.
+        still_head = _git_raw(scratch.root, "ls-tree", "HEAD", "--",
+                              "openXdox")
+        assert MODULE._gitlink_from(still_head.stdout,
+                                    "openXdox") == scratch.commit
+
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_resync,
+        expected_oid=scratch.parent_commit)
+
+
+def test_a_gitlink_staged_for_deletion_is_not_read_from_stale_head(
+        tmp_path: Path) -> None:
+    """Mirrors `tests/opendox_pin/test_opendox_pin_verifier.py`'s own
+    regression, PR #932 round-2 review's first finding. `git update-index
+    --force-remove` (what `git rm --cached openXdox` does to the index)
+    makes `git ls-files -s` stop reporting `openXdox` at all — silent in
+    exactly the way a path that was NEVER tracked is silent — but never
+    indistinguishable from "nothing changed": HEAD still names a committed
+    gitlink here. `_recorded_gitlink` must not paper over the staged removal
+    by falling back to that stale HEAD oid; the pending commit no longer has
+    a gitlink at this path, so the answer must be `None`, not the commit
+    being removed.
+    """
+    scratch = _scratch(tmp_path, record="head")
+
+    def _stage_the_deletion() -> None:
+        _git(scratch.root, "update-index", "--force-remove", "openXdox")
+        index_after = _git(scratch.root, "ls-files", "-s", "--",
+                           "openXdox").stdout
+        assert index_after.strip() == "", \
+            "the index must show nothing at all"
+
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_deletion, expected_oid=None)
+
+
+def test_a_gitlink_replaced_by_a_regular_file_in_the_index_is_not_read_from_stale_head(
+        tmp_path: Path) -> None:
+    """Mirrors `tests/opendox_pin/test_opendox_pin_verifier.py`'s own
+    regression, PR #932 round-2 review's first finding, the other half.
+    Staging a REGULAR FILE over the same path (a `100644` entry, not
+    `160000`) also makes `_gitlink_from` return nothing for the index — a
+    different git state than a staged deletion, but the SAME non-answer
+    from that helper — and must not fall back to HEAD's stale gitlink
+    either.
+    """
+    scratch = _scratch(tmp_path, record="head")
+    # git's own empty blob, always present
+    empty_blob = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+
+    def _stage_the_type_change() -> None:
+        _git(scratch.root, "update-index", "--add", "--replace",
+             "--cacheinfo", f"100644,{empty_blob},openXdox")
+        index_after = _git(scratch.root, "ls-files", "-s", "--",
+                           "openXdox").stdout
+        assert "100644" in index_after
+        assert "160000" not in index_after
+
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_type_change, expected_oid=None)
+
+
 def test_a_regular_file_at_the_submodule_path_does_not_satisfy_the_gitlink(
         tmp_path: Path) -> None:
     """The MODE is matched, not merely the path.

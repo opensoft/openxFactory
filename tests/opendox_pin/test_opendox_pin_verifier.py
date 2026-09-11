@@ -562,6 +562,34 @@ def test_a_committed_gitlink_is_read_from_head(tmp_path: Path) -> None:
     assert source == "HEAD"
 
 
+def _assert_the_mutated_index_wins_over_stale_head(
+        scratch: "Scratch", *, mutate, expected_oid: str | None) -> None:
+    """Shared tail for the three PR #932 round-2 one-commit-resync
+    regressions below. Each names a different way an ALREADY-COMMITTED
+    `openDox` gitlink is mutated in the INDEX ONLY — replaced, staged for
+    deletion, or replaced by a regular file — and each must make
+    `_recorded_gitlink` answer from that mutated index, never from HEAD's
+    now-stale oid, even where the index's own answer is `None`.
+
+    `mutate` performs the scenario's own staging, plus whatever assertion
+    that scenario makes about the state it just staged (each caller below
+    defines a small nested function for this); this helper asserts the two
+    ends every scenario shares: the gitlink is still, and only, HEAD BEFORE
+    `mutate` runs, and the INDEX wins — disagreeing with `scratch.commit` —
+    after it does.
+    """
+    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert head_oid == scratch.commit
+    assert head_source == "HEAD"
+
+    mutate()
+
+    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert oid == expected_oid
+    assert oid != scratch.commit
+    assert "index" in source
+
+
 def test_a_replaced_gitlink_is_read_from_the_index_not_stale_head(
         tmp_path: Path) -> None:
     """THE ONE-COMMIT RESYNC REGRESSION (PR #932 thread review). A HEAD-first
@@ -580,20 +608,19 @@ def test_a_replaced_gitlink_is_read_from_the_index_not_stale_head(
     HEAD's stale one.
     """
     scratch = _scratch(tmp_path, record="head")
-    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openDox")
-    assert head_oid == scratch.commit
-    assert head_source == "HEAD"
 
-    scratch.record_gitlink("openDox", scratch.parent_commit, commit=False)
+    def _stage_the_resync() -> None:
+        scratch.record_gitlink("openDox", scratch.parent_commit,
+                               commit=False)
+        # HEAD is unmoved: the resync is staged, not yet committed.
+        still_head = _git_raw(scratch.root, "ls-tree", "HEAD", "--",
+                              "openDox")
+        assert MODULE._gitlink_from(still_head.stdout,
+                                    "openDox") == scratch.commit
 
-    # HEAD is unmoved: the resync is staged, not yet committed.
-    still_head = _git_raw(scratch.root, "ls-tree", "HEAD", "--", "openDox")
-    assert MODULE._gitlink_from(still_head.stdout, "openDox") == scratch.commit
-
-    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
-    assert oid == scratch.parent_commit
-    assert oid != scratch.commit
-    assert "index" in source
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_resync,
+        expected_oid=scratch.parent_commit)
 
 
 def test_a_gitlink_staged_for_deletion_is_not_read_from_stale_head(
@@ -608,20 +635,16 @@ def test_a_gitlink_staged_for_deletion_is_not_read_from_stale_head(
     at this path, so the answer must be `None`, not the commit being removed.
     """
     scratch = _scratch(tmp_path, record="head")
-    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openDox")
-    assert head_oid == scratch.commit
-    assert head_source == "HEAD"
 
-    _git(scratch.root, "update-index", "--force-remove", "openDox")
+    def _stage_the_deletion() -> None:
+        _git(scratch.root, "update-index", "--force-remove", "openDox")
+        index_after = _git(scratch.root, "ls-files", "-s", "--",
+                           "openDox").stdout
+        assert index_after.strip() == "", \
+            "the index must show nothing at all"
 
-    index_after = _git(scratch.root, "ls-files", "-s", "--",
-                       "openDox").stdout
-    assert index_after.strip() == "", "the index must show nothing at all"
-
-    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
-    assert oid is None
-    assert oid != scratch.commit
-    assert "index" in source
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_deletion, expected_oid=None)
 
 
 def test_a_gitlink_replaced_by_a_regular_file_in_the_index_is_not_read_from_stale_head(
@@ -633,19 +656,19 @@ def test_a_gitlink_replaced_by_a_regular_file_in_the_index_is_not_read_from_stal
     and must not fall back to HEAD's stale gitlink either.
     """
     scratch = _scratch(tmp_path, record="head")
-    empty_blob = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"  # git's own empty blob, always present
-    _git(scratch.root, "update-index", "--add", "--replace",
-         "--cacheinfo", f"100644,{empty_blob},openDox")
+    # git's own empty blob, always present
+    empty_blob = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
 
-    index_after = _git(scratch.root, "ls-files", "-s", "--",
-                       "openDox").stdout
-    assert "100644" in index_after
-    assert "160000" not in index_after
+    def _stage_the_type_change() -> None:
+        _git(scratch.root, "update-index", "--add", "--replace",
+             "--cacheinfo", f"100644,{empty_blob},openDox")
+        index_after = _git(scratch.root, "ls-files", "-s", "--",
+                           "openDox").stdout
+        assert "100644" in index_after
+        assert "160000" not in index_after
 
-    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
-    assert oid is None
-    assert oid != scratch.commit
-    assert "index" in source
+    _assert_the_mutated_index_wins_over_stale_head(
+        scratch, mutate=_stage_the_type_change, expected_oid=None)
 
 
 def test_a_regular_file_at_the_submodule_path_does_not_satisfy_the_gitlink(
