@@ -97,8 +97,13 @@ recommendation presented first: **"Ratify as encoded"** (recommended and
 taken); **"Veto D1 — prefer a sixth ground at info"** (declined); **"Ratify
 D1, veto D2 (no marker)"** (declined). **THIS IS THE FIRST WORD TO REACH THE
 PACKET'S CONTENT.** It ratifies the packet — `.openspec.yaml` gains the
-approval pair, every status-bearing document flips to `Status: ratified` —
-and it answers both questions `design.md` reserved for the owner: D1's
+approval pair, and `proposal.md`, `design.md` and `tasks.md` — the three
+documents this packet authored as `Status: draft` — flip to `Status:
+ratified`, joined by the new `review/ratification-2026-09-11.md` (this file)
+at that same status. `review/verification-2026-09-11.md` keeps `Status:
+record`, its subject being the gate run and not the ratification, per
+`document-lifecycle`'s *A review record is not about a ratification*. It
+answers both questions `design.md` reserved for the owner: D1's
 sentence (confirm, as written) and D2's marker (confirm, as written). Neither
 alternative was taken, so **THE RULING IS APPLIED BY LEAVING THE TEXT ALONE**,
 verified by diff rather than asserted (§ 4).
@@ -318,7 +323,7 @@ above. A dedicated search of every PR and issue comment on this pull request
 for the phrasing "FR-018", "regression test" and "already states FIVE"
 returns NOTHING: no Copilot, Codex or human comment on this thread makes
 either of those two claims, at any round from `82cd3d64` through `6d10daed`
-(the full API sweep is in `review/verification-2026-09-11.md` § 10). Both
+(the full API sweep is in `review/verification-2026-09-11.md` § 9). Both
 themes some prior guidance for this encode named as expected findings do not
 appear on this pull request; the actual eight Copilot rounds (1 through 8,
 § 5.1) are the ones disposed of above and here, and every one of their
@@ -389,10 +394,13 @@ later act.
   nobody has ruled."* No behaviour moves and no test assertion changes;
   taking it here would give this packet a code surface and change its archive
   rule. A successor is to be NAMED at the archive act.
-- **§ 6.2 — `specs/019-modified-block-currency-family/` IS NOT EDITED.** Its
-  FR-018 restatement is openxFactory #915's work, filed at the predecessor's
-  archive and OPEN; this packet adds no ground, so it neither widens nor
-  discharges that issue.
+- **§ 6.2 — `specs/019-modified-block-currency-family/` IS NOT EDITED, AND ITS
+  FR-018 ALREADY MATCHES CANON.** FR-018 (`:442`) states FIVE grounds today
+  (`8a2ed38c`/`125a7d96`, `refs #915`, landed 2026-09-10, before this
+  packet's own authoring); openxFactory **#915 is CLOSED**
+  (2026-09-11T01:29:59Z), not open — corrected in this ratification (§ 5.6,
+  above) rather than left standing. This packet adds no ground, so it
+  neither widens nor reopens #915's now-closed scope.
 - **§ 6.3 AND § 6.4 — NO ESTATE-WIDE RUN AND NO WIDENING OF THE
   UNCITED-RESOLUTION RULE.** Both directions of this amendment are silence,
   so no governed repository can gain or lose a row; the per-class grain of

@@ -313,13 +313,20 @@ comparison is a LITERAL diff rather than a normalized one.
       and `design.md` D1's quoted sentence occurs **exactly once** in the delta
       and **zero** times in promoted canon, nothing being promoted here.
 - [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-11,
-      after the ratification encode and after the two merges from `main` that
-      preceded it (`9dfa36f3` of main `1fb6d5cd`, content frozen at `546e2c97`
-      unchanged; then this branch's own merge of main `22efcbe8`) — capture at
-      `review/verification-2026-09-11.md`, the packet's first and only gate
-      capture, written at its own dated path because a dated run report is a
-      one-shot `record` and a second run of it writes a second path rather
-      than rewriting this one. **BOTH BINARIES ARE RE-RUN THERE**: the pinned
+      after the ratification encode and after the THREE merges from `main`
+      that preceded it (`9dfa36f3` of main `1fb6d5cd`, a sibling lane pass
+      that died before its own FREEZE; `6d10daed` of main `22efcbe8`, a
+      second lane pass that likewise died before its own FREEZE; and this
+      lane's own `1229006a` of main `22a2ecbc`, done immediately before this
+      encode), content frozen at `546e2c97` unchanged through all three —
+      capture at `review/verification-2026-09-11.md`, the packet's first and
+      only gate capture, written at its own dated path because a dated run
+      report is a one-shot `record` and a second run of it writes a second
+      path rather than rewriting this one (a FOURTH merge, `83dbd402` of main
+      `78d2c6f5`, landed AFTER this encode when `gh pr ready` found the
+      branch CONFLICTING; its own re-capture is
+      `review/verification-2026-09-11-post-merge.md`). **BOTH BINARIES ARE
+      RE-RUN THERE**: the pinned
       1.12.0 through `scripts/validate-openspec-cli-pin.py --all --no-cache`
       (2 dispositioned exceptions accepted 2026-09-05 "take exit 2", 0
       undispositioned failures) and the PATH 1.2.0 `openspec validate --all
@@ -339,8 +346,15 @@ archive is the act that moves the packet into
 writes the block into `openspec/specs/doc-health/spec.md`. That act needs
 Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
 
-- [ ] 5.1 **RATIFY, THEN ARCHIVE.** § 1 first: the status flip and the approval
-      pair in one commit. Then the archive act, on its own word.
+- [ ] 5.1 **§ 1 IS DONE; THE ARCHIVE ACT IS WHAT REMAINS, ON ITS OWN WORD.**
+      The status flip and the approval pair landed together in the
+      ratification commit (`7215c207`) — that half of this box's original
+      instruction is COMPLETE and is not repeated here. What is still owed is
+      the archive act alone: the move into
+      `openspec/changes/archive/<date>-amend-merged-into-empty-tail-standing/`
+      and the promotion of the block into
+      `openspec/specs/doc-health/spec.md`, on a separate word from Brett
+      Heap.
 - [ ] 5.2 **THE CLOSING LINE FOR openxFactory #914 STANDS IN THE ARCHIVE PULL
       REQUEST'S BODY AND NOWHERE ELSE.** This pull request's body carries
       `refs` and no closing keyword, and `closingIssuesReferences` is verified
