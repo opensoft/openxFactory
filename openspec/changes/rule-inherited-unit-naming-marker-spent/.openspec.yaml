@@ -1,0 +1,100 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-rule-inherited-unit-naming-marker-spent
+  reason: >-
+    ONE RESIDUE, FILED BEFORE IT WAS CLAIMED AND CLAIMED BEFORE IT WAS AUTHORED.
+    openxFactory issue #955 was filed UNCLAIMED by the lane that archived
+    `amend-repo-boundary-governance-scope-first-line` (PR #937 -> archive PR
+    #958), which owed it at its own `tasks.md` § 6.1 and `design.md` D2b and
+    named it there rather than deciding it. The residue is exact: a later
+    amendment of a requirement whose PROMOTED text already carries a unit-naming
+    marker has exactly TWO options and there is no third today — DROP the
+    inherited marker, which this requirement's own carriage sentence permits, or
+    CARRY IT FORWARD and take an `info` marker-defect finding on the THIRD
+    ground, because the unit that marker names is by construction absent from
+    canon (the declared act removed it) and absent from the block (a block does
+    not restate a retired unit). That is a measurement and not an argument: D2b
+    took it on a real pair, the promoted *Install repository scope* requirement,
+    and the packet dropped the inherited marker on canon's own sentence.
+    BRETT HEAP COMMISSIONED THE AUTHORING ON 2026-09-11, verbatim "land each
+    when green, archive both when landed, claim 955 and 956", given in session
+    at 2026-09-11T12:08:24Z and recorded on openxFactory #955. THAT WORD
+    COMMISSIONS THE AUTHORING AND RATIFIES NOTHING: it directs a lane to claim
+    the issue and decides no sentence, no scenario and no scoping, none of which
+    existed when it was given. NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED.
+    The decision the packet exists to put — `design.md` D1 — is the owner's, and
+    it is put as a multiple choice with the recommendation first.
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT
+    A PATCH. `suppression` resolves the third ground BY NAME against the
+    requirement's basis and against the block, and a spent marker's name matches
+    neither, so the report is the promoted sentence working exactly as written.
+    What canon does not say is WHICH of the two options a later author owes, and
+    a rule nobody has written is a rule every later author re-derives. Stating
+    it is an amendment of a promoted requirement, and this corpus admits exactly
+    one instrument for that — a ratified change carrying a `## MODIFIED` block.
+    Editing the promoted file directly would be the defect this very capability
+    exists to report.
+    THIS PACKET IS AN ORDERED DELTA AND ITS PARENT IS DECLARED.
+    `amend-merged-into-empty-tail-standing` is an ACTIVE RATIFIED writer of the
+    same requirement (PR #947), so `release-realization`'s *Ordered deltas and
+    branch vocabulary* obliges this later proposal to reference it and to
+    declare its deltas relative to that change's OUTCOME. It does:
+    `sequenced_after: [amend-merged-into-empty-tail-standing]`, and the
+    PRE-text of this block is that change's block rather than the promoted
+    text it replaces, read at `a6d373e9`.
+    NO CODE MOVES, AND `code_surface: none` IS MEASURED RATHER THAN CLAIMED.
+    The third ground already reports a name matching no unit of the basis and no
+    unit of the block, which is what `scripts/doc_health/modified_block_currency.py`
+    does today, and DROPPING a marker is the absence of an edit rather than an
+    edit — so the two options this packet rules between are both already
+    reachable and neither needs a line of code. `target_release: implemented` is
+    canon's own doc-only default (`release-realization` *Realization axis
+    declaration*), never `none`, which is outside the vocabulary.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-11: its 30
+    topic folders carry no marker grammar, no marker-defect reporting and no
+    doc-health carriage arm. The `INDEX.md` lines matching "marker" are the
+    `xspec:candidate`/`xspec:supersedes` PROSE-TAGGING grammar, the doxBench
+    dirty-tile UI marker and a compression-marker note — three different things
+    in three different capabilities. `kind: staged` would claim a staging source
+    that does not resolve. The organized source is openxFactory #955 and the
+    archived § 6.1 that scoped it.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), authoring the remedy
+    openxFactory #955 proposes, on Brett Heap's word of 2026-09-11, verbatim
+    "land each when green, archive both when landed, claim 955 and 956". NO
+    APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED: that word COMMISSIONS THE
+    AUTHORING and ratifies no wording. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in the packet carries
+    `Status: draft` to match. Ratification, promotion and archive are three
+    later acts on three later words.
+    THE DECISION MOST WORTH A VETO IS `design.md` D1, AND IT CAN END THE PACKET.
+    It is put as a MULTIPLE CHOICE with the recommendation first. OPTION 1
+    (RECOMMENDED, and what this packet encodes): RULE THE TWO-OPTION STATE
+    CORRECT — four sentences added to the paragraph that already rules a marker
+    no carriage unit, saying that a unit-naming marker is SPENT once the unit it
+    names has left canon by a declared act, so DROPPING it is the lawful
+    carriage and a third-ground report on a carried one is the class working as
+    written; with TWO scenarios, one per half of the rule. No ground is added,
+    no suppression moves, no code moves, and the packet archives on landing.
+    OPTION 2 (written out in D1 with its cost, and NOT encoded): ADD A THIRD
+    OPTION — a suppression for an inherited marker whose named unit left canon
+    by a DECLARED act, resolvable against the archived delta that declared it.
+    One predicate, one `_WHY_*` template, its own scenario, and a CODE SURFACE:
+    `scripts/doc_health/` plus `tests/doc-health/`, which changes this packet's
+    archive rule from on-landing to merged-plus-green realization evidence and
+    makes the checker read an archived delta it does not read today. If Brett
+    Heap picks option 2 the packet is RE-AUTHORED rather than amended.
+    D2 IS DECIDED BY MEASUREMENT AND NOT BY PREFERENCE: this amendment RETIRES
+    NO UNIT, so NO `Removed from canon` marker is owed and none is written —
+    `derive_units` reads 0 units of the basis uncarried by this block.
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:change:amend-merged-into-empty-tail-standing                      # ACTIVE, `Status: ratified` (PR #947). THE ORDERED-DELTA PARENT declared in `sequenced_after`, an active ratified writer of the SAME requirement, and the source of this block's PRE-text — its block at `a6d373e9`, not the promoted text it replaces. Its own `Removed from canon` marker is deliberately NOT restated here, under the very rule this block writes
+  - openxFactory:change:archive/2026-09-11-amend-repo-boundary-governance-scope-first-line # ARCHIVED (PR #937 -> archive PR #958). FILED THIS ISSUE at its archive as residue `tasks.md` § 6.1 / `design.md` D2b, and D2b is the measurement this packet rests on — a carried unit-naming marker reports under ground three on both candidate wordings, and the packet that dropped it measures 0 marker defects
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing  # ARCHIVED (PR #887 -> archive PR #899). The `code_surface: none` amend shape and the block CONSTRUCTION METHOD this packet follows — slice the exact range, apply each change as an exact single-occurrence substitution, prove byte-faithful with the family's own `derive_units`. Its bytes are NOT edited
+  - openxFactory:change:archive/2026-09-10-amend-marker-declaring-nothing          # ARCHIVED (PR #908 -> archive PR #926). Wrote the fourth and fifth grounds and is the LAST WRITER of this requirement in promoted canon; its own `Removed from canon` marker is one of the sixteen spent markers this packet's D0 measures
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check       # ARCHIVED. Promoted the requirement this block MODIFIES, wrote the marker grammar, the carriage sentence this packet extends and the one-ground sentence its successors have been amending since

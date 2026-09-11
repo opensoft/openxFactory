@@ -530,6 +530,56 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [rule-inherited-unit-naming-marker-spent](openspec/changes/rule-inherited-unit-naming-marker-spent/proposal.md)
+  — authored 2026-09-11, **`Status: draft` — NOT RATIFIED**. Lane
+  `openxfactory-1`. **THE AUTHORING IS COMMISSIONED AND NOTHING IS RULED.**
+  Brett Heap's word of 2026-09-11 at 12:08:24Z, verbatim ***"land each when
+  green, archive both when landed, claim 955 and 956"***, directed this lane to
+  CLAIM openxFactory [#955](https://github.com/opensoft/openxFactory/issues/955)
+  — it decided no sentence, no scenario and no scoping, none of which existed
+  when it was given, so `.openspec.yaml` carries drafting provenance with **no
+  approval pair**, every document says `Status: draft`, and ratification,
+  promotion and archive are three later acts on three later words. Origin:
+  openxFactory [#955](https://github.com/opensoft/openxFactory/issues/955),
+  filed UNCLAIMED at the archive of
+  `amend-repo-boundary-governance-scope-first-line`
+  ([#958](https://github.com/opensoft/openxFactory/pull/958)), which owed it as
+  residue `tasks.md` § 6.1 and `design.md` D2b. **ONE `## MODIFIED
+  Requirements` BLOCK, over ONE requirement, in ONE capability**: `doc-health`
+  § *Currency of an active change's MODIFIED requirement blocks*. **IT IS AN
+  ORDERED DELTA**: `sequenced_after: [amend-merged-into-empty-tail-standing]`,
+  an ACTIVE RATIFIED writer of the same requirement
+  ([#947](https://github.com/opensoft/openxFactory/pull/947)), so this block's
+  PRE-text is that change's block at `a6d373e9` and not the promoted text it
+  replaces. **IT IS A PURE ADDITION**: FOUR SENTENCES added to the paragraph
+  that already rules a marker no carriage unit — a unit-naming marker is SPENT
+  once the unit it names has left canon by a declared act, so DROPPING it is
+  the lawful carriage, and where a later block carries one forward the THIRD
+  ground reports it and that report is the class working as written — plus TWO
+  SCENARIOS at the end of the block, one per half of the rule. **NO UNIT IS
+  RETIRED, SO NO `Removed from canon` MARKER IS OWED AND NONE IS WRITTEN**; the
+  block carries ZERO markers. **NO GROUND IS ADDED AND NONE IS WITHDRAWN** —
+  the class still states FIVE — no severity, threshold, arm, finding class,
+  template, parse, marker grammar or disposition rule moves. **NO CODE MOVES,
+  AND THAT IS MEASURED**: `code_surface: none`, because the third ground
+  already reports a name matching no unit of the basis and no unit of the
+  block, and DROPPING a marker is the absence of an edit;
+  `target_release: implemented`, canon's own doc-only default.
+  **THE MEASUREMENT, RE-TAKEN ON `main` @ `38c076d1`**: of the 18 markers
+  promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
+  — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT**, across 13 requirements
+  in 7 specifications; of the 29 active MODIFIED blocks the family reads, TWO
+  carry a unit-naming marker, both `Merged into` and each naming a unit that
+  matches its basis, so a run reports **0 marker defects** today. **THE OPEN
+  DECISION IS `design.md` D1 AND IT CAN END THE PACKET**, put as a multiple
+  choice with the recommendation first: option 1 (recommended, encoded) rules
+  the two-option state correct in four sentences and two scenarios with no code
+  surface; option 2 adds a THIRD option — a suppression resolvable against the
+  archived delta — which is one predicate, one `_WHY_*` template, its own
+  scenario, a code surface, a widened checker basis, a fail-OPEN direction and
+  an archive rule of merged-plus-green. Option 2 would be a RE-AUTHORING.
+  openxFactory #955 closes at the ARCHIVE and not at this landing.
+
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a
