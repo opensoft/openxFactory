@@ -912,15 +912,17 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     without anything having drifted (ruling D-8(a); the last paragraph
     below measures both readings)."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 73, not the 66 this census landed with, and every step is kept apart
+    # 75, not the 66 this census landed with, and every step is kept apart
     # because each was taken by a different packet: of the first four, two on
     # 2026-08-28 and two more that arrived from `main` in the 2026-09-03
-    # merge. Read the seven paragraphs below in order; the assertion at the
+    # merge. Read the eight paragraphs below in order; the assertion at the
     # end of them is the only number this test enforces. (This line still read
     # "70" and "four paragraphs" after the 2026-09-08 step took the census to
-    # 71 and the paragraph count to six — a header going stale while the
-    # assertion below stayed true, which is precisely the drift this file's own
-    # 70 -> 70 paragraph says to correct rather than leave to be found.)
+    # 71 and the paragraph count to six, and "73"/"seven paragraphs" after the
+    # 2026-09-10 openxdox-pin step took it to 73 and seven — a header going
+    # stale while the assertion below stayed true, which is precisely the
+    # drift this file's own 70 -> 70 paragraph says to correct rather than
+    # leave to be found.)
     #
     # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
     # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
@@ -1036,8 +1038,36 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # standing census (73, 26) — and measured the same way against `main` at
     # `ea34f22a`, which reads 77 / 25 and a standing census of (71, 24). Never
     # by arithmetic. `lost` stays 1, and `vanished` / `arrived` are untouched.
+    #
+    # 73 -> 75, `contracts/opendox-pin.yaml` (split-opendox-two-layer-product
+    # task 5.1 extension, RULED Q7, PR #932) — the FOURTH neutral-product pin,
+    # and the SECOND artifact in this census to declare two members at once, on
+    # the immediately-preceding step's own reasoning: `carve_commit` is the
+    # same openxFactory commit as `openxdox-pin-carve-commit` (REPO_LOCAL,
+    # RULED OQ-I's record 2 — openDox and openXdox were carved in the SAME
+    # act), and `commit` is `opensoft/openDox`'s own, answered against another
+    # remote by another authority (CROSS_REPOSITORY). RULING F ("rule F
+    # openXdox only", #656, 2026-09-05) is SUPERSEDED for openDox alone by
+    # RULED Q7 (`#656` comment `5626248666`, 2026-09-10): this is a SECOND,
+    # independent direct pin of a product already reachable through openXdox's
+    # own pin, held equal to it by `scripts/verify-opendox-pin.py`'s fifth
+    # (LOCKSTEP) check — a runtime cross-check this census does not itself
+    # perform, and does not need to: both new sites are `population=CURRENT`,
+    # so like the 73rd/74th they join the frozen pair rather than sit beside it.
+    #
+    # DECLARED BY THE SAME COMMIT THAT ADDS THE PIN, on the 73rd/74th's own
+    # precedent: measured here before the push, so this step likewise never
+    # announces itself as `uncovered`. ENUMERATED WITH `pin_class.verify()` ON
+    # THE COMMITTED TREE (this branch's tip, `f2e54ba5` plus this commit) — 81
+    # results / 29 members, standing census (75, 28) — and measured the same
+    # way against `main` at `85fb8562` (this test's own `REPO_ROOT` before this
+    # branch's commits), which reads 79 / 27 and a standing census of (73, 26).
+    # Never by arithmetic. `lost` stays 1, `uncovered`/`vanished`/`arrived` are
+    # untouched, and the three pre-existing `allow_remote=False` orphans (two
+    # `ideation-readiness-run` records, one `proposal-support-manifest`) are
+    # unrelated to this pin and unmoved by it.
     standing_sites, standing_members = pc.standing_census(report.results)
-    assert (standing_sites, standing_members) == (73, 26)
+    assert (standing_sites, standing_members) == (75, 28)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]

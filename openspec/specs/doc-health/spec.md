@@ -1741,24 +1741,41 @@ superseded scenarios went, and it is present in the block by construction —
 reading it as a named unit would make every valid merge marker report itself
 under the rule below. Only the code spans after the colon name units.
 
-A marker SHALL suppress only the units it names AND that are in fact absent from
-the block. A MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of
-them one finding at the `info` band this family's marker-defect class already
-carries: it names a unit the block still carries; or a code span standing INSIDE
-its reason matches EXACTLY a unit of the requirement's basis that the block does
-not carry and that no marker declares removed, the boundary above reading that
-span as prose rather than as a name, so that its author declared nothing about a
-unit they plainly had in mind; or it names something matching no unit of the
-requirement's basis and no unit of the block. Each of the three is a declaration
-that does not describe the block, which is a declaration no reader can rely on,
-and a report on the MARKER is what points an author at the paragraph they wrote
-rather than at the unit it failed to declare. THE SECOND GROUND SHALL BE READ NARROWLY, on the exact match and never
-on the span's position alone: a reason is prose and prose in this corpus quotes,
-so a code span inside a reason matching no unit of the requirement is the NORMAL
-FORM of a reason and SHALL NOT be reported. The second ground SHALL NOT withdraw
-the carriage arms from the unit the span would have named — the scenario below
-that keeps that unit subject to them stands unchanged — the report being added
-BESIDE the carriage and never in place of it.
+A marker SHALL suppress only the units it names AND that are in fact absent
+from the block. A MARKER SHALL ITSELF BE REPORTED ON ANY OF FIVE GROUNDS, each
+of them one finding at the `info` band this family's marker-defect class
+already carries: it names a unit the block still carries; or a code span
+standing INSIDE its reason matches EXACTLY a unit of the requirement's basis
+that the block does not carry and that no marker declares removed, the boundary
+above reading that span as prose rather than as a name, so that its author
+declared nothing about a unit they plainly had in mind; or it names something
+matching no unit of the requirement's basis and no unit of the block; or it
+names something matching no unit of the requirement's basis and a unit THE
+BLOCK ITSELF STATES, declaring removed from canon a unit canon never carried;
+or it is of `Removed from canon` form and its tail carries NO code span at all,
+so that it names nothing, quotes nothing and declares nothing while occupying
+the one paragraph shape this requirement exempts from carriage. Each of the
+five is a declaration that does not describe the block, which is a declaration
+no reader can rely on, and a report on the MARKER is what points an author at
+the paragraph they wrote rather than at the unit it failed to declare. THE
+FOURTH GROUND RESTS ON THE BLOCK'S OWN ADDITION AND ON NOTHING ELSE, and it
+changes no suppression: a name matching no unit of the requirement's basis has
+never suppressed anything and still suppresses nothing, and the addition the
+name matches SHALL NOT be reported for being named, an addition being text no
+arm of this family reads. THE FIFTH GROUND SHALL BE READ ON THE `Removed from
+canon` FORM ALONE: the pairing form names no units by construction, its whole
+tail being a reason, so a pairing marker carrying no code span declares exactly
+what that form declares and SHALL NOT be reported on this ground; and a `Merged
+into` marker whose tail names no superseded title is a question this
+requirement does not decide, its destination standing in the prefix where that
+form's declaration has always been read. THE SECOND GROUND SHALL BE READ
+NARROWLY, on the exact match and never on the span's position alone: a reason
+is prose and prose in this corpus quotes, so a code span inside a reason
+matching no unit of the requirement is the NORMAL FORM of a reason and SHALL
+NOT be reported. The second ground SHALL NOT withdraw the carriage arms from
+the unit the span would have named — the scenario below that keeps that unit
+subject to them stands unchanged — the report being added BESIDE the carriage
+and never in place of it.
 
 **A named scenario TITLE carries its bullets with it ONLY IN A GENUINE
 REMOVAL.** Where a `Removed from canon` marker names a scenario title AND the
@@ -1984,36 +2001,64 @@ carries because that change removed it — matches no unit of the requirement or
 of this block, which is the third ground above reporting this block for copying
 a predecessor's declaration forward.
 
-**Removed from canon by amend-modified-block-currency-standing (2026-09-10):**
-``**The family SHALL read every active change regardless of its lifecycle
-standing.** A `draft` packet's block is as capable of restating stale canon as
-a `ratified` one, the arms below are advisory, and a finding against a draft
-costs its author one line.``; ``**This family SHALL be advisory at launch, in
-both halves of what that means.** Every finding carries `warning` severity for
-the scenario-completeness and title-resolution arms and `info` for the carriage
-ledger, so no `--fail-on` configuration reds on it; and the family is
-deliberately absent from `FAMILY_RESOLUTION`, so its findings are not
-classified `contested` — a contested finding that resolves without a citation
-becomes an `error` under this capability's uncited-resolution rule, which would
-gate the family through the back door on the first block anyone corrected.``;
-``Raising the scenario-completeness arm to `error` and adding the contested
-classification are ONE later decision taken together by ruling, and SHALL
-follow the discharge of the standing population rather than precede it.``;
-``**THEN** the run MUST emit a `warning` finding against the active delta's own
-path, naming each omitted scenario title and the promoted spec it was read
-from``; ``**AND** the finding MUST NOT cause a run configured `--fail-on error`
-or `--fail-on critical` to fail`` — the flip of 2026-08-31 (openxFactory issue
-#357, pull request #529) took the scenario-title arm to error and added the
-family's contested row, so each of these five units asserts a standing the
-running checker has not had since that day: three say the arms are advisory and
-the family unclassified, one says the raising is a decision still to be taken,
-and two are the first scenario's assertion of the advisory band in bullet form.
-Every one is REPLACED rather than dropped — the two paragraphs above state the
-post-flip standing and the history that produced it, the lifecycle-standing
-sentence is restated with its rationale corrected, and the two bullets are
-replaced in place by three that mirror the promoted promotion fidelity and
-duplicate packet scenarios. This reason carries no code span, so the marker
-names exactly the five units listed before the separator.
+**AMENDED BY `amend-marker-declaring-nothing` (2026-09-10).** Every paragraph
+and every scenario above this note stands exactly as promoted —
+`amend-marker-reason-boundary`'s, `amend-marker-defect-reporting`'s and
+`amend-modified-block-currency-standing`'s own notes and their narratives
+included — and the only promoted text this block changes is TWO SENTENCES OF ONE
+PARAGRAPH: the sentence that states the marker-defect grounds, and the sentence
+that counts them. Two grounds are added, and two sentences are added beside the
+replacements in that same paragraph, one scoping each new ground. TWO SCENARIOS
+ARE ADDED, at the END of the block, one per ground, because a normative ground no
+scenario exercises is a ground the next author re-deriving this class has nothing
+to test against. No promoted scenario moves, is retitled or loses a bullet, and
+the narrow reading of the second ground and the carriage it preserves are carried
+word for word — this amendment adds two reports about a MARKER and withdraws
+none. No arm is added or removed, no severity moves, no threshold moves, no
+disposition rule changes, no parse and no marker grammar moves, this family's
+registration in the resolution table is untouched, and the set of trees over
+which this family speaks is not altered by one line. BOTH NEW GROUNDS HAVE A
+POPULATION OF ZERO, MEASURED RATHER THAN ASSUMED on 2026-09-10 over the corpus as
+it stood before this packet: of the 26 markers it carries — 17 of the two
+unit-naming forms and 9 of the pairing form — NOT ONE is of `Removed from canon`
+form with an empty tail, and of the thirty active MODIFIED blocks this family
+reads exactly TWO carry a unit-naming marker at all, `add-chain-attestation` and
+`add-composed-view-authoring`, both `Merged into`, each naming one unit that
+matches its resolved basis, so a run reports no marker defect today and reports
+none after this amendment. A ground whose population is zero at landing is a
+ground that reports the NEXT marker written, which is the only moment at which
+either silence has ever cost anybody anything. AND
+`amend-modified-block-currency-standing`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE, on this requirement's own rule that a marker is
+not a carriage unit in either direction: restating it would declare a removal
+this change did not perform, and its five named units — sentences canon no longer
+carries because that change removed them — match no unit of the requirement or of
+this block, which is the third ground above reporting this block for copying a
+predecessor's declaration forward.
+
+**Removed from canon by amend-marker-declaring-nothing (2026-09-10):** ``A
+MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of them one
+finding at the `info` band this family's marker-defect class already carries:
+it names a unit the block still carries; or a code span standing INSIDE its
+reason matches EXACTLY a unit of the requirement's basis that the block does
+not carry and that no marker declares removed, the boundary above reading that
+span as prose rather than as a name, so that its author declared nothing about
+a unit they plainly had in mind; or it names something matching no unit of the
+requirement's basis and no unit of the block.``; `Each of the three is a
+declaration that does not describe the block, which is a declaration no reader
+can rely on, and a report on the MARKER is what points an author at the
+paragraph they wrote rather than at the unit it failed to declare.` — the first
+states the marker-defect grounds and the second counts them, so a fourth and a
+fifth ground cannot be added without replacing both: openxFactory issue #856
+reports a name matching a unit the block itself adds and no unit of canon, and
+issue #860 reports a marker of removal form whose tail carries no code span at
+all, and neither falls inside the three grounds the retired sentences state.
+Both units are REPLACED rather than dropped, by the sentences above that state
+five grounds, scope the fourth to the block's own addition and the fifth to the
+removal form, and leave the narrow reading of the second ground and the
+carriage it preserves word for word. Nothing else in this requirement is
+dropped, and this reason carries no code span so that the marker names exactly
+the two units listed before the separator.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
@@ -2111,6 +2156,16 @@ names exactly the five units listed before the separator.
 - **THEN** the run MUST emit the uncited-resolution `error` this capability's contested-finding rule defines, the family's resolution row having no per-class grain to hold one class out of it
 - **AND** a finding of ONE class that stops being reported while ANY other finding of this family is still emitted at that same repository and path MUST NOT raise that error, the rule keying on `(family, repository, path)` alone, so the key never leaves the current report
 - **AND** the disappeared finding's own severity MUST NOT be read as moved by that classification, the resolution class and the severity being separate fields
+
+#### Scenario: A marker names a unit the block itself adds
+- **WHEN** a marker names a code span matching no unit of the requirement's basis and matching a unit the block itself states
+- **THEN** the run MUST report the marker itself in the `info` band, a block declaring removed from canon a unit canon never carried having declared nothing about canon and nothing about the block
+- **AND** the name MUST suppress nothing, and the addition it matches MUST NOT be reported for being named, an addition being text no arm of this family reads
+
+#### Scenario: A marker of removal form declares nothing at all
+- **WHEN** a paragraph of `Removed from canon` marker form carries no code span after its closing colon, so that it names no unit and quotes none
+- **THEN** the run MUST report the marker itself in the `info` band, a declaration naming nothing being unusable as evidence about the block while the paragraph is exempt from carriage for being of marker form
+- **AND** a marker of the pairing form whose tail carries no code span MUST NOT be reported on this ground, that form naming no units by construction and its silence being correct
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long
