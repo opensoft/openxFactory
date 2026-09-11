@@ -17,6 +17,7 @@ reached the real `nlm` (FR-043, PR #49 finding 17).
 
 from __future__ import annotations
 
+import functools
 import sys
 from pathlib import Path
 
@@ -63,11 +64,50 @@ NEGATIVES = FIXTURES / "negatives"
 # remains as a fallback for a checkout of the pre-relocation layout. None when
 # no validator is reachable, in which case validator-backed tests skip rather
 # than fail.
+#
+# AND THE SKIP IS EXACTLY WHY THE § 5.2 SHED HAS TO BE ANSWERED HERE. The shed
+# (RULED (a) POST-SHED MODE, `#656` comment `5625573095`) moved
+# `scripts/validate-ideation-dashboard-contracts.py` to the openXdox-code leg,
+# so `own.is_file()` became False and the parent walk found nothing: this
+# function answered `None`, and every `@pytest.mark.skipif(VALIDATOR is None)`
+# in four test modules turned into a SKIP. A directory that silently turns into
+# skips is precisely what `.github/workflows/pytest-suite.yml` pins
+# `EXPECT_SKIPPED` as an EXACT sum to refuse — it reports as a green bar — so
+# this resolves through the manifest rather than losing the assertions.
+#
+# COMPOSED, NOT MERELY RE-POINTED, and the difference is measured. The script
+# derives its own `SCHEMAS_DIR` from `__file__`; run in place from the leg it
+# looks for a `contracts/schemas/` openXdox-code does not carry and exits 2 with
+# `ERROR harness failure`, which would turn the skips into failures rather than
+# into passes. `doxbench_contracts._composed_validator()` — built for the
+# delegated-validation path in the same shed — composes the scratch root that
+# joins the script to the schemas, each from its OWN row, and it is reused here
+# rather than repeated. Cached, because four test modules ask at import time and
+# one farm per process is one farm too many to build four times.
+@functools.lru_cache(maxsize=None)
+def _shed_validator() -> Path | None:
+    try:
+        from ideation_dashboard import doxbench_contracts
+    except ImportError:  # pragma: no cover - the adapter is not importable here
+        return None
+    try:
+        moved = carved_source("scripts/validate-ideation-dashboard-contracts.py")
+    except Exception:  # pragma: no cover - no manifest row, or no leg on disk
+        return None
+    if not moved.is_file():
+        return None
+    return doxbench_contracts._composed_validator(moved)
+
+
 def find_openxfactory_validator(start: Path | None = None) -> Path | None:
     base = (start or REPO_ROOT).resolve()
     own = base / "scripts" / "validate-ideation-dashboard-contracts.py"
     if own.is_file():
         return own
+    if base == REPO_ROOT.resolve() or REPO_ROOT.resolve() in base.parents:
+        composed = _shed_validator()
+        if composed is not None:
+            return composed
     rel = Path("openxFactory") / "scripts" / "validate-ideation-dashboard-contracts.py"
     for d in [base, *base.parents]:
         candidate = d / rel

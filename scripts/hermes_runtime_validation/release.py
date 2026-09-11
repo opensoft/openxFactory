@@ -134,6 +134,38 @@ def _shed_aware(target: Path) -> Path:
     return moved if moved is not None else target
 
 
+def _shed_aware_commit(root: Path, commit: str, path: str):
+    """The pinned leg's `(repo, commit, path)` for a member the § 5.2 shed moved
+    — or `None`, in which case this repository's own answer stands.
+
+    `_shed_aware` above, in the direction `_CommitSource` reads: from one exact
+    commit and never from the working tree. `content.resolve_git_object` reads
+    ONE repository's object store, and post-shed the three moved members of this
+    repository's own registration have their bytes in a LEG's, reachable from
+    the verified commit through the gitlink THAT COMMIT records —
+    `carved_reach.shed_commit_object` walks that chain and answers what to read
+    instead.
+
+    The exactness is preserved rather than traded away: the leg commit comes from
+    the verified commit's own tree, so verifying an older commit reads the leg
+    that commit pinned. A commit from BEFORE the shed records no such gitlink and
+    answers `None`, which is right — there the member is still in this
+    repository's tree and the ordinary read already found it. A root that is not
+    this repository answers `None` too, so a candidate-mode run over a domain
+    mirror is untouched.
+    """
+    try:
+        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+    except ImportError:
+        return None
+    try:
+        if Path(root).resolve() != CARVE_ROOT.resolve():
+            return None
+    except OSError:
+        return None
+    return shed_commit_object(commit, path)
+
+
 class ReleaseDependencyError(RuntimeError):
     """An unavailable or unsafe release dependency (CLI exit code 2)."""
 
@@ -505,7 +537,15 @@ class _CommitSource:
             resolve_git_object(self.root, self.commit, path)
         except ContentResolutionError as exc:
             _resolution_established_absence(exc, self.commit, path)
-            return False
+            moved = _shed_aware_commit(self.root, self.commit, path)
+            if moved is None:
+                return False
+            try:
+                resolve_git_object(*moved)
+            except ContentResolutionError as leg_exc:
+                _resolution_established_absence(leg_exc, moved[1], moved[2])
+                return False
+            return True
         return True
 
     def list_python(self, package: str) -> list[str]:
@@ -522,7 +562,13 @@ class _CommitSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        resolved = resolve_git_object(self.root, self.commit, path)
+        try:
+            resolved = resolve_git_object(self.root, self.commit, path)
+        except ContentResolutionError:
+            moved = _shed_aware_commit(self.root, self.commit, path)
+            if moved is None:
+                raise
+            resolved = resolve_git_object(*moved)
         return resolved.data, resolved.git_mode, resolved.digest
 
 

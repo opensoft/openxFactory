@@ -76,6 +76,7 @@ import importlib
 import importlib.abc
 import importlib.machinery
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -441,6 +442,71 @@ def shed_destination(path: str | Path) -> Path | None:
     if row is None or row["disposition"] == "not_moved":
         return None
     return source(key)
+
+
+def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
+    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
+    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
+    it to mean "that commit's tree carries no such entry", which is exactly the
+    case of a commit from BEFORE the § 5.2 shed — where the file is still in
+    this repository's own tree and the caller's ordinary read already found it.
+    """
+    try:
+        done = subprocess.run(["git", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
+                              capture_output=True, text=True, check=False)
+    except OSError:  # pragma: no cover - no git on PATH is the caller's problem
+        return None
+    value = done.stdout.strip()
+    return value if done.returncode == 0 and value else None
+
+
+def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] | None:
+    """Where a moved row's bytes are AT AN EXACT COMMIT — `(repo, commit, path)`.
+
+    `shed_destination()` for the readers that must never touch a working tree.
+    `scripts/hermes_runtime_validation/release.py` verifies a release from one
+    commit and reads every member with `content.resolve_git_object`, which reads
+    ONE repository's object store; post-shed three members of this repository's
+    own registration are `moved_verbatim` rows whose bytes are in a LEG's object
+    store, reachable from that commit only through the gitlink it records.
+
+    So this walks the gitlink chain the mount implies, one `rev-parse
+    <revision>:<segment>` per level — `openXdox/spec` is two levels, because
+    `openXdox` is a submodule of this repository and `spec` is a submodule of
+    THAT — and answers the leg repository, the commit that repository is pinned
+    at BY THIS COMMIT, and the row's own `destination_path`. The answer is
+    therefore as exact as the caller's: a commit that pinned an older leg reads
+    the older leg's bytes, and nothing is read from the working tree.
+
+    It answers `None` — and the caller's own answer stands — for a path in no
+    row, a `not_moved` row, and a commit whose tree carries no such gitlink,
+    which is every commit from BEFORE the shed: there the file is still in this
+    repository's own tree and the ordinary read already succeeded.
+
+    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg is
+    not materialized, for the reason the module docstring gives: an object store
+    that is not on disk cannot be read, and a reader that quietly found nothing
+    reports as a green bar.
+    """
+    key = str(path).replace("\\", "/")
+    row = _rows().get(key)
+    if row is None or row["disposition"] == "not_moved":
+        return None
+    repo = REPO_ROOT
+    revision = commit
+    for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+        gitlink = _git_object_id(repo, revision, segment)
+        if gitlink is None:
+            return None
+        repo = repo / segment
+        revision = gitlink
+        if not (repo / ".git").exists():
+            raise CarveReachUnavailable(
+                f"the pinned {row['destination']} leg is not materialized: "
+                f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
+                f"{key} cannot be read at the commit that pins it. Run "
+                f"`{INIT_COMMAND}` from the repository root.")
+    return repo, revision, row["destination_path"]
 
 
 def sources_under(prefix: str) -> dict[str, Path]:
