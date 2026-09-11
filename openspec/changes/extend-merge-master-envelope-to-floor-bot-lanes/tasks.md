@@ -492,7 +492,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   condition that was actually unmet, so it does not confirm a park "for the
   stated reason". **The box asks for a CONSTRUCTED control and neither of these
   was constructed.** Both are recorded so the next author starts from evidence.
-  **2026-09-11 — OBSERVED and TICKED (PR #PRNUM) under Brett Heap's
+  **2026-09-11 — OBSERVED and TICKED (PR #957) under Brett Heap's
   selection "Do 3.3 and 3.6" (2026-09-11 ~01:15Z, in session,
   multi-choice).** Constructed negative control
   codeXfactory/codexFactory #382 (head 24964a1d on floor/bot-regeneration,
