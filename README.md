@@ -531,9 +531,23 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [state-header-window-budget](openspec/changes/state-header-window-budget/proposal.md)
-  — authored 2026-09-10, lane `codexfactory-1`, **`Status: draft` —
-  RATIFICATION OWED (Brett Heap)**, on the resume ruling **"fan out wide"**
-  (authorization to author, not content ratification). Routed from a Copilot
+  — authored 2026-09-10, lane `codexfactory-1`, **`Status: ratified`**
+  (2026-09-11T01:44Z, Brett Heap, openxFactory operator authority,
+  first-hand, in session, verbatim ***"ratify 921"***, over verified head
+  `29f22114` — recorded on PR
+  [#921](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288)
+  at comment 5628429288; record
+  `openspec/changes/state-header-window-budget/review/ratification-2026-09-11.md`).
+  **THE WORD WAS BARE, SO IT NAMED NO WORDING TO CHANGE AND NONE WAS
+  CHANGED** — verified by diff, not asserted: no byte of the delta moved
+  between the reviewed head and the ratified one. `.openspec.yaml` keeps the
+  authorization-to-author provenance it was authored with — the resume ruling
+  **"fan out wide"**, which authorized authoring and ratified no content —
+  and the ratification is ADDED beside it in the ratifying commit itself,
+  `kind`, `id`, `reason` and `approved_on` unmoved, per `document-lifecycle`
+  § *Proposal origin declaration*. **Ratification, merge and archive are
+  three separate acts on Brett Heap's word: only the first has been given.**
+  Routed from a Copilot
   review on openxFactory PR
   [#906](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981305715)
   (the archive of `accept-sequenced-after-header-line`): the promoted

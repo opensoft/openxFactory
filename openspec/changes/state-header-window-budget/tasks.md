@@ -11,19 +11,68 @@ Brett Heap's ratifying WORD, but — unlike Group 0 — is carried out
 afterward by whichever lane holds that word, not performed by Brett
 himself; the two are both human-gated, only one is human-performed.)
 
-## Group 0 — RATIFICATION GATE (human; OPEN)
+## Group 0 — RATIFICATION GATE (human; CLOSED)
+
+**CLOSED 2026-09-11T01:44Z.** Brett Heap (openxFactory operator authority;
+sole operator), first-hand, in session, to lane `codexfactory-1` (window
+`codeXfactory-1`), verbatim **"ratify 921"**, over verified head
+`29f2211437b9f5e0fd9960f45e83f8ca8de91bb7`. Recorded on PR #921
+([comment 5628429288](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288));
+record `review/ratification-2026-09-11.md`.
+
+**WHY TWO BOXES BELOW STAY UNTICKED THOUGH THE GATE IS CLOSED.** 0.1 and 0.2
+are Brett Heap's OWN acts — the preamble above says so in as many words
+("putting the wording in front of Brett Heap for a ruling is the only task
+here that needs his own hand"). **No agent ticks an owner's box**, so neither
+is ticked here; each carries a dated note recording what the word discharged,
+which is evidence and not a substitute for his hand. 0.3 is different in
+kind: it describes files changing, is performed by this lane, and is ticked
+below — the same split `accept-sequenced-after-header-line` made at its own
+ratification (`208f88d4`, box 0.6, identically worded).
 
 - [ ] 0.1 **Convener read of `design.md` § 0** (the four-line brief) and of
   `proposal.md` § Origin, which quotes both PR #906 comments in full.
+  *(Discharged 2026-09-11T01:44Z by the word itself — "ratify 921" is a
+  ruling on this packet, which the § 0 read precedes. Brett Heap's box; left
+  unticked for him.)*
 - [ ] 0.2 **Rule on the added paragraph and scenario as drafted, or amend
   the wording.** The FACT is not in question — `design.md` D1 records an
   empirical re-verification on this branch, independent of the docstring's
   own word — so this box is a wording ratification and not a fact-finding
   one. `design.md` D2 records why the addition is a new paragraph rather
   than a reworded sentence, and D3 why the new scenario sits where it does.
-- [ ] 0.3 On ratification: `Status: ratified` + a `Ratified:` line land in
+  **RULED 2026-09-11T01:44Z — AS DRAFTED, NOT AMENDED.** The word was the
+  bare **"ratify 921"**: it names no wording to change, so the paragraph and
+  the scenario are ratified exactly as the bench reviewed them. Verified by
+  diff rather than asserted — `git diff 5dfa1831 HEAD --
+  openspec/changes/state-header-window-budget/specs/` is EMPTY at the
+  ratifying commit, so no byte of the delta moved between review and
+  ratification. D1–D4 were carried beside it and none was vetoed.
+  *(Brett Heap's box; left unticked for him.)*
+- [x] 0.3 On ratification: `Status: ratified` + a `Ratified:` line land in
   `proposal.md`, and the README "OpenSpec Records" entry moves from DRAFT to
   RATIFIED.
+  **DONE 2026-09-11, in the ratifying commit.** `proposal.md` carries
+  `Status: ratified` and EXACTLY ONE citation line, spelled `Ratified:` —
+  the record-citing alternative, the legal spelling here because no
+  approving OpenSpec change exists to name (`document-lifecycle` § Status
+  Claim Rules) — naming an approver in the recognized `by <Name>` form, a
+  date, the verbatim word, its UTC instant, the head it was given over, the
+  PR comment and the record path. **THE CITATION SITS AT LINE 10, INSIDE THE
+  FIFTEEN-LINE WINDOW COUNTED FROM LINE 1 WITH THE FRONT-MATTER FENCE'S FIVE
+  LINES INCLUDED — this packet's own rule, applied to the packet that states
+  it** — and the whole lifecycle header (fence, title, `Status:`, citation,
+  `Authored:`) still closes inside that budget. Two further things the
+  written rule requires land in this SAME commit: the ratification is ADDED
+  to `.openspec.yaml` `origin.approved_by` beside the authorization-to-author
+  provenance, which is byte-unmoved along with `kind`, `id`, `reason` and
+  `approved_on` (`document-lifecycle` § *Proposal origin declaration* —
+  "APPROVAL IS AN ADDITION, NEVER A REWRITE", "APPROVAL SHALL APPEAR WHEN A
+  STATUS CLAIMS IT"; the archive gate reads this file's blob at the ratifying
+  commit as its permanent baseline, so an addition made anywhere else is a
+  mutation), and the durable record `review/ratification-2026-09-11.md` is
+  captured beside the packet, carrying its own in-window citation. The README
+  "OpenSpec Records" row moved DRAFT → RATIFIED.
 
 ## Group 1 — openxFactory doctrine authoring (THIS change)
 

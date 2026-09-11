@@ -6,15 +6,25 @@ sequenced_after: [accept-sequenced-after-header-line]
 
 # Proposal: state-header-window-budget
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11 by Brett Heap (openxFactory operator authority) —
+first-hand, in session to lane `codexfactory-1`, 2026-09-11T01:44Z, verbatim
+*"ratify 921"*, over head `29f22114`; recorded on PR #921
+([comment 5628429288](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288)),
+record `review/ratification-2026-09-11.md`.
 Authored: 2026-09-10, lane codexfactory-1, on Brett Heap's resume ruling of
 2026-09-10, verbatim **"fan out wide"** (authorization to author, not
 ratification of this text) — carrying out lane codexfactory-1's own reply on
 openxFactory PR
 [#906](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763),
 which named this packet's shape.
-**RATIFICATION IS OWED AND IS BRETT HEAP'S ACT** — see `.openspec.yaml`
-`origin.approved_by` for the full disclaimer, and task 0.2 below.
+**RATIFICATION WAS OWED AND WAS BRETT HEAP'S ACT; IT IS THE `Ratified:`
+LINE ABOVE.** `.openspec.yaml` `origin.approved_by` keeps the authoring
+authorization it was written with — byte-unmoved, disclaimer and all — and
+carries the ratification ADDED beside it in the same commit that flipped this
+status, per `document-lifecycle` § *Proposal origin declaration*. Task 0.2
+records the ruling; the archive (task 3.1) remains a SEPARATE act on a
+separate word.
 
 ## Origin
 

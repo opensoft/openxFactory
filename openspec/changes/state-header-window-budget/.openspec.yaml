@@ -67,6 +67,39 @@ origin:
     packet is `Status: draft`, carries no ratification citation, and owes
     one: ratification is a separate act of Brett Heap's, tracked as task
     0.2.
+    RATIFICATION, ADDED HERE AND NOT SUBSTITUTED FOR ANY OF THE ABOVE.
+    That separate act has since been performed. Brett Heap (openxFactory
+    operator authority; sole operator), first-hand, in session, to lane
+    codexfactory-1 (window codeXfactory-1), at 2026-09-11T01:44Z, verbatim:
+    "ratify 921" — given over verified head
+    29f2211437b9f5e0fd9960f45e83f8ca8de91bb7 (the value `git ls-remote`
+    returns for `refs/heads/change/state-header-window-budget`, which is
+    authoritative over the PR object's hours-stale `5dfa1831`; the two
+    differ by a merge of `origin/main` and by no byte of this packet) and
+    recorded on openxFactory PR #921, comment 5628429288
+    (https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288).
+    Record: `review/ratification-2026-09-11.md`.
+    THIS CLAUSE IS AN ADDITION, NEVER A REWRITE, and it is written in the
+    SAME COMMIT that flips `proposal.md` to `Status: ratified` — which is
+    what `document-lifecycle` § "Proposal origin declaration" requires of
+    both halves of its rule at once ("APPROVAL IS AN ADDITION, NEVER A
+    REWRITE"; "APPROVAL SHALL APPEAR WHEN A STATUS CLAIMS IT"), and what
+    the archive gate's origin-retention arm needs, since it takes this
+    file's blob AT THE RATIFYING COMMIT as its permanent baseline
+    (`scripts/proposal-support.py`, `ratifying_commit` /
+    `origin_retention_errors`). Every sentence above is byte-unmoved:
+    `kind`, `id` and `reason` are untouched, the authorization-to-author
+    provenance keeps its own words and its own drafting tense, and its
+    disclaimer stands as written — it is time-indexed ("At the time this
+    field is written…") and remains true of the moment it describes.
+    `approved_on` IS LEFT AT 2026-09-10 DELIBERATELY, not overlooked: it
+    dates the authorization recorded above, rewriting it would destroy that
+    record and would be exactly the mutation this rule forbids, and it is
+    not false of the ratification either — 2026-09-11T01:44Z is 2026-09-10
+    21:44 in the timezone this repository's own commits are stamped in
+    (-0400), the same calendar date. The ratification's UTC instant is
+    carried in the prose above, in the `Ratified:` citation line of
+    `proposal.md`, and in the record.
   approved_on: 2026-09-10
 related:
   - openxFactory:change:archive/2026-09-10-accept-sequenced-after-header-line          # ARCHIVED (PR #886, archive PR #906). RATIFIED AND PROMOTED the requirement this block MODIFIES; its bytes are NOT edited, and the Copilot finding this packet answers stands on its archive pull request as a reply rather than a fix
