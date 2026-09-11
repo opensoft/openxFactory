@@ -1,0 +1,303 @@
+# Design: amend-kill-switch-to-declared-test-companion
+
+Status: draft
+
+This record exists because the amendment is small in words and consequential in
+kind: it corrects a clause of a RATIFIED decision on a MEASUREMENT, and the
+obvious cheaper answer — loosen the tests — would destroy the property the tests
+exist for. The measurement is set out first so that the decisions can be read
+against figures rather than against a preference.
+
+## 1. The measurement
+
+**What was being attempted.** `extend-merge-master-envelope-to-floor-bot-lanes`
+box 3.6 owes an OBSERVATION: throw the kill switch, watch an enrolled lane fall
+back to the human merge gate, restore it, watch autonomous approval resume. On
+2026-09-11 the throw half was measured before being attempted for real.
+
+**What decision N-4 says, verbatim and as ratified** (the parent's `design.md`):
+
+> **The kill switch is the candidate entry.** Deleting it from
+> `.github/merge-approval-envelope.yml` returns the lane to human merges, takes
+> one edit, is a code-owner-reviewed act by construction, is read from the base
+> branch so it takes effect on the next run, and is visible in the diff forever.
+
+N-4 reached that shape by refusing two alternatives, and both refusals stand:
+
+- a boolean `active:` member — refused as a **schema change**, and because a
+  disabled entry still **reads as enrolled**;
+- a repository variable — refused as **invisible in the diff**.
+
+The envelope file's own banner repeats the one-edit claim, so the false sentence
+exists in two places and the realization must correct the one that is machine-adjacent.
+
+**The figures.** Measured in a throwaway clone at codexFactory `main` =
+`0ad92bd5`, with `PYTHONPATH=scripts python3 -m pytest tests/merge-master/ -q`:
+
+| tree | result |
+| --- | --- |
+| clean | **3993 passed, 28 skipped** |
+| the one edit — delete envelope lines 173–356, the `openxfactory-floor-regeneration` mapping and nothing else (356 → 172 lines; the YAML still parses) | **29 failed, 3964 passed, 28 skipped** |
+
+| file | failures |
+| --- | --- |
+| `tests/merge-master/test_floor_regeneration_enrolment.py` | 17 |
+| `tests/merge-master/test_enrolled_surface_config.py` | 7 |
+| `tests/merge-master/test_behaviour_snapshot.py` | 3 |
+| `tests/merge-master/test_caller_workflows.py` | 1 |
+| `tests/merge-master/test_class_floor_differential.py` | 1 |
+| `specs/018-per-tree-floor-instance/behaviour-snapshot.json` — the golden digest | (the sixth file; it must move for the three snapshot failures) |
+
+**Why that is fatal to the claim rather than merely inconvenient.**
+`tests/merge-master/` sits inside codexFactory's REQUIRED `validate` check:
+`.github/workflows/validate.yml` runs `bash scripts/validate-docs.sh`, whose
+line 217 lists `tests/merge-master/`. The one edit therefore does not produce a
+red local run that a reviewer may wave through; it produces a pull request that
+**cannot land**. "Takes one edit" describes an act that is not available.
+
+**The two records.** The measurement is the RESULT posted on openxFactory #745 at
+2026-09-11T03:08Z
+(https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628853801).
+The ruling accepting it — Brett Heap's SELECTION "Accept the finding; file a
+successor", 2026-09-11 ~03:40Z, in session, multi-choice — is recorded on
+openxFactory #745 comment 5632569506 (2026-09-11T09:42:11Z,
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5632569506)
+and on codexFactory #232 (2026-09-11T09:42:12Z).
+
+**What the measurement also settles, and it changes the parent's scenario text.**
+`_find_surface` matches on repository AND head ref only — **never on author**.
+With the entry removed, ANY `floor/bot-regeneration` pull request returns
+`is_candidate: false`, exits **11** (`_EXIT_NOT_CANDIDATE`), reports
+`decision=skip`, and posts **no sticky comment**, because the "Explain park or
+block" step is gated on `decision == 'park'`. The parent scenario's
+"parks for a human" is therefore not observable; what is observable is *no
+envelope decision at all, and the pull request left at the human merge gate with
+no comment*. The amended scenario is written to the observable behaviour, which
+is a correction of the same kind as the one this packet is for.
+
+**The second blocker, recorded for completeness and not answered here.** No real
+bot cycle exists to observe: hourly floor-regeneration has reported "nothing
+owed" since 2026-09-10T17:22Z, and an APPROVE cannot be constructed by hand
+because the class pins `expected_author: openxfactory[bot]`. The candidate entry
+is INTACT on codexFactory `main` (blob
+`fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines). This packet removes the
+FIRST blocker only, which is exactly what consequence (4) of the ruling says.
+
+## 2. Authoring decisions
+
+### D-1 — The switch is one reviewed edit PLUS its declared test companion (alternative (A)), and the suite is NOT made kill-switch-aware (alternative (B) is refused)
+
+**(A) — RECOMMENDED. Declare the companion.** The kill switch is the removal of
+the candidate entry TOGETHER WITH a companion set of conformance-assertion edits
+that is DECLARED beside the enrolment. Two properties follow, and they are the
+whole case:
+
+1. the withdrawing pull request is **landable** against the required checks,
+   because the reviewer applying the declared companion is applying a known,
+   pre-agreed set rather than discovering twenty-nine failures; and
+2. the companion is itself a **reviewed, diff-visible declaration** — the
+   property N-4 chose the candidate entry for in the first place is extended to
+   cover the thing that actually makes the act take more than one edit.
+
+It also keeps the honest accounting: the act is not smaller than it is, and the
+declaration says so where the next reader will be standing.
+
+**(B) — NOT RECOMMENDED, and refused.** Make the pinning suite
+kill-switch-aware: teach the tests to read the enrolled set out of the envelope
+rather than pinning ids, so the entry may leave without any assertion moving.
+
+**Why (B) is refused.** *A suite that adapts to the entry leaving no longer
+notices it leaving.* The one property worth most in a conformance suite over an
+autonomous-merge enrolment is that an enrolment cannot depart quietly. Today
+`test_the_envelope_enrols_exactly_two_candidate_classes` asserts
+`ids == ["codexfactory-routine-code", "openxfactory-floor-regeneration"]`; under
+(B) that assertion becomes a tautology over whatever the envelope currently says,
+and the same edit that withdraws a class silently withdraws the check on the
+withdrawal. The measurement is explicit that **the pinning is not the defect**:
+a suite that did not notice would be strictly worse than one that notices
+loudly.
+
+**No formulation of (B) was found that keeps the property, and the reason is
+structural rather than a failure of imagination.** Any suite that derives the
+expected set from the declaration has, by construction, no independent record of
+what the set should be; to keep the notice-it-leaving property it must hold a
+second, independent statement of the enrolled set — at which point that second
+statement IS a declaration, and the design is (A) with the declaration moved to
+a worse place (a test file rather than beside the enrolment). A hybrid — derive
+the *shape* from the envelope, pin the *ids* independently — is (A) again, with
+the companion partly implicit. (B) is therefore refused not as a close call but
+as a route that arrives at (A) or at a weaker guarantee.
+
+**What (A) does NOT do:** it does not relax a single assertion, does not remove a
+test, and does not make the withdrawal cheaper in edits. It makes the withdrawal
+**declared, landable and reviewed**, which is what N-4 was reaching for.
+
+### D-2 — The declaration site is the envelope's own banner/comment block beside the candidate: no schema change
+
+The companion is declared **in the envelope's banner/comment block, immediately
+beside the `openxfactory-floor-regeneration` candidate**, naming the exact
+companion files and the assertion(s) each carries.
+
+**Why the least-schema site.** N-4 refused an `active:` member because it is a
+schema change and because a disabled entry reads as enrolled. Answering N-4's
+"one edit" problem by adding a schema member would reverse that refusal while
+claiming to honour it. A comment-block declaration:
+
+- adds **no schema member**, so no envelope consumer, parser, validator or
+  reader changes behaviour;
+- is **in the same reviewed file**, in the same diff, under the same code-owner
+  review, next to the thing it describes — so it cannot be found stale by
+  someone reading the candidate;
+- is the natural place to also **correct the false "one edit" sentence**, which
+  lives in that very banner today.
+
+**And the declaration is kept honest by machinery, not by discipline** (D-2b):
+one codexFactory conformance test asserts that the DECLARED companion equals the
+set of assertions that actually pin the enrolment. Without it, the declaration
+rots the first time someone adds a pinning assertion, and it rots invisibly —
+the failure mode that produced this packet. With it, a stale declaration is a
+failing check on the pull request that made it stale.
+
+**Alternatives considered and not recommended:** a separate companion manifest
+file (a second place to forget); a schema member (D-2's whole objection); a
+declaration held only in the test suite (invisible at the declaration, and the
+reader most in need of it is reading the envelope).
+
+### D-3 — The golden behaviour digest IS part of the declared companion
+
+`specs/018-per-tree-floor-instance/behaviour-snapshot.json` is named in the
+companion, and both the throw and the restore are recorded as **movements** of
+it.
+
+**Why, and what the alternative costs.** The digest is the one artefact whose
+every movement is individually reasoned in `test_behaviour_snapshot.py`, where
+this enrolment is recorded as *"the SIXTH movement"*. The alternative —
+exempting the digest from the companion, or teaching it to ignore enrolment
+changes — is exactly the (B) failure in miniature and on the worst possible
+artefact: the digest's entire purpose is that nothing about the approval
+behaviour moves unnoticed. Declaring it, and recording the throw and the restore
+each as a movement, keeps the ledger complete: an observation of the kill switch
+is a real event in the behaviour history, and it should read as one.
+
+**Consequence, stated rather than discovered:** the throw pull request carries a
+digest movement and a reasoned entry for it, and the restore (a revert) carries
+the mirror movement. That is two entries in the digest's history for one
+observation, and it is correct that it be so.
+
+### D-4 — `## MODIFIED`, not `REMOVED` + `ADDED`, and the requirement header is UNCHANGED
+
+The delta is a single `## MODIFIED Requirements` block whose header is
+**character-for-character** the parent's:
+`### Requirement: An enrolled autonomous lane carries a one-edit kill switch`.
+
+**Why the header does not move even though its words now under-describe the
+act.** The requirement's SUBJECT (an enrolled autonomous lane), SCOPE (the
+enrolment declaration and its withdrawal) and AUTHORITY are unchanged; only its
+account of the act's shape is corrected. A `REMOVED` + `ADDED` pair would sever
+the requirement's identity, break the scenario lineage and the conformance
+mapping that reads scenarios back to tests, and present a narrow correction as a
+new grant. It would also, in this estate, look like the requirement had been
+withdrawn — which is precisely the impression an amendment about kill switches
+should not give. A renamed header would do the same at half the cost and none of
+the benefit. **A `## MODIFIED` must match the parent's header exactly**, so the
+header is also a mechanical constraint, not only a judgement.
+
+**And the target is a SIBLING'S ADDITION, not canon.** The parent is ratified
+(2026-09-07, PR #746) but **unarchived**, so the requirement is not yet in the
+promoted `openspec/specs/roles-authority-model/spec.md`; it lives at the parent's
+own delta `specs/roles-authority-model/spec.md` lines 53–65. The pairing is
+declared per requirement in the delta, as `govern-sibling-added-modified-deltas`
+requires, and the front matter carries
+`sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`. The archive
+order follows: this packet SHALL NOT archive before the parent promotes. The
+form precedent is `amend-mirror-floor-regeneration-merge-authority`, which did
+the same thing against its own then-unarchived parent.
+
+### D-5 — The realization surface is a codexFactory COMPANION change, and this lane authors none of it
+
+openxFactory's half of this packet **carries no code**. The realization is two
+surfaces in codexFactory — the banner correction plus companion declaration
+(D-2), and the conformance test (D-2b) — authored **by that repository's lane,
+after ratification**.
+
+**Why the split.** It is the same split
+`extend-merge-master-envelope-to-floor-bot-lanes` made, and it is not
+bookkeeping: codexFactory owns the envelope, the suite and the digest; a
+cross-repository edit by this lane would take an authorship that repository's
+own gates are built to require, and would put the load-bearing edit outside the
+review that judges it. **NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS
+PROPOSED IN ANY FORM.**
+
+### D-6 — What this packet refuses to carry
+
+Stated as refusals so that a later reader can see they were considered:
+
+- **no throw of the kill switch**, in either repository, by anyone, now — this
+  packet amends the ACCOUNT of the switch and never operates it;
+- **no edit to the envelope's candidate mapping** — the entry stays exactly as it
+  is (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines);
+- **no schema change and no `active:` member** — N-4's refusal is honoured, not
+  reversed;
+- **no repository or organization variable, secret or environment-held value** —
+  N-4's "invisible in the diff" ground is restated as a `SHALL NOT` in the delta;
+- **no ruleset edit, no bypass actor, no merge-queue change**;
+- **no codexFactory byte authored by this lane**;
+- **no relaxation of any conformance assertion**, and no rewrite of the suite to
+  read the enrolment from the envelope (D-1 (B));
+- **no contract bundle, no `contract_bundle_version`, no tag, no pin, no digest
+  movement** in openxFactory;
+- **no edit to the parent packet** `extend-merge-master-envelope-to-floor-bot-lanes`
+  — its `tasks.md` is being moved by open PR #957 and a conflict would be this
+  lane's fault — and therefore **no tick of its box 3.6 here**.
+
+## 3. What this does to parent box 3.6's procedure
+
+Box 3.6 is an **OBSERVATION** box. It owes a throw, an observation, a restore and
+a second observation. It does **not** tick on a successor being named, and this
+pull request ticks it nowhere. What changes is that the procedure becomes
+performable, because the throw becomes landable:
+
+| step | before this packet | after this packet is ratified and its codexFactory companion realized |
+| --- | --- | --- |
+| the throw | delete the candidate entry — one edit, per N-4 — which **reds 29 assertions in a required check and cannot land** | ONE codexFactory pull request carrying the entry's removal **together with exactly the declared companion**, which passes the required checks and lands |
+| what to observe | the parent's text says the next pull request "parks for a human" | the next real bot pull request reaches **no envelope decision** — `is_candidate: false`, exit 11 (`_EXIT_NOT_CANDIDATE`), `decision=skip`, **no sticky comment** — and stays at the human merge gate |
+| the restore | (unstated) | a **revert** of that same pull request, restoring the entry and the companion assertions in one act |
+| the second observation | autonomous approval resumes | unchanged: autonomous approval resumes on the following real bot cycle |
+| where it is recorded | — | openxFactory #745 and codexFactory #232, with box 3.6 ticked **on the parent's own packet**, never on this one |
+
+**The remaining blocker is not removed by this packet.** A real bot cycle must
+exist to observe, and none does today ("nothing owed" since 2026-09-10T17:22Z);
+none can be manufactured, because the class pins `expected_author:
+openxfactory[bot]`. Consequence (4) of the ruling states the conjunction
+exactly: the observation resumes only after this successor lands **and** a real
+bot cycle exists.
+
+## 4. Open questions — declared, not answered
+
+- **Q-1. Should the companion declaration be machine-checkable from
+  openxFactory's side too?** D-2b puts the equality check in codexFactory, where
+  both the declaration and the assertions live. A second, openxFactory-side check
+  would have to read another repository's tree, which this estate does at a pin
+  and a digest, not at a live read. Declared, not answered.
+- **Q-2. Does the companion rule bind the OTHER enrolled class, and the next
+  one?** As written the requirement binds every enrolled candidate class, which
+  reaches `codexfactory-routine-code` today and
+  `openxfactory-review-lane-repin` if `admit-review-lane-repin-to-merge-approval-envelope`
+  realizes. Whether the existing class's companion must be declared in the same
+  companion change, or in its own, is a sequencing question for the realization
+  lane rather than for this text.
+- **Q-3. Should the declaration name assertions at test-function granularity or
+  at file granularity?** The measurement is by file (five files plus the digest),
+  and the conformance check of D-2b is cheaper and more stable at file
+  granularity, but a file-level declaration tells the reviewer less than a
+  function-level one. Declared for the realization lane to settle against the
+  code.
+- **Q-4. Is "landable against the required checks" the right bar, or should it be
+  "landable with no further human judgement"?** The chosen bar is observable from
+  the platform and is what the finding measured. A stronger bar would have to
+  define what judgement the declared companion's application requires — which
+  Q-3's granularity question largely determines.
+- **Q-5. What records the throw for the digest's own ledger?** D-3 puts two
+  movements in the behaviour history for one observation. Whether the digest's
+  reasoning convention wants those two entries cross-referenced to each other,
+  and to #745 / cxF #232, is a codexFactory convention question.
