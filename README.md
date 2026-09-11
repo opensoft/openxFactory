@@ -1185,6 +1185,16 @@ Active changes:
   2's TEST moved, because the landed carve manifest's replicated rows put the
   same 30 test functions at three homes each and an equality could only have been
   satisfied by deleting replicas FLOOR PART 3 requires.
+  **Amended 2026-09-10 (the § 5.2 shed's own prerequisite, resolved as exit (a)
+  POST-SHED MODE)** — Brett Heap, in-session, verbatim *"rule (a) post-shed
+  mode, merge 924 when green"* (`opensoft/openxFactory`#656 comment
+  `5625573095`); record
+  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-10-shed-exit-post-shed-mode.md`.
+  FLOOR PART 1 is not reopened by it either: `carve_commit`, all 456 rows, every
+  digest and every disposition are unchanged, and the ONE optional `phase:` key
+  it adds is symmetric — `post-shed` expects a moved row's source path ABSENT
+  and refuses `carve-shed-incomplete` while it is still present — so the phase
+  flip and the 319 deletions are one act and cannot land apart.
   **IT STILL PERFORMS NOTHING.**
   No repository is created, no code moves, no capability is
   promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet

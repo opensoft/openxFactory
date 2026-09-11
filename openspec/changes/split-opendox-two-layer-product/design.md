@@ -1037,6 +1037,25 @@ moment* — which is the assembly root's commit, and it is what openXdox's
 2026-09-05, "rule F openXdox only"): `openxFactory` carries no
 `contracts/opendox-pin.yaml` of its own, and openDox's commit there is a
 DERIVED value read through openXdox's own pin.
+*(AMENDED 2026-09-10 — RULED Q7, and the last sentence above is SUPERSEDED for
+a SECOND upstream. It is kept rather than rewritten because RULING F is what
+this amends. Brett Heap, verbatim* "SECOND SUBMODULE — openxFactory mounts the
+openDox assembly root" *(`#656` comment `5626248666`), gives `openxFactory` a
+DIRECT pin of openDox's ASSEMBLY ROOT: `contracts/opendox-pin.yaml` and an
+`openDox` gitlink now exist here, landed by openxFactory #932 →
+`f4fb4ffc010a8fc2b5e101a8426316486fd5fd37`. This repository therefore has TWO
+DIRECT UPSTREAMS, openXdox and openDox, and openDox's commit is a DECLARED
+value here as well as a derived one. **What survives of RULING F is the CHAIN,
+and it survives as a LOCKSTEP INVARIANT rather than as an absence:**
+`openxFactory`'s direct openDox pin MUST EQUAL the commit
+`openXdox/contracts/opendox-pin.yaml` names, read as a git blob at the
+`openXdox` gitlink's commit and never from a working tree — so RULING OQ-2's
+ONE CHAIN still decides openDox's commit and the direct mount can never drift
+from it. `scripts/verify-opendox-pin.py` carries it as check 5 and
+`tests/opendox_pin/`'s `test_ruling_q7_two_direct_upstreams_in_lockstep`
+asserts it. The reason the mount exists at all is § 5.2 itself: the shed
+removes the modules 32 importing files name, and a commit read THROUGH another
+repository's pin file is not a path an `import` statement can traverse.)*
 The legs are pinned by their own assembly root, twice and in one commit (gitlink
 plus `contracts/<role>-pin.yaml`), under the lockstep invariant the doctrine
 already ratified.

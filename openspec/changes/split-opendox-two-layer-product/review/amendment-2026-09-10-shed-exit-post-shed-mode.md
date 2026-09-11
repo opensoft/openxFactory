@@ -147,6 +147,15 @@ Standing and unchanged by this ruling: "start § 3.7 and merge it when green"
   correct the two places documenting `--at <carve_commit>`"; "(4) the seventh
   refusal code joins the tuple") **are PR-1's own scope**, not this amendment's
   — recorded here only because they are part of the same ruling comment.
+  **One correction of fact, carried rather than repeated:** the ORDINAL in (4)
+  is wrong and the ruling's substance is not. `REFUSAL_CODES` in
+  `scripts/validate-carve-manifest.py` stood at ELEVEN members when the ruling
+  was worded, so `carve-shed-incomplete` joins as the **12th of 12 refusal
+  codes**, not the seventh — it is written in the tuple's eleventh position,
+  ahead of `carve-unreadable`, which the tuple deliberately keeps last as the
+  ENVIRONMENT-and-ENCODING code. PR-1 (#928 → `0e76e789`) landed it there, and
+  `RATIFIED_CODES` in `tests/carve_manifest/test_carve_manifest.py` restates all
+  twelve as a literal so neither the count nor the order can drift unremarked.
 
 ## What changed, file by file
 
@@ -156,22 +165,32 @@ Standing and unchanged by this ruling: "start § 3.7 and merge it when green"
 | `design.md` § D6, end of part (1) | no mention of the shed's own prerequisite | an inline `> Amended 2026-09-10.` block: the measured refusal, the ruling verbatim, exit (a)'s semantics, exits (b)/(c) named and costed, the two-pull-request realization plan |
 | `tasks.md` § 5.1 tick note | aside: "moved in PR #917's one commit (… nothing else in that diff)" | corrected: names commit `7f76f978` explicitly, states the three files the aside omitted, and affirms 5.1's own text (pin + gitlink, same commit) still holds |
 | `tasks.md` § 5.2 (still open) | the deletion list alone, no ruling citation | a dated STATUS paragraph: RULING (a) with the comment id, PR-1's status, PR-2's three named sub-questions, and the probe-1 "4 errors" → 27 correction, citing the immutable record rather than editing it |
+| `proposal.md` header | `Ratified:` + two `Amended:` lines (2026-09-05, 2026-09-09) | a THIRD `Amended:` line naming RULING (a), the verbatim word, the comment id and this record; `Status:`, `Ratified:`, `Lane:` and both prior lines UNTOUCHED |
+| `proposal.md` § *Rulings carried as LOCKED constraints* item 12 (RULED OQ-1) | FLOOR PART 1 as *"a mapping manifest with per-file digests at the cut plus a CLOSED edit-class list"* | the same sentence with an inline amendment clause naming the optional `phase:` key, its two values, the symmetry and the ruling's comment id. The other three parts and both rejected alternatives are byte-identical, and part 2's 2026-09-09 clause is untouched |
+| `proposal.md` `code_surface` items (1) and (3) (RULING F) | *"`openxFactory` does NOT pin openDox's assembly root directly"* / *"never separately declared, pinned or mounted here"* | each keeps its original sentence and gains an `AMENDED 2026-09-10 — RULED Q7` note: TWO direct upstreams, the LOCKSTEP invariant that preserves RULING OQ-2's one chain, and openxFactory #932 → `f4fb4ffc`. Nothing is deleted |
+| `design.md` § D12's pin discussion | *"openDox's commit there is a DERIVED value read through openXdox's own pin"* | the sentence is kept and followed by the RULED Q7 amendment note: the direct `openDox` gitlink and `contracts/opendox-pin.yaml`, the LOCKSTEP invariant as what survives of RULING F, its verifier and its test, and § 5.2 as the reason the mount exists at all |
+| `README.md` OpenSpec Records row | ratified + two amendments | a third amendment clause in the same form, with FLOOR PART 1's unchanged referents and the one-act symmetry |
+| this record, § *Scope* | the ruling comment's *"(4) the seventh refusal code"* quoted without comment | the quote kept, with the ordinal corrected in place: `carve-shed-incomplete` is the **12th of 12**, written eleventh in the tuple ahead of `carve-unreadable` |
 | `review/amendment-2026-09-10-shed-exit-post-shed-mode.md` | — | this file |
 
-**Four sites, two files plus this record.** `proposal.md` and `README.md`'s
-OpenSpec Records row are NOT touched by this amendment — narrower than the
-2026-09-05 and 2026-09-09 amendments' own footprint — because the packet-side
-text this amendment carries was scoped by the lane to `design.md` and
-`tasks.md` only; a later hand extending this amendment to `proposal.md`'s
-header and eleven-acts list and to `README.md`'s OpenSpec Records row (the
-form both prior amendments used) would be completing the convention, not
-contradicting it.
+**Nine sites, four files plus this record** — as first written this record said
+*"four sites, two files"* and declared `proposal.md` and `README.md` NOT
+touched, "a later hand extending this amendment to `proposal.md`'s header and
+eleven-acts list and to `README.md`'s OpenSpec Records row (the form both prior
+amendments used) would be completing the convention, not contradicting it."
+PR-2 is that later hand and took the extension, so the footprint now matches
+the 2026-09-05 and 2026-09-09 amendments' own rather than being narrower than
+them. The original sentence is quoted here rather than deleted.
 
 ## Verification
 
 - `OPENSPEC_TELEMETRY=0 openspec validate split-opendox-two-layer-product --strict`
   and `--all --strict`, through the repository's pinned CLI entrypoint.
 - `python3 scripts/proposal-support.py . verify split-opendox-two-layer-product`.
-- No code, manifest or workflow file is touched by this amendment, so no
-  suite run is owed beyond the doc-health / lifecycle checks that read
-  `Status:` headers and requirement structure.
+- No code, manifest or workflow file is touched by THIS AMENDMENT's own text,
+  so no suite run is owed by it beyond the doc-health / lifecycle checks that
+  read `Status:` headers and requirement structure. *(Read with care: the PULL
+  REQUEST that carries this record — PR-2, the § 5.2 shed — does touch the
+  manifest, the tree and `.github/workflows/pytest-suite.yml`, and it runs the
+  whole required suite. The sentence above scopes the amendment, not its
+  carrier.)*
