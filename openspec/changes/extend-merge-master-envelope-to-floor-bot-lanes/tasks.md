@@ -830,7 +830,7 @@ and 5.5 carry dated notes and stay untaken. **The packet is NOT archived** —
 § 4.4 (archive through `proposal-support`) is separately open by its own text
 and this PR does not touch it.
 
-### 2026-09-11 — Brett Heap's three-selection ruling ticks the remaining owner's-act pair and both scope-gated boxes
+### 2026-09-11 — Brett Heap's three-selection ruling ticks the four remaining owner's-act boxes, both scope-gated boxes, and the successor-discharged box
 
 **APPENDED, NOT A REWRITE.** PR #927's superseding status paragraph above
 stands as written; it predates Brett Heap's three selections given
