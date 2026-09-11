@@ -542,12 +542,19 @@ Active changes:
   at `opensoft/xFactory` `0ecb370e`, blob `9458d6c2` — belonging to the EIGHT
   families the parent did not take. **THE MEASUREMENT MOVED THE ANSWER**: not one
   of the thirty-one names a path under `openspec/changes/archive/`, so the
-  parent's immutability ground is absent; 30 of them are read only by
-  `report.uncited_resolutions`; the 31st (`uncited-resolution`'s own) can never be
-  looked up; and a control run with the file emptied moves ZERO rows. The eight
-  families are grouped into FOUR CLASSES so the ruling is taken four times, each
-  put as a multiple-choice question with the recommendation first, and the
-  recommendation is NO family-side reading anywhere. One `## MODIFIED` block over
+  `govern-archived-record-edits`' absolute bar reaches none of them — though four
+  of the five `record-immutability` targets ARE `Status: record` documents, which
+  the measurement reads directly rather than inferring from a path prefix; 30 of
+  them are read by the estate-wide `report.uncited_resolutions` arm and four of
+  those thirty ALSO by `modified-block-currency`'s own module, whose promoted
+  scenario already rules them; the 31st (`uncited-resolution`'s own) can never be
+  looked up; and a control run with the file emptied moves ZERO STANDING
+  DETERMINISTIC-FAMILY rows, the uncited-resolution effect (30 findings without
+  the file, 0 with it) being measured separately. The eight families are grouped
+  into FOUR CLASSES so the ruling is taken four times, each put as a
+  multiple-choice question with the recommendation first, and the recommendation
+  commissions NO NEW family-side reading anywhere — `modified-block-currency`
+  keeps the reading its own requirement already declares. One `## MODIFIED` block over
   *Finding severity and regression handling*; `code_surface: none`;
   `sequenced_after: []`. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
   scopes what a veto would commission and every box is open. **FILING ≠

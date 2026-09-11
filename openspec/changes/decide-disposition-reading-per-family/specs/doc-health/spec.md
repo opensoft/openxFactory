@@ -37,7 +37,11 @@ single issue per run in the aggregation repo listing the new findings.
 
 #### Scenario: A recorded disposition names a family this capability gives no reading
 - **WHEN** the aggregation's `health/dispositions.yaml` carries a dated, cited entry naming a check family, a repository and a path, and this capability declares no disposition reading for that family
-- **THEN** the entry MUST change no standing finding — not its severity, not its action, not whether it is reported at all — because a family that was never told to read the file cannot be silenced by it, and a defect somebody can still repair is not made lawful by a record that somebody noticed it
+- **THEN** the entry MUST change no standing finding — not its severity, not its action, not whether it is reported at all — because a disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has no arm to read it
 - **AND** the entry MUST still be read by the contested-resolution rule above, so that when the finding it names later stops being reported the `uncited resolution` error is not emitted against it — which is the one effect an entry of such a family has ever had
-- **AND** a family for which this capability DOES declare a disposition reading MUST be read exactly as its own declaration says, this scenario neither widening nor narrowing any of them
 - **AND** an entry naming the `uncited-resolution` family itself MUST change nothing at all, that family's rows never entering the contested set the rule above iterates
+
+#### Scenario: A recorded disposition names a family this capability does give a reading
+- **WHEN** the aggregation's `health/dispositions.yaml` carries an entry naming a check family for which this capability DOES declare a disposition reading in that family's own requirement
+- **THEN** the entry MUST be read exactly as that family's own declaration says and by that declaration alone, whether it suppresses or downgrades
+- **AND** the preceding scenario MUST neither widen nor narrow any such declaration, its condition being the ABSENCE of one

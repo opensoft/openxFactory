@@ -84,10 +84,33 @@ Thirty-one entries, one row each, collapsed by outcome:
 | **not deterministically measurable** — no deterministic run emits this family | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1, `uncited-resolution` 1 (all three targets present) |
 
 **NOT ONE OF THE THIRTY-ONE NAMES A PATH UNDER `openspec/changes/archive/`.**
-A set test over the thirty-one, not a count: zero. The parent's ground —
-`record-immutability` and `govern-archived-record-edits` put an archived
-packet's bytes beyond a plain fix, so the owner rules because the owner cannot
-edit — **does not reach this population at all**.
+A set test over the thirty-one, not a count: zero. So the parent's ground in its
+strongest form — `govern-archived-record-edits` putting an archived packet's
+bytes beyond ANY fix, so the owner rules because nobody can edit — **does not
+reach this population**.
+
+**THAT TEST IS NOT THE IMMUTABILITY TEST, AND THE FIRST FILING OF THIS PACKET
+READ IT AS ONE.** `fam_record_immutability` does not scan a path prefix: it
+scans every governed document whose `Status:` is `record`, wherever it sits
+(`scripts/doc_health/families.py`, `fam_record_immutability`:
+`for doc in ctx.docs: if doc.status != "record": continue`). The status was
+therefore read off each `record-immutability` target directly, at the D0 rig:
+
+| entry target | `Status:` header | immutable in the parent's sense? |
+| --- | --- | --- |
+| `openxFactory docs/domain-ontology-pilot-report.md` | `record` | no — a revert is available to its owner |
+| `openxFactory docs/archive-record-discrepancies.md` | `record` | no — same |
+| `MedxFactory examples/patient-assembly/runs/08-connector-input/p1-divergence-report.md` | `record` | no — same |
+| `codexFactory docs/browser-ui-repair-lineage-reissue-2026-09-10.md` | `record` | no — same |
+| `openxFactory ideation/cross-reference.md` | `projection` | not a record at all |
+
+**FOUR OF THE FIVE ARE `Status: record` DOCUMENTS.** What separates them from
+the parent's population is not the status but the REMEDY: this family's own
+action text names one — *"revert the content edit or re-issue as a new record"*
+— and none of the four sits under `openspec/changes/archive/`, where
+`govern-archived-record-edits` forbids the revert. The anticipated class is
+therefore NOT EMPTY; it is WEAKER than the parent's, and the split that implies
+is put to Brett Heap as Class C option **(C4)** rather than taken here.
 
 ### D0.3 — the control: what would change if the file were empty?
 
@@ -127,8 +150,10 @@ row per entry and running `report.parse_previous` and
 
 ### D0.5 — what the entries say about themselves
 
-Four of the thirty-one state their own effect in their `rationale`, correctly,
-in prose, in another repository, because canon does not state it:
+**TEN** of the thirty-one state their own effect in their `rationale`,
+correctly, in prose, in another repository, because canon does not state it —
+and they do it in **three** distinct patterns, one quoted per pattern below
+(`proposal-origin` ×8 share one wording; the other two are one entry each):
 
 > nothing is suppressed by this entry. Its purpose is the permanent audit trail
 > of the 2026-09-11T11:02Z ruling, and to pre-empt a future uncited-resolution
@@ -199,10 +224,18 @@ defect, it is the record of why a defect stopped being reported.
 Measured: **10 of the 15 draw a live finding today** — 7 `proposal-origin` (5
 `warning`, 2 `error`) and 3 `record-immutability` (all `critical`). Two more
 name a present target that draws nothing, one names a vanished target, and the
-two semantic entries name findings only the LLM sweep emits. **None names an
-archived path**, so the parent's ground is absent: every one of these subjects
-is repairable by somebody, and four of the entries say in their own `rationale`
-that nothing is suppressed and the row stays visible.
+two semantic entries name findings only the LLM sweep emits.
+
+**THE REPAIRABILITY IS MEASURED PER TARGET, NOT INFERRED FROM A PATH PREFIX**
+(D0.2). None of the fifteen names an archived path, so none is beyond repair in
+`govern-archived-record-edits`' absolute sense — but FOUR of the five
+`record-immutability` targets ARE `Status: record` documents, and calling them
+"repairable" is true only because this family's own action text names the repair
+("revert the content edit or re-issue as a new record") and no archive rule
+forbids it. That is a WEAKER distinction from the parent's than the first filing
+of this packet claimed, and it is the reason (C4) below exists. Ten of the
+fifteen entries say in their own `rationale` that nothing is suppressed and the
+row stays visible.
 
 **RECOMMENDED — (C1) DELIBERATELY IGNORE: no family-side reading; the entry is a
 governance record and the finding keeps its band.** This is the decision the
@@ -224,6 +257,16 @@ fifteen into the second.
   terms that their authors did NOT intend this; adopting it would silence
   findings their own disposers expected to stay visible, and would make the
   count of dispositioned-but-live defects unreadable from the artifact.
+- **(C4) SPLIT THE CLASS ON THE MEASURED STATUS** — `record-immutability`'s four
+  `Status: record` targets ruled separately from the rest, on the ground that a
+  record's repair is a REVERT-OR-REISSUE rather than an edit. Cost and honest
+  statement of it: this is the only option here that could carry the parent's
+  downgrade reading into any of this population, and it is put as an option
+  BECAUSE THE MEASUREMENT SUPPORTS PUTTING IT — but it splits one ruling into
+  two, and the three `critical` rows it would move are rows whose own disposer
+  wrote that the CRITICAL "is NOT suppressible and is reported live either way".
+  **This packet does not take it**; a class is Brett Heap's to rule, and the
+  recommendation above remains (C1).
 
 ### Class D — THE DEAD LETTER: `uncited-resolution` (1 entry)
 
@@ -246,15 +289,21 @@ an entry is an act in `opensoft/xFactory`, not here.
   [#965](https://github.com/opensoft/openxFactory/issues/965), which is where
   every question of this shape is being gathered.
 
-### The class the brief anticipated and the measurement emptied
+### The class the brief anticipated, and what the measurement actually did to it
 
 The commissioning brief and the issue both anticipated a class of families whose
 findings are about ARCHIVED records frozen by `record-immutability` /
 `govern-archived-record-edits`, for which the parent's downgrade-with-citation
-reading would apply unchanged. **THAT CLASS HAS NO MEMBERS**: zero of the
-thirty-one entries names a path under `openspec/changes/archive/` (D0.2). It is
-recorded here rather than quietly dropped, because the next lane to read the
-issue will look for it.
+reading would apply unchanged. **IT HAS NO MEMBERS IN THAT EXACT SHAPE, AND IT
+IS NOT EMPTY IN THE SHAPE A PATH TEST MISSES.** Zero of the thirty-one entries
+names a path under `openspec/changes/archive/`, so the absolute bar reaches
+none of them; but four of the five `record-immutability` targets ARE
+`Status: record` documents (D0.2), which is the status that family actually
+scans. The residue is a WEAKER version of the anticipated class, and it is
+carried as Class C option **(C4)** rather than dropped — recorded here in terms
+because the next lane to read the issue will look for this class, and because
+the first filing of this packet said "empty" on the path test alone and was
+right to be corrected.
 
 ## D2 — the arm the recommended rows imply: NONE, and the seam is named anyway
 
@@ -312,8 +361,13 @@ scope: it constrains what an entry MEANS, not where the file is found.
 ## D5 — the LIMIT of this packet, stated so no reader has to infer it
 
 - **`ratified-provenance`'s eighteen entries are settled by the parent and are
-  not re-opened.** This packet's scenario applies only where this capability
-  declares no reading, and for that family it now declares one.
+  not re-opened.** THE PARENT IS THE CAPABILITY'S DECLARATION FOR THAT FAMILY —
+  `doc-health`'s promoted *A finding is grandfathered by a recorded disposition*,
+  which the parent added. The added scenario here is conditioned on the ABSENCE
+  of such a declaration, so it never reaches `ratified-provenance` and cannot be
+  read over the parent's downgrade rule; the second added scenario states that
+  boundary in terms, for `promotion-fidelity`, `duplicate-packet`,
+  `modified-block-currency` and `ratified-provenance` alike.
 - **STALE ENTRIES ARE NOT THIS PACKET'S SUBJECT.**
   [#965](https://github.com/opensoft/openxFactory/issues/965) is the
   stale-disposition successor, filed by the parent's § 7.1 for the
@@ -322,3 +376,25 @@ scope: it constrains what an entry MEANS, not where the file is found.
   longer exists**, and seven more name a present path that draws no finding —
   and that figure is recorded here for #965 to carry rather than acted on. No
   finding class is graded and no severity is chosen by this packet.
+- **NO ACTIVE SIBLING DELTA COLLIDES WITH THE HEADING THIS PACKET MODIFIES, AND
+  THE COORDINATION WAS TAKEN LATE ON PURPOSE.** #965's packet would be the one
+  that could: `gh pr list --repo opensoft/openxFactory --search 965 --state open`
+  was run on 2026-09-11 after this branch merged `origin/main` `c521504c`, and
+  **no `report-stale-grandfather-dispositions` pull request exists** — #965 is
+  unclaimed and has no branch. The whole open set was listed as the control
+  (#979, #977, #976, #963, #962, #888, #594, #518 and this one), and the
+  repository-wide search
+  `grep -rn "Finding severity and regression handling" openspec/changes/ | grep -v /archive/`
+  names no file outside this packet's own. `sequenced_after:` therefore stays
+  `[]`. **IF #965'S PACKET LANDS A DELTA OVER THIS SAME HEADING, THE
+  LATER-LANDING PACKET DECLARES `sequenced_after:` AT ITS ENCODE** — that is the
+  sequencing plan, and neither packet declares a branch-only parent.
+- **ONE ACTIVE SIBLING TOUCHES THIS PACKET'S FRONT MATTER RATHER THAN ITS
+  HEADING**, and is named so the next reader does not rediscover it:
+  `gate-realization-axis-vocabulary` (PR #963, issue #956) adds a gate over
+  `target_release:` with a CLOSED register. That register does not name this
+  packet, and its own act corrects the token `none` in four sibling proposals, so
+  this packet declares `target_release: implemented` — the ratified vocabulary's
+  own value — rather than relying on an exception it could not be granted. Its
+  delta is `## ADDED` over `release-realization` and touches no heading of
+  `doc-health`, so it raises no sequencing question for this one.

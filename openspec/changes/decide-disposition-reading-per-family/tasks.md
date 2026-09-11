@@ -3,10 +3,14 @@
 Status: draft
 Kind: tasks
 
-`code_surface: none`, `target_release: none`. Under `release-realization` an
-empty code surface archives ON LANDING plus its own task list rather than on
-merged-plus-green realization evidence — so there is no realization group here,
-and § 6 is the only thing between a ratified packet and its archive.
+`code_surface: none`, `target_release: implemented` — the ratified vocabulary's
+own doc-only default (*Realization axis declaration* admits `implemented` or a
+named release and nothing else), with the absence of any contract release stated
+as prose in `proposal.md` rather than smuggled into the value token. Under
+`release-realization` an empty code surface archives ON LANDING plus its own task
+list rather than on merged-plus-green realization evidence — so there is no
+realization group here, and § 6 is the only thing between a ratified packet and
+its archive.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement reproducible from the command named beside
@@ -22,7 +26,28 @@ VETOED.** Under the four recommendations no arm is owed at all. Each box below
 names what a particular veto would commission; **none of it is built here**, and
 building any of it before the ruling is the one thing this packet must not do.
 
-**§ 7 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
+**HOW EVERY BOX CLOSES, AND THE GATE THAT FORCES THE QUESTION.**
+`proposal-support.py`'s `archive_change` refuses a packet whose `tasks.md` still
+carries an unchecked box — `if tasks.is_file() and re.search(r"^- \[ \]",
+tasks.read_text(), re.M): raise SupportError("change has incomplete tasks")` —
+so "deliberately open" is not a state this packet may carry INTO its archive, and
+each open box below states the event that closes it:
+
+- **§ 1** closes AT THE RULING, one box per class, ticked by recording Brett
+  Heap's selection and the record path.
+- **§ 4** closes AT THE SAME RULING and never before it. A box whose condition
+  ("ONLY IF CLASS B OR CLASS C IS VETOED…") did NOT occur ticks as **NOT
+  COMMISSIONED — the recommendation was accepted**, which is a disposition and
+  not a silent drop; a box whose condition DID occur ticks by NAMING the
+  successor packet or issue the veto commissions, the arm being built there and
+  never here.
+- **§ 5** closes IN THIS PULL REQUEST, and is ticked below with the real exit
+  codes.
+- **§ 6** closes AT THE ARCHIVE, which is a separate act on a separate word.
+- **§ 7** closes BY RECORDING, on the estate's ruling of 2026-09-06 that an
+  owed-successor box ticks when its successor is NAMED — the shape the parent's
+  own § 7 archived in. Its boxes are ticked below: three name a filed successor
+  (#965, #967, #968) and two record a residue with no successor owed.
 
 ## 1. Ratification — OWED, NOT GIVEN (one box per class)
 
@@ -116,13 +141,20 @@ building any of it before the ruling is the one thing this packet must not do.
       reading is read exactly as its own declaration says, neither widened nor
       narrowed; and an entry naming `uncited-resolution` itself changes nothing
       at all.
-- [x] 3.4 ACTIVE-delta sibling search over the heading modified:
+- [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the
+      committed tree after `origin/main` `c521504c` was merged, and scoped so it
+      cannot match this packet's own files:
       `grep -rn "Finding severity and regression handling" openspec/changes/ |
-      grep -v /archive/` returns NOTHING, and the only two active
-      `specs/doc-health/` deltas are `add-nightly-dashboard-refresh` (7 ADDED, none
-      this one) and `settle-aging-staging-topics` (1 MODIFIED, *Aging threshold
-      defaults*). No two-writers collision; `sequenced_after: []` stands on that
-      measurement.
+      grep -v /archive/ | grep -v decide-disposition-reading-per-family` returns
+      NOTHING (exit 1, no match). WITHOUT the third filter it returns exactly
+      three lines and all three are this packet's own — `proposal.md`,
+      `specs/doc-health/spec.md` and this task file — which is why the filter is
+      part of the test and not a way of hiding a hit. The only two other active
+      `specs/doc-health/` deltas are `add-nightly-dashboard-refresh` (7 ADDED,
+      none this one) and `settle-aging-staging-topics` (1 MODIFIED, *Aging
+      threshold defaults*). No two-writers collision; `sequenced_after: []`
+      stands on that measurement. The LATE re-check for #965's packet is
+      `design.md` D5.
 
 ## 4. The arms a VETO would commission — SCOPED, NOT BUILT
 
@@ -175,28 +207,38 @@ building any of it before the ruling is the one thing this packet must not do.
 - [ ] 6.3 The README "OpenSpec Records" ACTIVE row is moved to the archived
       block in the same act.
 
-## 7. Measured, and deliberately NOT taken here
+## 7. Measured, and deliberately NOT taken here — RECORDED IN THIS PULL REQUEST
 
-- [ ] 7.1 **NO TEST PINS THE BOUNDARY** the added scenario states. `design.md`
+**EVERY BOX BELOW IS TICKED BY THE RECORDING AND BY NOTHING ELSE.** No residue
+is acted on: no arm is written, no finding class is graded, no severity is
+chosen and no entry is edited. Three of the five hand their residue to a NAMED
+filed successor, which is the form the estate ruled on 2026-09-06 and the form
+the parent's own § 7 archived in; two record a residue that owes no successor
+and say so.
+
+- [x] 7.1 **NO TEST PINS THE BOUNDARY** the added scenario states. NO SUCCESSOR
+      IS OWED and none is named — this box ticks on the recording of the
+      trade-off, not on a hand-off. `design.md`
       D3 takes that deliberately — the control run in D0.3 proves the property on
       demand and a test would be the first inch of an arm the ruling has not
       commissioned — and records the trade-off: a future refactor could break the
       boundary silently. A successor may pick it up under its own word.
-- [ ] 7.2 **THE STALE-ENTRY POPULATION OUTSIDE `ratified-provenance` IS MEASURED
+- [x] 7.2 **THE STALE-ENTRY POPULATION OUTSIDE `ratified-provenance` IS MEASURED
       AND HANDED TO [#965](https://github.com/opensoft/openxFactory/issues/965),
       NOT ACTED ON**: **11** of the thirty-one name a path that no longer exists
       in the repository it names, and **7** more name a present path that draws
       no finding of that family. No finding class is graded and no severity is
       chosen here.
-- [ ] 7.3 **`docs/doc-health.md` IS NOT EDITED.** Its only description of this
+- [x] 7.3 **`docs/doc-health.md` IS NOT EDITED.** Its only description of this
       file is the neutrality lane's *Dispositions keying* paragraph (line 341),
       accurate about that lane and silent about the estate-wide reading this
       packet decides. The documentation sweep is
       [#967](https://github.com/opensoft/openxFactory/issues/967).
-- [ ] 7.4 **THE `--single-repo` SCOPE IS LEFT WITHOUT DISPOSITIONS**, which is
+- [x] 7.4 **THE `--single-repo` SCOPE IS LEFT WITHOUT DISPOSITIONS**, which is
       [#968](https://github.com/opensoft/openxFactory/issues/968) and `design.md`
       D4. The added scenario is written to say nothing about scope.
-- [ ] 7.5 **THE THIRTY-ONE CITES ARE NOT RE-VERIFIED.** Whether each disposer's
+- [x] 7.5 **THE THIRTY-ONE CITES ARE NOT RE-VERIFIED.** Whether each disposer's
       ground was sound was that authority's act; re-litigating it in a checker is
       not this capability's authority (`doc-health`, *Semantic finding
-      disposition authority*).
+      disposition authority*). NO SUCCESSOR IS OWED and none is named; this box
+      ticks on the recording of the limit.

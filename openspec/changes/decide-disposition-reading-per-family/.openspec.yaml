@@ -5,7 +5,13 @@ origin:
   id: openxFactory:adhoc:2026-09-11-decide-disposition-reading-per-family
   reason: >-
     THIRTY-ONE ENTRIES IN THE AGGREGATION'S `health/dispositions.yaml` BELONG TO
-    EIGHT FAMILIES THAT WERE NEVER TOLD WHAT AN ENTRY OF THEIRS MEANS.
+    EIGHT FAMILIES, AND SEVEN OF THE EIGHT WERE NEVER TOLD WHAT AN ENTRY OF
+    THEIRS MEANS. The eighth, `modified-block-currency`, WAS: its promoted *A
+    finding is dispositioned* scenario rules its four entries and its module
+    reads the file under its own name at
+    `scripts/doc_health/modified_block_currency.py:2230`, which is why those four
+    are Class A and Class A's recommendation is NO CHANGE. The undecided
+    population is the SEVEN families with no declared reading — 27 of the 31.
     `honour-grandfather-dispositions-in-ratified-provenance` (#939, archived
     2026-09-11) answered the question for the ninth family — `ratified-provenance`
     — and its own `design.md` D6 and `tasks.md` § 7.2 named this as a separate
@@ -16,21 +22,33 @@ origin:
     aggregation-shaped checkout carrying `openxFactory` `8015d45f`,
     `codexFactory` `dc67ad82`, `OpsxFactory` `7368cb49` and `MedxFactory`
     `9f125a6a`, and it moved the answer. NOT ONE of the thirty-one names a path
-    under `openspec/changes/archive/`, so the parent's ground — an IMMUTABLE
-    record with no repair available to anyone — is absent from this whole
-    population and its downgrade-to-`info` reading has nothing here to apply to.
-    THIRTY of the thirty-one are read today by exactly one arm,
+    under `openspec/changes/archive/`, so `govern-archived-record-edits`'
+    absolute bar — bytes NOBODY may edit — reaches none of them. THAT PATH TEST
+    IS NOT THE IMMUTABILITY TEST AND THE STATUS WAS READ DIRECTLY:
+    `fam_record_immutability` scans every document whose `Status:` is `record`
+    wherever it sits, and FOUR of the five `record-immutability` targets are such
+    documents (the fifth is `Status: projection`). What is absent is the parent's
+    exact ground — a record with NO repair available to anyone — because this
+    family's own action text names one ("revert the content edit or re-issue as a
+    new record") and no archive rule forbids it here. The anticipated class is
+    therefore weaker rather than empty, and the split it implies is put to the
+    owner as Class C option (C4) rather than taken.
+    THIRTY of the thirty-one are read today by one ESTATE-WIDE arm,
     `report.uncited_resolutions`, which keys on `(family, repo, path)` for every
     family and silences the `uncited resolution` error when a contested finding
-    stops being reported. The THIRTY-FIRST is a dead letter: `parse_previous`
+    stops being reported. It is the only arm that reads ALL thirty and NOT the
+    only arm that reads every one of them: the four `modified-block-currency`
+    entries are also read by that family's own module, which is a promoted
+    declaration rather than a gap. The THIRTY-FIRST is a dead letter: `parse_previous`
     never admits an `uncited-resolution` row to the contested set (the anti-echo
     of issue #515), so that entry's key can never reach the lookup. And a CONTROL
     RUN with the file replaced by `[]` reports byte-identical row sets for all
     five deterministic families that hold entries, so the thirty-one move nothing
     a reader sees.
-    THE REMEDY IS THEREFORE A BOUNDARY WRITTEN INTO CANON AND NOT AN ARM. Four of
+    THE REMEDY IS THEREFORE A BOUNDARY WRITTEN INTO CANON AND NOT AN ARM. TEN of
     the entries already reason about the mechanism correctly in their own
-    `rationale` field — "nothing is suppressed by this entry", "the CRITICAL is
+    `rationale` field, in THREE distinct wordings (`proposal-origin` x8 share
+    one; the other two are one entry each) — "nothing is suppressed by this entry", "the CRITICAL is
     NOT suppressible and is reported live either way", "only the spurious
     uncited-resolution ERROR is disposed here" — which is a lane deriving from
     the code what the contract does not state, in a different repository. The
@@ -67,18 +85,22 @@ origin:
     RECOMMEND deliberately ignore — the entries are disappearance citations and a
     reading arm would have a population of zero. Class C (`proposal-origin`,
     `record-immutability`, `semantic-contradiction`, `semantic-normative-prose`,
-    15 entries): RECOMMEND deliberately ignore — the findings are LIVE and
-    REPAIRABLE, ten of them are reported today, none is archived, and four of the
-    entries record in terms that the row was meant to stay visible. Class D
+    15 entries): RECOMMEND deliberately ignore — the findings are LIVE and their
+    repair is available to somebody, ten of them are reported today, none is
+    archived, and ten of the entries record in terms that the row was meant to
+    stay visible. A measured option (C4) splits `record-immutability`'s four
+    `Status: record` targets out for a separate ruling and is put to the owner
+    rather than taken. Class D
     (`uncited-resolution`, 1 entry): RECOMMEND record that it is inert and leave
     it. Beside them `design.md` D3 puts the packet's own shape — decision only,
     `code_surface: none` — with its trade-off written out.
     NO ARM IS BUILT AHEAD OF THE WORD. `tasks.md` § 4 scopes what each veto would
     commission and every box in it is open.
     NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS FILING. This pull request
-    edits no file under `openspec/specs/`; `code_surface` is `none`, so under
-    `release-realization` the archive is a separate act on a separate word and
-    openxFactory #966 closes there and not at this landing.
+    edits no file under `openspec/specs/`; `code_surface` is `none` and
+    `target_release` is `implemented` — the ratified vocabulary's own doc-only
+    default — so under `release-realization` the archive is a separate act on a
+    separate word and openxFactory #966 closes there and not at this landing.
   proposed_on: 2026-09-11
 related:
   - openxFactory:issue:966                                                     # THE ORIGIN. Filed by this lane at the parent's archive, carrying its § 7.2. Closes at the ARCHIVE, never at this landing
@@ -88,4 +110,4 @@ related:
   - openxFactory:issue:967                                                     # The `docs/doc-health.md` documentation sweep (the parent's § 7.3). This packet edits that file not at all and says why
   - openxFactory:issue:968                                                     # The `--single-repo` asymmetry (the parent's § 7.4). D4 leaves it there and writes the added scenario so it says nothing about scope
   - openxFactory:change:archive/2026-08-24-add-promotion-fidelity-check        # ARCHIVED. Wrote `promotion_fidelity.load_dispositions`, the estate's one reader of the file, and the first *A finding is dispositioned* scenario — one of the three SUPPRESSING declarations this packet counts
-  - openxFactory:change:archive/2026-09-09-govern-archived-record-edits        # ARCHIVED. With `record-immutability` it is the ground the parent's downgrade rests on — and the ground D0.2 measures ABSENT from all thirty-one entries
+  - openxFactory:change:archive/2026-09-09-govern-archived-record-edits        # ARCHIVED. With `record-immutability` it is the ground the parent's downgrade rests on. D0.2 measures its ABSOLUTE bar absent from all thirty-one (no archived path) while four record-immutability targets ARE `Status: record` documents — the weaker residue carried as Class C option (C4)
