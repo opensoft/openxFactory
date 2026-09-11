@@ -107,27 +107,42 @@ codexFactory**, authored there, exactly as
       class enrolled in `.github/merge-approval-envelope.yml` at realization
       time — today TWO, `codexfactory-routine-code` and
       `openxfactory-floor-regeneration`** — each MEASURED the same way:
-      withdraw THAT CLASS ALONE in a scratch tree, run the pinning suite, and
-      collect the failing node ids. Each companion is declared using design.md
+      withdraw THAT CLASS ALONE in a scratch tree, run the pinning suite and
+      collect the failing node ids, then regenerate each golden/snapshot
+      artefact by its own recording command and read the paths `git diff
+      --name-only` reports changed. Each companion is declared using design.md
       D-2c's grammar, **IN the envelope beside the candidate it belongs to**,
       as comment lines: `# companion: <pytest node id>` for every assertion
-      that pins that enrolment, and `# companion-artefact: <repo-relative
-      path>` for every golden/snapshot file whose recorded value moves with it.
-      Comment-only: **no schema member is added** to any candidate mapping, no
-      `active:` boolean, no repository variable, and no candidate MAPPING
-      moves.
-- [ ] **3.2 The conformance test — RUN PER CLASS.** ONE codexFactory test
-      that, per D-2c's grammar and for **EACH enrolled candidate class**,
-      withdraws THAT class alone in a scratch tree, runs the pinning suite, and
-      asserts that the set of failing node ids EQUALS that class's declared
-      `# companion:` set exactly — both directions, order-free — and that every
-      declared `# companion-artefact:` path EXISTS in the tree, so a stale
-      declaration is a failing check rather than a discovery made when the
-      switch is thrown. The equality is on ASSERTIONS; the artefacts are
-      declared and existence-checked, and their movement is proved by the
-      failing set itself (a golden or snapshot artefact moves exactly when its
-      recording test is in that set), so no artefact-diff procedure is needed
-      or claimed.
+      that pins that enrolment, and `# companion-artefact: <repo-relative path>
+      regenerate: <command>` for every golden/snapshot file whose recorded value
+      moves with it — **the RECORDING COMMAND IS PART OF THE DECLARATION**,
+      because 3.2 measures the artefact's movement by running it and reading the
+      diff rather than inferring it. **An artefact with no recording command
+      cannot be declared**, so where a declared artefact has none this task
+      SUPPLIES ONE (a recording/regeneration entry point in codexFactory) before
+      the artefact may be named. Comment-only: **no schema member is added** to
+      any candidate mapping, no `active:` boolean, no repository variable, and
+      no candidate MAPPING moves.
+- [ ] **3.2 The conformance test — RUN PER CLASS, AND IT IS TWO EQUALITIES.**
+      ONE codexFactory test that, per D-2c's grammar and for **EACH enrolled
+      candidate class**, withdraws THAT class alone in a scratch tree and, in
+      that SAME tree, measures both halves:
+      **(i) ASSERTIONS** — run the pinning suite and assert that the set of
+      failing node ids EQUALS that class's declared `# companion:` set exactly,
+      both directions, order-free; and
+      **(ii) ARTEFACTS** — regenerate each declared artefact by ITS OWN declared
+      `regenerate:` command and assert that the set of paths `git diff
+      --name-only` reports changed EQUALS that class's declared
+      `# companion-artefact:` set exactly — **no more, no less** — both
+      directions, order-free.
+      The artefact's movement is therefore MEASURED BY THAT REGENERATION DIFF
+      and is NOT inferred: an existence check does not prove the declared path
+      is the file whose recorded value moves, a node id does not identify the
+      path its run rewrites, a recording test can fail for an unrelated reason,
+      and a shared snapshot can change with no declared node id naming it.
+      Existence remains necessary and is no longer the check. A stale
+      declaration in EITHER half is a failing check rather than a discovery made
+      when the switch is thrown.
 - [ ] **3.3 Nothing else moves.** No candidate mapping, no ruleset, no bypass
       actor, no schema, no workflow logic, no `scripts/`, no `contracts/`, no
       relaxation of any existing assertion, and no rewrite of the pinning suite
@@ -173,7 +188,8 @@ exists.
       `extend-merge-master-envelope-to-floor-bot-lanes` PROMOTED — because this
       packet's `## MODIFIED` targets that change's own unarchived addition — and
       (d) Brett Heap's word. **THIS PACKET IS NOT ARCHIVABLE WHILE ANY ENROLLED
-      CANDIDATE CLASS LACKS A DECLARED COMPANION AND A PASSING EQUALITY TEST.**
+      CANDIDATE CLASS LACKS A DECLARED COMPANION AND A PASSING CONFORMANCE TEST
+      OVER BOTH EQUALITIES.**
       The condition is PER CLASS, not per packet: green evidence for
       `openxfactory-floor-regeneration` alone does not satisfy (b) while
       `codexfactory-routine-code` is enrolled and undeclared, and a class
