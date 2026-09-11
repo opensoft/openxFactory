@@ -455,6 +455,52 @@ def test_the_runners_own_read_survives_a_malformed_entry_end_to_end(tmp_path):
     assert out.is_file()
 
 
+def test_the_runners_own_read_survives_a_scalar_rooted_dispositions_FILE_end_to_end(
+        tmp_path):
+    """AND THE NIGHTLY'S OWN READ MUST SURVIVE A SCALAR-ROOTED FILE TOO —
+    THE ONE SHAPE NEITHER EXISTING `runner.main` TEST SENDS THROUGH IT.
+
+    `runner.main` loads `health/dispositions.yaml` unconditionally on every
+    aggregation run, for `report.uncited_resolutions`, behind its OWN
+    `isinstance(_entries, list)` guard (round 4 of PR #945's bench, commit
+    `5a8bba3e`) — the same refusal `promotion_fidelity.load_dispositions`
+    applies, needed here too because this read happens whatever any family
+    does. A file whose ROOT is a scalar (an int, a bool, a string, a bare
+    mapping) is well-formed YAML, so `yaml.safe_load` returns it unchanged
+    and `for d in _entries` would raise `TypeError: 'int' object is not
+    iterable` (or the mapping/string equivalent) out of the whole nightly —
+    the abort this guard removed, restored the moment the branch is deleted
+    (issue #964, filed at #939's archive).
+
+    NEITHER EXISTING MALFORMED-FILE TEST REACHES THIS LINE. The runner.main
+    test just above sends a LIST root carrying malformed ENTRIES through
+    `runner.main` — the round-5 unhashable-key guard, a different branch and
+    a different crash. And the family-level scalar-root test,
+    `test_a_malformed_dispositions_FILE_is_ignored_rather_than_aborting_the_run`,
+    reaches a scalar root but through `promotion_fidelity.load_dispositions`
+    and the family directly, never through `runner.main` — so deleting the
+    round-4 branch alone left the suite green while the abort still fires on
+    every real aggregation run.
+
+    Measured END TO END here, through `runner.main` over a real aggregation
+    root, which is the only path that executes that read. It NARROWS
+    NOTHING: a scalar root never yielded a disposition either way (a mapping
+    iterates keys, a string iterates characters, neither of which is a
+    dict), so the honoured set is identical either way and only the
+    exception is gone.
+    """
+    from doc_health import runner as _runner
+    agg = _dispositions(tmp_path, "7\n")
+    (agg / "openxFactory").mkdir(parents=True, exist_ok=True)
+    out = tmp_path / "report.md"
+    rc = _runner.main(["--repo-root", str(agg),
+                       "--family", _RATIFIED_PROVENANCE,
+                       "--as-of", AS_OF.isoformat(),
+                       "--report-out", str(out)])
+    assert rc == 0
+    assert out.is_file()
+
+
 def test_a_requirement_narrowing_does_not_stop_the_downgrade(tmp_path):
     """The optional `requirement:` key selects one requirement inside a DELTA
     file. A ratification record has no requirement grain for it to select, so

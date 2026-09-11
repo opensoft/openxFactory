@@ -1429,8 +1429,11 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
     exempts its paragraph from carriage — a marker of correct form declaring
     nothing, which is exactly the fault the grounds exist to report. It is read
     on THAT FORM ALONE: the pairing form names no units by construction, and a
-    `Merged into` marker whose tail names no superseded title is a question
-    nobody has ruled.
+    `Merged into` marker whose tail carries no code span is silent BY
+    RULING, not by gap: `openspec/specs/doc-health/spec.md`, "Requirement:
+    Currency of an active change's MODIFIED requirement blocks", scenario "A
+    merge marker's tail names no superseded title", promoted by
+    `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`.
 
     THEN THE SCENARIO-TITLE EXTENSION, and it is gated. Where a `Removed from
     canon` marker names an absent scenario TITLE **and the block adds no
@@ -1532,9 +1535,12 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
         # marker reported here is reported ONCE. It is read on the
         # `Removed from canon` form ALONE: the pairing form names no units by
         # construction (its whole tail is a reason), and a `Merged into` marker
-        # whose tail names no superseded title is a question nobody has ruled,
-        # its destination standing in the prefix where that form's declaration
-        # has always been read.
+        # whose tail carries no code span is silent BY RULING, its
+        # destination standing in the prefix where that form's declaration has
+        # always been read: `openspec/specs/doc-health/spec.md`, "Requirement:
+        # Currency of an active change's MODIFIED requirement blocks", scenario
+        # "A merge marker's tail names no superseded title", promoted by
+        # `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`.
         if marker.form == "removed" and not marker.names and not marker.quoted:
             defective.append(_MarkerDefect(marker, _WHY_NOTHING))
     # GROUND TWO RUNS IN A SECOND PASS, AND IT HAS TO. Its predicate asks
