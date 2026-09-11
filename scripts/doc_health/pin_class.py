@@ -936,6 +936,91 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "openXdox's own `contracts/opendox-pin.yaml` as a DERIVED value, "
              "which is what keeps the chain to one authority per hop.",
     ),
+    # ---- the fourth neutral-product pin: RULING F superseded, ONE upstream ---
+    # `contracts/opendox-pin.yaml` (split-opendox-two-layer-product task 5.1
+    # extension, PR #932) pins `opensoft/openDox` DIRECTLY. RULING F (#656,
+    # 2026-09-05, "rule F openXdox only") held that openxFactory pins openXdox
+    # and NOTHING ELSE, and that openDox's commit is a DERIVED value read only
+    # through the member pair immediately above. Brett Heap's Q7 ruling (`#656`
+    # comment `5626248666`, 2026-09-10) supersedes that sentence FOR OPENDOX
+    # ONLY: openxFactory now mounts openDox as a SECOND submodule and pins it
+    # directly, so this repository declares TWO direct upstreams rather than
+    # one. `contracts/openxdox-pin.yaml` and its two members above are
+    # UNCHANGED — RULING F still governs THAT pin — and this is a new,
+    # independent declaration rather than an edit to the first.
+    #
+    # SAME TWO-MEMBER SPLIT AS THE PAIR ABOVE, ON THE SAME REASONING: openDox's
+    # bytes were carved OUT OF THIS REPOSITORY, so this pin names both the
+    # openxFactory commit the carve was taken at (REPO_LOCAL) and the openDox
+    # commit itself (CROSS_REPOSITORY), and the two have different localities.
+    #
+    # A SECOND DECLARATION OF THE SAME PRODUCT'S BYTES NOW EXISTS, AND THAT IS
+    # THE ONE NEW THING. Before this pin, openDox's commit had exactly one
+    # declaration this repository's census reached: the `openxdox-pin-product-
+    # commit` site above. This member is a SECOND, independent declaration of
+    # the same commit — which is exactly the shape `neutral-product-pin`'s
+    # chain clause exists to forbid UNLESS something holds the two equal.
+    # `scripts/verify-opendox-pin.py`'s fifth check is that something: it reads
+    # openXdox's own derived pin as a git blob out of the openXdox submodule's
+    # object store, AT THE COMMIT THE `openXdox` GITLINK RECORDS — never the
+    # openXdox working tree, so an edited-but-not-repinned checkout cannot fool
+    # it — and refuses `opendox-pin-lockstep-mismatch` the moment the two
+    # commits disagree. This module's own reachability census does not run
+    # that cross-check; it is what MAKES declaring two members for the same
+    # product's bytes (rather than one shared one) safe, by keeping them
+    # provably equal at every commit that touches either pin.
+    #
+    # DECLARED IN THE COMMIT THAT ADDS THE PIN, on the pair above's own
+    # precedent: measured here before the push (2 uncovered sites before this
+    # commit, 0 after), so this member never announces itself as `uncovered`
+    # on a CI run either.
+    PinMember(
+        id="opendox-pin-carve-commit",
+        paths=("contracts/opendox-pin.yaml",),
+        key="carve_commit",
+        key_form="field",
+        generator="authored with the pin (split-opendox-two-layer-product "
+                  "task 5.1 extension, RULED Q7, PR #932)",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        note="THE NAMED CARVE COMMIT — an openxFactory commit, and the one "
+             "value in this file that MUST stay reachable here. RULED OQ-I "
+             "(#656, 2026-09-09) places the carve's byte-identity referent in "
+             "three records, and `carve_commit:` in the pin files is the one "
+             "that survives into the tree a gate reads; identical value to "
+             "`openxdox-pin-carve-commit` above, since openDox and openXdox "
+             "were carved from this repository in the SAME act. Same key and "
+             "same reason, one direct pin later — what makes this a distinct "
+             "member is the PATH.",
+    ),
+    PinMember(
+        id="opendox-pin-product-commit",
+        paths=("contracts/opendox-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (split-opendox-two-layer-product "
+                  "task 5.1 extension, RULED Q7, PR #932)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openDox` — the PINNED PRODUCT'S "
+             "commit, naming the ASSEMBLY ROOT and never a leg, on "
+             "`openxdox-pin-product-commit`'s own reasoning. It does not "
+             "resolve in this repository and must not be reported as an "
+             "orphan; openDox answers for it, and locally `scripts/verify-"
+             "opendox-pin.py` compares it against BOTH the recorded gitlink "
+             "and the checked-out revision of the `openDox/` submodule, "
+             "recomputes the whole-tree `sorted-ls-tree-r-v1` digest, AND (its "
+             "fifth check, with no analogue in the pair above) confirms "
+             "LOCKSTEP with openXdox's own derived reading of this same "
+             "commit — the one new obligation a SECOND direct declaration of "
+             "one product's bytes adds. RULING F (#656, 2026-09-05, \"rule F "
+             "openXdox only\") is SUPERSEDED for openDox alone by RULED Q7 "
+             "(`#656` comment `5626248666`, 2026-09-10): openxFactory now "
+             "declares two direct upstreams, openDox and openXdox, rather "
+             "than reading openDox's commit only through openXdox's own pin.",
+    ),
     # ---- the pinned decision core: executable governance, not a bundle -----
     # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
     # pins the codexFactory commit whose Merge Master decision core judges this
