@@ -472,25 +472,37 @@ REMOVAL_TAG = "contract-v4.0"
 PRE_REMOVAL_TAG = "contract-v3.7"
 
 
-def _write_inventory(root: Path, filename: str, digests: dict[str, str], *,
-                     bundle_tag: str) -> Path:
-    """A published release inventory, in the shape
+def _write_inventory_entries(path: Path, entries: list[dict], *,
+                             bundle_tag: str) -> Path:
+    """A published release inventory at an EXACT path, in the shape
     `validate-contract-release.py build` writes: a declared `bundle_tag` and an
-    `entries` list of repository-relative paths with `sha256:`-prefixed
-    digests."""
-    path = root / "contracts" / "releases" / filename
+    `entries` list. Entries are passed through verbatim so a malformed file —
+    a duplicate path, say — can be written as well as a well-formed one."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump({
         "schema_version": 1,
         "kind": "openxfactory-contract-release-digest-inventory",
         "bundle_tag": bundle_tag,
         "digest_algorithm": "sha256",
-        "entries": [
-            {"path": relpath, "digest": f"sha256:{digest}"}
-            for relpath, digest in sorted(digests.items())
-        ],
+        "entries": entries,
     }, sort_keys=True), encoding="utf-8")
     return path
+
+
+def _write_inventory_at(path: Path, digests: dict[str, str], *,
+                        bundle_tag: str) -> Path:
+    """A WELL-FORMED inventory at an exact path: one entry per path, sorted."""
+    return _write_inventory_entries(path, [
+        {"path": relpath, "digest": f"sha256:{digest}"}
+        for relpath, digest in sorted(digests.items())
+    ], bundle_tag=bundle_tag)
+
+
+def _write_inventory(root: Path, filename: str, digests: dict[str, str], *,
+                     bundle_tag: str) -> Path:
+    """A well-formed inventory under `<root>/contracts/releases/`."""
+    return _write_inventory_at(root / "contracts" / "releases" / filename,
+                               digests, bundle_tag=bundle_tag)
 
 
 def _manifest_without_the_chat_turn_row(root: Path, bundle: str) -> None:
@@ -633,17 +645,20 @@ def test_the_inventory_answers_only_for_the_paths_the_removal_took(fake_root):
         f"contracts/releases/{REMOVAL_TAG}.digests.yaml")
 
 
-@pytest.mark.parametrize("target", ["outside", "inside"])
+@pytest.mark.parametrize("target, refusal", [
+    ("outside", "resolves outside the checkout"),
+    ("inside", "regular file"),
+])
 def test_a_symlinked_inventory_refuses(fake_root, pinned_repo, tmp_path,
-                                       target):
+                                       target, refusal):
     """`Path.is_file()` FOLLOWS symlinks, so a link planted at the inventory
-    path would otherwise let bytes from anywhere answer for the release. The
-    canonical reader refuses any non-regular file before digesting
-    (`release.py::read_member`), and so does this one — and it REFUSES rather
-    than contributing nothing, because an absent inventory is an old checkout
-    while a linked one is a tampered checkout. Both link targets are pinned: the
-    outside one is the bypass, and the inside one shows the rule is "not a
-    regular file" rather than "not contained"."""
+    path would otherwise let bytes from anywhere answer for the release. Both
+    link targets are pinned, and they take DIFFERENT refusals, which is the
+    point: a link out of the tree is caught by resolved containment, and one
+    that points back inside is still caught by the regular-file rule the
+    canonical reader applies (`release.py::read_member`). Either way it REFUSES
+    rather than contributing nothing, because an absent inventory is an old
+    checkout while a linked one is a tampered checkout."""
     valid = {
         f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
             contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
@@ -665,7 +680,73 @@ def test_a_symlinked_inventory_refuses(fake_root, pinned_repo, tmp_path,
 
     with pytest.raises(contracts.ContractPinError) as excinfo:
         contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
-    assert "regular file" in str(excinfo.value)
+    assert refusal in str(excinfo.value)
+
+
+@pytest.mark.parametrize("linked_dir", ["releases", "contracts"])
+def test_an_inventory_under_a_symlinked_parent_refuses(fake_root, pinned_repo,
+                                                       tmp_path, linked_dir):
+    """The gap `is_symlink()` alone leaves: it answers for the FINAL component,
+    while `is_file()` follows symlinked PARENTS. A `contracts/releases` — or a
+    whole `contracts` — linked out of the tree puts a real, regular inventory
+    file at the expected path, and only resolved containment refuses it."""
+    outside = tmp_path / "elsewhere"
+    valid = {
+        f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}":
+            contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE],
+    }
+    if linked_dir == "releases":
+        outside.mkdir()
+        _write_inventory_at(outside / f"{REMOVAL_TAG}.digests.yaml", valid,
+                            bundle_tag=REMOVAL_TAG)
+        _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+        (fake_root / "contracts" / "releases").symlink_to(
+            outside, target_is_directory=True)
+    else:
+        # The WHOLE `contracts` directory is linked out, so the copy carries the
+        # manifest and the schemas too — otherwise the load would refuse for the
+        # uninteresting reason that nothing is readable.
+        _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+        real_contracts = fake_root / "contracts"
+        shutil.copytree(real_contracts, outside)
+        _write_inventory_at(outside / "releases" / f"{REMOVAL_TAG}.digests.yaml",
+                            valid, bundle_tag=REMOVAL_TAG)
+        shutil.rmtree(real_contracts)
+        real_contracts.symlink_to(outside, target_is_directory=True)
+    planted = fake_root / "contracts" / "releases" / f"{REMOVAL_TAG}.digests.yaml"
+    # A REAL regular file at the expected path, reached through a linked parent:
+    # `is_symlink()` on it is False, so only containment can refuse this.
+    assert planted.is_file() and not planted.is_symlink()
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    assert "resolves outside the checkout" in str(excinfo.value)
+
+
+def test_an_inventory_with_a_duplicate_path_refuses(fake_root, pinned_repo):
+    """Two entries for one path record no digest for it. Assigning would make
+    the LAST one authoritative — a silent winner picked from a tampered file —
+    and the canonical verifier names the same condition
+    `HGR-RELEASE-PATH-DUPLICATE` rather than choosing. The conflicting entry
+    here is SECOND and carries the digest that would satisfy the record, so a
+    last-wins loader would accept this file."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    relpath = f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}"
+    _write_inventory_entries(
+        fake_root / "contracts" / "releases" / f"{REMOVAL_TAG}.digests.yaml",
+        [
+            {"path": relpath, "digest": "sha256:" + "0" * 64},
+            {"path": relpath,
+             "digest":
+                 f"sha256:{contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]}"},
+        ],
+        bundle_tag=REMOVAL_TAG)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    message = str(excinfo.value)
+    assert "more than one entry" in message
+    assert relpath in message
 
 
 def test_the_removed_row_set_is_the_five_the_cut_removed():

@@ -790,17 +790,27 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
     if (int(parsed.group(1)), int(parsed.group(2))) < REMOVAL_BUNDLE:
         return {}
     path = root / RELEASES_RELDIR / f"{bundle}.digests.yaml"
-    # A SYMLINK AT THIS PATH IS NOT THIS CHECKOUT'S RECORD, and `is_file()`
-    # alone would not say so — it follows the link. The canonical release
-    # reader refuses the same way before it digests anything
-    # (`scripts/hermes_runtime_validation/release.py::read_member`: "release
-    # member is not a regular file"), and it must refuse rather than contribute
-    # nothing: an ABSENT inventory is an old checkout, while a linked one is a
-    # tampered checkout, and reading it would let bytes from outside the tree
-    # answer for the release. The other half of that reader's pair — a path that
-    # escapes the root — cannot arise here, because the token reaching this line
-    # has already matched the release-tag grammar and so carries neither a
-    # leading separator nor a `..` segment.
+    # THE READ MUST LAND INSIDE THE CHECKOUT, and neither the grammar above nor
+    # the symlink check below is enough on its own to say that it does. The
+    # grammar rules out a token that absolutizes or carries `..`, and
+    # `is_symlink()` answers for the FINAL component only — but `is_file()`
+    # follows symlinked PARENTS, so a `contracts/releases` (or `contracts`)
+    # linked out of the tree would still be read. Resolving the whole path and
+    # requiring it under the root is the canonical reader's own defense in depth
+    # (`scripts/hermes_runtime_validation/release.py::read_member`, which
+    # refuses `HGR-RELEASE-MEMBER-ESCAPES` on exactly this test) and it closes
+    # every spelling of "outside" at once.
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError:
+        raise ContractPinError(
+            f"{path}: release inventory resolves outside the checkout at "
+            f"{root}, so it is not this checkout's release record") from None
+    # A SYMLINK AT THIS PATH IS NOT THIS CHECKOUT'S RECORD EITHER, even when it
+    # points back inside: the canonical reader refuses any non-regular file
+    # before it digests anything (`read_member`: "release member is not a
+    # regular file"), and this must refuse rather than contribute nothing — an
+    # ABSENT inventory is an old checkout, while a linked one is a tampered one.
     if path.is_symlink():
         raise ContractPinError(
             f"{path}: release inventory is not a regular file (symlink), so it "
@@ -824,6 +834,15 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
         raise ContractPinError(
             f"{path}: release inventory declares no entries list")
     digests: dict[str, str] = {}
+    # A DUPLICATE PATH HAS NO ANSWER, so it must not be given one. Assigning
+    # would silently make the LAST entry authoritative, which is how a tampered
+    # inventory gets a conflicting digest accepted; the canonical verifier names
+    # the same condition `HGR-RELEASE-PATH-DUPLICATE` rather than picking a
+    # winner, and so does this. `seen` is kept separately from `digests` on
+    # purpose: the canonical rule reads EVERY declared entry path, so a first
+    # occurrence that carried an unusable digest must still make the second a
+    # duplicate rather than letting it through.
+    seen: set[str] = set()
     for entry in entries:
         if not isinstance(entry, dict):
             continue
@@ -831,6 +850,11 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
         digest = entry.get("digest")
         if not isinstance(relpath, str) or not isinstance(digest, str):
             continue
+        if relpath in seen:
+            raise ContractPinError(
+                f"{path}: release inventory carries more than one entry for "
+                f"{relpath}, so it does not record a single digest for it")
+        seen.add(relpath)
         algorithm, _, hexdigest = digest.partition(":")
         if algorithm == "sha256" and hexdigest:
             digests[relpath] = hexdigest
