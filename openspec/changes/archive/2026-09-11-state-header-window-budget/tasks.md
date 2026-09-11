@@ -321,7 +321,9 @@ and none is marked `[~]` because nothing is being deferred.
   the entrypoint.**
 
   **DONE — THIS ACT, 2026-09-11, lane `codexfactory-1` (window
-  `codeXfactory-1`), archive pull request pre-staged as a DRAFT.** The trap
+  `codeXfactory-1`), archive pull request
+  [#953](https://github.com/opensoft/openxFactory/pull/953), pre-staged as a
+  DRAFT.** The trap
   above was read BEFORE the entrypoint ran and not discovered at it: 0.1 and
   0.2 were closed as discharged-by-word first, each on the dated note it
   already carried from `8d5fb17e`, and this box was ticked as the act being
@@ -341,7 +343,7 @@ and none is marked `[~]` because nothing is being deferred.
   | **MERGE WORD** | Brett Heap, first-hand, in session, verbatim *"merge 921"*, recorded in the lane handoff's § 32 `WORD —` line and acted on with the Rule 6 `LANDING` post on PR #921 ([comment 5629118605](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629118605)) | 2026-09-11T03:00:53Z |
   | **MERGED** | PR [#921](https://github.com/opensoft/openxFactory/pull/921) → `3ccfd6c3957bd49ef28e70ef984f13c3dc9d2c03` on `main`; `LANDED` posted at [comment 5629341902](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629341902) | 2026-09-11T04:11:24Z |
   | **ORIGIN RETAINED** | `origin_errors(strict=True)` → `[]` and `origin_retention_errors` → `[]`, printing *"ORIGIN RETAINED state-header-window-budget (declaration unchanged since the ratifying commit `8d5fb17e0eee`)"* — run on the landed packet BEFORE the move and again on the archived copy AFTER it | both clean |
-  | **ARCHIVE WORD** | **NOT GIVEN.** Brett Heap's *"archive 921"* is owed. | — |
+  | **ARCHIVE WORD** | **NOT GIVEN.** Brett Heap's *"archive 921"* is owed; PR [#953](https://github.com/opensoft/openxFactory/pull/953) is a DRAFT until it comes. | — |
 
   **AND THAT LAST ROW IS WHY THIS PULL REQUEST IS A DRAFT.** The archive act
   is prepared, proved and frozen here; it is **not landed**. The pull request
@@ -456,3 +458,25 @@ and none is marked `[~]` because nothing is being deferred.
   false and the archive would have to be re-dated instead** — so this pull
   request's landing, whenever the word comes, either falls on 2026-09-11 UTC
   or takes a re-dated directory.
+
+  **THE PER-CHANGE SWEEP LEDGER IS RE-SEEDED IN THE FOLLOW-UP COMMIT, WITH
+  THE SANCTIONED TOOL AND AFTER THE PULL REQUEST EXISTED**, because
+  `moved_by` must name the pull request that moves the row and the real
+  number does not exist until the pull request does — the two-commit shape
+  the precedents PR #926 (`a0176d21`) and PR #906 (`fb5a9141`) used.
+  `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+  '#953'` → *"wrote tests/sequenced_after/corpus-ledger.yaml (199 rows, 1
+  moved by #953)"*. **ONE row moves and the diff is 1/1, measured:**
+  `state: active → archived`, `moved_by: "#921" → "#953"`, `moved_on:
+  "2026-09-10" → "2026-09-11"`. **`class: co-modifier` is HELD and NO
+  PARTNER FLIPS, so no MOVEMENT LOG entry is owed** — this change's partner
+  on the shared requirement key is `accept-sequenced-after-header-line`,
+  already `archived` and already `co-modifier` since its own archive, so
+  nothing about it moves; task 2.6a's entry covered the flip that DID happen,
+  at the seed on PR #921, and this act repeats none of it. `--ledger-diff`
+  before the seed: **STALE, 4 findings** — this row's `state` (ledger
+  `active` vs live `archived`) plus the three derived totals it feeds
+  (`active` 40 ≠ 39, `archived` 159 ≠ 160, `active_co_modified` 25 ≠ 24).
+  After: **exit 0, *"per-change sweep ledger consistent with the corpus (199
+  rows)"***. The row count is not pinned and drifts as other lanes land; the
+  exit code and the word "consistent" are the gate.

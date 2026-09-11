@@ -2808,7 +2808,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [state-header-window-budget](openspec/changes/archive/2026-09-11-state-header-window-budget/proposal.md)
-  — **ARCHIVED 2026-09-11**, lane `codexfactory-1`, **ON LANDING AND NOT ON
+  — **ARCHIVED 2026-09-11** by
+  [PR #953](https://github.com/opensoft/openxFactory/pull/953), lane
+  `codexfactory-1`, **ON LANDING AND NOT ON
   REALIZATION EVIDENCE**: `code_surface: none`, so under `release-realization`'s
   doc-only rule this packet archives when its artifacts land, which is the
   lighter of that capability's two arms and the one its own closer template
