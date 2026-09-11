@@ -68,6 +68,14 @@ this capability should be making from the joint liveness signal.
    use (`retire`, never `delete`), so the prefix and key-derived-title guards
    that PR #49 hardened apply identically here.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Is an orphaned session notebook evidence?** The brainstorm asks whether an
