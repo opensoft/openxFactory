@@ -8,7 +8,7 @@ Ratified by: amend-merged-into-empty-tail-standing — 2026-09-11, Brett Heap, "
 **ONE SENTENCE:** `review/verification-2026-09-11-final-3.md` carried
 `review/verification-2026-09-11-final-2.md`'s aggregate-gate figures forward
 across a merge that added a new active packet; this capture measures the
-submitted tree for real (including a further merge from `main` picked up
+submitted tree for real (including two further merges from `main` picked up
 while this capture was being taken) and supersedes both `final-2` and
 `final-3` as the current aggregate-gate evidence. Neither superseded file is
 edited (committed captures are never edited — lane hard limit, #887
@@ -48,19 +48,35 @@ this packet's own sentence. This capture therefore merges `origin/main`
 `29d4bebd` into the branch FIRST (merge commit, README's active-list
 conflict resolved by dropping the now-archived row and keeping every other
 row, matching `main`'s own resolution; `tests/sequenced_after/corpus-ledger.yaml`
-auto-merged cleanly) and measures every gate below on that merged tree, not
-on the intermediate `b97f6dd0`/pre-second-merge state — so the figures below
-are the true submitted-tree evidence rather than a second carry-forward.
+auto-merged cleanly) and measures every gate below on that merged tree.
+
+`origin/main` advanced a THIRD time while this capture's own commit was
+being prepared, `29d4bebd` → `45bd9ee2` (PR #970, cutting contract release
+`contract-v3.7`; `contracts/CHANGELOG.md`, `contracts/manifest.yaml`,
+`contracts/releases/contract-v3.7.digests.yaml`,
+`docs/contract-versioning-policy.md`, one other packet's `tasks.md`, and a
+`tests/intent-compliance` test — no file under `openspec/changes/`,
+`openspec/specs/` or `tests/doc-health/` moves). This capture merges that
+commit too (clean, no conflicts, nothing under this packet's own directory
+touched) and re-measures every gate a second time on the result, because
+`doc-health`'s release-inventory-drift and release-tag-publication families
+read exactly the `contracts/` files this merge changed — and indeed the
+`info` finding count moves (§ 7) — while `--all --strict` (§ 3, unaffected:
+no `openspec/` path touched) and `pytest tests/doc-health` (§ 8, unaffected:
+no `tests/doc-health` path touched) do not. **The figures below are
+measured on this final tree** (branch merge commit over `b97f6dd0` +
+`29d4bebd` + `45bd9ee2`; `origin/main` `45bd9ee2` control) — a third
+carry-forward was checked for and ruled out rather than assumed away.
 
 ## 1. Scope, tree and provenance of the numbers
 
 | item | value |
 | --- | --- |
-| tree these figures were taken on | `change/amend-merged-into-empty-tail-standing`, the merge of `origin/main` `29d4bebd` into `b97f6dd0` (this pass's own merge commit) |
-| `origin/main` at this verification | `29d4bebd` (PR #969's merge, archiving `honour-grandfather-dispositions-in-ratified-provenance`) |
-| what moved on `main` since `final-2`'s capture (taken against `main` `34bb5c71`) | PR #960 landed (`ac688c40`, one new active packet — already accounted for and re-verified by `final-3` for the two ledger/scope gates); PR #969 landed (`29d4bebd`, § 0 above) — together these explain every item-count and finding-count delta from `final-2`'s numbers recorded below |
-| `--all --strict` (both binaries) control | a `git worktree add` / `checkout` of `origin/main` `29d4bebd` inside this clone (`../enc-947h-main-control`), directory-basename-independent comparisons |
-| `doc-health` control | the same `origin/main` `29d4bebd` worktree, findings compared by line content after normalizing the `Repo-Identity` label |
+| tree these figures were taken on | `change/amend-merged-into-empty-tail-standing`, two merge commits over `b97f6dd0`: `origin/main` `29d4bebd` then `origin/main` `45bd9ee2` |
+| `origin/main` at this verification | `45bd9ee2` (PR #970's merge, cutting contract release `contract-v3.7`) |
+| what moved on `main` since `final-2`'s capture (taken against `main` `34bb5c71`) | PR #960 landed (`ac688c40`, one new active packet — already accounted for and re-verified by `final-3` for the two ledger/scope gates); PR #969 landed (`29d4bebd`, § 0 above, one active→archived move plus a doc-health canon addition); PR #970 landed (`45bd9ee2`, § 0 above, a contract release cut touching `contracts/`) — together these explain every item-count and finding-count delta from `final-2`'s numbers recorded below |
+| `--all --strict` (both binaries) control | a `git worktree add` / `checkout` of `origin/main` `45bd9ee2` inside this clone (`../enc-947h-main-control`), directory-basename-independent comparisons |
+| `doc-health` control | the same `origin/main` `45bd9ee2` worktree, findings compared by line content after normalizing the `Repo-Identity` label |
 | lane | `openxfactory-1` (display `openXfactory-1`) |
 | environment | `OPENSPEC_TELEMETRY=0`; `openspec` on PATH **1.2.0**; pinned `openspec` **1.12.0** via `scripts/validate-openspec-cli-pin.py --cache-dir` (reused verified cache at `…/1aff33ce-…/scratchpad/pin-cache-937archive`); Python **3.12.3** |
 
@@ -84,14 +100,15 @@ Totals: 100 passed, 2 failed (102 items)
 Failing: `change/disposition-codexfactory-declared-renames`,
 `change/disposition-codexfactory-floor-relocation-retitle`.
 
-`origin/main` `29d4bebd` control, same command:
+`origin/main` `45bd9ee2` control, same command:
 
 ```
 Totals: 99 passed, 2 failed (101 items)
 ```
 Failing: the same two names.
 
-**FAILURE SET IDENTICAL BY NAME.** The one-item difference (102 vs 101) is
+**FAILURE SET IDENTICAL BY NAME.** Unmoved by the third merge (PR #970
+touches no `openspec/` path). The one-item difference (102 vs 101) is
 this packet's own item, confirmed directly as in `final-2`'s method:
 `grep -c '^✓\|^✗'` counts 102 lines on the branch run and 101 on the control
 run, and `grep 'amend-merged-into-empty-tail-standing'` on the branch run
@@ -113,7 +130,7 @@ openspec-cli-pin: DISPOSITIONED FINDINGS in openxFactory (2 applied) — this ru
 OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address; every target validated --strict with 0 UNDISPOSITIONED failures.
 ```
 
-`origin/main` `29d4bebd` control, same command:
+`origin/main` `45bd9ee2` control, same command:
 
 ```
 Totals: 99 passed, 2 failed (101 items)
@@ -179,28 +196,34 @@ Exit code 0.
 
 ## 7. `python3 scripts/doc-health.py --single-repo .`
 
-Branch: `Findings: 32 critical, 5 error, 47 warning, 16 info. New
+Branch: `Findings: 32 critical, 5 error, 47 warning, 14 info. New
 regressions vs previous report: 0.` Marker defects: **0**. This change named
-**0** times. Canon share by words: 39.6% (370183 canon words / 935612
-governance words, promoted specs included) — up from `final-2`'s 39.5%
-(369915/935344), entirely from PR #969's nine promoted lines counting as
-canon words on both sides alike.
+**0** times. Canon share by words: 39.6% (371184 canon words / 938477
+governance words, promoted specs included).
 
-**BYTE-IDENTICAL TO A FRESH `origin/main` `29d4bebd` CONTROL RUN**, after
+**BYTE-IDENTICAL TO A FRESH `origin/main` `45bd9ee2` CONTROL RUN**, after
 normalizing the `Repo-Identity` label (`sed 's/enc-947h-main-control/REPO/g;
-s/enc-947h/REPO/g'` on both, then `diff`): the diff is EMPTY. Exit code 0 on
-both. Finding counts unchanged from `final-2`'s capture (32/5/47/16) — PR
-#969's new scenario is a requirement addition, not itself a new finding this
-run reports.
+s/enc-947h/REPO/g'` on both, then `diff`): the diff is EMPTY (346 lines each
+side). Exit code 0 on both. **The `info` count DROPS from `final-2`'s 16 to
+14 here, identically on branch and control** — not this packet's doing: PR
+#970 (§ 0) cut `contract-v3.7`, and the release-inventory-drift family's two
+`info` findings this repo carried (`contracts/README.md` and
+`contracts/manifest.yaml` reading "bytes differ from the digest
+`contract-v3.6` records — editorial member — expected between cuts") clear
+once the tree matches the newly-cut `contract-v3.7` inventory instead. `32
+critical, 5 error, 47 warning` are unchanged; canon share rose from 39.5%
+(`final-2`) to 39.6% (PR #969's nine promoted lines), identically on both
+sides.
 
 ## 8. `python3 -m pytest tests/doc-health -q`
 
 ```
-1711 passed, 7 warnings in 400.53s (0:06:40)
+1711 passed, 7 warnings in 419.27s (0:06:59)
 ```
 
-Exit code 0. Unchanged from `final-2`'s capture (`1711 passed`) — the test
-count did not move between `a8235295` and this merge.
+Exit code 0. Unchanged from `final-2`'s capture (`1711 passed`) and from the
+run taken before the third merge (§ 0) — no file under `tests/doc-health/`
+moved across any of the three merges since `a8235295`.
 
 ## 9. What this capture does NOT change
 
@@ -210,11 +233,11 @@ remains EMPTY on this head; the packet's own delta, marker and scenario are
 byte-identical to what Brett Heap's word ratified. `.openspec.yaml`'s
 `origin:` block remains byte-identical to the ratifying commit `7215c207`
 (`git diff 7215c207 -- .../.openspec.yaml` EMPTY). `git diff --stat` of this
-pass's own merge commit touches nothing under this packet's own directory
-(§ 0). This capture commit itself touches only this file, the README's
-active-list citation row and (via the separate merge commit) the merge's own
-README/ledger reconciliation — bookkeeping about the state of the pull
-request, not the delta itself.
+pass's own two merge commits touches nothing under this packet's own
+directory (§ 0). This capture commit itself touches only this file, the
+README's active-list citation row and (via the separate merge commits) the
+merges' own README/ledger reconciliation — bookkeeping about the state of
+the pull request, not the delta itself.
 
 ## 10. Independent review, disposed on this head
 
@@ -226,10 +249,10 @@ request, not the delta itself.
   though `--all` and `doc-health` both load the whole corpus and PR #960 had
   added a new active packet. **TAKEN** by this file: every aggregate gate
   (§ 3, § 7, § 8) plus every single-change gate (§ 2, § 4, § 5, § 6) is a
-  real run on the submitted tree — which, per § 0, itself picked up a
-  further merge (PR #969) while this capture was being taken, so the figures
-  above are measured on that final merged tree rather than on the
-  intermediate one.
+  real run on the submitted tree — which, per § 0, itself picked up two
+  further merges (PR #969, then PR #970) while this capture was being taken,
+  each re-measured rather than assumed unaffected, so the figures above are
+  measured on the final merged tree rather than on an intermediate one.
 
 **CODEX: ABSENCE, unchanged.** One review request (2026-09-11T03:24:38Z) drew
 a usage-limit refusal (2026-09-11T03:24:48Z), recorded verbatim at
