@@ -863,10 +863,12 @@ retroactively invalidate an old pin.
   minor, recorded here so the question survives to the cut that must answer it.
 
   The leg commits are not guessed: they are the `spec` and `code` gitlinks of
-  the assembly-root commits this repository's own pins already name —
+  the assembly-root commits this repository's own pins named AT THIS CUT —
   [`contracts/openxdox-pin.yaml`](../contracts/openxdox-pin.yaml) `commit:
   84056415…` and [`contracts/opendox-pin.yaml`](../contracts/opendox-pin.yaml)
-  `commit: 44679fa7…`. The destination TAGS (`dox-v1.0`, `xdox-v1.0`) are Phase
+  `commit: 44679fa7…`. Both pins have since moved (openDox → `8ec3036c`,
+  openXdox → `eca0b597`); the rows of a CUT bundle record what was true when it
+  was cut and a later pin bump does not rewrite them. The destination TAGS (`dox-v1.0`, `xdox-v1.0`) are Phase
   6 and are not cut, so each row's `relocating.tag` carries the sentinel
   `not_yet_cut` and `relocating.at` carries the commit that does exist. A label
   recorded before the thing it labels exists would be a claim, not a label —
