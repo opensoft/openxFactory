@@ -569,3 +569,225 @@ gate is green: at the old reader every one of these writes is refused.
       `origin/main`. A roster that moved between ratification and realization
       means the registered set is stale, and a stale seat set records authority
       that no convening presents.
+
+---
+
+## 6. Q-GRC-4 discharge (AMENDMENT 2026-09-11)
+
+Lane: hermes-wallet-exercise
+
+**ADDED BY AMENDMENT, 2026-09-11.** Record:
+`review/amendment-2026-09-11-q-grc-4-discharge.md`. Rulings: Brett Heap, in
+session, window `codeXfactory-2`, **2026-09-11T14:59:26Z**, verbatim
+*"amend register-gate-rules-council-seats, lead-architect route, same model pin
+as lead-security"*. Standing ruling this discharges: **`α, park C2 until
+Q-GRC-4 is discharged`** — 2026-09-11T14:23:26Z, cxF #279 comment
+[`5635898767`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5635898767).
+
+**This group SPECIFIES task 4.6's owed act for ONE of its two seats** —
+`client-security-compliance-officer`. `intent_owner_role_slot` stays deferred on
+its own unchanged trigger and **4.6 does not tick** until both are discharged or
+the packet's own successor re-scopes it. **§ 6 IS NOT AN ARCHIVE CONDITION** —
+§ 5.2 already puts § 4 outside the archive gate, and 4.6 lives in § 4; § 6.9
+restates it so a later reader does not fold this group in by reflex.
+
+Nothing below is ticked. Nothing below is authored by the amendment pull
+request: **H1 is built AFTER ratification, through Speckit, in codexFactory;
+H2 is Brett's operator act on a permanently human-only surface.**
+
+### 6.1 Governance
+
+- [ ] 6.1 **[OPERATOR] [GOVERNANCE]** Ratify this amendment, or return it.
+      Nothing in §§ 6.2-6.10 is legal until this is ticked. **Ratification
+      REALIZES NOTHING** — no seat is bound, no key is minted, no grant moves.
+- [ ] 6.1a **[OPERATOR] [GOVERNANCE]** Rule **OQ-1..OQ-5** (amendment record
+      § 9): the minter of the fifth keypair; `grant-grc-0003`'s `expires_at`;
+      whether the CSC briefing owes a soak or an `activation_gate` pass before
+      sitting live; one T1/T2 PR pair or a further split; whether C2 doubles as
+      the seat's first live convening. **Every recommendation is what this
+      packet already encodes, so taking all five moves no byte** — in which case
+      this row ticks with that as its reason.
+- [ ] 6.1b **[GOVERNANCE]** The seat identifier string
+      `client-security-compliance-officer` is an AUTHORING decision flagged for
+      veto, not a ruling (amendment record § 4). Confirm or replace it BEFORE
+      6.2 — it is written into six places and a late change is six edits plus a
+      re-mint of the secret name.
+
+### 6.2 H1 — the codexFactory roster act (built via Speckit, after 6.1)
+
+- [ ] 6.2 **[codexFactory]** `hermes/domain/review-councils/gate-rules.yaml`:
+      add `seat: client-security-compliance-officer` beside `persona:` under
+      `members.client.conjunction_pull_in` (`:152-161` @ `a990cba5`). This is
+      the edit `scripts/merge_master/seat_resolution.py:566`
+      (`seat = pull_in.get("seat")`) reads, and the ONLY one that moves `:582`'s
+      `seat_identity` from `UNBOUND` to `declared`.
+- [ ] 6.3 **[codexFactory]** Same file: rewrite the `deferred_seats` CSC entry
+      (`:100-114`) as a DISCHARGED entry pointing at 6.6's record — **do not
+      delete it silently**, per its own block comment (`:92-93`).
+      `intent_owner_role_slot` (`:115-126`) stays byte-identical.
+- [ ] 6.4 **[codexFactory]** `hermes/domain/agent-mixes.yaml`, profile
+      `gate_rules_council`: add the identifier to `all_possible_seats`
+      (`:271-275`) and rewrite the Q-GRC-4 comment above it (`:251-270`) to
+      record the discharge; add the `model_assignments` entry (`:312-372`) with
+      `selector: claude-opus-5`, `selector_kind: exact_provider_version`,
+      `pin_status: pinned` COPIED FIELD BY FIELD from `lead-security` (`:334-336`)
+      under ruling (3), `authority_layer: domain`, and an `authority_ref` naming
+      **6.6's own record** in `lead-architect`'s shape (`:327-328`) — **never
+      `lead-security`'s `authority_ref` (`:338-339`), which points at the
+      enrolled merge-readiness roster and would attribute this pin to an act
+      that never made it.**
+- [ ] 6.5 **[codexFactory]** Same file: add the identifier to
+      `prompt_contract.seats` (`:378-382`) and **WRITE the seat's briefing** as
+      a new entry in `.github/workflows/scripts/deliberation_packet.py`'s
+      `GATE_RULES_SEAT_FOCUS` (`:225-258`). **There is nothing to copy** — the
+      other four were written from what this body's convenings charged them with
+      (`agent-mixes.yaml:390-394`) and CSC has never sat; the only raw material
+      is the tenant's own specialization
+      (`hermes/client/role-overrides.yaml:83-88`). Then re-pin the digests
+      (`:445-467`): recompute `rendered_set_digest` from the LIVE RENDER over
+      all five seats in LEXICOGRAPHIC order (`client-security-…` sorts FIRST, so
+      every byte after it shifts and the digest cannot be patched), add the
+      fifth `seat_digests` entry, advance `pinned_on` and set
+      `previously_pinned_on: "2026-09-10"`.
+- [ ] 6.6 **[codexFactory]** Write the `roster_change: lead_accepted_recorded`
+      record at
+      `hermes/domain/review-councils/records/<date>-gate-rules-roster-csc-pin.md`
+      in R1's shape
+      (`records/2026-09-07-gate-rules-roster-lead-architect-pin.md`): § 0 no
+      seat was convened; § 2 the ruling verbatim with its UTC; § 3 the roster
+      this fixes, **recording that the 2:2 opus/sonnet split becomes 3:2**; § 5
+      **no comparative claim — no soak has run on this bench or this seat**;
+      § 6 **Lead Quality's acceptance, OWED, at `claude-sonnet-5`, as an actual
+      seat return**; § 7 C13 re-opens the soak from zero and costs nothing today
+      (`agent-mixes.yaml:299-305`). Carry LQ-C4's `tool_manifest` bound onto the
+      new seat unchanged.
+- [ ] 6.7 **[codexFactory]** Prove it, do not assert it: re-render all five
+      seats and show `rendered_set_digest` matches the live render
+      (`test_gate_rules_holder_composition.py`); prove digest coupling BOTH ways
+      (edit-without-repin FAILS, edit-with-repin PASSES), as cxF PR #374 did;
+      run `deliberation_packet.py resolved-seats` against a security-surface
+      packet and record the output.
+- [ ] 6.8 **[OPERATOR]** Mint the fifth Ed25519 keypair (**OQ-1**): seed
+      generated in-process and never written to disk, `gh secret set` on stdin
+      with `--body` OMITTED, private half stored ONLY as
+      `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` in
+      codexFactory's `worker-credentials` environment, custody
+      `holder_readable` (**Q-GRC-1, already ruled 2026-09-06T14:13:46Z and never
+      scoped to four seats**). Publish the PUBLIC half, the `did:key:` and the
+      fingerprint in a codexFactory mint record mirroring
+      `records/2026-09-08-gate-rules-seat-signing-keys-minted.md`. **No seed,
+      ever, in any file.**
+
+### 6.3 H2 — the openxFactory register act (OPERATOR walk; no agent writes these)
+
+- [ ] 6.9 **[OPERATOR]** REVOKE `governance/review-authority/grants/grant-grc-0002.yaml`
+      in place — `state: active` → `revoked`, plus `revocation.revoked_at` and a
+      `revocation.reason` of class **DRIFT** whose free text names SEAT ADDITION
+      (the 2026-09-11 precedent's named the prompt-corpus pin move). The
+      revocation is unconditional and automatic: H1 landing is the composition
+      event.
+- [ ] 6.10 **[OPERATOR]** MINT `grants/grant-grc-0003.yaml` in
+      `grant-grc-0002.yaml`'s shape — new `grant_id`, `state: active`,
+      `issued_at` = the revocation instant, `issued_by` the ratifying human,
+      `expires_at` per **OQ-2**, scope re-examined rather than copied, and
+      **no `parent_grant_ref`**: a superseding grant is a ROOT grant.
+- [ ] 6.11 **[OPERATOR]** REPOINT `governance/review-authority/register.yaml`
+      `row-grc-0001` (`:182-190`): `grant_ref` → `grant-grc-0003` and nothing
+      else. **NO second row** — D2's one-body-one-row shape is unchanged and a
+      seat is not a holder.
+- [ ] 6.12 **[OPERATOR]** ADD the fifth `seat_keys` entry to `register.yaml`
+      after `company-policy-lead` (`:358-364`), in the seven-field shape at
+      `:333-339`: `seat_id: client-security-compliance-officer`,
+      `council_ref: agent:gate-rules-council`,
+      `council_id: gate_rules_council`,
+      `key_id: key-grc-seat-client-security-compliance-officer-0001`,
+      `public_key` VERBATIM from 6.8's mint record, `key_fingerprint`
+      recomputed by the reader, `authorizing_row: row-grc-0001`.
+- [ ] 6.13 **[OPERATOR]** ADD the fifth key to
+      `governance/review-authority/wallets/wal-agent-grc-0001.yaml`'s `keys:`
+      array in the entry shape at `:125-135` (`did`, `key_id`,
+      `key_fingerprint` byte-identical to 6.12's, `public_key_multibase`,
+      `signature_algorithm: ed25519`, `display_label`, `custody.model:
+      holder_readable`), with `did`/multibase DERIVED through the PINNED
+      decoders (`scripts/validate-factory-identity.py --derive`) and never a
+      second tool. **BOTH places are required** — the pinned validator's rule
+      (r) refuses a presenting key no wallet declares. Edit the block comment at
+      `:114-124` to record the discharge, leaving `intent_owner_role_slot` named
+      as still absent.
+- [ ] 6.14 **[OPERATOR]** Move `.github/workflows/openxwallet-consumer-gate.yml`'s
+      LITERAL per-seat key-count assertion for this body from four to five **in
+      the same act** — `code_surface` already requires it, *"because a wildcard
+      there would let a register that lost a body pass the positive proof."*
+- [ ] 6.15 **[OPERATOR] / [lane]** Write ONE walk record at
+      `walk-<T2-date>-register-act.md` (the holder's established home, task 3.9)
+      carrying R8's five minimum fields, the runbook § 0.3 three-capacity
+      disclosure, and — R6/R7 still PENDING — the composition recorded as
+      declaring-commit plus digests by the 2026-09-11 walk's own method.
+
+### 6.4 The ceremony
+
+- [ ] 6.16 **[lane]** Post the **HOLD** on the tracking issue, the H1 pull
+      request and `LANES.md` **BEFORE** the H1 merge (precedent cxF #374, hold
+      posted 2026-09-10T23:20:38Z, ~14 minutes ahead of its own merge).
+- [ ] 6.17 **T1** — H1 merges on Brett's word. `grant-grc-0002` is void from
+      that instant and `gate_rules_council` convenings park.
+- [ ] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4** decides whether this is one
+      PR pair or a further split.
+- [ ] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
+      `gate_rules_council` convening ran between T1 and T2 —
+      `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked
+      against `records/` commits in the window, by walk § 13.1's method.
+- [ ] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
+      cluster read confirming the `hermes-register-projection` ConfigMap's
+      `hermes.opensoft.one/source-revision` annotation is at or after T2's merge
+      sha. **This is now RATIFIED, not merely dispositioned** —
+      `amend-register-act-5b-projection-proof`, openxFactory PR #960 →
+      `ac688c40`, ratified on Brett's word *"accept all A on 960"*
+      (2026-09-11T13:09:12Z). **Do NOT attempt it via a convening dispatch**:
+      the admission path reads the domain-content projection only, so an
+      admitted convening returns a green result against a pre-act projection
+      that reads exactly like the proof.
+- [ ] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
+      walk-record path, and naming any wording mismatch as the precedent's lift
+      text did.
+- [ ] 6.22 **[lane]** Re-run `deliberation_packet.py resolved-seats` against a
+      security-surface-touching subject and **confirm
+      `unbound_conjunction_seats` is EMPTY.** This is the concrete verification
+      the whole act exists for, and it spends no pin.
+
+### 6.5 C2 unparks
+
+- [ ] 6.23 **[lane]** Re-select a CLEAN C2 dispatch candidate at that moment
+      (heads and pins will have moved): `git merge-base --is-ancestor <T1> <head>`;
+      `gh api .../commits/<head> --jq '.files[].filename'` (first-parent for
+      merges) excluding `hermes/domain/agent-mixes.yaml` and
+      `hermes/domain/review-councils/gate-rules.yaml`; confirm the pin was never
+      previously convened; confirm the C2 packet (cxF PR #407 → `76f2e771`) is
+      still in that candidate's tree.
+- [ ] 6.24 **[OPERATOR]** The proof convening — **OQ-5** decides whether it is
+      separate (precedent: walk § 15, run `34586762846`, admitted) or IS C2.
+      Brett dispatches: the workflow's federated credential is
+      `ref:refs/heads/main`-scoped and reads the factory origin key.
+- [ ] 6.25 **[OPERATOR]** Dispatch **C2** — `gate-rules-convening-trigger.yml`
+      with the C2 packet ref, the fresh candidate's head sha and its PR number.
+      Expect **FIVE** resolved seats and an admitted, sealed convening.
+      Discharges Brett's carried-forward word `convene C2`
+      (2026-09-11T13:26:14Z).
+- [ ] 6.26 **[lane]** On admission: hand-write the convening record (mirroring
+      `records/2026-09-10-gate-rules-first-signed-convening.md`), commit the
+      sealed bundle **before its 1-day artifact retention expires**, open the C2
+      record PR and merge on green under Brett's standing word
+      *"merge the C2 record PR when green"* (2026-09-11T13:27:23Z), and post
+      `C2 DISCHARGED` on cxF #279 — closing α and all three carried-forward C2
+      words in one motion.
+
+### 6.6 Bookkeeping this group does NOT do
+
+- [ ] 6.27 **Task 4.6 does not tick here.** It names TWO seats; this group
+      discharges one. It ticks when `intent_owner_role_slot` is likewise bound,
+      or when a successor re-scopes it — and either way that is § 4's row to
+      tick, not § 6's.
+- [ ] 6.28 **§ 6 is NOT folded into the archive gate.** § 5.2 puts § 4 outside
+      it and 4.6 lives in § 4. What § 5.3's pre-archive re-read DOES gain is a
+      fifth seat to find. Rule 1 CLAIMED and Rule 6 LANDING/LANDED are owed AT
+      LANDING, not at draft.
