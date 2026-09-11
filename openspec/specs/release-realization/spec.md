@@ -446,6 +446,19 @@ continuation of what precedes it and SHALL NOT declare. The legacy free-text
 `Sequenced-after:` header SHALL continue to declare nothing and SHALL continue
 to be counted as the prose header it is.
 
+A LEADING FENCE'S OWN LINES COUNT TOWARD THE WINDOW'S BUDGET, AND DO NOT BUY IT
+A FRESH ONE. The window is counted from the document's own line 1: the `---`
+that opens a leading fence, every line between it and the closing `---`, and
+the closing `---` itself are REAL LINES of the document like any other and
+SHALL be counted among the window's lines exactly as any other line is, even
+though those same lines — already read once by the front-matter reader — are
+excluded from being read AGAIN as a header-line declaration site. The window
+SHALL NOT be re-measured as though it began fresh after the fence closes: a
+header-line declaration MUST sit within the window counted from line 1
+inclusive of the fence, so a fence occupying part of the window leaves
+correspondingly FEWER lines available inside it for a header-line declaration,
+and one long enough MAY leave none at all.
+
 THE HEADER-LINE FORM IS A SINGLE LINE, because an unfenced document supplies no
 closing delimiter: a multi-line value has no defined end, and a window boundary
 falling inside one would show a reader one declaration and authorize another. A
@@ -474,6 +487,11 @@ granting a path.
 #### Scenario: The same bytes appear beyond the header window
 - **WHEN** a `sequenced_after:` line sits below the lifecycle header window, or is indented, or appears inside a body paragraph
 - **THEN** it MUST declare nothing, because beyond the window it is prose and a mention is not a parent link
+
+#### Scenario: Fence lines consume the header window budget
+- **WHEN** a proposal opens with a well-formed `---`-fenced front-matter block, and a `sequenced_after:` header line follows the closing fence
+- **THEN** the window is still counted from the document's own line 1, so the fence's lines — both `---` delimiters and every line between them — count toward it rather than being excluded from the count
+- **AND** a header line that the fence's length pushes past the window's last line is NOT read, exactly as a header line beyond the window is not read in an unfenced document
 
 #### Scenario: An unfenced declaration attempts a multi-line value
 - **WHEN** a header line carries no value on its own line and the next line is an indented continuation
