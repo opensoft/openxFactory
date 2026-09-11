@@ -444,3 +444,65 @@ every test register built in a tmpdir — for a field the requirement never asks
 for. Enforcing what the requirement states is the class of defect being fixed
 here; enforcing more than it states would be a different act, and an unruled
 one.
+
+### D8b — the bench's second round: four threads, all four TAKEN
+
+A second automated round opened four threads. **None is a wording quarrel and
+none is refused.** Two of them are one defect seen from both ends.
+
+**(c) A REPEATED DECLARATION WAS HALF-READ** (`scripts/target_release.py:208`).
+`target_release:` is a PROSE header, and the shared strict loader refuses a
+repeated STRUCTURED field as the duplicate key it is while JOINING a repeated
+prose header into one raw string — a deliberate, documented posture of that
+module, not a bug in it. This reader then tokenized the join. MEASURED, against
+the code as it stood: a block declaring `target_release: implemented (the main
+line)` and then `target_release: none` came back as `'implemented (the main
+line)\ntarget_release: none'` and `value_token` returned `implemented`. That is
+show-one-authorize-another — a reviewer sees two declarations and the gate
+authorizes the first — and it is exactly the class the strict loader exists to
+close, arriving here through the one field the loader deliberately leaves prose.
+THE FIX refuses the repeat by name in `declaration`, tested on the value the
+loader RETURNED (whose own leading header the loader has already stripped, so a
+match can only be a repeat). **The shared loader is NOT edited and no second
+front-matter parser is written** — both would exceed this packet's code surface,
+and the second is the thing the module's docstring promises not to do. The
+requirement gains the sentence and the scenario, because a gate that refuses
+something canon does not name is a gate nobody can appeal.
+
+**(d) THE CLOSED REGISTER WAS NOT CLOSED** (`scripts/target_release.py:308` and
+the requirement text at `specs/release-realization/spec.md:73` — two threads,
+one defect, seen from the code and from the canon). The requirement SHALLs a
+register that is removable and never addable, and the register file's own header
+says "an entry is never ADDED, because admitting a new value to the vocabulary
+is a canon act and not a validator edit" — and nothing enforced it. Every new
+`(change, token)` pair was accepted, so a later pull request could have appended
+an exception and made any off-vocabulary declaration pass with the gate green
+and no change to this specification. **A ratchet that only ratchets when nobody
+pushes is not a ratchet**, and "a vocabulary stated in prose and checked by
+nobody" is the sentence this whole packet opens with; the register had
+reproduced the defect it was built to close.
+
+THE FIX records the baseline in the MODULE — `CLOSED_REGISTER`, the 21 pairs the
+register carries at this gate's landing — and refuses an entry the baseline does
+not carry. Three properties, each chosen and each tested:
+- **A baseline may be a strict SUPERSET.** Removal is the one lawful direction
+  (`Report.stale` already REFUSES with a distinct status until a matched-nothing
+  entry is deleted), so a pair outlives its entry. Ceiling, never floor.
+- **It binds the HOUSE register only.** `--register PATH` exists so the tests
+  can put a known register in front of a known tree and so a consuming tree can
+  name its own; binding those to THIS repository's baseline would refuse every
+  register but this one and make the flag useless. A caller may pass its own.
+- **It does not pretend to be tamper-proof.** An author who means to add an
+  exception can edit both files. What the baseline buys is that they CANNOT do
+  it by appending a line to a data file: the addition must be written where the
+  refusal is written, in the module, beside the reason, and the diff shows the
+  act for what it is. That is what "closed" can mean inside one repository, and
+  it is the alternative the bench itself named — an enforced baseline rather
+  than a process rule nobody checks.
+
+**(e) TWO COMPLETED TASKS WERE LEFT UNTICKED** (`tasks.md:248`). The README
+active row and the sweep-ledger row both landed in `13ff6162` while § 4.11 and
+§ 4.9 still read as owed. That is a real defect in a packet whose whole method
+is that the task list is the record: a completion ledger that disagrees with the
+diff is worth less than no ledger. Both are ticked, each on the output it was
+ticked for, and each says which commit did the work.

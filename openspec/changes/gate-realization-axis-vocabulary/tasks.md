@@ -133,22 +133,25 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **46 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **54 tests**,
       counted last from a collected run of the file) — the token rule (5),
-      reading the declaration including a strict-loader refusal (4), release
+      reading the declaration including a strict-loader refusal and **a
+      repeated declaration refused rather than half-read** (7), release
       resolution with and without a registry (3), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
-      swept (3)**, the gate end to end (13: the refusal, `implemented`, an
+      swept (3)**, **the register removable and never addable (5)**, the gate
+      end to end (13: the refusal, `implemented`, an
       archived record, a resolving release, a release name that resolves to
       nothing, an absent declaration, an empty declaration, an unreadable
       proposal reported not crashed, a registered declaration, a stale entry, a
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
       EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
-      added by § 3.7 join the file, `_entry()` gains the citation the loader now
-      requires, and `test_an_entry_missing_a_required_key_refuses` keeps its
-      subject by carrying every key but the one it is about.
+      added by § 3.7 and the eight added by § 3.9 join the file, `_entry()`
+      gains the citation the loader now requires, and
+      `test_an_entry_missing_a_required_key_refuses` keeps its subject by
+      carrying every key but the one it is about.
 - [x] 3.6 **THE GATE NEEDS NO WORKFLOW EDIT**, confirmed by running it: the
       required `pytest-suite` runs `python3 -m pytest tests/ -q -m "not
       postgres"`, which collects `tests/target_release` with no registration
@@ -183,11 +186,37 @@ and openxFactory #956 closes THERE and not at this landing.
       refusing a consuming tree's register for a field the requirement never
       asks for would exceed it.
 - [x] 3.8 **THE TEST FIGURE IN § 3.5 AND IN `proposal.md`'s `code_surface:` WAS
-      RE-MEASURED AFTER § 3.7 AND NOT CARRIED FORWARD.** `python3 -m pytest
-      tests/target_release -q` — **exit 0**, *"46 passed in 6.10s"*; the
+      RE-MEASURED AFTER § 3.7 AND § 3.9 AND NOT CARRIED FORWARD.** `python3 -m
+      pytest tests/target_release -q` — **exit 0**, *"54 passed in 3.46s"*; the
       per-section breakdown in § 3.5 is a count of `def test_` under each
       banner in the file, taken from the file itself.
 
+- [x] 3.9 **THE BENCH'S SECOND ROUND, FOUR THREADS, ALL FOUR TAKEN** (Copilot
+      round 2; `design.md` D8). (a) **A REPEATED DECLARATION WAS HALF-READ.**
+      `target_release:` is a PROSE header, so the shared loader JOINS a repeat
+      instead of refusing it as the duplicate key a STRUCTURED field's repeat
+      would be. Measured: a block declaring `target_release: implemented (the
+      main line)` and then `target_release: none` came back as
+      `'implemented (the main line)\ntarget_release: none'` and tokenized as
+      `implemented` — two declarations shown, the first authorized.
+      `declaration` now refuses the repeat BY NAME, on the value the loader
+      returned and without writing a second front-matter parser; the
+      requirement gains the sentence and a scenario. (b) **THE CLOSED REGISTER
+      WAS NOT CLOSED** (two threads, the requirement's text and the loader's
+      code, one defect). The requirement SHALLs a register that is removable
+      and never addable, and the register file's own header says so, but every
+      new `(change, token)` pair was accepted — a later pull request could have
+      appended an exception and kept the gate green with no change to the
+      specification. `CLOSED_REGISTER` now records the 21 pairs the register
+      holds at this gate's landing and `load_register` REFUSES an entry the
+      baseline does not carry, so granting an exception takes a second,
+      deliberate edit in the module beside the refusal. A baseline may be a
+      strict SUPERSET, because removal is the one lawful direction. It binds
+      the HOUSE register only: `--register PATH` serves the tests and a
+      consuming tree, whose closure is that repository's own record. The
+      requirement gains the enforcement sentence and a scenario. (c) **§ 4.9
+      AND § 4.11 WERE DONE AND LEFT UNTICKED** — the bookkeeping defect is
+      real and is corrected below, with the output each was ticked on.
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
 **EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
@@ -236,17 +265,33 @@ and its own output quoted.
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 4.8 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
       tree and on the `origin/main` worktree alike.
-- [ ] 4.9 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
+- [x] 4.9 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#<PR>'`, run after the draft pull request
       exists because the tool stamps `moved_by` with its number. Before the
       seed `--ledger-diff` reports *"per-change sweep ledger STALE (8
       finding(s))"* — one `missing row` and seven derived-total mismatches,
-      each moving by exactly one.
+      each moving by exactly one. SEEDED in `13ff6162` with
+      `--seed-ledger --moved-by '#963'`; after it, `python3
+      scripts/validate-sequenced-after.py . --ledger-diff` — **exit 0**,
+      *"per-change sweep ledger consistent with the corpus (200 rows)"*, with
+      *"prose `Sequenced-after:` headers: 3 (3 archived)"* and *"DEEPEST
+      DECLARED CHAIN RESOLVED: 4 hop(s)"*. Re-run on the tree as it now stands
+      and still **exit 0**. (Ticked on the bench's word: the work landed in
+      `13ff6162` and the box was left open — Copilot round 2, thread
+      `PRRT_kwDOTAvnrs6heTQZ`.)
 - [ ] 4.10 **THE FULL SUITE**, `python3 -m pytest tests/ -q -m "not postgres"`,
       with the count before and after and the new-test count measured last.
-- [ ] 4.11 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
-      DRAFT standing.
+- [x] 4.11 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
+      DRAFT standing. Landed in `13ff6162` at `README.md` under *Active
+      changes*: the draft standing named outright (**`Status: draft` — NOT
+      RATIFIED**), the commissioning word quoted, the ADDED-only shape and the
+      absence of a `sequenced_after` hold, the D0 measurement, the code and its
+      test count, and the three declared veto points. Its test figure was
+      RE-MEASURED after § 3.7 and § 3.9 rather than carried (**54**), which is
+      the only edit this round makes to it. (Ticked on the bench's word — the
+      row was in the diff while the box said owed: Copilot round 2, thread
+      `PRRT_kwDOTAvnrs6heTQZ`.)
 - [ ] 4.12 **THE BOT BENCH**, taken and dispositioned item by item on the
       record.
 

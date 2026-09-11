@@ -127,6 +127,40 @@ def test_a_document_with_no_fence_declares_nothing(tmp_path):
     assert tr.declaration(path) == (False, None)
 
 
+# Copilot's round 2 on #963 (thread `PRRT_kwDOTAvnrs6heTP2`): a repeated PROSE
+# header is JOINED by the shared loader, not refused as a duplicate key, so a
+# block with two conflicting declarations tokenized as the first one.
+
+
+def test_a_repeated_declaration_is_refused_not_half_read(tmp_path):
+    path = _proposal(
+        tmp_path, "c",
+        "code_surface: R\ntarget_release: implemented (the main line)\n"
+        "target_release: none")
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.declaration(path)
+    assert "more than once" in str(caught.value)
+
+
+def test_a_repeated_declaration_is_a_finding_not_a_crash(tmp_path):
+    _proposal(tmp_path, "twice",
+              "code_surface: R\ntarget_release: implemented\n"
+              "target_release: none")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "twice/proposal.md" in result.stdout
+    assert "more than once" in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_one_declaration_with_a_multi_line_gloss_is_still_fine(tmp_path):
+    path = _proposal(
+        tmp_path, "c",
+        "code_surface: R\ntarget_release: implemented (the main line).\n"
+        "  No contract bundle is cut and no digest set moves.")
+    assert tr.declaration(path) == (True, "implemented")
+
+
 def test_a_strict_loader_refusal_is_raised_not_swallowed(tmp_path):
     path = _proposal(
         tmp_path, "c",
@@ -320,6 +354,54 @@ def test_an_entry_with_a_class_outside_the_closed_set_refuses(tmp_path):
         tr.load_register(path)
     assert "invented-here" in str(caught.value)
     assert "CLOSED" in str(caught.value)
+
+
+# --- the register is REMOVABLE, NEVER ADDABLE ---------------------------------
+# Copilot's round 2 on #963 (threads `PRRT_kwDOTAvnrs6heTQF` and
+# `PRRT_kwDOTAvnrs6heTPk`): the requirement SHALLs a CLOSED register, but every
+# new `(change, token)` pair was accepted, so a later pull request could append
+# an exception and keep the gate green without touching the specification.
+
+
+def test_an_entry_outside_the_closed_baseline_refuses(tmp_path):
+    path = _register(tmp_path, _entry("newcomer", "invented"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path, closed=(("legacy", "next"),))
+    assert "CLOSED baseline" in str(caught.value)
+    assert "newcomer" in str(caught.value)
+
+
+def test_an_entry_whose_token_moved_off_the_baseline_refuses(tmp_path):
+    path = _register(tmp_path, _entry("legacy", "later"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path, closed=(("legacy", "next"),))
+    assert "CLOSED baseline" in str(caught.value)
+
+
+def test_a_baseline_wider_than_the_register_is_lawful(tmp_path):
+    """Removal is the ONE lawful direction, so the baseline outlives the entry
+    and a shrunken register must load clean."""
+    path = _register(tmp_path, _entry("legacy", "next"))
+    entries = tr.load_register(
+        path, closed=(("legacy", "next"), ("retired", "gone")))
+    assert [e["change"] for e in entries] == ["legacy"]
+
+
+def test_a_register_named_on_the_command_line_carries_no_house_baseline(tmp_path):
+    """`--register` serves the tests and a consuming tree; binding those to
+    THIS repository's baseline would refuse every register but this one."""
+    path = _register(tmp_path, _entry("some-other-tree-change", "whatever"))
+    assert [e["change"] for e in tr.load_register(path)] \
+        == ["some-other-tree-change"]
+
+
+def test_the_house_register_is_within_its_own_closed_baseline():
+    """THE RATCHET, over the real file: `load_register()` with no argument
+    binds `CLOSED_REGISTER`, so this refuses the moment an entry is appended
+    without the module edit that declares the act."""
+    entries = tr.load_register()
+    pairs = {(e["change"], e["token"]) for e in entries}
+    assert pairs <= set(tr.CLOSED_REGISTER)
 
 
 # --- the gate, end to end -----------------------------------------------------

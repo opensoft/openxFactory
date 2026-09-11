@@ -46,6 +46,13 @@ implemented (the openxFactory main line). No contract bundle is cut …`, and a
 reader that judged the whole string would refuse every declaration that explains
 itself. The token is the first whitespace-delimited word of the declaration.
 
+A BLOCK THAT DECLARES `target_release:` TWICE SHALL BE REFUSED RATHER THAN READ
+FROM ITS FIRST TOKEN. The declaration is a prose header, and a prose header's
+repeat is joined into one value rather than refused as the duplicate key a
+structured field's repeat would be — so a block declaring `implemented` and then
+`none` would show a reviewer two declarations and authorize the first. One
+declaration per block, and a repeat is a finding against that proposal.
+
 ABSENCE IS THE PROMOTED DEFAULT AND SHALL NEVER BE A FINDING. *Realization axis
 declaration* makes a proposal without the declarations a doc-only change
 (`code_surface: none`, `target_release: implemented`) by default, so a proposal
@@ -68,7 +75,12 @@ stands, the class of divergence, the reason, a citation, and the event that
 retires the entry. The register SHALL be CLOSED: an entry may be REMOVED when
 its declaration is corrected or its packet archives, and admitting a NEW value
 to the vocabulary SHALL be a change to this specification rather than an
-addition to the register. A registered declaration is REPORTED and not refused;
+addition to the register. CLOSURE SHALL BE ENFORCED AND NOT MERELY DECLARED:
+the validator SHALL carry the baseline of entries the register holds when the
+gate lands and SHALL REFUSE any entry that baseline does not carry, so an
+exception cannot be granted by appending a line to a data file — granting one
+takes an edit where the refusal itself is written, and the diff shows the act
+for what it is. A registered declaration is REPORTED and not refused;
 every declaration the register does not name is judged from the day the gate
 lands, so the gate is a ratchet and the divergence cannot grow.
 
@@ -102,6 +114,15 @@ forces the re-examination.
 #### Scenario: A standing declaration is named by the register
 - **WHEN** an active declaration outside the vocabulary is named by a register entry carrying its current value token, its class, its reason, its citation and its retirement event
 - **THEN** the validator reports it as registered and does not refuse it
+
+#### Scenario: A proposal declares the target release twice
+- **WHEN** an active change's `proposal.md` front matter carries two `target_release:` header lines, the shared prose-header loader joining them into one value
+- **THEN** the validator MUST refuse that proposal, naming it, rather than judging the first token and ignoring the second declaration
+
+#### Scenario: An entry is appended to the closed register
+- **WHEN** a register entry names a change and value token the validator's recorded closed baseline does not carry
+- **THEN** the run MUST refuse, because the register is removable and never addable
+- **AND** granting the exception takes an edit to the baseline in the same pull request, where the diff shows it
 
 #### Scenario: A register entry matches nothing
 - **WHEN** a whole-corpus scan finds a register entry whose change has archived, or whose declaration has been corrected so the value token no longer matches

@@ -45,6 +45,14 @@ THE GRANDFATHER REGISTER IS A RATCHET, NOT AN AMNESTY. See
 forced it and for the asymmetry it borrows from `contracts/openspec-cli-pin.yaml`
 `dispositions:`: an UNMATCHED DECLARATION FAILS and an UNMATCHED ENTRY REFUSES.
 
+A REPEATED DECLARATION IS REFUSED RATHER THAN HALF-READ. `target_release:` is a
+PROSE header, so the shared loader joins a repeat into one raw string instead of
+refusing it as the duplicate key a STRUCTURED field's repeat would be. A block
+declaring `implemented` and then `none` would tokenize as `implemented`, showing
+a reviewer two declarations and authorizing the first — so `declaration` refuses
+the repeat by name, on the value the loader returned, without writing a second
+front-matter parser.
+
 NOTHING AUTHOR-CONTROLLED BECOMES A PATH BEFORE IT IS SHAPE-CHECKED, and the
 two places where it could are guarded at the point the value is read rather
 than at the point it is used: a proposal's VALUE TOKEN must match
@@ -115,6 +123,67 @@ RELEASE_ID_RE = re.compile(r"^contract-v\d+\.\d+$")
 CHANGE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 _TRAILING = ".,;:"
+
+#: A SECOND `target_release:` HEADER INSIDE THE ONE THIS READER WAS HANDED.
+#: `target_release:` is a PROSE HEADER, and the shared loader JOINS a repeated
+#: prose header into one raw string rather than refusing it as the duplicate key
+#: a STRUCTURED field's repeat would be — measured: a block declaring
+#: `target_release: implemented` and then `target_release: none` comes back as
+#: `'implemented\ntarget_release: none'`. Tokenizing that judges the FIRST
+#: declaration and silently ignores the rest, which is exactly the
+#: show-one-authorize-another defect the strict loader exists to close. The
+#: loader's returned value has its own leading header stripped, so a match here
+#: can only be a REPEAT — the check is on the value the loader returned and is
+#: not a second front-matter parser.
+_REPEATED_HEADER_RE = re.compile(rf"(?m)^[ \t]*{FIELD}[ \t]*:")
+
+#: THE REGISTER'S CLOSED BASELINE — the `(change, token)` pairs the register
+#: carries at this gate's landing, and the whole of what it may ever carry.
+#:
+#: WHY A BASELINE AND NOT A COUNT OR AN HONOUR SYSTEM. The requirement makes the
+#: register CLOSED — removable, never addable — and the register file says so in
+#: its own header, but a rule stated in two prose headers and checked by nobody
+#: is the defect this whole packet is about. Without this, a later pull request
+#: could append an entry and make any off-vocabulary declaration pass while the
+#: gate stayed green, which is the ratchet failing silently in the one direction
+#: that matters. An entry the baseline does not carry is REFUSED, so admitting
+#: one takes a second, deliberate, reviewable edit HERE, in the module, beside
+#: the reason — which is the visible canon-shaped act the requirement asks for,
+#: rather than a line appended to a data file.
+#:
+#: A BASELINE MAY BE A STRICT SUPERSET, AND USUALLY WILL BE: removal is lawful
+#: (a corrected declaration or an archived packet retires its entry, and
+#: `Report.stale` REFUSES until the entry is deleted), so a pair stays here
+#: after its entry goes. This is a ceiling, never a floor.
+#:
+#: IT BINDS THE HOUSE REGISTER ONLY. `--register PATH` exists so the tests can
+#: put a known register in front of a known tree and so a consuming tree can
+#: name its own; those registers are not this one and are not measured by this
+#: baseline. `load_register` applies it when, and only when, it is reading the
+#: register this repository carries, and a caller may pass its own.
+CLOSED_REGISTER = (
+    ("add-chain-attestation", "THE"),
+    ("add-clearing-dispatch-boundary", "THE"),
+    ("add-consent-custody-rederivation-record", "THE"),
+    ("add-credential-escrow-checkout", "THE"),
+    ("add-requirement-ref-resolution-integrity", "THE"),
+    ("add-identity-brokering", "next"),
+    ("add-standing-policy-compliance-contract", "next"),
+    ("add-trust-anchor", "next"),
+    ("add-worker-enrollment-broker", "next"),
+    ("adopt-medxsoft-repository-identity", "next"),
+    ("admit-deliberation-clearing-operation", "the"),
+    ("declare-client-standing-policy-contract", "contract-v<next"),
+    ("add-nightly-dashboard-refresh", "implementation_pending"),
+    ("add-roster-directory-admission-surface", "implementation_pending"),
+    ("qualify-avatar-live-voice", "implementation_pending"),
+    ("split-opendox-two-layer-product", "implementation_pending"),
+    ("implement-keycloak-install-repo", "repository-bootstrap"),
+    ("implement-openxpki-install-repo", "repository-bootstrap"),
+    ("admit-review-lane-repin-to-merge-approval-envelope", "a"),
+    ("amend-mirror-floor-regeneration-merge-authority", "a"),
+    ("extend-merge-master-envelope-to-floor-bot-lanes", "a"),
+)
 
 #: EVERY KEY A REGISTER ENTRY SHALL CARRY, AND THE SHAPE IT SHALL CARRY IT IN.
 #: The ADDED requirement *Realization axis vocabulary is gated* has each standing
@@ -208,7 +277,17 @@ def declaration(proposal: Path) -> tuple[bool, str | None]:
         raise TargetReleaseError(f"cannot be read: {exc}") from exc
     if FIELD not in front:
         return False, None
-    return True, value_token(front[FIELD])
+    raw = front[FIELD]
+    text = raw if isinstance(raw, str) else str(raw)
+    if _REPEATED_HEADER_RE.search(text):
+        raise TargetReleaseError(
+            f"declares `{FIELD}:` more than once in one front-matter block. "
+            "The block is prose headers, so the shared loader JOINS the "
+            "repeats into one value instead of refusing them as the duplicate "
+            "key a structured field's repeat would be, and a reader that "
+            "tokenized the join would judge the FIRST declaration and silently "
+            "ignore the rest. Declare it once")
+    return True, value_token(raw)
 
 
 def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
@@ -236,12 +315,22 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     return (registry / f"{token}.digests.yaml").is_file(), True
 
 
-def load_register(path: Path = REGISTER_PATH) -> list[dict]:
-    """The register entries, shape-checked.
+def load_register(path: Path = REGISTER_PATH,
+                  closed: tuple[tuple[str, str], ...] | None = None
+                  ) -> list[dict]:
+    """The register entries, shape-checked, and measured against the CLOSED
+    baseline where one applies.
 
     A register that cannot be used REFUSES rather than being ignored: ignoring
     a malformed exception file would silently re-fail every declaration it
     covers, or silently admit one it does not.
+
+    `closed` is the baseline of `(change, token)` pairs the register may carry.
+    Passing it binds ANY register; passing None binds the HOUSE register — the
+    one beside this module — to `CLOSED_REGISTER` and leaves a register named
+    on the command line unbaselined, because such a register belongs to a test
+    tree or a consuming repository and its closure is that repository's own
+    record to keep.
     """
     if yaml is None:  # pragma: no cover - pyyaml is a suite dependency
         raise TargetReleaseError("pyyaml is required to read the register")
@@ -258,6 +347,8 @@ def load_register(path: Path = REGISTER_PATH) -> list[dict]:
     if not isinstance(doc, dict) or not isinstance(doc.get("register"), list):
         raise TargetReleaseError(
             f"the register {path.name} must carry a top-level `register:` list")
+    if closed is None and path.resolve() == REGISTER_PATH.resolve():
+        closed = CLOSED_REGISTER
     entries: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for index, entry in enumerate(doc["register"], start=1):
@@ -304,6 +395,16 @@ def load_register(path: Path = REGISTER_PATH) -> list[dict]:
                 f"register entry {index} repeats {key[0]} / {key[1]!r}; one "
                 "entry per declaration, so a stale entry cannot hide behind "
                 "a live twin")
+        if closed is not None and key not in closed:
+            raise TargetReleaseError(
+                f"register entry {index} names {key[0]} / {key[1]!r}, which "
+                "the CLOSED baseline does not carry. The register is "
+                "REMOVABLE, NEVER ADDABLE: an entry appended here would make "
+                "an off-vocabulary declaration pass with the gate green and "
+                "the ratchet would have failed in the one direction that "
+                "matters. If the exception is genuinely owed, add the pair to "
+                "`CLOSED_REGISTER` in the same pull request, where the diff "
+                "shows the act for what it is")
         seen.add(key)
         entries.append(entry)
     return entries

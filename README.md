@@ -549,7 +549,7 @@ Active changes:
   § Bundle Realization Order allocates bundle versions LATE. The realization
   rides the same pull request (`scripts/validate-target-release.py`,
   `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
-  entries, CLOSED — and 32 tests), which corrects the **five** active `none`
+  entries, CLOSED against a baseline the validator carries — and 54 tests), which corrects the **five** active `none`
   carriers to `implemented` and leaves the archive's **61** off-vocabulary
   records as frozen record. **THREE DECLARED VETO POINTS**, each a
   multiple-choice question with the recommendation first: D1 gate-vs-amend-vs-synonym,
