@@ -530,64 +530,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
-  — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
-  openxFactory operator authority — a MULTIPLE-CHOICE ruling over `design.md`
-  **D1** and **D2** with the recommendation presented first in each, given in
-  session at 2026-09-11T10:11:50Z and recorded on PR
-  [#945](https://github.com/opensoft/openxFactory/pull/945#issuecomment-5632913794)
-  at 2026-09-11T10:11:56Z. **D1 = verbatim *"info row carrying the citation"***,
-  not *"Suppress, matching the four siblings"*; **D2 = verbatim *"Archived-only
-  boundary"***, not *"Admit active paths too"*. Each is the option the packet
-  already encoded, so **THE WORDING STANDS UNCHANGED** and no delta byte was
-  re-written, restored or deleted; D0 and D3–D6 were carried beside them and
-  none was vetoed. Records
-  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/ratification-2026-09-11.md`
-  and
-  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/verification-2026-09-11.md`).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
-  byte-unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
-  defined. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
-  earlier MULTIPLE-CHOICE word of 2026-09-11 ~01:3xZ, verbatim ***"Commission
-  the packet"***, which commissioned the AUTHORING and decided no wording.
-  Origin: openxFactory
-  [#939](https://github.com/opensoft/openxFactory/issues/939), standing on
-  [#877](https://github.com/opensoft/openxFactory/issues/877) and
-  [#878](https://github.com/opensoft/openxFactory/issues/878).
-  **THE DEFECT, MEASURED ON `main` @ `96b4835b` AGAINST THE REAL AGGREGATION
-  DISPOSITIONS FILE** (`opensoft/xFactory` @ `bc84d325`): the
-  `ratified-provenance` family reports **41 rows, every one `critical`**, and
-  **EIGHTEEN of them are archived records the owner has already grandfathered**
-  — fifteen openxFactory records disposed on #877 (xFactory PR #420 →
-  `5bfa1fe4`) and codexFactory's three (xFactory PR #412), each entry dated and
-  cited. `fam_ratified_provenance` reads no disposition at any of its five
-  arms; the runner's `uncited_resolutions` arm reads the file but adjudicates a
-  DISAPPEARED `contested` finding only, and this family is `auto-fixable`. The
-  grandfather was granted and the nightly has never heard of it.
-  **THE BLOCK ADDS ONE SCENARIO TO ONE REQUIREMENT AND EDITS NO PROMOTED BYTE.**
-  *Governed corpus membership and the lifecycle scan set* is sliced from canon
-  (lines 878–936, `sha256 d32aaa43…`, byte-identical both sides) and gains
-  *A finding is grandfathered by a recorded disposition*; `derive_units` over
-  both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
-  units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
-  (`code_surface` non-empty, `target_release: implemented`): one last pass in
-  `scripts/doc_health/families.py`, three guards in the two readers of the
-  dispositions file (a non-list ROOT refused in each, and an unhashable ENTRY
-  key refused in the runner's own read), and **22 new tests**
-  (`tests/doc-health` **1689 → 1711**, both counts measured on the ratified
-  tree and on an `origin/main` worktree beside it), after which the same 41
-  rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
-  eighteen disposition keys and the other twenty-three byte-identical.
-  **THE TWO DECLARED VETO POINTS ARE BOTH RULED AS ENCODED**: `design.md`
-  **D1** — an `info` row carrying the citation, against SILENCE on the four
-  sibling requirements' suppression precedent — and **D2** — the ARCHIVED-only
-  boundary, an active packet's record being a plain fix rather than a ruling's
-  subject. **NOTHING IS PROMOTED**: no file under `openspec/specs/` is edited,
-  `tasks.md` § 1 is now ticked while **§ 6 (ARCHIVE) STAYS ENTIRELY OPEN** —
-  `code_surface` is non-empty, so the archive is a further act on merged-plus-
-  green realization evidence at canon's grain and a further word — and #939
-  closes at the ARCHIVE and not at this landing.
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a
@@ -2819,6 +2761,66 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
+  — **ARCHIVED 2026-09-11**, on Brett Heap's separate word of the same day (in
+  session at **2026-09-11T12:08Z**, verbatim *"land each when green, archive
+  both when landed, claim 955 and 956"*, recorded on
+  [#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632))
+  and on the MERGED-PLUS-GREEN realization evidence `release-realization`
+  requires of a change with a **non-empty** code surface, quoted rather than
+  paraphrased — *"A change with a non-empty code surface SHALL NOT archive
+  until realization evidence exists: its code merged on the implemented target
+  through the owning domain's engineering gates, and — where the surface is
+  runnable — a green run of that surface"*, its scenario *Realization completes*
+  reading *"**WHEN** merge evidence and a green run exist on the implemented
+  target / **THEN** the change archives and its deltas promote"* — measured
+  **at canon's grain** and not by courtesy.
+  **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#945](https://github.com/opensoft/openxFactory/pull/945) →
+  `34bb5c7158b42a45e4a4eddd2681ca9b7c3f550f`** on `main`, 2026-09-11T13:25:33Z
+  (ratifying commit `e60ad2ff`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/review/ratification-2026-09-11.md`
+  `Status: ratified` and the two gate captures `verification-2026-09-11.md` and
+  `verification-2026-09-11-post-bench.md` `Status: record`, all MOVED and
+  untouched by this archive), with `code_surface: openxFactory` and
+  `target_release: implemented`. **THE GROUND IS `main`'s OWN `pytest-suite`
+  RUN ON THE MERGE COMMIT ITSELF** —
+  [**34604231434**](https://github.com/opensoft/openxFactory/actions/runs/34604231434),
+  event `push`, head `34bb5c71`, **conclusion `success`**, 13:25:41Z →
+  13:51:03Z — so no tree-equality argument is needed: the tested tree IS the
+  merge commit's tree. **PR #945's OWN GREEN RUN IS EXPLICITLY NOT THE GROUND**:
+  run 34600369729 on head `f50b3fc8` tested a test-merge onto `main` at
+  `38c076d1`, and that merge tree (`086ec442…`) is NOT the merge commit's tree
+  (`91a3675a…`) — the base moved to `2cdaf06a` mid-run.
+  Origin: openxFactory
+  [#939](https://github.com/opensoft/openxFactory/issues/939), **CLOSED at this
+  archive act and not at that landing** — which is what PR #945's `refs #939`,
+  carrying no closing keyword in its body or in any commit message on its
+  branch, was for. **ONE `## MODIFIED` REQUIREMENT IS PROMOTED, BYTE-IDENTICAL
+  TO THE ARCHIVED DELTA'S BLOCK**: *Governed corpus membership and the lifecycle
+  scan set* (`openspec/specs/doc-health/spec.md:878`) — **68 lines, 5,782
+  bytes, `sha256 138a0d51f42f77aa9f0418c5ec1570681f63e0409bc0a43596e8356dca06e5dd`
+  on BOTH sides**, `diff` empty, `git diff --numstat` **9 added / 0 removed**
+  and `-w --numstat` identical, so **zero lines changed by whitespace only** and
+  the promotion is a PURE ADDITION of the one new scenario *A finding is
+  grandfathered by a recorded disposition*. All **eight** packet files are
+  `git diff -M` pure renames at 100% similarity, 0 changed lines. **THE
+  REALIZATION RODE PR #945** and is not re-done here: one last pass in
+  `scripts/doc_health/families.py`, three guards across the two readers of the
+  aggregation dispositions file, and 22 new tests in
+  `tests/doc-health/test_grandfather_dispositions.py`. **FIVE SUCCESSORS ARE
+  FILED AND UNCLAIMED**, one per residue `tasks.md` § 7 measured and declined
+  ([#965](https://github.com/opensoft/openxFactory/issues/965) stale
+  dispositions, [#966](https://github.com/opensoft/openxFactory/issues/966) the
+  other eight families' entries,
+  [#967](https://github.com/opensoft/openxFactory/issues/967) the
+  `docs/doc-health.md` family-table row,
+  [#968](https://github.com/opensoft/openxFactory/issues/968) `design.md` D6's
+  `--single-repo` route) plus
+  [#964](https://github.com/opensoft/openxFactory/issues/964) for the bench
+  residue found after ratification — no `runner.main` end-to-end test covers the
+  scalar-root dispositions FILE guard at `scripts/doc_health/runner.py:768`.
 - [amend-repo-boundary-governance-scope-first-line](openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/proposal.md)
   — **ARCHIVED 2026-09-11** by
   [PR #958](https://github.com/opensoft/openxFactory/pull/958), on Brett Heap's
