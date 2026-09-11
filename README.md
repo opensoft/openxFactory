@@ -2862,8 +2862,13 @@ Archived changes:
   on BOTH sides**, `diff` empty, `git diff --numstat` **9 added / 0 removed**
   and `-w --numstat` identical, so **zero lines changed by whitespace only** and
   the promotion is a PURE ADDITION of the one new scenario *A finding is
-  grandfathered by a recorded disposition*. All **eight** packet files are
-  `git diff -M` pure renames at 100% similarity, 0 changed lines. **THE
+  grandfathered by a recorded disposition*. **THE ARCHIVE MOVE COMMIT
+  `bc1f25c4` CARRIES ALL EIGHT PACKET FILES AS `git diff -M` PURE RENAMES AT
+  100% SIMILARITY, 0 CHANGED LINES**; over the pull request as a WHOLE, seven
+  stay `R100` / 0 changed lines and `tasks.md` is `R078` at 172 added / 6
+  removed, its ticks being a SEPARATE commit before the move (`bbb3152b`, as
+  the tool's open-box refusal requires) and the naming of #969 a separate one
+  after it (`818e75f7`). **THE
   REALIZATION RODE PR #945** and is not re-done here: one last pass in
   `scripts/doc_health/families.py`, three guards across the two readers of the
   aggregation dispositions file, and 22 new tests in
