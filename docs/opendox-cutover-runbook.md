@@ -762,6 +762,19 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
 # differing only on them)
 ```
 
+**This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
+form on purpose, not a stale example** (Copilot review, PR #979): RULED
+#656's first seeding declares `openxdox_code`'s two openXdox-code #7 files in
+`docs/opendox-carve-admissions.yaml` and NOTHING else — `opendox_code`'s own
+block there is `created: []`, so these two Phase-1 files have no reviewed
+declaration to read yet, and the command-line flag remains this leg's live,
+correct admission, exactly as § 5.6 and the admissions file's own header say
+`--allow-created` still does for a destination with none declared. It is not
+an operator falling back to a form the file has already replaced here; it
+becomes one only once a future PR adds `pytest.ini` and `conftest.py` to
+`opendox_code`'s `created:` list, at which point this example should drop
+the flag and this note should go with it.
+
 The human line says `verified (byte-identical, or …)` and not
 `byte-identical` since RULED Q-L7 (a), because one replica row now declares a
 line and a copy that arrived carrying it is not byte-identical. **A leg that

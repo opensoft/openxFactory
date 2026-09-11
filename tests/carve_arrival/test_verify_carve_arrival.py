@@ -2437,6 +2437,67 @@ def test_an_empty_admissions_file_refuses_rather_than_reads_as_absent(
     assert "NoneType" in json.loads(done.stdout)["detail"]
 
 
+def test_an_admissions_file_with_a_duplicate_destination_key_refuses(
+        carve: Carve) -> None:
+    """`yaml.safe_load` applies last-duplicate-key-wins SILENTLY (Copilot
+    review, PR #979): a `destinations:` block naming `scratch_code` twice
+    would show a reviewer reading the diff the FIRST block (`created: []`,
+    nothing admitted) while the plain loader would resolve the document to
+    the SECOND (a real admission) — the same show-one-admit-another defect
+    the admissions file exists to prevent, now inside the admission
+    document itself. Written as raw text, not through `write_admissions`'s
+    dict helper: a Python `dict` cannot itself hold a duplicate key, so only
+    a hand-written document can produce the YAML this reader must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created: []\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/sneaky.py\n"
+        f"        reason: shown-one-admitted-another\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "duplicate" in detail
+    assert "scratch_code" in detail
+
+
+def test_an_admissions_entry_with_a_duplicate_field_key_refuses(
+        carve: Carve) -> None:
+    """The same last-duplicate-key-wins silence (Copilot review, PR #979),
+    one level down: a `created[]` entry repeating `reason:` would show a
+    reviewer the FIRST reason while the plain loader admits the file on the
+    SECOND, unread. Raw text for the same reason as the sibling test above —
+    a Python `dict` cannot hold the duplicate key this must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/created.py\n"
+        "        reason: the reviewed reason\n"
+        f"        reason: a second, unreviewed reason\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "duplicate" in json.loads(done.stdout)["detail"]
+
+
 def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_formed(
     ) -> None:
     """The RULED SEED SURVIVES and the whole file stays well formed.
@@ -2445,16 +2506,22 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `8ec3036c`, openXdox → `eca0b597`), which is the FIRST pin bump this
     file's own design anticipates: "a NEW admission is a reviewed ONE-LINE
     diff in the pull request that bumps the destination's pin". The original
-    assertion — `openxdox_code`'s set EQUALS the two openXdox-code #7 files
-    and every other destination is empty — was true of the SEEDING COMMIT and
-    is false of every bump after it by construction, so an equality over the
-    whole file would have made the governed form unusable the first time it
-    was used. What is durable is asserted instead: the two RULED seed entries
-    (the measured defect this file repairs, `#656` comment 5639058687) are
-    still declared with their own `since`, no destination outside the
-    manifest's closed vocabulary appears, every `since` is a 40-hex commit,
-    and every destination's list is alphabetical by `path` — the file's own
-    stated invariants, over whatever the file has accumulated. Reads the REAL
+    assertions — `openxdox_code`'s set EQUALS the two openXdox-code #7 files
+    and every OTHER destination is `[]` — were true of the SEEDING COMMIT and
+    are false of every bump after it by construction, so an equality over the
+    file's CONTENT would have made the governed form unusable the first time
+    it was used. Nothing else is relaxed: the EQUALITY that matters — the
+    file declares one block for EVERY manifest destination and no id the
+    manifest does not carry — is kept exactly as PR #979's review asked for
+    it, because that one is about the file's SHAPE and not about what has
+    accumulated in it.
+
+    What is durable is asserted in place of the frozen content: the two RULED
+    seed entries (the measured defect this file repairs, `#656` comment
+    5639058687) are still declared with their own `since`, every `since` is a
+    40-hex commit, every `reason` is non-empty, and every destination's list
+    is alphabetical by `path` with no repeat — the file's own stated
+    invariants, over whatever the file has accumulated. Reads the REAL
     committed files, so a typo fails this rather than only a scratch
     fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
@@ -2473,7 +2540,12 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "silently when the file it reads disappears")
     manifest_doc = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     admissions = MODULE.read_admissions(admissions_path, manifest_doc)
-    assert set(admissions) <= set(manifest_doc["destinations"])
+    # Equality, not a subset (Copilot review, PR #979): the admissions
+    # file's own header declares one block for EVERY destination the
+    # manifest carries, so a destination missing its `created: []` block --
+    # or an unknown id sneaking in -- must fail here rather than pass a
+    # check that only bounded one side of the comparison.
+    assert set(admissions) == set(manifest_doc["destinations"])
     seed = {entry["path"]: entry
             for entry in admissions.get("openxdox_code", [])}
     for path in ("src/openxdox/consumer_reach.py",
@@ -2483,6 +2555,10 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "is no longer declared for openxdox_code")
         assert seed[path]["since"] == (
             "bfd95063b2a71be097a04bb6a3a99c4c131dd322")
+    # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
+    # replaces nothing: the frozen-content assertions these stand in for
+    # could not survive a pin bump, and an accumulating file with no checked
+    # shape is the drift the declared form exists to end.
     for destination, entries in admissions.items():
         paths = [entry["path"] for entry in entries]
         assert paths == sorted(paths), (

@@ -673,6 +673,66 @@ def default_admissions_path(manifest_path: Path) -> Path:
 ADMISSIONS_ENTRY_FIELDS: tuple[str, ...] = ("path", "reason", "since")
 
 
+class _DuplicateAdmissionsKeyError(yaml.constructor.ConstructorError):
+    """A repeated mapping key in the admissions file, refused BY
+    CONSTRUCTION rather than resolved by `yaml.safe_load`'s own
+    last-duplicate-wins (Copilot review, PR #979): a `destinations:` block
+    naming the same id twice, or a `created[]` entry repeating `path:` (or
+    `reason:`/`since:`), would show a reviewer the FIRST value in a diff
+    while this tool silently trusted the LAST — the same show-one-admit-
+    another defect the admissions file exists to prevent, now inside the
+    admission document itself. A subclass of `yaml.constructor
+    .ConstructorError` (itself a `YAMLError`) so it carries `.problem` and
+    `.problem_mark` on the same idiom as every other refusal below, and so a
+    caller wanting the ORDINARY "not parseable YAML" message need only add
+    one more specific `except` before it — it is not silently swallowed by
+    the general handler."""
+
+
+def _admissions_construct_mapping(loader: yaml.SafeLoader, node: Any,
+                                  deep: bool = False) -> dict[Any, Any]:
+    """`SafeConstructor.construct_mapping`, with every key checked against
+    the keys already seen at this SAME mapping level before it is accepted.
+
+    Mirrors `scripts/frontmatter_strict.py`'s `StrictLoader` /
+    `_strict_construct_mapping` duplicate-key idiom without importing it:
+    that module is the loader for a DIFFERENT ratified requirement (the
+    realization-axis front-matter block — fenced prose with a byte ceiling
+    and its own refused set of anchors/aliases/merge keys/directives/
+    multi-document), not a general-purpose YAML utility, and this reader
+    owns a plain standalone document with a narrower guard — only a
+    repeated KEY is refused here, because every VALUE `read_admissions`
+    reads is already checked against an exact shape a few lines below (an
+    anchor's or alias's resolved value is checked the same as any other
+    value's; only a silently-overwritten KEY would escape those checks, and
+    that is the one gap this closes)."""
+    seen: set[Any] = set()
+    for key_node, _value_node in node.value:
+        key = loader.construct_object(key_node, deep=True)
+        hashable = key if isinstance(
+            key, (str, int, float, bool, tuple)) else str(key)
+        if hashable in seen:
+            raise _DuplicateAdmissionsKeyError(
+                None, None, f"duplicate key {key!r}", key_node.start_mark)
+        seen.add(hashable)
+    return yaml.constructor.SafeConstructor.construct_mapping(
+        loader, node, deep=deep)
+
+
+class _AdmissionsLoader(yaml.SafeLoader):
+    """`SafeLoader` with duplicate mapping keys refused rather than
+    silently resolved last-wins (Copilot review, PR #979). Nothing else
+    about `SafeLoader` changes — anchors, aliases and merge keys still
+    resolve, because their resolved VALUES are re-validated exactly as any
+    other value's below; only the one gap that check cannot see, a key
+    silently overwritten before any value is ever read, is closed here."""
+
+
+_AdmissionsLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _admissions_construct_mapping)
+
+
 def read_admissions(path: Path, doc: dict[str, Any]
                     ) -> dict[str, list[dict[str, str]]]:
     """The declared per-destination admissions file: each destination's
@@ -739,7 +799,24 @@ def read_admissions(path: Path, doc: dict[str, Any]
             f"the admissions file at {path} could not be decoded: {exc}"
         ) from exc
     try:
-        raw = yaml.safe_load(text)
+        raw = yaml.load(text, Loader=_AdmissionsLoader)
+    except _DuplicateAdmissionsKeyError as exc:
+        # Caught BEFORE the general `yaml.YAMLError` below, and named
+        # precisely rather than falling into "is not parseable YAML"
+        # (Copilot review, PR #979): a duplicate key is syntactically valid
+        # YAML that `yaml.safe_load` would accept and silently resolve
+        # last-duplicate-wins — this is a REFUSAL this reader chooses, on
+        # its own "guards its own input" rule above, not a parse failure.
+        mark = exc.problem_mark
+        at = (f" at line {mark.line + 1} column {mark.column + 1}"
+              if mark is not None else "")
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} declares a duplicate mapping "
+            f"key{at} ({exc.problem}): `yaml.safe_load` would resolve this "
+            "SILENTLY as last-duplicate-wins, showing a reviewer one value "
+            "and admitting from another"
+        ) from exc
     except yaml.YAMLError as exc:
         mark = getattr(exc, "problem_mark", None)
         at = (f" at line {mark.line + 1} column {mark.column + 1}"
