@@ -2459,10 +2459,25 @@ def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
         "silently when the file it reads disappears")
     manifest_doc = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     admissions = MODULE.read_admissions(admissions_path, manifest_doc)
-    assert set(admissions) <= set(manifest_doc["destinations"])
+    # Equality, not a subset (Copilot review, PR #979): the admissions
+    # file's own header declares one block for EVERY destination the
+    # manifest carries, so a destination missing its `created: []` block --
+    # or an unknown id sneaking in -- must fail here rather than pass a
+    # check that only bounded one side of the comparison.
+    assert set(admissions) == set(manifest_doc["destinations"])
     openxdox_code = {entry["path"]
                      for entry in admissions.get("openxdox_code", [])}
     assert openxdox_code == {"src/openxdox/consumer_reach.py",
                              "tests/test_dependency_direction.py"}
     for entry in admissions.get("openxdox_code", []):
         assert entry["since"] == "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+    # Every OTHER destination must be seeded with NOTHING (Copilot review,
+    # PR #979): RULED #656's first seeding admits only openxdox_code's two
+    # files, so an accidental admission slipping into any other
+    # destination's block -- previously unchecked here -- must fail this
+    # test rather than pass it silently.
+    for dest_id in sorted(set(manifest_doc["destinations"]) - {"openxdox_code"}):
+        assert admissions[dest_id] == [], (
+            f"expected no declared admissions for {dest_id!r} (RULED #656's "
+            "first seeding admits only openxdox_code's two files), found "
+            f"{admissions[dest_id]!r}")
