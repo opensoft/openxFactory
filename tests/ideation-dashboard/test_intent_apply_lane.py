@@ -16,6 +16,8 @@ from pathlib import Path
 
 import yaml
 
+from carved_reach import source as carved_source
+
 from openxdox import gate_console as gc
 from ideation_dashboard import intent_apply_lane as lane
 
@@ -492,7 +494,11 @@ def test_manifest_digest_matches_the_grown_schema():
     """Codex round-6 P1 (PR #157): the registered digest tracks the bytes."""
     import hashlib
     repo = Path(__file__).resolve().parents[2]
-    schema = repo / "contracts/schemas/gate-action-record.schema.yaml"
+    # POST-SHED (§ 5.2, RULED (a)): the schema is a `moved_verbatim` row at the
+    # openXdox-spec leg and the digest `contracts/manifest.yaml` records is
+    # unchanged, which is exactly what this test asserts — the manifest tracks
+    # the BYTES, and the bytes did not move.
+    schema = carved_source("contracts/schemas/gate-action-record.schema.yaml")
     manifest = (repo / "contracts/manifest.yaml").read_text()
     digest = hashlib.sha256(schema.read_bytes()).hexdigest()
     assert f"sha256: {digest}" in manifest
