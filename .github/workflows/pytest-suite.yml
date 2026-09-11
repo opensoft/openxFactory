@@ -293,42 +293,68 @@ jobs:
       run:
         working-directory: openxFactory
     env:
-      # See `openxwallet-consumer-gate.yml` for why this is a guard and not an
-      # unconditional mint: `doc-health-reusable.yml:125`'s house pattern.
+      # RETAINED, AND IT NOW GUARDS EXACTLY ONE MINT — read this before deleting
+      # it. Until 2026-09-11 this line covered TWO `create-github-app-token`
+      # steps in this job: the gitlink mint below, RETIRED (runbook 7.6,
+      # codexFactory issue #279) because `openXwallet`, `openXdox` and `openDox`
+      # are all PUBLIC; and the decision-core mint far below, which reads
+      # `codeXfactory/codexFactory` and is NOT retirable because that repository
+      # is private and stays private. Only the second survives, and it still
+      # tests this env.
+      #
+      # SO THIS LINE COULD NOT GO WITH THE FIRST MINT, and the failure would have
+      # been quiet: `if: env.HAS_APP_KEY == 'true'` over an UNDEFINED env is
+      # `'' == 'true'`, always false. The decision-core mint would silently skip,
+      # the snapshot freshness verifier would silently skip with it, and the job
+      # would then go red on the `EXPECT_SKIPPED` pin for a cause nobody could
+      # read off the diff. (The 7.6 enumeration of 2026-09-11T02:25Z listed this
+      # line as MOOT for that reason; it is not, and the retirable count for this
+      # repository is 11 rather than 12.)
+      #
+      # The guard itself is `doc-health-reusable.yml:125`'s house pattern: an
+      # absent App key SKIPS the mint rather than erroring on an empty app-id.
       HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
-      # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
-      # registry through `openXwallet/`, which is a SECOND, PRIVATE org
-      # repository: `github.token` is scoped to this repository alone and cannot
-      # clone it. The house pattern of `doc-health-reusable.yml` (prepare job:
+      # THE NESTED GITLINKS, AND NO MINT FOR THEM ANY MORE. `tests/trust-anchor/`
+      # reads the openxWallet custody registry through `openXwallet/`, and
+      # `tests/openxdox_pin/` and `tests/opendox_pin/` read `openXdox/` and
+      # `openDox/`. Until 2026-09-11 a `Mint openxFactory app token` step stood
+      # here — this repository's own content App, because the org secret
+      # `XFACTORY_APP_ID` is visibility-`selected` and openxFactory is not among
+      # its repositories — for ONE reason: openXwallet was a SECOND, PRIVATE org
+      # repository, and `github.token` is scoped to this repository alone.
+      # ALL THREE GITLINKS ARE NOW PUBLIC (`openXwallet` flipped
+      # 2026-09-07T15:24:11Z; `openXdox` and `openDox` likewise, all three
+      # re-measured `visibility: public` on 2026-09-11), so the mint was retired:
+      # runbook 7.6, codexFactory issue #279. NO SECRET WAS DELETED.
+      #
+      # THE URL REWRITE IS KEPT, and it is the half that was never about
+      # privacy. The house pattern of `doc-health-reusable.yml` (prepare job:
       # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth`
-      # → `Init governed submodules only`) is therefore used — mint an App
-      # token, rewrite the SSH URL with `insteadOf` BEFORE checkout, then init
-      # the consumed gitlinks by name. The secret names are
-      # this repository's own content App (App 4253636, installation 145372182,
-      # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
-      # is visibility-`selected` and openxFactory is not among its repositories.
+      # → `Init governed submodules only`) is now used WITHOUT its first step:
+      # `.gitmodules` spells every gitlink `git@github.com:` so that a human
+      # clone uses the operator's key rather than prompting, a runner has no such
+      # key, and the `insteadOf` is what makes those URLs fetchable over HTTPS at
+      # all. The rewritten URL now carries plain `github.token` — exactly what
+      # the retired `||` expression already fell back to whenever the App key was
+      # absent.
+      #
+      # THE SECOND MINT, FAR BELOW, IS UNTOUCHED AND UNRETIRABLE: it reads
+      # `codeXfactory/codexFactory` at the pinned decision core, which is PRIVATE
+      # and stays private. It is also why the job-level `HAS_APP_KEY` guard above
+      # survives this retirement.
       #
       # `submodules: true` on the checkout is NOT the fix and is deliberately
-      # absent: without the URL rewrite it cannot authenticate at all, and with
-      # it, it would additionally fetch `installs/omnigent-install`, which no
-      # test here reads. `--recursive` is rejected one level down for the same
-      # reason.
-      - name: Mint openxFactory app token
-        id: app-token
-        if: env.HAS_APP_KEY == 'true'
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
-          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
+      # absent: without the URL rewrite it cannot resolve the SSH form at all,
+      # and with it, it would additionally fetch `installs/omnigent-install`,
+      # which no test here reads. `--recursive` is rejected one level down for
+      # the same reason.
       - name: Rewrite ssh submodule URLs for token auth
         working-directory: .
         run: |
           git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
         env:
-          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          TOKEN: ${{ github.token }}
 
       - uses: actions/checkout@v4
         with:
@@ -427,10 +453,12 @@ jobs:
       # keeps its own separate job — the general skip discipline, "a directory
       # that silently turned into skips".
       #
-      # THE CREDENTIAL IS THE ONE ALREADY MINTED ABOVE, and it is proven: on PR
+      # THE CREDENTIAL IS THE ONE MINTED JUST BELOW, and it is proven: on PR
       # #550, `merge-master-approval` checked out this same repository at this
       # same commit with these same App secrets, in one second, while
-      # `pytest-suite` minted the same token one job over.
+      # `pytest-suite` minted the same token one job over. (It read "the one
+      # already minted above" until 2026-09-11, when the gitlink mint above was
+      # retired; the decision-core mint below is now the job's only one.)
       #
       # `path:` IS BESIDE THIS REPOSITORY'S TREE, never inside it. A foreign
       # checkout under `openxFactory/` would be visible to every test that scans
@@ -455,10 +483,15 @@ jobs:
       # exemption could never hide in one of its comments. The circumlocution
       # is the guard working, not an oversight.
       #
-      # THE `app-token` STEP ABOVE IS DELIBERATELY UNCHANGED: the URL rewrite
-      # beneath it authenticates the `opensoft/openXwallet` gitlink
-      # (`contracts/openxwallet-pin.yaml`), which did not move. Two targets in
-      # two organizations need two tokens; one token cannot be both.
+      # THERE IS NO LONGER AN `app-token` STEP ABOVE, AND THAT DOES NOT REACH
+      # THIS MINT. Until 2026-09-11 this comment read "the `app-token` step above
+      # is deliberately unchanged", because two targets in two organizations
+      # needed two tokens and one token cannot be both. The first target —
+      # the `opensoft/openXwallet` gitlink (`contracts/openxwallet-pin.yaml`),
+      # which did not move — now needs no token at all, so its mint went and this
+      # one stayed. The rule the sentence was protecting is unchanged: a
+      # `github.repository_owner`-scoped token could never have read the
+      # decision core in `codeXfactory`, however Phase 1 went.
       #
       # `repositories:` narrows this one to the single repository it reads,
       # rather than to every repository the App holds on `codeXfactory`.

@@ -603,6 +603,7 @@ Part C fills, below this line:
 
 > *(appended by Part C after T2)*
 > **2026-09-11 — Part C STOPPED here. Step 5b is NOT performed, and the "verify one convening admits" route named above does NOT reach the register projection at all. See §13.2.**
+> **2026-09-11, LATER — SUPERSEDED BY §14.1: step 5b IS PERFORMED.** The route above still does not reach the register projection; an authorized read-only cluster read stands in its place, and the projection’s `source-revision` is `61cee60d` — ahead of this act. See §14.1.
 
 ---
 
@@ -640,6 +641,7 @@ watched, by run id**, and whether it was admitted against `grant-grc-0002`.
 
 > *(appended by Part C after T2 — the proof convening's run id)*
 > **2026-09-11 — No convening was dispatched, and §13.2 records why one would have proved nothing about review authority. See §13.4.**
+> **2026-09-11, LATER — one convening WAS then dispatched: run `34561266626`, REFUSED HTTP 422 `council.self_review_refused`.** Not a register-side refusal, exactly as §13.2 predicted. See §14.3.
 
 ### 9.4 The hold lift — STUBBED
 
@@ -649,6 +651,7 @@ the path in §1 and the merge commit of this pull request beside it.
 
 > *(appended by Part C after T2)*
 > **2026-09-11 — NOT LIFTED. The hold posted at §1 remains IN FORCE. See §13.3.**
+> **2026-09-11, LATER — LIFTED**, 04:10:09Z–04:10:20Z, in all three places the hold was posted, citing both the act (`f0eea7ed`) and this record’s path and naming the wording mismatch. See §14.2.
 
 ### 9.5 TWO INSTANTS, AND THEY ARE NOT THE SAME — read this before citing either
 
@@ -742,6 +745,8 @@ owed (§8, §9.3, §9.4).** The hold posted at §1 **IS STILL IN FORCE.** No
 convening was dispatched, no lift was posted anywhere, and `tasks.md` 3.6 and 3.8
 remain unticked. The reason is not caution: it is a defect in the exit condition
 this record and its runbook both name, set out at §13.2 below.
+
+> **POINTER ADDED 2026-09-11, LATER — §13 IS NO LONGER THE LAST WORD. §14 closes Part C: step 5b is performed (§14.1), the hold IS LIFTED (§14.2), and one convening was dispatched and refused (§14.3). §13 is left exactly as written because it was true when written.**
 
 ### 13.1 §9.2 — THE WINDOW CHECK (task 3.8): **CLOSED, AND THE FINDING IS EMPTY**
 
@@ -961,3 +966,313 @@ is the point.
 performed and a follow-on that was stopped with its reason. It is not `Status:
 draft`, because nothing here is provisional; §13.2's finding is as much a result
 as a green would have been.
+
+---
+
+## 14. DATED APPEND — 2026-09-11, PART C **CLOSE-OUT**
+
+**Appended 2026-09-11 by the coordinating lane `hermes-wallet-exercise`, after
+§13 itself reached `main` (PR #948 →
+`fa94dfb5bae699f83b0c51205ab6a7ba4e0acc80`, merged 2026-09-11T03:19:58Z).
+Nothing above this line is rewritten.** As with §13, the only other change this
+append makes is a one-line dated pointer under each of §8, §9.3 and §9.4's
+markers, directing a reader here; the diff carries **zero deletions**, which is
+the proof. Same lifecycle rule as before
+(`docs/document-lifecycle.md`): a document at `Status: record` *"stays open or
+gets a dated append, never silently rewritten."*
+
+**READ THIS FIRST.** Of the three stubs §13 left owed, **two are now filled and
+one is answered by a finding rather than by the result it asked for.**
+
+| Stub | §13 left it | §14 leaves it |
+|---|---|---|
+| **§8** — step 5b, the projection | NOT PERFORMED | **PERFORMED** — by an authorized read-only cluster read, §14.1. `tasks.md` 3.6 ticks. |
+| **§9.4** — the hold | NOT LIFTED, still in force | **LIFTED**, in all three places the hold was posted, §14.2 |
+| **§9.3** — the proof convening | NOT DISPATCHED | **DISPATCHED ONCE AND REFUSED** — `council.self_review_refused`, §14.3. It is not a register-side refusal, and §13.2 already said it could not have been one. |
+
+### 14.1 §8 — STEP 5b: **PERFORMED, BY THE SUBSTITUTE §13.2 CALLED FOR**
+
+**The authority.** Brett Heap, multi-choice ruling **2026-09-11T03:01:28Z**,
+verbatim: *"Operator word: hermes-wallet-exercise reads it."* §13.2 had left 5b
+owed to *"a named operator lane"* on *"Brett Heap's operator word"*; this is that
+word, and the named lane is `hermes-wallet-exercise` — the same lane that
+coordinated the act. **ONE read-only cluster read, no change.**
+
+**The wait condition, met rather than assumed.** The register-projection
+refresher's schedule is `0 */2 * * *`; the first tick after T2 (02:29:10Z) is
+**04:00Z**. The read ran **2026-09-11T04:03:38Z–04:03:40Z** (the `az aks command
+invoke`'s own `startedAt`/`finishedAt`), after that tick had already recorded a
+success.
+
+**How it was executed.** One `az aks command invoke` against
+`aks-opensoft-platform-qa-01` / `rg-opensoft-platform-aks-qa` (`westus`;
+subscription `sub-opensoft-platform-aks-qa`, the only cluster in it), namespace
+`hermes` throughout, `exitCode` 0. **Every command was a `kubectl get` with
+`-o jsonpath` or `-o custom-columns`** — no `apply`, `patch`, `create`,
+`delete`, `edit`, `rollout`, or side-effecting `exec`. The cluster coordinates
+were taken from hermes-install
+`docs/evidence/refresher-installation-split-2026-09-10.md` read via `git show
+origin/main:<path>` (no checkout, no pull, no working-tree mutation).
+
+**What was read, verbatim:**
+
+| | Value |
+|---|---|
+| CronJob `hermes-register-projection-refresher` `lastScheduleTime` | `2026-09-11T04:00:00Z` |
+| …`lastSuccessfulTime` | `2026-09-11T04:00:08Z` |
+| First Job created after T2 | **`hermes-register-projection-refresher-29818320`**, created `2026-09-11T04:00:00Z`, **`succeeded=1`** |
+| ConfigMap `hermes-register-projection` → `hermes.opensoft.one/source-revision` | **`61cee60d85ec53a1107033fe0aea55ffe8987fa0`** |
+| …`hermes.opensoft.one/projected-at` | `2026-09-11T04:00:02Z` |
+| …`hermes.opensoft.one/projection-digest` | `sha256:10b1fb625bc704819140315c880fd8cf7c25111294c166fa0447b1a3cca92d3f` |
+| …object `resourceVersion` / `creationTimestamp` | `36303438` / `2026-08-30T15:23:46Z` |
+
+**THE TEST, AND IT PASSES.** §13.2 named the field to check:
+*"the projection's own `hermes.opensoft.one/source-revision` annotation resolves
+to `f0eea7ed1af5a3b7cc247adc8316e04e4b610dc0` **or later**."* Run locally,
+read-only:
+
+```sh
+gh api repos/opensoft/openxFactory/compare/f0eea7ed1af5a3b7cc247adc8316e04e4b610dc0...61cee60d85ec53a1107033fe0aea55ffe8987fa0 --jq .status
+```
+
+→ **`ahead`**. `61cee60d` is `opensoft/openxFactory` `main` at
+**2026-09-11T03:43:29Z** (the merge of PR #937,
+`amend-repo-boundary-governance-scope-first-line`) — strictly after T2, and
+after §13's own PR #948 (`fa94dfb5`, 03:19:58Z) as well. **The published
+projection was derived from a revision of `main` that already carries this
+act.** The council refresher is healthy on the same tick
+(`lastSuccessfulTime` `2026-09-11T04:00:06Z`) — context, not part of the proof.
+
+**STATED LIMIT, because a record that overclaims is worse than one that stops.**
+This read establishes 5b **by source revision**: the projection's provenance
+annotation names a revision that contains `grant-grc-0002` and the repointed
+row. It does **not** read the ConfigMap's own data back. §13.2's option (i) also
+listed the row-level confirmations — `row-grc-0001` reading
+`grant_ref: grant-grc-0002` with the matching `expires_at`, and
+`projected_from.staleness_bound` still carrying `revocation_staleness_bound`
+**`P7D`** verbatim — and **those three fields were NOT separately read.** They
+follow from the source revision only if the refresher is faithful to its input,
+which is its whole job but is not a thing this read observed. Whoever next has
+operator cause to touch that ConfigMap should read the three fields and note the
+result; nothing here depends on it, and it is recorded as owed rather than
+quietly treated as covered.
+
+**Posted in full at** codexFactory
+[#279 comment 5629286164](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5629286164)
+(2026-09-11T04:05:40Z).
+
+### 14.2 §9.4 — THE HOLD: **LIFTED**
+
+Posted 2026-09-11T04:10:09Z–04:10:20Z, in the **same three places** the hold of
+2026-09-10T23:20:38Z was posted, and nowhere else:
+
+| Where | URL / id | UTC |
+|---|---|---|
+| codexFactory issue **#279** | [`issuecomment-5629329609`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5629329609) | 2026-09-11T04:10:09Z |
+| codexFactory PR **#374** | [`issuecomment-5629329846`](https://github.com/codeXfactory/codexFactory/pull/374#issuecomment-5629329846) | 2026-09-11T04:10:10Z |
+| `LANES.md` (`opensoft/brett-wip` `lanes/LANES.md`, line 558) | commit `45a138c98e2b66dd3bc4f51ae6396b4016bddee4`, pushed to `origin/main` | 2026-09-11T04:10:20Z |
+
+The lift sentence, as posted:
+
+> LIFTED — the HOLD posted at 2026-09-10T23:20:38Z on `agent:gate-rules-council`
+> convenings (lane hermes-wallet-exercise). Cause: the openxFactory governed
+> re-issuance record
+> `opensoft/openxFactory:openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`,
+> `grant-grc-0002` effective `2026-09-11T02:12:30Z`, register projection
+> re-derived and observed at `2026-09-11T04:03:38Z–04:03:40Z`.
+
+**IT CITES BOTH HALVES, AND IT NAMES THE MISMATCH — as §13.3 required.** The
+hold says it lifts on a record that *"exists on
+`opensoft/openxFactory:governance/review-authority/`"*; Brett Heap's ruling of
+2026-09-11T02:03:35Z filed the record under `openspec/changes/` instead. The
+lift therefore cites **the ACT** — openxFactory PR #941 →
+`f0eea7ed1af5a3b7cc247adc8316e04e4b610dc0` on
+`governance/review-authority/`, merged 02:29:10Z, with all three writes and the
+non-write enumerated — **and THE RECORD ID**, this file's path, `Status: record`,
+landed by #941 and extended by #948 → `fa94dfb5`. It states the mismatch in
+terms and states that **the original hold postings are not reworded**. It also
+carries §13.1's EMPTY window finding under both candidate upper bounds, §14.1's
+cluster read with its values, and an explicit *"what this lift does not claim"*
+paragraph disowning the admitted-convening route.
+
+The lift releases **this hold and nothing else**. Merge-readiness-council
+convenings were never held (§3.4: `grant-mrc-0002` was not revoked, and that
+holder's pin `751e03a2…` did not move).
+
+### 14.3 §9.3 — THE PROOF CONVENING: **DISPATCHED ONCE, AND REFUSED**
+
+**RUN [`34561266626`](https://github.com/codeXfactory/codexFactory/actions/runs/34561266626)**
+— `workflow_dispatch` on `codeXfactory/codexFactory` `main` (`77537d7d`),
+created **2026-09-11T04:11:31Z**, completed 04:11:44Z, **conclusion `failure`**.
+Job `claim` failed at its sixth step; job `convene` skipped.
+
+Inputs — the shape of the one admitted precedent (run `34481205558`), never its
+values:
+
+```sh
+gh workflow run gate-rules-convening-trigger.yml -R codeXfactory/codexFactory --ref main \
+  -f rule_packet_ref=hermes/domain/review-councils/convening-packets/2026-09-09-openxfactory-substantive-candidate-class-re-put.md \
+  -f subject_pin=585214d97ab85d8efbd3853cb7c39685b487703b \
+  -f candidate_pull_number=349
+```
+
+The candidate is codexFactory PR **#349** (`OPEN`, not a draft; the preferred
+candidate #377 had merged at 02:37:40Z). Its head was re-read twice, the second
+time in the same command as the dispatch — both `585214d9…`, and the brief's
+pre-found snapshot `a4a32e4d…` was already stale.
+
+**THE REFUSAL, verbatim from the run log:**
+
+```
+##[error]claim_refused: the runtime answered HTTP 422 (council.self_review_refused).
+the subject of this convening touches council 'gate_rules_council''s own declared machinery
+('hermes/domain/agent-mixes.yaml'); a council never clears its own commission (FR-021)
+```
+
+**IT IS NOT A REGISTER-SIDE REFUSAL.** Not `review_authority.register_stale`,
+not `review_authority.grant_revoked`, not `council.convening_exists`. §13.2
+predicted exactly this class of outcome: the admission path never reads the
+register projection, so no register-side code can fire on it either way. **This
+run therefore neither confirms nor contradicts §14.1**, and it is recorded as
+the observation it is rather than as a verdict on the re-issuance.
+
+**THE REFUSAL IS CORRECT IN ITS OWN TERMS, and the cause is exact.** The subject
+pin `585214d9…` is a **merge commit** — *"Merge branch 'main' into
+refactor/111-decision-core-complexity"*, 2026-09-11T03:54:08Z, parents
+`a4a32e4d…` (#349's own tip) and `77537d7d…` (codexFactory `main`). GitHub's
+commits API reports **215 files** for that sha — the first-parent diff, i.e.
+everything `main` gained since the branch point — and that set **contains
+`hermes/domain/agent-mixes.yaml`**, which is precisely the file T1 changed:
+
+```sh
+gh api repos/codeXfactory/codexFactory/commits/585214d9… \
+  --jq '[.files[].filename | select(test("agent-mixes"))]'   # → ["hermes/domain/agent-mixes.yaml"]
+```
+
+#349's **own** three files (`scripts/merge_master/council_clearance.py` and two
+test modules) touch no council machinery.
+`hermes/domain/review-councils/gate-rules.yaml` declares
+`hermes/domain/agent-mixes.yaml#…` as this council's machinery, so
+`guard_convening`'s `machinery_intersection` is non-empty and
+`SelfReviewRefusedError` fires (hermes-install
+`src/hermes_install/domain/touched_objects.py:323`).
+
+**A FINDING THIS SURFACED. RECORDED, NOT ACTED ON.** The touched-object set is
+derived over the subject pin's own commit, so for a merge commit it is the
+first-parent diff. Because T1 put `hermes/domain/agent-mixes.yaml` onto
+codexFactory `main`, **every open codexFactory pull request that merges `main`
+from T1 onward derives a touched set containing that file, and
+`gate_rules_council` will refuse it `council.self_review_refused`** until that
+file falls out of the first-parent diff. FR-021 is reaching further than a
+reader of #349's own diff would expect. That is a codexFactory / hermes-install
+question, not a register question; nothing was changed for it here, and it is
+named so the next reader does not rediscover it as a mystery.
+
+**NOTHING WAS CONSUMED, AND ONE THING WAS PROVED.** The runtime answered **422**,
+not 201: no `ConveningStamp` was produced and no convening was persisted, so
+#349's pin remains free for a future commissioning. And `admit_convening`'s own
+docstring fixes the ordering — the D7 guard *"runs LAST, after … the
+once-per-pin discipline has passed and the pin has been verified"* — so the
+runtime **had already verified that `585214d9…` is #349's current head** before
+refusing. Feature 021's pin verification is observed working, which is the one
+positive thing this run establishes.
+
+**NOT RE-DISPATCHED.** One dispatch, one refusal, stop. Choosing a
+non-merge-commit pin until a green appeared would be choosing the answer, which
+is the forgery this whole ceremony exists to refuse.
+
+### 14.4 The five digests — re-verified against the LANDED composition
+
+§13.5 compared §3.2's ten values against the Part C brief's independently
+carried list. **This append makes the check that actually matters and that
+neither had made: §3.2's AFTER column against the composition as it now stands
+on codexFactory `main`.** Read from
+`hermes/domain/agent-mixes.yaml`
+(`review_council_profiles.gate_rules_council`, `pinned_on: "2026-09-10"`,
+`previously_pinned_on: "2026-09-07"`) and compared programmatically, not by eye:
+
+| | §3.2 AFTER (row C+ / V2S) | landed on codexFactory `main` | match |
+|---|---|---|---|
+| `rendered_set_digest` | `sha256:aac9b60e…358f21` | `sha256:aac9b60e…358f21` | ✓ |
+| `lead-architect` | `sha256:619153c4…8a12d0` | `sha256:619153c4…8a12d0` | ✓ |
+| `lead-security` | `sha256:4d90a110…d69cab` | `sha256:4d90a110…d69cab` | ✓ |
+| `lead-quality` | `sha256:3a7bb571…f2571e29` | `sha256:3a7bb571…f2571e29` | ✓ |
+| `company-policy-lead` | `sha256:7c170ecb…d0e2d0` | `sha256:7c170ecb…d0e2d0` | ✓ |
+
+**All five agree character-for-character** (the table abbreviates for width; the
+comparison was over the full 64-hex values, and §3.2 remains the single
+unabbreviated copy in this record). **`grant-grc-0002` was therefore issued
+against the composition that is actually shipped**, which is the property the
+whole re-issuance exists to establish. The merge-readiness holder's own
+`rendered_set_digest` still reads `sha256:751e03a2…` — unmoved, confirming §3.4's
+two-body check on the landed file rather than on the intention.
+
+### 14.5 What is owed after this append
+
+| Owed | Whose | State |
+|---|---|---|
+| §8 / `tasks.md` 3.6 | lane `hermes-wallet-exercise` | **DONE** (§14.1); the tick rides the codexFactory close-out pull request |
+| §9.4 / the hold | lane `hermes-wallet-exercise` | **DONE** (§14.2) |
+| §9.2 / `tasks.md` 3.8 | lane `hermes-wallet-exercise` | finding landed in §13.1 by #948; the tick rides the same close-out pull request |
+| §9.3 / a convening that actually exercises review authority | the estate | **STILL OWED** — ratified phase 6 (legs 3 and 4). Run `34561266626` is not it, and §14.3 says why |
+| The three ConfigMap row-level fields | whoever next has operator cause | **owed**, §14.1's stated limit |
+| The FR-021 merge-commit reach | codexFactory / hermes-install | **recorded, unowned** (§14.3) |
+| `design.md` §D4 step 5b's unreachable exit condition | a narrow OpenSpec change | **DISPOSITIONED BELOW**, change queued |
+
+**This record stays `Status: record`.**
+
+---
+
+## Disposition — design § D4 step 5b
+
+**Class: a contested finding against a ratified design, dispositioned rather
+than routed around.** Recorded 2026-09-11 by lane `hermes-wallet-exercise`.
+
+**THE FINDING.** codexFactory
+`openspec/changes/clarify-gate-rules-decline-position/design.md` § D4 step 5b —
+carried forward into `docs/governed-reissuance-runbook.md` and into §9.3 of this
+record — makes ***"verify one convening admits"*** the exit condition for the
+projection step, on the reading that an admitted `gate_rules_council` convening
+is itself proof that the register projection has been re-derived and carries the
+new grant. **That exit condition is UNREACHABLE AS BUILT.** §13.2 establishes it
+against shipped code and this estate's own landed records: the convening
+admission path reads the **domain-content** projection, while the **register**
+projection is read only by `DatabaseSeatExerciseGate` inside
+`verdict_for_completion`, which this lane never reaches because legs 3 and 4 do
+not exist (ratified phase 6, ungated). An admitted convening proves the council
+content, the pin and the once-per-pin discipline; it proves nothing about grant
+state. Worse, dispatched at the wrong moment it returns a **green admission
+against a stale projection**, which the design's own wording would then read as
+clearance — the manufactured-clearance failure the governed-re-issuance
+discipline exists to refuse.
+
+**THE RULING.** Brett Heap, multi-choice, **2026-09-11T03:01:28Z**:
+**disposition entry now, cited change later.** In terms: this finding is
+recorded as a disposition here and in the codexFactory packet at the time it was
+found, and **a narrow OpenSpec change amending `design.md` § D4 step 5b is
+QUEUED for after this ceremony closes.** The design is not edited under cover of
+a walk record, and the finding is not left as loose prose either.
+
+**THE SUBSTITUTE, AND ITS STANDING.** For this ceremony, step 5b was satisfied by
+the **read-only on-cluster read of §14.1**, performed on the same ruling's
+operator word (*"hermes-wallet-exercise reads it"*) by a named lane. It is a
+substitute for the design's stated exit condition, **not an instance of it**, and
+this record says so rather than reading the two as the same thing. Its own limit
+is stated at §14.1 (proof by source revision; three row-level fields not read).
+
+**WHAT THE QUEUED CHANGE SHOULD SETTLE** — recorded as the finder's input, not as
+a ruling:
+
+1. **What the real exit condition is**, given that the only path on which the
+   register projection is consulted is verdict completion — which is phase 6
+   work. A projection read is the honest bar until then.
+2. **Whether the runbook's *"a green validator does not lift the hold"* framing
+   survives.** It is right about validators; it is wrong that an admitted
+   convening is the alternative.
+3. **Whether the step names the `hermes.opensoft.one/source-revision` test**
+   (§14.1) as the check, and whether it requires the three row-level fields.
+4. **Who may perform it** — today it needs a human operator's word for a cluster
+   read, which is a governance fact, not a convenience.
+
+**NOTHING IS AMENDED BY THIS SECTION.** `design.md` § D4 reads today exactly as
+it was ratified. This is a disposition entry and a queue marker.
