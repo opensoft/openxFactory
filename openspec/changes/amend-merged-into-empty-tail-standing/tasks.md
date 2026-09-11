@@ -4,7 +4,8 @@ Status: ratified
 Ratified by: amend-merged-into-empty-tail-standing — 2026-09-11, Brett Heap, "Ratify as encoded" (record `review/ratification-2026-09-11.md`)
 Kind: tasks
 
-`code_surface: none`, `target_release: none`. Under `release-realization` an
+`code_surface: none`, `target_release: implemented` — the value canon names
+for a doc-only change. Under `release-realization` an
 empty code surface archives ON LANDING plus its own task list rather than on
 merged-plus-green realization evidence — **and that archive is still a separate
 act on a separate word, and it is NOT performed here** (§ 5).
