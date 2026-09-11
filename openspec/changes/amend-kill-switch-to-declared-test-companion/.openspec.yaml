@@ -1,0 +1,101 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-amend-kill-switch-to-declared-test-companion
+  reason: >-
+    THE FINDING, AND IT IS A MEASURED FIGURE RATHER THAN A PREFERENCE.
+    Decision N-4 of `extend-merge-master-envelope-to-floor-bot-lanes`
+    (ratified 2026-09-07, PR #746, NOT YET ARCHIVED) states verbatim: "**The
+    kill switch is the candidate entry.** Deleting it from
+    `.github/merge-approval-envelope.yml` returns the lane to human merges,
+    takes one edit, is a code-owner-reviewed act by construction, is read from
+    the base branch so it takes effect on the next run, and is visible in the
+    diff forever." The clause "takes one edit" was MEASURED FALSE on
+    2026-09-11 while attempting the parent's own box 3.6 observation. In a
+    throwaway clone at codexFactory `main` = `0ad92bd5`, `PYTHONPATH=scripts
+    python3 -m pytest tests/merge-master/ -q` gives 3993 passed / 28 skipped on
+    a clean tree; with the one edit (delete envelope lines 173-356 — the
+    `openxfactory-floor-regeneration` mapping and nothing else; 356 -> 172
+    lines; the YAML still parses) it gives 29 FAILED / 3964 passed / 28
+    skipped, across FIVE test files
+    (`test_floor_regeneration_enrolment.py` 17,
+    `test_enrolled_surface_config.py` 7, `test_behaviour_snapshot.py` 3,
+    `test_caller_workflows.py` 1, `test_class_floor_differential.py` 1) plus a
+    SIXTH file that must move with them, the golden digest
+    `specs/018-per-tree-floor-instance/behaviour-snapshot.json`. That directory
+    is inside codexFactory's REQUIRED `validate` check
+    (`.github/workflows/validate.yml` -> `scripts/validate-docs.sh:217` lists
+    `tests/merge-master/`), so the withdrawing pull request CANNOT LAND. A kill
+    switch that cannot be thrown is not a switch.
+    THE TWO RECORDS. The measurement is posted as the RESULT on openxFactory
+    #745 at 2026-09-11T03:08Z
+    (https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628853801).
+    The ruling that accepts it is recorded on openxFactory #745 comment
+    5632569506 (2026-09-11T09:42:11Z,
+    https://github.com/opensoft/openxFactory/issues/745#issuecomment-5632569506)
+    and on codexFactory #232 (2026-09-11T09:42:12Z).
+    THE WORD THAT AUTHORIZED THE FILING, VERBATIM AND WITH ITS PLACE. Brett
+    Heap, 2026-09-11 at approximately 03:40Z, in session to lane
+    `openxfactory-2` (display `openXfactory-2`), presented with the lane's
+    MULTI-CHOICE question, selected the option "Accept the finding; file a
+    successor". A SELECTION, NOT A TYPED SENTENCE. The ruling's consequence
+    (3), verbatim: "a SUCCESSOR change is to be filed in openxFactory amending
+    N-4 to state the switch as it truly is — one reviewed edit plus its
+    declared test companion (or, alternatively, making the pinning suite
+    kill-switch-aware) — so that a later throw is landable and the box can be
+    observed". Consequence (4), verbatim: "3.6's observation resumes only after
+    that successor lands and a real bot cycle exists."
+    THE PARENT'S BOX 3.6 STAYS OPEN AND IS AN OBSERVATION BOX, NOT AN
+    OWED-SUCCESSOR BOX. It does NOT tick on this packet being named, and the
+    tick-on-the-recording rule of 2026-09-06 does not reach it: what 3.6 owes
+    is a THROW, an OBSERVATION and a RESTORE on a real bot cycle, and this
+    filing performs none of the three. No box anywhere is ticked by this pull
+    request. The parent packet is NOT EDITED BY THIS LANE AT ALL — its
+    `tasks.md` is being moved by open PR #957 and a conflict would be this
+    lane's fault.
+    FILING IS NOT RATIFYING. This packet is a PROPOSAL. It admits no text to
+    canon, ratifies no design decision, re-opens N-4 only by ASKING, moves no
+    byte in either repository, throws no switch, and carries `Status: draft` on
+    every document. Ratification, realization (a codexFactory COMPANION change
+    authored by that repository's lane) and archive are three separate acts on
+    Brett Heap's word; none has been given.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is the
+    parent change `extend-merge-master-envelope-to-floor-bot-lanes` (its N-4
+    and its box 3.6), the 2026-09-11 measurement on openxFactory #745, and the
+    ruling on #745 / codexFactory #232 — not an `ideation/staging/` topic
+    folder. `kind: staged` would claim a staging source that does not resolve.
+  proposed_by: >-
+    Lane `openxfactory-2` (display `openXfactory-2`), session `c07ed656`
+    (window `openxfactory-f7`), on Brett Heap's SELECTION of 2026-09-11
+    ~03:40Z, "Accept the finding; file a successor". NO APPROVAL PAIR IS
+    DECLARED AND NONE IS IMPLIED: that selection commissioned the FILING of a
+    successor and nothing else. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in the packet carries
+    `Status: draft` to match; approval, when it comes, is a pure ADDITION
+    beside a fixed `kind` and `id`.
+    THE DECISIONS MOST WORTH A VETO are D-1 (alternative (A) "one reviewed edit
+    plus its declared test companion" is recommended over alternative (B)
+    "make the pinning suite kill-switch-aware", which is REJECTED because a
+    suite that adapts to the entry leaving no longer notices it leaving — the
+    single most valuable property the suite has), D-2 (the declaration site is
+    the envelope's own banner/comment block beside the candidate, so there is
+    NO SCHEMA CHANGE and N-4's refusal of an `active:` member is honoured
+    rather than quietly reversed), D-3 (the GOLDEN DIGEST is part of the
+    declared companion, with the throw and the restore each recorded as a
+    movement — the alternative, exempting the digest, would lose the
+    notice-it-leaving property for the one artefact whose every movement is
+    individually reasoned) and D-5 (the realization surface is a codexFactory
+    COMPANION change which THIS LANE DOES NOT AUTHOR).
+    NOTHING IS REALIZED BY THE FILING — no envelope byte, no candidate mapping,
+    no workflow, no test, no ruleset, no bypass actor, no schema member, no
+    contract, no pin byte, no digest — and NO KILL SWITCH IS THROWN OR TOUCHED
+    IN ANY REPOSITORY. The candidate entry is INTACT on codexFactory `main`
+    (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines).
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes    # ACTIVE, ratified 2026-09-07 (PR #746), UNARCHIVED. THE PARENT: this packet amends its decision N-4 and the requirement "An enrolled autonomous lane carries a one-edit kill switch" that its `specs/roles-authority-model/spec.md` delta ADDS at lines 53-65, so the `## MODIFIED` targets a sibling's addition and this packet SHALL NOT archive before it promotes. Its box 3.6 is the OBSERVATION this packet unblocks, and is NOT ticked here
+  - openxFactory:change:admit-review-lane-repin-to-merge-approval-envelope # ACTIVE, ratified with amendment 2026-09-11 (PR #943). The SECOND enrolment successor: it admits a further candidate class to the same envelope, so the companion-declaration rule this packet proposes would bind its enrolment too at realization
+  - openxFactory:change:amend-mirror-floor-regeneration-merge-authority    # ACTIVE, ratified 2026-09-08, realized INERT 2026-09-09. The FORM PRECEDENT for a `## MODIFIED` against a then-unarchived parent via `sequenced_after`, and the packet whose box 4.3 named the enrolment successor above
+  - openxFactory:change:govern-sibling-added-modified-deltas               # The rule under which a `## MODIFIED` over a sibling's unarchived ADDITION must declare the pairing per requirement, which this packet's delta does in its closing block

@@ -530,6 +530,19 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: draft`**, on Brett Heap's SELECTION ***"Accept the finding; file a
+  successor"*** (2026-09-11 ~03:40Z, in session, multi-choice; #745 comment
+  5632569506). Successor named by `extend-merge-master-envelope-to-floor-bot-lanes`
+  box 3.6's 2026-09-11 finding (tick PR #957): N-4's ratified "takes one edit" is
+  measured false (29 required tests across 6 files incl. a golden digest); this
+  packet amends N-4 and its requirement by supersession to "one reviewed edit
+  PLUS its declared test companion", so a later throw is landable and box 3.6
+  observable. `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`.
+  **FILING ≠ RATIFYING** — ratification, realization (a codexFactory companion)
+  and archive are three separate acts on Brett Heap's word; none has been given.
+
 - [state-header-window-budget](openspec/changes/state-header-window-budget/proposal.md)
   — authored 2026-09-10, lane `codexfactory-1`, **`Status: ratified`**
   (2026-09-11T01:44Z, Brett Heap, openxFactory operator authority,
