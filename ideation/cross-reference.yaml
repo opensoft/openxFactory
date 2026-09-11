@@ -12379,3 +12379,885 @@ possibles_register:
     audit output as the source of the practice_effectiveness memory signal and describes the Lead-accepted
     path it would ride, but neither document builds the actual mechanism connecting audit findings to
     catalog updates — a concrete cross-member connection worth staging as its own feat.
+- id: pos-derived-authority-conservation-conformance-check
+  title: Authority-Conservation Conformance Check
+  claim: This cluster's recurring autonomy, recursion, and delegation designs — the UI change autonomy
+    envelope, recursive-inference budget/placement rules, the Crystallizer's self-applying build recursion,
+    and the omni-unattended-worker's nested authority objects — could become one reusable conformance
+    check proving that an automated or self-applying subsystem never grants itself more authority than
+    its root delegation, instead of each member independently restating the same guarantee in its own
+    vocabulary.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-synthesis-crystallizer.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-1f10b69f3bc3
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-synthesis-crystallizer.md
+    section: Members and their joints — Recursion with a floor (BP-C1)
+    passage_sha256: d037fcaf0b8cf04a857ea67d5c9d40e162a1b972fe47474c87236591dfc34d69
+  rationale: The Crystallizer synthesis names authority conservation as a constitutional floor precisely
+    because the build pipeline is itself factory work subject to crystallization ('self-application can
+    compound efficiency but never privilege'). The recursive-inference runtime-and-authority synthesis
+    independently asserts a worker 'unable to widen authority through recursion,' the autonomous-experience-management
+    synthesis frames humans as configuring and ratifying an envelope rather than managing every iteration,
+    and the omni-unattended-worker device-trust-plane synthesis builds an entire nesting scheme so 'a
+    single platform-side deny propagates without a distributed cascade.' Each member solves the same problem
+    — bounding what automation or recursion can grant itself — with a different bespoke mechanism; naming
+    it as one shared conformance check would let a reviewer verify the invariant once and reuse the proof
+    across all four subsystems.
+- id: pos-derived-shared-suggestion-clearance-realization-rail
+  title: Shared Suggestion-Clearance-Realization Rail
+  claim: The domain-suggests / tenant-clears / realize-through-the-front-door pattern built for practice
+    adoption could become one reusable suggestion-rail contract shared by crystallization candidates,
+    ontology-maintenance proposals, and Hermes practice-loop suggestions, instead of three separately-shaped
+    suggestion records independently reimplementing the same idempotency, suppression, and rationale rules.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-synthesis-pattern-ledger.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-1f10b69f3bc3
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-synthesis-pattern-ledger.md
+    section: 'The output contract: candidates on the suggestion rails'
+    passage_sha256: 798152c773f8fcc2fe0f9d201818da7d0dd3efc61e6c18b2d26824e4c19f39cf
+  rationale: The Pattern Ledger synthesis deliberately shapes its crystallization_candidate record like
+    a practice_adoption_suggestion, reusing its idempotency, suppression, and evidence-rationale discipline.
+    The ontology lifecycle-and-agents synthesis independently describes a 'maintenance council queue'
+    of evidence-bearing proposals awaiting governed disposition, and the Hermes governed-practice-loop
+    synthesis emits structured suggestions that 'enter the same governance path as human-originated improvement
+    ideas.' All three are converging on the same suggest/clear/realize shape without a single named contract,
+    so extracting the rail as a shared capability would let all three domains reuse one validation, suppression,
+    and audit implementation rather than three parallel ones.
+- id: pos-derived-admitted-inspected-disclosed-evidence-tier-kerne
+  title: Admitted/Inspected/Disclosed Evidence-Tier Kernel
+  claim: The three-tier distinction between what evidence is authorized, what is actually examined, and
+    what leaves the system to an external party — built for recursive-inference capsules — could become
+    a shared evidence-tier kernel reused by subject-establishment evidence assembly and app-testing verification
+    layers, each of which independently draws a comparable boundary without a common vocabulary to compare
+    or compose them.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-synthesis-evidence-and-safety.md
+    section: derived-from cluster cl-synthesis
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-1f10b69f3bc3
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-synthesis
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-synthesis-evidence-and-safety.md
+    section: The capsule defines three related but different sets
+    passage_sha256: a87cf21f9d8efaf8ef297286f24405d60e47c67507e2ac35b746f9f3dc18c3fb
+  rationale: The recursive-inference evidence-and-safety synthesis founds its assurance model on the strict
+    inclusion 'provider-disclosed set <= inspected set <= admitted capsule set.' The subject-establishment
+    evidence-and-model synthesis separately insists that 'processing records therefore become part of
+    claim provenance' and that admission never converts a projection into authoritative truth, and the
+    app-testing execution-evidence synthesis distinguishes functional, deterministic-baseline, and matching-environment
+    verification as claims that 'the evidence bundle should retain' as distinct. Each cluster is independently
+    re-deriving a similar authorized/examined/exposed split; naming it once as a shared kernel would let
+    coverage ledgers, claim lineage, and verification-layer evidence interoperate instead of three incompatible
+    three-way splits.
+- id: pos-derived-cross-thread-authority-conservation-contract
+  title: Cross-Thread Authority-Conservation Contract
+  claim: The cluster's crystallization, governed-recursive-inference, and Omnigent micro-agent brainstorm
+    threads each independently invent the same 'derived/child authority is a subset of parent authority'
+    invariant; this cluster could become one shared neutral authority-conservation contract that all three
+    consume, instead of each thread defining and maintaining its own subset-authority rule in parallel.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2ec443ee59e0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: '## Monotone authority'
+    passage_sha256: 946b1cc363fe0e3e29181ed7998c5c3b71d3b508c6e5e84b5834187c52cce63c
+  rationale: crystallization-authority-and-consent.md states 'A crystallized capability's effective permissions
+    are a subset of the effective permissions of the AI configuration whose work it absorbs' and omnigent-micro-agent-foundations.md
+    independently states a worker 'cannot broaden task scope' and 'receives no raw secrets' under the
+    same constitutional falses; governed-recursive-inference-task-family.md formalizes the identical shape
+    as a monotone-authority invariant for child tasks. Three separately-staged/brainstormed initiatives
+    converging on one unstated shared rule is exactly the kind of cross-cluster connection worth surfacing
+    as a candidate rather than letting each thread re-derive it.
+- id: pos-derived-unified-worker-economics-evaluation-framework
+  title: Unified Worker-Economics Evaluation Framework
+  claim: The Omnigent micro-agent evaluation-and-economics thread and the governed-recursive-inference
+    model-topology-and-economics thread both converge on identical cost-per-valid-result and cost-per-accepted-result
+    metrics; this cluster could become one shared worker-economics evaluation and routing framework spanning
+    both micro-agents and recursive task families instead of duplicating the same cost-accounting and
+    cost-quality-frontier machinery twice.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-model-topology-and-economics.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2ec443ee59e0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-model-topology-and-economics.md
+    section: '## What to measure'
+    passage_sha256: 0e1f7d81ae79725dd8ef602d837e6e796d2b1d75198440c6cf41a5bcfb7da979
+  rationale: omnigent-micro-agent-evaluation-and-economics.md lists 'cost per valid result' and 'cost
+    per accepted result' as its central cost-quality-frontier metrics for routing among worker profiles,
+    and governed-recursive-inference-model-topology-and-economics.md independently arrives at the identical
+    pair of metrics for routing among recursive model topologies. The convergence across two documents
+    that never cite each other suggests a single reusable economics/evaluation capability rather than
+    two parallel ones.
+- id: pos-derived-tenant-project-catalog-as-opendox-s-project-data
+  title: Tenant Project Catalog as openDox's Project Database Schema
+  claim: The neutral tenant-project-catalog record set brainstormed here (projects, project_repositories,
+    principal grants and assignments, tenant_catalog_revisions) could directly supply the schema for openDox's
+    ruled database, which now must hold projects, membership, and the project-to-repository mapping as
+    first-class objects but has no worked-out record shape of its own.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md
+    section: derived-from cluster cl-feat-request
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-2ec443ee59e0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-feat-request
+  supporting_evidence:
+  - document: ideation/brainstorm/tenant-project-catalog-and-workstation-cache.md
+    section: '### Runtime record sketch'
+    passage_sha256: 83c119d79fdbda14f231a2ccf98a5b4f03e8d06d86f56fffeec61661d484c523
+  rationale: The openDox packet (opendox-persistence-and-truth.md, opendox-core-product.md) rules that
+    'the database owns identity and coordination' including projects and the project-to-repository mapping,
+    but does not specify a concrete schema. This earlier tenant-project-catalog-and-workstation-cache.md
+    brainstorm already designed exactly that record set independently, months before the openDox ruling,
+    so connecting the two threads turns a design gap in one document into a ready-made answer from another
+    member of the same cluster.
+- id: pos-derived-crystallization-accounting-portfolio-surface-as
+  title: Crystallization Accounting & Portfolio Surface as a Named Capability
+  claim: The savings ledger, calibration board, and automation-share portfolio surface described across
+    the accounting brainstorm could become their own dedicated, governed contract capability, rather than
+    remaining an uncaptured rollup folded implicitly into capability-health.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-accounting.md
+    section: derived-from cluster cl-crystallization
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-e4346a128104
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-crystallization
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-accounting.md
+    section: The portfolio surface
+    passage_sha256: 5a90c725dfd703a786947ab0a37ad5630a979b42765139d7a1752ab88c5c8951
+  rationale: The staging document's target-capability list (pattern-ledger, crystallization-decision,
+    crystallization-build, crystallization-consent, crystallized-capability-registry, crystallization-dispatch,
+    capability-health) never names a capability for accounting, even though crystallization-accounting.md
+    treats the portfolio surface — automation share, savings run-rate, calibration scores, demand-derived
+    roadmap feed — as the packet's headline operational deliverable rolled up for both the domain efficiency
+    mandate and the tenant accounting bench. That gap between stated ambition and named governance home
+    is exactly the kind of cross-cluster connection this candidate surfaces.
+- id: pos-derived-cross-tenant-pooling-and-platform-capability-wav
+  title: Cross-Tenant Pooling and Platform Capability Wave
+  claim: The cluster's deferred cross-tenant material — statistical pooling, platform-funded capabilities,
+    DTN neutral promotion — could become the fourth ordered OpenSpec exit that completes the crystallization
+    program, following the same raise/ratify/archive path as the first three exits.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/recurrence-crystallization/recurrence-crystallization.md
+    section: derived-from cluster cl-crystallization
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-e4346a128104
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-crystallization
+  supporting_evidence:
+  - document: ideation/staging/recurrence-crystallization/recurrence-crystallization.md
+    section: Exit path
+    passage_sha256: 9afcdbf66256e134da45dba889fa659303b801a1e00234366bc8c02d969631d8
+  rationale: crystallization-cross-tenant.md is the one member still at brainstorm stage while every sibling
+    document in the packet reached an archived OpenSpec change; the staging document explicitly earmarks
+    cross-tenant pooling as a future exit once a first domain proof exists, making this a concrete, already-named
+    next staged topic rather than a speculative extension.
+- id: pos-derived-demand-derived-product-roadmap-dashboard
+  title: Demand-Derived Product Roadmap Dashboard
+  claim: The pooled capability register and the accounting portfolio surface could combine into a dedicated
+    product-roadmap dashboard that turns observed cross-tenant recurrence directly into prioritized build/feature
+    decisions for the platform.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-cross-tenant.md
+    section: derived-from cluster cl-crystallization
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-e4346a128104
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-crystallization
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-cross-tenant.md
+    section: 'Platform builds: the economics phase-change'
+    passage_sha256: 351809070cb3959b40d5f8e9da9ff1a7364b7447cc57c7ab860e03d755640006
+  rationale: crystallization-cross-tenant.md names the demand-derived roadmap as something that 'deserves
+    to be a deliberate deliverable of the accounting surface, not a side effect someone notices,' and
+    crystallization-accounting.md's portfolio surface independently lists a 'demand-derived roadmap feed'
+    among its rollup metrics — neither document alone fully specifies this as a built artifact, but read
+    together they point to a concrete strategic surface worth staging.
+- id: pos-derived-platform-neutral-test-intent-evidence-schema-kit
+  title: Platform-Neutral Test Intent & Evidence Schema Kit
+  claim: This cluster's material could become a single versioned, publishable schema/contract package
+    (intent envelope, render manifest, observation record, verification evidence) that ships for browser
+    adapters now and is designed to be adopted unchanged by a future Flutter or other platform adapter.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-intent.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-169d5f7cbcd0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-intent.md
+    section: '## Proposed model'
+    passage_sha256: 6d03e3488921300d4543006b5b4bb6fe88133f94e4dc96e3189a5bd38dfe69ba
+  rationale: Multiple member documents (the intent envelope, scope router, cross-environment verifier,
+    and render manifest) each independently declare their schemas 'open' while insisting the underlying
+    intent/evidence/lifecycle vocabulary stay platform-neutral so a later Flutter adapter can reuse it.
+    Turning that recurring cross-document design constraint into one concrete, shippable schema package
+    is a connection across the cluster rather than a restatement of any single document's proposal.
+- id: pos-derived-origin-transparent-work-ledger
+  title: Origin-Transparent Work Ledger
+  claim: This cluster could become a dedicated provenance capability guaranteeing that every UI change
+    discloses its true origin (human annotation, Hermes-originated audit, regression detector, or approved
+    telemetry) across the full lifecycle from observation through merge, so an agent-suggested change
+    can never be presented as if a person requested or approved it.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-169d5f7cbcd0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: '### Observation and intent identity'
+    passage_sha256: 70e2ff5a8486f2201fe46be3c5834fb0a28d7fd12659bb8459212933e80aa9f1
+  rationale: This concern surfaces independently in the observatory (which normalizes findings into intents
+    without presenting them as user-authored), the intent envelope (explicit origin/provenance fields
+    and the human-versus-Hermes tension), and the SDLC session protocol (an observation event explicitly
+    avoiding a claim of user authorship). No single document proposes an end-to-end ledger that enforces
+    this property; naming it is a genuine synthesis across the cluster.
+- id: pos-derived-governing-policy-ratification-track
+  title: Governing-Policy Ratification Track
+  claim: This cluster could become a distinct, fully specified ratification workflow for governing-policy
+    changes (thresholds, masks, protected surfaces, reviewer qualifications, the autonomy envelope, and
+    constitution judging rules) that is structurally separate from, and cannot be invoked by, the ordinary
+    agent-driven UI change lane it governs.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-ui-constitution.md
+    section: derived-from cluster cl-agent-assisted-app-testing
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-169d5f7cbcd0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-agent-assisted-app-testing
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-ui-constitution.md
+    section: '## Interfaces and boundaries'
+    passage_sha256: 7ce1dddd111d881ad77e8d0add8784b7c90a7626830f500481c1473949b6a23e
+  rationale: Nearly every member document independently asserts that the ordinary lane must not modify
+    its own governing policy and gestures at a 'separate governed policy path' or 'separate ratification
+    path' without any of them defining what that path actually is. Naming this recurring gap as a concrete
+    missing capability connects the constitution, autonomy envelope, and visual-review documents rather
+    than belonging to any one of them.
+- id: pos-derived-unified-capability-advertisement-heartbeat-for-b
+  title: Unified capability-advertisement heartbeat for benches and containment classes
+  claim: This cluster's heartbeat/readiness work could converge into one capability-advertisement schema
+    extension that reports both governed toolchain-bench inventory and volunteer-host containment class
+    together, rather than as two independently-landed heartbeat deltas.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-b01d22d76b06
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-heartbeat-batch-envelope.md
+    section: '## Proposed model'
+    passage_sha256: 3e0728e2cbcc1a22f78bf04f99ccfcc5dfaebf8d9a48f9f24642d283e0da3b79
+  rationale: 'tech-stack-benches.md proposes a ''Heartbeat bench inventory'' delta so workers ''advertise
+    installed bench ids + digests'' for readiness gating, and separately heartbeat-batch-envelope.md proposes
+    adding executor_class/containment_class fields that ''touches: the schema, its publishers, the forwarding
+    hop, the readiness store''s projection''. Both are independently proposing new advertised-capability
+    fields on the exact same heartbeat/readiness pipeline (Omnigent-Install publisher, xFactory-Hermes-Install
+    readiness store), and both explicitly warn that a heartbeat delta must land in the schema, publisher
+    and evaluator together — suggesting they are the same extension point and could be designed as one
+    coordinated capability-advertisement contract instead of two.'
+- id: pos-derived-one-short-lived-attempt-credential-model-across
+  title: One short-lived attempt-credential model across governed and volunteer lanes
+  claim: The cluster's two separate worker-execution tracks — the Hermes-managed self-hosting lane and
+    the Omni volunteer/unattended lane — could converge on a single short-lived, per-attempt scoped credential
+    contract instead of each building its own credential-issuance mechanism.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-b01d22d76b06
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-authority-object-lifetimes.md
+    section: '## Proposed model'
+    passage_sha256: 8e18df403ef9fc689a148115ebb52f869fd6d50e692b111802ec4f01e0243a4a
+  rationale: 'omnigent-lane-activation-path.md''s P3 phase calls for a worker to claim ''an authorized
+    job; scoped short-lived credential issuance (never standing); bounded execute'', which is the same
+    shape of guarantee the omni cluster''s authority-object model already specifies in detail as the job
+    attempt grant: a record naming the job, attempt, worker, generation, inputs, image, operations, limits
+    and expiry that ''Allows ONE bounded attempt and its explicitly authorized input and output''. Two
+    independently developed worker-execution tracks are arriving at the same answer — one bounded, scoped,
+    short-lived credential per attempt — which is exactly the kind of connection worth surfacing as a
+    shared contract candidate rather than two parallel implementations.'
+- id: pos-derived-one-signed-digest-pinned-image-pipeline-for-benc
+  title: One signed, digest-pinned image pipeline for benches and executor base images
+  claim: This cluster could converge the tech-stack-benches' proposed ACR bench build/publish pipeline
+    with the Omni executor ladder's still-nonexistent base-image pipeline into a single signed, digest-pinned
+    image-publishing service that serves both governed toolchain benches and volunteer-host VM/distro
+    base images.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-executor-ladder.md
+    section: derived-from cluster cl-worker-execution
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-b01d22d76b06
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-worker-execution
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-executor-ladder.md
+    section: '## Proposed model'
+    passage_sha256: bced146642173516fa123f1209874e050960b8b0327496caac35c07e2f0dc269
+  rationale: tech-stack-benches.md proposes a 'Bench build/publish pipeline (OpsxFactory or codexFactory
+    CI → ACR, digest + manifest emission per build)' for governed worker toolchains, while the Omni executor-ladder.md
+    records against its hyperv_vm class that it 'Needs a base-image pipeline (build, sign, pin) that does
+    not exist yet', and rootless-docker-hardening.md's open questions explicitly ask whether the distro
+    rootfs comes 'from the same signed, digest-pinned pipeline the VM class needs, or a separate one'.
+    The cluster already poses this exact question without answering it across two documents, making a
+    shared signed-image pipeline a concrete, evidence-backed candidate rather than a speculative one.
+- id: pos-derived-crystallization-candidate-pipeline-for-stable-mi
+  title: Crystallization candidate pipeline for stable micro-agent and recursive-task families
+  claim: 'The cluster''s material on micro-agent cost/quality evaluation, recursive-task-family cost accounting,
+    and crystallization''s authority-conservation rule could become one formal pipeline: a governed process
+    that turns a recurring, stable Omnigent micro-agent or recursive-task family into an explicit crystallization
+    request routed through the pattern ledger, consent tiers, and permission-conservation checks, rather
+    than leaving the hand-off as an informal note in each packet.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-overview.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-cec80df741c8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-overview.md
+    section: How it fits > Feeds cost accountability and crystallization
+    passage_sha256: 79ad1eba48711600a0aa7a1becbfa892b5b83e202c5dfc3cecea31df97abcb44
+  rationale: The recursive-inference overview explicitly names the recursive task family as a future crystallization
+    candidate, the micro-agent evaluation/economics document independently defines the cost-quality frontier
+    and profile-retirement signal that would identify such a candidate, and the crystallization authority-and-consent
+    document supplies the permission-conservation and consent-tier gates the candidate would have to pass
+    through -- three separate documents describing complementary halves of one pipeline that none of them
+    assembles explicitly.
+- id: pos-derived-neutral-omnigent-independence-and-identity-reuse
+  title: Neutral Omnigent independence and identity-reuse contract
+  claim: The cluster's repeated, domain-specific inventions of reviewer independence (UI specialist separation's
+    ban on self-review, the recursive-inference packet's independent verifier/challenger nodes, and crystallization's
+    Hermes-layer approval braid) could become one neutral, reusable Omnigent independence and identity-reuse
+    contract, checked mechanically wherever a change needs separation between proposer, executor, and
+    approver instead of being redefined per domain.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-ui-specialist-separation.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-cec80df741c8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-ui-specialist-separation.md
+    section: Proposed model
+    passage_sha256: 05339fcc707fa4dda3246414aaf1e31c0bb43c622123734d6c2056e70496cb9b
+  rationale: The UI specialist document's identity-reuse rule, the recursive-inference placement's insistence
+    on a separate verify/challenge worker rather than self-assessment, and crystallization's three-layer
+    approval braid are independently-arrived-at versions of the same separation-of-duties problem, which
+    is exactly the kind of cross-member connection this cluster surfaces.
+- id: pos-derived-micro-agent-to-worker-host-execution-binding
+  title: Micro-agent to worker-host execution binding
+  claim: The cluster's typed micro-task envelope (budgets, permission matrix, tool allowlist) and the
+    host-manager topology's narrow prepare/start/inspect/cancel/destroy executor interface could become
+    one binding contract that lets a micro-agent profile be scheduled onto any qualified executor class
+    -- governed or volunteer -- under a single containment contract, instead of each host topology inventing
+    its own way to run bounded worker tasks.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-host-manager-topology.md
+    section: derived-from cluster cl-omnigent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-cec80df741c8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omnigent
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-host-manager-topology.md
+    section: Possible feats
+    passage_sha256: f609d73cad5bdaa92a4f349bfc7c1295cffd60be49dc594756ba95fc5c66a696
+  rationale: The omnigent micro-agent task-contract document defines exact budgets, permissions, and stop
+    conditions for a bounded worker invocation but never says how that invocation reaches a specific execution
+    host, while the host-manager-topology document defines a narrow, privilege-separated executor interface
+    for running bounded jobs but is framed around general project code rather than the micro-agent's typed
+    envelope -- connecting them names a concrete artifact neither document proposes alone.
+- id: pos-derived-unified-governed-micro-task-record-family
+  title: Unified governed micro-task record family
+  claim: The cluster's independently-proposed profile/task-envelope/result triads (crystallization L4
+    specialist executors, the omnigent micro-agent contract, and recursive-inference child tasks) could
+    converge into one shared, governed micro-task record schema instead of three parallel near-identical
+    contracts.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-f3974fccfe82
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/governed-recursive-inference-task-family.md
+    section: '## Relationship to existing micro-agent ideas'
+    passage_sha256: d98b592973aabf9f9c85a68ab3b4512d4a57380eae25eeddb5264be5a3723a1f
+  rationale: 'Three separate lines in this cluster each arrive at the same three-record shape (reusable
+    profile, immutable task envelope, immutable result) for bounded worker execution: the automation ladder
+    names L4 specialist executors as exactly this pattern, and the recursive-inference task-family document
+    explicitly says it wants to extend rather than duplicate the omnigent micro-agent packet''s records.
+    A single convergent schema would reduce duplication and give crystallization, ontology maintenance,
+    and recursive inference one audit-consistent execution substrate.'
+- id: pos-derived-cross-lane-deterministic-pre-router
+  title: Cross-lane deterministic pre-router
+  claim: The deterministic, model-free routing logic described separately for micro-agent composition,
+    ontology-grounded worker selection, and recursive-inference strategy selection could become one shared
+    pre-router capability that any of the three lanes calls before invoking a planner.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omnigent-micro-agent-routing-and-composition.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-f3974fccfe82
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/omnigent-micro-agent-routing-and-composition.md
+    section: '## Route cheap facts first'
+    passage_sha256: 129b543a932e0ba59f4a57cf5fdb1aa3c236ae06599a522d7f015685f2127237
+  rationale: omnigent-micro-agent-routing-and-composition and governed-recursive-inference-strategy-routing
+    both independently propose using declared types/purposes to route deterministically and reserve model
+    planning for genuinely ambiguous work, while ontology-grounded-micro-agent-routing supplies the semantic
+    signatures that would feed such a router; treating this as one shared component rather than three
+    separate ad hoc routers is a connection only visible across the cluster.
+- id: pos-derived-fragment-mined-crystallization-to-micro-agent-pi
+  title: Fragment-mined crystallization-to-micro-agent pipeline
+  claim: The cluster's fragment-mining insight (recurring sub-task fragments, not whole jobs, are the
+    highest-leverage crystallization unit) could become a concrete pipeline that mines fragments, matches
+    them against the micro-agent task-contract shape, and promotes qualifying fragments to L4 specialist
+    executors using the evaluation-and-economics cost-quality frontier as the promotion gate.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-task-families.md
+    section: derived-from cluster cl-micro-agents
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-f3974fccfe82
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-micro-agents
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-task-families.md
+    section: '## Fragment mining: the granularity insight'
+    passage_sha256: 2ef3113cd54b5f4a03ef6dc26f7fdabe060bcf5074dc5eb884be91251281c285
+  rationale: crystallization-task-families names fragment mining as prime L4 (micro-agent-shaped) crystallization
+    candidates and links directly to the micro-agent task contract, while omnigent-micro-agent-evaluation-and-economics
+    supplies the cost-per-accepted-result metric that would decide which mined fragments actually justify
+    promotion — a concrete feat only visible by joining the mining, contract, and economics documents.
+- id: pos-derived-cross-class-qualification-record-registry
+  title: Cross-Class Qualification Record Registry
+  claim: This cluster's material could become a single versioned qualification-record registry — one artifact
+    per containment class and per configuration — that the executor ladder, the WSL2/rootless-Docker hardening
+    work, the heartbeat's reported classes, and gate 2's containment check all read from as one shared
+    source of truth, instead of each component separately asserting or trusting its own notion of what
+    a class currently supports.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-executor-ladder.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-7e843e2b2daa
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-executor-ladder.md
+    section: '## Possible feats'
+    passage_sha256: d38d127990c5c5520cbde467124ac589d85512f5adf4594999924b68b94e84cb
+  rationale: 'The executor-ladder document names ''versioned qualification records'' as a possible feat,
+    but the same object recurs under different framings across the cluster: rootless-docker-hardening
+    and wsl2-worker-owned-distro each describe their own qualification prerequisites that must feed the
+    same record, the heartbeat-batch-envelope document notes that ''reported executor and containment
+    classes are checked against qualification records and policy,'' and the synthesis-sandboxed-execution
+    document calls the qualification record ''the unit of trust'' and ''the class''s real definition.''
+    Making that registry an explicit, shared artifact is the concrete capability the cluster''s cross-document
+    repetition of this idea points toward.'
+- id: pos-derived-attempt-authorization-record-as-a-shared-service
+  title: Attempt-Authorization Record as a Shared Service
+  claim: The cluster's material could become one explicit attempt-authorization record service — distinct
+    from the just-in-time GitHub runner credential it issues — that unifies the 'job attempt grant' authority
+    object with the ephemeral-runner correlation record, so gates 1-3, revocation, and heartbeat-driven
+    readiness all reference the same single object for one attempt's lifecycle rather than each owning
+    a parallel notion of it.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-7e843e2b2daa
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-ephemeral-runner-attempt-grant.md
+    section: '## Possible feats'
+    passage_sha256: 8d097b391013cd21c9c7f3a41e74439c357fd735c8f82f520346de8167776a9b
+  rationale: The authority-object-lifetimes document defines a 'job attempt grant' as one of five nested
+    authority objects, and the ephemeral-runner-attempt-grant document independently derives a server-side
+    'attempt-authorization record' from the discovery that a just-in-time runner configuration is a credential,
+    not a grant. Both synthesis documents point at this as the seam between the device-trust plane and
+    governed dispatch. Naming the convergence of these two descriptions as one buildable service is a
+    concrete feat the cluster's structure implies but no single member states outright.
+- id: pos-derived-durable-owner-control-enforcement-service
+  title: Durable Owner-Control Enforcement Service
+  claim: The cluster could become a single durable owner-control enforcement point, built on the host-manager-topology's
+    one-writer-per-resource invariant, that guarantees the aggregate-budget's pause and stop states survive
+    reconciliation, job completion, and remote policy — and specifically prevents any second engine, such
+    as the recorded service-rider pack, from repairing around an owner's intentional stop.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/omni-unattended-worker-host-manager-topology.md
+    section: derived-from cluster cl-omni-unattended-worker
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-7e843e2b2daa
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-omni-unattended-worker
+  supporting_evidence:
+  - document: ideation/brainstorm/omni-unattended-worker-host-manager-topology.md
+    section: '## Possible feats'
+    passage_sha256: abc6854d788654c5fac86f368bd41e1ed7609fef25fff9990a6387ae0c36e2d1
+  rationale: The aggregate-budget-and-owner-controls document requires that 'reconciliation, updates and
+    remote policy MUST NOT silently undo a pause' and cites this as a real recorded defect class, but
+    the mechanism that would guarantee it — 'exactly one reconciler per local resource' — is described
+    in a different document, host-manager-topology, which separately warns that the service-rider pack
+    is 'a standing second engine' whose disposition is unresolved. Connecting the durability requirement
+    to the topology's ownership rule surfaces a concrete service worth building rather than leaving the
+    guarantee implicit across two documents.
+- id: pos-derived-ingest-to-recall-consent-state-bridge
+  title: Ingest-to-Recall Consent State Bridge
+  claim: This cluster's material could become a formal consent-state synchronization contract that propagates
+    an evidence row's ingest-time consent_state and revocation into the per-query recall consent gate,
+    so revoking a source consistently purges stored rows and denies any in-flight or cached retrieval
+    authorization for the same data.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-ingestion-adapter-contract.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-02cf22b39015
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/client-ingestion-adapter-contract.md
+    section: The evidence-row output
+    passage_sha256: 563a47fafda303353568f09f584fa8aad46a766d5e61a1b6b073d77169642cff
+  rationale: The ingestion adapter contract stamps a consent_state on every evidence row and ties revocation
+    to row purge/erasure at ingest time, while the retrieval-side documents in this cluster (memory-retrieval-consent-enforcement.md,
+    subject-recall-and-consent-path.md) independently insist consent must be re-evaluated live on every
+    query and flag as unresolved that 'Immediate revocation conflicts with replicated indexes and offline
+    caches.' No member document specifies the connecting mechanism between the ingest-side consent_state
+    field and the retrieval-side live consent gate, even though both govern the same underlying data lifecycle
+    across two sibling documents of the same knowledge-base architecture.
+- id: pos-derived-unified-consent-tier-taxonomy-across-capability
+  title: Unified Consent-Tier Taxonomy Across Capability and Data Consent
+  claim: The cluster's separately-invented tiered-consent schemes could become one reconciled, cross-domain
+    consent-tier vocabulary that both the crystallization authority-and-consent documents and the subject/memory
+    recall documents compose from, rather than maturing two incompatible taxonomies in parallel.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/crystallization-authority-and-consent.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-02cf22b39015
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/crystallization-authority-and-consent.md
+    section: Claims
+    passage_sha256: 88d83d687130b90991e185692cb06ce6e08d47b78dfa7dd944453a31b1cf6c61
+  rationale: crystallization-authority-and-consent.md defines three separately-grantable, default-deny
+    consent tiers (episode use, automation, pooling) for AI-capability crystallization, while subject-recall-and-consent-path.md
+    independently defines a per-category, per-purpose, default-deny consent grant model for person-subject
+    memory recall. Both solve the same shape of problem (granular, separately-grantable, default-deny
+    authorization with subject-visibility obligations) in different corners of the same cluster without
+    cross-referencing each other's vocabulary, which is exactly the kind of connection this lane should
+    surface.
+- id: pos-derived-fresh-evaluation-authorization-gate-as-a-shared
+  title: Fresh-Evaluation Authorization Gate as a Shared Neutral Pattern
+  claim: The cluster's compute-dispatch release gate and its memory-recall consent gate could become one
+    shared, neutral 'authorization must be recomputed at time-of-use, never trusted from a prior grant'
+    contract, reused across the omni-unattended-worker dispatch path and the Hermes memory/recall path
+    instead of being reinvented in each.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/memory-retrieval-consent-enforcement.md
+    section: derived-from cluster cl-consent
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-02cf22b39015
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-consent
+  supporting_evidence:
+  - document: ideation/brainstorm/memory-retrieval-consent-enforcement.md
+    section: Focus
+    passage_sha256: 254b8732488296e49fde5dc44948b8905e8b2c8b0324266677b945bb2f58dfc7
+  rationale: omni-unattended-worker-three-policy-gates.md's Release gate treats every disclosure decision
+    as one that must be freshly authorized per attempt ('heartbeats only observe and server policy alone
+    assigns'), while memory-retrieval-consent-enforcement.md independently insists stored or previously
+    valid consent is not sufficient because purpose, requester, or revocation may have changed. The same
+    governance principle — no cached or standing trust, authorization re-derived at the moment of use
+    — arises independently in two otherwise unrelated subsystems within this cluster (worker dispatch
+    vs. memory recall), suggesting it is a neutral cross-cutting pattern worth extracting rather than
+    reimplementing per subsystem.
+- id: pos-derived-confidence-is-not-authority-governance-pattern
+  title: Confidence-Is-Not-Authority Governance Pattern
+  claim: This cluster's material could become one reusable cross-domain governance pattern stating that
+    model confidence, classification output, or evidence-backed findings never themselves constitute approval
+    or expanded authority — extracted once and reused by both the UI experience-admission/autonomy-envelope
+    system and the recursive subject-establishment system, instead of being reinvented separately in each.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-ui-autonomy-envelope.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fd99ba8ee97e
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-ui-autonomy-envelope.md
+    section: Focus
+    passage_sha256: f2723f4088c49621601ec05bd506b86d55d4443a377b50218bb981ac79170aac
+  rationale: 'The UI autonomy envelope, the Hermes visual reviewer, and the recursive-establishment control
+    boundary each independently arrive at the same rule in unrelated subject-matter (UI change approval
+    vs. evidence discovery for a company/patient subject): confidence or a specialist/child-model finding
+    is evidence, not permission. That convergence across otherwise separate sub-clusters is exactly the
+    kind of cross-document connection worth naming as its own reusable capability rather than leaving
+    as parallel prose in each document.'
+- id: pos-derived-shared-bounded-episode-budget-contract
+  title: Shared Bounded-Episode Budget Contract
+  claim: This cluster's material could become a single reusable bounded-episode/budget contract — covering
+    route, state, time, spend, and call limits plus explicit stop/wait/escalate decisions — shared by
+    the autonomous UI observatory's audit campaigns and the recursive subject-establishment's durable
+    episode passes, rather than two independently designed budget mechanisms.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fd99ba8ee97e
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/agent-assisted-app-testing-autonomous-ui-observatory.md
+    section: Prioritization and batching
+    passage_sha256: e4a479ef8e86a3d3ea6d72d83d49bb33168c4ef890d988eeb9da5a32e7c87b54
+  rationale: The autonomous UI observatory describes bounded audit campaigns with route/state/time/spend/model-call
+    limits that must stop or narrow rather than run indefinitely, while the durable subject-establishment
+    episode describes bounded RLM passes with the same kind of budget, stop, wait, and escalate semantics
+    over long-running work. Both are Hermes-managed, resumable, budget-limited loops built for unrelated
+    purposes, suggesting the budget/stop-condition machinery itself is a candidate for one shared contract.
+- id: pos-derived-unified-subject-hermes-instantiation-contract
+  title: Unified Subject Hermes Instantiation Contract
+  claim: This cluster's material could become the concrete Project/Subject Hermes instantiation specification
+    — identity, scope, consent, acceptance, roles, memory, and lifecycle — that both the agent-assisted-app-testing
+    document set and the recursive subject-establishment document set already assume exists (as the entity
+    that owns purpose, admits work, and holds evidence/memory) but that only one thin overview document
+    actually proposes.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/project-overview.md
+    section: derived-from cluster cl-subject-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fd99ba8ee97e
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-subject-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/project-overview.md
+    section: Possible feats
+    passage_sha256: 4e0f2184e34e395565c375d0df6d815a2310b0a988aff5b07be5e0acd6041109
+  rationale: Nearly every agent-assisted-app-testing document treats 'Project/Subject Hermes' as an already-functioning
+    manager and approval authority (owning the UI constitution, Project Owner/Manager roles, and experience
+    memory), and the recursive-establishment overview likewise treats 'Subject Hermes' as the owner of
+    episodes, evidence, and admission decisions, yet project-overview.md is the only member that proposes
+    the actual provisioning contract underneath that shared assumption — a gap this cluster's connections
+    make visible.
