@@ -158,6 +158,25 @@ rots the first time someone adds a pinning assertion, and it rots invisibly —
 the failure mode that produced this packet. With it, a stale declaration is a
 failing check on the pull request that made it stale.
 
+**The declaration's grammar, stated (D-2c):** the declaration names, per
+candidate id, two ordered lists: (a) the PYTEST NODE ID
+(`path::Class::test_name`, or `path::test_name` where there is no class) of
+every assertion that fails when that candidate is withdrawn, and (b) the
+ARTEFACT PATH of every golden or snapshot file whose recorded value moves
+with the withdrawal. Granularity is therefore FUNCTION (node-id) grain for
+assertions and FILE grain for artefacts — answering Q-3 below. The realizing
+companion change MAY encode this grammar either as the envelope's own
+comment block with a fixed line prefix (e.g. `# companion: <node-id>` /
+`# companion-artefact: <path>`) or as a sibling file declared and keyed by
+candidate id; both are reviewed, diff-visible declarations under the same
+code-owner review as the candidate itself, so either satisfies D-2's site
+rule, and the choice between the two forms is the codexFactory companion's
+own design decision, bounded by this grammar. With the grammar fixed, the
+D-2b equality check is DETERMINISTIC: withdraw the candidate in a scratch
+tree, run the pinning suite, collect the failing node ids and the moved
+artefact paths, and compare both sets to the declaration exactly — a
+mismatch in either set fails the check.
+
 **Alternatives considered and not recommended:** a separate companion manifest
 file (a second place to forget); a schema member (D-2's whole objection); a
 declaration held only in the test suite (invisible at the declaration, and the
@@ -287,11 +306,8 @@ bot cycle exists.
   companion change, or in its own, is a sequencing question for the realization
   lane rather than for this text.
 - **Q-3. Should the declaration name assertions at test-function granularity or
-  at file granularity?** The measurement is by file (five files plus the digest),
-  and the conformance check of D-2b is cheaper and more stable at file
-  granularity, but a file-level declaration tells the reviewer less than a
-  function-level one. Declared for the realization lane to settle against the
-  code.
+  at file granularity?** Answered: node-id (function) grain for assertions,
+  file grain for artefacts (D-2c).
 - **Q-4. Is "landable against the required checks" the right bar, or should it be
   "landable with no further human judgement"?** The chosen bar is observable from
   the platform and is what the finding measured. A stronger bar would have to

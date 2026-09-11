@@ -536,7 +536,9 @@ Active changes:
   successor"*** (2026-09-11 ~03:40Z, in session, multi-choice; #745 comment
   5632569506). Successor named by `extend-merge-master-envelope-to-floor-bot-lanes`
   box 3.6's 2026-09-11 finding (tick PR #957): N-4's ratified "takes one edit" is
-  measured false (29 required tests across 6 files incl. a golden digest); this
+  measured false (29 required-check assertions across five test files, plus a
+  sixth file — the golden `behaviour-snapshot.json` digest — that must move
+  with them); this
   packet amends N-4 and its requirement by supersession to "one reviewed edit
   PLUS its declared test companion", so a later throw is landable and box 3.6
   observable. `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`.

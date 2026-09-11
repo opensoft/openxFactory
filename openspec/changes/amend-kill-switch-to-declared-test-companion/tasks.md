@@ -85,17 +85,23 @@ codexFactory**, authored there, exactly as
 `extend-merge-master-envelope-to-floor-bot-lanes` split its own halves.
 
 - [ ] **3.1 The banner correction and the companion declaration.** In
-      codexFactory `.github/merge-approval-envelope.yml`, in the BANNER/COMMENT
-      block beside the `openxfactory-floor-regeneration` candidate: correct the
-      sentence that repeats N-4's false "one edit" claim, and DECLARE that
-      candidate's test companion — naming the exact files and the assertion(s)
-      each carries. A comment-only edit: **no schema member is added**, no
-      `active:` boolean, no repository variable, and the candidate MAPPING
-      itself does not move.
-- [ ] **3.2 The conformance test.** ONE codexFactory test asserting that the
-      DECLARED companion equals the set of assertions that actually pin the
-      enrolment, so a stale declaration is a failing check rather than a
-      discovery made when the switch is thrown.
+      codexFactory, beside the `openxfactory-floor-regeneration` candidate:
+      correct the sentence that repeats N-4's false "one edit" claim, and
+      DECLARE that candidate's test companion using design.md D-2c's
+      grammar — the pytest node id of every assertion that fails when the
+      candidate is withdrawn, and the artefact path of every golden/snapshot
+      file whose recorded value moves with it. Realized either as the
+      envelope's own `.github/merge-approval-envelope.yml` BANNER/COMMENT
+      block or as a sibling declared file keyed by candidate id (D-2c; the
+      companion change's own choice). Comment-only or additive: **no schema
+      member is added** to the candidate mapping itself, no `active:`
+      boolean, no repository variable, and the candidate MAPPING itself does
+      not move.
+- [ ] **3.2 The conformance test.** ONE codexFactory test that, per D-2c's
+      grammar, withdraws the candidate in a scratch tree, runs the pinning
+      suite, and asserts the resulting failing node ids and moved artefact
+      paths equal the DECLARED companion exactly, so a stale declaration is a
+      failing check rather than a discovery made when the switch is thrown.
 - [ ] **3.3 Nothing else moves.** No candidate mapping, no ruleset, no bypass
       actor, no schema, no workflow logic, no `scripts/`, no `contracts/`, no
       relaxation of any existing assertion, and no rewrite of the pinning suite
