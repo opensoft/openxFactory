@@ -754,6 +754,20 @@ def load_dispositions(ctx, family: str = FAMILY
         entries = yaml.safe_load(path.read_text(encoding="utf-8")) or []
     except (OSError, yaml.YAMLError):
         return out
+    # A FILE WHOSE ROOT IS NOT A LIST RECORDS NO DISPOSITION AND MUST NOT ABORT
+    # THE RUN. `yaml.safe_load` returns whatever the document holds, so a
+    # SCALAR root (`42`) is well-formed YAML that reaches `for entry in
+    # entries` and raises `TypeError` out of this reader and out of every
+    # family that calls it — promotion fidelity and duplicate packet since this
+    # function was written, and ratified provenance from #939. This is the
+    # refusal the loop below already applies to an entry that is not a mapping,
+    # taken one level up: a malformed FILE is ignored exactly as a malformed
+    # ENTRY is. It is not a narrowing of what counts as recorded — no shape it
+    # drops ever yielded a disposition (a mapping root and a string root both
+    # iterated to an empty set) — it is the same answer reached without an
+    # exception (PR #945, Copilot's fourth round).
+    if not isinstance(entries, list):
+        return out
     for entry in entries:
         if not isinstance(entry, dict) or entry.get("family") != family:
             continue
