@@ -530,6 +530,33 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [gate-realization-axis-vocabulary](openspec/changes/gate-realization-axis-vocabulary/proposal.md)
+  — filed 2026-09-11, **`Status: draft` — NOT RATIFIED**. Authored on Brett
+  Heap's word of 2026-09-11T12:08:24Z, verbatim ***"land each when green,
+  archive both when landed, claim 955 and 956"***, whose "claim 956" clause
+  COMMISSIONS THE AUTHORING and ratifies no wording: `.openspec.yaml` carries
+  drafting provenance with **no approval pair** and every document carries
+  `Status: draft`. Origin openxFactory
+  [#956](https://github.com/opensoft/openxFactory/issues/956), the named
+  successor owed by `amend-repo-boundary-governance-scope-first-line`
+  `tasks.md` § 6.8. ONE `## ADDED Requirements` block in `release-realization`
+  — *Realization axis vocabulary is gated* — with **no MODIFIED block**, so no
+  collision with the active `add-structured-scope-substrate` and no
+  `sequenced_after` hold. Measured at authoring on `38c076d1`: of **38** active
+  proposals only **12** declare a value the ratified two-value vocabulary
+  admits (9 `implemented`, 3 a release this estate defines); **26** are
+  outside it, **12** of those because `docs/contract-versioning-policy.md`
+  § Bundle Realization Order allocates bundle versions LATE. The realization
+  rides the same pull request (`scripts/validate-target-release.py`,
+  `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
+  entries, CLOSED — and 32 tests), which corrects the **five** active `none`
+  carriers to `implemented` and leaves the archive's **61** off-vocabulary
+  records as frozen record. **THREE DECLARED VETO POINTS**, each a
+  multiple-choice question with the recommendation first: D1 gate-vs-amend-vs-synonym,
+  D2 the sweep, D3 how the gate resolves "a named release" (the aggregation
+  repository the promoted sentence names defines no releases and carries no
+  tags). Nothing is promoted; #956 closes at the ARCHIVE. Lane
+  `openxfactory-1`.
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a
