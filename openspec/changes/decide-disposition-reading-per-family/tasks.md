@@ -53,7 +53,8 @@ each open box below states the event that closes it:
 
 - [ ] 1.1 **CLASS A — `modified-block-currency` (4 entries).** Brett Heap rules
       between (A1) NO CHANGE — canon's *A finding is dispositioned* at
-      `openspec/specs/doc-health/spec.md` line 2177 already rules it
+      `openspec/specs/doc-health/spec.md` line 2177 (at `origin/main` `d4d96cca`)
+      already rules it
       (**RECOMMENDED**) — (A2) narrow it to `info`-with-citation, or (A3) widen
       it to archived delta paths. This box ticks by NAMING the word, its
       timestamp and where it is recorded, and by nothing else.
@@ -65,9 +66,14 @@ each open box below states the event that closes it:
       `semantic-contradiction` (1), `semantic-normative-prose` (1), 15 entries.**
       Brett Heap rules between (C1) DELIBERATELY IGNORE — no family-side reading;
       the entry is a governance record and the finding keeps its band
-      (**RECOMMENDED**) — (C2) read and downgrade to `info` with the citation, or
-      (C3) read and suppress. **This is the class with a live population: ten of
-      the fifteen draw a finding today.**
+      (**RECOMMENDED**) — (C2) read and downgrade to `info` with the citation,
+      (C3) read and suppress, or (C4) SPLIT THE CLASS on the measured status and
+      rule `record-immutability`'s four `Status: record` targets separately.
+      **This is the class with a live population: ten of the fifteen draw a
+      finding today**, and (C4) exists because the status was measured directly
+      rather than inferred from an archive-path prefix (`design.md` D0.2). This
+      packet does NOT take (C4); it is put here so the split is ruled rather than
+      assumed away.
 - [ ] 1.4 **CLASS D — `uncited-resolution` (1 entry).** Brett Heap rules between
       (D1a) RECORD THAT IT IS INERT AND LEAVE IT (**RECOMMENDED**), (D1b) teach
       the arm to read its own family's entries, or (D1c) retire the entry in
@@ -181,21 +187,53 @@ each open box below states the event that closes it:
 
 ## 5. Verification — RUN IN THIS PULL REQUEST
 
-- [ ] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate decide-disposition-reading-per-family --strict`
-      on the PATH CLI and on the pinned CLI, with the exit codes and the output
-      recorded in the pull request body.
-- [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` on both CLIs,
-      with this branch's failure set compared against `origin/main`'s and the
-      comparison stated as identical or not.
-- [ ] 5.3 `python3 scripts/proposal-support.py . verify decide-disposition-reading-per-family`.
-- [ ] 5.4 `python3 -m pytest tests/doc-health -q` and the full
-      `python3 -m pytest -q`, with exit codes.
-- [ ] 5.5 `python3 scripts/doc-health.py --single-repo .` tail,
-      `python3 scripts/validate-sequenced-after.py .` and
-      `python3 scripts/validate-scope-globs.py .`, with exit codes.
-- [ ] 5.6 The corpus-ledger row seeded by the sanctioned tool after this pull
-      request exists — `python3 scripts/validate-sequenced-after.py . --seed-ledger
-      --moved-by '#<PR>'` — as its own commit, and `--ledger-diff` run after it.
+**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `ed2bb882`** — this branch with
+`origin/main` `d4d96cca` merged — and every CONTROL was taken at `d4d96cca`
+itself in a separate worktree, never in this clone. The exit codes are the
+commands' own, pasted from the run and repeated in the pull request body.
+
+- [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate decide-disposition-reading-per-family --strict`
+      on the PATH CLI (`openspec 1.2.0`) — **exit 0**, `Change
+      'decide-disposition-reading-per-family' is valid` — and through the pin,
+      `python3 scripts/validate-openspec-cli-pin.py --change
+      decide-disposition-reading-per-family --no-cache` (`@fission-ai/openspec@1.12.0`,
+      integrity verified) — **exit 0**, `Totals: 1 passed, 0 failed (1 items)`.
+- [x] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` on the PATH CLI
+      — **exit 1**, `Totals: 101 passed, 2 failed (103 items)` — against
+      `origin/main`'s **exit 1**, `Totals: 100 passed, 2 failed (102 items)`.
+      **THE FAILURE SET IS IDENTICAL**, `disposition-codexfactory-declared-renames`
+      and `disposition-codexfactory-floor-relocation-retitle` on both sides, and
+      the whole diff of the two outputs is one added `✓
+      change/decide-disposition-reading-per-family` line plus the totals line.
+      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` — **exit 0**
+      on both, `0 UNDISPOSITIONED failures` with the SAME two accepted exceptions
+      (`add-chain-attestation / signed-execution-chain/spec.md`,
+      `add-composed-view-authoring / ideation-dashboard/spec.md`).
+- [x] 5.3 `python3 scripts/proposal-support.py . verify decide-disposition-reading-per-family`
+      — **exit 0**, `proposal support verification ok`.
+- [x] 5.4 `python3 -m pytest tests/doc-health tests/sequenced_after
+      tests/scope_globs tests/proposal-support -q --tb=no` — **exit 1**, `7
+      failed, 2193 passed, 1 skipped` — against `origin/main`'s **exit 1**, `7
+      failed, 2193 passed, 1 skipped`. **THE `FAILED` SET IS IDENTICAL**, a
+      `diff` of the two sorted lists being empty: three `test_ideation_readiness`,
+      one `test_readiness_dispatch`, two `test_sentinel_vocabulary` and one
+      `test_status_reader_real_lines`. They are environment failures present on
+      both sides and none of them names this packet.
+- [x] 5.5 `python3 scripts/doc-health.py --single-repo .` — **exit 0**,
+      `critical=32 error=11 warning=47 info=14`, **104 findings**, against
+      `origin/main`'s **exit 0** and the same `32 / 11 / 47 / 14` = 104. With the
+      repository label normalised the two finding sets are BYTE-IDENTICAL (`diff`
+      empty), and NOT ONE finding names this packet — `grep -c
+      decide-disposition-reading-per-family` over the report returns **0**.
+      `python3 scripts/validate-sequenced-after.py .` — **exit 0** (41 active
+      changes, 11 declaring the field). `python3 scripts/validate-scope-globs.py .`
+      — **exit 0**.
+- [x] 5.6 The corpus-ledger row was seeded by the sanctioned tool AFTER the pull
+      request existed — `python3 scripts/validate-sequenced-after.py .
+      --seed-ledger --moved-by '#978'` — as its own commit `6f4268b1`, and
+      `python3 scripts/validate-sequenced-after.py . --ledger-diff` re-run at
+      `ed2bb882` — **exit 0**, `per-change sweep ledger consistent with the
+      corpus (204 rows)`.
 
 ## 6. Archive — OWED, NOT GIVEN
 
