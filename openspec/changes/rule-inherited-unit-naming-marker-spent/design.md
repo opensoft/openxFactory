@@ -108,8 +108,14 @@ WRITTEN OUT AND NOT ENCODED.**
 
 ### Option 1 — RULE THE TWO-OPTION STATE CORRECT (RECOMMENDED, AND ENCODED)
 
-**FOUR SENTENCES, ADDED TO THE PARAGRAPH THAT ALREADY RULES A MARKER NO
-CARRIAGE UNIT, AND TWO SCENARIOS AT THE END OF THE BLOCK.** In the family's
+**FIVE SENTENCES, DERIVING AS FIVE CARRIAGE UNITS, ADDED TO THE PARAGRAPH
+THAT ALREADY RULES A MARKER NO CARRIAGE UNIT, AND TWO SCENARIOS AT THE END OF
+THE BLOCK.** (The two counts are equal, and that is a fix rather than a
+coincidence: `split_sentences()` breaks at a terminator followed by WHITESPACE,
+so a bold lead-in that closes its emphasis AFTER the period derives together
+with the explanation that follows it. The lead-in here closes BEFORE the
+period, so the sentence boundary this packet claims is the unit boundary the
+family derives — `tasks.md` § 3.11.) In the family's
 own voice, beside the carriage sentence rather than in the grounds paragraph,
 because this is a carriage rule and a READING of the third ground, not a sixth
 ground:
@@ -128,7 +134,8 @@ ground:
    stays at FIVE, a spent name suppresses nothing and never has, and both
    carriage arms are untouched.
 4. It is read on a marker EVERY ONE of whose named units has left canon and on
-   no other — the limit, D6.
+   no other; the third ground being resolved BY NAME, a marker that names
+   nothing never reaches it — the limit, D6.
 
 **THE CONDITION IS ALL-NAMES AND NOT ONE-NAME, AND THAT IS THE WHOLE OF WHAT
 COPILOT'S ROUND ON [#962](https://github.com/opensoft/openxFactory/pull/962)
@@ -207,7 +214,7 @@ a different delta. That is said here rather than discovered at the gate.
 
 ### What a veto of the WORDING alone would cost
 
-Vetoing option 1's wording while keeping its direction costs the four added
+Vetoing option 1's wording while keeping its direction costs the five added
 sentences and the two scenarios and leaves the block empty — there is nothing
 else in it, this being a pure addition. The packet would then be closed rather
 than trimmed.
@@ -216,10 +223,10 @@ than trimmed.
 
 ### D2a — owed: NONE, and that is measured
 
-**THIS AMENDMENT RETIRES NO UNIT.** Four sentences are appended to the END of
-one paragraph and two scenarios to the END of the block; no existing sentence
-is reworded, moved, split or dropped. `derive_units` over this block against
-its basis reads **0 canon units uncarried**, so **no `Removed from canon`
+**THIS AMENDMENT RETIRES NO UNIT.** Five sentences — five carriage units — are
+appended to the END of one paragraph and two scenarios to the END of the block;
+no existing sentence is reworded, moved, split or dropped. `derive_units` over
+this block against its basis reads **0 canon units uncarried**, so **no `Removed from canon`
 marker is owed and none is written** — which is `document-lifecycle`'s grammar
 read directly (a marker declares a DELETION) rather than a marker written for
 symmetry with the predecessors.
@@ -385,7 +392,9 @@ Canon's third ground reports a marker that "names something matching no unit of
 the requirement's basis and no unit of the block" — a resolution BY NAME. A
 marker that names nothing never reaches it. So the added sentences say, in
 terms, that they are read "ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT
-CANON AND ON NO OTHER".
+CANON AND ON NO OTHER", and say the never-reaches half in the same breath:
+"the third ground is resolved BY NAME, so a marker that names nothing NEVER
+REACHES IT".
 
 **WHAT THAT LEAVES OUT, MEASURED RATHER THAN GLOSSED:**
 

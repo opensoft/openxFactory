@@ -24,7 +24,7 @@ UNTICKED**: residue, measured and deliberately not taken.
 - [ ] 1.1 **`design.md` D1 IS THE OWNER'S DECISION AND IT CAN END THIS
       PACKET.** It is put as a MULTIPLE CHOICE with the recommendation first.
       **OPTION 1 (RECOMMENDED, AND WHAT THIS PACKET ENCODES):** rule the
-      two-option state CORRECT — four sentences added to the paragraph that
+      two-option state CORRECT — five sentences added to the paragraph that
       already rules a marker no carriage unit, saying that a unit-naming marker
       is SPENT once EVERY unit it names has left canon by a declared act, so
       DROPPING it is the lawful carriage and a third-ground report on a carried
@@ -130,9 +130,17 @@ UNTICKED**: residue, measured and deliberately not taken.
       measured against the declared sibling's OUTCOME. Exactly THREE edits are
       applied by `design.md`'s construction, each an EXACT SINGLE-OCCURRENCE
       substitution whose generator REFUSES on any other count.
-- [x] 3.2 **EDIT 1 — FOUR SENTENCES APPENDED TO ONE PARAGRAPH**, the one ruling
-      that a marker is not a carriage unit, and that ONE paragraph re-wrapped.
-      Canon itself makes the re-wrap unit-identical — *"a re-wrapped paragraph
+- [x] 3.2 **EDIT 1 — FIVE SENTENCES APPENDED TO ONE PARAGRAPH, DERIVING AS
+      FIVE CARRIAGE UNITS**, the one ruling that a marker is not a carriage
+      unit, and that ONE paragraph re-wrapped. The two counts are EQUAL, and
+      that is the fix Copilot's third round bought (§ 3.11): `split_sentences()`
+      breaks at a terminator followed by WHITESPACE, so the bold lead-in closes
+      its emphasis BEFORE the period (`… LAWFUL CARRIAGE**. The act the marker
+      declares …`) and derives as its own unit rather than merging with the
+      explanation that follows it. The sentence boundary this packet's own
+      records claim is therefore the boundary `derive_units` finds — measured,
+      § 3.6: the five added body units are the five added sentences, one for
+      one. Canon itself makes the re-wrap unit-identical — *"a re-wrapped paragraph
       compares equal to the same paragraph wrapped differently"* — and it is
       PROVEN rather than trusted: both pre-existing units of that paragraph
       derive byte-identically on both sides (§ 3.6).
@@ -156,21 +164,26 @@ UNTICKED**: residue, measured and deliberately not taken.
 - [x] 3.6 **THE BLOCK'S BYTE-FAITHFULNESS IS DERIVED, NOT ASSERTED**, through
       the family's own `derive_units`, `carried()` and `suppression()` — the
       callables the shipping path uses. The parent's block reads **172 units
-      and 1 marker**; this block reads **185 units and 0 markers**; **0 units
-      of the parent's block are missing from this one**; **13 units are added**
-      (4 body sentences, 1 dated bold note, 2 scenario titles, 6 scenario
-      bullets); scenario titles go **22 → 24 with all 22 carried**. Against the
+      and 1 marker**; this block reads **186 units and 0 markers**; **0 units
+      of the parent's block are missing from this one**; **14 units are added**
+      (5 body-sentence units — one per added sentence, § 3.2 — 1 dated bold
+      note, 2 scenario titles, 6 scenario bullets); scenario titles go
+      **22 → 24 with all 22 carried**. Against the
       parent's outcome: **0 uncarried, 0 uncarried-and-unsuppressed, 0 marker
       defects.** **RE-TAKEN AFTER THE ALL-NAMES WORDING MOVE OF § 3.10 AND
-      UNCHANGED IN EVERY FIGURE ABOVE** — the move rewords three of the four
-      added sentences and one scenario bullet, all of them units this block
-      ADDS, so no parent unit is touched and the counts do not move. The
-      block's own bytes after the move are sha256
-      `fa9b766891bb502665824413c7f498b8205d7f59ded3bc444e096a070a1567e5`,
-      **53,552 bytes** (before it: sha256
-      `72941993794667a342d047fb772d0b5a67f690a3ec30f6bd7eceff30656c511a`,
-      53,396 bytes); the PRE-text is the same 48,507 bytes at the same sha256,
-      re-verified below.
+      AFTER THE EMPHASIS MOVE OF § 3.11** — the all-names move rewords three of
+      the added sentences and one scenario bullet and the emphasis move shifts
+      two characters, all of them inside units this block ADDS, so no parent
+      unit is touched: **0 missing** and **22 → 24 titles** are unchanged
+      throughout, while the added-unit count reads **13 before the emphasis
+      move and 14 after it**, the lead-in ceasing to merge with its explanation
+      — which is the whole of what that round asked for and the only figure it
+      moved. The block's own bytes after both moves are sha256
+      `51fb9a86749c1f28230fc31b928ee47d95e284a0f01e09b73a4244d0b6d88370`,
+      **53,818 bytes** (the all-names move alone read
+      `fa9b7668…` / 53,552 bytes; before either, `72941993…` / 53,396 bytes);
+      the PRE-text is the same 48,507 bytes at the same sha256, re-verified
+      below.
 - [x] 3.7 **THE ONE ROW THE DROP COSTS WHILE THIS PACKET IS A DRAFT IS
       MEASURED AND DISCLOSED, NOT DISPOSITIONED.** `_arm_ordering` applies a
       basis override only between two active RATIFIED writers, so while this
@@ -237,6 +250,37 @@ UNTICKED**: residue, measured and deliberately not taken.
       carries named as not spent), and the carried-forward SCENARIO's `WHEN`
       reads *its named units*. The scenario that was already all-names is
       untouched.
+- [x] 3.11 **COPILOT'S THIRD ROUND: BOTH FINDINGS TAKEN — THE NO-NAME CLAUSE
+      IS REWRITTEN AND THE EMPHASIS IS MOVED.** (a) The scope clause read
+      *"a marker that names nothing reaches the third ground through no name at
+      all"*, which is literary for *by no name*, and a reader can take it for
+      the OPPOSITE of what the grounds say; it now reads **"the third ground is
+      resolved BY NAME, so a marker that names nothing NEVER REACHES IT"**,
+      which is `design.md` D6's own sentence and the grounds paragraph's own
+      reading. (b) The added condition's bold emphasis closed AFTER its period
+      (`… LAWFUL CARRIAGE.** The act …`), so `split_sentences()` — which breaks
+      only at a terminator followed by WHITESPACE — derived the lead-in and its
+      explanation as ONE unit, and the sentence boundary this packet's own
+      records claimed was not the boundary the family found. The emphasis now
+      closes BEFORE the period (`… LAWFUL CARRIAGE**. The act …`), a
+      two-character move inside a unit this block ADDS. **RE-MEASURED, NOT
+      ASSUMED:** the added-unit count goes **13 → 14** and the added body-unit
+      count **4 → 5**, one per added sentence; every other figure of § 3.6 is
+      unchanged (0 parent units missing, 22 → 24 titles all carried, 0/0/0
+      against the parent's outcome). The claim the round rested on is corrected
+      wherever it was written — § 3.2, § 3.6, `design.md` D1 and D2a,
+      `proposal.md`, the README row and the block's own dated note all now read
+      FIVE SENTENCES, FIVE UNITS.
+- [x] 3.12 **WHAT THE EMPHASIS MOVE DOES NOT DO, MEASURED.** It does not
+      restyle the requirement: the bold-close-after-terminator shape is the
+      house shape here — **23 of the PARENT block's 81 body units** contain
+      `.** ` — and none of them is touched. One unit of THIS block still
+      carries it, the dated `**AMENDED BY … (2026-09-11).** Every paragraph …`
+      note, and deliberately: every one of the six prior amendments of this
+      requirement writes that note in exactly that shape, in promoted canon,
+      and a note is a provenance record rather than a rule whose clauses a
+      later block is read for. The move is applied to the RULE-BEARING sentence
+      and to that sentence only.
 
 ## 4. Verification — IN THIS PULL REQUEST
 

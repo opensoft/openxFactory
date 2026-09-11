@@ -229,7 +229,7 @@ later block would have to restate every marker any predecessor ever wrote,
 forever. The durable record of a deletion is the archived delta, which is where
 every other archived governance act is read from. **A UNIT-NAMING MARKER IS
 SPENT ONCE EVERY UNIT IT NAMES HAS LEFT CANON BY A DECLARED ACT, AND DROPPING
-IT IS THEREFORE THE LAWFUL CARRIAGE.** The act the marker declares is complete
+IT IS THEREFORE THE LAWFUL CARRIAGE**. The act the marker declares is complete
 and every unit it names is gone from the promoted text, so the marker describes
 nothing a later block could be carrying: a later block SHALL NOT be required to
 restate it, SHALL NOT be reported for omitting it, and loses no record by
@@ -244,12 +244,12 @@ SUPPRESSION MOVES: the count stays at FIVE, a spent name suppresses nothing and
 never has, and both carriage arms are untouched — what is written here is which
 of the two standing options is the lawful one and what the other one costs, not
 a sixth ground and not a suppression this class does not carry. AND IT IS READ
-ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT CANON AND ON NO OTHER: a
-marker that names nothing reaches the third ground through no name at all, so
-nothing here decides anything about it, and a marker still naming a unit the
-requirement's basis carries is not spent and is not what these sentences are
-read on, the standing of a tail that names nothing being decided in the grounds
-paragraph above rather than in this one.
+ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT CANON AND ON NO OTHER: the
+third ground is resolved BY NAME, so a marker that names nothing NEVER REACHES
+IT and nothing here decides anything about such a marker, and a marker still
+naming a unit the requirement's basis carries is not spent and is not what
+these sentences are read on, the standing of a tail that names nothing being
+decided in the grounds paragraph above rather than in this one.
 
 Written out, the two forms are exactly:
 
@@ -538,9 +538,12 @@ OVER THE PROMOTED TEXT THAT CHANGE REPLACES:
 `amend-merged-into-empty-tail-standing` is an active ratified writer of this
 requirement, this change declares it as its ordered-delta parent, and
 `release-realization` makes that declaration the order. THIS AMENDMENT RETIRES
-NOTHING AND IS A PURE ADDITION: four sentences are added at the END of ONE
-paragraph — the one ruling that a marker is not a carriage unit — and TWO
-SCENARIOS are added at the END of the block, one for each half of the rule,
+NOTHING AND IS A PURE ADDITION: FIVE SENTENCES are added at the END of ONE
+paragraph — the one ruling that a marker is not a carriage unit — DERIVING AS
+FIVE CARRIAGE UNITS, each sentence its own unit, the bold lead-in closing its
+emphasis BEFORE its terminator so that the terminator is followed by whitespace
+and the unit boundary this note claims is the boundary the family derives; and
+TWO SCENARIOS are added at the END of the block, one for each half of the rule,
 because a rule no scenario exercises is a rule the next author re-deriving this
 class has nothing to test against and because pinning one half of a two-option
 rule invites a reader to take that half for the whole. NO UNIT IS RETIRED,

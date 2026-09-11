@@ -551,8 +551,9 @@ Active changes:
   an ACTIVE RATIFIED writer of the same requirement
   ([#947](https://github.com/opensoft/openxFactory/pull/947)), so this block's
   PRE-text is that change's block at `a6d373e9` and not the promoted text it
-  replaces. **IT IS A PURE ADDITION**: FOUR SENTENCES added to the paragraph
-  that already rules a marker no carriage unit — a unit-naming marker is SPENT
+  replaces. **IT IS A PURE ADDITION**: FIVE SENTENCES — five carriage units —
+  added to the paragraph that already rules a marker no carriage unit — a
+  unit-naming marker is SPENT
   once EVERY unit it names has left canon by a declared act, so DROPPING it is
   the lawful carriage, and where a later block carries one forward the THIRD
   ground reports it and that report is the class working as written — plus TWO
@@ -577,7 +578,7 @@ Active changes:
   matches its basis, so a run reports **0 marker defects** today. **THE OPEN
   DECISION IS `design.md` D1 AND IT CAN END THE PACKET**, put as a multiple
   choice with the recommendation first: option 1 (recommended, encoded) rules
-  the two-option state correct in four sentences and two scenarios with no code
+  the two-option state correct in five sentences and two scenarios with no code
   surface; option 2 adds a THIRD option — a suppression resolvable against the
   archived delta — which is one predicate, one `_WHY_*` template, its own
   scenario, a code surface, a widened checker basis, a fail-OPEN direction and
