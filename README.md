@@ -530,6 +530,54 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
+  — filed 2026-09-11, **`Status: draft`** (no approval pair; the lawful
+  unapproved shape `add-drafted-proposal-origin` defined, drafting provenance
+  only). Lane `hermes-wallet-exercise`. **THE "CITED CHANGE LATER" OF A
+  DISPOSITIONED CONTESTED FINDING**, queued by name in Brett Heap's
+  multi-choice ruling of **2026-09-11T03:01:28Z** — verbatim *"disposition
+  entry now, cited change later"* — whose disposition entry is
+  `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`
+  § `## Disposition — design § D4 step 5b`, landed by PR
+  [#951](https://github.com/opensoft/openxFactory/pull/951) →
+  `1fb6d5cd` with its codexFactory pointer at PR
+  [#389](https://github.com/codeXfactory/codexFactory/pull/389) → `d26e8bf2`.
+  **THE FINDING:** the governed re-issuance procedure's projection step (5b)
+  makes an ADMITTED CONVENING its exit condition, and **no convening in this
+  estate reads the register projection** — the admission path resolves the
+  DOMAIN-CONTENT projection, while the REGISTER projection carrying grant state
+  is read at verdict consumption, which a lane that convenes no seat never
+  reaches; dispatched before the projection is re-derived the same convening
+  returns a **green admission against a pre-act projection**, a manufactured
+  clearance that reads exactly like the proof. **AND THE LOCATION IS CORRECTED
+  RATHER THAN INHERITED:** the words *"VERIFY ONE CONVENING ADMITS"* are not in
+  codexFactory's § D4 step 5b at all (measured — the phrase occurs there once,
+  inside its own 2026-09-11 annotation); they are **this repository's**
+  `docs/governed-reissuance-runbook.md` §5.2 step 3, which is the document
+  codexFactory's tasks point the walker at. **FOUR `## ADDED` REQUIREMENTS** on
+  `review-authority-intake` (twelve scenarios): the exit condition becomes a
+  direct observation of the published projection's declared source revision at
+  or after the register act's landed commit; the observation is read-only, on a
+  named operator's word naming the executing lane, and recorded with its
+  commands, values and comparison; it follows a refresh cycle that COMPLETED
+  after the act, because **currency is not content** — the 2026-09-11 live
+  projection was ~45 minutes old, well inside `P7D`, and derived before the act;
+  and it states the limit of what it establishes, naming unread fields as OWED.
+  **`## ADDED` IS FORCED, NOT PREFERRED:** `review-authority-intake` has no
+  promoted specification — both changes that author it are ACTIVE — so there is
+  no block to `## MODIFIED`, and `tasks.md` §5 holds the archive behind
+  `add-wallet-carried-review-authority` so the capability's promoted file is
+  created by its author. **SEVEN OPEN QUESTIONS ARE PUT FOR BRETT HEAP AS
+  MULTIPLE CHOICE** (OQ-1..OQ-7; `design.md` D-1..D-7), each with a RECOMMENDED
+  option and its one-line reason, and **every recommendation is what the delta
+  already encodes**, so a ruling that takes them all moves no byte. **WHAT THIS
+  PULL REQUEST DOES NOT DO:** it edits no file under `openspec/specs/`, no
+  script, contract, schema or workflow, does not amend codexFactory, does not
+  rewrite the `Status: record` walk record, does not move the runbook's own
+  `Status: draft`, and does not perform the two runbook sentences — those are
+  `tasks.md` §3, after ratification. The realization evidence for `code_surface:
+  none` is landing plus the task list, and the task list includes them.
+
 - [amend-repo-boundary-governance-scope-first-line](openspec/changes/amend-repo-boundary-governance-scope-first-line/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
   openxFactory operator authority, verbatim *"ratify as encoded"* — a
