@@ -25,10 +25,23 @@ layout is precisely their job.
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Mapping
 
-from corpus_adapter import Finding, ResolvedCorpus
+# #872 (RULED OQ-Q): pinned openDox copy, not the local replica — see
+# `adapter.py`'s header for the reach and the manifest reason it stays in tree.
+_OPENDOX_SRC = Path(__file__).resolve().parents[2] / "openDox" / "code" / "src"
+if not (_OPENDOX_SRC / "opendox" / "corpus_adapter.py").is_file():
+    raise ImportError(
+        "corpus_adapter_openxfactory.shape: the pinned openDox corpus-adapter "
+        f"interface is not at {_OPENDOX_SRC / 'opendox' / 'corpus_adapter.py'}. "
+        "Run `git submodule update --init --recursive openDox` from the "
+        "repository root.")
+sys.path.insert(0, str(_OPENDOX_SRC))
+
+from opendox.corpus_adapter import Finding, ResolvedCorpus
 
 #: What a verdict provider is handed, and what it gives back.
 #:
