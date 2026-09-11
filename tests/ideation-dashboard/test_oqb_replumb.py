@@ -35,20 +35,44 @@ from __future__ import annotations
 
 import ast
 
-from conftest import REPO_ROOT
+from carved_reach import source as carved_source
 
 import path_slug
 from ideation_dashboard import human_seen
 from opendox import branch_session, workbench
+from opendox import path_slug as leg_path_slug
 from openxdox import openxdox_surface
 
-PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
+
+def package_source(name: str):
+    """`scripts/ideation_dashboard/<name>.py`, wherever the § 5.2 shed left it.
+
+    The modules this test reads sit on BOTH sides of the carve now —
+    `human_seen.py`, `intent_apply_lane.py` stayed, `workbench.py` went to
+    openDox-code, `openxdox_surface.py` to openXdox-code — so the package
+    prefix that used to answer for all four cannot (RULED (a), `#656`
+    `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpv1`). `carved_reach.source()`
+    answers each from its own manifest row, which is also what keeps this
+    test's own reporting spelling the pre-shed path every reader recognises.
+    """
+    return carved_source(f"scripts/ideation_dashboard/{name}.py")
+
 
 # Every openDox-column module the adapter must not reach directly (design D3's
 # three-column assignment; these three are the ones OQ-B and memo § 3.6 name).
 OPENDOX_SESSION_MODULES = ("branch_session", "session_git", "workbench")
 
-_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard")
+# The two DESTINATION package roots join the two pre-shed ones rather than
+# replacing them (Copilot `PRRT_kwDOTAvnrs6hVaMK`). After the shed the lawful
+# reach is spelled `from openxdox.openxdox_surface import ...` and the
+# forbidden one would be spelled `from opendox import branch_session`; a
+# scanner left at the old roots would see NEITHER — it would report the
+# positive B-3 assertion as failed (an empty set where `openxdox_surface` must
+# appear) while a restored direct edge to openDox passed unnoticed. Both
+# spellings of the pre-shed package stay: `scripts/__init__.py` still exists
+# and the negative control still feeds all of them through this scanner.
+_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard",
+                   "opendox", "openxdox")
 
 
 def sibling_imports(tree):
@@ -89,7 +113,7 @@ def sibling_imports(tree):
 
 def sibling_imports_of(name: str):
     """`sibling_imports` over one module of the package, by module name."""
-    path = PACKAGE / f"{name}.py"
+    path = package_source(name)
     return sibling_imports(ast.parse(path.read_text(encoding="utf-8"),
                                      filename=str(path)))
 
@@ -163,13 +187,27 @@ def test_the_slug_is_ONE_object_at_every_import_path():
     function-object checks stay real evidence — functions are never interned
     — and `test_workbench_source_re_exports_the_slug_family_rather_than_
     redefining_it` below is the assertion that actually closes the gap, at
-    the source rather than the value."""
-    assert workbench.slug is path_slug.slug
+    the source rather than the value.
+
+    EACH SIDE ASKED OF ITS OWN LEG AFTER THE § 5.2 SHED, and that change is the
+    finding rather than a loosening. `scripts/path_slug.py` is a
+    `replicated_at_destination` row (RULED OQ-A/OQ-C: a REPLICA, not a module
+    shared across a repository boundary with no pin), so post-shed there are
+    two byte-identical copies — openxFactory's, which `human_seen` imports, and
+    openDox's, which `workbench` re-exports through `from .path_slug import`.
+    A cross-leg `is` was true only while they were one file. It is now FALSE
+    for `slug` and `_slug_key_digest`, which is what caught this — and would
+    have stayed misleadingly TRUE for `200`, `"-k"` and `16`, which is the
+    worse half and exactly the interning trap this docstring already warns
+    about, one seam further out. "A relocation, not a fork" is therefore
+    asserted twice, once per leg; that the two copies are the same TEXT is the
+    manifest's claim and `tests/carve_conformance` is where it is enforced."""
+    assert workbench.slug is leg_path_slug.slug
     assert human_seen.slug is path_slug.slug
-    assert workbench.MAX_SLUG_CHARS is path_slug.MAX_SLUG_CHARS
-    assert workbench._SLUG_KEY_SEPARATOR is path_slug._SLUG_KEY_SEPARATOR
-    assert workbench._SLUG_KEY_DIGEST_CHARS is path_slug._SLUG_KEY_DIGEST_CHARS
-    assert workbench._slug_key_digest is path_slug._slug_key_digest
+    assert workbench.MAX_SLUG_CHARS is leg_path_slug.MAX_SLUG_CHARS
+    assert workbench._SLUG_KEY_SEPARATOR is leg_path_slug._SLUG_KEY_SEPARATOR
+    assert workbench._SLUG_KEY_DIGEST_CHARS is leg_path_slug._SLUG_KEY_DIGEST_CHARS
+    assert workbench._slug_key_digest is leg_path_slug._slug_key_digest
 
 
 def test_workbench_source_re_exports_the_slug_family_rather_than_redefining_it():
@@ -186,7 +224,7 @@ def test_workbench_source_re_exports_the_slug_family_rather_than_redefining_it()
     must bind none of the five names by assignment or definition anywhere in
     the module, and the only place any of them appears must be the
     `from path_slug import (...)` at its top."""
-    workbench_path = PACKAGE / "workbench.py"
+    workbench_path = package_source("workbench")
     source = workbench_path.read_text(encoding="utf-8")
 
     own = _own_bindings(source, _SLUG_FAMILY_NAMES, filename=str(workbench_path))
@@ -264,7 +302,7 @@ def test_the_surface_stays_a_named_re_export_and_does_not_become_a_facade():
     is ruled to reach it through openXdox, one line plus its reason. A facade
     that grew its own functions would be openXdox re-publishing openDox's API,
     which pinning the assembly root already does properly (§ 5.1, RULING F)."""
-    source = (PACKAGE / "openxdox_surface.py").read_text(encoding="utf-8")
+    source = package_source("openxdox_surface").read_text(encoding="utf-8")
     tree = ast.parse(source)
     defined = [node.name for node in tree.body
                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
@@ -283,14 +321,21 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
     not a second copy of it, which is how a scanner drifts into passing over a
     restored edge.
 
-    All five spellings the package actually uses: the two relative forms, the
+    All five pre-shed spellings the package used — the two relative forms, the
     two absolute ones `scripts/__init__.py` makes possible, and the
-    function-local form `intent_apply_lane` used before B-3."""
+    function-local form `intent_apply_lane` used before B-3 — PLUS the two
+    POST-SHED ones, which are the only way the forbidden edge could actually be
+    spelled today: `from opendox import branch_session` and
+    `import opendox.session_git`. A control that stopped at the pre-shed
+    spellings would prove the scanner catches an edge nobody can write any
+    more, while the one anybody CAN write walked past it."""
     restored = (
         "from .workbench import slug\n"
         "from . import branch_session\n"
         "import ideation_dashboard.session_git\n"
         "from scripts.ideation_dashboard.workbench import slug as s2\n"
+        "from opendox import branch_session as direct\n"
+        "import opendox.session_git\n"
         "def rehydrate():\n"
         "    from ideation_dashboard import branch_session as bs\n"
         "    return bs\n"
@@ -298,7 +343,8 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
     caught = sorted(module for module, _line
                     in sibling_imports(ast.parse(restored))
                     if module in OPENDOX_SESSION_MODULES)
-    assert caught == ["branch_session", "branch_session", "session_git",
+    assert caught == ["branch_session", "branch_session", "branch_session",
+                      "session_git", "session_git",
                       "workbench", "workbench"], caught
 
     # Non-vacuity for the two live scans: they must be looking at real files
@@ -314,7 +360,7 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
     # what they were written to prove. A non-vacuity guard that fails on the
     # very edit the packet exists to make is a guard that will be deleted.
     for name in ("human_seen", "intent_apply_lane"):
-        path = PACKAGE / f"{name}.py"
+        path = package_source(name)
         assert path.is_file()
         statements = [node for node in ast.walk(
             ast.parse(path.read_text(encoding="utf-8"), filename=str(path)))
