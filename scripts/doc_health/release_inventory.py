@@ -142,6 +142,48 @@ _CUT_ACTION = ("cut a release through the bundle realization order; never "
                "this comparison pass")
 
 
+def _shed_member(repo_path: Path, git, commit: str, path: str):
+    """A recorded member's bytes and mode at `commit` when the § 5.2 shed moved
+    it to a pinned leg — `(blob, git_mode)`, or `(None, None)`.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`). openxFactory's own
+    `contract-v3.0` inventory records three members the shed moved
+    (`contracts/schemas/{gate-action-record,xfactory-workbench-chat-turn,
+    xfactory-workbench-model-catalog}.schema.yaml`), and every one of them
+    arrived at its destination BYTE FOR BYTE, so the digest this family compares
+    against is the digest it has always compared against. Without this the
+    family would report three `ERROR`s saying a normative member VANISHED at the
+    cut — a verdict about the release read off a fact about where the pin now
+    holds the bytes.
+
+    Scoped to openxFactory alone and to a commit that actually records the leg's
+    gitlink: `carved_reach` resolves rows of THIS repository's manifest, so a
+    sibling repository, a commit from before the shed, and a path in no row all
+    answer `(None, None)` and the absence finding above stands exactly as it did.
+    The reads go through the INJECTED `git` facade, exactly as every other read
+    in this family does, so a harness that stubs it keeps answering for the legs
+    as it answers for the repository.
+    """
+    try:
+        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+    except ImportError:
+        return None, None
+    try:
+        if Path(repo_path).resolve() != CARVE_ROOT.resolve():
+            return None, None
+        located = shed_commit_object(commit, path)
+    except Exception:
+        return None, None
+    if located is None:
+        return None, None
+    leg_repo, leg_commit, leg_path = located
+    blobs = git.blobs_at(leg_repo, leg_commit, [leg_path])
+    if not blobs:
+        return None, None
+    modes = git.tree_modes(leg_repo, leg_commit) or {}
+    return blobs.get(leg_path), modes.get(leg_path)
+
+
 def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
     """One repository's verdict: a `Skip`, or a list of `Finding`."""
     blobs = git.blobs_at(repo_path, commit, [MANIFEST])
@@ -210,6 +252,9 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
         severity = INFO if editorial else ERROR
         recorded = members[path]
         blob = blobs.get(path)
+        shed_mode = None
+        if blob is None:
+            blob, shed_mode = _shed_member(repo_path, git, commit, path)
         if blob is None:
             # ABSENT AT THE COMMIT. Reported as drift, never as a skip: a
             # deleted normative member is the strongest form of what this
@@ -268,7 +313,7 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                    " (editorial member — expected between cuts)"),
                 _CUT_ACTION))
         recorded_mode = recorded["git_mode"]
-        actual_mode = modes.get(path)
+        actual_mode = modes.get(path) or shed_mode
         if actual_mode and actual_mode != recorded_mode:
             # MODE IS CHECKED SEPARATELY FROM BYTES, because a chmod leaves the
             # digest identical: without this arm a validator could drift
