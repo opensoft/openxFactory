@@ -555,7 +555,7 @@ Active changes:
   both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
   units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
   (`code_surface` non-empty, `target_release: implemented`): one last pass in
-  `scripts/doc_health/families.py` and 17 new tests, after which the same 41
+  `scripts/doc_health/families.py` and 19 new tests, after which the same 41
   rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
   eighteen disposition keys and the other twenty-three byte-identical.
   **TWO DECLARED VETO POINTS**, `design.md` **D1** — an `info` row carrying the

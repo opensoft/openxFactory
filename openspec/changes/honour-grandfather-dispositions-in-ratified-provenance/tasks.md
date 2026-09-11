@@ -114,6 +114,15 @@ and openxFactory #939 closes THERE and not at this landing.
       the citation TEXT that reader does not return. `families.py` already
       imports `promotion_fidelity`; `promotion_fidelity` imports nothing from
       `families`, so no dependency is added and no cycle is created.
+      **THE RE-READ APPLIES TWO PREDICATES OF ITS OWN AND BOTH ONLY NARROW**
+      (added in the § 5.10 review round, and each with its own test): the
+      entry must name THIS family — a finding carries `(repo, path)` and no
+      third coordinate, so a `(repo, path)`-only lookup would let a
+      NEIGHBOURING family's entry at the same path supply the citation, which
+      is a shape the standing file HAS (`location-conformance` and
+      `document-catalog` over one `ideation/staging/` path) — and it must carry
+      the `date` § 4.3's scenario asks for, which the shared reader has never
+      tested. Neither predicate honours an entry that reader would refuse.
 - [x] 3.3 **THE BOUNDARY IS ONE PREDICATE IN ONE PLACE**:
       `finding.path.startswith(_ARCHIVED_PACKET_PREFIX)`, evaluated at the
       downgrade site rather than in the loader — the loader answers *which
@@ -135,20 +144,23 @@ and openxFactory #939 closes THERE and not at this landing.
       contract member, no schema, no path. `INFO` was already imported by this
       module and already spent by four families; the only import added is
       `dataclasses.replace`.
-- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 17
+- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 19
       tests**): the downgrade on BOTH covered arms; an undispositioned archived
       record unchanged; the ACTIVE/ARCHIVED boundary asserted in ONE run over
-      the same record text at two paths; a missing `cite`, an empty `cite`,
-      another family, another repository — each ignored; a `requirement:`
-      narrowing not stopping the downgrade; `agg_root=None` (the `--single-repo`
+      the same record text at two paths; a missing `cite`, an empty `cite`, a
+      missing `date`, an empty `date`, another family, another repository, and
+      **another family's entry at the SAME path** — each ignored, the last
+      asserted on the CITATION it must not supply; a `requirement:` narrowing
+      not stopping the downgrade; `agg_root=None` (the `--single-repo`
       self-gate) unchanged; a missing dispositions file unchanged; a clean
       corpus never opening the file; every other finding returned as its arm
-      built it; the admission key set pinned EQUAL to the shared reader's over a
-      five-entry file; the excerpt's one-line and bounded properties; and the
-      downgraded row rendered by `report.plan_line(strict=True)` and read back by
-      `report.PLAN_RE`, `report.unparsed_plan_rows` and `report.parse_previous`.
+      built it **by `is`, over the arms' own list**; the admission key set
+      pinned EQUAL to the shared reader's over a five-entry file; the excerpt's
+      one-line and bounded properties; and the downgraded row rendered by
+      `report.plan_line(strict=True)` and read back by `report.PLAN_RE`,
+      `report.unparsed_plan_rows` and `report.parse_previous`.
 - [x] 3.8 **NO EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED.**
-      `tests/doc-health` goes **1689 → 1706**, the whole rise being the new
+      `tests/doc-health` goes **1689 → 1708**, the whole rise being the new
       file. `test_ratification_record_subject.py`'s real-tree measurements are
       untouched by construction: they build their `Context` with
       `agg_root=None`, which is the scope this arm does nothing in.
@@ -218,6 +230,9 @@ and openxFactory #939 closes THERE and not at this landing.
       through § 2.6 repeated after the last commit, so the figures in the pull
       request body describe the tree that merges rather than the tree they were
       first taken on.
+- [ ] 5.10 **THE BOT BENCH, TAKEN AND ANSWERED ON THE RECORD.** Every thread
+      is disposed with a reason, TAKEN or REFUSED, and a taken one is answered
+      by a commit rather than by a reply.
 
 ## 6. Archive — OWED, NOT GIVEN
 

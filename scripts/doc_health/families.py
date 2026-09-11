@@ -374,16 +374,24 @@ def _cite_excerpt(cite: str) -> str:
 def _grandfather_cites(ctx) -> dict[tuple[str, str], str]:
     """`(repo, path) -> cite` for this family's recorded dispositions, or `{}`.
 
-    ADMISSION IS DELEGATED RATHER THAN RE-DECIDED.
+    ADMISSION IS DELEGATED RATHER THAN RE-DECIDED, AND NARROWED IN THE OPEN.
     `promotion_fidelity.load_dispositions` is the estate's one reader of
     `health/dispositions.yaml` — promotion fidelity, duplicate packet and
     modified-block currency all read it through that function under their own
-    `family` name — and it already encodes every admission rule this arm needs:
-    the entry names THIS family, carries a NON-EMPTY `cite`, and spells `repo`
-    and `path` as strings. This function asks it which entries count and then
-    re-reads the file for the one thing it does not return, the citation TEXT a
-    downgraded finding quotes. A second admission rule written here is exactly
-    how two readers of one file come to disagree about which entries are live.
+    `family` name — and it answers the question this arm must not answer twice:
+    WHICH ENTRIES ARE RECORDED under this family, the entry naming THIS family,
+    carrying a NON-EMPTY `cite`, and spelling `repo` and `path` as strings. A
+    second rule about that, written here, is exactly how two readers of one
+    file come to disagree about which entries are live.
+
+    WHAT THIS FUNCTION ADDS IS A NARROWING AND NEVER A WIDENING, and there is
+    exactly one: the `date` the added scenario names. No entry this arm honours
+    is one the shared reader would refuse; the dated subset is smaller, or the
+    same set. (The other narrowing, the archived-path prefix, is a property of
+    the FINDING rather than of the entry and is applied at the downgrade site.)
+    Everything else here is the second thing the shared reader does not return
+    — the citation TEXT a downgraded finding quotes — read back out of the same
+    file under the same family name.
 
     A `requirement:` NARROWING IS IGNORED, deliberately. That key exists to
     select one requirement inside a delta file; a ratification record has no
@@ -417,9 +425,33 @@ def _grandfather_cites(ctx) -> dict[tuple[str, str], str]:
     for entry in entries:
         if not isinstance(entry, dict):
             continue
+        # THE SECOND PASS RE-APPLIES THE FAMILY TEST, and that is not
+        # belt-and-braces. `admitted` is keyed `(repo, path)` because a finding
+        # is, so an entry for ANOTHER family at the SAME path would otherwise
+        # hand this arm its citation — a row quoting a ruling that was never
+        # about this defect. The standing file already carries such a pair
+        # (`location-conformance` and `document-catalog` over one
+        # `ideation/staging/` path), so this is a shape the file has, not one
+        # it might acquire.
+        if entry.get("family") != _RATIFIED_PROVENANCE:
+            continue
+        # AND THE DATE THE SCENARIO ASKS FOR IS CHECKED HERE, because the
+        # shared reader does not check it: *"an entry ... carrying this family,
+        # that repository, that path, A DATE, and a non-empty `cite`"*. This is
+        # the arm NARROWING what a recorded entry may reach — the same place
+        # the archive prefix sits — never widening it, so the two readers of
+        # this file still cannot disagree about which entries are RECORDED.
+        # Presence is the whole test, as it is for `cite`: the date is
+        # provenance the owner wrote, and adjudicating its value is not this
+        # family's authority (`design.md` D6).
+        if not entry.get("date"):
+            continue
         key = (entry.get("repo"), entry.get("path"))
         cite = entry.get("cite")
         if key in admitted and cite:
+            # First entry wins where one path carries two entries for this
+            # family, which is the only remaining ambiguity and is a duplicate
+            # rather than a collision.
             cites.setdefault(
                 key, cite if isinstance(cite, str) else str(cite))
     return cites
@@ -447,9 +479,10 @@ def _honour_grandfather_dispositions(ctx, findings):
     got round to repairing".
 
     NOTHING ELSE THIS FAMILY DOES MOVES. A finding with no entry, a finding
-    whose entry names another family, a finding whose entry carries no `cite`,
-    and every finding at all in a `--single-repo` run are returned exactly as
-    the arms above built them — the same object, not a rebuilt copy.
+    whose entry names another family, a finding whose entry carries no `cite`
+    or no `date`, and every finding at all in a `--single-repo` run are
+    returned exactly as the arms above built them — the same object, not a
+    rebuilt copy.
     """
     if not findings:
         return findings
@@ -781,7 +814,7 @@ def fam_ratified_provenance(ctx):
     openxFactory records grandfathered on #877 and codexFactory's three stood
     CRITICAL in the nightly with no repair available and a recorded ruling
     saying none was owed. `_honour_grandfather_dispositions` is the last pass:
-    a finding whose `(family, repo, path)` carries a cited entry in the
+    a finding whose `(family, repo, path)` carries a DATED, CITED entry in the
     aggregation's `health/dispositions.yaml`, AND whose path is under
     `openspec/changes/archive/`, is reported at `info` with the citation
     quoted. It is a downgrade rather than a suppression on purpose — see that

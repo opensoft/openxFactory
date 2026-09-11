@@ -19,6 +19,15 @@ commit away from correct, and an entry standing in for that commit would turn
 something nobody got round to repairing". And an entry with no `cite` records
 no decision, which is the rule every other reader of this file already applies.
 
+AND THE ENTRY THAT IS READ IS THIS FAMILY'S, DATED. A finding carries `(repo,
+path)` and no third coordinate, so the citation lookup re-applies the family
+test itself or a NEIGHBOURING family's entry at the same path supplies the
+text — a shape the standing file HAS, `location-conformance` and
+`document-catalog` disposing one `ideation/staging/` path between them. The
+`date` the added scenario asks for is checked in the same place, the shared
+reader never having tested one: a narrowing of what a recorded entry may
+reach, and never a widening of what counts as recorded.
+
 Built like `test_ratification_record_subject.py`: `Doc`/`Context` by hand
 rather than through `conftest.make_ctx`, because what is under test is exact
 header content at an exact path, plus `tmp_path` for the aggregation root the
@@ -41,8 +50,9 @@ from doc_health.families import (_GRANDFATHERED_ACTION,
                                  _CITE_EXCERPT_CHARS,
                                  _cite_excerpt,
                                  _grandfather_cites,
+                                 _honour_grandfather_dispositions,
                                  fam_ratified_provenance)
-from doc_health.runner import Context
+from doc_health.runner import Context          # built once, in `_ctx` below
 
 AS_OF = date(2026, 9, 10)
 REPO = "openxFactory"
@@ -67,6 +77,14 @@ UNCITED_TEXT = ("# Proposal Ratification: real-change\n\n"
 CITE = ('Brett Heap, first-hand, in session, 2026-09-10, verbatim: '
         '"grandfather 877 via dispositions" (opensoft/openxFactory#877).')
 
+#: A citation belonging to ANOTHER family at the SAME path. The standing file
+#: already carries such a pair — `location-conformance` and `document-catalog`
+#: both dispose one `ideation/staging/` path — so this is a shape the file HAS
+#: rather than one it might one day acquire.
+FOREIGN_CITE = ('A record-immutability ruling about the same file, on a '
+                'different defect, which says nothing whatever about this '
+                "family's finding.")
+
 
 def _doc(path, text):
     return Doc(REPO, path, text, corpus.parse_status(text),
@@ -81,9 +99,10 @@ def _dispositions(tmp_path, body: str):
 
 
 def _entry(path=ARCHIVED, *, family=_RATIFIED_PROVENANCE, repo=REPO,
-           cite=CITE, extra=""):
-    lines = [f"- family: {family}", f"  repo: {repo}", f"  path: {path}",
-             "  date: 2026-09-10"]
+           cite=CITE, date="2026-09-10", extra=""):
+    lines = [f"- family: {family}", f"  repo: {repo}", f"  path: {path}"]
+    if date is not None:
+        lines.append(f"  date: {date}")
     if cite is not None:
         lines.append(f"  cite: {cite!r}")
     if extra:
@@ -91,11 +110,15 @@ def _entry(path=ARCHIVED, *, family=_RATIFIED_PROVENANCE, repo=REPO,
     return "\n".join(lines) + "\n"
 
 
+def _ctx(*docs, agg_root=None, change_ids=("real-change",)):
+    return Context(repo_paths={REPO: NO_SUCH_REPO_ROOT}, docs=list(docs),
+                   capabilities={}, change_ids={REPO: set(change_ids)},
+                   git=None, thresholds={}, as_of=AS_OF, agg_root=agg_root)
+
+
 def _run(*docs, agg_root=None, change_ids=("real-change",)):
-    ctx = Context(repo_paths={REPO: NO_SUCH_REPO_ROOT}, docs=list(docs),
-                  capabilities={}, change_ids={REPO: set(change_ids)},
-                  git=None, thresholds={}, as_of=AS_OF, agg_root=agg_root)
-    return fam_ratified_provenance(ctx)
+    return fam_ratified_provenance(
+        _ctx(*docs, agg_root=agg_root, change_ids=change_ids))
 
 
 # --- the downgrade, on both arms the eighteen records are reported by --------
@@ -198,6 +221,56 @@ def test_an_entry_naming_another_repository_is_ignored(tmp_path):
                                      agg_root=agg)] == [CRITICAL]
 
 
+def test_a_cross_family_entry_at_the_same_path_does_not_supply_the_cite(
+        tmp_path):
+    """THE QUOTED RULING IS THIS FAMILY'S, NOT WHICHEVER ENTRY SHARES THE PATH.
+
+    A finding is keyed `(repo, path)` — it has no third coordinate to match an
+    entry's `family` on — so the citation lookup has to re-apply the family
+    test itself or a NEIGHBOURING family's entry at the same path supplies the
+    text. The row would then be downgraded correctly and quote a ruling that
+    was never about this defect.
+
+    The foreign entry is written FIRST on purpose: first-match-wins is what a
+    `(repo, path)`-only lookup does, so this fixture is the regression and not
+    a decoration. The file this reads in production already carries a
+    same-path, two-family pair.
+    """
+    agg = _dispositions(tmp_path, _entry(family="record-immutability",
+                                         cite=FOREIGN_CITE) + _entry())
+    assert _grandfather_cites(_ctx(agg_root=agg)) == {(REPO, ARCHIVED): CITE}
+    findings = _run(_doc(ARCHIVED, SUBJECT_TEXT), agg_root=agg)
+    assert [f.severity for f in findings] == [INFO]
+    assert findings[0].action == _GRANDFATHERED_ACTION + CITE
+    assert FOREIGN_CITE not in findings[0].action
+
+
+def test_an_undated_entry_is_ignored(tmp_path):
+    """THE SCENARIO ASKS FOR A DATE AND THIS ARM IS WHERE THAT IS CHECKED.
+
+    *"an entry ... carrying this family, that repository, that path, A DATE,
+    and a non-empty `cite`"*. The shared reader tests family, repo, path and
+    `cite` and has never tested a date, so an undated entry is RECORDED as far
+    as it is concerned — which is asserted here rather than assumed, so that
+    the narrowing is visible as this arm's own act. It is a narrowing and only
+    ever a narrowing: no entry is honoured here that the shared reader would
+    refuse.
+    """
+    agg = _dispositions(tmp_path, _entry(date=None))
+    ctx = _ctx(agg_root=agg)
+    assert {(repo, path) for repo, path, _requirement
+            in promotion_fidelity.load_dispositions(
+                ctx, _RATIFIED_PROVENANCE)} == {(REPO, ARCHIVED)}
+    assert _grandfather_cites(ctx) == {}
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=agg)] == [CRITICAL]
+    # `date:` written with no value is present and records nothing, which is
+    # the same thing — the treatment `cite` already gets two tests above.
+    empty = _dispositions(tmp_path, _entry(date="''"))
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=empty)] == [CRITICAL]
+
+
 def test_a_requirement_narrowing_does_not_stop_the_downgrade(tmp_path):
     """The optional `requirement:` key selects one requirement inside a DELTA
     file. A ratification record has no requirement grain for it to select, so
@@ -239,9 +312,20 @@ def test_a_run_with_no_findings_reads_no_file(tmp_path):
 
 
 def test_every_other_finding_is_returned_as_the_arms_built_it(tmp_path):
-    """A mixed population in one run: the dispositioned archived record moves
-    and EVERY other finding is the SAME OBJECT the arms above built, not a
-    rebuilt copy that happens to compare equal."""
+    """A mixed population, ONE invocation of the arms: the dispositioned
+    archived record moves and every other finding is the SAME OBJECT the arms
+    above built — asserted with `is`, never with `==`.
+
+    THE LAST PASS IS HANDED THE ARMS' OWN LIST, AND THAT IS THE WHOLE POINT.
+    Findings taken from two separate runs can only be compared by VALUE, and a
+    pass that rebuilt every finding it was given would satisfy such a
+    comparison exactly as well as one that let them through — so the documented
+    pass-through-BY-IDENTITY invariant would go uncovered. Here the arms run
+    once, under `agg_root=None` (the scope in which the pass returns its
+    argument untouched, pinned by its own test above), and
+    `_honour_grandfather_dispositions` is then called on that very list under a
+    context that HAS an aggregation root.
+    """
     agg = _dispositions(tmp_path, _entry())
     other_archived = ("openspec/changes/archive/2026-09-04-other/review/"
                       "ratification-2026-09-04.md")
@@ -250,17 +334,26 @@ def test_every_other_finding_is_returned_as_the_arms_built_it(tmp_path):
             _doc(ACTIVE, SUBJECT_TEXT),
             _doc("docs/subject.md",
                  "# Subject\n\nStatus: ratified\n\nNo citation.\n"))
-    plain = {f.path: f for f in _run(*docs, agg_root=None)}
-    graded = {f.path: f for f in _run(*docs, agg_root=agg)}
-    assert set(plain) == set(graded) == {
+    built = _run(*docs, agg_root=None)
+    graded = _honour_grandfather_dispositions(_ctx(*docs, agg_root=agg), built)
+
+    assert [f.path for f in graded] == [f.path for f in built]
+    assert {f.path for f in built} == {
         ARCHIVED, other_archived, ACTIVE, "docs/subject.md"}
-    assert graded[ARCHIVED].severity == INFO
-    for path in (other_archived, ACTIVE, "docs/subject.md"):
-        assert graded[path] == plain[path], path
-    # The untouched findings are passed through by identity, so a future edit
-    # that starts rebuilding them shows up here rather than in a nightly diff.
-    again = _run(*docs, agg_root=agg)
-    assert all(f.severity == CRITICAL for f in again if f.path != ARCHIVED)
+    built_by_path = {f.path: f for f in built}
+    for finding in graded:
+        if finding.path == ARCHIVED:
+            assert finding.severity == INFO
+            assert finding is not built_by_path[ARCHIVED]   # the one rebuilt
+            continue
+        # IDENTITY: a future edit that starts rebuilding untouched findings
+        # fails here rather than showing up as a nightly diff.
+        assert finding is built_by_path[finding.path], finding.path
+        assert finding.severity == CRITICAL
+    # and the same population through the family's own entry point
+    assert {f.path: f.severity for f in _run(*docs, agg_root=agg)} == {
+        ARCHIVED: INFO, other_archived: CRITICAL, ACTIVE: CRITICAL,
+        "docs/subject.md": CRITICAL}
 
 
 # --- the admission rule is the shared reader's -------------------------------
@@ -281,9 +374,7 @@ def test_the_admission_rule_is_delegated_to_the_shared_reader(tmp_path):
         _entry(repo="codexFactory",
                path="openspec/changes/archive/z/review/r.md"),
     )))
-    ctx = Context(repo_paths={REPO: NO_SUCH_REPO_ROOT}, docs=[],
-                  capabilities={}, change_ids={}, git=None, thresholds={},
-                  as_of=AS_OF, agg_root=agg)
+    ctx = _ctx(agg_root=agg)
     shared = {(repo, path) for repo, path, _requirement
               in promotion_fidelity.load_dispositions(
                   ctx, _RATIFIED_PROVENANCE)}
