@@ -1,0 +1,68 @@
+T064 — ALL FIVE GATES AGAINST THE EXACT UNCHANGED CANDIDATE. 2026-09-09.
+
+CANDIDATE: d54d89caf39193dee16ca06868510084ca510b9d
+INTEGRATION POINT (its `main` side): 587f21a0efe7d6dece70e2e44c5713926eee46f3
+Nothing was edited between forming the candidate and running these; a gate that
+red would have the candidate REMADE as a fresh single commit, never patched.
+
+--- 1/5  release-tag-gate, WITH AN EXPLICIT --base ---------------------------
+$ python3 scripts/validate-release-tag-gate.py \
+    --head d54d89caf39193dee16ca06868510084ca510b9d \
+    --base 587f21a0efe7d6dece70e2e44c5713926eee46f3
+release surface touched by this pull request (2 path(s)):
+  - contracts/manifest.yaml
+  - contracts/releases/contract-v3.5.digests.yaml
+declared bundle: contract-v3.4 at the base 587f21a0e -> contract-v3.5 at the head d54d89caf
+the release-tag obligation holds over the merge tree d54d89caf: no error, no warning
+TAG OWED: `contract-v3.5` has no published annotated tag.
+rc=0
+
+WHY --base IS PASSED BY HAND, and it is not a formality. The default resolves
+--base to the head's FIRST PARENT. That is right for a GitHub `pull_request`
+merge commit and WRONG here: this candidate sits on a branch that integrated by
+merging `main` INTO it, so its first parent is this branch's own prior tip. The
+default would diff against the wrong tree and return a near-empty result that
+LOOKS like a pass. With the real base the gate sees both release paths and
+reports the bundle transition explicitly.
+"TAG OWED" IS THE EXPECTED STATE AND NOT A FINDING: rc=0, no error, no warning.
+The annotated tag is realization-order step 5, an [OPERATOR] act at the LANDED
+MERGE COMMIT (box 5.6), and the gate records the obligation without requiring it
+before step 4.
+
+--- 2/5  the full suite -----------------------------------------------------
+$ python3 -m pytest tests/ -q -m "not postgres"
+1 failed, 10662 passed, 36 skipped, 338 deselected, 9 warnings, 140 subtests passed in 1763.13s (0:29:23)
+rc=1
+FAILED tests/ideation-dashboard/test_snapshot.py::test_find_validator_locates_pinned_checkout
+
+THE ONE FAILURE IS PROVEN PRE-EXISTING, by a BASELINE and not by assertion: the
+same node id fails in a separate clone at pristine `origin/main` carrying none
+of this branch's bytes (`phaseE-baseline-preexisting-failures.txt`). It resolves
+a PINNED CHECKOUT that exists only in an aggregation workspace layout, which a
+linked worktree is not, and `.github/workflows/pytest-suite.yml` records that
+developer-worktree/runner divergence as expected rather than as a regression.
+NOTE THE MOVEMENT AGAINST THE PHASE E RUN: the second pre-existing failure there
+(`test_release_mode_field_is_preserved_on_the_real_repository`, a 30-second
+subprocess ceiling) PASSED here, which is what a wall-clock flake on a loaded
+workstation looks like and is why it was baselined rather than chased.
+BOTH CUT-COUPLED TESTS PASS AT THE CANDIDATE — `test_release_boundary.py` with
+its three edits, and `test_clearing_manifest_rows.py` with NONE, once the built
+inventory exists.
+
+--- 3/5  manifest digests ---------------------------------------------------
+$ python3 scripts/validate-manifest-digests.py
+OK contracts/manifest.yaml: 189 per-file digest(s) verify
+rc=0
+
+--- 4/5  release inventory, verified against the candidate itself -----------
+$ python3 scripts/validate-contract-release.py verify-commit \
+    --commit d54d89caf39193dee16ca06868510084ca510b9d
+release verify-commit: pass
+  inventory=contracts/releases/contract-v3.5.digests.yaml
+rc=0
+
+--- 5/5  the consent corpus -------------------------------------------------
+$ python3 scripts/validate-consent-instruments.py --strict
+note  self-test: 9 valid example(s) confirmed valid, 21 negative example(s) confirmed invalid for their intended finding, 1 withheld example(s) confirmed WITHHELD (neither a pass nor an error), 2 purpose probe(s) confirmed
+validate-consent-instruments: 0 error(s), 0 warning(s), 0 withheld
+rc=0

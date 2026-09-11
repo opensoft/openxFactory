@@ -1,0 +1,6 @@
+$ python3 -m pytest tests/doc-health tests/consent_instruments tests/intent-compliance/test_release_boundary.py -q -p no:cacheprovider   # at the merged tip 6301e00a, main's NEW doc-health tests INCLUDED
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1706 passed, 7 warnings in 347.78s (0:05:47)
+rc=0

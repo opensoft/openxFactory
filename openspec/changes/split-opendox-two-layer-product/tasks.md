@@ -73,6 +73,17 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   path constants, adapter calls); built at § 3.1, § 3.7, § 5.4 and § 5.5; gated
   one evidence line per part at § 8.2. Rejected: manifest-with-digests only;
   snapshot-equivalence only.
+  **AMENDED 2026-09-09 — RULING OQ-K** (2026-09-09T22:19:57Z, comment
+  `5609526215`,
+  <https://github.com/opensoft/openxFactory/issues/656#issuecomment-5609526215>):
+  **PART 2's TEST is restated as a source→destination MAPPING with declared
+  multiplicity**, because the ratified equality is false once the carve
+  manifest's `replicated_at_destination` rows put the same test function at more
+  than one home. **The floor still has FOUR parts, part 2 is still about tests,
+  and both rejected single-instrument alternatives stay rejected** — this row's
+  bookkeeping is otherwise unchanged. Restated at § D6 (2) and § 5.4; the
+  § 8.2 evidence line moves with it. Record:
+  `review/amendment-2026-09-09-floor-part-2-mapping.md`.
 - [x] 0.5 `[oxF]` **RULED OQ-2 — 22:16Z** (comment `5547067574`): ONE CHAIN —
   inside the family openDox is pinned ONLY by openXdox and every descendant pins
   openXdox; outside the family openDox is used freely as open source. **No third
@@ -874,11 +885,121 @@ the bookkeeping that ticks this group.
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.
-- [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1) — test counts that must SUM across
-  the three repositories.** 3,927 `def test_` leave — 52% of this repository's
-  7,612. openDox + openXdox + the `openxFactory` remainder (which now includes the
-  adapter's own tests, per RULING DQ-1) SHALL equal the pre-split count, pinned by
-  test the way `pytest-suite.yml` already pins the collection triple.
+- [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
+  source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
+  equality. Four clauses, the full text at `design.md` § D6 (2):
+  **(a) TOTAL COVERAGE** — every file in the manifest's declared surface carrying
+  at least one `def test_` has at least ONE post-split home named by its own row;
+  a file with tests and no home is a LOST TEST and the carve REFUSES.
+  **(b) DECLARED MULTIPLICITY** — each `not_moved / replicated_at_destination`
+  row **THAT CARRIES TESTS** (at least one `def test_` at `carve_commit`)
+  DECLARES the repository set its replica lands in, the retained `openxFactory`
+  copy included, and `m` is that set's size. **The clause binds TEST-BEARING
+  replicated rows only, because those are the only rows that enter (c)'s Σ:** the
+  landed manifest carries 18 `replicated_at_destination` rows and 3 of them carry
+  tests; a zero-test replica contributes `(m − 1) × 0 = 0` whatever its set, so it
+  can neither move the sum nor make it uncomputable, and its replica set is FLOOR
+  PART 1's business rather than part 2's. **For this carve the declared set is,
+  for all three test-carrying replicated rows, `openxFactory`
+  (retained) · `opensoft/openDox-code` · `opensoft/openXdox-code` — so `m = 3`**,
+  and it is written out here rather than left to be read off § 3.7. This is one
+  obligation ON FLOOR PART 1 and it is the input this part reads: the row grammar
+  of `docs/opendox-carve-manifest.yaml` gains the field in FLOOR PART 1's OWN
+  successor pull request (the manifest is not this packet's file), and until it
+  lands the enumeration below IS the declaration. An undeclared replica set ON A
+  TEST-BEARING ROW makes the check uncomputable, which is a REFUSAL and not a
+  pass.
+  **(c) THE SUM CHECK, OVER DECLARED MULTIPLICITIES** —
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
+  — the Σ ranges over the REPLICATED ROWS ONLY, and a row that is
+  not replicated contributes nothing to it —
+  every term read from the manifest at the carve commit. Measured against the
+  LANDED 454-row manifest (#865 → `17167481`) at `carve_commit b075fd91`:
+  source **4,411** over 146 `.py` rows (openDox-code 1,098 · openXdox-code 2,315 ·
+  `openxFactory` 968 staying); THREE replicated test modules —
+  `tests/corpus-adapter/test_conformance.py` (20), `test_interface_closure.py`
+  (6), `test_no_home_vocabulary.py` (4), **30** in all — at `m = 3` each, because
+  § 3.7 requires EVERY destination to pass the conformance corpus; destinations
+  **1,128 + 2,345 + 998 = 4,471**; and `4,471 = 4,411 + (3 − 1) × 30`. ✔
+  **(d) PINNED BY TEST** at each destination and in `openxFactory` (which under
+  RULING DQ-1 includes the adapter's own tests), the way `pytest-suite.yml`
+  already pins this repository's collection triple — SKIPPED exactly, SELECTED
+  and PASSED as FLOORS, failures and errors zero. Per destination, never as one
+  cross-repository equality: an equality pin on a sum goes RED on merge refs that add
+  tests for reasons the candidate cannot fix, which is the deadlock class
+  `pytest-suite.yml` already refuses by name.
+
+  **THE CASES THIS CHECK OWES, EACH OF THEM A REFUSAL.** The floor carries no
+  `#### Scenario:` blocks because it has no spec delta to host them (§ D6, *"WHY
+  NO PROMOTED REQUIREMENT IS AUTHORED FOR THE FLOOR"*), so the obligation lands
+  here as named cases on the build task. The first two are the ratified rule's
+  own, kept in intent; the last two are RULING OQ-K's, and exist because a
+  mapping can fail in ways an equality could not express.
+  - **A TEST WITH NO HOME.** WHEN a file under the declared surface carries
+    `def test_` AND its row names no home — no `destination`, and no `not_moved`
+    reason that constitutes one (`stays_openxfactory_adapter` and
+    `stays_openxfactory_governance` are a home AT `openxFactory`;
+    `replicated_at_destination` is a home at `openxFactory` PLUS every home it
+    declares) — THEN the carve REFUSES `test-home-missing`. A `deleted_at_carve`
+    row carrying `def test_` is the same refusal under its own name: deleting
+    tests is a decision to be RULED, never inferred from a disposition. Measured
+    at `carve_commit`: **no row under the surface carries `def test_` and no
+    home** — each of the 146 test-carrying rows names a destination, a
+    `stays_openxfactory_*` reason or a replica set — and **no `deleted_at_carve`
+    row carries a single `def test_`**, so neither limb of this case fires today.
+    *(This is the intent the ratified text was reaching for — no
+    test is lost — stated directly instead of inferred from an arithmetic
+    identity.)*
+  - **A SILENT DROP AT A DESTINATION.** WHEN a destination's collected
+    `def test_` falls BELOW the total its own rows declare, THEN the carve
+    REFUSES `destination-test-shortfall`. *(The most likely way a large suite
+    loses coverage in a carve, and the part whose absence Brett named when he
+    rejected snapshot-equivalence alone.)*
+  - **A REPLICATED FILE — the case the equality could not express (NEW, RULING
+    OQ-K).** WHEN a row is `not_moved / replicated_at_destination` declaring
+    MULTIPLICITY 3 and carrying 20 `def test_`
+    (`tests/corpus-adapter/test_conformance.py`) — the declared homes being
+    `openxFactory` (retained), `opensoft/openDox-code` and
+    `opensoft/openXdox-code` — THEN those 20 are counted ONCE
+    in `source_count` and THREE times across the homes, the excess is exactly
+    `(3 − 1) × 20 = 40`, and the check **PASSES** — **AND** deleting a replica to
+    make a raw equality hold is ITSELF a refusal, because § 3.7 requires every
+    destination to carry that corpus. The ratified equality had no way to state
+    this and would have failed on it, on its first run, forever.
+  - **AN UNDECLARED REPLICA SET (NEW, RULING OQ-K).** WHEN a
+    `replicated_at_destination` row **THAT CARRIES `def test_`** names no homes,
+    THEN its multiplicity is unknown, the Σ over replicated rows of
+    `(m − 1) × row_test_count` is
+    UNCOMPUTABLE, and the carve REFUSES
+    `replica-multiplicity-undeclared` — an uncomputable check is never a pass.
+    A ZERO-TEST replicated row is OUTSIDE this case: its term is
+    `(m − 1) × 0 = 0` whatever its set, so it can make nothing uncomputable and
+    it does not refuse here — its replica set is owed to FLOOR PART 1, not to
+    this floor. Measured at `carve_commit`: **this case does not fire today** —
+    of the manifest's 18 `replicated_at_destination` rows the 15 zero-test ones
+    are outside the clause's domain, and each of the 3 test-bearing ones has its
+    homes declared above.
+    This is what clause (b)'s obligation on FLOOR PART 1 is owed FOR.
+
+  > Amended 2026-09-09. This item first read: *"**FLOOR PART 2 (RULED OQ-1) —
+  > test counts that must SUM across the three repositories.** 3,927 `def test_`
+  > leave — 52% of this repository's 7,612. openDox + openXdox + the
+  > `openxFactory` remainder (which now includes the adapter's own tests, per
+  > RULING DQ-1) SHALL equal the pre-split count, pinned by test the way
+  > `pytest-suite.yml` already pins the collection triple."* **RULING OQ-K**
+  > (Brett Heap, 2026-09-09T22:19:57Z, by click-through in session
+  > `openXfactory-4`; `opensoft/openxFactory`#656 comment `5609526215`),
+  > verbatim: *"OQ-K → FLOOR PART 2 restated as a source→destination mapping
+  > with declared multiplicity for replicated files (a small amendment PR to the
+  > change)."* **THE INTENT IS UNCHANGED — no test is lost, and a silent drop
+  > still refuses** — and only the TEST moves. The equality is false by design:
+  > the landed manifest's replicated rows put the same 30 test functions at three
+  > homes each, so the post-split sum exceeds the pre-split count by exactly 60
+  > on its first run, and the only mechanical repair would be to DELETE replicas
+  > that FLOOR PART 3 requires. It is also stale: 3,927 / 7,612 were measured at
+  > `a858e5b0` on 2026-09-04, before the five pre-carve splits and before the
+  > manifest existed. Record:
+  > `review/amendment-2026-09-09-floor-part-2-mapping.md`.
 - [ ] 5.5 `[oxF]` **FLOOR PART 4 (RULED OQ-1) — the snapshot-equivalence run:**
   the new stack renders the SAME dashboard snapshot as the old, proven by matching
   snapshot digests over one corpus.
@@ -1018,8 +1139,13 @@ realization evidence, never on landing. Each line is its own evidence.
   `validate` gate is green over its own legs.
 - [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
   carve manifest with every file in exactly one disposition and every edit in one
-  of the three closed classes; the collection counts SUMMING across the three
-  repositories; the neutral conformance corpus green in EVERY destination
+  of the three closed classes; the source→destination TEST MAPPING closing on
+  § 5.4's ledger — every test function with at least one home, the replicated
+  set enumerated with its multiplicity, and
+  `Σ(destinations) = source_count + Σ over replicated rows of (m − 1) × row_test_count`
+  (amended 2026-09-09 — RULING OQ-K; this first said *"the collection counts
+  SUMMING across the three repositories"*, which the replicas make false as an
+  equality); the neutral conformance corpus green in EVERY destination
   including `openxFactory`'s own adapter; and the snapshot-equivalence run's
   matching digests. **None of these is "the tests passed"**, and no part
   substitutes for another — the two single-instrument alternatives were rejected

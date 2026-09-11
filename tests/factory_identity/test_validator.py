@@ -104,7 +104,7 @@ def keypair(label: str) -> tuple[str, str, str]:
     return b64u, multibase, "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
-def build_tree(tmp_path: Path, *, holder: str = "opensoft/codexFactory",
+def build_tree(tmp_path: Path, *, holder: str = "codeXfactory/codexFactory",
                rows: list | None = None, register_extra: dict | None = None,
                wallet_mutate=None, grant_mutate=None,
                attestation_complete: bool = True,
@@ -363,7 +363,7 @@ def test_a_shared_fingerprint_is_refused(tmp_path: Path) -> None:
     fingerprint is what proves it. A rule keyed on the id alone would be
     defeated by renaming."""
     root = build_tree(tmp_path)
-    _, _, fingerprint = keypair("opensoft/codexFactory")
+    _, _, fingerprint = keypair("codeXfactory/codexFactory")
     review = root / "governance" / "review-authority" / "register.yaml"
     doc = yaml.safe_load(review.read_text(encoding="utf-8"))
     doc["seat_keys"] = [{"seat_id": "lead-quality",
@@ -376,7 +376,7 @@ def test_a_shared_fingerprint_is_refused(tmp_path: Path) -> None:
 
 def test_a_shared_did_is_refused(tmp_path: Path) -> None:
     root = build_tree(tmp_path)
-    _, multibase, _ = keypair("opensoft/codexFactory")
+    _, multibase, _ = keypair("codeXfactory/codexFactory")
     wallet = (root / "governance" / "review-authority" / "wallets"
               / "wal-agent-test-0001.yaml")
     wallet.write_text(yaml.safe_dump({
@@ -415,7 +415,7 @@ def test_a_second_active_row_for_one_repository_is_refused(
         tmp_path: Path) -> None:
     """Exactly ONE origin identity per originating repository is ratified;
     rotation SUPERSEDES a row rather than adding one."""
-    base = {"holder_ref": "opensoft/codexFactory",
+    base = {"holder_ref": "codeXfactory/codexFactory",
             "wallet_ref": "wal-origin-test-0001", "act": "originate",
             "grant_ref": "grant-origin-test-0001",
             "expires_at": "2026-12-01T00:00:00Z", "state": "active"}
@@ -429,7 +429,7 @@ def test_a_superseded_row_beside_an_active_one_is_allowed(
         tmp_path: Path) -> None:
     """Rotation's legal shape: the old row stays, superseded, and the new one
     NAMES it. A revoked or superseded row never returns to active."""
-    base = {"holder_ref": "opensoft/codexFactory",
+    base = {"holder_ref": "codeXfactory/codexFactory",
             "wallet_ref": "wal-origin-test-0001", "act": "originate",
             "grant_ref": "grant-origin-test-0001",
             "expires_at": "2026-12-01T00:00:00Z"}
@@ -476,7 +476,7 @@ def test_a_declared_key_set_is_refused(tmp_path: Path) -> None:
 
 def test_an_authority_tier_column_on_a_row_is_refused(tmp_path: Path) -> None:
     root = build_tree(tmp_path, rows=[{
-        "row_id": "row-a", "holder_ref": "opensoft/codexFactory",
+        "row_id": "row-a", "holder_ref": "codeXfactory/codexFactory",
         "wallet_ref": "wal-origin-test-0001", "act": "originate",
         "grant_ref": "grant-origin-test-0001", "authority_tier": "act",
         "expires_at": "2026-12-01T00:00:00Z", "state": "active"}])
@@ -518,7 +518,7 @@ def test_a_grant_past_the_ninety_day_ceiling_is_refused(
     unconditional expiry is the only propagation mechanism that works today."""
     root = build_tree(
         tmp_path,
-        rows=[{"row_id": "row-a", "holder_ref": "opensoft/codexFactory",
+        rows=[{"row_id": "row-a", "holder_ref": "codeXfactory/codexFactory",
                "wallet_ref": "wal-origin-test-0001", "act": "originate",
                "grant_ref": "grant-origin-test-0001",
                "expires_at": "2027-09-02T00:00:00Z", "state": "active"}],
@@ -607,7 +607,7 @@ def test_an_unknown_top_level_declaration_is_refused(tmp_path: Path) -> None:
 
 def test_an_unresolvable_wallet_ref_is_refused(tmp_path: Path) -> None:
     root = build_tree(tmp_path, rows=[{
-        "row_id": "row-a", "holder_ref": "opensoft/codexFactory",
+        "row_id": "row-a", "holder_ref": "codeXfactory/codexFactory",
         "wallet_ref": "wal-nope", "act": "originate",
         "grant_ref": "grant-origin-test-0001",
         "expires_at": "2026-12-01T00:00:00Z", "state": "active"}])

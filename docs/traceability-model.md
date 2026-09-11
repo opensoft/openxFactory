@@ -17,7 +17,7 @@ Reviewed sources:
 - `docs/merge-council.md`
 - `openspec/specs/repo-boundary-governance/spec.md`
 - `openspec/specs/shared-contract-ownership/spec.md`
-- `opensoft/codexFactory/docs/feature-decomposition-traceability.md`
+- `codeXfactory/codexFactory/docs/feature-decomposition-traceability.md`
 
 ## Neutral Trace Chain
 
@@ -215,8 +215,8 @@ deferred
 Engineering-specific traceability lives in:
 
 ```text
-opensoft/codexFactory/docs/feature-decomposition-traceability.md
-opensoft/codexFactory/docs/pr-admission-merge-readiness.md
+codeXfactory/codexFactory/docs/feature-decomposition-traceability.md
+codeXfactory/codexFactory/docs/pr-admission-merge-readiness.md
 ```
 
 Those docs specialize this neutral model with engineering features, Spec Kit

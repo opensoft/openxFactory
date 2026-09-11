@@ -124,17 +124,65 @@ class Doc:
         return len(self.text.split())
 
 
+def _is_materialized_repo(path: Path) -> bool:
+    """A pinned submodule that is actually checked out.
+
+    `.git` is a FILE in a submodule worktree and a directory in a plain clone,
+    so `exists()` rather than `is_dir()`. An unmaterialized pin leaves an empty
+    directory behind, and enumerating one would add a repository to
+    `repo_paths`, `capabilities` and the report while contributing no document
+    — a repository the run claims to have measured and did not.
+    """
+    return path.is_dir() and (path / ".git").exists()
+
+
 def discover_repos(repo_root: Path) -> list[tuple[str, Path]]:
-    """Family repos inside an aggregation checkout: openxFactory plus every
-    xFactories/* the aggregation repo pins."""
+    """Family repos inside an aggregation checkout: openxFactory, every
+    root-level governed product the aggregation pins beside it, and every
+    xFactories/* it pins under the container.
+
+    THE ROOT-LEVEL PRODUCTS ARE READ FROM THE ALLOWLIST, not from the tree
+    (#869). `ROOT_LEVEL_GOVERNED_PRODUCTS` has named `openAvatar` and
+    `openXwallet` as governed repositories since `split-openxwallet-repo`
+    § 11.2, and this enumerator — the one that decides which repositories an
+    aggregation-rooted sweep actually MEASURES — was the one widened site that
+    never consulted it. The consequence was measured on the 2026-09-09 estate
+    runs (#765, #731, #859): `--repo-root <aggregation>` reached neither
+    product, and both had to be measured by separate `--single-repo`
+    invocations to be measured at all. Today that costs little; openXwallet is
+    the only repository in the estate besides openxFactory with a
+    contract-bundle surface, so the day it adopts the graded bundle shape is
+    the day the nightly would grade every repository except the one that
+    changed.
+
+    THE ID IS THE BARE NAME, never `xFactories/<name>`.
+    `ideation_routing._governed_repo_ids` anticipated this widening and
+    tolerates an allowlisted name in `repo_paths` unprefixed for exactly this
+    reason — "a silent `xFactories/openXwallet` would be a repository that
+    exists nowhere" — so the two sites agree by construction rather than by
+    coincidence.
+
+    SHAPE CHECKS MATCH THE `xFactories/*` CHILDREN, which is the case a
+    root-level product actually resembles: both are submodule pins that may or
+    may not be materialized in a given checkout, and an absent or unmaterialized
+    one is skipped silently rather than reported. `openxFactory` itself keeps
+    its laxer `is_dir()` admission deliberately — it is the aggregation's anchor
+    rather than one repository among many, and a `--repo-root` pointed at a
+    tree where it is a plain directory (every fixture aggregation in this
+    suite) must still find it.
+    """
     repos: list[tuple[str, Path]] = []
     openx = repo_root / "openxFactory"
     if openx.is_dir():
         repos.append(("openxFactory", openx))
+    for name in ROOT_LEVEL_GOVERNED_PRODUCTS:
+        product = repo_root / name
+        if _is_materialized_repo(product):
+            repos.append((name, product))
     factories = repo_root / "xFactories"
     if factories.is_dir():
         for child in sorted(factories.iterdir()):
-            if child.is_dir() and (child / ".git").exists():
+            if _is_materialized_repo(child):
                 repos.append((child.name, child))
     return repos
 

@@ -6,7 +6,7 @@ Status: draft
 
 Engineering-specific feature decomposition now lives in:
 
-- `opensoft/codexFactory/docs/feature-decomposition-traceability.md`
+- `codeXfactory/codexFactory/docs/feature-decomposition-traceability.md`
 
 ## Neutral Requirement
 

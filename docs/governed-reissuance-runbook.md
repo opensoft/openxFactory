@@ -58,7 +58,7 @@ is itself the composition bump this runbook is walked against.
 You need:
 
 * write access to the repository that OWNS the declaration being bumped (for
-  the merge-readiness council that is `opensoft/codexFactory`, not this
+  the merge-readiness council that is `codeXfactory/codexFactory`, not this
   repository);
 * the **ratifying human** available, because step 5 cannot be delegated —
   `governance/review-authority/register.yaml` is a *"PERMANENTLY HUMAN-ONLY

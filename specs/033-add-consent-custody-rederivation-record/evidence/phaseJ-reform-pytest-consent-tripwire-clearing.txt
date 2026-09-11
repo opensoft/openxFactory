@@ -1,0 +1,4 @@
+$ python3 -m pytest tests/consent_instruments tests/intent-compliance/test_release_boundary.py tests/clearing/test_clearing_manifest_rows.py -q
+...................................................................      [100%]
+67 passed in 2.82s
+rc=0

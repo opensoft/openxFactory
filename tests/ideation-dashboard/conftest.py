@@ -227,9 +227,15 @@ def serve_surface_paths() -> tuple[Path, ...]:
     """Every file the dashboard serve is made of, in import-graph order.
 
     Dependency-first: `serve_wire.py` imports no sibling; `serve_workbench.py`,
-    `serve_project.py`, `serve_gate.py`, `serve_projection.py` and
-    `serve_openxfactory_lanes.py` each import from `serve_wire` and from no
-    other sibling; `serve.py` imports all six. No reader of
+    `serve_project.py`, `serve_gate.py` and `serve_projection.py` each import
+    from `serve_wire` and from no other sibling; `serve_openxfactory_lanes.py`
+    imports from `serve_projection` and from `serve_wire` NOT AT ALL any more
+    (OQ-B re-plumb B-2, ruled on `#656` 2026-09-09: `hosted_ref_refused` was
+    re-homed into `serve_projection.py` and the three fixed wire strings into
+    the neutral `scripts/wire_messages.py`, so openxFactory's own adapter
+    column stopped importing an openDox module) — which the tuple's order
+    already accommodates, `serve_projection.py` sitting ahead of it;
+    `serve.py` imports all six. No reader of
     `serve_surface_paths()` /
     `serve_surface_source()` depends on this particular order (every scan
     below is a per-file loop, a `.read_text()` join checked for

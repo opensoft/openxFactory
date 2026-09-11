@@ -5,7 +5,7 @@ kind: pinned_workflow
 # review-lane-pin.yaml — which codexFactory decision core judges openxFactory.
 #
 # `.github/workflows/merge-master-approval.yml` checks out
-# `opensoft/codexFactory` at an exact commit to obtain the Merge Master decision
+# `codeXfactory/codexFactory` at an exact commit to obtain the Merge Master decision
 # core. THIS FILE IS THAT CLAIM, recorded where a reviewer can see it change,
 # and `tests/review_lane_pin/test_review_lane_caller.py` is the running code
 # that refuses to let the two disagree.
@@ -44,7 +44,7 @@ kind: pinned_workflow
 
 # The pinned repository. Private; the caller mints a read-only content-App token
 # to reach it.
-repository: opensoft/codexFactory
+repository: codeXfactory/codexFactory
 
 # THE TRUSTED REFERENT. Exactly 40 lowercase hex. `revision_kind: commit` is
 # declared and a tag or branch is REFUSED — a movable ref is not a pin, and the
@@ -57,7 +57,7 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "4b12ba83add713666a94129fc45552d8989f8488"
+core_commit: "b594ef2ad86ebdefffc497c571c8a84044f6ec10"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -514,7 +514,7 @@ pinned_members:
       ceremony must know this fixture is now load-bearing for that replay, and
       because the replay SKIPS (never fails) when this path is absent from the
       checkout, same as the freshness verifier below.
-  - path: scripts/merge_master/openxfactory-review-authority-floor.yaml
+  - path: floor/openxfactory-review-authority-floor.yaml
     why: >-
       The `repository_gate_floor` for `opensoft/openxFactory` — SIXTY-EIGHT
       never-clearable paths as of this advance, and the document says on its own
@@ -626,9 +626,9 @@ pinned_members:
 # verifies the wallet pin's eight digests off-manifest.
 floor_snapshot:
   path: contracts/review-lane-floor-snapshot.yaml
-  of: scripts/merge_master/openxfactory-review-authority-floor.yaml
-  sha256: "926d536d9bf5274384710cd9d8170d26b3a41a39108d319eaae76c8311abf3c0"
-  entry_count: 68
+  of: floor/openxfactory-review-authority-floor.yaml
+  sha256: "77611b0eef181b2f122e244183a40ef00f20bb5941cb009e1c42067ee0cf53de"
+  entry_count: 70
   taken_at: core_commit
   # THE SNAPSHOT CARRIES ONE COMMIT-SHAPED VALUE OF ITS OWN, AND IT IS DECLARED
   # IN `scripts/doc_health/pin_class.py` AS A NON-MEMBER, NOT AS A MEMBER.

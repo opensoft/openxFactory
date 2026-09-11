@@ -1,11 +1,37 @@
 # review-lane-repin — the automated advance of this repository's pinned
-# decision core, PROPOSED and never disposed.
+# decision core, PROPOSED and never disposed BY ITS OWN ACT.
 #
 # REALIZES `mirror-floor-regeneration-automation` (ratified 2026-09-06 by Brett
 # Heap, verbatim "ratify both when green, then land them"; record
 # `openspec/changes/mirror-floor-regeneration-automation/review/ratification-2026-09-06.md`).
 # Its parent is codexFactory `add-floor-regeneration-automation`, which
 # automates the OTHER half of the same repair.
+#
+# AMENDED 2026-09-09 IN ONE CLAUSE AND NO OTHER —
+# `amend-mirror-floor-regeneration-merge-authority` (ratified 2026-09-08 by
+# Brett Heap, verbatim "merge 292 when green, then ratify 807"; openxFactory
+# PR #807 -> `6cc06288`; record
+# `openspec/changes/amend-mirror-floor-regeneration-merge-authority/review/ratification-2026-09-08.md`).
+# The requirement *An automated pin advance only ever proposes* was narrowed
+# from "SHALL NOT merge" to "SHALL NOT merge BY ITS OWN ACT", and the lane MAY
+# now ARM THE PLATFORM'S AUTO-MERGE on its own pull request — so the merge
+# completes only when (a) the merge-master envelope approval for that exact head
+# stands and (b) every required check has succeeded. "SHALL NOT approve" is
+# untouched. ARMING IS NOT MERGING: `--auto` performs no merge, it records an
+# intent the platform executes.
+#
+# AND IT LANDS INERT, ON A RULING, RATHER THAN QUIETLY (Brett Heap, 2026-09-09,
+# verbatim "rule land inert, this lane realizes it"; openxFactory #745 comment
+# 5601338925 — `tasks.md` box 1.3). **NO CANDIDATE CLASS ADMITS THIS LANE
+# TODAY**: `.github/merge-approval-envelope.yml` enrols only
+# `intent-rolling-custody`, so no envelope approval will ever stand for
+# `bot/review-lane-repin` and the armed auto-merge cannot complete. The pull
+# request therefore waits for exactly the human merge word it waited for
+# yesterday, until the enrolment successor
+# `admit-review-lane-repin-to-merge-approval-envelope` lands. **That inertness
+# is a CONFORMING state the requirement names by itself**, and the lane SAYS SO
+# in its own witness line rather than leaving a reader to mistake an armed
+# proposal for progress.
 #
 # WHAT IT REPLACES. Twice on 2026-09-05 a human advanced this pin by hand —
 # PR #689 (18:17Z → 18:39Z) and PR #702 (22:08Z → 22:50Z) — and both times the
@@ -70,8 +96,10 @@
 # refused by that same measurement.
 #
 # WHAT THIS LANE MAY NOT DO, and every one of these is a ratified requirement:
-# it never merges, never approves, never enables auto-merge, and never writes
-# to `main`; it moves all five pinned sites or it opens nothing; it recomputes
+# it never merges BY ITS OWN ACT, never approves, and never writes to `main`
+# (the ONE disposal act it may now take is arming the PLATFORM'S auto-merge on
+# its own pull request — the 2026-09-08 amendment above, and nothing wider);
+# it moves all five pinned sites or it opens nothing; it recomputes
 # the vendored snapshot's witnesses from the bytes it wrote; it asks for no
 # exemption from the freshness checks that judge it; and it REFUSES when its
 # declared credential binding does not resolve rather than degrading to an
@@ -134,7 +162,7 @@ jobs:
       pull-requests: write
 
     env:
-      SOURCE_REPOSITORY: opensoft/codexFactory
+      SOURCE_REPOSITORY: codeXfactory/codexFactory
       # THE DECLARED CANDIDATE LIST — ONE ENTRY AGAIN, FIRST-OBTAINED-WINS.
       # M-1 STEP (3) of `relocate-review-authority-floor-mirror` (ratified
       # 2026-09-08, PR #817): THE MIGRATION WINDOW IS CLOSED. Step (1) opened it
@@ -224,13 +252,34 @@ jobs:
       # below is scoped to ONE repository and requests EXACTLY that
       # repository's `grants:` in the binding — held equal by
       # `test_each_mint_requests_exactly_its_repository_grants`.
+      #
+      # `owner: codeXfactory`, NOT `github.repository_owner`. The source
+      # repository moved organizations, and `actions/create-github-app-token`
+      # resolves the installation from `owner:`
+      # (`GET /orgs/<owner>/installation`): the token reaches only THAT
+      # installation's repositories. Transfer step 1.6 creates a SECOND,
+      # SEPARATE installation on `codeXfactory` and does not widen the
+      # `opensoft` one, so `github.repository_owner` — `opensoft`, since this
+      # workflow runs in openxFactory — would mint a token that cannot read the
+      # source however Phase 1 goes. The mint below is the LOUD place for that
+      # to surface.
+      #
+      # THIS STEP HAS NO `continue-on-error`, DELIBERATELY, and MUST NOT GAIN
+      # ONE. It fails CLOSED: a missing or unwidened installation stops the lane
+      # at the mint, with `create-github-app-token`'s own message naming the
+      # owner it could not resolve. That is strictly better than continuing to a
+      # checkout that reports a repository problem for a credential cause. The
+      # two `continue-on-error` mints in `merge-master-approval.yml` are
+      # deliberately the other way for a different reason, stated there: their
+      # checkout has a NAMED diagnostic step that must be the thing a human
+      # reads.
       - name: Mint the codexFactory READ token
         id: source-token
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
           permission-contents: read
 
@@ -287,6 +336,90 @@ jobs:
       # asserts no unpinned install can come back.
       - name: Install the pinned dependency set
         run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+
+      # ---- 1b. WHAT BECAME OF THE LAST ARMED ADVANCE (decision M-E) ----------
+      #
+      # THE ARMING IS AN ACT WHOSE OUTCOME LANDS BETWEEN RUNS. Without this
+      # step a reader of the log would have to go to the platform to learn
+      # whether the pull request the LAST firing armed merged, is still waiting,
+      # or was closed — which is exactly the thing the requirement's "a reader
+      # of the run can tell an armed proposal from an unarmed one without
+      # consulting the platform" is about, one firing later.
+      #
+      # IT READS AND IT DOES NOT ACT. There is no disposal verb in this step and
+      # a named control sweeps it for every one of them, because a step that
+      # reads state is the easiest place for one to be added later. Every value
+      # it prints is read from the platform and recomputable by anyone with the
+      # same command; the lane states no claim only it can make.
+      #
+      # IT NEVER FAILS THE RUN, AND UNKNOWN IS NOT "NONE". Both halves of an
+      # unavailable answer — a listing the platform refused, and a program that
+      # stopped parsing one it returned — are reported as UNKNOWN rather than
+      # turned into a red advance, and neither is allowed to render "no
+      # previous advance", which is a claim ABOUT the platform and not the
+      # absence of an answer from it. The step cannot be `continue-on-error`,
+      # which no step in this lane may carry, so the guard is in the shell —
+      # and `TheOutcomeReportIsExecutedNotJustRead` measures both halves by
+      # executing this step's own bytes against a refusing `gh`.
+      #
+      # THE TWO OPEN BRANCHES ARE WHERE THE RESIDUAL IS DISCLOSED (Codex P1 on
+      # openxFactory #844). An open advance is reported as ARMED or as NOT
+      # armed, and the NOT-armed line states the retry condition exactly: the
+      # arming lives in the DELIVERY step, which is gated
+      # `steps.repin.outputs.action == 'advance'`, so a no-op firing — this
+      # step's own firing — re-attempts nothing. Re-arming from here would be a
+      # THIRD `gh pr merge --auto` occurrence, which decision M-C's ratified
+      # equality forbids and a named negative control reds, so the lane says
+      # what it does not do rather than quietly doing it.
+      - name: Report what became of the last automated advance
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -uo pipefail
+          # THE LISTING'S EXIT STATUS IS KEPT SEPARATE FROM ITS OUTPUT
+          # (Copilot on openxFactory #844). A `|| echo '[]'` on the read
+          # turned an auth or transient API failure into an EMPTY listing, and
+          # an empty listing renders "no previous automated pin advance has
+          # ever been opened on this branch" — a positive claim about the
+          # platform's state, made on a firing that could not read the
+          # platform, and the opposite of what this step's own header
+          # promises. It is the masking `merge-master-approval.yml`'s gather
+          # refuses in terms ("a `|| echo '[]'` fallback would convert a
+          # failed or rate-limited query into a clean, empty,
+          # apparently-complete fact set"). So ONLY a listing `gh` actually
+          # returned reaches jq; a non-zero exit leaves the outcome empty and
+          # falls through to the unreadable fallback below, which already
+          # existed for the jq half of the same problem. The step still never
+          # fails the run.
+          OUTCOME=""
+          if LAST="$(gh pr list --repo "$GITHUB_REPOSITORY" --state all \
+            --head "${BOT_BRANCH}" --limit 1 \
+            --json number,state,mergeCommit,autoMergeRequest 2>/dev/null)"; then
+            OUTCOME="$(printf '%s' "${LAST}" | jq -r '
+              if length == 0 then
+                "no previous automated pin advance has ever been opened on this branch"
+              else
+                .[0] as $pr
+                | if $pr.state == "MERGED" then
+                    "the last automated pin advance #\($pr.number) MERGED at \($pr.mergeCommit.oid // "an unreadable commit")"
+                  elif $pr.state == "OPEN" and $pr.autoMergeRequest then
+                    "the last automated pin advance #\($pr.number) is still OPEN with auto-merge ARMED; no candidate class admits this lane, so it waits for a human merge word"
+                  elif $pr.state == "OPEN" then
+                    "the last automated pin advance #\($pr.number) is still OPEN and auto-merge is NOT armed; the arming lives in the delivery step, so this lane re-attempts it only on its next firing that delivers an advance, and that firing moves the head first. No candidate class admits this lane either way, so it waits for a human merge word; openxFactory #745 box 4.4 is the measurement of what the platform does with an arming here, and box 4.3 the enrolment that would let an armed state complete anything"
+                  else
+                    "the last automated pin advance #\($pr.number) was CLOSED unmerged"
+                  end
+              end' 2>/dev/null || true)"
+          fi
+          [ -n "${OUTCOME}" ] || OUTCOME="the last automated pin advance could not be read from the platform on this firing"
+          # A WORKFLOW COMMAND IS A PARSED LINE AND THIS PAYLOAD IS THE
+          # PLATFORM'S OWN TEXT, so it is escaped before it is emitted, `%`
+          # first. The step SUMMARY parses no commands and keeps the raw bytes.
+          SAFE="${OUTCOME//'%'/%25}"
+          SAFE="${SAFE//$'\r'/%0D}"
+          SAFE="${SAFE//$'\n'/%0A}"
+          echo "::notice title=review-lane-repin::${SAFE}"
+          echo "${OUTCOME}" >> "$GITHUB_STEP_SUMMARY"
 
       # ---- 2. Resolve the source default branch AT RUN TIME ------------------
       # REQUIREMENT: "The verification SHALL be made against the source
@@ -503,7 +636,7 @@ jobs:
         if: steps.repin.outputs.action == 'advance'
         uses: actions/checkout@v4
         with:
-          repository: opensoft/codexFactory
+          repository: codeXfactory/codexFactory
           ref: ${{ steps.source.outputs.sha }}
           path: .merge-master-core
           persist-credentials: false
@@ -517,12 +650,29 @@ jobs:
           set -euo pipefail
           python3 -m pytest tests/review_lane_pin -q
 
-      # ---- 6. Propose, and stop ---------------------------------------------
-      # REQUIREMENT 1: "it opens a pull request carrying that advance and takes
-      # no further action on it AND it neither merges nor approves that pull
-      # request". There is no `gh pr merge`, no `--auto`, no `--admin` and no
+      # ---- 6. Propose, arm, and stop ----------------------------------------
+      # REQUIREMENT 1, AS NARROWED 2026-09-08 by
+      # `amend-mirror-floor-regeneration-merge-authority`: "it opens a pull
+      # request carrying that advance and takes no further action on it BEYOND
+      # ARMING THE PLATFORM'S AUTO-MERGE on that same pull request AND it
+      # neither merges BY ITS OWN ACT nor approves that pull request".
+      #
+      # THE PREVIOUS SENTENCE HERE IS SUPERSEDED, NOT DELETED, because a comment
+      # that keeps asserting a state the file no longer has is a false witness.
+      # It read: "There is no `gh pr merge`, no `--auto`, no `--admin` and no
       # `gh pr review` anywhere in this file, and a test asserts their absence
-      # rather than trusting this comment.
+      # rather than trusting this comment." **TWO OF THOSE TEN SPELLINGS ARE NOW
+      # ADMITTED, IN ONE EXACT FORM AND NOWHERE ELSE**: the arming command
+      # `gh pr merge --auto --squash "${BOT_BRANCH}"`, twice — once on the
+      # update path and once on the open path (decisions M-A and M-B). The
+      # OTHER EIGHT — `gh pr review`, `gh pr close`, `--admin`,
+      # `enable-auto-merge`, `--method PUT`, `-X PUT`, `/reviews`,
+      # `enablePullRequestAutoMerge` — and the raw-API merge endpoint are still
+      # absent, `scripts/review_lane_repin.py` still names none of the ten, and
+      # `test_the_lane_opens_a_pull_request_arms_and_stops_there` measures all
+      # of that BY EQUALITY rather than trusting this comment: the arming
+      # appears exactly twice, no `gh pr merge` occurrence lacks `--auto`, and a
+      # THIRD occurrence reds its own named control.
       #
       # REQUIREMENT 7: "at most one automated pin advance pull request is open
       # at any time". The branch name is FIXED, and the delivery follows the
@@ -566,7 +716,119 @@ jobs:
             exit 1
           fi
           TREE="$(git write-tree)"
-          MSG="$(printf 'Advance the pinned decision core to %s\n\nAll five sites move in this one commit. Opened by the review-lane-repin\nlane; a human word merges it.\n\nLane: review-lane-repin-bot\n' "${BRANCH_SHA}")"
+          MSG="$(printf 'Advance the pinned decision core to %s\n\nAll five sites move in this one commit. Opened by the review-lane-repin\nlane, which arms the platform auto-merge and neither merges by its own\nact nor approves. No candidate class admits this lane today, so the merge\nstill waits for the same human word a hand-authored advance needs.\n\nLane: review-lane-repin-bot\n' "${BRANCH_SHA}")"
+
+          # ── THE ARMING, AND THE WITNESS THAT MAKES IT LEGIBLE ────────────────
+          #
+          # WHY ARMING BEFORE ANY APPROVAL EXISTS IS SAFE (decision M-A).
+          # `--auto` performs NO merge. It records an intent GitHub executes
+          # only when every merge requirement this repository declares holds at
+          # once: the approving review count (ruleset 18962101),
+          # `require_last_push_approval`, the code-owner review (18834180) and
+          # the required status checks of rulesets 21957695 and 21538893. There
+          # is no window in which arming merges something an approval has not
+          # released — the PLATFORM holds the predicate, not this lane.
+          #
+          # WHY `--squash` (M-B). This repository permits all three methods, so
+          # the method is a real choice here and was not one in codexFactory.
+          # The lane's own precedent is a squash: PR #732, the only
+          # `bot/review-lane-repin` pull request ever merged, landed as
+          # `9ffc6252` with ONE parent. And the update path below advances the
+          # branch with a TWO-PARENT `commit-tree` so it never force-pushes; a
+          # merge commit would carry those synthetic bookkeeping parents onto
+          # `main`, and a squash lands the advance as the one commit the pull
+          # request is.
+          #
+          # WHY IT RUNS ON BOTH PATHS, UNCONDITIONALLY. GitHub disables an armed
+          # auto-merge when the head branch is pushed by an actor WITHOUT write
+          # permission; this lane's token holds `contents: write`, so its own
+          # update does not disable it. THE RE-ARMING DOES NOT REST ON THAT: it
+          # is performed on every delivery regardless of the previous state, so
+          # an intent the platform kept is left exactly as it is (the call is an
+          # idempotent no-op) and an intent the platform dropped is restored.
+          # The requirement asks for exactly this — "the lane SHALL take that
+          # same update path and SHALL re-arm the platform's auto-merge on that
+          # pull request idempotently".
+          #
+          # A REFUSED ARM IS A RECORDED OUTCOME, NEVER A FAILED ADVANCE. The
+          # pull request is already delivered and correct by the time this runs;
+          # only its disposal may be unavailable, and that is the platform's or
+          # the owner's to change. Community discussion #190610 reports that
+          # since 2026-03-25 enabling auto-merge returns HTTP 422 until every
+          # requirement is ALREADY met — which is precisely the state of this
+          # lane's pull request TODAY and for as long as the arming is inert.
+          # Turning that into a red run would turn every honest advance red, and
+          # the requirement says the opposite in terms: an arming that cannot
+          # complete "is a CONFORMING state of this requirement and SHALL be
+          # reported as such rather than treated as a failure or as progress".
+          # So the arming is guarded here, in the shell, and NOT by
+          # `continue-on-error`, which no step in this lane may carry.
+          #
+          # A WORKFLOW COMMAND IS A PARSED LINE, AND THE REFUSAL TEXT IS THE
+          # PLATFORM'S OWN. GitHub Actions percent-DECODES a `::notice`
+          # message, so a payload carrying the literal characters `%0A` becomes
+          # a NEWLINE in the log and whatever follows it becomes a SECOND
+          # workflow command. Every payload below passes through `command_safe`
+          # in the order the encoding requires (`%` FIRST, or the escapes would
+          # themselves be re-escaped). The step SUMMARY is markdown, parses no
+          # commands, and keeps the platform's own bytes.
+          command_safe() {
+            local text="$1"
+            text="${text//'%'/%25}"
+            text="${text//$'\r'/%0D}"
+            text="${text//$'\n'/%0A}"
+            printf '%s' "$text"
+          }
+
+          # THE TAIL OF THE ARMED WITNESS, AND THE CLAUSE THAT MUST BE DROPPED
+          # THE DAY IT STOPS BEING TRUE. `admit-review-lane-repin-to-merge-approval-envelope`
+          # is the enrolment successor named in the packet's § The realization
+          # gate; until it lands, no candidate class admits this lane, no
+          # envelope approval can ever stand for it, and the arming is inert.
+          # The enrolment lane drops the second sentence and nothing else.
+          ARMED_TAIL="the platform merges when the merge-master envelope approval for that head stands and every required check has succeeded; this lane neither merges nor approves. NO CANDIDATE CLASS ADMITS THIS LANE TODAY, so the arming is inert: the pull request waits for the same human merge word a hand-authored advance needs, until admit-review-lane-repin-to-merge-approval-envelope lands."
+
+          # EVERY VALUE IN THE WITNESS IS READ FROM THE PLATFORM, and an
+          # unreadable one is SAID rather than left blank: without the fallbacks
+          # a transient failure here emits "ARMED on # at " and the line whose
+          # whole purpose is to name the head an approval must bind to names
+          # nothing at all, silently.
+          report_the_arming() {
+            local rc="$1" output="$2"
+            local view number head_oid reason witness
+            view="$(gh pr view "${BOT_BRANCH}" --repo "$GITHUB_REPOSITORY" --json number,headRefOid --jq '"\(.number) \(.headRefOid)"' 2>/dev/null || true)"
+            number="${view%% *}"
+            head_oid="${view##* }"
+            [ -n "${number}" ] || number="an UNREADABLE number"
+            [ -n "${head_oid}" ] || head_oid="an UNREADABLE head"
+            if [ "${rc}" -eq 0 ]; then
+              witness="auto-merge ARMED on #${number} at ${head_oid} — ${ARMED_TAIL}"
+            elif printf '%s' "${output}" | grep -qi 'already enabled'; then
+              witness="auto-merge ARMED on #${number} at ${head_oid} (already enabled) — ${ARMED_TAIL}"
+            else
+              # ONE LINE, ONE REASON, AND THE RETRY CONDITION EXACTLY. The
+              # platform's own message is carried verbatim so a reader can tell
+              # a 422 "requirements not met yet" from a permission problem
+              # without opening the run.
+              #
+              # "ON ITS NEXT FIRING" WAS TOO LOOSE AND IS NARROWED (Codex P1 on
+              # openxFactory #844). The arming lives in THIS step, which is
+              # gated `steps.repin.outputs.action == 'advance'`, so a firing
+              # that finds nothing to advance does not reach it: a refused
+              # arming is re-attempted on the next firing that DELIVERS an
+              # advance, and that firing moves the head first. Saying "its next
+              # firing" would have promised an hourly retry the lane does not
+              # perform. The residual is recorded on openxFactory #745.
+              #
+              # THE JOIN IS THE SAME ON ALL THREE VARIANTS (Copilot on #844):
+              # `ARMED_TAIL` opens lowercase, so every branch reaches it
+              # through " — " and never across a sentence end.
+              reason="$(printf '%s' "${output}" | tr '\n' ' ' | cut -c1-300)"
+              witness="auto-merge NOT armed on #${number} at ${head_oid}: platform refused (${reason}); the advance is delivered and correct, and the lane re-attempts the arming only on its next firing that delivers an advance — ${ARMED_TAIL}"
+            fi
+            echo "::notice title=review-lane-repin::$(command_safe "${witness}")"
+            echo "${witness}" >> "$GITHUB_STEP_SUMMARY"
+          }
 
           OPEN_PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "${BOT_BRANCH}" --base main --state open --json number -q '.[0].number')"
           if [ -n "${OPEN_PR}" ]; then
@@ -579,6 +841,14 @@ jobs:
               --title "Advance the pinned decision core to ${BRANCH_SHA}" \
               --body-file "${RUNNER_TEMP}/pr-body.md"
             echo "updated the open automated advance #${OPEN_PR}; no second pull request opened."
+            # RE-ARM ON THE UPDATE PATH. The pull request the requirement's
+            # "further advance owed while the armed pull request is parked"
+            # scenario describes is exactly this one, and the re-arming is the
+            # same single route to the merge restated, not a second one. The
+            # repository is resolved from this checkout, as the packet's
+            # ratified spelling of the command has it.
+            if ARM_OUTPUT="$(gh pr merge --auto --squash "${BOT_BRANCH}" 2>&1)"; then ARM_RC=0; else ARM_RC=$?; fi
+            report_the_arming "${ARM_RC}" "${ARM_OUTPUT}"
           else
             if git ls-remote --exit-code --heads origin "${BOT_BRANCH}" >/dev/null 2>&1; then
               git push origin --delete "${BOT_BRANCH}"
@@ -589,6 +859,12 @@ jobs:
             gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "${BOT_BRANCH}" \
               --title "Advance the pinned decision core to ${BRANCH_SHA}" \
               --body-file "${RUNNER_TEMP}/pr-body.md"
+            # ARM ON THE OPEN PATH. Byte-identical to the update path's call —
+            # the pull request is named by the lane's own head branch, so one
+            # spelling serves both and a reader cannot be told two different
+            # things about what was armed.
+            if ARM_OUTPUT="$(gh pr merge --auto --squash "${BOT_BRANCH}" 2>&1)"; then ARM_RC=0; else ARM_RC=$?; fi
+            report_the_arming "${ARM_RC}" "${ARM_OUTPUT}"
           fi
 
       - name: Say what a dry run would have opened
@@ -599,8 +875,10 @@ jobs:
             echo "### review-lane-repin — DRY RUN"
             echo
             echo "An advance is owed. The five sites were written and re-read in"
-            echo "this runner's checkout; nothing was pushed and no pull request"
-            echo "was opened. The body it would have carried:"
+            echo "this runner's checkout; nothing was pushed, no pull request was"
+            echo "opened or updated, and NO AUTO-MERGE WAS ARMED — the arming is"
+            echo "part of the delivery step this dry run replaces. The body it"
+            echo "would have carried:"
             echo
             cat "${RUNNER_TEMP}/pr-body.md"
           } | tee -a "$GITHUB_STEP_SUMMARY"

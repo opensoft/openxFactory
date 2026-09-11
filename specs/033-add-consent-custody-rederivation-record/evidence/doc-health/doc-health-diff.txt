@@ -1,0 +1,49 @@
+--- /tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/ee808615-4d8a-475f-bcb3-6f92a89909f0/scratchpad/RECON/dh/base/doc-health.md	2026-09-09 13:32:54.798832970 -0400
++++ /tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/ee808615-4d8a-475f-bcb3-6f92a89909f0/scratchpad/RECON/dh/head/doc-health.md	2026-09-09 13:34:39.523940469 -0400
+@@ -6,8 +6,8 @@
+ 
+ ## Headline
+ 
+-Canon share by words: 39.8% (358220 canon words / 900520 governance words, promoted specs included).
+-Findings: 10 critical, 7 error, 67 warning, 15 info. New regressions vs previous report: 0.
++Canon share by words: 39.7% (358220 canon words / 902236 governance words, promoted specs included).
++Findings: 10 critical, 6 error, 67 warning, 13 info. New regressions vs previous report: 0.
+ 
+ Non-default configuration (cross-run comparisons must account for this):
+ - scope limited to single repo openxFactory
+@@ -22,7 +22,7 @@
+ | Status | Docs | Words |
+ | --- | --- | --- |
+ | brainstorm | 185 | 154065 |
+-| draft | 70 | 146587 |
++| draft | 70 | 148303 |
+ | projection | 1 | 37693 |
+ | ratified | 33 | 82996 |
+ | record | 29 | 38680 |
+@@ -194,9 +194,7 @@
+ 
+ ### release-inventory-drift
+ 
+-- [error] openxFactory:docs/contract-versioning-policy.md — bytes differ from the digest 'contract-v3.4' records
+-- [info] openxFactory:contracts/README.md — bytes differ from the digest 'contract-v3.4' records (editorial member — expected between cuts)
+-- [info] openxFactory:contracts/manifest.yaml — bytes differ from the digest 'contract-v3.4' records (editorial member — expected between cuts)
++No findings.
+ 
+ ### duplicate-packet
+ 
+@@ -255,7 +253,6 @@
+ - severity=critical family=record-immutability repo=openxFactory path=docs/domain-ontology-adoption-handoff.md rule="record document changed after capture" action="revert the content edit or re-issue as a new record" class="contested"
+ - severity=critical family=record-immutability repo=openxFactory path=docs/domain-ontology-pilot-report.md rule="record document changed after capture" action="revert the content edit or re-issue as a new record" class="contested"
+ - severity=critical family=record-immutability repo=openxFactory path=docs/notebook-projection-migration-evidence-2026-08-24.md rule="record document changed after capture" action="revert the content edit or re-issue as a new record" class="contested"
+-- severity=error family=release-inventory-drift repo=openxFactory path=docs/contract-versioning-policy.md rule="bytes differ from the digest 'contract-v3.4' records" action="cut a release through the bundle realization order; never hand-edit an inventory or contract_bundle_version to make this comparison pass" class="auto-fixable"
+ - severity=error family=status-validity repo=openxFactory path=openspec/changes/adopt-codexfactory-repository-identity/proposal.md rule="missing status header" action="add a Status: header from the controlled taxonomy" class="auto-fixable"
+ - severity=error family=status-validity repo=openxFactory path=openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md rule="missing status header" action="add a Status: header from the controlled taxonomy" class="auto-fixable"
+ - severity=error family=tag-hygiene repo=openxFactory path=ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md rule="unresolved target=openxwallet at line 107" action="name a capability under openspec/specs/ or an active change (document-lifecycle grammar)" class="auto-fixable"
+@@ -340,7 +337,5 @@
+ - severity=info family=modified-block-currency repo=openxFactory path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-lab/spec.md rule="active MODIFIED block for 'Repository and ownership boundary' does not carry 1 of the 5 body units and scenario bullets openspec/specs/avatar-client-lab/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'The Flutter avatar client application and its generated Dart bindings SHALL live in codexFactory under `apps/avatar-client-lab/`, while open…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="contested"
+ - severity=info family=modified-block-currency repo=openxFactory path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md rule="active MODIFIED block for 'Redacted telemetry and latency evidence' does not carry 1 of the 6 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'Latency evidence in this kernel SHALL be structured logging with monotonic timestamps for broker setup, sideband attach, media connected, an…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="contested"
+ - severity=info family=modified-block-currency repo=openxFactory path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md rule="active MODIFIED block for 'Versioned neutral avatar-client contract kernel' does not carry 1 of the 17 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'AVC-03 and AVC-05 are absorbed as described; AVC-09 and AVC-10 remain reserved for the live-qualification successor change and their identif…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="contested"
+-- severity=info family=release-inventory-drift repo=openxFactory path=contracts/README.md rule="bytes differ from the digest 'contract-v3.4' records (editorial member — expected between cuts)" action="cut a release through the bundle realization order; never hand-edit an inventory or contract_bundle_version to make this comparison pass" class="auto-fixable"
+-- severity=info family=release-inventory-drift repo=openxFactory path=contracts/manifest.yaml rule="bytes differ from the digest 'contract-v3.4' records (editorial member — expected between cuts)" action="cut a release through the bundle realization order; never hand-edit an inventory or contract_bundle_version to make this comparison pass" class="auto-fixable"
+ - severity=info family=release-tag-publication repo=openxFactory path=contracts/releases/contract-v2.6.digests.yaml rule="contract-v2.6 is declared SPENT: it was cut, has no published annotated tag, and contract-v3.0 — itself cut, itself published and strictly later — superseded it. The record is contracts/CHANGELOG.md § contract-v3.0 — RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. The tag obligation was not met, it was EXTINGUISHED by an owner act at the cost of a version number" action="no action, and this is NOT the tag obligation having been met — it was EXTINGUISHED, by an owner act, at the cost of a version number, and the record says which; the state is permanent, and never edit the manifest, the changelog or the inventory to stop it being reported" class="contested"
+ - severity=info family=staged-candidate-aging repo=openxFactory path=(drafts) rule="draft age distribution days: min=0 max=63 n=70" action="trend data — no action required" class="contested"

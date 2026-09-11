@@ -1407,7 +1407,14 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         """The refusal is a STATUS a caller can branch on: 2 for a
         contested-class origin mutation, 1 for the shape errors an operator
         fixes and retries. And no traceback — a stack trace here would read as
-        a crash in the gate rather than a finding from it."""
+        a crash in the gate rather than a finding from it.
+
+        AND THE REFUSAL ROUTES THE READER (issue #745). It still says there is
+        no bypass flag, because there is none; what it no longer does is STOP
+        there, which is what it did to the operator on
+        codeXfactory/codexFactory #318 who was holding a recorded acceptance.
+        Both repairs are named — restore the bytes, or write the record — and
+        the record's path and every field it must carry are in the text."""
         with TemporaryDirectory() as td:
             root = Path(td)
             directory = self.packet(root)
@@ -1421,6 +1428,10 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("origin retention", result.stderr)
             self.assertIn("no bypass flag", result.stderr)
+            self.assertIn("RESTORE", result.stderr)
+            self.assertIn("openspec/origin-dispositions.yaml", result.stderr)
+            for field in support.ORIGIN_DISPOSITION_KEYS:
+                self.assertIn(field, result.stderr)
 
     def test_every_arm_of_the_gate_exits_2_not_only_the_mutation(self):
         """THE EXIT STATUS IS THE GATE'S, NOT THE MUTATION'S. `not ratified`
@@ -1439,6 +1450,933 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2, result.stderr)
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("not ratified", result.stderr)
+
+    # ----------------------------------------------------------------
+    # THE PACKET ITSELF MOVED (issue #833)
+    # ----------------------------------------------------------------
+
+    def rename(self, root: Path, old: str, new: str) -> Path:
+        """Move a change's directory the way a rename lands: `git mv`, one
+        commit, nothing else touched."""
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / old), str(changes / new))
+        commit_all(root, f"rename {old} to {new}")
+        return changes / new
+
+    def test_a_ratified_change_renamed_afterwards_refuses_the_walk(self):
+        """THE #833 DEFECT. The walk reads ONE path — the id the tree spells
+        today — so a ratified change renamed afterwards has no history under
+        its new name before the rename, and the first ratified blob the walk
+        finds is the RENAME. That baseline is later than every mutation made
+        between the real ratification and it, and the gate printed
+        `ORIGIN RETAINED` over exactly that (measured on issue #777).
+
+        THE NEGATIVE CONTROL IS IN THE FIXTURE, so it holds whatever the code
+        does: the origin at the rename commit EQUALS the working tree's (a
+        baseline taken there finds nothing to report) while the origin at the
+        real ratifying commit DIFFERS (there is a mutation to catch). A gate
+        that re-based onto the rename would therefore pass this tree, and one
+        that refuses cannot pass it by accident.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            moved = self.rename(root, "change-r", "change-s")
+            renamed_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+
+            # the negative control, asserted as a property of the history
+            here = support.origin_block_lines(
+                (moved / ".openspec.yaml").read_text(encoding="utf-8"))
+            at_rename = support.origin_block_lines(support.git_show_text(
+                root, renamed_at,
+                "openspec/changes/change-s/.openspec.yaml"))
+            at_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, ratified_at,
+                    "openspec/changes/change-r/.openspec.yaml"))
+            self.assertEqual(here, at_rename)
+            self.assertNotEqual(here, at_ratification)
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("REFUSE origin-retention-path-moved", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("change-s", message)
+            # both paths, so an operator can see WHAT moved WHERE
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("openspec/changes/change-s/proposal.md", message)
+            self.assertIn(renamed_at[:12], message)
+            self.assertIn("FORMER ID", message)
+            # …and says WHY it refuses rather than re-basing: the baseline is
+            # not merely wrong, it cannot be established at all from history
+            self.assertIn("baseline cannot be established", message)
+            self.assertIn("#833", message)
+
+            # the refusal is NOT swallowed into a findings list…
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(root, moved, change="change-s")
+            # …and the archive itself stops
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(root, "change-s", "2026-09-05",
+                                       False, True)
+
+    def test_a_ratified_packet_copied_to_a_new_id_refuses_too(self):
+        """COPIES COUNT. A "rename" that leaves the old directory standing is
+        a duplicated packet rather than a moved one, and the question the
+        guard asks — did this packet exist under another name before this
+        commit — has the same answer either way. It is also the shape actually
+        measured in this corpus: `9ec13c1a` added the new name without
+        removing the old one, and git paired it as `C099` rather than `R`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            copy = root / "openspec" / "changes" / "change-s"
+            shutil.copytree(directory, copy)
+            commit_all(root, "copy the ratified packet to a second id")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-path-moved", message)
+            # AND THE MESSAGE SAYS WHAT ACTUALLY HAPPENED. Nothing moved
+            # here — the old id still stands — so a refusal that spoke only
+            # of a MOVE would send an operator looking for a rename that is
+            # not in the history (raised by the review bench on PR #846).
+            self.assertIn("MOVE OR COPY", message)
+            self.assertIn("COPIED", message)
+            self.assertTrue(directory.is_dir())
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("openspec/changes/change-s/proposal.md", message)
+
+    def test_renaming_a_draft_and_ratifying_it_afterwards_is_not_refused(self):
+        """RENAMING A DRAFT IS LAWFUL AND STAYS LAWFUL. This corpus does it —
+        `46059b77` (#834) renamed a draft change toward the dotless grammar —
+        and the flip that follows really is the ratification, so the baseline
+        is sound and nothing refuses."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            moved = self.rename(root, "change-r", "change-s")
+            ratify(moved / "proposal.md")
+            commit_all(root, "record the ratification under the new name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_a_rename_that_also_ratifies_is_itself_the_ratification(self):
+        """THE SQUASH SHAPE, and the reason the guard reads the PARENT rather
+        than merely noticing a move. A pull request that renames a draft and
+        ratifies it lands as ONE commit: the candidate IS a move, and it is
+        ALSO the flip — the packet under its former name was still a draft, so
+        the baseline is sound and refusing would make such a change
+        permanently unarchivable. Every commit in this repository's own
+        history arrives squashed, so this is the ordinary case rather than a
+        corner."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            ratify(moved / "proposal.md")
+            commit_all(root, "rename the draft and ratify it in one commit")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            rel = "openspec/changes/change-s/proposal.md"
+            # git DOES pair the move at this commit …
+            self.assertEqual(
+                support.renamed_from(root, head, rel),
+                "openspec/changes/change-r/proposal.md")
+            # … and the packet was a DRAFT under that name, so nothing refuses
+            self.assertIsNone(
+                support.ratified_under_a_former_path(root, head, rel))
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_a_change_that_never_moved_is_untouched_by_the_guard(self):
+        """The guard's own two answers on the ordinary shape: no predecessor
+        pairing at the ratifying commit, and therefore no former path — so the
+        walk returns the flip it always returned."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            rel = "openspec/changes/change-r/proposal.md"
+            self.assertIsNone(support.renamed_from(root, head, rel))
+            self.assertIsNone(
+                support.ratified_under_a_former_path(root, head, rel))
+            self.assertEqual(support.ratifying_commit(root, "change-r"), head)
+            # end to end, not only at the walk: the gate still passes it
+            self.assertEqual(
+                support.origin_retention_errors(
+                    root, root / "openspec" / "changes" / "change-r"), [])
+
+    def test_a_never_ratified_change_that_moved_is_still_not_ratified(self):
+        """THE DRAFT ARM IS NOT HIJACKED. A change that was never ratified has
+        no baseline to establish and no ratification to have moved away from,
+        so it takes the `not ratified` finding it always took — not the moved
+        packet refusal."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            moved = self.rename(root, "change-r", "change-s")
+            self.assertIsNone(support.ratifying_commit(root, "change-s"))
+            self.assertIn(
+                "not ratified",
+                "\n".join(support.origin_retention_errors(
+                    root, moved, change="change-s")))
+
+    def test_the_cli_refuses_a_moved_packet_with_exit_2_and_no_traceback(self):
+        """The fourth arm answers with the gate's own status, like the other
+        three: 2, the named code on stderr, and no stack trace — a traceback
+        here would read as a crash in the gate rather than a refusal from
+        it."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            self.rename(root, "change-r", "change-s")
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), str(root), "archive",
+                 "change-s", "--yes"],
+                capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("origin-retention-path-moved", result.stderr)
+
+    def test_an_unratifying_rename_escapes_the_guard_a_stated_gap(self):
+        """A STATED GAP, PINNED SO A SUCCESSOR FLIPS IT DELIBERATELY (issue
+        #849, Codex's P1 on PR #846). The guard asks its question of the
+        CANDIDATE commit, so a commit that renames an already-ratified packet
+        AND un-ratifies the destination is never a candidate, and the later
+        re-ratification carries no pairing: the walk takes the
+        re-ratification as its baseline — later than the real ratification,
+        with the mutation this fixture puts in between waved through, which
+        is #833's failure by a longer route.
+
+        WHY IT IS A GAP AND NOT A BUG TO PATCH HERE: refusing on any hop in
+        the followed history whose source was ratified at the hop's parent
+        would also refuse a NEW packet authored as a copy of a ratified one,
+        entering as a draft and ratified later — ordinary authoring, and the
+        same shape in git. This gate has no bypass flag, so that packet would
+        be unarchivable. Separating the two needs the former-id declaration
+        (#833's option (b)); until it lands, this test records what the walk
+        answers today rather than leaving the hole unsaid.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            proposal = moved / "proposal.md"
+            proposal.write_text(
+                proposal.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "rename the ratified packet and un-ratify it")
+            ratify(proposal)
+            commit_all(root, "re-ratify it under the new name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            # NOT refused, and the baseline is the RE-ratification …
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            # … which is why the mutation in between is not reported. The
+            # assertion is the GAP: a successor makes this refuse or re-base.
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
+        """A REVISION IS A REVISION, however it is spelled — and getting that
+        wrong is silent NON-detection, which is the failure class this whole
+        guard exists to end rather than a cosmetic defect. The pairing is
+        recognised by matching git's own `%H` against the revision asked
+        about, so a caller naming the commit any other lawful way (`HEAD`, an
+        abbreviated hash, an annotated tag) would have compared unequal, been
+        answered None, and let the walk re-base onto the move exactly as it
+        did before #833. Raised by the review bench on PR #846; the only
+        caller today passes a full hash out of `git log --format=%H`, so this
+        pins the property rather than repairing a live failure."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            self.rename(root, "change-r", "change-s")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            git(root, "-c", "user.name=Test", "-c",
+                "user.email=test@example.com", "tag", "-a", "-m",
+                "the move", "the-move")
+            rel = "openspec/changes/change-s/proposal.md"
+            former = "openspec/changes/change-r/proposal.md"
+            for spelling in (head, head[:12], "HEAD", "the-move"):
+                with self.subTest(revision=spelling):
+                    self.assertEqual(
+                        support.renamed_from(root, spelling, rel), former)
+                    self.assertEqual(
+                        support.ratified_under_a_former_path(
+                            root, spelling, rel), former)
+            # a revision that resolves to nothing answers None rather than
+            # raising — an unreadable history already behaved that way
+            self.assertIsNone(
+                support.renamed_from(root, "no-such-revision", rel))
+
+    def test_a_git_config_cannot_switch_the_guard_off(self):
+        """NO GIT CONFIG SWITCHES THE GUARD OFF. Rename detection is
+        configurable — `diff.renames=false`, `diff.renameLimit=1` — and a
+        guard that read the pairing from a plain diff could be turned off,
+        with the #833 defect back, from outside the repository's own rules.
+        The gate's arms are not configurable by design (#690: no bypass
+        flag), so neither is this one: `--follow` FORCES detection, which is
+        the mechanism rather than the explicit `--find-renames` beside it
+        (dropping that flag breaks nothing — measured). So this asserts the
+        PROPERTY over the hostile config, set in the fixture's own
+        `.git/config`, and not the flag."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            git(root, "config", "diff.renames", "false")
+            git(root, "config", "diff.renameLimit", "1")
+            self.rename(root, "change-r", "change-s")
+            with self.assertRaisesRegex(support.OriginRetentionError,
+                                        "origin-retention-path-moved"):
+                support.ratifying_commit(root, "change-s")
+
+    @unittest.skipUnless((REPO_ROOT / ".git").exists(),
+                         "no git history for this checkout")
+    def test_the_guard_refuses_nothing_on_this_repository_today(self):
+        """THE GUARD IS A NO-OP ON THE LAWFUL CORPUS, measured rather than
+        asserted: every active change resolves the baseline it resolved
+        before the guard existed. NO COUNT IS WRITTEN DOWN, because the
+        corpus gains and loses packets with every landing and a number here
+        is stale by the next one — the invariant is zero refusals over
+        WHATEVER is active, one subtest per change, and the same sweep run by
+        hand over the active AND archived packets (comparing each resolved
+        baseline against the pre-guard module's) found zero refusals and zero
+        baselines moved. A refusal appearing here means a ratified change has
+        been renamed — which is the act this gate exists to stop, not a
+        defect in it."""
+        active = REPO_ROOT / "openspec" / "changes"
+        resolved = []
+        for directory in sorted(active.iterdir()):
+            if not directory.is_dir() or directory.name == "archive":
+                continue
+            with self.subTest(change=directory.name):
+                resolved.append(
+                    support.ratifying_commit(REPO_ROOT, directory.name))
+        # ANTI-VACUITY, both halves: the sweep saw changes at all, and it saw
+        # RATIFIED ones — a corpus of drafts alone would never reach the
+        # guard, and "nothing refused" would then mean "nothing was asked".
+        self.assertTrue(resolved)
+        self.assertTrue([sha for sha in resolved if sha is not None])
+
+    # ----------------------------------------------------------------
+    # THE EXPLICIT DISPOSITION THE REQUIREMENT PROMISES (issue #745)
+    #
+    # `release-realization` § "Origin retention at archive" ends its mutation
+    # scenario with "restoring or accepting the mutation is a contested-class
+    # act requiring an explicit disposition". Until the record below existed,
+    # the gate could read the RESTORING half and nothing else: an owner's
+    # ACCEPTED mutation and an unnoticed edit produced the identical refusal.
+    # Measured rather than argued — codeXfactory/codexFactory #318 recorded
+    # Brett Heap's "accept the mutation, this lane re-runs the archives" over
+    # `add-floor-regeneration-automation` (ratifying commit ec286270b10f,
+    # mutating commit 76758a1b, `changed keys: approved_by`, a tense-only
+    # rewording fourteen minutes later in the same pull request) and the
+    # re-run refused byte-identically.
+    #
+    # EVERY CONTROL BELOW MEASURES. The record is written into a real tree,
+    # the commits it names are real commits in a real history, and each
+    # assertion is on what the gate DOES — the archive proceeding, or refusing
+    # while naming what did not match — rather than on what its prose says it
+    # will do.
+    # ----------------------------------------------------------------
+
+    WORD = "accept the mutation, this lane re-runs the archives"
+    CITED_TO = ("https://github.com/codeXfactory/codexFactory/issues/232"
+                "#issuecomment-5610686281")
+
+    def sha(self, root: Path, revision: str = "HEAD") -> str:
+        return subprocess.run(
+            ["git", "-C", str(root), "rev-parse", revision],
+            check=True, capture_output=True, text=True).stdout.strip()
+
+    def record_text(self, *entries: dict, schema_version: object = 1,
+                    kind: str = "origin_dispositions") -> str:
+        """The record AS AN OPERATOR WRITES IT — literal YAML, so these tests
+        pin the ON-DISK SHAPE rather than a dumper's opinion of it, and every
+        entry scalar is quoted (the rule
+        `tests/sequenced_after/archive-date-dispositions.yaml` settled on)."""
+        rows = [f"schema_version: {schema_version}", f"kind: {kind}", "",
+                "dispositions:"]
+        for entry in entries:
+            first = True
+            for key, value in entry.items():
+                if isinstance(value, list):
+                    rendered = "[" + ", ".join(f'"{item}"'
+                                               for item in value) + "]"
+                elif isinstance(value, str):
+                    rendered = '"' + value.replace('"', '\\"') + '"'
+                else:  # a deliberately UNQUOTED scalar, for the trap test
+                    rendered = str(value)
+                rows.append(("  - " if first else "    ")
+                            + f"{key}: {rendered}")
+                first = False
+        return "\n".join(rows) + "\n"
+
+    def write_record(self, root: Path, *entries: dict, text: str | None = None,
+                     rel: str = "openspec/origin-dispositions.yaml",
+                     **header) -> Path:
+        path = root.joinpath(*rel.split("/"))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            self.record_text(*entries, **header) if text is None else text,
+            encoding="utf-8")
+        return path
+
+    def accept_entry(self, change: str, ratified_at: str, mutation_at: str,
+                     changed_keys: tuple = ("approved_by",),
+                     **overrides) -> dict:
+        """A VALID entry, and the one thing each negative control changes.
+
+        A value of `None` passed through `**overrides` DELETES that key; a
+        key this builder takes as a named parameter is removed with `pop`
+        instead (the missing-field control below)."""
+        entry = {
+            "change_id": change,
+            "ratified_at": ratified_at,
+            "mutation_at": mutation_at,
+            "changed_keys": list(changed_keys),
+            "disposition": "accept",
+            "disposed_by": "Brett Heap",
+            "disposed_on": "2026-09-10",
+            "word": self.WORD,
+            "cited_to": self.CITED_TO,
+        }
+        entry.update(overrides)
+        return {key: value for key, value in entry.items() if value is not None}
+
+    def mutated_packet(self, root: Path,
+                       origin: str | None = None,
+                       old: str = "quoting the ratified prose",
+                       new: str = "quoting the corrected prose",
+                       **kwargs) -> tuple[Path, str, str]:
+        """A ratified packet whose origin was edited AFTER ratification and
+        COMMITTED — the #318 shape, reduced.
+
+        Returns (packet directory, ratifying commit, mutating commit), both
+        full object names, which is what the record must carry.
+        """
+        directory = self.packet(
+            root, origin=self.ORIGIN if origin is None else origin, **kwargs)
+        ratified_at = self.sha(root)
+        self.mutate(directory, old, new)
+        commit_all(root, "reword the origin after ratification")
+        return directory, ratified_at, self.sha(root)
+
+    def refusal(self, root: Path, directory: Path,
+                change: str = "change-r") -> str:
+        errors = support.origin_retention_errors(root, directory,
+                                                 change=change)
+        self.assertTrue(errors, "expected a refusal, got none")
+        return "\n".join(errors)
+
+    def test_an_accepted_disposition_moves_the_baseline_and_archives(self):
+        """THE WHOLE CHANNEL, END TO END. Without the record the archive dies
+        on the origin-retention gate; with it, the SAME call gets past that
+        gate and dies on the next one — which is the shape #318 measured by
+        hand when it restored the bytes in a throwaway worktree."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            (directory / "tasks.md").write_text(
+                "## 1. Work\n\n- [ ] 1.1 Archive this change\n",
+                encoding="utf-8")
+
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(root, "change-r", "2026-09-05",
+                                       False, True)
+
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            commit_all(root, "record the owner's acceptance")
+
+            with mock.patch("builtins.print") as printed:
+                self.assertEqual(
+                    support.origin_retention_errors(root, directory), [])
+            said = "\n".join(str(call.args[0])
+                             for call in printed.call_args_list)
+            # THE ACCEPTANCE IS ANNOUNCED, never silent
+            self.assertIn("ORIGIN DISPOSITION ACCEPTED change-r", said)
+            self.assertIn(mutation_at[:12], said)
+            self.assertIn("Brett Heap", said)
+            self.assertIn(self.WORD, said)
+            self.assertIn(self.CITED_TO, said)
+            self.assertIn("ORIGIN RETAINED change-r", said)
+
+            # …and the archive now reaches the NEXT gate, which is the proof
+            # that it got past this one
+            with self.assertRaises(support.SupportError) as caught:
+                support.archive_change(root, "change-r", "2026-09-05",
+                                       False, True)
+            self.assertNotIsInstance(caught.exception,
+                                     support.OriginRetentionError)
+            self.assertIn("incomplete tasks", str(caught.exception))
+
+    def test_the_318_tense_only_approved_by_case_archives_with_the_record(self):
+        """THE LIVE CASE, with #318's own bytes. The mutation is the TENSE of
+        one sentence inside the `approved_by` folded scalar — who approved,
+        when, the verbatim word and what the word authorized are all
+        unchanged — and it landed fourteen minutes after the ratification in
+        the same pull request. `changed keys: approved_by`, and nothing else
+        moved."""
+        was = (
+            "origin:\n"
+            "  kind: ad_hoc\n"
+            "  id: codexfactory:adhoc:2026-09-06-floor-regeneration-automation\n"
+            "  reason: the floor regeneration lane is proposed as an ad-hoc\n"
+            "  approved_by: >-\n"
+            "    Brett Heap, 2026-09-06 — AUTHORITY TO AUTHOR, NOT A\n"
+            "    RATIFICATION OF CONTENT. The packet remains Status: draft, it\n"
+            "    carries no ratification citation, and none is owed.\n"
+            "  approved_on: '2026-09-06'\n"
+        )
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(
+                root, origin=was,
+                old="The packet remains Status: draft, it",
+                new="At the time this field was written the packet WAS\n"
+                    "    Status: draft, it")
+
+            refused = self.refusal(root, directory)
+            self.assertIn("changed keys: approved_by", refused)
+
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at,
+                fact="the TENSE of one sentence was rewritten so it reads "
+                     "coherently beside the ratification paragraph appended "
+                     "in the same pull request; kind/id/reason/approved_on "
+                     "and the substance of approved_by are unchanged"))
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+
+    def test_with_no_record_the_refusal_names_the_channel_and_its_fields(self):
+        """THE REFUSAL MUST ROUTE THE READER. #318 held a recorded acceptance
+        and the gate's last word was "this gate has no bypass flag", which is
+        true and told that operator nothing they could act on."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, _mutation = self.mutated_packet(root)
+            refused = self.refusal(root, directory)
+            self.assertIn("contested-class act", refused)
+            self.assertIn("no bypass flag", refused)
+            # the PATH, in the root the gate was given
+            self.assertIn(str(support.origin_dispositions_path(root)),
+                          refused)
+            self.assertIn("schema_version: 1", refused)
+            self.assertIn("kind: origin_dispositions", refused)
+            # every field an entry must carry
+            for field in support.ORIGIN_DISPOSITION_KEYS:
+                self.assertIn(field, refused)
+            # …and this change's own ratifying commit, IN FULL, so the entry
+            # can be written straight out of the refusal
+            self.assertIn(ratified_at, refused)
+            # BOTH repairs are named, not only the record
+            self.assertIn("RESTORE", refused)
+
+    def test_the_record_is_read_from_the_root_the_gate_was_given(self):
+        """THE CONSUMER PROPERTY. This script runs as
+        `$OPENXFACTORY_ROOT/scripts/proposal-support.py <consumer-root>
+        archive <id>`, so the record must be the CONSUMER's — read from the
+        root argument and not from wherever the script itself lives."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            entry = self.accept_entry("change-r", ratified_at, mutation_at)
+            self.assertEqual(
+                support.origin_dispositions_path(root),
+                root.resolve() / "openspec" / "origin-dispositions.yaml")
+            # the right record in the WRONG place changes nothing
+            self.write_record(root, entry, rel="origin-dispositions.yaml")
+            self.assertTrue(support.origin_retention_errors(root, directory))
+            # …and in the right place it is read
+            self.write_record(root, entry)
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+
+    def test_a_record_for_another_change_id_is_ignored(self):
+        """An entry disposing SOME OTHER change is not this change's record,
+        and is not validated either — one change's bad entry must never block
+        another change's archive."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-z", ratified_at, mutation_at, word=None))
+            refused = self.refusal(root, directory)
+            self.assertIn("no bypass flag", refused)
+            # the OTHER change's entry is not reported as a defect of this one
+            self.assertNotIn("origin disposition:", refused)
+            self.assertNotIn("change-z", refused)
+
+    def test_an_accepted_mutation_does_not_license_the_next_one(self):
+        """ANTI-VACUITY, AND THE REASON THIS IS NOT A BYPASS. An acceptance
+        MOVES the baseline to the accepted declaration; it does not switch the
+        comparison off. A second, undispositioned edit on top of an accepted
+        one refuses exactly as the first one did.
+
+        AND THE REFUSAL SUBTRACTS FOR THE OPERATOR (Copilot, round 2 on PR
+        #891). The headline finding compares the tree to the RATIFICATION and
+        so names the UNION — the accepted key and the new one — because the
+        baseline does not move on a record whose predicate failed. The
+        record's own finding names the difference that is actually
+        undispositioned, and diffs against the accepted declaration rather
+        than against the ratified one."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+            self.mutate(directory, "  approved_on: '2026-09-05'",
+                        "  approved_on: '2026-09-08'")
+            refused = self.refusal(root, directory)
+            self.assertIn("SECOND, undispositioned mutation", refused)
+            self.assertIn(mutation_at[:12], refused)
+            self.assertIn("-  approved_on: '2026-09-05'", refused)
+            self.assertIn("+  approved_on: '2026-09-08'", refused)
+            # the SUBTRACTION: only the undispositioned key, and the headline
+            # above it still names the union it measured against ratification
+            self.assertIn(
+                "keys moved BEYOND the accepted declaration: approved_on",
+                refused)
+            self.assertIn("changed keys: approved_by, approved_on", refused)
+
+    def test_a_record_naming_a_mutation_that_is_not_a_commit_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, _mutation = self.mutated_packet(root)
+            absent = "0" * 40
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, absent))
+            refused = self.refusal(root, directory)
+            self.assertIn("not a commit in this repository", refused)
+            self.assertIn(absent[:12], refused)
+
+    def test_a_record_whose_mutation_precedes_the_ratification_refuses(self):
+        """A POST-ratification mutation is one that comes AFTER it. An entry
+        naming an earlier commit is disposing something else."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, _mutation = self.mutated_packet(root)
+            creation = self.sha(root, f"{ratified_at}^")
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, creation))
+            refused = self.refusal(root, directory)
+            self.assertIn("does not DESCEND from the ratifying commit",
+                          refused)
+
+    def test_a_record_whose_ratified_at_is_not_the_ratifying_commit_refuses(self):
+        """The gate resolves the ratifying commit from HISTORY and does not
+        take the entry's word for it: an entry naming some other baseline
+        disposes a mutation of that baseline, not of this one."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            wrong = self.sha(root, f"{ratified_at}^")
+            self.write_record(root, self.accept_entry(
+                "change-r", wrong, mutation_at))
+            refused = self.refusal(root, directory)
+            self.assertIn("some other baseline", refused)
+            self.assertIn(ratified_at[:12], refused)
+            self.assertIn(wrong[:12], refused)
+
+    def test_a_record_declaring_an_extra_changed_key_refuses(self):
+        """AN ACCEPTANCE COVERS EXACTLY THE KEYS IT NAMES. A wider key set is
+        an acceptance of mutations that did not happen, and the operator who
+        writes one has not read the diff they are accepting."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at,
+                changed_keys=("approved_by", "reason")))
+            refused = self.refusal(root, directory)
+            self.assertIn("changed_keys", refused)
+            self.assertIn("['approved_by', 'reason']", refused)
+            self.assertIn("['approved_by']", refused)
+
+    def test_a_record_declaring_too_few_changed_keys_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at, changed_keys=()))
+            refused = self.refusal(root, directory)
+            self.assertIn("touches ['approved_by']", refused)
+
+    def test_a_disposition_other_than_accept_refuses(self):
+        """ONLY `accept` NEEDS A RECORD. A restoration is the BYTES: put the
+        ratified declaration back and this gate passes with nothing to read,
+        so a `restore` entry is a record of an act the tree has not
+        performed."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            for value in ("restore", "accepted", "ACCEPT", "noted"):
+                with self.subTest(disposition=value):
+                    self.write_record(root, self.accept_entry(
+                        "change-r", ratified_at, mutation_at,
+                        disposition=value))
+                    refused = self.refusal(root, directory)
+                    self.assertIn(f"`disposition` is {value!r}", refused)
+                    self.assertIn("RESTORING the ratified declaration needs "
+                                  "no record", refused)
+
+    def test_a_record_missing_a_required_field_refuses_naming_it(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            for field in support.ORIGIN_DISPOSITION_KEYS:
+                if field == "change_id":
+                    continue  # an entry without one names no change at all
+                with self.subTest(missing=field):
+                    entry = self.accept_entry(
+                        "change-r", ratified_at, mutation_at)
+                    entry.pop(field)
+                    self.write_record(root, entry)
+                    refused = self.refusal(root, directory)
+                    self.assertIn(f"is missing {field}", refused)
+
+    def test_an_unknown_key_refuses_and_the_two_near_misses_are_named(self):
+        """A KEY THIS GATE DOES NOT READ CANNOT NARROW WHAT THE ENTRY ACCEPTS,
+        so a typo is refused rather than ignored. The two near-misses are
+        named because they are real spellings ELSEWHERE in this estate — an
+        author reaching for one has picked a sibling record's word rather than
+        mistyped: `recorded_at` (every `_at` key here names a commit, and the
+        citation is `cited_to`) and `why` (`openspec-cli-pin.yaml`'s narrative
+        key, where this record follows `archive-date-dispositions.yaml`'s
+        `fact`)."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at,
+                recorded_at=self.CITED_TO, why="a tense-only rewording"))
+            refused = self.refusal(root, directory)
+            self.assertIn("unknown key(s) recorded_at, why", refused)
+            self.assertIn("spells the citation `cited_to`", refused)
+            self.assertIn("spells the narrative `fact`", refused)
+
+    def test_a_citation_may_be_a_list_and_an_uncited_entry_refuses(self):
+        """A DISPOSITION WITHOUT A CITATION IS REFUSED, NOT IGNORED — the rule
+        `openspec-cli-pin.yaml` states in those words. WHAT it points at is
+        not pattern-matched: the sibling records cite issues, pull requests,
+        spec lines and council rulings, so a list of prose citations is as
+        lawful here as one URL, and only EMPTINESS refuses."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            entry = self.accept_entry("change-r", ratified_at, mutation_at)
+
+            # the pin manifest's own shape: a LIST, and prose in it
+            entry["cited_to"] = [
+                self.CITED_TO,
+                "codeXfactory/codexFactory#318 — the ledger and both refusals",
+                "opensoft/openxFactory#745 — the channel this entry uses"]
+            self.write_record(root, entry)
+            with mock.patch("builtins.print") as printed:
+                self.assertEqual(
+                    support.origin_retention_errors(root, directory), [])
+            said = "\n".join(str(call.args[0])
+                             for call in printed.call_args_list)
+            # …and the ANNOUNCEMENT reads it out as prose, not as a Python
+            # list repr (Copilot, round 1): brackets and quotes in operator
+            # output are noise, and the three citations are one sentence
+            self.assertIn("; ".join(entry["cited_to"]), said)
+            self.assertNotIn("['" + self.CITED_TO, said)
+
+            for empty in ([], "", "   ", [self.CITED_TO, ""]):
+                with self.subTest(cited_to=empty):
+                    entry["cited_to"] = empty
+                    self.write_record(root, entry)
+                    refused = self.refusal(root, directory)
+                    self.assertIn("`cited_to` must be a non-empty string",
+                                  refused)
+
+    def test_an_abbreviated_object_name_refuses(self):
+        """A citation is a FULL object name; an abbreviation is ambiguous by
+        construction — the rule `archive-date-dispositions.yaml` states."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at[:12]))
+            refused = self.refusal(root, directory)
+            self.assertIn("FULL 40-hex object name", refused)
+
+    def test_an_unquoted_date_is_refused_with_the_yaml_trap_named(self):
+        """YAML reads a bare `2026-09-10` as a DATE, which is why the sibling
+        record's header says every entry scalar is quoted."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            text = self.record_text(self.accept_entry(
+                "change-r", ratified_at, mutation_at)).replace(
+                    '"2026-09-10"', "2026-09-10")
+            self.write_record(root, text=text)
+            refused = self.refusal(root, directory)
+            self.assertIn("`disposed_on` must be a non-empty string", refused)
+            self.assertIn("quote it", refused)
+
+    def test_two_entries_for_one_change_refuse_as_ambiguous(self):
+        """ONE entry names the accepted declaration. A later accepted mutation
+        REPLACES it — moving `mutation_at` forward and widening `changed_keys`
+        to the whole diff from the ratifying commit — rather than sitting
+        beside it, because two entries make "the origin of record" a
+        question."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(
+                root,
+                self.accept_entry("change-r", ratified_at, mutation_at),
+                self.accept_entry("change-r", ratified_at, ratified_at))
+            refused = self.refusal(root, directory)
+            self.assertIn("2 entries name change-r", refused)
+            self.assertIn(mutation_at, refused)
+
+    def test_an_entry_that_disposes_nothing_refuses(self):
+        """A STALE OR VACUOUS ENTRY IS A DEFECT, the rule the sibling record
+        already states. An entry whose `mutation_at` carries the RATIFIED
+        declaration accepts nothing, and reading it as an acceptance of
+        whatever the tree happens to hold is exactly the bypass this design
+        refuses to become."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = self.sha(root)
+            (directory / "tasks.md").write_text(
+                "## 1. Work\n\n- [x] 1.1 Done\n- [x] 1.2 Also done\n",
+                encoding="utf-8")
+            commit_all(root, "touch the packet without touching its origin")
+            innocent = self.sha(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, innocent))
+            refused = self.refusal(root, directory)
+            self.assertIn("IDENTICAL to the ratified one", refused)
+            self.assertIn("disposes nothing", refused)
+
+    def test_a_malformed_record_refuses_naming_the_file(self):
+        """A file at this path that is not this record cannot be read as an
+        empty one: "no dispositions" and "the wrong file" are different
+        answers, and only one of them is the operator's to fix."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            entry = self.accept_entry("change-r", ratified_at, mutation_at)
+            cases = {
+                "cannot be read": "dispositions: [ unclosed\n",
+                "`schema_version` is 2": self.record_text(
+                    entry, schema_version=2),
+                "`kind` is 'archive_date_dispositions'": self.record_text(
+                    entry, kind="archive_date_dispositions"),
+                "`dispositions` must be a list":
+                    "schema_version: 1\nkind: origin_dispositions\n"
+                    "dispositions: {}\n",
+                "must be a mapping": "- just a list\n",
+            }
+            for expected, text in cases.items():
+                with self.subTest(record=expected):
+                    self.write_record(root, text=text)
+                    refused = self.refusal(root, directory)
+                    self.assertIn("openspec/origin-dispositions.yaml",
+                                  refused)
+                    self.assertIn(expected, refused)
+
+    def test_the_support_manifest_is_measured_against_the_accepted_origin(self):
+        """THE SECOND COPY MOVES WITH THE BASELINE. The manifest arm compares
+        the support manifest's repeated origin fields against the declaration
+        of record; once a mutation is accepted, that declaration is the
+        ACCEPTED one — comparing to the superseded ratified declaration would
+        refuse a manifest that is correct, and not comparing at all would drop
+        an arm the requirement names."""
+        accepted_id = "fixture:staging:topic-s"
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            manifest = {"format_version": 1, "files": [],
+                        "origin": {"kind": "staged",
+                                   "id": "fixture:staging:topic-r",
+                                   "path": "ideation/staging/topic-r"}}
+            directory, ratified_at, mutation_at = self.mutated_packet(
+                root, origin=self.STAGED_ORIGIN, manifest=manifest,
+                old="fixture:staging:topic-r", new=accepted_id)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at, changed_keys=("id",)))
+
+            # the manifest still repeats the SUPERSEDED id: refused, and the
+            # finding names the accepted declaration as what it must match
+            refused = self.refusal(root, directory)
+            self.assertIn("support manifest origin `id`", refused)
+            self.assertIn(f"the ACCEPTED declaration at {mutation_at[:12]}",
+                          refused)
+            self.assertIn(repr(accepted_id), refused)
+
+            manifest_path = directory / "supporting-docs" / "manifest.yaml"
+            manifest_path.write_text(
+                manifest_path.read_text(encoding="utf-8").replace(
+                    "fixture:staging:topic-r", accepted_id),
+                encoding="utf-8")
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+
+    def test_the_archive_help_names_the_disposition_channel(self):
+        """THE HELP SURFACE ROUTES THE READER TOO. An operator holding the
+        owner's acceptance found nothing on this surface and nothing in the
+        refusal but "no bypass flag" (codeXfactory/codexFactory #318), so the
+        subcommand's own help now names BOTH repairs and the record. It names
+        no flag — the sibling test below reads this same text."""
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), ".", "archive", "--help"],
+            capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ORIGIN RETENTION", result.stdout)
+        self.assertIn("RESTORE", result.stdout)
+        self.assertIn("ACCEPT", result.stdout)
+        self.assertIn(support.ORIGIN_DISPOSITIONS_REL, result.stdout)
+        self.assertIn("There\nis no flag for it.", result.stdout)
 
     def test_the_archive_subcommand_offers_no_bypass_flag(self):
         """The requirement's own scenario makes accepting a mutation a

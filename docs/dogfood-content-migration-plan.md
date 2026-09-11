@@ -2,7 +2,7 @@
 
 Status: draft
 
-This plan defines how `openxFactory` remains domain-neutral while engineering-specific workflow content moves to `opensoft/codexFactory`.
+This plan defines how `openxFactory` remains domain-neutral while engineering-specific workflow content moves to `codeXfactory/codexFactory`.
 
 ## Principle
 

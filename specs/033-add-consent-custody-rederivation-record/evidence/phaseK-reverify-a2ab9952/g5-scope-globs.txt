@@ -1,0 +1,2 @@
+scope_globs validation passed (all active changes conform).
+rc=0

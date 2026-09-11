@@ -1,0 +1,4 @@
+$ python3 scripts/validate-contract-release.py verify-commit --commit 6301e00a976a582bba78bc5512579eef5fe96525   # the NEW branch tip, under main's NEW scripts
+release verify-commit: pass
+  inventory=contracts/releases/contract-v3.6.digests.yaml
+rc=0

@@ -108,7 +108,7 @@
 #
 # WHY THIS IS NOT A THIN CALLER OF `review-lane-reusable.yml`. The obvious-looking
 # precedent — xFactory's `.github/workflows/review-lane.yml`, which is
-# `uses: opensoft/codexFactory/.github/workflows/review-lane-reusable.yml@<sha>`
+# `uses: codeXfactory/codexFactory/.github/workflows/review-lane-reusable.yml@<sha>`
 # — is the WRONG precedent for this goal, and the reason is recorded so nobody
 # re-derives it:
 #   * that reusable workflow produces a substantive review artifact and a
@@ -475,7 +475,7 @@ jobs:
       # TWO CANDIDATE IDENTITIES, tried in this order, because the cheap one may
       # already work. `OPENXFACTORY_APP_*` is this repository's OWN content App
       # and is present today; if its installation can read
-      # `opensoft/codexFactory`, this lane runs with no org-level change at all.
+      # `codeXfactory/codexFactory`, this lane runs with no org-level change at all.
       # `XFACTORY_APP_*` is the org App xFactory's caller uses to read the core;
       # it is visibility-`selected` and openxFactory is NOT in its list today.
       HAS_REPO_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' && secrets.OPENXFACTORY_APP_ID != '' }}
@@ -492,7 +492,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "4b12ba83add713666a94129fc45552d8989f8488"
+      PINNED_CORE_COMMIT: "b594ef2ad86ebdefffc497c571c8a84044f6ec10"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -515,7 +515,7 @@ jobs:
           {
             echo "### merge-master-approval — FAILED (no decision-core read credential)"
             echo
-            echo "This advisory lane must read \`opensoft/codexFactory\` at"
+            echo "This advisory lane must read \`codeXfactory/codexFactory\` at"
             echo "\`${PINNED_CORE_COMMIT}\` to obtain the decision core. That"
             echo "repository is private, so the default \`GITHUB_TOKEN\` cannot"
             echo "read it, and NEITHER candidate identity is available here."
@@ -524,7 +524,7 @@ jobs:
             echo
             echo "1. \`secrets.OPENXFACTORY_APP_ID\` + \`secrets.OPENXFACTORY_APP_PRIVATE_KEY\`"
             echo "   exist on this repository already — install that App on"
-            echo "   \`opensoft/codexFactory\` (read-only Contents) and this lane"
+            echo "   \`codeXfactory/codexFactory\` (read-only Contents) and this lane"
             echo "   needs no org-level change."
             echo "2. Add \`opensoft/openxFactory\` to the \`selected\` repository"
             echo "   list for the org secrets \`XFACTORY_APP_ID\` and"
@@ -535,13 +535,25 @@ jobs:
             echo "purpose: a green run that read no core would manufacture the"
             echo "appearance of a review that did not happen."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::error title=merge-master-approval::No decision-core read credential on opensoft/openxFactory. Grant OPENXFACTORY_APP_* access to opensoft/codexFactory, or add this repository to the selected list for XFACTORY_APP_ID / XFACTORY_APP_PRIVATE_KEY. Advisory check: this blocks no merge."
+          echo "::error title=merge-master-approval::No decision-core read credential on opensoft/openxFactory. Grant OPENXFACTORY_APP_* access to codeXfactory/codexFactory, or add this repository to the selected list for XFACTORY_APP_ID / XFACTORY_APP_PRIVATE_KEY. Advisory check: this blocks no merge."
           exit 1
 
       # ---- 2. Mint the read token -------------------------------------------
       # `continue-on-error` on both mints: an App that exists but cannot see
       # codexFactory must produce the NAMED checkout failure in step 4, not an
       # opaque action failure here.
+      #
+      # `owner: codeXfactory`, NOT `github.repository_owner`. The decision core
+      # moved organizations, and `actions/create-github-app-token` resolves the
+      # installation from `owner:` (`GET /orgs/<owner>/installation`): the token
+      # it returns reaches only THAT installation's repositories. Transfer step
+      # 1.6 creates a SECOND, SEPARATE installation on `codeXfactory`; it does
+      # not widen the `opensoft` one. `github.repository_owner` is `opensoft`
+      # here (this workflow runs in openxFactory), so leaving it would mint a
+      # token that cannot see the core however Phase 1 goes — the checkout in
+      # step 4 would fail for a credential reason while naming a repository
+      # reason. `repositories: codexFactory` keeps each token narrowed to the
+      # one repository it reads.
       - name: Mint content-App token (this repository's App)
         id: repo-token
         if: steps.preflight.outputs.identity == 'repo'
@@ -550,7 +562,7 @@ jobs:
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
 
       - name: Mint content-App token (the org App)
@@ -561,7 +573,7 @@ jobs:
         with:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: codeXfactory
           repositories: codexFactory
 
       # ---- 3. The base tree, never the pull-request head --------------------
@@ -601,13 +613,13 @@ jobs:
       # byte-identical to `PINNED_CORE_COMMIT` above and to `core_commit` in
       # `contracts/review-lane-pin.yaml`; the test asserts all three agree and
       # step 5 re-asserts it at run time.
-      - name: Checkout decision core (opensoft/codexFactory, pinned)
+      - name: Checkout decision core (codeXfactory/codexFactory, pinned)
         id: core
         continue-on-error: true
         uses: actions/checkout@v4
         with:
-          repository: opensoft/codexFactory
-          ref: "4b12ba83add713666a94129fc45552d8989f8488"
+          repository: codeXfactory/codexFactory
+          ref: "b594ef2ad86ebdefffc497c571c8a84044f6ec10"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
@@ -619,20 +631,20 @@ jobs:
           {
             echo "### merge-master-approval — FAILED (decision core unreadable)"
             echo
-            echo "Could not check out \`opensoft/codexFactory\` at"
+            echo "Could not check out \`codeXfactory/codexFactory\` at"
             echo "\`${PINNED_CORE_COMMIT}\`. The credential resolved by the"
             echo "preflight (\`${IDENTITY}\`) exists but could not read that"
             echo "repository at that commit."
             echo
             echo "Likely causes, in order: the App is not installed on"
-            echo "\`opensoft/codexFactory\`; the installation grants no Contents"
+            echo "\`codeXfactory/codexFactory\`; the installation grants no Contents"
             echo "read; or the pinned commit is not reachable there (force-push"
             echo "or a rewritten history)."
             echo
             echo "Nothing was evaluated and nothing was approved. This check is"
             echo "ADVISORY and blocks no merge."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::error title=merge-master-approval::Decision core unreadable — opensoft/codexFactory@${PINNED_CORE_COMMIT} could not be checked out with the ${IDENTITY} identity. Advisory check: this blocks no merge."
+          echo "::error title=merge-master-approval::Decision core unreadable — codeXfactory/codexFactory@${PINNED_CORE_COMMIT} could not be checked out with the ${IDENTITY} identity. Advisory check: this blocks no merge."
           exit 1
         env:
           IDENTITY: ${{ steps.preflight.outputs.identity }}
@@ -976,11 +988,23 @@ jobs:
           # approve — but a full park, and a park nobody would connect to
           # another repository's tidy-up.
           #
-          # THE PIN IS STILL PRE-RELOCATION (`4b12ba83`), where `floor/` DOES
-          # NOT EXIST — measured 2026-09-09: `HTTP 404` at that commit, and the
-          # document is under `scripts/merge_master/` there. So the selection
-          # below takes the declared directories that this checkout actually
-          # has, and both pins evaluate identically.
+          # THE PIN WAS PRE-RELOCATION (`4b12ba83`) WHEN THIS LIST WAS WRITTEN,
+          # where `floor/` DOES NOT EXIST — measured 2026-09-09: `HTTP 404` at
+          # that commit, and the document is under `scripts/merge_master/`
+          # there. So the selection below takes the declared directories that
+          # this checkout actually has, and both pins evaluate identically.
+          #
+          # THE PIN HAS SINCE ADVANCED PAST THE RELOCATION (2026-09-10,
+          # `b594ef2a`, `relocate-review-authority-floor-mirror` box 4.2), so
+          # TODAY IT IS `floor/` THAT RESOLVES AND `scripts/merge_master/` THAT
+          # HOLDS NO FLOOR — the mirror image of the measurement above,
+          # measured the same way at the same time: `floor/…` at `b594ef2a` is
+          # 15556 bytes and `scripts/merge_master/…` there is `HTTP 404`. Both
+          # entries stay and NEITHER is dead weight: the tolerance now covers
+          # the OTHER direction, and it is what would let a future re-point onto
+          # a pre-relocation core evaluate without an edit here. This is the
+          # step § 7.1 of the packet's design repaired ahead of exactly this
+          # advance, which is why the advance changed no line in this block.
           #
           # READING BOTH IS ALSO STRICTER THAN READING EITHER: the pinned core's
           # own loader refuses when two documents declare one repository, so a
@@ -1292,7 +1316,7 @@ jobs:
             echo "| | |"
             echo "|---|---|"
             echo "| candidate | #${PR_NUMBER} @ \`${HEAD_SHA}\` |"
-            echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
+            echo "| decision core | \`codeXfactory/codexFactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
             echo "| floor | \`$(jq -r '.floor_id' floor.json)\` for \`$(jq -r '.repository' floor.json)\` |"
             echo "| changed paths judged | $(jq -r '.changed_path_count' floor.json) |"
             echo "| floor entries | $(jq -r '.never_clearable_paths | length' floor.json) |"
@@ -1716,7 +1740,7 @@ jobs:
             echo "| failed condition | \`${FAILED:-none}\` |"
             echo "| reason | ${REASON} |"
             echo "| envelope | \`${CONFIG}\` on the base branch |"
-            echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` |"
+            echo "| decision core | \`codeXfactory/codexFactory@${PINNED_CORE_COMMIT}\` |"
             echo "| repository gate floor | \`${FLOOR_MATCHED}\` never-clearable path(s) touched |"
             echo
             if [ "$DECISION" = "approve" ] && [ "${HAS_MERGE_MASTER_APP}" != "true" ]; then

@@ -1,0 +1,5 @@
+$ python3 scripts/validate-contract-release.py build --tag contract-v3.6 --output contracts/releases/contract-v3.6.digests.yaml
+  bundle_tag=contract-v3.6
+  entries=283
+  output=contracts/releases/contract-v3.6.digests.yaml
+rc=0

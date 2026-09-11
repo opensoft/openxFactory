@@ -54,7 +54,6 @@ from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 from ideation_dashboard.serve_wire import (  # noqa: E402
     HOSTED_SESSION_REFUSAL,
     JSON_CTYPE,
-    hosted_ref_refused,
 )
 
 SNAPSHOT_INDEX_ROUTE = "/snapshot-index.json"
@@ -138,6 +137,62 @@ def hosted_index(document: dict) -> dict:
         else:
             projected.pop("aggregates", None)
     return projected
+
+
+# ------------------------ hosted-plane ref confinement (pure) -------------------------
+# RE-HOMED HERE, byte for byte, by pre-carve split OQ-B B-2 of
+# `split-opendox-two-layer-product` § 3.1, out of `serve_wire.py:1359-1393`,
+# on Brett Heap's ruling of 2026-09-09 (`#656`, "rule B-2 (i')").
+# The same reasoning S-3 recorded for `hosted_index` above, one name along,
+# and this one also removes an IMPORT EDGE rather than only a mixed file:
+# `serve_openxfactory_lanes.py` is openxFactory's own adapter column and
+# STAYS, and it read this predicate from the wire module, which goes WHOLE
+# to openDox — the direction RULING OQ-2 forbids. A neutral home was not
+# available either: the body reaches `snapshot_registry.is_publishable_ref`,
+# and `snapshot_registry` is the openXdox column, so a module replicated at
+# every destination could not resolve it (`tests/doc-health/
+# test_import_direction.py` asserts that property by parsing). Here it costs
+# nothing: this module ALREADY imports `snapshot_registry`, already holds
+# `hosted_index`, is already in the serve surface `conftest.py` scans, and
+# already holds three of the predicate's four call sites.
+# Nothing changed but the address: the body below is the same text, byte for
+# byte, `registry_mod` is the alias this module already had, and `serve.py`
+# re-exports the name from here instead.
+def hosted_ref_refused(loopback: bool, ref: str | None) -> bool:
+    """Whether a request naming `ref` must be REFUSED because this is the hosted
+    plane (007-workbench-branch-sessions T083, FR-048).
+
+    FR-048: "The hosted dashboard MUST expose NONE of this capability — no session,
+    no branch-ref selection, no session verb, no worktree, no non-`main` snapshot —
+    and a hosted request naming a non-`main` ref MUST refuse."
+
+    The test is the BIND, not the advertised capability. A capability dict is a
+    startup verdict a handler could in principle be constructed with by hand; the
+    bind is what makes a plane hosted, and the confinement has to hold for any
+    handler that is not on loopback. `None` / blank means `main` (the registry's own
+    `normalize_ref` default), so every pre-existing ref-less request is untouched,
+    and the LOCAL plane is untouched entirely — confining the hosted plane must not
+    confine the plane this whole feature lives on.
+
+    Why the hosted plane cannot simply have sessions: the session's remote-write
+    identity is the invoking engineer's OWN `gh` authentication (FR-034, D22) — a
+    personal credential, which a hosted plane must never hold or borrow — and the
+    worktree a session reads through is a per-machine directory beside a real
+    checkout, which a served image does not have (research R7).
+
+    THE ARRIVAL PATH, RECORDED AND DELIBERATELY NOT BUILT (FR-048, chg 7.2). A
+    hosted session becomes possible by binding the INTENT PLANE's apply-lane ref
+    (openxFactory `add-ideation-intent-plane` §4) through the EXISTING
+    (repository, ref) seam this function guards: the intent plane's lane already
+    owns an identity that is not anybody's personal credential, and a lane ref is
+    already a (repository, ref) pair, so the session would arrive as another row in
+    the same registry — no new seam, no second write chokepoint, and the openxfactory
+    App as the ruled hosted identity (D22). That binding is a SEPARATE change with
+    its own gate: nothing in this module reaches for a lane, and this refusal is
+    where the next reader will be standing when they ask why."""
+    if loopback:
+        return False
+    return not registry_mod.is_publishable_ref(ref)
 
 
 class ProjectionRoutes:

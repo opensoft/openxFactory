@@ -1,0 +1,66 @@
+schema_version: 1
+kind: derive_possibles_run
+status: record
+run_id: derive-possibles-34555063717-1
+source_revision: b91af6eab605021118e625a013961123ac9796e2
+generated_at: '2026-09-11T00:00:00Z'
+prompt_contract_version: derive-possibles-prompt-v1
+worker_profile: derive-possibles
+generator_version: possibles-derivation-0.1.0
+register_fingerprint_read: 7517f45bdee9ace7c48aecb9ff0367cc72957d415e4f6726c6cfd5270cf3665f
+register_fingerprint_written: 480203358fe4ad47e505350df0bfb52d7da0e0980878016ffae3adcf9af6edce
+envelopes:
+- cluster_id: cl-synthesis
+  job_id: DPOSS-1f10b69f3bc3
+- cluster_id: cl-feat-request
+  job_id: DPOSS-2ec443ee59e0
+- cluster_id: cl-crystallization
+  job_id: DPOSS-e4346a128104
+- cluster_id: cl-agent-assisted-app-testing
+  job_id: DPOSS-169d5f7cbcd0
+- cluster_id: cl-worker-execution
+  job_id: DPOSS-b01d22d76b06
+- cluster_id: cl-omnigent
+  job_id: DPOSS-cec80df741c8
+- cluster_id: cl-micro-agents
+  job_id: DPOSS-f3974fccfe82
+- cluster_id: cl-omni-unattended-worker
+  job_id: DPOSS-7e843e2b2daa
+- cluster_id: cl-consent
+  job_id: DPOSS-02cf22b39015
+- cluster_id: cl-subject-hermes
+  job_id: DPOSS-fd99ba8ee97e
+proposed:
+- id: pos-derived-authority-conservation-conformance-check
+- id: pos-derived-shared-suggestion-clearance-realization-rail
+- id: pos-derived-admitted-inspected-disclosed-evidence-tier-kerne
+- id: pos-derived-cross-thread-authority-conservation-contract
+- id: pos-derived-unified-worker-economics-evaluation-framework
+- id: pos-derived-tenant-project-catalog-as-opendox-s-project-data
+- id: pos-derived-crystallization-accounting-portfolio-surface-as
+- id: pos-derived-cross-tenant-pooling-and-platform-capability-wav
+- id: pos-derived-demand-derived-product-roadmap-dashboard
+- id: pos-derived-platform-neutral-test-intent-evidence-schema-kit
+- id: pos-derived-origin-transparent-work-ledger
+- id: pos-derived-governing-policy-ratification-track
+- id: pos-derived-unified-capability-advertisement-heartbeat-for-b
+- id: pos-derived-one-short-lived-attempt-credential-model-across
+- id: pos-derived-one-signed-digest-pinned-image-pipeline-for-benc
+- id: pos-derived-crystallization-candidate-pipeline-for-stable-mi
+- id: pos-derived-neutral-omnigent-independence-and-identity-reuse
+- id: pos-derived-micro-agent-to-worker-host-execution-binding
+- id: pos-derived-unified-governed-micro-task-record-family
+- id: pos-derived-cross-lane-deterministic-pre-router
+- id: pos-derived-fragment-mined-crystallization-to-micro-agent-pi
+- id: pos-derived-cross-class-qualification-record-registry
+- id: pos-derived-attempt-authorization-record-as-a-shared-service
+- id: pos-derived-durable-owner-control-enforcement-service
+- id: pos-derived-ingest-to-recall-consent-state-bridge
+- id: pos-derived-unified-consent-tier-taxonomy-across-capability
+- id: pos-derived-fresh-evaluation-authorization-gate-as-a-shared
+- id: pos-derived-confidence-is-not-authority-governance-pattern
+- id: pos-derived-shared-bounded-episode-budget-contract
+- id: pos-derived-unified-subject-hermes-instantiation-contract
+merge_skipped: []
+skipped_clusters: []
+voided: []

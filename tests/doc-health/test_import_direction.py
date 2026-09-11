@@ -47,6 +47,11 @@ from import_scan import (
 
 DOC_HEALTH = REPO_ROOT / "scripts" / "doc_health"
 NEUTRAL_GUARD = REPO_ROOT / "scripts" / "output_boundary.py"
+# The SECOND neutral module (OQ-B re-plumb B-1, ruled on `#656` 2026-09-09):
+# `slug` moved out of `ideation_dashboard/workbench.py` so openxFactory's own
+# adapter (`human_seen.py`) could stop importing openDox. Same property, same
+# instrument — see `test_the_neutral_path_slug_imports_neither_package`.
+NEUTRAL_SLUG = REPO_ROOT / "scripts" / "path_slug.py"
 
 # Both spellings of the same package. `ideation_dashboard` is how every caller
 # imports it today (it resolves as a top-level name off `scripts/`), but
@@ -131,3 +136,32 @@ def test_the_neutral_guard_imports_neither_package():
         "the neutral write guard must depend on NEITHER package — it is the "
         "module both of them import, and it travels to openDox with the carve "
         f"(design D2). Offending imports: {offenders}")
+
+
+def test_the_neutral_path_slug_imports_neither_package():
+    """`path_slug` is neutral for the same reason `output_boundary` is, and it
+    is proven the same way rather than asserted in its header.
+
+    It is the module the openDox column (`workbench.slug`, and through it
+    `authoring`, `gate_console`, `gate_routes`) and the openxFactory column
+    (`human_seen`) BOTH depend on, so an import of either package from inside
+    it would put back exactly the edge B-1 removed, one level down — and would
+    make the slug un-replicable when it travels to openDox, which has no notion
+    of `doc_health` at all. Like the guard above, it reaches for the standard
+    library only (`re`).
+
+    A SEPARATE test rather than a widened one: the guard's neutrality is D2's
+    claim about the write path and this one is OQ-B's claim about a filename
+    component. They are two rulings, they can be lost independently, and a
+    single looped assertion would report only the first."""
+    offenders = [
+        f"{NEUTRAL_SLUG.name}:{line} imports {module!r}"
+        for module, line in _imported_modules(NEUTRAL_SLUG)
+        if _names_a_forbidden_package(
+            module, FORBIDDEN_ROOTS + ("doc_health", "scripts.doc_health"))
+    ]
+    assert offenders == [], (
+        "the neutral path slug must depend on NEITHER package — it is the "
+        "module both columns import, and at the carve it is `not_moved` with "
+        "reason `replicated_at_destination` (RULED OQ-A/OQ-C, `#656` "
+        f"2026-09-09). Offending imports: {offenders}")
