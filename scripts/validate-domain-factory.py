@@ -243,8 +243,12 @@ def check_profiles(root: Path, kinds: list[str], rpt: Report) -> set[str]:
         if not isinstance(data, dict):
             continue
         prof = data.get("profile", data)
-        if data.get("kind") in PROFILE_ID_KEY_KINDS:
-            pid = prof.get("profile_id")
+        kind_value = data.get("kind")
+        if isinstance(kind_value, str) and kind_value in PROFILE_ID_KEY_KINDS:
+            # The identifier may sit at the document top level (flat, beside
+            # `kind:`) or nested under `profile:` alongside other fields
+            # (mixed shape) -- check both rather than assuming one.
+            pid = data.get("profile_id") or prof.get("profile_id")
             if not pid:
                 rpt.error(f"{pf.name}: profile_id missing")
                 continue

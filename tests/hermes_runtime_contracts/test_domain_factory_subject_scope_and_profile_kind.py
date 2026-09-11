@@ -199,3 +199,71 @@ def test_a_generic_profile_with_nested_id_is_unaffected(
 
     assert result.returncode == 0, result.stdout
     assert "profile.id missing" not in result.stdout
+
+
+def test_a_non_registered_kind_does_not_accept_a_flat_profile_id(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """A profile declaring a `kind:` outside PROFILE_ID_KEY_KINDS (unlike the
+    no-`kind:`-at-all case above) must still require nested `profile.id`: a
+    flat `profile_id` is not a silently-accepted alternate spelling for every
+    kind, only for the ones explicitly registered (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "kind": "some_other_profile_kind",
+            "profile_id": "should-not-count",
+            "tenant_kind": "pilot",
+        },
+    }
+    repo = _materialize(tmp_path / "unregistered-kind-flat-profile-id", _stack(),
+                        yaml_writer, profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 1, result.stdout
+    assert "ERROR: worker.yaml: profile.id missing" in result.stdout
+
+
+def test_a_cloudpc_worker_profile_with_a_mixed_nested_profile_block_still_resolves(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """`profile_id` may sit at the document top level even when a nested
+    `profile:` block also exists for other fields; the top-level value must
+    not be shadowed by the nested mapping's absence of its own `profile_id`
+    (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "kind": "cloudpc_worker_profile",
+            "profile_id": "cloudpc-worker-mixed",
+            "profile": {"tenant_kind": "pilot"},
+        },
+    }
+    repo = _materialize(tmp_path / "cloudpc-mixed-shape", _stack(), yaml_writer,
+                        profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 0, result.stdout
+    assert "profile_id missing" not in result.stdout
+
+
+def test_a_non_string_kind_is_reported_not_crashed_on(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """A malformed profile with an unhashable top-level `kind` (a list or
+    mapping) must fail the membership test safely rather than raise
+    `TypeError` and abort the whole validation run (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "kind": ["not", "a", "string"],
+            "tenant_kind": "pilot",
+        },
+    }
+    repo = _materialize(tmp_path / "non-string-kind", _stack(), yaml_writer,
+                        profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Traceback" not in result.stdout + result.stderr
+    assert "ERROR: worker.yaml: profile.id missing" in result.stdout
