@@ -338,6 +338,49 @@ def source(path: str | Path) -> Path:
     return mount / row["destination_path"]
 
 
+def module(path: str | Path):
+    """The IMPORTED module for the file that used to be at `path`.
+
+    `source()`'s answer in the import direction, and for the same readers: a
+    caller that loads a dashboard module BY NAME at runtime — `scripts/
+    sync-notebooklm-books.py`'s `_dashboard_module()` is the one this exists
+    for — had a package name baked into an f-string, and after the shed some of
+    those names live at one leg, some at the other and some still here. The
+    dotted name is DERIVED from the row instead:
+
+      * a MOVED row's `destination_path` (`src/opendox/workbench.py`) becomes
+        the dotted name the leg's `src/` makes importable (`opendox.workbench`)
+        — which is why the day a row moves between the two legs no caller
+        changes;
+      * a `not_moved` row keeps the spelling it has HERE
+        (`scripts/ideation_dashboard/intent_feed.py` → the
+        `ideation_dashboard.intent_feed` that `SCRIPTS_DIR` on the path serves);
+      * the `deleted_at_carve` row raises `ShedModuleHasNoDestination`, and a
+        path in no row raises `NotACarvedPath`, exactly as `source()` does.
+
+    `install()` is called first, so a caller gets the legs on the path and the
+    named refusals without having to remember to arrange them.
+    """
+    key = str(path).replace("\\", "/")
+    row = _rows().get(key)
+    if row is None:
+        source(key)  # raises NotACarvedPath with the sentence that explains it
+    install()
+    if row["disposition"] == "not_moved":
+        if row.get("reason") == "deleted_at_carve":
+            source(key)  # raises ShedModuleHasNoDestination
+        relative = key[len("scripts/"):] if key.startswith("scripts/") else key
+    else:
+        relative = row["destination_path"]
+        if relative.startswith("src/"):
+            relative = relative[len("src/"):]
+    if not relative.endswith(".py"):
+        raise NotACarvedPath(
+            f"{key} resolves to {relative}, which is not a Python module — "
+            f"ask `source()` for it instead.")
+    return importlib.import_module(relative[:-3].replace("/", "."))
+
+
 def sources_under(prefix: str) -> dict[str, Path]:
     """Every manifest row under `prefix`, mapped to where its file is TODAY.
 

@@ -1681,15 +1681,15 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
         sys.path.insert(0, str(scripts_dir))
     try:
         # § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): `workbench` left
-        # openxFactory at the carve. The reach install stays INSIDE this try —
-        # an uninitialized leg must present as the same additive SKIP this
-        # sweep already takes for an unavailable workbench, never as a crash
-        # in a sync that is not about the workbench at all.
-        from carved_reach import install as install_carved_reach
-        install_carved_reach()
-        from opendox import workbench as wb
+        # openxFactory at the carve, and `_dashboard_module()` below installs
+        # the reach and derives its new dotted name from the manifest row. The
+        # call stays INSIDE this try — an uninitialized leg must present as the
+        # same additive SKIP this sweep already takes for an unavailable
+        # workbench, never as a crash in a sync that is not about the workbench
+        # at all.
+        wb = _dashboard_module("workbench")
     except Exception as exc:  # sweep is additive; never break the sync
-        print(f"[workbench] orphan sweep SKIPPED (ideation_dashboard "
+        print(f"[workbench] orphan sweep SKIPPED (the OpenDox workbench "
               f"unavailable: {exc})")
         return
     root = Path(root).resolve()
@@ -1825,14 +1825,28 @@ class SessionSync:
 
 
 def _dashboard_module(name: str):
-    """Import one `ideation_dashboard` module, with `scripts/` on the path — the
-    same lazy pattern `workbench_orphan_sweep` uses."""
+    """Import one pre-shed `ideation_dashboard` module, wherever it is TODAY.
+
+    THE SHARED LOADER, NOT ONLY THE ORPHAN SWEEP (Copilot
+    `PRRT_kwDOTAvnrs6hUpt6`). The session sync and the session-target paths
+    reach `branch_session`, `session_git` and `workbench` through here, and the
+    § 5.2 shed moved all three to the pinned openDox leg — so a loader still
+    spelling `ideation_dashboard.<name>` would have met the named shed refusal
+    on ordinary session operations, not just on the sweep.
+
+    The name is asked of `carved_reach.module()`, which derives the dotted
+    spelling from the file's own manifest row: this caller keeps naming the
+    modules the way this repository has always named them and never transcribes
+    which leg any of them went to (RULED (a) / RULED Q7, `#656` comments
+    `5625573095` / `5626248666`). A module that STAYED — the adapter column —
+    resolves here, unchanged, through the same call.
+    """
     scripts_dir = Path(__file__).resolve().parent
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
-    from importlib import import_module
+    from carved_reach import module as carved_module
 
-    return import_module(f"ideation_dashboard.{name}")
+    return carved_module(f"scripts/ideation_dashboard/{name}.py")
 
 
 def session_repositories(root: Path) -> list[tuple[str, Path]]:
