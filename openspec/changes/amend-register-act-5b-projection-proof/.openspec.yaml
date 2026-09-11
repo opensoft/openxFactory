@@ -1,0 +1,110 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-amend-register-act-5b-projection-proof
+  reason: >-
+    A DISPOSITIONED CONTESTED FINDING QUEUED THIS PACKET BY NAME, AND THE
+    QUEUING IS ON THE RECORD RATHER THAN IN A SESSION. Brett Heap, multi-choice
+    ruling 2026-09-11T03:01:28Z, on the governed re-issuance of
+    `gate_rules_council`'s holder: "disposition entry now, cited change later."
+    The disposition entry is
+    `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`
+    section "## Disposition — design § D4 step 5b", landed on openxFactory main
+    by PR #951 -> 1fb6d5cdc03e1df89a7c36b4bd308f07fc7c8b77 (2026-09-11T09:54:56Z),
+    with a pointer landed in codexFactory by PR #389 ->
+    d26e8bf2582d07976dc6def9c9aaabb2eb4eaf60. That section says in terms: "a
+    narrow OpenSpec change amending `design.md` § D4 step 5b is QUEUED for after
+    this ceremony closes." The ceremony closed 2026-09-11T10:26:59Z with the
+    walk record complete at sections 1-15 on main (openxFactory PR #954 ->
+    f80ef2ecac9ef901ecee51a01d4c289862513da1). This packet is that queued
+    change and carries no other subject.
+    THE FINDING, IN ONE SENTENCE. The re-issuance procedure's projection step
+    makes an ADMITTED CONVENING its exit condition, and no convening in this
+    estate reads the register projection: the admission path resolves the
+    DOMAIN-CONTENT projection, while the REGISTER projection that carries grant
+    state is read at verdict consumption, which a lane that convenes no seat
+    never reaches. Dispatched at the wrong moment the same convening returns a
+    green admission against a projection derived before the register act - a
+    manufactured clearance that reads exactly like the proof.
+    THE LOCATION IS CORRECTED HERE RATHER THAN INHERITED, AND IT IS WHY THIS
+    PACKET IS IN openxFactory. The disposition attributes the words "verify one
+    convening admits" to codexFactory `design.md` section D4 step 5b. Measured
+    2026-09-11: step 5b as ratified states no exit test at all - it names "an
+    operator-established projection with a declared staleness bound" - and the
+    only occurrence of that phrase in the file is inside the 2026-09-11
+    annotation itself (line 463). The sentence carrying the defective exit
+    condition is openxFactory `docs/governed-reissuance-runbook.md` section 5.2
+    step 3, which is the document codexFactory's own tasks point the walker at,
+    and the walk record's section 9.3 heading repeats it. So nothing in
+    codexFactory needs amending and the sentence that does is in this
+    repository - which is also why the codexFactory home being archived
+    (draft PR #392, `git mv` into openspec/changes/archive/2026-09-11-...)
+    costs this packet nothing.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-11 and INDEX.md read: no
+    topic folder and no INDEX row names the projection step, the re-issuance
+    exit condition, the register projection or its source revision, and
+    `grep -rliE "register projection|projection step|source-revision|5b"
+    ideation/staging/` surfaces nothing that is a staging source for this work.
+    The organized source is a recorded multi-choice ruling and a landed
+    disposition section in this repository's own openspec/changes tree, which
+    is the shape ad_hoc exists for.
+    NOTHING IS REALIZED BY THIS PACKET. No requirement is promoted, no runbook
+    byte moves, no register file, grant, wallet, custody attestation, pin,
+    schema or workflow is touched, no record is appended, and every box in
+    tasks.md is unticked. The delta is `## ADDED` because `review-authority-intake`
+    has no promoted specification: both changes that author it are ACTIVE, so
+    there is no requirement to `## MODIFIED`, and tasks.md section 5 holds this
+    packet's archive behind its parents so that the capability's promoted file
+    is created by its author.
+  proposed_by: >-
+    Lane `hermes-wallet-exercise` (window `codeXfactory-2`, workstation Eagle),
+    authoring the cited change Brett Heap's disposition of 2026-09-11T03:01:28Z
+    queued by name.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. The queuing ruling
+    authorizes the AUTHORING; it ratifies no wording, resolves none of the
+    seven decisions below, and admits no text to canon. The lawful unapproved
+    shape is the one `add-drafted-proposal-origin` (issue #318) added -
+    drafting provenance, no `approved_by`, no `approved_on` - and every
+    document in the packet carries `Status: draft` to match; approval, when it
+    comes, is a pure ADDITION beside a fixed `kind` and `id`.
+    SEVEN DECISIONS ARE PUT FOR THE OWNER AS MULTIPLE CHOICE, EACH WITH A
+    RECOMMENDED OPTION AND THE ONE-LINE REASON IT IS RECOMMENDED, AND THE
+    RECOMMENDED OPTION IS WHAT THE DELTA ALREADY ENCODES. OQ-1 is the veto
+    point: what the exit condition becomes (an observed projection; a
+    gate-side check that does not exist; removal; or keeping the defective
+    wording deferred to phase 6). OQ-2 fixes how much the observation must
+    read and is the one place the landed 2026-09-11 precedent could be made
+    retroactively non-conformant. OQ-4 carries the sharpest measurement in the
+    packet - that a projection can be well inside its declared staleness bound
+    and still predate the act entirely - and decides whether the refresher
+    cycle is a stated precondition. OQ-3, OQ-5, OQ-6 and OQ-7 fix where the
+    concrete field name lives, who may perform the read, the delta class and
+    archive ordering, and the home capability.
+  proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-11T13:09:12Z,
+    verbatim: "accept all A on 960", given as a MULTIPLE-CHOICE ruling over
+    all seven decisions this packet put (OQ-1 through OQ-7 in `proposal.md`;
+    `design.md` D-1 through D-7), recorded as a comment on openxFactory PR
+    #960 and in full at `review/ratification-2026-09-11.md`. THIS IS THE
+    RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED: the drafting
+    provenance above (`kind`, `id`, `reason`, `proposed_by`, `proposed_on`)
+    is kept exactly as authored, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition —
+    approval is a pure ADDITION beside a fixed origin identity, and the
+    archive gate's origin-retention arm reads the declaration this act
+    establishes. EVERY OQ TOOK ITS RECOMMENDED OPTION, SO THE DELTA'S
+    WORDING STANDS UNCHANGED: no delta byte was re-written, restored or
+    deleted by this ratification. NOTHING IS PROMOTED BY THIS ACT: no file
+    under `openspec/specs/` is edited, `tasks.md` § 5 stays open, and
+    archive is a separate act on a separate word, held behind
+    `add-wallet-carried-review-authority` and
+    `register-gate-rules-council-seats` per OQ-6.
+  approved_on: 2026-09-11
+related:
+  - openxFactory:change:add-wallet-carried-review-authority   # ACTIVE, the ratified parent that authors `review-authority-intake` and whose task 7.6 backs `docs/governed-reissuance-runbook.md` - the document this packet amends at realization. Declared in `sequenced_after:`
+  - openxFactory:change:register-gate-rules-council-seats     # ACTIVE, the second author of `review-authority-intake` and the change whose `walk-2026-09-11-register-act.md` carries BOTH the finding (sections 13.2, 14.1) and the disposition section this packet is the cited change for. Declared in `sequenced_after:`
+  - openxFactory:change:add-sequenced-after-substrate         # the grammar the `sequenced_after:` declaration above is written under
+  - codeXfactory:change:clarify-gate-rules-decline-position   # ANOTHER REPOSITORY'S, and being archived (draft PR #392). Its `design.md` section D4 step 5b is where the disposition's pointer annotation sits. Named to record that this packet does NOT amend it and does not need to
