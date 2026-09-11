@@ -193,8 +193,8 @@ Every parent scenario's intent is kept. Nothing is silently dropped.
 - No schema member, no `active:` boolean, no repository variable, no
   environment-held value.
 - No ruleset edit and no bypass actor in any form.
-- No codexFactory byte authored by this lane — the realization is that
-  repository's lane's to author, after ratification.
+- No codexFactory byte authored by this lane — the realization is for that
+  repository's lane to author, after ratification.
 - No relaxation of any conformance assertion, and no rewrite of the pinning
   suite to read the enrolment from the envelope (alternative (B); rejected in
   `design.md` D-1, because a suite that adapts to the entry leaving no longer

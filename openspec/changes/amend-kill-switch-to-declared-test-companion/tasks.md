@@ -67,7 +67,15 @@ does not tick on a successor being named. Every box below is `- [ ]`.
 - [ ] **2.5** `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`
       resolves, `OPENSPEC_TELEMETRY=0 openspec validate
       amend-kill-switch-to-declared-test-companion --strict` is clean, and
-      `openspec validate --all --strict` is clean.
+      `openspec validate --all --strict` has its failure set UNCHANGED from
+      `main` — requiring `--all --strict` clean outright is unsatisfiable: the
+      repository's gate is per-change strict-clean plus `--all --strict` with
+      the failure set unchanged from `main`. Measured 2026-09-11 against
+      `main` at `54c166cf`: 3 pre-existing failures
+      (`change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle`,
+      `spec/repo-boundary-governance`), none of them this packet's own; this
+      branch measures the same 3 and no others.
 
 ## 3. Realization — NOT PERFORMED BY THIS PULL REQUEST; a codexFactory companion change, authored by that repository's lane after ratification
 
