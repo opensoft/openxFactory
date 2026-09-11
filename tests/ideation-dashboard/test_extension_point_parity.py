@@ -46,11 +46,15 @@ import http.server
 
 import pytest
 
-from conftest import FIXTURES, REPO_ROOT
+from conftest import FIXTURES, REPO_ROOT  # noqa: F401  (sys.path side effect)
+
+from carved_reach import source as carved_source
 
 from opendox import cli as cli_mod
 
-SERVE = REPO_ROOT / "scripts" / "ideation_dashboard" / "serve.py"
+# POST-SHED (§ 5.2, RULED (a)): `serve.py` is a moved row; this parity test is a
+# `stays_openxfactory_adapter` row that still reads the serve's SOURCE TEXT.
+SERVE = carved_source("scripts/ideation_dashboard/serve.py")
 
 #: The width the golden was taken at. `argparse` asks `shutil.get_terminal_size`,
 #: which honours `COLUMNS`, so pinning it makes the snapshot a property of the

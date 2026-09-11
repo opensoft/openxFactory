@@ -28,16 +28,27 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import REPO_ROOT, serve_surface_paths, serve_surface_source
+from conftest import (  # noqa: F401  (sys.path side effect)
+    REPO_ROOT,
+    serve_surface_paths,
+    serve_surface_source,
+)
+
+from carved_reach import source as carved_source
 from ideation_dashboard import doxbench_contracts
 from opendox import doxbench_turns
 
-RUNTIME = REPO_ROOT / "scripts" / "ideation_dashboard"
-TURNS_PY = RUNTIME / "doxbench_turns.py"
-CHAT_JS = RUNTIME / "web" / "views" / "doxbench-chat.js"
-WORKBENCH_JS = RUNTIME / "web" / "views" / "staging-workbench.js"
-SCHEMA = (REPO_ROOT / "contracts" / "schemas"
-          / "xfactory-workbench-chat-turn.schema.yaml")
+# POST-SHED (§ 5.2, RULED (a), `#656` comment `5625573095`). All four are moved
+# rows read from the pinned legs through the manifest; this test file is a
+# `stays_openxfactory_adapter` row and keeps naming the pre-shed paths, which is
+# exactly what `carved_reach.source()` answers.
+TURNS_PY = carved_source("scripts/ideation_dashboard/doxbench_turns.py")
+CHAT_JS = carved_source(
+    "scripts/ideation_dashboard/web/views/doxbench-chat.js")
+WORKBENCH_JS = carved_source(
+    "scripts/ideation_dashboard/web/views/staging-workbench.js")
+SCHEMA = carved_source(
+    "contracts/schemas/xfactory-workbench-chat-turn.schema.yaml")
 
 
 # ---------------------------------------------------------------------------
@@ -109,8 +120,8 @@ def test_a_widened_request_carrying_an_active_document_path_is_refused():
     schema read in a test and a schema read by the route are only the same thing
     if something checks."""
     request = yaml.safe_load(
-        (REPO_ROOT / "examples" / "ideation-dashboard"
-         / "workbench-chat-turn-v2-loaded-set.example.yaml")
+        carved_source("examples/ideation-dashboard"
+                      "/workbench-chat-turn-v2-loaded-set.example.yaml")
         .read_text(encoding="utf-8"))
     assert doxbench_contracts.validate_instance(request) == []
     smuggled = dict(request, active_document_path="ideation/staging/x/y.md")

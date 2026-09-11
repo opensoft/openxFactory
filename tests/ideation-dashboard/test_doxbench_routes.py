@@ -55,8 +55,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
-                      serve_surface_source)
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,  # noqa: F401
+                      dashboard_web_root, serve_surface_source)
 
 from jsonschema import Draft202012Validator
 
@@ -80,7 +80,10 @@ from opendox.doxbench_model import (
 from openxdox.doxbench_scope import ScopeKey
 from openxdox.generator import generate_snapshot
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# POST-SHED (§ 5.2, RULED (a)). The dashboard's assets moved to the openDox-code
+# leg; `dashboard_web_root()` derives the root they are AT from `index.html`'s
+# own manifest row rather than transcribing a destination path here.
+WEB = dashboard_web_root()
 
 # The route under test (T050). Referencing it at module scope is deliberate:
 # it does not exist yet, so importing this file fails closed (an
@@ -3801,8 +3804,8 @@ def test_the_no_document_sentence_names_both_the_cause_and_the_remedy(tmp_path):
     The remedy is asserted against the selector's ratified empty-state note
     rather than a literal, so the two surfaces cannot drift into naming
     different remedies for one state."""
-    empty_note = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
-                  / "views" / "doxbench-chat.js").read_text(encoding="utf-8")
+    empty_note = (WEB / "views" / "doxbench-chat.js").read_text(
+        encoding="utf-8")
     assert "use a docs tile's load verb to work on one" in empty_note, (
         "precondition: the selector's ratified empty state still names the "
         "load verb as the remedy")
