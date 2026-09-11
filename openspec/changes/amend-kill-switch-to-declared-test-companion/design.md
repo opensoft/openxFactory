@@ -206,8 +206,10 @@ declaration the checker and the specification disagree about.
 
 - **(a) LEXICAL REFUSAL FIRST, TOUCHING NO FILESYSTEM AT ALL.** The declaration
   is refused where the declared path is AN ABSOLUTE PATH, CARRIES ANY `..`
-  SEGMENT, ANY `.` SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH, OR
-  ANY NON-POSIX SEPARATOR. This stage is pure string work: it opens nothing,
+  SEGMENT, ANY `.` SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH,
+  ANY NON-POSIX SEPARATOR, ANY PATH OR SEGMENT BEGINNING WITH `-`, ANY GLOB OR
+  PATHSPEC-MAGIC CHARACTER (`*`, `?`, `[` OR `]`), OR A LEADING `:`. This stage
+  is pure string work: it opens nothing,
   stats nothing and resolves nothing, so a hostile spelling is thrown out before
   the filesystem is consulted at all.
 - **(b) THEN CONTAINMENT, WHICH MAY CONSULT METADATA BUT READS NOTHING.** Only a
@@ -226,8 +228,13 @@ AND THE OFFENDING DECLARATION.
 OUTPUT IS NOT A DECLARABLE ARTEFACT.** A `# companion-artefact:` names a RECORDED
 VALUE — the golden digest is the case in point — and a recorded value lives in
 the tree. Step 1 therefore ALSO refuses a declared path that version control does
-not TRACK at the control baseline (`git ls-files --error-unmatch <path>` in the
-hermetic scratch repository), as a conformance failure against the class. The
+not TRACK at the control baseline (`git ls-files --error-unmatch -- <path>` in
+the hermetic scratch repository, the path passed AFTER `--` and under
+`GIT_LITERAL_PATHSPECS=1`, so a pull-request-editable declaration reaches git as
+an OPERAND MATCHED LITERALLY — never an option, never a pathspec pattern; the
+lexical refusal above already rejects a leading `-`, a leading `:` and every
+glob or pathspec-magic character, and this is the second belt behind it), as a
+conformance failure against the class. The
 consequence is deliberate and is the reason the rule is stated: a tool whose
 output the repository IGNORES cannot have that output DECLARED, so the barrier's
 `git clean -fdx` can never delete a declared artefact, and an ignored path
@@ -280,15 +287,19 @@ later step consumes what an earlier step captured or committed.**
    being looked up elsewhere or executed; and APPLY D-2c's TWO-STAGE PATH REFUSAL
    to EVERY DECLARED PATH in this same step — first the LEXICAL refusal, which
    touches no filesystem at all, of an ABSOLUTE PATH, ANY `..` SEGMENT, ANY `.`
-   SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH, OR ANY NON-POSIX
-   SEPARATOR, and then, for a path that survives it, CONTAINMENT: the path
+   SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH, ANY NON-POSIX
+   SEPARATOR, ANY PATH OR SEGMENT BEGINNING WITH `-`, ANY GLOB OR
+   PATHSPEC-MAGIC CHARACTER (`*`, `?`, `[` OR `]`), OR A LEADING `:`, and then,
+   for a path that survives it, CONTAINMENT: the path
    RESOLVED, following symlinks, and the result required to lie under the
    repository root's OWN RESOLVED PATH, a stage that may consult metadata but
    DOES NOT OPEN OR READ THE ARTEFACT BEFORE CONTAINMENT HOLDS. A refusal at
    either stage happens HERE, naming the refusal class and the offending
    declaration, rather than the declaration being read or existence-checked
    outside the checkout. **AND THE DECLARED PATH MUST BE TRACKED AT THE CONTROL
-   BASELINE** — `git ls-files --error-unmatch <path>` in the hermetic scratch
+   BASELINE** — `git ls-files --error-unmatch -- <path>`, the path AFTER `--`
+   and under `GIT_LITERAL_PATHSPECS=1` so it is an operand matched literally
+   rather than an option or a pattern, in the hermetic scratch
    repository, on the pre-withdrawal tree 2a commits unchanged as that baseline
    — so AN IGNORED OR UNTRACKED PATH IS NEVER DECLARABLE: a recorded value lives
    in the tree by definition, and a declaration naming a path version control
@@ -343,9 +354,20 @@ later step consumes what an earlier step captured or committed.**
    CONTROL VARIABLE IS UNSET** — `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`,
    `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`, `GIT_ALTERNATE_OBJECT_DIRECTORIES`,
    `GIT_NAMESPACE`, `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the
-   caller happens to export — leaving ONLY the two this procedure sets itself
-   (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently `GIT_CONFIG_NOSYSTEM=1`);
-   **and EVERY git call in steps 2 and 4 NAMES ITS REPOSITORY EXPLICITLY** — an
+   caller happens to export — leaving ONLY the THREE this procedure sets itself
+   (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently `GIT_CONFIG_NOSYSTEM=1`,
+   and `GIT_LITERAL_PATHSPECS=1`).
+   **AND `GIT_LITERAL_PATHSPECS=1` BELONGS HERE BECAUSE A DECLARED PATH IS AN
+   OPERAND, NEVER A PATTERN AND NEVER AN OPTION**: every git invocation that
+   RECEIVES a declared path passes it AFTER `--` and under literal-pathspec mode
+   (equivalently the `:(literal)` magic on each pathspec) — `git ls-files
+   --error-unmatch -- <path>` for step 1's tracked-path check, and likewise any
+   status or diff call scoped by a declared path — so a filename beginning with
+   `-` cannot parse as a flag and a glob or pathspec-magic character cannot
+   match some OTHER tracked path. It is the second belt: D-2c's lexical refusal
+   already rejects those spellings, and `--` with literal pathspecs means one
+   that somehow survived could still not be re-interpreted.
+   **And EVERY git call in steps 2 and 4 NAMES ITS REPOSITORY EXPLICITLY** — an
    explicit `--git-dir`/`--work-tree` pair, or `-C <scratch>` after `git init`
    there — so that nothing inherited can redirect a commit or a measurement.
    Setting hermetic VALUES is not enough on its own: an inherited `GIT_DIR`,

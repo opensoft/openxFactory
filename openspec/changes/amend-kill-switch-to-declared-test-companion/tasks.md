@@ -191,7 +191,9 @@ codexFactory**, authored there, exactly as
       **(a) A LEXICAL REFUSAL FIRST, TOUCHING NO FILESYSTEM AT ALL**: the
       declaration is refused where the declared path is AN ABSOLUTE PATH, CARRIES
       ANY `..` SEGMENT, ANY `.` SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A
-      TRAILING SLASH, OR ANY NON-POSIX SEPARATOR; this stage opens nothing, stats
+      TRAILING SLASH, ANY NON-POSIX SEPARATOR, ANY PATH OR SEGMENT BEGINNING
+      WITH `-`, ANY GLOB OR PATHSPEC-MAGIC CHARACTER (`*`, `?`, `[` OR `]`), OR
+      A LEADING `:`; this stage opens nothing, stats
       nothing and resolves nothing, so a hostile spelling never reaches the
       filesystem at all.
       **(b) THEN CONTAINMENT, WHICH MAY CONSULT METADATA BUT READS NOTHING**:
@@ -208,8 +210,11 @@ codexFactory**, authored there, exactly as
       `# companion-artefact:` names a RECORDED VALUE, and a recorded value lives
       in the tree by definition — the golden digest is tracked — so a declared
       path that version control DOES NOT TRACK is REFUSED HERE TOO, as a
-      CONFORMANCE FAILURE AGAINST THE CLASS: `git ls-files --error-unmatch
-      <path>` issued in step 2's hermetic scratch repository on the
+      CONFORMANCE FAILURE AGAINST THE CLASS: `git ls-files --error-unmatch --
+      <path>`, the path passed AFTER `--` and under `GIT_LITERAL_PATHSPECS=1`
+      (step 2's hermetic environment) so it is an OPERAND MATCHED LITERALLY
+      rather than an option or a pathspec pattern, issued in step 2's hermetic
+      scratch repository on the
       PRE-WITHDRAWAL tree this step parsed — the tree step 2a commits UNCHANGED
       as the CONTROL BASELINE — so the refusal is decided before any withdrawal
       is applied, naming the refusal class and the offending declaration.
@@ -272,9 +277,21 @@ codexFactory**, authored there, exactly as
       `GIT_INDEX_FILE`, `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`,
       `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `GIT_NAMESPACE`,
       `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the caller happens
-      to export — leaving ONLY the two this step sets itself
+      to export — leaving ONLY the THREE this step sets itself
       (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently
-      `GIT_CONFIG_NOSYSTEM=1`); **and EVERY git call in this step and in step 4
+      `GIT_CONFIG_NOSYSTEM=1`, and `GIT_LITERAL_PATHSPECS=1`).
+      **AND `GIT_LITERAL_PATHSPECS=1` IS PART OF THAT ENVIRONMENT BECAUSE A
+      DECLARED PATH IS AN OPERAND, NEVER A PATTERN AND NEVER AN OPTION**: every
+      git invocation that RECEIVES A DECLARED PATH passes it AFTER `--` and
+      under literal-pathspec mode (equivalently the `:(literal)` magic on each
+      pathspec) — `git ls-files --error-unmatch -- <path>` for step 1's
+      tracked-path check, and likewise ANY status or diff call scoped by a
+      declared path — so a filename beginning with `-` cannot parse as a FLAG
+      and a glob or pathspec-magic character cannot match SOME OTHER tracked
+      path. This is the second belt: step 1's lexical refusal already throws
+      those spellings out, and `--` with literal pathspecs means a spelling that
+      somehow survived could still not be re-interpreted by git.
+      **And EVERY git call in this step and in step 4
       NAMES ITS REPOSITORY EXPLICITLY** — an explicit `--git-dir`/`--work-tree`
       pair, or `-C <scratch>` after `git init` there — so that nothing inherited
       can redirect a commit or a measurement. Setting hermetic VALUES is not
