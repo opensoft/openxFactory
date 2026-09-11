@@ -48,9 +48,14 @@ eighteen of this family's entries carry a `date` (2026-09-10) and a non-empty
   happens to agree.
 - The remaining **twenty-three rows are byte-identical** in severity, rule,
   action and resolution class.
-- The only other line of the report that moves is the headline that sums the
-  bands: `41 critical, 0 error, 0 warning, 0 info` → `23 critical, 0 error, 0
-  warning, 18 info`.
+- **THE WHOLE DIFF BETWEEN THE TWO REPORTS IS 74 LINES AND THEY ARE ALL THE
+  SAME EIGHTEEN FINDINGS PLUS ONE HEADLINE**, counted rather than characterised:
+  the report renders every finding TWICE — once under `## Findings By Family`
+  and once under `## Ranked Plan` — so the eighteen account for 36 lines on
+  each side, and the seventy-fourth is the headline that sums the bands,
+  `41 critical, 0 error, 0 warning, 0 info` → `23 critical, 0 error, 0 warning,
+  18 info`. No other line of either rendering differs, and the Ranked Plan
+  keeps all 41 rows: an `info` row is re-banded there, not dropped.
 - **TWO of the family's five arms are covered by the eighteen**, which is why
   the downgrade is a LAST PASS and not a branch inside one arm: **fifteen** of
   the moved rows carry the SUBJECT-arm rule (`Status: record` on a ratification

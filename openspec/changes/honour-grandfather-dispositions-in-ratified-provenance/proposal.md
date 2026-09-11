@@ -142,8 +142,11 @@ The **same 41 paths** on both sides. The eighteen that move are **exactly** the
 eighteen `family: ratified-provenance` entries the file carries — a set
 equality, not a count — and all eighteen are archived paths. The other
 **twenty-three rows are byte-identical**: severity, rule, action and resolution
-class alike. Nothing else in the report moves except the headline count that
-sums the bands.
+class alike. The whole diff between the two reports is **74 lines**, and they
+are the same eighteen findings twice over — the report renders each finding
+under `## Findings By Family` and again under `## Ranked Plan` — plus the one
+headline line that sums the bands. Nothing else in either rendering moves, and
+the Ranked Plan still carries all 41 rows.
 
 **THE DOWNGRADE TAKES THE EIGHTEEN OUT OF BOTH COMPARISONS, WHICH IS THE RIGHT
 ANSWER AND IS MEASURED RATHER THAN ASSUMED.** `report.parse_previous` admits

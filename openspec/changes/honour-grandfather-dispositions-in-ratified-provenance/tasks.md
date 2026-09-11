@@ -74,8 +74,11 @@ and openxFactory #939 closes THERE and not at this landing.
 - [x] 2.4 **AFTER: 41 rows, 23 `critical` + 18 `info`**, the SAME 41
       `(repo, path)` keys. `rows whose severity moved: 18`; `rows byte-identical
       (severity+rule+action+class): 23`; `moved == disposition key set: True`;
-      `all moved paths archived: True`. The only other line of the report that
-      moves is the headline that sums the bands.
+      `all moved paths archived: True`. **THE WHOLE REPORT DIFF IS 74 LINES**:
+      the eighteen findings in each of the TWO places the report renders them
+      (`## Findings By Family` and `## Ranked Plan`, 36 lines a side) and the
+      one headline that sums the bands. Nothing else moves, and the Ranked Plan
+      keeps all 41 rows — an `info` row is re-banded there, not dropped.
 - [x] 2.5 **THE SPLIT ACROSS THE FAMILY'S ARMS IS MEASURED**, which is why § 3
       is a LAST PASS rather than a branch inside one arm: 15 of the moved rows
       carry the SUBJECT-arm rule (#878's shape, all fifteen openxFactory) and 3
@@ -214,33 +217,95 @@ and openxFactory #939 closes THERE and not at this landing.
 
 ## 5. Verification — DONE IN THIS PULL REQUEST
 
-- [ ] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate
-      honour-grandfather-dispositions-in-ratified-provenance --strict`.
-- [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, with the
-      failure set compared against `origin/main`'s and the item count moving by
-      exactly one.
-- [ ] 5.3 **THROUGH THE PINNED CLI, WHICH IS THE ONE THE GATE RUNS**:
-      `python3 scripts/validate-openspec-cli-pin.py --change … --no-cache` and
-      the gate's literal `--all --no-cache`.
-- [ ] 5.4 `python3 scripts/proposal-support.py . verify
-      honour-grandfather-dispositions-in-ratified-provenance`.
-- [ ] 5.5 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`,
-      the latter after the seed of § 4.6.
-- [ ] 5.6 `python3 scripts/validate-scope-globs.py .`.
-- [ ] 5.7 `python3 scripts/doc-health.py --single-repo .`, with the finding set
-      compared LINE FOR LINE against `origin/main`'s — this arm does nothing in
-      a single-repo scope, so the two must be identical.
-- [ ] 5.8 `python3 -m pytest tests/doc-health tests/sequenced_after
-      tests/scope_globs tests/proposal-support -q`, with the
-      `tests/doc-health` count taken on this tree and on `origin/main` in the
-      same shell.
-- [ ] 5.9 **THE AGGREGATION MEASUREMENT RE-RUN ON THE FINAL TREE**, § 2.2
-      through § 2.6 repeated after the last commit, so the figures in the pull
-      request body describe the tree that merges rather than the tree they were
-      first taken on.
-- [ ] 5.10 **THE BOT BENCH, TAKEN AND ANSWERED ON THE RECORD.** Every thread
-      is disposed with a reason, TAKEN or REFUSED, and a taken one is answered
-      by a commit rather than by a reply.
+**EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THE FINAL TREE** — the merge of
+`origin/main` `f0eea7ed`, the § 5.10 review round and the § 4.6 ledger seed —
+with its exit code and its own output quoted.
+
+- [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate
+      honour-grandfather-dispositions-in-ratified-provenance --strict` —
+      **exit 0**, *"Change 'honour-grandfather-dispositions-in-ratified-provenance'
+      is valid"*.
+- [x] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
+      `Totals: 98 passed, 3 failed (101 items)`. The failure set is
+      BYTE-IDENTICAL to `origin/main` `f0eea7ed`'s, taken in the same shell from
+      a worktree of it (`97 passed, 3 failed (100 items)`):
+      `change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle`,
+      `spec/repo-boundary-governance`. This change is in NEITHER set and the
+      item count moves by exactly one.
+- [x] 5.3 **THROUGH THE PINNED CLI, WHICH IS THE ONE THE GATE RUNS.**
+      `python3 scripts/validate-openspec-cli-pin.py --change … --no-cache` —
+      **exit 0**, `@fission-ai/openspec@1.12.0` verified against its content
+      address, its 80-package closure installed with `npm ci --ignore-scripts`
+      and its `lockfile_integrity` verified, `Totals: 1 passed, 0 failed (1
+      items)`. The gate's literal `--all --no-cache` — **exit 0**,
+      `Totals: 99 passed, 2 failed (101 items)`, *"every target validated
+      --strict with 0 UNDISPOSITIONED failures"*, the two failures being the
+      PRE-EXISTING accepted exceptions `add-chain-attestation` and
+      `add-composed-view-authoring`, neither of them this change.
+- [x] 5.4 `python3 scripts/proposal-support.py . verify
+      honour-grandfather-dispositions-in-ratified-provenance` — **exit 0**,
+      *"proposal support verification ok"*.
+- [x] 5.5 `python3 scripts/validate-sequenced-after.py .` — **exit 0**, *"39
+      active changes, 9 declaring the field"*, both archive-date arms passing.
+      `--ledger-diff` — **exit 0**, *"per-change sweep ledger consistent with
+      the corpus (198 rows)"*, taken after the § 4.6 seed (before it: exit 1,
+      8 findings, `missing row` and seven derived-total mismatches).
+- [x] 5.6 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      *"scope_globs validation passed (all active changes conform)"*.
+- [x] 5.7 `python3 scripts/doc-health.py --single-repo .` — **exit 0**, and the
+      report is **IDENTICAL LINE FOR LINE** to `origin/main` `f0eea7ed`'s, 349
+      lines each, `diff` empty once the checkout DIRECTORY NAME is normalised
+      (the only token that differs, the two runs being rooted at differently
+      named clones). That is the claim of `design.md` D6's last bullet
+      measured: `health/dispositions.yaml` lives at the aggregation root, a
+      self-gate run has `agg_root is None`, and this arm does nothing at all in
+      that scope — and it is also proof that the packet's own new documents add
+      no finding of their own.
+- [x] 5.8 `python3 -m pytest tests/doc-health tests/sequenced_after
+      tests/scope_globs tests/proposal-support -q` — **exit 0**, **2197 passed,
+      66 subtests passed**. `tests/doc-health` alone, taken on this tree and on
+      an `origin/main` worktree in the same shell: **1708** and **1689**,
+      +19 — the new file entire, and nothing else.
+- [x] 5.9 **THE AGGREGATION MEASUREMENT RE-RUN ON THE FINAL TREE**, § 2.2
+      through § 2.6 repeated after the last commit against an aggregation
+      assembled TODAY: `opensoft/xFactory` @ `5fc9bc53` with `openxFactory`
+      checked out at each side of the comparison and `codexFactory` @
+      `eb093294` (the pin that aggregation head carries) materialized under
+      `xFactories/`. **The dispositions file is the same file D0 measured**:
+      blob `414ed86e` at `bc84d325`, at `5fc9bc53` and in the checkout, so the
+      two measurements read identical bytes. BEFORE (`openxFactory` @
+      `f0eea7ed`): `Findings: 41 critical, 0 error, 0 warning, 0 info`. AFTER
+      (this tree): `Findings: 23 critical, 0 error, 0 warning, 18 info`, 41
+      rows, `SAME KEY SETS: True`, `moved: 18`, `byte-identical: 23`,
+      `MOVED == DISPOSITION KEY SET: True`, `all moved paths archived: True`,
+      `dispositioned but NOT reported: 0`, the arm split `15` SUBJECT-arm
+      (openxFactory) and `3` citation-arm (codexFactory), every moved row
+      keeping its family, repo, path and resolution class and carrying the
+      `GRANDFATHERED by a recorded disposition — ` prefix in front of its own
+      arm's rule. `report.unparsed_plan_rows` → `[]`;
+      `report.parse_previous` → **23** keys, **0** contested, against **41**
+      and **0** before.
+- [x] 5.10 **THE BOT BENCH, TAKEN AND ANSWERED ON THE RECORD.** Copilot's two
+      threads were both **TAKEN** and answered by a commit rather than by a
+      reply. (1) `_grandfather_cites`' citation lookup keyed `(repo, path)`
+      alone, so a NEIGHBOURING family's entry at the same path could supply the
+      text — a shape the standing `health/dispositions.yaml` HAS, carrying
+      `location-conformance` and `document-catalog` over one `ideation/staging/`
+      path — and it honoured an UNDATED entry although § 4.3's scenario asks
+      for a date. Both predicates are now applied in that pass, and both only
+      NARROW what a recorded entry may reach; `design.md` D3's delegation is
+      untouched, the shared reader still answering alone which entries are
+      RECORDED. (2) the pass-through-BY-IDENTITY invariant was documented and
+      uncovered: the test compared findings from two separate runs, which can
+      only compare VALUES. The arms now run once and the pass is called on
+      their own list, with `is` on every untouched row. **MEASURED BOTH WAYS**:
+      against the pre-fix module the two new tests FAIL and the rewritten
+      identity test passes; against a probe build whose pass rebuilds every
+      untouched finding, the RETIRED two-run form PASSES and the rewritten one
+      FAILS on the first untouched row. The eighteen figures do not move —
+      every standing entry for this family carries a `date`, and none shares a
+      path with another family's entry.
 
 ## 6. Archive — OWED, NOT GIVEN
 
