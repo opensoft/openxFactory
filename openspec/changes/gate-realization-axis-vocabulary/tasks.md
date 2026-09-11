@@ -133,14 +133,17 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **62 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **65 tests**,
       counted last from a collected run of the file) — the token rule (5),
       reading the declaration including a strict-loader refusal, **a
       repeated declaration refused rather than half-read, and an INDENTED
       gloss line that is a gloss and not a repeat** (8), release
       resolution with and without a registry, **including the estate schema's
       three-component form, the assertion that the shape IS the schema's, and
-      the shape-only fallback saying so out loud** (10), **the token shape-checked
+      the shape-only fallback saying so out loud** (10), **a candidate
+      inventory refused for being a symlink, including one planted outside
+      the tree, beside a REGULAR inventory for a different token still
+      resolving** (3), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
       swept (3)**, **the register removable and never addable (5)**, the gate
@@ -151,9 +154,9 @@ and openxFactory #956 closes THERE and not at this landing.
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
       EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
-      added by § 3.7, the eight added by § 3.9, the five added by § 3.10 and
-      the three added by § 3.11 join the file, `_entry()`
-      gains the citation the loader now requires, and
+      added by § 3.7, the eight added by § 3.9, the five added by § 3.10, the
+      three added by § 3.11 and the three added by § 3.14 join the file,
+      `_entry()` gains the citation the loader now requires, and
       `test_an_entry_missing_a_required_key_refuses` keeps its subject by
       carrying every key but the one it is about.
 - [x] 3.6 **THE GATE NEEDS NO WORKFLOW EDIT**, confirmed by running it: the
@@ -323,7 +326,24 @@ and openxFactory #956 closes THERE and not at this landing.
       deliberate exclusion) — real, verified by reading the code, and left
       OPEN for a dedicated round: it is a code change with its own test and
       its own bench-round citation, not a count or a ledger entry, and this
-      round's mandate is the latter only.
+      round's mandate is the latter only. (It did not stay open: the same
+      finding reopened as a formal thread on the very next push and is TAKEN
+      in § 3.14.)
+- [x] 3.14 **THE BENCH'S SIXTH ROUND, ONE THREAD, TAKEN** (`design.md` D8f).
+      The symlink-handling finding § 3.13 disclosed and declined to take
+      reopened as a formal, unresolved thread (`PRRT_kwDOTAvnrs6hgEM5`) on
+      push `378eb3c3`, which carried only the § 3.13 scenario-count fix — a
+      real finding does not stop being real for having been named once
+      already. `resolves_as_release` now refuses a candidate inventory that
+      is a symlink, restating `scripts/hermes_runtime_validation/release.py`'s
+      own guard (`target.is_file() and not target.is_symlink()`) rather than
+      importing it or inventing a new one. THREE tests: a symlinked inventory
+      does not resolve; one planted in a sibling tmpdir (pointing OUTSIDE the
+      tree) does not resolve either; a REGULAR inventory beside a symlinked
+      one for a DIFFERENT token still resolves (the refusal is per-candidate).
+      Measured: with the fix stashed, all three FAIL against the code as it
+      stood; restored, `pytest tests/target_release -q` — **65 passed**
+      (62 → 65).
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 

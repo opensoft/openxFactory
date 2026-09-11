@@ -645,3 +645,40 @@ the completion ledger as a list, which is how it is meant to be read. Split.
 Small, and worth recording: in a packet whose method is that the task list IS
 the record, a task that does not render as a task is a task that is not in the
 record.
+
+### D8f — the bench's sixth round, on the fix round's own head: one thread, TAKEN, and it is the one this packet had already disclosed and declined to take
+
+A Copilot pass on `e670cf30` (the ledger-fix commit) suppressed five comments
+into its review summary rather than opening threads (*"Comments generated: 0
+new"*). One was the scenario-count miscount corrected above the line for it in
+`tasks.md` § 3.13. A second was real code, not a count, and this packet's own
+fix round DISCLOSED it without taking it, reasoning that a code change with
+its own test was outside a round scoped to counts and ledger entries. On the
+NEXT push (`378eb3c3`, carrying only that scenario-count correction), the same
+finding came back — this time as a formal, unresolved thread
+(`PRRT_kwDOTAvnrs6hgEM5`). A finding does not stop being real for having been
+named once already; it is taken here.
+
+**(n) A CANDIDATE RELEASE INVENTORY COULD BE A SYMLINK, AND `Path.is_file()`
+FOLLOWS THEM.** `resolves_as_release` resolved a release token with
+`(registry / f"{token}.digests.yaml").is_file()`. `Path.is_file()` follows
+symlinks and reports on the TARGET, so a committed
+`contracts/releases/contract-vX.Y.digests.yaml` symlink — including one
+pointing outside this tree — would be treated as an estate-defined release:
+the gate's own `implemented`-or-named-release vocabulary admits a name whose
+"definition" is a link an author planted, not an inventory the estate cut.
+This is not a new class this packet invented a defense for; it is the SAME
+class `scripts/hermes_runtime_validation/release.py` already defends against,
+in `RepoSource.exists` and `list_release_inventories`
+(`target.is_file() and not target.is_symlink()`), for the identical reason —
+so the fix RESTATES that module's own guard rather than inventing a new one or
+importing across a boundary this module does not otherwise cross (it must
+judge a tree that carries no `hermes_runtime_validation/` at all, the same
+posture D8c and D8d already took for the release-id shape and the loudness
+guard). THREE tests pin it: a symlinked inventory does not resolve; one
+pointing OUTSIDE the tree (planted in a sibling tmpdir) does not resolve
+either, because the defect is not merely a traversal defect; and a REGULAR
+inventory beside a symlinked one for a DIFFERENT token still resolves, so the
+refusal is per-candidate and not a registry-wide fallback. Measured against
+the code as it stood (`git stash` the fix, keep the tests): all three FAIL,
+confirming the reproduction; restored, all 65 tests in the file PASS.

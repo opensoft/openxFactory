@@ -334,6 +334,16 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     no releases of its own), the shape is the whole test and the run says so,
     because refusing every release name in a tree that cannot define one would
     make the validator unusable outside this repository.
+
+    A CANDIDATE INVENTORY MUST BE A REGULAR FILE, NOT A SYMLINK. `Path.is_file()`
+    follows symlinks, so a committed `contract-vX.Y.digests.yaml` symlink —
+    including one pointing outside this tree — would otherwise be treated as an
+    estate-defined release. This module's sibling
+    `scripts/hermes_runtime_validation/release.py` already excludes symlinked
+    inventories for exactly this reason (`RepoSource.exists`,
+    `list_release_inventories`); the same guard is RESTATED here rather than
+    imported, because this module must judge a tree that carries no
+    `scripts/hermes_runtime_validation/` at all.
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
     present = registry.is_dir()
@@ -341,7 +351,8 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
         return False, present
     if not present:
         return True, False
-    return (registry / f"{token}.digests.yaml").is_file(), True
+    candidate = registry / f"{token}.digests.yaml"
+    return candidate.is_file() and not candidate.is_symlink(), True
 
 
 def load_register(path: Path = REGISTER_PATH,

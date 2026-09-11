@@ -198,6 +198,46 @@ def test_a_release_shaped_name_with_no_inventory_does_not_resolve(tmp_path):
     assert tr.resolves_as_release("contract-v9.9", tmp_path) == (False, True)
 
 
+# Copilot on #963, post-freeze (thread `PRRT_kwDOTAvnrs6hgEM5`): `Path.is_file()`
+# follows symlinks, so a committed symlinked digest inventory — including one
+# pointing outside the tree — was treated as an estate-defined release. The
+# guard is `scripts/hermes_runtime_validation/release.py`'s own
+# (`RepoSource.exists`), restated here rather than imported.
+
+
+def test_a_symlinked_inventory_does_not_resolve(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    real = tmp_path / "elsewhere.digests.yaml"
+    real.write_text("{}\n", encoding="utf-8")
+    (releases / "contract-v9.9.digests.yaml").symlink_to(real)
+    assert tr.resolves_as_release("contract-v9.9", tmp_path) == (False, True)
+
+
+def test_a_symlinked_inventory_pointing_outside_the_tree_does_not_resolve(
+        tmp_path, tmp_path_factory):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    outside = tmp_path_factory.mktemp("outside") / "elsewhere.digests.yaml"
+    outside.write_text("{}\n", encoding="utf-8")
+    (releases / "contract-v9.9.digests.yaml").symlink_to(outside)
+    assert tr.resolves_as_release("contract-v9.9", tmp_path) == (False, True)
+
+
+def test_a_regular_inventory_still_resolves_beside_a_symlinked_one(tmp_path):
+    """The refusal is per-candidate, not a registry-wide fallback: a symlink
+    for one token does not make a REGULAR inventory for another refuse."""
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (releases / "contract-v9.9.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    real = tmp_path / "elsewhere.digests.yaml"
+    real.write_text("{}\n", encoding="utf-8")
+    (releases / "contract-v8.8.digests.yaml").symlink_to(real)
+    assert tr.resolves_as_release("contract-v9.9", tmp_path) == (True, True)
+    assert tr.resolves_as_release("contract-v8.8", tmp_path) == (False, True)
+
+
 # Copilot's round 3 on #963 (thread `PRRT_kwDOTAvnrs6heq2s`): the shape was
 # two-component only, while the estate's own inventory schema admits two OR
 # three — latent while the shape was consulted only where no registry exists,
