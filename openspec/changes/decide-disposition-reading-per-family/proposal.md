@@ -21,9 +21,13 @@ here to canon, takes none of the four decisions this packet carries, and is not
 read as an approval of any of them. Every document in this packet carries
 `Status: draft`; `.openspec.yaml` carries the drafting provenance alone, with no
 `approved_by` and no `approved_on`. **NO APPROVAL PAIR IS DECLARED AND NONE IS
-IMPLIED.** The decisions are put to Brett Heap as FOUR multiple-choice
+IMPLIED.** The CLASS decisions are put to Brett Heap as FOUR multiple-choice
 questions, one per class, in `design.md` D1 and on the pull request, with the
-recommendation first in each. **NO ARM IS BUILT AHEAD OF THE WORD.**
+recommendation first in each — and a FIFTH question stands beside them for the
+packet's OWN shape (`design.md` D3, `tasks.md` § 1.5: decision-only with
+`code_surface: none`, or a code surface declared now), which is a question about
+this packet rather than about any family's entries. **FIVE OPEN RULINGS IN ALL.**
+**NO ARM IS BUILT AHEAD OF THE WORD.**
 
 ## Why
 
@@ -105,7 +109,16 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   otherwise be raised when its contested finding stops being reported. Measured
   by feeding a synthetic previous report carrying one contested row per entry:
   30 uncited-resolution findings with an empty disposition set, **0** with the
-  real file. It is the only arm that reads ALL thirty — **not** the only arm that
+  real file. **THAT MEASURES THE LOOKUP WITH THE CLASS FORCED, AND THE CONDITION
+  IS STATED WITH IT**: the arm iterates `previous_contested` only, and
+  `parse_previous` admits a key there only from a row written
+  `class="contested"`. Measured at the same rig, 19 of the 31 belong to a family
+  whose rows are `contested` there (`location-conformance` 7/7,
+  `record-immutability` 16/16, `modified-block-currency` 48/48) and **9 belong to
+  families whose 131 rows are ALL `auto-fixable`** (`proposal-origin` 130,
+  `document-catalog` 1) — so those nine are admissible by key and unreachable on
+  today's classes (`design.md` D0.4). It is the only arm that reads ALL thirty —
+  **not** the only arm that
   reads every one of them: `modified-block-currency`'s four entries are also read
   by that family's own module
   (`modified_block_currency.py`, `fam_modified_block_currency` →
@@ -139,21 +152,26 @@ BYTE OF PROMOTED TEXT EDITED.** The block is canon's own bytes — lines
 **198–229** of `openspec/specs/doc-health/spec.md` at `8015d45f`, sliced rather
 than transcribed, sha256
 `91e9a13d1fb948b94da3668818ee4f655068807ca4a9a110de53508acbd85d53` on both
-sides — with one `#### Scenario:` appended. No body paragraph is added, edited
-or removed; no promoted scenario moves, is retitled or loses a bullet; no marker
-is declared, there being nothing removed to declare.
+sides — with **TWO `#### Scenario:` blocks appended**. No body paragraph is
+added, edited or removed; no promoted scenario moves, is retitled or loses a
+bullet; no marker is declared, there being nothing removed to declare. It is two
+and not one because a rule about families that DO declare a reading cannot live
+under a `WHEN` whose condition is the ABSENCE of one: the second scenario carries
+that rule with its own condition.
 
 *Finding severity and regression handling* is the right home and the only one:
 it owns severity, resolution class and the contested-resolution rule for the
 whole estate, it is family-neutral, and it is where the one arm that reads these
-thirty entries is already written down. The four families that DO read the file
-under their own name each declare that reading in their own requirement
-(`promotion-fidelity`, `duplicate-packet`, `modified-block-currency`,
-`ratified-provenance`); this scenario states what an entry means for every
-family that declares nothing — the other nineteen of the twenty-three
-deterministic families, and the semantic and uncited-resolution families outside
-that pass — and says in terms that it neither widens nor narrows any of the
-four.
+thirty entries is already written down. **FIVE** families read the file under
+their own name and each declares that reading in its own requirement —
+`promotion-fidelity`, `duplicate-packet`, `modified-block-currency`,
+`ratified-provenance`, and `neutrality-drift`, whose *A rejected candidate stays
+rejected* suppresses on a DIFFERENT key, `(repo, path, content digest)`, while
+the rejected content is unchanged. No entry in the measured population carries
+`family: neutrality-drift`, so that lane moves no figure here and is named so
+that "the file has one reader" is not inherited as an estate-wide claim. These
+scenarios state what an entry means for every family that declares nothing, and
+say in terms that they neither widen nor narrow any of the five.
 
 ## What this proposal does NOT do
 

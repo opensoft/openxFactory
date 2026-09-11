@@ -37,8 +37,9 @@ single issue per run in the aggregation repo listing the new findings.
 
 #### Scenario: A recorded disposition names a family this capability gives no reading
 - **WHEN** the aggregation's `health/dispositions.yaml` carries a dated, cited entry naming a check family, a repository and a path, and this capability declares no disposition reading for that family
-- **THEN** the entry MUST change no standing finding — not its severity, not its action, not whether it is reported at all — because a disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has no arm to read it
-- **AND** the entry MUST still be read by the contested-resolution rule above, so that when the finding it names later stops being reported the `uncited resolution` error is not emitted against it — which is the one effect an entry of such a family has ever had
+- **THEN** the entry MUST change no finding OF THE FAMILY IT NAMES — not its severity, not its action, not whether that finding is reported at all — because a disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has no arm to read it
+- **AND** the entry MUST still be read by the contested-resolution rule above, which reaches a DERIVED finding and never the named family's own row: where a finding the entry names was reported `contested` and later stops being reported, the derived `uncited resolution` error MUST NOT be emitted against it — the one effect an entry of such a family has ever had
+- **AND** where the named family's findings are not classified `contested`, the entry MUST reach nothing at all, that rule iterating only the previous report's contested rows
 - **AND** an entry naming the `uncited-resolution` family itself MUST change nothing at all, that family's rows never entering the contested set the rule above iterates
 
 #### Scenario: A recorded disposition names a family this capability does give a reading

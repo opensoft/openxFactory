@@ -545,16 +545,22 @@ Active changes:
   `govern-archived-record-edits`' absolute bar reaches none of them — though four
   of the five `record-immutability` targets ARE `Status: record` documents, which
   the measurement reads directly rather than inferring from a path prefix; 30 of
-  them are read by the estate-wide `report.uncited_resolutions` arm and four of
-  those thirty ALSO by `modified-block-currency`'s own module, whose promoted
-  scenario already rules them; the 31st (`uncited-resolution`'s own) can never be
-  looked up; and a control run with the file emptied moves ZERO STANDING
-  DETERMINISTIC-FAMILY rows, the uncited-resolution effect (30 findings without
-  the file, 0 with it) being measured separately. The eight families are grouped
-  into FOUR CLASSES so the ruling is taken four times, each put as a
-  multiple-choice question with the recommendation first, and the recommendation
-  commissions NO NEW family-side reading anywhere — `modified-block-currency`
-  keeps the reading its own requirement already declares. One `## MODIFIED` block over
+  them are admissible by key to the estate-wide `report.uncited_resolutions` arm
+  and four of those thirty are ALSO read by `modified-block-currency`'s own
+  module, whose promoted scenario already rules them; that arm's reach is
+  CONDITIONAL on the prior finding having been recorded `contested`, and measured
+  at the rig 19 of the 31 belong to a contested family while 9 belong to families
+  whose 131 rows are all `auto-fixable`; the 31st (`uncited-resolution`'s own)
+  can never be looked up; and a control run with the file emptied moves ZERO
+  STANDING DETERMINISTIC-FAMILY rows, the uncited-resolution effect (30 findings
+  without the file, 0 with it) being measured separately. Canon declares a
+  disposition reading for FIVE families, `neutrality-drift` included, and exactly
+  one of the eight holding entries is among them. The eight families are grouped
+  into FOUR CLASSES so the class ruling is taken four times — with a FIFTH,
+  separate ruling on the packet's own shape — each put as a multiple-choice
+  question with the recommendation first, and the recommendation commissions NO
+  NEW family-side reading anywhere: `modified-block-currency` keeps the reading
+  its own requirement already declares. One `## MODIFIED` block over
   *Finding severity and regression handling*; `code_surface: none`;
   `sequenced_after: []`. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
   scopes what a veto would commission and every box is open. **FILING ≠

@@ -116,17 +116,35 @@ each open box below states the event that closes it:
       and all five deterministic families re-run — 7/7, 130/130, 16/16, 48/48,
       1/1 plan rows, `diff` of the row sets empty in every case. The file was
       restored and its sha256 re-verified against 2.1 afterwards.
-- [x] 2.5 The one arm that reads them proved (`design.md` D0.4): 31 synthetic
-      `class="contested"` ranked-plan rows through `report.parse_previous` →
-      **30 admitted**; `report.uncited_resolutions` → **30** findings with an
-      empty disposition set and **0** with the real file; the single row refused
-      admission is the `uncited-resolution` entry itself.
+- [x] 2.5 The estate-wide arm's LOOKUP proved, and its CONDITION measured beside
+      it (`design.md` D0.4): 31 synthetic `class="contested"` ranked-plan rows
+      through `report.parse_previous` → **30 admitted**;
+      `report.uncited_resolutions` → **30** findings with an empty disposition set
+      and **0** with the real file; the single row refused admission is the
+      `uncited-resolution` entry itself. **THE SYNTHETIC ROWS FORCE THE CLASS, SO
+      THE REAL CLASSES WERE READ OFF THE SAME RIG RATHER THAN ASSUMED**: that arm
+      iterates `previous_contested`, which `parse_previous` fills only from rows
+      written `class="contested"`, and at the rig `location-conformance` is
+      `contested` 7/7, `record-immutability` 16/16 and `modified-block-currency`
+      48/48, while `proposal-origin` is **`auto-fixable` 130/130** and
+      `document-catalog` **1/1**. 19 of the 31 belong to a contested family; 9 are
+      admissible by key and unreachable on today's classes.
 - [x] 2.6 Every reader of the file enumerated by grep across
-      `scripts/doc_health/`, and the four families for which CANON declares a
-      reading located by heading and line: `promotion-fidelity` (1174),
-      `duplicate-packet` (1289), `modified-block-currency` (2177),
-      `ratified-provenance` (938). Exactly one of the eight families holding
-      entries is among them.
+      `scripts/doc_health/` — `promotion_fidelity.load_dispositions` and its
+      three callers (`promotion_fidelity`, `duplicate_packet`,
+      `modified_block_currency`), `families.fam_ratified_provenance`'s
+      grandfather pass, `neutrality.disposition_suppressions` reached through
+      `runner._neutrality_scope` → `neutrality_dispatch`, and `runner.main`'s own
+      unconditional read feeding `report.uncited_resolutions` — and the **FIVE**
+      families for which CANON declares a reading located by heading and line:
+      `promotion-fidelity` (1174), `duplicate-packet` (1289),
+      `modified-block-currency` (2177), `ratified-provenance` (938) and
+      `neutrality-drift` (681-685, *A rejected candidate stays rejected*, keyed
+      by `(repo, path, content digest)`). **EXACTLY ONE of the eight families
+      holding entries is among the five** — `modified-block-currency` — and NO
+      entry in the population carries `family: neutrality-drift`, so that lane
+      moves no figure and is recorded so the narrower "one reader" claim is not
+      inherited.
 
 ## 3. The delta — DONE IN THIS PULL REQUEST
 
@@ -140,22 +158,32 @@ each open box below states the event that closes it:
       sides. No body paragraph added, edited or removed; no promoted scenario
       moved, retitled or stripped of a bullet; no marker declared, nothing having
       been removed to declare.
-- [x] 3.3 ONE `#### Scenario:` appended — *A recorded disposition names a family
-      this capability gives no reading* — saying four things: such an entry
-      changes no standing finding; it is still read by the contested-resolution
-      rule, which is the one effect it has ever had; a family that DOES declare a
-      reading is read exactly as its own declaration says, neither widened nor
-      narrowed; and an entry naming `uncited-resolution` itself changes nothing
-      at all.
+- [x] 3.3 **TWO `#### Scenario:` blocks appended**, and it is two rather than
+      one because the review round of 2026-09-11 was right that a rule about
+      families WITH a declared reading could not live under a `WHEN` whose
+      condition is the ABSENCE of one:
+      (i) *A recorded disposition names a family this capability gives no
+      reading* — such an entry changes no finding OF THE FAMILY IT NAMES; it is
+      still read by the contested-resolution rule, which reaches a DERIVED
+      `uncited resolution` finding and never the named family's own row, and only
+      where that family's findings are classified `contested`; and an entry
+      naming `uncited-resolution` itself changes nothing at all.
+      (ii) *A recorded disposition names a family this capability does give a
+      reading* — such an entry is read exactly as that family's own declaration
+      says and by that declaration alone, and scenario (i) neither widens nor
+      narrows it.
+      No body paragraph is added, edited or removed; no promoted scenario moves,
+      is retitled or loses a bullet.
 - [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the
       committed tree after `origin/main` `c521504c` was merged, and scoped so it
       cannot match this packet's own files:
       `grep -rn "Finding severity and regression handling" openspec/changes/ |
       grep -v /archive/ | grep -v decide-disposition-reading-per-family` returns
       NOTHING (exit 1, no match). WITHOUT the third filter it returns exactly
-      three lines and all three are this packet's own — `proposal.md`,
-      `specs/doc-health/spec.md` and this task file — which is why the filter is
-      part of the test and not a way of hiding a hit. The only two other active
+      FOUR lines and all four are this packet's own — `proposal.md`,
+      `specs/doc-health/spec.md`, this task file and `design.md`, the last two
+      because each QUOTES the command it is reporting on — which is why the
+      filter is part of the test and not a way of hiding a hit. The only two other active
       `specs/doc-health/` deltas are `add-nightly-dashboard-refresh` (7 ADDED,
       none this one) and `settle-aging-staging-topics` (1 MODIFIED, *Aging
       threshold defaults*). No two-writers collision; `sequenced_after: []`
@@ -164,14 +192,15 @@ each open box below states the event that closes it:
 
 ## 4. The arms a VETO would commission — SCOPED, NOT BUILT
 
-- [ ] 4.1 **ONLY IF CLASS B OR CLASS C IS VETOED toward (B2)/(B3)/(C2)/(C3):** one
+- [ ] 4.1 **ONLY IF CLASS B OR CLASS C IS VETOED toward (B2)/(B3)/(C2)/(C3), OR
+      CLASS C IS SPLIT TOWARD (C4) WITH EITHER HALF GIVEN A READING:** one
       SHARED helper in `scripts/doc_health/`, called by each opting-in family
       with its own family name, delegating the admission rule to
       `promotion_fidelity.load_dispositions(ctx, <family>)` so a second rule
       about which entries are live is never written — the shape the parent cut
       for `ratified-provenance`, one level up. Per-family OPT-IN, never a blanket
       sweep.
-- [ ] 4.2 **ONLY ON THAT VETO:** the `## MODIFIED` blocks the vetoed families'
+- [ ] 4.2 **ONLY ON THAT VETO OR THAT SPLIT:** the `## MODIFIED` blocks the vetoed families'
       own requirements then owe, each with its own *A finding is dispositioned*
       or grandfather scenario, and the tests that pin them.
 - [ ] 4.3 **ONLY ON THAT VETO:** `code_surface` and `target_release` re-declared

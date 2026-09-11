@@ -10,9 +10,15 @@ possible in parallel"** — commissioned the authoring and took none of them.
 
 **D1 IS FOUR MULTIPLE-CHOICE QUESTIONS, ONE PER CLASS, AND EVERY ONE IS OPEN.**
 The eight families are grouped into four classes by the SHAPE of their finding
-and of their entry, so the decision is taken four times rather than eight. The
-recommendation is stated first in each. **NO ARM IS BUILT AHEAD OF THE WORD**:
-`tasks.md` § 4 scopes what each veto would commission and leaves every box open.
+and of their entry, so the CLASS decision is taken four times rather than eight.
+The recommendation is stated first in each. **A FIFTH RULING IS OPEN BESIDE
+THEM AND IS NOT ONE OF THE FOUR**: the packet's own shape — decision-only with
+`code_surface: none`, or a code surface declared now — is D3 here and
+`tasks.md` § 1.5, and it is separate because it is a question about this packet
+rather than about any family's entries. **FIVE OPEN RULINGS IN ALL: FOUR CLASS
+QUESTIONS AND ONE PACKET-SHAPE QUESTION.** **NO ARM IS BUILT AHEAD OF THE
+WORD**: `tasks.md` § 4 scopes what each veto would commission and leaves every
+box open.
 
 ## 0. The brief
 
@@ -62,15 +68,27 @@ case. Those four repositories are the only ones the thirty-one entries name.
 | 1 | `uncited-resolution` | — (emitted by `report.uncited_resolutions`, not by a family module) | no |
 | **31** | **eight families** | | |
 
-Canon declares a disposition reading for exactly **four** families and names
-them in their own requirements: `promotion-fidelity` (spec line 1174),
-`duplicate-packet` (1289), `modified-block-currency` (2177) — three scenarios
-all titled *A finding is dispositioned*, all three SUPPRESSING — and
-`ratified-provenance` (938), *A finding is grandfathered by a recorded
-disposition*, the parent's DOWNGRADE. A fifth scenario, at *A
-modified-block-currency finding its own class map cannot place is itself a
-finding* (2602), reads a disposition as suppressing for that same family.
-**OF THE EIGHT FAMILIES HOLDING ENTRIES, EXACTLY ONE IS AMONG THE FOUR.**
+Canon declares a disposition reading for **FIVE** families and names each in its
+own requirement: `promotion-fidelity` (spec line 1174), `duplicate-packet`
+(1289), `modified-block-currency` (2177) — three scenarios all titled *A finding
+is dispositioned*, all three SUPPRESSING — `ratified-provenance` (938), *A
+finding is grandfathered by a recorded disposition*, the parent's DOWNGRADE, and
+**`neutrality-drift`** at *A rejected candidate stays rejected* (681-685), whose
+reading is a SUPPRESSION ON A DIFFERENT KEY: the disposition is recorded "keyed
+by repo, path, and content digest", and `neutrality.disposition_suppressions`
+builds `{(repo, path): {sha256, …}}` from entries carrying that lane's family,
+suppressing only while the content digest is unchanged
+(`scripts/doc_health/neutrality.py`, `disposition_suppressions` / `is_suppressed`;
+reached from `runner._neutrality_scope` → `neutrality_dispatch`). A sixth
+scenario — *The act that extends the class map records a disposition for the
+finding it reclassifies* (2602), under the requirement *A modified-block-currency
+finding its own class map cannot place is itself a finding* (2480) — reads a
+disposition as suppressing for that same family. **OF THE EIGHT FAMILIES HOLDING ENTRIES, EXACTLY ONE IS AMONG THE FIVE**
+— `modified-block-currency`. No entry in the measured population carries
+`family: neutrality-drift`, which is why that lane changes no figure here; it is
+named because the claim "the file has one reader" is false about the ESTATE even
+where it is true about this population, and a later reader must not inherit the
+narrower claim.
 
 ### D0.2 — does each entry's `(repo, path)` draw a finding of its family today?
 
@@ -131,14 +149,23 @@ the eight whose module DOES read the file under its own name, through
 either, because its four entries match no finding it currently raises. The file
 was restored to its measured sha256 after the control.
 
-### D0.4 — the one arm that does read all of them, and the one entry it cannot
+### D0.4 — the estate-wide arm, what it can reach, and the one entry it cannot
 
 `report.uncited_resolutions` keys on `(family, repo, path)` for EVERY family,
 so an entry of ANY family silences the `uncited resolution` error that would
-otherwise be raised when its CONTESTED finding stops being reported. Measured
-by building a synthetic previous report carrying one `class="contested"` ranked-plan
-row per entry and running `report.parse_previous` and
-`report.uncited_resolutions` over it:
+otherwise be raised when its CONTESTED finding stops being reported. **THE
+CONDITION IS LOAD-BEARING AND IS STATED BEFORE THE FIGURE**: that arm iterates
+`previous_contested` and nothing else, and `report.parse_previous` admits a key
+to that set only from a previous-report row written `class="contested"`
+(`if m.group(7) == "contested" and m.group(2) != UNCITED_RESOLUTION_FAMILY`).
+An entry whose family never emits a contested finding is therefore never reached
+by it either.
+
+Measured by building a synthetic previous report carrying one
+`class="contested"` ranked-plan row per entry and running
+`report.parse_previous` and `report.uncited_resolutions` over it — which
+measures the LOOKUP, with the class forced, and is reported as that and not as a
+production count:
 
 - 31 rows written; **30 admitted** to the contested set.
 - `uncited_resolutions` with an EMPTY disposition set: **30** findings.
@@ -147,6 +174,29 @@ row per entry and running `report.parse_previous` and
   `parse_previous` never admits an `uncited-resolution` row to `contested`
   (`report.UNCITED_RESOLUTION_FAMILY`, the anti-echo of issue #515), so that
   key can never reach the lookup. **It disposes nothing, now or ever.**
+
+**AND THE CLASS THE SYNTHETIC ROWS FORCED IS MEASURED RATHER THAN ASSUMED.** The
+same rig runs, read for `class="…"` rather than for row counts:
+
+| family | entries | resolution class of that family's rows at the rig | reachable by this arm on today's classes? |
+| --- | ---: | --- | --- |
+| `location-conformance` | 10 | `contested` 7/7 | yes |
+| `record-immutability` | 5 | `contested` 16/16 | yes |
+| `modified-block-currency` | 4 | `contested` 48/48 | yes |
+| `proposal-origin` | 8 | **`auto-fixable` 130/130** | **no** |
+| `document-catalog` | 1 | **`auto-fixable` 1/1** | **no** |
+| `semantic-contradiction` / `semantic-normative-prose` | 2 | not deterministically emitted | not measurable here |
+| `uncited-resolution` | 1 | — | no, by construction (above) |
+
+**NINETEEN OF THE THIRTY-ONE BELONG TO A FAMILY WHOSE ROWS ARE CONTESTED AT THIS
+RIG; NINE BELONG TO FAMILIES WHOSE 131 ROWS ARE ALL `auto-fixable`.** So the
+honest statement of the arm's reach is a CONDITIONAL one: thirty of the
+thirty-one are admissible to the lookup BY KEY, and the lookup fires only for a
+prior finding recorded `contested` — which, on today's classes, nine of them
+could never have been. That does not weaken the recommendation; it strengthens
+the class boundary, because the eight `proposal-origin` entries and the one
+`document-catalog` entry turn out to be inert on every arm that exists today,
+and their disposers wrote them as audit trail rather than as suppression.
 
 ### D0.5 — what the entries say about themselves
 
@@ -171,6 +221,9 @@ evidence about what the mechanism is FOR, and it is why the recommendation below
 is not the parent's.
 
 ## D1 — THE DECISION: four classes, four questions, recommendation first
+
+(The fifth open ruling, the packet's own shape, is D3 — it is not a class and is
+not counted among these four.)
 
 ### Class A — ALREADY RULED BY CANON: `modified-block-currency` (4 entries)
 
@@ -385,8 +438,13 @@ scope: it constrains what an entry MEANS, not where the file is found.
   unclaimed and has no branch. The whole open set was listed as the control
   (#979, #977, #976, #963, #962, #888, #594, #518 and this one), and the
   repository-wide search
-  `grep -rn "Finding severity and regression handling" openspec/changes/ | grep -v /archive/`
-  names no file outside this packet's own. `sequenced_after:` therefore stays
+  `grep -rn "Finding severity and regression handling" openspec/changes/ |
+  grep -v /archive/ | grep -v decide-disposition-reading-per-family` returns
+  NOTHING (exit 1). The third filter is part of the test and not a way of hiding
+  a hit: WITHOUT it the command returns exactly FOUR lines and all four are this
+  packet's own — `proposal.md`, `specs/doc-health/spec.md`, `tasks.md` and this
+  `design.md`, the last two because each QUOTES the command it is reporting on —
+  which is the self-match `tasks.md` § 3.4 records in the same terms. `sequenced_after:` therefore stays
   `[]`. **IF #965'S PACKET LANDS A DELTA OVER THIS SAME HEADING, THE
   LATER-LANDING PACKET DECLARES `sequenced_after:` AT ITS ENCODE** — that is the
   sequencing plan, and neither packet declares a branch-only parent.
