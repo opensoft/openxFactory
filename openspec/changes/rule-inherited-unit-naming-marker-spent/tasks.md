@@ -26,14 +26,16 @@ UNTICKED**: residue, measured and deliberately not taken.
       **OPTION 1 (RECOMMENDED, AND WHAT THIS PACKET ENCODES):** rule the
       two-option state CORRECT — four sentences added to the paragraph that
       already rules a marker no carriage unit, saying that a unit-naming marker
-      is SPENT once the unit it names has left canon by a declared act, so
+      is SPENT once EVERY unit it names has left canon by a declared act, so
       DROPPING it is the lawful carriage and a third-ground report on a carried
       one is the class working as written; plus TWO scenarios, one per half of
-      the rule. No ground added, no suppression moved, no code, archives on
+      the rule. The condition is ALL-NAMES and not one-name — a marker names
+      units in the plural — which is Copilot's substantive round on #962 taken
+      in the wording rather than deferred to the owner (§ 3.10). No ground added, no suppression moved, no code, archives on
       landing. **OPTION 2 (WRITTEN OUT IN D1 AND NOT ENCODED):** add a THIRD
-      option — a suppression for an inherited marker whose named unit left
-      canon by a DECLARED act, resolvable against the archived delta that
-      declared it: one predicate, one `_WHY_*` template, its own scenario, a
+      option — a suppression for an inherited marker whose named units have
+      all left canon by a DECLARED act, resolvable against the archived delta
+      that declared it: one predicate, one `_WHY_*` template, its own scenario, a
       CODE SURFACE in `scripts/doc_health/` plus `tests/doc-health/`, a checker
       basis widened to a third document class, a fail-OPEN direction, and an
       archive rule that changes from on-landing to merged-plus-green. **IF
@@ -159,7 +161,16 @@ UNTICKED**: residue, measured and deliberately not taken.
       (4 body sentences, 1 dated bold note, 2 scenario titles, 6 scenario
       bullets); scenario titles go **22 → 24 with all 22 carried**. Against the
       parent's outcome: **0 uncarried, 0 uncarried-and-unsuppressed, 0 marker
-      defects.**
+      defects.** **RE-TAKEN AFTER THE ALL-NAMES WORDING MOVE OF § 3.10 AND
+      UNCHANGED IN EVERY FIGURE ABOVE** — the move rewords three of the four
+      added sentences and one scenario bullet, all of them units this block
+      ADDS, so no parent unit is touched and the counts do not move. The
+      block's own bytes after the move are sha256
+      `fa9b766891bb502665824413c7f498b8205d7f59ded3bc444e096a070a1567e5`,
+      **53,552 bytes** (before it: sha256
+      `72941993794667a342d047fb772d0b5a67f690a3ec30f6bd7eceff30656c511a`,
+      53,396 bytes); the PRE-text is the same 48,507 bytes at the same sha256,
+      re-verified below.
 - [x] 3.7 **THE ONE ROW THE DROP COSTS WHILE THIS PACKET IS A DRAFT IS
       MEASURED AND DISCLOSED, NOT DISPOSITIONED.** `_arm_ordering` applies a
       basis override only between two active RATIFIED writers, so while this
@@ -187,7 +198,45 @@ UNTICKED**: residue, measured and deliberately not taken.
       findings** (the missing row and the six derived totals it threw off) to
       `per-change sweep ledger consistent with the corpus (200 rows)`, exit 0.
       The `moved_on` is the tool's own UTC stamp and the packet's dates are
-      UTC: the run was at 2026-09-11T12:4xZ.
+      UTC: the run was at 2026-09-11T12:4xZ. **AND THE ROW'S `depth: 0` IS A
+      READING OF TODAY'S CORPUS THAT WILL MOVE, WHICH IS MEASURED RATHER THAN
+      ASSERTED.** `chain_depth()` counts RESOLVABLE hops only — *"an unresolved
+      hop is not a resolved hop"* — and the declared parent
+      `amend-merged-into-empty-tail-standing` resolves in neither the active nor
+      the archived corpus while it is an open pull request, so the seeded
+      reading is `0`. MEASURED, not predicted: over a throwaway copy of this
+      tree's `openspec/` with the parent's change directory added from its own
+      branch, `chain_depth(root, 'rule-inherited-unit-naming-marker-spent')`
+      returns **1** (and the parent's own returns `0`, its declaration being an
+      explicit root claim), while over this tree it returns **0**; and
+      `ledger_problems()` compares the `depth` field outright: the row goes STALE the moment #947
+      lands and this branch takes the merge from `main` that § 4.7 needs.
+      **SO THE ROW IS RE-SEEDED WITH THE SAME TOOL AFTER THAT MERGE, NOT
+      HAND-EDITED, AND § 4.7 AND § 4.10 ARE NOT TICKED BEFORE IT IS** — Copilot's
+      second round on #962 taken.
+- [x] 3.10 **THE PRE-TEXT IS RE-VERIFIED AT THE PARENT'S CURRENT HEAD, AND
+      THE ALL-NAMES WORDING IS TAKEN.** The parent branch moved after this
+      block was generated — `origin/change/amend-merged-into-empty-tail-standing`
+      is at `b1c92b50` where the generator read `a6d373e9` — so the PRE-text
+      was re-read at the new head and is BYTE-IDENTICAL: `git diff a6d373e9
+      origin/change/amend-merged-into-empty-tail-standing --
+      openspec/changes/amend-merged-into-empty-tail-standing/specs/doc-health/spec.md`
+      is EMPTY and both sides are 48,507 bytes at sha256
+      `16031348e476198b185dfbf4a9e391bd468e5124dc530c25e3d94ece14e11030`. The
+      block was then REGENERATED by the same three single-occurrence edits over
+      that PRE-text with one input changed — the added sentences — so the
+      wording move is the only difference in the file, which `git diff` shows
+      as 12 insertions and 10 deletions in the two paragraphs it touches and
+      nothing else. **WHAT MOVED:** the spent condition is stated ALL-NAMES
+      (*once EVERY unit it names has left canon*), its explanation is plural
+      (*every unit it names is gone from the promoted text*), the
+      carried-forward reading is plural (*its names match no unit of the
+      requirement's basis, the declared act having removed them*), the scope
+      clause is all-names (*ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT
+      CANON AND ON NO OTHER*, with a marker one of whose names the basis still
+      carries named as not spent), and the carried-forward SCENARIO's `WHEN`
+      reads *its named units*. The scenario that was already all-names is
+      untouched.
 
 ## 4. Verification — IN THIS PULL REQUEST
 
@@ -232,7 +281,11 @@ corpus. Both are reported, neither is substituted for the other.
       `scope_globs validation passed (all active changes conform)`.
 - [ ] 4.7 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`
       — **BLOCKED ON THE PARENT'S LANDING, AND THE BLOCK IS THE VALIDATOR
-      WORKING.** The declared parent `amend-merged-into-empty-tail-standing`
+      WORKING.** (`--ledger-diff` alone reads clean on the tree as it stands —
+      `per-change sweep ledger consistent with the corpus (200 rows)`, exit 0 —
+      because the ledger records the SAME unresolved reading the corpus gives
+      today; that is the row agreeing with a corpus that is about to move, not
+      the gate cleared. § 3.9 says what re-seeding it costs.) The declared parent `amend-merged-into-empty-tail-standing`
       is an OPEN pull request (#947) and its change directory is on no branch
       but its own, so resolution against this repository's ACTIVE and ARCHIVED
       corpora finds nothing and the run refuses the declaration as DANGLING —
@@ -241,12 +294,48 @@ corpus. Both are reported, neither is substituted for the other.
       cleared by dropping the declaration, which is owed.
 - [ ] 4.8 `python3 scripts/doc-health.py --single-repo .` — the branch run, its
       finding-line diff against the `origin/main` baseline, and the
-      marker-defect count, re-taken on the frozen tree.
+      marker-defect count, re-taken on the frozen tree. **TAKEN ONCE ALREADY,
+      ON THE TREE THIS PULL REQUEST CARRIES** (the box stays open because
+      § 4.10 re-takes every gate after the merge and the re-seed): **exit 0**,
+      **100 findings** against the `origin/main` @ `38c076d1` baseline's **99**,
+      the ONE added finding being this delta's own transient `info`
+      carriage-ledger row of § 3.7 and nothing else; **MARKER-DEFECT FINDINGS
+      ARE 0 ON BOTH SIDES** — no finding on either run renders
+      `TEMPLATE_MARKERS`' *carries a … marker by … — a declaration that does
+      not describe the block* — so the count this packet's own subject is
+      measured by is UNCHANGED by the packet.
 - [ ] 4.9 `python3 -m pytest tests/sequenced_after tests/scope_globs
-      tests/proposal-support tests/doc-health -q`.
+      tests/proposal-support tests/doc-health -q` — **TAKEN, AND IT IS NOT
+      GREEN ON THIS TREE: `3 failed, 2175 passed, 7 warnings, 66 subtests
+      passed`.** All three are the two states § 3.7 and § 4.7 already disclose,
+      reached through their tests, and NOT ONE of them is a reading this
+      packet's wording changed:
+      `tests/sequenced_after/test_validate.py::test_corpus_sequenced_after_all_validate`
+      and
+      `tests/sequenced_after/test_archive_commit_dates.py::test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED`
+      are the § 4.7 dangling parent, both asserting the live validator's exit
+      status and both quoting the same *"a dangling parent reference is
+      unwalkable"*; and
+      `tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named`
+      is the § 3.7 transient row meeting an EXACT-SET self-gate — `0 named
+      subject(s) NO LONGER reported; 1 unnamed subject(s) NEWLY reported
+      [('rule-inherited-unit-naming-marker-spent', 'doc-health', "Currency of
+      an active change's MODIFIED requirement blocks")]`. **THE SELF-GATE'S
+      NAMED SET IS DELIBERATELY NOT EDITED HERE**, which is § 6.7: the subject
+      retires on either of § 3.7's two expected events, so naming it would add
+      a test edit — a CODE SURFACE this packet declares it does not have — to
+      record a row that is already disclosed and is about to clear itself. The
+      consequence is stated rather than hidden: **this branch's `pytest-suite`
+      cannot be green until the parent lands**, exactly as § 4.7 says of the
+      validator it wraps, and the three named failures are the whole of the
+      difference.
 - [ ] 4.10 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE**, after the ledger
       seed of § 3.9 and after the merge from `main` that clears § 4.7, so that
       no gate above is a reading of a tree this pull request does not carry.
+      **AND THE RE-SEED OF § 3.9 COMES BETWEEN THEM**: the merge that resolves
+      the parent moves this change's measured `depth` from 0 to 1, so the order
+      is merge, re-seed, then re-run — a full re-run taken before the re-seed
+      reports a stale row and reports it correctly.
 
 ## 5. Archive — OWED, NOT GIVEN
 
@@ -306,3 +395,25 @@ Heap's word, it FOLLOWS ratification, and openxFactory #955 closes THERE.
 - [ ] 6.5 **THE TRANSIENT `info` ROW OF § 3.7 IS NOT DISPOSITIONED.** A
       disposition would suppress a finding that is about to clear itself, and
       `health/dispositions.yaml` is for findings that stand.
+- [ ] 6.6 **THE PARTIALLY SPENT MARKER IS EXCLUDED AND NOT OTHERWISE RULED.**
+      The scope clause says in terms that a marker one of whose named units the
+      requirement's basis still carries is NOT spent and is not what these
+      sentences are read on; what a later author owes for such a marker is left
+      exactly where the five grounds already leave it, and NO carriage
+      obligation is created for it — *a marker is NOT a carriage unit, in
+      either direction* is carried word for word and not qualified. The
+      population is **zero** (`design.md` D0, measured in the same pass as the
+      sixteen), so no marker in this corpus turns on it, and inventing a rule
+      for an empty population is the cost this packet declines rather than an
+      omission it overlooked.
+- [ ] 6.7 **THE MODIFIED-BLOCK-CURRENCY SELF-GATE'S NAMED SUBJECT SET IS NOT
+      MOVED FOR A TRANSIENT ROW.** `test_every_carriage_ledger_finding_over_the_real_tree_is_named`
+      compares an EXACT SET and the transient row of
+      § 3.7 is outside it, so the test fails on this branch (§ 4.9). Its own
+      remedy — *"update the named subjects in this module, in the same commit"*
+      — is written for a row that STANDS; this one retires on ratification or
+      on the parent's archive, whichever comes first, and editing a test to
+      name it would put a test in a packet whose `code_surface:` says there is
+      none and then owe a second edit to take it out again. The row is
+      DISCLOSED instead, here and in the pull request body, and the owner rules
+      on a packet whose surface is still nothing but words.

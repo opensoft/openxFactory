@@ -53,11 +53,15 @@ they are never offered to a run. Scope: the corpus BEFORE this packet.
 | marker-defect findings a run raises today | **0** |
 
 **SIXTEEN OF SIXTEEN, AND THAT IS THE CONSTRUCTION RATHER THAN A COINCIDENCE.**
-A `Removed from canon` marker declares a REMOVAL, so the unit it names is gone
-from the requirement the moment the declaring block promotes. Every
+A `Removed from canon` marker declares a REMOVAL, so every unit it names is
+gone from the requirement the moment the declaring block promotes. Every
 unit-naming marker that reaches promoted canon is therefore spent on arrival,
 and every later amender of one of those thirteen requirements faces #955's
-choice. By file:
+choice. **AND NOT ONE OF THEM IS PARTIALLY SPENT**, which is measured in the
+same pass rather than assumed: the run classifies a marker only SOME of whose
+named units are absent separately and finds NONE, so the ALL-NAMES condition
+the block states is the condition this whole population already meets and the
+restatement changes the reading of no marker that exists. By file:
 
 | promoted specification | spent unit-naming markers |
 | --- | --- |
@@ -110,20 +114,34 @@ own voice, beside the carriage sentence rather than in the grounds paragraph,
 because this is a carriage rule and a READING of the third ground, not a sixth
 ground:
 
-1. A unit-naming marker is SPENT once the unit it names has left canon by a
+1. A unit-naming marker is SPENT once EVERY unit it names has left canon by a
    declared act, and dropping it is therefore the LAWFUL carriage: a later
    block SHALL NOT be required to restate it, SHALL NOT be reported for
    omitting it, and loses no record by dropping it, the archived delta being
    where that record is read.
 2. Where a later block carries a spent marker forward instead, the THIRD
    ground reports that marker, and the report is THIS CLASS WORKING AS WRITTEN
-   rather than a defect of the later author's care — the name matching no unit
-   of the basis (the act removed it) and no unit of the block (a block does not
-   restate a retired unit).
+   rather than a defect of the later author's care — its names matching no unit
+   of the basis (the act removed them) and no unit of the block (a block does
+   not restate a retired unit).
 3. NO ground is added, NONE is withdrawn and NO suppression moves: the count
    stays at FIVE, a spent name suppresses nothing and never has, and both
    carriage arms are untouched.
-4. It is read on a marker that NAMES a unit and on no other — the limit, D6.
+4. It is read on a marker EVERY ONE of whose named units has left canon and on
+   no other — the limit, D6.
+
+**THE CONDITION IS ALL-NAMES AND NOT ONE-NAME, AND THAT IS THE WHOLE OF WHAT
+COPILOT'S ROUND ON [#962](https://github.com/opensoft/openxFactory/pull/962)
+MOVED IN THIS PACKET.** A marker's tail names units in the PLURAL — four of
+this corpus's eighteen promoted markers name more than one — so a condition
+written on "the unit it names" reads, on a marker naming one retired and one
+still-present unit, as licence to drop a marker that is still doing suppression
+work for the name the basis carries. The population was already MEASURED
+all-names (D0: sixteen of sixteen, every named unit of every one of them absent,
+zero partial), the scenario was already written all-names (*every unit that
+marker names has left canon*), and it was the one sentence that was not. It is
+now, in all four of its places: the condition, its explanation, the
+carried-forward reading and the scope clause.
 
 Plus `#### Scenario: A later block drops an inherited unit-naming marker` and
 `#### Scenario: A later block carries an inherited unit-naming marker forward`,
@@ -360,13 +378,14 @@ change id occurring as a whole token in `proposal.md`'s own § Sequencing.
 **ONE OTHER ACTIVE WRITER OF THIS REQUIREMENT EXISTS, IT IS DECLARED, AND
 NOTHING ELSE COLLIDES.**
 
-## D6 — the LIMIT: this reaches a marker that NAMES a unit, and no other
+## D6 — the LIMIT: this reaches a marker every one of whose named units has left canon, and no other
 
 **THE RULE IS KEYED ON THE NAME, WHICH IS WHAT THE THIRD GROUND IS KEYED ON.**
 Canon's third ground reports a marker that "names something matching no unit of
 the requirement's basis and no unit of the block" — a resolution BY NAME. A
 marker that names nothing never reaches it. So the added sentences say, in
-terms, that they are read "on a marker that NAMES a unit and on no other".
+terms, that they are read "ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT
+CANON AND ON NO OTHER".
 
 **WHAT THAT LEAVES OUT, MEASURED RATHER THAN GLOSSED:**
 
@@ -381,6 +400,15 @@ terms, that they are read "on a marker that NAMES a unit and on no other".
   destination standing complete in its prefix. **This packet neither widens nor
   narrows that by one clause**, and the added sentences point back to the
   grounds paragraph for it rather than restating it.
+- **A MARKER ONLY SOME OF WHOSE NAMED UNITS HAVE LEFT CANON.** It is not
+  spent, the scope clause says so in terms, and this packet writes NOTHING
+  ELSE about it: the five grounds read it exactly as they read any other
+  marker, and no obligation to carry it is created here or anywhere — a marker
+  is not a carriage unit in either direction and that sentence is untouched.
+  The population is ZERO today (D0, measured in the same pass as the sixteen),
+  so nothing in the corpus turns on it; if one is ever written, what an author
+  owes for it is a later ruling on a later word and not a silence this packet
+  is passing off as an answer.
 - **#955'S OWN FRAMING IS CORRECTED IN PASSING.** The issue writes "it does not
   reach the PAIRING form" and then describes a `Merged into` marker — but canon
   uses "the pairing form" for a THIRD form, whose whole tail is a reason, and

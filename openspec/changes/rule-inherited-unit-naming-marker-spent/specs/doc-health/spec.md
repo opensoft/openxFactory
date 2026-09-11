@@ -228,26 +228,28 @@ into canon with the requirement that carries it, and if it were a unit every
 later block would have to restate every marker any predecessor ever wrote,
 forever. The durable record of a deletion is the archived delta, which is where
 every other archived governance act is read from. **A UNIT-NAMING MARKER IS
-SPENT ONCE THE UNIT IT NAMES HAS LEFT CANON BY A DECLARED ACT, AND DROPPING IT
-IS THEREFORE THE LAWFUL CARRIAGE.** The act the marker declares is complete and
-the unit it names is gone from the promoted text, so the marker describes
+SPENT ONCE EVERY UNIT IT NAMES HAS LEFT CANON BY A DECLARED ACT, AND DROPPING
+IT IS THEREFORE THE LAWFUL CARRIAGE.** The act the marker declares is complete
+and every unit it names is gone from the promoted text, so the marker describes
 nothing a later block could be carrying: a later block SHALL NOT be required to
 restate it, SHALL NOT be reported for omitting it, and loses no record by
 dropping it, the archived delta named above being where that record is read.
 WHERE A LATER BLOCK CARRIES A SPENT MARKER FORWARD INSTEAD, THE THIRD GROUND
 ABOVE REPORTS THAT MARKER, AND THAT REPORT IS THIS CLASS WORKING AS WRITTEN
-RATHER THAN A DEFECT OF THE LATER AUTHOR'S CARE: the name matches no unit of
-the requirement's basis, the declared act having removed it, and no unit of the
+RATHER THAN A DEFECT OF THE LATER AUTHOR'S CARE: its names match no unit of the
+requirement's basis, the declared act having removed them, and no unit of the
 block, a block not restating a retired unit, which is the third ground exactly
 as it already stands. NO GROUND IS ADDED HERE, NONE IS WITHDRAWN AND NO
 SUPPRESSION MOVES: the count stays at FIVE, a spent name suppresses nothing and
 never has, and both carriage arms are untouched — what is written here is which
 of the two standing options is the lawful one and what the other one costs, not
 a sixth ground and not a suppression this class does not carry. AND IT IS READ
-ON A MARKER THAT NAMES A UNIT AND ON NO OTHER: a marker that names nothing
-reaches the third ground through no name at all, so nothing here decides
-anything about it, and the standing of a tail that names nothing is decided in
-the grounds paragraph above rather than in this one.
+ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT CANON AND ON NO OTHER: a
+marker that names nothing reaches the third ground through no name at all, so
+nothing here decides anything about it, and a marker still naming a unit the
+requirement's basis carries is not spent and is not what these sentences are
+read on, the standing of a tail that names nothing being decided in the grounds
+paragraph above rather than in this one.
 
 Written out, the two forms are exactly:
 
@@ -692,6 +694,6 @@ above, which is the state these added sentences exist to write down.
 - **AND** the omission MUST NOT be read as undeclaring the removal, the archived delta remaining the durable record of the act
 
 #### Scenario: A later block carries an inherited unit-naming marker forward
-- **WHEN** an active MODIFIED block carries such a marker forward instead, its named unit matching no unit of the requirement's basis and no unit of the block
+- **WHEN** an active MODIFIED block carries such a marker forward instead, its named units matching no unit of the requirement's basis and no unit of the block
 - **THEN** the run MUST report the marker itself in the `info` band on the third ground, exactly as it reports any other name matching neither side
 - **AND** the report MUST NOT be read as a new ground, as a new severity or as a defect of the carriage arms, the name suppressing nothing and the block's own carriage being measured unchanged

@@ -553,10 +553,13 @@ Active changes:
   PRE-text is that change's block at `a6d373e9` and not the promoted text it
   replaces. **IT IS A PURE ADDITION**: FOUR SENTENCES added to the paragraph
   that already rules a marker no carriage unit — a unit-naming marker is SPENT
-  once the unit it names has left canon by a declared act, so DROPPING it is
+  once EVERY unit it names has left canon by a declared act, so DROPPING it is
   the lawful carriage, and where a later block carries one forward the THIRD
   ground reports it and that report is the class working as written — plus TWO
-  SCENARIOS at the end of the block, one per half of the rule. **NO UNIT IS
+  SCENARIOS at the end of the block, one per half of the rule. The condition is
+  stated ALL-NAMES rather than one-name, a marker naming units in the plural,
+  which is Copilot's round on
+  [#962](https://github.com/opensoft/openxFactory/pull/962) taken. **NO UNIT IS
   RETIRED, SO NO `Removed from canon` MARKER IS OWED AND NONE IS WRITTEN**; the
   block carries ZERO markers. **NO GROUND IS ADDED AND NONE IS WITHDRAWN** —
   the class still states FIVE — no severity, threshold, arm, finding class,
@@ -567,7 +570,8 @@ Active changes:
   `target_release: implemented`, canon's own doc-only default.
   **THE MEASUREMENT, RE-TAKEN ON `main` @ `38c076d1`**: of the 18 markers
   promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
-  — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT**, across 13 requirements
+  — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT** (every unit every one of
+  them names absent, and NONE partially spent), across 13 requirements
   in 7 specifications; of the 29 active MODIFIED blocks the family reads, TWO
   carry a unit-naming marker, both `Merged into` and each naming a unit that
   matches its basis, so a run reports **0 marker defects** today. **THE OPEN
