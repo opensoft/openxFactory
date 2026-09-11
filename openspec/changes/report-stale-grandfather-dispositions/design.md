@@ -520,7 +520,8 @@ complement of, and cannot be reported by it however the file grows.
 **#966 IS NO LONGER UNCLAIMED, AND ITS PACKET DOES NOT COLLIDE WITH THIS ONE —
 READ OFF ITS BRANCH RATHER THAN ASSUMED.** `decide-disposition-reading-per-family`
 (openxFactory PR [#978](https://github.com/opensoft/openxFactory/pull/978),
-DRAFT, branch `change/decide-disposition-reading-per-family` at `59fb2047`)
+DRAFT, branch `change/decide-disposition-reading-per-family`, **head re-read at
+`ee243dd2` in the PR #981 bench round**, having been `59fb2047` at the encode)
 was authored in parallel with this packet. It carries a `## MODIFIED` block
 over **one requirement, and it is a DIFFERENT one** — *Finding severity and
 regression handling* (canon line 198) against this packet's *Governed corpus
@@ -546,6 +547,18 @@ that HAS one — does when it reaches nothing. #978's own block says so in terms
 *"a family for which this capability DOES declare a disposition reading MUST be
 read exactly as its own declaration says, this scenario neither widening nor
 narrowing any of them."*
+
+**BOTH HALVES RE-VERIFIED AT `ee243dd2` RATHER THAN CARRIED.** #978's
+`## MODIFIED` block still names *Finding severity and regression handling* and
+this packet's still names *Governed corpus membership and the lifecycle scan
+set*, so the headings remain disjoint. And the band paragraph D1 leans on is
+still byte-unmoved in #978's copy: `diff` of `openspec/specs/doc-health/spec.md`
+lines 199–208 at `origin/main` `0805c3bb` against #978's delta lines 6–15 exits
+**0** — the whole requirement body, *"`warning` (drift or first-stage aging)"*
+included. **NO COLLISION, AND `sequenced_after: []` STANDS.** Whichever of the
+two lands second declares `sequenced_after:` at ITS OWN encode if it then needs
+to, a branch-only parent never being declarable; neither needs to today,
+because the two write disjoint bytes.
 
 ## D6 — the sibling search, pasted
 
