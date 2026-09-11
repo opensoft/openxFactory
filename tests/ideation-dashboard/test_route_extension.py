@@ -62,6 +62,23 @@ from opendox import action_errors  # noqa: E402
 # openxFactory half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
 import profile_openxfactory  # noqa: E402
 from opendox import serve as serve_mod  # noqa: E402
+# THE GATE PREFIX IS READ WHERE IT LIVES, not through a re-export that is gone.
+# `serve.ACTIONS_GATE_PREFIX` was a re-export while `serve_gate` sat inside
+# openDox; BUILD slice 2b (`openDox-code`, between `da8aae96` and `a99eba03`)
+# dropped the binding with its own reason recorded in `opendox/serve.py`:198 —
+# "it named openXdox at import time and nothing in this module read it: the
+# prefix belongs to the binding `GateRoutesExtension.routes()` declares, and
+# `openxdox.serve_gate.ACTIONS_GATE_PREFIX` is where it lives". This test
+# asserts the BUILD-time overlap refusal over the two security-sensitive
+# prefixes, so it wants the prefix itself and not the module that used to
+# forward it; reading it from the owner is also what keeps the assertion true
+# if openDox ever re-exports it again. `SOURCE_PREFIX` moved in the same slice
+# and for the same reason (`opendox/serve.py`:201-206: one of "the patterns
+# `ProjectionRoutesExtension.routes()` declares", which "travel with it" and
+# "stay reachable at `openxdox.serve_projection`, which is where they live"),
+# so it is read from its owner too.
+from openxdox.serve_gate import ACTIONS_GATE_PREFIX  # noqa: E402
+from openxdox.serve_projection import SOURCE_PREFIX  # noqa: E402
 from openxdox.generator import generate_snapshot  # noqa: E402
 
 # The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
@@ -789,8 +806,8 @@ def test_a_contributed_route_cannot_shadow_a_core_route(tmp_path, probes):
 
 
 @pytest.mark.parametrize("method,prefix,core_handler,probe", [
-    ("POST", serve_mod.ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
-    ("GET", serve_mod.SOURCE_PREFIX, "_serve_source", PROBE_READ),
+    ("POST", ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
+    ("GET", SOURCE_PREFIX, "_serve_source", PROBE_READ),
 ])
 def test_an_exact_caller_binding_under_a_contributed_prefix_refuses_the_build(
         tmp_path, probes, method, prefix, core_handler, probe):

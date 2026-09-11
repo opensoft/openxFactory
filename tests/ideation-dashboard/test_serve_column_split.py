@@ -329,8 +329,27 @@ def test_the_hosted_index_projection_belongs_to_the_projection_column():
         "module docstring")
 
 
-def test_serve_re_exports_the_hosted_index_from_its_new_home():
-    """The public surface S-3 preserved: `serve.hosted_index` still resolves,
-    and resolves to the projection column's function rather than to a second
-    copy left in the wire module."""
-    assert serve_mod.hosted_index is serve_projection.hosted_index
+def test_serve_hands_the_hosted_index_to_its_new_home_and_keeps_no_copy():
+    """S-3's re-home, at its POST-SLICE-2B resting place.
+
+    S-3 moved `hosted_index` out of the wire module into the projection column
+    and `serve.py` re-exported it so the public name kept resolving. BUILD
+    slice 2b then dropped that re-export with a reason this test records
+    rather than fights (`opendox/serve.py`:201-206): the statement "named
+    openXdox at import time", and `hosted_index` is one of the FOUR re-exports
+    that "had no reader anywhere in this repository" — it is "the column's own
+    verb", and it "stays reachable at `openxdox.serve_projection`, which is
+    where they live". The other two of the six kept their names in `serve.py`
+    precisely because they DO have readers, and `test_oqb_replumb_2.py`'s
+    predicate test covers that half.
+
+    So what S-3 promised is asserted where S-3's subject now is: exactly ONE
+    definition, on the projection column, and no copy left behind on either
+    `serve_wire` or `serve` — a second copy is the drift S-3 existed to end,
+    and a re-export openDox deleted for a layering reason is not one."""
+    assert callable(getattr(serve_projection, "hosted_index", None))
+    assert getattr(serve_wire, "hosted_index", None) is None
+    assert getattr(serve_mod, "hosted_index", None) is None, (
+        "`opendox.serve` binds `hosted_index` again — BUILD slice 2b dropped "
+        "it because the statement named openXdox at import time and nothing "
+        "in openDox read it; a restored re-export is that layering undone")
