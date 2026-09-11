@@ -198,11 +198,19 @@ and openxFactory #939 closes THERE and not at this landing.
       style, at the DRAFT standing: the word that commissioned the authoring,
       the two declared veto points, the measured 41/18/23 figures, and the
       statement that nothing is promoted and #939 closes at the archive.
-- [ ] 4.6 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
+- [x] 4.6 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<this PR>'`, run AFTER the draft pull request
-      exists because the tool stamps `moved_by` with its number. Expected to be
-      a ONE-LINE diff; no other row's provenance moves.
+      --seed-ledger --moved-by '#945'` — *"wrote
+      tests/sequenced_after/corpus-ledger.yaml (198 rows, 1 moved by #945)"*,
+      run after the draft pull request existed because the tool stamps
+      `moved_by` with its number. **THE DIFF IS ONE LINE**, which is the claim
+      measured rather than asserted:
+      `honour-grandfather-dispositions-in-ratified-provenance: {state: active,
+      class: co-modifier, declares: [], depth: 0, prose: false, moved_by:
+      "#945", moved_on: "2026-09-11"}`. NO other row's provenance moves: the
+      change classes `co-modifier` on ARCHIVED partners only — the archived
+      changes that carry a `## MODIFIED` block for this requirement — so no
+      partner flips and no MOVEMENT LOG entry is owed.
 
 ## 5. Verification — DONE IN THIS PULL REQUEST
 
