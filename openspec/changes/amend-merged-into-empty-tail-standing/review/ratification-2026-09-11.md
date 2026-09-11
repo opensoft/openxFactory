@@ -62,7 +62,7 @@ this packet's own directory or under `openspec/specs/doc-health/spec.md`,
 verified below). The delta's normative units are **byte-identical** to the
 tree Brett Heap ruled on: `git diff --name-only 546e2c97 -- openspec/changes/amend-merged-into-empty-tail-standing/specs/`
 is **EMPTY**, and this ratification adds no line to it (§ 4, and
-`review/verification-2026-09-11.md` § 9, which measures it rather than
+`review/verification-2026-09-11.md` § 8, which measures it rather than
 asserting it).
 
 ## 1. The two words, and exactly what each decided

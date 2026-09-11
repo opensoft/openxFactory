@@ -322,25 +322,30 @@ comparison is a LITERAL diff rather than a normalized one.
       capture at `review/verification-2026-09-11.md`, the packet's first and
       only gate capture, written at its own dated path because a dated run
       report is a one-shot `record` and a second run of it writes a second
-      path rather than rewriting this one (a FOURTH merge, `83dbd402` of main
-      `78d2c6f5`, landed AFTER this encode when `gh pr ready` found the
-      branch CONFLICTING; its own re-capture is
-      `review/verification-2026-09-11-post-merge.md`). **BOTH BINARIES ARE
-      RE-RUN THERE**: the pinned
-      1.12.0 through `scripts/validate-openspec-cli-pin.py --all --no-cache`
-      (2 dispositioned exceptions accepted 2026-09-05 "take exit 2", 0
-      undispositioned failures) and the PATH 1.2.0 `openspec validate --all
-      --strict`, its failure set compared name by name against an
-      `origin/main` control run in a separate worktree of matching directory
-      basename. `doc-health --single-repo .`'s finding-line diff against the
-      PRE-RATIFICATION tree is recorded beside it. **A FIFTH merge**,
-      `7ce0c70b` of main `38c076d1` (this lane's own, opening its fourth
-      author's pass), and the fix commit `a6d373e9` (restoring the README
-      row § 5 below names, closing the #915/FR-018 residue, narrowing the
-      status claim, fixing the § 5.6 cross-reference) precede a further
-      capture, `review/verification-2026-09-11-final.md`, which supersedes
-      the post-merge capture's over-broad "every gate" sentence: it re-runs
-      BOTH binaries in full on the later tree, not the PATH binary alone.
+      path rather than rewriting this one. **BOTH BINARIES ARE RE-RUN IN THAT
+      FIRST CAPTURE**: the pinned 1.12.0 through
+      `scripts/validate-openspec-cli-pin.py --all --no-cache` (2 dispositioned
+      exceptions accepted 2026-09-05 "take exit 2", 0 undispositioned
+      failures) and the PATH 1.2.0 `openspec validate --all --strict`, its
+      failure set compared name by name against an `origin/main` control run
+      in a separate worktree of matching directory basename. `doc-health
+      --single-repo .`'s finding-line diff against the PRE-RATIFICATION tree
+      is recorded beside it.
+      A FOURTH merge, `83dbd402` of main `78d2c6f5`, landed AFTER this encode
+      when `gh pr ready` found the branch CONFLICTING; its own re-capture,
+      `review/verification-2026-09-11-post-merge.md`, RE-RUNS ONLY THE PATH
+      1.2.0 `openspec validate --all --strict` and `doc-health
+      --single-repo .` — the pinned 1.12.0 figure that capture tabulates is
+      CARRIED OVER from the first capture rather than re-run, a gap its own
+      successor closes.
+      **A FIFTH merge**, `7ce0c70b` of main `38c076d1` (this lane's own,
+      opening its fourth author's pass), and the fix commit `a6d373e9`
+      (restoring the README row § 5 below names, closing the #915/FR-018
+      residue, narrowing the status claim, fixing the § 5.6 cross-reference)
+      precede a further capture, `review/verification-2026-09-11-final.md`,
+      which supersedes the post-merge capture's over-broad "every gate"
+      sentence: it re-runs BOTH binaries in full on the later tree, not the
+      PATH binary alone.
 
 ## 5. Archive — OWED, NOT GIVEN
 

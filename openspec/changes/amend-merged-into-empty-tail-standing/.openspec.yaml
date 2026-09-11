@@ -140,7 +140,11 @@ origin:
     OPEN, and openxFactory #914 therefore closes AT THE ARCHIVE and not at
     this landing.
     Record: `review/ratification-2026-09-11.md`, with the gate run re-derived
-    on the ratified tree at `review/verification-2026-09-11.md`.
+    on the ratified tree at `review/verification-2026-09-11.md`, re-verified
+    after two further merges from `main` at
+    `review/verification-2026-09-11-post-merge.md`, and again — on both
+    binaries, superseding that capture's own over-broad claim — at
+    `review/verification-2026-09-11-final.md`, the current evidence.
   approved_on: 2026-09-11
 related:
   - openxFactory:change:archive/2026-09-10-amend-marker-declaring-nothing        # ARCHIVED (PR #908 -> archive PR #926). OWED THIS SUCCESSOR at its tasks.md § 7.1 / design.md D6, pinned the silence this packet rules correct, and is THE LAST WRITER of the requirement this block MODIFIES — its promoted text is what this block writes over and its own `Removed from canon` marker is deliberately NOT restated here
