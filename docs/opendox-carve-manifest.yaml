@@ -168,7 +168,7 @@ kind: opendox-carve-manifest
 # `carve-shed-incomplete`. So the flip cannot land ahead of the deletions to
 # buy silence for 319 rows at once, and the deletions cannot land ahead of the
 # flip without refusing — they are ONE ACT (runbook § 8).
-phase: carve
+phase: post-shed
 
 header: >-
   The openDox/openXdox carve manifest, authored AT the carve commit as the last
