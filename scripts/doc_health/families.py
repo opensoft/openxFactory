@@ -966,8 +966,9 @@ def fam_ratified_provenance(ctx):
     (`record-immutability`, `govern-archived-record-edits`), so the fifteen
     openxFactory records grandfathered on #877 and codexFactory's three stood
     CRITICAL in the nightly with no repair available and a recorded ruling
-    saying none was owed. `_honour_grandfather_dispositions` is the last pass:
-    a finding whose `(family, repo, path)` carries a DATED, CITED entry in the
+    saying none was owed. `_honour_grandfather_dispositions` is the FIRST of
+    this family's two trailing passes: a finding whose `(family, repo, path)`
+    carries a DATED, CITED entry in the
     aggregation's `health/dispositions.yaml`, AND whose path is under
     `openspec/changes/archive/`, is reported at `info` with the citation
     quoted. It is a downgrade rather than a suppression on purpose — see that
@@ -975,9 +976,10 @@ def fam_ratified_provenance(ctx):
     or what it finds in them.
 
     AND IT READS THE OTHER HALF OF THE SAME EQUALITY (#965).
-    `_stale_grandfather_dispositions` is the second last pass, taken after the
-    first: a recorded entry whose target draws no finding from this family —
-    the record REPAIRED, or the path VANISHED — matched nothing, moved nothing
+    `_stale_grandfather_dispositions` is the SECOND trailing pass and the
+    family's LAST — the `return` below appends it to the downgrade's result: a
+    recorded entry whose target draws no finding from this family — the record
+    REPAIRED, or the path VANISHED — matched nothing, moved nothing
     and was reported nowhere, so the file kept it and no artifact a reader
     reads ever said so. That residue is reported at `warning` against the
     AGGREGATION's `health/dispositions.yaml`, the file the entry is a line of,

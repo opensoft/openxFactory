@@ -295,10 +295,25 @@ ARCHIVE pull request and nowhere else.
       NARROWING.
       (d) `scripts/doc_health/families.py`'s FAMILY docstring called this the
       *"second last pass"* while the family's `return` appends it LAST; it now
-      reads *"the SECOND trailing pass and the family's last"* and the
-      downgrade above it *"the FIRST of this family's two trailing passes"*.
-      Prose only — no executable line moved for it. Raised by Copilot on
-      PR #981 (`families.py:975`), TAKEN.
+      reads *"the SECOND trailing pass and the family's LAST — the `return`
+      below appends it to the downgrade's result"* and the downgrade above it
+      *"the FIRST of this family's two trailing passes"*. Prose only — no
+      executable line moved for it. Raised by Copilot on PR #981
+      (`families.py:975`), TAKEN — and RAISED AGAIN at `families.py:978`
+      because the first attempt at this edit was dropped by a failed scripted
+      replacement and the claim reached the bench ahead of the change; the
+      second thread is the one that actually landed it.
+- [x] 4.8 **THE ADDED SCENARIO'S `WHEN` IS ALIGNED WITH ITS OWN `AND` AND WITH
+      THE CODE.** The `WHEN` admitted *"a repository the run enumerated"* while
+      the `AND` below it refused an entry naming a repository the run READ NO
+      DOCUMENT FROM — so the scenario required and forbade the same row for an
+      enumerated-but-unread repository, which is exactly the unmaterialized
+      anchor D2b is about. The `WHEN` now reads *"a repository that contributed
+      a document to this family's scan scope"*, which is what
+      `_stale_grandfather_dispositions` implements. No promoted byte moves and
+      no scenario is added or removed by this: it is one clause of this
+      packet's own added scenario. Raised by Copilot on PR #981
+      (`specs/doc-health/spec.md:75`), TAKEN.
 - [x] 4.5 **THE COMPOSITION IS ASSERTED, NOT ARGUED.**
       `test_the_second_pass_returns_only_its_own_rows` holds that the second
       pass returns ONLY the rows it builds, that every graded row reaches the
