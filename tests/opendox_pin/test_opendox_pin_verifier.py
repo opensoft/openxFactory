@@ -511,6 +511,44 @@ def test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading(
     assert derived["commit"] == pin["commit"]
 
 
+def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
+    """PR #952 review thread: the §4.2 `migration` block RULED ASK-1 (#656
+    comment 5628886636) is not read by `verify()` — only the commit and tree
+    digest are — so deleting or renaming it would still leave every other
+    check in this file green. This is the positive assertion the thread
+    asked for: the root pin carries `migration.range`, `.reversible`, and
+    `.runbook` each at the `not_yet_deployed` sentinel, the in-file comment
+    cites ASK-1, and openXdox's own derived copy — read as a git BLOB at the
+    gitlinked commit, never the working tree, on the same reasoning as
+    `test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading`
+    above — renders the identical three keys and cites the same ruling.
+
+    Field-VALUE enforcement inside `verify()` itself (refusing a pin whose
+    `migration.range` etc. are not `not_yet_deployed`, or requiring the keys
+    at all) is a follow-up once `neutral-product-pin`'s spec pins the key
+    names; this test only proves the shape is not silently deletable.
+    """
+    pin_text = PIN_PATH.read_text(encoding="utf-8")
+    pin = yaml.safe_load(pin_text)
+    migration = pin["migration"]
+    assert migration["range"] == "not_yet_deployed"
+    assert migration["reversible"] == "not_yet_deployed"
+    assert migration["runbook"] == "not_yet_deployed"
+    assert "ASK-1" in pin_text
+
+    openxdox_oid, source = MODULE._recorded_gitlink(REPO_ROOT, "openXdox")
+    assert openxdox_oid is not None
+    assert source == "HEAD"
+    blob = _git(REPO_ROOT / "openXdox", "show",
+               f"{openxdox_oid}:contracts/opendox-pin.yaml").stdout
+    derived = yaml.safe_load(blob)
+    derived_migration = derived["migration"]
+    assert derived_migration["range"] == "not_yet_deployed"
+    assert derived_migration["reversible"] == "not_yet_deployed"
+    assert derived_migration["runbook"] == "not_yet_deployed"
+    assert "ASK-1" in blob
+
+
 def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:
     assert MODULE.main([]) == 0
     out = capsys.readouterr()
