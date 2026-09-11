@@ -215,11 +215,25 @@ def _require(gitlink: str, leg: str, src: Path, package: str) -> None:
 
 def install(*, tests: bool = False) -> None:
     """Put both pinned legs' `src/` — and this repository's `scripts/` — on the
-    path, or arrange for the carved NAMES to refuse when a leg is missing.
+    path, or arrange for the carved NAMES to refuse when a leg is missing, and
+    register openxFactory's composition point with the two consumers that name
+    it.
 
     Idempotent: safe to call from a conftest, from a script's module body and
     from a test that re-enters it. `tests=True` additionally APPENDS the two
     legs' own `tests/` trees, for the helper modules that moved there.
+
+    IT DELIBERATELY DOES NOT BIND THE COMPOSITION POINT, and the reason is a
+    cycle rather than a preference. `bind_composition_point()` below reaches
+    `scripts/profile_openxfactory.py`, which imports
+    `ideation_dashboard.serve_openxfactory_lanes` — a module whose own body
+    calls THIS function. Folding the binding in here makes that column's import
+    re-enter the profile while the column is still half-executed
+    (`AttributeError: partially initialized module … has no attribute
+    'LaneRoutesExtension'`, measured). The division that falls out is the right
+    one anyway: a COLUMN installs the reach, an ASSEMBLY POINT also binds the
+    profile, and the assembly points are named in `bind_composition_point()`'s
+    own docstring.
     """
     missing = []
     for gitlink, leg, src, package in LEGS:
@@ -250,7 +264,8 @@ def require() -> None:
     runs in every pytest invocation including ones that reach nothing. A
     production entrypoint has no such ambiguity: it is about to serve, sweep or
     sync through a carved module, and finding out now beats finding out in the
-    middle of a lane.
+    middle of a lane. `scripts/ideation-dashboard-serve.py` is the entrypoint
+    this exists for.
     """
     for gitlink, leg, src, package in LEGS:
         _require(gitlink, leg, src, package)
@@ -420,6 +435,23 @@ def bind_composition_point() -> None:
     it costs no import of either consumer — which matters, because importing
     `opendox.cli` pulls the CLI column's whole dependency chain and a server
     process must not pay for it.
+
+    WHO CALLS IT, AND WHY THAT IS NOT ONLY THE TESTS (Copilot
+    `PRRT_kwDOTAvnrs6hbVwB`). Every ASSEMBLY POINT — a process that is going to
+    call `build_server()` or `build_parser()` — and nothing else:
+
+      * `scripts/ideation-dashboard-serve.py`, the serve entrypoint
+        `scripts/reserve-dashboard.sh` executes. It is the production caller,
+        and its absence was the finding: without this call a real server
+        process reaches `NameError: name 'profile_openxfactory' is not
+        defined` the moment it builds, which is measured rather than supposed.
+      * `tests/conftest.py` and `tests/ideation-dashboard/conftest.py`, for the
+        suites that build servers and parsers in-process.
+
+    A COLUMN must NOT call it: `ideation_dashboard/serve_openxfactory_lanes.py`
+    is imported BY the profile, so a column that bound the composition point
+    would re-enter its own half-executed module. That is why `install()` does
+    not fold this in — see its docstring.
 
     THE DAY THIS SHRINKS. When openDox-code's lazy proxy lands (§ 4.3, RULED
     ASK-2 (2)), the consumers will import the proxy themselves and this becomes
