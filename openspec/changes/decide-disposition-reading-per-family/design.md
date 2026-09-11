@@ -99,7 +99,7 @@ Thirty-one entries, one row each, collapsed by outcome:
 | **matched** — the path draws a live finding of that family | **10** | `proposal-origin` 7 (5 `warning`, 2 `error`), `record-immutability` 3 (all `critical`) |
 | **unmatched**, target present — the path exists and draws no finding of that family | **7** | `location-conformance` 3, `modified-block-currency` 2, `record-immutability` 2 |
 | **target vanished** — the path does not exist in the repository named | **11** | `location-conformance` 7, `modified-block-currency` 2, `proposal-origin` 1, `document-catalog` 1 |
-| **not deterministically measurable** — no deterministic run emits this family | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1, `uncited-resolution` 1 (all three targets present) |
+| **not admissible to this measurement, for two different reasons** | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1 — NO deterministic run emits either family; `uncited-resolution` 1 — the family IS emitted deterministically (`runner.py:831` → `report.uncited_resolutions`), but this entry's OWN key is excluded by construction (`report.parse_previous`, line 382, the anti-echo of issue #515) (all three targets present) |
 
 **NOT ONE OF THE THIRTY-ONE NAMES A PATH UNDER `openspec/changes/archive/`.**
 A set test over the thirty-one, not a count: zero. So the parent's ground in its
@@ -436,8 +436,12 @@ whose job is to report THIS repository's defects should consult another
 repository's disposition file at all is
 [#968](https://github.com/opensoft/openxFactory/issues/968), filed by the
 parent's § 7.4, and it is left there rather than answered by a packet about a
-different question. The added scenario is written so that it says nothing about
-scope: it constrains what an entry MEANS, not where the file is found.
+different question. THE ADDED SCENARIOS' OWN `WHEN` NOW SAYS SO IN TERMS,
+rather than leaving a reader to infer it (review round of 2026-09-11): each is
+scoped to a run that reads the aggregation checkout, so a `--single-repo` run
+— which reads no disposition of any family — is outside both `WHEN`s
+entirely, and neither scenario's MUST/MUST NOT promises anything about that
+case.
 
 ## D5 — the LIMIT of this packet, stated so no reader has to infer it
 

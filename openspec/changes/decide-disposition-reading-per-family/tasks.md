@@ -49,8 +49,10 @@ each open box below states the event that closes it:
 - **§ 6** closes AT THE ARCHIVE, which is a separate act on a separate word.
 - **§ 7** closes BY RECORDING, on the estate's ruling of 2026-09-06 that an
   owed-successor box ticks when its successor is NAMED — the shape the parent's
-  own § 7 archived in. Its boxes are ticked below: three name a filed successor
-  (#965, #967, #968) and two record a residue with no successor owed.
+  own § 7 archived in. Its boxes are ticked below: TWO of the six name a filed
+  successor (#967, #968) and FOUR record a residue with no successor owed —
+  #965 is NOT one of them, § 7.2 recording in terms that its residue is not
+  handed there.
 
 ## 1. Ratification — OWED, NOT GIVEN (one box per class)
 
@@ -134,7 +136,11 @@ each open box below states the event that closes it:
       `contested` 7/7, `record-immutability` 16/16 and `modified-block-currency`
       48/48, while `proposal-origin` is **`auto-fixable` 130/130** and
       `document-catalog` **1/1**. 19 of the 31 belong to a contested family; 9 are
-      admissible by key and unreachable on today's classes.
+      admissible by key and unreachable on today's classes; the remaining 2
+      (`semantic-contradiction`, `semantic-normative-prose`) are not
+      deterministically emitted by ANY run and are admissible to this arm by no
+      measurement at all, leaving the 31st (`uncited-resolution`'s own) as the
+      only entry excluded by construction rather than by class.
 - [x] 2.6 Every reader of the file enumerated by grep across
       `scripts/doc_health/` — `promotion_fidelity.load_dispositions` and its
       **FOUR** call sites, counted rather than summarised:
@@ -251,7 +257,11 @@ each open box below states the event that closes it:
       `modified-block-currency`'s promoted *A finding is dispositioned*, plus the
       change in `scripts/doc_health/modified_block_currency.py` that a narrowing
       or widening implies.
-- [ ] 4.5 **ONLY IF CLASS D IS VETOED toward (D1b):** the re-opening of issue
+- [ ] 4.5 **ONLY IF CLASS D IS VETOED toward (D1b):** `scripts/doc_health/report.py`
+      (`parse_previous`'s anti-echo refusal, `UNCITED_RESOLUTION_FAMILY`) is the
+      module a family-side reader for `uncited-resolution` would sit in, plus a
+      NEW promoted requirement giving `uncited-resolution` its own reading —
+      today none does — and the test that pins it; the re-opening of issue
       #515's echo is designed for and tested against before any line is written.
       Named here so the cost is visible at the ruling and not discovered after.
 
@@ -327,10 +337,10 @@ from the run and repeated in the pull request body.
 
 **EVERY BOX BELOW IS TICKED BY THE RECORDING AND BY NOTHING ELSE.** No residue
 is acted on: no arm is written, no finding class is graded, no severity is
-chosen and no entry is edited. Three of the five hand their residue to a NAMED
-filed successor, which is the form the estate ruled on 2026-09-06 and the form
-the parent's own § 7 archived in; two record a residue that owes no successor
-and say so.
+chosen and no entry is edited. TWO of the SIX hand their residue to a NAMED
+filed successor (#967, #968), which is the form the estate ruled on 2026-09-06
+and the form the parent's own § 7 archived in; FOUR record a residue that owes
+no successor and say so.
 
 - [x] 7.1 **NO TEST PINS THE BOUNDARY** the two added scenarios state. NO SUCCESSOR
       IS OWED and none is named — this box ticks on the recording of the
@@ -368,18 +378,24 @@ and say so.
       [#967](https://github.com/opensoft/openxFactory/issues/967).
 - [x] 7.4 **THE `--single-repo` SCOPE IS LEFT WITHOUT DISPOSITIONS**, which is
       [#968](https://github.com/opensoft/openxFactory/issues/968) and `design.md`
-      D4. The added scenario is written to say nothing about scope.
+      D4. The review round of 2026-09-11 was right that silence invited being
+      read as a promise the code does not keep: both added scenarios' `WHEN`
+      now names the aggregation-checkout scope in terms, so a `--single-repo`
+      run is outside either `WHEN` and neither scenario states anything about
+      it.
 - [x] 7.5 **THE THIRTY-ONE CITES ARE NOT RE-VERIFIED.** Whether each disposer's
       ground was sound was that authority's act; re-litigating it in a checker is
       not this capability's authority (`doc-health`, *Semantic finding
       disposition authority*). NO SUCCESSOR IS OWED and none is named; this box
       ticks on the recording of the limit.
-- [x] 7.6 **TWO GAPS BETWEEN THE CONTESTED-RESOLUTION ARM'S SCOPE AND WHAT IT
-      RECORDS ARE MEASURED AND REPORTED, NOT REPAIRED.** The review round of
-      2026-09-11 was right that a `MUST NOT emit` written over "the run did not
+- [x] 7.6 **THREE GAPS BETWEEN THE CONTESTED-RESOLUTION ARM'S SCOPE AND WHAT IT
+      RECORDS ARE MEASURED AND REPORTED, NOT REPAIRED.** The review rounds of
+      2026-09-11 were right that a `MUST NOT emit` written over "the run did not
       evaluate it" would have promised behaviour the shipped code does not give,
-      so the scenario was narrowed to what the run RECORDS and a sixth bullet
-      refuses to ratify either gap. Measured at `origin/main` `0805c3bb`:
+      so the scenario was narrowed to what the run RECORDS and a bullet refuses
+      to ratify any of the three. Measured at `origin/main` `972b484a` (byte-
+      identical to `0805c3bb` over every file these gaps cite — `git diff
+      0805c3bb..972b484a -- scripts/doc_health/` is empty):
       (a) an UNSTAMPED previous report is accepted with `unavailable_repos` left
       EMPTY (`runner.py:686-702`, the issue #342 backward-compatibility branch,
       which warns on stderr and proceeds), so a subset-scoped run diffed against
@@ -389,9 +405,21 @@ and say so.
       `runner.FAMILIES` — verified by import — so `set(FAMILIES) - {args.family}`
       never contains them, and `runner.py:810-811` adds them only when a sweep
       was requested AND skipped; a `--family X` run whose baseline carried a
-      contested semantic row can therefore emit against it. **NEITHER IS
-      REPAIRED HERE**: both are runtime defects in `scripts/doc_health/`, this
-      packet declares `code_surface: none`, and building either arm before the
-      ruling is the one thing it must not do. **NO SUCCESSOR IS NAMED** — naming
-      one is an act for Brett Heap's word — and this box ticks on the recording
-      of the two measurements and of the scenario's refusal to ratify them.
+      contested semantic row can therefore emit against it; (c) `run_suite`
+      (`runner.py:224-277`) adds a family to `unavailable_families` only via
+      `args.skip_family` (line 234) or `args.family` exclusivity
+      (`runner.py:808-809`) — NOT when the family's own `fn(ctx)` returns an
+      ordinary `Skip` result on its own initiative (`runner.py:247-273`: the
+      returned `Skip` is appended to `result.skips` and nothing more), e.g.
+      `fam_modified_block_currency` returning `Skip(FAMILY, "no repository in
+      scope carries an `openspec/changes/` directory this family can read")` at
+      `modified_block_currency.py:2232-2234` — so a family whose check simply
+      found nothing TO run against this time can have a prior contested row
+      read as resolved without citation, the same shape as (a) and (b) one
+      guard-condition over. **NONE OF THE THREE IS REPAIRED HERE**: all three
+      are runtime defects in `scripts/doc_health/`, this packet declares
+      `code_surface: none`, and building any of the three arms before the
+      ruling is the one thing it must not do. **NO SUCCESSOR IS NAMED** —
+      naming one is an act for Brett Heap's word — and this box ticks on the
+      recording of the three measurements and of the scenario's refusal to
+      ratify them.
