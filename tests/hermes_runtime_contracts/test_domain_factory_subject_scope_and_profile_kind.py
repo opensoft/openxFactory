@@ -247,6 +247,27 @@ def test_a_cloudpc_worker_profile_with_a_mixed_nested_profile_block_still_resolv
     assert "profile_id missing" not in result.stdout
 
 
+def test_a_cloudpc_worker_profile_with_profile_id_fully_nested_passes(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """The other half of the fallback: `profile_id` nested entirely under
+    `profile:` (no top-level `profile_id` at all) must still resolve via
+    `prof.get("profile_id")` (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "kind": "cloudpc_worker_profile",
+            "profile": {"profile_id": "cloudpc-worker-nested", "tenant_kind": "pilot"},
+        },
+    }
+    repo = _materialize(tmp_path / "cloudpc-nested-profile-id", _stack(), yaml_writer,
+                        profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 0, result.stdout
+    assert "profile_id missing" not in result.stdout
+
+
 def test_a_non_string_kind_is_reported_not_crashed_on(
     tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
 ) -> None:
