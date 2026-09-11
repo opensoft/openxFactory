@@ -144,8 +144,11 @@ with its own reason — three `stays_openxfactory_adapter` (`gate-intent`,
 `ideation-cross-reference`, `ideation-possibles-register`) and three
 `stays_openxfactory_governance` (`project-register`,
 `xfactory-ideation-organizer-recommendations`,
-`xfactory-ideation-routing-index`). `demotion-execution-receipt` is in no carve
-row at all and likewise stays. Their manifest rows are untouched by this cut.
+`xfactory-ideation-routing-index`). `demotion-execution-receipt`'s SCHEMA is in
+no carve row at all and likewise stays — its three packaged examples under
+`examples/ideation-dashboard/` ARE carve rows, `moved_verbatim`, and left with
+the family at the shed, which is the precision `contract-v3.7`'s own entry used
+and this one keeps. Their manifest rows are untouched by this cut.
 The reader travels; the governance DATA and the adapter stay, which is the same
 line `contract-v2.0` drew for `governance/review-authority/`.
 
@@ -202,7 +205,7 @@ reason, and **not one of their removals is taken here**:
 | entry | new target | why it is restated rather than executed |
 |---|---|---|
 | the `hermes` flat KEYS (the twelve, by path) | `contract-v5.0` | the deprecating minor it owes — a validator that warns on the co-resident shape whether or not `hermes.layers` is present — still has not been cut, so the removal would be unphased |
-| the undeclared `consumer:` block on a credential binding (nine acts) | `contract-v5.0` | none of the acts was authored; `scripts/validate-credential-contracts.py` still emits all nine `consumer-*` codes as WARNINGS, and the requiredness row's degraded fetch-identity precondition is still unmet |
+| the undeclared `consumer:` block on a credential binding (the EIGHT shape acts the entry's own heading names, plus the ninth `identity_namespace` grammar row declared beside them) | `contract-v5.0` | none of the acts was authored; `scripts/validate-credential-contracts.py` still emits all nine `consumer-*` codes as WARNINGS, and the requiredness row's degraded fetch-identity precondition is still unmet |
 | a `requirement_ref` that RESOLVES TO NOTHING or ambiguously (two acts) | `contract-v5.0` | neither act was authored; both codes still emit as WARNINGS. Moved together with the entry above, which is how the ONE-WINDOW property those two entries share is preserved |
 
 `scripts/validate-credential-contracts.py` needs no edit for any of this: it
@@ -211,6 +214,22 @@ DERIVES `MAJOR_RELEASE` as one major past the bundle this manifest declares
 to `contract-v5.0` on its own, and
 `tests/credential_contracts/test_major_release_matches_policy.py` checks the
 derivation against the policy's own restated text.
+
+TWO PACKAGED EXAMPLES restate with the entries, because their prose made the
+same live claim the policy entries did:
+`examples/credential-contracts/warning/requirement-ref-unresolved.yaml` and
+`requirement-ref-ambiguous.yaml` each said the refusal "lands at
+`contract-v4.0`" and now say `contract-v5.0`, with the second restatement's
+provenance. Neither is a release member — they carry no digest in any inventory
+— so the correction spends nothing; it is taken because a corpus example that
+promises a refusal at the bundle being published without it is the same defect
+the restatement rule exists to prevent. Two other classes of `contract-v4.0`
+mention are deliberately LEFT: this repository's `README.md` records what the
+`contract-v3.0` cut WROTE (a historical fact, not a live target), and the
+active `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens`
+packet names `contract-v4.0` as its ratified target — restating a ratified
+packet is its own change, and no `openspec/changes/` path is touched by this
+cut.
 
 ### Rollback posture
 
