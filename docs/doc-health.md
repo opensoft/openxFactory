@@ -61,7 +61,10 @@ oversight here.
 
 **Rows re-derived at** `8015d45fdf68` (2026-09-11, issue #967). Every row above
 states its family's arms as `scripts/doc_health/` and the promoted
-[`doc-health` spec](../openspec/specs/doc-health/spec.md) carry them at that commit,
+[`doc-health` spec](../openspec/specs/doc-health/spec.md) carry them at that commit —
+except row 7's RECORDED OUTCOME exemption, whose textual authority is
+`openspec/changes/settle-aging-staging-topics/`, `Status: ratified` but still active,
+not yet archived into the promoted spec —
 rather than the one arm several of them were first summarised by; rows 6, 9 and 12
 already did and are unchanged. This refreshes no ROSTER — the table stays knowingly
 incomplete for the reason given above — and a later sweep refreshes this line with the
