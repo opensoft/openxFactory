@@ -1,6 +1,7 @@
 # Tasks: honour-grandfather-dispositions-in-ratified-provenance
 
-Status: draft
+Status: ratified
+Ratified by: honour-grandfather-dispositions-in-ratified-provenance — 2026-09-11, Brett Heap, D1 "info row carrying the citation" / D2 "Archived-only boundary" (record `review/ratification-2026-09-11.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -12,11 +13,18 @@ realizes through its own task list rather than through a feature DAG.
 this pull request or a measurement recorded verbatim in the pull request body
 and reproducible from the commands named beside it.
 
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN AND IS BRETT HEAP'S ACT.** His word of
+**§ 1 (RATIFICATION) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT**, which
+is Brett Heap's act and not the authoring lane's. His earlier word of
 2026-09-11, verbatim **"Commission the packet"**, commissioned the AUTHORING and
-decided no wording; it is recorded as the origin in `.openspec.yaml` and is not
-read as an approval. `.openspec.yaml` carries drafting provenance with **no
-approval pair**, and every document here carries `Status: draft`.
+decided no wording; it stays recorded as the origin in `.openspec.yaml` and is
+not read as an approval. The RATIFICATION is his separate word of
+2026-09-11T10:11:50Z, recorded on PR #945 at 10:11:56Z, a MULTIPLE-CHOICE
+ruling over `design.md` D1 and D2 that took **"info row carrying the
+citation"** and **"Archived-only boundary"** — both the recommended and
+already-encoded options, so the packet's wording stands unchanged.
+`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED BESIDE the
+drafting provenance, which is byte-unmoved, and every document here carries
+`Status: ratified` with exactly one citation line.
 
 **§ 6 (ARCHIVE) IS ENTIRELY OPEN.** `code_surface` is non-empty, so the archive
 is a separate act on merged-plus-green realization evidence and a separate word,
@@ -24,35 +32,42 @@ and openxFactory #939 closes THERE and not at this landing.
 
 **§ 7 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-11
 
-- [ ] 1.1 **RATIFY OR REFUSE THE PACKET.** Brett Heap (openxFactory operator
-      authority) rules on this packet itself. Until he does, no requirement
-      here is approved, `Status: draft` stands on every document, and
-      `.openspec.yaml` declares `proposed_by`/`proposed_on` with no
-      `approved_by`/`approved_on` — the shape `add-drafted-proposal-origin`
-      (issue #318) added for exactly this state. Approval, when it comes, is a
-      pure ADDITION beside a fixed `kind` and `id`.
-- [ ] 1.2 **RULE `design.md` D1 — THE BAND.** `info` row carrying the citation
-      (recommended) against SILENCE on the four siblings' precedent. Put with
-      the recommendation first and the veto's cost written out: suppression is
-      a smaller diff and matches four promoted requirements exactly; it costs
-      the eighteen records their visibility, makes the grandfathered population
-      uncountable from the report, and turns a stale entry into an invisible
-      one. A veto of D1 moves ONE `THEN` bullet of the delta and one branch of
-      `_honour_grandfather_dispositions`; nothing else in the packet depends
-      on it.
-- [ ] 1.3 **RULE `design.md` D2 — THE BOUNDARY.** ARCHIVED-only (recommended)
-      against admitting an entry over an ACTIVE packet's record. A veto of D2
-      costs the distinction between a ruling on something nobody may repair and
-      a deferral of something somebody could fix this afternoon. D1 and D2 rest
-      on no shared predicate; either stands whichever way the other goes.
-- [ ] 1.4 **D0 AND D3 THROUGH D6 ARE CARRIED BESIDE THEM**, each with its
-      alternative written out, and any of them may be vetoed in the same
-      ruling: D0 (the measurement), D3 (the existing file, the existing key,
-      the delegated admission rule, the bounded cite excerpt), D4 (`doc-health`
-      is amended and `document-lifecycle` is NOT), D5 (the sibling search), D6
-      (what is not taken).
+- [x] 1.1 **THE PACKET IS RATIFIED.** Brett Heap (openxFactory operator
+      authority) ruled on this packet itself on 2026-09-11, the word given in
+      session at 10:11:50Z and recorded on PR #945 at 10:11:56Z (comment
+      5632913794). `Status: ratified` with one citation line now stands on
+      `proposal.md`, `design.md` and `tasks.md`, and `.openspec.yaml` carries
+      `approved_by`/`approved_on` as a pure ADDITION beside a byte-unmoved
+      `kind`, `id`, `reason`, `proposed_by` and `proposed_on` — the shape
+      `add-drafted-proposal-origin` (issue #318) added for exactly this
+      transition, and the shape the archive gate's origin-retention arm reads.
+- [x] 1.2 **`design.md` D1 — THE BAND — RULED "info row carrying the
+      citation".** The RECOMMENDED option, against *"Suppress, matching the
+      four siblings"* on the four siblings' precedent. It was put with the
+      recommendation first and the veto's cost written out: suppression would
+      have been a smaller diff and would have matched four promoted
+      requirements exactly, at the cost of the eighteen records' visibility, an
+      uncountable grandfathered population, and a stale entry become invisible.
+      **THE ENCODED OPTION WAS TAKEN, SO NOTHING MOVED**: the `THEN` bullet of
+      the delta and the branch of `_honour_grandfather_dispositions` stand
+      exactly as the bench reviewed them.
+- [x] 1.3 **`design.md` D2 — THE BOUNDARY — RULED "Archived-only boundary".**
+      The RECOMMENDED option, against *"Admit active paths too"*. A veto would
+      have cost the distinction between a ruling on something nobody may repair
+      and a deferral of something somebody could fix this afternoon. D1 and D2
+      rest on no shared predicate and either would have stood whichever way the
+      other went; both took the encoded option. **THE PREDICATE WAS NOT
+      WIDENED**: `finding.path.startswith("openspec/changes/archive/")` is the
+      whole test and the scenario's ACTIVE-packet bullet stands.
+- [x] 1.4 **D0 AND D3 THROUGH D6 WERE CARRIED BESIDE THEM AND NONE WAS
+      VETOED**, each with its alternative written out and each open to veto in
+      the same ruling: D0 (the measurement), D3 (the existing file, the
+      existing key, the delegated admission rule, the bounded cite excerpt),
+      D4 (`doc-health` is amended and `document-lifecycle` is NOT), D5 (the
+      sibling search), D6 (what is not taken). The ruling reached D1 and D2 and
+      left all six standing as authored.
 
 ## 2. The measurement, taken before the design
 
@@ -258,9 +273,13 @@ and openxFactory #939 closes THERE and not at this landing.
       `SHALL`** — *"The doc-health capability SHALL declare two document sets
       and SHALL keep them distinct."* — which is what the strict parser reads.
 - [x] 4.5 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
-      style, at the DRAFT standing: the word that commissioned the authoring,
-      the two declared veto points, the measured 41/18/23 figures, and the
-      statement that nothing is promoted and #939 closes at the archive.
+      style. It was seeded at the DRAFT standing — the word that commissioned
+      the authoring, the two declared veto points, the measured 41/18/23
+      figures, and the statement that nothing is promoted and #939 closes at
+      the archive — and it MOVED TO THE RATIFIED STANDING IN THE SAME COMMIT AS
+      the status flip: it now names the ratifier, the date, the two verbatim
+      options and their recording on PR #945, the records' paths, the approval
+      pair added beside an unmoved origin, and that § 6 stays entirely open.
 - [x] 4.6 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#945'` — *"wrote
@@ -277,9 +296,18 @@ and openxFactory #939 closes THERE and not at this landing.
 
 ## 5. Verification — DONE IN THIS PULL REQUEST
 
-**EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THE FINAL TREE** — the merge of
-`origin/main` `f0eea7ed`, the § 5.10 review round and the § 4.6 ledger seed —
-with its exit code and its own output quoted.
+**EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON A REAL TREE**, with its exit
+code and its own output quoted. § 5.1 through § 5.9 were taken on the
+pre-ratification tree of 2026-09-11 — the merge of `origin/main` `f0eea7ed`,
+the § 5.10 review round and the § 4.6 ledger seed. **THE TREE MOVED SIX TIMES
+AFTER THAT**: three further merges from `origin/main` (`1fb6d5cd` at
+`468df2ef`, `22efcbe8` at `a343f017`, `78d2c6f5` at `f281c1fa`), the § 5.11 and
+§ 5.12 review rounds (`cd27180c`, `5a8bba3e`), the merge of `origin/main`
+`38c076d1` at `ad6d542c`, and the ratification encode itself. So **§ 5.13
+RE-DERIVES THE WHOLE GATE SET ON THE RATIFIED TREE**, and its figures — not
+§ 5.1–5.9's — are the ones this packet stands on; the record of them is
+`review/verification-2026-09-11.md`. The earlier readings are kept as the
+record of what was measured when, which is what makes the two comparable.
 
 - [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate
       honour-grandfather-dispositions-in-ratified-provenance --strict` —
@@ -448,6 +476,49 @@ with its exit code and its own output quoted.
       worktree named in § 5.8, and the new file's test functions are counted
       rather than recalled.
 
+- [x] 5.13 **THE WHOLE GATE SET RE-DERIVED ON THE RATIFIED TREE**, after the
+      § 5.12 fix, after the merge of `origin/main` `38c076d1` (`ad6d542c`) and
+      after the ratification encode, in a fresh clone. The capture with every
+      command line, exit code and control run is
+      `review/verification-2026-09-11.md`; the figures are:
+      `openspec validate <change> --strict` **exit 0**;
+      `openspec validate --all --strict` on the 1.2.0 binary **exit 1**,
+      `99 passed, 2 failed (101 items)`, the failure set IDENTICAL to
+      `origin/main` `38c076d1`'s `98 passed, 2 failed (100 items)` and this
+      change the one extra item, passing
+      (`spec/repo-boundary-governance` has left BOTH sets since #958 archived
+      `amend-repo-boundary-governance-scope-first-line` on `main`);
+      `validate-openspec-cli-pin.py --all --no-cache` on the pinned 1.12.0
+      **exit 0**, `99 passed, 2 failed (101 items)`, the two being the
+      PRE-EXISTING accepted exceptions of 2026-09-05 *"take exit 2"*;
+      `proposal-support.py . verify` **exit 0**;
+      `validate-sequenced-after.py .` **exit 0** and `--ledger-diff` **exit 0**
+      (200 rows, the rise from 198 being `main`'s two archives, not this
+      change's row); `validate-scope-globs.py .` **exit 0**;
+      `doc-health.py --single-repo .` **exit 0**,
+      `32 critical, 5 error, 47 warning, 15 info`, the report
+      NORMALIZED-IDENTICAL to `origin/main`'s (`diff` **0 lines**, 99 finding
+      lines each), **28 `ratified-provenance` rows all `critical` and 0
+      `info`** — D6 measured — **0 marker-defect findings**, and **0** findings
+      naming this packet; `pytest tests/doc-health -q` **1710 passed, exit 0**
+      against the control's **1689**; and
+      `pytest tests/doc-health tests/sequenced_after tests/scope_globs
+      tests/proposal-support -q` **2199 passed, 66 subtests passed, exit 0**.
+      **THE AGGREGATION MEASUREMENT WAS RE-TAKEN TOO** (§ 2.2–§ 2.6, § 5.9),
+      against `opensoft/xFactory` `f5dba67f` with `codexFactory` `ef180510`:
+      35 rows, `35 critical / 0 info` → `20 critical / 15 info`, same key
+      sets, moved == the reported disposition keys, all moved paths archived,
+      every moved row citing, 62 changed lines in the report diff, the Ranked
+      Plan keeping all 35, `unparsed_plan_rows` `[]` and `parse_previous`
+      `20` keys / `0` contested. **ONE FIGURE MOVED SINCE D0 AND THE RECORD
+      SAYS SO RATHER THAN SMOOTHING IT**: eighteen entries still stand for this
+      family, but codexFactory's three records have since been REPAIRED at that
+      pin and draw no finding, so fifteen move and three entries are now stale
+      — the § 7.1 successor's population, which that box recorded as zero when
+      it was measured and which is no longer zero. Nothing in the rule depends
+      on the number: it is a set equality over whatever the file records and
+      whatever the run reports.
+
 ## 6. Archive — OWED, NOT GIVEN
 
 - [ ] 6.1 **PROMOTE THE BLOCK INTO CANON**, byte-for-byte, in a SEPARATE pull
@@ -466,10 +537,22 @@ with its exit code and its own output quoted.
 
 - [ ] 7.1 **A STALE-DISPOSITION CHECK.** An entry naming a path that no longer
       exists, or a record since repaired, matches nothing and is reported
-      nowhere. Measured today: all 18 entries match a live finding, so that
-      successor's population is ZERO. It is a new finding class with its own
-      severity and its own population and belongs to its own act.
-- [ ] 7.2 **THE OTHER SEVEN FAMILIES' 22 ENTRIES.** Whether any of them should
+      nowhere. Measured at the § 2.1 rig (`opensoft/xFactory` `bc84d325`,
+      `codexFactory` `a67fb0ae`): all 18 entries matched a live finding, so
+      that successor's population was ZERO. **IT IS NO LONGER ZERO, AND THE
+      RE-MEASUREMENT IS RECORDED RATHER THAN LEFT TO BE DISCOVERED**: at the
+      § 5.13 rig (`opensoft/xFactory` `f5dba67f`, `codexFactory` `ef180510`)
+      codexFactory's three records have been REPAIRED and now carry a
+      `Ratified:` citation, so they draw no finding and their three entries
+      match nothing — `dispositioned AND reported: 15`, `dispositioned but NOT
+      reported: 3`. That is this successor's population as of 2026-09-11, and
+      it changes nothing in this packet: the rule is a set equality over
+      whatever the file records and whatever the run reports, and the arm
+      honours neither a stale entry nor an unrecorded finding. It is a new
+      finding class with its own severity and its own population and belongs
+      to its own act.
+- [ ] 7.2 **THE OTHER SEVEN FAMILIES' ENTRIES** — 22 of the 40 at the § 2.1
+      rig, 23 of the 41 at the § 5.13 rig. Whether any of them should
       be downgraded rather than suppressed — or read at all, for the families
       that read nothing — is a separate question about a different subject.
 - [ ] 7.3 **`docs/doc-health.md`'s FAMILY TABLE ROW 3** still reads *"Every

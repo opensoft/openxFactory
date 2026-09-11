@@ -1,12 +1,24 @@
 # Design: honour-grandfather-dispositions-in-ratified-provenance
 
-Status: draft
+Status: ratified
+Ratified by: honour-grandfather-dispositions-in-ratified-provenance — 2026-09-11, Brett Heap, D1 "info row carrying the citation" / D2 "Archived-only boundary" (record `review/ratification-2026-09-11.md`)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVE AND
 THE ALTERNATIVE'S COST.** Brett Heap's word of 2026-09-11 — verbatim
 **"Commission the packet"** — commissioned the authoring and took none of them.
-**D1 and D2 are the declared veto points.**
+
+**D1 AND D2 WERE THE DECLARED VETO POINTS AND BOTH ARE NOW RULED.** Brett Heap
+ruled on 2026-09-11 in a MULTIPLE-CHOICE ruling over both, the recommendation
+presented first in each — given in session at 10:11:50Z and recorded on PR
+[#945](https://github.com/opensoft/openxFactory/pull/945#issuecomment-5632913794)
+at 10:11:56Z; record `review/ratification-2026-09-11.md`. **D1 = "info row
+carrying the citation"**, not *"Suppress, matching the four siblings"*; **D2 =
+"Archived-only boundary"**, not *"Admit active paths too"*. Each is the
+RECOMMENDED and already-encoded option, so **NOTHING IN THE DELTA MOVES**; D0
+and D3 through D6 were carried beside them and none was vetoed. The
+alternatives below are retained as the record of what was put and declined,
+not as work owed.
 
 ## 0. The brief
 
@@ -74,12 +86,21 @@ run has `Context.agg_root is None`, so `python3 scripts/doc-health.py
 --single-repo .` — this repository's own gate — reports every finding of this
 family at `critical` exactly as it does today.
 
-## D1 — VETO POINT: an `info` ROW carrying the citation, NOT silence
+## D1 — RULED: an `info` ROW carrying the citation, NOT silence
+
+**RULED 2026-09-11 BY BRETT HEAP — "info row carrying the citation"**, the
+RECOMMENDED option, against *"Suppress, matching the four siblings"* (recorded on PR #945 at 2026-09-11T10:11:56Z; record
+`review/ratification-2026-09-11.md`).
+**THE RECOMMENDATION WAS TAKEN, SO THE ONE `THEN` BULLET THIS DECISION REACHES
+DOES NOT MOVE**: the grandfathered finding is reported at `info` with the
+citation quoted, exactly as the delta and the last pass were authored. The
+suppression alternative is retained below as the record of what was put and
+declined; it was never encoded and is not work owed.
 
 **RECOMMENDED: report the grandfathered finding at `info`, with the recorded
 citation quoted, keeping its family, repo and path.**
 
-**THE ALTERNATIVE IS THE PRECEDENT, WHICH IS WHY THIS IS A VETO POINT.** All
+**THE ALTERNATIVE IS THE PRECEDENT, WHICH IS WHY THIS WAS A VETO POINT.** All
 four sibling requirements that carry a *A finding is dispositioned* scenario
 SUPPRESS: *"findings on that path MUST be suppressed"* (promotion fidelity,
 duplicate packet, modified-block currency, and the sibling-addition pairing
@@ -104,17 +125,19 @@ records a ruling. An `info` row is the one artifact that says BOTH — *this
 record is out of contract* and *the owner ruled that nothing is owed, here is
 the word* — in the place a reader is already looking.
 
-**COST OF THE VETO, WRITTEN OUT.** Suppressing instead of downgrading is a
-smaller diff (drop the finding rather than rebuild it) and makes this family
-read exactly like its four neighbours. It costs: the eighteen records vanish
-from the report with no trace; the count of grandfathered records becomes
-uncountable from the artifact; a disposition entry that goes stale — a record
-repaired, an entry left behind — becomes invisible instead of showing as an
-`info` row nobody can explain; and a reader who wonders why a known-bad record
-draws nothing has no thread to pull. **A veto of D1 is a veto of the BAND
-alone.** Everything else in this packet — the archived-only boundary, the
-delegated admission rule, the scenario's other three arms — stands unchanged
-under either answer, and the delta edit is one THEN bullet.
+**COST OF THE VETO, WRITTEN OUT — AND THE VETO DID NOT LAND.** Suppressing
+instead of downgrading would have been a
+smaller diff (drop the finding rather than rebuild it) and would have made this
+family read exactly like its four neighbours. It would have cost: the eighteen
+records vanishing from the report with no trace; the count of grandfathered
+records becoming uncountable from the artifact; a disposition entry that goes
+stale — a record repaired, an entry left behind — becoming invisible instead of
+showing as an `info` row nobody can explain; and a reader who wonders why a
+known-bad record draws nothing having no thread to pull. **A veto of D1 would
+have been a veto of the BAND alone.** Everything else in this packet — the
+archived-only boundary, the delegated admission rule, the scenario's other
+three arms — stood unchanged under either answer, and the delta edit would have
+been one THEN bullet. **The ruling took `info`, so none of it was performed.**
 
 **WHY NOT `warning`, THE THIRD OPTION.** `warning` is the band for something a
 reader should act on. Nobody may act on these. `info` is the band this corpus
@@ -123,7 +146,17 @@ already spends on *"true, recorded, and not yours to fix"* —
 ledger and its marker-defect class, `ideation_routing`'s unavailable external
 path. It is the existing vocabulary rather than a new one.
 
-## D2 — VETO POINT: the boundary is `openspec/changes/archive/`, and nothing else
+## D2 — RULED: the boundary is `openspec/changes/archive/`, and nothing else
+
+**RULED 2026-09-11 BY BRETT HEAP — "Archived-only boundary"**, the RECOMMENDED
+option, against *"Admit active paths too"* (recorded on PR #945 at 2026-09-11T10:11:56Z; record
+`review/ratification-2026-09-11.md`).
+**THE RECOMMENDATION WAS TAKEN, SO THE PREDICATE AND THE SCENARIO BULLET STAND
+AS WRITTEN**: `finding.path.startswith("openspec/changes/archive/")` is the
+whole test, and a finding against an ACTIVE packet's record is never
+downgraded however the file names it. The `and` that admitting active paths
+would have cost was not added, and the scenario's ACTIVE-packet bullet was not
+removed.
 
 **RECOMMENDED: a disposition downgrades a finding ONLY where the path is under
 `openspec/changes/archive/`. A finding against an ACTIVE packet's record stands
@@ -144,12 +177,14 @@ as an archived `review/` record, and three of the forty-one rows measured in D0
 are exactly that. Narrowing the test to `review/ratification-*.md` would encode
 the POPULATION rather than the RULE.
 
-**COST OF THE VETO.** Admitting active paths costs one `and` in the predicate
-and one bullet in the scenario. It costs the distinction between a ruling and a
-deferral, and it makes an entry a way to stop a `critical` on a file somebody
-could fix this afternoon — the exact failure mode `uncited-resolution` exists
-to prevent elsewhere. **A veto of D2 is a veto of the BOUNDARY alone** and
-leaves D1 standing.
+**COST OF THE VETO — AND THE VETO DID NOT LAND.** Admitting active paths would
+have cost one `and` in the predicate and one bullet in the scenario. It would
+have cost the distinction between a ruling and a deferral, and would have made
+an entry a way to stop a `critical` on a file somebody could fix this afternoon
+— the exact failure mode `uncited-resolution` exists to prevent elsewhere. **A
+veto of D2 would have been a veto of the BOUNDARY alone** and would have left
+D1 standing. **The ruling took the archived-only boundary, so the predicate was
+not widened.**
 
 ## D3 — `health/dispositions.yaml`, NOT a new file and NOT a new key
 

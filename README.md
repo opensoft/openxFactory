@@ -531,10 +531,27 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
-  — filed 2026-09-11, **`Status: draft`** — a PROPOSAL, and **commissioning is
-  not ratifying**. Lane `openxfactory-1`. Filed on Brett Heap's MULTIPLE-CHOICE
-  word of 2026-09-11 ~01:3xZ, verbatim ***"Commission the packet"***, which
-  commissions the AUTHORING and decides no wording. Origin: openxFactory
+  — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
+  openxFactory operator authority — a MULTIPLE-CHOICE ruling over `design.md`
+  **D1** and **D2** with the recommendation presented first in each, given in
+  session at 2026-09-11T10:11:50Z and recorded on PR
+  [#945](https://github.com/opensoft/openxFactory/pull/945#issuecomment-5632913794)
+  at 2026-09-11T10:11:56Z. **D1 = verbatim *"info row carrying the citation"***,
+  not *"Suppress, matching the four siblings"*; **D2 = verbatim *"Archived-only
+  boundary"***, not *"Admit active paths too"*. Each is the option the packet
+  already encoded, so **THE WORDING STANDS UNCHANGED** and no delta byte was
+  re-written, restored or deleted; D0 and D3–D6 were carried beside them and
+  none was vetoed. Records
+  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/ratification-2026-09-11.md`
+  and
+  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/verification-2026-09-11.md`).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
+  byte-unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
+  defined. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
+  earlier MULTIPLE-CHOICE word of 2026-09-11 ~01:3xZ, verbatim ***"Commission
+  the packet"***, which commissioned the AUTHORING and decided no wording.
+  Origin: openxFactory
   [#939](https://github.com/opensoft/openxFactory/issues/939), standing on
   [#877](https://github.com/opensoft/openxFactory/issues/877) and
   [#878](https://github.com/opensoft/openxFactory/issues/878).
@@ -555,15 +572,21 @@ Active changes:
   both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
   units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
   (`code_surface` non-empty, `target_release: implemented`): one last pass in
-  `scripts/doc_health/families.py` and 20 new tests, after which the same 41
+  `scripts/doc_health/families.py`, a non-list-root guard in each of the two
+  readers of the dispositions file, and **21 new tests**
+  (`tests/doc-health` **1689 → 1710**, both counts measured on the ratified
+  tree and on an `origin/main` worktree beside it), after which the same 41
   rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
   eighteen disposition keys and the other twenty-three byte-identical.
-  **TWO DECLARED VETO POINTS**, `design.md` **D1** — an `info` row carrying the
-  citation, against SILENCE on the four sibling requirements' suppression
-  precedent — and **D2** — the ARCHIVED-only boundary, an active packet's record
-  being a plain fix rather than a ruling's subject. **NOTHING IS PROMOTED**: no
-  file under `openspec/specs/` is edited, `tasks.md` § 1 and § 6 are entirely
-  open, and #939 closes at the ARCHIVE and not at this landing.
+  **THE TWO DECLARED VETO POINTS ARE BOTH RULED AS ENCODED**: `design.md`
+  **D1** — an `info` row carrying the citation, against SILENCE on the four
+  sibling requirements' suppression precedent — and **D2** — the ARCHIVED-only
+  boundary, an active packet's record being a plain fix rather than a ruling's
+  subject. **NOTHING IS PROMOTED**: no file under `openspec/specs/` is edited,
+  `tasks.md` § 1 is now ticked while **§ 6 (ARCHIVE) STAYS ENTIRELY OPEN** —
+  `code_surface` is non-empty, so the archive is a further act on merged-plus-
+  green realization evidence at canon's grain and a further word — and #939
+  closes at the ARCHIVE and not at this landing.
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a

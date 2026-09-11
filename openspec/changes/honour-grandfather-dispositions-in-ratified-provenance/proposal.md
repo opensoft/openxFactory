@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: honour-grandfather-dispositions-in-ratified-provenance
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11 by Brett Heap (openxFactory operator authority) — D1 "info row carrying the citation", D2 "Archived-only boundary"; record at review/ratification-2026-09-11.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`),
 session `a9c24afc`, on Brett Heap's word of 2026-09-11 at approximately 01:3xZ
 — a MULTIPLE-CHOICE ruling whose chosen option is verbatim
@@ -18,16 +19,23 @@ at that commissioning, standing on
 [#878](https://github.com/opensoft/openxFactory/issues/878) (the arm that
 reports them).
 
-**THAT WORD COMMISSIONS THE AUTHORING, NOT THE CONTENT. RATIFICATION IS OWED
-AND IT IS BRETT HEAP'S ACT.** Nothing below is ratified by being authored; no
-requirement here may be cited as approved until he rules on this packet itself;
-`.openspec.yaml` declares drafting provenance with **no approval pair**, and
-every document in this packet carries `Status: draft` to match. **NOTHING IS
-PROMOTED** — this pull request edits no file under `openspec/specs/`. Every
-judgment this authoring session took is listed in `design.md` as **D0 through
-D6**, each with a recommendation and each put for veto; the two most worth one
-are **D1** (an `info` row against silence) and **D2** (the archived-only
-boundary).
+**THAT WORD COMMISSIONED THE AUTHORING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Nothing here was ratified by being
+authored, and the commissioning word admitted no text to canon and took neither
+of the two decisions this packet carries; it stays recorded as the ORIGIN of
+the AUTHORING. **BRETT HEAP RATIFIED THIS PACKET ITSELF ON 2026-09-11**, in a
+MULTIPLE-CHOICE ruling over `design.md` **D1** and **D2** with the
+recommendation presented first in each: **D1 = "info row carrying the
+citation"** (not *"Suppress, matching the four siblings"*) and **D2 =
+"Archived-only boundary"** (not *"Admit active paths too"*). The word was given
+in session at 2026-09-11T10:11:50Z and recorded on openxFactory PR
+[#945](https://github.com/opensoft/openxFactory/pull/945#issuecomment-5632913794)
+at 2026-09-11T10:11:56Z; the record is `review/ratification-2026-09-11.md`.
+**BOTH ARE THE OPTIONS THIS PACKET HAD ALREADY ENCODED, SO ITS WORDING STANDS
+UNCHANGED** — no delta byte was rewritten, restored or deleted by the
+ratification, and D0 and D3 through D6 were carried beside them and none was
+vetoed. **NOTHING IS PROMOTED** — this pull request edits no file under
+`openspec/specs/` — and the archive is a further act on a further word.
 
 ## Why
 
