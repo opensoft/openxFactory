@@ -202,6 +202,7 @@ rows:
   amend-neutral-product-pin-lockfile-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#933", moved_on: "2026-09-10"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-published-tip-unreadable-scenario: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#685", moved_on: "2026-09-05"}
+  amend-register-act-5b-projection-proof: {state: active, class: sole, declares: [add-wallet-carried-review-authority, register-gate-rules-council-seats], depth: 2, prose: false, moved_by: "#960", moved_on: "2026-09-11"}
   amend-repo-boundary-governance-scope-first-line: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#937", moved_on: "2026-09-11"}
   amend-unreadable-read-sibling-scenarios: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#703", moved_on: "2026-09-05"}
   apply-branch-sessions-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
