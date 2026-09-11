@@ -132,13 +132,60 @@ rows:
   # because the reader compares the two. Ratifying human: Brett Heap
   # (Brett.Heap@opensoft.one), on this permanently human-only surface.
   # Record: `openspec/changes/register-gate-rules-council-seats/walk-2026-09-08-register-act.md`.
+  #
+  # 2026-09-11 — THE ROW IS REPOINTED. Appended beside the row, and every
+  # comment above is left exactly as written: they record how this row was
+  # cold-started on 2026-09-08 and that is still true of the cold start. Two
+  # sentences above name `grant-grc-0001` — "THE COMPOSITION CAME FIRST" and
+  # the `expires_at` equality note. Both are left standing because they record
+  # what the row was minted against; read them now as `grant-grc-0002`, the
+  # grant this row points at after this act.
+  #
+  # `grant_ref` moves grant-grc-0001 -> grant-grc-0002. `expires_at` DOES NOT
+  # MOVE and stays `"2027-06-30T00:00:00Z"`, character-for-character equal to
+  # the NEW grant's own `expires_at` because the reader compares the two — and
+  # it is the same string only because the expiry was RULED AFRESH at the same
+  # value (Brett Heap, 2026-09-11T02:03:35Z, option A of two offered), bound to
+  # an unmoved retirement floor, NOT because it was inherited. THE ROW'S OWN
+  # `state` STAYS `active`: the row is the authority's CONTINUING EXISTENCE,
+  # not the grant's, and a revoked grant does not deactivate the row that was
+  # repointed off it. NO ROW WAS ADDED — the row still carries exactly nine
+  # fields, which the reader enforces as exact set equality, and the
+  # composition is NOT smuggled onto it (there is no model field on a row and
+  # adding one would be refused).
+  #
+  # WHY: the holder's declared composition changed on 2026-09-10 —
+  # `agent-mixes.yaml` component 2, the `gate_rules_council` PROMPT-CORPUS pin,
+  # moved under the ratified change `clarify-gate-rules-decline-position` (row
+  # C+) at codexFactory PR #374 →
+  # `02e14c086d5ead77d0c390c33ba5df622f07a4df`, merged 2026-09-10T23:34:23Z.
+  # `grant-grc-0001` was revoked for DRIFT at 2026-09-11T02:12:30Z and
+  # `grant-grc-0002` was issued against the changed composition at the SAME
+  # INSTANT, so there is no window between the two. Ratifying human: Brett Heap
+  # (Brett.Heap@opensoft.one), on this permanently human-only surface.
+  # Record: `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`.
+  #
+  # THE ROW ABOVE IS NOT TOUCHED, and neither is `revocation_staleness_bound`.
+  # Q-GRC-2's two-body coupling fires on an ENROLLED-ROSTER pin flip; this
+  # event moved no `model_version`, `merge_readiness_council`'s
+  # `rendered_set_digest` is unchanged, and `grant-mrc-0002` is therefore NOT
+  # revoked by this act. One bound governs the whole register (design D7), and
+  # tightening it is its own governed edit, never a tidy-up inside a
+  # re-issuance.
+  #
+  # THE FOUR GATE-RULES `seat_keys` ENTRIES BELOW ARE UNTOUCHED and all four
+  # still resolve — checked, not assumed. All four name
+  # `authorizing_row: row-grc-0001`; that row is still `state: active` and
+  # still unexpired at 2027-06-30T00:00:00Z; and none of the four names a
+  # grant, so none moved. The reader's `register-seat-row-unresolved` rule
+  # re-checks this inside the REQUIRED wallet-validation check.
   - row_id: row-grc-0001
     holder_ref: agent:gate-rules-council
     wallet_ref: wal-agent-grc-0001
     target_repo: opensoft/openxFactory
     act: review
     authority_tier: act
-    grant_ref: grant-grc-0001
+    grant_ref: grant-grc-0002
     expires_at: "2027-06-30T00:00:00Z"
     state: active
 
