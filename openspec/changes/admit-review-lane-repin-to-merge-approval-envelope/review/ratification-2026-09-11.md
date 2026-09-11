@@ -78,11 +78,18 @@ The proposal as written at the head this record's own commit carries, and
   REALIZATION's timing: `tasks.md` § 3 may not be started by an agent until
   BOTH of the following are met (`tasks.md` task 1.5; `design.md` § *Amended
   at ratification*):
-  1. `extend-merge-master-envelope-to-floor-bot-lanes` `tasks.md` box **4.2**
-     — the THIRD consecutive unattended codexFactory cycle — is measured.
-     TWO are measured as of this record (codexFactory #314 → `b08958ae`, one
-     hand dispatch; codexFactory #325 → `df42f803`, fully unattended); box
-     4.2's own addendum states the box stays open on two.
+  1. A third consecutive measured cycle exists — per
+     `extend-merge-master-envelope-to-floor-bot-lanes` `tasks.md` box
+     **4.2**'s own count, of which codexFactory #314 (`b08958ae`) and #325
+     (`df42f803`) are the first two — AND that third cycle is itself fully
+     unattended: opened by `openxfactory[bot]`, approved by the
+     merge-master App, and merged by `app/openxfactory`, with ZERO human
+     acts on it — no `workflow_dispatch`, no click, no admin merge. #314
+     counts toward box 4.2's three but does NOT itself satisfy the
+     unattended condition, on its one hand-dispatched approval leg; #325
+     does, carrying no human act at all. TWO cycles are measured as of
+     this record and NEITHER is yet the qualifying third; box 4.2's own
+     addendum states the box stays open on two.
   2. The `Candidate class: unrecorded` rendering defect
      (`extend-merge-master-envelope-to-floor-bot-lanes`
      `review/gate-rules-council-admitting-record-2026-09-10.md` § 3.5, box §

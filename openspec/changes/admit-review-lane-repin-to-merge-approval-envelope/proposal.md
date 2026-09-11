@@ -305,8 +305,10 @@ the trusted thing.** A reader who disagrees should refuse this packet, and
 
 ## What is NOT proposed
 
-* **No ratification.** `Status: draft` on every document in this packet, no
-  `Ratified by:` line anywhere, and the filing is not the word.
+* **No ratification.** At filing (2026-09-10, PR #910): `Status: draft` on
+  every document in this packet, no `Ratified by:` line anywhere, and the
+  filing is not the word. Ratified with amendment 2026-09-11 — see
+  `review/ratification-2026-09-11.md`.
 * **No merge of this pull request by its author.** Landing is Rule 6 and the
   orchestrator's act.
 * **No removal of any floor member, and no widening of the floor's grace.**

@@ -88,29 +88,41 @@ one word applied to each box; none is invented beyond what the word names.
       met, in addition to and not in place of § 4's own preconditions (the
       carve 4.1, the `Bounded autonomous surface` narrowing 4.2, the
       auto-merge precondition measurement 4.3, the completion-path word 4.4):
-    - [ ] 1.5.a **A third consecutive cycle is measured, per
-          `extend-merge-master-envelope-to-floor-bot-lanes` `tasks.md` box
-          4.2 — quoted here exactly so the two gates are the same gate, not
-          a stricter one:** *"Record the per-cycle human cost AFTER the
+    - [ ] 1.5.a **Sub-box 1.5.a holds until a third consecutive measured
+          cycle exists — `extend-merge-master-envelope-to-floor-bot-lanes`
+          `tasks.md` box 4.2's own count, of which codexFactory #314
+          (`b08958ae`) and #325 (`df42f803`) are the first two — AND THAT
+          THIRD CYCLE IS ITSELF FULLY UNATTENDED**, on Brett Heap's word,
+          *"the third unattended codexFactory cycle."* Box 4.2, quoted
+          exactly so its own bar stays legible and this box is not mistaken
+          for restating it: *"Record the per-cycle human cost AFTER the
           change, measured the same way the before figure was measured —
           merges per advance of the pinned core, read from the API over at
           least three consecutive cycles — so the benefit claimed is a
-          measurement and not an expectation."* **What is measured:** the
-          per-cycle human cost after the change — merges per advance of the
-          pinned core, read from the API; box 4.2 counts codexFactory #314
-          despite its one hand-dispatched approval leg, so this box does not
-          require the third cycle's cost to be zero, only that it is
-          measured. **Over how many consecutive cycles:** at least three.
-          **What counts as a cycle:** one advance of the pinned core — one
-          codexFactory regeneration pull request merging, paired with its
-          openxFactory re-pin half. **Currently OPEN, two of three
-          measured** (box 4.2's own 2026-09-10 note): codexFactory #314 →
-          `b08958ae`, one hand dispatch of the approval leg; codexFactory
-          #325 → `df42f803`, no human act at all. **Evidence needed to
-          tick:** the third cycle's codexFactory PR number, its merge sha,
-          the merge actor read from the API, and the approval URL for that
-          cycle's re-pin advance, recorded here and on #745, with box 4.2
-          itself ticked at the same time (it is the same measurement).
+          measurement and not an expectation."* Box 4.2 counts codexFactory
+          #314 toward its three despite #314's one hand-dispatched approval
+          leg, and requires no cycle's cost to be zero — only that it is
+          measured. **This box requires more, on top of and not instead of
+          box 4.2:** the qualifying third cycle must be opened by
+          `openxfactory[bot]`, approved by the merge-master App, and merged
+          by `app/openxfactory`, with ZERO human acts anywhere on it — no
+          `workflow_dispatch`, no click, no admin merge. **#314 counts
+          toward box 4.2's three but does NOT itself satisfy this box's
+          unattended condition**, on its one hand dispatch; **#325 does**,
+          carrying no human act at all. **What counts as a cycle:** one
+          advance of the pinned core — one codexFactory regeneration pull
+          request merging, paired with its openxFactory re-pin half.
+          **Currently OPEN, two of three measured and neither yet the
+          qualifying third** (box 4.2's own 2026-09-10 note): codexFactory
+          #314 → `b08958ae`, one hand dispatch of the approval leg;
+          codexFactory #325 → `df42f803`, no human act at all. **Evidence
+          needed to tick:** the third cycle's codexFactory PR number, its
+          merge sha, the merge actor read from the API, the approval URL
+          for that cycle's re-pin advance, AND the absence of any human
+          event — dispatch, click, or admin merge — on that cycle's own
+          timeline, recorded here and on #745, with box 4.2 itself ticked
+          at the same time (it is the same underlying measurement, this
+          box's unattended condition layered on top of it).
     - [ ] 1.5.b **The `Candidate class: unrecorded` rendering defect is fixed
           upstream AND observed fixed on a live approval**, per
           `extend-merge-master-envelope-to-floor-bot-lanes`
@@ -165,10 +177,10 @@ is the RIGHT text and nothing here is proven by being written.
 **Each box below is gated on § 1 and on § 4, and none may be taken by an agent
 before the word that authorizes it. AS AMENDED AT RATIFICATION (task 1.5),
 this section is ALSO gated on 1.5.a and 1.5.b — a third consecutive cycle
-measured (box 4.2), and the `Candidate class: unrecorded` defect fixed and observed
-fixed — beyond and in addition to § 4's own preconditions. Neither 1.5.a nor
-1.5.b is ticked as of ratification; no box below may be started by an agent
-until both are.**
+measured (box 4.2) that is ITSELF fully unattended, and the `Candidate class:
+unrecorded` defect fixed and observed fixed — beyond and in addition to §
+4's own preconditions. Neither 1.5.a nor 1.5.b is ticked as of ratification;
+no box below may be started by an agent until both are.**
 
 - [ ] 3.1 **Add the second candidate class to `.github/merge-approval-envelope.yml`** —
       `id: openxfactory-review-lane-repin`; `target_repos: [opensoft/openxFactory]`;

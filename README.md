@@ -541,10 +541,12 @@ Active changes:
   [`review/ratification-2026-09-11.md`](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/review/ratification-2026-09-11.md).
   **RATIFIED WITH AMENDMENT: the text stands as recommended; task 1.5 /
   `design.md` D-3 is amended to HOLD REALIZATION** (`tasks.md` § 3) until two
-  further preconditions are met — the third unattended cycle
+  further preconditions are met — a third consecutive cycle measured
   (`extend-merge-master-envelope-to-floor-bot-lanes` box 4.2, two of three
-  measured) and the `Candidate class: unrecorded` defect fixed and observed
-  fixed (codeXfactory/codexFactory PR #369) — beyond and in addition to this
+  so far) that is ITSELF fully unattended (codexFactory #314 counts toward
+  box 4.2's three but is not unattended, on its hand dispatch; #325 is) —
+  and the `Candidate class: unrecorded` defect fixed and observed fixed
+  (codeXfactory/codexFactory PR #369) — beyond and in addition to this
   packet's own § 4 preconditions (the carve, the surface narrowing, the
   auto-merge measurement, the completion-path word). Lane `openxfactory-2`.
   Filed on Brett Heap's word in session,
@@ -562,8 +564,9 @@ Active changes:
   pre-ratification asks: re-opening N-1 toward (b), ratifying the packet's
   text, and letting D-1–D-8 stand with D-3 amended) — 1.4 stays open, and
   1.5 stays open TOO, now AMENDED to hold realization on the two
-  preconditions above (the third consecutive cycle measured, box 4.2; the
-  `Candidate class: unrecorded` fix observed on a live approval). **IT
+  preconditions above (a third cycle, itself fully unattended, beyond box
+  4.2's own weaker three-measured count; the `Candidate class: unrecorded`
+  fix observed on a live approval). **IT
   RE-OPENS A RATIFIED DECISION AND SAYS SO IN
   ITS OWN SECOND HEADING:** decision **N-1** of
   `extend-merge-master-envelope-to-floor-bot-lanes` (ratified 2026-09-07) admits

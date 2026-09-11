@@ -272,17 +272,28 @@ preconditions the packet's own § 4 already named (the carve, the `Bounded
 autonomous surface` narrowing, the auto-merge precondition measurement, the
 completion-path word):
 
-1. **The third consecutive unattended cycle is measured.**
-   `extend-merge-master-envelope-to-floor-bot-lanes` `tasks.md` box **4.2**
-   requires THREE consecutive measured cycles before this family counts as
-   archive-grade evidence for the benefit this enrolment buys; as of this
-   ratification only TWO are measured (codexFactory #314 → `b08958ae`,
-   2026-09-09, one hand dispatch; codexFactory #325 → `df42f803`, 2026-09-10,
-   fully unattended) — box 4.2's own 2026-09-10 addendum says so in terms:
-   *"TWO CYCLES MEASURED, NOT THREE, SO THE BOX STAYS OPEN."* This packet's
-   own recommendation (D-1) rests on the cycle-three figure as if it were the
-   settled bar; the amendment declines to enrol a live, autonomously-approving
-   class on a bar the parent packet's own gate has not yet cleared.
+1. **A third consecutive measured cycle exists, and that cycle is itself
+   fully unattended.** `extend-merge-master-envelope-to-floor-bot-lanes`
+   `tasks.md` box **4.2** requires THREE consecutive measured cycles before
+   this family counts as archive-grade evidence for the benefit this
+   enrolment buys, and box 4.2's own bar does not require any of the three
+   to be unattended — it counts codexFactory #314 toward its three despite
+   #314's one hand-dispatched approval leg. **This amendment adds a
+   requirement box 4.2 does not carry:** the qualifying third cycle must
+   itself be fully unattended — opened by `openxfactory[bot]`, approved by
+   the merge-master App, and merged by `app/openxfactory`, with ZERO human
+   acts on it: no `workflow_dispatch`, no click, no admin merge. **#314
+   counts toward box 4.2's three but does NOT itself satisfy this
+   amendment's unattended condition**, on its hand dispatch; **#325 does**,
+   carrying no human act at all. As of this ratification only TWO cycles
+   are measured at all (codexFactory #314 → `b08958ae`, 2026-09-09, one
+   hand dispatch; codexFactory #325 → `df42f803`, 2026-09-10, fully
+   unattended) — box 4.2's own 2026-09-10 addendum says so in terms: *"TWO
+   CYCLES MEASURED, NOT THREE, SO THE BOX STAYS OPEN."* This packet's own
+   recommendation (D-1) rests on the cycle-three figure as if it were the
+   settled bar; the amendment declines to enrol a live, autonomously-
+   approving class on a bar the parent packet's own gate has not yet
+   cleared, AND raises that bar for the qualifying cycle itself.
 2. **The `Candidate class: unrecorded` defect is fixed AND observed fixed on
    a live approval.** `extend-merge-master-envelope-to-floor-bot-lanes`
    `review/gate-rules-council-admitting-record-2026-09-10.md` § 3.5 (box §
