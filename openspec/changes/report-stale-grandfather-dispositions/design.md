@@ -282,13 +282,21 @@ prevent. Measured at `0ecb370e`: the file carries **49 entries and 49 DISTINCT
 `(family, repo, path)` triples**, so the duplicate-target shape does not exist
 today in this family or in any other; whether a duplicate deserves a row per
 LINE is a question about the shared reader and belongs to whoever changes it
-(`tasks.md` § 7.7). `test_two_entries_at_one_target_report_the_one_row_the_reader_admits`
-pins the answer either way. Two stale entries are two rows at the same
-`(family, repo, path)`. `Finding.match_key()` collapses them to one regression
-key — which costs nothing, a `warning` never entering that comparison — and
-`Finding.sort_key()` includes the rule, so the rows are ordered and rendered
-distinctly. The target is written into the RULE rather than the path for that
-reason: the path slot is the subject, and the subject is one file.
+(`tasks.md` § 7.7).
+`test_two_entries_at_one_target_report_the_one_row_the_reader_admits` pins the
+answer for ONE target. **A DIFFERENT TARGET IS A DIFFERENT ROW, AND THAT DOES
+NOT CONTRADICT THE ROW ABOVE.** Two stale entries naming two DIFFERENT targets
+are two rows; both nonetheless carry the same `(family, repo, path)` AS A
+FINDING — always `(ratified-provenance, xFactory, health/dispositions.yaml)`,
+the dispositions file itself, which is a different triple from the ENTRY's own
+`(repo, path)` counted above. `Finding.match_key()` returns exactly that
+finding-level triple, so it collapses every stale row to one regression key no
+matter how many distinct targets are reported — which costs nothing, a
+`warning` never entering that comparison — and `Finding.sort_key()`
+additionally carries the rule, which DOES hold the target's own text, so the
+rows still order and render as the distinct entries they are. The target is
+written into the RULE rather than the path for that reason: the path slot is
+the finding's subject, and the subject is one file.
 
 **ONE EXISTING TEST'S PINNED BEHAVIOUR IS DELIBERATELY OVERTURNED, AND IT IS
 NAMED HERE RATHER THAN DISCOVERED IN REVIEW.**
@@ -371,13 +379,16 @@ the fully materialized aggregation the two readings agree exactly: **15
 matched / 3 stale**, the same three codexFactory paths, exit 0 either way. The
 fix costs nothing that is measured and removes fifteen rows that are false.
 
-**WHY THE DOCUMENT SET IS THE RIGHT PREDICATE.** Every finding this family can
-raise comes from `_lifecycle_scope(ctx)` and from nowhere else, so a repository
-absent from that set raised nothing here for a reason this pass cannot tell
-from *"its records are all clean"* — which is precisely the ambiguity the
-narrowing exists to refuse. `ctx.repo_paths` answers *"did the run list a
-directory of that name"*; the document set answers *"did the run read that
-repository"*, and the second is the question.
+**WHY THE DOCUMENT SET IS THE RIGHT PREDICATE.** Every finding the five arms
+above and the downgrade that follows them can raise comes from
+`_lifecycle_scope(ctx)` and from nowhere else — the one exception is this very
+pass's OWN rows, which name the dispositions file itself and are read off no
+document at all. So a repository absent from that document set raised nothing
+THROUGH THOSE ARMS for a reason this pass cannot tell from *"its records are
+all clean"* — which is precisely the ambiguity the narrowing exists to refuse.
+`ctx.repo_paths` answers *"did the run list a directory of that name"*; the
+document set answers *"did the run read that repository"*, and the second is
+the question.
 
 **AND THE DOCUMENT SET IS THE UNION OF BOTH SETS, WHICH IS A CHOICE.**
 `govern-openspec-corpus-membership` keeps the two DISJOINT — `ctx.docs` is the
