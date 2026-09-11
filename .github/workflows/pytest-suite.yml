@@ -379,6 +379,17 @@ jobs:
       # as opaque `160000` records, so `tests/opendox_pin/` and
       # `tests/openxdox_pin/` measure exactly what they measured before.
       # Recursion only ADDS trees; it changes no assertion that already ran.
+      #
+      # AND IT SUBSUMES #934's SECOND STEP RATHER THAN SITTING BESIDE IT.
+      # `#934` (RULED OQ-Q, `#872`) added a separate `git -C openDox
+      # submodule update --init code` because openxFactory's own executable
+      # corpus-adapter readers import the pinned
+      # `openDox/code/src/opendox/corpus_adapter.py`, and a one-level init
+      # leaves that file off the runner. That reason is unchanged and is now
+      # one instance of the general case above: `--recursive openDox` puts
+      # the same leg on disk, so a second scoped init would only repeat it.
+      # `openXdox/code` joins it for the first time here, which is why the
+      # recursion covers BOTH names and not just `openDox`.
       - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY — § 5.2 reads their code legs)
         run: |
           git submodule update --init openXwallet

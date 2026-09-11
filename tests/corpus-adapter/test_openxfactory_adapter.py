@@ -28,7 +28,19 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
-from corpus_adapter import (  # noqa: E402
+# #872 (RULED OQ-Q): same reason as `test_conformance.py` — the adapter's
+# dataclasses now come from the pinned openDox copy, so this file's parities
+# must import the same copy.
+_OPENDOX_SRC = REPO_ROOT / "openDox" / "code" / "src"
+if not (_OPENDOX_SRC / "opendox" / "corpus_adapter.py").is_file():
+    raise ImportError(
+        "test_openxfactory_adapter: the pinned openDox corpus-adapter interface "
+        f"is not at {_OPENDOX_SRC / 'opendox' / 'corpus_adapter.py'}. Run `git "
+        "submodule update --init --recursive openDox` from the repository "
+        "root.")
+sys.path.insert(0, str(_OPENDOX_SRC))
+
+from opendox.corpus_adapter import (  # noqa: E402
     REVISION_UNKNOWN,
     SCOPE_ALL,
     WRITE_PATH_UNREACHABLE,
