@@ -369,6 +369,47 @@ class NotACarvedPath(KeyError):
     """A path was asked about that the carve manifest declares no row for."""
 
 
+class ManifestPathUnsafe(ValueError):
+    """A carve-manifest row's `destination_path` is not a closed relative
+    path — refused before it is joined onto a mount, never after."""
+
+
+#: Every `destination_path` join site below calls `_closed_relative_path`
+#: FIRST. Copilot review, `PRRT_kwDOTAvnrs6hjzVm`, 2026-09-11:
+#: `destination_path` was type-checked as a non-empty string only, by
+#: `scripts/validate-carve-manifest.py`'s shape check (now closed there too —
+#: same predicate, so a row this resolver would refuse never lands); an
+#: absolute value replaces the mount outright under `Path.__truediv__`, and a
+#: `../` segment walks out of it, either way redirecting a read outside the
+#: leg the manifest declares. Pure string canonicalisation closes both: a
+#: value with no leading `/` and no `..`/`.`/empty segment cannot escape ANY
+#: mount it is joined onto, absolute or relative — which is why this is
+#: checked once here rather than with a `Path.resolve()`/`relative_to()`
+#: guard after each join (one of the two join sites below joins onto a mount
+#: already made relative to `REPO_ROOT`, where `resolve()` would resolve
+#: against the process's CWD, not `REPO_ROOT`, and answer the wrong
+#: question). NOT restricted to an ASCII alphabet — a `destination_path` may
+#: legitimately carry any Unicode filename (`tests/carve_manifest/
+#: test_carve_manifest.py::test_the_row_order_is_bytewise_and_not_by_code_point`
+#: exercises one with U+E000), unlike `scripts/hermes_runtime_validation/
+#: content.py`'s `normalize_repository_path`, whose narrower alphabet this
+#: does not otherwise try to match.
+def _closed_relative_path(value: str, *, source_path: str) -> str:
+    """`value`, unchanged, or refused as unsafe to join onto a mount."""
+    if (not value or value.startswith("/") or value.startswith(":")
+            or "\\" in value
+            or any(ord(character) < 32 or ord(character) == 127 for character in value)):
+        raise ManifestPathUnsafe(
+            f"{source_path}'s row declares `destination_path: {value!r}`, "
+            "which is not a canonical relative path")
+    if any(part in {"", ".", ".."} for part in value.split("/")):
+        raise ManifestPathUnsafe(
+            f"{source_path}'s row declares `destination_path: {value!r}`, "
+            "which contains a `.`, `..` or empty segment — exactly what "
+            "would let this row's destination escape its own mount")
+    return value
+
+
 def source(path: str | Path) -> Path:
     """The file `path` NAMES TODAY, wherever the § 5.2 shed left it.
 
@@ -416,7 +457,7 @@ def source(path: str | Path) -> Path:
             f"{mount.relative_to(REPO_ROOT)} is empty, so {key} cannot be read "
             f"from the destination the carve manifest declares for it. Run "
             f"`{INIT_COMMAND}` from the repository root.")
-    return mount / row["destination_path"]
+    return mount / _closed_relative_path(row["destination_path"], source_path=key)
 
 
 def module(path: str | Path):
@@ -480,7 +521,7 @@ def shed_relpath(path: str | Path) -> str | None:
     if row is None or row["disposition"] == "not_moved":
         return None
     mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
-    return (mount / row["destination_path"]).as_posix()
+    return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
 
 
 def shed_destination(path: str | Path) -> Path | None:
