@@ -2263,6 +2263,25 @@ def test_an_admissions_entry_with_a_non_hex_since_refuses(carve: Carve
     assert "40 lowercase hex" in json.loads(done.stdout)["detail"]
 
 
+def test_a_since_value_with_a_trailing_newline_refuses(carve: Carve) -> None:
+    """`$` matches just before a trailing newline as well as at the true end
+    of the string, so `COMMIT_RE.match` alone would admit 40 hex characters
+    plus a trailing "\\n" as a clean 40-hex commit (Copilot review, PR #979).
+    The field must be held to `.fullmatch`, which requires the match to cover
+    the ENTIRE string and so cannot let the newline ride along unchecked."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [_entry("src/pkg/created.py",
+                                since=ADMISSION_SINCE + "\n")],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "40 lowercase hex" in json.loads(done.stdout)["detail"]
+
+
 def test_a_stale_declared_admission_is_reported_not_silent(carve: Carve
                                                             ) -> None:
     """A `created:` entry naming a file that never arrives is not consumed —

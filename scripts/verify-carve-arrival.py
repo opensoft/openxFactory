@@ -790,7 +790,14 @@ def read_admissions(path: Path, doc: dict[str, Any]
                         f"`destinations.{dest_id}.created[{index}].reason` "
                         "carrying a newline; the ruling asks for a ONE-LINE "
                         "reason")
-                if field == "since" and not COMMIT_RE.match(value):
+                if field == "since" and not COMMIT_RE.fullmatch(value):
+                    # `.fullmatch`, not `.match`: `$` matches just before a
+                    # trailing newline as well as at the true end of the
+                    # string, so `.match` alone would admit 40 hex characters
+                    # plus a trailing "\n" as if it were a clean 40-hex commit
+                    # (Copilot review, PR #979). `.fullmatch` requires the
+                    # match to cover the ENTIRE string, which the `\n` can't
+                    # be pulled into, so it correctly refuses.
                     raise ArrivalRefusal(
                         "arrival-unreadable",
                         f"the admissions file at {path} has a "
