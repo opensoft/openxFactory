@@ -269,7 +269,13 @@ codexFactory**, authored there, exactly as
       whose PRIVATE git directory is NAMED ON EVERY CALL rather than exported
       into the environment — with repository-LOCAL `user.name` and
       `user.email` set to FIXED TEST CONSTANTS, `GIT_CONFIG_GLOBAL=/dev/null`
-      and `GIT_CONFIG_SYSTEM=/dev/null` (equivalently `GIT_CONFIG_NOSYSTEM=1`),
+      **ALWAYS**, TOGETHER WITH **EITHER** `GIT_CONFIG_SYSTEM=/dev/null` **OR**
+      `GIT_CONFIG_NOSYSTEM=1` — those two being the alternative spellings of the
+      SYSTEM half ALONE, and **`GIT_CONFIG_NOSYSTEM=1` IS NEVER A SUBSTITUTE FOR
+      THE PAIR**: it suppresses the SYSTEM file only and leaves the user's GLOBAL
+      configuration fully active, which is exactly where a developer's
+      `core.hooksPath` (husky, lefthook, `pre-commit`) and `commit.gpgsign` live,
+      so pointing GLOBAL at `/dev/null` is the half that cannot be dropped —
       `core.hooksPath` pointed at an EMPTY DIRECTORY, and `commit.gpgsign=false`
       and `tag.gpgsign=false`.
       **AND THE ENVIRONMENT IS CLEARED, NOT MERELY ADDED TO: EVERY INHERITED
@@ -277,9 +283,10 @@ codexFactory**, authored there, exactly as
       `GIT_INDEX_FILE`, `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`,
       `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `GIT_NAMESPACE`,
       `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the caller happens
-      to export — leaving ONLY the THREE this step sets itself
-      (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently
-      `GIT_CONFIG_NOSYSTEM=1`, and `GIT_LITERAL_PATHSPECS=1`).
+      to export — leaving ONLY the THREE this step sets itself:
+      `GIT_CONFIG_GLOBAL=/dev/null` ALWAYS, EITHER `GIT_CONFIG_SYSTEM=/dev/null`
+      OR `GIT_CONFIG_NOSYSTEM=1` BESIDE IT — never that one in place of the
+      GLOBAL setting — and `GIT_LITERAL_PATHSPECS=1`.
       **AND `GIT_LITERAL_PATHSPECS=1` IS PART OF THAT ENVIRONMENT BECAUSE A
       DECLARED PATH IS AN OPERAND, NEVER A PATTERN AND NEVER AN OPTION**: every
       git invocation that RECEIVES A DECLARED PATH passes it AFTER `--` and

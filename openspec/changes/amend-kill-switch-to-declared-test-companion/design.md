@@ -347,16 +347,23 @@ later step consumes what an earlier step captured or committed.**
    there, or a `git worktree` whose PRIVATE git directory is NAMED ON EVERY CALL
    rather than exported into the environment — carrying
    repository-LOCAL `user.name` and `user.email` set to FIXED TEST CONSTANTS,
-   with `GIT_CONFIG_GLOBAL=/dev/null` and `GIT_CONFIG_SYSTEM=/dev/null`
-   (equivalently `GIT_CONFIG_NOSYSTEM=1`), `core.hooksPath` pointed at an EMPTY
+   with `GIT_CONFIG_GLOBAL=/dev/null` **ALWAYS**, TOGETHER WITH **EITHER**
+   `GIT_CONFIG_SYSTEM=/dev/null` **OR** `GIT_CONFIG_NOSYSTEM=1` — those two being
+   the alternative spellings of the SYSTEM half ALONE, and
+   **`GIT_CONFIG_NOSYSTEM=1` IS NEVER A SUBSTITUTE FOR THE PAIR**: it suppresses
+   the SYSTEM file only and leaves the user's GLOBAL configuration fully active,
+   which is exactly where a developer's `core.hooksPath` (husky, lefthook,
+   `pre-commit`) and `commit.gpgsign` live, so pointing GLOBAL at `/dev/null` is
+   the half that cannot be dropped. And `core.hooksPath` pointed at an EMPTY
    DIRECTORY, and `commit.gpgsign=false` and `tag.gpgsign=false`.
    **AND THE ENVIRONMENT IS CLEARED, NOT MERELY ADDED TO: EVERY INHERITED `GIT_*`
    CONTROL VARIABLE IS UNSET** — `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`,
    `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`, `GIT_ALTERNATE_OBJECT_DIRECTORIES`,
    `GIT_NAMESPACE`, `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the
-   caller happens to export — leaving ONLY the THREE this procedure sets itself
-   (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently `GIT_CONFIG_NOSYSTEM=1`,
-   and `GIT_LITERAL_PATHSPECS=1`).
+   caller happens to export — leaving ONLY the THREE this procedure sets itself:
+   `GIT_CONFIG_GLOBAL=/dev/null` ALWAYS, EITHER `GIT_CONFIG_SYSTEM=/dev/null` OR
+   `GIT_CONFIG_NOSYSTEM=1` BESIDE IT — never that one in place of the GLOBAL
+   setting — and `GIT_LITERAL_PATHSPECS=1`.
    **AND `GIT_LITERAL_PATHSPECS=1` BELONGS HERE BECAUSE A DECLARED PATH IS AN
    OPERAND, NEVER A PATTERN AND NEVER AN OPTION**: every git invocation that
    RECEIVES a declared path passes it AFTER `--` and under literal-pathspec mode
