@@ -545,6 +545,62 @@ Active changes:
   **FILING ≠ RATIFYING** — ratification, realization (a codexFactory companion)
   and archive are three separate acts on Brett Heap's word; none has been given.
 
+- [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
+  — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
+  Heap, openxFactory operator authority, first-hand, in session — a
+  MULTIPLE-CHOICE ruling over all seven `design.md` D-1..D-7 decisions,
+  verbatim ***"accept all A on 960"***, recorded on PR
+  [#960](https://github.com/opensoft/openxFactory/pull/960)) — record
+  [`review/ratification-2026-09-11.md`](openspec/changes/amend-register-act-5b-projection-proof/review/ratification-2026-09-11.md).
+  **ALL SEVEN OQs = A, THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE
+  BYTE** (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED
+  BESIDE the unmoved drafting pair). Lane `hermes-wallet-exercise`. **THE
+  "CITED CHANGE LATER" OF A
+  DISPOSITIONED CONTESTED FINDING**, queued by name in Brett Heap's
+  multi-choice ruling of **2026-09-11T03:01:28Z** — verbatim *"disposition
+  entry now, cited change later"* — whose disposition entry is
+  `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`
+  § `## Disposition — design § D4 step 5b`, landed by PR
+  [#951](https://github.com/opensoft/openxFactory/pull/951) →
+  `1fb6d5cd` with its codexFactory pointer at PR
+  [#389](https://github.com/codeXfactory/codexFactory/pull/389) → `d26e8bf2`.
+  **THE FINDING:** the governed re-issuance procedure's projection step (5b)
+  makes an ADMITTED CONVENING its exit condition, and **no convening in this
+  estate reads the register projection** — the admission path resolves the
+  DOMAIN-CONTENT projection, while the REGISTER projection carrying grant state
+  is read at verdict consumption, which a lane that convenes no seat never
+  reaches; dispatched before the projection is re-derived the same convening
+  returns a **green admission against a pre-act projection**, a manufactured
+  clearance that reads exactly like the proof. **AND THE LOCATION IS CORRECTED
+  RATHER THAN INHERITED:** the words *"VERIFY ONE CONVENING ADMITS"* are not in
+  codexFactory's § D4 step 5b at all (measured — the phrase occurs there once,
+  inside its own 2026-09-11 annotation); they are **this repository's**
+  `docs/governed-reissuance-runbook.md` §5.2 step 3, which is the document
+  codexFactory's tasks point the walker at. **FOUR `## ADDED` REQUIREMENTS** on
+  `review-authority-intake` (twelve scenarios): the exit condition becomes a
+  direct observation of the published projection's declared source revision at
+  or after the register act's landed commit; the observation is read-only, on a
+  named operator's word naming the executing lane, and recorded with its
+  commands, values and comparison; it follows a refresh cycle that COMPLETED
+  after the act, because **currency is not content** — the 2026-09-11 live
+  projection was ~45 minutes old, well inside `P7D`, and derived before the act;
+  and it states the limit of what it establishes, naming unread fields as OWED.
+  **`## ADDED` IS FORCED, NOT PREFERRED:** `review-authority-intake` has no
+  promoted specification — both changes that author it are ACTIVE — so there is
+  no block to `## MODIFIED`, and `tasks.md` §5 holds the archive behind
+  `add-wallet-carried-review-authority` so the capability's promoted file is
+  created by its author. **SEVEN OPEN QUESTIONS WERE PUT FOR BRETT HEAP AS
+  MULTIPLE CHOICE** (OQ-1..OQ-7; `design.md` D-1..D-7), each with a RECOMMENDED
+  option and its one-line reason, and **every one was ruled at its
+  recommendation** (§ Rulings, `proposal.md`), so the delta moved no byte.
+  **WHAT THIS RATIFICATION DOES NOT DO:** it edits no file under
+  `openspec/specs/`, no script, contract, schema or workflow, does not amend
+  codexFactory, does not rewrite the `Status: record` walk record, does not
+  move the runbook's own `Status: draft`, and does not perform the two
+  runbook sentences — those are `tasks.md` §3, still open. The realization
+  evidence for `code_surface: none` is landing plus the task list, and the
+  task list includes them.
+
 - [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
   openxFactory operator authority — a MULTIPLE-CHOICE ruling over `design.md`
