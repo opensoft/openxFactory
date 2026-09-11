@@ -52,8 +52,9 @@ origin:
     is a THROW, an OBSERVATION and a RESTORE on a real bot cycle, and this
     filing performs none of the three. No box anywhere is ticked by this pull
     request. The parent packet is NOT EDITED BY THIS LANE AT ALL — its
-    `tasks.md` is being moved by open PR #957 and a conflict would be this
-    lane's fault.
+    `tasks.md` was moved by PR #957, MERGED 2026-09-11T10:50:23Z
+    (`54c166cf`); this packet takes its merge-from-main and does not edit that
+    file, so the conflict this paragraph once warned of no longer exists.
     FILING IS NOT RATIFYING. This packet is a PROPOSAL. It admits no text to
     canon, ratifies no design decision, re-opens N-4 only by ASKING, moves no
     byte in either repository, throws no switch, and carries `Status: draft` on

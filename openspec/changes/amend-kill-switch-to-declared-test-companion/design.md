@@ -157,8 +157,8 @@ claiming to honour it. A comment-block declaration:
 **And the declaration is kept honest by machinery, not by discipline** (D-2b):
 one codexFactory conformance test asserts BOTH halves of the DECLARED companion
 against measurement — the declared assertions against the set that actually pins
-the enrolment, and the declared artefacts against the paths their own recording
-commands actually rewrite. Without it, the declaration
+the enrolment, and the declared artefacts against the paths their own allowlisted
+regenerations actually rewrite. Without it, the declaration
 rots the first time someone adds a pinning assertion, and it rots invisibly —
 the failure mode that produced this packet. With it, a stale declaration is a
 failing check on the pull request that made it stale.
@@ -181,13 +181,36 @@ change picks ONE placement and the checker reads that one — one line per entry
 - `# companion: <pytest node id>` for each assertion that pins the enrolment,
   the node id being `<path>::<Class>::<test>`, or `<path>::<test>` where there
   is no class. FUNCTION grain, which answers Q-3.
-- `# companion-artefact: <repo-relative path> regenerate: <command>` for each
-  golden or snapshot file whose recorded value moves with the withdrawal. FILE
-  grain — and the RECORDING COMMAND is part of the declaration, not an
-  afterthought: the artefact's movement is MEASURED by running that command and
-  reading the diff, never inferred, so an artefact with NO recording command
-  CANNOT BE DECLARED and therefore cannot be part of an enrolment's companion.
-  Supplying the missing command is the realizing companion change's work.
+- `# companion-artefact: <repo-relative path> regenerate: <identifier>` for
+  each golden or snapshot file whose recorded value moves with the withdrawal.
+  FILE grain — and the REGENERATION IDENTIFIER is part of the declaration, not
+  an afterthought: the artefact's movement is MEASURED by running that
+  regeneration and reading the diff, never inferred, so an artefact with NO
+  declared identifier CANNOT BE DECLARED and therefore cannot be part of an
+  enrolment's companion. Supplying the missing identifier, and the reviewed
+  table row that resolves it, is the realizing companion change's work.
+
+**THE `regenerate:` FIELD IS AN ALLOWLISTED IDENTIFIER, NEVER A COMMAND, AND THE
+DECLARATION THEREFORE CANNOT INTRODUCE EXECUTION.** The envelope is a
+PULL-REQUEST-EDITABLE file and the conformance test (D-2b) runs inside a
+REQUIRED CI check, so a declaration carrying shell text would let a proposed
+declaration run arbitrary commands in that runner. It does not, by construction:
+
+- `<identifier>` is a BARE TOKEN — a name, not a command, not an argument, not a
+  path, and nothing that is evaluated;
+- it is RESOLVED ONLY IN TRUSTED TEST CODE — a fixed `identifier -> argv` table
+  held in the conformance test module under codexFactory's `tests/merge-master/`,
+  which is code-owner-reviewed test code inside the required check;
+- the resolved argv is executed as a LIST WITH NO SHELL
+  (`subprocess.run(argv, shell=False)` semantics) from a FIXED cwd of the
+  repository root, so no byte of the declaration reaches a shell;
+- an identifier ABSENT FROM THE TABLE **fails the check** — it is not looked up
+  elsewhere, not guessed at, and never executed.
+
+Adding an identifier is therefore a REVIEWED TEST-CODE CHANGE in the trusted
+module, not a declaration edit. That is the whole point of the split: the
+declaration names WHICH recording tool an artefact belongs to, and only reviewed
+test code decides WHAT that name runs.
 
 **The checker's DISCOVERY RULE, stated so the check is deterministic.** Parse
 the envelope text; locate the candidate by its `id:` value; collect every
@@ -197,18 +220,50 @@ counts as a declaration** — not a comment elsewhere in the file, not a separat
 file, not a line held in a test.
 
 **And the check is TWO EQUALITIES, both MEASURED in the same scratch tree with
-the class alone withdrawn (D-2b, stated exactly).**
+the class alone withdrawn (D-2b, stated exactly) — taken against an explicit
+COMMITTED POST-WITHDRAWAL BASELINE, and guarded by a NON-EMPTINESS rule.**
+
+**THE BASELINE IS FIXED FIRST, BECAUSE WITHOUT IT THE ARTEFACT EQUALITY CAN
+NEVER HOLD.** In the scratch tree, APPLY THE WITHDRAWAL — that class's candidate
+mapping and its companion comment lines removed, and nothing else — and **COMMIT
+IT AS THE BASELINE COMMIT**. Every measurement below is taken against that
+commit. The reason is mechanical: the tree in which the measurement happens
+already carries the withdrawal edit, so a diff taken against the pre-withdrawal
+state would report `.github/merge-approval-envelope.yml` itself, and a set
+containing the envelope could never equal a set of artefact paths, however
+correct the regeneration was.
 
 - **ASSERTIONS.** Let **A** be the set of failing pytest node ids obtained by
-  withdrawing THAT CLASS ALONE in a scratch tree and running the pinning suite.
-  The conformance test asserts that **A equals that class's declared
-  `# companion:` set**, in both directions and order-free.
-- **ARTEFACTS.** In that SAME scratch tree, each declared artefact is
-  REGENERATED by ITS OWN declared recording command — the `regenerate:` field of
-  its `# companion-artefact:` line — and the set of paths `git diff --name-only`
-  reports changed after those regenerations is compared to that class's declared
-  `# companion-artefact:` set. The test asserts the two sets are **equal — no
-  more, no less** — in both directions and order-free.
+  running the pinning suite on the baseline commit's tree. The conformance test
+  asserts that **A equals that class's declared `# companion:` set**, in both
+  directions and order-free, **and that A is NOT EMPTY** (below).
+- **ARTEFACTS.** THEN, in that same tree and with the baseline commit already
+  made, each declared artefact is REGENERATED by ITS OWN declared allowlisted
+  regeneration — the `regenerate:` IDENTIFIER of its `# companion-artefact:`
+  line, resolved to fixed argv in the trusted test module (D-2c) — and the set
+  of paths **`git diff --name-only <baseline-commit>`** reports is compared to
+  that class's declared `# companion-artefact:` set. Because the withdrawal is
+  already IN the baseline, that delta contains **ONLY paths the regeneration
+  changed**. The test asserts the two sets are **equal — no more, no less** — in
+  both directions and order-free.
+
+**A PATH-SCOPED DIFF IS DELIBERATELY NOT USED, AND THE REASON IS THE FAILURE IT
+WOULD HIDE.** Restricting the diff to the declared paths would make the equality
+trivially satisfiable in one direction and would conceal exactly the failure most
+worth catching — a regeneration that writes a path NOBODY DECLARED. The
+whole-tree diff *against the baseline commit* keeps that detection: an unexpected
+generated path appears in the delta, is absent from the declared set, and the
+check fails. The baseline removes the false positive; the whole-tree grain keeps
+the true one.
+
+**AND THE MEASURED ASSERTION SET MAY NOT BE EMPTY.** Both equalities pass
+VACUOUSLY on an enrolment that nothing pins: withdraw the class, no assertion
+fails, the measured set is empty, and a declared empty set equals it. That is
+precisely the enrolment that could leave unnoticed — the property D-1 refused
+alternative (B) in order to protect. So the check requires **A to be NON-EMPTY
+for every enrolled class**: an empty measured set is a FAILING check, never a
+vacuous pass, and the enrolment is recorded as non-conformant for lacking a
+pinning assertion until the companion realization adds one.
 
 **Existence is necessary but is NO LONGER THE CHECK, and the inference it stood
 on is WITHDRAWN.** The earlier formulation declared the artefacts,
@@ -222,14 +277,15 @@ nothing to do with this withdrawal; and a shared snapshot can change without any
 declared node id naming it. So the artefact half is now measured the way the
 assertion half always was — by running something and reading what it reports.
 The objection that a pytest run "does not report moved paths" is answered by NOT
-ASKING IT TO: the recording commands rewrite the artefacts and `git diff
---name-only` reports the paths.
+ASKING IT TO: the allowlisted regenerations rewrite the artefacts and `git diff
+--name-only <baseline-commit>` reports the paths.
 
 **The consequence, stated rather than left implicit:** an artefact with NO
-declared recording command cannot be declared, so a companion that needs such an
-artefact is not declarable until the realizing companion change supplies the
-command. That is a constraint ON THE REALIZATION (tasks 3.1), not a gap in the
-rule.
+declared regeneration identifier — or with one absent from the trusted module's
+table — cannot be declared, so a companion that needs such an artefact is not
+declarable until the realizing companion change supplies BOTH the identifier and
+the reviewed table row that resolves it. That is a constraint ON THE REALIZATION
+(tasks 3.1), not a gap in the rule.
 
 **Alternatives considered and not recommended:** a separate companion manifest
 file (a second place to forget); a schema member (D-2's whole objection); a
@@ -355,9 +411,11 @@ candidate class, so the realizing codexFactory companion change declares a
 companion for EVERY class enrolled in `.github/merge-approval-envelope.yml` at
 realization time — today TWO, `codexfactory-routine-code` and
 `openxfactory-floor-regeneration` — each MEASURED the same way (withdraw that
-class alone in a scratch tree, run the pinning suite and collect the failing
-node ids, then regenerate each declared artefact by its own recording command
-and read the paths the diff reports), and `openxfactory-review-lane-repin`
+class alone in a scratch tree and COMMIT that withdrawal as the baseline, run
+the pinning suite and collect the failing node ids — which may not be empty —
+then regenerate each declared artefact by its own allowlisted identifier and read
+the paths the diff against that baseline reports), and
+`openxfactory-review-lane-repin`
 likewise if
 `admit-review-lane-repin-to-merge-approval-envelope` realizes and enrols it.
 This is a **BLOCKING CLOSURE CONDITION, not a sequencing preference**: tasks 3.1

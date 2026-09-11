@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory's half of this packet carries NO CODE — its rules land as text (a `## MODIFIED` requirement delta, a design record and a task list), and no byte under `.github/`, `scripts/` or `contracts/` moves in this repository by this pull request. No test implementation or runtime code moves either: the only file under `tests/` this pull request touches is the machine-derived per-change sweep ledger `tests/sequenced_after/corpus-ledger.yaml`, whose two rows this filing moves by construction (its own row, and the parent's `sole` → `co-modifier` flip), seeded by `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`. THE REALIZATION IS A codexFactory COMPANION CHANGE, authored THERE by that repository's own lane after ratification, and it is TWO surfaces and not more: (1) `.github/merge-approval-envelope.yml`'s BANNER/COMMENT BLOCK beside EACH ENROLLED CANDIDATE CLASS — today TWO, `codexfactory-routine-code` and `openxfactory-floor-regeneration`, because the requirement binds every enrolment and nothing is grandfathered — where the false "takes one edit" sentence is corrected and each candidate's DECLARED TEST COMPANION is named as `# companion:` / `# companion-artefact:` comment lines beside it, which is a comment-only edit and therefore NO SCHEMA CHANGE; (2) ONE conformance test in codexFactory asserting, PER ENROLLED CLASS and in one scratch tree with that class alone withdrawn, TWO EQUALITIES — that the declared companion ASSERTIONS equal the set that actually pin that enrolment, and that the declared companion ARTEFACTS equal the set of paths reported changed by regenerating each declared artefact through ITS OWN declared `regenerate:` recording command, no more and no less — so artefact movement is MEASURED rather than inferred from the failing node ids or from an existence check, and the declaration cannot go stale silently. NOT THIS PACKET'S SURFACE, each for a stated reason: the envelope's `openxfactory-floor-regeneration` CANDIDATE MAPPING itself is untouched — this packet amends the ACCOUNT of the switch, never throws it, and the entry is INTACT on codexFactory `main` (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines); NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED IN ANY FORM; no schema member is added and `active:` is refused again exactly as N-4 refused it; no repository variable is introduced, for N-4's own reason (invisible in the diff); `scripts/` and `contracts/` do not move in either repository; and THIS LANE AUTHORS NO codexFactory BYTE — the split is the same one `extend-merge-master-envelope-to-floor-bot-lanes` made.
-target_release: a code surface (in codexFactory), so per `release-realization` this packet archives ONLY on merged + green realization evidence, and the evidence is the codexFactory companion landed with that repository's required `validate` check green — `tests/merge-master/` included — plus the new conformance test passing against the declared companion. No contract bundle is cut, nothing under `contracts/` moves, no `contract_bundle_version` is spent, no digest set moves and NO RELEASE TAG IS OWED. The parent's box 3.6 OBSERVATION is a further and separate thing this packet does not claim as its own archive evidence: it needs a real bot cycle, which does not exist today (hourly floor-regeneration has reported "nothing owed" since 2026-09-10T17:22Z) and which no agent may manufacture (the class pins `expected_author: openxfactory[bot]`).
+code_surface: openxFactory's half of this packet carries NO CODE — its rules land as text (a `## MODIFIED` requirement delta, a design record and a task list), and no byte under `.github/`, `scripts/` or `contracts/` moves in this repository by this pull request. No test implementation or runtime code moves either: the only file under `tests/` this pull request touches is the machine-derived per-change sweep ledger `tests/sequenced_after/corpus-ledger.yaml`, whose two rows this filing moves by construction (its own row, and the parent's `sole` → `co-modifier` flip), seeded by `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`. THE REALIZATION IS A codexFactory COMPANION CHANGE, authored THERE by that repository's own lane after ratification, and it is TWO surfaces and not more: (1) `.github/merge-approval-envelope.yml`'s BANNER/COMMENT BLOCK beside EACH ENROLLED CANDIDATE CLASS — today TWO, `codexfactory-routine-code` and `openxfactory-floor-regeneration`, because the requirement binds every enrolment and nothing is grandfathered — where the false "takes one edit" sentence is corrected and each candidate's DECLARED TEST COMPANION is named as `# companion:` / `# companion-artefact:` comment lines beside it, which is a comment-only edit and therefore NO SCHEMA CHANGE; (2) ONE conformance test in codexFactory asserting, PER ENROLLED CLASS and in one scratch tree with that class alone withdrawn, TWO EQUALITIES — that the declared companion ASSERTIONS equal the set that actually pin that enrolment, and that the declared companion ARTEFACTS equal the set of paths reported changed by regenerating each declared artefact through ITS OWN declared `regenerate:` IDENTIFIER — an ALLOWLISTED TOKEN resolved to a fixed argv only in the trusted, code-owner-reviewed test module and never a command carried in the pull-request-editable declaration — with both equalities taken against a COMMITTED POST-WITHDRAWAL BASELINE and the measured assertion set required to be NON-EMPTY, no more and no less; so artefact movement is MEASURED rather than inferred from the failing node ids or from an existence check, and the declaration cannot go stale silently nor pass vacuously on an enrolment that nothing pins. NOT THIS PACKET'S SURFACE, each for a stated reason: the envelope's `openxfactory-floor-regeneration` CANDIDATE MAPPING itself is untouched — this packet amends the ACCOUNT of the switch, never throws it, and the entry is INTACT on codexFactory `main` (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines); NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED IN ANY FORM; no schema member is added and `active:` is refused again exactly as N-4 refused it; no repository variable is introduced, for N-4's own reason (invisible in the diff); `scripts/` and `contracts/` do not move in either repository; and THIS LANE AUTHORS NO codexFactory BYTE — the split is the same one `extend-merge-master-envelope-to-floor-bot-lanes` made.
+target_release: a code surface (in codexFactory), so per `release-realization` this packet archives ONLY on merged + green realization evidence, and the evidence is the codexFactory companion landed with that repository's required `validate` check green — `tests/merge-master/` included — plus the new conformance test passing against the declared companion. No contract bundle is cut, nothing under `contracts/` moves, no `contract_bundle_version` is spent, no openxFactory CONTRACT digest set moves and NO RELEASE TAG IS OWED (the codexFactory BEHAVIOUR-SNAPSHOT digest is a different artefact entirely: it is a DECLARED COMPANION ARTEFACT and it DOES move, in THAT repository, at the throw and again at the restore, by the companion realization — that movement is the point of design.md D-3, not an exception to this sentence). The parent's box 3.6 OBSERVATION is a further and separate thing this packet does not claim as its own archive evidence: it needs a real bot cycle, which does not exist today (hourly floor-regeneration has reported "nothing owed" since 2026-09-10T17:22Z) and which no agent may manufacture (the class pins `expected_author: openxfactory[bot]`).
 sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]
 ---
 
@@ -154,11 +154,24 @@ The requirement gains, in the delta:
 - a **SHALL** that a withdrawal is the declaration edit together with its
   declared companion, taking effect on the next evaluation with no redeploy and
   no lane reconfiguration;
-- a **SHALL** that the conformance test asserts BOTH equalities — the declared
-  assertions against the set that actually pin the enrolment, and the declared
-  artefacts against the paths their own declared recording commands rewrite —
-  with a **SHALL NOT** on inferring an artefact's movement from the failing
-  assertions or from an existence check;
+- a **SHALL** that the conformance test asserts BOTH equalities, each taken
+  against a **committed post-withdrawal baseline** — the declared assertions
+  against the set that actually pin the enrolment, and the declared artefacts
+  against the paths their own allowlisted regenerations rewrite — with a
+  **SHALL NOT** on inferring an artefact's movement from the failing assertions
+  or from an existence check, and a **SHALL NOT** on narrowing that diff to the
+  declared paths, so a regenerated path no declaration names is still caught;
+- a **SHALL** that each declared artefact is regenerated by an **allowlisted
+  recording tool NAMED BY IDENTIFIER** in the declaration and **resolved only in
+  reviewed test code**, with a **SHALL NOT** on the declaration carrying a
+  command, an argument or any other executed text, and an identifier absent from
+  the reviewed table failing the check rather than being executed — so a
+  pull-request-editable declaration can never introduce execution into the
+  required check;
+- a **SHALL NOT** on an enrolment whose withdrawal fails **NO** conformance
+  assertion: the measured set for every enrolled class **SHALL be non-empty**,
+  and an empty measured set is a failing check, never a vacuous pass on two
+  empty sets — the enrolment nobody would notice leaving is refused;
 - a **SHALL NOT** on a switch held in a value that does not appear in a
   reviewable diff (unchanged in force from the parent, restated);
 - a **SHALL NOT** on an enrolment whose withdrawal, **with the declared
@@ -169,8 +182,9 @@ The requirement gains, in the delta:
 - the restated and **BROADENED** scenario "A kill switch outside the diff" —
   the parent's "repository or environment setting" is widened to name
   secrets and any other value that does not appear in a reviewable diff;
-- two **new** scenarios: "The companion is declared beside the declaration" and
-  "An undeclared companion is a finding against the enrolment".
+- three **new** scenarios: "The companion is declared beside the declaration",
+  "An undeclared companion is a finding against the enrolment" and "An enrolment
+  nobody would notice leaving is refused".
 
 **The widening, declared explicitly.** The parent refused a switch held in "a
 repository or environment setting". This packet's restated scenario refuses a
@@ -225,7 +239,15 @@ Every parent scenario's intent is kept. Nothing is silently dropped.
   suite to read the enrolment from the envelope (alternative (B); rejected in
   `design.md` D-1, because a suite that adapts to the entry leaving no longer
   notices it leaving).
-- No contract bundle, no tag, no pin movement, no digest movement.
+- No contract bundle, no tag, no pin movement, and **no openxFactory contract
+  digest set, pin byte or `contract_bundle_version` movement IN THIS FILING**.
+  This sentence is about openxFactory's contract digests and about this pull
+  request. It is NOT a prohibition on the codexFactory BEHAVIOUR-SNAPSHOT digest
+  (`specs/018-per-tree-floor-instance/behaviour-snapshot.json`), which is a
+  DECLARED COMPANION ARTEFACT and **does** move — at the throw and again at the
+  restore, in that repository, by the companion realization. That movement is
+  the POINT of `design.md` D-3 and of § Impact's procedure, not an exception to
+  this bullet.
 - No tick of the parent's box 3.6, here or anywhere, by this pull request.
 
 ## Impact
@@ -251,10 +273,11 @@ NONE.** The amended requirement binds EVERY enrolled candidate class, so the
 codexFactory companion declares a companion for every class enrolled in
 `.github/merge-approval-envelope.yml` at realization time — today TWO,
 `codexfactory-routine-code` and `openxfactory-floor-regeneration` — each
-measured the same way (withdraw that class alone in a scratch tree, run the
-pinning suite, collect the failing node ids; then regenerate each declared
-artefact by its own declared recording command and read the paths the diff
-reports) and each with its own passing conformance test over BOTH equalities.
+measured the same way (withdraw that class alone in a scratch tree and COMMIT
+that withdrawal as the baseline, run the pinning suite, collect the failing node
+ids — which may not be empty; then regenerate each declared artefact by its own
+allowlisted identifier and read the paths the diff against that baseline reports)
+and each with its own passing conformance test over BOTH equalities.
 **This packet is NOT ARCHIVABLE while ANY enrolled candidate class lacks a
 declared companion and a passing conformance test over both equalities**
 (`tasks.md` § 5.1): green evidence for one class does not stand in for

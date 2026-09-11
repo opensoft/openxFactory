@@ -61,8 +61,10 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       parent scenario's intent — the amended "Withdrawing an enrolment", the
       restated and BROADENED "A kill switch outside the diff" (the parent's
       "repository or environment setting" widened to name secrets and any
-      other value that does not appear in a reviewable diff), and two added
-      scenarios — with nothing silently dropped.
+      other value that does not appear in a reviewable diff), and THREE added
+      scenarios ("The companion is declared beside the declaration", "An
+      undeclared companion is a finding against the enrolment" and "An enrolment
+      nobody would notice leaving is refused") — with nothing silently dropped.
 - [ ] **2.2** `proposal.md`'s SECOND heading states the supersession in its own
       words: **THIS FILING AMENDS A RATIFIED DECISION (N-4) BY SUPERSESSION, AND
       SAYS SO HERE**, quoting N-4 verbatim and naming the clause that is
@@ -108,33 +110,58 @@ codexFactory**, authored there, exactly as
       time — today TWO, `codexfactory-routine-code` and
       `openxfactory-floor-regeneration`** — each MEASURED the same way:
       withdraw THAT CLASS ALONE in a scratch tree, run the pinning suite and
-      collect the failing node ids, then regenerate each golden/snapshot
-      artefact by its own recording command and read the paths `git diff
-      --name-only` reports changed. Each companion is declared using design.md
+      collect the failing node ids, then COMMIT that withdrawal as the baseline
+      and regenerate each golden/snapshot artefact by its own allowlisted
+      regeneration, reading the paths `git diff --name-only <baseline-commit>`
+      reports changed. Each companion is declared using design.md
       D-2c's grammar, **IN the envelope beside the candidate it belongs to**,
       as comment lines: `# companion: <pytest node id>` for every assertion
       that pins that enrolment, and `# companion-artefact: <repo-relative path>
-      regenerate: <command>` for every golden/snapshot file whose recorded value
-      moves with it — **the RECORDING COMMAND IS PART OF THE DECLARATION**,
-      because 3.2 measures the artefact's movement by running it and reading the
-      diff rather than inferring it. **An artefact with no recording command
-      cannot be declared**, so where a declared artefact has none this task
-      SUPPLIES ONE (a recording/regeneration entry point in codexFactory) before
-      the artefact may be named. Comment-only: **no schema member is added** to
-      any candidate mapping, no `active:` boolean, no repository variable, and
-      no candidate MAPPING moves.
-- [ ] **3.2 The conformance test — RUN PER CLASS, AND IT IS TWO EQUALITIES.**
-      ONE codexFactory test that, per D-2c's grammar and for **EACH enrolled
-      candidate class**, withdraws THAT class alone in a scratch tree and, in
-      that SAME tree, measures both halves:
-      **(i) ASSERTIONS** — run the pinning suite and assert that the set of
-      failing node ids EQUALS that class's declared `# companion:` set exactly,
-      both directions, order-free; and
-      **(ii) ARTEFACTS** — regenerate each declared artefact by ITS OWN declared
-      `regenerate:` command and assert that the set of paths `git diff
-      --name-only` reports changed EQUALS that class's declared
-      `# companion-artefact:` set exactly — **no more, no less** — both
-      directions, order-free.
+      regenerate: <identifier>` for every golden/snapshot file whose recorded
+      value moves with it — **the `regenerate:` FIELD IS AN ALLOWLISTED
+      IDENTIFIER AND NEVER A COMMAND**. The envelope is a pull-request-editable
+      file and 3.2 runs inside a REQUIRED check, so the declaration carries a
+      BARE TOKEN and nothing executable. This task therefore also adds, IN THE
+      TRUSTED CONFORMANCE TEST MODULE under codexFactory's `tests/merge-master/`
+      (code-owner-reviewed test code), the fixed `identifier -> argv` TABLE that
+      resolves each declared identifier — an argv list, no shell, a fixed cwd of
+      the repository root — so that an identifier ABSENT FROM THE TABLE fails the
+      check and an edit to a declaration can never introduce execution. Adding an
+      identifier is a reviewed test-code change, not a declaration edit. **An
+      artefact with no declared, resolvable identifier cannot be declared**, so
+      where a declared artefact has none this task SUPPLIES ONE (a
+      recording/regeneration entry point in codexFactory, plus its table row)
+      before the artefact may be named. In the ENVELOPE the edit stays
+      comment-only: **no schema member is added** to any candidate mapping, no
+      `active:` boolean, no repository variable, and no candidate MAPPING moves.
+- [ ] **3.2 The conformance test — RUN PER CLASS, OVER A COMMITTED
+      POST-WITHDRAWAL BASELINE, AND IT IS TWO EQUALITIES PLUS A NON-EMPTINESS
+      CHECK.** ONE codexFactory test that, per D-2c's grammar and for **EACH
+      enrolled candidate class**, does this IN ORDER:
+      **(0) THE BASELINE** — in a scratch tree, withdraw THAT class alone (its
+      candidate mapping and its companion comment lines removed, nothing else)
+      and **COMMIT that withdrawal as the BASELINE COMMIT**. Every measurement
+      below is taken against it. Without the baseline the measuring tree already
+      carries the withdrawal edit, so a whole-tree diff would report
+      `.github/merge-approval-envelope.yml` itself and the artefact equality
+      could never hold however correct the regeneration was.
+      **(i) ASSERTIONS** — run the pinning suite on that tree and assert that the
+      set of failing node ids EQUALS that class's declared `# companion:` set
+      exactly, both directions, order-free, **and that the set is NOT EMPTY**: an
+      enrolment whose withdrawal fails no assertion is exactly the one that could
+      leave unnoticed, so an empty measured set is a FAILING check and the
+      enrolment is recorded as non-conformant for lacking a pinning assertion —
+      never a vacuous pass on two empty sets.
+      **(ii) ARTEFACTS** — THEN regenerate each declared artefact by ITS OWN
+      declared `regenerate:` IDENTIFIER, resolved to fixed argv by the trusted
+      module's table (argv list, no shell, fixed cwd; an unknown identifier fails
+      the check rather than being executed), and assert that the set of paths
+      **`git diff --name-only <baseline-commit>`** reports changed EQUALS that
+      class's declared `# companion-artefact:` set exactly — **no more, no
+      less** — both directions, order-free. Because the withdrawal is already IN
+      the baseline, that delta holds ONLY what the regeneration wrote. **The diff
+      is NOT path-scoped to the declared set**, precisely so that a regeneration
+      writing a path NOBODY DECLARED still fails the check.
       The artefact's movement is therefore MEASURED BY THAT REGENERATION DIFF
       and is NOT inferred: an existence check does not prove the declared path
       is the file whose recorded value moves, a node id does not identify the
