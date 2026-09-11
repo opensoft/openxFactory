@@ -326,6 +326,16 @@ class Carve:
         path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
         return path
 
+    def write_admissions(self, doc: dict[str, Any],
+                        name: str = MODULE.ADMISSIONS_BASENAME) -> Path:
+        """The declared admissions file (RULED #656), written beside the
+        manifest by DEFAULT — same `self.tmp` directory, same default
+        basename `verify-carve-arrival.py` itself resolves to — so a case
+        that wants the CLI default path need only omit `--admissions`."""
+        path = self.tmp / name
+        path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+        return path
+
     def materialise(self, doc: dict[str, Any], destination: str,
                     name: str | None = None) -> Path:
         """A destination directory built from the manifest's own rows — commit
@@ -377,6 +387,37 @@ def refusal(done: subprocess.CompletedProcess) -> str:
     payload = json.loads(done.stdout)
     assert payload["result"] == "refused", payload
     return payload["code"]
+
+
+# --------------------------------------------------------------------------
+# the declared admissions file (RULED — the arrival-admission repair,
+# Brett Heap, 2026-09-11, `#656` comment 5639058687)
+# --------------------------------------------------------------------------
+
+# Any 40 lowercase hex characters satisfy `COMMIT_RE`; the tests below are not
+# about WHICH commit, only that the field is held to the shape.
+ADMISSION_SINCE = "a" * 40
+
+
+def _entry(path: str, reason: str = "test fixture",
+          since: str = ADMISSION_SINCE) -> dict[str, str]:
+    return {"path": path, "reason": reason, "since": since}
+
+
+def _admissions_doc(created_by_destination: dict[str, list[dict[str, str]]]
+                    | None = None) -> dict[str, Any]:
+    """A minimal admissions document over `manifest_doc()`'s three
+    destinations (RULED #656): every one gets a `created:` block, empty
+    unless `created_by_destination` supplies entries for it."""
+    created_by_destination = created_by_destination or {}
+    return {
+        "schema_version": 1,
+        "kind": "opendox-carve-admissions",
+        "destinations": {
+            name: {"created": created_by_destination.get(name, [])}
+            for name in ("scratch_code", "scratch_spec", "scratch_root")
+        },
+    }
 
 
 # --------------------------------------------------------------------------
@@ -2095,3 +2136,409 @@ def test_the_landed_manifest_gives_the_openxdox_root_no_key() -> None:
     assert "openxdox_root" not in doc["destinations"]
     repositories = {entry["repository"] for entry in doc["destinations"].values()}
     assert "opensoft/openXdox" not in repositories
+
+
+# --------------------------------------------------------------------------
+# the declared admissions file (RULED — the arrival-admission repair,
+# Brett Heap, 2026-09-11, `#656` comment 5639058687): `--destination` reads
+# it by default and applies each destination's `created:` list exactly as
+# `--allow-created` admits, so a new admission is a reviewed one-line diff
+# in the pin-bump pull request rather than a flag typed once and recorded
+# nowhere.
+# --------------------------------------------------------------------------
+
+def test_admissions_file_default_path_resolves_and_admits(carve: Carve
+                                                          ) -> None:
+    """No `--admissions` and no `--allow-created`: the default path — beside
+    the manifest — is read on its own, and its `created:` entry admits."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    admissions = carve.write_admissions(_admissions_doc(
+        {"scratch_code": [_entry("src/pkg/created.py")]}))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["admitted"]["created"] == 1, payload
+    assert payload["declared_admissions_used"] == ["src/pkg/created.py"]
+    assert payload["declared_admissions_unused"] == []
+    assert payload["ad_hoc_allow_created"] == []
+    assert payload["admissions_file"] == str(admissions)
+
+
+def test_a_declared_admission_admits_exactly_the_file_it_names(
+        carve: Carve) -> None:
+    """Declaring `created.py` must not admit a DIFFERENT undeclared file: the
+    admission is by NAME under the destination, never a wildcard over the
+    declared root."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    (dest / "src/pkg/other_created.py").write_text("OTHER = 2\n",
+                                                    encoding="utf-8")
+    carve.write_admissions(_admissions_doc(
+        {"scratch_code": [_entry("src/pkg/created.py")]}))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    assert "other_created.py" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_the_wrong_schema_version_refuses(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["schema_version"] = 999
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "schema_version" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_schema_version_true_refuses(
+        carve: Carve) -> None:
+    """`isinstance(True, int)` is `True` in Python, so a bare type check
+    would accept `schema_version: true` as though it were the integer 1
+    (Copilot review, PR #979) — the same trap `validate-carve-manifest.py`
+    already guards its own `schema_version:` against."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["schema_version"] = True
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "schema_version" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_the_wrong_kind_refuses(carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["kind"] = "not-the-declared-admissions-kind"
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "kind" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_naming_an_unknown_destination_refuses(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    admissions = carve.write_admissions({
+        "schema_version": 1,
+        "kind": "opendox-carve-admissions",
+        "destinations": {"scratch_bogus": {"created": [_entry("x.py")]}},
+    })
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A",
+               "--admissions", str(admissions), "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "scratch_bogus" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_a_duplicate_path_refuses(carve: Carve
+                                                          ) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [_entry("src/pkg/created.py", reason="one"),
+                         _entry("src/pkg/created.py", reason="two")],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "twice" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_an_unsorted_created_list_refuses(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [_entry("src/pkg/z_created.py"),
+                         _entry("src/pkg/a_created.py")],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "alphabetical order" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_entry_missing_a_required_field_refuses(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [{"path": "src/pkg/created.py",
+                          "reason": "missing since"}],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "since" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_entry_with_a_non_hex_since_refuses(carve: Carve
+                                                          ) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [_entry("src/pkg/created.py", since="not-a-commit")],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "40 lowercase hex" in json.loads(done.stdout)["detail"]
+
+
+def test_a_since_value_with_a_trailing_newline_refuses(carve: Carve) -> None:
+    """`$` matches just before a trailing newline as well as at the true end
+    of the string, so `COMMIT_RE.match` alone would admit 40 hex characters
+    plus a trailing "\\n" as a clean 40-hex commit (Copilot review, PR #979).
+    The field must be held to `.fullmatch`, which requires the match to cover
+    the ENTIRE string and so cannot let the newline ride along unchecked."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc({
+        "scratch_code": [_entry("src/pkg/created.py",
+                                since=ADMISSION_SINCE + "\n")],
+    }))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "40 lowercase hex" in json.loads(done.stdout)["detail"]
+
+
+def test_a_stale_declared_admission_is_reported_not_silent(carve: Carve
+                                                            ) -> None:
+    """A `created:` entry naming a file that never arrives is not consumed —
+    reported as UNUSED rather than passed over in silence (RULED #656): a
+    stale declared admission is a finding."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    carve.write_admissions(_admissions_doc(
+        {"scratch_code": [_entry("src/pkg/never_arrives.py")]}))
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["declared_admissions_used"] == []
+    assert payload["declared_admissions_unused"] == ["src/pkg/never_arrives.py"]
+
+    human = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A")
+    assert human.returncode == 0, human.stdout + human.stderr
+    assert "STALE" in human.stdout
+    assert "never_arrives.py" in human.stdout
+
+
+def test_ad_hoc_allow_created_still_works_and_notes_the_governed_form(
+        carve: Carve) -> None:
+    """`--allow-created` remains a working ad-hoc admission (RULED #656), and
+    a run using it prints a notice that the declared file is the governed
+    form — on stderr only, so `--json`'s one-object promise on stdout holds
+    and the human OK line is not corrupted."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A",
+               "--allow-created", "src/pkg/created.py")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+    assert "ad-hoc" in done.stdout.lower()
+    assert "NOTE" in done.stderr, done.stderr
+    assert "governed" in done.stderr.lower()
+
+    machine = run(carve, manifest, "--destination", "scratch_code",
+                 "--dest-root", str(dest), "--phase", "A",
+                 "--allow-created", "src/pkg/created.py", "--json")
+    assert machine.returncode == 0, machine.stdout + machine.stderr
+    payload = json.loads(machine.stdout)  # raises if a stray line broke it
+    assert payload["ad_hoc_allow_created"] == ["src/pkg/created.py"]
+
+
+def test_an_absent_admissions_file_is_not_a_refusal(carve: Carve) -> None:
+    """A destination with no admissions file adopted yet gets no declared
+    admissions, and behaves exactly as it did before this feature existed —
+    ABSENT is not the same finding as PRESENT AND MALFORMED."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    assert not (carve.tmp / MODULE.ADMISSIONS_BASENAME).exists()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["admissions_file"] is None
+    assert payload["declared_admissions_used"] == []
+    assert payload["declared_admissions_unused"] == []
+
+
+def test_an_unreadable_admissions_file_refuses_rather_than_reads_as_absent(
+        carve: Carve) -> None:
+    """A path that EXISTS but cannot be read as the admissions file — a
+    directory sitting where the file would be, standing in for any non-absence
+    `OSError` (permission failure, I/O error) — is not the same finding as "no
+    admissions file adopted yet" (Copilot review, PR #979). Catching every
+    `OSError` and returning as if absent would silently disable the governed
+    admissions and let the run fall through to an unrelated undeclared-file
+    result instead of naming the real cause; only `FileNotFoundError` may mean
+    ABSENT."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).mkdir()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "could not be read" in json.loads(done.stdout)["detail"]
+
+
+def test_an_empty_admissions_file_refuses_rather_than_reads_as_absent(
+        carve: Carve) -> None:
+    """An EXISTING file that parses to nothing — empty, or comments-only, so
+    `yaml.safe_load` hands back `None` — is PRESENT AND MALFORMED, not
+    ABSENT (Copilot review, PR #979). The old code's `if raw is None: return
+    {}` silently disabled every declared admission the file was supposed to
+    carry while the summary still reported it as this destination's
+    `admissions_file`; only a file that does not exist at all may read as
+    absent."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "# nothing declared yet\n", encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "not a mapping" in json.loads(done.stdout)["detail"]
+    assert "NoneType" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_a_duplicate_destination_key_refuses(
+        carve: Carve) -> None:
+    """`yaml.safe_load` applies last-duplicate-key-wins SILENTLY (Copilot
+    review, PR #979): a `destinations:` block naming `scratch_code` twice
+    would show a reviewer reading the diff the FIRST block (`created: []`,
+    nothing admitted) while the plain loader would resolve the document to
+    the SECOND (a real admission) — the same show-one-admit-another defect
+    the admissions file exists to prevent, now inside the admission
+    document itself. Written as raw text, not through `write_admissions`'s
+    dict helper: a Python `dict` cannot itself hold a duplicate key, so only
+    a hand-written document can produce the YAML this reader must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created: []\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/sneaky.py\n"
+        f"        reason: shown-one-admitted-another\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "duplicate" in detail
+    assert "scratch_code" in detail
+
+
+def test_an_admissions_entry_with_a_duplicate_field_key_refuses(
+        carve: Carve) -> None:
+    """The same last-duplicate-key-wins silence (Copilot review, PR #979),
+    one level down: a `created[]` entry repeating `reason:` would show a
+    reviewer the FIRST reason while the plain loader admits the file on the
+    SECOND, unread. Raw text for the same reason as the sibling test above —
+    a Python `dict` cannot hold the duplicate key this must refuse."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "schema_version: 1\n"
+        "kind: opendox-carve-admissions\n"
+        "destinations:\n"
+        "  scratch_code:\n"
+        "    created:\n"
+        "      - path: src/pkg/created.py\n"
+        "        reason: the reviewed reason\n"
+        f"        reason: a second, unreviewed reason\n"
+        f"        since: {ADMISSION_SINCE}\n",
+        encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "duplicate" in json.loads(done.stdout)["detail"]
+
+
+def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
+    ) -> None:
+    """The measured defect this slice repairs (RULED — the arrival-admission
+    repair, Brett Heap, 2026-09-11, `#656` comment 5639058687):
+    `openxdox_code`'s two openXdox-code #7 files, and nothing else declared
+    for any other destination yet. Reads the REAL committed files, so a typo
+    in either one fails this rather than only a scratch fixture's copy."""
+    manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    admissions_path = MODULE.default_admissions_path(manifest_path)
+    # Hard assertions, not a skip-guard (Copilot review, PR #979): this test
+    # exists to protect the GOVERNED SEED, so the committed manifest and
+    # admissions file disappearing or being renamed out from under it must
+    # fail here, not silently report a pass that never examined anything.
+    assert manifest_path.is_file(), (
+        f"the committed manifest at {manifest_path} is missing; this test "
+        "guards the governed admissions seed and must not pass silently "
+        "when the file it reads disappears")
+    assert admissions_path.is_file(), (
+        f"the committed admissions file at {admissions_path} is missing; "
+        "this test guards the governed admissions seed and must not pass "
+        "silently when the file it reads disappears")
+    manifest_doc = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    admissions = MODULE.read_admissions(admissions_path, manifest_doc)
+    # Equality, not a subset (Copilot review, PR #979): the admissions
+    # file's own header declares one block for EVERY destination the
+    # manifest carries, so a destination missing its `created: []` block --
+    # or an unknown id sneaking in -- must fail here rather than pass a
+    # check that only bounded one side of the comparison.
+    assert set(admissions) == set(manifest_doc["destinations"])
+    openxdox_code = {entry["path"]
+                     for entry in admissions.get("openxdox_code", [])}
+    assert openxdox_code == {"src/openxdox/consumer_reach.py",
+                             "tests/test_dependency_direction.py"}
+    for entry in admissions.get("openxdox_code", []):
+        assert entry["since"] == "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+    # Every OTHER destination must be seeded with NOTHING (Copilot review,
+    # PR #979): RULED #656's first seeding admits only openxdox_code's two
+    # files, so an accidental admission slipping into any other
+    # destination's block -- previously unchecked here -- must fail this
+    # test rather than pass it silently.
+    for dest_id in sorted(set(manifest_doc["destinations"]) - {"openxdox_code"}):
+        assert admissions[dest_id] == [], (
+            f"expected no declared admissions for {dest_id!r} (RULED #656's "
+            "first seeding admits only openxdox_code's two files), found "
+            f"{admissions[dest_id]!r}")

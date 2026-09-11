@@ -1,0 +1,86 @@
+# docs/opendox-carve-admissions.yaml — the DECLARED per-destination
+# admissions `scripts/verify-carve-arrival.py` reads beside
+# `docs/opendox-carve-manifest.yaml` (RULED — the arrival-admission repair,
+# Brett Heap, 2026-09-11 18:37Z, session `openXfactory-4 (5)`,
+# `opensoft/openxFactory#656` comment `5639058687`, "Declared per-leg
+# admissions file").
+#
+# WHY THIS FILE EXISTS. A file a destination CREATES has no row in
+# `docs/opendox-carve-manifest.yaml` — the manifest declares what LEAVES
+# openxFactory, never what a destination assembles (RULED OQ-C) — so the
+# arrival verifier must be TOLD about it, once, or it refuses
+# `arrival-undeclared-file`. Until this file existed, that admission was typed
+# on a command line (`--allow-created <path>`, `docs/opendox-cutover-runbook.md`
+# § 5.6) and lived nowhere a reviewer could see it move or a reader could see
+# it accumulate. This file is that admission GOVERNED instead: a `created:`
+# entry here is read automatically by `scripts/verify-carve-arrival.py` (the
+# default path, beside the manifest; `--admissions` overrides it) and applied
+# exactly as `--allow-created` admits today — so a NEW admission is a
+# reviewed ONE-LINE diff in the pull request that bumps the destination's pin,
+# rather than a flag typed once on a command line and recorded nowhere.
+# `--allow-created` still works for an ad-hoc run, and the verifier prints a
+# one-line notice that this file is the governed form.
+#
+# THE DEFECT THIS FIRST SEEDING REPAIRS. The runbook's `openxdox_code`
+# admission list was stale: `opensoft/openXdox-code#7` ("§ 4.1: invert the
+# openDox→openXdox dependency direction on the openXdox side", commit
+# `bfd95063b2a71be097a04bb6a3a99c4c131dd322`) added two files under that
+# destination's declared roots with no row and no admission anywhere —
+# `src/openxdox/consumer_reach.py` and `tests/test_dependency_direction.py` —
+# so `scripts/verify-carve-arrival.py --destination openxdox_code --phase B`
+# refused `arrival-undeclared-file` against the leg's own current main
+# (measured 2026-09-11 at `5da58ee2e54e5988baff235a06437616ee74a554`, the
+# commit `openXdox/contracts/code-pin.yaml` pins). Seeded here, both admit
+# with no `--allow-created` on the command line.
+#
+# THE SHAPE. One block per destination id, EVERY id the manifest's
+# `destinations:` map carries (RULED OQ-1's closed vocabulary) — an empty
+# `created: []` is a destination that has assembled nothing undeclared, not an
+# omission this file forgot. Each `created:` entry is `{path, reason, since}`:
+# `path` is exactly the value `--allow-created` would take (a plain path
+# relative to the destination's own root — never absolute, never carrying a
+# `.`/`..` segment); `reason` is a ONE-LINE why (the PR that created the
+# file); `since` is the 40-hex LEG commit that introduced it, so the claim is
+# falsifiable the same way the manifest's own `carve_commit:` is. Every
+# destination's list is ALPHABETICAL BY `path:`, so a new admission is a
+# one-line insertion and never a reshuffle — `scripts/verify-carve-arrival.py`
+# refuses a file that declares a destination id the manifest does not carry,
+# repeats a `path:` under one destination, or lists one out of order.
+#
+# NOT A MECHANICAL GENERATION, ON THE RULING'S OWN WORD. Regenerating this
+# file from each leg's tree at pin-bump time was considered and REJECTED: it
+# would admit BY CONSTRUCTION rather than by declaration, the same
+# distinction `--allow-created` already draws against the scaffold's own
+# files (`scripts/verify-carve-arrival.py`'s own docstring: "A name alone …
+# admits whatever is written at it"). A human names the file and says why;
+# this document is where that declaration lives, reviewed like any other
+# diff.
+#
+# WHAT THIS FILE DOES NOT COVER. `--replica-at` (a `not_moved /
+# replicated_at_destination` row's landing path, or a moved row's
+# `also_replicated_to:` placement) is a DIFFERENT admission, for a copy the
+# manifest already knows about but cannot place — it stays a command-line
+# flag; RULED #656 governs `created:` only. Nor does an empty `created: []`
+# here claim a destination has NOTHING left to admit ad hoc in the future —
+# only that nothing is declared FOR IT as of this seeding.
+
+schema_version: 1
+kind: opendox-carve-admissions
+
+destinations:
+  opendox_code:
+    created: []
+  opendox_root:
+    created: []
+  opendox_spec:
+    created: []
+  openxdox_code:
+    created:
+      - path: src/openxdox/consumer_reach.py
+        reason: "added by openXdox-code #7"
+        since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: tests/test_dependency_direction.py
+        reason: "added by openXdox-code #7"
+        since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+  openxdox_spec:
+    created: []

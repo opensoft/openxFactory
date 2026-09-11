@@ -333,9 +333,31 @@ records the limit rather than leaving a reader to discover it.
 
 Files CREATED at a destination (RULED OQ-C — `pyproject.toml`, `conftest.py`,
 `pytest.ini`, openXdox-code's `openxfactory_surface.py`) have no row either,
-and are named on the command line with `--allow-created`, once each, so that
-every unplaced file at a destination is either admitted by a rule or written
-down in the pull request that admits it.
+and are admitted so that every unplaced file at a destination is either
+admitted by a rule or written down as an admission somewhere reviewable.
+
+**The GOVERNED form of that admission (RULED — the arrival-admission repair,
+Brett Heap, 2026-09-11, `#656` comment 5639058687) is a `created:` entry in
+the destination's own block of `docs/opendox-carve-admissions.yaml`**, read
+automatically by `scripts/verify-carve-arrival.py` (the default path, beside
+this manifest; `--admissions` overrides it) and applied exactly as
+`--allow-created` admits. A NEW admission is then a reviewed ONE-LINE diff in
+the pull request that bumps the destination's pin:
+
+```diff
+       openxdox_code:
+         created:
++          - path: src/openxdox/new_module.py
++            reason: "added by opensoft/openXdox-code#N"
++            since: "<the leg commit that introduced it, 40 hex>"
+```
+
+`--allow-created <path>` on the command line still works, for an ad-hoc run
+over a tree with no admissions file yet, and the verifier prints a one-line
+notice that the declared form is the governed one. § 5.6 below is the
+historical, hand-typed list this file replaces as the source of truth for
+what each `-code` leg has admitted; read
+`docs/opendox-carve-admissions.yaml` itself for the CURRENT state.
 
 **The scaffold's own files are admitted without `--allow-created`**, and the
 distinction is load-bearing rather than convenience: `--allow-created` records
@@ -740,6 +762,19 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
 # differing only on them)
 ```
 
+**This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
+form on purpose, not a stale example** (Copilot review, PR #979): RULED
+#656's first seeding declares `openxdox_code`'s two openXdox-code #7 files in
+`docs/opendox-carve-admissions.yaml` and NOTHING else — `opendox_code`'s own
+block there is `created: []`, so these two Phase-1 files have no reviewed
+declaration to read yet, and the command-line flag remains this leg's live,
+correct admission, exactly as § 5.6 and the admissions file's own header say
+`--allow-created` still does for a destination with none declared. It is not
+an operator falling back to a form the file has already replaced here; it
+becomes one only once a future PR adds `pytest.ini` and `conftest.py` to
+`opendox_code`'s `created:` list, at which point this example should drop
+the flag and this note should go with it.
+
 The human line says `verified (byte-identical, or …)` and not
 `byte-identical` since RULED Q-L7 (a), because one replica row now declares a
 line and a copy that arrived carrying it is not byte-identical. **A leg that
@@ -797,8 +832,17 @@ requirement 4's failure exactly.
 
 ### 5.6 What lands with commit B and has NO row
 
-Files CREATED at a destination get no row (RULED OQ-C). Each one is named to
-the verifier with `--allow-created`, and the pull request says why:
+Files CREATED at a destination get no row (RULED OQ-C). **As of RULED #656
+(2026-09-11, `#656` comment 5639058687) the admission of record is
+`docs/opendox-carve-admissions.yaml`'s `created:` list for the destination —
+read automatically by `scripts/verify-carve-arrival.py`, applied exactly as
+`--allow-created` admits, and updated by a one-line diff in the pull request
+that bumps the destination's pin.** `--allow-created` on the command line
+remains for an ad-hoc run over a tree with no admissions file yet. The
+categories below are what a "created" file typically IS at each leg, kept for
+that context; for the CURRENT admitted set at each destination, read the
+admissions file itself rather than this list — a leg's own PR after this one
+lands is not obliged to update this prose, only the declared file.
 
 * both `-code` legs: `pytest.ini` (the rootdir anchor) and a root `conftest.py`
   — **unless Phase 1 already landed them, which is where they belong**;
