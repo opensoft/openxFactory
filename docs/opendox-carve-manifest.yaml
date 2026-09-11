@@ -263,6 +263,21 @@ moved_paths:
 # the number of rows carrying `edits:` (146 → 147, the extra one being a
 # replica). The 20 `replicated_at_destination` rows stay 20 — a row that is also
 # replicated is still a moved row.
+#
+# THE Q-L1 ANNOTATIONS OF 2026-09-10 (`#656` comment `5628560136`, Brett Heap,
+# "rule the two Q-L1 annotations, fold into PR-2") move the same two counts and
+# nothing else. They land WITH the § 5.2 shed, on SEVEN existing rows: BUILD
+# slice 1's stale citations at the two spec legs (one new `path constants` edit
+# on openDox-spec's runbook row; three openXdox-spec rows converted
+# `moved_verbatim` → `moved_with_declared_edit`) and BUILD slice 2's nine
+# openDox-code back-imports (one new `import rewrites` edit each on `cli.py`,
+# `serve.py` and `branch_session.py`). So: 456 rows still, `not_moved` still
+# 138, `moved_verbatim` 172 → 169 and `moved_with_declared_edit` 146 → 149 for
+# the three conversions, declared lines 794 → 862 (`path constants` 132 → 161,
+# `import rewrites` 636 → 675, `adapter calls` 26 unmoved), rows carrying
+# `edits:` 147 → 150, and the 20 replicas stay 20. NO REFERENT DIGEST MOVES:
+# a declared line is a claim about what may differ AT THE DESTINATION, and
+# `carve_commit`, `carve_tag` and all 318 `sha256` values are untouched.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -279,17 +294,25 @@ rows:
     reason: stays_openxfactory_adapter
     evidence: "design.md § D3 files the candidate-register row in openxFactory's own adapter column; the schema's own description names it the index \"at the openxFactory\" root, and doc_health reads it in five places (measured)."
   - source_path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "43acf0bb92abf95fc09b3705338b0fb68cfd0319a00bfc44d25811a6e2290000"
     destination: openxdox_spec
     destination_path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+    edits:
+      - class: path constants
+        lines: [44]
+        note: "STALE CITATION — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 1's (`#656` comment `5626818451`), and the row converts from `moved_verbatim` because a citation this repository can correct only by editing the arrived bytes has nowhere else to be declared. openXdox-spec's `docs/stale-citations-erratum-2026-09-10.md` (slice 1, `#6` → `481a07f90167bb7c27cebead830b5e2f86475deb`) stays the durable record. Filed `path constants` on the same reading as the openDox-spec runbook row's second edit: a path literal naming a location the destination does not have, and not an `adapter calls` literal, which is a module's. Line 44 cites `scripts/validate-ideation-dashboard-contracts.py`, which stays at openxFactory and carries a `not_moved` row here."
   - source_path: contracts/schemas/ideation-dashboard-snapshot.schema.yaml
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c"
     destination: openxdox_spec
     destination_path: contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+    edits:
+      - class: path constants
+        lines: [108]
+        note: "STALE CITATION — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 1's (`#656` comment `5626818451`), and the row converts from `moved_verbatim` because a citation this repository can correct only by editing the arrived bytes has nowhere else to be declared. openXdox-spec's `docs/stale-citations-erratum-2026-09-10.md` (slice 1, `#6` → `481a07f90167bb7c27cebead830b5e2f86475deb`) stays the durable record. Filed `path constants` on the same reading as the openDox-spec runbook row's second edit: a path literal naming a location the destination does not have, and not an `adapter calls` literal, which is a module's. Line 108 cites `docs/document-lifecycle.md`, openxFactory's own document, which carries a `not_moved / stays_openxfactory_governance` row here."
   - source_path: contracts/schemas/ideation-possibles-register.schema.yaml
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -346,6 +369,9 @@ rows:
       - class: path constants
         lines: [566, 774, 782, 789, 795, 801]
         note: "the six operative command lines invoke `python3 scripts/ideation_dashboard/cli.py`; the CLI's path changes under the destination's `src/opendox/` layout, and a runbook whose commands name a path that does not exist is a runbook nobody can run"
+      - class: path constants
+        lines: [5, 462, 463, 464, 465, 466, 487, 536, 642, 746, 751, 777, 884, 885, 886, 967, 969, 998, 1089, 1100]
+        note: "STALE-CITATION CORRECTIONS — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 1's (`#656` comment `5626818451`): ten targets over twenty lines whose text names THIS repository rather than the destination — the `Repository context: openxFactory` header (5), `scripts/reserve-dashboard.sh` (462-466), `scripts/systemd/xfactory-dashboard.service` (487), `openxFactory/scripts/validate-ideation-dashboard-contracts.py` (642), `scripts/sync-notebooklm-books.py` (884-886, 967, 969), the `ideation/` corpus locations (536, 746, 751, 777, 998) and the two `tests/ideation-dashboard/` citations (1089, 1100). Filed `path constants` for the reason this row's FIRST edit already gives — a path literal naming a location the destination does not have — and deliberately NOT `adapter calls`: RULING OQ-1's corpus-shaped rule is about a MODULE's literals, which `resolve` replaces, and a document's prose calls nothing. openDox-spec's `docs/stale-citations-erratum-2026-09-10.md` (slice 1, `#6` → `1a216ea413cdcc14791aa3939712e2e459cfa6b6`) stays the durable record; these lines are what let the leg correct the citations IN PLACE without an undeclared movement."
   - source_path: docs/openxdox-dispatch-credential-binding.md
     disposition: not_moved
     reason: stays_openxfactory_governance
@@ -375,11 +401,15 @@ rows:
     reason: stays_openxfactory_adapter
     evidence: "The ideation-cross-reference readiness index is, in its own schema's words, the index \"at the openxFactory\" root; design.md § D3 files the candidate-register row in openxFactory's own adapter column and its schema carries a not_moved row here."
   - source_path: examples/ideation-dashboard/README.md
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "c03b54fa5af67dc5cbbd4ea6da3b1d8e6b3e0fa0a75cc86b72d91b7614ed168c"
     destination: openxdox_spec
     destination_path: examples/ideation-dashboard/README.md
+    edits:
+      - class: path constants
+        lines: [10, 207, 208, 302, 318, 321, 325]
+        note: "STALE CITATIONS — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 1's (`#656` comment `5626818451`), and the row converts from `moved_verbatim` because a citation this repository can correct only by editing the arrived bytes has nowhere else to be declared. openXdox-spec's `docs/stale-citations-erratum-2026-09-10.md` (slice 1, `#6` → `481a07f90167bb7c27cebead830b5e2f86475deb`) stays the durable record. Filed `path constants` on the same reading as the openDox-spec runbook row's second edit: a path literal naming a location the destination does not have, and not an `adapter calls` literal, which is a module's. Seven lines cite `scripts/validate-ideation-dashboard-contracts.py` (10, 207, 302, 318, 321, 325) and `scripts/validate-ideation-cross-reference.py` (208); both stay at openxFactory and carry `not_moved` rows here."
   - source_path: examples/ideation-dashboard/demotion-execution-receipt.example.yaml
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1180,6 +1210,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [77, 1555, 1574, 1992, 2092, 2138, 2215, 3560]
+      - class: import rewrites
+        lines: [1740, 1859, 1878, 4179, 4217, 4254, 4287, 4504, 4991]
+        note: "BACK-IMPORT REMOVAL VIA THE § 2.4 SEAMS — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 2's (`#656` comment `5627894065`): nine of openDox-code's remaining import-time reaches into its consumer sit ON already-declared lines but cannot be removed without touching the lines below, which no edit declared. Declaring them is what lets slice 2b take the nine through the § 2.4 seams and lower openXdox-code's ratchet in ONE act. Class `import rewrites` because each line exists only to serve the import the row already declares: a continuation line of the rewritten statement, or an IMPORT-TIME name site — a mixin base or a default argument, both evaluated when the module loads — which is exactly why the reach cannot be late-bound at the import line alone. Measured in the blob at `carve_commit`, all nine are `records_dir: str = gate_console.DEFAULT_RECORDS_DIR` DEFAULT ARGUMENTS of the declared `:77` `from . import gate_console` — the highest-value line of the slice, because removing it closes the import cycle `openxdox.cli_gate:46 → opendox.branch_session → openxdox.gate_console:77` that keeps the § 2.4 subcommand seam from being exercised end to end."
   - source_path: scripts/ideation_dashboard/canvas_drafts.py
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1195,6 +1228,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [26, 56, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 79, 82, 104, 577, 635, 779, 979]
+      - class: import rewrites
+        lines: [80, 81, 83, 84, 980, 981, 982, 983, 984, 985, 986, 987]
+        note: "BACK-IMPORT REMOVAL VIA THE § 2.4 SEAMS — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 2's (`#656` comment `5627894065`): nine of openDox-code's remaining import-time reaches into its consumer sit ON already-declared lines but cannot be removed without touching the lines below, which no edit declared. Declaring them is what lets slice 2b take the nine through the § 2.4 seams and lower openXdox-code's ratchet in ONE act. Class `import rewrites` because each line exists only to serve the import the row already declares: a continuation line of the rewritten statement, or an IMPORT-TIME name site — a mixin base or a default argument, both evaluated when the module loads — which is exactly why the reach cannot be late-bound at the import line alone. Measured in the blob at `carve_commit`: 80-81 continue the declared `:79` `from ideation_dashboard.corpus_root import (`, 83-84 continue the declared `:82` `from ideation_dashboard.generator import (`, and 980-987 continue the declared `:979` `from .cli_gate import (` — the nineteen `cmd_gate_*` names and the closing paren. The ruling's list reads `980-989`; 988-989 are the HEAD of the adjacent `from .cli_model_binding import (`, which stays relative at the destination (measured at openDox-code `da8aae96`, `:987`) and is therefore not declared, the declaration stopping where the statement does."
       - class: path constants
         lines: [106, 113]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
@@ -1526,6 +1562,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [109, 110, 111, 122, 123, 134, 135, 136, 137, 138, 170, 171, 172, 173, 174, 175, 178, 185, 191, 199, 534, 552, 578, 829, 1242, 1353, 1371, 1639]
+      - class: import rewrites
+        lines: [176, 177, 192, 193, 194, 195, 196, 197, 198, 626, 627, 628, 629, 630, 1282, 1286, 1380, 1381]
+        note: "BACK-IMPORT REMOVAL VIA THE § 2.4 SEAMS — RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"): a ROW ANNOTATION landed with the § 5.2 shed. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. The finding is BUILD slice 2's (`#656` comment `5627894065`): nine of openDox-code's remaining import-time reaches into its consumer sit ON already-declared lines but cannot be removed without touching the lines below, which no edit declared. Declaring them is what lets slice 2b take the nine through the § 2.4 seams and lower openXdox-code's ratchet in ONE act. Class `import rewrites` because each line exists only to serve the import the row already declares: a continuation line of the rewritten statement, or an IMPORT-TIME name site — a mixin base or a default argument, both evaluated when the module loads — which is exactly why the reach cannot be late-bound at the import line alone. Measured in the blob at `carve_commit`: 176-177 continue the declared `:175` `from ideation_dashboard.serve_gate import (`; 192-198 continue the declared `:191` `from ideation_dashboard.serve_projection import (`; 626-630 are `DashboardHandler`'s five mixin BASES (`serve_workbench.WorkbenchRoutes`, `serve_project.ProjectRoutes`, `serve_gate.GateRoutes`, `serve_projection.ProjectionRoutes`, `serve_openxfactory_lanes.LaneRoutes`), evaluated at class-definition time; 1282 and 1286 are `build_server`'s two `registry_mod.<CONSTANT>` DEFAULT ARGUMENTS (`index_name: str = registry_mod.DEFAULT_INDEX_NAME`, `peek_ttl_seconds: float = registry_mod.PEEK_TTL_SECONDS`) for the declared `:135` import; 1380-1381 are the `profile_openxfactory.ROUTE_EXTENSIONS` reach behind the declared `:1371` deferred import. The ruling's list names these last two as `1283, 1287`, which is the numbering of the ARRIVED file at openDox-code `da8aae96` carried across by the slice-2 census; in the referent blob — the numbering every line in this manifest uses — the two `registry_mod.<CONSTANT>` default arguments are 1282 and 1286 (read them out of `git cat-file blob b075fd91:scripts/ideation_dashboard/serve.py`), and 1283/1287 are `source_roots: dict | None = None,` and `snapshot_source=None,`, which name no consumer and need no edit. The ruled TARGET is declared, at the lines the referent actually has."
       - class: path constants
         lines: [1614, 1661]
         note: "the `--web-dir` default is derived from `__file__`; a package-relative asset path under src/opendox/"
