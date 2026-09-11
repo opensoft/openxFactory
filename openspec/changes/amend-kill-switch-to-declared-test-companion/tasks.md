@@ -236,8 +236,8 @@ codexFactory**, authored there, exactly as
       the step-4 diffs at ANOTHER repository, and the procedure then measures a
       tree it never withdrew anything from — a GREEN check on the WRONG tree,
       which is worse than a red one.
-      **THE SAME ENVIRONMENT GOVERNS the
-      `git diff --name-only <baseline-commit>` measurements of step 4**. This is
+      **THE SAME ENVIRONMENT GOVERNS step 4's `git status` inventory and reset
+      calls**. This is
       not a precaution in the abstract — this repository already records the
       failure: a CI runner carries NO ambient git identity, so an un-pinned
       scratch commit dies there with `Author identity unknown` while passing on a
@@ -285,12 +285,30 @@ codexFactory**, authored there, exactly as
       fixed argv by that table (argv list, no shell, fixed cwd of the repository
       root; a DECLARED identifier absent from the table has already failed at
       step 1 rather than being executed). **RUN THEM ONE AT A TIME AND MEASURE
-      EACH RUN ALONE**: for each identifier, run it from the committed baseline,
-      record the paths **`git diff --name-only <baseline-commit>`** reports — in
-      step 2's hermetic git environment — as THE PATHS THAT IDENTIFIER PRODUCED,
-      then RESET **BOTH THE INDEX AND THE WORKTREE** to the baseline commit —
-      `git reset --hard <baseline-commit>` followed by `git clean -fdx`, with
-      `git status --porcelain` VERIFIED EMPTY — before the next identifier runs.
+      EACH RUN ALONE**: for each identifier, run it from the committed baseline
+      and record, as THE PATHS THAT IDENTIFIER PRODUCED, **THE FULL WORKING-TREE
+      DELTA AGAINST THE BASELINE COMMIT — TRACKED MODIFICATIONS AND DELETIONS,
+      UNTRACKED FILES, AND IGNORED FILES ALIKE** — read in step 2's hermetic git
+      environment as **`git status --porcelain=v1 --untracked-files=all
+      --ignored=matching`**, taking the path from EVERY status line, counting a
+      RENAME as BOTH paths, and taken IMMEDIATELY AFTER that identifier's run and
+      BEFORE the reset.
+      **`git diff --name-only` IS NOT THE INVENTORY, AND WOULD NOT BE SUFFICIENT
+      AS ONE**: it reports only changes to TRACKED content, so a generator that
+      writes a NEW file — above all one the repository IGNORES, and this procedure
+      expressly contemplates tools that write ignored outputs — produces an
+      artefact the equality never sees, which is exactly the UNDECLARED output
+      this check exists to catch. **AN IGNORED PATH A TOOL PRODUCES COUNTS AS
+      PRODUCED**, enters that identifier's pair set, and FAILS the equality when
+      undeclared precisely as a tracked one does; being ignored by `git` is a
+      statement about version control, never about whether the tool wrote it.
+      THEN RESET **BOTH THE INDEX AND THE WORKTREE** to the baseline commit —
+      `git reset --hard <baseline-commit>` followed by `git clean -fdx`, the `-x`
+      being what removes the IGNORED outputs the inventory has just counted, with
+      **THE SAME `git status --porcelain=v1 --untracked-files=all
+      --ignored=matching` CALL VERIFIED TO REPORT NOTHING** — the same call that
+      measures, so the reset is checked against the same notion of "changed" the
+      measurement uses — before the next identifier runs.
       A worktree-only restore is NOT enough, and the distinction is the whole
       attribution: `git checkout -- .` restores from the INDEX, so a regeneration
       tool that STAGES what it writes leaves that content in the index, where it

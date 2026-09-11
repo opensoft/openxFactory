@@ -305,9 +305,9 @@ what an earlier step captured or committed.**
    `GIT_WORK_TREE`, `GIT_INDEX_FILE` or `GIT_COMMON_DIR` silently aims the
    scratch commit and the step-4 diffs at ANOTHER repository, and the procedure
    then measures a tree it never withdrew anything from — a green check on the
-   wrong tree, which is worse than a red one. THE SAME
-   ENVIRONMENT GOVERNS the `git diff --name-only <baseline>` measurements of
-   step 4. This repository already records why, and the precedent is cited rather
+   wrong tree, which is worse than a red one. THE SAME ENVIRONMENT GOVERNS
+   step 4's `git status` inventory and reset calls.
+   This repository already records why, and the precedent is cited rather
    than paraphrased: a CI runner carries no ambient git identity, so an un-pinned
    scratch commit dies there with `Author identity unknown` while passing on a
    developer's machine, and a developer's GLOBAL config can carry `core.hooksPath`
@@ -343,18 +343,33 @@ what an earlier step captured or committed.**
    table, not only the identifiers this class declared** — is run, each resolved
    to fixed argv in that module (D-2c) and run as a list with no shell from a
    fixed cwd of the repository root. **THEY ARE RUN ONE AT A TIME AND EACH RUN IS
-   MEASURED ALONE**: after each identifier's run, the paths **`git diff
-   --name-only <baseline-commit>`** reports — in step 2's hermetic environment —
-   are the paths THAT IDENTIFIER produced, and then **BOTH THE INDEX AND THE
+   MEASURED ALONE**: after each identifier's run, the paths THAT IDENTIFIER
+   produced are **THE FULL WORKING-TREE DELTA AGAINST THE BASELINE COMMIT —
+   TRACKED MODIFICATIONS AND DELETIONS, UNTRACKED FILES, AND IGNORED FILES
+   ALIKE** — read in step 2's hermetic environment as **`git status
+   --porcelain=v1 --untracked-files=all --ignored=matching`**, the path taken
+   from EVERY status line, a RENAME counted as BOTH paths, and the call made
+   IMMEDIATELY AFTER the run and BEFORE the reset.
+   **`git diff --name-only` IS NOT THE INVENTORY**: it reports only changes to
+   TRACKED content, so a generator that writes a NEW file — above all one the
+   repository IGNORES, and this procedure expressly contemplates tools that write
+   ignored outputs — produces an artefact the equality never sees, which is the
+   undeclared output the check exists to catch. **AN IGNORED PATH A TOOL PRODUCES
+   COUNTS AS PRODUCED** and fails the equality when undeclared exactly as a
+   tracked one does: being ignored by `git` says something about version control,
+   nothing about whether the tool wrote it. Then **BOTH THE INDEX AND THE
    WORKTREE ARE RESET TO THE BASELINE COMMIT** — `git reset --hard
-   <baseline-commit>` followed by `git clean -fdx`, with `git status --porcelain`
-   VERIFIED EMPTY — before the next identifier runs. A worktree-only restore is
+   <baseline-commit>` followed by `git clean -fdx`, the `-x` being what removes
+   the ignored outputs the inventory has just counted, with **THE SAME
+   `git status --porcelain=v1 --untracked-files=all --ignored=matching` CALL
+   VERIFIED TO REPORT NOTHING** — before the next identifier runs. A worktree-only restore is
    NOT enough, and the distinction is the whole attribution: `git checkout -- .`
    restores from the INDEX, so a regeneration tool that STAGES what it writes
    leaves that content in the index, where it survives into the NEXT identifier's
    delta and attributes one tool's artefact to another — precisely the mis-binding
    the pair equality exists to catch; and `-fdx` rather than `-fd` because an
-   IGNORED file a tool writes is still a difference the next run can trip over. The measured value is therefore a set of **`{(identifier, path)}`
+   IGNORED file a tool writes is still a difference the next run can trip over.
+   The measured value is therefore a set of **`{(identifier, path)}`
    PAIRS**, and the test asserts THAT PAIR SET EQUALS that class's CAPTURED
    `# companion-artefact:` PAIR SET — path AND identifier, exactly as declared —
    **no more, no less**, in both directions and order-free.
@@ -432,9 +447,11 @@ nothing to do with this withdrawal; and a shared snapshot can change without any
 declared node id naming it. So the artefact half is now measured the way the
 assertion half always was — by running something and reading what it reports.
 The objection that a pytest run "does not report moved paths" is answered by NOT
-ASKING IT TO: the allowlisted regenerations rewrite the artefacts and `git diff
---name-only <baseline-commit>`, taken after each identifier's own run, reports
-the paths AND the identifier that produced each of them.
+ASKING IT TO: the allowlisted regenerations rewrite the artefacts and the FULL
+WORKING-TREE DELTA against the baseline commit — `git status --porcelain=v1
+--untracked-files=all --ignored=matching`, taken after each identifier's own run
+— reports the paths AND the identifier that produced each of them, a NEW or
+IGNORED file among them exactly as a tracked modification is.
 
 **The consequence, stated rather than left implicit:** an artefact with NO
 declared regeneration identifier — or with one absent from the trusted module's
@@ -499,7 +516,8 @@ bounded and reviewable instead of discovered at the moment the switch is thrown.
 This packet fixes THE INVARIANTS of the conformance procedure, and only those:
 capture before withdrawal; a committed hermetic baseline; a complete INDEPENDENT
 inventory with the conformance module excluded BY PATH; per-identifier
-attribution as (identifier, path) PAIRS; allowlisted identifiers resolved ONLY in
+attribution as (identifier, path) PAIRS over the FULL working-tree delta, ignored
+and untracked paths included; allowlisted identifiers resolved ONLY in
 trusted test code; artefact paths refused LEXICALLY and then CONTAINED; index AND
 worktree reset between tools; NON-EMPTINESS; and the two equalities with their
 failure classes. **THE EXACT COMMANDS, FLAGS AND HELPER LAYOUT ARE THE
