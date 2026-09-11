@@ -647,16 +647,29 @@ jobs:
           # that is not one of those rows, which is the check a reader should
           # redo rather than take on trust.
           #
-          # RE-MEASURED, not estimated: run 34607968174 on this branch (§ 5.2
-          # shed PR #940, 2026-09-11) printed `selected=7053 passed=7047
-          # skipped=6 failures=0 errors=0`, its own summary line `6876 passed,
-          # 6 skipped, 338 deselected, 171 subtests passed`. The floors are
-          # pinned AT those numbers, the same discipline as the 2026-08-27 cut:
-          # a number this suite has actually met, on a runner, with the
-          # subtest arithmetic already in it (6876 + 6 + 171 = 7053). They may
-          # only rise from here.
-          MIN_SELECTED: "7053"
-          MIN_PASSED: "7047"
+          # RE-MEASURED, not estimated, and TWICE (§ 5.2 shed PR #940,
+          # 2026-09-11). Run 34607968174 printed `selected=7053 passed=7047
+          # skipped=6` over `6876 passed, 6 skipped, 338 deselected, 171
+          # subtests passed`; run 34610094133 printed `selected=7054
+          # passed=7048 skipped=6` over the SAME `6876 passed, 6 skipped` with
+          # 172 subtests. Both green, both zero failures and zero errors.
+          #
+          # THE THREE-TEST GAP IS THE SUBTEST EMITTER, AND IT IS WHY THESE
+          # FLOORS SIT BELOW THE MEASUREMENT RATHER THAN ON IT. `pytest-subtests`
+          # emits a `<testcase>` per SUBTEST, and that count moves run to run on
+          # the same tree (170, 171 and 172 across three runs of this branch;
+          # 181 on `main`), so the JUnit `tests` attribute moves with it while
+          # the test count — `6876 passed, 6 skipped` — does not. A floor cut ON
+          # the high-water mark would red on a run that emitted one subtest
+          # fewer, for no change to the suite at all, and a required check that
+          # reds at random teaches a reader to ignore it. So the floor sits
+          # three below the lower of the two greens, which is a number this
+          # suite has met with room for exactly the jitter that has been
+          # measured — and still names the collection loss it exists for: a
+          # moved directory is hundreds of tests, never three. They may only
+          # rise from here.
+          MIN_SELECTED: "7050"
+          MIN_PASSED: "7044"
           # EXACT — the anti-vacuity pin. 6 on a runner since the § 5.2 shed
           # (21 before it; the move is recorded below). A developer worktree
           # inside the aggregation checkout measures a DIFFERENT number, because
