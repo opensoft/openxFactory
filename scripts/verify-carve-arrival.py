@@ -736,8 +736,16 @@ def read_admissions(path: Path, doc: dict[str, Any]
             "arrival-unreadable",
             f"the admissions file at {path} is not parseable YAML{at}: {exc}"
         ) from exc
-    if raw is None:
-        return {}
+    # An EXISTING file that parses to nothing — empty, or comments-only, so
+    # `yaml.safe_load` hands back `None` — is PRESENT AND MALFORMED, not
+    # ABSENT (Copilot review, PR #979): treating it as absent here would let
+    # a file present on disk (the summary would still report it as this
+    # destination's `admissions_file`) silently disable every declared
+    # admission it was supposed to carry. ABSENT is only a file that does
+    # not exist at all (`FileNotFoundError`, above). `isinstance(None, dict)`
+    # is `False`, so this falls straight into the very next check with no
+    # special case needed — its message names `NoneType` on the same idiom
+    # as any other wrong-shaped document.
     if not isinstance(raw, dict):
         raise ArrivalRefusal(
             "arrival-unreadable",

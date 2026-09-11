@@ -2370,6 +2370,27 @@ def test_an_unreadable_admissions_file_refuses_rather_than_reads_as_absent(
     assert "could not be read" in json.loads(done.stdout)["detail"]
 
 
+def test_an_empty_admissions_file_refuses_rather_than_reads_as_absent(
+        carve: Carve) -> None:
+    """An EXISTING file that parses to nothing — empty, or comments-only, so
+    `yaml.safe_load` hands back `None` — is PRESENT AND MALFORMED, not
+    ABSENT (Copilot review, PR #979). The old code's `if raw is None: return
+    {}` silently disabled every declared admission the file was supposed to
+    carry while the summary still reported it as this destination's
+    `admissions_file`; only a file that does not exist at all may read as
+    absent."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    MODULE.default_admissions_path(manifest).write_text(
+        "# nothing declared yet\n", encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "not a mapping" in json.loads(done.stdout)["detail"]
+    assert "NoneType" in json.loads(done.stdout)["detail"]
+
+
 def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
     ) -> None:
     """The measured defect this slice repairs (RULED — the arrival-admission
