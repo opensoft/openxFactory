@@ -29,9 +29,15 @@ an edit.
 
 ## D0 — the measurement, taken before the design
 
-Taken 2026-09-11 on this clone of `main` @ `38c076d1`, through the family's own
-`derive_units` so that fenced example markers are never offered — exactly as
-they are never offered to a run. Scope: the corpus BEFORE this packet.
+Taken 2026-09-11 on this clone of `main` @ `38c076d1` and **RE-TAKEN AFTER THE
+MERGE FROM `main` @ `34bb5c71`**, through the family's own `derive_units` so
+that fenced example markers are never offered — exactly as they are never
+offered to a run. Scope: the corpus BEFORE this packet. **EVERY MARKER FIGURE
+HELD ACROSS THE MERGE** — 18 markers, 16 unit-naming, 16 spent, 0 partially
+spent, 13 requirements, 7 specifications, 641 requirements in 62 promoted
+specifications — and the ONE figure that moved is the active-block count,
+**29 → 31**, PR #945's landing bringing two further blocks the family reads,
+neither of them carrying a marker. The table states the re-taken values.
 
 **THE POPULATION OF THE SHAPE #955 REPORTS:**
 
@@ -48,7 +54,7 @@ they are never offered to a run. Scope: the corpus BEFORE this packet.
 | of those, PARTIALLY spent (some names still present in canon) | **0** |
 | promoted requirements carrying at least one spent marker | **13** |
 | promoted specifications carrying at least one | **7** |
-| active MODIFIED blocks the family reads | 29 |
+| active MODIFIED blocks the family reads | 31 |
 | — of those carrying a unit-naming marker | 2 |
 | marker-defect findings a run raises today | **0** |
 
@@ -307,8 +313,28 @@ are both reachable today with no edit: the third ground already reports a name
 matching no unit of the basis and no unit of the block (that is what
 `suppression()` does), and DROPPING a marker is the absence of an edit rather
 than an edit. No predicate moves, no `_WHY_*` template is added, no finding
-class is added, no severity moves, and no test is written or flipped. The diff
-is this packet's directory, one README row and one per-change sweep ledger row.
+class is added and no severity moves. The diff is this packet's directory, one
+README row, one per-change sweep ledger row and ONE NAMED ROW IN A SELF-GATE'S
+CORPUS LEDGER.
+
+**THE SELF-GATE ROW IS DISCLOSED HERE RATHER THAN LEFT TO THE DIFF, AND THE
+READING IS OFFERED FOR VETO RATHER THAN ASSERTED AS A DEFINITION.**
+`tests/doc-health/test_modified_block_currency_self_gate.py`'s
+`_LEDGER_SUBJECTS` compares the family's `info` population with `==` and never
+`<=`, so an active MODIFIED block that opens a row and does not name it reds
+the required `pytest-suite` check for every lane, not only for this one — the
+assertion's own message says to *"update the named subjects in this module, in
+the same commit"*, which is what § 3.13 does. It is read as NOT a code surface
+because `release-realization` scopes `code_surface:` to *"the repositories
+whose runtime artifacts it changes"* and this edit changes no predicate, no
+severity, no threshold and no assertion: it records WHICH SUBJECTS THE CORPUS
+CURRENTLY REPORTS, exactly as the README row and the sweep-ledger row do, and
+it RETIRES on this packet's ratification or on the parent's archive rather than
+standing as behaviour. There is also nothing left to realize once this pull
+request lands, which is the test the realization archive gate actually applies.
+**IF BRETT HEAP READS IT THE OTHER WAY, the remedy is one front-matter line —
+`code_surface: openxFactory` naming that test module — and the archive rule
+becomes merged-plus-green; the packet's text does not move either way.**
 
 **`target_release: implemented` IS CANON'S OWN VOCABULARY, QUOTED RATHER THAN
 INFERRED.** `release-realization` *Realization axis declaration*:

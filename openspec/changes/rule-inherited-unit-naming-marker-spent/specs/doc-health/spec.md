@@ -566,7 +566,7 @@ specifications carry — 15 of `Removed from canon` form, 1 of `Merged into` for
 and 2 of the pairing form — SIXTEEN name at least one unit and ALL SIXTEEN ARE
 SPENT, every unit every one of them names being absent from the requirement
 that carries it, across THIRTEEN requirements in SEVEN promoted
-specifications; and of the 29 active MODIFIED blocks this family reads, TWO
+specifications; and of the 31 active MODIFIED blocks this family reads, TWO
 carry a unit-naming marker, both of the `Merged into` form and each naming one
 unit that matches its resolved basis, so a run reports NO marker defect before
 this amendment and none after it. AND

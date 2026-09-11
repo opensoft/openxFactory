@@ -1,5 +1,5 @@
 ---
-code_surface: none — MEASURED, not assumed, on the clone of `main` @ `38c076d1` this packet was authored against. THE PACKET STATES IN CANON WHAT THE FAMILY ALREADY DOES, and neither artifact that carries it is edited: `scripts/doc_health/modified_block_currency.py`'s `suppression()` resolves the third ground BY NAME against the requirement's basis and against the block — `the name matches NO canon unit -> nothing suppressed, and ... the MARKER is reported where the name matches no unit of the block either` — so a carried-forward spent marker is reported today, by the shipped predicate, with no edit; and DROPPING a marker is the absence of an edit rather than an edit, so the option this packet rules lawful costs the module nothing at all. Evidence for the negative: `grep -rn "spent\b.*marker\|inherited marker\|carriage unit" scripts tests` returns the promoted prose's own wording in no production path — promoted prose is read by no script in this repository — and this packet adds no predicate, no `_WHY_*` template, no finding class and no test. NO PRODUCTION FILE AND NO TEST IS TOUCHED: the diff is `openspec/changes/rule-inherited-unit-naming-marker-spent/**`, one README row and one per-change sweep ledger row. The one mechanical consumer of the delta is `doc-health`'s own modified-block-currency family, which reads every active `## MODIFIED` block by construction — a GATE over this packet, not a surface it changes. Under `release-realization` an empty code surface archives ON LANDING plus its own task list rather than on merged-plus-green realization evidence.
+code_surface: none — MEASURED, not assumed, on the clone of `main` @ `38c076d1` this packet was authored against. THE PACKET STATES IN CANON WHAT THE FAMILY ALREADY DOES, and neither artifact that carries it is edited: `scripts/doc_health/modified_block_currency.py`'s `suppression()` resolves the third ground BY NAME against the requirement's basis and against the block — `the name matches NO canon unit -> nothing suppressed, and ... the MARKER is reported where the name matches no unit of the block either` — so a carried-forward spent marker is reported today, by the shipped predicate, with no edit; and DROPPING a marker is the absence of an edit rather than an edit, so the option this packet rules lawful costs the module nothing at all. Evidence for the negative: `grep -rn "spent\b.*marker\|inherited marker\|carriage unit" scripts tests` returns the promoted prose's own wording in no production path — promoted prose is read by no script in this repository — and this packet adds no predicate, no `_WHY_*` template, no finding class and no test. NO PRODUCTION FILE IS TOUCHED: the diff is `openspec/changes/rule-inherited-unit-naming-marker-spent/**`, one README row, one per-change sweep ledger row and ONE NAMED ROW IN A SELF-GATE'S CORPUS LEDGER — `tests/doc-health/test_modified_block_currency_self_gate.py`'s `_LEDGER_SUBJECTS`, which compares the family's INFO population with `==` and never `<=`, so an active MODIFIED block that opens a row and does not name it reds the required `pytest-suite` check for every lane. THAT ROW IS NAMED AND IT IS NOT A CODE SURFACE, said as a reading the owner can veto rather than as a definition: `release-realization` scopes `code_surface:` to "the repositories whose RUNTIME ARTIFACTS it changes", and this edit changes no predicate, no severity, no threshold and no assertion — it records WHICH SUBJECTS THE CORPUS CURRENTLY REPORTS, the same bookkeeping the README row and the ledger row are, and it RETIRES on this packet's ratification or on the parent's archive rather than standing as behaviour. There is nothing left to realize after this pull request lands, which is the test `release-realization`'s archive gate actually applies. `tasks.md` § 3.13 measures it and § 6.7 records what was NOT done to it. The one mechanical consumer of the delta is `doc-health`'s own modified-block-currency family, which reads every active `## MODIFIED` block by construction — a GATE over this packet, not a surface it changes. Under `release-realization` an empty code surface archives ON LANDING plus its own task list rather than on merged-plus-green realization evidence.
 target_release: implemented — canon's own doc-only default, quoted rather than inferred: `release-realization` *Realization axis declaration* admits `implemented` (the affected repositories' main lines) or a named aggregation release, and says in the same breath that `A proposal without the declarations is a doc-only change (code_surface: none, target_release: implemented) by default`. The affected repository's main line is openxFactory and nothing else. No contract bundle is cut, nothing under `contracts/` moves, no `contracts/releases/<tag>.digests.yaml` changes, no `contract_bundle_version` is spent, no release tag is owed and no consumer's pin has to advance to receive this. The realization of a wording amendment IS its promotion at archive, which is a separate act on a separate word.
 sequenced_after: [amend-merged-into-empty-tail-standing]
 ---
@@ -123,9 +123,13 @@ three exact single-occurrence edits, never transcribed (`tasks.md` § 3).
 ## The corpus measurement
 
 Taken 2026-09-11 on the clone of `main` @ `38c076d1` this packet was authored
-against, through the family's own `derive_units` so that fenced example markers
-are never offered — exactly as they are never offered to a run. The scope is
-the corpus **before** this packet.
+against and **RE-TAKEN UNCHANGED AFTER THE MERGE FROM `main` @ `34bb5c71`**,
+through the family's own `derive_units` so that fenced example markers are
+never offered — exactly as they are never offered to a run. The scope is the
+corpus **before** this packet. **EVERY MARKER FIGURE HELD ACROSS THE MERGE**;
+the one that moved is the ACTIVE-BLOCK count, 29 → 31, PR #945's landing
+bringing two more blocks the family reads, and the table below states the
+re-taken value.
 
 | measure | count |
 | --- | --- |
@@ -138,7 +142,7 @@ the corpus **before** this packet.
 | **of those, SPENT — every unit they name absent from the requirement carrying them** | **16** |
 | promoted requirements carrying at least one spent marker | **13** |
 | promoted specifications carrying at least one | 7 |
-| active MODIFIED blocks the family reads | 29 |
+| active MODIFIED blocks the family reads | 31 |
 | of those, blocks carrying a unit-naming marker | 2 |
 | marker-defect findings a run raises | **0** |
 

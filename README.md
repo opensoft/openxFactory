@@ -568,12 +568,21 @@ Active changes:
   AND THAT IS MEASURED**: `code_surface: none`, because the third ground
   already reports a name matching no unit of the basis and no unit of the
   block, and DROPPING a marker is the absence of an edit;
-  `target_release: implemented`, canon's own doc-only default.
-  **THE MEASUREMENT, RE-TAKEN ON `main` @ `38c076d1`**: of the 18 markers
+  `target_release: implemented`, canon's own doc-only default. **ONE TEST FILE
+  IS TOUCHED AND IT IS DISCLOSED RATHER THAN LEFT TO THE DIFF**: the
+  modified-block-currency self-gate's `_LEDGER_SUBJECTS` compares the family's
+  `info` population with `==`, so the ONE row this draft opens — its block
+  measured against CANON while the packet is unratified and its parent is not
+  yet on `main`, where the sentence the parent retires reads uncarried — is
+  NAMED there, as that assertion's own message directs. It records which
+  subjects the corpus reports and retires on ratification or on the parent's
+  archive; `design.md` D4 offers that reading for veto.
+  **THE MEASUREMENT, RE-TAKEN ON THE MERGED TREE (`main` @ `34bb5c71`)**: of
+  the 18 markers
   promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
   — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT** (every unit every one of
   them names absent, and NONE partially spent), across 13 requirements
-  in 7 specifications; of the 29 active MODIFIED blocks the family reads, TWO
+  in 7 specifications; of the 31 active MODIFIED blocks the family reads, TWO
   carry a unit-naming marker, both `Merged into` and each naming a unit that
   matches its basis, so a run reports **0 marker defects** today. **THE OPEN
   DECISION IS `design.md` D1 AND IT CAN END THE PACKET**, put as a multiple

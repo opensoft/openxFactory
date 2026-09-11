@@ -815,6 +815,43 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id,
     # at any path.
+    # ADDED 2026-09-11 BY `rule-inherited-unit-naming-marker-spent`
+    # (openxFactory PR #962, issue #955), AND IT IS THE FIRST ROW THIS LEDGER
+    # HAS CARRIED FOR A BASIS THE CHECKER CANNOT YET USE rather than for a
+    # block that dropped something. The packet is an ORDERED DELTA: its
+    # `## MODIFIED` block over *Currency of an active change's MODIFIED
+    # requirement blocks* is written over the OUTCOME of its declared parent
+    # `amend-merged-into-empty-tail-standing` (openxFactory PR #947, ratified,
+    # still OPEN at the time of writing), not over the promoted text that
+    # parent replaces — which is what `release-realization`'s ordered-delta
+    # rule obliges and what `proposal.md`'s `sequenced_after:` declares.
+    #
+    # WHY THE ROW EXISTS ANYWAY, MEASURED RATHER THAN ARGUED. `_arm_ordering`
+    # applies the basis override only where a group holds at least TWO ACTIVE
+    # RATIFIED writers (`ratified = [b for b in group if b.standing ==
+    # _RATIFIED]; if len(ratified) < 2`). This packet is `Status: draft` and
+    # its parent is not on `main` at all, so the group holds ONE writer, no
+    # override is applied, and the block is measured against CANON. Against
+    # canon exactly ONE of 144 body units and scenario bullets is uncarried:
+    # the body sentence "THE FIFTH GROUND SHALL BE READ ON THE `Removed from
+    # canon` FORM ALONE: the pairing form names no units by construction, its
+    # whole tail being a reason…" — WHICH IS THE SENTENCE THE PARENT'S OWN
+    # RATIFIED BLOCK RETIRES. Against the PARENT'S OUTCOME, which is the basis
+    # `release-realization` names, the same block reads 0 uncarried, 0
+    # uncarried-and-unsuppressed and 0 marker defects, through the family's own
+    # `derive_units`, `carried()` and `suppression()`.
+    #
+    # SO THIS IS NOT A LOSSY CARRIAGE AND THE ARM IS NOT WRONG: the arm cannot
+    # distinguish a block written over a not-yet-promoted parent from a block
+    # that dropped a sentence, and does not claim to; the finding is INFO and
+    # carries no gate. RETIRES ON EITHER OF TWO EXPECTED EVENTS, whichever
+    # comes first — this packet being RATIFIED, when the override applies and
+    # the basis becomes the parent's block; or the PARENT ARCHIVING, when canon
+    # becomes the parent's outcome and the sentence is gone from it. It is
+    # named here rather than dispositioned because the set is compared with
+    # `==`: a row nobody names reds the required check for every other lane.
+    ("rule-inherited-unit-naming-marker-spent", "doc-health",
+     "Currency of an active change's MODIFIED requirement blocks"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1144,7 +1181,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1209,7 +1246,16 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "openxFactory went public at 2026-09-09T21:58:08Z with the address "
         "still on the promoted line — the first row here retired by canon "
         "moving to the block rather than by the block being promoted, the "
-        "packet still active and unarchived)",
+        "packet still active and unarchived; 10 SINCE 2026-09-11, when "
+        "rule-inherited-unit-naming-marker-spent opened ONE row over this "
+        "very requirement — an ORDERED DELTA whose block is written over its "
+        "declared parent amend-merged-into-empty-tail-standing's outcome, "
+        "which `_arm_ordering` cannot yet use as the basis because the packet "
+        "is draft and its parent is not on main, so the one sentence the "
+        "parent retires reads as uncarried against canon; the first row here "
+        "opened by a BASIS the checker cannot yet apply rather than by a "
+        "block that dropped something, and it retires on ratification or on "
+        "the parent's archive, whichever comes first)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

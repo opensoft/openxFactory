@@ -179,8 +179,10 @@ UNTICKED**: residue, measured and deliberately not taken.
       move and 14 after it**, the lead-in ceasing to merge with its explanation
       — which is the whole of what that round asked for and the only figure it
       moved. The block's own bytes after both moves are sha256
-      `51fb9a86749c1f28230fc31b928ee47d95e284a0f01e09b73a4244d0b6d88370`,
-      **53,818 bytes** (the all-names move alone read
+      `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
+      **53,818 bytes** (before the D0 re-take that moved the active-block
+      count in the dated note, `51fb9a86…` at the same 53,818 bytes; the
+      all-names move alone read
       `fa9b7668…` / 53,552 bytes; before either, `72941993…` / 53,396 bytes);
       the PRE-text is the same 48,507 bytes at the same sha256, re-verified
       below.
@@ -281,6 +283,33 @@ UNTICKED**: residue, measured and deliberately not taken.
       and a note is a provenance record rather than a rule whose clauses a
       later block is read for. The move is applied to the RULE-BEARING sentence
       and to that sentence only.
+- [x] 3.13 **THE ONE CARRIAGE-LEDGER ROW THIS DRAFT OPENS IS NAMED IN THE
+      SELF-GATE, WHICH IS WHAT THE ASSERTION'S OWN MESSAGE DIRECTS.**
+      `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+      `test_every_carriage_ledger_finding_over_the_real_tree_is_named` compares
+      `_LEDGER_SUBJECTS` with the family's `info` population using `==` and
+      never `<=` — "a subset comparison would let a newly lossy MODIFIED block
+      land unreported" — so an unnamed row reds the required `pytest-suite`
+      check for EVERY lane's pull request, not only this one, and the message
+      says to *"update the named subjects in this module, in the same commit,
+      saying which subject moved and why"*. ONE ROW IS ADDED, taking the set
+      from **NINE to TEN**:
+      `("rule-inherited-unit-naming-marker-spent", "doc-health", "Currency of
+      an active change's MODIFIED requirement blocks")`. The comment beside it
+      records the mechanism rather than the outcome: `_arm_ordering` applies a
+      basis override only where a group holds at least TWO ACTIVE RATIFIED
+      writers (`ratified = [b for b in group if b.standing == _RATIFIED]; if
+      len(ratified) < 2`), and this packet is `draft` with its parent not yet
+      on `main`, so the group holds ONE writer and the block is measured
+      against CANON — where exactly **1 of 144** body units and scenario
+      bullets is uncarried and it is the sentence the PARENT's ratified block
+      retires. Against the parent's OUTCOME the same block reads 0/0/0 (§ 3.6).
+      The row's stated retirement condition is § 3.7's: ratification or the
+      parent's archive, whichever comes first. The docstring's count moves
+      nine → ten and the `_moved()` narrative gains the dated sentence the
+      house style requires. **NO OTHER ROW MOVES** and the `==` discipline is
+      not loosened — measured in § 4.9: `0 named subject(s) NO LONGER
+      reported`.
 
 ## 4. Verification — IN THIS PULL REQUEST
 
@@ -290,9 +319,11 @@ is the entrypoint `pytest-suite` installs through; the `openspec` on PATH here
 is the superseded **`1.2.0`**, and the two binaries do not agree about this
 corpus. Both are reported, neither is substituted for the other.
 
-**BASELINE.** `origin/main` @ `38c076d1`, this branch's cut point. The
-`doc-health` baseline was taken IN THIS CLONE at that point, so its
-`Repo-Identity` label matches and the comparison is a LITERAL diff.
+**BASELINE.** `origin/main` @ **`34bb5c71`**, which is the base this branch
+has MERGED (PR #945's landing plus #961; the earlier cut point `38c076d1` is
+superseded and every figure below is re-taken against the new one). The
+`doc-health` control is a clone of that commit, so its `Repo-Identity` label
+matches and the comparison is a LITERAL diff.
 
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
       rule-inherited-unit-naming-marker-spent --strict` (PATH `1.2.0`) —
@@ -302,9 +333,9 @@ corpus. Both are reported, neither is substituted for the other.
       content address verified before use) — **exit 0**, `Totals: 1 passed, 0
       failed (1 items)`.
 - [x] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` (PATH
-      `1.2.0`) — **exit 1**, `Totals: 99 passed, 2 failed (101 items)`, against
-      `origin/main` @ `38c076d1`'s `Totals: 98 passed, 2 failed (100 items)` in
-      a control worktree. **THE FAILURE SET IS IDENTICAL**, `diff` of the two
+      `1.2.0`) — **exit 1**, `Totals: 100 passed, 2 failed (102 items)`,
+      against `origin/main` @ `34bb5c71`'s `Totals: 99 passed, 2 failed (101
+      items)` in a control clone. **THE FAILURE SET IS IDENTICAL**, `diff` of the two
       sorted `✗` lists returning empty: `change/disposition-codexfactory-declared-renames`
       and `change/disposition-codexfactory-floor-relocation-retitle`, neither
       of them this change, which appears in neither list. The item count moves
@@ -315,9 +346,9 @@ corpus. Both are reported, neither is substituted for the other.
       items)`, `0 UNDISPOSITIONED failures`; the two are the standing
       DISPOSITIONED exceptions `add-chain-attestation` and
       `add-composed-view-authoring`, accepted by Brett Heap on 2026-09-05
-      (*"take exit 2"*). The `origin/main` control reads `Totals: 98 passed, 2
-      failed (100 items)`, **exit 0**, the SAME two dispositioned names — one
-      more item and one more pass, which is this change.
+      (*"take exit 2"*), and the run says so itself — *"THIS IS NOT A CLEAN
+      TREE: 2 finding(s) are ACCEPTED EXCEPTIONS"*. Re-taken after the merge
+      from `main`.
 - [x] 4.5 `python3 scripts/proposal-support.py . verify
       rule-inherited-unit-naming-marker-spent` — **exit 0**, `proposal support
       verification ok`.
@@ -329,8 +360,13 @@ corpus. Both are reported, neither is substituted for the other.
       `per-change sweep ledger consistent with the corpus (200 rows)`, exit 0 —
       because the ledger records the SAME unresolved reading the corpus gives
       today; that is the row agreeing with a corpus that is about to move, not
-      the gate cleared. § 3.9 says what re-seeding it costs.) The declared parent `amend-merged-into-empty-tail-standing`
-      is an OPEN pull request (#947) and its change directory is on no branch
+      the gate cleared. § 3.9 says what re-seeding it costs. **RE-RUN AFTER THE
+      MERGE FROM `main` @ `34bb5c71`**, which brought PR #945's own ledger row:
+      `per-change sweep ledger consistent with the corpus (201 rows)`, exit 0,
+      both rows present and NO re-seed owed by that merge.) The declared parent
+      `amend-merged-into-empty-tail-standing`
+      is an OPEN pull request (#947, `mergeStateStatus BLOCKED` at the time of
+      this run) and its change directory is on no branch
       but its own, so resolution against this repository's ACTIVE and ARCHIVED
       corpora finds nothing and the run refuses the declaration as DANGLING —
       *"a dangling parent reference is unwalkable"*. It clears the moment #947
@@ -338,40 +374,39 @@ corpus. Both are reported, neither is substituted for the other.
       cleared by dropping the declaration, which is owed.
 - [ ] 4.8 `python3 scripts/doc-health.py --single-repo .` — the branch run, its
       finding-line diff against the `origin/main` baseline, and the
-      marker-defect count, re-taken on the frozen tree. **TAKEN ONCE ALREADY,
-      ON THE TREE THIS PULL REQUEST CARRIES** (the box stays open because
-      § 4.10 re-takes every gate after the merge and the re-seed): **exit 0**,
-      **100 findings** against the `origin/main` @ `38c076d1` baseline's **99**,
-      the ONE added finding being this delta's own transient `info`
-      carriage-ledger row of § 3.7 and nothing else; **MARKER-DEFECT FINDINGS
+      marker-defect count, re-taken on the frozen tree. **RE-TAKEN ON THE
+      MERGED TREE** (the box stays open because § 4.10 re-takes every gate
+      after the parent lands and the row is re-seeded): **exit 0**,
+      **101 findings** against the `origin/main` @ `34bb5c71` control's
+      **100**, and the difference is EXACTLY ONE LINE — a `diff` of the two
+      ranked-plan finding lists, with the repo label normalized, returns a
+      single `>` and it is this delta's own transient `info` carriage-ledger
+      row of § 3.7; **MARKER-DEFECT FINDINGS
       ARE 0 ON BOTH SIDES** — no finding on either run renders
       `TEMPLATE_MARKERS`' *carries a … marker by … — a declaration that does
       not describe the block* — so the count this packet's own subject is
       measured by is UNCHANGED by the packet.
-- [ ] 4.9 `python3 -m pytest tests/sequenced_after tests/scope_globs
-      tests/proposal-support tests/doc-health -q` — **TAKEN, AND IT IS NOT
-      GREEN ON THIS TREE: `3 failed, 2175 passed, 7 warnings, 66 subtests
-      passed`.** All three are the two states § 3.7 and § 4.7 already disclose,
-      reached through their tests, and NOT ONE of them is a reading this
-      packet's wording changed:
+- [ ] 4.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` —
+      **RE-TAKEN ON THE MERGED TREE WITH THE SELF-GATE ROW NAMED: `2 failed,
+      1982 passed, 7 warnings` in 507s**, and the self-gate is now GREEN. A
+      `tests/doc-health`-only run over the same tree reads **`1711 passed`**,
+      zero failures — so the modified-block-currency self-gate, its EXACT-SET
+      assertion included, passes on the ten named subjects of § 3.13 (`0 named
+      subject(s) NO LONGER reported` confirms no other row moved).
+      **THE TWO REMAINING FAILURES ARE THE DANGLING PARENT OF § 4.7 AND
+      NOTHING ELSE**:
       `tests/sequenced_after/test_validate.py::test_corpus_sequenced_after_all_validate`
       and
-      `tests/sequenced_after/test_archive_commit_dates.py::test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED`
-      are the § 4.7 dangling parent, both asserting the live validator's exit
-      status and both quoting the same *"a dangling parent reference is
-      unwalkable"*; and
-      `tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named`
-      is the § 3.7 transient row meeting an EXACT-SET self-gate — `0 named
-      subject(s) NO LONGER reported; 1 unnamed subject(s) NEWLY reported
-      [('rule-inherited-unit-naming-marker-spent', 'doc-health', "Currency of
-      an active change's MODIFIED requirement blocks")]`. **THE SELF-GATE'S
-      NAMED SET IS DELIBERATELY NOT EDITED HERE**, which is § 6.7: the subject
-      retires on either of § 3.7's two expected events, so naming it would add
-      a test edit — a CODE SURFACE this packet declares it does not have — to
-      record a row that is already disclosed and is about to clear itself. The
-      consequence is stated rather than hidden: **this branch's `pytest-suite`
-      cannot be green until the parent lands**, exactly as § 4.7 says of the
-      validator it wraps, and the three named failures are the whole of the
+      `tests/sequenced_after/test_archive_commit_dates.py::test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED`,
+      both asserting the live validator's exit status and both reached through
+      the same *"a dangling parent reference is unwalkable"*. **NEITHER IS
+      FIXABLE INSIDE THIS PACKET, and that is said rather than worked around:**
+      the only edit that would clear them is withdrawing the `sequenced_after:`
+      declaration, which is the packet's whole point and which
+      `release-realization` obliges of a later writer over a requirement an
+      active ratified change already holds. **So this branch's `pytest-suite`
+      cannot be green until #947 lands**, exactly as § 4.7 says of the
+      validator it wraps, and these two failures are the whole of the
       difference.
 - [ ] 4.10 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE**, after the ledger
       seed of § 3.9 and after the merge from `main` that clears § 4.7, so that
@@ -450,14 +485,24 @@ Heap's word, it FOLLOWS ratification, and openxFactory #955 closes THERE.
       sixteen), so no marker in this corpus turns on it, and inventing a rule
       for an empty population is the cost this packet declines rather than an
       omission it overlooked.
-- [ ] 6.7 **THE MODIFIED-BLOCK-CURRENCY SELF-GATE'S NAMED SUBJECT SET IS NOT
-      MOVED FOR A TRANSIENT ROW.** `test_every_carriage_ledger_finding_over_the_real_tree_is_named`
-      compares an EXACT SET and the transient row of
-      § 3.7 is outside it, so the test fails on this branch (§ 4.9). Its own
-      remedy — *"update the named subjects in this module, in the same commit"*
-      — is written for a row that STANDS; this one retires on ratification or
-      on the parent's archive, whichever comes first, and editing a test to
-      name it would put a test in a packet whose `code_surface:` says there is
-      none and then owe a second edit to take it out again. The row is
-      DISCLOSED instead, here and in the pull request body, and the owner rules
-      on a packet whose surface is still nothing but words.
+- [ ] 6.7 **THE SELF-GATE IS GIVEN ITS ONE ROW AND NOTHING ELSE.** § 3.13
+      names the row the assertion's own message asks for; what was measured and
+      NOT taken is everything around it. **The `==` discipline is not
+      loosened** to `<=` — the comparison is the arm's whole value and a packet
+      that widened it to spare itself a row would disarm the gate for every
+      later lane. **No disposition is written**: `health/dispositions.yaml` is
+      read under `ctx.agg_root`, which is `None` on the `--single-repo`
+      self-gate a pull request runs, so nothing in this repository could
+      suppress the row and nothing is offered. **No other row is touched** —
+      the nine standing subjects, the retired-row narratives and
+      `_SCENARIO_SUBJECT`'s zero assertion are all untouched, verified by the
+      run rather than by reading: `0 named subject(s) NO LONGER reported`.
+      **The docstring's ZERO-STATE RE-AIM is not performed**: the message
+      reserves a second edit for the day the family reads ZERO over this tree —
+      re-aiming the two vacuity guards of
+      `test_the_report_moves_only_in_this_family_s_lines` — and the population
+      is TEN, not zero, so that instruction is not this packet's to execute.
+      **And the row is a retirement waiting to happen, not an addition**: it is
+      recorded here as OWED-TO-CLEAR so that whoever ratifies this packet or
+      archives its parent knows to take it out, which is the same bookkeeping
+      every other row in that set carries.
