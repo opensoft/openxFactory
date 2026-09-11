@@ -286,11 +286,12 @@ ARCHIVE pull request and nowhere else.
 
 ## 5. Verification — DONE IN THIS PULL REQUEST
 
-**EVERY GATE BELOW WAS RUN IN THE PACKET'S OWN CLONE AFTER IT TOOK
-`origin/main` `c521504c`, AND EVERY ONE THAT CAN DIFFER WAS RUN A SECOND TIME
-ON A `c521504c` CONTROL WORKTREE BESIDE IT**, so a failure is either this
-packet's or already on `main` and the two are told apart by measurement rather
-than by assertion.
+**EVERY GATE BELOW WAS RE-RUN IN THE PACKET'S OWN CLONE AFTER IT TOOK
+`origin/main` **`0805c3bb`** IN THE PR #981 BENCH ROUND, AND EVERY ONE THAT CAN
+DIFFER WAS RUN A SECOND TIME ON A FRESH `0805c3bb` CONTROL WORKTREE BESIDE
+IT**, so a failure is either this packet's or already on `main` and the two are
+told apart by measurement rather than by assertion. Every figure below is that
+re-run's, not the first authoring's.
 
 - [x] 5.1 **`openspec validate report-stale-grandfather-dispositions --strict`
       ON THE `PATH` CLI (1.2.0) → EXIT 0.** *"Change
@@ -305,7 +306,7 @@ than by assertion.
       the pin gate exists to establish.
 - [x] 5.3 **`--all --strict` ON THE `PATH` CLI (1.2.0) → EXIT 1 ON BOTH SIDES
       WITH THE IDENTICAL FAILURE SET.** Branch: *"Totals: 101 passed, 2 failed
-      (103 items)"*. Control at `c521504c`: *"Totals: 100 passed, 2 failed (102
+      (103 items)"*. Control at `0805c3bb`: *"Totals: 100 passed, 2 failed (102
       items)"*. The two failures are the SAME two on both sides —
       `change/disposition-codexfactory-declared-renames` and
       `change/disposition-codexfactory-floor-relocation-retitle` — so this
@@ -325,57 +326,64 @@ than by assertion.
 - [x] 5.6 **`python3 scripts/validate-sequenced-after.py .` → EXIT 0.**
       *"sequenced_after validation passed (41 active changes, 11 declaring the
       field)"* — this packet is one of the 41 and one of the 30 NOT declaring
-      it; *"archive-date agreement passed"*; *"archive-date-vs-commit agreement
+      it; and `--ledger-diff` → EXIT 0, *"per-change sweep ledger consistent
+      with the corpus (204 rows)"*, so the seed taken at `37427342` still
+      agrees with the corpus at this head and no re-seed is owed; *"archive-date agreement passed"*; *"archive-date-vs-commit agreement
       passed (… 12 disposition(s) in force, enforcement error)"*.
 - [x] 5.7 **`python3 scripts/validate-scope-globs.py .` → EXIT 0**,
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 5.8 **`python3 scripts/doc-health.py --single-repo .` → EXIT 0, AND THE
       SELF-GATE HEADLINE IS BYTE-IDENTICAL TO THE CONTROL'S.** Branch and
-      control at `c521504c` both: *"Findings: 32 critical, 7 error, 47 warning,
-      14 info. New regressions vs previous report: 0."*, and the per-severity
-      row counts agree exactly (32 / 7 / 47 / 14 each side). **ZERO findings
+      control at `0805c3bb` both: *"Findings: 32 critical, 7 error, 47 warning,
+      14 info. New regressions vs previous report: 0."* **ZERO findings
       name this packet** — `grep -c 'report-stale-grandfather-dispositions'`
       over the report returns **0**. This is the asymmetry `design.md` D2 and
       § 7.4 pin: a `--single-repo` run has no aggregation root, so the arm this
       packet adds reports nothing in this repository's own gate, and the
       self-gate is therefore expected to be unmoved.
-- [x] 5.9 **`python3 -m pytest tests/doc-health -q --tb=no` → EXIT 0, 1723
-      PASSED, 0 FAILED** (7 warnings, 398s). The control at `c521504c` in a
-      worktree beside it: EXIT 1, **1710 passed, 1 failed**, and **THE ONE
+- [x] 5.9 **`python3 -m pytest tests/doc-health -q --tb=no` → EXIT 0, 1728
+      PASSED, 0 FAILED** (7 warnings, 400s). The control at `0805c3bb` in a
+      worktree beside it: EXIT 1, **1711 passed, 1 failed**, and **THE ONE
       FAILURE IS THE CONTROL RIG'S AND NOT `main`'s** —
       `test_modified_block_currency_self_gate.py::test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up`
       (*"DID NOT RAISE UnresolvedRepository"*), which fails because the control
       is a WORKTREE NESTED INSIDE the packet's clone and the test's premise is a
       directory with no enclosing repository to resolve. That same test PASSES
-      on the branch, which is a top-level clone. **COLLECTED: 1723 on the
-      branch against 1711 on the control — a difference of exactly the TWELVE
-      tests this packet adds.**
+      on the branch, which is a top-level clone. **COLLECTED: 1728 on the
+      branch against 1712 on the control (1711 passed + that 1 failed) — a
+      difference of exactly the SIXTEEN tests this packet adds. THE BRANCH'S
+      `FAILED` SET IS EMPTY AND THE CONTROL'S IS THAT ONE RIG ARTEFACT**, so
+      the branch's set is a strict subset of the control's.
 - [x] 5.10 **THE RIG FILE ALONE: `pytest
-      tests/doc-health/test_grandfather_dispositions.py -q` → EXIT 0, 34
-      PASSED** (0.41s). Counted rather than characterised: `git diff
-      origin/main...HEAD` over that file shows **13** `+def test_` lines and
-      **1** `-def test_` line — twelve NEW subjects plus the one rename § 4.4
+      tests/doc-health/test_grandfather_dispositions.py -q` → EXIT 0, 39
+      PASSED** (0.42s). Counted rather than characterised: `git diff
+      origin/main...HEAD` over that file shows **17** `+def test_` lines and
+      **1** `-def test_` line — sixteen NEW subjects plus the one rename § 4.4
       names (`test_a_run_with_no_findings_reads_no_file` →
       `test_the_downgrade_pass_still_returns_early_on_an_empty_finding_list`) —
-      so 22 − 1 + 13 = **34**, and `grep -c '^def test_'` returns 22 at
-      `origin/main` `c521504c` and 34 here.
+      so 23 − 1 + 17 = **39**, and `grep -c '^def test_'` returns 23 at
+      `origin/main` `0805c3bb` and 39 here.
 - [x] 5.11 **THE WHOLE CODE SURFACE IS TWO FILES.** `git diff --stat
-      origin/main...HEAD -- scripts tests` → *"2 files changed, 454
-      insertions(+), 20 deletions(-)"*, and `--numstat` splits it exactly:
-      `scripts/doc_health/families.py` **109 added / 1 removed** (the one
+      origin/main...HEAD -- scripts tests/doc-health` → *"2 files changed, 629
+      insertions(+), 22 deletions(-)"*, and `--numstat` splits it exactly:
+      `scripts/doc_health/families.py` **127 added / 1 removed** (the one
       removed line is the family's old one-line `return`) and
-      `tests/doc-health/test_grandfather_dispositions.py` **345 added / 19
+      `tests/doc-health/test_grandfather_dispositions.py` **502 added / 21
       removed**. No other module, no other test file, no workflow, no contract,
-      no schema, no path.
+      no schema, no path. The only third file under `tests/` in the whole
+      branch diff is `tests/sequenced_after/corpus-ledger.yaml`, **+1 line**,
+      which is the per-change sweep ledger's seed row (§ 5.6) and bookkeeping
+      rather than code surface.
 - [x] 5.12 **THE PACKET'S OWN SPEC DELTA IS CANON'S BYTES, VERIFIED BY `diff`
       AND BY DIGEST AFTER THE MERGE.** `git show
       origin/main:openspec/specs/doc-health/spec.md | sed -n '878,946p'`
       against this delta's lines 5–73: `diff` exits **0**. Over 878–945 and
       lines 5–72 the digest is
       `138a0d51f42f77aa9f0418c5ec1570681f63e0409bc0a43596e8356dca06e5dd` on both
-      sides. The canon file is byte-unmoved between `8015d45f` and `c521504c`
-      (`git diff --stat` over it is empty), so the slice this packet took before
-      the merge is the slice it carries after it.
+      sides, **re-taken at `0805c3bb`**. The canon file is byte-unmoved between
+      `8015d45f`, `c521504c` and `0805c3bb` (`git diff --stat` over it is empty
+      across each pair), so the slice this packet took before the merges is the
+      slice it carries after them.
 
 ## 6. Archive — OWED, NOT GIVEN
 
