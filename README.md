@@ -1113,7 +1113,8 @@ Active changes:
   declining it makes N-1 (d) the honest outcome.
 
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
-  — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07) (2026-09-06, Brett Heap
+  — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07;
+  **Q-GRC-4 discharge amendment 2026-09-11**) (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
   them in your recommended order all approved"*; ratified head `169f84ef`;
   record
@@ -1144,11 +1145,12 @@ Active changes:
   registered (`lead-architect`, `lead-security`, `lead-quality`,
   `company-policy-lead`); TWO are deferred with reasons
   (`intent_owner_role_slot` is symbolic, `client-security-compliance-officer` is
-  a persona with no seat identifier). **7 ADDED requirements** on
-  `review-authority-intake`, no `## MODIFIED` and no `## REMOVED` — the parent's
-  own *"the additional scope is a named successor"* scenario is the door this
-  walks through. **Five open questions Q-GRC-1..5, each RULED as recommended**
-  on the same 2026-09-06T14:13:46Z word (mint into `worker-credentials` now;
+  a persona with no seat identifier). **10 ADDED requirements** on
+  `review-authority-intake` (30 scenarios), no `## MODIFIED` and no
+  `## REMOVED` — the parent's own *"the additional scope is a named successor"*
+  scenario is the door this walks through. **Five open questions Q-GRC-1..5,
+  each RULED as recommended** on the same 2026-09-06T14:13:46Z word (mint into
+  `worker-credentials` now;
   pin the composition exactly, coupling accepted; `expires_at:
   2027-06-30T00:00:00Z`; register neither deferred seat, delete neither; the
   scalar cap replaced by its invariants, openXwallet's own change to make);
@@ -1156,6 +1158,33 @@ Active changes:
   reopened. `sequenced_after: [add-wallet-carried-review-authority,
   openXwallet:widen-register-reader-for-a-second-council]`; `code_surface` is
   NOT `none`, so it archives only on merged, green realization evidence.
+  **AMENDED 2026-09-11 — Q-GRC-4 DISCHARGED for
+  `client-security-compliance-officer`**, on Brett Heap's in-session ruling of
+  2026-09-11T14:59:26Z, verbatim *"amend register-gate-rules-council-seats,
+  lead-architect route, same model pin as lead-security"*; record
+  `openspec/changes/register-gate-rules-council-seats/review/amendment-2026-09-11-q-grc-4-discharge.md`.
+  **Q-GRC-4 IS NOT REOPENED** — it ruled *"register neither deferred seat NOW"*
+  and named the trigger; this is that trigger arriving for ONE of the two, and
+  `intent_owner_role_slot` stays deferred unchanged. The act has two halves in
+  ONE governed act: a **codexFactory roster act** (the conjunction pull-in gains
+  `seat: client-security-compliance-officer`; the roster gains a
+  `model_assignments` entry pinned to `claude-opus-5` — `lead-security`'s exact
+  identifier, by ruling, but carrying its OWN `authority_ref`, because the
+  lead-architect route and not the enrolled roster is what selected it; a
+  written briefing, since no convening has ever charged this persona; a
+  re-pinned `rendered_set_digest`) and an **openxFactory register act** (mint the
+  fifth `holder_readable` keypair; REVOKE `grant-grc-0002` for DRIFT → MINT
+  `grant-grc-0003` → REPOINT `row-grc-0001` → ADD the fifth `seat_keys` entry
+  and the fifth wallet key). It unparks C2, which Brett parked the same day
+  (*"α, park C2 until Q-GRC-4 is discharged"*, 2026-09-11T14:23:26Z). The three
+  new requirements are ADDED rather than MODIFIED **because the pinned CLI
+  1.12.0 measures the alternative as unarchivable** — *"target spec does not
+  exist; only ADDED requirements are allowed for new specs"* — this capability
+  being authored by two ACTIVE changes and not yet canon. **FIVE FURTHER open
+  questions, OQ-1..OQ-5, go back to Brett** (design D8-D12; distinct from
+  Q-GRC-1..5 above, which are ruled and not reopened), and every recommendation
+  is what the packet already encodes, so taking all five moves no byte. This is
+  the packet's SECOND amendment; the first is R1/R2, 2026-09-07.
 
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
