@@ -22,7 +22,10 @@ commissioned the AUTHORING and decided no wording; it is recorded as the origin
 in `.openspec.yaml` and is not read as an approval.
 
 **§ 4 (THE ARMS) IS OPEN ON PURPOSE AND MUST STAY OPEN UNLESS A CLASS IS
-VETOED.** Under the four recommendations no arm is owed at all. Each box below
+VETOED.** Under the four recommendations NO ADDITIONAL arm is owed — Class A's
+(A1) deliberately KEEPS the family-side reader `modified-block-currency` already
+carries, which is a promoted declaration and not something this packet
+commissions. Each box below
 names what a particular veto would commission; **none of it is built here**, and
 building any of it before the ruling is the one thing this packet must not do.
 
@@ -172,8 +175,14 @@ each open box below states the event that closes it:
       reading* — such an entry changes no finding OF THE FAMILY IT NAMES; it is
       still read by the contested-resolution rule, which reaches a DERIVED
       `uncited resolution` finding and never the named family's own row, and only
-      where that family's findings are classified `contested`; and an entry
-      naming `uncited-resolution` itself changes nothing at all.
+      where that family's findings are classified `contested` AND the later run
+      actually EVALUATED the named family and repository (a fifth bullet states
+      the partial-run case, measured at `report.uncited_resolutions`'
+      `unavailable_families` / `unavailable_repos` guards, `report.py:424-427`,
+      fed by `runner.py` 792-830 — `unavailable_families` built at 792 and
+      extended at 807/809/811/823/830, `unavailable_repos` at 749 — and passed
+      at the call site, `runner.py:831`); and an entry naming `uncited-resolution`
+      itself changes nothing at all.
       (ii) *A recorded disposition names a family this capability does give a
       reading* — such an entry is read OVER THAT FAMILY'S OWN FINDINGS exactly as
       that family's own declaration says and by that declaration alone, the
@@ -216,9 +225,16 @@ each open box below states the event that closes it:
 - [ ] 4.2 **ONLY ON THAT VETO OR THAT SPLIT:** the `## MODIFIED` blocks the vetoed families'
       own requirements then owe, each with its own *A finding is dispositioned*
       or grandfather scenario, and the tests that pin them.
-- [ ] 4.3 **ONLY ON THAT VETO:** `code_surface` and `target_release` re-declared
+- [ ] 4.3 **ON ANY VETO THAT COMMISSIONS RUNTIME WORK — (A2), (A3), (B2), (B3),
+      (C2), (C3), a (C4) split giving either half a reading, or (D1b), and not
+      only a Class B or C veto:** `code_surface` and `target_release` re-declared
       at the ratification to name the modules and tests, and the archive moved to
-      merged-plus-green realization evidence for that reason.
+      merged-plus-green realization evidence for that reason. The condition is
+      written as the full option list because every one of those options changes
+      a module in `scripts/doc_health/` (§ 4.1, § 4.2, § 4.4, § 4.5), and a
+      narrower condition would let a ruling leave `code_surface: none` standing
+      over real runtime work — which `release-realization` would then archive on
+      landing rather than on merged-plus-green evidence.
 - [ ] 4.4 **ONLY IF CLASS A IS VETOED:** the `## MODIFIED` over
       `modified-block-currency`'s promoted *A finding is dispositioned*, plus the
       change in `scripts/doc_health/modified_block_currency.py` that a narrowing
@@ -310,11 +326,20 @@ and say so.
       commissioned — and records the trade-off: a future refactor could break the
       boundary silently. A successor may pick it up under its own word.
 - [x] 7.2 **THE STALE-ENTRY POPULATION OUTSIDE `ratified-provenance` IS MEASURED
-      AND HANDED TO [#965](https://github.com/opensoft/openxFactory/issues/965),
-      NOT ACTED ON**: **11** of the thirty-one name a path that no longer exists
-      in the repository it names, and **7** more name a present path that draws
-      no finding of that family. No finding class is graded and no severity is
-      chosen here.
+      AND RECORDED AS UNASSIGNED RESIDUE — NOT ACTED ON, AND NOT HANDED TO
+      [#965](https://github.com/opensoft/openxFactory/issues/965)**: **11** of the
+      thirty-one name a path that no longer exists in the repository it names, and
+      **7** more name a present path that draws no finding of that family. The
+      hand-off an earlier draft of this box recorded was RE-MEASURED against
+      #965's own packet (PR #981) and was wrong: #981's D5 and `proposal.md` both
+      say the other eight families' 31 entries are #966's subject, and its arm is
+      narrow by construction (`_grandfather_cites` asks
+      `promotion_fidelity.load_dispositions(ctx, "ratified-provenance")`), so it
+      could not report them however the file grows. **NO SUCCESSOR IS NAMED FOR
+      THIS RESIDUE** — naming one is an act for Brett Heap's word — and this box
+      ticks on the RECORDING of the measurement and of the absence of an owner,
+      never on a hand-off. No finding class is graded and no severity is chosen
+      here.
 - [x] 7.3 **`docs/doc-health.md` IS NOT EDITED**, and the reason was RE-MEASURED
       after `origin/main` `0805c3bb` merged #977 (issue #967's own sweep), which
       rewrote that file's family table. It now describes this file in THREE

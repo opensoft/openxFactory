@@ -561,8 +561,11 @@ Active changes:
   question with the recommendation first, and the recommendation commissions NO
   NEW family-side reading anywhere: `modified-block-currency` keeps the reading
   its own requirement already declares. One `## MODIFIED` block over
-  *Finding severity and regression handling*; `code_surface: none`;
-  `sequenced_after: []`. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
+  *Finding severity and regression handling*, with **TWO** scenarios appended;
+  `code_surface: none`; `sequenced_after: []` — PR #981
+  (`report-stale-grandfather-dispositions`, #965) modifies a DIFFERENT heading,
+  read off its branch, and declines this packet's stale-entry residue by name, so
+  that residue is recorded as UNASSIGNED rather than handed anywhere. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
   scopes what a veto would commission and every box is open. **FILING ≠
   RATIFYING** — ratification and archive are two separate acts on Brett Heap's
   word; neither has been given, and #966 closes at the ARCHIVE.

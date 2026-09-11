@@ -332,7 +332,9 @@ fifteen into the second.
 `openxFactory :: openspec/specs/shared-contract-ownership/spec.md`, recorded
 2026-08-14. Measured (D0.4): `report.parse_previous` never admits an
 `uncited-resolution` row to the contested set, so this key can never be looked
-up by the only arm that reads the file, and no family module reads it either.
+up by THE ONLY ARM THAT COULD LOOK UP A KEY OF THIS FAMILY — which is not the
+only arm that reads the file at all (§ 2.6 enumerates the others) — and no
+family module reads it either.
 **It disposes nothing and can never dispose anything.**
 
 **RECOMMENDED — (D1a) RECORD THAT IT IS INERT AND LEAVE IT.** It costs a reader
@@ -343,10 +345,12 @@ an entry is an act in `opensoft/xFactory`, not here.
   exactly the infinite echo issue #515 closed. Refused on that ground unless
   Brett rules otherwise.
 - **(D1c) Retire the entry in the aggregation.** Cost: a pull request in another
-  repository and a judgement about a 2026-08-14 triage nobody here witnessed;
-  it belongs with the stale-entry successor
-  [#965](https://github.com/opensoft/openxFactory/issues/965), which is where
-  every question of this shape is being gathered.
+  repository and a judgement about a 2026-08-14 triage nobody here witnessed. It
+  is NOT [#965](https://github.com/opensoft/openxFactory/issues/965)'s either:
+  that successor's packet (PR #981) limits itself to `ratified-provenance` by
+  name and by construction, so this entry is outside its subject. If Brett takes
+  (D1c) it needs a successor of its own, named at the ruling; until then it is
+  unassigned residue and (D1a) leaves it where it is.
 
 ### The class the brief anticipated, and what the measurement actually did to it
 
@@ -372,12 +376,17 @@ already cut and `tasks.md` § 4 scopes it without building it: the parent wired
 `ratified-provenance` as a LAST PASS over the family's returned findings
 (`families.fam_ratified_provenance` returns
 `_honour_grandfather_dispositions(ctx, findings)`), delegating the admission
-rule to `promotion_fidelity.load_dispositions(ctx, <family>)` — the estate's one
-reader — and supplying only the citation text that reader does not return. A
+rule to `promotion_fidelity.load_dispositions(ctx, <family>)` — **the SHARED
+FAMILY-SIDE ADMISSION HELPER, which is not the estate's only reader of the
+file**: `runner.main` loads the same file independently to build the disposition
+set `report.uncited_resolutions` reads, and the neutrality lane has its own
+digest-keyed reader (§ 2.6 enumerates all of them) — and supplying only the
+citation text that helper does not return. A
 vetoed class would take the same shape ONE LEVEL UP: one shared helper, called
 by each opting-in family with its own family name, so a second admission rule is
 never written. Per-family opt-in is the whole point — an entry naming one family
-has never disposed another's findings, and one reader is how that stays true.
+has never disposed another's findings, and ONE FAMILY-SIDE ADMISSION HELPER is
+how that stays true.
 
 ## D3 — RECOMMENDED: this packet ratifies the DECISION ONLY, `code_surface: none`
 
@@ -432,13 +441,25 @@ scope: it constrains what an entry MEANS, not where the file is found.
   read over the parent's downgrade rule; the second added scenario states that
   boundary in terms, for `promotion-fidelity`, `duplicate-packet`,
   `modified-block-currency` and `ratified-provenance` alike.
-- **STALE ENTRIES ARE NOT THIS PACKET'S SUBJECT.**
-  [#965](https://github.com/opensoft/openxFactory/issues/965) is the
-  stale-disposition successor, filed by the parent's § 7.1 for the
-  `ratified-provenance` population. The measurement here shows that population
-  is far larger outside it — **eleven of the thirty-one name a path that no
-  longer exists**, and seven more name a present path that draws no finding —
-  and that figure is recorded here for #965 to carry rather than acted on. No
+- **STALE ENTRIES ARE NOT THIS PACKET'S SUBJECT, AND — RE-MEASURED AGAINST
+  #965'S OWN PACKET — THE RESIDUE OUTSIDE `ratified-provenance` HAS NO OWNER
+  TODAY.** [#965](https://github.com/opensoft/openxFactory/issues/965) is the
+  stale-disposition successor filed by the parent's § 7.1, and its packet is PR
+  #981. **#981 DECLINES THE REST BY NAME**: its own D5 says the 31 entries of
+  the other eight families are "a question about a different subject … and it is
+  #966's", and its `proposal.md` repeats it — and its arm is narrow BY
+  CONSTRUCTION, `_grandfather_cites` asking
+  `promotion_fidelity.load_dispositions(ctx, "ratified-provenance")` for its key
+  set, so an entry naming another family can never be reported by it however the
+  file grows. An earlier draft of this bullet said the residue was HANDED to
+  #965; that was wrong and is corrected here rather than left for a reader to
+  discover. The measurement stands — **eleven of the thirty-one name a path that
+  no longer exists**, and seven more name a present path that draws no finding —
+  and it is recorded as **UNASSIGNED RESIDUE**: this packet decides what an entry
+  MEANS and does not grade staleness, #981 rules staleness for one family only,
+  and **no successor is named for the other eight**. Naming one is an act for
+  Brett Heap's word, not for this filing, and `tasks.md` § 7.2 records it in the
+  same terms rather than ticking on a hand-off that would not be honoured. No
   finding class is graded and no severity is chosen by this packet.
 - **NO ACTIVE SIBLING DELTA COLLIDES WITH THE HEADING THIS PACKET MODIFIES, AND
   THE COORDINATION WAS TAKEN LATE ON PURPOSE — LATE ENOUGH THAT THE ANSWER
