@@ -531,12 +531,14 @@ over **one requirement, and it is a DIFFERENT one** — *Finding severity and
 regression handling* (canon line 198) against this packet's *Governed corpus
 membership and the lifecycle scan set* (canon line 878). The two deltas
 therefore write disjoint bytes of `openspec/specs/doc-health/spec.md` and
-neither sequences after the other. **NO `sequenced_after:` IS DECLARED**, and
-that is a rule rather than a convenience: a `sequenced_after:` target names a
-change that exists on `main`, and #978's packet exists only on its own branch
-at this authoring — declaring a branch-only parent would pin this packet to a
-directory no validator on `main` can resolve. If #978 lands first, nothing here
-moves; if this packet lands first, nothing there moves.
+neither sequences after the other. **NO NON-EMPTY `sequenced_after:` IS
+DECLARED** (`sequenced_after: []` stands, the same positive root claim it
+already was), and that is a rule rather than a convenience: a
+`sequenced_after:` target names a change that exists on `main`, and #978's
+packet exists only on its own branch at this authoring — declaring a
+branch-only parent would pin this packet to a directory no validator on `main`
+can resolve. If #978 lands first, nothing here moves; if this packet lands
+first, nothing there moves.
 
 **THE ONE PLACE THE TWO TOUCH IS A CITATION, AND IT IS UNMOVED IN BOTH.** D1
 above leans on canon's band vocabulary — `warning` as *"drift or first-stage

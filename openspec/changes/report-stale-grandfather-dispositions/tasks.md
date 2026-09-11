@@ -135,10 +135,11 @@ ARCHIVE pull request and nowhere else.
       `## MODIFIED` block writes *Finding severity and regression handling*
       (canon line 198), NOT this packet's *Governed corpus membership and the
       lifecycle scan set* (canon line 878). The two deltas write disjoint bytes
-      and **NO `sequenced_after:` IS DECLARED EITHER WAY**: that field names a
-      change that exists on `main`, and #978's packet exists only on its own
-      branch at this authoring — a branch-only parent is never declared. The
-      one place the two touch is a CITATION: `design.md` D1 leans on the band
+      and **NO NON-EMPTY `sequenced_after:` IS DECLARED EITHER WAY**
+      (`sequenced_after: []` stands): that field names a change that exists on
+      `main`, and #978's packet exists only on its own branch at this authoring
+      — a branch-only parent is never declared. The one place the two
+      touch is a CITATION: `design.md` D1 leans on the band
       vocabulary in the requirement #978 modifies, and #978 copies that body
       paragraph byte for byte and appends one scenario, so the sentence D1
       cites is unmoved either side of that landing (`design.md` D5).
