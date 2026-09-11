@@ -30,12 +30,45 @@ kind: it describes files changing, is performed by this lane, and is ticked
 below — the same split `accept-sequenced-after-header-line` made at its own
 ratification (`208f88d4`, box 0.6, identically worded).
 
-- [ ] 0.1 **Convener read of `design.md` § 0** (the four-line brief) and of
+**AND WHY BOTH ARE TICKED HERE, AT THE ARCHIVE — DISCHARGED BY THE WORD, NOT
+PERFORMED BY AN AGENT.** The paragraph above is kept byte-unmoved because it
+was true of the act it describes, the ratification encode, which correctly
+left an owner's boxes alone. It was never the whole story, and § 3.1 below
+said so before this act began: `scripts/proposal-support.py` `archive_change`
+refuses on the FIRST `^- [ ]` anywhere in this file, so an archive either
+closes these two or does not happen. **The distinction the paragraph draws
+survives the tick intact**, because what each tick records is BRETT HEAP'S
+OWN ACT — his ruling of 2026-09-11T01:44Z, verbatim *"ratify 921"* — and not
+the archiving lane's. Nothing is invented and no disposition is minted here:
+each box already carried, from the ratifying commit `8d5fb17e`, the dated
+note naming exactly what that word discharged; this act adds the tick and
+the citation to a disposition already written, on § 3.1's own standing
+instruction. **NO OTHER BOX IS TOUCHED.** Three boxes were unticked at the
+landed head `7099fbdd` — 0.1, 0.2 and 3.1 — and they are exactly the three
+§ 3.1 names; no fourth box exists whose completion would have to be invented,
+and none is marked `[~]` because nothing is being deferred.
+
+- [x] 0.1 **Convener read of `design.md` § 0** (the four-line brief) and of
   `proposal.md` § Origin, which quotes both PR #906 comments in full.
   *(Discharged 2026-09-11T01:44Z by the word itself — "ratify 921" is a
   ruling on this packet, which the § 0 read precedes. Brett Heap's box; left
   unticked for him.)*
-- [ ] 0.2 **Rule on the added paragraph and scenario as drafted, or amend
+  **CLOSED AT THE ARCHIVE, 2026-09-11, AS DISCHARGED-BY-WORD.** The note
+  above IS the disposition; this tick carries it and asserts nothing beyond
+  it — in particular it does not claim that any agent performed a convener's
+  read. The discharging act is Brett Heap's (openxFactory operator
+  authority; sole operator), first-hand, in session, to lane
+  `codexfactory-1` (window `codeXfactory-1`), **2026-09-11T01:44Z**,
+  verbatim **"ratify 921"**, given over verified head `29f22114`; recorded
+  on openxFactory PR #921 at
+  [comment 5628429288](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288)
+  (posted 2026-09-11T02:14:24Z) and durably at
+  `review/ratification-2026-09-11.md`, and encoded in ratifying commit
+  `8d5fb17e`. **The trailing clause *"left unticked for him"* described the
+  state at that ratifying commit and is superseded HERE, at the archive, by
+  § 3.1's own standing instruction — it is kept rather than edited so the
+  ratification's posture stays legible to a later reader.**
+- [x] 0.2 **Rule on the added paragraph and scenario as drafted, or amend
   the wording.** The FACT is not in question — `design.md` D1 records an
   empirical re-verification on this branch, independent of the docstring's
   own word — so this box is a wording ratification and not a fact-finding
@@ -49,6 +82,38 @@ ratification (`208f88d4`, box 0.6, identically worded).
   ratifying commit, so no byte of the delta moved between review and
   ratification. D1–D4 were carried beside it and none was vetoed.
   *(Brett Heap's box; left unticked for him.)*
+  **CLOSED AT THE ARCHIVE, 2026-09-11, AS DISCHARGED-BY-WORD — same word,
+  same citation as 0.1**, and for this box the word is not merely evidence of
+  a read but the ruling itself: *"ratify 921"* IS the disposition this box
+  asks for, and because it was BARE it ruled AS DRAFTED, amending no wording.
+  That is verified by diff rather than asserted, twice over: the delta is
+  byte-identical between the reviewed head and the ratifying commit (the
+  clause above), and it is byte-identical again between the ratifying commit
+  and the copy this archive promotes — `git diff 8d5fb17e HEAD --
+  openspec/changes/state-header-window-budget/specs/` is EMPTY, so the words
+  ratified are the words promoted. As with 0.1, the *"left unticked for him"*
+  clause is kept unedited and is superseded here.
+
+  **ONE DISCREPANCY IN THE RECORD, DISCLOSED RATHER THAN RECONCILED, BECAUSE
+  AN ARCHIVE MAY NOT LAUNDER ONE.** Every artifact this repository carries
+  stamps the word at **2026-09-11T01:44Z** — `proposal.md`'s `Ratified:`
+  line, `.openspec.yaml` `origin.approved_by`, `review/ratification-2026-09-11.md`,
+  the README record, and ratifying commit `8d5fb17e`'s own message. The
+  authoring lane's contemporaneous handoff
+  (`session-handoff-2026-09-05-lane-codeXfactory-1.md`, xFactory aggregation
+  repo) carries **BOTH** stamps: its § 32 `WORD —` line reads
+  `2026-09-11T02:02:14Z`, and its § 33 snapshot taken at 02:07:42Z reads
+  *"ratify 921" 01:44Z standing*. The two differ by eighteen minutes. **The
+  verbatim word, the authority, the recipient lane and the head it was given
+  over (`29f22114`) are identical in every source; only the minute differs**,
+  and no fact of the ratification turns on it. **NOTHING IS EDITED TO
+  RESOLVE IT**: the four artifacts carrying `01:44Z` are a ratified proposal,
+  a frozen origin declaration, a `Status: ratified` record and a landed
+  commit message — `.openspec.yaml` is the origin-retention gate's own
+  baseline and an edit there is a refusal, and the record is governed by
+  `govern-archived-record-edits`. The archived text therefore stands at
+  `01:44Z` and this note is the disclosure. A correction, if one is wanted,
+  is a separate act on a separate word.
 - [x] 0.3 On ratification: `Status: ratified` + a `Ratified:` line land in
   `proposal.md`, and the README "OpenSpec Records" entry moves from DRAFT to
   RATIFIED.
@@ -229,7 +294,7 @@ ratification (`208f88d4`, box 0.6, identically worded).
 
 ## Group 3 — Archive (NOT this change's act — owed on ratification)
 
-- [ ] 3.1 **Archive — owner: whichever lane holds Brett Heap's ratifying
+- [x] 3.1 **Archive — owner: whichever lane holds Brett Heap's ratifying
   word**, per `release-realization`'s doc-only rule ("its code_surface is
   `none` and it archives when its artifacts land, as before"). This pull
   request is deliberately left OPEN/DRAFT and UNMERGED by the authoring
@@ -254,3 +319,170 @@ ratification (`208f88d4`, box 0.6, identically worded).
   that is genuinely NOT being done at archive takes `[~]`, not `[x]` and not
   `[ ]` — the shape the prior archived packet used. **Do not discover this at
   the entrypoint.**
+
+  **DONE — THIS ACT, 2026-09-11, lane `codexfactory-1` (window
+  `codeXfactory-1`), archive pull request
+  [#953](https://github.com/opensoft/openxFactory/pull/953), pre-staged as a
+  DRAFT.** The trap
+  above was read BEFORE the entrypoint ran and not discovered at it: 0.1 and
+  0.2 were closed as discharged-by-word first, each on the dated note it
+  already carried from `8d5fb17e`, and this box was ticked as the act being
+  performed. **No box is marked `[~]`, because nothing is deferred** — the
+  three unticked boxes at the landed head `7099fbdd` were exactly the three
+  this note names, and no fourth existed.
+
+  **THE ARCHIVE CONDITION, CITED RATHER THAN ASSERTED.** `proposal.md`
+  declares **`code_surface: none`**, so under `release-realization`'s
+  doc-only rule this packet archives **ON LANDING** — not on
+  merged-plus-green realization evidence, which is the other arm and is the
+  one the precedent PR #906 had to satisfy. The landing:
+
+  | arm | evidence | value |
+  | --- | --- | --- |
+  | **RATIFIED** | Brett Heap, first-hand, in session, verbatim *"ratify 921"*, over head `29f22114`; encoded at `8d5fb17e`, recorded at `review/ratification-2026-09-11.md` and on PR [#921](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288) | 2026-09-11T01:44Z |
+  | **MERGE WORD** | Brett Heap, first-hand, in session, verbatim *"merge 921"*, recorded in the lane handoff's § 32 `WORD —` line and acted on with the Rule 6 `LANDING` post on PR #921 ([comment 5629118605](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629118605)) | 2026-09-11T03:00:53Z |
+  | **MERGED** | PR [#921](https://github.com/opensoft/openxFactory/pull/921) → `3ccfd6c3957bd49ef28e70ef984f13c3dc9d2c03` on `main`; `LANDED` posted at [comment 5629341902](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5629341902) | 2026-09-11T04:11:24Z |
+  | **ORIGIN RETAINED** | `origin_errors(strict=True)` → `[]` and `origin_retention_errors` → `[]`, printing *"ORIGIN RETAINED state-header-window-budget (declaration unchanged since the ratifying commit `8d5fb17e0eee`)"* — run on the landed packet BEFORE the move and again on the archived copy AFTER it | both clean |
+  | **ARCHIVE WORD** | **GIVEN.** Brett Heap, first-hand, in session, to lane `codexfactory-1` (window `codeXfactory-1`), verbatim ***"archive 921"***. PR [#953](https://github.com/opensoft/openxFactory/pull/953) is the archiving act and lands on it. | **2026-09-11T10:21:39Z** |
+
+  **THAT LAST ROW WAS BLANK WHEN THIS ACT WAS PREPARED, AND THE PREPARATION
+  IS THE POINT.** The archive was performed, proved and frozen in a DRAFT
+  pull request that did not flip READY, did not merge itself and posted no
+  Rule 6 `LANDING`, because none of those was authorized yet. **The third
+  word has since been given** — 2026-09-11T10:21:39Z, verbatim *"archive
+  921"* — so this pull request now flips READY and lands on it, exactly as
+  the ratification landed on *"ratify 921"* and the merge on *"merge 921"*.
+  **Three acts, three separate words, each recorded before the act it
+  authorizes rather than after it.** Nothing about the archive's content
+  changed when the word arrived: the wrapper had already run, the promotion
+  was already byte-proved, and the word authorized the LANDING and nothing
+  else.
+
+  **THE README RECORDS COLLISION OF 2026-09-11T03:43Z DID NOT REACH THIS
+  PACKET'S BYTES, and is named here only so a reader need not re-derive it.**
+  PR [#937](https://github.com/opensoft/openxFactory/pull/937)
+  (`amend-repo-boundary-governance-scope-first-line`) merged at
+  2026-09-11T03:43:30Z, thirteen seconds after this packet's own `LANDING`
+  post, and the two collided in the README "OpenSpec Records" active list.
+  It was resolved as a union — **both entries kept** — in merge commit
+  `54e14d07`, whose own message says so. Measured rather than asserted:
+  `git diff --stat 54e14d07^1 54e14d07 -- openspec/changes/state-header-window-budget/`
+  is EMPTY. No byte of this packet moved in that resolution, so nothing
+  about it is this archive's business beyond the README row it now moves.
+
+  **PERFORMED THROUGH THE HOUSE ENTRYPOINT, NOT A BARE `openspec archive`.**
+  `TZ=UTC python3 scripts/proposal-support.py . archive
+  state-header-window-budget --date 2026-09-11 --yes`, which resolves the
+  content-addressed pinned `@fission-ai/openspec@1.12.0` artifact, runs the
+  origin shape and retention arms before it moves anything, validates the
+  change `--strict` through the pin, and fixes the archive directory's date
+  to UTC. **Its stdout, verbatim:**
+
+  ```
+  ORIGIN RETAINED state-header-window-budget (declaration unchanged since the ratifying commit 8d5fb17e0eee)
+  proposal-support: @fission-ai/openspec@1.12.0 from the pinned artifact (…/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified, over the pinned dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages, lockfile_integrity sha512-aw5lIN45tQq2WZll…, installed with `npm ci --ignore-scripts`)
+  openspec-cli-pin: @fission-ai/openspec@1.12.0 from pinned artifact (…/node_modules/.bin/openspec); integrity sha512-oFE2Lj7WVSc87nSi… verified
+  openspec-cli-pin: dependency closure openspec-cli-pin.1.12.0.package-lock.json (80 packages); lockfile_integrity sha512-aw5lIN45tQq2WZll… verified; installed with `npm ci --ignore-scripts`
+  -> …/node_modules/.bin/openspec validate state-header-window-budget --strict --json  (in …/openx-arch921)
+  Totals: 1 passed, 0 failed (1 items)
+
+  Proposal warnings in proposal.md (non-blocking):
+    ⚠ Why section should not exceed 1000 characters
+  Task status: ✓ Complete
+
+  Specs to update:
+    release-realization: update
+  Applying changes to openspec/specs/release-realization/spec.md:
+    ~ 1 modified
+  Totals: + 0, ~ 1, - 0, → 0
+  Specs updated successfully.
+  Change 'state-header-window-budget' archived as '2026-09-11-state-header-window-budget'.
+  OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its content address and every target validated --strict clean
+  NO SUPPORTING DOCS …/openspec/changes/state-header-window-budget (origin retained, nothing to package)
+  ```
+
+  **`~ 1 modified`, NOT `+ 1 added`, AND THAT IS THE WHOLE SHAPE OF THIS
+  PACKET.** `release-realization` holds at **10 requirements** across the
+  act; a `## MODIFIED` block rewrites one in place, where the predecessor
+  `accept-sequenced-after-header-line`'s `## ADDED` block took the capability
+  8 → 10. The write-back is **`18 added, 0 removed`** — measured, not
+  asserted — in exactly two hunks: the 13-line paragraph (12 lines plus its
+  separating blank) at the promoted file's line 446, and the 5-line scenario
+  at line 488. **`git diff -w --numstat` EQUALS `git diff --numstat` at
+  18/0**, so ZERO lines changed by whitespace alone: the pinned 1.12
+  serializer's whole-file normalization did not recur here either.
+
+  **THE PROMOTED REQUIREMENT IS BYTE-IDENTICAL TO THE ARCHIVED DELTA'S
+  `## MODIFIED` BLOCK**, both extracted programmatically and hashed rather
+  than eyeballed — **5,786 bytes, sha256
+  `98e8280252ca4112ee130399bddc4f2b6dc1d25979f9f798e9625cae37db6e58`, on both
+  sides.** (Raw extraction differs by ONE byte, a single trailing blank line
+  that exists in canon because a further requirement follows the block and
+  does not exist in the delta file because the block ends it; the figure
+  above normalizes that one trailing newline on both sides. This is the same
+  harmless extraction artifact task 2.1 recorded when it ran the inverse
+  comparison at authoring time.) Before the act canon's copy of this
+  requirement was **4,315 bytes**; the delta is a pure addition, so the
+  growth is the paragraph and the scenario and nothing else.
+
+  **AND WHAT WAS NOT TOUCHED IS MEASURED TOO.** The sibling requirement this
+  same capability carries from the same predecessor packet, "One parent
+  declaration across both sites, and its retention", hashes **2,720 bytes,
+  sha256 `6e6f2225b5f700da8e314d4d7e47409aa8058b2bd596af1852903e8eb154bf11`**
+  — identical on `origin/main` before the act and in canon after it. The
+  requirement this packet amends goes from **four scenarios to five**; no
+  scenario is renamed, reordered or dropped, which is why the delta carries
+  neither a `Removed from canon` nor a `Merged into` marker. The spec-file
+  COUNT under `openspec/specs/` is unchanged (no file added or removed), so
+  no codexFactory review-authority-floor advance is owed by this act.
+
+  **ALL SIX PACKET FILES MOVE AS PURE RENAMES.** `.openspec.yaml`,
+  `proposal.md`, `design.md`, `tasks.md`, `specs/release-realization/spec.md`
+  and `review/ratification-2026-09-11.md` go to
+  `openspec/changes/archive/2026-09-11-state-header-window-budget/` at 100%
+  similarity with ZERO changed lines — **except `tasks.md`, which changes
+  here and only here, to record this act**. The ratification record is
+  `Status: ratified` and is MOVED BY THIS ARCHIVE AND NOT EDITED BY IT; the
+  origin declaration is frozen at ratification (openxFactory #709) and is not
+  altered, which the retention arm re-confirms on the archived copy.
+
+  **THE ORIGIN ARMS, RUN TWICE — ONCE ON THE LANDED PACKET BEFORE THE MOVE
+  AND ONCE ON THE ARCHIVED COPY AFTER IT**, because the gate that matters at
+  an archive is the one taken against the path the archive produces:
+  `origin_errors(root, packet, strict=True)` → `[]` and
+  `origin_retention_errors(root, packet)` → `[]`, printing **`ORIGIN RETAINED
+  state-header-window-budget (declaration unchanged since the ratifying
+  commit 8d5fb17e0eee)`** both times. The wrapper runs the same two arms
+  itself, in that order, before it moves anything — its first stdout line
+  above is that run.
+
+  **THE ARCHIVE DIRECTORY'S DATE IS TODAY IN UTC, AND THE WRAPPER ENFORCED
+  IT.** `--date 2026-09-11` was passed and the child ran under `TZ=UTC`, so
+  `2026-09-11-state-header-window-budget` names the day the archive actually
+  happened rather than the local day of whatever clock the pinned CLI reads
+  (issue #790). **A merge on a later UTC day would make the directory name
+  false and the archive would have to be re-dated instead** — so this pull
+  request's landing, whenever the word comes, either falls on 2026-09-11 UTC
+  or takes a re-dated directory.
+
+  **THE PER-CHANGE SWEEP LEDGER IS RE-SEEDED IN THE FOLLOW-UP COMMIT, WITH
+  THE SANCTIONED TOOL AND AFTER THE PULL REQUEST EXISTED**, because
+  `moved_by` must name the pull request that moves the row and the real
+  number does not exist until the pull request does — the two-commit shape
+  the precedents PR #926 (`a0176d21`) and PR #906 (`fb5a9141`) used.
+  `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+  '#953'` → *"wrote tests/sequenced_after/corpus-ledger.yaml (199 rows, 1
+  moved by #953)"*. **ONE row moves and the diff is 1/1, measured:**
+  `state: active → archived`, `moved_by: "#921" → "#953"`, `moved_on:
+  "2026-09-10" → "2026-09-11"`. **`class: co-modifier` is HELD and NO
+  PARTNER FLIPS, so no MOVEMENT LOG entry is owed** — this change's partner
+  on the shared requirement key is `accept-sequenced-after-header-line`,
+  already `archived` and already `co-modifier` since its own archive, so
+  nothing about it moves; task 2.6a's entry covered the flip that DID happen,
+  at the seed on PR #921, and this act repeats none of it. `--ledger-diff`
+  before the seed: **STALE, 4 findings** — this row's `state` (ledger
+  `active` vs live `archived`) plus the three derived totals it feeds
+  (`active` 40 ≠ 39, `archived` 159 ≠ 160, `active_co_modified` 25 ≠ 24).
+  After: **exit 0, *"per-change sweep ledger consistent with the corpus (199
+  rows)"***. The row count is not pinned and drifts as other lanes land; the
+  exit code and the word "consistent" are the gate.
