@@ -32,6 +32,7 @@ import hashlib
 import json
 import re
 import tarfile
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
@@ -314,6 +315,160 @@ _RATIFICATION_RECORD_ACTION = (
     "spelling (Ratified by: <change>, otherwise Ratified: naming an approver, "
     "a date, or a resolvable record path); on an archived record the repair "
     "takes the archived-record edit route")
+
+
+# ---- the grandfather disposition arm (#939) ---------------------------------
+
+#: This family's id, spelled once. It is the `family:` key a
+#: `health/dispositions.yaml` entry must carry to reach these findings AND the
+#: string every `Finding` below already carries, so the two can never drift.
+_RATIFIED_PROVENANCE = "ratified-provenance"
+
+#: The path prefix that puts a record BEYOND A PLAIN FIX, which is the whole
+#: ground of a grandfather disposition. `record-immutability` and
+#: `govern-archived-record-edits` make an archived packet's bytes unavailable to
+#: an ordinary repair, so the owner rules instead of editing. An ACTIVE packet's
+#: record has no such ground — its header is one commit away — so a disposition
+#: NEVER reaches one, whatever an entry in the file says about it.
+_ARCHIVED_PACKET_PREFIX = "openspec/changes/archive/"
+
+#: How much of a recorded citation a downgraded finding quotes. A ranked-plan
+#: row is ONE LINE that `report.PLAN_RE` reads back anchored, and the entries
+#: standing over this family today run 700-1,100 characters each. The entry's
+#: own `(family, repo, path)` key is the lookup into the file, so the excerpt
+#: IDENTIFIES the ruling rather than reproducing it: the ruler, the date, the
+#: verbatim word and the issue, which is what the opening sentence of every
+#: entry in that file carries.
+_CITE_EXCERPT_CHARS = 240
+
+_GRANDFATHERED_RULE_PREFIX = "GRANDFATHERED by a recorded disposition — "
+_GRANDFATHERED_ACTION = (
+    "no repair is owed while the disposition stands: the record is archived "
+    "and immutable, and removing its health/dispositions.yaml entry re-opens "
+    "this finding at critical. Cite: ")
+
+
+def _cite_excerpt(cite: str) -> str:
+    """One bounded LINE of a recorded citation, for a ranked-plan row.
+
+    WHITESPACE IS COLLAPSED FIRST, AND THAT IS NOT COSMETIC. `report.PLAN_RE`
+    is anchored `^...$` and matched one line at a time, so a newline inside
+    `rule=` or `action=` splits the row into two lines that match no parser —
+    a finding written into the report and read back by NOTHING, which is issue
+    #474's shape at a different field. Every entry standing today is a YAML
+    FOLDED scalar (`>-`) and already folds to one line; an entry written as a
+    LITERAL block (`|-`) does not, and this arm must not depend on which
+    spelling an author reached for.
+
+    The cut lands on a word boundary and an ellipsis says it was cut, so a
+    reader is never shown a fragment that reads like a whole sentence.
+    """
+    one_line = " ".join(cite.split())
+    if len(one_line) <= _CITE_EXCERPT_CHARS:
+        return one_line
+    cut = one_line[:_CITE_EXCERPT_CHARS]
+    head, sep, _tail = cut.rpartition(" ")
+    return (head if sep else cut).rstrip(" ,;:") + " …"
+
+
+def _grandfather_cites(ctx) -> dict[tuple[str, str], str]:
+    """`(repo, path) -> cite` for this family's recorded dispositions, or `{}`.
+
+    ADMISSION IS DELEGATED RATHER THAN RE-DECIDED.
+    `promotion_fidelity.load_dispositions` is the estate's one reader of
+    `health/dispositions.yaml` — promotion fidelity, duplicate packet and
+    modified-block currency all read it through that function under their own
+    `family` name — and it already encodes every admission rule this arm needs:
+    the entry names THIS family, carries a NON-EMPTY `cite`, and spells `repo`
+    and `path` as strings. This function asks it which entries count and then
+    re-reads the file for the one thing it does not return, the citation TEXT a
+    downgraded finding quotes. A second admission rule written here is exactly
+    how two readers of one file come to disagree about which entries are live.
+
+    A `requirement:` NARROWING IS IGNORED, deliberately. That key exists to
+    select one requirement inside a delta file; a ratification record has no
+    requirement grain for it to select, so an entry that carries one is admitted
+    on its `(repo, path)` like any other rather than silently disposing nothing.
+
+    THE SINGLE-REPO CAVEAT, INHERITED RATHER THAN CHOSEN. The file lives at the
+    AGGREGATION root, and a `--single-repo` self-gate run has no aggregation
+    root (`Context.agg_root is None`), so no disposition applies in that scope
+    and every finding this family raises there stands at CRITICAL. That is the
+    pre-existing shape of the mechanism (`runner.main` guards its own read the
+    same way), and it is why this repository's own gate run is untouched by
+    this arm.
+    """
+    admitted = {(repo, path) for repo, path, _requirement
+                in promotion_fidelity.load_dispositions(
+                    ctx, _RATIFIED_PROVENANCE)}
+    if not admitted:
+        return {}
+    try:
+        import yaml
+    except ImportError:                                     # pragma: no cover
+        return {}                # unreachable: `admitted` implies a parsed file
+    dispositions = Path(ctx.agg_root) / "health" / "dispositions.yaml"
+    try:
+        entries = yaml.safe_load(
+            dispositions.read_text(encoding="utf-8")) or []
+    except (OSError, yaml.YAMLError):                       # pragma: no cover
+        return {}                # unreachable for the same reason
+    cites: dict[tuple[str, str], str] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        key = (entry.get("repo"), entry.get("path"))
+        cite = entry.get("cite")
+        if key in admitted and cite:
+            cites.setdefault(
+                key, cite if isinstance(cite, str) else str(cite))
+    return cites
+
+
+def _honour_grandfather_dispositions(ctx, findings):
+    """Report an archived record the owner has grandfathered at `info`.
+
+    THE ROW SURVIVES; ONLY THE BAND MOVES. Every other family that reads this
+    file SUPPRESSES on a disposition, and this one deliberately does not: those
+    families dispose a finding whose SUBJECT can still be repaired, so a
+    suppressed row is a closed question. Here the subject is an IMMUTABLE
+    archived record and the defect is permanent — the header will carry the
+    wrong status for as long as the archive exists — so a suppressed row would
+    delete the standing population from the report and leave the reason for
+    the silence readable only in a YAML file nobody opens. An `info` row keeps
+    the record, the ruling and the count in the artifact a reader actually
+    reads, at a band that reds no gate.
+
+    THE BOUNDARY IS THE ARCHIVE PREFIX AND NOTHING ELSE. A disposition naming
+    an ACTIVE packet's record is NOT honoured and the finding stands at
+    CRITICAL: an active record's header is a plain fix, and letting an entry
+    stand in for that fix would convert the mechanism from "the owner ruled on
+    something nobody can repair" into "the owner ruled on something nobody
+    got round to repairing".
+
+    NOTHING ELSE THIS FAMILY DOES MOVES. A finding with no entry, a finding
+    whose entry names another family, a finding whose entry carries no `cite`,
+    and every finding at all in a `--single-repo` run are returned exactly as
+    the arms above built them — the same object, not a rebuilt copy.
+    """
+    if not findings:
+        return findings
+    cites = _grandfather_cites(ctx)
+    if not cites:
+        return findings
+    out = []
+    for finding in findings:
+        cite = cites.get((finding.repo, finding.path))
+        if cite is None or not finding.path.startswith(
+                _ARCHIVED_PACKET_PREFIX):
+            out.append(finding)
+            continue
+        out.append(replace(
+            finding,
+            severity=INFO,
+            rule=_GRANDFATHERED_RULE_PREFIX + finding.rule,
+            action=_GRANDFATHERED_ACTION + _cite_excerpt(cite)))
+    return out
 
 
 def _lifecycle_scope(ctx):
@@ -618,6 +773,20 @@ def fam_ratified_provenance(ctx):
     is the subject test; the neighbouring scenario (*A review record is not
     about a ratification*) is what keeps it narrow enough that a `record`-status
     review of any other subject stays silent.
+
+    AND THE FAMILY READS THE OWNER'S RULING OVER AN ARCHIVED RECORD (#939).
+    Every arm above emits CRITICAL, which is right for a defect somebody can
+    repair and wrong for one nobody can: an ARCHIVED record is immutable
+    (`record-immutability`, `govern-archived-record-edits`), so the fifteen
+    openxFactory records grandfathered on #877 and codexFactory's three stood
+    CRITICAL in the nightly with no repair available and a recorded ruling
+    saying none was owed. `_honour_grandfather_dispositions` is the last pass:
+    a finding whose `(family, repo, path)` carries a cited entry in the
+    aggregation's `health/dispositions.yaml`, AND whose path is under
+    `openspec/changes/archive/`, is reported at `info` with the citation
+    quoted. It is a downgrade rather than a suppression on purpose — see that
+    function — and it changes nothing about which documents this family opens
+    or what it finds in them.
     """
     findings = []
     for doc in _lifecycle_scope(ctx):
@@ -713,7 +882,7 @@ def fam_ratified_provenance(ctx):
             "add Ratified by: <change> where an approving OpenSpec change "
             "exists, otherwise Ratified: naming an approver, a date, or a "
             "resolvable record path"))
-    return findings
+    return _honour_grandfather_dispositions(ctx, findings)
 
 
 def fam_succession_integrity(ctx):

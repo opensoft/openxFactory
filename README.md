@@ -530,6 +530,41 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
+  — filed 2026-09-11, **`Status: draft`** — a PROPOSAL, and **commissioning is
+  not ratifying**. Lane `openxfactory-1`. Filed on Brett Heap's MULTIPLE-CHOICE
+  word of 2026-09-11 ~01:3xZ, verbatim ***"Commission the packet"***, which
+  commissions the AUTHORING and decides no wording. Origin: openxFactory
+  [#939](https://github.com/opensoft/openxFactory/issues/939), standing on
+  [#877](https://github.com/opensoft/openxFactory/issues/877) and
+  [#878](https://github.com/opensoft/openxFactory/issues/878).
+  **THE DEFECT, MEASURED ON `main` @ `96b4835b` AGAINST THE REAL AGGREGATION
+  DISPOSITIONS FILE** (`opensoft/xFactory` @ `bc84d325`): the
+  `ratified-provenance` family reports **41 rows, every one `critical`**, and
+  **EIGHTEEN of them are archived records the owner has already grandfathered**
+  — fifteen openxFactory records disposed on #877 (xFactory PR #420 →
+  `5bfa1fe4`) and codexFactory's three (xFactory PR #412), each entry dated and
+  cited. `fam_ratified_provenance` reads no disposition at any of its five
+  arms; the runner's `uncited_resolutions` arm reads the file but adjudicates a
+  DISAPPEARED `contested` finding only, and this family is `auto-fixable`. The
+  grandfather was granted and the nightly has never heard of it.
+  **THE BLOCK ADDS ONE SCENARIO TO ONE REQUIREMENT AND EDITS NO PROMOTED BYTE.**
+  *Governed corpus membership and the lifecycle scan set* is sliced from canon
+  (lines 878–936, `sha256 d32aaa43…`, byte-identical both sides) and gains
+  *A finding is grandfathered by a recorded disposition*; `derive_units` over
+  both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
+  units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
+  (`code_surface` non-empty, `target_release: implemented`): one last pass in
+  `scripts/doc_health/families.py` and 17 new tests, after which the same 41
+  rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
+  eighteen disposition keys and the other twenty-three byte-identical.
+  **TWO DECLARED VETO POINTS**, `design.md` **D1** — an `info` row carrying the
+  citation, against SILENCE on the four sibling requirements' suppression
+  precedent — and **D2** — the ARCHIVED-only boundary, an active packet's record
+  being a plain fix rather than a ruling's subject. **NOTHING IS PROMOTED**: no
+  file under `openspec/specs/` is edited, `tasks.md` § 1 and § 6 are entirely
+  open, and #939 closes at the ARCHIVE and not at this landing.
+
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: draft`** — a PROPOSAL, and **filing is not
   ratifying**. Lane `openxfactory-2`. Filed on Brett Heap's word in session,
