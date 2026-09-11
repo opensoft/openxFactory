@@ -1,25 +1,39 @@
 # Tasks: admit-review-lane-repin-to-merge-approval-envelope
 
-Status: draft
+Status: ratified
 Kind: tasks
 
 `code_surface: openxFactory` (three files), `target_release:` a code surface — so
 under `release-realization` this packet archives on merged-plus-green
 realization evidence and not on landing.
 
-**THIS PULL REQUEST PERFORMS NOTHING BUT THE FILING.** No envelope byte moves,
-no workflow is edited, no test is flipped, no ruleset is touched, no floor is
-carved, no pin or snapshot byte moves. **EXACTLY ONE BOX IS TICKED ANYWHERE, AND
-IT IS NOT IN THIS FILE:** `amend-mirror-floor-regeneration-merge-authority`
-`tasks.md` box **4.3**, whose own tick condition is *"the successor being NAMED
-— its openxFactory issue or packet id recorded here"*, on the
-tick-on-the-recording rule of 2026-09-06 and on Brett Heap's word *"file it"*.
-**EVERY BOX BELOW IS OPEN AND EACH NAMES THE ACT THAT TICKS IT.** No box is
-"open forever" and no box is ticked by an agent that is an owner's act.
+**THIS PULL REQUEST, AT FILING, PERFORMED NOTHING BUT THE FILING**, and
+**THE RATIFYING COMMIT PERFORMS NOTHING BUT THE RULING** — no envelope byte
+moves, no workflow is edited, no test is flipped, no ruleset is touched, no
+floor is carved, no pin or snapshot byte moves, in either commit. **AT
+FILING, EXACTLY ONE BOX WAS TICKED ANYWHERE, AND IT WAS NOT IN THIS FILE:**
+`amend-mirror-floor-regeneration-merge-authority` `tasks.md` box **4.3**,
+whose own tick condition is *"the successor being NAMED — its openxFactory
+issue or packet id recorded here"*, on the tick-on-the-recording rule of
+2026-09-06 and on Brett Heap's word *"file it"*. **RATIFICATION ADDS THE
+TICKS IN § 1 BELOW (1.1, 1.2, 1.3) AND NOTHING ELSE** — no box in § 2, § 3,
+§ 4 or § 5 is ticked by this ratification, and § 3 (realization) is now ALSO
+gated on the amendment recorded at 1.5. **EVERY OTHER BOX BELOW IS OPEN AND
+EACH NAMES THE ACT THAT TICKS IT.** No box is "open forever" and no box is
+ticked by an agent that is an owner's act.
 
 ## 1. Pre-ratification asks — Brett Heap's acts, and no agent may take them
 
-- [ ] 1.1 **RE-OPEN RATIFIED DECISION N-1, or refuse to.** `extend-merge-master-envelope-to-floor-bot-lanes`
+**RATIFIED, WITH AMENDMENT, 2026-09-11T01:15Z (approx.; selection recorded on
+#745 https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628376484).**
+Brett Heap, a SELECTION, not a typed sentence, via the lane's multi-choice
+question: the option **"Ratify with amendment"**, whose text read: **"Ratify
+the text now; hold realization until the third unattended codexFactory cycle
+is measured and the unrecorded-class fix is observed on a live approval."**
+Record: `review/ratification-2026-09-11.md`. The dispositions below are that
+one word applied to each box; none is invented beyond what the word names.
+
+- [x] 1.1 **RE-OPEN RATIFIED DECISION N-1, or refuse to.** `extend-merge-master-envelope-to-floor-bot-lanes`
       decision **N-1**, ratified 2026-09-07 under *"ratify 746 and 272 as
       recommended when green, then land them"*, admits the codexFactory
       REGENERATION lane ONLY and leaves this lane on a human merge word. This
@@ -31,26 +45,72 @@ tick-on-the-recording rule of 2026-09-06 and on Brett Heap's word *"file it"*.
       nothing already spent: `amend-mirror-floor-regeneration-merge-authority`
       box 4.3 ticks on this packet being NAMED, not on it being ratified, and
       the arming stays inert exactly as it is today.
-- [ ] 1.2 **Ratify or refuse this packet's TEXT.** Separate from 1.1: a word may
+      **RULED, 2026-09-11T01:15Z (approx.):** RE-OPENED TOWARD N-1 (b),
+      "admit BOTH", with its condition N-1b (ii) — the word ratifying this
+      packet's text is itself the re-opening, since the packet's whole ask is
+      N-1 (b). See `review/ratification-2026-09-11.md`.
+- [x] 1.2 **Ratify or refuse this packet's TEXT.** Separate from 1.1: a word may
       re-open N-1 and still refuse this text, or ratify this text having
       re-opened N-1. **What ticks it:** the word applied to a named head with its
       checks green, recorded on #745 and in a `review/ratification-<date>.md`
       carrying `Status: ratified`. Until then every document here stays
       `Status: draft` and carries no `Ratified by:` line.
-- [ ] 1.3 **Veto or let stand D-1 through D-8** (`design.md` § Authoring
+      **RULED, 2026-09-11T01:15Z (approx.):** RATIFIED, WITH AMENDMENT (to
+      1.5 / D-3 only — see below). `proposal.md` carries `Status: ratified`
+      and a `Ratified:` citation line; `review/ratification-2026-09-11.md` is
+      the record.
+- [x] 1.3 **Veto or let stand D-1 through D-8** (`design.md` § Authoring
       decisions). Each carries a recommendation and each is one edit away.
       **What ticks it:** the ruling, or a recorded "stand as recommended".
+      **RULED, 2026-09-11T01:15Z (approx.):** D-1, D-2, D-4, D-5, D-6, D-7 and D-8 STAND AS
+      RECOMMENDED, no veto exercised. **D-3 STANDS AS RECOMMENDED AND IS
+      AMENDED** — the enrolment still lands inert (D-3's own recommendation is
+      not reversed), but realization's TIMING is amended; see `design.md` §
+      *Amended at ratification* under D-3, and task 1.5 below.
 - [ ] 1.4 **Rule the merge method for an autonomously landed advance** (D-4).
       This repository permits merge, squash AND rebase, so unlike codexFactory
       the method is a CHOICE. The recommendation is SQUASH, on the lane's own
       observed precedent: PR #732 merged 2026-09-06T23:46:28Z as `9ffc6252` with
       ONE parent. **What ticks it:** his word, or a recorded "stand".
-- [ ] 1.5 **Rule whether the enrolment lands INERT or waits for the carve**
-      (D-6). Both answers are conforming — the requirement admits the inert
-      state by name — so this is a sequencing choice, not a correctness one, and
-      it is the same choice `amend-mirror-floor-regeneration-merge-authority`
-      box 1.3 answered "land inert" for the arming. **What ticks it:** the answer
-      recorded on #745 and in the ratification record.
+      (Not named individually by the ratifying word; ratified AS THE PACKET
+      STATES IT — SQUASH — under 1.3's blanket "stand as recommended", per the
+      `accept-sequenced-after-header-line` 0.4/0.5 precedent for a decision
+      the word did not name by number. Left unticked rather than ticked on an
+      inference.)
+- [ ] 1.5 **AMENDED AT RATIFICATION — the enrolment lands INERT (D-3 stands),
+      AND REALIZATION IS FURTHER HELD on two preconditions beyond the carve.**
+      D-3's original ask — inert on landing, or wait for the carve — is
+      answered INERT, exactly as recommended, and that answer is UNCHANGED by
+      this amendment (see `design.md` § *Amended at ratification*). What the
+      amendment adds: `tasks.md` § 3 (3.1 the envelope entry, 3.2 the
+      `sole_candidate()` replacement, 3.3 the witness edit) — REALIZATION,
+      not the paper ratification — is HELD until BOTH of the following are
+      met, in addition to and not in place of § 4's own preconditions (the
+      carve 4.1, the `Bounded autonomous surface` narrowing 4.2, the
+      auto-merge precondition measurement 4.3, the completion-path word 4.4):
+    - [ ] 1.5.a **The third consecutive unattended cycle is measured**, per
+          `extend-merge-master-envelope-to-floor-bot-lanes` `tasks.md` box
+          **4.2** (currently OPEN, two of three measured: codexFactory #314 →
+          `b08958ae`, one hand dispatch; codexFactory #325 → `df42f803`, fully
+          unattended). **Evidence needed to tick:** the third cycle's
+          codexFactory PR number, its merge sha, and the approval URL for
+          that cycle's re-pin advance, recorded here and on #745, with box
+          4.2 itself ticked at the same time (it is the same measurement).
+    - [ ] 1.5.b **The `Candidate class: unrecorded` rendering defect is fixed
+          upstream AND observed fixed on a live approval**, per
+          `extend-merge-master-envelope-to-floor-bot-lanes`
+          `review/gate-rules-council-admitting-record-2026-09-10.md` § 3.5
+          (box § 3.1 row: approval records render `Candidate class:
+          unrecorded` instead of naming the matched class). Fix:
+          codeXfactory/codexFactory PR #369. **Evidence needed to tick:**
+          PR #369's merge sha, AND the first post-fix approval's rendered
+          `Candidate class: openxfactory-floor-regeneration` (or the
+          corresponding codexFactory-side candidate id), read back from the
+          API rather than assumed from the fix merging.
+      **What ticks 1.5 itself:** both 1.5.a and 1.5.b ticked, recorded on
+      #745 and in the ratification record. **Until then, no box in § 3 may
+      be started by an agent — the amendment's hold reaches those boxes
+      directly, not only the boxes it renames.**
 
 ## 2. The filing — what this pull request contains
 
@@ -85,10 +145,15 @@ is the RIGHT text and nothing here is proven by being written.
 - [ ] 2.8 The `sequenced_after:` declaration validates and the per-change sweep
       ledger carries this change's own row.
 
-## 3. Realization — NOT PERFORMED BY THIS PULL REQUEST
+## 3. Realization — NOT PERFORMED BY THIS PULL REQUEST, AND HELD BY AMENDMENT
 
 **Each box below is gated on § 1 and on § 4, and none may be taken by an agent
-before the word that authorizes it.**
+before the word that authorizes it. AS AMENDED AT RATIFICATION (task 1.5),
+this section is ALSO gated on 1.5.a and 1.5.b — the third unattended cycle
+measured, and the `Candidate class: unrecorded` defect fixed and observed
+fixed — beyond and in addition to § 4's own preconditions. Neither 1.5.a nor
+1.5.b is ticked as of ratification; no box below may be started by an agent
+until both are.**
 
 - [ ] 3.1 **Add the second candidate class to `.github/merge-approval-envelope.yml`** —
       `id: openxfactory-review-lane-repin`; `target_repos: [opensoft/openxFactory]`;

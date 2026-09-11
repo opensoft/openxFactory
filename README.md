@@ -531,8 +531,23 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
-  — filed 2026-09-10, **`Status: draft`** — a PROPOSAL, and **filing is not
-  ratifying**. Lane `openxfactory-2`. Filed on Brett Heap's word in session,
+  — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
+  Brett Heap, openxFactory repository owner, first-hand, in session — a
+  SELECTION, not a typed sentence, via the lane's multi-choice question: the
+  option ***"Ratify with amendment"***, whose text read: ***"Ratify the text
+  now; hold realization until the third unattended codexFactory cycle is
+  measured and the unrecorded-class fix is observed on a live approval."***)
+  — record
+  [`review/ratification-2026-09-11.md`](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/review/ratification-2026-09-11.md).
+  **RATIFIED WITH AMENDMENT: the text stands as recommended; task 1.5 /
+  `design.md` D-3 is amended to HOLD REALIZATION** (`tasks.md` § 3) until two
+  further preconditions are met — the third unattended cycle
+  (`extend-merge-master-envelope-to-floor-bot-lanes` box 4.2, two of three
+  measured) and the `Candidate class: unrecorded` defect fixed and observed
+  fixed (codeXfactory/codexFactory PR #369) — beyond and in addition to this
+  packet's own § 4 preconditions (the carve, the surface narrowing, the
+  auto-merge measurement, the completion-path word). Lane `openxfactory-2`.
+  Filed on Brett Heap's word in session,
   2026-09-10 ~17:2xZ, verbatim ***"do 1 and 2, sign, file it, do 744"***
   (openxFactory [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5622848416),
   comment 5622848416), whose third clause commissions exactly this filing and
@@ -547,8 +562,10 @@ Active changes:
   the codexFactory REGENERATION lane ONLY and leaves this repository's
   `review-lane-repin` lane on a human merge word; this packet asks for that
   decision's own recorded alternative **N-1 (b)** with its condition **N-1b
-  (ii)**, the named carve. **Brett Heap's § 6.3 rulings of 2026-09-10 STAND
-  until it is ratified** and are quoted verbatim from codexFactory
+  (ii)**, the named carve — **and ratification performs exactly that
+  re-opening.** **Brett Heap's § 6.3 rulings of 2026-09-10 STOOD until this
+  ratification and are now superseded by N-1 (b)**; they are quoted verbatim
+  from codexFactory
   [#232](https://github.com/codeXfactory/codexFactory/issues/232#issuecomment-5618469628)
   (*"openxFactory re-pin lane NOT extended, INERT by ruling"*) and openxFactory
   [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5618883586).
@@ -569,9 +586,10 @@ Active changes:
   ruleset bypass actor in any form**, so it lands INERT until codexFactory
   carves. Four `## ADDED` requirements in `review-lane-floor-mirror` and **no
   `## MODIFIED` block**, so no sibling-pairing declaration is owed. **NOTHING IS
-  REALIZED BY THE FILING** — no envelope byte, no workflow, no test, no ruleset,
-  no floor, no pin byte — and three of the four refusals measured on 2026-09-08
-  are untouched by it (`design.md` § 1).
+  REALIZED BY THIS RATIFICATION EITHER** — no envelope byte, no workflow, no
+  test, no ruleset, no floor, no pin byte — and three of the four refusals
+  measured on 2026-09-08 are untouched by it (`design.md` § 1). **REALIZATION
+  IS NOW FURTHER HELD BY THE AMENDMENT** (above) on top of those three.
 - [disposition-codexfactory-floor-relocation-retitle](openspec/changes/disposition-codexfactory-floor-relocation-retitle/proposal.md)
   — authored 2026-09-10, **`Status: ratified`** (2026-09-10 ~14:0xZ, Brett Heap,
   openxFactory convener, first-hand, in session to lane `openxfactory-2`,
