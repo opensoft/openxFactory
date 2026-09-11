@@ -2818,7 +2818,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-merged-into-empty-tail-standing](openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/proposal.md)
-  — **ARCHIVED 2026-09-11**, on Brett Heap's separate word of the same day (in
+  — **ARCHIVED 2026-09-11** by
+  [PR #973](https://github.com/opensoft/openxFactory/pull/973), on Brett Heap's
+  separate word of the same day (in
   session at **2026-09-11T12:08:24Z**, verbatim *"land each when green, archive
   both when landed, claim 955 and 956"*, recorded on
   [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5634202205))

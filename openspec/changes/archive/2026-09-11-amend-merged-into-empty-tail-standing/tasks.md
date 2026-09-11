@@ -51,9 +51,11 @@ met four hours and twenty-five minutes LATER**, not earlier: PR
 [#947](https://github.com/opensoft/openxFactory/pull/947) landed on `main` as
 merge commit **`87fd33d66b650dedf92cecfec4d0fc79b4bac142`** at
 **2026-09-11T16:33:09Z**. They are ticked in the commit BEFORE the move, as
-§ 5.3 requires, because the tool refuses an open box; the archive pull
-request's number is appended to those clauses in the ledger-seed commit, once
-the number exists.
+§ 5.3 requires, because the tool refuses an open box. **THE ARCHIVE PULL
+REQUEST IS openxFactory
+[#973](https://github.com/opensoft/openxFactory/pull/973)**, and its number is
+written into those clauses in the ledger-seed commit, the number not existing
+until the pull request did.
 
 **AND FIVE SENTENCES A READER MIGHT TAKE FOR SUPERSEDED ARE NOT, DECLARED HERE
 RATHER THAN LEFT TO BE INFERRED.** (1) ***"NOTHING IS TICKED THAT DID NOT
@@ -477,7 +479,7 @@ ground. `target_release: implemented` — the value canon names for a doc-only
 change — adds no obligation of its own: the archive path is decided by
 `code_surface`, and no contract bundle, digest set or release tag moves here.
 
-- [x] 5.1 **DONE IN THE ARCHIVE PULL REQUEST — THE BLOCK IS PROMOTED AND THE
+- [x] 5.1 **DONE IN ARCHIVE PR [#973](https://github.com/opensoft/openxFactory/pull/973) — THE BLOCK IS PROMOTED AND THE
       PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-11T12:08:24Z,
       verbatim *"land each when green, archive both when landed, claim 955 and
       956"*.** Performed with `TZ=UTC python3 scripts/proposal-support.py .
@@ -518,13 +520,17 @@ change — adds no obligation of its own: the archive path is decided by
       AND NOWHERE ELSE, AND BOTH HALVES OF THAT ARE VERIFIED RATHER THAN
       PROMISED.** PR #947's `closingIssuesReferences` was measured through
       GraphQL as **`[]` — EMPTY** at its merge, which is why openxFactory #914
-      survived that landing to close here; the archive pull request's
-      `closingIssuesReferences` is verified to be **exactly `[914]`**, and its
-      single `Closes #914` line stands in the BODY. **NO COMMIT MESSAGE ON THE
-      ARCHIVE BRANCH CARRIES A CLOSING KEYWORD IN ANY FORM** — not `Closes`,
-      `Fixes` or `Resolves`, in any case or tense, quoted or unquoted — checked
-      with a regex over every commit message on the branch and recorded in the
-      pull request body, because GitHub auto-closes from commit messages too.
+      survived that landing to close here; archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973)'s
+      `closingIssuesReferences` is verified through GraphQL to be **exactly
+      `[914]`**, and its single `Closes #914` line stands in the BODY. **NO
+      COMMIT MESSAGE ON THE ARCHIVE BRANCH CARRIES A CLOSING KEYWORD IN ANY
+      FORM** — not `Closes`, `Fixes` or `Resolves`, in any case or tense, quoted
+      or unquoted — checked with a regex over all THREE commit messages on the
+      branch and recorded in the pull request body, because GitHub auto-closes
+      from commit messages too. Brett Heap's verbatim word that shut #893 does
+      contain such a keyword and is quoted in § 6.4 below, which is FILE content
+      and is not read by GitHub; the commit message paraphrases it instead.
       **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
       **THE CLOSING LINE FOR openxFactory #914 STANDS IN THE ARCHIVE PULL
       REQUEST'S BODY AND NOWHERE ELSE.** This pull request's body carries
@@ -537,7 +543,10 @@ change — adds no obligation of its own: the archive path is decided by
       unchanged since the ratifying commit 7215c2077cdf)` and then
       **`change has incomplete tasks`**, exit **1**, moving nothing — the
       refusal this box describes, observed rather than recited. All **seven**
-      open boxes are therefore ticked here, in the commit BEFORE the move.
+      open boxes are therefore ticked here, in the commit BEFORE the move —
+      `6af82a14` on archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973), the move
+      following at `99f70e6e`.
       **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
       **AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no
       bypass flag: `scripts/proposal-support.py` refuses any change whose
@@ -559,10 +568,12 @@ conditional tick trigger — or the NAMING of a successor and never its doing.
 
 - [x] 6.1 **NOT TAKEN — A SUCCESSOR IS NAMED AND NOTHING IS EDITED.**
       openxFactory [#972](https://github.com/opensoft/openxFactory/issues/972)
-      is filed **UNCLAIMED**, naming all three sites, and neither
+      is filed **UNCLAIMED** — filed for archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973) and BEFORE it
+      was opened — naming all three sites, and neither
       `scripts/doc_health/modified_block_currency.py` nor
-      `tests/doc-health/test_modified_block_currency.py` is touched by the
-      archive pull request. **THE THREE SITES ARE RE-MEASURED ON THE ARCHIVE
+      `tests/doc-health/test_modified_block_currency.py` is touched by that
+      pull request. **THE THREE SITES ARE RE-MEASURED ON THE ARCHIVE
       TREE AND THE RATIFIED LINE NUMBERS HOLD:** `suppression()`'s docstring at
       **`:1432-1433`** (the `def` at `:1381`), the comment above the
       fifth-ground predicate at **`:1535`** (the predicate at `:1538`), and the
