@@ -304,7 +304,8 @@ issues this family's recent packets left open are #893 (the uncited-resolution
 rule's per-class grain, filed by `amend-modified-block-currency-standing`) and
 #915 (`specs/019` FR-018's three-grounds restatement, filed by
 `amend-marker-declaring-nothing`), neither of which this packet touches or
-forecloses — see D6. Two, and #914 itself, is the three this family is carrying.
+forecloses — see D6. Those two, and #914 itself, are the three this family is
+carrying.
 
 **THE CLAIM.** It stands on #914 at 2026-09-11T02:06:38Z — the ruling comment
 itself carries it — naming lane `openxfactory-1` and session `a9c24afc` and its
