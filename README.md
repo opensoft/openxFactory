@@ -577,7 +577,10 @@ Active changes:
   single-occurrence substitution and one paragraph re-wrapped at 79, generator
   output and committed block ONE STRING at sha256 `50ced1fa…`. **WHAT THIS
   PULL REQUEST DOES NOT DO:** it edits no file under `openspec/specs/`, no
-  script, test, contract, schema or workflow; `spec/repo-boundary-governance`
+  script, contract, schema or workflow, and the ONE file it touches under
+  `tests/` is `tests/sequenced_after/corpus-ledger.yaml`, a GENERATED REGISTRY
+  gaining this change's own sweep row by the sanctioned seed rather than
+  executable test code; `spec/repo-boundary-governance`
   still fails the 1.2.0 binary at its head and the ARCHIVE is what clears it;
   `tasks.md` §§ 1 and 5 stay OPEN and openxFactory #931 closes at the archive,
   so the pull request carries `refs #931` and no closing keyword.

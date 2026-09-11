@@ -450,7 +450,7 @@ carries the same bytes as the promoted block, so anyone can check that what was
 ratified is what was written. This packet proves that identity rather than
 relying on it — sha256 `24f6479c…` on both sides.
 
-## D4 — `code_surface: none`, and what that decides
+## D4 — `code_surface: none`, `target_release: implemented`, and what that decides
 
 Measured in `proposal.md`'s front matter:
 `grep -rn "SHALL be scoped to subsystem install\|subsystem install, operations, backup" scripts/ tests/ .github/ contracts/`
@@ -458,6 +458,19 @@ returns NOTHING (exit 1). The five repository names appear elsewhere in the
 tree as identifiers of repositories, and this block changes none of them. No
 test pins the requirement's scenario count or titles, and the block adds no
 scenario and drops none.
+
+**`target_release: implemented` IS CANON'S OWN VOCABULARY AND THE PACKET WAS
+CORRECTED TO IT ON A BOT FINDING.** *Realization axis declaration* admits
+`implemented` *"or a named release defined in the aggregation repository"* and
+names the doc-only default in the same breath — *"A proposal without the
+declarations is a doc-only change (`code_surface: none`, `target_release:
+implemented`) by default"* (`openspec/specs/release-realization/spec.md:24-30`)
+— so `none`, which this packet was authored with by mirroring its ratified
+predecessor, is outside the vocabulary. The divergence is CORPUS-WIDE (33 of
+180 proposals; 7 against 9 among doc-only changes), no gate reads the value,
+and nothing behavioural moves either way because the archive path is decided by
+`code_surface`. This packet conforms and does not sweep the rest; `tasks.md`
+§ 6.8 names that as residue.
 
 Under `release-realization` an empty code surface **archives ON LANDING plus
 its own task list** rather than on merged-plus-green realization evidence. That

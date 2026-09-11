@@ -3,7 +3,9 @@
 Status: draft
 Kind: tasks
 
-`code_surface: none`, `target_release: none`. There is no realization group,
+`code_surface: none`, `target_release: implemented` — the value canon names
+for a doc-only change, corrected on Copilot's finding (§ 6.8). There is no
+realization group,
 because there is nothing to realize: the delta is requirement prose, no script,
 test, workflow, contract, schema or example quotes any part of the sentence it
 re-orders, and under `release-realization` an empty code surface archives ON
@@ -246,9 +248,17 @@ authoring and pre-gives a landing word; it admits no text to canon.
       The alternative is costed in § 3.3: carrying it yields one `info`-band
       marker-defect finding on ground three, on either wording.
 - [x] 3.8 **NOTHING UNDER `openspec/specs/` IS EDITED BY THIS PULL REQUEST**,
-      and no script, test, contract, schema, workflow or example is touched
-      either. The promoted specification still states the sentence as ratified;
-      the ARCHIVE act is what would write this block into it.
+      and no script, contract, schema, workflow or example is touched either.
+      The promoted specification still states the sentence as ratified; the
+      ARCHIVE act is what would write this block into it. **ONE FILE UNDER
+      `tests/` DOES MOVE, AND IT IS NAMED HERE RATHER THAN LEFT TO THE DIFF** —
+      Copilot's finding on this pull request, taken:
+      `tests/sequenced_after/corpus-ledger.yaml` gains this change's sweep row,
+      ONE inserted line, seeded by the sanctioned tool (§ 3.10). **It is a
+      GENERATED REGISTRY, not executable test code**: no test function, fixture
+      body, assertion or helper changes, the row is derived from this packet's
+      existence rather than authored, every active change has one, and omitting
+      it is exactly what makes the sweep gate red (§ 4.5).
 - [x] 3.9 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
       style, at the head of the active list, lane `openxfactory-1`, written as
       **`Status: draft`** (NOT RATIFIED) and naming the origin issue, the
@@ -450,6 +460,26 @@ than after it.
       predecessor's `design.md` D6 and is CITED here rather than re-run or
       re-claimed. This packet writes no readiness evidence and claims no part
       of that migration.
+- [ ] 6.8 **THE CORPUS-WIDE `target_release: none` DIVERGENCE IS NAMED AS
+      RESIDUE AND IS NOT SWEPT.** Copilot found that `release-realization`'s
+      *Realization axis declaration* admits `target_release:` as `implemented`
+      *"or a named release defined in the aggregation repository"* and names
+      `implemented` as the doc-only DEFAULT
+      (`openspec/specs/release-realization/spec.md:24-30`), so **`none` is
+      outside the vocabulary**. THIS PACKET CONFORMS — it now declares
+      `implemented` — but the divergence is not its own: **33 of the 180
+      proposals declaring the field carry `none`**, and among proposals with
+      `code_surface: none` the split is **7 `none` against 9 `implemented`**,
+      the ratified and archived predecessor
+      `amend-neutral-product-pin-lockfile-first-line` being one of the seven.
+      **NO GATE REPORTS IT** — no script reads the value except the ideation
+      dashboard's display, and `tests/ideation-dashboard` fixtures use `none`
+      while `tests/scope_globs` and `tests/sequenced_after` fixtures use
+      `implemented`. Sweeping 32 other proposals, or amending
+      `release-realization` to admit `none`, is a different act on a different
+      capability and needs its own issue and its own word; under the ruling of
+      2026-09-06T23:10Z (*"Tick on the recording"*) this box ticks once that
+      successor is NAMED, which is not this lane's act on this word.
 - [x] 6.7 **THE SIBLING SEARCH WAS TAKEN BEFORE THE CLAIM AND RE-TAKEN AT THE
       BRANCH CUT** (`design.md` D5). `ls -d
       openspec/changes/*/specs/repo-boundary-governance` returns FIVE active
