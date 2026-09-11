@@ -30,7 +30,9 @@ for the rest:
 
 from __future__ import annotations
 
+import ast
 import importlib.util
+import re
 from datetime import date
 from pathlib import Path
 
@@ -120,16 +122,56 @@ def test_the_status_value_is_declared_once_and_reads_projection():
     assert ph.STATUS_LINE != SUPERSEDED_STATUS_LINE
 
 
+def _executable_string_literals(path: Path) -> list[str]:
+    """Every string CONSTANT the module evaluates — docstrings excluded, and
+    comments absent by construction since they never enter the tree.
+
+    PARSED, NOT GREPPED, for the same reason `test_import_direction.py` parses:
+    a substring scan over the source would be answered by prose. It would also
+    be answered by prose that is TRUE and must stay — a renderer that explains
+    which status it emits and why names the line it emits (Copilot,
+    `PRRT_kwDOTAvnrs6hquxW`). What is forbidden is a second executable copy of
+    the value, and that is a literal in the tree."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    docstrings = set()
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if (isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef,
+                              ast.ClassDef)) and body
+                and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)):
+            docstrings.add(id(body[0].value))
+    return [n.value for n in ast.walk(tree)
+            if isinstance(n, ast.Constant) and isinstance(n.value, str)
+            and id(n) not in docstrings]
+
+
 def test_the_in_tree_renderer_does_not_type_the_status_line_itself():
     """A second typed copy is a second place to edit, which is how the two
-    generators came apart. The renderer emits `STATUS_LINE`; the string is not
-    in its source at all."""
-    source = RENDERER.read_text(encoding="utf-8")
-    assert "Status:" not in source, (
-        f"{RENDERER_REL.as_posix()} types a `Status:` line of its own — the "
-        f"value is declared once, in "
+    generators came apart. The renderer emits `STATUS_LINE`; it evaluates no
+    status literal of its own."""
+    typed = [lit for lit in _executable_string_literals(RENDERER)
+             if "Status:" in lit]
+    assert typed == [], (
+        f"{RENDERER_REL.as_posix()} types a `Status:` line of its own "
+        f"({typed!r}) — the value is declared once, in "
         f"{DECLARATION.relative_to(REPO_ROOT).as_posix()} (#793)")
-    assert "STATUS_LINE" in source
+    assert "STATUS_LINE" in RENDERER.read_text(encoding="utf-8")
+
+
+def test_the_declarations_own_status_literal_is_built_from_the_one_value():
+    """The guard above is only as good as what it is pointed at, so the one
+    module allowed to name the line is held to building it from
+    `PROJECTION_STATUS` rather than typing it twice."""
+    # A WHOLE line — `Status:` followed by a value. The bare prefix constant
+    # and the f-string's `"Status: "` fragment are how the one line is built,
+    # not a second copy of it.
+    typed = [lit for lit in _executable_string_literals(DECLARATION)
+             if re.match(r"Status:\s*\w", lit)]
+    assert typed == [], (
+        f"{DECLARATION.name} types a whole status line ({typed!r}); "
+        f"STATUS_LINE is composed from PROJECTION_STATUS")
 
 
 def test_the_declaration_imports_neither_package():
