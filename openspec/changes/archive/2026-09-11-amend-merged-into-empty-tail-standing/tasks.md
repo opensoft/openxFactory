@@ -25,6 +25,68 @@ and the closing line for openxFactory #914 belong to the archive pull request,
 on a separate word, and to nothing here. **§ 6 STAYS UNTICKED**: residue,
 measured and deliberately not taken.
 
+**AMENDED AT THE ARCHIVE, 2026-09-11 — EXACTLY TWO CLAUSES OUTSIDE A BOX BODY
+ARE SUPERSEDED, THEY ARE NAMED WITH THEIR LOCATIONS, AND THEY ARE QUOTED IN
+PLACE RATHER THAN DELETED.** Both are PRESENT-TENSE claims that a section stood
+open. These two and no others:
+
+> **§ 5 (ARCHIVE) STAYS ENTIRELY OPEN** — the paragraph above
+
+> **§ 6 STAYS UNTICKED** — the paragraph above
+
+**AND ONE PRESENT-TENSE CLAUSE INSIDE A BOX BODY IS SUPERSEDED BY ITS OWN TICK
+CLAUSE STANDING DIRECTLY ABOVE IT, WHICH IS THE WHOLE OF THE CONVENTION AND IS
+COUNTED SEPARATELY RATHER THAN FOLDED IN**: § 5.1's *"What is still owed is the
+archive act alone"*. Its tick clause records that act as performed, and its
+ratified body is carried verbatim beneath that clause exactly as every other
+box's is.
+
+§ 5.1, § 5.2, § 5.3, § 6.1, § 6.2, § 6.3 and § 6.4 — **all seven boxes that
+stood open** — are ticked here, on Brett Heap's separate word of
+**2026-09-11T12:08:24Z**, verbatim **"land each when green, archive both when
+landed, claim 955 and 956"**, recorded on
+[#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5634202205).
+That word was given **IN ADVANCE AND CONDITIONALLY**, and **the condition was
+met four hours and twenty-five minutes LATER**, not earlier: PR
+[#947](https://github.com/opensoft/openxFactory/pull/947) landed on `main` as
+merge commit **`87fd33d66b650dedf92cecfec4d0fc79b4bac142`** at
+**2026-09-11T16:33:09Z**. They are ticked in the commit BEFORE the move, as
+§ 5.3 requires, because the tool refuses an open box. **THE ARCHIVE PULL
+REQUEST IS openxFactory
+[#973](https://github.com/opensoft/openxFactory/pull/973)**, and its number is
+written into those clauses in the ledger-seed commit, the number not existing
+until the pull request did.
+
+**AND FIVE SENTENCES A READER MIGHT TAKE FOR SUPERSEDED ARE NOT, DECLARED HERE
+RATHER THAN LEFT TO BE INFERRED.** (1) ***"NOTHING IS TICKED THAT DID NOT
+LAND"***, which opens this block, STANDS: § 5's three ticks record an act
+performed in the archive pull request itself, and § 6's four record a
+MEASUREMENT re-taken at the archive and the NAMING of a successor, never its
+doing. (2) The REST of the § 5 sentence above — *"the promotion of the block
+into `openspec/specs/doc-health/spec.md` and the closing line for openxFactory
+#914 belong to the archive pull request, on a separate word, and to nothing
+here"* — STANDS, and is exactly what this archive does: the promotion and the
+one closing keyword are in the archive pull request, the keyword in its BODY
+and nowhere else, no commit message on that branch carrying one in any form,
+any case or tense, quoted or unquoted. (3) The REST of the § 6 sentence —
+*"residue, measured and deliberately not taken"* — STANDS: nothing in § 6 is
+taken here either, and each tick says so in its own words. (4) The header
+note's *"and that archive is still a separate act on a separate word, and it is
+NOT performed here"* STANDS: *here* is PR #947, and the archive was not
+performed there. (5) The § 5 HEADING *"OWED, NOT GIVEN"* and the § 6 heading
+*"Measured, and deliberately NOT taken here"* are RETAINED AS HISTORICAL
+SURFACE rather than superseded — stated at the outset here rather than
+corrected afterwards — and § 5's own disposition below says so.
+
+**ONE OWED SUCCESSOR IS FILED, UNCLAIMED, AND NAMED HERE.**
+[#972](https://github.com/opensoft/openxFactory/issues/972) takes § 6.1 — the
+three pieces of prose in `scripts/doc_health/modified_block_currency.py` and
+`tests/doc-health/test_modified_block_currency.py` that still call the merge
+form's empty tail *"a question nobody has ruled"* after this packet's
+promotion rules it. It is not claimed by this lane. **§ 6.2, § 6.3 and § 6.4
+OWE NO SUCCESSOR AND NONE IS FILED FOR THEM** — each ticks on a measurement
+re-taken at this archive, with every figure that moved disclosed at the box.
+
 ## 1. Ratification — GIVEN 2026-09-11T10:11:53Z
 
 - [x] 1.1 **RATIFIED 2026-09-11 by Brett Heap** (openxFactory operator
@@ -380,20 +442,113 @@ archive is the act that moves the packet into
 writes the block into `openspec/specs/doc-health/spec.md`. That act needs
 Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
 
-- [ ] 5.1 **§ 1 IS DONE; THE ARCHIVE ACT IS WHAT REMAINS, ON ITS OWN WORD.**
-      The status flip and the approval pair landed together in the
-      ratification commit (`7215c207`) — that half of this box's original
-      instruction is COMPLETE and is not repeated here. What is still owed is
-      the archive act alone: the move into
+**DISPOSITION 2026-09-11 — THE HEADING ABOVE IS RETAINED AS HISTORICAL SURFACE,
+NOT SUPERSEDED, AND THE TWO CLAUSES NAMED AT THE HEAD OF THIS FILE REMAIN THE
+ONLY SUPERSEDED TEXT OUTSIDE A BOX BODY.** *"OWED, NOT GIVEN"* was true from
+ratification until **2026-09-11T12:08:24Z**, when Brett Heap gave the separate
+word this section waits on, verbatim **"land each when green, archive both when
+landed, claim 955 and 956"**, recorded on
+[#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5634202205).
+**THAT WORD WAS GIVEN IN ADVANCE AND CONDITIONALLY, AND THE CONDITION WAS MET
+AFTERWARDS RATHER THAN BEFORE** — the distinction is stated because the sibling
+packet's archive had the opposite shape: PR
+[#947](https://github.com/opensoft/openxFactory/pull/947) landed on `main` as
+merge commit **`87fd33d66b650dedf92cecfec4d0fc79b4bac142`** at
+**2026-09-11T16:33:09Z**, four hours and twenty-five minutes AFTER the word. The
+archive is GIVEN, and the heading is left standing because it is ratified
+surface and because it records what was true when it was written; this
+disposition is what a later reader reads beside it. The paragraph above — *"THE
+PROMOTION IS NOT PERFORMED HERE AND NOTHING UNDER `openspec/specs/` IS EDITED BY
+THIS PULL REQUEST"* — is NOT superseded: *here* is PR #947, and nothing under
+`openspec/specs/` was edited there. `review/ratification-2026-09-11.md`
+(`Status: ratified`) and the six `review/verification-*.md` captures
+(`Status: record`) name this act in advance as a separate act on a separate
+word, and **NOT ONE OF THE SEVEN IS EDITED BY THIS ARCHIVE**; `.openspec.yaml`
+is not touched either.
+
+**NO REALIZATION EVIDENCE IS OWED, AND THE RULE IS QUOTED RATHER THAN
+PARAPHRASED.** `code_surface: none`, and `release-realization`'s scenario *A
+doc-only change is proposed* reads *"**THEN** its code_surface is `none` and it
+archives when its artifacts land, as before"*, while its *Realization archive
+gate* binds only *"A change with a **non-empty** code surface"*. So the LANDING
+itself is the evidence this archive cites, and **NO RUN ON THE MERGE COMMIT IS
+OWED** for an empty code surface. PR #947's own green `pytest-suite` run
+[34619454320](https://github.com/opensoft/openxFactory/actions/runs/34619454320),
+on branch head **`78e365f4`**, is named as a courtesy beside it and is not the
+ground. `target_release: implemented` — the value canon names for a doc-only
+change — adds no obligation of its own: the archive path is decided by
+`code_surface`, and no contract bundle, digest set or release tag moves here.
+
+- [x] 5.1 **DONE IN ARCHIVE PR [#973](https://github.com/opensoft/openxFactory/pull/973) — THE BLOCK IS PROMOTED AND THE
+      PACKET IS ARCHIVED, ON BRETT HEAP'S SEPARATE WORD OF 2026-09-11T12:08:24Z,
+      verbatim *"land each when green, archive both when landed, claim 955 and
+      956"*.** Performed with `TZ=UTC python3 scripts/proposal-support.py .
+      archive amend-merged-into-empty-tail-standing --date 2026-09-11 --yes`
+      through the pinned `@fission-ai/openspec@1.12.0` artifact — never a bare
+      `openspec archive` — which moved the packet to
+      `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`
+      and wrote the `## MODIFIED` block back into
+      `openspec/specs/doc-health/spec.md`. The origin-retention gate fires
+      INSIDE the wrapper and passed: **ORIGIN RETAINED**, the declaration
+      unchanged since the ratifying commit **`7215c207`** — the ref the wrapper
+      derives for itself, printed as `7215c2077cdf`. **THE RATIFYING REF HAS A
+      SECOND CANDIDATE AND THE TWO ARE MEASURED RATHER THAN PREFERRED**:
+      `57b95b15` is the LAST commit to touch `.openspec.yaml` (a restore, after
+      `afbdc511` had mutated `origin.approved_by`), and
+      `git diff 7215c207 87fd33d6 -- <packet>/.openspec.yaml` is EMPTY, both
+      sides 11,766 bytes hashing `sha256 618d54eb…`, so the two candidates
+      cannot disagree about the declaration this gate compares. The
+      byte-identity of the promotion is MEASURED — extracted programmatically
+      from both sides and hashed — and recorded in the pull request body, not
+      asserted. **THE ORDERED-DELTA CHILD RESOLVES ITS PARENT IN THE ARCHIVED
+      CORPUS**: `rule-inherited-unit-naming-marker-spent` (DRAFT PR #962)
+      declares `sequenced_after: [amend-merged-into-empty-tail-standing]`, and
+      `scripts/sequenced_after.py`'s `resolve()` offers *"EXACTLY TWO anchored
+      locations"* — the active directory and any archived `<date>-<id>` one —
+      so the move relocates the parent without dangling it, which is measured
+      on the archived tree and recorded in the pull request body.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **§ 1 IS DONE; THE ARCHIVE ACT IS WHAT REMAINS, ON ITS OWN WORD.**
+      The status flip and the
+      approval pair landed together in the ratification commit (`7215c207`) —
+      that half of this box's original instruction is COMPLETE and is not
+      repeated here. What is still owed is the archive act alone: the move into
       `openspec/changes/archive/<date>-amend-merged-into-empty-tail-standing/`
-      and the promotion of the block into
-      `openspec/specs/doc-health/spec.md`, on a separate word from Brett
-      Heap.
-- [ ] 5.2 **THE CLOSING LINE FOR openxFactory #914 STANDS IN THE ARCHIVE PULL
+      and the promotion of the block into `openspec/specs/doc-health/spec.md`,
+      on a separate word from Brett Heap.
+- [x] 5.2 **DONE — THE CLOSING LINE STANDS IN THE ARCHIVE PULL REQUEST'S BODY
+      AND NOWHERE ELSE, AND BOTH HALVES OF THAT ARE VERIFIED RATHER THAN
+      PROMISED.** PR #947's `closingIssuesReferences` was measured through
+      GraphQL as **`[]` — EMPTY** at its merge, which is why openxFactory #914
+      survived that landing to close here; archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973)'s
+      `closingIssuesReferences` is verified through GraphQL to be **exactly
+      `[914]`**, and its single `Closes #914` line stands in the BODY. **NO
+      COMMIT MESSAGE ON THE ARCHIVE BRANCH CARRIES A CLOSING KEYWORD IN ANY
+      FORM** — not `Closes`, `Fixes` or `Resolves`, in any case or tense, quoted
+      or unquoted — checked with a regex over all THREE commit messages on the
+      branch and recorded in the pull request body, because GitHub auto-closes
+      from commit messages too. Brett Heap's verbatim word that shut #893 does
+      contain such a keyword and is quoted in § 6.4 below, which is FILE content
+      and is not read by GitHub; the commit message paraphrases it instead.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE CLOSING LINE FOR openxFactory #914 STANDS IN THE ARCHIVE PULL
       REQUEST'S BODY AND NOWHERE ELSE.** This pull request's body carries
-      `refs` and no closing keyword, and `closingIssuesReferences` is verified
-      EMPTY on it (recorded in the pull request body).
-- [ ] 5.3 **AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no
+      `refs` and no closing keyword, and
+      `closingIssuesReferences` is verified EMPTY on it (recorded in the pull
+      request body).
+- [x] 5.3 **DONE — AND IT IS THE REASON THIS COMMIT PRECEDES THE MOVE.** The
+      first attempt at the archive act, run against the unticked tree, printed
+      `ORIGIN RETAINED amend-merged-into-empty-tail-standing (declaration
+      unchanged since the ratifying commit 7215c2077cdf)` and then
+      **`change has incomplete tasks`**, exit **1**, moving nothing — the
+      refusal this box describes, observed rather than recited. All **seven**
+      open boxes are therefore ticked here, in the commit BEFORE the move —
+      `6af82a14` on archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973), the move
+      following at `99f70e6e`.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no
       bypass flag: `scripts/proposal-support.py` refuses any change whose
       `tasks.md` still matches `^- \[ \]` (*"change has incomplete tasks"*), so
       every box above is ticked in the commit BEFORE the move rather than after
@@ -401,7 +556,48 @@ Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
 
 ## 6. Measured, and deliberately NOT taken here
 
-- [ ] 6.1 **`scripts/doc_health/modified_block_currency.py` IS NOT EDITED, AND
+**DISPOSITION 2026-09-11 — THE HEADING ABOVE IS RETAINED AND NOTHING IN THIS
+SECTION IS TAKEN AT THIS ARCHIVE.** All four boxes tick, and every tick records
+either a MEASUREMENT RE-TAKEN on the archive tree — with any figure that moved
+disclosed at the box, on Brett Heap's ruling of 2026-09-06T23:10Z, option
+labelled verbatim *"Tick on the recording"*, and his #900 ruling on a
+conditional tick trigger — or the NAMING of a successor and never its doing.
+**EXACTLY ONE SUCCESSOR IS OWED AND IT IS FILED, UNCLAIMED:**
+[#972](https://github.com/opensoft/openxFactory/issues/972) for § 6.1. § 6.2,
+§ 6.3 and § 6.4 owe none and none is filed for them.
+
+- [x] 6.1 **NOT TAKEN — A SUCCESSOR IS NAMED AND NOTHING IS EDITED.**
+      openxFactory [#972](https://github.com/opensoft/openxFactory/issues/972)
+      is filed **UNCLAIMED** — filed for archive PR
+      [#973](https://github.com/opensoft/openxFactory/pull/973) and BEFORE it
+      was opened — naming all three sites, and neither
+      `scripts/doc_health/modified_block_currency.py` nor
+      `tests/doc-health/test_modified_block_currency.py` is touched by that
+      pull request. **THE THREE SITES ARE RE-MEASURED ON THE ARCHIVE
+      TREE AND THE RATIFIED LINE NUMBERS HOLD:** `suppression()`'s docstring at
+      **`:1432-1433`** (the `def` at `:1381`), the comment above the
+      fifth-ground predicate at **`:1535`** (the predicate at `:1538`), and the
+      docstring of `test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
+      at **`:2705-2706`** inside the `2698-2710` the box names (the `def` at
+      `:2697`). **AND ONE FIGURE IS ADDED THAT THE RATIFIED BOX DID NOT DRAW:**
+      a FOURTH occurrence of the phrase stands in those two files, at
+      `tests/doc-health/test_modified_block_currency.py:2603-2604` inside
+      `test_a_name_matching_a_unit_the_BLOCK_adds_reports_the_marker`, and it
+      is **NOT stale and NOT in scope** — it quotes what the FOURTH ground's
+      predecessor said before `amend-marker-declaring-nothing` overturned it,
+      correct as history. It is named in #972 so a later editor does not sweep
+      it by grep. THE SIBLING SEARCH WAS TAKEN BEFORE THE ISSUE WAS FILED, over
+      all **133** issues open and closed and over the active corpus: by title,
+      `comment`, `docstring`, `stale` and `prose` return #901 (a closed
+      comment-only residue of PR #890) and nothing on this; by body, *"nobody
+      has ruled"* returns **#914** and **#860** — the two rulings, not the
+      residue — and `modified_block_currency` and `test_a_MERGED_marker` return
+      **nothing at all**; on the corpus,
+      `grep -rl "nobody has ruled" openspec/changes/ --include='*.md'` outside
+      `/archive/` returns this packet's own four files and no other active
+      change.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **`scripts/doc_health/modified_block_currency.py` IS NOT EDITED, AND
       THREE PIECES OF PROSE GO STALE AT THE PROMOTION — TWO IN THE MODULE, ONE
       IN ITS TEST.** `suppression`'s docstring at `:1432` and the comment
       beside the fifth-ground predicate at `:1535`, both in the module itself,
@@ -416,7 +612,24 @@ Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
       surface and change its archive rule (`design.md` D4). A successor is
       NAMED at the archive act, on the tick-on-the-recording ruling of
       2026-09-06, naming all three sites.
-- [ ] 6.2 **`specs/019-modified-block-currency-family/` IS NOT EDITED, AND ITS
+- [x] 6.2 **NOT TAKEN — AND THE MEASUREMENT IS RE-TAKEN AT THE ARCHIVE RATHER
+      THAN CARRIED.** `specs/019-modified-block-currency-family/` is not touched
+      by the archive pull request. **FR-018 STILL MATCHES CANON AFTER THE
+      PROMOTION, WHICH IS THE FIGURE A READER WOULD WANT AND WHICH THE RATIFIED
+      BOX COULD NOT YET TAKE.** FR-018 (`spec.md:442`) quotes canon's
+      five-ground sentence and cites `openspec/specs/doc-health/spec.md`
+      **`:1745–1757`**. That sentence sits at canon **`:1754`** before this
+      promotion and at **`:1754`** after it — measured on the promoted file,
+      not inferred — because this packet's amendment lands BELOW it: the
+      promoted requirement grows from **581** lines to **633** and the file from
+      **3,882** lines to **3,934**, entirely after the cited range. So the
+      citation is unmoved, the quoted wording is unchanged, the ground count is
+      still FIVE, and **NO RESTATEMENT IS OWED**. openxFactory
+      [#915](https://github.com/opensoft/openxFactory/issues/915) is confirmed
+      **CLOSED** at the archive (`COMPLETED`, 2026-09-11T01:29:59Z), exactly as
+      the ratified box records, and nothing here widens or reopens its scope.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **`specs/019-modified-block-currency-family/` IS NOT EDITED, AND ITS
       FR-018 ALREADY MATCHES CANON — CHECKED ON THIS TREE RATHER THAN RECITED
       FROM THIS PACKET'S OWN AUTHORING NOTES.** FR-018 (`:442`) already states
       **ANY OF FIVE GROUNDS**, quoting canon's five-ground sentence verbatim
@@ -433,7 +646,24 @@ Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
       enumerated, not a sixth), so FR-018's five-ground count needs no further
       restatement on account of this delta, and nothing here widens or
       reopens #915's closed scope.
-- [ ] 6.3 **THE ESTATE-WIDE RUN IS NOT OWED.** The predecessor owed one because
+- [x] 6.3 **NOT TAKEN, AND NOT OWED — RE-MEASURED ON THE ARCHIVE TREE.** No
+      estate-wide run is performed and none is owed. **THE POPULATION IS ZERO
+      AND THAT IS NOW MEASURED RATHER THAN REASONED**: parsing every marker in
+      `openspec/**` with the family's own `parse_marker`, **16** markers are of
+      the `Merged into` form and **NONE** of them has an empty tail — including
+      the two standing in promoted canon (`openspec/specs/doc-health/spec.md`
+      and `openspec/specs/document-lifecycle/spec.md`), each of which names its
+      superseded title. So after this promotion canon carries **ZERO**
+      `Merged into` markers whose tail names no superseded title, and the
+      sentence this packet promotes reports nothing about any marker that
+      exists anywhere in this corpus — **which is exactly the point**: the
+      amendment states in canon a silence the checker already keeps. The
+      same-clock `doc-health` control confirms the direction on this
+      repository: the branch's finding set and `origin/main`'s are compared
+      line for line and the result is recorded in the pull request body; **0**
+      findings name this packet on either side.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE ESTATE-WIDE RUN IS NOT OWED.** The predecessor owed one because
       it ADDED two reporting grounds and a sibling repository's marker could
       have surfaced new advisory rows there. Both directions of THIS amendment
       are silence — no finding starts being emitted, none stops, no severity
@@ -441,7 +671,22 @@ Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
       lose a row and the uncited-resolution rule has nothing to fire on. The
       direction is bounded by construction and measured on this repository
       (§ 4.6).
-- [ ] 6.4 **THE PER-CLASS GRAIN OF THE UNCITED-RESOLUTION RULE IS NOT WIDENED.**
+- [x] 6.4 **NOT TAKEN — AND THE ONE FIGURE THAT MOVED SINCE RATIFICATION IS
+      DISCLOSED RATHER THAN CARRIED.** `report.uncited_resolutions` still keys
+      on `(family, repository, path)` and the archive pull request changes no
+      key, no predicate and no severity. **BUT openxFactory
+      [#893](https://github.com/opensoft/openxFactory/issues/893) IS NO LONGER
+      OPEN WORK, AND THE RATIFIED BOX'S "it is that issue's work" READS AS
+      HISTORY**: it was RULED and CLOSED as `COMPLETED` on
+      **2026-09-11T02:06:36Z** — Brett Heap, multiple choice in session, option
+      verbatim **"Grain is correct, close #893"** — with no code change, the
+      `(family, repository, path)` key affirmed as the intended contract. That
+      closure precedes this packet's own ratification and is disclosed here
+      because the box names #893 as a live owner of work that has since been
+      decided. **NOTHING FOLLOWS FROM IT FOR THIS PACKET**: the grain is not
+      widened here either, and no successor is owed or filed for this box.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE PER-CLASS GRAIN OF THE UNCITED-RESOLUTION RULE IS NOT WIDENED.**
       `report.uncited_resolutions` keys on `(family, repository, path)`; that is
       the shipped behaviour and promoted canon states it. Whether the checker
       SHOULD track disappearance at finding-class grain is openxFactory

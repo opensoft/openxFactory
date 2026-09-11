@@ -1774,17 +1774,25 @@ name matches SHALL NOT be reported for being named, an addition being text no
 arm of this family reads. THE FIFTH GROUND SHALL BE READ ON THE `Removed from
 canon` FORM ALONE: the pairing form names no units by construction, its whole
 tail being a reason, so a pairing marker carrying no code span declares exactly
-what that form declares and SHALL NOT be reported on this ground; and a `Merged
-into` marker whose tail names no superseded title is a question this
-requirement does not decide, its destination standing in the prefix where that
-form's declaration has always been read. THE SECOND GROUND SHALL BE READ
-NARROWLY, on the exact match and never on the span's position alone: a reason
-is prose and prose in this corpus quotes, so a code span inside a reason
-matching no unit of the requirement is the NORMAL FORM of a reason and SHALL
-NOT be reported. The second ground SHALL NOT withdraw the carriage arms from
-the unit the span would have named — the scenario below that keeps that unit
-subject to them stands unchanged — the report being added BESIDE the carriage
-and never in place of it.
+what that form declares and SHALL NOT be reported on this ground. AND A `Merged
+into` MARKER WHOSE TAIL NAMES NO SUPERSEDED TITLE IS SILENT BY RULE RATHER THAN
+BY OMISSION: that form declares its DESTINATION IN ITS PREFIX, complete before
+the closing colon and where this form's declaration has always been read, so
+the tail names what the destination ABSORBED and a marker whose tail names
+nothing has still declared everything the form obliges it to declare; it SHALL
+NOT be reported on the fifth ground, which is read on the `Removed from canon`
+form alone, and where its tail carries NO CODE SPAN AT ALL it reaches none of
+the other four either, each of those being read through a name or a quoted span
+such a tail does not carry — so NO ground fires on it and NO ground is added
+here; a code span its reason DOES quote remains subject to the second ground
+exactly as in every other marker. THE SECOND GROUND SHALL BE READ NARROWLY, on
+the exact match and never on the span's position alone: a reason is prose and
+prose in this corpus quotes, so a code span inside a reason matching no unit of
+the requirement is the NORMAL FORM of a reason and SHALL NOT be reported. The
+second ground SHALL NOT withdraw the carriage arms from the unit the span would
+have named — the scenario below that keeps that unit subject to them stands
+unchanged — the report being added BESIDE the carriage and never in place of
+it.
 
 **A named scenario TITLE carries its bullets with it ONLY IN A GENUINE
 REMOVAL.** Where a `Removed from canon` marker names a scenario title AND the
@@ -2045,29 +2053,67 @@ carries because that change removed them — match no unit of the requirement or
 this block, which is the third ground above reporting this block for copying a
 predecessor's declaration forward.
 
-**Removed from canon by amend-marker-declaring-nothing (2026-09-10):** ``A
-MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of them one
-finding at the `info` band this family's marker-defect class already carries:
-it names a unit the block still carries; or a code span standing INSIDE its
-reason matches EXACTLY a unit of the requirement's basis that the block does
-not carry and that no marker declares removed, the boundary above reading that
-span as prose rather than as a name, so that its author declared nothing about
-a unit they plainly had in mind; or it names something matching no unit of the
-requirement's basis and no unit of the block.``; `Each of the three is a
-declaration that does not describe the block, which is a declaration no reader
-can rely on, and a report on the MARKER is what points an author at the
-paragraph they wrote rather than at the unit it failed to declare.` — the first
-states the marker-defect grounds and the second counts them, so a fourth and a
-fifth ground cannot be added without replacing both: openxFactory issue #856
-reports a name matching a unit the block itself adds and no unit of canon, and
-issue #860 reports a marker of removal form whose tail carries no code span at
-all, and neither falls inside the three grounds the retired sentences state.
-Both units are REPLACED rather than dropped, by the sentences above that state
-five grounds, scope the fourth to the block's own addition and the fifth to the
-removal form, and leave the narrow reading of the second ground and the
-carriage it preserves word for word. Nothing else in this requirement is
-dropped, and this reason carries no code span so that the marker names exactly
-the two units listed before the separator.
+**AMENDED BY `amend-merged-into-empty-tail-standing` (2026-09-11).** Every
+paragraph and every scenario above this note stands exactly as promoted —
+`amend-marker-reason-boundary`'s, `amend-marker-defect-reporting`'s,
+`amend-modified-block-currency-standing`'s and
+`amend-marker-declaring-nothing`'s own notes and their narratives included —
+and the only promoted text this block changes is ONE SENTENCE OF ONE PARAGRAPH:
+the sentence that scopes the fifth ground to the `Removed from canon` form and
+then records the `Merged into` form's empty tail as a question this requirement
+does not decide. That sentence is REPLACED IN PLACE, carrying its removal-form
+scoping and its whole pairing-form exclusion word for word and dropping only
+the clause that says the question is undecided, because a clause saying so
+cannot stand beside the sentence that decides it; ONE SENTENCE IS ADDED beside
+it, stating the decision. ONE SCENARIO IS ADDED, at the END of the block,
+because a rule no scenario exercises is a rule the next author re-deriving this
+class has nothing to test against. NO GROUND IS ADDED AND NONE IS WITHDRAWN:
+the class still states FIVE grounds, and the added sentence is a PROHIBITION on
+reporting rather than a sixth ground written in the negative. No promoted
+scenario moves, is retitled or loses a bullet; no arm is added or removed, no
+severity moves, no threshold moves, no disposition rule changes, no parse and
+no marker grammar moves, this family's registration in the resolution table is
+untouched, and the set of trees over which this family speaks is not altered by
+one line. NO CODE MOVES EITHER, AND THAT IS MEASURED RATHER THAN PROMISED:
+`scripts/doc_health/modified_block_currency.py` already reports nothing on this
+shape — its fifth-ground predicate reads `marker.form == "removed"` and each of
+the other four is reached through `marker.names` or `marker.quoted`, both empty
+here — and
+`tests/doc-health/test_modified_block_currency.py::test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
+has pinned exactly that since 2026-09-10, so this block states in canon the
+behaviour the module already ships rather than asking for a new one. THE
+POPULATION IS ZERO, MEASURED RATHER THAN ASSUMED on 2026-09-11 over the corpus
+as it stood before this packet: of the 27 markers it carries — 15 of `Removed
+from canon` form, 3 of `Merged into` form and 9 of the pairing form — NOT ONE
+`Merged into` marker has a tail carrying no code span, and of the 29 active
+MODIFIED blocks this family reads exactly TWO carry a unit-naming marker at
+all, `add-chain-attestation` and `add-composed-view-authoring`, both `Merged
+into` and each naming one superseded title that matches its resolved basis. AND
+`amend-marker-declaring-nothing`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE, on this requirement's own rule that a marker is
+not a carriage unit in either direction: restating it would declare a removal
+this change did not perform, and its two named units — sentences canon no
+longer carries because that change removed them — match no unit of the
+requirement or of this block, which is the third ground above reporting this
+block for copying a predecessor's declaration forward.
+
+**Removed from canon by amend-merged-into-empty-tail-standing (2026-09-11):**
+``THE FIFTH GROUND SHALL BE READ ON THE `Removed from canon` FORM ALONE: the
+pairing form names no units by construction, its whole tail being a reason, so
+a pairing marker carrying no code span declares exactly what that form declares
+and SHALL NOT be reported on this ground; and a `Merged into` marker whose tail
+names no superseded title is a question this requirement does not decide, its
+destination standing in the prefix where that form's declaration has always
+been read.`` — the retired sentence scoped the fifth ground to the removal form
+and then said of the merge form's tail that whether it declares nothing, or
+declares a destination that absorbed nothing named in it, is a question this
+requirement does not decide. Brett Heap decided it on 2026-09-11, so that
+clause cannot stand beside the sentence stating the decision. The unit is
+REPLACED rather than dropped, by the sentence above that carries its
+removal-form scoping and its pairing-form exclusion word for word, and the
+decision is stated in ONE sentence added beside it. Nothing else in this
+requirement is dropped, and this reason carries no code span at all, so the
+marker names exactly the one unit standing before the separator.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
@@ -2175,6 +2221,12 @@ the two units listed before the separator.
 - **WHEN** a paragraph of `Removed from canon` marker form carries no code span after its closing colon, so that it names no unit and quotes none
 - **THEN** the run MUST report the marker itself in the `info` band, a declaration naming nothing being unusable as evidence about the block while the paragraph is exempt from carriage for being of marker form
 - **AND** a marker of the pairing form whose tail carries no code span MUST NOT be reported on this ground, that form naming no units by construction and its silence being correct
+
+#### Scenario: A merge marker's tail names no superseded title
+- **WHEN** a paragraph of `Merged into` marker form carries no code span after its closing colon, so that it names no superseded title and quotes none, its destination standing complete in its prefix
+- **THEN** the run MUST NOT report the marker on the fifth ground, that ground being read on the `Removed from canon` form alone, and MUST NOT report it on any of the other four either, each of those being reached through a name or a quoted span such a marker does not carry
+- **AND** the silence MUST be read as this requirement's ruling that such a marker declares what its form declares, rather than as a ground this requirement has left unwritten
+- **AND** a code span a `Merged into` marker's reason DOES quote MUST remain subject to the second ground, the silence covering a tail with no code span in it and not the form as such
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long
