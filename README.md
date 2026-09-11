@@ -530,6 +530,94 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-merged-into-empty-tail-standing](openspec/changes/amend-merged-into-empty-tail-standing/proposal.md)
+  — authored 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
+  openxFactory operator authority, verbatim *"Ratify as encoded"* — a
+  MULTIPLE-CHOICE ruling over `design.md` **D1** and **D2** with the
+  recommendation presented first, given in session and recorded on PR
+  [#947](https://github.com/opensoft/openxFactory/pull/947#issuecomment-5632913033)
+  at 2026-09-11T10:11:53Z, and on issue
+  [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5632913453)
+  at 2026-09-11T10:11:55Z). **D1 = the recommended and encoded sentence, with
+  its scenario; D2 = the marker as written.** Each is the option the packet
+  already encoded, so **THE WORDING STANDS UNCHANGED** and no delta byte was
+  re-written, restored or deleted. Records
+  `openspec/changes/amend-merged-into-empty-tail-standing/review/ratification-2026-09-11.md`
+  (`Status: ratified`), plus the six gate captures
+  `review/verification-2026-09-11.md`,
+  `review/verification-2026-09-11-post-merge.md`,
+  `review/verification-2026-09-11-final.md`,
+  `review/verification-2026-09-11-final-2.md`,
+  `review/verification-2026-09-11-final-3.md` and
+  `review/verification-2026-09-11-final-4.md` (all `Status: record`, each a
+  one-shot capture at its own dated path and none editing an earlier one —
+  FINAL-2 corrected the FINAL capture's arithmetic slip and re-measured on
+  the head that then landed; FINAL-3 is a short addendum recording a
+  subsequent merge from `main` (PR #960) but carried FINAL-2's aggregate-gate
+  figures forward without re-measuring them on the merged tree; FINAL-4 is
+  the current aggregate-gate evidence, re-measuring every gate for real on
+  the submitted head after two further merges from `main` (PR #969, then PR
+  #970) picked up while it was being taken).
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
+  unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
+  defined. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
+  earlier ruling of 2026-09-11, given in session by multiple choice (~01:3xZ),
+  verbatim ***"Rule the silence correct in canon"***, recorded on openxFactory
+  [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5628349929)
+  at 2026-09-11T02:06:38Z, which settled **`design.md` D1's DIRECTION ALONE**
+  — a `Merged into` marker declares its DESTINATION in its PREFIX and owes no
+  tail, so the silence is correct and canon is to say so — and **RATIFIED
+  NOTHING**: it was given before a sentence existed and approved no wording.
+  **CANON DID NOT SAY IT YET WHEN THIS PULL REQUEST WAS OPENED, AND THIS
+  RATIFICATION STILL DOES NOT MAKE IT SAY IT**: `openspec/specs/doc-health/spec.md`
+  still carries the clause calling the question undecided, and it carries it
+  until the ARCHIVE act promotes this block. Origin: openxFactory
+  [#914](https://github.com/opensoft/openxFactory/issues/914), filed UNCLAIMED
+  at the archive of `amend-marker-declaring-nothing`
+  ([#926](https://github.com/opensoft/openxFactory/pull/926) → `114d6e3d`),
+  which owed it as residue `tasks.md` § 7.1 and `design.md` D6. **ONE
+  `## MODIFIED Requirements` BLOCK, over ONE requirement, in ONE capability**:
+  `doc-health` § *Currency of an active change's MODIFIED requirement blocks*.
+  **ONE SENTENCE IS RETIRED AND REPLACED IN PLACE** — the fifth ground's scoping
+  sentence, whose tail clause called the merge form's empty tail *"a question
+  this requirement does not decide"* — and **ONE SENTENCE IS ADDED** beside it
+  stating the ruling, with **ONE SCENARIO** at the end of the block. **NO GROUND
+  IS ADDED AND NONE IS WITHDRAWN**: the class still states FIVE, and the added
+  sentence is a PROHIBITION (*SHALL NOT be reported*) written so it cannot be
+  read as a sixth ground; the silence is scoped at the SHAPE and never at the
+  FORM, a code span a merge marker's reason DOES quote staying subject to the
+  second ground. **NO CODE MOVES, AND THAT IS MEASURED**: `code_surface: none`,
+  because `scripts/doc_health/modified_block_currency.py` already reports
+  nothing on this shape — its fifth-ground predicate reads
+  `marker.form == "removed"` and the other four are reached through
+  `marker.names` or `marker.quoted`, both empty here — and
+  `tests/doc-health/test_modified_block_currency.py::test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
+  has pinned it since 2026-09-10; both are CITED and neither is edited.
+  **THE POPULATION OF THE RULED SHAPE IS ZERO**, measured on `main` @
+  `96b4835b` rather than assumed: 27 markers in the corpus — 15 of
+  `Removed from canon` form, 3 of `Merged into` form, 9 of the pairing form —
+  and NOT ONE `Merged into` marker has a tail carrying no code span; of the 29
+  active MODIFIED blocks this family reads, exactly TWO carry a unit-naming
+  marker at all. **TWO VETO POINTS WERE DECLARED AND BOTH ARE NOW RULED**:
+  `design.md` **D1**, the sentence's exact wording — RULED option A, the
+  recommended and encoded wording, against the sixth-ground alternative
+  written out and costed beside it — and `design.md` **D2**, the
+  `Removed from canon` marker, owed by MEASUREMENT rather than by preference —
+  RULED to stand as written: `derive_units` reads the whole fifth-ground
+  sentence as ONE body unit of 478 characters and this corpus has no
+  instrument for retiring a CLAUSE, so a pure addition would have left canon
+  saying it does not decide a question it then decides, two sentences apart.
+  The block is byte-faithful by CONSTRUCTION (sliced from canon, one exact
+  single-occurrence substitution, only the touched paragraph re-wrapped) and
+  the family's own derivation reads it: **165 canon units, 1 uncarried, named
+  by the marker and suppressed, 0 marker defects, 21 of 21 promoted scenario
+  titles carried**. **NOTHING IS PROMOTED BY THIS RATIFICATION**: it edits no
+  file under `openspec/specs/`, no script, no test, no contract and no
+  workflow. **`tasks.md` § 1 IS NOW TICKED** against the word of 2026-09-11 and
+  **§ 5 (archive) STAYS ENTIRELY OPEN**: promotion is a separate act on a
+  separate word, openxFactory #914 closes at the archive, and the pull
+  request carries `refs #914` and no closing keyword.
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
   Heap, openxFactory operator authority, first-hand, in session — a
