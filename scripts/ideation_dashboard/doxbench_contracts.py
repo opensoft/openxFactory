@@ -848,13 +848,25 @@ def _inventory_digests(root: Path, bundle: Any) -> dict[str, str]:
             continue
         relpath = entry.get("path")
         digest = entry.get("digest")
-        if not isinstance(relpath, str) or not isinstance(digest, str):
+        if not isinstance(relpath, str):
             continue
+        # SEEN IS RECORDED BEFORE THE DIGEST IS VALIDATED, not folded into the
+        # same `or` as the digest-type check: the duplicate rule answers for
+        # the PATH, and a path is declared twice whether or not either of its
+        # entries carries a usable digest. Checking digest type first let a
+        # first occurrence with an unusable digest fall through this `continue`
+        # WITHOUT joining `seen`, so a second, well-formed entry for the same
+        # path then found `relpath in seen` false and slipped through as if it
+        # were the only entry — silently returning a digest computed from a
+        # file that in fact declared the path twice, exactly the shape
+        # `HGR-RELEASE-PATH-DUPLICATE` exists to catch.
         if relpath in seen:
             raise ContractPinError(
                 f"{path}: release inventory carries more than one entry for "
                 f"{relpath}, so it does not record a single digest for it")
         seen.add(relpath)
+        if not isinstance(digest, str):
+            continue
         algorithm, _, hexdigest = digest.partition(":")
         if algorithm == "sha256" and hexdigest:
             digests[relpath] = hexdigest

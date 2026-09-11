@@ -749,6 +749,62 @@ def test_an_inventory_with_a_duplicate_path_refuses(fake_root, pinned_repo):
     assert relpath in message
 
 
+def test_a_duplicate_path_refuses_even_when_the_first_entry_has_a_bad_digest(
+        fake_root, pinned_repo):
+    """The duplicate rule answers for the PATH, not for whichever entry
+    happens to carry a usable digest. A first entry whose `digest` is not a
+    string must still mark its path SEEN — checking the digest's type before
+    joining `seen` let this entry fall through its own `continue` without
+    joining, so the second, well-formed entry for the same path found
+    `relpath in seen` false and slipped through as if it were the only entry,
+    silently returning a digest computed from a file that in fact declared the
+    path twice."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    relpath = f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}"
+    _write_inventory_entries(
+        fake_root / "contracts" / "releases" / f"{REMOVAL_TAG}.digests.yaml",
+        [
+            {"path": relpath, "digest": 12345},
+            {"path": relpath,
+             "digest":
+                 f"sha256:{contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]}"},
+        ],
+        bundle_tag=REMOVAL_TAG)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    message = str(excinfo.value)
+    assert "more than one entry" in message
+    assert relpath in message
+
+
+def test_a_duplicate_path_refuses_even_when_the_second_entry_has_a_bad_digest(
+        fake_root, pinned_repo):
+    """The symmetric ordering: a well-formed FIRST entry followed by a second
+    entry for the same path whose `digest` is not a string. Without `seen`
+    joined ahead of the digest-type check, the second entry's `continue` fired
+    before the duplicate check ever saw it, so the file's second declaration
+    of this path went unnoticed and the first entry's digest answered alone —
+    the same silent pick-a-winner the duplicate rule exists to refuse."""
+    _manifest_without_the_chat_turn_row(fake_root, REMOVAL_TAG)
+    relpath = f"contracts/schemas/{CHAT_TURN_SCHEMA_FILE}"
+    _write_inventory_entries(
+        fake_root / "contracts" / "releases" / f"{REMOVAL_TAG}.digests.yaml",
+        [
+            {"path": relpath,
+             "digest":
+                 f"sha256:{contracts.SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]}"},
+            {"path": relpath, "digest": 12345},
+        ],
+        bundle_tag=REMOVAL_TAG)
+
+    with pytest.raises(contracts.ContractPinError) as excinfo:
+        contracts.load_released_schemas(fake_root, repo_root=pinned_repo)
+    message = str(excinfo.value)
+    assert "more than one entry" in message
+    assert relpath in message
+
+
 def test_the_removed_row_set_is_the_five_the_cut_removed():
     """The set is a RECORD of what `contract-v4.0` removed, so it is pinned by
     name here: a sixth path added to it would widen the substitution past the
