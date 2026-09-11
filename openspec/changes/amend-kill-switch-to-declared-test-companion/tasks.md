@@ -43,6 +43,14 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       leaving no longer notices it leaving; and **D-3**, that the golden
       behaviour digest IS part of the declared companion, with the throw and the
       restore each recorded as a movement.
+- [ ] **1.3** On Brett Heap's ratifying word (1.1), and in ONE commit: ADD
+      `approved_by`/`approved_on` beside the drafting pair in `.openspec.yaml`
+      (`kind` and `id` unmoved; `document-lifecycle` § Proposal origin
+      declaration), flip every `Status: draft` header in this packet to
+      `Status: ratified` + `Ratified by:` with the citation, write
+      `review/ratification-<date>.md` carrying `Status: ratified` and ONE
+      citation of the word, and move the README row's status. The lane
+      encodes; the word is his.
 
 ## 2. The filing — what this pull request contains
 
@@ -51,8 +59,10 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       `### Requirement: An enrolled autonomous lane carries a one-edit kill
       switch`, whose first body line carries **SHALL**, and which keeps every
       parent scenario's intent — the amended "Withdrawing an enrolment", the
-      unchanged "A kill switch outside the diff", and two added scenarios — with
-      nothing silently dropped.
+      restated and BROADENED "A kill switch outside the diff" (the parent's
+      "repository or environment setting" widened to name secrets and any
+      other value that does not appear in a reviewable diff), and two added
+      scenarios — with nothing silently dropped.
 - [ ] **2.2** `proposal.md`'s SECOND heading states the supersession in its own
       words: **THIS FILING AMENDS A RATIFIED DECISION (N-4) BY SUPERSESSION, AND
       SAYS SO HERE**, quoting N-4 verbatim and naming the clause that is
@@ -71,11 +81,16 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       `main` — requiring `--all --strict` clean outright is unsatisfiable: the
       repository's gate is per-change strict-clean plus `--all --strict` with
       the failure set unchanged from `main`. Measured 2026-09-11 against
-      `main` at `54c166cf`: 3 pre-existing failures
+      `main` at `54c166cf` and re-measured at `78d2c6f5` after this branch
+      merged main: 3 pre-existing failures, stable across both
       (`change/disposition-codexfactory-declared-renames`,
       `change/disposition-codexfactory-floor-relocation-retitle`,
       `spec/repo-boundary-governance`), none of them this packet's own; this
-      branch measures the same 3 and no others.
+      branch measures the same 3 and no others. This pull request also moves
+      two bookkeeping rows in `tests/sequenced_after/corpus-ledger.yaml` —
+      its own row and the parent's `sole` → `co-modifier` flip — seeded by
+      `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`;
+      they carry no requirement and no grant.
 
 ## 3. Realization — NOT PERFORMED BY THIS PULL REQUEST; a codexFactory companion change, authored by that repository's lane after ratification
 

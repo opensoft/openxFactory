@@ -102,17 +102,18 @@ the act measurably takes one edit plus twenty-nine failing assertions across
 five test files, plus a sixth file — the golden digest — that moves with
 them, none of it declared.
 
-**Two of the six files are not ordinary code**, and this is why the answer is a
+**Two things in that set are not ordinary code**, and this is why the answer is a
 DECLARATION rather than a loosening:
 
 1. the **golden behaviour digest** — every movement of it is individually
    reasoned in `test_behaviour_snapshot.py`, where this enrolment is recorded as
    "the SIXTH movement"; and
-2. `test_S_the_kill_switch_is_not_held_outside_the_diff` — the **scenario test
-   for this very requirement**, asserting that the switch IS the reviewed
-   declaration. It fails on the throw only because it looks the entry up by id.
-   A scenario test that reds when its own scenario is exercised is the sharpest
-   possible statement of the gap.
+2. `test_S_the_kill_switch_is_not_held_outside_the_diff`, in
+   `test_floor_regeneration_enrolment.py` — the **scenario test for this very
+   requirement**, asserting that the switch IS the reviewed declaration. It
+   fails on the throw only because it looks the entry up by id. A scenario
+   test that reds when its own scenario is exercised is the sharpest possible
+   statement of the gap.
 
 **What the measurement settles about the parent scenario's wording.**
 `_find_surface` matches on repository AND head ref only — **never on author** —
@@ -160,9 +161,28 @@ The requirement gains, in the delta:
   checks — which is the measured defect, stated as a rule;
 - the **amended** scenario "Withdrawing an enrolment", written to what is
   observable (no envelope decision, human merge gate, no comment);
-- the **unchanged** scenario "A kill switch outside the diff";
+- the restated and **BROADENED** scenario "A kill switch outside the diff" —
+  the parent's "repository or environment setting" is widened to name
+  secrets and any other value that does not appear in a reviewable diff;
 - two **new** scenarios: "The companion is declared beside the declaration" and
   "An undeclared companion is a finding against the enrolment".
+
+**The widening, declared explicitly.** The parent refused a switch held in "a
+repository or environment setting". This packet's restated scenario refuses a
+switch held in "a repository variable, a secret, an environment setting or
+any other value that does not appear in a reviewable diff" — SECRETS and a
+general reviewable-diff catch-all are newly named, closing two gaps the
+parent's enumeration left open. The requirement's own body paragraph already
+carried this fuller enumeration (`not a repository or organization variable,
+not a secret, not an environment setting, not a platform toggle, and not any
+store whose change leaves no reviewable record`); the scenario is restated to
+match it rather than left narrower than the requirement it tests.
+
+**The per-change sweep ledger also moves.** This pull request carries two
+bookkeeping rows in `tests/sequenced_after/corpus-ledger.yaml` — this
+packet's own row, and the parent's `sole` → `co-modifier` flip — seeded by
+`scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`. They
+carry no requirement and no grant.
 
 Every parent scenario's intent is kept. Nothing is silently dropped.
 

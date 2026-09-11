@@ -471,7 +471,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   It is the same pull request § 3.1 observes reaching `approve`; § 3.1 stays open
   only on its class-naming clause, which says nothing about the merge. Recorded
   on openxFactory #745 (comment 5611865800) and codexFactory #232.
-- [ ] 3.3 Observe a park on a candidate that should NOT be approved, and confirm
+- [x] 3.3 Observe a park on a candidate that should NOT be approved, and confirm
   it parks for the stated reason rather than by accident. A negative control that
   measures nothing proves nothing — construct it so the SAME inputs the shipped
   condition reads are the ones the control varies.
@@ -492,6 +492,26 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   condition that was actually unmet, so it does not confirm a park "for the
   stated reason". **The box asks for a CONSTRUCTED control and neither of these
   was constructed.** Both are recorded so the next author starts from evidence.
+  **2026-09-11 — OBSERVED and TICKED (PR #957) under Brett Heap's
+  selection "Do 3.3 and 3.6" (2026-09-11 ~01:15Z, in session,
+  multi-choice).** Constructed negative control
+  codeXfactory/codexFactory #382 (head 24964a1d on floor/bot-regeneration,
+  base main, author brettheap, changed paths exactly
+  floor/openxfactory-review-authority-floor.yaml; one input varied — the
+  author), opened 02:31:12Z, closed unmerged 02:41:27Z, branch deleted.
+  merge-master-approval run 34554938749 eval decision JSON, verbatim:
+  tier1.is_candidate true; checked.surface
+  "openxfactory-floor-regeneration"; checked.same_repository true;
+  checked.expected_author false; failed_condition "expected_author";
+  reason "author 'brettheap' != expected 'openxfactory[bot]'"; the plural
+  failed_conditions key ABSENT (envelope.py emits it only for more than
+  one failing condition) → exactly one condition failed, every gate ahead
+  of it held; no approval submitted; sticky comment 5628568909 renders
+  "Candidate class: openxfactory-floor-regeneration" (first live read of
+  #369's fix, on the PARK path — not box 3.1's APPROVE rendering).
+  Recorded on openxFactory #745 (RESULT 03:08Z
+  https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628853801)
+  and codexFactory #232.
 - [ ] 3.4 Confirm the openxFactory re-pin pull request of that same cycle still
   waits for a human word under the recommended scope, and that its
   merge-master-approval run reports the floor refusal rather than an envelope
@@ -521,6 +541,21 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   remove the candidate entry, confirm the next bot pull request parks for a
   human, restore it, confirm approval resumes. A switch never thrown is a switch
   nobody knows works.
+  **2026-09-11 — MEASURED, NOT THROWN; FINDING ACCEPTED, SUCCESSOR NAMED
+  (Brett Heap, ~03:40Z, in session, multi-choice: "Accept the finding;
+  file a successor"; recorded on #745 5632569506).** design.md N-4 says
+  the kill switch "takes one edit"; measured in a throwaway clone at
+  codexFactory main 0ad92bd5, deleting only the candidate mapping
+  (envelope lines 173–356) turns tests/merge-master from 3993 passed to
+  29 failed / 3964 passed across 5 files
+  (test_floor_regeneration_enrolment.py 17, test_enrolled_surface_config.py
+  7, test_behaviour_snapshot.py 3 — a golden digest, test_caller_workflows.py
+  1, test_class_floor_differential.py 1), inside the REQUIRED validate check
+  (scripts/validate-docs.sh:217); a one-edit throw is not landable; no bot
+  cycle existed to observe ("nothing owed" hourly since
+  2026-09-10T17:22Z). The switch was NOT thrown; the entry is intact.
+  Successor: amend-kill-switch-to-declared-test-companion (filing in
+  flight). This box waits for that successor and a real bot cycle.
 
 ## 4. Archive evidence
 
@@ -853,3 +888,20 @@ exercise in flight under a sibling lane pull request on this same file.
 Group 5 (owner's acts) is now entirely ticked. **The packet is NOT
 archived** — § 4.4 (archive through `proposal-support`) is separately open
 by its own text and this PR does not touch it.
+
+### 2026-09-11 — Box 3.3 ticked on the measured negative control; box 3.6's finding recorded
+
+**APPENDED, NOT A REWRITE.** The three-selection ruling above stands as
+written; this is a later, separate act on the same day. Box 3.3 is TICKED
+on the measured negative control (cxF #382 / run 34554938749), evidence
+recorded under the box. Box 3.6 is NOT ticked — the finding (kill switch
+NOT THROWN; a one-edit throw is not landable against the REQUIRED
+`tests/merge-master` suite) is ACCEPTED (Brett Heap, ~03:40Z, "Accept the
+finding; file a successor") and recorded under its own box, with the
+successor `amend-kill-switch-to-declared-test-companion` named.
+
+**THE CHECKLIST STATE AFTER THIS PR:** open by their own text — 3.1, 3.4,
+3.6, 4.1, 4.2, 4.4 (confirmed by `grep -n '^- \[ \]'`). Every other
+numbered box is ticked or N/A. **The packet is NOT archived** — § 4.4
+(archive through `proposal-support`) is separately open by its own text
+and this PR does not touch it.

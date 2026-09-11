@@ -66,8 +66,8 @@ origin:
     ruling on #745 / codexFactory #232 — not an `ideation/staging/` topic
     folder. `kind: staged` would claim a staging source that does not resolve.
   proposed_by: >-
-    Lane `openxfactory-2` (display `openXfactory-2`), session `c07ed656`
-    (window `openxfactory-f7`), on Brett Heap's SELECTION of 2026-09-11
+    Lane `openxfactory-2` (display `openXfactory-2`), session `c07ed656`,
+    on Brett Heap's SELECTION of 2026-09-11
     ~03:40Z, "Accept the finding; file a successor". NO APPROVAL PAIR IS
     DECLARED AND NONE IS IMPLIED: that selection commissioned the FILING of a
     successor and nothing else. The lawful unapproved shape is the one
@@ -98,4 +98,4 @@ related:
   - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes    # ACTIVE, ratified 2026-09-07 (PR #746), UNARCHIVED. THE PARENT: this packet amends its decision N-4 and the requirement "An enrolled autonomous lane carries a one-edit kill switch" that its `specs/roles-authority-model/spec.md` delta ADDS at lines 53-65, so the `## MODIFIED` targets a sibling's addition and this packet SHALL NOT archive before it promotes. Its box 3.6 is the OBSERVATION this packet unblocks, and is NOT ticked here
   - openxFactory:change:admit-review-lane-repin-to-merge-approval-envelope # ACTIVE, ratified with amendment 2026-09-11 (PR #943). The SECOND enrolment successor: it admits a further candidate class to the same envelope, so the companion-declaration rule this packet proposes would bind its enrolment too at realization
   - openxFactory:change:amend-mirror-floor-regeneration-merge-authority    # ACTIVE, ratified 2026-09-08, realized INERT 2026-09-09. The FORM PRECEDENT for a `## MODIFIED` against a then-unarchived parent via `sequenced_after`, and the packet whose box 4.3 named the enrolment successor above
-  - openxFactory:change:govern-sibling-added-modified-deltas               # The rule under which a `## MODIFIED` over a sibling's unarchived ADDITION must declare the pairing per requirement, which this packet's delta does in its closing block
+  - openxFactory:change:archive/2026-09-02-govern-sibling-added-modified-deltas # The rule under which a `## MODIFIED` over a sibling's unarchived ADDITION must declare the pairing per requirement, which this packet's delta does in its closing block

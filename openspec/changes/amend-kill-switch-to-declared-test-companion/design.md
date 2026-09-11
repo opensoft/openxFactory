@@ -266,8 +266,9 @@ Stated as refusals so that a later reader can see they were considered:
 - **no contract bundle, no `contract_bundle_version`, no tag, no pin, no digest
   movement** in openxFactory;
 - **no edit to the parent packet** `extend-merge-master-envelope-to-floor-bot-lanes`
-  — its `tasks.md` is being moved by open PR #957 and a conflict would be this
-  lane's fault — and therefore **no tick of its box 3.6 here**.
+  — its `tasks.md` was moved by PR #957, merged 2026-09-11T10:50:23Z
+  (`54c166cf`); this packet takes its merge-from-main rather than re-writing
+  that file — and therefore **no tick of its box 3.6 here**.
 
 ## 3. What this does to parent box 3.6's procedure
 
