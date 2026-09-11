@@ -95,6 +95,46 @@ def test_the_profile_loads_through_the_engines_own_loader():
     assert profile.declared_by == "opensoft/openxFactory"
 
 
+#: The SCHEMA, at the enforcement side. RULED ASK-4 Q2 put it at openXdox-spec
+#: and kept the engine from carrying a copy ("the schema lives at openXdox-spec
+#: and a copy here would be a second declaration free to drift"), which leaves
+#: the CONSUMER to check its own declaration against it — and openxFactory can,
+#: because it mounts the spec leg as part of the openXdox assembly root it pins.
+PROFILE_SCHEMA_PATH = (REPO_ROOT / "openXdox" / "spec" / "contracts"
+                       / "schemas" / "domain-profile.schema.yaml")
+
+
+def test_the_profile_validates_against_the_openxdox_spec_schema():
+    """The declaration checked against the SCHEMA, not only against the loader.
+
+    `openxdox.domain_profile.load()` is deliberately permissive in one
+    direction — it "reads the fields it knows and ignores unrecognized ones",
+    so a profile written against a later schema revision still loads — and it
+    carries no copy of the schema at all (RULED ASK-4 Q2). That is the right
+    shape for the ENGINE and it leaves a gap at the CONSUMER: a key misspelt,
+    a required field omitted, or a value outside an enum can load clean and
+    answer wrong. This repository pins the openXdox assembly root and mounts
+    its `spec` leg, so the schema is on disk at the very commit
+    `contracts/openxdox-pin.yaml` names, and the check is a local read rather
+    than a promise.
+
+    Skipped rather than silently passed where `jsonschema` is absent, and the
+    two files are asserted present first: a schema that has moved out from
+    under this test must fail here, not vacuously pass."""
+    jsonschema = pytest.importorskip("jsonschema")
+    assert PROFILE_SCHEMA_PATH.is_file(), (
+        f"{PROFILE_SCHEMA_PATH} is missing — the openXdox `spec` leg is not "
+        "materialized, or the schema moved; either way this test must not "
+        "pass without reading it")
+    schema = yaml.safe_load(PROFILE_SCHEMA_PATH.read_text(encoding="utf-8"))
+    document = yaml.safe_load(PROFILE_PATH.read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(document), key=lambda e: list(e.path))
+    assert errors == [], "\n".join(
+        f"{'/'.join(str(part) for part in error.path) or '<root>'}: "
+        f"{error.message}" for error in errors)
+
+
 def test_the_profile_declares_exactly_the_controlled_taxonomy():
     """The nine words, and no tenth.
 
