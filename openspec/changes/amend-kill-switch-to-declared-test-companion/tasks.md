@@ -157,8 +157,9 @@ codexFactory**, authored there, exactly as
       BEFORE opening that pull request, exactly which assertions and which
       artefacts the withdrawal will move. APPLYING the companion is a LATER and
       SEPARATE act, in a later pull request, defined once at **3.6** below.
-- [ ] **3.2 The conformance test — ONE PROCEDURE, FIVE NUMBERED STEPS, IN THIS
-      ORDER, RUN PER ENROLLED CLASS.** ONE codexFactory test that, per D-2c's
+- [ ] **3.2 The conformance test — ONE PROCEDURE, FIVE NUMBERED STEPS — STEP 2
+      IN TWO LETTERED HALVES, THE CONTROL RUN (2a) BEFORE THE WITHDRAWAL (2b) —
+      IN THIS ORDER, RUN PER ENROLLED CLASS.** ONE codexFactory test that, per D-2c's
       grammar and for **EACH enrolled candidate class**, performs exactly the
       sequence below. **THE ORDER IS PART OF THE RULE**: every later step
       consumes what an earlier step captured or committed, so a step taken out of
@@ -203,15 +204,37 @@ codexFactory**, authored there, exactly as
       A refusal at EITHER stage FAILS THE CHECK, NAMING THE REFUSAL CLASS AND THE
       OFFENDING DECLARATION, exactly as an unresolvable identifier does.
       The captured sets are the expected values every later step compares
-      against: step 2 removes those very comment lines from the tree being
+      against: step 2b removes those very comment lines from the tree being
       measured, so a test that has not captured them first has no declaration
       left to compare against.
-      **STEP 2 — WITHDRAW THAT CLASS ALONE AND COMMIT THE BASELINE.** In the
+      **STEP 2a — CONTROL: COMMIT THE PRE-WITHDRAWAL TREE AND PROVE EVERY
+      ALLOWLISTED TOOL A NO-OP ON IT, BEFORE ANY WITHDRAWAL IS MEASURED.** In the
+      scratch tree, **AS IT STANDS PRE-WITHDRAWAL**, `git commit` it as the
+      **CONTROL BASELINE**; then run **EVERY identifier in the allowlist table**
+      against that control baseline through step 4's own loop — BARRIER, then
+      RUN, then INVENTORY, one tool at a time, the same loop and the same
+      inventory call — and REQUIRE **EVERY CONTROL INVENTORY TO BE EMPTY**. An
+      allowlisted recording tool is REQUIRED to be **DETERMINISTIC AND
+      IDEMPOTENT**: run on the tree it was last run on, it writes nothing. **A
+      NON-EMPTY CONTROL INVENTORY IS A CONFORMANCE FAILURE AGAINST THAT
+      IDENTIFIER**, recorded BEFORE the withdrawal is measured, and **ONLY AN
+      IDENTIFIER THAT PASSED THE CONTROL RUN HAS ITS POST-WITHDRAWAL DELTA
+      COUNTED** — a failing identifier is a finding in its own right, never a
+      pair in step 4's measured set.
+      Without this control the artefact equality NEVER PROVES THE PATH MOVED
+      **BECAUSE OF** THE WITHDRAWAL: a generator that rewrites its output on
+      EVERY run — a recorded timestamp, a nonce, an unordered map — produces its
+      delta whatever the tree holds, and step 4 would attribute that delta to the
+      class exactly as it attributes a real movement, so the declaration would
+      pin an artefact the withdrawal never moved. With it, **EVERY ATTRIBUTED
+      PATH IS ONE THE WITHDRAWAL CAUSED**.
+      **STEP 2b — WITHDRAW THAT CLASS ALONE AND COMMIT THE MEASUREMENT
+      BASELINE.** In the same
       scratch tree remove THAT class's candidate mapping and its companion
       comment lines and **nothing else**, and `git commit` that withdrawal as the
       **BASELINE COMMIT**. EVERY measurement below is taken in that committed
       tree and against that commit.
-      **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY WITH A FIXED
+      **BOTH COMMITS ARE MADE IN ONE HERMETIC SCRATCH REPOSITORY WITH A FIXED
       IDENTITY AND NO INHERITED CONFIGURATION, HOOKS OR SIGNING.** The scratch
       tree is a repository OF ITS OWN — `git init`-ed there, or a `git worktree`
       whose PRIVATE git directory is NAMED ON EVERY CALL rather than exported
@@ -237,7 +260,8 @@ codexFactory**, authored there, exactly as
       tree it never withdrew anything from — a GREEN check on the WRONG tree,
       which is worse than a red one.
       **THE SAME ENVIRONMENT GOVERNS step 4's `git status` inventory and reset
-      calls**. This is
+      calls, AND step 2a's CONTROL LOOP, WHICH IS THAT SAME LOOP RUN AGAINST THE
+      CONTROL BASELINE**. This is
       not a precaution in the abstract — this repository already records the
       failure: a CI runner carries NO ambient git identity, so an un-pinned
       scratch commit dies there with `Author identity unknown` while passing on a
@@ -365,7 +389,9 @@ codexFactory**, authored there, exactly as
       **STEP 5 — RECORD THE RESULT.** Report, per class, BOTH equalities and the
       non-emptiness result, and NAME THE CLASS AND THE STEP in any failure (step
       1 an unresolvable identifier, a self-naming node id, or a REFUSED ARTEFACT
-      PATH — naming the refusal class and the offending declaration; step 3 an
+      PATH — naming the refusal class and the offending declaration; step 2a a
+      NON-EMPTY CONTROL INVENTORY — naming the NON-DETERMINISTIC identifier and
+      the paths it rewrote on an unchanged tree; step 3 an
       assertion-set inequality or an empty measured set; step 4 an
       artefact-PAIR-set inequality, naming the offending `(identifier, path)`
       pairs), so a red check says WHICH enrolment failed and WHERE rather
@@ -411,11 +437,19 @@ codexFactory**, authored there, exactly as
       `# companion-artefact:`, the file AS PRODUCED BY ITS OWN ALLOWLISTED
       REGENERATION (3.1's identifier table), with the golden digest's movement
       recorded in its movement log AS THE THROW (`design.md` D-3).
-      **"AND NOTHING ELSE" IS A MEASURABLE BOUND, not an assurance:** the paths
-      `git diff --name-only` reports for the throw pull request lie WITHIN the
-      union of the envelope, the files holding the declared `# companion:` node
-      ids, and the declared `# companion-artefact:` paths — and NO ASSERTION
-      OUTSIDE THE DECLARED SET CHANGES.
+      **"AND NOTHING ELSE" IS A MEASURABLE BOUND, not an assurance, AND IT BINDS
+      AT TWO LEVELS.** **(a) AT THE PATH LEVEL:** the paths `git diff
+      --name-only` reports for the throw pull request lie WITHIN the union of the
+      envelope, the files holding the declared `# companion:` node ids, and the
+      declared `# companion-artefact:` paths. **(b) AT THE ASSERTION LEVEL:**
+      WITHIN a declared assertion's OWN FILE, NOTHING MOVES BUT THE DECLARED NODE
+      IDS' EXPECTATIONS — no other assertion, no fixture, no helper and no import
+      changes. The path-level bound ALONE is not the bound: it is satisfied by a
+      throw that rewrites an UNDECLARED assertion inside a DECLARED file, which
+      is exactly the change the declaration exists to bound. **BOTH LEVELS ARE
+      VERIFIED BY THE THROW PULL REQUEST'S REVIEWERS READING THE DIFF HUNK BY
+      HUNK AGAINST THE DECLARATION**, and a withdrawal that breaches EITHER LEVEL
+      IS REFUSED.
       **LANDABILITY IS THEN A CONSEQUENCE, not a further hope:** every assertion
       that would fail is one this pull request re-targets, and every artefact
       that would move is one it regenerates, so codexFactory's required

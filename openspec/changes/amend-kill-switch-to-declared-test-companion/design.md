@@ -250,12 +250,13 @@ candidate's `id:` line, or to the end of the candidates list. **Nothing else
 counts as a declaration** — not a comment elsewhere in the file, not a separate
 file, not a line held in a test.
 
-**And the check is ONE PROCEDURE OF FIVE STEPS IN A FIXED ORDER (D-2b, stated
+**And the check is ONE PROCEDURE OF FIVE STEPS IN A FIXED ORDER — STEP 2 IN TWO
+LETTERED HALVES, THE CONTROL RUN (2a) BEFORE THE WITHDRAWAL (2b) — (D-2b, stated
 exactly here; `tasks.md` § 3.2 carries the same five steps as the realizing
 task's own statement of them, and every other mention in this packet points at
-that one). It is two equalities plus a non-emptiness rule, and THE ORDER IS PART
-OF THE DESIGN rather than an incidental sequencing: every later step consumes
-what an earlier step captured or committed.**
+that one). It is two equalities, a DETERMINISM CONTROL and a non-emptiness rule,
+and THE ORDER IS PART OF THE DESIGN rather than an incidental sequencing: every
+later step consumes what an earlier step captured or committed.**
 
 1. **CAPTURE THE DECLARATIONS, BEFORE ANYTHING IS EDITED.** Parse the envelope
    AS IT STANDS PRE-WITHDRAWAL and retain, for that class and by the discovery
@@ -275,17 +276,36 @@ what an earlier step captured or committed.**
    declaration, rather than the declaration being read or existence-checked
    outside the checkout. The
    reason this is FIRST is mechanical:
-   step 2 removes those very comment lines from the tree being measured, so a
+   step 2b removes those very comment lines from the tree being measured, so a
    test that has not already captured them has no declaration left to compare
    against — the expected values are the CAPTURED ones, never re-read from the
    withdrawn tree.
-2. **WITHDRAW AND COMMIT THE BASELINE, BECAUSE WITHOUT IT THE ARTEFACT EQUALITY
-   CAN NEVER HOLD.** In the scratch tree, APPLY THE WITHDRAWAL — that class's
+2. **2a — CONTROL: COMMIT THE PRE-WITHDRAWAL TREE AND PROVE EVERY ALLOWLISTED
+   TOOL A NO-OP ON IT; THEN 2b — WITHDRAW AND COMMIT THE BASELINE, BECAUSE
+   WITHOUT IT THE ARTEFACT EQUALITY CAN NEVER HOLD.**
+   **2a — THE CONTROL RUN, AND IT COMES FIRST BECAUSE IT IS WHAT MAKES EVERY
+   LATER DELTA ATTRIBUTABLE TO THE WITHDRAWAL AT ALL.** In the hermetic scratch
+   repository this step constructs (below), COMMIT THE TREE AS IT STANDS
+   PRE-WITHDRAWAL as the **CONTROL BASELINE**; then run **EVERY identifier in the
+   allowlist table** against that control baseline through the SAME loop step 4
+   fixes — BARRIER, then RUN, then INVENTORY, one tool at a time — and REQUIRE
+   **EVERY CONTROL INVENTORY TO BE EMPTY**. An allowlisted recording tool is
+   REQUIRED to be DETERMINISTIC AND IDEMPOTENT: run on the tree it was last run
+   on, it writes nothing. **A NON-EMPTY CONTROL INVENTORY IS A CONFORMANCE
+   FAILURE AGAINST THAT IDENTIFIER**, recorded BEFORE the withdrawal is measured,
+   and **ONLY AN IDENTIFIER THAT PASSED THE CONTROL RUN HAS ITS POST-WITHDRAWAL
+   DELTA COUNTED**. Without it the artefact equality never establishes that a
+   path moved BECAUSE OF the withdrawal: a generator that rewrites its output on
+   EVERY run — a recorded timestamp, a nonce, an unordered map — produces its
+   delta whatever the tree holds, and step 4 would attribute that delta to the
+   class exactly as it attributes a real movement. With it, every attributed path
+   is one THE WITHDRAWAL CAUSED.
+   **2b — THE WITHDRAWAL AND ITS BASELINE.** In the scratch tree, APPLY THE WITHDRAWAL — that class's
    candidate mapping and its companion comment lines removed, and nothing else —
    and **COMMIT IT AS THE BASELINE COMMIT**. Every measurement below is taken in
    that committed tree and against that commit.
-   **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY, NEVER IN AN INHERITED
-   GIT ENVIRONMENT.** The scratch tree is a repository OF ITS OWN — `git init`-ed
+   **BOTH COMMITS ARE MADE IN ONE HERMETIC SCRATCH REPOSITORY, NEVER IN AN
+   INHERITED GIT ENVIRONMENT.** The scratch tree is a repository OF ITS OWN — `git init`-ed
    there, or a `git worktree` whose PRIVATE git directory is NAMED ON EVERY CALL
    rather than exported into the environment — carrying
    repository-LOCAL `user.name` and `user.email` set to FIXED TEST CONSTANTS,
@@ -306,7 +326,8 @@ what an earlier step captured or committed.**
    scratch commit and the step-4 diffs at ANOTHER repository, and the procedure
    then measures a tree it never withdrew anything from — a green check on the
    wrong tree, which is worse than a red one. THE SAME ENVIRONMENT GOVERNS
-   step 4's `git status` inventory and reset calls.
+   step 4's `git status` inventory and reset calls, and 2a's control loop, which
+   is that same loop run against the control baseline.
    This repository already records why, and the precedent is cited rather
    than paraphrased: a CI runner carries no ambient git identity, so an un-pinned
    scratch commit dies there with `Author identity unknown` while passing on a
@@ -410,7 +431,9 @@ what an earlier step captured or committed.**
    withdrawal writes nothing and so contributes no pair at all.
 5. **RECORD THE RESULT.** Both equalities and the non-emptiness result are
    reported per class, and any failure NAMES THE CLASS AND THE STEP — a step-1
-   refusal naming its refusal class and the offending declaration, a step-4
+   refusal naming its refusal class and the offending declaration, a step-2a
+   non-empty control inventory naming the NON-DETERMINISTIC identifier and the
+   paths it rewrote on an unchanged tree, a step-4
    inequality naming the offending `(identifier, path)` pairs — so the red check
    says which enrolment failed and where rather than only that the conformance
    test failed.
@@ -506,10 +529,17 @@ reader of the design should not have to reconstruct it:
   the enrolments that remain; (iii) for EACH declared `# companion-artefact:`,
   the file as produced by its own allowlisted regeneration, the golden digest's
   movement recorded in its movement log as the throw (D-3);
-- **"and nothing else" is measurable, not an assurance**: the paths `git diff
-  --name-only` reports for that pull request lie within the union of the
-  envelope, the files holding the declared node ids and the declared artefact
-  paths, and no assertion outside the declared set changes;
+- **"and nothing else" is measurable, not an assurance, AND IT BINDS AT TWO
+  LEVELS**: (a) AT THE PATH LEVEL, the paths `git diff --name-only` reports for
+  that pull request lie within the union of the envelope, the files holding the
+  declared node ids and the declared artefact paths; and (b) AT THE ASSERTION
+  LEVEL, within a declared assertion's OWN FILE nothing moves but the declared
+  node ids' EXPECTATIONS — no other assertion, no fixture, no helper and no
+  import changes. The path-level bound alone is not the bound: it is satisfied by
+  a throw that rewrites an UNDECLARED assertion inside a DECLARED file. Both
+  levels are verified by the throw pull request's reviewers reading the diff
+  HUNK BY HUNK against the declaration, and a withdrawal that breaches either
+  level is refused;
 - **landability follows rather than being hoped for**: every assertion that
   would fail is one the pull request re-targets and every artefact that would
   move is one it regenerates, so the required `validate` check passes on the
@@ -539,8 +569,13 @@ inventory with the conformance module excluded BY PATH; per-identifier
 attribution as (identifier, path) PAIRS over the FULL working-tree delta, ignored
 and untracked paths included; allowlisted identifiers resolved ONLY in
 trusted test code; artefact paths refused LEXICALLY and then CONTAINED; index AND
-worktree reset between tools; NON-EMPTINESS; and the two equalities with their
-failure classes. **THE EXACT COMMANDS, FLAGS AND HELPER LAYOUT ARE THE
+worktree reset between tools; THE DETERMINISM AND IDEMPOTENCE OF EVERY
+ALLOWLISTED RECORDING TOOL, PROVED BY A CONTROL RUN ON THE COMMITTED
+PRE-WITHDRAWAL TREE WHOSE INVENTORIES MUST BE EMPTY — **AN INVARIANT, NOT A
+MECHANIC**: what the control run must ESTABLISH is fixed here, while HOW it is
+issued is the companion's to specify, and without it no post-withdrawal delta is
+attributable to the withdrawal at all; NON-EMPTINESS; and the two equalities with
+their failure classes. **THE EXACT COMMANDS, FLAGS AND HELPER LAYOUT ARE THE
 codexFactory COMPANION CHANGE'S DESIGN TO SPECIFY AND ITS REVIEWERS TO JUDGE.** A
 later mechanic that leaves every invariant above INTACT belongs THERE, not here:
 this is a specification packet, and a procedure written to the byte into a spec
