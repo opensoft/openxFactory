@@ -32,9 +32,10 @@ DomainxFactory.
 **Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
 
 ### Requirement: Install repository scope
+The following install repositories SHALL be scoped to subsystem install,
+operations, backup, restore, upgrade, verification, and disaster recovery:
 `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`,
-and `OmniWorker-Install` SHALL be scoped to subsystem install, operations,
-backup, restore, upgrade, verification, and disaster recovery.
+and `OmniWorker-Install`.
 
 `Keycloak-Install` (`opensoft/Keycloak-Install`, pinned at
 `installs/keycloak-install`) and `OpenXPKI-Install`
@@ -63,7 +64,7 @@ scope each repository's own `repo-boundary-governance` requirement fixes.
 - **WHEN** a change installs, restores, backs up, upgrades, or verifies worker-host runtime behavior
 - **THEN** the implementation detail MUST live in `OmniWorker-Install`
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, and `OpenXPKI-Install` SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery. `` — ONE unit, and one only. The enumeration sentence is REPLACED rather than deleted, by the sentence above it. **THE EDIT IS A LIST EXTENSION AND NOTHING ELSE:** `OpenXPKI-Install` gains a following comma and a fifth name is appended after canon's own conjunction, so the serial comma before the final `and` is PRESERVED and every other word is byte-identical. **NOTHING ELSE IN THIS REQUIREMENT IS NAMED, BECAUSE NOTHING ELSE IS ABSENT:** the 2026-08-21 admission sentence, the index sentence that follows it, and both routing scenarios are carried BYTE-IDENTICAL, and the fifth repository's own admission record and its routing scenario are APPENDED beside them — which adds units and removes none.
+**Removed from canon by amend-repo-boundary-governance-scope-first-line (2026-09-11):** `` `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery. `` — the sentence is REPLACED IN PLACE by the one above it and is not dropped, and every one of the five repository names is carried into it in canon's own order, canon's own spelling and canon's own serial comma. What moves is WHERE THE OBLIGATION STANDS INSIDE ITS OWN SENTENCE: the subject and the modal now open the first body line, which is the shape the other ten requirements of this specification already have, so a reader who reads one line and a parser that reads one line both meet the obligation there instead of meeting a list of names whose verb has not arrived. Four words of subject are added at the front, the enumeration moves behind the modal under a colon, and nothing else in the sentence changes: the same five repositories are scoped to the same seven activities, in the same words and the same order. Nothing this requirement obliges, admits or refuses moves, and the enumeration remains the INDEX the sibling requirement on enumeration authority says it is rather than becoming a claim about which install repositories exist. This reason carries no code span, so the marker names exactly one unit under the grammar it is written in.
 
 ### Requirement: Copy-first migration
 Repo-boundary migration SHALL use copy-first migration until canonical
