@@ -37,7 +37,8 @@ ARCHIVE pull request and nowhere else.
       target; the `auto-fixable` class), **D2a** (the archived-path boundary is
       the FINDING's, so an entry over a CLEAN ACTIVE path IS reported — added
       in the PR #981 bench round), **D2b** (the scope is the lifecycle scan
-      set's repositories and not `ctx.repo_paths`, because the aggregation's
+      set's repositories UNION the governed corpus's, and not
+      `ctx.repo_paths`, because the aggregation's
       anchor is admitted on `is_dir()` alone — added in the same round, and the
       one item of that round taken as a CODE change), D3 (the tests extend the
       parent's rig), D4 (`code_surface` non-empty → archive on realization
@@ -188,7 +189,9 @@ ARCHIVE pull request and nowhere else.
 - [x] 4.2 **`_stale_grandfather_dispositions(ctx, findings)` IS THE WHOLE
       ADDITION**: `set(_grandfather_cites(ctx))` minus `{(f.repo, f.path) for f
       in findings}`, narrowed to the repositories that contributed a document
-      to `_lifecycle_scope(ctx)` (D2b — NOT `ctx.repo_paths`), one
+      to `_lifecycle_scope(ctx)` — the governed corpus TOGETHER WITH the
+      lifecycle scan set (D2b: NOT `ctx.repo_paths`, and NOT
+      `ctx.lifecycle_docs` alone) — one
       `Finding(WARNING, "ratified-provenance", "xFactory",
       "health/dispositions.yaml", …)` per remaining entry, the rule naming the
       entry's repository and path and the action quoting the ruling through the
@@ -207,11 +210,11 @@ ARCHIVE pull request and nowhere else.
       `test_a_target_spelled_across_two_lines_still_reads_back` pins it.
 - [x] 4.4 **TWELVE TESTS ADDED AND TWO EXISTING TESTS MOVED, EACH MOVE NAMED.**
       `tests/doc-health/test_grandfather_dispositions.py`: **22 → 34** test
-      functions at the authoring, and **23 → 39** re-measured at the tip this
+      functions at the authoring, and **23 → 40** re-measured at the tip this
       branch now carries (`grep -c '^def test_'` on this tree and on an
       `origin/main` `d4d96cca` worktree beside it, the before-figure re-read as
       **23** again at `origin/main` `0805c3bb`; § 4.6 adds three more and § 4.7
-      a fourth, and `main` itself added one to this file on #980 between the
+      two, and `main` itself added one to this file on #980 between the
       two measurements, which is why the BEFORE figure moved once). The two
       that move HERE are this change's own behaviour rather than repairs (§ 4.7
       carries the third, which is this packet's own test re-authored):
@@ -226,9 +229,10 @@ ARCHIVE pull request and nowhere else.
       DELIBERATELY GIVEN UP, because a clean corpus is the extreme case of this
       class (every honoured entry matches nothing) and
       `test_a_clean_corpus_makes_every_in_scope_entry_stale` pins the new
-      answer. **No test the repository already had before this packet is
-      edited, renamed, flipped or deleted** — § 4.7's re-authoring is of a test
-      this packet itself added.
+      answer. **NO OTHER pre-existing test is edited, renamed, flipped or
+      deleted** — those two, both the parent packet's, are the only
+      pre-existing tests this packet touches at all, and § 4.7's re-authoring
+      is of a test this packet itself added rather than a third.
       (c) `_doc` gains a `repo=REPO` keyword so a fixture can place a document
       in a SECOND repository, which § 4.7 needs; every existing call site is
       unmoved and reads the default.
@@ -253,7 +257,7 @@ ARCHIVE pull request and nowhere else.
       `scripts/doc_health/` moved for any of the three — those three are tests
       and prose only.
 - [x] 4.7 **THE ONE CODE CHANGE OF THE BENCH ROUND: D2b's SCOPE NARROWING**
-      (23 → **39** test functions in that file). `in_scope` in
+      (23 → **40** test functions in that file). `in_scope` in
       `_stale_grandfather_dispositions` becomes
       `{doc.repo for doc in _lifecycle_scope(ctx)}` in place of
       `set(ctx.repo_paths)` — ONE line, plus the docstring paragraph that says
@@ -276,6 +280,25 @@ ARCHIVE pull request and nowhere else.
       halves still read one file under two scopes and the scope that moves is
       the new predicate's. Raised by Copilot on PR #981 (`families.py:618`),
       TAKEN.
+      (c) `test_either_document_set_alone_puts_a_repository_in_scope` is ADDED
+      and pins the UNION the new predicate takes. `_lifecycle_scope` returns
+      `ctx.docs` CONCATENATED WITH `ctx.lifecycle_docs`, and
+      `govern-openspec-corpus-membership` keeps the two disjoint, so a
+      repository reaching the run through EITHER set alone is in scope and the
+      test asserts both halves against one fixture. **NARROWING THE SCOPE TO
+      `ctx.lifecycle_docs` ALONE IS REFUSED** (`design.md` D2b): a repository
+      that contributed governed documents and no lifecycle document WAS read,
+      and an entry naming a `review/` record in it names a path this run looked
+      for and did not find — stale BY A VANISHED TARGET, the half § 2 records
+      as unseen in the standing file. Raised by Copilot on PR #981
+      (`families.py:633`), TAKEN AS A BOUNDARY AND A TEST, REFUSED AS A
+      NARROWING.
+      (d) `scripts/doc_health/families.py`'s FAMILY docstring called this the
+      *"second last pass"* while the family's `return` appends it LAST; it now
+      reads *"the SECOND trailing pass and the family's last"* and the
+      downgrade above it *"the FIRST of this family's two trailing passes"*.
+      Prose only — no executable line moved for it. Raised by Copilot on
+      PR #981 (`families.py:975`), TAKEN.
 - [x] 4.5 **THE COMPOSITION IS ASSERTED, NOT ARGUED.**
       `test_the_second_pass_returns_only_its_own_rows` holds that the second
       pass returns ONLY the rows it builds, that every graded row reaches the
@@ -341,7 +364,7 @@ re-run's, not the first authoring's.
       § 7.4 pin: a `--single-repo` run has no aggregation root, so the arm this
       packet adds reports nothing in this repository's own gate, and the
       self-gate is therefore expected to be unmoved.
-- [x] 5.9 **`python3 -m pytest tests/doc-health -q --tb=no` → EXIT 0, 1728
+- [x] 5.9 **`python3 -m pytest tests/doc-health -q --tb=no` → EXIT 0, 1729
       PASSED, 0 FAILED** (7 warnings, 400s). The control at `0805c3bb` in a
       worktree beside it: EXIT 1, **1711 passed, 1 failed**, and **THE ONE
       FAILURE IS THE CONTROL RIG'S AND NOT `main`'s** —
@@ -349,26 +372,29 @@ re-run's, not the first authoring's.
       (*"DID NOT RAISE UnresolvedRepository"*), which fails because the control
       is a WORKTREE NESTED INSIDE the packet's clone and the test's premise is a
       directory with no enclosing repository to resolve. That same test PASSES
-      on the branch, which is a top-level clone. **COLLECTED: 1728 on the
+      on the branch, which is a top-level clone. **COLLECTED: 1729 on the
       branch against 1712 on the control (1711 passed + that 1 failed) — a
-      difference of exactly the SIXTEEN tests this packet adds. THE BRANCH'S
+      difference of exactly the SEVENTEEN tests this packet adds. THE BRANCH'S
       `FAILED` SET IS EMPTY AND THE CONTROL'S IS THAT ONE RIG ARTEFACT**, so
       the branch's set is a strict subset of the control's.
 - [x] 5.10 **THE RIG FILE ALONE: `pytest
-      tests/doc-health/test_grandfather_dispositions.py -q` → EXIT 0, 39
-      PASSED** (0.42s). Counted rather than characterised: `git diff
-      origin/main...HEAD` over that file shows **17** `+def test_` lines and
-      **1** `-def test_` line — sixteen NEW subjects plus the one rename § 4.4
+      tests/doc-health/test_grandfather_dispositions.py -q` → EXIT 0, 40
+      PASSED** (0.47s). Counted rather than characterised: `git diff
+      origin/main...HEAD` over that file shows **18** `+def test_` lines and
+      **1** `-def test_` line, and the `diff` of the two sorted `^def test_`
+      name lists shows **18** added names and **1** removed — seventeen NEW
+      subjects plus the one rename § 4.4
       names (`test_a_run_with_no_findings_reads_no_file` →
       `test_the_downgrade_pass_still_returns_early_on_an_empty_finding_list`) —
-      so 23 − 1 + 17 = **39**, and `grep -c '^def test_'` returns 23 at
-      `origin/main` `0805c3bb` and 39 here.
+      so 23 − 1 + 18 = **40**, and `grep -c '^def test_'` returns 23 at
+      `origin/main` `0805c3bb` and 40 here.
 - [x] 5.11 **THE WHOLE CODE SURFACE IS TWO FILES.** `git diff --stat
-      origin/main...HEAD -- scripts tests/doc-health` → *"2 files changed, 629
+      origin/main...HEAD -- scripts tests/doc-health` → *"2 files changed, 694
       insertions(+), 22 deletions(-)"*, and `--numstat` splits it exactly:
-      `scripts/doc_health/families.py` **127 added / 1 removed** (the one
-      removed line is the family's old one-line `return`) and
-      `tests/doc-health/test_grandfather_dispositions.py` **502 added / 21
+      `scripts/doc_health/families.py` **145 added / 1 removed** (the one
+      removed line is the family's old one-line `return`; the rest is the
+      passes' prose) and
+      `tests/doc-health/test_grandfather_dispositions.py` **549 added / 21
       removed**. No other module, no other test file, no workflow, no contract,
       no schema, no path. The only third file under `tests/` in the whole
       branch diff is `tests/sequenced_after/corpus-ledger.yaml`, **+1 line**,

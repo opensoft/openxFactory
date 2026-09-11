@@ -1140,3 +1140,50 @@ def test_an_unmaterialized_anchor_reports_no_entry_of_its_own_as_stale(
     assert _grandfather_cites(ctx) == {(REPO, ARCHIVED): CITE,
                                        ("codexFactory", ARCHIVED): CITE}
     assert _stale(fam_ratified_provenance(ctx)) == []
+
+
+def test_either_document_set_alone_puts_a_repository_in_scope(tmp_path):
+    """THE SCOPE IS THE UNION `_lifecycle_scope` RETURNS, AND THAT IS A CHOICE
+    RATHER THAN AN ACCIDENT OF WHICH ACCESSOR WAS TO HAND.
+
+    `govern-openspec-corpus-membership` keeps the two document sets DISJOINT:
+    `ctx.docs` is the governed corpus and `ctx.lifecycle_docs` is the lifecycle
+    scan set (each packet's `proposal.md` and every `review/` record under it),
+    and `LIFECYCLE_SCAN` "never enters `load_docs`". This family reads BOTH,
+    through `_lifecycle_scope`, so its evidence about a repository is whatever
+    either set contributed — and the stale pass's scope is that same union.
+
+    NARROWING THE SCOPE TO `ctx.lifecycle_docs` ALONE WAS CONSIDERED AND IS
+    REFUSED. A repository that contributed governed documents and no lifecycle
+    document WAS read; an entry naming a `review/` record in it names a path
+    this run looked for and did not find, which is stale BY A VANISHED TARGET —
+    half the class this packet exists to report. Silencing that would hide the
+    very shape `design.md` D0 says the measurement has not seen yet, on the one
+    checkout where it is most likely to appear.
+
+    BOTH HALVES ARE ASSERTED AGAINST ONE FIXTURE, so what moves between them is
+    which set carries the document and nothing else.
+
+    Copilot's suppressed comment on PR #981 (`families.py:633`), TAKEN AS A
+    NAMED BOUNDARY AND A TEST, REFUSED AS A NARROWING.
+    """
+    agg = _dispositions(tmp_path, _entry(path=VANISHED))
+    live = _doc(OTHER_ARCHIVED, SUBJECT_TEXT)
+
+    # (a) the repository reaches the run through the LIFECYCLE SCAN SET only
+    by_lifecycle = Context(
+        repo_paths={REPO: NO_SUCH_REPO_ROOT}, docs=[], capabilities={},
+        change_ids={REPO: {"real-change"}}, git=None, thresholds={},
+        as_of=AS_OF, agg_root=agg, lifecycle_docs=[live])
+    assert by_lifecycle.docs == []
+    stale, = _stale(fam_ratified_provenance(by_lifecycle))
+    assert f"{REPO} {VANISHED}" in stale.rule
+
+    # (b) and through the GOVERNED CORPUS only — the same entry, the same row
+    by_corpus = Context(
+        repo_paths={REPO: NO_SUCH_REPO_ROOT}, docs=[live], capabilities={},
+        change_ids={REPO: {"real-change"}}, git=None, thresholds={},
+        as_of=AS_OF, agg_root=agg, lifecycle_docs=[])
+    assert by_corpus.lifecycle_docs == []
+    stale_too, = _stale(fam_ratified_provenance(by_corpus))
+    assert stale_too.rule == stale.rule and stale_too.action == stale.action

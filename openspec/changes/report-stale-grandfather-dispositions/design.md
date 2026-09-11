@@ -376,7 +376,29 @@ narrowing exists to refuse. `ctx.repo_paths` answers *"did the run list a
 directory of that name"*; the document set answers *"did the run read that
 repository"*, and the second is the question.
 
-**THE ALTERNATIVE: narrow `corpus.discover_repos` instead**, so an empty anchor
+**AND THE DOCUMENT SET IS THE UNION OF BOTH SETS, WHICH IS A CHOICE.**
+`govern-openspec-corpus-membership` keeps the two DISJOINT — `ctx.docs` is the
+governed corpus, `ctx.lifecycle_docs` is the lifecycle scan set (each packet's
+`proposal.md` and every `review/` record under it), and *"it never enters
+`load_docs`"* — and `_lifecycle_scope` concatenates them because this family
+reads both. **A SECOND ALTERNATIVE, THEREFORE: narrow the scope to
+`ctx.lifecycle_docs` alone**, on the ground that a disposition entry names a
+`review/` record and a `review/` record lives in the scan set.
+*Cost:* SILENCE on half the class. A repository that contributed governed
+documents and NO lifecycle document WAS read — the run opened it and found no
+packets — so an entry naming a `review/` record in it names a path this run
+looked for and did not find, which is stale BY A VANISHED TARGET. D0 records
+that the vanished half has not been seen in the standing file yet; silencing it
+in the one checkout where it is likeliest would leave the arm reporting only
+the half that is already visible.
+*Consequence:* the two sets would also disagree about what "read" means between
+this pass and the five arms beside it — the same two-readers-one-file drift D2
+refuses. `test_either_document_set_alone_puts_a_repository_in_scope` asserts
+both halves against one fixture. **Raised by Copilot on PR #981
+(`families.py:633`), TAKEN AS A NAMED BOUNDARY AND A TEST, REFUSED AS A
+NARROWING.**
+
+**THE ALTERNATIVE ON THE OTHER SIDE: narrow `corpus.discover_repos` instead**, so an empty anchor
 never enumerates.
 *Cost:* it changes what EVERY family measures, not what this one reports, and
 it closes every fixture aggregation in the suite out of its own anchor — the
@@ -387,7 +409,7 @@ change with its own gate run.
 *Consequence of doing nothing:* the guard D2 already declares would be
 inoperative for fifteen of the eighteen entries it governs.
 
-**PINNED BY TWO TESTS.**
+**PINNED BY THREE TESTS.**
 `test_an_unmaterialized_anchor_reports_no_entry_of_its_own_as_stale` builds the
 shape directly — both repositories in `ctx.repo_paths`, both entries admitted
 by `_grandfather_cites`, an empty `_lifecycle_scope(ctx)`, zero stale rows —
@@ -395,12 +417,14 @@ and `test_an_entry_naming_a_repository_out_of_scope_is_never_stale` reads the
 SAME file under two scopes so that what moves is the scope and not the fixture.
 That second test is this packet's own, added at the authoring, and its
 in-scope half is re-authored in this bench round to supply the codexFactory
-document the new predicate asks for (`tasks.md` § 4.7).
+document the new predicate asks for (`tasks.md` § 4.7). The third,
+`test_either_document_set_alone_puts_a_repository_in_scope`, pins the union
+above from both sides.
 
 ## D3 — the tests extend the parent's rig rather than opening a new file
 
-**RECOMMENDED: `tests/doc-health/test_grandfather_dispositions.py`, sixteen
-tests added (twelve at the authoring, four in the PR #981 bench round), and one
+**RECOMMENDED: `tests/doc-health/test_grandfather_dispositions.py`, seventeen
+tests added (twelve at the authoring, five in the PR #981 bench round), and one
 of this packet's own re-authored in that round.**
 
 One mechanism, one home. That file already owns the fixtures this class needs —
@@ -423,14 +447,20 @@ the row's own grammar (`plan_line(strict=True)` parses, `parse_previous` yields
 no key and no contested key, and a target spelled across two lines is collapsed
 to one).
 
-**AND FOUR MORE IN THE PR #981 BENCH ROUND**, each answering one of Copilot's
-SIX suppressed comments across its two reviews: the operator wording pinned as
+**AND FIVE MORE IN THE PR #981 BENCH ROUND**, each answering one of Copilot's
+suppressed comments across its four reviews: the operator wording pinned as
 a LITERAL sentence rather than against the constant that builds it (so a
 rewrite of the production text cannot move both sides at once and stay green);
 the duplicate-target answer, raised twice and answered once; D2a's asymmetry;
-and D2b's unmaterialized anchor, the one item of the six taken as a CODE
-change. A fifth suppressed comment was a counting defect in `tasks.md` § 1.2
-and is repaired there. One existing test of this packet's own —
+D2b's unmaterialized anchor, the one item taken as a CODE change; and D2b's
+union-of-both-document-sets boundary, refused as a narrowing and taken as a
+named boundary with a test. The remaining suppressed comments were a counting
+defect in `tasks.md` § 1.2, three stale figures (README once and `tasks.md`
+§ 5.10 twice, each re-measured rather than adjusted), an over-broad "no
+pre-existing test" sentence in § 4.4 (qualified), and a pass-order ambiguity in
+the family docstring — `_stale_grandfather_dispositions` is the SECOND trailing
+pass and the family's LAST, and the docstring now says so instead of calling it
+"the second last pass". One existing test of this packet's own —
 `test_an_entry_naming_a_repository_out_of_scope_is_never_stale` — is
 re-authored by D2b so that its in-scope half supplies the document the new
 predicate asks for; `tasks.md` § 4.7 carries that move by name.
@@ -438,12 +468,12 @@ predicate asks for; `tasks.md` § 4.7 carries that move by name.
 **MEASURED, BEFORE AND AFTER, AT THE TIP THIS BRANCH CARRIES.** `grep -c
 '^def test_'` on that file: **23** on `origin/main` `d4d96cca` — and **23**
 again at `origin/main` `0805c3bb`, re-read after the bench round so the
-before-figure is not carried across a moving main — against **39** on this
-branch: sixteen added. (The same counts read 22 and 34 at `8015d45f` and
+before-figure is not carried across a moving main — against **40** on this
+branch: seventeen added. (The same counts read 22 and 34 at `8015d45f` and
 `c521504c`; `main` itself added one to this file on #980 between the authoring
 and the bench round, which is why the before-figure moved once and is
 re-measured here rather than carried.) `pytest
-tests/doc-health/test_grandfather_dispositions.py -q` → **39 passed, exit 0**.
+tests/doc-health/test_grandfather_dispositions.py -q` → **40 passed, exit 0**.
 The whole-directory figures and the control run are in `tasks.md` § 5.
 
 ## D4 — `code_surface` is non-empty, so the archive waits for realization evidence

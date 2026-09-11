@@ -594,12 +594,19 @@ def _stale_grandfather_dispositions(ctx, findings):
     standing file at `opensoft/xFactory` `0ecb370e` with the anchor as an empty
     directory: FIFTEEN false `warning` rows, which is every openxFactory entry
     this family honours. `_lifecycle_scope(ctx)` is the exact document set the
-    five arms above read, so a repository absent from it raised nothing here
-    for a reason this pass cannot tell from "the records are all clean", and an
-    entry naming it is passed over in silence rather than reported on a
-    measurement that was never taken. (Raised by Copilot on PR #981; the
-    aggregation's own enumerator is not moved, that admission being every
-    fixture aggregation's route in.)
+    five arms above read — the governed corpus AND the lifecycle scan set,
+    which `govern-openspec-corpus-membership` keeps DISJOINT — so a repository
+    absent from it raised nothing here for a reason this pass cannot tell from
+    "the records are all clean", and an entry naming it is passed over in
+    silence rather than reported on a measurement that was never taken. THE
+    UNION IS DELIBERATE, AND NARROWING IT TO `ctx.lifecycle_docs` ALONE WOULD
+    BE WRONG: a repository that contributed governed documents and no
+    lifecycle document WAS read, and an entry naming a `review/` record in it
+    names a path this run looked for and did not find — stale by a vanished
+    target, which is half the class. Both halves are pinned by
+    `test_either_document_set_alone_puts_a_repository_in_scope`. (Raised by
+    Copilot on PR #981; the aggregation's own enumerator is not moved, that
+    admission being every fixture aggregation's route in.)
 
     THE SUBJECT IS THE ENTRY, SO THE FINDING IS REPORTED AGAINST THE FILE.
     The record the entry names is fine — that is the whole point — so a row
