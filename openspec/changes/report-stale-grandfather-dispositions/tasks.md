@@ -455,17 +455,27 @@ than by assertion.
       OPEN and unclaimed at this authoring (no branch, no pull request), and
       pinned unchanged here by
       `test_a_single_repo_run_reports_no_stale_entry`.
-- [ ] 7.5 **`docs/doc-health.md` IS NOT EDITED.** Its family-table row 3 still
-      reads *"Every `Ratified by:` resolves to an existing OpenSpec change"*,
-      which has been incomplete since the two-spelling ruling, was more
-      incomplete after the grandfather pass and is more incomplete again now. A
-      documentation sweep of that table is
-      [#967](https://github.com/opensoft/openxFactory/issues/967)'s act, named
-      by the parent's § 7.3. **THAT SWEEP IS NOW OPEN AS ITS OWN PULL
-      REQUEST** — [#977](https://github.com/opensoft/openxFactory/pull/977),
-      `docs/967-doc-health-family-table-currency` — and it is not this packet's
-      act: this branch does not edit `docs/doc-health.md` at all, so the two do
-      not touch the same bytes.
+- [ ] 7.5 **`docs/doc-health.md` IS NOT EDITED, AND THE SWEEP THAT WOULD HAVE
+      EDITED IT HAS LANDED WITHOUT THIS ROW.** The family-table row 3 this
+      packet's earlier draft quoted — *"Every `Ratified by:` resolves to an
+      existing OpenSpec change"* — no longer stands:
+      [#977](https://github.com/opensoft/openxFactory/pull/977)
+      (`docs/967-doc-health-family-table-currency`, the act of
+      [#967](https://github.com/opensoft/openxFactory/issues/967), named by
+      the parent's § 7.3) MERGED into `main` at **`0805c3bb`** and rewrote that row
+      to spell out all five arms AND the grandfather downgrade. **RE-READ AT
+      THE MERGE THIS BRANCH CARRIES** (`0805c3bb` merged in): row 3 now ends at
+      the downgrade — *"a downgrade rather than a suppression, because an
+      archived record is beyond the plain repair every other arm asks for"* —
+      and says NOTHING of this packet's second last pass, so the table is
+      current for `main` and incomplete for this branch by exactly the one
+      addition this packet makes. **That is still not this packet's act**: the
+      table's currency is #967's standing subject, the sweep that owns it has
+      only just landed, and this branch does not edit `docs/doc-health.md` at
+      all — the merge of `0805c3bb` took #977's version of that file whole and
+      no byte of it is this branch's. A row for the stale pass is owed at
+      RATIFICATION, not at drafting, since D1 may yet re-author what the row
+      would say.
 - [ ] 7.7 **A DUPLICATE TARGET IS NOT GIVEN A ROW PER LINE.** Where one
       `(repo, path)` carries two entries of this family, `_grandfather_cites`
       keeps the FIRST (`cites.setdefault(key, cite)` — the parent's landed
