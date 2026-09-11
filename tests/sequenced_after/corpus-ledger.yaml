@@ -266,6 +266,6 @@ rows:
   split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   split-openxwallet-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-roles-authority: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  state-header-window-budget: {state: active, class: co-modifier, declares: [accept-sequenced-after-header-line], depth: 3, prose: false, moved_by: "#921", moved_on: "2026-09-10"}
+  state-header-window-budget: {state: archived, class: co-modifier, declares: [accept-sequenced-after-header-line], depth: 3, prose: false, moved_by: "#953", moved_on: "2026-09-11"}
   supersede-lost-pin-baseline: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   update-standards-body-current-publications: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
