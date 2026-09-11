@@ -596,6 +596,58 @@ def test_a_replaced_gitlink_is_read_from_the_index_not_stale_head(
     assert "index" in source
 
 
+def test_a_gitlink_staged_for_deletion_is_not_read_from_stale_head(
+        tmp_path: Path) -> None:
+    """PR #932 round-2 review's first regression. `git update-index
+    --force-remove` (what `git rm --cached openDox` does to the index) makes
+    `git ls-files -s` stop reporting `openDox` at all — silent in exactly the
+    way a path that was NEVER tracked is silent — but never indistinguishable
+    from "nothing changed": HEAD still names a committed gitlink here.
+    `_recorded_gitlink` must not paper over the staged removal by falling
+    back to that stale HEAD oid; the pending commit no longer has a gitlink
+    at this path, so the answer must be `None`, not the commit being removed.
+    """
+    scratch = _scratch(tmp_path, record="head")
+    head_oid, head_source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert head_oid == scratch.commit
+    assert head_source == "HEAD"
+
+    _git(scratch.root, "update-index", "--force-remove", "openDox")
+
+    index_after = _git(scratch.root, "ls-files", "-s", "--",
+                       "openDox").stdout
+    assert index_after.strip() == "", "the index must show nothing at all"
+
+    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert oid is None
+    assert oid != scratch.commit
+    assert "index" in source
+
+
+def test_a_gitlink_replaced_by_a_regular_file_in_the_index_is_not_read_from_stale_head(
+        tmp_path: Path) -> None:
+    """PR #932 round-2 review's first regression, the other half. Staging a
+    REGULAR FILE over the same path (a `100644` entry, not `160000`) also
+    makes `_gitlink_from` return nothing for the index — a different git
+    state than a staged deletion, but the SAME non-answer from that helper —
+    and must not fall back to HEAD's stale gitlink either.
+    """
+    scratch = _scratch(tmp_path, record="head")
+    empty_blob = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"  # git's own empty blob, always present
+    _git(scratch.root, "update-index", "--add", "--replace",
+         "--cacheinfo", f"100644,{empty_blob},openDox")
+
+    index_after = _git(scratch.root, "ls-files", "-s", "--",
+                       "openDox").stdout
+    assert "100644" in index_after
+    assert "160000" not in index_after
+
+    oid, source = MODULE._recorded_gitlink(scratch.root, "openDox")
+    assert oid is None
+    assert oid != scratch.commit
+    assert "index" in source
+
+
 def test_a_regular_file_at_the_submodule_path_does_not_satisfy_the_gitlink(
         tmp_path: Path) -> None:
     """The MODE is matched, not merely the path."""

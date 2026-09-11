@@ -954,7 +954,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
     # openxFactory commit the carve was taken at (REPO_LOCAL) and the openDox
     # commit itself (CROSS_REPOSITORY), and the two have different localities.
     #
-    # A THIRD DECLARATION OF THE SAME PRODUCT'S BYTES NOW EXISTS, AND THAT IS
+    # A SECOND DECLARATION OF THE SAME PRODUCT'S BYTES NOW EXISTS, AND THAT IS
     # THE ONE NEW THING. Before this pin, openDox's commit had exactly one
     # declaration this repository's census reached: the `openxdox-pin-product-
     # commit` site above. This member is a SECOND, independent declaration of

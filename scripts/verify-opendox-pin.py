@@ -310,8 +310,9 @@ def _gitlink_from(output: str, submodule_path: str) -> str | None:
 
 def _recorded_gitlink(repo_root: Path,
                       submodule_path: str) -> tuple[str | None, str]:
-    """(oid, source) for the RECORDED gitlink: the index when it has moved
-    the entry, HEAD otherwise.
+    """(oid, source) for the RECORDED gitlink: a successful index read
+    whenever it DISAGREES with HEAD, HEAD when the two agree, "nowhere" when
+    neither has one.
 
     A ONE-COMMIT RESYNC MUST BE CHECKABLE BEFORE IT IS COMMITTED, not only
     for a BRAND NEW gitlink (`git submodule add`, nothing in HEAD yet) but
@@ -323,25 +324,40 @@ def _recorded_gitlink(repo_root: Path,
     falsely REJECT a fresh, correct re-pin (checks 2 and 3 compare the new
     checkout against the stale HEAD oid) or, for check 5's `openXdox` read via
     this same helper, falsely VALIDATE against the derived commit the pin is
-    being moved away from. So both records are read, and the index wins
-    whenever it disagrees with HEAD (new-and-staged, or replaced-and-staged
-    alike); only when the index agrees with HEAD — the ordinary clean tree —
-    or has no entry at all does HEAD's own oid answer, which is what keeps
-    the success message's "read from HEAD" true for the common case instead
-    of manufacturing a spurious "staged" label for bytes nothing has staged.
+    being moved away from.
+
+    A REMOVED OR TYPE-CHANGED GITLINK MUST ALSO NOT ANSWER FROM STALE HEAD
+    DATA. `git rm --cached openDox` or staging a regular file over the same
+    path both make `git ls-files -s` stop reporting a `160000` entry for
+    `submodule_path` — indistinguishable, at that call alone, from each
+    other, but NEVER indistinguishable from "nothing has changed": either
+    way, `_gitlink_from` on the index's own output no longer names the oid
+    HEAD does, which is precisely the disagreement this function exists to
+    prefer the index for. So the comparison is UNCONDITIONAL — `None` counts
+    as an index answer like any other — and only a FAILED index read (an
+    environment problem, not a staged one) falls back to HEAD without
+    comparing at all.
+
+    The index wins whenever a successful read of it disagrees with HEAD
+    (new-and-staged, replaced-and-staged, or removed/type-changed-and-staged
+    alike, in every case INCLUDING when that disagreement is "no gitlink at
+    all"); only when the index agrees with HEAD — the ordinary clean tree —
+    does HEAD's own oid answer, which is what keeps the success message's
+    "read from HEAD" true for the common case instead of manufacturing a
+    spurious "staged" label for bytes nothing has staged.
     """
     head = _git(repo_root, "ls-tree", "HEAD", "--", submodule_path)
     head_oid = (_gitlink_from(head.stdout, submodule_path)
                if head.returncode == 0 else None)
+
     index = _git(repo_root, "ls-files", "-s", "--", submodule_path)
-    index_oid = (_gitlink_from(index.stdout, submodule_path)
-                if index.returncode == 0 else None)
-    if index_oid is not None and index_oid != head_oid:
-        return index_oid, "the index (staged, not yet committed)"
+    if index.returncode == 0:
+        index_oid = _gitlink_from(index.stdout, submodule_path)
+        if index_oid != head_oid:
+            return index_oid, "the index (staged, not yet committed)"
+
     if head_oid is not None:
         return head_oid, "HEAD"
-    if index_oid is not None:
-        return index_oid, "the index (staged, not yet committed)"
     return None, "nowhere"
 
 
