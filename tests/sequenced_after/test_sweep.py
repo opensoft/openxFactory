@@ -2296,12 +2296,28 @@ def test_the_SEEDER_REFUSES_a_moved_on_EARLIER_than_the_changes_created_date(
         [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
          "--moved-by", "#743", "--moved-on", "2026-09-10"],
         capture_output=True, text=True)
-    assert result.returncode != 0, result.stdout + result.stderr
+    assert result.returncode == 2, result.stdout + result.stderr
     assert "add-a" in result.stderr
     assert "created" in result.stderr
     assert not sa.ledger_path(tmp_path).is_file(), (
         "a refused seed must not write a ledger — the ONE-REFUSAL discipline "
         "the directory-ahead-of-UTC guard above already keeps")
+
+
+def test_the_SEEDER_REFUSES_the_DEFAULTED_UTC_moved_on_TOO(tmp_path):
+    """The SAME guard over the `moved_on is None` branch, where `effective`
+    is `today` rather than an explicit `--moved-on` or a flip's directory
+    date — the one branch an explicit-`--moved-on`-only suite would leave
+    unwatched (Copilot round 1, PR #990)."""
+    _change(tmp_path, "add-a", created="2099-01-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-a" in result.stderr
+    assert "created" in result.stderr
+    assert not sa.ledger_path(tmp_path).is_file()
 
 
 def test_the_SEEDER_ACCEPTS_a_moved_on_EQUAL_TO_the_changes_created_date(
@@ -2353,6 +2369,6 @@ def test_the_SEEDER_GUARD_APPLIES_TO_A_FLIPS_DIRECTORY_DATE_TOO(tmp_path):
         [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
          "--moved-by", "#743"],
         capture_output=True, text=True)
-    assert result.returncode != 0, result.stdout + result.stderr
+    assert result.returncode == 2, result.stdout + result.stderr
     assert "add-a" in result.stderr
     assert "2026-01-10" in result.stderr and "2026-06-01" in result.stderr
