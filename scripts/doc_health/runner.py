@@ -755,7 +755,17 @@ def main(argv=None) -> int:
                   if ctx.agg_root else None)
     if dispo_path and dispo_path.is_file():
         import yaml as _yaml
-        for d in (_yaml.safe_load(dispo_path.read_text()) or []):
+        # THE SAME REFUSAL AS `promotion_fidelity.load_dispositions`, AND IT IS
+        # NEEDED HERE TOO OR THE GUARD THERE BUYS NOTHING. This read is
+        # unconditional on every aggregation run, so a scalar-root file aborts
+        # the whole nightly HERE whatever any family does — measured on
+        # `origin/main`, where `doc-health.py --repo-root <agg>` over a
+        # `42`-rooted file exits 1 at this line with `TypeError: 'int' object
+        # is not iterable`, with or without #939's arm. Fixing only the shared
+        # reader would move that abort back to this line rather than remove it
+        # (PR #945, Copilot's fourth round).
+        _entries = _yaml.safe_load(dispo_path.read_text()) or []
+        for d in (_entries if isinstance(_entries, list) else []):
             if isinstance(d, dict) and d.get("cite"):
                 dispositions.add((d.get("family"), d.get("repo"),
                                   d.get("path")))

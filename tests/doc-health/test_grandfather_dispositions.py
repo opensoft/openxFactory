@@ -348,6 +348,58 @@ def test_a_malformed_entry_is_ignored_rather_than_aborting_the_run(tmp_path):
                                      agg_root=alone)] == [CRITICAL]
 
 
+def test_a_malformed_dispositions_FILE_is_ignored_rather_than_aborting_the_run(
+        tmp_path):
+    """A SCALAR-ROOT FILE MUST NOT TAKE THE NIGHTLY DOWN EITHER, AND THE
+    ABORT IT CAUSES IS OLDER THAN THIS PACKET.
+
+    `yaml.safe_load` returns whatever the document holds. A file reading `42`
+    is well-formed YAML, so `load_dispositions` reached `for entry in entries`
+    and raised `TypeError` out of the estate's ONE reader of this file — out of
+    promotion fidelity and duplicate packet since that reader was written, and
+    out of this arm from #939. Measured both ways on an aggregation carrying a
+    `42`-rooted file: `doc-health.py --repo-root <agg>` exits 1 on
+    `origin/main` at `runner.py`'s own unconditional read of the same file, and
+    exited 1 on this branch one frame earlier at `families.py`. So the guard is
+    in BOTH readers or it buys nothing: fixing the shared one alone would have
+    moved the abort back to the runner's line rather than removed it.
+
+    IT NARROWS NOTHING. Every non-list root the guard now refuses already
+    yielded an EMPTY disposition set by iteration — a mapping root iterates
+    keys and a string root iterates characters, neither of which is a mapping —
+    so the honoured set is identical and only the exception is gone. That is
+    asserted here shape by shape rather than argued.
+    """
+    agg = _dispositions(tmp_path, "42\n")
+    ctx = _ctx(agg_root=agg)
+    assert promotion_fidelity.load_dispositions(
+        ctx, _RATIFIED_PROVENANCE) == set()
+    assert _grandfather_cites(ctx) == {}
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=agg)] == [CRITICAL]
+    # The two families that have read this file since the reader was written
+    # are un-aborted by the same guard, which is why it belongs there and not
+    # at this arm's call site.
+    for family in ("promotion-fidelity", "duplicate-packet"):
+        assert promotion_fidelity.load_dispositions(ctx, family) == set()
+    # The other non-list roots never yielded a disposition either, so the
+    # guard changes the ANSWER for none of them.
+    for name, body in (("mapping", "family: ratified-provenance\n"),
+                       ("string", "'a note somebody left here'\n"),
+                       ("true", "true\n"),
+                       ("empty", "\n")):
+        other = _ctx(agg_root=_dispositions(tmp_path / name, body))
+        assert promotion_fidelity.load_dispositions(
+            other, _RATIFIED_PROVENANCE) == set()
+        assert _grandfather_cites(other) == {}
+        assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                         agg_root=other.agg_root)] == [CRITICAL]
+    # And a LIST root still reads exactly as it did.
+    good = _dispositions(tmp_path / "good", _entry())
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=good)] == [INFO]
+
+
 def test_a_requirement_narrowing_does_not_stop_the_downgrade(tmp_path):
     """The optional `requirement:` key selects one requirement inside a DELTA
     file. A ratification record has no requirement grain for it to select, so

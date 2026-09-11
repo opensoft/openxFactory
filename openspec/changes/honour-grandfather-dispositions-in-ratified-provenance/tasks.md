@@ -153,12 +153,14 @@ and openxFactory #939 closes THERE and not at this landing.
       own rule behind `"GRANDFATHERED by a recorded disposition — "`; `action` →
       the no-repair-is-owed text plus the excerpt. Every untouched finding is
       returned BY IDENTITY, not rebuilt.
-- [x] 3.6 **NOTHING ELSE MOVES**: no arm, no document scope, no threshold, no
-      resolution class, no other family, no report field, no workflow, no
-      contract member, no schema, no path. `INFO` was already imported by this
-      module and already spent by four families; the only import added is
-      `dataclasses.replace`.
-- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 20
+- [x] 3.6 **NOTHING ELSE MOVES IN THIS MODULE**: no arm, no document scope, no
+      threshold, no resolution class, no other family, no report field, no
+      workflow, no contract member, no schema, no path. `INFO` was already
+      imported by this module and already spent by four families; the only
+      import added is `dataclasses.replace`. The one edit OUTSIDE `families.py`
+      is § 3.9's pair of guards, which change what no run REPORTS and only
+      whether a malformed FILE aborts it.
+- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 21
       tests**): the downgrade on BOTH covered arms; an undispositioned archived
       record unchanged; the ACTIVE/ARCHIVED boundary asserted in ONE run over
       the same record text at two paths; a missing `cite`, an empty `cite`, a
@@ -181,12 +183,50 @@ and openxFactory #939 closes THERE and not at this landing.
       dirty corpus asserted to raise so the probe is known live; the excerpt's
       one-line and bounded properties; and the downgraded row rendered by
       `report.plan_line(strict=True)` and read back by `report.PLAN_RE`,
-      `report.unparsed_plan_rows` and `report.parse_previous`.
+      `report.unparsed_plan_rows` and `report.parse_previous`; and a
+      **malformed dispositions FILE — a scalar root — IGNORED RATHER THAN
+      ABORTING THE RUN** (§ 3.9), asserted for this arm, for the two families
+      that have read the file since the shared reader was written, and for
+      every other non-list root, with a list root still read exactly as before.
+
 - [x] 3.8 **NO EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED.**
-      `tests/doc-health` goes **1689 → 1709**, the whole rise being the new
-      file. `test_ratification_record_subject.py`'s real-tree measurements are
+      `tests/doc-health` goes **1689 → 1710**, the whole rise being the new
+      file: 21 test functions in it, counted with
+      `grep -c '^def test_' tests/doc-health/test_grandfather_dispositions.py`,
+      and 1689 re-measured on an `origin/main` worktree (`38c076d1`) in the
+      same shell as this tree's 1710. **THAT PAIR IS THE PACKET'S ONE TEST
+      COUNT**: § 3.7, this box, § 5.8, § 5.13 and the pull request body all
+      state it and no other.
+      `test_ratification_record_subject.py`'s real-tree measurements are
       untouched by construction: they build their `Context` with
       `agg_root=None`, which is the scope this arm does nothing in.
+
+- [x] 3.9 **A MALFORMED dispositions FILE MUST NOT ABORT THE NIGHTLY EITHER,
+      AND THE ABORT IS OLDER THAN THIS PACKET** (PR #945, Copilot's fourth
+      round). `yaml.safe_load` returns whatever the document holds, so a SCALAR
+      root (`42`) is well-formed YAML that reaches `for entry in entries` and
+      raises `TypeError`. **MEASURED BOTH WAYS, END TO END, BEFORE ANYTHING WAS
+      CHANGED**, over an aggregation carrying such a file:
+      `doc-health.py --repo-root <aggregation>` exits **1** on `origin/main` at
+      `runner.py:758` — the runner's own unconditional read of the same file,
+      which fires on every aggregation run with or without this packet — and
+      exited **1** one frame earlier on this branch, at `families.py:419` into
+      `promotion_fidelity.py:757`. **SO THE GUARD IS IN BOTH READERS OR IT BUYS
+      NOTHING**: repairing only the shared reader would have moved the abort
+      back to the runner's line rather than removed it. Both are the refusal
+      each loop already applies to an ENTRY that is not a mapping, taken one
+      level up — a malformed FILE ignored exactly as a malformed ENTRY is —
+      and **NEITHER NARROWS WHAT COUNTS AS RECORDED**: every non-list root they
+      now refuse already yielded an empty set by iteration (a mapping root
+      iterates keys, a string root characters, neither being a mapping), which
+      § 3.7's test asserts shape by shape. After the fix the same run exits
+      **0** and reports every row at `critical` — the file records nothing, so
+      nothing is honoured. **RE-MEASURED ON THE RATIFIED TREE** against the
+      aggregation § 5.13 names: `origin/main` `38c076d1` **exit 1** with
+      `TypeError: 'int' object is not iterable` at
+      `scripts/doc_health/runner.py:758`; this tree **exit 0**, `Findings: 35
+      critical, 0 error, 0 warning, 0 info`; and over the REAL file the report
+      is **byte-identical** to the one taken without the guards (§ 5.13).
 
 ## 4. The delta
 
@@ -284,9 +324,15 @@ with its exit code and its own output quoted.
       no finding of their own.
 - [x] 5.8 `python3 -m pytest tests/doc-health tests/sequenced_after
       tests/scope_globs tests/proposal-support -q` — **exit 0**, **2197 passed,
-      66 subtests passed**. `tests/doc-health` alone, taken on this tree and on
-      an `origin/main` worktree in the same shell: **1708** and **1689**,
-      +19 — the new file entire, and nothing else.
+      66 subtests passed**, taken on the § 5 tree named above. **THE
+      `tests/doc-health` COUNT IS ONE MEASUREMENT AND IT IS THE LAST ONE**,
+      re-taken after the § 5.12 fix added its regression test: **1710** on this
+      tree and **1689** on an `origin/main` worktree (`38c076d1`) beside it in
+      the same shell, **+21** — the new file entire (21 `def test_`, counted
+      rather than recalled), and nothing else. The earlier readings of this
+      line (**1708**, **+19**) were taken before the § 5.11 and § 5.12 rounds
+      added their tests and are SUPERSEDED by it; § 5.13 re-derives the whole
+      gate set, this suite included, on the ratified tree.
 - [x] 5.9 **THE AGGREGATION MEASUREMENT RE-RUN ON THE FINAL TREE**, § 2.2
       through § 2.6 repeated after the last commit against an aggregation
       assembled TODAY: `opensoft/xFactory` @ `5fc9bc53` with `openxFactory`
@@ -379,6 +425,28 @@ with its exit code and its own output quoted.
       the proposal's *Why* shows adjudicates a DISAPPEARED finding and never a
       standing one. It is a successor's question, beside § 7's residue, and it
       needs its own word.
+
+- [x] 5.12 **THE FOURTH BENCH ROUND, BOTH ITEMS TAKEN ON THE RECORD.** Copilot
+      reviewed again at 2026-09-11T11:01Z, on `cd27180c`. (1) **A SECOND
+      CRASH, ONE LEVEL UP AND OLDER THAN THIS PACKET**: a dispositions file
+      whose top-level value is a SCALAR reaches `load_dispositions`'
+      `for entry in entries` and raises `TypeError`, and this family did not
+      read that file before this change. TAKEN, and taken WIDER than the thread
+      asked because the narrow fix would have been cosmetic: measured end to
+      end first, `origin/main` ALREADY exits 1 over such a file at
+      `runner.py:758`, its own unconditional read, so a guard in the shared
+      reader alone would have moved the abort rather than removed it. Both
+      readers now refuse a non-list root, the repair is pinned by a test
+      asserted BOTH WAYS (it fails on the pre-fix module with that exact
+      `TypeError`), and the full run over the real file is byte-identical to
+      the one taken without the guards — § 3.9 carries the measurement.
+      (2) **THE VERIFICATION COUNTS WERE INCONSISTENT** — § 3.8 read
+      1689 → 1709, § 5.8 read 1708 (+19) and the pull request body read 17
+      tests / 1706, the three having been written at three different heads.
+      TAKEN: every count in this packet and in the pull request body is now the
+      SAME measurement, re-taken on the final tree and against the `origin/main`
+      worktree named in § 5.8, and the new file's test functions are counted
+      rather than recalled.
 
 ## 6. Archive — OWED, NOT GIVEN
 
