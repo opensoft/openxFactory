@@ -30,13 +30,23 @@ ARCHIVE pull request and nowhere else.
       names a band is re-measured. Under (3) the row also enters the regression
       axis and `--fail-on error`, and `design.md` D1 option 3 carries what that
       costs. Nothing else in this packet moves under any of the three.
-- [ ] 1.2 **THE OTHER FIVE DECISIONS ARE CARRIED BESIDE D1 AND EACH IS
-      VETOABLE.** D0 (the measurement), D2 (a second last pass, after the
-      first; the two narrowings; the row's subject; the `auto-fixable` class),
-      D3 (the tests extend the parent's rig), D4 (`code_surface` non-empty →
-      archive on realization evidence), D5 (the limit to this family alone),
-      D6 (the sibling search and `sequenced_after: []`). Each stands whichever
-      way D1 goes, except that D2's band sentence follows D1.
+- [ ] 1.2 **THE OTHER EIGHT DECISIONS ARE CARRIED BESIDE D1 AND EACH IS
+      VETOABLE — EIGHT, COUNTED RATHER THAN CHARACTERISED, SO THE PACKET TAKES
+      NINE IN ALL.** D0 (the measurement), D2 (a second last pass, after the
+      first; the two narrowings; the row's subject; one row per honoured
+      target; the `auto-fixable` class), **D2a** (the archived-path boundary is
+      the FINDING's, so an entry over a CLEAN ACTIVE path IS reported — added
+      in the PR #981 bench round), **D2b** (the scope is the lifecycle scan
+      set's repositories and not `ctx.repo_paths`, because the aggregation's
+      anchor is admitted on `is_dir()` alone — added in the same round, and the
+      one item of that round taken as a CODE change), D3 (the tests extend the
+      parent's rig), D4 (`code_surface` non-empty → archive on realization
+      evidence), D5 (the limit to this family alone), D6 (the sibling search
+      and `sequenced_after: []`). Each stands whichever way D1 goes, except that
+      D2's band sentence follows D1. **Copilot's suppressed comment on PR #981
+      caught this box saying "five" over a list of six labels; the count is now
+      taken from the list and `proposal.md` and `design.md` name the same
+      nine.**
 - [ ] 1.3 **ON RATIFICATION, AND NOT BEFORE**: `.openspec.yaml` gains
       `approved_by` / `approved_on` as a pure ADDITION beside the unmoved
       `kind`, `id`, `reason`, `proposed_by` and `proposed_on`
@@ -152,13 +162,18 @@ ARCHIVE pull request and nowhere else.
       `Removed from canon` machinery is not reached and `modified-block-currency`
       has no marker to check.
 - [x] 3.3 **THE ADDED SCENARIO IS *A recorded disposition matches no finding***,
-      and it says five things: an honoured entry naming no finding this run
+      and it says SIX things: an honoured entry naming no finding this run
       raised is reported at `warning` against the dispositions file's own path,
       quoting the entry's target and the recorded citation; the finding is NOT
       raised against the record the entry names; an entry naming a repository
-      the run did not enumerate is not reported; an entry this family would not
-      honour is not reported either; and a run with no aggregation checkout
-      reports nothing of this class.
+      the run READ NO DOCUMENT FROM is not reported (`design.md` D2b: the
+      lifecycle scan set's repositories, not `ctx.repo_paths`); an entry this
+      family would not
+      honour is not reported either; an entry over a path outside
+      `openspec/changes/archive/` that names no finding IS reported, that
+      boundary belonging to the FINDING the downgrade moves rather than to the
+      entry (`design.md` D2a, added in the PR #981 bench round); and a run with
+      no aggregation checkout reports nothing of this class.
 - [x] 3.4 **SHALL/MUST ON LINE ONE.** The requirement body's first line is
       canon's own — *"The doc-health capability SHALL declare two document sets
       and SHALL keep them distinct."* — unmoved, which is what the strict parser
@@ -172,7 +187,8 @@ ARCHIVE pull request and nowhere else.
       becomes two; no arm above it moves.
 - [x] 4.2 **`_stale_grandfather_dispositions(ctx, findings)` IS THE WHOLE
       ADDITION**: `set(_grandfather_cites(ctx))` minus `{(f.repo, f.path) for f
-      in findings}`, narrowed to repositories in `ctx.repo_paths`, one
+      in findings}`, narrowed to the repositories that contributed a document
+      to `_lifecycle_scope(ctx)` (D2b — NOT `ctx.repo_paths`), one
       `Finding(WARNING, "ratified-provenance", "xFactory",
       "health/dispositions.yaml", …)` per remaining entry, the rule naming the
       entry's repository and path and the action quoting the ruling through the
@@ -191,9 +207,14 @@ ARCHIVE pull request and nowhere else.
       `test_a_target_spelled_across_two_lines_still_reads_back` pins it.
 - [x] 4.4 **TWELVE TESTS ADDED AND TWO EXISTING TESTS MOVED, EACH MOVE NAMED.**
       `tests/doc-health/test_grandfather_dispositions.py`: **22 → 34** test
-      functions (`grep -c '^def test_'`, measured on this tree and on an
-      `origin/main` `8015d45f` worktree beside it). The two that move are this
-      change's own behaviour rather than repairs:
+      functions at the authoring, and **23 → 39** re-measured at the tip this
+      branch now carries (`grep -c '^def test_'` on this tree and on an
+      `origin/main` `d4d96cca` worktree beside it, the before-figure re-read as
+      **23** again at `origin/main` `0805c3bb`; § 4.6 adds three more and § 4.7
+      a fourth, and `main` itself added one to this file on #980 between the
+      two measurements, which is why the BEFORE figure moved once). The two
+      that move HERE are this change's own behaviour rather than repairs (§ 4.7
+      carries the third, which is this packet's own test re-authored):
       (a) `test_an_undispositioned_archived_record_stays_critical` keeps its own
       assertion, narrowed to the record's own row, and GAINS the stale row its
       fixture's entry now earns — the fixture names a different archived path
@@ -205,8 +226,56 @@ ARCHIVE pull request and nowhere else.
       DELIBERATELY GIVEN UP, because a clean corpus is the extreme case of this
       class (every honoured entry matches nothing) and
       `test_a_clean_corpus_makes_every_in_scope_entry_stale` pins the new
-      answer. **No other existing test in the repository is edited, renamed,
-      flipped or deleted.**
+      answer. **No test the repository already had before this packet is
+      edited, renamed, flipped or deleted** — § 4.7's re-authoring is of a test
+      this packet itself added.
+      (c) `_doc` gains a `repo=REPO` keyword so a fixture can place a document
+      in a SECOND repository, which § 4.7 needs; every existing call site is
+      unmoved and reads the default.
+- [x] 4.6 **THREE MORE TESTS IN THE PR #981 BENCH ROUND, ONE PER SUBSTANTIVE
+      SUPPRESSED COMMENT OF COPILOT'S FIRST REVIEW** (its fourth was the § 1.2
+      counting defect, repaired above; its SECOND review's two are § 4.7 and a
+      restatement of (b)).
+      (a) `test_the_stale_rows_operator_text_is_pinned_to_its_literal_wording`
+      holds the emitted `action` and `rule` as LITERAL sentences instead of
+      against `_STALE_ACTION` / `_STALE_RULE_PREFIX` imported from the module
+      that builds them — a rewrite of the production wording moved both sides
+      at once and stayed green, and the operator instruction is the very thing
+      D1 option 1 buys.
+      (b) `test_two_entries_at_one_target_report_the_one_row_the_reader_admits`
+      pins the duplicate-target answer: `cites.setdefault(key, cite)` is the
+      parent's landed line, BYTE-UNMOVED here, so two entries at one target
+      report ONE row carrying the FIRST cite. TAKEN AS A TEST AND REFUSED AS A
+      CODE CHANGE — a multimap here would report a residue the downgrade half
+      cannot honour (§ 7.7).
+      (c) `test_an_entry_naming_a_clean_active_path_is_reported_stale` pins
+      `design.md` D2a. **ALL THREE PASS**, and no line of
+      `scripts/doc_health/` moved for any of the three — those three are tests
+      and prose only.
+- [x] 4.7 **THE ONE CODE CHANGE OF THE BENCH ROUND: D2b's SCOPE NARROWING**
+      (23 → **39** test functions in that file). `in_scope` in
+      `_stale_grandfather_dispositions` becomes
+      `{doc.repo for doc in _lifecycle_scope(ctx)}` in place of
+      `set(ctx.repo_paths)` — ONE line, plus the docstring paragraph that says
+      why. **MEASURED BOTH WAYS, WHICH IS WHY IT IS A TAKE AND NOT A REFUSE**:
+      `scripts/doc-health.py --repo-root <root> --family ratified-provenance`
+      over the standing `health/dispositions.yaml` (`opensoft/xFactory`
+      `0ecb370e`) with `openxFactory/` present as an EMPTY DIRECTORY reports
+      **15** stale `warning` rows under the old reading and **0** under the new
+      one; against the fully materialized aggregation both readings report the
+      SAME **15 matched / 3 stale**, exit 0. `corpus.discover_repos` is NOT
+      moved — its anchor admission is every fixture aggregation's route in, and
+      narrowing it would change what EVERY family measures.
+      (a) `test_an_unmaterialized_anchor_reports_no_entry_of_its_own_as_stale`
+      is ADDED and builds the shape directly: both repositories in
+      `ctx.repo_paths`, both entries admitted by `_grandfather_cites`, an empty
+      `_lifecycle_scope(ctx)`, zero stale rows.
+      (b) `test_an_entry_naming_a_repository_out_of_scope_is_never_stale` — a
+      test this packet ADDED at the authoring — is RE-AUTHORED, not repaired:
+      its in-scope half now supplies a CLEAN codexFactory document, so the two
+      halves still read one file under two scopes and the scope that moves is
+      the new predicate's. Raised by Copilot on PR #981 (`families.py:618`),
+      TAKEN.
 - [x] 4.5 **THE COMPOSITION IS ASSERTED, NOT ARGUED.**
       `test_the_second_pass_returns_only_its_own_rows` holds that the second
       pass returns ONLY the rows it builds, that every graded row reaches the
@@ -371,7 +440,13 @@ than by assertion.
       measured at `0ecb370e`, the population is **ZERO** — all 18 entries name
       archived paths — and
       `test_an_active_path_entry_whose_finding_stands_is_not_stale` pins the
-      behaviour either way.
+      behaviour either way. **THE OTHER HALF OF THAT SAME BOUNDARY IS NOW A
+      NAMED DECISION**: an entry over an active path whose record is CLEAN
+      draws no finding to match, so it IS reported stale. `design.md` D2a
+      carries the alternative (filter the complement by the archive prefix)
+      with its cost, and
+      `test_an_entry_naming_a_clean_active_path_is_reported_stale` pins the
+      encoded reading. Raised by Copilot on PR #981 (`families.py:619`).
 - [ ] 7.4 **`--single-repo` IS STILL GIVEN NO ROUTE TO AN AGGREGATION
       DISPOSITIONS FILE.** A CLI surface, an argument, a contract line and a
       test matrix, for a gate whose job is to report this repository's own
@@ -391,8 +466,37 @@ than by assertion.
       `docs/967-doc-health-family-table-currency` — and it is not this packet's
       act: this branch does not edit `docs/doc-health.md` at all, so the two do
       not touch the same bytes.
+- [ ] 7.7 **A DUPLICATE TARGET IS NOT GIVEN A ROW PER LINE.** Where one
+      `(repo, path)` carries two entries of this family, `_grandfather_cites`
+      keeps the FIRST (`cites.setdefault(key, cite)` — the parent's landed
+      line, BYTE-UNMOVED by this change), so the two downgrade one finding
+      between them and are reported stale as one row between them. Reporting a
+      row per LINE would require the SHARED reader to return a multimap, which
+      would change what the DOWNGRADE honours — the one thing this packet
+      states it does not do — and would report a residue the downgrade half
+      cannot reach. **MEASURED at `opensoft/xFactory` `0ecb370e`: 49 entries,
+      **49 DISTINCT** `(family, repo, path)` triples — the shape does not exist
+      today, in this family or in any other.** Pinned either way by
+      `test_two_entries_at_one_target_report_the_one_row_the_reader_admits`.
+      Raised by Copilot on PR #981 (`families.py:621`).
 - [ ] 7.6 **NO ENTRY IS PRUNED AND NO RECORD IS TOUCHED.**
       `health/dispositions.yaml` lives in `opensoft/xFactory` and this pull
       request does not edit it. The three entries this authoring measures as
       stale are reported, not removed: pruning them is the lifecycle owner's
       act in that repository, on that repository's own pull request.
+- [ ] 7.8 **`corpus.discover_repos` IS NOT NARROWED, THOUGH D2b IS ABOUT ITS
+      ASYMMETRY.** The aggregation's ANCHOR is admitted on `is_dir()` while
+      every other pinned repository must pass `_is_materialized_repo`, and that
+      laxness is what lets an unmaterialized `openxFactory` pin enumerate as a
+      repository the run reads nothing of. Tightening it there would be the
+      general fix — and it would change what EVERY family measures, close every
+      fixture aggregation in this suite out of its own anchor (the admission's
+      own docstring says that is why it is lax), and put a one-line enumerator
+      change inside a packet whose declared surface is one second last pass on
+      one family. **This packet narrows only what IT reports** (`design.md`
+      D2b) and leaves the enumerator byte-unmoved; whether the anchor's
+      admission should be tightened, and what an aggregation run should do when
+      its anchor is empty, is a question for the enumerator's own change with
+      its own estate-wide gate run. Measured cost of leaving it: **ZERO** rows
+      in this family, the narrowing above making the anchor's laxness
+      unreachable from this pass.

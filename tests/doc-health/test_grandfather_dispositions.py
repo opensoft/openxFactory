@@ -56,6 +56,7 @@ from doc_health.families import (_AGGREGATION_REPO,
                                  _CITE_EXCERPT_CHARS,
                                  _cite_excerpt,
                                  _grandfather_cites,
+                                 _lifecycle_scope,
                                  _honour_grandfather_dispositions,
                                  _stale_grandfather_dispositions,
                                  fam_ratified_provenance)
@@ -93,8 +94,8 @@ FOREIGN_CITE = ('A record-immutability ruling about the same file, on a '
                 "family's finding.")
 
 
-def _doc(path, text):
-    return Doc(REPO, path, text, corpus.parse_status(text),
+def _doc(path, text, repo=REPO):
+    return Doc(repo, path, text, corpus.parse_status(text),
                corpus.parse_kind(text))
 
 
@@ -807,23 +808,26 @@ def test_a_clean_corpus_makes_every_in_scope_entry_stale(tmp_path):
 
 
 def test_an_entry_naming_a_repository_out_of_scope_is_never_stale(tmp_path):
-    """A REPOSITORY THIS RUN DID NOT ENUMERATE IS NOT EVIDENCE OF ANYTHING, and
-    this is the narrowing that keeps the class honest. An aggregation checkout
-    with a submodule unmaterialized reports no finding for that repository, so
-    every entry naming it would fall out of the difference and be reported
-    stale on the strength of a measurement nobody took.
+    """A REPOSITORY THIS RUN DID NOT READ IS NOT EVIDENCE OF ANYTHING, and this
+    is the narrowing that keeps the class honest. An aggregation checkout with
+    a submodule unmaterialized reports no finding for that repository, so every
+    entry naming it would fall out of the difference and be reported stale on
+    the strength of a measurement nobody took.
 
     The SAME file is read under two scopes, so what moves is the scope and not
-    the fixture: with `codexFactory` out of `ctx.repo_paths` its entry is
-    passed over in silence, and with it in scope the same entry is reported.
+    the fixture: with `codexFactory` contributing no document its entry is
+    passed over in silence, and with a `codexFactory` document in the scan set
+    — a CLEAN one, so the entry still matches no finding — the same entry is
+    reported.
     """
     agg = _dispositions(tmp_path, _entry(repo="codexFactory"))
     without = fam_ratified_provenance(
         _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg))
     assert _stale(without) == []
     within = fam_ratified_provenance(
-        _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg,
-                   repos=(REPO, "codexFactory")))
+        _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT),
+                   _doc(ARCHIVED, CLEAN_TEXT, repo="codexFactory"),
+                   agg_root=agg, repos=(REPO, "codexFactory")))
     stale, = _stale(within)
     assert stale.severity == WARNING
     assert "codexFactory" in stale.rule
@@ -985,3 +989,154 @@ def test_a_target_spelled_across_two_lines_still_reads_back(tmp_path):
     assert "\n" not in stale.rule
     line = report.plan_line(stale, strict=True)
     assert report.PLAN_RE.match(line), line
+
+
+# --- #981 bench: the three shapes Copilot's suppressed comments named --------
+
+
+def test_the_stale_rows_operator_text_is_pinned_to_its_literal_wording(
+        tmp_path):
+    """THE ACTION A READER IS TOLD TO TAKE IS PINNED AS TEXT, NOT AS A SYMBOL.
+
+    Every other assertion in this file compares an emitted action against
+    `_STALE_ACTION` imported from the module that builds it, so a rewrite of
+    the production wording moves both sides at once and stays green — the row
+    could come to say anything at all and no test would notice. This one holds
+    the SENTENCE, character for character, in the place a reader of the test
+    can read it: an operator instruction is an interface, and the packet's D1
+    puts that exact instruction to the owner as the thing option 1 buys
+    (*"prune the entry or re-point it"*). If Brett Heap rules option 2, this
+    assertion is the one that must be re-authored, deliberately and visibly,
+    along with the constant it pins (`tasks.md` § 1.1).
+
+    Copilot's suppressed comment on PR #981 (`families.py:370`), TAKEN.
+    """
+    agg = _dispositions(tmp_path, _entry(path=VANISHED))
+    stale, = _stale(_run(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg))
+    assert stale.action == (
+        "prune the entry, or re-point it at the record that still carries "
+        "the defect: the grandfather it records reaches no finding this run "
+        "raises, so it disposes nothing and cannot be read back from the "
+        "report. Cite: " + CITE)
+    assert stale.rule == (
+        "STALE grandfather disposition — the entry naming "
+        f"{REPO} {VANISHED} matches no finding this family raises")
+    # and the two constants are those literals, so the production text cannot
+    # drift behind a symbol either
+    assert _STALE_ACTION.startswith("prune the entry, or re-point it at the ")
+    assert _STALE_RULE_PREFIX == "STALE grandfather disposition — "
+
+
+def test_two_entries_at_one_target_report_the_one_row_the_reader_admits(
+        tmp_path):
+    """ONE ROW PER HONOURED TARGET — WHICH IS NOT THE SAME AS ONE ROW PER LINE
+    OF THE FILE, AND THE DIFFERENCE IS PINNED HERE RATHER THAN LEFT TO BE
+    DISCOVERED.
+
+    `_grandfather_cites` is a `(repo, path) -> cite` MAP and takes the FIRST
+    entry where one target carries two — `cites.setdefault(key, cite)`, the
+    parent packet's landed line, BYTE-UNMOVED by this change. So two entries
+    at one target downgrade one finding between them and are reported stale as
+    one row between them. That is the shared admission rule's answer, not this
+    pass's: making the stale half a multimap would report a residue the
+    downgrade half cannot honour, and the whole ground of `design.md` D2 is
+    that ONE reading of the file serves both halves.
+
+    MEASURED, at `opensoft/xFactory` `0ecb370e`: the file carries 49 entries
+    and 49 DISTINCT `(family, repo, path)` triples — the duplicate-target
+    shape does not exist today, in this family or in any other. Whether a
+    duplicate should be reported per LINE is a question about the shared
+    reader, and it belongs to whoever changes that reader (`tasks.md` § 7.7).
+
+    Copilot's suppressed comment on PR #981 (`families.py:621`), TAKEN AS A
+    TEST AND REFUSED AS A CODE CHANGE, for the reason above.
+    """
+    second = ("A SECOND ruling at the same target, recorded later, which the "
+              "shared reader does not reach because the first one wins.")
+    agg = _dispositions(tmp_path, _entry(path=VANISHED)
+                        + _entry(path=VANISHED, cite=second))
+    stale = _stale(_run(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg))
+    assert len(stale) == 1
+    assert CITE in stale[0].action and second not in stale[0].action
+    # the map itself is the reason, and it is the map the DOWNGRADE reads
+    assert _grandfather_cites(
+        _ctx(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg)) == {
+        (REPO, VANISHED): CITE}
+
+
+def test_an_entry_naming_a_clean_active_path_is_reported_stale(tmp_path):
+    """THE ARCHIVED-PATH BOUNDARY IS A PROPERTY OF THE FINDING, NOT OF THE
+    ENTRY, AND THIS PASS TAKES ITS COMPLEMENT OVER ENTRIES — SO AN ENTRY OVER
+    A CLEAN ACTIVE PATH IS REPORTED.
+
+    `_honour_grandfather_dispositions` applies `_ARCHIVED_PACKET_PREFIX` to the
+    FINDING it is about to move (the parent's D2: an active record's header is
+    a plain fix, never a ruling's subject). `_grandfather_cites` admits an
+    entry at any path, and this pass asks only whether the entry named a
+    finding this run raised. The two cases therefore differ, deliberately:
+
+    * an entry over an active path whose record STILL DRAWS a finding is NOT
+      stale — it matched — and `test_an_active_path_entry_whose_finding_stands_
+      is_not_stale` pins that;
+    * an entry over an active path whose record is CLEAN is reported stale,
+      because it reaches nothing and never will.
+
+    THE ALTERNATIVE WAS CONSIDERED AND IS NAMED IN `design.md` D2a: filter the
+    complement by the same archive prefix, so an active-path entry is never
+    reported. Its cost is silence — an entry that can never dispose anything is
+    the STRONGEST case of an entry that disposes nothing, and suppressing it
+    re-opens, one level down, exactly the hole this packet exists to close.
+    MEASURED at `opensoft/xFactory` `0ecb370e`: ZERO of the 18 entries name a
+    path outside `openspec/changes/archive/`, so the population of the
+    difference is empty today and the two readings cost the same report.
+
+    Copilot's suppressed comment on PR #981 (`families.py:619`), TAKEN AS A
+    NAMED DECISION AND A TEST rather than as a silent filter.
+    """
+    agg = _dispositions(tmp_path, _entry(path=ACTIVE))
+    findings = _run(_doc(ACTIVE, CLEAN_TEXT),
+                    _doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg)
+    # the active record itself draws nothing: it is conformant
+    assert [(f.severity, f.path) for f in findings
+            if f.path not in (_DISPOSITIONS_REL,)] == [
+        (CRITICAL, OTHER_ARCHIVED)]
+    stale, = _stale(findings)
+    assert stale.severity == WARNING
+    assert f"{REPO} {ACTIVE}" in stale.rule
+
+
+def test_an_unmaterialized_anchor_reports_no_entry_of_its_own_as_stale(
+        tmp_path):
+    """THE ANCHOR IS ADMITTED ON `is_dir()` ALONE, SO AN EMPTY DIRECTORY IS A
+    REPOSITORY IN `ctx.repo_paths` THAT CONTRIBUTED NOTHING — AND THAT IS THE
+    SHAPE THE SCOPE NARROWING HAS TO SURVIVE.
+
+    `corpus.discover_repos` requires `_is_materialized_repo` of every pinned
+    repository EXCEPT `openxFactory`, which it admits on `is_dir()` because it
+    is "the aggregation's anchor rather than one repository among many" and
+    every fixture aggregation in this suite is a plain directory. An
+    aggregation checkout whose `openxFactory` pin is unmaterialized therefore
+    leaves an empty directory that enumerates as a repository and yields no
+    document, and a scope read off `ctx.repo_paths` would call every entry
+    naming it stale on a checkout nobody measured.
+
+    MEASURED, on the standing file at `opensoft/xFactory` `0ecb370e` with the
+    anchor emptied: FIFTEEN false `warning` rows before the narrowing moved to
+    the document set, ZERO after, and the fully materialized aggregation
+    reports the SAME three stale entries either way. Reading the scope off
+    `_lifecycle_scope(ctx)` — the exact document set the five arms above read —
+    is what makes "this run did not read that repository" the predicate rather
+    than "this run listed a directory of that name".
+
+    Copilot's suppressed comment on PR #981 (`families.py:618`), TAKEN.
+    `corpus.discover_repos` is NOT moved: its laxer anchor admission is every
+    fixture aggregation's route in, and narrowing it would be a change to what
+    EVERY family measures rather than to what this one reports.
+    """
+    agg = _dispositions(tmp_path, _entry() + _entry(repo="codexFactory"))
+    ctx = _ctx_repos(agg_root=agg, repos=(REPO, "codexFactory"))
+    assert set(ctx.repo_paths) == {REPO, "codexFactory"}
+    assert _lifecycle_scope(ctx) == []
+    assert _grandfather_cites(ctx) == {(REPO, ARCHIVED): CITE,
+                                       ("codexFactory", ARCHIVED): CITE}
+    assert _stale(fam_ratified_provenance(ctx)) == []

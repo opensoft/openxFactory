@@ -574,14 +574,32 @@ def _stale_grandfather_dispositions(ctx, findings):
     two passes compose rather than race: the matched entries are exactly the
     keys the downgrade reached, and this pass never has to re-derive them.
 
-    A REPOSITORY THIS RUN DID NOT ENUMERATE IS NOT EVIDENCE OF ANYTHING, and
-    that is the one narrowing here. An aggregation checkout with a submodule
+    A REPOSITORY THIS RUN DID NOT READ IS NOT EVIDENCE OF ANYTHING, and that
+    is the one narrowing here. An aggregation checkout with a submodule
     unmaterialized reports nothing for that repository, so every entry naming
     it would fall out of the difference and be reported STALE on the strength
-    of a repository nobody read. `ctx.repo_paths` is the set the run actually
-    enumerated (`corpus.discover_repos`), and an entry outside it is passed
-    over in silence rather than reported on a measurement that was never
-    taken.
+    of a repository nobody read.
+
+    THE SCOPE IS THE SET OF REPOSITORIES THAT ACTUALLY CONTRIBUTED A DOCUMENT
+    THIS FAMILY READ, AND NOT `ctx.repo_paths`. That distinction is not a
+    refinement, it is the narrowing itself: `corpus.discover_repos` admits the
+    aggregation's ANCHOR on `is_dir()` alone — "`openxFactory` itself keeps its
+    laxer `is_dir()` admission deliberately", its own docstring says, so that a
+    `--repo-root` pointed at a fixture tree still finds it — while every other
+    repository must pass `_is_materialized_repo`. An aggregation checkout whose
+    `openxFactory` pin is unmaterialized therefore leaves an EMPTY DIRECTORY
+    that lands in `ctx.repo_paths` and contributes no document at all, and
+    reading the scope off `ctx.repo_paths` would report every openxFactory
+    entry in the file as stale on a checkout nobody measured. MEASURED, on the
+    standing file at `opensoft/xFactory` `0ecb370e` with the anchor as an empty
+    directory: FIFTEEN false `warning` rows, which is every openxFactory entry
+    this family honours. `_lifecycle_scope(ctx)` is the exact document set the
+    five arms above read, so a repository absent from it raised nothing here
+    for a reason this pass cannot tell from "the records are all clean", and an
+    entry naming it is passed over in silence rather than reported on a
+    measurement that was never taken. (Raised by Copilot on PR #981; the
+    aggregation's own enumerator is not moved, that admission being every
+    fixture aggregation's route in.)
 
     THE SUBJECT IS THE ENTRY, SO THE FINDING IS REPORTED AGAINST THE FILE.
     The record the entry names is fine — that is the whole point — so a row
@@ -612,7 +630,7 @@ def _stale_grandfather_dispositions(ctx, findings):
     if not cites:
         return []
     reported = {(f.repo, f.path) for f in findings}
-    in_scope = set(ctx.repo_paths)
+    in_scope = {doc.repo for doc in _lifecycle_scope(ctx)}
     out = []
     for repo, path in sorted(cites):
         if repo not in in_scope or (repo, path) in reported:

@@ -10,7 +10,8 @@ out wide and do as much as possible in parallel"** — commissioned the authorin
 and took none of them.
 
 **D1 IS THE DECLARED VETO POINT AND IT IS PUT AS A MULTIPLE-CHOICE QUESTION**,
-recommendation first. D2 through D5 are carried beside it; D2's band sentence
+recommendation first. D0, D2, D2a, D2b, D3, D4, D5 and D6 are carried beside
+it — EIGHT, so the packet takes NINE decisions in all; D2's band sentence
 follows D1 and everything else in D2 stands whichever way D1 goes.
 
 ## 0. The brief
@@ -222,14 +223,16 @@ the parent's D3 refused, one level down.
 
 **TWO NARROWINGS, EACH MEASURED.**
 
-1. **A repository the run did not enumerate is passed over in silence.**
-   `ctx.repo_paths` is what `corpus.discover_repos` actually found; an
+1. **A repository the run did not READ is passed over in silence.** An
    aggregation checkout with a submodule unmaterialized reports nothing for
    that repository, so every entry naming it would fall out of the difference
    and be reported stale on the strength of a measurement nobody took. Today
    that is not hypothetical: the three stale entries are codexFactory's, and a
    run that did not materialize codexFactory would report them stale for the
-   wrong reason and the fifteen openxFactory ones as well.
+   wrong reason and the fifteen openxFactory ones as well. **The set is
+   `{doc.repo for doc in _lifecycle_scope(ctx)}` and NOT `ctx.repo_paths`** —
+   D2b, below, carries why, and it is the difference between fifteen false
+   rows and none on a shape the estate can actually produce.
 2. **A `--single-repo` run reports nothing of this class**, inherited exactly as
    the downgrade inherits it — `_grandfather_cites` returns `{}` where there is
    no aggregation root. **This is the parent's pinned asymmetry, and it is
@@ -264,7 +267,20 @@ error is not a rule.** Pruning an entry that reaches nothing arbitrates
 nothing, reverses no gate decision, and changes no deliberately-set state that
 is still doing anything, which is the `contested` test as canon writes it.
 
-**ONE ROW PER ENTRY, AT ONE KEY.** Two stale entries are two rows at the same
+**ONE ROW PER HONOURED TARGET, AT ONE KEY — AND A TARGET IS NOT A LINE OF THE
+FILE.** `_grandfather_cites` is a `(repo, path) -> cite` MAP and its last line,
+`cites.setdefault(key, cite)`, is the parent's landed code, BYTE-UNMOVED here:
+where one target carries two entries the FIRST wins, so those two entries
+downgrade one finding between them and are reported stale as one row between
+them. That is the shared reader's answer and not this pass's, and making the
+stale half a multimap would report a residue the downgrade half cannot honour —
+the exact disagreement between two readers of one file that D2 exists to
+prevent. Measured at `0ecb370e`: the file carries **49 entries and 49 DISTINCT
+`(family, repo, path)` triples**, so the duplicate-target shape does not exist
+today in this family or in any other; whether a duplicate deserves a row per
+LINE is a question about the shared reader and belongs to whoever changes it
+(`tasks.md` § 7.7). `test_two_entries_at_one_target_report_the_one_row_the_reader_admits`
+pins the answer either way. Two stale entries are two rows at the same
 `(family, repo, path)`. `Finding.match_key()` collapses them to one regression
 key — which costs nothing, a `warning` never entering that comparison — and
 `Finding.sort_key()` includes the rule, so the rows are ordered and rendered
@@ -280,10 +296,112 @@ honoured entry matches nothing — so a run with no findings now reads the file
 and reports every in-scope entry. The downgrade pass's own early return is
 unmoved and is asserted directly instead; `tasks.md` § 4.4 carries both halves.
 
+## D2a — the archived-path boundary is the FINDING's, so a clean ACTIVE entry IS reported
+
+**RECOMMENDED: take the complement over ENTRIES, and do not re-apply the
+archive prefix here.** Raised by Copilot on PR #981 (`families.py:619`), taken
+as a named decision rather than as a silent filter.
+
+**THE ASYMMETRY IS REAL AND IT IS IN THE PARENT'S CODE, NOT IN THIS PASS.**
+`_grandfather_cites` admits an entry at ANY path — its docstring says so in
+terms: *"(The other narrowing, the archived-path prefix, is a property of the
+FINDING rather than of the entry and is applied at the downgrade site.)"* —
+while `_honour_grandfather_dispositions` refuses to move a finding whose path
+is outside `openspec/changes/archive/`, because the parent's D2 ruled that an
+active record's header is a plain fix and never a ruling's subject. So the
+downgrade's EFFECTIVE reach is narrower than the honoured map, and the
+complement this pass takes is over the map.
+
+**WHAT THAT MEANS, IN THE TWO CASES, AND THEY DIFFER DELIBERATELY.**
+
+- An entry over an ACTIVE path whose record STILL DRAWS a finding is **not
+  stale** — it matched the finding, even though it will never move it —
+  and `test_an_active_path_entry_whose_finding_stands_is_not_stale` pins that.
+- An entry over an ACTIVE path whose record is **CLEAN** IS reported stale,
+  because it reaches nothing and never will, and
+  `test_an_entry_naming_a_clean_active_path_is_reported_stale` pins that.
+
+**THE ALTERNATIVE: filter the complement by the same archive prefix**, so an
+active-path entry is never reported at all.
+*Cost:* SILENCE, on the strongest case in the class. An entry that can never
+dispose anything under the parent's own boundary is not a lesser form of an
+entry that disposes nothing — it is the extreme form, and suppressing it
+re-opens one level down the exact hole this packet exists to close: a line of
+a governance file that does nothing and says so nowhere.
+*Consequence:* it would also make the two halves disagree in the other
+direction — the file would converge on a set that still contained entries no
+reader ever reports.
+
+**THE COST OF EITHER READING IS ZERO ROWS TODAY, MEASURED.** At `0ecb370e`,
+**ZERO** of the 18 `family: ratified-provenance` entries name a path outside
+`openspec/changes/archive/` (`tasks.md` § 7.3 measured the same population from
+the other side). The decision is therefore about what the rule SAYS rather than
+about what tonight's report prints, which is why it is written down here
+instead of being settled by a one-line filter.
+
+## D2b — the scope is the DOCUMENT SET this family read, not `ctx.repo_paths`
+
+**RECOMMENDED: `in_scope = {doc.repo for doc in _lifecycle_scope(ctx)}`.**
+Raised by Copilot on PR #981 (`families.py:618`), TAKEN as a code change
+because the measurement below is fifteen false rows.
+
+**THE NARROWING IN D2 HAD A HOLE EXACTLY WHERE THE POPULATION IS.**
+`corpus.discover_repos` requires `_is_materialized_repo` — `path.is_dir() and
+(path / ".git").exists()` — of every pinned repository EXCEPT the aggregation's
+ANCHOR: *"`openxFactory` itself keeps its laxer `is_dir()` admission
+deliberately — it is the aggregation's anchor rather than one repository among
+many, and a `--repo-root` pointed at a tree where it is a plain directory
+(every fixture aggregation in this suite) must still find it."* An aggregation
+checkout whose `openxFactory` pin is UNMATERIALIZED leaves an empty directory
+behind, and that directory enumerates as a repository and contributes no
+document. `ctx.repo_paths` therefore contains `openxFactory` on a checkout
+where nothing of openxFactory was read — and the complement, taken over
+`ctx.repo_paths`, would call every openxFactory entry in the file stale.
+
+**MEASURED, AND THE FIGURE IS THE REASON.** `scripts/doc-health.py --repo-root
+<root> --family ratified-provenance`, run against the standing
+`health/dispositions.yaml` from `opensoft/xFactory` `0ecb370e` with
+`openxFactory/` present as an EMPTY DIRECTORY: **FIFTEEN** `warning` rows —
+every openxFactory entry this family honours — reading the scope off
+`ctx.repo_paths`, and **ZERO** reading it off `_lifecycle_scope(ctx)`. Against
+the fully materialized aggregation the two readings agree exactly: **15
+matched / 3 stale**, the same three codexFactory paths, exit 0 either way. The
+fix costs nothing that is measured and removes fifteen rows that are false.
+
+**WHY THE DOCUMENT SET IS THE RIGHT PREDICATE.** Every finding this family can
+raise comes from `_lifecycle_scope(ctx)` and from nowhere else, so a repository
+absent from that set raised nothing here for a reason this pass cannot tell
+from *"its records are all clean"* — which is precisely the ambiguity the
+narrowing exists to refuse. `ctx.repo_paths` answers *"did the run list a
+directory of that name"*; the document set answers *"did the run read that
+repository"*, and the second is the question.
+
+**THE ALTERNATIVE: narrow `corpus.discover_repos` instead**, so an empty anchor
+never enumerates.
+*Cost:* it changes what EVERY family measures, not what this one reports, and
+it closes every fixture aggregation in the suite out of its own anchor — the
+admission's docstring says that is why it is lax. A packet whose stated surface
+is *one second last pass on one family* does not get to move the estate's
+enumerator; if the anchor's admission should be tightened, that is its own
+change with its own gate run.
+*Consequence of doing nothing:* the guard D2 already declares would be
+inoperative for fifteen of the eighteen entries it governs.
+
+**PINNED BY TWO TESTS.**
+`test_an_unmaterialized_anchor_reports_no_entry_of_its_own_as_stale` builds the
+shape directly — both repositories in `ctx.repo_paths`, both entries admitted
+by `_grandfather_cites`, an empty `_lifecycle_scope(ctx)`, zero stale rows —
+and `test_an_entry_naming_a_repository_out_of_scope_is_never_stale` reads the
+SAME file under two scopes so that what moves is the scope and not the fixture.
+That second test is this packet's own, added at the authoring, and its
+in-scope half is re-authored in this bench round to supply the codexFactory
+document the new predicate asks for (`tasks.md` § 4.7).
+
 ## D3 — the tests extend the parent's rig rather than opening a new file
 
-**RECOMMENDED: `tests/doc-health/test_grandfather_dispositions.py`, twelve
-tests added.**
+**RECOMMENDED: `tests/doc-health/test_grandfather_dispositions.py`, sixteen
+tests added (twelve at the authoring, four in the PR #981 bench round), and one
+of this packet's own re-authored in that round.**
 
 One mechanism, one home. That file already owns the fixtures this class needs —
 `_entry`, `_dispositions`, `_ctx`, `_run` — and already reads the same file
@@ -305,9 +423,27 @@ the row's own grammar (`plan_line(strict=True)` parses, `parse_previous` yields
 no key and no contested key, and a target spelled across two lines is collapsed
 to one).
 
-**MEASURED, BEFORE AND AFTER.** `grep -c '^def test_'` on that file: **22** on
-`origin/main` `8015d45f`, **34** on this branch. `pytest
-tests/doc-health/test_grandfather_dispositions.py -q` → **34 passed, exit 0**.
+**AND FOUR MORE IN THE PR #981 BENCH ROUND**, each answering one of Copilot's
+SIX suppressed comments across its two reviews: the operator wording pinned as
+a LITERAL sentence rather than against the constant that builds it (so a
+rewrite of the production text cannot move both sides at once and stay green);
+the duplicate-target answer, raised twice and answered once; D2a's asymmetry;
+and D2b's unmaterialized anchor, the one item of the six taken as a CODE
+change. A fifth suppressed comment was a counting defect in `tasks.md` § 1.2
+and is repaired there. One existing test of this packet's own —
+`test_an_entry_naming_a_repository_out_of_scope_is_never_stale` — is
+re-authored by D2b so that its in-scope half supplies the document the new
+predicate asks for; `tasks.md` § 4.7 carries that move by name.
+
+**MEASURED, BEFORE AND AFTER, AT THE TIP THIS BRANCH CARRIES.** `grep -c
+'^def test_'` on that file: **23** on `origin/main` `d4d96cca` — and **23**
+again at `origin/main` `0805c3bb`, re-read after the bench round so the
+before-figure is not carried across a moving main — against **39** on this
+branch: sixteen added. (The same counts read 22 and 34 at `8015d45f` and
+`c521504c`; `main` itself added one to this file on #980 between the authoring
+and the bench round, which is why the before-figure moved once and is
+re-measured here rather than carried.) `pytest
+tests/doc-health/test_grandfather_dispositions.py -q` → **39 passed, exit 0**.
 The whole-directory figures and the control run are in `tasks.md` § 5.
 
 ## D4 — `code_surface` is non-empty, so the archive waits for realization evidence

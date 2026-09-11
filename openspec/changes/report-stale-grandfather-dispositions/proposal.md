@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `scripts/doc_health/families.py` (four module constants and ONE new function, `_stale_grandfather_dispositions`, plus a two-line tail on `fam_ratified_provenance`) and the tests that pin them in `tests/doc-health/test_grandfather_dispositions.py` (the parent packet's own rig, extended). ONE SECOND LAST PASS IS ADDED TO ONE FAMILY AND NOTHING ELSE MOVES: `fam_ratified_provenance` returns `graded + _stale_grandfather_dispositions(ctx, graded)` instead of `graded`, and that pass reports — at `warning`, against the AGGREGATION's `health/dispositions.yaml` under the repository id `xFactory` that `fam_submodule_pin_drift` and `fam_notebook_projection_drift` already report the aggregation as — every entry this family HONOURS whose `(repo, path)` names no finding the run raised. The admission rule is NOT re-decided and NOT copied: the honoured set is `_grandfather_cites`, the same map the downgrade reads, so one rule serves both halves of the comparison. Two narrowings, each measured: an entry naming a repository absent from `ctx.repo_paths` is passed over (an unmaterialized submodule reports nothing, and every entry naming it would otherwise be called stale on a measurement nobody took), and a `--single-repo` run reports nothing at all (no aggregation root, no file, no entries). NOTHING ELSE MOVES: no arm, no scope, no document set, no threshold, no resolution class, no other family, no report field, no workflow, no contract member, no schema and no path; every finding the five arms and the downgrade pass build is returned as they built it, by identity, and the new rows are APPENDED. TWELVE tests are ADDED to the parent's file (22 -> 34 test functions, both counts re-measured on this tree and on an `origin/main` `8015d45f` worktree beside it). TWO existing tests in that file MOVE, and both moves are this change's own behaviour rather than a repair — `tasks.md` § 4.4 carries them individually.
+code_surface: openxFactory — `scripts/doc_health/families.py` (four module constants and ONE new function, `_stale_grandfather_dispositions`, plus a two-line tail on `fam_ratified_provenance`) and the tests that pin them in `tests/doc-health/test_grandfather_dispositions.py` (the parent packet's own rig, extended). ONE SECOND LAST PASS IS ADDED TO ONE FAMILY AND NOTHING ELSE MOVES: `fam_ratified_provenance` returns `graded + _stale_grandfather_dispositions(ctx, graded)` instead of `graded`, and that pass reports — at `warning`, against the AGGREGATION's `health/dispositions.yaml` under the repository id `xFactory` that `fam_submodule_pin_drift` and `fam_notebook_projection_drift` already report the aggregation as — every entry this family HONOURS whose `(repo, path)` names no finding the run raised. The admission rule is NOT re-decided and NOT copied: the honoured set is `_grandfather_cites`, the same map the downgrade reads, so ONE ENTRY-SIDE rule serves both halves of the comparison. The one asymmetry that leaves is named rather than left to be found: the archived-path boundary is a property of the FINDING the downgrade moves and is applied at the downgrade site, so an entry over a CLEAN ACTIVE path — which can never be honoured — is reported stale rather than silently dropped (`design.md` D2a; measured population ZERO at `0ecb370e`, all 18 entries naming archived paths). Two narrowings, each measured: an entry naming a repository that contributed NO DOCUMENT to this family's own scan set is passed over (an unmaterialized submodule reports nothing, and every entry naming it would otherwise be called stale on a measurement nobody took) — and that scope is `{doc.repo for doc in _lifecycle_scope(ctx)}` rather than `ctx.repo_paths`, because `corpus.discover_repos` admits the aggregation's ANCHOR on `is_dir()` alone, so an unmaterialized `openxFactory` pin is an empty directory that enumerates as a repository and is read as none: FIFTEEN false `warning` rows on the standing file measured under the `ctx.repo_paths` reading, ZERO under this one, and 15 matched / 3 stale unchanged on the materialized aggregation (`design.md` D2b) — and a `--single-repo` run reports nothing at all (no aggregation root, no file, no entries). NOTHING ELSE MOVES: no arm, no scope, no document set, no threshold, no resolution class, no other family, no report field, no workflow, no contract member, no schema and no path; every finding the five arms and the downgrade pass build is returned as they built it, by identity, and the new rows are APPENDED. SIXTEEN tests are ADDED to the parent's file (23 -> 39 test functions, both counts re-measured on this tree and on an `origin/main` worktree beside it, and the before-figure re-read at `0805c3bb` after the bench round) — twelve at the first authoring and FOUR more in the PR #981 bench round, pinning the operator wording literally, the duplicate-target answer, the D2a asymmetry and the D2b unmaterialized anchor. THREE existing tests in that file MOVE, and all three moves are this change's own behaviour rather than a repair — `tasks.md` § 4.4 and § 4.7 carry them individually.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` run at the tree the merge carries.
 sequenced_after: []
 ---
@@ -26,7 +26,8 @@ requirement here may be cited as approved until he rules on this packet itself;
 `.openspec.yaml` declares drafting provenance with **no approval pair**, and
 every document in this packet carries `Status: draft`. **NOTHING IS PROMOTED** —
 this pull request edits no file under `openspec/specs/`. Every judgment this
-authoring session took is listed in `design.md` as **D0 through D5**, each with
+authoring session took is listed in `design.md` as **D0, D1, D2, D2a, D2b, D3,
+D4, D5 and D6** — nine, counted rather than characterised — each with
 a recommendation and each put for veto; the one most worth one is **D1**, put as
 a MULTIPLE-CHOICE question over what a stale entry IS.
 
@@ -111,14 +112,18 @@ either side, which is the same equality one line longer) — with one
 removed; no promoted scenario moves, is retitled or loses a bullet; no marker is
 declared, there being nothing removed to declare.
 
-The added scenario, *A recorded disposition matches no finding*, says five
+The added scenario, *A recorded disposition matches no finding*, says SIX
 things: an honoured entry naming no finding this run raised is reported at
 **`warning`** against the dispositions file's own path, quoting the entry's
 target and the recorded citation; the finding is NOT raised against the record
-the entry names; an entry naming a repository the run did not enumerate is not
-reported; an entry this family would not honour is not reported either, one
-admission rule serving both halves; and a run with no aggregation checkout
-reports nothing of this class.
+the entry names; an entry naming a repository the run READ NO DOCUMENT FROM is
+not reported, the scope being the repositories that contributed to the
+lifecycle scan set rather than the repositories the run enumerated
+(`design.md` D2b); an entry this family would not honour is not reported either, one
+admission rule serving both halves; an entry over a path outside `openspec/changes/archive/` that
+names no finding IS reported, that boundary belonging to the finding the
+downgrade moves rather than to the entry (`design.md` D2a); and a run with no
+aggregation checkout reports nothing of this class.
 
 **THE REALIZATION RIDES THIS PULL REQUEST.** `scripts/doc_health/families.py`
 gains four constants and one function, `_stale_grandfather_dispositions`, and
