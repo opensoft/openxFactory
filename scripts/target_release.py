@@ -319,6 +319,27 @@ def declaration(proposal: Path) -> tuple[bool, str | None]:
     return True, value_token(raw)
 
 
+def _registry_present(repo_root: Path) -> bool:
+    """Whether `contracts/releases/` exists AS A REAL DIRECTORY of this tree.
+
+    `Path.is_dir()` FOLLOWS SYMLINKS, so a committed `contracts/releases`
+    DIRECTORY SYMLINK — including one pointing outside this tree — would
+    otherwise be treated as an estate-defined registry, and every file
+    reached through it would resolve as though this repository defined it.
+    The candidate-file guard (`is_file() and not is_symlink()`) does not
+    catch this on its own: a REGULAR file reached through a symlinked
+    parent directory is not itself a symlink, so checking only the
+    candidate file lets an external inventory pass whenever the directory
+    that holds it is the symlink rather than the file. So the directory is
+    checked for symlink-ness here, once, and every caller that needs to
+    know whether the registry is present uses THIS function — never a bare
+    `.is_dir()` — so `Report.registry_present` can never say something
+    `resolves_as_release` did not itself act on.
+    """
+    registry = repo_root / RELEASE_REGISTRY_DIR
+    return registry.is_dir() and not registry.is_symlink()
+
+
 def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     """`(resolved, registry_present)` for a token read as a named release.
 
@@ -335,18 +356,22 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     because refusing every release name in a tree that cannot define one would
     make the validator unusable outside this repository.
 
-    A CANDIDATE INVENTORY MUST BE A REGULAR FILE, NOT A SYMLINK. `Path.is_file()`
-    follows symlinks, so a committed `contract-vX.Y.digests.yaml` symlink —
-    including one pointing outside this tree — would otherwise be treated as an
+    NEITHER THE REGISTRY DIRECTORY NOR THE CANDIDATE INVENTORY MAY BE A
+    SYMLINK. `Path.is_file()` and `Path.is_dir()` both follow symlinks, so a
+    committed `contract-vX.Y.digests.yaml` symlink OR a committed
+    `contracts/releases` DIRECTORY symlink — either one, including one
+    pointing outside this tree — would otherwise be treated as an
     estate-defined release. This module's sibling
     `scripts/hermes_runtime_validation/release.py` already excludes symlinked
     inventories for exactly this reason (`RepoSource.exists`,
     `list_release_inventories`); the same guard is RESTATED here rather than
     imported, because this module must judge a tree that carries no
-    `scripts/hermes_runtime_validation/` at all.
+    `scripts/hermes_runtime_validation/` at all — and it is restated at BOTH
+    the directory and the file, because the sibling module's tree never
+    faced a symlinked directory holding a genuine file.
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
-    present = registry.is_dir()
+    present = _registry_present(repo_root)
     if not RELEASE_ID_RE.match(token):
         return False, present
     if not present:
@@ -480,7 +505,7 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
     grandfathered: list[tuple[str, str]] = []
     inside_implemented = inside_release = 0
     active_declaring = 0
-    registry_present = (repo_root / RELEASE_REGISTRY_DIR).is_dir()
+    registry_present = _registry_present(repo_root)
 
     active = _proposals(changes, archived=False)
     for proposal in active:

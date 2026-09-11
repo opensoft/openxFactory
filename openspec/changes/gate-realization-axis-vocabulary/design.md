@@ -682,3 +682,73 @@ inventory beside a symlinked one for a DIFFERENT token still resolves, so the
 refusal is per-candidate and not a registry-wide fallback. Measured against
 the code as it stood (`git stash` the fix, keep the tests): all three FAIL,
 confirming the reproduction; restored, all 65 tests in the file PASS.
+
+### D8g — the bench's seventh round, after a merge of main: one thread, TAKEN, and it is the directory-level twin of D8f
+
+A Copilot pass on the merge of `origin/main` `ac688c40` into this branch
+opened one new thread (`PRRT_kwDOTAvnrs6hgYZd`, `scripts/target_release.py:349`):
+D8f made the CANDIDATE FILE'S symlink-ness the guard, but never checked the
+REGISTRY DIRECTORY itself.
+
+**(o) A COMMITTED `contracts/releases` DIRECTORY SYMLINK LET AN EXTERNAL
+INVENTORY PASS, BECAUSE ONLY THE CANDIDATE FILE WAS EVER CHECKED FOR
+SYMLINK-NESS.** `resolves_as_release` computed `present = registry.is_dir()`,
+and `Path.is_dir()` follows symlinks exactly as `Path.is_file()` does — so a
+committed `contracts/releases` DIRECTORY symlink, pointing anywhere outside
+this tree, resolved as a PRESENT, trustworthy registry. A REGULAR file
+reached only THROUGH that symlinked parent is never itself a symlink, so
+D8f's own guard (`candidate.is_file() and not candidate.is_symlink()`) saw
+nothing to refuse: the file passed on its own merits while the directory
+that made it reachable was never examined at all. This is the SAME class of
+defect D8f closed, one level up the path, and the same reason it survived
+D8f's own fix: a guard placed at the leaf does not see a compromise at the
+root.
+
+**THE FIX IS A SINGLE SHARED CHECK, NOT A SECOND SYMLINK GUARD BOLTED ON
+BESIDE THE FIRST.** A new `_registry_present(repo_root)` helper returns
+`registry.is_dir() and not registry.is_symlink()`, and BOTH places in this
+module that ask "is the registry present" — `resolves_as_release`'s local
+`present` and `scan`'s `Report.registry_present` — now call it, where before
+each computed the same bare `.is_dir()` independently. This is not merely
+tidiness: it is why `Report.registry_present` can no longer say "present"
+about a registry `resolves_as_release` itself refused to trust, the exact
+kind of report/behaviour split D2's original register-shape fix (D8) closed
+for the register file and this closes for the registry directory.
+
+**A SYMLINKED DIRECTORY IS TREATED EXACTLY AS A MISSING ONE, WHICH IS THE
+EXISTING, DOCUMENTED FALLBACK AND NOT A NEW RULE INVENTED FOR THIS THREAD.**
+Where no registry exists at all (a consuming tree that defines no releases
+of its own), the module already trusts a release-shaped TOKEN on its SHAPE
+alone and says so out loud (D8d (a), the *shape-only fallback* scenario). A
+symlinked `contracts/releases` now falls into that same, already-weaker,
+already-loud branch: `registry_present` is False, the run prints the note a
+bare tree gets, and — this is the property that closes the finding — an
+inventory sitting behind the symlink, present or absent, real or fabricated,
+changes NOTHING about the result. The finding described an external
+inventory's CONTENT granting elevated trust through a symlinked directory;
+after the fix, the directory's contents have no leverage at all, because the
+directory itself is never consulted once it is known to be a symlink.
+
+THREE tests pin it, all in the file's `resolves_as_release` unit section
+beside D8f's own (never edited): a symlinked registry directory resolves a
+release-shaped token on shape alone, with `registry_present` reported False;
+an EMPTY symlinked directory and one holding a genuine, matching inventory
+resolve IDENTICALLY (proving the external file's presence is inert); and,
+end to end through the validator CLI, the gate prints the same "accepted on
+its SHAPE alone" note for a symlinked registry directory that it prints for
+a tree carrying no `contracts/releases/` at all. Measured against the code
+as it stood (`git stash scripts/target_release.py`, keep the tests): all
+three FAIL — the symlinked-directory cases returned `(True, True)`, the same
+over-trusting result the finding named; restored, `pytest
+tests/target_release -q` — **68 passed** (65 → 68, `tests/target_release/
+test_target_release_gate.py` 68 `def test_` functions, counted). The
+validator re-run: this tree exit 0 (41 active proposals — merging
+`origin/main` `ac688c40` added one, `amend-register-act-5b-projection-proof`,
+declaring `target_release: implemented` — 17 `implemented`, 3 a named
+release, 21 named by the register, 0 outside); the same validator against a
+fresh `origin/main ac688c40` clone exit 1, 40 active, 5 outside, naming the
+same five carriers D2 already swept here (`add-composed-view-authoring`,
+`add-cpc-clearing-boundary`, `add-lens-document-selection`,
+`add-substantive-review-lane`, `register-gate-rules-council-seats`) —
+unmoved, because main never received this packet's sweep and never will
+until this packet lands.

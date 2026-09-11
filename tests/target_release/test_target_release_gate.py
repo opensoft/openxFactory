@@ -238,6 +238,54 @@ def test_a_regular_inventory_still_resolves_beside_a_symlinked_one(tmp_path):
     assert tr.resolves_as_release("contract-v8.8", tmp_path) == (False, True)
 
 
+# Copilot on #963, round 7, post-merge (thread `PRRT_kwDOTAvnrs6hgYZd`):
+# `Path.is_dir()` ALSO follows symlinks, so a committed `contracts/releases`
+# DIRECTORY symlink pointing outside the tree let an external inventory pass
+# — the directory resolved as present, the file behind it was reached
+# THROUGH the symlink and so was never itself a symlink, and the
+# per-candidate guard above never saw anything to refuse. The directory is
+# now checked for symlink-ness too (`_registry_present`), and a symlinked
+# directory is treated the SAME AS NO REGISTRY AT ALL: `registry_present`
+# reports False, so the note a bare tree gets is the note a symlinked tree
+# gets, and an external inventory sitting behind the symlink can no longer
+# make one token resolve differently from another.
+
+
+def test_a_symlinked_registry_directory_is_treated_as_absent(
+        tmp_path, tmp_path_factory):
+    outside = tmp_path_factory.mktemp("outside-registry-dir")
+    (outside / "contract-v9.9.digests.yaml").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "contracts").mkdir()
+    (tmp_path / "contracts" / "releases").symlink_to(outside)
+    assert tr.resolves_as_release("contract-v9.9", tmp_path) == (True, False)
+
+
+def test_a_symlinked_registry_directorys_contents_grant_no_extra_trust(
+        tmp_path, tmp_path_factory):
+    """Before the fix this returned `(True, True)`: the symlinked directory
+    resolved as PRESENT and the external file — a REGULAR file, reached only
+    through the symlinked parent — passed the per-candidate symlink check. An
+    EMPTY symlinked directory now resolves identically to one holding a
+    matching inventory, proving the external file's presence changed
+    nothing — the directory's own symlink-ness is what decides."""
+    with_file = tmp_path_factory.mktemp("outside-registry-with-file")
+    (with_file / "contract-v9.9.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    empty = tmp_path_factory.mktemp("outside-registry-empty")
+
+    with_file_root = tmp_path / "with-file"
+    (with_file_root / "contracts").mkdir(parents=True)
+    (with_file_root / "contracts" / "releases").symlink_to(with_file)
+
+    empty_root = tmp_path / "empty"
+    (empty_root / "contracts").mkdir(parents=True)
+    (empty_root / "contracts" / "releases").symlink_to(empty)
+
+    assert tr.resolves_as_release("contract-v9.9", with_file_root) \
+        == tr.resolves_as_release("contract-v9.9", empty_root) \
+        == (True, False)
+
+
 # Copilot's round 3 on #963 (thread `PRRT_kwDOTAvnrs6heq2s`): the shape was
 # two-component only, while the estate's own inventory schema admits two OR
 # three — latent while the shape was consulted only where no registry exists,
@@ -303,6 +351,21 @@ def test_a_tree_with_a_registry_does_not_print_the_shape_note(tmp_path):
     result = _run(tmp_path, _register(tmp_path))
     assert result.returncode == 0, result.stdout + result.stderr
     assert "SHAPE alone" not in result.stdout
+
+
+def test_the_gate_prints_the_shape_note_when_the_registry_is_a_symlink(
+        tmp_path, tmp_path_factory):
+    """End to end: the gate treats a symlinked `contracts/releases` exactly
+    as it treats a tree with no registry at all — same note, same passing
+    result — rather than trusting whatever the symlink resolves to."""
+    outside = tmp_path_factory.mktemp("outside-registry-e2e")
+    (outside / "contract-v9.9.digests.yaml").write_text("{}\n", encoding="utf-8")
+    (tmp_path / "contracts").mkdir()
+    (tmp_path / "contracts" / "releases").symlink_to(outside)
+    _proposal(tmp_path, "cut", "code_surface: R\ntarget_release: contract-v9.9")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "accepted on its SHAPE alone" in result.stdout
 
 
 # --- the token is shape-checked BEFORE it can become a path -------------------

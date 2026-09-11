@@ -133,7 +133,7 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **65 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **68 tests**,
       counted last from a collected run of the file) — the token rule (5),
       reading the declaration including a strict-loader refusal, **a
       repeated declaration refused rather than half-read, and an INDENTED
@@ -143,7 +143,10 @@ and openxFactory #956 closes THERE and not at this landing.
       the shape-only fallback saying so out loud** (10), **a candidate
       inventory refused for being a symlink, including one planted outside
       the tree, beside a REGULAR inventory for a different token still
-      resolving** (3), **the token shape-checked
+      resolving** (3), **a symlinked registry DIRECTORY treated as absent,
+      its external contents (present or empty) granting no extra trust
+      either way, and the gate printing the same shape-only note it prints
+      for a tree with no registry at all** (3), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
       swept (3)**, **the register removable and never addable (5)**, the gate
@@ -155,8 +158,9 @@ and openxFactory #956 closes THERE and not at this landing.
       register), and three over the live corpus and the real register. **NO
       EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
       added by § 3.7, the eight added by § 3.9, the five added by § 3.10, the
-      three added by § 3.11 and the three added by § 3.14 join the file,
-      `_entry()` gains the citation the loader now requires, and
+      three added by § 3.11, the three added by § 3.14 and the three added by
+      § 3.15 join the file, `_entry()` gains the citation the loader now
+      requires, and
       `test_an_entry_missing_a_required_key_refuses` keeps its subject by
       carrying every key but the one it is about.
 - [x] 3.6 **THE GATE NEEDS NO WORKFLOW EDIT**, confirmed by running it: the
@@ -344,6 +348,32 @@ and openxFactory #956 closes THERE and not at this landing.
       Measured: with the fix stashed, all three FAIL against the code as it
       stood; restored, `pytest tests/target_release -q` — **65 passed**
       (62 → 65).
+- [x] 3.15 **THE BENCH'S SEVENTH ROUND, ONE THREAD, TAKEN** (`design.md` D8g).
+      `resolves_as_release` checked only the CANDIDATE FILE for symlink-ness
+      (§ 3.14); it never checked the REGISTRY DIRECTORY itself, and
+      `Path.is_dir()` follows symlinks the same way `Path.is_file()` does — so
+      a committed `contracts/releases` DIRECTORY symlink, pointing anywhere
+      outside this tree, resolved as a PRESENT registry, and a REGULAR file
+      reached only THROUGH that symlinked parent is never itself a symlink,
+      so the file-level guard § 3.14 added never saw anything to refuse. A
+      new `_registry_present` helper checks the directory for symlink-ness
+      once, and BOTH call sites that ask whether the registry is present
+      (`resolves_as_release` and `scan`'s `Report.registry_present`) now use
+      it, so the report can never say "present" where resolution itself
+      treated the registry as absent. A symlinked directory is now treated
+      exactly as a MISSING registry is: the shape-only fallback governs, and
+      an inventory sitting behind the symlink — whether one is there or not —
+      changes nothing. THREE tests: a symlinked registry directory resolves a
+      release-shaped token on shape alone (`registry_present` False); an
+      EMPTY symlinked directory and one holding a genuine, matching inventory
+      resolve IDENTICALLY, proving the external file grants no extra trust;
+      and the gate prints the same "accepted on its SHAPE alone" note for a
+      symlinked directory that it prints for a tree with no registry at all.
+      Measured: with the fix stashed, all three FAIL against the code as it
+      stood; restored, `pytest tests/target_release -q` — **68 passed**
+      (65 → 68). Validator re-run: this tree exit 0 (41 active, 17
+      `implemented`, 3 release, 21 registered, 0 outside); `origin/main
+      ac688c40` exit 1 (40 active, 5 outside, the same five carriers named).
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
