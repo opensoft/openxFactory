@@ -602,6 +602,7 @@ Part C fills, below this line:
   nothing this register does not say.
 
 > *(appended by Part C after T2)*
+> **2026-09-11 — Part C STOPPED here. Step 5b is NOT performed, and the "verify one convening admits" route named above does NOT reach the register projection at all. See §13.2.**
 
 ---
 
@@ -626,6 +627,7 @@ finding is that none occurred (§9.3), and a checked absence is recorded as one
 rather than assumed.
 
 > *(appended by Part C after T2)*
+> **2026-09-11 — FILLED. The window is EMPTY: no `agent:gate-rules-council` convening ran between T1 and the merge. See §13.1.**
 
 ### 9.3 "VERIFY ONE CONVENING ADMITS" — STUBBED, and it is the real exit
 
@@ -637,6 +639,7 @@ No `gate_rules_council` convening has ever run: codexFactory's
 watched, by run id**, and whether it was admitted against `grant-grc-0002`.
 
 > *(appended by Part C after T2 — the proof convening's run id)*
+> **2026-09-11 — No convening was dispatched, and §13.2 records why one would have proved nothing about review authority. See §13.4.**
 
 ### 9.4 The hold lift — STUBBED
 
@@ -645,6 +648,7 @@ lane's own comment on codexFactory PR #374 and issue #279, citing this record by
 the path in §1 and the merge commit of this pull request beside it.
 
 > *(appended by Part C after T2)*
+> **2026-09-11 — NOT LIFTED. The hold posted at §1 remains IN FORCE. See §13.3.**
 
 ### 9.5 TWO INSTANTS, AND THEY ARE NOT THE SAME — read this before citing either
 
@@ -717,3 +721,243 @@ second ceremony, not a `git revert`.
 That asymmetry is exactly why the build and the register act are opened as one
 deliberate pair rather than treating the register act as a formality that can be
 deferred.
+
+---
+
+## 13. DATED APPEND — 2026-09-11, PART C, AND IT IS **INCOMPLETE**
+
+**Appended 2026-09-11 by the coordinating lane `hermes-wallet-exercise`, after
+this record reached `main` (PR #941 → `f0eea7ed1af5a3b7cc247adc8316e04e4b610dc0`,
+merged `2026-09-11T02:29:10Z`). Nothing above this line is rewritten.** The only
+other change this append makes to the file is a one-line dated POINTER under each
+of §8, §9.2, §9.3 and §9.4's stub markers, directing a reader here; no existing
+sentence is altered or removed, and the diff proves it. This follows
+`openxFactory/docs/document-lifecycle.md`'s rule for a document already at
+`Status: record`: *"if it has to be revisited later … it stays open or gets a
+dated append, never silently rewritten."*
+
+**READ THIS FIRST.** Part C ran, and it **stopped**. Of the four stubs this
+record left for it, **ONE is filled (§9.2, the window check) and THREE are still
+owed (§8, §9.3, §9.4).** The hold posted at §1 **IS STILL IN FORCE.** No
+convening was dispatched, no lift was posted anywhere, and `tasks.md` 3.6 and 3.8
+remain unticked. The reason is not caution: it is a defect in the exit condition
+this record and its runbook both name, set out at §13.2 below.
+
+### 13.1 §9.2 — THE WINDOW CHECK (task 3.8): **CLOSED, AND THE FINDING IS EMPTY**
+
+**No `agent:gate-rules-council` convening ran in the window. Nothing was consumed
+under revocation.** A checked absence, recorded as one.
+
+The command, verbatim, run `2026-09-11T02:36Z` by the landing lane, read-only:
+
+```sh
+gh run list -R codeXfactory/codexFactory --workflow gate-rules-convening-trigger.yml \
+  --json databaseId,createdAt,event,conclusion,headSha --limit 100
+```
+
+It returns **five runs in the workflow's entire history**, and **every one of
+them predates T1** — the latest by more than ten hours:
+
+| run | createdAt | event | conclusion |
+|---|---|---|---|
+| `34481205558` | 2026-09-10T13:12:32Z | workflow_dispatch | success |
+| `34480882955` | 2026-09-10T13:09:22Z | workflow_dispatch | failure |
+| `34318204178` | 2026-09-09T06:14:39Z | workflow_dispatch | failure |
+| `34317084150` | 2026-09-09T05:59:09Z | workflow_dispatch | failure |
+| `34307939608` | 2026-09-09T03:39:04Z | workflow_dispatch | failure |
+
+Filtered to the window, the result is **`[]`**.
+
+**THE TWO CANDIDATE UPPER BOUNDS DISAGREE, AND THE FINDING SURVIVES BOTH.**
+`tasks.md` 3.8 says the window runs to *"the step-4 effective time"* —
+`2026-09-11T02:12:30Z`, this record's effective instant. §9.2 above says it runs
+to *"T2 = the merge of this pull request"* — `2026-09-11T02:29:10Z`. The wider
+bound strictly contains the narrower, the window is empty under the wider, and so
+it is empty under both. The disagreement is recorded rather than quietly resolved,
+because a later reader comparing the two documents will find it.
+
+**The ~17-minute gap between the two instants is real, and it is covered by the
+HOLD, not by either timestamp** — §9.5 says so already, and Part C confirms the
+gap was uneventful in fact as well as in principle.
+
+**Two independent cross-checks, because one empty list is not a finding:**
+
+* **The records side.**
+  `gh api "repos/codeXfactory/codexFactory/commits?path=hermes/domain/review-councils/records&since=2026-09-10T23:34:23Z&until=2026-09-11T02:29:10Z"`
+  → **`[]`**. No convening record was committed inside the window.
+* **The trap named in 3.8, avoided and recorded as avoided.**
+  `gh run list … --workflow gate-rules-convening.yml` → `[]`, which is a **FALSE
+  NEGATIVE** and carries no evidential weight: that file is `workflow_call`-only
+  and reports zero runs of its own whether or not one occurred. It was not relied
+  on.
+
+**A THIRD CHECK THE TASK DID NOT ASK FOR, AND IT MATTERED.** Enumerating *every*
+workflow run in codexFactory inside the window returns **243 runs, of which 104
+are council-shaped** — 52 `council-deliberation-worker.yml`, 26
+`council-convening-lane.yml`, 26 `council-authorization-trigger.yml`. **None is a
+gate-rules convening**, and that is established from the files' own headers rather
+than from their names: `council-convening-lane.yml` *"Commissions a
+**merge-readiness** council convening"*; `council-authorization-trigger.yml`
+*"recognizes stamped **merge-readiness** convenings"*;
+`council-deliberation-worker.yml` *"A commissioned **merge-readiness**
+convening"*; and `gate-rules-convening-trigger.yml`'s own design note records that
+the reusable those three callers use *"hard-codes `merge_readiness_council`"*.
+That trigger is the only file in the repository naming
+`council_id: gate_rules_council`. A sampled in-window run (`34554768628`,
+`council-convening-lane`, 2026-09-11T02:28:42Z, `event: schedule`) resolved and
+then **skipped** its `convene` job — a clean no-op.
+
+These 104 runs belong to `merge_readiness_council`, whose grant `grant-mrc-0002`
+this act did **not** revoke (§3.4). They are therefore not "CONSUMED UNDER
+REVOCATION" candidates, and it would be wrong to record them as such.
+
+### 13.2 §8 — STEP 5b: **NOT PERFORMED, AND THE ROUTE THIS RECORD NAMES FOR PROVING IT DOES NOT REACH IT**
+
+This is the finding that stopped Part C, and it is a defect in the exit
+condition, not in the register act.
+
+**The claim under test.** `design.md` §D4 Step 5b, the runbook, and the Part C
+brief all hold that *"verify one convening admits"* is the actual exit condition,
+and that dispatching one real gate-rules convening is therefore itself the
+no-cluster proof that the register projection has been re-derived and carries
+`grant-grc-0002`. §9.3 above restates it: *"A green validator does not lift the
+hold. An ADMITTED convening does."*
+
+**It does not hold. THERE ARE TWO DIFFERENT PROJECTIONS AND THE CLAIM CONFLATES
+THEM.**
+
+1. **The DOMAIN-CONTENT projection** — the layer's materialized `review_council`
+   content. The convening trigger *does* read it, at its step **"Verify the
+   domain-content projection carries this council"**
+   (`gate-rules-convening-trigger.yml:273`). Its refusals are
+   `domain_content_council_absent`, `domain_content_unseeded` and
+   `domain_content_read_unauthorized` — all of which are about council *content*,
+   none about review *authority*.
+2. **The REGISTER projection** — ConfigMap `hermes-register-projection`, refreshed
+   by the `0 */2 * * *` CronJob. **This** is the document that carries grant state
+   and raises `review_authority.register_stale` and
+   `review_authority.grant_revoked`.
+
+**The convening admission path never reads (2).** Established three independent
+ways against shipped code and this estate's own landed records:
+
+* **`admit_convening` and `admit_layer_convening`**
+  (`hermes-install/src/hermes_install/domain/council_orchestration.py`) take
+  `review_council`, `deliberation_mix`, `content_provenance`,
+  `existing_convening`, `machinery_map`, `resolver` and `head_resolver`. **No
+  projection path. No `SeatExerciseGate`.** There is no parameter through which a
+  register projection could reach admission.
+* **The register projection is read by `DatabaseSeatExerciseGate`, and that gate
+  is constructed inside `verdict_for_completion`** — same module, which passes it
+  `projection_path` and `max_staleness_seconds`, and whose docstring says it
+  *"builds the `SeatExerciseGate` that reads the register projection … and hands
+  it to `check_verdict`."* So `register_stale` and `grant_revoked` are
+  **verdict-completion** refusals. They cannot fire at admission.
+* **This lane never reaches verdict completion, by ratified design.**
+  `gate-rules-convening.yml`'s own header: *"IT CONVENES NO SEAT, INVOKES NO MODEL
+  AND SIGNS NO SEAT RETURN. Those are legs 3 and 4"*, and wiring them is ratified
+  **phase 6**, whose *"gate is not met (leg 4 does not exist, so the lane would
+  have no signer)."* codexFactory's own landed record of the one successful
+  precedent —
+  `hermes/domain/review-councils/records/2026-09-10-gate-rules-first-signed-convening.md`
+  — says it in terms: ***"NO SEAT WAS CONVENED, NO MODEL WAS INVOKED, AND NO SEAT
+  RETURN WAS SIGNED"***, *"No verdict, no disposition"*, and *"openxFactory task
+  4.5 stays OPEN. It names the first signed convening in the **seat-return**
+  sense. This run signed the ORIGIN attestation over a request; it signed no seat
+  return."*
+
+**What an ADMITTED gate-rules convening therefore proves:** that the
+domain-content projection carries the council; that the posted `subject_pin`
+equals the candidate pull request's live head; that no prior non-failed convening
+exists for that pin; and that a sealed, origin-signed request was published. **It
+proves nothing whatever about the register projection, `grant-grc-0002`, or
+whether any authority flows.**
+
+**AND DISPATCHING ONE NOW WOULD HAVE BEEN WORSE THAN USELESS — IT WOULD HAVE
+MANUFACTURED A CLEARANCE.** The register projection's last scheduled tick before
+this append was **02:00Z**, which is *before* the merge at 02:29:10Z, so the live
+projection was derived from an openxFactory revision at which `grant-grc-0001`
+was still `active`. Even a consumer that *did* read it would not refuse: the
+currency gate compares the projection's age against
+`min(declared P7D, DEFAULT_MAX_STALENESS_SECONDS = 7 × 24 × 60 × 60)` = **P7D**,
+and a forty-five-minute-old projection is nowhere near that bound. So the
+predicted `register_stale` / `grant_revoked` refusal would **not** have appeared.
+A green ADMISSION would have — and this record's §9.3, the runbook and the brief
+would all then have read that green as the proof that lifts the hold. That is
+precisely the *"treat a mechanically-green run as clearance"* forgery the
+governed-re-issuance discipline refuses. **The proof convening was therefore not
+dispatched.** Declining to run it also avoided irreversibly consuming a candidate
+pin: a non-failed convening refuses any second commissioning for the same
+(council, subject pin) forever.
+
+**WHAT THIS MEANS FOR 5b.** There is **no GitHub-visible artifact of the register
+projection's live content** — the ConfigMap exists only on-cluster and nothing
+commits it. With the convening route eliminated, **the only remaining proof is an
+on-cluster read**, which this lane does not perform: no `az` or `kubectl`
+invocation was made. **It requires Brett Heap's operator word and a named
+executing lane**, doing one of:
+
+1. read the `hermes-register-projection` ConfigMap and confirm its `row-grc-0001`
+   entry reads `grant_ref: grant-grc-0002` with the matching `expires_at`, that
+   `projected_from.staleness_bound` still carries `revocation_staleness_bound`
+   **`P7D`** verbatim, and that the projection's own
+   `hermes.opensoft.one/source-revision` annotation resolves to
+   `f0eea7ed1af5a3b7cc247adc8316e04e4b610dc0` **or later** — that annotation is
+   what distinguishes a post-merge projection from the pre-merge one, and it is
+   the field to check; or
+2. run `hermes-lifecycle project-register` by hand against the merged revision to
+   force a tick rather than waiting for the scheduled window.
+
+**`tasks.md` 3.6 stays unticked.**
+
+### 13.3 §9.4 — THE HOLD: **NOT LIFTED. STILL IN FORCE.**
+
+Nothing was posted to codexFactory issue #279, to PR #374, or to `LANES.md`. The
+hold's own condition is unmet, and its text is exact about what does not satisfy
+it: *"Not elapsed time, not a green suite, not a re-run."*
+
+**A WORDING MISMATCH THE EVENTUAL LIFT MUST NAME RATHER THAN PAPER OVER.** The
+hold posted at 2026-09-10T23:20:38Z describes the lifting record as existing *on*
+`opensoft/openxFactory:governance/review-authority/`. Brett Heap's ruling of
+2026-09-11T02:03:35Z filed this record at
+`openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`
+instead — beside both prior walks, and §1 above already explains the split: the
+**ACT** is under `governance/review-authority/` (the three writes, landed as
+#941 → `f0eea7ed`), while the **RECORD** of it lives where the walks live. The
+two are not in conflict, but a lift that cites only one of them would not visibly
+satisfy the hold's literal text. **When the lift is eventually posted it must
+cite BOTH** — the act's merge commit `f0eea7ed` on
+`governance/review-authority/`, and this record's path as the record id — and
+name the mismatch, so the lift reads as satisfying the hold by its substance. The
+original hold postings are not to be reworded.
+
+### 13.4 §9.3 — THE PROOF CONVENING: **NOT DISPATCHED**
+
+No run id, because no run. See §13.2 for why, and for why this is a refusal to
+manufacture evidence rather than an omission. When the estate is ready to
+exercise this properly, the honest exercise is a convening that reaches **seat
+return and verdict completion** — ratified phase 6 — because that is the only
+path on which the register projection is consulted at all.
+
+### 13.5 The five digests, cross-checked rather than retyped
+
+The ten values in §3.2 were re-read from this record on `main` at this append and
+compared character-for-character against the Part C brief's independently carried
+"Known constants" list. **All ten agree**, before and after, for
+`rendered_set_digest`, `lead-architect`, `lead-security`, `lead-quality` and
+`company-policy-lead`. They are not restated here; §3.2 is the single copy, which
+is the point.
+
+### 13.6 What is owed, and by whom
+
+| Owed | Whose | Blocked on |
+|---|---|---|
+| §8 / `tasks.md` 3.6 — the 5b projection proof | a named operator lane | **Brett Heap's operator word** for an on-cluster read or a manual `project-register` tick (§13.2) |
+| §9.3 — a convening that actually exercises review authority | the estate | ratified **phase 6** (legs 3 and 4); not a Part C act |
+| §9.4 — the hold lift | lane `hermes-wallet-exercise` | 5b above; and it must cite both the act and this record (§13.3) |
+| `tasks.md` 3.8 tick | lane `hermes-wallet-exercise` | **this append reaching `main`** — the finding at §13.1 is what 3.8 ticks against |
+
+**This record stays `Status: record`** — it records, accurately, an act that was
+performed and a follow-on that was stopped with its reason. It is not `Status:
+draft`, because nothing here is provisional; §13.2's finding is as much a result
+as a green would have been.
