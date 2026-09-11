@@ -48,13 +48,18 @@ from conftest import REPO_ROOT
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import corpus_adapter_openxfactory as adapter_package  # noqa: E402
+from carved_reach import source as carved_source  # noqa: E402
 from corpus_adapter import CorpusRef  # noqa: E402
 from corpus_adapter_openxfactory import OpenxFactoryCorpusAdapter  # noqa: E402
 from corpus_adapter_openxfactory.home import HOME_SHAPE  # noqa: E402
 from doc_health import corpus  # noqa: E402
 from opendox import authoring  # noqa: E402
 
-AUTHORING = REPO_ROOT / "scripts" / "ideation_dashboard" / "authoring.py"
+# `authoring.py` moved to openDox-code in the § 5.2 shed while this governance
+# test — which AST-parses it — stays here, so its path is read from the
+# manifest row rather than from the deleted root (RULED (a), `#656`
+# `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpuo`).
+AUTHORING = carved_source("scripts/ideation_dashboard/authoring.py")
 
 #: A header block nothing in this repository declares, so an answer carrying it
 #: can only have come from the table the mutation put there.
