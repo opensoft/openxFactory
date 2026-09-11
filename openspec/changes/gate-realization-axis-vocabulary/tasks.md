@@ -275,6 +275,35 @@ and openxFactory #956 closes THERE and not at this landing.
       the description still said 32 tests and seven scenarios. The description
       had already been rewritten before the threads were read; the proposal's
       inventory now names all TEN and marks which the bench added.
+- [x] 3.12 **THE BENCH'S FIFTH ROUND, THREE THREADS, ALL THREE TAKEN, AND ONE OF
+      THEM A FIGURE THIS BENCH ITSELF INVENTED** (`design.md` D8e). (a)
+      **"47 INVENTORIES" WAS A NUMBER NOBODY COUNTED.** § 3.10's own account of
+      the release-id fix asserted 47 two-component inventories under
+      `contracts/releases/`. There are **53**, which is what § 2 and D3 had
+      counted all along — the bench's own evidence line contradicted the
+      packet's own measurement, in the very paragraph arguing that an
+      unchecked restatement is a defect. Recounted here,
+      `ls contracts/releases/*.digests.yaml | wc -l` → **53**. The conclusion
+      is unchanged (all 53 are two-component, so the narrower regex refused
+      nothing standing), which is exactly why the error survived a read: a
+      number that does not change the conclusion is the easiest kind to get
+      wrong and the least likely to be re-derived. (b) **THE PROPOSAL'S
+      BEFORE/AFTER TABLE WAS NOT REPRODUCIBLE FROM ITS OWN COMMAND.** It read
+      `before (this tree, pre-correction) 38 / 9` and `after 38 / 14` under
+      `validate-target-release.py .`, but running that command HERE gave a
+      different pair, because this packet's own `proposal.md` is an active
+      change declaring `target_release: implemented` and is judged by its own
+      gate like every other file. The rows are now labelled by TREE
+      (`origin/main` vs THIS tree), so the `+1`/`+1` is explained as the
+      packet's own proposal rather than silently absorbed, and the table says
+      the two rows are the same validator pointed at two trees. (c) **A
+      MISSING NEWLINE HID A TASK.** `- [x] 3.10` ran on from the end of
+      § 3.9's paragraph above, so Markdown rendered the third bench round as
+      prose inside the second rather than as its own checklist item —
+      invisible to anyone reading the completion ledger as a list, which is
+      how it is meant to be read. Split. Small, and worth recording: in a
+      packet whose method is that the task list IS the record, a task that
+      does not render as a task is a task that is not in the record.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
