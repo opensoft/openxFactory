@@ -338,6 +338,12 @@ later step consumes what an earlier step captured or committed.**
    non-conformant rather than excused, and suppressing the interpreter's own
    caches keeps that demand about THE TOOL rather than about the runtime that
    ran it.
+   **AND THE CONTROL LOOP RUNS UNDER ITS OWN BOUNDS**: each control invocation
+   under that identifier's table timeout, exactly as step 4's does, and the loop
+   as a whole under a WHOLE-RUN bound that is likewise a CONSTANT in the trusted
+   module — a tool that hangs on an unchanged tree must be reported as a
+   `timeout` finding against its identifier, never left to stall the required
+   check.
    **2b — THE WITHDRAWAL AND ITS BASELINE.** In the scratch tree, APPLY THE WITHDRAWAL — that class's
    candidate mapping and its companion comment lines removed, and nothing else —
    and **COMMIT IT AS THE BASELINE COMMIT**. Every measurement below is taken in
@@ -406,7 +412,19 @@ later step consumes what an earlier step captured or committed.**
    and never a value read from a declaration. **WHAT IS RUN IS NOT DERIVED FROM
    THE DECLARATION**: the captured `# companion:` set is the EXPECTED value only,
    so a pinning assertion the declaration OMITS is still run and still enters
-   **A**. The conformance test asserts that **A equals that class's CAPTURED
+   **A**. **AND THE RUN MUST HAVE COMPLETED CLEANLY BEFORE ANY NODE ID IS
+   COMPARED**: a COLLECTION error, an IMPORT error or a pytest INTERNAL error
+   carries NO NODE ID, so it cannot enter **A** and the equality would never see
+   it — a withdrawal that breaks an import would leave the ordinary failures
+   compared, matched, and the companion reported CONFORMANT while the required
+   suite cannot pass at all. The measurement therefore FAILS OUTRIGHT, BEFORE the
+   comparison, on any collection, import or internal error the run reports, and
+   on ANY EXIT STATUS OTHER THAN 0 (all passed) or 1 (tests failed): `pytest`
+   exits 2, 3, 4 and 5 are each a conformance failure NAMED BY ITS CLASS —
+   `interrupted`, `internal error`, `usage error`, `no tests collected` — as is
+   expiry of THIS STEP'S OWN WHOLE-RUN TIMEOUT, a CONSTANT in the trusted module.
+   **ONLY A RUN THAT EXITS 0 OR 1 WITH NO ERROR ENTRIES YIELDS AN A AT ALL.**
+   The conformance test asserts that **A equals that class's CAPTURED
    `# companion:` set**, in both directions and order-free, **and that A is NOT
    EMPTY** (below). **The conformance module itself lives in
    `tests/merge-master/` but is EXCLUDED BY ITS OWN PATH FROM EVERY MEASUREMENT
@@ -451,6 +469,14 @@ later step consumes what an earlier step captured or committed.**
    identifier, and that identifier's delta is not recorded and forms no pairs.
    Without that check a generator that writes exactly its declared paths and then
    dies still satisfies the pair equality and is reported healthy.
+   **AND THE BOUND IS FIXED, NOT LEFT TO THE IMPLEMENTATION**: the allowlist table
+   carries, PER IDENTIFIER, a TIMEOUT IN SECONDS as a CONSTANT in that trusted
+   module — never a value read from a declaration — and the invocation is made
+   under it (`subprocess.run(argv, shell=False, timeout=<that bound>)` semantics).
+   Expiry is recorded against that identifier as a `timeout` failure NAMING THE
+   BOUND, before any delta is read. Without a finite bound the promised finding is
+   unreachable: an unbounded call HANGS the required validation job forever
+   instead of reporting the tool that hung.
    **THEN THE INVENTORY**: the paths
    THAT IDENTIFIER produced are **THE FULL WORKING-TREE DELTA AGAINST THE BASELINE
    COMMIT — TRACKED MODIFICATIONS AND DELETIONS, UNTRACKED FILES, AND IGNORED
@@ -625,7 +651,10 @@ capture before withdrawal; a committed hermetic baseline; a complete INDEPENDENT
 inventory with the conformance module excluded BY PATH; per-identifier
 attribution as (identifier, path) PAIRS over the FULL working-tree delta, ignored
 and untracked paths included; allowlisted identifiers resolved ONLY in
-trusted test code; artefact paths refused LEXICALLY and then CONTAINED; DECLARED
+trusted test code; BOUNDED EXECUTION — every allowlisted invocation, the
+assertion run and the control run each under a FINITE timeout fixed as a CONSTANT
+in that trusted code, expiry being a NAMED FAILURE rather than a hung check;
+artefact paths refused LEXICALLY and then CONTAINED; DECLARED
 ARTEFACTS ARE TRACKED PATHS at the control baseline, an ignored or untracked path
 never being declarable; index AND
 worktree reset between tools; THE DETERMINISM AND IDEMPOTENCE OF EVERY

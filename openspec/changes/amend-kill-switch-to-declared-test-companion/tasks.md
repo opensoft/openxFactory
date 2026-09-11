@@ -257,6 +257,12 @@ codexFactory**, authored there, exactly as
       scratch file behind is NON-CONFORMANT, never excused — and suppressing the
       interpreter's own caches is what keeps that demand about THE TOOL rather
       than about the runtime that happened to execute it.
+      **AND THE CONTROL LOOP RUNS UNDER ITS OWN BOUNDS**: each control invocation
+      under that identifier's table timeout, exactly as step 4's does, and the
+      loop as a whole under a WHOLE-RUN bound that is likewise a CONSTANT in the
+      trusted module — a tool that hangs on an unchanged tree is reported as a
+      `timeout` finding against its identifier, never left to stall the required
+      check.
       **STEP 2b — WITHDRAW THAT CLASS ALONE AND COMMIT THE MEASUREMENT
       BASELINE.** In the same
       scratch tree remove THAT class's candidate mapping and its companion
@@ -330,7 +336,20 @@ codexFactory**, authored there, exactly as
       WHOLE pinning suite — `tests/merge-master/` in the committed baseline tree —
       with the conformance module itself EXCLUDED BY PATH (`pytest
       --ignore=<conformance module path>`), and let the set of FAILING node ids be
-      the MEASURED SET. **WHAT IS RUN IS NOT TAKEN FROM THE DECLARATION**: the
+      the MEASURED SET. **AND THE RUN MUST HAVE COMPLETED CLEANLY BEFORE ANY NODE
+      ID IS COMPARED**: a COLLECTION error, an IMPORT error or a pytest INTERNAL
+      error carries NO NODE ID, so it cannot enter the measured set and the
+      equality would never see it — a withdrawal that breaks an import would
+      leave the ordinary failures compared, matched, and the companion reported
+      CONFORMANT while the required suite cannot pass at all. The measurement
+      therefore FAILS OUTRIGHT, BEFORE any node-id comparison, on any collection,
+      import or internal error the run reports, and on ANY EXIT STATUS OTHER THAN
+      0 (all passed) or 1 (tests failed): `pytest` exits 2, 3, 4 and 5 are each a
+      CONFORMANCE FAILURE NAMED BY ITS CLASS — `interrupted`, `internal error`,
+      `usage error`, `no tests collected` — as is expiry of THIS STEP'S OWN
+      WHOLE-RUN TIMEOUT, a CONSTANT in the trusted module. **ONLY A RUN THAT
+      EXITS 0 OR 1 WITH NO ERROR ENTRIES YIELDS A MEASURED SET AT ALL.**
+      **WHAT IS RUN IS NOT TAKEN FROM THE DECLARATION**: the
       captured `# companion:` set is the EXPECTED value and nothing else, so a
       pinning assertion the declaration OMITS is still run, still fails, and still
       enters the measured set — which is exactly how an INCOMPLETE declaration is
@@ -394,6 +413,14 @@ codexFactory**, authored there, exactly as
       paths and then dies would still satisfy the `(identifier, path)` equality
       and be reported HEALTHY — a broken recording tool passing itself off as a
       conformant one, which is the failure this check exists to surface.
+      **AND THE BOUND IS FIXED, NOT LEFT TO THE IMPLEMENTATION**: the allowlist
+      table carries, PER IDENTIFIER, a TIMEOUT IN SECONDS as a CONSTANT in that
+      trusted module — never a value read from a declaration — and the invocation
+      is made under it (`subprocess.run(argv, shell=False, timeout=<that bound>)`
+      semantics). Expiry is RECORDED AGAINST THAT IDENTIFIER as a `timeout`
+      failure NAMING THE BOUND, before any delta is read. Without a finite bound
+      the promised finding is unreachable: an unbounded call HANGS the required
+      validation job forever instead of reporting the tool that hung.
       **THEN THE INVENTORY**: record, as THE PATHS THAT IDENTIFIER PRODUCED, **THE FULL
       WORKING-TREE DELTA AGAINST THE BASELINE COMMIT — TRACKED MODIFICATIONS AND
       DELETIONS, UNTRACKED FILES, AND IGNORED FILES ALIKE** — read in the same
