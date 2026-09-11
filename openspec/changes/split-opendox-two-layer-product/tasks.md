@@ -1140,6 +1140,25 @@ the bookkeeping that ticks this group.
   `SPECS_FLOOR_PATHS` moved in the SAME commit), then `openxFactory`'s five pin
   sites in ONE reviewed diff, then the removal. Never hand-edit the block or the
   snapshot.
+- [x] 5.6a `[oxF]` **THE DEPRECATING MINOR § 5.7 OWES — `contract-v3.7`, cut
+  BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
+  requires, before any Breaking removal, "at least one full minor release where
+  the old shape produced deprecation warnings", and NO such minor existed for
+  the five manifest-digested schemas § 5.2 sheds (`gate-action-record`,
+  `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`) or the
+  conformance validator that leaves with them. RULED **ASK-10 → 1** (Brett Heap,
+  `#656` comment `5635524078`): cut it FIRST, from pre-shed `main`, before PR-2
+  `#940` lands. Landed as `opensoft/openxFactory` **#970** — a `relocating:`
+  marker on the five manifest rows naming destination repository and leg commit,
+  a § Deprecations Currently In Force entry, a DEPRECATING `contracts/CHANGELOG.md`
+  entry carrying the removal version and the migration path, and
+  `contracts/releases/contract-v3.7.digests.yaml`. **THIS BOX IS SATISFIED BY
+  THAT PULL REQUEST LANDING.** The `contract-v3.7` annotated tag is Brett Heap's
+  own act (ASK-9a, `5635150678`) and is 5.7's PRECONDITION, not this box's: a
+  bundle whose warning window a major relies on must be PUBLISHED before that
+  major cuts, so 5.7 does not open until the tag exists and
+  `validate-contract-release.py verify-tag` passes on it.
 - [ ] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
   `docs/contract-versioning-policy.md` § Change Classes, which also requires a
   CHANGELOG migration note and a preceding full minor of deprecation warnings.
@@ -1151,9 +1170,18 @@ the bookkeeping that ticks this group.
   (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
   `openxFactory`'s (one) nested gitlink commit, both naming the ASSEMBLY ROOT
   (RULING F, `#656`, 2026-09-05 — `openxFactory` nests openXdox only). The
-  aggregation's root gitlink for openDox has NO `openxFactory`-side counterpart
-  to check against: `openxFactory` does not pin or mount openDox directly, so
-  that gitlink is checked only against `opensoft/openDox`'s own assembly root.
+  aggregation's root gitlink for openDox HAS an `openxFactory`-side counterpart
+  and SHALL EQUAL it too — **corrected 2026-09-11**. The sentence this replaces
+  read "has NO `openxFactory`-side counterpart to check against: `openxFactory`
+  does not pin or mount openDox directly, so that gitlink is checked only
+  against `opensoft/openDox`'s own assembly root", which was true when it was
+  written and stopped being true at RULED Q7 (`#656` comment `5626248666`,
+  2026-09-10): `openxFactory` now mounts the openDox assembly root DIRECTLY, as
+  a second gitlink beside `contracts/opendox-pin.yaml` (PRs `#932` / `#952`), and
+  declares two direct upstreams. So that gitlink is checked against BOTH
+  `openxFactory`'s own direct openDox gitlink AND `opensoft/openDox`'s assembly
+  root — the same equality 5.8 already states for openXdox, and RULING F's
+  "openXdox only" clause is superseded for openDox alone by Q7.
 - [ ] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
