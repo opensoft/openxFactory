@@ -6,7 +6,73 @@ sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]
 
 # Proposal: amend-kill-switch-to-declared-test-companion
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11 at approximately 11:58Z by Brett Heap (openxFactory
+repository owner) — a SELECTION, not a typed sentence, made via the lane's
+multi-choice question: the option **"Ratify as filed (Recommended)"**,
+whose description read: **"Ratify the text as landed. Realization (the
+codexFactory companion) and archive stay separate later acts on your word,
+per the three-act pattern."** — in session, lane `openxfactory-2` (display
+`openXfactory-2`) — recorded on openxFactory #745 (comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736).
+CONFIRMED to cover round 5's tightening — each declared companion artefact
+carries its own regeneration command, and the conformance test asserts that
+the set of paths changed by regenerating in the scratch tree equals the
+declared artefact set, replacing the earlier existence check — by a SECOND
+SELECTION, **"Yes, ratify with the tightening (Recommended)"**, 2026-09-11
+at approximately 12:16Z, in session, recorded on openxFactory #745 (comment
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736). DIRECTED by a THIRD act, this
+one TYPED VERBATIM:
+
+*Word three — 2026-09-11 at approximately 12:34Z, typed verbatim **"land it
+when green and apply the ratify"**, given after the lane reported round 6's
+three deltas (the allowlisted regeneration identifier is resolved only in
+reviewed test code; the artefact diff is taken against a committed
+post-withdrawal baseline; the requirement gains an explicit non-emptiness
+clause with its own scenario) and reaffirmed verbatim through the afternoon;
+the lane reads it as covering those deltas and every later fix round. Rounds
+7 through 21 (2026-09-11 12:58Z–16:52Z, all Copilot findings RULED accept by
+the lane) changed no mechanism: rounds 7–11 fixed the ORDER of the
+conformance procedure (capture the declarations, commit a hermetic
+post-withdrawal baseline, measure the whole pinning suite with the
+conformance module excluded by path, regenerate every allowlisted artefact
+one tool at a time with the index and worktree reset between runs and
+compare (identifier, path) pairs against the baseline, record), DEFINED
+applying the companion at the throw (re-target each declared assertion's
+expectation, regenerate each declared artefact, remove the mapping and its
+comments, nothing else), DEFINED the restore as a forward change by the same
+procedure rather than a revert (so the golden digest records both
+movements), HARDENED the declaration grammar (one lexical refusal set for
+artefact paths, then containment before any open; allowlisted identifiers; a
+scratch git repository with inherited GIT_* control variables cleared), and
+STATED in D-2e that this packet fixes the invariants while the codexFactory
+companion's design owns the exact commands; rounds 12–21 tightened the same
+procedure's measurement invariants (the per-identifier inventory is the full
+working-tree delta including untracked and ignored paths; a reset barrier
+begins every tool run, the first included; every allowlisted invocation must
+exit zero within a finite constant timeout taken from the trusted allowlist
+before its delta is read; a control run on the committed pre-withdrawal tree
+must produce empty inventories, so every allowlisted tool is a deterministic
+byte-identical no-op run with interpreter caches suppressed; declared
+artefacts are tracked paths and are refused otherwise; declared paths reach
+git only as literal pathspecs after `--`, with a leading `-` and glob
+characters refused; the hermetic environment always nulls global git config
+and nulls or disables system config; the assertion run fails outright on any
+collection, import or internal error, on any exit status other than 0 or 1,
+or on timeout; the "nothing else" bound of the throw holds at both path and
+assertion level; the § 4 observation boxes tick on their recording and § 5
+gains prerequisite (e)). All three acts are recorded in ONE #745 comment,
+5634512736.*
+
+Record: `review/ratification-2026-09-11.md`.
+**RATIFIED AS FILED, ROUNDS 1–21 INCLUDED.** The text below is ratified
+EXACTLY AS LANDED AT THE FINAL HEAD `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`,
+ROUNDS 1–21 ENCODED — the amended
+requirement, D-1 through D-6 all STANDING AS RECOMMENDED with no veto
+exercised. Realization (the codexFactory companion change) and archive are
+NOT authorized by any of the three acts — word three directs the landing
+and the application of the ratification, nothing more — and remain
+separate later acts on Brett Heap's word, per the three-act pattern this
+packet itself names throughout.
 Proposed: 2026-09-11, in lane `openxfactory-2` (display `openXfactory-2`), on
 Brett Heap's SELECTION **"Accept the finding; file a successor"**
 (2026-09-11 ~03:40Z, in session, multi-choice; recorded on openxFactory #745
