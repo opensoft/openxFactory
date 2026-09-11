@@ -245,13 +245,14 @@ each open box below states the event that closes it:
 
 ## 5. Verification — RUN IN THIS PULL REQUEST
 
-**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `ee243dd2`** — this branch with
+**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `14dfd6e2`** — this branch with
 `origin/main` `0805c3bb` merged — and every CONTROL was taken at `0805c3bb`
 itself in a separate worktree, never in this clone; `origin/main` had not moved
 between the control run and this one, verified by `git fetch` immediately
 before. The whole set was RE-RUN at this head rather than carried forward from
-the earlier run at `f839bd06`, because the second review round changed packet
-text after it. The only commit that follows `ee243dd2` on this branch is the one
+the earlier runs at `f839bd06` and `ee243dd2`, because each review round changed packet
+text after it, and RE-RUN AGAIN at `14dfd6e2` after the third round changed it
+once more. The only commit that follows `14dfd6e2` on this branch is the one
 that writes this section and the pull request body from that run's output; no
 measured file changed after it. The exit codes are the commands' own, pasted
 from the run and repeated in the pull request body.
@@ -296,7 +297,7 @@ from the run and repeated in the pull request body.
       request existed — `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#978'` — as its own commit `6f4268b1`, and
       `python3 scripts/validate-sequenced-after.py . --ledger-diff` re-run at
-      `ee243dd2` — **exit 0**, `per-change sweep ledger consistent with the
+      `14dfd6e2` — **exit 0**, `per-change sweep ledger consistent with the
       corpus (204 rows)`.
 
 ## 6. Archive — OWED, NOT GIVEN
