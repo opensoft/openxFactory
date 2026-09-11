@@ -660,6 +660,8 @@ def _stale_grandfather_dispositions(ctx, findings):
 def _lifecycle_scope(ctx):
     """The document scope of the FOUR lifecycle families, and of no others.
 
+    (Called a fifth time, for repository ids only — see the note below.)
+
     `govern-openspec-corpus-membership` (ruled 2026-08-23) declares two
     document sets. `ctx.docs` is the governed corpus, which every family
     reads. `ctx.lifecycle_docs` is the lifecycle scan set — each OpenSpec
@@ -674,6 +676,23 @@ def _lifecycle_scope(ctx):
     reader by call site — `grep -n _lifecycle_scope` is the complete list,
     which is what makes the "the other twelve families do not read the scan
     set" test enforceable rather than aspirational.
+
+    FIVE CALL SITES, FOUR DOCUMENT LOOPS (#965).
+    `_stale_grandfather_dispositions` calls this accessor for a FIFTH time and
+    is NOT a fifth READER of the scan set: it opens no document and inspects
+    no header, and takes only the SET OF REPOSITORY IDS the four loops above
+    actually read, so that an entry naming a repository this run read nothing
+    of is passed over rather than reported on a measurement nobody took (see
+    that function). It belongs to `fam_ratified_provenance`, already one of
+    the declared four, so the reader/non-reader boundary is unmoved and
+    `test_the_reader_list_is_structural_not_incidental` still holds: its
+    per-family check matches the call shape in each family's own source
+    (`fam_ratified_provenance` is a declared reader either way) and its
+    inventory check counts the DOCUMENT-LOOP shape — a `for doc in` over this
+    accessor, spelled out there and deliberately not repeated here, since that
+    test counts occurrences in this file — which stays at FOUR, this call
+    being a set comprehension over repository ids. A SIXTH call that opens
+    DOCUMENTS would still have to be declared there, by name.
 
     A finding lands on the document's own path either way: the same `Doc`
     shape, the same `doc.repo` key into `ctx.repo_paths`, so nothing

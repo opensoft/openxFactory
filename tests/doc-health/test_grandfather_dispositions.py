@@ -816,18 +816,27 @@ def test_an_entry_naming_a_repository_out_of_scope_is_never_stale(tmp_path):
 
     The SAME file is read under two scopes, so what moves is the scope and not
     the fixture: with `codexFactory` contributing no document its entry is
-    passed over in silence, and with a `codexFactory` document in the scan set
-    — a CLEAN one, so the entry still matches no finding — the same entry is
-    reported.
+    passed over in silence, and with a `codexFactory` document in this
+    family's SCAN SCOPE — a CLEAN one, so the entry still matches no finding —
+    the same entry is reported.
+
+    `_ctx_repos` places both documents in `Context.docs` and leaves
+    `lifecycle_docs` empty, which is the GOVERNED-CORPUS half of that scope
+    and is asserted here so the fixture cannot be mistaken for the other half.
+    `_lifecycle_scope` returns the two sets concatenated, and
+    `test_either_document_set_alone_puts_a_repository_in_scope` is where each
+    half is pinned on its own.
     """
     agg = _dispositions(tmp_path, _entry(repo="codexFactory"))
     without = fam_ratified_provenance(
         _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT), agg_root=agg))
     assert _stale(without) == []
-    within = fam_ratified_provenance(
-        _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT),
-                   _doc(ARCHIVED, CLEAN_TEXT, repo="codexFactory"),
-                   agg_root=agg, repos=(REPO, "codexFactory")))
+    ctx = _ctx_repos(_doc(OTHER_ARCHIVED, SUBJECT_TEXT),
+                     _doc(ARCHIVED, CLEAN_TEXT, repo="codexFactory"),
+                     agg_root=agg, repos=(REPO, "codexFactory"))
+    assert ctx.lifecycle_docs == []          # the governed-corpus half
+    assert {d.repo for d in ctx.docs} == {REPO, "codexFactory"}
+    within = fam_ratified_provenance(ctx)
     stale, = _stale(within)
     assert stale.severity == WARNING
     assert "codexFactory" in stale.rule

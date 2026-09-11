@@ -32,8 +32,8 @@ ARCHIVE pull request and nowhere else.
       costs. Nothing else in this packet moves under any of the three.
 - [ ] 1.2 **THE OTHER EIGHT DECISIONS ARE CARRIED BESIDE D1 AND EACH IS
       VETOABLE — EIGHT, COUNTED RATHER THAN CHARACTERISED, SO THE PACKET TAKES
-      NINE IN ALL.** D0 (the measurement), D2 (a second last pass, after the
-      first; the two narrowings; the row's subject; one row per honoured
+      NINE IN ALL.** D0 (the measurement), D2 (a SECOND AND FINAL
+      grandfather-disposition pass, after the downgrade; the two narrowings; the row's subject; one row per honoured
       target; the `auto-fixable` class), **D2a** (the archived-path boundary is
       the FINDING's, so an entry over a CLEAN ACTIVE path IS reported — added
       in the PR #981 bench round), **D2b** (the scope is the lifecycle scan
@@ -180,7 +180,7 @@ ARCHIVE pull request and nowhere else.
       and SHALL keep them distinct."* — unmoved, which is what the strict parser
       reads; every bullet of the added scenario carries its own MUST.
 
-## 4. The realization — one second last pass, in this pull request
+## 4. The realization — one SECOND AND FINAL grandfather-disposition pass, in this pull request
 
 - [x] 4.1 `scripts/doc_health/families.py`: **`fam_ratified_provenance` RETURNS
       `graded + _stale_grandfather_dispositions(ctx, graded)`** where it
@@ -313,7 +313,50 @@ ARCHIVE pull request and nowhere else.
       `_stale_grandfather_dispositions` implements. No promoted byte moves and
       no scenario is added or removed by this: it is one clause of this
       packet's own added scenario. Raised by Copilot on PR #981
-      (`specs/doc-health/spec.md:75`), TAKEN.
+      (`specs/doc-health/spec.md:75`), TAKEN — and its `WHEN` also named
+      *"repaired or vanished"* as if those were the condition; they are now
+      written as EXAMPLES of it, the condition being that the entry matched
+      nothing, which is what admits the clean-active shape the `AND` two lines
+      below already requires. Raised in the same review at
+      `specs/doc-health/spec.md:78`.
+- [x] 4.9 **`_lifecycle_scope`'s OWN DOCSTRING IS BROUGHT CURRENT: FIVE CALL
+      SITES, FOUR DOCUMENT LOOPS.** That accessor's docstring declared four
+      readers and said *"`grep -n _lifecycle_scope` is the complete list"*,
+      which this packet's call made understated. It now names the fifth call
+      site and says why it is NOT a fifth reader: it opens no document and
+      reads no header, taking only the SET OF REPOSITORY IDS the four document
+      loops read, and it belongs to `fam_ratified_provenance`, already one of
+      the declared four, so the reader/non-reader boundary does not move.
+      **`test_the_reader_list_is_structural_not_incidental` STILL HOLDS,
+      UNEDITED** — its per-family check finds the call shape in a declared
+      reader's source either way, and its inventory check counts the
+      DOCUMENT-LOOP shape, which stays at FOUR because this call is a set
+      comprehension over repository ids. (The docstring deliberately does not
+      spell that loop form out: that test counts occurrences of it in
+      `families.py`, so quoting it in prose would break the count — which it
+      did once here, caught by the test in the same minute.) A SIXTH call that
+      opens documents still has to be declared there by name. Raised by
+      Copilot on PR #981 (`families.py:640`), TAKEN.
+- [x] 4.10 **THE OUT-OF-SCOPE TEST NOW ASSERTS WHICH HALF OF THE SCOPE ITS
+      FIXTURE IS.** `test_an_entry_naming_a_repository_out_of_scope_is_never_stale`
+      said *"a `codexFactory` document in the scan set"* while `_ctx_repos`
+      places both documents in `Context.docs` and leaves `lifecycle_docs`
+      empty. The docstring now says *"this family's SCAN SCOPE"* and names the
+      governed-corpus half, and the body asserts it —
+      `ctx.lifecycle_docs == []` and
+      `{d.repo for d in ctx.docs} == {openxFactory, codexFactory}` — so the
+      fixture cannot be mistaken for the other half.
+      `test_either_document_set_alone_puts_a_repository_in_scope` is where
+      each half is pinned on its own. Raised by Copilot on PR #981
+      (`test_grandfather_dispositions.py:830`), TAKEN.
+- [x] 4.11 **THE "SECOND LAST PASS" PHRASE IS GONE FROM EVERY ASSERTING
+      SENTENCE IN THE PACKET**, not only from the docstring Copilot quoted:
+      this section's own heading, D2's heading and its recommendation
+      sentence, `proposal.md`'s `code_surface:`, § 1.2's D2 gloss and § 7.5
+      all now say **SECOND AND FINAL grandfather-disposition pass**. The three
+      remaining occurrences of the old phrase are QUOTATIONS of it in the
+      change-history notes (§ 4.7d, D3 and D2), which is where a corrected
+      claim belongs. Raised by Copilot on PR #981 (`tasks.md:183`), TAKEN.
 - [x] 4.5 **THE COMPOSITION IS ASSERTED, NOT ARGUED.**
       `test_the_second_pass_returns_only_its_own_rows` holds that the second
       pass returns ONLY the rows it builds, that every graded row reaches the
@@ -516,7 +559,7 @@ re-run's, not the first authoring's.
       THE MERGE THIS BRANCH CARRIES** (`0805c3bb` merged in): row 3 now ends at
       the downgrade — *"a downgrade rather than a suppression, because an
       archived record is beyond the plain repair every other arm asks for"* —
-      and says NOTHING of this packet's second last pass, so the table is
+      and says NOTHING of this packet's second and final pass, so the table is
       current for `main` and incomplete for this branch by exactly the one
       addition this packet makes. **That is still not this packet's act**: the
       table's currency is #967's standing subject, the sweep that owns it has
@@ -551,7 +594,8 @@ re-run's, not the first authoring's.
       general fix — and it would change what EVERY family measures, close every
       fixture aggregation in this suite out of its own anchor (the admission's
       own docstring says that is why it is lax), and put a one-line enumerator
-      change inside a packet whose declared surface is one second last pass on
+      change inside a packet whose declared surface is one second and final
+      grandfather-disposition pass on
       one family. **This packet narrows only what IT reports** (`design.md`
       D2b) and leaves the enumerator byte-unmoved; whether the anchor's
       admission should be tightened, and what an aggregation run should do when

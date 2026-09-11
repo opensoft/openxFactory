@@ -199,11 +199,14 @@ this afternoon, which is what separates it from the parent's subject — an
 IMMUTABLE archived record — and is why the two get different bands. Option 3
 grades a repair as a defect; option 2 records a fact and asks for nothing.
 
-## D2 — the arm: a SECOND last pass, after the first
+## D2 — the arm: a SECOND AND FINAL grandfather-disposition pass, after the downgrade
 
 **RECOMMENDED: `fam_ratified_provenance` ends `graded =
 _honour_grandfather_dispositions(ctx, findings); return graded +
-_stale_grandfather_dispositions(ctx, graded)`.**
+_stale_grandfather_dispositions(ctx, graded)`.** The new pass is the SECOND of
+the family's two trailing passes and its LAST — the `return` appends it to the
+downgrade's result — and the docstrings say exactly that, "second last" having
+read as "second-to-last" to a reviewer and been corrected (`tasks.md` § 4.7d).
 
 **WHERE IT RUNS, AND WHY AFTER.** The downgrade consumes the matches; this pass
 reports the complement. Taking the difference AFTER is safe because of what the
@@ -403,7 +406,8 @@ never enumerates.
 *Cost:* it changes what EVERY family measures, not what this one reports, and
 it closes every fixture aggregation in the suite out of its own anchor — the
 admission's docstring says that is why it is lax. A packet whose stated surface
-is *one second last pass on one family* does not get to move the estate's
+is *one second and final grandfather-disposition pass on one family* does
+not get to move the estate's
 enumerator; if the anchor's admission should be tightened, that is its own
 change with its own gate run.
 *Consequence of doing nothing:* the guard D2 already declares would be
