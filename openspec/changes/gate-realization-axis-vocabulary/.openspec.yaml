@@ -1,0 +1,102 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-gate-realization-axis-vocabulary
+  reason: >-
+    A RATIFIED VOCABULARY WITH NO READER HAS STOPPED BEING THE VOCABULARY.
+    `release-realization`'s promoted requirement *Realization axis declaration*
+    admits exactly two values for `target_release:` — `implemented` (the
+    affected repositories' main lines) or a named release defined in the
+    aggregation repository — and the same sentence names `implemented` as the
+    doc-only DEFAULT. Measured on `main` at `38c076d1` over every
+    `openspec/changes/**/proposal.md`: 199 proposals, 181 declaring the field,
+    and of the 38 ACTIVE proposals only TWELVE declare a value the vocabulary
+    admits (nine `implemented`, three a release this estate defines). TWENTY-SIX
+    declare something else. No script, test or workflow gates the value; the one
+    reader is the ideation dashboard's DISPLAY, which prints whatever string it
+    finds, and its own fixtures use both spellings.
+    THE DIVERGENCE IS WIDER THAN THE ISSUE THAT FILED IT, AND THE MEASUREMENT IS
+    WHAT MOVED THE DESIGN. openxFactory issue #956 reports one value — `none`,
+    outside the vocabulary and meaning exactly what the default already says —
+    and counts six active carriers. Re-measured at authoring there are FIVE
+    (`state-header-window-budget` archived at PR #953), and they are five of
+    twenty-six: TWELVE more declare a DEFERRED ALLOCATION ("THE NEXT ADDITIVE
+    MINOR, DELIBERATELY NOT NUMBERED HERE"), four a realization STATE
+    (`implementation_pending`), two a repository bootstrap, and three a sentence
+    that answers the ARCHIVE question where the target belongs. The twelve are
+    the ones that matter: `docs/contract-versioning-policy.md` § Bundle
+    Realization Order ALLOCATES BUNDLE VERSIONS LATE, so an author who named a
+    number would reserve one that policy allocates at the cut — the promoted
+    two-value sentence has no spelling for "a release, not yet numbered", and
+    those twelve authors are obeying one ratified rule by departing from
+    another.
+    SO THE REMEDY IS A GATE PLUS A RATCHET, AND NOT A SWEEP. A gate that refused
+    all twenty-six at landing would refuse a corpus that is in twelve cases
+    obeying policy; rewriting all twenty-six to `implemented` would assert
+    realizations nobody performed. This packet ADDS one requirement that makes a
+    house validator refuse an off-vocabulary declaration on an ACTIVE proposal,
+    corrects the five `none` carriers in the same pull request (for those five
+    and only those, the declaration's own prose says the packet cuts no bundle,
+    which is what `implemented` means), and names the remaining twenty-one in a
+    CLOSED register carried beside the validator — reported, never refused,
+    never added to. Archived packets are frozen record: read, counted, and
+    judged never.
+    WHY AN ADDED REQUIREMENT AND NOT A MODIFIED ONE. `add-structured-scope-substrate`
+    is ACTIVE, ratified, and holds a `## MODIFIED Requirements` block over
+    *Realization axis declaration* restating its two-value sentence verbatim. A
+    second MODIFIED block over that title would owe `sequenced_after:` and its
+    deltas relative to that change's outcome, and would inherit the archive-order
+    hold *Ordered deltas and branch vocabulary* imposes. An ADDED requirement
+    over a novel title owes none of it and touches no promoted byte. The cost of
+    the alternatives is written out in `design.md` D1 and put to the owner.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-11 — 31 topic folders — and
+    `INDEX.md` read: no topic names the realization-axis front matter, the
+    `target_release` vocabulary, or a proposal front-matter validator. The
+    nearest hit by word is `layer-vocabulary-machine-migration`, which is the
+    Hermes Subject/Tenant/Domain vocabulary in a different capability.
+    `kind: staged` would claim a staging source that does not resolve. The
+    organized source is openxFactory issue #956, filed by this lane as the named
+    successor owed by `amend-repo-boundary-governance-scope-first-line`
+    `tasks.md` § 6.8 at that packet's archive.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), session `9c62ed`, on Brett
+    Heap's word of 2026-09-11T12:08:24Z, verbatim **"land each when green,
+    archive both when landed, claim 955 and 956"**.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. The "claim 956" clause
+    COMMISSIONS THE AUTHORING and ratifies no wording: it admits no text here to
+    canon, takes none of the decisions this packet carries, and is not read as
+    an approval of any of them. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in this packet carries
+    `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
+    a fixed `kind` and `id`. Ratification, promotion and archive are three later
+    acts on later words.
+    THE DECISIONS MOST WORTH A VETO ARE `design.md` D1, D2 AND D3, each put as a
+    multiple-choice question with the recommendation FIRST and the alternatives'
+    costs written out beside it. D1: what canon does about a value outside its
+    vocabulary — GATE the two-value vocabulary as ratified (recommended),
+    against AMENDING it to admit the divergence, against RULING the divergence a
+    synonym. D2: the sweep — correct the five `none` carriers in this pull
+    request (recommended), against leaving each to its owning lane, against
+    registering all twenty-six and sweeping none. D3: how the gate resolves "a
+    named release", which the measurement forced open — the aggregation
+    repository the promoted sentence names defines no releases and carries no
+    tags, while every release the corpus names is defined in THIS repository's
+    `contracts/releases/`. The three rest on no shared predicate and each stands
+    whichever way the others go.
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS FILING. This pull
+    request edits no file under `openspec/specs/`; `code_surface` is non-empty,
+    so under `release-realization` the archive is a separate act on
+    merged-plus-green realization evidence and a separate word, and openxFactory
+    #956 closes THERE and not at this landing.
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:issue:956                                                        # THE ORIGIN. Filed by this lane at the archive of the packet that owed it; carries the divergence, the first measurement and the three options. Closes at the ARCHIVE, never at this landing
+  - openxFactory:issue:931                                                        # The governing issue of the packet whose § 6.8 owed #956 as a named successor
+  - openxFactory:change:archive/2026-09-11-amend-repo-boundary-governance-scope-first-line  # ARCHIVED. Its `tasks.md` § 6.8 named this successor AT the archive act, which is why #956 exists
+  - openxFactory:change:add-structured-scope-substrate                            # ACTIVE, ratified. Holds the `## MODIFIED` block over *Realization axis declaration* that an amending design would have to sequence after — the collision this delta avoids by ADDING
+  - openxFactory:change:add-sequenced-after-substrate                             # ACTIVE, ratified. ADDED *Strict loading of the realization-axis front-matter block* and produced `scripts/frontmatter_strict.py`, the loader this gate READS THROUGH. `target_release:` is a prose header, not a structured field, so this delta neither realizes nor contradicts that rule
+  - openxFactory:change:archive/2026-09-04-add-per-change-sweep-ledger             # ARCHIVED. The house shape this packet's code follows: a validator, a data file it reads, a test that runs it over the live corpus
+  - openxFactory:change:archive/2026-07-10-add-xfactory-installer-repository       # ARCHIVED. The precedent two active `repository-bootstrap` declarations cite, and one of the register's four divergence classes
