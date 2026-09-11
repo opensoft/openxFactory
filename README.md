@@ -531,9 +531,16 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
-  — filed 2026-09-11, **`Status: draft`** (no approval pair; the lawful
-  unapproved shape `add-drafted-proposal-origin` defined, drafting provenance
-  only). Lane `hermes-wallet-exercise`. **THE "CITED CHANGE LATER" OF A
+  — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
+  Heap, openxFactory operator authority, first-hand, in session — a
+  MULTIPLE-CHOICE ruling over all seven `design.md` D-1..D-7 decisions,
+  verbatim ***"accept all A on 960"***, recorded on PR
+  [#960](https://github.com/opensoft/openxFactory/pull/960)) — record
+  [`review/ratification-2026-09-11.md`](openspec/changes/amend-register-act-5b-projection-proof/review/ratification-2026-09-11.md).
+  **ALL SEVEN OQs = A, THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE
+  BYTE** (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED
+  BESIDE the unmoved drafting pair). Lane `hermes-wallet-exercise`. **THE
+  "CITED CHANGE LATER" OF A
   DISPOSITIONED CONTESTED FINDING**, queued by name in Brett Heap's
   multi-choice ruling of **2026-09-11T03:01:28Z** — verbatim *"disposition
   entry now, cited change later"* — whose disposition entry is
@@ -567,16 +574,17 @@ Active changes:
   promoted specification — both changes that author it are ACTIVE — so there is
   no block to `## MODIFIED`, and `tasks.md` §5 holds the archive behind
   `add-wallet-carried-review-authority` so the capability's promoted file is
-  created by its author. **SEVEN OPEN QUESTIONS ARE PUT FOR BRETT HEAP AS
+  created by its author. **SEVEN OPEN QUESTIONS WERE PUT FOR BRETT HEAP AS
   MULTIPLE CHOICE** (OQ-1..OQ-7; `design.md` D-1..D-7), each with a RECOMMENDED
-  option and its one-line reason, and **every recommendation is what the delta
-  already encodes**, so a ruling that takes them all moves no byte. **WHAT THIS
-  PULL REQUEST DOES NOT DO:** it edits no file under `openspec/specs/`, no
-  script, contract, schema or workflow, does not amend codexFactory, does not
-  rewrite the `Status: record` walk record, does not move the runbook's own
-  `Status: draft`, and does not perform the two runbook sentences — those are
-  `tasks.md` §3, after ratification. The realization evidence for `code_surface:
-  none` is landing plus the task list, and the task list includes them.
+  option and its one-line reason, and **every one was ruled at its
+  recommendation** (§ Rulings, `proposal.md`), so the delta moved no byte.
+  **WHAT THIS RATIFICATION DOES NOT DO:** it edits no file under
+  `openspec/specs/`, no script, contract, schema or workflow, does not amend
+  codexFactory, does not rewrite the `Status: record` walk record, does not
+  move the runbook's own `Status: draft`, and does not perform the two
+  runbook sentences — those are `tasks.md` §3, still open. The realization
+  evidence for `code_surface: none` is landing plus the task list, and the
+  task list includes them.
 
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,

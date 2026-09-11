@@ -83,6 +83,26 @@ origin:
     concrete field name lives, who may perform the read, the delta class and
     archive ordering, and the home capability.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-11T13:09:12Z,
+    verbatim: "accept all A on 960", given as a MULTIPLE-CHOICE ruling over
+    all seven decisions this packet put (OQ-1 through OQ-7 in `proposal.md`;
+    `design.md` D-1 through D-7), recorded as a comment on openxFactory PR
+    #960 and in full at `review/ratification-2026-09-11.md`. THIS IS THE
+    RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED: the drafting
+    provenance above (`kind`, `id`, `reason`, `proposed_by`, `proposed_on`)
+    is kept exactly as authored, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition —
+    approval is a pure ADDITION beside a fixed origin identity, and the
+    archive gate's origin-retention arm reads the declaration this act
+    establishes. EVERY OQ TOOK ITS RECOMMENDED OPTION, SO THE DELTA'S
+    WORDING STANDS UNCHANGED: no delta byte was re-written, restored or
+    deleted by this ratification. NOTHING IS PROMOTED BY THIS ACT: no file
+    under `openspec/specs/` is edited, `tasks.md` § 5 stays open, and
+    archive is a separate act on a separate word, held behind
+    `add-wallet-carried-review-authority` and
+    `register-gate-rules-council-seats` per OQ-6.
+  approved_on: 2026-09-11
 related:
   - openxFactory:change:add-wallet-carried-review-authority   # ACTIVE, the ratified parent that authors `review-authority-intake` and whose task 7.6 backs `docs/governed-reissuance-runbook.md` - the document this packet amends at realization. Declared in `sequenced_after:`
   - openxFactory:change:register-gate-rules-council-seats     # ACTIVE, the second author of `review-authority-intake` and the change whose `walk-2026-09-11-register-act.md` carries BOTH the finding (sections 13.2, 14.1) and the disposition section this packet is the cited change for. Declared in `sequenced_after:`

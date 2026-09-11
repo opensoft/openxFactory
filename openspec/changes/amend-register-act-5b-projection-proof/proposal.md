@@ -6,7 +6,8 @@ sequenced_after: [add-wallet-carried-review-authority, register-gate-rules-counc
 
 # Proposal: amend-register-act-5b-projection-proof
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11T13:09:12Z by Brett Heap (openxFactory operator authority) — verbatim "accept all A on 960"; record at review/ratification-2026-09-11.md
 Proposed: 2026-09-11, in lane `hermes-wallet-exercise` (window `codeXfactory-2`,
 workstation Eagle), as the CITED CHANGE that Brett Heap's disposition of
 2026-09-11T03:01:28Z queued by name.
@@ -23,16 +24,19 @@ Family: the projection half of `add-wallet-carried-review-authority`'s S5
   register-act family, raised by the 2026-09-11 governed re-issuance of
   `gate_rules_council`'s holder and by no other event.
 
-**NOTHING IS RATIFIED BY THIS PACKET AND IT ASSERTS NO APPROVAL.** It is
-`Status: draft`, its `.openspec.yaml` carries the drafting provenance pair
-(`proposed_by`/`proposed_on`) and no approval pair — the lawful unapproved
-shape `add-drafted-proposal-origin` (issue #318) defined. **Seven decisions are
-put for Brett Heap as multiple choice** (§ Open questions); each carries a
-RECOMMENDED option with the one-line reason it is recommended, and **the
-recommended option is the one the delta already ENCODES**, so a ruling that
-takes every recommendation moves not one byte. Ruling otherwise on OQ-1, OQ-2,
-OQ-4 or OQ-5 rewrites the requirement it names; ruling otherwise on OQ-3, OQ-6
-or OQ-7 moves the packet rather than the wording.
+**THIS PACKET IS NOW RATIFIED.** It was filed `Status: draft`, its
+`.openspec.yaml` carrying the drafting provenance pair (`proposed_by`/
+`proposed_on`) and no approval pair — the lawful unapproved shape
+`add-drafted-proposal-origin` (issue #318) defined. **Seven decisions were put
+for Brett Heap as multiple choice** (§ Open questions); each carried a
+RECOMMENDED option with the one-line reason it was recommended. **Brett Heap
+ruled 2026-09-11T13:09:12Z, verbatim "accept all A on 960"** — all seven at
+their RECOMMENDED option (§ Rulings below), so **the delta moved not one
+byte**. Ruling otherwise on OQ-1, OQ-2, OQ-4 or OQ-5 would have rewritten the
+requirement it names; ruling otherwise on OQ-3, OQ-6 or OQ-7 would have moved
+the packet rather than the wording — neither was taken. `.openspec.yaml` now
+also carries `approved_by`/`approved_on`, ADDED BESIDE the unmoved drafting
+pair — the addition-not-rewrite shape `add-drafted-proposal-origin` defined.
 
 ## Why
 
@@ -287,6 +291,30 @@ terms.**
   and it is not in that capability.*
 - **C** — codexFactory `domain-hermes-content`. *Cost: a domain repository would
   author a neutral contract, against working rule 1.*
+
+## Rulings
+
+**Brett Heap, 2026-09-11T13:09:12Z, verbatim "accept all A on 960"** — given
+in session, recorded as a comment on openxFactory PR #960 and captured in full
+at `review/ratification-2026-09-11.md`. The word reaches all seven decisions
+this packet put, each at its RECOMMENDED option, so **the delta's wording
+stands unchanged**: not one byte of `specs/review-authority-intake/spec.md`
+moves, and the third-sentence correction named under OQ-4 rides with it.
+
+| OQ | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — step 5b's exit condition | `design.md` D-1 | **A** — a DIRECT OBSERVATION of the published register projection's declared source revision | B, a reachable gate-side check (does not exist today); C, remove the exit condition entirely; D, keep "verify one convening admits", deferred |
+| **OQ-2** — how much the observation must read | `design.md` D-2 | **A** — the declared source revision alone, unread row-level fields named OWED | B, mandate the three row-level confirmations, mandatory; C, either, at the observer's discretion |
+| **OQ-3** — where the concrete field name lives | `design.md` D-3 | **A** — requirement stays neutral, runbook names the concrete artifact | B, name the concrete annotation in the requirement too; C, neutral everywhere |
+| **OQ-4** — the refresher cycle as a precondition | `design.md` D-4 | **A** — stated as an EVENT, and §5.2 step 2's stale sentence corrected in the same edit | B, state it as a CLOCK (name the `0 */2` cadence); C, say nothing about timing |
+| **OQ-5** — who may perform the observation | `design.md` D-5 | **A** — a named human operator's word that NAMES the executing lane, read-only verbs only | B, any lane under a standing ceremony word; C, the operator personally, no lane |
+| **OQ-6** — delta class and archive ordering | `design.md` D-6 | **A** — `## ADDED`, archive held behind `add-wallet-carried-review-authority` and `register-gate-rules-council-seats` | B, archive whenever ready; C, hold the packet entirely, re-cut as `## MODIFIED` later |
+| **OQ-7** — home capability | `design.md` D-7 | **A** — openxFactory `review-authority-intake` | B, openxFactory `roles-authority-model`; C, codexFactory `domain-hermes-content` |
+
+Each ruled by Brett Heap, 2026-09-11T13:09:12Z, verbatim **"accept all A on
+960"**. This packet is `Status: ratified`; promotion and archive are separate
+acts on separate words, and neither has been given — `tasks.md` § 5 stays
+entirely open, held behind the same two parents named in `sequenced_after:`.
 
 ## What this deliberately does not do
 

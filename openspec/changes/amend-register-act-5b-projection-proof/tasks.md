@@ -1,6 +1,7 @@
 # Tasks: amend-register-act-5b-projection-proof
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-11T13:09:12Z — verbatim "accept all A on 960" (record `review/ratification-2026-09-11.md`)
 Kind: tasks
 Lane: hermes-wallet-exercise
 
@@ -10,11 +11,11 @@ and not on merged-plus-green realization evidence. **The runbook edit is IN
 this list (§3), so "archives on landing plus its task list" still means the
 runbook edit has to have happened.**
 
-**NOTHING BELOW IS TICKED, AND NOTHING IN THIS PULL REQUEST PERFORMS ANY OF
-IT.** The pull request that carries this file is a DRAFT proposing the packet.
-No requirement is promoted, no runbook byte moves, no register file is touched,
-no record is appended, and no box in any other packet is ticked by it. Every
-box names the act that ticks it and the word that authorizes that act.
+**§ 1 BELOW IS NOW TICKED, AGAINST BRETT HEAP'S RATIFICATION WORD; NOTHING
+ELSE IS, AND THIS PULL REQUEST STILL PERFORMS NO OTHER ACT.** No requirement
+is promoted, no runbook byte moves, no register file is touched, no record is
+appended, and no box in any other packet is ticked by it. Every box names the
+act that ticks it and the word that authorizes that act.
 
 **Groups, in order:** §1 ratify → §2 encode → §3 realize → §4 cite back →
 §5 archive → §6 residue.
@@ -23,25 +24,32 @@ box names the act that ticks it and the word that authorizes that act.
 
 ## 1. Ratification — Brett Heap's, and nobody else's
 
-- [ ] 1.1 **Rule OQ-1 through OQ-7** (`proposal.md` § Open questions;
+- [x] 1.1 **Rule OQ-1 through OQ-7** (`proposal.md` § Open questions;
       `design.md` D-1 through D-7). Multiple choice, each with a RECOMMENDED
       option and its reason. **Taking every recommendation moves no byte**;
       any other answer on OQ-1, OQ-2, OQ-4 or OQ-5 rewrites the requirement it
       names before ratification, and any other answer on OQ-3, OQ-6 or OQ-7
       moves the packet rather than the wording. Ticks on the ruling, recorded
-      verbatim with its UTC instant.
-- [ ] 1.2 **Ratify the packet.** `Status: draft` → `ratified` on
+      verbatim with its UTC instant. **RULED: Brett Heap, 2026-09-11T13:09:12Z,
+      verbatim "accept all A on 960"** — all seven OQs at their RECOMMENDED
+      option (`proposal.md` § Rulings; `review/ratification-2026-09-11.md`).
+- [x] 1.2 **Ratify the packet.** `Status: draft` → `ratified` on
       `proposal.md`, `design.md`, `tasks.md` and the delta, with a `Ratified:`
       line naming the human, the instant and the verbatim word, plus
       `review/ratification-<date>.md`. `.openspec.yaml` gains `approved_by` +
       `approved_on` **ADDED BESIDE** the drafting pair, with `kind`, `id`,
       `reason`, `proposed_by` and `proposed_on` unmoved — the
       addition-not-rewrite shape `add-drafted-proposal-origin` defined, which
-      is also what keeps doc-health's `proposal-origin` class 7 quiet.
-- [ ] 1.3 **Record the ruling where the disposition can see it**: a comment on
+      is also what keeps doc-health's `proposal-origin` class 7 quiet. **DONE**
+      in this same commit: all three documents plus `review/ratification-
+      2026-09-11.md` (`Status: ratified`) and `review/verification-2026-09-11.md`
+      (`Status: record`, the gate-run capture).
+- [x] 1.3 **Record the ruling where the disposition can see it**: a comment on
       the pull request carrying this packet, quoted verbatim, so the walk
       record's disposition section can be cited back to an act rather than to
-      a session.
+      a session. **DONE**: recorded in full, in this same commit, at
+      `review/ratification-2026-09-11.md`; a comment quoting it verbatim
+      follows on openxFactory PR #960.
 
 ## 2. Encode — only if a ruling moves the wording
 

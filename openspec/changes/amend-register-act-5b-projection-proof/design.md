@@ -1,6 +1,7 @@
 # Design: amend-register-act-5b-projection-proof
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-11T13:09:12Z — verbatim "accept all A on 960" (record `review/ratification-2026-09-11.md`)
 Kind: design
 Lane: hermes-wallet-exercise
 
@@ -35,7 +36,7 @@ closed on a projection that still carried the revoked grant. The packet's whole
 subject is that one exit condition; everything else about the re-issuance
 worked.
 
-## D-1 — The exit condition becomes an observation of the projection
+## D-1 — The exit condition becomes an observation of the projection — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.** The projection step exits on a direct observation of
 the published register projection's declared source revision, at or after the
@@ -71,7 +72,7 @@ manufactured-clearance hazard for as long as phase 6 stays ungated, and the
 hazard is not hypothetical: the walk record's §13.2 computed the exact green
 the deferred wording would have produced.
 
-## D-2 — The observation proves by SOURCE REVISION, and names what it did not read
+## D-2 — The observation proves by SOURCE REVISION, and names what it did not read — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.** The declared source revision alone is the exit test;
 the row-level confirmations are named as OWED with an owner.
@@ -94,7 +95,7 @@ is not a bar, and the fourth requirement (*states the limit of what it
 establishes*) already carries the honest-reporting half without making the
 depth optional.
 
-## D-3 — Neutral in the requirement, concrete in the runbook
+## D-3 — Neutral in the requirement, concrete in the runbook — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.** The requirement says *"the published register
 projection's declared source revision"*; the runbook says ConfigMap
@@ -113,7 +114,7 @@ useful-and-brittle half, because it is the document the walker has open.
 "the declared source revision" unaided, which is how a step gets satisfied by
 the wrong field.
 
-## D-4 — The precondition is an EVENT, not a clock
+## D-4 — The precondition is an EVENT, not a clock — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.** A refresh cycle that COMPLETED after the act landed,
 evidenced by the refresher's own success record; and §5.2 step 2's stale
@@ -142,7 +143,7 @@ change and has changed; a requirement that names it goes stale silently.
 
 **Alternative rejected — C, silence.** Reproduces 2026-09-11T02:5xZ exactly.
 
-## D-5 — A named operator's word naming a named lane, read-only, recorded
+## D-5 — A named operator's word naming a named lane, read-only, recorded — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.**
 
@@ -162,7 +163,7 @@ naming.
 unavailable — it is the bottleneck the named-lane shape exists to relieve, and
 the operator's word is already the authority under A.
 
-## D-6 — `## ADDED`, and the archive does not overtake the parents
+## D-6 — `## ADDED`, and the archive does not overtake the parents — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.** The delta is `## ADDED` because there is no promoted
 `review-authority-intake` specification to modify; `sequenced_after:` declares
@@ -188,7 +189,7 @@ misleading intermediate state.
 sentence in force for as long as the parents take, and the parents are gated on
 operator acts and an openXwallet reader widening.
 
-## D-7 — `review-authority-intake`, in openxFactory
+## D-7 — `review-authority-intake`, in openxFactory — RULED A, 2026-09-11T13:09:12Z
 
 **RECOMMENDED: option A.**
 
