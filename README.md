@@ -555,7 +555,9 @@ Active changes:
   STANDING DETERMINISTIC-FAMILY rows, the uncited-resolution effect (30 findings
   without the file, 0 with it) being measured separately. Canon declares a
   disposition reading for FIVE families, `neutrality-drift` included, and exactly
-  one of the eight holding entries is among them. The eight families are grouped
+  one of the EIGHT FAMILIES holding entries is among them — the undecided
+  population being the SEVEN families with no declared reading, 27 of the 31
+  entries. The eight families are grouped
   into FOUR CLASSES so the class ruling is taken four times — with a FIFTH,
   separate ruling on the packet's own shape — each put as a multiple-choice
   question with the recommendation first, and the recommendation commissions NO

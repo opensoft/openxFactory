@@ -175,7 +175,11 @@ each open box below states the event that closes it:
       reading* — such an entry changes no finding OF THE FAMILY IT NAMES; it is
       still read by the contested-resolution rule, which reaches a DERIVED
       `uncited resolution` finding and never the named family's own row, and only
-      where that family's findings are classified `contested` AND the later run
+      where the entry's own key was recorded `contested` IN THE PREVIOUS REPORT
+      — that set being built by `report.parse_previous` from the previous
+      report's rows (`report.py:374-383`) and not from the later run's
+      resolution classes, so a key recorded `contested` once stays eligible even
+      if the family's later rows are `auto-fixable` — AND the later run
       actually EVALUATED the named family and repository (a fifth bullet states
       the partial-run case, measured at `report.uncited_resolutions`'
       `unavailable_families` / `unavailable_repos` guards, `report.py:424-427`,
@@ -186,10 +190,16 @@ each open box below states the event that closes it:
       (ii) *A recorded disposition names a family this capability does give a
       reading* — such an entry is read OVER THAT FAMILY'S OWN FINDINGS exactly as
       that family's own declaration says and by that declaration alone, the
-      family-neutral contested-resolution rule still reaching it as it reaches
-      any other (a third bullet says so in terms, so "by that declaration alone"
-      cannot be read as displacing that rule), and scenario (i) neither widens
-      nor narrows it.
+      family-neutral contested-resolution rule still reaching it WHEREVER THAT
+      RULE'S OWN EVALUATION SCOPE REACHES the named family and repository (a
+      third bullet says so in terms, so "by that declaration alone" cannot be
+      read as displacing that rule, and a FOURTH says the entry reaches nothing
+      through that rule where its scope excludes the named family — measured at
+      `runner.py:823` and `runner.py:830`, which add the ideation-readiness and
+      neutrality-drift lanes to `unavailable_families` unconditionally because
+      their findings are folded in AFTER the deterministic render, so those
+      lanes' prior contested rows never enter the pass at all), and scenario (i)
+      neither widens nor narrows it.
       No body paragraph is added, edited or removed; no promoted scenario moves,
       is retitled or loses a bullet.
 - [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the

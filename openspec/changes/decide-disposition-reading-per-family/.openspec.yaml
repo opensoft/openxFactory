@@ -84,8 +84,9 @@ origin:
     possible in parallel"**.
     NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. That word COMMISSIONS THE
     AUTHORING and ratifies no wording: it admits no text here to canon, takes
-    none of the four decisions this packet carries, and is not read as an
-    approval of any of them. The lawful unapproved shape is the one
+    none of the FIVE OPEN RULINGS this packet carries — four CLASS decisions and
+    one separate ruling on the packet's own shape (`design.md` D3, `tasks.md`
+    § 1.5) — and is not read as an approval of any of them. The lawful unapproved shape is the one
     `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
     `approved_by`, no `approved_on` — and every LIFECYCLE-BEARING document in
     this packet (`proposal.md`, `design.md`, `tasks.md`; `.openspec.yaml` and the
@@ -93,7 +94,9 @@ origin:
     `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
     a fixed `kind` and `id`. Ratification, promotion and archive are three later
     acts on later words.
-    THE DECISIONS ARE FOUR AND EVERY ONE IS PUT AS A MULTIPLE-CHOICE QUESTION
+    THE CLASS DECISIONS ARE FOUR AND A FIFTH RULING ON THE PACKET'S OWN SHAPE
+    STANDS BESIDE THEM (`design.md` D3, `tasks.md` § 1.5) — FIVE OPEN RULINGS IN
+    ALL, EVERY ONE PUT AS A MULTIPLE-CHOICE QUESTION
     WITH THE RECOMMENDATION FIRST, in `design.md` D1 and on the pull request —
     one per CLASS of family rather than one per family, so the ruling is taken
     four times and not eight. Class A (`modified-block-currency`, 4 entries):

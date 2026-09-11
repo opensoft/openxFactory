@@ -17,7 +17,8 @@ at the archive of `honour-grandfather-dispositions-in-ratified-provenance`,
 carrying **§ 7.2** of that packet's ratified `tasks.md`.
 
 **THAT WORD COMMISSIONS THE AUTHORING AND RATIFIES NOTHING.** It admits no text
-here to canon, takes none of the four decisions this packet carries, and is not
+here to canon, takes none of the FIVE OPEN RULINGS this packet carries — four
+CLASS decisions and one separate ruling on the packet's own shape — and is not
 read as an approval of any of them. Every LIFECYCLE-BEARING document in this packet
 carries `Status: draft` — `proposal.md`, `design.md` and `tasks.md`, the three
 that carry a lifecycle header at all; `.openspec.yaml` and the spec delta carry
@@ -165,8 +166,11 @@ that rule with its own condition.
 
 *Finding severity and regression handling* is the right home and the only one:
 it owns severity, resolution class and the contested-resolution rule for the
-whole estate, it is family-neutral, and it is where the one arm that reads these
-thirty entries is already written down. **FIVE** families read the file under
+whole estate, it is family-neutral, and it is where the ESTATE-WIDE arm that
+reads all thirty of them is already written down — the estate-wide one, not the
+only one: four of those thirty are ALSO read by `modified-block-currency`'s own
+module, and five families' requirements declare family-side readings of their
+own (D0.1, `tasks.md` § 2.6). **FIVE** families read the file under
 their own name and each declares that reading in its own requirement —
 `promotion-fidelity`, `duplicate-packet`, `modified-block-currency`,
 `ratified-provenance`, and `neutrality-drift`, whose *A rejected candidate stays
@@ -178,7 +182,11 @@ scenarios state what an entry means for every family that declares nothing, and
 say in terms that they neither widen nor narrow any of the five — the second one
 scoping a declared reading to that family's OWN findings and saying, in its own
 bullet, that the family-neutral contested-resolution rule still reaches the entry
-as it reaches any other.
+WHEREVER THAT RULE'S OWN EVALUATION SCOPE REACHES THE NAMED FAMILY AND
+REPOSITORY — and, in a bullet of its own, that where that scope excludes the
+named family (a lane whose findings are folded in after the deterministic
+render, or a family the run skipped) the entry reaches nothing through it. The
+scenarios declare no new reachability for any family.
 
 ## What this proposal does NOT do
 

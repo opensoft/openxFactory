@@ -157,9 +157,17 @@ was restored to its measured sha256 after the control.
 
 ### D0.4 — the estate-wide arm, what it can reach, and the one entry it cannot
 
-`report.uncited_resolutions` keys on `(family, repo, path)` for EVERY family,
-so an entry of ANY family silences the `uncited resolution` error that would
-otherwise be raised when its CONTESTED finding stops being reported. **THE
+`report.uncited_resolutions` keys on `(family, repo, path)` WITHOUT a family
+allow-list, so an entry of any family THE PASS ADJUDICATES silences the
+`uncited resolution` error that would otherwise be raised when its CONTESTED
+finding stops being reported. **"THE PASS ADJUDICATES" IS A REAL NARROWING AND
+IS MEASURED, NOT WAVED AT**: `runner.main` adds the ideation-readiness lane
+(`runner.py:823`) and the neutrality-drift lane (`runner.py:830`) to
+`unavailable_families` UNCONDITIONALLY — their findings are folded in after the
+deterministic render — and adds `--skip-family` values, the complement of a
+single `--family` run, and a skipped semantic sweep besides (807/809/811); the
+arm then skips every family in that set (`report.py:424-427`). So those lanes'
+prior contested rows never enter the pass at all, whatever the file says. **THE
 CONDITION IS LOAD-BEARING AND IS STATED BEFORE THE FIGURE**: that arm iterates
 `previous_contested` and nothing else, and `report.parse_previous` admits a key
 to that set only from a previous-report row written `class="contested"`
