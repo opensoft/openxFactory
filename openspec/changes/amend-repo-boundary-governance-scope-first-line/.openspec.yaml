@@ -1,0 +1,120 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-amend-repo-boundary-governance-scope-first-line
+  reason: >-
+    A DEFECT OF EXPRESSION IN PROMOTED CANON, filed as openxFactory issue #931
+    and NAMED IN ADVANCE by the packet that declined it.
+    `repo-boundary-governance`'s promoted requirement *Install repository
+    scope* (`openspec/specs/repo-boundary-governance/spec.md:34` on `main`
+    `114d6e3d`) opens its body with its ENUMERATION — "`Hermes-Install`,
+    `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`," at `:35` — and
+    defers the conjunction that closes the list, the verb and the `SHALL` to
+    `:36`. The requirement is not short of obligation: `SHALL` stands one line
+    below and `MUST` three times below that. But the OpenSpec CLI at 1.2.0
+    reads only the FIRST LINE of a requirement's body when it checks for the
+    keyword, so on that CLI the specification fails strict validation with
+    "requirements.1.text: Requirement must contain SHALL or MUST keyword".
+    AND THE PINNED CLI DOES NOT REPORT IT, WHICH IS MEASURED HERE RATHER THAN
+    LEFT FOR A READER TO DISCOVER. `contracts/openspec-cli-pin.yaml` pins
+    `@fission-ai/openspec@1.12.0`, the gate
+    `.github/workflows/openspec-cli-pin-gate.yml` runs
+    `scripts/validate-openspec-cli-pin.py --all --no-cache` through the
+    content-verified artifact, and this specification PASSES there — exit 0,
+    six INFO notes and no error. The failure is real on the 1.2.0 binary an
+    engineer or an agent has on PATH and is absent from every required check.
+    `design.md` D6 carries the measurement of both binaries and puts the
+    consequence — whether the amendment is wanted at all — for the owner's
+    word, ASKED FRESH FOR THIS REQUIREMENT rather than inherited.
+    THE TEXT IS PROMOTED, RATIFIED CANON. The requirement was promoted by
+    `restructure-factory-repo-boundaries`, archived 2026-06-26 at `7c4dacb9`,
+    and its first sentence was LAST WRITTEN by
+    `refresh-install-repository-enumerations`, archived 2026-09-09 at
+    `ca4a1558` (PR #825), which widened the list from four names to five and
+    declared the widening with the `Removed from canon` marker that still
+    stands at `:66` of the promoted file. A ratified requirement changes only
+    by a ratified change (working rule 3), which is the ground on which the
+    vocabulary defect #868 was refused as a plain fix on PR #780 and became its
+    own packet.
+    THIS PACKET IS THE NAMED SUCCESSOR OF `amend-neutral-product-pin-lockfile-first-line`.
+    That packet measured the whole corpus — 62 promoted spec files, 641
+    `### Requirement:` headings, exactly TWO whose first body line carried
+    neither keyword — amended one of them and declined this one in three
+    places: `tasks.md` 6.1 ("THE CORPUS'S ONE OTHER FIRST-LINE INSTANCE IS
+    NAMED AS RESIDUE AND IS NOT TAKEN … it is a different capability, a
+    different requirement and a different sentence"), `design.md` D7, and its
+    own delta header. Issue #931 is that name, filed UNCLAIMED at that packet's
+    archive. RE-MEASURED ON THIS BASIS, THIS REQUIREMENT IS NOW THE CORPUS'S
+    LAST ONE: 62 files, 641 headings, exactly ONE first body line without the
+    keyword, and it is this one.
+    THE PACKET EXISTS ON BRETT HEAP'S WORD OF 2026-09-11T00:42Z, verbatim
+    "do 915 and 931, land each when green", given in session to lane
+    `openxfactory-1` and recorded in that lane's CLAIMED comment on
+    openxFactory #931 at 2026-09-11T00:42Z. That word COMMISSIONS THE AUTHORING
+    and PRE-GIVES THE LANDING WORD for whatever head is ratified and green; it
+    ratifies no wording and takes no design decision, so this packet is a DRAFT
+    and carries no approval pair.
+    WHAT IS CLAIMED IS SMALL AND IS STATED AS SUCH, INCLUDING THE PART THAT IS
+    LARGER THAN ITS PREDECESSOR'S. ONE sentence of ONE requirement is
+    re-ordered so that a subject and the modal open the first body line. FOUR
+    WORDS ARE ADDED — "The following install repositories" — and NONE IS
+    REMOVED; the five repository names keep canon's order, canon's spelling and
+    canon's serial comma, and move behind the modal under a colon. Its
+    predecessor added no word at all, because that sentence already carried a
+    subject to promote and this one does not: its subject IS the list.
+    `design.md` D1 writes that difference out rather than glossing it, and
+    offers the zero-word alternative — move only the line breaks — as a real
+    option with a real cost. No obligation, no field, no scenario and no
+    consumer's conformance outcome moves in either direction.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-11 — 30 topic folders — and
+    `INDEX.md` read: no topic folder and no INDEX row names this requirement,
+    the first-body-line shape or the strict keyword rule, and
+    `grep -rliE "install repository scope|first body line|first-body-line|SHALL
+    or MUST" ideation/staging/` returns nothing (exit 1) — `-E`, because
+    without it `|` is a literal in a basic regular expression and the command
+    would not test the alternation the sentence claims. The one hit for the
+    capability NAME, in `wallet-carried-work-authority`, is a passing citation
+    in an unrelated topic and is not a staging source for this work.
+    `kind: staged` would claim a staging source that does not resolve. The
+    organized source is issue #931 and the three passages of its predecessor's
+    packet that named it.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), authoring the remedy
+    issue #931 proposes, on Brett Heap's word of 2026-09-11T00:42Z, verbatim
+    "do 915 and 931, land each when green". NO APPROVAL PAIR IS DECLARED AND
+    NONE IS IMPLIED: that word commissions an authoring and pre-gives a LANDING
+    word for a ratified head; it admits no text to canon and resolves no
+    decision below. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in the packet carries
+    `Status: draft` to match; approval, when it comes, is a pure ADDITION
+    beside a fixed `kind` and `id`.
+    THREE DECISIONS ARE PUT FOR THE OWNER AND THE ORDER IS DELIBERATE.
+    **D6 IS PUT FIRST BECAUSE IT CAN END THE PACKET**: the pinned 1.12.0 binary
+    the required gate runs does NOT report this failure, so whether promoted
+    canon should be amended for a binary no required check runs is the owner's
+    call. Brett Heap ruled AMEND on exactly that question for the sibling
+    requirement on 2026-09-10, verbatim "ratify as encoded" (PR #923), and that
+    ruling is quoted here as PRECEDENT ONLY — it was given over one requirement
+    of one specification and this packet does not read it as a standing rule.
+    **D1 IS THE VETO POINT**: three wordings are written out with their costs
+    and the recommended one is ENCODED. It is the decision most worth a veto
+    because, unlike its predecessor's, the recommended wording ADDS WORDS to
+    ratified canon. **D2 RECORDS TWO MARKER DECISIONS**, both read off a
+    measurement rather than argued: one `Removed from canon` marker is owed for
+    the replaced sentence and is written, and the marker this requirement
+    INHERITS from `refresh-install-repository-enumerations` is NOT carried
+    forward, on canon's own rule that a marker is not a carriage unit.
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:change:archive/2026-06-26-restructure-factory-repo-boundaries  # ARCHIVED 2026-06-26 at `7c4dacb9`. The change that PROMOTED *Install repository scope*, found with `git log -S "Install repository scope" -- openspec/specs/repo-boundary-governance/spec.md`; the first-body-line shape entered with the requirement itself
+  - openxFactory:change:archive/2026-09-09-refresh-install-repository-enumerations  # ARCHIVED 2026-09-09 at `ca4a1558` (PR #825), the LAST WRITER of this requirement's first sentence. It widened the enumeration from four names to five and declared the widening with the `Removed from canon` marker still standing at `:66` of the promoted file — the marker this block does NOT carry forward, whose durable record is that archived delta's own `specs/repo-boundary-governance/spec.md:37`
+  - openxFactory:change:archive/2026-09-10-amend-neutral-product-pin-lockfile-first-line  # ARCHIVED 2026-09-10. THE PRECEDENT AND THE PARENT: same defect class, same two-binary asymmetry, same packet shape. It measured the corpus, amended the other instance, declined this one and NAMED THIS SUCCESSOR in `tasks.md` 6.1, `design.md` D7 and its delta header; its D6 ruling of 2026-09-10 is quoted here as precedent and is NOT read as a standing rule for this requirement
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing  # ARCHIVED. The CONSTRUCTION METHOD this packet's delta is built by — `tasks.md` 2.1's slice-and-substitute with the family's own `derive_units` run as the proof — and the amendment shape it is authored on
+  - openxFactory:change:add-identity-brokering                                   # ACTIVE, another lane's. One of the five active `repo-boundary-governance` deltas, measured by name: it ADDS *Keycloak install repository boundary*, not this requirement. Named to record that the requirement sets are disjoint; this is not an ordering declaration
+  - openxFactory:change:add-trust-anchor                                         # ACTIVE, another lane's. ADDS *OpenXPKI install repository boundary*, not this requirement
+  - openxFactory:change:implement-keycloak-install-repo                          # ACTIVE, another lane's. MODIFIES *Keycloak install repository boundary*, not this requirement
+  - openxFactory:change:implement-openxpki-install-repo                          # ACTIVE, another lane's. MODIFIES *OpenXPKI install repository boundary*, not this requirement
+  - openxFactory:change:qualify-avatar-live-voice                                # ACTIVE, another lane's. MODIFIES *Neutral avatar-client repository boundary*, not this requirement

@@ -530,6 +530,58 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-repo-boundary-governance-scope-first-line](openspec/changes/amend-repo-boundary-governance-scope-first-line/proposal.md)
+  — filed 2026-09-11, **`Status: draft`** — a PROPOSAL, and **filing is not
+  ratifying**. Lane `openxfactory-1`. Filed on Brett Heap's word in session,
+  2026-09-11T00:42Z, verbatim ***"do 915 and 931, land each when green"***,
+  recorded in this lane's CLAIMED comment on openxFactory
+  [#931](https://github.com/opensoft/openxFactory/issues/931). **THAT WORD
+  COMMISSIONS THE AUTHORING AND PRE-GIVES THE LANDING WORD FOR A RATIFIED
+  HEAD; IT RATIFIES NOTHING**, so `.openspec.yaml` carries `proposed_by` and
+  `proposed_on` and NO approval pair. **ONE `## MODIFIED` REQUIREMENT** —
+  *Install repository scope*
+  (`openspec/specs/repo-boundary-governance/spec.md:34`) — whose first body
+  line is an enumeration of five repository names and whose `SHALL` arrives on
+  line two, so the OpenSpec CLI at **1.2.0** fails the specification with
+  `✗ [ERROR] requirements.1.text: Requirement must contain SHALL or MUST
+  keyword` (exit 1). **RE-MEASURED, IT IS THE CORPUS'S LAST INSTANCE**: 62
+  promoted spec files, 641 `### Requirement:` headings, exactly ONE first body
+  line without the keyword. **AND THE PINNED 1.12.0 THE REQUIRED GATE RUNS
+  DOES NOT REPORT IT AT ALL** — `Specification 'repo-boundary-governance' is
+  valid`, exit 0, six INFO notes — which is why `design.md` **D6 IS PUT FIRST
+  AND CAN END THE PACKET**: whether promoted canon should be amended for a
+  binary no required check runs is the owner's call, and **it is asked FRESH**,
+  the 2026-09-10 ruling on the sibling requirement #882 being quoted as
+  PRECEDENT ONLY. **THE EDIT IS FOUR WORDS ADDED AND NONE REMOVED** — *"The
+  following install repositories SHALL be scoped to …: `Hermes-Install`, …"* —
+  the five names keeping canon's order, spelling and serial comma, which is
+  LARGER than its predecessor's zero-word re-order and the packet says so:
+  this sentence's subject IS the list, so no zero-word re-order of it exists.
+  `design.md` **D1** writes all three candidates out with their costs —
+  option 2 moves only the line breaks and owes no marker at all (proven: 13
+  units, 0 uncarried, 0 added) at the cost of a 108-character first line in a
+  file whose ten compliant first lines are all 79 or fewer; option 3 is the
+  counted subject issue #931 floats, REFUSED because it copies the count FIVE
+  into a second requirement when the sibling index requirement already states
+  it. **TWO MARKER DECISIONS, BOTH READ OFF MEASUREMENTS** (`design.md` D2):
+  ONE `Removed from canon` marker is owed and written, assembled from
+  `derive_units`' own output with an empty `quoted` list and no code span in
+  its reason; and the marker this requirement INHERITS from
+  `refresh-install-repository-enumerations` (2026-09-08) is NOT carried
+  forward, on canon's own *"A marker is NOT a carriage unit, in either
+  direction … The durable record of a deletion is the archived delta"*
+  (`openspec/specs/doc-health/spec.md:1801-1805`) and on a four-times-repeated
+  precedent — carrying it would draw a ground-three marker-defect finding on
+  either wording, measured both ways. Byte-faithful by CONSTRUCTION: the block
+  is a slice of `:34-66` (33 lines, sha256 `24f6479c…`) with ONE
+  single-occurrence substitution and one paragraph re-wrapped at 79, generator
+  output and committed block ONE STRING at sha256 `50ced1fa…`. **WHAT THIS
+  PULL REQUEST DOES NOT DO:** it edits no file under `openspec/specs/`, no
+  script, test, contract, schema or workflow; `spec/repo-boundary-governance`
+  still fails the 1.2.0 binary at its head and the ARCHIVE is what clears it;
+  `tasks.md` §§ 1 and 5 stay OPEN and openxFactory #931 closes at the archive,
+  so the pull request carries `refs #931` and no closing keyword.
+
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: draft`** — a PROPOSAL, and **filing is not
   ratifying**. Lane `openxfactory-2`. Filed on Brett Heap's word in session,
