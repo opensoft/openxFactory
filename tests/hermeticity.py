@@ -452,26 +452,38 @@ def runner_seams():
     seams. Imported inside the function so the patch targets are the modules the
     tests themselves hold.
 
-    TRANCHE NOTE (adopt-neutral-tooling-home tranche A): both seams live in the
-    `ideation_dashboard` package, which arrives with tranche B. Until it lands
-    in this repo there is nothing in-process that can speak `nlm` or `gh`, so a
-    missing package yields NO seams (layer 1's PATH shim still refuses the
-    binaries) rather than an import error in every test. The probe is
-    `find_spec`, not try/except ImportError, because this repo's own
-    `tests/ideation_dashboard/` suite directory forms a NAMESPACE package of
-    the same name once `tests/` is on `sys.path` — the failure mode is then
-    "cannot import name ... (unknown location)", not ModuleNotFoundError.
-    Self-healing: a regular package always beats a namespace portion, so the
-    moment tranche B lands `scripts/ideation_dashboard/`, `find_spec` resolves
-    its submodules and both seams are guarded again with no further edit —
-    and a landed package that fails to IMPORT still raises loudly."""
+    WHERE THE TWO SEAMS LIVE NOW (§ 5.2 shed, RULED (a), `#656` comment
+    `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpxY`). Both moved to the pinned
+    openDox leg with the rest of the package, so the PROBE has to ask for the
+    name the patch targets below actually have — `opendox.session_pr` and
+    `opendox.workbench`. Probing the pre-shed `ideation_dashboard.<name>`
+    would answer False forever after the shed, and a False here returns NO
+    seams: the suite would then let those two modules invoke the real `nlm`
+    and `gh`, which is the one thing this layer exists to prevent. The probe
+    and the patch targets are therefore written from the same spelling, one
+    line apart, so they cannot drift again.
+
+    A MISSING LEG STILL YIELDS NO SEAMS RATHER THAN AN ERROR, and that is not
+    a degradation. `runner_seams()` runs for EVERY test in every invocation
+    under `tests/`, including targeted lanes over a plain checkout with no
+    gitlinks initialised (`.github/workflows/review-lane-repin.yml`). With no
+    leg there is nothing in-process that CAN speak `nlm` or `gh` — the modules
+    do not import — so layer 1's PATH shim is the whole guard and it still
+    refuses the binaries. The probe is `find_spec` inside `try/except
+    ImportError` rather than a bare import: `carved_reach._LegMissing` refuses
+    a carved name with `CarveReachUnavailable` (an `ImportError`, NOT a
+    `ModuleNotFoundError`) when a leg is absent, and this repo's own
+    `tests/ideation_dashboard/` suite directory can still form a namespace
+    portion whose failure mode is "cannot import name ... (unknown location)".
+    A leg that IS materialized and whose module fails to import still raises
+    loudly, because `find_spec` only answers the question it was asked."""
     from importlib.util import find_spec
 
     try:
         dashboard_ready = all(
-            find_spec(f"ideation_dashboard.{name}") is not None
+            find_spec(f"opendox.{name}") is not None
             for name in ("session_pr", "workbench"))
-    except ModuleNotFoundError:
+    except ImportError:
         dashboard_ready = False
     if not dashboard_ready:
         return ()

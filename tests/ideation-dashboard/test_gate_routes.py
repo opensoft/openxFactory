@@ -20,7 +20,7 @@ import yaml as yaml_mod
 
 from conftest import (  # noqa: F401 (sys.path side effect)
     BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
-    find_openxfactory_validator, staging_fragment,
+    dashboard_web_root, find_openxfactory_validator, staging_fragment,
 )
 
 from ideation_dashboard import human_seen as hs
@@ -31,7 +31,13 @@ from openxdox import gate_routes as gate_routes_mod
 from opendox import authoring as authoring_mod
 from opendox import workbench as wb_mod
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# The § 5.2 shed moved the dashboard's served assets to the openDox leg with
+# `serve.py`, so the pre-shed root this used to name is not a directory any
+# more. `dashboard_web_root()` answers where they are from the manifest row of
+# `web/index.html` — derived, not transcribed, so the day a row's destination
+# changes this fixture follows it (RULED (a), `#656` comment `5625573095`;
+# Copilot `PRRT_kwDOTAvnrs6hcKiV`).
+WEB = dashboard_web_root()
 VALIDATOR = find_openxfactory_validator()
 XREF_VALIDATOR = hs.find_cross_reference_validator(REPO_ROOT)
 
