@@ -555,8 +555,16 @@ Active changes:
   `amend-mirror-floor-regeneration-merge-authority` § *The realization gate*
   NAMES AND WRITES THE MEASURED SHAPE OF**, and whose box **4.3** — *"the
   successor being NAMED — its openxFactory issue or packet id recorded here"* —
-  this pull request ticks on the tick-on-the-recording rule of 2026-09-06, the
-  only box it ticks anywhere. **IT RE-OPENS A RATIFIED DECISION AND SAYS SO IN
+  the filing pull request, [PR #910](https://github.com/opensoft/openxFactory/pull/910),
+  ticked on the tick-on-the-recording rule of 2026-09-06 — the only box that
+  filing ticked anywhere. **THIS RATIFYING COMMIT, [PR #943](https://github.com/opensoft/openxFactory/pull/943),
+  ADDITIONALLY TICKS `tasks.md` 1.1, 1.2 AND 1.3 LOCALLY** (§ 1's
+  pre-ratification asks: re-opening N-1 toward (b), ratifying the packet's
+  text, and letting D-1–D-8 stand with D-3 amended) — 1.4 stays open, and
+  1.5 stays open TOO, now AMENDED to hold realization on the two
+  preconditions above (the third consecutive cycle measured, box 4.2; the
+  `Candidate class: unrecorded` fix observed on a live approval). **IT
+  RE-OPENS A RATIFIED DECISION AND SAYS SO IN
   ITS OWN SECOND HEADING:** decision **N-1** of
   `extend-merge-master-envelope-to-floor-bot-lanes` (ratified 2026-09-07) admits
   the codexFactory REGENERATION lane ONLY and leaves this repository's
