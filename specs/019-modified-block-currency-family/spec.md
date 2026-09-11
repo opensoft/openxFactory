@@ -459,7 +459,7 @@ the block was written into a registry-less tree.
   (`openspec/specs/doc-health/spec.md`:1745–1757). The second ground MUST be
   read narrowly, on the exact match and never on the span's position alone, and
   MUST NOT withdraw the carriage arms from the unit the span would have named
-  (:1754–1760).
+  (:1771–1778).
   *(Amended 2026-09-10 to match canon after `amend-marker-defect-reporting`
   (#850); this bullet previously stated the ONE-ground rule — a marker naming a
   unit the block still carries — which is now the first of the three.)*
