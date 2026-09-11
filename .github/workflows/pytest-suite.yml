@@ -360,15 +360,32 @@ jobs:
       # stays named as owed.
       #
       # `installs/omnigent-install` still stays out — no test here reads it —
-      # and `--recursive` is still rejected one level down, so neither
-      # product's own `code`/`spec` legs are fetched: `ls-tree -r` reads a
-      # nested gitlink as an opaque `160000` record, so the whole-tree digest
-      # needs no leg materialized to be correct, for openDox any more than for
-      # openXdox. `openDox/code` in particular is NOT needed for anything in
-      # this pull request — the adapter re-point that reaches into it is a
-      # BUILD-arc PR-2 job (RULED Q7), not this one's.
+      # and `--recursive` stays rejected one level down for openXwallet and
+      # openXdox, so neither of THEIR `code`/`spec` legs are fetched:
+      # `ls-tree -r` reads a nested gitlink as an opaque `160000` record, so
+      # the whole-tree digest needs no leg materialized to be correct.
+      #
+      # `openDox/code` is DIFFERENT AS OF #872 (RULED OQ-Q): openxFactory's
+      # OWN executable corpus-adapter readers
+      # (`scripts/corpus_adapter_openxfactory/adapter.py` and the conformance
+      # tests) now import the pinned copy at
+      # `openDox/code/src/opendox/corpus_adapter.py`, so from this pull
+      # request forward the module has to actually be ON DISK for the
+      # required suite to collect, not merely present as an opaque gitlink
+      # for a whole-tree digest. `openDox` gets its own second, explicit init
+      # below for exactly that one leg — narrower than a repository-wide
+      # `--recursive` on the checkout step above, which would also reach for
+      # anything `openXwallet`/`openXdox` nest and that nothing here reads.
       - name: Init the openXwallet, openXdox and openDox gitlinks only
         run: git submodule update --init openXwallet openXdox openDox
+
+      # THE ONE NESTED LEG THIS REPOSITORY'S OWN CODE IMPORTS (#872, RULED
+      # OQ-Q). `openDox` nests `code` as its own gitlink, the same shape as
+      # `openXdox/code` above (which stays uninitialized because nothing here
+      # imports it) — so putting `opendox.corpus_adapter` on disk takes a
+      # second, explicit init scoped to `openDox` alone.
+      - name: Init the openDox code gitlink (RULED OQ-Q, #872)
+        run: git -C openDox submodule update --init code
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the

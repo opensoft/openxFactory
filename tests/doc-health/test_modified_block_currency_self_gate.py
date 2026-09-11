@@ -722,36 +722,42 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id, at
     # any path.
-    # ADDED 2026-09-08 BY `adopt-configured-notebook-hosting-identity` (PR
-    # #783), the Q2 arm of Brett Heap's public-flip redaction ruling of
-    # 2026-09-08T03:36Z. ONE ROW, ONE UNIT, AND THE UNIT IS THE POINT: canon's
-    # scenario *An operating party declares the company account* carries a
-    # third bullet that names Opensoft's own install AND THE LIVE WORKSPACE
-    # SERVICE-ACCOUNT ADDRESS IT IS HOSTED ON, and that bullet is the only line
-    # of the promoted corpus stating a real identity as a normative example.
-    # The block restates it in ROLE TERMS — "naming the CONFIGURED HOSTING
-    # IDENTITY it resolves at run time rather than an address written into this
-    # repository" — and carries all four promoted body paragraphs
-    # byte-identically, all five promoted scenario titles, and every other
-    # promoted bullet verbatim, adding two body paragraphs and two scenarios of
-    # its own. So this is a DELIBERATE REWORDING of exactly one unit, which is
-    # the class this arm exists to log and cannot distinguish from drift.
+    # REMOVED 2026-09-11 BY THE PUBLIC-FLIP REDACTION —
+    # ('adopt-configured-notebook-hosting-identity',
+    # 'lifecycle-notebook-projection', "The projection's hosting identity is
+    # declared at install"). A ROW RETIRED BY PROMOTION, on the condition its
+    # own note stated — "retires when the packet archives and its block is
+    # promoted" — DISCHARGED IN ITS SECOND HALF ONLY, and the asymmetry is the
+    # record rather than an oversight. The packet is STILL ACTIVE and has NOT
+    # archived; what moved is CANON. Its `tasks.md` 1.1 reserved this bullet
+    # for the archive act and forbade editing it by hand, and 5.4 gated the
+    # public flip on no live identity remaining in the public tree. THE FLIP
+    # DID NOT WAIT: `opensoft/openxFactory` became PUBLIC at
+    # 2026-09-09T21:58:08Z with the address still on the promoted line, so the
+    # ordering 1.1 protected had already been spent. Brett Heap (convener)
+    # ruled the remedy through the interactive multi-choice walkthrough,
+    # verbatim "Redact the xFactor001 service-account line now", and the
+    # redaction takes the replacement bullet VERBATIM from THIS packet's own
+    # `## MODIFIED` block rather than inventing a spelling. So canon now states
+    # what the block states, the block carries every unit canon states, and
+    # this arm has nothing left to report. The archive act still applies the
+    # block wholesale; for this one bullet it is now a no-op, not a conflict.
     #
-    # WHY NO MARKER RETIRES THIS ROW, WHICH IS THE ONE THING A READER WILL
-    # REACH FOR. `document-lifecycle`'s reserved `Removed from canon by` marker
-    # names the retired unit as a CODE SPAN CARRYING THAT UNIT'S EXACT TEXT —
-    # here, the address — so declaring the deletion the family's action line
-    # asks for would reprint in the delta the value the delta exists to remove,
-    # in a repository that is about to become public. A marker naming a
-    # REDACTED spelling names no canon unit at all, and `_suppression()` skips
-    # such a name ("names nothing; buys nothing"), so it would buy no
-    # suppression and raise no marker defect either — it would be decoration.
-    # The declaration therefore lives in the delta's own header paragraph, this
-    # row is the audit trail, and the finding is INFO with no gate on it.
-    # Retires when the packet archives and its block is promoted.
-    ("adopt-configured-notebook-hosting-identity",
-     "lifecycle-notebook-projection",
-     "The projection's hosting identity is declared at install"),
+    # VERIFIED BEFORE THE ROW WAS DELETED, not after. `--single-repo --family
+    # modified-block-currency` over this tree reads the ledger at NINE and
+    # returns ZERO lines naming this change at any path; at the `origin/main`
+    # baseline `96b4835b` the same run read TEN and ONE. The deleted row is the
+    # entire difference — no other subject moved.
+    #
+    # THE ONE RECEIPT THIS CANNOT SUPPRESS, stated rather than hidden. The
+    # carriage finding is `contested`, so its DISAPPEARANCE re-emits through
+    # `report.uncited_resolutions` as an `uncited-resolution` ERROR naming the
+    # still-active path — the same mechanical shadow the 2026-08-31
+    # `add-notebook-projection-identity` retirement above records. It is an
+    # AGGREGATION artifact by construction (`health/dispositions.yaml` resolves
+    # under `ctx.agg_root`, which is `None` on the `--single-repo` self-gate a
+    # pull request runs), so no file in THIS repository could suppress it and
+    # none is offered; the citation is this change id and that ruling.
     # ADDED 2026-09-10 BY THIS REPOSITORY'S OWN ARCHIVE ACT — TWO ROWS, from
     # the two SIBLING packets whose `## MODIFIED` blocks restate requirements
     # `mirror-floor-regeneration-automation` added. `mirror-floor-regeneration-
@@ -1138,7 +1144,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1196,7 +1202,14 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "evidence and its MODIFIED block promoted byte-identically, "
         "retiring the row PR #894 had just opened for it — the sibling row "
         "(amend-mirror-floor-regeneration-merge-authority's) stays open, "
-        "that packet still active and unarchived)",
+        "that packet still active and unarchived; 9 SINCE 2026-09-11, when "
+        "the public-flip redaction took adopt-configured-notebook-hosting-"
+        "identity's reworded bullet out of its own MODIFIED block and INTO "
+        "canon ahead of the archive act, on Brett Heap's word after "
+        "openxFactory went public at 2026-09-09T21:58:08Z with the address "
+        "still on the promoted line — the first row here retired by canon "
+        "moving to the block rather than by the block being promoted, the "
+        "packet still active and unarchived)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

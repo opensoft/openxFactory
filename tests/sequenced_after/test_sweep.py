@@ -1144,6 +1144,58 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       promotes nothing until it archives — so this is a movement of the SWEEP's
       reading of the active corpus, and no `ideation-dashboard` requirement has
       left canon.
+    - **A PARTNER FLIP, 2026-09-10 — the second entry the new rule owes, found
+      by Copilot review rather than by the authoring pass, and added on
+      re-verification.** Authoring `state-header-window-budget` (PR #921, an
+      OpenSpec amendment adding one paragraph and one scenario to the
+      `release-realization` requirement "Equivalent declaration sites for the
+      ordered-delta parent declaration") moves TWO rows:
+
+        * `state-header-window-budget` — a NEW row, `active` and
+          `co-modifier`. Its own `## MODIFIED Requirements` block writes the
+          same requirement key `accept-sequenced-after-header-line`'s own
+          `## ADDED Requirements` block wrote, so it enters the corpus
+          already co-modified rather than sole.
+        * `accept-sequenced-after-header-line` — `class: sole` ->
+          `co-modifier`, and NOTHING ABOUT THAT ARCHIVED CHANGE ITSELF MOVED.
+          It archived 2026-09-10 (PR #906) and has not been touched since.
+
+      THE ROW DIFF DOES NOT EXPLAIN THE SECOND ONE, WHICH IS WHY THIS ENTRY
+      EXISTS. Read the two rows alone and a co-modifier appears and an
+      archived change flips, but not WHICH requirement key they share, nor
+      that this newcomer is what flipped it rather than any other change
+      landing in the same window — exactly the case the rule reserves: "a
+      PARTNER'S row moving because of someone else's delta, where the reason
+      is not legible from the two rows alone".
+
+      THE SHARED KEY, MEASURED RATHER THAN INFERRED. Both changes write
+      `release-realization` / "Equivalent declaration sites for the
+      ordered-delta parent declaration" — `accept-sequenced-after-header-line`
+      ADDED it (archived, PR #906) and `state-header-window-budget` MODIFIES
+      it (a pure-addition amendment, `code_surface: none`, routed from a
+      Copilot review comment on #906 itself). No other active or archived
+      change writes this exact requirement key (`proposal.md` § Sibling
+      search, corrected twice over this packet's own review rounds), so this
+      is a two-party flip and not a wider one.
+
+      WHICH IS WHY `co_modified` ROSE BY TWO AND NOT BY ONE. One MODIFIED
+      block, one earlier writer, and that writer was sole: the newcomer
+      entering the set (+1) and `accept-sequenced-after-header-line` leaving
+      `sole` for it (+1), 143 -> 145. `sole_modifiers` falls by exactly one
+      with it, 54 -> 53. `change_ids` rises 197 -> 198 for the new id alone;
+      `active` rises 40 -> 41 and `active_co_modified` rises 25 -> 26, both by
+      the new row alone, the partner being ARCHIVED; `active_sole` holds at
+      15. `declaring` rises 22 -> 23, this change's own
+      `sequenced_after: [accept-sequenced-after-header-line]`; the explicit
+      `[]` root claims hold at 5, the prose headers at 3 (3 archived), and the
+      deepest declared chain at 4 hops — this change's own chain is one hop
+      to an archived root, shorter than the standing champion.
+      MEASURED ON BOTH TREES, never adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main`
+      at `0e76e789` reads `40 active + 157 archived` = 197 change ids, `143`
+      co-modified, `54` sole modifiers, `25 / 15` active co-modified/sole,
+      `22` declaring; this branch (merged with `0e76e789`) reads `41 active +
+      157 archived` = 198, `145`, `53`, `26 / 15`, `23`.
     """
     readings = sa.classify_corpus(ROOT)
     ledger = sa.load_ledger(sa.ledger_path(ROOT))
