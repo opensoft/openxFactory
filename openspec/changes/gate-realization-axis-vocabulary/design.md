@@ -382,3 +382,65 @@ this delta writes, the title being new to the capability.
   equally unread. It is a second population, a second register and a second set
   of classes, and folding it in here would widen a ruled remedy into an unruled
   sweep. Named in `tasks.md` § 6.
+
+## D8 — the bench's two code findings, TAKEN IN FULL, and the sweep for their classes
+
+The draft pull request's first automated review round opened two threads on
+`scripts/target_release.py`. **Both are real defects in this packet's own new
+code, both are TAKEN, and neither is a wording quarrel** — each was reproduced
+on a built tree before it was fixed, and each fix is pinned by refusal tests
+that fail against the code as it stood.
+
+**(a) A VALUE TOKEN REACHED A PATH BEFORE ITS SHAPE WAS CHECKED** (thread
+`PRRT_kwDOTAvnrs6heJ1R`, `scripts/target_release.py:172`). `resolves_as_release`
+matched `RELEASE_ID_RE` on the NO-REGISTRY branch only; where the registry
+exists — which is this repository — the token went straight into
+`contracts/releases/<token>.digests.yaml`. The token is author-controlled front
+matter, so the boundary the registry is supposed to draw was not holding.
+MEASURED, before the fix, on a tree built for it: with
+`contracts/elsewhere.digests.yaml` planted one level ABOVE the registry, the
+declaration `target_release: ../elsewhere` returned `(True, True)` and the
+whole-corpus scan reported **0 findings, 1 a named release** — an off-vocabulary
+declaration passing the gate as a release. A planted
+`contracts/releases/none.digests.yaml` did the same for the bare word `none`,
+which is precisely the value this packet exists to refuse. THE FIX inverts the
+order: the shape is the FIRST test, in EVERY branch, and a token that fails it
+is refused on its shape and never becomes a path component. On the same tree
+the declaration is now a finding naming the file and the token.
+
+**(b) A FIELD THE REQUIREMENT NAMES WAS ENFORCED BY A TEST AND NOT BY THE
+LOADER** (thread `PRRT_kwDOTAvnrs6heJ2G`, `scripts/target_release.py:92`,
+consumed at `:243`). The ADDED requirement has every standing entry carry "the
+value token as it stands, the class of divergence, the reason, a citation, and
+the event that retires the entry" — five things — but `_REQUIRED_ENTRY_KEYS`
+listed four, omitting `cited_to`, and the citation was asked for only by
+`test_every_register_entry_declares_a_known_class_and_a_citation`, which reads
+the register THIS repository carries. MEASURED: `load_register` accepted an
+entry with no `cited_to:` at all, and `scan` then used it to grandfather a
+declaration. A test over one file is not a schema; the loader is. THE FIX makes
+`cited_to` a required key, shape-checked as a non-empty list of non-empty
+strings, with the refusal naming the entry and, for a bad item, its position.
+
+**THE SWEEP FOR THOSE TWO CLASSES FOUND TWO MORE, AND BOTH ARE FIXED HERE.**
+The classes are "author-controlled text that reaches a path" and "a constraint
+the requirement states that only a corpus test enforces".
+- A register entry's **`change:` is resolved under `openspec/changes/`** by
+  every consumer — the corpus test that proves each entry names a live active
+  change does exactly that — and nothing checked its shape. `CHANGE_ID_RE` now
+  refuses anything that is not one directory segment, at the load, so `../..`
+  or `a/b` cannot be written into the register and reach a path.
+- The **CLOSED CLASS SET** lived as a literal inside one corpus test. The
+  requirement makes admitting a new class a SPECIFICATION act, so the set is
+  now `REGISTER_CLASSES` beside the loader and is enforced for every tree; the
+  corpus test reads the module's set rather than keeping a second copy that
+  could drift from the thing it is evidence about.
+
+**MEASURED IN THE SWEEP AND DELIBERATELY NOT TAKEN.** The register's own
+`schema_version:` and `kind:` headers are not enforced by `load_register`. The
+house rule that every YAML carries them is real and this register carries them,
+but the ADDED requirement does not name them among what an entry or the file
+must carry, and enforcing them would refuse a consuming tree's register — and
+every test register built in a tmpdir — for a field the requirement never asks
+for. Enforcing what the requirement states is the class of defect being fixed
+here; enforcing more than it states would be a different act, and an unruled
+one.

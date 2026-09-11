@@ -66,12 +66,15 @@ def _run(root: Path, register: Path | None = None):
     return subprocess.run(argv, capture_output=True, text=True)
 
 
-def _entry(change: str, token: str) -> str:
+def _entry(change: str, token: str, cited_to: str = "    cited_to:\n"
+                                                 "      - a document § a section\n",
+           klass: str = "deferred-allocation") -> str:
     return (f"register:\n"
             f"  - change: {change}\n"
             f"    token: \"{token}\"\n"
-            f"    class: deferred-allocation\n"
+            f"    class: {klass}\n"
             f"    why: a reason\n"
+            f"{cited_to}"
             f"    retires_when: an event\n")
 
 
@@ -154,6 +157,64 @@ def test_with_no_registry_the_shape_is_accepted(tmp_path):
     assert tr.resolves_as_release("none", tmp_path) == (False, False)
 
 
+# --- the token is shape-checked BEFORE it can become a path -------------------
+# Copilot's round on #963 (thread `PRRT_kwDOTAvnrs6heJ1R`): with a registry
+# present the resolver used to interpolate the token straight into the lookup,
+# so a traversing or non-release token could resolve against a file outside
+# `contracts/releases/`. These pin the guard in BOTH branches.
+
+
+def test_a_traversing_token_never_escapes_the_release_registry(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    # planted OUTSIDE the registry, exactly where `../` would land
+    (tmp_path / "contracts" / "elsewhere.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    assert tr.resolves_as_release("../elsewhere", tmp_path) == (False, True)
+
+
+def test_an_absolute_token_never_becomes_a_path(tmp_path):
+    (tmp_path / "contracts" / "releases").mkdir(parents=True)
+    assert tr.resolves_as_release("/etc/passwd", tmp_path) == (False, True)
+
+
+def test_a_planted_inventory_under_a_non_release_name_does_not_resolve(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (releases / "none.digests.yaml").write_text("{}\n", encoding="utf-8")
+    assert tr.resolves_as_release("none", tmp_path) == (False, True)
+
+
+def test_a_traversing_token_is_refused_with_no_registry_too(tmp_path):
+    assert tr.resolves_as_release("../elsewhere", tmp_path) == (False, False)
+
+
+def test_an_active_traversing_release_token_is_refused_end_to_end(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (tmp_path / "contracts" / "elsewhere.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    _proposal(tmp_path, "escape",
+              "code_surface: R\ntarget_release: ../elsewhere")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "escape/proposal.md" in result.stdout
+    assert "`../elsewhere`" in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_an_archived_traversing_token_is_counted_and_never_judged(tmp_path):
+    releases = tmp_path / "contracts" / "releases"
+    releases.mkdir(parents=True)
+    (tmp_path / "contracts" / "elsewhere.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    _proposal(tmp_path, "2026-01-01-old",
+              "code_surface: R\ntarget_release: ../elsewhere", archived=True)
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 of them outside the vocabulary" in result.stdout
+
+
 # --- the register -------------------------------------------------------------
 
 
@@ -173,7 +234,9 @@ def test_a_register_without_the_list_refuses(tmp_path):
 def test_an_entry_missing_a_required_key_refuses(tmp_path):
     path = _register(
         tmp_path,
-        "register:\n  - change: c\n    token: \"x\"\n    class: k\n    why: w\n")
+        "register:\n  - change: c\n    token: \"x\"\n"
+        "    class: deferred-allocation\n    why: w\n"
+        "    cited_to:\n      - a document\n")
     with pytest.raises(tr.TargetReleaseError) as caught:
         tr.load_register(path)
     assert "retires_when" in str(caught.value)
@@ -184,6 +247,79 @@ def test_a_repeated_entry_refuses(tmp_path):
     with pytest.raises(tr.TargetReleaseError) as caught:
         tr.load_register(path)
     assert "repeats" in str(caught.value)
+
+
+# --- the entry's CITATION is enforced at the load -----------------------------
+# Copilot's round on #963 (thread `PRRT_kwDOTAvnrs6heJ2G`): the requirement has
+# every standing entry carry a citation, but the loader did not ask for one — so
+# only a test over THIS repository's register did, and a consuming tree (or a
+# later entry) could grandfather a declaration on nobody's word.
+
+
+def test_an_entry_without_a_citation_refuses(tmp_path):
+    path = _register(tmp_path, _entry("c", "x", cited_to=""))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "cited_to" in str(caught.value)
+
+
+def test_an_entry_with_an_empty_citation_list_refuses(tmp_path):
+    path = _register(tmp_path, _entry("c", "x", cited_to="    cited_to: []\n"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "cited_to" in str(caught.value)
+
+
+def test_an_entry_whose_citation_is_a_bare_string_refuses(tmp_path):
+    path = _register(
+        tmp_path, _entry("c", "x", cited_to="    cited_to: a document\n"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "cited_to" in str(caught.value)
+
+
+def test_an_entry_with_a_non_string_citation_item_refuses(tmp_path):
+    path = _register(
+        tmp_path, _entry("c", "x", cited_to="    cited_to:\n      - 17\n"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "cited_to" in str(caught.value)
+    assert "(1)" in str(caught.value)
+
+
+def test_an_entry_with_a_blank_citation_item_refuses(tmp_path):
+    path = _register(
+        tmp_path,
+        _entry("c", "x", cited_to="    cited_to:\n      - a doc\n      - \"  \"\n"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "cited_to" in str(caught.value)
+    assert "(2)" in str(caught.value)
+
+
+# --- the same class, swept: a name that reaches a path, and a closed set ------
+
+
+def test_an_entry_whose_change_is_a_path_refuses(tmp_path):
+    path = _register(tmp_path, _entry("../../elsewhere", "x"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "change-directory name" in str(caught.value)
+
+
+def test_an_entry_whose_change_carries_a_separator_refuses(tmp_path):
+    path = _register(tmp_path, _entry("a/b", "x"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "change-directory name" in str(caught.value)
+
+
+def test_an_entry_with_a_class_outside_the_closed_set_refuses(tmp_path):
+    path = _register(tmp_path, _entry("c", "x", klass="invented-here"))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "invented-here" in str(caught.value)
+    assert "CLOSED" in str(caught.value)
 
 
 # --- the gate, end to end -----------------------------------------------------
@@ -318,10 +454,12 @@ def test_every_register_entry_names_a_live_active_change():
 
 
 def test_every_register_entry_declares_a_known_class_and_a_citation():
-    classes = {"deferred-allocation", "realization-state",
-               "non-bundle-target", "answers-another-question"}
+    """Belt and braces over the LIVE register. `load_register` now enforces the
+    closed class set and the citation's shape for every tree, so this reads the
+    module's own set rather than a second copy of it — a test that kept its own
+    list would drift from the loader and stop being evidence about it."""
     for entry in tr.load_register(REGISTER):
-        assert entry["class"] in classes, entry
+        assert entry["class"] in tr.REGISTER_CLASSES, entry
         cited = entry.get("cited_to", [])
         assert isinstance(cited, list) and cited, entry["change"]
         assert all(isinstance(c, str) and c.strip() for c in cited), entry["change"]

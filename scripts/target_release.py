@@ -45,6 +45,17 @@ THE GRANDFATHER REGISTER IS A RATCHET, NOT AN AMNESTY. See
 forced it and for the asymmetry it borrows from `contracts/openspec-cli-pin.yaml`
 `dispositions:`: an UNMATCHED DECLARATION FAILS and an UNMATCHED ENTRY REFUSES.
 
+NOTHING AUTHOR-CONTROLLED BECOMES A PATH BEFORE IT IS SHAPE-CHECKED, and the
+two places where it could are guarded at the point the value is read rather
+than at the point it is used: a proposal's VALUE TOKEN must match
+`RELEASE_ID_RE` before the release-registry lookup is built (`resolves_as_release`,
+in EVERY branch), and a register entry's `change:` must match `CHANGE_ID_RE`
+before `load_register` returns it, because every consumer resolves that name
+under `openspec/changes/`. Likewise, every field the requirement has an entry
+carry — including the CITATION and the CLASS — is enforced by the loader and not
+only by a test over the register this repository happens to carry, so a
+consuming tree gets the same refusals this one does.
+
 Deterministic: text/YAML reads only, no model calls, no writes, no network.
 """
 
@@ -82,14 +93,59 @@ REGISTER_PATH = Path(__file__).resolve().parent / "target-release-register.yaml"
 #: sentence.
 RELEASE_REGISTRY_DIR = Path("contracts") / "releases"
 
-#: A release identifier's SHAPE. Used to resolve a token against the registry,
-#: and — only where no registry is present, which is every consuming tree that
-#: is not this one — as the acceptance test on its own, reported as such.
+#: A release identifier's SHAPE, and THE FIRST TEST A TOKEN FACES. A token is
+#: read from a proposal's front matter, which is author-controlled text, and the
+#: only way it could reach the filesystem is by being interpolated into the
+#: registry lookup below. So the shape is checked BEFORE any path is built, in
+#: EVERY branch — with a registry and without one — and a token that does not
+#: match is refused on its shape and never becomes a path component. Checking it
+#: only on the no-registry branch (as this module first did) would have let
+#: `../../elsewhere/thing` escape `contracts/releases/`, or let a non-release
+#: word resolve because somebody planted `<word>.digests.yaml` beside the
+#: inventories: either way the registry boundary is the thing that stops holding.
 RELEASE_ID_RE = re.compile(r"^contract-v\d+\.\d+$")
+
+#: A register entry's `change:` IS A DIRECTORY NAME AND NEVER A PATH. It is
+#: resolved under `openspec/changes/` by every consumer of the register (the
+#: corpus test that proves each entry names a live active change does exactly
+#: that), so — same class as the token above — it is shape-checked where the
+#: register is loaded rather than at each use: one segment, no separator, no
+#: leading dot, so neither `..` nor `a/b` can be written into the register and
+#: reach a path.
+CHANGE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 _TRAILING = ".,;:"
 
-_REQUIRED_ENTRY_KEYS = ("change", "token", "class", "why", "retires_when")
+#: EVERY KEY A REGISTER ENTRY SHALL CARRY, AND THE SHAPE IT SHALL CARRY IT IN.
+#: The ADDED requirement *Realization axis vocabulary is gated* has each standing
+#: entry name "the value token as it stands, the class of divergence, the reason,
+#: a citation, and the event that retires the entry" — five things — so all five
+#: are enforced here, at the load, and not merely asserted by a test over the
+#: register this repository happens to carry. `cited_to` is the one that is a
+#: LIST: a divergence can stand on more than one written reason, and an entry
+#: with no citation would grandfather an off-vocabulary declaration on nobody's
+#: word, which is the failure the register exists to prevent.
+_REQUIRED_ENTRY_KEYS = {
+    "change": "text",
+    "token": "text",
+    "class": "text",
+    "why": "text",
+    "cited_to": "list",
+    "retires_when": "text",
+}
+
+#: THE CLOSED CLASS SET. The requirement makes the register CLOSED and puts a
+#: new admission in the SPECIFICATION rather than in this file, so the classes a
+#: divergence may be filed under are enumerated here — beside the loader that
+#: enforces them — rather than only in a test over the live register. Same class
+#: of defect as the citation: a constraint the requirement states, checked by one
+#: corpus test and by no loader, is a constraint a consuming tree does not have.
+REGISTER_CLASSES = (
+    "deferred-allocation",
+    "realization-state",
+    "non-bundle-target",
+    "answers-another-question",
+)
 
 
 class TargetReleaseError(Exception):
@@ -158,17 +214,25 @@ def declaration(proposal: Path) -> tuple[bool, str | None]:
 def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     """`(resolved, registry_present)` for a token read as a named release.
 
-    Where the release registry exists, a token counts only when the registry
-    carries its digest inventory — a name that resolves to nothing is not a
-    named release. Where no registry exists (a consuming tree that defines no
-    releases of its own), the SHAPE is accepted and the run says so, because
-    refusing every release name in a tree that cannot define one would make the
-    validator unusable outside this repository.
+    THE SHAPE IS CHECKED FIRST, IN BOTH BRANCHES, AND BEFORE ANY PATH EXISTS.
+    The token comes out of author-controlled front matter; a token that is not
+    a release identifier is refused on that alone and is never interpolated into
+    a lookup, so `../…` cannot climb out of `contracts/releases/` and a planted
+    `<anything>.digests.yaml` cannot make a non-release word resolve.
+
+    Then, where the release registry exists, a token counts only when the
+    registry carries its digest inventory — a name that resolves to nothing is
+    not a named release. Where no registry exists (a consuming tree that defines
+    no releases of its own), the shape is the whole test and the run says so,
+    because refusing every release name in a tree that cannot define one would
+    make the validator unusable outside this repository.
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
     present = registry.is_dir()
+    if not RELEASE_ID_RE.match(token):
+        return False, present
     if not present:
-        return bool(RELEASE_ID_RE.match(token)), False
+        return True, False
     return (registry / f"{token}.digests.yaml").is_file(), True
 
 
@@ -200,12 +264,40 @@ def load_register(path: Path = REGISTER_PATH) -> list[dict]:
         if not isinstance(entry, dict):
             raise TargetReleaseError(
                 f"register entry {index} is not a mapping")
-        for key in _REQUIRED_ENTRY_KEYS:
-            value = entry.get(key)
-            if not isinstance(value, str) or not value.strip():
+        for field, shape in _REQUIRED_ENTRY_KEYS.items():
+            value = entry.get(field)
+            if shape == "text":
+                if not isinstance(value, str) or not value.strip():
+                    raise TargetReleaseError(
+                        f"register entry {index} ({entry.get('change')!r}) is "
+                        f"missing a non-empty `{field}:`")
+                continue
+            if not isinstance(value, list) or not value:
                 raise TargetReleaseError(
                     f"register entry {index} ({entry.get('change')!r}) is "
-                    f"missing a non-empty `{key}:`")
+                    f"missing a non-empty `{field}:` list; the requirement has "
+                    f"every standing entry carry a citation, and an entry "
+                    f"without one grandfathers an off-vocabulary declaration "
+                    f"on nobody's word")
+            for position, item in enumerate(value, start=1):
+                if not isinstance(item, str) or not item.strip():
+                    raise TargetReleaseError(
+                        f"register entry {index} ({entry.get('change')!r}) "
+                        f"carries a `{field}:` item ({position}) that is not "
+                        f"non-empty text")
+        if not CHANGE_ID_RE.match(entry["change"]):
+            raise TargetReleaseError(
+                f"register entry {index} names `change: {entry['change']}`, "
+                "which is not a change-directory name — one segment, no "
+                "separator and no leading dot; the name is resolved under "
+                "openspec/changes/, so a path written here would reach one")
+        if entry["class"] not in REGISTER_CLASSES:
+            raise TargetReleaseError(
+                f"register entry {index} ({entry['change']}) declares "
+                f"`class: {entry['class']}`, which is not one of "
+                f"{', '.join(REGISTER_CLASSES)}; the register is CLOSED and a "
+                "new class is a change to the specification, not a register "
+                "edit")
         key = (entry["change"], entry["token"])
         if key in seen:
             raise TargetReleaseError(

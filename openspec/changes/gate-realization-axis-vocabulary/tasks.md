@@ -133,20 +133,60 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **32 tests**) — the
-      token rule (5), reading the declaration including a strict-loader refusal
-      (4), release resolution with and without a registry (3), the register's
-      shape refusals (4), the gate end to end (13: the refusal, `implemented`,
-      an archived record, a resolving release, a release name that resolves to
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **46 tests**,
+      counted last from a collected run of the file) — the token rule (5),
+      reading the declaration including a strict-loader refusal (4), release
+      resolution with and without a registry (3), **the token shape-checked
+      before it can become a path (6)**, the register's shape refusals (4),
+      **the entry's citation enforced at the load (5)**, **the same two classes
+      swept (3)**, the gate end to end (13: the refusal, `implemented`, an
+      archived record, a resolving release, a release name that resolves to
       nothing, an absent declaration, an empty declaration, an unreadable
       proposal reported not crashed, a registered declaration, a stale entry, a
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
-      EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED.**
+      EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
+      added by § 3.7 join the file, `_entry()` gains the citation the loader now
+      requires, and `test_an_entry_missing_a_required_key_refuses` keeps its
+      subject by carrying every key but the one it is about.
 - [x] 3.6 **THE GATE NEEDS NO WORKFLOW EDIT**, confirmed by running it: the
       required `pytest-suite` runs `python3 -m pytest tests/ -q -m "not
       postgres"`, which collects `tests/target_release` with no registration
       anywhere.
+- [x] 3.7 **THE BENCH'S TWO CODE FINDINGS TAKEN, AND THE SWEEP FOR THEIR TWO
+      CLASSES** (Copilot round 1 on the draft pull request, both threads TAKEN
+      IN FULL; `design.md` D8). (a) **NOTHING AUTHOR-CONTROLLED BECOMES A PATH
+      BEFORE IT IS SHAPE-CHECKED.** `resolves_as_release` matched
+      `RELEASE_ID_RE` only on the NO-REGISTRY branch, so with a registry present
+      the value token went straight into the lookup: measured on a built tree,
+      `target_release: ../elsewhere` RESOLVED against a planted
+      `contracts/elsewhere.digests.yaml` and the scan reported **0 findings, 1 a
+      named release** — the registry boundary was not holding. The shape is now
+      the FIRST test in EVERY branch and a non-matching token never becomes a
+      path component; the same tree now reports the declaration as a finding.
+      (b) **EVERY FIELD THE REQUIREMENT NAMES IS ENFORCED AT THE LOAD.** The
+      ADDED requirement has each standing entry carry "the value token as it
+      stands, the class of divergence, the reason, a citation, and the event
+      that retires the entry", but `_REQUIRED_ENTRY_KEYS` omitted `cited_to`
+      entirely and only a test over THIS repository's register asked for it:
+      measured, `load_register` ACCEPTED an entry with no citation at all. It is
+      now a required key, shape-checked as a non-empty list of non-empty
+      strings. **SWEPT FOR THE SAME TWO CLASSES**, and two more found: a
+      register entry's `change:` is resolved under `openspec/changes/` by every
+      consumer, so it is shape-checked as one directory segment
+      (`CHANGE_ID_RE`) before the loader returns it; and the CLOSED class set
+      the requirement makes a specification act lived only in a corpus test, so
+      it is now `REGISTER_CLASSES` beside the loader, enforced for every tree,
+      and the corpus test reads the module's set instead of a second copy.
+      **MEASURED AND NOT TAKEN:** the register's own `schema_version:`/`kind:`
+      are not enforced by the loader — the requirement does not name them, and
+      refusing a consuming tree's register for a field the requirement never
+      asks for would exceed it.
+- [x] 3.8 **THE TEST FIGURE IN § 3.5 AND IN `proposal.md`'s `code_surface:` WAS
+      RE-MEASURED AFTER § 3.7 AND NOT CARRIED FORWARD.** `python3 -m pytest
+      tests/target_release -q` — **exit 0**, *"46 passed in 6.10s"*; the
+      per-section breakdown in § 3.5 is a count of `def test_` under each
+      banner in the file, taken from the file itself.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
@@ -156,10 +196,15 @@ and its own output quoted.
 - [x] 4.1 **THE VALIDATOR, BEFORE AND AFTER, ON THE REAL CORPUS.** Before the
       correction: **exit 1** — *"38 active proposals, 38 declaring — 9
       `implemented`, 3 a named release, 21 named by the register, 5 outside the
-      vocabulary"*, the five named by path. After: **exit 0** — *"14
-      `implemented`, 3 a named release, 21 named by the register, 0 outside"*,
-      with *"archive (read, never judged): 161 proposals, 61 of them outside
-      the vocabulary"* on both sides.
+      vocabulary"*, the five named by path. After, RE-MEASURED ON THE TREE AS
+      IT NOW STANDS (§ 3.7 landed, and this packet's own `proposal.md` is the
+      39th active change and the 15th `implemented`): **exit 0** — *"39 active
+      proposals, 39 declaring — 15 `implemented`, 3 a named release, 21 named
+      by the register, 0 outside the vocabulary"*, with *"archive (read, never
+      judged): 161 proposals, 61 of them outside the vocabulary"* on both
+      sides. The before-run is the same validator pointed at an `origin/main`
+      `38c076d1` checkout, so the only difference between the two runs is the
+      tree.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate
       gate-realization-axis-vocabulary --strict` (PATH CLI **1.2.0**) —
       **exit 0**, *"Change 'gate-realization-axis-vocabulary' is valid"*.
