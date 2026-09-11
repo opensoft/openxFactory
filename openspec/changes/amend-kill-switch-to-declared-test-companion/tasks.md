@@ -1,6 +1,17 @@
 # Tasks: amend-kill-switch-to-declared-test-companion
 
 Status: ratified
+Ratified by: amend-kill-switch-to-declared-test-companion — 2026-09-11,
+Brett Heap (openxFactory repository owner), on THREE acts recorded in ONE
+openxFactory #745 comment (5634512736): the SELECTIONS *"Ratify as filed
+(Recommended)"* (~11:58Z) and *"Yes, ratify with the tightening
+(Recommended)"* (~12:16Z), and the TYPED LINE *"land it when green and
+apply the ratify"* (~12:34Z). Record: `review/ratification-2026-09-11.md`.
+The two paragraphs immediately below record the AT-FILING state
+(2026-09-11 ~03:40Z) and are kept verbatim as history: the filing word
+authorized the filing alone, and every box WAS `- [ ]` at that point.
+Boxes 1.1, 1.2 and 1.3 are ticked by the ratifying commit; NO box in § 2,
+§ 3, § 4 or § 5 is ticked, and the parent's box 3.6 stays open.
 
 **THE AUTHORITY FOR THIS PACKET'S EXISTENCE, AND ITS LIMIT.** Brett Heap,
 2026-09-11 at approximately 03:40Z, in session to lane `openxfactory-2`

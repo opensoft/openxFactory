@@ -73,6 +73,14 @@ NOT authorized by any of the three acts — word three directs the landing
 and the application of the ratification, nothing more — and remain
 separate later acts on Brett Heap's word, per the three-act pattern this
 packet itself names throughout.
+**THE `Proposed:` BLOCK IMMEDIATELY BELOW RECORDS THE AT-FILING STATE
+(2026-09-11 ~03:40Z) AND IS KEPT VERBATIM AS HISTORY.** Its present-tense
+negations — *"This document is a PROPOSAL"*, *"none has been given"* —
+were true AT FILING and are superseded by the ratification recorded above:
+ratification HAS now been given, in the three acts of 2026-09-11 ~11:58Z,
+~12:16Z and ~12:34Z. Realization and archive remain separate later acts on
+Brett Heap's word, and no word for either has been given.
+
 Proposed: 2026-09-11, in lane `openxfactory-2` (display `openXfactory-2`), on
 Brett Heap's SELECTION **"Accept the finding; file a successor"**
 (2026-09-11 ~03:40Z, in session, multi-choice; recorded on openxFactory #745
