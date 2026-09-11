@@ -25,13 +25,24 @@
 #
 # THE SCHEMA IS NOT HERE, DELIBERATELY. RULED ASK-4 Q2: the schema lives at
 # openXdox-spec (`contracts/schemas/domain-profile.schema.yaml`), the
-# enforcement side. This file is validated against it there and by
-# `openxdox.domain_profile.load()` here; a vendored copy would be a second
-# source of truth free to drift from its home. The pinned `openXdox/spec` leg
-# does not carry the schema yet (it arrived at openXdox-spec `main` after this
-# repository's `contracts/openxdox-pin.yaml` was cut), which is why the
-# conformance test beside this file reads the engine's loader and not the
-# schema — recorded as owed on the lane's pin chain rather than papered over.
+# enforcement side; a vendored copy would be a second source of truth free to
+# drift from its home. THIS FILE IS CHECKED AGAINST IT TWICE, and the two
+# checks answer different questions. `openxdox.domain_profile.load()` refuses a
+# declaration the ENGINE cannot build from. It does not refuse much more than
+# that, on purpose — it "reads the fields it knows and ignores unrecognized
+# ones", so that a profile written against a later schema revision still loads
+# — which leaves a key misspelt, a required field omitted or a value outside an
+# enum free to load clean and answer wrong. So
+# `tests/domain_profile/test_openxfactory_profile.py` also reads the schema
+# itself and validates this document against it.
+#
+# THE SCHEMA IS ON DISK AT THE COMMIT THE PIN NAMES, which is why that check is
+# a local read rather than a promise: `contracts/openxdox-pin.yaml` names
+# `eca0b597`, whose `spec` leg is `ae59dfa5`, a descendant of the openXdox-spec
+# #8 commit `446a13f5` that placed the schema. An earlier draft of this comment
+# said the pinned leg did not carry it yet and that the conformance test
+# therefore read the loader alone; that was true of the pin this slice
+# REPLACES, and the bump discharges it.
 #
 # THE TAXONOMY IS NINE WORDS, NOT EIGHT. `docs/document-lifecycle.md` lines
 # 41-49 carry `brainstorm staged draft ratified standard superseded retired
