@@ -161,6 +161,15 @@ Usage:
         flipping row whose directory is dated AFTER today in UTC is refused
         too — that directory was named by a clock running ahead of UTC.
 
+        A ROW CANNOT MOVE BEFORE THE CHANGE EXISTED: a `moved_on` this run
+        would stamp EARLIER than the change's own `.openspec.yaml` `created:`
+        date is refused (exit 2, naming the rows and both dates) rather than
+        written — a mistyped `--moved-on`, a mistyped `created:`, or a clock
+        behind UTC, and none is a case to stamp and move on from. A change
+        with no readable `.openspec.yaml` or no `created:` field is not
+        checked; this is a guard on a date this estate already records, not a
+        new requirement that every packet carry one.
+
         AN EXISTING LEDGER TOO MALFORMED TO READ DOES NOT BLOCK THE REPAIR: the
         seeder says so on stderr and rewrites from the live corpus, stamping
         EVERY row (none of the old provenance could be read, so none of it can
@@ -208,6 +217,46 @@ def _utc_today() -> str:
     can place.
     """
     return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def _created_dates(repo_root: Path) -> dict[str, str]:
+    """Change id -> its `.openspec.yaml` `created:` date, over the ACTIVE and
+    ARCHIVED corpora both (built on `sa.corpus_change_dirs`, `sa.fms` and
+    `sa.is_moved_on`, all already public on the sibling library module — this
+    stays a CLI-side read rather than a new library function, since the seeder
+    is this file's own mode and no other caller needs it yet).
+
+    A missing `.openspec.yaml`, one the strict loader refuses, one declaring no
+    `created:` field, or a `created:` value that is not a real calendar date is
+    NOT a defect this function reports: it is a provenance READ for the
+    seeder's earlier-than-created guard (issue #743), not a gate that would
+    refuse a malformed packet — `doc_health.proposal_origin`'s own
+    `_created_date` reads the same file the same permissively for the same
+    reason. PyYAML resolves an unquoted `YYYY-MM-DD` scalar to a
+    `datetime.date` rather than a string, so that is converted back to its ISO
+    form before comparison; a `created:` carrying a time-of-day (a
+    `datetime.datetime`) is not a shape this corpus uses and is left unread
+    rather than guessed at.
+    """
+    found: dict[str, str] = {}
+    for change_id, directory in sa.corpus_change_dirs(repo_root).items():
+        packet = directory / ".openspec.yaml"
+        if not packet.is_file():
+            continue
+        try:
+            data = sa.fms.strict_load(sa.fms.source_text(packet), what=str(packet))
+        except (OSError, sa.fms.StrictFrontMatterError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        created = data.get("created")
+        if isinstance(created, datetime.datetime):
+            continue
+        if isinstance(created, datetime.date):
+            created = created.isoformat()
+        if sa.is_moved_on(created):
+            found[change_id] = created
+    return found
 
 
 def _validate_change(repo_root: Path, change_id: str, proposal: Path,
@@ -558,6 +607,34 @@ def _seed_ledger_inner(repo_root: Path, repository: str, moved_by: str,
                 f"row then takes its directory's date and every other row "
                 f"takes today in UTC), or pass the date those directories "
                 f"carry")
+    # A ROW CANNOT MOVE BEFORE THE CHANGE EXISTED (issue #743). `effective`
+    # is the SAME value `render_ledger` below is about to stamp on this row —
+    # the flipping row's directory date, else the explicit `--moved-on`, else
+    # today in UTC — computed here only to compare it, never a second
+    # decision the renderer could disagree with. ISO dates compare correctly
+    # as plain strings.
+    created = _created_dates(repo_root)
+    too_early = []
+    for change_id in moved:
+        if change_id not in created:
+            continue
+        effective = (dates[change_id] if change_id in flipping
+                    else today if moved_on is None else moved_on)
+        if effective < created[change_id]:
+            too_early.append((change_id, effective, created[change_id]))
+    if too_early:
+        listed = ", ".join(
+            f"{cid} (would stamp {on!r}, created {cr!r})"
+            for cid, on, cr in too_early[:5])
+        more = ("" if len(too_early) <= 5
+                else f", … and {len(too_early) - 5} more")
+        raise sa.SequencedAfterError(
+            f"{len(too_early)} row(s) this re-seed would stamp with a "
+            f"moved_on EARLIER than the change's own `.openspec.yaml` "
+            f"`created:` date: {listed}{more}. A row cannot move before the "
+            f"change existed, so this is a real defect — a mistyped "
+            f"--moved-on, a mistyped `created:`, or a machine clock behind "
+            f"UTC — not a case to stamp and move on from")
     text = sa.render_ledger(
         readings, moved_by=moved_by,
         # `today`, READ ONCE ABOVE, not a second reading: two calls straddling
