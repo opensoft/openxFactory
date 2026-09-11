@@ -44,19 +44,33 @@ from contextlib import contextmanager
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      dashboard_web_root)
 
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
 import route_extension  # noqa: E402
 from import_scan import imported_modules, names_a_forbidden_package  # noqa: E402
 
-from ideation_dashboard import action_errors  # noqa: E402
-from ideation_dashboard import profile_openxfactory  # noqa: E402
-from ideation_dashboard import serve as serve_mod  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from opendox import action_errors  # noqa: E402
+# The composition point, at its POST-SHED home. `scripts/
+# ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
+# `deleted_at_carve` row and the shed removed it; openxFactory's profile now
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling) and is
+# registered with `opendox.serve`/`opendox.cli` by
+# `carved_reach.bind_composition_point()` from the conftest — the openxFactory
+# half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+import profile_openxfactory  # noqa: E402
+from opendox import serve as serve_mod  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
+# (§ 5.2, RULED (a), `#656` `5625573095`). The assets moved to openDox-code
+# with the serve and `dashboard_web_root()` reads where from the row rather
+# than spelling the destination here; its docstring records the one
+# `not_moved` asset — openxFactory's own intent-feed view — and why a merged
+# asset root is § 4.3 composition work rather than this constant's job.
+WEB = dashboard_web_root()
 MODULE = REPO_ROOT / "scripts" / "route_extension.py"
 
 #: The probe handler names. Deliberately not `_handle_*`: nothing about the seam

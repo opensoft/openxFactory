@@ -991,8 +991,14 @@ the bookkeeping that ticks this group.
   commit the `openXdox` gitlink reads `db58fffa58d49d92f58db40bd7e63cad3205052f`,
   `.gitmodules` names the assembly root (`git@github.com:opensoft/openXdox.git`,
   not a leg), `contracts/openxdox-pin.yaml` carries that same commit, and both
-  moved in PR #917's one commit (`contracts/openxdox-pin.yaml` +121 and the
-  `openXdox` gitlink, nothing else in that diff). No `contracts/opendox-pin.yaml`
+  moved together in commit `7f76f978194150a73f6cbc56a2ee900d32ccf03e`,
+  PR #917's first commit (**corrected 2026-09-10**, `#656` comment
+  `5625808031`: this aside previously read "nothing else in that diff"; that
+  is overstated — `7f76f978` also carried `.gitmodules`,
+  `scripts/doc_health/pin_class.py`, and added
+  `scripts/verify-openxdox-pin.py`. 5.1's own text holds regardless: the pin
+  file and the gitlink moved in the SAME commit, which is what this task
+  requires). No `contracts/opendox-pin.yaml`
   and no second gitlink exist anywhere in the tree.
   `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
   `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
@@ -1010,6 +1016,34 @@ the bookkeeping that ticks this group.
   `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract
   schemas, the 142 packaged examples under `examples/ideation-dashboard/`, and the
   five dashboard governance docs.
+  **STATUS — 2026-09-10, `#656` comment `5625573095` (Brett Heap, verbatim
+  "rule (a) post-shed mode, merge 924 when green").** RULING (a) resolves this
+  box's own prerequisite — `design.md` § D6 (1)'s amendment. Realization is two
+  pull requests. **PR-1** — the post-shed mode CAPABILITY alone (the `phase:`
+  key, the `carve-shed-incomplete` refusal, their tests, the manifest's own
+  documented `phase:` field, the runbook § 8 text) — **openxFactory #928,
+  landing** at the time of this writing, not yet merged. **PR-2 — this box, the
+  shed itself** (the phase flip to `post-shed`, the 319 deletions, and whatever
+  the re-point needs) is **NOT STARTABLE** until three sub-questions are
+  answered (addendum, `#656` comment `5625144570`):
+  **(2)** does the six `contracts/schemas/*` moved rows' fallout — named by 127
+  tracked files — join this atomic § 5 pull request, or land separately;
+  **(6)** the RETAINED `tests/ideation-dashboard/conftest.py:106` still imports
+  the shed's `session_fixtures` (RULING Q-L7 fixed the destination side and left
+  this one) — edit the retained file, or change that manifest row's disposition;
+  **(7)** the adapter re-point (104 import sites / 32 files; 17 of those modules
+  are reachable only with BOTH legs' `src/` present) — defer to the BUILD arc
+  (§ 3.5 / § 3.6) or give `openxFactory` its own reach to openDox (a second
+  submodule, or a pinned wheel). None of the three is answered as of this
+  writing, and this box does not tick until PR-2 lands.
+  **Correction, 2026-09-10** (`#656` comment `5625808031`): the § 4 / shed
+  reality-check record
+  (`review/reality-check-2026-09-10-section-4-and-the-shed.md`, `Status:
+  record`, immutable — corrected here rather than in that file) reports Probe 1
+  as `Interrupted: 4 errors during collection`; that undercounts a FULL
+  `tests/ideation-dashboard` collection, which measures **27** collection
+  errors. The finding is stronger, not weaker, and this box stays open either
+  way.
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.

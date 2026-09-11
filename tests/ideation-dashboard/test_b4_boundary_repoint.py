@@ -44,25 +44,55 @@ from __future__ import annotations
 
 import ast
 
+from carved_reach import source as carved_source, sources_under
 from conftest import REPO_ROOT
 
 import output_boundary
-from ideation_dashboard import boundary as boundary_shim
+from opendox import boundary as boundary_shim
+from opendox import output_boundary as leg_output_boundary
 from ideation_dashboard import dashboard_refresh_lane, human_seen, nightly_lane
 
-PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
-SHIM = PACKAGE / "boundary.py"
+# POST-SHED, EVERY PATH HERE COMES FROM ITS MANIFEST ROW (§ 5.2, RULED (a),
+# `#656` `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpu0`). `boundary.py` left for
+# openDox-code, the three adapter modules STAYED, and `test_workbench_sweep_
+# wiring.py` is a `replicated_at_destination` row that stays here too — which is
+# precisely why none of them is spelled by hand any more: `carved_source()`
+# answers each from its own row, so this test asserts about the same four files
+# it always did without knowing, or caring, which side of the carve they are on.
+SHIM = carved_source("scripts/ideation_dashboard/boundary.py")
 
 # The four files RULING B-4 (a) repoints, by path — three in the adapter
 # column plus the one in the test tree.
-RULED_FILES = (
-    PACKAGE / "human_seen.py",
-    PACKAGE / "dashboard_refresh_lane.py",
-    PACKAGE / "nightly_lane.py",
-    REPO_ROOT / "tests" / "notebooklm" / "test_workbench_sweep_wiring.py",
-)
+RULED_FILES = tuple(carved_source(path) for path in (
+    "scripts/ideation_dashboard/human_seen.py",
+    "scripts/ideation_dashboard/dashboard_refresh_lane.py",
+    "scripts/ideation_dashboard/nightly_lane.py",
+    "tests/notebooklm/test_workbench_sweep_wiring.py",
+))
 
-_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard")
+# `opendox` joins the two pre-shed roots rather than replacing them: the shim's
+# surviving readers are all at the pinned openDox leg and spell the reach
+# `from opendox.boundary import ...` or, inside the package, `from .boundary
+# import ...`. A scanner left at the two old spellings would sweep the whole
+# post-shed package and honestly report that NOTHING reaches the shim — a proof
+# of absence that had quietly stopped looking anywhere.
+_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard", "opendox")
+
+
+def _package_modules():
+    """Every top-level `*.py` the PRE-SHED `scripts/ideation_dashboard/` held,
+    at the path each one occupies today.
+
+    The sweep below is a proof that the shim still has readers, and after the
+    shed its readers are the modules that LEFT — so sweeping the directory that
+    is still called `scripts/ideation_dashboard/` would sweep the nine files
+    that stayed, find no reach in any of them, and fail for a reason that is not
+    true. `sources_under()` walks the manifest instead of the filesystem, so the
+    set is the one the assertion has always been about.
+    """
+    return sorted(
+        resolved for key, resolved in sources_under("scripts/ideation_dashboard").items()
+        if key.count("/") == 2 and key.endswith(".py"))
 
 
 def boundary_imports(tree):
@@ -146,11 +176,28 @@ def test_the_repoint_is_a_no_op_because_the_shim_re_exports_the_same_object():
     name it re-exports is the neutral module's own object, so the four callers
     were already using `output_boundary`'s guard and only the import path
     changed. If this ever stopped holding, B-4 would have been a behaviour
-    change and the three edges would need a different answer."""
+    change and the three edges would need a different answer.
+
+    ASKED OF THE SHIM'S OWN LEG AFTER THE § 5.2 SHED, and the change of
+    addressee is the finding rather than a loosening. `scripts/output_boundary.py`
+    is a `replicated_at_destination` row (RULED OQ-A, `#656` 2026-09-09:
+    openDox gets a REPLICA rather than a shared module across a repository
+    boundary with no pin), so post-shed there are two byte-identical copies —
+    openxFactory's, which the three adapter modules import, and openDox's,
+    which `opendox/boundary.py` re-exports. A cross-leg `is` was true only
+    while they were one file; it would now be false for every non-interned
+    name and MISLEADINGLY true for the interned strings, which is worse. The
+    two halves of B-4 are therefore each asked of their own side: this one
+    that openDox's shim copies nothing from openDox's neutral module, and
+    `test_each_repointed_name_is_the_neutral_guards_own_object` above that the
+    three retained modules bind openxFactory's. That the two neutral copies are
+    the SAME TEXT is the manifest's claim and `tests/carve_conformance` is
+    where it is enforced; it is not something an `is` at runtime can show.
+    """
     for name in boundary_shim.__all__:
-        assert getattr(boundary_shim, name) is getattr(output_boundary, name), (
-            f"the shim's {name} is not `output_boundary`'s own object — B-4 "
-            "assumed a pure re-export")
+        assert getattr(boundary_shim, name) is getattr(leg_output_boundary, name), (
+            f"the shim's {name} is not `opendox.output_boundary`'s own object "
+            "— B-4 assumed a pure re-export")
 
 
 def test_the_sweep_wiring_test_names_the_neutral_module_where_it_used_to_name_the_shim():
@@ -177,8 +224,7 @@ def test_the_shim_stays_for_its_opendox_readers():
     of this change's business. A later edit that deletes `boundary.py` because
     "nothing needs it" has to fail here first."""
     assert SHIM.is_file(), "scripts/ideation_dashboard/boundary.py was removed"
-    readers = [p for p in sorted(PACKAGE.glob("*.py"))
-               if p != SHIM and _reaches(p)]
+    readers = [p for p in _package_modules() if p != SHIM and _reaches(p)]
     assert readers, (
         "no module in the package reaches the shim any more — if that is "
         "true the shim should be retired by its own change, not left "
@@ -195,15 +241,23 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
     not a second copy of it, which is how a scanner drifts into passing over a
     restored edge.
 
-    All five spellings, including the function-local form the sweep-wiring
-    test actually used, and the `scripts.` prefixed absolute one that
-    `scripts/__init__.py` makes resolvable."""
+    All five pre-shed spellings, including the function-local form the
+    sweep-wiring test actually used and the `scripts.` prefixed absolute one
+    that `scripts/__init__.py` makes resolvable — PLUS the three post-shed
+    ones at the pinned openDox leg, which is where the shim and every reader
+    of it now live. The destination spellings are in the control for the same
+    reason the old ones are: the sweep above is a proof of PRESENCE and a
+    scanner that could not see `from opendox.boundary import ...` would report
+    that proof as failed while the edge sat in front of it."""
     restored = (
         "from .boundary import OutputBoundary\n"
         "from . import boundary\n"
         "import ideation_dashboard.boundary\n"
         "from scripts.ideation_dashboard.boundary import HumanGate\n"
         "from ideation_dashboard import boundary as b\n"
+        "from opendox.boundary import HUMAN\n"
+        "from opendox import boundary as ob\n"
+        "import opendox.boundary\n"
         "def make(root):\n"
         "    from ideation_dashboard.boundary import OutputBoundary as OB\n"
         "    return OB(root, [])\n"
@@ -215,8 +269,11 @@ def test_the_scan_would_catch_every_spelling_of_the_import_it_removed():
         "from .boundary import ...",
         "from ideation_dashboard import boundary",
         "from ideation_dashboard.boundary import ...",
+        "from opendox import boundary",
+        "from opendox.boundary import ...",
         "from scripts.ideation_dashboard.boundary import ...",
         "import ideation_dashboard.boundary",
+        "import opendox.boundary",
     ], caught
 
     # And nothing that merely mentions the word is caught: the scan must not

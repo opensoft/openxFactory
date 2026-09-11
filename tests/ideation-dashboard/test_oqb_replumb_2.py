@@ -64,27 +64,46 @@ import ast
 
 import pytest
 
+from carved_reach import source as carved_source
 from conftest import REPO_ROOT
 
 import wire_messages
-from ideation_dashboard import serve as serve_mod
-from ideation_dashboard import serve_openxfactory_lanes, serve_projection, serve_wire
+from opendox import serve as serve_mod
+from ideation_dashboard import serve_openxfactory_lanes
+from opendox import serve_wire
+from opendox import wire_messages as leg_wire_messages
+from openxdox import serve_projection
 
-PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
 NEUTRAL_WIRE_MESSAGES = REPO_ROOT / "scripts" / "wire_messages.py"
 
 #: The three names the ruling sent to the neutral module, and which
 #: `serve_wire.py` re-exports.
 WIRE_STRINGS = ("HOSTED_SESSION_REFUSAL", "JSON_CTYPE", "JSON_OBJECT_BODY_REQUIRED")
 
-_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard")
+# The two DESTINATION package roots join the two pre-shed ones rather than
+# replacing them (Copilot `PRRT_kwDOTAvnrs6hVaMZ`). After the § 5.2 shed the
+# lawful edge this file proves — the adapter column reaching the projection
+# column — is spelled `from openxdox.serve_projection import hosted_ref_refused`,
+# and the forbidden one would be spelled `from opendox import serve_wire`. A
+# scanner left at the two pre-shed roots would see NEITHER: the positive
+# assertion would fail over an empty set while a restored `serve_wire` edge
+# walked past the absence. Both pre-shed spellings stay — `scripts/__init__.py`
+# still exists and the negative control still feeds all of them through here.
+_ABSOLUTE_ROOTS = ("ideation_dashboard", "scripts.ideation_dashboard",
+                   "opendox", "openxdox")
 
 # Both spellings of each package, for the neutrality scan. `scripts/__init__.py`
 # exists, so every package under `scripts/` is importable BOTH as a top-level
 # name and as `scripts.<name>`, and a one-spelling forbidden list is a hole.
+# `opendox` and `openxdox` are the POST-SHED spellings of the same two columns
+# and are forbidden for the identical reason: `wire_messages.py` travels to
+# openDox as a replica, and a replica that imported `openxdox` — or `opendox`,
+# naming its own destination package from inside openxFactory — would be
+# un-carveable in exactly the way this test exists to prevent.
 FORBIDDEN_FOR_A_NEUTRAL_MODULE = (
     "ideation_dashboard", "scripts.ideation_dashboard",
     "doc_health", "scripts.doc_health",
+    "opendox", "openxdox",
 )
 
 
@@ -126,8 +145,17 @@ def sibling_imports(tree):
 
 
 def module_tree(name: str):
-    """One module of the package, parsed."""
-    path = PACKAGE / f"{name}.py"
+    """One module of the pre-shed package, parsed — wherever it is TODAY.
+
+    The three modules this file reads sit on both sides of the carve now
+    (`serve_wire.py` went to openDox-code, `serve_openxfactory_lanes.py` is a
+    `stays_openxfactory_adapter` row), so the package prefix that used to
+    answer for all of them cannot (RULED (a), `#656` `5625573095`; Copilot
+    `PRRT_kwDOTAvnrs6hUpwC`). `carved_reach.source()` answers each from its own
+    manifest row, and the name passed in is still the pre-shed one every
+    reader of this repository's history recognises.
+    """
+    path = carved_source(f"scripts/ideation_dashboard/{name}.py")
     return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
 
@@ -295,9 +323,25 @@ def test_the_wire_module_re_exports_the_neutral_string_itself(name):
     precedent, and the property every existing openDox and openXdox reader
     depends on — `serve_gate.py`, `serve_project.py`, `serve_workbench.py`,
     `serve_projection.py` and `serve.py` all still import them from
-    `serve_wire`, which the carve permits for their columns."""
-    assert getattr(serve_wire, name) is getattr(wire_messages, name)
-    assert getattr(serve_mod, name) is getattr(wire_messages, name)
+    `serve_wire`, which the carve permits for their columns.
+
+    ASKED OF openDox'S OWN REPLICA AFTER THE § 5.2 SHED. `scripts/wire_messages.py`
+    is a `replicated_at_destination` row (RULED OQ-A/OQ-C — the module both
+    sides depend on travels as a REPLICA rather than as a module shared across
+    a boundary with no pin), so post-shed `serve_wire` re-exports openDox's
+    copy while `serve_openxfactory_lanes` binds openxFactory's. Both halves of
+    "a re-export, not a second spelling" are still asserted, each against the
+    module its own leg actually carries: this one against
+    `opendox.wire_messages`, and the openxFactory one in
+    `test_the_adapter_column_still_reaches_both_new_homes` above against the
+    root `wire_messages`. A cross-leg `is` on these three was true only while
+    the two copies were one file — and on interned string constants it would
+    have gone on passing for the wrong reason if any of the three were ever
+    redefined rather than imported, which is why
+    `test_the_wire_module_defines_none_of_the_three_strings_itself` below reads
+    the SOURCE and is the assertion that actually closes the gap."""
+    assert getattr(serve_wire, name) is getattr(leg_wire_messages, name)
+    assert getattr(serve_mod, name) is getattr(leg_wire_messages, name)
 
 
 def test_the_wire_module_defines_none_of_the_three_strings_itself():
@@ -391,6 +435,8 @@ def test_the_neutrality_scan_would_catch_either_package():
         "from ideation_dashboard import snapshot_registry\n"
         "import scripts.ideation_dashboard.serve_wire\n"
         "from doc_health import pin_sentinels\n"
+        "from opendox import serve_wire\n"
+        "import openxdox.snapshot_registry\n"
         "\n"
         "def _late():\n"
         "    import scripts.doc_health.corpus\n"
@@ -399,7 +445,7 @@ def test_the_neutrality_scan_would_catch_either_package():
     caught = [f"{module} (line {line})" for module, line in found
               if names_a_forbidden_package(
                   module, FORBIDDEN_FOR_A_NEUTRAL_MODULE)]
-    assert len(caught) == 4, (
+    assert len(caught) == 6, (
         f"the scan recognised {caught} out of {found} — a real loss of "
         "neutrality could slip past "
         "`test_the_neutral_wire_messages_module_imports_neither_package`")

@@ -68,7 +68,8 @@ from corpus_adapter_openxfactory.write_path import (  # noqa: E402
 from doc_health import DEFAULT_THRESHOLDS, corpus  # noqa: E402
 from doc_health.families import FAMILIES  # noqa: E402
 from doc_health.runner import Context, run_suite  # noqa: E402
-from ideation_dashboard import authoring, corpus_root  # noqa: E402
+from opendox import authoring  # noqa: E402
+from openxdox import corpus_root  # noqa: E402
 from ideation_dashboard.intent_apply_lane import (  # noqa: E402
     LANE_DEFERRED_VERBS,
     request_digest,

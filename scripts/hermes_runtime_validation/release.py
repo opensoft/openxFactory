@@ -110,6 +110,62 @@ RELEASE_SURFACE_PATHS = (
 )
 
 
+
+def _shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`). Three release
+    members of this repository's own registration — `gate-action-record`,
+    `xfactory-workbench-chat-turn` and `xfactory-workbench-model-catalog` — are
+    `moved_verbatim` manifest rows, and every byte of them arrived unchanged, so
+    the digest this source computes is the digest it has always computed. The
+    containment check below is unaffected: a pinned leg is mounted INSIDE this
+    repository, so a resolved destination is still under `self.root`.
+
+    Answers `target` unchanged for any other repository, any path in no row, and
+    any `not_moved` row — so a candidate-mode release run over a domain mirror
+    is untouched.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
+def _shed_aware_commit(root: Path, commit: str, path: str):
+    """The pinned leg's `(repo, commit, path)` for a member the § 5.2 shed moved
+    — or `None`, in which case this repository's own answer stands.
+
+    `_shed_aware` above, in the direction `_CommitSource` reads: from one exact
+    commit and never from the working tree. `content.resolve_git_object` reads
+    ONE repository's object store, and post-shed the three moved members of this
+    repository's own registration have their bytes in a LEG's, reachable from
+    the verified commit through the gitlink THAT COMMIT records —
+    `carved_reach.shed_commit_object` walks that chain and answers what to read
+    instead.
+
+    The exactness is preserved rather than traded away: the leg commit comes from
+    the verified commit's own tree, so verifying an older commit reads the leg
+    that commit pinned. A commit from BEFORE the shed records no such gitlink and
+    answers `None`, which is right — there the member is still in this
+    repository's tree and the ordinary read already found it. A root that is not
+    this repository answers `None` too, so a candidate-mode run over a domain
+    mirror is untouched.
+    """
+    try:
+        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+    except ImportError:
+        return None
+    try:
+        if Path(root).resolve() != CARVE_ROOT.resolve():
+            return None
+    except OSError:
+        return None
+    return shed_commit_object(commit, path)
+
+
 class ReleaseDependencyError(RuntimeError):
     """An unavailable or unsafe release dependency (CLI exit code 2)."""
 
@@ -399,7 +455,7 @@ class _WorkingTreeSource:
         return yaml.safe_load(text)
 
     def exists(self, path: str) -> bool:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         return target.is_file() and not target.is_symlink()
 
     def list_python(self, package: str) -> list[str]:
@@ -426,7 +482,7 @@ class _WorkingTreeSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         # Defense in depth beneath the membership guard: a normalized path
         # outside the repository root is refused here too, so no caller of
         # this source can ever digest bytes from beyond the tree.
@@ -477,6 +533,14 @@ class _CommitSource:
         machine.
         """
 
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
+            try:
+                resolve_git_object(*moved)
+            except ContentResolutionError as leg_exc:
+                _resolution_established_absence(leg_exc, moved[1], moved[2])
+                return False
+            return True
         try:
             resolve_git_object(self.root, self.commit, path)
         except ContentResolutionError as exc:
@@ -498,7 +562,25 @@ class _CommitSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        resolved = resolve_git_object(self.root, self.commit, path)
+        """The member's bytes AT THE PINNED COMMIT, from the leg when the shed
+        moved it.
+
+        THE LEG IS ASKED FIRST, not as a fallback (Copilot
+        `PRRT_kwDOTAvnrs6hfEoe`). A post-shed commit whose tree still carries a
+        stale file at the pre-shed source path would satisfy the ordinary read,
+        and a fallback-shaped order would then hash THOSE bytes and call the
+        release verified. For a MOVED row the destination is what this
+        repository publishes, so it is the only answer; `_shed_aware_commit`
+        answers `None` for every row that stayed, for a path in no row, for a
+        root that is not this repository and for a commit from before the shed
+        (its tree records no such gitlink), which is what keeps the ordinary
+        read the answer everywhere else.
+        """
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
+            resolved = resolve_git_object(*moved)
+        else:
+            resolved = resolve_git_object(self.root, self.commit, path)
         return resolved.data, resolved.git_mode, resolved.digest
 
 

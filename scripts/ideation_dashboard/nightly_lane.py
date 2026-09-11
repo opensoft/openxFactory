@@ -82,10 +82,18 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from ideation_dashboard import register as register_mod  # noqa: E402
-from ideation_dashboard import snapshot as snapshot_mod  # noqa: E402
-from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+# § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): the modules this file reads
+# from `opendox.*` / `openxdox.*` below left openxFactory at the carve and are
+# read from the two PINNED legs through the ONE resolver. See
+# `scripts/carved_reach.py`.
+from carved_reach import install as _install_carved_reach  # noqa: E402
+
+_install_carved_reach()
+
+from openxdox import register as register_mod  # noqa: E402
+from openxdox import snapshot as snapshot_mod  # noqa: E402
+from openxdox import snapshot_registry as registry_mod  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 from output_boundary import OutputBoundary  # noqa: E402
 
 LANE = "ideation-dashboard-snapshot"

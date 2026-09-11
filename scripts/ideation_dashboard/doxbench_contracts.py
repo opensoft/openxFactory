@@ -46,10 +46,13 @@ co-resident family costs an entry, not a branch.
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -408,7 +411,108 @@ WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN_V2,
 # still needs exactly it.
 
 CHECKOUT_RELPATH = Path("openxFactory")
-VALIDATOR_IN_CHECKOUT = Path("scripts") / "validate-ideation-dashboard-contracts.py"
+
+
+
+def _shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    Imported lazily and never required: a consumer's pinned copy of this module
+    sits in a checkout with no carve manifest and answers exactly as before.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:  # pragma: no cover - no manifest, nothing to resolve
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
+
+@functools.lru_cache(maxsize=None)
+def _composed_validator(validator: Path) -> Path:
+    """The delegated validator, RUNNABLE — composed when the shed split it from
+    its schemas.
+
+    THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`) moved the validator
+    to the openXdox-CODE leg and the schemas it co-loads to openXdox-SPEC,
+    openDox-SPEC and the rows that stayed here. The script derives its own
+    `SCHEMAS_DIR` from `__file__`, so run in place from the leg it looks for a
+    `contracts/schemas/` openXdox-code does not have, and every delegation
+    exited 2 with `ERROR harness failure`. No checkout carries the whole set at
+    one path any more, so this composes one: a scratch root holding a symlink to
+    the script under `scripts/` and a symlink per released schema under
+    `contracts/schemas/`, each resolved from its OWN manifest row. The script's
+    `parents[1]` is then that root and its schema directory resolves.
+
+    Nothing is copied and nothing is written into the tree — the farm is links
+    to the pinned bytes, the same shape the serve entrypoint uses to compose the
+    dashboard's web root, and the openxFactory half of § 4.3 standing in until
+    the legs compose it themselves. A validator that is NOT a shed row (an
+    external released checkout, a stub in a fake root) is returned unchanged.
+    """
+    if not validator.is_file():
+        return validator
+    try:
+        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_relpath, sources_under
+    except ImportError:  # pragma: no cover - no manifest, nothing to compose
+        return validator
+    # Compose for EXACTLY one validator: this repository's own, at the path the
+    # shed moved it to. A stub in a fake root, an external released checkout and
+    # a pre-shed tree all answer unchanged, so nothing that resolves today stops
+    # resolving.
+    moved = shed_relpath("scripts/validate-ideation-dashboard-contracts.py")
+    if moved is None or validator != CARVE_ROOT / moved:
+        return validator
+    farm = Path(tempfile.mkdtemp(prefix="doxbench-released-"))
+    (farm / "scripts").mkdir()
+    # The SCRIPT is copied and the schemas are linked, and the asymmetry is
+    # measured rather than stylistic: the script reads its own
+    # `Path(__file__).resolve()`, which follows a symlink straight back to the
+    # leg and defeats the composition. The copy is of the pinned bytes into a
+    # scratch directory — nothing is written into the tree, and the schemas
+    # underneath are still links to the pinned files.
+    shutil.copy2(validator, farm / "scripts" / validator.name)
+    schemas = farm / SCHEMAS_RELPATH
+    schemas.mkdir(parents=True)
+    for key, resolved in sources_under("contracts/schemas").items():
+        name = key.rsplit("/", 1)[-1]
+        if key == f"contracts/schemas/{name}":
+            (schemas / name).symlink_to(resolved)
+    for path in (REPO_ROOT / SCHEMAS_RELPATH).glob("*.yaml"):
+        if not (schemas / path.name).exists():
+            (schemas / path.name).symlink_to(path)
+    return farm / "scripts" / validator.name
+
+
+def _validator_in_checkout() -> Path:
+    """Where a release checkout carries the family's declared owner TODAY.
+
+    THE § 5.2 SHED MOVED IT (RULED (a), `#656` comment `5625573095`).
+    `scripts/validate-ideation-dashboard-contracts.py` is a
+    `moved_with_declared_edit` row: it left for the openXdox-code leg, which a
+    release checkout of this repository pins and mounts, so the marker below
+    still names a file a release carries — at the path the pin now holds it.
+    Left unrepaired, the third marker was simply absent and EVERY openxFactory
+    checkout stopped reading as a publisher, which sent the pin check down the
+    consumer rung looking for a `stack.yaml` this repository has never had.
+
+    DERIVED from the row, never transcribed, and it does not require the leg to
+    be materialized: this is a name, and `is_publisher_checkout()`'s own
+    `exists()` is what decides presence. A checkout with no carve manifest at
+    all — a consumer's pinned copy of this module — keeps the pre-shed spelling,
+    which is the right answer there for the same reason.
+    """
+    pre_shed = Path("scripts") / "validate-ideation-dashboard-contracts.py"
+    try:
+        from carved_reach import shed_relpath
+    except ImportError:  # pragma: no cover - no manifest, nothing to resolve
+        return pre_shed
+    moved = shed_relpath(pre_shed.as_posix())
+    return pre_shed if moved is None else Path(moved)
+
+
+VALIDATOR_IN_CHECKOUT = _validator_in_checkout()
 VALIDATOR_RELPATH = CHECKOUT_RELPATH / VALIDATOR_IN_CHECKOUT
 SCHEMAS_RELPATH = Path("contracts") / "schemas"
 MANIFEST_RELPATH = Path("contracts") / "manifest.yaml"
@@ -598,7 +702,15 @@ def _verified_bytes(root: Path, name: str, manifest: dict[str, Any]) -> bytes:
     fail-closed chain lives here — `_verified_document` adds only the parse —
     so the validator cache's per-request re-verification (T104 final queue
     Q-2) runs exactly these refusals, never a restatement of them."""
-    path = root / SCHEMAS_RELPATH / name
+    # THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`). Two of this
+    # family's three wire schemas are `moved_verbatim` rows at the openDox-spec
+    # leg. They arrived BYTE FOR BYTE, so the digest chain below — the pinned
+    # literal AND the checkout manifest's record of it — is the same chain over
+    # the same bytes; only the path the pin holds them at changed. `relpath`
+    # just below stays the DECLARED path, because that is the key
+    # `contracts/manifest.yaml` records and the name every refusal here should
+    # print. A root that is not this repository resolves unchanged.
+    path = _shed_aware(root / SCHEMAS_RELPATH / name)
     if not path.is_file():
         raise ContractPinError(
             f"{name}: pinned schema is absent from the checkout at {root} "
@@ -756,7 +868,7 @@ def delegated_semantic_validation(paths, root: Path | str | None = None
     if not targets:
         raise ValueError("no instance paths were supplied to validate")
     checkout = resolve_root(root)
-    validator = checkout / VALIDATOR_IN_CHECKOUT
+    validator = _composed_validator(checkout / VALIDATOR_IN_CHECKOUT)
     if not validator.is_file():
         raise ContractPinError(
             f"{validator}: the pinned validator is absent from the checkout at "
