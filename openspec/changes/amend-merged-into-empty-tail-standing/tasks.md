@@ -333,7 +333,14 @@ comparison is a LITERAL diff rather than a normalized one.
       --strict`, its failure set compared name by name against an
       `origin/main` control run in a separate worktree of matching directory
       basename. `doc-health --single-repo .`'s finding-line diff against the
-      PRE-RATIFICATION tree is recorded beside it.
+      PRE-RATIFICATION tree is recorded beside it. **A FIFTH merge**,
+      `7ce0c70b` of main `38c076d1` (this lane's own, opening its fourth
+      author's pass), and the fix commit `a6d373e9` (restoring the README
+      row § 5 below names, closing the #915/FR-018 residue, narrowing the
+      status claim, fixing the § 5.6 cross-reference) precede a further
+      capture, `review/verification-2026-09-11-final.md`, which supersedes
+      the post-merge capture's over-broad "every gate" sentence: it re-runs
+      BOTH binaries in full on the later tree, not the PATH binary alone.
 
 ## 5. Archive — OWED, NOT GIVEN
 
