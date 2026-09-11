@@ -267,56 +267,99 @@ authoring and pre-gives a landing word; it admits no text to canon.
 ## 4. Gates — RUN IN FULL, WITH EXIT CODES, ON THIS PULL REQUEST'S TREE
 
 **EVERY FIGURE BELOW IS A RUN, NOT A RECOLLECTION**, and where a figure only
-means something against `main` the CONTROL is named. § 4.1–4.9 were taken
-against `origin/main` `114d6e3d`, the base this branch was cut from.
+means something against `main` the CONTROL is a second worktree rather than a
+remembered number. **§ 4.1–4.9 WERE TAKEN AGAINST `origin/main` `114d6e3d`**,
+the base this branch was cut from, checked out detached in its own worktree.
 
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
-      amend-repo-boundary-governance-scope-first-line --strict` — recorded in
-      the pull request body with its exit code.
+      amend-repo-boundary-governance-scope-first-line --strict` — **`Change
+      'amend-repo-boundary-governance-scope-first-line' is valid`, exit 0.**
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` (1.2.0 on
-      `PATH`) — **exit 1** on both trees, and **THE FAILURE SET IS IDENTICAL**:
-      `change/disposition-codexfactory-declared-renames`,
+      `PATH`) — **exit 1** on both trees, and **THE FAILURE SET IS
+      IDENTICAL**: `change/disposition-codexfactory-declared-renames`,
       `change/disposition-codexfactory-floor-relocation-retitle`,
-      `spec/repo-boundary-governance`. Totals move by exactly one PASSING item,
-      this packet's own change. **`spec/repo-boundary-governance` STILL FAILS
-      AND THAT IS CORRECT**: a delta does not edit the promoted specification,
-      so the failure this packet answers is still there at this head, with the
-      same error text issue #931 quotes. **THE ARCHIVE ACT IS WHAT CLEARS IT**,
-      and the archive is § 5.
-- [x] 4.3 `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` (the
-      pinned 1.12.0, content-verified) — **exit 0** on both trees. The two
-      failures it names are the two DISPOSITIONED scenario-omission findings
-      accepted on Brett Heap's word of 2026-09-05 *"take exit 2"*, and
-      `spec/repo-boundary-governance` carries INFO notes only. The run reports
+      `spec/repo-boundary-governance`. `diff` over the sorted `✗` lines of the
+      two runs is EMPTY. Totals move by exactly one PASSING item — this
+      packet's own change: control `Totals: 97 passed, 3 failed (100 items)`,
+      this branch `Totals: 98 passed, 3 failed (101 items)`, with
+      `✓ change/amend-repo-boundary-governance-scope-first-line` in the branch
+      run. **`spec/repo-boundary-governance` STILL FAILS AND THAT IS CORRECT**:
+      a delta does not edit the promoted specification, so the failure this
+      packet answers is still there at this head, with the same error text
+      issue #931 quotes — `openspec validate repo-boundary-governance --strict
+      --type spec` gives `Specification 'repo-boundary-governance' has issues`
+      / `✗ [ERROR] requirements.1.text: Requirement must contain SHALL or MUST
+      keyword`, exit 1. **THE ARCHIVE ACT IS WHAT CLEARS IT**, and the archive
+      is § 5.
+- [x] 4.3 `python3 scripts/validate-openspec-cli-pin.py --all` (the pinned
+      1.12.0, content-verified) — **exit 0** on both trees: control
+      `Totals: 98 passed, 2 failed (100 items)`, this branch `Totals: 99
+      passed, 2 failed (101 items)`. The two failures are the two
+      DISPOSITIONED scenario-omission findings accepted on Brett Heap's word of
+      2026-09-05 *"take exit 2"* (`add-chain-attestation` /
+      `signed-execution-chain`, `add-composed-view-authoring` /
+      `ideation-dashboard`), and `spec/repo-boundary-governance` carries INFO
+      notes only — six of them, and it is among the PASSES. Both runs report
       `@fission-ai/openspec@1.12.0 verified against its content address` and
       the 80-package dependency closure installed with `npm ci
-      --ignore-scripts`.
+      --ignore-scripts`, closing with `every target validated --strict with 0
+      UNDISPOSITIONED failures`. The named-spec run on the same binary gives
+      `Specification 'repo-boundary-governance' is valid`, exit 0.
 - [x] 4.4 `python3 scripts/proposal-support.py . verify
-      amend-repo-boundary-governance-scope-first-line` — recorded in the pull
-      request body with its exit code.
-- [x] 4.5 `python3 scripts/validate-sequenced-after.py .` and the same with
-      `--ledger-diff` — both recorded with their exit codes, and the
-      before-and-after of § 3.10's seed recorded rather than hidden: what the
-      diff named as missing or stale before the seed, and what the seed moved.
-- [x] 4.6 `python3 scripts/validate-scope-globs.py .` — recorded with its exit
-      code.
-- [x] 4.7 `python3 scripts/doc-health.py --single-repo .` — recorded with its
-      exit code and its four severity counts, against a `114d6e3d` control, and
-      **the finding lines diffed** between the control tree and this branch so
-      that "no new finding names this change" is a measurement rather than a
-      claim. In particular the `modified-block-currency` family — which reads
-      every active block by construction — must report NOTHING about this
-      block, which is the marker decision working in the real gate rather than
-      only in § 3.3's derivation.
+      amend-repo-boundary-governance-scope-first-line` — **`proposal support
+      verification ok`, exit 0.**
+- [x] 4.5 `python3 scripts/validate-sequenced-after.py .` — **exit 0**:
+      `sequenced_after validation passed (39 active changes, 9 declaring the
+      field)`, plus `archive-date agreement passed` and
+      `archive-date-vs-commit agreement passed`. And
+      `python3 scripts/validate-sequenced-after.py . --ledger-diff` — **exit
+      0**, `per-change sweep ledger consistent with the corpus (198 rows)`,
+      after § 3.10's seed. **BEFORE the seed it exited 1 and named exactly what
+      the seed then moved**, which is recorded rather than hidden: `missing
+      row: amend-repo-boundary-governance-scope-first-line` and seven derived
+      total mismatches (`change_ids` 197 != 198, `active` 38 != 39,
+      `co_modified` 143 != 144, `active_co_modified` 23 != 24, `declaring`
+      22 != 23, `root_claims` 5 != 6, and the `declaring_ids` tuple). The seed
+      wrote `198 rows, 1 moved by #937` and named it. **NO PARTNER ROW FLIPPED
+      AND THAT IS MEASURED, NOT ASSUMED**: `git diff` over
+      `tests/sequenced_after/corpus-ledger.yaml` is **ONE INSERTED LINE**, this
+      change's own row — unlike the predecessor packet, whose seed also flipped
+      its archived promoter from `sole` to `co-modifier`, because both of this
+      requirement's archived writers already graded `co-modifier`.
+- [x] 4.6 `python3 scripts/validate-scope-globs.py .` — **`scope_globs
+      validation passed (all active changes conform).`, exit 0.**
+- [x] 4.7 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on both
+      trees, `Findings: 32 critical, 5 error, 47 warning, 15 info. New
+      regressions vs previous report: 0` on BOTH — and **NO FINDING NAMES THIS
+      CHANGE** (`grep -c amend-repo-boundary-governance-scope-first-line` over
+      the branch report = **0**). **THE TWO REPORTS ARE BYTE-IDENTICAL ONCE THE
+      REPOSITORY LABEL IS NORMALIZED**: 348 lines and 99 finding lines each,
+      `md5` `177901498123ce6c02ba6188792e6312` on both, the only raw difference
+      being the worktree name in the `Repo-Identity:` header and in each
+      finding's repository prefix. In particular the
+      `modified-block-currency` family — which reads every active block by
+      construction and reports **11** findings across other active changes in
+      this same run — reports NOTHING about this block, which is both marker
+      decisions working in the real gate rather than only in § 3.3's
+      derivation.
 - [x] 4.8 `python3 -m pytest tests/sequenced_after tests/scope_globs
-      tests/proposal-support -q` — recorded with its exit code, before and
-      after § 3.10's seed.
+      tests/proposal-support -q` — **`489 passed, 66 subtests passed`, exit
+      0.** Before § 3.10's seed the same set exited 1 with exactly four
+      failures, all four the ledger's staleness and none of them about this
+      packet's content
+      (`test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row`,
+      `test_every_corpus_change_has_EXACTLY_ONE_row_and_every_row_a_change`,
+      `test_the_totals_DERIVED_FROM_THE_LEDGER_equal_the_MEASURED_sweep`,
+      `test_the_live_ledger_reports_the_SAME_totals_the_sweep_MEASURES`) —
+      measured by stashing the seeded ledger and re-running, then restoring it.
+      The seed clears all four.
 - [x] 4.9 **BOTH PROOFS ARE RE-RUNNABLE AND ARE RE-RUN ON EVERY MERGE FROM
       `main`**: the generator reports slice `34..66`, 33 lines, sha256
       `24f6479c…`, and generator output identical to the committed block at
       sha256 `50ced1fa…`, 3,404 bytes; `derive_units` reports 13/13 units, 1
       uncarried, 1 added, 1 suppressed, 0 marker defects and the three scenario
-      titles equal in order.
+      titles equal in order. The carried tail — `:38` to `:64`, 27 lines —
+      hashes `8d30b74e…` on both sides.
 
 ## 5. Archive — OWED, NOT GIVEN
 
