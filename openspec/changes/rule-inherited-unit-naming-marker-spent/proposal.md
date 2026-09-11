@@ -228,8 +228,11 @@ and never this lane's judgment.
 - **It does not reach a marker that names NOTHING.** The pairing form's whole
   tail is a reason by construction, and a `Merged into` marker whose tail names
   no superseded title is `amend-merged-into-empty-tail-standing`'s question and
-  is answered there. A marker with no names reaches the third ground through no
-  name at all, so nothing here decides anything about it (`design.md` D6).
+  is answered there. **THE THIRD GROUND IS RESOLVED BY NAME, SO A MARKER THAT
+  NAMES NOTHING NEVER REACHES IT** — a name-less `Removed from canon` marker is
+  the FIFTH ground's subject and the name-less pairing and `Merged into` forms
+  are the silence the parent rules correct — and nothing here decides anything
+  about such a marker (`design.md` D6).
 - **It does not sweep the sixteen spent markers already in promoted canon.**
   They are correct records of ratified removals; the rule speaks to what a
   LATER BLOCK owes, and no promoted byte is edited by this packet.

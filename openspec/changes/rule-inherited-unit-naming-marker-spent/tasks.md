@@ -348,6 +348,26 @@ UNTICKED**: residue, measured and deliberately not taken.
       THE BLOCK MOVES**: sha256
       `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
       53,818 bytes, unchanged.
+- [x] 3.16 **COPILOT'S SEVENTH ROUND: ONE LIVE FINDING, AND IT IS THE FOURTH
+      ROUND'S OWN FIX LEFT HALF-APPLIED.** The round was taken against
+      `f918b05a`, so two of its three findings — D1's *"no test"* cost line and
+      `proposal.md`'s *"no line of … `tests/doc-health/`"* inventory — were
+      ALREADY FIXED at head by § 3.15 and are answered with the current text
+      rather than re-edited. **THE THIRD IS LIVE AND IS TAKEN**:
+      `proposal.md`'s *What this proposal does NOT claim* still read *"A marker
+      with no names reaches the third ground through no name at all"* — the
+      same inverted sentence § 3.11 corrected in the delta and in `design.md`
+      D6, missed in this fourth place. It now reads **"THE THIRD GROUND IS
+      RESOLVED BY NAME, SO A MARKER THAT NAMES NOTHING NEVER REACHES IT"**,
+      and names where such a marker IS decided: the fifth ground for a
+      name-less `Removed from canon`, the parent's ruled silence for the
+      name-less pairing and `Merged into` forms. **THE CORPUS IS THEN SWEPT FOR
+      THE PHRASE RATHER THAN SPOT-FIXED**: `grep` over the packet and the
+      README returns exactly one further occurrence, § 3.11's own QUOTATION of
+      the old wording inside the record of the fix, which is correct and
+      stands. **NO BYTE OF THE BLOCK MOVES**: sha256
+      `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
+      53,818 bytes.
 
 ## 4. Verification — IN THIS PULL REQUEST
 
