@@ -1,6 +1,7 @@
 # Design: amend-repo-boundary-governance-scope-first-line
 
-Status: draft
+Status: ratified
+Ratified by: amend-repo-boundary-governance-scope-first-line — 2026-09-11, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-11.md`)
 Date: 2026-09-11
 Kind: design
 
@@ -24,9 +25,16 @@ the remedy, writes THREE candidate wordings out with their costs, and records
 the measurements the issue did not have — which is why **D6 is put first** and
 why **D2 carries two marker decisions instead of one**.
 
-**THREE DECISIONS ARE FOR THE OWNER: D6, D1 AND D2.** They are presented with
-the recommendation first and D6 first of all. Nothing below is ratified; this
-packet carries no approval pair.
+**THREE DECISIONS WERE FOR THE OWNER: D6, D1 AND D2, AND ALL THREE ARE NOW
+RULED.** They were presented with the recommendation first and D6 first of all.
+Brett Heap ruled on 2026-09-11, verbatim **"ratify as encoded"** — recorded on
+PR [#937](https://github.com/opensoft/openxFactory/pull/937#issuecomment-5628461153)
+at 2026-09-11T02:18:13Z, record `review/ratification-2026-09-11.md` — which
+takes **D6 = A (AMEND)**, **D1 = option 1** and **D2 as written**, each being
+the recommended and encoded option, so **NOTHING IN THE DELTA MOVES**. D0, D3,
+D4, D5 and D7 were carried beside them and none was vetoed. The alternatives
+below are retained as the record of what was put and declined, not as work
+owed.
 
 ## D0 — the measurement, taken before the design
 
@@ -74,12 +82,23 @@ promoted the amendment of one of them. Re-measured here on the same corpus and
 the same predicate, the count is **one**, and it is this requirement. The two
 measurements agree; the corpus moved between them.
 
-## D6 — PUT FIRST, BECAUSE IT CAN END THE PACKET: should promoted canon be amended for a binary no required check runs?
+## D6 — RULED: AMEND. Put first because it could have ended the packet — should promoted canon be amended for a binary no required check runs?
 
-**THIS IS A QUESTION FOR BRETT HEAP AND IT IS ASKED FRESH FOR THIS
-REQUIREMENT.** A ruling exists on the same question for a DIFFERENT
-requirement of a DIFFERENT capability, it is quoted below as precedent, and it
-is deliberately NOT read as a standing rule.
+**RULED 2026-09-11 BY BRETT HEAP — OPTION 1, AMEND**, verbatim *"ratify as
+encoded"*, as a multiple-choice ruling with the recommendation presented first
+(recorded on PR #937 at 2026-09-11T02:18:13Z; record
+`review/ratification-2026-09-11.md`). The packet is therefore NOT withdrawn and
+D1 and D2 below stand rather than falling with it. The ruling was given on the
+grounds as measured here — ten to one inside the one file, the unfinished 1.12
+migration, and the last-instance argument — with the asymmetry stated rather
+than hidden: **the amendment is ruled for a failure that no required check
+reports.**
+
+**THIS WAS A QUESTION FOR BRETT HEAP AND IT WAS ASKED FRESH FOR THIS
+REQUIREMENT.** A ruling existed on the same question for a DIFFERENT
+requirement of a DIFFERENT capability; it is quoted below as precedent, it was
+deliberately NOT read as a standing rule, and the answer here came from its own
+word over this packet's own design.
 
 `repo-boundary-governance` is validated in CI through the PINNED CLI, never
 through a `PATH` binary. `neutral-product-pin`'s own promoted requirement *A
@@ -158,12 +177,24 @@ put again.**
    way until then, and the next reader who runs the on-PATH binary re-opens the
    question from scratch.
 
-**WHAT A VETO HERE COSTS: the whole packet.** If D6 resolves to option 2 no
-delta is wanted, D1 and D2 fall with it, this packet is WITHDRAWN rather than
-re-wired, and #931 closes with the measurement as its answer. That is why it is
-asked before the wording.
+**WHAT A VETO HERE WOULD HAVE COST: the whole packet — AND IT DID NOT LAND.**
+Had D6 resolved to option 2 no delta would be wanted, D1 and D2 would have
+fallen with it, this packet would have been WITHDRAWN rather than re-wired, and
+#931 would have closed with the measurement as its answer. That is why it was
+asked before the wording. **The ruling of 2026-09-11 took option 1**, so none of
+that was performed and the wording questions below were reached.
 
-## D1 — THE VETO POINT: the wording of the first sentence
+## D1 — THE VETO POINT: RULED OPTION 1 — the wording of the first sentence
+
+**RULED 2026-09-11 BY BRETT HEAP — OPTION 1**, verbatim *"ratify as encoded"*
+(recorded on PR #937 at 2026-09-11T02:18:13Z; record
+`review/ratification-2026-09-11.md`). **THE RECOMMENDATION WAS TAKEN, SO NOT
+ONE BYTE OF THE DELTA MOVES**: the closed subject phrase stands, four words are
+added and none removed, the five names keep canon's order, spelling and serial
+comma, and the first body line stays 72 characters with `SHALL` at word five.
+Options 2 and 3 are retained below as the record of what was put and declined —
+they are not work owed, and neither the re-flow-only block nor the counted
+subject was ever committed.
 
 **Recommended: OPTION 1. Written that way.** All three options put a subject
 and the modal on line one; they differ in what they cost. **NONE OF THEM IS
@@ -313,7 +344,18 @@ prefers it, the honest form also asks whether the sibling requirement's own
 count should then be the single source and this one cite it — which is a larger
 amendment than this word commissions.
 
-## D2 — the markers: TWO decisions, both read off a measurement
+## D2 — the markers: TWO decisions, both read off a measurement — BOTH RULED AS WRITTEN
+
+**RULED 2026-09-11 BY BRETT HEAP — D2 STANDS**, verbatim *"ratify as encoded"*
+(recorded on PR #937 at 2026-09-11T02:18:13Z; record
+`review/ratification-2026-09-11.md`). Both decisions are ratified exactly as
+encoded: **D2a** — ONE `Removed from canon` marker for the replaced sentence,
+one name, no code span in its reason, at the END of the block, is written and
+stands; **D2b** — the marker this requirement INHERITS from
+`refresh-install-repository-enumerations` is NOT carried forward, and that
+non-carriage stands. Neither was vetoed and neither is re-derived by this
+ratification: the counts below were measured at authoring and the ruling left
+the block alone.
 
 ### D2a — the marker this block OWES: one, and it is written
 

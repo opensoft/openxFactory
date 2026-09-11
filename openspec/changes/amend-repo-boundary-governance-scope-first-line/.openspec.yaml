@@ -114,6 +114,46 @@ origin:
     INHERITS from `refresh-install-repository-enumerations` is NOT carried
     forward, on canon's own rule that a marker is not a carriage unit.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-11, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "ratify as encoded",
+    given in session as a MULTIPLE-CHOICE ruling over `design.md` D6, D1 and D2
+    with the recommendation presented first, and recorded on openxFactory PR
+    #937 at 2026-09-11T02:18:13Z (comment 5628461153). THIS IS THE RATIFICATION
+    ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting provenance above is kept
+    exactly as authored and `kind` and `id` never move, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition:
+    approval is a pure ADDITION beside a fixed origin identity, so the support
+    manifest that repeats `kind` and `id` never comes to disagree with the
+    packet, and the archive gate's origin-retention arm reads the declaration
+    this commit establishes. The earlier word of 2026-09-11T00:42Z, verbatim
+    "do 915 and 931, land each when green", stays the ORIGIN of the AUTHORING
+    and the pre-given LANDING word, and is not read as an approval.
+    THE RULING REACHES ALL THREE DECISIONS THE PACKET PUT AND EACH IS THE
+    ENCODED OPTION, SO THE PACKET'S WORDING STANDS UNCHANGED. D6 = A (AMEND),
+    so the packet is not withdrawn and promoted canon is amended for a
+    first-line failure that the PATH 1.2.0 binary reports and no required check
+    does — the asymmetry the decision was put on, stated rather than glossed.
+    D1 = option 1, the recommended and encoded wording: the closed subject
+    phrase, four words added and none removed, the five names in canon's order,
+    spelling and serial comma, first body line 72 characters. D2 stands in both
+    halves: the one `Removed from canon` marker for the replaced sentence is
+    written and kept, and the marker inherited from
+    `refresh-install-repository-enumerations` is NOT carried forward. D0, D3,
+    D4, D5 and D7 were carried beside them and none was vetoed. No delta byte
+    was re-written, restored or deleted by this ratification.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT PERFORMED
+    HERE. `code_surface: none` with `target_release: implemented` means this
+    packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization
+    evidence — but that word has not been given: nothing under `openspec/specs/`
+    is edited by this ratification, `tasks.md` § 5 stays OPEN, the
+    `spec/repo-boundary-governance` failure on the 1.2.0 binary is cleared AT
+    THE ARCHIVE and not at this landing, and openxFactory #931 therefore closes
+    at the archive and on no earlier pull request.
+    Record: `review/ratification-2026-09-11.md`, with the gate run re-derived on
+    the ratified tree at `review/verification-2026-09-11.md`.
+  approved_on: 2026-09-11
 related:
   - openxFactory:change:archive/2026-06-26-restructure-factory-repo-boundaries  # ARCHIVED 2026-06-26 at `7c4dacb9`. The change that PROMOTED *Install repository scope*, found with `git log -S "Install repository scope" -- openspec/specs/repo-boundary-governance/spec.md`; the first-body-line shape entered with the requirement itself
   - openxFactory:change:archive/2026-09-09-refresh-install-repository-enumerations  # ARCHIVED 2026-09-09 at `ca4a1558` (PR #825), the LAST WRITER of this requirement's first sentence. It widened the enumeration from four names to five and declared the widening with the `Removed from canon` marker still standing at `:66` of the promoted file — the marker this block does NOT carry forward, whose durable record is that archived delta's own `specs/repo-boundary-governance/spec.md:37`

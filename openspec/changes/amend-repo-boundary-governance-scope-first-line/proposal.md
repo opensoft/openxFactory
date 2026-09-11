@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-repo-boundary-governance-scope-first-line
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11 by Brett Heap (openxFactory operator authority) — "ratify as encoded"; record at review/ratification-2026-09-11.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-11T00:42Z, verbatim **"do 915 and 931, land each
 when green"**, given in session and recorded in this lane's CLAIMED comment on
@@ -18,15 +19,31 @@ this lane at the archive of `amend-neutral-product-pin-lockfile-first-line` as
 the named successor of that packet's `tasks.md` § 6.1, `design.md` D7 and its
 delta header.
 
-**THAT WORD AUTHORIZES THE PROPOSING AND THE LANDING, NOT THE CONTENT.** It
-commissions this authoring and it pre-gives the LANDING word for whatever head
-is ratified and green; it ratifies nothing, resolves none of the three
-decisions below, and admits no text to canon. **THIS PACKET IS THEREFORE A
-DRAFT AND CARRIES NO APPROVAL PAIR** — `.openspec.yaml` has `proposed_by` and
-`proposed_on` and no `approved_by` or `approved_on`, and every document in it
-carries `Status: draft`. Ratification is a separate act on a separate word,
-over `design.md` **D6**, **D1** and **D2**, put below with the recommendation
-first.
+**THAT WORD AUTHORIZED THE PROPOSING AND THE LANDING, NOT THE CONTENT; THE
+RATIFICATION IS A SEPARATE ACT AND IT HAS NOW HAPPENED.** The word of
+2026-09-11T00:42Z commissioned this authoring and pre-gave the LANDING word for
+whatever head is ratified and green; it ratified nothing, resolved none of the
+three decisions below, and admitted no text to canon. It stays recorded as the
+ORIGIN of the AUTHORING. **BRETT HEAP RATIFIED THIS PACKET ITSELF ON
+2026-09-11**, verbatim **"ratify as encoded"** — a multiple-choice ruling over
+`design.md` **D6**, **D1** and **D2**, given in session and recorded on
+openxFactory PR
+[#937](https://github.com/opensoft/openxFactory/pull/937#issuecomment-5628461153)
+at 2026-09-11T02:18:13Z. **D6 = A (AMEND)**, so the packet is not withdrawn;
+**D1 = option 1**, the recommended and encoded wording; **D2 stands**, both
+marker decisions as written. **ALL THREE ARE THE OPTIONS THE PACKET ALREADY
+ENCODED, SO THE DELTA'S WORDING STANDS UNCHANGED** and nothing is re-written,
+restored or deleted. The citation is the single `Ratified:` line above, which is
+what `ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-11.md` and the gate run captured beside it at
+`review/verification-2026-09-11.md`. `.openspec.yaml` now carries `approved_by`
++ `approved_on` **ADDED BESIDE** the drafting provenance it was authored with,
+`kind`, `id`, `reason` and `proposed_by` unmoved — the addition-not-rewrite
+shape `add-drafted-proposal-origin` (issue #318) defined. **NOTHING IS PROMOTED
+BY THIS RATIFICATION**: this pull request still edits no file under
+`openspec/specs/`, so the block reaches canon at the ARCHIVE, which is a
+separate act on a separate word, and openxFactory #931 closes there and not at
+this landing.
 
 ## Why
 
@@ -280,16 +297,23 @@ to record that the requirement sets are disjoint.
 - **It does not claim to fix a red required check.** The pinned gate is green
   on this specification and always was; `design.md` **D6** is where that
   measurement lives and it is put as the first question rather than buried.
-- **It does not inherit its predecessor's ruling.** Brett Heap's *"ratify as
-  encoded"* of 2026-09-10 resolved D6 for ONE requirement of ONE specification.
-  This packet quotes it as precedent and asks the question again.
+- **It did not inherit its predecessor's ruling, and it did not need to.**
+  Brett Heap's *"ratify as encoded"* of 2026-09-10 resolved D6 for ONE
+  requirement of ONE specification. This packet quoted it as precedent and put
+  the question again for this requirement, with the two grounds that read
+  differently here measured rather than glossed; it was answered on 2026-09-11
+  by a SECOND, separate word over this packet's own `design.md`. Precedent and
+  entailment stay distinct in the record.
 - **It does not re-open the enumeration.** The five names, their order, their
   spelling and their serial comma are `refresh-install-repository-enumerations`'
   ratified act and are carried untouched; `design.md` **D7** records that the
   requirement's own heading and the count in the sibling index requirement are
   likewise not edited.
-- **IT DOES NOT RATIFY ITSELF.** Ratification, promotion and archive are three
-  acts on three words. None has been given: no file under `openspec/specs/` is
-  edited by this pull request, `tasks.md` §§ 1 and 5 stay open, and
-  openxFactory #931 closes at the archive rather than at this landing, which is
-  why this pull request carries no closing keyword.
+- **IT DID NOT RATIFY ITSELF, AND IT STILL DOES NOT PROMOTE ITSELF.**
+  Ratification, promotion and archive are three acts on three words. The
+  RATIFICATION has been given — by Brett Heap on 2026-09-11, not by the
+  authoring lane — and `tasks.md` § 1 is ticked against it. **PROMOTION AND
+  ARCHIVE HAVE NOT**: no file under `openspec/specs/` is edited by this pull
+  request, `tasks.md` § 5 stays entirely open, and openxFactory #931 closes at
+  the archive rather than at this landing, which is why this pull request
+  carries no closing keyword.

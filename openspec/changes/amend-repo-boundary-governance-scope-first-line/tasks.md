@@ -1,6 +1,7 @@
 # Tasks: amend-repo-boundary-governance-scope-first-line
 
-Status: draft
+Status: ratified
+Ratified by: amend-repo-boundary-governance-scope-first-line — 2026-09-11, Brett Heap, "ratify as encoded" (record `review/ratification-2026-09-11.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented` — the value canon names
@@ -15,48 +16,65 @@ archive.**
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in its body, with the
-command and the exit code. **§ 1 (ratification) IS ENTIRELY OPEN**: Brett
-Heap's word of 2026-09-11T00:42Z, verbatim *"do 915 and 931, land each when
-green"*, commissions this AUTHORING and pre-gives the LANDING word for a
-ratified head; it ratifies no wording and resolves none of `design.md`'s three
-decisions, so this packet carries no approval pair and no document in it says
-`Status: ratified`. **§ 5 (archive) IS ALSO ENTIRELY OPEN**: promotion is a
-third act on a third word, so openxFactory #931 closes AT THE ARCHIVE and not
-at this landing, and `Closes #931` appears on the archive pull request and on
-nothing else. § 6 records what was measured and deliberately not taken.
+command and the exit code. **§ 1 (ratification) IS NOW TICKED AND NAMES THE
+WORD THAT TICKED IT** — Brett Heap's *"ratify as encoded"* of 2026-09-11, which
+is his act and not the authoring lane's. His earlier word of 2026-09-11T00:42Z,
+verbatim *"do 915 and 931, land each when green"*, commissioned this AUTHORING
+and pre-gave the LANDING word for a ratified head; it ratified no wording and
+resolved none of `design.md`'s three decisions, and it stays recorded as the
+ORIGIN of the AUTHORING rather than being read as an approval. **§ 5 (archive)
+STAYS ENTIRELY OPEN**: promotion is a third act on a third word and that word
+has not been given, so openxFactory #931 closes AT THE ARCHIVE and not at this
+landing, and the closing keyword appears on the archive pull request and on
+nothing else. § 6 records what was measured and deliberately not taken, and
+stays open where the work is owed.
 
 **AND THE ORDER OF THE DECISIONS IS NOT THE ORDER OF THE SECTIONS.**
 `design.md` **D6 IS PUT FIRST** and it can end the packet: the failure this
 amendment answers is REAL on the OpenSpec CLI at 1.2.0 and is reported by NO
 REQUIRED CHECK, because openxFactory validates through the pinned 1.12.0
 artifact and this specification PASSES there. Whether promoted canon should be
-amended for a binary no required check runs is the owner's call, § 1.2 is the
-box that records it, and **IT IS ASKED FRESH FOR THIS REQUIREMENT** — the
-ruling of 2026-09-10 on the sibling requirement is quoted as precedent and is
-not read as a standing rule.
+amended for a binary no required check runs was the owner's call, § 1.2 is the
+box that records it, and **IT WAS ASKED FRESH FOR THIS REQUIREMENT** — the
+ruling of 2026-09-10 on the sibling requirement was quoted as precedent and was
+not read as a standing rule. **IT WAS ANSWERED ON 2026-09-11: AMEND.**
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-11
 
-**THIS SECTION IS OPEN BY DESIGN.** The word behind this packet commissions an
-authoring and pre-gives a landing word; it admits no text to canon.
+**THIS SECTION WAS OPEN BY DESIGN AND IS NOW CLOSED BY A WORD THAT IS NOT THIS
+LANE'S.** The word behind the AUTHORING commissioned a packet and pre-gave a
+landing word; it admitted no text to canon. A SECOND word, given over this
+packet's own `design.md`, ratified it.
 
-- [ ] 1.1 **RATIFY THE PACKET**, on Brett Heap's word and never on this lane's
-      judgment. At ratification `proposal.md`, `design.md` and this file flip
-      to `Status: ratified` with ONE citation line each, a
-      `review/ratification-<date>.md` record is written carrying
-      `Status: ratified`, and `.openspec.yaml` GAINS `approved_by`/`approved_on`
-      **BESIDE** the drafting provenance with `kind`, `id`, `reason` and
-      `proposed_by` unmoved — the addition-not-rewrite shape
-      `add-drafted-proposal-origin` (issue #318) defined and the shape the
-      archive gate's origin-retention arm reads, which is why the status flip
-      and the approval pair move in ONE commit. The word of 2026-09-11T00:42Z,
-      verbatim *"do 915 and 931, land each when green"*, recorded in this
-      lane's CLAIMED comment on openxFactory
+- [x] 1.1 **RATIFIED 2026-09-11 by Brett Heap** (openxFactory operator
+      authority), verbatim *"ratify as encoded"*, given in session as a
+      MULTIPLE-CHOICE ruling over `design.md` D6, D1 and D2 with the
+      recommendation presented first, and recorded on PR **#937** at
+      2026-09-11T02:18:13Z (comment `5628461153`). It is his act and never this
+      lane's judgment. `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-11.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md` and in the
+      ratification record, `Ratified by:` here and in `design.md`), which is
+      what `ratified-provenance` counts — one total across both sanctioned
+      spellings, and under that family's SUBJECT arm the
+      `review/ratification-*` record is read whatever status it carries.
+      `review/verification-2026-09-11.md` keeps `Status: record`: its subject
+      is the GATE RUN and not the ratification. `.openspec.yaml` GAINS
+      `approved_by`/`approved_on` **BESIDE** the drafting provenance with
+      `kind`, `id`, `reason` and `proposed_by` unmoved — the
+      addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318)
+      defined and the shape the archive gate's origin-retention arm reads,
+      which is why the status flip and the approval pair move in ONE commit.
+      The word of 2026-09-11T00:42Z, verbatim *"do 915 and 931, land each when
+      green"*, recorded in this lane's CLAIMED comment on openxFactory
       [#931](https://github.com/opensoft/openxFactory/issues/931), stays the
       ORIGIN of the AUTHORING and the pre-given LANDING word, and is NOT read
       as an approval.
-- [ ] 1.2 **RULE `design.md` D6 — AMEND, or CLOSE #931 ON THE MEASUREMENT.**
-      Put FIRST because it can end the packet. The failure is real on the 1.2.0
+- [x] 1.2 **`design.md` D6 IS RULED — AMEND (option A).** The question that
+      could have ended the packet was put FIRST and was answered on 2026-09-11,
+      verbatim *"ratify as encoded"*, **so the packet is not withdrawn and the
+      amendment proceeds for a failure that no required check reports** — the
+      asymmetry stated rather than glossed. The failure is real on the 1.2.0
       binary on PATH (`✗ [ERROR] requirements.1.text: Requirement must contain
       SHALL or MUST keyword`, exit 1) and ABSENT from the pinned 1.12.0 the
       required gate runs (exit 0, `spec/repo-boundary-governance` among the
@@ -67,12 +85,18 @@ authoring and pre-gives a landing word; it admits no text to canon.
       command this repository's own notes tell them to type meets a red
       specification, and the fact that this is the corpus's LAST instance so
       taking it empties the class — and writes the alternative out beside it.
-      **A VETO HERE WITHDRAWS THE PACKET**, it does not re-wire it.
-      **THE 2026-09-10 RULING ON #882 IS PRECEDENT, NOT ENTAILMENT**, and the
-      difference is measured: two of its three grounds read differently here
-      (ten to one, not seventeen; four words added, not two case flips).
-- [ ] 1.3 **RULE `design.md` D1 — THE WORDING.** Three options are written out
-      with their costs and the recommended one is ENCODED.
+      **A VETO HERE WOULD HAVE WITHDRAWN THE PACKET** rather than re-wiring
+      it, and it did not land.
+      **THE 2026-09-10 RULING ON #882 WAS PRECEDENT, NOT ENTAILMENT**, and the
+      difference was measured: two of its three grounds read differently here
+      (ten to one, not seventeen; four words added, not two case flips). The
+      answer here came from a SECOND word over this packet's own design.
+- [x] 1.3 **`design.md` D1 IS RULED — OPTION 1, THE RECOMMENDED AND ENCODED
+      WORDING.** The veto point was put and the recommendation was TAKEN, so
+      **not one byte of the delta moves**: no re-flow-only block was
+      substituted, no counted subject was written, and no marker was deleted.
+      Three options were written out with their costs and the recommended one
+      was ENCODED.
       **Option 1 (RECOMMENDED and written)** re-orders with a closed subject
       phrase: *"The following install repositories SHALL be scoped to subsystem
       install, operations, backup, restore, upgrade, verification, and disaster
@@ -88,11 +112,13 @@ authoring and pre-gives a landing word; it admits no text to canon.
       because it copies the count FIVE into a second requirement when the
       sibling *Install-repository enumerations are an index with a named
       authority* already states it and exists because these enumerations drift.
-      A veto to option 2 replaces the block with the re-flow-only block,
-      DELETES the marker and re-runs the gates; a veto to option 3 is a wording
-      swap plus a note about the count's second home.
-- [ ] 1.4 **RULE `design.md` D2 — THE TWO MARKER DECISIONS**, and carry or veto
-      D0, D3, D4, D5 and D7 beside them. **D2a:** ONE `Removed from canon`
+      A veto to option 2 would have replaced the block with the re-flow-only
+      block, DELETED the marker and re-run the gates; a veto to option 3 would
+      have been a wording swap plus a note about the count's second home.
+      **NEITHER WAS TAKEN**, and both stay written out in `design.md` D1 as the
+      record of what was put and declined.
+- [x] 1.4 **`design.md` D2 IS RULED — BOTH MARKER DECISIONS STAND AS WRITTEN**,
+      and D0, D3, D4, D5 and D7 were CARRIED beside them and none was vetoed. **D2a:** ONE `Removed from canon`
       marker, ONE name, no code span in its reason, is owed under option 1 and
       is written; under option 2 none would be owed. **D2b:** the marker this
       requirement INHERITS from `refresh-install-repository-enumerations`
@@ -101,7 +127,10 @@ authoring and pre-gives a landing word; it admits no text to canon.
       four-times-repeated precedent; the cost is that the promoted file stops
       showing the 2026-09-08 widening and the reader is sent to the archived
       delta canon names as the durable record. Both branches are proven with
-      the family's own `derive_units` and `suppression` in § 3.3.
+      the family's own `derive_units` and `suppression` in § 3.3. **THE RULING
+      TOUCHED NEITHER**: the marker written under D2a stands with its one name,
+      the inherited marker stays uncarried, and the § 3.3 counts are the
+      authoring measurement rather than something this ratification re-derived.
 
 ## 2. The measurement — TAKEN BEFORE THE DESIGN, DONE IN THIS PULL REQUEST
 
@@ -260,10 +289,13 @@ authoring and pre-gives a landing word; it admits no text to canon.
       existence rather than authored, every active change has one, and omitting
       it is exactly what makes the sweep gate red (§ 4.5).
 - [x] 3.9 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
-      style, at the head of the active list, lane `openxfactory-1`, written as
-      **`Status: draft`** (NOT RATIFIED) and naming the origin issue, the
-      accounting, both marker decisions, the three questions put for the owner
-      and what this pull request does not do.
+      style, at the head of the active list, lane `openxfactory-1`, naming the
+      origin issue, the accounting, both marker decisions, the three questions
+      put for the owner and what this pull request does not do. **IT WAS
+      WRITTEN AS `Status: draft` (NOT RATIFIED) AT AUTHORING AND MOVED TO
+      `Status: ratified` IN THE RATIFICATION COMMIT**, in the same commit as
+      the three document flips and the approval pair, so the index never states
+      a standing the packet does not have.
 - [x] 3.10 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED
       TOOL**, never hand-written:
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`.
@@ -389,6 +421,19 @@ the base this branch was cut from, checked out detached in its own worktree.
       sha256sum`); a plain `sed | sha256sum` on that same, verified-identical
       slice yields a DIFFERENT digest, `ec56d571…`, recorded here so the next
       reader is not caught by it.
+- [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-11,
+      after the ratification encode and after the merge from `main` that
+      preceded it — capture at `review/verification-2026-09-11.md`, the
+      packet's first and only gate capture, written at its own dated path
+      because a dated run report is a one-shot `record` and a second run of it
+      writes a second path rather than rewriting this one. **BOTH BINARIES ARE
+      RE-RUN THERE**, which is what `design.md` D6 turns on: the 1.2.0 binary
+      on `PATH` still reports `spec/repo-boundary-governance` because a delta
+      does not edit the promoted specification and the ARCHIVE is what clears
+      it (§ 5.1), and the pinned 1.12.0 through
+      `scripts/validate-openspec-cli-pin.py --all --no-cache` still passes it.
+      `--all --strict` is measured against an `origin/main` control run in a
+      separate worktree and the failure SET compared name by name.
 
 ## 5. Archive — OWED, NOT GIVEN
 
