@@ -225,10 +225,20 @@ carry a `repo-boundary-governance` delta** — `add-identity-brokering`,
 was read by NAME rather than counted: they write *Keycloak install repository
 boundary* (ADDED, then MODIFIED), *OpenXPKI install repository boundary*
 (ADDED, then MODIFIED) and *Neutral avatar-client repository boundary*
-(MODIFIED). **Not one of them is this requirement.** `grep -rln "Install
-repository scope" openspec/changes/ --include=spec.md` excluding `archive/`
-returns nothing, so this change is the **SOLE ACTIVE MODIFIER** of that
-requirement key: `modified-block-currency`'s two-writers rule is scoped to two
+(MODIFIED). **Not one of them is this requirement.** The corpus search is
+pasted in a form that REPRODUCES, the archive exclusion being a pipe rather
+than prose: `grep -rln "Install repository scope" openspec/changes/
+--include=spec.md | grep -v '/archive/'` returns **exactly one path on this
+tree — this packet's own delta — and nothing else**, and the PRE-ADDITION
+measurement is re-derivable against the branch point with `git grep -l
+"Install repository scope" 114d6e3d -- 'openspec/changes/*/specs/*/spec.md' |
+grep -v '/archive/'`, which returns **nothing, exit 1**. (Unfiltered, the same
+search also returns three ARCHIVED deltas —
+`2026-06-26-restructure-factory-repo-boundaries`,
+`2026-08-25-admit-install-repos-to-aggregation` and
+`2026-09-09-refresh-install-repository-enumerations` — which is why the filter
+is part of the command and not part of the sentence.) So this change is the
+**SOLE ACTIVE MODIFIER** of that requirement key: `modified-block-currency`'s two-writers rule is scoped to two
 active writers, it does not reach any of the five, and no ordering declaration
 is owed in either direction. Sharing a spec FILE is not a collision — a file is
 not the unit the rule is written over.

@@ -292,7 +292,12 @@ the base this branch was cut from, checked out detached in its own worktree.
       keyword`, exit 1. **THE ARCHIVE ACT IS WHAT CLEARS IT**, and the archive
       is § 5.
 - [x] 4.3 `python3 scripts/validate-openspec-cli-pin.py --all` (the pinned
-      1.12.0, content-verified) — **exit 0** on both trees: control
+      1.12.0, content-verified) — **exit 0** on both trees. The exact
+      invocations differ in ONE flag and it is named rather than glossed: the
+      CONTROL ran `--all --no-cache` (a temporary prefix discarded at the end)
+      and the BRANCH ran `--all --cache-dir <path>` reusing that same verified
+      install; both verify the artifact's content address before invoking it,
+      and both print the same integrity line. Totals: control
       `Totals: 98 passed, 2 failed (100 items)`, this branch `Totals: 99
       passed, 2 failed (101 items)`. The two failures are the two
       DISPOSITIONED scenario-omission findings accepted on Brett Heap's word of
@@ -453,9 +458,16 @@ than after it.
       `qualify-avatar-live-voice` — and each was read BY NAME: they write
       *Keycloak install repository boundary*, *OpenXPKI install repository
       boundary* and *Neutral avatar-client repository boundary*, **not one of
-      them this requirement**. `grep -rln "Install repository scope"
-      openspec/changes/ --include=spec.md` excluding `archive/` returns THIS
-      CHANGE AND NOTHING ELSE. All **six** pull requests open at the branch cut
+      them this requirement**. The corpus search is pasted in a form that
+      REPRODUCES, the archive exclusion being a PIPE rather than prose —
+      Copilot's finding on this pull request, taken:
+      `grep -rln "Install repository scope" openspec/changes/ --include=spec.md
+      | grep -v '/archive/'` returns THIS CHANGE AND NOTHING ELSE (exit 0, one
+      line), and the PRE-ADDITION result is re-derivable against the branch
+      point with `git grep -l "Install repository scope" 114d6e3d --
+      'openspec/changes/*/specs/*/spec.md' | grep -v '/archive/'` — nothing,
+      exit 1. Unfiltered the search returns three ARCHIVED deltas as well, so
+      the filter belongs in the command. All **six** pull requests open at the branch cut
       — #934, #932, #921, #888, #594, #518 — were read with `gh pr view <n>
       --json files` and **not one touches any `repo-boundary-governance`
       path** (six zeroes). So this change is the **SOLE ACTIVE MODIFIER** of

@@ -486,10 +486,20 @@ a separate act on a separate word, at which openxFactory #931 closes.
   *OpenXPKI install repository boundary* (ADDED by the second, MODIFIED by the
   fourth) and *Neutral avatar-client repository boundary* (MODIFIED by the
   fifth). **NOT ONE OF THEM IS THIS REQUIREMENT.**
-- **The requirement key across every active delta:**
-  `grep -rln "Install repository scope" openspec/changes/ --include=spec.md`
-  excluding `archive/` returns **nothing** before this packet, and only this
-  packet after it.
+- **The requirement key across every active delta, in a form that
+  REPRODUCES** — the archive exclusion is a pipe, not prose:
+  `grep -rln "Install repository scope" openspec/changes/ --include=spec.md |
+  grep -v '/archive/'` returns **exactly this packet's delta and nothing
+  else** on this tree (exit 0, one line). The PRE-ADDITION result is
+  re-derivable against the branch point rather than remembered:
+  `git grep -l "Install repository scope" 114d6e3d --
+  'openspec/changes/*/specs/*/spec.md' | grep -v '/archive/'` returns
+  **nothing, exit 1**. Unfiltered, the search also returns three ARCHIVED
+  deltas — `2026-06-26-restructure-factory-repo-boundaries`,
+  `2026-08-25-admit-install-repos-to-aggregation` and
+  `2026-09-09-refresh-install-repository-enumerations` — the first two being
+  this requirement's promoter and the aggregation admission it records, the
+  third its last writer.
 - **Open pull requests:** the SIX open when this packet's branch was cut —
   #934, #932, #921, #888, #594, #518 — were each read with
   `gh pr view <n> --json files` and **not one touches any
