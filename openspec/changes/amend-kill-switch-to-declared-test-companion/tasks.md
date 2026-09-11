@@ -99,24 +99,35 @@ half of this packet is text. The realization is a **companion change in
 codexFactory**, authored there, exactly as
 `extend-merge-master-envelope-to-floor-bot-lanes` split its own halves.
 
-- [ ] **3.1 The banner correction and the companion declaration.** In
-      codexFactory, beside the `openxfactory-floor-regeneration` candidate:
-      correct the sentence that repeats N-4's false "one edit" claim, and
-      DECLARE that candidate's test companion using design.md D-2c's
-      grammar — the pytest node id of every assertion that fails when the
-      candidate is withdrawn, and the artefact path of every golden/snapshot
-      file whose recorded value moves with it. Realized either as the
-      envelope's own `.github/merge-approval-envelope.yml` BANNER/COMMENT
-      block or as a sibling declared file keyed by candidate id (D-2c; the
-      companion change's own choice). Comment-only or additive: **no schema
-      member is added** to the candidate mapping itself, no `active:`
-      boolean, no repository variable, and the candidate MAPPING itself does
-      not move.
-- [ ] **3.2 The conformance test.** ONE codexFactory test that, per D-2c's
-      grammar, withdraws the candidate in a scratch tree, runs the pinning
-      suite, and asserts the resulting failing node ids and moved artefact
-      paths equal the DECLARED companion exactly, so a stale declaration is a
-      failing check rather than a discovery made when the switch is thrown.
+- [ ] **3.1 The banner correction and the companion declarations — FOR EVERY
+      ENROLLED CANDIDATE CLASS, WITH NOTHING GRANDFATHERED.** The requirement
+      binds every enrolled candidate class and this packet grandfathers none.
+      In codexFactory: correct the banner sentence that repeats N-4's false
+      "one edit" claim, and DECLARE a test companion for **EVERY candidate
+      class enrolled in `.github/merge-approval-envelope.yml` at realization
+      time — today TWO, `codexfactory-routine-code` and
+      `openxfactory-floor-regeneration`** — each MEASURED the same way:
+      withdraw THAT CLASS ALONE in a scratch tree, run the pinning suite, and
+      collect the failing node ids. Each companion is declared using design.md
+      D-2c's grammar, **IN the envelope beside the candidate it belongs to**,
+      as comment lines: `# companion: <pytest node id>` for every assertion
+      that pins that enrolment, and `# companion-artefact: <repo-relative
+      path>` for every golden/snapshot file whose recorded value moves with it.
+      Comment-only: **no schema member is added** to any candidate mapping, no
+      `active:` boolean, no repository variable, and no candidate MAPPING
+      moves.
+- [ ] **3.2 The conformance test — RUN PER CLASS.** ONE codexFactory test
+      that, per D-2c's grammar and for **EACH enrolled candidate class**,
+      withdraws THAT class alone in a scratch tree, runs the pinning suite, and
+      asserts that the set of failing node ids EQUALS that class's declared
+      `# companion:` set exactly — both directions, order-free — and that every
+      declared `# companion-artefact:` path EXISTS in the tree, so a stale
+      declaration is a failing check rather than a discovery made when the
+      switch is thrown. The equality is on ASSERTIONS; the artefacts are
+      declared and existence-checked, and their movement is proved by the
+      failing set itself (a golden or snapshot artefact moves exactly when its
+      recording test is in that set), so no artefact-diff procedure is needed
+      or claimed.
 - [ ] **3.3 Nothing else moves.** No candidate mapping, no ruleset, no bypass
       actor, no schema, no workflow logic, no `scripts/`, no `contracts/`, no
       relaxation of any existing assertion, and no rewrite of the pinning suite
@@ -161,5 +172,11 @@ exists.
       codexFactory companion (3.4), (c) the parent
       `extend-merge-master-envelope-to-floor-bot-lanes` PROMOTED — because this
       packet's `## MODIFIED` targets that change's own unarchived addition — and
-      (d) Brett Heap's word. No contract bundle is cut, no
-      `contract_bundle_version` is spent and no release tag is owed.
+      (d) Brett Heap's word. **THIS PACKET IS NOT ARCHIVABLE WHILE ANY ENROLLED
+      CANDIDATE CLASS LACKS A DECLARED COMPANION AND A PASSING EQUALITY TEST.**
+      The condition is PER CLASS, not per packet: green evidence for
+      `openxfactory-floor-regeneration` alone does not satisfy (b) while
+      `codexfactory-routine-code` is enrolled and undeclared, and a class
+      enrolled later by another change carries the same block. No contract
+      bundle is cut, no `contract_bundle_version` is spent and no release tag
+      is owed.

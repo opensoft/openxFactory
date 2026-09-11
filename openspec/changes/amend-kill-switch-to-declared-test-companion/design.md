@@ -135,8 +135,11 @@ test, and does not make the withdrawal cheaper in edits. It makes the withdrawal
 ### D-2 — The declaration site is the envelope's own banner/comment block beside the candidate: no schema change
 
 The companion is declared **in the envelope's banner/comment block, immediately
-beside the `openxfactory-floor-regeneration` candidate**, naming the exact
-companion files and the assertion(s) each carries.
+beside the candidate it belongs to**, naming the exact companion assertions and
+artefacts that candidate carries — and it is declared for **EVERY enrolled
+candidate class, today `codexfactory-routine-code` and
+`openxfactory-floor-regeneration`**, because the requirement binds every
+enrolment and nothing is grandfathered.
 
 **Why the least-schema site.** N-4 refused an `active:` member because it is a
 schema change and because a disabled entry reads as enrolled. Answering N-4's
@@ -158,24 +161,47 @@ rots the first time someone adds a pinning assertion, and it rots invisibly —
 the failure mode that produced this packet. With it, a stale declaration is a
 failing check on the pull request that made it stale.
 
-**The declaration's grammar, stated (D-2c):** the declaration names, per
-candidate id, two ordered lists: (a) the PYTEST NODE ID
-(`path::Class::test_name`, or `path::test_name` where there is no class) of
-every assertion that fails when that candidate is withdrawn, and (b) the
-ARTEFACT PATH of every golden or snapshot file whose recorded value moves
-with the withdrawal. Granularity is therefore FUNCTION (node-id) grain for
-assertions and FILE grain for artefacts — answering Q-3 below. The realizing
-companion change MAY encode this grammar either as the envelope's own
-comment block with a fixed line prefix (e.g. `# companion: <node-id>` /
-`# companion-artefact: <path>`) or as a sibling file declared and keyed by
-candidate id; both are reviewed, diff-visible declarations under the same
-code-owner review as the candidate itself, so either satisfies D-2's site
-rule, and the choice between the two forms is the codexFactory companion's
-own design decision, bounded by this grammar. With the grammar fixed, the
-D-2b equality check is DETERMINISTIC: withdraw the candidate in a scratch
-tree, run the pinning suite, collect the failing node ids and the moved
-artefact paths, and compare both sets to the declaration exactly — a
-mismatch in either set fails the check.
+**The declaration's SITE and GRAMMAR, fixed (D-2c) — and the sibling-file
+option is DROPPED.** The companion is declared **IN
+`.github/merge-approval-envelope.yml`, beside the candidate it belongs to, as
+COMMENT LINES**. Comments are not schema, so this is consistent with N-4's
+refusal of a schema change and with the requirement's "named beside the
+enrolment in the same reviewed declaration". The earlier "or a sibling declared
+file keyed by candidate id" option is **withdrawn**: it fixed no path, no format
+and no discovery rule, so no conformance test could deterministically find the
+declaration, and it sat against the requirement's own site rule. One site, one
+grammar, one discovery rule.
+
+**The grammar, per candidate.** Immediately after that candidate mapping's `id:`
+line, or as the mapping's TRAILING comment block — the realizing companion
+change picks ONE placement and the checker reads that one — one line per entry:
+
+- `# companion: <pytest node id>` for each assertion that pins the enrolment,
+  the node id being `<path>::<Class>::<test>`, or `<path>::<test>` where there
+  is no class. FUNCTION grain, which answers Q-3.
+- `# companion-artefact: <repo-relative path>` for each golden or snapshot file
+  whose recorded value moves with the withdrawal. FILE grain.
+
+**The checker's DISCOVERY RULE, stated so the check is deterministic.** Parse
+the envelope text; locate the candidate by its `id:` value; collect every
+`# companion:` and `# companion-artefact:` line from there up to the next
+candidate's `id:` line, or to the end of the candidates list. **Nothing else
+counts as a declaration** — not a comment elsewhere in the file, not a separate
+file, not a line held in a test.
+
+**And the equality check is on ASSERTIONS ONLY (D-2b, stated exactly).** Let
+**A** be the set of failing pytest node ids obtained by withdrawing THAT CLASS
+ALONE in a scratch tree and running the pinning suite. The conformance test
+asserts that **A equals that class's declared `# companion:` set**, in both
+directions and order-free. The artefacts are **DECLARED and
+EXISTENCE-CHECKED** — every `# companion-artefact:` path must exist in the
+tree — and their *moved* property is **proved by A itself**: a golden or
+snapshot artefact moves exactly when its recording test is in A. **No
+artefact-diff procedure is needed, and none is claimed.** The earlier
+formulation asked the check to compare "moved artefact paths", which a pytest
+run does not report — it reports failing node ids, not the paths a snapshot
+update would rewrite — so that half of the comparison was undefined and is
+replaced by the declaration-plus-existence rule above.
 
 **Alternatives considered and not recommended:** a separate companion manifest
 file (a second place to forget); a schema member (D-2's whole objection); a
@@ -294,18 +320,27 @@ bot cycle exists.
 
 ## 4. Open questions — declared, not answered
 
+**ANSWERED AT FILING, AND THEREFORE NOT OPEN — the former Q-2, "does the
+companion rule bind the OTHER enrolled class, and the next one?": YES — EVERY
+ENROLLED CLASS; NOTHING IS GRANDFATHERED.** The requirement binds every enrolled
+candidate class, so the realizing codexFactory companion change declares a
+companion for EVERY class enrolled in `.github/merge-approval-envelope.yml` at
+realization time — today TWO, `codexfactory-routine-code` and
+`openxfactory-floor-regeneration` — each MEASURED the same way (withdraw that
+class alone in a scratch tree, run the pinning suite, collect the failing node
+ids), and `openxfactory-review-lane-repin` likewise if
+`admit-review-lane-repin-to-merge-approval-envelope` realizes and enrols it.
+This is a **BLOCKING CLOSURE CONDITION, not a sequencing preference**: tasks 3.1
+and 3.2 carry it per class, and tasks § 5.1 states that this packet is **not
+archivable while ANY enrolled candidate class lacks a declared companion and a
+passing equality test**. It is recorded here rather than below because an open
+question may not hold a condition on which archival depends.
+
 - **Q-1. Should the companion declaration be machine-checkable from
   openxFactory's side too?** D-2b puts the equality check in codexFactory, where
   both the declaration and the assertions live. A second, openxFactory-side check
   would have to read another repository's tree, which this estate does at a pin
   and a digest, not at a live read. Declared, not answered.
-- **Q-2. Does the companion rule bind the OTHER enrolled class, and the next
-  one?** As written the requirement binds every enrolled candidate class, which
-  reaches `codexfactory-routine-code` today and
-  `openxfactory-review-lane-repin` if `admit-review-lane-repin-to-merge-approval-envelope`
-  realizes. Whether the existing class's companion must be declared in the same
-  companion change, or in its own, is a sequencing question for the realization
-  lane rather than for this text.
 - **Q-3. Should the declaration name assertions at test-function granularity or
   at file granularity?** Answered: node-id (function) grain for assertions,
   file grain for artefacts (D-2c).

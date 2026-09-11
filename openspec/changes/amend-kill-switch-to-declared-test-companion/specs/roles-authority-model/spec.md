@@ -8,7 +8,7 @@ The model SHALL ensure that every enrolled candidate class can be returned to th
 
 The declaration SHALL remain the switch. The enrolment SHALL be held in a reviewed, diff-visible declaration read from the base branch, and the model SHALL NOT accept a kill switch held in a value that does not appear in a reviewable diff: not a repository or organization variable, not a secret, not an environment setting, not a platform toggle, and not any store whose change leaves no reviewable record. A withdrawal SHALL therefore be visible in the declaration's history forever, and SHALL be a code-owner-reviewed act by construction.
 
-The companion SHALL be declared, and the declaration SHALL be kept honest by a test. Where a class is enrolled, the assertions that pin that enrolment — every conformance assertion that fails when the class is withdrawn, INCLUDING any golden or snapshot artefact whose recorded value moves with the withdrawal — SHALL be named beside the enrolment in the same reviewed declaration; and a conformance test SHALL assert that the declared companion equals the set of assertions that actually pin the enrolment, so that a stale declaration is a failing check rather than a discovery made at the moment the switch is thrown.
+The companion SHALL be declared, and the declaration SHALL be kept honest by a test. Where a class is enrolled, the assertions that pin that enrolment — every conformance assertion that fails when the class is withdrawn, INCLUDING any golden or snapshot artefact whose recorded value moves with the withdrawal — SHALL be named beside the enrolment in the same reviewed declaration; and a conformance test SHALL assert that the declared companion ASSERTIONS equal the set that actually pin the enrolment, and that every declared artefact exists, so that a stale declaration is a failing check rather than a discovery made at the moment the switch is thrown.
 
 The model SHALL NOT accept an enrolment whose withdrawal, WITH THE DECLARED COMPANION APPLIED AND NOTHING ELSE, is not landable against the repository's required checks. An enrolment that cannot be withdrawn by a landable pull request is not enrolled under a kill switch, however the declaration describes itself.
 
@@ -31,7 +31,7 @@ WHAT THIS REQUIREMENT DOES NOT DO IS LOOSEN THE PINNING, and that is the point o
 #### Scenario: The companion is declared beside the declaration
 - **WHEN** a candidate class is enrolled
 - **THEN** the conformance assertions that pin that enrolment are named beside it in the same reviewed declaration, including any golden or snapshot artefact whose recorded value moves on withdrawal
-- **AND** a conformance test asserts that the declared companion equals the set of assertions that actually pin the enrolment
+- **AND** a conformance test asserts that the declared companion ASSERTIONS equal the set that actually pin the enrolment, and that every declared artefact exists
 - **AND** a declaration that has gone stale is a failing check rather than a discovery made when the switch is thrown
 
 #### Scenario: An undeclared companion is a finding against the enrolment
