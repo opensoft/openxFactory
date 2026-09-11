@@ -1,6 +1,24 @@
 # Design: amend-kill-switch-to-declared-test-companion
 
-Status: draft
+Status: ratified
+Ratified by: amend-kill-switch-to-declared-test-companion —
+2026-09-11 at approximately 11:58Z (selection recorded on #745
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736), Brett Heap, a SELECTION (not a typed sentence) via the
+lane's multi-choice question — the option "Ratify as filed (Recommended)",
+whose description read: "Ratify the text as landed. Realization (the
+codexFactory companion) and archive stay separate later acts on your word,
+per the three-act pattern." Confirmed 2026-09-11 at approximately 12:16Z
+(selection recorded on #745 https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736) to cover round 5's
+tightening — each declared companion artefact carries its own regeneration
+command; the conformance test's equality check now asserts
+regenerated-path-set equality rather than existence — by a second
+selection, "Yes, ratify with the tightening (Recommended)." DIRECTED
+2026-09-11 at approximately 12:34Z by a THIRD act, this one TYPED
+VERBATIM — "land it when green and apply the ratify" — given after
+the lane reported round 6's three deltas and reaffirmed verbatim through
+the afternoon; the lane reads it as covering rounds 6 through 21, which
+changed no mechanism. All three acts are recorded in ONE openxFactory #745
+comment, 5634512736. (record `review/ratification-2026-09-11.md`)
 
 This record exists because the amendment is small in words and consequential in
 kind: it corrects a clause of a RATIFIED decision on a MEASUREMENT, and the

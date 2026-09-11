@@ -95,6 +95,36 @@ origin:
     IN ANY REPOSITORY. The candidate entry is INTACT on codexFactory `main`
     (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines).
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — 2026-09-11 at approximately
+    11:58Z, first-hand, in session. A SELECTION, NOT A TYPED SENTENCE:
+    presented with the lane's multi-choice question, he chose the option
+    "Ratify as filed (Recommended)", whose description read: "Ratify the
+    text as landed. Realization (the codexFactory companion) and archive
+    stay separate later acts on your word, per the three-act pattern."
+    Recorded on openxFactory #745, comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736.
+    CONFIRMED, 2026-09-11 at approximately 12:16Z, first-hand, in session, BY
+    A SECOND SELECTION, NOT A TYPED SENTENCE: presented with a further
+    multi-choice question asking whether the 11:58Z ratification covers the
+    packet WITH round 5's tightening (each declared companion artefact
+    carries its own regeneration command; the conformance test's equality
+    check moves from an existence check to asserting that the set of paths
+    changed by regenerating in the scratch tree equals the declared artefact
+    set), he chose "Yes, ratify with the tightening (Recommended)." Recorded
+    on openxFactory #745, comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736.
+    DIRECTED, 2026-09-11 at approximately 12:34Z, first-hand, in session, BY
+    A THIRD ACT — THIS ONE TYPED VERBATIM: "land it when green and apply
+    the ratify", given after the lane reported round 6's three deltas and
+    reaffirmed verbatim through the afternoon; the lane reads it as covering
+    rounds 6 through 21 (all Copilot findings ruled accept by the lane,
+    none of them a change of mechanism). All THREE acts are recorded in ONE
+    openxFactory #745 comment, 5634512736.
+    NONE OF THE THREE ACTS PERFORMS REALIZATION: no envelope byte, no
+    companion comment, no regeneration command, no conformance test moves
+    by any of the three acts alone; word three directs the landing and the
+    application of the ratification, nothing more. Record:
+    review/ratification-2026-09-11.md.
+  approved_on: 2026-09-11
 related:
   - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes    # ACTIVE, ratified 2026-09-07 (PR #746), UNARCHIVED. THE PARENT: this packet amends its decision N-4 and the requirement "An enrolled autonomous lane carries a one-edit kill switch" that its `specs/roles-authority-model/spec.md` delta ADDS at lines 53-65, so the `## MODIFIED` targets a sibling's addition and this packet SHALL NOT archive before it promotes. Its box 3.6 is the OBSERVATION this packet unblocks, and is NOT ticked here
   - openxFactory:change:admit-review-lane-repin-to-merge-approval-envelope # ACTIVE, ratified with amendment 2026-09-11 (PR #943). The SECOND enrolment successor: it admits a further candidate class to the same envelope, so the companion-declaration rule this packet proposes would bind its enrolment too at realization
