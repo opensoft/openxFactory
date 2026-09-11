@@ -2702,11 +2702,17 @@ def test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT():
     A `Merged into` marker whose tail carries no code span names no superseded
     title, but its DESTINATION stands in the prefix, where that form's
     declaration has always been read — so whether such a paragraph declares
-    nothing, or declares a destination that absorbed nothing named here, is a
-    question nobody has ruled. openxFactory issue #860 scopes itself to the
-    `Removed from canon` form, and inventing a sixth ground here would repeat
-    the fault the predecessor packet exists to correct. Population zero, like
-    the two grounds this packet does take.
+    nothing, or declares a destination that absorbed nothing named here, WAS a
+    question nobody had ruled. It no longer is:
+    `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`
+    TOOK the decision, promoting `openspec/specs/doc-health/spec.md`,
+    "Requirement: Currency of an active change's MODIFIED requirement blocks",
+    scenario "A merge marker's tail names no superseded title",
+    which reads the silence as this requirement's ruling, not a ground left
+    unwritten. openxFactory issue #860 scopes itself to the `Removed from
+    canon` form, and inventing a sixth ground here would repeat the fault the
+    predecessor packet exists to correct. Population zero, like the two
+    grounds this packet does take.
     """
     canon_units = [mbc.Unit(mbc.BODY, "A unit.")]
     m = mbc.parse_marker(

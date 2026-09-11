@@ -533,18 +533,83 @@ Active changes:
 
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: draft`**, on Brett Heap's SELECTION ***"Accept the finding; file a
-  successor"*** (2026-09-11 ~03:40Z, in session, multi-choice; #745 comment
-  5632569506). Successor named by `extend-merge-master-envelope-to-floor-bot-lanes`
-  box 3.6's 2026-09-11 finding (tick PR #957): N-4's ratified "takes one edit" is
-  measured false (29 required-check assertions across five test files, plus a
-  sixth file — the golden `behaviour-snapshot.json` digest — that must move
-  with them); this
-  packet amends N-4 and its requirement by supersession to "one reviewed edit
-  PLUS its declared test companion", so a later throw is landable and box 3.6
-  observable. `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`.
-  **FILING ≠ RATIFYING** — ratification, realization (a codexFactory companion)
-  and archive are three separate acts on Brett Heap's word; none has been given.
+  **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
+  openxFactory repository owner, first-hand, in session — a SELECTION, not a
+  typed sentence, via the lane's multi-choice question: the option
+  ***"Ratify as filed (Recommended)"***, whose description read: ***"Ratify
+  the text as landed. Realization (the codexFactory companion) and archive
+  stay separate later acts on your word, per the three-act pattern."***;
+  recorded on openxFactory #745 comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736) — **CONFIRMED TO
+  COVER ROUND 5'S TIGHTENING** (each declared companion artefact carries its
+  own regeneration command; the conformance test's equality check moves
+  from an existence check to asserting that the set of paths changed by
+  regenerating in the scratch tree equals the declared artefact set) **by a
+  SECOND SELECTION**, ***"Yes, ratify with the tightening (Recommended)"***,
+  2026-09-11 at approximately 12:16Z, in session, recorded on openxFactory
+  #745 comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736 — record
+  [`review/ratification-2026-09-11.md`](openspec/changes/amend-kill-switch-to-declared-test-companion/review/ratification-2026-09-11.md),
+  landed PR [#959](https://github.com/opensoft/openxFactory/pull/959) — final
+  head `c6008f10` (committed 2026-09-11T16:55:31Z; rounds 1–21 encoded),
+  landed on main as squash commit
+  `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged 2026-09-11T17:19:09Z
+  (that squash commit committed 17:19:08Z) — and **DIRECTED by a THIRD
+  act, this one TYPED VERBATIM:**
+  *Word three — 2026-09-11 at approximately 12:34Z, typed verbatim **"land
+  it when green and apply the ratify"**, given after the lane reported round
+  6's three deltas (the allowlisted regeneration identifier is resolved only
+  in reviewed test code; the artefact diff is taken against a committed
+  post-withdrawal baseline; the requirement gains an explicit non-emptiness
+  clause with its own scenario) and reaffirmed verbatim through the
+  afternoon; the lane reads it as covering those deltas and every later fix
+  round. Rounds 7 through 21 (ruled 2026-09-11 ~12:52Z through ~16:52Z;
+  encoded by pushes 12:57Z through 16:55Z, the last being `c6008f10`; all
+  Copilot findings RULED accept by the lane) changed no mechanism: rounds
+  7–11 fixed the
+  ORDER of the conformance procedure (capture the declarations, commit a
+  hermetic post-withdrawal baseline, measure the whole pinning suite with
+  the conformance module excluded by path, regenerate every allowlisted
+  artefact one tool at a time with the index and worktree reset between runs
+  and compare (identifier, path) pairs against the baseline, record),
+  DEFINED applying the companion at the throw (re-target each declared
+  assertion's expectation, regenerate each declared artefact, remove the
+  mapping and its comments, nothing else), DEFINED the restore as a forward
+  change by the same procedure rather than a revert (so the golden digest
+  records both movements), HARDENED the declaration grammar (one lexical
+  refusal set for artefact paths, then containment before any open;
+  allowlisted identifiers; a scratch git repository with inherited GIT_*
+  control variables cleared), and STATED in D-2e that this packet fixes the
+  invariants while the codexFactory companion's design owns the exact
+  commands; rounds 12–21 tightened the same procedure's measurement
+  invariants (the per-identifier inventory is the full working-tree delta
+  including untracked and ignored paths; a reset barrier begins every tool
+  run, the first included; every allowlisted invocation must exit zero
+  within a finite constant timeout taken from the trusted allowlist before
+  its delta is read; a control run on the committed pre-withdrawal tree must
+  produce empty inventories, so every allowlisted tool is a deterministic
+  byte-identical no-op run with interpreter caches suppressed; declared
+  artefacts are tracked paths and are refused otherwise; declared paths
+  reach git only as literal pathspecs after `--`, with a leading `-` and
+  glob characters refused; the hermetic environment always nulls global git
+  config and nulls or disables system config; the assertion run fails
+  outright on any collection, import or internal error, on any exit status
+  other than 0 or 1, or on timeout; the "nothing else" bound of the throw
+  holds at both path and assertion level; the § 4 observation boxes tick on
+  their recording and § 5 gains prerequisite (e)). All three acts are
+  recorded in ONE #745 comment, 5634512736.*
+  Successor
+  named by `extend-merge-master-envelope-to-floor-bot-lanes` box 3.6's
+  2026-09-11 finding (tick PR #957): N-4's ratified "takes one edit" is
+  measured false (29 required-check assertions across five test files, plus
+  a sixth file — the golden `behaviour-snapshot.json` digest — that must
+  move with them); this packet amends N-4 and its requirement by
+  supersession to "one reviewed edit PLUS its declared test companion", so a
+  later throw is landable and box 3.6 observable. `sequenced_after:
+  [extend-merge-master-envelope-to-floor-bot-lanes]`.
+  **RATIFICATION ONLY — realization (a codexFactory companion change) and
+  archive are separate later acts; no word for either has been given (word
+  three directs the landing and the application of the ratification,
+  nothing more).** The parent's box 3.6 stays OPEN: an OBSERVATION box, not
+  an owed-successor box; none of the three acts ticks it.
 
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett

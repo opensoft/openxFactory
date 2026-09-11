@@ -1,6 +1,17 @@
 # Tasks: amend-kill-switch-to-declared-test-companion
 
-Status: draft
+Status: ratified
+Ratified by: amend-kill-switch-to-declared-test-companion — 2026-09-11,
+Brett Heap (openxFactory repository owner), on THREE acts recorded in ONE
+openxFactory #745 comment (5634512736): the SELECTIONS *"Ratify as filed
+(Recommended)"* (~11:58Z) and *"Yes, ratify with the tightening
+(Recommended)"* (~12:16Z), and the TYPED LINE *"land it when green and
+apply the ratify"* (~12:34Z). Record: `review/ratification-2026-09-11.md`.
+The two paragraphs immediately below record the AT-FILING state
+(2026-09-11 ~03:40Z) and are kept verbatim as history: the filing word
+authorized the filing alone, and every box WAS `- [ ]` at that point.
+Boxes 1.1, 1.2 and 1.3 are ticked by the ratifying commit; NO box in § 2,
+§ 3, § 4 or § 5 is ticked, and the parent's box 3.6 stays open.
 
 **THE AUTHORITY FOR THIS PACKET'S EXISTENCE, AND ITS LIMIT.** Brett Heap,
 2026-09-11 at approximately 03:40Z, in session to lane `openxfactory-2`
@@ -25,7 +36,7 @@ does not tick on a successor being named. Every box below is `- [ ]`.
 
 ## 1. Pre-ratification asks — Brett Heap's acts, and no agent may take them
 
-- [ ] **1.1 Ratify or refuse this packet's TEXT.** The ask is over the
+- [x] **1.1 Ratify or refuse this packet's TEXT.** The ask is over the
       `## MODIFIED` requirement delta at
       `specs/roles-authority-model/spec.md` and the account of decision **N-4**
       that `proposal.md` § *THIS FILING AMENDS A RATIFIED DECISION (N-4) BY
@@ -35,7 +46,18 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       checks is non-conformant. Ratification admits the TEXT only. It performs
       no realization in either repository, throws no switch, and does not by
       itself tick the parent's box 3.6.
-- [ ] **1.2 Veto or let stand D-1 … D-6** (`design.md` § 2). Each is one edit
+      **RULED, 2026-09-11 at approximately 11:58Z:** RATIFIED AS FILED —
+      Brett Heap, a SELECTION, the option **"Ratify as filed
+      (Recommended)"** (openxFactory #745, comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736);
+      CONFIRMED at approximately 12:16Z to cover round 5's tightening by a
+      second SELECTION, **"Yes, ratify with the tightening (Recommended)"**
+      (comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736); DIRECTED at
+      approximately 12:34Z by a THIRD act, this one TYPED VERBATIM —
+      **"land it when green and apply the ratify"** — covering round 6's
+      three deltas and rounds 7 through 21, all of which changed no
+      mechanism. All THREE acts are recorded in ONE #745 comment,
+      5634512736. Record: `review/ratification-2026-09-11.md`.
+- [x] **1.2 Veto or let stand D-1 … D-6** (`design.md` § 2). Each is one edit
       away and none is separately ruled by a ratification of 1.1 unless the
       owner says so. The two most worth a veto: **D-1**, the choice of
       alternative (A) over alternative (B) "make the pinning suite
@@ -43,7 +65,15 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       leaving no longer notices it leaving; and **D-3**, that the golden
       behaviour digest IS part of the declared companion, with the throw and the
       restore each recorded as a movement.
-- [ ] **1.3** On Brett Heap's ratifying word (1.1), and in ONE commit: ADD
+      **RULED, 2026-09-11 at approximately 11:58Z:** all D stand as
+      recommended (selection **"Ratify as filed"**) — D-1 through D-6, no
+      veto exercised; confirmed at approximately 12:16Z to cover round 5's
+      D-2/D-3 tightening (selection **"Yes, ratify with the tightening"**);
+      and word three, TYPED VERBATIM at approximately 12:34Z, reaches
+      rounds 6 through 21's ordering, definition, hardening and measurement
+      deltas to that same D-2/D-3 mechanism. No decision is reopened and no
+      veto is exercised by any of the three acts.
+- [x] **1.3** On Brett Heap's ratifying word (1.1), and in ONE commit: ADD
       `approved_by`/`approved_on` beside the drafting pair in `.openspec.yaml`
       (`kind` and `id` unmoved; `document-lifecycle` § Proposal origin
       declaration), flip every `Status: draft` header in this packet to
@@ -51,6 +81,7 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       `review/ratification-<date>.md` carrying `Status: ratified` and ONE
       citation of the word, and move the README row's status. The lane
       encodes; the word is his.
+      **Done in this PR.**
 
 ## 2. The filing — what this pull request contains
 
