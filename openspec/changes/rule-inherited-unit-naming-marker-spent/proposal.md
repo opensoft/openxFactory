@@ -127,8 +127,11 @@ three exact single-occurrence edits, never transcribed (`tasks.md` § 3).
   this draft opens and nobody names reds the required check for EVERY open pull
   request in this repository, and the assertion's own message directs the edit.
   **NO ASSERTION, PREDICATE OR THRESHOLD IN THAT MODULE MOVES**; the row
-  records which subjects the corpus currently reports and retires on
-  ratification or on the parent's archive. `design.md` D4 gives the reading
+  records which subjects the corpus currently reports and RETIRES: on the
+  parent's archive, or on this packet's ratification ONCE THE PARENT IS IN THE
+  ACTIVE CORPUS — the override needs TWO active ratified writers, so
+  ratification alone while the parent is off `main` does not clear it
+  (`design.md` D2b). `design.md` D4 gives the reading
   under which that is not a `code_surface:` and offers it for veto;
   `tasks.md` § 3.13 measures it and § 6.7 records what was NOT done to it.
 

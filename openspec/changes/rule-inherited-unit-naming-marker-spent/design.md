@@ -293,10 +293,21 @@ RATIFIED changes and this family does not widen it — so the run measures this
 block against CANON, where the sentence the PARENT retired is uncarried and
 unsuppressed: **one `info` carriage-ledger finding against this delta's own
 path, naming one unit**, disclosed in the pull request body rather than
-dispositioned. It clears itself on either of two events, both expected: this
-packet being RATIFIED (two active ratified writers, exactly one declaring →
-the basis override applies → 0), or the parent ARCHIVING (canon becomes the
-parent's outcome → 0). **Carrying the marker to silence it today would buy
+dispositioned. **IT CLEARS ON EITHER OF TWO EVENTS, AND THE FIRST OF THEM TAKES
+TWO THINGS AND NOT ONE — WHICH IS WORTH SAYING EXACTLY, BECAUSE THE OBVIOUS
+READING IS WRONG.** (a) BOTH WRITERS ACTIVE AND RATIFIED IN THE CHECKED-OUT
+CORPUS: `_arm_ordering` takes `ratified = [b for b in group if b.standing ==
+_RATIFIED]` and returns NO override where `len(ratified) < 2`
+(`scripts/doc_health/modified_block_currency.py:2147-2149`), so ratifying THIS
+packet while the parent is still off `main` leaves the group with ONE ratified
+writer and the row exactly where it is. The parent must be in the active
+corpus AND this packet ratified — the order between them does not matter, the
+second of the two is what clears it. (b) The parent ARCHIVING, which needs
+nothing of this packet at all: canon becomes the parent's outcome and the
+uncarried sentence is gone from the basis → 0. Since the parent (#947) lands
+before it archives, the practical sequence is: #947 lands → this branch merges
+`main` → ratification clears the row under (a), or #947's archive clears it
+under (b), whichever comes first. **Carrying the marker to silence it today would buy
 one clean row now at the price of a third-ground defect the day the parent
 archives**, which is the trade #955 exists to end.
 
@@ -342,8 +353,9 @@ because `release-realization` scopes `code_surface:` to *"the repositories
 whose runtime artifacts it changes"* and this edit changes no predicate, no
 severity, no threshold and no assertion: it records WHICH SUBJECTS THE CORPUS
 CURRENTLY REPORTS, exactly as the README row and the sweep-ledger row do, and
-it RETIRES on this packet's ratification or on the parent's archive rather than
-standing as behaviour. There is also nothing left to realize once this pull
+it RETIRES — on the parent's archive, or on this packet's ratification once the
+parent is in the active corpus (D2b states the two-writer condition exactly) —
+rather than standing as behaviour. There is also nothing left to realize once this pull
 request lands, which is the test the realization archive gate actually applies.
 **IF BRETT HEAP READS IT THE OTHER WAY, the remedy is one front-matter line —
 `code_surface: openxFactory` naming that test module — and the archive rule

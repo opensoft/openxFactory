@@ -575,8 +575,10 @@ Active changes:
   measured against CANON while the packet is unratified and its parent is not
   yet on `main`, where the sentence the parent retires reads uncarried — is
   NAMED there, as that assertion's own message directs. It records which
-  subjects the corpus reports and retires on ratification or on the parent's
-  archive; `design.md` D4 offers that reading for veto.
+  subjects the corpus reports and retires on the parent's archive, or on this
+  packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS — the override
+  needs TWO active ratified writers, so ratification alone does not clear it;
+  `design.md` D4 offers the not-a-code-surface reading for veto.
   **THE MEASUREMENT, RE-TAKEN ON THE MERGED TREE (`main` @ `ac688c40`)**: of
   the 18 markers
   promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing

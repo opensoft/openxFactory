@@ -192,9 +192,15 @@ UNTICKED**: residue, measured and deliberately not taken.
       packet is `draft` the run measures this block against CANON, where the
       sentence the PARENT retired is uncarried and unsuppressed: **one `info`
       carriage-ledger finding against this delta's own path, naming one unit**.
-      It clears on either of two expected events — this packet being RATIFIED
-      (the override then applies) or the parent ARCHIVING (canon becomes the
-      parent's outcome). The counterfactual is in `design.md` D2b: carrying the
+      **IT CLEARS ON EITHER OF TWO EXPECTED EVENTS, AND THE FIRST TAKES TWO
+      THINGS AND NOT ONE:** (a) BOTH writers active and ratified in the
+      checked-out corpus — `ratified = [b for b in group if b.standing ==
+      _RATIFIED]; if len(ratified) < 2` returns no override
+      (`modified_block_currency.py:2147-2149`), so ratifying THIS packet while
+      the parent is still off `main` leaves the row exactly where it is; the
+      parent must be in the active corpus AND this packet ratified; or (b) the
+      parent ARCHIVING, which needs nothing of this packet — canon becomes the
+      parent's outcome. The counterfactual is in `design.md` D2b: carrying the
       marker instead buys a clean row today and costs a third-ground MARKER
       DEFECT the day the parent archives.
 - [x] 3.8 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
@@ -304,8 +310,10 @@ UNTICKED**: residue, measured and deliberately not taken.
       against CANON — where exactly **1 of 144** body units and scenario
       bullets is uncarried and it is the sentence the PARENT's ratified block
       retires. Against the parent's OUTCOME the same block reads 0/0/0 (§ 3.6).
-      The row's stated retirement condition is § 3.7's: ratification or the
-      parent's archive, whichever comes first. The docstring's count moves
+      The row's stated retirement condition is § 3.7's, and § 3.7 states it
+      EXACTLY: the parent's archive, or this packet's ratification ONCE THE
+      PARENT IS IN THE ACTIVE CORPUS — ratification alone does not clear it,
+      the override needing TWO active ratified writers. The docstring's count moves
       nine → ten and the `_moved()` narrative gains the dated sentence the
       house style requires. **NO OTHER ROW MOVES** and the `==` discipline is
       not loosened — measured in § 4.9: `0 named subject(s) NO LONGER
@@ -366,6 +374,27 @@ UNTICKED**: residue, measured and deliberately not taken.
       README returns exactly one further occurrence, § 3.11's own QUOTATION of
       the old wording inside the record of the fix, which is correct and
       stands. **NO BYTE OF THE BLOCK MOVES**: sha256
+      `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
+      53,818 bytes.
+- [x] 3.17 **COPILOT'S EIGHTH ROUND: THE RETIREMENT CONDITION WAS WRONG IN
+      FIVE PLACES, AND IT IS CORRECTED IN ALL OF THEM.** TAKEN, and this is a
+      finding about the CODE and not about wording. Every record of this packet
+      said the transient row of § 3.7 clears on "this packet being RATIFIED (the
+      override then applies)". **THAT IS FALSE WHILE THE PARENT IS OFF `main`**:
+      `_arm_ordering` takes `ratified = [b for b in group if b.standing ==
+      _RATIFIED]` and returns NO override where `len(ratified) < 2`
+      (`scripts/doc_health/modified_block_currency.py:2147-2149`), so ratifying
+      THIS packet alone leaves the group holding ONE ratified writer and the row
+      exactly where it is. The condition now reads, in every place: **the
+      parent's ARCHIVE, or this packet's ratification ONCE THE PARENT IS IN THE
+      ACTIVE CORPUS** — two active ratified writers, the order between them
+      immaterial, the second of the two being what clears it. Corrected in
+      `design.md` D2b (with the code quoted) and D4, `proposal.md`'s bookkeeping
+      bullet, `tasks.md` § 3.7 and § 3.13, the README row, and BOTH places in
+      `tests/doc-health/test_modified_block_currency_self_gate.py` — the row's
+      own comment and the `_moved()` narrative. The round's fifth finding, the
+      no-name summary in `proposal.md`, was already fixed at head by § 3.16.
+      **NO BYTE OF THE BLOCK MOVES**: sha256
       `70bf549efa2a8c2452995b43e683ea183ae571d03ff92817cf4bb4f3e0b320c5`,
       53,818 bytes.
 
@@ -567,6 +596,10 @@ Heap's word, it FOLLOWS ratification, and openxFactory #955 closes THERE.
       `test_the_report_moves_only_in_this_family_s_lines` — and the population
       is TEN, not zero, so that instruction is not this packet's to execute.
       **And the row is a retirement waiting to happen, not an addition**: it is
-      recorded here as OWED-TO-CLEAR so that whoever ratifies this packet or
-      archives its parent knows to take it out, which is the same bookkeeping
-      every other row in that set carries.
+      recorded here as OWED-TO-CLEAR, with the exact condition § 3.7 and § 3.17
+      state — the parent's archive, or this packet's ratification ONCE THE
+      PARENT IS IN THE ACTIVE CORPUS — so that whoever performs either act
+      knows to take the row out, and knows that ratifying this packet on its
+      own does NOT clear it. That is the same bookkeeping every other row in
+      that set carries, written with the one condition this row does not share
+      with them.

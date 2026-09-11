@@ -844,12 +844,27 @@ _LEDGER_SUBJECTS = {
     # SO THIS IS NOT A LOSSY CARRIAGE AND THE ARM IS NOT WRONG: the arm cannot
     # distinguish a block written over a not-yet-promoted parent from a block
     # that dropped a sentence, and does not claim to; the finding is INFO and
-    # carries no gate. RETIRES ON EITHER OF TWO EXPECTED EVENTS, whichever
-    # comes first — this packet being RATIFIED, when the override applies and
-    # the basis becomes the parent's block; or the PARENT ARCHIVING, when canon
-    # becomes the parent's outcome and the sentence is gone from it. It is
-    # named here rather than dispositioned because the set is compared with
-    # `==`: a row nobody names reds the required check for every other lane.
+    # carries no gate.
+    #
+    # RETIRES ON EITHER OF TWO EXPECTED EVENTS, WHICHEVER COMES FIRST — AND THE
+    # FIRST OF THEM TAKES TWO THINGS AND NOT ONE, WHICH IS STATED EXACTLY
+    # BECAUSE THE OBVIOUS READING IS WRONG. (a) BOTH WRITERS ACTIVE AND
+    # RATIFIED IN THE CHECKED-OUT CORPUS: `_arm_ordering` returns NO basis
+    # override where `len(ratified) < 2` (see the lines quoted above), so
+    # RATIFYING THIS PACKET ALONE, WHILE THE PARENT IS STILL OFF `main`, LEAVES
+    # THIS ROW EXACTLY WHERE IT IS — the group would still hold one ratified
+    # writer. The parent must be in the active corpus AND this packet ratified;
+    # the order between them does not matter, the second of the two clears it.
+    # (b) The PARENT ARCHIVING, which needs nothing of this packet at all:
+    # canon becomes the parent's outcome and the sentence is gone from the
+    # basis. Since the parent (#947) lands before it archives, the practical
+    # sequence is #947 lands -> this branch merges main -> (a) on ratification
+    # or (b) on the parent's archive, whichever comes first.
+    #
+    # It is named here rather than dispositioned because the set is compared
+    # with `==`: a row nobody names reds the required check for every other
+    # lane, and `health/dispositions.yaml` is read under `ctx.agg_root`, which
+    # is None on the `--single-repo` self-gate a pull request runs.
     ("rule-inherited-unit-naming-marker-spent", "doc-health",
      "Currency of an active change's MODIFIED requirement blocks"),
 }
@@ -1254,8 +1269,10 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "is draft and its parent is not on main, so the one sentence the "
         "parent retires reads as uncarried against canon; the first row here "
         "opened by a BASIS the checker cannot yet apply rather than by a "
-        "block that dropped something, and it retires on ratification or on "
-        "the parent's archive, whichever comes first)",
+        "block that dropped something; it retires on the parent's archive, or "
+        "on that packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS "
+        "- ratification alone does not clear it, the override needing TWO "
+        "active ratified writers)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
