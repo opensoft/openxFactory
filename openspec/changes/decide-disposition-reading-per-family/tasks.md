@@ -181,7 +181,9 @@ each open box below states the event that closes it:
       resolution classes, so a key recorded `contested` once stays eligible even
       if the family's later rows are `auto-fixable` — AND the later run
       actually EVALUATED the named family and repository (a fifth bullet states
-      the partial-run case, measured at `report.uncited_resolutions`'
+      the RECORDED-unavailable case, and a sixth refuses to ratify the gaps
+      § 7.6 measures, where a run's scope excludes a family or repository
+      without RECORDING it — measured at `report.uncited_resolutions`'
       `unavailable_families` / `unavailable_repos` guards, `report.py:424-427`,
       fed by `runner.py` 792-830 — `unavailable_families` built at 792 and
       extended at 807/809/811/823/830, `unavailable_repos` at 749 — and passed
@@ -372,3 +374,24 @@ and say so.
       not this capability's authority (`doc-health`, *Semantic finding
       disposition authority*). NO SUCCESSOR IS OWED and none is named; this box
       ticks on the recording of the limit.
+- [x] 7.6 **TWO GAPS BETWEEN THE CONTESTED-RESOLUTION ARM'S SCOPE AND WHAT IT
+      RECORDS ARE MEASURED AND REPORTED, NOT REPAIRED.** The review round of
+      2026-09-11 was right that a `MUST NOT emit` written over "the run did not
+      evaluate it" would have promised behaviour the shipped code does not give,
+      so the scenario was narrowed to what the run RECORDS and a sixth bullet
+      refuses to ratify either gap. Measured at `origin/main` `0805c3bb`:
+      (a) an UNSTAMPED previous report is accepted with `unavailable_repos` left
+      EMPTY (`runner.py:686-702`, the issue #342 backward-compatibility branch,
+      which warns on stderr and proceeds), so a subset-scoped run diffed against
+      a legacy baseline can emit an `uncited resolution` for a repository it
+      never evaluated; (b) `semantic.SEMANTIC_FAMILY_IDS`
+      (`semantic-normative-prose`, `semantic-contradiction`) are NOT members of
+      `runner.FAMILIES` — verified by import — so `set(FAMILIES) - {args.family}`
+      never contains them, and `runner.py:810-811` adds them only when a sweep
+      was requested AND skipped; a `--family X` run whose baseline carried a
+      contested semantic row can therefore emit against it. **NEITHER IS
+      REPAIRED HERE**: both are runtime defects in `scripts/doc_health/`, this
+      packet declares `code_surface: none`, and building either arm before the
+      ruling is the one thing it must not do. **NO SUCCESSOR IS NAMED** — naming
+      one is an act for Brett Heap's word — and this box ticks on the recording
+      of the two measurements and of the scenario's refusal to ratify them.
