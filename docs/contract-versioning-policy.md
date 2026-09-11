@@ -842,10 +842,25 @@ retroactively invalidate an old pin.
   `opensoft/openXdox-code` (`docs/opendox-carve-manifest.yaml`,
   `moved_with_declared_edit`, destination commit `5da58ee2`). That is how the
   Breaking class's third requirement, "an update to the conformance validator",
-  is discharged at the major: not by editing a validator that stays, but by the
-  validator leaving with the shapes it validates. It is named here, in the
-  deprecation entry, so the discharge is checkable at the removal rather than
-  asserted then.
+  is discharged at the major FOR THESE FIVE: not by editing a validator that
+  stays, but by the validator leaving with the shapes it validates. It is named
+  here, in the deprecation entry, so the discharge is checkable at the removal
+  rather than asserted then.
+
+  **AND THE DISCHARGE IS NOT YET COMPLETE, WHICH IS RECORDED HERE RATHER THAN
+  LEFT FOR THE MAJOR TO DISCOVER.** That script is named by the
+  `consumption_rule` of EIGHT manifest rows, not five. The three that are NOT
+  relocating and are NOT leaving are `ideation-possibles-register`,
+  `gate-intent` (both `disposition: not_moved`, `stays_openxfactory_adapter`, in
+  `docs/opendox-carve-manifest.yaml`) and `demotion-execution-receipt` (named in
+  no carve row at all, though its packaged examples move). When the validator
+  departs, those three retained contracts are left naming a delegated owner this
+  repository no longer contains. **That is an obligation on the MAJOR, not on
+  this minor** — this minor removes nothing and every one of the eight keeps its
+  documented validator at `contract-v3.7` — but the major may not treat § Change
+  Classes' conformance-validator clause as discharged until it says what
+  validates those three. Raised by the review of the pull request that cut this
+  minor, recorded here so the question survives to the cut that must answer it.
 
   The leg commits are not guessed: they are the `spec` and `code` gitlinks of
   the assembly-root commits this repository's own pins already name —

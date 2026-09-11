@@ -137,6 +137,26 @@ class ReleaseState(StrEnum):
     here because two bundles cut hours apart by two different lanes is exactly
     the kind of sequence in which a reader assumes one of them must have swept
     this family without saying so.
+    Advanced again at the ``contract-v3.7`` cut, which is a DEPRECATING minor
+    that changes NO contract bytes at all: ``split-opendox-two-layer-product``
+    task 5.6a, the deprecation window § 5.7's BREAKING removal owes under
+    ``docs/contract-versioning-policy.md`` § Change Classes (RULED ASK-10,
+    ``opensoft/openxFactory`` issue #656 comment ``5635524078``). What it
+    carries is a ``relocating:`` marker on five manifest rows and two normative
+    document entries; every schema in the repository keeps the exact bytes and
+    the exact per-file ``sha256`` it had at ``contract-v3.6``. MEASURED rather
+    than assumed, like every advance above it: ``git diff --name-status
+    contract-v3.6 HEAD`` over ``contracts/intent-compliance/``,
+    ``scripts/intent_compliance/``, ``tests/intent-compliance/`` and
+    ``scripts/validate-intent-compliance.py`` reports ZERO paths BEFORE this
+    edit, so no member of this family moved a byte between the two cuts and the
+    membership this file asserts is again UNCHANGED. THIS FILE then moves, for
+    this advance alone — it is itself a release-inventory member, so the cut's
+    inventory is REBUILT after this line is added rather than before, which is
+    the ordering the ``contract-v3.6`` advance above discovered and the reason
+    the tripwire is worth its cost. Worth stating here because a cut that
+    changes no contract bytes is exactly the kind a reader assumes cannot
+    require an entry in a release-boundary enum at all.
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -155,6 +175,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_8 = "contract-v3.4"
     FEATURE_SUCCESSOR_9 = "contract-v3.5"
     FEATURE_SUCCESSOR_10 = "contract-v3.6"
+    FEATURE_SUCCESSOR_11 = "contract-v3.7"
 
 
 def _release_state() -> ReleaseState:
@@ -249,6 +270,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_8
             | ReleaseState.FEATURE_SUCCESSOR_9
             | ReleaseState.FEATURE_SUCCESSOR_10
+            | ReleaseState.FEATURE_SUCCESSOR_11
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -288,6 +310,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_8
             | ReleaseState.FEATURE_SUCCESSOR_9
             | ReleaseState.FEATURE_SUCCESSOR_10
+            | ReleaseState.FEATURE_SUCCESSOR_11
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")

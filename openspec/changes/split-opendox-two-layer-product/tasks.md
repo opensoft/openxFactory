@@ -1144,7 +1144,8 @@ the bookkeeping that ticks this group.
   BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
   requires, before any Breaking removal, "at least one full minor release where
   the old shape produced deprecation warnings", and NO such minor existed for
-  the five manifest-digested schemas § 5.2 sheds (`gate-action-record`,
+  the five manifest-digested schemas `docs/opendox-carve-manifest.yaml` marks
+  `moved_verbatim` to the spec legs (`gate-action-record`,
   `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
   `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`) or the
   conformance validator that leaves with them. RULED **ASK-10 → 1** (Brett Heap,
@@ -1159,6 +1160,30 @@ the bookkeeping that ticks this group.
   bundle whose warning window a major relies on must be PUBLISHED before that
   major cuts, so 5.7 does not open until the tag exists and
   `validate-contract-release.py verify-tag` passes on it.
+
+  **TWO DEFECTS IN 5.2 AND 5.7 THIS BOX EXPOSED AND DOES NOT ITSELF FIX**, both
+  raised by the review of #970 and both owed an answer before the MAJOR cuts:
+
+  (a) **5.2 SAYS FOUR AND THE CARVE MANIFEST MOVES FIVE.** 5.2 reads "the four
+  dashboard contract schemas" and names none of them; the carve manifest marks
+  FIVE manifest-digested schemas `moved_verbatim` — `gate-action-record` is the
+  fifth, and `ideation-workbench.schema.yaml` moves as well while carrying no
+  independent manifest row. 5.2's wording must be reconciled to the carve
+  manifest before the shed, or the shed and the deprecation window cover
+  different sets.
+
+  (b) **THE CONFORMANCE VALIDATOR IS SHARED WITH THREE ROWS THAT STAY.**
+  `scripts/validate-ideation-dashboard-contracts.py`, which 5.2 deletes and
+  which discharges § Change Classes' conformance-validator clause for the five
+  BY LEAVING WITH THEM, is named by the `consumption_rule` of EIGHT manifest
+  rows. `ideation-possibles-register` and `gate-intent` are `not_moved`
+  (`stays_openxfactory_adapter`) and `demotion-execution-receipt` appears in no
+  carve row at all. At contract-v3.7 all eight keep their validator; at the
+  MAJOR those three would name a delegated owner this repository no longer
+  contains. 5.7 may not treat the clause as discharged until it says what
+  validates them. Recorded in `contracts/CHANGELOG.md` § contract-v3.7 and in
+  `docs/contract-versioning-policy.md`'s Deprecations Currently In Force entry
+  so it survives to the cut that must answer it.
 - [ ] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
   `docs/contract-versioning-policy.md` § Change Classes, which also requires a
   CHANGELOG migration note and a preceding full minor of deprecation warnings.

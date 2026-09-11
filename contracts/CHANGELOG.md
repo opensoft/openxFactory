@@ -139,8 +139,24 @@ their bytes are unchanged and keep validating until then.
    every rule the shapes cannot express — relocates to `opensoft/openXdox-code`
    (carve manifest, `moved_with_declared_edit`, destination commit `5da58ee2`).
    § Change Classes' "update to the conformance validator" obligation is
-   discharged by that move: **the move IS the update.** That script in THIS
-   repository is not edited by this release.
+   discharged by that move FOR THESE FIVE: **the move IS the update.** That
+   script in THIS repository is not edited by this release.
+
+   **It is not discharged for everything that script owns, and the gap is
+   recorded now rather than at the major.** The same script is named by the
+   `consumption_rule` of EIGHT manifest rows. Three of them are neither
+   relocating nor leaving: `ideation-possibles-register` and `gate-intent`
+   (`docs/opendox-carve-manifest.yaml`, `disposition: not_moved`,
+   `stays_openxfactory_adapter`) and `demotion-execution-receipt` (named in no
+   carve row at all, though its packaged examples move). At `contract-v3.7` all
+   eight keep their documented validator and nothing is broken. At the MAJOR,
+   when the script departs, those three would be left naming a delegated owner
+   this repository no longer contains — so the major may not treat the
+   conformance-validator clause as discharged until it says what validates
+   them. Raised by the review of this cut's own pull request; recorded here and
+   in the policy entry so it survives to the cut that must answer it, and
+   carried as an open question against `split-opendox-two-layer-product` §§ 5.2
+   and 5.7.
 
 ### How a consumer actually finds out
 
