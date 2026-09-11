@@ -526,8 +526,10 @@ the FIRST test in EVERY branch closed the traversal and, in the same stroke,
 imposed a narrower vocabulary than the estate's own on the branch that
 previously had none. That is the cost of a shape-first guard and it is the
 reason the guard's shape has to come from the estate rather than from the
-author of the guard. Measured 2026-09-11: 47 inventories under
-`contracts/releases/`, all two-component, so nothing in the corpus was refused
+author of the guard. Measured 2026-09-11 by counting the files
+(`ls contracts/releases/*.digests.yaml | wc -l`): **53** inventories, all
+two-component, which is the same 53 D3 counts and the figure this bench line
+first got wrong — so nothing in the corpus was refused
 and the defect was latent rather than standing — but the next three-component
 cut would have met it at the gate, which is the worst possible time.
 
@@ -606,3 +608,39 @@ rewritten before those threads were read. The proposal's inventory now names
 all TEN and marks which four the bench added. Same lesson as D8c (g), now
 paid for twice: **a count or an inventory moves in ALL of its sites in the SAME
 commit.**
+
+### D8e — the bench's fifth round: three threads, all three TAKEN, and one of them a figure this bench invented
+
+**(k) "47 INVENTORIES" WAS A NUMBER NOBODY COUNTED.** D8c's account of the
+release-id fix asserted 47 two-component inventories under
+`contracts/releases/`. There are **53**, which is what D3 and `tasks.md` § 2
+had said all along from an actual count — so the bench's own evidence line
+contradicted the packet's own measurement, in the very paragraph arguing that
+a restatement nobody checks is a defect. Counted now, and the command is on the
+record beside the figure: `ls contracts/releases/*.digests.yaml | wc -l` → 53.
+The conclusion the figure supported is unchanged (all 53 are two-component, so
+the narrow regex refused nothing standing), which is exactly why the error
+survived a read: **a number that does not change the conclusion is the easiest
+kind to get wrong and the least likely to be re-derived.** The rule this packet
+already states for test counts — re-measure, never carry — applies to every
+figure in a record, including the ones written while disposing of a bench.
+
+**(l) THE PROPOSAL'S BEFORE/AFTER TABLE WAS NOT REPRODUCIBLE FROM ITS OWN
+COMMAND.** It read `before (this tree, pre-correction) 38 / 9` and `after 38 /
+14`, under the command `validate-target-release.py .` — but running that
+command HERE gives 39 / 15, because this packet's own `proposal.md` is an
+active change declaring `target_release: implemented` and is judged by its own
+gate like every other. `tasks.md` § 4.1 and the pull-request description had
+both already been re-taken; the proposal had not, so the packet disagreed with
+itself in three places on a figure a reader would check first. The rows are now
+labelled by TREE (`origin/main` `38c076d1` vs THIS tree), the `+1`/`+1` is
+explained as the packet's own proposal, and the table says the two rows are the
+same validator pointed at two trees.
+
+**(m) A MISSING NEWLINE HID A TASK.** `- [x] 3.10` ran on from the end of
+§ 3.9's paragraph, so Markdown rendered the third bench round as prose inside
+the second rather than as its own checklist item — invisible to anyone reading
+the completion ledger as a list, which is how it is meant to be read. Split.
+Small, and worth recording: in a packet whose method is that the task list IS
+the record, a task that does not render as a task is a task that is not in the
+record.

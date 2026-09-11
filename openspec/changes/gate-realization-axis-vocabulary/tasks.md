@@ -221,7 +221,8 @@ and openxFactory #956 closes THERE and not at this landing.
       consuming tree, whose closure is that repository's own record. The
       requirement gains the enforcement sentence and a scenario. (c) **§ 4.9
       AND § 4.11 WERE DONE AND LEFT UNTICKED** — the bookkeeping defect is
-      real and is corrected below, with the output each was ticked on.- [x] 3.10 **THE BENCH'S THIRD ROUND, TWO THREADS, BOTH TAKEN, AND ONE OF THEM
+      real and is corrected below, with the output each was ticked on.
+- [x] 3.10 **THE BENCH'S THIRD ROUND, TWO THREADS, BOTH TAKEN, AND ONE OF THEM
       A REGRESSION § 3.7 INTRODUCED** (`design.md` D8c). (a) **THE RELEASE-ID
       SHAPE WAS NARROWER THAN THE ESTATE'S OWN.**
       `contracts/releases/release-digest-inventory.schema.yaml`
@@ -231,8 +232,10 @@ and openxFactory #956 closes THERE and not at this landing.
       the NO-REGISTRY branch this was latent; § 3.7 made the shape the first
       test in EVERY branch, so from that commit a three-component release with
       an inventory ON DISK would have been REFUSED by the gate. Measured: no
-      three-component inventory exists today (47 two-component inventories
-      under `contracts/releases/`), so the defect was latent and not standing —
+      three-component inventory exists today (**53** two-component inventories
+      under `contracts/releases/`, counted with
+      `ls contracts/releases/*.digests.yaml | wc -l` and agreeing with § 2's
+      own 53), so the defect was latent and not standing —
       the next such cut would have found it at the gate. `RELEASE_ID_RE` is now
       the schema's pattern, restated rather than imported (the module must
       judge a tree with no `contracts/`), and

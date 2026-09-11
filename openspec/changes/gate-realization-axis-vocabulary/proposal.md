@@ -121,10 +121,17 @@ novel title owes none of it and edits no promoted byte.
 
 `python3 scripts/validate-target-release.py .`
 
-| | exit | active | `implemented` | named release | registered | **refused** |
+| tree | exit | active | `implemented` | named release | registered | **refused** |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| before (this tree, pre-correction) | **1** | 38 | 9 | 3 | 21 | **5** |
-| after | **0** | 38 | 14 | 3 | 21 | **0** |
+| `origin/main` `38c076d1`, before the correction | **1** | 38 | 9 | 3 | 21 | **5** |
+| THIS tree, after | **0** | 39 | 15 | 3 | 21 | **0** |
+
+Both rows are the SAME validator pointed at two trees, so the only difference
+between them is the tree, and the `after` row is reproducible by running the
+command above here. The `+1` active and `+1` `implemented` are **this packet's
+own `proposal.md`**, which declares `target_release: implemented` and is judged
+by its own gate like every other active change. `tasks.md` § 4.1 carries the
+same two rows.
 
 The five refused before are exactly the five corrected: `add-composed-view-authoring`,
 `add-cpc-clearing-boundary`, `add-lens-document-selection`,
