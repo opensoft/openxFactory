@@ -198,30 +198,90 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       points, the zero population and the DRAFT standing. **AUTHORED AT THE
       DRAFT STANDING**: the row says `Status: draft` in terms and says that
       ratification, promotion and the archive are three later acts.
-- [ ] 3.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
+- [x] 3.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<this pull request>'`, run AFTER the draft
-      pull request exists because the tool stamps `moved_by` with its number.
-      The diff must be ONE line — this change's own row — and no other row's
-      provenance may move.
+      --seed-ledger --moved-by '#947'`, run AFTER the draft pull request
+      existed because the tool stamps `moved_by` with its number. **DONE**, and
+      the diff IS one line — `tests/sequenced_after/corpus-ledger.yaml`, `1
+      insertion(+)`, `amend-merged-into-empty-tail-standing: {state: active,
+      class: co-modifier, declares: [], depth: 0, prose: false, moved_by:
+      "#947", moved_on: "2026-09-11"}` — with NO other row's provenance moved,
+      which `git diff --stat` reads as exactly `1 file changed, 1 insertion(+)`.
+      `--ledger-diff` went from **8 findings** (the missing row and the seven
+      derived totals it throws off) to `per-change sweep ledger consistent with
+      the corpus (198 rows)`, exit 0. The `moved_on` is the tool's own UTC stamp
+      and the packet's dates are UTC: the run was at 2026-09-11T02:5xZ.
 
 ## 4. Verification — IN THIS PULL REQUEST
 
-- [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
-      amend-merged-into-empty-tail-standing --strict`
-- [ ] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, with the
-      failure set measured against `origin/main`'s and required to be
-      IDENTICAL.
-- [ ] 4.3 `python3 scripts/proposal-support.py . verify
-      amend-merged-into-empty-tail-standing`
-- [ ] 4.4 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`
-- [ ] 4.5 `python3 scripts/validate-scope-globs.py .`
-- [ ] 4.6 `python3 scripts/doc-health.py --single-repo .`, with the finding set
-      measured against `origin/main`'s line for line.
-- [ ] 4.7 `python3 -m pytest tests/doc-health tests/sequenced_after
-      tests/scope_globs tests/proposal-support -q`
-- [ ] 4.8 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE**, after the ledger
-      seed of § 3.8.
+**EVERY FIGURE BELOW IS RE-MEASURED ON THE PINNED CLI, AND THE FIRST AUTHORING'S
+WERE NOT.** `contracts/openspec-cli-pin.yaml` pins `@fission-ai/openspec` at
+**`1.12.0`**, and `scripts/install-pinned-openspec-cli.py` is what `pytest-suite`
+installs through — the first authoring measured `--all --strict` on whatever
+`openspec` stood on PATH, which was the superseded **`1.2.0`**, and the two
+binaries do not agree about this corpus. The correction is recorded rather than
+quietly swapped, because the earlier failure set was not wrong about `1.2.0`: it
+was a reading of the wrong tool. All figures below come from
+`openspec 1.12.0`, installed by the repository's own installer and verified
+against the pin's content address before use.
+
+**BASELINE.** `origin/main` @ `f0eea7ed`, in a worktree whose DIRECTORY BASENAME
+matches this clone's so that `doc-health`'s `Repo-Identity` label matches and the
+comparison is a LITERAL diff rather than a normalized one.
+
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate
+      amend-merged-into-empty-tail-standing --strict` — **exit 0**, `Change
+      'amend-merged-into-empty-tail-standing' is valid`.
+- [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
+      `Totals: 99 passed, 2 failed (101 items)`, against `origin/main` @
+      `f0eea7ed`'s `Totals: 98 passed, 2 failed (100 items)`. **THE FAILURE SET
+      IS BYTE-IDENTICAL**, `diff` of the two sorted `✗` lists returning empty:
+      `change/add-chain-attestation` and `change/add-composed-view-authoring`,
+      neither of them this change, which appears in neither list. The item count
+      moves by exactly ONE and the passed count by exactly ONE, which is this
+      change passing. **THE TWO FAILURES ARE THE ESTATE'S RECORDED STATE AND NOT
+      A FINDING OF THIS PACKET**: README's `prepare-openspec-1-12-readiness`
+      record states that 1.12.0's marker-blind scenario-currency check
+      *"re-reports as an ERROR exactly what canon holds up as correct"* for that
+      pair, that *"while those two changes are active, `1.12.0 --strict` cannot
+      read 0 here"*, and that both findings vanish when the two archive.
+- [x] 4.3 `python3 scripts/proposal-support.py . verify
+      amend-merged-into-empty-tail-standing` — **exit 0**, `proposal support
+      verification ok`.
+- [x] 4.4 `python3 scripts/validate-sequenced-after.py .` — **exit 0**, all
+      three arms passing (`39 active changes, 9 declaring the field`;
+      archive-date agreement; archive-date-vs-commit agreement, 12 dispositions
+      in force) — and `--ledger-diff` — **exit 0**, `per-change sweep ledger
+      consistent with the corpus (198 rows)`, after the § 3.8 seed.
+- [x] 4.5 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      `scope_globs validation passed (all active changes conform)`.
+- [x] 4.6 `python3 scripts/doc-health.py --single-repo .` — **exit 0**, and the
+      report is **BYTE-IDENTICAL** to `origin/main` @ `f0eea7ed`'s: same `md5`
+      `1851fc14e14e89e365c40a4e671f0c59`, 349 lines, 100 finding rows, `diff`
+      returning empty. This packet adds NO row of its own and removes none, and
+      the marker-defect class raises ZERO on both trees — which is § 2.2's
+      measurement, taken rather than asserted.
+- [x] 4.7 `python3 -m pytest tests/doc-health tests/sequenced_after
+      tests/scope_globs tests/proposal-support -q` — **exit 0**, `2178 passed,
+      66 subtests passed`. The four `tests/sequenced_after/test_sweep.py`
+      failures the first authoring saw were the missing ledger row stated four
+      ways, and the § 3.8 seed is what cleared them.
+- [x] 4.8 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE**, after the ledger
+      seed of § 3.8 and after this section itself was written, so that no gate
+      above is a reading of a tree this pull request does not carry.
+- [x] 4.9 **THE BLOCK'S BYTE-FAITHFULNESS IS RE-DERIVED INDEPENDENTLY**, through
+      the family's own callables rather than trusted from § 3.1: `promoted()`,
+      `active_blocks()`, `derive_units`, `carried()` and `suppression()` read
+      **exactly ONE** active MODIFIED block for this change, over
+      *Currency of an active change's MODIFIED requirement blocks* in
+      `doc-health`, and report **165 canon units, 172 block units, 1 marker
+      (`form='removed'`, `names=1`, `quoted=0`), 1 canon unit uncarried — the
+      478-character fifth-ground sentence — 1 unit suppressed, 0 MARKER DEFECTS,
+      0 uncarried-and-unsuppressed, 21 of 21 promoted scenario titles carried
+      with 0 missing, 1 scenario title added, 3 body units added**. The marker's
+      one name occurs **exactly once** in `openspec/specs/doc-health/spec.md`,
+      and `design.md` D1's quoted sentence occurs **exactly once** in the delta
+      and **zero** times in promoted canon, nothing being promoted here.
 
 ## 5. Archive — OWED, NOT GIVEN
 
