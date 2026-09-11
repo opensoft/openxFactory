@@ -2187,6 +2187,51 @@ def test_a_declared_admission_admits_exactly_the_file_it_names(
     assert "other_created.py" in json.loads(done.stdout)["detail"]
 
 
+def test_an_admissions_file_with_the_wrong_schema_version_refuses(
+        carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["schema_version"] = 999
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "schema_version" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_schema_version_true_refuses(
+        carve: Carve) -> None:
+    """`isinstance(True, int)` is `True` in Python, so a bare type check
+    would accept `schema_version: true` as though it were the integer 1
+    (Copilot review, PR #979) — the same trap `validate-carve-manifest.py`
+    already guards its own `schema_version:` against."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["schema_version"] = True
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "schema_version" in json.loads(done.stdout)["detail"]
+
+
+def test_an_admissions_file_with_the_wrong_kind_refuses(carve: Carve) -> None:
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    bad = _admissions_doc()
+    bad["kind"] = "not-the-declared-admissions-kind"
+    carve.write_admissions(bad)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    assert "kind" in json.loads(done.stdout)["detail"]
+
+
 def test_an_admissions_file_naming_an_unknown_destination_refuses(
         carve: Carve) -> None:
     doc = carve.manifest_doc()

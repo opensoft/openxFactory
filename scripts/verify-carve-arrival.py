@@ -314,6 +314,18 @@ MANIFEST_VALIDATOR = "scripts/validate-carve-manifest.py"
 # documents. See `read_admissions()`.
 ADMISSIONS_BASENAME = "opendox-carve-admissions.yaml"
 
+# THE EXACT ENVELOPE VALUES (Copilot review, PR #979) — `validate-carve-
+# manifest.py`'s own SCHEMA_VERSION/KIND idiom for `schema_version`, mirrored
+# here rather than a bare `isinstance(…, int)` / `isinstance(…, str)` TYPE
+# check: a type check alone accepts `schema_version: 999` as readable and
+# `schema_version: true` as version 1 (`isinstance(True, int)` is `True` in
+# Python — a bool satisfies an int type check while never equalling the
+# version this reader knows), and accepts ANY string as `kind:`. This
+# document OWNS its shape (there is no second validator for it), so this is
+# the one place its exact envelope is checked, not merely its Python type.
+ADMISSIONS_SCHEMA_VERSION = 1
+ADMISSIONS_KIND = "opendox-carve-admissions"
+
 MOVED_DISPOSITIONS: tuple[str, ...] = ("moved_verbatim",
                                        "moved_with_declared_edit")
 REPLICA_REASON = "replicated_at_destination"
@@ -751,12 +763,27 @@ def read_admissions(path: Path, doc: dict[str, Any]
             "arrival-unreadable",
             f"the admissions file at {path} is not a mapping (parsed as "
             f"{type(raw).__name__})")
-    for key, kind in (("schema_version", int), ("kind", str),
-                      ("destinations", dict)):
-        if not isinstance(raw.get(key), kind):
-            raise ArrivalRefusal(
-                "arrival-unreadable",
-                f"the admissions file at {path} carries no usable `{key}:`")
+    version = raw.get("schema_version")
+    if (not isinstance(version, int) or isinstance(version, bool)
+            or version != ADMISSIONS_SCHEMA_VERSION):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries `schema_version: "
+            f"{version!r}`; this reader knows the INTEGER "
+            f"{ADMISSIONS_SCHEMA_VERSION} only. `true` and `1.0` are both "
+            "EQUAL to 1 in Python, and a bool or a float must not satisfy "
+            "an integer schema check any more than it would for the "
+            "manifest's own `schema_version:`")
+    if raw.get("kind") != ADMISSIONS_KIND:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries `kind: "
+            f"{raw.get('kind')!r}`, not {ADMISSIONS_KIND!r}")
+    if not isinstance(raw.get("destinations"), dict):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries no usable "
+            "`destinations:`")
     known = set(doc["destinations"])
     result: dict[str, list[dict[str, str]]] = {}
     for dest_id, entry in raw["destinations"].items():
