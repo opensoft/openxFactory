@@ -1,30 +1,6 @@
 ---
-code_surface: none — MEASURED, not assumed, and the measurement is the whole
-  reason. The recommended rows teach NO family to read `health/dispositions.yaml`,
-  so no module, test, workflow, contract, schema or example changes: the delta is
-  one `## MODIFIED` requirement whose added scenario states the boundary the
-  shipped code already keeps. The evidence for "already keeps" is a CONTROL RUN
-  rather than a reading — with the aggregation's real dispositions file replaced
-  by `[]`, an aggregation-shaped run reports the identical plan rows for all five
-  deterministic families that hold entries (`location-conformance` 7/7,
-  `proposal-origin` 130/130, `record-immutability` 16/16,
-  `modified-block-currency` 48/48, `document-catalog` 1/1; `diff` of the row sets
-  empty in each), so the thirty-one entries move nothing a reader sees and the
-  scenario forbids nothing the code does. This packet's whole diff is governance
-  text: its own five files, one `openspec/specs/doc-health/` delta, one README
-  "OpenSpec Records" row and one `tests/sequenced_after/corpus-ledger.yaml` row
-  seeded by `validate-sequenced-after.py . --seed-ledger` rather than by hand.
-  **IF BRETT HEAP VETOES A CLASS TOWARD "read and downgrade" OR "read and
-  suppress", THIS FIELD CHANGES AT THAT RULING** to name `scripts/doc_health/`
-  and `tests/doc-health/`, and `tasks.md` § 4 holds the scoped, unbuilt arm that
-  the veto would commission. Nothing in § 4 is built here. Under
-  `release-realization` an empty code surface archives ON LANDING plus its own
-  task list rather than on merged-plus-green realization evidence.
-target_release: none — no code surface, no contract bundle, no digest set, no
-  `contracts/CHANGELOG.md` line and no release tag. Nothing under `contracts/` is
-  touched and no consumer's pin has to advance to receive this. The realization of
-  a decision recorded in canon IS its promotion at archive, which is a separate
-  act on a separate word.
+code_surface: none — MEASURED, not assumed, and the measurement is the whole reason. The recommended rows teach NO family to read `health/dispositions.yaml`, so no module, test, workflow, contract, schema or example changes: the delta is one `## MODIFIED` requirement whose added scenario states the boundary the shipped code already keeps. The evidence for "already keeps" is a CONTROL RUN rather than a reading — with the aggregation's real dispositions file replaced by `[]`, an aggregation-shaped run reports the identical plan rows for all five deterministic families that hold entries (`location-conformance` 7/7, `proposal-origin` 130/130, `record-immutability` 16/16, `modified-block-currency` 48/48, `document-catalog` 1/1; `diff` of the row sets empty in each), so the thirty-one entries move nothing a reader sees and the scenario forbids nothing the code does. This packet's whole diff is governance text: its own five files, one `openspec/specs/doc-health/` delta, one README "OpenSpec Records" row and one `tests/sequenced_after/corpus-ledger.yaml` row seeded by `validate-sequenced-after.py . --seed-ledger` rather than by hand. **IF BRETT HEAP VETOES A CLASS TOWARD "read and downgrade" OR "read and suppress", THIS FIELD CHANGES AT THAT RULING** to name `scripts/doc_health/` and `tests/doc-health/`, and `tasks.md` § 4 holds the scoped, unbuilt arm that the veto would commission. Nothing in § 4 is built here. Under `release-realization` an empty code surface archives ON LANDING plus its own task list rather than on merged-plus-green realization evidence.
+target_release: none — no code surface, no contract bundle, no digest set, no `contracts/CHANGELOG.md` line and no release tag. Nothing under `contracts/` is touched and no consumer's pin has to advance to receive this. The realization of a decision recorded in canon IS its promotion at archive, which is a separate act on a separate word.
 sequenced_after: []
 ---
 
