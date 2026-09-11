@@ -142,6 +142,17 @@ codexFactory**, authored there, exactly as
       before the artefact may be named. In the ENVELOPE the edit stays
       comment-only: **no schema member is added** to any candidate mapping, no
       `active:` boolean, no repository variable, and no candidate MAPPING moves.
+      **AND THIS REALIZATION MOVES NOTHING IN THE PINNING SUITE.** It adds the
+      declarations and the trusted conformance module and nothing else: no
+      pinning assertion is re-targeted, deleted, skipped, weakened or rewritten,
+      and no golden artefact moves — **3.3 below stands, unqualified**. The
+      conformance test of 3.2 is a MEASUREMENT taken in a throwaway scratch tree
+      and it EDITS NOTHING in the repository; what it proves is that each
+      class's declaration is COMPLETE AND EXACT (declared equals measured, and
+      the measured set is not empty). Its value is that the THROW's author knows,
+      BEFORE opening that pull request, exactly which assertions and which
+      artefacts the withdrawal will move. APPLYING the companion is a LATER and
+      SEPARATE act, in a later pull request, defined once at **3.6** below.
 - [ ] **3.2 The conformance test — ONE PROCEDURE, FIVE NUMBERED STEPS, IN THIS
       ORDER, RUN PER ENROLLED CLASS.** ONE codexFactory test that, per D-2c's
       grammar and for **EACH enrolled candidate class**, performs exactly the
@@ -212,9 +223,55 @@ codexFactory**, authored there, exactly as
 - [ ] **3.3 Nothing else moves.** No candidate mapping, no ruleset, no bypass
       actor, no schema, no workflow logic, no `scripts/`, no `contracts/`, no
       relaxation of any existing assertion, and no rewrite of the pinning suite
-      to read the enrolment from the envelope.
+      to read the enrolment from the envelope. **This binds the REALIZATION
+      (3.1 and 3.2), which is the only act this section authorizes; it is not a
+      description of the throw.** The throw is a later, separate pull request,
+      and what applying the companion means there is defined once at **3.6** —
+      re-targeting a declared assertion's expectation to the post-withdrawal
+      tree is not a relaxation of it, and this task's bar on relaxation holds
+      over the throw exactly as it holds here.
 - [ ] **3.4 The suite is green.** codexFactory's required `validate` check
       passes, `tests/merge-master/` included, on the companion's pull request.
+- [ ] **3.6 THE THROW, DEFINED — what "THE DECLARED COMPANION APPLIED" IS AS AN
+      ACT.** Numbered for the parent's box 3.6, whose throw it defines; this
+      section carries no 3.5. **This is the packet's SINGLE definition of
+      applying the companion**; 3.1 and 3.3 above, 4.1 below and the `##
+      MODIFIED` requirement POINT AT IT rather than restate it. The throw is not
+      performed by the realization: it is a LATER codexFactory pull request,
+      taken on a real bot cycle, carrying exactly three kinds of change and
+      nothing else.
+      **(i) THE WITHDRAWAL.** That class's candidate mapping AND its companion
+      comment lines are removed from `.github/merge-approval-envelope.yml`.
+      **(ii) THE DECLARED ASSERTIONS, RE-TARGETED — NEVER RELAXED.** For EACH
+      declared `# companion:` node id, the MINIMAL REVIEWED EDIT to THAT
+      ASSERTION'S EXPECTATION so that it holds in the POST-WITHDRAWAL tree: an
+      enrolled-id list loses the withdrawn id; a helper asserting
+      `len(matches) == 1` asserts the post-withdrawal count. The assertion is
+      RE-TARGETED — never deleted, never skipped, never weakened — and it keeps
+      NOTICING THE REMAINING ENROLMENTS exactly as it noticed this one.
+      **(iii) THE DECLARED ARTEFACTS, REGENERATED.** For EACH declared
+      `# companion-artefact:`, the file AS PRODUCED BY ITS OWN ALLOWLISTED
+      REGENERATION (3.1's identifier table), with the golden digest's movement
+      recorded in its movement log AS THE THROW (`design.md` D-3).
+      **"AND NOTHING ELSE" IS A MEASURABLE BOUND, not an assurance:** the paths
+      `git diff --name-only` reports for the throw pull request lie WITHIN the
+      union of the envelope, the files holding the declared `# companion:` node
+      ids, and the declared `# companion-artefact:` paths — and NO ASSERTION
+      OUTSIDE THE DECLARED SET CHANGES.
+      **LANDABILITY IS THEN A CONSEQUENCE, not a further hope:** every assertion
+      that would fail is one this pull request re-targets, and every artefact
+      that would move is one it regenerates, so codexFactory's required
+      `validate` check passes ON THE THROW'S OWN TREE.
+      **THE RESTORE IS THE REVERT OF THAT PULL REQUEST** (4.3): the mapping, the
+      comment lines, the assertions' expectations and the artefacts return
+      TOGETHER, in one act.
+      **The figures this makes declared rather than hidden.** At today's head the
+      companion for `openxfactory-floor-regeneration` measures 29 assertions
+      across FIVE test files plus the golden digest — the RESULT posted on
+      openxFactory #745 at 2026-09-11T03:08Z — so the throw carries a SIX-FILE
+      companion beside the envelope edit, which is exactly what N-4's "one edit"
+      hid and what this packet makes declared, bounded and reviewable rather
+      than pretending away.
 
 ## 4. The observation this unblocks — parent box 3.6
 
@@ -225,9 +282,11 @@ successor.
 
 - [ ] **4.1 The throw is ONE pull request.** In codexFactory: the
       `openxfactory-floor-regeneration` candidate entry's removal **together
-      with exactly the declared companion**, and nothing else — landable against
-      the repository's required checks, and taken on a real bot cycle rather
-      than on a manufactured one.
+      with exactly the declared companion, APPLIED AS 3.6 DEFINES IT**, and
+      nothing else — 3.6 is the single definition of that act and states the
+      measurable bound that "nothing else" carries — landable against the
+      repository's required checks, and taken on a real bot cycle rather than on
+      a manufactured one.
 - [ ] **4.2 Observe the withdrawal.** The next real `floor/bot-regeneration` pull
       request reaches **no envelope decision** — `is_candidate: false`, exit 11
       (`_EXIT_NOT_CANDIDATE`), `decision=skip`, **no sticky comment** (the

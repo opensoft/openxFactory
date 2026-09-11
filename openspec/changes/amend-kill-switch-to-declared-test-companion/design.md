@@ -319,6 +319,45 @@ file (a second place to forget); a schema member (D-2's whole objection); a
 declaration held only in the test suite (invisible at the declaration, and the
 reader most in need of it is reading the envelope).
 
+**D-2d — APPLYING THE COMPANION AT THE THROW, which is a different act from
+declaring it and happens at a different time.** D-2b's conformance procedure is
+a MEASUREMENT: it runs in a throwaway scratch tree, proves each class's
+declaration is complete and exact, and EDITS NOTHING. The realization therefore
+moves no assertion and no artefact (`tasks.md` § 3.1, § 3.3). What the
+declaration buys is that the throw's author knows, before opening the pull
+request, exactly which assertions and artefacts the withdrawal will move — and
+APPLYING the companion is the separate, later act this section defines. It is
+defined once, in `tasks.md` § 3.6; the same content is recorded here because a
+reader of the design should not have to reconstruct it:
+
+- **the throw is ONE codexFactory pull request** carrying exactly three kinds of
+  change and nothing else — (i) that class's candidate mapping and its companion
+  comment lines removed from the envelope; (ii) for EACH declared `# companion:`
+  node id, the MINIMAL REVIEWED EDIT to that assertion's EXPECTATION so that it
+  holds in the post-withdrawal tree (an enrolled-id list loses the withdrawn id;
+  a helper asserting `len(matches) == 1` asserts the post-withdrawal count) — the
+  assertion RE-TARGETED, never deleted, skipped or weakened, and still noticing
+  the enrolments that remain; (iii) for EACH declared `# companion-artefact:`,
+  the file as produced by its own allowlisted regeneration, the golden digest's
+  movement recorded in its movement log as the throw (D-3);
+- **"and nothing else" is measurable, not an assurance**: the paths `git diff
+  --name-only` reports for that pull request lie within the union of the
+  envelope, the files holding the declared node ids and the declared artefact
+  paths, and no assertion outside the declared set changes;
+- **landability follows rather than being hoped for**: every assertion that
+  would fail is one the pull request re-targets and every artefact that would
+  move is one it regenerates, so the required `validate` check passes on the
+  throw's own tree;
+- **the restore is the REVERT of that pull request**, so the mapping, the comment
+  lines, the assertions' expectations and the artefacts return together.
+
+**And the figures stay in view.** At today's head the companion for
+`openxfactory-floor-regeneration` measures 29 assertions across five test files
+plus the golden digest (§ 1's table; the RESULT of 2026-09-11T03:08Z), so the
+throw carries a six-file companion beside the envelope edit. That is what N-4's
+"one edit" hid. This packet does not shrink the act — it makes it declared,
+bounded and reviewable instead of discovered at the moment the switch is thrown.
+
 ### D-3 — The golden behaviour digest IS part of the declared companion
 
 `specs/018-per-tree-floor-instance/behaviour-snapshot.json` is named in the
