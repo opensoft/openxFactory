@@ -547,10 +547,12 @@ Active changes:
   2026-09-11 at approximately 12:16Z, in session, recorded on openxFactory
   #745 comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736 — record
   [`review/ratification-2026-09-11.md`](openspec/changes/amend-kill-switch-to-declared-test-companion/review/ratification-2026-09-11.md),
-  landed PR [#959](https://github.com/opensoft/openxFactory/pull/959) at
-  `07a8a45b62f063fe08625ad9c1fbb38762e6f85b` (2026-09-11T17:19:14Z, the final head,
-  rounds 1–21 encoded) — and **DIRECTED by a THIRD act, this one TYPED
-  VERBATIM:**
+  landed PR [#959](https://github.com/opensoft/openxFactory/pull/959) — final
+  head `c6008f10` (committed 2026-09-11T16:55:31Z; rounds 1–21 encoded),
+  landed on main as squash commit
+  `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged 2026-09-11T17:19:09Z
+  (that squash commit committed 17:19:08Z) — and **DIRECTED by a THIRD
+  act, this one TYPED VERBATIM:**
   *Word three — 2026-09-11 at approximately 12:34Z, typed verbatim **"land
   it when green and apply the ratify"**, given after the lane reported round
   6's three deltas (the allowlisted regeneration identifier is resolved only
@@ -558,8 +560,10 @@ Active changes:
   post-withdrawal baseline; the requirement gains an explicit non-emptiness
   clause with its own scenario) and reaffirmed verbatim through the
   afternoon; the lane reads it as covering those deltas and every later fix
-  round. Rounds 7 through 21 (2026-09-11 12:58Z–16:52Z, all Copilot findings
-  RULED accept by the lane) changed no mechanism: rounds 7–11 fixed the
+  round. Rounds 7 through 21 (ruled 2026-09-11 ~12:52Z through ~16:52Z;
+  encoded by pushes 12:57Z through 16:55Z, the last being `c6008f10`; all
+  Copilot findings RULED accept by the lane) changed no mechanism: rounds
+  7–11 fixed the
   ORDER of the conformance procedure (capture the declarations, commit a
   hermetic post-withdrawal baseline, measure the whole pinning suite with
   the conformance module excluded by path, regenerate every allowlisted

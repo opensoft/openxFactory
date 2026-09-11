@@ -2,7 +2,7 @@
 
 Status: ratified
 Ratified by: amend-kill-switch-to-declared-test-companion —
-2026-09-11 at approximately 11:58Z (approx.; selection recorded on #745
+2026-09-11 at approximately 11:58Z (selection recorded on #745
 https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736), Brett Heap, a SELECTION (not a typed sentence) via the
 lane's multi-choice question — the option "Ratify as filed (Recommended)",
 whose description read: "Ratify the text as landed. Realization (the

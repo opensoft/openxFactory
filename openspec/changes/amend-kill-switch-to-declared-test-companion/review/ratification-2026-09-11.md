@@ -4,7 +4,7 @@ Status: ratified
 Kind: report
 Decision date: 2026-09-11
 Ratifier: Brett Heap (openxFactory repository owner)
-Ratified: 2026-09-11 at approximately 11:58Z (approx.) by Brett Heap
+Ratified: 2026-09-11 at approximately 11:58Z by Brett Heap
 (openxFactory repository owner) — a SELECTION, not a typed sentence, made
 via the lane's multi-choice question: the option *"Ratify as filed
 (Recommended)"*, whose description read: *"Ratify the text as landed.
@@ -12,7 +12,7 @@ Realization (the codexFactory companion) and archive stay separate later
 acts on your word, per the three-act pattern."*, first-hand, in session,
 lane `openxfactory-2` (display `openXfactory-2`), recorded on openxFactory
 #745 (comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736).
-Confirmed: 2026-09-11 at approximately 12:16Z (approx.) by Brett Heap — a
+Confirmed: 2026-09-11 at approximately 12:16Z by Brett Heap — a
 SECOND SELECTION, not a typed sentence, made via the lane's multi-choice
 question: the option *"Yes, ratify with the tightening (Recommended)"*,
 confirming that the 11:58Z ratification covers the packet WITH round 5's
@@ -82,8 +82,10 @@ reaches the packet's head as of round 5.
 > post-withdrawal baseline; the requirement gains an explicit non-emptiness
 > clause with its own scenario) and reaffirmed verbatim through the
 > afternoon; the lane reads it as covering those deltas and every later fix
-> round. Rounds 7 through 21 (2026-09-11 12:58Z–16:52Z, all Copilot findings
-> RULED accept by the lane) changed no mechanism: rounds 7–11 fixed the
+> round. Rounds 7 through 21 (ruled 2026-09-11 ~12:52Z through ~16:52Z;
+> encoded by pushes 12:57Z through 16:55Z, the last being `c6008f10`; all
+> Copilot findings RULED accept by the lane) changed no mechanism: rounds
+> 7–11 fixed the
 > ORDER of the conformance procedure (capture the declarations, commit a
 > hermetic post-withdrawal baseline, measure the whole pinning suite with
 > the conformance module excluded by path, regenerate every allowlisted
@@ -116,8 +118,10 @@ reaches the packet's head as of round 5.
 > their recording and § 5 gains prerequisite (e)). All three acts are
 > recorded in ONE #745 comment, 5634512736.*
 
-**THE HEAD THIS RATIFIES.** The squash commit `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`
-(2026-09-11T17:19:14Z), PR #959 — the final head, rounds 1–21 encoded — this
+**THE HEAD THIS RATIFIES.** PR #959's final head `c6008f10` (committed
+2026-09-11T16:55:31Z; rounds 1–21 encoded), landed on main as squash commit
+`07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged 2026-09-11T17:19:09Z (that
+squash commit committed 17:19:08Z) — this
 packet's text with rounds 1–21 encoded in full (the initial filing plus fix
 rounds answering Copilot and the independent verifier's review threads:
 round 4's four rulings R1–R4 — every enrolled candidate class gets its own
@@ -194,7 +198,7 @@ supersession, on the `## MODIFIED` delta at
 - **NO ARCHIVE.** `target_release` names a code surface, so under
   `release-realization` this packet archives only on merged-plus-green
   realization evidence — not on this ratifying commit. Every box in
-  `tasks.md` § 3, § 4 and § 5 stays unticked; this ratification ticks
+  `tasks.md` § 2, § 3, § 4 and § 5 stays unticked; this ratification ticks
   nothing there.
 - **NO THROW OF THE KILL SWITCH, ANYWHERE, BY ANYONE.** The candidate entry
   stays intact on codexFactory `main`. Nothing in either repository's
@@ -204,10 +208,13 @@ supersession, on the `## MODIFIED` delta at
   OBSERVATION box, not an owed-successor box: it does not tick on this
   ratification, and no box anywhere in the parent packet is touched by any
   of the three acts.
-- **NO MERGE.** This record ratifies text at one head. Landing PR #959 (or
-  its successor pull request carrying this ratifying commit) is a SEPARATE
-  act under this repository's Rule 6 landing-window protocol, because this
-  change touches `openspec/changes/`.
+- **NO MERGE BY THIS RECORD.** This record ratifies text at one head. PR
+  #959 landed 2026-09-11T17:19:09Z as a separate act under this
+  repository's Rule 6 landing-window protocol (FILED record: openxFactory
+  #745 comment 5638082322); landing the pull request that carries this
+  ratifying commit is likewise a separate Rule 6 act, on the same recorded
+  word, and is not performed by this record — the Rule 6 window binds
+  because this change touches `openspec/changes/`.
 - **NOTHING IN `extend-merge-master-envelope-to-floor-bot-lanes` OR
   `admit-review-lane-repin-to-merge-approval-envelope` MOVES.** Neither
   sibling packet is edited, and no box of either is ticked, by any of the
@@ -238,23 +245,28 @@ supersession, on the `## MODIFIED` delta at
    whether word one's ratification reaches round 5's tightening, and
    selects **"Yes, ratify with the tightening (Recommended)"** —
    2026-09-11 at approximately 12:16Z, in session (word two).
-7. Round 6 lands three further deltas on the same packet: the allowlisted
-   regeneration identifier is resolved only in reviewed test code, the
-   artefact diff is taken against a committed post-withdrawal baseline,
-   and the requirement gains an explicit non-emptiness clause with its
-   own scenario. The lane reports all three to Brett Heap.
-8. Brett Heap, 2026-09-11 at approximately 12:34Z, TYPES VERBATIM **"land
-   it when green and apply the ratify"** (word three) and reaffirms it
-   verbatim through the afternoon; the lane reads it as covering round
-   6's deltas and every later fix round.
-9. Rounds 7 through 21 land (2026-09-11 12:58Z–16:52Z, all Copilot
+7. Round 6's six Copilot threads are RULED accept by the lane and
+   REPORTED to Brett Heap (~12:30Z): the regeneration command becomes an
+   allowlisted identifier resolved only in reviewed test code; the artefact
+   diff is taken against a committed post-withdrawal baseline; the
+   requirement gains an explicit non-emptiness clause with its own
+   scenario.
+8. Brett Heap, ~12:34Z, TYPES VERBATIM **"land it when green and apply the
+   ratify"** (word three) — given after that report, read as covering those
+   deltas, and reaffirmed verbatim through the afternoon; the lane reads it
+   as reaching every later fix round too.
+9. Round 6 is encoded by commit `62d9c99a`, pushed 12:35:51Z; rounds 7
+   through 21 then land (ruled 2026-09-11 ~12:52Z through ~16:52Z; encoded
+   by pushes 12:57Z through 16:55Z, the last being `c6008f10`; all Copilot
    findings RULED accept by the lane): the ORDER of the conformance
    procedure, the DEFINITION of applying the companion at the throw and
    of the restore as a forward change, the HARDENING of the declaration
    grammar, and the measurement invariants of that same procedure. No
    mechanism changes.
-10. PR #959 lands as squash `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`
-    (2026-09-11T17:19:14Z) — the final head, rounds 1–21 encoded.
+10. PR #959's final head `c6008f10` (committed 2026-09-11T16:55:31Z; rounds
+    1–21 encoded) lands on main as squash commit
+    `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged 2026-09-11T17:19:09Z
+    (that squash commit committed 17:19:08Z).
 11. This record, and the edits to `proposal.md`, `design.md`, `tasks.md`,
     `.openspec.yaml` and `README.md` it describes, are authored against
     that head, which the three acts together ratify.
@@ -271,9 +283,15 @@ supersession, on the `## MODIFIED` delta at
   [#232](https://github.com/codeXfactory/codexFactory/issues/232) — the
   companion posting of the filing word.
 - The packet this ratifies: openxFactory pull request
-  [#959](https://github.com/opensoft/openxFactory/pull/959), FINAL squash
-  `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, 2026-09-11T17:19:14Z (the final head,
-  rounds 1–21 encoded).
+  [#959](https://github.com/opensoft/openxFactory/pull/959) — FINAL HEAD
+  `c6008f10` (committed 2026-09-11T16:55:31Z; rounds 1–21 encoded), landed on
+  main as squash commit `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged
+  2026-09-11T17:19:09Z (that squash commit committed 17:19:08Z). The figure
+  2026-09-11T17:19:14Z carried by the FILED landing records (openxFactory #745
+  comment 5638082322 and codexFactory #232 comment 5638082613) is the LANDER'S
+  OBSERVATION time — the moment the landing script read the merge back — and
+  not the merge time; those posted records stand as filed, and this record
+  states the merge time.
 - Parent packets: `extend-merge-master-envelope-to-floor-bot-lanes` (box
   3.6, the OBSERVATION this packet's realization will unblock, untouched by
   this ratification) and
