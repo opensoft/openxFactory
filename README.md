@@ -558,8 +558,11 @@ Active changes:
   requirement and a branch-only parent is never declared). **THE CODE SURFACE
   RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one second
   last pass (`_stale_grandfather_dispositions`) and
-  `tests/doc-health/test_grandfather_dispositions.py` goes **22 → 34** test
-  functions — so under `release-realization` the archive waits for
+  `tests/doc-health/test_grandfather_dispositions.py` goes **23 → 39** test
+  functions (`grep -c '^def test_'`, the before-figure read at `origin/main`
+  `0805c3bb`; it read 22 → 34 at the first authoring, before `main` added one
+  to that file and before the PR #981 bench round added four) — so under
+  `release-realization` the archive waits for
   merged-plus-green realization evidence rather than landing with the packet.
   **FILING ≠ RATIFYING** — ratification and archive are two separate acts on
   Brett Heap's word; neither has been given, and #965 closes at the ARCHIVE.
