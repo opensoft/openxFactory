@@ -299,7 +299,7 @@ filed successor, which is the form the estate ruled on 2026-09-06 and the form
 the parent's own § 7 archived in; two record a residue that owes no successor
 and say so.
 
-- [x] 7.1 **NO TEST PINS THE BOUNDARY** the added scenario states. NO SUCCESSOR
+- [x] 7.1 **NO TEST PINS THE BOUNDARY** the two added scenarios state. NO SUCCESSOR
       IS OWED and none is named — this box ticks on the recording of the
       trade-off, not on a hand-off. `design.md`
       D3 takes that deliberately — the control run in D0.3 proves the property on
