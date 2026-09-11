@@ -530,6 +530,40 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [report-stale-grandfather-dispositions](openspec/changes/report-stale-grandfather-dispositions/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: draft`**, on Brett Heap's commissioning word of 2026-09-11 ~18:20Z
+  (verbatim *"usage reset, resume all. read handoff and resume and fan out wide
+  and do as much as possible in parallel"*), which COMMISSIONS THE AUTHORING and
+  ratifies nothing. Carries § 7.1 of the archived
+  `honour-grandfather-dispositions-in-ratified-provenance` and openxFactory
+  [#965](https://github.com/opensoft/openxFactory/issues/965): the landed
+  grandfather pass downgrades what it MATCHES and **nothing reports what it
+  matched NOTHING**. Re-measured at authoring against the real aggregation file
+  (`opensoft/xFactory` `main` `0ecb370e`, 49 entries, **18** of them
+  `family: ratified-provenance`): **15 match a live finding and 3 match
+  nothing** — all three codexFactory's, all three stale BY REPAIR (the record
+  now carries `Status: ratified` with a `Ratified:` line naming an approver and
+  a date), ZERO by a vanished path; the same 15/3 split at the aggregation's own
+  pins, at `openxFactory` `8015d45f` / `codexFactory` `dc67ad82`, and again at
+  `c521504c` / `c3108adc`. **D1 IS PUT AS A MULTIPLE-CHOICE QUESTION** with the
+  recommendation FIRST — a stale entry is a PRUNE PROMPT at `warning` against
+  the aggregation's own `health/dispositions.yaml` (1, RECOMMENDED), the
+  EXPECTED RESIDUE of a repair at `info` with no action (2), or an AGGREGATION
+  DEFECT at `error` (3). One `## MODIFIED` block over *Governed corpus
+  membership and the lifecycle scan set* with one scenario appended, canon's
+  own bytes sliced rather than transcribed; `sequenced_after: []` (#966's
+  packet, DRAFT PR
+  [#978](https://github.com/opensoft/openxFactory/pull/978), writes a DIFFERENT
+  requirement and a branch-only parent is never declared). **THE CODE SURFACE
+  RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one second
+  last pass (`_stale_grandfather_dispositions`) and
+  `tests/doc-health/test_grandfather_dispositions.py` goes **22 → 34** test
+  functions — so under `release-realization` the archive waits for
+  merged-plus-green realization evidence rather than landing with the packet.
+  **FILING ≠ RATIFYING** — ratification and archive are two separate acts on
+  Brett Heap's word; neither has been given, and #965 closes at the ARCHIVE.
+
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
