@@ -194,9 +194,13 @@ say in terms that they neither widen nor narrow any of the five.
 - **It does not touch the `--single-repo` asymmetry.** That is
   [#968](https://github.com/opensoft/openxFactory/issues/968) and `design.md` D4
   says why it stays there.
-- **It does not edit `docs/doc-health.md`.** Its only description of this file is
-  the neutrality lane's *Dispositions keying* paragraph, which is accurate about
-  that lane and silent about everything here; the documentation sweep is
+- **It does not edit `docs/doc-health.md`.** Re-measured after `origin/main`
+  `0805c3bb` merged #977, that file describes this register in three places — the
+  *Ratified provenance* row, the *Promotion fidelity* row and the neutrality
+  lane's *Dispositions keying* paragraph — and every one of them describes a
+  reading the named family's OWN requirement already declares. None says what an
+  entry means for a family that declares none, which is the gap decided here; the
+  documentation sweep is
   [#967](https://github.com/opensoft/openxFactory/issues/967).
 - **It does not promote anything.** No file under `openspec/specs/` is edited by
   this pull request.

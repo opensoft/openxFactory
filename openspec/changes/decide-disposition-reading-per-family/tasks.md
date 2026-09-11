@@ -296,10 +296,17 @@ and say so.
       in the repository it names, and **7** more name a present path that draws
       no finding of that family. No finding class is graded and no severity is
       chosen here.
-- [x] 7.3 **`docs/doc-health.md` IS NOT EDITED.** Its only description of this
-      file is the neutrality lane's *Dispositions keying* paragraph (line 341),
-      accurate about that lane and silent about the estate-wide reading this
-      packet decides. The documentation sweep is
+- [x] 7.3 **`docs/doc-health.md` IS NOT EDITED**, and the reason was RE-MEASURED
+      after `origin/main` `0805c3bb` merged #977 (issue #967's own sweep), which
+      rewrote that file's family table. It now describes this file in THREE
+      places, not one: the *Ratified provenance* row (line 50) states the
+      parent's downgrade pass, the *Promotion fidelity* row (line 60) states that
+      family's skip, and the neutrality lane's *Dispositions keying* paragraph
+      (line 352, moved from 341) states the digest-keyed suppression. All three
+      describe a reading a family's OWN requirement already declares, and not one
+      of them says what an entry means for a family that declares none — which is
+      the gap this packet decides, and why the file still needs no edit from it.
+      The documentation sweep is
       [#967](https://github.com/opensoft/openxFactory/issues/967).
 - [x] 7.4 **THE `--single-repo` SCOPE IS LEFT WITHOUT DISPOSITIONS**, which is
       [#968](https://github.com/opensoft/openxFactory/issues/968) and `design.md`
