@@ -556,7 +556,8 @@ Active changes:
   subsequent merge from `main` (PR #960) but carried FINAL-2's aggregate-gate
   figures forward without re-measuring them on the merged tree; FINAL-4 is
   the current aggregate-gate evidence, re-measuring every gate for real on
-  the submitted head after a further merge from `main` (PR #969)).
+  the submitted head after two further merges from `main` (PR #969, then PR
+  #970) picked up while it was being taken).
   `.openspec.yaml` keeps the drafting provenance it was authored with and the
   approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
   unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
