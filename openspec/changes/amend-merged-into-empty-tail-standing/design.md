@@ -322,15 +322,19 @@ on one that was recited.
 
 ## D6 — what is measured and deliberately NOT taken here
 
-- **`scripts/doc_health/modified_block_currency.py` IS NOT EDITED, AND TWO
-  PIECES OF ITS PROSE GO STALE AT THE PROMOTION.** `suppression`'s docstring
-  (`:1432`) and the comment beside the fifth-ground predicate (`:1535`) both
-  say the merge form's empty tail is *"a question nobody has ruled"*. After the
-  archive, that is no longer true. The PREDICATE is correct either way and no
-  behaviour moves, so this is a comment-currency debt and not a defect; taking
-  it here would give the packet a code surface and change its archive rule
-  (D4). Recorded as residue in `tasks.md` § 6.1, with a successor to be NAMED
-  at the archive act on the tick-on-the-recording rule of 2026-09-06.
+- **`scripts/doc_health/modified_block_currency.py` IS NOT EDITED, AND THREE
+  PIECES OF PROSE GO STALE AT THE PROMOTION — TWO IN THE MODULE, ONE IN ITS
+  TEST.** `suppression`'s docstring (`:1432`) and the comment beside the
+  fifth-ground predicate (`:1535`), both in the module itself, and the
+  docstring of `test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
+  (`tests/doc-health/test_modified_block_currency.py:2698-2710`) all say the
+  merge form's empty tail is *"a question nobody has ruled"*. After the
+  archive, none of the three is true. The PREDICATE and the ASSERTION are both
+  correct either way and no behaviour moves, so this is a comment-currency
+  debt across two files and not a defect; taking it here would give the
+  packet a code surface and change its archive rule (D4). Recorded as residue
+  in `tasks.md` § 6.1, with a successor to be NAMED at the archive act on the
+  tick-on-the-recording rule of 2026-09-06, naming all three sites.
 - **`specs/019-modified-block-currency-family/` IS NOT EDITED.** Its FR-018
   states the ONE reporting ground a marker had before
   `amend-marker-defect-reporting`, and the restatement is already owed by
