@@ -117,15 +117,26 @@ and openxFactory #939 closes THERE and not at this landing.
       the citation TEXT that reader does not return. `families.py` already
       imports `promotion_fidelity`; `promotion_fidelity` imports nothing from
       `families`, so no dependency is added and no cycle is created.
-      **THE RE-READ APPLIES TWO PREDICATES OF ITS OWN AND BOTH ONLY NARROW**
-      (added in the § 5.10 review round, and each with its own test): the
-      entry must name THIS family — a finding carries `(repo, path)` and no
-      third coordinate, so a `(repo, path)`-only lookup would let a
-      NEIGHBOURING family's entry at the same path supply the citation, which
-      is a shape the standing file HAS (`location-conformance` and
-      `document-catalog` over one `ideation/staging/` path) — and it must carry
-      the `date` § 4.3's scenario asks for, which the shared reader has never
-      tested. Neither predicate honours an entry that reader would refuse.
+      **THE RE-READ APPLIES THREE PREDICATES OF ITS OWN AND ALL THREE ONLY
+      NARROW** (two added in the § 5.10 review round and one in § 5.11, each
+      with its own test): the entry must name THIS family — a finding carries
+      `(repo, path)` and no third coordinate, so a `(repo, path)`-only lookup
+      would let a NEIGHBOURING family's entry at the same path supply the
+      citation, which is a shape the standing file HAS
+      (`location-conformance` and `document-catalog` over one
+      `ideation/staging/` path); it must carry the `date` § 4.3's scenario
+      asks for, which the shared reader has never tested; and its `cite` must
+      be TEXT THAT SAYS SOMETHING, `cite: '   '` being truthy enough to pass
+      that reader and to emit a row reading `Cite: ` with no ruling after it.
+      No predicate honours an entry that reader would refuse.
+      **AND A THIRD ROUND ADDED A TYPE GUARD THAT IS NOT A PREDICATE AT ALL**
+      (§ 5.11): the shared reader already refuses an entry whose `repo` or
+      `path` is not a string, so such an entry was never admitted and the
+      honoured set is identical either way — but the citation pass built its
+      lookup key from the RAW entry, and a list- or dict-valued `repo` makes
+      that key UNHASHABLE, so `key in admitted` raised `TypeError` out of the
+      family and out of the whole run. The guard is that reader's own refusal
+      taken early, before the key is built.
 - [x] 3.3 **THE BOUNDARY IS ONE PREDICATE IN ONE PLACE**:
       `finding.path.startswith(_ARCHIVED_PACKET_PREFIX)`, evaluated at the
       downgrade site rather than in the loader — the loader answers *which
@@ -147,7 +158,7 @@ and openxFactory #939 closes THERE and not at this landing.
       contract member, no schema, no path. `INFO` was already imported by this
       module and already spent by four families; the only import added is
       `dataclasses.replace`.
-- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 19
+- [x] 3.7 `tests/doc-health/test_grandfather_dispositions.py` (**NEW, 20
       tests**): the downgrade on BOTH covered arms; an undispositioned archived
       record unchanged; the ACTIVE/ARCHIVED boundary asserted in ONE run over
       the same record text at two paths; a missing `cite`, an empty `cite`, a
@@ -158,12 +169,21 @@ and openxFactory #939 closes THERE and not at this landing.
       self-gate) unchanged; a missing dispositions file unchanged; a clean
       corpus never opening the file; every other finding returned as its arm
       built it **by `is`, over the arms' own list**; the admission key set
-      pinned EQUAL to the shared reader's over a five-entry file; the excerpt's
+      pinned EQUAL to the shared reader's over a five-entry file; **a
+      malformed entry — a list-valued `repo`, a dict-valued `path` — IGNORED
+      RATHER THAN ABORTING THE RUN**, asserted both beside a valid entry and
+      alone, and asserted on the shared reader's admitted set to show the
+      guard honours nothing differently; a whitespace-only `cite` and a
+      non-string `cite` each ignored, the first asserted against the shared
+      reader's admitted set so the narrowing is visible as this arm's own act;
+      the early return proved by a MONKEYPATCHED reader that RAISES, so the
+      no-read is observed rather than inferred from an empty result, with the
+      dirty corpus asserted to raise so the probe is known live; the excerpt's
       one-line and bounded properties; and the downgraded row rendered by
       `report.plan_line(strict=True)` and read back by `report.PLAN_RE`,
       `report.unparsed_plan_rows` and `report.parse_previous`.
 - [x] 3.8 **NO EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED.**
-      `tests/doc-health` goes **1689 → 1708**, the whole rise being the new
+      `tests/doc-health` goes **1689 → 1709**, the whole rise being the new
       file. `test_ratification_record_subject.py`'s real-tree measurements are
       untouched by construction: they build their `Context` with
       `agg_root=None`, which is the scope this arm does nothing in.
@@ -306,6 +326,59 @@ with its exit code and its own output quoted.
       FAILS on the first untouched row. The eighteen figures do not move —
       every standing entry for this family carries a `date`, and none shares a
       path with another family's entry.
+
+- [x] 5.11 **THE THIRD BENCH ROUND, TAKEN AND REFUSED ON THE RECORD.** Copilot
+      reviewed again at 2026-09-11T10:18:18Z and its round is dispositioned
+      item by item rather than in aggregate. **FOUR TAKEN.** (1) **A CRASH**,
+      and the only comment it posted as a thread: the citation pass built its
+      lookup key from the RAW entry, so a same-family entry with a list- or
+      dict-valued `repo` or `path` made `(repo, path)` UNHASHABLE and
+      `key in admitted` raised `TypeError` out of the family and out of the
+      whole run — reproduced first at `families.py:451`, then guarded with the
+      shared reader's own `isinstance` test taken before the key is built, and
+      pinned by a test asserted BOTH WAYS (it fails on the pre-fix module with
+      that exact `TypeError` and passes on the fix). The guard is not a
+      predicate: an entry it drops is one `load_dispositions` never admitted,
+      so the honoured set is identical either way. (2) A truthy but EMPTY
+      citation — `cite: '   '` passes the shared reader and would emit an
+      `info` row reading `Cite: ` with no ruling after it, which is this arm's
+      own defect in miniature; a non-blank STRING is now required and a
+      non-string `cite` is refused rather than coerced (`str(5)` is not a
+      citation). (3) `_RATIFIED_PROVENANCE`'s comment claimed the family id was
+      *"spelled once"* while the five arms and the `FAMILIES` registration
+      still spell the literal; the CLAIM is corrected rather than the arms
+      rewritten, because § 3.1 leaves them byte-unmoved. (4) The early-return
+      test proved only its own result — a valid file and an empty list pass
+      whether or not the file was opened — so the reader is now monkeypatched
+      to RAISE and the clean run must still return `[]`, with the dirty corpus
+      asserted to raise so the probe is known live. **TWO REFUSED, WITH THE
+      REASON RECORDED RATHER THAN THE COMMENT DROPPED.** (a) That the added
+      scenario CONTRADICTS *A proposal carries an uncited ratified header* and
+      that the older bullet should be amended: REFUSED on custody first — that
+      bullet is PROMOTED CANON carried here byte-faithfully as the `##
+      MODIFIED` block's pre-text (`sha256 d32aaa43…` on both sides, § 4.1), so
+      amending it would edit promoted text, break the carriage proof and owe a
+      marker § 4.2 measures as not owed; and the word of 2026-09-11T10:11:50Z
+      landed on this text with the comment already six hours on the record. On
+      the merits it is also not a contradiction: the older bullet asserts
+      PARITY between the lifecycle scan set and the governed corpus (*"the same
+      severity it would carry for a governed-corpus document"*), and this pass
+      is scope-blind — it keys on `(family, repo, path)` and an archived path
+      and would downgrade a governed-corpus document identically — so the
+      parity it exists to protect is exactly preserved, the newer scenario
+      being the more specific rule over a strictly narrower subject. The four
+      sibling *A finding is dispositioned* scenarios already sit beside their
+      own families' severity rules with no exception clause, and they SUPPRESS,
+      which departs further. (b) That the downgraded row should carry
+      `CONTESTED` rather than the family's `auto-fixable` class: REFUSED as a
+      re-decision rather than a fix. § 3.5 keeps the resolution class on
+      purpose, the proposal's *What this proposal does NOT do* says so, and
+      § 2.6 MEASURES the consequence — the eighteen leave the regression axis
+      and enter no other, `report.parse_previous` returning 0 contested.
+      `CONTESTED` would route them into `report.uncited_resolutions`, the arm
+      the proposal's *Why* shows adjudicates a DISAPPEARED finding and never a
+      standing one. It is a successor's question, beside § 7's residue, and it
+      needs its own word.
 
 ## 6. Archive — OWED, NOT GIVEN
 

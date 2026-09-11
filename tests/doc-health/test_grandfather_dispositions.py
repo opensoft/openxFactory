@@ -39,6 +39,8 @@ from __future__ import annotations
 
 from datetime import date
 
+import pytest
+
 from conftest import NO_SUCH_REPO_ROOT
 from doc_health import CRITICAL, INFO
 from doc_health import corpus, promotion_fidelity, report
@@ -202,10 +204,33 @@ def test_an_entry_without_a_cite_is_ignored(tmp_path):
 
 
 def test_an_empty_cite_is_ignored(tmp_path):
-    """`cite: ''` is present and records nothing, which is the same thing."""
+    """`cite: ''` is present and records nothing, which is the same thing.
+
+    AND SO IS A CITE THAT IS PRESENT, TRUTHY AND STILL SAYS NOTHING. `cite:
+    '   '` passes a bare truthiness test and passes the shared reader, and the
+    row it would produce reads `Cite: ` with no ruling after it — an `info`
+    row asserting that an owner ruled while carrying no word of the ruling,
+    which is the defect this arm exists to close rather than a lesser form of
+    it. A non-string `cite` is refused for the same reason rather than coerced:
+    `str(5)` is not a citation. Each is a NARROWING — strictly fewer entries
+    honoured than the shared reader admits, never one more — which is asserted
+    on the reader's own admitted set for the whitespace case.
+    """
     agg = _dispositions(tmp_path, _entry(cite=""))
     assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
                                      agg_root=agg)] == [CRITICAL]
+    blank = _dispositions(tmp_path / "blank", _entry(cite="   "))
+    ctx = _ctx(agg_root=blank)
+    assert {(repo, path) for repo, path, _requirement
+            in promotion_fidelity.load_dispositions(
+                ctx, _RATIFIED_PROVENANCE)} == {(REPO, ARCHIVED)}
+    assert _grandfather_cites(ctx) == {}
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=blank)] == [CRITICAL]
+    numeric = _dispositions(tmp_path / "numeric", _entry(cite=5))
+    assert _grandfather_cites(_ctx(agg_root=numeric)) == {}
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=numeric)] == [CRITICAL]
 
 
 def test_an_entry_naming_another_family_is_ignored(tmp_path):
@@ -271,6 +296,58 @@ def test_an_undated_entry_is_ignored(tmp_path):
                                      agg_root=empty)] == [CRITICAL]
 
 
+def test_a_malformed_entry_is_ignored_rather_than_aborting_the_run(tmp_path):
+    """A LIST- OR DICT-VALUED `repo` MUST NOT TAKE THE NIGHTLY DOWN WITH IT.
+
+    The shared reader refuses an entry whose `repo` or `path` is not a string
+    (`load_dispositions` tests both with `isinstance`), so such an entry is
+    never in `admitted` and this arm honours nothing either way. But the
+    citation pass builds its lookup key from the RAW entry, and a list or a
+    dict there makes `(repo, path)` UNHASHABLE: `key in admitted` raised
+    `TypeError` out of `fam_ratified_provenance`, out of the runner and out of
+    the whole nightly, over one malformed hand-edit of a file the estate's one
+    reader silently ignores. The guard is that same reader's refusal taken
+    early rather than a new predicate, which is asserted here both ways: the
+    malformed entries are absent from the shared reader's admitted set, AND
+    the valid entry beside them is still honoured exactly as it is alone.
+
+    Both malformed entries carry this family AND a date, because a pass that
+    gave up earlier would never have reached the key at all; and they are
+    written FIRST, because the crash is order-dependent — it happens the
+    moment the malformed key is tested, so an entry after the valid one would
+    still have crashed but would not have proved the ordering irrelevant.
+    """
+    malformed = (
+        f"- family: {_RATIFIED_PROVENANCE}\n"
+        f"  repo:\n    - {REPO}\n    - codexFactory\n"
+        f"  path: {ARCHIVED}\n"
+        "  date: '2026-09-10'\n"
+        f"  cite: {FOREIGN_CITE!r}\n"
+        f"- family: {_RATIFIED_PROVENANCE}\n"
+        f"  repo: {REPO}\n"
+        "  path:\n    glob: 'openspec/changes/archive/**'\n"
+        "  date: '2026-09-10'\n"
+        f"  cite: {FOREIGN_CITE!r}\n")
+    agg = _dispositions(tmp_path, malformed + _entry())
+    ctx = _ctx(agg_root=agg)
+    # The shared reader already drops both, so the admitted set is the valid
+    # entry alone and this guard changes WHICH ENTRIES ARE HONOURED not at all.
+    assert {(repo, path) for repo, path, _requirement
+            in promotion_fidelity.load_dispositions(
+                ctx, _RATIFIED_PROVENANCE)} == {(REPO, ARCHIVED)}
+    assert _grandfather_cites(ctx) == {(REPO, ARCHIVED): CITE}
+    findings = _run(_doc(ARCHIVED, SUBJECT_TEXT), agg_root=agg)
+    assert [f.severity for f in findings] == [INFO]
+    assert findings[0].action == _GRANDFATHERED_ACTION + CITE
+    assert FOREIGN_CITE not in findings[0].action
+    # And a malformed entry ALONE — no valid entry to make `admitted`
+    # non-empty — is the short-circuit path, which must also not raise.
+    alone = _dispositions(tmp_path / "alone", malformed)
+    assert _grandfather_cites(_ctx(agg_root=alone)) == {}
+    assert [f.severity for f in _run(_doc(ARCHIVED, SUBJECT_TEXT),
+                                     agg_root=alone)] == [CRITICAL]
+
+
 def test_a_requirement_narrowing_does_not_stop_the_downgrade(tmp_path):
     """The optional `requirement:` key selects one requirement inside a DELTA
     file. A ratification record has no requirement grain for it to select, so
@@ -300,12 +377,29 @@ def test_a_missing_dispositions_file_changes_nothing(tmp_path):
     assert [f.severity for f in findings] == [CRITICAL]
 
 
-def test_a_run_with_no_findings_reads_no_file(tmp_path):
-    """The early return: a clean corpus never opens the dispositions file."""
+def test_a_run_with_no_findings_reads_no_file(tmp_path, monkeypatch):
+    """The early return: a clean corpus never opens the dispositions file.
+
+    THE NO-READ IS MADE OBSERVABLE RATHER THAN INFERRED. A valid file plus an
+    empty result proves only the result: an implementation that opened the
+    file and then returned `[]` would pass that assertion unchanged. So the
+    shared reader is monkeypatched to RAISE, and the clean run must still
+    return `[]` — which it can only do by never reaching the read. The same
+    probe over a DIRTY corpus is asserted to raise, so the fixture is known to
+    be live rather than silently bypassed (PR #945, Copilot's third round).
+    """
     agg = _dispositions(tmp_path, _entry())
     clean = _doc(ARCHIVED, "# Proposal Ratification: real-change\n\n"
                            "Status: ratified\nRatified by: real-change\n")
     assert _run(clean, agg_root=agg) == []
+
+    def _explode(*_args, **_kwargs):
+        raise AssertionError("the dispositions file was read")
+
+    monkeypatch.setattr(promotion_fidelity, "load_dispositions", _explode)
+    assert _run(clean, agg_root=agg) == []
+    with pytest.raises(AssertionError, match="the dispositions file was read"):
+        _run(_doc(ARCHIVED, SUBJECT_TEXT), agg_root=agg)
 
 
 # --- nothing else this family reports moves ----------------------------------

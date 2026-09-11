@@ -319,9 +319,13 @@ _RATIFICATION_RECORD_ACTION = (
 
 # ---- the grandfather disposition arm (#939) ---------------------------------
 
-#: This family's id, spelled once. It is the `family:` key a
-#: `health/dispositions.yaml` entry must carry to reach these findings AND the
-#: string every `Finding` below already carries, so the two can never drift.
+#: This family's id, as THIS ARM spells it: the `family:` key a
+#: `health/dispositions.yaml` entry must carry to reach these findings, and the
+#: name this arm asks the shared reader under. It is EQUAL to, and deliberately
+#: not substituted for, the literal the five arms below and the `FAMILIES`
+#: registration already spell — rewriting those would move code this packet
+#: leaves byte-unmoved — so this is one more spelling of the id rather than the
+#: only one, and a rename of the family has to move all of them together.
 _RATIFIED_PROVENANCE = "ratified-provenance"
 
 #: The path prefix that puts a record BEYOND A PLAIN FIX, which is the whole
@@ -389,6 +393,11 @@ def _grandfather_cites(ctx) -> dict[tuple[str, str], str]:
     is one the shared reader would refuse; the dated subset is smaller, or the
     same set. (The other narrowing, the archived-path prefix, is a property of
     the FINDING rather than of the entry and is applied at the downgrade site.)
+    THE `repo`/`path` TYPE TEST IS NOT A THIRD NARROWING but that same shared
+    reader's own refusal taken early: an entry it drops is one that reader
+    never admitted, so the honoured set is identical either way. It is taken
+    here because an entry whose `repo` or `path` is a list or a dict makes the
+    lookup key UNHASHABLE and cannot reach the membership test at all.
     Everything else here is the second thing the shared reader does not return
     — the citation TEXT a downgraded finding quotes — read back out of the same
     file under the same family name.
@@ -446,14 +455,37 @@ def _grandfather_cites(ctx) -> dict[tuple[str, str], str]:
         # family's authority (`design.md` D6).
         if not entry.get("date"):
             continue
-        key = (entry.get("repo"), entry.get("path"))
+        repo, doc_path = entry.get("repo"), entry.get("path")
+        # THE SHARED READER'S OWN TYPE TEST, APPLIED BEFORE THE LOOKUP AND NOT
+        # AS A THIRD PREDICATE OF THIS ARM'S. `load_dispositions` refuses an
+        # entry whose `repo` or `path` is not a string, so such an entry is
+        # NEVER in `admitted` and this guard honours nothing more and nothing
+        # less — it is not a narrowing, it is the same refusal, taken early
+        # because the lookup below cannot survive the entry reaching it. A
+        # list- or dict-valued `repo` makes `(repo, path)` UNHASHABLE, and
+        # `key in admitted` then raises `TypeError` out of this family and out
+        # of the whole run, so one malformed hand-edit of a file the estate's
+        # one reader silently ignores would abort the nightly instead
+        # (PR #945, Copilot's third thread).
+        if not isinstance(repo, str) or not isinstance(doc_path, str):
+            continue
+        key = (repo, doc_path)
         cite = entry.get("cite")
-        if key in admitted and cite:
+        # THE CITE MUST BE TEXT THAT SAYS SOMETHING, and this is the third
+        # place the same rule is applied rather than a new one: `cite: '   '`
+        # is TRUTHY, so the shared reader admits it and the emitted row would
+        # read `Cite: ` and quote no ruling — an `info` row asserting that an
+        # owner ruled, carrying no word of the ruling, which is the defect this
+        # whole arm exists to close rather than a lesser form of it. A
+        # non-string `cite` is refused for the same reason instead of being
+        # coerced: `str(5)` is not a citation. Both are NARROWINGS, honouring
+        # strictly fewer entries than the shared reader admits and never one
+        # more (PR #945, Copilot's third round).
+        if key in admitted and isinstance(cite, str) and cite.strip():
             # First entry wins where one path carries two entries for this
             # family, which is the only remaining ambiguity and is a duplicate
             # rather than a collision.
-            cites.setdefault(
-                key, cite if isinstance(cite, str) else str(cite))
+            cites.setdefault(key, cite)
     return cites
 
 
