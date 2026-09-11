@@ -19,8 +19,11 @@ Checks (errors fail the run; warnings fail only with --strict):
   4.  omnigent.domain_overlay dir exists.
   5.  tenancy declares kinds + isolation; isolation values are from the
       recognized scope vocabulary.
-  6.  profiles/*.yaml: every profile's tenant_kind/client_kind is declared
-      in stack tenancy; every declared kind has a profile (warning).
+  6.  profiles/*.yaml: every profile declares an identifier (nested
+      `profile.id`, or a flat `profile_id` for the domain-specific kinds
+      registered in PROFILE_ID_KEY_KINDS); every profile's tenant_kind/
+      client_kind is declared in stack tenancy; every declared kind has a
+      profile (warning).
   7.  tenants/examples/*.yaml: profile references resolve.
   8.  workflows/*.yaml: every gate has id + owner_layer + requires;
       owner_layer resolves to a declared layer, omnigent, or xfactory.
@@ -53,8 +56,13 @@ TAG_RE = re.compile(r"^v?\d+\.\d+(\.\d+)?([-.][0-9A-Za-z.]+)?$")
 DOMAIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 CANONICAL_ROLES = ("customer", "client", "domain")
+# `per_customer_subject` is a FROZEN legacy machine key (contracts/policies/
+# layer-vocabulary.yaml legacy_mapping: customer -> subject) and stays
+# accepted unrenamed; `per_subject` is the ratified Subject/Tenant/Domain
+# spelling and is additive (openxFactory #918).
 ISOLATION_SCOPES = {
-    "per_tenant", "per_client", "per_customer", "per_customer_subject", "per_patient",
+    "per_tenant", "per_client", "per_customer", "per_customer_subject",
+    "per_subject", "per_patient",
     "per_campaign", "per_project", "per_ledger", "shared_with_review",
 }
 SECRET_PATTERNS = [
@@ -72,6 +80,12 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv",
              # carry secret-shaped strings -- is not the domain's own
              # surface and must not fail its validation.
              ".openxfactory-pin"}
+# Profile document kinds that key their identifier on a flat top-level
+# `profile_id` field instead of nesting `id` under `profile:`. Domain-specific
+# profile kinds register here rather than widen the default `profile.id`
+# rule for every kind (openxFactory #919; OpsxFactory's cloudpc_worker_profile
+# is the first member).
+PROFILE_ID_KEY_KINDS = {"cloudpc_worker_profile"}
 MEMORY_GATEWAY_TIERS = {"M0", "M1", "M2", "M3", "M4"}
 MEMORY_GATEWAY_OPERATIONS = {
     "xfactory.memory.query",
@@ -229,10 +243,16 @@ def check_profiles(root: Path, kinds: list[str], rpt: Report) -> set[str]:
         if not isinstance(data, dict):
             continue
         prof = data.get("profile", data)
-        pid = prof.get("id")
-        if not pid:
-            rpt.error(f"{pf.name}: profile.id missing")
-            continue
+        if data.get("kind") in PROFILE_ID_KEY_KINDS:
+            pid = prof.get("profile_id")
+            if not pid:
+                rpt.error(f"{pf.name}: profile_id missing")
+                continue
+        else:
+            pid = prof.get("id")
+            if not pid:
+                rpt.error(f"{pf.name}: profile.id missing")
+                continue
         profile_ids.add(pid)
         kind = prof.get("tenant_kind") or prof.get("client_kind")
         if kind:
