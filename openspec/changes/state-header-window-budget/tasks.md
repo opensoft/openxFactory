@@ -236,3 +236,21 @@ ratification (`208f88d4`, box 0.6, identically worded).
   session; archiving is a separate act on a separate word, exactly as
   `amend-neutral-product-pin-interim-copy-vocabulary` task 4.1 records for
   its own comparable packet.
+  **READ THIS BEFORE RUNNING THE ARCHIVE — a trap found by Copilot review on
+  2026-09-11 and verified in the code rather than taken on its word.** The
+  house archive entrypoint REFUSES this packet in its present state:
+  `scripts/proposal-support.py` `archive_change` runs
+  `re.search(r"^- \[ \]", tasks.read_text(), re.M)` immediately after the
+  origin arms and raises `SupportError("change has incomplete tasks")` on the
+  FIRST unticked box anywhere in this file. Three boxes are unticked — **0.1**
+  and **0.2**, Brett Heap's own acts, and **this 3.1**. That is the correct
+  state *now*, and it is not a defect of the ratification: the ratifying lane
+  deliberately did not tick 0.1/0.2, because no agent ticks an owner's box,
+  and 3.1 is the archive act itself, which has not happened. **It becomes the
+  archiving lane's first task**, on the archive word, before invoking the
+  entrypoint: close 0.1 and 0.2 as discharged by the ratifying word of
+  2026-09-11T01:44Z (each already carries the dated note recording what that
+  word discharged), and tick 3.1 as the act being performed. Deferred work
+  that is genuinely NOT being done at archive takes `[~]`, not `[x]` and not
+  `[ ]` — the shape the prior archived packet used. **Do not discover this at
+  the entrypoint.**
