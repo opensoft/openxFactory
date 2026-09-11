@@ -88,7 +88,12 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       (`change/disposition-codexfactory-declared-renames`,
       `change/disposition-codexfactory-floor-relocation-retitle`,
       `spec/repo-boundary-governance`), none of them this packet's own; this
-      branch measures the same 3 and no others. This pull request also moves
+      branch measured the same 3 and no others. RE-MEASURED 2026-09-11 against
+      `main` at `38c076d1`: 2 pre-existing failures
+      (`change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle` —
+      `spec/repo-boundary-governance` has since been fixed on `main`), and this
+      branch measures the same 2 and no others. This pull request also moves
       two bookkeeping rows in `tests/sequenced_after/corpus-ledger.yaml` —
       its own row and the parent's `sole` → `co-modifier` flip — seeded by
       `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`;
@@ -108,13 +113,14 @@ codexFactory**, authored there, exactly as
       "one edit" claim, and DECLARE a test companion for **EVERY candidate
       class enrolled in `.github/merge-approval-envelope.yml` at realization
       time — today TWO, `codexfactory-routine-code` and
-      `openxfactory-floor-regeneration`** — each MEASURED the same way:
-      withdraw THAT CLASS ALONE in a scratch tree, run the pinning suite and
-      collect the failing node ids, then COMMIT that withdrawal as the baseline
-      and regenerate each golden/snapshot artefact by its own allowlisted
-      regeneration, reading the paths `git diff --name-only <baseline-commit>`
-      reports changed. Each companion is declared using design.md
-      D-2c's grammar, **IN the envelope beside the candidate it belongs to**,
+      `openxfactory-floor-regeneration`** — each MEASURED BY **THE FIVE-STEP
+      PROCEDURE OF 3.2 BELOW, IN THAT ORDER**, which is this packet's single
+      statement of it and is not restated here: capture the declarations from
+      the pre-withdrawal envelope, commit the withdrawal as the baseline,
+      measure the assertions over the captured node list, regenerate and diff
+      against the baseline commit, record. Each companion is declared using
+      design.md D-2c's grammar, **IN the envelope beside the candidate it
+      belongs to**,
       as comment lines: `# companion: <pytest node id>` for every assertion
       that pins that enrolment, and `# companion-artefact: <repo-relative path>
       regenerate: <identifier>` for every golden/snapshot file whose recorded
@@ -123,8 +129,10 @@ codexFactory**, authored there, exactly as
       file and 3.2 runs inside a REQUIRED check, so the declaration carries a
       BARE TOKEN and nothing executable. This task therefore also adds, IN THE
       TRUSTED CONFORMANCE TEST MODULE under codexFactory's `tests/merge-master/`
-      (code-owner-reviewed test code), the fixed `identifier -> argv` TABLE that
-      resolves each declared identifier — an argv list, no shell, a fixed cwd of
+      (code-owner-reviewed test code — a module that is never itself a member of
+      any class's pinning node list, 3.2 steps 1 and 3), the fixed
+      `identifier -> argv` TABLE that resolves each declared identifier — an
+      argv list, no shell, a fixed cwd of
       the repository root — so that an identifier ABSENT FROM THE TABLE fails the
       check and an edit to a declaration can never introduce execution. Adding an
       identifier is a reviewed test-code change, not a declaration edit. **An
@@ -134,34 +142,65 @@ codexFactory**, authored there, exactly as
       before the artefact may be named. In the ENVELOPE the edit stays
       comment-only: **no schema member is added** to any candidate mapping, no
       `active:` boolean, no repository variable, and no candidate MAPPING moves.
-- [ ] **3.2 The conformance test — RUN PER CLASS, OVER A COMMITTED
-      POST-WITHDRAWAL BASELINE, AND IT IS TWO EQUALITIES PLUS A NON-EMPTINESS
-      CHECK.** ONE codexFactory test that, per D-2c's grammar and for **EACH
-      enrolled candidate class**, does this IN ORDER:
-      **(0) THE BASELINE** — in a scratch tree, withdraw THAT class alone (its
-      candidate mapping and its companion comment lines removed, nothing else)
-      and **COMMIT that withdrawal as the BASELINE COMMIT**. Every measurement
-      below is taken against it. Without the baseline the measuring tree already
-      carries the withdrawal edit, so a whole-tree diff would report
+- [ ] **3.2 The conformance test — ONE PROCEDURE, FIVE NUMBERED STEPS, IN THIS
+      ORDER, RUN PER ENROLLED CLASS.** ONE codexFactory test that, per D-2c's
+      grammar and for **EACH enrolled candidate class**, performs exactly the
+      sequence below. **THE ORDER IS PART OF THE RULE**: every later step
+      consumes what an earlier step captured or committed, so a step taken out of
+      order cannot hold. This list is the packet's SINGLE statement of the
+      procedure; 3.1 above, `design.md` D-2b, the `## MODIFIED` scenarios and
+      `proposal.md` point AT IT rather than restate it.
+      **STEP 1 — CAPTURE THE DECLARATIONS, BEFORE ANYTHING IS EDITED.** Parse the
+      envelope AS IT STANDS PRE-WITHDRAWAL and retain, for that class and by
+      D-2c's discovery rule, (a) the declared `# companion:` PINNING NODE-ID SET
+      and (b) the declared `# companion-artefact:` SET as (path,
+      regeneration-identifier) pairs; and RESOLVE every declared identifier
+      against the allowlist table in the trusted test module in this same step —
+      an identifier absent from that table FAILS HERE, before a byte is edited,
+      rather than being looked up elsewhere or executed, and a declared node id
+      naming the conformance module itself is REFUSED HERE for the same reason.
+      The captured sets are the expected values every later step compares
+      against: step 2 removes those very comment lines from the tree being
+      measured, so a test that has not captured them first has no declaration
+      left to compare against.
+      **STEP 2 — WITHDRAW THAT CLASS ALONE AND COMMIT THE BASELINE.** In the
+      scratch tree remove THAT class's candidate mapping and its companion
+      comment lines and **nothing else**, and `git commit` that withdrawal as the
+      **BASELINE COMMIT**. EVERY measurement below is taken in that committed
+      tree and against that commit. Without the baseline the measuring tree
+      already carries the withdrawal edit, so a whole-tree diff would report
       `.github/merge-approval-envelope.yml` itself and the artefact equality
       could never hold however correct the regeneration was.
-      **(i) ASSERTIONS** — run the pinning suite on that tree and assert that the
-      set of failing node ids EQUALS that class's declared `# companion:` set
-      exactly, both directions, order-free, **and that the set is NOT EMPTY**: an
+      **STEP 3 — MEASURE THE ASSERTIONS, OVER THE CAPTURED NODE LIST AND NEVER A
+      DIRECTORY SWEEP.** Run the pinning suite ON EXACTLY THE NODE IDS CAPTURED
+      IN STEP 1 and on no others — the captured node list is passed explicitly,
+      and the run is **NOT** a sweep of `tests/merge-master/` or of any other
+      directory, so the conformance module never discovers and invokes itself and
+      no unrelated failure contaminates the measured set. Assert that the set of
+      FAILING node ids EQUALS that class's captured `# companion:` set exactly,
+      both directions, order-free, **and that the set is NOT EMPTY**: an
       enrolment whose withdrawal fails no assertion is exactly the one that could
       leave unnoticed, so an empty measured set is a FAILING check and the
       enrolment is recorded as non-conformant for lacking a pinning assertion —
       never a vacuous pass on two empty sets.
-      **(ii) ARTEFACTS** — THEN regenerate each declared artefact by ITS OWN
-      declared `regenerate:` IDENTIFIER, resolved to fixed argv by the trusted
-      module's table (argv list, no shell, fixed cwd; an unknown identifier fails
-      the check rather than being executed), and assert that the set of paths
-      **`git diff --name-only <baseline-commit>`** reports changed EQUALS that
-      class's declared `# companion-artefact:` set exactly — **no more, no
-      less** — both directions, order-free. Because the withdrawal is already IN
-      the baseline, that delta holds ONLY what the regeneration wrote. **The diff
-      is NOT path-scoped to the declared set**, precisely so that a regeneration
-      writing a path NOBODY DECLARED still fails the check.
+      **STEP 4 — REGENERATE, AND DIFF AGAINST THE BASELINE COMMIT.** THEN
+      regenerate each artefact CAPTURED IN STEP 1 by ITS OWN declared
+      `regenerate:` IDENTIFIER, resolved to fixed argv by the trusted module's
+      table (argv list, no shell, fixed cwd of the repository root; an unknown
+      identifier has already failed at step 1 rather than being executed), and
+      assert that the set of paths **`git diff --name-only <baseline-commit>`**
+      reports changed EQUALS that class's captured `# companion-artefact:` PATH
+      set exactly — **no more, no less** — both directions, order-free. Because
+      the withdrawal is already IN the baseline, that delta holds ONLY what the
+      regeneration wrote. **The diff is NOT path-scoped to the declared set**,
+      precisely so that a regeneration writing a path NOBODY DECLARED still fails
+      the check.
+      **STEP 5 — RECORD THE RESULT.** Report, per class, BOTH equalities and the
+      non-emptiness result, and NAME THE CLASS AND THE STEP in any failure (step
+      1 an unresolvable identifier or a self-naming node id, step 3 an
+      assertion-set inequality or an empty measured set, step 4 an artefact-set
+      inequality), so a red check says WHICH enrolment failed and WHERE rather
+      than only that the conformance test failed.
       The artefact's movement is therefore MEASURED BY THAT REGENERATION DIFF
       and is NOT inferred: an existence check does not prove the declared path
       is the file whose recorded value moves, a node id does not identify the
