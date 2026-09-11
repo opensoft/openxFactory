@@ -442,23 +442,30 @@ the block was written into a registry-less tree.
 - **FR-018**: A marker MUST suppress only units it names AND that are in fact
   absent from the block. A marker MUST itself be reported, as a FOURTH finding
   class — "marker defects" — carrying the ledger's `info` severity and never
-  `error`, on ANY OF THREE GROUNDS — canon's own wording:
-  "A MARKER SHALL ITSELF BE REPORTED ON ANY OF THREE GROUNDS, each of them
-  one finding at the `info` band this family's marker-defect class already
-  carries: it names a unit the block still carries; or a code span standing
-  INSIDE its reason matches EXACTLY a unit of the requirement's basis that
-  the block does not carry and that no marker declares removed, the boundary
-  above reading that span as prose rather than as a name, so that its author
-  declared nothing about a unit they plainly had in mind; or it names
-  something matching no unit of the requirement's basis and no unit of the
-  block."
-  (`openspec/specs/doc-health/spec.md`:1744–1751). The second ground MUST be
+  `error`, on ANY OF FIVE GROUNDS — canon's own wording:
+  "A MARKER SHALL ITSELF BE REPORTED ON ANY OF FIVE GROUNDS, each of them one
+  finding at the `info` band this family's marker-defect class already carries:
+  it names a unit the block still carries; or a code span standing INSIDE its
+  reason matches EXACTLY a unit of the requirement's basis that the block does
+  not carry and that no marker declares removed, the boundary above reading
+  that span as prose rather than as a name, so that its author declared nothing
+  about a unit they plainly had in mind; or it names something matching no unit
+  of the requirement's basis and no unit of the block; or it names something
+  matching no unit of the requirement's basis and a unit THE BLOCK ITSELF
+  STATES, declaring removed from canon a unit canon never carried; or it is of
+  `Removed from canon` form and its tail carries NO code span at all, so that
+  it names nothing, quotes nothing and declares nothing while occupying the one
+  paragraph shape this requirement exempts from carriage."
+  (`openspec/specs/doc-health/spec.md`:1745–1757). The second ground MUST be
   read narrowly, on the exact match and never on the span's position alone, and
   MUST NOT withdraw the carriage arms from the unit the span would have named
-  (:1754–1760).
+  (:1771–1778).
   *(Amended 2026-09-10 to match canon after `amend-marker-defect-reporting`
   (#850); this bullet previously stated the ONE-ground rule — a marker naming a
   unit the block still carries — which is now the first of the three.)*
+  *(Amended 2026-09-11 to match canon after `amend-marker-declaring-nothing`
+  (#856/#860; ratified PR #908 → `d32509d3`; archived PR #926 → `114d6e3d`);
+  this bullet previously stated three grounds.)*
   Producing the defect without emitting it would leave the delta's "SHALL
   itself be reported" unrealized in a function nothing calls.
 - **FR-019**: Where a `Removed from canon` marker names a scenario title AND
