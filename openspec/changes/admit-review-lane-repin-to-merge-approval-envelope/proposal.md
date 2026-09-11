@@ -6,7 +6,27 @@ sequenced_after: [amend-mirror-floor-regeneration-merge-authority, extend-merge-
 
 # Proposal: admit-review-lane-repin-to-merge-approval-envelope
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11T01:15Z (approx.) by Brett Heap (openxFactory
+repository owner) — a SELECTION, not a typed sentence, made via the lane's
+multi-choice question: the option **"Ratify with amendment"**, whose text
+read: **"Ratify the text now; hold realization until the third unattended
+codexFactory cycle is measured and the unrecorded-class fix is observed on
+a live approval."**, in session, lane `openxfactory-2` (display
+`openXfactory-2`) — record `review/ratification-2026-09-11.md`; selection
+recorded on #745
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628376484.
+**RATIFIED WITH AMENDMENT.** The text
+below is ratified AS WRITTEN — the enrolment, the four safeguards, the
+never-clearable ground answered, decision N-1 reopened toward N-1 (b) with
+its condition N-1b (ii) — and ONE amendment is made AT this ratification,
+to task **1.5** / `design.md` **D-3**: REALIZATION (`tasks.md` § 3 —
+the envelope entry, the workflow arming, the test-helper replacement) is
+HELD, beyond the preconditions the packet already named (§ 4), until TWO
+FURTHER preconditions are met — see `design.md` § *Amended at ratification*
+and `tasks.md` 1.5 for the amended text and the evidence each precondition
+needs. Nothing else in this packet's ratified text is disturbed by the
+amendment.
 Proposed: 2026-09-10, in lane `openxfactory-2` (display `openXfactory-2`), on
 Brett Heap's word in session, 2026-09-10 at approximately 17:2xZ, verbatim
 **"do 1 and 2, sign, file it, do 744"** — the third clause, ***"file it"***,
@@ -23,18 +43,24 @@ Origin: `amend-mirror-floor-regeneration-merge-authority` `proposal.md`
 writes out its measured shape, and expressly does not author it; and that
 packet's `tasks.md` box **4.3**, whose tick condition is *"the successor being
 NAMED — its openxFactory issue or packet id recorded here"*.
-**THE WORD AUTHORIZED THE FILING, NOT THE CONTENT. RATIFICATION IS OWED AND IS
-BRETT HEAP'S ACT.** Nothing below is ratified by being authored; no requirement
-here may be cited as approved until he rules on this packet itself; and
-**NOTHING IS REALIZED** — this pull request enrols no candidate, moves no byte
-of `.github/merge-approval-envelope.yml`, edits no workflow, flips no test,
+**THE WORD AUTHORIZED THE FILING; RATIFICATION FOLLOWED AS A LATER, SEPARATE
+ACT, AND IT CARRIES ONE AMENDMENT.** Filing did not by itself approve any
+requirement here. Ratification is recorded above and in
+`review/ratification-2026-09-11.md`, and it is RATIFICATION WITH AMENDMENT:
+the text stands as recommended, and task 1.5 / `design.md` D-3 is amended to
+hold realization on two named preconditions. **REALIZATION IS STILL NOT
+PERFORMED BY THIS PULL REQUEST, AND IS NOW HELD FURTHER BY THE AMENDMENT** —
+this pull request enrols no candidate, moves no byte of
+`.github/merge-approval-envelope.yml`, edits no workflow, flips no test,
 carves no floor, touches no ruleset, moves no pin byte, and ticks exactly ONE
 box in one other packet: `amend-mirror-floor-regeneration-merge-authority`
 box 4.3, on the tick-on-the-recording rule of 2026-09-06 and on the word
-*"file it"*. Every judgment this authoring session took is listed in `design.md`
-as **D-1 through D-8**, each with a recommendation and each put for veto.
+*"file it"*. Every judgment this authoring session took is listed in
+`design.md` as **D-1 through D-8**; D-3 is amended as above (see
+§ *Amended at ratification*) and the rest STAND AS RECOMMENDED, with no
+other veto exercised.
 
-## THIS FILING RE-OPENS A RATIFIED DECISION, AND SAYS SO HERE
+## THIS FILING RE-OPENED A RATIFIED DECISION, AND SAID SO HERE — NOW RATIFIED TOWARD N-1 (b)
 
 **Decision N-1 of `extend-merge-master-envelope-to-floor-bot-lanes` — ratified
 2026-09-07 under Brett Heap's pair word *"ratify 746 and 272 as recommended when
@@ -46,8 +72,10 @@ Filing it is therefore a request to RE-OPEN a ratified scope decision, and that
 is written here, in the proposal's second heading, rather than left for a reader
 to assemble from two other packets.**
 
-**UNTIL THIS PROPOSAL IS RATIFIED, N-1 STANDS, AND SO DO BRETT HEAP'S 6.3
-RULINGS OF 2026-09-10.** Both, verbatim, from the recordings:
+**N-1 STOOD, AND SO DID BRETT HEAP'S 6.3 RULINGS OF 2026-09-10, UNTIL THIS
+RATIFICATION.** Both, verbatim, from the recordings, kept here as the dated
+record of what stood before this word and why re-opening needed saying out
+loud:
 
 * codexFactory [#232](https://github.com/codeXfactory/codexFactory/issues/232#issuecomment-5618469628),
   comment 5618469628, 2026-09-10T12:11:25Z — under *"tick 6.1, 6.2, 6.4 and 6.3;
@@ -68,12 +96,18 @@ RULINGS OF 2026-09-10.** Both, verbatim, from the recordings:
   > successor `admit-review-lane-repin-to-merge-approval-envelope` is filed and
   > realized)
 
-**NOTHING IN THIS PACKET DISTURBS EITHER RULING, AND THE SECOND ONE NAMES THIS
-PACKET AS THE THING THAT WOULD.** Filing is proposing. The arming stays inert;
-the human merge word stays owed on every `bot/review-lane-repin` pull request;
-the witness line the lane prints on every advance still says so in the
-platform's own log. What changes on ratification is only that a lane may then
-be enrolled — and even then it stays inert until codexFactory carves the floor.
+**THIS RATIFICATION IS THE THING BOTH RULINGS NAMED AS WHAT WOULD DISTURB
+THEM, AND IT DOES SO ON ITS OWN AMENDED TERMS.** N-1 is now reopened toward
+N-1 (b), "admit BOTH", with its condition N-1b (ii); the class MAY now be
+enrolled at realization. **BUT THE ARMING STAYS INERT AND THE HUMAN MERGE
+WORD STAYS OWED ON EVERY `bot/review-lane-repin` PULL REQUEST TODAY**,
+because realization (`tasks.md` § 3 — the envelope entry, the workflow
+arming, the test-helper replacement) is not performed by this ratification
+and is now HELD, by the amendment named above, until the two preconditions
+at `tasks.md` 1.5 are met — beyond, not instead of, codexFactory's carve
+(§ 4.1) which the enrolment lands inert against regardless. The witness line
+the lane prints on every advance still says so in the platform's own log
+until realization lands.
 
 ## Why
 
@@ -271,8 +305,10 @@ the trusted thing.** A reader who disagrees should refuse this packet, and
 
 ## What is NOT proposed
 
-* **No ratification.** `Status: draft` on every document in this packet, no
-  `Ratified by:` line anywhere, and the filing is not the word.
+* **No ratification.** At filing (2026-09-10, PR #910): `Status: draft` on
+  every document in this packet, no `Ratified by:` line anywhere, and the
+  filing is not the word. Ratified with amendment 2026-09-11 — see
+  `review/ratification-2026-09-11.md`.
 * **No merge of this pull request by its author.** Landing is Rule 6 and the
   orchestrator's act.
 * **No removal of any floor member, and no widening of the floor's grace.**
