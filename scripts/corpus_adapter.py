@@ -368,11 +368,31 @@ class CorpusAdapter(Protocol):
 # only flipping that row's disposition (Brett Heap's act) or folding this path
 # into a follow-up shed PR makes removal lawful.
 #
-# NO APPLICATION CONSUMER reads this copy any more -- every executable reader
-# of the interface's dataclasses was re-pointed above. What still reads this
-# exact path, by design, is structural test tooling comparing shapes or
-# refusals rather than nominal class identity, for which a second,
-# separately-loaded copy of the interface is the point, not a defect:
+# NOT EVERY EXECUTABLE READER WAS RE-POINTED. `scripts/ideation_dashboard/
+# authoring.py`'s one function-local import (in `_classify_proposal`) still
+# reads this replica, and unlike everything below this is not a design choice
+# -- it is BLOCKED. authoring.py's own carve-manifest row is
+# `moved_with_declared_edit` (destination
+# `openDox/code/src/opendox/authoring.py`), and `validate-carve-manifest.py`
+# check 3 pass 2 byte-locks a `moved`/`moved_with_declared_edit` row's SOURCE
+# path to its content at `carve_commit` for as long as `phase: carve` holds:
+# ANY edit trips `carve-digest-mismatch` ("CHANGED SINCE THE CARVE"), not
+# only an edit outside the row's declared lines -- measured directly: a
+# one-line change confined to the declared `edits[].lines: [317, 318]`
+# still fails this way. So authoring.py's import waits on the same act as
+# this file does (a disposition flip or a shed PR), not on more effort here.
+# Concretely: `_classify_proposal` still builds its `DocumentId` from THIS
+# module's class and hands it to the pinned adapter's `classify()`, so the
+# `Classification` it gets back carries the replica's class at `.id`, not
+# the pinned one. That crossing is inert today only because nothing on this
+# path compares by nominal type (`isinstance` / dataclass identity) -- every
+# check downstream is structural attribute access (`.key`, `.corpus`) -- and
+# it stops being inert the day something does.
+#
+# What else still reads this exact path is structural test tooling, by
+# design, comparing shapes or refusals rather than nominal class identity,
+# for which a second, separately-loaded copy of the interface is the point,
+# not a defect:
 #   - by import: `scripts/carve_conformance.py`,
 #     `tests/carve_conformance/home_factory.py` and
 #     `tests/carve_conformance/test_verify_carve_conformance.py` (see that
