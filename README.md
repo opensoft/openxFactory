@@ -530,6 +530,60 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-merged-into-empty-tail-standing](openspec/changes/amend-merged-into-empty-tail-standing/proposal.md)
+  — authored 2026-09-11, **`Status: draft` — NOT RATIFIED**. Lane
+  `openxfactory-1`. **THE DIRECTION IS RULED AND THE WORDING IS NOT.** Brett
+  Heap ruled on 2026-09-11 by multiple choice in session (~01:3xZ), verbatim
+  ***"Rule the silence correct in canon"***, recorded on openxFactory
+  [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5628349929)
+  at 2026-09-11T02:06:38Z: a `Merged into` marker declares its DESTINATION in
+  its PREFIX and owes no tail, so the silence is correct and canon says so. That
+  word was given before a sentence existed, so it **commissions the authoring
+  and approves no wording** — `.openspec.yaml` carries drafting provenance with
+  no approval pair, every document says `Status: draft`, and ratification,
+  promotion and archive are three later acts on three later words. Origin:
+  openxFactory [#914](https://github.com/opensoft/openxFactory/issues/914),
+  filed UNCLAIMED at the archive of `amend-marker-declaring-nothing`
+  ([#926](https://github.com/opensoft/openxFactory/pull/926) → `114d6e3d`),
+  which owed it as residue `tasks.md` § 7.1 and `design.md` D6. **ONE
+  `## MODIFIED Requirements` BLOCK, over ONE requirement, in ONE capability**:
+  `doc-health` § *Currency of an active change's MODIFIED requirement blocks*.
+  **ONE SENTENCE IS RETIRED AND REPLACED IN PLACE** — the fifth ground's scoping
+  sentence, whose tail clause called the merge form's empty tail *"a question
+  this requirement does not decide"* — and **ONE SENTENCE IS ADDED** beside it
+  stating the ruling, with **ONE SCENARIO** at the end of the block. **NO GROUND
+  IS ADDED AND NONE IS WITHDRAWN**: the class still states FIVE, and the added
+  sentence is a PROHIBITION (*SHALL NOT be reported*) written so it cannot be
+  read as a sixth ground; the silence is scoped at the SHAPE and never at the
+  FORM, a code span a merge marker's reason DOES quote staying subject to the
+  second ground. **NO CODE MOVES, AND THAT IS MEASURED**: `code_surface: none`,
+  because `scripts/doc_health/modified_block_currency.py` already reports
+  nothing on this shape — its fifth-ground predicate reads
+  `marker.form == "removed"` and the other four are reached through
+  `marker.names` or `marker.quoted`, both empty here — and
+  `tests/doc-health/test_modified_block_currency.py::test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
+  has pinned it since 2026-09-10; both are CITED and neither is edited.
+  **THE POPULATION OF THE RULED SHAPE IS ZERO**, measured on `main` @
+  `96b4835b` rather than assumed: 27 markers in the corpus — 15 of
+  `Removed from canon` form, 3 of `Merged into` form, 9 of the pairing form —
+  and NOT ONE `Merged into` marker has a tail carrying no code span; of the 29
+  active MODIFIED blocks this family reads, exactly TWO carry a unit-naming
+  marker at all. **TWO VETO POINTS ARE DECLARED**: `design.md` **D1**, the
+  sentence's exact wording, with the sixth-ground alternative written out and
+  costed beside it; and `design.md` **D2**, the `Removed from canon` marker,
+  which is owed by MEASUREMENT rather than by preference — `derive_units` reads
+  the whole fifth-ground sentence as ONE body unit of 478 characters and this
+  corpus has no instrument for retiring a CLAUSE, so a pure addition would leave
+  canon saying it does not decide a question it then decides, two sentences
+  apart. The block is byte-faithful by CONSTRUCTION (sliced from canon, one
+  exact single-occurrence substitution, only the touched paragraph re-wrapped)
+  and the family's own derivation reads it: **165 canon units, 1 uncarried,
+  named by the marker and suppressed, 0 marker defects, 21 of 21 promoted
+  scenario titles carried**. **NOTHING IS PROMOTED BY THIS PULL REQUEST**: it
+  edits no file under `openspec/specs/`, no script, no test, no contract and no
+  workflow, `tasks.md` § 1 and § 5 stay OPEN, and openxFactory #914 closes at
+  the ARCHIVE and not at this landing.
+
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: draft`** — a PROPOSAL, and **filing is not
   ratifying**. Lane `openxfactory-2`. Filed on Brett Heap's word in session,

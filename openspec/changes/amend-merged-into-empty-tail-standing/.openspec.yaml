@@ -1,0 +1,107 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-amend-merged-into-empty-tail-standing
+  reason: >-
+    ONE OWED SUCCESSOR, RULED BEFORE IT WAS AUTHORED. openxFactory issue #914
+    was filed UNCLAIMED by the lane that archived `amend-marker-declaring-nothing`
+    (PR #926, `114d6e3d`), which owed it at its own `tasks.md` § 7.1 and
+    `design.md` D6 and named it there rather than deciding it. The residue is
+    exact: a `Merged into` marker whose tail names no superseded title parses
+    with `names = []` and `quoted = []`, which is the shape ground FIVE reports
+    for the `Removed from canon` form — but the merge form's DECLARATION has
+    always been read from its PREFIX, where its destination stands, so whether
+    such a marker declares nothing, or declares a destination that absorbed
+    nothing named in the tail, was a question nobody had ruled. The predecessor
+    left it deliberately alone (#860 scoped itself to the removal form, and
+    inventing a sixth ground on the day after would have repeated the fault that
+    packet corrects) and PINNED the silence with
+    `test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`, so it was a
+    decision a later act could overturn rather than a gap it had to rediscover.
+    BRETT HEAP RULED ON 2026-09-11, verbatim "Rule the silence correct in
+    canon", by multiple choice in session (~01:3xZ) and recorded on #914 at
+    2026-09-11T02:06:38Z (comment 5628349929). A `Merged into` marker declares
+    its DESTINATION in its PREFIX and owes no tail; the silence is correct and
+    canon says so in one sentence. THAT RULING SETTLES THE DESIGN AND NOT THE
+    TEXT: it was given before a sentence existed, so it approves no wording, and
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED.
+    THE CHECKER IS NOT WRONG ABOUT CANON, WHICH IS WHY THIS IS A PACKET AND NOT
+    A PATCH. The promoted requirement — *Currency of an active change's MODIFIED
+    requirement blocks* in `openspec/specs/doc-health/spec.md` — states that the
+    merge form's empty tail "is a question this requirement does not decide",
+    and `suppression` conforms to it exactly: the fifth ground reads
+    `marker.form == "removed"` and its own comment records the case as "a
+    question nobody has ruled". A ruling over a promoted sentence is an
+    amendment of the requirement, and this corpus admits exactly one instrument
+    for that — a ratified change carrying a `## MODIFIED` block. Editing the
+    promoted file directly would be the defect this very capability exists to
+    report.
+    NO CODE MOVES, AND `code_surface: none` IS MEASURED RATHER THAN CLAIMED. The
+    behaviour this packet states in canon is already the shipped behaviour: the
+    fifth-ground predicate cannot reach a `Merged into` marker, each of the
+    other four grounds is reached through `marker.names` or `marker.quoted`,
+    both empty for a tail carrying no code span, and the test above has asserted
+    the empty defect list since 2026-09-10. Both artifacts are CITED by this
+    packet and edited by NOTHING in it; the diff is this packet's directory, one
+    README row and one per-change sweep ledger row.
+    THE POPULATION OF THE RULED SHAPE IS ZERO, measured rather than assumed on
+    2026-09-11 over `main` @ `96b4835b`, the tree the design was taken on and the
+    scope every figure in this packet is stated at. The corpus carries 27 markers
+    — 15 of `Removed from canon` form, 3 of `Merged into` form and 9 of the
+    pairing form — and NOT ONE `Merged into` marker has a tail carrying no code
+    span; of the 29 active MODIFIED blocks this family reads, exactly TWO carry a
+    unit-naming marker at all, `add-chain-attestation` and
+    `add-composed-view-authoring`, both `Merged into` and each naming one
+    superseded title that matches its resolved basis. A run reports no marker
+    defect before this packet and none after it. THE ISSUE'S OWN FIGURE IS
+    CORRECTED IN PASSING: #914 records "9 pairing-form markers, none with an
+    empty tail", and nine is the count of the THIRD form
+    (`Modified over <basis>'s addition by ...`), not of the form this packet
+    rules on. Both populations are zero; they are now stated apart.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-11: its 30
+    topic folders carry no marker grammar, no marker-defect reporting and no
+    doc-health carriage arm. The `INDEX.md` lines matching "marker" are the
+    `xspec:candidate`/`xspec:supersedes` prose-tagging grammar, the doxBench
+    dirty-tile UI marker and a compression-marker note — three different things
+    in three different capabilities. `kind: staged` would claim a staging source
+    that does not resolve. The organized source is openxFactory #914 and the
+    archived § 7.1 that scoped it.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`, session `a9c24afc`),
+    authoring the remedy openxFactory #914 proposes, on Brett Heap's ruling of
+    2026-09-11, verbatim "Rule the silence correct in canon". NO APPROVAL PAIR
+    IS DECLARED AND NONE IS IMPLIED: that ruling COMMISSIONS THE AUTHORING and
+    ratifies no wording — it chose between the issue's two options and decided
+    no sentence, no scenario and no marker, none of which existed when it was
+    given. The lawful unapproved shape is the one `add-drafted-proposal-origin`
+    (issue #318) added — drafting provenance, no `approved_by`, no
+    `approved_on` — and every document in the packet carries `Status: draft` to
+    match. Ratification, promotion and archive are three later acts on three
+    later words.
+    THE DECISIONS MOST WORTH A VETO ARE `design.md` D1 AND D2. D1 IS THE
+    WORDING, not the direction: one sentence stating that a `Merged into` marker
+    declares its destination in its prefix and owes no tail, so a tail naming no
+    superseded title is SILENT BY RULE — not reported on the fifth ground, and,
+    where it carries no code span at all, reaching none of the other four
+    either, each of those being read through a name or a quoted span such a tail
+    does not carry. It is written so that it CANNOT BE READ AS A SIXTH GROUND (a
+    prohibition in a paragraph of obligations, the count of grounds left at
+    FIVE) and so that the silence is scoped at the SHAPE and never at the FORM
+    (a code span the reason DOES quote stays subject to the second ground). The
+    alternative the ruling declined — report it as a sixth ground at `info` —
+    is written out in D1 with its cost. D2 IS THE MARKER, and it is decided by
+    MEASUREMENT rather than by preference: a pure addition would owe none, but
+    `derive_units` reads the whole fifth-ground sentence as ONE body unit and
+    this corpus has no instrument for retiring a CLAUSE, so the sentence is
+    retired and replaced in place and one `Removed from canon` marker is owed.
+    Leaving the sentence standing would make canon say the requirement does not
+    decide the question and then decide it, two sentences apart.
+  proposed_on: 2026-09-11
+related:
+  - openxFactory:change:archive/2026-09-10-amend-marker-declaring-nothing        # ARCHIVED (PR #908 -> archive PR #926). OWED THIS SUCCESSOR at its tasks.md § 7.1 / design.md D6, pinned the silence this packet rules correct, and is THE LAST WRITER of the requirement this block MODIFIES — its promoted text is what this block writes over and its own `Removed from canon` marker is deliberately NOT restated here
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing # ARCHIVED (PR #887 -> archive PR #899). The `code_surface: none` amend shape this packet follows exactly — one `## MODIFIED` block over this same requirement, units retired and replaced in place under one marker, archiving on landing plus its own task list. Its bytes are NOT edited
+  - openxFactory:change:archive/2026-09-06-amend-marker-reason-boundary           # ARCHIVED (PR #719). Put the reason boundary that makes `Marker.quoted` meaningful, so a tail carrying no code span is mechanically distinguishable from one whose reason quotes — which is the distinction this packet's sentence turns on
+  - openxFactory:change:archive/2026-09-09-amend-marker-defect-reporting          # ARCHIVED (PR #850). Ruled the PAIRING form's silence correct at its own design.md D3 — the precedent this packet follows for the merge form — and its § 2.4 checked the doc-health / document-lifecycle boundary this packet leaves untouched
+  - openxFactory:change:archive/2026-08-27-add-modified-block-currency-check      # ARCHIVED. Promoted the requirement this block MODIFIES and wrote the marker grammar and the one-ground sentence its successors have been amending since
