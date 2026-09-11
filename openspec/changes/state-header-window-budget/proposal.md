@@ -1,0 +1,236 @@
+---
+code_surface: none — MEASURED, not assumed: this packet's delta is pure requirement prose inside the ALREADY-PROMOTED `release-realization` requirement "Equivalent declaration sites for the ordered-delta parent declaration" — one paragraph added stating a rule `scripts/frontmatter_strict.py` already implements (`read_header_line`'s own docstring at lines 541-545, which already reads "FENCE LINES ARE SKIPPED BUT STILL COUNT toward the window", and its executable window arithmetic at lines 565 and 569, which counts the window from the document's own line 1 regardless of where a fence closes), and one scenario added asserting it; no existing sentence, bullet or scenario of the requirement is reworded, reordered or removed, so no `Removed from canon` marker is owed. `grep -rn "Equivalent declaration sites\|One parent declaration across both sites" scripts/ tests/` (checked 2026-09-10, corrected 2026-09-10 after Copilot found the original count wrong) returns THREE hits — `scripts/frontmatter_strict.py:69` and `tests/sequenced_after/test_header_line.py:6-7` — every one of them a comment or module-docstring line naming this requirement (and its sibling "One parent declaration across both sites, and its retention") BY TITLE, not a test or script that pins this requirement's scenario count or scenario titles; no test in this corpus does that. Under `release-realization` a `code_surface: none` change archives on landing, exactly as `amend-neutral-product-pin-interim-copy-vocabulary` did for the same reason.
+target_release: none — CHECKED AGAINST PRECEDENT, not the only word this corpus uses here and not picked at random: the promoted `release-realization` requirement "Realization axis declaration" enumerates `implemented` or a named release for its DEFAULT case, but this packet's own closer template, the archived `amend-neutral-product-pin-interim-copy-vocabulary` — `code_surface: none`, one `## MODIFIED` requirement, cited above as the shape this packet follows — declared exactly `target_release: none` and archived on that word without incident; so did `add-subject-establishment`, `amend-published-tip-unreadable-scenario` and `amend-modified-block-currency-standing` (others use `promotion-only` instead — the corpus does not use one word here for every doc-only change, and this packet follows its nearest sibling rather than inventing a fourth). No code surface, no contract bundle, no digest set, no release tag, and nothing for any consumer to re-vendor: the rule this packet states in words is already what `scripts/frontmatter_strict.py` does in code, and already what codexFactory's vendored copy does, proved byte-equal to the source at `b91af6ea` in PR #906's own evidence (`evidence/realization-2026-09-10.md` § 3, re-run at that archive). The realization of a wording amendment is its promotion at archive, a separate act on Brett Heap's word, and not a build this packet owes. (The promoted enumeration not naming `none` as a third word — despite it being this corpus's own precedent for a `code_surface: none` change more than once — is itself a documentary gap in a DIFFERENT requirement than the one this packet amends; `add-structured-scope-substrate`, an active sibling, already carries a `## MODIFIED` block on "Realization axis declaration" itself, so resolving that gap is that packet's province and not this one's.)
+sequenced_after: [accept-sequenced-after-header-line]
+---
+
+# Proposal: state-header-window-budget
+
+Status: ratified
+Ratified: 2026-09-11 by Brett Heap (openxFactory operator authority) —
+first-hand, in session to lane `codexfactory-1`, 2026-09-11T01:44Z, verbatim
+*"ratify 921"*, over head `29f22114`; recorded on PR #921
+([comment 5628429288](https://github.com/opensoft/openxFactory/pull/921#issuecomment-5628429288)),
+record `review/ratification-2026-09-11.md`.
+Authored: 2026-09-10, lane codexfactory-1, on Brett Heap's resume ruling of
+2026-09-10, verbatim **"fan out wide"** (authorization to author, not
+ratification of this text) — carrying out lane codexfactory-1's own reply on
+openxFactory PR
+[#906](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763),
+which named this packet's shape.
+**RATIFICATION WAS OWED AND WAS BRETT HEAP'S ACT; IT IS THE `Ratified:`
+LINE ABOVE.** `.openspec.yaml` `origin.approved_by` keeps the authoring
+authorization it was written with — byte-unmoved, disclaimer and all — and
+carries the ratification ADDED beside it in the same commit that flipped this
+status, per `document-lifecycle` § *Proposal origin declaration*. Task 0.2
+records the ruling; the archive (task 3.1) remains a SEPARATE act on a
+separate word.
+
+## Origin
+
+openxFactory PR #906 — the archive of `accept-sequenced-after-header-line`
+(merged 2026-09-10T16:51:51Z at `92d0367c`) — carries a Copilot review comment
+on `openspec/specs/release-realization/spec.md:440`
+([discussion_r3981305715](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981305715)),
+quoted here in full because this packet exists to answer it and not to
+paraphrase it:
+
+> The requirement defines the header-line site as being within the first 15
+> real lines and outside any leading `---` fence, but it doesn’t explicitly
+> state whether fence lines still count toward the 15-line window. The
+> implementation (`scripts/frontmatter_strict.py:541-545`) treats fence lines
+> as non-declaration lines that still count toward the window, so spelling
+> that out here would reduce the risk of divergent consumer implementations.
+
+Lane codexfactory-1 replied on that thread
+([discussion_r3981322763](https://github.com/opensoft/openxFactory/pull/906#discussion_r3981322763)),
+as itself and not as a ruling — **quoted here in full, corrected 2026-09-10
+after Copilot found the earlier text here paraphrased the reply instead of
+quoting it, contradicting task 1.2's own commitment to quote both comments
+in full:**
+
+> Lane: codexfactory-1
+>
+> **Taken as a real documentary gap, and DECLINED IN THIS PULL REQUEST for a reason that is this pull request's whole claim.** Answering once.
+>
+> **The reading is correct.** Fence lines DO count toward the fifteen-real-line window while being unavailable as declaration sites — the implementation is deliberate about it, and the packet says so in `tasks.md` § 2.3: *"One fence rule for both readers: `fenced_lines` takes the lines INSIDE the span and the header-line scan starts AFTER it, so a field declared in the fence is read once and never counted a second time as a header line. **Fence lines still COUNT toward the window — one window rule, the document's own.**"* The requirement text as ratified states the first half (*"outside any leading `---` fence, whose lines are read by the front-matter reader and MUST NOT be counted a second time as header lines of the same document"*) and is silent on the budget half.
+>
+> **Why not fixed here.** This is an ARCHIVE commit. Its central claim, asserted with sha256 on both sides, is that the two promoted requirements are **byte-identical to the ratified delta** — 4,313 B `85894b71…` and 2,719 B `5c824838…`. Editing one word of that text at the archive would break that identity and, worse, would amend requirement text Brett Heap ratified at head `f36d2bc2` on 2026-09-10T11:31:31Z with **no ruling behind the amendment**. A promoted requirement is amended by an OpenSpec change with a `## MODIFIED Requirements` block and its own ratification, not by an archiver's judgement.
+>
+> **Where it goes instead.** The observation is worth a change of its own — a one-clause MODIFIED on this requirement making the window-budget rule explicit, which is exactly the kind of narrow amendment the corpus takes routinely (`amend-marker-reason-boundary`, `amend-neutral-product-pin-interim-copy-vocabulary`). **It is not silently dropped:** it is answered here, on the packet whose text it concerns, and the behaviour it asks to have spelled out is already asserted by test rather than left to a consumer's guess — `tests/sequenced_after/test_header_line.py` covers the fence cases, and the reader has ONE window rule for both sites by construction (`split_real_lines` + `fence_span`, shared), so a consumer that vendors the reader inherits the rule whether or not the prose spells it out. codexFactory, the only consumer reading it today, vendors those exact bytes — proven byte-equal at `b91af6ea` in this pull request's evidence § 3.
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+**This packet is that amendment** — the "one-clause MODIFIED" the reply above names.
+
+## Why
+
+**The requirement states one half of the rule and is silent on the other
+half, and the two halves are easy to conflate.** The promoted requirement
+"Equivalent declaration sites for the ordered-delta parent declaration"
+says a header-line declaration sits "within the document's BOUNDED LIFECYCLE
+HEADER WINDOW … and outside any leading `---` fence, whose lines are read by
+the front-matter reader and MUST NOT be counted a second time as header
+lines of the same document." That sentence answers ONE question — may a
+fence's own lines be read AGAIN as a header-line declaration site? No — and
+is silent on a DIFFERENT question it reads as adjacent: do a fence's lines
+still occupy part of the window's fifteen-line BUDGET, or does the window
+start counting fresh once the fence closes? A reader who has not read the
+code could take either answer from that sentence, and a reader implementing
+the rule from the prose alone — exactly codexFactory's position, since it
+vendors the code but a FUTURE consumer might implement from the spec instead
+— has nothing in the requirement text to settle it.
+
+**The code has one answer, and it is not the more permissive one.**
+`scripts/frontmatter_strict.py`'s `read_header_line` computes the window's
+end as `min(window, len(lines))` against `lines`, the FULL list of the
+document's real lines starting at index 0 = line 1 — the SAME index space
+the fence occupies — while the scan's START moves past the fence
+(`start = 0 if closing is None else closing + 1`, line 565; the scan itself
+at `for index in range(start, min(window, len(lines))):`, line 569). The
+window's upper bound never moves to account for the fence. Confirmed
+empirically on this branch (not merely read): a `sequenced_after:` header
+line sitting at the document's real line 19, behind a four-line fence, is
+REFUSED as `NO_HEADER_LINE` — it would be ADMITTED under the reading "the
+window is fifteen lines counted after the fence closes," which a fence
+ending at line 4 would place at lines 5–19 inclusive — while a header line
+at real line 15 behind the SAME fence IS read, because line 15 is the
+window's own absolute edge, fence included. The docstring the Copilot
+comment cites already states the same conclusion in words, at lines
+541–545: "FENCE LINES ARE SKIPPED BUT STILL COUNT toward the window: the
+window is the first `window` lines OF THE DOCUMENT … rather than a second
+window measured from wherever a fence happens to end." Task 2.3 of the
+archived packet's own `tasks.md` records the same design choice at
+authoring time. Nothing here is a new reading; every source that speaks to
+the question — the code, its docstring, the packet's own task record, and
+Brett Heap's own PR #906 reply — agrees, and none of them is the promoted
+requirement text itself.
+
+**Silence in a promoted requirement is not neutral, because this requirement
+exists so a consumer other than this repository can implement the rule from
+prose.** The whole reason the header-line form exists is that codexFactory
+writes its lifecycle headers unfenced and needed a reader; `accept-sequenced-after-header-line`
+built that reader IN openxFactory and codexFactory VENDORS it byte-for-byte
+rather than re-implementing it — so today no divergence is possible, the
+vendored bytes being checked equal to the source at the pinned
+`contract_ref`. But the requirement is written as the capability's statement
+of the rule, independent of any one implementation, and a future consumer
+implementing from the promoted spec instead of vendoring openxFactory's code
+would have to guess the same thing a careful outside reviewer (Copilot) just
+guessed wrong about. Stating the rule the code already enforces costs
+nothing behaviourally and closes that gap for anyone who reads the
+requirement rather than the implementation.
+
+## What Changes
+
+**ONE `## MODIFIED` requirement, and it is a pure addition.** The block below
+targets "Equivalent declaration sites for the ordered-delta parent
+declaration" — promoted in `openspec/specs/release-realization/spec.md` by
+the archive of `accept-sequenced-after-header-line` (PR #906) — and adds:
+
+- **One body paragraph**, inserted immediately after the paragraph defining
+  the bounded lifecycle header window and before the paragraph on
+  single-line values, stating that the window is counted from the
+  document's own line 1, that a leading fence's lines (both `---`
+  delimiters and every line between them) count toward that budget exactly
+  as any other line does, and that the window is not re-measured as a fresh
+  window starting after the fence closes.
+- **One scenario**, `Fence lines consume the header window budget`, placed
+  after the existing "The same bytes appear beyond the header window"
+  scenario, asserting the concrete consequence: a header line a fence's
+  length pushes past the window's last line is not read.
+
+**Every existing sentence, bullet and scenario of the requirement is carried
+verbatim.** Nothing is reworded, reordered, renamed or dropped, so this
+delta owes no `Removed from canon by` marker and no `Merged into` marker —
+those markers declare a deletion, and this change makes none. The other
+promoted requirement of this capability's `accept-sequenced-after-header-line`
+delta, "One parent declaration across both sites, and its retention," is
+untouched and is not restated here.
+
+**Sibling search, corrected 2026-09-10 — Copilot found that the first
+version's `find` command could not reach what it claimed to check.** The
+claim that matters is narrower than "no other active change touches
+`release-realization` at all": it is that no OTHER active change writes
+THIS requirement key, "Equivalent declaration sites for the ordered-delta
+parent declaration."
+`find openspec/changes -maxdepth 4 -path "*/specs/release-realization/spec.md" -not -path "*/archive/*" -not -path "*/state-header-window-budget/*"`
+(corrected TWICE by Copilot review: first the depth — a delta file sits at
+`openspec/changes/<id>/specs/release-realization/spec.md`, four path
+segments below `openspec/changes`, one deeper than the original command's
+`-maxdepth 3` could reach, so that command returned nothing regardless of
+whether siblings existed; then the final `-not -path` term — without it,
+this command, run against THIS packet's own worktree, also matches this
+packet's own delta file, three paths and not two. Unlike the `gh pr list`
+check below, a `find` over a live worktree has no "before this pull request
+existed" moment to rely on, so the self-exclusion has to be an explicit
+path term.) Reproduced 2026-09-10, finds exactly TWO other active changes
+with a `release-realization` delta:
+`add-sequenced-after-substrate` (`## ADDED Requirements` only) and
+`add-structured-scope-substrate` (`## MODIFIED` on "Realization axis
+declaration" and five other requirements).
+A `grep -n "^### Requirement:"` over both files shows neither declares one
+named "Equivalent declaration sites for the ordered-delta parent
+declaration", so neither collides with this delta's requirement key. No
+OTHER open pull request on `opensoft/openxFactory` touches
+`release-realization` or `frontmatter_strict`
+(checked before this pull request was filed, via
+`gh pr list --json number,title,files` — empty, because the pull request
+did not yet exist to match. **Correction:** the earlier claim that a
+re-check taken AFTER this pull request existed also came back "still
+empty" was wrong and is retracted — that bare command has no term
+excluding this pull request's own number, so once #921 is open it
+necessarily matches itself. Reproduced 2026-09-10 at head `7e31b2df`: the
+command returns exactly one match, #921 itself; excluding it BY NUMBER
+leaves zero OTHER open pull requests). No OTHER active change writes this requirement key (this packet's own `## MODIFIED` block does, and is not the collision the check is for), so
+`modified-block-currency`'s two-writers ordering rule owes no
+`Modified over` marker.
+
+**The ledger's own `class` field reads `co-modifier`, not `sole`, and that
+is correct rather than a defect.** This change's `## MODIFIED` block writes
+the same requirement key — `release-realization` / "Equivalent declaration
+sites for the ordered-delta parent declaration" — that
+`accept-sequenced-after-header-line`'s own `## ADDED Requirements` block
+wrote, and the per-change sweep ledger counts that ARCHIVED adder as the
+partner regardless of the active-collision question above, which is
+narrower and answered separately. Seeding this change's row
+(`python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#921'`)
+flips `accept-sequenced-after-header-line`'s own row from `sole` to
+`co-modifier` in the same re-seed — the ledger's own documented "partner
+flip" mechanic, not a hand edit.
+
+## Impact
+
+- **Affected spec:** `release-realization` — ONE `## MODIFIED` requirement,
+  one body paragraph added, one scenario added (now five), nothing removed.
+- **Affected code:** none. `scripts/frontmatter_strict.py` already implements
+  the stated rule; this packet changes no script, no EXECUTABLE test logic,
+  no workflow and no contract. (It DOES touch two files under `tests/`, and
+  neither is test logic: `tests/sequenced_after/corpus-ledger.yaml` — a
+  per-change sweep-ledger bookkeeping row, task 1.7 — asserts nothing; and
+  `tests/sequenced_after/test_sweep.py` gets one dated entry appended to the
+  hand-written MOVEMENT LOG inside an existing test's docstring, task 2.6a —
+  prose documenting why this change's partner-flip row move is owed a
+  narrative, not a changed assertion, changed fixture or changed test
+  outcome.)
+- **Affected consumers:** none. codexFactory's vendored copy already carries
+  the behaviour this packet states in words; no re-vendor, no pin advance,
+  no re-pin ceremony is owed by this change.
+- **Backward-compat:** total. No document in this corpus, or in codexFactory's,
+  reads differently before and after this change; only the promoted
+  requirement's own words move.
+
+## Open questions
+
+None about the FACT this packet states — that is settled by the code, by
+the archived packet's own task record, and by Brett Heap's own reply on
+PR #906. One narrower item about test coverage, found by Copilot review and
+checked rather than deferred to on faith (`design.md` § Risks / trade-offs
+has the full account): `test_fence_lines_count_toward_the_window` already
+regression-tests that a long-enough fence excludes a following header line,
+but no test pins the EXACT boundary line a fence produces (line 15 read,
+line 16 refused) the way the unfenced boundary tests do. `code_surface:
+none` disclaims adding test logic here, so this packet leaves the gap on
+the record rather than closing it unilaterally; a convener may rule it a
+small follow-up to that same test file (task 0.2). The only thing owed by
+THIS packet is the wording ratification itself.
