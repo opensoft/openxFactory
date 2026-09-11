@@ -165,6 +165,11 @@ codexFactory**, authored there, exactly as
       order cannot hold. This list is the packet's SINGLE statement of the
       procedure; 3.1 above, `design.md` D-2b, the `## MODIFIED` scenarios and
       `proposal.md` point AT IT rather than restate it.
+      **AND WHAT THIS LIST FIXES IS THE INVARIANTS, NOT THE MECHANICS —
+      `design.md` D-2e BOUNDS IT.** The exact commands, flags and helper layout
+      are the codexFactory companion change's DESIGN to specify and ITS reviewers
+      to judge; what is fixed here is what a reviewer must be able to check still
+      holds.
       **STEP 1 — CAPTURE THE DECLARATIONS, BEFORE ANYTHING IS EDITED.** Parse the
       envelope AS IT STANDS PRE-WITHDRAWAL and retain, for that class and by
       D-2c's discovery rule, (a) the declared `# companion:` PINNING NODE-ID SET
@@ -176,17 +181,27 @@ codexFactory**, authored there, exactly as
       naming the conformance module itself is REFUSED HERE: that module is
       EXCLUDED BY ITS OWN PATH from the step-3 run, so such a node id could never
       enter the measured set and would break the equality by construction.
-      **AND EVERY DECLARED PATH IS NORMALIZED AND CONTAINMENT-CHECKED HERE, IN
-      THIS SAME STEP.** A `# companion-artefact:` path is a NORMALIZED
+      **AND EVERY DECLARED PATH IS REFUSED OR CONTAINED HERE, IN THIS SAME STEP,
+      IN TWO STAGES.** A `# companion-artefact:` path is a NORMALIZED
       REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT (D-2c's grammar),
-      and step 1 REFUSES anything else: an ABSOLUTE path, ANY `..` segment, a
-      BACKSLASH, an EMPTY segment, and any path whose REALPATH AFTER
-      NORMALIZATION is not under the repository root. The normalization and the
-      containment check are performed BEFORE ANY FILESYSTEM READ, so the
-      existence check that follows can never read outside the checkout and no
-      comparison is ever made on a non-canonical spelling; a refused path FAILS
-      THE CHECK, NAMING THE REFUSAL CLASS AND THE OFFENDING DECLARATION, exactly
-      as an unresolvable identifier does.
+      and THE REFUSAL SET IS THE SPEC'S OWN, repeated here VERBATIM rather than
+      restated in this task's own words — one set, three sites.
+      **(a) A LEXICAL REFUSAL FIRST, TOUCHING NO FILESYSTEM AT ALL**: the
+      declaration is refused where the declared path is AN ABSOLUTE PATH, CARRIES
+      ANY `..` SEGMENT, ANY `.` SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A
+      TRAILING SLASH, OR ANY NON-POSIX SEPARATOR; this stage opens nothing, stats
+      nothing and resolves nothing, so a hostile spelling never reaches the
+      filesystem at all.
+      **(b) THEN CONTAINMENT, WHICH MAY CONSULT METADATA BUT READS NOTHING**:
+      only a path that SURVIVES (a) is RESOLVED, following symlinks, and the
+      resolved result is required to lie under the repository ROOT'S OWN RESOLVED
+      PATH. Resolution necessarily consults metadata — which is why this step is
+      NOT written as happening before every filesystem access, a claim no
+      resolution can honour — but THE ARTEFACT IS NOT OPENED OR READ BEFORE
+      CONTAINMENT HOLDS, so no read ever follows a declaration out of the
+      checkout and no comparison is ever made on a non-canonical spelling.
+      A refusal at EITHER stage FAILS THE CHECK, NAMING THE REFUSAL CLASS AND THE
+      OFFENDING DECLARATION, exactly as an unresolvable identifier does.
       The captured sets are the expected values every later step compares
       against: step 2 removes those very comment lines from the tree being
       measured, so a test that has not captured them first has no declaration
@@ -199,11 +214,29 @@ codexFactory**, authored there, exactly as
       **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY WITH A FIXED
       IDENTITY AND NO INHERITED CONFIGURATION, HOOKS OR SIGNING.** The scratch
       tree is a repository OF ITS OWN — `git init`-ed there, or a `git worktree`
-      with a PRIVATE `GIT_DIR` — with repository-LOCAL `user.name` and
+      whose PRIVATE git directory is NAMED ON EVERY CALL rather than exported
+      into the environment — with repository-LOCAL `user.name` and
       `user.email` set to FIXED TEST CONSTANTS, `GIT_CONFIG_GLOBAL=/dev/null`
       and `GIT_CONFIG_SYSTEM=/dev/null` (equivalently `GIT_CONFIG_NOSYSTEM=1`),
       `core.hooksPath` pointed at an EMPTY DIRECTORY, and `commit.gpgsign=false`
-      and `tag.gpgsign=false`; and **THE SAME ENVIRONMENT GOVERNS the
+      and `tag.gpgsign=false`.
+      **AND THE ENVIRONMENT IS CLEARED, NOT MERELY ADDED TO: EVERY INHERITED
+      `GIT_*` CONTROL VARIABLE IS UNSET** — `GIT_DIR`, `GIT_WORK_TREE`,
+      `GIT_INDEX_FILE`, `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`,
+      `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `GIT_NAMESPACE`,
+      `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the caller happens
+      to export — leaving ONLY the two this step sets itself
+      (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently
+      `GIT_CONFIG_NOSYSTEM=1`); **and EVERY git call in this step and in step 4
+      NAMES ITS REPOSITORY EXPLICITLY** — an explicit `--git-dir`/`--work-tree`
+      pair, or `-C <scratch>` after `git init` there — so that nothing inherited
+      can redirect a commit or a measurement. Setting hermetic VALUES is not
+      enough on its own: an inherited `GIT_DIR`, `GIT_WORK_TREE`,
+      `GIT_INDEX_FILE` or `GIT_COMMON_DIR` silently aims the scratch commit and
+      the step-4 diffs at ANOTHER repository, and the procedure then measures a
+      tree it never withdrew anything from — a GREEN check on the WRONG tree,
+      which is worse than a red one.
+      **THE SAME ENVIRONMENT GOVERNS the
       `git diff --name-only <baseline-commit>` measurements of step 4**. This is
       not a precaution in the abstract — this repository already records the
       failure: a CI runner carries NO ambient git identity, so an un-pinned
@@ -255,8 +288,17 @@ codexFactory**, authored there, exactly as
       EACH RUN ALONE**: for each identifier, run it from the committed baseline,
       record the paths **`git diff --name-only <baseline-commit>`** reports — in
       step 2's hermetic git environment — as THE PATHS THAT IDENTIFIER PRODUCED,
-      then RESTORE the tree to the baseline (`git checkout -- .` and
-      `git clean -fd`) before the next identifier runs. Assert that the resulting
+      then RESET **BOTH THE INDEX AND THE WORKTREE** to the baseline commit —
+      `git reset --hard <baseline-commit>` followed by `git clean -fdx`, with
+      `git status --porcelain` VERIFIED EMPTY — before the next identifier runs.
+      A worktree-only restore is NOT enough, and the distinction is the whole
+      attribution: `git checkout -- .` restores from the INDEX, so a regeneration
+      tool that STAGES what it writes leaves that content in the index, where it
+      survives into the NEXT identifier's delta and attributes one tool's
+      artefact to another — precisely the mis-binding the pair equality exists to
+      catch; and `-fdx` rather than `-fd` because an IGNORED file a tool writes is
+      still a difference the next run can trip over.
+      Assert that the resulting
       set of **`{(identifier, path)}` PAIRS EQUALS that class's captured
       `# companion-artefact:` PAIR SET** exactly — path AND identifier, **no
       more, no less** — both directions, order-free. **THE IDENTIFIER IS PART OF

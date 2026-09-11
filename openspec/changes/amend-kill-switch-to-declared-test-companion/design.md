@@ -196,14 +196,30 @@ PULL-REQUEST-EDITABLE file and the procedure below reads the declared path from
 disk, so an unconstrained path would let a proposed declaration name a location
 outside the repository or be compared in a non-canonical spelling. It cannot, by
 construction: the declared path is POSIX (forward slashes only), relative to the
-repository root, and ALREADY NORMALIZED — no leading `/`, no `..` segment, no
-backslash, no empty or `.` segment, no trailing slash. Step 1 REFUSES ANYTHING
-ELSE AT CAPTURE: absolute paths, any `..` segment, backslashes, empty segments,
-and any path whose realpath AFTER NORMALIZATION is not under the repository root.
-The containment check is made after normalization and BEFORE ANY FILESYSTEM
-READ, so no existence check ever follows a declaration out of the checkout; a
-refused path FAILS THE CONFORMANCE CHECK, NAMING THE REFUSAL CLASS AND THE
-OFFENDING DECLARATION.
+repository root, and ALREADY NORMALIZED. Step 1 REFUSES ANYTHING ELSE AT
+CAPTURE, IN TWO STAGES — and THE REFUSAL SET IS THE SPEC'S OWN. The `## MODIFIED`
+requirement states that set normatively; this paragraph, task 3.2's step 1 and
+the scenarios REPEAT THAT ONE SET VERBATIM rather than each carrying a list of
+its own, because a refusal set that drifts between the three sites is a
+declaration the checker and the specification disagree about.
+
+- **(a) LEXICAL REFUSAL FIRST, TOUCHING NO FILESYSTEM AT ALL.** The declaration
+  is refused where the declared path is AN ABSOLUTE PATH, CARRIES ANY `..`
+  SEGMENT, ANY `.` SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH, OR
+  ANY NON-POSIX SEPARATOR. This stage is pure string work: it opens nothing,
+  stats nothing and resolves nothing, so a hostile spelling is thrown out before
+  the filesystem is consulted at all.
+- **(b) THEN CONTAINMENT, WHICH MAY CONSULT METADATA BUT READS NOTHING.** Only a
+  path that SURVIVES (a) is RESOLVED, following symlinks, and the resolved result
+  is required to lie under the repository ROOT'S OWN RESOLVED PATH. Resolution
+  necessarily consults metadata — which is why this stage is NOT claimed to
+  precede every filesystem access, a claim that would be false of any resolution
+  — but IT DOES NOT OPEN OR READ THE ARTEFACT BEFORE CONTAINMENT HOLDS, so no
+  read ever follows a declaration out of the checkout and no comparison is ever
+  made on a non-canonical spelling.
+
+A refusal at EITHER stage FAILS THE CONFORMANCE CHECK, NAMING THE REFUSAL CLASS
+AND THE OFFENDING DECLARATION.
 
 **THE `regenerate:` FIELD IS AN ALLOWLISTED IDENTIFIER, NEVER A COMMAND, AND THE
 DECLARATION THEREFORE CANNOT INTRODUCE EXECUTION.** The envelope is a
@@ -247,12 +263,17 @@ what an earlier step captured or committed.**
    `# companion-artefact:` set as (path, regeneration-identifier) pairs; and
    resolve every declared identifier against the trusted module's table in this
    same step, so an identifier absent from the table fails HERE rather than
-   being looked up elsewhere or executed; and NORMALIZE AND CONTAINMENT-CHECK
-   EVERY DECLARED PATH in this same step, so that an absolute path, any `..`
-   segment, a backslash, an empty segment, or any path whose realpath after
-   normalization is not under the repository root is REFUSED HERE — before any
-   filesystem read, the refusal naming the refusal class and the offending
-   declaration — rather than being existence-checked outside the checkout. The
+   being looked up elsewhere or executed; and APPLY D-2c's TWO-STAGE PATH REFUSAL
+   to EVERY DECLARED PATH in this same step — first the LEXICAL refusal, which
+   touches no filesystem at all, of an ABSOLUTE PATH, ANY `..` SEGMENT, ANY `.`
+   SEGMENT, A BACKSLASH, AN EMPTY SEGMENT, A TRAILING SLASH, OR ANY NON-POSIX
+   SEPARATOR, and then, for a path that survives it, CONTAINMENT: the path
+   RESOLVED, following symlinks, and the result required to lie under the
+   repository root's OWN RESOLVED PATH, a stage that may consult metadata but
+   DOES NOT OPEN OR READ THE ARTEFACT BEFORE CONTAINMENT HOLDS. A refusal at
+   either stage happens HERE, naming the refusal class and the offending
+   declaration, rather than the declaration being read or existence-checked
+   outside the checkout. The
    reason this is FIRST is mechanical:
    step 2 removes those very comment lines from the tree being measured, so a
    test that has not already captured them has no declaration left to compare
@@ -265,11 +286,26 @@ what an earlier step captured or committed.**
    that committed tree and against that commit.
    **THAT COMMIT IS MADE IN A HERMETIC SCRATCH REPOSITORY, NEVER IN AN INHERITED
    GIT ENVIRONMENT.** The scratch tree is a repository OF ITS OWN — `git init`-ed
-   there, or a `git worktree` with a PRIVATE `GIT_DIR` — carrying
+   there, or a `git worktree` whose PRIVATE git directory is NAMED ON EVERY CALL
+   rather than exported into the environment — carrying
    repository-LOCAL `user.name` and `user.email` set to FIXED TEST CONSTANTS,
    with `GIT_CONFIG_GLOBAL=/dev/null` and `GIT_CONFIG_SYSTEM=/dev/null`
    (equivalently `GIT_CONFIG_NOSYSTEM=1`), `core.hooksPath` pointed at an EMPTY
-   DIRECTORY, and `commit.gpgsign=false` and `tag.gpgsign=false`; and THE SAME
+   DIRECTORY, and `commit.gpgsign=false` and `tag.gpgsign=false`.
+   **AND THE ENVIRONMENT IS CLEARED, NOT MERELY ADDED TO: EVERY INHERITED `GIT_*`
+   CONTROL VARIABLE IS UNSET** — `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`,
+   `GIT_COMMON_DIR`, `GIT_OBJECT_DIRECTORY`, `GIT_ALTERNATE_OBJECT_DIRECTORIES`,
+   `GIT_NAMESPACE`, `GIT_CEILING_DIRECTORIES`, and every other `GIT_*` name the
+   caller happens to export — leaving ONLY the two this procedure sets itself
+   (`GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM`, equivalently `GIT_CONFIG_NOSYSTEM=1`);
+   **and EVERY git call in steps 2 and 4 NAMES ITS REPOSITORY EXPLICITLY** — an
+   explicit `--git-dir`/`--work-tree` pair, or `-C <scratch>` after `git init`
+   there — so that nothing inherited can redirect a commit or a measurement.
+   Setting hermetic VALUES is not enough on its own: an inherited `GIT_DIR`,
+   `GIT_WORK_TREE`, `GIT_INDEX_FILE` or `GIT_COMMON_DIR` silently aims the
+   scratch commit and the step-4 diffs at ANOTHER repository, and the procedure
+   then measures a tree it never withdrew anything from — a green check on the
+   wrong tree, which is worse than a red one. THE SAME
    ENVIRONMENT GOVERNS the `git diff --name-only <baseline>` measurements of
    step 4. This repository already records why, and the precedent is cited rather
    than paraphrased: a CI runner carries no ambient git identity, so an un-pinned
@@ -309,9 +345,16 @@ what an earlier step captured or committed.**
    fixed cwd of the repository root. **THEY ARE RUN ONE AT A TIME AND EACH RUN IS
    MEASURED ALONE**: after each identifier's run, the paths **`git diff
    --name-only <baseline-commit>`** reports — in step 2's hermetic environment —
-   are the paths THAT IDENTIFIER produced, and the tree is RESTORED TO THE
-   BASELINE (`git checkout -- .` and `git clean -fd`) before the next identifier
-   runs. The measured value is therefore a set of **`{(identifier, path)}`
+   are the paths THAT IDENTIFIER produced, and then **BOTH THE INDEX AND THE
+   WORKTREE ARE RESET TO THE BASELINE COMMIT** — `git reset --hard
+   <baseline-commit>` followed by `git clean -fdx`, with `git status --porcelain`
+   VERIFIED EMPTY — before the next identifier runs. A worktree-only restore is
+   NOT enough, and the distinction is the whole attribution: `git checkout -- .`
+   restores from the INDEX, so a regeneration tool that STAGES what it writes
+   leaves that content in the index, where it survives into the NEXT identifier's
+   delta and attributes one tool's artefact to another — precisely the mis-binding
+   the pair equality exists to catch; and `-fdx` rather than `-fd` because an
+   IGNORED file a tool writes is still a difference the next run can trip over. The measured value is therefore a set of **`{(identifier, path)}`
    PAIRS**, and the test asserts THAT PAIR SET EQUALS that class's CAPTURED
    `# companion-artefact:` PAIR SET — path AND identifier, exactly as declared —
    **no more, no less**, in both directions and order-free.
@@ -451,6 +494,22 @@ plus the golden digest (§ 1's table; the RESULT of 2026-09-11T03:08Z), so the
 throw carries a six-file companion beside the envelope edit. That is what N-4's
 "one edit" hid. This packet does not shrink the act — it makes it declared,
 bounded and reviewable instead of discovered at the moment the switch is thrown.
+
+**D-2e — WHAT THIS PACKET FIXES, AND WHAT THE COMPANION CHANGE'S DESIGN OWNS.**
+This packet fixes THE INVARIANTS of the conformance procedure, and only those:
+capture before withdrawal; a committed hermetic baseline; a complete INDEPENDENT
+inventory with the conformance module excluded BY PATH; per-identifier
+attribution as (identifier, path) PAIRS; allowlisted identifiers resolved ONLY in
+trusted test code; artefact paths refused LEXICALLY and then CONTAINED; index AND
+worktree reset between tools; NON-EMPTINESS; and the two equalities with their
+failure classes. **THE EXACT COMMANDS, FLAGS AND HELPER LAYOUT ARE THE
+codexFactory COMPANION CHANGE'S DESIGN TO SPECIFY AND ITS REVIEWERS TO JUDGE.** A
+later mechanic that leaves every invariant above INTACT belongs THERE, not here:
+this is a specification packet, and a procedure written to the byte into a spec
+delta is a procedure that must be RE-RATIFIED to change a flag. The invariants
+are stated at the grain at which a reviewer can tell whether the check still
+measures what it claims to; below that grain the companion's own design and its
+own reviewers hold the pen.
 
 ### D-3 — The golden behaviour digest IS part of the declared companion
 
