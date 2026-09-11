@@ -205,13 +205,15 @@ and openxFactory #939 closes THERE and not at this landing.
       every other non-list root, with a list root still read exactly as before.
 
 - [x] 3.8 **NO EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED.**
-      `tests/doc-health` goes **1689 → 1710**, the whole rise being the new
-      file: 21 test functions in it, counted with
+      `tests/doc-health` goes **1689 → 1711**, the whole rise being the new
+      file: 22 test functions in it, counted with
       `grep -c '^def test_' tests/doc-health/test_grandfather_dispositions.py`,
       and 1689 re-measured on an `origin/main` worktree (`38c076d1`) in the
-      same shell as this tree's 1710. **THAT PAIR IS THE PACKET'S ONE TEST
-      COUNT**: § 3.7, this box, § 5.8, § 5.13 and the pull request body all
-      state it and no other.
+      same shell as this tree's 1711. **THAT PAIR IS THE PACKET'S ONE TEST
+      COUNT**: § 3.7, this box, § 5.8, § 5.14 and the pull request body all
+      state it and no other; the earlier readings (1706, 1708, 1709, 1710)
+      were taken at heads before the § 5.11, § 5.12 and § 5.14 rounds added
+      their tests, and are superseded.
       `test_ratification_record_subject.py`'s real-tree measurements are
       untouched by construction: they build their `Context` with
       `agg_root=None`, which is the scope this arm does nothing in.
@@ -242,6 +244,29 @@ and openxFactory #939 closes THERE and not at this landing.
       `scripts/doc_health/runner.py:758`; this tree **exit 0**, `Findings: 35
       critical, 0 error, 0 warning, 0 info`; and over the REAL file the report
       is **byte-identical** to the one taken without the guards (§ 5.13).
+
+- [x] 3.10 **AND THE RUNNER'S OWN READ MUST SURVIVE A MALFORMED ENTRY, NOT
+      ONLY A MALFORMED FILE** (PR #945, Copilot's FIFTH round). § 3.9 stopped
+      a scalar ROOT from aborting `runner.main`'s unconditional read; the
+      round after it found the same read still building
+      `(family, repo, path)` from the RAW entry, so a list- or dict-valued
+      field in an otherwise well-formed list file makes that tuple unhashable
+      and `set.add` raises `TypeError` out of the whole nightly — **MEASURED
+      BOTH WAYS** at `runner.py:770`, `TypeError: unhashable type: 'list'`
+      without the guard and exit 0 with it. This is the SAME defect § 5.11
+      took inside `families.py`, at the OTHER reader of the same file, and it
+      likewise **predates this packet**: the read is unconditional on every
+      aggregation run with or without #939's arm. The guard skips only an
+      entry whose key CANNOT BE HASHED, which **narrows nothing** — such a key
+      could never have entered the set and could never have matched a real
+      finding, whose family, repo and path are always strings — so the
+      dispositioned set is identical either way and only the exception is
+      gone. Pinned by
+      `test_the_runners_own_read_survives_a_malformed_entry_end_to_end`,
+      which goes END TO END through `runner.main` over a real aggregation
+      root because that is the only path that executes the read, and which
+      the § 3.7 entry tests could not have caught: they call the family
+      directly and never reach the runner.
 
 ## 4. The delta
 
@@ -354,13 +379,13 @@ record of what was measured when, which is what makes the two comparable.
       tests/scope_globs tests/proposal-support -q` — **exit 0**, **2197 passed,
       66 subtests passed**, taken on the § 5 tree named above. **THE
       `tests/doc-health` COUNT IS ONE MEASUREMENT AND IT IS THE LAST ONE**,
-      re-taken after the § 5.12 fix added its regression test: **1710** on this
+      re-taken after the § 5.14 fix added its regression test: **1711** on this
       tree and **1689** on an `origin/main` worktree (`38c076d1`) beside it in
-      the same shell, **+21** — the new file entire (21 `def test_`, counted
+      the same shell, **+22** — the new file entire (22 `def test_`, counted
       rather than recalled), and nothing else. The earlier readings of this
-      line (**1708**, **+19**) were taken before the § 5.11 and § 5.12 rounds
-      added their tests and are SUPERSEDED by it; § 5.13 re-derives the whole
-      gate set, this suite included, on the ratified tree.
+      line (**1708**/**+19** and **1710**/**+21**) were taken before the
+      § 5.11, § 5.12 and § 5.14 rounds added their tests and are SUPERSEDED by
+      it; § 5.13 and § 5.14 re-derive the gate set on the ratified tree.
 - [x] 5.9 **THE AGGREGATION MEASUREMENT RE-RUN ON THE FINAL TREE**, § 2.2
       through § 2.6 repeated after the last commit against an aggregation
       assembled TODAY: `opensoft/xFactory` @ `5fc9bc53` with `openxFactory`
@@ -501,7 +526,8 @@ record of what was measured when, which is what makes the two comparable.
       lines each), **28 `ratified-provenance` rows all `critical` and 0
       `info`** — D6 measured — **0 marker-defect findings**, and **0** findings
       naming this packet; `pytest tests/doc-health -q` **1710 passed, exit 0**
-      against the control's **1689**; and
+      at the head this box was taken on, re-taken as **1711** in § 5.14 after
+      the fifth round's test, against the control's **1689**; and
       `pytest tests/doc-health tests/sequenced_after tests/scope_globs
       tests/proposal-support -q` **2199 passed, 66 subtests passed, exit 0**.
       **THE AGGREGATION MEASUREMENT WAS RE-TAKEN TOO** (§ 2.2–§ 2.6, § 5.9),
@@ -518,6 +544,32 @@ record of what was measured when, which is what makes the two comparable.
       it was measured and which is no longer zero. Nothing in the rule depends
       on the number: it is a set equality over whatever the file records and
       whatever the run reports.
+
+- [x] 5.14 **THE FIFTH BENCH ROUND, TAKEN ON THE RECORD, AND THE GATES
+      RE-DERIVED AFTER IT.** Copilot reviewed again at 2026-09-11T12:23:01Z,
+      on `5a8bba3e`, and opened two threads. (1) **THE RUNNER'S UNHASHABLE
+      KEY** — § 3.10 carries the measurement and the fix. (2) **THE README
+      SUMMARY STILL READ 20 TESTS** while § 3.8 read 1710: TAKEN, and it was
+      already true when the comment arrived — the ratification encode
+      `e60ad2ff` had moved that row to *21 new tests, 1689 → 1710* minutes
+      earlier — so this round moves it again, to the final **22 / 1689 →
+      1711**, which is now the one figure in the front matter, § 3.7, § 3.8,
+      § 5.8, this box, the README row and the pull request body.
+      **RE-MEASURED AFTER THE FIX**: `grep -c '^def test_'` on the new file
+      → **22**; `python3 -m pytest tests/doc-health --collect-only -q` →
+      **1711 tests collected**, against the unchanged `origin/main`
+      `38c076d1` control of **1689 passed**; the whole new file alone →
+      **22 passed, exit 0**, and the same directory read **1710 passed,
+      exit 0** on this tree one test ago (§ 5.13), so the rise is +22 by
+      collection and by sum alike;
+      `openspec validate <change> --strict` → **exit 0**;
+      `proposal-support.py . verify` → **exit 0**;
+      `validate-sequenced-after.py .` and `--ledger-diff` → **exit 0**;
+      `validate-scope-globs.py .` → **exit 0**. Every other figure in § 5.13
+      is unmoved by a guard that changes no report: the capture at
+      `review/verification-2026-09-11-post-bench.md` states which were re-run
+      and which were not, and it is a SECOND capture at its own path because
+      a committed dated run report is never rewritten.
 
 ## 6. Archive — OWED, NOT GIVEN
 

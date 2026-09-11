@@ -572,9 +572,10 @@ Active changes:
   both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
   units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
   (`code_surface` non-empty, `target_release: implemented`): one last pass in
-  `scripts/doc_health/families.py`, a non-list-root guard in each of the two
-  readers of the dispositions file, and **21 new tests**
-  (`tests/doc-health` **1689 → 1710**, both counts measured on the ratified
+  `scripts/doc_health/families.py`, three guards in the two readers of the
+  dispositions file (a non-list ROOT refused in each, and an unhashable ENTRY
+  key refused in the runner's own read), and **22 new tests**
+  (`tests/doc-health` **1689 → 1711**, both counts measured on the ratified
   tree and on an `origin/main` worktree beside it), after which the same 41
   rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
   eighteen disposition keys and the other twenty-three byte-identical.

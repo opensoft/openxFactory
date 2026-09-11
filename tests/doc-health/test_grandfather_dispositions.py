@@ -400,6 +400,43 @@ def test_a_malformed_dispositions_FILE_is_ignored_rather_than_aborting_the_run(
                                      agg_root=good)] == [INFO]
 
 
+def test_the_runners_own_read_survives_a_malformed_entry_end_to_end(tmp_path):
+    """AND THE NIGHTLY'S OWN READ OF THE SAME FILE MUST SURVIVE IT TOO.
+
+    `runner.main` loads `health/dispositions.yaml` unconditionally on every
+    aggregation run, for `report.uncited_resolutions`, and builds a
+    `(family, repo, path)` key from the RAW entry. A list- or dict-valued
+    `family`, `repo` or `path` in an otherwise well-formed list file makes
+    that tuple unhashable, so `set.add` raised `TypeError` out of the whole
+    nightly — a crash that predates #939's arm and that the other malformed
+    tests in this file could not have caught, because they call the family
+    directly and never reach the runner.
+
+    Measured END TO END here, through `runner.main` over a real aggregation
+    root, which is the only path that executes that read. It NARROWS NOTHING:
+    a key that cannot be hashed could never have entered the set and could
+    never have matched a real finding's three string fields, so the
+    dispositioned set is identical either way and only the exception is gone
+    (PR #945, Copilot's fifth round).
+    """
+    from doc_health import runner as _runner
+    agg = _dispositions(
+        tmp_path,
+        _entry(repo=None) .replace("  repo: None\n",
+                                   "  repo:\n    - a list\n")
+        + _entry(path=None).replace("  path: None\n",
+                                    "  path:\n    k: a mapping\n")
+        + _entry())
+    (agg / "openxFactory").mkdir(parents=True, exist_ok=True)
+    out = tmp_path / "report.md"
+    rc = _runner.main(["--repo-root", str(agg),
+                       "--family", _RATIFIED_PROVENANCE,
+                       "--as-of", AS_OF.isoformat(),
+                       "--report-out", str(out)])
+    assert rc == 0
+    assert out.is_file()
+
+
 def test_a_requirement_narrowing_does_not_stop_the_downgrade(tmp_path):
     """The optional `requirement:` key selects one requirement inside a DELTA
     file. A ratification record has no requirement grain for it to select, so
