@@ -320,7 +320,9 @@ def declaration(proposal: Path) -> tuple[bool, str | None]:
 
 
 def _registry_present(repo_root: Path) -> bool:
-    """Whether `contracts/releases/` exists AS A REAL DIRECTORY of this tree.
+    """Whether `contracts/releases/` exists as a REAL, UNESCAPED path under
+    `repo_root` — no symlink ANYWHERE between `repo_root` and the registry
+    directory itself, not only at the registry directory's own name.
 
     `Path.is_dir()` FOLLOWS SYMLINKS, so a committed `contracts/releases`
     DIRECTORY SYMLINK — including one pointing outside this tree — would
@@ -328,16 +330,38 @@ def _registry_present(repo_root: Path) -> bool:
     reached through it would resolve as though this repository defined it.
     The candidate-file guard (`is_file() and not is_symlink()`) does not
     catch this on its own: a REGULAR file reached through a symlinked
-    parent directory is not itself a symlink, so checking only the
-    candidate file lets an external inventory pass whenever the directory
-    that holds it is the symlink rather than the file. So the directory is
-    checked for symlink-ness here, once, and every caller that needs to
-    know whether the registry is present uses THIS function — never a bare
-    `.is_dir()` — so `Report.registry_present` can never say something
+    parent directory is not itself a symlink.
+
+    CHECKING ONLY THE LEAF DIRECTORY'S OWN symlink-ness (`releases.is_symlink()`,
+    this function's first cut) closes the escape at that ONE component, but an
+    ANCESTOR being the symlink — `contracts/` itself, say, pointing outside
+    this tree — reaches the identical escape through a LEAF that is a
+    perfectly ordinary, unsymlinked directory: `contracts/releases` is then a
+    regular path, and so is whatever candidate file sits inside it, because
+    ordinariness is a property of the ONE PATH COMPONENT checked and says
+    nothing about what carried a reader there. So the test is not "is the leaf
+    a symlink" but "does resolving every symlink between here and `repo_root`
+    land you back where a symlink-free tree would have put you": the
+    registry's fully resolved real path must equal `repo_root`'s own resolved
+    real path with the literal `contracts/releases` suffix appended, with no
+    substitution anywhere in between. This subsumes the leaf-only check
+    (a symlinked `releases` itself also fails the equality) rather than
+    sitting beside it as a second guard.
+
+    Every caller that needs to know whether the registry is present uses THIS
+    function — never a bare `.is_dir()` and never only `.is_symlink()` on the
+    leaf — so `Report.registry_present` can never say something
     `resolves_as_release` did not itself act on.
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
-    return registry.is_dir() and not registry.is_symlink()
+    if not registry.is_dir():
+        return False
+    try:
+        resolved_registry = registry.resolve(strict=True)
+        resolved_root = repo_root.resolve(strict=True)
+    except OSError:
+        return False
+    return resolved_registry == resolved_root / RELEASE_REGISTRY_DIR
 
 
 def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
@@ -356,19 +380,28 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     because refusing every release name in a tree that cannot define one would
     make the validator unusable outside this repository.
 
-    NEITHER THE REGISTRY DIRECTORY NOR THE CANDIDATE INVENTORY MAY BE A
-    SYMLINK. `Path.is_file()` and `Path.is_dir()` both follow symlinks, so a
-    committed `contract-vX.Y.digests.yaml` symlink OR a committed
-    `contracts/releases` DIRECTORY symlink — either one, including one
-    pointing outside this tree — would otherwise be treated as an
-    estate-defined release. This module's sibling
+    NO PATH FROM `repo_root` TO THE CANDIDATE INVENTORY MAY CROSS A SYMLINK —
+    not the registry directory, not an ANCESTOR of it, and not the candidate
+    file itself. `Path.is_file()` and `Path.is_dir()` both follow symlinks, so
+    a committed `contract-vX.Y.digests.yaml` symlink, a committed
+    `contracts/releases` DIRECTORY symlink, OR a committed `contracts/`
+    symlink one level further up — any of them, including one pointing
+    outside this tree — would otherwise be treated as an estate-defined
+    release: checking only the leaf directory closes the escape at that ONE
+    component while leaving every ancestor open, because a file reached
+    through ANY symlinked ancestor is a perfectly ordinary, unsymlinked leaf
+    itself. `_registry_present` therefore does not ask "is the registry
+    directory a symlink" but "does resolving every symlink between here and
+    `repo_root` land you back where a symlink-free tree would have put you",
+    which closes the escape at every component in one test rather than one
+    component at a time as each is found. This module's sibling
     `scripts/hermes_runtime_validation/release.py` already excludes symlinked
     inventories for exactly this reason (`RepoSource.exists`,
     `list_release_inventories`); the same guard is RESTATED here rather than
     imported, because this module must judge a tree that carries no
-    `scripts/hermes_runtime_validation/` at all — and it is restated at BOTH
-    the directory and the file, because the sibling module's tree never
-    faced a symlinked directory holding a genuine file.
+    `scripts/hermes_runtime_validation/` at all — and it is restated more
+    broadly than that sibling's, because the sibling module's tree never
+    faced a symlinked ANCESTOR directory holding a genuine leaf.
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
     present = _registry_present(repo_root)

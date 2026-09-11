@@ -260,7 +260,7 @@ def test_a_symlinked_registry_directory_is_treated_as_absent(
     assert tr.resolves_as_release("contract-v9.9", tmp_path) == (True, False)
 
 
-def test_a_symlinked_registry_directorys_contents_grant_no_extra_trust(
+def test_a_symlinked_registry_directory_contents_grant_no_extra_trust(
         tmp_path, tmp_path_factory):
     """Before the fix this returned `(True, True)`: the symlinked directory
     resolved as PRESENT and the external file — a REGULAR file, reached only
@@ -284,6 +284,48 @@ def test_a_symlinked_registry_directorys_contents_grant_no_extra_trust(
     assert tr.resolves_as_release("contract-v9.9", with_file_root) \
         == tr.resolves_as_release("contract-v9.9", empty_root) \
         == (True, False)
+
+
+# Copilot on #963, round 9 (thread `PRRT_kwDOTAvnrs6hhqDO`): checking only the
+# LEAF directory's symlink-ness closes the escape at that one component and
+# leaves every ANCESTOR open — `contracts/` itself being the symlink reaches
+# the identical escape through a `contracts/releases` that is a perfectly
+# ordinary, unsymlinked path, because ordinariness is a property of the ONE
+# component checked and says nothing about what carried a reader there.
+# `_registry_present` now compares the registry's fully RESOLVED real path
+# against `repo_root`'s own resolved real path with the literal
+# `contracts/releases` suffix appended, which catches a symlink at ANY
+# component between the two, not only at the registry directory's own name.
+
+
+def test_a_symlinked_ancestor_directory_is_also_treated_as_absent(
+        tmp_path, tmp_path_factory):
+    """`contracts/` itself is the symlink this time, not `releases/`. Before
+    this fix `contracts/releases` was a perfectly ordinary path reached
+    through it — a REAL directory, holding a REAL file — and resolved exactly
+    like an estate-defined registry."""
+    outside = tmp_path_factory.mktemp("outside-contracts-dir")
+    (outside / "releases").mkdir()
+    (outside / "releases" / "contract-v9.9.digests.yaml").write_text(
+        "{}\n", encoding="utf-8")
+    (tmp_path / "contracts").symlink_to(outside)
+    assert tr.resolves_as_release("contract-v9.9", tmp_path) == (True, False)
+
+
+def test_repo_root_itself_being_reached_via_a_symlink_is_not_the_escape(
+        tmp_path, tmp_path_factory):
+    """`repo_root` itself is resolved on BOTH sides of the comparison, so its
+    own symlink-ness cancels out rather than being mistaken for an escape:
+    this is not the vulnerability class the finding named — a caller handed a
+    symlinked `repo_root` is trusting that path already — and a registry that
+    is otherwise perfectly ordinary beneath it still resolves."""
+    outside = tmp_path_factory.mktemp("outside-root")
+    (outside / "contracts" / "releases").mkdir(parents=True)
+    (outside / "contracts" / "releases" / "contract-v9.9.digests.yaml"
+     ).write_text("{}\n", encoding="utf-8")
+    root = tmp_path / "root"
+    root.symlink_to(outside)
+    assert tr.resolves_as_release("contract-v9.9", root) == (True, True)
 
 
 # Copilot's round 3 on #963 (thread `PRRT_kwDOTAvnrs6heq2s`): the shape was

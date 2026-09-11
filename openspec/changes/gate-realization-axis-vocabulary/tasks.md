@@ -133,7 +133,7 @@ and openxFactory #956 closes THERE and not at this landing.
       D2: `record-immutability` binds `Status: record` documents only, and
       neither *Origin retention at archive* nor *Scope retention at archive*
       reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **68 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **70 tests**,
       counted last from a collected run of the file) — the token rule (5),
       reading the declaration including a strict-loader refusal, **a
       repeated declaration refused rather than half-read, and an INDENTED
@@ -146,7 +146,10 @@ and openxFactory #956 closes THERE and not at this landing.
       resolving** (3), **a symlinked registry DIRECTORY treated as absent,
       its external contents (present or empty) granting no extra trust
       either way, and the gate printing the same shape-only note it prints
-      for a tree with no registry at all** (3), **the token shape-checked
+      for a tree with no registry at all** (3), **a symlinked ANCESTOR of the
+      registry directory (`contracts/` itself) treated the same way, with
+      `repo_root` itself being reached via a symlink pinned as NOT the same
+      escape** (2), **the token shape-checked
       before it can become a path (6)**, the register's shape refusals (4),
       **the entry's citation enforced at the load (5)**, **the same two classes
       swept (3)**, **the register removable and never addable (5)**, the gate
@@ -156,11 +159,14 @@ and openxFactory #956 closes THERE and not at this landing.
       proposal reported not crashed, a registered declaration, a stale entry, a
       token that moved, a finding and a stale entry together, a missing
       register), and three over the live corpus and the real register. **NO
-      EXISTING TEST IS EDITED, RENAMED, FLIPPED OR DELETED** — the fourteen
-      added by § 3.7, the eight added by § 3.9, the five added by § 3.10, the
-      three added by § 3.11, the three added by § 3.14 and the three added by
-      § 3.15 join the file, `_entry()` gains the citation the loader now
-      requires, and
+      EXISTING TEST IS EDITED, FLIPPED OR DELETED (ONE RENAMED, a typo)** —
+      the fourteen added by § 3.7, the eight added by § 3.9, the five added
+      by § 3.10, the three added by § 3.11, the three added by § 3.14, the
+      three added by § 3.15 and the two added by § 3.17 join the file,
+      `_entry()` gains the citation the loader now requires,
+      `test_a_symlinked_registry_directorys_contents_grant_no_extra_trust`
+      is renamed (§ 3.17 (b), a dropped apostrophe) to
+      `test_a_symlinked_registry_directory_contents_grant_no_extra_trust`, and
       `test_an_entry_missing_a_required_key_refuses` keeps its subject by
       carrying every key but the one it is about.
 - [x] 3.6 **THE GATE NEEDS NO WORKFLOW EDIT**, confirmed by running it: the
@@ -398,6 +404,34 @@ and openxFactory #956 closes THERE and not at this landing.
       unaffected (68 passed). `openspec validate
       gate-realization-axis-vocabulary --strict` exit 0;
       `validate-sequenced-after.py . --ledger-diff` exit 0 (202 rows).
+- [x] 3.17 **THE BENCH'S NINTH ROUND, ON THE § 3.16 FIX'S OWN PUSH, TWO
+      THREADS, BOTH TAKEN** (`design.md` D8i). (a) **THE LEAF-DIRECTORY GUARD
+      § 3.15 ADDED CLOSED THE ESCAPE AT ONE COMPONENT AND LEFT EVERY ANCESTOR
+      OPEN** — a committed `contracts/` symlink (one level above the registry
+      directory itself) reaches the same escape through a `contracts/releases`
+      that is a perfectly ordinary, unsymlinked path. `_registry_present` now
+      compares the registry's fully RESOLVED real path against `repo_root`'s
+      own resolved real path with the literal `contracts/releases` suffix
+      appended — a per-path check that SUBSUMES the leaf-only check rather
+      than sitting beside it, and catches a symlink at any component in
+      between. `repo_root` itself is resolved on both sides, so its own
+      symlink-ness is NOT mistaken for the escape (a test pins this boundary
+      explicitly). THREE tests: a symlinked `contracts/` ancestor treated as
+      absent; `repo_root` itself symlinked still resolves (not the escape);
+      the two § 3.15 tests unchanged and still passing. Measured with the fix
+      stashed: the ancestor test FAILS (`(True, True)`, the same
+      over-trusting result one level down); restored, `pytest
+      tests/target_release -q` — **70 passed** (68 → 70). (b) **A NEW TEST
+      NAME CARRIED A TYPO** —
+      `test_a_symlinked_registry_directorys_contents_grant_no_extra_trust` —
+      renamed to
+      `test_a_symlinked_registry_directory_contents_grant_no_extra_trust`; no
+      other file cited the old name. `openspec validate
+      gate-realization-axis-vocabulary --strict` exit 0;
+      `validate-sequenced-after.py . --ledger-diff` exit 0 (202 rows);
+      `validate-target-release.py .` exit 0 (41 active, 0 outside);
+      `origin/main ac688c40` exit 1 (40 active, 5 outside, the same five
+      carriers).
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 

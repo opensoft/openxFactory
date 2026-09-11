@@ -800,3 +800,58 @@ test; `pytest tests/target_release -q` is unaffected (68 passed, unchanged).
 Re-validated after both corrections: `openspec validate
 gate-realization-axis-vocabulary --strict` exit 0; `validate-sequenced-after.py
 . --ledger-diff` exit 0 (202 rows).
+
+### D8i — the bench's ninth round, on the D8h push: two threads, one a real code escalation, one a naming nit, both TAKEN
+
+A Copilot pass on the D8h push (`38cf0ec3`) opened two threads.
+
+**(r) THE LEAF-DIRECTORY GUARD D8g ADDED CLOSED THE ESCAPE AT ONE COMPONENT
+AND LEFT EVERY ANCESTOR OPEN.** `_registry_present` checked
+`registry.is_symlink()` — the immediate `contracts/releases` component — but a
+committed `contracts/` SYMLINK, one level further up, reaches the identical
+escape through a `contracts/releases` that is a perfectly ordinary,
+unsymlinked path: ordinariness is a property of the ONE component checked and
+says nothing about what carried a reader there. The same class D8f closed at
+the file and D8g closed at the leaf directory was still open at every
+ancestor above the leaf.
+
+**THE FIX REPLACES A PER-COMPONENT CHECK WITH A PER-PATH ONE.**
+`_registry_present` no longer asks "is the registry directory itself a
+symlink"; it asks whether resolving every symlink between `repo_root` and the
+registry lands you back where a symlink-free tree would have put you —
+`registry.resolve(strict=True) == repo_root.resolve(strict=True) /
+RELEASE_REGISTRY_DIR`. This is not a second guard added beside D8g's; it
+REPLACES it, and it SUBSUMES the leaf case D8g pinned (a symlinked `releases`
+also fails the equality) rather than needing to be checked separately.
+`repo_root` itself is resolved on BOTH sides, so ITS OWN symlink-ness cancels
+out rather than being mistaken for an escape — a caller handing this module a
+symlinked `repo_root` is trusting that path already, which is not the
+vulnerability class the finding named; a test pins this boundary explicitly
+so a future reader does not "fix" it into a false positive.
+
+THREE tests: a symlinked `contracts/` (ancestor of the registry, holding a
+genuine `releases/` and inventory beneath it) is treated exactly as absent,
+the same as D8g's leaf case; `repo_root` itself being reached via a symlink
+is NOT the escape and still resolves; and the two prior D8g tests (leaf
+symlink absent, external contents grant no extra trust) are unchanged and
+still pass, because the new check subsumes rather than replaces their
+behaviour. Measured with the fix stashed (tests kept): the ancestor-symlink
+test FAILS against the code as it stood (`(True, True)`, the same
+over-trusting result D8g's own finding named one level down); the
+repo-root-itself test PASSES unchanged either way, confirming it pins a
+boundary rather than a regression. Restored: `pytest tests/target_release -q`
+— **70 passed** (68 → 70).
+
+**(s) A NEW TEST NAME CARRIED A TYPO.** D8g's
+`test_a_symlinked_registry_directorys_contents_grant_no_extra_trust` — a
+possessive apostrophe dropped in an identifier, not a word an identifier can
+carry — renamed to
+`test_a_symlinked_registry_directory_contents_grant_no_extra_trust`. No other
+file cited the old name.
+
+Neither thread reopens D1/D2/D3. Re-validated at the fix commit: `openspec
+validate gate-realization-axis-vocabulary --strict` exit 0;
+`validate-sequenced-after.py . --ledger-diff` exit 0 (202 rows);
+`validate-target-release.py .` exit 0 (41 active, 0 outside); the same
+validator against a fresh `origin/main ac688c40` clone exit 1 (40 active, 5
+outside, the same five carriers).
