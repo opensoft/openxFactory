@@ -287,8 +287,7 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   `amend-floor-regeneration-merge-authority` (merge `93f0f0d7`), already named
   in the note above; this selection is the word treating the successor's
   arming as discharging this packet's own box rather than leaving it open on
-  the ground that the act was a successor's and not this packet's. Ticked by
-  this PR.**
+  the ground that the act was a successor's and not this packet's. Ticked by PR #944.**
 - [x] 2.8 Extend the approval record the lane already posts to carry the measured
   changed path set, the floor-matched count and the check names quantified over
   (decision N-4). Do not add a second record surface.
@@ -328,7 +327,7 @@ owed. § 2.2 through § 2.8 are its realization and are authored nowhere yet.
   N-1 stood as recommended (§ 5.2) and no veto toward (b) was ever exercised,
   so this box's own precondition — "ONLY UNDER A VETO OF N-1 TOWARD (b)" —
   never obtained; none of (a) through (f) is owed under the recommended
-  scope. Ticked N/A by this PR.**
+  scope. Ticked N/A by PR #944.**
 
 ### ADDENDUM 2026-09-08 — finding (1) of § 2.2 RULED (a), realized in codexFactory
 
@@ -517,7 +516,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   N-1 stood as recommended and no veto toward (b) occurred — § 3.4 confirms
   the openxFactory re-pin lane still waits for a human word under the
   recommended scope — so this box's own precondition, "ONLY UNDER A VETO
-  TOWARD (b)", never obtained. Ticked N/A by this PR.**
+  TOWARD (b)", never obtained. Ticked N/A by PR #944.**
 - [ ] 3.6 Exercise the kill switch once, deliberately, on a scheduled cycle:
   remove the candidate entry, confirm the next bot pull request parks for a
   human, restore it, confirm approval resumes. A switch never thrown is a switch
@@ -586,7 +585,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   The ratifying act is already recorded in this box's own 2026-09-07 note
   (verbatim "ratify 746 and 272 as recommended when green, then land them",
   applied at head `6ebd7b24`); this selection is the word authorizing the box
-  itself, not only the note beneath it, to be ticked. Ticked by this PR.**
+  itself, not only the note beneath it, to be ticked. Ticked by PR #944.**
 - [x] 5.2 Rule on N-1 (scope), N-1b (the carve, live only if N-1 goes to (b)),
   N-2 (admission conditions), N-3 (ordering), N-4 (observability and kill
   switch) and N-5 (realization surface). N-1 is the one that changes the shape of
@@ -604,7 +603,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
   The ruling is already recorded in this box's own 2026-09-07 note (N-1
   through N-5 stand as recommended, no veto exercised); this selection
-  authorizes the box itself to be ticked. Ticked by this PR.**
+  authorizes the box itself to be ticked. Ticked by PR #944.**
 - [x] 5.3 **THE ENABLING ACT, AND WITHOUT IT NOTHING HERE CHANGES ANYTHING.**
   Ruleset `Require Code Owner Review` is ACTIVE on both repositories with
   `require_code_owner_review=true`, and every path either bot lane writes is
@@ -724,7 +723,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   `floor/openxfactory-review-authority-floor.yaml`, landed at codexFactory
   `d1f8bf1b`, 2026-09-09) and this repository's
   `relocate-review-authority-floor-mirror` (#817 → `c98a0544`; archived by
-  #925 → `17a3b816`) are the ruling's named evidence. Ticked by this PR.**
+  #925 → `17a3b816`) are the ruling's named evidence. Ticked by PR #944.**
 - [x] 5.5 Give the realization word, separately, after 5.1 and 5.2. Ratification
   performs no realization: it ratifies the PROPOSAL, and every act in groups 2
   through 4 waits on its own word.
@@ -740,7 +739,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628477104).
   The realization word is already recorded in this box's own 2026-09-07 note
   (verbatim "tick 5.0 in the amendment, then realize 6.3"); this selection
-  authorizes the box itself to be ticked. Ticked by this PR.**
+  authorizes the box itself to be ticked. Ticked by PR #944.**
 
 ## ADDENDUM 2026-09-10 — the live cycles, the SIGNED council record, and the boxes they move
 
