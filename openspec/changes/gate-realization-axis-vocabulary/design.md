@@ -605,9 +605,10 @@ declaration IS rather than each having a private idea.
 seven scenarios and omitted the two the bench added; the pull-request
 description still said 32 tests and seven scenarios. The description had been
 rewritten before those threads were read. The proposal's inventory now names
-all TEN and marks which four the bench added. Same lesson as D8c (g), now
+all TEN and marks which THREE the bench added. Same lesson as D8c (g), now
 paid for twice: **a count or an inventory moves in ALL of its sites in the SAME
-commit.**
+commit.** (A later Copilot pass caught this very sentence overstating the
+three as four — `tasks.md` records the correction beside this one.)
 
 ### D8e — the bench's fifth round: three threads, all three TAKEN, and one of them a figure this bench invented
 

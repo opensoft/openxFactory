@@ -95,8 +95,9 @@ FIVE-LINE CORRECTION.**
    TEN scenarios: the refusal, `implemented`, a resolving release, **a tree
    that defines no release registry at all**, an archived record, a registered
    declaration, **a repeated declaration**, **an entry appended to the closed
-   register**, a stale entry, and an absent declaration. (The four in bold
-   were added by the bot bench — `design.md` D8b/D8c/D8d.)
+   register**, a stale entry, and an absent declaration. (The THREE in bold
+   were added by the bot bench — `design.md` D8b/D8d; the stale-entry scenario
+   is part of the original seven and was not one of them.)
 2. **`scripts/validate-target-release.py`** + **`scripts/target_release.py`** —
    the house realization, in the shape every other `scripts/validate-*.py`
    contract validator uses, run over the live corpus on every pull request by

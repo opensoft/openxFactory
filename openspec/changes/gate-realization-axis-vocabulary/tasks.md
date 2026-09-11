@@ -304,6 +304,26 @@ and openxFactory #956 closes THERE and not at this landing.
       how it is meant to be read. Split. Small, and worth recording: in a
       packet whose method is that the task list IS the record, a task that
       does not render as a task is a task that is not in the record.
+- [x] 3.13 **A POST-FREEZE COPILOT PASS SUPPRESSED FIVE COMMENTS (0 NEW
+      THREADS) AND ONE OF THEM WAS REAL: "FOUR" WAS ITSELF A MISCOUNT.**
+      `proposal.md` and `design.md` D8d (j) both said the bot bench added
+      FOUR scenarios to the inventory of TEN. Only THREE are actually marked
+      in bold in `proposal.md`'s own inventory — *a tree that defines no
+      release registry at all* (D8d), *a repeated declaration* (D8b) and
+      *an entry appended to the closed register* (D8b) — because *a stale
+      entry* (a register entry matches nothing) was part of the ORIGINAL
+      seven, not bench-added. Both files corrected from FOUR to THREE, and
+      the citation narrowed from `D8b/D8c/D8d` to `D8b/D8d` (D8c added no
+      scenario). The pull-request description carried the same
+      miscount and is corrected with it. **Not taken from this same pass:**
+      a symlink-handling comment on `scripts/target_release.py:344`
+      (`resolves_as_release`'s `Path.is_file()` follows symlinks, so a
+      committed symlinked digest inventory would be treated as defined,
+      unlike `scripts/hermes_runtime_validation/release.py:418-426`'s
+      deliberate exclusion) — real, verified by reading the code, and left
+      OPEN for a dedicated round: it is a code change with its own test and
+      its own bench-round citation, not a count or a ledger entry, and this
+      round's mandate is the latter only.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
