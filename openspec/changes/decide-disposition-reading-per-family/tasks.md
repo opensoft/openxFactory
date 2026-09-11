@@ -220,10 +220,13 @@ each open box below states the event that closes it:
 
 ## 5. Verification — RUN IN THIS PULL REQUEST
 
-**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `ed2bb882`** — this branch with
-`origin/main` `d4d96cca` merged — and every CONTROL was taken at `d4d96cca`
-itself in a separate worktree, never in this clone. The exit codes are the
-commands' own, pasted from the run and repeated in the pull request body.
+**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `f839bd06`** — this branch with
+`origin/main` `0805c3bb` merged — and every CONTROL was taken at `0805c3bb`
+itself in a separate worktree, never in this clone. The only commit that follows
+`f839bd06` on this branch is the one that writes this section and the pull
+request body from that run's output; no measured file changed after it. The exit
+codes are the commands' own, pasted from the run and repeated in the pull
+request body.
 
 - [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate decide-disposition-reading-per-family --strict`
       on the PATH CLI (`openspec 1.2.0`) — **exit 0**, `Change
@@ -235,11 +238,11 @@ commands' own, pasted from the run and repeated in the pull request body.
       — **exit 1**, `Totals: 101 passed, 2 failed (103 items)` — against
       `origin/main`'s **exit 1**, `Totals: 100 passed, 2 failed (102 items)`.
       **THE FAILURE SET IS IDENTICAL**, `disposition-codexfactory-declared-renames`
-      and `disposition-codexfactory-floor-relocation-retitle` on both sides, and
-      the whole diff of the two outputs is one added `✓
-      change/decide-disposition-reading-per-family` line plus the totals line.
-      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` — **exit 0**
-      on both, `0 UNDISPOSITIONED failures` with the SAME two accepted exceptions
+      and `disposition-codexfactory-floor-relocation-retitle` on both sides, a
+      `diff` of the two sorted `✗` lists being empty; the one-item difference in
+      the totals is this change itself passing. `python3
+      scripts/validate-openspec-cli-pin.py --all --no-cache` — **exit 0** on both,
+      `0 UNDISPOSITIONED failures` with the SAME two accepted exceptions
       (`add-chain-attestation / signed-execution-chain/spec.md`,
       `add-composed-view-authoring / ideation-dashboard/spec.md`).
 - [x] 5.3 `python3 scripts/proposal-support.py . verify decide-disposition-reading-per-family`
@@ -253,19 +256,19 @@ commands' own, pasted from the run and repeated in the pull request body.
       `test_status_reader_real_lines`. They are environment failures present on
       both sides and none of them names this packet.
 - [x] 5.5 `python3 scripts/doc-health.py --single-repo .` — **exit 0**,
-      `critical=32 error=11 warning=47 info=14`, **104 findings**, against
-      `origin/main`'s **exit 0** and the same `32 / 11 / 47 / 14` = 104. With the
-      repository label normalised the two finding sets are BYTE-IDENTICAL (`diff`
-      empty), and NOT ONE finding names this packet — `grep -c
-      decide-disposition-reading-per-family` over the report returns **0**.
-      `python3 scripts/validate-sequenced-after.py .` — **exit 0** (41 active
-      changes, 11 declaring the field). `python3 scripts/validate-scope-globs.py .`
-      — **exit 0**.
+      `Findings: 32 critical, 11 error, 47 warning, 14 info`, **104 findings**,
+      against `origin/main`'s **exit 0** and the same `32 / 11 / 47 / 14` = 104.
+      With the repository label normalised the two finding sets are
+      BYTE-IDENTICAL — 208 rendered rows each, `diff` empty — and NOT ONE finding
+      names this packet: `grep -c decide-disposition-reading-per-family` over the
+      report returns **0**. `python3 scripts/validate-sequenced-after.py .` —
+      **exit 0** (41 active changes, 11 declaring the field).
+      `python3 scripts/validate-scope-globs.py .` — **exit 0**.
 - [x] 5.6 The corpus-ledger row was seeded by the sanctioned tool AFTER the pull
       request existed — `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#978'` — as its own commit `6f4268b1`, and
       `python3 scripts/validate-sequenced-after.py . --ledger-diff` re-run at
-      `ed2bb882` — **exit 0**, `per-change sweep ledger consistent with the
+      `f839bd06` — **exit 0**, `per-change sweep ledger consistent with the
       corpus (204 rows)`.
 
 ## 6. Archive — OWED, NOT GIVEN
