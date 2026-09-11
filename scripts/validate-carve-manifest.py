@@ -112,7 +112,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 794 declared lines against them; check 4 still
+real bytes and still bounds all 862 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
@@ -700,6 +700,42 @@ def _require_str(doc: dict, key: str, where: str) -> str:
     return value
 
 
+def _require_closed_relative_path(doc: dict, key: str, where: str) -> str:
+    """`_require_str`, plus: refuse a value `scripts/carved_reach.py` could
+    not safely join onto a leg's mount.
+
+    Copilot review, `PRRT_kwDOTAvnrs6hjzVm`, 2026-09-11: `destination_path`
+    was type-checked as a non-empty string only; an absolute value or a
+    `../` segment would let the resolver's `mount / destination_path` join
+    escape the pinned leg. This is the VALIDATOR-SIDE half — the
+    resolver-side half is `carved_reach._closed_relative_path`, the same
+    predicate, kept in step here because this script cannot import that
+    module's package (`scripts.carved_reach` needs the repository root on
+    `sys.path`; this script is loaded by `spec_from_file_location` with only
+    `scripts/` on it, the same reason `carve_lines` above is a bare import).
+
+    NOT restricted to an ASCII alphabet: `destination_path` may legitimately
+    carry any Unicode filename
+    (`test_the_row_order_is_bytewise_and_not_by_code_point` exercises one
+    with U+E000) — only the segment shape that would let a join escape its
+    mount is refused.
+    """
+    value = _require_str(doc, key, where)
+    if (value.startswith("/") or value.startswith(":") or "\\" in value
+            or any(ord(character) < 32 or ord(character) == 127 for character in value)):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} declares `{key}: {value!r}`, which is not a canonical "
+            "relative path (absolute, drive-letter-shaped, or backslashed)")
+    if any(part in {"", ".", ".."} for part in value.split("/")):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} declares `{key}: {value!r}`, which contains a `.`, "
+            "`..` or empty segment — exactly what would let this row's "
+            "destination escape its own mount")
+    return value
+
+
 # --------------------------------------------------------------------------
 # check 1 — shape
 # --------------------------------------------------------------------------
@@ -932,7 +968,7 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                 f"{where} ({source_path}) declares `sha256: {digest!r}`, which "
                 "is not 64 lowercase hex characters")
         _require_str(row, "destination", f"{where} ({source_path})")
-        _require_str(row, "destination_path", f"{where} ({source_path})")
+        _require_closed_relative_path(row, "destination_path", f"{where} ({source_path})")
         if "also_replicated_to" in row:
             _check_also_replicated_shape(where, source_path,
                                          row["also_replicated_to"])

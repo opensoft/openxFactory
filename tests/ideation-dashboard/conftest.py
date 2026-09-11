@@ -17,6 +17,7 @@ reached the real `nlm` (FR-043, PR #49 finding 17).
 
 from __future__ import annotations
 
+import functools
 import sys
 from pathlib import Path
 
@@ -25,6 +26,27 @@ TESTS_ROOT = HERE.parent
 REPO_ROOT = HERE.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(TESTS_ROOT))
+
+# --------------------------------------------------------------------------
+# THE § 5.2 SHED REACH, INSTALLED HERE TOO — for the same reason the hermeticity
+# guard is registered twice (see the module docstring): a targeted
+# `pytest tests/ideation-dashboard` makes THIS directory the rootdir and
+# `confcutdir` then excludes `tests/conftest.py`, where the reach and the
+# composition-point registration otherwise live. Without it this file's own
+# `session_fixtures` import below — a MOVED row read from the pinned openDox
+# leg — fails during collection, and so does every `build_server()` in the
+# directory (Copilot, `PRRT_kwDOTAvnrs6hUpud`). Idempotent, so the ordinary
+# whole-suite run that already installed it pays nothing.
+# --------------------------------------------------------------------------
+
+from carved_reach import (  # noqa: E402
+    bind_composition_point,
+    install as install_carved_reach,
+    source as carved_source,
+)
+
+install_carved_reach(tests=True)
+bind_composition_point()
 
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
     claim_conftest_slot,
@@ -42,11 +64,50 @@ NEGATIVES = FIXTURES / "negatives"
 # remains as a fallback for a checkout of the pre-relocation layout. None when
 # no validator is reachable, in which case validator-backed tests skip rather
 # than fail.
+#
+# AND THE SKIP IS EXACTLY WHY THE § 5.2 SHED HAS TO BE ANSWERED HERE. The shed
+# (RULED (a) POST-SHED MODE, `#656` comment `5625573095`) moved
+# `scripts/validate-ideation-dashboard-contracts.py` to the openXdox-code leg,
+# so `own.is_file()` became False and the parent walk found nothing: this
+# function answered `None`, and every `@pytest.mark.skipif(VALIDATOR is None)`
+# in four test modules turned into a SKIP. A directory that silently turns into
+# skips is precisely what `.github/workflows/pytest-suite.yml` pins
+# `EXPECT_SKIPPED` as an EXACT sum to refuse — it reports as a green bar — so
+# this resolves through the manifest rather than losing the assertions.
+#
+# COMPOSED, NOT MERELY RE-POINTED, and the difference is measured. The script
+# derives its own `SCHEMAS_DIR` from `__file__`; run in place from the leg it
+# looks for a `contracts/schemas/` openXdox-code does not carry and exits 2 with
+# `ERROR harness failure`, which would turn the skips into failures rather than
+# into passes. `doxbench_contracts._composed_validator()` — built for the
+# delegated-validation path in the same shed — composes the scratch root that
+# joins the script to the schemas, each from its OWN row, and it is reused here
+# rather than repeated. Cached, because four test modules ask at import time and
+# one farm per process is one farm too many to build four times.
+@functools.lru_cache(maxsize=None)
+def _shed_validator() -> Path | None:
+    try:
+        from ideation_dashboard import doxbench_contracts
+    except ImportError:  # pragma: no cover - the adapter is not importable here
+        return None
+    try:
+        moved = carved_source("scripts/validate-ideation-dashboard-contracts.py")
+    except Exception:  # pragma: no cover - no manifest row, or no leg on disk
+        return None
+    if not moved.is_file():
+        return None
+    return doxbench_contracts._composed_validator(moved)
+
+
 def find_openxfactory_validator(start: Path | None = None) -> Path | None:
     base = (start or REPO_ROOT).resolve()
     own = base / "scripts" / "validate-ideation-dashboard-contracts.py"
     if own.is_file():
         return own
+    if base == REPO_ROOT.resolve() or REPO_ROOT.resolve() in base.parents:
+        composed = _shed_validator()
+        if composed is not None:
+            return composed
     rel = Path("openxFactory") / "scripts" / "validate-ideation-dashboard-contracts.py"
     for d in [base, *base.parents]:
         candidate = d / rel
@@ -101,6 +162,22 @@ from staging_shapes import (  # noqa: E402,F401  (re-export, one definition)
 # 007-workbench-branch-sessions: the branch-session harness fixtures (T001,
 # T002). Imported for their pytest-fixture side effect — every session test
 # builds its world in tmp_path and never touches a real checkout (research R10).
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# RULED Q6 (§ 5.2, `#656` comment `5626248666`) — THE RETAINED CONFTEST'S OWN
+# IMPORT, RE-POINTED. `session_fixtures.py` is a MOVED row
+# (`tests/ideation-dashboard/session_fixtures.py` -> openDox-code
+# `tests/session_fixtures.py`, `also_replicated_to: [openxdox_code]`) and the
+# shed deleted it here, while THIS file is a RETAINED
+# (`replicated_at_destination`) row that imports it UNCONDITIONALLY. Editing a
+# retained row is lawful in BOTH phases — nothing in the manifest holds a
+# retained row's bytes — so the repair is here rather than in the row's
+# disposition. The name below is unchanged: `scripts/carved_reach.py`, which
+# `tests/conftest.py` installs for every run, APPENDS both legs' own `tests/`
+# trees to `sys.path`, so `session_fixtures` resolves at the pinned openDox
+# leg. Appended and not prepended, so the 20 `replicated_at_destination` rows
+# whose basenames exist on both sides still resolve HERE first.
 # --------------------------------------------------------------------------
 
 from session_fixtures import (  # noqa: E402,F401  (fixture registration)
@@ -241,9 +318,21 @@ def serve_surface_paths() -> tuple[Path, ...]:
     below is a per-file loop, a `.read_text()` join checked for
     substring/absence, or a `.index()` search that resolves within a single
     file's own content) — only the docstring claim above does.
+
+    POST-SHED, RESOLVED PER FILE AND NOT PER DIRECTORY (§ 5.2, RULED (a);
+    Copilot `PRRT_kwDOTAvnrs6hUpuM`). Six of these seven modules left for
+    openDox-code and `serve_openxfactory_lanes.py` STAYED — a
+    `stays_openxfactory_adapter` row — so `scripts/ideation_dashboard/` is no
+    longer one directory that either did or did not move, and the constant this
+    function used to join names onto was exactly the bug: it read six deleted
+    paths and one live one and reported `FileNotFoundError` for the six.
+    `carved_reach.source()` answers each name from ITS OWN manifest row, so the
+    tuple above stays the declaration it was — a list of module NAMES, in
+    import-graph order — and nothing here has to know which leg any of them
+    went to, or notice the day one of them moves again.
     """
-    runtime = REPO_ROOT / "scripts" / "ideation_dashboard"
-    return tuple(runtime / name for name in SERVE_SURFACE_MODULES)
+    return tuple(carved_source(f"scripts/ideation_dashboard/{name}")
+                 for name in SERVE_SURFACE_MODULES)
 
 
 def serve_surface_source() -> str:
@@ -258,6 +347,28 @@ def serve_surface_source() -> str:
     """
     return "\n".join(path.read_text(encoding="utf-8")
                      for path in serve_surface_paths())
+
+
+def dashboard_web_root() -> Path:
+    """The directory `build_server()` serves the dashboard's assets from.
+
+    DERIVED from the manifest row of a file that is unambiguously in it —
+    `index.html`, the document the server hands out at `/` — rather than
+    transcribed as `openDox/code/src/opendox/web`, so this answer follows the
+    row the day it changes and there is one fewer destination path spelled by
+    hand in this repository (§ 5.2, RULED (a); Copilot
+    `PRRT_kwDOTAvnrs6hUpwc` / `PRRT_kwDOTAvnrs6hUpxG` / `PRRT_kwDOTAvnrs6hUpw5`).
+
+    THE ONE FILE THAT STAYED, AND WHY IT DOES NOT MAKE THIS TWO ROOTS.
+    `web/views/intent-feed.js` is a `not_moved` row: the intent-feed view is
+    openxFactory's own adapter column, exactly as `intent_feed.py` beside it is.
+    It is loaded by `index.html`'s view registry at RUNTIME from a served path,
+    not read off disk by any assertion here, and composing a merged asset root
+    for it is § 4.3's composition work (the same box the profile's lazy proxy
+    sits in) — not this function's. What every caller below needs is the root
+    the moved assets are AT, and that is what this returns.
+    """
+    return carved_source("scripts/ideation_dashboard/web/index.html").parent
 
 
 FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")

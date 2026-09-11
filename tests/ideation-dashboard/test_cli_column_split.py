@@ -69,11 +69,19 @@ import pytest
 from conftest import REPO_ROOT
 
 import subcommand_extension
-from ideation_dashboard import cli as cli_mod
-from ideation_dashboard import cli_gate, cli_model_binding, cli_project
-from ideation_dashboard import profile_openxfactory
+from opendox import cli as cli_mod
+from opendox import cli_model_binding, cli_project
+from openxdox import cli_gate
+# The composition point, at its POST-SHED home. `scripts/
+# ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
+# `deleted_at_carve` row and the shed removed it; openxFactory's profile now
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling) and is
+# registered with `opendox.serve`/`opendox.cli` by
+# `carved_reach.bind_composition_point()` from the conftest — the openxFactory
+# half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+import profile_openxfactory
 
-PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
+from carved_reach import source as carved_source
 
 #: The modules the § 2.4 CLI split created. `profile_openxfactory` is the
 #: composition point and is deliberately allowed to name the core's siblings;
@@ -172,9 +180,17 @@ def declares_flag(source: str, flag: str) -> bool:
 #: `ideation_dashboard.x` (with `scripts/` on the path, which `cli.py` arranges)
 #: and as `scripts.ideation_dashboard.x`, and a rule that knows only one of them
 #: is a rule with a hole in it.
+#: POST-SHED the core is `opendox.cli`, and the two pre-shed spellings STAY in
+#: both tuples (RULED (a), `#656` `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpvA`).
+#: They are kept for the reason a forbidden list is kept at all: the rule below
+#: is an ABSENCE, and an eager import of the core written under a dead spelling
+#: is still an eager import of the core — it would fail at run time rather than
+#: silently, but a scan that stopped recognising it would report the absence as
+#: proven when what it had actually done was stop looking.
 CORE_MODULE_PATHS = ("ideation_dashboard.cli", "scripts.ideation_dashboard.cli",
-                     "cli")
-CORE_PACKAGE_PATHS = ("ideation_dashboard", "scripts.ideation_dashboard")
+                     "opendox.cli", "cli")
+CORE_PACKAGE_PATHS = ("ideation_dashboard", "scripts.ideation_dashboard",
+                      "opendox")
 
 
 def names_the_core_eagerly(node) -> bool:
@@ -237,6 +253,14 @@ def test_the_eager_import_scan_sees_every_spelling_of_the_core():
         "from ideation_dashboard import cli as _core_module",
         "from . import cli",
         "from .cli import _human_gate",
+        # the POST-SHED spellings, which are the only ones a contributor can
+        # write today: `cli.py` is at the pinned openDox leg and `cli_gate.py`
+        # at openXdox, so the eager import this rule forbids would be spelled
+        # from the other leg's package name.
+        "import opendox.cli",
+        "from opendox.cli import _human_gate",
+        "from opendox import cli",
+        "from opendox import cli as _core_module",
     )
     for line in forbidden:
         node = ast.parse(line).body[0]
@@ -245,6 +269,9 @@ def test_the_eager_import_scan_sees_every_spelling_of_the_core():
         "from ideation_dashboard import gate_console as gate_mod",
         "from ideation_dashboard import cli_gate",
         "from ideation_dashboard.boundary import HumanGate",
+        "from openxdox import gate_console as gate_mod",
+        "from openxdox import cli_gate",
+        "from opendox.boundary import HumanGate",
         "import argparse",
     )
     for line in allowed:
@@ -558,10 +585,15 @@ def test_the_dispatch_walk_is_not_vacuous():
     # all three column modules, plus `cli` itself — which still holds
     # `cmd_generate_and_open`, the CLI's assembly point (see cli_project.py's
     # header for why composition stays in the core).
+    # POST-SHED these four names span BOTH legs, and that is a stronger pin
+    # than the one-package version it replaces: `cli_gate` is openXdox's column
+    # and the other three are openDox's, so this single assertion now also
+    # holds design D3's three-column assignment across the carve. A verb that
+    # drifted to the wrong leg reds here.
     assert {f.__module__ for f in found} == {
-        "ideation_dashboard.cli", "ideation_dashboard.cli_gate",
-        "ideation_dashboard.cli_project",
-        "ideation_dashboard.cli_model_binding"}, (
+        "opendox.cli", "openxdox.cli_gate",
+        "opendox.cli_project",
+        "opendox.cli_model_binding"}, (
         f"the verb columns moved: {sorted({f.__module__ for f in found})}")
 
 
@@ -570,7 +602,19 @@ def test_the_dispatch_walk_is_not_vacuous():
 #    kept from existing
 # ===========================================================================
 
-SCRIPT = PACKAGE / "cli.py"
+SCRIPT = carved_source("scripts/ideation_dashboard/cli.py")
+
+#: openxFactory's BOOTSTRAP, as a source string a fresh interpreter can run.
+#: The two legs' `src/` and this repository's `scripts/` go on the path, and the
+#: composition point is registered with the consumers that name it as a bare
+#: global — which is exactly what `scripts/ideation-dashboard-serve.py` does for
+#: the serve, and what a subprocess reaching `opendox.cli` must do for itself.
+BOOTSTRAP = (
+    "import sys; sys.path.insert(0, {scripts!r})\n"
+    "import carved_reach\n"
+    "carved_reach.require(); carved_reach.install()\n"
+    "carved_reach.bind_composition_point()\n"
+)
 
 
 def run_cli(mode: str, argv: list[str], cwd: Path):
@@ -578,13 +622,31 @@ def run_cli(mode: str, argv: list[str], cwd: Path):
     two invocations `cli.py`'s own docstring documents.
 
     In-process (`cli_mod.main([...])`, which every other CLI test uses) there is
-    exactly one `ideation_dashboard.cli` and the hazard below cannot appear —
-    which is why it went unnoticed until it was run."""
-    command = ([sys.executable, str(SCRIPT)] if mode == "script"
-               else [sys.executable, "-m", "ideation_dashboard.cli"])
+    exactly one `opendox.cli` and the hazard below cannot appear — which is why
+    it went unnoticed until it was run.
+
+    BOTH INVOCATIONS NOW GO THROUGH openxFactory'S BOOTSTRAP, and that is not a
+    weakening of the test — it is the only lawful way this repository reaches
+    the command line after the § 5.2 shed (RULED (a), `#656` `5625573095`;
+    RULED Q7, `5626248666`). `python3 scripts/ideation_dashboard/cli.py` and
+    `python3 -m ideation_dashboard.cli` both named a file this repository no
+    longer holds, and even with the leg on `PYTHONPATH` neither would get past
+    `build_parser()`: it reads `profile_openxfactory` as a BARE GLOBAL, § 4.3's
+    open hole, so the composition point has to be REGISTERED (RULED ASK-2
+    option (2), `#656` `5628886636`). `runpy` reproduces each invocation
+    exactly — `run_path` gives `cli.py` the `__main__` name that creates the
+    second module object this section exists to police, and `run_module(...,
+    run_name="__main__")` is what `-m` does — inside a process that has
+    bootstrapped. When openDox-code's lazy proxy lands, a bare `-m opendox.cli`
+    works on its own and this preamble shrinks to the path setup."""
+    if mode == "script":
+        body = f"import runpy; runpy.run_path({str(SCRIPT)!r}, run_name='__main__')"
+    else:
+        body = "import runpy; runpy.run_module('opendox.cli', run_name='__main__')"
+    program = BOOTSTRAP.format(scripts=str(REPO_ROOT / "scripts")) + body
     env = dict(os.environ, PYTHONPATH=str(REPO_ROOT / "scripts"))
-    return subprocess.run(command + argv, capture_output=True, text=True,
-                          cwd=str(cwd), env=env)
+    return subprocess.run([sys.executable, "-c", program] + argv,
+                          capture_output=True, text=True, cwd=str(cwd), env=env)
 
 
 @pytest.mark.parametrize("mode", ["script", "module"])
@@ -699,19 +761,48 @@ def test_the_script_bootstrap_runs_the_packages_copy_of_this_module():
         "`ideation_dashboard.cli.RepoRootRefused` a moved verb raises")
 
 
-#: Every package spelling this tree is importable under. `scripts/__init__.py`
-#: exists, so `scripts.ideation_dashboard.cli` is a real second name for the same
-#: FILE and a second module object at runtime — `tests/import_scan.py`'s header
-#: states the rule in writing ("both spellings are always the caller's job … a
-#: one-spelling forbidden list is a hole"), and it is live in-tree for
-#: `scripts.hermes_runtime_validation` and `scripts.intent_compliance`.
-IMPORTABLE_SPELLINGS = ("ideation_dashboard", "scripts.ideation_dashboard")
+#: Every package spelling the CORE is importable under — ONE, since the § 5.2
+#: shed (RULED (a), `#656` `5625573095`).
+#:
+#: WHAT CHANGED AND WHY THE TUPLE IS STILL A TUPLE. Before the shed this tree
+#: had TWO spellings: `scripts/__init__.py` exists, so `ideation_dashboard.cli`
+#: and `scripts.ideation_dashboard.cli` named the same FILE and were two module
+#: objects at runtime, each with its own `RepoRootRefused` — the hazard this
+#: whole section exists for, and the reason every split module named its
+#: siblings relatively. `cli.py` now lives at the pinned openDox leg, whose
+#: `src/` is a path root with no package above it, so `opendox.cli` is the only
+#: name there is. The parametrization stays a tuple rather than collapsing into
+#: a plain test because the CLAIM has not changed — "every importable spelling
+#: gets one coherent set of columns" — only the count of spellings has; and
+#: `test_the_pre_shed_package_spellings_no_longer_resolve` below is the other
+#: half, pinning that the second spelling is gone rather than merely unused.
+IMPORTABLE_SPELLINGS = ("opendox",)
 
-#: The modules the § 2.4 split created. `cli.py` must reach all four RELATIVELY,
-#: and each of them must reach the core and each other the same way; see
-#: `test_the_split_modules_name_each_other_relatively` for why.
-SPLIT_MODULES = ("cli", "cli_gate", "cli_model_binding", "cli_project",
-                 "profile_openxfactory")
+#: The pre-shed spellings, kept BY NAME so their disappearance is asserted
+#: rather than assumed. A half-finished re-point would leave one of these
+#: importable again — from a stale `scripts/ideation_dashboard/cli.py` that the
+#: shed was supposed to delete — and the two-module-object hazard would be back
+#: with nothing red.
+PRE_SHED_SPELLINGS = ("ideation_dashboard", "scripts.ideation_dashboard")
+
+#: The modules the § 2.4 split created, each with the ONE package it belongs to
+#: after the shed. `None` is openxFactory's own top level: the composition point
+#: is the manifest's single `deleted_at_carve` row and its post-shed home is
+#: `scripts/profile_openxfactory.py`, importable as a bare name.
+#:
+#: The three-way split is design D3's column assignment, and it is what turns
+#: the old "name each other relatively" rule into the two-part one
+#: `test_the_split_modules_name_each_other_lawfully` states: within a leg
+#: relatively, across a leg by the other leg's single name.
+SPLIT_MODULE_PACKAGES = {
+    "cli": "opendox",
+    "cli_model_binding": "opendox",
+    "cli_project": "opendox",
+    "cli_gate": "openxdox",
+    "profile_openxfactory": None,
+}
+
+SPLIT_MODULES = tuple(SPLIT_MODULE_PACKAGES)
 
 
 def run_probe(spelling: str, body: str, cwd: Path):
@@ -720,9 +811,17 @@ def run_probe(spelling: str, body: str, cwd: Path):
     A new process per spelling, because the claim is about WHICH MODULE OBJECT an
     import produces, and this suite has already imported one of them — in-process,
     `sys.modules` would answer for a decision that was made before the test ran.
-    Both roots go on `PYTHONPATH` so either spelling resolves."""
+
+    The probe bootstraps exactly as `run_cli` does and for the same reason: the
+    core is at a PINNED leg now, its columns span BOTH legs, and `build_parser()`
+    reads the composition point as a bare global. `REPO_ROOT` stays on
+    `PYTHONPATH` so the PRE-SHED `scripts.` spelling would still resolve IF the
+    shed had left the file behind — which is what makes
+    `test_the_pre_shed_package_spellings_no_longer_resolve` a real assertion
+    rather than a statement about an import path nobody set up."""
     program = ("import argparse, importlib, sys\n"
-               f"SPELLING = {spelling!r}\n" + textwrap.dedent(body))
+               + BOOTSTRAP.format(scripts=str(REPO_ROOT / "scripts"))
+               + f"SPELLING = {spelling!r}\n" + textwrap.dedent(body))
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(
         [str(REPO_ROOT), str(REPO_ROOT / "scripts")]))
     return subprocess.run([sys.executable, "-c", program], capture_output=True,
@@ -736,17 +835,27 @@ def test_a_library_caller_gets_the_columns_of_its_own_core(spelling, tmp_path):
 
     `cli.main([...])` as a LIBRARY entry is contemplated in-tree (`cli.py`'s own
     comment describes "a scripted `cli.main(["gate", "abandon-session", …])`"),
-    and an importer chooses the spelling. If the core named its columns
-    absolutely, the `scripts.` spelling would run the OTHER core's verbs: the
-    function objects the parser dispatches to would belong to a module whose
-    `_core()` — and therefore whose `RepoRootRefused` — is not the caller's.
-    Every module the split created is therefore named relatively, so an import
-    under either spelling yields ONE coherent set."""
+    and an importer chooses the spelling. If the core named its SAME-LEG columns
+    absolutely under a second package spelling, that spelling would run the
+    OTHER core's verbs: the function objects the parser dispatches to would
+    belong to a module whose `_core()` — and therefore whose `RepoRootRefused`
+    — is not the caller's.
+
+    POST-SHED the leg supplies one spelling and `cli_gate` comes from the OTHER
+    leg, so the claim is checked in the shape the carve gives it: the three
+    openDox columns resolve under the spelling the caller used, openXdox's
+    `cli_gate` resolves under its own single name, and every one of them
+    reaches the SAME core object. `profile_openxfactory` is openxFactory's, a
+    bare top-level name (the manifest's `deleted_at_carve` row, re-homed at
+    `scripts/profile_openxfactory.py`), and `profile.cli_gate is gate` still
+    pins that the assembly contributed the very column the caller can see —
+    which is the identity the whole section is about, now spanning three
+    repositories instead of one."""
     result = run_probe(spelling, """
         core = importlib.import_module(SPELLING + ".cli")
-        gate = importlib.import_module(SPELLING + ".cli_gate")
+        gate = importlib.import_module("openxdox.cli_gate")
         project = importlib.import_module(SPELLING + ".cli_project")
-        profile = importlib.import_module(SPELLING + ".profile_openxfactory")
+        profile = importlib.import_module("profile_openxfactory")
 
         assert gate._core() is core, "cli_gate reached a different core object"
         assert project._core() is core, "cli_project reached a different core"
@@ -767,8 +876,8 @@ def test_a_library_caller_gets_the_columns_of_its_own_core(spelling, tmp_path):
         assert [v.__name__ for v in verbs
                 if getattr(core, v.__name__, None) is not v] == []
         assert {v.__module__ for v in verbs} == {
-            SPELLING + "." + name for name in
-            ("cli", "cli_gate", "cli_project", "cli_model_binding")}
+            SPELLING + ".cli", SPELLING + ".cli_project",
+            SPELLING + ".cli_model_binding", "openxdox.cli_gate"}
         print("OK")
     """, tmp_path)
 
@@ -804,6 +913,24 @@ def test_a_refusal_is_reported_under_every_importable_spelling(spelling, tmp_pat
     assert not (tmp_path / "snap.json").exists()
 
 
+def absolute_split_imports(module) -> dict:
+    """`{name: package}` for every ABSOLUTE `from <pkg> import X` /
+    `from <pkg>.X import …` in `module` that names one of the modules the split
+    created — the cross-leg half of the rule below."""
+    found = {}
+    for node in ast.walk(ast.parse(source_of(module))):
+        if not isinstance(node, ast.ImportFrom) or node.level:
+            continue
+        prefix = node.module or ""
+        for alias in node.names:
+            if alias.name in SPLIT_MODULE_PACKAGES:
+                found[alias.name] = prefix
+        head, _, tail = prefix.rpartition(".")
+        if tail in SPLIT_MODULE_PACKAGES:
+            found[tail] = head
+    return found
+
+
 def relative_sibling_imports(module) -> dict:
     """`{name: lineno}` for every `from . import X` / `from .X import …` in
     `module` that names one of the modules the split created."""
@@ -820,22 +947,52 @@ def relative_sibling_imports(module) -> dict:
     return found
 
 
-def test_the_split_modules_name_each_other_relatively():
-    """THE STRUCTURAL PIN on the identity above, so it cannot be tidied away.
+def package_of(module) -> str | None:
+    """The ONE package a split module belongs to, or `None` for openxFactory's
+    own top-level composition point."""
+    name = module.__name__
+    return name.rsplit(".", 1)[0] if "." in name else None
 
-    `from ideation_dashboard import cli_gate` is the obvious line — it is how
-    every OTHER import in these files is spelled — and it is the wrong one here:
-    an absolute name binds ONE spelling's module no matter which spelling
-    imported the file doing the binding, and that is exactly how a core ends up
-    running another core's verbs.
 
-    The one deliberate exception is the `__main__` bootstrap's import OF THE CORE,
-    which names `ideation_dashboard.cli` absolutely BECAUSE it has no package to
-    be relative to — that is the case it exists to hand over from. The exemption
-    is exactly that one name in exactly that one block: an absolute COLUMN import
-    parked inside a `__main__` guard would still be an offender."""
+def test_the_split_modules_name_each_other_lawfully():
+    """THE STRUCTURAL PIN on the identity above, so it cannot be tidied away —
+    POST-SHED, where it has two halves instead of one.
+
+    BEFORE the shed the rule was flat: name every split module RELATIVELY.
+    `from ideation_dashboard import cli_gate` was the obvious line and the wrong
+    one, because `scripts/__init__.py` gave this tree two package spellings and
+    an absolute name bound ONE of them no matter which spelling imported the
+    file doing the binding — that is exactly how a core ends up running another
+    core's verbs, with refusals its `main` cannot catch.
+
+    AFTER the shed (RULED (a), `#656` `5625573095`) the five modules sit in
+    THREE places — `opendox` holds the core with `cli_project` and
+    `cli_model_binding`, `openxdox` holds `cli_gate`, openxFactory holds the
+    composition point — and each place has exactly ONE importable spelling, so
+    the ambiguity the flat rule existed to close is gone where it used to bite
+    and a cross-leg import cannot be relative at all. The rule that replaces it
+    says the same thing about identity in the shape the carve gives it:
+
+      * WITHIN a leg, relatively. `opendox/cli.py` reaches `cli_project` and
+        `cli_model_binding` as `from .cli_project import …`, and they reach the
+        core as `from . import cli`.
+      * ACROSS a leg, by the owning package's ONE name. `opendox/cli.py`
+        reaches `openxdox.cli_gate` absolutely and `openxdox/cli_gate.py`
+        reaches `opendox.cli` absolutely, because there is nothing else either
+        could say.
+      * NEVER under a PRE-SHED spelling. `ideation_dashboard.cli_gate` and
+        `scripts.ideation_dashboard.cli` name files this repository deleted;
+        an import that still spelled one of them would be a half-finished
+        re-point, and this is the assertion that finds it.
+
+    The `__main__` bootstrap keeps its one exemption, for the reason it always
+    had: it names the core absolutely BECAUSE it has no package to be relative
+    to — that is the case it exists to hand over from. The exemption is exactly
+    that one name in exactly that one block; an absolute COLUMN import parked
+    inside a `__main__` guard would still be an offender."""
     offenders = []
     for module in (cli_mod, *COLUMN_MODULES, profile_openxfactory):
+        home = package_of(module)
         tree = ast.parse(source_of(module))
         bootstrap = [node for node in tree.body
                      if isinstance(node, ast.If)
@@ -846,24 +1003,63 @@ def test_the_split_modules_name_each_other_relatively():
         for node in ast.walk(tree):
             if not isinstance(node, ast.ImportFrom) or node.level:
                 continue
-            named = [alias.name for alias in node.names
-                     if node.module in CORE_PACKAGE_PATHS
-                     and alias.name in SPLIT_MODULES]
-            if (node.module or "").rsplit(".", 1)[-1] in SPLIT_MODULES:
-                named.append((node.module or "").rsplit(".", 1)[-1])
-            if id(node) in in_bootstrap:
-                named = [name for name in named if name != "cli"]
-            offenders.extend(f"{Path(module.__file__).name}:{node.lineno} {name}"
-                             for name in named)
+            prefix = node.module or ""
+            # `from <pkg> import cli_gate` and `from <pkg>.cli_gate import X`
+            reached = [(alias.name, prefix) for alias in node.names
+                       if alias.name in SPLIT_MODULE_PACKAGES]
+            head, _, tail = prefix.rpartition(".")
+            if tail in SPLIT_MODULE_PACKAGES:
+                reached.append((tail, head))
+            for name, package in reached:
+                owner = SPLIT_MODULE_PACKAGES[name]
+                if package == owner and owner != home:
+                    continue                      # lawful cross-leg absolute
+                if id(node) in in_bootstrap and name == "cli":
+                    continue                      # the one exemption
+                offenders.append(
+                    f"{Path(module.__file__).name}:{node.lineno} "
+                    f"{package or '<bare>'}.{name}")
     assert offenders == [], (
-        "these imports name a module the split created ABSOLUTELY; a caller "
-        "under the other package spelling would then run a different core's "
-        f"columns, and its refusals would escape `main` uncaught: {offenders}")
+        "these imports name a module the split created under the wrong "
+        "package: a SAME-LEG sibling named absolutely, or a PRE-SHED spelling "
+        "of a file the § 5.2 shed deleted. Either way the core a column "
+        "reaches stops being the core that is running it, and its refusals "
+        f"escape `main` uncaught: {offenders}")
 
-    # non-vacuity: the relative imports are really there, in both directions
+    # non-vacuity: the relative imports are really there, and so are the two
+    # cross-leg absolutes that replaced the ones the shed made impossible.
     assert set(relative_sibling_imports(cli_mod)) == {
-        "cli_gate", "cli_model_binding", "cli_project", "profile_openxfactory"}
-    assert "cli" in relative_sibling_imports(cli_gate)
+        "cli_model_binding", "cli_project"}
     assert "cli" in relative_sibling_imports(cli_project)
-    assert "cli_gate" in relative_sibling_imports(profile_openxfactory)
+    assert "cli" not in relative_sibling_imports(cli_gate), (
+        "`cli_gate` is openXdox's column and the core is openDox's — it cannot "
+        "reach the core relatively, and a relative spelling here would mean "
+        "the column had moved back")
+    assert absolute_split_imports(cli_gate).get("cli") == "opendox"
+    assert absolute_split_imports(cli_mod).get("cli_gate") == "openxdox"
+
+
+@pytest.mark.parametrize("spelling", PRE_SHED_SPELLINGS)
+def test_the_pre_shed_package_spellings_no_longer_resolve(spelling, tmp_path):
+    """The other half of `IMPORTABLE_SPELLINGS` having ONE member.
+
+    A tuple that shrank could mean the second spelling is gone or that this
+    test simply stopped asking about it, and those are not the same fact. So
+    the pre-shed spellings are asserted ABSENT, in a fresh process with
+    `REPO_ROOT` and `REPO_ROOT/scripts` both on `PYTHONPATH` — the exact setup
+    under which they used to resolve. A stale `scripts/ideation_dashboard/cli.py`
+    left behind by a half-finished shed would import here, the
+    two-module-object hazard would be back, and nothing else in this file would
+    notice: every other assertion is about `opendox.cli`."""
+    result = run_probe(spelling, """
+        try:
+            importlib.import_module(SPELLING + ".cli")
+        except ImportError:
+            print("OK")
+        else:
+            raise AssertionError(SPELLING + ".cli still resolves")
+    """, tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert "OK" in result.stdout
 

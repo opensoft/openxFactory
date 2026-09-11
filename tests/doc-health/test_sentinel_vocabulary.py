@@ -43,6 +43,9 @@ import yaml
 
 from conftest import REPO_ROOT  # noqa: F401 (sys.path side effect)
 
+from carved_reach import NotACarvedPath
+from carved_reach import source as carved_source
+
 from doc_health import pin_class as pc
 from doc_health import pin_sentinels as ps
 
@@ -165,6 +168,28 @@ def test_a_member_declared_without_a_condition_is_reported(monkeypatch):
                for d in defects), defects
 
 
+def _emitter_path(rel: str) -> Path:
+    """The file a declared emitter NAMES, wherever the § 5.2 shed left it.
+
+    An emitter is a repository-relative path recorded in `pin_sentinels`, and
+    the shed moved some of the files those paths name to a pinned leg
+    (`scripts/ideation_dashboard/snapshot_registry.py` is at openXdox-code
+    now). The declaration keeps the pre-shed spelling — it is the name this
+    repository's history and every reader knows — and the manifest answers
+    where it is, so an emitter is still MEASURED rather than believed and no
+    destination path is transcribed here (RULED (a), `#656` comment
+    `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpuB`).
+
+    `NotACarvedPath` is the ordinary answer for most emitters: they name files
+    that were never under the carve's `moved_paths:` surface at all, and those
+    resolve here, unchanged.
+    """
+    try:
+        return carved_source(rel)
+    except NotACarvedPath:
+        return REPO_ROOT / rel
+
+
 def test_the_declared_emitters_are_measured_rather_than_believed():
     """`emitters` is what exempts a member with no committed instance from the
     unused report, so a phantom emitter would keep a stale member alive on a
@@ -175,7 +200,7 @@ def test_the_declared_emitters_are_measured_rather_than_believed():
     for member in ps.SENTINELS:
         for emitter in member.emitters:
             rel = emitter.split(" (")[0]
-            path = REPO_ROOT / rel
+            path = _emitter_path(rel)
             assert path.is_file(), f"{member.value}: no {rel}"
             text = path.read_text(encoding="utf-8")
             name = constants.get(member.value, "")
@@ -231,8 +256,14 @@ def test_unknown_is_not_folded_into_the_unreadable_repository_condition():
     assert unknown.standing == ps.CANONICAL
     # the projector's site, now reaching for the DECLARED constant rather than
     # retyping the spelling (Q3, ruled 2026-08-28)
-    registry = (REPO_ROOT / "scripts/ideation_dashboard/snapshot_registry.py"
-                ).read_text(encoding="utf-8")
+    # The § 5.2 shed moved the projector to the openXdox leg; the assertion is
+    # over its SOURCE TEXT, so the path is asked of the manifest row by the
+    # pre-shed name this file has always spelled rather than joined onto
+    # `REPO_ROOT` (RULED (a), `#656` comment `5625573095`; Copilot
+    # `PRRT_kwDOTAvnrs6hUpuB`).
+    registry = carved_source(
+        "scripts/ideation_dashboard/snapshot_registry.py"
+    ).read_text(encoding="utf-8")
     assert "self.source_revision or pin_sentinels.UNKNOWN" in registry
     assert 'self.source_revision or "unknown"' not in registry, (
         "the projector retypes the spelling again; a generator writing a "

@@ -1918,11 +1918,16 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # And the counts this amendment moved, re-derived from the file rather than
     # transcribed: one more declared line than the 793 the runbook's § 2 table
-    # carried before it, on one more row than the 146 that carried edits.
+    # carried before it, on one more row than the 146 that carried edits — and
+    # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
+    # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
+    # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
+    # rows. Re-derived here for the same reason as before: a transcribed count
+    # is a claim, a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (794, 147), (lines, carrying)
+    assert (lines, carrying) == (862, 150), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -1994,7 +1999,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 794 line numbers were written in the numbering this
+    The manifest's 862 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

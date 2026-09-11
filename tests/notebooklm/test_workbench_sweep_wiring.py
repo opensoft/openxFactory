@@ -49,7 +49,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 if importlib.util.find_spec("ideation_dashboard.workbench") is None:
     raise unittest.SkipTest(
         "ideation_dashboard arrives with adopt-neutral-tooling-home tranche B")
-from ideation_dashboard import workbench as wb  # noqa: E402
+from opendox import workbench as wb  # noqa: E402
 
 # doc-health's notebook-projection-drift family counts `[book] ADD|DEL|UPD `
 # lines as pending projection operations (scripts/doc_health/families.py).
