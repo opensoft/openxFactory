@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: amend-merged-into-empty-tail-standing
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-11 by Brett Heap (openxFactory operator authority) — "Ratify as encoded"; record at review/ratification-2026-09-11.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's ruling of 2026-09-11, verbatim **"Rule the silence correct in
 canon"**, given in session by multiple choice (~01:3xZ) and recorded on
@@ -19,18 +20,33 @@ this lane at the archive of `amend-marker-declaring-nothing`
 ([#926](https://github.com/opensoft/openxFactory/pull/926) → `114d6e3d`), which
 owed it as residue `tasks.md` § 7.1 and `design.md` D6.
 
-**THE RULING SETTLES THE DESIGN. IT DOES NOT RATIFY THIS TEXT, AND THIS PACKET
-IS A `Status: draft` PROPOSAL EVERYWHERE.** Brett Heap chose between the two
+**THE RULING SETTLED THE DESIGN. IT DID NOT RATIFY THIS TEXT; THE RATIFICATION
+IS A SEPARATE ACT AND IT HAS NOW HAPPENED.** Brett Heap chose between the two
 options #914 put — *"Rule the silence correct"* and *"Report it as a sixth
-ground"* — and took the first, which decides **`design.md` D1's DIRECTION**.
-What it did not do, and could not, is approve a sentence nobody had written
-when it was given. **NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED:**
-`.openspec.yaml` carries drafting provenance only — the lawful unapproved shape
-`add-drafted-proposal-origin` (issue #318) defined — and ratification,
-promotion and archive are three later acts on later words. The decision most
-worth a veto is therefore not WHETHER but **HOW**: `design.md` **D1** is the
-sentence's exact wording, put as a confirm-or-veto with the rejected
-alternative written out beside it.
+ground"* — and took the first, which decided **`design.md` D1's DIRECTION**.
+What that word did not do, and could not, was approve a sentence nobody had
+written when it was given: it stays recorded as the ORIGIN of the AUTHORING
+and is not read as an approval. **BRETT HEAP RATIFIED THIS PACKET ITSELF ON
+2026-09-11**, verbatim **"Ratify as encoded"** — a multiple-choice ruling over
+`design.md` **D1** and **D2** with the recommendation presented first, given
+in session and recorded on openxFactory PR
+[#947](https://github.com/opensoft/openxFactory/pull/947#issuecomment-5632913033)
+at 2026-09-11T10:11:53Z (and on issue
+[#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5632913453)).
+**D1 = the recommended and encoded sentence, with its scenario; D2 = the
+marker as written.** Both are the option the packet already encoded, so **THE
+WORDING STANDS UNCHANGED** and no delta byte is re-written, restored or
+deleted. The citation is the single `Ratified:` line above, which is what
+`ratified-provenance` counts; the act is recorded at
+`review/ratification-2026-09-11.md` and the gate run captured beside it at
+`review/verification-2026-09-11.md`. `.openspec.yaml` now carries
+`approved_by` + `approved_on` **ADDED BESIDE** the drafting provenance it was
+authored with, `kind`, `id`, `reason` and `proposed_by` unmoved — the
+addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318) defined.
+**NOTHING IS PROMOTED BY THIS RATIFICATION**: this pull request still edits no
+file under `openspec/specs/`, so the block reaches canon only at the ARCHIVE,
+which is a separate act on a separate word, and openxFactory #914 closes there
+and not at this landing.
 
 ## Why
 
@@ -162,19 +178,30 @@ three OTHER active changes that name it at all mention it in prose
 `disposition-codexfactory-declared-renames/design.md`) and carry no delta over
 it, so the two-writers ordering this very requirement reports is not in play.
 
-## Ratification — OWED, NOT GIVEN
+## Ratification — GIVEN 2026-09-11
 
-Brett Heap's ruling of 2026-09-11 decides `design.md` D1's DIRECTION and
-authorizes this authoring. **IT IS NOT A RATIFICATION OF THIS WORDING**, and
-this packet does not read it as one: every document carries `Status: draft`,
-`.openspec.yaml` carries no `approved_by` and no `approved_on`, and `tasks.md`
-§ 1 stays OPEN. The pull request is a DRAFT and asks one question — D1's
-sentence, confirm or veto.
+Brett Heap's ruling of 2026-09-11 ~01:3xZ decided `design.md` D1's DIRECTION
+and authorized this authoring; it was NOT a ratification of this wording, and
+at the time this packet did not read it as one. **A SECOND WORD RATIFIED THE
+PACKET ITSELF**, verbatim **"Ratify as encoded"**, given in session as a
+multiple-choice ruling over `design.md` D1 and D2 with the recommendation
+presented first, and recorded on PR #947 at 2026-09-11T10:11:53Z (record
+`review/ratification-2026-09-11.md`). `proposal.md`, `design.md` and
+`tasks.md` now carry `Status: ratified` with ONE citation line each,
+`.openspec.yaml` carries `approved_by` and `approved_on` ADDED beside the
+drafting provenance, and `tasks.md` § 1 is ticked and names the word that
+ticked it. The pull request asked two questions — D1's sentence and D2's
+marker, each confirm-or-veto — and both are answered as encoded.
 
 ## What this proposal does NOT claim
 
-- **It does not claim the ruling approved this text.** The ruling chose between
-  two encodings; the sentence was written after it.
+- **The origin ruling did not claim to approve this text, and it is not read as
+  having done so.** It chose a direction between two encodings — *"Rule the
+  silence correct"* over *"Report it as a sixth ground"*; the sentence was
+  written after it. **The wording was approved by a second, later word**,
+  2026-09-11T10:11:53Z, verbatim *"Ratify as encoded"*, record
+  `review/ratification-2026-09-11.md` — which is what makes this packet
+  `Status: ratified` rather than the origin ruling read expansively.
 - **It does not add a sixth ground**, and the added sentence is written so that
   it cannot be read as one: it is a prohibition on reporting, the count of
   grounds is left at FIVE in the same paragraph, and the scenario's THEN bullet

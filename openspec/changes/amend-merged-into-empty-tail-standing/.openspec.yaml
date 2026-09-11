@@ -101,6 +101,47 @@ origin:
     Leaving the sentence standing would make canon say the requirement does not
     decide the question and then decide it, two sentences apart.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-11, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "Ratify as encoded",
+    given in session as a MULTIPLE-CHOICE ruling over `design.md` D1 and D2
+    with the recommendation presented first, and recorded on openxFactory PR
+    #947 at 2026-09-11T10:11:53Z (comment 5632913033) and on issue #914 at
+    2026-09-11T10:11:55Z (comment 5632913453). THIS IS THE RATIFICATION ACT
+    AND IT IS ADDED, NOT SUBSTITUTED. The drafting provenance above is kept
+    exactly as authored and `kind` and `id` never move, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition:
+    approval is a pure ADDITION beside a fixed origin identity, so the support
+    manifest that repeats `kind` and `id` never comes to disagree with the
+    packet, and the archive gate's origin-retention arm reads the declaration
+    this commit establishes. The earlier word of 2026-09-11 ~01:3xZ, verbatim
+    "Rule the silence correct in canon", recorded on issue #914 at
+    2026-09-11T02:06:38Z (comment 5628349929), stays the ORIGIN of the
+    AUTHORING and settled `design.md` D1's DIRECTION alone; it is not read as
+    an approval.
+    THE RULING REACHES BOTH DECISIONS THE PACKET PUT AND EACH IS THE ENCODED
+    OPTION, SO THE PACKET'S WORDING STANDS UNCHANGED. D1 = the recommended and
+    encoded wording: the one sentence added to the grounds paragraph stating
+    that a `Merged into` marker declares its destination in its prefix and owes
+    no tail, so a tail naming no superseded title is SILENT BY RULE, together
+    with the one added scenario *A merge marker's tail names no superseded
+    title* — as frozen at `546e2c97`. D2 = the marker as written: one
+    `Removed from canon` marker naming the one retired unit, its reason
+    carrying no code span at all. The alternatives offered and not taken:
+    "Veto D1 — prefer a sixth ground at info"; "Ratify D1, veto D2 (no
+    marker)". D0, D3, D4, D5 and D6 were carried beside them and none was
+    vetoed. No delta byte was re-written, restored or deleted by this
+    ratification.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD. `code_surface: none`
+    means this packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization
+    evidence, but that archive is not performed here: nothing under
+    `openspec/specs/` is edited by this ratification, `tasks.md` § 5 stays
+    OPEN, and openxFactory #914 therefore closes AT THE ARCHIVE and not at
+    this landing.
+    Record: `review/ratification-2026-09-11.md`, with the gate run re-derived
+    on the ratified tree at `review/verification-2026-09-11.md`.
+  approved_on: 2026-09-11
 related:
   - openxFactory:change:archive/2026-09-10-amend-marker-declaring-nothing        # ARCHIVED (PR #908 -> archive PR #926). OWED THIS SUCCESSOR at its tasks.md § 7.1 / design.md D6, pinned the silence this packet rules correct, and is THE LAST WRITER of the requirement this block MODIFIES — its promoted text is what this block writes over and its own `Removed from canon` marker is deliberately NOT restated here
   - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing # ARCHIVED (PR #887 -> archive PR #899). The `code_surface: none` amend shape this packet follows exactly — one `## MODIFIED` block over this same requirement, units retired and replaced in place under one marker, archiving on landing plus its own task list. Its bytes are NOT edited

@@ -1,6 +1,7 @@
 # Design: amend-merged-into-empty-tail-standing
 
-Status: draft
+Status: ratified
+Ratified by: amend-merged-into-empty-tail-standing — 2026-09-11, Brett Heap, "Ratify as encoded" (record `review/ratification-2026-09-11.md`)
 Date: 2026-09-11
 Kind: design
 
@@ -22,13 +23,24 @@ the silence is correct and canon IS TO SAY SO — which this packet proposes and
 does not perform, promoted canon still carrying the undecided clause until the
 archive act.
 
-**THAT RULING REACHES D1's DIRECTION AND NOTHING ELSE ON THIS PAGE.** It was
-given before a sentence existed, so it cannot have approved one. **D1 IS
+**THAT RULING REACHED D1's DIRECTION AND NOTHING ELSE ON THIS PAGE.** It was
+given before a sentence existed, so it could not have approved one. **D1 WAS
 THEREFORE STILL A VETO POINT** — the WORDING, put with the rejected alternative
-written out beside it — and **D2 IS A SECOND ONE**, decided here by measurement
-rather than by the ruling: whether the amendment owes a `Removed from canon`
-marker. Every document in this packet is `Status: draft` and `.openspec.yaml`
-carries no approval pair.
+written out beside it — and **D2 WAS A SECOND ONE**, decided here by
+measurement rather than by the ruling: whether the amendment owes a
+`Removed from canon` marker. **BOTH ARE NOW RULED.** Brett Heap ratified this
+packet on 2026-09-11, verbatim **"Ratify as encoded"** — a multiple-choice
+ruling over D1 and D2 with the recommendation presented first, given in
+session and recorded on PR
+[#947](https://github.com/opensoft/openxFactory/pull/947#issuecomment-5632913033)
+at 2026-09-11T10:11:53Z, record `review/ratification-2026-09-11.md` — which
+takes **D1 = the recommended and encoded sentence, with its scenario** and
+**D2 = the marker as written**, each being the option the packet already
+encoded, so **NOTHING IN THE DELTA MOVES**. D0, D3, D4, D5 and D6 were carried
+beside them and none was vetoed. `proposal.md`, this file and `tasks.md` now
+carry `Status: ratified` and `.openspec.yaml` carries the approval pair ADDED
+beside the drafting provenance. The alternatives below are retained as the
+record of what was put and declined, not as work owed.
 
 ## D0 — the measurement, taken before the design, and the correction it forces
 
@@ -81,12 +93,19 @@ rediscover"*. This is the later act, and it CONFIRMS the assertion rather than
 flipping it — which is the whole difference between this packet and its
 predecessor.
 
-## D1 — THE VETO POINT: the sentence, and the sixth ground it is not
+## D1 — THE VETO POINT: RULED — the sentence, and the sixth ground it is not
 
-**RULED IN DIRECTION on 2026-09-11 by Brett Heap, verbatim "Rule the silence
-correct in canon"**, as a multiple-choice ruling over #914's two options. **THE
-DIRECTION IS SETTLED AND THE WORDING IS NOT** — this section is what a veto
-would reach.
+**THE DIRECTION WAS RULED on 2026-09-11 by Brett Heap, verbatim "Rule the
+silence correct in canon"**, as a multiple-choice ruling over #914's two
+options, given before this sentence existed. **THE WORDING ITSELF IS NOW ALSO
+RULED**: Brett Heap, verbatim **"Ratify as encoded"**, a multiple-choice
+ruling over this decision (given in session and recorded on PR #947 at
+2026-09-11T10:11:53Z; record `review/ratification-2026-09-11.md`). **THE
+RECOMMENDATION WAS TAKEN, SO NOT ONE BYTE OF THE DELTA MOVES**: the added
+sentence stands exactly as encoded, its scenario stands, and the retired
+clause stays retired. The narrow alternative — option B below — is retained on
+this page as the record of what was put and declined rather than as work
+owed.
 
 **A — WHAT THE DELTA ENCODES.** One sentence, added to the grounds paragraph
 immediately after the fifth ground's scoping sentence:
@@ -137,9 +156,9 @@ Four properties, each deliberate:
 ONE.** Report it as a SIXTH GROUND at `info`, on the `Merged into` form alone: one predicate
 (`marker.form == "merged" and not marker.names and not marker.quoted`), one
 `_WHY_*` template clause, the flipped test, and a `## MODIFIED` block with its
-own scenario. **BRETT HEAP'S RULING IS WHY IT IS NOT ENCODED**, and its cost is
-written out so the ruling is a choice on the record rather than an author's
-preference:
+own scenario. **BRETT HEAP'S RULING OF 2026-09-11T10:11:53Z IS WHY IT IS NOT
+ENCODED**, and its cost is written out so the ruling was a choice on the
+record rather than an author's preference:
 
 1. **It would report a marker that declared everything its form requires.** The
    removal form's tail IS its declaration; the merge form's prefix is. A sixth
@@ -165,17 +184,25 @@ preference:
    silence, if it ever proves wrong, is overturned by exactly the act this
    packet is — and the test that pins it is already written.
 
-**THE COST OF VETOING A.** A veto of the WORDING costs the added sentence, the
-added scenario and the `Removed from canon` marker's one name; the retired
-clause would be restored verbatim and canon would keep its recorded
-non-decision; and the packet would be re-authored against whatever wording the
-veto names. **A VETO OF THE DIRECTION IS A DIFFERENT ACT** — it would reverse
-the ruling of 2026-09-11 and send this back as option B with a code surface,
-and this packet does not treat that as available to it.
+**THE COST OF VETOING A, WRITTEN OUT AND NOT PAID.** A veto of the WORDING
+would have cost the added sentence, the added scenario and the
+`Removed from canon` marker's one name; the retired clause would have been
+restored verbatim and canon would have kept its recorded non-decision; and the
+packet would have been re-authored against whatever wording the veto named.
+**A VETO OF THE DIRECTION WOULD HAVE BEEN A DIFFERENT ACT** — it would have
+reversed the ruling of 2026-09-11 ~01:3xZ and sent this back as option B with
+a code surface — and this packet did not treat that as available to it. **THE
+RULING OF 2026-09-11T10:11:53Z TOOK OPTION A, SO NONE OF THIS WAS PERFORMED.**
 
-## D2 — the marker: OWED, and decided by measurement rather than by preference
+## D2 — the marker: RULED — owed, and decided by measurement rather than by preference
 
-**THE QUESTION.** A pure ADDITION to canon owes no `Removed from canon` marker:
+**RULED 2026-09-11T10:11:53Z BY BRETT HEAP — THE MARKER STANDS AS WRITTEN**,
+verbatim **"Ratify as encoded"**, the same multiple-choice ruling that resolved
+D1 above (record `review/ratification-2026-09-11.md`). The alternative this
+decision put — a pure addition owing no marker — was NOT taken; nothing below
+is re-derived by the ruling, and the counts stand as measured at authoring.
+
+**THE QUESTION, AS IT WAS PUT.** A pure ADDITION to canon owes no `Removed from canon` marker:
 nothing is retired, every canon unit is carried, and the carriage ledger has
 nothing to report. That is the cheaper shape and it was the first one tried.
 
@@ -299,13 +326,16 @@ and not one touches `openspec/specs/doc-health/spec.md`,
 `scripts/doc_health/modified_block_currency.py` or
 `tests/doc-health/test_modified_block_currency.py`.
 
-**OPEN ISSUES NAMING A MARKER — ONE, AND IT IS #914 ITSELF.** The TWO OTHER
-issues this family's recent packets left open are #893 (the uncited-resolution
-rule's per-class grain, filed by `amend-modified-block-currency-standing`) and
-#915 (`specs/019` FR-018's three-grounds restatement, filed by
-`amend-marker-declaring-nothing`), neither of which this packet touches or
-forecloses — see D6. Those two, and #914 itself, are the three this family is
-carrying.
+**OPEN ISSUES NAMING A MARKER — ONE, AND IT IS #914 ITSELF.** #893 (the
+uncited-resolution rule's per-class grain, filed by
+`amend-modified-block-currency-standing`) stays open and this packet neither
+touches nor forecloses it — see D6. #915 (`specs/019` FR-018's grounds-count
+restatement, filed by `amend-marker-declaring-nothing`) was ALSO open when
+this line was first drafted but has SINCE CLOSED (2026-09-11T01:29:59Z, ~90
+minutes before this packet's own authoring): `8a2ed38c` and `125a7d96`
+restated FR-018 to canon's five grounds, `refs #915`, before a byte of this
+packet was written. It is corrected here rather than carried forward stale —
+see D6.
 
 **THE CLAIM.** It stands on #914 at 2026-09-11T02:06:38Z — the ruling comment
 itself carries it — naming lane `openxfactory-1` and session `a9c24afc` and its
@@ -336,13 +366,17 @@ on one that was recited.
   packet a code surface and change its archive rule (D4). Recorded as residue
   in `tasks.md` § 6.1, with a successor to be NAMED at the archive act on the
   tick-on-the-recording rule of 2026-09-06, naming all three sites.
-- **`specs/019-modified-block-currency-family/` IS NOT EDITED.** Its FR-018
-  states the ONE reporting ground a marker had before
-  `amend-marker-defect-reporting`, and the restatement is already owed by
-  openxFactory #915, filed at the predecessor's archive and OPEN. This packet
-  adds no ground, so it neither widens #915's scope nor discharges it, and the
-  build record says nothing at all about the merge form's empty tail — checked,
-  not assumed.
+- **`specs/019-modified-block-currency-family/` IS NOT EDITED, AND ITS FR-018
+  ALREADY MATCHES CANON.** FR-018 (`:442`) states **FIVE** grounds today,
+  restated by `8a2ed38c`/`125a7d96` (`refs #915`, landed 2026-09-10, before
+  this packet's own authoring); openxFactory #915 is **CLOSED**
+  (2026-09-11T01:29:59Z), not open. An earlier line here named the
+  pre-`amend-marker-defect-reporting` ONE-ground text and an open #915 — both
+  stale, and corrected in this ratification (`tasks.md` § 6.2,
+  `review/ratification-2026-09-11.md` § 5.6). This packet adds no ground, so
+  it neither widens nor reopens #915's now-closed scope, and the build record
+  says nothing at all about the merge form's empty tail — checked, not
+  assumed.
 - **NO TEST IS ADDED OR CHANGED.** `test_a_MERGED_marker_whose_tail_names_nothing_stays_SILENT`
   already asserts exactly what this packet promotes, so a second test would
   assert the same fact twice and the suite's own count would move for nothing.

@@ -1,6 +1,7 @@
 # Tasks: amend-merged-into-empty-tail-standing
 
-Status: draft
+Status: ratified
+Ratified by: amend-merged-into-empty-tail-standing — 2026-09-11, Brett Heap, "Ratify as encoded" (record `review/ratification-2026-09-11.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: none`. Under `release-realization` an
@@ -10,31 +11,50 @@ act on a separate word, and it is NOT performed here** (§ 5).
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN**: Brett Heap's ruling of 2026-09-11,
-verbatim *"Rule the silence correct in canon"*, settles `design.md` D1's
-DIRECTION and commissions this authoring — it was given before a sentence
-existed and it approves no wording. **§ 5 (ARCHIVE) IS ENTIRELY OPEN**: the
-promotion of the block into `openspec/specs/doc-health/spec.md` and the closing
-line for openxFactory #914 belong to the archive pull request and to nothing
-here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
+**§ 1 (RATIFICATION) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT**: Brett
+Heap's ruling of 2026-09-11 ~01:3xZ, verbatim *"Rule the silence correct in
+canon"*, settled `design.md` D1's DIRECTION and commissioned this authoring —
+it was given before a sentence existed and approved no wording, and it stays
+recorded as the ORIGIN of the AUTHORING. A SECOND word, verbatim *"Ratify as
+encoded"*, given in session and recorded on PR #947 at 2026-09-11T10:11:53Z
+(record `review/ratification-2026-09-11.md`), ratified the packet itself —
+his act, and never this lane's judgment. **§ 5 (ARCHIVE) STAYS ENTIRELY
+OPEN**: the promotion of the block into `openspec/specs/doc-health/spec.md`
+and the closing line for openxFactory #914 belong to the archive pull request,
+on a separate word, and to nothing here. **§ 6 STAYS UNTICKED**: residue,
+measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-11T10:11:53Z
 
-- [ ] 1.1 **RATIFICATION IS A SEPARATE WORD AND IT HAS NOT BEEN GIVEN.** The
-      word this packet was AUTHORED on — Brett Heap's *"Rule the silence
-      correct in canon"* of 2026-09-11, given in session by multiple choice
-      (~01:3xZ) and recorded on openxFactory
+- [x] 1.1 **RATIFIED 2026-09-11 by Brett Heap** (openxFactory operator
+      authority), verbatim *"Ratify as encoded"*, given in session as a
+      MULTIPLE-CHOICE ruling over `design.md` D1 and D2 with the
+      recommendation presented first, and recorded on PR **#947** at
+      2026-09-11T10:11:53Z (comment `5632913033`; also on issue #914 at
+      2026-09-11T10:11:55Z, comment `5632913453`). It is his act and never
+      this lane's judgment. The word this packet was AUTHORED on — Brett
+      Heap's *"Rule the silence correct in canon"* of 2026-09-11, given in
+      session by multiple choice (~01:3xZ) and recorded on openxFactory
       [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5628349929)
-      at 2026-09-11T02:06:38Z — is the ORIGIN of the AUTHORING and is not read
-      as an approval: it chose between #914's two options and decided no
-      wording, no scenario and no marker. Every document in this packet carries
-      `Status: draft`; `.openspec.yaml` carries drafting provenance with **no**
-      `approved_by` and **no** `approved_on`, which is the lawful unapproved
-      shape `add-drafted-proposal-origin` (issue #318) defined. At
-      ratification the status flip and the approval pair move in ONE commit,
-      the pair ADDED beside a fixed `kind` and `id`.
-- [ ] 1.2 **`design.md` D1 IS THE VETO POINT — THE WORDING.** The direction is
-      ruled; the sentence is not. **THE OPTIONS AS THEY ARE PUT:** Option **A**
+      at 2026-09-11T02:06:38Z — stays the ORIGIN of the AUTHORING and is not
+      read as an approval: it chose between #914's two options and settled
+      `design.md` D1's DIRECTION alone, deciding no wording, no scenario and
+      no marker. `proposal.md`, `design.md`, this file AND
+      `review/ratification-2026-09-11.md` now carry `Status: ratified` with
+      **ONE** citation line each (`Ratified:` in `proposal.md` and in the
+      ratification record, `Ratified by:` here and in `design.md`), which is
+      what `ratified-provenance` counts. `review/verification-2026-09-11.md`
+      keeps `Status: record`: its subject is the GATE RUN and not the
+      ratification. `.openspec.yaml` GAINS `approved_by`/`approved_on`
+      **BESIDE** the drafting provenance, with `kind`, `id`, `reason` and
+      `proposed_by` unmoved (`git diff --numstat` reads `41 0`) — the
+      addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318)
+      defined and the shape the archive gate's origin-retention arm reads,
+      which is why the status flip and the approval pair move in ONE commit.
+- [x] 1.2 **`design.md` D1 IS RULED — OPTION A, THE RECOMMENDED AND ENCODED
+      WORDING.** The veto point was put and the recommendation was TAKEN, so
+      **not one byte of the delta moves**: no sixth ground was substituted and
+      no clause was reworded. **THE OPTIONS AS THEY WERE PUT:** Option **A**
       (RECOMMENDED, and what the delta encodes): one sentence in the grounds
       paragraph stating that a `Merged into` marker declares its DESTINATION in
       its PREFIX and owes no tail, so a tail naming no superseded title is
@@ -44,34 +64,41 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       through a name or a quoted span such a tail does not carry; with a final
       clause keeping a code span the reason DOES quote subject to the second
       ground, so the silence is scoped at the SHAPE and never at the FORM.
-      Option **B** (#914's own second option, and the one the ruling declined):
-      report it as a SIXTH GROUND at `info` on the `Merged into` form alone —
-      one predicate, one WHY clause, a flipped test and a code surface, which
-      would report a marker that declared everything its form requires and
-      would change this packet's archive rule. **A VETO OF THE WORDING** costs
-      the added sentence, the added scenario and the marker's one name, and
-      restores the retired clause verbatim; a veto of the DIRECTION reverses
-      the ruling of 2026-09-11 and is not treated as available to this lane.
-- [ ] 1.3 **`design.md` D2 IS THE SECOND VETO POINT — THE MARKER, AND IT IS
-      DECIDED BY MEASUREMENT RATHER THAN BY THE RULING.** A pure addition would
-      owe no `Removed from canon` marker; the measurement refuses a pure
-      addition, because the clause the ruling contradicts is not a unit —
-      `derive_units` reads the whole fifth-ground sentence as ONE body unit of
-      478 characters and this corpus has no instrument for retiring a CLAUSE.
-      So the sentence is RETIRED AND REPLACED IN PLACE, one canon unit goes
-      uncarried, and a marker is owed. The alternative — leave the sentence
-      standing and add a second sentence beside it — is written out in
-      `design.md` D2 with its cost: canon would say the requirement does not
-      decide the question and then decide it, two sentences apart.
-- [ ] 1.4 **`design.md` D0 AND D3 THROUGH D6 ARE CARRIED BESIDE THEM.** D0 the
-      measurement — 27 markers, ZERO `Merged into` markers with a tail carrying
-      no code span, 29 active MODIFIED blocks of which TWO carry a unit-naming
-      marker — together with the correction it forces to #914's own figure (the
-      issue's "9 pairing-form markers" counts a THIRD form, not the form this
-      packet rules on). D3 why an OpenSpec change and not a patch. D4 why
-      `code_surface: none` archives on landing and why the archive is still a
-      separate act. D5 the sibling search, pasted. D6 what is measured and
-      deliberately not taken.
+      Option **B** (#914's own second option, and the one the ruling
+      declined): report it as a SIXTH GROUND at `info` on the `Merged into`
+      form alone — one predicate, one WHY clause, a flipped test and a code
+      surface, which would have reported a marker that declared everything its
+      form requires and would have changed this packet's archive rule. **A
+      VETO OF THE WORDING would have cost** the added sentence, the added
+      scenario and the marker's one name, and would have restored the retired
+      clause verbatim; **NEITHER WAS TAKEN**, and both stay written out in
+      `design.md` D1 as the record of what was put and declined.
+- [x] 1.3 **`design.md` D2 IS RULED — THE MARKER STANDS AS WRITTEN.** The
+      second veto point — whether the amendment owes a `Removed from canon`
+      marker, decided by measurement rather than by the ruling — was put
+      beside D1 in the same multiple-choice word, and the marker as written
+      was taken rather than the "no marker" alternative. A pure addition would
+      have owed no marker; the measurement refused a pure addition, because
+      the clause the ruling contradicts is not a unit — `derive_units` reads
+      the whole fifth-ground sentence as ONE body unit of 478 characters and
+      this corpus has no instrument for retiring a CLAUSE. So the sentence is
+      RETIRED AND REPLACED IN PLACE, one canon unit goes uncarried, and the
+      marker stands. The alternative — leave the sentence standing and add a
+      second sentence beside it — stays written out in `design.md` D2 with its
+      cost: canon would say the requirement does not decide the question and
+      then decide it, two sentences apart. **THE RULING TOUCHED NEITHER**: the
+      marker written under D2 stands with its one name, and the counts in
+      § 3.1 and § 3.3 are the authoring measurement rather than something this
+      ratification re-derived.
+- [x] 1.4 **`design.md` D0 AND D3 THROUGH D6 WERE CARRIED BESIDE THEM AND NONE
+      WAS VETOED.** D0 the measurement — 27 markers, ZERO `Merged into` markers
+      with a tail carrying no code span, 29 active MODIFIED blocks of which
+      TWO carry a unit-naming marker — together with the correction it forces
+      to #914's own figure (the issue's "9 pairing-form markers" counts a
+      THIRD form, not the form this packet rules on). D3 why an OpenSpec
+      change and not a patch. D4 why `code_surface: none` archives on landing
+      and why the archive is still a separate act — not performed here. D5 the
+      sibling search, pasted. D6 what is measured and deliberately not taken.
 
 ## 2. The measurement, taken before the design
 
@@ -196,9 +223,11 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       has nothing to withhold here, this packet's marker naming a BODY unit.
 - [x] 3.7 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
       style, naming the origin issue, the ruling and its recording, the veto
-      points, the zero population and the DRAFT standing. **AUTHORED AT THE
-      DRAFT STANDING**: the row says `Status: draft` in terms and says that
-      ratification, promotion and the archive are three later acts.
+      points and the zero population. **IT WAS WRITTEN AS `Status: draft`
+      (NOT RATIFIED) AT AUTHORING AND MOVED TO `Status: ratified` IN THE
+      RATIFICATION COMMIT**, in the same commit as the three document flips
+      and the approval pair, so the index never states a standing the packet
+      does not have.
 - [x] 3.8 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#947'`, run AFTER the draft pull request
@@ -283,6 +312,21 @@ comparison is a LITERAL diff rather than a normalized one.
       one name occurs **exactly once** in `openspec/specs/doc-health/spec.md`,
       and `design.md` D1's quoted sentence occurs **exactly once** in the delta
       and **zero** times in promoted canon, nothing being promoted here.
+- [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE RATIFIED TREE**, 2026-09-11,
+      after the ratification encode and after the two merges from `main` that
+      preceded it (`9dfa36f3` of main `1fb6d5cd`, content frozen at `546e2c97`
+      unchanged; then this branch's own merge of main `22efcbe8`) — capture at
+      `review/verification-2026-09-11.md`, the packet's first and only gate
+      capture, written at its own dated path because a dated run report is a
+      one-shot `record` and a second run of it writes a second path rather
+      than rewriting this one. **BOTH BINARIES ARE RE-RUN THERE**: the pinned
+      1.12.0 through `scripts/validate-openspec-cli-pin.py --all --no-cache`
+      (2 dispositioned exceptions accepted 2026-09-05 "take exit 2", 0
+      undispositioned failures) and the PATH 1.2.0 `openspec validate --all
+      --strict`, its failure set compared name by name against an
+      `origin/main` control run in a separate worktree of matching directory
+      basename. `doc-health --single-repo .`'s finding-line diff against the
+      PRE-RATIFICATION tree is recorded beside it.
 
 ## 5. Archive — OWED, NOT GIVEN
 
@@ -324,14 +368,23 @@ Brett Heap's word, it follows ratification, and openxFactory #914 closes THERE.
       surface and change its archive rule (`design.md` D4). A successor is
       NAMED at the archive act, on the tick-on-the-recording ruling of
       2026-09-06, naming all three sites.
-- [ ] 6.2 **`specs/019-modified-block-currency-family/` IS NOT EDITED.** Its
-      FR-018 states the ONE reporting ground a marker had before
-      `amend-marker-defect-reporting` made it three, and the restatement is
-      already owed by openxFactory
-      [#915](https://github.com/opensoft/openxFactory/issues/915), filed at the
-      predecessor's archive and OPEN. This packet adds no ground, so it neither
-      widens that scope nor discharges it; and the build record says nothing at
-      all about the merge form's empty tail — checked, not assumed.
+- [ ] 6.2 **`specs/019-modified-block-currency-family/` IS NOT EDITED, AND ITS
+      FR-018 ALREADY MATCHES CANON — CHECKED ON THIS TREE RATHER THAN RECITED
+      FROM THIS PACKET'S OWN AUTHORING NOTES.** FR-018 (`:442`) already states
+      **ANY OF FIVE GROUNDS**, quoting canon's five-ground sentence verbatim
+      with its line range, restated by `8a2ed38c` (2026-09-10T20:58:01-04:00,
+      *"specs/019: FR-018 restated to canon's five marker-defect grounds"*)
+      and its citation fix `125a7d96`, both `refs #915`; openxFactory
+      **[#915](https://github.com/opensoft/openxFactory/issues/915) is
+      CLOSED** (closed 2026-09-11T01:29:59Z, ~90 minutes before this packet's
+      own authoring), not OPEN. An earlier draft of this task named a stale
+      premise — that FR-018 still stated the pre-`amend-marker-defect-reporting`
+      ONE-ground text and that #915 remained open — which this ratification
+      corrects rather than carries forward uncorrected. **THIS PACKET STILL
+      ADDS NO GROUND** (D1 is a prohibition scoped at the fifth ground already
+      enumerated, not a sixth), so FR-018's five-ground count needs no further
+      restatement on account of this delta, and nothing here widens or
+      reopens #915's closed scope.
 - [ ] 6.3 **THE ESTATE-WIDE RUN IS NOT OWED.** The predecessor owed one because
       it ADDED two reporting grounds and a sibling repository's marker could
       have surfaced new advisory rows there. Both directions of THIS amendment
