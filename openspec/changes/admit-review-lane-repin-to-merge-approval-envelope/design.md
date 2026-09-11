@@ -1,12 +1,23 @@
 # Design: admit-review-lane-repin-to-merge-approval-envelope
 
-Status: draft
+Status: ratified
+Ratified by: admit-review-lane-repin-to-merge-approval-envelope —
+2026-09-11T01:15Z (approx.; selection recorded on #745
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5628376484),
+Brett Heap, a SELECTION (not a typed sentence) via the lane's multi-choice
+question — the option "Ratify with amendment", whose text read: "Ratify the
+text now; hold realization until the third unattended codexFactory cycle is
+measured and the unrecorded-class fix is observed on a live approval."
+(record `review/ratification-2026-09-11.md`)
 Kind: design
 
-**NOTHING HERE IS SETTLED BY BEING WRITTEN.** Every decision below states a
-recommendation, its alternatives and what a veto costs. Ruling on them is
-`tasks.md` box 1.3, and it is Brett Heap's act. Where a figure appears it was
-read back from the API or from the tree on 2026-09-10 and the read is named.
+**D-1 THROUGH D-8 STAND AS RECOMMENDED, WITH ONE AMENDMENT.** D-3 is amended
+at ratification — see § *Amended at ratification* under D-3, below — to hold
+realization (`tasks.md` § 3) on two further preconditions. No other decision
+is vetoed or amended. Where a figure appears it was read back from the API or
+from the tree on 2026-09-10 and the read is named; nothing below is rewritten
+by the amendment, which is appended rather than substituted so the original
+recommendation and its reasoning stay legible.
 
 ## 1. What actually stands between an enrolled class and a merged advance
 
@@ -246,6 +257,77 @@ this is a sequencing choice and not a correctness one. Landing inert puts the
 class in a code-owned file where codexFactory can see the candidate id its carve
 must name; holding means codexFactory is asked to carve for a class that does not
 exist. **Carried as `tasks.md` box 1.5 so it can be ruled on its own.**
+
+#### Amended at ratification
+
+**RULED, WITH AMENDMENT, at ratification (`review/ratification-2026-09-11.md`;
+`proposal.md` header).** D-3's recommendation — land the enrolment inert, now
+— is NOT vetoed and is NOT reversed: the enrolment still lands inert, exactly
+as recommended, and inertness is still declared in the requirement and
+reported in the witness (D-6 is unchanged by this note). **What is amended is
+the TIMING of realization itself** (`tasks.md` § 3 — 3.1 the envelope entry,
+3.2 the `sole_candidate()` replacement, 3.3 the witness edit), which this
+amendment HOLDS until BOTH of two preconditions are met, beyond the
+preconditions the packet's own § 4 already named (the carve, the `Bounded
+autonomous surface` narrowing, the auto-merge precondition measurement, the
+completion-path word):
+
+1. **A third consecutive measured cycle exists, and that cycle is itself
+   fully unattended.** `extend-merge-master-envelope-to-floor-bot-lanes`
+   `tasks.md` box **4.2** requires THREE consecutive measured cycles before
+   this family counts as archive-grade evidence for the benefit this
+   enrolment buys, and box 4.2's own bar does not require any of the three
+   to be unattended — it counts codexFactory #314 toward its three despite
+   #314's one hand-dispatched approval leg. **This amendment adds a
+   requirement box 4.2 does not carry:** the qualifying third cycle must
+   itself be fully unattended — opened by `openxfactory[bot]`, approved by
+   the merge-master App, and merged by `app/openxfactory`, with ZERO human
+   acts on it: no `workflow_dispatch`, no click, no admin merge. **#314
+   counts toward box 4.2's three but does NOT itself satisfy this
+   amendment's unattended condition**, on its hand dispatch; **#325 does**,
+   carrying no human act at all. As of this ratification only TWO cycles
+   are measured at all (codexFactory #314 → `b08958ae`, 2026-09-09, one
+   hand dispatch; codexFactory #325 → `df42f803`, 2026-09-10, fully
+   unattended) — box 4.2's own 2026-09-10 addendum says so in terms: *"TWO
+   CYCLES MEASURED, NOT THREE, SO THE BOX STAYS OPEN."* This packet's own
+   recommendation (D-1) rests on the cycle-three figure as if it were the
+   settled bar; the amendment declines to enrol a live, autonomously-
+   approving class on a bar the parent packet's own gate has not yet
+   cleared, AND raises that bar for the qualifying cycle itself.
+2. **The `Candidate class: unrecorded` defect is fixed AND observed fixed on
+   a live approval.** `extend-merge-master-envelope-to-floor-bot-lanes`
+   `review/gate-rules-council-admitting-record-2026-09-10.md` § 3.5 (box §
+   3.1 row) records that the codexFactory sibling lane this design is modeled
+   on renders `Candidate class: unrecorded` on its approval records instead
+   of naming the matched class — a live, unfixed defect in the exact
+   observability mechanism this packet's own requirement ("the enrolment
+   names the safeguard set … which is what the ratified *A lane writing its
+   own repository's judge is enrolled only behind named safeguards* demands")
+   relies on to make an autonomous approval legible after the fact. The fix
+   is codeXfactory/codexFactory PR #369. The amendment holds this repository's
+   own realization until that fix is (a) merged and (b) OBSERVED fixed on one
+   live approval — a fix landed but never exercised is not evidence the
+   rendering defect is gone.
+
+**Why hold REALIZATION and not the paper ratification.** The proposal's own
+text (`proposal.md`, `.openspec.yaml` `origin.reason`) states this pull
+request moves zero governance-relevant bytes and lands INERT no matter what —
+so the only thing ratifying now buys is queue position and the ability for
+codexFactory to see a candidate id to carve for (D-3's own reasoning, above).
+Nothing about that reasoning depends on the two preconditions above; they bear
+on whether the LIVE, AUTONOMOUSLY-APPROVING class (tasks.md § 3, then § 4.5)
+should exist yet, not on whether this packet's text is sound. Refusing the
+whole packet over two preconditions that are about realization, not text,
+would cost the queue-position benefit for no corresponding safety gain; ratify
+the text and hold the realization instead.
+
+**What ticks the amendment's two sub-preconditions**, carried in `tasks.md`
+1.5: (a) a dated note naming the codexFactory PR number, its merge sha, and
+the third cycle's own approval URL; (b) a dated note naming codeXfactory
+PR #369's merge sha and the first post-fix approval's rendered
+`Candidate class: openxfactory-floor-regeneration` (or the corresponding
+codexFactory-side candidate id), read back from the API rather than assumed
+from the fix landing.
 
 ### D-4 — THE MERGE METHOD, which is a CHOICE here and is not in codexFactory
 

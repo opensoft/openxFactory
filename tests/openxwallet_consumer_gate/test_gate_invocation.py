@@ -162,16 +162,72 @@ def test_the_checkout_does_not_use_a_blanket_submodule_init(
 
 
 def test_the_ssh_url_is_rewritten_before_checkout(gate_job: dict) -> None:
-    """`insteadOf` after checkout is `insteadOf` too late for a nested clone."""
+    """`insteadOf` after checkout is `insteadOf` too late for a nested clone.
+
+    THE ORDERING IS THE PROPERTY, AND IT OUTLIVED THE CREDENTIAL THAT SHARED
+    THIS TEST. A third assertion ran here until 2026-09-11 — that the
+    `app-token` mint preceded the rewrite — because the rewrite interpolated the
+    minted token into the URL. `opensoft/openXwallet` went PUBLIC on
+    2026-09-07T15:24:11Z, the mint was retired (runbook 7.6, codexFactory issue
+    #279), and that line would now raise `StopIteration` searching for a step
+    that does not exist. It is not merely deleted: its successor is the test
+    below, which asserts the ABSENCE positively, so that reintroducing a
+    credential for a public read has to argue with this suite.
+    """
     steps = gate_job["steps"]
     rewrite = next(i for i, s in enumerate(steps)
                    if "insteadOf" in s.get("run", ""))
     checkout = next(i for i, s in enumerate(steps)
                     if str(s.get("uses", "")).startswith("actions/checkout"))
     assert rewrite < checkout
-    token_step = next(i for i, s in enumerate(steps)
-                      if s.get("id") == "app-token")
-    assert token_step < rewrite
+
+
+def test_the_gate_mints_no_credential_for_a_public_gitlink(
+        gate_job: dict) -> None:
+    """RETIREMENT, ASSERTED — runbook 7.6, part 2 of 2, codexFactory #279.
+
+    `opensoft/openXwallet` is public, so this gate resolves the pinned gitlink
+    with the workflow's own `github.token` and holds no App credential at all.
+    Written as a test rather than as a comment for this file's stated reason:
+    this module is collected by the REQUIRED `pytest-suite` job, so the shape
+    cannot regress without a second required check going red.
+
+    WHAT IT GUARDS AGAINST is a later edit that "restores" a mint for a read
+    that needs none. The retired step minted `owner: github.repository_owner`
+    with no `repositories:` narrowing, so the token it produced reached EVERY
+    repository the content App is installed on — handed to a job that then
+    executes a pinned reader out of a foreign checkout. Retiring it is a
+    reduction in blast radius, not only a tidy-up, which is why the absence is
+    pinned rather than assumed.
+
+    ASSERTED AT BOTH LEVELS. The parsed form catches a mint step under any name;
+    the raw-text form catches the secret arriving by some other route — an `env`
+    guard, a `with` value, a shell interpolation — which a step-shaped probe
+    alone would miss.
+
+    ON THE `secrets.` PREFIX, WHICH IS THE WHOLE POINT OF THE SECOND PROBE. It
+    is CONSUMPTION that is forbidden, not the NAME: the header above still spells
+    `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` in prose, recording
+    what was retired and why, and that history is worth more than a grep-clean
+    file. `${{ secrets.… }}` is the only spelling that reaches a real credential,
+    so it is the only one asserted absent. NOTHING HERE SAYS THE SECRETS ARE
+    GONE — they are not, on either repository or either organization, and four
+    other workflows still require them.
+    """
+    mints = [s.get("name") or s.get("id") or s.get("uses")
+             for s in gate_job["steps"]
+             if "create-github-app-token" in str(s.get("uses", ""))]
+    assert mints == [], (
+        f"the gate must mint no App token for a PUBLIC gitlink; found {mints}. "
+        f"If openXwallet went private again, revert the 7.6 retirement rather "
+        f"than adding a mint back beside this test")
+
+    text = WORKFLOW.read_text(encoding="utf-8")
+    for name in ("OPENXFACTORY_APP_ID", "OPENXFACTORY_APP_PRIVATE_KEY"):
+        assert f"secrets.{name}" not in text, (
+            f"{WORKFLOW.name} CONSUMES secrets.{name}; the 7.6 retirement left "
+            f"this gate with no App credential at all, and a public gitlink "
+            f"needs none")
 
 
 def test_the_register_assertion_is_positive(runs: list[str]) -> None:
