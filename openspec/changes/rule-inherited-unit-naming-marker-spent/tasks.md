@@ -175,10 +175,19 @@ UNTICKED**: residue, measured and deliberately not taken.
       style, in the DRAFT form: `Status: draft` — NOT RATIFIED, naming the
       origin issue, the commissioning word and what it does not do, the parent
       declaration, D1 as the open multiple choice, and the measured population.
-- [ ] 3.9 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
+- [x] 3.9 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<PR>'`, run AFTER the draft pull request
-      exists because the tool stamps `moved_by` with its number.
+      --seed-ledger --moved-by '#962'`, run AFTER the draft pull request
+      existed because the tool stamps `moved_by` with its number. **DONE**, and
+      the diff IS one line — `tests/sequenced_after/corpus-ledger.yaml`, `1
+      insertion(+)`, `rule-inherited-unit-naming-marker-spent: {state: active,
+      class: co-modifier, declares: [amend-merged-into-empty-tail-standing],
+      depth: 0, prose: false, moved_by: "#962", moved_on: "2026-09-11"}` —
+      with NO other row's provenance moved. `--ledger-diff` went from **7
+      findings** (the missing row and the six derived totals it threw off) to
+      `per-change sweep ledger consistent with the corpus (200 rows)`, exit 0.
+      The `moved_on` is the tool's own UTC stamp and the packet's dates are
+      UTC: the run was at 2026-09-11T12:4xZ.
 
 ## 4. Verification — IN THIS PULL REQUEST
 
