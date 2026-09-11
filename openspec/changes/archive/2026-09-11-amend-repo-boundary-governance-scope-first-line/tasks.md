@@ -560,8 +560,24 @@ moves here.
       `54bb36b3` is named as courtesy rather than as the ground. **AND § 4.2's
       `spec/repo-boundary-governance` FAILURE IS CLEARED HERE — THE WHOLE POINT
       OF #931** — measured before and after on the 1.2.0 binary and pasted in
-      the pull request body rather than claimed. The ratified text follows
-      unchanged:
+      the pull request body rather than claimed: `openspec validate
+      repo-boundary-governance --strict --type spec` goes from *"has issues"* /
+      `✗ [ERROR] requirements.1.text` / exit 1 on `main` `22efcbe8` to
+      *"Specification 'repo-boundary-governance' is valid"* / exit 0 here, and
+      `--all --strict` drops `spec/repo-boundary-governance` from its failure
+      set (`99 passed, 3 failed (102 items)` → `99 passed, 2 failed (101
+      items)`). **ON THE RECORDING: THIS ARCHIVE PR
+      [#958](https://github.com/opensoft/openxFactory/pull/958)** is the act the
+      box records — the move to
+      `openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/`,
+      the write-back into `openspec/specs/repo-boundary-governance/spec.md`
+      (byte-identical to the delta, 34 lines, 3,404 bytes, sha256
+      `50ced1fa72901a62…` on both sides, which is the generator's own output
+      hash recorded in the delta's header before the ratification), the
+      departure of the inherited marker from the promoted file, the README row
+      going from the active list to the archived list, and the corpus-ledger row
+      going `active` → `archived` with `moved_by: "#958"`. The ratified text
+      follows unchanged:
       **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's word
       and never on this lane's judgment, through `python3
       scripts/proposal-support.py . archive
@@ -578,7 +594,11 @@ moves here.
       request must state in its body rather than let a reader discover in the
       diff.
 - [x] 5.2 **DONE IN THE ARCHIVE PULL REQUEST — THE ONE CLOSING KEYWORD IS ON
-      THE ARCHIVE PULL REQUEST AND ON NOTHING ELSE.** It is that pull request's
+      ARCHIVE PR [#958](https://github.com/opensoft/openxFactory/pull/958) AND
+      ON NOTHING ELSE.** Its `closingIssuesReferences` is exactly `[931]`,
+      verified through GraphQL, and no commit message on the branch carries a
+      closing keyword at all, so openxFactory #931 ends with that merge and with
+      nothing else. It is that pull request's
       ONE closing line, in its BODY; every other issue number in its body, in
       this file and in these commits is a `refs`-style naming that closes
       nothing, and **NO COMMIT MESSAGE ON THE ARCHIVE BRANCH CARRIES A CLOSING
@@ -666,7 +686,10 @@ own six files and nothing else.
       carries the canon citations (`openspec/specs/doc-health/spec.md:1801-1805`
       for the carriage sentence, `:1752-1753` for ground three), the two options
       with their costs, and the prior art (#914, #856, #860, #729, #692) so a
-      taker does not re-walk it. The ratified text follows unchanged:
+      taker does not re-walk it. **ON THE RECORDING: #955 WAS FILED FOR ARCHIVE
+      PR [#958](https://github.com/opensoft/openxFactory/pull/958)**, unclaimed
+      and before that pull request was opened, which is the act this tick
+      records. The ratified text follows unchanged:
       **THE MARKER-CARRIAGE QUESTION AS A GENERAL RULE IS NAMED AS RESIDUE
       AND IS NOT TAKEN.** `design.md` D2b decides it for THIS block on canon's
       own sentence and on the corpus's four-times-repeated practice, and the
@@ -777,7 +800,11 @@ own six files and nothing else.
       with their costs, the observation that whichever is taken WANTS A GATE,
       and the prior art — `add-wallet-carried-review-authority`'s finding F19 and
       `state-header-window-budget`'s routing to `add-structured-scope-substrate`,
-      which is checked and does NOT hold. The ratified text follows unchanged:
+      which is checked and does NOT hold. **ON THE RECORDING: #956 WAS FILED
+      FOR ARCHIVE PR
+      [#958](https://github.com/opensoft/openxFactory/pull/958)**, unclaimed and
+      before that pull request was opened, which is the act this tick records.
+      The ratified text follows unchanged:
       **THE CORPUS-WIDE `target_release: none` DIVERGENCE IS NAMED AS
       RESIDUE AND IS NOT SWEPT.** Copilot found that `release-realization`'s
       *Realization axis declaration* admits `target_release:` as `implemented`

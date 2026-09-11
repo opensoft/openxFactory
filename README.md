@@ -2809,7 +2809,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-repo-boundary-governance-scope-first-line](openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/proposal.md)
-  — **ARCHIVED 2026-09-11**, on Brett Heap's separate word of the same day (in
+  — **ARCHIVED 2026-09-11** by
+  [PR #958](https://github.com/opensoft/openxFactory/pull/958), on Brett Heap's
+  separate word of the same day (in
   session at **2026-09-11T10:11Z**, verbatim *"Archive 937 and close 931 when
   landed"*, recorded on
   [#931](https://github.com/opensoft/openxFactory/issues/931#issuecomment-5632912613))
