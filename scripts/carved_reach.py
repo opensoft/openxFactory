@@ -256,6 +256,8 @@ def install(*, tests: bool = False) -> None:
         sys.meta_path.append(_ShedGone())
     if missing and not any(isinstance(f, _LegMissing) for f in sys.meta_path):
         sys.meta_path.append(_LegMissing(frozenset(missing)))
+    if "openxdox" not in missing:
+        bind_openxdox_column()
 
 
 def require() -> None:
@@ -271,6 +273,82 @@ def require() -> None:
     """
     for gitlink, leg, src, package in LEGS:
         _require(gitlink, leg, src, package)
+
+
+# --------------------------------------------------------------------------
+# THE `openxdox` COLUMN'S OWN § 4.3 HOLE — three declared import rewrites the
+# carve could not express
+# --------------------------------------------------------------------------
+
+#: `docs/opendox-carve-manifest.yaml` files `scripts/ideation_dashboard/
+#: gate_routes.py` as `moved_with_declared_edit`, and its `import rewrites`
+#: class names lines 911, 950, 1046/1047 and 3428. ONE of those four — line 911,
+#: the only one that names none but MOVED modules — reads `from opendox import
+#: lens, workbench as wb` at the pinned `openXdox/code` leg. The other three are
+#: still verbatim there (`src/openxdox/gate_routes.py:951`, `:1047`, `:3429`),
+#: and the reason is structural rather than an oversight: each of the three
+#: reaches a NOT_MOVED openxFactory module (`lens_submission`, `human_seen`)
+#: alongside a moved one, and a rewrite to `from opendox import ...` cannot
+#: spell a name that stayed HERE. Line 911 is the proof the rewrite pass ran;
+#: these three are the residue it had no destination to express.
+#:
+#: The manifest says as much at its `lens_submission.py` row: RULING OQ-B keeps
+#: that module in-tree and files "its two remaining reaches (:57 lens, :58
+#: workbench) as import rewrites reached THROUGH openXdox at the carve — a
+#: not_moved row cannot carry an edit, so the reach is recorded here."
+#:
+#: Pre-shed the three lines resolved because `.` was openxFactory's own
+#: `ideation_dashboard` package, which carried all four names. Post-shed `.` is
+#: the leg's `openxdox`, which carries none of them, and the § 5.2 shed is what
+#: makes that visible — `ImportError: cannot import name 'lens' from 'openxdox'`
+#: on the five lens-gate tests, measured at `80e8af35`.
+#:
+#: So this is the same § 4.3 shape as `profile_openxfactory` below, one layer
+#: up, and it gets the same answer: openxFactory REGISTERS the real modules with
+#: the consumer that names them, in that consumer's own namespace, where an
+#: unqualified `from . import X` looks first. `openxdox` is a NAMESPACE package
+#: (no `__init__.py` at the leg), so the registration is a PEP 562 module
+#: `__getattr__` rather than an assignment into an `__init__`. LAZY on purpose:
+#: a server process that never executes a lens or human-seen gate verb pays for
+#: none of these four imports, exactly as it paid for none of them before.
+#:
+#: THE DAY THIS GOES AWAY: when openXdox-code carries the three lines rewritten
+#: — each split into its moved half (`from opendox import ...`) and its retained
+#: half reached through openxFactory — this mapping and its binder are deleted.
+#: That is a LEG act plus a pin bump, and RULED (a) post-shed mode moves no leg,
+#: so it is recorded as owed rather than taken here.
+OPENXDOX_COLUMN_BINDINGS: dict[str, str] = {
+    "lens": "opendox.lens",                                   # gate_routes :951
+    "workbench": "opendox.workbench",                          # :951, :1047
+    "lens_submission": "ideation_dashboard.lens_submission",   # :951
+    "human_seen": "ideation_dashboard.human_seen",             # :1047, :3429
+}
+
+
+def bind_openxdox_column() -> None:
+    """Give the pinned `openxdox` package the four names its own `from . import`
+    lines still spell, resolving each to the module's real post-shed home.
+
+    Idempotent, and it imports NOTHING until one of the four names is actually
+    asked for: every other attribute — including every dunder — raises
+    `AttributeError` out of the hook and resolves exactly as it did before, so
+    the leg's real submodules (`gate_console`, `generator`, `kickoff`, ...) are
+    untouched and nothing is shadowed.
+    """
+    openxdox = importlib.import_module("openxdox")
+    if getattr(openxdox, "_carved_reach_column_bound", False):
+        return
+
+    def __getattr__(name: str):
+        target = OPENXDOX_COLUMN_BINDINGS.get(name)
+        if target is None:
+            raise AttributeError(f"module 'openxdox' has no attribute {name!r}")
+        module = importlib.import_module(target)
+        setattr(openxdox, name, module)   # bind once; later reads are plain
+        return module
+
+    openxdox.__getattr__ = __getattr__
+    openxdox._carved_reach_column_bound = True
 
 
 # --------------------------------------------------------------------------
