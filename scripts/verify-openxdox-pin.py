@@ -388,30 +388,59 @@ def _gitlink_from(output: str, submodule_path: str) -> str | None:
 
 def _recorded_gitlink(repo_root: Path,
                       submodule_path: str) -> tuple[str | None, str]:
-    """(oid, source) for the RECORDED gitlink: HEAD first, then the index.
+    """(oid, source) for the RECORDED gitlink: a successful index read
+    whenever it DISAGREES with HEAD, HEAD when the two agree, "nowhere" when
+    neither has one.
 
-    WHY THE INDEX FALLBACK EXISTS, unchanged from the wallet verifier. `git
-    ls-tree HEAD -- <path>` yields NOTHING for a gitlink that is staged but not
-    yet committed — the state of a fresh `git submodule add`, and therefore the
-    normal state of this very tree for the whole time this pin is being
-    authored. In CI the gitlink is always in HEAD, because CI reads a pushed
-    commit; locally, before the commit, it is only in the index. Refusing on
-    HEAD alone would make the tool silently UNRUNNABLE at exactly the moment its
-    author most needs to run it, and "unrunnable" is the failure mode that
-    trains people to skip a gate. So the index is consulted second, and the
-    source is reported in the success note so a reader is never misled about
-    which record answered.
+    A ONE-COMMIT RESYNC MUST BE CHECKABLE BEFORE IT IS COMMITTED, not only
+    for a BRAND NEW gitlink (`git submodule add`, nothing in HEAD yet) but
+    also for an EXISTING one being moved to a new commit (`git -C openXdox
+    checkout <new>` then `git add openXdox`, which stages the new oid over an
+    old one HEAD still names). A HEAD-first read answers for the commit
+    being REPLACED in that second case — `ls-tree HEAD` still finds the OLD
+    160000 entry and returns it without ever consulting the index — which can
+    falsely REJECT a fresh, correct re-pin (check 2 compares the staged
+    checkout against the stale HEAD oid) or falsely label the source `main()`
+    prints as "HEAD" when the true answer, mid-resync, is the index.
+
+    A REMOVED OR TYPE-CHANGED GITLINK MUST ALSO NOT ANSWER FROM STALE HEAD
+    DATA. `git rm --cached openXdox` or staging a regular file over the same
+    path both make `git ls-files -s` stop reporting a `160000` entry for
+    `submodule_path` — indistinguishable, at that call alone, from each
+    other, but NEVER indistinguishable from "nothing has changed": either
+    way, `_gitlink_from` on the index's own output no longer names the oid
+    HEAD does, which is precisely the disagreement this function exists to
+    prefer the index for. So the comparison is UNCONDITIONAL — `None` counts
+    as an index answer like any other — and only a FAILED index read (an
+    environment problem, not a staged one) falls back to HEAD without
+    comparing at all.
+
+    The index wins whenever a successful read of it disagrees with HEAD
+    (new-and-staged, replaced-and-staged, or removed/type-changed-and-staged
+    alike, in every case INCLUDING when that disagreement is "no gitlink at
+    all"); only when the index agrees with HEAD — the ordinary clean tree —
+    does HEAD's own oid answer, which is what keeps the success message's
+    "read from HEAD" true for the common case instead of manufacturing a
+    spurious "staged" label for bytes nothing has staged.
+
+    Ported from `scripts/verify-opendox-pin.py`'s own `_recorded_gitlink`
+    (PR #932 fix rounds `d4ac93a3` / `a3f1b8bc`), which carried this same
+    HEAD-first gap until its own review caught it; this file carried the
+    gap unnoticed — recorded owed on #932's landing note, `#656` comment
+    `5628145815`.
     """
     head = _git(repo_root, "ls-tree", "HEAD", "--", submodule_path)
-    if head.returncode == 0:
-        oid = _gitlink_from(head.stdout, submodule_path)
-        if oid is not None:
-            return oid, "HEAD"
+    head_oid = (_gitlink_from(head.stdout, submodule_path)
+               if head.returncode == 0 else None)
+
     index = _git(repo_root, "ls-files", "-s", "--", submodule_path)
     if index.returncode == 0:
-        oid = _gitlink_from(index.stdout, submodule_path)
-        if oid is not None:
-            return oid, "the index (staged, not yet committed)"
+        index_oid = _gitlink_from(index.stdout, submodule_path)
+        if index_oid != head_oid:
+            return index_oid, "the index (staged, not yet committed)"
+
+    if head_oid is not None:
+        return head_oid, "HEAD"
     return None, "nowhere"
 
 
