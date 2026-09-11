@@ -9,6 +9,216 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v3.7 — 2026-09-11 (deprecating; the five ideation-dashboard contracts are marked relocating to the openDox/openXdox spec legs)
+
+Cut under RULED **ASK-10 → 1** (Brett Heap, `opensoft/openxFactory` issue #656
+comment `5635524078`, over the ASK at `5635463375`): *"cut the DEPRECATING minor
+`contract-v3.7` FIRST, from pre-shed main, before PR-2 #940 lands."* It is the
+deprecating minor `split-opendox-two-layer-product` § 5.7 owes and that the
+packet never authored — recorded as its new task **5.6a**.
+
+**NO CONTRACT FILE CHANGES IN THIS CUT.** Every one of the five schemas keeps
+the exact bytes it had at `contract-v3.6`, keeps its per-file `sha256` in
+[`manifest.yaml`](manifest.yaml) — recomputed from the bytes on this tree and
+compared to the rows, not assumed — keeps its `schema_version: 1`, and keeps
+validating. What changes is what the manifest SAYS ABOUT THEIR FUTURE.
+
+**Change class: DEPRECATING (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ Change Classes. Nothing previously valid becomes invalid; no required field is
+added; no shape is removed; no vocabulary is reinterpreted. A domain repo on the
+same major remains conformant WITHOUT CHANGES — which is the entire purpose of
+this release existing separately from the one that follows it.
+
+**Why this cut exists at all.** The successor change (§ 5.7) deletes these five
+rows from the manifest. § Change Classes classes a removed shape as BREAKING and
+requires, before it, "at least one full minor release where the old shape
+produced deprecation warnings". **No such minor existed** — no marker, no policy
+entry, no changelog entry named these shapes, and the packet contained no task
+that would have made one. This IS that release. Without it the removal is an
+illegal cut, and the policy has no exception clause: its two exception-adjacent
+entries call themselves "a breach of the rule, never an exception to it", and
+the `hermes` flat-key precedent refused "no consumer was reading it" as a
+substitute for a served warning. The precedent followed here instead is the one
+prior cross-repository shed of manifest-digested contracts: the openxWallet
+extraction's deprecating [`contract-v1.47`](#contract-v147--2026-08-27-deprecating-the-eight-openxwallet-contracts-are-marked-relocating)
+immediately before breaking `contract-v2.0`.
+
+Two normative documents move with the cut, both release-surface members and both
+digested in this cut's inventory:
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+records the deprecation in its "Deprecations Currently In Force" list, and this
+changelog carries the removal version and the migration path.
+
+### What is deprecated, and what it is deprecated IN FAVOUR OF
+
+The five artifacts whose canonical home becomes `opensoft/openXdox-spec` or
+`opensoft/openDox-spec`, per `docs/opendox-carve-manifest.yaml`'s own
+`destination:` rows:
+
+| manifest `id` | path | canonical home becomes |
+|---|---|---|
+| `gate-action-record` | `contracts/schemas/gate-action-record.schema.yaml` | `opensoft/openXdox-spec` |
+| `ideation-dashboard-snapshot-index` | `contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml` | `opensoft/openXdox-spec` |
+| `ideation-dashboard-snapshot` | `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` | `opensoft/openXdox-spec` |
+| `xfactory-workbench-chat-turn` | `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` | `opensoft/openDox-spec` |
+| `xfactory-workbench-model-catalog` | `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` | `opensoft/openDox-spec` |
+
+Each row gains ONE added key and nothing else — the marker `contract-v1.47`
+chose, as a nested mapping, placed last so no existing line moves:
+
+```yaml
+    relocating:
+      to: opensoft/openXdox-spec
+      at: 481a07f90167bb7c27cebead830b5e2f86475deb
+      tag: not_yet_cut
+      since: contract-v3.7
+```
+
+`to` is the repository that becomes the artifact's canonical home. `since` is
+this bundle. The two departures from the wallet marker, each with its reason:
+
+**`tag` carries a SENTINEL, not a label.** `contract-v1.47` could name
+`wallet-v1.1` because openXwallet had cut it. The dox legs have cut nothing:
+`dox-v1.0` and `xdox-v1.0` are Phase 6 (`docs/opendox-cutover-runbook.md` § 9)
+and are Brett Heap's own act, strictly after this cut and after the major. So
+`tag: not_yet_cut` stands in the key's place and is filled at Phase 6, on
+[`contracts/opendox-pin.yaml`](opendox-pin.yaml)'s own RULED ASK-1 precedent for
+`migration: {range, reversible, runbook}: not_yet_deployed` — an explicit
+sentinel proving the shape before the thing exists to fill it. A tag recorded
+before the tag exists would be a claim, not a label.
+
+**`at` is added, and carries the destination commit that DOES exist.** Without it
+the marker would name a destination a migrator cannot read today, which is worse
+than the wallet case rather than equal to it. The values are not guessed: they
+are the `spec` gitlinks of the assembly-root commits this repository's own pins
+already name — [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) `commit:
+84056415…` → `spec 481a07f90167bb7c27cebead830b5e2f86475deb`, and
+[`contracts/opendox-pin.yaml`](opendox-pin.yaml) `commit: 44679fa7…` → `spec
+1a216ea413cdcc14791aa3939712e2e459cfa6b6`.
+
+**`at` AND NOT `commit`, and the spelling is load-bearing.** `commit` is a member
+of `scripts/doc_health/pin_class.py`'s `PIN_KEY_VOCABULARY` and
+`contracts/manifest.yaml` is a swept path (the `omnigent-install-source-compatibility`
+member declares it), so spelling this key `commit:` would raise five uncovered
+pin sites and move the frozen sentinel census `(75, 28)` that
+`tests/doc-health/test_sentinel_vocabulary.py` asserts. `at`, `to`, `tag` and
+`since` are in no vocabulary. This was checked BEFORE the blocks were written,
+not discovered by a red test.
+
+**There is deliberately NO removal-version key on the row**, unchanged from
+`contract-v1.47`'s reasoning: the policy puts the removal version and the
+migration path HERE, in the changelog, and naming the next MAJOR is permitted
+where naming the next MINOR is not.
+
+### Removal version
+
+**The next MAJOR — `contract-v4.0` on today's numbering, allocated at the cut
+rather than reserved here** (`split-opendox-two-layer-product` task 5.7). It is
+the earliest release at which a removal is legal, and this release starts the
+one-full-minor deprecation window that legality depends on. The five rows and
+their bytes are unchanged and keep validating until then.
+
+### Migration path
+
+1. **Read the artifacts from `opensoft/openXdox-spec` / `opensoft/openDox-spec`**
+   at the commits each row's `at:` names, rather than from this repository. The
+   bytes are identical — the carve manifest records all five as
+   `moved_verbatim` with the same `sha256` this manifest carries.
+2. **Consume them through the pins that already exist in this repository**:
+   [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) and
+   [`contracts/opendox-pin.yaml`](opendox-pin.yaml), each a whole-tree digest of
+   an assembly root that reaches its own legs. No new consumer-facing pin file
+   is owed by this release, and none is added by it.
+3. **Re-read this file at `dox-v1.0` / `xdox-v1.0`** when Phase 6 cuts them; each
+   row's `tag:` is filled at that point and a tag is a steadier referent than a
+   commit for a consumer that does not want to track leg history.
+4. **The conformance validator moves with the contracts.**
+   `scripts/validate-ideation-dashboard-contracts.py` — named by all five rows'
+   own `consumption_rule` as "the family's delegated owner", the code enforcing
+   every rule the shapes cannot express — relocates to `opensoft/openXdox-code`
+   (carve manifest, `moved_with_declared_edit`, destination commit `5da58ee2`).
+   § Change Classes' "update to the conformance validator" obligation is
+   discharged by that move: **the move IS the update.** That script in THIS
+   repository is not edited by this release.
+
+### How a consumer actually finds out
+
+`scripts/check-openxfactory-pin.py` — the one domain-pin checker with a warning
+tier — reads the manifest AT THE COMMIT A CONSUMER PINS and emits a WARN-tier
+notice naming every relocating artifact with its target repository. **It stays
+green**: WARN exits 0, and the notice is additive to the pin verdict rather than
+a replacement for it. A consumer pinned to `contract-v3.6` or earlier sees
+nothing new. Run against this tree it emits:
+
+```text
+WARN: the pinned openxFactory bundle contract-v3.7 carries 5 relocating contract row(s); each artifact's canonical home is moving and it is removed at a later major bundle — read contracts/CHANGELOG.md at this pin for the removal version and the migration path:
+  ideation-dashboard-snapshot -> opensoft/openXdox-spec @ not_yet_cut
+  xfactory-workbench-model-catalog -> opensoft/openDox-spec @ not_yet_cut
+  xfactory-workbench-chat-turn -> opensoft/openDox-spec @ not_yet_cut
+  gate-action-record -> opensoft/openXdox-spec @ not_yet_cut
+  ideation-dashboard-snapshot-index -> opensoft/openXdox-spec @ not_yet_cut
+```
+
+**THAT EMITTER REQUIRED NO EDIT BY THIS RELEASE**, and that is the strongest
+fact in this cut. It was built for the openxWallet relocation at
+`contract-v1.47` and is generic over the marker, so the warning this deprecation
+serves is running code that already existed and already fires, not a mechanism
+authored alongside the claim that it works. The sibling
+`scripts/validate-domain-openxfactory-pins.py` is deliberately NOT the emitter:
+it has no warning tier, so a relocation notice there would be an ERROR and would
+red every domain that pinned this perfectly legal bundle.
+
+### Whether any supported consumer was measured reading these ids
+
+**Stated plainly, because the policy's own `hermes` flat-key entry shows what
+happens to a release that rounds this up.** Measured 2026-09-11 against fresh
+clones of all five supported consumers — codexFactory
+(`codeXfactory/codexFactory`), MedxFactory, AdxFactory, LedgerxFactory,
+OpsxFactory — grepped for the five ids and for the validator's name:
+
+- **codexFactory is the one real reader.** Its `stack.yaml` records pinned
+  digests for `xfactory-workbench-model-catalog.schema.yaml` and
+  `xfactory-workbench-chat-turn.schema.yaml`, verified against the pinned
+  checkout's own manifest, and its `scripts/validate-docs.sh` runs
+  `check-openxfactory-pin` from that pinned checkout. It is served the notice at
+  its next re-pin at or after this bundle.
+- **AdxFactory and LedgerxFactory** run `check-openxfactory-pin` and are served
+  the notice, but read none of the five ids in code; AdxFactory carries one
+  prose mention of `gate-action-record` in `models/evidence-types.yaml`.
+- **MedxFactory and OpsxFactory** read none of the five and reference the
+  checker nowhere; OpsxFactory's only hits are prose in a spec `research.md` and
+  an archived evidence file.
+
+**No warning had fired for any of them before this bundle** — no marker existed
+to fire one, which is precisely why this minor is owed and is not a defect in
+it. What this release asserts, and what is checkable from this tree, is that the
+notice fires FROM THIS BUNDLE FORWARD and that three of the five supported
+consumers have the emitting checker wired to see it.
+
+The difference from the `hermes` flat-key entry — the precedent that refused an
+unphased removal on exactly this ground — is that its warning branch fired only
+when `hermes.layers` was ABSENT, and all five consumers declare it, so the
+branch was dead code for the whole supported population: "a warning that cannot
+fire is not a warning served." **This notice is unconditional on consumer
+shape.** It fires on the BUNDLE, for every consumer that runs the checker at a
+pin at or after `contract-v3.7`, whatever that consumer's own files contain.
+There is no branch for the population to sit outside of.
+
+### Rollback posture, recorded before the fact
+
+A published bundle is not unpublished. The honest reversal of this release is a
+FOLLOWING minor that removes the marker — never a revert of the cut.
+
+### Sequencing
+
+Cut from pre-shed `main` at `34bb5c7158b42a45e4a4eddd2681ca9b7c3f550f`. The
+`contract-v3.7` annotated tag is **Brett Heap's own act after landing** (ASK-9a,
+#656 comment `5635150678`) — Bundle Realization Order step 5, verified from an
+independently refreshed checkout. `release-tag-gate` records that tag as OWED
+rather than requiring it, because step 5 follows step 4. PR-2 (#940, the § 5.2
+SHED) lands after this and re-merges `main`; the MAJOR follows it.
+
 ## contract-v3.6 — 2026-09-09 (additive; the consent instrument gains a re-derivable custody record — `contract_schema_version` 2 → 3 for ONE closed optional array — RE-CUT at the next minor after a sibling lane took `contract-v3.5`)
 
 Cut under § 5 of the RATIFIED change
