@@ -1429,7 +1429,7 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
     exempts its paragraph from carriage — a marker of correct form declaring
     nothing, which is exactly the fault the grounds exist to report. It is read
     on THAT FORM ALONE: the pairing form names no units by construction, and a
-    `Merged into` marker whose tail names no superseded title is silent BY
+    `Merged into` marker whose tail carries no code span is silent BY
     RULING, not by gap: `openspec/specs/doc-health/spec.md`, "Requirement:
     Currency of an active change's MODIFIED requirement blocks", scenario "A
     merge marker's tail names no superseded title", promoted by
@@ -1535,7 +1535,7 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
         # marker reported here is reported ONCE. It is read on the
         # `Removed from canon` form ALONE: the pairing form names no units by
         # construction (its whole tail is a reason), and a `Merged into` marker
-        # whose tail names no superseded title is silent BY RULING, its
+        # whose tail carries no code span is silent BY RULING, its
         # destination standing in the prefix where that form's declaration has
         # always been read: `openspec/specs/doc-health/spec.md`, "Requirement:
         # Currency of an active change's MODIFIED requirement blocks", scenario
