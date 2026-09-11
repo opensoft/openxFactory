@@ -2233,3 +2233,121 @@ def test_loading_either_tool_by_path_twice_does_not_grow_sys_path() -> None:
     _load_arrival()
     _load()
     assert sys.path.count(scripts_dir) == before, sys.path[:5]
+
+
+# --------------------------------------------------------------------------
+# `_git()`'s sanitized environment and `--no-replace-objects` (register item,
+# `#656` comment `5638315691`)
+# --------------------------------------------------------------------------
+#
+# The three tests below are the one deliberate exception to "EVERY
+# behavioural test here goes through the subprocess" in the module docstring:
+# they are white-box tests of `_git()`'s own wiring — not of the CLI's
+# declared exit-code/output contract — the same shape as
+# `tests/hermes_runtime_contracts/test_content_resolution.py::
+# test_sanitized_git_environment_removes_redirects_and_command_scope_config`,
+# which pins the sibling copy in `scripts/hermes_runtime_validation/
+# content.py`. `resolve_revision`, `tree_at` and the `cat-file blob`/
+# `merge-base --is-ancestor` reads all go through this one helper, so hardening
+# it once covers every git read the validator makes.
+
+def test_git_helper_runs_with_no_replace_objects_and_a_sanitized_environment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    """Hostile values mirror `test_content_resolution.py`'s sanitized-
+    environment test exactly, because both pin the same scrub list."""
+    hostile = {
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "hostile-alternates",
+        "GIT_COMMON_DIR": "hostile-common-dir",
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_PARAMETERS": "'core.bare=true'",
+        "GIT_DIR": "hostile-git-dir",
+        "GIT_INDEX_FILE": "hostile-index",
+        "GIT_OBJECT_DIRECTORY": "hostile-objects",
+        "GIT_REPLACE_REF_BASE": "refs/hostile/replace/",
+        "GIT_WORK_TREE": "hostile-work-tree",
+        "GIT_CONFIG_KEY_0": "core.bare",
+        "GIT_CONFIG_VALUE_0": "true",
+        "GIT_CONFIG_KEY_37": "core.worktree",
+        "GIT_CONFIG_VALUE_37": "hostile-work-tree",
+    }
+    for name, value in hostile.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "hostile-global-config")
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", "hostile-system-config")
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    captured: dict[str, Any] = {}
+
+    def fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
+        captured["argv"] = argv
+        captured["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    MODULE._git(tmp_path, "rev-parse", "--verify", "--quiet", "HEAD")
+
+    assert captured["argv"] == [
+        "git", "--no-replace-objects", "-C", str(tmp_path),
+        "rev-parse", "--verify", "--quiet", "HEAD",
+    ], "--no-replace-objects must precede the subcommand, not follow it"
+
+    env = captured["env"]
+    assert env is not None, "_git must pass an explicit env, not inherit one"
+    assert hostile.keys().isdisjoint(env)
+    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert env["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert env["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_git_helper_delegates_to_carved_reachs_sanitized_environment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    """Proof of DELEGATION, not agreement-by-coincidence: stub
+    `carved_reach._sanitized_git_environment` to return a distinctive
+    sentinel and show `MODULE._git` hands that exact object to
+    `subprocess.run` as `env=`. `MODULE.carved_reach` is asserted to be the
+    SAME module object a plain `import carved_reach` gives everywhere else in
+    this repository (`tests/conftest.py` among them), which pins that the
+    validator did not vendor a private copy of the module."""
+    import carved_reach as carved_reach_direct
+
+    assert MODULE.carved_reach is carved_reach_direct, (
+        "the validator must import the real carved_reach module, not a copy")
+
+    sentinel_env = {"SENTINEL_MARKER": "carved-reach-sanitized-env"}
+    monkeypatch.setattr(carved_reach_direct, "_sanitized_git_environment",
+                        lambda: sentinel_env)
+
+    captured: dict[str, Any] = {}
+
+    def fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
+        captured["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    MODULE._git(tmp_path, "rev-parse", "HEAD")
+
+    assert captured["env"] is sentinel_env
+
+
+def test_the_git_environment_scrub_list_agrees_across_content_and_carved_reach() -> None:
+    """`scripts/carved_reach.py` and `scripts/hermes_runtime_validation/
+    content.py` each carry their OWN copy of the ambient-git-environment scrub
+    list — `carved_reach`'s own comment says to "keep the two lists equal if
+    either changes", duplicated rather than imported because `content` is
+    loaded dotted and `carved_reach` bare, at a call site where the dotted
+    import would fail. Nothing enforced that agreement before this test. This
+    validator does not add a THIRD copy — it delegates to `carved_reach`
+    (pinned by the test above) — so what remains to pin here is that the two
+    sites which DO still hand-carry the list have not drifted apart."""
+    content = importlib.import_module("scripts.hermes_runtime_validation.content")
+    import carved_reach as carved_reach_direct
+
+    assert (carved_reach_direct._SCRUBBED_GIT_ENVIRONMENT
+            == content._SCRUBBED_GIT_ENVIRONMENT)
+    assert (carved_reach_direct._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern
+            == content._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern)
