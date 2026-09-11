@@ -406,13 +406,21 @@ both ways on this tree and run through the family's own `suppression()`:
 
 | block | uncarried | added | markers | marker defects |
 | --- | --- | --- | --- | --- |
-| option 1, inherited marker CARRIED | 1 | 1 | 1 | **1** (ground three) |
+| option 1, inherited marker CARRIED, own marker ALSO written | 1 | 1 | **2** | **1** (ground three) |
 | option 2, inherited marker CARRIED | 0 | 0 | 1 | **1** (ground three) |
 | option 1, inherited marker DROPPED, own marker written | 1 | 1 | 1 | **0** |
 | option 2, inherited marker DROPPED | 0 | 0 | 0 | **0** |
 
 The defect is independent of the wording choice; it is a property of carrying a
-predecessor's marker at all.
+predecessor's marker at all. **CORRECTED ON COPILOT'S FINDING, TAKEN: the first
+row's marker count is TWO, not one.** Option 1 owes its own marker regardless of
+the inherited one's fate — D2a's "one marker is owed" is unconditional on the
+sentence being replaced, not conditional on what happens to a different,
+inherited marker — so the CARRIED-plus-option-1 row counts both the inherited
+marker and this block's own, where the DROPPED-plus-option-1 row (below it)
+counts only the one it writes itself. Only the inherited marker is ever the
+ground-three defect; the newly-written one is never defective, in any row,
+because it always names a unit the block genuinely leaves out.
 
 **THE COST, STATED PLAINLY: the promoted file loses a visible record.** After
 the archive, a reader of `openspec/specs/repo-boundary-governance/spec.md` will
@@ -490,9 +498,14 @@ a separate act on a separate word, at which openxFactory #931 closes.
   and
   `git log -S "SHALL be scoped to subsystem install" -- openspec/specs/repo-boundary-governance/spec.md`.
   Both are ARCHIVED, so neither is an active co-writer.
-- **Active deltas over this capability — FIVE, read by NAME:**
-  `ls -d openspec/changes/*/specs/repo-boundary-governance` returns
-  `add-identity-brokering`, `add-trust-anchor`,
+- **Active deltas over this capability — SIX PATHS ON THIS BRANCH, FIVE
+  SIBLINGS ONCE THIS PACKET'S OWN MATCH IS EXCLUDED** — Copilot's finding on
+  this pull request, taken: `ls -d
+  openspec/changes/*/specs/repo-boundary-governance` matches this packet's own
+  directory alongside its siblings, six paths and not five, measured directly
+  rather than assumed. Excluding
+  `amend-repo-boundary-governance-scope-first-line` from that output leaves
+  exactly `add-identity-brokering`, `add-trust-anchor`,
   `implement-keycloak-install-repo`, `implement-openxpki-install-repo` and
   `qualify-avatar-live-voice`. Their `### Requirement:` headings are *Keycloak
   install repository boundary* (ADDED by the first, MODIFIED by the third),

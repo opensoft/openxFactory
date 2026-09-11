@@ -368,13 +368,27 @@ the base this branch was cut from, checked out detached in its own worktree.
       `test_the_live_ledger_reports_the_SAME_totals_the_sweep_MEASURES`) —
       measured by stashing the seeded ledger and re-running, then restoring it.
       The seed clears all four.
-- [x] 4.9 **BOTH PROOFS ARE RE-RUNNABLE AND ARE RE-RUN ON EVERY MERGE FROM
-      `main`**: the generator reports slice `34..66`, 33 lines, sha256
-      `24f6479c…`, and generator output identical to the committed block at
-      sha256 `50ced1fa…`, 3,404 bytes; `derive_units` reports 13/13 units, 1
-      uncarried, 1 added, 1 suppressed, 0 marker defects and the three scenario
-      titles equal in order. The carried tail — `:38` to `:64`, 27 lines —
-      hashes `8d30b74e…` on both sides.
+- [x] 4.9 **THE ACCOUNTING PROOF IS RE-RUNNABLE AND IS RE-RUN ON EVERY MERGE
+      FROM `main`, THROUGH § 4.7's OWN GATE RUN**: `derive_units` reports 13/13
+      units, 1 uncarried, 1 added, 1 suppressed, 0 marker defects and the three
+      scenario titles equal in order, and the `modified-block-currency` family
+      that derives it is exactly what § 4.7's `doc-health` run exercises on
+      this block, on every merge. **THE BYTE-FAITHFULNESS PROOF IS
+      REPRODUCIBLE BY A READER'S OWN HANDS, NOT BY ANY GATE** — no generator is
+      checked in under `scripts/`, so the exact commands are named here rather
+      than asserted, Copilot's finding on this pull request, taken: `sed -n
+      '34,66p' openspec/specs/repo-boundary-governance/spec.md | sha256sum`
+      reproduces the canon slice, sha256 `24f6479c…`, 2,885 bytes; `sed -n
+      '106,139p'
+      openspec/changes/amend-repo-boundary-governance-scope-first-line/specs/repo-boundary-governance/spec.md
+      | sha256sum` reproduces the committed block, sha256 `50ced1fa…`, 3,404
+      bytes; and the carried tail — canon `:38` to `:64`, the block's own
+      `:111` to `:137`, 27 lines each and byte-identical by direct `diff` —
+      reproduces sha256 `8d30b74e…` on both sides ONLY with the slice's final
+      trailing newline stripped (`printf '%s' "$(sed -n '111,137p' <file>)" |
+      sha256sum`); a plain `sed | sha256sum` on that same, verified-identical
+      slice yields a DIFFERENT digest, `ec56d571…`, recorded here so the next
+      reader is not caught by it.
 
 ## 5. Archive — OWED, NOT GIVEN
 
@@ -416,17 +430,26 @@ than after it.
 - [ ] 6.1 **THE MARKER-CARRIAGE QUESTION AS A GENERAL RULE IS NAMED AS RESIDUE
       AND IS NOT TAKEN.** `design.md` D2b decides it for THIS block on canon's
       own sentence and on the corpus's four-times-repeated practice, and the
-      measurement it rests on exposes something more general: **any later
-      amendment of a requirement whose promoted text already carries a marker
-      must either drop that marker or accept a ground-three marker-defect
-      finding** — there is no third option today. That may be the right
-      behaviour or it may be a gap in `modified-block-currency`. **THIS PACKET
-      NEITHER TAKES IT NOR FORECLOSES IT**: it is a `doc-health` amendment, a
-      different capability, and under the ruling of 2026-09-06T23:10Z
-      (*"Tick on the recording"*) this box ticks once a successor is NAMED —
-      which means filing its issue, and that is not this lane's act on this
-      word. A search of `gh issue list --state all` before this box was written
-      found no open issue reporting it.
+      measurement it rests on exposes something more general BUT NARROWER THAN
+      FIRST WRITTEN — Copilot's finding on this pull request, taken: **any
+      later amendment of a requirement whose promoted text already carries a
+      UNIT-NAMING marker (the form both the inherited marker and this block's
+      own use) must either drop that marker or accept a ground-three
+      marker-defect finding** — there is no third option today FOR THAT FORM.
+      The measurement proves only this: carrying the inherited `Removed from
+      canon` marker triggers ground three because its four-name unit is absent
+      from both canon and the block. It does not reach the PAIRING form, which
+      names no units at all and so cannot be matched against canon units in
+      the first place — `suppression()` resolves ground three by name, and a
+      marker with no names cannot fail that resolution. This may be the right
+      behaviour for unit-naming markers or it may be a gap in
+      `modified-block-currency`; either way it is not a corpus-wide rule over
+      every marker form. **THIS PACKET NEITHER TAKES IT NOR FORECLOSES IT**:
+      it is a `doc-health` amendment, a different capability, and under the
+      ruling of 2026-09-06T23:10Z (*"Tick on the recording"*) this box ticks
+      once a successor is NAMED — which means filing its issue, and that is
+      not this lane's act on this word. A search of `gh issue list --state
+      all` before this box was written found no open issue reporting it.
 - [x] 6.2 **THE REQUIREMENT'S HEADING IS NOT EDITED.** *"Install repository
       scope"* is a noun phrase and is correct; editing a ratified heading
       changes the requirement KEY every consumer, marker and currency check
@@ -460,30 +483,13 @@ than after it.
       predecessor's `design.md` D6 and is CITED here rather than re-run or
       re-claimed. This packet writes no readiness evidence and claims no part
       of that migration.
-- [ ] 6.8 **THE CORPUS-WIDE `target_release: none` DIVERGENCE IS NAMED AS
-      RESIDUE AND IS NOT SWEPT.** Copilot found that `release-realization`'s
-      *Realization axis declaration* admits `target_release:` as `implemented`
-      *"or a named release defined in the aggregation repository"* and names
-      `implemented` as the doc-only DEFAULT
-      (`openspec/specs/release-realization/spec.md:24-30`), so **`none` is
-      outside the vocabulary**. THIS PACKET CONFORMS — it now declares
-      `implemented` — but the divergence is not its own: **33 of the 180
-      proposals declaring the field carry `none`**, and among proposals with
-      `code_surface: none` the split is **7 `none` against 9 `implemented`**,
-      the ratified and archived predecessor
-      `amend-neutral-product-pin-lockfile-first-line` being one of the seven.
-      **NO GATE REPORTS IT** — no script reads the value except the ideation
-      dashboard's display, and `tests/ideation-dashboard` fixtures use `none`
-      while `tests/scope_globs` and `tests/sequenced_after` fixtures use
-      `implemented`. Sweeping 32 other proposals, or amending
-      `release-realization` to admit `none`, is a different act on a different
-      capability and needs its own issue and its own word; under the ruling of
-      2026-09-06T23:10Z (*"Tick on the recording"*) this box ticks once that
-      successor is NAMED, which is not this lane's act on this word.
 - [x] 6.7 **THE SIBLING SEARCH WAS TAKEN BEFORE THE CLAIM AND RE-TAKEN AT THE
       BRANCH CUT** (`design.md` D5). `ls -d
-      openspec/changes/*/specs/repo-boundary-governance` returns FIVE active
-      deltas — `add-identity-brokering`, `add-trust-anchor`,
+      openspec/changes/*/specs/repo-boundary-governance` returns **SIX** paths
+      on this branch, the same glob also matching this packet's own
+      directory — Copilot's finding on this pull request, taken. Excluding
+      `amend-repo-boundary-governance-scope-first-line` leaves FIVE active
+      sibling deltas — `add-identity-brokering`, `add-trust-anchor`,
       `implement-keycloak-install-repo`, `implement-openxpki-install-repo`,
       `qualify-avatar-live-voice` — and each was read BY NAME: they write
       *Keycloak install repository boundary*, *OpenXPKI install repository
@@ -504,3 +510,23 @@ than after it.
       the requirement key, `modified-block-currency`'s two-writers rule does
       not reach any of the five, and no ordering declaration is owed in either
       direction.
+- [ ] 6.8 **THE CORPUS-WIDE `target_release: none` DIVERGENCE IS NAMED AS
+      RESIDUE AND IS NOT SWEPT.** Copilot found that `release-realization`'s
+      *Realization axis declaration* admits `target_release:` as `implemented`
+      *"or a named release defined in the aggregation repository"* and names
+      `implemented` as the doc-only DEFAULT
+      (`openspec/specs/release-realization/spec.md:24-30`), so **`none` is
+      outside the vocabulary**. THIS PACKET CONFORMS — it now declares
+      `implemented` — but the divergence is not its own: **33 of the 180
+      proposals declaring the field carry `none`**, and among proposals with
+      `code_surface: none` the split is **7 `none` against 9 `implemented`**,
+      the ratified and archived predecessor
+      `amend-neutral-product-pin-lockfile-first-line` being one of the seven.
+      **NO GATE REPORTS IT** — no script reads the value except the ideation
+      dashboard's display, and `tests/ideation-dashboard` fixtures use `none`
+      while `tests/scope_globs` and `tests/sequenced_after` fixtures use
+      `implemented`. Sweeping 32 other proposals, or amending
+      `release-realization` to admit `none`, is a different act on a different
+      capability and needs its own issue and its own word; under the ruling of
+      2026-09-06T23:10Z (*"Tick on the recording"*) this box ticks once that
+      successor is NAMED, which is not this lane's act on this word.
