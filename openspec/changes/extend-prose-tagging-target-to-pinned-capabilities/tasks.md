@@ -110,15 +110,21 @@ the later realization pull request, and § 4 is the archive act.
   keyed by admitted pin id, under which a record's differing `verify_pin:` value
   is itself a controlled finding — and it NEVER executes, imports or opens a
   path a pin record selects, `verify_pin:` being data the arm may compare and
-  MUST NOT follow. The validator HOLDS a per-revision-kind required-member
-  table, reviewed with the resolver at authoring time — the machine reading of
-  `neutral-product-pin`'s ratified text (`:31-36` for the `commit` revision
-  kind; `:46-48`, `:62-65` and `:669-673` for the `package_integrity` one) and
-  not a second, independently-authored list: of two independently-authored
-  lists the weaker is always the one that admits, which is why the table
-  tracks that text rather than restating it as a competing definition. A
-  record declaring a `revision_kind` the table does not recognize is an
-  invalid pin (task 3.3(l)). It resolves the pin record under EXACTLY the root precedence
+  MUST NOT follow. The validator HOLDS a PER-SHAPE required-member table,
+  reviewed with the resolver at authoring time — the machine reading of
+  `neutral-product-pin`'s ratified text (`:31-36` for the ENUMERATED commit
+  shape; `:46-48`, `:62-65` and `:669-673` for the PUBLISHED-ARTIFACT one),
+  plus the WHOLE-TREE DIGEST commit shape that text is silent on and this
+  tree's records realize (`contracts/opendox-pin.yaml:108-110`,
+  `contracts/openxdox-pin.yaml:92-94`) — and not a second,
+  independently-authored list: of two independently-authored lists the weaker
+  is always the one that admits, which is why the table tracks that text, and
+  the measurement where the text is silent, rather than restating either as a
+  competing definition. THE SHAPE AND NOT THE `revision_kind` IS THE KEY: two
+  of the five records share `revision_kind: commit` and carry different member
+  sets, so a table keyed on the revision kind alone would refuse valid records.
+  A record declaring a `revision_kind` the table does not recognize, and a
+  record matching no shape it holds, are each an invalid pin (task 3.3(l)). It resolves the pin record under EXACTLY the root precedence
   the in-tree arm already uses — the document's own repository root, then the
   `openxFactory` root (`_resolve_capability`,
   `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`,
@@ -183,32 +189,61 @@ the later realization pull request, and § 4 is the archive act.
   the run COMPLETING rather than raising out of the family, one case per shape:
   the resolver reads this registry file, so a corrupt record must not escape
   the family and abort doc-health; **(l)** an INVALID PIN — a record
-  declaring `kind: pinned_contract_manifest` that is INCOMPLETE against the
-  members `neutral-product-pin` requires for its revision kind — emits a finding
-  NAMING THE FAILING MEMBER AND THE ROOT IT RESOLVED AGAINST
-  and does not resolve the target, ONE CASE PER SHAPE AND PER SUPPORTED
-  REVISION KIND, and the cases reach SECONDARY fields rather than top-level
-  referents alone: a record carrying only `kind: pinned_contract_manifest`; a
-  record declaring `revision_kind: commit` with no `commit`; a record declaring
-  `revision_kind: package_integrity` with no `integrity` — those three are the
-  cases a kind-only test leaves open, since a resolver could check for the
-  presence of `revision_kind` and never check its referent — AND, per revision
-  kind, one MISSING and one INVALID case for each secondary field the canonical
-  shape requires: for a SOURCE pin the `files:` and `pinned_by_commit_only:`
-  completeness claims (`openspec/specs/neutral-product-pin/spec.md:31-36`),
-  absent in the first case and malformed in the second (a non-sequence, or an
-  entry carrying no `sha256`); for a PUBLISHED-ARTIFACT pin the `version`,
-  `shasum` and vendored `lockfile` beside its `integrity`
-  (`:46-48`, `:62-65`, `:669-673`), likewise
-  absent and malformed. The case that names the hole this list closes is
-  `contracts/evil-pin.yaml` carrying `kind`, `revision_kind: commit` and a
-  well-formed `commit` and NOTHING ELSE: it satisfies a top-level-referent
-  check, it does NOT satisfy the canonical validation, and it MUST NOT resolve
-  a pinned target. Any later revision kind or member `neutral-product-pin`
+  declaring `kind: pinned_contract_manifest` that matches NO admitted RECORD
+  SHAPE, or matches one and is INCOMPLETE against the members THAT SHAPE
+  requires — emits a finding NAMING THE SHAPE TRIED, THE FAILING MEMBER AND THE
+  ROOT IT RESOLVED AGAINST and does not resolve the target. THE MATRIX IS SPLIT
+  BY SHAPE AND BY FIELD, because the five `pinned_contract_manifest` records on
+  `origin/main` carry THREE shapes and two of them share
+  `revision_kind: commit`: a matrix keyed on the revision kind alone, or one
+  judging `files:` and `pinned_by_commit_only:` by a single rule, would REJECT
+  VALID RECORDS this repository ships. The cases, and they reach SECONDARY
+  fields rather than top-level referents alone. FIRST the referent cases a
+  kind-only test leaves open, since a resolver could check for the presence of
+  `revision_kind` and never check what it points at: a record carrying only
+  `kind: pinned_contract_manifest`; a record declaring `revision_kind: commit`
+  with no `commit`; a record declaring `revision_kind: package_integrity` with
+  no `integrity`. THEN, per shape. SHAPE (a), THE ENUMERATED COMMIT PIN
+  (`contracts/openxwallet-pin.yaml:70,104`,
+  `contracts/openreposhape-pin.yaml:134,201`;
+  `openspec/specs/neutral-product-pin/spec.md:31-36`) — one case per FIELD and
+  per FORM, the two lists being of different forms: a `files:` entry that is a
+  mapping carrying NO `sha256` is REFUSED; a `pinned_by_commit_only:` entry that
+  is a PATH-ONLY STRING is ACCEPTED, this being the valid form, and a test
+  demanding a digest of it would reject `contracts/openxwallet-pin.yaml:104-110`
+  itself; a `pinned_by_commit_only:` entry that is a MAPPING is REFUSED as the
+  wrong form; plus each list absent, and each a non-sequence. SHAPE (b), THE
+  WHOLE-TREE DIGEST COMMIT PIN (`contracts/opendox-pin.yaml:92-93,108-110`,
+  `contracts/openxdox-pin.yaml:76-77,92-94`) — the POSITIVE case FIRST, since
+  omitting it is how this shape came to be missed: a record with `commit`,
+  `revision_kind: commit`, `digest_definition` and `digests.tree_sha256` and
+  NEITHER per-file list RESOLVES, and the absent lists are not reported as
+  missing members; then `digests.tree_sha256` missing, and malformed (not the
+  64-hex form the two records carry); then the MIXED case — a record carrying
+  both `digests.tree_sha256` and a `files:` list — REFUSED as matching no
+  admitted shape, `neutral-product-pin`'s ratified text being SILENT on the
+  whole-tree shape (the spellings `digest_definition`, `digests` and
+  `tree_sha256` occur nowhere under `openspec/specs/`) so that no text admits
+  the mixture and the fail-closed rule (`:89`) governs. SHAPE (c), THE
+  PUBLISHED-ARTIFACT PIN (`contracts/openspec-cli-pin.yaml:289,299,308,328-330`;
+  `:46-48`, `:62-65`, `:669-673`) — one MISSING and one MALFORMED case for EACH
+  of its SIX members `version`, `integrity`, `shasum`, `lockfile`,
+  `lockfile_integrity` and `lockfile_packages`, the last two included because
+  `:669-673` obliges the digest over the lockfile's exact bytes and the size of
+  the tree it locks BESIDE the committed file, so a required set naming
+  `lockfile` alone leaves them unchecked. AND the UNKNOWN cases: a record
+  declaring a `revision_kind` the table does not recognize, and a record whose
+  member set matches no shape at all. The case that names the hole this list
+  closes is `contracts/evil-pin.yaml` carrying `kind`, `revision_kind: commit`
+  and a well-formed `commit` and NOTHING ELSE: it satisfies a top-level-referent
+  check, it matches NEITHER commit-pinned shape, and it MUST NOT resolve a
+  pinned target. Any later shape, revision kind or member `neutral-product-pin`
   admits owes a case here on the same rule and arrives through THAT capability's
-  text rather than through a list restated in this family, so a file added
-  to `contracts/` cannot admit an arbitrary pinned target by carrying a label or
-  a partial member set; **(m)** the candidate pin path is RESOLVED and refused unless it stays
+  text — or, where that text is silent and a record shape is realized ahead of
+  it, through a measurement of the records recorded beside the table — rather
+  than through a list restated in this family, so a file added to `contracts/`
+  cannot admit an arbitrary pinned target by carrying a label or a partial
+  member set; **(m)** the candidate pin path is RESOLVED and refused unless it stays
   inside THE RESOLVING REPOSITORY ROOT'S `contracts/` directory, with TWO escape
   cases and not one: a symlinked `contracts/<pin-id>-pin.yaml` resolving OUTSIDE
   the repository, and one resolving INSIDE the repository but OUTSIDE
@@ -230,7 +265,7 @@ the later realization pull request, and § 4 is the archive act.
   opened, imported or run — asserted by instrumenting the read/import/exec
   surface, not by reading a finding text, since the boundary is that the path is
   not touched — and the record's verdict is UNCHANGED by that member's value: a
-  record complete for its revision kind still RESOLVES, since `verify_pin:` is
+  record complete for its record shape still RESOLVES, since `verify_pin:` is
   neither part of the required shape nor a resolution prerequisite, and a test
   that refused such a record would encode the opposite of D-2 and reject valid
   pins. ONLY where the realization picks D-2's form (b) does a `verify_pin:`
@@ -241,8 +276,16 @@ the later realization pull request, and § 4 is the archive act.
   root and a document of the other repository names it — the target resolves by
   the fallback and the finding or log NAMES that root; (ii) both roots carry a
   record for the same `<pin-id>` — the DOCUMENT'S OWN repository's record is the
-  one read. Without (o) the arm can pass every single-root test and still make
-  the same marker resolve differently depending on how doc-health was invoked.
+  one read; and (iii) the SINGLE-ROOT NEGATIVE, the same document read by a
+  `--single-repo` run of its own repository, where the record exists only in the
+  `openxFactory` root: the target does NOT resolve, the finding NAMES the one
+  root searched, and the pass does not widen its root set to reach the record.
+  (iii) is what the arm guarantees and (i) is not its contradiction: what is
+  unchanged across scopes is the ORDER, not the outcome, the aggregate run
+  simply having a second root. Without (o) the arm can pass every single-root
+  test and still invent a precedence of its own, and without (iii) a reader
+  could take (i) as a promise that a marker resolves identically however
+  doc-health was invoked.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.

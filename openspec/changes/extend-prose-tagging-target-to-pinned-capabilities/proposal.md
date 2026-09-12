@@ -135,15 +135,26 @@ fenced and queued truthfully instead.
    `neutral-product-pin` requires; a `pinned_workflow` record pins executable
    governance code and is excluded, since it has no capability set for a name
    to be about. **AND THE KIND IS A LABEL, SO THE RECORD MUST BE COMPLETE FOR
-   ITS REVISION KIND** against the members `neutral-product-pin`'s ratified text
+   ITS RECORD SHAPE** against the members `neutral-product-pin`'s ratified text
    requires — this grammar enumerating NO MEMBER LIST OF ITS OWN and opening no
-   delta against that capability: a record carrying a kind with a partial member
-   set, such as a source pin without the per-file `sha256` and
-   `pinned_by_commit_only:` completeness claims
-   (`openspec/specs/neutral-product-pin/spec.md:31-36`) or a published-artifact
-   pin without the fields its verifier checks and the vendored lockfile
-   (`:62-65`, `:669-673`), is an INVALID PIN that reports with a finding NAMING
-   THE FAILING MEMBER and does not resolve. **That judgement goes through a
+   delta against that capability. THE SHAPE AND NOT THE `revision_kind` ALONE IS
+   THE UNIT, measured over all five `pinned_contract_manifest` records: THREE
+   shapes, two of them sharing `revision_kind: commit` — (a) the ENUMERATED
+   commit pin, `files:` mappings each carrying a `sha256` beside path-only
+   `pinned_by_commit_only:` strings that validly carry none
+   (`openspec/specs/neutral-product-pin/spec.md:31-36`;
+   `contracts/openxwallet-pin.yaml:70,104-110`); (b) the WHOLE-TREE DIGEST
+   commit pin, a `digest_definition` and a `digests.tree_sha256` with NEITHER
+   list (`contracts/opendox-pin.yaml:108-110`,
+   `contracts/openxdox-pin.yaml:92-94`); and (c) the PUBLISHED-ARTIFACT pin,
+   `version`, `integrity`, `shasum`, `lockfile`, `lockfile_integrity` and
+   `lockfile_packages` (`:46-48`, `:62-65`, `:669-673`;
+   `contracts/openspec-cli-pin.yaml:289,299,308,328-330`). A record carrying a
+   kind with a partial member set for the shape it matches, or matching no shape
+   at all, is an INVALID PIN that reports with a finding NAMING THE SHAPE TRIED
+   AND THE FAILING MEMBER and does not resolve; a table keyed on the revision
+   kind alone would instead refuse the two whole-tree records this repository
+   ships. **That judgement goes through a
    CODE-FIXED route** — a shared non-executing shape validator, or a closed
    dispatch table in the resolver's own module — and the pass NEVER executes,
    imports or opens a path a pin record selects, so `verify_pin:` is data it may

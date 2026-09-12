@@ -136,7 +136,7 @@ a later change, on evidence that a stale supersedes target exists.
    unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
    unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
    capability is today. **And the kind alone is a LABEL, not a pin — SO THE
-   RECORD MUST BE COMPLETE FOR ITS REVISION KIND, AGAINST
+   RECORD MUST BE COMPLETE FOR ITS RECORD SHAPE, AGAINST
    `neutral-product-pin`'S OWN MEMBER LIST AND NOT A LIST THIS GRAMMAR WRITES
    DOWN.** An earlier drafting of this arm asked only for a `revision_kind` with
    its top-level referent, and that is MEASURABLY WEAKER than the ratified
@@ -154,13 +154,53 @@ a later change, on evidence that a stale supersedes target exists.
    dependencies at install time carries a vendored lockfile, and the install
    runs through it* obliges the vendored resolution, "a lockfile … addressed by a
    digest over its exact bytes recorded in the pin, together with the size of the
-   tree it locks" (`:669-673`). Today's one published-artifact record carries
-   exactly that set — `version`, `integrity`, `shasum`, `lockfile` at
-   `contracts/openspec-cli-pin.yaml:289-328`, the `shasum` being the secondary
-   address `:62-65` names rather than a member the spec spells. A
+   tree it locks" (`:669-673`).
+
+   **THE UNIT OF THAT COMPLETENESS IS THE RECORD SHAPE, NOT THE `revision_kind`
+   ALONE — measured over all five `pinned_contract_manifest` records on
+   `origin/main`, which carry THREE shapes and not two.** Two of the five
+   declare `revision_kind: commit` and ENUMERATE their surface; two more declare
+   the same revision kind and address their WHOLE TREE by one digest, carrying
+   neither per-file list; the fifth is the published artifact. A required-member
+   table keyed on `revision_kind` alone would therefore refuse
+   `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml` — two valid
+   records this repository ships — for lacking lists their shape does not have.
+
+   | record (`origin/main`) | shape | members present |
+   | --- | --- | --- |
+   | `contracts/openxwallet-pin.yaml` | (a) enumerated commit pin | `commit` `:44`, `revision_kind: commit` `:45`, `files:` `:70` (8 mappings, each `path`+`sha256`, `:80-95`), `pinned_by_commit_only:` `:104` (6 path-only strings, `:105-110`) |
+   | `contracts/openreposhape-pin.yaml` | (a) enumerated commit pin | `commit` `:114`, `revision_kind: commit` `:115`, `files:` `:134` (31 mappings, `:135-196`), `pinned_by_commit_only:` `:201` (45 path-only strings, `:202-246`) |
+   | `contracts/opendox-pin.yaml` | (b) whole-tree digest commit pin | `commit` `:92`, `revision_kind: commit` `:93`, `digest_definition: sorted-ls-tree-r-v1` `:108`, `digests.tree_sha256` `:110`; NO `files:`, NO `pinned_by_commit_only:` |
+   | `contracts/openxdox-pin.yaml` | (b) whole-tree digest commit pin | `commit` `:76`, `revision_kind: commit` `:77`, `digest_definition` `:92`, `digests.tree_sha256` `:94`; NO `files:`, NO `pinned_by_commit_only:` |
+   | `contracts/openspec-cli-pin.yaml` | (c) published-artifact pin | `version` `:289`, `revision_kind: package_integrity` `:297`, `integrity` `:299`, `shasum` `:308`, `lockfile` `:328`, `lockfile_integrity` `:329`, `lockfile_packages` `:330`; NO `commit`, NO `files:`, NO `pinned_by_commit_only:` |
+
+   Two consequences the earlier drafting of this section got wrong, both
+   corrected here. **First, shape (b) is admitted and not an omission.**
+   `neutral-product-pin`'s ratified text is SILENT on it — the spellings
+   `digest_definition`, `digests` and `tree_sha256` occur nowhere under
+   `openspec/specs/` — so it is a REALIZED record shape, and the table admits it
+   from the records themselves on the reasoning those records give
+   (`contracts/opendox-pin.yaml:97-107`: the digest covers mode, oid and path
+   for every entry of `git ls-tree -r`, "which is what lets this ONE digest
+   cover a three-repository product"), which is the same reasoning the spec
+   gives for the published artifact needing no enumeration
+   (`openspec/specs/neutral-product-pin/spec.md:59-61`). Because no text admits
+   a MIXTURE, a record carrying both `digests.tree_sha256` and a `files:` list
+   matches neither (a) nor (b) and is refused naming both shapes tried, on that
+   capability's own fail-closed rule (`:89`). **Second, shape (c)'s required set
+   is SIX members and not four.** Today's one published-artifact record carries
+   `version` `:289`, `integrity` `:299`, `shasum` `:308`, `lockfile` `:328`,
+   `lockfile_integrity` `:329` and `lockfile_packages` `:330` in
+   `contracts/openspec-cli-pin.yaml`; the `shasum` is the secondary address
+   `:62-65` names rather than a member the spec spells, and the last two are
+   what `:669-673` obliges BESIDE the committed lockfile — the digest "over its
+   exact bytes" and "the size of the tree it locks". A set naming `lockfile`
+   alone would leave both unchecked, which is the record's own reason for
+   carrying them (`contracts/openspec-cli-pin.yaml:321-327`), and would make
+   this resolver's notion of a complete pin weaker than the verifier's. A
    `contracts/evil-pin.yaml` holding `kind`, `revision_kind: commit` and a
    `commit` satisfies the weaker wording and resolves arbitrary pinned targets
-   under it; it does not satisfy the ratified one. The list stays with
+   under it; it matches neither commit-pinned shape. The list stays with
    `neutral-product-pin` because of two member lists the weaker is always the one
    that admits — and if that capability later ratifies a VALIDATOR INTERFACE for
    `pinned_contract_manifest` records, this resolver adopts it as a follow-up,
@@ -208,11 +248,19 @@ a later change, on evidence that a stale supersedes target exists.
    `openxFactory` root second — `for name in (repo, "openxFactory")`,
    `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`
    (`scripts/doc_health/runner.py:39`) — and a single-repository run has one root
-   and no fallback. The pinned arm uses THAT precedence unchanged, so a marker
-   resolves the same way whether the checker runs over one repository or over an
-   aggregate; inventing a precedence here would make the same marker resolve
-   against different `contracts/<pin-id>-pin.yaml` files depending on how the
-   checker was invoked. And because there can be two roots, EVERY finding the
+   and no fallback. The pinned arm uses THAT precedence unchanged, so the ORDER
+   is unchanged and deterministic FOR THE ROOTS PRESENT in the run; inventing a
+   precedence here would make the same marker resolve against different
+   `contracts/<pin-id>-pin.yaml` files depending on how the checker was invoked.
+   **What is guaranteed is the ORDER, not an identical OUTCOME across invocation
+   scopes**, and the difference is worth stating rather than papering over: a
+   single-repository run has one root, so a marker whose pin record lives only
+   in the `openxFactory` root resolves under an aggregate run and is an
+   unresolved pinned target under a single-repository run of the other
+   repository. That is a difference of the ROOT SET the run was given — the same
+   difference the in-tree capability arm already has — and not of a precedence
+   this arm invented; the arm does not widen its root set to close it, and the
+   finding names the root it searched so the difference is readable. And because there can be two roots, EVERY finding the
    pinned arm emits names the root it resolved against or failed to: under an
    aggregate run a bare "no pin record for `<pin-id>`" cannot be acted on.
    **And the path is RESOLVED
