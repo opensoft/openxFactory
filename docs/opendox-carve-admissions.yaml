@@ -106,6 +106,9 @@ destinations:
       - path: tests/test_profile_registration.py
         reason: "added by openDox-code #11 (the 4.3 registration tests)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: tests/test_source_core_arm.py
+        reason: "added by opensoft/openDox-code build/s6-source-core-arm (PR #16, split-opendox § 3.4 slice S6, RULED Q4, `#656` comment `5642758731`) — the runnable half of the /source re-homing: 25 shape assertions over the route's ownership, its exact-before-prefix dispatch order, its single containment authority, its content types and its three refusals, on validate.yml's explicit list; this admission PR lands first per Q-L1"
+        since: "7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08"
       - path: tests/test_view_registry.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the registry's own tests; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "cb810d39737bf50bbe87e5700177c2e5ce2750da"
