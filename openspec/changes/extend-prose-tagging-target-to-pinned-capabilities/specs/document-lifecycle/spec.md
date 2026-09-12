@@ -88,10 +88,15 @@ not the thing that happens when nobody decides.
 - **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
-- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>` and `<pin-id>` resolves to a pin record this repository carries that declares `kind: pinned_contract_manifest`
+- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves to a pin record this repository carries that declares `kind: pinned_contract_manifest`, and that record EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
 - **THEN** the target MUST resolve
-- **AND** where that pin record carries a well-formed `capabilities:` enumeration, the named capability MUST appear in it or the pass MUST report a hygiene finding
-- **AND** where it carries no such member, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
+- **AND** where the record carries no `capabilities:` member, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
+- **AND** a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
+
+#### Scenario: A pinned capability is absent from the pin record's enumeration
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` carries a well-formed non-empty `capabilities:` member, and `<capability>` does not appear in it
+- **THEN** the deterministic health pass MUST report it as a hygiene finding naming the enumeration
+- **AND** the target MUST NOT resolve
 
 #### Scenario: A pinned target names a record that is not a neutral-product pin
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares a kind other than `pinned_contract_manifest`
