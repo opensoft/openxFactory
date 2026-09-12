@@ -249,14 +249,19 @@ def check_profiles(root: Path, kinds: list[str], rpt: Report) -> set[str]:
             # `kind:`) or nested under `profile:` alongside other fields
             # (mixed shape) -- check both rather than assuming one.
             pid = data.get("profile_id") or prof.get("profile_id")
-            if not pid:
-                rpt.error(f"{pf.name}: profile_id missing")
-                continue
+            id_label = "profile_id"
         else:
             pid = prof.get("id")
-            if not pid:
-                rpt.error(f"{pf.name}: profile.id missing")
-                continue
+            id_label = "profile.id"
+        if not pid:
+            rpt.error(f"{pf.name}: {id_label} missing")
+            continue
+        if not isinstance(pid, str):
+            # A truthy non-hashable YAML value (a list or mapping) would
+            # otherwise reach `profile_ids.add(pid)` and raise TypeError,
+            # aborting the whole run instead of reporting this profile.
+            rpt.error(f"{pf.name}: {id_label} must be a string, got {type(pid).__name__}")
+            continue
         profile_ids.add(pid)
         kind = prof.get("tenant_kind") or prof.get("client_kind")
         if kind:

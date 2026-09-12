@@ -288,3 +288,26 @@ def test_a_non_string_kind_is_reported_not_crashed_on(
     assert result.returncode == 1, result.stdout + result.stderr
     assert "Traceback" not in result.stdout + result.stderr
     assert "ERROR: worker.yaml: profile.id missing" in result.stdout
+
+
+def test_a_non_string_registered_profile_id_is_reported_not_crashed_on(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """The same hazard one field over: a truthy but non-hashable `profile_id`
+    (a list or mapping) must fail safely rather than raise `TypeError` out of
+    `profile_ids.add(pid)` (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "kind": "cloudpc_worker_profile",
+            "profile_id": ["not", "a", "string"],
+            "tenant_kind": "pilot",
+        },
+    }
+    repo = _materialize(tmp_path / "non-string-profile-id", _stack(), yaml_writer,
+                        profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Traceback" not in result.stdout + result.stderr
+    assert "ERROR: worker.yaml: profile_id must be a string" in result.stdout
