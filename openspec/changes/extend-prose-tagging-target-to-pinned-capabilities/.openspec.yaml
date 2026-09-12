@@ -1,0 +1,121 @@
+schema: spec-driven
+created: 2026-09-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-12-extend-prose-tagging-target-to-pinned-capabilities
+  reason: >-
+    THE FINDING, AND IT IS A MEASURED FIGURE RATHER THAN A PREFERENCE.
+    `python3 scripts/doc-health.py --single-repo . --family tag-hygiene`
+    reports FOUR `error`-band, `auto-fixable`-labelled findings on
+    `origin/main`, all one shape and all naming the same absent referent:
+    `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
+    at lines 222, 242 and 280, and
+    `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md`
+    at line 107, each `unresolved target=openxwallet`. The checker emits one
+    fixed remedy for all four (`scripts/doc_health/families.py:1523-1524`,
+    measured on `origin/main` at `177ba819`):
+    "name a capability under openspec/specs/ or an active change
+    (document-lifecycle grammar)". That text says what a VALID target looks
+    like; it cannot say which capability is faithful to any one of these four
+    blocks, because the capability those blocks are about is no longer in this
+    repository at all.
+    THE CAUSE IS NAMED BY THE ACT THAT PRODUCED IT.
+    `openspec/changes/archive/2026-08-28-split-openxwallet-repo/tasks.md:1770-1786`
+    records it verbatim: "**The cause is this archive and nothing else.** ...
+    Deleting `openspec/specs/openxwallet/` removed the only referent those
+    four markers had." The same passage rejects BOTH mechanical fixes, also
+    verbatim: "**They are NOT fixed here, deliberately.** The band says
+    `auto-fixable`, but no mechanical fix is truthful: retargeting a marker to
+    `domain-descendant-boundary` or `neutral-product-pin` would make the
+    marker name a capability the tagged prose is not about, and deleting the
+    markers would silently drop four blocks out of the conversion queue. The
+    honest fix is a GRAMMAR EXTENSION — a target form that can name a
+    capability which now lives in a pinned neutral product — and that is a
+    change, not an edit."
+    THE OWED SUCCESSOR IS ON THE HOUSE REGISTER AND HAS NEVER BEEN OPENED.
+    `README.md:7075` carries it as numbered item (7) of the
+    `split-openxwallet-repo` archived-ledger entry, on `origin/main` at
+    `177ba819` (this branch's own copy sits at a different line, `7061`, since
+    main gained unrelated content first): "**A prose-tagging target
+    form for a capability that has left the corpus** — added at the archive
+    itself, because the act produced it". A corpus-wide search for that item's
+    own wording returns only the one README passage: no proposal, no staged
+    topic, no active or archived change picks it up. This packet is that
+    change, and it is the first.
+    THE GRAMMAR IS SILENT, NOT MERELY UNHELPFUL.
+    `docs/document-lifecycle.md:182-183` defines only what a valid target IS —
+    "`<capability>` is a spec capability id under `openspec/specs/` (or in an
+    active change's `specs/` while the capability is pre-promotion)" — and
+    neither that section nor any other sentence of that document says what a
+    marker does when its target capability EXITS the corpus. The absent rule is
+    the third thing this packet proposes, beside the form and its resolution.
+    THE WORD THAT AUTHORIZED THE FILING, VERBATIM AND WITH ITS PLACE. Brett
+    Heap, 2026-09-12 at approximately 01:55Z, in session to lane
+    `openxfactory-2` (display `openXfactory-2`), presented with the lane's
+    MULTI-SELECT question, selected the option "#992 grammar-extension OpenSpec
+    change (Recommended)". A SELECTION, NOT A TYPED SENTENCE. Recorded on
+    openxFactory #745. The finding itself is filed as openxFactory issue #992
+    by this same lane on 2026-09-11, and that issue's § 4 "The ask" is the
+    scope this packet answers.
+    FILING IS NOT RATIFYING. This packet is a PROPOSAL. It admits no text to
+    canon, ratifies no design decision, moves no byte of
+    `scripts/doc_health/families.py`, retargets no marker, deletes no marker,
+    corrects no `INDEX.md` line, and ticks no box anywhere — not item (7) of
+    the archived ledger, which ticks on the recording of its successor being
+    NAMED only where the owed-successor rule of 2026-09-06 reaches it, and this
+    lane asserts no such tick. The packet's three lifecycle documents —
+    `proposal.md`, `design.md`, `tasks.md` — carry `Status: draft`; its two
+    spec deltas carry no lifecycle header, as 299 of the 303 spec-delta files
+    measured on `origin/main` at `a72f0a76` do not. Ratification, realization
+    and archive are three separate
+    acts on Brett Heap's word; only the first of the three has any word at all
+    behind it, and that word commissioned the FILING.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is an
+    ARCHIVED CHANGE's own task record, the README's successor register, and
+    issue #992 — not an `ideation/staging/` topic folder.
+    `ideation/staging/openxwallet-neutral-home/` is the topic whose prose
+    CARRIES three of the four affected markers, but its subject is the wallet
+    carve, not the marker grammar; declaring it as the staged origin would
+    claim a staging source for a topic that folder does not hold.
+    `kind: staged` would therefore name a source that does not resolve.
+  proposed_by: >-
+    Lane `openxfactory-2` (display `openXfactory-2`), on Brett Heap's SELECTION
+    of 2026-09-12 at approximately 01:55Z, the option quoted verbatim:
+    "#992 grammar-extension OpenSpec change (Recommended)". NO APPROVAL PAIR IS
+    DECLARED AND NONE IS IMPLIED: that selection commissioned the FILING of the
+    change issue #992 asks for, and nothing else. The lawful unapproved shape is
+    the one `add-drafted-proposal-origin` added — drafting provenance, no
+    `approved_by`, no `approved_on` — and the packet's three lifecycle
+    documents — `proposal.md`, `design.md`, `tasks.md` — carry `Status:
+    draft` to match, and its two spec deltas
+    carry no lifecycle header, as 299 of the 303 spec-delta files measured on
+    `origin/main` at `a72f0a76` do not; approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
+    THE DECISIONS MOST WORTH A VETO are D-1 (the FORM is
+    `target=pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem of a
+    `contracts/<pin-id>-pin.yaml` record — chosen over four alternatives
+    because it is the ONLY candidate the existing marker regexes already accept
+    unchanged), D-2 (RESOLUTION rests on a VALID, COMPLETE
+    `kind: pinned_contract_manifest` record — complete for its RECORD SHAPE,
+    each shape's member set being that shape's SHAPE-GUARD-REQUIRED SET, exactly
+    what its in-tree verifier refuses-when-absent in its PURE, SOURCE-FREE
+    guards, a judgement NECESSARY for that verifier and BY DESIGN NOT SUFFICIENT
+    for it, a source-dependent check such as `pin-surface-undeclared` being
+    unreachable offline — judged through ONE CODE-FIXED route, a single shared
+    PURE adapter, so the record never selects the code that judges it, with the
+    capability segment checked for shape and resolved further only where the
+    record enumerates capabilities — NO pin record in this tree enumerates
+    capabilities today, measured, all six of them, so a rule requiring the
+    enumeration would refuse every marker it was written to admit), D-3 (the
+    STALE-TARGET RULE: when a target capability exits the corpus the marker
+    either takes the pinned form or the block is unfenced, and is never
+    silently retargeted or deleted) and D-5 (realization is ONE later pull
+    request and THIS pull request is not it).
+    NOTHING IS REALIZED BY THE FILING — no resolver byte, no regex, no test, no
+    marker, no `INDEX.md` line, no contract, no pin byte, no digest. The four
+    findings stay OPEN and the four markers stay EXACTLY AS THEY ARE.
+  proposed_on: 2026-09-12
+related:
+  - openxFactory:change:archive/2026-08-28-split-openxwallet-repo   # THE CAUSE and the SOURCE OF THE ASK: its `tasks.md:1770-1786` measured the four findings, rejected both mechanical fixes, and named this grammar extension as the honest one; its README archived-ledger entry carries the owed successor as numbered item (7). ARCHIVED — no `sequenced_after` is owed or declared
+  - openxFactory:change:archive/2026-07-09-concretize-prose-tagging-syntax  # THE GRAMMAR THIS PACKET EXTENDS: the change that concretized the `xspec:` marker syntax `docs/document-lifecycle.md` now carries and `families.py` transcribes by reference
+  - openxFactory:change:archive/2026-08-21-add-staged-topic-outline-template # Why the affected prose is fenced at all: a conforming staged fragment wraps its proposal-element sections in the same ratified `xspec:` grammar, which is how three of the four markers came to exist
