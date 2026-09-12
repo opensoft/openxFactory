@@ -3,15 +3,21 @@
 Status: record
 Kind: report
 
-Every gate below is RE-DERIVED on the tree this ratification actually commits
-— branch `change/rule-inherited-unit-naming-marker-spent`, after THREE merges
-from `main` (`67b8011f` → `1f068646`, `78a5d2dc` → `5972c8f3`, `4a246872` →
-`45a98faa`), the per-change sweep ledger re-seed (`b42eb65d`: `depth` 0 → 1),
-the self-gate fix (`396bca94`), and this ratification's own content commit —
-against a fresh control clone of `origin/main` at the SAME final commit
-(`45a98faa5f89f48a3d0b1842d111681b85e7f0ad`), taken at
-`scratchpad/NEW/ctrl-main-962`. Every command line and tail below is pasted
-from the actual run, not recalled.
+**THE TREE THIS RECORD CERTIFIES IS THE FOURTH-MERGE TREE, BRANCH `98bd74e9`,
+CONTROL BASE `a72f0a76`** — branch `change/rule-inherited-unit-naming-marker-spent`
+after FOUR merges from `main` (`67b8011f` → `1f068646`, `78a5d2dc` →
+`5972c8f3`, `4a246872` → `45a98faa`, and the fourth, `4a246872` → `98bd74e9`
+merging `main` @ `a72f0a76b14588e3cbc7b313af6222683daea72f` via PR #1005), the
+per-change sweep ledger re-seed (`b42eb65d`: `depth` 0 → 1), the self-gate fix
+(`396bca94`), and this ratification's own content commit. **§§ 1–11 BELOW
+WERE TAKEN ON THE THIRD-MERGE TREE** — branch `4a246872`, against a fresh
+control clone of `origin/main` at `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`,
+taken at `scratchpad/NEW/ctrl-main-962` — **AND ARE SUPERSEDED BY § 12**, which
+re-derives every one of the same gates on the fourth-merge tree against the
+same control clone fast-forwarded to `a72f0a76b14588e3cbc7b313af6222683daea72f`,
+appended rather than retyped over them (`tasks.md` § 4.11, § 4.12's own
+convention). Every command line and tail below is pasted from the actual run,
+not recalled.
 
 ## 1. `openspec validate <change> --strict`
 
