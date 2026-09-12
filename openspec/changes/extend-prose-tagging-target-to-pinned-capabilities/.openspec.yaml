@@ -79,16 +79,22 @@ origin:
     DECLARED AND NONE IS IMPLIED: that selection commissioned the FILING of the
     change issue #992 asks for, and nothing else. The lawful unapproved shape is
     the one `add-drafted-proposal-origin` added — drafting provenance, no
-    `approved_by`, no `approved_on` — and every document in the packet carries
-    `Status: draft` to match; approval, when it comes, is a pure ADDITION beside
-    a fixed `kind` and `id`.
+    `approved_by`, no `approved_on` — and the packet's three lifecycle
+    documents — `proposal.md`, `design.md`, `tasks.md` — carry `Status:
+    draft` to match, and its two spec deltas
+    carry no lifecycle header, as 299 of the 303 spec-delta files measured on
+    `origin/main` at `a72f0a76` do not; approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
     THE DECISIONS MOST WORTH A VETO are D-1 (the FORM is
     `target=pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem of a
     `contracts/<pin-id>-pin.yaml` record — chosen over four alternatives
     because it is the ONLY candidate the existing marker regexes already accept
-    unchanged), D-2 (RESOLUTION rests on the PIN RECORD'S EXISTENCE, not on an
-    enumerated capability list, because NO pin record in this tree enumerates
-    capabilities today — measured, all six of them — so a rule requiring the
+    unchanged), D-2 (RESOLUTION rests on a VALID, COMPLETE
+    `kind: pinned_contract_manifest` record, judged through a CODE-FIXED route
+    so the record never selects the code that judges it, with the capability
+    segment checked for shape and resolved further only where the record
+    enumerates capabilities — NO pin record in this tree enumerates
+    capabilities today, measured, all six of them, so a rule requiring the
     enumeration would refuse every marker it was written to admit), D-3 (the
     STALE-TARGET RULE: when a target capability exits the corpus the marker
     either takes the pinned form or the block is unfenced, and is never

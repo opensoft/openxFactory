@@ -14,7 +14,11 @@ lane's multi-select question, he chose the option ***"#992 grammar-extension
 OpenSpec change (Recommended)"***. Recorded on openxFactory #745. That word
 commissioned the FILING of the change openxFactory issue #992 asks for, and
 nothing further: **no ratification, no realization and no archive is claimed
-by this packet**, and every document in it carries `Status: draft`.
+by this packet**, and its three lifecycle documents — this one, `design.md`,
+`tasks.md` — carry `Status: draft`; its two spec deltas are delta files and
+carry no lifecycle header, as 299 of the 303 spec-delta files measured on
+`origin/main` at `a72f0a76` do not (the four exceptions are `## ADDED` deltas
+in one archived change, each carrying an inherited `Status: ratified`).
 
 ## Why
 

@@ -64,7 +64,9 @@ the later realization pull request, and § 4 is the archive act.
 
 - [x] 2.1 Packet authored: `proposal.md`, `design.md`, `tasks.md`,
   `.openspec.yaml`, and `## MODIFIED` deltas against `document-lifecycle` and
-  `doc-health`. Every document carries `Status: draft`.
+  `doc-health`. The three lifecycle documents carry `Status: draft`; the two
+  spec deltas carry no lifecycle header, as 299 of the 303 spec-delta files
+  measured on `origin/main` at `a72f0a76` do not.
 - [x] 2.2 Origin declared `kind: ad_hoc` with DRAFTING provenance
   (`proposed_by` / `proposed_on`) and NO approval pair — the lawful unapproved
   shape. The reason names Brett Heap's selection verbatim and its place.
