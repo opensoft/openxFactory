@@ -36,10 +36,12 @@ this packet rather than about any family's entries. **FIVE OPEN RULINGS IN ALL.*
 ## Why
 
 **THIRTY-ONE ENTRIES IN THE AGGREGATION'S `health/dispositions.yaml` BELONG TO
-EIGHT FAMILIES, AND SEVEN OF THE EIGHT WERE NEVER TOLD WHAT AN ENTRY OF THEIRS
-MEANS.**
+EIGHT FAMILIES, AND SEVEN OF THE EIGHT HAVE NO FAMILY-SIDE READING TELLING THEM
+WHAT AN ENTRY OF THEIRS MEANS FOR THEIR OWN FINDINGS — the estate-wide
+`report.uncited_resolutions` arm already gives most of their entries a
+different, derived effect, measured below.**
 
-**THE EIGHTH WAS TOLD, AND IT IS NAMED HERE RATHER THAN LEFT TO BE DISCOVERED.**
+**THE EIGHTH HAS ONE, AND IT IS NAMED HERE RATHER THAN LEFT TO BE DISCOVERED.**
 `modified-block-currency` already carries a promoted *A finding is dispositioned*
 scenario (`openspec/specs/doc-health/spec.md` line 2177) and its module already
 reads the file under its own name —

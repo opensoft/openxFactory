@@ -76,13 +76,19 @@ each open box below states the event that closes it:
       Brett Heap rules between (C1) DELIBERATELY IGNORE — no family-side reading;
       the entry is a governance record and the finding keeps its band
       (**RECOMMENDED**) — (C2) read and downgrade to `info` with the citation,
-      (C3) read and suppress, or (C4) SPLIT THE CLASS on the measured status and
-      rule `record-immutability`'s four `Status: record` targets separately.
+      (C3) read and suppress, or (C4) SPLIT THE CLASS on the measured status,
+      which SPLITS THIS ONE BOX INTO TWO rather than answering it (`design.md`'s
+      own words for what (C4) costs): (C4a) a (C1)/(C2)/(C3)-shaped choice for
+      `record-immutability`'s four `Status: record` targets ALONE, and (C4b) the
+      same three-way choice for the class's other eleven entries. (C4) NAMES
+      NEITHER OUTCOME BY ITSELF and does not close this box on its own; picking
+      it commits to (C4a) and (C4b) being answered before § 1.3 records a ruling.
       **This is the class with a live population: ten of the fifteen draw a
       finding today**, and (C4) exists because the status was measured directly
       rather than inferred from an archive-path prefix (`design.md` D0.2). This
       packet does NOT take (C4); it is put here so the split is ruled rather than
-      assumed away.
+      assumed away — and if it IS taken, (C4a)/(C4b) are asked beside it rather
+      than left implied.
 - [ ] 1.4 **CLASS D — `uncited-resolution` (1 entry).** Brett Heap rules between
       (D1a) RECORD THAT IT IS INERT AND LEAVE IT (**RECOMMENDED**), (D1b) teach
       the arm to read its own family's entries, or (D1c) retire the entry in

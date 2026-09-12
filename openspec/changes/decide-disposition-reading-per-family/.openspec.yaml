@@ -5,8 +5,11 @@ origin:
   id: openxFactory:adhoc:2026-09-11-decide-disposition-reading-per-family
   reason: >-
     THIRTY-ONE ENTRIES IN THE AGGREGATION'S `health/dispositions.yaml` BELONG TO
-    EIGHT FAMILIES, AND SEVEN OF THE EIGHT WERE NEVER TOLD WHAT AN ENTRY OF
-    THEIRS MEANS. The eighth, `modified-block-currency`, WAS: its promoted *A
+    EIGHT FAMILIES, AND SEVEN OF THE EIGHT HAVE NO FAMILY-SIDE READING TELLING
+    THEM WHAT AN ENTRY OF THEIRS MEANS FOR THEIR OWN FINDINGS — the ESTATE-WIDE
+    `report.uncited_resolutions` arm already gives most of their entries a
+    different, DERIVED effect, measured below. The eighth, `modified-block-currency`,
+    HAS ONE: its promoted *A
     finding is dispositioned* scenario rules its four entries and its module
     reads the file under its own name at
     `scripts/doc_health/modified_block_currency.py` (`fam_modified_block_currency`,
