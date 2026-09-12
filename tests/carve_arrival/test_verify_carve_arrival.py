@@ -2649,7 +2649,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "(`#656` comment 5642758731) and is no longer declared for "
         "opendox_code")
     assert opendox_seed["tests/test_source_core_arm.py"]["since"] == (
-        "7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08")
+        "b00fbd920a019e2cee816b4936f921ceeab67a8c")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
