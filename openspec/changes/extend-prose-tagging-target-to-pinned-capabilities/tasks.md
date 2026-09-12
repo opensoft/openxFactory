@@ -102,7 +102,12 @@ the later realization pull request, and § 4 is the archive act.
   of the arm that binds automatically, and without both the branch can be
   absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
-  finding (D-1.1); **(f)** a pinned target whose record declares a kind other than
+  finding whose ACTION TEXT is asserted VERBATIM and states that the pinned
+  form is admitted only in a candidate marker's `target=` attribute (D-1.1) —
+  "a finding" is not enough here, because the generic unresolved-`supersedes`
+  action would satisfy a laxer test while violating the scenario *A supersedes
+  marker carries the reserved pinned prefix*, whose THEN/AND pair requires that
+  sentence; **(f)** a pinned target whose record declares a kind other than
   `pinned_contract_manifest` does NOT resolve and emits a finding; **(g)** a
   pin record NAMED BY A LIVE MARKER whose `capabilities:` member is present but
   malformed — a scalar, a mapping, a null value, an EMPTY sequence, or a
@@ -117,7 +122,16 @@ the later realization pull request, and § 4 is the archive act.
   upper-case or empty component — emits a malformed-pinned-target finding, and
   the test asserts NO pin-record path was constructed and NO file was read for
   it, since validating after building a path is the defect this case exists to
-  prevent; **(i)** in-tree resolution is unchanged.
+  prevent; **(i)** in-tree resolution is unchanged; **(j)** EVERY NEW ACTION
+  STRING the arm introduces is added to the pinned table at
+  `tests/doc-health/test_families.py:751` (`EXPECTED_ACTIONS`, asserted by
+  `test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim`
+  through `assert_actions_pinned`, which requires the expected set to equal the
+  statically-present and behaviourally-emitted set EXACTLY, in both
+  directions). That table is where this family's remedy wording is held, so a
+  new arm that does not update it turns the suite red — and it is also what
+  stops the pin-registry remedy of (b) and the candidate-`target=` remedy of
+  (e) from drifting back to the in-tree string later.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.

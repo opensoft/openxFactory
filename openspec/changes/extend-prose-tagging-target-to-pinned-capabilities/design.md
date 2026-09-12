@@ -345,7 +345,9 @@ ratification, carrying four surfaces:
    naming the PIN REGISTRY; a fixture pin record that DOES enumerate
    capabilities emits nothing for a LISTED capability and a finding naming the
    enumeration for an UNLISTED one; a `supersedes` marker whose `spec=` value
-   carries the reserved `pinned:` prefix is REFUSED (D-1.1); a record of a kind
+   carries the reserved `pinned:` prefix is REFUSED with the EXACT remedy
+   sentence the scenario requires, asserted verbatim rather than as "a finding"
+   (D-1.1); a record of a kind
    other than `pinned_contract_manifest` does not resolve a pinned target; a
    PRESENT but malformed `capabilities:` member — an EMPTY sequence among the
    malformed shapes — emits a malformed-enumeration finding and the target
@@ -353,7 +355,14 @@ ratification, carrying four surfaces:
    grammar (extra `/` segments, a traversal or dotted component, an upper-case
    or empty component) emits a malformed-pinned-target finding with NO path
    built and NO pin lookup attempted; and the existing in-tree resolution is
-   unchanged.
+   unchanged. **And the family's own remedy pin moves with the arm**: every new
+   action string goes into `EXPECTED_ACTIONS` at
+   `tests/doc-health/test_families.py:751`, whose `assert_actions_pinned`
+   requires that set to equal what the family statically carries and
+   behaviourally emits, EXACTLY and in both directions — so a new arm that
+   skips it reddens the suite, and that table is what keeps the pin-registry
+   remedy and the candidate-`target=` remedy from drifting back to the in-tree
+   string.
 3. **The four markers**, retargeted to `target=pinned:openxwallet/openxwallet`
    — `openxwallet-neutral-home.md` lines 222, 242 and 280, and
    `notebook-access-wallet-governance.md` line 107 — together with
