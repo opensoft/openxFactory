@@ -224,6 +224,7 @@ rows:
   define-human-escalation-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   disposition-codexfactory-declared-renames: {state: active, class: sole, declares: absent, prose: false, moved_by: "#697", moved_on: "2026-09-05"}
   disposition-codexfactory-floor-relocation-retitle: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#898", moved_on: "2026-09-10"}
+  disposition-codexfactory-regular-pr-council-clearance-archive: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1004", moved_on: "2026-09-12"}
   enable-live-openxfactory: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   exclude-worktrees-from-notebook-projection: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   extend-merge-master-envelope-to-floor-bot-lanes: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:add-floor-regeneration-automation, add-substantive-review-lane], depth: 2, prose: false, moved_by: "#959", moved_on: "2026-09-11"}

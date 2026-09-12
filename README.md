@@ -531,6 +531,90 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [disposition-codexfactory-regular-pr-council-clearance-archive](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/proposal.md)
+  — authored 2026-09-11, lane `provenance-autonomous-merge` (session
+  `codeXfactory-3`), **`Status: ratified`** — **BY TWO WORDS, TWENTY-TWO MINUTES
+  APART, COVERING DIFFERENT THINGS.** *Word one, the ENTRIES:* Brett Heap,
+  2026-09-12T03:04:29.167Z, first-hand, in session, as a selection in a
+  multiple-choice round, verbatim ***"ratified_by — ratify the entries as
+  encoded"*** (recorded on openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862)),
+  answering the AUTHORITY-SPELLING question — this pin admits `ratified_by:` (a
+  convener's act) or `recorded_by:` (the weaker claim, a human ruling RECORDED
+  rather than given) and the draft carried the weaker. *Word two, the PACKET:*
+  Brett Heap, 2026-09-12T03:26:21.850Z, verbatim ***"ratify the openxFactory
+  disposition change when it's up"*** — **BARE** (it answers no question stated
+  in its own text) and **CONDITIONAL** on the DRAFT pull request existing, the
+  condition satisfied at PR
+  [#1004](https://github.com/opensoft/openxFactory/pull/1004)'s creation
+  **2026-09-12T14:57:26Z**, which is why the ratification is a SECOND commit on
+  that branch and not a rewrite of the first. The authoring process exited at
+  ~03:45Z before anything was committed, so **the word outlived its session and
+  was carried by the estate's own machinery**: the lane registry at
+  `opensoft/brett-wip` commit `1c27a188bb772c69b15d9acb94821b6e8122a1ab`,
+  `lanes/LANES.md`, row `provenance-autonomous-merge`, and the lane handoff —
+  and the encode cites those records rather than a relay.
+  **RATIFIED AS DISCLOSED**: each stated open item lands at the packet's
+  recommended default and stays flagged rather than resolved (`tasks.md` § 6).
+  **Neither word is the merge.** Record
+  [`review/ratification-2026-09-12.md`](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/review/ratification-2026-09-12.md).
+  **THE FIRST PACKET IN THIS CORPUS TO RETIRE A DISPOSITION, AND THE FIRST TO
+  PUT A SECOND CLASS INTO THE PIN'S LIST.** codeXfactory/codexFactory PR #434
+  (`archive/add-regular-pr-council-clearance`, head `87ea247f`) archives
+  `add-regular-pr-council-clearance`, and that ONE act does TWO things: it makes
+  this pin's `add-regular-pr-council-clearance / merge-master-approval/spec.md`
+  entry match nothing — **the exact event that entry's own `retires_when:` named,
+  in those words** — and it PROMOTES the retitle the entry was granted for into
+  codexFactory's `openspec/specs/merge-master-approval/spec.md`, replacing
+  canon's *"A human-authored pull request is never auto-approved"* with *"A
+  human-authored pull request is never approved by tier 1 alone"* and *"A
+  gate-integrity path is never approved autonomously"*. Two still-ACTIVE changes
+  — `extend-merge-master-envelope-to-floor-bot-lanes` and
+  `relocate-review-authority-floor` — hold their own `## MODIFIED` block for that
+  requirement, written against PRE-ARCHIVE canon. So
+  `contracts/openspec-cli-pin.yaml` goes **5 → 6** by ONE DELETION and TWO
+  ADDITIONS, and NO other field of the pin and NO surviving entry moves.
+  **NEITHER NEW ENTRY IS MARKER-BLINDNESS, WHICH IS WHY THE PIN'S OWN PROSE HAD
+  TO MOVE**: neither sibling block carries a reserved `Merged into` marker and
+  neither should — neither change performed the retitle, canon moved underneath
+  them — so the header's *"EVERY ENTRY BELOW IS THE SAME DISAGREEMENT, five
+  times"* is rewritten into TWO DECLARED CLASSES, and the two new entries cite
+  `doc-health`'s *Currency of an active change's MODIFIED requirement blocks*
+  (`openspec/specs/doc-health/spec.md:1597`) rather than the marker requirement.
+  **MEASURED FIVE WAYS, AND TWO OF THEM CHANGED WHAT THIS PACKET IS**
+  ([`evidence/codexfactory-regular-pr-council-clearance-archive-2026-09-11.md`](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/evidence/codexfactory-regular-pr-council-clearance-archive-2026-09-11.md)):
+  on #434's tree the pin on `main` exits **2** with the stale refusal naming one
+  entry; with ONLY that entry deleted it exits **1** with **two UNDISPOSITIONED**
+  — which is how the second half was discovered rather than assumed; with both
+  added it exits **0**, `Totals: 33 passed, 3 failed (36 items)` UNCHANGED and
+  `4 finding(s) are ACCEPTED EXCEPTIONS`; on openxFactory's own tree the gate's
+  literal `--all --no-cache` exits **0** with all four codexFactory entries
+  neither applied nor stale; and on codexFactory `main` (`3c31a2e4`), where #434
+  is still OPEN, this pin REFUSES `pin-disposition-stale` (**exit 2**) where the
+  pre-edit pin exits 0, because canon there still carries the old scenario title.
+  **So codexFactory's declared openxFactory pin MUST NOT advance to this change's
+  merge commit before #434 merges** — the advance lands together with the archive
+  or after it, never before. Brett ruled in the same exchange that lane
+  `codeXfactory-1` carries that advance (*"codeXfactory-1 carries it"*), sequenced
+  after that lane's #435 → #433. **The convener's ORDERING ruling is the citation
+  for carrying the finding at all**: *"This change first"* (Brett Heap,
+  2026-09-11, codexFactory
+  `hermes/domain/review-councils/records/2026-09-11-gate-rules-provenance-axis-declaration.md:656-659`,
+  § 8), so each sibling re-derives its block against the archived canon before its
+  own archive and **each re-derivation RETIRES its entry here** — these two are
+  written to be short-lived, unlike the four above. **NO SPEC DELTA, DECLARED**
+  (`skip_specs: true`, the corpus's third use): promoted `neutral-product-pin`
+  already states both clauses this packet exercises, and the first firing of the
+  retirement clause across a repository boundary is not an extension of it. Two
+  tests move deliberately: the count-pinning test **5 → 6** by a deletion and two
+  additions, and the citation test re-keyed from `item` to the
+  `(repo, item, path)` triple — **forced**, because
+  `relocate-review-authority-floor` now carries TWO entries with different
+  measurements and different words — plus a class map asserting the marker
+  citation **iff** the entry is marker-blindness, and the authority read through
+  both spellings the verifier has always admitted with a new assertion that
+  exactly one stands. `sequenced_after: []`.
+
 - [decide-disposition-reading-per-family](openspec/changes/decide-disposition-reading-per-family/proposal.md)
   — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** (2026-09-12T15:45:25Z, Brett Heap, openxFactory
