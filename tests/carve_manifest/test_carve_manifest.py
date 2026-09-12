@@ -1936,6 +1936,22 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
 
+    # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
+    # review, PR #995) — the aggregate `(866, 150)` above would still pass if
+    # these four had landed on the wrong rows, under the wrong class, or as a
+    # different four line numbers that happened to sum to the same total.
+    # Named individually, on the same `(class, lines)` idiom the replica row's
+    # check above already uses.
+    cli_row = rows["scripts/ideation_dashboard/cli.py"]
+    ask7_cli = [(edit["class"], edit["lines"]) for edit in cli_row["edits"]
+                if edit["lines"] == [834]]
+    assert ask7_cli == [("path constants", [834])], cli_row
+
+    serve_row = rows["scripts/ideation_dashboard/serve.py"]
+    ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                  if edit["lines"] == [155, 725, 1338]]
+    assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
+
 
 # --------------------------------------------------------------------------
 # ONE DEFINITION OF A LINE, SHARED WITH THE ARRIVAL VERIFIER
