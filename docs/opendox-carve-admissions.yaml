@@ -82,9 +82,18 @@ destinations:
       - path: src/opendox/profile_proxy.py
         reason: "added by openDox-code #11 (the 4.3 lazy proxy)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/web/views/intent-binding.js
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731; split-opendox § 3.4 slice S2) — the intent-feed chips' optional contributed binding; PR not yet opened/merged, this admission PR lands first per Q-L1"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: tests/test_intent_binding_dom.py
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml like its test_intent_tray_dom.py / test_wheel_verbs_dom.py siblings (RULED Q-L5 (b'))"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_intent_binding_shape.py
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — the shape assertion validate.yml runs"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
       - path: tests/test_profile_registration.py
         reason: "added by openDox-code #11 (the 4.3 registration tests)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"

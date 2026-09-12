@@ -1893,6 +1893,12 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     one line its copies must differ on. A BRANCH and never a skip, on the
     module docstring's reasoning — before the § 6 ceremony there is no manifest
     to read.
+
+    Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
+    Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
+    #1002: the AGGREGATE (lines, carrying) count below would stay green even
+    if those three lines had landed on the wrong row or under the wrong edit
+    class, so the exact row/disposition/class/lines are pinned here too.
     """
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     if not manifest.is_file():
@@ -1916,28 +1922,48 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # unconditionally, which is why one amendment carries both.
     assert "session_fixtures" in replica["evidence"], replica
 
+    # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2): the
+    # exact row/disposition/class/lines the aggregate count below cannot tell
+    # apart from a same-sized drift elsewhere (Copilot review, PR #1002).
+    dispose = rows["scripts/ideation_dashboard/web/views/dispose.js"]
+    assert dispose["disposition"] == "moved_with_declared_edit", dispose
+    assert dispose["destination"] == "opendox_code", dispose
+    assert [(edit["class"], edit["lines"]) for edit in dispose["edits"]] == \
+        [("import rewrites", [26])], dispose
+
+    wheel = rows["scripts/ideation_dashboard/web/views/wheel.js"]
+    assert wheel["disposition"] == "moved_with_declared_edit", wheel
+    assert wheel["destination"] == "opendox_code", wheel
+    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == \
+        [("import rewrites", [75, 76])], wheel
+
     # And the counts this amendment moved, re-derived from the file rather than
     # transcribed: one more declared line than the 793 the runbook's § 2 table
     # carried before it, on one more row than the 146 that carried edits — and
     # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
     # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
     # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
-    # rows. Then the ASK-7 DECLARED-EDIT WINDOW of 2026-09-11 (`#656` comment
-    # `5635150678`, ASK-7 → 1) added 4 more declared lines to two rows that
-    # ALREADY carried `edits:` — the cli.py and serve.py docstring/comment
-    # lines — so `carrying` does not move: 862 + 4 = 866 on the same 150 rows.
+    # rows. Then the ASK-7 DECLARED-EDIT WINDOW of 2026-09-11 (`#656`
+    # comment `5635150678`, ASK-7 → 1) added 4 more declared lines to two
+    # rows that ALREADY carried `edits:` — the cli.py and serve.py
+    # docstring/comment lines — so `carrying` does not move: 862 + 4 = 866
+    # on the same 150 rows. Then the Q-L1 ANNOTATION of 2026-09-11 (RULED
+    # Q5, `#656` comment `5642758731`, split-opendox § 3.4 slice S2) moved
+    # both again, by 3 lines over two rows (`dispose.js` line 26, `wheel.js`
+    # lines 75-76), neither of which carried `edits:` before. 866 + 3 = 869
+    # on 150 + 2 = 152 rows.
     # Re-derived here for the same reason as before: a transcribed count is a
     # claim, a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (866, 150), (lines, carrying)
+    assert (lines, carrying) == (869, 152), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
-    # review, PR #995) — the aggregate `(866, 150)` above would still pass if
+    # review, PR #995) — the aggregate `(869, 152)` above would still pass if
     # these four had landed on the wrong rows, under the wrong class, or as a
     # different four line numbers that happened to sum to the same total.
     # Named individually, on the same `(class, lines)` idiom the replica row's
