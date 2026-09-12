@@ -1784,7 +1784,12 @@ def test_release_membership_includes_clearing_family_when_present(
     # Same digest rule as every other member (raw Git blob bytes) and no
     # schema_id/schema_version pin: the clearing family's own manifest rows
     # already carry that pin, so this inventory only has to record the bytes.
+    # Both halves of the pin are checked (Copilot review,
+    # PRRT_kwDOTAvnrs6hsjoh): an implementation that fabricated
+    # `schema_version` alone while leaving `schema_id` absent would have
+    # passed the single-field check.
     assert "schema_id" not in schema_entry
+    assert "schema_version" not in schema_entry
 
     registry_entry = entries["contracts/clearing/permitted-operations.registry.yaml"]
     assert registry_entry["type"] == "documentation"
