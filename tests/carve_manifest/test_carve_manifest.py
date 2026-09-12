@@ -2091,7 +2091,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 906 line numbers were written in the numbering this
+    The manifest's 909 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would
