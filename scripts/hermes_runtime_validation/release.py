@@ -81,11 +81,29 @@ INTENT_REQUIRED_REGISTRATIONS = (
     ),
 )
 
+# The `contracts/clearing/` family (openxFactory issue #722): registered in
+# `contracts/manifest.yaml`'s generic `contracts:` list with its own per-row
+# sha256 — a closed-corpus mechanism `scripts/validate-clearing-dispatch.py`
+# and `tests/clearing/test_clearing_manifest_rows.py` already enforce — but
+# never a member of THIS inventory: `FAMILY_PREFIX` never pointed at it and no
+# other block swept its paths in, so a cut's release-digest inventory stayed
+# silent on the clearing family's contract bytes even across cuts that
+# registered new clearing schemas. Unlike `INTENT_CONTRACT_PREFIX` above, this
+# family needs no release-floor or registration-completeness invariant of its
+# own: the manifest rows already close that corpus, so `_collect_members`
+# below only has to sweep the family's tree into the same closed membership
+# every other family joins, conditional on presence alone (the same
+# "join only when present at the source" reading `NORMATIVE_DOCS` uses).
+CLEARING_CONTRACT_PREFIX = "contracts/clearing"
+CLEARING_TEST_PACKAGE = "tests/clearing"
+CLEARING_VALIDATOR_PATH = "scripts/validate-clearing-dispatch.py"
+
 NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
     "scripts/validate-ideation-dashboard-contracts.py",
+    CLEARING_VALIDATOR_PATH,
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",
@@ -763,6 +781,17 @@ def _collect_members(
             members.add(member)
         members.add(INTENT_VALIDATOR_PATH)
         members.add("scripts/__init__.py")
+
+    # Clearing family (issue #722): the whole `contracts/clearing/` tree
+    # (schemas, registry instance, README, packaged examples) plus its pytest
+    # wiring join the closed membership whenever they are present at the
+    # source — empty (not an error) before the family existed, at
+    # `contract-v3.2` and earlier. `CLEARING_VALIDATOR_PATH` joins through the
+    # `NAMED_VALIDATORS` loop below, which already guards on `source.exists`.
+    for member in source.list_files(CLEARING_CONTRACT_PREFIX):
+        members.add(member)
+    for member in source.list_python(CLEARING_TEST_PACKAGE):
+        members.add(member)
 
     fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)
     if not isinstance(fixture_index, Mapping):

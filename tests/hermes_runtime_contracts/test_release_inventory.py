@@ -1702,6 +1702,122 @@ def test_two_entries_normalizing_to_one_member_fail_closed(tmp_path: Path) -> No
     assert "normalize" in str(excinfo.value) or "collision" in str(excinfo.value)
 
 
+# ---- contracts/clearing/ family membership (issue #722) ---------------------
+#
+# The clearing family has its own closed-corpus mechanism — per-row sha256
+# inside `contracts/manifest.yaml` itself, enforced by
+# `scripts/validate-clearing-dispatch.py` and
+# `tests/clearing/test_clearing_manifest_rows.py` — and none of that changes
+# here. What these prove is the SEPARATE, general release-digest inventory:
+# before this fix `FAMILY_PREFIX` never pointed at `contracts/clearing/` and no
+# other block swept its paths in, so the family's contract bytes were silent in
+# a cut's inventory even when a governed change registered a new clearing
+# schema in the same cut. These pin the fix: the family joins when present,
+# with the same digest rule as every other member, and stays silent — not an
+# error — when it is absent (a pre-`contract-v3.3` repo).
+
+CLEARING_SCHEMA_YAML = "kind: xfactory_clearing_dispatch_record\n"
+CLEARING_REGISTRY_YAML = (
+    "kind: xfactory_clearing_permitted_operations_registry\nentries: []\n"
+)
+CLEARING_README_MD = "# clearing\n"
+CLEARING_TEST_PY = "def test_placeholder() -> None:\n    assert True\n"
+CLEARING_VALIDATOR_PY = '#!/usr/bin/env python3\n"""stub clearing validator"""\n'
+
+
+def _add_clearing_family(repo: Path) -> None:
+    _write_tree(
+        repo,
+        {
+            "contracts/clearing/README.md": CLEARING_README_MD,
+            "contracts/clearing/dispatch-record.schema.yaml": CLEARING_SCHEMA_YAML,
+            "contracts/clearing/permitted-operations.registry.yaml": (
+                CLEARING_REGISTRY_YAML
+            ),
+            "contracts/clearing/examples/dispatch-record-cleared.example.yaml": (
+                CLEARING_SCHEMA_YAML
+            ),
+            "tests/clearing/test_schemas.py": CLEARING_TEST_PY,
+            "scripts/validate-clearing-dispatch.py": CLEARING_VALIDATOR_PY,
+        },
+    )
+
+
+def test_release_membership_excludes_clearing_family_when_absent(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    assert not any(m.startswith("contracts/clearing/") for m in members)
+    assert not any(m.startswith("tests/clearing/") for m in members)
+    assert "scripts/validate-clearing-dispatch.py" not in members
+
+
+def test_release_membership_includes_clearing_family_when_present(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    _add_clearing_family(repo)
+    commit = _commit_all(repo, "add clearing family")
+
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    expected = {
+        "contracts/clearing/README.md",
+        "contracts/clearing/dispatch-record.schema.yaml",
+        "contracts/clearing/permitted-operations.registry.yaml",
+        "contracts/clearing/examples/dispatch-record-cleared.example.yaml",
+        "tests/clearing/test_schemas.py",
+        "scripts/validate-clearing-dispatch.py",
+    }
+    assert expected <= members
+
+    inventory = release.build_release_inventory(repo, bundle_tag=SYNTHETIC_TAG)
+    entries = {
+        e["path"]: e for e in inventory["entries"] if isinstance(e, dict)
+    }
+
+    schema_entry = entries["contracts/clearing/dispatch-record.schema.yaml"]
+    assert schema_entry["type"] == "schema"
+    assert schema_entry["digest"] == (
+        "sha256:" + hashlib.sha256(CLEARING_SCHEMA_YAML.encode("utf-8")).hexdigest()
+    )
+    # Same digest rule as every other member (raw Git blob bytes) and no
+    # schema_id/schema_version pin: the clearing family's own manifest rows
+    # already carry that pin, so this inventory only has to record the bytes.
+    assert "schema_id" not in schema_entry
+
+    registry_entry = entries["contracts/clearing/permitted-operations.registry.yaml"]
+    assert registry_entry["type"] == "documentation"
+
+    validator_entry = entries["scripts/validate-clearing-dispatch.py"]
+    assert validator_entry["type"] == "validator"
+
+    readme_entry = entries["contracts/clearing/README.md"]
+    assert readme_entry["type"] == "documentation"
+
+    # No dependency error and no fail-closed path: unlike intent-compliance,
+    # this family carries no registration-completeness invariant of its own,
+    # so a plain round trip (build from the working tree, verify against the
+    # exact commit) must be clean.
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
+def test_release_membership_clearing_joins_are_independent_of_each_other(
+    tmp_path: Path,
+) -> None:
+    """Each of the three clearing joins — the contracts tree, the test
+    package, the named validator — is its own presence check. One present
+    without the others does not pull the others in and does not error."""
+    repo, _ = _synthetic_repo(tmp_path)
+    _write_tree(repo, {"contracts/clearing/README.md": CLEARING_README_MD})
+    _commit_all(repo, "add only the clearing contracts tree")
+
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    assert "contracts/clearing/README.md" in members
+    assert not any(m.startswith("tests/clearing/") for m in members)
+    assert "scripts/validate-clearing-dispatch.py" not in members
+
+
 # --- content-resolution conflation (fix-content-resolution-conflation) --------
 #
 # `_blob_object_id` and `_CommitSource.exists` reduce a content resolution to a
