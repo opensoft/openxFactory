@@ -628,13 +628,15 @@ Active changes:
   repairs #791 + #792" (in session, 2026-09-12 ~01:55Z; recorded on
   openxFactory #791 comment
   [5642768645](https://github.com/opensoft/openxFactory/issues/791#issuecomment-5642768645)).
-  **Scoped to #791 only**: the same pick's other half, #792 (repointing
-  `ideation/cross-reference.yaml`'s `possibles_register`), is disposed
-  SEPARATELY and is not part of this packet — Brett Heap, 2026-09-12
-  ~15:30Z, "Retain the original provenance; close #792 by recorded
-  disposition" (openxFactory #745; issue #792 closed by its own recorded
+  **Scoped to #791 only**: the same pick's other half, issue 792
+  (repointing `ideation/cross-reference.yaml`'s `possibles_register`), is
+  disposed SEPARATELY and is not part of this packet — Brett Heap,
+  2026-09-12 ~15:30Z, selected the option retaining the register's original
+  provenance and disposing of issue 792 by that recorded closure (exact
+  option text on openxFactory #745, not repeated here). Issue 792 is now
+  closed by its own recorded
   comment
-  [5646918211](https://github.com/opensoft/openxFactory/issues/792#issuecomment-5646918211)).
+  [5646918211](https://github.com/opensoft/openxFactory/issues/792#issuecomment-5646918211).
   Ratifying and archiving the delta onto the promoted spec is an
   **(OPERATOR)** follow-up (`tasks.md` 1.2). PR
   [#998](https://github.com/opensoft/openxFactory/pull/998). Refs

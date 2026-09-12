@@ -23,17 +23,19 @@ origin:
     verbatim, for "a small MODIFIED-requirement OpenSpec amendment to
     chain-anchoring" doing exactly what this packet's chain-anchoring delta
     does.
-    THIS PACKET IS NARROWED TO #791 ONLY. The pick's other half, #792
+    THIS PACKET IS NARROWED TO #791 ONLY. The pick's other half, issue 792
     (repointing `ideation/cross-reference.yaml`'s `possibles_register`), is
     DISPOSED SEPARATELY and is not part of this packet's scope: Brett Heap,
-    2026-09-12 ~15:30Z, in session, multi-choice SELECTION "Retain the
-    original provenance; close #792 by recorded disposition" (recorded on
-    openxFactory #745). Issue #792 is CLOSED by its own recorded comment
-    (5646918211, 2026-09-12T15:44:35Z), which supersedes this lane's earlier
-    #792 CLAIMED comment (5642768762) — no `possibles_register` edit is made
-    by this packet or any other, now or later, for that cause. No staging
-    topic precedes issue #791, so drafting fields are carried and no
-    approval is claimed.
+    2026-09-12 ~15:30Z, in session, selected the multi-choice option
+    retaining the register's original provenance and disposing of issue 792
+    by that recorded closure (option text preserved verbatim on openxFactory
+    #745, not repeated here to avoid an accidental closing-keyword
+    adjacency in this file). Issue 792 is now CLOSED by its own recorded
+    comment (5646918211, 2026-09-12T15:44:35Z on that issue), which
+    supersedes this lane's earlier CLAIMED comment there (5642768762) — no
+    `possibles_register` edit is made by this packet or any other, now or
+    later, for that cause. No staging topic precedes issue #791, so
+    drafting fields are carried and no approval is claimed.
   proposed_by: >-
     Brett Heap (openxFactory repository owner), a multi-choice SELECTION in
     session, 2026-09-12 ~01:55Z, reading "Doc-link repairs #791 + #792" —
