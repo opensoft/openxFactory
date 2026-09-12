@@ -668,6 +668,58 @@ Active changes:
   further act on merged-plus-green realization evidence at canon's grain and a
   further word — and #965 closes at the ARCHIVE and not at this ratification.
 
+- [gate-realization-axis-vocabulary](openspec/changes/gate-realization-axis-vocabulary/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: ratified`** (2026-09-12 at 15:45Z, Brett Heap, openxFactory
+  operator authority, first-hand, in session — THREE INDEPENDENT
+  MULTIPLE-CHOICE RULINGS over `design.md`'s three declared veto points, the
+  recommendation presented first in each, given verbatim as ***"do all as
+  recomended"*** and recorded item by item on PR
+  [#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
+  at 2026-09-12T15:45:19Z: **D1 *"Keep and gate"*** (not *"Admit none"*, not
+  *"Rule none a synonym"*), **D2 *"Sweep in this PR"*** (not *"Each owning lane
+  sweeps"*, not *"Register all 26"*), **D3 *"Resolve against the registry that
+  exists"*** (not *"Resolve literally"*, not *"Accept any release-shaped
+  token"*)) — record
+  [`review/ratification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/ratification-2026-09-12.md),
+  gate set re-derived on the ratified tree at
+  [`review/verification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/verification-2026-09-12.md).
+  **ALL THREE ARE THE RECOMMENDED AND ALREADY-ENCODED OPTIONS, SO THE WORDING
+  STANDS UNCHANGED**; D0 and D4–D7 were carried beside them and none was
+  vetoed. The earlier word of 2026-09-11T12:08:24Z, verbatim ***"land each when
+  green, archive both when landed, claim 955 and 956"***, COMMISSIONED THE
+  AUTHORING under its "claim 956" clause and ratified no wording; it stays the
+  origin in `.openspec.yaml`, where the approval pair is a pure ADDITION beside
+  a byte-unmoved `origin:` block. Origin openxFactory
+  [#956](https://github.com/opensoft/openxFactory/issues/956), the named
+  successor owed by `amend-repo-boundary-governance-scope-first-line`
+  `tasks.md` § 6.8. ONE `## ADDED Requirements` block in `release-realization`
+  — *Realization axis vocabulary is gated* — with **no MODIFIED block**, so no
+  collision with the active `add-structured-scope-substrate` and no
+  `sequenced_after` hold. Measured at authoring on `38c076d1`: of **38** active
+  proposals only **12** declare a value the ratified two-value vocabulary
+  admits (9 `implemented`, 3 a release this estate defines); **26** are
+  outside it, **12** of those because `docs/contract-versioning-policy.md`
+  § Bundle Realization Order allocates bundle versions LATE. The realization
+  rides the same pull request (`scripts/validate-target-release.py`,
+  `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
+  entries, CLOSED against a baseline the validator carries — and 86 tests),
+  which corrects the **six** active off-vocabulary carriers to `implemented`
+  and leaves the archive's **61** off-vocabulary records as frozen record. D2's
+  ruled option sweeps the corpus AS IT STANDS, so the population was re-measured
+  at the ratified head (the merge of `origin/main` `1f068646`) and is SIX, not
+  the five the drafting corpus carried: the sixth,
+  `amend-kill-switch-to-declared-test-companion`, landed on main with
+  [#959](https://github.com/opensoft/openxFactory/pull/959) declaring no leading
+  token at all, was swept by the same one-token correction, and could not be
+  registered instead because D1's ruled option keeps the register CLOSED
+  (`design.md` D2a). Re-measured after: **0** active declarations outside the
+  vocabulary. **RATIFICATION ONLY — the realization rides this pull request but
+  the ARCHIVE is a separate later act on a separate word:** `code_surface` is
+  non-empty, so under `release-realization` this packet archives on
+  merged-plus-green realization evidence at canon's grain. Nothing is promoted;
+  `tasks.md` § 5 and § 6 stay entirely open; #956 closes at the ARCHIVE and at
+  no earlier landing.
 - [rule-inherited-unit-naming-marker-spent](openspec/changes/rule-inherited-unit-naming-marker-spent/proposal.md)
   — authored 2026-09-11, **`Status: ratified`** (2026-09-12, Brett Heap,
   openxFactory operator authority, verbatim *"do all as recomended"* — a
