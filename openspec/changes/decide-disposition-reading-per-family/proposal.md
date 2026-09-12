@@ -147,9 +147,11 @@ entries** — against an aggregation-shaped checkout carrying `openxFactory`
   row admission to the contested set (the anti-echo of issue #515), so no key of
   that family ever reaches the lookup. Measured: 31 synthetic rows in, 30
   admitted, and the one refused is that entry.
-- **NONE OF THE THIRTY-ONE MOVES A STANDING ROW.** The control run — the real
-  file replaced by `[]` — produces byte-identical row sets for all five
-  deterministic families that hold entries.
+- **NONE OF THE THIRTY-ONE MOVES A STANDING DETERMINISTIC-FAMILY ROW.** The
+  control run — the real file replaced by `[]` — produces byte-identical row
+  sets for all five deterministic families that hold entries; the SEPARATE
+  uncited-resolution derived effect (30 findings without the file, 0 with it,
+  above) is not "no report row moves" and is not what this headline claims.
 - **AND ELEVEN OF THEM NAME A PATH THAT NO LONGER EXISTS** in the repository
   they name, so AT THE MEASURED CHECKOUT no FAMILY-SIDE arm matches them — every
   such arm keys an entry against a finding the family raised off the tree, and

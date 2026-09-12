@@ -327,11 +327,13 @@ fifteen into the second.
 - **(C4) SPLIT THE CLASS ON THE MEASURED STATUS** — `record-immutability`'s four
   `Status: record` targets ruled separately from the rest, on the ground that a
   record's repair is a REVERT-OR-REISSUE rather than an edit. Cost and honest
-  statement of it: this is the only option here that could carry the parent's
-  downgrade reading into any of this population, and it is put as an option
-  BECAUSE THE MEASUREMENT SUPPORTS PUTTING IT — but it splits one ruling into
-  two, and the three `critical` rows it would move are rows whose own disposer
-  wrote that the CRITICAL "is NOT suppressible and is reported live either way".
+  statement of it: (C2) ALREADY carries the parent's downgrade reading into
+  this WHOLE population, so downgrading is not what distinguishes (C4) — its
+  distinct value is giving the `Status: record` subset a SEPARATE ruling from
+  the rest, put as an option BECAUSE THE MEASUREMENT SUPPORTS PUTTING IT — but
+  it splits one ruling into two, and the three `critical` rows it would move
+  are rows whose own disposer wrote that the CRITICAL "is NOT suppressible and
+  is reported live either way".
   **This packet does not take it**; a class is Brett Heap's to rule, and the
   recommendation above remains (C1).
 
