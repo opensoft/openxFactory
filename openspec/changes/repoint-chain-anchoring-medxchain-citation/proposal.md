@@ -6,6 +6,7 @@ code_surface: none — this change edits only the PROVENANCE citation text insid
   realize).
 target_release: none — a citation-text-only spec amendment; nothing to release
   or pin.
+Status: draft
 ---
 
 # Proposal: repoint-chain-anchoring-medxchain-citation

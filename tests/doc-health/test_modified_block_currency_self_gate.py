@@ -815,6 +815,26 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id,
     # at any path.
+    # ADDED 2026-09-12 BY `repoint-chain-anchoring-medxchain-citation`
+    # (openxFactory issue #791) — THREE ROWS, one per MODIFIED requirement,
+    # because the packet repoints four dead MedxChain-notes citations across
+    # three requirements of promoted `chain-anchoring` canon after PR #785
+    # (merged 2026-09-08) moved the source note out to
+    # `MedxSoft/MedxFactory@74bed502`. Each row's uncarried units are exactly
+    # the stale "the source is not in the tree yet / vendored by pull request
+    # #509, IN FLIGHT" sentences the repoint replaces with the verified
+    # destination, cited as historical provenance only — a deliberate
+    # provenance-text rewording, not a lossy carriage: no SHALL/SHALL NOT
+    # obligation, scenario, or requirement title changes anywhere in the
+    # block. Retires when the packet archives and its three blocks are
+    # promoted onto `openspec/specs/chain-anchoring/spec.md` (tasks.md 1.2).
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "Served verification and access decisions are logged leaves"),
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "The record and demographic planes are analyzable without the "
+     "identity plane"),
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "This capability is neutral and names no domain semantics"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"

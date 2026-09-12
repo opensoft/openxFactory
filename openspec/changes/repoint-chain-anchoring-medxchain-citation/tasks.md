@@ -1,5 +1,7 @@
 # Tasks — repoint-chain-anchoring-medxchain-citation
 
+Status: draft
+
 ## 1. Repoint the dead citation
 
 - [x] 1.1 Repoint the four MedxChain-notes citations across the three affected
