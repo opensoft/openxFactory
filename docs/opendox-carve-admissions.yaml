@@ -85,9 +85,18 @@ destinations:
       - path: src/opendox/view_extension.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the server-side view registry, `ViewBinding` + `collectViewBindings`, mirroring `route_extension.collect_bindings` (openDox-spec `docs/front-end-package-boundary.md` § 4.1); this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
+      - path: src/opendox/web/views/gate-lens.js
+        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — the lens gate's own class-B module, holding `LENS_SAVE_ROUTE` / `LENS_CLUSTER_ROUTE` moved off `views/lens-model.js`, mounted through S3's registry as the `gate.lens` binding; this admission PR lands first per Q-L1"
+        since: "031edc9b4268d9898c296b2e9bb3951a78642fb6"
+      - path: src/opendox/web/views/gate-projects.js
+        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — the project gate's own class-B module, holding `ACTIONS_CREATE_PROJECT_ROUTE` / `ACTIONS_EDIT_PROJECT_ROUTE` moved off `views/repo-selector.js`, mounted through S3's registry as the `gate.projects` binding; this admission PR lands first per Q-L1"
+        since: "031edc9b4268d9898c296b2e9bb3951a78642fb6"
       - path: src/opendox/web/views/intent-binding.js
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731; split-opendox § 3.4 slice S2) — the intent-feed chips' optional contributed binding; PR not yet opened/merged, this admission PR lands first per Q-L1"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: src/opendox/web/views/projection-index.js
+        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — `SNAPSHOT_INDEX_ROUTE` moved off `views/repo-selector.js`; not a `ViewBinding` (an index fetch mounts no panel and occupies no region, § 4.2), reached through a dynamic `import()` inside `fetchIndex` instead; this admission PR lands first per Q-L1"
+        since: "031edc9b4268d9898c296b2e9bb3951a78642fb6"
       - path: src/opendox/web/views/view_extension.js
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the client-side view registry, the § 2.4/§ 4.3 seam counterpart `app.js`'s row annotation names; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
@@ -109,6 +118,9 @@ destinations:
       - path: tests/test_source_core_arm.py
         reason: "added by opensoft/openDox-code build/s6-source-core-arm (PR #16, split-opendox § 3.4 slice S6, RULED Q4, `#656` comment `5642758731`) — the runnable half of the /source re-homing: 25 shape assertions over the route's ownership, its exact-before-prefix dispatch order, its single containment authority, its content types and its three refusals, on validate.yml's explicit list; this admission PR lands first per Q-L1"
         since: "b00fbd920a019e2cee816b4936f921ceeab67a8c"
+      - path: tests/test_split_route_tails.py
+        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — 29 node-driven assertions over the three new class-B modules and the five route tails they receive (two to `gate-lens.js`, two to `gate-projects.js`, one to `projection-index.js`; the other eight of the thirteen counted route constants arrive at the existing SWB modules, are removed, or stay in place), named on validate.yml's explicit list in the same commit; this admission PR lands first per Q-L1"
+        since: "2e842178b2bceaee9a45441b7d70d797fe1205cf"
       - path: tests/test_view_registry.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the registry's own tests; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "cb810d39737bf50bbe87e5700177c2e5ce2750da"
