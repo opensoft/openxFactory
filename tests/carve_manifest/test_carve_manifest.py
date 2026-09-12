@@ -1963,7 +1963,21 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # lines back, so the three quotations of the tab router's field names
     # are invalidated by the `app.js` edit and are migrated in the same act.
     # 869 + 37 + 3 = 909 on 152 + 1 = 153 rows — the second row is not a new
-    # carrier.
+    # carrier. AND THEN THE OPENDOX-CODE #14 FIX ROUND'S CATCH-UP (openxFactory
+    # #1001, extended after landing) moved `lines` once more: running
+    # `verify-carve-arrival.py --destination opendox_code --phase B` against
+    # openDox-code's post-Copilot-re-review head
+    # (`e176947dd3691fa96b285575910989ed77e09181`) found one more undeclared
+    # edit — `test_the_doc_tab_is_wired_to_the_one_cross_view_jump` in
+    # `tests/ideation-dashboard/test_doc_surfaces.py` quoted `app.js`'s pre-S3
+    # `{ tab: "tab-docs"` shape and was migrated to the registry shape in that
+    # same fix round (Copilot finding "docs-tab migration"), the same
+    # one-token-class migration `test_bullseye_widget.py` already took; the
+    # `app.js` row itself needed no new declaration (the fix round's other two
+    # findings — the gate bar's declared-entry mount and a view-registry
+    # isolation fixture — both fall inside lines already declared on that row
+    # or outside any arrived file). `test_doc_surfaces.py` already carried an
+    # edit, so it is not a new carrier. 909 + 1 = 910 on the same 153 rows.
     #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
     # document itself states each act as a DELTA (see the manifest's own
@@ -1974,13 +1988,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (909, 153), (lines, carrying)
+    assert (lines, carrying) == (910, 153), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
-    # review, PR #995) — the aggregate `(909, 153)` above would still pass if
+    # review, PR #995) — the aggregate `(910, 153)` above would still pass if
     # these four had landed on the wrong rows, under the wrong class, or as a
     # different four line numbers that happened to sum to the same total.
     # Named individually, on the same `(class, lines)` idiom the replica row's
@@ -2023,6 +2037,19 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
                    for edit in bullseye_row["edits"]
                    if edit["lines"] == [900, 1781, 1785]]
     assert s3_bullseye == [("adapter calls", [900, 1781, 1785])], bullseye_row
+
+    # THE OPENDOX-CODE #14 FIX ROUND'S CATCH-UP, PINNED THE SAME WAY (openxFactory
+    # #1001, extended after landing) — on the same reasoning as the two pins
+    # above: the aggregate assertion would still pass if this line had landed
+    # on the wrong row or under the wrong class. `test_doc_surfaces.py`
+    # already carried an unrelated `path constants` edit (line 39), so its new
+    # entry is picked out by its lines, the same idiom `test_bullseye_widget.py`
+    # and `serve.py` use above.
+    doc_surfaces_row = rows["tests/ideation-dashboard/test_doc_surfaces.py"]
+    s3_doc_surfaces = [(edit["class"], edit["lines"])
+                        for edit in doc_surfaces_row["edits"]
+                        if edit["lines"] == [290]]
+    assert s3_doc_surfaces == [("adapter calls", [290])], doc_surfaces_row
 
 
 # --------------------------------------------------------------------------
@@ -2091,7 +2118,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 909 line numbers were written in the numbering this
+    The manifest's 910 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would
