@@ -269,6 +269,7 @@ rows:
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  rule-inherited-unit-naming-marker-spent: {state: active, class: co-modifier, declares: [amend-merged-into-empty-tail-standing], depth: 1, prose: false, moved_by: "#962", moved_on: "2026-09-12"}
   sanction-ratified-record-spelling: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   settle-aging-staging-topics: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-ideation-book-per-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
