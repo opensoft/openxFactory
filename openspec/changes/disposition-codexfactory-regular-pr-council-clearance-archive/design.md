@@ -1,6 +1,7 @@
 # Design: disposition-codexfactory-regular-pr-council-clearance-archive
 
-Status: draft
+Status: ratified
+Ratified by: disposition-codexfactory-regular-pr-council-clearance-archive — 2026-09-12, Brett Heap, "ratify the openxFactory disposition change when it's up" (2026-09-12T03:26:21.850Z, bare and conditional; condition satisfied at PR #1004's creation 2026-09-12T14:57:26Z; RATIFIED AS DISCLOSED; record `review/ratification-2026-09-12.md`)
 Date: 2026-09-11
 Kind: design
 
@@ -186,6 +187,12 @@ whose prose describes a list it no longer has is a pin nobody can review.
 * **It does not claim the sibling packets' work.** Neither re-derivation is
   ticked, drafted or begun here. The entries carry the finding; the packets pay
   the line.
-* **It does not claim a ratification it was not given.** Brett's word ratifies
+* **It does not claim a ratification it was not given.** ~~Brett's word ratifies
   the two ENTRIES as encoded. `proposal.md`, `design.md` and `tasks.md` carry
-  `Status: draft` and the pull request is DRAFT.
+  `Status: draft` and the pull request is DRAFT.~~ — **STRUCK, not deleted**:
+  true of word one (2026-09-12T03:04:29.167Z, the entries) and superseded by
+  word two (2026-09-12T03:26:21.850Z, *"ratify the openxFactory disposition
+  change when it's up"*, bare and conditional, its condition satisfied at PR
+  #1004's creation 2026-09-12T14:57:26Z), which ratifies THIS TEXT. **The merge
+  is still a further, separate act and is not covered**: the pull request stays
+  DRAFT and lands under Rule 6, not by the authoring seat.

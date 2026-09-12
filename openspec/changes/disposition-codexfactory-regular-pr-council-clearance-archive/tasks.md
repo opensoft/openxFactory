@@ -1,6 +1,7 @@
 # Tasks: disposition-codexfactory-regular-pr-council-clearance-archive
 
-Status: draft
+Status: ratified
+Ratified by: disposition-codexfactory-regular-pr-council-clearance-archive — 2026-09-12, Brett Heap, "ratify the openxFactory disposition change when it's up" (2026-09-12T03:26:21.850Z, bare and conditional; condition satisfied at PR #1004's creation 2026-09-12T14:57:26Z; RATIFIED AS DISCLOSED; record `review/ratification-2026-09-12.md`)
 Kind: tasks
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
@@ -9,12 +10,19 @@ this pull request or a run recorded verbatim in
 Group 6 is OWED work belonging to OTHER repositories and OTHER packets, and is
 deliberately unticked, each box naming whose it is.
 
-**THE ENTRIES ARE RATIFIED AND THIS FILE IS NOT**, which is why 6.4 is ticked
-and the header says `draft`. Brett Heap's word of 2026-09-12T03:04:29.167Z,
-verbatim *"ratified_by — ratify the entries as encoded"*, was given on the
-authority-field question and ratifies the two entries' text. It is not a word on
-this packet's prose and it is not a merge; both are further, separate acts and
-neither is ticked anywhere in this file.
+**TWO WORDS RATIFY TWO DIFFERENT THINGS, WHICH IS WHY 6.4 AND 6.6 ARE BOTH
+TICKED AND THE HEADER NOW SAYS `ratified`.** Word one, 2026-09-12T03:04:29.167Z,
+*"ratified_by — ratify the entries as encoded"*, was given on the authority-field
+question and ratifies the two pin ENTRIES' text (6.4). Word two,
+2026-09-12T03:26:21.850Z, *"ratify the openxFactory disposition change when it's
+up"* — BARE and CONDITIONAL on the DRAFT PR existing, satisfied at PR #1004's
+creation 2026-09-12T14:57:26Z — ratifies THIS PACKET (6.6). ~~It is not a word on
+this packet's prose~~ — **STRUCK, not deleted**: true of word one alone.
+
+**RATIFIED AS DISCLOSED.** A bare word resolves nothing it does not name, so
+GROUP 6 IS NOT TICKED BY IT: 6.1, 6.2, 6.3 and 6.5 stay open at the defaults
+this file states, flagged rather than resolved. **THE MERGE IS STILL A SEPARATE
+ACT** and is not ticked anywhere in this file.
 
 ---
 
@@ -187,8 +195,21 @@ neither is ticked anywhere in this file.
       2026-09-12T03:04:29.167Z, recorded on openxFactory #745 (comment
       5643056862). Record at `review/ratification-2026-09-12.md` — a diff in
       this pull request, which is what lets this box be ticked under the rule at
-      the top of this file. **THE PACKET'S OWN TEXT IS NOT RATIFIED BY THAT
-      WORD AND THE MERGE IS NOT COVERED BY IT.**
+      the top of this file. ~~THE PACKET'S OWN TEXT IS NOT RATIFIED BY THAT
+      WORD~~ — struck, not deleted: true of this word, and box 6.6 records the
+      later one that does. **THE MERGE IS STILL NOT COVERED BY EITHER.**
+- [x] 6.6 (2026-09-12) **The PACKET is ratified.** Brett Heap, first-hand, in
+      session, verbatim **"ratify the openxFactory disposition change when it's
+      up"**, 2026-09-12T03:26:21.850Z — **BARE** (it answers no question stated
+      in its own text) and **CONDITIONAL** (the condition is that the DRAFT
+      PULL REQUEST EXISTS), the condition satisfied at PR #1004's creation,
+      **2026-09-12T14:57:26Z**. On the estate's lane registry at
+      `opensoft/brett-wip` commit `1c27a188bb772c69b15d9acb94821b6e8122a1ab`,
+      `lanes/LANES.md`, row `provenance-autonomous-merge`, and in the lane
+      handoff. Record at `review/ratification-2026-09-12.md`.
+      **RATIFIED AS DISCLOSED** — 6.1, 6.2, 6.3 and 6.5 above are NOT ticked by
+      it and stay at the defaults this file states. **AND IT IS NOT THE MERGE**,
+      which is Rule 6 and the orchestrator's act.
 - [ ] 6.5 **Watch `Fission-AI/OpenSpec#1793`** — filed 2026-09-05, NOT fixed.
       If a release honours a declared rename, the next pin bump re-derives the
       list against it and the four MARKER-BLINDNESS entries match nothing, so

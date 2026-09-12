@@ -61,7 +61,26 @@ origin:
     not resolve. The organized source is openxFactory issue #745, on which the
     claim, the measurement and the ratifying word are all recorded.
   approved_by: >-
-    Brett Heap (openxFactory convener) — 2026-09-12T03:04:29.167Z, first-hand,
+    TWO WORDS, TWENTY-TWO MINUTES APART, AND THEY APPROVE DIFFERENT THINGS.
+    WORD TWO — THE PACKET. Brett Heap (openxFactory convener) —
+    2026-09-12T03:26:21.850Z, first-hand, in session to lane
+    `provenance-autonomous-merge`, verbatim: "ratify the openxFactory
+    disposition change when it's up". BARE — it answers no question stated in
+    its own text — and CONDITIONAL, the condition being that the DRAFT PULL
+    REQUEST EXISTS; that condition was satisfied at PR #1004's creation,
+    2026-09-12T14:57:26Z, which is when this packet became `ratified` and why
+    the ratification is a SECOND commit on this branch rather than a rewrite of
+    the first. On the estate's lane registry at `opensoft/brett-wip` commit
+    1c27a188bb772c69b15d9acb94821b6e8122a1ab, `lanes/LANES.md`, row
+    `provenance-autonomous-merge`, and in the lane handoff.
+    RATIFIED AS DISCLOSED: a bare word resolves nothing it does not name, so
+    every position this packet states is ratified as it stands and each stated
+    open item (`tasks.md` § 6 — the codexFactory pin advance, #434's own gate,
+    the two sibling re-derivations, the upstream watch) lands at the default the
+    packet recommends and stays FLAGGED rather than resolved. IT IS NOT THE
+    MERGE: the pull request stays DRAFT and lands under lane-collision Rule 6.
+    WORD ONE — THE ENTRIES. Brett Heap (openxFactory convener) —
+    2026-09-12T03:04:29.167Z, first-hand,
     in session to lane `provenance-autonomous-merge` (session `codeXfactory-3`),
     as a selection in a multiple-choice round. The option label, verbatim:
     "ratified_by — ratify the entries as encoded". THE QUESTION PUT TO HIM WAS
@@ -75,7 +94,9 @@ origin:
     land `Status: draft`, AND IT IS NOT A MERGE — the pull request is opened
     DRAFT and stays DRAFT on a further word. Recorded on openxFactory #745
     (comment 5643056862), which states that scope on its own face so the
-    narrower reading is visible rather than assumed.
+    narrower reading is visible rather than assumed. THAT NARROWER READING WAS
+    THE RIGHT ONE FOR TWENTY-TWO MINUTES AND IS NOW SUPERSEDED BY WORD TWO
+    ABOVE, which is recorded rather than overwritten.
   approved_on: 2026-09-12
 related:
   - openxFactory:change:archive/2026-09-09-add-openspec-cli-pin              # ARCHIVED. Cut the pin (#667) and carries task 6.1, the consumer-wiring obligation whose fourth application this packet is

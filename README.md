@@ -533,20 +533,31 @@ Active changes:
 
 - [disposition-codexfactory-regular-pr-council-clearance-archive](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/proposal.md)
   — authored 2026-09-11, lane `provenance-autonomous-merge` (session
-  `codeXfactory-3`), **`Status: draft`** — and the distinction is the point:
-  **the two PIN ENTRIES are `Status: ratified`, the PACKET is not.** Brett Heap,
+  `codeXfactory-3`), **`Status: ratified`** — **BY TWO WORDS, TWENTY-TWO MINUTES
+  APART, COVERING DIFFERENT THINGS.** *Word one, the ENTRIES:* Brett Heap,
   2026-09-12T03:04:29.167Z, first-hand, in session, as a selection in a
   multiple-choice round, verbatim ***"ratified_by — ratify the entries as
   encoded"*** (recorded on openxFactory
-  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862);
-  record [`review/ratification-2026-09-12.md`](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/review/ratification-2026-09-12.md)).
-  The question put to him was the AUTHORITY SPELLING — this pin admits
-  `ratified_by:` (a convener's act) or `recorded_by:` (the weaker claim, a human
-  ruling RECORDED rather than given) and the draft carried the weaker — so the
-  word ratifies the ENTRIES as encoded and is **not** a word on `proposal.md`,
-  `design.md` or `tasks.md`, and **not** a merge. Its precedent read the
-  near-identical *"go A, ratify the disposition entry as encoded"* as carrying
-  its whole packet; that reading is available and deliberately not taken.
+  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862)),
+  answering the AUTHORITY-SPELLING question — this pin admits `ratified_by:` (a
+  convener's act) or `recorded_by:` (the weaker claim, a human ruling RECORDED
+  rather than given) and the draft carried the weaker. *Word two, the PACKET:*
+  Brett Heap, 2026-09-12T03:26:21.850Z, verbatim ***"ratify the openxFactory
+  disposition change when it's up"*** — **BARE** (it answers no question stated
+  in its own text) and **CONDITIONAL** on the DRAFT pull request existing, the
+  condition satisfied at PR
+  [#1004](https://github.com/opensoft/openxFactory/pull/1004)'s creation
+  **2026-09-12T14:57:26Z**, which is why the ratification is a SECOND commit on
+  that branch and not a rewrite of the first. The authoring process exited at
+  ~03:45Z before anything was committed, so **the word outlived its session and
+  was carried by the estate's own machinery**: the lane registry at
+  `opensoft/brett-wip` commit `1c27a188bb772c69b15d9acb94821b6e8122a1ab`,
+  `lanes/LANES.md`, row `provenance-autonomous-merge`, and the lane handoff —
+  and the encode cites those records rather than a relay.
+  **RATIFIED AS DISCLOSED**: each stated open item lands at the packet's
+  recommended default and stays flagged rather than resolved (`tasks.md` § 6).
+  **Neither word is the merge.** Record
+  [`review/ratification-2026-09-12.md`](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/review/ratification-2026-09-12.md).
   **THE FIRST PACKET IN THIS CORPUS TO RETIRE A DISPOSITION, AND THE FIRST TO
   PUT A SECOND CLASS INTO THE PIN'S LIST.** codeXfactory/codexFactory PR #434
   (`archive/add-regular-pr-council-clearance`, head `87ea247f`) archives

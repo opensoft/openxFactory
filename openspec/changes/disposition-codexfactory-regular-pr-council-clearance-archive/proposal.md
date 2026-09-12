@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: disposition-codexfactory-regular-pr-council-clearance-archive
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 by Brett Heap (openxFactory convener) — verbatim "ratify the openxFactory disposition change when it's up", 2026-09-12T03:26:21.850Z, first-hand, in session to lane `provenance-autonomous-merge`; **BARE AND CONDITIONAL** — it answers no question stated in its own text, and its condition is that the DRAFT PULL REQUEST EXISTS, satisfied at PR [#1004](https://github.com/opensoft/openxFactory/pull/1004)'s creation, 2026-09-12T14:57:26Z. **RATIFIED AS DISCLOSED**: every position this packet states is ratified AS IT STANDS, each stated open item landing at the default the packet recommends and remaining flagged rather than resolved (`tasks.md` § 6). Record `review/ratification-2026-09-12.md`; the word is on the estate's lane registry at `opensoft/brett-wip` commit `1c27a188bb772c69b15d9acb94821b6e8122a1ab`, `lanes/LANES.md`, row `provenance-autonomous-merge`
 Proposed: 2026-09-11, in lane `provenance-autonomous-merge` (session
 `codeXfactory-3`).
 Origin: openxFactory
@@ -15,20 +16,48 @@ this packet's precedent cited and, not by coincidence, the proposal issue of one
 of the two changes it dispositions. Claim at
 [comment 5643012460](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643012460).
 
-**THE ENTRIES ARE RATIFIED; THIS PACKET'S TEXT IS NOT, AND THE DIFFERENCE IS
-DELIBERATE.** Brett Heap, 2026-09-12T03:04:29.167Z, first-hand, in session, as a
-selection in a multiple-choice round, verbatim: ***"ratified_by — ratify the
-entries as encoded"*** — recorded at
-[comment 5643056862](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862)
-and at `review/ratification-2026-09-12.md`. The question put to him was the
-AUTHORITY SPELLING of the two new entries, and the word answers it and ratifies
-their text. It was NOT a question about `proposal.md`, `design.md` or
-`tasks.md`, so those carry `Status: draft`, and the pull request is opened DRAFT
-and stays DRAFT. The precedent read the near-identical *"go A, ratify the
-disposition entry as encoded"* as carrying its whole packet; **that reading is
-available here and is deliberately not taken**, because it was not asked for.
-Upgrading it costs one further word and one line per document, and this
-paragraph exists so that upgrade is visible rather than assumed.
+**TWO WORDS, TWENTY-TWO MINUTES APART, AND THEY DO DIFFERENT WORK.**
+
+**Word one — the ENTRIES.** Brett Heap, 2026-09-12T03:04:29.167Z, first-hand, in
+session, as a selection in a multiple-choice round, verbatim: ***"ratified_by —
+ratify the entries as encoded"*** — recorded at
+[comment 5643056862](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862).
+The question put to him was the AUTHORITY SPELLING of the two new pin entries,
+and the word answers it and ratifies their text.
+
+**Word two — the PACKET.** Brett Heap, 2026-09-12T03:26:21.850Z, first-hand, in
+session, verbatim: ***"ratify the openxFactory disposition change when it's
+up"*** — recorded on the estate's lane registry
+(`opensoft/brett-wip` commit `1c27a188bb772c69b15d9acb94821b6e8122a1ab`,
+`lanes/LANES.md`, row `provenance-autonomous-merge`) and in the lane handoff.
+**BARE** — it answers no question stated in its own text — and **CONDITIONAL**,
+the condition being that the DRAFT PULL REQUEST EXISTS. That condition was
+satisfied at PR [#1004](https://github.com/opensoft/openxFactory/pull/1004)'s
+creation, **2026-09-12T14:57:26Z**, and this packet carries `Status: ratified`
+from the commit that records it — not from the commit that wrote it, which is
+why the ratification is a SECOND commit on this branch over `a77b5711` and not a
+rewrite of the first.
+
+**RATIFIED AS DISCLOSED, and that phrase is load-bearing.** A bare word resolves
+nothing it does not name, so every position this packet states is ratified AS IT
+STANDS: each stated open item lands at the default the packet recommends and
+stays FLAGGED rather than resolved (`tasks.md` § 6 — the codexFactory pin
+advance, #434's own gate, the two sibling re-derivations, the upstream watch).
+Nothing in `tasks.md` § 6 is ticked by this word.
+
+~~It was NOT a question about `proposal.md`, `design.md` or `tasks.md`, so those
+carry `Status: draft` … Upgrading it costs one further word and one line per
+document, and this paragraph exists so that upgrade is visible rather than
+assumed.~~ — **STRUCK 2026-09-12T14:57Z, not deleted**: that was this packet's
+position for the eleven hours between word one and this encode, it was the
+correct position while it stood, and word two is the upgrade it named. The
+precedent read the near-identical *"go A, ratify the disposition entry as
+encoded"* as carrying its whole packet in ONE sentence; here it took two, and
+the packet is now in the same place.
+
+**THE MERGE IS STILL A FURTHER, SEPARATE ACT.** The pull request stays DRAFT and
+is not readied or merged by the authoring seat; the landing is Rule 6, on the
+orchestrator's act.
 
 ## Why
 
