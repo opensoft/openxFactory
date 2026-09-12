@@ -650,7 +650,7 @@ Active changes:
   § Bundle Realization Order allocates bundle versions LATE. The realization
   rides the same pull request (`scripts/validate-target-release.py`,
   `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
-  entries, CLOSED against a baseline the validator carries — and 79 tests),
+  entries, CLOSED against a baseline the validator carries — and 84 tests),
   which corrects the **six** active off-vocabulary carriers to `implemented`
   and leaves the archive's **61** off-vocabulary records as frozen record. D2's
   ruled option sweeps the corpus AS IT STANDS, so the population was re-measured
