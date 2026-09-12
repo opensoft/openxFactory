@@ -549,6 +549,37 @@ and openxFactory #956 closes THERE and not at this landing.
       -q` **79 passed**; `validate-sequenced-after.py . --ledger-diff` exit 0
       (204 rows); `validate-scope-globs.py .` exit 0; `doc-health.py
       --single-repo .` exit 0.
+- [x] 3.20 **THE SECOND MERGE OF `origin/main` (`5972c8f3`, pull request
+      #1004), AND D2's SWEEP RE-MEASURED AT IT.** The branch went DIRTY again
+      against `main` on the same one file as before — README `## OpenSpec
+      Records`, where `main` added the
+      `disposition-codexfactory-regular-pr-council-clearance-archive` row at
+      the head of *Active changes*. Resolved by keeping BOTH rows, `main`'s
+      FIRST and this packet's immediately after it, no other row touched and no
+      reflow; the corpus ledger auto-merged to **205** rows. **D2's ruled
+      sweep has NO SEVENTH CARRIER at this head**, and that is measured rather
+      than assumed: the change `main` brought in declares `implemented`, so
+      `validate-target-release.py .` reads **exit 0 — 42 active proposals, 42
+      declaring, 18 `implemented`, 3 a named release, 21 named by the register,
+      0 outside the vocabulary**, against **exit 1** on a fresh `origin/main`
+      `5972c8f3` worktree (41 active, 11 `implemented`, 6 outside, the same six
+      D2 corrects). Everything § 4 states was re-taken here: `openspec validate
+      <change> --strict` exit 0; `--all --strict` exit 1 `101 passed, 3 failed
+      (104)` against the control's `100 passed, 3 failed (103)`, the failure set
+      IDENTICAL on both trees and its THIRD member arriving with this very merge
+      (`disposition-codexfactory-regular-pr-council-clearance-archive`, which
+      fails on `main` too and is not this packet's);
+      `validate-sequenced-after.py .` exit 0 (42 active, 12 declaring) and
+      `--ledger-diff` exit 0 (205 rows); `validate-scope-globs.py .` exit 0;
+      `doc-health.py --single-repo .` exit 0; `proposal-support.py . verify`
+      exit 0; `pytest tests/target_release -q` **79 passed**;
+      `validate-openspec-cli-pin.py` both forms exit 0 (`1 passed, 0 failed`
+      and, through the pinned 1.12.0, `102 passed, 2 failed (104)` — one item
+      passing there that PATH 1.2.0 fails, a CLI-version difference and not a
+      tree difference).
+      `review/verification-2026-09-12.md` is the DATED capture of the ratified
+      tree one merge earlier and is deliberately not rewritten for this; it
+      points here instead.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
@@ -561,13 +592,13 @@ and its own output quoted.
       "before" tree to `origin/main` `38c076d1` and the "after" figures to an
       earlier commit's count, both stale the moment either tree moved — the
       REMEDY IS NOT TO FREEZE A SHA HERE BUT TO RE-MEASURE AT EACH
-      RE-RECORDING, which this entry now does).** RE-MEASURED AT THE RATIFIED
-      HEAD, on the merge of `origin/main` `1f068646`. Before: **exit 1**
-      against a fresh `origin/main` `1f068646` worktree — *"40 active
-      proposals, 40 declaring — 10 `implemented`, 3 a named release, 21 named
+      RE-RECORDING, which this entry now does).** RE-MEASURED AT THE CURRENT
+      HEAD, on the merge of `origin/main` `5972c8f3` (§ 3.20). Before: **exit 1**
+      against a fresh `origin/main` `5972c8f3` worktree — *"41 active
+      proposals, 41 declaring — 11 `implemented`, 3 a named release, 21 named
       by the register, 6 outside the vocabulary"*, the six named by path (the
       same six D2 corrects, `design.md` D2a). After, on THIS tree at its own
-      head: **exit 0** — *"41 active proposals, 41 declaring — 17
+      head: **exit 0** — *"42 active proposals, 42 declaring — 18
       `implemented`, 3 a named release, 21 named by the register, 0 outside
       the vocabulary"*, with *"archive (read, never judged): 163 proposals, 61
       of them outside the vocabulary"* on both sides. Both runs are the SAME
@@ -575,25 +606,34 @@ and its own output quoted.
       the tree. The `+1` active is this packet's own `proposal.md`
       (`implemented`); the `+7` `implemented` is that same `+1` plus the `+6`
       from the sweep (D2, D2a) — `origin/main` never received it, so the six
-      carriers still count `refused` there.
+      carriers still count `refused` there. The earlier capture in
+      `review/verification-2026-09-12.md` § 4 is the same pair taken one merge
+      earlier (`1f068646`: 40/10/6 there, 41/17/0 here) and is left as the
+      dated capture it is.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate
       gate-realization-axis-vocabulary --strict` (PATH CLI **1.2.0**) —
       **exit 0**, *"Change 'gate-realization-axis-vocabulary' is valid"*.
 - [x] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
-      `Totals: 101 passed, 2 failed (103 items)`. The failure set is IDENTICAL
-      to `origin/main` `1f068646`'s, taken in the same shell from a worktree of
-      it (`Totals: 100 passed, 2 failed (102 items)`):
-      `change/disposition-codexfactory-declared-renames` and
-      `change/disposition-codexfactory-floor-relocation-retitle`. This change
-      is in neither set and the item count moves by exactly one.
+      `Totals: 101 passed, 3 failed (104 items)`. The failure set is IDENTICAL
+      to `origin/main` `5972c8f3`'s, taken in the same shell from a worktree of
+      it (`Totals: 100 passed, 3 failed (103 items)`):
+      `change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle` and
+      `change/disposition-codexfactory-regular-pr-council-clearance-archive`,
+      the third arriving with the merge of `5972c8f3` (§ 3.20) and failing on
+      BOTH trees alike. This change is in neither set and the item count moves
+      by exactly one.
 - [x] 4.4 **THROUGH THE PINNED CLI, WHICH IS THE ONE THE GATE RUNS.**
       `python3 scripts/validate-openspec-cli-pin.py --change
       gate-realization-axis-vocabulary --no-cache` — **exit 0**,
       `@fission-ai/openspec@1.12.0` verified against its content address, its
       80-package closure installed with `npm ci --ignore-scripts`,
       `Totals: 1 passed, 0 failed (1 items)`. The gate's literal
-      `--all --no-cache` — **exit 0**, `Totals: 101 passed, 2 failed (103
-      items)`, *"every target validated --strict with 0 UNDISPOSITIONED
+      `--all --no-cache` — **exit 0**, `Totals: 102 passed, 2 failed (104
+      items)` — the PINNED 1.12.0's own reading, which differs from the PATH
+      1.2.0 run in § 4.3 by one item passing rather than failing, and the
+      difference is the CLI VERSION and not the tree — *"every target validated
+      --strict with 0 UNDISPOSITIONED
       failures"*, the two being the PRE-EXISTING accepted exceptions
       `add-chain-attestation` and `add-composed-view-authoring`, neither of
       them this change.
@@ -601,8 +641,8 @@ and its own output quoted.
       gate-realization-axis-vocabulary` — **exit 0**, *"proposal support
       verification ok"*.
 - [x] 4.6 `python3 scripts/validate-sequenced-after.py .` — **exit 0**,
-      *"41 active changes, 11 declaring the field"*, both archive-date arms
-      passing (re-measured at the ratified head, § 3.18).
+      *"42 active changes, 12 declaring the field"*, both archive-date arms
+      passing (re-measured at the current head, § 3.20).
 - [x] 4.7 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 4.8 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
@@ -616,9 +656,9 @@ and its own output quoted.
       each moving by exactly one. SEEDED in `13ff6162` with
       `--seed-ledger --moved-by '#963'`; after it, `python3
       scripts/validate-sequenced-after.py . --ledger-diff` — **exit 0**,
-      *"per-change sweep ledger consistent with the corpus (204 rows)"* at the
-      ratified head (200 at the seed; the merge of `origin/main` `1f068646`
-      brought the rest), with
+      *"per-change sweep ledger consistent with the corpus (205 rows)"* at the
+      current head (200 at the seed; the merges of `origin/main` `1f068646` and
+      `5972c8f3` brought the rest), with
       *"prose `Sequenced-after:` headers: 3 (3 archived)"* and *"DEEPEST
       DECLARED CHAIN RESOLVED: 4 hop(s)"*. Re-run on the tree as it now stands
       and still **exit 0**. (Ticked on the bench's word: the work landed in

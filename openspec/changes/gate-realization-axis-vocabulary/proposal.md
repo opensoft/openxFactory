@@ -140,11 +140,11 @@ novel title owes none of it and edits no promoted byte.
 
 | tree | exit | active | `implemented` | named release | registered | **refused** |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `origin/main` `1f068646`, no gate present | **1** | 40 | 10 | 3 | 21 | **6** |
-| THIS tree, after | **0** | 41 | 17 | 3 | 21 | **0** |
+| `origin/main` `5972c8f3`, no gate present | **1** | 41 | 11 | 3 | 21 | **6** |
+| THIS tree, after | **0** | 42 | 18 | 3 | 21 | **0** |
 
 Both rows are the SAME validator pointed at two trees, re-measured last at
-this packet's ratified head (the merge of `origin/main` `1f068646`), so the
+this packet's head (the merge of `origin/main` `5972c8f3`), so the
 only difference between them is the tree, and the `after` row is reproducible
 by running the command above here. **The `+1` active is this packet's own
 `proposal.md`**, which declares `target_release: implemented` and is judged by

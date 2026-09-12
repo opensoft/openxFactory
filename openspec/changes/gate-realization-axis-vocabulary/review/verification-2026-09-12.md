@@ -184,6 +184,14 @@ rather than over it.
 
 ## 10. What this record does not cover
 
+**A SECOND MERGE FROM `main` LANDED AFTER THIS CAPTURE** — `origin/main`
+`5972c8f3`, pull request #1004 — and this file is not rewritten for it, because
+a dated capture is of the tree it names. Its re-run lives where this file's
+preamble says: `tasks.md` § 3.20, with § 4.1, § 4.3, § 4.4, § 4.6 and § 4.9
+re-recorded there (42 active / 18 `implemented` / 0 outside here against the new
+control's 41 / 11 / 6; `--all --strict` 101/3/104 against 100/3/103, the third
+failure arriving with that merge and failing on BOTH trees; 205 ledger rows).
+
 The required checks on the pull request head — `pytest-suite` above all — are
 GitHub's runs and are read from the pull request, not from this clone. The
 freeze comment posted after this capture carries that rollup. Nothing under
