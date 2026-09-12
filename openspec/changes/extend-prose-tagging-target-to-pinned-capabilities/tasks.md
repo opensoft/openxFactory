@@ -10,7 +10,12 @@ the later realization pull request, and § 4 is the archive act.
 
 - [ ] 1.1 **RATIFY or REFUSE the form (D-1):** an `xspec:candidate` marker's
   `target=` may be `pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem
-  of a `contracts/<pin-id>-pin.yaml` record. For the four affected markers that
+  of a `contracts/<pin-id>-pin.yaml` record. The value is EXACTLY TWO
+  `[a-z0-9]+(-[a-z0-9]+)*` components separated by EXACTLY ONE `/` — measured
+  to be the shape of all 62 in-tree capability ids and all six pin stems — and
+  a value that fails that grammar is refused BEFORE any path is built or any
+  file is read, since the marker regexes accept any non-whitespace value and
+  are not the guard. For the four affected markers that
   is `target=pinned:openxwallet/openxwallet`. The form needs NO regex change —
   measured against `families.py:1308-1314`. The `xspec:supersedes` marker's
   `spec=` attribute is OUT OF SCOPE and CLOSED (D-1.1): a `spec=` value
@@ -100,10 +105,17 @@ the later realization pull request, and § 4 is the archive act.
   finding (D-1.1); **(f)** a pinned target whose record declares a kind other than
   `pinned_contract_manifest` does NOT resolve and emits a finding; **(g)** a
   pin record whose `capabilities:` member is present but malformed — a scalar,
-  a mapping, empty, or a sequence carrying a non-capability-shaped item — emits
-  a malformed-enumeration finding AND the pinned target naming it does not
-  resolve, proving the fail-closed path rather than the "absent enumeration"
-  fallback; **(h)** in-tree resolution is unchanged.
+  a mapping, a null value, an EMPTY sequence, or a sequence carrying a
+  non-capability-shaped item — emits a malformed-enumeration finding AND the
+  pinned target naming it does not resolve, proving the fail-closed path rather
+  than the "absent enumeration" fallback, with the empty sequence as its own
+  case since it satisfies "a sequence of well-formed names" vacuously;
+  **(h)** a pinned value that does not match the lexical grammar — an extra `/`
+  segment, a dotted or traversal component such as `pinned:../x/y`, an
+  upper-case or empty component — emits a malformed-pinned-target finding, and
+  the test asserts NO pin-record path was constructed and NO file was read for
+  it, since validating after building a path is the defect this case exists to
+  prevent; **(i)** in-tree resolution is unchanged.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.

@@ -19,7 +19,18 @@ names a capability of a NEUTRAL PRODUCT THIS REPOSITORY PINS: `<pin-id>` is the
 identifier of a pin record the repository carries, and `<capability>` is the
 capability name as the pinned product holds it. The literal prefix `pinned:` is
 RESERVED and is the discriminator between the two forms; a capability id MUST
-NOT contain a colon. The PINNED form is admitted in an `xspec:candidate`
+NOT contain a colon.
+
+THE PINNED FORM'S LEXICAL GRAMMAR IS CLOSED, AND IT IS CHECKED BEFORE ANY PATH
+IS BUILT. The value after `pinned:` SHALL be exactly TWO components separated by
+exactly ONE `/`, and each component SHALL match `[a-z0-9]+(-[a-z0-9]+)*` — so a
+component can carry no `/`, no `.`, no `:`, no whitespace and no upper-case
+letter, and cannot be empty. A pinned value that does not match this grammar —
+an extra `/` segment, a dotted or traversal component, an empty component — MUST
+be reported as a malformed pinned target, and the deterministic pass MUST make
+that judgement BEFORE it constructs any pin-record path, performs any pin
+lookup, or reads any file for it. The marker regexes accept any non-whitespace
+attribute value and are NOT the guard; this grammar is. The PINNED form is admitted in an `xspec:candidate`
 marker's `target=` attribute ONLY. An `xspec:supersedes` marker's
 `spec=<capability>/<requirement-slug>` value MUST NOT carry the `pinned:`
 prefix, and a `spec=` value that carries it MUST be reported: the spelling is
@@ -42,9 +53,13 @@ top-level `capabilities:` sequence of capability names on the pin record. A
 record without that member carries no enumeration for this purpose, and the
 pass MUST NOT read capability names out of any other member — a file list, a
 digest list or a member list is not a capability list, and inferring one from
-them is non-deterministic. A `capabilities:` member that is PRESENT but is not
-a sequence of well-formed capability names MUST be reported as a malformed
-enumeration against the pin record, and MUST NOT be read as an absent
+them is non-deterministic. The enumeration SHALL be NON-EMPTY: an empty
+sequence is not a statement that the product has no capabilities, it is a
+broken member, and it MUST NOT be read as a valid enumeration nor as an absent
+one. A `capabilities:` member that is PRESENT but is not a NON-EMPTY sequence of
+well-formed capability names — including an empty sequence, a null value, a
+scalar, a mapping, or a sequence carrying an item that is not a capability-shaped
+name — MUST be reported as a malformed enumeration against the pin record, and MUST NOT be read as an absent
 enumeration; while it is malformed, a pinned target naming that record does NOT
 resolve. A deferred or broken enumeration fails closed rather than degrading
 open. Whether a pin record may carry `capabilities:` is owned by
@@ -83,8 +98,13 @@ not the thing that happens when nobody decides.
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the target MUST NOT resolve on the strength of that record
 
+#### Scenario: A pinned target is lexically malformed
+- **WHEN** a marker names a `target=pinned:…` value that is not exactly two `[a-z0-9]+(-[a-z0-9]+)*` components separated by one `/`
+- **THEN** the deterministic health pass MUST report it as a malformed pinned target
+- **AND** the pass MUST NOT construct a pin-record path, perform a pin lookup, or read any file for that value
+
 #### Scenario: A pin record's capability enumeration is malformed
-- **WHEN** a pin record carries a `capabilities:` member that is not a sequence of well-formed capability names
+- **WHEN** a pin record carries a `capabilities:` member that is not a NON-EMPTY sequence of well-formed capability names, an empty sequence among those shapes
 - **THEN** the deterministic health pass MUST report a malformed-enumeration finding against that pin record
 - **AND** every pinned target naming that record MUST NOT resolve while the enumeration is malformed
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration

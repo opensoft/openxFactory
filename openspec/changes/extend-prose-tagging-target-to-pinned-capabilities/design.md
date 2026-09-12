@@ -19,6 +19,27 @@ target as `pinned:<pin-id>/<capability>`, where:
 - `<capability>` is the capability name as the PINNED PRODUCT holds it, in the
   same kebab-case shape an in-tree capability id takes.
 
+**THE LEXICAL GRAMMAR, STATED BEFORE ANY PATH IS BUILT.** The value after
+`pinned:` is EXACTLY TWO components separated by EXACTLY ONE `/`. Each
+component matches `[a-z0-9]+(-[a-z0-9]+)*` — lower-case kebab-case, one or more
+characters, no leading, trailing or doubled hyphen — which is measured to be
+the shape of every one of the 62 capability ids under `openspec/specs/` and of
+every one of the six pin stems in `contracts/` at `323c7adf`. A component
+therefore cannot contain `/`, `.`, `:`, whitespace, an upper-case letter, or be
+empty, and `..` is not expressible in it.
+
+This matters because the marker regexes are deliberately NOT moving (the
+argument above): `_CAND_OPEN`'s `[^\s>]+` and `_ATTR`'s `\S+` accept any
+non-whitespace run, so the value reaching the resolver is unvalidated by the
+grammar's own patterns. **The resolver therefore validates the value against
+this grammar BEFORE it constructs any path or reads any file.** A value that
+fails it is a MALFORMED PINNED TARGET finding and NOTHING further happens for
+it: no `contracts/<pin-id>-pin.yaml` string is built, no pin lookup is
+attempted, and no filesystem read occurs. That ordering is the point —
+validating after building a path is how `pinned:../../etc/passwd/x` would
+become a read outside the pin registry, and it is why this paragraph is
+normative in the `document-lifecycle` delta rather than advisory here.
+
 For the four markers this issue #992 is about, the form resolves to
 `target=pinned:openxwallet/openxwallet` — the pin id and the capability name
 coincide here, which reads redundant and is nonetheless exactly right: the
@@ -145,10 +166,10 @@ guessing between them is exactly the non-determinism this paragraph exists to
 remove.
 
 **AND A MALFORMED ENUMERATION FAILS CLOSED, rather than degrading into
-"absent".** A `capabilities:` member that is present but is NOT a sequence of
-well-formed capability names — a scalar, a mapping, an empty value, or a
-sequence carrying an item that is not a capability-shaped name — is a
-MALFORMED ENUMERATION, and the pass reports it as a finding against the PIN
+"absent".** A `capabilities:` member that is present but is NOT a NON-EMPTY
+sequence of well-formed capability names — a scalar, a mapping, a null or
+empty value, **an EMPTY sequence**, or a sequence carrying an item that is not
+a capability-shaped name — is a MALFORMED ENUMERATION, and the pass reports it as a finding against the PIN
 RECORD. It MUST NOT be read as "this record carries no enumeration", because
 that reading converts a broken enumeration into a licence: the record would
 silently drop back to arm 1 and admit every capability name. Any pinned target
@@ -323,9 +344,13 @@ ratification, carrying four surfaces:
    enumeration for an UNLISTED one; a `supersedes` marker whose `spec=` value
    carries the reserved `pinned:` prefix is REFUSED (D-1.1); a record of a kind
    other than `pinned_contract_manifest` does not resolve a pinned target; a
-   PRESENT but malformed `capabilities:` member emits a malformed-enumeration
-   finding and the target naming it does not resolve; and the existing in-tree
-   resolution is unchanged.
+   PRESENT but malformed `capabilities:` member — an EMPTY sequence among the
+   malformed shapes — emits a malformed-enumeration finding and the target
+   naming it does not resolve; a pinned value that does not match the lexical
+   grammar (extra `/` segments, a traversal or dotted component, an upper-case
+   or empty component) emits a malformed-pinned-target finding with NO path
+   built and NO pin lookup attempted; and the existing in-tree resolution is
+   unchanged.
 3. **The four markers**, retargeted to `target=pinned:openxwallet/openxwallet`
    — `openxwallet-neutral-home.md` lines 222, 242 and 280, and
    `notebook-access-wallet-governance.md` line 107 — together with

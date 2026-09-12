@@ -114,7 +114,14 @@ fenced and queued truthfully instead.
    regexes accept with no regex change at all — `_CAND_OPEN`'s attribute value
    class is `[^\s>]+` and `_ATTR`'s is `\S+`, both of which already admit `:`
    and `/`, and `spec=<capability>/<requirement-slug>` is the standing
-   precedent for a `/` inside an attribute value (design D-1).
+   precedent for a `/` inside an attribute value. The value's OWN grammar is
+   closed and checked before anything is read: exactly two
+   `[a-z0-9]+(-[a-z0-9]+)*` components separated by exactly one `/` — the
+   measured shape of all 62 in-tree capability ids and all six pin stems — so
+   an extra segment, a dotted or traversal component or an empty one is a
+   malformed pinned target, refused before any pin path is constructed. The
+   unmoved marker regexes accept any non-whitespace value and are deliberately
+   not the guard (design D-1).
 
 2. **A resolution rule that rests on the pin, and says so.** The `<pin-id>`
    MUST resolve to a NEUTRAL-PRODUCT pin record in this repository's pin
