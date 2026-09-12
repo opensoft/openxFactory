@@ -73,7 +73,7 @@ rows:
   accept-sequenced-after-header-line: {state: archived, class: co-modifier, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#921", moved_on: "2026-09-10"}
   add-binding-consumer-identity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-capability-steward: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-chain-anchoring: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#669", moved_on: "2026-09-04"}
+  add-chain-anchoring: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   add-chain-attestation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-clearing-dispatch-boundary: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-client-identity-roster: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -263,6 +263,7 @@ rows:
   refresh-install-repository-enumerations: {state: archived, class: co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1, prose: false, moved_by: "#825", moved_on: "2026-09-09"}
   register-gate-rules-council-seats: {state: active, class: sole, declares: [add-wallet-carried-review-authority, openXwallet:widen-register-reader-for-a-second-council], depth: 1, prose: false, moved_by: "#717", moved_on: "2026-09-06"}
   relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
+  repoint-chain-anchoring-medxchain-citation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   report-stale-grandfather-dispositions: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#981", moved_on: "2026-09-11"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
