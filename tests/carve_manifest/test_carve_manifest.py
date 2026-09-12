@@ -1995,6 +1995,35 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
                   if edit["lines"] == [155, 725, 1338]]
     assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
 
+    # THE § 3.4 SLICE-S3 ANNOTATION'S OWN ROWS, PINNED BY DISPOSITION, CLASS
+    # AND EXACT LINES (Copilot review, openxFactory PR #1001) — on the same
+    # reasoning as the ASK-7 pin above: the aggregate assertion would still
+    # pass if the `app.js` row's conversion, or either of its two edits,
+    # landed on the wrong row, under the wrong class, or as different line
+    # numbers that happened to sum to 37 — and likewise for the three-line
+    # `test_bullseye_widget.py` addition. `app.js` carried no `edits:` at all
+    # before this act, so its full edit list is asserted exactly, the same
+    # idiom the `moved` and `replica` row checks at the top of this test
+    # already use; `test_bullseye_widget.py` already carried an unrelated
+    # `path constants` edit, so its new entry is picked out by its lines, the
+    # same idiom the ASK-7 checks above use for `serve.py`.
+    app_js_row = rows["scripts/ideation_dashboard/web/app.js"]
+    assert app_js_row["disposition"] == "moved_with_declared_edit", app_js_row
+    s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]]
+    assert s3_app_js == [
+        ("import rewrites", [43]),
+        ("adapter calls", [470, 471, 472, 475, 476, 480, 481, 482, 483, 484,
+                            489, 521, 522, 523, 574, 579, 585, 587, 590, 599,
+                            600, 602, 603, 604, 605, 606, 631, 640, 842, 843,
+                            844, 865, 866, 876, 1102, 1103]),
+    ], app_js_row
+
+    bullseye_row = rows["tests/ideation-dashboard/test_bullseye_widget.py"]
+    s3_bullseye = [(edit["class"], edit["lines"])
+                   for edit in bullseye_row["edits"]
+                   if edit["lines"] == [900, 1781, 1785]]
+    assert s3_bullseye == [("adapter calls", [900, 1781, 1785])], bullseye_row
+
 
 # --------------------------------------------------------------------------
 # ONE DEFINITION OF A LINE, SHARED WITH THE ARRIVAL VERIFIER

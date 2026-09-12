@@ -140,12 +140,12 @@ mapping manifest. Measured in the landed file:
 
 | disposition | rows | the proof owed at the destination |
 | --- | ---: | --- |
-| `moved_verbatim` | **172** | the arrived blob's `sha256` and mode EQUAL the row's |
-| `moved_with_declared_edit` | **146** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
+| `moved_verbatim` | **166** | the arrived blob's `sha256` and mode EQUAL the row's |
+| `moved_with_declared_edit` | **152** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 794 declared edit lines**: `import rewrites` 636, `path
-constants` 132, `adapter calls` 26. **147 rows carry `edits:`** — the 146
+**318 rows move. 909 declared edit lines**: `import rewrites` 679, `path
+constants` 165, `adapter calls` 65. **153 rows carry `edits:`** — the 152
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 
 The row and line totals above are the file AS AMENDED on 2026-09-10 under
@@ -180,9 +180,9 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **794th line belongs to a replica row and therefore to no destination
+The **909th line belongs to a replica row and therefore to no destination
 column below**: a replica row names no destination at all, so the per-leg
-declared-line figures still sum to 793, and the extra line is owed by every leg
+declared-line figures still sum to 908, and the extra line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -191,14 +191,33 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
+**Measured directly against the landed manifest, 2026-09-12** (rather than
+hand-chained through every intervening amendment): the table and the two
+paragraphs above, and the per-destination table below, state the totals as of
+the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
+PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
+among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
+annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
+window (`#656` comment `5635150678`, PR #995), and the § 3.4 SLICE S2
+intent-chips annotation (RULED Q5, `#656` comment `5642758731`, openxFactory
+PR #1002, landing first per Q-L1's own landing order). Rather than
+re-narrate each one here — this table is exactly the hand-maintained
+copy RULED Q-L1's own "two acts restating one set of absolutes is how a
+count becomes wrong in a merge" warns about — the figures above are the
+same measurement
+`scripts/validate-carve-manifest.py` prints and
+`tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
+pins, computed the same way every time: a transcribed count is a claim, a
+summed one is a measurement.
+
 Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 61 / 62 | 250 | `src/opendox`, `tests` |
-| `opendox_spec` | 56 | 55 / 1 | 6 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
+| `opendox_code` | 123 | 58 / 65 | 336 | `src/opendox`, `tests` |
+| `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 537 | `scripts`, `src/openxdox`, `tests` |
-| `openxdox_spec` | 47 | 47 / 0 | 0 | `contracts/schemas`, `examples/ideation-dashboard` |
+| `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
 The declared-roots column is spelled **exactly as a run prints it** — no
