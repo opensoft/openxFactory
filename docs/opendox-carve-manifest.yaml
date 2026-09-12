@@ -345,6 +345,17 @@ moved_paths:
 # left to rot until S8 re-homes the suite. The row keeps its `path constants`
 # line 40 and its digest.
 #
+# A THIRD ROW TAKES ONE LINE AND ALSO DOES NOT CHANGE DISPOSITION, carried by
+# the openDox-code #14 fix round's catch-up rather than by this leg's
+# original commit, but under the same act and the same ruling as the two
+# rows above: `tests/ideation-dashboard/test_doc_surfaces.py`, already
+# `moved_with_declared_edit`, gains an `adapter calls` edit at 290. That
+# SOURCE-GREP suite located the docs tab by the pre-S3 shape the `app.js`
+# row's own declared `TABS` -> `CORE_VIEWS` edit removes, and is migrated to
+# the registry shape it now reads — the same one-token-class migration the
+# second row's three quotations already took. The row keeps its `path
+# constants` line 39 and its digest.
+#
 # THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on
 # purpose: the ASK-7 declared-edit window (`#656` comment `5642614423`) and
 # the S2 annotation directly above moved the running total to 869 declared
@@ -353,11 +364,12 @@ moved_paths:
 # merge itself depends on. This act's whole arithmetic is a DELTA on top of
 # that: rows
 # unchanged; `not_moved` unchanged; one row moves from `moved_verbatim` to
-# `moved_with_declared_edit`; declared lines +40 (`import rewrites` +1,
-# `adapter calls` +39, `path constants` +0) over TWO rows, 37 on `app.js` and
-# 3 on `test_bullseye_widget.py`; rows carrying `edits:` +1 (the second row
-# already carried one); replicas unchanged. The one place the running
-# absolutes are summed and pinned is
+# `moved_with_declared_edit`; declared lines +41 (`import rewrites` +1,
+# `adapter calls` +40, `path constants` +0) over THREE rows, 37 on `app.js`,
+# 3 on `test_bullseye_widget.py` and 1 on `test_doc_surfaces.py`; rows
+# carrying `edits:` +1 (the second and third rows already carried one);
+# replicas unchanged. The one place the running absolutes are summed and
+# pinned is
 # `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
