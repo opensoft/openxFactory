@@ -278,6 +278,25 @@ moved_paths:
 # `edits:` 147 → 150, and the 20 replicas stay 20. NO REFERENT DIGEST MOVES:
 # a declared line is a claim about what may differ AT THE DESTINATION, and
 # `carve_commit`, `carve_tag` and all 318 `sha256` values are untouched.
+# THE § 3.4 SLICE-S3 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). ONE existing row is converted:
+# `scripts/ideation_dashboard/web/app.js`, `moved_verbatim` ->
+# `moved_with_declared_edit`, taking 37 declared lines in two classes — 1 under
+# `import rewrites` (the class-B gate import at :43) and 36 under `adapter
+# calls` (the view table, the tab router's field reads, the gate-bar call sites
+# and the one added context key). NO REFERENT DIGEST MOVES, `carve_commit` and
+# `carve_tag` are untouched, and the row keeps the `sha256` it already carries,
+# which is the CARVE blob's.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on
+# purpose: the ASK-7 declared-edit window (`#656` comment `5642614423`) is in
+# flight over `cli.py` and `serve.py` in this same document, and two acts
+# restating one set of absolutes is how a count becomes wrong in a merge. This
+# act's whole arithmetic is: rows unchanged; `not_moved` unchanged; one row
+# moves from `moved_verbatim` to `moved_with_declared_edit`; declared lines
+# +37 (`import rewrites` +1, `adapter calls` +36, `path constants` +0); rows
+# carrying `edits:` +1; replicas unchanged.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1651,11 +1670,18 @@ rows:
       - class: adapter calls
         lines: [85]
   - source_path: scripts/ideation_dashboard/web/app.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "a01db340cab5609dc304630ae7a3f88e3535bb893a912dac4019f95d361d9a63"
     destination: opendox_code
     destination_path: src/opendox/web/app.js
+    edits:
+      - class: import rewrites
+        lines: [43]
+        note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — a Q-L1 ROW ANNOTATION in the form RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"), under the § 3.4 slice rulings of `#656` comment `5642758731` (Brett Heap, 2026-09-12), whose Q-L1 paragraph binds every § 3.4 slice: \"an edit to an ARRIVED file outside its declared lines is an undeclared movement — each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\". No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label; the row keeps the `sha256` it has, which is the carve blob's and not the destination's. Line 43 at `carve_commit` is `import { isGateBearing, mountGateBar } from \"./views/gate.js\";` — the shell's ONE direct import of a class-B module, and the line openDox-spec `docs/front-end-package-boundary.md` § 4.1 names: \"app.js stops importing class-B modules directly. Its line 43 becomes a lookup in the collected bindings, and a shell built with no gate binding registered renders the tab strip WITHOUT the gate bar rather than failing to load.\" Class `import rewrites` because that is exactly what the edit is: one import statement replaced by another (`./views/view_extension.js`), the gate module reached through the registry instead."
+      - class: adapter calls
+        lines: [470, 471, 472, 475, 476, 480, 481, 482, 483, 484, 489, 521, 522, 523, 574, 579, 585, 587, 590, 599, 600, 602, 603, 604, 605, 606, 631, 640, 842, 843, 844, 865, 866, 876, 1102, 1103]
+        note: "§ 3.4 SLICE S3, the same act and the same ruling as the `import rewrites` line above — the CALL SITES that reach the gate module and the hardcoded view table, rewritten to go through the view registry. Class `adapter calls` on this manifest's own precedent for the class (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly now calls the seam that stands in for it. Measured in the blob at `carve_commit` with `scripts/carve_lines.py`' own record definition and the arrival verifier's own `difflib` mapping (RULED Q-L8 (c)), so these are the numbers `verify-carve-arrival.py --phase B` will name and no others. What each group is: 470-523 the `TABS` table, seven hardcoded view entries, which becomes `CORE_VIEWS` — the same seven as `ViewBinding`s plus the gate bar, collected through `collectViewBindings()` (470 `const TABS = [`; 471/475/480/482/484/521/523 the seven entry headers; 472/476/481/483/489/522 their `render:` keys, which become `mount:`). 574-640 the tab router, which stops reading a module-global list and derives the tab strip from the collected bindings (574 `TABS.map(... t.tab)`; 579/585/587/590/599/600/602-606/631/640 the `t.tab` / `t.view` / `target.render` field reads, which become `control` / `region` / `mount`). 842-844 and 865-866 and 876 the gate-bar call sites: `gateContext`'s `isGateBearing(...)` and `renderViewer`'s `mountGate:` become reads of the binding `resolveView()` returned, and null where no gate column is registered — which `views/viewer.js` already renders as a document with no gate bar (`const mountGate = o.mountGate || null`), so no second file is touched. 1102-1103 the one added context key, `views`, handing the collected registry to every view so an OPTIONAL contributed panel is asked for by id. `index.html` is NOT in this act and takes no annotation: a `data-region` attribute would have been a second spelling of an id the shell already carries, and an added attribute is in NONE of the RULED `edit_classes` (`import rewrites | path constants | adapter calls`), so the region contract is held by the registry's own `REGIONS` table and a drift test against the shell's existing ids instead."
   - source_path: scripts/ideation_dashboard/web/index.html
     disposition: moved_verbatim
     git_mode: '100644'
