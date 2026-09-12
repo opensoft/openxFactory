@@ -219,6 +219,25 @@ def register_openxfactory() -> Any:
     prevent, and it is worth an exception rather than a log line. A deliberate
     swap calls `opendox.domain_profile.unregister()` first.
 
+    AND THE SAME REFUSAL IS OWED ON THE OTHER REGISTRY, which the openDox call
+    alone cannot give (Copilot review, PR #984). The delegation that makes ONE
+    call serve both accessors is `openxdox.domain_profile.current()` consulting
+    `_upstream()` *only when its own registry is empty* (`:1173`) — so a process
+    where something has already called `openxdox.domain_profile.register(other)`
+    is the exact split this function's own contract forbids, and the openDox
+    registry cannot see it: `opendox…current()` would answer the composite while
+    `openxdox…current()` answered `other`, and this call would return
+    successfully with half its readers on each profile. Checked FIRST, through
+    openXdox's own public `is_registered()`/`current()`, and BEFORE the openDox
+    registry is touched, so a refused process is left with NEITHER registry
+    mutated rather than half-registered.
+
+    IT DOES NOT FIRE ON THIS MODULE'S OWN REGISTRATION, because this module
+    never writes to openXdox's registry: after `register_openxfactory()` the
+    openXdox registry is still empty and the composite is reached by delegation,
+    so `is_registered()` there stays False and the idempotent second call takes
+    exactly the path the first did.
+
     WHO CALLS IT — every process that builds an openDox parser OR server, and
     nothing else (§ 4.3's landing note: *"scope grew: every openxFactory
     process that builds a SERVER needs the hook too, not only a parser"*):
@@ -243,5 +262,26 @@ def register_openxfactory() -> Any:
     carved_reach.install()
 
     from opendox import domain_profile as registry
+    from openxdox import domain_profile as engine
 
-    return registry.register(profile())
+    composite = profile()
+
+    # THE OTHER REGISTRY, CHECKED BEFORE EITHER IS TOUCHED. `is_registered()`
+    # answers openXdox's OWN registry without resolving or refusing, so it does
+    # not consult the delegation and cannot be satisfied by this call's own
+    # effect. Only a DIFFERENT object refuses: an `openxdox` registration of the
+    # very composite being registered is the same one profile reached twice,
+    # which is a no-op and not a split.
+    if engine.is_registered() and engine.current() is not composite:
+        raise engine.AlreadyRegistered(
+            "openxdox.domain_profile already holds a different profile, so "
+            "registering this one with openDox would leave the two accessors "
+            "answering two profiles: openxdox.domain_profile.current() reads "
+            "its OWN registry before it consults the openDox upstream, so the "
+            "delegation that makes one registration serve both legs would be "
+            "bypassed and half of this process's readers would compose from "
+            "each. Neither registry has been written. Call "
+            "openxdox.domain_profile.unregister() first if the swap is "
+            "deliberate.")
+
+    return registry.register(composite)

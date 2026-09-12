@@ -376,6 +376,66 @@ def test_the_host_registration_is_what_makes_a_bare_process_work():
     assert proc.stdout.strip() == "3 openxfactory-engineering"
 
 
+def test_a_foreign_openxdox_registration_is_refused_before_either_is_written():
+    """THE OTHER REGISTRY. ONE registration serves both accessors only because
+    `openxdox…current()` consults the openDox upstream WHEN ITS OWN REGISTRY IS
+    EMPTY; a process where something has already registered a different profile
+    with openXdox directly is the split the one-registration contract forbids,
+    and the openDox registry cannot see it (Copilot review, PR #984).
+
+    In a SUBPROCESS, for `test_a_process_that_never_registered…`'s reason: this
+    manipulates a process-wide registry, and doing it in-process would pull the
+    composition point out from under the rest of the session.
+
+    Asserted positively AND negatively — that the call refuses, and that it
+    refuses BEFORE writing, so a refused process is left with neither registry
+    mutated rather than half-registered.
+    """
+    program = textwrap.dedent("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import domain_profile as odp
+        from openxdox import domain_profile as xdp
+
+        # a DIFFERENT profile, registered with openXdox directly
+        other = xdp.load(opendox_host.PROFILE_PATH)
+        xdp.register(other)
+        assert other is not opendox_host.profile()
+
+        try:
+            opendox_host.register_openxfactory()
+        except xdp.AlreadyRegistered as exc:
+            print("REFUSED", "unregister()" in str(exc))
+        else:
+            print("NO REFUSAL")
+        # neither registry written: openDox still empty, openXdox still `other`
+        print("opendox_registered", odp.is_registered())
+        print("openxdox_current_is_other", xdp.current() is other)
+    """).format(scripts=str(SCRIPTS))
+    proc = subprocess.run([sys.executable, "-c", program],
+                          capture_output=True, text=True, cwd=str(REPO_ROOT))
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.split() == [
+        "REFUSED", "True",
+        "opendox_registered", "False",
+        "openxdox_current_is_other", "True",
+    ], proc.stdout
+
+
+def test_the_guard_does_not_fire_on_this_modules_own_registration():
+    """The guard must not make the ordinary path refuse: this module never
+    writes to openXdox's registry, so `is_registered()` there stays False and
+    the composite is reached by delegation. A guard that read `current()`
+    instead would resolve THROUGH the delegation and refuse the second
+    idempotent call against the object it had just registered."""
+    assert not openxdox_registry.is_registered()
+    assert openxdox_registry.current() is opendox_registry.current()
+    assert opendox_host.register_openxfactory() is opendox_registry.current()
+
+
 def test_a_facet_colliding_with_a_profile_field_is_refused_at_compose_time():
     """`__getattr__` runs only when ordinary lookup FAILS, so a facet named like
     one of `DomainProfile`'s own fields would hand openDox the dataclass's value
