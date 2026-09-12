@@ -27,9 +27,12 @@ the later realization pull request, and § 4 is the archive act.
   resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record the RESOLUTION ROOTS
   carry — a `contracts/<pin-id>-pin.yaml` of
   `kind: pinned_contract_manifest`, five of the six today, CARRYING EVERY MEMBER
-  `neutral-product-pin`'s ratified text REQUIRES FOR ITS REVISION KIND
-  (`openspec/specs/neutral-product-pin/spec.md:31-36`, `:46-48`, `:55-56`,
-  `:62-65`, `:669-673`), this grammar enumerating no member list of its own,
+  REQUIRED BY THE RECORD SHAPE IT MATCHES — three shapes across those five, two
+  of them sharing `revision_kind: commit`, so the revision kind ALONE is not the
+  key (`openspec/specs/neutral-product-pin/spec.md:31-36`, `:46-48`, `:55-56`,
+  `:62-65`, `:669-673`, plus the whole-tree digest shape that text is silent on
+  and `contracts/opendox-pin.yaml:108-110` realizes) — this grammar enumerating
+  no member list of its own,
   judged through a CODE-FIXED route that never executes, imports or opens a path
   a pin record selects, and resolved under the root precedence the in-tree arm
   already uses (`scripts/doc_health/families.py:1317-1321`);
