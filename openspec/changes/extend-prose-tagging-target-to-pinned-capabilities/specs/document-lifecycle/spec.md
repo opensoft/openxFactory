@@ -61,7 +61,11 @@ well-formed capability names — including an empty sequence, a null value, a
 scalar, a mapping, or a sequence carrying an item that is not a capability-shaped
 name — MUST be reported as a malformed enumeration against the pin record, and MUST NOT be read as an absent
 enumeration; while it is malformed, a pinned target naming that record does NOT
-resolve. A deferred or broken enumeration fails closed rather than degrading
+resolve. THAT OBLIGATION IS REACHED THROUGH THE MARKER AND NOT BY A SWEEP: the
+pass reads a pin record because a live marker names it, and this capability
+imposes NO registry-wide scan of pin records no live marker references. A pin
+record's own well-formedness, unreferenced, is `neutral-product-pin`'s business
+and not the marker grammar's. A deferred or broken enumeration fails closed rather than degrading
 open. Whether a pin record may carry `capabilities:` is owned by
 `neutral-product-pin`, not by this capability. This
 conditional arm is deliberate: it binds automatically, with no further grammar
@@ -109,10 +113,11 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST NOT construct a pin-record path, perform a pin lookup, or read any file for that value
 
 #### Scenario: A pin record's capability enumeration is malformed
-- **WHEN** a pin record carries a `capabilities:` member that is not a NON-EMPTY sequence of well-formed capability names, an empty sequence among those shapes
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `capabilities:` member that is not a NON-EMPTY sequence of well-formed capability names, an empty sequence among those shapes
 - **THEN** the deterministic health pass MUST report a malformed-enumeration finding against that pin record
-- **AND** every pinned target naming that record MUST NOT resolve while the enumeration is malformed
+- **AND** that pinned target MUST NOT resolve while the enumeration is malformed
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
+- **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
 
 #### Scenario: A pinned target names a pin the repository does not carry
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists in this repository

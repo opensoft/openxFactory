@@ -104,10 +104,12 @@ the later realization pull request, and § 4 is the archive act.
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
   finding (D-1.1); **(f)** a pinned target whose record declares a kind other than
   `pinned_contract_manifest` does NOT resolve and emits a finding; **(g)** a
-  pin record whose `capabilities:` member is present but malformed — a scalar,
-  a mapping, a null value, an EMPTY sequence, or a sequence carrying a
-  non-capability-shaped item — emits a malformed-enumeration finding AND the
-  pinned target naming it does not resolve, proving the fail-closed path rather
+  pin record NAMED BY A LIVE MARKER whose `capabilities:` member is present but
+  malformed — a scalar, a mapping, a null value, an EMPTY sequence, or a
+  sequence carrying a non-capability-shaped item — emits a
+  malformed-enumeration finding AND the pinned target naming it does not
+  resolve, the record being read because the marker names it and not by any
+  registry sweep, proving the fail-closed path rather
   than the "absent enumeration" fallback, with the empty sequence as its own
   case since it satisfies "a sequence of well-formed names" vacuously;
   **(h)** a pinned value that does not match the lexical grammar — an extra `/`

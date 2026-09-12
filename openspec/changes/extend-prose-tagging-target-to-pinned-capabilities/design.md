@@ -170,7 +170,10 @@ remove.
 sequence of well-formed capability names — a scalar, a mapping, a null or
 empty value, **an EMPTY sequence**, or a sequence carrying an item that is not
 a capability-shaped name — is a MALFORMED ENUMERATION, and the pass reports it as a finding against the PIN
-RECORD. It MUST NOT be read as "this record carries no enumeration", because
+RECORD — reached THROUGH THE MARKER that names the record, since
+`fam_tag_hygiene` is a document-and-marker scan: no registry-wide sweep of pin
+records is added by this change, and a pin record no live marker names is
+`neutral-product-pin`'s business. It MUST NOT be read as "this record carries no enumeration", because
 that reading converts a broken enumeration into a licence: the record would
 silently drop back to arm 1 and admit every capability name. Any pinned target
 naming that record fails to resolve while the enumeration is malformed. This is
