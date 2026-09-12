@@ -247,6 +247,33 @@ def test_main_never_fails_when_the_lane_skips(tmp_path, capsys):
     assert status["result"] == "skipped"
 
 
+def test_main_is_skipped_rather_than_raised_when_registration_fails(
+        tmp_path, capsys, monkeypatch):
+    """§ 4.3/§ 4.4 widened `main()` to register the domain profile before
+    anything else runs (Copilot review, PR #984): a missing leg, a malformed
+    profile, or a registration conflict must not escape as an uncaught
+    exception, because this function's own contract (its docstring) is that
+    EVERY error is a SKIP at exit 0 — never a nonzero exit. This runs BEFORE
+    `run_lane()`'s own try/except, so it needs its own, proven here directly
+    against `register_openxfactory()` rather than against a leg genuinely
+    missing (which the rest of this suite cannot simulate: `tests/ideation-
+    dashboard/conftest.py` already registered the real profile for the whole
+    session before this test runs)."""
+    import opendox_host
+
+    def _boom():
+        raise RuntimeError("simulated registration failure")
+
+    monkeypatch.setattr(opendox_host, "register_openxfactory", _boom)
+    assert lane.main(["--repo-root", str(tmp_path)]) is None
+    out = capsys.readouterr().out
+    assert "ideation-dashboard lane: SKIPPED" in out
+    assert "RuntimeError" in out
+    assert "simulated registration failure" in out
+    # And never reached run_lane(), so no status artifact was written for it.
+    assert not (tmp_path / "health/ideation-dashboard/lane-status.json").exists()
+
+
 @needs_validator
 def test_main_never_fails_on_the_happy_path(tmp_path, capsys):
     agg = _agg_root(tmp_path)

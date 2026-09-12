@@ -518,7 +518,22 @@ def main(argv: list[str] | None = None) -> None:
     # `scripts/reserve-dashboard.sh`:69 runs). Idempotent, so a caller that
     # already registered is not punished.
     from opendox_host import register_openxfactory
-    register_openxfactory()
+    try:
+        register_openxfactory()
+    except Exception as exc:  # noqa: BLE001 — same SKIPPED contract as run_lane()
+        # A missing leg, a malformed profile, or a registration conflict must
+        # not escape `main()` uncaught (Copilot review, PR #984): this call
+        # runs before the `run_lane()` try/except below, and this function's
+        # own contract (docstring above) is that EVERY error is a SKIP at
+        # exit 0, never a nonzero exit. Reported the identical way the
+        # belt-and-braces catch below reports an unhandled `run_lane()`
+        # failure, and for the same reason: this really should never happen
+        # in production (the profile is a file checked into this repository),
+        # so there is no `LaneOutcome`/`status_path` to build around it —
+        # just the SKIP.
+        print(f"ideation-dashboard lane: SKIPPED — unhandled "
+              f"{type(exc).__name__}: {exc}")
+        return
 
     ap = argparse.ArgumentParser(
         prog="ideation-dashboard-nightly", description=__doc__,
