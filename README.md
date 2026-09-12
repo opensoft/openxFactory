@@ -531,6 +531,35 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
+  — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: draft`** — an UNAPPROVED packet in the lawful drafting shape
+  (`proposed_by` / `proposed_on`, no approval pair). **Proposed** 2026-09-12 at
+  approximately 01:55Z by Brett Heap, openxFactory repository owner, first-hand,
+  in session — a SELECTION, not a typed sentence, via the lane's multi-select
+  question: the option ***"#992 grammar-extension OpenSpec change
+  (Recommended)"***; recorded on openxFactory #745. That word commissioned the
+  FILING and nothing further. Extends the prose-tagging grammar with a target
+  form that can name a capability which has LEFT this corpus and now lives in a
+  pinned neutral product — `target=pinned:<pin-id>/<capability>`, chosen because
+  the existing marker regexes (`scripts/doc_health/families.py:1308-1314`) accept
+  it unchanged — with resolution resting on the pin record's existence (no pin
+  record in this tree enumerates capabilities; all six enumerate files, measured)
+  and a stale-target rule `document-lifecycle` does not carry today: when a
+  target capability exits the corpus the marker either takes the pinned form or
+  the block is unfenced, never silently retargeted and never silently deleted.
+  **This discharges owed successor item (7) of the `split-openxwallet-repo`
+  archived-ledger entry below on ARCHIVE, not on filing — no box is ticked
+  here.** The four `error`-band `tag-hygiene` findings that archive measured
+  (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN and
+  the four markers stay exactly as they are: `code_surface` names
+  `scripts/doc_health/families.py`, NO BYTE OF WHICH MOVES IN THE FILING, so per
+  `release-realization` this packet archives only on merged-plus-green
+  realization evidence — one later pull request carrying the resolver arm, its
+  tests, the four retargeted markers, the `docs/document-lifecycle.md` section
+  and the stale `ideation/staging/INDEX.md:2262-2265` line together. Filed from
+  openxFactory [#992](https://github.com/opensoft/openxFactory/issues/992), filing PR
+  [#994](https://github.com/opensoft/openxFactory/pull/994).
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
