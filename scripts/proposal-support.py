@@ -570,7 +570,7 @@ def git_show_text(root: Path, revision: str, rel_path: str) -> str | None:
     return result.stdout.decode("utf-8", "replace")
 
 
-def renamed_from(root: Path, revision: str, rel: str,
+def renamed_from(root: Path, revision: str, rel: str, *,
                  kinds: str = "RC") -> str | None:
     """The path `rel` was RENAMED OR COPIED FROM at `revision`, or None when it
     came into being there outright (or was merely modified there).
@@ -668,7 +668,7 @@ def renamed_from(root: Path, revision: str, rel: str,
     return None
 
 
-def ratified_under_a_former_path(root: Path, revision: str, rel: str,
+def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
                                  kinds: str = "RC") -> str | None:
     """The path this packet occupied BEFORE `revision` moved it, when it
     ALREADY declared `Status: ratified` there — the case in which `revision`
