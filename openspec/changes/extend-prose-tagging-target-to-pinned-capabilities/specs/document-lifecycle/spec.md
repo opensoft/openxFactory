@@ -45,13 +45,32 @@ an external neutral product. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
 no capability set for the name to be about. THE KIND ALONE IS A LABEL, NOT A
-PIN: the record MUST also actually pin something — a `revision_kind` together
-with the referent that kind of revision requires, a `commit` for
-`revision_kind: commit` and an `integrity` digest for a package pin, as
-`neutral-product-pin` requires of every such record. A record declaring the
-kind with no revision referent is an INCOMPLETE PIN: it MUST be reported and
-MUST NOT resolve a pinned target, so a file added to `contracts/` carrying only
-`kind:` cannot make an arbitrary pinned target resolve. THE RECORD MUST ALSO BE
+PIN, AND THIS CAPABILITY SHALL ENUMERATE NO PIN SHAPE OF ITS OWN: the record
+MUST also PASS THE CANONICAL `neutral-product-pin` VALIDATION THIS REPOSITORY
+ALREADY CARRIES, which is the verifier the record itself names in its
+`verify_pin:` member — every `pinned_contract_manifest` record in `contracts/`
+carries one (`contracts/opendox-pin.yaml:156`,
+`contracts/openreposhape-pin.yaml:121`, `contracts/openspec-cli-pin.yaml:376`,
+`contracts/openxdox-pin.yaml:121`, `contracts/openxwallet-pin.yaml:64`). That
+validation owns the WHOLE field list per revision kind, and this grammar reads
+none of it: a source pin's `commit` together with the `files:` and
+`pinned_by_commit_only:` completeness claims `neutral-product-pin` requires of
+it, a published-artifact pin's version, `integrity`, `shasum` and vendored
+lockfile. A record that DECLARES the kind and FAILS that validation — no
+`revision_kind`, a `revision_kind` without its referent, a missing or malformed
+SECONDARY field, or no `verify_pin:` member at all — is an INVALID PIN: it MUST
+be reported with a finding NAMING THE FAILING FIELD and MUST NOT resolve a
+pinned target, so neither a file added to `contracts/` carrying only `kind:`
+nor one carrying a kind and a partial field set can make an arbitrary pinned
+target resolve. A RESTATED FIELD LIST IS THE DEFECT THIS SENTENCE PREVENTS: a
+second list held in the marker grammar drifts from `neutral-product-pin`'s the
+first time that capability admits a revision kind or a secondary field, and of
+two lists the WEAKER is the one that admits. THE JUDGEMENT IS REACHED OFFLINE
+AND IS A CONTROLLED FINDING: the pass takes the canonical validation's SHAPE
+arm — the part that reads this repository's tree — and MUST NOT perform the
+fetch or remote-comparison steps a verifier also carries, and a record that
+fails is an unresolved pinned target reported as a finding, never an exception
+that takes the run down, on the same terms as the corrupt-record rule below. THE RECORD MUST ALSO BE
 A FILE OF THIS REPOSITORY'S `contracts/` DIRECTORY, RESOLVED: the pass MUST
 resolve the candidate path and refuse to read it unless the resolved path stays
 inside that directory, and a symlink that leaves it MUST be refused rather than
@@ -109,7 +128,7 @@ not the thing that happens when nobody decides.
 - **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
-- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves to a pin record this repository carries whose path stays inside `contracts/` when resolved, which declares `kind: pinned_contract_manifest` AND carries a `revision_kind` with the referent that kind requires, and which EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
+- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves to a pin record this repository carries whose path stays inside `contracts/` when resolved, which declares `kind: pinned_contract_manifest` AND PASSES the canonical `neutral-product-pin` validation the record names in its `verify_pin:` member, and which EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
 - **THEN** the target MUST resolve
 - **AND** where the record carries no `capabilities:` member, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
 - **AND** a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
@@ -136,10 +155,11 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 - **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
 
-#### Scenario: A pin record declares the kind but pins nothing
-- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but carries no `revision_kind` with its required referent
-- **THEN** the deterministic health pass MUST report it as an incomplete pin
+#### Scenario: A pin record declares the kind but fails the canonical pin validation
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but does not pass the canonical `neutral-product-pin` validation — no `revision_kind`, a `revision_kind` without its required referent, a missing or malformed secondary field that validation requires of its revision kind, or no `verify_pin:` member naming a verifier this tree carries
+- **THEN** the deterministic health pass MUST report it as an invalid pin, naming the failing field
 - **AND** the target MUST NOT resolve on the strength of the declared kind
+- **AND** the pass MUST reach that judgement through the canonical validation rather than a field list restated in this grammar
 
 #### Scenario: A pin path resolves outside the contracts directory
 - **WHEN** the candidate pin-record path for `<pin-id>` resolves outside this repository's `contracts/` directory, whether by symlink or otherwise

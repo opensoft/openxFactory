@@ -123,7 +123,7 @@ misresolve by accident. The `document-lifecycle` delta therefore states the
 refusal as a rule and carries a scenario for it. Admitting a pinned `spec=` is
 a later change, on evidence that a stale supersedes target exists.
 
-## D-2 — Resolution: the pin record's existence is the check
+## D-2 — Resolution: a VALID, COMPLETE neutral-product pin record is the check
 
 **Decision.** Resolution of `pinned:<pin-id>/<capability>` has two arms:
 
@@ -135,18 +135,67 @@ a later change, on evidence that a stale supersedes target exists.
    `contracts/<product>-pin.yaml`, REUSING `kind: pinned_contract_manifest`
    unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
    unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
-   capability is today. **And the kind alone is a LABEL, not a pin**: the record must also carry a
-   `revision_kind` with its referent — `commit` for `revision_kind: commit`,
-   `integrity` for a package pin, which is what all five admissible records
-   carry, measured — or it is an INCOMPLETE PIN that reports and does not
-   resolve. Otherwise a new `contracts/anything-pin.yaml` holding one `kind:`
-   line would admit every pinned target under it. **And the path is RESOLVED
+   capability is today. **And the kind alone is a LABEL, not a pin — SO THE
+   RECORD MUST PASS THE CANONICAL `neutral-product-pin` VALIDATION, AND THIS
+   GRAMMAR ENUMERATES NO PIN SHAPE OF ITS OWN.** An earlier drafting of this arm
+   asked only for a `revision_kind` with its top-level referent, and that is
+   MEASURABLY WEAKER than the canonical shape: `neutral-product-pin` obliges a
+   SOURCE pin to carry, beside its `commit`, "a per-file `sha256` for every
+   artifact the product's own manifest digests per file, and
+   `pinned_by_commit_only:` for every artifact the product content-addresses by
+   commit alone" (`openspec/specs/neutral-product-pin/spec.md:31-38`), and it
+   obliges a PUBLISHED-ARTIFACT pin to "record every field the consumer's
+   verifier checks — including any secondary address the registry publishes — so
+   that no declared field goes unverified" (`:56-64`) — the `version`,
+   `integrity`, `shasum` and vendored `lockfile` that
+   `contracts/openspec-cli-pin.yaml:289-328` carries. A `contracts/evil-pin.yaml`
+   holding `kind`, `revision_kind: commit` and a `commit` satisfies the weaker
+   wording and resolves arbitrary pinned targets under it; it does not satisfy
+   the canonical one. **THE CANONICAL VALIDATION IS NOT A LIST THIS PACKET
+   WRITES DOWN — IT IS THE VERIFIER THE RECORD ITSELF NAMES.** Every
+   `pinned_contract_manifest` record in `contracts/` carries a `verify_pin:`
+   member naming its own validator, measured over all five:
+   `contracts/opendox-pin.yaml:156` → `scripts/verify-opendox-pin.py`,
+   `contracts/openreposhape-pin.yaml:121` →
+   `scripts/validate-openreposhape-pin.py`,
+   `contracts/openspec-cli-pin.yaml:376` → `scripts/validate-openspec-cli-pin.py`
+   (also its `consumer_entrypoint:` at `:394`),
+   `contracts/openxdox-pin.yaml:121` → `scripts/verify-openxdox-pin.py`,
+   `contracts/openxwallet-pin.yaml:64` → `scripts/verify-openxwallet-pin.py`.
+   A record that declares the kind and FAILS that validation — including a
+   record carrying no `verify_pin:` member, or naming a verifier this tree does
+   not contain — is an INVALID PIN that reports, NAMING THE FAILING FIELD, and
+   does not resolve; it is a CONTROLLED FINDING on the same terms as the corrupt
+   record below, never an exception. **And the judgement is reached OFFLINE, at
+   a SEAM the realization owns.** No shared shape entrypoint exists today: each
+   of the five verifiers carries its own guard inline (for example
+   `_pinned_commit`, `scripts/verify-openxdox-pin.py:266-291`, and
+   `pinned_version`, `scripts/validate-openspec-cli-pin.py:584-608`), and every
+   one of the five also shells out to a subprocess while
+   `scripts/validate-openreposhape-pin.py` reaches the network through `urllib`
+   — work `neutral-product-pin`'s offline law forbids this pass.
+   The realization therefore reaches the canonical judgement EITHER by invoking
+   the named verifier in an offline shape-only capacity OR by extracting the
+   guard those verifiers already carry into one helper that both the verifier
+   and `fam_tag_hygiene` call — and NOT by restating the field list inside the
+   family, because of two field lists the weaker is always the one that admits.
+   **And the path is RESOLVED
    before it is read**: the lexical grammar of D-1 stops a `..` inside the
    MARKER, and only resolved containment stops a committed SYMLINK at
-   `contracts/<pin-id>-pin.yaml` redirecting the read out of the registry, so
-   the realization reuses `resolve_in_tree`
-   (`scripts/validate-pin-registrations.py:237-267`) rather than inventing a
-   second dialect for the same question. **A record that EXISTS but is corrupt is the same class
+   `contracts/<pin-id>-pin.yaml` redirecting the read out of the registry. The
+   realization reuses the repository's own containment dialect rather than
+   inventing a second one, but it CANNOT reuse `resolve_in_tree`
+   (`scripts/validate-pin-registrations.py:237-267`) AS WRITTEN: that helper
+   resolves against a module-global `ROOT` and asks only
+   `resolved.is_relative_to(ROOT)`, so it answers the REPOSITORY question and
+   not the `contracts/` one — a committed
+   `contracts/foo-pin.yaml -> ../openspec/specs/…` symlink stays inside the
+   repository and passes it — and a module-global root cannot speak for
+   doc-health's fixture and aggregate roots, which are the roots this family
+   actually runs against. The helper the realization uses therefore RECEIVES THE
+   CURRENT REPOSITORY ROOT AS A PARAMETER and checks the resolved candidate
+   against THAT root's `contracts/` boundary before any read, whether by
+   parameterizing `resolve_in_tree` or by extracting a shared helper both call. **A record that EXISTS but is corrupt is the same class
    of event, not a crash**: invalid YAML, a non-mapping document, or a mapping
    with no `kind` is reported as an unreadable pin record and the target does
    not resolve, with the run completing. The resolver reads a registry file it

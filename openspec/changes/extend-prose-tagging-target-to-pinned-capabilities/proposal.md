@@ -123,11 +123,20 @@ fenced and queued truthfully instead.
    unmoved marker regexes accept any non-whitespace value and are deliberately
    not the guard (design D-1).
 
-2. **A resolution rule that rests on the pin, and says so.** The `<pin-id>`
-   MUST resolve to a NEUTRAL-PRODUCT pin record in this repository's pin
-   registry — `kind: pinned_contract_manifest`, the shape `neutral-product-pin`
-   requires; a `pinned_workflow` record pins executable governance code and is
-   excluded, since it has no capability set for a name to be about. The
+2. **A resolution rule that rests on a VALID, COMPLETE pin record, and says
+   so.** The `<pin-id>` MUST resolve to a NEUTRAL-PRODUCT pin record in this
+   repository's pin registry — `kind: pinned_contract_manifest`, the shape
+   `neutral-product-pin` requires; a `pinned_workflow` record pins executable
+   governance code and is excluded, since it has no capability set for a name
+   to be about. **AND THE KIND IS A LABEL, SO THE RECORD MUST PASS THE
+   CANONICAL `neutral-product-pin` VALIDATION IT NAMES IN ITS OWN `verify_pin:`
+   MEMBER** — every `pinned_contract_manifest` record in `contracts/` carries
+   that member, measured over all five — and this grammar enumerates NO PIN
+   SHAPE OF ITS OWN: a record carrying a kind with a partial field set, such as
+   a source pin without the `files:` and `pinned_by_commit_only:` completeness
+   claims or a published-artifact pin without its `version`, `shasum` and
+   vendored `lockfile`, is an INVALID PIN that reports with a finding NAMING
+   THE FAILING FIELD and does not resolve (design D-2). The
    `<capability>` segment is NOT resolved further, because **no pin record in
    this tree enumerates capabilities** — measured over all six at `323c7adf`.
    What each record addresses INSTEAD differs, and the differences matter
