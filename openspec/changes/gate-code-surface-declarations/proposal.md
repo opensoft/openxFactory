@@ -158,14 +158,15 @@ PERFORM.**
    comma, by ` and `, or by ` + `, and the gloss being introduced by one of the
    openers the corpus already uses. The head is judged; the gloss never is.
    Membership is explicitly NOT judged, for a measured reason (`design.md` D1).
-   TEN scenarios.
+   NINE scenarios.
 2. **`### Requirement: The declared repository set is derived from the head and
    never from the gloss`** — the consumer rule, which is where the
    authorization actually sits. THREE scenarios.
 3. **`### Requirement: Standing code-surface divergence is named in a closed
    register`** — the ratchet, in the sibling's shape: removable, never addable,
    with the closure enforced by a baseline in the module and the two asymmetric
-   refusals kept asymmetric. FOUR scenarios.
+   refusals kept asymmetric. FOUR scenarios. **SIXTEEN in all**, counted from
+   the delta file rather than carried.
 
 The realization — validator, register, tests, and the one narrowing edit — is
 `tasks.md` § 3, and it is a LATER pull request on a LATER word.
