@@ -148,8 +148,10 @@ mapping manifest. Measured in the landed file:
 constants` 165, `adapter calls` 65. **153 rows carry `edits:`** — the 152
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 
-The row and line totals above are the file AS AMENDED on 2026-09-10 under
-RULING Q-L1 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
+The table above states the file's CURRENT totals — see "Measured directly
+against the landed manifest" below for how they are derived. What follows is
+the file's history of amendments in landing order, starting with RULING Q-L1 on
+2026-09-10 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
 joined the `replicated_at_destination` rows, and eleven lines over seven
 `opendox_code` rows were declared — ten of them citations too short to express
 the edit their row's own note described, plus the seam file's own path
@@ -275,7 +277,8 @@ of the raw bytes, line N is the Nth such record counting from 1, a trailing
 newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
-`grep -n`'s, and the one the manifest's 794 declared lines were written in.
+`grep -n`'s, and the one the manifest's declared lines have been written in
+from the start — 794 of them at this ruling's own landing, 909 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
