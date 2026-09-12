@@ -1154,8 +1154,19 @@ def test_an_honestly_absent_issuance_evidence_record_is_not_a_disagreement(
     UNREPRESENTABLE beside an `evidence_ref`. Comparing against a reference that
     is absent by shape would report a disagreement where that family records a
     declared gap, so the comparison runs only where the certificate carries one.
-    The binding is still refused — by the rules that own the absence — but never
-    as two records naming each other differently."""
+
+    SCOPED TO WHAT THIS TEST RUNS — this reader, and nothing else. The absence
+    is not refused here and is not asserted here: it is refused by the validator
+    that owns it, `scripts/validate-trust-anchor.py`, under
+    `issuance-evidence-absent-trusted`, red-proven by the packaged negative
+    `unexplained-certificate-recorded-as-trusted.yaml` under
+    `contracts/trust-anchor/examples/negative/` — exactly the shape the mutation
+    produces, a certificate recorded `trusted` while carrying no issuance
+    evidence. What is pinned here is this reader's SILENCE: the honest
+    absence must not be restated as two records naming each other differently,
+    and — the second assertion — must not be reported by this reader at all,
+    since an error appearing here would be this reader taking over another
+    family's adjudication."""
     import copy
 
     records = copy.deepcopy(_tranche_two_records())
@@ -1166,11 +1177,11 @@ def test_an_honestly_absent_issuance_evidence_record_is_not_a_disagreement(
                         "disposition": "revocation_candidate",
                         "recorded_at": "2026-09-01T08:00:00Z"},
     }
-    lines = reader.lines_for(
-        _validate(records, registry_and_docs, carried).errors,
-        "forged_attestation_identity")
+    findings = _validate(records, registry_and_docs, carried)
+    lines = reader.lines_for(findings.errors, "forged_attestation_identity")
     assert not any("records its issuance evidence as" in line for line in lines), \
         lines
+    assert findings.errors == [], findings.errors
 
 
 def test_a_missing_part_is_still_reported_as_a_missing_part(registry_and_docs,
