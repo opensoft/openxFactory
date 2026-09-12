@@ -54,8 +54,8 @@ ideation-split ruling) log views, edits, FAILED ATTEMPTS and
 administrative actions, and their appendix names verification-attempt auditing
 as an addition the neutral family's ten links do not yet carry, since those
 links are framed around what was signed and produced. **The path never
-resolves inside this repository again — it is cited here, and in the three
-other requirements below that share it, as HISTORICAL PROVENANCE ONLY**, said
+resolves inside this repository again — it is cited here, and in the other
+requirements below that share it, as HISTORICAL PROVENANCE ONLY**, said
 in the requirement rather than only in the proposal, because a reader arrives
 at a spec without one. **The obligation does not depend on the citation**: it
 is normative on its own ground — an evidence plane that records only what was

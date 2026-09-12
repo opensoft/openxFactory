@@ -1,17 +1,23 @@
 ---
+Status: draft
 code_surface: none — this change edits only the PROVENANCE citation text inside
   three already-promoted `chain-anchoring` requirements (`openspec/specs/chain-anchoring/spec.md`);
   it adds, removes, and modifies no normative obligation, scenario, or code. No
-  script, schema, or validator changes. Archives on landing (no code surface to
-  realize).
+  script, schema, or validator changes. No code-surface realization gate
+  applies (`release-realization`'s archive gate binds only a NON-empty code
+  surface) — but archive still waits on `tasks.md` 1.2, the **(OPERATOR)**
+  ratify-and-promote act: `scripts/proposal-support.py`'s archive wrapper
+  refuses any packet carrying an unchecked `- [ ]` task
+  (`archive_change`, `scripts/proposal-support.py:3064-3066`), so this does
+  NOT archive merely on this authoring pull request landing (Copilot
+  review, PR #998).
 target_release: implemented — the affected repository's (openxFactory's) main
   line; `release-realization`'s Requirement "Realization axis declaration"
   permits only `implemented` or a named aggregation release for this field
   (`none` is not a sanctioned value, even though the CLI does not currently
-  enforce it — Copilot review, PR #998). A citation-text-only spec amendment
-  with `code_surface: none` archives on landing, per the same requirement's
-  default; there is no separate release bundle to cut or pin.
-Status: draft
+  enforce it — Copilot review, PR #998). There is no separate release bundle
+  to cut or pin; archiving is gated on task 1.2 as stated above, not on
+  landing alone.
 ---
 
 # Proposal: repoint-chain-anchoring-medxchain-citation

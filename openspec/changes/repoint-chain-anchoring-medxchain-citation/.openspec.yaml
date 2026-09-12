@@ -13,8 +13,9 @@ origin:
     than on openxFactory #745 (#745 is this lane's running status thread;
     checked in full — `gh api repos/opensoft/openxFactory/issues/745/comments
     --paginate` — and it names neither #791 nor #792, so it is not cited
-    here): openxFactory #791 comment 5642768645 and #792 comment 5642768762
-    (both 2026-09-12T02:09:4xZ, lane openxfactory-2, session 3ea0262c), each
+    here): openxFactory #791 comment 5642768645 (2026-09-12T02:09:41Z) and
+    #792 comment 5642768762 (2026-09-12T02:09:42Z), lane openxfactory-2,
+    session 3ea0262c, each
     reading "on Brett Heap's pick (in session, multi-select, 2026-09-12
     ~01:55Z, option 'Doc-link repairs #791 + #792')". #791 itself names the
     exact defect — four dead MedxChain-notes citations in the promoted
@@ -40,8 +41,8 @@ origin:
   proposed_by: >-
     Brett Heap (openxFactory repository owner), a multi-choice SELECTION in
     session, 2026-09-12 ~01:55Z, reading "Doc-link repairs #791 + #792" —
-    recorded on openxFactory #791 (comment 5642768645) and #792 (comment
-    5642768762), both 2026-09-12T02:09:4xZ, lane openxfactory-2.
+    recorded on openxFactory #791 (comment 5642768645, 2026-09-12T02:09:41Z)
+    and #792 (comment 5642768762, 2026-09-12T02:09:42Z), lane openxfactory-2.
   proposed_on: 2026-09-12
 related:
   - openxFactory:issue:791  # governing issue — the chain-anchoring citation repoint
