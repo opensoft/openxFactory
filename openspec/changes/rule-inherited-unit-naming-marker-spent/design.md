@@ -1,6 +1,7 @@
 # Design: rule-inherited-unit-naming-marker-spent
 
-Status: draft
+Status: ratified
+Ratified by: rule-inherited-unit-naming-marker-spent — 2026-09-12, Brett Heap, "do all as recomended" (record `review/ratification-2026-09-12.md`)
 Kind: design
 
 ## 0. The brief
@@ -23,9 +24,12 @@ is by construction absent from canon (the declared act removed it) and absent
 from the block (a block does not restate a retired unit). Canon says which
 report fires; canon does not say which option an author OWES.
 
-**D1 is the owner's decision and it can end this packet.** It is put below as a
-multiple choice with the recommendation first. Option 2 is a re-authoring, not
-an edit.
+**D1 was the owner's decision and it could end this packet.** It was put below
+as a multiple choice with the recommendation first; option 2 would have been a
+re-authoring, not an edit. **BRETT HEAP TOOK OPTION 1** — verbatim *"do all as
+recomended"*, recorded on PR #962 at 2026-09-12T15:45:16Z (comment
+`5646922185`) — so the packet is amended exactly as encoded below and the
+wording stands unchanged; D2b (no marker owed) is confirmed by the same word.
 
 ## D0 — the measurement, taken before the design
 
@@ -311,6 +315,17 @@ under (b), whichever comes first. **Carrying the marker to silence it today woul
 one clean row now at the price of a third-ground defect the day the parent
 archives**, which is the trade #955 exists to end.
 
+**THE ROW CLEARED UNDER (b), NOT (a).** The parent archived to
+`openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`
+(openxFactory PR #973, merged 2026-09-11T18:24:42Z) before this packet's own
+ratification; this branch's merge of `origin/main` (67b8011f) brought that
+archive in, and `--single-repo --family modified-block-currency` read TEN
+rows with this one among them at the freeze (`51edde81`,
+issuecomment-5636697848) and NINE with this one gone immediately after the
+merge, before a single ratification edit was made. The row is removed from
+`tests/doc-health/test_modified_block_currency_self_gate.py`'s
+`_LEDGER_SUBJECTS` in the same encode.
+
 ## D3 — why an OpenSpec change and not a patch
 
 **Because the sentences are PROMOTED, RATIFIED CANON, and this estate has a
@@ -379,15 +394,22 @@ separate act on a separate word**, at which openxFactory #955 closes.
 
 ## D5 — sequencing: the parent declaration, and the sibling search pasted
 
-**`sequenced_after: [amend-merged-into-empty-tail-standing]`.** That change is
-an ACTIVE RATIFIED writer of THIS requirement (PR #947, `Status: ratified`
-2026-09-11, `code_surface: none`), so two active MODIFIED blocks stand over one
-promoted requirement and `release-realization`'s *Ordered deltas and branch
-vocabulary* obliges the later proposal to reference the earlier and declare its
-deltas relative to that change's OUTCOME. This requirement's own two-writers
-arm then reads that declaration as the order — **"BY DECLARATION AND NEVER BY
-DATE"** — and measures the declaring block against the declared sibling's
-outcome.
+**`sequenced_after: [amend-merged-into-empty-tail-standing]`.** That change
+WAS an ACTIVE RATIFIED writer of THIS requirement AT THIS PACKET'S AUTHORING
+(PR #947, `Status: ratified` 2026-09-11, `code_surface: none`) — **IT HAS
+SINCE ARCHIVED** (PR #973, merged 2026-09-11T18:24:42Z, to
+`openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`).
+At authoring, two active MODIFIED blocks stood over one promoted requirement
+and `release-realization`'s *Ordered deltas and branch vocabulary* obliged the
+later proposal to reference the earlier and declare its deltas relative to
+that change's OUTCOME. This requirement's own two-writers arm then read that
+declaration as the order — **"BY DECLARATION AND NEVER BY DATE"** — and
+measured the declaring block against the declared sibling's outcome. The
+declaration is UNCHANGED by the parent's archive:
+`scripts/validate-sequenced-after.py` resolves a declared parent in the
+ACTIVE and the ARCHIVED corpora both (confirmed below), which is why this
+packet's own `sequenced_after:` still names the parent by its unprefixed
+change id and the corpus ledger now resolves it at `depth: 1`.
 
 **SO THE PRE-TEXT OF THIS BLOCK IS THE PARENT'S BLOCK, NOT CANON'S TEXT.** It
 was read with
@@ -433,8 +455,10 @@ change id occurring as a whole token in `proposal.md`'s own § Sequencing.
   delta, #959 a `roles-authority-model` delta, #594 a `worker-fleet-health`
   delta; and #961, #940, #888 and #518 carry no spec delta at all.
 
-**ONE OTHER ACTIVE WRITER OF THIS REQUIREMENT EXISTS, IT IS DECLARED, AND
-NOTHING ELSE COLLIDES.**
+**ONE OTHER ACTIVE WRITER OF THIS REQUIREMENT EXISTED AT THAT SEARCH, IT WAS
+DECLARED, AND NOTHING ELSE COLLIDED** — that writer has since archived (PR
+#973), as this section's opening now records, and nothing else has since
+appeared to collide either.
 
 ## D6 — the LIMIT: this reaches a marker every one of whose named units has left canon, and no other
 

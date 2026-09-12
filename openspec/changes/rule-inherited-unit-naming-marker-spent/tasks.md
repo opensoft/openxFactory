@@ -1,6 +1,7 @@
 # Tasks: rule-inherited-unit-naming-marker-spent
 
-Status: draft
+Status: ratified
+Ratified by: rule-inherited-unit-naming-marker-spent — 2026-09-12, Brett Heap, "do all as recomended" (record `review/ratification-2026-09-12.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented`. Under
@@ -10,20 +11,29 @@ archive is a separate act on a separate word, not performed here** (§ 5).
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in the pull request body.
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN**: Brett Heap's word of 2026-09-11,
-verbatim *"land each when green, archive both when landed, claim 955 and 956"*,
-COMMISSIONED THE AUTHORING and ratified nothing — `design.md` D1 is his
-decision and is put as a multiple choice with the recommendation first. **§ 5
-(ARCHIVE) IS ENTIRELY OPEN**: the promotion of the block into
-`openspec/specs/doc-health/spec.md` and the closing line for openxFactory #955
-belong to the archive pull request, on a separate word. **§ 6 STAYS
-UNTICKED**: residue, measured and deliberately not taken.
+**§ 1 (RATIFICATION) IS NOW TICKED AND NAMES THE WORD THAT TICKED IT**: Brett
+Heap's word of 2026-09-11, verbatim *"land each when green, archive both when
+landed, claim 955 and 956"*, COMMISSIONED THE AUTHORING and ratified nothing —
+it stays recorded as the ORIGIN of the AUTHORING. A SECOND word, verbatim *"do
+all as recomended"*, given in session and recorded on PR #962 at
+2026-09-12T15:45:16Z (record `review/ratification-2026-09-12.md`), ratified
+the packet itself — `design.md` D1 (Option 1, as encoded) and D2b (no marker
+owed, confirmed by measurement) both — his act and never this lane's
+judgment. **§ 5 (ARCHIVE) STAYS ENTIRELY OPEN**: the promotion of the block
+into `openspec/specs/doc-health/spec.md` and the closing line for openxFactory
+#955 belong to the archive pull request, on a separate word, and to nothing
+here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-12T15:45:16Z
 
-- [ ] 1.1 **`design.md` D1 IS THE OWNER'S DECISION AND IT CAN END THIS
-      PACKET.** It is put as a MULTIPLE CHOICE with the recommendation first.
-      **OPTION 1 (RECOMMENDED, AND WHAT THIS PACKET ENCODES):** rule the
+- [x] 1.1 **RATIFIED 2026-09-12 by Brett Heap** (openxFactory operator
+      authority), verbatim *"do all as recomended"*, given in session in
+      answer to a list of open rulings each put with its recommendation first,
+      and recorded on PR **#962** at 2026-09-12T15:45:16Z (comment
+      `5646922185`). It is his act and never this lane's judgment. `design.md`
+      D1 was put as a MULTIPLE CHOICE with the recommendation first.
+      **OPTION 1 (RECOMMENDED, AND WHAT THIS PACKET ENCODES, AND WHAT WAS
+      TAKEN):** rule the
       two-option state CORRECT — five sentences added to the paragraph that
       already rules a marker no carriage unit, saying that a unit-naming marker
       is SPENT once EVERY unit it names has left canon by a declared act, so
@@ -32,30 +42,35 @@ UNTICKED**: residue, measured and deliberately not taken.
       the rule. The condition is ALL-NAMES and not one-name — a marker names
       units in the plural — which is Copilot's substantive round on #962 taken
       in the wording rather than deferred to the owner (§ 3.10). No ground added, no suppression moved, no code, archives on
-      landing. **OPTION 2 (WRITTEN OUT IN D1 AND NOT ENCODED):** add a THIRD
+      landing. **OPTION 2 (WRITTEN OUT IN D1, AND NOT TAKEN):** add a THIRD
       option — a suppression for an inherited marker whose named units have
       all left canon by a DECLARED act, resolvable against the archived delta
       that declared it: one predicate, one `_WHY_*` template, its own scenario, a
       CODE SURFACE in `scripts/doc_health/` plus `tests/doc-health/`, a checker
       basis widened to a third document class, a fail-OPEN direction, and an
-      archive rule that changes from on-landing to merged-plus-green. **IF
-      OPTION 2 IS TAKEN THIS PACKET IS RE-AUTHORED, NOT AMENDED.**
-- [ ] 1.2 **NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED.**
-      `.openspec.yaml` carries drafting provenance only — `kind`, `id`,
-      `reason`, `proposed_by`, `proposed_on` — with no `approved_by` and no
-      `approved_on`, the lawful unapproved shape `add-drafted-proposal-origin`
-      (issue #318) defined. `proposal.md`, `design.md` and this file all carry
-      `Status: draft` and no citation line. At ratification the approval pair
-      is ADDED BESIDE the drafting provenance with `kind` and `id` unmoved, and
-      the status flips move in the SAME commit as the pair so the index never
-      states a standing the packet does not have.
-- [ ] 1.3 **`design.md` D2b IS THE SECOND THING WORTH A LOOK, AND IT IS
-      DECIDED BY MEASUREMENT RATHER THAN BY PREFERENCE**: this block DROPS the
+      archive rule that changes from on-landing to merged-plus-green. **OPTION
+      2 WAS NOT TAKEN, SO THE PACKET IS AMENDED, NOT RE-AUTHORED**, and its
+      wording stands unchanged.
+- [x] 1.2 **THE APPROVAL PAIR IS NOW ADDED, BESIDE THE DRAFTING PROVENANCE
+      LEFT UNMOVED.** `.openspec.yaml` carried drafting provenance only —
+      `kind`, `id`, `reason`, `proposed_by`, `proposed_on` — with no
+      `approved_by` and no `approved_on`, the lawful unapproved shape
+      `add-drafted-proposal-origin` (issue #318) defined; `proposal.md`,
+      `design.md` and this file all carried `Status: draft` and no citation
+      line. At this ratification the approval pair is ADDED BESIDE the
+      drafting provenance with `kind` and `id` unmoved, and the status flips
+      move in the SAME commit as the pair so the index never states a
+      standing the packet does not have.
+- [x] 1.3 **`design.md` D2b IS RULED BY THE SAME WORD, CONFIRMED BY
+      MEASUREMENT RATHER THAN BY PREFERENCE**: this block DROPS the
       `Removed from canon` marker it inherits from its ordered-delta parent,
-      and the measurement of both branches is in D2b's table. A veto there
-      would carry the parent's marker forward instead and buy one clean row
-      today at the price of a third-ground marker defect the day the parent
-      archives.
+      and the measurement of both branches is in D2b's table. The veto
+      offered — carry the parent's marker forward instead, buying one clean
+      row today at the price of a third-ground marker defect the day the
+      parent archives — was NOT taken. (The row that measurement describes
+      has since retired on its own, on the parent's archive — D2b's event
+      (b) — independent of this ratification; see the addendum at the end of
+      D2b and the self-gate fix, commit `396bca94`.)
 
 ## 2. The measurement, taken before the design
 
@@ -234,7 +249,12 @@ UNTICKED**: residue, measured and deliberately not taken.
       lands and this branch takes the merge from `main` that § 4.7 needs.
       **SO THE ROW IS RE-SEEDED WITH THE SAME TOOL AFTER THAT MERGE, NOT
       HAND-EDITED, AND § 4.7 AND § 4.10 ARE NOT TICKED BEFORE IT IS** — Copilot's
-      second round on #962 taken.
+      second round on #962 taken. **THAT RE-SEED HAS SINCE HAPPENED**: after
+      the first merge from `main` (commit `67b8011f`) made the parent
+      resolvable in the ARCHIVED corpus, the SAME tool was run again
+      (`--seed-ledger --moved-by '#962'`, commit `b42eb65d`), and the row now
+      reads `depth: 1`, `moved_on: "2026-09-12"`
+      (`tests/sequenced_after/corpus-ledger.yaml`) — full detail at § 4.7.
 - [x] 3.10 **THE PRE-TEXT IS RE-VERIFIED AT THE PARENT'S CURRENT HEAD, AND
       THE ALL-NAMES WORDING IS TAKEN.** The parent branch moved after this
       block was generated — `origin/change/amend-merged-into-empty-tail-standing`
@@ -443,71 +463,102 @@ re-taken against `ac688c40`**, in a control clone of that commit, so its
       verification ok`.
 - [x] 4.6 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       `scope_globs validation passed (all active changes conform)`.
-- [ ] 4.7 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`
-      — **BLOCKED ON THE PARENT'S LANDING, AND THE BLOCK IS THE VALIDATOR
-      WORKING.** (`--ledger-diff` alone reads clean on the tree as it stands —
-      `per-change sweep ledger consistent with the corpus (200 rows)`, exit 0 —
-      because the ledger records the SAME unresolved reading the corpus gives
-      today; that is the row agreeing with a corpus that is about to move, not
-      the gate cleared. § 3.9 says what re-seeding it costs. **RE-RUN AFTER THE
-      TWO MERGES FROM `main`**, the second at `ac688c40`, which between them
-      brought PR #945's and PR #960's own ledger rows: `per-change sweep ledger
-      consistent with the corpus (**202 rows**)`, exit 0, all three rows
-      present and NO re-seed owed by either merge.) The declared parent
-      `amend-merged-into-empty-tail-standing`
-      is an OPEN pull request (#947, `mergeStateStatus BLOCKED` at the time of
-      this run) and its change directory is on no branch
-      but its own, so resolution against this repository's ACTIVE and ARCHIVED
-      corpora finds nothing and the run refuses the declaration as DANGLING —
-      *"a dangling parent reference is unwalkable"*. It clears the moment #947
-      lands on `main` and this branch takes a merge from `main`; it is NOT
-      cleared by dropping the declaration, which is owed.
-- [ ] 4.8 `python3 scripts/doc-health.py --single-repo .` — the branch run, its
+- [x] 4.7 `python3 scripts/validate-sequenced-after.py .` and `--ledger-diff`
+      — **WAS BLOCKED ON THE PARENT'S LANDING; NOW CLEARS, THE PARENT HAVING
+      BOTH LANDED AND ARCHIVED.** (`--ledger-diff` alone read clean on the
+      pre-merge tree — `per-change sweep ledger consistent with the corpus
+      (200 rows)`, exit 0 — because the ledger recorded the SAME unresolved
+      reading the corpus gave then; that was the row agreeing with a corpus
+      about to move, not the gate cleared. § 3.9 says what re-seeding it
+      cost.) The declared parent `amend-merged-into-empty-tail-standing`
+      landed to `main` at `87fd33d6` (PR #947, 2026-09-11T16:33:09Z) and
+      archived to `openspec/changes/archive/2026-09-11-amend-merged-into-
+      empty-tail-standing/` (PR #973, merged 2026-09-11T18:24:42Z). This
+      branch merged `origin/main` (67b8011f, then again at 78a5d2dc after a
+      second corpus move) and re-seeded the ledger row with the sanctioned
+      tool (`--seed-ledger --moved-by '#962'`, commit `b42eb65d`: depth
+      0 → 1). `validate-sequenced-after.py .` now **PASSES (exit 0)** —
+      the dangling-parent refusal is gone, the parent resolving in the
+      ARCHIVED corpus — and `--ledger-diff` reads **consistent with the
+      corpus (205 rows)**, exit 0, no re-seed owed. Full output in
+      `review/verification-2026-09-12.md`.
+- [x] 4.8 `python3 scripts/doc-health.py --single-repo .` — the branch run, its
       finding-line diff against the `origin/main` baseline, and the
-      marker-defect count, re-taken on the frozen tree. **RE-TAKEN ON THE
-      MERGED TREE** (the box stays open because § 4.10 re-takes every gate
-      after the parent lands and the row is re-seeded): **exit 0**,
-      **101 findings** against the `origin/main` @ `ac688c40` control's
-      **100**, and the difference is EXACTLY ONE LINE — a `diff` of the two
-      ranked-plan finding lists, with the repo label normalized, returns a
-      single `>` and it is this delta's own transient `info` carriage-ledger
-      row of § 3.7; **MARKER-DEFECT FINDINGS
-      ARE 0 ON BOTH SIDES** — no finding on either run renders
-      `TEMPLATE_MARKERS`' *carries a … marker by … — a declaration that does
-      not describe the block* — so the count this packet's own subject is
-      measured by is UNCHANGED by the packet.
-- [ ] 4.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` —
-      **TAKEN TWICE, ONCE AFTER EACH MERGE, WITH THE SELF-GATE ROW NAMED, AND
-      BOTH RUNS READ `2 failed, 1982 passed, 7 warnings`** (507 s on the
-      `34bb5c71` tree, 642 s on the `ac688c40` tree). **THE SELF-GATE IS
-      GREEN** in both: a `tests/doc-health`-only run on the first merged tree
-      reads **`1711 passed`, ZERO failures**, and on the second the module
-      contributes no `FAILED` line at all — so the modified-block-currency
-      self-gate, its EXACT-SET assertion included, passes on the ten named
-      subjects of § 3.13 (`0 named subject(s) NO LONGER reported` confirms no
-      other row moved).
-      **THE TWO REMAINING FAILURES ARE THE DANGLING PARENT OF § 4.7 AND
-      NOTHING ELSE**:
-      `tests/sequenced_after/test_validate.py::test_corpus_sequenced_after_all_validate`
-      and
-      `tests/sequenced_after/test_archive_commit_dates.py::test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED`,
-      both asserting the live validator's exit status and both reached through
-      the same *"a dangling parent reference is unwalkable"*. **NEITHER IS
-      FIXABLE INSIDE THIS PACKET, and that is said rather than worked around:**
-      the only edit that would clear them is withdrawing the `sequenced_after:`
-      declaration, which is the packet's whole point and which
-      `release-realization` obliges of a later writer over a requirement an
-      active ratified change already holds. **So this branch's `pytest-suite`
-      cannot be green until #947 lands**, exactly as § 4.7 says of the
-      validator it wraps, and these two failures are the whole of the
-      difference.
-- [ ] 4.10 **EVERY GATE RE-RUN IN FULL ON THE FROZEN TREE**, after the ledger
-      seed of § 3.9 and after the merge from `main` that clears § 4.7, so that
-      no gate above is a reading of a tree this pull request does not carry.
-      **AND THE RE-SEED OF § 3.9 COMES BETWEEN THEM**: the merge that resolves
-      the parent moves this change's measured `depth` from 0 to 1, so the order
-      is merge, re-seed, then re-run — a full re-run taken before the re-seed
-      reports a stale row and reports it correctly.
+      marker-defect count, RE-TAKEN ON THE TWICE-MERGED, SELF-GATE-FIXED TREE:
+      **exit 0**, and the finding lines are **BYTE-FOR-BYTE IDENTICAL** to a
+      fresh `origin/main` (`5972c8f3`) control after normalizing the
+      repo-identity label — this delta's OWN transient `info` carriage-ledger
+      row (§ 3.7) already retired on the parent's archive (before this
+      packet's own ratification, event (b) and not event (a) — `design.md`
+      D2b's addendum, `tests/doc-health/test_modified_block_currency_self_gate.py`
+      commit `396bca94`), so the branch adds ZERO findings and removes ZERO.
+      **MARKER-DEFECT FINDINGS ARE 0 ON BOTH SIDES.** Full figures in
+      `review/verification-2026-09-12.md`.
+- [x] 4.9 `python3 -m pytest tests/doc-health tests/sequenced_after
+      tests/scope_globs tests/proposal-support -q --tb=no` — RE-TAKEN on the
+      twice-merged tree, AFTER the self-gate fix (commit `396bca94`): the
+      branch's failure set is **IDENTICAL** to a fresh `origin/main`
+      (`5972c8f3`) control's — the same pre-existing, unrelated failures
+      (`test_ideation_readiness` ×3, `test_readiness_dispatch`,
+      `test_sentinel_vocabulary` ×2, `test_status_reader_real_lines`), none of
+      them this packet's and none of them the dangling-parent failures this
+      section originally named (those are GONE, § 4.7 having cleared).
+      **THE SELF-GATE IS GREEN**:
+      `test_modified_block_currency_self_gate.py`'s exact-set assertion passes
+      on the NINE named subjects (the row this packet opened having retired,
+      § 3.13/§ 3.17). Full counts in `review/verification-2026-09-12.md`.
+- [x] 4.10 **EVERY GATE RE-RUN IN FULL ON THE MERGED TREE**, after the ledger
+      seed of § 3.9 and after the (two) merges from `main` that cleared § 4.7,
+      so that no gate above is a reading of a tree this pull request does not
+      carry. **THE RE-SEED OF § 3.9 CAME BETWEEN THEM**, as planned: the first
+      merge resolved the parent and moved this change's measured `depth` from
+      0 to 1 (commit `b42eb65d`, order merge → re-seed → re-run); the same
+      merge also surfaced a genuine, mechanical regression in
+      `test_modified_block_currency_self_gate.py` (the transient row's OWN
+      retirement condition firing, not a defect in this packet's own delta),
+      fixed at commit `396bca94` and re-verified. A SECOND merge from `main`
+      (commit `78a5d2dc`, after a further corpus move) changed no figure
+      §§ 4.1–4.9 report. `review/verification-2026-09-12.md` carries every
+      gate's real output on this final tree.
+- [x] 4.11 **A THIRD MERGE FROM `main` FOLLOWED THIS SECTION BEING WRITTEN**
+      (commit `4a246872`, `main` having moved again to `45a98faa` via PR
+      #978, `decide-disposition-reading-per-family` — a disjoint packet,
+      verified to touch neither `openspec/specs/doc-health/spec.md` nor
+      `scripts/doc_health/modified_block_currency.py`), and EVERY GATE ABOVE
+      WAS RUN A FOURTH TIME on the resulting tree. **THE FIGURES §§ 4.1–4.6
+      QUOTE ARE THE ORIGINAL BENCH-PHASE READING (baseline `ac688c40`, taken
+      before ratification) AND THE FIGURES §§ 4.7–4.10 QUOTE ARE THE
+      SECOND-MERGE READING (baseline `5972c8f3`); NEITHER IS RE-TYPED HERE
+      TO AVOID A SECOND TRANSCRIPTION OF LARGE PASTED OUTPUT.**
+      `review/verification-2026-09-12.md` is the SINGLE authoritative record
+      of the FINAL re-run (baseline `45a98faa`) and its own text says so.
+      **THE SHAPE OF EVERY CONCLUSION IS UNCHANGED**: `openspec validate
+      --all --strict` reads branch `102 passed, 3 failed (105 items)` against
+      control `101 passed, 3 failed (104 items)` — one more disposition
+      packet landed on `main` between the second and third merge
+      (`disposition-codexfactory-regular-pr-council-clearance-archive`, via
+      PR #1004, ahead of this round), so `2 failed` in §4.3's text is `3
+      failed` now, on BOTH branch and control identically, and the failure
+      SET remains IDENTICAL between them; `validate-openspec-cli-pin.py
+      --all` still reads exactly the SAME 2 accepted exceptions §4.4 names;
+      `validate-sequenced-after.py . --ledger-diff` reads **206 rows**
+      (`205` in §4.7's text — PR #978 seeded its own row in between), this
+      packet's own row UNCHANGED at `depth: 1`, `moved_on: "2026-09-12"`;
+      `doc-health.py --single-repo .` reads BYTE-IDENTICAL branch-vs-control
+      exactly as §4.8 describes, `31 critical, 9 error, 23 warning, 16 info`
+      both sides; `--family modified-block-currency` reads **9** `info`
+      findings (unchanged from §4.8/§4.9), marker defects **0**, this
+      packet's own path named **0** times; the pytest subset reads branch
+      **7 failed, 2003 passed, 1 skipped** against control **7 failed, 2003
+      passed, 1 skipped** — the SAME named failure set §4.9 lists, and the
+      self-gate (`test_modified_block_currency_self_gate.py`) alone reads
+      **19 passed**; `tests/scope_globs tests/proposal-support` reads
+      branch **217 passed, 70 subtests** against control **217 passed, 69
+      subtests**, the one-subtest difference being
+      `test_the_guard_refuses_nothing_on_this_repository_today`'s
+      documented one-subtest-per-active-change design (its own docstring:
+      *"no count is written down"*), zero refusals either side. **NO GATE
+      NAMES THIS PACKET AS THE SOURCE OF A NEW FINDING OR A NEW FAILURE.**
 
 ## 5. Archive — OWED, NOT GIVEN
 

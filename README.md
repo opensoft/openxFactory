@@ -683,15 +683,29 @@ Active changes:
   there and not at this ratification.
 
 - [rule-inherited-unit-naming-marker-spent](openspec/changes/rule-inherited-unit-naming-marker-spent/proposal.md)
-  — authored 2026-09-11, **`Status: draft` — NOT RATIFIED**. Lane
-  `openxfactory-1`. **THE AUTHORING IS COMMISSIONED AND NOTHING IS RULED.**
-  Brett Heap's word of 2026-09-11 at 12:08:24Z, verbatim ***"land each when
-  green, archive both when landed, claim 955 and 956"***, directed this lane to
-  CLAIM openxFactory [#955](https://github.com/opensoft/openxFactory/issues/955)
-  — it decided no sentence, no scenario and no scoping, none of which existed
-  when it was given, so `.openspec.yaml` carries drafting provenance with **no
-  approval pair**, every document says `Status: draft`, and ratification,
-  promotion and archive are three later acts on three later words. Origin:
+  — authored 2026-09-11, **`Status: ratified`** (2026-09-12, Brett Heap,
+  openxFactory operator authority, verbatim *"do all as recomended"* — a
+  MULTIPLE-CHOICE ruling given in the lane's window in answer to a list of
+  open rulings each put with its recommendation first, `design.md` **D1**
+  among them, recorded on PR
+  [#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5646922185)
+  at 2026-09-12T15:45:16Z). **D1 = Option 1, the recommended and encoded
+  wording (the five added carriage sentences and the two scenarios, as
+  frozen at `51edde81`); D2b = no marker owed, confirmed by measurement.**
+  The option taken is the packet's own recommendation, so **THE WORDING
+  STANDS UNCHANGED** and no delta byte was re-written, restored or deleted.
+  Records
+  `openspec/changes/rule-inherited-unit-naming-marker-spent/review/ratification-2026-09-12.md`
+  and
+  `openspec/changes/rule-inherited-unit-naming-marker-spent/review/verification-2026-09-12.md`.
+  `.openspec.yaml` keeps the drafting provenance it was authored with and the
+  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
+  unmoved. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
+  earlier word of 2026-09-11 at 12:08:24Z, verbatim ***"land each when green,
+  archive both when landed, claim 955 and 956"***, recorded on openxFactory
+  [#955](https://github.com/opensoft/openxFactory/issues/955), which
+  COMMISSIONED THE AUTHORING AND RATIFIED NOTHING: it decided no sentence, no
+  scenario and no scoping, none of which existed when it was given. Origin:
   openxFactory [#955](https://github.com/opensoft/openxFactory/issues/955),
   filed UNCLAIMED at the archive of
   `amend-repo-boundary-governance-scope-first-line`
@@ -700,18 +714,19 @@ Active changes:
   Requirements` BLOCK, over ONE requirement, in ONE capability**: `doc-health`
   § *Currency of an active change's MODIFIED requirement blocks*. **IT IS AN
   ORDERED DELTA**: `sequenced_after: [amend-merged-into-empty-tail-standing]`,
-  an ACTIVE RATIFIED writer of the same requirement
-  ([#947](https://github.com/opensoft/openxFactory/pull/947)), so this block's
-  PRE-text is that change's block at `a6d373e9` and not the promoted text it
-  replaces. **IT IS A PURE ADDITION**: FIVE SENTENCES — five carriage units —
-  added to the paragraph that already rules a marker no carriage unit — a
-  unit-naming marker is SPENT
+  the parent HAVING SINCE LANDED AND ARCHIVED
+  ([#947](https://github.com/opensoft/openxFactory/pull/947) → archive
+  [#973](https://github.com/opensoft/openxFactory/pull/973)), so this block's
+  PRE-text remains that change's block at `a6d373e9`, byte-identical to the
+  now-archived path. **IT IS A PURE ADDITION**: FIVE SENTENCES — five
+  carriage units — added to the paragraph that already rules a marker no
+  carriage unit — a unit-naming marker is SPENT
   once EVERY unit it names has left canon by a declared act, so DROPPING it is
   the lawful carriage, and where a later block carries one forward the THIRD
   ground reports it and that report is the class working as written — plus TWO
   SCENARIOS at the end of the block, one per half of the rule. The condition is
   stated ALL-NAMES rather than one-name, a marker naming units in the plural,
-  which is Copilot's round on
+  which was Copilot's round on
   [#962](https://github.com/opensoft/openxFactory/pull/962) taken. **NO UNIT IS
   RETIRED, SO NO `Removed from canon` MARKER IS OWED AND NONE IS WRITTEN**; the
   block carries ZERO markers. **NO GROUND IS ADDED AND NONE IS WITHDRAWN** —
@@ -720,33 +735,21 @@ Active changes:
   AND THAT IS MEASURED**: `code_surface: none`, because the third ground
   already reports a name matching no unit of the basis and no unit of the
   block, and DROPPING a marker is the absence of an edit;
-  `target_release: implemented`, canon's own doc-only default. **ONE TEST FILE
-  IS TOUCHED AND IT IS DISCLOSED RATHER THAN LEFT TO THE DIFF**: the
-  modified-block-currency self-gate's `_LEDGER_SUBJECTS` compares the family's
-  `info` population with `==`, so the ONE row this draft opens — its block
-  measured against CANON while the packet is unratified and its parent is not
-  yet on `main`, where the sentence the parent retires reads uncarried — is
-  NAMED there, as that assertion's own message directs. It records which
-  subjects the corpus reports and retires on the parent's archive, or on this
-  packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS — the override
-  needs TWO active ratified writers, so ratification alone does not clear it;
-  `design.md` D4 offers the not-a-code-surface reading for veto.
-  **THE MEASUREMENT, RE-TAKEN ON THE MERGED TREE (`main` @ `ac688c40`)**: of
+  `target_release: implemented`, canon's own doc-only default. **THE ONE TEST
+  ROW THE DRAFT OPENED HAS SINCE RETIRED**: the modified-block-currency
+  self-gate's `_LEDGER_SUBJECTS` named this packet's transient row while the
+  packet was measured against CANON and its parent was off `main`; the
+  parent's own archive ([#973](https://github.com/opensoft/openxFactory/pull/973))
+  reached the active corpus and cleared it — event (b) of `design.md` D2b's
+  two clearing events, independent of this ratification — and the row is
+  removed rather than left stale.
+  **THE MEASUREMENT**: of
   the 18 markers
   promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
   — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT** (every unit every one of
   them names absent, and NONE partially spent), across 13 requirements
-  in 7 specifications; of the 31 active MODIFIED blocks the family reads, TWO
-  carry a unit-naming marker, both `Merged into` and each naming a unit that
-  matches its basis, so a run reports **0 marker defects** today. **THE OPEN
-  DECISION IS `design.md` D1 AND IT CAN END THE PACKET**, put as a multiple
-  choice with the recommendation first: option 1 (recommended, encoded) rules
-  the two-option state correct in five sentences and two scenarios with no code
-  surface; option 2 adds a THIRD option — a suppression resolvable against the
-  archived delta — which is one predicate, one `_WHY_*` template, its own
-  scenario, a code surface, a widened checker basis, a fail-OPEN direction and
-  an archive rule of merged-plus-green. Option 2 would be a RE-AUTHORING.
-  openxFactory #955 closes at the ARCHIVE and not at this landing.
+  in 7 specifications; a run reports **0 marker defects**. openxFactory #955
+  closes at the ARCHIVE and not at this landing.
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,

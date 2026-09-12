@@ -6,7 +6,8 @@ sequenced_after: [amend-merged-into-empty-tail-standing]
 
 # Proposal: rule-inherited-unit-naming-marker-spent
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 by Brett Heap (openxFactory operator authority) — "do all as recomended" (recorded on PR #962 at https://github.com/opensoft/openxFactory/pull/962#issuecomment-5646922185, 2026-09-12T15:45:16Z); record at review/ratification-2026-09-12.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`), on
 Brett Heap's word of 2026-09-11, verbatim **"land each when green, archive both
 when landed, claim 955 and 956"**, given in session at 2026-09-11T12:08:24Z and
@@ -18,16 +19,26 @@ this lane at the archive of `amend-repo-boundary-governance-scope-first-line`
 ([#958](https://github.com/opensoft/openxFactory/pull/958)), which owed it as
 residue `tasks.md` § 6.1 and `design.md` D2b.
 
-**THE WORD COMMISSIONS THE AUTHORING AND RATIFIES NOTHING.** *"Claim 955"*
-directs a lane to take the issue; it decided no sentence, no scenario and no
-scoping, none of which existed when it was given, and it is recorded here as
-the ORIGIN of the AUTHORING and read as nothing more. `.openspec.yaml` carries
-drafting provenance with **no approval pair**, every document in the packet
-says `Status: draft`, and `tasks.md` § 1 is OPEN. **`design.md` D1 is the
-owner's decision and it can end this packet**: it is put as a multiple choice
-with the recommendation first, and option 2 would be a re-authoring rather than
-an edit. Ratification, promotion and archive are three later acts on three
-later words, and openxFactory #955 closes at the ARCHIVE.
+**THE ORIGIN WORD COMMISSIONED THE AUTHORING AND RATIFIED NOTHING; THE
+RATIFICATION IS A SEPARATE ACT AND IT HAS NOW HAPPENED.** *"Claim 955"*
+directed a lane to take the issue; it decided no sentence, no scenario and no
+scoping, none of which existed when it was given, and it stays recorded as the
+ORIGIN of the AUTHORING and read as nothing more. **BRETT HEAP RATIFIED THIS
+PACKET ON 2026-09-12**, verbatim **"do all as recomended"** — given in answer
+to a list of open rulings, each put with its recommendation first, `design.md`
+D1 among them, and recorded on openxFactory PR
+[#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5646922185)
+at 2026-09-12T15:45:16Z. **D1 = Option 1, "Ratify as encoded"** — the block as
+frozen at `51edde81` (the SPENT-marker sentence, its LIMIT sentence, and the
+two scenarios) is the ratified text; option 2 (a third suppression option, a
+code surface) is NOT taken. **D2b = no marker owed**, confirmed rather than
+chosen — this amendment retires no unit (`derive_units`: 0 uncarried).
+`.openspec.yaml` now carries `approved_by` and `approved_on` **ADDED BESIDE**
+the drafting provenance it was authored with, `kind`, `id`, `reason` and
+`proposed_by` unmoved. Ratification, promotion and archive remain three acts
+on three words: this is the second: promotion and archive are the third, a
+SEPARATE act on a separate word not performed here, and openxFactory #955
+closes THERE.
 
 ## Why
 
@@ -120,20 +131,22 @@ three exact single-occurrence edits, never transcribed (`tasks.md` § 3).
   template, no parse, no marker grammar, no disposition rule, and **no line of
   `scripts/doc_health/`**.
 - **CHANGED — BOOKKEEPING, AND IT IS A TEST FILE, SO IT IS SAID PLAINLY RATHER
-  THAN FOLDED INTO THE LINE ABOVE:** ONE row is added to
+  THAN FOLDED INTO THE LINE ABOVE:** ONE row was added at authoring to
   `tests/doc-health/test_modified_block_currency_self_gate.py`'s
   `_LEDGER_SUBJECTS`, with its narrative and its count, because that self-gate
   compares the family's `info` population with `==` and never `<=` — so a row
-  this draft opens and nobody names reds the required check for EVERY open pull
-  request in this repository, and the assertion's own message directs the edit.
-  **NO ASSERTION, PREDICATE OR THRESHOLD IN THAT MODULE MOVES**; the row
-  records which subjects the corpus currently reports and RETIRES: on the
-  parent's archive, or on this packet's ratification ONCE THE PARENT IS IN THE
-  ACTIVE CORPUS — the override needs TWO active ratified writers, so
-  ratification alone while the parent is off `main` does not clear it
-  (`design.md` D2b). `design.md` D4 gives the reading
-  under which that is not a `code_surface:` and offers it for veto;
-  `tasks.md` § 3.13 measures it and § 6.7 records what was NOT done to it.
+  nobody names reds the required check for EVERY open pull request in this
+  repository, and the assertion's own message directs the edit. **NO
+  ASSERTION, PREDICATE OR THRESHOLD IN THAT MODULE MOVED.** THE ROW HAS SINCE
+  RETIRED: the parent (`amend-merged-into-empty-tail-standing`) archived to
+  `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`
+  (openxFactory PR #973, merged 2026-09-11T18:24:42Z), which reached the
+  active corpus ahead of, and independent of, this packet's own ratification —
+  `design.md` D2b's event (b), not event (a) — and the row is removed rather
+  than left stale, in the same encode that merged `origin/main` and brought
+  the parent's archive onto this branch. `design.md` D4 gives the reading
+  under which that bookkeeping is not a `code_surface:`; `tasks.md` § 3.13
+  measures the row's opening and § 6.7 records what was NOT done to it.
 
 ## The corpus measurement
 
@@ -175,19 +188,28 @@ for its absence.
 ## Sequencing
 
 `sequenced_after: [amend-merged-into-empty-tail-standing]`, declared rather
-than inferred. That change is an ACTIVE RATIFIED writer of THIS requirement
-(PR [#947](https://github.com/opensoft/openxFactory/pull/947)), so
-`release-realization`'s *Ordered deltas and branch vocabulary* obliges this
-later proposal to reference it and to declare its deltas relative to that
-change's OUTCOME — and this requirement's own two-writers arm reads that
-declaration as the order, "BY DECLARATION AND NEVER BY DATE". **So this
-block's PRE-text is the parent's block and not the promoted text the parent
-replaces**, read at `a6d373e9` (`design.md` D5). The change id also occurs as a
-whole token in this prose, which is the second of the two equivalent
-declaration sites `release-realization` admits.
+than inferred. That change WAS an ACTIVE RATIFIED writer of THIS requirement
+at this proposal's authoring (PR
+[#947](https://github.com/opensoft/openxFactory/pull/947)) and **HAS SINCE
+ARCHIVED** (PR [#973](https://github.com/opensoft/openxFactory/pull/973),
+merged 2026-09-11T18:24:42Z, to
+`openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`),
+which the corpus ledger now records at `depth: 1`
+(`tests/sequenced_after/corpus-ledger.yaml`). `release-realization`'s
+*Ordered deltas and branch vocabulary* obliged this proposal to reference it
+and to declare its deltas relative to that change's OUTCOME — and this
+requirement's own two-writers arm read that declaration as the order, "BY
+DECLARATION AND NEVER BY DATE". **So this block's PRE-text is the parent's
+block and not the promoted text the parent replaces**, read at `a6d373e9`
+(`design.md` D5), byte-identical to the now-archived path. The change id also
+occurs as a whole token in this prose, which is the second of the two
+equivalent declaration sites `release-realization` admits, and
+`scripts/validate-sequenced-after.py` resolves it in the ARCHIVED corpus now
+that the parent has moved there.
 
-The sibling search is pasted in `design.md` D5 rather than summarized. No other
-active change carries a `## MODIFIED` block for this requirement.
+The sibling search is pasted in `design.md` D5 rather than summarized, taken
+at authoring, before the parent's archive. No other active change carries a
+`## MODIFIED` block for this requirement.
 
 ## Impact
 
@@ -208,17 +230,24 @@ active change carries a `## MODIFIED` block for this requirement.
 - **Authors** gain a decision where they previously found two reachable states
   and no rule, which is what #955 reports.
 
-## Ratification — NOT GIVEN
+## Ratification — GIVEN 2026-09-12
 
-**`design.md` D1 IS THE QUESTION, AND IT IS PUT AS A MULTIPLE CHOICE WITH THE
+**`design.md` D1 WAS THE QUESTION, PUT AS A MULTIPLE CHOICE WITH THE
 RECOMMENDATION FIRST.** Option 1 (recommended and encoded) rules the two-option
 state correct in five sentences and two scenarios, with no code surface. Option
-2 adds a THIRD option — a suppression for an inherited marker whose named unit
-left canon by a declared act — which is one predicate, one `_WHY_*` template,
-its own scenario and a CODE SURFACE, and which would change this packet's
-archive rule. **If Brett Heap takes option 2 this packet is RE-AUTHORED, not
-amended.** Nothing here is ratified until he rules, and the ruling is his act
-and never this lane's judgment.
+2 would have added a THIRD option — a suppression for an inherited marker
+whose named unit left canon by a declared act — one predicate, one `_WHY_*`
+template, its own scenario and a CODE SURFACE, changing this packet's archive
+rule. **BRETT HEAP TOOK OPTION 1**, verbatim **"do all as recomended"**, given
+in answer to a list of open rulings each put with its recommendation first and
+recorded on PR #962 at 2026-09-12T15:45:16Z (comment `5646922185`; record
+`review/ratification-2026-09-12.md`) — so **THE PACKET IS AMENDED, NOT
+RE-AUTHORED**, and its wording stands unchanged. `design.md` D2b (no marker
+owed) is confirmed by the same word, measurement rather than preference.
+`proposal.md`, `design.md` and `tasks.md` now carry `Status: ratified` with
+ONE citation line each, `.openspec.yaml` carries `approved_by` and
+`approved_on` ADDED beside the drafting provenance, and `tasks.md` § 1 is
+ticked and names the word that ticked it.
 
 ## What this proposal does NOT claim
 

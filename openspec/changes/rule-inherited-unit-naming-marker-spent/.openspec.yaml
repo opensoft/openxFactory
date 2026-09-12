@@ -97,8 +97,45 @@ origin:
     NO UNIT, so NO `Removed from canon` marker is owed and none is written —
     `derive_units` reads 0 units of the basis uncarried by this block.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-12, lane
+    `openxfactory-1` (display `openXfactory-1`), verbatim: "do all as
+    recomended", given in the lane's window as a MULTIPLE-CHOICE ruling in
+    answer to a list of open rulings each put with its recommendation first
+    (`design.md` D1 among them), and recorded on openxFactory PR #962 at
+    2026-09-12T15:45:16Z (comment `5646922185`). THIS IS THE RATIFICATION ACT
+    AND IT IS ADDED, NOT SUBSTITUTED. The drafting provenance above is kept
+    exactly as authored and `kind` and `id` never move, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition:
+    approval is a pure ADDITION beside a fixed origin identity, so the support
+    manifest that repeats `kind` and `id` never comes to disagree with the
+    packet. The earlier word of 2026-09-11 at 12:08:24Z, verbatim "land each
+    when green, archive both when landed, claim 955 and 956", recorded on
+    openxFactory issue #955, stays the ORIGIN of the AUTHORING — it commissioned
+    the claim and decided no sentence, no scenario and no scoping, none of
+    which existed when it was given; it is not read as an approval.
+    D1 = OPTION 1, THE RECOMMENDED AND ENCODED WORDING: the block as frozen at
+    `51edde81` (the five added carriage sentences and the two scenarios *A
+    later block drops an inherited unit-naming marker* / *A later block
+    carries an inherited unit-naming marker forward*) is the ratified text.
+    OPTION 2 (a third suppression option, a code surface, which would have
+    made this packet a RE-AUTHORING) IS NOT TAKEN. D2b = NO MARKER OWED,
+    confirmed by measurement rather than chosen by preference: this amendment
+    retires no unit (`derive_units`: 0 uncarried), so no `Removed from canon`
+    marker is written. No delta byte is re-written, restored or deleted by
+    this ratification.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD. `code_surface: none`
+    means this packet archives ON LANDING plus its own task list under
+    `release-realization` rather than on merged-plus-green realization
+    evidence, but that archive is not performed here: nothing under
+    `openspec/specs/` is edited by this ratification, `tasks.md` § 5 stays
+    OPEN, and openxFactory #955 therefore closes AT THE ARCHIVE and not at
+    this landing.
+    Record: `review/ratification-2026-09-12.md`, with the gate run re-derived
+    on the ratified and twice-merged tree at `review/verification-2026-09-12.md`.
+  approved_on: 2026-09-12
 related:
-  - openxFactory:change:amend-merged-into-empty-tail-standing                      # ACTIVE, `Status: ratified` (PR #947). THE ORDERED-DELTA PARENT declared in `sequenced_after`, an active ratified writer of the SAME requirement, and the source of this block's PRE-text — its block at `a6d373e9`, not the promoted text it replaces. Its own `Removed from canon` marker is deliberately NOT restated here, under the very rule this block writes
+  - openxFactory:change:archive/2026-09-11-amend-merged-into-empty-tail-standing    # ARCHIVED (PR #947 -> archive PR #973, merged 2026-09-11T18:24:42Z). THE ORDERED-DELTA PARENT declared in `sequenced_after`, ACTIVE and ratified at this packet's own authoring, ARCHIVED since — and still the source of this block's PRE-text, `scripts/validate-sequenced-after.py` resolving a declared parent in the ARCHIVED corpus exactly as it resolves one in the ACTIVE corpus — its block at `a6d373e9`, byte-identical to the now-archived path. Its own `Removed from canon` marker is deliberately NOT restated here, under the very rule this block writes
   - openxFactory:change:archive/2026-09-11-amend-repo-boundary-governance-scope-first-line # ARCHIVED (PR #937 -> archive PR #958). FILED THIS ISSUE at its archive as residue `tasks.md` § 6.1 / `design.md` D2b, and D2b is the measurement this packet rests on — a carried unit-naming marker reports under ground three on both candidate wordings, and the packet that dropped it measures 0 marker defects
   - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing  # ARCHIVED (PR #887 -> archive PR #899). The `code_surface: none` amend shape and the block CONSTRUCTION METHOD this packet follows — slice the exact range, apply each change as an exact single-occurrence substitution, prove byte-faithful with the family's own `derive_units`. Its bytes are NOT edited
   - openxFactory:change:archive/2026-09-10-amend-marker-declaring-nothing          # ARCHIVED (PR #908 -> archive PR #926). Wrote the fourth and fifth grounds and is the LAST WRITER of this requirement in promoted canon; its own `Removed from canon` marker is one of the sixteen spent markers this packet's D0 measures
