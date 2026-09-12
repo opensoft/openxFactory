@@ -44,7 +44,12 @@ record this repository carries — a `contracts/<pin-id>-pin.yaml` declaring
 an external neutral product. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
-no capability set for the name to be about. The `<capability>` segment MUST be well formed, and it MUST
+no capability set for the name to be about. A pin record that EXISTS but
+cannot be read as a mapping carrying a `kind` — invalid YAML, a non-mapping
+document, or no `kind` member — MUST be reported as an unreadable pin record
+and MUST NOT resolve a pinned target, and the pass MUST complete rather than
+abort: a corrupt record in the registry is a controlled finding, never an
+exception that takes the run down with it. The `<capability>` segment MUST be well formed, and it MUST
 additionally appear in the pin record's own capability enumeration WHERE THAT
 RECORD CARRIES ONE; where the record carries no such enumeration, resolution
 rests on the pin alone and the capability name is taken as declared. A PIN
@@ -118,6 +123,12 @@ not the thing that happens when nobody decides.
 - **AND** that pinned target MUST NOT resolve while the enumeration is malformed
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 - **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
+
+#### Scenario: A pin record named by a marker cannot be read
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` exists but is not readable as a mapping carrying a `kind` — invalid YAML, a non-mapping document, or no `kind` member
+- **THEN** the deterministic health pass MUST report it as a hygiene finding against that pin record
+- **AND** the target MUST NOT resolve
+- **AND** the pass MUST complete rather than abort
 
 #### Scenario: A pinned target names a pin the repository does not carry
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists in this repository

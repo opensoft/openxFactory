@@ -135,7 +135,13 @@ a later change, on evidence that a stale supersedes target exists.
    `contracts/<product>-pin.yaml`, REUSING `kind: pinned_contract_manifest`
    unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
    unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
-   capability is today.
+   capability is today. **A record that EXISTS but is corrupt is the same class
+   of event, not a crash**: invalid YAML, a non-mapping document, or a mapping
+   with no `kind` is reported as an unreadable pin record and the target does
+   not resolve, with the run completing. The resolver reads a registry file it
+   did not write, so the family owns the failure rather than propagating it —
+   the house's convention for malformed persisted data — and task 3.3(k) tests
+   one case per shape.
 
    **`kind: pinned_workflow` IS EXCLUDED, deliberately.** Of the six pin
    records, five are `pinned_contract_manifest` and one —

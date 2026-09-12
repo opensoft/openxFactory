@@ -122,7 +122,13 @@ the later realization pull request, and § 4 is the archive act.
   upper-case or empty component — emits a malformed-pinned-target finding, and
   the test asserts NO pin-record path was constructed and NO file was read for
   it, since validating after building a path is the defect this case exists to
-  prevent; **(i)** in-tree resolution is unchanged; **(j)** EVERY NEW ACTION
+  prevent; **(i)** in-tree resolution is unchanged; **(k)** a
+  `contracts/<pin-id>-pin.yaml` that EXISTS but is corrupt — invalid YAML, a
+  non-mapping document, or a mapping with no `kind` — becomes a controlled
+  tag-hygiene finding and the pinned target naming it does not resolve, with
+  the run COMPLETING rather than raising out of the family, one case per shape:
+  the resolver reads this registry file, so a corrupt record must not escape
+  the family and abort doc-health; **(j)** EVERY NEW ACTION
   STRING the arm introduces is added to the pinned table at
   `tests/doc-health/test_families.py:751` (`EXPECTED_ACTIONS`, asserted by
   `test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim`
