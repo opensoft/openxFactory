@@ -6,8 +6,8 @@ Kind: report
 **THE TREE THIS RECORD CERTIFIES IS THE FOURTH-MERGE TREE, BRANCH `98bd74e9`,
 CONTROL BASE `a72f0a76`** — branch `change/rule-inherited-unit-naming-marker-spent`
 after FOUR merges from `main` (`67b8011f` → `1f068646`, `78a5d2dc` →
-`5972c8f3`, `4a246872` → `45a98faa`, and the fourth, `4a246872` → `98bd74e9`
-merging `main` @ `a72f0a76b14588e3cbc7b313af6222683daea72f` via PR #1005), the
+`5972c8f3`, `4a246872` → `45a98faa`, and the fourth, `98bd74e9` →
+`a72f0a76b14588e3cbc7b313af6222683daea72f` via PR #1005), the
 per-change sweep ledger re-seed (`b42eb65d`: `depth` 0 → 1), the self-gate fix
 (`396bca94`), and this ratification's own content commit. **§§ 1–11 BELOW
 WERE TAKEN ON THE THIRD-MERGE TREE** — branch `4a246872`, against a fresh

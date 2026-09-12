@@ -236,8 +236,10 @@ AUTHORED.** openxFactory issue #955 was filed UNCLAIMED by the lane that
 archived `amend-repo-boundary-governance-scope-first-line` (PR #937 →
 archive PR #958), which owed it at its own `tasks.md` § 6.1 and `design.md`
 D2b rather than deciding it: a later amendment of a requirement whose
-promoted text already carries a unit-naming marker has exactly two options
-and canon did not say which an author owes. `design.md` D0 measured that
+promoted text already carries a unit-naming marker every one of whose named
+units has left canon has exactly two options and canon did not say which an
+author owes (a marker only some of whose named units have left canon is not
+spent, and is not what this residue is about). `design.md` D0 measured that
 every one of the sixteen unit-naming markers already in promoted canon is
 already spent, and this packet's own block is its own witness — inheriting a
 spent marker from its ordered-delta parent and dropping it under the rule it

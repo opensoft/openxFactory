@@ -16,13 +16,16 @@ decided. Brett Heap directed this lane to CLAIM it on 2026-09-11 at
 955 and 956"** — a word that COMMISSIONS THE AUTHORING and ratifies nothing.
 
 The question, stated narrowly: **a later amendment of a requirement whose
-PROMOTED text already carries a unit-naming marker has exactly TWO options and
-there is no third today.** Drop the inherited marker, which this requirement's
-own carriage sentence expressly permits, or carry it forward and take an `info`
-marker-defect finding on the THIRD ground, because the unit that marker names
-is by construction absent from canon (the declared act removed it) and absent
-from the block (a block does not restate a retired unit). Canon says which
-report fires; canon does not say which option an author OWES.
+PROMOTED text already carries a unit-naming marker EVERY ONE OF WHOSE NAMED
+UNITS HAS LEFT CANON has exactly TWO options and there is no third today.**
+Drop the inherited marker, which this requirement's own carriage sentence
+expressly permits, or carry it forward and take an `info` marker-defect
+finding on the THIRD ground, because every unit that marker names is by
+construction absent from canon (the declared act removed it) and absent from
+the block (a block does not restate a retired unit). Canon says which report
+fires; canon does not say which option an author OWES. (A marker only SOME of
+whose named units have left canon is not spent, and this question is not
+about it — D6.)
 
 **D1 was the owner's decision and it could end this packet.** It was put below
 as a multiple choice with the recommendation first; option 2 would have been a
@@ -203,10 +206,13 @@ LANDING plus its own task list.
 
 ### Option 2 — ADD A THIRD OPTION: a suppression for a DECLARED-act marker (NOT ENCODED)
 
-**WHAT IT WOULD SAY.** An inherited unit-naming marker whose named unit left
-canon by a DECLARED act SHALL be resolvable against the archived delta that
-declared it, and where it resolves, carrying it forward SHALL NOT be reported —
-a THIRD lawful option beside dropping and beside taking the finding.
+**WHAT IT WOULD SAY.** An inherited unit-naming marker whose named units have
+ALL left canon by a DECLARED act SHALL be resolvable against the archived
+delta that declared it, and where it resolves, carrying it forward SHALL NOT
+be reported — a THIRD lawful option beside dropping and beside taking the
+finding. (The all-names condition matches the ratified boundary exactly: a
+marker only SOME of whose named units have left canon is not spent, and this
+rejected option was never meant to reach that case either.)
 
 **WHAT IT WOULD COST, stated so the choice is real:**
 
@@ -352,12 +358,16 @@ are both reachable today with no edit: the third ground already reports a name
 matching no unit of the basis and no unit of the block (that is what
 `suppression()` does), and DROPPING a marker is the absence of an edit rather
 than an edit. No predicate moves, no `_WHY_*` template is added, no finding
-class is added and no severity moves. The diff is this packet's directory, one
-README row, one per-change sweep ledger row and ONE NAMED ROW IN A SELF-GATE'S
-CORPUS LEDGER.
+class is added and no severity moves. The checked-out diff is this packet's
+directory, one README row and one per-change sweep ledger row; the one test
+file the diff touches, `tests/doc-health/test_modified_block_currency_self_
+gate.py`, no longer carries an active named row for this packet — it opened
+one at drafting and the parent's archive has since retired it, leaving only
+the historical comment behind.
 
-**THE SELF-GATE ROW IS DISCLOSED HERE RATHER THAN LEFT TO THE DIFF, AND THE
-READING IS OFFERED FOR VETO RATHER THAN ASSERTED AS A DEFINITION.**
+**THE SELF-GATE ROW WAS DISCLOSED HERE RATHER THAN LEFT TO THE DIFF, AT
+DRAFTING, AND THE READING WAS OFFERED FOR VETO RATHER THAN ASSERTED AS A
+DEFINITION.**
 `tests/doc-health/test_modified_block_currency_self_gate.py`'s
 `_LEDGER_SUBJECTS` compares the family's `info` population with `==` and never
 `<=`, so an active MODIFIED block that opens a row and does not name it reds
