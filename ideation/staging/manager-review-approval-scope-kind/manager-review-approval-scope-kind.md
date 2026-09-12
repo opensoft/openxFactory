@@ -64,6 +64,14 @@ vocabulary tightening that fallback owes.
    domain overlay opts into — it does not invalidate any overlay that keeps
    using `engineering_intent` for jobs it has not migrated.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Envelope vs. overlay home**: does `manager_review` belong in the neutral

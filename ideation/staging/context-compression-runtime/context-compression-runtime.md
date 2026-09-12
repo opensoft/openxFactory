@@ -135,6 +135,14 @@ commit `4bd1214` (2026-07-25):
   regressions (proxy crash orphans markers → degraded answer, not a
   compliance event — acceptable).
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Contract home for the tier-3 knob** — omnigent domain overlay

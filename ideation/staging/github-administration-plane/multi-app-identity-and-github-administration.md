@@ -67,6 +67,14 @@ administration App. The distinction matters because OpsxFactory is itself an
 optional purchase — it cannot be assumed present in every client's install the
 way it is in Opensoft's own vendor org.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions — resolved 2026-07-14
 
 A research pass (six parallel investigations, one per question, plus a
