@@ -39,41 +39,77 @@ already carries a separator of its own and no pinned parse for it is defined —
 a deferred form fails closed.
 
 A PINNED target resolves when its `<pin-id>` resolves to a NEUTRAL-PRODUCT pin
-record this repository carries — a `contracts/<pin-id>-pin.yaml` declaring
+record the RESOLUTION ROOTS carry — a `contracts/<pin-id>-pin.yaml` declaring
 `kind: pinned_contract_manifest`, the shape `neutral-product-pin` requires for
 an external neutral product. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
 no capability set for the name to be about. THE KIND ALONE IS A LABEL, NOT A
-PIN, AND THIS CAPABILITY SHALL ENUMERATE NO PIN SHAPE OF ITS OWN: the record
-MUST also PASS THE CANONICAL `neutral-product-pin` VALIDATION THIS REPOSITORY
-ALREADY CARRIES, which is the verifier the record itself names in its
-`verify_pin:` member — every `pinned_contract_manifest` record in `contracts/`
-carries one (`contracts/opendox-pin.yaml:156`,
-`contracts/openreposhape-pin.yaml:121`, `contracts/openspec-cli-pin.yaml:376`,
-`contracts/openxdox-pin.yaml:121`, `contracts/openxwallet-pin.yaml:64`). That
-validation owns the WHOLE field list per revision kind, and this grammar reads
-none of it: a source pin's `commit` together with the `files:` and
-`pinned_by_commit_only:` completeness claims `neutral-product-pin` requires of
-it, a published-artifact pin's version, `integrity`, `shasum` and vendored
-lockfile. A record that DECLARES the kind and FAILS that validation — no
-`revision_kind`, a `revision_kind` without its referent, a missing or malformed
-SECONDARY field, or no `verify_pin:` member at all — is an INVALID PIN: it MUST
-be reported with a finding NAMING THE FAILING FIELD and MUST NOT resolve a
+PIN: the record MUST also be COMPLETE — it MUST carry the members the
+`neutral-product-pin` capability's ratified requirement *An external neutral
+product is pinned by commit and digest, never by tag* obliges of a
+`pinned_contract_manifest` record FOR ITS OWN REVISION KIND. This grammar
+RESTATES no shape and OWNS no field list: for a SOURCE pin those members are
+"the product's COMMIT, its `revision_kind`, a per-file `sha256` for every
+artifact the product's own manifest digests per file, and
+`pinned_by_commit_only:` for every artifact the product content-addresses by
+commit alone" (`openspec/specs/neutral-product-pin/spec.md:31-36`); for a
+PUBLISHED-ARTIFACT pin they are that artifact's digest as the referent with
+`revision_kind` declared accordingly (`:46-48`), NEITHER per-file list (`:55-56`),
+"every field the consumer's verifier checks — including any secondary address
+the registry publishes" (`:62-65`), and the vendored resolution that
+capability's requirement *A pinned artifact that resolves dependencies at
+install time carries a vendored lockfile, and the install runs through it*
+obliges, "a lockfile … addressed by a digest over its exact bytes recorded in
+the pin, together with the size of the tree it locks" (`:669-673`). A record
+that DECLARES the kind and is INCOMPLETE against that list for its revision
+kind — no `revision_kind`, a `revision_kind` without its referent, or a
+required member of that kind missing or malformed — is an INVALID PIN: it MUST
+be reported with a finding NAMING THE FAILING MEMBER and MUST NOT resolve a
 pinned target, so neither a file added to `contracts/` carrying only `kind:`
-nor one carrying a kind and a partial field set can make an arbitrary pinned
-target resolve. A RESTATED FIELD LIST IS THE DEFECT THIS SENTENCE PREVENTS: a
-second list held in the marker grammar drifts from `neutral-product-pin`'s the
-first time that capability admits a revision kind or a secondary field, and of
-two lists the WEAKER is the one that admits. THE JUDGEMENT IS REACHED OFFLINE
-AND IS A CONTROLLED FINDING: the pass takes the canonical validation's SHAPE
-arm — the part that reads this repository's tree — and MUST NOT perform the
-fetch or remote-comparison steps a verifier also carries, and a record that
-fails is an unresolved pinned target reported as a finding, never an exception
-that takes the run down, on the same terms as the corrupt-record rule below. THE RECORD MUST ALSO BE
-A FILE OF THIS REPOSITORY'S `contracts/` DIRECTORY, RESOLVED: the pass MUST
+nor one carrying a kind and a partial member set can make an arbitrary pinned
+target resolve. WHERE THAT LIST LIVES IS THE POINT: it is
+`neutral-product-pin`'s, read from that capability's text, and a second list
+held in the marker grammar would drift from it the first time that capability
+admits a revision kind or a member — of two lists the WEAKER is always the one
+that admits.
+
+THE COMPLETENESS JUDGEMENT SHALL BE REACHED THROUGH A CODE-FIXED ROUTE, AND
+THE PASS SHALL NOT EXECUTE, IMPORT OR OPEN ANY PATH SELECTED BY THE RECORD
+UNDER JUDGEMENT. A pin record is DATA the pass is judging; a member of it —
+`verify_pin:` or any other — is NEVER a dispatch key, an import target or a
+path to run, because a record that chooses which code judges it is a record
+that judges itself, and an added `contracts/<anything>-pin.yaml` could then
+select any path in the checkout. The route SHALL be one of exactly two forms,
+fixed at authoring time and reviewed with the resolver: EITHER a shared,
+importable, NON-EXECUTING shape validator for `pinned_contract_manifest`
+records, OR a CLOSED dispatch table inside the resolver's own module mapping
+each admitted pin id to its validator — and under the second form a record
+whose `verify_pin:` value DIFFERS from that table's entry is itself a
+controlled finding rather than a redirection. `verify_pin:` is therefore NOT a
+prerequisite of resolution and NOT part of the shape this grammar requires; it
+is a member today's five records happen to carry, and the pass may compare it
+but MUST NOT follow it. THE JUDGEMENT IS ALSO OFFLINE AND IS A CONTROLLED
+FINDING: it reads the resolution roots' trees and MUST NOT perform a fetch or a
+remote comparison, and a record that fails is an unresolved pinned target
+reported as a finding, never an exception that takes the run down, on the same
+terms as the corrupt-record rule below.
+
+THE PASS RESOLVES A PIN RECORD AGAINST EXACTLY THE ROOT PRECEDENCE THE
+IN-TREE ARM ALREADY USES, AND NAMES THE ROOT IT USED. Capability resolution
+today reads the DOCUMENT'S OWN REPOSITORY ROOT FIRST AND THE `openxFactory`
+ROOT SECOND (`scripts/doc_health/families.py:1317-1321`, over
+`Context.repo_paths`, `scripts/doc_health/runner.py:39`); a single-repository
+run has one root and no fallback. The pinned arm SHALL use that precedence
+UNCHANGED and SHALL invent none of its own, so the same marker resolves the
+same way whether the checker runs over one repository or over an aggregate of
+them; and EVERY finding the pinned arm emits SHALL NAME THE ROOT it resolved
+against, or failed to, since under two roots a bare "no pin record" sentence
+cannot be acted on. THE RECORD MUST ALSO BE A FILE OF THAT ROOT'S `contracts/`
+DIRECTORY, RESOLVED: the pass MUST
 resolve the candidate path and refuse to read it unless the resolved path stays
-inside that directory, and a symlink that leaves it MUST be refused rather than
+inside that root's `contracts/` directory, and a symlink that leaves it MUST be
+refused rather than
 followed — the lexical grammar stops a `..` in the marker, and only resolved
 containment stops a committed symlink. A pin record that EXISTS but
 cannot be read as a mapping carrying a `kind` — invalid YAML, a non-mapping
@@ -106,8 +142,8 @@ open. Whether a pin record may carry `capabilities:` is owned by
 `neutral-product-pin`, not by this capability. This
 conditional arm is deliberate: it binds automatically, with no further grammar
 delta, as soon as a pin record enumerates capabilities. It is NOT a licence to
-read the pinned product over the network — the deterministic pass reads this
-repository's tree and nothing else.
+read the pinned product over the network — the deterministic pass reads the
+resolution roots' trees and nothing else.
 
 WHEN A TARGET CAPABILITY EXITS THE CORPUS, the marker SHALL either take the
 pinned form naming the product that now holds the capability, or the block
@@ -128,7 +164,7 @@ not the thing that happens when nobody decides.
 - **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
-- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves to a pin record this repository carries whose path stays inside `contracts/` when resolved, which declares `kind: pinned_contract_manifest` AND PASSES the canonical `neutral-product-pin` validation the record names in its `verify_pin:` member, and which EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
+- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves under the in-tree arm's root precedence to a pin record whose path stays inside that root's `contracts/` directory when resolved, which declares `kind: pinned_contract_manifest` AND carries every member `neutral-product-pin` requires for its revision kind, and which EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
 - **THEN** the target MUST resolve
 - **AND** where the record carries no `capabilities:` member, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
 - **AND** a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
@@ -155,17 +191,29 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 - **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
 
-#### Scenario: A pin record declares the kind but fails the canonical pin validation
-- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but does not pass the canonical `neutral-product-pin` validation — no `revision_kind`, a `revision_kind` without its required referent, a missing or malformed secondary field that validation requires of its revision kind, or no `verify_pin:` member naming a verifier this tree carries
-- **THEN** the deterministic health pass MUST report it as an invalid pin, naming the failing field
+#### Scenario: A pin record declares the kind but is incomplete for its revision kind
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but lacks a member `neutral-product-pin` requires for its revision kind — no `revision_kind`, a `revision_kind` without its required referent, or a required member of that kind missing or malformed
+- **THEN** the deterministic health pass MUST report it as an invalid pin, naming the failing member and the root it resolved against
 - **AND** the target MUST NOT resolve on the strength of the declared kind
-- **AND** the pass MUST reach that judgement through the canonical validation rather than a field list restated in this grammar
+- **AND** the pass MUST reach that judgement through a code-fixed route rather than a member list restated in this grammar
+
+#### Scenario: A pin record names the code that would judge it
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `verify_pin:` member naming an arbitrary path in the checkout
+- **THEN** the deterministic health pass MUST NOT execute, import or open that path
+- **AND** the completeness judgement MUST be made by the code-fixed route — a shared non-executing shape validator, or the resolver module's own closed dispatch table
+- **AND** where that route is the dispatch table and the record's `verify_pin:` value differs from the table's entry for `<pin-id>`, the pass MUST report that disagreement as a finding rather than follow the record
 
 #### Scenario: A pin path resolves outside the contracts directory
-- **WHEN** the candidate pin-record path for `<pin-id>` resolves outside this repository's `contracts/` directory, whether by symlink or otherwise
+- **WHEN** the candidate pin-record path for `<pin-id>` resolves outside the `contracts/` directory of the root it was resolved against, whether by symlink or otherwise
 - **THEN** the deterministic health pass MUST refuse to read it
 - **AND** the target MUST NOT resolve
-- **AND** the refusal MUST be reported as a hygiene finding rather than silently skipped
+- **AND** the refusal MUST be reported as a hygiene finding naming that root, rather than silently skipped
+
+#### Scenario: A pinned target resolves under an aggregate run's second root
+- **WHEN** a document in another repository carries a pinned target whose pin record exists only in the `openxFactory` root of an aggregate run
+- **THEN** the target MUST resolve against that root, by the same precedence the in-tree capability arm uses — the document's own repository root first, the `openxFactory` root second
+- **AND** where both roots carry a record for `<pin-id>`, the document's own repository's record MUST be the one read
+- **AND** the pinned arm MUST invent no precedence of its own, so the same marker resolves identically in a single-repository run and in an aggregate one
 
 #### Scenario: A pin record named by a marker cannot be read
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` exists but is not readable as a mapping carrying a `kind` — invalid YAML, a non-mapping document, or no `kind` member
@@ -173,10 +221,11 @@ not the thing that happens when nobody decides.
 - **AND** the target MUST NOT resolve
 - **AND** the pass MUST complete rather than abort
 
-#### Scenario: A pinned target names a pin the repository does not carry
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists in this repository
+#### Scenario: A pinned target names a pin no resolution root carries
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
+- **AND** the finding MUST name the root or roots searched
 
 #### Scenario: A supersedes marker carries the reserved pinned prefix
 - **WHEN** an `xspec:supersedes` marker's `spec=` value begins with the reserved `pinned:` prefix

@@ -545,8 +545,10 @@ Active changes:
   `xspec:candidate` marker's `target=` attribute and there only, chosen because
   the existing marker regexes (`scripts/doc_health/families.py:1308-1314`) accept
   it unchanged — with resolution resting on a VALID, COMPLETE neutral-product
-  pin record, one that passes the canonical `neutral-product-pin` validation it
-  names in its own `verify_pin:` member (NO pin
+  pin record, one carrying every member `neutral-product-pin` requires for its
+  revision kind, judged through a code-fixed route that never runs a path the
+  record itself selects and resolved under the root precedence the in-tree arm
+  already uses (NO pin
   record in this tree enumerates capabilities, measured over all six; what each
   addresses instead is files, tree digests, workflow members, or one
   whole-artifact digest) and a stale-target rule `document-lifecycle` does not

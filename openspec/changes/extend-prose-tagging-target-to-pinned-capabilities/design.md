@@ -136,49 +136,78 @@ a later change, on evidence that a stale supersedes target exists.
    unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
    unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
    capability is today. **And the kind alone is a LABEL, not a pin — SO THE
-   RECORD MUST PASS THE CANONICAL `neutral-product-pin` VALIDATION, AND THIS
-   GRAMMAR ENUMERATES NO PIN SHAPE OF ITS OWN.** An earlier drafting of this arm
-   asked only for a `revision_kind` with its top-level referent, and that is
-   MEASURABLY WEAKER than the canonical shape: `neutral-product-pin` obliges a
-   SOURCE pin to carry, beside its `commit`, "a per-file `sha256` for every
+   RECORD MUST BE COMPLETE FOR ITS REVISION KIND, AGAINST
+   `neutral-product-pin`'S OWN MEMBER LIST AND NOT A LIST THIS GRAMMAR WRITES
+   DOWN.** An earlier drafting of this arm asked only for a `revision_kind` with
+   its top-level referent, and that is MEASURABLY WEAKER than the ratified
+   shape: `neutral-product-pin`'s requirement *An external neutral product is
+   pinned by commit and digest, never by tag* obliges a SOURCE pin to carry,
+   beside its `commit` and `revision_kind`, "a per-file `sha256` for every
    artifact the product's own manifest digests per file, and
    `pinned_by_commit_only:` for every artifact the product content-addresses by
-   commit alone" (`openspec/specs/neutral-product-pin/spec.md:31-38`), and it
-   obliges a PUBLISHED-ARTIFACT pin to "record every field the consumer's
-   verifier checks — including any secondary address the registry publishes — so
-   that no declared field goes unverified" (`:56-64`) — the `version`,
-   `integrity`, `shasum` and vendored `lockfile` that
-   `contracts/openspec-cli-pin.yaml:289-328` carries. A `contracts/evil-pin.yaml`
-   holding `kind`, `revision_kind: commit` and a `commit` satisfies the weaker
-   wording and resolves arbitrary pinned targets under it; it does not satisfy
-   the canonical one. **THE CANONICAL VALIDATION IS NOT A LIST THIS PACKET
-   WRITES DOWN — IT IS THE VERIFIER THE RECORD ITSELF NAMES.** Every
-   `pinned_contract_manifest` record in `contracts/` carries a `verify_pin:`
-   member naming its own validator, measured over all five:
-   `contracts/opendox-pin.yaml:156` → `scripts/verify-opendox-pin.py`,
-   `contracts/openreposhape-pin.yaml:121` →
-   `scripts/validate-openreposhape-pin.py`,
-   `contracts/openspec-cli-pin.yaml:376` → `scripts/validate-openspec-cli-pin.py`
-   (also its `consumer_entrypoint:` at `:394`),
-   `contracts/openxdox-pin.yaml:121` → `scripts/verify-openxdox-pin.py`,
-   `contracts/openxwallet-pin.yaml:64` → `scripts/verify-openxwallet-pin.py`.
-   A record that declares the kind and FAILS that validation — including a
-   record carrying no `verify_pin:` member, or naming a verifier this tree does
-   not contain — is an INVALID PIN that reports, NAMING THE FAILING FIELD, and
-   does not resolve; it is a CONTROLLED FINDING on the same terms as the corrupt
-   record below, never an exception. **And the judgement is reached OFFLINE, at
-   a SEAM the realization owns.** No shared shape entrypoint exists today: each
-   of the five verifiers carries its own guard inline (for example
+   commit alone" (`openspec/specs/neutral-product-pin/spec.md:31-36`); it obliges
+   a PUBLISHED-ARTIFACT pin to carry the artifact's digest as its referent with
+   `revision_kind` declared accordingly (`:46-48`), NEITHER per-file list
+   (`:55-56`), and "every field the consumer's verifier checks — including any
+   secondary address the registry publishes — so that no declared field goes
+   unverified" (`:62-65`); and its requirement *A pinned artifact that resolves
+   dependencies at install time carries a vendored lockfile, and the install
+   runs through it* obliges the vendored resolution, "a lockfile … addressed by a
+   digest over its exact bytes recorded in the pin, together with the size of the
+   tree it locks" (`:669-673`). Today's one published-artifact record carries
+   exactly that set — `version`, `integrity`, `shasum`, `lockfile` at
+   `contracts/openspec-cli-pin.yaml:289-328`, the `shasum` being the secondary
+   address `:62-65` names rather than a member the spec spells. A
+   `contracts/evil-pin.yaml` holding `kind`, `revision_kind: commit` and a
+   `commit` satisfies the weaker wording and resolves arbitrary pinned targets
+   under it; it does not satisfy the ratified one. The list stays with
+   `neutral-product-pin` because of two member lists the weaker is always the one
+   that admits — and if that capability later ratifies a VALIDATOR INTERFACE for
+   `pinned_contract_manifest` records, this resolver adopts it as a follow-up,
+   which is a change of that capability's making and not this packet's: **this
+   packet opens NO delta against `neutral-product-pin`.**
+
+   **AND THE JUDGEMENT GOES THROUGH A CODE-FIXED ROUTE, BECAUSE A RECORD MUST
+   NOT CHOOSE THE CODE THAT JUDGES IT.** An earlier drafting of this arm reached
+   the judgement through the verifier each record NAMES in its own `verify_pin:`
+   member (`contracts/opendox-pin.yaml:156`,
+   `contracts/openreposhape-pin.yaml:121`, `contracts/openspec-cli-pin.yaml:376`
+   with its `consumer_entrypoint:` at `:394`, `contracts/openxdox-pin.yaml:121`,
+   `contracts/openxwallet-pin.yaml:64`) — and "a verifier this tree carries" is
+   not an execution boundary at all: the path is SELECTED BY THE DATA UNDER
+   JUDGEMENT, so an added `contracts/<anything>-pin.yaml` could point the
+   judgement at any path in the checkout. That route is WITHDRAWN. The resolver
+   SHALL NOT execute, import or open any path a pin record selects, and
+   `verify_pin:` is neither a prerequisite of resolution nor part of the shape
+   this grammar requires — an observation about today's five records, nothing
+   more. The realization instead picks ONE of exactly two code-fixed forms, both
+   reviewed with the resolver: **(a) preferred — a shared, importable,
+   NON-EXECUTING shape validator** for `pinned_contract_manifest` records, reused
+   if the tree later carries one and otherwise added under `scripts/doc_health/`;
+   **(b) a CLOSED dispatch table inside the resolver's own module**, mapping each
+   admitted pin id to its validator, where a record whose `verify_pin:` value
+   DIFFERS from the table's entry is itself a controlled finding rather than a
+   redirection. Form (a) is preferred because it also answers the offline law:
+   each of the five verifiers carries its shape guard inline (for example
    `_pinned_commit`, `scripts/verify-openxdox-pin.py:266-291`, and
-   `pinned_version`, `scripts/validate-openspec-cli-pin.py:584-608`), and every
-   one of the five also shells out to a subprocess while
+   `pinned_version`, `scripts/validate-openspec-cli-pin.py:584-608`), every one
+   of them shells out to a subprocess, and
    `scripts/validate-openreposhape-pin.py` reaches the network through `urllib`
-   — work `neutral-product-pin`'s offline law forbids this pass.
-   The realization therefore reaches the canonical judgement EITHER by invoking
-   the named verifier in an offline shape-only capacity OR by extracting the
-   guard those verifiers already carry into one helper that both the verifier
-   and `fam_tag_hygiene` call — and NOT by restating the field list inside the
-   family, because of two field lists the weaker is always the one that admits.
+   — work `neutral-product-pin`'s offline law forbids this pass, and work a
+   non-executing validator never starts.
+
+   **And the ROOT is the in-tree arm's root, not a new one.** Capability
+   resolution already reads the document's OWN repository root first and the
+   `openxFactory` root second — `for name in (repo, "openxFactory")`,
+   `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`
+   (`scripts/doc_health/runner.py:39`) — and a single-repository run has one root
+   and no fallback. The pinned arm uses THAT precedence unchanged, so a marker
+   resolves the same way whether the checker runs over one repository or over an
+   aggregate; inventing a precedence here would make the same marker resolve
+   against different `contracts/<pin-id>-pin.yaml` files depending on how the
+   checker was invoked. And because there can be two roots, EVERY finding the
+   pinned arm emits names the root it resolved against or failed to: under an
+   aggregate run a bare "no pin record for `<pin-id>`" cannot be acted on.
    **And the path is RESOLVED
    before it is read**: the lexical grammar of D-1 stops a `..` inside the
    MARKER, and only resolved containment stops a committed SYMLINK at
@@ -190,10 +219,10 @@ a later change, on evidence that a stale supersedes target exists.
    `resolved.is_relative_to(ROOT)`, so it answers the REPOSITORY question and
    not the `contracts/` one — a committed
    `contracts/foo-pin.yaml -> ../openspec/specs/…` symlink stays inside the
-   repository and passes it — and a module-global root cannot speak for
-   doc-health's fixture and aggregate roots, which are the roots this family
-   actually runs against. The helper the realization uses therefore RECEIVES THE
-   CURRENT REPOSITORY ROOT AS A PARAMETER and checks the resolved candidate
+   repository and passes it — and a module-global root cannot speak for the
+   per-repository and fixture roots this family actually runs against. The helper
+   the realization uses therefore RECEIVES THE
+   RESOLVING REPOSITORY ROOT AS A PARAMETER and checks the resolved candidate
    against THAT root's `contracts/` boundary before any read, whether by
    parameterizing `resolve_in_tree` or by extracting a shared helper both call. **A record that EXISTS but is corrupt is the same class
    of event, not a crash**: invalid YAML, a non-mapping document, or a mapping

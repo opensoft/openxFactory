@@ -24,11 +24,15 @@ the later realization pull request, and § 4 is the archive act.
   because no live `supersedes` marker in this repository has a stale target —
   measured.
 - [ ] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
-  resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record this repository
-  carries — a `contracts/<pin-id>-pin.yaml` of
-  `kind: pinned_contract_manifest`, five of the six today, THAT PASSES THE
-  CANONICAL `neutral-product-pin` VALIDATION IT NAMES IN ITS OWN `verify_pin:`
-  MEMBER, this grammar enumerating no pin shape of its own;
+  resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record the RESOLUTION ROOTS
+  carry — a `contracts/<pin-id>-pin.yaml` of
+  `kind: pinned_contract_manifest`, five of the six today, CARRYING EVERY MEMBER
+  `neutral-product-pin`'s ratified text REQUIRES FOR ITS REVISION KIND
+  (`openspec/specs/neutral-product-pin/spec.md:31-36`, `:46-48`, `:55-56`,
+  `:62-65`, `:669-673`), this grammar enumerating no member list of its own,
+  judged through a CODE-FIXED route that never executes, imports or opens a path
+  a pin record selects, and resolved under the root precedence the in-tree arm
+  already uses (`scripts/doc_health/families.py:1317-1321`);
   `kind: pinned_workflow` (`review-lane-pin.yaml`) is EXCLUDED,
   because it pins executable governance code and has no capability set for a
   name to be about; the capability segment is
@@ -82,13 +86,22 @@ the later realization pull request, and § 4 is the archive act.
 - [ ] 3.1 `scripts/doc_health/families.py`: teach resolution the `pinned:`
   prefix — `_resolve_capability` (line 1317) gains the arm, or a sibling
   resolver is added and `fam_tag_hygiene`'s call sites (lines 1366, 1390)
-  dispatch on the prefix. The regexes at 1308-1314 DO NOT MOVE. The arm reaches
-  the canonical `neutral-product-pin` validation AT THE SEAM D-2 NAMES — the
-  verifier the record declares in its `verify_pin:` member, invoked in an
-  offline shape-only capacity, or the guard those five verifiers already carry
-  extracted into one helper both they and this family call — and RESTATES NO
-  PIN FIELD LIST inside the family, since of two field lists the weaker is
-  always the one that admits.
+  dispatch on the prefix. The regexes at 1308-1314 DO NOT MOVE. The arm judges
+  completeness through ONE of D-2's two CODE-FIXED routes — (a) preferred, a
+  shared importable NON-EXECUTING shape validator for
+  `pinned_contract_manifest` records, added under `scripts/doc_health/` if the
+  tree carries none; or (b) a CLOSED dispatch table in the resolver's own module
+  keyed by admitted pin id, under which a record's differing `verify_pin:` value
+  is itself a controlled finding — and it NEVER executes, imports or opens a
+  path a pin record selects, `verify_pin:` being data the arm may compare and
+  MUST NOT follow. It RESTATES NO MEMBER LIST inside the family, reading
+  `neutral-product-pin`'s instead, since of two lists the weaker is always the
+  one that admits. It resolves the pin record under EXACTLY the root precedence
+  the in-tree arm already uses — the document's own repository root, then the
+  `openxFactory` root (`_resolve_capability`,
+  `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`,
+  `scripts/doc_health/runner.py:39`) — invents no precedence of its own, and
+  NAMES THE ROOT it resolved against in every finding the arm emits.
 - [ ] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
   (`families.py:1367-1368`) is the wrong instruction for this class. The
@@ -138,8 +151,9 @@ the later realization pull request, and § 4 is the archive act.
   the run COMPLETING rather than raising out of the family, one case per shape:
   the resolver reads this registry file, so a corrupt record must not escape
   the family and abort doc-health; **(l)** an INVALID PIN — a record
-  declaring `kind: pinned_contract_manifest` that FAILS the canonical
-  `neutral-product-pin` validation — emits a finding NAMING THE FAILING FIELD
+  declaring `kind: pinned_contract_manifest` that is INCOMPLETE against the
+  members `neutral-product-pin` requires for its revision kind — emits a finding
+  NAMING THE FAILING MEMBER AND THE ROOT IT RESOLVED AGAINST
   and does not resolve the target, ONE CASE PER SHAPE AND PER SUPPORTED
   REVISION KIND, and the cases reach SECONDARY fields rather than top-level
   referents alone: a record carrying only `kind: pinned_contract_manifest`; a
@@ -157,19 +171,30 @@ the later realization pull request, and § 4 is the archive act.
   `contracts/evil-pin.yaml` carrying `kind`, `revision_kind: commit` and a
   well-formed `commit` and NOTHING ELSE: it satisfies a top-level-referent
   check, it does NOT satisfy the canonical validation, and it MUST NOT resolve
-  a pinned target. A record carrying no `verify_pin:` member, and one naming a
-  verifier this tree does not contain, are two further cases and both fail
-  closed. Any later revision kind or secondary field `neutral-product-pin`
+  a pinned target. Any later revision kind or member `neutral-product-pin`
   admits owes a case here on the same rule and arrives through THAT capability's
-  validation rather than through a list restated in this family, so a file added
+  text rather than through a list restated in this family, so a file added
   to `contracts/` cannot admit an arbitrary pinned target by carrying a label or
-  a partial field set; **(m)** the candidate pin path is RESOLVED and refused unless it stays
-  inside THE CURRENT REPOSITORY ROOT'S `contracts/` directory, with TWO escape
+  a partial member set; **(n)** a record whose `verify_pin:` member names an
+  ARBITRARY IN-TREE PATH is refused WITHOUT that path being opened, imported or
+  run — asserted by instrumenting the read/import/exec surface, not by reading
+  the finding text alone, since "refused" and "refused without touching it" are
+  different properties and only the second is the boundary — and, where the
+  realization picks D-2's form (b), a record whose `verify_pin:` value differs
+  from the module's dispatch-table entry emits the disagreement finding rather
+  than following the record; **(o)** the CROSS-REPOSITORY case, an aggregate
+  fixture with TWO roots: (i) the pin record exists only in the `openxFactory`
+  root and a document of the other repository names it — the target resolves by
+  the fallback and the finding or log NAMES that root; (ii) both roots carry a
+  record for the same `<pin-id>` — the DOCUMENT'S OWN repository's record is the
+  one read. Without (o) the arm can pass every single-root test and still make
+  the same marker resolve differently depending on how doc-health was invoked; **(m)** the candidate pin path is RESOLVED and refused unless it stays
+  inside THE RESOLVING REPOSITORY ROOT'S `contracts/` directory, with TWO escape
   cases and not one: a symlinked `contracts/<pin-id>-pin.yaml` resolving OUTSIDE
   the repository, and one resolving INSIDE the repository but OUTSIDE
   `contracts/` (for example `contracts/foo-pin.yaml -> ../openspec/specs/…`),
   each refused rather than followed, with a symlink/escape fixture per case. The
-  helper the arm calls SHALL RECEIVE THE CURRENT REPOSITORY ROOT AS A PARAMETER
+  helper the arm calls SHALL RECEIVE THE RESOLVING REPOSITORY ROOT AS A PARAMETER
   and check the resolved candidate against THAT root's `contracts/` boundary
   BEFORE any read. `resolve_in_tree`
   (`scripts/validate-pin-registrations.py:237-267`) is the repository's

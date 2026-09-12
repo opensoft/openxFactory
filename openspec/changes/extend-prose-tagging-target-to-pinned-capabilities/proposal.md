@@ -128,15 +128,24 @@ fenced and queued truthfully instead.
    repository's pin registry — `kind: pinned_contract_manifest`, the shape
    `neutral-product-pin` requires; a `pinned_workflow` record pins executable
    governance code and is excluded, since it has no capability set for a name
-   to be about. **AND THE KIND IS A LABEL, SO THE RECORD MUST PASS THE
-   CANONICAL `neutral-product-pin` VALIDATION IT NAMES IN ITS OWN `verify_pin:`
-   MEMBER** — every `pinned_contract_manifest` record in `contracts/` carries
-   that member, measured over all five — and this grammar enumerates NO PIN
-   SHAPE OF ITS OWN: a record carrying a kind with a partial field set, such as
-   a source pin without the `files:` and `pinned_by_commit_only:` completeness
-   claims or a published-artifact pin without its `version`, `shasum` and
-   vendored `lockfile`, is an INVALID PIN that reports with a finding NAMING
-   THE FAILING FIELD and does not resolve (design D-2). The
+   to be about. **AND THE KIND IS A LABEL, SO THE RECORD MUST BE COMPLETE FOR
+   ITS REVISION KIND** against the members `neutral-product-pin`'s ratified text
+   requires — this grammar enumerating NO MEMBER LIST OF ITS OWN and opening no
+   delta against that capability: a record carrying a kind with a partial member
+   set, such as a source pin without the per-file `sha256` and
+   `pinned_by_commit_only:` completeness claims
+   (`openspec/specs/neutral-product-pin/spec.md:31-36`) or a published-artifact
+   pin without the fields its verifier checks and the vendored lockfile
+   (`:62-65`, `:669-673`), is an INVALID PIN that reports with a finding NAMING
+   THE FAILING MEMBER and does not resolve. **That judgement goes through a
+   CODE-FIXED route** — a shared non-executing shape validator, or a closed
+   dispatch table in the resolver's own module — and the pass NEVER executes,
+   imports or opens a path a pin record selects, so `verify_pin:` is data it may
+   compare and never a dispatch key. **And the record is looked for under
+   EXACTLY the root precedence the in-tree arm already uses**, the document's own
+   repository root then the `openxFactory` root
+   (`scripts/doc_health/families.py:1317-1321`), with every pinned-arm finding
+   naming the root it resolved against (design D-2). The
    `<capability>` segment is NOT resolved further, because **no pin record in
    this tree enumerates capabilities** — measured over all six at `323c7adf`.
    What each record addresses INSTEAD differs, and the differences matter
