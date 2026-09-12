@@ -1,0 +1,198 @@
+schema: spec-driven
+created: 2026-09-11
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-decide-disposition-reading-per-family
+  reason: >-
+    THIRTY-ONE ENTRIES IN THE AGGREGATION'S `health/dispositions.yaml` BELONG TO
+    EIGHT FAMILIES, AND SEVEN OF THE EIGHT HAVE NO FAMILY-SIDE READING TELLING
+    THEM WHAT AN ENTRY OF THEIRS MEANS FOR THEIR OWN FINDINGS — the ESTATE-WIDE
+    `report.uncited_resolutions` arm already gives most of their entries a
+    different, DERIVED effect, measured below. The eighth, `modified-block-currency`,
+    HAS ONE: its promoted *A
+    finding is dispositioned* scenario rules its four entries and its module
+    reads the file under its own name at
+    `scripts/doc_health/modified_block_currency.py` (`fam_modified_block_currency`,
+    line 2236 at `origin/main` `d4d96cca`), which is why those four
+    are Class A and Class A's recommendation is NO CHANGE. The undecided
+    population is the SEVEN families with no declared reading — 27 of the 31.
+    `honour-grandfather-dispositions-in-ratified-provenance` (#939, archived
+    2026-09-11) answered the question for the ninth family — `ratified-provenance`
+    — and its own `design.md` D6 and `tasks.md` § 7.2 named this as a separate
+    question about a different subject, filing openxFactory #966 for it.
+    THE MEASUREMENT WAS TAKEN BEFORE THE DESIGN, over the REAL aggregation file
+    at `opensoft/xFactory` `main` `0ecb370e8fec2c1ac78498adf8f6a4ea3ca1c9bb`
+    (blob `9458d6c2794f0c0a937a82f7f58b802ab4b4027b`, 49 entries) against an
+    aggregation-shaped checkout carrying `openxFactory` `8015d45f`,
+    `codexFactory` `dc67ad82`, `OpsxFactory` `7368cb49` and `MedxFactory`
+    `9f125a6a`, and it moved the answer. NOT ONE of the thirty-one names a path
+    under `openspec/changes/archive/`, so `govern-archived-record-edits`'
+    absolute bar — bytes NOBODY may edit — reaches none of them. THAT PATH TEST
+    IS NOT THE IMMUTABILITY TEST AND THE STATUS WAS READ DIRECTLY:
+    `fam_record_immutability` scans every document whose `Status:` is `record`
+    wherever it sits, and FOUR of the five `record-immutability` targets are such
+    documents (the fifth is `Status: projection`). What is absent is the parent's
+    exact ground — a record with NO repair available to anyone — because this
+    family's own action text names one ("revert the content edit or re-issue as a
+    new record") and no archive rule forbids it here. The anticipated class is
+    therefore weaker rather than empty, and the split it implies is put to the
+    owner as Class C option (C4) rather than taken.
+    THIRTY of the thirty-one are ADMISSIBLE BY KEY to one ESTATE-WIDE arm,
+    `report.uncited_resolutions`, which keys on `(family, repo, path)` for every
+    family and silences the `uncited resolution` error when a contested finding
+    stops being reported; NINETEEN of those thirty are reachable by it on
+    today's resolution classes, and the distinction between admission and reach
+    is measured below rather than elided. It is the only arm that reads ALL thirty and NOT the
+    only arm that reads every one of them: the four `modified-block-currency`
+    entries are also read by that family's own module, which is a promoted
+    declaration rather than a gap. THE READING IS CONDITIONAL AND THE CONDITION
+    IS MEASURED: that arm iterates `previous_contested`, which `parse_previous`
+    fills only from rows written `class="contested"`, and at the rig 19 of the 31
+    belong to a family whose rows are contested while 9 belong to families whose
+    131 rows are all `auto-fixable` — admissible by key, unreachable on today's
+    classes; the remaining 2 (`semantic-contradiction`, `semantic-normative-prose`)
+    are admitted by that SAME synthetic forcing (19+9+2 make the THIRTY above)
+    but their reach is UNMEASURED here for a THIRD, deeper reason than the
+    nine: this rig never exercises `semantic.enforce_contract`, which DOES
+    emit a WARNING/CONTESTED finding for either family when a real semantic
+    sweep runs, merged into `result.findings` before render (`runner.py:574`)
+    — a REAL previous report CAN carry a `contested` row for them (`tasks.md`
+    § 7.6(b) measures exactly that gap), just not from a plain
+    deterministic-only rig like this one.
+    CANON DECLARES A READING FOR FIVE FAMILIES, not four:
+    `promotion-fidelity`, `duplicate-packet`, `modified-block-currency`,
+    `ratified-provenance` and `neutrality-drift`, the last suppressing on
+    `(repo, path, content digest)` while the rejected content is unchanged. No
+    entry in this population carries `family: neutrality-drift`. The THIRTY-FIRST is a dead letter: `parse_previous`
+    never admits an `uncited-resolution` row to the contested set (the anti-echo
+    of issue #515), so that entry's key can never reach the lookup. And a CONTROL
+    RUN with the file replaced by `[]` reports byte-identical row sets for all
+    five deterministic families that hold entries, so the thirty-one move NO
+    STANDING DETERMINISTIC-FAMILY ROW. THAT CONTROL IS ABOUT STANDING ROWS AND
+    NOTHING ELSE and is not read wider than it was taken: the derived
+    `uncited resolution` effect measured just above — 30 findings without the
+    file, 0 with it — is a separate figure and the two are never added together.
+    THE REMEDY IS THEREFORE A BOUNDARY WRITTEN INTO CANON AND NOT AN ARM. TEN of
+    the entries already reason about the mechanism correctly in their own
+    `rationale` field, in THREE distinct wordings (`proposal-origin` x8 share
+    one; the other two are one entry each) — "nothing is suppressed by this entry", "the CRITICAL is
+    NOT suppressible and is reported live either way", "only the spurious
+    uncited-resolution ERROR is disposed here" — which is a lane deriving from
+    the code what the contract does not state, in a different repository. The
+    `## MODIFIED` block states it where severity, resolution class and the
+    contested-resolution rule already live.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-11 (30 topic folders) and
+    `INDEX.md` read: no topic names doc-health severity policy, the disposition
+    mechanism, or what an entry means for a family that reads nothing. The one
+    adjacent-sounding folder, `proposal-origin-contract`, carries no mention of a
+    disposition at all. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is openxFactory issue #966, filed by this lane
+    at the parent's archive.
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), session `c44b04`, on Brett
+    Heap's word of 2026-09-11 at approximately 18:20Z, verbatim **"usage reset,
+    resume all. read handoff and resume and fan out wide and do as much as
+    possible in parallel"**.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. That word COMMISSIONS THE
+    AUTHORING and ratifies no wording: it admits no text here to canon, takes
+    none of the FIVE OPEN RULINGS this packet carries — four CLASS decisions and
+    one separate ruling on the packet's own shape (`design.md` D3, `tasks.md`
+    § 1.5) — and is not read as an approval of any of them. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every LIFECYCLE-BEARING document in
+    this packet (`proposal.md`, `design.md`, `tasks.md`; `.openspec.yaml` and the
+    spec delta carry no lifecycle header by their own shape) carries
+    `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
+    a fixed `kind` and `id`. Ratification, promotion and archive are three later
+    acts on later words.
+    THE CLASS DECISIONS ARE FOUR AND A FIFTH RULING ON THE PACKET'S OWN SHAPE
+    STANDS BESIDE THEM (`design.md` D3, `tasks.md` § 1.5) — FIVE OPEN RULINGS IN
+    ALL, EVERY ONE PUT AS A MULTIPLE-CHOICE QUESTION
+    WITH THE RECOMMENDATION FIRST, in `design.md` D1 and on the pull request —
+    one per CLASS of family rather than one per family, so the ruling is taken
+    four times and not eight. Class A (`modified-block-currency`, 4 entries):
+    RECOMMEND no change, canon's own *A finding is dispositioned* already rules
+    it. Class B (`location-conformance` + `document-catalog`, 11 entries):
+    RECOMMEND deliberately ignore — the entries are disappearance citations and a
+    reading arm would have a population of zero. Class C (`proposal-origin`,
+    `record-immutability`, `semantic-contradiction`, `semantic-normative-prose`,
+    15 entries): RECOMMEND deliberately ignore — the findings are LIVE and their
+    repair is available to somebody, ten of them are reported today, none is
+    archived, and ten of the entries record in terms that the row was meant to
+    stay visible. A measured option (C4) splits `record-immutability`'s four
+    `Status: record` targets out for a separate ruling and is put to the owner
+    rather than taken. Class D
+    (`uncited-resolution`, 1 entry): RECOMMEND record that it is inert and leave
+    it. Beside them `design.md` D3 puts the packet's own shape — decision only,
+    `code_surface: none` — with its trade-off written out.
+    NO ARM IS BUILT AHEAD OF THE WORD. `tasks.md` § 4 scopes what each veto would
+    commission and every box in it is open.
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS FILING. This pull request
+    edits no file under `openspec/specs/`; `code_surface` is `none` and
+    `target_release` is `implemented` — the ratified vocabulary's own doc-only
+    default — so under `release-realization` the archive is a separate act on a
+    separate word and openxFactory #966 closes there and not at this landing.
+  proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-12, verbatim: "do
+    all as recomended", given in the lane's window in answer to the
+    orchestrator's list of open rulings (the same FIVE that stand in this
+    packet's own `design.md` D1/D3 and `tasks.md` § 1, each put with its
+    recommendation first), and recorded on openxFactory PR #978 at
+    2026-09-12T15:45:25Z (comment `5646923059`) by the orchestrator (session
+    `5e1d3c`). THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED.
+    The drafting provenance above is kept exactly as authored and `kind` and
+    `id` never move, which is the shape `add-drafted-proposal-origin` (issue
+    #318) defined for this transition: approval is a pure ADDITION beside a
+    fixed origin identity. The earlier word recorded in `proposed_by` above —
+    2026-09-11 ~18:20Z, verbatim "usage reset, resume all. read handoff and
+    resume and fan out wide and do as much as possible in parallel" —
+    COMMISSIONED THE AUTHORING ALONE and decided none of the five rulings; it
+    stays the ORIGIN and is not read as an approval of any of them.
+    THE RULING TAKES EVERY RECOMMENDATION, SO NOT ONE BYTE OF THE DELTA MOVES:
+    **Q-A** (Class A, `modified-block-currency`, 4 entries) = **(A1) NO
+    CHANGE** — canon's own *A finding is dispositioned* already rules it;
+    (A2) narrow to `info`-with-citation and (A3) widen to archived delta
+    paths are NOT taken. **Q-B** (Class B, `location-conformance` +
+    `document-catalog`, 11 entries) = **(B1) DELIBERATELY IGNORE** — no
+    family-side reading, the entry stays a resolution citation; (B2)
+    read-and-downgrade and (B3) read-and-suppress are NOT taken. **Q-C**
+    (Class C, `proposal-origin` + `record-immutability` +
+    `semantic-contradiction` + `semantic-normative-prose`, 15 entries) =
+    **(C1) DELIBERATELY IGNORE** — governance record only, the finding keeps
+    its band; (C2) read-and-downgrade, (C3) read-and-suppress and **(C4) —
+    THE SPLIT ON `record-immutability`'s MEASURED STATUS — ARE NOT TAKEN**:
+    the class rules as ONE, `record-immutability`'s four `Status: record`
+    targets included, not carved out for a separate ruling. **Q-D** (Class D,
+    `uncited-resolution`, 1 entry) = **(D1a) RECORD THAT IT IS INERT AND
+    LEAVE IT** — the ruling's own words: "the `uncited-resolution` entry;
+    its retirement is an act in `opensoft/xFactory`, coupled to #965." (D1b)
+    and (D1c) are NOT taken; NO ENTRY IS RETIRED BY THIS RATIFICATION. This
+    packet's own D5/Class D measurement stands beside that word rather than
+    being read over by it: PR #981 (openxFactory issue #965's own packet)
+    declines this entry by name and by construction
+    (`_grandfather_cites` keys on `family="ratified-provenance"` alone), so
+    the coupling the ruling states is to the SUBJECT — retiring a stale entry
+    from the aggregation's own disposition file, the kind of act #965 opened
+    — and not to #981's particular arm; a retirement, if (D1c) is ever taken
+    on a later word, still needs a successor NAMED at that ruling. **Q-E**
+    (the packet's own shape, `design.md` D3) = **DECISION ONLY,
+    `code_surface: none`** — declaring a code surface now is NOT taken.
+    UNDER ALL FIVE TAKEN RECOMMENDATIONS NO ARM IS COMMISSIONED: `tasks.md`
+    § 4's five boxes each tick **NOT COMMISSIONED** at this same ruling, and
+    `modified-block-currency`'s own already-promoted family-side reader
+    remains exactly what (A1) deliberately KEEPS, not something this
+    ratification builds. `code_surface: none` and `target_release:
+    implemented` stand CONFIRMED, not changed, by this ratification.
+    Record: `review/ratification-2026-09-12.md`.
+  approved_on: 2026-09-12
+related:
+  - openxFactory:issue:966                                                     # THE ORIGIN. Filed by this lane at the parent's archive, carrying its § 7.2. Closes at the ARCHIVE, never at this landing
+  - openxFactory:change:archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance  # THE PARENT. Settled `ratified-provenance`'s 18 entries; its D6 and § 7.2 filed this question; its D1/D2 are the reading this packet measures against and departs from
+  - openxFactory:issue:939                                                     # The parent's origin. Named here because this packet's scenario must not move anything that one settled
+  - openxFactory:issue:965                                                     # The STALE-ENTRY sibling (the parent's § 7.1), packet PR #981. It rules `ratified-provenance` ONLY and DECLINES the rest by name, so D5 hands it NOTHING: the re-measured residue (11 of the 31 name a vanished path, 7 more a present path drawing no finding) is recorded as UNASSIGNED, no successor named
+  - openxFactory:issue:967                                                     # The `docs/doc-health.md` documentation sweep (the parent's § 7.3). This packet edits that file not at all and says why
+  - openxFactory:issue:968                                                     # The `--single-repo` asymmetry (the parent's § 7.4). D4 leaves it there; both added scenarios' `WHEN` now names the aggregation-checkout scope in terms rather than leaving a reader to infer it
+  - openxFactory:change:archive/2026-08-25-add-promotion-fidelity-check        # ARCHIVED. Wrote `promotion_fidelity.load_dispositions`, the SHARED FAMILY-SIDE ADMISSION HELPER every opting-in family USING THE COMMON (family, repo, path) KEY calls — `neutrality-drift` uses a DIFFERENT, digest-keyed reader of its own and is not among them — not the estate's only reader of the file either way, `runner.main` and the neutrality lane each having their own (tasks.md § 2.6 enumerates them) — and the first *A finding is dispositioned* scenario, one of the three SUPPRESSING declarations this packet counts
+  - openxFactory:change:archive/2026-09-09-govern-archived-record-edits        # ARCHIVED. With `record-immutability` it is the ground the parent's downgrade rests on. D0.2 measures its ABSOLUTE bar absent from all thirty-one (no archived path) while four record-immutability targets ARE `Status: record` documents — the weaker residue carried as Class C option (C4)
