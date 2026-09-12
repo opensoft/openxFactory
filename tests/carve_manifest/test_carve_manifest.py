@@ -1893,6 +1893,12 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     one line its copies must differ on. A BRANCH and never a skip, on the
     module docstring's reasoning — before the § 6 ceremony there is no manifest
     to read.
+
+    Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
+    Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
+    #1002: the AGGREGATE (lines, carrying) count below would stay green even
+    if those three lines had landed on the wrong row or under the wrong edit
+    class, so the exact row/disposition/class/lines are pinned here too.
     """
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     if not manifest.is_file():
@@ -1915,6 +1921,21 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # The ruling's own pairing: the replica IMPORTS the moved row's module
     # unconditionally, which is why one amendment carries both.
     assert "session_fixtures" in replica["evidence"], replica
+
+    # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2): the
+    # exact row/disposition/class/lines the aggregate count below cannot tell
+    # apart from a same-sized drift elsewhere (Copilot review, PR #1002).
+    dispose = rows["scripts/ideation_dashboard/web/views/dispose.js"]
+    assert dispose["disposition"] == "moved_with_declared_edit", dispose
+    assert dispose["destination"] == "opendox_code", dispose
+    assert [(edit["class"], edit["lines"]) for edit in dispose["edits"]] == \
+        [("import rewrites", [26])], dispose
+
+    wheel = rows["scripts/ideation_dashboard/web/views/wheel.js"]
+    assert wheel["disposition"] == "moved_with_declared_edit", wheel
+    assert wheel["destination"] == "opendox_code", wheel
+    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == \
+        [("import rewrites", [75, 76])], wheel
 
     # And the counts this amendment moved, re-derived from the file rather than
     # transcribed: one more declared line than the 793 the runbook's § 2 table
