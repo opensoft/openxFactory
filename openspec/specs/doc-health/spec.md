@@ -1842,11 +1842,33 @@ marker names titles only**, so a bullet a merge makes redundant is a declared
 removal, not a permanent editorial row — but it has to be declared as a bullet,
 one at a time, which is exactly the deliberation the class deserves.
 
-**A marker is NOT a carriage unit, in either direction.** A marker promotes into
-canon with the requirement that carries it, and if it were a unit every later
-block would have to restate every marker any predecessor ever wrote, forever.
-The durable record of a deletion is the archived delta, which is where every
-other archived governance act is read from.
+**A marker is NOT a carriage unit, in either direction.** A marker promotes
+into canon with the requirement that carries it, and if it were a unit every
+later block would have to restate every marker any predecessor ever wrote,
+forever. The durable record of a deletion is the archived delta, which is where
+every other archived governance act is read from. **A UNIT-NAMING MARKER IS
+SPENT ONCE EVERY UNIT IT NAMES HAS LEFT CANON BY A DECLARED ACT, AND DROPPING
+IT IS THEREFORE THE LAWFUL CARRIAGE**. The act the marker declares is complete
+and every unit it names is gone from the promoted text, so the marker describes
+nothing a later block could be carrying: a later block SHALL NOT be required to
+restate it, SHALL NOT be reported for omitting it, and loses no record by
+dropping it, the archived delta named above being where that record is read.
+WHERE A LATER BLOCK CARRIES A SPENT MARKER FORWARD INSTEAD, THE THIRD GROUND
+ABOVE REPORTS THAT MARKER, AND THAT REPORT IS THIS CLASS WORKING AS WRITTEN
+RATHER THAN A DEFECT OF THE LATER AUTHOR'S CARE: its names match no unit of the
+requirement's basis, the declared act having removed them, and no unit of the
+block, a block not restating a retired unit, which is the third ground exactly
+as it already stands. NO GROUND IS ADDED HERE, NONE IS WITHDRAWN AND NO
+SUPPRESSION MOVES: the count stays at FIVE, a spent name suppresses nothing and
+never has, and both carriage arms are untouched — what is written here is which
+of the two standing options is the lawful one and what the other one costs, not
+a sixth ground and not a suppression this class does not carry. AND IT IS READ
+ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT CANON AND ON NO OTHER: the
+third ground is resolved BY NAME, so a marker that names nothing NEVER REACHES
+IT and nothing here decides anything about such a marker, and a marker still
+naming a unit the requirement's basis carries is not spent and is not what
+these sentences are read on, the standing of a tail that names nothing being
+decided in the grounds paragraph above rather than in this one.
 
 Written out, the two forms are exactly:
 
@@ -2124,23 +2146,56 @@ longer carries because that change removed them — match no unit of the
 requirement or of this block, which is the third ground above reporting this
 block for copying a predecessor's declaration forward.
 
-**Removed from canon by amend-merged-into-empty-tail-standing (2026-09-11):**
-``THE FIFTH GROUND SHALL BE READ ON THE `Removed from canon` FORM ALONE: the
-pairing form names no units by construction, its whole tail being a reason, so
-a pairing marker carrying no code span declares exactly what that form declares
-and SHALL NOT be reported on this ground; and a `Merged into` marker whose tail
-names no superseded title is a question this requirement does not decide, its
-destination standing in the prefix where that form's declaration has always
-been read.`` — the retired sentence scoped the fifth ground to the removal form
-and then said of the merge form's tail that whether it declares nothing, or
-declares a destination that absorbed nothing named in it, is a question this
-requirement does not decide. Brett Heap decided it on 2026-09-11, so that
-clause cannot stand beside the sentence stating the decision. The unit is
-REPLACED rather than dropped, by the sentence above that carries its
-removal-form scoping and its pairing-form exclusion word for word, and the
-decision is stated in ONE sentence added beside it. Nothing else in this
-requirement is dropped, and this reason carries no code span at all, so the
-marker names exactly the one unit standing before the separator.
+**AMENDED BY `rule-inherited-unit-naming-marker-spent` (2026-09-11).** Every
+paragraph and every scenario above this note stands exactly as
+`amend-merged-into-empty-tail-standing`'s block states it —
+`amend-marker-reason-boundary`'s, `amend-marker-defect-reporting`'s,
+`amend-modified-block-currency-standing`'s, `amend-marker-declaring-nothing`'s
+and `amend-merged-into-empty-tail-standing`'s own notes and their narratives
+included — BECAUSE THIS BLOCK IS WRITTEN OVER THAT CHANGE'S OUTCOME AND NOT
+OVER THE PROMOTED TEXT THAT CHANGE REPLACES:
+`amend-merged-into-empty-tail-standing` is an active ratified writer of this
+requirement, this change declares it as its ordered-delta parent, and
+`release-realization` makes that declaration the order. THIS AMENDMENT RETIRES
+NOTHING AND IS A PURE ADDITION: FIVE SENTENCES are added at the END of ONE
+paragraph — the one ruling that a marker is not a carriage unit — DERIVING AS
+FIVE CARRIAGE UNITS, each sentence its own unit, the bold lead-in closing its
+emphasis BEFORE its terminator so that the terminator is followed by whitespace
+and the unit boundary this note claims is the boundary the family derives; and
+TWO SCENARIOS are added at the END of the block, one for each half of the rule,
+because a rule no scenario exercises is a rule the next author re-deriving this
+class has nothing to test against and because pinning one half of a two-option
+rule invites a reader to take that half for the whole. NO UNIT IS RETIRED,
+REWORDED, MOVED OR DROPPED, so NO `Removed from canon` MARKER IS OWED AND NONE
+IS WRITTEN — derived through `derive_units` rather than asserted. NO GROUND IS
+ADDED AND NONE IS WITHDRAWN: the class still states FIVE, the added sentences
+being a carriage rule and a reading of the third ground rather than a sixth
+ground written in the negative; no severity moves, no threshold moves, no arm
+is added or removed, no parse and no marker grammar moves, no disposition rule
+changes, this family's registration in the resolution table is untouched, and
+the set of trees over which this family speaks is not altered by one line. NO
+CODE MOVES EITHER, AND THAT IS MEASURED RATHER THAN PROMISED: the third ground
+already reports a name matching no unit of the basis and no unit of the block,
+which is what `suppression` does today, and DROPPING a marker is the absence of
+an edit rather than an edit — so this block states in canon which of two
+standing options is lawful and asks the module for nothing it does not already
+do. THE POPULATION IS MEASURED RATHER THAN ASSUMED, on 2026-09-11 over the
+corpus as it stood before this packet: of the 18 markers the promoted
+specifications carry — 15 of `Removed from canon` form, 1 of `Merged into` form
+and 2 of the pairing form — SIXTEEN name at least one unit and ALL SIXTEEN ARE
+SPENT, every unit every one of them names being absent from the requirement
+that carries it, across THIRTEEN requirements in SEVEN promoted
+specifications; and of the 31 active MODIFIED blocks this family reads, TWO
+carry a unit-naming marker, both of the `Merged into` form and each naming one
+unit that matches its resolved basis, so a run reports NO marker defect before
+this amendment and none after it. AND
+`amend-merged-into-empty-tail-standing`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE — the fifth consecutive amendment of this
+requirement to drop its predecessor's, and the first to drop one under the rule
+it is itself writing: the marker's one named unit is a sentence this
+requirement's basis no longer carries, so restating it would declare a removal
+this change did not perform and would report this block under the third ground
+above, which is the state these added sentences exist to write down.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
@@ -2254,6 +2309,16 @@ marker names exactly the one unit standing before the separator.
 - **THEN** the run MUST NOT report the marker on the fifth ground, that ground being read on the `Removed from canon` form alone, and MUST NOT report it on any of the other four either, each of those being reached through a name or a quoted span such a marker does not carry
 - **AND** the silence MUST be read as this requirement's ruling that such a marker declares what its form declares, rather than as a ground this requirement has left unwritten
 - **AND** a code span a `Merged into` marker's reason DOES quote MUST remain subject to the second ground, the silence covering a tail with no code span in it and not the form as such
+
+#### Scenario: A later block drops an inherited unit-naming marker
+- **WHEN** an active MODIFIED block restates a requirement whose basis carries a unit-naming marker, and every unit that marker names has left canon by the act the marker declares
+- **THEN** the block MUST NOT be reported for omitting that marker, a marker being no carriage unit in either direction and a marker whose act is complete being spent
+- **AND** the omission MUST NOT be read as undeclaring the removal, the archived delta remaining the durable record of the act
+
+#### Scenario: A later block carries an inherited unit-naming marker forward
+- **WHEN** an active MODIFIED block carries such a marker forward instead, its named units matching no unit of the requirement's basis and no unit of the block
+- **THEN** the run MUST report the marker itself in the `info` band on the third ground, exactly as it reports any other name matching neither side
+- **AND** the report MUST NOT be read as a new ground, as a new severity or as a defect of the carriage arms, the name suppressing nothing and the block's own carriage being measured unchanged
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long

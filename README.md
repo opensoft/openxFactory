@@ -667,74 +667,6 @@ Active changes:
   merged-plus-green realization evidence at canon's grain. Nothing is promoted;
   `tasks.md` § 5 and § 6 stay entirely open; #956 closes at the ARCHIVE and at
   no earlier landing.
-- [rule-inherited-unit-naming-marker-spent](openspec/changes/rule-inherited-unit-naming-marker-spent/proposal.md)
-  — authored 2026-09-11, **`Status: ratified`** (2026-09-12, Brett Heap,
-  openxFactory operator authority, verbatim *"do all as recomended"* — a
-  MULTIPLE-CHOICE ruling given in the lane's window in answer to a list of
-  open rulings each put with its recommendation first, `design.md` **D1**
-  among them, recorded on PR
-  [#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5646922185)
-  at 2026-09-12T15:45:16Z). **D1 = Option 1, the recommended and encoded
-  wording (the five added carriage sentences and the two scenarios, as
-  frozen at `51edde81`); D2b = no marker owed, confirmed by measurement.**
-  The option taken is the packet's own recommendation, so **THE WORDING
-  STANDS UNCHANGED** and no delta byte was re-written, restored or deleted.
-  Records
-  `openspec/changes/rule-inherited-unit-naming-marker-spent/review/ratification-2026-09-12.md`
-  and
-  `openspec/changes/rule-inherited-unit-naming-marker-spent/review/verification-2026-09-12.md`.
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
-  unmoved. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
-  earlier word of 2026-09-11 at 12:08:24Z, verbatim ***"land each when green,
-  archive both when landed, claim 955 and 956"***, recorded on openxFactory
-  [#955](https://github.com/opensoft/openxFactory/issues/955), which
-  COMMISSIONED THE AUTHORING AND RATIFIED NOTHING: it decided no sentence, no
-  scenario and no scoping, none of which existed when it was given. Origin:
-  openxFactory [#955](https://github.com/opensoft/openxFactory/issues/955),
-  filed UNCLAIMED at the archive of
-  `amend-repo-boundary-governance-scope-first-line`
-  ([#958](https://github.com/opensoft/openxFactory/pull/958)), which owed it as
-  residue `tasks.md` § 6.1 and `design.md` D2b. **ONE `## MODIFIED
-  Requirements` BLOCK, over ONE requirement, in ONE capability**: `doc-health`
-  § *Currency of an active change's MODIFIED requirement blocks*. **IT IS AN
-  ORDERED DELTA**: `sequenced_after: [amend-merged-into-empty-tail-standing]`,
-  the parent HAVING SINCE LANDED AND ARCHIVED
-  ([#947](https://github.com/opensoft/openxFactory/pull/947) → archive
-  [#973](https://github.com/opensoft/openxFactory/pull/973)), so this block's
-  PRE-text remains that change's block at `a6d373e9`, byte-identical to the
-  now-archived path. **IT IS A PURE ADDITION**: FIVE SENTENCES — five
-  carriage units — added to the paragraph that already rules a marker no
-  carriage unit — a unit-naming marker is SPENT
-  once EVERY unit it names has left canon by a declared act, so DROPPING it is
-  the lawful carriage, and where a later block carries one forward the THIRD
-  ground reports it and that report is the class working as written — plus TWO
-  SCENARIOS at the end of the block, one per half of the rule. The condition is
-  stated ALL-NAMES rather than one-name, a marker naming units in the plural,
-  which was Copilot's round on
-  [#962](https://github.com/opensoft/openxFactory/pull/962) taken. **NO UNIT IS
-  RETIRED, SO NO `Removed from canon` MARKER IS OWED AND NONE IS WRITTEN**; the
-  block carries ZERO markers. **NO GROUND IS ADDED AND NONE IS WITHDRAWN** —
-  the class still states FIVE — no severity, threshold, arm, finding class,
-  template, parse, marker grammar or disposition rule moves. **NO CODE MOVES,
-  AND THAT IS MEASURED**: `code_surface: none`, because the third ground
-  already reports a name matching no unit of the basis and no unit of the
-  block, and DROPPING a marker is the absence of an edit;
-  `target_release: implemented`, canon's own doc-only default. **THE ONE TEST
-  ROW THE DRAFT OPENED HAS SINCE RETIRED**: the modified-block-currency
-  self-gate's `_LEDGER_SUBJECTS` named this packet's transient row while the
-  packet was measured against CANON and its parent was off `main`; the
-  parent's own archive ([#973](https://github.com/opensoft/openxFactory/pull/973))
-  reached the active corpus and cleared it — event (b) of `design.md` D2b's
-  two clearing events, independent of this ratification — and the row is
-  removed rather than left stale.
-  **THE MEASUREMENT**: of
-  the 18 markers
-  promoted canon carries — 15 `Removed from canon`, 1 `Merged into`, 2 pairing
-  — SIXTEEN name a unit and **ALL SIXTEEN ARE SPENT** (every unit every one of
-  them names absent, and NONE partially spent), across 13 requirements
-  in 7 specifications; a run reports **0 marker defects**. openxFactory #955
-  closes at the ARCHIVE and not at this landing.
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
@@ -3255,6 +3187,66 @@ Archived changes:
   sibling-searched for a tracking issue (none found), none filed by this
   archive. openxFactory
   [#965](https://github.com/opensoft/openxFactory/issues/965) ends at this
+  archive and at nothing else. Lane `openxfactory-1`.
+
+- [rule-inherited-unit-naming-marker-spent](openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/proposal.md)
+  — **ARCHIVED 2026-09-12** by
+  [PR #1012](https://github.com/opensoft/openxFactory/pull/1012), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"archive it"*,
+  **2026-09-12T18:33:23Z**, recorded on
+  [PR #962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5647869740)
+  and mirrored on
+  [#955](https://github.com/opensoft/openxFactory/issues/955#issuecomment-5647869866)
+  — given AHEAD of, and CONDITIONAL on, the packet's own ratification pull
+  request (#962) landing — verbatim *"do all as recomended"*,
+  2026-09-12T15:45:16Z, recorded on
+  [PR #962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5646922185),
+  which decided the packet's content (`design.md` D1 = Option 1 as encoded,
+  D2b = no marker owed) but did NOT itself authorize this promotion+archive
+  act (`tasks.md` § 5 requires its own separate word). The condition was met
+  when PR #962 merged to `main` as **`e8dd7d88d01222d2b7aefd458586df5936e3d7bb`**
+  at **2026-09-12T22:10:57Z** (LANDED comment
+  [issuecomment-5649022644](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5649022644)),
+  just over five hours after the archive word — the same construction as the
+  archive word recorded for `decide-disposition-reading-per-family` at PR
+  #1007. Combined with the `release-realization` rule that a change with an
+  EMPTY code surface archives **ON LANDING plus its own task list**, waiting
+  on no realization evidence: *"its code_surface is `none` and it archives
+  when its artifacts land, as before"*, that capability's realization gate
+  binding only *"a change with a **non-empty** code surface"*. **THE
+  EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#962](https://github.com/opensoft/openxFactory/pull/962) →
+  `e8dd7d88d01222d2b7aefd458586df5936e3d7bb`** on `main`, 2026-09-12T22:10:57Z
+  (ratifying commit `5622d4cc838e`; records
+  `openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/review/ratification-2026-09-12.md`
+  `Status: ratified` — the only capture under `review/` besides
+  `verification-2026-09-12.md`, both MOVED and untouched except for a new
+  `## 10. Addendum` section appended AFTER the ratified prose recording this
+  archive word, never editing what came before it — and
+  `verification-2026-09-12.md`, MOVED and untouched), with `code_surface:
+  none` and `target_release: implemented`. **NO RUN ON THE MERGE COMMIT IS
+  OWED** for an empty code surface. **THE PROMOTION, MEASURED RATHER THAN
+  EYEBALLED:** the `## MODIFIED` block over *Currency of an active change's
+  MODIFIED requirement blocks* is BYTE-IDENTICAL to the requirement now
+  standing in `openspec/specs/doc-health/spec.md` — **53,777 bytes, sha256
+  `6a71bd0bc49a3297cd50d8c7955ab6c9d9f9047da8f30570ccb58eb0151bf249`** on both
+  sides, sliced at the requirement heading to the next one and hashed, after
+  normalising one trailing-newline artefact of the delta file's own
+  end-of-file boundary. **NO ORDERED-DELTA CHILD DEPENDS ON THIS CHANGE** —
+  searched across `openspec/changes/` for any `sequenced_after` declaration
+  naming it; none found. `_LEDGER_SUBJECTS` in
+  `tests/doc-health/test_modified_block_currency_self_gate.py` carries no
+  live row for this packet — it was added at drafting and already retired,
+  independent of this archive, when the parent
+  (`amend-merged-into-empty-tail-standing`, archive PR #973) reached the
+  active corpus. **ALL ELEVEN OPEN BOXES TICK ON THE RECORDING** (§ 5.1
+  through § 5.4, the archive-owed section, each a diff in this pull request
+  or a measurement reproducible from the command named beside it; § 6.1
+  through § 6.7, permanently-declined residue, ticked under their own
+  disposition note because the sanctioned tool's `^- \[ \]` check has no
+  per-section exception — nothing declined there is performed by the tick,
+  and every box's body stands verbatim beneath it). openxFactory
+  [#955](https://github.com/opensoft/openxFactory/issues/955) ends at this
   archive and at nothing else. Lane `openxfactory-1`.
 
 - [decide-disposition-reading-per-family](openspec/changes/archive/2026-09-12-decide-disposition-reading-per-family/proposal.md)
