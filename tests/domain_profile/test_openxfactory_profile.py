@@ -487,6 +487,65 @@ def test_an_engine_lane_registers_at_its_own_process_entry(lane):
     assert "resolves openxfactory-engineering" in lines, proc.stdout
 
 
+def test_conftest_registration_does_not_break_a_suite_with_no_legs():
+    """`tests/conftest.py` is in the conftest chain of EVERY suite under
+    `tests/` (its own module docstring), including `tests/review_lane_pin`:
+    `.github/workflows/review-lane-repin.yml` checks this repository out with
+    no `submodules:` step and runs `python3 -m pytest tests/review_lane_pin -q`
+    directly. That directory has no conftest of its own to scope the
+    registration back out, and it reaches neither `opendox` nor `openxdox`
+    (Copilot review, PR #984) — so the root conftest's process-start
+    registration must not turn a missing leg into a collection failure for a
+    suite that never touches the carve.
+
+    Reproduced by monkeypatching `carved_reach.LEGS` to a `src/` that carries
+    no module — exactly what an uninitialized gitlink leaves on disk — and
+    then running the REAL `tests/conftest.py` file with `runpy`, so this
+    proves the shipped file rather than a re-description of it. Also proves
+    the fix does not OVER-swallow: a name that genuinely needs a leg still
+    refuses afterward, lazily, exactly as `carved_reach.install()`'s own
+    design promises.
+
+    In a SUBPROCESS: `carved_reach.install()` mutates `sys.meta_path` and
+    `LEGS` is a module global, both process-wide, so patching them in-process
+    would leak into the rest of this session.
+    """
+    program = textwrap.dedent("""
+        import runpy
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+
+        # An uninitialized gitlink checkout: the leg's src/ carries no module
+        # (standing in for the empty mount point a checkout with no
+        # `submodules:` step leaves on the runner).
+        carved_reach.LEGS = (
+            ("openDox", "code",
+             carved_reach.REPO_ROOT / "openDox" / "code" / "src-not-materialized",
+             "opendox"),
+            ("openXdox", "code",
+             carved_reach.REPO_ROOT / "openXdox" / "code" / "src-not-materialized",
+             "openxdox"),
+        )
+
+        runpy.run_path({conftest!r}, run_name="conftest")
+        print("CONFTEST LOADED OK")
+
+        # The lazy refusal must still be armed for a suite that DOES need the
+        # carve -- the fix must not have quietly disabled it too.
+        try:
+            import opendox
+            print("OPENDOX IMPORTED (should not happen)")
+        except carved_reach.CarveReachUnavailable:
+            print("OPENDOX STILL REFUSES")
+    """).format(scripts=str(SCRIPTS), conftest=str(REPO_ROOT / "tests" / "conftest.py"))
+    proc = subprocess.run([sys.executable, "-c", program],
+                          capture_output=True, text=True, cwd=str(REPO_ROOT))
+    assert proc.returncode == 0, proc.stderr
+    assert "CONFTEST LOADED OK" in proc.stdout, proc.stdout
+    assert "OPENDOX STILL REFUSES" in proc.stdout, proc.stdout
+
+
 def test_a_facet_colliding_with_a_profile_field_is_refused_at_compose_time():
     """`__getattr__` runs only when ordinary lookup FAILS, so a facet named like
     one of `DomainProfile`'s own fields would hand openDox the dataclass's value

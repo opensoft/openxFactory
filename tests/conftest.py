@@ -36,7 +36,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from carved_reach import install as install_carved_reach  # noqa: E402
+from carved_reach import (  # noqa: E402
+    CarveReachUnavailable,
+    install as install_carved_reach,
+)
 
 install_carved_reach(tests=True)
 
@@ -54,7 +57,29 @@ install_carved_reach(tests=True)
 
 from opendox_host import register_openxfactory  # noqa: E402
 
-register_openxfactory()
+try:
+    register_openxfactory()
+except CarveReachUnavailable:
+    # THIS FILE IS IN THE CONFTEST CHAIN OF EVERY SUITE UNDER `tests/` (module
+    # docstring above), including ones that touch neither leg.
+    # `.github/workflows/review-lane-repin.yml` checks this repository out
+    # with no `submodules:` step and runs `pytest tests/review_lane_pin`
+    # directly — that directory has no conftest of its own to scope this call
+    # back out, and nothing in it reaches `opendox` or `openxdox` (Copilot
+    # review, PR #984). An eager, unconditional registration would be exactly
+    # the blanket refusal `carved_reach.install()` itself declines to make,
+    # for the same reason its own docstring gives: "refuses rather than
+    # degrades — AT THE POINT OF USE".
+    #
+    # Safe to swallow, not a narrowing of the refusal: every path that reaches
+    # this call raises `CarveReachUnavailable` for one reason only — a leg is
+    # not materialized (`carved_reach._LegMissing`, tripped by the `from
+    # opendox import ...` / `from openxdox import ...` lines inside
+    # `register_openxfactory()` itself) — so a suite that DOES need the
+    # profile still gets the identical refusal, just at the point it actually
+    # imports the missing name, which `install_carved_reach()` above has
+    # already armed `sys.meta_path` to raise.
+    pass
 
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
     hermetic_binary_path,
