@@ -1922,12 +1922,24 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
     # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
     # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
-    # rows. Re-derived here for the same reason as before: a transcribed count
-    # is a claim, a summed one is a measurement.
+    # rows. AND THEN THE § 3.4 SLICE-S3 ANNOTATION of 2026-09-12 (`#656`
+    # comment `5642758731`, whose Q-L1 paragraph binds every § 3.4 slice) moved
+    # both once more: the view registry edits ONE arrived file,
+    # `scripts/ideation_dashboard/web/app.js`, which converts `moved_verbatim`
+    # -> `moved_with_declared_edit` and takes 37 lines in two classes
+    # (`import rewrites` 1, `adapter calls` 36) on a row that carried no
+    # `edits:` before. 862 + 37 = 899 on 150 + 1 = 151 rows.
+    #
+    # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
+    # document itself states each act as a DELTA (see the manifest's own
+    # comment on why two acts restating one set of absolutes is how a count
+    # becomes wrong in a merge), and the one place that sums them is this test,
+    # which re-derives rather than transcribes. A transcribed count is a claim,
+    # a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (862, 150), (lines, carrying)
+    assert (lines, carrying) == (899, 151), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -1999,7 +2011,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 862 line numbers were written in the numbering this
+    The manifest's 899 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would
