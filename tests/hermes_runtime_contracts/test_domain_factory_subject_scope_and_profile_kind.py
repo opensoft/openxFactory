@@ -267,3 +267,25 @@ def test_a_non_string_registered_profile_id_is_reported_not_crashed_on(
     assert result.returncode == 1, result.stdout + result.stderr
     assert "Traceback" not in result.stdout + result.stderr
     assert "ERROR: worker.yaml: profile_id must be a string" in result.stdout
+
+
+def test_a_non_string_nested_generic_profile_id_is_reported_not_crashed_on(
+    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
+) -> None:
+    """The type guard is unconditional -- it covers the unchanged generic
+    `profile.id` path too, not only the new `profile_id` path -- but only the
+    registered-kind case above exercised it; this proves the generic/nested
+    case is guarded as well (Copilot, PR #989)."""
+    profiles = {
+        "worker.yaml": {
+            "profile": {"id": ["not", "a", "string"], "tenant_kind": "pilot"},
+        },
+    }
+    repo = _materialize(tmp_path / "non-string-nested-generic-id", _stack(), yaml_writer,
+                        profiles=profiles)
+
+    result = _run(command_runner, repo_root, repo)
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Traceback" not in result.stdout + result.stderr
+    assert "ERROR: worker.yaml: profile.id must be a string" in result.stdout
