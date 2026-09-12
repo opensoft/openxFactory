@@ -1,6 +1,0 @@
-# VALID: the editor-only posture — zero approved models is SUCCESS (FR-025).
-{
-  "schema_version": 1,
-  "kind": "workbench-model-catalog",
-  "models": []
-}

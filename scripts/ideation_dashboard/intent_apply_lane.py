@@ -44,8 +44,16 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:  # plain-script parity with serve.py
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from ideation_dashboard import gate_console as gc  # noqa: E402
-from ideation_dashboard.gate_routes import run_gate_action  # noqa: E402
+# § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): the modules this file reads
+# from `opendox.*` / `openxdox.*` below left openxFactory at the carve and are
+# read from the two PINNED legs through the ONE resolver. See
+# `scripts/carved_reach.py`.
+from carved_reach import install as _install_carved_reach  # noqa: E402
+
+_install_carved_reach()
+
+from openxdox import gate_console as gc  # noqa: E402
+from openxdox.gate_routes import run_gate_action  # noqa: E402
 
 #: Committed intents live beside the gate records they precede.
 DEFAULT_INTENTS_DIR = "ideation/dashboard/intents/"
@@ -474,8 +482,8 @@ def _live_session_registry(root: Path, repository: str):
     # and this lane is openxFactory's own adapter, which RULING OQ-2 forbids
     # from importing openDox at all. OQ-B re-plumb B-3, ruled on `#656`
     # 2026-09-09. Same object, same call, same behaviour.
-    from ideation_dashboard.openxdox_surface import bootstrap_sessions
-    from ideation_dashboard.snapshot_registry import SnapshotRegistry
+    from openxdox.openxdox_surface import bootstrap_sessions
+    from openxdox.snapshot_registry import SnapshotRegistry
 
     registry = SnapshotRegistry()
     report = bootstrap_sessions(
@@ -497,7 +505,7 @@ def _project_roster(root: Path, project_register: Path | None = None):
     behaviour a bare corpus checkout deserves."""
     from types import SimpleNamespace
 
-    from ideation_dashboard.kickoff import discover_project_register
+    from openxdox.kickoff import discover_project_register
 
     register = project_register or discover_project_register(root)
     names: set[str] = set()
@@ -531,7 +539,7 @@ def _fresh_snapshot(root: Path, repository: str) -> Path:
     import json as json_mod
     import tempfile
 
-    from ideation_dashboard.generator import generate_snapshot
+    from openxdox.generator import generate_snapshot
 
     head = _git(root, "rev-parse", "HEAD").stdout.strip() or "unknown"
     snapshot = generate_snapshot(root, repository, source_revision=head,
@@ -715,6 +723,27 @@ def _decide_and_land(root: Path, intent: dict, report: ApplyReport, *,
 
 
 def main(argv=None) -> int:
+    # THE ONE PROCESS-START REGISTRATION (§ 4.3/§ 4.4, RULED ASK-2 option (2)
+    # and RULING C2). This lane reaches BOTH engine readers:
+    # `openxdox.generator` through `_fresh_snapshot()` :535 and
+    # `openxdox.gate_console`, each of which
+    # resolves `domain_profile.current()`.
+    # A process that reaches the engine with nothing registered is REFUSED —
+    # `openxdox.domain_profile.DomainProfileNotRegistered` — and this lane
+    # would otherwise fail at the first snapshot it refreshed
+    # (Copilot review, PR #984).
+    #
+    # HERE, IN `main()`, AND NOT AT MODULE SCOPE: a column that registered
+    # while being imported could re-enter its own half-executed module, the
+    # hazard `scripts/opendox_host.py` documents for
+    # `ideation_dashboard/serve_openxfactory_lanes.py`. Called from the process
+    # entry instead, which is what both production paths go through
+    # (`python3 -m ideation_dashboard.intent_apply_lane` and this
+    # module's own `__main__` guard). Idempotent, so a caller that
+    # already registered is not punished.
+    from opendox_host import register_openxfactory
+    register_openxfactory()
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--allowlist", required=True,

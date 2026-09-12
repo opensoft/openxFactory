@@ -1893,6 +1893,12 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     one line its copies must differ on. A BRANCH and never a skip, on the
     module docstring's reasoning — before the § 6 ceremony there is no manifest
     to read.
+
+    Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
+    Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
+    #1002: the AGGREGATE (lines, carrying) count below would stay green even
+    if those three lines had landed on the wrong row or under the wrong edit
+    class, so the exact row/disposition/class/lines are pinned here too.
     """
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     if not manifest.is_file():
@@ -1916,16 +1922,61 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # unconditionally, which is why one amendment carries both.
     assert "session_fixtures" in replica["evidence"], replica
 
+    # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2): the
+    # exact row/disposition/class/lines the aggregate count below cannot tell
+    # apart from a same-sized drift elsewhere (Copilot review, PR #1002).
+    dispose = rows["scripts/ideation_dashboard/web/views/dispose.js"]
+    assert dispose["disposition"] == "moved_with_declared_edit", dispose
+    assert dispose["destination"] == "opendox_code", dispose
+    assert [(edit["class"], edit["lines"]) for edit in dispose["edits"]] == \
+        [("import rewrites", [26])], dispose
+
+    wheel = rows["scripts/ideation_dashboard/web/views/wheel.js"]
+    assert wheel["disposition"] == "moved_with_declared_edit", wheel
+    assert wheel["destination"] == "opendox_code", wheel
+    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == \
+        [("import rewrites", [75, 76])], wheel
+
     # And the counts this amendment moved, re-derived from the file rather than
     # transcribed: one more declared line than the 793 the runbook's § 2 table
-    # carried before it, on one more row than the 146 that carried edits.
+    # carried before it, on one more row than the 146 that carried edits — and
+    # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
+    # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
+    # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
+    # rows. Then the ASK-7 DECLARED-EDIT WINDOW of 2026-09-11 (`#656`
+    # comment `5635150678`, ASK-7 → 1) added 4 more declared lines to two
+    # rows that ALREADY carried `edits:` — the cli.py and serve.py
+    # docstring/comment lines — so `carrying` does not move: 862 + 4 = 866
+    # on the same 150 rows. Then the Q-L1 ANNOTATION of 2026-09-11 (RULED
+    # Q5, `#656` comment `5642758731`, split-opendox § 3.4 slice S2) moved
+    # both again, by 3 lines over two rows (`dispose.js` line 26, `wheel.js`
+    # lines 75-76), neither of which carried `edits:` before. 866 + 3 = 869
+    # on 150 + 2 = 152 rows.
+    # Re-derived here for the same reason as before: a transcribed count is a
+    # claim, a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (794, 147), (lines, carrying)
+    assert (lines, carrying) == (869, 152), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
+
+    # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
+    # review, PR #995) — the aggregate `(869, 152)` above would still pass if
+    # these four had landed on the wrong rows, under the wrong class, or as a
+    # different four line numbers that happened to sum to the same total.
+    # Named individually, on the same `(class, lines)` idiom the replica row's
+    # check above already uses.
+    cli_row = rows["scripts/ideation_dashboard/cli.py"]
+    ask7_cli = [(edit["class"], edit["lines"]) for edit in cli_row["edits"]
+                if edit["lines"] == [834]]
+    assert ask7_cli == [("path constants", [834])], cli_row
+
+    serve_row = rows["scripts/ideation_dashboard/serve.py"]
+    ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                  if edit["lines"] == [155, 725, 1338]]
+    assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
 
 
 # --------------------------------------------------------------------------
@@ -1994,7 +2045,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 794 line numbers were written in the numbering this
+    The manifest's 862 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would
@@ -2228,3 +2279,121 @@ def test_loading_either_tool_by_path_twice_does_not_grow_sys_path() -> None:
     _load_arrival()
     _load()
     assert sys.path.count(scripts_dir) == before, sys.path[:5]
+
+
+# --------------------------------------------------------------------------
+# `_git()`'s sanitized environment and `--no-replace-objects` (register item,
+# `#656` comment `5638315691`)
+# --------------------------------------------------------------------------
+#
+# The three tests below are the one deliberate exception to "EVERY
+# behavioural test here goes through the subprocess" in the module docstring:
+# they are white-box tests of `_git()`'s own wiring — not of the CLI's
+# declared exit-code/output contract — the same shape as
+# `tests/hermes_runtime_contracts/test_content_resolution.py::
+# test_sanitized_git_environment_removes_redirects_and_command_scope_config`,
+# which pins the sibling copy in `scripts/hermes_runtime_validation/
+# content.py`. `resolve_revision`, `tree_at` and the `cat-file blob`/
+# `merge-base --is-ancestor` reads all go through this one helper, so hardening
+# it once covers every git read the validator makes.
+
+def test_git_helper_runs_with_no_replace_objects_and_a_sanitized_environment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    """Hostile values mirror `test_content_resolution.py`'s sanitized-
+    environment test exactly, because both pin the same scrub list."""
+    hostile = {
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "hostile-alternates",
+        "GIT_COMMON_DIR": "hostile-common-dir",
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_PARAMETERS": "'core.bare=true'",
+        "GIT_DIR": "hostile-git-dir",
+        "GIT_INDEX_FILE": "hostile-index",
+        "GIT_OBJECT_DIRECTORY": "hostile-objects",
+        "GIT_REPLACE_REF_BASE": "refs/hostile/replace/",
+        "GIT_WORK_TREE": "hostile-work-tree",
+        "GIT_CONFIG_KEY_0": "core.bare",
+        "GIT_CONFIG_VALUE_0": "true",
+        "GIT_CONFIG_KEY_37": "core.worktree",
+        "GIT_CONFIG_VALUE_37": "hostile-work-tree",
+    }
+    for name, value in hostile.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "hostile-global-config")
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", "hostile-system-config")
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    captured: dict[str, Any] = {}
+
+    def fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
+        captured["argv"] = argv
+        captured["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    MODULE._git(tmp_path, "rev-parse", "--verify", "--quiet", "HEAD")
+
+    assert captured["argv"] == [
+        "git", "--no-replace-objects", "-C", str(tmp_path),
+        "rev-parse", "--verify", "--quiet", "HEAD",
+    ], "--no-replace-objects must precede the subcommand, not follow it"
+
+    env = captured["env"]
+    assert env is not None, "_git must pass an explicit env, not inherit one"
+    assert hostile.keys().isdisjoint(env)
+    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert env["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert env["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_git_helper_delegates_to_carved_reachs_sanitized_environment(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    """Proof of DELEGATION, not agreement-by-coincidence: stub
+    `carved_reach._sanitized_git_environment` to return a distinctive
+    sentinel and show `MODULE._git` hands that exact object to
+    `subprocess.run` as `env=`. `MODULE.carved_reach` is asserted to be the
+    SAME module object a plain `import carved_reach` gives everywhere else in
+    this repository (`tests/conftest.py` among them), which pins that the
+    validator did not vendor a private copy of the module."""
+    import carved_reach as carved_reach_direct
+
+    assert MODULE.carved_reach is carved_reach_direct, (
+        "the validator must import the real carved_reach module, not a copy")
+
+    sentinel_env = {"SENTINEL_MARKER": "carved-reach-sanitized-env"}
+    monkeypatch.setattr(carved_reach_direct, "_sanitized_git_environment",
+                        lambda: sentinel_env)
+
+    captured: dict[str, Any] = {}
+
+    def fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
+        captured["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    MODULE._git(tmp_path, "rev-parse", "HEAD")
+
+    assert captured["env"] is sentinel_env
+
+
+def test_the_git_environment_scrub_list_agrees_across_content_and_carved_reach() -> None:
+    """`scripts/carved_reach.py` and `scripts/hermes_runtime_validation/
+    content.py` each carry their OWN copy of the ambient-git-environment scrub
+    list — `carved_reach`'s own comment says to "keep the two lists equal if
+    either changes", duplicated rather than imported because `content` is
+    loaded dotted and `carved_reach` bare, at a call site where the dotted
+    import would fail. Nothing enforced that agreement before this test. This
+    validator does not add a THIRD copy — it delegates to `carved_reach`
+    (pinned by the test above) — so what remains to pin here is that the two
+    sites which DO still hand-carry the list have not drifted apart."""
+    content = importlib.import_module("scripts.hermes_runtime_validation.content")
+    import carved_reach as carved_reach_direct
+
+    assert (carved_reach_direct._SCRUBBED_GIT_ENVIRONMENT
+            == content._SCRUBBED_GIT_ENVIRONMENT)
+    assert (carved_reach_direct._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern
+            == content._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern)

@@ -22,9 +22,11 @@ import json
 
 import pytest
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
 
-from ideation_dashboard.doxbench_model import (
+from carved_reach import source as carved_source
+
+from opendox.doxbench_model import (
     CATALOG_WIRE_KIND,
     CATALOG_WIRE_SCHEMA_VERSION,
     MAX_ADAPTER_TIMEOUT_SECONDS,
@@ -60,10 +62,14 @@ from ideation_dashboard.doxbench_model import (
     validated_timeout_seconds,
 )
 from ideation_dashboard import doxbench_contracts
-from ideation_dashboard import doxbench_model
-from ideation_dashboard import serve
+from opendox import doxbench_model
+from opendox import serve
 
-MODULE_PATH = REPO_ROOT / "scripts" / "ideation_dashboard" / "doxbench_model.py"
+# POST-SHED (§ 5.2, RULED (a), `#656` comment `5625573095`). This module is a
+# `moved_verbatim` row: its file left for the openDox-code leg and this test
+# STAYED (`stays_openxfactory_adapter`). The manifest row says where it went, so
+# the name below is the one it has always been and the path is DERIVED.
+MODULE_PATH = carved_source("scripts/ideation_dashboard/doxbench_model.py")
 
 # The exact success example from contracts/model-catalog.md -- reused as the
 # base fixture for every entry-shaped test below.
@@ -1129,7 +1135,7 @@ def test_fixed_diagnostics_are_a_closed_set_of_plain_fixed_strings():
 
 
 def test_assistant_prose_cap_matches_doxbench_turns_no_drift():
-    from ideation_dashboard import doxbench_turns
+    from opendox import doxbench_turns
     assert (doxbench_model.MAX_ASSISTANT_PROSE_BYTES
             == doxbench_turns.MAX_ASSISTANT_PROSE_BYTES == 65_536)
 
@@ -1856,7 +1862,8 @@ def test_a_routing_rule_is_selectable_and_looked_up_like_any_other_entry():
 # claim review round 1 found untrue).
 # ---------------------------------------------------------------------------
 
-_VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate-ideation-dashboard-contracts.py"
+_VALIDATOR_PATH = carved_source(
+    "scripts/validate-ideation-dashboard-contracts.py")
 
 
 @pytest.fixture(scope="module")

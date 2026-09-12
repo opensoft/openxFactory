@@ -275,6 +275,36 @@ def test_fence_lines_count_toward_the_window():
     assert sa.read_declaration(text) is sa.ABSENT
 
 
+def test_the_fenced_header_line_form_is_read_at_the_last_line_of_the_window():
+    """The boundary the test above does not pin (issue #949): it lands its
+    declaration so far beyond the window that a window of 14 or 16 passes it
+    unchanged. This mirrors
+    `test_the_header_line_form_is_read_at_the_last_line_of_the_window` behind a
+    fence: the fence opens and closes on lines 0-1 with no front matter, so the
+    header-line scan starts at line 2, and the filler lands the declaration on
+    the LAST real line the window admits — index `HEADER_WINDOW_LINES - 1`,
+    counting the fence's own two lines. It still reads."""
+    window = fms.HEADER_WINDOW_LINES
+    filler = "\n".join(f"Header{n}: value" for n in range(window - 3))
+    text = f"---\n---\n{filler}\nsequenced_after: [parent]\n\nbody\n"
+    assert text.splitlines()[window - 1] == "sequenced_after: [parent]"
+    assert sa.read_declaration(text) == ["parent"]
+
+
+def test_the_first_line_beyond_the_window_does_not_declare_behind_a_fence():
+    """The other half of the pair (issue #949): the same fence, one filler line
+    longer, so the declaration lands one line further out — index
+    `HEADER_WINDOW_LINES`, still counting the fence's own two lines — and is
+    absent. Mirrors `test_the_first_line_beyond_the_window_does_not_declare`
+    behind a fence. Together with the test above, a window of 14 or 16 now
+    fails one of the two instead of passing both unchanged."""
+    window = fms.HEADER_WINDOW_LINES
+    filler = "\n".join(f"Header{n}: value" for n in range(window - 2))
+    text = f"---\n---\n{filler}\nsequenced_after: [parent]\n\nbody\n"
+    assert text.splitlines()[window] == "sequenced_after: [parent]"
+    assert sa.read_declaration(text) is sa.ABSENT
+
+
 # --- REFUSED FORMS ON THE HEADER-LINE PATH -----------------------------------
 
 

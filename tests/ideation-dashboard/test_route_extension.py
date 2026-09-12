@@ -44,19 +44,50 @@ from contextlib import contextmanager
 
 import pytest
 
-from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
+                      dashboard_web_root)
 
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
 import route_extension  # noqa: E402
 from import_scan import imported_modules, names_a_forbidden_package  # noqa: E402
 
-from ideation_dashboard import action_errors  # noqa: E402
-from ideation_dashboard import profile_openxfactory  # noqa: E402
-from ideation_dashboard import serve as serve_mod  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+from opendox import action_errors  # noqa: E402
+# The composition point, at its POST-SHED home. `scripts/
+# ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
+# `deleted_at_carve` row and the shed removed it; openxFactory's profile now
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling), and
+# `opendox_host.register_openxfactory()` — called from the conftest — hands it
+# to `opendox.domain_profile` for both consumers' lazy proxy to resolve: the
+# openxFactory half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+import profile_openxfactory  # noqa: E402
+from opendox import serve as serve_mod  # noqa: E402
+# THE GATE PREFIX IS READ WHERE IT LIVES, not through a re-export that is gone.
+# `serve.ACTIONS_GATE_PREFIX` was a re-export while `serve_gate` sat inside
+# openDox; BUILD slice 2b (`openDox-code`, between `da8aae96` and `a99eba03`)
+# dropped the binding with its own reason recorded in `opendox/serve.py`:198 —
+# "it named openXdox at import time and nothing in this module read it: the
+# prefix belongs to the binding `GateRoutesExtension.routes()` declares, and
+# `openxdox.serve_gate.ACTIONS_GATE_PREFIX` is where it lives". This test
+# asserts the BUILD-time overlap refusal over the two security-sensitive
+# prefixes, so it wants the prefix itself and not the module that used to
+# forward it; reading it from the owner is also what keeps the assertion true
+# if openDox ever re-exports it again. `SOURCE_PREFIX` moved in the same slice
+# and for the same reason (`opendox/serve.py`:201-206: one of "the patterns
+# `ProjectionRoutesExtension.routes()` declares", which "travel with it" and
+# "stay reachable at `openxdox.serve_projection`, which is where they live"),
+# so it is read from its owner too.
+from openxdox.serve_gate import ACTIONS_GATE_PREFIX  # noqa: E402
+from openxdox.serve_projection import SOURCE_PREFIX  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
+# (§ 5.2, RULED (a), `#656` `5625573095`). The assets moved to openDox-code
+# with the serve and `dashboard_web_root()` reads where from the row rather
+# than spelling the destination here; its docstring records the one
+# `not_moved` asset — openxFactory's own intent-feed view — and why a merged
+# asset root is § 4.3 composition work rather than this constant's job.
+WEB = dashboard_web_root()
 MODULE = REPO_ROOT / "scripts" / "route_extension.py"
 
 #: The probe handler names. Deliberately not `_handle_*`: nothing about the seam
@@ -775,8 +806,8 @@ def test_a_contributed_route_cannot_shadow_a_core_route(tmp_path, probes):
 
 
 @pytest.mark.parametrize("method,prefix,core_handler,probe", [
-    ("POST", serve_mod.ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
-    ("GET", serve_mod.SOURCE_PREFIX, "_serve_source", PROBE_READ),
+    ("POST", ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
+    ("GET", SOURCE_PREFIX, "_serve_source", PROBE_READ),
 ])
 def test_an_exact_caller_binding_under_a_contributed_prefix_refuses_the_build(
         tmp_path, probes, method, prefix, core_handler, probe):

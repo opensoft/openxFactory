@@ -98,9 +98,12 @@
 # CI is expected, not a regression. MEASURED 2026-08-27 on this suite: 18 in a
 # developer worktree, 21 on a runner (a three-skip difference; it was two before
 # `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
-# guard, which resolves and RUNS in a worktree beside `xFactories/`). The exact
-# runner number is pinned in `EXPECT_SKIPPED` below, where the reason for each
-# move is recorded.
+# guard, which resolves and RUNS in a worktree beside `xFactories/`). SINCE THE
+# § 5.2 SHED (2026-09-11) the runner number is 6, because one of the two files
+# that carried those guard strings — `tests/ideation-dashboard/
+# test_session_harness.py` — is one of the 111 test files the shed moved to the
+# legs; the other stays and still skips. The exact runner number is pinned in
+# `EXPECT_SKIPPED` below, where the reason for each move is recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -385,33 +388,41 @@ jobs:
       # its own required check; that gate is Phase 5's, is unwritten, and
       # stays named as owed.
       #
-      # `installs/omnigent-install` still stays out — no test here reads it —
-      # and `--recursive` stays rejected one level down for openXwallet and
-      # openXdox, so neither of THEIR `code`/`spec` legs are fetched:
-      # `ls-tree -r` reads a nested gitlink as an opaque `160000` record, so
-      # the whole-tree digest needs no leg materialized to be correct.
+      # `installs/omnigent-install` still stays out — no test here reads it.
       #
-      # `openDox/code` is DIFFERENT AS OF #872 (RULED OQ-Q): openxFactory's
-      # OWN executable corpus-adapter readers
-      # (`scripts/corpus_adapter_openxfactory/adapter.py` and the conformance
-      # tests) now import the pinned copy at
-      # `openDox/code/src/opendox/corpus_adapter.py`, so from this pull
-      # request forward the module has to actually be ON DISK for the
-      # required suite to collect, not merely present as an opaque gitlink
-      # for a whole-tree digest. `openDox` gets its own second, explicit init
-      # below for exactly that one leg — narrower than a repository-wide
-      # `--recursive` on the checkout step above, which would also reach for
-      # anything `openXwallet`/`openXdox` nest and that nothing here reads.
-      - name: Init the openXwallet, openXdox and openDox gitlinks only
-        run: git submodule update --init openXwallet openXdox openDox
-
-      # THE ONE NESTED LEG THIS REPOSITORY'S OWN CODE IMPORTS (#872, RULED
-      # OQ-Q). `openDox` nests `code` as its own gitlink, the same shape as
-      # `openXdox/code` above (which stays uninitialized because nothing here
-      # imports it) — so putting `opendox.corpus_adapter` on disk takes a
-      # second, explicit init scoped to `openDox` alone.
-      - name: Init the openDox code gitlink (RULED OQ-Q, #872)
-        run: git -C openDox submodule update --init code
+      # `--recursive` WAS REJECTED ONE LEVEL DOWN AND IS NOW REQUIRED, and the
+      # sentence it replaces is kept here because the reason it changed is the
+      # whole point. That sentence read: "neither product's own `code`/`spec`
+      # legs are fetched: `ls-tree -r` reads a nested gitlink as an opaque
+      # `160000` record, so the whole-tree digest needs no leg materialized to
+      # be correct … `openDox/code` in particular is NOT needed for anything
+      # in this pull request — the adapter re-point that reaches into it is a
+      # BUILD-arc PR-2 job (RULED Q7), not this one's." Both halves were true
+      # of #932. THIS IS THAT PR-2. The § 5.2 shed removed 319 declared paths
+      # from this repository and 36 files that STAY read 38 of those modules
+      # from `openDox/code/src` and `openXdox/code/src` through
+      # `scripts/carved_reach.py`. A non-recursive init leaves both `code`
+      # legs EMPTY on the runner, `carved_reach.install()` refuses by name,
+      # and every one of those files fails at import. The pin digests are
+      # unaffected either way — `ls-tree -r` still reads the nested gitlinks
+      # as opaque `160000` records, so `tests/opendox_pin/` and
+      # `tests/openxdox_pin/` measure exactly what they measured before.
+      # Recursion only ADDS trees; it changes no assertion that already ran.
+      #
+      # AND IT SUBSUMES #934's SECOND STEP RATHER THAN SITTING BESIDE IT.
+      # `#934` (RULED OQ-Q, `#872`) added a separate `git -C openDox
+      # submodule update --init code` because openxFactory's own executable
+      # corpus-adapter readers import the pinned
+      # `openDox/code/src/opendox/corpus_adapter.py`, and a one-level init
+      # leaves that file off the runner. That reason is unchanged and is now
+      # one instance of the general case above: `--recursive openDox` puts
+      # the same leg on disk, so a second scoped init would only repeat it.
+      # `openXdox/code` joins it for the first time here, which is why the
+      # recursion covers BOTH names and not just `openDox`.
+      - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY — § 5.2 reads their code legs)
+        run: |
+          git submodule update --init openXwallet
+          git submodule update --init --recursive openXdox openDox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the
@@ -621,9 +632,46 @@ jobs:
           # message. Measured at run 33111235491 (PR #431, 2026-08-27), the
           # LOWER of the two runs, so the floor is a number this suite has
           # actually met rather than the high-water mark of one run.
-          MIN_SELECTED: "7090"
-          MIN_PASSED: "7070"
-          # EXACT — the anti-vacuity pin. 21 on a runner. A developer worktree
+          #
+          # THE ONE LOWERING, AND WHY IT IS NOT THE THING THE FLOOR GUARDS
+          # AGAINST (§ 5.2 SHED, RULED (a) `#656` comment `5625573095`). The
+          # shed removed 319 declared paths from this repository, and 111 of
+          # them are `test_*.py` files — 71 to openXdox-code, 40 to
+          # openDox-code — that now run in THOSE repositories' own suites at
+          # the commits this one pins. So the tests did not stop being
+          # collected, which is the failure this floor exists to catch; they
+          # stopped being THIS suite's tests, by a declared act whose every
+          # path is a manifest row (`docs/opendox-carve-manifest.yaml`,
+          # `scripts/validate-carve-manifest.py` re-derives the 319).
+          # `git diff --name-only origin/main...HEAD` carries no test deletion
+          # that is not one of those rows, which is the check a reader should
+          # redo rather than take on trust.
+          #
+          # RE-MEASURED, not estimated, and TWICE (§ 5.2 shed PR #940,
+          # 2026-09-11). Run 34607968174 printed `selected=7053 passed=7047
+          # skipped=6` over `6876 passed, 6 skipped, 338 deselected, 171
+          # subtests passed`; run 34610094133 printed `selected=7054
+          # passed=7048 skipped=6` over the SAME `6876 passed, 6 skipped` with
+          # 172 subtests. Both green, both zero failures and zero errors.
+          #
+          # THE THREE-TEST GAP IS THE SUBTEST EMITTER, AND IT IS WHY THESE
+          # FLOORS SIT BELOW THE MEASUREMENT RATHER THAN ON IT. `pytest-subtests`
+          # emits a `<testcase>` per SUBTEST, and that count moves run to run on
+          # the same tree (170, 171 and 172 across three runs of this branch;
+          # 181 on `main`), so the JUnit `tests` attribute moves with it while
+          # the test count — `6876 passed, 6 skipped` — does not. A floor cut ON
+          # the high-water mark would red on a run that emitted one subtest
+          # fewer, for no change to the suite at all, and a required check that
+          # reds at random teaches a reader to ignore it. So the floor sits
+          # three below the lower of the two greens, which is a number this
+          # suite has met with room for exactly the jitter that has been
+          # measured — and still names the collection loss it exists for: a
+          # moved directory is hundreds of tests, never three. They may only
+          # rise from here.
+          MIN_SELECTED: "7050"
+          MIN_PASSED: "7044"
+          # EXACT — the anti-vacuity pin. 6 on a runner since the § 5.2 shed
+          # (21 before it; the move is recorded below). A developer worktree
           # inside the aggregation checkout measures a DIFFERENT number, because
           # the self-skip guards ("no sibling openxFactory checkout", "no
           # aggregation checkout reachable from this tree", "no sibling
@@ -692,25 +740,46 @@ jobs:
           #   * BEFORE the transfer completes (Phase 1, step 1.6 INCLUDED),
           #     the mint and the checkout both fail, `locate_pinned_core()`
           #     stands both watched tests down, and this job reports
-          #     `skipped=23` against the pinned 21 with `TheFreshnessVerifier`
+          #     TWO skips above the pin — `skipped=23` against 21 when that
+          #     entry was written, `skipped=8` against the 6 pinned since the
+          #     § 5.2 shed — with `TheFreshnessVerifier`
           #     and `TheVectorReplay` both `skipped`. **That red is by design
           #     and it is the only red this branch is allowed to carry.** It is
           #     also why the pull request realizing this change is a DRAFT that
           #     no green can clear early.
           #   * AFTER 1.6, the mint resolves, the checkout succeeds, both
-          #     watched tests RUN, and the job reports `skipped=21` with both
+          #     watched tests RUN, and the job reports the pinned number
+          #     exactly (21 when this entry was written, 6 since the § 5.2
+          #     shed) with both
           #     named verdicts `passed`. **That reading is the merge-time proof
           #     for the branch, and the only one that counts** — a green on any
           #     other check says nothing about the cross-organization read,
           #     because no other check performs it.
           #
-          # A 23 SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
+          # THE PIN-PLUS-TWO SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
           # installation, the App's repository access, or the reusable-workflow
           # access policy is wrong, and the fix is that configuration — NEVER
-          # this pin and never a wider token. Moving the pin to 23 would
-          # convert exactly the failure this design exists to surface into the
-          # expected state, permanently.
-          EXPECT_SKIPPED: "21"
+          # this pin and never a wider token. Moving the pin UP BY THOSE TWO
+          # would convert exactly the failure this design exists to surface
+          # into the expected state, permanently.
+          #
+          # MOVED 21 -> 6 BY THE § 5.2 SHED, WITH THE REASON, WHICH IS WHAT
+          # THIS PIN ASKS FOR. Of the 21 skips a runner measured on `main`, 15
+          # lived in the 111 `test_*.py` files the shed moved to the two legs
+          # and left this repository with them — including the "no aggregation
+          # checkout reachable from this tree" guard in
+          # `tests/ideation-dashboard/test_session_harness.py`, one of the two
+          # files that carried the guard strings named above. The other,
+          # `tests/domain_pin_setter/test_set_domain_openxfactory_pin.py`
+          # ("no sibling LedgerxFactory checkout reachable from this tree"),
+          # STAYS and still skips, which is why the number falls rather than
+          # going to zero. Nothing turned into a skip: run 34607968174 measured
+          # `skipped=6` with `failures=0 errors=0` and both named verdicts
+          # `passed`, and the shed's OWN 27 conditional skips — the validator
+          # and corpus readers that pointed at moved files between `dd0f307a`
+          # and `20cfd0b9` — were re-pointed at the pinned legs rather than
+          # left standing down, which is the move this pin exists to force.
+          EXPECT_SKIPPED: "6"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #

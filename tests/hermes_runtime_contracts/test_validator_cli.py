@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -15,6 +16,10 @@ import pytest
 import yaml
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+
+sys.path.insert(0, str(REPOSITORY_ROOT / "scripts"))
+
+from carved_reach import shed_destination  # noqa: E402
 ENTRYPOINT = REPOSITORY_ROOT / "scripts/validate-hermes-runtime-contracts.py"
 CHANGE_ID = "add-hermes-customer-subject-runtime-contract"
 
@@ -80,8 +85,15 @@ def repository_snapshot(tmp_path: Path) -> Path:
         encoding="utf-8"
     ))
     for entry in catalog["contracts"]:
-        member = (family_root / entry["path"]).resolve(strict=True)
-        relative = member.relative_to(REPOSITORY_ROOT)
+        # THE § 5.2 SHED (RULED (a), `#656` comment `5625573095`). Two of the
+        # cross-family members left for the openDox-spec leg. The snapshot is a
+        # synthetic tree the catalog must resolve INSIDE, so the copy still
+        # lands at the path the catalog declares — only the bytes are read from
+        # where the manifest row says they are. `shed_destination()` answers
+        # `None` for every member that stayed, which is all but two.
+        declared = Path(os.path.normpath(family_root / entry["path"]))
+        member = shed_destination(declared) or declared.resolve(strict=True)
+        relative = declared.relative_to(REPOSITORY_ROOT)
         destination = snapshot / relative
         if destination.exists():
             continue

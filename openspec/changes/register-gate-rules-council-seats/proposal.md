@@ -16,6 +16,28 @@ Lane: hermes-wallet-exercise
 Family: S5 of `add-wallet-carried-review-authority` — the register-act family,
   following `add-per-seat-register-entries` (openXwallet, wallet-v1.2) and the
   2026-09-02 register act (PR #583).
+Amended: 2026-09-07 — R1/R2 (`lead-architect`'s pin; 5.9a before row 3.1), by
+  Brett Heap in session, verbatim *"R1 lead-architect claude-opus-5, R2 (a) —
+  re-sequence 5.9a first"*
+  (<https://github.com/opensoft/openxFactory/pull/717#issuecomment-5570774593>);
+  carried in § AMENDMENT — 2026-09-07 below and `design.md`
+  § AMENDED 2026-09-07.
+Amended: 2026-09-11 — **Q-GRC-4 DISCHARGED** for
+  `client-security-compliance-officer`, by Brett Heap in session, window
+  `codeXfactory-2`, 2026-09-11T14:59:26Z, verbatim *"amend
+  register-gate-rules-council-seats, lead-architect route, same model pin as
+  lead-security"*; record:
+  `review/amendment-2026-09-11-q-grc-4-discharge.md`. Q-GRC-4 is NOT reopened —
+  it ruled *"register neither deferred seat NOW"* and named the trigger; this is
+  the trigger arriving for ONE of the two seats, and `intent_owner_role_slot`
+  stays deferred unchanged. **That amendment's own five open questions OQ-1..
+  OQ-5 were RULED 2026-09-11T17:08:42Z** by Brett Heap in session, window
+  `codeXfactory-2`, no comment URL, verbatim *"accept all A on 971, merge slice
+  3 when green"* — its FIRST clause is this ruling, and it takes each of the
+  five at option **(a)**, its RECOMMENDED one, so the ruling moved no byte of
+  the delta (§ Rulings in § AMENDMENT — 2026-09-11 below; `design.md` D8-D12;
+  record § 9 and its `Ratification:` header line; `tasks.md` § 6.1 / § 6.1a;
+  record `review/ratification-2026-09-11-amendment-2.md`).
 
 ## AMENDMENT — 2026-09-07 (R1/R2: lead-architect pin; 5.9a before 3.1)
 
@@ -77,6 +99,122 @@ unedited; this section supersedes it for EXECUTION ORDER.
 Steps 1 and 2 are complete. Step 3′ (codexFactory task 5.9a + the R1 roster
 act) is now sequenced ahead of step 3 (row 3.1) — **row 3.1 realizes AFTER
 5.9a.**
+
+## AMENDMENT — 2026-09-11 (Q-GRC-4 discharged for the CSC conjunction seat)
+
+**Q-GRC-4 (§ below) deferred two seats and named the act that would register
+each. That act has arrived for one of them.** codexFactory's C2 convening —
+the routine-code-clearance repository respelling, packet on cxF main at PR
+[#407](https://github.com/codeXfactory/codexFactory/pull/407) → `76f2e771` —
+touches `scripts/merge_master/**`, so `rule_touches_security_posture` HOLDS and
+`members.client.conjunction_pull_in` seats `client-security-compliance-officer`
+as a second client voice. The council document declares no `seat:` for it, so
+`scripts/merge_master/seat_resolution.py` returns `seat_identity: UNBOUND` and
+the convening REFUSES with `conjunction_seat_unbound`. Brett Heap parked C2
+rather than spending its subject pin on a dispatch that could not seal:
+**`α, park C2 until Q-GRC-4 is discharged`** — 2026-09-11T14:23:26Z, cxF #279
+comment
+[`5635898767`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5635898767).
+
+**Three rulings — Brett Heap, in session, window `codeXfactory-2`,
+2026-09-11T14:59:26Z, verbatim:**
+
+> **`amend register-gate-rules-council-seats, lead-architect route, same model pin as lead-security`**
+
+1. **VEHICLE — amend this packet.** It is still ACTIVE, its own task 4.6 names
+   this exact act as owed to it, and its directory is the holder's established
+   walk-record home (task 3.9). A sibling `amend-*` change was checked and is
+   unavailable anyway: every archived `amend-*` precedent amends a PROMOTED
+   capability, and `review-authority-intake` is not promoted.
+2. **ROUTE — the lead-architect route**, i.e. codexFactory
+   `agent-mixes.yaml#guardrails.roster_change: lead_accepted_recorded` — Brett's
+   selection PLUS Lead Quality's acceptance at its own pin PLUS an evidence
+   record — and NOT a tenant `seat_representation` declaration in
+   `hermes/client/role-overrides.yaml`. **This does not move the persona out of
+   the client layer**; it chooses which authority route writes the model pin.
+3. **PIN — `claude-opus-5`, exactly `lead-security`'s.** Q8(d) stands: an exact
+   provider version, never a family. **The `authority_ref` field is NOT copied**
+   — `lead-security`'s points at the enrolled merge-readiness roster because
+   that seat's pin was never re-selected for this body; CSC's was, so its
+   reference names its own record, in `lead-architect`'s shape. And the 2:2
+   opus/sonnet split the 2026-08-22 Q3 disposition sought and R1 preserved
+   becomes **3:2** — any fifth seat ends it either way, and this records which
+   way.
+
+**THE ACT, IN TWO HALVES, SPECIFIED IN `tasks.md` § 6 AND
+`review/amendment-2026-09-11-q-grc-4-discharge.md`:**
+
+- **H1, codexFactory** (built via Speckit AFTER ratification; **not authored by
+  the amendment pull request**): `gate-rules.yaml` gains
+  `seat: client-security-compliance-officer` under the conjunction and the
+  persona's `deferred_seats` entry becomes a discharged one; `agent-mixes.yaml`
+  gains the seat in `all_possible_seats`, a `model_assignments` entry carrying
+  `lead-security`'s pin fields with its OWN `authority_ref`, and a
+  `prompt_contract.seats` entry whose briefing must be WRITTEN (no convening has
+  ever charged this persona, so the existing four's method — *"written from the
+  records"* — is unavailable and the tenant's specialization text is the only
+  raw material); the `rendered_set_digest` and a fifth `seat_digests` entry are
+  re-pinned against the LIVE RENDER; and a `roster_change:
+  lead_accepted_recorded` record in R1's shape carries the ruling, the owed Lead
+  Quality acceptance and C13's soak re-open.
+- **H2, openxFactory** (Brett's OPERATOR act on a permanently human-only
+  surface): mint the fifth Ed25519 keypair (`holder_readable`, Q-GRC-1, never
+  scoped to four); **REVOKE `grant-grc-0002` (DRIFT — seat addition) → MINT
+  `grant-grc-0003` → REPOINT `row-grc-0001` → ADD the fifth `seat_keys` entry to
+  `register.yaml` AND the fifth key to `wal-agent-grc-0001.yaml`** → move the
+  consumer gate's literal key count; one walk record at
+  `walk-<T2-date>-register-act.md`.
+
+**THE CEREMONY:** hold posted BEFORE the H1 merge → **T1** (H1 merges;
+`grant-grc-0002` void from that instant) → **T2** (H2 merges) → the 3.8-equivalent
+window check → **step 5b, the register-projection source-revision read** — an
+operator-word-gated, read-only observation, **now RATIFIED by
+`amend-register-act-5b-projection-proof` (PR #960 → `ac688c40`) and never an
+admitted convening**, which reads the domain-content projection only → lift the
+hold → `resolved-seats` shows `unbound_conjunction_seats` EMPTY → the proof
+convening → **C2 with five seats**, discharging Brett's carried-forward
+`convene C2` (13:26:14Z) and `merge the C2 record PR when green` (13:27:23Z).
+
+**FIVE OPEN QUESTIONS went back to Brett** (record § 9, design D8-D12): the
+minter of the fifth key; `grant-grc-0003`'s `expires_at`; whether the seat owes
+a soak or an activation pass before it sits; one T1/T2 pair or a further split;
+whether C2 doubles as the proof convening. Every recommendation is what this
+packet already encodes, so taking all five moves no byte.
+
+**ALL FIVE ARE RULED — Brett Heap, in session, window `codeXfactory-2`, no
+comment URL, 2026-09-11T17:08:42Z, verbatim:**
+
+> **`accept all A on 971, merge slice 3 when green`**
+
+The first clause is this ruling; the second addresses a different seat's
+hermes-install sweep and is not carried here. **Every one is option (a), the
+RECOMMENDED one, so the prediction above held and the delta moved no byte** —
+proven by diff in the ratifying pull request rather than asserted.
+
+| OQ | decision | RULED (a) | considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — who mints and holds the fifth keypair | `design.md` D8 | **(a)** Brett Heap, host-side, the task 3.2 ceremony generalized to one seat: seed in-process, never on disk, `gh secret set` on stdin with `--body` omitted, custody `holder_readable`, secret `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`, a FRESH TTY-gated ceremony | (b) mint through the committed `scripts/mint-factory-origin-key.py`; (c) a different custody model for this key alone |
+| **OQ-2** — `expires_at` on `grant-grc-0003` | `design.md` D9 | **(a)** `2027-06-30T00:00:00Z`, unchanged — Q-GRC-3's ruled date, which `grant-mrc-0002` still carries | (b) recompute from the earliest published retirement floor (returns the same date today); (c) a shorter expiry for the new seat |
+| **OQ-3** — soak or `activation_gate` before the seat sits | `design.md` D10 | **(a)** bind now, soak later — the lead-architect precedent; **no soak and no activation pass is a precondition of binding**; C13 re-opens this body's soak from zero and costs nothing today | (b) require an LQ-C1-shaped fresh soak first; (c) declare a `gate_rules_council` `activation_gate` (measured: none exists) |
+| **OQ-4** — one T1/T2 pair or a further split | `design.md` D11 | **(a)** the T1/T2 PAIR: one codexFactory pull request (H1), then one openxFactory pull request (H2) — two remotes, ONE governed act, the hold spanning them | (b) split H1 into mint / roster / composition pull requests; (c) one cross-repository act (unavailable) |
+| **OQ-5** — does C2 double as the proof convening | `design.md` D12 | **(a)** a SEPARATE proof convening precedes C2, on a re-verified clean candidate, as the 2026-09-11 walk did (§ 15, run `34586762846`, admitted) | (b) C2 IS the proof convening; (c) two proof convenings, one each side of the conjunction |
+
+**RATIFICATION REALIZES NOTHING.** No key is minted, no seat is bound, no grant,
+row or wallet byte moves, and **C2 stays PARKED under α** — task 6.22's
+`resolved-seats` run showing `unbound_conjunction_seats` EMPTY is what lifts it,
+not this word. `tasks.md` § 6.1 and § 6.1a tick; **§ 6.1b and §§ 6.2-6.28 stay
+open**, and 6.1b — the seat identifier string, an authoring decision flagged for
+VETO rather than asked as an OQ — is untouched by a word that ruled the five
+questions, so it stays open for its own confirmation before 6.2.
+
+**THE SPEC DELTA IS `## ADDED`, NOT `## MODIFIED`, AND THAT IS MEASURED.** The
+pinned CLI 1.12.0 reports *"Archive would refuse this delta:
+review-authority-intake: target spec does not exist; only ADDED requirements are
+allowed for new specs"* — the capability is authored by two ACTIVE changes and
+is not yet canon. Three requirements are appended (7 → 10; 21 → 30 scenarios):
+an unbound conjunction seat refuses rather than being dropped; a by-equality pin
+carries the exact identifier and its OWN authority reference; a re-issued grant
+waits until every identified seat carries a registered key.
 
 ## The ruling this realizes
 
@@ -316,6 +454,18 @@ owed registrations that trigger on a codexFactory roster act — the project
 roster binding for the first, a seat identifier for the second — and require
 that whichever act binds them registers the key in the same governed act, so the
 first convening that seats them is not the one that discovers a missing key.
+
+> **Amended 2026-09-11.** The ratified question and recommendation above are
+> UNCHANGED and are not reopened. The trigger this question names has ARRIVED
+> for ONE of the two seats: on 2026-09-11T14:59:26Z Brett Heap ruled *"amend
+> register-gate-rules-council-seats, lead-architect route, same model pin as
+> lead-security"*, binding `client-security-compliance-officer` to a seat
+> identifier and registering its key in the same governed act — exactly as this
+> recommendation requires. `intent_owner_role_slot` STAYS DEFERRED, on its own
+> unchanged trigger (the subject-layer roster binding), and nothing here brings
+> it closer. See § AMENDMENT — 2026-09-11 above, `tasks.md` § 6, `design.md`
+> § AMENDED 2026-09-11 (D8-D12) and the record
+> `review/amendment-2026-09-11-q-grc-4-discharge.md`.
 
 ### Q-GRC-5 — Does the second row retire the cap, or raise it?
 

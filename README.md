@@ -78,6 +78,7 @@ Core domain-neutral docs:
 - [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires a random `%RAND:y%` segment in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
+- [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
 - [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 794 declared edit lines over 147 rows, and 20 replica rows of which one declares a line)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
@@ -557,6 +558,86 @@ Active changes:
   repository the promoted sentence names defines no releases and carries no
   tags). Nothing is promoted; #956 closes at the ARCHIVE. Lane
   `openxfactory-1`.
+- [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
+  openxFactory repository owner, first-hand, in session — a SELECTION, not a
+  typed sentence, via the lane's multi-choice question: the option
+  ***"Ratify as filed (Recommended)"***, whose description read: ***"Ratify
+  the text as landed. Realization (the codexFactory companion) and archive
+  stay separate later acts on your word, per the three-act pattern."***;
+  recorded on openxFactory #745 comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736) — **CONFIRMED TO
+  COVER ROUND 5'S TIGHTENING** (each declared companion artefact carries its
+  own regeneration command; the conformance test's equality check moves
+  from an existence check to asserting that the set of paths changed by
+  regenerating in the scratch tree equals the declared artefact set) **by a
+  SECOND SELECTION**, ***"Yes, ratify with the tightening (Recommended)"***,
+  2026-09-11 at approximately 12:16Z, in session, recorded on openxFactory
+  #745 comment https://github.com/opensoft/openxFactory/issues/745#issuecomment-5634512736 — record
+  [`review/ratification-2026-09-11.md`](openspec/changes/amend-kill-switch-to-declared-test-companion/review/ratification-2026-09-11.md),
+  landed PR [#959](https://github.com/opensoft/openxFactory/pull/959) — final
+  head `c6008f10` (committed 2026-09-11T16:55:31Z; rounds 1–21 encoded),
+  landed on main as squash commit
+  `07a8a45b62f063fe08625ad9c1fbb38762e6f85b`, merged 2026-09-11T17:19:09Z
+  (that squash commit committed 17:19:08Z) — and **DIRECTED by a THIRD
+  act, this one TYPED VERBATIM:**
+  *Word three — 2026-09-11 at approximately 12:34Z, typed verbatim **"land
+  it when green and apply the ratify"**, given after the lane reported round
+  6's three deltas (the allowlisted regeneration identifier is resolved only
+  in reviewed test code; the artefact diff is taken against a committed
+  post-withdrawal baseline; the requirement gains an explicit non-emptiness
+  clause with its own scenario) and reaffirmed verbatim through the
+  afternoon; the lane reads it as covering those deltas and every later fix
+  round. Rounds 7 through 21 (ruled 2026-09-11 ~12:52Z through ~16:52Z;
+  encoded by pushes 12:57Z through 16:55Z, the last being `c6008f10`; all
+  Copilot findings RULED accept by the lane) changed no mechanism: rounds
+  7–11 fixed the
+  ORDER of the conformance procedure (capture the declarations, commit a
+  hermetic post-withdrawal baseline, measure the whole pinning suite with
+  the conformance module excluded by path, regenerate every allowlisted
+  artefact one tool at a time with the index and worktree reset between runs
+  and compare (identifier, path) pairs against the baseline, record),
+  DEFINED applying the companion at the throw (re-target each declared
+  assertion's expectation, regenerate each declared artefact, remove the
+  mapping and its comments, nothing else), DEFINED the restore as a forward
+  change by the same procedure rather than a revert (so the golden digest
+  records both movements), HARDENED the declaration grammar (one lexical
+  refusal set for artefact paths, then containment before any open;
+  allowlisted identifiers; a scratch git repository with inherited GIT_*
+  control variables cleared), and STATED in D-2e that this packet fixes the
+  invariants while the codexFactory companion's design owns the exact
+  commands; rounds 12–21 tightened the same procedure's measurement
+  invariants (the per-identifier inventory is the full working-tree delta
+  including untracked and ignored paths; a reset barrier begins every tool
+  run, the first included; every allowlisted invocation must exit zero
+  within a finite constant timeout taken from the trusted allowlist before
+  its delta is read; a control run on the committed pre-withdrawal tree must
+  produce empty inventories, so every allowlisted tool is a deterministic
+  byte-identical no-op run with interpreter caches suppressed; declared
+  artefacts are tracked paths and are refused otherwise; declared paths
+  reach git only as literal pathspecs after `--`, with a leading `-` and
+  glob characters refused; the hermetic environment always nulls global git
+  config and nulls or disables system config; the assertion run fails
+  outright on any collection, import or internal error, on any exit status
+  other than 0 or 1, or on timeout; the "nothing else" bound of the throw
+  holds at both path and assertion level; the § 4 observation boxes tick on
+  their recording and § 5 gains prerequisite (e)). All three acts are
+  recorded in ONE #745 comment, 5634512736.*
+  Successor
+  named by `extend-merge-master-envelope-to-floor-bot-lanes` box 3.6's
+  2026-09-11 finding (tick PR #957): N-4's ratified "takes one edit" is
+  measured false (29 required-check assertions across five test files, plus
+  a sixth file — the golden `behaviour-snapshot.json` digest — that must
+  move with them); this packet amends N-4 and its requirement by
+  supersession to "one reviewed edit PLUS its declared test companion", so a
+  later throw is landable and box 3.6 observable. `sequenced_after:
+  [extend-merge-master-envelope-to-floor-bot-lanes]`.
+  **RATIFICATION ONLY — realization (a codexFactory companion change) and
+  archive are separate later acts; no word for either has been given (word
+  three directs the landing and the application of the ratification,
+  nothing more).** The parent's box 3.6 stays OPEN: an OBSERVATION box, not
+  an owed-successor box; none of the three acts ticks it.
+
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
   Heap, openxFactory operator authority, first-hand, in session — a
@@ -613,64 +694,6 @@ Active changes:
   evidence for `code_surface: none` is landing plus the task list, and the
   task list includes them.
 
-- [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
-  — filed 2026-09-11, **`Status: ratified`** (2026-09-11, Brett Heap,
-  openxFactory operator authority — a MULTIPLE-CHOICE ruling over `design.md`
-  **D1** and **D2** with the recommendation presented first in each, given in
-  session at 2026-09-11T10:11:50Z and recorded on PR
-  [#945](https://github.com/opensoft/openxFactory/pull/945#issuecomment-5632913794)
-  at 2026-09-11T10:11:56Z. **D1 = verbatim *"info row carrying the citation"***,
-  not *"Suppress, matching the four siblings"*; **D2 = verbatim *"Archived-only
-  boundary"***, not *"Admit active paths too"*. Each is the option the packet
-  already encoded, so **THE WORDING STANDS UNCHANGED** and no delta byte was
-  re-written, restored or deleted; D0 and D3–D6 were carried beside them and
-  none was vetoed. Records
-  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/ratification-2026-09-11.md`
-  and
-  `openspec/changes/honour-grandfather-dispositions-in-ratified-provenance/review/verification-2026-09-11.md`).
-  `.openspec.yaml` keeps the drafting provenance it was authored with and the
-  approval pair is ADDED beside it, `kind`, `id`, `reason` and `proposed_by`
-  byte-unmoved — the addition-not-rewrite shape `add-drafted-proposal-origin`
-  defined. Lane `openxfactory-1`; the ORIGIN of the AUTHORING is Brett Heap's
-  earlier MULTIPLE-CHOICE word of 2026-09-11 ~01:3xZ, verbatim ***"Commission
-  the packet"***, which commissioned the AUTHORING and decided no wording.
-  Origin: openxFactory
-  [#939](https://github.com/opensoft/openxFactory/issues/939), standing on
-  [#877](https://github.com/opensoft/openxFactory/issues/877) and
-  [#878](https://github.com/opensoft/openxFactory/issues/878).
-  **THE DEFECT, MEASURED ON `main` @ `96b4835b` AGAINST THE REAL AGGREGATION
-  DISPOSITIONS FILE** (`opensoft/xFactory` @ `bc84d325`): the
-  `ratified-provenance` family reports **41 rows, every one `critical`**, and
-  **EIGHTEEN of them are archived records the owner has already grandfathered**
-  — fifteen openxFactory records disposed on #877 (xFactory PR #420 →
-  `5bfa1fe4`) and codexFactory's three (xFactory PR #412), each entry dated and
-  cited. `fam_ratified_provenance` reads no disposition at any of its five
-  arms; the runner's `uncited_resolutions` arm reads the file but adjudicates a
-  DISAPPEARED `contested` finding only, and this family is `auto-fixable`. The
-  grandfather was granted and the nightly has never heard of it.
-  **THE BLOCK ADDS ONE SCENARIO TO ONE REQUIREMENT AND EDITS NO PROMOTED BYTE.**
-  *Governed corpus membership and the lifecycle scan set* is sliced from canon
-  (lines 878–936, `sha256 d32aaa43…`, byte-identical both sides) and gains
-  *A finding is grandfathered by a recorded disposition*; `derive_units` over
-  both blocks: **29 canon units, 0 uncarried, 5 of 5 scenario titles carried, 8
-  units added, 0 markers**. **THE REALIZATION RIDES THIS PULL REQUEST**
-  (`code_surface` non-empty, `target_release: implemented`): one last pass in
-  `scripts/doc_health/families.py`, three guards in the two readers of the
-  dispositions file (a non-list ROOT refused in each, and an unhashable ENTRY
-  key refused in the runner's own read), and **22 new tests**
-  (`tests/doc-health` **1689 → 1711**, both counts measured on the ratified
-  tree and on an `origin/main` worktree beside it), after which the same 41
-  rows read **23 `critical` + 18 `info`**, the eighteen being exactly the
-  eighteen disposition keys and the other twenty-three byte-identical.
-  **THE TWO DECLARED VETO POINTS ARE BOTH RULED AS ENCODED**: `design.md`
-  **D1** — an `info` row carrying the citation, against SILENCE on the four
-  sibling requirements' suppression precedent — and **D2** — the ARCHIVED-only
-  boundary, an active packet's record being a plain fix rather than a ruling's
-  subject. **NOTHING IS PROMOTED**: no file under `openspec/specs/` is edited,
-  `tasks.md` § 1 is now ticked while **§ 6 (ARCHIVE) STAYS ENTIRELY OPEN** —
-  `code_surface` is non-empty, so the archive is a further act on merged-plus-
-  green realization evidence at canon's grain and a further word — and #939
-  closes at the ARCHIVE and not at this landing.
 - [admit-review-lane-repin-to-merge-approval-envelope](openspec/changes/admit-review-lane-repin-to-merge-approval-envelope/proposal.md)
   — filed 2026-09-10, **`Status: ratified`** (2026-09-11T01:15Z approx.,
   Brett Heap, openxFactory repository owner, first-hand, in session — a
@@ -1198,7 +1221,9 @@ Active changes:
   declining it makes N-1 (d) the honest outcome.
 
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
-  — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07) (2026-09-06, Brett Heap
+  — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07;
+  **Q-GRC-4 discharge amendment 2026-09-11, RATIFIED 2026-09-11T17:08:42Z with
+  OQ-1..OQ-5 all ruled (a)**) (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
   them in your recommended order all approved"*; ratified head `169f84ef`;
   record
@@ -1229,11 +1254,12 @@ Active changes:
   registered (`lead-architect`, `lead-security`, `lead-quality`,
   `company-policy-lead`); TWO are deferred with reasons
   (`intent_owner_role_slot` is symbolic, `client-security-compliance-officer` is
-  a persona with no seat identifier). **7 ADDED requirements** on
-  `review-authority-intake`, no `## MODIFIED` and no `## REMOVED` — the parent's
-  own *"the additional scope is a named successor"* scenario is the door this
-  walks through. **Five open questions Q-GRC-1..5, each RULED as recommended**
-  on the same 2026-09-06T14:13:46Z word (mint into `worker-credentials` now;
+  a persona with no seat identifier). **10 ADDED requirements** on
+  `review-authority-intake` (30 scenarios), no `## MODIFIED` and no
+  `## REMOVED` — the parent's own *"the additional scope is a named successor"*
+  scenario is the door this walks through. **Five open questions Q-GRC-1..5,
+  each RULED as recommended** on the same 2026-09-06T14:13:46Z word (mint into
+  `worker-credentials` now;
   pin the composition exactly, coupling accepted; `expires_at:
   2027-06-30T00:00:00Z`; register neither deferred seat, delete neither; the
   scalar cap replaced by its invariants, openXwallet's own change to make);
@@ -1241,6 +1267,47 @@ Active changes:
   reopened. `sequenced_after: [add-wallet-carried-review-authority,
   openXwallet:widen-register-reader-for-a-second-council]`; `code_surface` is
   NOT `none`, so it archives only on merged, green realization evidence.
+  **AMENDED 2026-09-11 — Q-GRC-4 DISCHARGED for
+  `client-security-compliance-officer`**, on Brett Heap's in-session ruling of
+  2026-09-11T14:59:26Z, verbatim *"amend register-gate-rules-council-seats,
+  lead-architect route, same model pin as lead-security"*; record
+  `openspec/changes/register-gate-rules-council-seats/review/amendment-2026-09-11-q-grc-4-discharge.md`.
+  **Q-GRC-4 IS NOT REOPENED** — it ruled *"register neither deferred seat NOW"*
+  and named the trigger; this is that trigger arriving for ONE of the two, and
+  `intent_owner_role_slot` stays deferred unchanged. The act has two halves in
+  ONE governed act: a **codexFactory roster act** (the conjunction pull-in gains
+  `seat: client-security-compliance-officer`; the roster gains a
+  `model_assignments` entry pinned to `claude-opus-5` — `lead-security`'s exact
+  identifier, by ruling, but carrying its OWN `authority_ref`, because the
+  lead-architect route and not the enrolled roster is what selected it; a
+  written briefing, since no convening has ever charged this persona; a
+  re-pinned `rendered_set_digest`) and an **openxFactory register act** (mint the
+  fifth `holder_readable` keypair; REVOKE `grant-grc-0002` for DRIFT → MINT
+  `grant-grc-0003` → REPOINT `row-grc-0001` → ADD the fifth `seat_keys` entry
+  and the fifth wallet key). It unparks C2, which Brett parked the same day
+  (*"α, park C2 until Q-GRC-4 is discharged"*, 2026-09-11T14:23:26Z). The three
+  new requirements are ADDED rather than MODIFIED **because the pinned CLI
+  1.12.0 measures the alternative as unarchivable** — *"target spec does not
+  exist; only ADDED requirements are allowed for new specs"* — this capability
+  being authored by two ACTIVE changes and not yet canon. **THE AMENDMENT IS RATIFIED AND ITS FIVE
+  FURTHER open questions OQ-1..OQ-5 ARE ALL RULED (a)** — Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, 2026-09-11T17:08:42Z,
+  verbatim *"accept all A on 971, merge slice 3 when green"*, its FIRST clause
+  (record `review/ratification-2026-09-11-amendment-2.md`, gate capture
+  `review/verification-2026-09-11-amendment-2.md`; design D8-D12;
+  distinct from Q-GRC-1..5
+  above, which were ruled 2026-09-06 and are not reopened). Every ruling is the
+  RECOMMENDED option, **so the delta moved no byte** — proven by diff, not
+  asserted: Brett Heap mints and holds the fifth keypair host-side
+  (`holder_readable`, a fresh TTY-gated task-3.2 ceremony); `grant-grc-0003`'s
+  `expires_at` stays `2027-06-30T00:00:00Z`; bind now, soak later, with no
+  `activation_gate` pass gating the binding; ONE T1/T2 pull-request pair, H1
+  unsplit; and a SEPARATE proof convening PRECEDES C2. **RATIFICATION REALIZES
+  NOTHING** — no key is minted, no seat is bound, no grant or register byte
+  moves, `tasks.md` ticks only § 6.1 and § 6.1a, and **C2 stays PARKED under α**
+  until task 6.22's `resolved-seats` run shows `unbound_conjunction_seats`
+  EMPTY. This is the packet's SECOND amendment; the first is R1/R2,
+  2026-09-07.
 
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,
@@ -1355,6 +1422,16 @@ Active changes:
   2's TEST moved, because the landed carve manifest's replicated rows put the
   same 30 test functions at three homes each and an equality could only have been
   satisfied by deleting replicas FLOOR PART 3 requires.
+  **Amended 2026-09-10 (the § 5.2 shed's own prerequisite, resolved as exit (a)
+  POST-SHED MODE)** — Brett Heap, in-session, verbatim *"rule (a) post-shed
+  mode, merge 924 when green"* (`opensoft/openxFactory`#656 comment
+  `5625573095`); record
+  `openspec/changes/split-opendox-two-layer-product/review/amendment-2026-09-10-shed-exit-post-shed-mode.md`.
+  FLOOR PART 1 is not reopened by it either: `carve_commit`, all 456 rows, every
+  digest and every disposition are unchanged, and the ONE optional `phase:` key
+  it adds is symmetric — `post-shed` expects a moved row's source path ABSENT
+  and refuses `carve-shed-incomplete` while it is still present — so the phase
+  flip and the 319 deletions are one act and cannot land apart.
   **IT STILL PERFORMS NOTHING.**
   No repository is created, no code moves, no capability is
   promoted or removed, and `docs/openxdox-naming.md` is NOT edited by this packet
@@ -2902,6 +2979,133 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-merged-into-empty-tail-standing](openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/proposal.md)
+  — **ARCHIVED 2026-09-11** by
+  [PR #973](https://github.com/opensoft/openxFactory/pull/973), on Brett Heap's
+  separate word of the same day (in
+  session at **2026-09-11T12:08:24Z**, verbatim *"land each when green, archive
+  both when landed, claim 955 and 956"*, recorded on
+  [#914](https://github.com/opensoft/openxFactory/issues/914#issuecomment-5634202205))
+  and the `release-realization` rule that a change with an EMPTY code surface
+  archives **ON LANDING plus its own task list**, waiting on no realization
+  evidence — *"its code_surface is `none` and it archives when its artifacts
+  land, as before"*, that capability's realization gate binding only *"A change
+  with a **non-empty** code surface"*. **THE WORD WAS GIVEN IN ADVANCE AND
+  CONDITIONALLY AND THE CONDITION WAS MET AFTERWARDS** — four hours and
+  twenty-five minutes later, the opposite shape to its sibling's archive.
+  **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#947](https://github.com/opensoft/openxFactory/pull/947) →
+  `87fd33d66b650dedf92cecfec4d0fc79b4bac142`** on `main`, 2026-09-11T16:33:09Z
+  (ratifying commit `7215c207`, verbatim *"Ratify as encoded"* recorded at
+  2026-09-11T10:11:53Z; records
+  `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/review/ratification-2026-09-11.md`
+  `Status: ratified` and the SIX gate captures `verification-2026-09-11.md`,
+  `verification-2026-09-11-post-merge.md`, `verification-2026-09-11-final.md`,
+  `verification-2026-09-11-final-2.md`, `verification-2026-09-11-final-3.md` and
+  `verification-2026-09-11-final-4.md` `Status: record`, all MOVED and untouched
+  by this archive), with `code_surface: none` and `target_release: implemented`.
+  **NO RUN ON THE MERGE COMMIT IS OWED** for an empty code surface; PR #947's
+  green `pytest-suite` run
+  [34619454320](https://github.com/opensoft/openxFactory/actions/runs/34619454320)
+  on its head `78e365f4` is named as a courtesy and is not the ground.
+  **THE PROMOTION, MEASURED RATHER THAN EYEBALLED:** the `## MODIFIED` block
+  over *Currency of an active change's MODIFIED requirement blocks* is
+  BYTE-IDENTICAL to the requirement now standing in
+  `openspec/specs/doc-health/spec.md` — **633 lines, 48,467 bytes, sha256
+  `e23f1e8754e5328bed10d11b6ebd2533b035fe5281d56711e6c0c6fa469a010f`** on both
+  sides, `diff` over the two extracted slices empty. **ONE SENTENCE IS RETIRED
+  AND REPLACED IN PLACE** under this packet's own `Removed from canon by
+  amend-merged-into-empty-tail-standing (2026-09-11):` marker, **ONE SENTENCE IS
+  ADDED** stating the ruling, and **ONE SCENARIO** — *A merge marker's tail names
+  no superseded title* — closes the block; **NO GROUND IS ADDED AND NONE IS
+  WITHDRAWN**, the class still stating FIVE. **THE POPULATION OF THE RULED SHAPE
+  IS ZERO AND IT IS RE-MEASURED AT THE ARCHIVE**: parsing every marker under
+  `openspec/` with the family's own `parse_marker`, **16** are of the
+  `Merged into` form and **NOT ONE** has an empty tail, the two standing in
+  promoted canon each naming its superseded title — so canon now states a
+  silence that reports nothing about any marker in this corpus, which is the
+  point. **THE ORDERED-DELTA CHILD KEEPS ITS PARENT:**
+  `rule-inherited-unit-naming-marker-spent` (DRAFT PR
+  [#962](https://github.com/opensoft/openxFactory/pull/962)) declares
+  `sequenced_after: [amend-merged-into-empty-tail-standing]` and resolves it in
+  the ARCHIVED corpus — `scripts/sequenced_after.py`'s `resolve()` offers the
+  active directory and any anchored archived `<date>-<id>` one, so this move
+  relocates the parent without dangling it. **ALL SEVEN OPEN BOXES TICK ON THE
+  RECORDING** (§ 5.1, § 5.2 and § 5.3 on the archive act; § 6.1 through § 6.4 on
+  measurements re-taken here, with every figure that moved disclosed), and **ONE
+  SUCCESSOR IS FILED, UNCLAIMED** —
+  [#972](https://github.com/opensoft/openxFactory/issues/972), the three pieces
+  of prose in `scripts/doc_health/modified_block_currency.py` and its test that
+  still call the merge form's empty tail *"a question nobody has ruled"*.
+  openxFactory [#914](https://github.com/opensoft/openxFactory/issues/914) ends
+  at this archive and at nothing else. Lane `openxfactory-1`.
+- [honour-grandfather-dispositions-in-ratified-provenance](openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
+  — **ARCHIVED 2026-09-11** by
+  [PR #969](https://github.com/opensoft/openxFactory/pull/969), on Brett Heap's
+  separate word of the same day (in
+  session at **2026-09-11T12:08Z**, verbatim *"land each when green, archive
+  both when landed, claim 955 and 956"*, recorded on
+  [#939](https://github.com/opensoft/openxFactory/issues/939#issuecomment-5634202632))
+  and on the MERGED-PLUS-GREEN realization evidence `release-realization`
+  requires of a change with a **non-empty** code surface, quoted rather than
+  paraphrased — *"A change with a non-empty code surface SHALL NOT archive
+  until realization evidence exists: its code merged on the implemented target
+  through the owning domain's engineering gates, and — where the surface is
+  runnable — a green run of that surface"*, its scenario *Realization completes*
+  reading *"**WHEN** merge evidence and a green run exist on the implemented
+  target / **THEN** the change archives and its deltas promote"* — measured
+  **at canon's grain** and not by courtesy.
+  **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by **PR
+  [#945](https://github.com/opensoft/openxFactory/pull/945) →
+  `34bb5c7158b42a45e4a4eddd2681ca9b7c3f550f`** on `main`, 2026-09-11T13:25:33Z
+  (ratifying commit `e60ad2ff`, the last commit to touch `.openspec.yaml`;
+  records
+  `openspec/changes/archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/review/ratification-2026-09-11.md`
+  `Status: ratified` and the two gate captures `verification-2026-09-11.md` and
+  `verification-2026-09-11-post-bench.md` `Status: record`, all MOVED and
+  untouched by this archive), with `code_surface: openxFactory` and
+  `target_release: implemented`. **THE GROUND IS `main`'s OWN `pytest-suite`
+  RUN ON THE MERGE COMMIT ITSELF** —
+  [**34604231434**](https://github.com/opensoft/openxFactory/actions/runs/34604231434),
+  event `push`, head `34bb5c71`, **conclusion `success`**, 13:25:41Z →
+  13:51:03Z — so no tree-equality argument is needed: the tested tree IS the
+  merge commit's tree. **PR #945's OWN GREEN RUN IS EXPLICITLY NOT THE GROUND**:
+  run 34600369729 on head `f50b3fc8` tested a test-merge onto `main` at
+  `38c076d1`, and that merge tree (`086ec442…`) is NOT the merge commit's tree
+  (`91a3675a…`) — the base moved to `2cdaf06a` mid-run.
+  Origin: openxFactory
+  [#939](https://github.com/opensoft/openxFactory/issues/939), **CLOSED at this
+  archive act and not at that landing** — which is what PR #945's `refs #939`,
+  carrying no closing keyword in its body or in any commit message on its
+  branch, was for. **ONE `## MODIFIED` REQUIREMENT IS PROMOTED, BYTE-IDENTICAL
+  TO THE ARCHIVED DELTA'S BLOCK**: *Governed corpus membership and the lifecycle
+  scan set* (`openspec/specs/doc-health/spec.md:878`) — **68 lines, 5,782
+  bytes, `sha256 138a0d51f42f77aa9f0418c5ec1570681f63e0409bc0a43596e8356dca06e5dd`
+  on BOTH sides**, `diff` empty, `git diff --numstat` **9 added / 0 removed**
+  and `-w --numstat` identical, so **zero lines changed by whitespace only** and
+  the promotion is a PURE ADDITION of the one new scenario *A finding is
+  grandfathered by a recorded disposition*. **THE ARCHIVE MOVE COMMIT
+  `bc1f25c4` CARRIES ALL EIGHT PACKET FILES AS `git diff -M` PURE RENAMES AT
+  100% SIMILARITY, 0 CHANGED LINES**; over the pull request as a WHOLE, seven
+  stay `R100` / 0 changed lines and `tasks.md` is `R078` at 172 added / 6
+  removed, its ticks being a SEPARATE commit before the move (`bbb3152b`, as
+  the tool's open-box refusal requires) and the naming of #969 a separate one
+  after it (`818e75f7`). **THE
+  REALIZATION RODE PR #945** and is not re-done here: one last pass in
+  `scripts/doc_health/families.py`, three guards across the two readers of the
+  aggregation dispositions file, and 22 new tests in
+  `tests/doc-health/test_grandfather_dispositions.py`. **FIVE SUCCESSORS ARE
+  FILED AND UNCLAIMED**, one per residue `tasks.md` § 7 measured and declined
+  ([#965](https://github.com/opensoft/openxFactory/issues/965) stale
+  dispositions, [#966](https://github.com/opensoft/openxFactory/issues/966) the
+  other eight families' entries,
+  [#967](https://github.com/opensoft/openxFactory/issues/967) the
+  `docs/doc-health.md` family-table row,
+  [#968](https://github.com/opensoft/openxFactory/issues/968) `design.md` D6's
+  `--single-repo` route) plus
+  [#964](https://github.com/opensoft/openxFactory/issues/964) for the bench
+  residue found after ratification — no `runner.main` end-to-end test covers the
+  scalar-root dispositions FILE guard at `scripts/doc_health/runner.py:768`.
 - [amend-repo-boundary-governance-scope-first-line](openspec/changes/archive/2026-09-11-amend-repo-boundary-governance-scope-first-line/proposal.md)
   — **ARCHIVED 2026-09-11** by
   [PR #958](https://github.com/opensoft/openxFactory/pull/958), on Brett Heap's

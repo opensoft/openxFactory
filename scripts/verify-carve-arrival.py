@@ -70,7 +70,17 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
                                   together, a `--source-repo` that does not
                                   carry `carve_commit`, or a source repository
                                   that disagrees with the manifest about a row's
-                                  digest. It is also the CATCH-ALL that holds
+                                  digest. ALSO a declared admissions file this
+                                  tool cannot trust: unparseable, not a mapping,
+                                  naming a destination id the manifest's own
+                                  `destinations:` does not carry, repeating a
+                                  `path:` under one destination, or listing one
+                                  out of alphabetical order (RULED, #656 comment
+                                  5639058687 — see `read_admissions()`). There
+                                  is no second validator for THAT document, so
+                                  its shape is this file's own finding, on
+                                  `read_manifest`'s reasoning for the manifest.
+                                  It is also the CATCH-ALL that holds
                                   the exit contract: any exception this file did
                                   not name reaches the caller as this code and
                                   exit 2, never as a traceback and exit 1.
@@ -85,7 +95,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 794 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 866 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
@@ -159,7 +169,16 @@ reach is worse than one that does not reach.
     `openxfactory_surface.py` (RULED OQ-L). Each is named on the command line
     with `--allow-created`, once, so an unplaced file at a destination is either
     admitted by a rule that can be read here or written down in the pull request
-    that admits it. There is deliberately no wildcard.
+    that admits it. There is deliberately no wildcard. AS OF RULED #656 (Brett
+    Heap, 2026-09-11, comment 5639058687) the GOVERNED form of that admission is
+    a `created:` entry in the destination's own block of
+    `docs/opendox-carve-admissions.yaml`, read automatically by
+    `read_admissions()` and applied exactly as `--allow-created` admits — so a
+    NEW admission is a reviewed one-line diff in the pull request that bumps
+    the destination's pin, rather than a flag typed once and recorded nowhere.
+    `--allow-created` still works, for an ad-hoc run over a tree with no
+    admissions file yet, and `main()` prints one line saying the declared form
+    is the governed one.
   * A declared edit that has NOT BEEN APPLIED does not refuse. Its diff touches
     no undeclared line, which is the only question the ruling's sentence asks,
     and the destination's own `validate` refuses a leg whose imports still name
@@ -230,7 +249,7 @@ it refuses `arrival-unreadable`, because a typo must not be indistinguishable
 from "not yet carved".
 
 Run: `python3 scripts/verify-carve-arrival.py --destination <key> --dest-root
-<dir> --phase A|B [--dest-base <ref>]`, or
+<dir> --phase A|B [--dest-base <ref>] [--admissions <path>]`, or
 `--assembly-root <owner>/<name> --dest-root <dir>` for a root's `carved_from:`;
 driven by `tests/carve_arrival/test_verify_carve_arrival.py`.
 """
@@ -285,6 +304,27 @@ MANIFEST_RELPATH = "docs/opendox-carve-manifest.yaml"
 # `arrival-unreadable` refusal that is really a manifest defect, so a reader is
 # never left choosing between two opinions about the same bytes.
 MANIFEST_VALIDATOR = "scripts/validate-carve-manifest.py"
+
+# THE DECLARED ADMISSIONS FILE (RULED — the arrival-admission repair, Brett
+# Heap, 2026-09-11, `#656` comment `5639058687`, "Declared per-leg admissions
+# file"). Beside the manifest by default, exactly as `MANIFEST_RELPATH` sits
+# beside this script's own reasoning for `--manifest`: a caller who moves the
+# manifest with `--manifest` moves the admissions file with it, because the
+# two are one destination's governance and not two independently-addressed
+# documents. See `read_admissions()`.
+ADMISSIONS_BASENAME = "opendox-carve-admissions.yaml"
+
+# THE EXACT ENVELOPE VALUES (Copilot review, PR #979) — `validate-carve-
+# manifest.py`'s own SCHEMA_VERSION/KIND idiom for `schema_version`, mirrored
+# here rather than a bare `isinstance(…, int)` / `isinstance(…, str)` TYPE
+# check: a type check alone accepts `schema_version: 999` as readable and
+# `schema_version: true` as version 1 (`isinstance(True, int)` is `True` in
+# Python — a bool satisfies an int type check while never equalling the
+# version this reader knows), and accepts ANY string as `kind:`. This
+# document OWNS its shape (there is no second validator for it), so this is
+# the one place its exact envelope is checked, not merely its Python type.
+ADMISSIONS_SCHEMA_VERSION = 1
+ADMISSIONS_KIND = "opendox-carve-admissions"
 
 MOVED_DISPOSITIONS: tuple[str, ...] = ("moved_verbatim",
                                        "moved_with_declared_edit")
@@ -476,21 +516,21 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def dest_relative(value: str, flag: str) -> str:
-    """A path INSIDE `--dest-root`, or a refusal.
+def _plain_relative_path(value: str) -> str | None:
+    """The POSIX-normalised form of `value`, or None where it is not a plain
+    path relative to some root: empty, absolute, drive/UNC-prefixed, carrying
+    a `.`/`..` segment, or a `\\` this host does not treat as a separator.
 
-    `--replica-at`'s right-hand side and every `--allow-created` value come
-    from the command line and are joined to `--dest-root` or compared with a
-    path the walk produced. `Path("/dest") / "/etc/passwd"` is `/etc/passwd` —
-    an absolute right-hand operand REPLACES the root — and `..` segments walk
-    out of it, so a typo reads a file the run is not about and reports it as
-    the destination's. The estate already treats this as a hard requirement
-    rather than a nicety (`scripts/proposal-support.py` rejects absolute and
-    `..` paths after normalisation), and this is the same guard.
+    SHARED BY `dest_relative` (a CLI flag's right-hand side) and by every
+    admissions-file `path:` (`_admission_path`, RULED #656) — the same hazard
+    either way: `Path("/dest") / "/etc/passwd"` is `/etc/passwd`, an absolute
+    value REPLACES the root it is joined to, and a `..` segment walks out of
+    it, so a typo would answer a question about a file the run is not about
+    and report it as the destination's.
 
-    NON-CANONICAL FORMS ARE REFUSED RATHER THAN NORMALISED. The value has to
-    EQUAL a path the walk produced, and the walk produces canonical ones, so
-    `src/./pkg/x.py` would silently never match; refusing says so.
+    NON-CANONICAL FORMS ARE REFUSED RATHER THAN NORMALISED. A caller's value
+    has to EQUAL a path the walk produced, and the walk produces canonical
+    ones, so `src/./pkg/x.py` would silently never match; refusing says so.
 
     A REMAINING BACKSLASH IS ONE OF THOSE FORMS, and `os.sep` alone does not
     catch it. On a POSIX host `os.sep` is `/`, so the replacement is a no-op and
@@ -511,6 +551,22 @@ def dest_relative(value: str, flag: str) -> str:
     if (not relpath or "\\" in relpath or posixpath.isabs(relpath)
             or ntpath.splitdrive(relpath)[0] or relpath != normalised
             or normalised in (".", "..") or normalised.startswith("../")):
+        return None
+    return relpath
+
+
+def dest_relative(value: str, flag: str) -> str:
+    """A path INSIDE `--dest-root`, or a refusal.
+
+    `--replica-at`'s right-hand side and every `--allow-created` value come
+    from the command line and are joined to `--dest-root` or compared with a
+    path the walk produced. The estate already treats this as a hard
+    requirement rather than a nicety (`scripts/proposal-support.py` rejects
+    absolute and `..` paths after normalisation), and this is the same guard,
+    over `_plain_relative_path`'s one definition of what a plain path is.
+    """
+    result = _plain_relative_path(value)
+    if result is None:
         raise ArrivalRefusal(
             "arrival-unreadable",
             f"{flag} {value!r} is not a plain path inside --dest-root: it is "
@@ -521,7 +577,31 @@ def dest_relative(value: str, flag: str) -> str:
             "and `..` walks out of it, so such a value would answer a "
             "question about a file this run is not about. Give the path "
             "relative to --dest-root, in the canonical form the walk reports")
-    return relpath
+    return result
+
+
+def _admission_path(value: Any, where: str, admissions_path: Path) -> str:
+    """One admissions-file entry's `path:`, held to `dest_relative`'s shape
+    (`_plain_relative_path`, shared) but refused as an ADMISSIONS FILE defect
+    — naming the file and the field — rather than as a command-line one,
+    because `--allow-created` was never involved in raising it.
+    """
+    if not isinstance(value, str) or not value:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {admissions_path} declares {where} as "
+            f"{value!r}, not a non-empty string")
+    result = _plain_relative_path(value)
+    if result is None:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {admissions_path} declares {where} as "
+            f"{value!r}, which is not a plain path relative to --dest-root: "
+            "empty, absolute (a POSIX-absolute path, or one carrying a `C:` "
+            "drive or a `//server/share` UNC prefix), or carrying a `.`/`..` "
+            "segment or a `\\` this host does not treat as a separator — the "
+            "same shape `--allow-created` itself is held to")
+    return result
 
 
 # --------------------------------------------------------------------------
@@ -575,6 +655,292 @@ def read_manifest(path: Path) -> dict[str, Any]:
             f"the manifest's carve_commit {doc['carve_commit']!r} is not 40 "
             f"lowercase hex; run {MANIFEST_VALIDATOR}")
     return doc
+
+
+# --------------------------------------------------------------------------
+# the declared admissions file (RULED — the arrival-admission repair,
+# Brett Heap, 2026-09-11, `#656` comment 5639058687)
+# --------------------------------------------------------------------------
+
+def default_admissions_path(manifest_path: Path) -> Path:
+    """The declared admissions file, BESIDE the manifest by default — same
+    directory, so a `--manifest` override moves both together and a caller
+    pointing this tool at another checkout gets that checkout's own
+    admissions rather than this repository's."""
+    return manifest_path.parent / ADMISSIONS_BASENAME
+
+
+ADMISSIONS_ENTRY_FIELDS: tuple[str, ...] = ("path", "reason", "since")
+
+
+class _DuplicateAdmissionsKeyError(yaml.constructor.ConstructorError):
+    """A repeated mapping key in the admissions file, refused BY
+    CONSTRUCTION rather than resolved by `yaml.safe_load`'s own
+    last-duplicate-wins (Copilot review, PR #979): a `destinations:` block
+    naming the same id twice, or a `created[]` entry repeating `path:` (or
+    `reason:`/`since:`), would show a reviewer the FIRST value in a diff
+    while this tool silently trusted the LAST — the same show-one-admit-
+    another defect the admissions file exists to prevent, now inside the
+    admission document itself. A subclass of `yaml.constructor
+    .ConstructorError` (itself a `YAMLError`) so it carries `.problem` and
+    `.problem_mark` on the same idiom as every other refusal below, and so a
+    caller wanting the ORDINARY "not parseable YAML" message need only add
+    one more specific `except` before it — it is not silently swallowed by
+    the general handler."""
+
+
+def _admissions_construct_mapping(loader: yaml.SafeLoader, node: Any,
+                                  deep: bool = False) -> dict[Any, Any]:
+    """`SafeConstructor.construct_mapping`, with every key checked against
+    the keys already seen at this SAME mapping level before it is accepted.
+
+    Mirrors `scripts/frontmatter_strict.py`'s `StrictLoader` /
+    `_strict_construct_mapping` duplicate-key idiom without importing it:
+    that module is the loader for a DIFFERENT ratified requirement (the
+    realization-axis front-matter block — fenced prose with a byte ceiling
+    and its own refused set of anchors/aliases/merge keys/directives/
+    multi-document), not a general-purpose YAML utility, and this reader
+    owns a plain standalone document with a narrower guard — only a
+    repeated KEY is refused here, because every VALUE `read_admissions`
+    reads is already checked against an exact shape a few lines below (an
+    anchor's or alias's resolved value is checked the same as any other
+    value's; only a silently-overwritten KEY would escape those checks, and
+    that is the one gap this closes)."""
+    seen: set[Any] = set()
+    for key_node, _value_node in node.value:
+        key = loader.construct_object(key_node, deep=True)
+        hashable = key if isinstance(
+            key, (str, int, float, bool, tuple)) else str(key)
+        if hashable in seen:
+            raise _DuplicateAdmissionsKeyError(
+                None, None, f"duplicate key {key!r}", key_node.start_mark)
+        seen.add(hashable)
+    return yaml.constructor.SafeConstructor.construct_mapping(
+        loader, node, deep=deep)
+
+
+class _AdmissionsLoader(yaml.SafeLoader):
+    """`SafeLoader` with duplicate mapping keys refused rather than
+    silently resolved last-wins (Copilot review, PR #979). Nothing else
+    about `SafeLoader` changes — anchors, aliases and merge keys still
+    resolve, because their resolved VALUES are re-validated exactly as any
+    other value's below; only the one gap that check cannot see, a key
+    silently overwritten before any value is ever read, is closed here."""
+
+
+_AdmissionsLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _admissions_construct_mapping)
+
+
+def read_admissions(path: Path, doc: dict[str, Any]
+                    ) -> dict[str, list[dict[str, str]]]:
+    """The declared per-destination admissions file: each destination's
+    `created:` list, applied exactly as `--allow-created` admits today, but as
+    a REVIEWED ONE-LINE DIFF in the pin-bump pull request rather than typed on
+    a command line (RULED — the arrival-admission repair, Brett Heap,
+    2026-09-11, `#656` comment 5639058687, "Declared per-leg admissions
+    file").
+
+    ABSENT IS NOT A REFUSAL. A destination with no admissions file adopted
+    yet — or a caller who has not adopted one at all — gets no declared
+    admissions here, and `--allow-created` alone still works exactly as it did
+    before this function existed. This is `resolve_dest_base`'s own treatment
+    of a DEFAULT that is allowed to be missing, for the same reason: nothing
+    has asked for this file by name.
+
+    PRESENT AND MALFORMED IS `arrival-unreadable`, on `read_manifest`'s own
+    reasoning: this file OWNS the admissions document's shape — there is no
+    second validator to defer to the way the carve manifest defers to
+    `validate-carve-manifest.py` — so a document this tool cannot trust is an
+    environment/encoding failure and not a destination's arrival finding.
+
+    THE CHECK GUARDS ITS OWN INPUT (RULED), because a hand-edited governance
+    file must not be able to quietly admit less, or more, than it appears to:
+
+      * every destination id must be a key of the MANIFEST's own
+        `destinations:` map — an id the manifest does not carry can declare
+        nothing this tool can check, and a typo must not silently admit
+        nothing at every real destination while looking like it admits
+        something at one;
+      * every entry is `{path, reason, since}` of non-empty strings: `path`
+        shaped exactly as `--allow-created`'s own value is (`_admission_path`),
+        `reason` a ONE-LINE why (no embedded newline), `since` the 40-hex LEG
+        commit that introduced the file — falsifiable the same way the
+        manifest's own `carve_commit:` is;
+      * no destination's `created:` list may repeat a `path:`;
+      * every destination's `created:` list must already be SORTED by
+        `path:` — the ruling's whole reason for this file existing is that a
+        NEW admission is a one-line diff, which an unsorted list defeats the
+        moment a second entry lands out of order.
+
+    Returns `{destination_id: [{"path", "reason", "since"}, …]}`, one key per
+    destination the FILE declares (never every destination the manifest
+    carries — an omitted destination simply has no declared admissions).
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {}
+    except OSError as exc:
+        # Anything other than "does not exist" — a permission failure, an
+        # I/O error, `path` naming a directory — is NOT the same finding as
+        # "no admissions file adopted yet" (Copilot review, PR #979): treating
+        # every OSError as absence would silently disable the governed
+        # admissions and let the run fall through to an unrelated
+        # undeclared-file result instead of naming the real cause.
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} could not be read: {exc}"
+        ) from exc
+    except ValueError as exc:  # pragma: no cover - undecodable bytes
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} could not be decoded: {exc}"
+        ) from exc
+    try:
+        raw = yaml.load(text, Loader=_AdmissionsLoader)
+    except _DuplicateAdmissionsKeyError as exc:
+        # Caught BEFORE the general `yaml.YAMLError` below, and named
+        # precisely rather than falling into "is not parseable YAML"
+        # (Copilot review, PR #979): a duplicate key is syntactically valid
+        # YAML that `yaml.safe_load` would accept and silently resolve
+        # last-duplicate-wins — this is a REFUSAL this reader chooses, on
+        # its own "guards its own input" rule above, not a parse failure.
+        mark = exc.problem_mark
+        at = (f" at line {mark.line + 1} column {mark.column + 1}"
+              if mark is not None else "")
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} declares a duplicate mapping "
+            f"key{at} ({exc.problem}): `yaml.safe_load` would resolve this "
+            "SILENTLY as last-duplicate-wins, showing a reviewer one value "
+            "and admitting from another"
+        ) from exc
+    except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        at = (f" at line {mark.line + 1} column {mark.column + 1}"
+              if mark is not None else "")
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} is not parseable YAML{at}: {exc}"
+        ) from exc
+    # An EXISTING file that parses to nothing — empty, or comments-only, so
+    # `yaml.safe_load` hands back `None` — is PRESENT AND MALFORMED, not
+    # ABSENT (Copilot review, PR #979): treating it as absent here would let
+    # a file present on disk (the summary would still report it as this
+    # destination's `admissions_file`) silently disable every declared
+    # admission it was supposed to carry. ABSENT is only a file that does
+    # not exist at all (`FileNotFoundError`, above). `isinstance(None, dict)`
+    # is `False`, so this falls straight into the very next check with no
+    # special case needed — its message names `NoneType` on the same idiom
+    # as any other wrong-shaped document.
+    if not isinstance(raw, dict):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} is not a mapping (parsed as "
+            f"{type(raw).__name__})")
+    version = raw.get("schema_version")
+    if (not isinstance(version, int) or isinstance(version, bool)
+            or version != ADMISSIONS_SCHEMA_VERSION):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries `schema_version: "
+            f"{version!r}`; this reader knows the INTEGER "
+            f"{ADMISSIONS_SCHEMA_VERSION} only. `true` and `1.0` are both "
+            "EQUAL to 1 in Python, and a bool or a float must not satisfy "
+            "an integer schema check any more than it would for the "
+            "manifest's own `schema_version:`")
+    if raw.get("kind") != ADMISSIONS_KIND:
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries `kind: "
+            f"{raw.get('kind')!r}`, not {ADMISSIONS_KIND!r}")
+    if not isinstance(raw.get("destinations"), dict):
+        raise ArrivalRefusal(
+            "arrival-unreadable",
+            f"the admissions file at {path} carries no usable "
+            "`destinations:`")
+    known = set(doc["destinations"])
+    result: dict[str, list[dict[str, str]]] = {}
+    for dest_id, entry in raw["destinations"].items():
+        if dest_id not in known:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"the admissions file at {path} declares destination "
+                f"{dest_id!r}, which is not a key of the manifest's "
+                f"`destinations:` map ({', '.join(sorted(known))}). An "
+                "admissions file for a destination the manifest does not "
+                "name can declare nothing this tool can check")
+        if not isinstance(entry, dict) or not isinstance(
+                entry.get("created"), list):
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"the admissions file at {path} carries no usable "
+                f"`destinations.{dest_id}.created:` list")
+        seen: set[str] = set()
+        parsed: list[dict[str, str]] = []
+        for index, item in enumerate(entry["created"]):
+            if not isinstance(item, dict):
+                raise ArrivalRefusal(
+                    "arrival-unreadable",
+                    f"the admissions file at {path} has a "
+                    f"`destinations.{dest_id}.created[{index}]` that is not "
+                    f"a mapping: {item!r}")
+            for field in ADMISSIONS_ENTRY_FIELDS:
+                value = item.get(field)
+                if not isinstance(value, str) or not value:
+                    raise ArrivalRefusal(
+                        "arrival-unreadable",
+                        f"the admissions file at {path} has a "
+                        f"`destinations.{dest_id}.created[{index}]` with no "
+                        f"usable `{field}:` (a non-empty string)")
+                if field == "reason" and "\n" in value:
+                    raise ArrivalRefusal(
+                        "arrival-unreadable",
+                        f"the admissions file at {path} has a "
+                        f"`destinations.{dest_id}.created[{index}].reason` "
+                        "carrying a newline; the ruling asks for a ONE-LINE "
+                        "reason")
+                if field == "since" and not COMMIT_RE.fullmatch(value):
+                    # `.fullmatch`, not `.match`: `$` matches just before a
+                    # trailing newline as well as at the true end of the
+                    # string, so `.match` alone would admit 40 hex characters
+                    # plus a trailing "\n" as if it were a clean 40-hex commit
+                    # (Copilot review, PR #979). `.fullmatch` requires the
+                    # match to cover the ENTIRE string, which the `\n` can't
+                    # be pulled into, so it correctly refuses.
+                    raise ArrivalRefusal(
+                        "arrival-unreadable",
+                        f"the admissions file at {path} has a "
+                        f"`destinations.{dest_id}.created[{index}].since` of "
+                        f"{value!r}, which is not 40 lowercase hex. `since:` "
+                        "is the LEG commit that introduced the file and must "
+                        "be falsifiable the same way `carve_commit:` is")
+            admitted_path = _admission_path(
+                item["path"],
+                f"destinations.{dest_id}.created[{index}].path", path)
+            if admitted_path in seen:
+                raise ArrivalRefusal(
+                    "arrival-unreadable",
+                    f"the admissions file at {path} declares "
+                    f"{admitted_path!r} twice under {dest_id!r}; one "
+                    "admission per path, so a reader can trust the list")
+            seen.add(admitted_path)
+            parsed.append({"path": admitted_path, "reason": item["reason"],
+                            "since": item["since"]})
+        ordered = sorted(parsed, key=lambda e: e["path"])
+        if [e["path"] for e in parsed] != [e["path"] for e in ordered]:
+            raise ArrivalRefusal(
+                "arrival-unreadable",
+                f"the admissions file at {path} lists destination "
+                f"{dest_id!r}'s `created:` out of alphabetical order by "
+                "`path:`. The ruling's reason for declaring admissions here "
+                "is that a NEW one is a ONE-LINE diff; an unsorted list "
+                "defeats that the moment a reviewer has to find where a new "
+                "entry belongs")
+        result[dest_id] = parsed
+    return result
 
 
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
@@ -1151,7 +1517,7 @@ def scaffold_allowlist(dest_root: Path, dest_base: str | None) -> set[str]:
 def check_undeclared_files(dest_root: Path, roots: list[str],
                            placed: set[str], replicas: set[str],
                            allow_created: set[str],
-                           dest_base: str | None) -> dict[str, int]:
+                           dest_base: str | None) -> dict[str, Any]:
     """Walk the declared roots; every entry is placed, or admitted, or refused.
 
     THE ADMISSION RULES ARE ORDERED and the order is a claim. A `.gitkeep` is
@@ -1176,6 +1542,12 @@ def check_undeclared_files(dest_root: Path, roots: list[str],
     those names rides in.
     """
     admitted = {"scaffold": 0, "replica": 0, "created": 0}
+    # THE SPECIFIC PATHS admitted via `allow_created`, tracked (and not just
+    # counted) so a caller can tell a DECLARED admission that was actually
+    # NEEDED from one that was not — a stale declared admission is a finding,
+    # not silent (RULED, #656). Separate from `admitted["created"]`, which
+    # this file's own callers already read as a plain count.
+    created_paths: set[str] = set()
     scaffold = scaffold_allowlist(dest_root, dest_base)
     walked = 0
     for root in roots:
@@ -1223,6 +1595,7 @@ def check_undeclared_files(dest_root: Path, roots: list[str],
                     continue
                 if relpath in allow_created:
                     admitted["created"] += 1
+                    created_paths.add(relpath)
                     continue
                 # EMPTY BYTES IDENTIFY NOTHING, so they admit nothing: the
                 # empty digest is excluded from `replicas` upstream (see
@@ -1252,6 +1625,7 @@ def check_undeclared_files(dest_root: Path, roots: list[str],
                     f"`--allow-created {relpath}` and say why in the pull "
                     "request")
     admitted["walked"] = walked
+    admitted["created_paths"] = created_paths
     return admitted
 
 
@@ -1383,10 +1757,20 @@ def verify_assembly_root(doc: dict[str, Any], repository: str,
 
 
 def verify(doc: dict[str, Any], destination: str, dest_root: Path,
-           source_repo: Path, phase: str, allow_created: set[str],
+           source_repo: Path, phase: str,
+           declared_created: set[str], cli_created: set[str],
            replica_placements: dict[str, str],
-           dest_base: str | None) -> dict[str, Any]:
-    """The checks in order, first failure wins."""
+           dest_base: str | None,
+           admissions_file: Path | None) -> dict[str, Any]:
+    """The checks in order, first failure wins.
+
+    `declared_created` and `cli_created` are the SAME admission
+    (`--allow-created`'s own meaning) from the two sources RULED #656 allows:
+    the declared admissions file and the command line, kept apart here only so
+    the summary can report which of each was actually needed — the union is
+    what the walk itself admits against.
+    """
+    allow_created = declared_created | cli_created
     carve_commit = doc["carve_commit"]
     rows = rows_for(doc, destination)
     if rows or replica_placements:
@@ -1438,6 +1822,15 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     carved_from = (check_carved_from(dest_root, doc)
                    if leg == ASSEMBLY_LEG else None)
 
+    # WHICH ADMISSIONS WERE USED, AND WHICH DECLARED ONES WERE NOT NEEDED
+    # (RULED #656): a stale declared admission — a `created:` entry the walk
+    # never consumed, because the file it names is not there or is admitted
+    # some other way — is a FINDING to report, not silence to pass through.
+    used_created: set[str] = admitted["created_paths"]
+    declared_admissions_used = sorted(declared_created & used_created)
+    declared_admissions_unused = sorted(declared_created - used_created)
+    ad_hoc_allow_created = sorted(cli_created)
+
     return {
         "result": "ok",
         "mode": "destination",
@@ -1461,6 +1854,10 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
         "files_walked": admitted["walked"],
         "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
         "carved_from": carved_from,
+        "admissions_file": str(admissions_file) if admissions_file else None,
+        "declared_admissions_used": declared_admissions_used,
+        "declared_admissions_unused": declared_admissions_unused,
+        "ad_hoc_allow_created": ad_hoc_allow_created,
     }
 
 
@@ -1504,7 +1901,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--allow-created", metavar="PATH", action="append", default=[],
         help=("a file the destination legitimately assembles and no row places "
-              "(RULED OQ-C); repeatable, exact destination-relative paths"))
+              "(RULED OQ-C); repeatable, exact destination-relative paths. "
+              "The AD-HOC form — prefer a `created:` entry in the declared "
+              "admissions file, RULED #656"))
+    parser.add_argument(
+        "--admissions", metavar="PATH", default=None,
+        help=("the declared per-destination admissions file `--destination` "
+              f"reads by default (default: beside the manifest, "
+              f"{ADMISSIONS_BASENAME}). Its `created:` list for this "
+              "destination is applied exactly as --allow-created admits "
+              "(RULED #656) — the GOVERNED form: a new admission is a "
+              "reviewed one-line diff in the pin-bump pull request"))
     parser.add_argument(
         "--replica-at", metavar="SOURCE=PATH", action="append", default=[],
         help=("where a `not_moved / replicated_at_destination` row landed at "
@@ -1530,6 +1937,20 @@ def main(argv: list[str] | None = None) -> int:
                          else source_repo / given).resolve()
     else:
         manifest_path = (source_repo / MANIFEST_RELPATH).resolve()
+
+    # `--admissions` resolves exactly as `--manifest` does — relative to
+    # `--source-repo`, not the caller's CWD — for the same reason: a relative
+    # override that silently changed referent to CWD would read the wrong
+    # file the moment `--source-repo` names a tree other than the one the
+    # caller stands in. The DEFAULT is beside the manifest
+    # (`default_admissions_path`), so a `--manifest` override moves both
+    # together.
+    if args.admissions:
+        given = Path(args.admissions)
+        admissions_path = (given if given.is_absolute()
+                           else source_repo / given).resolve()
+    else:
+        admissions_path = default_admissions_path(manifest_path)
 
     # THE SEAT-HOLDING PASS, and the one place here that is not fail-closed.
     # See the module docstring: it keys off `--destination` being ABSENT, never
@@ -1600,13 +2021,32 @@ def main(argv: list[str] | None = None) -> int:
                 "The two phases are the two commits a leg lands as (runbook "
                 "§ 5.5), and a run that guessed would prove the weaker claim "
                 "silently")
+        declared_created = {
+            entry["path"] for entry in
+            read_admissions(admissions_path, doc).get(args.destination, [])}
+        cli_created = {dest_relative(p, "--allow-created")
+                       for p in args.allow_created}
+        # THE NOTICE (RULED #656): --allow-created still works for an ad-hoc
+        # run, but a caller using it is told the declared form is governed.
+        # Only in HUMAN mode — `--json` promises ONE object on stdout, so the
+        # same fact reaches a machine caller as `ad_hoc_allow_created` in the
+        # summary instead of a second line breaking that contract.
+        if args.allow_created and not args.json:
+            print(
+                "NOTE --allow-created is the AD-HOC form. The governed one "
+                f"(RULED, openxFactory#656) is a `created:` entry in "
+                f"{admissions_path}, applied automatically: add "
+                f"`{{path: <path>, reason: <why>, since: <leg commit>}}` "
+                f"under `destinations.{args.destination}.created`, "
+                "alphabetically by path, as a reviewed one-line diff in the "
+                "pin-bump pull request.", file=sys.stderr)
         summary = verify(doc, args.destination, dest_root, source_repo,
-                         args.phase,
-                         {dest_relative(p, "--allow-created")
-                          for p in args.allow_created},
+                         args.phase, declared_created, cli_created,
                          parse_replica_placements(args.replica_at, doc,
                                                   args.destination),
-                         resolve_dest_base(dest_root, args.dest_base))
+                         resolve_dest_base(dest_root, args.dest_base),
+                         admissions_path if admissions_path.is_file()
+                         else None)
     except ArrivalRefusal as exc:
         return _refused(exc, args, where)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
@@ -1685,6 +2125,23 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     if summary["carved_from"] is not None:
         line += (f"; carved_from {summary['carved_from']['repository']}@"
                  f"{summary['carved_from']['commit'][:12]}")
+    # WHICH ADMISSIONS WERE USED, AND WHICH DECLARED ONES WERE NOT NEEDED
+    # (RULED #656) — a stale declared admission is a finding, printed here and
+    # not only counted, so a reader does not have to reach for `--json` to see
+    # it. `admissions_file` is None where the file is simply absent (feature
+    # not yet adopted at this manifest), never where it was read and empty.
+    if summary["admissions_file"] is not None:
+        used = summary["declared_admissions_used"]
+        unused = summary["declared_admissions_unused"]
+        line += (f"; {len(used)} declared admission(s) used "
+                 f"({Path(summary['admissions_file']).name})")
+        if unused:
+            line += (f", {len(unused)} STALE (declared but not needed): "
+                     f"{', '.join(unused)}")
+    if summary["ad_hoc_allow_created"]:
+        line += (f"; {len(summary['ad_hoc_allow_created'])} admitted via "
+                 "ad-hoc --allow-created (declare these in the admissions "
+                 "file instead)")
     print(line)
 
 
