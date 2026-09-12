@@ -333,18 +333,27 @@ the later realization pull request, and § 4 is the archive act.
   root cannot speak for the doc-health fixture and aggregate roots this family
   runs against. So the realization parameterizes that helper or extracts a
   shared one both call, and the two cases above are what prove it;
-  **(n)** NON-USE, asserted directly: a record whose
-  `verify_pin:` member names an ARBITRARY IN-TREE PATH has that path NEVER
-  opened, imported or run — asserted by instrumenting the read/import/exec
-  surface, not by reading a finding text, since the boundary is that the path is
-  not touched — and the record's verdict is UNCHANGED by that member's value: a
-  record complete for its record shape still RESOLVES, since `verify_pin:` is
-  neither part of the required shape nor a resolution prerequisite, and a test
-  that refused such a record would encode the opposite of D-2 and reject valid
-  pins. AND a `verify_pin:` value that DIFFERS from what the adapter holds for
-  that record emits the DISAGREEMENT FINDING — the adapter being ONE pure table
-  rather than a dispatch to the record's own choice, this case is asserted
-  wherever the adapter lives, in the resolver's module or in the shared helper; **(o)** the CROSS-REPOSITORY case, an aggregate
+  **(n)** NON-USE, asserted directly, in THREE cases that
+  do not overlap and are stated separately for a reason given below. FIRST, a
+  record whose `verify_pin:` member names an ARBITRARY IN-TREE PATH has that
+  path NEVER opened, imported or run — asserted by instrumenting the
+  read/import/exec surface, not by reading a finding text, since the boundary is
+  that the path is not touched. SECOND, where `verify_pin:` carries THE VALUE
+  THE ADAPTER HOLDS for that record, a record complete for its record shape
+  RESOLVES with NO finding from this arm, `verify_pin:` being neither part of
+  the required shape nor a resolution prerequisite, and a test that refused such
+  a record would encode the opposite of D-2 and reject valid pins. THIRD, where
+  the value DIFFERS from what the adapter holds — which the first case's
+  arbitrary path also is — the pass emits the DISAGREEMENT FINDING, still
+  without touching the path, and the TARGET STILL RESOLVES where the record is
+  complete for its shape: the finding stands BESIDE the resolution rather than
+  in place of it, a disagreement about which code would judge the record being
+  no fact about the record's shape. The three are separate because the first
+  case's arbitrary path IS a differing value, so a single case asserting both
+  "the verdict is unchanged by that member's value" and "a differing value is a
+  finding" would contradict itself; the adapter being ONE pure table rather than
+  a dispatch to the record's own choice, all three are asserted wherever the
+  adapter lives, in the resolver's module or in the shared helper; **(o)** the CROSS-REPOSITORY case, an aggregate
   fixture with TWO roots: (i) the pin record exists only in the `openxFactory`
   root and a document of the other repository names it — the target resolves by
   the fallback and the finding or log NAMES that root; (ii) both roots carry a
@@ -364,9 +373,29 @@ the later realization pull request, and § 4 is the archive act.
   **LEG A, THE RECORD LEG**, entirely inside the adapter: the adapter ACCEPTS
   each real record as it stands; for EVERY member `m` IN the table for that
   record's shape, the adapter REFUSES the record with `m` removed AND NAMES
-  `m`; and for EVERY top-level member of that record NOT in the table, the
-  adapter STILL ACCEPTS the record with it removed — so the table is neither
-  WIDER nor NARROWER than declared. **LEG B, THE GUARD LEG**, which is what
+  `m`; and for EVERY top-level member of that record THAT IS NEITHER IN THE
+  TABLE NOR THE `kind:` DISCRIMINATOR, the adapter STILL ACCEPTS the record with
+  it removed — so the table is neither WIDER nor NARROWER than declared.
+  `kind:` IS EXEMPT FROM THAT SECOND ARM and is a member of no shape's table,
+  because `kind: pinned_contract_manifest` is the PRECONDITION the pinned arm
+  gates on BEFORE any shape is selected (task 1.2): a record without it is not a
+  record of the kind a pinned target may name, so deleting it asks about a
+  different record rather than about the table. Measured on `origin/main`, the
+  members that arm actually ranges over are THIRTY-EIGHT across the five
+  records: NINE on `contracts/openxwallet-pin.yaml` (`carve_commit`,
+  `contract_bundle_tag`, `digest_algorithm`, `digest_source`,
+  `pinned_by_commit_only`, `resync_runbook`, `schema_version`,
+  `source_repository`, `verify_pin` — its verifier reading neither
+  `source_repository` nor `digest_algorithm` anywhere, measured); SIX on
+  `contracts/openreposhape-pin.yaml` (`digest_algorithm`, `doctrine`,
+  `pinned_by_commit_only`, `schema_version`, `source_url`, `verify_pin`); SIX on
+  `contracts/opendox-pin.yaml` (`carve_commit`, `migration`, `resync_runbook`,
+  `schema_version`, `source_repository`, `verify_pin`); FIVE on
+  `contracts/openxdox-pin.yaml` (the same less `migration`); and TWELVE on
+  `contracts/openspec-cli-pin.yaml` (`consumer_entrypoint`, `dispositions`,
+  `integrity_algorithm`, `pinned_invocation`, `registry`, `resync_runbook`,
+  `rollback`, `schema_version`, `source_repository`, `source_url`, `tarball`,
+  `verify_pin`). **LEG B, THE GUARD LEG**, which is what
   holds the table to the VERIFIERS rather than to itself: for each table member
   whose verifier exposes an IMPORTABLE, SOURCE-FREE guard, the test imports that
   verifier at its FIXED, AUTHORED path — the way `tests/openxwallet_pin/`,

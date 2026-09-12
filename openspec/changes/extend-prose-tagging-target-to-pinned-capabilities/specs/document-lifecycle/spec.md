@@ -189,8 +189,13 @@ rather than by a promise, IN TWO LEGS. THE RECORD LEG, over each real
 `pinned_contract_manifest` record on the tree: the adapter ACCEPTS the record;
 for every member `m` IN the table for that record's shape, the adapter REFUSES
 the record with `m` removed and NAMES `m`; and for every top-level member of
-that record NOT in the table, the adapter still ACCEPTS the record without it —
-so the table is neither WIDER nor NARROWER than declared. THE GUARD LEG, which
+that record NOT in the table AND NOT THE `kind:` DISCRIMINATOR, the adapter
+still ACCEPTS the record without it — so the table is neither WIDER nor
+NARROWER than declared. `kind:` is EXEMPT from that second arm and is not a
+table member of any shape, because `kind: pinned_contract_manifest` is the
+PRECONDITION this grammar gates on BEFORE any shape is selected: a record
+without it is not a record of the kind a pinned target may name, so removing it
+asks a question about a different record rather than about the table. THE GUARD LEG, which
 is what holds the table to the VERIFIERS rather than to itself: where the
 shape's verifier exposes an IMPORTABLE, SOURCE-FREE guard for a table member,
 that guard SHALL be called on the record with `m` removed and asserted to
@@ -357,7 +362,7 @@ not the thing that happens when nobody decides.
 
 #### Scenario: The per-shape table and the shape's own guards disagree
 - **WHEN** the per-shape required-member table is checked against a real `pinned_contract_manifest` record, member by member over that record's own top-level members
-- **THEN** the RECORD LEG MUST hold: the adapter accepts the record; it refuses the record with any member of the table removed and NAMES that member; and it still accepts the record with any top-level member NOT in the table removed
+- **THEN** the RECORD LEG MUST hold: the adapter accepts the record; it refuses the record with any member of the table removed and NAMES that member; and it still accepts the record with any top-level member removed that is neither in the table nor the `kind:` discriminator, that discriminator being the precondition gated on before any shape is selected rather than a member of any shape's table
 - **AND** the GUARD LEG MUST hold: where the shape's verifier exposes an importable, source-free guard for a table member, that guard MUST be called on the record with the member removed and MUST refuse
 - **AND** where a table member's refusal is reachable only inside the verifier's full `verify()` and cannot be run source-free, the table entry MUST instead carry a MEASURED CITATION in the adapter's source — script, line and refusal text quoted — and the test MUST assert that the cited line of that script still holds that text, reading the verifier rather than running it
 - **AND** a table NARROWER than its guards MUST fail that test, since it would admit on a fixture or side run a record the repository's own required check refuses at its first shape check
@@ -382,6 +387,7 @@ not the thing that happens when nobody decides.
 - **THEN** the deterministic health pass MUST NOT execute, import or open that path
 - **AND** the completeness judgement MUST be made by ONE shared, pure, non-executing adapter — the resolver's own module or one shared helper module beside it — which reads the record and nothing else
 - **AND** where the record's `verify_pin:` value differs from what that adapter holds for `<pin-id>`, the pass MUST report that disagreement as a finding rather than follow the record
+- **AND** that finding MUST stand BESIDE the resolution rather than in place of it: `verify_pin:` is not a prerequisite of resolution, so a record complete for its record shape still resolves while the disagreement is reported
 
 #### Scenario: A pin path resolves outside the contracts directory
 - **WHEN** the candidate pin-record path for `<pin-id>` resolves outside the `contracts/` directory of the root it was resolved against, whether by symlink or otherwise

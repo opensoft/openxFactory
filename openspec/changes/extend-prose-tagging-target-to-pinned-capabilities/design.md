@@ -208,7 +208,9 @@ a later change, on evidence that a stale supersedes target exists.
    table is neither, and **the realization PINS it there with a TWO-LEG
    EQUIVALENCE TEST** (task 3.3(p)): a RECORD leg — the adapter accepts each
    real record, refuses it naming `m` for each `m` IN the table, and still
-   accepts it for each top-level member NOT in the table — and a GUARD leg,
+   accepts it for each top-level member that is neither in the table nor the
+   `kind:` discriminator, that discriminator being the precondition gated on
+   before any shape is selected — and a GUARD leg,
    which holds the table to the VERIFIERS rather than to itself, by calling each
    verifier's IMPORTABLE, SOURCE-FREE guard on the record minus `m`, or, where a
    member's refusal is reachable only inside `verify()`, by a MEASURED CITATION
