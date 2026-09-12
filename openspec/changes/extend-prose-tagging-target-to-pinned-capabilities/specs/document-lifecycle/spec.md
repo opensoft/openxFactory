@@ -69,10 +69,20 @@ be reported with a finding NAMING THE FAILING MEMBER and MUST NOT resolve a
 pinned target, so neither a file added to `contracts/` carrying only `kind:`
 nor one carrying a kind and a partial member set can make an arbitrary pinned
 target resolve. WHERE THAT LIST LIVES IS THE POINT: it is
-`neutral-product-pin`'s, read from that capability's text, and a second list
-held in the marker grammar would drift from it the first time that capability
-admits a revision kind or a member — of two lists the WEAKER is always the one
-that admits.
+`neutral-product-pin`'s, read from that capability's text — and THE CODE-FIXED
+VALIDATOR HOLDS THE MACHINE READING OF THAT TEXT, a per-revision-kind
+required-member table reviewed with the resolver at authoring time, covering
+every `revision_kind` value this tree's `pinned_contract_manifest` records
+carry today (`commit` and `package_integrity`, measured); that table is not a
+SECOND, independently-authored list — it is not restated as PROSE in this
+requirement, where a restatement could drift unreviewed, but the code that
+applies `neutral-product-pin`'s own text is not thereby forbidden from
+encoding it. Of two INDEPENDENTLY-AUTHORED lists the WEAKER is always the one
+that admits, which is why this requirement fixes the source of the table
+rather than forbidding the table. A record declaring a `revision_kind` the
+table does not recognize MUST be reported as an invalid pin: an unrecognized
+kind is a deferred case, and Principle VII requires it fail closed rather than
+resolve on the strength of an unfamiliar label.
 
 THE COMPLETENESS JUDGEMENT SHALL BE REACHED THROUGH A CODE-FIXED ROUTE, AND
 THE PASS SHALL NOT EXECUTE, IMPORT OR OPEN ANY PATH SELECTED BY THE RECORD
@@ -195,7 +205,7 @@ not the thing that happens when nobody decides.
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but lacks a member `neutral-product-pin` requires for its revision kind — no `revision_kind`, a `revision_kind` without its required referent, or a required member of that kind missing or malformed
 - **THEN** the deterministic health pass MUST report it as an invalid pin, naming the failing member and the root it resolved against
 - **AND** the target MUST NOT resolve on the strength of the declared kind
-- **AND** the pass MUST reach that judgement through a code-fixed route rather than a member list restated in this grammar
+- **AND** the pass MUST reach that judgement through a code-fixed route — a per-revision-kind required-member table read from `neutral-product-pin`'s ratified text and reviewed with the resolver, held in the validator rather than restated as prose in this requirement
 
 #### Scenario: A pin record names the code that would judge it
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `verify_pin:` member naming an arbitrary path in the checkout

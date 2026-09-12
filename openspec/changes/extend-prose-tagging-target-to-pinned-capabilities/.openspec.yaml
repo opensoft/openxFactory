@@ -12,7 +12,8 @@ origin:
     at lines 222, 242 and 280, and
     `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md`
     at line 107, each `unresolved target=openxwallet`. The checker emits one
-    fixed remedy for all four (`scripts/doc_health/families.py:1366-1369`):
+    fixed remedy for all four (`scripts/doc_health/families.py:1523-1524`,
+    measured on `origin/main` at `177ba819`):
     "name a capability under openspec/specs/ or an active change
     (document-lifecycle grammar)". That text says what a VALID target looks
     like; it cannot say which capability is faithful to any one of these four
@@ -32,15 +33,17 @@ origin:
     capability which now lives in a pinned neutral product — and that is a
     change, not an edit."
     THE OWED SUCCESSOR IS ON THE HOUSE REGISTER AND HAS NEVER BEEN OPENED.
-    `README.md:6828-6832` carries it as numbered item (7) of the
-    `split-openxwallet-repo` archived-ledger entry: "**A prose-tagging target
+    `README.md:7075` carries it as numbered item (7) of the
+    `split-openxwallet-repo` archived-ledger entry, on `origin/main` at
+    `177ba819` (this branch's own copy sits at a different line, `7061`, since
+    main gained unrelated content first): "**A prose-tagging target
     form for a capability that has left the corpus** — added at the archive
     itself, because the act produced it". A corpus-wide search for that item's
     own wording returns only the one README passage: no proposal, no staged
     topic, no active or archived change picks it up. This packet is that
     change, and it is the first.
     THE GRAMMAR IS SILENT, NOT MERELY UNHELPFUL.
-    `docs/document-lifecycle.md:183-185` defines only what a valid target IS —
+    `docs/document-lifecycle.md:182-183` defines only what a valid target IS —
     "`<capability>` is a spec capability id under `openspec/specs/` (or in an
     active change's `specs/` while the capability is pre-promotion)" — and
     neither that section nor any other sentence of that document says what a
@@ -110,4 +113,4 @@ origin:
 related:
   - openxFactory:change:archive/2026-08-28-split-openxwallet-repo   # THE CAUSE and the SOURCE OF THE ASK: its `tasks.md:1770-1786` measured the four findings, rejected both mechanical fixes, and named this grammar extension as the honest one; its README archived-ledger entry carries the owed successor as numbered item (7). ARCHIVED — no `sequenced_after` is owed or declared
   - openxFactory:change:archive/2026-07-09-concretize-prose-tagging-syntax  # THE GRAMMAR THIS PACKET EXTENDS: the change that concretized the `xspec:` marker syntax `docs/document-lifecycle.md` now carries and `families.py` transcribes by reference
-  - openxFactory:change:archive/2026-08-15-add-staged-topic-outline-template # Why the affected prose is fenced at all: a conforming staged fragment wraps its proposal-element sections in the same ratified `xspec:` grammar, which is how three of the four markers came to exist
+  - openxFactory:change:archive/2026-08-21-add-staged-topic-outline-template # Why the affected prose is fenced at all: a conforming staged fragment wraps its proposal-element sections in the same ratified `xspec:` grammar, which is how three of the four markers came to exist

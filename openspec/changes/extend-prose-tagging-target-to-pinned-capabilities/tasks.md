@@ -81,9 +81,21 @@ the later realization pull request, and § 4 is the archive act.
   touched. `docs/document-lifecycle.md` is not touched. The four `tag-hygiene`
   findings stand at FOUR, unchanged.
 - [x] 2.6 **NO BOX ANYWHERE ELSE IS TICKED.** Item (7) of the
-  `split-openxwallet-repo` archived-ledger entry (`README.md:6828-6832`) is NOT
-  edited by this pull request and no tick is claimed on it; the archived packet
-  is not edited at all, under the archived-record rule.
+  `split-openxwallet-repo` archived-ledger entry (`README.md:7075` on
+  `origin/main` at `177ba819`) is NOT edited by this pull request and no tick is
+  claimed on it; the archived packet is not edited at all, under the
+  archived-record rule.
+- [x] 2.7 The two `## MODIFIED` blocks against `document-lifecycle` and
+  `doc-health` each carry one clause that diverges from canon (a
+  `modified-block-currency` `info` divergence apiece), so
+  `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+  `_LEDGER_SUBJECTS` carriage ledger gains the two rows its own self-gate
+  requires of them: `("extend-prose-tagging-target-to-pinned-capabilities",
+  "doc-health", "Tag hygiene enforced by reference")` and
+  `("extend-prose-tagging-target-to-pinned-capabilities", "document-lifecycle",
+  "Prose tagging marker hygiene")`. Both rows are bookkeeping the self-gate
+  requires of ANY filing that opens a divergence against a promoted block, not
+  test implementation for the pinned-target arm the realization proposes.
 
 ## 3. Realization — a LATER pull request, after ratification
 
@@ -98,9 +110,15 @@ the later realization pull request, and § 4 is the archive act.
   keyed by admitted pin id, under which a record's differing `verify_pin:` value
   is itself a controlled finding — and it NEVER executes, imports or opens a
   path a pin record selects, `verify_pin:` being data the arm may compare and
-  MUST NOT follow. It RESTATES NO MEMBER LIST inside the family, reading
-  `neutral-product-pin`'s instead, since of two lists the weaker is always the
-  one that admits. It resolves the pin record under EXACTLY the root precedence
+  MUST NOT follow. The validator HOLDS a per-revision-kind required-member
+  table, reviewed with the resolver at authoring time — the machine reading of
+  `neutral-product-pin`'s ratified text (`:31-36` for the `commit` revision
+  kind; `:46-48`, `:62-65` and `:669-673` for the `package_integrity` one) and
+  not a second, independently-authored list: of two independently-authored
+  lists the weaker is always the one that admits, which is why the table
+  tracks that text rather than restating it as a competing definition. A
+  record declaring a `revision_kind` the table does not recognize is an
+  invalid pin (task 3.3(l)). It resolves the pin record under EXACTLY the root precedence
   the in-tree arm already uses — the document's own repository root, then the
   `openxFactory` root (`_resolve_capability`,
   `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`,
@@ -108,7 +126,8 @@ the later realization pull request, and § 4 is the archive act.
   NAMES THE ROOT it resolved against in every finding the arm emits.
 - [ ] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
-  (`families.py:1367-1368`) is the wrong instruction for this class. The
+  (`families.py:1523-1524`, measured on `origin/main` at `177ba819`) is the
+  wrong instruction for this class. The
   in-tree non-resolution arm must not judge a pinned target at all: a
   well-formed `pinned:` value exists under no `openspec/specs/` directory, so
   an unnarrowed in-tree arm would report every one of them.
@@ -148,7 +167,16 @@ the later realization pull request, and § 4 is the archive act.
   upper-case or empty component — emits a malformed-pinned-target finding, and
   the test asserts NO pin-record path was constructed and NO file was read for
   it, since validating after building a path is the defect this case exists to
-  prevent; **(i)** in-tree resolution is unchanged; **(k)** a
+  prevent; **(i)** in-tree resolution is unchanged; **(j)** EVERY NEW ACTION
+  STRING the arm introduces is added to the pinned table at
+  `tests/doc-health/test_families.py:751` (`EXPECTED_ACTIONS`, asserted by
+  `test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim`
+  through `assert_actions_pinned`, which requires the expected set to equal the
+  statically-present and behaviourally-emitted set EXACTLY, in both
+  directions). That table is where this family's remedy wording is held, so a
+  new arm that does not update it turns the suite red — and it is also what
+  stops the pin-registry remedy of (b) and the candidate-`target=` remedy of
+  (e) from drifting back to the in-tree string later; **(k)** a
   `contracts/<pin-id>-pin.yaml` that EXISTS but is corrupt — invalid YAML, a
   non-mapping document, or a mapping with no `kind` — becomes a controlled
   tag-hygiene finding and the pinned target naming it does not resolve, with
@@ -167,10 +195,11 @@ the later realization pull request, and § 4 is the archive act.
   presence of `revision_kind` and never check its referent — AND, per revision
   kind, one MISSING and one INVALID case for each secondary field the canonical
   shape requires: for a SOURCE pin the `files:` and `pinned_by_commit_only:`
-  completeness claims (`openspec/specs/neutral-product-pin/spec.md:31-38`),
+  completeness claims (`openspec/specs/neutral-product-pin/spec.md:31-36`),
   absent in the first case and malformed in the second (a non-sequence, or an
   entry carrying no `sha256`); for a PUBLISHED-ARTIFACT pin the `version`,
-  `shasum` and vendored `lockfile` beside its `integrity` (`:56-64`), likewise
+  `shasum` and vendored `lockfile` beside its `integrity`
+  (`:46-48`, `:62-65`, `:669-673`), likewise
   absent and malformed. The case that names the hole this list closes is
   `contracts/evil-pin.yaml` carrying `kind`, `revision_kind: commit` and a
   well-formed `commit` and NOTHING ELSE: it satisfies a top-level-referent
@@ -179,24 +208,7 @@ the later realization pull request, and § 4 is the archive act.
   admits owes a case here on the same rule and arrives through THAT capability's
   text rather than through a list restated in this family, so a file added
   to `contracts/` cannot admit an arbitrary pinned target by carrying a label or
-  a partial member set; **(n)** NON-USE, asserted directly: a record whose
-  `verify_pin:` member names an ARBITRARY IN-TREE PATH has that path NEVER
-  opened, imported or run — asserted by instrumenting the read/import/exec
-  surface, not by reading a finding text, since the boundary is that the path is
-  not touched — and the record's verdict is UNCHANGED by that member's value: a
-  record complete for its revision kind still RESOLVES, since `verify_pin:` is
-  neither part of the required shape nor a resolution prerequisite, and a test
-  that refused such a record would encode the opposite of D-2 and reject valid
-  pins. ONLY where the realization picks D-2's form (b) does a `verify_pin:`
-  value that differs from the module's dispatch-table entry emit the
-  disagreement finding, which is a case of route (b) alone and is not asserted
-  against route (a); **(o)** the CROSS-REPOSITORY case, an aggregate
-  fixture with TWO roots: (i) the pin record exists only in the `openxFactory`
-  root and a document of the other repository names it — the target resolves by
-  the fallback and the finding or log NAMES that root; (ii) both roots carry a
-  record for the same `<pin-id>` — the DOCUMENT'S OWN repository's record is the
-  one read. Without (o) the arm can pass every single-root test and still make
-  the same marker resolve differently depending on how doc-health was invoked; **(m)** the candidate pin path is RESOLVED and refused unless it stays
+  a partial member set; **(m)** the candidate pin path is RESOLVED and refused unless it stays
   inside THE RESOLVING REPOSITORY ROOT'S `contracts/` directory, with TWO escape
   cases and not one: a symlinked `contracts/<pin-id>-pin.yaml` resolving OUTSIDE
   the repository, and one resolving INSIDE the repository but OUTSIDE
@@ -213,16 +225,24 @@ the later realization pull request, and § 4 is the archive act.
   root cannot speak for the doc-health fixture and aggregate roots this family
   runs against. So the realization parameterizes that helper or extracts a
   shared one both call, and the two cases above are what prove it;
-  **(j)** EVERY NEW ACTION
-  STRING the arm introduces is added to the pinned table at
-  `tests/doc-health/test_families.py:751` (`EXPECTED_ACTIONS`, asserted by
-  `test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim`
-  through `assert_actions_pinned`, which requires the expected set to equal the
-  statically-present and behaviourally-emitted set EXACTLY, in both
-  directions). That table is where this family's remedy wording is held, so a
-  new arm that does not update it turns the suite red — and it is also what
-  stops the pin-registry remedy of (b) and the candidate-`target=` remedy of
-  (e) from drifting back to the in-tree string later.
+  **(n)** NON-USE, asserted directly: a record whose
+  `verify_pin:` member names an ARBITRARY IN-TREE PATH has that path NEVER
+  opened, imported or run — asserted by instrumenting the read/import/exec
+  surface, not by reading a finding text, since the boundary is that the path is
+  not touched — and the record's verdict is UNCHANGED by that member's value: a
+  record complete for its revision kind still RESOLVES, since `verify_pin:` is
+  neither part of the required shape nor a resolution prerequisite, and a test
+  that refused such a record would encode the opposite of D-2 and reject valid
+  pins. ONLY where the realization picks D-2's form (b) does a `verify_pin:`
+  value that differs from the module's dispatch-table entry emit the
+  disagreement finding, which is a case of route (b) alone and is not asserted
+  against route (a); **(o)** the CROSS-REPOSITORY case, an aggregate
+  fixture with TWO roots: (i) the pin record exists only in the `openxFactory`
+  root and a document of the other repository names it — the target resolves by
+  the fallback and the finding or log NAMES that root; (ii) both roots carry a
+  record for the same `<pin-id>` — the DOCUMENT'S OWN repository's record is the
+  one read. Without (o) the arm can pass every single-root test and still make
+  the same marker resolve differently depending on how doc-health was invoked.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.

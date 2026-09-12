@@ -128,7 +128,7 @@ a later change, on evidence that a stale supersedes target exists.
 **Decision.** Resolution of `pinned:<pin-id>/<capability>` has two arms:
 
 1. **The pin id MUST resolve TO A NEUTRAL-PRODUCT PIN, and not to any
-   pin-shaped file.** `<pin-id>` resolves when this repository carries
+   pin-shaped file.** `<pin-id>` resolves when the RESOLUTION ROOTS carry
    `contracts/<pin-id>-pin.yaml` declaring **`kind: pinned_contract_manifest`**
    — the shape `neutral-product-pin` names in its own words: "`openxFactory`
    SHALL declare its consumption of an EXTERNAL neutral product in
