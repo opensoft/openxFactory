@@ -101,6 +101,28 @@ def test_a_multi_line_declaration_is_read_from_its_first_word():
         == "contract-v1.45"
 
 
+def test_a_running_sentence_has_its_first_word_for_a_token():
+    """D2a: the SIXTH carrier the sweep reached wrote no token at all — the
+    declaration opens as a running sentence, so the value token is the article
+    it begins with. The reader supplies nothing and guesses nothing; it reports
+    what is there, which is what makes the refusal legible to the author."""
+    assert tr.value_token(
+        "a code surface (in codexFactory), so per `release-realization` this "
+        "packet archives ONLY on merged + green realization evidence."
+    ) == "a"
+
+
+def test_the_swept_form_is_a_token_then_an_em_dash_gloss():
+    """...and the correction D2a applies — the token the author's own gloss
+    already means, prefixed before that gloss verbatim after an em dash — reads
+    as `implemented` and nothing else. The gloss is never judged."""
+    assert tr.value_token(
+        "implemented — a code surface (in codexFactory), so per "
+        "`release-realization` this packet archives ONLY on merged + green "
+        "realization evidence."
+    ) == "implemented"
+
+
 def test_an_empty_declaration_has_no_token():
     assert tr.value_token("") is None
     assert tr.value_token("   ") is None
@@ -466,6 +488,32 @@ def test_an_archived_traversing_token_is_counted_and_never_judged(tmp_path):
     result = _run(tmp_path, _register(tmp_path))
     assert result.returncode == 0, result.stdout + result.stderr
     assert "1 of them outside the vocabulary" in result.stdout
+
+
+def test_an_active_declaration_with_no_leading_token_is_refused_end_to_end(
+        tmp_path):
+    """THE SIXTH CARRIER'S DEFECT, END TO END (`design.md` D2a). A declaration
+    written as prose with no vocabulary token is refused like any other value
+    outside the vocabulary, and the run names the article as the value it
+    carries, so the author can see what the reader read."""
+    _proposal(tmp_path, "a-packet",
+              "target_release: a code surface (in codexFactory), so per\n"
+              "  `release-realization` this packet archives ONLY on merged +\n"
+              "  green realization evidence.")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "`a` is outside the ratified vocabulary" in result.stdout
+
+
+def test_the_corrected_form_of_that_declaration_passes(tmp_path):
+    """...and the one-token correction the sweep applied makes the same tree
+    exit 0, with the author's gloss carried after the em dash untouched."""
+    _proposal(tmp_path, "a-packet",
+              "target_release: implemented — a code surface (in codexFactory),\n"
+              "  so per `release-realization` this packet archives ONLY on\n"
+              "  merged + green realization evidence.")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 # --- the register -------------------------------------------------------------

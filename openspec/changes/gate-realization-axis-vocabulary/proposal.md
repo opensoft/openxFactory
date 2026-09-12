@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `scripts/target_release.py` (NEW, the reader and judge), `scripts/validate-target-release.py` (NEW, the house validator CLI), `scripts/target-release-register.yaml` (NEW, the closed grandfather register) and `tests/target_release/test_target_release_gate.py` (NEW, 70 tests) that pin them. NOTHING EXISTING IS EDITED IN THE CODE SURFACE: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema and no report field. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. Beside the code, the SAME pull request corrects FIVE active proposals' `target_release:` VALUE TOKEN (`none` → `implemented`, every prose gloss preserved verbatim, one line per file, five lines in all) — see `design.md` D2.
+code_surface: openxFactory — `scripts/target_release.py` (NEW, the reader and judge), `scripts/validate-target-release.py` (NEW, the house validator CLI), `scripts/target-release-register.yaml` (NEW, the closed grandfather register) and `tests/target_release/test_target_release_gate.py` (NEW, 74 tests) that pin them. NOTHING EXISTING IS EDITED IN THE CODE SURFACE: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema and no report field. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. Beside the code, the SAME pull request corrects SIX active proposals' `target_release:` VALUE TOKEN (five `none` → `implemented`, and one declaration that carried no leading token at all — the running sentence whose first word is the article `a` → `implemented`; every prose gloss preserved verbatim, one line per file, six lines in all) — see `design.md` D2 and D2a.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed — deliberately, and the register says so in its own header: an exception file that could not be edited without cutting a contract release would be edited late or not at all. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet realizes through its own task list in this pull request and its realization evidence is that pull request's green `pytest-suite` run at the tree the merge carries.
 sequenced_after: []
 ---
@@ -84,7 +84,7 @@ treated it as sloppiness would be wrong twelve times.
 ## What changes
 
 **ONE `## ADDED Requirement`, ONE HOUSE VALIDATOR, ONE CLOSED REGISTER, AND A
-FIVE-LINE CORRECTION.**
+SIX-LINE CORRECTION.**
 
 1. **`### Requirement: Realization axis vocabulary is gated`** — ADDED to
    `release-realization`. Its first line: *"An ACTIVE change proposal's
@@ -107,8 +107,13 @@ FIVE-LINE CORRECTION.**
    pull request does not correct, each with its value token, its class, its
    reason, its citation and the event that retires it. **CLOSED**: an entry may
    be removed, never added, because admitting a new value is a canon act.
-4. **The five `none` carriers corrected**, one value token each, glosses
-   preserved verbatim (`design.md` D2).
+4. **The six off-vocabulary carriers corrected**, one value token each,
+   glosses preserved verbatim — the five `none` carriers `design.md` D2 names,
+   and `amend-kill-switch-to-declared-test-companion`, which `origin/main`
+   acquired after D2 was drafted (pull request #959, 2026-09-11T17:19:09Z) and
+   which declares no leading token at all. D2's ruled option is a sweep of the
+   corpus as it stands at the head the sweep lands on; `design.md` D2a records
+   the sixth, its class, and why `implemented` is the author's own meaning.
 
 **NO `## MODIFIED` BLOCK, AND THAT IS THE POINT OF THE SHAPE.**
 `add-structured-scope-substrate` is ACTIVE and ratified and already holds a
@@ -124,24 +129,27 @@ novel title owes none of it and edits no promoted byte.
 
 | tree | exit | active | `implemented` | named release | registered | **refused** |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `origin/main` `ac688c40`, no gate present | **1** | 40 | 11 | 3 | 21 | **5** |
+| `origin/main` `1f068646`, no gate present | **1** | 40 | 10 | 3 | 21 | **6** |
 | THIS tree, after | **0** | 41 | 17 | 3 | 21 | **0** |
 
 Both rows are the SAME validator pointed at two trees, re-measured last at
-this packet's head, so the only difference between them is the tree, and the
-`after` row is reproducible by running the command above here. **The `+1`
-active is this packet's own `proposal.md`**, which declares
-`target_release: implemented` and is judged by its own gate like every other
-active change. **The `+6` `implemented`** is that same `+1` plus **`+5`**: the
-five `none` carriers this pull request corrects to `implemented` (D2) are
-still `none` — and so still counted `refused` — on `origin/main`, which never
-received this packet's sweep. `tasks.md` § 4.1 carries the same two rows.
+this packet's ratified head (the merge of `origin/main` `1f068646`), so the
+only difference between them is the tree, and the `after` row is reproducible
+by running the command above here. **The `+1` active is this packet's own
+`proposal.md`**, which declares `target_release: implemented` and is judged by
+its own gate like every other active change. **The `+7` `implemented`** is that
+same `+1` plus **`+6`**: the six carriers this pull request corrects to
+`implemented` (D2, D2a) are still off-vocabulary — and so still counted
+`refused` — on `origin/main`, which never received this packet's sweep.
+`tasks.md` § 4.1 carries the same two rows.
 
-The five refused before are exactly the five corrected: `add-composed-view-authoring`,
+The six refused before are exactly the six corrected: `add-composed-view-authoring`,
 `add-cpc-clearing-boundary`, `add-lens-document-selection`,
-`add-substantive-review-lane`, `register-gate-rules-council-seats`. The archive
-is read and counted on both sides and judged on neither: **161** archived
-proposals, **61** of them outside the vocabulary, **0** findings.
+`add-substantive-review-lane`, `register-gate-rules-council-seats` (the five
+`none` carriers) and `amend-kill-switch-to-declared-test-companion` (no leading
+token; `design.md` D2a). The archive is read and counted on both sides and
+judged on neither: **163** archived proposals, **61** of them outside the
+vocabulary, **0** findings.
 
 ## What this proposal does NOT do
 

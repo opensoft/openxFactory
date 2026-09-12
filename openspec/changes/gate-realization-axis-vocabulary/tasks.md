@@ -125,16 +125,27 @@ and openxFactory #956 closes THERE and not at this landing.
       answers-another-question 3, non-bundle-target 2), each with its value
       token, class, reason, citation and retirement event. CLOSED: removable,
       never addable. Not under `contracts/`, deliberately (`design.md` D4).
-- [x] 3.4 **THE FIVE `none` CARRIERS CORRECTED** — one value token per file,
-      every prose gloss preserved verbatim, five files and five lines in all:
+- [x] 3.4 **THE SIX OFF-VOCABULARY CARRIERS CORRECTED** — one value token per
+      file, every prose gloss preserved verbatim, six files and six lines in
+      all. The five `none` carriers `design.md` D2 names:
       `add-composed-view-authoring`, `add-cpc-clearing-boundary`,
       `add-lens-document-selection`, `add-substantive-review-lane`,
-      `register-gate-rules-council-seats`. The custody check is in `design.md`
-      D2: `record-immutability` binds `Status: record` documents only, and
-      neither *Origin retention at archive* nor *Scope retention at archive*
-      reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **70 tests**,
-      counted last from a collected run of the file) — the token rule (5),
+      `register-gate-rules-council-seats`. And the SIXTH, which `origin/main`
+      acquired after D2 was drafted and this branch took at its merge of
+      `1f068646` (§ 3.18):
+      `amend-kill-switch-to-declared-test-companion`, whose declaration
+      carried NO leading token at all — a running sentence, so the value token
+      was the article `a` — corrected to `implemented` before the author's own
+      gloss, carried verbatim after an em dash (`design.md` D2a; the gloss
+      itself says *"No contract bundle is cut … and NO RELEASE TAG IS OWED"*,
+      which is what `implemented` means). The custody check is in `design.md`
+      D2 and covers the sixth unchanged: `record-immutability` binds
+      `Status: record` documents only, and neither *Origin retention at
+      archive* nor *Scope retention at archive* reaches `target_release:`.
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **74 tests**,
+      counted last from a collected run of the file) — the token rule (7,
+      including the two § 3.18 adds: a running sentence's first word IS its
+      token, and the swept form — token, em dash, gloss — reads as the token),
       reading the declaration including a strict-loader refusal, **a
       repeated declaration refused rather than half-read, and an INDENTED
       gloss line that is a gloss and not a repeat** (8), release
@@ -162,7 +173,8 @@ and openxFactory #956 closes THERE and not at this landing.
       EXISTING TEST IS EDITED, FLIPPED OR DELETED (ONE RENAMED, a typo)** —
       the fourteen added by § 3.7, the eight added by § 3.9, the five added
       by § 3.10, the three added by § 3.11, the three added by § 3.14, the
-      three added by § 3.15 and the two added by § 3.17 join the file,
+      three added by § 3.15, the two added by § 3.17 and the four added by
+      § 3.18 join the file,
       `_entry()` gains the citation the loader now requires,
       `test_a_symlinked_registry_directorys_contents_grant_no_extra_trust`
       is renamed (§ 3.17 (b), a dropped apostrophe) to
@@ -433,6 +445,41 @@ and openxFactory #956 closes THERE and not at this landing.
       `origin/main ac688c40` exit 1 (40 active, 5 outside, the same five
       carriers).
 
+- [x] 3.18 **THE MERGE OF `origin/main` `1f068646`, AND THE SIXTH CARRIER IT
+      BROUGHT WITH IT — D2's RULED SWEEP, MEASURED AT THE HEAD IT LANDS ON**
+      (`design.md` D2a). The branch was CONFLICTING against `main` at the
+      ruling; merged at `fb55c9e9`, README `## OpenSpec Records` resolved by
+      hand (this packet's row kept at the head of Active changes, `main`'s
+      `amend-kill-switch-to-declared-test-companion` row kept beneath it
+      verbatim, no other row touched), the sequenced-after corpus ledger
+      auto-merged with both sides' rows intact (204 rows, `--ledger-diff` exit 0). **The merge made
+      the gate RED, which is the gate working:**
+      `python3 scripts/validate-target-release.py .` exit 1 —
+      *"41 active proposals, 41 declaring — 16 `implemented`, 3 a named
+      release, 21 named by the register, 1 outside the vocabulary"*, naming
+      the path
+      `openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md`
+      and the value `a` it carries, and
+      `test_corpus_target_release_validates` failed with it (**1 failed, 69
+      passed**). That packet landed on `main` with pull request #959 at
+      2026-09-11T17:19:09Z, AFTER D2 was drafted against a corpus that did not
+      contain it. Brett Heap's D2 ruling is **"Sweep in this PR"** — the
+      corpus as it stands — so the sixth was swept here by the same one-token
+      correction, `a` → `implemented` before the author's own gloss, carried
+      verbatim after an em dash. Registering it instead was not available: the
+      register is CLOSED by D1's ruled option ("Keep and gate"), an entry may
+      be removed and never added. RE-MEASURED after: **exit 0** — *"41 active
+      proposals, 41 declaring — 17 `implemented`, 3 a named release, 21 named
+      by the register, 0 outside the vocabulary"*. FOUR tests added for the
+      class the merge exposed (§ 3.5; `pytest tests/target_release -q` —
+      **74 passed**, 70 → 74): the value token of a running sentence IS its
+      first word (the article), the swept form reads as `implemented`, and the
+      same two end to end — the prose declaration refused with the article
+      named in the finding, its corrected form exit 0. The race is disclosed
+      rather than closed (`design.md` D2a): a proposal landing on `main`
+      before this packet merges can add a seventh, and the remedy is the same
+      one-token correction, re-measured at that head.
+
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
 **EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
@@ -444,27 +491,28 @@ and its own output quoted.
       "before" tree to `origin/main` `38c076d1` and the "after" figures to an
       earlier commit's count, both stale the moment either tree moved — the
       REMEDY IS NOT TO FREEZE A SHA HERE BUT TO RE-MEASURE AT EACH
-      RE-RECORDING, which this entry now does).** Before: **exit 1** against a
-      fresh `origin/main` `ac688c40` checkout — *"40 active proposals, 40
-      declaring — 11 `implemented`, 3 a named release, 21 named by the
-      register, 5 outside the vocabulary"*, the five named by path (the same
-      five D2 corrects). After, on THIS tree at its own head: **exit 0** —
-      *"41 active proposals, 41 declaring — 17 `implemented`, 3 a named
-      release, 21 named by the register, 0 outside the vocabulary"*, with
-      *"archive (read, never judged): 161 proposals, 61 of them outside the
-      vocabulary"* on both sides. Both runs are the SAME validator pointed at
-      two trees, so the only difference between them is the tree. The `+1`
-      active is this packet's own `proposal.md` (`implemented`); the `+6`
-      `implemented` is that same `+1` plus the `+5` from the sweep (D2) —
-      `origin/main` never received it, so the five carriers still count
-      `refused` there.
+      RE-RECORDING, which this entry now does).** RE-MEASURED AT THE RATIFIED
+      HEAD, on the merge of `origin/main` `1f068646`. Before: **exit 1**
+      against a fresh `origin/main` `1f068646` worktree — *"40 active
+      proposals, 40 declaring — 10 `implemented`, 3 a named release, 21 named
+      by the register, 6 outside the vocabulary"*, the six named by path (the
+      same six D2 corrects, `design.md` D2a). After, on THIS tree at its own
+      head: **exit 0** — *"41 active proposals, 41 declaring — 17
+      `implemented`, 3 a named release, 21 named by the register, 0 outside
+      the vocabulary"*, with *"archive (read, never judged): 163 proposals, 61
+      of them outside the vocabulary"* on both sides. Both runs are the SAME
+      validator pointed at two trees, so the only difference between them is
+      the tree. The `+1` active is this packet's own `proposal.md`
+      (`implemented`); the `+7` `implemented` is that same `+1` plus the `+6`
+      from the sweep (D2, D2a) — `origin/main` never received it, so the six
+      carriers still count `refused` there.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate
       gate-realization-axis-vocabulary --strict` (PATH CLI **1.2.0**) —
       **exit 0**, *"Change 'gate-realization-axis-vocabulary' is valid"*.
 - [x] 4.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
-      `Totals: 99 passed, 2 failed (101 items)`. The failure set is IDENTICAL
-      to `origin/main` `38c076d1`'s, taken in the same shell from a worktree of
-      it (`Totals: 98 passed, 2 failed (100 items)`):
+      `Totals: 101 passed, 2 failed (103 items)`. The failure set is IDENTICAL
+      to `origin/main` `1f068646`'s, taken in the same shell from a worktree of
+      it (`Totals: 100 passed, 2 failed (102 items)`):
       `change/disposition-codexfactory-declared-renames` and
       `change/disposition-codexfactory-floor-relocation-retitle`. This change
       is in neither set and the item count moves by exactly one.
@@ -474,7 +522,7 @@ and its own output quoted.
       `@fission-ai/openspec@1.12.0` verified against its content address, its
       80-package closure installed with `npm ci --ignore-scripts`,
       `Totals: 1 passed, 0 failed (1 items)`. The gate's literal
-      `--all --no-cache` — **exit 0**, `Totals: 99 passed, 2 failed (101
+      `--all --no-cache` — **exit 0**, `Totals: 101 passed, 2 failed (103
       items)`, *"every target validated --strict with 0 UNDISPOSITIONED
       failures"*, the two being the PRE-EXISTING accepted exceptions
       `add-chain-attestation` and `add-composed-view-authoring`, neither of
@@ -483,8 +531,8 @@ and its own output quoted.
       gate-realization-axis-vocabulary` — **exit 0**, *"proposal support
       verification ok"*.
 - [x] 4.6 `python3 scripts/validate-sequenced-after.py .` — **exit 0**,
-      *"39 active changes, 9 declaring the field"*, both archive-date arms
-      passing.
+      *"41 active changes, 11 declaring the field"*, both archive-date arms
+      passing (re-measured at the ratified head, § 3.18).
 - [x] 4.7 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       *"scope_globs validation passed (all active changes conform)"*.
 - [x] 4.8 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
@@ -498,7 +546,9 @@ and its own output quoted.
       each moving by exactly one. SEEDED in `13ff6162` with
       `--seed-ledger --moved-by '#963'`; after it, `python3
       scripts/validate-sequenced-after.py . --ledger-diff` — **exit 0**,
-      *"per-change sweep ledger consistent with the corpus (200 rows)"*, with
+      *"per-change sweep ledger consistent with the corpus (204 rows)"* at the
+      ratified head (200 at the seed; the merge of `origin/main` `1f068646`
+      brought the rest), with
       *"prose `Sequenced-after:` headers: 3 (3 archived)"* and *"DEEPEST
       DECLARED CHAIN RESOLVED: 4 hop(s)"*. Re-run on the tree as it now stands
       and still **exit 0**. (Ticked on the bench's word: the work landed in

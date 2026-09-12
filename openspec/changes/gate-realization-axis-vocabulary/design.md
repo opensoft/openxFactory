@@ -199,6 +199,78 @@ edit with no judgment in it — a standing exception for a defect that could be
 gone in the same commit — and an exception outlives the packet that needed it
 more easily than a correction does.
 
+### D2a — THE SWEEP AS PERFORMED, at the head this packet is ratified on: SIX carriers, not five
+
+**D2 WAS PUT AND RULED AS WRITTEN ABOVE; THIS SUBSECTION RECORDS WHAT THE
+RULED OPTION REACHED WHEN IT WAS EXECUTED, AND NOTHING ELSE.** Brett Heap's
+word of 2026-09-12T15:45Z takes D2 option 1 under the label **"Sweep in this
+PR"** — *the existing non-conforming spellings across the corpus are swept in
+this same pull request* — and a sweep's population is a fact about a TREE, so
+it is measured at the tree the sweep lands on, not at the tree the option was
+drafted against. That is D8e's and D8h's lesson applied before the fact rather
+than after it.
+
+Measured on this branch at the merge of `origin/main` `1f068646` (merge commit
+`fb55c9e9`), by `python3 scripts/validate-target-release.py .`: **six** active
+declarations sit outside the vocabulary and outside the closed register — the
+five `none` carriers D2 names, and a SIXTH that `origin/main` acquired after
+D2 was drafted, when `amend-kill-switch-to-declared-test-companion` landed
+with pull request #959 on 2026-09-11T17:19:09Z.
+
+| change | before | after | class |
+| --- | --- | --- | --- |
+| add-composed-view-authoring | `none` | `implemented` | `none` carrier |
+| add-cpc-clearing-boundary | `none (no contract-bundle involvement — …` | `implemented (no contract-bundle involvement — …` | `none` carrier |
+| add-lens-document-selection | `none` | `implemented` | `none` carrier |
+| add-substantive-review-lane | `none (no contract-bundle involvement — …` | `implemented (no contract-bundle involvement — …` | `none` carrier |
+| register-gate-rules-council-seats | `none — no contract bundle is cut by openxFactory. …` | `implemented — no contract bundle is cut by openxFactory. …` | `none` carrier |
+| **amend-kill-switch-to-declared-test-companion** | `a code surface (in codexFactory), so per …` | `implemented — a code surface (in codexFactory), so per …` | **no leading token at all** |
+
+**THE SIXTH IS A DIFFERENT DEFECT FROM THE OTHER FIVE, AND THE CORRECTION IS
+THE SAME SIZE.** The other five wrote a token canon does not admit. This one
+wrote no token at all: the declaration opens as a running sentence, so the
+VALUE TOKEN — the first whitespace-delimited word — is the article `a`, which
+is why the gate names `` `a` `` in its refusal. The correction prefixes the
+token the author's own gloss already means and preserves every word of that
+gloss verbatim after an em dash, exactly as `register-gate-rules-council-seats`
+already reads.
+
+**THAT `implemented` IS THE AUTHOR'S OWN MEANING, NOT THIS LANE'S JUDGMENT,
+AND THE GLOSS SAYS SO IN ITS OWN WORDS:** *"No contract bundle is cut, nothing
+under `contracts/` moves, no `contract_bundle_version` is spent, no
+openxFactory CONTRACT digest set moves and NO RELEASE TAG IS OWED."* A packet
+that cuts no bundle and is owed no release tag realizes on the affected
+repositories' main lines — there, codexFactory's — and that is what
+`implemented` MEANS. D2's whole reason for holding that a lane which does not
+own a packet may still correct it is that there is no judgment in the
+correction; this one meets that bar on the declaration's own sentence. The
+custody check is D2's, unchanged: the packet is ACTIVE and `Status: ratified`,
+not `record`, so `record-immutability` does not bind it
+(`fam_record_immutability` skips any document whose status is not `record`);
+*Origin retention at archive* and *Scope retention at archive* reach
+`.openspec.yaml`'s `origin:` block and `scope_globs` and neither reaches
+`target_release:`; neither file is touched.
+
+**WHAT THE ALTERNATIVE WOULD HAVE BEEN, AND WHY IT IS NOT AVAILABLE.** Leaving
+the sixth uncorrected is not a neutral act here: the gate's live-corpus test
+`test_corpus_target_release_validates` reds the required `pytest-suite` while
+it stands, so the packet could not land. Registering it instead is refused by
+the register's own closure (D1: an entry may be REMOVED, never ADDED, because
+admitting a value is a canon act and not a validator edit) — the very rule the
+same word ratified under **"Keep and gate"**.
+
+**THE POPULATION AFTER THE SWEEP IS ZERO, RE-MEASURED AND NOT ASSERTED**: 41
+active proposals, 41 declaring — 17 `implemented`, 3 a named release, 21 named
+by the register, **0** outside the vocabulary; exit 0. `tasks.md` § 3.4, § 3.18
+and § 4.1 carry the runs.
+
+**THIS IS A LIVE-CORPUS RACE AND IT IS DISCLOSED RATHER THAN CLOSED.** Any
+proposal landing on `main` between this measurement and this packet's merge
+can add a seventh, and the remedy is the same one-token correction in this
+same pull request, re-measured at that head. The gate is what makes the race
+visible at all; before it, the divergence landed silently, which is what
+openxFactory #956 filed about.
+
 ## D3 — VETO POINT: how the gate resolves "a named release"
 
 **THE MEASUREMENT FORCED THIS ONE OPEN AND IT CANNOT BE DEFERRED, because the
@@ -372,7 +444,7 @@ this delta writes, the title being new to the capability.
 - **The ideation dashboard is not changed, and that it need not be is
   MEASURED.** `_release_frontmatter` returns the header string and
   `wheel.js:767-768` renders it; the snapshot schema types the field
-  `{type: [string, "null"]}` with no enum. So the five corrected values render
+  `{type: [string, "null"]}` with no enum. So the six corrected values render
   as themselves and no fixture asserts the old token for a real corpus change —
   `tests/ideation-dashboard`'s `none` fixtures are synthetic trees it builds
   itself, not the live corpus.
