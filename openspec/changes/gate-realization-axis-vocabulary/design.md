@@ -1,13 +1,29 @@
 # Design: gate-realization-axis-vocabulary
 
-Status: draft
+Status: ratified
+Ratified by: gate-realization-axis-vocabulary — 2026-09-12, Brett Heap, D1 "Keep and gate" / D2 "Sweep in this PR" / D3 "Resolve against the registry that exists" (record `review/ratification-2026-09-12.md`)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVE AND
 THE ALTERNATIVE'S COST.** Brett Heap's word of 2026-09-11T12:08:24Z — verbatim
 **"land each when green, archive both when landed, claim 955 and 956"** —
-commissioned the authoring and took none of them. **D1, D2 and D3 are the
-declared veto points.**
+commissioned the authoring and took none of them.
+
+**D1, D2 AND D3 WERE THE DECLARED VETO POINTS AND ALL THREE ARE NOW RULED.**
+Brett Heap ruled on 2026-09-12 at 15:45Z — three independent multiple-choice
+rulings, the recommendation presented first in each, recorded on openxFactory PR
+[#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
+at 2026-09-12T15:45:19Z; record `review/ratification-2026-09-12.md`. **D1 =
+"Keep and gate"**, not *"Admit none"* and not *"Rule none a synonym"*; **D2 =
+"Sweep in this PR"**, not *"Each owning lane sweeps"* and not *"Register all
+26"*; **D3 = "Resolve against the registry that exists"**, not *"Resolve
+literally"* and not *"Accept any release-shaped token"*. Each is the RECOMMENDED
+and already-encoded option, so **NOTHING IN THE DELTA, THE VALIDATOR OR THE
+REGISTER MOVES**; D0 and D4 through D7 were carried beside them and none was
+vetoed. The alternatives below are retained as the record of what was put and
+declined, not as work owed. What D2's ruled option REACHED when it was executed
+— six carriers at the ratified head, not the five the drafting corpus carried —
+is D2a, which is an account of the execution and not a fourth decision.
 
 ## 0. The brief
 
@@ -88,7 +104,19 @@ never judged, and the fixtures disagree with each other.**
 **THE ARCHIVE, READ AND NEVER JUDGED:** 161 archived `proposal.md`, **61** of
 them carrying a value outside the vocabulary.
 
-## D1 — VETO POINT: what canon does about a value outside its vocabulary
+## D1 — RULED: keep the two-value vocabulary exactly as ratified, and gate it
+
+**RULED 2026-09-12 BY BRETT HEAP — "Keep and gate"**, the RECOMMENDED option,
+against *"Admit none"* and *"Rule none a synonym"* (recorded on PR #963 at
+2026-09-12T15:45:19Z; record `review/ratification-2026-09-12.md`).
+**THE RECOMMENDATION WAS TAKEN, SO NOTHING THIS DECISION REACHES MOVES**: the
+one `## ADDED Requirements` block stands as authored, there is still no
+`## MODIFIED` block and therefore still no `sequenced_after` hold, and the
+21-entry register stays CLOSED — which is why the sixth carrier the merge
+brought in was SWEPT and could not be registered (D2a). Options 2 and 3 are
+retained below as the record of what was put and declined; neither was ever
+encoded and neither is work owed.
+
 
 **RECOMMENDED — OPTION 1: KEEP the two-value vocabulary exactly as ratified and
 GATE it, by ADDING one requirement.** One `## ADDED Requirements` block,
@@ -147,7 +175,19 @@ exposed, and it is a MODIFIED block with option 2's sequencing cost. It is named
 in `tasks.md` § 6 as a successor rather than smuggled in here, and the register's
 twelve `deferred-allocation` entries all retire on it.
 
-## D2 — VETO POINT: the sweep
+## D2 — RULED: the sweep, in this pull request
+
+**RULED 2026-09-12 BY BRETT HEAP — "Sweep in this PR"**, the RECOMMENDED
+option, against *"Each owning lane sweeps"* and *"Register all 26"* (recorded on
+PR #963 at 2026-09-12T15:45:19Z; record `review/ratification-2026-09-12.md`).
+**THE RECOMMENDATION WAS TAKEN, SO THE SWEEP IS THIS PULL REQUEST'S WORK AND
+NOT A LANE-BY-LANE OWED LIST.** Its POPULATION is a fact about a tree and is
+measured at the head the sweep lands on, which at ratification is the merge of
+`origin/main` `1f068646`: SIX carriers, not the five this section was drafted
+against. D2a records the sixth, its different defect class, and why the
+correction supplies no judgment. Options 2 and 3 are retained below as the
+record of what was put and declined.
+
 
 **RECOMMENDED — OPTION 1: this pull request corrects the FIVE active `none`
 carriers and nothing else.** One value token per file, `none` → `implemented`,
@@ -271,7 +311,22 @@ same pull request, re-measured at that head. The gate is what makes the race
 visible at all; before it, the divergence landed silently, which is what
 openxFactory #956 filed about.
 
-## D3 — VETO POINT: how the gate resolves "a named release"
+## D3 — RULED: resolve against the registry that exists
+
+**RULED 2026-09-12 BY BRETT HEAP — "Resolve against the registry that exists"**,
+the RECOMMENDED option, against *"Resolve literally"* and *"Accept any
+release-shaped token"* (recorded on PR #963 at 2026-09-12T15:45:19Z; record
+`review/ratification-2026-09-12.md`). **THE RECOMMENDATION WAS TAKEN, SO
+`_registry_present`, `RELEASE_ID_RE` AND THE SHAPE-ONLY FALLBACK STAND EXACTLY
+AS AUTHORED AND REVIEWED.** The registry the gate resolves against is the one
+on the tree it scans: at this ratified head `contracts/releases/` carries 55
+digest inventories, two of them (`contract-v3.7`, `contract-v4.0`) arriving with
+the same merge — which is the ruled option working as ruled, the gate following
+the registry rather than a frozen list. The divergence between that registry and
+the promoted sentence's "aggregation repository" is recorded as a successor and
+not repaired here (`tasks.md` § 6.2). Options 2 and 3 are retained below as the
+record of what was put and declined.
+
 
 **THE MEASUREMENT FORCED THIS ONE OPEN AND IT CANNOT BE DEFERRED, because the
 gate has to resolve the phrase in order to run.** Canon says *"a named release

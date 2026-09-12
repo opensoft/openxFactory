@@ -1,6 +1,7 @@
 # Tasks: gate-realization-axis-vocabulary
 
-Status: draft
+Status: ratified
+Ratified by: gate-realization-axis-vocabulary — 2026-09-12, Brett Heap, D1 "Keep and gate" / D2 "Sweep in this PR" / D3 "Resolve against the registry that exists" (record `review/ratification-2026-09-12.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -12,12 +13,21 @@ realizes through its own task list rather than through a feature DAG.
 this pull request or a measurement recorded verbatim in the pull request body
 and reproducible from the commands named beside it.
 
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN AND IS BRETT HEAP'S ACT.** His word of
-2026-09-11T12:08:24Z, verbatim **"land each when green, archive both when
-landed, claim 955 and 956"**, commissioned the AUTHORING of this packet and
-decided no wording; it is recorded as the origin in `.openspec.yaml` and is not
-read as an approval. `.openspec.yaml` carries drafting provenance with **no
-approval pair**, and every document here carries `Status: draft`.
+**§ 1 (RATIFICATION) IS CLOSED: BRETT HEAP RULED ON 2026-09-12 AT 15:45Z.**
+Three independent multiple-choice rulings over `design.md`'s three declared veto
+points, the recommendation presented first in each — **D1 "Keep and gate"**,
+**D2 "Sweep in this PR"**, **D3 "Resolve against the registry that exists"** —
+recorded on openxFactory PR
+[#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
+at 2026-09-12T15:45:19Z; record `review/ratification-2026-09-12.md`. All three
+are the RECOMMENDED and already-encoded options, so no wording moved on the
+ruling. His earlier word of 2026-09-11T12:08:24Z, verbatim **"land each when
+green, archive both when landed, claim 955 and 956"**, commissioned the
+AUTHORING of this packet and decided no wording; it is recorded as the origin in
+`.openspec.yaml`, is not read as an approval, and is untouched by this
+ratification. `.openspec.yaml` now carries the approval pair as a pure ADDITION
+beside that unmoved drafting provenance, and every document here carries
+`Status: ratified`.
 
 **§ 5 (ARCHIVE) IS ENTIRELY OPEN.** `code_surface` is non-empty, so the archive
 is a separate act on merged-plus-green realization evidence and a separate word,
@@ -25,16 +35,25 @@ and openxFactory #956 closes THERE and not at this landing.
 
 **§ 6 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-12
 
-- [ ] 1.1 **RATIFY OR REFUSE THE PACKET.** Brett Heap (openxFactory operator
-      authority) rules on this packet itself. Until he does, no requirement
-      here is approved, `Status: draft` stands on every document, and
-      `.openspec.yaml` declares `proposed_by`/`proposed_on` with no
-      `approved_by`/`approved_on` — the shape `add-drafted-proposal-origin`
-      (issue #318) added for exactly this state.
-- [ ] 1.2 **RULE `design.md` D1 — WHAT CANON DOES ABOUT A VALUE OUTSIDE ITS
-      VOCABULARY.** Option 1, GATE the two-value vocabulary as ratified by
+- [x] 1.1 **THE PACKET IS RATIFIED.** Brett Heap (openxFactory operator
+      authority) ruled on this packet itself on 2026-09-12 at 15:45Z, recorded
+      on PR
+      [#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
+      at 2026-09-12T15:45:19Z. `.openspec.yaml` gains `approved_by` and
+      `approved_on` as a pure ADDITION beside a byte-unmoved drafting
+      provenance — `kind` and `id` never move — which is the shape
+      `add-drafted-proposal-origin` (issue #318) defined for exactly this
+      transition. Every document carries `Status: ratified` with one citation
+      line naming all three ruled labels; record
+      `review/ratification-2026-09-12.md`, gate set re-derived on the ratified
+      tree at `review/verification-2026-09-12.md`.
+- [x] 1.2 **`design.md` D1 RULED — "Keep and gate"**, the RECOMMENDED option
+      (2026-09-12T15:45:19Z, PR #963), against *"Admit none"* and *"Rule none a
+      synonym"*. The two-value vocabulary stays exactly as ratified and is
+      GATED by ADDING one requirement plus a closed register. The options as
+      put: option 1, GATE the two-value vocabulary as ratified by
       ADDING one requirement plus a closed register (recommended); option 2,
       AMEND *Realization axis declaration* to admit the divergence; option 3,
       RULE the value a synonym. The cost of 2 and 3 is the same and is stated
@@ -44,24 +63,38 @@ and openxFactory #956 closes THERE and not at this landing.
       from that change rather than from canon, and its archive-order hold.
       Option 3 additionally does not reach its own subject: all five active
       `none` carriers declare a NON-EMPTY `code_surface`.
-- [ ] 1.3 **RULE `design.md` D2 — THE SWEEP.** Option 1, this pull request
+- [x] 1.3 **`design.md` D2 RULED — "Sweep in this PR"**, the RECOMMENDED
+      option (2026-09-12T15:45:19Z, PR #963), against *"Each owning lane
+      sweeps"* and *"Register all 26"*. The existing non-conforming spellings
+      across the corpus are swept in this same pull request. The population is
+      a fact about a TREE and was re-measured at the ratified head (the merge
+      of `origin/main` `1f068646`): **SIX** carriers, not the five this option
+      was drafted against — § 3.4, § 3.18, `design.md` D2a — and **0** outside
+      the vocabulary after. The options as put: option 1, this pull request
       corrects the five `none` carriers, one value token each with every gloss
       preserved (recommended); option 2, each owning lane corrects its own and
       the gate lands ADVISORY until the last is done; option 3, correct nothing
-      and register all 26. A veto of D2 option 1 reverts five one-token lines
-      and adds five register entries; nothing else in the packet depends on it.
-- [ ] 1.4 **RULE `design.md` D3 — HOW THE GATE RESOLVES "A NAMED RELEASE".**
-      Option 1, resolve against `contracts/releases/` — the registry that
-      exists (recommended); option 2, resolve literally against the aggregation
-      repository, which defines no releases and carries no tags, so nothing
-      resolves; option 3, accept any release-SHAPED token, which stops
+      and register all 26.
+- [x] 1.4 **`design.md` D3 RULED — "Resolve against the registry that
+      exists"**, the RECOMMENDED option (2026-09-12T15:45:19Z, PR #963),
+      against *"Resolve literally"* and *"Accept any release-shaped token"*.
+      The gate resolves a token against the registry as it stands on the tree
+      it scans — at this ratified head `contracts/releases/` carries 55 digest
+      inventories — with the release-identifier SHAPE accepted, and SAID OUT
+      LOUD, only where the scanned tree defines no registry at all. The options
+      as put: option 1, resolve against `contracts/releases/` — the registry
+      that exists (recommended); option 2, resolve literally against the
+      aggregation repository, which defines no releases and carries no tags, so
+      nothing resolves; option 3, accept any release-SHAPED token, which stops
       distinguishing a release from a wish.
-- [ ] 1.5 **D0 AND D4 THROUGH D7 ARE CARRIED BESIDE THEM**, each with its
-      alternative written out, and any of them may be vetoed in the same
-      ruling: D0 (the measurement), D4 (the code surface, the three exit codes,
-      and the register's home outside `contracts/`), D5 (why an OpenSpec change
-      and not a patch), D6 (sequencing and the sibling search), D7 (what is not
-      taken).
+- [x] 1.5 **D0 AND D4 THROUGH D7 WERE CARRIED BESIDE THEM AND NONE WAS
+      VETOED**, each with its alternative written out and each available to be
+      vetoed in the same ruling: D0 (the measurement), D4 (the code surface,
+      the three exit codes, and the register's home outside `contracts/`), D5
+      (why an OpenSpec change and not a patch), D6 (sequencing and the sibling
+      search), D7 (what is not taken). The ruling of 2026-09-12T15:45:19Z
+      reached D1, D2 and D3 and took each one's recommendation; it named none
+      of the carried five, and none of them moves.
 
 ## 2. The measurement, taken before the design
 
@@ -556,10 +589,13 @@ and its own output quoted.
       `PRRT_kwDOTAvnrs6heTQZ`.)
 - [ ] 4.10 **THE FULL SUITE**, `python3 -m pytest tests/ -q -m "not postgres"`,
       with the count before and after and the new-test count measured last.
-- [x] 4.11 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
-      DRAFT standing. Landed in `13ff6162` at `README.md` under *Active
-      changes*: the draft standing named outright (**`Status: draft` — NOT
-      RATIFIED**), the commissioning word quoted, the ADDED-only shape and the
+- [x] 4.11 **README `## OpenSpec Records` ACTIVE ROW**, in house style, MOVED
+      TO THE RATIFIED STANDING BY THIS RATIFICATION (all three ruled labels
+      verbatim, the recording comment linked, the sweep's six carriers, and the
+      archive named as the separate act where #956 closes). It first landed in
+      `13ff6162` at `README.md` under *Active
+      changes* at the draft standing: the draft standing named outright
+      (**`Status: draft` — NOT RATIFIED**), the commissioning word quoted, the ADDED-only shape and the
       absence of a `sequenced_after` hold, the D0 measurement, the code and its
       test count, and the three declared veto points. Its test figure was
       RE-MEASURED after § 3.7 and § 3.9 rather than carried (**54**), which is

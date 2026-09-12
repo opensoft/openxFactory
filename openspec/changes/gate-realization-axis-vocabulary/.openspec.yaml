@@ -92,6 +92,52 @@ origin:
     merged-plus-green realization evidence and a separate word, and openxFactory
     #956 closes THERE and not at this landing.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-12, lane
+    `openxfactory-1` (display `openXfactory-1`), THREE INDEPENDENT
+    MULTIPLE-CHOICE RULINGS over `design.md`'s three declared veto points with
+    the recommendation presented first in each: verbatim **"Keep and gate"**
+    for D1, verbatim **"Sweep in this PR"** for D2, and verbatim **"Resolve
+    against the registry that exists"** for D3. Given in session and recorded
+    on openxFactory PR #963 at 2026-09-12T15:45:19Z (comment 5646922493,
+    https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493).
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never
+    move, which is the shape `add-drafted-proposal-origin` (issue #318) defined
+    for this transition: approval is a pure ADDITION beside a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The earlier word of
+    2026-09-11T12:08:24Z, verbatim "land each when green, archive both when
+    landed, claim 955 and 956", stays the ORIGIN of the AUTHORING and is not
+    read as an approval; the `reason:` above describes the unapproved state
+    this packet was authored in and is deliberately left in that tense.
+    ALL THREE RULED OPTIONS ARE THE ONES THIS PACKET HAD ALREADY ENCODED, SO
+    ITS WORDING STANDS UNCHANGED. D1 took KEEP-AND-GATE against "Admit none"
+    and "Rule none a synonym", so the one `## ADDED Requirements` block stands
+    with no `## MODIFIED` block and no `sequenced_after` hold, and the 21-entry
+    register stays CLOSED. D2 took SWEEP-IN-THIS-PR against "Each owning lane
+    sweeps" and "Register all 26", so the correction is this pull request's
+    work; its POPULATION is a fact about a tree and was re-measured at the head
+    this packet is ratified on — the merge of `origin/main` `1f068646` — where
+    it is SIX carriers rather than the five the drafting corpus carried, the
+    sixth arriving with pull request #959 and swept by the same one-token
+    correction (`design.md` D2a, `tasks.md` § 3.18). D3 took RESOLVE-AGAINST-
+    THE-REGISTRY-THAT-EXISTS against "Resolve literally" and "Accept any
+    release-shaped token", so `_registry_present`, `RELEASE_ID_RE` and the
+    shape-only fallback stand as authored. D0 and D4 through D7 were carried
+    beside them and none was vetoed. Nothing under `openspec/specs/` is edited
+    by this ratification.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT PERFORMED
+    HERE. `code_surface` is NON-EMPTY, so under `release-realization` this
+    packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE at canon's grain
+    — this pull request merged into `main` and a green `pytest-suite` run at
+    the tree that merge carries — rather than on landing. `tasks.md` § 5 stays
+    ENTIRELY OPEN, § 6 (residue) stays ENTIRELY OPEN, and openxFactory #956
+    therefore closes at the archive and on no earlier pull request.
+    Record: `review/ratification-2026-09-12.md`, with the gate run re-derived
+    on the ratified tree at `review/verification-2026-09-12.md`.
+  approved_on: 2026-09-12
 related:
   - openxFactory:issue:956                                                        # THE ORIGIN. Filed by this lane at the archive of the packet that owed it; carries the divergence, the first measurement and the three options. Closes at the ARCHIVE, never at this landing
   - openxFactory:issue:931                                                        # The governing issue of the packet whose § 6.8 owed #956 as a named successor

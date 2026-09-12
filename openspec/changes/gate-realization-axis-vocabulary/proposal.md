@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: gate-realization-axis-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 by Brett Heap (openxFactory operator authority) — D1 "Keep and gate", D2 "Sweep in this PR", D3 "Resolve against the registry that exists"; record at review/ratification-2026-09-12.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`),
 session `9c62ed`, on Brett Heap's word of 2026-09-11T12:08:24Z, verbatim
 **"land each when green, archive both when landed, claim 955 and 956"**.
@@ -16,16 +17,26 @@ as the named successor owed by `amend-repo-boundary-governance-scope-first-line`
 `tasks.md` § 6.8 at that packet's archive, standing on
 [#931](https://github.com/opensoft/openxFactory/issues/931).
 
-**THAT WORD COMMISSIONS THE AUTHORING, NOT THE CONTENT. RATIFICATION IS OWED
-AND IT IS BRETT HEAP'S ACT.** Nothing below is ratified by being authored; no
-requirement here may be cited as approved until he rules on this packet itself;
-`.openspec.yaml` declares drafting provenance with **no approval pair**, and
-every document in this packet carries `Status: draft`. **NOTHING IS PROMOTED** —
-this pull request edits no file under `openspec/specs/`. Every judgment this
-authoring session took is listed in `design.md` as **D0 through D7**, each with
-a recommendation and each put for veto; the three most worth one are **D1**
-(gate the vocabulary as ratified), **D2** (the sweep) and **D3** (how the gate
-resolves "a named release").
+**THAT WORD COMMISSIONED THE AUTHORING, NOT THE CONTENT, AND RATIFICATION WAS
+OWED. IT HAS SINCE BEEN GIVEN.** Brett Heap ruled on this packet itself on
+2026-09-12 at 15:45Z — three independent multiple-choice rulings over
+`design.md`'s three declared veto points, the recommendation presented first in
+each — **D1 "Keep and gate"**, **D2 "Sweep in this PR"**, **D3 "Resolve against
+the registry that exists"** — recorded on openxFactory PR
+[#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493);
+record `review/ratification-2026-09-12.md`. `.openspec.yaml` carries the
+approval pair as a pure ADDITION beside its unmoved drafting provenance, and
+every document in this packet carries `Status: ratified`. **ALL THREE ARE THE
+RECOMMENDED AND ALREADY-ENCODED OPTIONS, SO THE WORDING STANDS UNCHANGED**; D0
+and D4 through D7 were carried beside them and none was vetoed. D2's ruled
+option is a sweep of the corpus AS IT STANDS, and at the head this packet is
+ratified on that corpus carries a sixth carrier the drafting corpus did not —
+`design.md` D2a. **NOTHING IS PROMOTED** — this pull request edits no file
+under `openspec/specs/`. Every judgment this authoring session took is listed
+in `design.md` as **D0 through D7**, each with a recommendation and each put
+for veto; the three that were ruled are **D1** (gate the vocabulary as
+ratified), **D2** (the sweep) and **D3** (how the gate resolves "a named
+release").
 
 ## Why
 
