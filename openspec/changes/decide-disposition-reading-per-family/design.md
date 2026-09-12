@@ -63,8 +63,8 @@ case. Those four repositories are the only ones the thirty-one entries name.
 | 5 | `record-immutability` | 16 | no |
 | 4 | `modified-block-currency` | 48 | **YES** — *A finding is dispositioned*, `openspec/specs/doc-health/spec.md` line 2177 |
 | 1 | `document-catalog` | 1 | no |
-| 1 | `semantic-contradiction` | — (LLM sweep; no deterministic run emits it) | no |
-| 1 | `semantic-normative-prose` | — (LLM sweep; no deterministic run emits it) | no |
+| 1 | `semantic-contradiction` | — (LLM sweep; none of the rig's five deterministic family checks emits it — a real sweep or a `--semantic-findings-in` run does, via `semantic.enforce_contract`, merged at `runner.py:575`) | no |
+| 1 | `semantic-normative-prose` | — (LLM sweep; none of the rig's five deterministic family checks emits it — a real sweep or a `--semantic-findings-in` run does, via `semantic.enforce_contract`, merged at `runner.py:575`) | no |
 | 1 | `uncited-resolution` | — (emitted by `report.uncited_resolutions`, not by a family module) | no |
 | **31** | **eight families** | | |
 
@@ -99,7 +99,7 @@ Thirty-one entries, one row each, collapsed by outcome:
 | **matched** — the path draws a live finding of that family | **10** | `proposal-origin` 7 (5 `warning`, 2 `error`), `record-immutability` 3 (all `critical`) |
 | **unmatched**, target present — the path exists and draws no finding of that family | **7** | `location-conformance` 3, `modified-block-currency` 2, `record-immutability` 2 |
 | **target vanished** — the path does not exist in the repository named | **11** | `location-conformance` 7, `modified-block-currency` 2, `proposal-origin` 1, `document-catalog` 1 |
-| **not admissible to this measurement, for two different reasons** | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1 — NO deterministic run emits either family; `uncited-resolution` 1 — the family IS emitted deterministically (`runner.py:831` → `report.uncited_resolutions`), but this entry's OWN key is excluded by construction (`report.parse_previous`, line 382, the anti-echo of issue #515) (all three targets present) |
+| **not admissible to this measurement, for two different reasons** | **3** | `semantic-contradiction` 1, `semantic-normative-prose` 1 — none of the rig's five deterministic family checks emits either family (a real sweep or a `--semantic-findings-in` run does, via `semantic.enforce_contract`, merged at `runner.py:575`); `uncited-resolution` 1 — the family IS emitted deterministically (`runner.py:831` → `report.uncited_resolutions`), but this entry's OWN key is excluded by construction (`report.parse_previous`, line 382, the anti-echo of issue #515) (all three targets present) |
 
 **NOT ONE OF THE THIRTY-ONE NAMES A PATH UNDER `openspec/changes/archive/`.**
 A set test over the thirty-one, not a count: zero. So the parent's ground in its

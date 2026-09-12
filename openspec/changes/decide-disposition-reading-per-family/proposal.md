@@ -204,8 +204,10 @@ WHEREVER THAT RULE'S OWN EVALUATION SCOPE REACHES THE NAMED FAMILY AND
 REPOSITORY — and, in a bullet of its own, that where that scope excludes the
 named family (a lane whose findings are folded in after the deterministic
 render, or a family excluded by this run's own configuration — named by
-`--skip-family`, or every other family under a single `--family` run) the
-entry reaches nothing through it. The
+`--skip-family`, or every other REGISTERED family under a single `--family`
+run, `runner.FAMILIES` only; the semantic pair is not a member and is not
+excluded even then, a gap `design.md` § 7.6(b) records) the entry reaches
+nothing through it. The
 scenarios declare no new reachability for any family.
 
 ## What this proposal does NOT do

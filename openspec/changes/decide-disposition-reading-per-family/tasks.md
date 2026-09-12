@@ -128,7 +128,9 @@ each open box below states the event that closes it:
 - [x] 2.3 Per-entry outcome measured and tabulated (`design.md` D0.2): **10
       matched**, **7 unmatched with the target present**, **11 target vanished**,
       **3 not admissible to this measurement for two different reasons** — the
-      semantic pair (2), which no deterministic pass emits at all, and
+      semantic pair (2), which none of the rig's five deterministic family
+      checks emits (a real sweep or a `--semantic-findings-in` run does, via
+      `semantic.enforce_contract`, merged at `runner.py:575`), and
       `uncited-resolution`'s own entry (1), which IS emitted deterministically
       (`runner.py:831`) but is excluded from admission by construction
       (`report.parse_previous`, line 382). Asserted as a set test and not as a
@@ -240,8 +242,10 @@ each open box below states the event that closes it:
       that rule where its scope excludes the named family — measured at
       `runner.py:823` and `runner.py:830`, which add the ideation-readiness and
       neutrality-drift lanes to `unavailable_families` unconditionally because
-      their findings are folded in AFTER the deterministic render, so those
-      lanes' prior contested rows never enter the pass at all), and
+      their findings are folded in AFTER the deterministic render, that
+      `--family` exclusion being `runner.FAMILIES` only — the semantic pair is
+      not a member and is NOT excluded even then, the gap § 7.6(b) records —
+      so those lanes' prior contested rows never enter the pass at all), and
       `spec.md:54` neither widens nor narrows it.
       No body paragraph is added, edited or removed; no promoted scenario moves
       or is retitled; scenario (ii) gained the one bullet named above
