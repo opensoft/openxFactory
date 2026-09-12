@@ -96,10 +96,15 @@ origin:
     `contracts/<pin-id>-pin.yaml` record — chosen over four alternatives
     because it is the ONLY candidate the existing marker regexes already accept
     unchanged), D-2 (RESOLUTION rests on a VALID, COMPLETE
-    `kind: pinned_contract_manifest` record, judged through a CODE-FIXED route
-    so the record never selects the code that judges it, with the capability
-    segment checked for shape and resolved further only where the record
-    enumerates capabilities — NO pin record in this tree enumerates
+    `kind: pinned_contract_manifest` record — complete for its RECORD SHAPE,
+    each shape's member set being that shape's SHAPE-GUARD-REQUIRED SET, exactly
+    what its in-tree verifier refuses-when-absent in its PURE, SOURCE-FREE
+    guards, a judgement NECESSARY for that verifier and BY DESIGN NOT SUFFICIENT
+    for it, a source-dependent check such as `pin-surface-undeclared` being
+    unreachable offline — judged through ONE CODE-FIXED route, a single shared
+    PURE adapter, so the record never selects the code that judges it, with the
+    capability segment checked for shape and resolved further only where the
+    record enumerates capabilities — NO pin record in this tree enumerates
     capabilities today, measured, all six of them, so a rule requiring the
     enumeration would refuse every marker it was written to admit), D-3 (the
     STALE-TARGET RULE: when a target capability exits the corpus the marker

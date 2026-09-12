@@ -166,50 +166,94 @@ a later change, on evidence that a stale supersedes target exists.
    `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml` — two valid
    records this repository ships — for lacking lists their shape does not have.
 
-   **AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S VERIFIER-REQUIRED SET.** The
-   table holds EXACTLY the top-level members that shape's in-tree pin verifier
-   REFUSES-WHEN-ABSENT, measured from the verifier scripts and cited member by
-   member below. The ratified text supplies members where it NAMES them and is
-   silent elsewhere — on shape (b) entirely, and on the published artifact's
-   `package` and `binary` — and the verifier-required set completes it.
+   **AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S SHAPE-GUARD-REQUIRED SET.**
+   The table holds EXACTLY the top-level members that shape's in-tree pin
+   verifier REFUSES-WHEN-ABSENT IN ITS PURE, SOURCE-FREE SHAPE GUARDS — the
+   refusals whose ONLY INPUT IS THE RECORD, which is what the verifiers' reader
+   and guard functions run before any checkout, `git` call or network read —
+   measured from the verifier scripts and cited member by member below. The
+   ratified text supplies members where it NAMES them and is silent elsewhere —
+   on shape (b) entirely, and on the published artifact's `package` and
+   `binary` — and the shape-guard-required set completes it.
 
-   **Why the verifier is the right completion, stated once.** On a landed tree
-   this completeness check is redundant: every record in `contracts/` already
-   passes its own verifier, those verifiers being required checks, so no landed
-   record can reach the resolver incomplete. What the check actually defends is
-   the SIDE RUNS — a doc-health fixture tree, an aggregate of repositories, a
-   `--single-repo` run over an arbitrary checkout, an added
-   `contracts/evil-pin.yaml` — where no pin verifier has run at all. On exactly
-   those trees, a resolver whose table were NARROWER than the verifier would
-   admit a record the repository's own gate refuses, which is the whole defect
-   this arm exists to close; and one WIDER would refuse a record the gate
-   admits. So the table is neither, and **the realization PINS it there with an
-   EQUIVALENCE TEST** over each real record: for every top-level member `m` of
-   the record, the shape's verifier refuses the record with `m` removed IF AND
-   ONLY IF `m` is in the table for that record's shape (task 3.3(p)). The table
-   is still CODE the resolver is reviewed with — the record never selects the
-   code that judges it — but it is code a test holds against the verifier it
-   tracks, rather than a list that can drift unobserved.
+   **Why the SHAPE GUARD and not the FULL verifier, stated once — and why the
+   check is NECESSARY BUT NOT SUFFICIENT BY DESIGN.** This resolver judges
+   whether a NAME resolves to a pin record OF AN ADMITTED SHAPE. It never judges
+   whether the pin is FAITHFUL TO ITS SOURCE, and the completeness contract is
+   therefore NECESSARY for the shape's full verifier and DELIBERATELY NOT
+   SUFFICIENT for it. Two grounds, both measured. FIRST, on a landed tree the
+   check is redundant anyway: every record in `contracts/` already passes its
+   FULL verifier, those verifiers being required checks, so no landed record can
+   reach the resolver incomplete on either reading. What the check actually
+   defends is the OFFLINE JUDGEMENT over arbitrary trees — a doc-health fixture
+   tree, an aggregate of repositories, a `--single-repo` run over an arbitrary
+   checkout, an added `contracts/evil-pin.yaml` — where no pin verifier has run
+   at all. SECOND, a SOURCE-DEPENDENT check cannot be part of an offline,
+   tree-local resolver without REPRODUCING THE VERIFIER'S I/O, which is the
+   checkout, `git` and network work `neutral-product-pin`'s offline law forbids
+   this pass. The measured example of what that leaves outside the contract is
+   `scripts/validate-openreposhape-pin.py`'s **`pin-surface-undeclared`**
+   (`:515-530`): it takes `source.paths()` (`:520`) — the files the RESOLVED
+   SOURCE carries — and refuses a record that names, in NEITHER `files:` nor
+   `pinned_by_commit_only:`, some file the product actually ships. Strip the 45
+   path-only entries from `contracts/openreposhape-pin.yaml:201-246` and that
+   check fires, while every shape guard in that script still passes; the
+   resolver would accept such a record, and that is the by-design gap, not a
+   defect. It cannot be closed offline: the question `pin-surface-undeclared`
+   asks has no answer without the source. What the set DOES close is the other
+   direction — on exactly those side-run trees, a resolver whose table were
+   NARROWER than the shape's own guards would admit a record the repository's
+   gate refuses at its FIRST shape check, which is the whole defect this arm
+   exists to close; and one WIDER would refuse a record the gate admits. So the
+   table is neither, and **the realization PINS it there with a TWO-LEG
+   EQUIVALENCE TEST** (task 3.3(p)): a RECORD leg — the adapter accepts each
+   real record, refuses it naming `m` for each `m` IN the table, and still
+   accepts it for each top-level member NOT in the table — and a GUARD leg,
+   which holds the table to the VERIFIERS rather than to itself, by calling each
+   verifier's IMPORTABLE, SOURCE-FREE guard on the record minus `m`, or, where a
+   member's refusal is reachable only inside `verify()`, by a MEASURED CITATION
+   in the adapter's source that the test re-READS at the pinned script and line.
+   The table is still CODE the resolver is reviewed with — the record never
+   selects the code that judges it — but it is code a test holds against the
+   guards it tracks, rather than a list that can drift unobserved.
 
-   | record (`origin/main`) | shape | verifier | verifier-required members (script:line) |
-   | --- | --- | --- | --- |
-   | `contracts/openxwallet-pin.yaml` | (a) enumerated commit pin | `scripts/verify-openxwallet-pin.py` (`verify_pin:` at `:64`) | `submodule_path` `:194`, `revision_kind` `:219`, `commit` `:227`, `files` `:392` |
-   | `contracts/openreposhape-pin.yaml` | (a) enumerated commit pin | `scripts/validate-openreposhape-pin.py` (`:121`) | `revision_kind` `:239`, `commit` `:247`, `source_repository` `:258`, `files` `:438` |
-   | `contracts/opendox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-opendox-pin.py` (`:156`) | `submodule_path` `:215`, `revision_kind` `:226`, `commit` `:234`, `digest_algorithm` `:246`, `digest_definition` `:253`, `digests` `:262` + `digests.tree_sha256` `:269` |
-   | `contracts/openxdox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-openxdox-pin.py` (`:121`) | `submodule_path` `:257`, `revision_kind` `:276`, `commit` `:284`, `digest_algorithm` `:307`, `digest_definition` `:314`, `digests` `:322` + `digests.tree_sha256` `:329` |
-   | `contracts/openspec-cli-pin.yaml` | (c) published-artifact pin | `scripts/validate-openspec-cli-pin.py` (`:376`, `consumer_entrypoint:` `:394`) | `revision_kind` `:592`, `version` `:601`, `integrity` `:619`, `shasum` `:646`, `package` `:658`, `lockfile` `:698`, `lockfile_integrity` `:708`, `lockfile_packages` `:731`, `binary` `:748` |
+   | record (`origin/main`) | shape | verifier | shape-guard-required members (script:line) | how the GUARD LEG pins each (measured) |
+   | --- | --- | --- | --- | --- |
+   | `contracts/openxwallet-pin.yaml` | (a) enumerated commit pin | `scripts/verify-openxwallet-pin.py` (`verify_pin:` at `:64`) | `submodule_path` `:194`, `revision_kind` `:219`, `commit` `:227`, `files` `:392` | importable source-free guards for three: `_submodule_path` `:185`, `_pinned_commit` `:203` (both `revision_kind` and `commit`). `files` has NO source-free entrypoint — its record-only refusal sits in `verify()` behind checks 1-3 — so it is pinned by CITATION: `:392-397`, "the pin lists no \`files:\` members, so it pins no bytes" |
+   | `contracts/openreposhape-pin.yaml` | (a) enumerated commit pin | `scripts/validate-openreposhape-pin.py` (`:121`) | `revision_kind` `:239`, `commit` `:247`, `source_repository` `:258`, `files` `:438` | importable source-free guards for three: `pinned_commit` `:231` (both `revision_kind` and `commit`), `_source_repository` `:257`. `files` by CITATION: `:438-443`, the same refusal text, inside `verify(source, pin)` which takes a resolved `Source` |
+   | `contracts/opendox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-opendox-pin.py` (`:156`) | `submodule_path` `:215`, `revision_kind` `:226`, `commit` `:234`, `digest_algorithm` `:246`, `digest_definition` `:253`, `digests` `:262` + `digests.tree_sha256` `:269` | ALL by importable source-free guard: `_submodule_path` `:213`, `_pinned_commit` `:224`, `_pinned_tree_digest` `:244` (the last covering `digest_algorithm`, `digest_definition`, `digests` and its `tree_sha256`) |
+   | `contracts/openxdox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-openxdox-pin.py` (`:121`) | `submodule_path` `:257`, `revision_kind` `:276`, `commit` `:284`, `digest_algorithm` `:307`, `digest_definition` `:314`, `digests` `:322` + `digests.tree_sha256` `:329` | ALL by importable source-free guard: `_submodule_path` `:249`, `_pinned_commit` `:266`, `_pinned_tree_digest` `:294` |
+   | `contracts/openspec-cli-pin.yaml` | (c) published-artifact pin | `scripts/validate-openspec-cli-pin.py` (`:376`, `consumer_entrypoint:` `:394`) | `revision_kind` `:592`, `version` `:601`, `integrity` `:619`, `shasum` `:646`, `package` `:658`, `lockfile` `:698`, `lockfile_integrity` `:708`, `lockfile_packages` `:731`, `binary` `:748` | ALL NINE by importable source-free guard: `pinned_version` `:584`, `pinned_integrity` `:611`, `pinned_package` `:657`, `pinned_lockfile` `:674` (pure despite its `pin_path` argument — it JOINS `pin_path.parent / name` at `:744` and opens nothing), `pinned_binary` `:747` |
 
-   NOT refused-when-absent, and therefore NOT in the table, though each is
-   refused when PRESENT and malformed: `pinned_by_commit_only:` under shape (a)
+   **The measured split: 27 of the 29 member entries are on the GUARD leg, and
+   TWO are on the citation route** — `files` under shape (a), once per shape-(a)
+   verifier. Every member is additionally on the RECORD leg, which is the leg
+   that proves the table is neither wider nor narrower than declared; the GUARD
+   leg is what proves the table still matches the VERIFIERS. All five scripts
+   are importable the way this repository already imports them in its own tests
+   (`importlib.util.spec_from_file_location`, as `tests/openxwallet_pin/`,
+   `tests/openreposhape_pin/`, `tests/opendox_pin/` and `tests/openxdox_pin/`
+   already do), and each guards its command-line entry behind
+   `if __name__ == "__main__":`, so importing one starts no work.
+
+   NOT refused-when-absent at the guard, and therefore NOT in the table, though
+   each is refused when PRESENT and malformed: `pinned_by_commit_only:` under shape (a)
    (`scripts/verify-openxwallet-pin.py:443-448`,
    `scripts/validate-openreposhape-pin.py:487-491`, both reading it with an
    absent-is-empty default), and `dispositions:` under shape (c)
    (`scripts/validate-openspec-cli-pin.py:801-803`). The first of those is a
    member the RATIFIED TEXT does name (`:31-36`) — so the text is stricter here
-   than the verifier, and the difference is resolved, not averaged: the text's
+   than the guard, and the difference is resolved, not averaged: the text's
    obligation binds the pin's AUTHOR and is `neutral-product-pin`'s to enforce,
    while THIS table is what the resolver may refuse a record on, and it does not
-   refuse what the shape's verifier admits.
+   refuse what the shape's guard admits. And it is precisely here that the
+   necessary-not-sufficient boundary shows: DELETE `pinned_by_commit_only:` from
+   `contracts/openreposhape-pin.yaml` and every guard in that script still
+   passes while the FULL verifier raises `pin-surface-undeclared` (`:515-530`)
+   against the real source — so the resolver accepts a record its required check
+   would refuse, on a tree where that required check has already run and passed
+   for the record as it actually stands. That is the designed shape of the
+   contract, not a gap in it.
 
    **And shape (a)'s product-identity member has two spellings, measured.**
    `scripts/verify-openxwallet-pin.py:194` refuses a record without
@@ -237,7 +281,7 @@ a later change, on evidence that a stale supersedes target exists.
    a MIXTURE, a record carrying both `digests.tree_sha256` and a `files:` list
    matches neither (a) nor (b) and is refused naming both shapes tried, on that
    capability's own fail-closed rule (`:89`). **Second, shape (c)'s required set
-   is NINE members — the verifier's set, not a reading of the text alone.** An
+   is NINE members — the shape guards' set, not a reading of the text alone.** An
    earlier drafting of this section named four (`version`, `integrity`,
    `shasum`, `lockfile`) and a later one six (adding `lockfile_integrity` and
    `lockfile_packages`); both were under-measured. `scripts/validate-openspec-cli-pin.py`
@@ -277,28 +321,33 @@ a later change, on evidence that a stale supersedes target exists.
    SHALL NOT execute, import or open any path a pin record selects, and
    `verify_pin:` is neither a prerequisite of resolution nor part of the shape
    this grammar requires — an observation about today's five records, nothing
-   more. The realization instead picks ONE of exactly two code-fixed forms, both
-   reviewed with the resolver: **(a) preferred — a shared, importable,
-   NON-EXECUTING shape validator** for `pinned_contract_manifest` records, reused
-   if the tree later carries one and otherwise added under `scripts/doc_health/`;
-   **(b) a CLOSED dispatch table inside the resolver's own module**, mapping each
-   admitted pin id to its validator, where a record whose `verify_pin:` value
-   DIFFERS from the table's entry is itself a controlled finding rather than a
-   redirection. Form (a) is preferred because it also answers the offline law:
-   each of the five verifiers carries its shape guard inline (for example
+   more. The realization instead writes **ONE shared, PURE, NON-EXECUTING
+   ADAPTER** for `pinned_contract_manifest` records, code-fixed and reviewed with
+   the resolver: it HOLDS the per-shape table, READS THE RECORD AND NOTHING
+   ELSE, and is the single place the completeness judgement is made. It lives
+   EITHER inside the resolver's own module (`scripts/doc_health/families.py`,
+   already named by the `code_surface`, adding no file) OR in ONE shared helper
+   module beside it under `scripts/doc_health/` — a choice of WHERE, settled at
+   realization and counted exactly in `proposal.md:2`'s file bound, not a choice
+   of ROUTE. A record whose `verify_pin:` value DIFFERS from what the adapter
+   holds for that record is itself a controlled finding rather than a
+   redirection. **THE ADAPTER NEITHER EDITS NOR CALLS THE FIVE PER-PRODUCT
+   VERIFIERS.** Each of them carries its shape guards inline (for example
    `_pinned_commit`, `scripts/verify-openxdox-pin.py:266-291`, and
    `pinned_version`, `scripts/validate-openspec-cli-pin.py:584-608`), every one
    of them shells out to a subprocess, and
    `scripts/validate-openreposhape-pin.py` reaches the network through `urllib`
-   — work `neutral-product-pin`'s offline law forbids this pass, and work a
-   non-executing validator never starts. NEITHER FORM EDITS THOSE FIVE
-   VERIFIERS: they are product-specific rather than a shape-only API, so there
-   is nothing in them to extract without changing them, and form (a) writes its
-   own module instead. Both forms are inside the packet's DECLARED
-   `code_surface`, which names them — the shape-validator module under
-   `scripts/doc_health/` for form (a) (form (b) adds no file) and the
-   containment helper of task 3.3(m) — rather than leaving the realization to
-   discover a file the declaration does not admit.
+   — work `neutral-product-pin`'s offline law forbids this pass, and work a pure
+   adapter never starts; they are product-specific rather than a shape-only API,
+   so there is nothing in them to extract without changing them, and the adapter
+   writes its own table instead. **The GUARD LEG of the equivalence test is the
+   one place a verifier is imported at all, and it is a TEST rather than the
+   resolver**: the test imports a FIXED, AUTHORED script path — never a path any
+   record names — and calls only the source-free guards the table cites. The
+   adapter imports nothing from them, at authoring time or at run time. The
+   adapter and the containment helper of task 3.3(m) are both inside the
+   packet's DECLARED `code_surface`, which names them, rather than leaving the
+   realization to discover a file the declaration does not admit.
 
    **And the ROOT is the in-tree arm's root, not a new one.** Capability
    resolution already reads the document's OWN repository root first and the

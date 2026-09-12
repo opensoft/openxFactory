@@ -51,30 +51,49 @@ may declare `revision_kind: commit` and be complete on DIFFERENT member sets,
 so a single required-member list keyed on the revision kind would refuse one of
 them for carrying the other's shape.
 
-AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S VERIFIER-REQUIRED SET: EXACTLY THE
-TOP-LEVEL MEMBERS THAT SHAPE'S IN-TREE PIN VERIFIER REFUSES-WHEN-ABSENT,
-MEASURED FROM THE VERIFIER SCRIPTS. This grammar RESTATES no shape and OWNS no
-field list. `neutral-product-pin`'s ratified requirement *An external neutral
-product is pinned by commit and digest, never by tag* supplies members WHERE IT
-NAMES THEM, and it does not name them everywhere: it is SILENT on the
-whole-tree digest shape and on the published artifact's `package` and `binary`,
-so the verifier-required set COMPLETES it rather than competing with it. WHY
-THE VERIFIER AND NOT A NARROWER READING: on a landed tree every record already
-passes its own verifier, those verifiers being required checks, so what this
-completeness check actually defends is the SIDE RUNS — a fixture tree, an
-aggregate of repositories, an added `contracts/evil-pin.yaml` — where no
-verifier has run at all. A resolver that ACCEPTED what the shape's verifier
-REFUSES would admit, on exactly those trees, a record the repository's own
-gate would reject. Where the ratified text names a member the verifier does NOT
-refuse-when-absent — `pinned_by_commit_only:` is the one such member measured —
-that is the text's obligation on the pin's AUTHOR, enforced by
-`neutral-product-pin`'s own machinery, and it is NOT a resolution prerequisite
-here; the set is neither narrower nor wider than the verifier, and an
-equivalence test named below holds it there. Measured over every
-`pinned_contract_manifest` record this tree carries — five, on `origin/main` —
-there are THREE shapes.
+AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S SHAPE-GUARD-REQUIRED SET: EXACTLY
+THE TOP-LEVEL MEMBERS THAT SHAPE'S IN-TREE PIN VERIFIER REFUSES-WHEN-ABSENT IN
+ITS PURE, SOURCE-FREE SHAPE GUARDS — the refusals whose ONLY INPUT IS THE
+RECORD, which is what the verifiers' reader and guard functions run before any
+checkout, any `git` call and any network read — MEASURED FROM THE VERIFIER
+SCRIPTS. This grammar RESTATES no shape and OWNS no field list.
+`neutral-product-pin`'s ratified requirement *An external neutral product is
+pinned by commit and digest, never by tag* supplies members WHERE IT NAMES THEM,
+and it does not name them everywhere: it is SILENT on the whole-tree digest
+shape and on the published artifact's `package` and `binary`, so the
+shape-guard-required set COMPLETES it rather than competing with it.
 
-(a) THE ENUMERATED COMMIT-PINNED SOURCE PIN. Verifier-required: `revision_kind`
+WHY THE SHAPE GUARD AND NOT THE FULL VERIFIER. This resolver judges whether a
+NAME resolves to a pin record OF AN ADMITTED SHAPE; it NEVER judges whether the
+pin is FAITHFUL TO ITS SOURCE. SO THE COMPLETENESS CHECK IS NECESSARY FOR THE
+SHAPE'S FULL VERIFIER AND DELIBERATELY NOT SUFFICIENT FOR IT, AND THAT IS BY
+DESIGN, on two grounds stated once. FIRST, on a landed tree every record
+ALREADY passes its full verifier, those verifiers being required checks, so
+nothing the full verifier would catch can reach this resolver on a landed tree
+at all; what the check defends is the OFFLINE JUDGEMENT over arbitrary trees —
+a fixture tree, an aggregate of repositories, an added `contracts/evil-pin.yaml`
+— where no verifier has run. SECOND, a SOURCE-DEPENDENT check cannot be part of
+an offline, tree-local resolver without reproducing the verifier's I/O, which is
+exactly the checkout, `git` and network work this pass is forbidden.
+`scripts/validate-openreposhape-pin.py`'s `pin-surface-undeclared` (`:515-530`)
+is the measured example of a full-verifier check that stays OUTSIDE this
+contract: it compares the record's declared surface against the files the
+RESOLVED SOURCE carries (`source.paths()`, `:520`), so it can refuse a record
+that no shape guard can fault, and reproducing it here would mean resolving the
+source. What the set DOES close is the other direction: a resolver that ACCEPTED
+what the shape's own GUARD REFUSES would, on exactly those trees, admit a record
+the repository's own gate rejects at its first shape check. Where the ratified
+text names a member NO guard refuses-when-absent — `pinned_by_commit_only:` is
+the one such member measured — that is the text's obligation on the pin's
+AUTHOR, enforced by `neutral-product-pin`'s own machinery, and it is NOT a
+resolution prerequisite here; the set is neither narrower nor wider than the
+guards, and an equivalence test named below holds it there.
+
+Measured over every `pinned_contract_manifest` record this tree carries — five,
+on `origin/main` — there are THREE shapes.
+
+(a) THE ENUMERATED COMMIT-PINNED SOURCE PIN. Shape-guard-required:
+`revision_kind`
 (`scripts/verify-openxwallet-pin.py:219`,
 `scripts/validate-openreposhape-pin.py:239`), `commit` (`:227`, `:247`),
 `files` (`:392`, `:438`), and EXACTLY ONE PRODUCT-IDENTITY MEMBER, whose
@@ -88,8 +107,14 @@ resolves to exactly that record's verifier's set — neither the union of the tw
 product identity at all). `files:` entries are MAPPINGS carrying a `path` and
 its `sha256` (`contracts/openxwallet-pin.yaml:70,80-95`;
 `contracts/openreposhape-pin.yaml:134,135-196`), and a `files:` list that is
-absent or empty is refused (`scripts/verify-openxwallet-pin.py:392-397`).
-`pinned_by_commit_only:` is NOT in the verifier-required set: both verifiers
+absent or empty is refused (`scripts/verify-openxwallet-pin.py:392-397`,
+`scripts/validate-openreposhape-pin.py:438-443`). THAT refusal reads THE RECORD
+ALONE — `pin.get("files")`, a type test and a non-empty test, consulting no
+source — and so belongs to the set; it nonetheless sits INSIDE `verify()`,
+behind that verifier's source checks, so it cannot be CALLED source-free, and
+the equivalence test below pins it by a MEASURED CITATION instead of by calling
+it. It is the only member of any shape in that position, measured.
+`pinned_by_commit_only:` is NOT in the shape-guard-required set: both verifiers
 read it with an absent-is-empty default and refuse it only when it is PRESENT
 and not a list (`scripts/verify-openxwallet-pin.py:443-448`,
 `scripts/validate-openreposhape-pin.py:487-491`). It is nonetheless of a
@@ -100,8 +125,8 @@ entries are PATH-ONLY STRINGS carrying no digest of their own
 per-file digest for those members, so requiring a `sha256` of them would
 require an invented row.
 
-(b) THE WHOLE-TREE DIGEST COMMIT-PINNED SOURCE PIN. Verifier-required, and the
-two verifiers agree member for member: `submodule_path`
+(b) THE WHOLE-TREE DIGEST COMMIT-PINNED SOURCE PIN. Shape-guard-required, and
+the two verifiers agree member for member: `submodule_path`
 (`scripts/verify-opendox-pin.py:215`, `scripts/verify-openxdox-pin.py:257`),
 `revision_kind` (`:226`, `:276`), `commit` (`:234`, `:284`),
 `digest_algorithm` (`:246`, `:307`), `digest_definition` (`:253`, `:314`) and
@@ -116,7 +141,7 @@ whole tree leaves no member undeclared, which is the ground on which the
 published-artifact shape needs no enumeration either
 (`openspec/specs/neutral-product-pin/spec.md:59-61`).
 
-(c) THE PUBLISHED-ARTIFACT PIN. Verifier-required — NINE members, all from
+(c) THE PUBLISHED-ARTIFACT PIN. Shape-guard-required — NINE members, all from
 `scripts/validate-openspec-cli-pin.py`: `revision_kind` (`:592`), `version`
 (`:601`), `integrity` (`:619`), `shasum` (`:646`), `package` (`:658`),
 `lockfile` (`:698`), `lockfile_integrity` (`:708`), `lockfile_packages`
@@ -156,17 +181,28 @@ GRAMMAR: THE CODE-FIXED VALIDATOR HOLDS A PER-SHAPE REQUIRED-MEMBER TABLE,
 reviewed with the resolver at authoring time, covering every RECORD SHAPE this
 tree's `pinned_contract_manifest` records carry today (the three above,
 measured over all five records) — `neutral-product-pin`'s ratified text where
-that text names members, COMPLETED BY THE SHAPE'S VERIFIER-REQUIRED SET where
-it is silent. That table is not a SECOND, independently-authored list — it is
+that text names members, COMPLETED BY THE SHAPE'S SHAPE-GUARD-REQUIRED SET
+where it is silent. That table is not a SECOND, independently-authored list — it is
 not restated as PROSE in this requirement, where a restatement could drift
 unreviewed. AND IT SHALL BE PINNED TO THE VERIFIERS BY AN EQUIVALENCE TEST
-rather than by a promise: over each real `pinned_contract_manifest` record, for
-EVERY top-level member `m` of that record, the shape's verifier SHALL refuse
-the record with `m` removed IF AND ONLY IF `m` is in the table for that
-record's shape. A table that drifted NARROWER than its verifier would admit a
-record the repository's own gate refuses; one that drifted WIDER would refuse a
-record the gate admits; the test fails on either, so the table cannot part from
-the verifier without a red check. Of two INDEPENDENTLY-AUTHORED lists the
+rather than by a promise, IN TWO LEGS. THE RECORD LEG, over each real
+`pinned_contract_manifest` record on the tree: the adapter ACCEPTS the record;
+for every member `m` IN the table for that record's shape, the adapter REFUSES
+the record with `m` removed and NAMES `m`; and for every top-level member of
+that record NOT in the table, the adapter still ACCEPTS the record without it —
+so the table is neither WIDER nor NARROWER than declared. THE GUARD LEG, which
+is what holds the table to the VERIFIERS rather than to itself: where the
+shape's verifier exposes an IMPORTABLE, SOURCE-FREE guard for a table member,
+that guard SHALL be called on the record with `m` removed and asserted to
+refuse; and where a member's refusal is reachable only inside `verify()` and
+cannot run source-free, the table entry SHALL instead carry a MEASURED CITATION
+in the adapter's own source — the script, the line and the refusal text quoted —
+and the test SHALL assert that the cited line of the cited script still holds
+that text, a READ of the verifier rather than a run of it. A table that drifted
+NARROWER than its guards would admit a record the repository's own gate refuses
+at its first shape check; one that drifted WIDER would refuse a record the gate
+admits; either leg fails, so the table cannot part from the verifiers without a
+red check. Of two INDEPENDENTLY-AUTHORED lists the
 WEAKER is always the one that admits, which is why this requirement fixes the
 SOURCE of the table and then pins it to running code rather than forbidding the
 table. A record declaring a `revision_kind` the
@@ -181,13 +217,15 @@ UNDER JUDGEMENT. A pin record is DATA the pass is judging; a member of it —
 `verify_pin:` or any other — is NEVER a dispatch key, an import target or a
 path to run, because a record that chooses which code judges it is a record
 that judges itself, and an added `contracts/<anything>-pin.yaml` could then
-select any path in the checkout. The route SHALL be one of exactly two forms,
-fixed at authoring time and reviewed with the resolver: EITHER a shared,
-importable, NON-EXECUTING shape validator for `pinned_contract_manifest`
-records, OR a CLOSED dispatch table inside the resolver's own module mapping
-each admitted pin id to its validator — and under the second form a record
-whose `verify_pin:` value DIFFERS from that table's entry is itself a
-controlled finding rather than a redirection. `verify_pin:` is therefore NOT a
+select any path in the checkout. THE ROUTE SHALL BE ONE SHARED, PURE,
+NON-EXECUTING ADAPTER for `pinned_contract_manifest` records — fixed at
+authoring time and reviewed with the resolver, living either in the resolver's
+own module or in one shared helper module beside it — which HOLDS the per-shape
+table, READS THE RECORD AND NOTHING ELSE, and NEVER EDITS OR CALLS the five
+per-product pin verifiers, whose `verify()` routines need a checkout, `git` or
+the network. A `verify_pin:` value is data the adapter MAY compare and MUST NOT
+follow: a value differing from what the adapter holds for that record is itself
+a controlled finding rather than a redirection. `verify_pin:` is therefore NOT a
 prerequisite of resolution and NOT part of the shape this grammar requires; it
 is a member today's five records happen to carry, and the pass may compare it
 but MUST NOT follow it. THE JUDGEMENT IS ALSO OFFLINE AND IS A CONTROLLED
@@ -315,14 +353,17 @@ not the thing that happens when nobody decides.
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but matches no admitted record shape, or matches one and lacks a member THAT SHAPE requires — no `revision_kind`, a `revision_kind` without its required referent, a required member of that shape missing or malformed, or the members of two shapes mixed in one record
 - **THEN** the deterministic health pass MUST report it as an invalid pin, naming the shape tried, the failing member and the root it resolved against
 - **AND** the target MUST NOT resolve on the strength of the declared kind
-- **AND** the pass MUST reach that judgement through a code-fixed route — a PER-SHAPE required-member table read from `neutral-product-pin`'s ratified text where that text names members and completed by the shape's VERIFIER-REQUIRED SET where it is silent, reviewed with the resolver and held in the validator rather than restated as prose in this requirement
+- **AND** the pass MUST reach that judgement through ONE shared, pure, non-executing adapter — a PER-SHAPE required-member table read from `neutral-product-pin`'s ratified text where that text names members and completed by the shape's SHAPE-GUARD-REQUIRED SET where it is silent, reviewed with the resolver and held in the adapter rather than restated as prose in this requirement
 
-#### Scenario: The per-shape table and the shape's verifier disagree
+#### Scenario: The per-shape table and the shape's own guards disagree
 - **WHEN** the per-shape required-member table is checked against a real `pinned_contract_manifest` record, member by member over that record's own top-level members
-- **THEN** the shape's verifier MUST refuse the record with a member removed IF AND ONLY IF that member is in the table for that record's shape
-- **AND** a table NARROWER than its verifier MUST fail that test, since it would admit on a fixture or side run a record the repository's own required check refuses
-- **AND** a table WIDER than its verifier MUST fail it too, since it would refuse a record that gate admits
-- **AND** the equivalence MUST be asserted by a test over each real record rather than stated as an intention, the table being code that can drift from the verifier it tracks
+- **THEN** the RECORD LEG MUST hold: the adapter accepts the record; it refuses the record with any member of the table removed and NAMES that member; and it still accepts the record with any top-level member NOT in the table removed
+- **AND** the GUARD LEG MUST hold: where the shape's verifier exposes an importable, source-free guard for a table member, that guard MUST be called on the record with the member removed and MUST refuse
+- **AND** where a table member's refusal is reachable only inside the verifier's full `verify()` and cannot be run source-free, the table entry MUST instead carry a MEASURED CITATION in the adapter's source — script, line and refusal text quoted — and the test MUST assert that the cited line of that script still holds that text, reading the verifier rather than running it
+- **AND** a table NARROWER than its guards MUST fail that test, since it would admit on a fixture or side run a record the repository's own required check refuses at its first shape check
+- **AND** a table WIDER than its guards MUST fail it too, since it would refuse a record that gate admits
+- **AND** the equivalence MUST be asserted by a test over each real record rather than stated as an intention, the table being code that can drift from the guards it tracks
+- **AND** the equivalence MUST NOT be claimed to make the adapter's judgement SUFFICIENT for the shape's full verifier: a source-dependent check such as `pin-surface-undeclared` stays outside this contract, the adapter being NECESSARY and by design not sufficient
 
 #### Scenario: A pin record addresses its whole tree by one digest
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying `tree_sha256`, and carries neither `files:` nor `pinned_by_commit_only:`
@@ -339,8 +380,8 @@ not the thing that happens when nobody decides.
 #### Scenario: A pin record names the code that would judge it
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `verify_pin:` member naming an arbitrary path in the checkout
 - **THEN** the deterministic health pass MUST NOT execute, import or open that path
-- **AND** the completeness judgement MUST be made by the code-fixed route — a shared non-executing shape validator, or the resolver module's own closed dispatch table
-- **AND** where that route is the dispatch table and the record's `verify_pin:` value differs from the table's entry for `<pin-id>`, the pass MUST report that disagreement as a finding rather than follow the record
+- **AND** the completeness judgement MUST be made by ONE shared, pure, non-executing adapter — the resolver's own module or one shared helper module beside it — which reads the record and nothing else
+- **AND** where the record's `verify_pin:` value differs from what that adapter holds for `<pin-id>`, the pass MUST report that disagreement as a finding rather than follow the record
 
 #### Scenario: A pin path resolves outside the contracts directory
 - **WHEN** the candidate pin-record path for `<pin-id>` resolves outside the `contracts/` directory of the root it was resolved against, whether by symlink or otherwise

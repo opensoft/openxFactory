@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `scripts/doc_health/families.py`, whose `_resolve_capability` (line 1317) and `fam_tag_hygiene` (line 1331) gain a second resolution arm for a pinned target, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, while the package under test is `scripts/doc_health/`), plus AT MOST THREE FURTHER FILES THE ARM'S OWN RULES REQUIRE and which are named here rather than discovered at realization: (i) where the realization takes design D-2's PREFERRED form (a), one module under `scripts/doc_health/` holding the shared, importable, NON-EXECUTING `pinned_contract_manifest` shape validator the arm calls — form (b), a closed dispatch table inside the resolver's own module, adds no file, and NEITHER form edits any of the five per-product pin verifiers, which are product-specific, shell out, and in one case reach the network, so they are not a shape-only API to extract from; and (ii) the containment helper of D-2 and task 3.3(m), EITHER as a parameter added to `resolve_in_tree` in `scripts/validate-pin-registrations.py` — that file's own edit, no further file — OR as one shared helper both callers use, which is a NEW file AND requires `scripts/validate-pin-registrations.py` itself to be edited to become the shared helper's second caller. THE BOUND IS THREE, reached only where (i) takes form (a) AND (ii) takes the shared-helper branch: the shape-validator module, the new shared helper, and `scripts/validate-pin-registrations.py`. NO BYTE OF ANY OF THEM MOVES IN THIS PULL REQUEST. This pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, two `## MODIFIED` spec deltas, one README "Active changes" bullet, the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`, and the two `_LEDGER_SUBJECTS` rows the two `## MODIFIED` deltas above require of `tests/doc-health/test_modified_block_currency_self_gate.py`'s own carriage-ledger self-gate (all three are bookkeeping the self-gates require of ANY filing that touches a promoted block, not test implementation for the pinned-target arm the realization proposes). THE REALIZATION IS A LATER PULL REQUEST in this same repository, authored after ratification, and it is FOUR surfaces and not more: (1) the resolver arm and its tests, together with the at-most-three further files named above that the arm's code-fixed-route and containment rules require; (2) the four affected markers retargeted from `target=openxwallet` to the pinned form; (3) `docs/document-lifecycle.md`'s Prose Tagging Markers section carrying the new form and the stale-target rule; (4) the stale sentence at `ideation/staging/INDEX.md:2262-2265`, which still calls three `openxwallet` blocks "all resolving" and has been false since 2026-08-28. NOT THIS PACKET'S SURFACE, each for a stated reason: no marker regex changes, because the existing `_CAND_OPEN` and `_ATTR` patterns already accept the proposed value unchanged (design D-1, measured); no pin record is edited and no pin schema member is added — D-2 RESERVES the member name `capabilities:` as the trigger for its dormant conditional arm, so that the arm has a deterministic input contract rather than an intention, but it NAMES it and does not add it: no pin record gains that member here, no schema admits it here, and whether a real pin record may carry it is a `neutral-product-pin` question with the publisher (design D-2); no capability is created, deleted or renamed; no `openspec/specs/` directory moves; no contract byte, pin byte or digest moves; no contract bundle is cut.
+code_surface: openxFactory — `scripts/doc_health/families.py`, whose `_resolve_capability` (line 1317) and `fam_tag_hygiene` (line 1331) gain a second resolution arm for a pinned target, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, while the package under test is `scripts/doc_health/`), plus AT MOST THREE FURTHER FILES THE ARM'S OWN RULES REQUIRE and which are named here rather than discovered at realization: (i) ONE module under `scripts/doc_health/` holding the shared, PURE, NON-EXECUTING `pinned_contract_manifest` SHAPE ADAPTER — design D-2's single code-fixed route, which holds the per-shape table and reads the record and nothing else — and this file exists ONLY where the realization gives that adapter a module of its own; where the adapter lives inside `scripts/doc_health/families.py`, already named above, (i) ADDS NO FILE. Under EITHER placement the adapter NEITHER EDITS NOR CALLS any of the five per-product pin verifiers, which are product-specific, shell out, and in one case reach the network, so they are not a shape-only API to extract from; the only place any of them is imported at all is the GUARD LEG of the equivalence test (task 3.3(p)), which lives in that arm's tests under `tests/doc-health/` — already named above, so it adds no file either — and imports them at fixed, authored paths; and (ii) the containment helper of D-2 and task 3.3(m), EITHER as a parameter added to `resolve_in_tree` in `scripts/validate-pin-registrations.py` — that file's own edit, no further file — OR as one shared helper both callers use, which is a NEW file AND requires `scripts/validate-pin-registrations.py` itself to be edited to become the shared helper's second caller. THE BOUND IS EXACTLY THREE AND THE THREE ARE ENUMERATED: (1) the shape-adapter module under `scripts/doc_health/`, (2) the new shared containment helper, (3) `scripts/validate-pin-registrations.py` as that helper's second caller. THREE is reached only where (i) gives the adapter a module of its own AND (ii) takes the shared-helper branch; where the adapter lives in `scripts/doc_health/families.py` and (ii) takes the parameter branch the further-file count is ZERO, and the two intermediate combinations give ONE or TWO. No fourth file is admitted under any combination, and the five pin verifiers are in none of them. NO BYTE OF ANY OF THEM MOVES IN THIS PULL REQUEST. This pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, two `## MODIFIED` spec deltas, one README "Active changes" bullet, the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`, and the two `_LEDGER_SUBJECTS` rows the two `## MODIFIED` deltas above require of `tests/doc-health/test_modified_block_currency_self_gate.py`'s own carriage-ledger self-gate (all three are bookkeeping the self-gates require of ANY filing that touches a promoted block, not test implementation for the pinned-target arm the realization proposes). THE REALIZATION IS A LATER PULL REQUEST in this same repository, authored after ratification, and it is FOUR surfaces and not more: (1) the resolver arm and its tests, together with the at-most-three further files named above that the arm's code-fixed-route and containment rules require; (2) the four affected markers retargeted from `target=openxwallet` to the pinned form; (3) `docs/document-lifecycle.md`'s Prose Tagging Markers section carrying the new form and the stale-target rule; (4) the stale sentence at `ideation/staging/INDEX.md:2262-2265`, which still calls three `openxwallet` blocks "all resolving" and has been false since 2026-08-28. NOT THIS PACKET'S SURFACE, each for a stated reason: no marker regex changes, because the existing `_CAND_OPEN` and `_ATTR` patterns already accept the proposed value unchanged (design D-1, measured); no pin record is edited and no pin schema member is added — D-2 RESERVES the member name `capabilities:` as the trigger for its dormant conditional arm, so that the arm has a deterministic input contract rather than an intention, but it NAMES it and does not add it: no pin record gains that member here, no schema admits it here, and whether a real pin record may carry it is a `neutral-product-pin` question with the publisher (design D-2); no capability is created, deleted or renamed; no `openspec/specs/` directory moves; no contract byte, pin byte or digest moves; no contract bundle is cut.
 target_release: implemented
 ---
 
@@ -140,15 +140,15 @@ fenced and queued truthfully instead.
    delta against that capability. THE SHAPE AND NOT THE `revision_kind` ALONE IS
    THE UNIT, measured over all five `pinned_contract_manifest` records: THREE
    shapes, two of them sharing `revision_kind: commit`. **And each shape's
-   member set is that shape's VERIFIER-REQUIRED SET** — exactly the top-level
-   members its in-tree pin verifier refuses-when-absent, measured from the
-   verifier scripts: (a) the ENUMERATED commit pin, `revision_kind`, `commit`,
+   member set is that shape's SHAPE-GUARD-REQUIRED SET** — exactly the top-level
+   members its in-tree pin verifier refuses-when-absent IN ITS PURE,
+   SOURCE-FREE GUARDS, measured from the verifier scripts: (a) the ENUMERATED commit pin, `revision_kind`, `commit`,
    `files` and one product-identity member whose spelling differs by mount
    (`submodule_path` at `scripts/verify-openxwallet-pin.py:194`,
    `source_repository` at `scripts/validate-openreposhape-pin.py:258`), with
    `files:` mappings each carrying a `sha256` beside path-only
    `pinned_by_commit_only:` strings that validly carry none and whose ABSENCE
-   the verifiers accept (`openspec/specs/neutral-product-pin/spec.md:31-36`;
+   the shape guards accept (`openspec/specs/neutral-product-pin/spec.md:31-36`;
    `contracts/openxwallet-pin.yaml:70,104-110`); (b) the WHOLE-TREE DIGEST
    commit pin, `submodule_path`, `revision_kind`, `commit`, `digest_algorithm`,
    `digest_definition` and `digests.tree_sha256` with NEITHER list
@@ -160,20 +160,30 @@ fenced and queued truthfully instead.
    (`scripts/validate-openspec-cli-pin.py:592,601,619,646,658,698,708,731,748`;
    `:46-48`, `:62-65`, `:669-673`;
    `contracts/openspec-cli-pin.yaml:282,289,299,308,328-330,370`), the ratified
-   text reaching six of the nine and the verifier supplying `package` and
-   `binary` it does not name. The table is PINNED to those verifiers by an
-   EQUIVALENCE TEST over each real record, so it can be neither narrower than
-   the gate (admitting on a side run what the repository refuses) nor wider
-   (refusing what it admits). A record carrying a
+   text reaching six of the nine and the guards supplying `package` and
+   `binary` it does not name. The table is PINNED to those guards by a TWO-LEG
+   EQUIVALENCE TEST over each real record — a RECORD leg inside the adapter and
+   a GUARD leg that calls each verifier's importable, source-free guard, or, for
+   the two members reachable only inside `verify()`, re-reads a measured
+   citation — so it can be neither narrower than the gate (admitting on a side
+   run what the repository refuses at its first shape check) nor wider (refusing
+   what it admits). **The judgement is NECESSARY for the record's FULL verifier
+   and by design NOT SUFFICIENT for it**: a source-dependent check such as
+   `scripts/validate-openreposhape-pin.py`'s `pin-surface-undeclared`
+   (`:515-530`) compares the pin against the RESOLVED SOURCE, which an offline,
+   tree-local resolver cannot do without reproducing that verifier's I/O — and
+   on a landed tree every record has already passed its full verifier, those
+   verifiers being required checks, so what this arm defends is the offline
+   judgement over arbitrary trees. A record carrying a
    kind with a partial member set for the shape it matches, or matching no shape
    at all, is an INVALID PIN that reports with a finding NAMING THE SHAPE TRIED
    AND THE FAILING MEMBER and does not resolve; a table keyed on the revision
    kind alone would instead refuse the two whole-tree records this repository
-   ships. **That judgement goes through a
-   CODE-FIXED route** — a shared non-executing shape validator, or a closed
-   dispatch table in the resolver's own module — and the pass NEVER executes,
-   imports or opens a path a pin record selects, so `verify_pin:` is data it may
-   compare and never a dispatch key. **And the record is looked for under
+   ships. **That judgement goes through ONE
+   CODE-FIXED route** — a single shared, PURE, NON-EXECUTING adapter holding the
+   per-shape table, in the resolver's own module or in one shared helper module
+   beside it — and the pass NEVER executes, imports or opens a path a pin record
+   selects, so `verify_pin:` is data it may compare and never a dispatch key. **And the record is looked for under
    EXACTLY the root precedence the in-tree arm already uses**, the document's own
    repository root then the `openxFactory` root
    (`scripts/doc_health/families.py:1317-1321`), with every pinned-arm finding
