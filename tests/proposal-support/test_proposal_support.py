@@ -1665,24 +1665,21 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
             self.assertIn("origin-retention-path-moved", result.stderr)
 
-    def test_an_unratifying_rename_escapes_the_guard_a_stated_gap(self):
-        """A STATED GAP, PINNED SO A SUCCESSOR FLIPS IT DELIBERATELY (issue
-        #849, Codex's P1 on PR #846). The guard asks its question of the
-        CANDIDATE commit, so a commit that renames an already-ratified packet
-        AND un-ratifies the destination is never a candidate, and the later
-        re-ratification carries no pairing: the walk takes the
-        re-ratification as its baseline — later than the real ratification,
-        with the mutation this fixture puts in between waved through, which
-        is #833's failure by a longer route.
+    def test_an_unratifying_rename_now_refuses_the_walk(self):
+        """THE #849 GAP, CLOSED FOR RENAMES (Codex's P1 on PR #846). The
+        guard used to ask its question only of the commit that ends up
+        declaring `ratified`, so a commit that renames an already-ratified
+        packet AND un-ratifies the destination in the same commit was never
+        asked, and a LATER commit re-ratifying it — which carries no rename
+        pairing of its own — was taken as the baseline instead: later than
+        the real ratification, with the mutation this fixture puts in
+        between waved through, which was #833's failure by a longer route.
 
-        WHY IT IS A GAP AND NOT A BUG TO PATCH HERE: refusing on any hop in
-        the followed history whose source was ratified at the hop's parent
-        would also refuse a NEW packet authored as a copy of a ratified one,
-        entering as a draft and ratified later — ordinary authoring, and the
-        same shape in git. This gate has no bypass flag, so that packet would
-        be unarchivable. Separating the two needs the former-id declaration
-        (#833's option (b)); until it lands, this test records what the walk
-        answers today rather than leaving the hole unsaid.
+        `ratifying_commit` now asks EVERY commit it visits, not only the one
+        whose own blob declares `ratified`, so the rename-and-un-ratify
+        commit answers the question before the re-ratification is ever
+        reached, and refuses there instead — naming the RENAME commit, not
+        the pairing-free re-ratification a caller might otherwise suspect.
         """
         with TemporaryDirectory() as td:
             root = Path(td)
@@ -1700,18 +1697,35 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                     "Status: ratified", "Status: draft", 1),
                 encoding="utf-8")
             commit_all(root, "rename the ratified packet and un-ratify it")
-            ratify(proposal)
-            commit_all(root, "re-ratify it under the new name")
-            head = subprocess.run(
+            renamed_at = subprocess.run(
                 ["git", "-C", str(root), "rev-parse", "HEAD"],
                 check=True, capture_output=True, text=True).stdout.strip()
-            # NOT refused, and the baseline is the RE-ratification …
-            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
-            # … which is why the mutation in between is not reported. The
-            # assertion is the GAP: a successor makes this refuse or re-base.
-            self.assertEqual(
+            ratify(proposal)
+            commit_all(root, "re-ratify it under the new name")
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("REFUSE origin-retention-path-moved", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("change-s", message)
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("openspec/changes/change-s/proposal.md", message)
+            # the RENAME is named, not the pairing-free re-ratification …
+            self.assertIn(renamed_at[:12], message)
+            self.assertIn("FORMER ID", message)
+            self.assertIn("baseline cannot be established", message)
+            self.assertIn("#833", message)
+            self.assertIn("#849", message)
+
+            # … the refusal is not swallowed into a findings list …
+            with self.assertRaises(support.OriginRetentionError):
                 support.origin_retention_errors(root, moved,
-                                                change="change-s"), [])
+                                                change="change-s")
+            # … and the archive itself stops, exactly as the #833 shape does
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(root, "change-s", "2026-09-05",
+                                       False, True)
 
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that

@@ -570,9 +570,15 @@ def git_show_text(root: Path, revision: str, rel_path: str) -> str | None:
     return result.stdout.decode("utf-8", "replace")
 
 
-def renamed_from(root: Path, revision: str, rel: str) -> str | None:
+def renamed_from(root: Path, revision: str, rel: str,
+                 kinds: str = "RC") -> str | None:
     """The path `rel` was RENAMED OR COPIED FROM at `revision`, or None when it
     came into being there outright (or was merely modified there).
+
+    `kinds` NARROWS WHICH PAIRING COUNTS, for the one caller that needs a
+    RENAME (`R`, the former path GONE) and not a COPY (`C`, the former path
+    still standing) — issue #849. Default `"RC"` is every existing behaviour
+    in this docstring, unchanged.
 
     RENAME DETECTION IS GIT'S OWN, reached through `--follow` — the one mode
     that pairs a rename for a SINGLE path — and NOT through a pathspec-limited
@@ -656,17 +662,22 @@ def renamed_from(root: Path, revision: str, rel: str) -> str | None:
             continue
         for row in rows[1:]:
             fields = row.split("\t")
-            if (len(fields) == 3 and fields[0][:1] in ("R", "C")
+            if (len(fields) == 3 and fields[0][:1] in kinds
                     and fields[2] == rel):
                 return fields[1]
     return None
 
 
-def ratified_under_a_former_path(root: Path, revision: str,
-                                 rel: str) -> str | None:
+def ratified_under_a_former_path(root: Path, revision: str, rel: str,
+                                 kinds: str = "RC") -> str | None:
     """The path this packet occupied BEFORE `revision` moved it, when it
     ALREADY declared `Status: ratified` there — the case in which `revision`
     cannot be the ratification. None otherwise.
+
+    `kinds` is passed straight through to `renamed_from` (default `"RC"`,
+    every existing call in this docstring); see that function and the
+    "THE COMMIT EXAMINED IS EVERY COMMIT" paragraph below for the one caller
+    that narrows it to `"R"`.
 
     WHAT A RATIFYING COMMIT IS, stated as a test the candidate must pass: a
     FLIP. The commit that ratifies a packet is the commit at which its header
@@ -685,25 +696,42 @@ def ratified_under_a_former_path(root: Path, revision: str,
     renamed a DRAFT change toward the dotless grammar), so this returns None
     for it and nothing refuses.
 
-    ONE COMMIT IS ASKED, WHICH LEAVES ONE SHAPE OUT (issue #849, raised as a
-    P1 on PR #846). The question above is put to the CANDIDATE commit only,
-    so a commit that renames an already-ratified packet AND un-ratifies the
-    destination in the same commit is never a candidate, and a LATER commit
-    that re-ratifies it carries no pairing: the walk takes the
-    re-ratification as its baseline, later than the real ratification. The
-    obvious closure — refuse on any hop in the followed history whose source
-    declared `ratified` at that hop's parent — is a no-op on this corpus
-    today (probed: 4 of 189 packets carry a hop before their baseline, all
-    four with a draft source, 0 refusals) and is STILL NOT TAKEN, because
-    history cannot separate that shape from a NEW packet authored as a copy
-    of a ratified one, entering as a draft and ratified later — ordinary
-    authoring, and identical in git (source ratified at the hop's parent,
-    destination not ratified at the hop). A hop-chain guard refuses both, and
-    this gate has no bypass flag, so a lawful fork-by-copy would become
-    unarchivable. The line therefore stays where the destination enters
-    RATIFIED; the gap is pinned by a fixture rather than left unsaid, and the
-    former-id declaration (#833's option (b)) is what makes the two shapes
-    distinguishable at all.
+    THE COMMIT EXAMINED IS EVERY COMMIT IN THE PATH'S HISTORY, not only the
+    one that ends up declaring `ratified` (issue #849, raised as a P1 on PR
+    #846; closed here for RENAMES). Asking only the CANDIDATE commit left one
+    shape out: a commit that renames an already-ratified packet AND
+    un-ratifies the destination in the same commit is never a candidate (its
+    own blob is not ratified), and a LATER commit that re-ratifies it carries
+    no pairing of its own — so a walk that asked only candidates took the
+    re-ratification as its baseline, later than the real ratification, and
+    waved through whatever mutated in between. `ratifying_commit` now calls
+    this function for EVERY commit its walk visits, not only the one whose
+    blob happens to declare `ratified`, so the rename-and-un-ratify commit is
+    asked the question too and answers it before any later re-ratification is
+    ever reached.
+
+    RESTRICTED TO RENAMES (`kinds="R"`) FOR THAT BROADER CALL, deliberately,
+    because a COPY answers the same question ambiguously. The wider closure —
+    refuse on any hop whose source declared `ratified` at that hop's parent,
+    rename OR copy — cannot separate "an already-ratified packet renamed and
+    un-ratified in one commit" from "a NEW packet authored as a copy of a
+    ratified one, entering as a draft and ratified later": both are, to
+    history, "source ratified at the hop's parent, destination not ratified
+    at the hop" (probed over this corpus: 4 of 189 packets carry such a hop
+    before their baseline, all four with a draft source, 0 refusals — a
+    copy-inclusive closure changes today's answer for nobody, and would still
+    be a trap for the first lawful fork-by-copy). A RENAME carries no such
+    ambiguity: the former path is GONE, so there is no surviving original
+    this could instead be "authored from" — whatever carries the ratified
+    lineage now lives only at the new path, and an un-ratifying edit along
+    the way mutates THAT packet's origin rather than authoring a new one. So
+    the broader call below passes `kinds="R"`; a COPY is still caught only
+    where it always was — at the candidate commit itself, through the
+    default `kinds="RC"` — and a copy that enters as a draft and is ratified
+    later remains the fork-by-copy this gate must not trap, exactly as
+    before. The former-id declaration (#833's option (b)) is what would let a
+    copy-shaped mutation be told apart from authoring on its own merits;
+    until it lands, this is the line.
 
     WHERE THIS CANNOT SEE. When rename detection finds no pairing — a move
     that also rewrote `proposal.md` past git's similarity threshold, or a
@@ -724,7 +752,7 @@ def ratified_under_a_former_path(root: Path, revision: str,
     (measured while authoring the guard), and a proposal that similar to a
     ratified one is what `add-duplicate-packet-check` exists to notice.
     """
-    former = renamed_from(root, revision, rel)
+    former = renamed_from(root, revision, rel, kinds=kinds)
     if former is None:
         return None
     before = git_show_text(root, f"{revision}^", former)
@@ -775,6 +803,25 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     and there is nothing to re-base ONTO: no former-id declaration exists in
     this corpus (that is the successor packet), so a baseline under a name the
     tree no longer spells cannot be established at all.
+
+    EVERY COMMIT VISITED IS ASKED, NOT ONLY THE ONE THAT DECLARES `ratified`
+    (issue #849). Asking `ratified_under_a_former_path` only where
+    `declares_ratified` already held true a commit that renames an
+    already-ratified packet AND un-ratifies it in the same breath: that
+    commit is not itself ratified, so it was never put to the question, and a
+    LATER commit re-ratifying the (unmoved, from here on) path carries no
+    rename pairing of its own — the walk took THAT as the baseline instead,
+    later than the real ratification, exactly the failure named above by a
+    longer route. So every visited commit is asked, whether or not its own
+    blob declares `ratified` — with `kinds="RC"` where it does (unchanged:
+    a move or copy that lands already ratified refuses, as before) and
+    `kinds="R"` where it does not (new: a plain rename — the former path
+    gone — that lands short of ratified still refuses, so an un-ratifying
+    rename can no longer hide behind a later, pairing-free re-ratification).
+    A COPY that lands short of ratified is deliberately NOT asked this way —
+    see `ratified_under_a_former_path`'s own "RESTRICTED TO RENAMES" — so a
+    packet honestly authored as a draft copy of a ratified one stays
+    archivable.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
         raise SupportError(f"invalid change name: {change}")
@@ -788,34 +835,38 @@ def ratifying_commit(root: Path, change: str) -> str | None:
         return None
     for revision in listed.stdout.split():
         blob = git_show_text(root, revision, rel)
-        if blob is not None and declares_ratified(blob):
-            former = ratified_under_a_former_path(root, revision, rel)
-            if former is None:
-                return revision
+        ratified_here = blob is not None and declares_ratified(blob)
+        former = ratified_under_a_former_path(
+            root, revision, rel, kinds="RC" if ratified_here else "R")
+        if former is not None:
             short = revision[:12]
             raise OriginRetentionError(
                 f"REFUSE origin-retention-path-moved: {change}: the "
-                f"origin-retention walk CANNOT RUN. Its baseline is the "
-                f"first commit whose `{rel}` declares `Status: ratified`, "
-                f"and that commit ({short}) is not the ratification but a "
-                f"MOVE OR COPY: the packet already declared "
-                f"`Status: ratified` at `{former}` as of {short}^, so this "
-                f"change was ratified under a path that is not the one it "
-                f"occupies now (`{rel}`) — and if `{former}` still stands "
-                f"in the tree then the packet was COPIED to this id rather "
-                f"than moved to it, which git pairs the same way and which "
-                f"leaves the same baseline unestablishable. Taking {short} "
-                f"as the baseline would compare the packet against itself "
-                f"as of that commit and wave through every origin mutation "
-                f"made between the real ratification and it — the "
-                f"`ORIGIN RETAINED` measured on issue #777 and the failure "
-                f"issue #833 names. Nothing in this corpus declares a "
-                f"FORMER ID, so the baseline cannot be established from "
-                f"history alone and this walk refuses rather than "
-                f"re-basing onto that commit: archive {change} "
-                f"under the id it was ratified with, or land the former-id "
-                f"declaration (a later packet) before renaming a ratified "
-                f"change. Renaming a DRAFT change is unaffected.")
+                f"origin-retention walk CANNOT RUN. Commit {short} carries "
+                f"`{rel}` in from `{former}`, which already declared "
+                f"`Status: ratified` at {short}^ — so this change was "
+                f"ratified under a path that is not the one it occupies now "
+                f"(`{rel}`), and {short} is a MOVE OR COPY of that ratified "
+                f"packet rather than its ratification, whatever `{rel}` "
+                f"itself declares as of {short} — and if `{former}` still "
+                f"stands in the tree then the packet was COPIED to this id "
+                f"rather than moved to it, which git pairs the same way and "
+                f"which leaves the same baseline unestablishable. Taking "
+                f"{short} or any later commit under `{rel}` as the baseline "
+                f"would compare the packet against itself and wave through "
+                f"every origin mutation made between the real ratification "
+                f"and it — the `ORIGIN RETAINED` measured on issue #777, "
+                f"the failure issue #833 names, and the same failure "
+                f"reached through an un-ratifying rename (issue #849). "
+                f"Nothing in this corpus declares a FORMER ID, so the "
+                f"baseline cannot be established from history alone and "
+                f"this walk refuses rather than re-basing onto that "
+                f"commit: archive {change} under the id it was ratified "
+                f"with, or land the former-id declaration (a later packet) "
+                f"before renaming a ratified change. Renaming a DRAFT "
+                f"change is unaffected.")
+        if ratified_here:
+            return revision
     return None
 
 
