@@ -44,7 +44,19 @@ record this repository carries — a `contracts/<pin-id>-pin.yaml` declaring
 an external neutral product. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
-no capability set for the name to be about. A pin record that EXISTS but
+no capability set for the name to be about. THE KIND ALONE IS A LABEL, NOT A
+PIN: the record MUST also actually pin something — a `revision_kind` together
+with the referent that kind of revision requires, a `commit` for
+`revision_kind: commit` and an `integrity` digest for a package pin, as
+`neutral-product-pin` requires of every such record. A record declaring the
+kind with no revision referent is an INCOMPLETE PIN: it MUST be reported and
+MUST NOT resolve a pinned target, so a file added to `contracts/` carrying only
+`kind:` cannot make an arbitrary pinned target resolve. THE RECORD MUST ALSO BE
+A FILE OF THIS REPOSITORY'S `contracts/` DIRECTORY, RESOLVED: the pass MUST
+resolve the candidate path and refuse to read it unless the resolved path stays
+inside that directory, and a symlink that leaves it MUST be refused rather than
+followed — the lexical grammar stops a `..` in the marker, and only resolved
+containment stops a committed symlink. A pin record that EXISTS but
 cannot be read as a mapping carrying a `kind` — invalid YAML, a non-mapping
 document, or no `kind` member — MUST be reported as an unreadable pin record
 and MUST NOT resolve a pinned target, and the pass MUST complete rather than
@@ -123,6 +135,17 @@ not the thing that happens when nobody decides.
 - **AND** that pinned target MUST NOT resolve while the enumeration is malformed
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 - **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
+
+#### Scenario: A pin record declares the kind but pins nothing
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but carries no `revision_kind` with its required referent
+- **THEN** the deterministic health pass MUST report it as an incomplete pin
+- **AND** the target MUST NOT resolve on the strength of the declared kind
+
+#### Scenario: A pin path resolves outside the contracts directory
+- **WHEN** the candidate pin-record path for `<pin-id>` resolves outside this repository's `contracts/` directory, whether by symlink or otherwise
+- **THEN** the deterministic health pass MUST refuse to read it
+- **AND** the target MUST NOT resolve
+- **AND** the refusal MUST be reported as a hygiene finding rather than silently skipped
 
 #### Scenario: A pin record named by a marker cannot be read
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` exists but is not readable as a mapping carrying a `kind` — invalid YAML, a non-mapping document, or no `kind` member

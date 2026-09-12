@@ -135,7 +135,18 @@ a later change, on evidence that a stale supersedes target exists.
    `contracts/<product>-pin.yaml`, REUSING `kind: pinned_contract_manifest`
    unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
    unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
-   capability is today. **A record that EXISTS but is corrupt is the same class
+   capability is today. **And the kind alone is a LABEL, not a pin**: the record must also carry a
+   `revision_kind` with its referent — `commit` for `revision_kind: commit`,
+   `integrity` for a package pin, which is what all five admissible records
+   carry, measured — or it is an INCOMPLETE PIN that reports and does not
+   resolve. Otherwise a new `contracts/anything-pin.yaml` holding one `kind:`
+   line would admit every pinned target under it. **And the path is RESOLVED
+   before it is read**: the lexical grammar of D-1 stops a `..` inside the
+   MARKER, and only resolved containment stops a committed SYMLINK at
+   `contracts/<pin-id>-pin.yaml` redirecting the read out of the registry, so
+   the realization reuses `resolve_in_tree`
+   (`scripts/validate-pin-registrations.py:237-267`) rather than inventing a
+   second dialect for the same question. **A record that EXISTS but is corrupt is the same class
    of event, not a crash**: invalid YAML, a non-mapping document, or a mapping
    with no `kind` is reported as an unreadable pin record and the target does
    not resolve, with the run completing. The resolver reads a registry file it

@@ -128,7 +128,16 @@ the later realization pull request, and § 4 is the archive act.
   tag-hygiene finding and the pinned target naming it does not resolve, with
   the run COMPLETING rather than raising out of the family, one case per shape:
   the resolver reads this registry file, so a corrupt record must not escape
-  the family and abort doc-health; **(j)** EVERY NEW ACTION
+  the family and abort doc-health; **(l)** a record declaring
+  `kind: pinned_contract_manifest` with NO `revision_kind` and referent is an
+  INCOMPLETE PIN: it emits a finding and does not resolve the target, so a file
+  added to `contracts/` carrying only `kind:` cannot admit an arbitrary pinned
+  target; **(m)** the candidate pin path is RESOLVED and refused unless it stays
+  inside `contracts/` — a symlinked `contracts/<pin-id>-pin.yaml` pointing
+  outside the directory is refused rather than followed, with a symlink/escape
+  fixture, using the repository's own containment helper rather than a second
+  dialect (`resolve_in_tree`, `scripts/validate-pin-registrations.py:237-267`);
+  **(j)** EVERY NEW ACTION
   STRING the arm introduces is added to the pinned table at
   `tests/doc-health/test_families.py:751` (`EXPECTED_ACTIONS`, asserted by
   `test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim`
