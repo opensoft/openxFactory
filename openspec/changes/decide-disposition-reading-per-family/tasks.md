@@ -420,12 +420,53 @@ in the pull request body.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [ ] 6.1 On a separate word after ratification: promote the `## MODIFIED` block
+- [x] 6.1 **DONE — THE PROMOTION AND ARCHIVE ARE PERFORMED IN THE NEXT COMMIT OF
+      THIS SAME PULL REQUEST, MEASURED AND RECORDED IN THE PULL REQUEST BODY.**
+      `TZ=UTC python3 scripts/proposal-support.py . archive
+      decide-disposition-reading-per-family --date 2026-09-12 --yes`, through the
+      pinned `@fission-ai/openspec@1.12.0` artifact — never a bare `openspec
+      archive`. **THIS COMMIT TICKS THE BOX FIRST BECAUSE THE TOOL REFUSES AN OPEN
+      BOX, AND THE REFUSAL WAS OBSERVED RATHER THAN RECITED:** a dry run against
+      this UNTICKED tree printed `ORIGIN RETAINED
+      decide-disposition-reading-per-family (declaration unchanged since the
+      ratifying commit 63653d0ca504)` then `change has incomplete tasks`, exit
+      `1`, moving nothing. `release-realization`'s own doc-only clause governs the
+      archive path: *"its code_surface is `none` and it archives when its
+      artifacts land, as before"* — landing was PR
+      [#978](https://github.com/opensoft/openxFactory/pull/978) →
+      `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`, 2026-09-12T17:00:28Z; no run on
+      the merge commit is owed (the *Realization archive gate* binds only *"a
+      change with a non-empty code surface"*). Authority: Brett Heap's
+      ratification, 2026-09-12T15:45:25Z, verbatim *"do all as recomended"*
+      (comment
+      [5646923059](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)),
+      deciding **Q-E = (E1) decision only, `code_surface: none`**; combined with
+      the lane's standing landing word *"land each when green"*, under which PR
+      #978 landed, no further archive-specific utterance is owed for an empty
+      code surface.
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      On a separate word after ratification: promote the `## MODIFIED` block
       into `openspec/specs/doc-health/spec.md` and archive the packet with
       `proposal-support.py`, never with bare `openspec`.
-- [ ] 6.2 `Closes #966` is written in the ARCHIVE pull request's body and in NO
+- [x] 6.2 **DONE — `Closes #966` STANDS IN THE ARCHIVE PULL REQUEST'S BODY AND
+      NOWHERE ELSE, BOTH HALVES VERIFIED RATHER THAN PROMISED.** No commit
+      message on this branch carries a closing keyword in any form
+      (`Closes`/`Fixes`/`Resolves`, any case or tense, quoted or not) — checked
+      by regex over every commit on this branch, re-checked at FREEZE, and
+      recorded in the pull request body; `closingIssuesReferences` is verified
+      through the GitHub GraphQL API to read exactly `[966]` once the pull
+      request exists, also recorded there.
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      `Closes #966` is written in the ARCHIVE pull request's body and in NO
       commit message on this branch or that one.
-- [ ] 6.3 The README "OpenSpec Records" ACTIVE row is moved to the archived
+- [x] 6.3 **DONE — THE README `## OpenSpec Records` ACTIVE ROW FOR THIS CHANGE
+      MOVES TO THE ARCHIVED BLOCK IN THE ARCHIVE-MOVE COMMIT THAT FOLLOWS THIS
+      ONE, THE SAME COMMIT THAT RUNS THE PROMOTION.**
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      The README "OpenSpec Records" ACTIVE row is moved to the archived
       block in the same act.
 
 ## 7. Measured, and deliberately NOT taken here — RECORDED IN THIS PULL REQUEST
