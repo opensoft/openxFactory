@@ -531,6 +531,55 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [gate-code-surface-declarations](openspec/changes/gate-code-surface-declarations/proposal.md)
+  — filed 2026-09-12, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: draft` — NOT RATIFIED**, an UNAPPROVED packet in the lawful
+  drafting shape `add-drafted-proposal-origin` defined (`proposed_by` /
+  `proposed_on`, no approval pair). Filed in answer to openxFactory
+  [#1013](https://github.com/opensoft/openxFactory/issues/1013), the UNCLAIMED
+  residue `gate-realization-axis-vocabulary` `tasks.md` § 6.3 owed and that
+  packet's archive act filed, standing on
+  [#956](https://github.com/opensoft/openxFactory/issues/956). Taking an
+  unclaimed residue commissions the AUTHORING and ratifies no wording.
+  **Gates the OTHER half of the sentence its sibling gated**: `release-realization`'s
+  *Realization axis declaration* reads as one sentence with two halves, and the
+  sibling built a validator and a closed register for `target_release:` only.
+  **THREE `## ADDED` REQUIREMENTS AND NO `## MODIFIED` BLOCK** — *Code-surface
+  declaration grammar is gated*, *The declared repository set is derived from
+  the head and never from the gloss*, and *Standing code-surface divergence is
+  named in a closed register* — the ADDED-only shape being deliberate, since
+  `add-structured-scope-substrate` is ACTIVE and already holds a MODIFIED block
+  over *Realization axis declaration*, so a second one would owe
+  `sequenced_after` and inherit that requirement's archive-order hold; all three
+  titles are novel to the corpus and `sequenced_after: []` is declared as a
+  corroborated root claim. **THE MEASUREMENT, RE-TAKEN AT `origin/main`
+  `bcde1575` AND NOT CARRIED FROM THE ISSUE**: 45 active proposals, 45 declaring
+  `code_surface:`, 4 `none` (the issue's 5 is stale by one) and 41 a non-`none`
+  repository list; the grammar is DERIVED from the population — 38 of the 45
+  already write head-then-opener-then-gloss (opening parenthesis 19, em dash 17,
+  full stop 2) and **7 do not**, in four classes (a YAML block scalar leaving a
+  literal `>-` in the value, a possessive, an apposition, and four whose list
+  runs into prose); the archive is read and never judged (165 proposals, 119
+  declaring, 3 outside the grammar). **AND EXACTLY ONE MACHINE READER OF THE
+  FIELD EXISTS AND IT READS THE GLOSS**: `scripts/scope_globs.py`'s
+  `code_surface_repositories`, wired at `scripts/validate-scope-globs.py:68`,
+  splits the whole declaration on `[\s,()/]+` and returns 3,421 distinct
+  "repository" tokens across the 45 — 767 from one declaration — with 27 of 45
+  yielding an estate repository their own head does not name, and its consumer
+  is the cross-check that bounds what a `scope_globs:` path grant may authorize;
+  the defect is LATENT and not standing, because 0 of 45 declare `scope_globs:`
+  today. **FOUR DECLARED VETO POINTS**, each a multiple-choice question with the
+  recommendation first: D1 the grammar (against token-only and against resolving
+  membership, which this repository has no inventory to do), D2 the shape of the
+  remedy (against a bare refusal and against an advisory gate), D3 the
+  disposition of the seven (register all seven, against sweeping — a departure
+  from the sibling's ruled sweep, reasoned in D3), D4 the `scope_globs:` reuse
+  (narrow the extractor to the declared head). `code_surface` is NON-EMPTY and
+  **no byte of it moves in the filing** — the validator, the register and the
+  tests are a LATER pull request — so per `release-realization` this packet
+  archives only on merged-plus-green realization evidence, and #1013 closes
+  THERE and at no earlier pull request.
+
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: draft`** — an UNAPPROVED packet in the lawful drafting shape
