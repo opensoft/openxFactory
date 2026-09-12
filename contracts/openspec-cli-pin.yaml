@@ -209,6 +209,40 @@ kind: pinned_contract_manifest
 # and `disposition-codexfactory-floor-relocation-retitle` is the change that
 # writes it here.
 #
+# AND THEN A FOURTH AND FIFTH TIME, FROM THE SAME CONSUMING REPOSITORY, RAISED BY
+# THE ARCHIVE OF THE VERY CHANGE ONE ENTRY OF THIS LIST USED TO DISPOSE — AND
+# THESE TWO ARE NOT MARKER-BLINDNESS AT ALL, WHICH IS WHY THIS LIST IS NO LONGER
+# ONE DISAGREEMENT REPEATED. codeXfactory/codexFactory PR #434 archives
+# `add-regular-pr-council-clearance` on 2026-09-11, and that archive does two
+# things at once. It RETIRES this list's `add-regular-pr-council-clearance` entry,
+# which is EXACTLY the event that entry's own `retires_when:` named in those
+# words — the mechanism working rather than a defect. And it PROMOTES the retitle
+# that entry was granted for into
+# `openspec/specs/merge-master-approval/spec.md`, replacing canon's single
+# scenario "A human-authored pull request is never auto-approved" with "A
+# human-authored pull request is never approved by tier 1 alone" and "A
+# gate-integrity path is never approved autonomously". TWO still-ACTIVE changes —
+# `extend-merge-master-envelope-to-floor-bot-lanes` and
+# `relocate-review-authority-floor` — hold their own `## MODIFIED` block for that
+# same requirement, each written against PRE-ARCHIVE canon and each carrying NO
+# reserved marker, because neither performed the retitle and neither has anything
+# to declare: canon simply moved underneath them. Measured on #434's head
+# `87ea247f`: `Totals: 33 passed, 3 failed (36 items)`, the surviving pair
+# APPLIED and `REFUSE pin-disposition-stale` on the archived entry (exit 2); with
+# that entry deleted and nothing added, exit 1 with exactly those two
+# UNDISPOSITIONED; with both added, exit 0. Brett Heap ruled the ORDERING on
+# 2026-09-11 — "This change first" — so each sibling delta re-derives against the
+# archived canon before its own archive, and
+# `disposition-codexfactory-regular-pr-council-clearance-archive` is the change
+# that writes both halves here. THAT ORDERING RULING IS NOT WHAT GRANTS THESE TWO
+# ENTRIES, and the difference is recorded rather than blurred: its own record says
+# it is "recorded for provenance and NOT disposed by this section", so it decides
+# which packet re-derives when and nothing about this file. The ENTRIES are
+# granted by a SECOND, LATER word given on exactly that question — Brett Heap,
+# 2026-09-12T03:04:29.167Z, "ratified_by — ratify the entries as encoded" — which
+# is why they carry `ratified_by:`, the stronger of the two authorities this pin
+# admits, and not the `recorded_by:` an earlier draft of them reached for.
+#
 # THE DISPOSITIONS ARE UPGRADE-COUPLED AND STALE-REFUSED, which is what keeps
 # them from becoming a suppression list.
 #
@@ -303,7 +337,7 @@ lockfile_packages: "80"
 # THE MECHANISM SURVIVES THE ROLLBACK: `1.2.0` and `1.12.0` emit the SAME
 # machine-readable report shape (verified by running both), so a pin returned to
 # `1.2.0` still parses. Its `dispositions:` list, however, does NOT survive: the
-# five entries below exist only because 1.12.0 raises those findings and 1.2.0
+# six entries below exist only because 1.12.0 raises those findings and 1.2.0
 # does not, so a rollback that kept them would refuse `pin-disposition-stale` on
 # its first run — on EVERY tree, since a rollback un-raises the findings in both
 # repositories at once. A rollback deletes the dispositions with the version.
@@ -382,17 +416,43 @@ resync_runbook: docs/contract-versioning-policy.md
 # cover the same finding; and it refuses `pin-disposition-stale` when a declared
 # finding no longer occurs, so an exception cannot outlive its condition.
 #
-# EVERY ENTRY BELOW IS THE SAME DISAGREEMENT, five times: 1.12.0's
-# scenario-currency check cannot read this estate's reserved narrowing marker,
-# and so demands the restoration of scenario titles five declared changes
-# deliberately narrowed. THEY ARE TWO GROUPS IN TWO REPOSITORIES, kept apart by
-# `repo:` and by nothing else: TWO in openxFactory (#677, "take exit 2") and
-# THREE in codexFactory — the pair `disposition-codexfactory-declared-renames`
-# wrote ("use recommended name, go on 3 repo shape") and the third that
+# THE SIX ENTRIES BELOW ARE NOT ONE DISAGREEMENT REPEATED. They are TWO CLASSES,
+# told apart by CAUSE and not by repository, and a reader who reads them as one
+# list will mis-read four of them. UNTIL 2026-09-11 THERE WAS ONLY THE FIRST
+# CLASS, and this paragraph is where the second is declared.
+#
+#   * MARKER-BLINDNESS, four entries. 1.12.0's scenario-currency check cannot
+#     read this estate's reserved narrowing marker, and so demands the
+#     restoration of scenario titles four declared changes deliberately
+#     narrowed. Each of the four CITES the promoted `Merged into` marker
+#     requirement in `doc-health`, because the marker is what makes its omission
+#     a declaration.
+#   * CANON MOVED UNDER AN UN-RE-DERIVED DELTA, two entries. An archive PROMOTED
+#     a retitle, and two still-ACTIVE changes hold a `## MODIFIED` block for the
+#     same requirement written against canon as it read before. NOTHING IS
+#     DECLARED IN THOSE BLOCKS AND NOTHING SHOULD BE: neither change performed
+#     the retitle, so neither has a marker to write and neither is missing one.
+#     The omission is a delta awaiting its turn in an ORDER A CONVENER RULED.
+#     These two cite `doc-health`'s "Currency of an active change's MODIFIED
+#     requirement blocks" — the requirement that DEFINES this check and holds
+#     that it reads every active change whatever its lifecycle standing — and
+#     the ruling that fixes the order. THEY ARE EXPECTED TO BE SHORT-LIVED, and
+#     nothing in either is written to survive its change's re-derivation.
+#
+# THEY ARE ALSO TWO GROUPS IN TWO REPOSITORIES, kept apart by `repo:` and by
+# nothing else: TWO in openxFactory (#677, "take exit 2") and FOUR in
+# codexFactory — of the pair `disposition-codexfactory-declared-renames` wrote
+# ("use recommended name, go on 3 repo shape") ONE now stands, its sibling
+# retired on 2026-09-11 by the archive its own `retires_when:` named; the entry
 # `disposition-codexfactory-floor-relocation-retitle` writes ("go A, ratify the
-# disposition entry as encoded"). Each group is out of scope — neither applied
-# nor stale — on the other's tree. The `finding:` text is quoted from the tool's
-# own JSON report, verbatim, per repository.
+# disposition entry as encoded"); and the pair
+# `disposition-codexfactory-regular-pr-council-clearance-archive` writes ("This
+# change first", RECORDED rather than ratified). ONE codexFactory CHANGE CARRIES
+# TWO ENTRIES, in two different delta paths and in two different classes —
+# `relocate-review-authority-floor` — and they retire on different events, so
+# neither may be read as covering the other. Each group is out of scope —
+# neither applied nor stale — on the other's tree. The `finding:` text is quoted
+# from the tool's own JSON report, verbatim, per repository.
 dispositions:
   - repo: openxFactory
     item: add-chain-attestation
@@ -449,37 +509,26 @@ dispositions:
   # INTERACT: on codexFactory's tree the openxFactory pair is out of scope —
   # neither applied nor stale — and on openxFactory's tree these two are, which
   # is the property that lets one pin file govern a fleet.
-  - repo: codexFactory
-    item: add-regular-pr-council-clearance
-    path: merge-master-approval/spec.md
-    level: ERROR
-    finding: 'MODIFIED "Bounded autonomous surface" omits scenario(s) the current spec still has: "A human-authored pull request is never auto-approved". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
-    why: >-
-      A RETITLE AND NARROWING declared with the reserved `Merged into` marker —
-      converted from a `Removed from canon` marker by codexFactory PR #216 on
-      Brett Heap's 2026-09-05 ruling, because canon holds that a block adding a
-      title canon does not carry is a retitle whatever the marker calls it. A
-      human-authored pull request is still never approved by the tier-1 envelope
-      alone; approval may now ALSO come from tier-2 council clearance pinned to
-      the candidate's exact head SHA, which is the BREAKING change that packet
-      declares. Copying the old scenario back would reinstate a bar the change
-      was ratified to lower.
-    cited_to:
-      - openspec/specs/doc-health/spec.md:1770 — the promoted `Merged into` marker requirement, whose written form the codexFactory block uses
-      - openspec/specs/doc-health/spec.md:1750 — "That shape is a retitle, whatever the marker calls it", the line that makes `Merged into` the right instrument here and `Removed from canon` the wrong one
-      - council LA-A1 — the ruling that reserved the marker forms
-      - codexFactory PR #216 (prepare-openspec-1.12-readiness, head b2a6af34) — the packet that converted the marker and measured what survived
-      - codexFactory openspec/changes/prepare-openspec-1.12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md — the measurement, `Totals: 23 passed, 2 failed (25 items)`, and § "The two refusals"
-      - codexFactory openspec/changes/add-regular-pr-council-clearance/specs/merge-master-approval/spec.md:139 — the marker itself, in the block the finding names
-    ratified_by: 'Brett Heap, 2026-09-05, "use recommended name, go on 3 repo shape" (the plan) and "ratify 697" (this change; openspec/changes/disposition-codexfactory-declared-renames/review/ratification-2026-09-05.md)'
-    retires_when: >-
-      add-regular-pr-council-clearance archives IN codexFactory — and on that day
-      codexFactory's own `--all` run REFUSES `pin-disposition-stale` until this
-      entry is deleted, which is the mechanism working. It is not near: the
-      change carries `Status: draft` and its ratification is Brett's, unscheduled.
-      Nothing openxFactory does to its own corpus retires this entry, and nothing
-      about this entry can make openxFactory's own gate refuse.
-
+  # RETIRED 2026-09-11 by
+  # `disposition-codexfactory-regular-pr-council-clearance-archive`: THE PAIR THE
+  # PARAGRAPH ABOVE DESCRIBES NOW STANDS AT ONE ENTRY. The paragraph is LEFT AS
+  # ITS OWN CHANGE WROTE IT, because it is a dated record of what arrived on
+  # 2026-09-05 and stays true of that day; the later fact belongs in a later
+  # paragraph, which is this one. `add-regular-pr-council-clearance` ARCHIVED in
+  # codexFactory (PR #434, head `87ea247f`) — the exact event its entry's own
+  # `retires_when:` named, in those words: "on that day codexFactory's own
+  # `--all` run REFUSES `pin-disposition-stale` until this entry is deleted,
+  # which is the mechanism working". Measured on that head before the deletion:
+  # `Totals: 33 passed, 3 failed (36 items)`, 2 applied, `REFUSE
+  # pin-disposition-stale` naming exactly that entry, exit 2. THE ENTRY IS
+  # DELETED RATHER THAN MARKED: deletion is this file's only form for a
+  # retirement — there is no retired section and no `retired:` key — and it is
+  # the tool's own remediation, "delete the entry from `dispositions:` in
+  # contracts/openspec-cli-pin.yaml, in a change that says the condition is
+  # gone". AND THE SAME ARCHIVE RAISED TWO NEW FINDINGS, at the BOTTOM of this
+  # list and in the OTHER class: the archive promoted the retitle this entry was
+  # granted for, and two still-ACTIVE changes restate that requirement as it read
+  # before.
   - repo: codexFactory
     item: amend-composition-selector-labelling
     path: domain-hermes-content/spec.md
@@ -577,3 +626,126 @@ dispositions:
       codexFactory main on this entry, and the correct order is #318 first, the
       pin advance second (coordinated on codexFactory #333). Both runs are in
       openspec/changes/disposition-codexfactory-floor-relocation-retitle/evidence/codexfactory-floor-relocation-2026-09-10.md.
+
+  # ---- codexFactory, added 2026-09-11 by
+  # `disposition-codexfactory-regular-pr-council-clearance-archive`.
+  # A FOURTH AND FIFTH codexFactory ENTRY — AND THE FIRST TWO IN THIS WHOLE LIST
+  # THAT ARE NOT MARKER-BLINDNESS. The check is the same; the CAUSE is new, and
+  # the difference is the reason these two are written out rather than folded in
+  # beside the pair above. codeXfactory/codexFactory PR #434 archives
+  # `add-regular-pr-council-clearance`, which PROMOTED that packet's
+  # `## MODIFIED "Bounded autonomous surface"` block into
+  # `openspec/specs/merge-master-approval/spec.md` — replacing canon's single
+  # scenario "A human-authored pull request is never auto-approved" with "A
+  # human-authored pull request is never approved by tier 1 alone" and "A
+  # gate-integrity path is never approved autonomously". TWO still-ACTIVE changes
+  # hold their own `## MODIFIED` block for that same requirement, each written
+  # against PRE-ARCHIVE canon, so each now omits two scenarios canon carries.
+  # NEITHER BLOCK CARRIES A MARKER AND NEITHER SHOULD: a marker declares a
+  # deletion its author made, and these authors made none — canon moved
+  # underneath them. Measured on #434's head `87ea247f`: with the archived
+  # entry deleted and nothing added, exit 1 with exactly these two
+  # UNDISPOSITIONED; with both added, exit 0. Brett Heap ruled the ORDERING on
+  # 2026-09-11 — "This change first" — so each sibling delta re-derives against
+  # the archived canon before its own archive, and each re-derivation RETIRES its
+  # entry here. TWO RULINGS STAND BEHIND THESE TWO ENTRIES AND THEY ARE DIFFERENT
+  # ACTS, which is why both are cited. The ORDERING is Brett Heap's "This change
+  # first" of 2026-09-11, whose own record says it is "recorded for provenance and
+  # NOT disposed by this section" — it decides which packet re-derives when, and
+  # nothing about this file. THE ENTRIES THEMSELVES are ratified by his word of
+  # 2026-09-12T03:04:29.167Z, "ratified_by — ratify the entries as encoded", given
+  # first-hand on exactly the question of which of the two authorities this pin
+  # admits these entries may claim. The draft carried `recorded_by:` on the weaker
+  # reading; that word supersedes it, and `ratified_by:` is what stands. IT IS NOT
+  # A MERGE and it is not a ratification of the packet's own documents, which land
+  # `Status: draft`.
+  - repo: codexFactory
+    item: extend-merge-master-envelope-to-floor-bot-lanes
+    path: merge-master-approval/spec.md
+    level: ERROR
+    finding: 'MODIFIED "Bounded autonomous surface" omits scenario(s) the current spec still has: "A human-authored pull request is never approved by tier 1 alone", "A gate-integrity path is never approved autonomously". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      CANON MOVED UNDER A STILL-ACTIVE DELTA, BY A RULED ORDERING, AND THE DELTA
+      HAS NOT YET BEEN RE-DERIVED. This block was authored against canon as it
+      read before `add-regular-pr-council-clearance` archived; that archive is
+      what retitled "A human-authored pull request is never auto-approved" into
+      "A human-authored pull request is never approved by tier 1 alone" and added
+      "A gate-integrity path is never approved autonomously". THIS IS NOT THE
+      MARKER-BLINDNESS THE FOUR ENTRIES ABOVE CARRY — this packet declared
+      nothing and has nothing to declare, so no reserved marker belongs in the
+      block and none is missing from it. Copying the two new scenarios in TODAY
+      would make this packet restate a requirement it does not govern and was
+      never reviewed against, so the finding is carried until the packet
+      re-derives its MODIFIED block against the archived canon — which is the act
+      the convener's ordering ruling assigns to it.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1597 — "Currency of an active change's MODIFIED requirement blocks", the promoted requirement that defines this check: it compares an active delta against "the requirement as the promoted specification currently states it", which is precisely the comparison that moved when the archive promoted the retitle
+      - openspec/specs/doc-health/spec.md:1625 — "The family SHALL read every active change regardless of its lifecycle standing", the line that makes this finding legitimate rather than a false positive, and therefore the reason this is an exception to ACCEPT and not a defect to argue away
+      - codexFactory hermes/domain/review-councils/records/2026-09-11-gate-rules-provenance-axis-declaration.md:656-659, § 8 CONVENER DISPOSITION — Brett Heap, 2026-09-11 — the ordering ruling, verbatim, "Ruled in the same exchange, recorded for provenance and NOT disposed by this section: ... and, on the parent change's delta ordering, *"This change first"*."
+      - codexFactory PR #434 (archive/add-regular-pr-council-clearance, head 87ea247f) — the archive that raised this finding, and the pull request whose own `validate` gate reads it
+      - codexFactory openspec/changes/archive/2026-09-11-add-regular-pr-council-clearance/specs/merge-master-approval/spec.md — the MODIFIED block that promoted the two scenarios, in the archived packet
+      - codexFactory openspec/specs/merge-master-approval/spec.md:205 — "### Requirement: Bounded autonomous surface", the promoted canon the finding measures against, at head 87ea247f
+      - codexFactory openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/specs/merge-master-approval/spec.md:5 — the MODIFIED block the finding names, still written against pre-archive canon
+      - openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/evidence/codexfactory-regular-pr-council-clearance-archive-2026-09-11.md — the measurement this entry rests on, all four runs, on #434's tree and on codexFactory main
+    ratified_by: 'Brett Heap, 2026-09-12, "ratified_by — ratify the entries as encoded" (https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862) — given 2026-09-12T03:04:29.167Z, first-hand, in session to lane `provenance-autonomous-merge` (session `codeXfactory-3`), as a selection in a multiple-choice round on the AUTHORITY SPELLING of these two entries. It SUPERSEDES the draft reading that took `recorded_by:` because the earlier ordering ruling was recorded rather than disposed: the convener ratifies these entries AS ENCODED. The word covers the TEXT OF THESE TWO ENTRIES as encoded; it is NOT a ratification of the packet documents, which land Status: draft, and it is NOT a merge.'
+    retires_when: >-
+      `extend-merge-master-envelope-to-floor-bot-lanes` re-derives its `##
+      MODIFIED "Bounded autonomous surface"` block against the archived canon —
+      which the convener's ordering ruling requires before that change may itself
+      archive — or archives. On that day codexFactory's own `--all` run REFUSES
+      `pin-disposition-stale` until this entry is deleted, which is the mechanism
+      working. IT IS EXPECTED TO BE SHORT-LIVED, and that is the difference from
+      every entry above: nothing here is a declared rename to be preserved, only
+      a delta waiting its turn in a ruled order.
+      AND IT HAS A SECOND STALENESS CONDITION THAT IS LIVE TODAY, MEASURED
+      RATHER THAN PREDICTED, BECAUSE IT DECIDES A SEQUENCE. This finding exists
+      only where codexFactory PR #434's PROMOTION is present: until that archive
+      lands, `openspec/specs/merge-master-approval/spec.md` still carries the OLD
+      scenario title and the tool words the finding differently, so this entry
+      matches nothing on codexFactory `main`. Measured 2026-09-12 on codexFactory
+      main `3c31a2e4`, where #434 is still OPEN: this pin REFUSES
+      `pin-disposition-stale` (exit 2). SO codexFactory's DECLARED openxFactory
+      PIN MUST NOT ADVANCE TO THIS CHANGE'S MERGE COMMIT BEFORE #434 MERGES —
+      the correct order is #434 first (or the same moment), the pin advance
+      second, never before.
+
+  - repo: codexFactory
+    item: relocate-review-authority-floor
+    path: merge-master-approval/spec.md
+    level: ERROR
+    finding: 'MODIFIED "Bounded autonomous surface" omits scenario(s) the current spec still has: "A human-authored pull request is never approved by tier 1 alone", "A gate-integrity path is never approved autonomously". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
+    why: >-
+      THE SAME FACT AS THE ENTRY ABOVE, IN A SECOND STILL-ACTIVE PACKET, AND IT
+      IS THE SECOND FINDING THIS PIN CARRIES AGAINST ONE CHANGE — read the two
+      together or neither is legible. That change's OTHER entry, on
+      `repository-gate-floor/spec.md`, is a DECLARED RETITLE carrying the
+      reserved `Merged into` marker and is marker-blindness; THIS one is not, and
+      the two retire on different events. This block was authored against canon
+      as it read before `add-regular-pr-council-clearance` archived. Copying the
+      two new scenarios in today would make this packet restate a requirement it
+      does not govern and was never reviewed against, so the finding is carried
+      until the packet re-derives against the archived canon.
+    cited_to:
+      - openspec/specs/doc-health/spec.md:1597 — "Currency of an active change's MODIFIED requirement blocks", the promoted requirement that defines this check and the comparison the archive's promotion moved
+      - openspec/specs/doc-health/spec.md:1625 — "The family SHALL read every active change regardless of its lifecycle standing", which is why this is an exception to ACCEPT rather than a false positive to argue away
+      - codexFactory hermes/domain/review-councils/records/2026-09-11-gate-rules-provenance-axis-declaration.md:656-659, § 8 CONVENER DISPOSITION — Brett Heap, 2026-09-11 — the ordering ruling, verbatim, "Ruled in the same exchange, recorded for provenance and NOT disposed by this section: ... and, on the parent change's delta ordering, *"This change first"*."
+      - codexFactory PR #434 (archive/add-regular-pr-council-clearance, head 87ea247f) — the archive that raised this finding, and the pull request whose own `validate` gate reads it
+      - codexFactory openspec/changes/archive/2026-09-11-add-regular-pr-council-clearance/specs/merge-master-approval/spec.md — the MODIFIED block that promoted the two scenarios, in the archived packet
+      - codexFactory openspec/specs/merge-master-approval/spec.md:205 — "### Requirement: Bounded autonomous surface", the promoted canon the finding measures against, at head 87ea247f
+      - codexFactory openspec/changes/relocate-review-authority-floor/specs/merge-master-approval/spec.md:5 — the MODIFIED block the finding names, still written against pre-archive canon
+      - contracts/openspec-cli-pin.yaml — this pin's OTHER entry for the SAME change, the one whose `path` names the repository-gate-floor delta rather than this one: a DECLARED retitle and therefore marker-blindness, retiring on a different event, named here so no reader takes one entry to cover the other and no deletion of one implies the other
+      - openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/evidence/codexfactory-regular-pr-council-clearance-archive-2026-09-11.md — the measurement this entry rests on, all four runs, on #434's tree and on codexFactory main
+    ratified_by: 'Brett Heap, 2026-09-12, "ratified_by — ratify the entries as encoded" (https://github.com/opensoft/openxFactory/issues/745#issuecomment-5643056862) — given 2026-09-12T03:04:29.167Z, first-hand, in session to lane `provenance-autonomous-merge` (session `codeXfactory-3`), as a selection in a multiple-choice round on the AUTHORITY SPELLING of these two entries. It SUPERSEDES the draft reading that took `recorded_by:` because the earlier ordering ruling was recorded rather than disposed: the convener ratifies these entries AS ENCODED. The word covers the TEXT OF THESE TWO ENTRIES as encoded; it is NOT a ratification of the packet documents, which land Status: draft, and it is NOT a merge.'
+    retires_when: >-
+      `relocate-review-authority-floor` re-derives its `## MODIFIED "Bounded
+      autonomous surface"` block against the archived canon — which the
+      convener's ordering ruling requires before that change may itself archive —
+      or archives. Its OTHER entry in this pin retires on a DIFFERENT event (that
+      change's archive alone, the retitle there being declared and permanent), so
+      the two SHALL be re-read separately and neither deletion implies the other.
+      AND THE SAME SECOND STALENESS CONDITION IS LIVE TODAY, for the same reason
+      and by the same measurement: on codexFactory main `3c31a2e4`, where #434 is
+      still OPEN, canon carries the OLD scenario title, this entry matches
+      nothing, and this pin REFUSES `pin-disposition-stale` (exit 2).
+      codexFactory's declared openxFactory pin MUST NOT advance to this change's
+      merge commit before #434 merges.
